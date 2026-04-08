@@ -8,6 +8,7 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.platform.Platform;
 import core.platform.litiengine.render.LitiengineCameraViews;
+import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.level.utils.Coordinate;
@@ -97,7 +98,7 @@ public final class PointMode extends LevelEditorMode {
 
   @Override
   public void render(Graphics2D g, float deltaSeconds) {
-    renderPointMarkers(g);
+    renderPointMarkers();
   }
 
   @Override
@@ -178,89 +179,87 @@ public final class PointMode extends LevelEditorMode {
     dialogUI.registerCallback(DialogContextKeys.ON_CANCEL, data -> UIUtils.closeDialog(dialogUI, true));
   }
 
-  private void renderPointMarkers(Graphics2D g) {
+  private void renderPointMarkers() {
     LitiengineCameraViews.View view = LitiengineCameraViews.get();
     if (view == null || view.tilePx() <= 0) {
       return;
     }
 
-    Graphics2D g2 = (Graphics2D) g.create();
-    try {
-      system()
-        .currentDungeonLevelForModes()
-        .ifPresent(
-          level -> {
-            int levelHeight = level.layout().length;
-            int markerSize =
-              Math.clamp(view.tilePx() / 3, POINT_MARKER_MIN_PX, POINT_MARKER_MAX_PX);
+    system()
+      .currentDungeonLevelForModes()
+      .ifPresent(
+        level -> {
+          int levelHeight = level.layout().length;
+          int markerSize = Math.clamp(view.tilePx() / 3, POINT_MARKER_MIN_PX, POINT_MARKER_MAX_PX);
 
-            level.namedPoints()
-              .forEach(
-                (name, pos) ->
-                  drawNamedPointMarker(g2, name, pos, levelHeight, view, markerSize));
+          level.namedPoints()
+            .forEach((name, pos) -> drawNamedPointMarker(name, pos, levelHeight, view, markerSize));
 
-            if (heldPointName != null) {
-              drawHeldPointGhost(
-                g2, heldPointName, currentSnapPosition(), levelHeight, view, markerSize);
-            }
-          });
-    } finally {
-      g2.dispose();
-    }
+          if (heldPointName != null) {
+            drawHeldPointGhost(heldPointName, currentSnapPosition(), levelHeight, view, markerSize);
+          }
+        });
   }
 
   private void drawNamedPointMarker(
-    Graphics2D g,
     String name,
     Point pointPos,
     int levelHeight,
     LitiengineCameraViews.View view,
     int markerSize) {
 
-    int tilePx = view.tilePx();
-    int screenX = (int) Math.round(pointPos.x() * tilePx + view.offsetX() + tilePx * 0.5f);
-
-    float screenTileY =
-      levelHeight > 0 ? (levelHeight - 1 - pointPos.y()) * tilePx : pointPos.y() * tilePx;
-    int screenY = (int) Math.round(screenTileY + view.offsetY() + tilePx * 0.5f);
-
-    int radius = markerSize / 2;
+    Point screenCenter = screenCenterOf(pointPos, levelHeight, view);
     boolean heldPoint = name != null && name.equals(heldPointName);
 
-    g.setColor(heldPoint ? HELD_POINT_MARKER_COLOR : POINT_MARKER_COLOR);
-    g.fillOval(screenX - radius, screenY - radius, markerSize, markerSize);
+    LitiengineDebugDrawSystem.drawScreenMarker(
+      screenCenter,
+      markerSize,
+      heldPoint ? HELD_POINT_MARKER_COLOR : POINT_MARKER_COLOR,
+      Color.BLACK);
 
-    g.setColor(Color.BLACK);
-    g.drawOval(screenX - radius, screenY - radius, markerSize, markerSize);
-
-    g.setColor(POINT_LABEL_COLOR);
-    g.drawString(name, screenX + radius + 4, screenY - 4);
+    int radius = markerSize / 2;
+    LitiengineDebugDrawSystem.drawText(
+      name,
+      new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4),
+      POINT_LABEL_COLOR);
   }
 
   private void drawHeldPointGhost(
-    Graphics2D g,
     String name,
     Point pointPos,
     int levelHeight,
     LitiengineCameraViews.View view,
     int markerSize) {
 
-    int tilePx = view.tilePx();
-    int screenX = (int) Math.round(pointPos.x() * tilePx + view.offsetX() + tilePx * 0.5f);
+    Point screenCenter = screenCenterOf(pointPos, levelHeight, view);
 
-    float screenTileY =
-      levelHeight > 0 ? (levelHeight - 1 - pointPos.y()) * tilePx : pointPos.y() * tilePx;
-    int screenY = (int) Math.round(screenTileY + view.offsetY() + tilePx * 0.5f);
+    LitiengineDebugDrawSystem.drawScreenMarker(
+      screenCenter,
+      markerSize,
+      HELD_POINT_MARKER_COLOR,
+      Color.BLACK);
 
     int radius = markerSize / 2;
+    LitiengineDebugDrawSystem.drawText(
+      name + " (held)",
+      new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4),
+      POINT_LABEL_COLOR);
+  }
 
-    g.setColor(HELD_POINT_MARKER_COLOR);
-    g.fillOval(screenX - radius, screenY - radius, markerSize, markerSize);
+  private Point screenCenterOf(
+    Point pointPos,
+    int levelHeight,
+    LitiengineCameraViews.View view) {
 
-    g.setColor(Color.BLACK);
-    g.drawOval(screenX - radius, screenY - radius, markerSize, markerSize);
+    int tilePx = view.tilePx();
 
-    g.setColor(POINT_LABEL_COLOR);
-    g.drawString(name + " (held)", screenX + radius + 4, screenY - 4);
+    float screenX = (float) (pointPos.x() * tilePx + view.offsetX() + tilePx * 0.5f);
+    float screenTileY =
+      levelHeight > 0
+        ? ((levelHeight - 1 - pointPos.y()) * tilePx)
+        : (pointPos.y() * tilePx);
+    float screenY = (float) (screenTileY + view.offsetY() + tilePx * 0.5f);
+
+    return new Point(screenX, screenY);
   }
 }

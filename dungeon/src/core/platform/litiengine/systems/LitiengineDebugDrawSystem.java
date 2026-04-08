@@ -33,6 +33,7 @@ public final class LitiengineDebugDrawSystem extends System {
 
   private static final List<WorldRectangle> WORLD_RECTANGLES = new ArrayList<>();
   private static final List<ScreenText> SCREEN_TEXTS = new ArrayList<>();
+  private static final List<ScreenMarker> SCREEN_MARKERS = new ArrayList<>();
 
   private static volatile boolean hudVisible = true;
 
@@ -66,12 +67,15 @@ public final class LitiengineDebugDrawSystem extends System {
 
     List<WorldRectangle> rectangles;
     List<ScreenText> texts;
+    List<ScreenMarker> markers;
 
     synchronized (LOCK) {
       rectangles = new ArrayList<>(WORLD_RECTANGLES);
       texts = new ArrayList<>(SCREEN_TEXTS);
+      markers = new ArrayList<>(SCREEN_MARKERS);
       WORLD_RECTANGLES.clear();
       SCREEN_TEXTS.clear();
+      SCREEN_MARKERS.clear();
     }
 
     Graphics2D g = (Graphics2D) base.create();
@@ -84,6 +88,7 @@ public final class LitiengineDebugDrawSystem extends System {
           : Game.currentLevel().map(level -> level.layout().length).orElse(0);
 
       renderWorldRectangles(g, rectangles, view, levelHeight);
+      renderScreenMarkers(g, markers);
       renderScreenTexts(g, texts);
     } finally {
       g.dispose();
@@ -103,6 +108,7 @@ public final class LitiengineDebugDrawSystem extends System {
     synchronized (LOCK) {
       WORLD_RECTANGLES.clear();
       SCREEN_TEXTS.clear();
+      SCREEN_MARKERS.clear();
     }
   }
 
@@ -146,6 +152,28 @@ public final class LitiengineDebugDrawSystem extends System {
 
   public static void drawText(String text, Point screen) {
     drawText(text, screen, Color.WHITE);
+  }
+
+  /**
+   * Queues a filled screen-space marker circle for the current frame.
+   *
+   * @param center center position in screen pixels
+   * @param diameterPx marker diameter in pixels
+   * @param fillColor fill color, may be null
+   * @param outlineColor outline color, may be null
+   */
+  public static void drawScreenMarker(
+    Point center, int diameterPx, Color fillColor, Color outlineColor) {
+
+    Objects.requireNonNull(center, "center must not be null");
+
+    if (diameterPx <= 0) {
+      return;
+    }
+
+    synchronized (LOCK) {
+      SCREEN_MARKERS.add(new ScreenMarker(center, diameterPx, fillColor, outlineColor));
+    }
   }
 
   @Override
@@ -206,7 +234,31 @@ public final class LitiengineDebugDrawSystem extends System {
     }
   }
 
+  private static void renderScreenMarkers(Graphics2D g, List<ScreenMarker> markers) {
+    if (markers.isEmpty()) {
+      return;
+    }
+
+    for (ScreenMarker marker : markers) {
+      int radius = marker.diameterPx() / 2;
+      int x = Math.round(marker.center().x()) - radius;
+      int y = Math.round(marker.center().y()) - radius;
+
+      if (marker.fillColor() != null) {
+        g.setColor(marker.fillColor());
+        g.fillOval(x, y, marker.diameterPx(), marker.diameterPx());
+      }
+
+      if (marker.outlineColor() != null) {
+        g.setColor(marker.outlineColor());
+        g.drawOval(x, y, marker.diameterPx(), marker.diameterPx());
+      }
+    }
+  }
+
   private record WorldRectangle(float x, float y, float width, float height, Color color) {}
 
   private record ScreenText(String text, Point screen, Color color) {}
+
+  private record ScreenMarker(Point center, int diameterPx, Color fillColor, Color outlineColor) {}
 }
