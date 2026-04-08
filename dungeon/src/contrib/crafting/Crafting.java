@@ -95,8 +95,9 @@ public final class Crafting {
       String path =
           new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
               .getParent()
-              // replace protocols
+              // replace protocols for windows
               .replaceAll("(!|file:\\\\)", "")
+              // replace protocols for unix/macos
               .replaceAll("(!|file:)", "")
               // replace the url whitespaces with real whitespaces
               .replace("%20", " ");
