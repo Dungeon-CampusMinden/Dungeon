@@ -13,7 +13,7 @@ public Point calculatePortalExit(Entity portal) {
 
     Point portalPosition = Tools.getPosition(otherPortal);
     Direction portalViewDirection = Tools.getViewDirection(otherPortal);
-    new Point(portalPosition.x() + portalViewDirection.x(), portalPosition.y() + portalViewDirection.y());
+    return portalPosition.translate(portalViewDirection);
 }
 
 ```
