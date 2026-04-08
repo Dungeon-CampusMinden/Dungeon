@@ -1,7 +1,7 @@
 package portal.energyPellet;
 
 import contrib.components.HealthComponent;
-import contrib.components.PortableComponent;
+import portal.portals.components.PortableComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;

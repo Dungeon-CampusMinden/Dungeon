@@ -1,4 +1,4 @@
-package contrib.components;
+package portal.portals.components;
 
 import core.Component;
 

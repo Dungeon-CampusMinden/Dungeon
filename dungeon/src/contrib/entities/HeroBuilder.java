@@ -304,9 +304,6 @@ public final class HeroBuilder {
     characterClass.startItems().forEach(invComp::add);
     hero.add(invComp);
 
-    PortableComponent transportComp = new PortableComponent();
-    hero.add(transportComp);
-
     // only local player can control the hero
     if (isLocal) {
       setupControls(inputComp, characterClass);
