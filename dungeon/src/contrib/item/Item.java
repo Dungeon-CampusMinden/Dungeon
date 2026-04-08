@@ -369,4 +369,20 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   public CraftingType resultType() {
     return CraftingType.ITEM;
   }
+
+  @Override
+  public Item copy() {
+    Item copy = new Item(
+      this.displayName,
+      this.description,
+      this.inventoryAnimation,
+      this.worldAnimation,
+      this.stackSize,
+      this.maxStackSize
+    );
+
+    copy.simpleInteraction = this.simpleInteraction;
+
+    return copy;
+  }
 }

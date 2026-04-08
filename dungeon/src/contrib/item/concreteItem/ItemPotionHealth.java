@@ -86,4 +86,14 @@ public class ItemPotionHealth extends Item {
     }
     return other.heal_amount == this.heal_amount;
   }
-}
+
+  @Override
+  public ItemPotionHealth copy() {
+    if (this.heal_amount == HealthPotionType.WEAK.getHealAmount()) {
+      return new ItemPotionHealth(HealthPotionType.WEAK);
+    }
+  if (this.heal_amount == HealthPotionType.NORMAL.getHealAmount()) {
+     return new ItemPotionHealth(HealthPotionType.NORMAL);
+   }
+   return new ItemPotionHealth(HealthPotionType.GREATER);
+ }

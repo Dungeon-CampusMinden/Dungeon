@@ -74,6 +74,11 @@ public record Recipe(boolean ordered, CraftingIngredient[] ingredients, Crafting
   public CraftingResult[] results() {
     CraftingResult[] copy = new CraftingResult[this.results.length];
     System.arraycopy(this.results, 0, copy, 0, this.results.length);
+
+    for (int i = 0; i < this.results.length; i++) {
+      copy[i] = this.results[i].copy();
+    }
     return copy;
+  }
   }
 }
