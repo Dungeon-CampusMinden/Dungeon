@@ -8,4 +8,4 @@ import core.Component;
  * <p>p>It is used in PortalCollisionHandler to filter entities that have this component. Only those
  * entities will be teleported.
  */
-public record TransportableComponent() implements Component {}
+public record PortableComponent() implements Component {}

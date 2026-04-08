@@ -2,7 +2,7 @@ package portal.portals;
 
 import contrib.components.CollideComponent;
 import contrib.components.ProjectileComponent;
-import contrib.components.TransportableComponent;
+import contrib.components.PortableComponent;
 import contrib.systems.EventScheduler;
 import core.Entity;
 import core.Game;
@@ -80,7 +80,7 @@ public class PortalCollisionHandler {
   /**
    * Returns a consumer that teleports an entity that collides with the blue portal to the
    * corresponding green portal. If the entity has a {@link PortalExtendComponent} its going to
-   * extend it if both portals are alive. Only entities with {@link TransportableComponent} are
+   * extend it if both portals are alive. Only entities with {@link PortableComponent} are
    * teleported;
    *
    * @param portalColor the color of the portal
@@ -100,7 +100,7 @@ public class PortalCollisionHandler {
       }
 
       if (other.fetch(PortalIgnoreComponent.class).isPresent()) return;
-      if (other.fetch(TransportableComponent.class).isEmpty()) return;
+      if (other.fetch(PortableComponent.class).isEmpty()) return;
       if (otherPortal.isEmpty()) return;
       if (isEntityPortal(other)) return;
       if (isPlayerFacingWrongDirection(other, portalPc, otherPc)) return;
@@ -155,7 +155,7 @@ public class PortalCollisionHandler {
         return;
       }
 
-      if (other.fetch(TransportableComponent.class).isEmpty()) {
+      if (other.fetch(PortableComponent.class).isEmpty()) {
         return;
       }
 
