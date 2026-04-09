@@ -95,6 +95,7 @@ public final class LitiengineInputBridge {
       case KeyEvent.VK_5, KeyEvent.VK_NUMPAD5 -> Keys.NUM_5;
       case KeyEvent.VK_6, KeyEvent.VK_NUMPAD6 -> Keys.NUM_6;
       case KeyEvent.VK_7, KeyEvent.VK_NUMPAD7 -> Keys.NUM_7;
+      case KeyEvent.VK_8, KeyEvent.VK_NUMPAD8 -> Keys.NUM_8;
 
       // Keys used by our KeyboardConfig(s)
       case KeyEvent.VK_E -> Keys.E;
