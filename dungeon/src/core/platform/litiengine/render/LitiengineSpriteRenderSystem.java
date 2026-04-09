@@ -301,7 +301,9 @@ public final class LitiengineSpriteRenderSystem extends System {
 
     final Point target = resolveCameraFocus(levelOpt);
     this.cameraActual = CameraMath.stepTowardsFocus(this.cameraActual, target, CAMERA_LERP);
+
     final Point focus = this.cameraActual != null ? this.cameraActual : target;
+    LitiengineCameraState.focusPosition(focus);
 
     final Rectangle worldBounds =
       CameraMath.worldBounds(

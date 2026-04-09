@@ -1,10 +1,12 @@
 package core.platform;
 
+import core.utils.Point;
+
 /**
  * Backend-specific camera access for gameplay/debug helpers.
  *
- * <p>This interface intentionally stays very small. For now it only exposes the camera zoom that
- * is currently needed outside backend packages.
+ * <p>This interface intentionally stays small. For now it exposes zoom and the current
+ * focus position / camera center in world units.
  */
 public interface CameraAdapter {
 
@@ -32,6 +34,33 @@ public interface CameraAdapter {
    * @param zoom new zoom factor
    */
   default void zoom(float zoom) {
+    // no-op by default
+  }
+
+  /**
+   * Returns whether the active backend exposes its current focus position.
+   *
+   * @return {@code true} if the focus position can be read/written
+   */
+  default boolean supportsFocusPosition() {
+    return false;
+  }
+
+  /**
+   * Returns the current focus position / camera center in world units.
+   *
+   * @return current focus position; default is the origin
+   */
+  default Point focusPosition() {
+    return new Point(0, 0);
+  }
+
+  /**
+   * Updates the current focus position / camera center.
+   *
+   * @param focusPosition new focus position
+   */
+  default void focusPosition(Point focusPosition) {
     // no-op by default
   }
 }
