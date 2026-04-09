@@ -62,6 +62,13 @@ public final class LitiengineCameraState {
     followTarget = copy(newFollowTarget);
   }
 
+  public static void seedFocus(Point seededFocus) {
+    Objects.requireNonNull(seededFocus, "seededFocus");
+    followTarget = copy(seededFocus);
+    focusPosition = copy(seededFocus);
+    focusInitialized = true;
+  }
+
   /**
    * Advances the current focus toward the current follow target using backend-neutral camera math.
    *
