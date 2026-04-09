@@ -1,8 +1,15 @@
 package core.platform.litiengine;
 
+import core.Game;
+import core.camera.CameraMath;
+import core.components.CameraComponent;
+import core.components.PositionComponent;
+import core.game.ECSManagement;
+import core.level.Tile;
 import core.platform.CameraAdapter;
 import core.platform.litiengine.render.LitiengineCameraState;
 import core.utils.Point;
+import java.util.Optional;
 
 /** Camera adapter for the LITIENGINE backend. */
 public final class LitiengineCameraAdapter implements CameraAdapter {
@@ -35,5 +42,31 @@ public final class LitiengineCameraAdapter implements CameraAdapter {
   @Override
   public void focusPosition(Point focusPosition) {
     LitiengineCameraState.focusPosition(focusPosition);
+  }
+
+  @Override
+  public boolean supportsFollowTargetResolution() {
+    return true;
+  }
+
+  @Override
+  public Point resolveFollowTarget() {
+    Optional<Point> playerPos =
+      Game.player()
+        .flatMap(player -> player.fetch(PositionComponent.class))
+        .map(PositionComponent::position);
+
+    Optional<Point> cameraComponentPos =
+      ECSManagement.levelEntities()
+        .filter(entity -> entity.isPresent(CameraComponent.class))
+        .findFirst()
+        .flatMap(entity -> entity.fetch(PositionComponent.class))
+        .map(PositionComponent::position);
+
+    Optional<Point> trackedPoint = playerPos.isPresent() ? playerPos : cameraComponentPos;
+    Optional<Point> levelStartPoint =
+      Game.currentLevel().isPresent() ? Game.startTile().map(Tile::position) : Optional.empty();
+
+    return CameraMath.resolveFocus(trackedPoint, levelStartPoint);
   }
 }

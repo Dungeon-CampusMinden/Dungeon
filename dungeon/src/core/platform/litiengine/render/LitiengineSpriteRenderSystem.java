@@ -12,6 +12,7 @@ import core.game.ECSManagement;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
+import core.platform.Platform;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Time;
@@ -299,7 +300,7 @@ public final class LitiengineSpriteRenderSystem extends System {
       levelOpt.map(level -> level.layout() != null ? level.layout().length : 0).orElse(0);
     final int tilePx = effectiveTilePx();
 
-    final Point target = resolveCameraFocus(levelOpt);
+    final Point target = resolveCameraFollowTarget(levelOpt);
     this.cameraActual = CameraMath.stepTowardsFocus(this.cameraActual, target, CAMERA_LERP);
 
     final Point focus = this.cameraActual != null ? this.cameraActual : target;
@@ -331,9 +332,13 @@ public final class LitiengineSpriteRenderSystem extends System {
       offsetX, offsetY, minTileX, maxTileX, minTileY, maxTileY, levelHeight, tilePx);
   }
 
-  private Point resolveCameraFocus(Optional<ILevel> levelOpt) {
+  private Point resolveCameraFollowTarget(Optional<ILevel> levelOpt) {
+    if (Platform.camera().supportsFollowTargetResolution()) {
+      return Platform.camera().resolveFollowTarget();
+    }
+
     return CameraMath.resolveFocus(
-      resolveTrackedPoint(),
+      Optional.empty(),
       levelOpt.isPresent() ? Game.startTile().map(Tile::position) : Optional.empty());
   }
 

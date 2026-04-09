@@ -63,4 +63,25 @@ public interface CameraAdapter {
   default void focusPosition(Point focusPosition) {
     // no-op by default
   }
+
+  /**
+   * Returns whether the active backend can resolve a camera follow target from the current game
+   * state.
+   *
+   * @return {@code true} if follow-target resolution is supported
+   */
+  default boolean supportsFollowTargetResolution() {
+    return false;
+  }
+
+  /**
+   * Resolves the current camera follow target in world units.
+   *
+   * <p>Backends that do not support this may simply fall back to the current focus position.
+   *
+   * @return resolved camera follow target
+   */
+  default Point resolveFollowTarget() {
+    return focusPosition();
+  }
 }
