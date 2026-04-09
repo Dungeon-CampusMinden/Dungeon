@@ -18,12 +18,12 @@ import core.platform.Platform;
 import core.platform.litiengine.levelEditor.*;
 import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
+import core.platform.litiengine.render.LitiengineOverlaySizing;
 import core.platform.litiengine.ui.LitiengineLevelEditorOverlay;
 import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
 import core.ui.StageHandle;
 import core.utils.*;
 import core.utils.logging.DungeonLogger;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.*;
@@ -509,13 +509,12 @@ public final class LitiengineLevelEditorSystem extends System {
             .ifPresent(
               level -> {
                 renderDebugTiles(level, view);
-                renderDebugEntities(level.layout().length, view);
+                renderDebugEntities(view);
               }));
   }
 
   private void renderDebugTiles(DungeonLevel level, LitiengineCameraViews.View view) {
     Tile[][] layout = level.layout();
-    int levelHeight = layout.length;
     int tilePx = view.tilePx();
 
     for (int y = 0; y < layout.length; y++) {
@@ -537,16 +536,16 @@ public final class LitiengineLevelEditorSystem extends System {
         if (tilePx >= DEBUG_TEXT_MIN_TILE_PX) {
           LitiengineDebugDrawSystem.drawText(
             x + "," + y,
-            tileDebugTextPosition(x, y, levelHeight, view),
+            tileDebugTextPosition(x, y, view),
             DEBUG_COORD_TEXT_COLOR);
         }
       }
     }
   }
 
-  private void renderDebugEntities(int levelHeight, LitiengineCameraViews.View view) {
+  private void renderDebugEntities(LitiengineCameraViews.View view) {
     int tilePx = view.tilePx();
-    float insetWorld = DEBUG_ENTITY_INSET_PX / (float) tilePx;
+    float insetWorld = LitiengineOverlaySizing.worldInsetFromPixels(tilePx, DEBUG_ENTITY_INSET_PX);
     float sizeWorld = Math.max(0.05f, 1f - insetWorld * 2f);
 
     Game.levelEntities(Set.of(PositionComponent.class, DrawComponent.class))
@@ -569,7 +568,7 @@ public final class LitiengineLevelEditorSystem extends System {
           if (tilePx >= DEBUG_TEXT_MIN_TILE_PX) {
             LitiengineDebugDrawSystem.drawText(
               debugEntityLabel(entity),
-              entityDebugLabelPosition(pos, levelHeight, view),
+              entityDebugLabelPosition(pos, view),
               debugEntityColor(entity));
           }
         });
@@ -603,7 +602,7 @@ public final class LitiengineLevelEditorSystem extends System {
     showFeedback(message, color);
   }
 
-  public java.util.Optional<core.level.DungeonLevel> currentDungeonLevelForModes() {
+  public Optional<DungeonLevel> currentDungeonLevelForModes() {
     return currentDungeonLevel();
   }
 
@@ -614,36 +613,23 @@ public final class LitiengineLevelEditorSystem extends System {
   private Point tileDebugTextPosition(
     int tileX,
     int tileY,
-    int levelHeight,
     LitiengineCameraViews.View view) {
 
-    int tilePx = view.tilePx();
+    Point screenTopLeft = LitiengineCameraViews.worldToScreen(new Point(tileX, tileY));
 
-    float screenX = (float) (tileX * tilePx + view.offsetX() + 4);
-    float screenY =
-      (float)
-        ((levelHeight - 1 - tileY) * tilePx
-          + view.offsetY()
-          + Math.max(14, tilePx / 2));
-
-    return new Point(screenX, screenY);
+    return new Point(
+      screenTopLeft.x() + 4,
+      screenTopLeft.y() + LitiengineOverlaySizing.tileLabelYOffset(view.tilePx()));
   }
 
   private Point entityDebugLabelPosition(
     Point pos,
-    int levelHeight,
     LitiengineCameraViews.View view) {
 
-    int tilePx = view.tilePx();
+    Point screenTopLeft = LitiengineCameraViews.worldToScreen(pos);
 
-    float screenX = (float) (pos.x() * tilePx + view.offsetX() + 4);
-    float screenY =
-      (float)
-        ((levelHeight - 1 - pos.y()) * tilePx
-          + view.offsetY()
-          + tilePx
-          - 6);
-
-    return new Point(screenX, screenY);
+    return new Point(
+      screenTopLeft.x() + 4,
+      screenTopLeft.y() + LitiengineOverlaySizing.bottomAlignedLabelBaseline(view.tilePx(), 6));
   }
 }

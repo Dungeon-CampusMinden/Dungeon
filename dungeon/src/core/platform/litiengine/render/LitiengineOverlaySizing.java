@@ -49,4 +49,38 @@ public final class LitiengineOverlaySizing {
     int safeTilePx = Math.max(1, tilePx);
     return Math.max(minPx, safeTilePx * factor);
   }
+
+  /**
+   * Converts a fixed pixel inset into world units for one tile-based cell.
+   *
+   * @param tilePx current tile size in pixels
+   * @param insetPx inset in pixels
+   * @return inset converted to world units
+   */
+  public static float worldInsetFromPixels(int tilePx, int insetPx) {
+    int safeTilePx = Math.max(1, tilePx);
+    return Math.max(0, insetPx) / (float) safeTilePx;
+  }
+
+  /**
+   * Vertical label offset commonly used for tile annotations.
+   *
+   * @param tilePx current tile size in pixels
+   * @return y offset in pixels
+   */
+  public static int tileLabelYOffset(int tilePx) {
+    return scaledPixels(tilePx, 0.5f, 14);
+  }
+
+  /**
+   * Baseline position for text that should sit near the bottom of a tile cell.
+   *
+   * @param tilePx current tile size in pixels
+   * @param bottomPaddingPx padding above the tile bottom in pixels
+   * @return baseline offset in pixels from the tile's top-left origin
+   */
+  public static int bottomAlignedLabelBaseline(int tilePx, int bottomPaddingPx) {
+    int safeTilePx = Math.max(1, tilePx);
+    return Math.max(0, safeTilePx - Math.max(0, bottomPaddingPx));
+  }
 }
