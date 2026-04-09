@@ -19,7 +19,6 @@ import portal.portals.abstraction.Calculations;
  */
 public class PortalUtils {
 
-
   /** Name of the blue portal entity. */
   public static final String BLUE_PORTAL_NAME = "BLUE_PORTAL";
 
@@ -34,8 +33,8 @@ public class PortalUtils {
    */
   public static Optional<Entity> getBluePortal() {
     return Game.levelEntities()
-      .filter(entity -> entity.name().equals(BLUE_PORTAL_NAME))
-      .findFirst();
+        .filter(entity -> entity.name().equals(BLUE_PORTAL_NAME))
+        .findFirst();
   }
 
   /**
@@ -46,8 +45,8 @@ public class PortalUtils {
    */
   public static Optional<Entity> getGreenPortal() {
     return Game.levelEntities()
-      .filter(entity -> entity.name().equals(GREEN_PORTAL_NAME))
-      .findFirst();
+        .filter(entity -> entity.name().equals(GREEN_PORTAL_NAME))
+        .findFirst();
   }
 
   /**
