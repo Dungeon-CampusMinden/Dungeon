@@ -4,7 +4,6 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.camera.CameraMath;
-import core.components.CameraComponent;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
@@ -52,9 +51,6 @@ public final class LitiengineSpriteRenderSystem extends System {
   private static final float CAMERA_LERP = 0.20f;
 
   private final Map<String, BufferedImage> tileImageCache = new HashMap<>();
-
-  // Camera state in world units (tile space).
-  private Point cameraActual;
 
   public LitiengineSpriteRenderSystem() {
     super(AuthoritativeSide.BOTH, PositionComponent.class);
@@ -301,10 +297,9 @@ public final class LitiengineSpriteRenderSystem extends System {
     final int tilePx = effectiveTilePx();
 
     final Point target = resolveCameraFollowTarget(levelOpt);
-    this.cameraActual = CameraMath.stepTowardsFocus(this.cameraActual, target, CAMERA_LERP);
+    LitiengineCameraState.followTarget(target);
 
-    final Point focus = this.cameraActual != null ? this.cameraActual : target;
-    LitiengineCameraState.focusPosition(focus);
+    final Point focus = LitiengineCameraState.stepFocus(CAMERA_LERP);
 
     final Rectangle worldBounds =
       CameraMath.worldBounds(
@@ -340,23 +335,6 @@ public final class LitiengineSpriteRenderSystem extends System {
     return CameraMath.resolveFocus(
       Optional.empty(),
       levelOpt.isPresent() ? Game.startTile().map(Tile::position) : Optional.empty());
-  }
-
-  private Optional<Point> resolveTrackedPoint() {
-    Optional<Point> playerPos =
-      Game.player()
-        .flatMap(player -> player.fetch(PositionComponent.class))
-        .map(PositionComponent::position);
-
-    if (playerPos.isPresent()) {
-      return playerPos;
-    }
-
-    return ECSManagement.levelEntities()
-      .filter(entity -> entity.isPresent(CameraComponent.class))
-      .findFirst()
-      .flatMap(entity -> entity.fetch(PositionComponent.class))
-      .map(PositionComponent::position);
   }
 
   private static int clamp(int v, int min, int max) {
