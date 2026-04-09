@@ -43,19 +43,9 @@ public final class LitiengineEntityDebugSystem extends System {
   private static final Color INFO_OUTLINE = new Color(255, 255, 255, 70);
 
   private static final LitiengineCursorAdapter CURSOR = new LitiengineCursorAdapter();
-  private static final Map<Entity, String> QUICK_INFO_CACHE = new ConcurrentHashMap<>();
 
   public LitiengineEntityDebugSystem() {
     super(AuthoritativeSide.CLIENT, PositionComponent.class);
-  }
-
-  public static void setEntityQuickInfo(Entity entity, String info) {
-    if (entity == null) return;
-    if (info == null || info.isBlank()) {
-      QUICK_INFO_CACHE.remove(entity);
-    } else {
-      QUICK_INFO_CACHE.put(entity, info);
-    }
   }
 
   @Override
@@ -331,10 +321,6 @@ public final class LitiengineEntityDebugSystem extends System {
             .append(player.playerName())
             .append(player.isLocal() ? " (LOCAL)" : " (REMOTE)")
             .append("\n"));
-
-    if (QUICK_INFO_CACHE.containsKey(entity)) {
-      info.append(QUICK_INFO_CACHE.get(entity)).append("\n");
-    }
 
     if (InputManager.isKeyPressed(Keys.SHIFT_LEFT) || InputManager.isKeyPressed(Keys.SHIFT_RIGHT)) {
       List<String> componentNames =

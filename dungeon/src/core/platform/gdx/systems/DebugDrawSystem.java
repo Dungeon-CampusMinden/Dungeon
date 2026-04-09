@@ -65,8 +65,6 @@ public class DebugDrawSystem extends System {
   private static final int CIRCLE_SEGMENTS = 60; // resolution of circles (higher = smoother)
   private static final BitmapFont FONT = GdxFontHelper.getDefaultFont();
 
-  private static final Map<Entity, String> quickInfoCache = new HashMap<Entity, String>();
-
   private boolean render = false;
 
   /** Creates a new DebugDrawSystem. */
@@ -371,11 +369,6 @@ public class DebugDrawSystem extends System {
             .sorted(String::compareToIgnoreCase)
             .toList();
 
-    // Quick info from cache
-    if (quickInfoCache.containsKey(entity)) {
-      info.append(quickInfoCache.get(entity)).append("\n");
-    }
-
     // If holding Shift, show all components; otherwise hint how to show them
     if (InputManager.isKeyPressed(Keys.SHIFT_LEFT)
         || InputManager.isKeyPressed(Keys.SHIFT_RIGHT)) {
@@ -434,16 +427,6 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.setProjectionMatrix(GdxCameraSystem.camera().combined);
 
     drawText(text, new Point(textX, textY));
-  }
-
-  /**
-   * Sets quick info text for the given entity to be displayed in the debug overlay.
-   *
-   * @param entity The entity to set quick info for.
-   * @param info The quick info text.
-   */
-  public static void setEntityQuickInfo(Entity entity, String info) {
-    quickInfoCache.put(entity, info);
   }
 
   /** Whether this debug system is currently active and drawing the overlays. */
