@@ -8,6 +8,7 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.platform.Platform;
 import core.platform.litiengine.render.LitiengineCameraViews;
+import core.platform.litiengine.render.LitiengineOverlaySizing;
 import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
@@ -188,7 +189,11 @@ public final class PointMode extends LevelEditorMode {
             .ifPresent(
               level -> {
                 int markerSize =
-                  Math.clamp(view.tilePx() / 3, POINT_MARKER_MIN_PX, POINT_MARKER_MAX_PX);
+                  LitiengineOverlaySizing.scaledPixelsClamped(
+                    view.tilePx(),
+                    1f / 3f,
+                    POINT_MARKER_MIN_PX,
+                    POINT_MARKER_MAX_PX);
 
                 level.namedPoints()
                   .forEach((name, pos) -> drawNamedPointMarker(name, pos, markerSize));
