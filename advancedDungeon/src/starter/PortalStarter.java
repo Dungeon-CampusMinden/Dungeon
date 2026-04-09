@@ -36,6 +36,7 @@ import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
 import portal.portals.abstraction.Calculations;
 import portal.portals.abstraction.PortalConfig;
+import portal.portals.components.PortableComponent;
 
 /**
  * Starter for the Portal Dungeon.
@@ -166,6 +167,7 @@ public class PortalStarter {
       sc.removeAll();
       sc.addSkill(new PortalSkill(PortalColor.GREEN, ((PortalConfig) o)));
       sc.addSkill(new PortalSkill(PortalColor.BLUE, ((PortalConfig) o)));
+      hero.hero().add(new PortableComponent());
 
     } catch (Exception e) {
       recompilePaused = true;
@@ -248,6 +250,7 @@ public class PortalStarter {
     Entity heroEntity = EntityFactory.newHero(DEATH_CALLBACK);
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
+
     if (LEVELEDITOR_MODE) {
       heroEntity.fetch(InputComponent.class).get().removeCallbacks();
       heroEntity

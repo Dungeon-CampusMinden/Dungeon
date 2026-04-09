@@ -14,6 +14,7 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
+import portal.portals.components.PortableComponent;
 
 /** A Cube can be picked up and used to trigger {@link PressurePlates}. */
 public class Cube {
@@ -43,6 +44,7 @@ public class Cube {
 
     CollideComponent cc = createCollideComponent(attached);
     portalCube.add(cc);
+    portalCube.add(new PortableComponent());
 
     if (isPickupable)
       portalCube.add(new InteractionComponent(() -> pickupInteraction(attached, portalCube, cc)));

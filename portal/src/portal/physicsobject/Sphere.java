@@ -18,6 +18,7 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Map;
+import portal.portals.components.PortableComponent;
 
 /** A sphere which can be moved by walking into it. */
 public class Sphere {
@@ -48,6 +49,7 @@ public class Sphere {
 
     sphere.add(new PositionComponent(position));
     sphere.add(new VelocityComponent(sphere_maxSpeed, mass, entity -> {}, false));
+    sphere.add(new PortableComponent());
 
     final boolean[] attached = {false};
 
