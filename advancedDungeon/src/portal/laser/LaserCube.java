@@ -56,10 +56,8 @@ public class LaserCube {
                         new Point(
                             pc.position().x() + pc.viewDirection().x(),
                             pc.position().y() + pc.viewDirection().y());
-                    System.out.println(newPos);
                     LaserUtil.extendLaser(
                         pc.viewDirection(),
-                        //                        pc.position(),
                         newPos,
                         other.fetch(PortalExtendComponent.class).get(),
                         lc);

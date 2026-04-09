@@ -119,10 +119,12 @@ public class LaserUtil {
     LaserComponent laserComponent = emitter.fetch(LaserComponent.class).get();
     if (!laserComponent.isBeingDeactivated()) {
       laserComponent.setBeingDeactivated(true);
-      Game.levelEntities(Set.of(LaserComponent.class))
-          .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
-          .filter(entity -> entity.fetch(LaserExtendComponent.class).isPresent())
-          .forEach(Game::remove);
+      Entity originalEmitter = Game.levelEntities(Set.of(LaserComponent.class))
+        .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
+        .filter(entity -> entity.fetch(LaserEmitterComponent.class).isPresent())
+        .findFirst().get();
+      deactivate(originalEmitter);
+      activate(originalEmitter);
       laserComponent.setBeingDeactivated(false);
     }
   }
