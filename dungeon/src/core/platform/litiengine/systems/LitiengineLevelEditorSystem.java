@@ -366,6 +366,8 @@ public final class LitiengineLevelEditorSystem extends System {
       lines.addAll(startTilesMode.getFullStatusLines());
     } else if (currentMode == Mode.SAVE_LEVEL) {
       lines.addAll(saveMode.getFullStatusLines());
+    } else if (currentMode == Mode.DECO_COLLIDER) {
+      lines.addAll(decoColliderMode.getFullStatusLines());
     } else {
       lines.add("This mode is not ported yet on the LITIENGINE path.");
     }
