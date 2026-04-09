@@ -302,8 +302,8 @@ public final class LitiengineDebugDrawSystem extends System {
     WORLD_LINES.clear();
 
     for (WorldLine line : lines) {
-      core.utils.Point from = worldToScreen(line.from());
-      core.utils.Point to = worldToScreen(line.to());
+      Point from = LitiengineCameraViews.worldToScreen(line.from());
+      Point to = LitiengineCameraViews.worldToScreen(line.to());
 
       g.setColor(line.color());
       g.drawLine(
@@ -319,8 +319,8 @@ public final class LitiengineDebugDrawSystem extends System {
     WORLD_CIRCLE_OUTLINES.clear();
 
     for (WorldCircleOutline circle : circles) {
-      core.utils.Point center = worldToScreen(circle.center());
-      int radiusPx = worldLengthToScreen(circle.radius());
+      Point center = LitiengineCameraViews.worldToScreen(circle.center());
+      int radiusPx = LitiengineCameraViews.worldLengthToScreen(circle.radius());
 
       g.setColor(circle.color());
       g.drawOval(
@@ -336,8 +336,8 @@ public final class LitiengineDebugDrawSystem extends System {
     WORLD_CIRCLE_FILLS.clear();
 
     for (WorldCircleFill circle : circles) {
-      core.utils.Point center = worldToScreen(circle.center());
-      int radiusPx = worldLengthToScreen(circle.radius());
+      Point center = LitiengineCameraViews.worldToScreen(circle.center());
+      int radiusPx = LitiengineCameraViews.worldLengthToScreen(circle.radius());
 
       g.setColor(circle.color());
       g.fillOval(
@@ -415,26 +415,6 @@ public final class LitiengineDebugDrawSystem extends System {
     Point topLeft, int width, int height, Color fill, Color outline) {
     if (topLeft == null || width <= 0 || height <= 0) return;
     SCREEN_RECTANGLES.add(new ScreenRectangle(topLeft, width, height, fill, outline));
-  }
-
-  public static Point worldToScreen(Point worldPoint) {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
-
-    int tilePx = view.tilePx();
-    int levelHeight = view.levelHeight();
-
-    float screenX = (float) (worldPoint.x() * tilePx + view.offsetX());
-    float screenY =
-      levelHeight > 0
-        ? (float) (((levelHeight - 1) - worldPoint.y()) * tilePx + view.offsetY())
-        : (float) (worldPoint.y() * tilePx + view.offsetY());
-
-    return new Point(screenX, screenY);
-  }
-
-  public static int worldLengthToScreen(float worldLength) {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
-    return Math.max(1, Math.round(worldLength * view.tilePx()));
   }
 
   private record WorldRectangle(float x, float y, float width, float height, Color color) {}

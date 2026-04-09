@@ -189,14 +189,13 @@ public final class PointMode extends LevelEditorMode {
       .currentDungeonLevelForModes()
       .ifPresent(
         level -> {
-          int levelHeight = level.layout().length;
           int markerSize = Math.clamp(view.tilePx() / 3, POINT_MARKER_MIN_PX, POINT_MARKER_MAX_PX);
 
           level.namedPoints()
-            .forEach((name, pos) -> drawNamedPointMarker(name, pos, levelHeight, view, markerSize));
+            .forEach((name, pos) -> drawNamedPointMarker(name, pos, markerSize));
 
           if (heldPointName != null) {
-            drawHeldPointGhost(heldPointName, currentSnapPosition(), levelHeight, view, markerSize);
+            drawHeldPointGhost(heldPointName, currentSnapPosition(), markerSize);
           }
         });
   }
@@ -204,11 +203,9 @@ public final class PointMode extends LevelEditorMode {
   private void drawNamedPointMarker(
     String name,
     Point pointPos,
-    int levelHeight,
-    LitiengineCameraViews.View view,
     int markerSize) {
 
-    Point screenCenter = screenCenterOf(pointPos, levelHeight, view);
+    Point screenCenter = LitiengineCameraViews.worldCenterToScreen(pointPos);
     boolean heldPoint = name != null && name.equals(heldPointName);
 
     LitiengineDebugDrawSystem.drawScreenMarker(
@@ -227,11 +224,9 @@ public final class PointMode extends LevelEditorMode {
   private void drawHeldPointGhost(
     String name,
     Point pointPos,
-    int levelHeight,
-    LitiengineCameraViews.View view,
     int markerSize) {
 
-    Point screenCenter = screenCenterOf(pointPos, levelHeight, view);
+    Point screenCenter = LitiengineCameraViews.worldCenterToScreen(pointPos);
 
     LitiengineDebugDrawSystem.drawScreenMarker(
       screenCenter,
@@ -244,22 +239,5 @@ public final class PointMode extends LevelEditorMode {
       name + " (held)",
       new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4),
       POINT_LABEL_COLOR);
-  }
-
-  private Point screenCenterOf(
-    Point pointPos,
-    int levelHeight,
-    LitiengineCameraViews.View view) {
-
-    int tilePx = view.tilePx();
-
-    float screenX = (float) (pointPos.x() * tilePx + view.offsetX() + tilePx * 0.5f);
-    float screenTileY =
-      levelHeight > 0
-        ? ((levelHeight - 1 - pointPos.y()) * tilePx)
-        : (pointPos.y() * tilePx);
-    float screenY = (float) (screenTileY + view.offsetY() + tilePx * 0.5f);
-
-    return new Point(screenX, screenY);
   }
 }
