@@ -87,26 +87,7 @@ public final class LitiengineDebugDrawSystem extends System {
       SCREEN_MARKERS.clear();
     }
 
-    Graphics2D g = (Graphics2D) base.create();
-    try {
-      g.setStroke(new BasicStroke(Math.max(1f, view.tilePx() / 16f)));
-
-      int levelHeight =
-        view.levelHeight() > 0
-          ? view.levelHeight()
-          : Game.currentLevel().map(level -> level.layout().length).orElse(0);
-
-      renderWorldFills(g, fills, view, levelHeight);
-      renderWorldRectangles(g, rectangles, view, levelHeight);
-      renderScreenMarkers(g, markers);
-      renderScreenTexts(g, texts);
-      renderWorldCircleFills(g);
-      renderWorldLines(g);
-      renderWorldCircleOutlines(g);
-      renderScreenRectangles(g);
-    } finally {
-      g.dispose();
-    }
+    renderQueuedDrawCalls(base, rectangles, fills, texts, markers);
   }
 
   public static void toggleHUD() {
@@ -298,7 +279,7 @@ public final class LitiengineDebugDrawSystem extends System {
   }
 
   private void renderWorldLines(java.awt.Graphics2D g) {
-    java.util.List<WorldLine> lines = new java.util.ArrayList<>(WORLD_LINES);
+    List<WorldLine> lines = new ArrayList<>(WORLD_LINES);
     WORLD_LINES.clear();
 
     for (WorldLine line : lines) {
@@ -315,7 +296,7 @@ public final class LitiengineDebugDrawSystem extends System {
   }
 
   private void renderWorldCircleOutlines(java.awt.Graphics2D g) {
-    java.util.List<WorldCircleOutline> circles = new java.util.ArrayList<>(WORLD_CIRCLE_OUTLINES);
+    List<WorldCircleOutline> circles = new ArrayList<>(WORLD_CIRCLE_OUTLINES);
     WORLD_CIRCLE_OUTLINES.clear();
 
     for (WorldCircleOutline circle : circles) {
@@ -332,7 +313,7 @@ public final class LitiengineDebugDrawSystem extends System {
   }
 
   private void renderWorldCircleFills(java.awt.Graphics2D g) {
-    java.util.List<WorldCircleFill> circles = new java.util.ArrayList<>(WORLD_CIRCLE_FILLS);
+    List<WorldCircleFill> circles = new ArrayList<>(WORLD_CIRCLE_FILLS);
     WORLD_CIRCLE_FILLS.clear();
 
     for (WorldCircleFill circle : circles) {
@@ -349,7 +330,7 @@ public final class LitiengineDebugDrawSystem extends System {
   }
 
   private void renderScreenRectangles(java.awt.Graphics2D g) {
-    java.util.List<ScreenRectangle> rectangles = new java.util.ArrayList<>(SCREEN_RECTANGLES);
+    List<ScreenRectangle> rectangles = new ArrayList<>(SCREEN_RECTANGLES);
     SCREEN_RECTANGLES.clear();
 
     for (ScreenRectangle rect : rectangles) {
@@ -371,6 +352,39 @@ public final class LitiengineDebugDrawSystem extends System {
           rect.height());
       }
     }
+  }
+
+  private void renderQueuedDrawCalls(
+    Graphics2D base,
+    List<WorldRectangle> rectangles,
+    List<WorldFill> fills,
+    List<ScreenText> texts,
+    List<ScreenMarker> markers) {
+
+    LitiengineCameraViews.activeView()
+      .ifPresent(
+        view -> {
+          Graphics2D g = (Graphics2D) base.create();
+          try {
+            g.setStroke(new BasicStroke(Math.max(1f, view.tilePx() / 16f)));
+
+            int levelHeight =
+              view.levelHeight() > 0
+                ? view.levelHeight()
+                : Game.currentLevel().map(level -> level.layout().length).orElse(0);
+
+            renderWorldFills(g, fills, view, levelHeight);
+            renderWorldRectangles(g, rectangles, view, levelHeight);
+            renderScreenMarkers(g, markers);
+            renderScreenTexts(g, texts);
+            renderWorldCircleFills(g);
+            renderWorldLines(g);
+            renderWorldCircleOutlines(g);
+            renderScreenRectangles(g);
+          } finally {
+            g.dispose();
+          }
+        });
   }
 
   /**

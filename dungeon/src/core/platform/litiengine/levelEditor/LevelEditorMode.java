@@ -89,11 +89,7 @@ public abstract class LevelEditorMode {
   }
 
   protected final Optional<LitiengineCameraViews.View> activeCameraView() {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
-    if (view == null || view.tilePx() <= 0) {
-      return Optional.empty();
-    }
-    return Optional.of(view);
+    return LitiengineCameraViews.activeView();
   }
 
   /**

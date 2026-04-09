@@ -2,6 +2,7 @@ package core.platform.litiengine.render;
 
 import core.utils.Point;
 import java.util.Objects;
+import java.util.Optional;
 
 /** Shared camera view data for the LITIENGINE backend. */
 public final class LitiengineCameraViews {
@@ -19,6 +20,14 @@ public final class LitiengineCameraViews {
 
   public static void set(double offsetX, double offsetY, int levelHeight, int tilePx) {
     CURRENT = new View(offsetX, offsetY, levelHeight, tilePx);
+  }
+
+  public static Optional<View> activeView() {
+    View view = get();
+    if (view == null || view.tilePx() <= 0) {
+      return Optional.empty();
+    }
+    return Optional.of(view);
   }
 
   /** Resets the shared camera view to its default state. */

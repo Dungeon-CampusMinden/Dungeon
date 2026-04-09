@@ -502,17 +502,15 @@ public final class LitiengineLevelEditorSystem extends System {
   }
 
   private void renderDebugVisualization() {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
-    if (view == null || view.tilePx() <= 0) {
-      return;
-    }
-
-    currentDungeonLevel()
+    LitiengineCameraViews.activeView()
       .ifPresent(
-        level -> {
-          renderDebugTiles(level, view);
-          renderDebugEntities(level.layout().length, view);
-        });
+        view ->
+          currentDungeonLevel()
+            .ifPresent(
+              level -> {
+                renderDebugTiles(level, view);
+                renderDebugEntities(level.layout().length, view);
+              }));
   }
 
   private void renderDebugTiles(DungeonLevel level, LitiengineCameraViews.View view) {
