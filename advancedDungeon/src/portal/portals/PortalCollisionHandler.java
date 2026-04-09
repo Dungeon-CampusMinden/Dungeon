@@ -12,6 +12,7 @@ import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
 import java.util.Optional;
+import portal.portals.components.PortableComponent;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
@@ -79,7 +80,8 @@ public class PortalCollisionHandler {
   /**
    * Returns a consumer that teleports an entity that collides with the blue portal to the
    * corresponding green portal. If the entity has a {@link PortalExtendComponent} its going to
-   * extend it if both portals are alive.
+   * extend it if both portals are alive. Only entities with {@link PortableComponent} are
+   * teleported;
    *
    * @param portalColor the color of the portal
    * @return the Triconsumer for the oncollide handler
@@ -98,6 +100,7 @@ public class PortalCollisionHandler {
       }
 
       if (other.fetch(PortalIgnoreComponent.class).isPresent()) return;
+      if (other.fetch(PortableComponent.class).isEmpty()) return;
       if (otherPortal.isEmpty()) return;
       if (isEntityPortal(other)) return;
       if (isPlayerFacingWrongDirection(other, portalPc, otherPc)) return;
@@ -149,6 +152,10 @@ public class PortalCollisionHandler {
   public static TriConsumer<Entity, Entity, Direction> createOnHoldHandler(PortalColor color) {
     return (portal, other, direction) -> {
       if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
+        return;
+      }
+
+      if (other.fetch(PortableComponent.class).isEmpty()) {
         return;
       }
 

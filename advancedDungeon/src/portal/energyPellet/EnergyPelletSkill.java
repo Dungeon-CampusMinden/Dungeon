@@ -14,6 +14,7 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 import portal.antiMaterialBarrier.AntiMaterialBarrierComponent;
+import portal.portals.components.PortableComponent;
 
 /**
  * An energy pellet projectile skill that deals damage on impact.
@@ -215,6 +216,7 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
 
   @Override
   protected void onSpawn(Entity caster, Entity projectile) {
+    projectile.add(new PortableComponent());
     if (scheduledRemoveAction != null && EventScheduler.isScheduled(scheduledRemoveAction)) {
       EventScheduler.cancelAction(scheduledRemoveAction);
     }
