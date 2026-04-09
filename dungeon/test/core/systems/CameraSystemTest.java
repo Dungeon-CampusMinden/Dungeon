@@ -2,111 +2,81 @@ package core.systems;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import core.Entity;
-import core.Game;
-import core.components.CameraComponent;
-import core.components.PositionComponent;
-import core.level.Tile;
-import core.level.elements.ILevel;
-import core.platform.gdx.systems.GdxCameraSystem;
+import core.camera.CameraMath;
 import core.utils.Point;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-/** Tests for the {@link GdxCameraSystem} class. */
+/** Tests for backend-neutral camera math extracted from the old GDX camera system. */
 public class CameraSystemTest {
 
-  private static final Point testPoint = new Point(3, 3);
-  private final ILevel level = Mockito.mock(ILevel.class);
-  private final Tile startTile = Mockito.mock(Tile.class);
-  private GdxCameraSystem gdxCameraSystem;
-  private Point expectedFocusPoint;
+  private static final Point TRACKED_POINT = new Point(3, 3);
+  private static final Point START_POINT = new Point(7, 7);
+  private static final Point ORIGIN = new Point(0, 0);
 
-  /** WTF? . */
-  @BeforeEach
-  public void setup() {
-    gdxCameraSystem = new GdxCameraSystem();
-    Game.add(gdxCameraSystem);
-    Mockito.when(startTile.position()).thenReturn(testPoint);
-    Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(Optional.of(testPoint));
-    Mockito.when(level.startTile()).thenReturn(Optional.of(startTile));
-    Game.add(new LevelSystem());
-  }
+  private static final float VIEWPORT_WIDTH = 10f;
+  private static final float VIEWPORT_HEIGHT = 10f;
+  private static final float ZOOM = 1f;
+  private static final float FOCUS_LERP = 0.1f;
 
-  /** WTF? . */
-  @AfterEach
-  public void cleanup() {
-    Game.removeAllEntities();
-    Game.currentLevel(null);
-    Game.removeAllSystems();
-    // reset Camera
-    GdxCameraSystem.camera().viewportWidth = GdxCameraSystem.viewportWidth();
-    GdxCameraSystem.camera().viewportHeight = GdxCameraSystem.viewportHeight();
-    GdxCameraSystem.camera().position.set(0, 0, 0);
-  }
-
-  /** WTF? . */
+  /**
+   * Tests camera focus calculation when a tracked entity is present.
+   * Verifies that the camera steps towards the tracked point over time using linear interpolation.
+   */
   @Test
   public void executeWithEntity() {
-    Game.currentLevel(level);
-    Entity entity = new Entity();
-    expectedFocusPoint = new Point(3, 3);
-    PositionComponent positionComponent = new PositionComponent(expectedFocusPoint);
-    entity.add(positionComponent);
-    entity.add(new CameraComponent());
+    Point focus = CameraMath.resolveFocus(Optional.of(TRACKED_POINT), Optional.of(START_POINT));
+    Point actual = CameraMath.stepTowardsFocus(null, focus, FOCUS_LERP);
 
-    gdxCameraSystem.execute();
-    assertEquals(expectedFocusPoint.x(), GdxCameraSystem.camera().position.x, 0.001);
-    assertEquals(expectedFocusPoint.y(), GdxCameraSystem.camera().position.y, 0.001);
-  }
-
-  /** WTF? . */
-  @Test
-  public void executeWithoutEntity() {
-    Game.currentLevel(level);
-
-    expectedFocusPoint = level.startTile().orElseThrow().position();
-
-    gdxCameraSystem.execute();
-
-    assertEquals(expectedFocusPoint.x(), GdxCameraSystem.camera().position.x, 0.001);
-    assertEquals(expectedFocusPoint.y(), GdxCameraSystem.camera().position.y, 0.001);
-  }
-
-  /** WTF? . */
-  @Test
-  public void executeWithoutLevel() {
-    Game.currentLevel(null);
-    Point expectedFocusPoint = new Point(0, 0);
-    gdxCameraSystem.execute();
-    assertEquals(expectedFocusPoint.x(), GdxCameraSystem.camera().position.x, 0.001);
-    assertEquals(expectedFocusPoint.y(), GdxCameraSystem.camera().position.y, 0.001);
+    assertEquals(TRACKED_POINT.x(), actual.x(), 0.001);
+    assertEquals(TRACKED_POINT.y(), actual.y(), 0.001);
   }
 
   /**
-   * Positive test for {@link GdxCameraSystem#isPointInFrustum(Point)}.
-   *
-   * <p>It checks if a point within the camera's frustum is correctly identified as visible.
+   * Tests camera focus calculation when no tracked entity is present.
+   * Verifies that the camera uses the start point as the focus when no entity is being tracked.
+   */
+  @Test
+  public void executeWithoutEntity() {
+    Point focus = CameraMath.resolveFocus(Optional.empty(), Optional.of(START_POINT));
+    Point actual = CameraMath.stepTowardsFocus(null, focus, FOCUS_LERP);
+
+    assertEquals(START_POINT.x(), actual.x(), 0.001);
+    assertEquals(START_POINT.y(), actual.y(), 0.001);
+  }
+
+  /**
+   * Tests camera focus calculation when neither a tracked entity nor a level start point are available.
+   * Verifies that the camera defaults to the origin (0, 0) when no reference points exist.
+   */
+  @Test
+  public void executeWithoutLevel() {
+    Point focus = CameraMath.resolveFocus(Optional.empty(), Optional.empty());
+    Point actual = CameraMath.stepTowardsFocus(null, focus, FOCUS_LERP);
+
+    assertEquals(ORIGIN.x(), actual.x(), 0.001);
+    assertEquals(ORIGIN.y(), actual.y(), 0.001);
+  }
+
+  /**
+   * Tests that a point within the camera's viewport is correctly identified as visible.
+   * Verifies that points inside the frustum area are recognized by the visibility check.
    */
   @Test
   public void isPointInFrustumWithVisiblePoint() {
-    float x = 1.0f;
-    float y = 1.0f;
-    assertTrue(GdxCameraSystem.isPointInFrustum(new Point(x, y)));
+    assertTrue(
+      CameraMath.isPointVisible(
+        new Point(1.0f, 1.0f), ORIGIN, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, ZOOM, 1.0f));
   }
 
   /**
-   * Negative test for {@link GdxCameraSystem#isPointInFrustum(Point)}.
-   *
-   * <p>It checks if a point outside the camera's frustum is correctly identified as not visible.
+   * Tests that a point outside the camera's viewport is correctly identified as invisible.
+   * Verifies that points outside the frustum area are not recognized by the visibility check.
    */
   @Test
   public void isPointInFrustumWithInvisiblePoint() {
-    float x = 100.0f;
-    float y = 100.0f;
-    assertFalse(GdxCameraSystem.isPointInFrustum(new Point(x, y)));
+    assertFalse(
+      CameraMath.isPointVisible(
+        new Point(100.0f, 100.0f), ORIGIN, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, ZOOM, 1.0f));
   }
 }
