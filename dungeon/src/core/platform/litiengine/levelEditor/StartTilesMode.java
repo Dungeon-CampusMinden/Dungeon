@@ -67,7 +67,6 @@ public final class StartTilesMode extends LevelEditorMode {
       .currentDungeonLevelForModes()
       .ifPresent(
         level -> {
-          int levelHeight = level.layout().length;
           int tilePx = view.tilePx();
 
           for (int i = 0; i < level.startTiles().size(); i++) {
@@ -83,16 +82,15 @@ public final class StartTilesMode extends LevelEditorMode {
               1.0f,
               color);
 
-            float screenX = (float) (pos.x() * tilePx + view.offsetX() + 4);
-            float screenY =
-              (float)
-                ((levelHeight - 1 - pos.y()) * tilePx
-                  + view.offsetY()
-                  + Math.max(14, tilePx / 2));
+            Point screenTopLeft = LitiengineCameraViews.worldToScreen(pos);
+            Point labelPos =
+              new Point(
+                screenTopLeft.x() + 4,
+                screenTopLeft.y() + Math.max(14, tilePx / 2));
 
             LitiengineDebugDrawSystem.drawText(
               "Start: " + (i + 1),
-              new Point(screenX, screenY),
+              labelPos,
               color);
           }
         });
