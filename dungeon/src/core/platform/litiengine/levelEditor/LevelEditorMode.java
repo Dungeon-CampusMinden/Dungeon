@@ -2,13 +2,10 @@ package core.platform.litiengine.levelEditor;
 
 import core.input.Keys;
 import core.input.MouseButtons;
+import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.systems.LitiengineLevelEditorSystem;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Abstract base class for LITIENGINE level editor modes.
@@ -89,6 +86,14 @@ public abstract class LevelEditorMode {
    */
   protected Map<Integer, String> getControls() {
     return new LinkedHashMap<>();
+  }
+
+  protected final Optional<LitiengineCameraViews.View> activeCameraView() {
+    LitiengineCameraViews.View view = LitiengineCameraViews.get();
+    if (view == null || view.tilePx() <= 0) {
+      return Optional.empty();
+    }
+    return Optional.of(view);
   }
 
   /**

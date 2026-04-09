@@ -180,24 +180,23 @@ public final class PointMode extends LevelEditorMode {
   }
 
   private void renderPointMarkers() {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
-    if (view == null || view.tilePx() <= 0) {
-      return;
-    }
-
-    system()
-      .currentDungeonLevelForModes()
+    activeCameraView()
       .ifPresent(
-        level -> {
-          int markerSize = Math.clamp(view.tilePx() / 3, POINT_MARKER_MIN_PX, POINT_MARKER_MAX_PX);
+        view ->
+          system()
+            .currentDungeonLevelForModes()
+            .ifPresent(
+              level -> {
+                int markerSize =
+                  Math.clamp(view.tilePx() / 3, POINT_MARKER_MIN_PX, POINT_MARKER_MAX_PX);
 
-          level.namedPoints()
-            .forEach((name, pos) -> drawNamedPointMarker(name, pos, markerSize));
+                level.namedPoints()
+                  .forEach((name, pos) -> drawNamedPointMarker(name, pos, markerSize));
 
-          if (heldPointName != null) {
-            drawHeldPointGhost(heldPointName, currentSnapPosition(), markerSize);
-          }
-        });
+                if (heldPointName != null) {
+                  drawHeldPointGhost(heldPointName, currentSnapPosition(), markerSize);
+                }
+              }));
   }
 
   private void drawNamedPointMarker(

@@ -58,42 +58,40 @@ public final class StartTilesMode extends LevelEditorMode {
 
   @Override
   public void render(Graphics2D g, float deltaSeconds) {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
-    if (view == null || view.tilePx() <= 0) {
-      return;
-    }
-
-    system()
-      .currentDungeonLevelForModes()
+    activeCameraView()
       .ifPresent(
-        level -> {
-          int tilePx = view.tilePx();
+        view ->
+          system()
+            .currentDungeonLevelForModes()
+            .ifPresent(
+              level -> {
+                int tilePx = view.tilePx();
 
-          for (int i = 0; i < level.startTiles().size(); i++) {
-            Tile tile = level.startTiles().get(i);
-            Point pos = tile.position();
+                for (int i = 0; i < level.startTiles().size(); i++) {
+                  Tile tile = level.startTiles().get(i);
+                  Point pos = tile.position();
 
-            Color color = START_TILE_COLORS[i % START_TILE_COLORS.length];
+                  Color color = START_TILE_COLORS[i % START_TILE_COLORS.length];
 
-            LitiengineDebugDrawSystem.drawRectangleOutline(
-              pos.x(),
-              pos.y(),
-              1.0f,
-              1.0f,
-              color);
+                  LitiengineDebugDrawSystem.drawRectangleOutline(
+                    pos.x(),
+                    pos.y(),
+                    1.0f,
+                    1.0f,
+                    color);
 
-            Point screenTopLeft = LitiengineCameraViews.worldToScreen(pos);
-            Point labelPos =
-              new Point(
-                screenTopLeft.x() + 4,
-                screenTopLeft.y() + Math.max(14, tilePx / 2));
+                  Point screenTopLeft = LitiengineCameraViews.worldToScreen(pos);
+                  Point labelPos =
+                    new Point(
+                      screenTopLeft.x() + 4,
+                      screenTopLeft.y() + Math.max(14, tilePx / 2));
 
-            LitiengineDebugDrawSystem.drawText(
-              "Start: " + (i + 1),
-              labelPos,
-              color);
-          }
-        });
+                  LitiengineDebugDrawSystem.drawText(
+                    "Start: " + (i + 1),
+                    labelPos,
+                    color);
+                }
+              }));
   }
 
   @Override
