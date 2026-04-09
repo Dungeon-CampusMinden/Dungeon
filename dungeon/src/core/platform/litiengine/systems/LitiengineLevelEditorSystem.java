@@ -49,6 +49,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private static final int MODE_5 = Keys.NUM_5;
   private static final int MODE_6 = Keys.NUM_6;
   private static final int MODE_7 = Keys.NUM_7;
+  private static final int MODE_8 = Keys.NUM_8;
 
   private final LitiengineLevelEditorOverlay overlay = new LitiengineLevelEditorOverlay();
 
@@ -90,6 +91,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private final LevelEditorMode levelBoundsMode = new LevelBoundsMode(this);
   private final LevelEditorMode pointMode = new PointMode(this);
   private final LevelEditorMode startTilesMode = new StartTilesMode(this);
+  private final LevelEditorMode decoColliderMode = new DecoColliderMode(this);
 
   /** Creates the LITIENGINE level editor. */
   public LitiengineLevelEditorSystem() {
@@ -164,6 +166,7 @@ public final class LitiengineLevelEditorSystem extends System {
       case SHIFT_LEVEL -> shiftLevelMode;
       case START_TILES -> startTilesMode;
       case SAVE_LEVEL -> saveMode;
+      case DECO_COLLIDER -> decoColliderMode;
     };
   }
 
@@ -181,6 +184,7 @@ public final class LitiengineLevelEditorSystem extends System {
       case SHIFT_LEVEL -> shiftLevelMode.doExecute();
       case START_TILES -> startTilesMode.doExecute();
       case SAVE_LEVEL -> saveMode.doExecute();
+      case DECO_COLLIDER -> decoColliderMode.doExecute();
     }
   }
 
@@ -291,6 +295,8 @@ public final class LitiengineLevelEditorSystem extends System {
       switchMode(Mode.getMode(5));
     } else if (InputManager.isKeyJustPressed(MODE_7)) {
       switchMode(Mode.getMode(6));
+    } else if (InputManager.isKeyJustPressed(MODE_8)) {
+      switchMode(Mode.getMode(7));
     }
   }
 
@@ -324,6 +330,7 @@ public final class LitiengineLevelEditorSystem extends System {
           || currentMode == Mode.DECOS
           || currentMode == Mode.POINTS
           || currentMode == Mode.START_TILES
+          || currentMode == Mode.DECO_COLLIDER
           ? 320
           : 230);
     }
@@ -338,7 +345,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private List<String> buildStatusLines() {
     List<String> lines = new ArrayList<>();
     lines.add("F4: toggle editor");
-    lines.add("1-7: switch mode");
+    lines.add("1-8: switch mode");
     lines.add("Current mode: " + currentMode.displayName());
     lines.add(
       "SPACE: toggle debug visualization [" + (debugVisualizationActive ? "ON" : "OFF") + "]");
@@ -406,7 +413,8 @@ public final class LitiengineLevelEditorSystem extends System {
     LEVEL_BOUNDS("LevelBounds"),
     SHIFT_LEVEL("ShiftLevel"),
     START_TILES("StartTiles"),
-    SAVE_LEVEL("SaveLevel");
+    SAVE_LEVEL("SaveLevel"),
+    DECO_COLLIDER("DecoCollider");
 
     private final String displayName;
 
@@ -463,6 +471,7 @@ public final class LitiengineLevelEditorSystem extends System {
       case DECOS -> decoMode.onEnter();
       case POINTS -> pointMode.onEnter();
       case START_TILES -> startTilesMode.onEnter();
+      case DECO_COLLIDER -> decoColliderMode.onEnter();
       default -> {
         // no-op for now
       }
@@ -473,6 +482,7 @@ public final class LitiengineLevelEditorSystem extends System {
     switch (mode) {
       case DECOS -> decoMode.onExit();
       case POINTS -> pointMode.onExit();
+      case DECO_COLLIDER -> decoColliderMode.onExit();
       default -> {
         // no-op for now
       }

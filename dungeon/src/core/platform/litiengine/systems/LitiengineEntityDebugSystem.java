@@ -24,9 +24,7 @@ import core.utils.components.draw.animation.Animation;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class LitiengineEntityDebugSystem extends System {
 

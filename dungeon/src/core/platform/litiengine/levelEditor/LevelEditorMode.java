@@ -118,6 +118,10 @@ public abstract class LevelEditorMode {
 
   private String keyLabel(int keycode) {
     return switch (keycode) {
+      case Keys.UP -> "UP";
+      case Keys.DOWN -> "DOWN";
+      case Keys.LEFT -> "LEFT";
+      case Keys.RIGHT -> "RIGHT";
       case PRIMARY_UP -> "E";
       case PRIMARY_DOWN -> "Q";
       case SECONDARY_UP -> "C";
