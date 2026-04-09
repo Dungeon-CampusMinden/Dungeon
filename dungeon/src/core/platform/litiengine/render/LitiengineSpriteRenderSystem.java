@@ -3,6 +3,7 @@ package core.platform.litiengine.render;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.camera.CameraMath;
 import core.components.CameraComponent;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
@@ -12,6 +13,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.Rectangle;
 import core.utils.Time;
 import core.utils.logging.DungeonLogger;
 import de.gurkenlabs.litiengine.graphics.ImageRenderer;
@@ -293,23 +295,26 @@ public final class LitiengineSpriteRenderSystem extends System {
   private CameraView computeCameraView(Optional<ILevel> levelOpt) {
     final int screenW = getWidthSafe();
     final int screenH = getHeightSafe();
-    final int levelHeight = levelOpt.map(l -> l.layout() != null ? l.layout().length : 0).orElse(0);
+    final int levelHeight =
+      levelOpt.map(level -> level.layout() != null ? level.layout().length : 0).orElse(0);
     final int tilePx = effectiveTilePx();
 
-    final Point target = resolveCameraTarget(levelOpt);
-    this.cameraActual = lerpPoint(this.cameraActual, target, CAMERA_LERP);
+    final Point target = resolveCameraFocus(levelOpt);
+    this.cameraActual = CameraMath.stepTowardsFocus(this.cameraActual, target, CAMERA_LERP);
+    final Point focus = this.cameraActual != null ? this.cameraActual : target;
 
-    final Point focus = (this.cameraActual != null) ? this.cameraActual : target;
+    final Rectangle worldBounds =
+      CameraMath.worldBounds(
+          focus,
+          screenW / (float) tilePx,
+          screenH / (float) tilePx,
+          1f)
+        .expand(VIEW_MARGIN_TILES);
 
-    final int viewTilesX =
-      (int) Math.ceil(screenW / (double) tilePx) + (VIEW_MARGIN_TILES * 2);
-    final int viewTilesY =
-      (int) Math.ceil(screenH / (double) tilePx) + (VIEW_MARGIN_TILES * 2);
-
-    final int minTileX = (int) Math.floor(focus.x() - viewTilesX / 2.0);
-    final int maxTileX = minTileX + viewTilesX;
-    final int minTileY = (int) Math.floor(focus.y() - viewTilesY / 2.0);
-    final int maxTileY = minTileY + viewTilesY;
+    final int minTileX = (int) Math.floor(worldBounds.x());
+    final int maxTileX = (int) Math.ceil(worldBounds.x() + worldBounds.width());
+    final int minTileY = (int) Math.floor(worldBounds.y());
+    final int maxTileY = (int) Math.ceil(worldBounds.y() + worldBounds.height());
 
     final double focusPxX = focus.x() * tilePx + (tilePx / 2.0);
     final double focusPxY =
@@ -320,37 +325,34 @@ public final class LitiengineSpriteRenderSystem extends System {
     final double offsetX = (screenW / 2.0) - focusPxX;
     final double offsetY = (screenH / 2.0) - focusPxY;
 
-    return new CameraView(offsetX, offsetY, minTileX, maxTileX, minTileY, maxTileY, levelHeight, tilePx);
+    return new CameraView(
+      offsetX, offsetY, minTileX, maxTileX, minTileY, maxTileY, levelHeight, tilePx);
   }
 
-  private Point resolveCameraTarget(Optional<ILevel> levelOpt) {
+  private Point resolveCameraFocus(Optional<ILevel> levelOpt) {
+    return CameraMath.resolveFocus(
+      resolveTrackedPoint(),
+      levelOpt.isPresent() ? Game.startTile().map(Tile::position) : Optional.empty());
+  }
+
+  private Optional<Point> resolveTrackedPoint() {
     Optional<Point> playerPos =
-      Game.player().flatMap(p -> p.fetch(PositionComponent.class)).map(PositionComponent::position);
-    if (playerPos.isPresent()) return playerPos.get();
-
-    Optional<Point> camPos =
-      ECSManagement.levelEntities()
-        .filter(e -> e.isPresent(CameraComponent.class))
-        .findFirst()
-        .flatMap(e -> e.fetch(PositionComponent.class))
+      Game.player()
+        .flatMap(player -> player.fetch(PositionComponent.class))
         .map(PositionComponent::position);
-    return camPos.orElseGet(() -> Game.startTile().map(Tile::position).orElseGet(() -> new Point(0, 0)));
-  }
 
-  private static Point lerpPoint(Point current, Point target, float alpha) {
-    if (target == null) return current;
-    if (current == null) return target;
-    float a = clamp(alpha, 0f, 1f);
-    float nx = current.x() * (1f - a) + target.x() * a;
-    float ny = current.y() * (1f - a) + target.y() * a;
-    return new Point(nx, ny);
+    if (playerPos.isPresent()) {
+      return playerPos;
+    }
+
+    return ECSManagement.levelEntities()
+      .filter(entity -> entity.isPresent(CameraComponent.class))
+      .findFirst()
+      .flatMap(entity -> entity.fetch(PositionComponent.class))
+      .map(PositionComponent::position);
   }
 
   private static int clamp(int v, int min, int max) {
-    return Math.max(min, Math.min(max, v));
-  }
-
-  private static float clamp(float v, float min, float max) {
     return Math.max(min, Math.min(max, v));
   }
 
