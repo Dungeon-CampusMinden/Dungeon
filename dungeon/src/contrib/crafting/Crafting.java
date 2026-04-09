@@ -95,10 +95,13 @@ public final class Crafting {
       String path =
           new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
               .getParent()
-              // for windows
+              // replace protocols for windows
               .replaceAll("(!|file:\\\\)", "")
-              // for unix/macos
-              .replaceAll("(!|file:)", "");
+              // replace protocols for unix/macos
+              .replaceAll("(!|file:)", "")
+              // replace the url whitespaces with real whitespaces
+              .replace("%20", " ");
+
       JarFile jar = new JarFile(path);
       Enumeration<JarEntry> entries = jar.entries();
       while (entries.hasMoreElements()) {
