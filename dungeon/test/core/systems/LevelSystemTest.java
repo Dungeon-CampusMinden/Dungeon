@@ -3,7 +3,6 @@ package core.systems;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.badlogic.gdx.graphics.Texture;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -13,16 +12,15 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
 import core.level.loader.DungeonLoader;
+import core.platform.Platform;
+import core.platform.fs.FileSystemResourcesAdapter;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.platform.gdx.render.TextureMap;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 /**
@@ -37,30 +35,16 @@ public class LevelSystemTest {
   private IVoidFunction onLevelLoader;
   private ILevel level;
 
-  private MockedConstruction<Texture> textureMockedConstruction;
-
   /** Clears all levels from the DungeonLoader before all tests. */
   @BeforeAll
   public static void beforeAll() {
     DungeonLoader.clearLevels();
   }
 
-  /**
-   * Sets up mocks and initializes the LevelSystem before each test.
-   *
-   * <p>Mocks the {@link Texture} and {@link TextureMap}, initializes a mocked level, and adds the
-   * system to the game.
-   */
+  /** Sets up the test environment before each test. */
   @BeforeEach
   public void setup() {
-    Texture texture = Mockito.mock(Texture.class);
-    TextureMap textureMap = Mockito.mock(TextureMap.class);
-    textureMockedConstruction = Mockito.mockConstruction(Texture.class);
-
-    try (MockedStatic<TextureMap> textureMapMock = Mockito.mockStatic(TextureMap.class)) {
-      textureMapMock.when(TextureMap::instance).thenReturn(textureMap);
-    }
-    when(textureMap.textureAt(any())).thenReturn(texture);
+    Platform.resources(FileSystemResourcesAdapter.autoDetect());
 
     onLevelLoader = Mockito.mock(IVoidFunction.class);
     level = Mockito.mock(DungeonLevel.class);
@@ -80,7 +64,6 @@ public class LevelSystemTest {
     Game.currentLevel(null);
     Game.removeAllEntities();
     Game.removeAllSystems();
-    textureMockedConstruction.close();
   }
 
   /** Tests that a level is loaded correctly and the onLevelLoader callback is executed once. */
@@ -112,6 +95,7 @@ public class LevelSystemTest {
   public void test_execute_heroOnEndTile() {
     api.loadLevel(level);
     api.onEndTile(() -> api.loadLevel(level));
+
     Entity hero = new Entity();
     hero.add(new PositionComponent());
     hero.add(new PlayerComponent());
@@ -122,14 +106,15 @@ public class LevelSystemTest {
     when(end.position()).thenReturn(p);
     when(end.isOpen()).thenReturn(true);
     when(level.tileAt((Point) any())).thenReturn(Optional.of(end));
-    Mockito.when(level.endTile()).thenReturn(Optional.of(end));
+    when(level.endTile()).thenReturn(Optional.of(end));
 
-    hero.fetch(PositionComponent.class).get().position(end);
+    hero.fetch(PositionComponent.class).orElseThrow().position(end);
 
     Tile[][] layout = new Tile[0][0];
     when(level.layout()).thenReturn(layout);
+
     api.execute();
-    // first on loadLevel(), second on execute()
+
     verify(onLevelLoader, times(2)).execute();
   }
 

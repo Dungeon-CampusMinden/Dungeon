@@ -2,16 +2,16 @@ package core.systems;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.badlogic.gdx.graphics.Texture;
 import contrib.systems.HealthSystem;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.platform.Platform;
+import core.platform.fs.FileSystemResourcesAdapter;
 import core.utils.Direction;
 import core.utils.Vector2;
-import core.platform.gdx.render.TextureMap;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
@@ -22,18 +22,15 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 /** Unit tests for the {@link VelocitySystem}. */
 public class VelocitySystemTest {
 
-  private Entity entity;
   private VelocityComponent vc;
   private PositionComponent pc;
   private DrawComponent dc;
 
   private float speed = 10f;
-
   private float mass = 2f;
   private VelocitySystem system;
 
@@ -43,24 +40,9 @@ public class VelocitySystemTest {
    */
   @BeforeEach
   public void setup() {
-    // Create file system handle. WARNING: This will assume all future paths to be relative to the
-    // working directory (probably the root of the project)
-    TextureMap.instance().clear(); // reset any existing mappings
+    Platform.resources(FileSystemResourcesAdapter.autoDetect());
 
-    // Replace internal map logic to skip real texture loading
-    TextureMap instance = TextureMap.instance();
-    Texture dummyTexture = Mockito.mock(Texture.class);
-
-    // Trick: preload the keys you need for your test with dummy textures. Paths must be relative to
-    // working directory.
-    String assetKey = "test_assets/textures/test_hero/test_hero.png";
-    instance.put(assetKey, dummyTexture);
-
-    // Remaining test logic
     Game.add(new LevelSystem());
-    //    Game.currentLevel(level);
-    //    Mockito.when(tile.friction()).thenReturn(0.75f);
-    //    Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
     system = new VelocitySystem();
     Game.add(system);
 
@@ -68,8 +50,11 @@ public class VelocitySystemTest {
     vc = new VelocityComponent(speed);
     vc.mass(mass);
     pc = new PositionComponent();
+
     Map<String, Animation> animationMap =
-        Animation.loadAnimationSpritesheet(new SimpleIPath("test_assets/textures/test_hero"));
+      Animation.loadAnimationSpritesheet(
+        new SimpleIPath("test_assets/textures/test_hero/test_hero.png"));
+
     State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
     State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
     State stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("die"));
@@ -79,6 +64,7 @@ public class VelocitySystemTest {
     sm.addTransition(stMove, VelocitySystem.IDLE_SIGNAL, stIdle);
     sm.addTransition(stIdle, HealthSystem.DEATH_SIGNAL, stDead);
     sm.addTransition(stMove, HealthSystem.DEATH_SIGNAL, stDead);
+
     dc = new DrawComponent(sm);
     entity.add(vc);
     entity.add(pc);

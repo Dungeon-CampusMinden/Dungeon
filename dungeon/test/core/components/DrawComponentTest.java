@@ -1,13 +1,11 @@
 package core.components;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import com.badlogic.gdx.graphics.Texture;
 import contrib.systems.HealthSystem;
+import core.platform.Platform;
+import core.platform.fs.FileSystemResourcesAdapter;
 import core.systems.VelocitySystem;
 import core.utils.Direction;
-import core.platform.gdx.render.TextureMap;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
@@ -18,36 +16,27 @@ import java.util.Arrays;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 /** Tests for the {@link DrawComponent} class. */
 public class DrawComponentTest {
 
   private final IPath animationPath =
-      new SimpleIPath("test_assets/textures/test_hero/test_hero.png");
+    new SimpleIPath("test_assets/textures/test_hero/test_hero.png");
   private final IPath simplePath = new SimpleIPath("test_assets/textures/mailbox.png");
   private DrawComponent animationComponent;
 
   /** Creates a {@link DrawComponent} to be used in testing, similar to a basic player. */
   @BeforeEach
   public void setup() {
-    // Create file system handle. WARNING: This will assume all future paths to be relative to the
-    // working directory (probably the root of the project)
-    TextureMap.instance().clear(); // reset any existing mappings
+    Platform.resources(FileSystemResourcesAdapter.autoDetect());
 
-    // Replace internal map logic to skip real texture loading
-    TextureMap instance = TextureMap.instance();
-    Texture dummyTexture = Mockito.mock(Texture.class);
-
-    // Trick: preload the keys you need for your test with dummy textures. Paths must be relative to
-    // working directory.
-    instance.put(animationPath.pathString(), dummyTexture);
-    instance.put(simplePath.pathString(), dummyTexture);
-
+    // Set up different states
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(animationPath);
     State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
     State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
     State stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("die"));
+
+    // Set up a state machine with transitions based on velocity and health signals
     StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
     sm.addTransition(stIdle, VelocitySystem.MOVE_SIGNAL, stMove);
     sm.addTransition(stMove, VelocitySystem.MOVE_SIGNAL, stMove);
@@ -98,9 +87,9 @@ public class DrawComponentTest {
    */
   @Test
   public void complexAnimationLoad() {
-    assertNotEquals(null, animationComponent.stateMachine().getState(StateMachine.IDLE_STATE));
-    assertNotEquals(null, animationComponent.stateMachine().getState(VelocitySystem.STATE_NAME));
-    assertNotEquals(null, animationComponent.stateMachine().getState(HealthSystem.DEATH_STATE));
-    assertEquals(4, animationComponent.currentAnimation().getConfig().config().get().columns());
+    assertNotNull(animationComponent.stateMachine().getState(StateMachine.IDLE_STATE));
+    assertNotNull(animationComponent.stateMachine().getState(VelocitySystem.STATE_NAME));
+    assertNotNull(animationComponent.stateMachine().getState(HealthSystem.DEATH_STATE));
+    assertEquals(4, animationComponent.currentAnimation().getConfig().config().orElseThrow().columns());
   }
 }
