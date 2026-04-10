@@ -56,6 +56,15 @@ final class LitiengineCraftingDialogOverlay
   private static final int DRAG_TARGET_INSET = 3;
   private static final int DRAG_TARGET_ARC = 8;
 
+  private static final int RESULT_ICON_PADDING = 2;
+  private static final int RESULT_LABEL_TOP_GAP = 6;
+  private static final int RESULT_LABEL_PADDING_X = 8;
+  private static final int RESULT_LABEL_PADDING_Y = 4;
+  private static final int RESULT_LABEL_ARC = 6;
+
+  private static final Color RESULT_LABEL_FILL = new Color(0xFFFF4D4D, true);
+  private static final Color RESULT_LABEL_TEXT = Color.WHITE;
+
   private static final Color ACTION_BOX_FILL = new Color(210, 210, 210, 235);
   private static final Color ACTION_BOX_HOVER_FILL = new Color(232, 232, 232, 245);
   private static final Color ACTION_BOX_PRESSED_FILL = new Color(180, 180, 180, 245);
@@ -71,7 +80,7 @@ final class LitiengineCraftingDialogOverlay
   private static final Color INVENTORY_PANEL_FILL = new Color(62, 62, 99, 96);
   private static final Color INVENTORY_PANEL_OUTLINE = new Color(0x9dc1ebff, true);
 
-  private static final Color NUMBER_BADGE_FILL = new Color(0xd93030ff, true);
+  private static final Color NUMBER_BADGE_FILL = new Color(0xFFFF4D4D, true);
   private static final Color NUMBER_BADGE_TEXT = Color.WHITE;
 
   private static final Color DRAG_HIGHLIGHT = new Color(157, 193, 235, 180);
@@ -307,7 +316,7 @@ final class LitiengineCraftingDialogOverlay
       }
 
       Rectangle slotBounds = new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size());
-      drawCraftingItemIcon(g, slotBounds, item);
+      drawResultItemPresentation(g, slotBounds, item);
     }
 
     drawLegacyActionBoxes(g);
@@ -334,13 +343,17 @@ final class LitiengineCraftingDialogOverlay
   }
 
   private void drawCraftingItemIcon(Graphics2D g, Rectangle bounds, Item item) {
+    drawCraftingItemIcon(g, bounds, item, ITEM_ICON_PADDING);
+  }
+
+  private void drawCraftingItemIcon(Graphics2D g, Rectangle bounds, Item item, int padding) {
     BufferedImage icon = resolveItemIcon(item);
     if (icon == null) {
       return;
     }
 
-    int maxWidth = bounds.width - 2 * ITEM_ICON_PADDING;
-    int maxHeight = bounds.height - 2 * ITEM_ICON_PADDING;
+    int maxWidth = bounds.width - 2 * padding;
+    int maxHeight = bounds.height - 2 * padding;
 
     double scale =
       Math.min(
@@ -355,6 +368,35 @@ final class LitiengineCraftingDialogOverlay
     g.drawImage(icon, drawX, drawY, drawWidth, drawHeight, null);
   }
 
+  private void drawResultItemPresentation(Graphics2D g, Rectangle bounds, Item item) {
+    drawCraftingItemIcon(g, bounds, item, RESULT_ICON_PADDING);
+
+    String label = item.displayName() == null || item.displayName().isBlank()
+      ? item.getClass().getSimpleName()
+      : item.displayName();
+
+    Font oldFont = g.getFont();
+    g.setFont(oldFont.deriveFont(Font.BOLD, 12f));
+
+    FontMetrics fm = g.getFontMetrics();
+    int labelWidth = fm.stringWidth(label) + 2 * RESULT_LABEL_PADDING_X;
+    int labelHeight = fm.getHeight() + 2 * RESULT_LABEL_PADDING_Y;
+
+    int labelX = bounds.x + (bounds.width - labelWidth) / 2;
+    int labelY = bounds.y + bounds.height + RESULT_LABEL_TOP_GAP;
+
+    g.setColor(RESULT_LABEL_FILL);
+    g.fillRoundRect(labelX, labelY, labelWidth, labelHeight, RESULT_LABEL_ARC, RESULT_LABEL_ARC);
+
+    g.setColor(RESULT_LABEL_TEXT);
+    g.drawString(
+      label,
+      labelX + RESULT_LABEL_PADDING_X,
+      labelY + RESULT_LABEL_PADDING_Y + fm.getAscent());
+
+    g.setFont(oldFont);
+  }
+
   private void drawIngredientNumberBadge(Graphics2D g, Rectangle itemBounds, int number) {
     String label = Integer.toString(number);
 
@@ -364,8 +406,9 @@ final class LitiengineCraftingDialogOverlay
     FontMetrics fm = g.getFontMetrics();
     int badgeWidth = fm.stringWidth(label) + 2 * NUMBER_PADDING;
     int badgeHeight = fm.getHeight() + 2;
+
     int badgeX = itemBounds.x + (itemBounds.width - badgeWidth) / 2;
-    int badgeY = itemBounds.y - badgeHeight + NUMBER_PADDING;
+    int badgeY = itemBounds.y + itemBounds.height + 4;
 
     g.setColor(NUMBER_BADGE_FILL);
     g.fillRoundRect(badgeX, badgeY, badgeWidth, badgeHeight, 6, 6);
