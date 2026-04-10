@@ -1,0 +1,6 @@
+Fri Apr 10 13:58:09 CEST 2026 Main Update Loop threw an exception:
+java.lang.NullPointerException: Cannot invoke "de.gurkenlabs.litiengine.GameWindow.cursor()" because the return value of "de.gurkenlabs.litiengine.Game.window()" is null
+	at de.gurkenlabs.litiengine.graphics.RenderComponent.renderGraphics(RenderComponent.java:173)
+	at de.gurkenlabs.litiengine.graphics.RenderComponent.render(RenderComponent.java:148)
+	at de.gurkenlabs.litiengine.GameLoop.process(GameLoop.java:93)
+	at de.gurkenlabs.litiengine.UpdateLoop.run(UpdateLoop.java:57)

@@ -1,9 +1,13 @@
 package core.platform.litiengine;
 
 import core.platform.RenderAdapter;
+import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.systems.LitiengineCameraLifecycleSystem;
 import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
+import core.ui.StageHandle;
+import core.utils.Point;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * LITIENGINE render adapter.
@@ -20,6 +24,15 @@ public final class LitiengineRenderAdapter implements RenderAdapter {
       new SystemBinding(
         core.platform.litiengine.render.LitiengineSpriteRenderSystem.class,
         core.platform.litiengine.render.LitiengineSpriteRenderSystem::new));
+  }
+
+  @Override
+  public Optional<Point> projectWorldToStage(Point worldPoint, StageHandle stageHandle) {
+    if (worldPoint == null || stageHandle == null) {
+      return Optional.empty();
+    }
+
+    return LitiengineCameraViews.activeView().map(view -> LitiengineCameraViews.worldToScreen(worldPoint));
   }
 
   @Override

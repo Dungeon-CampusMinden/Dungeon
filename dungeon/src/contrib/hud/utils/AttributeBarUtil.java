@@ -10,8 +10,10 @@ import contrib.hud.elements.AttributeBarHandleProvider;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.platform.Platform;
+import core.utils.Point;
 import core.utils.logging.DungeonLogger;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ public final class AttributeBarUtil {
 
   /** Gap between stacked bars. */
   public static final float BAR_GAP = 15f;
+  private static final float BAR_MARGIN = 6f;
 
   private AttributeBarUtil() {}
 
@@ -68,15 +71,29 @@ public final class AttributeBarUtil {
       .flatMap(handle -> handle.unwrap(AttributeBarHandleProvider.class))
       .map(AttributeBarHandleProvider::attributeBarHandle)
       .ifPresentOrElse(
-        handle -> barMapping.put(barDisplayable.getClass(), handle),
+        handle -> {
+          barMapping.put(barDisplayable.getClass(), handle);
+          updatePosition(handle, entity, verticalOffset);
+          handle.setValue(barDisplayable.current() / barDisplayable.max());
+          handle.setVisible(shouldShowBar(entity, barDisplayable));
+        },
         () -> LOGGER.error("Failed to create progress bar for entity {}", entity));
   }
 
   public static void updatePosition(
     AttributeBarHandle bar, PositionComponent pc, float verticalOffset) {
+    Point anchorPoint = pc.position().translate(0.5f, 1f);
     Game.stage()
-      .flatMap(stageHandle -> Platform.render().projectWorldToStage(pc.position(), stageHandle))
-      .ifPresent(screenPoint -> bar.setPosition(screenPoint.x(), screenPoint.y() - verticalOffset));
+      .flatMap(stageHandle -> Platform.render().projectWorldToStage(anchorPoint, stageHandle))
+      .ifPresent(
+        screenPoint -> bar.setPosition(screenPoint.x(), screenPoint.y() - BAR_MARGIN - verticalOffset));
+  }
+
+  public static void updatePosition(AttributeBarHandle bar, Entity entity, float verticalOffset) {
+    Game.stage()
+      .flatMap(stageHandle -> Platform.render().projectWorldToStage(barAnchorPoint(entity), stageHandle))
+      .ifPresent(
+        screenPoint -> bar.setPosition(screenPoint.x(), screenPoint.y() - BAR_MARGIN - verticalOffset));
   }
 
   /**
@@ -97,11 +114,31 @@ public final class AttributeBarUtil {
       return;
     }
 
-    bar.setVisible(
-      entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false)
-        && barDisplayable.current() != barDisplayable.max());
+    bar.setVisible(shouldShowBar(entity, barDisplayable));
 
-    updatePosition(bar, entity.fetch(PositionComponent.class).orElseThrow(), verticalOffset);
+    updatePosition(bar, entity, verticalOffset);
     bar.setValue(barDisplayable.current() / barDisplayable.max());
+  }
+
+  static boolean shouldShowBar(Entity entity, contrib.components.BarDisplayable barDisplayable) {
+    boolean entityVisible = entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false);
+    if (!entityVisible) {
+      return false;
+    }
+
+    boolean isLocalPlayer = entity.fetch(PlayerComponent.class).map(PlayerComponent::isLocal).orElse(false);
+    return isLocalPlayer || barDisplayable.current() != barDisplayable.max();
+  }
+
+  static Point barAnchorPoint(Entity entity) {
+    PositionComponent positionComponent =
+      entity.fetch(PositionComponent.class).orElseThrow();
+
+    DrawComponent drawComponent = entity.fetch(DrawComponent.class).orElse(null);
+    float width = drawComponent != null && drawComponent.getWidth() > 0f ? drawComponent.getWidth() : 1f;
+    float height =
+      drawComponent != null && drawComponent.getHeight() > 0f ? drawComponent.getHeight() : 1f;
+
+    return positionComponent.position().translate(width * 0.5f, height);
   }
 }

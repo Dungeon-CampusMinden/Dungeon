@@ -38,7 +38,7 @@ final class LitiengineAttributeBarOverlay
       return;
     }
 
-    int drawX = x;
+    int drawX = x - (width / 2);
     int drawY = y;
 
     // background
