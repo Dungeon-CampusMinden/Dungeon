@@ -8,9 +8,8 @@ import core.input.MouseButtons;
 import core.platform.litiengine.ui.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+
+import java.awt.*;
 import java.util.stream.Stream;
 
 /**
@@ -25,12 +24,12 @@ import java.util.stream.Stream;
 final class LitiengineDualInventoryDialogOverlay
   implements LitiengineUiOverlay, InventoryComponentProvider {
 
-  private static final int DEFAULT_WIDTH = 1180;
-  private static final int DEFAULT_HEIGHT = 420;
-  private static final int PANEL_GAP = 26;
-  private static final int PANEL_HEADER_GAP = 14;
+  private static final int DEFAULT_WIDTH = 1100;
+  private static final int DEFAULT_HEIGHT = 470;
+  private static final int PANEL_GAP = 18;
+  private static final int PANEL_HEADER_GAP = 8;
 
-  private static final int PANEL_PADDING = 12;
+  private static final int PANEL_PADDING = 8;
   private static final int DRAG_THRESHOLD_PX = 8;
   private static final int DRAG_PREVIEW_OFFSET_X = 14;
   private static final int DRAG_PREVIEW_OFFSET_Y = 18;
@@ -85,7 +84,11 @@ final class LitiengineDualInventoryDialogOverlay
     int rightGridWidth = LitiengineInventoryGridRenderer.gridWidth(rightColumns);
 
     int contentWidth =
-      leftGridWidth + rightGridWidth + PANEL_GAP + 2 * LitiengineDialogOverlaySupport.PADDING;
+      leftGridWidth
+        + rightGridWidth
+        + PANEL_GAP
+        + 2 * LitiengineDialogOverlaySupport.PADDING
+        + 2 * PANEL_PADDING;
     width = Math.max(DEFAULT_WIDTH, contentWidth);
 
     int leftGridHeight = LitiengineInventoryGridRenderer.gridHeight(leftRows);
@@ -94,7 +97,8 @@ final class LitiengineDualInventoryDialogOverlay
 
     height =
       Math.max(
-        DEFAULT_HEIGHT, 160 + maxGridHeight + LitiengineDialogOverlaySupport.PADDING);
+        DEFAULT_HEIGHT,
+        126 + maxGridHeight + 2 * PANEL_PADDING + LitiengineDialogOverlaySupport.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -104,6 +108,7 @@ final class LitiengineDualInventoryDialogOverlay
     int contentY;
     int leftStartX;
     int rightStartX;
+    int infoY;
     int gridTop;
 
     GridLayout leftGrid;
@@ -120,22 +125,21 @@ final class LitiengineDualInventoryDialogOverlay
       leftStartX = x + (width - totalGridWidth) / 2;
       rightStartX = leftStartX + leftGridWidth + PANEL_GAP;
 
-      int titleBaseline = contentY + g.getFontMetrics().getAscent();
-      g.setColor(Color.WHITE);
-      g.drawString(leftTitle, leftStartX, titleBaseline);
-      g.drawString(rightTitle, rightStartX, titleBaseline);
+      Font oldFont = g.getFont();
+      g.setFont(oldFont.deriveFont(Font.BOLD, 16f));
+      FontMetrics titleMetrics = g.getFontMetrics();
 
-      int infoY = contentY + PANEL_HEADER_GAP + LitiengineInventoryGridRenderer.INFO_LINE_GAP;
+      int titleBaseline = contentY + titleMetrics.getAscent();
+      drawPanelTitle(g, leftTitle, leftStartX, leftGridWidth, titleBaseline);
+      drawPanelTitle(g, rightTitle, rightStartX, rightGridWidth, titleBaseline);
 
-      LitiengineInventoryGridRenderer.drawInventoryInfo(
-        g, leftInventory, leftSlots, leftStartX, infoY);
-      LitiengineInventoryGridRenderer.drawInventoryInfo(
-        g, rightInventory, rightSlots, rightStartX, infoY);
+      g.setFont(oldFont.deriveFont(15f));
 
+      infoY = titleBaseline + PANEL_HEADER_GAP;
       gridTop =
         infoY
-          + LitiengineInventoryGridRenderer.GRID_TOP_GAP
-          + LitiengineInventoryGridRenderer.INFO_LINE_GAP;
+          + LitiengineInventoryGridRenderer.INFO_LINE_GAP
+          + LitiengineInventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle leftPanelBounds =
         new Rectangle(
@@ -150,6 +154,11 @@ final class LitiengineDualInventoryDialogOverlay
           gridTop - PANEL_PADDING,
           rightGridWidth + 2 * PANEL_PADDING,
           rightGridHeight + 2 * PANEL_PADDING);
+
+      LitiengineInventoryGridRenderer.drawInventoryInfo(
+        g, leftInventory, leftSlots, leftStartX, infoY);
+      LitiengineInventoryGridRenderer.drawInventoryInfo(
+        g, rightInventory, rightSlots, rightStartX, infoY);
 
       drawPanelBackground(
         g,
@@ -379,12 +388,13 @@ final class LitiengineDualInventoryDialogOverlay
     int boxWidth = textWidth + 2 * DRAG_PREVIEW_PADDING_X;
     int boxHeight = textHeight + 2 * DRAG_PREVIEW_PADDING_Y;
 
-    g.setColor(new Color(20, 20, 24, 220));
-    g.fillRoundRect(previewX, previewY, boxWidth, boxHeight, 10, 10);
-    g.setColor(new Color(220, 220, 230, 220));
-    g.drawRoundRect(previewX, previewY, boxWidth, boxHeight, 10, 10);
+    g.setColor(new Color(255, 255, 255, 235));
+    g.fillRect(previewX, previewY, boxWidth, boxHeight);
 
-    g.setColor(Color.WHITE);
+    g.setColor(new Color(0x9dc1ebff, true));
+    g.drawRect(previewX, previewY, boxWidth, boxHeight);
+
+    g.setColor(Color.BLACK);
     g.drawString(
       label,
       previewX + DRAG_PREVIEW_PADDING_X,
@@ -425,10 +435,20 @@ final class LitiengineDualInventoryDialogOverlay
   }
 
   private void drawPanelBackground(Graphics2D g, int x, int y, int width, int height) {
-    g.setColor(new Color(28, 30, 38, 170));
-    g.fillRoundRect(x, y, width, height, 12, 12);
-    g.setColor(new Color(90, 94, 108, 180));
-    g.drawRoundRect(x, y, width, height, 12, 12);
+    g.setColor(new Color(62, 62, 99, 96));
+    g.fillRect(x, y, width, height);
+
+    g.setColor(new Color(0x9dc1ebff, true));
+    g.drawRect(x, y, width, height);
+  }
+
+  private void drawPanelTitle(
+    Graphics2D g, String title, int panelStartX, int panelWidth, int baselineY) {
+    FontMetrics fm = g.getFontMetrics();
+    int textX = panelStartX + (panelWidth - fm.stringWidth(title)) / 2;
+
+    g.setColor(Color.WHITE);
+    g.drawString(title, textX, baselineY);
   }
 
   @Override

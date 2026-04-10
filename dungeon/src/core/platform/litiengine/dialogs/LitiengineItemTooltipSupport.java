@@ -9,16 +9,20 @@ import java.awt.Graphics2D;
 /**
  * Shared tooltip/text helper for LITIENGINE inventory-style overlays.
  *
- * <p>This keeps identical item tooltip rendering logic out of the individual inventory overlays.
+ * <p>This version intentionally mirrors the old libGDX inventory tooltip styling more closely.
  */
 final class LitiengineItemTooltipSupport {
 
-  private static final int TOOLTIP_OFFSET_X = 12;
-  private static final int TOOLTIP_OFFSET_Y = 14;
-  private static final int TOOLTIP_PADDING_X = 12;
-  private static final int TOOLTIP_PADDING_Y = 10;
-  private static final int TOOLTIP_LINE_GAP = 6;
-  private static final int TOOLTIP_CORNER_RADIUS = 10;
+  private static final int TOOLTIP_OFFSET_X = 10;
+  private static final int TOOLTIP_OFFSET_Y = 10;
+  private static final int TOOLTIP_PADDING_X = 8;
+  private static final int TOOLTIP_PADDING_Y = 8;
+  private static final int TOOLTIP_LINE_GAP = 5;
+
+  private static final Color TOOLTIP_FILL = new Color(255, 255, 255, 240);
+  private static final Color TOOLTIP_BORDER = new Color(0x9dc1ebff, true);
+  private static final Color TITLE_COLOR = Color.BLACK;
+  private static final Color DESCRIPTION_COLOR = new Color(0x000000b0, true);
 
   private LitiengineItemTooltipSupport() {}
 
@@ -61,32 +65,23 @@ final class LitiengineItemTooltipSupport {
       tooltipY = mouseY - tooltipHeight - TOOLTIP_OFFSET_Y;
     }
 
-    g.setColor(new Color(248, 248, 252, 235));
-    g.fillRoundRect(
-      tooltipX,
-      tooltipY,
-      tooltipWidth,
-      tooltipHeight,
-      TOOLTIP_CORNER_RADIUS,
-      TOOLTIP_CORNER_RADIUS);
+    tooltipX = Math.max(0, tooltipX);
+    tooltipY = Math.max(0, tooltipY);
 
-    g.setColor(new Color(84, 88, 96, 220));
-    g.drawRoundRect(
-      tooltipX,
-      tooltipY,
-      tooltipWidth,
-      tooltipHeight,
-      TOOLTIP_CORNER_RADIUS,
-      TOOLTIP_CORNER_RADIUS);
+    g.setColor(TOOLTIP_FILL);
+    g.fillRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
+
+    g.setColor(TOOLTIP_BORDER);
+    g.drawRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
 
     int textX = tooltipX + TOOLTIP_PADDING_X;
     int baselineY = tooltipY + TOOLTIP_PADDING_Y + metrics.getAscent();
 
-    g.setColor(Color.BLACK);
+    g.setColor(TITLE_COLOR);
     g.drawString(itemTitle, textX, baselineY);
 
     if (descriptionLines.length > 0) {
-      g.setColor(new Color(0x000000b0, true));
+      g.setColor(DESCRIPTION_COLOR);
       baselineY += TOOLTIP_LINE_GAP + metrics.getHeight();
       for (String line : descriptionLines) {
         g.drawString(line, textX, baselineY);

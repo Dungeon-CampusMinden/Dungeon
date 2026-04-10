@@ -27,8 +27,11 @@ import java.util.stream.Stream;
 final class LitiengineInventoryDialogOverlay
   implements LitiengineUiOverlay, InventoryComponentProvider {
 
-  private static final int DEFAULT_WIDTH = 620;
-  private static final int DEFAULT_HEIGHT = 360;
+  private static final int DEFAULT_WIDTH = 560;
+  private static final int DEFAULT_HEIGHT = 430;
+
+  private static final int PANEL_PADDING = 8;
+  private static final int PANEL_HEADER_GAP = 8;
 
   private static final int DRAG_THRESHOLD_PX = 8;
   private static final int DRAG_PREVIEW_OFFSET_X = 14;
@@ -76,18 +79,18 @@ final class LitiengineInventoryDialogOverlay
     int columns = LitiengineInventoryGridRenderer.columnsFor(slots);
     int rows = LitiengineInventoryGridRenderer.rowsFor(slots, columns);
 
+    int gridWidth = LitiengineInventoryGridRenderer.gridWidth(columns);
+    int gridHeight = LitiengineInventoryGridRenderer.gridHeight(rows);
+
     width =
       Math.max(
         DEFAULT_WIDTH,
-        2 * LitiengineDialogOverlaySupport.PADDING
-          + LitiengineInventoryGridRenderer.gridWidth(columns));
+        2 * LitiengineDialogOverlaySupport.PADDING + gridWidth + 2 * PANEL_PADDING);
 
     height =
       Math.max(
         DEFAULT_HEIGHT,
-        130
-          + LitiengineInventoryGridRenderer.gridHeight(rows)
-          + LitiengineDialogOverlaySupport.PADDING);
+        118 + gridHeight + 2 * PANEL_PADDING + LitiengineDialogOverlaySupport.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -96,6 +99,7 @@ final class LitiengineInventoryDialogOverlay
 
     int contentY;
     int startX;
+    int infoY;
     int gridTop;
 
     GridLayout grid;
@@ -106,15 +110,28 @@ final class LitiengineInventoryDialogOverlay
     try {
       contentY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
 
-      LitiengineInventoryGridRenderer.drawInventoryInfo(
-        g, inventory, slots, x + LitiengineDialogOverlaySupport.PADDING, contentY);
-
+      startX = x + (width - gridWidth) / 2;
+      infoY = contentY + PANEL_HEADER_GAP;
       gridTop =
-        contentY
+        infoY
           + LitiengineInventoryGridRenderer.INFO_LINE_GAP
           + LitiengineInventoryGridRenderer.GRID_TOP_GAP;
 
-      startX = x + (width - LitiengineInventoryGridRenderer.gridWidth(columns)) / 2;
+      Rectangle panelBounds =
+        new Rectangle(
+          startX - PANEL_PADDING,
+          gridTop - PANEL_PADDING,
+          gridWidth + 2 * PANEL_PADDING,
+          gridHeight + 2 * PANEL_PADDING);
+
+      LitiengineInventoryGridRenderer.drawInventoryInfo(g, inventory, slots, startX, infoY);
+      drawPanelBackground(
+        g,
+        panelBounds.x,
+        panelBounds.y,
+        panelBounds.width,
+        panelBounds.height);
+
       grid = new GridLayout(startX, gridTop, columns, slots);
 
       LitiengineInventoryGridRenderer.drawGrid(g, slots, startX, gridTop, columns);
@@ -367,17 +384,25 @@ final class LitiengineInventoryDialogOverlay
     int boxWidth = textWidth + 2 * DRAG_PREVIEW_PADDING_X;
     int boxHeight = textHeight + 2 * DRAG_PREVIEW_PADDING_Y;
 
-    g.setColor(new Color(20, 20, 24, 220));
-    g.fillRoundRect(previewX, previewY, boxWidth, boxHeight, 10, 10);
+    g.setColor(new Color(255, 255, 255, 235));
+    g.fillRect(previewX, previewY, boxWidth, boxHeight);
 
-    g.setColor(new Color(220, 220, 230, 220));
-    g.drawRoundRect(previewX, previewY, boxWidth, boxHeight, 10, 10);
+    g.setColor(new Color(0x9dc1ebff, true));
+    g.drawRect(previewX, previewY, boxWidth, boxHeight);
 
-    g.setColor(Color.WHITE);
+    g.setColor(Color.BLACK);
     g.drawString(
       label,
       previewX + DRAG_PREVIEW_PADDING_X,
       previewY + DRAG_PREVIEW_PADDING_Y + textHeight - 2);
+  }
+
+  private void drawPanelBackground(Graphics2D g, int x, int y, int width, int height) {
+    g.setColor(new Color(62, 62, 99, 96));
+    g.fillRect(x, y, width, height);
+
+    g.setColor(new Color(0x9dc1ebff, true));
+    g.drawRect(x, y, width, height);
   }
 
   private String dragLabel(Item item) {
