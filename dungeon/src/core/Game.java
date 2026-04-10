@@ -8,7 +8,6 @@ import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
-import core.game.WindowEventManager;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
@@ -941,11 +940,5 @@ public final class Game {
     } catch (NetworkException e) {
       LOGGER.error("Failed to initialize network handler.", e);
     }
-
-    WindowEventManager.registerCloseRequestListener(
-      () -> {
-        exit("Game closed");
-        return true;
-      });
   }
 }
