@@ -3,6 +3,7 @@ package starter;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
 import contrib.modules.interaction.InteractionSelection;
+import contrib.modules.levelHide.LevelHideSystem;
 import core.System;
 import core.game.ECSManagement;
 import core.platform.CompositeResourcesAdapter;
@@ -42,6 +43,10 @@ public final class LitienginePlatformBootstrap {
   public static void installHudSystems() {
     addIfAbsent(HudSystem.class, HudSystem::new);
     addIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
+  }
+
+  public static void installGameplayExtensions() {
+    addIfAbsent(LevelHideSystem.class, LevelHideSystem::new);
   }
 
   /** Installs the LITIENGINE debugger controls if they are not already present. */

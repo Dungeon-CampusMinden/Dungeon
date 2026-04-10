@@ -70,6 +70,7 @@ public final class LitiengineStarter {
         Game.add(hero);
 
         LitienginePlatformBootstrap.installHudSystems();
+        LitienginePlatformBootstrap.installGameplayExtensions();
         LitienginePlatformBootstrap.installDebugger();
       });
 
