@@ -136,8 +136,11 @@ public final class AttributeBarUtil {
       if (barDisplayable instanceof HealthComponent healthComponent) {
         return healthComponent.wasDamaged() || healthComponent.current() != healthComponent.max();
       }
-      if (barDisplayable instanceof ManaComponent || barDisplayable instanceof StaminaComponent) {
-        return wereResourceBarsUnlocked(entity);
+      if (barDisplayable instanceof ManaComponent manaComponent) {
+        return manaComponent.wasConsumed() || manaComponent.current() != manaComponent.max();
+      }
+      if (barDisplayable instanceof StaminaComponent staminaComponent) {
+        return staminaComponent.wasConsumed() || staminaComponent.current() != staminaComponent.max();
       }
     }
 
@@ -169,21 +172,5 @@ public final class AttributeBarUtil {
 
   private static boolean isLocalPlayer(Entity entity) {
     return entity.fetch(PlayerComponent.class).map(PlayerComponent::isLocal).orElse(false);
-  }
-
-  private static boolean wereResourceBarsUnlocked(Entity entity) {
-    boolean manaConsumed =
-      entity
-        .fetch(ManaComponent.class)
-        .map(manaComponent -> manaComponent.wasConsumed() || manaComponent.current() != manaComponent.max())
-        .orElse(false);
-    boolean staminaConsumed =
-      entity
-        .fetch(StaminaComponent.class)
-        .map(
-          staminaComponent ->
-            staminaComponent.wasConsumed() || staminaComponent.current() != staminaComponent.max())
-        .orElse(false);
-    return manaConsumed || staminaConsumed;
   }
 }

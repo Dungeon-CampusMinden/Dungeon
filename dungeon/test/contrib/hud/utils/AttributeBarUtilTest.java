@@ -69,7 +69,7 @@ class AttributeBarUtilTest {
   }
 
   @Test
-  void localPlayerManaAndStaminaBarsAppearAfterOneResourceIsConsumed() {
+  void localPlayerManaAndStaminaBarsAppearIndependently() {
     Entity entity = entityWithResources();
     entity.add(new PlayerComponent(true));
     RecordingAttributeBarHandle manaHandle = new RecordingAttributeBarHandle();
@@ -89,6 +89,13 @@ class AttributeBarUtilTest {
     assertFalse(staminaHandle.visible);
 
     manaComponent.consume(5f);
+    AttributeBarUtil.updateBar(entity, manaComponent, barMapping, 0f);
+    AttributeBarUtil.updateBar(entity, staminaComponent, barMapping, 0f);
+
+    assertTrue(manaHandle.visible);
+    assertFalse(staminaHandle.visible);
+
+    staminaComponent.consume(5f);
     AttributeBarUtil.updateBar(entity, manaComponent, barMapping, 0f);
     AttributeBarUtil.updateBar(entity, staminaComponent, barMapping, 0f);
 
