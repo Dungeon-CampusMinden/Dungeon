@@ -7,7 +7,9 @@ import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.level.Tile;
 import core.platform.CameraAdapter;
+import core.platform.Platform;
 import core.platform.litiengine.render.LitiengineCameraState;
+import core.platform.litiengine.render.LitiengineCameraViews;
 import core.utils.Point;
 import java.util.Optional;
 
@@ -68,5 +70,24 @@ public final class LitiengineCameraAdapter implements CameraAdapter {
       Game.currentLevel().isPresent() ? Game.startTile().map(Tile::position) : Optional.empty();
 
     return CameraMath.resolveFocus(trackedPoint, levelStartPoint);
+  }
+
+  @Override
+  public boolean supportsViewportMetrics() {
+    return true;
+  }
+
+  @Override
+  public float viewportWidth() {
+    return LitiengineCameraViews.activeView()
+      .map(view -> Platform.window().width() / (float) Math.max(1, view.tilePx()))
+      .orElse(0f);
+  }
+
+  @Override
+  public float viewportHeight() {
+    return LitiengineCameraViews.activeView()
+      .map(view -> Platform.window().height() / (float) Math.max(1, view.tilePx()))
+      .orElse(0f);
   }
 }

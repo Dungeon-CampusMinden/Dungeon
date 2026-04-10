@@ -1,6 +1,11 @@
 package core.platform;
 
+import core.Entity;
+import core.camera.CameraMath;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.utils.Point;
+import core.utils.Rectangle;
 
 /**
  * Backend-specific camera access for gameplay/debug helpers.
@@ -83,5 +88,60 @@ public interface CameraAdapter {
    */
   default Point resolveFollowTarget() {
     return focusPosition();
+  }
+
+  default boolean supportsViewportMetrics() {
+    return false;
+  }
+
+  default float viewportWidth() {
+    return 0f;
+  }
+
+  default float viewportHeight() {
+    return 0f;
+  }
+
+  default Rectangle worldBounds() {
+    return CameraMath.worldBounds(focusPosition(), viewportWidth(), viewportHeight(), zoom());
+  }
+
+  default boolean isPointVisible(Point point) {
+    return isPointVisible(point, 1f);
+  }
+
+  default boolean isPointVisible(Point point, float margin) {
+    return CameraMath.isPointVisible(
+      point, focusPosition(), viewportWidth(), viewportHeight(), zoom(), margin);
+  }
+
+  default boolean isEntityHovered(Entity entity) {
+    final float HOVER_RADIUS = 0.5f;
+
+    if (entity == null) {
+      return false;
+    }
+
+    Point mousePoint = Platform.cursor().world();
+
+    return entity
+      .fetch(PositionComponent.class)
+      .map(
+        positionComponent ->
+          entity
+            .fetch(DrawComponent.class)
+            .map(
+              dc -> {
+                float width = dc.getWidth();
+                float height = dc.getHeight();
+                Point bottomLeft = positionComponent.position();
+
+                return bottomLeft.x() <= mousePoint.x()
+                  && mousePoint.x() <= bottomLeft.x() + width
+                  && bottomLeft.y() <= mousePoint.y()
+                  && mousePoint.y() <= bottomLeft.y() + height;
+              })
+            .orElseGet(() -> positionComponent.position().distance(mousePoint) < HOVER_RADIUS))
+      .orElse(false);
   }
 }
