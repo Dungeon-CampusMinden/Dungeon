@@ -70,6 +70,23 @@ public class DrawComponentTest {
   }
 
   /**
+   * Tests that explicitly setting the current state again still refreshes the directional data.
+   *
+   * <p>This is required for client-side snapshot application, where the state name may stay the
+   * same while only the facing direction changes.
+   */
+  @Test
+  public void setSameStateUpdatesStateData() {
+    animationComponent.sendSignal(VelocitySystem.MOVE_SIGNAL, Direction.UP);
+    assertEquals(Direction.UP, animationComponent.currentState().getData());
+
+    animationComponent.stateMachine().setState(VelocitySystem.STATE_NAME, Direction.RIGHT);
+
+    assertEquals(VelocitySystem.STATE_NAME, animationComponent.currentState().name);
+    assertEquals(Direction.RIGHT, animationComponent.currentState().getData());
+  }
+
+  /**
    * Tests that a simple image can be loaded into a {@link DrawComponent} and that the default state
    * is correctly set to "idle".
    */

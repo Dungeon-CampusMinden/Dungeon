@@ -276,7 +276,10 @@ public class StateMachine implements Serializable {
 
   private void changeState(State newState, Object data) {
     if (newState == null) return;
-    if (newState == currentState) return;
+    if (newState == currentState) {
+      currentState.setData(data);
+      return;
+    }
 
     currentState.onExit();
 
