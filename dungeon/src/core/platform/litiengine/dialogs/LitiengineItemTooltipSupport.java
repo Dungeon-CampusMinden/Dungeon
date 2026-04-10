@@ -22,7 +22,7 @@ final class LitiengineItemTooltipSupport {
   private static final Color TOOLTIP_FILL = new Color(255, 255, 255, 240);
   private static final Color TOOLTIP_BORDER = new Color(0x9dc1ebff, true);
   private static final Color TITLE_COLOR = Color.BLACK;
-  private static final Color DESCRIPTION_COLOR = new Color(0x000000b0, true);
+  private static final Color DESCRIPTION_COLOR = new Color(0x282828FF, false);
 
   private LitiengineItemTooltipSupport() {}
 
