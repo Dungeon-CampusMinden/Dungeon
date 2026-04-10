@@ -12,6 +12,7 @@ import core.sound.player.NoSoundPlayer;
 import core.utils.InputManager;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
+import de.gurkenlabs.litiengine.configuration.DisplayMode;
 
 public final class LitiengineGameLoopHost {
   private LitiengineGameLoopHost() {}
@@ -23,6 +24,8 @@ public final class LitiengineGameLoopHost {
   }
 
   public static void run(String[] args, GameLoopCore loopCore) {
+    syncDisplaySettings();
+
     // Register lifecycle listener BEFORE init so we can safely set up screens at the right time.
     Game.addGameListener(
       new GameListener() {
@@ -96,5 +99,15 @@ public final class LitiengineGameLoopHost {
         });
 
     Game.start();
+  }
+
+  private static void syncDisplaySettings() {
+    Game.config().load();
+    Game.config().client().setMaxFps(PreRunConfiguration.frameRate());
+    Game.config().graphics().setDisplayMode(
+      PreRunConfiguration.fullScreen() ? DisplayMode.FULLSCREEN : DisplayMode.WINDOWED);
+    Game.config().graphics().setResolutionWidth(PreRunConfiguration.windowWidth());
+    Game.config().graphics().setResolutionHeight(PreRunConfiguration.windowHeight());
+    Game.config().save();
   }
 }

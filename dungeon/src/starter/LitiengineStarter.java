@@ -53,10 +53,10 @@ public final class LitiengineStarter {
     }
 
     Game.disableAudio(false);
-    Game.frameRate(30);
+    Game.frameRate(60);
     Game.windowTitle("LITIENGINE Dungeon");
 
-    // Use borderless fullscreen on startup for the LITIENGINE test client.
+    // Start the LITIENGINE client in a normal 1600x900 window.
     PreRunConfiguration.windowWidth(1600);
     PreRunConfiguration.windowHeight(900);
     PreRunConfiguration.fullScreen(false);
