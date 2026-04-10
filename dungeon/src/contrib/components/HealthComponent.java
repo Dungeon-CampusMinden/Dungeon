@@ -44,6 +44,7 @@ public final class HealthComponent implements Component, BarDisplayable {
 
   private boolean godMode = false;
   private boolean dead = false;
+  private boolean damaged = false;
 
   /**
    * Create a new HealthComponent.
@@ -159,7 +160,12 @@ public final class HealthComponent implements Component, BarDisplayable {
    * @param amount New amount of current health points
    */
   public void currentHealthpoints(int amount) {
-    this.currentHealthpoints = Math.min(maximalHealthpoints, amount);
+    int cappedAmount = Math.min(maximalHealthpoints, amount);
+    if (cappedAmount < this.currentHealthpoints) {
+      damaged = true;
+    }
+
+    this.currentHealthpoints = cappedAmount;
     if (godMode) this.currentHealthpoints = Math.max(currentHealthpoints, 1);
   }
 
@@ -254,6 +260,15 @@ public final class HealthComponent implements Component, BarDisplayable {
    */
   public boolean alreadyDead() {
     return this.dead;
+  }
+
+  /**
+   * Check if the entity has already lost health at least once.
+   *
+   * @return true if damage has been taken before, false otherwise
+   */
+  public boolean wasDamaged() {
+    return damaged;
   }
 
   /**

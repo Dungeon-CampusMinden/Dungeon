@@ -1,5 +1,8 @@
 package contrib.hud.utils;
 
+import contrib.components.HealthComponent;
+import contrib.components.ManaComponent;
+import contrib.components.StaminaComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
@@ -90,10 +93,13 @@ public final class AttributeBarUtil {
   }
 
   public static void updatePosition(AttributeBarHandle bar, Entity entity, float verticalOffset) {
+    boolean renderBelowEntity = shouldRenderBarBelowEntity(entity);
     Game.stage()
       .flatMap(stageHandle -> Platform.render().projectWorldToStage(barAnchorPoint(entity), stageHandle))
       .ifPresent(
-        screenPoint -> bar.setPosition(screenPoint.x(), screenPoint.y() - BAR_MARGIN - verticalOffset));
+        screenPoint ->
+          bar.setPosition(
+            screenPoint.x(), barScreenY(screenPoint.y(), renderBelowEntity, verticalOffset)));
   }
 
   /**
@@ -126,8 +132,16 @@ public final class AttributeBarUtil {
       return false;
     }
 
-    boolean isLocalPlayer = entity.fetch(PlayerComponent.class).map(PlayerComponent::isLocal).orElse(false);
-    return isLocalPlayer || barDisplayable.current() != barDisplayable.max();
+    if (isLocalPlayer(entity)) {
+      if (barDisplayable instanceof HealthComponent healthComponent) {
+        return healthComponent.wasDamaged() || healthComponent.current() != healthComponent.max();
+      }
+      if (barDisplayable instanceof ManaComponent || barDisplayable instanceof StaminaComponent) {
+        return wereResourceBarsUnlocked(entity);
+      }
+    }
+
+    return barDisplayable.current() != barDisplayable.max();
   }
 
   static Point barAnchorPoint(Entity entity) {
@@ -139,6 +153,37 @@ public final class AttributeBarUtil {
     float height =
       drawComponent != null && drawComponent.getHeight() > 0f ? drawComponent.getHeight() : 1f;
 
-    return positionComponent.position().translate(width * 0.5f, height);
+    float yOffset = shouldRenderBarBelowEntity(entity) ? 0f : height;
+    return positionComponent.position().translate(width * 0.5f, yOffset);
+  }
+
+  private static float barScreenY(float anchorY, boolean renderBelowEntity, float verticalOffset) {
+    return renderBelowEntity
+      ? anchorY + BAR_MARGIN + verticalOffset
+      : anchorY - BAR_MARGIN - verticalOffset;
+  }
+
+  private static boolean shouldRenderBarBelowEntity(Entity entity) {
+    return isLocalPlayer(entity);
+  }
+
+  private static boolean isLocalPlayer(Entity entity) {
+    return entity.fetch(PlayerComponent.class).map(PlayerComponent::isLocal).orElse(false);
+  }
+
+  private static boolean wereResourceBarsUnlocked(Entity entity) {
+    boolean manaConsumed =
+      entity
+        .fetch(ManaComponent.class)
+        .map(manaComponent -> manaComponent.wasConsumed() || manaComponent.current() != manaComponent.max())
+        .orElse(false);
+    boolean staminaConsumed =
+      entity
+        .fetch(StaminaComponent.class)
+        .map(
+          staminaComponent ->
+            staminaComponent.wasConsumed() || staminaComponent.current() != staminaComponent.max())
+        .orElse(false);
+    return manaConsumed || staminaConsumed;
   }
 }

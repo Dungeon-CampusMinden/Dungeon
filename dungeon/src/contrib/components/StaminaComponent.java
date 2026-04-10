@@ -20,6 +20,8 @@ public class StaminaComponent implements Component, BarDisplayable {
   /** The amount of stamina restored per second. */
   private float restorePerSecond;
 
+  private boolean consumed;
+
   /**
    * Creates a new {@code EnergyComponent} with the given maximum stamina, initial stamina, and
    * restoration rate.
@@ -32,6 +34,7 @@ public class StaminaComponent implements Component, BarDisplayable {
     this.maxAmount = maxAmount;
     this.currentAmount = Math.min(currentAmount, maxAmount);
     this.restorePerSecond = restorePerSecond;
+    this.consumed = this.currentAmount < this.maxAmount;
   }
 
   /**
@@ -74,7 +77,11 @@ public class StaminaComponent implements Component, BarDisplayable {
    * @param currentAmount the new current stamina
    */
   public void currentAmount(float currentAmount) {
-    this.currentAmount = Math.min(currentAmount, maxAmount);
+    float cappedAmount = Math.min(currentAmount, maxAmount);
+    if (cappedAmount < this.currentAmount) {
+      consumed = true;
+    }
+    this.currentAmount = cappedAmount;
   }
 
   /**
@@ -106,7 +113,7 @@ public class StaminaComponent implements Component, BarDisplayable {
    */
   public boolean consume(float amount) {
     if (amount <= currentAmount) {
-      currentAmount -= amount;
+      currentAmount(currentAmount - amount);
       return true;
     }
     return false;
@@ -139,6 +146,15 @@ public class StaminaComponent implements Component, BarDisplayable {
    */
   public void restorePerSecond(float restorePerSecond) {
     this.restorePerSecond = restorePerSecond;
+  }
+
+  /**
+   * Returns whether this stamina pool has already been consumed at least once.
+   *
+   * @return true if stamina was consumed before, false otherwise
+   */
+  public boolean wasConsumed() {
+    return consumed;
   }
 
   @Override
