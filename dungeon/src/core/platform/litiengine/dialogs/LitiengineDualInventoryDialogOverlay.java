@@ -98,7 +98,7 @@ final class LitiengineDualInventoryDialogOverlay
     height =
       Math.max(
         DEFAULT_HEIGHT,
-        126 + maxGridHeight + 2 * PANEL_PADDING + LitiengineDialogOverlaySupport.PADDING);
+        108 + maxGridHeight + 2 * PANEL_PADDING + LitiengineDialogOverlaySupport.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -108,7 +108,6 @@ final class LitiengineDualInventoryDialogOverlay
     int contentY;
     int leftStartX;
     int rightStartX;
-    int infoY;
     int gridTop;
 
     GridLayout leftGrid;
@@ -125,21 +124,13 @@ final class LitiengineDualInventoryDialogOverlay
       leftStartX = x + (width - totalGridWidth) / 2;
       rightStartX = leftStartX + leftGridWidth + PANEL_GAP;
 
-      Font oldFont = g.getFont();
-      g.setFont(oldFont.deriveFont(Font.BOLD, 16f));
-      FontMetrics titleMetrics = g.getFontMetrics();
+      int titleBaseline = contentY + g.getFontMetrics().getAscent();
+      g.setColor(Color.WHITE);
+      g.drawString(leftTitle, leftStartX, titleBaseline);
+      g.drawString(rightTitle, rightStartX, titleBaseline);
 
-      int titleBaseline = contentY + titleMetrics.getAscent();
-      drawPanelTitle(g, leftTitle, leftStartX, leftGridWidth, titleBaseline);
-      drawPanelTitle(g, rightTitle, rightStartX, rightGridWidth, titleBaseline);
-
-      g.setFont(oldFont.deriveFont(15f));
-
-      infoY = titleBaseline + PANEL_HEADER_GAP;
       gridTop =
-        infoY
-          + LitiengineInventoryGridRenderer.INFO_LINE_GAP
-          + LitiengineInventoryGridRenderer.GRID_TOP_GAP;
+        titleBaseline + PANEL_HEADER_GAP + LitiengineInventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle leftPanelBounds =
         new Rectangle(
@@ -154,11 +145,6 @@ final class LitiengineDualInventoryDialogOverlay
           gridTop - PANEL_PADDING,
           rightGridWidth + 2 * PANEL_PADDING,
           rightGridHeight + 2 * PANEL_PADDING);
-
-      LitiengineInventoryGridRenderer.drawInventoryInfo(
-        g, leftInventory, leftSlots, leftStartX, infoY);
-      LitiengineInventoryGridRenderer.drawInventoryInfo(
-        g, rightInventory, rightSlots, rightStartX, infoY);
 
       drawPanelBackground(
         g,

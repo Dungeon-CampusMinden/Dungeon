@@ -25,9 +25,7 @@ final class LitiengineInventoryGridRenderer {
   static final int INFO_LINE_GAP = 18;
   static final int GRID_TOP_GAP = 12;
 
-  private static final int SLOT_TEXT_PADDING = 6;
   private static final int ITEM_ICON_PADDING = 8;
-  private static final int ITEM_LABEL_BOTTOM_PADDING = 6;
   private static final int STACK_PADDING = 5;
 
   private static final Color INFO_COLOR = Color.WHITE;
@@ -108,7 +106,6 @@ final class LitiengineInventoryGridRenderer {
       drawItemIcon(g, bounds, icon);
     }
 
-    drawItemLabel(g, bounds, item);
     drawStackSize(g, bounds, item);
   }
 
@@ -126,7 +123,7 @@ final class LitiengineInventoryGridRenderer {
 
   private static void drawItemIcon(Graphics2D g, Rectangle bounds, BufferedImage icon) {
     int maxWidth = bounds.width - 2 * ITEM_ICON_PADDING;
-    int maxHeight = bounds.height - 30;
+    int maxHeight = bounds.height - 2 * ITEM_ICON_PADDING;
 
     if (maxWidth <= 0 || maxHeight <= 0) {
       return;
@@ -141,28 +138,9 @@ final class LitiengineInventoryGridRenderer {
     int drawHeight = Math.max(1, (int) Math.round(icon.getHeight() * scale));
 
     int drawX = bounds.x + (bounds.width - drawWidth) / 2;
-    int drawY = bounds.y + 6 + (maxHeight - drawHeight) / 2;
+    int drawY = bounds.y + (bounds.height - drawHeight) / 2;
 
     g.drawImage(icon, drawX, drawY, drawWidth, drawHeight, null);
-  }
-
-  private static void drawItemLabel(Graphics2D g, Rectangle bounds, Item item) {
-    String label = fitToWidth(item.displayName(), g.getFontMetrics(), bounds.width - 2 * SLOT_TEXT_PADDING);
-    if (label.isBlank()) {
-      return;
-    }
-
-    Font oldFont = g.getFont();
-    g.setFont(oldFont.deriveFont(11f));
-
-    FontMetrics fm = g.getFontMetrics();
-    int textX = bounds.x + (bounds.width - fm.stringWidth(label)) / 2;
-    int textY = bounds.y + bounds.height - ITEM_LABEL_BOTTOM_PADDING;
-
-    g.setColor(Color.WHITE);
-    g.drawString(label, textX, textY);
-
-    g.setFont(oldFont);
   }
 
   private static void drawStackSize(Graphics2D g, Rectangle bounds, Item item) {
@@ -186,29 +164,5 @@ final class LitiengineInventoryGridRenderer {
     g.drawString(stackText, textX, textY);
 
     g.setFont(oldFont);
-  }
-
-  private static String fitToWidth(String text, FontMetrics fm, int maxWidth) {
-    if (text == null || text.isBlank()) {
-      return "";
-    }
-
-    if (fm.stringWidth(text) <= maxWidth) {
-      return text;
-    }
-
-    String ellipsis = "...";
-    int ellipsisWidth = fm.stringWidth(ellipsis);
-    StringBuilder result = new StringBuilder();
-
-    for (int i = 0; i < text.length(); i++) {
-      char c = text.charAt(i);
-      if (fm.stringWidth(result.toString() + c) + ellipsisWidth > maxWidth) {
-        break;
-      }
-      result.append(c);
-    }
-
-    return result.isEmpty() ? ellipsis : result + ellipsis;
   }
 }

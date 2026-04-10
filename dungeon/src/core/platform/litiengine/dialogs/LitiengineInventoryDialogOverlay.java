@@ -90,7 +90,7 @@ final class LitiengineInventoryDialogOverlay
     height =
       Math.max(
         DEFAULT_HEIGHT,
-        118 + gridHeight + 2 * PANEL_PADDING + LitiengineDialogOverlaySupport.PADDING);
+        96 + gridHeight + 2 * PANEL_PADDING + LitiengineDialogOverlaySupport.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -99,7 +99,6 @@ final class LitiengineInventoryDialogOverlay
 
     int contentY;
     int startX;
-    int infoY;
     int gridTop;
 
     GridLayout grid;
@@ -111,11 +110,7 @@ final class LitiengineInventoryDialogOverlay
       contentY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
 
       startX = x + (width - gridWidth) / 2;
-      infoY = contentY + PANEL_HEADER_GAP;
-      gridTop =
-        infoY
-          + LitiengineInventoryGridRenderer.INFO_LINE_GAP
-          + LitiengineInventoryGridRenderer.GRID_TOP_GAP;
+      gridTop = contentY + PANEL_HEADER_GAP + LitiengineInventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle panelBounds =
         new Rectangle(
@@ -124,7 +119,6 @@ final class LitiengineInventoryDialogOverlay
           gridWidth + 2 * PANEL_PADDING,
           gridHeight + 2 * PANEL_PADDING);
 
-      LitiengineInventoryGridRenderer.drawInventoryInfo(g, inventory, slots, startX, infoY);
       drawPanelBackground(
         g,
         panelBounds.x,
