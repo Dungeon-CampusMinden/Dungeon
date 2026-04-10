@@ -11,8 +11,10 @@ import core.utils.Time;
  * backends can animate the transition without keeping backend-specific shader state.
  */
 public final class LevelHideStateComponent implements Component {
+  private static final long INITIAL_SETTLED_OFFSET_MS = 10_000L;
+
   private boolean hiding = true;
-  private long transitionStartedAtMs = Time.nowMs();
+  private long transitionStartedAtMs = Time.nowMs() - INITIAL_SETTLED_OFFSET_MS;
 
   /**
    * Returns whether the region is currently hidden.
