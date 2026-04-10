@@ -13,15 +13,13 @@ import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
 import core.platform.litiengine.render.LitiengineAnimationFrames;
+import core.platform.litiengine.render.LitiengineImages;
 import core.platform.litiengine.ui.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
-import java.awt.Color;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,14 +56,20 @@ final class LitiengineCraftingDialogOverlay
   private static final int DRAG_TARGET_INSET = 3;
   private static final int DRAG_TARGET_ARC = 8;
 
-  private static final Color PANEL_FILL = new Color(28, 30, 38, 170);
-  private static final Color PANEL_OUTLINE = new Color(90, 94, 108, 180);
-  private static final Color CLASSIC_SLOT_FILL = new Color(35, 38, 48, 235);
-  private static final Color CLASSIC_SLOT_BORDER = new Color(220, 220, 230);
-  private static final Color CLASSIC_EMPTY_TEXT = new Color(120, 125, 135);
+  private static final String LEGACY_BACKGROUND_TEXTURE_PATH = "hud/crafting/background.png";
+
+  private static final Color INVENTORY_PANEL_FILL = new Color(62, 62, 99, 96);
+  private static final Color INVENTORY_PANEL_OUTLINE = new Color(0x9dc1ebff, true);
+
+  private static final Color NUMBER_BADGE_FILL = new Color(0xd93030ff, true);
+  private static final Color NUMBER_BADGE_TEXT = Color.WHITE;
+
   private static final Color DRAG_HIGHLIGHT = new Color(157, 193, 235, 180);
   private static final Color DRAG_HIGHLIGHT_FILL = new Color(157, 193, 235, 45);
-  private static final Color RESULT_TEXT = new Color(220, 220, 230);
+
+  private static final int NUMBER_PADDING = 5;
+  private static final int BUTTON_ICON_PADDING = 10;
+  private static final int ITEM_ICON_PADDING = 6;
 
   private static final CraftingDialogLayout CLASSIC_LAYOUT = new CraftingDialogLayout();
 
@@ -199,21 +203,15 @@ final class LitiengineCraftingDialogOverlay
           rightPanelWidth,
           rightPanelHeight);
 
-      drawPanelBackground(
+      drawInventoryPanelBackground(
         g,
         leftPanelBounds.x,
         leftPanelBounds.y,
         leftPanelBounds.width,
         leftPanelBounds.height);
 
-      drawPanelBackground(
-        g,
-        rightPanelBounds.x,
-        rightPanelBounds.y,
-        rightPanelBounds.width,
-        rightPanelBounds.height);
-
-      leftGrid = new GridLayout(InventorySide.TARGET, leftStartX, gridTop, leftColumns, targetSlots);
+      leftGrid =
+        new GridLayout(InventorySide.TARGET, leftStartX, gridTop, leftColumns, targetSlots);
       LitiengineInventoryGridRenderer.drawGrid(g, targetSlots, leftStartX, gridTop, leftColumns);
 
       craftingBounds =
@@ -233,7 +231,7 @@ final class LitiengineCraftingDialogOverlay
           rightPanelBounds.height);
 
       syncActionButtonBounds(classicActionButtonBounds(rightPanelBounds));
-      drawClassicCraftingPanel(g, rightPanelBounds, craftingSlots, craftingBounds, resultItems, resultBounds);
+      drawLegacyCraftingPanel(g, rightPanelBounds, craftingBounds, resultItems, resultBounds);
 
       if (dragState != null) {
         drawDropHighlights(g, leftGrid, leftPanelBounds, rightPanelBounds, craftingBounds);
@@ -251,102 +249,144 @@ final class LitiengineCraftingDialogOverlay
     }
   }
 
-  private void drawClassicCraftingPanel(
+  private void drawLegacyCraftingPanel(
     Graphics2D g,
     Rectangle panelBounds,
-    Item[] craftingSlots,
     List<CraftingDialogLayout.SlotBounds> craftingBounds,
     Item[] resultItems,
     List<CraftingDialogLayout.ItemBounds> resultBounds) {
 
-    if (craftingBounds.isEmpty()) {
-      g.setColor(CLASSIC_EMPTY_TEXT);
-      drawCenteredString(
-        g,
-        "Drag items here",
-        new Rectangle(
-          panelBounds.x + PANEL_PADDING,
-          panelBounds.y + 40,
-          panelBounds.width - 2 * PANEL_PADDING,
-          110));
-    } else {
-      for (CraftingDialogLayout.SlotBounds bounds : craftingBounds) {
-        Item item = controller.craftingInventory().get(bounds.slotIndex()).orElse(null);
-        drawClassicItemSlot(g, new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size()), item);
+    drawLegacyCraftingBackground(g, panelBounds);
+
+    for (int i = 0; i < craftingBounds.size(); i++) {
+      CraftingDialogLayout.SlotBounds bounds = craftingBounds.get(i);
+      Item item = controller.craftingInventory().get(bounds.slotIndex()).orElse(null);
+      if (item == null) {
+        continue;
       }
+
+      Rectangle slotBounds = new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size());
+      drawCraftingItemIcon(g, slotBounds, item);
+      drawIngredientNumberBadge(g, slotBounds, i + 1);
     }
 
-    if (resultItems.length == 0) {
-      String text =
-        craftingBounds.isEmpty() ? "No ingredients" : "No matching recipe";
-      g.setColor(RESULT_TEXT);
-      drawCenteredString(
-        g,
-        text,
-        new Rectangle(
-          panelBounds.x + PANEL_PADDING,
-          panelBounds.y + Math.round(panelBounds.height * 0.17f),
-          panelBounds.width - 2 * PANEL_PADDING,
-          panelBounds.height / 2));
-    } else {
-      for (int i = 0; i < resultBounds.size() && i < resultItems.length; i++) {
-        CraftingDialogLayout.ItemBounds bounds = resultBounds.get(i);
-        drawClassicItemSlot(
-          g,
-          new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size()),
-          resultItems[i]);
+    for (int i = 0; i < resultBounds.size() && i < resultItems.length; i++) {
+      CraftingDialogLayout.ItemBounds bounds = resultBounds.get(i);
+      Item item = resultItems[i];
+      if (item == null) {
+        continue;
       }
+
+      Rectangle slotBounds = new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size());
+      drawCraftingItemIcon(g, slotBounds, item);
     }
 
-    for (CraftingDialogAction action : CraftingDialogAction.values()) {
-      ImageButton button = actionButtons.get(action);
-      if (button != null) {
-        LitiengineButtonRenderer.draw(g, button, "");
-      }
-    }
+    drawLegacyActionIcons(g);
   }
 
-  private void drawClassicItemSlot(Graphics2D g, Rectangle bounds, Item item) {
-    g.setColor(CLASSIC_SLOT_FILL);
-    g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 10, 10);
-
-    g.setColor(CLASSIC_SLOT_BORDER);
-    g.drawRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 10, 10);
-
-    if (item == null) {
+  private void drawLegacyCraftingBackground(Graphics2D g, Rectangle panelBounds) {
+    BufferedImage background = LitiengineImages.get(LEGACY_BACKGROUND_TEXTURE_PATH);
+    if (background != null) {
+      g.drawImage(
+        background,
+        panelBounds.x,
+        panelBounds.y,
+        panelBounds.width,
+        panelBounds.height,
+        null);
       return;
     }
 
+    // Fallback, falls das alte Asset einmal nicht geladen werden kann.
+    g.setColor(new Color(196, 224, 241));
+    g.fillRoundRect(panelBounds.x, panelBounds.y, panelBounds.width, panelBounds.height, 10, 10);
+    g.setColor(Color.BLACK);
+    g.drawRoundRect(panelBounds.x, panelBounds.y, panelBounds.width, panelBounds.height, 10, 10);
+  }
+
+  private void drawCraftingItemIcon(Graphics2D g, Rectangle bounds, Item item) {
     BufferedImage icon = resolveItemIcon(item);
-    if (icon != null) {
-      int padding = Math.max(6, bounds.width / 10);
-      int maxWidth = bounds.width - 2 * padding;
-      int maxHeight = bounds.height - 2 * padding;
-
-      double scale =
-        Math.min(
-          maxWidth / (double) Math.max(1, icon.getWidth()),
-          maxHeight / (double) Math.max(1, icon.getHeight()));
-
-      int drawWidth = Math.max(1, (int) Math.round(icon.getWidth() * scale));
-      int drawHeight = Math.max(1, (int) Math.round(icon.getHeight() * scale));
-      int drawX = bounds.x + (bounds.width - drawWidth) / 2;
-      int drawY = bounds.y + (bounds.height - drawHeight) / 2;
-
-      g.drawImage(icon, drawX, drawY, drawWidth, drawHeight, null);
+    if (icon == null) {
+      return;
     }
 
-    if (item.stackSize() > 1) {
-      FontMetrics fm = g.getFontMetrics();
-      String stackText = Integer.toString(item.stackSize());
-      int textX = bounds.x + bounds.width - fm.stringWidth(stackText) - 6;
-      int textY = bounds.y + fm.getAscent() + 4;
+    int maxWidth = bounds.width - 2 * ITEM_ICON_PADDING;
+    int maxHeight = bounds.height - 2 * ITEM_ICON_PADDING;
 
-      g.setColor(new Color(0, 0, 0, 176));
-      g.drawString(stackText, textX + 1, textY + 1);
-      g.setColor(Color.WHITE);
-      g.drawString(stackText, textX, textY);
+    double scale =
+      Math.min(
+        maxWidth / (double) Math.max(1, icon.getWidth()),
+        maxHeight / (double) Math.max(1, icon.getHeight()));
+
+    int drawWidth = Math.max(1, (int) Math.round(icon.getWidth() * scale));
+    int drawHeight = Math.max(1, (int) Math.round(icon.getHeight() * scale));
+    int drawX = bounds.x + (bounds.width - drawWidth) / 2;
+    int drawY = bounds.y + (bounds.height - drawHeight) / 2;
+
+    g.drawImage(icon, drawX, drawY, drawWidth, drawHeight, null);
+  }
+
+  private void drawIngredientNumberBadge(Graphics2D g, Rectangle itemBounds, int number) {
+    String label = Integer.toString(number);
+
+    Font oldFont = g.getFont();
+    g.setFont(oldFont.deriveFont(12f));
+
+    FontMetrics fm = g.getFontMetrics();
+    int badgeWidth = fm.stringWidth(label) + 2 * NUMBER_PADDING;
+    int badgeHeight = fm.getHeight() + 2;
+    int badgeX = itemBounds.x + (itemBounds.width - badgeWidth) / 2;
+    int badgeY = itemBounds.y - badgeHeight + NUMBER_PADDING;
+
+    g.setColor(NUMBER_BADGE_FILL);
+    g.fillRoundRect(badgeX, badgeY, badgeWidth, badgeHeight, 6, 6);
+
+    g.setColor(NUMBER_BADGE_TEXT);
+    g.drawString(label, badgeX + NUMBER_PADDING, badgeY + fm.getAscent() + 1);
+
+    g.setFont(oldFont);
+  }
+
+  private void drawLegacyActionIcons(Graphics2D g) {
+    for (CraftingDialogAction action : CraftingDialogAction.values()) {
+      ImageButton button = actionButtons.get(action);
+      if (button == null) {
+        continue;
+      }
+
+      BufferedImage icon = LitiengineAnimationFrames.toImage(button.animation().update());
+      if (icon == null) {
+        continue;
+      }
+
+      Rectangle bounds = new Rectangle(button.x(), button.y(), button.width(), button.height());
+      drawCenteredButtonIcon(g, icon, bounds);
     }
+  }
+
+  private void drawCenteredButtonIcon(Graphics2D g, BufferedImage icon, Rectangle bounds) {
+    int maxWidth = bounds.width - 2 * BUTTON_ICON_PADDING;
+    int maxHeight = bounds.height - 2 * BUTTON_ICON_PADDING;
+
+    double scale =
+      Math.min(
+        maxWidth / (double) Math.max(1, icon.getWidth()),
+        maxHeight / (double) Math.max(1, icon.getHeight()));
+
+    int drawWidth = Math.max(1, (int) Math.round(icon.getWidth() * scale));
+    int drawHeight = Math.max(1, (int) Math.round(icon.getHeight() * scale));
+    int drawX = bounds.x + (bounds.width - drawWidth) / 2;
+    int drawY = bounds.y + (bounds.height - drawHeight) / 2;
+
+    g.drawImage(icon, drawX, drawY, drawWidth, drawHeight, null);
+  }
+
+  private void drawInventoryPanelBackground(Graphics2D g, int x, int y, int width, int height) {
+    g.setColor(INVENTORY_PANEL_FILL);
+    g.fillRect(x, y, width, height);
+
+    g.setColor(INVENTORY_PANEL_OUTLINE);
+    g.drawRect(x, y, width, height);
   }
 
   private Item[] currentResultItems() {
@@ -748,13 +788,6 @@ final class LitiengineCraftingDialogOverlay
     int textX = bounds.x + (bounds.width - fm.stringWidth(text)) / 2;
     int textY = bounds.y + (bounds.height - fm.getHeight()) / 2 + fm.getAscent();
     g.drawString(text, textX, textY);
-  }
-
-  private void drawPanelBackground(Graphics2D g, int x, int y, int width, int height) {
-    g.setColor(PANEL_FILL);
-    g.fillRoundRect(x, y, width, height, 12, 12);
-    g.setColor(PANEL_OUTLINE);
-    g.drawRoundRect(x, y, width, height, 12, 12);
   }
 
   @Override
