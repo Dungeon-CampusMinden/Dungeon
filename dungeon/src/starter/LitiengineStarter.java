@@ -11,12 +11,15 @@ import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceBerry;
 import contrib.item.concreteItem.ItemWoodenArrow;
+import contrib.modules.levelHide.LevelHideFactory;
 import core.Entity;
 import core.Game;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
+import core.level.Tile;
 import core.level.loader.DungeonLoader;
+import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
@@ -29,14 +32,14 @@ import java.util.Set;
  * <p>This starter initializes and starts the game by configuring levels, loading settings,
  * setting up the game window, and launching the LITIENGINE host loop.
  *
- * <p>This version also installs a small manual crafting test setup:
+ * <p>This version also installs a small manual crafting and level-hide verification setup:
  *
  * <ul>
  *   <li>the hero starts with guaranteed crafting items,
  *   <li>a crafting cauldron is spawned next to the start tile,
- *   <li>a guaranteed test recipe is registered,
- *   <li>a starter-only fallback opens crafting via {@code E} if the normal interaction path
- *       does not react.
+ *   <li>a chest is spawned a few tiles to the right,
+ *   <li>a level-hide demo region is spawned around the chest area,
+ *   <li>a guaranteed test recipe is registered.
  * </ul>
  */
 public final class LitiengineStarter {
@@ -80,13 +83,7 @@ public final class LitiengineStarter {
           return;
         }
 
-        Game.startTile()
-          .map(tile -> tile.position().translate(Vector2.of(1f, 0f)))
-          .ifPresent(position -> Game.add(MiscFactory.newCraftingCauldron(position)));
-
-        Game.startTile()
-          .map(tile -> tile.position().translate(Vector2.of(5f, 0f)))
-          .ifPresent(position -> Game.add(MiscFactory.newChest(createChestTestItems(), position)));
+        Game.startTile().map(Tile::position).ifPresent(LitiengineStarter::spawnVerificationFixtures);
       });
 
     LitienginePlatformBootstrap.init();
@@ -117,6 +114,31 @@ public final class LitiengineStarter {
           inventory.add(new ItemResourceBerry());
           inventory.add(new ItemResourceBerry());
         });
+  }
+
+  /**
+   * Spawns a small deterministic verification scene near the start tile.
+   *
+   * <p>The level-hide region is placed a few tiles to the right of the start position so that:
+   *
+   * <ul>
+   *   <li>the player does not start inside the hidden region,
+   *   <li>the darkened area is immediately visible on screen,
+   *   <li>walking a few tiles to the right triggers reveal/hide clearly.
+   * </ul>
+   *
+   * @param startPosition world position of the level start
+   */
+  private static void spawnVerificationFixtures(Point startPosition) {
+    Game.add(MiscFactory.newCraftingCauldron(startPosition.translate(Vector2.of(1f, 0f))));
+    Game.add(MiscFactory.newChest(createChestTestItems(), startPosition.translate(Vector2.of(5f, 0f))));
+
+    Game.add(
+      LevelHideFactory.createLevelHide(
+        startPosition.translate(Vector2.of(4f, 0f)),
+        4f,
+        3f,
+        1.5f));
   }
 
   /** Creates a small deterministic test loot set for the starter chest. */
