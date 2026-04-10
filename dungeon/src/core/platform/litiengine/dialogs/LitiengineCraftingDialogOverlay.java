@@ -56,6 +56,16 @@ final class LitiengineCraftingDialogOverlay
   private static final int DRAG_TARGET_INSET = 3;
   private static final int DRAG_TARGET_ARC = 8;
 
+  private static final Color ACTION_BOX_FILL = new Color(210, 210, 210, 235);
+  private static final Color ACTION_BOX_HOVER_FILL = new Color(232, 232, 232, 245);
+  private static final Color ACTION_BOX_PRESSED_FILL = new Color(180, 180, 180, 245);
+  private static final Color ACTION_BOX_BORDER = new Color(70, 70, 70, 220);
+  private static final Color ACTION_BOX_HOVER_BORDER = new Color(20, 20, 20, 230);
+
+  private static final int ACTION_BOX_ARC = 10;
+  private static final int BUTTON_ICON_PADDING = 6;
+  private static final int ITEM_ICON_PADDING = 6;
+
   private static final String LEGACY_BACKGROUND_TEXTURE_PATH = "hud/crafting/background.png";
 
   private static final Color INVENTORY_PANEL_FILL = new Color(62, 62, 99, 96);
@@ -68,8 +78,6 @@ final class LitiengineCraftingDialogOverlay
   private static final Color DRAG_HIGHLIGHT_FILL = new Color(157, 193, 235, 45);
 
   private static final int NUMBER_PADDING = 5;
-  private static final int BUTTON_ICON_PADDING = 10;
-  private static final int ITEM_ICON_PADDING = 6;
 
   private static final CraftingDialogLayout CLASSIC_LAYOUT = new CraftingDialogLayout();
 
@@ -215,22 +223,26 @@ final class LitiengineCraftingDialogOverlay
       LitiengineInventoryGridRenderer.drawGrid(g, targetSlots, leftStartX, gridTop, leftColumns);
 
       craftingBounds =
-        CLASSIC_LAYOUT.visibleCraftingSlots(
-          craftingSlots,
-          rightPanelBounds.x,
-          rightPanelBounds.y,
-          rightPanelBounds.width,
-          rightPanelBounds.height);
+        mirrorLegacySlotBounds(
+          rightPanelBounds,
+          CLASSIC_LAYOUT.visibleCraftingSlots(
+            craftingSlots,
+            rightPanelBounds.x,
+            rightPanelBounds.y,
+            rightPanelBounds.width,
+            rightPanelBounds.height));
 
       resultBounds =
-        CLASSIC_LAYOUT.resultSlots(
-          resultItems,
-          rightPanelBounds.x,
-          rightPanelBounds.y,
-          rightPanelBounds.width,
-          rightPanelBounds.height);
+        mirrorLegacyResultBounds(
+          rightPanelBounds,
+          CLASSIC_LAYOUT.resultSlots(
+            resultItems,
+            rightPanelBounds.x,
+            rightPanelBounds.y,
+            rightPanelBounds.width,
+            rightPanelBounds.height));
 
-      syncActionButtonBounds(classicActionButtonBounds(rightPanelBounds));
+      syncActionButtonBounds(legacyActionButtonBounds(rightPanelBounds));
       drawLegacyCraftingPanel(g, rightPanelBounds, craftingBounds, resultItems, resultBounds);
 
       if (dragState != null) {
@@ -247,6 +259,23 @@ final class LitiengineCraftingDialogOverlay
     } finally {
       LitiengineDialogOverlaySupport.finishDialog(g, state);
     }
+  }
+
+  private Map<CraftingDialogAction, Rectangle> legacyActionButtonBounds(Rectangle panelBounds) {
+    Map<CraftingDialogAction, Rectangle> bounds = new EnumMap<>(CraftingDialogAction.class);
+
+    for (CraftingDialogAction action : CraftingDialogAction.values()) {
+      int buttonX = panelBounds.x + Math.round(panelBounds.width * action.relativeX());
+      int legacyBottomY = Math.round(panelBounds.height * action.relativeY());
+      int buttonWidth = Math.round(panelBounds.width * action.relativeWidth());
+      int buttonHeight = Math.round(panelBounds.height * action.relativeHeight());
+
+      int buttonY = panelBounds.y + panelBounds.height - legacyBottomY - buttonHeight;
+
+      bounds.put(action, new Rectangle(buttonX, buttonY, buttonWidth, buttonHeight));
+    }
+
+    return bounds;
   }
 
   private void drawLegacyCraftingPanel(
@@ -281,7 +310,7 @@ final class LitiengineCraftingDialogOverlay
       drawCraftingItemIcon(g, slotBounds, item);
     }
 
-    drawLegacyActionIcons(g);
+    drawLegacyActionBoxes(g);
   }
 
   private void drawLegacyCraftingBackground(Graphics2D g, Rectangle panelBounds) {
@@ -415,20 +444,94 @@ final class LitiengineCraftingDialogOverlay
     return List.copyOf(bounds);
   }
 
-  private void syncActionButtonBounds(List<Rectangle> buttonBounds) {
-    CraftingDialogAction[] actions = CraftingDialogAction.values();
-    for (int i = 0; i < actions.length && i < buttonBounds.size(); i++) {
-      ImageButton button = actionButtons.get(actions[i]);
-      if (button == null) {
+  private void syncActionButtonBounds(Map<CraftingDialogAction, Rectangle> buttonBounds) {
+    for (CraftingDialogAction action : CraftingDialogAction.values()) {
+      ImageButton button = actionButtons.get(action);
+      Rectangle bounds = buttonBounds.get(action);
+
+      if (button == null || bounds == null) {
         continue;
       }
 
-      Rectangle bounds = buttonBounds.get(i);
       button.x(bounds.x);
       button.y(bounds.y);
       button.width(bounds.width);
       button.height(bounds.height);
     }
+  }
+
+  private List<CraftingDialogLayout.SlotBounds> mirrorLegacySlotBounds(
+    Rectangle panelBounds, List<CraftingDialogLayout.SlotBounds> legacyBounds) {
+    List<CraftingDialogLayout.SlotBounds> result = new ArrayList<>(legacyBounds.size());
+
+    for (CraftingDialogLayout.SlotBounds bounds : legacyBounds) {
+      int localBottomY = bounds.y() - panelBounds.y;
+      int mirroredY = panelBounds.y + panelBounds.height - localBottomY - bounds.size();
+
+      result.add(
+        new CraftingDialogLayout.SlotBounds(
+          bounds.slotIndex(),
+          bounds.x(),
+          mirroredY,
+          bounds.size()));
+    }
+
+    return List.copyOf(result);
+  }
+
+  private List<CraftingDialogLayout.ItemBounds> mirrorLegacyResultBounds(
+    Rectangle panelBounds, List<CraftingDialogLayout.ItemBounds> legacyBounds) {
+    List<CraftingDialogLayout.ItemBounds> result = new ArrayList<>(legacyBounds.size());
+
+    for (CraftingDialogLayout.ItemBounds bounds : legacyBounds) {
+      int localBottomY = bounds.y() - panelBounds.y;
+      int mirroredY = panelBounds.y + panelBounds.height - localBottomY - bounds.size();
+
+      result.add(new CraftingDialogLayout.ItemBounds(bounds.x(), mirroredY, bounds.size()));
+    }
+
+    return List.copyOf(result);
+  }
+
+  private void drawLegacyActionBoxes(Graphics2D g) {
+    StageHandle stage = Game.stage().orElse(null);
+    int mouseX = stage == null ? Integer.MIN_VALUE : stage.mouseX();
+    int mouseY = stage == null ? Integer.MIN_VALUE : stage.mouseY();
+    boolean leftPressed = InputManager.isButtonPressed(MouseButtons.LEFT);
+
+    for (CraftingDialogAction action : CraftingDialogAction.values()) {
+      ImageButton button = actionButtons.get(action);
+      if (button == null) {
+        continue;
+      }
+
+      Rectangle bounds = new Rectangle(button.x(), button.y(), button.width(), button.height());
+      boolean hovered = bounds.contains(mouseX, mouseY);
+      boolean pressed = hovered && leftPressed;
+
+      drawActionBoxBackground(g, bounds, hovered, pressed);
+
+      BufferedImage icon = LitiengineAnimationFrames.toImage(button.animation().update());
+      if (icon != null) {
+        drawCenteredButtonIcon(g, icon, bounds);
+      }
+    }
+  }
+
+  private void drawActionBoxBackground(
+    Graphics2D g, Rectangle bounds, boolean hovered, boolean pressed) {
+    Color fill =
+      pressed
+        ? ACTION_BOX_PRESSED_FILL
+        : hovered ? ACTION_BOX_HOVER_FILL : ACTION_BOX_FILL;
+
+    Color border = hovered ? ACTION_BOX_HOVER_BORDER : ACTION_BOX_BORDER;
+
+    g.setColor(fill);
+    g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, ACTION_BOX_ARC, ACTION_BOX_ARC);
+
+    g.setColor(border);
+    g.drawRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, ACTION_BOX_ARC, ACTION_BOX_ARC);
   }
 
   private void handleInput(
