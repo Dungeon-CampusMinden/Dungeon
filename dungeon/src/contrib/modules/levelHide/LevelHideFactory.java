@@ -22,6 +22,7 @@ public class LevelHideFactory {
     Entity entity = new Entity("hider");
     entity.add(new PositionComponent(bottomLeft));
     entity.add(new LevelHideComponent(new Rectangle(width, height), transitionSize));
+    entity.add(new LevelHideStateComponent());
     return entity;
   }
 

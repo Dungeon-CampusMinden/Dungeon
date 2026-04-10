@@ -1,5 +1,6 @@
 package core.platform.litiengine.render;
 
+import contrib.modules.levelHide.LevelHideComponent;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -181,6 +182,12 @@ public final class LitiengineSpriteRenderSystem extends System {
         if (tryDrawEntitySprite(g, e, pos, levelHeight, view.tilePx(), dcOpt.get())) {
           continue;
         }
+      }
+
+      // Level-hide entities are rendered by the dedicated level-hide render system
+      // and should not appear as generic fallback markers.
+      if (e.isPresent(LevelHideComponent.class)) {
+        continue;
       }
 
       // Fallback marker (debug)
