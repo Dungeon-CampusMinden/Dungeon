@@ -25,9 +25,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the {@link DungeonLevel} class. */
+/**
+ * Tests for the {@link DungeonLevel} class.
+ *
+ * <p>This test class covers the core functionality of the DungeonLevel including:
+ * <ul>
+ *   <li>Level construction from tiles and level elements
+ *   <li>Pathfinding on level layouts
+ *   <li>Tile retrieval and random tile selection
+ *   <li>Tile management (adding, removing, and changing tiles)
+ *   <li>Level serialization
+ * </ul>
+ */
 public class DungeonLevelTest {
 
+  /**
+   * Sets up a neutral runtime environment for each test.
+   *
+   * <p>Resets the ECS management system, clears all entities and systems, initializes a fresh
+   * LevelSystem, and configures grid-based pathfinding for consistent test execution.
+   */
   @BeforeEach
   void setupNeutralRuntime() {
     ECSManagement.removeAllEntities();
@@ -36,12 +53,24 @@ public class DungeonLevelTest {
     Platform.pathfinding(new GridPathfindingAdapter());
   }
 
+  /**
+   * Helper method to find a path between two tiles using the pathfinding system.
+   *
+   * @param level the dungeon level to perform pathfinding on
+   * @param start the starting tile
+   * @param end the end (target) tile
+   * @return a list of tiles representing the path from start to end
+   */
   private static List<Tile> findPath(DungeonLevel level, Tile start, Tile end) {
     Game.currentLevel(level);
     return Game.findPath(start, end).orElseThrow();
   }
 
-  /** WTF? . */
+  /**
+   * Tests the construction of a DungeonLevel from a 2D array of Tile objects.
+   *
+   * <p>Verifies that the level correctly stores and retrieves the provided tile layout.
+   */
   @Test
   public void test_levelCTOR_Tiles() {
     Tile[][] tileLayout =
@@ -60,7 +89,12 @@ public class DungeonLevelTest {
     assertArrayEquals(tileLayout, layout);
   }
 
-  /** WTF? . */
+  /**
+   * Tests the construction of a DungeonLevel from a 2D array of LevelElement values.
+   *
+   * <p>Verifies that LevelElements are correctly converted to appropriate Tile objects during
+   * level construction.
+   */
   @Test
   public void test_levelCTOR_LevelElements() {
     LevelElement[][] elementsLayout =
@@ -75,7 +109,13 @@ public class DungeonLevelTest {
     assertSame(elementsLayout[1][1], layout[1][1].levelElement());
   }
 
-  /** WTF? . */
+  /**
+   * Tests the construction of a DungeonLevel from LevelElements and verifies that tile type
+   * lists are properly populated.
+   *
+   * <p>Verifies that the level correctly categorizes tiles into their respective type lists
+   * (floors, doors, holes, walls, and skips).
+   */
   @Test
   public void test_levelCTOR_LevelElements_tileTypeLists() {
     LevelElement[][] elementsLayout =
@@ -92,7 +132,13 @@ public class DungeonLevelTest {
     assertEquals(3, tileLevel.skipTiles().size());
   }
 
-  /** WTF? . */
+  /**
+   * Tests pathfinding from a start position to an end position when only one valid path exists.
+   *
+   * <p>Creates a 3x3 level with walls configured so that only one unique path is possible from
+   * the start to the exit. Verifies that the pathfinding algorithm finds the correct path with
+   * the expected number of steps.
+   */
   @Test
   public void test_findPath_onlyOnePathPossible() {
     Tile[][] layout = new Tile[3][3];
@@ -122,7 +168,13 @@ public class DungeonLevelTest {
     assertEquals(layout[0][2], path.get(6));
   }
 
-  /** WTF? . */
+  /**
+   * Tests pathfinding from a start position to an end position when multiple valid paths exist.
+   *
+   * <p>Creates a 3x3 level where multiple paths from start to exit are possible. Verifies that
+   * the pathfinding algorithm finds a valid path (not necessarily the shortest one) that
+   * successfully connects the start and end positions.
+   */
   @Test
   public void test_findPath_moreThanOnePathPossible() {
     Tile[][] layout = new Tile[3][3];
@@ -149,7 +201,12 @@ public class DungeonLevelTest {
     assertEquals(layout[0][2], path.get(4));
   }
 
-  /** WTF? . */
+  /**
+   * Tests pathfinding in a level containing skip tiles.
+   *
+   * <p>Verifies that the pathfinding algorithm correctly handles skip tiles (non-accessible
+   * tiles that can be passed through) and finds the correct path between two positions.
+   */
   @Test
   public void test_findPath_withSkips() {
     var levelElement = new LevelElement[3][2];
@@ -166,7 +223,12 @@ public class DungeonLevelTest {
     assertEquals(3, path.size());
   }
 
-  /** WTF? . */
+  /**
+   * Tests pathfinding in a level without skip tiles.
+   *
+   * <p>Verifies that the pathfinding algorithm correctly calculates the path length in a
+   * simple level containing only floor tiles.
+   */
   @Test
   public void test_findPath_withoutSkips() {
     var levelElement = new LevelElement[3][1];
@@ -181,7 +243,12 @@ public class DungeonLevelTest {
     assertEquals(3, path.size());
   }
 
-  /** WTF? . */
+  /**
+   * Tests pathfinding when the start position is not accessible (is a wall tile).
+   *
+   * <p>Verifies that the pathfinding algorithm correctly returns an empty path when the start
+   * position is a non-accessible tile.
+   */
   @Test
   public void test_findPath_startPositionNotAccessible() {
     Tile[][] layout = new Tile[3][3];
@@ -200,7 +267,12 @@ public class DungeonLevelTest {
     assertTrue(path.isEmpty());
   }
 
-  /** WTF? . */
+  /**
+   * Tests pathfinding when the end position is not accessible (is a wall tile).
+   *
+   * <p>Verifies that the pathfinding algorithm correctly returns an empty path when the end
+   * position is a non-accessible tile.
+   */
   @Test
   public void test_findPath_endPositionNotAccessible() {
     Tile[][] layout = new Tile[3][3];
@@ -219,7 +291,12 @@ public class DungeonLevelTest {
     assertTrue(path.isEmpty());
   }
 
-  /** WTF? . */
+  /**
+   * Tests pathfinding when both the start and end positions are not accessible.
+   *
+   * <p>Verifies that the pathfinding algorithm correctly returns an empty path when both the
+   * start and end positions are non-accessible tiles.
+   */
   @Test
   public void test_findPath_startAndEndPositionNotAccessible() {
     Tile[][] layout = new Tile[3][3];
@@ -239,7 +316,12 @@ public class DungeonLevelTest {
     assertTrue(path.isEmpty());
   }
 
-  /** WTF? . */
+  /**
+   * Tests the retrieval of a tile at a specific coordinate.
+   *
+   * <p>Verifies that {@link DungeonLevel#tileAt(core.level.utils.Coordinate)} returns the
+   * correct tile at the specified coordinate position.
+   */
   @Test
   public void test_getTileAt() {
     var levelLayout = new LevelElement[3][3];
@@ -253,7 +335,11 @@ public class DungeonLevelTest {
       levelLayout[1][2], level.tileAt(new Coordinate(2, 1)).orElseThrow().levelElement());
   }
 
-  /** WTF? . */
+  /**
+   * Tests retrieval of a random tile from the level.
+   *
+   * <p>Verifies that {@link DungeonLevel#randomTile()} returns a non-null tile from the level.
+   */
   @Test
   public void test_getRandomTile() {
     var levelLayout = new LevelElement[3][3];
@@ -264,7 +350,12 @@ public class DungeonLevelTest {
     assertNotNull(level.randomTile());
   }
 
-  /** WTF? . */
+  /**
+   * Tests retrieval of a random tile of a specific element type from the level.
+   *
+   * <p>Verifies that {@link DungeonLevel#randomTile()} returns a random tile that matches the
+   * specified element type.
+   */
   @Test
   public void test_getRandomTile_WithElementType() {
     LevelElement[][] layout = new LevelElement[3][3];
@@ -288,7 +379,12 @@ public class DungeonLevelTest {
     assertEquals(LevelElement.WALL, randomWall.levelElement());
   }
 
-  /** WTF? . */
+  /**
+   * Tests retrieval of a random tile point (coordinate) from the level.
+   *
+   * <p>Verifies that {@link DungeonLevel#randomTilePoint()} returns a valid coordinate point
+   * within the level layout.
+   */
   @Test
   public void test_getRandomTilePoint() {
     var levelLayout = new LevelElement[3][3];
@@ -301,7 +397,12 @@ public class DungeonLevelTest {
     assertTrue(level.tileAt(randomPoint).isPresent());
   }
 
-  /** WTF? . */
+  /**
+   * Tests retrieval of a random tile point of a specific element type from the level.
+   *
+   * <p>Verifies that {@link DungeonLevel#randomTilePoint(LevelElement)} returns a valid
+   * coordinate of a tile matching the specified element type.
+   */
   @Test
   public void test_getRandomTilePoint_WithElementType() {
     LevelElement[][] layout = new LevelElement[3][3];
@@ -326,7 +427,12 @@ public class DungeonLevelTest {
     assertEquals(LevelElement.FLOOR, randomFloor.levelElement());
   }
 
-  /** WTF? . */
+  /**
+   * Tests the string representation of a level.
+   *
+   * <p>Verifies that {@link DungeonLevel#toString()} correctly serializes the level layout into
+   * a string format that matches the expected level representation.
+   */
   @Test
   public void test_toString() {
     LevelElement[][] tileLayout =
@@ -341,24 +447,30 @@ public class DungeonLevelTest {
     var level = new DungeonLevel(tileLayout, DesignLabel.DEFAULT);
     List<String> lines = new ArrayList<>();
     for (LevelElement[] tiles : tileLayout) {
-      String row = "";
+      StringBuilder row = new StringBuilder();
       for (LevelElement tile : tiles) {
         if (tile == LevelElement.FLOOR) {
-          row += "F";
+          row.append("F");
         } else if (tile == LevelElement.WALL) {
-          row += "W";
+          row.append("W");
         } else {
-          row += "E";
+          row.append("E");
         }
       }
-      lines.add(row);
+      lines.add(row.toString());
     }
     lines = lines.reversed();
     String compareString = String.join(System.lineSeparator(), lines);
     assertEquals(compareString, V2FormatParser.serializeLevelLayout(level.layout));
   }
 
-  /** WTF? . */
+  /**
+   * Tests adding a floor tile to the level.
+   *
+   * <p>Verifies that a floor tile can be added to the level correctly and that it is contained
+   * in the floor tiles list, associated with the correct level, and counted as an accessible
+   * tile.
+   */
   @Test
   public void test_addTile_FloorTile() {
     DungeonLevel level =
@@ -378,7 +490,13 @@ public class DungeonLevelTest {
       Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
-  /** WTF? . */
+  /**
+   * Tests adding an exit tile to the level.
+   *
+   * <p>Verifies that an exit tile can be added to the level correctly and that it is contained
+   * in the exit tiles list, associated with the correct level, and counted as an accessible
+   * tile.
+   */
   @Test
   public void test_addTile_ExitTile() {
     DungeonLevel level =
@@ -398,7 +516,13 @@ public class DungeonLevelTest {
       Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
-  /** WTF? . */
+  /**
+   * Tests adding a door tile to the level.
+   *
+   * <p>Verifies that a door tile can be added to the level correctly and that it is contained
+   * in the door tiles list, associated with the correct level, and counted as an accessible
+   * tile.
+   */
   @Test
   public void test_addTile_DoorTile() {
     DungeonLevel level =
@@ -418,7 +542,13 @@ public class DungeonLevelTest {
       Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
-  /** WTF? . */
+  /**
+   * Tests adding a skip tile to the level.
+   *
+   * <p>Verifies that a skip tile can be added to the level correctly and that it is contained
+   * in the skip tiles list, associated with the correct level, and correctly handled in
+   * accessibility calculations.
+   */
   @Test
   public void test_addTile_SkipTile() {
     DungeonLevel level =
@@ -438,7 +568,13 @@ public class DungeonLevelTest {
       Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
-  /** WTF? . */
+  /**
+   * Tests adding a wall tile to the level.
+   *
+   * <p>Verifies that a wall tile can be added to the level correctly and that it is contained
+   * in the wall tiles list, associated with the correct level, and correctly affects the
+   * count of accessible tiles.
+   */
   @Test
   public void test_addTile_WallTile() {
     DungeonLevel level =
@@ -458,7 +594,13 @@ public class DungeonLevelTest {
       Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
-  /** WTF? . */
+  /**
+   * Tests adding a hole tile to the level.
+   *
+   * <p>Verifies that a hole tile can be added to the level correctly and that it is contained
+   * in the hole tiles list, associated with the correct level, and correctly affects the
+   * count of accessible tiles.
+   */
   @Test
   public void test_addTile_HoleTile() {
     DungeonLevel level =
@@ -478,7 +620,12 @@ public class DungeonLevelTest {
       Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
-  /** WTF? . */
+  /**
+   * Tests changing a tile element type when the new type is the same as the current one.
+   *
+   * <p>Verifies that changing a tile to the same element type maintains the level's tile count
+   * and accessibility properties without causing inconsistencies.
+   */
   @Test
   public void test_changeTileElementType_SameElementType() {
     LevelElement[][] layout =
@@ -502,7 +649,12 @@ public class DungeonLevelTest {
     assertEquals(3, counter.get());
   }
 
-  /** WTF? . */
+  /**
+   * Tests changing a tile element type to another accessible type.
+   *
+   * <p>Verifies that changing a floor tile to an exit tile (both accessible) maintains the
+   * level's tile count and accessibility properties.
+   */
   @Test
   public void test_changeTileElementType_SameAccess() {
     LevelElement[][] layout =
@@ -526,7 +678,12 @@ public class DungeonLevelTest {
     assertEquals(3, counter.get());
   }
 
-  /** WTF? . */
+  /**
+   * Tests changing a tile element type from an accessible type to a non-accessible type.
+   *
+   * <p>Verifies that changing a floor tile to a wall tile properly reduces the count of
+   * accessible tiles and maintains correct tile indexing.
+   */
   @Test
   public void test_changeTileElementType_toNotAccessible() {
     LevelElement[][] layout =
@@ -550,7 +707,13 @@ public class DungeonLevelTest {
     assertEquals(2, counter.get());
   }
 
-  /** WTF? . */
+  /**
+   * Tests changing a tile element type for a tile that is not part of the level.
+   *
+   * <p>Verifies that attempting to change the element type of tile that is not in the level's
+   * layout has no effect on the level state. The level remains unchanged and the tile at the
+   * specified coordinate retains its original element type.
+   */
   @Test
   public void test_changeTileElementType_notOnLevel() {
     LevelElement[][] layout =
