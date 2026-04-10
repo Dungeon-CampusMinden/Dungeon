@@ -42,7 +42,7 @@ public final class LitiengineDebugDrawSystem extends System {
   private static final List<WorldCircleFill> WORLD_CIRCLE_FILLS = new CopyOnWriteArrayList<>();
   private static final List<ScreenRectangle> SCREEN_RECTANGLES = new CopyOnWriteArrayList<>();
 
-  private static volatile boolean hudVisible = true;
+  private static volatile boolean hudVisible = false;
 
   public LitiengineDebugDrawSystem() {
     super(AuthoritativeSide.CLIENT);

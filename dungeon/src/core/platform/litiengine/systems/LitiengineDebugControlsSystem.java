@@ -3,6 +3,7 @@ package core.platform.litiengine.systems;
 import contrib.configuration.KeyboardConfig;
 import core.System;
 import core.debug.DebugGameplayActions;
+import core.platform.Platform;
 import core.utils.InputManager;
 
 /**
@@ -19,6 +20,10 @@ public final class LitiengineDebugControlsSystem extends System {
 
   @Override
   public void execute() {
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value())) {
+      Platform.render().toggleDebugHud();
+    }
+
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.value())) {
       DebugGameplayActions.zoomCamera(-0.2f);
     }
