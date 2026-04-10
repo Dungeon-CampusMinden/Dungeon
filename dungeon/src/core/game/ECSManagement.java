@@ -94,6 +94,7 @@ public final class ECSManagement {
     if (profile == null) throw new IllegalArgumentException("profile must not be null");
 
     registerIfAbsent(PositionSystem.class, PositionSystem::new);
+    registerIfAbsent(PositionSyncSystem.class, PositionSyncSystem::new);
     registerIfAbsent(VelocitySystem.class, VelocitySystem::new);
     registerIfAbsent(FrictionSystem.class, FrictionSystem::new);
     registerIfAbsent(MoveSystem.class, MoveSystem::new);

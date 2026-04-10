@@ -51,7 +51,7 @@ import java.util.stream.IntStream;
 public final class MiscFactory {
 
   private static final Random RANDOM = new Random();
-  private static final float DEFAULT_INTERACTION_RADIUS = 1f;
+  private static final float ADJACENT_TILE_INTERACTION_RADIUS = 1.5f;
   private static final int DEFAULT_CHEST_SIZE = 12;
   private static final int MAX_AMOUNT_OF_ITEMS_ON_RANDOM = 5;
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
@@ -75,8 +75,6 @@ public final class MiscFactory {
 
   /** Maximum number of items displayed per row in the inventory UI. */
   private static final int INVENTORY_UI_MAX_ITEMS_PER_ROW = 6;
-
-  private static final float CAULDRON_INTERACTION_RADIUS = 2f;
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -205,17 +203,9 @@ public final class MiscFactory {
                         interactor
                             .fetch(InventoryComponent.class)
                             .ifPresent(
-                                whoIc -> {
-                                  DialogContext context =
-                                      DialogContext.builder()
-                                          .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-                                          .put(DialogContextKeys.ENTITY, interactor.id())
-                                          .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
-                                          .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
-                                          .build();
-                                  UIComponent ui = new UIComponent(context, true, interactor.id());
-                                  interactor.add(ui);
-                                }))));
+                                ignored ->
+                                    showDualInventoryUi(interactor, interacted, interactor)),
+                    ADJACENT_TILE_INTERACTION_RADIUS)));
 
     return chest;
   }
@@ -306,7 +296,8 @@ public final class MiscFactory {
                                 dialogUI.registerCallback(
                                     DialogContextKeys.ON_NO,
                                     data -> UIUtils.closeDialog(dialogUI, true));
-                              }));
+                              },
+                              ADJACENT_TILE_INTERACTION_RADIUS));
 
               lockedChest.remove(InteractionComponent.class);
               lockedChest.add(wrapperIC);
@@ -340,7 +331,7 @@ public final class MiscFactory {
             (entity, who) ->
               who.fetch(InventoryComponent.class)
                 .ifPresent(ic -> createCraftingDialogUi(who, entity)),
-            CAULDRON_INTERACTION_RADIUS)));
+            ADJACENT_TILE_INTERACTION_RADIUS)));
 
     cauldron.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return cauldron;
@@ -443,6 +434,19 @@ public final class MiscFactory {
     craftingInventory.transferAll(targetInventory);
   }
 
+  private static UIComponent showDualInventoryUi(
+      Entity primaryEntity, Entity secondaryEntity, Entity ownerEntity) {
+    DialogContext context =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+            .put(DialogContextKeys.ENTITY, primaryEntity.id())
+            .put(DialogContextKeys.SECONDARY_ENTITY, secondaryEntity.id())
+            .put(DialogContextKeys.OWNER_ENTITY, ownerEntity.id())
+            .build();
+
+    return DialogFactory.show(context, true, true, new int[] {ownerEntity.id()});
+  }
+
   /**
    * Creates an Entity that can be used as a marker on the floor (x marks the spot).
    *
@@ -540,18 +544,9 @@ public final class MiscFactory {
                         interactor
                             .fetch(InventoryComponent.class)
                             .ifPresent(
-                                whoIc -> {
-                                  DialogContext context =
-                                      DialogContext.builder()
-                                          .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-                                          .put(DialogContextKeys.ENTITY, interacted.id())
-                                          .put(DialogContextKeys.SECONDARY_ENTITY, interactor.id())
-                                          .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
-                                          .build();
-                                  UIComponent uiComponent =
-                                      new UIComponent(context, true, interactor.id());
-                                  interactor.add(uiComponent);
-                                }))));
+                                ignored ->
+                                    showDualInventoryUi(interacted, interactor, interactor)),
+                    ADJACENT_TILE_INTERACTION_RADIUS)));
 
     return cookingPot;
   }
