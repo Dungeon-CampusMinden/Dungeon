@@ -2,8 +2,23 @@ plugins {
     id 'java-library'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+def java25Launcher = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(25)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release.set(25)
+}
+
 dependencies {
     implementation project(':dungeon')
+    implementation "de.gurkenlabs:litiengine:0.11.1"
 }
 
 sourceSets.main.java.srcDirs = ['src/']
@@ -12,6 +27,10 @@ sourceSets.main.resources.srcDirs = ['assets/']
 processResources {
     from new File(project(':dungeon').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(JavaExec).configureEach {
+    javaLauncher = java25Launcher
 }
 
 

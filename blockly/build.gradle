@@ -1,5 +1,20 @@
 plugins {
   id 'antlr'
+  id 'java-library'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+def java25Launcher = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(25)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release.set(25)
 }
 
 repositories {
@@ -8,6 +23,7 @@ repositories {
 
 dependencies {
   implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.28.0'
+  implementation "de.gurkenlabs:litiengine:0.11.1"
 
   // ANTLR version 4 for DSL Grammar
   antlr supportDependencies.antlr
@@ -88,7 +104,12 @@ tasks.register('buildBlocklyJar', Jar) {
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
 
+tasks.withType(JavaExec).configureEach {
+    javaLauncher = java25Launcher
+}
+
 tasks.named('test', Test) {
     useJUnitPlatform()
     failOnNoDiscoveredTests = false
+    javaLauncher = java25Launcher
 }
