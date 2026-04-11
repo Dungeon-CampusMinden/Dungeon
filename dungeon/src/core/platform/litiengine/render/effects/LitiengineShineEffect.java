@@ -145,25 +145,21 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     BufferedImage output =
       new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
-    float angle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
-    float cos = (float) Math.cos(angle);
-    float sin = (float) Math.sin(angle);
-
     int width = source.getWidth();
     int height = source.getHeight();
 
     float cx = (width - 1) / 2.0f;
     float cy = (height - 1) / 2.0f;
+
+    float baseAngle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
+    float cos = (float) Math.cos(baseAngle);
+    float sin = (float) Math.sin(baseAngle);
+
     float maxProjection = Math.max(1.0f, Math.abs(cx * cos) + Math.abs(cy * sin));
+    float visibleFraction = Math.max(0.06f, 1.0f - gapSize);
 
-    float visibleFraction = Math.max(0.02f, 1.0f - gapSize);
-
-    // Additional travel term so the shine does not only rotate its orientation, but also
-    // visibly moves across the sprite over time.
-    float sweepPhase = normalizePhase(nowSeconds * rotationSpeed * 1.35f);
-
-    // Small brightness pulse to make the animation more noticeable on compact sprites.
-    float pulse = 0.85f + 0.15f * (0.5f + 0.5f * (float) Math.sin(nowSeconds * rotationSpeed * TWO_PI));
+    float sweepPhase = normalizePhase(nowSeconds * rotationSpeed * 1.8f);
+    float pulse = 0.80f + 0.20f * (0.5f + 0.5f * (float) Math.sin(nowSeconds * rotationSpeed * TWO_PI));
 
     float shineRed = shineColor.getRed() / 255.0f;
     float shineGreen = shineColor.getGreen() / 255.0f;
@@ -190,7 +186,6 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
         float projected = (relX * cos + relY * sin) / maxProjection;
         float u = projected * 0.5f + 0.5f;
 
-        // Continuous time-based sweep across the sprite.
         float localSlice = fract(u * sliceCount - sweepPhase);
         float bandIntensity = shineBandIntensity(localSlice, visibleFraction);
 
@@ -200,7 +195,8 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
         }
 
         float radialDistance = (float) Math.hypot(relX, relY) / Math.max(1.0f, Math.max(cx, cy));
-        float radialFade = 1.0f - 0.35f * clamp01(radialDistance);
+        float radialFade = 1.0f - 0.30f * clamp01(radialDistance);
+
         float overlay = clamp01(bandIntensity * radialFade * shineAlpha * pulse);
 
         float baseRed = red / 255.0f;
@@ -233,7 +229,6 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     float centerDistance = Math.abs(normalized - 0.5f) * 2.0f;
     float base = 1.0f - centerDistance;
 
-    // Smooth highlight profile instead of a hard rectangular stripe.
     return clamp01(base * base * (3.0f - 2.0f * base));
   }
 
