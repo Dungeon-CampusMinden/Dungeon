@@ -13,6 +13,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
+import core.platform.litiengine.render.effects.LitiengineSpriteEffectsRenderer;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Time;
@@ -211,6 +212,8 @@ public final class LitiengineSpriteRenderSystem extends System {
     if (renderImg == null || renderImg.getWidth() <= 0 || renderImg.getHeight() <= 0) {
       return false;
     }
+
+    renderImg = LitiengineSpriteEffectsRenderer.apply(entity, renderImg, Time.nowMs());
 
     float sxWorld = pos.x() * tilePx;
     float syWorld =
