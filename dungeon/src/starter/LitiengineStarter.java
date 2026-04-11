@@ -19,6 +19,9 @@ import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
+import core.platform.litiengine.render.effects.LitiengineHueRemapEffect;
+import core.platform.litiengine.render.effects.LitiengineSpriteEffects;
+import core.platform.litiengine.render.effects.LitiengineSpriteEffectsComponent;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -32,15 +35,8 @@ import java.util.Set;
  * <p>This starter initializes and starts the game by configuring levels, loading settings,
  * setting up the game window, and launching the LITIENGINE host loop.
  *
- * <p>This version also installs a small manual crafting and level-hide verification setup:
- *
- * <ul>
- *   <li>the hero starts with guaranteed crafting items,
- *   <li>a crafting cauldron is spawned next to the start tile,
- *   <li>a chest is spawned a few tiles to the right,
- *   <li>a level-hide demo region is spawned around the chest area,
- *   <li>a guaranteed test recipe is registered.
- * </ul>
+ * <p>This version also installs a small manual crafting, level-hide and sprite-effect
+ * verification setup.
  */
 public final class LitiengineStarter {
 
@@ -131,7 +127,18 @@ public final class LitiengineStarter {
    */
   private static void spawnVerificationFixtures(Point startPosition) {
     Game.add(MiscFactory.newCraftingCauldron(startPosition.translate(Vector2.of(1f, 0f))));
-    Game.add(MiscFactory.newChest(createChestTestItems(), startPosition.translate(Vector2.of(5f, 0f))));
+
+    Entity hueRemapDemoChest =
+      MiscFactory.newChest(
+        createChestTestItems(),
+        startPosition.translate(Vector2.of(2f, 6f)));
+    installHueRemapDemoEffect(hueRemapDemoChest);
+    Game.add(hueRemapDemoChest);
+
+    Game.add(
+      MiscFactory.newChest(
+        createChestTestItems(),
+        startPosition.translate(Vector2.of(5f, 0f))));
 
     Game.add(
       LevelHideFactory.createLevelHide(
@@ -141,7 +148,22 @@ public final class LitiengineStarter {
         1.5f));
   }
 
-  /** Creates a small deterministic test loot set for the starter chest. */
+  /**
+   * Adds a clearly visible hue-remap demo effect to a static verification chest.
+   *
+   * <p>The chosen values intentionally remap warm brown/orange chest tones into a cyan-blue range
+   * with a fairly wide tolerance so the result is easy to verify by eye in the starter.
+   */
+  private static void installHueRemapDemoEffect(Entity entity) {
+    LitiengineSpriteEffects effects = new LitiengineSpriteEffects();
+    effects.add(
+      "demo_hue_remap_warm_to_cyan",
+      new LitiengineHueRemapEffect(0.08f, 0.56f, 0.18f),
+      100);
+
+    entity.add(new LitiengineSpriteEffectsComponent(effects));
+  }
+
   private static Set<contrib.item.Item> createChestTestItems() {
     return Set.of(new ItemPotionHealth(), new ItemPotionWater(), new ItemWoodenArrow(5));
   }
