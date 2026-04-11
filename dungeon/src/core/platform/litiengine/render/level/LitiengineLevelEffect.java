@@ -12,8 +12,9 @@ public interface LitiengineLevelEffect {
    * Applies the effect to the fully rendered level-layer image.
    *
    * @param input rendered level-layer image
+   * @param context world-space metadata for the rendered visible level buffer
    * @param nowMs current timestamp in milliseconds
    * @return transformed level-layer image, never {@code null}
    */
-  BufferedImage apply(BufferedImage input, long nowMs);
+  BufferedImage apply(BufferedImage input, LitiengineLevelPassContext context, long nowMs);
 }

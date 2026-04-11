@@ -1,5 +1,7 @@
 package core.platform.litiengine.render.level;
 
+import core.utils.Point;
+import core.utils.Rectangle;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
@@ -7,6 +9,20 @@ import java.awt.image.BufferedImage;
  * Applies HSV-style color grading to the rendered level layer only.
  *
  * <p>This is the level-pass counterpart to the existing scene and sprite-local color-grade effects.
+ *
+ * <p>It restores the missing world-space part of the old color-grade semantics for the level pass:
+ *
+ * <ul>
+ *   <li>optional hue override ({@code hue < 0} keeps the original hue)
+ *   <li>saturation multiplier
+ *   <li>value/brightness multiplier
+ *   <li>optional world-space region
+ *   <li>optional transition size around the region
+ * </ul>
+ *
+ * <p>If no region is configured, the effect applies to the whole level pass. If a region is
+ * configured, the effect is fully active inside that region and fades out smoothly across the
+ * configured transition band outside the region.
  */
 public final class LitiengineLevelColorGradeEffect
   implements LitiengineLevelEffects.ToggleableLevelEffect {
@@ -14,6 +30,8 @@ public final class LitiengineLevelColorGradeEffect
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
   private float valueMultiplier = 1.0f;
+  private Rectangle region = null;
+  private float transitionSize = 2.0f;
   private boolean enabled = true;
 
   public LitiengineLevelColorGradeEffect() {}
@@ -52,6 +70,46 @@ public final class LitiengineLevelColorGradeEffect
     return this;
   }
 
+  /**
+   * Returns the configured world-space region.
+   *
+   * @return region, or {@code null} if the effect applies globally
+   */
+  public Rectangle region() {
+    return region;
+  }
+
+  /**
+   * Sets the optional world-space region for the effect.
+   *
+   * @param region region in world coordinates; {@code null} means full-level effect
+   * @return this effect for chaining
+   */
+  public LitiengineLevelColorGradeEffect region(Rectangle region) {
+    this.region = region;
+    return this;
+  }
+
+  /**
+   * Returns the transition size around the configured region.
+   *
+   * @return transition size in world units
+   */
+  public float transitionSize() {
+    return transitionSize;
+  }
+
+  /**
+   * Sets the transition size around the configured region.
+   *
+   * @param transitionSize transition size in world units; negative values are clamped to 0
+   * @return this effect for chaining
+   */
+  public LitiengineLevelColorGradeEffect transitionSize(float transitionSize) {
+    this.transitionSize = Math.max(0f, transitionSize);
+    return this;
+  }
+
   @Override
   public boolean enabled() {
     return enabled;
@@ -63,7 +121,7 @@ public final class LitiengineLevelColorGradeEffect
   }
 
   @Override
-  public BufferedImage apply(BufferedImage input, long nowMs) {
+  public BufferedImage apply(BufferedImage input, LitiengineLevelPassContext context, long nowMs) {
     if (input == null || !enabled) {
       return input;
     }
@@ -81,25 +139,115 @@ public final class LitiengineLevelColorGradeEffect
           continue;
         }
 
-        int r = (argb >>> 16) & 0xFF;
-        int g = (argb >>> 8) & 0xFF;
-        int b = argb & 0xFF;
-
-        float[] hsb = Color.RGBtoHSB(r, g, b, null);
-
-        if (hue >= 0f) {
-          hsb[0] = hue;
+        float influence = effectInfluenceAt(x, y, context);
+        if (influence <= 0f) {
+          output.setRGB(x, y, argb);
+          continue;
         }
 
-        hsb[1] = clamp01(hsb[1] * saturationMultiplier);
-        hsb[2] = clamp01(hsb[2] * valueMultiplier);
+        int gradedArgb = gradeArgb(argb);
 
-        int gradedRgb = Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]) & 0x00FFFFFF;
-        output.setRGB(x, y, (alpha << 24) | gradedRgb);
+        if (influence >= 1f) {
+          output.setRGB(x, y, gradedArgb);
+          continue;
+        }
+
+        output.setRGB(x, y, blendArgb(argb, gradedArgb, influence));
       }
     }
 
     return output;
+  }
+
+  private float effectInfluenceAt(int bufferX, int bufferY, LitiengineLevelPassContext context) {
+    if (region == null) {
+      return 1f;
+    }
+
+    Point world = worldPointForBufferPixel(bufferX, bufferY, context);
+
+    if (region.contains(world)) {
+      return 1f;
+    }
+
+    if (transitionSize <= 0f) {
+      return 0f;
+    }
+
+    Rectangle expanded = region.expand(transitionSize);
+    if (!expanded.contains(world)) {
+      return 0f;
+    }
+
+    float dx = axisOutsideDistance(world.x(), region.x(), region.x() + region.width());
+    float dy = axisOutsideDistance(world.y(), region.y(), region.y() + region.height());
+    float outsideDistance = (float) Math.hypot(dx, dy);
+
+    return clamp01(1f - outsideDistance / transitionSize);
+  }
+
+  private static Point worldPointForBufferPixel(
+    int bufferX, int bufferY, LitiengineLevelPassContext context) {
+    int tilePx = Math.max(1, context.tilePx());
+
+    float worldX = context.minTileX() + ((bufferX + 0.5f) / tilePx);
+    float worldY = context.maxTileY() + 1.0f - ((bufferY + 0.5f) / tilePx);
+
+    return new Point(worldX, worldY);
+  }
+
+  private int gradeArgb(int argb) {
+    int alpha = (argb >>> 24) & 0xFF;
+    int r = (argb >>> 16) & 0xFF;
+    int g = (argb >>> 8) & 0xFF;
+    int b = argb & 0xFF;
+
+    float[] hsb = Color.RGBtoHSB(r, g, b, null);
+
+    if (hue >= 0f) {
+      hsb[0] = hue;
+    }
+
+    hsb[1] = clamp01(hsb[1] * saturationMultiplier);
+    hsb[2] = clamp01(hsb[2] * valueMultiplier);
+
+    int gradedRgb = Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]) & 0x00FFFFFF;
+    return (alpha << 24) | gradedRgb;
+  }
+
+  private static int blendArgb(int originalArgb, int gradedArgb, float influence) {
+    float w = clamp01(influence);
+
+    int oa = (originalArgb >>> 24) & 0xFF;
+    int or = (originalArgb >>> 16) & 0xFF;
+    int og = (originalArgb >>> 8) & 0xFF;
+    int ob = originalArgb & 0xFF;
+
+    int ga = (gradedArgb >>> 24) & 0xFF;
+    int gr = (gradedArgb >>> 16) & 0xFF;
+    int gg = (gradedArgb >>> 8) & 0xFF;
+    int gb = gradedArgb & 0xFF;
+
+    int a = mixChannel(oa, ga, w);
+    int r = mixChannel(or, gr, w);
+    int g = mixChannel(og, gg, w);
+    int b = mixChannel(ob, gb, w);
+
+    return (a << 24) | (r << 16) | (g << 8) | b;
+  }
+
+  private static int mixChannel(int original, int graded, float influence) {
+    return Math.clamp(Math.round(original * (1f - influence) + graded * influence), 0, 255);
+  }
+
+  private static float axisOutsideDistance(float value, float min, float max) {
+    if (value < min) {
+      return min - value;
+    }
+    if (value > max) {
+      return value - max;
+    }
+    return 0f;
   }
 
   private static float normalizeHue(float hue) {

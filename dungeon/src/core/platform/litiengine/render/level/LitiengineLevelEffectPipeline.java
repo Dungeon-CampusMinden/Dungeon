@@ -30,14 +30,15 @@ public final class LitiengineLevelEffectPipeline {
     return EFFECTS.toggleAll();
   }
 
-  public static BufferedImage apply(BufferedImage source, long nowMs) {
+  public static BufferedImage apply(
+    BufferedImage source, LitiengineLevelPassContext context, long nowMs) {
     if (source == null || !hasEnabledEffects()) {
       return source;
     }
 
     BufferedImage current = source;
     for (LitiengineLevelEffect effect : EFFECTS.getEnabledSorted()) {
-      current = effect.apply(current, nowMs);
+      current = effect.apply(current, context, nowMs);
       if (current == null) {
         throw new IllegalStateException(
           effect.getClass().getSimpleName() + " returned null level image.");

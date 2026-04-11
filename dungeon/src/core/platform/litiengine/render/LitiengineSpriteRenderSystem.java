@@ -18,6 +18,7 @@ import core.platform.litiengine.render.effects.LitiengineShineEffect;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsComponent;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsRenderer;
 import core.platform.litiengine.render.level.LitiengineLevelEffectPipeline;
+import core.platform.litiengine.render.level.LitiengineLevelPassContext;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Time;
@@ -145,7 +146,7 @@ public final class LitiengineSpriteRenderSystem extends System {
     }
 
     BufferedImage processed =
-      LitiengineLevelEffectPipeline.apply(levelBuffer.image(), Time.nowMs());
+      LitiengineLevelEffectPipeline.apply(levelBuffer.image(), levelBuffer.context(), Time.nowMs());
     g.drawImage(processed, levelBuffer.drawX(), levelBuffer.drawY(), null);
   }
 
@@ -205,10 +206,18 @@ public final class LitiengineSpriteRenderSystem extends System {
 
     int drawX = minX * tilePx;
     int drawY = (height - 1 - maxY) * tilePx;
-    return new VisibleLevelBuffer(buffer, drawX, drawY);
+    return new VisibleLevelBuffer(
+      buffer,
+      drawX,
+      drawY,
+      new LitiengineLevelPassContext(minX, maxY, tilePx));
   }
 
-  private record VisibleLevelBuffer(BufferedImage image, int drawX, int drawY) {}
+  private record VisibleLevelBuffer(
+    BufferedImage image,
+    int drawX,
+    int drawY,
+    LitiengineLevelPassContext context) {}
 
   private void drawTileImage(Graphics2D g, BufferedImage img, int sx, int sy, int tilePx) {
     if (img.getWidth() <= 0 || img.getHeight() <= 0) return;
