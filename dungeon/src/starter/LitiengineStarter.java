@@ -19,14 +19,13 @@ import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
-import core.platform.litiengine.render.effects.LitiengineColorGradeEffect;
-import core.platform.litiengine.render.effects.LitiengineHueRemapEffect;
-import core.platform.litiengine.render.effects.LitiengineSpriteEffects;
-import core.platform.litiengine.render.effects.LitiengineSpriteEffectsComponent;
+import core.platform.litiengine.render.effects.*;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
+
+import java.awt.*;
 import java.io.IOException;
 import java.util.Set;
 
@@ -143,6 +142,13 @@ public final class LitiengineStarter {
     installColorGradeDemoEffect(colorGradeDemoChest);
     Game.add(colorGradeDemoChest);
 
+    Entity shineDemoChest =
+      MiscFactory.newChest(
+        createChestTestItems(),
+        startPosition.translate(Vector2.of(6f, 6f)));
+    installShineDemoEffect(shineDemoChest);
+    Game.add(shineDemoChest);
+
     Game.add(
       MiscFactory.newChest(
         createChestTestItems(),
@@ -183,6 +189,26 @@ public final class LitiengineStarter {
     effects.add(
       "demo_color_grade_desaturate_brighten",
       new LitiengineColorGradeEffect(-1.0f, 0.20f, 1.35f),
+      100);
+
+    entity.add(new LitiengineSpriteEffectsComponent(effects));
+  }
+
+  /**
+   * Adds a clearly visible animated shine demo effect to a static verification chest.
+   *
+   * <p>This demo keeps the original chest colors and adds rotating bright highlight slices so the
+   * result is visually distinct from both the hue-remap and the color-grade demo entities.
+   */
+  private static void installShineDemoEffect(Entity entity) {
+    LitiengineSpriteEffects effects = new LitiengineSpriteEffects();
+    effects.add(
+      "demo_shine_gold_slices",
+      new LitiengineShineEffect(
+        5,
+        0.35f,
+        0.35f,
+        new Color(255, 245, 170, 210)),
       100);
 
     entity.add(new LitiengineSpriteEffectsComponent(effects));
