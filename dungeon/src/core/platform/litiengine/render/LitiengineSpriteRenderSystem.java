@@ -13,6 +13,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
+import core.platform.litiengine.render.depth.LitiengineDepthLayerEffectPipeline;
 import core.platform.litiengine.render.effects.LitiengineShineEffect;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsComponent;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsRenderer;
@@ -236,39 +237,114 @@ public final class LitiengineSpriteRenderSystem extends System {
   private void renderEntities(Graphics2D g, Optional<ILevel> levelOpt, CameraView view) {
     final int levelHeight = view.levelHeight();
 
-    // Sort entities by y so "lower" entities appear in front (cheap painter's algorithm).
-    final List<Entity> entities =
-      ECSManagement.levelEntities()
-        .sorted(Comparator.comparingDouble(e ->
-          e.fetch(PositionComponent.class).map(pc -> pc.position().y()).orElse(0f)))
-        .toList();
+    TreeMap<Integer, List<Entity>> depthGroups = visibleEntitiesByDepth(view);
 
+    for (Map.Entry<Integer, List<Entity>> entry : depthGroups.entrySet()) {
+      renderDepthLayer(g, entry.getKey(), entry.getValue(), levelHeight, view);
+    }
+  }
+
+  private TreeMap<Integer, List<Entity>> visibleEntitiesByDepth(CameraView view) {
+    final TreeMap<Integer, List<Entity>> depthGroups = new TreeMap<>();
+
+    ECSManagement.levelEntities()
+      .filter(entity -> entity.fetch(PositionComponent.class).isPresent())
+      .forEach(
+        entity -> {
+          Point pos = entity.fetch(PositionComponent.class).orElseThrow().position();
+
+          if (!isWithinVisibleTileBounds(pos, view)) {
+            return;
+          }
+
+          int depth = entity.fetch(DrawComponent.class).map(DrawComponent::depth).orElse(0);
+          depthGroups.computeIfAbsent(depth, ignored -> new ArrayList<>()).add(entity);
+        });
+
+    depthGroups
+      .values()
+      .forEach(
+        entitiesAtDepth ->
+          entitiesAtDepth.sort(
+            Comparator.comparingDouble(
+              entity ->
+                entity.fetch(PositionComponent.class).map(pc -> pc.position().y()).orElse(0f))));
+
+    return depthGroups;
+  }
+
+  private boolean isWithinVisibleTileBounds(Point pos, CameraView view) {
+    return !(pos.x() < view.minTileX()
+      || pos.x() > view.maxTileX()
+      || pos.y() < view.minTileY()
+      || pos.y() > view.maxTileY());
+  }
+
+  private void renderDepthLayer(
+    Graphics2D g,
+    int depthLayer,
+    List<Entity> entitiesAtDepth,
+    int levelHeight,
+    CameraView view) {
+
+    if (entitiesAtDepth.isEmpty()) {
+      return;
+    }
+
+    if (!LitiengineDepthLayerEffectPipeline.hasEnabledEffects(depthLayer)) {
+      renderEntityList(g, entitiesAtDepth, levelHeight, view.tilePx());
+      return;
+    }
+
+    BufferedImage layerBuffer =
+      new BufferedImage(
+        Math.max(1, getWidthSafe()),
+        Math.max(1, getHeightSafe()),
+        BufferedImage.TYPE_INT_ARGB);
+
+    Graphics2D layerGraphics = layerBuffer.createGraphics();
+    try {
+      layerGraphics.setRenderingHint(
+        RenderingHints.KEY_INTERPOLATION,
+        RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+      layerGraphics.translate(view.offsetX(), view.offsetY());
+      renderEntityList(layerGraphics, entitiesAtDepth, levelHeight, view.tilePx());
+    } finally {
+      layerGraphics.dispose();
+    }
+
+    BufferedImage processed =
+      LitiengineDepthLayerEffectPipeline.apply(depthLayer, layerBuffer, Time.nowMs());
+
+    g.drawImage(
+      processed,
+      Math.round((float) -view.offsetX()),
+      Math.round((float) -view.offsetY()),
+      null);
+  }
+
+  private void renderEntityList(
+    Graphics2D g, List<Entity> entities, int levelHeight, int tilePx) {
     for (Entity e : entities) {
       final Optional<PositionComponent> pcOpt = e.fetch(PositionComponent.class);
-      if (pcOpt.isEmpty()) continue;
-
-      final Point pos = pcOpt.get().position();
-
-      // Viewport culling in world space (tiles).
-      if (pos.x() < view.minTileX() || pos.x() > view.maxTileX() || pos.y() < view.minTileY() || pos.y() > view.maxTileY()) {
+      if (pcOpt.isEmpty()) {
         continue;
       }
 
+      final Point pos = pcOpt.get().position();
+
       final Optional<DrawComponent> dcOpt = e.fetch(DrawComponent.class);
       if (dcOpt.isPresent()) {
-        if (tryDrawEntitySprite(g, e, pos, levelHeight, view.tilePx(), dcOpt.get())) {
+        if (tryDrawEntitySprite(g, e, pos, levelHeight, tilePx, dcOpt.get())) {
           continue;
         }
       }
 
-      // Level-hide entities are rendered by the dedicated level-hide render system
-      // and should not appear as generic fallback markers.
       if (e.isPresent(LevelHideComponent.class)) {
         continue;
       }
 
-      // Fallback marker (debug)
-      drawEntityMarker(g, e, pos, levelHeight, view.tilePx());
+      drawEntityMarker(g, e, pos, levelHeight, tilePx);
     }
   }
 
