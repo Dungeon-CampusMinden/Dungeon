@@ -5,6 +5,7 @@ import core.System;
 import core.debug.DebugGameplayActions;
 import core.input.Keys;
 import core.platform.Platform;
+import core.platform.litiengine.render.depth.LitiengineDepthLayerColorGradeEffect;
 import core.platform.litiengine.render.depth.LitiengineDepthLayerEffectPipeline;
 import core.platform.litiengine.render.level.LitiengineLevelColorGradeEffect;
 import core.platform.litiengine.render.level.LitiengineLevelEffectPipeline;
@@ -13,6 +14,7 @@ import core.platform.litiengine.render.scene.LitiengineSceneColorGradeEffect;
 import core.platform.litiengine.render.scene.LitiengineSceneEffectPipeline;
 import core.utils.InputManager;
 import core.utils.Rectangle;
+import core.utils.components.draw.DepthLayer;
 import core.utils.logging.DungeonLogger;
 
 /**
@@ -28,6 +30,7 @@ public final class LitiengineDebugControlsSystem extends System {
   private static final DungeonLogger LOGGER =
     DungeonLogger.getLogger(LitiengineDebugControlsSystem.class);
 
+  private static final int TOGGLE_REGIONAL_DEPTH_COLOR_GRADE_KEY = Keys.F5;
   private static final int TOGGLE_REGIONAL_LEVEL_COLOR_GRADE_KEY = Keys.F6;
   private static final int TOGGLE_SCENE_EFFECTS_KEY = Keys.F7;
   private static final int TOGGLE_LEVEL_EFFECTS_KEY = Keys.F8;
@@ -66,14 +69,24 @@ public final class LitiengineDebugControlsSystem extends System {
   private static final String STARTER_LEVEL_COLOR_GRADE_DEMO_ID =
     "starter_level_color_grade_demo";
 
+  private static final String STARTER_DEPTH_COLOR_GRADE_DEMO_ID =
+    "starter_depth_color_grade_demo";
+
   private static final Rectangle DEFAULT_STARTER_SCENE_COLOR_GRADE_REGION =
     new Rectangle(1f, 5f, 10f, 4f);
 
   private static final Rectangle DEFAULT_STARTER_LEVEL_COLOR_GRADE_REGION =
     new Rectangle(3f, 0f, 7f, 4f);
 
+  private static final Rectangle DEFAULT_STARTER_DEPTH_COLOR_GRADE_REGION =
+    new Rectangle(7f, 5f, 3f, 3f);
+
+  private static final int STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER =
+    DepthLayer.ForegroundDeco.depth();
+
   private static final float DEFAULT_STARTER_SCENE_COLOR_GRADE_TRANSITION_SIZE = 2.0f;
   private static final float DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE = 2.0f;
+  private static final float DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE = 1.5f;
 
   private Rectangle rememberedRegionalSceneColorGradeRegion = null;
   private float rememberedRegionalSceneColorGradeTransitionSize =
@@ -83,6 +96,10 @@ public final class LitiengineDebugControlsSystem extends System {
   private float rememberedRegionalLevelColorGradeTransitionSize =
     DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE;
 
+  private Rectangle rememberedRegionalDepthColorGradeRegion = null;
+  private float rememberedRegionalDepthColorGradeTransitionSize =
+    DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE;
+
   public LitiengineDebugControlsSystem() {
     super(AuthoritativeSide.CLIENT);
   }
@@ -91,6 +108,14 @@ public final class LitiengineDebugControlsSystem extends System {
   public void execute() {
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value())) {
       Platform.render().toggleDebugHud();
+    }
+
+    if (InputManager.isKeyJustPressed(TOGGLE_REGIONAL_DEPTH_COLOR_GRADE_KEY)) {
+      if (isShiftPressed()) {
+        toggleRegionalDepthColorGradeRegionMode();
+      } else {
+        toggleRegionalDepthColorGradeEnabled();
+      }
     }
 
     if (InputManager.isKeyJustPressed(TOGGLE_REGIONAL_LEVEL_COLOR_GRADE_KEY)) {
@@ -290,6 +315,68 @@ public final class LitiengineDebugControlsSystem extends System {
 
     LOGGER.info(
       "LITIENGINE starter level color grade verification is now in global mode.");
+  }
+
+  private void toggleRegionalDepthColorGradeEnabled() {
+    LitiengineDepthLayerColorGradeEffect effect = starterDepthColorGradeDemoEffect();
+    if (effect == null) {
+      LOGGER.warn(
+        "No starter regional depth-layer color grade demo is registered under id '{}'.",
+        STARTER_DEPTH_COLOR_GRADE_DEMO_ID);
+      return;
+    }
+
+    boolean newState = !effect.enabled();
+    effect.enabled(newState);
+
+    LOGGER.info(
+      "LITIENGINE starter regional depth-layer color grade is now {}.",
+      newState ? "enabled" : "disabled");
+  }
+
+  private void toggleRegionalDepthColorGradeRegionMode() {
+    LitiengineDepthLayerColorGradeEffect effect = starterDepthColorGradeDemoEffect();
+    if (effect == null) {
+      LOGGER.warn(
+        "No starter regional depth-layer color grade demo is registered under id '{}'.",
+        STARTER_DEPTH_COLOR_GRADE_DEMO_ID);
+      return;
+    }
+
+    Rectangle currentRegion = effect.region();
+    if (currentRegion == null) {
+      Rectangle restoreRegion =
+        rememberedRegionalDepthColorGradeRegion != null
+          ? copy(rememberedRegionalDepthColorGradeRegion)
+          : copy(DEFAULT_STARTER_DEPTH_COLOR_GRADE_REGION);
+
+      float restoreTransition =
+        rememberedRegionalDepthColorGradeTransitionSize > 0f
+          ? rememberedRegionalDepthColorGradeTransitionSize
+          : DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE;
+
+      effect.region(restoreRegion).transitionSize(restoreTransition);
+
+      LOGGER.info(
+        "LITIENGINE starter depth-layer color grade verification is now in regional mode.");
+      return;
+    }
+
+    rememberedRegionalDepthColorGradeRegion = copy(currentRegion);
+    rememberedRegionalDepthColorGradeTransitionSize = effect.transitionSize();
+
+    effect.region(null);
+
+    LOGGER.info(
+      "LITIENGINE starter depth-layer color grade verification is now in global mode.");
+  }
+
+  private LitiengineDepthLayerColorGradeEffect starterDepthColorGradeDemoEffect() {
+    return LitiengineDepthLayerEffectPipeline.effects(STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER)
+      .get(STARTER_DEPTH_COLOR_GRADE_DEMO_ID)
+      .filter(LitiengineDepthLayerColorGradeEffect.class::isInstance)
+      .map(LitiengineDepthLayerColorGradeEffect.class::cast)
+      .orElse(null);
   }
 
   private LitiengineSceneColorGradeEffect starterSceneColorGradeDemoEffect() {
