@@ -147,10 +147,11 @@ public final class LitiengineStarter {
   }
 
   /**
-   * Registers a visible depth-layer color-grade demo for the LITIENGINE starter.
+   * Registers a visible regional depth-layer color-grade demo for the LITIENGINE starter.
    *
-   * <p>This demo targets one dedicated entity depth only, so it can be verified independently of
-   * the global scene pass and the level pass.
+   * <p>This demo targets only the dedicated verification chest on the foreground-deco depth layer.
+   * The effect is limited to a small world-space region around that chest so the regional depth-pass
+   * semantics can be verified independently of the broader scene-pass and level-pass demos.
    */
   private static void installDepthLayerColorGradeDemo() {
     int demoDepth = DepthLayer.ForegroundDeco.depth();
@@ -158,7 +159,9 @@ public final class LitiengineStarter {
     LitiengineDepthLayerEffectPipeline.effects(demoDepth).remove("starter_depth_color_grade_demo");
     LitiengineDepthLayerEffectPipeline.effects(demoDepth).add(
       "starter_depth_color_grade_demo",
-      new LitiengineDepthLayerColorGradeEffect(-1.0f, 0.35f, 1.28f),
+      new LitiengineDepthLayerColorGradeEffect(-1.0f, 0.35f, 1.28f)
+        .region(new Rectangle(7f, 5f, 3f, 3f))
+        .transitionSize(1.5f),
       100);
   }
 
