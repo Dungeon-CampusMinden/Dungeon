@@ -6,6 +6,7 @@ import core.debug.DebugGameplayActions;
 import core.input.Keys;
 import core.platform.Platform;
 import core.platform.litiengine.render.depth.LitiengineDepthLayerEffectPipeline;
+import core.platform.litiengine.render.level.LitiengineLevelColorGradeEffect;
 import core.platform.litiengine.render.level.LitiengineLevelEffectPipeline;
 import core.platform.litiengine.render.scene.LitienginePassthroughDebugEffect;
 import core.platform.litiengine.render.scene.LitiengineSceneColorGradeEffect;
@@ -27,6 +28,7 @@ public final class LitiengineDebugControlsSystem extends System {
   private static final DungeonLogger LOGGER =
     DungeonLogger.getLogger(LitiengineDebugControlsSystem.class);
 
+  private static final int TOGGLE_REGIONAL_LEVEL_COLOR_GRADE_KEY = Keys.F6;
   private static final int TOGGLE_SCENE_EFFECTS_KEY = Keys.F7;
   private static final int TOGGLE_LEVEL_EFFECTS_KEY = Keys.F8;
   private static final int TOGGLE_DEPTH_LAYER_EFFECTS_KEY = Keys.F9;
@@ -61,14 +63,25 @@ public final class LitiengineDebugControlsSystem extends System {
   private static final String STARTER_SCENE_COLOR_GRADE_DEMO_ID =
     "starter_scene_color_grade_demo";
 
+  private static final String STARTER_LEVEL_COLOR_GRADE_DEMO_ID =
+    "starter_level_color_grade_demo";
+
   private static final Rectangle DEFAULT_STARTER_SCENE_COLOR_GRADE_REGION =
     new Rectangle(1f, 5f, 10f, 4f);
 
+  private static final Rectangle DEFAULT_STARTER_LEVEL_COLOR_GRADE_REGION =
+    new Rectangle(3f, 0f, 7f, 4f);
+
   private static final float DEFAULT_STARTER_SCENE_COLOR_GRADE_TRANSITION_SIZE = 2.0f;
+  private static final float DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE = 2.0f;
 
   private Rectangle rememberedRegionalSceneColorGradeRegion = null;
   private float rememberedRegionalSceneColorGradeTransitionSize =
     DEFAULT_STARTER_SCENE_COLOR_GRADE_TRANSITION_SIZE;
+
+  private Rectangle rememberedRegionalLevelColorGradeRegion = null;
+  private float rememberedRegionalLevelColorGradeTransitionSize =
+    DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE;
 
   public LitiengineDebugControlsSystem() {
     super(AuthoritativeSide.CLIENT);
@@ -78,6 +91,14 @@ public final class LitiengineDebugControlsSystem extends System {
   public void execute() {
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value())) {
       Platform.render().toggleDebugHud();
+    }
+
+    if (InputManager.isKeyJustPressed(TOGGLE_REGIONAL_LEVEL_COLOR_GRADE_KEY)) {
+      if (isShiftPressed()) {
+        toggleRegionalLevelColorGradeRegionMode();
+      } else {
+        toggleRegionalLevelColorGradeEnabled();
+      }
     }
 
     if (InputManager.isKeyJustPressed(TOGGLE_SCENE_EFFECTS_KEY)) {
@@ -217,11 +238,73 @@ public final class LitiengineDebugControlsSystem extends System {
       "LITIENGINE starter scene color grade verification is now in global mode.");
   }
 
+  private void toggleRegionalLevelColorGradeEnabled() {
+    LitiengineLevelColorGradeEffect effect = starterLevelColorGradeDemoEffect();
+    if (effect == null) {
+      LOGGER.warn(
+        "No starter regional level color grade demo is registered under id '{}'.",
+        STARTER_LEVEL_COLOR_GRADE_DEMO_ID);
+      return;
+    }
+
+    boolean newState = !effect.enabled();
+    effect.enabled(newState);
+
+    LOGGER.info(
+      "LITIENGINE starter regional level color grade is now {}.",
+      newState ? "enabled" : "disabled");
+  }
+
+  private void toggleRegionalLevelColorGradeRegionMode() {
+    LitiengineLevelColorGradeEffect effect = starterLevelColorGradeDemoEffect();
+    if (effect == null) {
+      LOGGER.warn(
+        "No starter regional level color grade demo is registered under id '{}'.",
+        STARTER_LEVEL_COLOR_GRADE_DEMO_ID);
+      return;
+    }
+
+    Rectangle currentRegion = effect.region();
+    if (currentRegion == null) {
+      Rectangle restoreRegion =
+        rememberedRegionalLevelColorGradeRegion != null
+          ? copy(rememberedRegionalLevelColorGradeRegion)
+          : copy(DEFAULT_STARTER_LEVEL_COLOR_GRADE_REGION);
+
+      float restoreTransition =
+        rememberedRegionalLevelColorGradeTransitionSize > 0f
+          ? rememberedRegionalLevelColorGradeTransitionSize
+          : DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE;
+
+      effect.region(restoreRegion).transitionSize(restoreTransition);
+
+      LOGGER.info(
+        "LITIENGINE starter level color grade verification is now in regional mode.");
+      return;
+    }
+
+    rememberedRegionalLevelColorGradeRegion = copy(currentRegion);
+    rememberedRegionalLevelColorGradeTransitionSize = effect.transitionSize();
+
+    effect.region(null);
+
+    LOGGER.info(
+      "LITIENGINE starter level color grade verification is now in global mode.");
+  }
+
   private LitiengineSceneColorGradeEffect starterSceneColorGradeDemoEffect() {
     return LitiengineSceneEffectPipeline.effects()
       .get(STARTER_SCENE_COLOR_GRADE_DEMO_ID)
       .filter(LitiengineSceneColorGradeEffect.class::isInstance)
       .map(LitiengineSceneColorGradeEffect.class::cast)
+      .orElse(null);
+  }
+
+  private LitiengineLevelColorGradeEffect starterLevelColorGradeDemoEffect() {
+    return LitiengineLevelEffectPipeline.effects()
+      .get(STARTER_LEVEL_COLOR_GRADE_DEMO_ID)
+      .filter(LitiengineLevelColorGradeEffect.class::isInstance)
+      .map(LitiengineLevelColorGradeEffect.class::cast)
       .orElse(null);
   }
 
@@ -240,7 +323,6 @@ public final class LitiengineDebugControlsSystem extends System {
           LitienginePassthroughDebugEffect effect = new LitienginePassthroughDebugEffect();
           effect.enabled(false);
 
-          // High priority so the debug image is evaluated late in the scene-pass chain.
           LitiengineSceneEffectPipeline.effects().add(PASSTHROUGH_DEBUG_EFFECT_ID, effect, 10_000);
           return effect;
         });
