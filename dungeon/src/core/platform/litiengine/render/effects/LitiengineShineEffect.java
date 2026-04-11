@@ -21,10 +21,16 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>shine color
  *   <li>padding
  * </ul>
+ *
+ * <p>For very small sprites, the legacy repeated multi-slice pattern is hard to perceive.
+ * Therefore this implementation switches to a single explicit moving sweep band for
+ * small sprites, while larger sprites continue to use the repeated slice pattern.
  */
 public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
   private static final float TWO_PI = (float) (Math.PI * 2.0);
+  private static final int SMALL_SPRITE_MAX_DIM = 48;
+
   private static final Map<MaskCacheKey, float[]> ALPHA_MASK_CACHE = new ConcurrentHashMap<>();
 
   private int padding = 20;
@@ -141,10 +147,104 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     int paddedWidth = source.getWidth() + 2 * padding;
     int paddedHeight = source.getHeight() + 2 * padding;
 
+    float[] alphaMask = expandedAlphaMask(source, padding);
+
+    if (isSmallSprite(source)) {
+      return renderSingleSweepOverlay(
+        paddedWidth, paddedHeight, alphaMask, nowSeconds);
+    }
+
+    return renderRepeatedSlicesOverlay(
+      paddedWidth, paddedHeight, alphaMask, nowSeconds);
+  }
+
+  private boolean isSmallSprite(BufferedImage source) {
+    return Math.max(source.getWidth(), source.getHeight()) <= SMALL_SPRITE_MAX_DIM;
+  }
+
+  private BufferedImage renderSingleSweepOverlay(
+    int paddedWidth, int paddedHeight, float[] alphaMask, float nowSeconds) {
     BufferedImage output =
       new BufferedImage(paddedWidth, paddedHeight, BufferedImage.TYPE_INT_ARGB);
 
-    float[] alphaMask = expandedAlphaMask(source, padding);
+    float cx = (paddedWidth - 1) / 2.0f;
+    float cy = (paddedHeight - 1) / 2.0f;
+
+    float baseAngle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
+    float cos = (float) Math.cos(baseAngle);
+    float sin = (float) Math.sin(baseAngle);
+
+    float maxProjection = Math.max(1.0f, Math.abs(cx * cos) + Math.abs(cy * sin));
+
+    // For very small sprites we use one clearly visible traveling band instead of repeated slices.
+    float bandWidth = clamp(0.18f + (1.0f - gapSize) * 0.35f, 0.18f, 0.55f);
+    float bandHalfWidth = bandWidth * 0.5f;
+
+    // Sweep from left/outside to right/outside in projection space.
+    float sweepCenter =
+      -bandHalfWidth + normalizePhase(nowSeconds * rotationSpeed) * (1.0f + bandWidth);
+
+    float pulse =
+      0.90f
+        + 0.10f
+        * (0.5f
+        + 0.5f
+        * (float) Math.sin(nowSeconds * rotationSpeed * TWO_PI));
+
+    float shineAlpha = shineColor.getAlpha() / 255.0f;
+
+    for (int y = 0; y < paddedHeight; y++) {
+      for (int x = 0; x < paddedWidth; x++) {
+        float maskAlpha = alphaMask[y * paddedWidth + x];
+        if (maskAlpha <= 0.0f) {
+          output.setRGB(x, y, 0);
+          continue;
+        }
+
+        float relX = x - cx;
+        float relY = y - cy;
+
+        float projected = (relX * cos + relY * sin) / maxProjection;
+        float u = projected * 0.5f + 0.5f;
+
+        float distance = Math.abs(u - sweepCenter);
+        if (distance > bandHalfWidth) {
+          output.setRGB(x, y, 0);
+          continue;
+        }
+
+        float normalized = 1.0f - (distance / Math.max(0.0001f, bandHalfWidth));
+        float bandIntensity = smoothPulse(normalized);
+
+        float radialDistance =
+          (float) Math.hypot(relX, relY) / Math.max(1.0f, Math.max(cx, cy));
+        float radialFade = 1.0f - 0.25f * clamp01(radialDistance);
+
+        float overlayStrength = clamp01(maskAlpha * bandIntensity * radialFade * pulse);
+        int overlayAlpha = toChannel(shineAlpha * overlayStrength);
+
+        if (overlayAlpha <= 0) {
+          output.setRGB(x, y, 0);
+          continue;
+        }
+
+        int overlayArgb =
+          (overlayAlpha << 24)
+            | (shineColor.getRed() << 16)
+            | (shineColor.getGreen() << 8)
+            | shineColor.getBlue();
+
+        output.setRGB(x, y, overlayArgb);
+      }
+    }
+
+    return output;
+  }
+
+  private BufferedImage renderRepeatedSlicesOverlay(
+    int paddedWidth, int paddedHeight, float[] alphaMask, float nowSeconds) {
+    BufferedImage output =
+      new BufferedImage(paddedWidth, paddedHeight, BufferedImage.TYPE_INT_ARGB);
 
     float cx = (paddedWidth - 1) / 2.0f;
     float cy = (paddedHeight - 1) / 2.0f;
@@ -160,7 +260,9 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     float pulse =
       0.80f
         + 0.20f
-        * (0.5f + 0.5f * (float) Math.sin(nowSeconds * rotationSpeed * TWO_PI));
+        * (0.5f
+        + 0.5f
+        * (float) Math.sin(nowSeconds * rotationSpeed * TWO_PI));
 
     float shineAlpha = shineColor.getAlpha() / 255.0f;
 
@@ -185,7 +287,8 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
           continue;
         }
 
-        float radialDistance = (float) Math.hypot(relX, relY) / Math.max(1.0f, Math.max(cx, cy));
+        float radialDistance =
+          (float) Math.hypot(relX, relY) / Math.max(1.0f, Math.max(cx, cy));
         float radialFade = 1.0f - 0.30f * clamp01(radialDistance);
 
         float overlayStrength = clamp01(maskAlpha * bandIntensity * radialFade * pulse);
@@ -212,12 +315,10 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
   private static float[] expandedAlphaMask(BufferedImage source, int padding) {
     MaskCacheKey key =
       new MaskCacheKey(
-        System.identityHashCode(source),
-        source.getWidth(),
-        source.getHeight(),
-        padding);
+        System.identityHashCode(source), source.getWidth(), source.getHeight(), padding);
 
-    return ALPHA_MASK_CACHE.computeIfAbsent(key, ignored -> buildExpandedAlphaMask(source, padding));
+    return ALPHA_MASK_CACHE.computeIfAbsent(
+      key, ignored -> buildExpandedAlphaMask(source, padding));
   }
 
   private static float[] buildExpandedAlphaMask(BufferedImage source, int padding) {
@@ -293,9 +394,12 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     }
 
     float normalized = localSlice / visibleFraction;
-    float centerDistance = Math.abs(normalized - 0.5f) * 2.0f;
-    float base = 1.0f - centerDistance;
+    return smoothPulse(normalized);
+  }
 
+  private static float smoothPulse(float value) {
+    float centerDistance = Math.abs(value - 0.5f) * 2.0f;
+    float base = 1.0f - centerDistance;
     return clamp01(base * base * (3.0f - 2.0f * base));
   }
 
@@ -314,6 +418,10 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
   private static float clamp01(float value) {
     return Math.clamp(value, 0.0f, 1.0f);
+  }
+
+  private static float clamp(float value, float min, float max) {
+    return Math.max(min, Math.min(max, value));
   }
 
   private record MaskCacheKey(int identityHash, int width, int height, int padding) {}
