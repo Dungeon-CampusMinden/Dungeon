@@ -20,6 +20,8 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.platform.litiengine.render.effects.*;
+import core.platform.litiengine.render.level.LitiengineLevelColorGradeEffect;
+import core.platform.litiengine.render.level.LitiengineLevelEffectPipeline;
 import core.platform.litiengine.render.scene.LitiengineSceneColorGradeEffect;
 import core.platform.litiengine.render.scene.LitiengineSceneEffectPipeline;
 import core.utils.Point;
@@ -66,6 +68,7 @@ public final class LitiengineStarter {
       () -> {
         installCraftingTestRecipe();
         installSceneColorGradeDemo();
+        installLevelColorGradeDemo();
 
         Entity hero = EntityFactory.newHero();
         addCraftingTestItems(hero);
@@ -115,6 +118,21 @@ public final class LitiengineStarter {
     LitiengineSceneEffectPipeline.effects().add(
       "starter_scene_color_grade_demo",
       new LitiengineSceneColorGradeEffect(-1.0f, 0.72f, 1.08f),
+      100);
+  }
+
+  /**
+   * Registers a visible level-pass color-grade demo for the LITIENGINE starter.
+   *
+   * <p>This demo intentionally affects only the rendered level tiles, not entities on top of them.
+   * The chosen values make the level slightly darker and more desaturated, so the difference becomes
+   * visible once the global scene-pass demo is toggled off for comparison.
+   */
+  private static void installLevelColorGradeDemo() {
+    LitiengineLevelEffectPipeline.effects().remove("starter_level_color_grade_demo");
+    LitiengineLevelEffectPipeline.effects().add(
+      "starter_level_color_grade_demo",
+      new LitiengineLevelColorGradeEffect(-1.0f, 0.58f, 0.82f),
       100);
   }
 
