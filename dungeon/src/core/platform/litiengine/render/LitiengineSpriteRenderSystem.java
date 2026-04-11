@@ -232,14 +232,15 @@ public final class LitiengineSpriteRenderSystem extends System {
     int drawX = Math.round(sxWorld + (tilePx - wPx) / 2f);
     int drawY = Math.round(syWorld + tilePx - hPx);
 
-    ArrayList<BufferedImage> shineOverlays = createShineOverlays(entity, renderImg, nowMs);
+    ArrayList<OverlayDraw> shineOverlays =
+      createShineOverlays(entity, renderImg, nowMs, drawX, drawY, wPx, hPx);
 
     LitiengineOutlineEffectComponent outline =
       entity.fetch(LitiengineOutlineEffectComponent.class).orElse(null);
 
     if (outline == null) {
       drawScaledImage(g, renderImg, drawX, drawY, wPx, hPx);
-      drawScaledOverlays(g, shineOverlays, drawX, drawY, wPx, hPx);
+      drawOverlayImages(g, shineOverlays);
       return true;
     }
 
@@ -248,13 +249,20 @@ public final class LitiengineSpriteRenderSystem extends System {
 
     LitiengineImageEffects.drawOutlinedSprite(
       g, renderImg, drawX, drawY, wPx, hPx, outlineColor, outlinePx);
-    drawScaledOverlays(g, shineOverlays, drawX, drawY, wPx, hPx);
+    drawOverlayImages(g, shineOverlays);
     return true;
   }
 
-  private ArrayList<BufferedImage> createShineOverlays(
-    Entity entity, BufferedImage baseSprite, long nowMs) {
-    ArrayList<BufferedImage> overlays = new ArrayList<>();
+  private ArrayList<OverlayDraw> createShineOverlays(
+    Entity entity,
+    BufferedImage baseSprite,
+    long nowMs,
+    int drawX,
+    int drawY,
+    int wPx,
+    int hPx) {
+
+    ArrayList<OverlayDraw> overlays = new ArrayList<>();
 
     LitiengineSpriteEffectsComponent effectsComponent =
       entity.fetch(LitiengineSpriteEffectsComponent.class).orElse(null);
@@ -265,23 +273,39 @@ public final class LitiengineSpriteRenderSystem extends System {
     for (var effect : effectsComponent.effects().getEnabledSorted()) {
       if (effect instanceof LitiengineShineEffect shineEffect) {
         BufferedImage overlay = shineEffect.createOverlay(baseSprite, nowMs);
-        if (overlay != null && overlay.getWidth() > 0 && overlay.getHeight() > 0) {
-          overlays.add(overlay);
+        if (overlay == null || overlay.getWidth() <= 0 || overlay.getHeight() <= 0) {
+          continue;
         }
+
+        int overlayWidth =
+          Math.max(1, Math.round(wPx * (overlay.getWidth() / (float) baseSprite.getWidth())));
+        int overlayHeight =
+          Math.max(1, Math.round(hPx * (overlay.getHeight() / (float) baseSprite.getHeight())));
+
+        int overlayDrawX = drawX - Math.round((overlayWidth - wPx) / 2f);
+        int overlayDrawY = drawY - Math.round((overlayHeight - hPx) / 2f);
+
+        overlays.add(new OverlayDraw(overlay, overlayDrawX, overlayDrawY, overlayWidth, overlayHeight));
       }
     }
 
     return overlays;
   }
 
-  private void drawScaledOverlays(
-    Graphics2D g, List<BufferedImage> overlays, int drawX, int drawY, int wPx, int hPx) {
-    for (BufferedImage overlay : overlays) {
-      drawScaledImage(g, overlay, drawX, drawY, wPx, hPx);
+  private void drawOverlayImages(Graphics2D g, List<OverlayDraw> overlays) {
+    for (OverlayDraw overlay : overlays) {
+      drawScaledImage(
+        g,
+        overlay.image(),
+        overlay.drawX(),
+        overlay.drawY(),
+        overlay.width(),
+        overlay.height());
     }
   }
 
-  private void drawScaledImage(Graphics2D g, BufferedImage image, int drawX, int drawY, int wPx, int hPx) {
+  private void drawScaledImage(
+    Graphics2D g, BufferedImage image, int drawX, int drawY, int wPx, int hPx) {
     if (image == null || image.getWidth() <= 0 || image.getHeight() <= 0) {
       return;
     }
@@ -290,6 +314,13 @@ public final class LitiengineSpriteRenderSystem extends System {
     double scaleY = hPx / (double) image.getHeight();
     ImageRenderer.renderScaled(g, image, drawX, drawY, scaleX, scaleY);
   }
+
+  private record OverlayDraw(
+    BufferedImage image,
+    int drawX,
+    int drawY,
+    int width,
+    int height) {}
 
   private BufferedImage applyTintIfNeeded(BufferedImage source, int tintRgba8888) {
     if (source == null) {

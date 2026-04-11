@@ -2,6 +2,8 @@ package core.platform.litiengine.render.effects;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * CPU-side LITIENGINE replacement for the old sprite-local shine shader.
@@ -17,16 +19,15 @@ import java.awt.image.BufferedImage;
  *   <li>gap size between slices
  *   <li>rotation speed
  *   <li>shine color
+ *   <li>padding
  * </ul>
- *
- * <p>The former libGDX shader also exposed padding. That part is intentionally still not ported in
- * this small commit, because the current LITIENGINE render path still draws inside the sprite
- * bounds.
  */
 public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
   private static final float TWO_PI = (float) (Math.PI * 2.0);
+  private static final Map<MaskCacheKey, float[]> ALPHA_MASK_CACHE = new ConcurrentHashMap<>();
 
+  private int padding = 20;
   private int sliceCount = 4;
   private float gapSize = 0.2f;
   private float rotationSpeed = 0.2f;
@@ -50,6 +51,15 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     gapSize(gapSize);
     rotationSpeed(rotationSpeed);
     shineColor(shineColor);
+  }
+
+  public int padding() {
+    return padding;
+  }
+
+  public LitiengineShineEffect padding(int padding) {
+    this.padding = Math.max(0, padding);
+    return this;
   }
 
   public int sliceCount() {
@@ -102,9 +112,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
   }
 
   /**
-   * Shine is no longer applied as a sprite-wide pixel transformation.
-   *
-   * <p>The actual animated effect is rendered as a separate overlay image at draw time.
+   * Shine is rendered as a separate overlay image at draw time.
    */
   @Override
   public BufferedImage apply(BufferedImage input, long nowMs) {
@@ -113,6 +121,9 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
   /**
    * Creates the animated shine overlay for the given sprite.
+   *
+   * <p>The returned image can be larger than the input sprite because the old GDX shader also
+   * supported explicit padding around the rendered effect.
    *
    * @param source already prepared sprite image (after tint / other pixel effects)
    * @param nowMs current timestamp
@@ -127,14 +138,16 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
   }
 
   private BufferedImage renderOverlay(BufferedImage source, float nowSeconds) {
+    int paddedWidth = source.getWidth() + 2 * padding;
+    int paddedHeight = source.getHeight() + 2 * padding;
+
     BufferedImage output =
-      new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
+      new BufferedImage(paddedWidth, paddedHeight, BufferedImage.TYPE_INT_ARGB);
 
-    int width = source.getWidth();
-    int height = source.getHeight();
+    float[] alphaMask = expandedAlphaMask(source, padding);
 
-    float cx = (width - 1) / 2.0f;
-    float cy = (height - 1) / 2.0f;
+    float cx = (paddedWidth - 1) / 2.0f;
+    float cy = (paddedHeight - 1) / 2.0f;
 
     float baseAngle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
     float cos = (float) Math.cos(baseAngle);
@@ -151,12 +164,10 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
     float shineAlpha = shineColor.getAlpha() / 255.0f;
 
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        int sourceArgb = source.getRGB(x, y);
-        int sourceAlpha = (sourceArgb >>> 24) & 0xFF;
-
-        if (sourceAlpha == 0) {
+    for (int y = 0; y < paddedHeight; y++) {
+      for (int x = 0; x < paddedWidth; x++) {
+        float maskAlpha = alphaMask[y * paddedWidth + x];
+        if (maskAlpha <= 0.0f) {
           output.setRGB(x, y, 0);
           continue;
         }
@@ -169,7 +180,6 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
         float localSlice = fract(u * sliceCount - sweepPhase);
         float bandIntensity = shineBandIntensity(localSlice, visibleFraction);
-
         if (bandIntensity <= 0.0f) {
           output.setRGB(x, y, 0);
           continue;
@@ -178,9 +188,8 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
         float radialDistance = (float) Math.hypot(relX, relY) / Math.max(1.0f, Math.max(cx, cy));
         float radialFade = 1.0f - 0.30f * clamp01(radialDistance);
 
-        float overlayStrength = clamp01(bandIntensity * radialFade * pulse);
-        int overlayAlpha =
-          toChannel((sourceAlpha / 255.0f) * shineAlpha * overlayStrength);
+        float overlayStrength = clamp01(maskAlpha * bandIntensity * radialFade * pulse);
+        int overlayAlpha = toChannel(shineAlpha * overlayStrength);
 
         if (overlayAlpha <= 0) {
           output.setRGB(x, y, 0);
@@ -198,6 +207,84 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     }
 
     return output;
+  }
+
+  private static float[] expandedAlphaMask(BufferedImage source, int padding) {
+    MaskCacheKey key =
+      new MaskCacheKey(
+        System.identityHashCode(source),
+        source.getWidth(),
+        source.getHeight(),
+        padding);
+
+    return ALPHA_MASK_CACHE.computeIfAbsent(key, ignored -> buildExpandedAlphaMask(source, padding));
+  }
+
+  private static float[] buildExpandedAlphaMask(BufferedImage source, int padding) {
+    int paddedWidth = source.getWidth() + 2 * padding;
+    int paddedHeight = source.getHeight() + 2 * padding;
+    float[] mask = new float[paddedWidth * paddedHeight];
+
+    int radius = Math.max(0, padding);
+    int radiusSq = radius * radius;
+
+    for (int y = 0; y < paddedHeight; y++) {
+      for (int x = 0; x < paddedWidth; x++) {
+        int sourceX = x - padding;
+        int sourceY = y - padding;
+
+        float directAlpha = alphaAt(source, sourceX, sourceY);
+        if (directAlpha > 0.0f) {
+          mask[y * paddedWidth + x] = directAlpha;
+          continue;
+        }
+
+        if (radius <= 0) {
+          mask[y * paddedWidth + x] = 0.0f;
+          continue;
+        }
+
+        int bestDistSq = Integer.MAX_VALUE;
+        float bestAlpha = 0.0f;
+
+        for (int dy = -radius; dy <= radius; dy++) {
+          for (int dx = -radius; dx <= radius; dx++) {
+            int distSq = dx * dx + dy * dy;
+            if (distSq > radiusSq) {
+              continue;
+            }
+
+            float candidateAlpha = alphaAt(source, sourceX + dx, sourceY + dy);
+            if (candidateAlpha <= 0.0f) {
+              continue;
+            }
+
+            if (distSq < bestDistSq) {
+              bestDistSq = distSq;
+              bestAlpha = candidateAlpha;
+            }
+          }
+        }
+
+        if (bestDistSq == Integer.MAX_VALUE) {
+          mask[y * paddedWidth + x] = 0.0f;
+          continue;
+        }
+
+        float distance = (float) Math.sqrt(bestDistSq);
+        float feather = 1.0f - distance / Math.max(1.0f, radius);
+        mask[y * paddedWidth + x] = clamp01(bestAlpha * feather * feather);
+      }
+    }
+
+    return mask;
+  }
+
+  private static float alphaAt(BufferedImage image, int x, int y) {
+    if (x < 0 || y < 0 || x >= image.getWidth() || y >= image.getHeight()) {
+      return 0.0f;
+    }
+    return ((image.getRGB(x, y) >>> 24) & 0xFF) / 255.0f;
   }
 
   private static float shineBandIntensity(float localSlice, float visibleFraction) {
@@ -228,4 +315,6 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
   private static float clamp01(float value) {
     return Math.clamp(value, 0.0f, 1.0f);
   }
+
+  private record MaskCacheKey(int identityHash, int width, int height, int padding) {}
 }
