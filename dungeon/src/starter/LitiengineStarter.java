@@ -20,6 +20,8 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.platform.litiengine.render.effects.*;
+import core.platform.litiengine.render.scene.LitiengineSceneColorGradeEffect;
+import core.platform.litiengine.render.scene.LitiengineSceneEffectPipeline;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -63,6 +65,7 @@ public final class LitiengineStarter {
     Game.userOnSetup(
       () -> {
         installCraftingTestRecipe();
+        installSceneColorGradeDemo();
 
         Entity hero = EntityFactory.newHero();
         addCraftingTestItems(hero);
@@ -98,6 +101,21 @@ public final class LitiengineStarter {
         false,
         new CraftingIngredient[] {new ItemPotionWater(), new ItemResourceBerry()},
         new ItemPotionHealth[] {new ItemPotionHealth()}));
+  }
+
+  /**
+   * Registers a visible global scene-pass color-grade demo for the LITIENGINE starter.
+   *
+   * <p>This demo intentionally applies a mild global desaturation and a small brightness lift to the
+   * fully rendered frame. The effect should be clearly noticeable on the whole scene, while still
+   * keeping the starter playable and visually comparable to the ungraded baseline.
+   */
+  private static void installSceneColorGradeDemo() {
+    LitiengineSceneEffectPipeline.effects().remove("starter_scene_color_grade_demo");
+    LitiengineSceneEffectPipeline.effects().add(
+      "starter_scene_color_grade_demo",
+      new LitiengineSceneColorGradeEffect(-1.0f, 0.72f, 1.08f),
+      100);
   }
 
   /** Adds a few guaranteed crafting test items to the hero inventory. */
