@@ -29,6 +29,35 @@ public final class LitiengineDepthLayerEffectPipeline {
     return EFFECTS_BY_DEPTH.values().stream().anyMatch(LitiengineDepthLayerEffects::hasEnabledEffects);
   }
 
+  /**
+   * @return true if all toggleable depth-layer effect groups are currently enabled
+   */
+  public static boolean allEnabled() {
+    boolean hasToggleableDepthEffects = false;
+
+    for (LitiengineDepthLayerEffects effects : EFFECTS_BY_DEPTH.values()) {
+      if (!effects.isEmpty()) {
+        hasToggleableDepthEffects = true;
+        if (!effects.allEnabled()) {
+          return false;
+        }
+      }
+    }
+
+    return hasToggleableDepthEffects;
+  }
+
+  /**
+   * Toggles all registered toggleable depth-layer effect groups at once.
+   *
+   * @return the new enabled state that was applied
+   */
+  public static boolean toggleAll() {
+    boolean newState = !allEnabled();
+    EFFECTS_BY_DEPTH.values().forEach(effects -> effects.enableAll(newState));
+    return newState;
+  }
+
   public static BufferedImage apply(int depthLayer, BufferedImage source, long nowMs) {
     LitiengineDepthLayerEffects effects = EFFECTS_BY_DEPTH.get(depthLayer);
     if (source == null || effects == null || !effects.hasEnabledEffects()) {
