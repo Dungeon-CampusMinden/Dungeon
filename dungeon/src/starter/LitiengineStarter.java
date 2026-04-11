@@ -19,6 +19,7 @@ import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
+import core.platform.litiengine.render.effects.LitiengineColorGradeEffect;
 import core.platform.litiengine.render.effects.LitiengineHueRemapEffect;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffects;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsComponent;
@@ -135,6 +136,13 @@ public final class LitiengineStarter {
     installHueRemapDemoEffect(hueRemapDemoChest);
     Game.add(hueRemapDemoChest);
 
+    Entity colorGradeDemoChest =
+      MiscFactory.newChest(
+        createChestTestItems(),
+        startPosition.translate(Vector2.of(4f, 6f)));
+    installColorGradeDemoEffect(colorGradeDemoChest);
+    Game.add(colorGradeDemoChest);
+
     Game.add(
       MiscFactory.newChest(
         createChestTestItems(),
@@ -159,6 +167,22 @@ public final class LitiengineStarter {
     effects.add(
       "demo_hue_remap_warm_to_cyan",
       new LitiengineHueRemapEffect(0.08f, 0.56f, 0.18f),
+      100);
+
+    entity.add(new LitiengineSpriteEffectsComponent(effects));
+  }
+
+  /**
+   * Adds a clearly visible color-grade demo effect to a static verification chest.
+   *
+   * <p>This demo intentionally keeps the original hue and instead changes saturation and brightness
+   * strongly, so the effect is distinguishable from the separate hue-remap demo chest.
+   */
+  private static void installColorGradeDemoEffect(Entity entity) {
+    LitiengineSpriteEffects effects = new LitiengineSpriteEffects();
+    effects.add(
+      "demo_color_grade_desaturate_brighten",
+      new LitiengineColorGradeEffect(-1.0f, 0.20f, 1.35f),
       100);
 
     entity.add(new LitiengineSpriteEffectsComponent(effects));
