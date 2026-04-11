@@ -14,11 +14,14 @@ import contrib.item.concreteItem.ItemWoodenArrow;
 import contrib.modules.levelHide.LevelHideFactory;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
+import core.platform.litiengine.render.depth.LitiengineDepthLayerColorGradeEffect;
+import core.platform.litiengine.render.depth.LitiengineDepthLayerEffectPipeline;
 import core.platform.litiengine.render.effects.*;
 import core.platform.litiengine.render.level.LitiengineLevelColorGradeEffect;
 import core.platform.litiengine.render.level.LitiengineLevelEffectPipeline;
@@ -27,6 +30,7 @@ import core.platform.litiengine.render.scene.LitiengineSceneEffectPipeline;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.path.SimpleIPath;
 
 import java.awt.*;
@@ -69,6 +73,7 @@ public final class LitiengineStarter {
         installCraftingTestRecipe();
         installSceneColorGradeDemo();
         installLevelColorGradeDemo();
+        installDepthLayerColorGradeDemo();
 
         Entity hero = EntityFactory.newHero();
         addCraftingTestItems(hero);
@@ -136,6 +141,22 @@ public final class LitiengineStarter {
       100);
   }
 
+  /**
+   * Registers a visible depth-layer color-grade demo for the LITIENGINE starter.
+   *
+   * <p>This demo targets one dedicated entity depth only, so it can be verified independently of
+   * the global scene pass and the level pass.
+   */
+  private static void installDepthLayerColorGradeDemo() {
+    int demoDepth = DepthLayer.ForegroundDeco.depth();
+
+    LitiengineDepthLayerEffectPipeline.effects(demoDepth).remove("starter_depth_color_grade_demo");
+    LitiengineDepthLayerEffectPipeline.effects(demoDepth).add(
+      "starter_depth_color_grade_demo",
+      new LitiengineDepthLayerColorGradeEffect(-1.0f, 0.35f, 1.28f),
+      100);
+  }
+
   /** Adds a few guaranteed crafting test items to the hero inventory. */
   private static void addCraftingTestItems(Entity hero) {
     hero.fetch(InventoryComponent.class)
@@ -184,6 +205,13 @@ public final class LitiengineStarter {
         startPosition.translate(Vector2.of(6f, 6f)));
     installShineDemoEffect(shineDemoChest);
     Game.add(shineDemoChest);
+
+    Entity depthLayerDemoChest =
+      MiscFactory.newChest(
+        createChestTestItems(),
+        startPosition.translate(Vector2.of(8f, 6f)));
+    installDepthLayerDemoDepth(depthLayerDemoChest);
+    Game.add(depthLayerDemoChest);
 
     Game.add(
       MiscFactory.newChest(
@@ -256,6 +284,15 @@ public final class LitiengineStarter {
       100);
 
     entity.add(new LitiengineSpriteEffectsComponent(effects));
+  }
+
+  /**
+   * Moves the given demo entity onto the dedicated depth layer that is used for depth-pass
+   * verification in the LITIENGINE starter.
+   */
+  private static void installDepthLayerDemoDepth(Entity entity) {
+    entity.fetch(DrawComponent.class)
+      .ifPresent(drawComponent -> drawComponent.depth(DepthLayer.ForegroundDeco.depth()));
   }
 
   private static Set<contrib.item.Item> createChestTestItems() {
