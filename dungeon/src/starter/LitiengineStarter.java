@@ -197,18 +197,26 @@ public final class LitiengineStarter {
   /**
    * Adds a clearly visible animated shine demo effect to a static verification chest.
    *
-   * <p>This demo keeps the original chest colors and adds rotating bright highlight slices so the
-   * result is visually distinct from both the hue-remap and the color-grade demo entities.
+   * <p>After introducing overlay padding support, the demo explicitly disables padding again so the
+   * verification chest shows the shine strictly inside its own visual bounds. The remaining values
+   * are intentionally tuned for a very small sprite:
+   *
+   * <ul>
+   *   <li>few slices,
+   *   <li>very large gaps,
+   *   <li>high movement speed.
+   * </ul>
    */
   private static void installShineDemoEffect(Entity entity) {
     LitiengineSpriteEffects effects = new LitiengineSpriteEffects();
     effects.add(
       "demo_shine_gold_slices",
-      new LitiengineShineEffect(
-        5,
-        0.35f,
-        0.35f,
-        new Color(255, 245, 170, 210)),
+      new LitiengineShineEffect()
+        .sliceCount(2)
+        .gapSize(0.88f)
+        .rotationSpeed(1.80f)
+        .shineColor(new Color(255, 250, 210, 255))
+        .padding(0),
       100);
 
     entity.add(new LitiengineSpriteEffectsComponent(effects));
