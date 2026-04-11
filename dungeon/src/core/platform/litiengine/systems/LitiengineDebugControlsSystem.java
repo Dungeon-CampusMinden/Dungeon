@@ -5,6 +5,7 @@ import core.System;
 import core.debug.DebugGameplayActions;
 import core.input.Keys;
 import core.platform.Platform;
+import core.platform.litiengine.render.level.LitiengineLevelEffectPipeline;
 import core.platform.litiengine.render.scene.LitiengineSceneEffectPipeline;
 import core.utils.InputManager;
 import core.utils.logging.DungeonLogger;
@@ -15,8 +16,8 @@ import core.utils.logging.DungeonLogger;
  * <p>This intentionally contains only backend-neutral gameplay debug actions that are useful
  * during LITIENGINE testing. GDX/HUD-specific debugger features stay in the GDX debugger.
  *
- * <p>Scene-pass verification is intentionally backend-local here, because the current scene effect
- * pipeline also exists only on the LITIENGINE render path.
+ * <p>Scene-pass and level-pass verification are intentionally backend-local here, because the
+ * corresponding pass pipelines also currently exist only on the LITIENGINE render path.
  */
 public final class LitiengineDebugControlsSystem extends System {
   private static final DungeonLogger LOGGER =
@@ -29,6 +30,14 @@ public final class LitiengineDebugControlsSystem extends System {
    * only about lightweight debug verification of the new LITIENGINE-only scene effect pipeline.
    */
   private static final int TOGGLE_SCENE_EFFECTS_KEY = Keys.F7;
+
+  /**
+   * Temporary backend-local key for toggling all registered level-pass effects.
+   *
+   * <p>This is intentionally not routed through {@link KeyboardConfig} yet, because this commit is
+   * only about lightweight debug verification of the new LITIENGINE-only level effect pipeline.
+   */
+  private static final int TOGGLE_LEVEL_EFFECTS_KEY = Keys.F8;
 
   public LitiengineDebugControlsSystem() {
     super(AuthoritativeSide.CLIENT);
@@ -44,6 +53,13 @@ public final class LitiengineDebugControlsSystem extends System {
       boolean enabled = LitiengineSceneEffectPipeline.toggleAll();
       LOGGER.info(
         "LITIENGINE scene-pass effects are now {}.",
+        enabled ? "enabled" : "disabled");
+    }
+
+    if (InputManager.isKeyJustPressed(TOGGLE_LEVEL_EFFECTS_KEY)) {
+      boolean enabled = LitiengineLevelEffectPipeline.toggleAll();
+      LOGGER.info(
+        "LITIENGINE level-pass effects are now {}.",
         enabled ? "enabled" : "disabled");
     }
 
