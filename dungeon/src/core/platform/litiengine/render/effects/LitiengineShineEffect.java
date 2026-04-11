@@ -6,8 +6,11 @@ import java.awt.image.BufferedImage;
 /**
  * CPU-side LITIENGINE replacement for the old sprite-local shine shader.
  *
- * <p>The effect renders animated light slices directly into the sprite image and keeps the old
- * core shader semantics:
+ * <p>Unlike hue remap or color grading, shine is rendered as a separate overlay layer.
+ * Therefore {@link #apply(BufferedImage, long)} keeps the input sprite unchanged, while
+ * {@link #createOverlay(BufferedImage, long)} generates the animated highlight image.
+ *
+ * <p>This keeps the old core semantics:
  *
  * <ul>
  *   <li>slice count
@@ -16,9 +19,9 @@ import java.awt.image.BufferedImage;
  *   <li>shine color
  * </ul>
  *
- * <p>The former libGDX shader also exposed padding. That part is intentionally not ported in this
- * commit, because the current LITIENGINE sprite-effect pipeline transforms the sprite image
- * in-place and does not yet support expanded render bounds.
+ * <p>The former libGDX shader also exposed padding. That part is intentionally still not ported in
+ * this small commit, because the current LITIENGINE render path still draws inside the sprite
+ * bounds.
  */
 public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
@@ -49,65 +52,37 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     shineColor(shineColor);
   }
 
-  /** @return number of shine slices */
   public int sliceCount() {
     return sliceCount;
   }
 
-  /**
-   * Sets the number of shine slices.
-   *
-   * @param sliceCount number of slices, clamped to at least 1
-   * @return this effect for chaining
-   */
   public LitiengineShineEffect sliceCount(int sliceCount) {
     this.sliceCount = Math.max(1, sliceCount);
     return this;
   }
 
-  /** @return gap size between slices in {@code [0, 1]} */
   public float gapSize() {
     return gapSize;
   }
 
-  /**
-   * Sets the gap size between slices.
-   *
-   * @param gapSize gap size in {@code [0, 1]}; larger values create thinner light bands
-   * @return this effect for chaining
-   */
   public LitiengineShineEffect gapSize(float gapSize) {
     this.gapSize = clamp01(gapSize);
     return this;
   }
 
-  /** @return rotation speed in rotations per second */
   public float rotationSpeed() {
     return rotationSpeed;
   }
 
-  /**
-   * Sets the rotation speed.
-   *
-   * @param rotationSpeed rotations per second
-   * @return this effect for chaining
-   */
   public LitiengineShineEffect rotationSpeed(float rotationSpeed) {
     this.rotationSpeed = rotationSpeed;
     return this;
   }
 
-  /** @return current shine color */
   public Color shineColor() {
     return shineColor;
   }
 
-  /**
-   * Sets the shine color.
-   *
-   * @param shineColor shine color, must not be null
-   * @return this effect for chaining
-   */
   public LitiengineShineEffect shineColor(Color shineColor) {
     if (shineColor == null) {
       throw new IllegalArgumentException("shineColor must not be null");
@@ -116,12 +91,6 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     return this;
   }
 
-  /**
-   * Enables or disables this effect.
-   *
-   * @param enabled whether the effect should be active
-   * @return this effect for chaining
-   */
   public LitiengineShineEffect enabled(boolean enabled) {
     this.enabled = enabled;
     return this;
@@ -132,16 +101,32 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     return enabled;
   }
 
+  /**
+   * Shine is no longer applied as a sprite-wide pixel transformation.
+   *
+   * <p>The actual animated effect is rendered as a separate overlay image at draw time.
+   */
   @Override
   public BufferedImage apply(BufferedImage input, long nowMs) {
-    if (input == null || !enabled) {
-      return input;
-    }
-
-    return render(input, nowMs / 1000.0f);
+    return input;
   }
 
-  private BufferedImage render(BufferedImage source, float nowSeconds) {
+  /**
+   * Creates the animated shine overlay for the given sprite.
+   *
+   * @param source already prepared sprite image (after tint / other pixel effects)
+   * @param nowMs current timestamp
+   * @return transparent overlay image containing only the shine bands
+   */
+  public BufferedImage createOverlay(BufferedImage source, long nowMs) {
+    if (source == null || !enabled) {
+      return null;
+    }
+
+    return renderOverlay(source, nowMs / 1000.0f);
+  }
+
+  private BufferedImage renderOverlay(BufferedImage source, float nowSeconds) {
     BufferedImage output =
       new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
@@ -159,26 +144,22 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     float visibleFraction = Math.max(0.06f, 1.0f - gapSize);
 
     float sweepPhase = normalizePhase(nowSeconds * rotationSpeed * 1.8f);
-    float pulse = 0.80f + 0.20f * (0.5f + 0.5f * (float) Math.sin(nowSeconds * rotationSpeed * TWO_PI));
+    float pulse =
+      0.80f
+        + 0.20f
+        * (0.5f + 0.5f * (float) Math.sin(nowSeconds * rotationSpeed * TWO_PI));
 
-    float shineRed = shineColor.getRed() / 255.0f;
-    float shineGreen = shineColor.getGreen() / 255.0f;
-    float shineBlue = shineColor.getBlue() / 255.0f;
     float shineAlpha = shineColor.getAlpha() / 255.0f;
 
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        int argb = source.getRGB(x, y);
-        int alpha = (argb >>> 24) & 0xFF;
+        int sourceArgb = source.getRGB(x, y);
+        int sourceAlpha = (sourceArgb >>> 24) & 0xFF;
 
-        if (alpha == 0) {
+        if (sourceAlpha == 0) {
           output.setRGB(x, y, 0);
           continue;
         }
-
-        int red = (argb >>> 16) & 0xFF;
-        int green = (argb >>> 8) & 0xFF;
-        int blue = argb & 0xFF;
 
         float relX = x - cx;
         float relY = y - cy;
@@ -190,30 +171,29 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
         float bandIntensity = shineBandIntensity(localSlice, visibleFraction);
 
         if (bandIntensity <= 0.0f) {
-          output.setRGB(x, y, argb);
+          output.setRGB(x, y, 0);
           continue;
         }
 
         float radialDistance = (float) Math.hypot(relX, relY) / Math.max(1.0f, Math.max(cx, cy));
         float radialFade = 1.0f - 0.30f * clamp01(radialDistance);
 
-        float overlay = clamp01(bandIntensity * radialFade * shineAlpha * pulse);
+        float overlayStrength = clamp01(bandIntensity * radialFade * pulse);
+        int overlayAlpha =
+          toChannel((sourceAlpha / 255.0f) * shineAlpha * overlayStrength);
 
-        float baseRed = red / 255.0f;
-        float baseGreen = green / 255.0f;
-        float baseBlue = blue / 255.0f;
+        if (overlayAlpha <= 0) {
+          output.setRGB(x, y, 0);
+          continue;
+        }
 
-        float outRed = applyLight(baseRed, shineRed, overlay);
-        float outGreen = applyLight(baseGreen, shineGreen, overlay);
-        float outBlue = applyLight(baseBlue, shineBlue, overlay);
+        int overlayArgb =
+          (overlayAlpha << 24)
+            | (shineColor.getRed() << 16)
+            | (shineColor.getGreen() << 8)
+            | shineColor.getBlue();
 
-        int outArgb =
-          (alpha << 24)
-            | (toChannel(outRed) << 16)
-            | (toChannel(outGreen) << 8)
-            | toChannel(outBlue);
-
-        output.setRGB(x, y, outArgb);
+        output.setRGB(x, y, overlayArgb);
       }
     }
 
@@ -230,10 +210,6 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     float base = 1.0f - centerDistance;
 
     return clamp01(base * base * (3.0f - 2.0f * base));
-  }
-
-  private static float applyLight(float base, float shine, float overlay) {
-    return clamp01(base + (1.0f - base) * shine * overlay);
   }
 
   private static int toChannel(float value) {

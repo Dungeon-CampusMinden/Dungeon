@@ -13,6 +13,8 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
+import core.platform.litiengine.render.effects.LitiengineShineEffect;
+import core.platform.litiengine.render.effects.LitiengineSpriteEffectsComponent;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsRenderer;
 import core.utils.Point;
 import core.utils.Rectangle;
@@ -26,11 +28,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Sprite renderer for the LITIENGINE host.
@@ -213,7 +211,8 @@ public final class LitiengineSpriteRenderSystem extends System {
       return false;
     }
 
-    renderImg = LitiengineSpriteEffectsRenderer.apply(entity, renderImg, Time.nowMs());
+    long nowMs = Time.nowMs();
+    renderImg = LitiengineSpriteEffectsRenderer.apply(entity, renderImg, nowMs);
 
     float sxWorld = pos.x() * tilePx;
     float syWorld =
@@ -233,23 +232,63 @@ public final class LitiengineSpriteRenderSystem extends System {
     int drawX = Math.round(sxWorld + (tilePx - wPx) / 2f);
     int drawY = Math.round(syWorld + tilePx - hPx);
 
+    ArrayList<BufferedImage> shineOverlays = createShineOverlays(entity, renderImg, nowMs);
+
     LitiengineOutlineEffectComponent outline =
       entity.fetch(LitiengineOutlineEffectComponent.class).orElse(null);
 
     if (outline == null) {
-      double scaleX = wPx / (double) renderImg.getWidth();
-      double scaleY = hPx / (double) renderImg.getHeight();
-      ImageRenderer.renderScaled(g, renderImg, drawX, drawY, scaleX, scaleY);
+      drawScaledImage(g, renderImg, drawX, drawY, wPx, hPx);
+      drawScaledOverlays(g, shineOverlays, drawX, drawY, wPx, hPx);
       return true;
     }
 
-    long nowMs = Time.nowMs();
     int outlinePx = LitiengineImageEffects.effectiveOutlineWidth(outline, nowMs);
     Color outlineColor = LitiengineImageEffects.effectiveOutlineColor(outline, nowMs);
 
     LitiengineImageEffects.drawOutlinedSprite(
       g, renderImg, drawX, drawY, wPx, hPx, outlineColor, outlinePx);
+    drawScaledOverlays(g, shineOverlays, drawX, drawY, wPx, hPx);
     return true;
+  }
+
+  private ArrayList<BufferedImage> createShineOverlays(
+    Entity entity, BufferedImage baseSprite, long nowMs) {
+    ArrayList<BufferedImage> overlays = new ArrayList<>();
+
+    LitiengineSpriteEffectsComponent effectsComponent =
+      entity.fetch(LitiengineSpriteEffectsComponent.class).orElse(null);
+    if (effectsComponent == null || baseSprite == null) {
+      return overlays;
+    }
+
+    for (var effect : effectsComponent.effects().getEnabledSorted()) {
+      if (effect instanceof LitiengineShineEffect shineEffect) {
+        BufferedImage overlay = shineEffect.createOverlay(baseSprite, nowMs);
+        if (overlay != null && overlay.getWidth() > 0 && overlay.getHeight() > 0) {
+          overlays.add(overlay);
+        }
+      }
+    }
+
+    return overlays;
+  }
+
+  private void drawScaledOverlays(
+    Graphics2D g, List<BufferedImage> overlays, int drawX, int drawY, int wPx, int hPx) {
+    for (BufferedImage overlay : overlays) {
+      drawScaledImage(g, overlay, drawX, drawY, wPx, hPx);
+    }
+  }
+
+  private void drawScaledImage(Graphics2D g, BufferedImage image, int drawX, int drawY, int wPx, int hPx) {
+    if (image == null || image.getWidth() <= 0 || image.getHeight() <= 0) {
+      return;
+    }
+
+    double scaleX = wPx / (double) image.getWidth();
+    double scaleY = hPx / (double) image.getHeight();
+    ImageRenderer.renderScaled(g, image, drawX, drawY, scaleX, scaleY);
   }
 
   private BufferedImage applyTintIfNeeded(BufferedImage source, int tintRgba8888) {
