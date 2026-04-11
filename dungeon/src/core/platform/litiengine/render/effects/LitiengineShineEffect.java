@@ -2,13 +2,11 @@ package core.platform.litiengine.render.effects;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * CPU-side LITIENGINE replacement for the old sprite-local shine shader.
  *
- * <p>The effect renders rotating light slices directly into the sprite image and keeps the old
+ * <p>The effect renders animated light slices directly into the sprite image and keeps the old
  * core shader semantics:
  *
  * <ul>
@@ -19,13 +17,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * </ul>
  *
  * <p>The former libGDX shader also exposed padding. That part is intentionally not ported in this
- * small commit, because the current LITIENGINE sprite-effect pipeline transforms the sprite image
+ * commit, because the current LITIENGINE sprite-effect pipeline transforms the sprite image
  * in-place and does not yet support expanded render bounds.
  */
 public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
-  private static final int PHASE_BUCKETS = 120;
-  private static final Map<CacheKey, BufferedImage> CACHE = new ConcurrentHashMap<>();
+  private static final float TWO_PI = (float) (Math.PI * 2.0);
 
   private int sliceCount = 4;
   private float gapSize = 0.2f;
@@ -141,28 +138,14 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
       return input;
     }
 
-    int phaseBucket = phaseBucket(nowMs);
-
-    CacheKey key =
-      new CacheKey(
-        System.identityHashCode(input),
-        input.getWidth(),
-        input.getHeight(),
-        sliceCount,
-        Float.floatToIntBits(gapSize),
-        Float.floatToIntBits(rotationSpeed),
-        shineColor.getRGB(),
-        phaseBucket);
-
-    return CACHE.computeIfAbsent(key, ignored -> render(input, phaseBucket));
+    return render(input, nowMs / 1000.0f);
   }
 
-  private BufferedImage render(BufferedImage source, int phaseBucket) {
+  private BufferedImage render(BufferedImage source, float nowSeconds) {
     BufferedImage output =
       new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
-    float phase = phaseBucket / (float) PHASE_BUCKETS;
-    float angle = phase * (float) (Math.PI * 2.0);
+    float angle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
     float cos = (float) Math.cos(angle);
     float sin = (float) Math.sin(angle);
 
@@ -171,10 +154,16 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
     float cx = (width - 1) / 2.0f;
     float cy = (height - 1) / 2.0f;
-    float maxProjection =
-      Math.max(1.0f, Math.abs(cx * cos) + Math.abs(cy * sin));
+    float maxProjection = Math.max(1.0f, Math.abs(cx * cos) + Math.abs(cy * sin));
 
     float visibleFraction = Math.max(0.02f, 1.0f - gapSize);
+
+    // Additional travel term so the shine does not only rotate its orientation, but also
+    // visibly moves across the sprite over time.
+    float sweepPhase = normalizePhase(nowSeconds * rotationSpeed * 1.35f);
+
+    // Small brightness pulse to make the animation more noticeable on compact sprites.
+    float pulse = 0.85f + 0.15f * (0.5f + 0.5f * (float) Math.sin(nowSeconds * rotationSpeed * TWO_PI));
 
     float shineRed = shineColor.getRed() / 255.0f;
     float shineGreen = shineColor.getGreen() / 255.0f;
@@ -201,7 +190,8 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
         float projected = (relX * cos + relY * sin) / maxProjection;
         float u = projected * 0.5f + 0.5f;
 
-        float localSlice = fract(u * sliceCount);
+        // Continuous time-based sweep across the sprite.
+        float localSlice = fract(u * sliceCount - sweepPhase);
         float bandIntensity = shineBandIntensity(localSlice, visibleFraction);
 
         if (bandIntensity <= 0.0f) {
@@ -211,7 +201,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
         float radialDistance = (float) Math.hypot(relX, relY) / Math.max(1.0f, Math.max(cx, cy));
         float radialFade = 1.0f - 0.35f * clamp01(radialDistance);
-        float overlay = clamp01(bandIntensity * radialFade * shineAlpha);
+        float overlay = clamp01(bandIntensity * radialFade * shineAlpha * pulse);
 
         float baseRed = red / 255.0f;
         float baseGreen = green / 255.0f;
@@ -234,12 +224,6 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     return output;
   }
 
-  private int phaseBucket(long nowMs) {
-    float phase = normalizePhase((nowMs / 1000.0f) * rotationSpeed);
-    int bucket = Math.round(phase * (PHASE_BUCKETS - 1));
-    return Math.clamp(bucket, 0, PHASE_BUCKETS - 1);
-  }
-
   private static float shineBandIntensity(float localSlice, float visibleFraction) {
     if (localSlice >= visibleFraction) {
       return 0.0f;
@@ -249,7 +233,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     float centerDistance = Math.abs(normalized - 0.5f) * 2.0f;
     float base = 1.0f - centerDistance;
 
-    // Smooth highlight profile instead of a hard rectangular stripe
+    // Smooth highlight profile instead of a hard rectangular stripe.
     return clamp01(base * base * (3.0f - 2.0f * base));
   }
 
@@ -273,14 +257,4 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
   private static float clamp01(float value) {
     return Math.clamp(value, 0.0f, 1.0f);
   }
-
-  private record CacheKey(
-    int identityHash,
-    int width,
-    int height,
-    int sliceCount,
-    int gapSizeBits,
-    int rotationSpeedBits,
-    int shineColorRgb,
-    int phaseBucket) {}
 }
