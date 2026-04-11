@@ -83,6 +83,7 @@ public final class LitiengineInputBridge {
       case KeyEvent.VK_ENTER -> Keys.ENTER;
       case KeyEvent.VK_BACK_SPACE -> Keys.BACKSPACE;
       case KeyEvent.VK_TAB -> Keys.TAB;
+      case KeyEvent.VK_SHIFT -> Keys.SHIFT_LEFT;
 
       case KeyEvent.VK_F1 -> Keys.F1;
       case KeyEvent.VK_F2 -> Keys.F2;
