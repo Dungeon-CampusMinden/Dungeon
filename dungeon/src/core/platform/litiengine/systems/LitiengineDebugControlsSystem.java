@@ -141,10 +141,14 @@ public final class LitiengineDebugControlsSystem extends System {
     }
 
     if (InputManager.isKeyJustPressed(TOGGLE_DEPTH_LAYER_EFFECTS_KEY)) {
-      boolean enabled = LitiengineDepthLayerEffectPipeline.toggleAll();
-      LOGGER.info(
-        "LITIENGINE depth-layer-pass effects are now {}.",
-        enabled ? "enabled" : "disabled");
+      if (isShiftPressed()) {
+        toggleDemoDepthLayerEffectGroup();
+      } else {
+        boolean enabled = LitiengineDepthLayerEffectPipeline.toggleAll();
+        LOGGER.info(
+          "LITIENGINE depth-layer-pass effects are now {}.",
+          enabled ? "enabled" : "disabled");
+      }
     }
 
     if (InputManager.isKeyJustPressed(TOGGLE_PASSTHROUGH_PMA_KEY)) {
@@ -369,6 +373,23 @@ public final class LitiengineDebugControlsSystem extends System {
 
     LOGGER.info(
       "LITIENGINE starter depth-layer color grade verification is now in global mode.");
+  }
+
+  private void toggleDemoDepthLayerEffectGroup() {
+    if (!LitiengineDepthLayerEffectPipeline.hasEffects(STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER)) {
+      LOGGER.warn(
+        "No depth-layer effects are registered for starter demo layer '{}'.",
+        STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER);
+      return;
+    }
+
+    boolean enabled =
+      LitiengineDepthLayerEffectPipeline.toggleAll(STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER);
+
+    LOGGER.info(
+      "LITIENGINE starter demo depth-layer effect group on layer '{}' is now {}.",
+      STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER,
+      enabled ? "enabled" : "disabled");
   }
 
   private LitiengineDepthLayerColorGradeEffect starterDepthColorGradeDemoEffect() {

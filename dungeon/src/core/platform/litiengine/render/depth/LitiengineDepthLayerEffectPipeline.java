@@ -20,6 +20,11 @@ public final class LitiengineDepthLayerEffectPipeline {
     return EFFECTS_BY_DEPTH.computeIfAbsent(depthLayer, ignored -> new LitiengineDepthLayerEffects());
   }
 
+  public static boolean hasEffects(int depthLayer) {
+    LitiengineDepthLayerEffects effects = EFFECTS_BY_DEPTH.get(depthLayer);
+    return effects != null && !effects.isEmpty();
+  }
+
   public static boolean hasEnabledEffects(int depthLayer) {
     LitiengineDepthLayerEffects effects = EFFECTS_BY_DEPTH.get(depthLayer);
     return effects != null && effects.hasEnabledEffects();
@@ -48,6 +53,17 @@ public final class LitiengineDepthLayerEffectPipeline {
   }
 
   /**
+   * Returns whether all toggleable effects of one specific depth layer are currently enabled.
+   *
+   * @param depthLayer depth layer to inspect
+   * @return true if the layer exists and all its toggleable effects are enabled
+   */
+  public static boolean allEnabled(int depthLayer) {
+    LitiengineDepthLayerEffects effects = EFFECTS_BY_DEPTH.get(depthLayer);
+    return effects != null && effects.allEnabled();
+  }
+
+  /**
    * Toggles all registered toggleable depth-layer effect groups at once.
    *
    * @return the new enabled state that was applied
@@ -55,6 +71,23 @@ public final class LitiengineDepthLayerEffectPipeline {
   public static boolean toggleAll() {
     boolean newState = !allEnabled();
     EFFECTS_BY_DEPTH.values().forEach(effects -> effects.enableAll(newState));
+    return newState;
+  }
+
+  /**
+   * Toggles all registered toggleable effects of one specific depth layer at once.
+   *
+   * @param depthLayer depth layer to toggle
+   * @return the new enabled state that was applied
+   */
+  public static boolean toggleAll(int depthLayer) {
+    LitiengineDepthLayerEffects effects = EFFECTS_BY_DEPTH.get(depthLayer);
+    if (effects == null || effects.isEmpty()) {
+      return false;
+    }
+
+    boolean newState = !effects.allEnabled();
+    effects.enableAll(newState);
     return newState;
   }
 
