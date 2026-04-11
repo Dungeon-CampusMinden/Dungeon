@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class LitiengineShineEffect implements LitiengineSpriteEffect {
 
-  private static final float TWO_PI = (float) (Math.PI * 2.0);
+  private static final double TWO_PI = Math.PI * 2.0;;
   private static final int SMALL_SPRITE_MAX_DIM = 48;
 
   private static final Map<MaskCacheKey, float[]> ALPHA_MASK_CACHE = new ConcurrentHashMap<>();
@@ -39,6 +39,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
   private float rotationSpeed = 0.2f;
   private Color shineColor = new Color(255, 255, 128, 255);
   private boolean enabled = true;
+  private long animationStartMs = -1L;
 
   /** Creates a shine effect with legacy-like default parameters. */
   public LitiengineShineEffect() {}
@@ -140,10 +141,15 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
       return null;
     }
 
-    return renderOverlay(source, nowMs / 1000.0f);
+    if (animationStartMs < 0L) {
+      animationStartMs = nowMs;
+    }
+
+    double elapsedSeconds = Math.max(0.0, (nowMs - animationStartMs) / 1000.0);
+    return renderOverlay(source, elapsedSeconds);
   }
 
-  private BufferedImage renderOverlay(BufferedImage source, float nowSeconds) {
+  private BufferedImage renderOverlay(BufferedImage source, double nowSeconds) {
     int paddedWidth = source.getWidth() + 2 * padding;
     int paddedHeight = source.getHeight() + 2 * padding;
 
@@ -163,7 +169,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
   }
 
   private BufferedImage renderSingleSweepOverlay(
-    int paddedWidth, int paddedHeight, float[] alphaMask, float nowSeconds) {
+    int paddedWidth, int paddedHeight, float[] alphaMask, double nowSeconds) {
     BufferedImage output =
       new BufferedImage(paddedWidth, paddedHeight, BufferedImage.TYPE_INT_ARGB);
 
@@ -186,8 +192,11 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     float bandWidth = clamp(0.42f - gapSize * 0.18f, 0.22f, 0.42f);
     float bandHalfWidth = bandWidth * 0.5f;
 
-    // Sweep clearly across the whole sprite from outside-left to outside-right.
-    float phase = normalizePhase(nowSeconds * rotationSpeed);
+    double baseAngle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
+    float cos = (float) Math.cos(baseAngle);
+    float sin = (float) Math.sin(baseAngle);
+
+    float phase = (float) normalizePhase(nowSeconds * rotationSpeed);
     float sweepCenter = -bandHalfWidth + phase * (1.0f + bandWidth);
 
     float shineAlpha = shineColor.getAlpha() / 255.0f;
@@ -243,21 +252,21 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
   }
 
   private BufferedImage renderRepeatedSlicesOverlay(
-    int paddedWidth, int paddedHeight, float[] alphaMask, float nowSeconds) {
+    int paddedWidth, int paddedHeight, float[] alphaMask, double nowSeconds) {
     BufferedImage output =
       new BufferedImage(paddedWidth, paddedHeight, BufferedImage.TYPE_INT_ARGB);
 
     float cx = (paddedWidth - 1) / 2.0f;
     float cy = (paddedHeight - 1) / 2.0f;
 
-    float baseAngle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
+    double baseAngle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
     float cos = (float) Math.cos(baseAngle);
     float sin = (float) Math.sin(baseAngle);
 
     float maxProjection = Math.max(1.0f, Math.abs(cx * cos) + Math.abs(cy * sin));
     float visibleFraction = Math.max(0.06f, 1.0f - gapSize);
 
-    float sweepPhase = normalizePhase(nowSeconds * rotationSpeed * 1.8f);
+    float sweepPhase = (float) normalizePhase(nowSeconds * rotationSpeed * 1.8);
     float pulse =
       0.80f
         + 0.20f
@@ -408,9 +417,9 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     return Math.clamp(Math.round(clamp01(value) * 255.0f), 0, 255);
   }
 
-  private static float normalizePhase(float value) {
-    float normalized = value % 1.0f;
-    return normalized < 0.0f ? normalized + 1.0f : normalized;
+  private static double normalizePhase(double value) {
+    double normalized = value % 1.0;
+    return normalized < 0.0 ? normalized + 1.0 : normalized;
   }
 
   private static float fract(float value) {
