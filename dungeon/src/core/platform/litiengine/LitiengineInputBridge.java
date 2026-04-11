@@ -84,10 +84,20 @@ public final class LitiengineInputBridge {
       case KeyEvent.VK_BACK_SPACE -> Keys.BACKSPACE;
       case KeyEvent.VK_TAB -> Keys.TAB;
 
-      case KeyEvent.VK_F11 -> Keys.F11;
-      case KeyEvent.VK_F4 -> Keys.F4;
+      case KeyEvent.VK_F1 -> Keys.F1;
+      case KeyEvent.VK_F2 -> Keys.F2;
       case KeyEvent.VK_F3 -> Keys.F3;
+      case KeyEvent.VK_F4 -> Keys.F4;
+      case KeyEvent.VK_F5 -> Keys.F5;
+      case KeyEvent.VK_F6 -> Keys.F6;
+      case KeyEvent.VK_F7 -> Keys.F7;
+      case KeyEvent.VK_F8 -> Keys.F8;
+      case KeyEvent.VK_F9 -> Keys.F9;
+      case KeyEvent.VK_F10 -> Keys.F10;
+      case KeyEvent.VK_F11 -> Keys.F11;
+      case KeyEvent.VK_F12 -> Keys.F12;
 
+      case KeyEvent.VK_0, KeyEvent.VK_NUMPAD0 -> Keys.NUM_0;
       case KeyEvent.VK_1, KeyEvent.VK_NUMPAD1 -> Keys.NUM_1;
       case KeyEvent.VK_2, KeyEvent.VK_NUMPAD2 -> Keys.NUM_2;
       case KeyEvent.VK_3, KeyEvent.VK_NUMPAD3 -> Keys.NUM_3;
@@ -96,6 +106,7 @@ public final class LitiengineInputBridge {
       case KeyEvent.VK_6, KeyEvent.VK_NUMPAD6 -> Keys.NUM_6;
       case KeyEvent.VK_7, KeyEvent.VK_NUMPAD7 -> Keys.NUM_7;
       case KeyEvent.VK_8, KeyEvent.VK_NUMPAD8 -> Keys.NUM_8;
+      case KeyEvent.VK_9, KeyEvent.VK_NUMPAD9 -> Keys.NUM_9;
 
       // Keys used by our KeyboardConfig(s)
       case KeyEvent.VK_E -> Keys.E;

@@ -24,6 +24,20 @@ public final class LitiengineSceneEffectPipeline {
     return EFFECTS.hasEnabledEffects();
   }
 
+  /** @return true if all toggleable scene effects are currently enabled */
+  public static boolean allEnabled() {
+    return EFFECTS.allEnabled();
+  }
+
+  /**
+   * Toggles all toggleable scene effects at once.
+   *
+   * @return the new enabled state that was applied
+   */
+  public static boolean toggleAll() {
+    return EFFECTS.toggleAll();
+  }
+
   /**
    * Applies all enabled scene effects in priority order.
    *

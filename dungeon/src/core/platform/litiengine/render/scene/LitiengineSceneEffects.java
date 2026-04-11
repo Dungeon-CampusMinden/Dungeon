@@ -148,6 +148,43 @@ public final class LitiengineSceneEffects {
     enableAll(false);
   }
 
+  /**
+   * Returns whether all toggleable scene effects are currently enabled.
+   *
+   * <p>If no toggleable effects are registered, this returns {@code false}. This behavior is more
+   * useful for debug toggles than treating the empty case as "all enabled".
+   *
+   * @return true if every toggleable scene effect is enabled, false otherwise
+   */
+  public boolean allEnabled() {
+    boolean hasToggleableEffects = false;
+
+    for (LitiengineSceneEffect effect : effectMap.values()) {
+      if (effect instanceof ToggleableSceneEffect) {
+        hasToggleableEffects = true;
+        if (!effect.enabled()) {
+          return false;
+        }
+      }
+    }
+
+    return hasToggleableEffects;
+  }
+
+  /**
+   * Toggles all toggleable scene effects at once.
+   *
+   * <p>If at least one toggleable effect is currently disabled, all toggleable effects will be
+   * enabled. Otherwise all toggleable effects will be disabled.
+   *
+   * @return the new enabled state that was applied
+   */
+  public boolean toggleAll() {
+    boolean newState = !allEnabled();
+    enableAll(newState);
+    return newState;
+  }
+
   /** Removes all registered effects. */
   public void clear() {
     effectMap.clear();
