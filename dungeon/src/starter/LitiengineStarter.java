@@ -32,8 +32,8 @@ import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.path.SimpleIPath;
-
-import java.awt.*;
+import java.awt.Color;
+import core.utils.Rectangle;
 import java.io.IOException;
 import java.util.Set;
 
@@ -112,17 +112,20 @@ public final class LitiengineStarter {
   }
 
   /**
-   * Registers a visible global scene-pass color-grade demo for the LITIENGINE starter.
+   * Registers a visible regional scene-pass color-grade demo for the LITIENGINE starter.
    *
-   * <p>This demo intentionally applies a mild global desaturation and a small brightness lift to the
-   * fully rendered frame. The effect should be clearly noticeable on the whole scene, while still
-   * keeping the starter playable and visually comparable to the ungraded baseline.
+   * <p>The effect is intentionally limited to a world-space region near the verification setup so it
+   * can be distinguished clearly from the separate global scene-pass, level-pass and depth-layer-pass
+   * demos. Inside the region, the scene is noticeably desaturated and slightly brightened. Outside
+   * the region, the effect fades out smoothly across the configured transition band.
    */
   private static void installSceneColorGradeDemo() {
     LitiengineSceneEffectPipeline.effects().remove("starter_scene_color_grade_demo");
     LitiengineSceneEffectPipeline.effects().add(
       "starter_scene_color_grade_demo",
-      new LitiengineSceneColorGradeEffect(-1.0f, 0.72f, 1.08f),
+      new LitiengineSceneColorGradeEffect(-1.0f, 0.72f, 1.08f)
+        .region(new Rectangle(1f, 5f, 10f, 4f))
+        .transitionSize(2.0f),
       100);
   }
 
