@@ -16,6 +16,7 @@ import core.platform.Platform;
 import core.platform.litiengine.render.effects.LitiengineShineEffect;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsComponent;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsRenderer;
+import core.platform.litiengine.render.level.LitiengineLevelEffectPipeline;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Time;
@@ -88,7 +89,7 @@ public final class LitiengineSpriteRenderSystem extends System {
       // Then proceed with translate/clip as before
       g.translate(view.offsetX(), view.offsetY());
 
-      levelOpt.ifPresent(level -> renderLevelTiles(g, level, view));
+      levelOpt.ifPresent(level -> renderLevelWithPasses(g, level, view));
       renderEntities(g, levelOpt, view);
     } catch (Exception e) {
       LOGGER.warn("LITIENGINE sprite rendering failed: {}", e.getMessage(), e);
@@ -130,6 +131,83 @@ public final class LitiengineSpriteRenderSystem extends System {
       }
     }
   }
+
+  private void renderLevelWithPasses(Graphics2D g, ILevel level, CameraView view) {
+    if (!LitiengineLevelEffectPipeline.hasEnabledEffects()) {
+      renderLevelTiles(g, level, view);
+      return;
+    }
+
+    VisibleLevelBuffer levelBuffer = renderVisibleLevelToBuffer(level, view);
+    if (levelBuffer == null) {
+      return;
+    }
+
+    BufferedImage processed =
+      LitiengineLevelEffectPipeline.apply(levelBuffer.image(), Time.nowMs());
+    g.drawImage(processed, levelBuffer.drawX(), levelBuffer.drawY(), null);
+  }
+
+  private VisibleLevelBuffer renderVisibleLevelToBuffer(ILevel level, CameraView view) {
+    final Tile[][] layout = level.layout();
+    if (layout == null || layout.length == 0 || layout[0].length == 0) {
+      return null;
+    }
+
+    final int height = layout.length;
+    final int width = layout[0].length;
+
+    final int minX = clamp(view.minTileX, 0, width - 1);
+    final int maxX = clamp(view.maxTileX, 0, width - 1);
+    final int minY = clamp(view.minTileY, 0, height - 1);
+    final int maxY = clamp(view.maxTileY, 0, height - 1);
+
+    if (minX > maxX || minY > maxY) {
+      return null;
+    }
+
+    final int tilePx = view.tilePx();
+    final int bufferWidth = Math.max(1, (maxX - minX + 1) * tilePx);
+    final int bufferHeight = Math.max(1, (maxY - minY + 1) * tilePx);
+
+    BufferedImage buffer = new BufferedImage(bufferWidth, bufferHeight, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D bg = buffer.createGraphics();
+
+    try {
+      bg.setRenderingHint(
+        RenderingHints.KEY_INTERPOLATION,
+        RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+      for (int y = minY; y <= maxY; y++) {
+        for (int x = minX; x <= maxX; x++) {
+          final Tile tile = layout[y][x];
+          if (tile == null) {
+            continue;
+          }
+
+          final int sx = (x - minX) * tilePx;
+          final int sy = (maxY - y) * tilePx;
+
+          final LevelElement elem = tile.levelElement();
+          BufferedImage img = imageForTile(tile);
+          if (img != null) {
+            drawTileImage(bg, img, sx, sy, tilePx);
+          } else {
+            bg.setColor(colorFor(elem));
+            bg.fillRect(sx, sy, tilePx, tilePx);
+          }
+        }
+      }
+    } finally {
+      bg.dispose();
+    }
+
+    int drawX = minX * tilePx;
+    int drawY = (height - 1 - maxY) * tilePx;
+    return new VisibleLevelBuffer(buffer, drawX, drawY);
+  }
+
+  private record VisibleLevelBuffer(BufferedImage image, int drawX, int drawY) {}
 
   private void drawTileImage(Graphics2D g, BufferedImage img, int sx, int sy, int tilePx) {
     if (img.getWidth() <= 0 || img.getHeight() <= 0) return;
