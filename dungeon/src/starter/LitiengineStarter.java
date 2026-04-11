@@ -130,17 +130,19 @@ public final class LitiengineStarter {
   }
 
   /**
-   * Registers a visible level-pass color-grade demo for the LITIENGINE starter.
+   * Registers a visible regional level-pass color-grade demo for the LITIENGINE starter.
    *
-   * <p>This demo intentionally affects only the rendered level tiles, not entities on top of them.
-   * The chosen values make the level slightly darker and more desaturated, so the difference becomes
-   * visible once the global scene-pass demo is toggled off for comparison.
+   * <p>This demo intentionally affects only a lower world-space region of the rendered level tiles,
+   * not entities on top of them. The region is kept separate from the upper regional scene-pass demo
+   * so both pass types can be distinguished more clearly during verification.
    */
   private static void installLevelColorGradeDemo() {
     LitiengineLevelEffectPipeline.effects().remove("starter_level_color_grade_demo");
     LitiengineLevelEffectPipeline.effects().add(
       "starter_level_color_grade_demo",
-      new LitiengineLevelColorGradeEffect(-1.0f, 0.58f, 0.82f),
+      new LitiengineLevelColorGradeEffect(-1.0f, 0.58f, 0.82f)
+        .region(new Rectangle(3f, 0f, 7f, 4f))
+        .transitionSize(2.0f),
       100);
   }
 
