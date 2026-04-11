@@ -170,26 +170,25 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     float cx = (paddedWidth - 1) / 2.0f;
     float cy = (paddedHeight - 1) / 2.0f;
 
-    float baseAngle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
-    float cos = (float) Math.cos(baseAngle);
-    float sin = (float) Math.sin(baseAngle);
+    // For small sprites we deliberately use a fixed diagonal sweep direction.
+    // This is visually much easier to perceive than a subtle rotating projection model.
+    float dirX = 1.0f;
+    float dirY = -0.65f;
 
-    float maxProjection = Math.max(1.0f, Math.abs(cx * cos) + Math.abs(cy * sin));
+    float dirLength = (float) Math.hypot(dirX, dirY);
+    dirX /= dirLength;
+    dirY /= dirLength;
 
-    // For very small sprites we use one clearly visible traveling band instead of repeated slices.
-    float bandWidth = clamp(0.18f + (1.0f - gapSize) * 0.35f, 0.18f, 0.55f);
+    float maxProjection =
+      Math.max(1.0f, Math.abs(cx * dirX) + Math.abs(cy * dirY));
+
+    // Very wide and explicit band for tiny sprites.
+    float bandWidth = clamp(0.42f - gapSize * 0.18f, 0.22f, 0.42f);
     float bandHalfWidth = bandWidth * 0.5f;
 
-    // Sweep from left/outside to right/outside in projection space.
-    float sweepCenter =
-      -bandHalfWidth + normalizePhase(nowSeconds * rotationSpeed) * (1.0f + bandWidth);
-
-    float pulse =
-      0.90f
-        + 0.10f
-        * (0.5f
-        + 0.5f
-        * (float) Math.sin(nowSeconds * rotationSpeed * TWO_PI));
+    // Sweep clearly across the whole sprite from outside-left to outside-right.
+    float phase = normalizePhase(nowSeconds * rotationSpeed);
+    float sweepCenter = -bandHalfWidth + phase * (1.0f + bandWidth);
 
     float shineAlpha = shineColor.getAlpha() / 255.0f;
 
@@ -204,7 +203,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
         float relX = x - cx;
         float relY = y - cy;
 
-        float projected = (relX * cos + relY * sin) / maxProjection;
+        float projected = (relX * dirX + relY * dirY) / maxProjection;
         float u = projected * 0.5f + 0.5f;
 
         float distance = Math.abs(u - sweepCenter);
@@ -214,13 +213,15 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
         }
 
         float normalized = 1.0f - (distance / Math.max(0.0001f, bandHalfWidth));
+
+        // Strong explicit band with soft center falloff.
         float bandIntensity = smoothPulse(normalized);
 
         float radialDistance =
           (float) Math.hypot(relX, relY) / Math.max(1.0f, Math.max(cx, cy));
-        float radialFade = 1.0f - 0.25f * clamp01(radialDistance);
+        float radialFade = 1.0f - 0.15f * clamp01(radialDistance);
 
-        float overlayStrength = clamp01(maskAlpha * bandIntensity * radialFade * pulse);
+        float overlayStrength = clamp01(maskAlpha * bandIntensity * radialFade);
         int overlayAlpha = toChannel(shineAlpha * overlayStrength);
 
         if (overlayAlpha <= 0) {
