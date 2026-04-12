@@ -11,6 +11,7 @@ import core.platform.litiengine.sound.LitiengineSoundPlayer;
 import core.platform.runtime.LitiengineRuntimeAdapter;
 import core.platform.window.LitiengineWindowEventsBridge;
 import core.platform.window.LitiengineWindowAdapter;
+import core.render.LitiengineRenderAdapter;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.utils.InputManager;

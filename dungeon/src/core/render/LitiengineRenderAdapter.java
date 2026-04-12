@@ -1,4 +1,4 @@
-package core.platform.litiengine;
+package core.render;
 
 import core.platform.RenderAdapter;
 import core.camera.LitiengineCameraViews;
