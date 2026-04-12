@@ -1,4 +1,4 @@
-package core.platform.classpath;
+package core.resources;
 
 import core.platform.ResourcesAdapter;
 import java.io.IOException;

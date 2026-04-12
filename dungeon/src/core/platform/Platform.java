@@ -1,12 +1,14 @@
 package core.platform;
 
+import core.resources.ClasspathResourcesAdapter;
+
 import java.util.Objects;
 
 /** Global access to platform backends (window, input, audio, ...). */
 public final class Platform {
   private static WindowAdapter window = new NullWindowAdapter();
   private static RuntimeAdapter runtime = new NullRuntimeAdapter();
-  private static ResourcesAdapter resources = new core.platform.classpath.ClasspathResourcesAdapter();
+  private static ResourcesAdapter resources = new ClasspathResourcesAdapter();
   private static RenderAdapter render = new NullRenderAdapter();
   private static PathfindingAdapter pathfinding = new NullPathfindingAdapter();
   private static CursorAdapter cursor = new NullCursorAdapter();

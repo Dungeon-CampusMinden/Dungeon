@@ -3,7 +3,7 @@ package core.utils.components.draw.animation;
 import static org.junit.jupiter.api.Assertions.*;
 
 import core.platform.Platform;
-import core.platform.fs.FileSystemResourcesAdapter;
+import core.resources.FileSystemResourcesAdapter;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;

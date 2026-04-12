@@ -1,4 +1,4 @@
-package core.platform.fs;
+package core.resources;
 
 import core.platform.ResourcesAdapter;
 

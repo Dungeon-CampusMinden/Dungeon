@@ -9,7 +9,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.platform.Platform;
-import core.platform.fs.FileSystemResourcesAdapter;
+import core.resources.FileSystemResourcesAdapter;
 import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;

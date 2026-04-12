@@ -3,7 +3,7 @@ package core.components;
 import static org.junit.jupiter.api.Assertions.*;
 import contrib.systems.HealthSystem;
 import core.platform.Platform;
-import core.platform.fs.FileSystemResourcesAdapter;
+import core.resources.FileSystemResourcesAdapter;
 import core.systems.VelocitySystem;
 import core.utils.Direction;
 import core.utils.components.draw.animation.Animation;

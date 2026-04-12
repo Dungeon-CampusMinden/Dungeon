@@ -1,4 +1,6 @@
-package core.platform;
+package core.resources;
+
+import core.platform.ResourcesAdapter;
 
 import java.io.IOException;
 import java.io.InputStream;

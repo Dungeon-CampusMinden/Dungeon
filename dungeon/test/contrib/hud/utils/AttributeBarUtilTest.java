@@ -16,7 +16,7 @@ import core.platform.GameLoopHost;
 import core.platform.NullRenderAdapter;
 import core.platform.Platform;
 import core.platform.RenderAdapter;
-import core.platform.fs.FileSystemResourcesAdapter;
+import core.resources.FileSystemResourcesAdapter;
 import core.ui.StageHandle;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;

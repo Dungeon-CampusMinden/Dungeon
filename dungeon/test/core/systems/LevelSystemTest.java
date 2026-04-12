@@ -13,7 +13,7 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
 import core.level.loader.DungeonLoader;
 import core.platform.Platform;
-import core.platform.fs.FileSystemResourcesAdapter;
+import core.resources.FileSystemResourcesAdapter;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import java.util.Optional;
