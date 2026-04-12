@@ -1,4 +1,4 @@
-package core.game.render.effects;
+package core.render.effects;
 
 import core.Component;
 import java.awt.Color;
