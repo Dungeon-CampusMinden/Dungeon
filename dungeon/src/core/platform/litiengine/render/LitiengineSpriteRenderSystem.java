@@ -9,6 +9,7 @@ import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
+import core.game.render.EcsRenderScreen;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
@@ -37,7 +38,7 @@ import java.util.*;
  * Sprite renderer for the LITIENGINE host.
  *
  * <p>Draws the current level tiles and entity sprites using LITIENGINE's Graphics2D pipeline.
- * The active Graphics2D is provided by {@link core.game.litiengine.EcsRenderScreen} via
+ * The active Graphics2D is provided by {@link EcsRenderScreen} via
  * {@link LitiengineGraphicsContext}.
  */
 public final class LitiengineSpriteRenderSystem extends System {

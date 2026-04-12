@@ -1,4 +1,4 @@
-package core.game.litiengine;
+package core.game.render;
 
 import core.game.ECSManagement;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
