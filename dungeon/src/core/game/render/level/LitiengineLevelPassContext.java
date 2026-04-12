@@ -1,4 +1,4 @@
-package core.platform.litiengine.render.level;
+package core.game.render.level;
 
 /**
  * World-space metadata for one rendered LITIENGINE level-pass buffer.

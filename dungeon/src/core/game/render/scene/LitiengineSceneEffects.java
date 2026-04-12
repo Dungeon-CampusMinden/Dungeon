@@ -1,4 +1,4 @@
-package core.platform.litiengine.render.scene;
+package core.game.render.scene;
 
 import java.util.*;
 

@@ -1,4 +1,4 @@
-package core.platform.litiengine.render.depth;
+package core.game.render.depth;
 
 import core.camera.LitiengineCameraState;
 import core.camera.LitiengineCameraViews;

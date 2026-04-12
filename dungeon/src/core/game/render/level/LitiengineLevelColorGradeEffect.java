@@ -1,18 +1,16 @@
-package core.platform.litiengine.render.scene;
+package core.game.render.level;
 
-import core.camera.LitiengineCameraState;
-import core.camera.LitiengineCameraViews;
 import core.utils.Point;
 import core.utils.Rectangle;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
- * Applies HSV-style color grading to the fully rendered LITIENGINE scene image.
+ * Applies HSV-style color grading to the rendered level layer only.
  *
- * <p>This is the scene-pass counterpart to the existing sprite-local color grade effect.
+ * <p>This is the level-pass counterpart to the existing scene and sprite-local color-grade effects.
  *
- * <p>It restores the globally applicable part of the former shader semantics:
+ * <p>It restores the missing world-space part of the old color-grade semantics for the level pass:
  *
  * <ul>
  *   <li>optional hue override ({@code hue < 0} keeps the original hue)
@@ -22,95 +20,52 @@ import java.awt.image.BufferedImage;
  *   <li>optional transition size around the region
  * </ul>
  *
- * <p>If no region is configured, the effect applies to the whole scene. If a region is configured,
- * the effect is fully active inside the region and fades out smoothly across the configured
- * transition band outside that region.
+ * <p>If no region is configured, the effect applies to the whole level pass. If a region is
+ * configured, the effect is fully active inside that region and fades out smoothly across the
+ * configured transition band outside the region.
  */
-public final class LitiengineSceneColorGradeEffect
-  implements LitiengineSceneEffects.ToggleableSceneEffect {
+public final class LitiengineLevelColorGradeEffect
+  implements LitiengineLevelEffects.ToggleableLevelEffect {
 
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
   private float valueMultiplier = 1.0f;
-
-  /**
-   * Optional world-space region for the scene-pass effect.
-   *
-   * <p>If {@code null}, the effect applies globally to the whole scene.
-   */
   private Rectangle region = null;
-
-  /**
-   * Fade-out distance outside the configured region in world units.
-   *
-   * <p>Matches the old ColorGradeShader idea that the effect remains fully active inside the region
-   * and transitions smoothly within the expanded bounds.
-   */
   private float transitionSize = 2.0f;
-
   private boolean enabled = true;
 
-  /** Creates a neutral scene color-grade effect that leaves the scene unchanged. */
-  public LitiengineSceneColorGradeEffect() {}
+  public LitiengineLevelColorGradeEffect() {}
 
-  /**
-   * Creates a scene color-grade effect with the given parameters.
-   *
-   * @param hue target hue in {@code [0, 1]}; values {@code < 0} keep the original hue
-   * @param saturationMultiplier multiplier for saturation
-   * @param valueMultiplier multiplier for value/brightness
-   */
-  public LitiengineSceneColorGradeEffect(
+  public LitiengineLevelColorGradeEffect(
     float hue, float saturationMultiplier, float valueMultiplier) {
     hue(hue);
     saturationMultiplier(saturationMultiplier);
     valueMultiplier(valueMultiplier);
   }
 
-  /** @return target hue, or a negative value if the original hue should be preserved */
   public float hue() {
     return hue;
   }
 
-  /**
-   * Sets the target hue.
-   *
-   * @param hue target hue in {@code [0, 1]}; values {@code < 0} keep the original hue
-   * @return this effect for chaining
-   */
-  public LitiengineSceneColorGradeEffect hue(float hue) {
+  public LitiengineLevelColorGradeEffect hue(float hue) {
     this.hue = hue < 0f ? -1.0f : normalizeHue(hue);
     return this;
   }
 
-  /** @return saturation multiplier */
   public float saturationMultiplier() {
     return saturationMultiplier;
   }
 
-  /**
-   * Sets the saturation multiplier.
-   *
-   * @param saturationMultiplier multiplier for saturation; negative values are clamped to 0
-   * @return this effect for chaining
-   */
-  public LitiengineSceneColorGradeEffect saturationMultiplier(float saturationMultiplier) {
+  public LitiengineLevelColorGradeEffect saturationMultiplier(float saturationMultiplier) {
     this.saturationMultiplier = Math.max(0f, saturationMultiplier);
     return this;
   }
 
-  /** @return value/brightness multiplier */
   public float valueMultiplier() {
     return valueMultiplier;
   }
 
-  /**
-   * Sets the value/brightness multiplier.
-   *
-   * @param valueMultiplier multiplier for value/brightness; negative values are clamped to 0
-   * @return this effect for chaining
-   */
-  public LitiengineSceneColorGradeEffect valueMultiplier(float valueMultiplier) {
+  public LitiengineLevelColorGradeEffect valueMultiplier(float valueMultiplier) {
     this.valueMultiplier = Math.max(0f, valueMultiplier);
     return this;
   }
@@ -127,10 +82,10 @@ public final class LitiengineSceneColorGradeEffect
   /**
    * Sets the optional world-space region for the effect.
    *
-   * @param region region in world coordinates; {@code null} means full-scene effect
+   * @param region region in world coordinates; {@code null} means full-level effect
    * @return this effect for chaining
    */
-  public LitiengineSceneColorGradeEffect region(Rectangle region) {
+  public LitiengineLevelColorGradeEffect region(Rectangle region) {
     this.region = region;
     return this;
   }
@@ -150,7 +105,7 @@ public final class LitiengineSceneColorGradeEffect
    * @param transitionSize transition size in world units; negative values are clamped to 0
    * @return this effect for chaining
    */
-  public LitiengineSceneColorGradeEffect transitionSize(float transitionSize) {
+  public LitiengineLevelColorGradeEffect transitionSize(float transitionSize) {
     this.transitionSize = Math.max(0f, transitionSize);
     return this;
   }
@@ -166,15 +121,13 @@ public final class LitiengineSceneColorGradeEffect
   }
 
   @Override
-  public BufferedImage apply(BufferedImage input, long nowMs) {
+  public BufferedImage apply(BufferedImage input, LitiengineLevelPassContext context, long nowMs) {
     if (input == null || !enabled) {
       return input;
     }
 
     BufferedImage output =
       new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
-    Point focus = LitiengineCameraState.focusPosition();
 
     for (int y = 0; y < input.getHeight(); y++) {
       for (int x = 0; x < input.getWidth(); x++) {
@@ -186,7 +139,7 @@ public final class LitiengineSceneColorGradeEffect
           continue;
         }
 
-        float influence = effectInfluenceAt(x, y, input.getWidth(), input.getHeight(), focus);
+        float influence = effectInfluenceAt(x, y, context);
         if (influence <= 0f) {
           output.setRGB(x, y, argb);
           continue;
@@ -206,15 +159,12 @@ public final class LitiengineSceneColorGradeEffect
     return output;
   }
 
-  private float effectInfluenceAt(
-    int screenX, int screenY, int screenWidth, int screenHeight, Point focus) {
+  private float effectInfluenceAt(int bufferX, int bufferY, LitiengineLevelPassContext context) {
     if (region == null) {
       return 1f;
     }
 
-    Point world =
-      LitiengineCameraViews.screenToWorld(
-        new Point((float) screenX, (float) screenY), focus, screenWidth, screenHeight);
+    Point world = worldPointForBufferPixel(bufferX, bufferY, context);
 
     if (region.contains(world)) {
       return 1f;
@@ -234,6 +184,16 @@ public final class LitiengineSceneColorGradeEffect
     float outsideDistance = (float) Math.hypot(dx, dy);
 
     return clamp01(1f - outsideDistance / transitionSize);
+  }
+
+  private static Point worldPointForBufferPixel(
+    int bufferX, int bufferY, LitiengineLevelPassContext context) {
+    int tilePx = Math.max(1, context.tilePx());
+
+    float worldX = context.minTileX() + ((bufferX + 0.5f) / tilePx);
+    float worldY = context.maxTileY() + 1.0f - ((bufferY + 0.5f) / tilePx);
+
+    return new Point(worldX, worldY);
   }
 
   private int gradeArgb(int argb) {

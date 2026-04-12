@@ -1,4 +1,4 @@
-package core.platform.litiengine.render.depth;
+package core.game.render.depth;
 
 import java.awt.image.BufferedImage;
 

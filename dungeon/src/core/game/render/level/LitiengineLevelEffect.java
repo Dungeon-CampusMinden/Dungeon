@@ -1,4 +1,4 @@
-package core.platform.litiengine.render.level;
+package core.game.render.level;
 
 import java.awt.image.BufferedImage;
 

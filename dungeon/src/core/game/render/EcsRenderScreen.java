@@ -1,7 +1,7 @@
 package core.game.render;
 
 import core.game.ECSManagement;
-import core.platform.litiengine.render.scene.LitiengineSceneEffectPipeline;
+import core.game.render.scene.LitiengineSceneEffectPipeline;
 import core.ui.overlay.LitiengineUiOverlayRegistry;
 import core.utils.Time;
 import de.gurkenlabs.litiengine.Game;
