@@ -1,8 +1,7 @@
-package core.platform.grid;
+package core.level.path;
 
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.path.DynamicObstacles;
 import core.level.utils.Coordinate;
 import core.platform.PathfindingAdapter;
 import java.util.*;

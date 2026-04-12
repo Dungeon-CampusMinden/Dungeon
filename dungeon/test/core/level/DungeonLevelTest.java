@@ -13,7 +13,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
-import core.platform.grid.GridPathfindingAdapter;
+import core.level.path.GridPathfindingAdapter;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;

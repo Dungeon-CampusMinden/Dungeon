@@ -11,7 +11,7 @@ import core.platform.Platform;
 import core.platform.awt.AwtClipboardAdapter;
 import core.resources.ClasspathResourcesAdapter;
 import core.resources.FileSystemResourcesAdapter;
-import core.platform.grid.GridPathfindingAdapter;
+import core.level.path.GridPathfindingAdapter;
 import core.platform.litiengine.LitiengineDialogFactoryBootstrap;
 import core.platform.litiengine.LitiengineLoopHost;
 import core.platform.litiengine.interaction.LitiengineInteractionSelectionUi;
