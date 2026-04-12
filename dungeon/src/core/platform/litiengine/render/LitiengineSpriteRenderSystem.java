@@ -15,6 +15,8 @@ import core.game.render.EcsRenderScreen;
 import core.game.render.LitiengineAnimationFrames;
 import core.game.render.LitiengineGraphicsContext;
 import core.game.render.LitiengineImages;
+import core.game.render.effects.LitiengineImageEffects;
+import core.game.render.effects.LitiengineOutlineEffectComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;

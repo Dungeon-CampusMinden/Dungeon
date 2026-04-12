@@ -1,4 +1,4 @@
-package core.platform.litiengine.render;
+package core.game.render.effects;
 
 import core.Component;
 import java.awt.Color;
