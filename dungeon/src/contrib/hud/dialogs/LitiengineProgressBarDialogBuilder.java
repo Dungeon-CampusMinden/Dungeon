@@ -1,8 +1,7 @@
-package core.platform.litiengine.dialogs;
+package contrib.hud.dialogs;
 
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.elements.AttributeBarDialogData;
+import contrib.hud.elements.LitiengineAttributeBarOverlay;
 import contrib.hud.utils.AttributeBarUtil;
 import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;

@@ -3,6 +3,7 @@ package core.platform.litiengine;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
+import contrib.hud.dialogs.LitiengineProgressBarDialogBuilder;
 import core.platform.litiengine.dialogs.*;
 import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;
