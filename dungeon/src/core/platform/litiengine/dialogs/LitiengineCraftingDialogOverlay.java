@@ -9,6 +9,8 @@ import contrib.crafting.CraftingType;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.elements.ImageButton;
 import contrib.hud.elements.InventoryComponentProvider;
+import contrib.hud.inventory.LitiengineInventoryGridRenderer;
+import contrib.hud.inventory.LitiengineItemTooltipSupport;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;

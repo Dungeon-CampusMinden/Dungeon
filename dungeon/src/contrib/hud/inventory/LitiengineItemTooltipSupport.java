@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package contrib.hud.inventory;
 
 import contrib.hud.UIUtils;
 import contrib.item.Item;

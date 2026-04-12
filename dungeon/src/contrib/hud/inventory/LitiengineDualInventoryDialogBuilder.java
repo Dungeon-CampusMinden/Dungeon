@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.dialogs.DialogContext;
@@ -10,27 +10,32 @@ import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 import core.utils.logging.DungeonLogger;
 
-/** Builds the LITIENGINE-backed inventory dialog. */
-public final class LitiengineInventoryDialogBuilder {
+/** Builds the LITIENGINE-backed dual inventory dialog. */
+public final class LitiengineDualInventoryDialogBuilder {
   private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LitiengineInventoryDialogBuilder.class);
+    DungeonLogger.getLogger(LitiengineDualInventoryDialogBuilder.class);
 
-  private LitiengineInventoryDialogBuilder() {}
+  private LitiengineDualInventoryDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
+    Entity otherEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
 
-    if (inventory == null) {
-      LOGGER.warn("Entity {} has no InventoryComponent for InventoryDialog", entity);
-      throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
+    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
+    InventoryComponent otherInventory = otherEntity.fetch(InventoryComponent.class).orElse(null);
+
+    if (inventory == null || otherInventory == null) {
+      Entity missingEntity = inventory == null ? entity : otherEntity;
+      LOGGER.warn("Entity {} has no InventoryComponent for DualInventoryDialog", missingEntity);
+      throw new DialogCreationException("Missing InventoryComponent for DualInventoryDialog");
     }
 
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(defaultTitle(entity));
-    boolean allowUseItems = entity.isPresent(PlayerComponent.class);
+    String otherTitle =
+      ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(defaultTitle(otherEntity));
 
     return new LitiengineUiNodeHandle(
-      new LitiengineInventoryDialogOverlay(title, entity, inventory, allowUseItems));
+      new LitiengineDualInventoryDialogOverlay(title, inventory, otherTitle, otherInventory));
   }
 
   private static String defaultTitle(Entity entity) {

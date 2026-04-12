@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.dialogs.DialogContext;
@@ -10,32 +10,27 @@ import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 import core.utils.logging.DungeonLogger;
 
-/** Builds the LITIENGINE-backed dual inventory dialog. */
-public final class LitiengineDualInventoryDialogBuilder {
+/** Builds the LITIENGINE-backed inventory dialog. */
+public final class LitiengineInventoryDialogBuilder {
   private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LitiengineDualInventoryDialogBuilder.class);
+    DungeonLogger.getLogger(LitiengineInventoryDialogBuilder.class);
 
-  private LitiengineDualInventoryDialogBuilder() {}
+  private LitiengineInventoryDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    Entity otherEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
-
     InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-    InventoryComponent otherInventory = otherEntity.fetch(InventoryComponent.class).orElse(null);
 
-    if (inventory == null || otherInventory == null) {
-      Entity missingEntity = inventory == null ? entity : otherEntity;
-      LOGGER.warn("Entity {} has no InventoryComponent for DualInventoryDialog", missingEntity);
-      throw new DialogCreationException("Missing InventoryComponent for DualInventoryDialog");
+    if (inventory == null) {
+      LOGGER.warn("Entity {} has no InventoryComponent for InventoryDialog", entity);
+      throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
     }
 
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(defaultTitle(entity));
-    String otherTitle =
-      ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(defaultTitle(otherEntity));
+    boolean allowUseItems = entity.isPresent(PlayerComponent.class);
 
     return new LitiengineUiNodeHandle(
-      new LitiengineDualInventoryDialogOverlay(title, inventory, otherTitle, otherInventory));
+      new LitiengineInventoryDialogOverlay(title, entity, inventory, allowUseItems));
   }
 
   private static String defaultTitle(Entity entity) {
