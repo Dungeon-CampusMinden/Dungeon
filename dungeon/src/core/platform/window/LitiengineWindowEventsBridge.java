@@ -1,4 +1,4 @@
-package core.platform.litiengine.window;
+package core.platform.window;
 
 import core.game.WindowEventManager;
 import core.utils.logging.DungeonLogger;

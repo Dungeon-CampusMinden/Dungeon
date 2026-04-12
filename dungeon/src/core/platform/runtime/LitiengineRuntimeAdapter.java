@@ -1,4 +1,4 @@
-package core.platform.litiengine;
+package core.platform.runtime;
 
 import core.platform.RuntimeAdapter;
 import de.gurkenlabs.litiengine.Game;

@@ -1,4 +1,4 @@
-package core.platform.litiengine;
+package core.platform.window;
 
 import core.platform.WindowAdapter;
 import de.gurkenlabs.litiengine.Game;
