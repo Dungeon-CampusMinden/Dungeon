@@ -5,6 +5,8 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.camera.CameraMath;
+import core.camera.LitiengineCameraState;
+import core.camera.LitiengineCameraViews;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;

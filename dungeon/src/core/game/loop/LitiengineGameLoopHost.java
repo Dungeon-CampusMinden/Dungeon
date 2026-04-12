@@ -1,5 +1,6 @@
 package core.game.loop;
 
+import core.camera.LitiengineCameraAdapter;
 import core.game.*;
 import core.game.bootstrap.ClientStartup;
 import core.game.render.EcsRenderScreen;

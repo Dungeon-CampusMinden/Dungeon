@@ -1,7 +1,7 @@
 package core.platform.litiengine;
 
 import core.platform.RenderAdapter;
-import core.platform.litiengine.render.LitiengineCameraViews;
+import core.camera.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineLevelHideRenderSystem;
 import core.platform.litiengine.systems.LitiengineCameraLifecycleSystem;
 import contrib.debug.systems.LitiengineDebugDrawSystem;

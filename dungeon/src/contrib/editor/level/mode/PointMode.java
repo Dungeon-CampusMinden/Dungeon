@@ -8,7 +8,7 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.platform.Platform;
-import core.platform.litiengine.render.LitiengineCameraViews;
+import core.camera.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;

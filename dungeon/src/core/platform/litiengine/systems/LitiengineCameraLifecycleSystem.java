@@ -4,8 +4,8 @@ import core.Game;
 import core.System;
 import core.level.elements.ILevel;
 import core.platform.Platform;
-import core.platform.litiengine.render.LitiengineCameraState;
-import core.platform.litiengine.render.LitiengineCameraViews;
+import core.camera.LitiengineCameraState;
+import core.camera.LitiengineCameraViews;
 import core.utils.Point;
 import java.util.Objects;
 

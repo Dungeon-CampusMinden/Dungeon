@@ -16,7 +16,7 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
-import core.platform.litiengine.render.LitiengineCameraViews;
+import core.camera.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import contrib.editor.level.ui.LitiengineLevelEditorOverlay;

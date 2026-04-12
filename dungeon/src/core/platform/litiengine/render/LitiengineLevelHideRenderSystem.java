@@ -4,6 +4,7 @@ import contrib.modules.levelHide.LevelHideComponent;
 import contrib.modules.levelHide.LevelHideStateComponent;
 import core.Entity;
 import core.System;
+import core.camera.LitiengineCameraViews;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;

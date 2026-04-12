@@ -16,7 +16,7 @@ import core.components.SoundComponent;
 import core.components.VelocityComponent;
 import core.input.Keys;
 import core.platform.litiengine.input.LitiengineCursorAdapter;
-import core.platform.litiengine.render.LitiengineCameraViews;
+import core.camera.LitiengineCameraViews;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;

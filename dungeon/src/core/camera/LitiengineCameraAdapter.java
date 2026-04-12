@@ -1,15 +1,12 @@
-package core.platform.litiengine;
+package core.camera;
 
 import core.Game;
-import core.camera.CameraMath;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.level.Tile;
 import core.platform.CameraAdapter;
 import core.platform.Platform;
-import core.platform.litiengine.render.LitiengineCameraState;
-import core.platform.litiengine.render.LitiengineCameraViews;
 import core.utils.Point;
 import java.util.Optional;
 

@@ -1,6 +1,5 @@
-package core.platform.litiengine.render;
+package core.camera;
 
-import core.camera.CameraMath;
 import core.utils.Point;
 import java.util.Objects;
 

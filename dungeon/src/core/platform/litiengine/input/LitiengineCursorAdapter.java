@@ -1,8 +1,8 @@
 package core.platform.litiengine.input;
 
 import core.platform.CursorAdapter;
-import core.platform.litiengine.render.LitiengineCameraState;
-import core.platform.litiengine.render.LitiengineCameraViews;
+import core.camera.LitiengineCameraState;
+import core.camera.LitiengineCameraViews;
 import core.utils.Point;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.input.Input;

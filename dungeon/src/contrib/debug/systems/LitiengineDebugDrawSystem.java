@@ -2,7 +2,7 @@ package contrib.debug.systems;
 
 import core.Game;
 import core.System;
-import core.platform.litiengine.render.LitiengineCameraViews;
+import core.camera.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import core.utils.Point;

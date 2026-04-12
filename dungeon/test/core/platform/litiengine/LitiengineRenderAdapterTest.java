@@ -2,7 +2,7 @@ package core.platform.litiengine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import core.platform.litiengine.render.LitiengineCameraViews;
+import core.camera.LitiengineCameraViews;
 import core.ui.StageHandle;
 import core.utils.Point;
 import java.util.Optional;

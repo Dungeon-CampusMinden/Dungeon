@@ -1,7 +1,7 @@
 package core.platform.litiengine.render.scene;
 
-import core.platform.litiengine.render.LitiengineCameraState;
-import core.platform.litiengine.render.LitiengineCameraViews;
+import core.camera.LitiengineCameraState;
+import core.camera.LitiengineCameraViews;
 import core.utils.Point;
 import core.utils.Rectangle;
 import java.awt.Color;
