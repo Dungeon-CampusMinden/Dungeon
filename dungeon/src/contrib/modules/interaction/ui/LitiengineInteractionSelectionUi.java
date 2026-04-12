@@ -1,4 +1,4 @@
-package core.platform.litiengine.interaction;
+package contrib.modules.interaction.ui;
 
 import contrib.modules.interaction.IInteractable;
 import contrib.modules.interaction.Interaction;

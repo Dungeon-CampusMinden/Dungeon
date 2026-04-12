@@ -14,7 +14,7 @@ import core.resources.FileSystemResourcesAdapter;
 import core.level.path.GridPathfindingAdapter;
 import core.ui.dialogs.LitiengineDialogFactoryBootstrap;
 import core.game.loop.LitiengineLoopHost;
-import core.platform.litiengine.interaction.LitiengineInteractionSelectionUi;
+import contrib.modules.interaction.ui.LitiengineInteractionSelectionUi;
 import core.platform.litiengine.systems.LitiengineDebugControlsSystem;
 import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
 import core.platform.litiengine.systems.LitiengineEntityDebugSystem;
