@@ -2,8 +2,8 @@ package core.platform.litiengine.dialogs;
 
 import contrib.hud.elements.Button;
 import contrib.hud.elements.ImageButton;
-import core.game.render.LitiengineAnimationFrames;
-import core.game.render.LitiengineImages;
+import core.render.LitiengineAnimationFrames;
+import core.render.LitiengineImages;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;

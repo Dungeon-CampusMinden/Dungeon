@@ -1,4 +1,4 @@
-package core.game.render;
+package core.render;
 
 import core.utils.components.draw.animation.AnimationFrame;
 import java.awt.Graphics2D;
