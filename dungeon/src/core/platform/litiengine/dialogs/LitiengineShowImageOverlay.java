@@ -3,6 +3,7 @@ package core.platform.litiengine.dialogs;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Game;
 import core.platform.litiengine.render.LitiengineImages;
+import core.ui.dialogs.LitiengineDialogOverlaySupport;
 import core.ui.overlay.LitiengineUiOverlay;
 import java.awt.AlphaComposite;
 import java.awt.Color;

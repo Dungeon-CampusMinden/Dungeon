@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package core.ui.dialogs;
 
 import core.ui.overlay.LitiengineUiOverlay;
 import java.awt.Graphics2D;

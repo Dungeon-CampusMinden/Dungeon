@@ -6,6 +6,7 @@ import contrib.hud.dialogs.DialogType;
 import core.platform.litiengine.dialogs.*;
 import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;
+import core.ui.dialogs.*;
 
 /**
  * Registers a temporary LITIENGINE dialog backend.

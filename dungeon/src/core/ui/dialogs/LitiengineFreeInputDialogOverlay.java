@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package core.ui.dialogs;
 
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContextKeys;

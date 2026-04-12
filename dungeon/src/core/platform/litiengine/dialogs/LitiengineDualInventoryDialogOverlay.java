@@ -5,6 +5,7 @@ import contrib.hud.elements.InventoryComponentProvider;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
+import core.ui.dialogs.LitiengineDialogOverlaySupport;
 import core.ui.overlay.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;

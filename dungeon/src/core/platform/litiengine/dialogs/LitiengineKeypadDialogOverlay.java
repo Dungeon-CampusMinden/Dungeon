@@ -5,6 +5,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.input.MouseButtons;
+import core.ui.dialogs.LitiengineDialogOverlaySupport;
 import core.ui.overlay.LitiengineUiOverlay;
 import core.sound.SoundSpec;
 import core.ui.StageHandle;

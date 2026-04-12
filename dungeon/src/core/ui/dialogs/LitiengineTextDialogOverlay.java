@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package core.ui.dialogs;
 
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContextKeys;
@@ -6,6 +6,7 @@ import contrib.hud.elements.Button;
 import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
+import core.platform.litiengine.dialogs.LitiengineButtonRenderer;
 import core.ui.overlay.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
