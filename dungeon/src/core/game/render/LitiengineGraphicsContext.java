@@ -1,4 +1,4 @@
-package core.platform.litiengine.render;
+package core.game.render;
 
 import java.awt.Graphics2D;
 

@@ -12,6 +12,7 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.game.render.EcsRenderScreen;
+import core.game.render.LitiengineGraphicsContext;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;

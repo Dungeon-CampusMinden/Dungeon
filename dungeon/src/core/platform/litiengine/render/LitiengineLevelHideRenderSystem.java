@@ -6,6 +6,7 @@ import core.Entity;
 import core.System;
 import core.camera.LitiengineCameraViews;
 import core.components.PositionComponent;
+import core.game.render.LitiengineGraphicsContext;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.awt.Color;

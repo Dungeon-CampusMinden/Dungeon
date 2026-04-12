@@ -17,7 +17,7 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
 import core.camera.LitiengineCameraViews;
-import core.platform.litiengine.render.LitiengineGraphicsContext;
+import core.game.render.LitiengineGraphicsContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import contrib.editor.level.ui.LitiengineLevelEditorOverlay;
 import contrib.debug.systems.LitiengineDebugDrawSystem;

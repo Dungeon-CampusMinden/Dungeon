@@ -3,7 +3,7 @@ package contrib.debug.systems;
 import core.Game;
 import core.System;
 import core.camera.LitiengineCameraViews;
-import core.platform.litiengine.render.LitiengineGraphicsContext;
+import core.game.render.LitiengineGraphicsContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import core.utils.Point;
 import java.awt.BasicStroke;
