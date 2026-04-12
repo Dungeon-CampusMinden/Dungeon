@@ -14,7 +14,7 @@ import core.Game;
 import core.input.MouseButtons;
 import core.platform.litiengine.render.LitiengineAnimationFrames;
 import core.platform.litiengine.render.LitiengineImages;
-import core.platform.litiengine.ui.LitiengineUiOverlay;
+import core.ui.overlay.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import core.utils.components.draw.animation.Animation;

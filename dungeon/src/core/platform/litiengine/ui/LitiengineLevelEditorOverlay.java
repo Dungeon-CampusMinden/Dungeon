@@ -1,5 +1,7 @@
 package core.platform.litiengine.ui;
 
+import core.ui.overlay.LitiengineUiOverlay;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;

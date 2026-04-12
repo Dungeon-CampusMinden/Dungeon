@@ -5,7 +5,7 @@ import contrib.hud.dialogs.DialogContextKeys;
 import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
-import core.platform.litiengine.ui.LitiengineUiOverlay;
+import core.ui.overlay.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import java.awt.Color;

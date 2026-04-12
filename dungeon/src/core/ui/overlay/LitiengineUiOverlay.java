@@ -1,4 +1,4 @@
-package core.platform.litiengine.ui;
+package core.ui.overlay;
 
 import java.awt.Graphics2D;
 

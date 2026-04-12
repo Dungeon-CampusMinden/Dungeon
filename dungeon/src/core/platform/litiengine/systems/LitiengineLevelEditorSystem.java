@@ -20,7 +20,7 @@ import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import core.platform.litiengine.ui.LitiengineLevelEditorOverlay;
-import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
+import core.ui.overlay.LitiengineUiOverlayRegistry;
 import core.ui.StageHandle;
 import core.utils.*;
 import core.utils.logging.DungeonLogger;

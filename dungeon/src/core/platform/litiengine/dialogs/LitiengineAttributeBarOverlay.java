@@ -2,8 +2,8 @@ package core.platform.litiengine.dialogs;
 
 import contrib.hud.elements.AttributeBarHandle;
 import contrib.hud.elements.AttributeBarHandleProvider;
-import core.platform.litiengine.ui.LitiengineUiOverlay;
-import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
+import core.ui.overlay.LitiengineUiOverlay;
+import core.ui.overlay.LitiengineUiOverlayRegistry;
 import java.awt.Color;
 import java.awt.Graphics2D;
 

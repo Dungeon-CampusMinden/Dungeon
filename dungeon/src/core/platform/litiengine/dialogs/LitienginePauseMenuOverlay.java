@@ -1,6 +1,6 @@
 package core.platform.litiengine.dialogs;
 
-import core.platform.litiengine.ui.LitiengineUiOverlay;
+import core.ui.overlay.LitiengineUiOverlay;
 import java.awt.Graphics2D;
 
 /**

@@ -1,7 +1,7 @@
 package core.ui.litiengine;
 
-import core.platform.litiengine.ui.LitiengineUiOverlay;
-import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
+import core.ui.overlay.LitiengineUiOverlay;
+import core.ui.overlay.LitiengineUiOverlayRegistry;
 import core.ui.StageHandle;
 import core.ui.UiNodeHandle;
 import java.util.Optional;

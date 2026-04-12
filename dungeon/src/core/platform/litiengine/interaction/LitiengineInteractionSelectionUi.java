@@ -3,7 +3,7 @@ package core.platform.litiengine.interaction;
 import contrib.modules.interaction.IInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionSelectionUi;
-import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
+import core.ui.overlay.LitiengineUiOverlayRegistry;
 import java.util.function.Consumer;
 
 /** LITIENGINE-backed interaction chooser based on a custom screen overlay. */
