@@ -1,5 +1,6 @@
 package contrib.editor.level.mode;
 
+import contrib.editor.level.systems.LitiengineLevelEditorSystem;
 import contrib.systems.PositionSync;
 import core.Game;
 import core.components.PositionComponent;
@@ -16,7 +17,7 @@ import java.util.Set;
 /** LITIENGINE level editor mode for shifting the whole level by one tile. */
 public final class ShiftLevelMode extends LevelEditorMode {
 
-  public ShiftLevelMode(core.platform.litiengine.systems.LitiengineLevelEditorSystem system) {
+  public ShiftLevelMode(LitiengineLevelEditorSystem system) {
     super(system, "Shift Level Mode");
   }
 

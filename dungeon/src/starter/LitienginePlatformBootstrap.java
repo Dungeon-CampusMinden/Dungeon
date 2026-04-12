@@ -18,7 +18,7 @@ import contrib.modules.interaction.ui.LitiengineInteractionSelectionUi;
 import core.platform.litiengine.systems.LitiengineDebugControlsSystem;
 import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
 import core.platform.litiengine.systems.LitiengineEntityDebugSystem;
-import core.platform.litiengine.systems.LitiengineLevelEditorSystem;
+import contrib.editor.level.systems.LitiengineLevelEditorSystem;
 import java.util.function.Supplier;
 
 /** Explicitly wires LITIENGINE-specific startup steps into the platform abstraction. */

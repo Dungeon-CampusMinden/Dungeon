@@ -1,5 +1,6 @@
 package contrib.editor.level.mode;
 
+import contrib.editor.level.systems.LitiengineLevelEditorSystem;
 import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
@@ -23,7 +24,7 @@ public final class TilesMode extends LevelEditorMode {
   private int selectedTileIndexR = 2;
   private int brushSize = 1;
 
-  public TilesMode(core.platform.litiengine.systems.LitiengineLevelEditorSystem system) {
+  public TilesMode(LitiengineLevelEditorSystem system) {
     super(system, "Tiles Mode");
   }
 

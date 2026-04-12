@@ -1,5 +1,6 @@
 package contrib.editor.level.mode;
 
+import contrib.editor.level.systems.LitiengineLevelEditorSystem;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.InputManager;
@@ -11,7 +12,7 @@ import java.util.Map;
 /** LITIENGINE level editor mode for resizing the dungeon bounds. */
 public final class LevelBoundsMode extends LevelEditorMode {
 
-  public LevelBoundsMode(core.platform.litiengine.systems.LitiengineLevelEditorSystem system) {
+  public LevelBoundsMode(LitiengineLevelEditorSystem system) {
     super(system, "Level Bounds Mode");
   }
 

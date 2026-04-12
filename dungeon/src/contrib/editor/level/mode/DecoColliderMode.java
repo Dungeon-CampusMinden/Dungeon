@@ -1,6 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.components.CollideComponent;
+import contrib.editor.level.systems.LitiengineLevelEditorSystem;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.systems.PositionSync;
@@ -47,7 +48,7 @@ public final class DecoColliderMode extends LevelEditorMode {
   private ColliderEditMode currentMode = ColliderEditMode.ChangeDeco;
   private int rapidFireCounter = 0;
 
-  public DecoColliderMode(core.platform.litiengine.systems.LitiengineLevelEditorSystem system) {
+  public DecoColliderMode(LitiengineLevelEditorSystem system) {
     super(system, "Deco Collider Mode");
   }
 

@@ -1,4 +1,4 @@
-package core.platform.litiengine.systems;
+package contrib.editor.level.systems;
 
 import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
@@ -20,6 +20,7 @@ import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import contrib.editor.level.ui.LitiengineLevelEditorOverlay;
+import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
 import core.ui.overlay.LitiengineUiOverlayRegistry;
 import core.ui.StageHandle;
 import core.utils.*;

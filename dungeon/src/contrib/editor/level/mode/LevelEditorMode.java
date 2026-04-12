@@ -3,7 +3,7 @@ package contrib.editor.level.mode;
 import core.input.Keys;
 import core.input.MouseButtons;
 import core.platform.litiengine.render.LitiengineCameraViews;
-import core.platform.litiengine.systems.LitiengineLevelEditorSystem;
+import contrib.editor.level.systems.LitiengineLevelEditorSystem;
 import java.awt.Graphics2D;
 import java.util.*;
 
