@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package contrib.hud.image;
 
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Game;

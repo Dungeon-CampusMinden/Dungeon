@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package contrib.hud.image;
 
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
