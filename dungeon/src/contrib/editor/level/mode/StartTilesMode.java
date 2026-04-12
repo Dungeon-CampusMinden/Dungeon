@@ -1,4 +1,4 @@
-package core.platform.litiengine.levelEditor;
+package contrib.editor.level.mode;
 
 import core.input.MouseButtons;
 import core.level.Tile;

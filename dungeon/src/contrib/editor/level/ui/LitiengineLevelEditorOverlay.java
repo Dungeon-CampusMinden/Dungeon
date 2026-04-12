@@ -1,4 +1,4 @@
-package core.platform.litiengine.ui;
+package contrib.editor.level.ui;
 
 import core.ui.overlay.LitiengineUiOverlay;
 

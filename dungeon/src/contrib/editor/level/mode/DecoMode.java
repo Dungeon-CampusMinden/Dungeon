@@ -1,4 +1,4 @@
-package core.platform.litiengine.levelEditor;
+package contrib.editor.level.mode;
 
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;

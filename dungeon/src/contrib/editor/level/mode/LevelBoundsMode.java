@@ -1,6 +1,5 @@
-package core.platform.litiengine.levelEditor;
+package contrib.editor.level.mode;
 
-import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.InputManager;
