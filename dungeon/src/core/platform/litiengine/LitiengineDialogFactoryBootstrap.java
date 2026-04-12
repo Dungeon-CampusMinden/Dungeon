@@ -5,6 +5,7 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.hud.dialogs.LitiengineProgressBarDialogBuilder;
 import contrib.hud.image.LitiengineShowImageDialogBuilder;
+import contrib.modules.keypad.ui.LitiengineKeypadDialogBuilder;
 import core.platform.litiengine.dialogs.*;
 import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;

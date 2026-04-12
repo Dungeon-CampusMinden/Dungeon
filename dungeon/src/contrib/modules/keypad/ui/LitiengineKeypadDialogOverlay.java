@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package contrib.modules.keypad.ui;
 
 import contrib.modules.keypad.KeypadComponent;
 import core.Entity;
