@@ -1,8 +1,6 @@
-package core.platform.litiengine;
+package core.game.loop;
 
 import core.game.GameLoopCore;
-import core.game.litiengine.LitiengineGameLoopHost;
-import core.platform.GameLoopHost;
 import core.sound.player.ISoundPlayer;
 import core.ui.StageHandle;
 import core.platform.litiengine.ui.LitiengineStageHandle;

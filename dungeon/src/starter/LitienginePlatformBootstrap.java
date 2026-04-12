@@ -13,7 +13,7 @@ import core.resources.ClasspathResourcesAdapter;
 import core.resources.FileSystemResourcesAdapter;
 import core.level.path.GridPathfindingAdapter;
 import core.platform.litiengine.LitiengineDialogFactoryBootstrap;
-import core.platform.litiengine.LitiengineLoopHost;
+import core.game.loop.LitiengineLoopHost;
 import core.platform.litiengine.interaction.LitiengineInteractionSelectionUi;
 import core.platform.litiengine.systems.LitiengineDebugControlsSystem;
 import core.platform.litiengine.systems.LitiengineDebugDrawSystem;

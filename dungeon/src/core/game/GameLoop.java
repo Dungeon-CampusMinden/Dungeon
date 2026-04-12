@@ -7,7 +7,7 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.platform.GameLoopHost;
+import core.game.loop.GameLoopHost;
 import core.platform.Platform;
 import core.ui.StageHandle;
 import core.utils.Direction;

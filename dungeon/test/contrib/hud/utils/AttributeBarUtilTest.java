@@ -12,7 +12,7 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.platform.GameLoopHost;
+import core.game.loop.GameLoopHost;
 import core.platform.NullRenderAdapter;
 import core.platform.Platform;
 import core.platform.RenderAdapter;

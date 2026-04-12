@@ -1,7 +1,8 @@
-package core.game.litiengine;
+package core.game.loop;
 
 import core.game.*;
 import core.game.bootstrap.ClientStartup;
+import core.game.litiengine.EcsRenderScreen;
 import core.platform.Platform;
 import core.platform.litiengine.*;
 import core.platform.litiengine.input.LitiengineCursorAdapter;

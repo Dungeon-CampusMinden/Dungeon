@@ -1,5 +1,6 @@
 package core.platform;
 
+import core.game.loop.GameLoopHost;
 import core.resources.ClasspathResourcesAdapter;
 
 import java.util.Objects;

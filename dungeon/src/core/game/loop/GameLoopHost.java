@@ -1,4 +1,4 @@
-package core.platform;
+package core.game.loop;
 
 import core.game.GameLoopCore;
 import core.sound.player.ISoundPlayer;
