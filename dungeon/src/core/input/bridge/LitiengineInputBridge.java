@@ -1,4 +1,4 @@
-package core.platform.litiengine;
+package core.input.bridge;
 
 import core.input.Keys;
 import core.input.MouseButtons;
