@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingDialogAction;

@@ -1,5 +1,6 @@
 package core.platform.litiengine;
 
+import contrib.hud.crafting.LitiengineCraftingDialogBuilder;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
@@ -8,7 +9,6 @@ import contrib.hud.image.LitiengineShowImageDialogBuilder;
 import contrib.hud.inventory.LitiengineDualInventoryDialogBuilder;
 import contrib.hud.inventory.LitiengineInventoryDialogBuilder;
 import contrib.modules.keypad.ui.LitiengineKeypadDialogBuilder;
-import core.platform.litiengine.dialogs.*;
 import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;
 import core.ui.dialogs.*;
