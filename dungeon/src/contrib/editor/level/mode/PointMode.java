@@ -10,7 +10,7 @@ import contrib.hud.dialogs.DialogType;
 import core.platform.Platform;
 import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
-import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.level.utils.Coordinate;

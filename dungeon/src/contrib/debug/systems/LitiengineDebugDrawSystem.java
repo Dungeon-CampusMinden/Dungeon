@@ -1,4 +1,4 @@
-package core.platform.litiengine.systems;
+package contrib.debug.systems;
 
 import core.Game;
 import core.System;

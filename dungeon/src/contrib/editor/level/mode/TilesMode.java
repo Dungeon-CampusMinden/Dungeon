@@ -4,7 +4,7 @@ import contrib.editor.level.systems.LitiengineLevelEditorSystem;
 import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
-import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;

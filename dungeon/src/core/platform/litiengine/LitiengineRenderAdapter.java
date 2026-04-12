@@ -4,7 +4,7 @@ import core.platform.RenderAdapter;
 import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineLevelHideRenderSystem;
 import core.platform.litiengine.systems.LitiengineCameraLifecycleSystem;
-import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.ui.StageHandle;
 import core.utils.Point;
 import java.util.List;

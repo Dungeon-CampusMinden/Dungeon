@@ -15,9 +15,9 @@ import core.level.path.GridPathfindingAdapter;
 import core.ui.dialogs.LitiengineDialogFactoryBootstrap;
 import core.game.loop.LitiengineLoopHost;
 import contrib.modules.interaction.ui.LitiengineInteractionSelectionUi;
-import core.platform.litiengine.systems.LitiengineDebugControlsSystem;
-import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
-import core.platform.litiengine.systems.LitiengineEntityDebugSystem;
+import contrib.debug.systems.LitiengineDebugControlsSystem;
+import contrib.debug.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.LitiengineEntityDebugSystem;
 import contrib.editor.level.systems.LitiengineLevelEditorSystem;
 import java.util.function.Supplier;
 

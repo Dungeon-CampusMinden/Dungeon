@@ -1,4 +1,4 @@
-package core.platform.litiengine.systems;
+package contrib.debug.systems;
 
 import contrib.configuration.KeyboardConfig;
 import core.System;
