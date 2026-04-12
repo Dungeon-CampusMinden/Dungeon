@@ -1,4 +1,4 @@
-package core.platform.litiengine.render;
+package core.game.render;
 
 import core.platform.Platform;
 import core.utils.logging.DungeonLogger;

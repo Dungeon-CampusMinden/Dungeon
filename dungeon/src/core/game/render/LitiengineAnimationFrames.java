@@ -1,4 +1,4 @@
-package core.platform.litiengine.render;
+package core.game.render;
 
 import core.utils.components.draw.animation.AnimationFrame;
 import java.awt.Graphics2D;

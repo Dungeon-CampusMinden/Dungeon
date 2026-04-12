@@ -2,7 +2,7 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
-import core.platform.litiengine.render.LitiengineAnimationFrames;
+import core.game.render.LitiengineAnimationFrames;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
