@@ -7,7 +7,7 @@ import contrib.hud.dialogs.DialogCreationException;
 import core.Entity;
 import core.components.PlayerComponent;
 import core.ui.UiNodeHandle;
-import core.ui.litiengine.LitiengineUiNodeHandle;
+import core.ui.overlay.LitiengineUiNodeHandle;
 import core.utils.logging.DungeonLogger;
 
 /** Builds the LITIENGINE-backed inventory dialog. */

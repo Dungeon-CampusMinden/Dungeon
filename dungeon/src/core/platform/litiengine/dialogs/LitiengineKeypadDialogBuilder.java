@@ -4,7 +4,7 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import core.Entity;
 import core.ui.UiNodeHandle;
-import core.ui.litiengine.LitiengineUiNodeHandle;
+import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed keypad dialog. */
 public final class LitiengineKeypadDialogBuilder {

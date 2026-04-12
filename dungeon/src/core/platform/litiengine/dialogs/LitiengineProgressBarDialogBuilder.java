@@ -5,7 +5,7 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.elements.AttributeBarDialogData;
 import contrib.hud.utils.AttributeBarUtil;
 import core.ui.UiNodeHandle;
-import core.ui.litiengine.LitiengineUiNodeHandle;
+import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed progress bar dialog used for entity attribute bars. */
 public final class LitiengineProgressBarDialogBuilder {

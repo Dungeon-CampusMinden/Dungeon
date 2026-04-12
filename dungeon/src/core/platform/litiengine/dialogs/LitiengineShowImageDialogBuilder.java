@@ -4,7 +4,7 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.ui.UiNodeHandle;
-import core.ui.litiengine.LitiengineUiNodeHandle;
+import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed image dialog. */
 public final class LitiengineShowImageDialogBuilder {

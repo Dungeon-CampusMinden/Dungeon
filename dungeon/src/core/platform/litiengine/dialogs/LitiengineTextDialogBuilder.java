@@ -3,7 +3,7 @@ package core.platform.litiengine.dialogs;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import core.ui.UiNodeHandle;
-import core.ui.litiengine.LitiengineUiNodeHandle;
+import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed text dialog. */
 public final class LitiengineTextDialogBuilder {
