@@ -3,7 +3,7 @@ package core.platform.litiengine;
 import core.platform.RenderAdapter;
 import core.camera.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineLevelHideRenderSystem;
-import core.platform.litiengine.systems.LitiengineCameraLifecycleSystem;
+import core.camera.systems.LitiengineCameraLifecycleSystem;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.ui.StageHandle;
 import core.utils.Point;

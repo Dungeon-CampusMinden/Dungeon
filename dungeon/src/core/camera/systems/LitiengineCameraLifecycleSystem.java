@@ -1,11 +1,11 @@
-package core.platform.litiengine.systems;
+package core.camera.systems;
 
 import core.Game;
 import core.System;
-import core.level.elements.ILevel;
-import core.platform.Platform;
 import core.camera.LitiengineCameraState;
 import core.camera.LitiengineCameraViews;
+import core.level.elements.ILevel;
+import core.platform.Platform;
 import core.utils.Point;
 import java.util.Objects;
 
