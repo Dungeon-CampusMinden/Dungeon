@@ -1,4 +1,4 @@
-package contrib.editor.level.ui;
+package contrib.editor.level.overlay;
 
 import core.ui.overlay.UiOverlay;
 
@@ -14,7 +14,7 @@ import java.util.List;
  * <p>This intentionally only visualizes editor state, selected mode and feedback messages.
  * Actual editing logic is added in follow-up commits.
  */
-public final class LitiengineLevelEditorOverlay implements UiOverlay {
+public final class LevelEditorOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 640;
   private static final int DEFAULT_HEIGHT = 230;

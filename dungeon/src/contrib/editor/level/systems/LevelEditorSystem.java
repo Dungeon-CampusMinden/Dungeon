@@ -19,7 +19,7 @@ import core.platform.Platform;
 import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
 import core.game.render.overlay.TileOverlaySizing;
-import contrib.editor.level.ui.LitiengineLevelEditorOverlay;
+import contrib.editor.level.overlay.LevelEditorOverlay;
 import contrib.debug.systems.DebugDrawSystem;
 import core.ui.overlay.UiOverlayRegistry;
 import core.ui.StageHandle;
@@ -52,7 +52,7 @@ public final class LevelEditorSystem extends System {
   private static final int MODE_7 = Keys.NUM_7;
   private static final int MODE_8 = Keys.NUM_8;
 
-  private final LitiengineLevelEditorOverlay overlay = new LitiengineLevelEditorOverlay();
+  private final LevelEditorOverlay overlay = new LevelEditorOverlay();
 
   private boolean active = false;
   private Mode currentMode = Mode.TILES;
