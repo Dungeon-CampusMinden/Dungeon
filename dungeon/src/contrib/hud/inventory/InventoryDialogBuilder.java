@@ -11,11 +11,11 @@ import core.ui.overlay.LitiengineUiNodeHandle;
 import core.utils.logging.DungeonLogger;
 
 /** Builds the LITIENGINE-backed inventory dialog. */
-public final class LitiengineInventoryDialogBuilder {
+public final class InventoryDialogBuilder {
   private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LitiengineInventoryDialogBuilder.class);
+    DungeonLogger.getLogger(InventoryDialogBuilder.class);
 
-  private LitiengineInventoryDialogBuilder() {}
+  private InventoryDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
@@ -30,7 +30,7 @@ public final class LitiengineInventoryDialogBuilder {
     boolean allowUseItems = entity.isPresent(PlayerComponent.class);
 
     return new LitiengineUiNodeHandle(
-      new LitiengineInventoryDialogOverlay(title, entity, inventory, allowUseItems));
+      new InventoryDialogOverlay(title, entity, inventory, allowUseItems));
   }
 
   private static String defaultTitle(Entity entity) {

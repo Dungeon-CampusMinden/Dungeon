@@ -25,7 +25,7 @@ import java.util.stream.Stream;
  * shows item hover information and adds drag-based item movement inside the player inventory as
  * well as dropping items outside the dialog.
  */
-final class LitiengineInventoryDialogOverlay
+final class InventoryDialogOverlay
   implements LitiengineUiOverlay, InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 560;
@@ -62,7 +62,7 @@ final class LitiengineInventoryDialogOverlay
   private int pressedMouseY = 0;
   private DragState dragState = null;
 
-  LitiengineInventoryDialogOverlay(
+  InventoryDialogOverlay(
     String title, Entity owner, InventoryComponent inventory, boolean allowUseItems) {
     this.title = (title == null || title.isBlank()) ? "Inventory" : title;
     this.owner = owner;
