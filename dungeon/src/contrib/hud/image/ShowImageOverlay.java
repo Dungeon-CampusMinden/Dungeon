@@ -1,7 +1,7 @@
 package contrib.hud.image;
 
 import core.Game;
-import core.render.LitiengineImages;
+import core.render.ImageAssets;
 import core.ui.dialogs.LitiengineDialogOverlaySupport;
 import core.ui.overlay.UiOverlay;
 import java.awt.AlphaComposite;
@@ -100,7 +100,7 @@ final class ShowImageOverlay implements UiOverlay {
     }
 
     loadedImagePath = imagePath;
-    image = LitiengineImages.get(imagePath);
+    image = ImageAssets.get(imagePath);
   }
 
   private void renderImage(Graphics2D g) {

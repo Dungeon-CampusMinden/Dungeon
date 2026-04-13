@@ -10,8 +10,8 @@ import java.awt.image.BufferedImage;
  *
  * <p>Caches the resolved image in {@link AnimationFrame#backendHandle()} to avoid repeated work.
  */
-public final class LitiengineAnimationFrames {
-  private LitiengineAnimationFrames() {}
+public final class AnimationFrameImages {
+  private AnimationFrameImages() {}
 
   public static BufferedImage toImage(final AnimationFrame frame) {
     if (frame == null) return null;
@@ -25,7 +25,7 @@ public final class LitiengineAnimationFrames {
     final String raw = frame.texturePath() == null ? null : frame.texturePath().pathString();
     if (raw == null || raw.isBlank()) return null;
 
-    final BufferedImage base = LitiengineImages.get(raw);
+    final BufferedImage base = ImageAssets.get(raw);
     if (base == null) return null;
 
     BufferedImage out = base;

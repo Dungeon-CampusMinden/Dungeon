@@ -12,11 +12,11 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.game.render.EcsRenderScreen;
-import core.render.LitiengineAnimationFrames;
+import core.render.AnimationFrameImages;
 import core.game.render.RenderContext;
-import core.render.LitiengineImages;
-import core.render.effects.LitiengineImageEffects;
-import core.render.effects.LitiengineOutlineEffectComponent;
+import core.render.ImageAssets;
+import core.render.effects.ImageEffects;
+import core.render.effects.OutlineEffectComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
@@ -240,13 +240,13 @@ public final class SpriteRenderSystem extends System {
     if (raw == null || raw.isBlank()) return null;
 
     // Use the same implicit resolution that LitiengineImages uses internally.
-    String key = LitiengineImages.resolveImplicitFilePath(raw);
+    String key = ImageAssets.resolveImplicitFilePath(raw);
 
     if (tileImageCache.containsKey(key)) {
       return tileImageCache.get(key); // can be null -> cached miss
     }
 
-    BufferedImage img = LitiengineImages.get(raw);
+    BufferedImage img = ImageAssets.get(raw);
     tileImageCache.put(key, img);
     return img;
   }
@@ -374,7 +374,7 @@ public final class SpriteRenderSystem extends System {
       return false;
     }
 
-    BufferedImage img = LitiengineAnimationFrames.toImage(frame);
+    BufferedImage img = AnimationFrameImages.toImage(frame);
     if (img == null) return false;
 
     BufferedImage renderImg = applyTintIfNeeded(img, dc.tintColor());
@@ -406,8 +406,8 @@ public final class SpriteRenderSystem extends System {
     ArrayList<OverlayDraw> shineOverlays =
       createShineOverlays(entity, renderImg, nowMs, drawX, drawY, wPx, hPx);
 
-    LitiengineOutlineEffectComponent outline =
-      entity.fetch(LitiengineOutlineEffectComponent.class).orElse(null);
+    OutlineEffectComponent outline =
+      entity.fetch(OutlineEffectComponent.class).orElse(null);
 
     if (outline == null) {
       drawScaledImage(g, renderImg, drawX, drawY, wPx, hPx);
@@ -415,10 +415,10 @@ public final class SpriteRenderSystem extends System {
       return true;
     }
 
-    int outlinePx = LitiengineImageEffects.effectiveOutlineWidth(outline, nowMs);
-    Color outlineColor = LitiengineImageEffects.effectiveOutlineColor(outline, nowMs);
+    int outlinePx = ImageEffects.effectiveOutlineWidth(outline, nowMs);
+    Color outlineColor = ImageEffects.effectiveOutlineColor(outline, nowMs);
 
-    LitiengineImageEffects.drawOutlinedSprite(
+    ImageEffects.drawOutlinedSprite(
       g, renderImg, drawX, drawY, wPx, hPx, outlineColor, outlinePx);
     drawOverlayImages(g, shineOverlays);
     return true;

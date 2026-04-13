@@ -13,13 +13,13 @@ import java.util.*;
  * Adds a small path-resolution layer to survive different workingDirs and
  * "assets/" prefix conventions.
  */
-public final class LitiengineImages {
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LitiengineImages.class);
+public final class ImageAssets {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ImageAssets.class);
 
   private static final Map<String, BufferedImage> CACHE = new HashMap<>();
   private static final Set<String> LOGGED = new HashSet<>();
 
-  private LitiengineImages() {}
+  private ImageAssets() {}
 
   public static BufferedImage get(final String texturePathString) {
     if (texturePathString == null || texturePathString.isBlank()) return null;

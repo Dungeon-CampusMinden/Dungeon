@@ -2,8 +2,8 @@ package core.platform.litiengine.dialogs;
 
 import contrib.hud.elements.Button;
 import contrib.hud.elements.ImageButton;
-import core.render.LitiengineAnimationFrames;
-import core.render.LitiengineImages;
+import core.render.AnimationFrameImages;
+import core.render.ImageAssets;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -37,7 +37,7 @@ final class LitiengineButtonRenderer {
     String path =
       button.backgroundTexturePath() == null ? null : button.backgroundTexturePath().pathString();
 
-    BufferedImage background = path == null ? null : LitiengineImages.get(path);
+    BufferedImage background = path == null ? null : ImageAssets.get(path);
     if (background != null) {
       g.drawImage(background, button.x(), button.y(), button.width(), button.height(), null);
       return;
@@ -87,6 +87,6 @@ final class LitiengineButtonRenderer {
       return null;
     }
 
-    return LitiengineAnimationFrames.toImage(imageButton.animation().update());
+    return AnimationFrameImages.toImage(imageButton.animation().update());
   }
 }

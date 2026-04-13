@@ -9,7 +9,7 @@ import java.util.Objects;
  *
  * <p>This mirrors the old OutlineShader semantics for the AWT/Graphics2D render path.
  */
-public final class LitiengineOutlineEffectComponent implements Component {
+public final class OutlineEffectComponent implements Component {
 
   private int width;
   private Color color;
@@ -17,7 +17,7 @@ public final class LitiengineOutlineEffectComponent implements Component {
   private float beatIntensity;
   private boolean rainbow;
 
-  public LitiengineOutlineEffectComponent(
+  public OutlineEffectComponent(
     final int width, final Color color, final float beatSpeed, final float beatIntensity) {
     this.width = Math.max(1, width);
     this.color = Objects.requireNonNull(color, "color");
@@ -26,11 +26,11 @@ public final class LitiengineOutlineEffectComponent implements Component {
     this.rainbow = false;
   }
 
-  public LitiengineOutlineEffectComponent(final int width, final Color color) {
+  public OutlineEffectComponent(final int width, final Color color) {
     this(width, color, 1.0f, 0f);
   }
 
-  public LitiengineOutlineEffectComponent(final int width) {
+  public OutlineEffectComponent(final int width) {
     this(width, Color.WHITE);
   }
 
@@ -38,7 +38,7 @@ public final class LitiengineOutlineEffectComponent implements Component {
     return width;
   }
 
-  public LitiengineOutlineEffectComponent width(final int width) {
+  public OutlineEffectComponent width(final int width) {
     this.width = Math.max(1, width);
     return this;
   }
@@ -47,7 +47,7 @@ public final class LitiengineOutlineEffectComponent implements Component {
     return color;
   }
 
-  public LitiengineOutlineEffectComponent color(final Color color) {
+  public OutlineEffectComponent color(final Color color) {
     this.color = Objects.requireNonNull(color, "color");
     return this;
   }
@@ -56,7 +56,7 @@ public final class LitiengineOutlineEffectComponent implements Component {
     return beatSpeed;
   }
 
-  public LitiengineOutlineEffectComponent beatSpeed(final float beatSpeed) {
+  public OutlineEffectComponent beatSpeed(final float beatSpeed) {
     this.beatSpeed = beatSpeed;
     return this;
   }
@@ -65,7 +65,7 @@ public final class LitiengineOutlineEffectComponent implements Component {
     return beatIntensity;
   }
 
-  public LitiengineOutlineEffectComponent beatIntensity(final float beatIntensity) {
+  public OutlineEffectComponent beatIntensity(final float beatIntensity) {
     this.beatIntensity = Math.max(0f, beatIntensity);
     return this;
   }
@@ -74,7 +74,7 @@ public final class LitiengineOutlineEffectComponent implements Component {
     return rainbow;
   }
 
-  public LitiengineOutlineEffectComponent rainbow(final boolean rainbow) {
+  public OutlineEffectComponent rainbow(final boolean rainbow) {
     this.rainbow = rainbow;
     return this;
   }

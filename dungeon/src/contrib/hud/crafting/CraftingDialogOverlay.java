@@ -10,8 +10,8 @@ import contrib.hud.inventory.LitiengineItemTooltipSupport;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
-import core.render.LitiengineAnimationFrames;
-import core.render.LitiengineImages;
+import core.render.AnimationFrameImages;
+import core.render.ImageAssets;
 import core.ui.dialogs.LitiengineDialogOverlaySupport;
 import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
@@ -322,7 +322,7 @@ final class CraftingDialogOverlay
   }
 
   private void drawLegacyCraftingBackground(Graphics2D g, Rectangle panelBounds) {
-    BufferedImage background = LitiengineImages.get(LEGACY_BACKGROUND_TEXTURE_PATH);
+    BufferedImage background = ImageAssets.get(LEGACY_BACKGROUND_TEXTURE_PATH);
     if (background != null) {
       g.drawImage(
         background,
@@ -425,7 +425,7 @@ final class CraftingDialogOverlay
         continue;
       }
 
-      BufferedImage icon = LitiengineAnimationFrames.toImage(button.animation().update());
+      BufferedImage icon = AnimationFrameImages.toImage(button.animation().update());
       if (icon == null) {
         continue;
       }
@@ -553,7 +553,7 @@ final class CraftingDialogOverlay
 
       drawActionBoxBackground(g, bounds, hovered, pressed);
 
-      BufferedImage icon = LitiengineAnimationFrames.toImage(button.animation().update());
+      BufferedImage icon = AnimationFrameImages.toImage(button.animation().update());
       if (icon != null) {
         drawCenteredButtonIcon(g, icon, bounds);
       }
@@ -922,7 +922,7 @@ final class CraftingDialogOverlay
     }
 
     try {
-      return LitiengineAnimationFrames.toImage(item.inventoryAnimation().update());
+      return AnimationFrameImages.toImage(item.inventoryAnimation().update());
     } catch (RuntimeException ignored) {
       return null;
     }

@@ -11,11 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>These effects replace old libGDX shader semantics with CPU-side drawing.
  */
-public final class LitiengineImageEffects {
+public final class ImageEffects {
 
   private static final Map<TintKey, BufferedImage> TINT_CACHE = new ConcurrentHashMap<>();
 
-  private LitiengineImageEffects() {}
+  private ImageEffects() {}
 
   public static void drawOutlinedSprite(
     final Graphics2D g,
@@ -56,7 +56,7 @@ public final class LitiengineImageEffects {
   }
 
   public static int effectiveOutlineWidth(
-    final LitiengineOutlineEffectComponent effect, final long nowMs) {
+    final OutlineEffectComponent effect, final long nowMs) {
     int baseWidth = Math.max(1, effect.width());
 
     if (effect.beatIntensity() <= 0f) {
@@ -69,7 +69,7 @@ public final class LitiengineImageEffects {
   }
 
   public static Color effectiveOutlineColor(
-    final LitiengineOutlineEffectComponent effect, final long nowMs) {
+    final OutlineEffectComponent effect, final long nowMs) {
     if (!effect.rainbow()) {
       return effect.color();
     }

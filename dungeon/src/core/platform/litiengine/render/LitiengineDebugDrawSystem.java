@@ -7,9 +7,9 @@ import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
-import core.render.LitiengineAnimationFrames;
+import core.render.AnimationFrameImages;
 import core.game.render.RenderContext;
-import core.render.LitiengineImages;
+import core.render.ImageAssets;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
@@ -144,7 +144,7 @@ public final class LitiengineDebugDrawSystem extends System {
       return tileImageCache.get(resolved);
     }
 
-    final BufferedImage img = LitiengineImages.get(raw);
+    final BufferedImage img = ImageAssets.get(raw);
     tileImageCache.put(resolved, img);
     return img;
   }
@@ -180,7 +180,7 @@ public final class LitiengineDebugDrawSystem extends System {
       return false;
     }
 
-    BufferedImage img = LitiengineAnimationFrames.toImage(frame);
+    BufferedImage img = AnimationFrameImages.toImage(frame);
     if (img == null) return false;
 
     float sxWorld = pos.x() * TILE_PX;

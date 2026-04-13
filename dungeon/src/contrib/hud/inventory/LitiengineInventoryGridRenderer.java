@@ -2,7 +2,7 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
-import core.render.LitiengineAnimationFrames;
+import core.render.AnimationFrameImages;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -115,7 +115,7 @@ final class LitiengineInventoryGridRenderer {
     }
 
     try {
-      return LitiengineAnimationFrames.toImage(item.inventoryAnimation().update());
+      return AnimationFrameImages.toImage(item.inventoryAnimation().update());
     } catch (RuntimeException ignored) {
       return null;
     }
