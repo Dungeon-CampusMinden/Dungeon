@@ -6,7 +6,7 @@ import core.game.bootstrap.ClientStartup;
 import core.game.render.EcsRenderScreen;
 import core.input.bridge.ClientInputBridge;
 import core.platform.Platform;
-import core.platform.litiengine.input.LitiengineCursorAdapter;
+import core.platform.cursor.ClientCursorAdapter;
 import core.platform.litiengine.sound.LitiengineSoundPlayer;
 import core.platform.runtime.ClientRuntimeAdapter;
 import core.platform.window.ClientWindowEventsBridge;
@@ -73,7 +73,7 @@ public final class ClientLoopRuntime {
     Platform.window(new ClientWindowAdapter());
     Platform.runtime(new ClientRuntimeAdapter());
     Platform.render(new LitiengineRenderAdapter());
-    Platform.cursor(new LitiengineCursorAdapter());
+    Platform.cursor(new ClientCursorAdapter());
     Platform.camera(new ClientCameraAdapter());
 
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.

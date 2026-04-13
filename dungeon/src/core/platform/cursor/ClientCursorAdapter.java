@@ -1,4 +1,4 @@
-package core.platform.litiengine.input;
+package core.platform.cursor;
 
 import core.platform.CursorAdapter;
 import core.camera.CameraState;
@@ -8,7 +8,7 @@ import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.input.Input;
 import java.awt.geom.Point2D;
 
-public final class LitiengineCursorAdapter implements CursorAdapter {
+public final class ClientCursorAdapter implements CursorAdapter {
 
   @Override
   public int screenX() {

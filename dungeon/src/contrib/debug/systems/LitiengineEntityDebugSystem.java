@@ -15,7 +15,7 @@ import core.components.PositionComponent;
 import core.components.SoundComponent;
 import core.components.VelocityComponent;
 import core.input.Keys;
-import core.platform.litiengine.input.LitiengineCursorAdapter;
+import core.platform.cursor.ClientCursorAdapter;
 import core.camera.CameraViewportState;
 import core.utils.InputManager;
 import core.utils.Point;
@@ -41,7 +41,7 @@ public final class LitiengineEntityDebugSystem extends System {
   private static final Color INFO_BACKGROUND = new Color(0, 0, 0, 170);
   private static final Color INFO_OUTLINE = new Color(255, 255, 255, 70);
 
-  private static final LitiengineCursorAdapter CURSOR = new LitiengineCursorAdapter();
+  private static final ClientCursorAdapter CURSOR = new ClientCursorAdapter();
 
   public LitiengineEntityDebugSystem() {
     super(AuthoritativeSide.CLIENT, PositionComponent.class);
