@@ -1,4 +1,4 @@
-package core.platform.litiengine.dialogs;
+package contrib.hud.render;
 
 import contrib.hud.elements.Button;
 import contrib.hud.elements.ImageButton;
@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
  *
  * <p>This keeps Graphics2D image loading and painting out of the neutral button model.
  */
-final class LitiengineButtonRenderer {
+final class AwtButtonRenderer {
 
   private static final int ARC = 10;
   private static final int PADDING = 8;
@@ -22,7 +22,7 @@ final class LitiengineButtonRenderer {
   private static final Color FALLBACK_PRESSED_FILL = new Color(105, 135, 190);
   private static final Color FALLBACK_HOVER_FILL = new Color(90, 115, 165);
 
-  private LitiengineButtonRenderer() {}
+  private AwtButtonRenderer() {}
 
   static void draw(Graphics2D g, Button button, String label) {
     if (g == null || button == null) {
