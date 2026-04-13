@@ -1,4 +1,4 @@
-package core.render;
+package core.platform.render;
 
 import core.platform.RenderAdapter;
 import core.camera.CameraViewportState;
@@ -15,7 +15,7 @@ import java.util.Optional;
  *
  * <p>Bind client-side systems for the LITIENGINE backend.
  */
-public final class LitiengineRenderAdapter implements RenderAdapter {
+public final class ClientRenderAdapter implements RenderAdapter {
   @Override
   public List<SystemBinding> defaultRenderSystems() {
     return List.of(
@@ -35,7 +35,7 @@ public final class LitiengineRenderAdapter implements RenderAdapter {
       return Optional.empty();
     }
 
-    return CameraViewportState.activeView()
+    return CameraViewportState.activeViewport()
       .map(view -> CameraViewportState.worldToScreen(worldPoint));
   }
 

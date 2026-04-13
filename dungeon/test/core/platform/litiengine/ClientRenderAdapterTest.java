@@ -3,7 +3,7 @@ package core.platform.litiengine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import core.camera.CameraViewportState;
-import core.render.LitiengineRenderAdapter;
+import core.platform.render.ClientRenderAdapter;
 import core.ui.StageHandle;
 import core.utils.Point;
 import java.util.Optional;
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /** Regression tests for world-to-stage projection in the LITIENGINE render adapter. */
-class LitiengineRenderAdapterTest {
+class ClientRenderAdapterTest {
 
   @AfterEach
   void tearDown() {
@@ -23,7 +23,7 @@ class LitiengineRenderAdapterTest {
     CameraViewportState.set(100, 50, 10, 32);
 
     Point projected =
-      new LitiengineRenderAdapter()
+      new ClientRenderAdapter()
         .projectWorldToStage(new Point(2.5f, 3f), new StubStageHandle())
         .orElseThrow();
 
