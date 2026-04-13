@@ -18,7 +18,7 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.Objects;
-import starter.PortalStarter;
+import portal.PortalRegistry;
 
 /**
  * Die Klasse {@code Hero} kapselt eine Spielfigur (Entity) und stellt Methoden zur Steuerung und
@@ -45,7 +45,7 @@ public record Hero(Entity hero) {
    */
   public Hero(Entity hero) {
     this.hero = hero;
-    if (!PortalStarter.DEBUG_MODE) {
+    if (!PortalRegistry.isDebugMode()) {
       // Entfernt alle bisherigen Tastenzuweisungen (außer der zum Schließen der UI)
       hero.fetch(InputComponent.class)
           .ifPresent(
