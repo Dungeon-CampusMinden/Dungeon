@@ -96,4 +96,18 @@ public final class CameraViewportState {
   public static int worldLengthToScreen(float worldLength) {
     return Math.max(1, Math.round(worldLength * Math.max(1, get().tilePx())));
   }
+
+  /**
+   * Converts a world-space tile position to the corresponding screen-space tile center.
+   *
+   * @param worldPoint world-space point in tile/world units
+   * @return corresponding screen-space tile center in pixels
+   */
+  public static Point worldCenterToScreen(Point worldPoint) {
+    Point topLeft = worldToScreen(worldPoint);
+    int tilePx = Math.max(1, get().tilePx());
+    float halfTile = tilePx * 0.5f;
+    return new Point(topLeft.x() + halfTile, topLeft.y() + halfTile);
+  }
+
 }

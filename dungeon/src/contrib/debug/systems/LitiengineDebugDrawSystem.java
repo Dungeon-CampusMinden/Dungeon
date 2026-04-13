@@ -362,7 +362,7 @@ public final class LitiengineDebugDrawSystem extends System {
     List<ScreenText> texts,
     List<ScreenMarker> markers) {
 
-    CameraViewportState.activeView()
+    CameraViewportState.activeViewport()
       .ifPresent(
         view -> {
           Graphics2D g = (Graphics2D) base.create();
