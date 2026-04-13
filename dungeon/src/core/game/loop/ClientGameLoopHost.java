@@ -3,7 +3,7 @@ package core.game.loop;
 import core.game.GameLoopCore;
 import core.sound.player.ISoundPlayer;
 import core.ui.StageHandle;
-import core.platform.litiengine.ui.LitiengineStageHandle;
+
 import java.util.Optional;
 
 /** Bridges the LITIENGINE host into the backend-agnostic {@link GameLoopHost} API. */
@@ -21,6 +21,6 @@ public final class ClientGameLoopHost implements GameLoopHost {
 
   @Override
   public Optional<StageHandle> stage() {
-    return Optional.of(new LitiengineStageHandle());
+    return Optional.of(new ClientStageHandle());
   }
 }

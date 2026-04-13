@@ -1,4 +1,4 @@
-package core.platform.litiengine.ui;
+package core.game.loop;
 
 import core.ui.StageHandle;
 import de.gurkenlabs.litiengine.Game;
@@ -13,7 +13,7 @@ import java.util.Optional;
  * instead of a widget tree comparable to libGDX Scene2D. This handle still exposes the stage-like
  * information that the engine-agnostic HUD lifecycle expects.
  */
-public final class LitiengineStageHandle implements StageHandle {
+public final class ClientStageHandle implements StageHandle {
 
   @Override
   public Object raw() {
