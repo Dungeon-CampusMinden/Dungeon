@@ -1,4 +1,4 @@
-package core.platform.litiengine.sound;
+package core.platform.sound;
 
 import core.sound.player.ISoundPlayer;
 import core.sound.player.PlayHandle;
@@ -13,8 +13,8 @@ import de.gurkenlabs.litiengine.sound.SoundPlaybackListener;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class LitiengineSoundPlayer implements ISoundPlayer {
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LitiengineSoundPlayer.class);
+public final class ClientSoundPlayer implements ISoundPlayer {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientSoundPlayer.class);
 
   private static final String[] SOUND_DIRS = {
     "sounds/",
@@ -23,7 +23,7 @@ public final class LitiengineSoundPlayer implements ISoundPlayer {
   };
   private static final String[] EXT = {".wav", ".ogg", ".mp3"};
 
-  private final Map<Long, LitienginePlayHandle> active = new ConcurrentHashMap<>();
+  private final Map<Long, ClientPlayHandle> active = new ConcurrentHashMap<>();
 
   @Override
   public Optional<PlayHandle> playWithInstance(
@@ -63,7 +63,7 @@ public final class LitiengineSoundPlayer implements ISoundPlayer {
         return Optional.empty();
       }
 
-      LitienginePlayHandle handle = new LitienginePlayHandle(instanceId, s, playback, volume, looping);
+      ClientPlayHandle handle = new ClientPlayHandle(instanceId, s, playback, volume, looping);
       if (onFinished != null) handle.onFinished(onFinished);
 
       active.put(instanceId, handle);
@@ -104,7 +104,7 @@ public final class LitiengineSoundPlayer implements ISoundPlayer {
 
   @Override
   public boolean updateSound(long instanceId, SoundUpdate update) {
-    LitienginePlayHandle handle = active.get(instanceId);
+    ClientPlayHandle handle = active.get(instanceId);
     if (handle == null) return false;
     update.applyTo(handle);
     return true;
@@ -117,7 +117,7 @@ public final class LitiengineSoundPlayer implements ISoundPlayer {
 
   @Override
   public boolean stopByInstance(long instanceId) {
-    LitienginePlayHandle handle = active.remove(instanceId);
+    ClientPlayHandle handle = active.remove(instanceId);
     if (handle == null) return false;
     handle.stop();
     return true;
@@ -144,13 +144,13 @@ public final class LitiengineSoundPlayer implements ISoundPlayer {
     stopAll();
   }
 
-  private static final class LitienginePlayHandle extends PlayHandle {
+  private static final class ClientPlayHandle extends PlayHandle {
     private final Sound sound;
     private SFXPlayback playback;
     private float volume;
     private boolean looping;
 
-    LitienginePlayHandle(long id, Sound sound, SFXPlayback playback, float volume, boolean looping) {
+    ClientPlayHandle(long id, Sound sound, SFXPlayback playback, float volume, boolean looping) {
       super(id);
       this.sound = sound;
       this.playback = playback;

@@ -7,7 +7,7 @@ import core.game.render.EcsRenderScreen;
 import core.input.bridge.ClientInputBridge;
 import core.platform.Platform;
 import core.platform.cursor.ClientCursorAdapter;
-import core.platform.litiengine.sound.LitiengineSoundPlayer;
+import core.platform.sound.ClientSoundPlayer;
 import core.platform.runtime.ClientRuntimeAdapter;
 import core.platform.window.ClientWindowEventsBridge;
 import core.platform.window.ClientWindowAdapter;
@@ -67,7 +67,7 @@ public final class ClientLoopRuntime {
     // init sound backend after engine init
     soundPlayer = PreRunConfiguration.disableAudio()
       ? new NoSoundPlayer()
-      : new LitiengineSoundPlayer();
+      : new ClientSoundPlayer();
 
     // Bind platform adapters AFTER init so Game.window() etc. are available.
     Platform.window(new ClientWindowAdapter());
