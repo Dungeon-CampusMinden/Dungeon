@@ -11,7 +11,7 @@ import core.utils.Point;
 import java.util.Optional;
 
 /** Camera adapter for the LITIENGINE backend. */
-public final class LitiengineCameraAdapter implements CameraAdapter {
+public final class ClientCameraAdapter implements CameraAdapter {
 
   @Override
   public boolean supportsZoom() {
@@ -76,14 +76,14 @@ public final class LitiengineCameraAdapter implements CameraAdapter {
 
   @Override
   public float viewportWidth() {
-    return CameraViewportState.activeView()
+    return CameraViewportState.activeViewport()
       .map(view -> Platform.window().width() / (float) Math.max(1, view.tilePx()))
       .orElse(0f);
   }
 
   @Override
   public float viewportHeight() {
-    return CameraViewportState.activeView()
+    return CameraViewportState.activeViewport()
       .map(view -> Platform.window().height() / (float) Math.max(1, view.tilePx()))
       .orElse(0f);
   }
