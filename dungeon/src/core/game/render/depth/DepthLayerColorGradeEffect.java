@@ -27,8 +27,8 @@ import java.awt.image.BufferedImage;
  * is configured, the effect is fully active inside that region and fades out smoothly across the
  * configured transition band outside the region.
  */
-public final class LitiengineDepthLayerColorGradeEffect
-  implements LitiengineDepthLayerEffects.ToggleableDepthLayerEffect {
+public final class DepthLayerColorGradeEffect
+  implements DepthLayerEffectRegistry.ToggleableDepthLayerEffect {
 
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
@@ -37,9 +37,9 @@ public final class LitiengineDepthLayerColorGradeEffect
   private float transitionSize = 2.0f;
   private boolean enabled = true;
 
-  public LitiengineDepthLayerColorGradeEffect() {}
+  public DepthLayerColorGradeEffect() {}
 
-  public LitiengineDepthLayerColorGradeEffect(
+  public DepthLayerColorGradeEffect(
     float hue, float saturationMultiplier, float valueMultiplier) {
     hue(hue);
     saturationMultiplier(saturationMultiplier);
@@ -50,7 +50,7 @@ public final class LitiengineDepthLayerColorGradeEffect
     return hue;
   }
 
-  public LitiengineDepthLayerColorGradeEffect hue(float hue) {
+  public DepthLayerColorGradeEffect hue(float hue) {
     this.hue = hue < 0f ? -1.0f : normalizeHue(hue);
     return this;
   }
@@ -59,7 +59,7 @@ public final class LitiengineDepthLayerColorGradeEffect
     return saturationMultiplier;
   }
 
-  public LitiengineDepthLayerColorGradeEffect saturationMultiplier(float saturationMultiplier) {
+  public DepthLayerColorGradeEffect saturationMultiplier(float saturationMultiplier) {
     this.saturationMultiplier = Math.max(0f, saturationMultiplier);
     return this;
   }
@@ -68,7 +68,7 @@ public final class LitiengineDepthLayerColorGradeEffect
     return valueMultiplier;
   }
 
-  public LitiengineDepthLayerColorGradeEffect valueMultiplier(float valueMultiplier) {
+  public DepthLayerColorGradeEffect valueMultiplier(float valueMultiplier) {
     this.valueMultiplier = Math.max(0f, valueMultiplier);
     return this;
   }
@@ -88,7 +88,7 @@ public final class LitiengineDepthLayerColorGradeEffect
    * @param region region in world coordinates; {@code null} means full-depth-layer effect
    * @return this effect for chaining
    */
-  public LitiengineDepthLayerColorGradeEffect region(Rectangle region) {
+  public DepthLayerColorGradeEffect region(Rectangle region) {
     this.region = region;
     return this;
   }
@@ -108,7 +108,7 @@ public final class LitiengineDepthLayerColorGradeEffect
    * @param transitionSize transition size in world units; negative values are clamped to 0
    * @return this effect for chaining
    */
-  public LitiengineDepthLayerColorGradeEffect transitionSize(float transitionSize) {
+  public DepthLayerColorGradeEffect transitionSize(float transitionSize) {
     this.transitionSize = Math.max(0f, transitionSize);
     return this;
   }

@@ -3,7 +3,7 @@ package core.game.render.depth;
 import java.awt.image.BufferedImage;
 
 /** Backend-specific post-processing effect for one rendered entity depth layer. */
-public interface LitiengineDepthLayerEffect {
+public interface DepthLayerEffect {
 
   /** @return true if the effect should currently be applied. */
   boolean enabled();

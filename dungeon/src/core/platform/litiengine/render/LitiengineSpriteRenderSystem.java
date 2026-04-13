@@ -21,7 +21,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
-import core.game.render.depth.LitiengineDepthLayerEffectPipeline;
+import core.game.render.depth.DepthLayerEffectPipeline;
 import core.platform.litiengine.render.effects.LitiengineShineEffect;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsComponent;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsRenderer;
@@ -308,7 +308,7 @@ public final class LitiengineSpriteRenderSystem extends System {
       return;
     }
 
-    if (!LitiengineDepthLayerEffectPipeline.hasEnabledEffects(depthLayer)) {
+    if (!DepthLayerEffectPipeline.hasEnabledEffects(depthLayer)) {
       renderEntityList(g, entitiesAtDepth, levelHeight, view.tilePx());
       return;
     }
@@ -331,7 +331,7 @@ public final class LitiengineSpriteRenderSystem extends System {
     }
 
     BufferedImage processed =
-      LitiengineDepthLayerEffectPipeline.apply(depthLayer, layerBuffer, Time.nowMs());
+      DepthLayerEffectPipeline.apply(depthLayer, layerBuffer, Time.nowMs());
 
     g.drawImage(
       processed,

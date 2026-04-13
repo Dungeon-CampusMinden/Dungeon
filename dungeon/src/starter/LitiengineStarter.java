@@ -20,8 +20,8 @@ import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
-import core.game.render.depth.LitiengineDepthLayerColorGradeEffect;
-import core.game.render.depth.LitiengineDepthLayerEffectPipeline;
+import core.game.render.depth.DepthLayerColorGradeEffect;
+import core.game.render.depth.DepthLayerEffectPipeline;
 import core.platform.litiengine.render.effects.*;
 import core.game.render.level.LevelColorGradeEffect;
 import core.game.render.level.LevelEffectPipeline;
@@ -156,10 +156,10 @@ public final class LitiengineStarter {
   private static void installDepthLayerColorGradeDemo() {
     int demoDepth = DepthLayer.ForegroundDeco.depth();
 
-    LitiengineDepthLayerEffectPipeline.effects(demoDepth).remove("starter_depth_color_grade_demo");
-    LitiengineDepthLayerEffectPipeline.effects(demoDepth).add(
+    DepthLayerEffectPipeline.effects(demoDepth).remove("starter_depth_color_grade_demo");
+    DepthLayerEffectPipeline.effects(demoDepth).add(
       "starter_depth_color_grade_demo",
-      new LitiengineDepthLayerColorGradeEffect(-1.0f, 0.35f, 1.28f)
+      new DepthLayerColorGradeEffect(-1.0f, 0.35f, 1.28f)
         .region(new Rectangle(7f, 5f, 3f, 3f))
         .transitionSize(1.5f),
       100);

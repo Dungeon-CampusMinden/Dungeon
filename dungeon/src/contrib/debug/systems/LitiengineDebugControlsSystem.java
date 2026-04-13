@@ -5,8 +5,8 @@ import core.System;
 import core.debug.DebugGameplayActions;
 import core.input.Keys;
 import core.platform.Platform;
-import core.game.render.depth.LitiengineDepthLayerColorGradeEffect;
-import core.game.render.depth.LitiengineDepthLayerEffectPipeline;
+import core.game.render.depth.DepthLayerColorGradeEffect;
+import core.game.render.depth.DepthLayerEffectPipeline;
 import core.game.render.level.LevelColorGradeEffect;
 import core.game.render.level.LevelEffectPipeline;
 import core.game.render.scene.LitienginePassthroughDebugEffect;
@@ -144,7 +144,7 @@ public final class LitiengineDebugControlsSystem extends System {
       if (isShiftPressed()) {
         toggleDemoDepthLayerEffectGroup();
       } else {
-        boolean enabled = LitiengineDepthLayerEffectPipeline.toggleAll();
+        boolean enabled = DepthLayerEffectPipeline.toggleAll();
         LOGGER.info(
           "LITIENGINE depth-layer-pass effects are now {}.",
           enabled ? "enabled" : "disabled");
@@ -322,7 +322,7 @@ public final class LitiengineDebugControlsSystem extends System {
   }
 
   private void toggleRegionalDepthColorGradeEnabled() {
-    LitiengineDepthLayerColorGradeEffect effect = starterDepthColorGradeDemoEffect();
+    DepthLayerColorGradeEffect effect = starterDepthColorGradeDemoEffect();
     if (effect == null) {
       LOGGER.warn(
         "No starter regional depth-layer color grade demo is registered under id '{}'.",
@@ -339,7 +339,7 @@ public final class LitiengineDebugControlsSystem extends System {
   }
 
   private void toggleRegionalDepthColorGradeRegionMode() {
-    LitiengineDepthLayerColorGradeEffect effect = starterDepthColorGradeDemoEffect();
+    DepthLayerColorGradeEffect effect = starterDepthColorGradeDemoEffect();
     if (effect == null) {
       LOGGER.warn(
         "No starter regional depth-layer color grade demo is registered under id '{}'.",
@@ -376,7 +376,7 @@ public final class LitiengineDebugControlsSystem extends System {
   }
 
   private void toggleDemoDepthLayerEffectGroup() {
-    if (!LitiengineDepthLayerEffectPipeline.hasEffects(STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER)) {
+    if (!DepthLayerEffectPipeline.hasEffects(STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER)) {
       LOGGER.warn(
         "No depth-layer effects are registered for starter demo layer '{}'.",
         STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER);
@@ -384,7 +384,7 @@ public final class LitiengineDebugControlsSystem extends System {
     }
 
     boolean enabled =
-      LitiengineDepthLayerEffectPipeline.toggleAll(STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER);
+      DepthLayerEffectPipeline.toggleAll(STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER);
 
     LOGGER.info(
       "LITIENGINE starter demo depth-layer effect group on layer '{}' is now {}.",
@@ -392,11 +392,11 @@ public final class LitiengineDebugControlsSystem extends System {
       enabled ? "enabled" : "disabled");
   }
 
-  private LitiengineDepthLayerColorGradeEffect starterDepthColorGradeDemoEffect() {
-    return LitiengineDepthLayerEffectPipeline.effects(STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER)
+  private DepthLayerColorGradeEffect starterDepthColorGradeDemoEffect() {
+    return DepthLayerEffectPipeline.effects(STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER)
       .get(STARTER_DEPTH_COLOR_GRADE_DEMO_ID)
-      .filter(LitiengineDepthLayerColorGradeEffect.class::isInstance)
-      .map(LitiengineDepthLayerColorGradeEffect.class::cast)
+      .filter(DepthLayerColorGradeEffect.class::isInstance)
+      .map(DepthLayerColorGradeEffect.class::cast)
       .orElse(null);
   }
 

@@ -10,28 +10,28 @@ import java.util.TreeMap;
  * <p>Effects in this pipeline are applied to rendered entity layers grouped by
  * {@code DrawComponent.depth()} before those layers are composited into the world.
  */
-public final class LitiengineDepthLayerEffectPipeline {
+public final class DepthLayerEffectPipeline {
 
-  private static final Map<Integer, LitiengineDepthLayerEffects> EFFECTS_BY_DEPTH = new TreeMap<>();
+  private static final Map<Integer, DepthLayerEffectRegistry> EFFECTS_BY_DEPTH = new TreeMap<>();
 
-  private LitiengineDepthLayerEffectPipeline() {}
+  private DepthLayerEffectPipeline() {}
 
-  public static LitiengineDepthLayerEffects effects(int depthLayer) {
-    return EFFECTS_BY_DEPTH.computeIfAbsent(depthLayer, ignored -> new LitiengineDepthLayerEffects());
+  public static DepthLayerEffectRegistry effects(int depthLayer) {
+    return EFFECTS_BY_DEPTH.computeIfAbsent(depthLayer, ignored -> new DepthLayerEffectRegistry());
   }
 
   public static boolean hasEffects(int depthLayer) {
-    LitiengineDepthLayerEffects effects = EFFECTS_BY_DEPTH.get(depthLayer);
+    DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
     return effects != null && !effects.isEmpty();
   }
 
   public static boolean hasEnabledEffects(int depthLayer) {
-    LitiengineDepthLayerEffects effects = EFFECTS_BY_DEPTH.get(depthLayer);
+    DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
     return effects != null && effects.hasEnabledEffects();
   }
 
   public static boolean hasAnyEnabledEffects() {
-    return EFFECTS_BY_DEPTH.values().stream().anyMatch(LitiengineDepthLayerEffects::hasEnabledEffects);
+    return EFFECTS_BY_DEPTH.values().stream().anyMatch(DepthLayerEffectRegistry::hasEnabledEffects);
   }
 
   /**
@@ -40,7 +40,7 @@ public final class LitiengineDepthLayerEffectPipeline {
   public static boolean allEnabled() {
     boolean hasToggleableDepthEffects = false;
 
-    for (LitiengineDepthLayerEffects effects : EFFECTS_BY_DEPTH.values()) {
+    for (DepthLayerEffectRegistry effects : EFFECTS_BY_DEPTH.values()) {
       if (!effects.isEmpty()) {
         hasToggleableDepthEffects = true;
         if (!effects.allEnabled()) {
@@ -59,7 +59,7 @@ public final class LitiengineDepthLayerEffectPipeline {
    * @return true if the layer exists and all its toggleable effects are enabled
    */
   public static boolean allEnabled(int depthLayer) {
-    LitiengineDepthLayerEffects effects = EFFECTS_BY_DEPTH.get(depthLayer);
+    DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
     return effects != null && effects.allEnabled();
   }
 
@@ -81,7 +81,7 @@ public final class LitiengineDepthLayerEffectPipeline {
    * @return the new enabled state that was applied
    */
   public static boolean toggleAll(int depthLayer) {
-    LitiengineDepthLayerEffects effects = EFFECTS_BY_DEPTH.get(depthLayer);
+    DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
     if (effects == null || effects.isEmpty()) {
       return false;
     }
@@ -92,13 +92,13 @@ public final class LitiengineDepthLayerEffectPipeline {
   }
 
   public static BufferedImage apply(int depthLayer, BufferedImage source, long nowMs) {
-    LitiengineDepthLayerEffects effects = EFFECTS_BY_DEPTH.get(depthLayer);
+    DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
     if (source == null || effects == null || !effects.hasEnabledEffects()) {
       return source;
     }
 
     BufferedImage current = source;
-    for (LitiengineDepthLayerEffect effect : effects.getEnabledSorted()) {
+    for (DepthLayerEffect effect : effects.getEnabledSorted()) {
       current = effect.apply(current, depthLayer, nowMs);
       if (current == null) {
         throw new IllegalStateException(

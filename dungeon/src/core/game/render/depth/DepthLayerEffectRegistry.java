@@ -7,16 +7,16 @@ import java.util.*;
  *
  * <p>Effects are sorted first by priority and then by insertion order.
  */
-public final class LitiengineDepthLayerEffects {
+public final class DepthLayerEffectRegistry {
 
   private long insertionCounter = 0L;
 
-  private final Map<String, LitiengineDepthLayerEffect> effectMap = new HashMap<>();
+  private final Map<String, DepthLayerEffect> effectMap = new HashMap<>();
   private final Map<String, Integer> priorityMap = new HashMap<>();
   private final Map<String, Long> insertionIndexMap = new HashMap<>();
   private final TreeMap<Integer, Set<Entry>> sortedByPriority = new TreeMap<>();
 
-  public boolean add(String identifier, LitiengineDepthLayerEffect effect, int priority) {
+  public boolean add(String identifier, DepthLayerEffect effect, int priority) {
     Objects.requireNonNull(identifier, "identifier");
     Objects.requireNonNull(effect, "effect");
 
@@ -34,7 +34,7 @@ public final class LitiengineDepthLayerEffects {
     return true;
   }
 
-  public boolean add(String identifier, LitiengineDepthLayerEffect effect) {
+  public boolean add(String identifier, DepthLayerEffect effect) {
     return add(identifier, effect, 0);
   }
 
@@ -43,7 +43,7 @@ public final class LitiengineDepthLayerEffects {
       return false;
     }
 
-    LitiengineDepthLayerEffect removedEffect = effectMap.remove(identifier);
+    DepthLayerEffect removedEffect = effectMap.remove(identifier);
     Integer priority = priorityMap.remove(identifier);
     Long insertionIndex = insertionIndexMap.remove(identifier);
 
@@ -54,12 +54,12 @@ public final class LitiengineDepthLayerEffects {
     return true;
   }
 
-  public Optional<LitiengineDepthLayerEffect> get(String identifier) {
+  public Optional<DepthLayerEffect> get(String identifier) {
     return Optional.ofNullable(effectMap.get(identifier));
   }
 
   public boolean changePriority(String identifier, int newPriority) {
-    LitiengineDepthLayerEffect effect = effectMap.get(identifier);
+    DepthLayerEffect effect = effectMap.get(identifier);
     Integer oldPriority = priorityMap.get(identifier);
     Long insertionIndex = insertionIndexMap.get(identifier);
 
@@ -79,7 +79,7 @@ public final class LitiengineDepthLayerEffects {
   }
 
   public boolean hasEnabledEffects() {
-    for (LitiengineDepthLayerEffect effect : effectMap.values()) {
+    for (DepthLayerEffect effect : effectMap.values()) {
       if (effect.enabled()) {
         return true;
       }
@@ -88,7 +88,7 @@ public final class LitiengineDepthLayerEffects {
   }
 
   public void enableAll(boolean enabled) {
-    for (LitiengineDepthLayerEffect effect : effectMap.values()) {
+    for (DepthLayerEffect effect : effectMap.values()) {
       if (effect instanceof ToggleableDepthLayerEffect toggleable) {
         toggleable.enabled(enabled);
       }
@@ -106,7 +106,7 @@ public final class LitiengineDepthLayerEffects {
   public boolean allEnabled() {
     boolean hasToggleableEffects = false;
 
-    for (LitiengineDepthLayerEffect effect : effectMap.values()) {
+    for (DepthLayerEffect effect : effectMap.values()) {
       if (effect instanceof ToggleableDepthLayerEffect) {
         hasToggleableEffects = true;
         if (!effect.enabled()) {
@@ -135,12 +135,12 @@ public final class LitiengineDepthLayerEffects {
     return effectMap.isEmpty();
   }
 
-  public Iterable<LitiengineDepthLayerEffect> getSorted(boolean onlyEnabled) {
+  public Iterable<DepthLayerEffect> getSorted(boolean onlyEnabled) {
     return () ->
       new Iterator<>() {
         private final Iterator<Set<Entry>> priorityIterator = sortedByPriority.values().iterator();
         private Iterator<Entry> currentSetIterator = Collections.emptyIterator();
-        private LitiengineDepthLayerEffect nextEffect = null;
+        private DepthLayerEffect nextEffect = null;
 
         @Override
         public boolean hasNext() {
@@ -150,7 +150,7 @@ public final class LitiengineDepthLayerEffects {
 
           while (true) {
             if (currentSetIterator.hasNext()) {
-              LitiengineDepthLayerEffect candidate = currentSetIterator.next().effect();
+              DepthLayerEffect candidate = currentSetIterator.next().effect();
               if (!onlyEnabled || candidate.enabled()) {
                 nextEffect = candidate;
                 return true;
@@ -164,19 +164,19 @@ public final class LitiengineDepthLayerEffects {
         }
 
         @Override
-        public LitiengineDepthLayerEffect next() {
+        public DepthLayerEffect next() {
           if (!hasNext()) {
             throw new NoSuchElementException();
           }
 
-          LitiengineDepthLayerEffect result = nextEffect;
+          DepthLayerEffect result = nextEffect;
           nextEffect = null;
           return result;
         }
       };
   }
 
-  public Iterable<LitiengineDepthLayerEffect> getEnabledSorted() {
+  public Iterable<DepthLayerEffect> getEnabledSorted() {
     return getSorted(true);
   }
 
@@ -190,7 +190,7 @@ public final class LitiengineDepthLayerEffects {
     }
   }
 
-  private record Entry(LitiengineDepthLayerEffect effect, long insertionIndex)
+  private record Entry(DepthLayerEffect effect, long insertionIndex)
     implements Comparable<Entry> {
     @Override
     public int compareTo(Entry other) {
@@ -209,7 +209,7 @@ public final class LitiengineDepthLayerEffects {
   }
 
   /** Optional helper contract for mutable depth-layer effects. */
-  public interface ToggleableDepthLayerEffect extends LitiengineDepthLayerEffect {
+  public interface ToggleableDepthLayerEffect extends DepthLayerEffect {
     void enabled(boolean enabled);
   }
 }
