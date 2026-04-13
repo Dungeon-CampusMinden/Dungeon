@@ -1,16 +1,17 @@
-package core.ui.dialogs;
+package contrib.hud.dialogs;
 
 import contrib.hud.crafting.LitiengineCraftingDialogBuilder;
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogFactory;
-import contrib.hud.dialogs.DialogType;
-import contrib.hud.dialogs.LitiengineProgressBarDialogBuilder;
 import contrib.hud.image.LitiengineShowImageDialogBuilder;
 import contrib.hud.inventory.LitiengineDualInventoryDialogBuilder;
 import contrib.hud.inventory.LitiengineInventoryDialogBuilder;
 import contrib.modules.keypad.ui.LitiengineKeypadDialogBuilder;
 import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;
+import core.ui.dialogs.LitiengineFreeInputDialogBuilder;
+import core.ui.dialogs.LitiengineOkDialogBuilder;
+import core.ui.dialogs.LitienginePauseMenuDialogBuilder;
+import core.ui.dialogs.LitiengineTextDialogBuilder;
+import core.ui.dialogs.LitiengineYesNoDialogBuilder;
 
 /**
  * Registers a temporary LITIENGINE dialog backend.

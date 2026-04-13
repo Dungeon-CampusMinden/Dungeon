@@ -12,7 +12,7 @@ import core.platform.awt.AwtClipboardAdapter;
 import core.resources.ClasspathResourcesAdapter;
 import core.resources.FileSystemResourcesAdapter;
 import core.level.path.GridPathfindingAdapter;
-import core.ui.dialogs.LitiengineDialogFactoryBootstrap;
+import contrib.hud.dialogs.LitiengineDialogFactoryBootstrap;
 import core.game.loop.LitiengineLoopHost;
 import contrib.modules.interaction.ui.LitiengineInteractionSelectionUi;
 import contrib.debug.systems.LitiengineDebugControlsSystem;
