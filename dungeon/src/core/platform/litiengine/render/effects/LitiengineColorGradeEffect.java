@@ -1,5 +1,7 @@
 package core.platform.litiengine.render.effects;
 
+import core.game.render.sprite.effects.SpriteEffect;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -21,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * belong into the new sprite-effect pipeline and should be modeled separately if they are needed
  * again as a world-overlay or mask effect.
  */
-public final class LitiengineColorGradeEffect implements LitiengineSpriteEffect {
+public final class LitiengineColorGradeEffect implements SpriteEffect {
 
   private static final Map<CacheKey, BufferedImage> CACHE = new ConcurrentHashMap<>();
 

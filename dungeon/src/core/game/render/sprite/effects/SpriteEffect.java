@@ -1,9 +1,9 @@
-package core.platform.litiengine.render.effects;
+package core.game.render.sprite.effects;
 
 import java.awt.image.BufferedImage;
 
 /** Backend-specific sprite effect for the LITIENGINE Graphics2D render path. */
-public interface LitiengineSpriteEffect {
+public interface SpriteEffect {
 
   /** @return true if the effect should currently be applied. */
   boolean enabled();

@@ -1,4 +1,4 @@
-package core.platform.litiengine.render.effects;
+package core.game.render.sprite.effects;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Therefore this implementation switches to a single explicit moving sweep band for
  * small sprites, while larger sprites continue to use the repeated slice pattern.
  */
-public final class LitiengineShineEffect implements LitiengineSpriteEffect {
+public final class ShineSpriteEffect implements SpriteEffect {
 
   private static final double TWO_PI = Math.PI * 2.0;;
   private static final int SMALL_SPRITE_MAX_DIM = 48;
@@ -42,7 +42,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
   private long animationStartMs = -1L;
 
   /** Creates a shine effect with legacy-like default parameters. */
-  public LitiengineShineEffect() {}
+  public ShineSpriteEffect() {}
 
   /**
    * Creates a shine effect with explicit parameters.
@@ -52,7 +52,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
    * @param rotationSpeed rotations per second
    * @param shineColor color of the shine overlay
    */
-  public LitiengineShineEffect(
+  public ShineSpriteEffect(
     int sliceCount, float gapSize, float rotationSpeed, Color shineColor) {
     sliceCount(sliceCount);
     gapSize(gapSize);
@@ -64,7 +64,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     return padding;
   }
 
-  public LitiengineShineEffect padding(int padding) {
+  public ShineSpriteEffect padding(int padding) {
     this.padding = Math.max(0, padding);
     return this;
   }
@@ -73,7 +73,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     return sliceCount;
   }
 
-  public LitiengineShineEffect sliceCount(int sliceCount) {
+  public ShineSpriteEffect sliceCount(int sliceCount) {
     this.sliceCount = Math.max(1, sliceCount);
     return this;
   }
@@ -82,7 +82,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     return gapSize;
   }
 
-  public LitiengineShineEffect gapSize(float gapSize) {
+  public ShineSpriteEffect gapSize(float gapSize) {
     this.gapSize = clamp01(gapSize);
     return this;
   }
@@ -91,7 +91,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     return rotationSpeed;
   }
 
-  public LitiengineShineEffect rotationSpeed(float rotationSpeed) {
+  public ShineSpriteEffect rotationSpeed(float rotationSpeed) {
     this.rotationSpeed = rotationSpeed;
     return this;
   }
@@ -100,7 +100,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     return shineColor;
   }
 
-  public LitiengineShineEffect shineColor(Color shineColor) {
+  public ShineSpriteEffect shineColor(Color shineColor) {
     if (shineColor == null) {
       throw new IllegalArgumentException("shineColor must not be null");
     }
@@ -108,7 +108,7 @@ public final class LitiengineShineEffect implements LitiengineSpriteEffect {
     return this;
   }
 
-  public LitiengineShineEffect enabled(boolean enabled) {
+  public ShineSpriteEffect enabled(boolean enabled) {
     this.enabled = enabled;
     return this;
   }

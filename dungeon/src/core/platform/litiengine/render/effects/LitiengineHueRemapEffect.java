@@ -1,5 +1,7 @@
 package core.platform.litiengine.render.effects;
 
+import core.game.render.sprite.effects.SpriteEffect;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -10,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>Hue values are normalized to {@code [0, 1]}.
  */
-public final class LitiengineHueRemapEffect implements LitiengineSpriteEffect {
+public final class LitiengineHueRemapEffect implements SpriteEffect {
 
   private static final Map<CacheKey, BufferedImage> CACHE = new ConcurrentHashMap<>();
 

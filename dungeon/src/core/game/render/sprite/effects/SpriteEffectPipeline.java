@@ -1,26 +1,26 @@
-package core.platform.litiengine.render.effects;
+package core.game.render.sprite.effects;
 
 import core.Entity;
 import java.awt.image.BufferedImage;
 
 /** Applies ordered LITIENGINE sprite effects to entity sprites before drawing. */
-public final class LitiengineSpriteEffectsRenderer {
+public final class SpriteEffectPipeline {
 
-  private LitiengineSpriteEffectsRenderer() {}
+  private SpriteEffectPipeline() {}
 
   public static BufferedImage apply(Entity entity, BufferedImage sprite, long nowMs) {
     if (entity == null || sprite == null) {
       return sprite;
     }
 
-    LitiengineSpriteEffectsComponent component =
-      entity.fetch(LitiengineSpriteEffectsComponent.class).orElse(null);
+    SpriteEffectsComponent component =
+      entity.fetch(SpriteEffectsComponent.class).orElse(null);
     if (component == null || component.effects().isEmpty()) {
       return sprite;
     }
 
     BufferedImage current = sprite;
-    for (LitiengineSpriteEffect effect : component.effects().getEnabledSorted()) {
+    for (SpriteEffect effect : component.effects().getEnabledSorted()) {
       current = effect.apply(current, nowMs);
       if (current == null) {
         throw new IllegalStateException(

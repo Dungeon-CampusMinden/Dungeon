@@ -1,4 +1,4 @@
-package core.platform.litiengine.render;
+package core.game.render.sprite;
 
 import contrib.modules.levelHide.LevelHideComponent;
 import core.Entity;
@@ -22,9 +22,9 @@ import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
 import core.game.render.depth.DepthLayerEffectPipeline;
-import core.platform.litiengine.render.effects.LitiengineShineEffect;
-import core.platform.litiengine.render.effects.LitiengineSpriteEffectsComponent;
-import core.platform.litiengine.render.effects.LitiengineSpriteEffectsRenderer;
+import core.game.render.sprite.effects.ShineSpriteEffect;
+import core.game.render.sprite.effects.SpriteEffectsComponent;
+import core.game.render.sprite.effects.SpriteEffectPipeline;
 import core.game.render.level.LevelEffectPipeline;
 import core.game.render.level.LevelPassContext;
 import core.utils.Point;
@@ -48,9 +48,9 @@ import java.util.*;
  * The active Graphics2D is provided by {@link EcsRenderScreen} via
  * {@link RenderContext}.
  */
-public final class LitiengineSpriteRenderSystem extends System {
+public final class SpriteRenderSystem extends System {
   private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LitiengineSpriteRenderSystem.class);
+    DungeonLogger.getLogger(SpriteRenderSystem.class);
 
   private static final int BASE_TILE_PX = 32;
   private static final int MIN_TILE_PX = 8;
@@ -63,7 +63,7 @@ public final class LitiengineSpriteRenderSystem extends System {
 
   private final Map<String, BufferedImage> tileImageCache = new HashMap<>();
 
-  public LitiengineSpriteRenderSystem() {
+  public SpriteRenderSystem() {
     super(AuthoritativeSide.BOTH, PositionComponent.class);
   }
 
@@ -383,7 +383,7 @@ public final class LitiengineSpriteRenderSystem extends System {
     }
 
     long nowMs = Time.nowMs();
-    renderImg = LitiengineSpriteEffectsRenderer.apply(entity, renderImg, nowMs);
+    renderImg = SpriteEffectPipeline.apply(entity, renderImg, nowMs);
 
     float sxWorld = pos.x() * tilePx;
     float syWorld =
@@ -435,14 +435,14 @@ public final class LitiengineSpriteRenderSystem extends System {
 
     ArrayList<OverlayDraw> overlays = new ArrayList<>();
 
-    LitiengineSpriteEffectsComponent effectsComponent =
-      entity.fetch(LitiengineSpriteEffectsComponent.class).orElse(null);
+    SpriteEffectsComponent effectsComponent =
+      entity.fetch(SpriteEffectsComponent.class).orElse(null);
     if (effectsComponent == null || baseSprite == null) {
       return overlays;
     }
 
     for (var effect : effectsComponent.effects().getEnabledSorted()) {
-      if (effect instanceof LitiengineShineEffect shineEffect) {
+      if (effect instanceof ShineSpriteEffect shineEffect) {
         BufferedImage overlay = shineEffect.createOverlay(baseSprite, nowMs);
         if (overlay == null || overlay.getWidth() <= 0 || overlay.getHeight() <= 0) {
           continue;

@@ -17,6 +17,9 @@ import core.Game;
 import core.components.DrawComponent;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
+import core.game.render.sprite.effects.ShineSpriteEffect;
+import core.game.render.sprite.effects.SpriteEffectRegistry;
+import core.game.render.sprite.effects.SpriteEffectsComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
@@ -241,13 +244,13 @@ public final class LitiengineStarter {
    * with a fairly wide tolerance so the result is easy to verify by eye in the starter.
    */
   private static void installHueRemapDemoEffect(Entity entity) {
-    LitiengineSpriteEffects effects = new LitiengineSpriteEffects();
+    SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
       "demo_hue_remap_warm_to_cyan",
       new LitiengineHueRemapEffect(0.08f, 0.56f, 0.18f),
       100);
 
-    entity.add(new LitiengineSpriteEffectsComponent(effects));
+    entity.add(new SpriteEffectsComponent(effects));
   }
 
   /**
@@ -257,13 +260,13 @@ public final class LitiengineStarter {
    * strongly, so the effect is distinguishable from the separate hue-remap demo chest.
    */
   private static void installColorGradeDemoEffect(Entity entity) {
-    LitiengineSpriteEffects effects = new LitiengineSpriteEffects();
+    SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
       "demo_color_grade_desaturate_brighten",
       new LitiengineColorGradeEffect(-1.0f, 0.20f, 1.35f),
       100);
 
-    entity.add(new LitiengineSpriteEffectsComponent(effects));
+    entity.add(new SpriteEffectsComponent(effects));
   }
 
   /**
@@ -280,10 +283,10 @@ public final class LitiengineStarter {
    * </ul>
    */
   private static void installShineDemoEffect(Entity entity) {
-    LitiengineSpriteEffects effects = new LitiengineSpriteEffects();
+    SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
       "demo_shine_gold_slices",
-      new LitiengineShineEffect()
+      new ShineSpriteEffect()
         .sliceCount(2)
         .gapSize(0.88f)
         .rotationSpeed(1.80f)
@@ -291,7 +294,7 @@ public final class LitiengineStarter {
         .padding(0),
       100);
 
-    entity.add(new LitiengineSpriteEffectsComponent(effects));
+    entity.add(new SpriteEffectsComponent(effects));
   }
 
   /**

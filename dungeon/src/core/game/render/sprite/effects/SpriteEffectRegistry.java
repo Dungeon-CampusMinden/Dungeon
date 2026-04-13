@@ -1,4 +1,4 @@
-package core.platform.litiengine.render.effects;
+package core.game.render.sprite.effects;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
  *
  * <p>Effects are sorted first by priority, then by insertion order.
  */
-public final class LitiengineSpriteEffects {
+public final class SpriteEffectRegistry {
 
   private final Map<String, Entry> entries = new LinkedHashMap<>();
   private long insertionCounter = 0L;
@@ -21,7 +21,7 @@ public final class LitiengineSpriteEffects {
    * @param priority lower values are applied earlier
    * @return true if added, false if identifier already exists
    */
-  public boolean add(String identifier, LitiengineSpriteEffect effect, int priority) {
+  public boolean add(String identifier, SpriteEffect effect, int priority) {
     Objects.requireNonNull(identifier, "identifier");
     Objects.requireNonNull(effect, "effect");
 
@@ -39,7 +39,7 @@ public final class LitiengineSpriteEffects {
    * @param identifier unique identifier
    * @return removed effect if present
    */
-  public Optional<LitiengineSpriteEffect> remove(String identifier) {
+  public Optional<SpriteEffect> remove(String identifier) {
     Entry removed = entries.remove(identifier);
     return removed == null ? Optional.empty() : Optional.of(removed.effect());
   }
@@ -50,7 +50,7 @@ public final class LitiengineSpriteEffects {
    * @param identifier unique identifier
    * @return effect if present
    */
-  public Optional<LitiengineSpriteEffect> get(String identifier) {
+  public Optional<SpriteEffect> get(String identifier) {
     Entry entry = entries.get(identifier);
     return entry == null ? Optional.empty() : Optional.of(entry.effect());
   }
@@ -60,12 +60,12 @@ public final class LitiengineSpriteEffects {
    *
    * @return enabled effects sorted by priority and insertion order
    */
-  public List<LitiengineSpriteEffect> getEnabledSorted() {
+  public List<SpriteEffect> getEnabledSorted() {
     return entries.values().stream()
       .sorted(
         Comparator.comparingInt(Entry::priority).thenComparingLong(Entry::insertionIndex))
       .map(Entry::effect)
-      .filter(LitiengineSpriteEffect::enabled)
+      .filter(SpriteEffect::enabled)
       .collect(Collectors.toList());
   }
 
@@ -74,5 +74,5 @@ public final class LitiengineSpriteEffects {
     return entries.isEmpty();
   }
 
-  private record Entry(LitiengineSpriteEffect effect, int priority, long insertionIndex) {}
+  private record Entry(SpriteEffect effect, int priority, long insertionIndex) {}
 }
