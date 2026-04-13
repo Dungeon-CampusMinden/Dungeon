@@ -9,8 +9,8 @@ import core.platform.Platform;
 import core.platform.litiengine.input.LitiengineCursorAdapter;
 import core.platform.litiengine.sound.LitiengineSoundPlayer;
 import core.platform.runtime.LitiengineRuntimeAdapter;
-import core.platform.window.LitiengineWindowEventsBridge;
-import core.platform.window.LitiengineWindowAdapter;
+import core.platform.window.ClientWindowEventsBridge;
+import core.platform.window.ClientWindowAdapter;
 import core.render.LitiengineRenderAdapter;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
@@ -62,7 +62,7 @@ public final class ClientLoopRuntime {
     // Initialize LITIENGINE
     Game.init(args);
 
-    LitiengineWindowEventsBridge.install();
+    ClientWindowEventsBridge.install();
 
     // init sound backend after engine init
     soundPlayer = PreRunConfiguration.disableAudio()
@@ -70,7 +70,7 @@ public final class ClientLoopRuntime {
       : new LitiengineSoundPlayer();
 
     // Bind platform adapters AFTER init so Game.window() etc. are available.
-    Platform.window(new LitiengineWindowAdapter());
+    Platform.window(new ClientWindowAdapter());
     Platform.runtime(new LitiengineRuntimeAdapter());
     Platform.render(new LitiengineRenderAdapter());
     Platform.cursor(new LitiengineCursorAdapter());

@@ -6,7 +6,7 @@ import de.gurkenlabs.litiengine.Game;
 /**
  * LITIENGINE-backed implementation of the platform window abstraction.
  */
-public final class LitiengineWindowAdapter implements WindowAdapter {
+public final class ClientWindowAdapter implements WindowAdapter {
 
   @Override
   public int width() {

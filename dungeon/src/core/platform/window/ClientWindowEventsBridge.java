@@ -11,11 +11,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-public final class LitiengineWindowEventsBridge {
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LitiengineWindowEventsBridge.class);
+public final class ClientWindowEventsBridge {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientWindowEventsBridge.class);
   private static volatile boolean installed = false;
 
-  private LitiengineWindowEventsBridge() {}
+  private ClientWindowEventsBridge() {}
 
   public static void install() {
     if (installed) return;
