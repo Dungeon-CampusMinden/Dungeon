@@ -1,7 +1,7 @@
 package core.game.render;
 
 import core.game.ECSManagement;
-import core.game.render.scene.LitiengineSceneEffectPipeline;
+import core.game.render.scene.SceneEffectPipeline;
 import core.ui.overlay.UiOverlayRegistry;
 import core.utils.Time;
 import de.gurkenlabs.litiengine.Game;
@@ -27,7 +27,7 @@ public final class EcsRenderScreen extends Screen {
 
     final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
 
-    if (!LitiengineSceneEffectPipeline.hasEnabledEffects()) {
+    if (!SceneEffectPipeline.hasEnabledEffects()) {
       renderDirect(g, deltaSeconds);
       return;
     }
@@ -47,7 +47,7 @@ public final class EcsRenderScreen extends Screen {
     }
 
     BufferedImage processed =
-      LitiengineSceneEffectPipeline.apply(sceneBuffer, Time.nowMs());
+      SceneEffectPipeline.apply(sceneBuffer, Time.nowMs());
     g.drawImage(processed, 0, 0, null);
   }
 

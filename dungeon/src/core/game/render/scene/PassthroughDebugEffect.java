@@ -26,15 +26,15 @@ import java.awt.image.BufferedImage;
  * <p>This effect is intentionally scene-pass based, because the old PassthroughShader was used in
  * the scene shader list, not as a sprite-local effect.
  */
-public final class LitienginePassthroughDebugEffect
-  implements LitiengineSceneEffects.ToggleableSceneEffect {
+public final class PassthroughDebugEffect
+  implements SceneEffectRegistry.ToggleableSceneEffect {
 
   private boolean debugPMA = false;
   private boolean debugWorldPos = false;
   private boolean enabled = true;
 
   /** Creates a neutral debug effect with all debug views disabled. */
-  public LitienginePassthroughDebugEffect() {}
+  public PassthroughDebugEffect() {}
 
   /** @return whether alpha/transparency debug visualization is enabled */
   public boolean debugPMA() {
@@ -47,7 +47,7 @@ public final class LitienginePassthroughDebugEffect
    * @param debugPMA true to enable the alpha debug view
    * @return this effect for chaining
    */
-  public LitienginePassthroughDebugEffect debugPMA(boolean debugPMA) {
+  public PassthroughDebugEffect debugPMA(boolean debugPMA) {
     this.debugPMA = debugPMA;
     return this;
   }
@@ -63,7 +63,7 @@ public final class LitienginePassthroughDebugEffect
    * @param debugWorldPos true to enable the world-position debug view
    * @return this effect for chaining
    */
-  public LitienginePassthroughDebugEffect debugWorldPos(boolean debugWorldPos) {
+  public PassthroughDebugEffect debugWorldPos(boolean debugWorldPos) {
     this.debugWorldPos = debugWorldPos;
     return this;
   }

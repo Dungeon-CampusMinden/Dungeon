@@ -25,8 +25,8 @@ import core.game.render.depth.DepthLayerEffectPipeline;
 import core.platform.litiengine.render.effects.*;
 import core.game.render.level.LevelColorGradeEffect;
 import core.game.render.level.LevelEffectPipeline;
-import core.game.render.scene.LitiengineSceneColorGradeEffect;
-import core.game.render.scene.LitiengineSceneEffectPipeline;
+import core.game.render.scene.SceneColorGradeEffect;
+import core.game.render.scene.SceneEffectPipeline;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -120,10 +120,10 @@ public final class LitiengineStarter {
    * the region, the effect fades out smoothly across the configured transition band.
    */
   private static void installSceneColorGradeDemo() {
-    LitiengineSceneEffectPipeline.effects().remove("starter_scene_color_grade_demo");
-    LitiengineSceneEffectPipeline.effects().add(
+    SceneEffectPipeline.effects().remove("starter_scene_color_grade_demo");
+    SceneEffectPipeline.effects().add(
       "starter_scene_color_grade_demo",
-      new LitiengineSceneColorGradeEffect(-1.0f, 0.72f, 1.08f)
+      new SceneColorGradeEffect(-1.0f, 0.72f, 1.08f)
         .region(new Rectangle(1f, 5f, 10f, 4f))
         .transitionSize(2.0f),
       100);

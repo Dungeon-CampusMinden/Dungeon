@@ -8,14 +8,14 @@ import java.awt.image.BufferedImage;
  * <p>Effects in this pipeline are applied to the fully rendered frame, after ECS world rendering
  * and UI overlay rendering have produced a complete scene image.
  */
-public final class LitiengineSceneEffectPipeline {
+public final class SceneEffectPipeline {
 
-  private static final LitiengineSceneEffects EFFECTS = new LitiengineSceneEffects();
+  private static final SceneEffectRegistry EFFECTS = new SceneEffectRegistry();
 
-  private LitiengineSceneEffectPipeline() {}
+  private SceneEffectPipeline() {}
 
   /** @return the global scene effect registry */
-  public static LitiengineSceneEffects effects() {
+  public static SceneEffectRegistry effects() {
     return EFFECTS;
   }
 
@@ -51,7 +51,7 @@ public final class LitiengineSceneEffectPipeline {
     }
 
     BufferedImage current = source;
-    for (LitiengineSceneEffect effect : EFFECTS.getEnabledSorted()) {
+    for (SceneEffect effect : EFFECTS.getEnabledSorted()) {
       current = effect.apply(current, nowMs);
       if (current == null) {
         throw new IllegalStateException(

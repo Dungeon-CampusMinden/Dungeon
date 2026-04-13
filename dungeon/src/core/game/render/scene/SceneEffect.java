@@ -3,7 +3,7 @@ package core.game.render.scene;
 import java.awt.image.BufferedImage;
 
 /** Backend-specific post-processing effect for the fully rendered LITIENGINE scene. */
-public interface LitiengineSceneEffect {
+public interface SceneEffect {
 
   /** @return true if the effect should currently be applied. */
   boolean enabled();

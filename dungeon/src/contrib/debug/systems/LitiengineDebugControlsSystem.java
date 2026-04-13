@@ -9,9 +9,9 @@ import core.game.render.depth.DepthLayerColorGradeEffect;
 import core.game.render.depth.DepthLayerEffectPipeline;
 import core.game.render.level.LevelColorGradeEffect;
 import core.game.render.level.LevelEffectPipeline;
-import core.game.render.scene.LitienginePassthroughDebugEffect;
-import core.game.render.scene.LitiengineSceneColorGradeEffect;
-import core.game.render.scene.LitiengineSceneEffectPipeline;
+import core.game.render.scene.PassthroughDebugEffect;
+import core.game.render.scene.SceneColorGradeEffect;
+import core.game.render.scene.SceneEffectPipeline;
 import core.utils.InputManager;
 import core.utils.Rectangle;
 import core.utils.components.draw.DepthLayer;
@@ -127,7 +127,7 @@ public final class LitiengineDebugControlsSystem extends System {
     }
 
     if (InputManager.isKeyJustPressed(TOGGLE_SCENE_EFFECTS_KEY)) {
-      boolean enabled = LitiengineSceneEffectPipeline.toggleAll();
+      boolean enabled = SceneEffectPipeline.toggleAll();
       LOGGER.info(
         "LITIENGINE scene-pass effects are now {}.",
         enabled ? "enabled" : "disabled");
@@ -192,7 +192,7 @@ public final class LitiengineDebugControlsSystem extends System {
   }
 
   private void togglePassthroughPmaDebug() {
-    LitienginePassthroughDebugEffect effect = ensurePassthroughDebugEffectRegistered();
+    PassthroughDebugEffect effect = ensurePassthroughDebugEffectRegistered();
     boolean newState = !effect.debugPMA();
     effect.debugPMA(newState);
     syncPassthroughEnabledState(effect);
@@ -203,7 +203,7 @@ public final class LitiengineDebugControlsSystem extends System {
   }
 
   private void togglePassthroughWorldPosDebug() {
-    LitienginePassthroughDebugEffect effect = ensurePassthroughDebugEffectRegistered();
+    PassthroughDebugEffect effect = ensurePassthroughDebugEffectRegistered();
     boolean newState = !effect.debugWorldPos();
     effect.debugWorldPos(newState);
     syncPassthroughEnabledState(effect);
@@ -214,7 +214,7 @@ public final class LitiengineDebugControlsSystem extends System {
   }
 
   private void toggleRegionalSceneColorGradeEnabled() {
-    LitiengineSceneColorGradeEffect effect = starterSceneColorGradeDemoEffect();
+    SceneColorGradeEffect effect = starterSceneColorGradeDemoEffect();
     if (effect == null) {
       LOGGER.warn(
         "No starter regional scene color grade demo is registered under id '{}'.",
@@ -231,7 +231,7 @@ public final class LitiengineDebugControlsSystem extends System {
   }
 
   private void toggleRegionalSceneColorGradeRegionMode() {
-    LitiengineSceneColorGradeEffect effect = starterSceneColorGradeDemoEffect();
+    SceneColorGradeEffect effect = starterSceneColorGradeDemoEffect();
     if (effect == null) {
       LOGGER.warn(
         "No starter regional scene color grade demo is registered under id '{}'.",
@@ -400,11 +400,11 @@ public final class LitiengineDebugControlsSystem extends System {
       .orElse(null);
   }
 
-  private LitiengineSceneColorGradeEffect starterSceneColorGradeDemoEffect() {
-    return LitiengineSceneEffectPipeline.effects()
+  private SceneColorGradeEffect starterSceneColorGradeDemoEffect() {
+    return SceneEffectPipeline.effects()
       .get(STARTER_SCENE_COLOR_GRADE_DEMO_ID)
-      .filter(LitiengineSceneColorGradeEffect.class::isInstance)
-      .map(LitiengineSceneColorGradeEffect.class::cast)
+      .filter(SceneColorGradeEffect.class::isInstance)
+      .map(SceneColorGradeEffect.class::cast)
       .orElse(null);
   }
 
@@ -421,22 +421,22 @@ public final class LitiengineDebugControlsSystem extends System {
       || InputManager.isKeyPressed(Keys.SHIFT_RIGHT);
   }
 
-  private LitienginePassthroughDebugEffect ensurePassthroughDebugEffectRegistered() {
-    return LitiengineSceneEffectPipeline.effects()
+  private PassthroughDebugEffect ensurePassthroughDebugEffectRegistered() {
+    return SceneEffectPipeline.effects()
       .get(PASSTHROUGH_DEBUG_EFFECT_ID)
-      .filter(LitienginePassthroughDebugEffect.class::isInstance)
-      .map(LitienginePassthroughDebugEffect.class::cast)
+      .filter(PassthroughDebugEffect.class::isInstance)
+      .map(PassthroughDebugEffect.class::cast)
       .orElseGet(
         () -> {
-          LitienginePassthroughDebugEffect effect = new LitienginePassthroughDebugEffect();
+          PassthroughDebugEffect effect = new PassthroughDebugEffect();
           effect.enabled(false);
 
-          LitiengineSceneEffectPipeline.effects().add(PASSTHROUGH_DEBUG_EFFECT_ID, effect, 10_000);
+          SceneEffectPipeline.effects().add(PASSTHROUGH_DEBUG_EFFECT_ID, effect, 10_000);
           return effect;
         });
   }
 
-  private static void syncPassthroughEnabledState(LitienginePassthroughDebugEffect effect) {
+  private static void syncPassthroughEnabledState(PassthroughDebugEffect effect) {
     effect.enabled(effect.debugPMA() || effect.debugWorldPos());
   }
 

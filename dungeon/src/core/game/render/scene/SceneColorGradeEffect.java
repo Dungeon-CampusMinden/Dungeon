@@ -26,8 +26,8 @@ import java.awt.image.BufferedImage;
  * the effect is fully active inside the region and fades out smoothly across the configured
  * transition band outside that region.
  */
-public final class LitiengineSceneColorGradeEffect
-  implements LitiengineSceneEffects.ToggleableSceneEffect {
+public final class SceneColorGradeEffect
+  implements SceneEffectRegistry.ToggleableSceneEffect {
 
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
@@ -51,7 +51,7 @@ public final class LitiengineSceneColorGradeEffect
   private boolean enabled = true;
 
   /** Creates a neutral scene color-grade effect that leaves the scene unchanged. */
-  public LitiengineSceneColorGradeEffect() {}
+  public SceneColorGradeEffect() {}
 
   /**
    * Creates a scene color-grade effect with the given parameters.
@@ -60,7 +60,7 @@ public final class LitiengineSceneColorGradeEffect
    * @param saturationMultiplier multiplier for saturation
    * @param valueMultiplier multiplier for value/brightness
    */
-  public LitiengineSceneColorGradeEffect(
+  public SceneColorGradeEffect(
     float hue, float saturationMultiplier, float valueMultiplier) {
     hue(hue);
     saturationMultiplier(saturationMultiplier);
@@ -78,7 +78,7 @@ public final class LitiengineSceneColorGradeEffect
    * @param hue target hue in {@code [0, 1]}; values {@code < 0} keep the original hue
    * @return this effect for chaining
    */
-  public LitiengineSceneColorGradeEffect hue(float hue) {
+  public SceneColorGradeEffect hue(float hue) {
     this.hue = hue < 0f ? -1.0f : normalizeHue(hue);
     return this;
   }
@@ -94,7 +94,7 @@ public final class LitiengineSceneColorGradeEffect
    * @param saturationMultiplier multiplier for saturation; negative values are clamped to 0
    * @return this effect for chaining
    */
-  public LitiengineSceneColorGradeEffect saturationMultiplier(float saturationMultiplier) {
+  public SceneColorGradeEffect saturationMultiplier(float saturationMultiplier) {
     this.saturationMultiplier = Math.max(0f, saturationMultiplier);
     return this;
   }
@@ -110,7 +110,7 @@ public final class LitiengineSceneColorGradeEffect
    * @param valueMultiplier multiplier for value/brightness; negative values are clamped to 0
    * @return this effect for chaining
    */
-  public LitiengineSceneColorGradeEffect valueMultiplier(float valueMultiplier) {
+  public SceneColorGradeEffect valueMultiplier(float valueMultiplier) {
     this.valueMultiplier = Math.max(0f, valueMultiplier);
     return this;
   }
@@ -130,7 +130,7 @@ public final class LitiengineSceneColorGradeEffect
    * @param region region in world coordinates; {@code null} means full-scene effect
    * @return this effect for chaining
    */
-  public LitiengineSceneColorGradeEffect region(Rectangle region) {
+  public SceneColorGradeEffect region(Rectangle region) {
     this.region = region;
     return this;
   }
@@ -150,7 +150,7 @@ public final class LitiengineSceneColorGradeEffect
    * @param transitionSize transition size in world units; negative values are clamped to 0
    * @return this effect for chaining
    */
-  public LitiengineSceneColorGradeEffect transitionSize(float transitionSize) {
+  public SceneColorGradeEffect transitionSize(float transitionSize) {
     this.transitionSize = Math.max(0f, transitionSize);
     return this;
   }

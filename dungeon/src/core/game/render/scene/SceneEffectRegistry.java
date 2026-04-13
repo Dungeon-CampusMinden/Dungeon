@@ -7,11 +7,11 @@ import java.util.*;
  *
  * <p>Effects are sorted first by priority and then by insertion order.
  */
-public final class LitiengineSceneEffects {
+public final class SceneEffectRegistry {
 
   private long insertionCounter = 0L;
 
-  private final Map<String, LitiengineSceneEffect> effectMap = new HashMap<>();
+  private final Map<String, SceneEffect> effectMap = new HashMap<>();
   private final Map<String, Integer> priorityMap = new HashMap<>();
   private final Map<String, Long> insertionIndexMap = new HashMap<>();
   private final TreeMap<Integer, Set<Entry>> sortedByPriority = new TreeMap<>();
@@ -24,7 +24,7 @@ public final class LitiengineSceneEffects {
    * @param priority lower values are applied earlier
    * @return true if added, false if the identifier already exists
    */
-  public boolean add(String identifier, LitiengineSceneEffect effect, int priority) {
+  public boolean add(String identifier, SceneEffect effect, int priority) {
     Objects.requireNonNull(identifier, "identifier");
     Objects.requireNonNull(effect, "effect");
 
@@ -49,7 +49,7 @@ public final class LitiengineSceneEffects {
    * @param effect effect instance
    * @return true if added, false if the identifier already exists
    */
-  public boolean add(String identifier, LitiengineSceneEffect effect) {
+  public boolean add(String identifier, SceneEffect effect) {
     return add(identifier, effect, 0);
   }
 
@@ -64,7 +64,7 @@ public final class LitiengineSceneEffects {
       return false;
     }
 
-    LitiengineSceneEffect removedEffect = effectMap.remove(identifier);
+    SceneEffect removedEffect = effectMap.remove(identifier);
     Integer priority = priorityMap.remove(identifier);
     Long insertionIndex = insertionIndexMap.remove(identifier);
 
@@ -81,7 +81,7 @@ public final class LitiengineSceneEffects {
    * @param identifier unique identifier
    * @return effect if present
    */
-  public Optional<LitiengineSceneEffect> get(String identifier) {
+  public Optional<SceneEffect> get(String identifier) {
     return Optional.ofNullable(effectMap.get(identifier));
   }
 
@@ -93,7 +93,7 @@ public final class LitiengineSceneEffects {
    * @return true if updated, false if effect does not exist
    */
   public boolean changePriority(String identifier, int newPriority) {
-    LitiengineSceneEffect effect = effectMap.get(identifier);
+    SceneEffect effect = effectMap.get(identifier);
     Integer oldPriority = priorityMap.get(identifier);
     Long insertionIndex = insertionIndexMap.get(identifier);
 
@@ -114,7 +114,7 @@ public final class LitiengineSceneEffects {
 
   /** @return true if at least one effect is currently enabled */
   public boolean hasEnabledEffects() {
-    for (LitiengineSceneEffect effect : effectMap.values()) {
+    for (SceneEffect effect : effectMap.values()) {
       if (effect.enabled()) {
         return true;
       }
@@ -131,7 +131,7 @@ public final class LitiengineSceneEffects {
    * @param enabled desired enabled state
    */
   public void enableAll(boolean enabled) {
-    for (LitiengineSceneEffect effect : effectMap.values()) {
+    for (SceneEffect effect : effectMap.values()) {
       if (effect instanceof ToggleableSceneEffect toggleable) {
         toggleable.enabled(enabled);
       }
@@ -159,7 +159,7 @@ public final class LitiengineSceneEffects {
   public boolean allEnabled() {
     boolean hasToggleableEffects = false;
 
-    for (LitiengineSceneEffect effect : effectMap.values()) {
+    for (SceneEffect effect : effectMap.values()) {
       if (effect instanceof ToggleableSceneEffect) {
         hasToggleableEffects = true;
         if (!effect.enabled()) {
@@ -204,12 +204,12 @@ public final class LitiengineSceneEffects {
    * @param onlyEnabled whether only enabled effects should be returned
    * @return iterable view over sorted effects
    */
-  public Iterable<LitiengineSceneEffect> getSorted(boolean onlyEnabled) {
+  public Iterable<SceneEffect> getSorted(boolean onlyEnabled) {
     return () ->
       new Iterator<>() {
         private final Iterator<Set<Entry>> priorityIterator = sortedByPriority.values().iterator();
         private Iterator<Entry> currentSetIterator = Collections.emptyIterator();
-        private LitiengineSceneEffect nextEffect = null;
+        private SceneEffect nextEffect = null;
 
         @Override
         public boolean hasNext() {
@@ -219,7 +219,7 @@ public final class LitiengineSceneEffects {
 
           while (true) {
             if (currentSetIterator.hasNext()) {
-              LitiengineSceneEffect candidate = currentSetIterator.next().effect();
+              SceneEffect candidate = currentSetIterator.next().effect();
               if (!onlyEnabled || candidate.enabled()) {
                 nextEffect = candidate;
                 return true;
@@ -233,12 +233,12 @@ public final class LitiengineSceneEffects {
         }
 
         @Override
-        public LitiengineSceneEffect next() {
+        public SceneEffect next() {
           if (!hasNext()) {
             throw new NoSuchElementException();
           }
 
-          LitiengineSceneEffect result = nextEffect;
+          SceneEffect result = nextEffect;
           nextEffect = null;
           return result;
         }
@@ -250,7 +250,7 @@ public final class LitiengineSceneEffects {
    *
    * @return iterable over enabled effects
    */
-  public Iterable<LitiengineSceneEffect> getEnabledSorted() {
+  public Iterable<SceneEffect> getEnabledSorted() {
     return getSorted(true);
   }
 
@@ -264,7 +264,7 @@ public final class LitiengineSceneEffects {
     }
   }
 
-  private record Entry(LitiengineSceneEffect effect, long insertionIndex)
+  private record Entry(SceneEffect effect, long insertionIndex)
     implements Comparable<Entry> {
     @Override
     public int compareTo(Entry other) {
@@ -285,7 +285,7 @@ public final class LitiengineSceneEffects {
   /**
    * Optional helper contract for mutable scene effects that can be enabled/disabled globally.
    */
-  public interface ToggleableSceneEffect extends LitiengineSceneEffect {
+  public interface ToggleableSceneEffect extends SceneEffect {
     void enabled(boolean enabled);
   }
 }
