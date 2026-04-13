@@ -16,7 +16,7 @@ import java.util.List;
  *
  * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
  */
-final class LitiengineFreeInputDialogOverlay implements UiOverlay {
+final class FreeInputDialogOverlay implements UiOverlay {
 
   static final String TITLE_DEFAULT = "Frage";
   static final String OK_BUTTON = "OK";
@@ -48,7 +48,7 @@ final class LitiengineFreeInputDialogOverlay implements UiOverlay {
   private int pressedButtonIndex = -1;
   private boolean leftButtonDownLastFrame = false;
 
-  LitiengineFreeInputDialogOverlay(
+  FreeInputDialogOverlay(
     String title,
     String question,
     String prefill,

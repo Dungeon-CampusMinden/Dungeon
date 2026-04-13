@@ -12,6 +12,6 @@ public final class OkDialogBuilder {
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("OK");
 
     return new OverlayUiNodeHandle(
-      new LitiengineOkDialogOverlay(title, text, ctx.dialogId()));
+      new OkDialogOverlay(title, text, ctx.dialogId()));
   }
 }

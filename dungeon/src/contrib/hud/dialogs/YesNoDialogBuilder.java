@@ -12,6 +12,6 @@ public final class YesNoDialogBuilder {
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("Dialog");
 
     return new OverlayUiNodeHandle(
-      new LitiengineYesNoDialogOverlay(title, text, ctx.dialogId()));
+      new YesNoDialogOverlay(title, text, ctx.dialogId()));
   }
 }

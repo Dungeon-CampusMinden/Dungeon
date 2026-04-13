@@ -8,6 +8,6 @@ public final class PauseMenuDialogBuilder {
   private PauseMenuDialogBuilder() {}
 
   public static core.ui.UiNodeHandle build(DialogContext ctx) {
-    return new OverlayUiNodeHandle(new LitienginePauseMenuOverlay());
+    return new OverlayUiNodeHandle(new PauseMenuOverlay());
   }
 }

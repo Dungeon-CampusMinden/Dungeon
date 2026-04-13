@@ -13,7 +13,7 @@ import java.awt.Rectangle;
  *
  * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
  */
-final class LitiengineOkDialogOverlay implements UiOverlay {
+final class OkDialogOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 460;
   private static final int DEFAULT_HEIGHT = 220;
@@ -31,7 +31,7 @@ final class LitiengineOkDialogOverlay implements UiOverlay {
   private boolean okPressed = false;
   private boolean leftButtonDownLastFrame = false;
 
-  LitiengineOkDialogOverlay(String title, String text, String dialogId) {
+  OkDialogOverlay(String title, String text, String dialogId) {
     this.title = title;
     this.text = text;
     this.dialogId = dialogId;

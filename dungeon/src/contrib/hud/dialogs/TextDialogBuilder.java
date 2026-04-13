@@ -20,7 +20,7 @@ public final class TextDialogBuilder {
       ctx.find(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class).orElse(new String[] {});
 
     return new OverlayUiNodeHandle(
-      new LitiengineTextDialogOverlay(
+      new TextDialogOverlay(
         title, text, confirmLabel, cancelLabel, additionalButtons, ctx.dialogId()));
   }
 }

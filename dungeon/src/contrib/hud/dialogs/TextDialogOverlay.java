@@ -18,7 +18,7 @@ import java.util.List;
  *
  * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
  */
-final class LitiengineTextDialogOverlay implements UiOverlay {
+final class TextDialogOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 560;
   private static final int DEFAULT_HEIGHT = 260;
@@ -38,7 +38,7 @@ final class LitiengineTextDialogOverlay implements UiOverlay {
   private int height = DEFAULT_HEIGHT;
   private boolean visible = true;
 
-  LitiengineTextDialogOverlay(
+  TextDialogOverlay(
     String title,
     String text,
     String confirmLabel,
