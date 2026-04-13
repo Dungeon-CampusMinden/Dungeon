@@ -503,7 +503,7 @@ public final class LevelEditorSystem extends System {
   }
 
   private void renderDebugVisualization() {
-    CameraViewportState.activeView()
+    CameraViewportState.activeViewport()
       .ifPresent(
         view ->
           currentDungeonLevel()
