@@ -16,7 +16,7 @@ import core.components.SoundComponent;
 import core.components.VelocityComponent;
 import core.input.Keys;
 import core.platform.litiengine.input.LitiengineCursorAdapter;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraViewportState;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -202,10 +202,10 @@ public final class LitiengineEntityDebugSystem extends System {
             y -= heightWorld / 2f;
           }
 
-          Point bottomLeftScreen = LitiengineCameraViews.worldToScreen(new Point(x, y));
+          Point bottomLeftScreen = CameraViewportState.worldToScreen(new Point(x, y));
 
-          int widthPx = LitiengineCameraViews.worldLengthToScreen(widthWorld);
-          int heightPx = LitiengineCameraViews.worldLengthToScreen(heightWorld);
+          int widthPx = CameraViewportState.worldLengthToScreen(widthWorld);
+          int heightPx = CameraViewportState.worldLengthToScreen(heightWorld);
 
           int left = Math.round(bottomLeftScreen.x());
           int top = Math.round(bottomLeftScreen.y()) - heightPx;
@@ -226,7 +226,7 @@ public final class LitiengineEntityDebugSystem extends System {
     int bgWidth = Math.max(160, longestLineLength * 7 + INFO_PADDING * 2);
     int bgHeight = lines.length * INFO_LINE_HEIGHT + INFO_PADDING * 2;
 
-    Point anchor = LitiengineCameraViews.worldToScreen(pc.position());
+    Point anchor = CameraViewportState.worldToScreen(pc.position());
     Point topLeft =
       new Point(
         anchor.x() + INFO_OFFSET_X,

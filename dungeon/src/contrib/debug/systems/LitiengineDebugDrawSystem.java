@@ -2,7 +2,7 @@ package contrib.debug.systems;
 
 import core.Game;
 import core.System;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import core.utils.Point;
@@ -66,7 +66,7 @@ public final class LitiengineDebugDrawSystem extends System {
       return;
     }
 
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
+    CameraViewportState.Viewport view = CameraViewportState.get();
     if (view == null || view.tilePx() <= 0) {
       clearQueuedDrawCalls();
       return;
@@ -186,7 +186,7 @@ public final class LitiengineDebugDrawSystem extends System {
   private static void renderWorldRectangles(
     Graphics2D g,
     List<WorldRectangle> rectangles,
-    LitiengineCameraViews.View view,
+    CameraViewportState.Viewport view,
     int levelHeight) {
 
     int tilePx = view.tilePx();
@@ -256,7 +256,7 @@ public final class LitiengineDebugDrawSystem extends System {
   private static void renderWorldFills(
     Graphics2D g,
     List<WorldFill> fills,
-    LitiengineCameraViews.View view,
+    CameraViewportState.Viewport view,
     int levelHeight) {
 
     int tilePx = view.tilePx();
@@ -284,8 +284,8 @@ public final class LitiengineDebugDrawSystem extends System {
     WORLD_LINES.clear();
 
     for (WorldLine line : lines) {
-      Point from = LitiengineCameraViews.worldToScreen(line.from());
-      Point to = LitiengineCameraViews.worldToScreen(line.to());
+      Point from = CameraViewportState.worldToScreen(line.from());
+      Point to = CameraViewportState.worldToScreen(line.to());
 
       g.setColor(line.color());
       g.drawLine(
@@ -301,8 +301,8 @@ public final class LitiengineDebugDrawSystem extends System {
     WORLD_CIRCLE_OUTLINES.clear();
 
     for (WorldCircleOutline circle : circles) {
-      Point center = LitiengineCameraViews.worldToScreen(circle.center());
-      int radiusPx = LitiengineCameraViews.worldLengthToScreen(circle.radius());
+      Point center = CameraViewportState.worldToScreen(circle.center());
+      int radiusPx = CameraViewportState.worldLengthToScreen(circle.radius());
 
       g.setColor(circle.color());
       g.drawOval(
@@ -318,8 +318,8 @@ public final class LitiengineDebugDrawSystem extends System {
     WORLD_CIRCLE_FILLS.clear();
 
     for (WorldCircleFill circle : circles) {
-      Point center = LitiengineCameraViews.worldToScreen(circle.center());
-      int radiusPx = LitiengineCameraViews.worldLengthToScreen(circle.radius());
+      Point center = CameraViewportState.worldToScreen(circle.center());
+      int radiusPx = CameraViewportState.worldLengthToScreen(circle.radius());
 
       g.setColor(circle.color());
       g.fillOval(
@@ -362,7 +362,7 @@ public final class LitiengineDebugDrawSystem extends System {
     List<ScreenText> texts,
     List<ScreenMarker> markers) {
 
-    LitiengineCameraViews.activeView()
+    CameraViewportState.activeView()
       .ifPresent(
         view -> {
           Graphics2D g = (Graphics2D) base.create();

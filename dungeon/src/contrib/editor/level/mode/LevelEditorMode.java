@@ -2,7 +2,7 @@ package contrib.editor.level.mode;
 
 import core.input.Keys;
 import core.input.MouseButtons;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraViewportState;
 import contrib.editor.level.systems.LitiengineLevelEditorSystem;
 import java.awt.Graphics2D;
 import java.util.*;
@@ -88,8 +88,8 @@ public abstract class LevelEditorMode {
     return new LinkedHashMap<>();
   }
 
-  protected final Optional<LitiengineCameraViews.View> activeCameraView() {
-    return LitiengineCameraViews.activeView();
+  protected final Optional<CameraViewportState.Viewport> activeCameraView() {
+    return CameraViewportState.activeView();
   }
 
   /**

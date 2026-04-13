@@ -4,7 +4,7 @@ import contrib.editor.level.systems.LitiengineLevelEditorSystem;
 import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraViewportState;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;
@@ -82,7 +82,7 @@ public final class StartTilesMode extends LevelEditorMode {
                     1.0f,
                     color);
 
-                  Point screenTopLeft = LitiengineCameraViews.worldToScreen(pos);
+                  Point screenTopLeft = CameraViewportState.worldToScreen(pos);
                   Point labelPos =
                     new Point(
                       screenTopLeft.x() + 4,

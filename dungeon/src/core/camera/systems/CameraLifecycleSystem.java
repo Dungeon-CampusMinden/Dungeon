@@ -2,8 +2,8 @@ package core.camera.systems;
 
 import core.Game;
 import core.System;
-import core.camera.LitiengineCameraState;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraState;
+import core.camera.CameraViewportState;
 import core.level.elements.ILevel;
 import core.platform.Platform;
 import core.utils.Point;
@@ -18,10 +18,10 @@ import java.util.Objects;
  * <p>After the reset, the camera is immediately seeded with the current follow target so the new
  * level does not briefly start at the origin before the renderer computes the first camera step.
  */
-public final class LitiengineCameraLifecycleSystem extends System {
+public final class CameraLifecycleSystem extends System {
   private ILevel previousLevel;
 
-  public LitiengineCameraLifecycleSystem() {
+  public CameraLifecycleSystem() {
     super(AuthoritativeSide.CLIENT);
   }
 
@@ -32,8 +32,8 @@ public final class LitiengineCameraLifecycleSystem extends System {
       return;
     }
 
-    LitiengineCameraState.resetFocus();
-    LitiengineCameraViews.reset();
+    CameraState.resetFocus();
+    CameraViewportState.reset();
     seedCurrentFocus();
     previousLevel = currentLevel;
   }
@@ -44,7 +44,7 @@ public final class LitiengineCameraLifecycleSystem extends System {
         ? Platform.camera().resolveFollowTarget()
         : Platform.camera().focusPosition();
 
-    LitiengineCameraState.seedFocus(seededFocus);
+    CameraState.seedFocus(seededFocus);
   }
 
   @Override

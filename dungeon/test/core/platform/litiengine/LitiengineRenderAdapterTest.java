@@ -2,7 +2,7 @@ package core.platform.litiengine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraViewportState;
 import core.render.LitiengineRenderAdapter;
 import core.ui.StageHandle;
 import core.utils.Point;
@@ -15,12 +15,12 @@ class LitiengineRenderAdapterTest {
 
   @AfterEach
   void tearDown() {
-    LitiengineCameraViews.reset();
+    CameraViewportState.reset();
   }
 
   @Test
   void projectWorldToStageUsesSharedCameraView() {
-    LitiengineCameraViews.set(100, 50, 10, 32);
+    CameraViewportState.set(100, 50, 10, 32);
 
     Point projected =
       new LitiengineRenderAdapter()

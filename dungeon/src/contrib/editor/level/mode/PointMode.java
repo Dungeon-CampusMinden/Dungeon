@@ -8,7 +8,7 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.platform.Platform;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraViewportState;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;
@@ -210,7 +210,7 @@ public final class PointMode extends LevelEditorMode {
     Point pointPos,
     int markerSize) {
 
-    Point screenCenter = LitiengineCameraViews.worldCenterToScreen(pointPos);
+    Point screenCenter = CameraViewportState.worldCenterToScreen(pointPos);
     boolean heldPoint = name != null && name.equals(heldPointName);
 
     LitiengineDebugDrawSystem.drawScreenMarker(
@@ -231,7 +231,7 @@ public final class PointMode extends LevelEditorMode {
     Point pointPos,
     int markerSize) {
 
-    Point screenCenter = LitiengineCameraViews.worldCenterToScreen(pointPos);
+    Point screenCenter = CameraViewportState.worldCenterToScreen(pointPos);
 
     LitiengineDebugDrawSystem.drawScreenMarker(
       screenCenter,

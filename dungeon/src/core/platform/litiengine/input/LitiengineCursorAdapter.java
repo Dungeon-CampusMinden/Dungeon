@@ -1,8 +1,8 @@
 package core.platform.litiengine.input;
 
 import core.platform.CursorAdapter;
-import core.camera.LitiengineCameraState;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraState;
+import core.camera.CameraViewportState;
 import core.utils.Point;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.input.Input;
@@ -29,9 +29,9 @@ public final class LitiengineCursorAdapter implements CursorAdapter {
       return new Point(0, 0);
     }
 
-    return LitiengineCameraViews.screenToWorld(
+    return CameraViewportState.screenToWorld(
       new Point((float) p.getX(), (float) p.getY()),
-      LitiengineCameraState.focusPosition(),
+      CameraState.focusPosition(),
       widthSafe(),
       heightSafe());
   }

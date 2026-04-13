@@ -5,8 +5,8 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.camera.CameraMath;
-import core.camera.LitiengineCameraState;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraState;
+import core.camera.CameraViewportState;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
@@ -94,7 +94,7 @@ public final class LitiengineSpriteRenderSystem extends System {
       final CameraView view = computeCameraView(levelOpt);
 
       // Publish view for cursor mapping
-      LitiengineCameraViews.set(view.offsetX(), view.offsetY(), view.levelHeight(), view.tilePx());
+      CameraViewportState.set(view.offsetX(), view.offsetY(), view.levelHeight(), view.tilePx());
 
       // Then proceed with translate/clip as before
       g.translate(view.offsetX(), view.offsetY());
@@ -548,9 +548,9 @@ public final class LitiengineSpriteRenderSystem extends System {
     final int tilePx = effectiveTilePx();
 
     final Point target = resolveCameraFollowTarget(levelOpt);
-    LitiengineCameraState.followTarget(target);
+    CameraState.followTarget(target);
 
-    final Point focus = LitiengineCameraState.stepFocus(CAMERA_LERP);
+    final Point focus = CameraState.stepFocus(CAMERA_LERP);
 
     final Rectangle worldBounds =
       CameraMath.worldBounds(
@@ -630,6 +630,6 @@ public final class LitiengineSpriteRenderSystem extends System {
   }
 
   private static int effectiveTilePx() {
-    return Math.max(MIN_TILE_PX, Math.round(BASE_TILE_PX * LitiengineCameraState.zoom()));
+    return Math.max(MIN_TILE_PX, Math.round(BASE_TILE_PX * CameraState.zoom()));
   }
 }

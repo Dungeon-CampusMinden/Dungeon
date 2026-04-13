@@ -4,7 +4,7 @@ import contrib.modules.levelHide.LevelHideComponent;
 import contrib.modules.levelHide.LevelHideStateComponent;
 import core.Entity;
 import core.System;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraViewportState;
 import core.components.PositionComponent;
 import core.game.render.RenderContext;
 import core.utils.Point;
@@ -51,7 +51,7 @@ public final class LitiengineLevelHideRenderSystem extends System {
   @Override
   public void render(float deltaSeconds) {
     Graphics2D g = RenderContext.get();
-    if (g == null || LitiengineCameraViews.activeView().isEmpty()) {
+    if (g == null || CameraViewportState.activeView().isEmpty()) {
       return;
     }
 
@@ -253,19 +253,19 @@ public final class LitiengineLevelHideRenderSystem extends System {
       return 0;
     }
 
-    int px = LitiengineCameraViews.worldLengthToScreen(transitionSizeWorldUnits);
+    int px = CameraViewportState.worldLengthToScreen(transitionSizeWorldUnits);
     return Math.max(1, px);
   }
 
   private ScreenRect toScreenRect(core.utils.Rectangle worldRect) {
     Point topLeftWorld = new Point(worldRect.x(), worldRect.y() + worldRect.height());
-    Point screenTopLeft = LitiengineCameraViews.worldToScreen(topLeftWorld);
+    Point screenTopLeft = CameraViewportState.worldToScreen(topLeftWorld);
 
     return new ScreenRect(
       Math.round(screenTopLeft.x()),
       Math.round(screenTopLeft.y()),
-      Math.max(1, LitiengineCameraViews.worldLengthToScreen(worldRect.width())),
-      Math.max(1, LitiengineCameraViews.worldLengthToScreen(worldRect.height())));
+      Math.max(1, CameraViewportState.worldLengthToScreen(worldRect.width())),
+      Math.max(1, CameraViewportState.worldLengthToScreen(worldRect.height())));
   }
 
   private int alphaFor(float hiddenProgress) {

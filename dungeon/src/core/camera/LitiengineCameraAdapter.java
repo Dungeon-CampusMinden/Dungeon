@@ -20,12 +20,12 @@ public final class LitiengineCameraAdapter implements CameraAdapter {
 
   @Override
   public float zoom() {
-    return LitiengineCameraState.zoom();
+    return CameraState.zoom();
   }
 
   @Override
   public void zoom(float zoom) {
-    LitiengineCameraState.zoom(zoom);
+    CameraState.zoom(zoom);
   }
 
   @Override
@@ -35,12 +35,12 @@ public final class LitiengineCameraAdapter implements CameraAdapter {
 
   @Override
   public Point focusPosition() {
-    return LitiengineCameraState.focusPosition();
+    return CameraState.focusPosition();
   }
 
   @Override
   public void focusPosition(Point focusPosition) {
-    LitiengineCameraState.focusPosition(focusPosition);
+    CameraState.focusPosition(focusPosition);
   }
 
   @Override
@@ -76,14 +76,14 @@ public final class LitiengineCameraAdapter implements CameraAdapter {
 
   @Override
   public float viewportWidth() {
-    return LitiengineCameraViews.activeView()
+    return CameraViewportState.activeView()
       .map(view -> Platform.window().width() / (float) Math.max(1, view.tilePx()))
       .orElse(0f);
   }
 
   @Override
   public float viewportHeight() {
-    return LitiengineCameraViews.activeView()
+    return CameraViewportState.activeView()
       .map(view -> Platform.window().height() / (float) Math.max(1, view.tilePx()))
       .orElse(0f);
   }

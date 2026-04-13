@@ -16,7 +16,7 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import contrib.editor.level.ui.LitiengineLevelEditorOverlay;
@@ -444,7 +444,7 @@ public final class LitiengineLevelEditorSystem extends System {
   }
 
   private void renderLevelBoundsOutline() {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
+    CameraViewportState.Viewport view = CameraViewportState.get();
     if (view == null || view.tilePx() <= 0) {
       return;
     }
@@ -503,7 +503,7 @@ public final class LitiengineLevelEditorSystem extends System {
   }
 
   private void renderDebugVisualization() {
-    LitiengineCameraViews.activeView()
+    CameraViewportState.activeView()
       .ifPresent(
         view ->
           currentDungeonLevel()
@@ -514,7 +514,7 @@ public final class LitiengineLevelEditorSystem extends System {
               }));
   }
 
-  private void renderDebugTiles(DungeonLevel level, LitiengineCameraViews.View view) {
+  private void renderDebugTiles(DungeonLevel level, CameraViewportState.Viewport view) {
     Tile[][] layout = level.layout();
     int tilePx = view.tilePx();
 
@@ -544,7 +544,7 @@ public final class LitiengineLevelEditorSystem extends System {
     }
   }
 
-  private void renderDebugEntities(LitiengineCameraViews.View view) {
+  private void renderDebugEntities(CameraViewportState.Viewport view) {
     int tilePx = view.tilePx();
     float insetWorld = LitiengineOverlaySizing.worldInsetFromPixels(tilePx, DEBUG_ENTITY_INSET_PX);
     float sizeWorld = Math.max(0.05f, 1f - insetWorld * 2f);
@@ -614,9 +614,9 @@ public final class LitiengineLevelEditorSystem extends System {
   private Point tileDebugTextPosition(
     int tileX,
     int tileY,
-    LitiengineCameraViews.View view) {
+    CameraViewportState.Viewport view) {
 
-    Point screenTopLeft = LitiengineCameraViews.worldToScreen(new Point(tileX, tileY));
+    Point screenTopLeft = CameraViewportState.worldToScreen(new Point(tileX, tileY));
 
     return new Point(
       screenTopLeft.x() + 4,
@@ -625,9 +625,9 @@ public final class LitiengineLevelEditorSystem extends System {
 
   private Point entityDebugLabelPosition(
     Point pos,
-    LitiengineCameraViews.View view) {
+    CameraViewportState.Viewport view) {
 
-    Point screenTopLeft = LitiengineCameraViews.worldToScreen(pos);
+    Point screenTopLeft = CameraViewportState.worldToScreen(pos);
 
     return new Point(
       screenTopLeft.x() + 4,

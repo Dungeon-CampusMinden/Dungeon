@@ -12,7 +12,7 @@ import java.util.Objects;
  * <p>Besides zoom, this state now also owns the current follow target and the smoothed
  * actual focus position. This removes the last renderer-local camera smoothing state.
  */
-public final class LitiengineCameraState {
+public final class CameraState {
   private static final float MIN_ZOOM = 0.25f;
   private static final float MAX_ZOOM = 4.0f;
 
@@ -32,7 +32,7 @@ public final class LitiengineCameraState {
    */
   private static volatile boolean focusInitialized = false;
 
-  private LitiengineCameraState() {}
+  private CameraState() {}
 
   public static float zoom() {
     return zoom;

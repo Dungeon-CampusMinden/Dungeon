@@ -1,9 +1,9 @@
 package core.render;
 
 import core.platform.RenderAdapter;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraViewportState;
 import core.platform.litiengine.render.LitiengineLevelHideRenderSystem;
-import core.camera.systems.LitiengineCameraLifecycleSystem;
+import core.camera.systems.CameraLifecycleSystem;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.ui.StageHandle;
 import core.utils.Point;
@@ -21,7 +21,7 @@ public final class LitiengineRenderAdapter implements RenderAdapter {
     return List.of(
       new SystemBinding(core.systems.SoundSystem.class, core.systems.SoundSystem::new),
       new SystemBinding(
-        LitiengineCameraLifecycleSystem.class, LitiengineCameraLifecycleSystem::new),
+        CameraLifecycleSystem.class, CameraLifecycleSystem::new),
       new SystemBinding(
         core.platform.litiengine.render.LitiengineSpriteRenderSystem.class,
         core.platform.litiengine.render.LitiengineSpriteRenderSystem::new),
@@ -35,8 +35,8 @@ public final class LitiengineRenderAdapter implements RenderAdapter {
       return Optional.empty();
     }
 
-    return LitiengineCameraViews.activeView()
-      .map(view -> LitiengineCameraViews.worldToScreen(worldPoint));
+    return CameraViewportState.activeView()
+      .map(view -> CameraViewportState.worldToScreen(worldPoint));
   }
 
   @Override

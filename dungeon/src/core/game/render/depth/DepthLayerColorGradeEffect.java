@@ -1,7 +1,7 @@
 package core.game.render.depth;
 
-import core.camera.LitiengineCameraState;
-import core.camera.LitiengineCameraViews;
+import core.camera.CameraState;
+import core.camera.CameraViewportState;
 import core.utils.Point;
 import core.utils.Rectangle;
 import java.awt.Color;
@@ -132,7 +132,7 @@ public final class DepthLayerColorGradeEffect
     BufferedImage output =
       new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
-    Point focus = LitiengineCameraState.focusPosition();
+    Point focus = CameraState.focusPosition();
 
     for (int y = 0; y < input.getHeight(); y++) {
       for (int x = 0; x < input.getWidth(); x++) {
@@ -171,7 +171,7 @@ public final class DepthLayerColorGradeEffect
     }
 
     Point world =
-      LitiengineCameraViews.screenToWorld(
+      CameraViewportState.screenToWorld(
         new Point((float) screenX, (float) screenY), focus, screenWidth, screenHeight);
 
     if (region.contains(world)) {
