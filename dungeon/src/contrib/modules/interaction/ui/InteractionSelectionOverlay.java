@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  * <p>This intentionally mirrors the semantics of the old RingMenu, but uses the existing
  * LITIENGINE overlay infrastructure instead of scene2d.
  */
-final class LitiengineInteractionSelectionOverlay implements UiOverlay {
+final class InteractionSelectionOverlay implements UiOverlay {
 
   private static final int PANEL_WIDTH = 320;
   private static final int PANEL_PADDING = 16;
@@ -46,7 +46,7 @@ final class LitiengineInteractionSelectionOverlay implements UiOverlay {
   private boolean visible = true;
   private boolean leftButtonDownLastFrame = false;
 
-  LitiengineInteractionSelectionOverlay(
+  InteractionSelectionOverlay(
     IInteractable interactable, Consumer<Interaction> onSelected) {
     this.interactions = InteractionChoices.from(Objects.requireNonNull(interactable));
     this.onSelected = Objects.requireNonNull(onSelected);

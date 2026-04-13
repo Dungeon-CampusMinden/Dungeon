@@ -7,17 +7,17 @@ import core.ui.overlay.UiOverlayRegistry;
 import java.util.function.Consumer;
 
 /** LITIENGINE-backed interaction chooser based on a custom screen overlay. */
-public final class LitiengineInteractionSelectionUi implements InteractionSelectionUi {
+public final class OverlayInteractionSelectionUi implements InteractionSelectionUi {
 
-  public static final LitiengineInteractionSelectionUi INSTANCE =
-    new LitiengineInteractionSelectionUi();
+  public static final OverlayInteractionSelectionUi INSTANCE =
+    new OverlayInteractionSelectionUi();
 
-  private LitiengineInteractionSelectionUi() {}
+  private OverlayInteractionSelectionUi() {}
 
   @Override
   public void show(IInteractable interactable, Consumer<Interaction> onSelected) {
-    LitiengineInteractionSelectionOverlay overlay =
-      new LitiengineInteractionSelectionOverlay(interactable, onSelected);
+    InteractionSelectionOverlay overlay =
+      new InteractionSelectionOverlay(interactable, onSelected);
 
     UiOverlayRegistry.add(overlay);
     UiOverlayRegistry.toFront(overlay);
