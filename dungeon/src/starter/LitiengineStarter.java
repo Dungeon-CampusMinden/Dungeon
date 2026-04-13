@@ -17,15 +17,12 @@ import core.Game;
 import core.components.DrawComponent;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
-import core.game.render.sprite.effects.ShineSpriteEffect;
-import core.game.render.sprite.effects.SpriteEffectRegistry;
-import core.game.render.sprite.effects.SpriteEffectsComponent;
+import core.game.render.sprite.effects.*;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.game.render.depth.DepthLayerColorGradeEffect;
 import core.game.render.depth.DepthLayerEffectPipeline;
-import core.platform.litiengine.render.effects.*;
 import core.game.render.level.LevelColorGradeEffect;
 import core.game.render.level.LevelEffectPipeline;
 import core.game.render.scene.SceneColorGradeEffect;
@@ -247,7 +244,7 @@ public final class LitiengineStarter {
     SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
       "demo_hue_remap_warm_to_cyan",
-      new LitiengineHueRemapEffect(0.08f, 0.56f, 0.18f),
+      new HueRemapSpriteEffect(0.08f, 0.56f, 0.18f),
       100);
 
     entity.add(new SpriteEffectsComponent(effects));
@@ -263,7 +260,7 @@ public final class LitiengineStarter {
     SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
       "demo_color_grade_desaturate_brighten",
-      new LitiengineColorGradeEffect(-1.0f, 0.20f, 1.35f),
+      new SpriteColorGradeEffect(-1.0f, 0.20f, 1.35f),
       100);
 
     entity.add(new SpriteEffectsComponent(effects));

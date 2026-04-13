@@ -1,6 +1,4 @@
-package core.platform.litiengine.render.effects;
-
-import core.game.render.sprite.effects.SpriteEffect;
+package core.game.render.sprite.effects;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -12,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>Hue values are normalized to {@code [0, 1]}.
  */
-public final class LitiengineHueRemapEffect implements SpriteEffect {
+public final class HueRemapSpriteEffect implements SpriteEffect {
 
   private static final Map<CacheKey, BufferedImage> CACHE = new ConcurrentHashMap<>();
 
@@ -21,13 +19,13 @@ public final class LitiengineHueRemapEffect implements SpriteEffect {
   private float tolerance;
   private boolean enabled = true;
 
-  public LitiengineHueRemapEffect(float startingHue, float targetHue, float tolerance) {
+  public HueRemapSpriteEffect(float startingHue, float targetHue, float tolerance) {
     this.startingHue = normalizeHue(startingHue);
     this.targetHue = normalizeHue(targetHue);
     this.tolerance = clamp01(tolerance);
   }
 
-  public LitiengineHueRemapEffect(float startingHue, float targetHue) {
+  public HueRemapSpriteEffect(float startingHue, float targetHue) {
     this(startingHue, targetHue, 0.05f);
   }
 
@@ -35,7 +33,7 @@ public final class LitiengineHueRemapEffect implements SpriteEffect {
     return startingHue;
   }
 
-  public LitiengineHueRemapEffect startingHue(float startingHue) {
+  public HueRemapSpriteEffect startingHue(float startingHue) {
     this.startingHue = normalizeHue(startingHue);
     return this;
   }
@@ -44,7 +42,7 @@ public final class LitiengineHueRemapEffect implements SpriteEffect {
     return targetHue;
   }
 
-  public LitiengineHueRemapEffect targetHue(float targetHue) {
+  public HueRemapSpriteEffect targetHue(float targetHue) {
     this.targetHue = normalizeHue(targetHue);
     return this;
   }
@@ -53,12 +51,12 @@ public final class LitiengineHueRemapEffect implements SpriteEffect {
     return tolerance;
   }
 
-  public LitiengineHueRemapEffect tolerance(float tolerance) {
+  public HueRemapSpriteEffect tolerance(float tolerance) {
     this.tolerance = clamp01(tolerance);
     return this;
   }
 
-  public LitiengineHueRemapEffect enabled(boolean enabled) {
+  public HueRemapSpriteEffect enabled(boolean enabled) {
     this.enabled = enabled;
     return this;
   }

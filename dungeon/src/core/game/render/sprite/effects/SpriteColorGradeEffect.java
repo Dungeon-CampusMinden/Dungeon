@@ -1,6 +1,4 @@
-package core.platform.litiengine.render.effects;
-
-import core.game.render.sprite.effects.SpriteEffect;
+package core.game.render.sprite.effects;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -23,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * belong into the new sprite-effect pipeline and should be modeled separately if they are needed
  * again as a world-overlay or mask effect.
  */
-public final class LitiengineColorGradeEffect implements SpriteEffect {
+public final class SpriteColorGradeEffect implements SpriteEffect {
 
   private static final Map<CacheKey, BufferedImage> CACHE = new ConcurrentHashMap<>();
 
@@ -33,7 +31,7 @@ public final class LitiengineColorGradeEffect implements SpriteEffect {
   private boolean enabled = true;
 
   /** Creates a neutral color-grade effect that leaves the sprite unchanged. */
-  public LitiengineColorGradeEffect() {}
+  public SpriteColorGradeEffect() {}
 
   /**
    * Creates a color-grade effect with the given parameters.
@@ -42,7 +40,7 @@ public final class LitiengineColorGradeEffect implements SpriteEffect {
    * @param saturationMultiplier multiplier for saturation
    * @param valueMultiplier multiplier for value/brightness
    */
-  public LitiengineColorGradeEffect(
+  public SpriteColorGradeEffect(
     float hue, float saturationMultiplier, float valueMultiplier) {
     this.hue(hue);
     this.saturationMultiplier(saturationMultiplier);
@@ -64,7 +62,7 @@ public final class LitiengineColorGradeEffect implements SpriteEffect {
    * @param hue target hue in {@code [0, 1]}; values {@code < 0} keep the original hue
    * @return this effect for chaining
    */
-  public LitiengineColorGradeEffect hue(float hue) {
+  public SpriteColorGradeEffect hue(float hue) {
     this.hue = hue < 0f ? -1.0f : normalizeHue(hue);
     return this;
   }
@@ -84,7 +82,7 @@ public final class LitiengineColorGradeEffect implements SpriteEffect {
    * @param saturationMultiplier multiplier for saturation; negative values are clamped to 0
    * @return this effect for chaining
    */
-  public LitiengineColorGradeEffect saturationMultiplier(float saturationMultiplier) {
+  public SpriteColorGradeEffect saturationMultiplier(float saturationMultiplier) {
     this.saturationMultiplier = Math.max(0f, saturationMultiplier);
     return this;
   }
@@ -104,7 +102,7 @@ public final class LitiengineColorGradeEffect implements SpriteEffect {
    * @param valueMultiplier multiplier for value/brightness; negative values are clamped to 0
    * @return this effect for chaining
    */
-  public LitiengineColorGradeEffect valueMultiplier(float valueMultiplier) {
+  public SpriteColorGradeEffect valueMultiplier(float valueMultiplier) {
     this.valueMultiplier = Math.max(0f, valueMultiplier);
     return this;
   }
@@ -115,7 +113,7 @@ public final class LitiengineColorGradeEffect implements SpriteEffect {
    * @param enabled whether this effect should be active
    * @return this effect for chaining
    */
-  public LitiengineColorGradeEffect enabled(boolean enabled) {
+  public SpriteColorGradeEffect enabled(boolean enabled) {
     this.enabled = enabled;
     return this;
   }
