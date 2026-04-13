@@ -2,6 +2,7 @@ package level;
 
 import client.Client;
 import contrib.hud.DialogUtils;
+import contrib.hud.image.ShowImageDialogs;
 import core.Game;
 import core.System;
 import core.level.DungeonLevel;
@@ -93,7 +94,7 @@ public abstract class BlocklyLevel extends DungeonLevel {
     if (current instanceof TextPopup textPopUp) {
       DialogUtils.showTextPopup(textPopUp.content(), textPopUp.title(), onClose);
     } else if (current instanceof ImagePopup imagePopUp) {
-      DialogUtils.showImagePopUp(imagePopUp.content(), onClose);
+      ShowImageDialogs.showImagePopUp(imagePopUp.content(), onClose);
     }
   }
 
