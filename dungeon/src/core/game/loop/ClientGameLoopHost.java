@@ -11,12 +11,12 @@ public final class ClientGameLoopHost implements GameLoopHost {
 
   @Override
   public ISoundPlayer soundPlayer() {
-    return LitiengineGameLoopHost.soundPlayer();
+    return ClientLoopRuntime.soundPlayer();
   }
 
   @Override
   public void run(String[] args, GameLoopCore core) {
-    LitiengineGameLoopHost.run(args, core);
+    ClientLoopRuntime.run(args, core);
   }
 
   @Override

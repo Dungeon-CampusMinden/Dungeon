@@ -19,8 +19,8 @@ import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
 import de.gurkenlabs.litiengine.configuration.DisplayMode;
 
-public final class LitiengineGameLoopHost {
-  private LitiengineGameLoopHost() {}
+public final class ClientLoopRuntime {
+  private ClientLoopRuntime() {}
 
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
 
