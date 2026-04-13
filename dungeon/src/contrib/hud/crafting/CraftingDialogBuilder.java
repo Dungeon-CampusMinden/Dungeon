@@ -12,11 +12,11 @@ import core.ui.overlay.LitiengineUiNodeHandle;
 import core.utils.logging.DungeonLogger;
 
 /** Builds the LITIENGINE-backed crafting dialog. */
-public final class LitiengineCraftingDialogBuilder {
+public final class CraftingDialogBuilder {
   private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LitiengineCraftingDialogBuilder.class);
+    DungeonLogger.getLogger(CraftingDialogBuilder.class);
 
-  private LitiengineCraftingDialogBuilder() {}
+  private CraftingDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
@@ -44,7 +44,7 @@ public final class LitiengineCraftingDialogBuilder {
     controller.registerCallbacks(uiComponent);
 
     return new LitiengineUiNodeHandle(
-      new LitiengineCraftingDialogOverlay(title, craftTitle, controller, ctx.dialogId()));
+      new CraftingDialogOverlay(title, craftTitle, controller, ctx.dialogId()));
   }
 
   private static String defaultTitle(Entity entity) {

@@ -1,6 +1,6 @@
 package contrib.hud.dialogs;
 
-import contrib.hud.crafting.LitiengineCraftingDialogBuilder;
+import contrib.hud.crafting.CraftingDialogBuilder;
 import contrib.hud.image.ShowImageDialogBuilder;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
@@ -54,7 +54,7 @@ public final class DialogFactoryBootstrap {
     DialogFactory.replace(
       DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);
     DialogFactory.replace(
-      DialogType.DefaultTypes.CRAFTING_GUI, LitiengineCraftingDialogBuilder::build);
+      DialogType.DefaultTypes.CRAFTING_GUI, CraftingDialogBuilder::build);
 
     initialized = true;
   }

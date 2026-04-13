@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * a normal target inventory on the left and a dedicated crafting panel on the right
  * with an upper ingredient row, a lower result row and classic craft/cancel buttons.
  */
-final class LitiengineCraftingDialogOverlay
+final class CraftingDialogOverlay
   implements LitiengineUiOverlay, InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 1180;
@@ -110,7 +110,7 @@ final class LitiengineCraftingDialogOverlay
   private int pressedMouseY = 0;
   private DragState dragState = null;
 
-  LitiengineCraftingDialogOverlay(
+  CraftingDialogOverlay(
     String targetTitle,
     String craftingTitle,
     CraftingDialogController controller,
