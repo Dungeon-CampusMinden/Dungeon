@@ -8,7 +8,7 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.render.LitiengineAnimationFrames;
-import core.game.render.LitiengineGraphicsContext;
+import core.game.render.RenderContext;
 import core.render.LitiengineImages;
 import core.level.Tile;
 import core.level.elements.ILevel;
@@ -55,7 +55,7 @@ public final class LitiengineDebugDrawSystem extends System {
 
   @Override
   public void render(float deltaSeconds) {
-    Graphics2D g = LitiengineGraphicsContext.get();
+    Graphics2D g = RenderContext.get();
     if (g == null) return;
 
     // Pixel-art friendly scaling (avoid blurry interpolation on scaled sprites).

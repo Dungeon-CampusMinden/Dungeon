@@ -8,10 +8,10 @@ import java.awt.Graphics2D;
  * <p>Set by the active Screen during Screen.render(Graphics2D) and consumed by ECS systems
  * during ECSManagement.renderAll(...).
  */
-public final class LitiengineGraphicsContext {
+public final class RenderContext {
   private static final ThreadLocal<Graphics2D> CURRENT = new ThreadLocal<>();
 
-  private LitiengineGraphicsContext() {}
+  private RenderContext() {}
 
   public static void set(Graphics2D g) {
     CURRENT.set(g);

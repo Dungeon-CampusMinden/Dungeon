@@ -3,7 +3,7 @@ package contrib.debug.systems;
 import core.Game;
 import core.System;
 import core.camera.LitiengineCameraViews;
-import core.game.render.LitiengineGraphicsContext;
+import core.game.render.RenderContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import core.utils.Point;
 import java.awt.BasicStroke;
@@ -55,7 +55,7 @@ public final class LitiengineDebugDrawSystem extends System {
 
   @Override
   public void render(float deltaSeconds) {
-    Graphics2D base = LitiengineGraphicsContext.get();
+    Graphics2D base = RenderContext.get();
     if (base == null) {
       clearQueuedDrawCalls();
       return;

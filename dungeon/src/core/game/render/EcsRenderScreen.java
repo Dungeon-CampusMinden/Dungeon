@@ -52,12 +52,12 @@ public final class EcsRenderScreen extends Screen {
   }
 
   private void renderDirect(Graphics2D g, float deltaSeconds) {
-    LitiengineGraphicsContext.set(g);
+    RenderContext.set(g);
     try {
       ECSManagement.renderAll(deltaSeconds);
       UiOverlayRegistry.renderAll(g);
     } finally {
-      LitiengineGraphicsContext.clear();
+      RenderContext.clear();
     }
   }
 }

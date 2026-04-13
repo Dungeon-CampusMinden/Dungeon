@@ -6,7 +6,7 @@ import core.Entity;
 import core.System;
 import core.camera.LitiengineCameraViews;
 import core.components.PositionComponent;
-import core.game.render.LitiengineGraphicsContext;
+import core.game.render.RenderContext;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.awt.Color;
@@ -50,7 +50,7 @@ public final class LitiengineLevelHideRenderSystem extends System {
 
   @Override
   public void render(float deltaSeconds) {
-    Graphics2D g = LitiengineGraphicsContext.get();
+    Graphics2D g = RenderContext.get();
     if (g == null || LitiengineCameraViews.activeView().isEmpty()) {
       return;
     }

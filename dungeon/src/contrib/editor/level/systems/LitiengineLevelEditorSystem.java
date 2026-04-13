@@ -17,7 +17,7 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
 import core.camera.LitiengineCameraViews;
-import core.game.render.LitiengineGraphicsContext;
+import core.game.render.RenderContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import contrib.editor.level.ui.LitiengineLevelEditorOverlay;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
@@ -144,7 +144,7 @@ public final class LitiengineLevelEditorSystem extends System {
       return;
     }
 
-    Graphics2D g = LitiengineGraphicsContext.get();
+    Graphics2D g = RenderContext.get();
     if (g == null) {
       return;
     }

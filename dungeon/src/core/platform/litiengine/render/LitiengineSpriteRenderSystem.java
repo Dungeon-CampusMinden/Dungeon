@@ -13,7 +13,7 @@ import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.game.render.EcsRenderScreen;
 import core.render.LitiengineAnimationFrames;
-import core.game.render.LitiengineGraphicsContext;
+import core.game.render.RenderContext;
 import core.render.LitiengineImages;
 import core.render.effects.LitiengineImageEffects;
 import core.render.effects.LitiengineOutlineEffectComponent;
@@ -46,7 +46,7 @@ import java.util.*;
  *
  * <p>Draws the current level tiles and entity sprites using LITIENGINE's Graphics2D pipeline.
  * The active Graphics2D is provided by {@link EcsRenderScreen} via
- * {@link LitiengineGraphicsContext}.
+ * {@link RenderContext}.
  */
 public final class LitiengineSpriteRenderSystem extends System {
   private static final DungeonLogger LOGGER =
@@ -74,7 +74,7 @@ public final class LitiengineSpriteRenderSystem extends System {
 
   @Override
   public void render(float deltaSeconds) {
-    final Graphics2D g = LitiengineGraphicsContext.get();
+    final Graphics2D g = RenderContext.get();
     if (g == null) return;
 
     final Object oldInterpolation = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
