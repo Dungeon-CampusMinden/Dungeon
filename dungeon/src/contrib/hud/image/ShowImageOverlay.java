@@ -17,7 +17,7 @@ import java.util.List;
  *
  * <p>Supports image path, transition speed, max size, and optional centered overlay text.
  */
-final class LitiengineShowImageOverlay implements LitiengineUiOverlay {
+final class ShowImageOverlay implements LitiengineUiOverlay {
 
   private static final float DEFAULT_MAX_SIZE = 0.85f;
   private static final int PANEL_PADDING = 12;
@@ -46,7 +46,7 @@ final class LitiengineShowImageOverlay implements LitiengineUiOverlay {
   private boolean visible = true;
   private float animation;
 
-  LitiengineShowImageOverlay(
+  ShowImageOverlay(
     String imagePath,
     TransitionSpeed transitionSpeed,
     float maxSize,

@@ -6,9 +6,9 @@ import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed image dialog. */
-public final class LitiengineShowImageDialogBuilder {
+public final class ShowImageDialogBuilder {
 
-  private LitiengineShowImageDialogBuilder() {}
+  private ShowImageDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     String imagePath = ctx.require(DialogContextKeys.IMAGE, String.class);
@@ -29,7 +29,7 @@ public final class LitiengineShowImageDialogBuilder {
       ctx.find(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, Integer.class).orElse(0x000000ff);
 
     return new LitiengineUiNodeHandle(
-      new LitiengineShowImageOverlay(
+      new ShowImageOverlay(
         imagePath, speed, maxSize, imageText, imageTextScale, imageTextColorRgba8888));
   }
 }
