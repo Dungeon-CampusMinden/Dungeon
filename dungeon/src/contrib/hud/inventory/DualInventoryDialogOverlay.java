@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * <p>Dragging an item onto a concrete slot on the opposite side performs an exact slot-to-slot
  * transfer.
  */
-final class LitiengineDualInventoryDialogOverlay
+final class DualInventoryDialogOverlay
   implements LitiengineUiOverlay, InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 1100;
@@ -56,7 +56,7 @@ final class LitiengineDualInventoryDialogOverlay
   private int pressedMouseY = 0;
   private DragState dragState = null;
 
-  LitiengineDualInventoryDialogOverlay(
+  DualInventoryDialogOverlay(
     String leftTitle,
     InventoryComponent leftInventory,
     String rightTitle,

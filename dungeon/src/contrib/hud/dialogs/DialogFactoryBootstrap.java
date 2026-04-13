@@ -2,7 +2,7 @@ package contrib.hud.dialogs;
 
 import contrib.hud.crafting.LitiengineCraftingDialogBuilder;
 import contrib.hud.image.ShowImageDialogBuilder;
-import contrib.hud.inventory.LitiengineDualInventoryDialogBuilder;
+import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
 import contrib.modules.keypad.ui.KeypadDialogBuilder;
 import core.ui.HeadlessUiNodeHandle;
@@ -52,7 +52,7 @@ public final class DialogFactoryBootstrap {
     DialogFactory.replace(DialogType.DefaultTypes.KEYPAD, KeypadDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilder::build);
     DialogFactory.replace(
-      DialogType.DefaultTypes.DUAL_INVENTORY, LitiengineDualInventoryDialogBuilder::build);
+      DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);
     DialogFactory.replace(
       DialogType.DefaultTypes.CRAFTING_GUI, LitiengineCraftingDialogBuilder::build);
 

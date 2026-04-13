@@ -11,11 +11,11 @@ import core.ui.overlay.LitiengineUiNodeHandle;
 import core.utils.logging.DungeonLogger;
 
 /** Builds the LITIENGINE-backed dual inventory dialog. */
-public final class LitiengineDualInventoryDialogBuilder {
+public final class DualInventoryDialogBuilder {
   private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LitiengineDualInventoryDialogBuilder.class);
+    DungeonLogger.getLogger(DualInventoryDialogBuilder.class);
 
-  private LitiengineDualInventoryDialogBuilder() {}
+  private DualInventoryDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
@@ -35,7 +35,7 @@ public final class LitiengineDualInventoryDialogBuilder {
       ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(defaultTitle(otherEntity));
 
     return new LitiengineUiNodeHandle(
-      new LitiengineDualInventoryDialogOverlay(title, inventory, otherTitle, otherInventory));
+      new DualInventoryDialogOverlay(title, inventory, otherTitle, otherInventory));
   }
 
   private static String defaultTitle(Entity entity) {
