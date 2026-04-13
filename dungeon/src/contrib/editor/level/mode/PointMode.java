@@ -10,7 +10,7 @@ import contrib.hud.dialogs.DialogType;
 import core.platform.Platform;
 import core.camera.CameraViewportState;
 import core.game.render.overlay.TileOverlaySizing;
-import contrib.debug.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.DebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.level.utils.Coordinate;
@@ -213,14 +213,14 @@ public final class PointMode extends LevelEditorMode {
     Point screenCenter = CameraViewportState.worldCenterToScreen(pointPos);
     boolean heldPoint = name != null && name.equals(heldPointName);
 
-    LitiengineDebugDrawSystem.drawScreenMarker(
+    DebugDrawSystem.drawScreenMarker(
       screenCenter,
       markerSize,
       heldPoint ? HELD_POINT_MARKER_COLOR : POINT_MARKER_COLOR,
       Color.BLACK);
 
     int radius = markerSize / 2;
-    LitiengineDebugDrawSystem.drawText(
+    DebugDrawSystem.drawText(
       name,
       new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4),
       POINT_LABEL_COLOR);
@@ -233,14 +233,14 @@ public final class PointMode extends LevelEditorMode {
 
     Point screenCenter = CameraViewportState.worldCenterToScreen(pointPos);
 
-    LitiengineDebugDrawSystem.drawScreenMarker(
+    DebugDrawSystem.drawScreenMarker(
       screenCenter,
       markerSize,
       HELD_POINT_MARKER_COLOR,
       Color.BLACK);
 
     int radius = markerSize / 2;
-    LitiengineDebugDrawSystem.drawText(
+    DebugDrawSystem.drawText(
       name + " (held)",
       new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4),
       POINT_LABEL_COLOR);

@@ -5,7 +5,7 @@ import core.platform.RenderAdapter;
 import core.camera.CameraViewportState;
 import contrib.modules.levelHide.LevelHideRenderSystem;
 import core.camera.systems.CameraLifecycleSystem;
-import contrib.debug.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.DebugDrawSystem;
 import core.ui.StageHandle;
 import core.utils.Point;
 import java.util.List;
@@ -42,6 +42,6 @@ public final class ClientRenderAdapter implements RenderAdapter {
 
   @Override
   public void toggleDebugHud() {
-    LitiengineDebugDrawSystem.toggleHUD();
+    DebugDrawSystem.toggleHUD();
   }
 }

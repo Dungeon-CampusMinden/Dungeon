@@ -5,7 +5,7 @@ import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
-import contrib.debug.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.DebugDrawSystem;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
@@ -53,7 +53,7 @@ public final class EntityDebugRenderSystem extends System {
 
   @Override
   public void render(float delta) {
-    if (!LitiengineDebugDrawSystem.isHudVisible()) {
+    if (!DebugDrawSystem.isHudVisible()) {
       return;
     }
 
@@ -73,11 +73,11 @@ public final class EntityDebugRenderSystem extends System {
     Point centerPos = EntityUtils.getPosition(entity);
     Vector2 view = pc.viewDirection();
 
-    LitiengineDebugDrawSystem.drawWorldCircleFill(
+    DebugDrawSystem.drawWorldCircleFill(
       position, POSITION_RADIUS, withAlpha(Color.ORANGE, alpha));
 
     if (!samePoint(position, centerPos)) {
-      LitiengineDebugDrawSystem.drawWorldCircleFill(
+      DebugDrawSystem.drawWorldCircleFill(
         centerPos, POSITION_RADIUS, withAlpha(Color.BLUE, alpha));
     }
 
@@ -107,7 +107,7 @@ public final class EntityDebugRenderSystem extends System {
     float endY = position.y() + view.y() * ARROW_LENGTH;
 
     Point end = new Point(endX, endY);
-    LitiengineDebugDrawSystem.drawWorldLine(position, end, Color.YELLOW);
+    DebugDrawSystem.drawWorldLine(position, end, Color.YELLOW);
 
     Point leftHead =
       new Point(
@@ -119,8 +119,8 @@ public final class EntityDebugRenderSystem extends System {
         end.x() + view.y() * ARROW_HEAD_SIZE,
         end.y() - view.x() * ARROW_HEAD_SIZE);
 
-    LitiengineDebugDrawSystem.drawWorldLine(end, leftHead, Color.YELLOW);
-    LitiengineDebugDrawSystem.drawWorldLine(end, rightHead, Color.YELLOW);
+    DebugDrawSystem.drawWorldLine(end, leftHead, Color.YELLOW);
+    DebugDrawSystem.drawWorldLine(end, rightHead, Color.YELLOW);
   }
 
   private void drawCollideHitbox(Entity entity, float alpha) {
@@ -137,7 +137,7 @@ public final class EntityDebugRenderSystem extends System {
 
     Color color = cc.isSolid() ? Color.RED : Color.WHITE;
 
-    LitiengineDebugDrawSystem.drawRectangleOutline(
+    DebugDrawSystem.drawRectangleOutline(
       bottomLeft.x(), bottomLeft.y(), width, height, withAlpha(color, alpha));
   }
 
@@ -149,7 +149,7 @@ public final class EntityDebugRenderSystem extends System {
 
     float radius = ic.interactions().interact().range();
 
-    LitiengineDebugDrawSystem.drawWorldCircleOutline(
+    DebugDrawSystem.drawWorldCircleOutline(
       pos, radius, withAlpha(Color.CYAN, alpha));
   }
 
@@ -175,7 +175,7 @@ public final class EntityDebugRenderSystem extends System {
       y -= height / 2f;
     }
 
-    LitiengineDebugDrawSystem.drawRectangleOutline(
+    DebugDrawSystem.drawRectangleOutline(
       x, y, width, height, withAlpha(Color.GREEN, alpha));
   }
 
@@ -233,7 +233,7 @@ public final class EntityDebugRenderSystem extends System {
         anchor.x() + INFO_OFFSET_X,
         anchor.y() - bgHeight - INFO_OFFSET_Y);
 
-    LitiengineDebugDrawSystem.drawScreenRectangle(
+    DebugDrawSystem.drawScreenRectangle(
       topLeft,
       bgWidth,
       bgHeight,
@@ -244,7 +244,7 @@ public final class EntityDebugRenderSystem extends System {
     float textY = topLeft.y() + INFO_PADDING + 10;
 
     for (String line : lines) {
-      LitiengineDebugDrawSystem.drawText(line, new Point(textX, textY), Color.WHITE);
+      DebugDrawSystem.drawText(line, new Point(textX, textY), Color.WHITE);
       textY += INFO_LINE_HEIGHT;
     }
   }

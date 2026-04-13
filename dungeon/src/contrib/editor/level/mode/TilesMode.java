@@ -4,7 +4,7 @@ import contrib.editor.level.systems.LevelEditorSystem;
 import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
-import contrib.debug.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.DebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -76,7 +76,7 @@ public final class TilesMode extends LevelEditorMode {
     forEachBrushTile(
       currentPreviewBrushSize(),
       tilePos ->
-        LitiengineDebugDrawSystem.drawRectangleOutline(
+        DebugDrawSystem.drawRectangleOutline(
           tilePos.x(),
           tilePos.y(),
           1.0f,

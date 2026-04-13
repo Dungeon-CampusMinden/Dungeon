@@ -6,7 +6,7 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.camera.CameraViewportState;
 import core.game.render.overlay.TileOverlaySizing;
-import contrib.debug.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.DebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
 import java.awt.Color;
@@ -75,7 +75,7 @@ public final class StartTilesMode extends LevelEditorMode {
 
                   Color color = START_TILE_COLORS[i % START_TILE_COLORS.length];
 
-                  LitiengineDebugDrawSystem.drawRectangleOutline(
+                  DebugDrawSystem.drawRectangleOutline(
                     pos.x(),
                     pos.y(),
                     1.0f,
@@ -88,7 +88,7 @@ public final class StartTilesMode extends LevelEditorMode {
                       screenTopLeft.x() + 4,
                       screenTopLeft.y() + TileOverlaySizing.scaledPixels(tilePx, 0.5f, 14));
 
-                  LitiengineDebugDrawSystem.drawText(
+                  DebugDrawSystem.drawText(
                     "Start: " + (i + 1),
                     labelPos,
                     color);

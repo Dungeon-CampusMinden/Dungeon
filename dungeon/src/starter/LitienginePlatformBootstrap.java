@@ -16,7 +16,7 @@ import contrib.hud.dialogs.DialogFactoryBootstrap;
 import core.game.loop.ClientGameLoopHost;
 import contrib.modules.interaction.ui.OverlayInteractionSelectionUi;
 import contrib.debug.controls.DebugControlsSystem;
-import contrib.debug.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.DebugDrawSystem;
 import contrib.debug.render.EntityDebugRenderSystem;
 import contrib.editor.level.systems.LevelEditorSystem;
 import java.util.function.Supplier;
@@ -53,7 +53,7 @@ public final class LitienginePlatformBootstrap {
   public static void installDebugger() {
     addIfAbsent(DebugControlsSystem.class, DebugControlsSystem::new);
     addIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
-    addIfAbsent(LitiengineDebugDrawSystem.class, LitiengineDebugDrawSystem::new);
+    addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
     addIfAbsent(EntityDebugRenderSystem.class, EntityDebugRenderSystem::new);
   }
 

@@ -29,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>The actual gameplay/world rendering remains the responsibility of the regular
  * LITIENGINE sprite renderer.
  */
-public final class LitiengineDebugDrawSystem extends System {
+public final class DebugDrawSystem extends System {
 
   private static final Object LOCK = new Object();
 
@@ -44,7 +44,7 @@ public final class LitiengineDebugDrawSystem extends System {
 
   private static volatile boolean hudVisible = false;
 
-  public LitiengineDebugDrawSystem() {
+  public DebugDrawSystem() {
     super(AuthoritativeSide.CLIENT);
   }
 

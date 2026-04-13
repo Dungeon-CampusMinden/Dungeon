@@ -20,7 +20,7 @@ import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
 import core.game.render.overlay.TileOverlaySizing;
 import contrib.editor.level.ui.LitiengineLevelEditorOverlay;
-import contrib.debug.systems.LitiengineDebugDrawSystem;
+import contrib.debug.systems.DebugDrawSystem;
 import core.ui.overlay.UiOverlayRegistry;
 import core.ui.StageHandle;
 import core.utils.*;
@@ -460,7 +460,7 @@ public final class LevelEditorSystem extends System {
           int levelWidth = layout[0].length;
           int levelHeight = layout.length;
 
-          LitiengineDebugDrawSystem.drawRectangleOutline(
+          DebugDrawSystem.drawRectangleOutline(
             0f,
             0f,
             levelWidth,
@@ -524,18 +524,18 @@ public final class LevelEditorSystem extends System {
         LevelElement element = tile.levelElement();
 
         if (!element.value()) {
-          LitiengineDebugDrawSystem.fillWorldRectangle(
+          DebugDrawSystem.fillWorldRectangle(
             x, y, 1f, 1f, DEBUG_BLOCKED_TILE_FILL_COLOR);
         } else if (element.canSeeThrough()) {
-          LitiengineDebugDrawSystem.fillWorldRectangle(
+          DebugDrawSystem.fillWorldRectangle(
             x, y, 1f, 1f, DEBUG_SEE_THROUGH_TILE_FILL_COLOR);
         }
 
-        LitiengineDebugDrawSystem.drawRectangleOutline(
+        DebugDrawSystem.drawRectangleOutline(
           x, y, 1f, 1f, DEBUG_LEVEL_TILE_OUTLINE_COLOR);
 
         if (tilePx >= DEBUG_TEXT_MIN_TILE_PX) {
-          LitiengineDebugDrawSystem.drawText(
+          DebugDrawSystem.drawText(
             x + "," + y,
             tileDebugTextPosition(x, y, view),
             DEBUG_COORD_TEXT_COLOR);
@@ -559,7 +559,7 @@ public final class LevelEditorSystem extends System {
 
           Point pos = pc.position();
 
-          LitiengineDebugDrawSystem.drawRectangleOutline(
+          DebugDrawSystem.drawRectangleOutline(
             pos.x() + insetWorld,
             pos.y() + insetWorld,
             sizeWorld,
@@ -567,7 +567,7 @@ public final class LevelEditorSystem extends System {
             debugEntityColor(entity));
 
           if (tilePx >= DEBUG_TEXT_MIN_TILE_PX) {
-            LitiengineDebugDrawSystem.drawText(
+            DebugDrawSystem.drawText(
               debugEntityLabel(entity),
               entityDebugLabelPosition(pos, view),
               debugEntityColor(entity));
