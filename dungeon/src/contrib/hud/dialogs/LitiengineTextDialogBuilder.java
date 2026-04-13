@@ -1,7 +1,5 @@
-package core.ui.dialogs;
+package contrib.hud.dialogs;
 
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
 import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 

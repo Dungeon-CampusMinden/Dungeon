@@ -1,4 +1,4 @@
-package core.ui.dialogs;
+package contrib.hud.dialogs;
 
 import core.Game;
 import java.awt.Color;

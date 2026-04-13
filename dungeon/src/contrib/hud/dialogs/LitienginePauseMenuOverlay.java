@@ -1,4 +1,4 @@
-package core.ui.dialogs;
+package contrib.hud.dialogs;
 
 import core.ui.overlay.LitiengineUiOverlay;
 import java.awt.Graphics2D;

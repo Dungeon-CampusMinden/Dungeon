@@ -1,7 +1,5 @@
-package core.ui.dialogs;
+package contrib.hud.dialogs;
 
-import contrib.hud.dialogs.DialogCallbackResolver;
-import contrib.hud.dialogs.DialogContextKeys;
 import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
