@@ -13,7 +13,7 @@ import core.resources.ClasspathResourcesAdapter;
 import core.resources.FileSystemResourcesAdapter;
 import core.level.path.GridPathfindingAdapter;
 import contrib.hud.dialogs.DialogFactoryBootstrap;
-import core.game.loop.LitiengineLoopHost;
+import core.game.loop.ClientGameLoopHost;
 import contrib.modules.interaction.ui.OverlayInteractionSelectionUi;
 import contrib.debug.systems.LitiengineDebugControlsSystem;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
@@ -32,7 +32,7 @@ public final class LitienginePlatformBootstrap {
         FileSystemResourcesAdapter.autoDetect()));
     Platform.pathfinding(new GridPathfindingAdapter());
     Platform.clipboard(new AwtClipboardAdapter());
-    Platform.loopHost(new LitiengineLoopHost());
+    Platform.loopHost(new ClientGameLoopHost());
 
     // Register a temporary non-Scene2D dialog backend so dialog creation
     // already works on the LITIENGINE path.

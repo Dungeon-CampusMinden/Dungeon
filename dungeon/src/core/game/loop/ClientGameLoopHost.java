@@ -7,7 +7,7 @@ import core.platform.litiengine.ui.LitiengineStageHandle;
 import java.util.Optional;
 
 /** Bridges the LITIENGINE host into the backend-agnostic {@link GameLoopHost} API. */
-public final class LitiengineLoopHost implements GameLoopHost {
+public final class ClientGameLoopHost implements GameLoopHost {
 
   @Override
   public ISoundPlayer soundPlayer() {
