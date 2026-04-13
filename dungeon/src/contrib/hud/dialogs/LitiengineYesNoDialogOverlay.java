@@ -50,23 +50,23 @@ final class LitiengineYesNoDialogOverlay implements LitiengineUiOverlay {
 
     handleInput();
 
-    LitiengineDialogOverlaySupport.RenderState state =
-      LitiengineDialogOverlaySupport.beginDialog(g);
+    DialogOverlaySupport.RenderState state =
+      DialogOverlaySupport.beginDialog(g);
 
     try {
-      int textY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
+      int textY = DialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
 
-      LitiengineDialogOverlaySupport.drawWrappedText(
-        g, text, x + LitiengineDialogOverlaySupport.PADDING, textY,
-        width - 2 * LitiengineDialogOverlaySupport.PADDING);
+      DialogOverlaySupport.drawWrappedText(
+        g, text, x + DialogOverlaySupport.PADDING, textY,
+        width - 2 * DialogOverlaySupport.PADDING);
 
       Rectangle no = noBounds();
       Rectangle yes = yesBounds();
 
-      LitiengineDialogOverlaySupport.drawButton(g, no, NO_LABEL, noPressed);
-      LitiengineDialogOverlaySupport.drawButton(g, yes, YES_LABEL, yesPressed);
+      DialogOverlaySupport.drawButton(g, no, NO_LABEL, noPressed);
+      DialogOverlaySupport.drawButton(g, yes, YES_LABEL, yesPressed);
     } finally {
-      LitiengineDialogOverlaySupport.finishDialog(g, state);
+      DialogOverlaySupport.finishDialog(g, state);
     }
   }
 
@@ -111,13 +111,13 @@ final class LitiengineYesNoDialogOverlay implements LitiengineUiOverlay {
   }
 
   private Rectangle noBounds() {
-    return LitiengineDialogOverlaySupport.centeredButtonRow(
+    return DialogOverlaySupport.centeredButtonRow(
         x, y, width, height, 2, BUTTON_GAP)
       .get(0);
   }
 
   private Rectangle yesBounds() {
-    return LitiengineDialogOverlaySupport.centeredButtonRow(
+    return DialogOverlaySupport.centeredButtonRow(
         x, y, width, height, 2, BUTTON_GAP)
       .get(1);
   }

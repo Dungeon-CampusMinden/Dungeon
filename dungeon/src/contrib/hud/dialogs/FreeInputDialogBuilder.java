@@ -4,9 +4,9 @@ import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed free-input dialog. */
-public final class LitiengineFreeInputDialogBuilder {
+public final class FreeInputDialogBuilder {
 
-  private LitiengineFreeInputDialogBuilder() {}
+  private FreeInputDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     String title =

@@ -4,9 +4,9 @@ import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed yes/no dialog. */
-public final class LitiengineYesNoDialogBuilder {
+public final class YesNoDialogBuilder {
 
-  private LitiengineYesNoDialogBuilder() {}
+  private YesNoDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);

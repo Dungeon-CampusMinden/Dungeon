@@ -29,20 +29,20 @@ final class LitienginePauseMenuOverlay implements LitiengineUiOverlay {
       return;
     }
 
-    LitiengineDialogOverlaySupport.RenderState state =
-      LitiengineDialogOverlaySupport.beginDialog(g);
+    DialogOverlaySupport.RenderState state =
+      DialogOverlaySupport.beginDialog(g);
 
     try {
-      int textY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, TITLE);
+      int textY = DialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, TITLE);
 
-      LitiengineDialogOverlaySupport.drawWrappedText(
+      DialogOverlaySupport.drawWrappedText(
         g,
         MESSAGE,
-        x + LitiengineDialogOverlaySupport.PADDING,
+        x + DialogOverlaySupport.PADDING,
         textY,
-        width - 2 * LitiengineDialogOverlaySupport.PADDING);
+        width - 2 * DialogOverlaySupport.PADDING);
     } finally {
-      LitiengineDialogOverlaySupport.finishDialog(g, state);
+      DialogOverlaySupport.finishDialog(g, state);
     }
   }
 

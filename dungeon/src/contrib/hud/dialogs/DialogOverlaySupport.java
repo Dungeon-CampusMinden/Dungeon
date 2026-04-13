@@ -17,7 +17,7 @@ import java.util.List;
  * <p>Keeps duplicated panel, title, text wrapping and button drawing logic out of the concrete
  * OK/YES_NO/TEXT overlays.
  */
-final class LitiengineDialogOverlaySupport {
+final class DialogOverlaySupport {
 
   static final int ARC = 14;
   static final int PADDING = 20;
@@ -31,7 +31,7 @@ final class LitiengineDialogOverlaySupport {
   private static final Color BUTTON_FILL = new Color(75, 95, 140);
   private static final Color BUTTON_PRESSED_FILL = new Color(105, 135, 190);
 
-  private LitiengineDialogOverlaySupport() {}
+  private DialogOverlaySupport() {}
 
   static RenderState beginDialog(Graphics2D g) {
     Composite oldComposite = g.getComposite();

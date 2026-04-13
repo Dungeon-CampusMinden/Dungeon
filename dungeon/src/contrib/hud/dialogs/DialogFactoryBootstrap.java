@@ -19,10 +19,10 @@ import core.ui.UiNodeHandle;
  * implementations should be able to replace individual dialog types later without
  * changing this bootstrap.
  */
-public final class LitiengineDialogFactoryBootstrap {
+public final class DialogFactoryBootstrap {
   private static boolean initialized = false;
 
-  private LitiengineDialogFactoryBootstrap() {}
+  private DialogFactoryBootstrap() {}
 
   public static synchronized void init() {
     if (initialized) {
@@ -42,13 +42,13 @@ public final class LitiengineDialogFactoryBootstrap {
     registerFallback(DialogType.DefaultTypes.PAUSE_MENU);
 
     // Real LITIENGINE dialog implementations available so far:
-    DialogFactory.replace(DialogType.DefaultTypes.OK, LitiengineOkDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.YES_NO, LitiengineYesNoDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.TEXT, LitiengineTextDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.OK, OkDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.YES_NO, YesNoDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.TEXT, TextDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.IMAGE, LitiengineShowImageDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.FREE_INPUT, LitiengineFreeInputDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.PROGRESS_BAR, LitiengineProgressBarDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.PAUSE_MENU, LitienginePauseMenuDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.PAUSE_MENU, PauseMenuDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.KEYPAD, LitiengineKeypadDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.INVENTORY, LitiengineInventoryDialogBuilder::build);
     DialogFactory.replace(
@@ -60,7 +60,7 @@ public final class LitiengineDialogFactoryBootstrap {
   }
 
   private static void registerFallback(DialogType type) {
-    DialogFactory.registerIfAbsent(type, LitiengineDialogFactoryBootstrap::createFallbackHandle);
+    DialogFactory.registerIfAbsent(type, DialogFactoryBootstrap::createFallbackHandle);
   }
 
   private static UiNodeHandle createFallbackHandle(DialogContext ctx) {

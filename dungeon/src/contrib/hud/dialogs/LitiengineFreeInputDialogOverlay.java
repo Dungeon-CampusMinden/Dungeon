@@ -73,29 +73,29 @@ final class LitiengineFreeInputDialogOverlay implements LitiengineUiOverlay {
 
     handleInput();
 
-    LitiengineDialogOverlaySupport.RenderState state =
-      LitiengineDialogOverlaySupport.beginDialog(g);
+    DialogOverlaySupport.RenderState state =
+      DialogOverlaySupport.beginDialog(g);
 
     try {
-      int textY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
+      int textY = DialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
 
       int afterQuestionY =
-        LitiengineDialogOverlaySupport.drawWrappedText(
+        DialogOverlaySupport.drawWrappedText(
           g,
           question,
-          x + LitiengineDialogOverlaySupport.PADDING,
+          x + DialogOverlaySupport.PADDING,
           textY,
-          width - 2 * LitiengineDialogOverlaySupport.PADDING);
+          width - 2 * DialogOverlaySupport.PADDING);
 
       drawInputField(g, afterQuestionY + 14);
 
       List<Rectangle> buttons = buttonBounds();
-      LitiengineDialogOverlaySupport.drawButton(
+      DialogOverlaySupport.drawButton(
         g, buttons.get(0), confirmLabel, pressedButtonIndex == 0);
-      LitiengineDialogOverlaySupport.drawButton(
+      DialogOverlaySupport.drawButton(
         g, buttons.get(1), cancelLabel, pressedButtonIndex == 1);
     } finally {
-      LitiengineDialogOverlaySupport.finishDialog(g, state);
+      DialogOverlaySupport.finishDialog(g, state);
     }
   }
 
@@ -213,7 +213,7 @@ final class LitiengineFreeInputDialogOverlay implements LitiengineUiOverlay {
   }
 
   private List<Rectangle> buttonBounds() {
-    return LitiengineDialogOverlaySupport.centeredButtonRow(x, y, width, height, 2, BUTTON_GAP);
+    return DialogOverlaySupport.centeredButtonRow(x, y, width, height, 2, BUTTON_GAP);
   }
 
   @Override

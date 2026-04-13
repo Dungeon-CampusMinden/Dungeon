@@ -4,9 +4,9 @@ import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed OK dialog. */
-public final class LitiengineOkDialogBuilder {
+public final class OkDialogBuilder {
 
-  private LitiengineOkDialogBuilder() {}
+  private OkDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);

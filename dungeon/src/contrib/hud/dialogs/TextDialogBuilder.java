@@ -4,11 +4,11 @@ import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed text dialog. */
-public final class LitiengineTextDialogBuilder {
+public final class TextDialogBuilder {
 
   private static final String DEFAULT_CONFIRM_LABEL = "Ok";
 
-  private LitiengineTextDialogBuilder() {}
+  private TextDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     String title = ctx.require(DialogContextKeys.TITLE, String.class);

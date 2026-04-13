@@ -77,24 +77,24 @@ final class LitiengineTextDialogOverlay implements LitiengineUiOverlay {
 
     handleInput();
 
-    LitiengineDialogOverlaySupport.RenderState state =
-      LitiengineDialogOverlaySupport.beginDialog(g);
+    DialogOverlaySupport.RenderState state =
+      DialogOverlaySupport.beginDialog(g);
 
     try {
-      int textY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
+      int textY = DialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
 
-      LitiengineDialogOverlaySupport.drawWrappedText(
+      DialogOverlaySupport.drawWrappedText(
         g,
         text,
-        x + LitiengineDialogOverlaySupport.PADDING,
+        x + DialogOverlaySupport.PADDING,
         textY,
-        width - 2 * LitiengineDialogOverlaySupport.PADDING);
+        width - 2 * DialogOverlaySupport.PADDING);
 
       for (int i = 0; i < labels.size() && i < actionButtons.size(); i++) {
         LitiengineButtonRenderer.draw(g, actionButtons.get(i), labels.get(i));
       }
     } finally {
-      LitiengineDialogOverlaySupport.finishDialog(g, state);
+      DialogOverlaySupport.finishDialog(g, state);
     }
   }
 
@@ -175,7 +175,7 @@ final class LitiengineTextDialogOverlay implements LitiengineUiOverlay {
   }
 
   private List<Rectangle> buttonBounds(int buttonCount) {
-    return LitiengineDialogOverlaySupport.centeredButtonRow(
+    return DialogOverlaySupport.centeredButtonRow(
       x, y, width, height, buttonCount, BUTTON_GAP);
   }
 

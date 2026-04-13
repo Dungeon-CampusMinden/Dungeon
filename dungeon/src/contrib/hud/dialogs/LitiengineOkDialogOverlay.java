@@ -45,20 +45,20 @@ final class LitiengineOkDialogOverlay implements LitiengineUiOverlay {
 
     handleInput();
 
-    LitiengineDialogOverlaySupport.RenderState state =
-      LitiengineDialogOverlaySupport.beginDialog(g);
+    DialogOverlaySupport.RenderState state =
+      DialogOverlaySupport.beginDialog(g);
 
     try {
-      int textY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
+      int textY = DialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
 
-      LitiengineDialogOverlaySupport.drawWrappedText(
-        g, text, x + LitiengineDialogOverlaySupport.PADDING, textY,
-        width - 2 * LitiengineDialogOverlaySupport.PADDING);
+      DialogOverlaySupport.drawWrappedText(
+        g, text, x + DialogOverlaySupport.PADDING, textY,
+        width - 2 * DialogOverlaySupport.PADDING);
 
       Rectangle ok = okBounds();
-      LitiengineDialogOverlaySupport.drawButton(g, ok, "OK", okPressed);
+      DialogOverlaySupport.drawButton(g, ok, "OK", okPressed);
     } finally {
-      LitiengineDialogOverlaySupport.finishDialog(g, state);
+      DialogOverlaySupport.finishDialog(g, state);
     }
   }
 
@@ -93,7 +93,7 @@ final class LitiengineOkDialogOverlay implements LitiengineUiOverlay {
   }
 
   private Rectangle okBounds() {
-    return LitiengineDialogOverlaySupport.centeredButtonRow(
+    return DialogOverlaySupport.centeredButtonRow(
         x, y, width, height, 1, BUTTON_GAP)
       .get(0);
   }
