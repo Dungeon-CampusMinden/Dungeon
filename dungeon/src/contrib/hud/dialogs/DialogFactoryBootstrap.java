@@ -4,7 +4,7 @@ import contrib.hud.crafting.LitiengineCraftingDialogBuilder;
 import contrib.hud.image.LitiengineShowImageDialogBuilder;
 import contrib.hud.inventory.LitiengineDualInventoryDialogBuilder;
 import contrib.hud.inventory.LitiengineInventoryDialogBuilder;
-import contrib.modules.keypad.ui.LitiengineKeypadDialogBuilder;
+import contrib.modules.keypad.ui.KeypadDialogBuilder;
 import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;
 
@@ -49,7 +49,7 @@ public final class DialogFactoryBootstrap {
     DialogFactory.replace(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.PROGRESS_BAR, LitiengineProgressBarDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.PAUSE_MENU, PauseMenuDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.KEYPAD, LitiengineKeypadDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.KEYPAD, KeypadDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.INVENTORY, LitiengineInventoryDialogBuilder::build);
     DialogFactory.replace(
       DialogType.DefaultTypes.DUAL_INVENTORY, LitiengineDualInventoryDialogBuilder::build);

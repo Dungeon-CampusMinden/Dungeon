@@ -22,7 +22,7 @@ import java.util.List;
  *
  * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
  */
-final class LitiengineKeypadDialogOverlay implements LitiengineUiOverlay {
+final class KeypadDialogOverlay implements LitiengineUiOverlay {
 
   private static final String TITLE = "Keypad";
 
@@ -53,7 +53,7 @@ final class LitiengineKeypadDialogOverlay implements LitiengineUiOverlay {
   private int pressedButtonIndex = -1;
   private boolean leftButtonDownLastFrame = false;
 
-  LitiengineKeypadDialogOverlay(Entity keypad) {
+  KeypadDialogOverlay(Entity keypad) {
     this.keypad = keypad;
   }
 

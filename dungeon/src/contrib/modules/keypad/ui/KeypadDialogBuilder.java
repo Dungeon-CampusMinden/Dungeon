@@ -7,12 +7,12 @@ import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed keypad dialog. */
-public final class LitiengineKeypadDialogBuilder {
+public final class KeypadDialogBuilder {
 
-  private LitiengineKeypadDialogBuilder() {}
+  private KeypadDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     Entity keypad = ctx.requireEntity(DialogContextKeys.ENTITY);
-    return new LitiengineUiNodeHandle(new LitiengineKeypadDialogOverlay(keypad));
+    return new LitiengineUiNodeHandle(new KeypadDialogOverlay(keypad));
   }
 }
