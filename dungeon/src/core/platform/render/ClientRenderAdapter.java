@@ -3,7 +3,7 @@ package core.platform.render;
 import core.game.render.sprite.SpriteRenderSystem;
 import core.platform.RenderAdapter;
 import core.camera.CameraViewportState;
-import core.platform.litiengine.render.LitiengineLevelHideRenderSystem;
+import contrib.modules.levelHide.LevelHideRenderSystem;
 import core.camera.systems.CameraLifecycleSystem;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.ui.StageHandle;
@@ -27,7 +27,7 @@ public final class ClientRenderAdapter implements RenderAdapter {
         SpriteRenderSystem.class,
         SpriteRenderSystem::new),
       new SystemBinding(
-        LitiengineLevelHideRenderSystem.class, LitiengineLevelHideRenderSystem::new));
+        LevelHideRenderSystem.class, LevelHideRenderSystem::new));
   }
 
   @Override

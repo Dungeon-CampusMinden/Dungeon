@@ -1,4 +1,4 @@
-package core.platform.litiengine.render;
+package core.game.render.overlay;
 
 /**
  * Shared tile-pixel dependent sizing helpers for LITIENGINE overlays.
@@ -7,9 +7,9 @@ package core.platform.litiengine.render;
  * editor/debug classes. The helpers operate purely on the active tile size in pixels and keep
  * minimum / clamp rules in one place.
  */
-public final class LitiengineOverlaySizing {
+public final class TileOverlaySizing {
 
-  private LitiengineOverlaySizing() {}
+  private TileOverlaySizing() {}
 
   /**
    * Scales a pixel size relative to the current tile size.

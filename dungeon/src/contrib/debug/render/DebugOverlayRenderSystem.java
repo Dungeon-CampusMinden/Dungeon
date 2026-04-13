@@ -1,4 +1,4 @@
-package core.platform.litiengine.render;
+package contrib.debug.render;
 
 import core.Entity;
 import core.Game;
@@ -32,8 +32,8 @@ import java.util.Optional;
  *
  * <p>Draws a simple grid + entities using AWT, independent from libGDX pipeline.
  */
-public final class LitiengineDebugDrawSystem extends System {
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LitiengineDebugDrawSystem.class);
+public final class DebugOverlayRenderSystem extends System {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DebugOverlayRenderSystem.class);
 
   // Treat dungeon world units as "tiles" (debug-only).
   private static final int TILE_PX = 32;
@@ -44,7 +44,7 @@ public final class LitiengineDebugDrawSystem extends System {
 
   private final Map<String, BufferedImage> tileImageCache = new HashMap<>();
 
-  public LitiengineDebugDrawSystem() {
+  public DebugOverlayRenderSystem() {
     super(AuthoritativeSide.BOTH, PositionComponent.class);
   }
 

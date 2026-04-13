@@ -9,7 +9,7 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.platform.Platform;
 import core.camera.CameraViewportState;
-import core.platform.litiengine.render.LitiengineOverlaySizing;
+import core.game.render.overlay.TileOverlaySizing;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
@@ -190,7 +190,7 @@ public final class PointMode extends LevelEditorMode {
             .ifPresent(
               level -> {
                 int markerSize =
-                  LitiengineOverlaySizing.scaledPixelsClamped(
+                  TileOverlaySizing.scaledPixelsClamped(
                     view.tilePx(),
                     1f / 3f,
                     POINT_MARKER_MIN_PX,

@@ -5,7 +5,7 @@ import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.camera.CameraViewportState;
-import core.platform.litiengine.render.LitiengineOverlaySizing;
+import core.game.render.overlay.TileOverlaySizing;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
@@ -86,7 +86,7 @@ public final class StartTilesMode extends LevelEditorMode {
                   Point labelPos =
                     new Point(
                       screenTopLeft.x() + 4,
-                      screenTopLeft.y() + LitiengineOverlaySizing.scaledPixels(tilePx, 0.5f, 14));
+                      screenTopLeft.y() + TileOverlaySizing.scaledPixels(tilePx, 0.5f, 14));
 
                   LitiengineDebugDrawSystem.drawText(
                     "Start: " + (i + 1),

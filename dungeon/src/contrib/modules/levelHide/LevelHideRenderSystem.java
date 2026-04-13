@@ -1,7 +1,5 @@
-package core.platform.litiengine.render;
+package contrib.modules.levelHide;
 
-import contrib.modules.levelHide.LevelHideComponent;
-import contrib.modules.levelHide.LevelHideStateComponent;
 import core.Entity;
 import core.System;
 import core.camera.CameraViewportState;
@@ -30,12 +28,12 @@ import java.awt.RenderingHints;
  *   <li>a smooth time-based easing instead of stepped edge bands.
  * </ul>
  */
-public final class LitiengineLevelHideRenderSystem extends System {
+public final class LevelHideRenderSystem extends System {
   private static final float TRANSITION_DURATION_SECONDS = 0.30f;
   private static final int MAX_ALPHA = 210;
 
   /** Creates a new render-only system for level-hide regions. */
-  public LitiengineLevelHideRenderSystem() {
+  public LevelHideRenderSystem() {
     super(
       AuthoritativeSide.CLIENT,
       LevelHideComponent.class,
@@ -51,7 +49,7 @@ public final class LitiengineLevelHideRenderSystem extends System {
   @Override
   public void render(float deltaSeconds) {
     Graphics2D g = RenderContext.get();
-    if (g == null || CameraViewportState.activeView().isEmpty()) {
+    if (g == null || CameraViewportState.activeViewport().isEmpty()) {
       return;
     }
 

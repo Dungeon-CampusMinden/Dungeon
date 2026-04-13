@@ -18,7 +18,7 @@ import core.level.utils.LevelElement;
 import core.platform.Platform;
 import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
-import core.platform.litiengine.render.LitiengineOverlaySizing;
+import core.game.render.overlay.TileOverlaySizing;
 import contrib.editor.level.ui.LitiengineLevelEditorOverlay;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
 import core.ui.overlay.UiOverlayRegistry;
@@ -546,7 +546,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
   private void renderDebugEntities(CameraViewportState.Viewport view) {
     int tilePx = view.tilePx();
-    float insetWorld = LitiengineOverlaySizing.worldInsetFromPixels(tilePx, DEBUG_ENTITY_INSET_PX);
+    float insetWorld = TileOverlaySizing.worldInsetFromPixels(tilePx, DEBUG_ENTITY_INSET_PX);
     float sizeWorld = Math.max(0.05f, 1f - insetWorld * 2f);
 
     Game.levelEntities(Set.of(PositionComponent.class, DrawComponent.class))
@@ -620,7 +620,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
     return new Point(
       screenTopLeft.x() + 4,
-      screenTopLeft.y() + LitiengineOverlaySizing.tileLabelYOffset(view.tilePx()));
+      screenTopLeft.y() + TileOverlaySizing.tileLabelYOffset(view.tilePx()));
   }
 
   private Point entityDebugLabelPosition(
@@ -631,6 +631,6 @@ public final class LitiengineLevelEditorSystem extends System {
 
     return new Point(
       screenTopLeft.x() + 4,
-      screenTopLeft.y() + LitiengineOverlaySizing.bottomAlignedLabelBaseline(view.tilePx(), 6));
+      screenTopLeft.y() + TileOverlaySizing.bottomAlignedLabelBaseline(view.tilePx(), 6));
   }
 }

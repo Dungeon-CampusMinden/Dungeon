@@ -4,7 +4,7 @@ import core.Game;
 import core.System;
 import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
-import core.platform.litiengine.render.LitiengineOverlaySizing;
+import core.game.render.overlay.TileOverlaySizing;
 import core.utils.Point;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -368,7 +368,7 @@ public final class LitiengineDebugDrawSystem extends System {
           Graphics2D g = (Graphics2D) base.create();
           try {
             g.setStroke(
-              new BasicStroke(LitiengineOverlaySizing.scaledStroke(view.tilePx(), 1f / 16f, 1f)));
+              new BasicStroke(TileOverlaySizing.scaledStroke(view.tilePx(), 1f / 16f, 1f)));
 
             int levelHeight =
               view.levelHeight() > 0
