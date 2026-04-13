@@ -1,4 +1,4 @@
-package contrib.components;
+package contrib.hud.elements;
 
 import core.Component;
 

@@ -8,6 +8,7 @@ import contrib.components.HealthComponent;
 import contrib.components.ManaComponent;
 import contrib.components.StaminaComponent;
 import contrib.hud.elements.AttributeBarHandle;
+import contrib.hud.elements.BarDisplayable;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
@@ -42,7 +43,7 @@ class AttributeBarUtilTest {
     entity.add(new PlayerComponent(true));
     RecordingAttributeBarHandle handle = new RecordingAttributeBarHandle();
 
-    Map<Class<? extends contrib.components.BarDisplayable>, AttributeBarHandle> barMapping = new HashMap<>();
+    Map<Class<? extends BarDisplayable>, AttributeBarHandle> barMapping = new HashMap<>();
     barMapping.put(HealthComponent.class, handle);
 
     AttributeBarUtil.updateBar(
@@ -58,7 +59,7 @@ class AttributeBarUtilTest {
     HealthComponent healthComponent = entity.fetch(HealthComponent.class).orElseThrow();
     RecordingAttributeBarHandle handle = new RecordingAttributeBarHandle();
 
-    Map<Class<? extends contrib.components.BarDisplayable>, AttributeBarHandle> barMapping = new HashMap<>();
+    Map<Class<? extends BarDisplayable>, AttributeBarHandle> barMapping = new HashMap<>();
     barMapping.put(HealthComponent.class, handle);
 
     healthComponent.currentHealthpoints(8);
@@ -75,7 +76,7 @@ class AttributeBarUtilTest {
     RecordingAttributeBarHandle manaHandle = new RecordingAttributeBarHandle();
     RecordingAttributeBarHandle staminaHandle = new RecordingAttributeBarHandle();
 
-    Map<Class<? extends contrib.components.BarDisplayable>, AttributeBarHandle> barMapping = new HashMap<>();
+    Map<Class<? extends BarDisplayable>, AttributeBarHandle> barMapping = new HashMap<>();
     barMapping.put(ManaComponent.class, manaHandle);
     barMapping.put(StaminaComponent.class, staminaHandle);
 
@@ -108,7 +109,7 @@ class AttributeBarUtilTest {
     Entity entity = entityWithFullHealth();
     RecordingAttributeBarHandle handle = new RecordingAttributeBarHandle();
 
-    Map<Class<? extends contrib.components.BarDisplayable>, AttributeBarHandle> barMapping = new HashMap<>();
+    Map<Class<? extends BarDisplayable>, AttributeBarHandle> barMapping = new HashMap<>();
     barMapping.put(HealthComponent.class, handle);
 
     AttributeBarUtil.updateBar(

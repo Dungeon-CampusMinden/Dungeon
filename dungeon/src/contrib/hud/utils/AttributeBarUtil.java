@@ -10,6 +10,7 @@ import contrib.hud.dialogs.DialogType;
 import contrib.hud.elements.AttributeBarDialogData;
 import contrib.hud.elements.AttributeBarHandle;
 import contrib.hud.elements.AttributeBarHandleProvider;
+import contrib.hud.elements.BarDisplayable;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -48,8 +49,8 @@ public final class AttributeBarUtil {
    */
   public static void addBarToEntity(
     Entity entity,
-    contrib.components.BarDisplayable barDisplayable,
-    Map<Class<? extends contrib.components.BarDisplayable>, AttributeBarHandle> barMapping,
+    BarDisplayable barDisplayable,
+    Map<Class<? extends BarDisplayable>, AttributeBarHandle> barMapping,
     float verticalOffset) {
     Entity barEntity = Entity.createLocalEntity(barDisplayable.barStyleName() + "_" + entity.id());
 
@@ -112,8 +113,8 @@ public final class AttributeBarUtil {
    */
   public static void updateBar(
     Entity entity,
-    contrib.components.BarDisplayable barDisplayable,
-    Map<Class<? extends contrib.components.BarDisplayable>, AttributeBarHandle> barMapping,
+    BarDisplayable barDisplayable,
+    Map<Class<? extends BarDisplayable>, AttributeBarHandle> barMapping,
     float verticalOffset) {
     AttributeBarHandle bar = barMapping.get(barDisplayable.getClass());
     if (bar == null) {
@@ -126,7 +127,7 @@ public final class AttributeBarUtil {
     bar.setValue(barDisplayable.current() / barDisplayable.max());
   }
 
-  static boolean shouldShowBar(Entity entity, contrib.components.BarDisplayable barDisplayable) {
+  static boolean shouldShowBar(Entity entity, BarDisplayable barDisplayable) {
     boolean entityVisible = entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false);
     if (!entityVisible) {
       return false;

@@ -1,5 +1,6 @@
 package contrib.components;
 
+import contrib.hud.elements.BarDisplayable;
 import core.Component;
 
 /**
