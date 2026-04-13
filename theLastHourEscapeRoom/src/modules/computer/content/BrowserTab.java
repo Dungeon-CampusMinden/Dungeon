@@ -202,7 +202,7 @@ public class BrowserTab extends ComputerTab {
     return table;
   }
 
-  private Actor createSecurityCodePage(String pageUrl, int index) {
+  private Actor createSecurityCodePage(String pageUrl) {
     Table table = new Table();
     table.top().left();
     table.pad(20);
@@ -288,7 +288,7 @@ public class BrowserTab extends ComputerTab {
     dataHeader.setAlignment(Align.left);
     table.add(dataHeader).left().padBottom(8).row();
 
-    String asciiCode = Lore.AsciiCodes.get(index);
+    String asciiCode = Lore.AsciiCodes.getFirst();
     String binaryData = toBinary(asciiCode);
 
     // Stack binary codes vertically in 8-bit rows
@@ -388,7 +388,7 @@ public class BrowserTab extends ComputerTab {
     return scrollPane;
   }
 
-  private Actor createDownloadPage(int index) {
+  private Actor createDownloadPage() {
     Table table = new Table();
     table.top().padTop(40);
 
@@ -411,21 +411,9 @@ public class BrowserTab extends ComputerTab {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            if (index == 0) {
-              ComputerDialog.getInstance()
-                  .ifPresent(
-                      c -> c.addTab(new FileTab(sharedState(), Lore.AccessCodeDownloadFileName)));
-            } else {
-              String virusType = Lore.CodePageIndexToVirusType.get(index - 1);
-              var newState =
-                  ComputerStateComponent.getState()
-                      .orElseThrow()
-                      .withVirusType(virusType)
-                      .withInfection(true);
-              DialogCallbackResolver.createButtonCallback(
-                      context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-                  .accept(newState);
-            }
+            ComputerDialog.getInstance()
+                .ifPresent(
+                    c -> c.addTab(new FileTab(sharedState(), Lore.AccessCodeDownloadFileName)));
           }
         });
     table.add(downloadButton).center();
@@ -445,11 +433,11 @@ public class BrowserTab extends ComputerTab {
         "https://www.example.com",
         Scene2dElementFactory.createLabel("Helloooo world :D", 96, Color.BLACK));
 
-    for (int i = 0; i < Lore.EmailCodeUrls.size(); i++) {
-      String url = Lore.EmailCodeUrls.get(i);
-      websites.put(url, createSecurityCodePage(url, i));
-      websites.put(url + "/download", createDownloadPage(i));
-    }
+    // Only the real URL (index 0) gets a code page; phishing URLs (indices 1+) are in
+    // Lore.VirusWebsites and handled by the early-return in navigate().
+    String realUrl = Lore.EmailCodeUrls.getFirst();
+    websites.put(realUrl, createSecurityCodePage(realUrl));
+    websites.put(realUrl + "/download", createDownloadPage());
   }
 
   @Override

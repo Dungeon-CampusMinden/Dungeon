@@ -1,6 +1,7 @@
 package util;
 
 import core.utils.Tuple;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import modules.computer.content.BlogTab;
@@ -255,13 +256,20 @@ public class Lore {
       List.of("Tracking Details.pdf", "Linkin_Park_-_In_The_End.mp3.exe");
 
   /** List of URLs that lead to viruses. */
-  public static final List<String> VirusWebsites =
-      List.of(
-          "https://illegal-music-downloader.com/download/12345",
-          "https://adq.mmcaok.com/pl10fonmxdm1asmokxx0",
-          "https://local-connections-now.net/start",
-          "https://royal-transferdesk.org/secure",
-          "https://cryptogrowth-daily.biz/start?si=1ujg0h1ju8mnc980mumsdnuz0");
+  public static final List<String> VirusWebsites;
+
+  static {
+    List<String> sites = new java.util.ArrayList<>();
+    // Direct virus links from emails
+    sites.add("https://illegal-music-downloader.com/download/12345");
+    sites.add("https://adq.mmcaok.com/pl10fonmxdm1asmokxx0");
+    sites.add("https://local-connections-now.net/start");
+    sites.add("https://royal-transferdesk.org/secure");
+    sites.add("https://cryptogrowth-daily.biz/start?si=1ujg0h1ju8mnc980mumsdnuz0");
+    // Phishing code URLs (all EmailCodeUrls except the real one at index 0)
+    sites.addAll(EmailCodeUrls.subList(1, EmailCodeUrls.size()));
+    VirusWebsites = Collections.unmodifiableList(sites);
+  }
 
   /** List of ASCII codes used for the security code pages in the browser recovery portal. */
   public static final List<String> AsciiCodes = List.of("6548", "1765", "3912", "8256");
