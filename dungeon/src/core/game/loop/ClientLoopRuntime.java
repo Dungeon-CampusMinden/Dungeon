@@ -4,7 +4,7 @@ import core.camera.ClientCameraAdapter;
 import core.game.*;
 import core.game.bootstrap.ClientStartup;
 import core.game.render.EcsRenderScreen;
-import core.input.bridge.LitiengineInputBridge;
+import core.input.bridge.ClientInputBridge;
 import core.platform.Platform;
 import core.platform.litiengine.input.LitiengineCursorAdapter;
 import core.platform.litiengine.sound.LitiengineSoundPlayer;
@@ -77,7 +77,7 @@ public final class ClientLoopRuntime {
     Platform.camera(new ClientCameraAdapter());
 
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.
-    LitiengineInputBridge.install();
+    ClientInputBridge.install();
 
     // Ensure we start with a clean input state.
     InputManager.reset();
