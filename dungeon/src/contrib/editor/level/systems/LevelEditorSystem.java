@@ -35,9 +35,9 @@ import java.util.*;
  * <p>This version keeps the editor lifecycle inside the LITIENGINE backend and ports the first
  * actual editing mode: tile painting.
  */
-public final class LitiengineLevelEditorSystem extends System {
+public final class LevelEditorSystem extends System {
   private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LitiengineLevelEditorSystem.class);
+    DungeonLogger.getLogger(LevelEditorSystem.class);
 
   private static final long FEEDBACK_DURATION_MS = 3000L;
 
@@ -95,7 +95,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private final LevelEditorMode decoColliderMode = new DecoColliderMode(this);
 
   /** Creates the LITIENGINE level editor. */
-  public LitiengineLevelEditorSystem() {
+  public LevelEditorSystem() {
     super(AuthoritativeSide.CLIENT);
   }
 

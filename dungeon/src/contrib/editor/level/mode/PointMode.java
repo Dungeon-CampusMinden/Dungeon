@@ -1,7 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.components.UIComponent;
-import contrib.editor.level.systems.LitiengineLevelEditorSystem;
+import contrib.editor.level.systems.LevelEditorSystem;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
@@ -33,7 +33,7 @@ public final class PointMode extends LevelEditorMode {
   private EditorSnapMode snapMode = EditorSnapMode.OnGrid;
   private String heldPointName = null;
 
-  public PointMode(LitiengineLevelEditorSystem system) {
+  public PointMode(LevelEditorSystem system) {
     super(system, "Point Mode");
   }
 

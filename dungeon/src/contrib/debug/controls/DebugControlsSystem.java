@@ -1,4 +1,4 @@
-package contrib.debug.systems;
+package contrib.debug.controls;
 
 import contrib.configuration.KeyboardConfig;
 import core.System;
@@ -26,9 +26,9 @@ import core.utils.logging.DungeonLogger;
  * <p>Scene-pass, level-pass and depth-layer-pass verification are intentionally backend-local here,
  * because the corresponding pass pipelines also currently exist only on the LITIENGINE render path.
  */
-public final class LitiengineDebugControlsSystem extends System {
+public final class DebugControlsSystem extends System {
   private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LitiengineDebugControlsSystem.class);
+    DungeonLogger.getLogger(DebugControlsSystem.class);
 
   private static final int TOGGLE_REGIONAL_DEPTH_COLOR_GRADE_KEY = Keys.F5;
   private static final int TOGGLE_REGIONAL_LEVEL_COLOR_GRADE_KEY = Keys.F6;
@@ -100,7 +100,7 @@ public final class LitiengineDebugControlsSystem extends System {
   private float rememberedRegionalDepthColorGradeTransitionSize =
     DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE;
 
-  public LitiengineDebugControlsSystem() {
+  public DebugControlsSystem() {
     super(AuthoritativeSide.CLIENT);
   }
 

@@ -1,10 +1,11 @@
-package contrib.debug.systems;
+package contrib.debug.render;
 
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
+import contrib.debug.systems.LitiengineDebugDrawSystem;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
@@ -27,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public final class LitiengineEntityDebugSystem extends System {
+public final class EntityDebugRenderSystem extends System {
 
   private static final float POSITION_RADIUS = 0.05f;
   private static final float ARROW_LENGTH = 0.5f;
@@ -43,7 +44,7 @@ public final class LitiengineEntityDebugSystem extends System {
 
   private static final ClientCursorAdapter CURSOR = new ClientCursorAdapter();
 
-  public LitiengineEntityDebugSystem() {
+  public EntityDebugRenderSystem() {
     super(AuthoritativeSide.CLIENT, PositionComponent.class);
   }
 

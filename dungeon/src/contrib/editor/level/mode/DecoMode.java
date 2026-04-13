@@ -2,7 +2,7 @@ package contrib.editor.level.mode;
 
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
-import contrib.editor.level.systems.LitiengineLevelEditorSystem;
+import contrib.editor.level.systems.LevelEditorSystem;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.systems.PositionSync;
@@ -45,7 +45,7 @@ public final class DecoMode extends LevelEditorMode {
   private Entity hoveredDecoEntity = null;
   private final Map<Entity, Integer> rememberedEditorTints = new IdentityHashMap<>();
 
-  public DecoMode(LitiengineLevelEditorSystem system) {
+  public DecoMode(LevelEditorSystem system) {
     super(system, "Deco Mode");
   }
 

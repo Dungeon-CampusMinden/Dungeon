@@ -3,7 +3,7 @@ package contrib.editor.level.mode;
 import core.input.Keys;
 import core.input.MouseButtons;
 import core.camera.CameraViewportState;
-import contrib.editor.level.systems.LitiengineLevelEditorSystem;
+import contrib.editor.level.systems.LevelEditorSystem;
 import java.awt.Graphics2D;
 import java.util.*;
 
@@ -33,15 +33,15 @@ public abstract class LevelEditorMode {
   /** Quaternary action button. */
   public static final int QUARTERNARY = Keys.V;
 
-  private final LitiengineLevelEditorSystem system;
+  private final LevelEditorSystem system;
   private final String name;
 
-  protected LevelEditorMode(LitiengineLevelEditorSystem system, String name) {
+  protected LevelEditorMode(LevelEditorSystem system, String name) {
     this.system = Objects.requireNonNull(system, "system must not be null");
     this.name = Objects.requireNonNull(name, "name must not be null");
   }
 
-  public final LitiengineLevelEditorSystem system() {
+  public final LevelEditorSystem system() {
     return this.system;
   }
 
@@ -89,7 +89,7 @@ public abstract class LevelEditorMode {
   }
 
   protected final Optional<CameraViewportState.Viewport> activeCameraView() {
-    return CameraViewportState.activeView();
+    return CameraViewportState.activeViewport();
   }
 
   /**

@@ -1,6 +1,6 @@
 package contrib.editor.level.mode;
 
-import contrib.editor.level.systems.LitiengineLevelEditorSystem;
+import contrib.editor.level.systems.LevelEditorSystem;
 import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
@@ -33,7 +33,7 @@ public final class StartTilesMode extends LevelEditorMode {
 
   private int currentStartTileIndex = 0;
 
-  public StartTilesMode(LitiengineLevelEditorSystem system) {
+  public StartTilesMode(LevelEditorSystem system) {
     super(system, "Start Tiles Mode");
   }
 

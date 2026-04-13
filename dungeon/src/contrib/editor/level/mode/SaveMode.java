@@ -1,6 +1,6 @@
 package contrib.editor.level.mode;
 
-import contrib.editor.level.systems.LitiengineLevelEditorSystem;
+import contrib.editor.level.systems.LevelEditorSystem;
 import core.level.loader.DungeonSaver;
 import core.utils.InputManager;
 import java.awt.Color;
@@ -11,7 +11,7 @@ import java.util.Map;
 /** LITIENGINE save mode for exporting the current dungeon to the clipboard. */
 public final class SaveMode extends LevelEditorMode {
 
-  public SaveMode(LitiengineLevelEditorSystem system) {
+  public SaveMode(LevelEditorSystem system) {
     super(system, "Save Mode");
   }
 
