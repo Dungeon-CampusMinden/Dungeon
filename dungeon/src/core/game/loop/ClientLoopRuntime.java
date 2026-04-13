@@ -8,7 +8,7 @@ import core.input.bridge.ClientInputBridge;
 import core.platform.Platform;
 import core.platform.litiengine.input.LitiengineCursorAdapter;
 import core.platform.litiengine.sound.LitiengineSoundPlayer;
-import core.platform.runtime.LitiengineRuntimeAdapter;
+import core.platform.runtime.ClientRuntimeAdapter;
 import core.platform.window.ClientWindowEventsBridge;
 import core.platform.window.ClientWindowAdapter;
 import core.render.LitiengineRenderAdapter;
@@ -71,7 +71,7 @@ public final class ClientLoopRuntime {
 
     // Bind platform adapters AFTER init so Game.window() etc. are available.
     Platform.window(new ClientWindowAdapter());
-    Platform.runtime(new LitiengineRuntimeAdapter());
+    Platform.runtime(new ClientRuntimeAdapter());
     Platform.render(new LitiengineRenderAdapter());
     Platform.cursor(new LitiengineCursorAdapter());
     Platform.camera(new ClientCameraAdapter());

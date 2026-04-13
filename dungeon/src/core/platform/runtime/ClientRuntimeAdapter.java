@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>Stops the LITIENGINE loop before terminating the JVM so the engine doesn't render another
  * frame while its shutdown hook is already nulling global state.
  */
-public final class LitiengineRuntimeAdapter implements RuntimeAdapter {
+public final class ClientRuntimeAdapter implements RuntimeAdapter {
   private static final long EXIT_JOIN_TIMEOUT_MS = 2000L;
   private static final AtomicBoolean EXIT_REQUESTED = new AtomicBoolean(false);
 
