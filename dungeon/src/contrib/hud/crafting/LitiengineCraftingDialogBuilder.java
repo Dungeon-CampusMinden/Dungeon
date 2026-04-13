@@ -2,7 +2,6 @@ package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
-import contrib.crafting.CraftingDialogController;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;

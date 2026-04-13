@@ -1,6 +1,10 @@
-package contrib.crafting;
+package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
+import contrib.crafting.Crafting;
+import contrib.crafting.CraftingResult;
+import contrib.crafting.CraftingType;
+import contrib.crafting.Recipe;
 import contrib.item.Item;
 import java.util.Arrays;
 import java.util.Objects;

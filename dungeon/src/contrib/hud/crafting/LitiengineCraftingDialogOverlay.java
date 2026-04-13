@@ -1,10 +1,6 @@
 package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
-import contrib.crafting.CraftingDialogAction;
-import contrib.crafting.CraftingDialogController;
-import contrib.crafting.CraftingDialogInteraction;
-import contrib.crafting.CraftingDialogLayout;
 import contrib.crafting.CraftingType;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.elements.ImageButton;

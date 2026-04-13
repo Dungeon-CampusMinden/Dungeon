@@ -1,4 +1,4 @@
-package contrib.crafting;
+package contrib.hud.crafting;
 
 /**
  * Shared action metadata for crafting dialogs across UI backends.

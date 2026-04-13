@@ -1,7 +1,9 @@
-package contrib.crafting;
+package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
+import contrib.crafting.CraftingType;
+import contrib.crafting.Recipe;
 import contrib.hud.UIUtils;
 import contrib.item.Item;
 import core.utils.logging.DungeonLogger;

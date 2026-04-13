@@ -1,4 +1,4 @@
-package contrib.crafting;
+package contrib.hud.crafting;
 
 import contrib.hud.inventory.ItemDragPayload;
 
