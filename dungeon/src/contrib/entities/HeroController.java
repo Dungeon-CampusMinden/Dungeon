@@ -166,11 +166,10 @@ public class HeroController {
   }
 
   /**
-   * Handles interaction between the hero and an interactable entity. First attempts to find an
-   * interactable entity at the specified point (e.g., mouse cursor position). If no interactable
-   * entity is found or the entity is out of range, it searches within a 1-tile radius around the
-   * hero. If an interactable entity is found and within its interaction radius, the interaction is
-   * triggered.
+   * Handles interaction between the hero and an interactable entity using a cursor-first model. The
+   * entity under the cursor (determined via {@link EntityUtils#isPointOverEntity}) is selected
+   * first, then checked against the hero's interaction range. If the entity under the cursor is out
+   * of range, no interaction occurs — even if other interactable entities are nearby.
    *
    * @param hero the hero entity attempting the interaction
    * @param point the target point where the interaction is attempted (e.g., cursor position)
@@ -197,37 +196,31 @@ public class HeroController {
   }
 
   /**
-   * This function filters for all interactable entities within range of the hero, then finds the
-   * one closest to the target point.
+   * Finds the interactable entity under the given point using a cursor-first model. Uses {@link
+   * EntityUtils#isPointOverEntity} to determine which entity the point is over, then verifies the
+   * entity is within the hero's interaction range. If the entity under the cursor is out of range,
+   * {@link Optional#empty()} is returned even if other entities are in range.
    *
    * @param hero the hero entity attempting the interaction
    * @param point the target point where the interaction is attempted (e.g., cursor position)
    * @return an Optional containing the found entity, or Optional.empty() if no interactable entity
-   *     was found within range
+   *     was found under the cursor within range
    */
   public static Optional<Entity> findInteractable(Entity hero, Point point) {
     Point heroPos = EntityUtils.getPosition(hero);
-    Optional<InteractionData> target =
-        findInteractablesInRange(hero).stream()
-            .map(InteractionData::of)
-            .filter(
-                data ->
-                    heroPos.distanceSquared(EntityUtils.getPosition(data.e()))
-                        <= data.ic().interactions().interact().range()
-                            * data.ic().interactions().interact().range())
-            .min(
-                Comparator.comparingDouble(
-                    data -> EntityUtils.getPosition(data.e()).distanceSquared(point)));
-    return target.map(InteractionData::e);
-  }
 
-  private record InteractionData(Entity e, PositionComponent pc, InteractionComponent ic) {
-    static InteractionData of(Entity e) {
-      return new InteractionData(
-          e,
-          e.fetch(PositionComponent.class).orElseThrow(),
-          e.fetch(InteractionComponent.class).orElseThrow());
-    }
+    return EntityUtils.findEntityAtPoint(
+            point, Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)))
+        .filter(
+            e -> {
+              float range =
+                  e.fetch(InteractionComponent.class)
+                      .orElseThrow()
+                      .interactions()
+                      .interact()
+                      .range();
+              return heroPos.distanceSquared(EntityUtils.getPosition(e)) <= range * range;
+            });
   }
 
   /**

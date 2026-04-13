@@ -3,7 +3,6 @@ package level;
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
-import contrib.entities.HeroController;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.DialogUtils;
@@ -21,7 +20,6 @@ import contrib.modules.worldTimer.WorldTimerFactory;
 import contrib.modules.worldTimer.WorldTimerSystem;
 import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -34,6 +32,8 @@ import core.level.utils.LevelElement;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.systems.DrawSystem;
+import core.utils.CursorUtil;
+import core.utils.Cursors;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Vector2;
@@ -48,6 +48,7 @@ import java.util.*;
 import modules.computer.*;
 import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameUI;
+import util.InteractionHelper;
 import util.LastHourSounds;
 import util.Lore;
 import util.shaders.LightingShader;
@@ -508,41 +509,82 @@ public class LastHourLevel extends DungeonLevel {
     cscLastTick = csc;
   }
 
-  static List<Entity> currentInteractablesInRange = new ArrayList<>();
+  /** The entity that currently has the solid (in-range) interaction outline, or {@code null}. */
+  private static Entity currentHighlightedEntity = null;
 
+  /** The entity that currently has the semi-transparent (discovery) outline, or {@code null}. */
+  private static Entity currentSemiHighlightedEntity = null;
+
+  /** Solid highlight color for the entity that will actually be interacted with. */
+  private static final Color HIGHLIGHT_SOLID = new Color(0.8f, 0, 0, 1f);
+
+  /** Semi-transparent highlight color for discoverable but out-of-range entities. */
+  private static final Color HIGHLIGHT_SEMI = new Color(0.8f, 0.7f, 0, 0.4f);
+
+  private static final String SHADER_NAME = "highlight_outline";
+
+  /**
+   * Cursor-first interaction feedback. The entity nearest to the cursor gets a semi-transparent
+   * discovery outline so players can scan the room. If that entity is also within interaction range
+   * of the hero, it gets a solid red outline instead, and the world cursor switches to {@link
+   * Cursors#INTERACT}.
+   */
   static void checkInteractFeedback() {
     Game.player()
         .ifPresent(
             p -> {
-              List<Entity> interactables = HeroController.findInteractablesInRange(p);
-              Optional<Entity> closest =
-                  HeroController.findInteractable(p, SkillTools.cursorPositionAsPoint());
+              Optional<Entity> nearCursor = InteractionHelper.findCursorNearEntity();
+              Optional<Entity> inRange = InteractionHelper.findInteractTarget(p);
 
-              currentInteractablesInRange.forEach(LastHourLevel::removeInteractFeedback);
-              currentInteractablesInRange.clear();
-              interactables.forEach(
-                  e -> addInteractFeedback(e, closest.isPresent() && e.id() == closest.get().id()));
-              currentInteractablesInRange.addAll(interactables);
+              // Clear previous highlights
+              clearHighlight(currentHighlightedEntity);
+              clearHighlight(currentSemiHighlightedEntity);
+              currentHighlightedEntity = null;
+              currentSemiHighlightedEntity = null;
+
+              // Apply highlights
+              nearCursor.ifPresent(
+                  e -> {
+                    if (inRange.isPresent() && e.id() == inRange.get().id()) {
+                      // Entity is near cursor AND in hero range → solid highlight
+                      applyOutline(e, HIGHLIGHT_SOLID);
+                      currentHighlightedEntity = e;
+                    } else {
+                      // Entity is near cursor but out of hero range → semi highlight
+                      applyOutline(e, HIGHLIGHT_SEMI);
+                      currentSemiHighlightedEntity = e;
+                    }
+                  });
+
+              // Update world cursor (only when entity is actually interactable)
+              updateWorldCursor(inRange.isPresent());
             });
   }
 
-  static void removeInteractFeedback(Entity entity) {
-    entity
-        .fetch(DrawComponent.class)
-        .ifPresent(
-            dc -> {
-              dc.shaders().remove("outline");
-            });
+  /**
+   * Sets the world cursor to the interact cursor when an interactable is targeted, or clears it
+   * otherwise. Uses {@link CursorUtil#setWorldCursor} / {@link CursorUtil#clearWorldCursor} so the
+   * Stage input listener respects the override and does not flicker back to DEFAULT every frame.
+   *
+   * @param hasTarget true if an interactable entity is currently targeted by the cursor
+   */
+  private static void updateWorldCursor(boolean hasTarget) {
+    if (hasTarget) {
+      CursorUtil.setWorldCursor(Cursors.INTERACT);
+    } else {
+      CursorUtil.clearWorldCursor();
+    }
   }
 
-  static void addInteractFeedback(Entity entity, boolean isImportant) {
-    Color color = isImportant ? new Color(0.8f, 0, 0, 1f) : new Color(0.8f, 0.7f, 0, 0.4f);
+  static void clearHighlight(Entity entity) {
+    if (entity == null) return;
+    entity.fetch(DrawComponent.class).ifPresent(dc -> dc.shaders().remove(SHADER_NAME));
+  }
+
+  static void applyOutline(Entity entity, Color color) {
     entity
         .fetch(DrawComponent.class)
-        .ifPresent(
-            dc -> {
-              dc.shaders().add("outline", new OutlineShader(1, color));
-            });
+        .ifPresent(dc -> dc.shaders().add(SHADER_NAME, new OutlineShader(1, color)));
   }
 
   private String pcStateToDCState(ComputerStateComponent csc) {
