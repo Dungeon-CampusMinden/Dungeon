@@ -7,4 +7,4 @@ package core.game.render.level;
  * @param maxTileY world y coordinate of the top-most visible tile in the buffer
  * @param tilePx number of pixels per world tile inside the buffer
  */
-public record LitiengineLevelPassContext(int minTileX, int maxTileY, int tilePx) {}
+public record LevelPassContext(int minTileX, int maxTileY, int tilePx) {}

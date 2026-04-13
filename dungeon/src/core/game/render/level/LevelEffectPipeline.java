@@ -8,13 +8,13 @@ import java.awt.image.BufferedImage;
  * <p>Effects in this pipeline are applied only to the rendered level layer before entities are
  * drawn on top.
  */
-public final class LitiengineLevelEffectPipeline {
+public final class LevelEffectPipeline {
 
-  private static final LitiengineLevelEffects EFFECTS = new LitiengineLevelEffects();
+  private static final LevelEffectRegistry EFFECTS = new LevelEffectRegistry();
 
-  private LitiengineLevelEffectPipeline() {}
+  private LevelEffectPipeline() {}
 
-  public static LitiengineLevelEffects effects() {
+  public static LevelEffectRegistry effects() {
     return EFFECTS;
   }
 
@@ -31,13 +31,13 @@ public final class LitiengineLevelEffectPipeline {
   }
 
   public static BufferedImage apply(
-    BufferedImage source, LitiengineLevelPassContext context, long nowMs) {
+    BufferedImage source, LevelPassContext context, long nowMs) {
     if (source == null || !hasEnabledEffects()) {
       return source;
     }
 
     BufferedImage current = source;
-    for (LitiengineLevelEffect effect : EFFECTS.getEnabledSorted()) {
+    for (LevelEffect effect : EFFECTS.getEnabledSorted()) {
       current = effect.apply(current, context, nowMs);
       if (current == null) {
         throw new IllegalStateException(

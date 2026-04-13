@@ -7,8 +7,8 @@ import core.input.Keys;
 import core.platform.Platform;
 import core.game.render.depth.LitiengineDepthLayerColorGradeEffect;
 import core.game.render.depth.LitiengineDepthLayerEffectPipeline;
-import core.game.render.level.LitiengineLevelColorGradeEffect;
-import core.game.render.level.LitiengineLevelEffectPipeline;
+import core.game.render.level.LevelColorGradeEffect;
+import core.game.render.level.LevelEffectPipeline;
 import core.game.render.scene.LitienginePassthroughDebugEffect;
 import core.game.render.scene.LitiengineSceneColorGradeEffect;
 import core.game.render.scene.LitiengineSceneEffectPipeline;
@@ -134,7 +134,7 @@ public final class LitiengineDebugControlsSystem extends System {
     }
 
     if (InputManager.isKeyJustPressed(TOGGLE_LEVEL_EFFECTS_KEY)) {
-      boolean enabled = LitiengineLevelEffectPipeline.toggleAll();
+      boolean enabled = LevelEffectPipeline.toggleAll();
       LOGGER.info(
         "LITIENGINE level-pass effects are now {}.",
         enabled ? "enabled" : "disabled");
@@ -268,7 +268,7 @@ public final class LitiengineDebugControlsSystem extends System {
   }
 
   private void toggleRegionalLevelColorGradeEnabled() {
-    LitiengineLevelColorGradeEffect effect = starterLevelColorGradeDemoEffect();
+    LevelColorGradeEffect effect = starterLevelColorGradeDemoEffect();
     if (effect == null) {
       LOGGER.warn(
         "No starter regional level color grade demo is registered under id '{}'.",
@@ -285,7 +285,7 @@ public final class LitiengineDebugControlsSystem extends System {
   }
 
   private void toggleRegionalLevelColorGradeRegionMode() {
-    LitiengineLevelColorGradeEffect effect = starterLevelColorGradeDemoEffect();
+    LevelColorGradeEffect effect = starterLevelColorGradeDemoEffect();
     if (effect == null) {
       LOGGER.warn(
         "No starter regional level color grade demo is registered under id '{}'.",
@@ -408,11 +408,11 @@ public final class LitiengineDebugControlsSystem extends System {
       .orElse(null);
   }
 
-  private LitiengineLevelColorGradeEffect starterLevelColorGradeDemoEffect() {
-    return LitiengineLevelEffectPipeline.effects()
+  private LevelColorGradeEffect starterLevelColorGradeDemoEffect() {
+    return LevelEffectPipeline.effects()
       .get(STARTER_LEVEL_COLOR_GRADE_DEMO_ID)
-      .filter(LitiengineLevelColorGradeEffect.class::isInstance)
-      .map(LitiengineLevelColorGradeEffect.class::cast)
+      .filter(LevelColorGradeEffect.class::isInstance)
+      .map(LevelColorGradeEffect.class::cast)
       .orElse(null);
   }
 

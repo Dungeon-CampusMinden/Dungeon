@@ -3,7 +3,7 @@ package core.game.render.level;
 import java.awt.image.BufferedImage;
 
 /** Backend-specific post-processing effect for the rendered level layer only. */
-public interface LitiengineLevelEffect {
+public interface LevelEffect {
 
   /** @return true if the effect should currently be applied. */
   boolean enabled();
@@ -16,5 +16,5 @@ public interface LitiengineLevelEffect {
    * @param nowMs current timestamp in milliseconds
    * @return transformed level-layer image, never {@code null}
    */
-  BufferedImage apply(BufferedImage input, LitiengineLevelPassContext context, long nowMs);
+  BufferedImage apply(BufferedImage input, LevelPassContext context, long nowMs);
 }

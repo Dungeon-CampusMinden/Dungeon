@@ -25,8 +25,8 @@ import core.game.render.depth.LitiengineDepthLayerEffectPipeline;
 import core.platform.litiengine.render.effects.LitiengineShineEffect;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsComponent;
 import core.platform.litiengine.render.effects.LitiengineSpriteEffectsRenderer;
-import core.game.render.level.LitiengineLevelEffectPipeline;
-import core.game.render.level.LitiengineLevelPassContext;
+import core.game.render.level.LevelEffectPipeline;
+import core.game.render.level.LevelPassContext;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Time;
@@ -143,7 +143,7 @@ public final class LitiengineSpriteRenderSystem extends System {
   }
 
   private void renderLevelWithPasses(Graphics2D g, ILevel level, CameraView view) {
-    if (!LitiengineLevelEffectPipeline.hasEnabledEffects()) {
+    if (!LevelEffectPipeline.hasEnabledEffects()) {
       renderLevelTiles(g, level, view);
       return;
     }
@@ -154,7 +154,7 @@ public final class LitiengineSpriteRenderSystem extends System {
     }
 
     BufferedImage processed =
-      LitiengineLevelEffectPipeline.apply(levelBuffer.image(), levelBuffer.context(), Time.nowMs());
+      LevelEffectPipeline.apply(levelBuffer.image(), levelBuffer.context(), Time.nowMs());
     g.drawImage(processed, levelBuffer.drawX(), levelBuffer.drawY(), null);
   }
 
@@ -218,14 +218,14 @@ public final class LitiengineSpriteRenderSystem extends System {
       buffer,
       drawX,
       drawY,
-      new LitiengineLevelPassContext(minX, maxY, tilePx));
+      new LevelPassContext(minX, maxY, tilePx));
   }
 
   private record VisibleLevelBuffer(
     BufferedImage image,
     int drawX,
     int drawY,
-    LitiengineLevelPassContext context) {}
+    LevelPassContext context) {}
 
   private void drawTileImage(Graphics2D g, BufferedImage img, int sx, int sy, int tilePx) {
     if (img.getWidth() <= 0 || img.getHeight() <= 0) return;

@@ -24,8 +24,8 @@ import java.awt.image.BufferedImage;
  * configured, the effect is fully active inside that region and fades out smoothly across the
  * configured transition band outside the region.
  */
-public final class LitiengineLevelColorGradeEffect
-  implements LitiengineLevelEffects.ToggleableLevelEffect {
+public final class LevelColorGradeEffect
+  implements LevelEffectRegistry.ToggleableLevelEffect {
 
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
@@ -34,9 +34,9 @@ public final class LitiengineLevelColorGradeEffect
   private float transitionSize = 2.0f;
   private boolean enabled = true;
 
-  public LitiengineLevelColorGradeEffect() {}
+  public LevelColorGradeEffect() {}
 
-  public LitiengineLevelColorGradeEffect(
+  public LevelColorGradeEffect(
     float hue, float saturationMultiplier, float valueMultiplier) {
     hue(hue);
     saturationMultiplier(saturationMultiplier);
@@ -47,7 +47,7 @@ public final class LitiengineLevelColorGradeEffect
     return hue;
   }
 
-  public LitiengineLevelColorGradeEffect hue(float hue) {
+  public LevelColorGradeEffect hue(float hue) {
     this.hue = hue < 0f ? -1.0f : normalizeHue(hue);
     return this;
   }
@@ -56,7 +56,7 @@ public final class LitiengineLevelColorGradeEffect
     return saturationMultiplier;
   }
 
-  public LitiengineLevelColorGradeEffect saturationMultiplier(float saturationMultiplier) {
+  public LevelColorGradeEffect saturationMultiplier(float saturationMultiplier) {
     this.saturationMultiplier = Math.max(0f, saturationMultiplier);
     return this;
   }
@@ -65,7 +65,7 @@ public final class LitiengineLevelColorGradeEffect
     return valueMultiplier;
   }
 
-  public LitiengineLevelColorGradeEffect valueMultiplier(float valueMultiplier) {
+  public LevelColorGradeEffect valueMultiplier(float valueMultiplier) {
     this.valueMultiplier = Math.max(0f, valueMultiplier);
     return this;
   }
@@ -85,7 +85,7 @@ public final class LitiengineLevelColorGradeEffect
    * @param region region in world coordinates; {@code null} means full-level effect
    * @return this effect for chaining
    */
-  public LitiengineLevelColorGradeEffect region(Rectangle region) {
+  public LevelColorGradeEffect region(Rectangle region) {
     this.region = region;
     return this;
   }
@@ -105,7 +105,7 @@ public final class LitiengineLevelColorGradeEffect
    * @param transitionSize transition size in world units; negative values are clamped to 0
    * @return this effect for chaining
    */
-  public LitiengineLevelColorGradeEffect transitionSize(float transitionSize) {
+  public LevelColorGradeEffect transitionSize(float transitionSize) {
     this.transitionSize = Math.max(0f, transitionSize);
     return this;
   }
@@ -121,7 +121,7 @@ public final class LitiengineLevelColorGradeEffect
   }
 
   @Override
-  public BufferedImage apply(BufferedImage input, LitiengineLevelPassContext context, long nowMs) {
+  public BufferedImage apply(BufferedImage input, LevelPassContext context, long nowMs) {
     if (input == null || !enabled) {
       return input;
     }
@@ -159,7 +159,7 @@ public final class LitiengineLevelColorGradeEffect
     return output;
   }
 
-  private float effectInfluenceAt(int bufferX, int bufferY, LitiengineLevelPassContext context) {
+  private float effectInfluenceAt(int bufferX, int bufferY, LevelPassContext context) {
     if (region == null) {
       return 1f;
     }
@@ -187,7 +187,7 @@ public final class LitiengineLevelColorGradeEffect
   }
 
   private static Point worldPointForBufferPixel(
-    int bufferX, int bufferY, LitiengineLevelPassContext context) {
+    int bufferX, int bufferY, LevelPassContext context) {
     int tilePx = Math.max(1, context.tilePx());
 
     float worldX = context.minTileX() + ((bufferX + 0.5f) / tilePx);

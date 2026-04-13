@@ -7,16 +7,16 @@ import java.util.*;
  *
  * <p>Effects are sorted first by priority and then by insertion order.
  */
-public final class LitiengineLevelEffects {
+public final class LevelEffectRegistry {
 
   private long insertionCounter = 0L;
 
-  private final Map<String, LitiengineLevelEffect> effectMap = new HashMap<>();
+  private final Map<String, LevelEffect> effectMap = new HashMap<>();
   private final Map<String, Integer> priorityMap = new HashMap<>();
   private final Map<String, Long> insertionIndexMap = new HashMap<>();
   private final TreeMap<Integer, Set<Entry>> sortedByPriority = new TreeMap<>();
 
-  public boolean add(String identifier, LitiengineLevelEffect effect, int priority) {
+  public boolean add(String identifier, LevelEffect effect, int priority) {
     Objects.requireNonNull(identifier, "identifier");
     Objects.requireNonNull(effect, "effect");
 
@@ -34,7 +34,7 @@ public final class LitiengineLevelEffects {
     return true;
   }
 
-  public boolean add(String identifier, LitiengineLevelEffect effect) {
+  public boolean add(String identifier, LevelEffect effect) {
     return add(identifier, effect, 0);
   }
 
@@ -43,7 +43,7 @@ public final class LitiengineLevelEffects {
       return false;
     }
 
-    LitiengineLevelEffect removedEffect = effectMap.remove(identifier);
+    LevelEffect removedEffect = effectMap.remove(identifier);
     Integer priority = priorityMap.remove(identifier);
     Long insertionIndex = insertionIndexMap.remove(identifier);
 
@@ -54,12 +54,12 @@ public final class LitiengineLevelEffects {
     return true;
   }
 
-  public Optional<LitiengineLevelEffect> get(String identifier) {
+  public Optional<LevelEffect> get(String identifier) {
     return Optional.ofNullable(effectMap.get(identifier));
   }
 
   public boolean changePriority(String identifier, int newPriority) {
-    LitiengineLevelEffect effect = effectMap.get(identifier);
+    LevelEffect effect = effectMap.get(identifier);
     Integer oldPriority = priorityMap.get(identifier);
     Long insertionIndex = insertionIndexMap.get(identifier);
 
@@ -79,7 +79,7 @@ public final class LitiengineLevelEffects {
   }
 
   public boolean hasEnabledEffects() {
-    for (LitiengineLevelEffect effect : effectMap.values()) {
+    for (LevelEffect effect : effectMap.values()) {
       if (effect.enabled()) {
         return true;
       }
@@ -88,7 +88,7 @@ public final class LitiengineLevelEffects {
   }
 
   public void enableAll(boolean enabled) {
-    for (LitiengineLevelEffect effect : effectMap.values()) {
+    for (LevelEffect effect : effectMap.values()) {
       if (effect instanceof ToggleableLevelEffect toggleable) {
         toggleable.enabled(enabled);
       }
@@ -106,7 +106,7 @@ public final class LitiengineLevelEffects {
   public boolean allEnabled() {
     boolean hasToggleableEffects = false;
 
-    for (LitiengineLevelEffect effect : effectMap.values()) {
+    for (LevelEffect effect : effectMap.values()) {
       if (effect instanceof ToggleableLevelEffect) {
         hasToggleableEffects = true;
         if (!effect.enabled()) {
@@ -135,12 +135,12 @@ public final class LitiengineLevelEffects {
     return effectMap.isEmpty();
   }
 
-  public Iterable<LitiengineLevelEffect> getSorted(boolean onlyEnabled) {
+  public Iterable<LevelEffect> getSorted(boolean onlyEnabled) {
     return () ->
       new Iterator<>() {
         private final Iterator<Set<Entry>> priorityIterator = sortedByPriority.values().iterator();
         private Iterator<Entry> currentSetIterator = Collections.emptyIterator();
-        private LitiengineLevelEffect nextEffect = null;
+        private LevelEffect nextEffect = null;
 
         @Override
         public boolean hasNext() {
@@ -150,7 +150,7 @@ public final class LitiengineLevelEffects {
 
           while (true) {
             if (currentSetIterator.hasNext()) {
-              LitiengineLevelEffect candidate = currentSetIterator.next().effect();
+              LevelEffect candidate = currentSetIterator.next().effect();
               if (!onlyEnabled || candidate.enabled()) {
                 nextEffect = candidate;
                 return true;
@@ -164,19 +164,19 @@ public final class LitiengineLevelEffects {
         }
 
         @Override
-        public LitiengineLevelEffect next() {
+        public LevelEffect next() {
           if (!hasNext()) {
             throw new NoSuchElementException();
           }
 
-          LitiengineLevelEffect result = nextEffect;
+          LevelEffect result = nextEffect;
           nextEffect = null;
           return result;
         }
       };
   }
 
-  public Iterable<LitiengineLevelEffect> getEnabledSorted() {
+  public Iterable<LevelEffect> getEnabledSorted() {
     return getSorted(true);
   }
 
@@ -190,7 +190,7 @@ public final class LitiengineLevelEffects {
     }
   }
 
-  private record Entry(LitiengineLevelEffect effect, long insertionIndex)
+  private record Entry(LevelEffect effect, long insertionIndex)
     implements Comparable<Entry> {
     @Override
     public int compareTo(Entry other) {
@@ -209,7 +209,7 @@ public final class LitiengineLevelEffects {
   }
 
   /** Optional helper contract for mutable level-pass effects. */
-  public interface ToggleableLevelEffect extends LitiengineLevelEffect {
+  public interface ToggleableLevelEffect extends LevelEffect {
     void enabled(boolean enabled);
   }
 }

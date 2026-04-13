@@ -23,8 +23,8 @@ import core.level.loader.DungeonLoader;
 import core.game.render.depth.LitiengineDepthLayerColorGradeEffect;
 import core.game.render.depth.LitiengineDepthLayerEffectPipeline;
 import core.platform.litiengine.render.effects.*;
-import core.game.render.level.LitiengineLevelColorGradeEffect;
-import core.game.render.level.LitiengineLevelEffectPipeline;
+import core.game.render.level.LevelColorGradeEffect;
+import core.game.render.level.LevelEffectPipeline;
 import core.game.render.scene.LitiengineSceneColorGradeEffect;
 import core.game.render.scene.LitiengineSceneEffectPipeline;
 import core.utils.Point;
@@ -137,10 +137,10 @@ public final class LitiengineStarter {
    * so both pass types can be distinguished more clearly during verification.
    */
   private static void installLevelColorGradeDemo() {
-    LitiengineLevelEffectPipeline.effects().remove("starter_level_color_grade_demo");
-    LitiengineLevelEffectPipeline.effects().add(
+    LevelEffectPipeline.effects().remove("starter_level_color_grade_demo");
+    LevelEffectPipeline.effects().add(
       "starter_level_color_grade_demo",
-      new LitiengineLevelColorGradeEffect(-1.0f, 0.58f, 0.82f)
+      new LevelColorGradeEffect(-1.0f, 0.58f, 0.82f)
         .region(new Rectangle(3f, 0f, 7f, 4f))
         .transitionSize(2.0f),
       100);
