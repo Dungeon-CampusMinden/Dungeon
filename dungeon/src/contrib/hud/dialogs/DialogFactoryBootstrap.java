@@ -47,7 +47,7 @@ public final class DialogFactoryBootstrap {
     DialogFactory.replace(DialogType.DefaultTypes.TEXT, TextDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.IMAGE, ShowImageDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.PROGRESS_BAR, LitiengineProgressBarDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.PROGRESS_BAR, ProgressBarDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.PAUSE_MENU, PauseMenuDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.KEYPAD, KeypadDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilder::build);

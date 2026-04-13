@@ -7,9 +7,9 @@ import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 
 /** Builds the LITIENGINE-backed progress bar dialog used for entity attribute bars. */
-public final class LitiengineProgressBarDialogBuilder {
+public final class ProgressBarDialogBuilder {
 
-  private LitiengineProgressBarDialogBuilder() {}
+  private ProgressBarDialogBuilder() {}
 
   public static UiNodeHandle build(DialogContext ctx) {
     AttributeBarDialogData data =
