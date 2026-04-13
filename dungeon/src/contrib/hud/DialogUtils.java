@@ -2,8 +2,8 @@ package contrib.hud;
 
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.*;
-import contrib.utils.components.showImage.ShowImageText;
-import contrib.utils.components.showImage.TransitionSpeed;
+import contrib.hud.image.ShowImageText;
+import contrib.hud.image.TransitionSpeed;
 import core.Entity;
 import core.Game;
 import core.utils.IVoidFunction;

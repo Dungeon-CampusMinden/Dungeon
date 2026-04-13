@@ -1,4 +1,4 @@
-package contrib.utils.components.showImage;
+package contrib.hud.image;
 
 /** Enum representing the speed of the transition animation. */
 public enum TransitionSpeed {

@@ -3,7 +3,7 @@ package contrib.entities;
 import contrib.components.ShowImageComponent;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
-import contrib.utils.components.showImage.ShowImageText;
+import contrib.hud.image.ShowImageText;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;

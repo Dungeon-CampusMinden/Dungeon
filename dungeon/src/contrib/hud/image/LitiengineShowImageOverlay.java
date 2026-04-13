@@ -1,6 +1,5 @@
 package contrib.hud.image;
 
-import contrib.utils.components.showImage.TransitionSpeed;
 import core.Game;
 import core.render.LitiengineImages;
 import core.ui.dialogs.LitiengineDialogOverlaySupport;

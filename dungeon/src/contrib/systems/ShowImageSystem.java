@@ -5,7 +5,7 @@ import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
-import contrib.utils.components.showImage.ShowImageText;
+import contrib.hud.image.ShowImageText;
 import core.Entity;
 import core.Game;
 import core.System;

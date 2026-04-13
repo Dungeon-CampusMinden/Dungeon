@@ -2,7 +2,6 @@ package contrib.hud.image;
 
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.utils.components.showImage.TransitionSpeed;
 import core.ui.UiNodeHandle;
 import core.ui.overlay.LitiengineUiNodeHandle;
 
