@@ -3,7 +3,7 @@ package contrib.hud.image;
 import core.Game;
 import core.render.LitiengineImages;
 import core.ui.dialogs.LitiengineDialogOverlaySupport;
-import core.ui.overlay.LitiengineUiOverlay;
+import core.ui.overlay.UiOverlay;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
@@ -17,7 +17,7 @@ import java.util.List;
  *
  * <p>Supports image path, transition speed, max size, and optional centered overlay text.
  */
-final class ShowImageOverlay implements LitiengineUiOverlay {
+final class ShowImageOverlay implements UiOverlay {
 
   private static final float DEFAULT_MAX_SIZE = 0.85f;
   private static final int PANEL_PADDING = 12;

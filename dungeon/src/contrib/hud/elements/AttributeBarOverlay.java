@@ -1,7 +1,7 @@
 package contrib.hud.elements;
 
-import core.ui.overlay.LitiengineUiOverlay;
-import core.ui.overlay.LitiengineUiOverlayRegistry;
+import core.ui.overlay.UiOverlay;
+import core.ui.overlay.UiOverlayRegistry;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
@@ -12,7 +12,7 @@ import java.awt.Graphics2D;
  * AttributeBarSystem can continue to update it without knowing the concrete UI backend.
  */
 final class AttributeBarOverlay
-  implements LitiengineUiOverlay, AttributeBarHandle, AttributeBarHandleProvider {
+  implements UiOverlay, AttributeBarHandle, AttributeBarHandleProvider {
 
   private static final int DEFAULT_WIDTH = 50;
   private static final int DEFAULT_HEIGHT = 10;
@@ -71,7 +71,7 @@ final class AttributeBarOverlay
   @Override
   public void remove() {
     visible = false;
-    LitiengineUiOverlayRegistry.remove(this);
+    UiOverlayRegistry.remove(this);
   }
 
   @Override

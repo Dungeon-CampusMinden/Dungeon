@@ -1,6 +1,6 @@
 package contrib.hud.dialogs;
 
-import core.ui.overlay.LitiengineUiOverlay;
+import core.ui.overlay.UiOverlay;
 import java.awt.Graphics2D;
 
 /**
@@ -9,7 +9,7 @@ import java.awt.Graphics2D;
  * <p>This intentionally mirrors the very simple semantics of the existing libGDX pause menu:
  * it only visualizes the paused state and tells the user how to resume.
  */
-final class LitienginePauseMenuOverlay implements LitiengineUiOverlay {
+final class LitienginePauseMenuOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 400;
   private static final int DEFAULT_HEIGHT = 200;

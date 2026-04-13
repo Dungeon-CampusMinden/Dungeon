@@ -6,7 +6,7 @@ import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
 import core.ui.dialogs.LitiengineDialogOverlaySupport;
-import core.ui.overlay.LitiengineUiOverlay;
+import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  * transfer.
  */
 final class DualInventoryDialogOverlay
-  implements LitiengineUiOverlay, InventoryComponentProvider {
+  implements UiOverlay, InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 1100;
   private static final int DEFAULT_HEIGHT = 470;

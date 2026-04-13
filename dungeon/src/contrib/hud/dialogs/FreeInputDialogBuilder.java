@@ -1,14 +1,13 @@
 package contrib.hud.dialogs;
 
-import core.ui.UiNodeHandle;
-import core.ui.overlay.LitiengineUiNodeHandle;
+import core.ui.overlay.OverlayUiNodeHandle;
 
 /** Builds the LITIENGINE-backed free-input dialog. */
 public final class FreeInputDialogBuilder {
 
   private FreeInputDialogBuilder() {}
 
-  public static UiNodeHandle build(DialogContext ctx) {
+  public static core.ui.UiNodeHandle build(DialogContext ctx) {
     String title =
       ctx.find(DialogContextKeys.TITLE, String.class)
         .orElse(LitiengineFreeInputDialogOverlay.TITLE_DEFAULT);
@@ -24,7 +23,7 @@ public final class FreeInputDialogBuilder {
       ctx.find(DialogContextKeys.CANCEL_LABEL, String.class)
         .orElse(LitiengineFreeInputDialogOverlay.CANCEL_BUTTON);
 
-    return new LitiengineUiNodeHandle(
+    return new OverlayUiNodeHandle(
       new LitiengineFreeInputDialogOverlay(
         title, question, prefill, placeholder, confirmLabel, cancelLabel, ctx.dialogId()));
   }

@@ -3,7 +3,7 @@ package contrib.modules.interaction.ui;
 import contrib.modules.interaction.IInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionSelectionUi;
-import core.ui.overlay.LitiengineUiOverlayRegistry;
+import core.ui.overlay.UiOverlayRegistry;
 import java.util.function.Consumer;
 
 /** LITIENGINE-backed interaction chooser based on a custom screen overlay. */
@@ -19,7 +19,7 @@ public final class LitiengineInteractionSelectionUi implements InteractionSelect
     LitiengineInteractionSelectionOverlay overlay =
       new LitiengineInteractionSelectionOverlay(interactable, onSelected);
 
-    LitiengineUiOverlayRegistry.add(overlay);
-    LitiengineUiOverlayRegistry.toFront(overlay);
+    UiOverlayRegistry.add(overlay);
+    UiOverlayRegistry.toFront(overlay);
   }
 }

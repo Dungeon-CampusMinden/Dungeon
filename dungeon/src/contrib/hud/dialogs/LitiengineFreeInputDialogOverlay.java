@@ -3,7 +3,7 @@ package contrib.hud.dialogs;
 import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
-import core.ui.overlay.LitiengineUiOverlay;
+import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import java.awt.Color;
@@ -16,7 +16,7 @@ import java.util.List;
  *
  * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
  */
-final class LitiengineFreeInputDialogOverlay implements LitiengineUiOverlay {
+final class LitiengineFreeInputDialogOverlay implements UiOverlay {
 
   static final String TITLE_DEFAULT = "Frage";
   static final String OK_BUTTON = "OK";

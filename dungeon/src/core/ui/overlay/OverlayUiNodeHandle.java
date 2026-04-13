@@ -1,22 +1,22 @@
 package core.ui.overlay;
 
 import core.ui.StageHandle;
-import core.ui.UiNodeHandle;
+
 import java.util.Optional;
 
-/** LITIENGINE-backed {@link UiNodeHandle} for custom screen overlays. */
-public final class LitiengineUiNodeHandle implements UiNodeHandle {
+/** LITIENGINE-backed {@link core.ui.UiNodeHandle} for custom screen overlays. */
+public final class OverlayUiNodeHandle implements core.ui.UiNodeHandle {
 
-  private final LitiengineUiOverlay overlay;
+  private final UiOverlay overlay;
 
-  public LitiengineUiNodeHandle(LitiengineUiOverlay overlay) {
+  public OverlayUiNodeHandle(UiOverlay overlay) {
     this.overlay = overlay;
   }
 
   @Override
   public void remove() {
     overlay.visible(false);
-    LitiengineUiOverlayRegistry.remove(overlay);
+    UiOverlayRegistry.remove(overlay);
   }
 
   @Override
@@ -36,18 +36,18 @@ public final class LitiengineUiNodeHandle implements UiNodeHandle {
 
   @Override
   public boolean isAttached() {
-    return LitiengineUiOverlayRegistry.contains(overlay);
+    return UiOverlayRegistry.contains(overlay);
   }
 
   @Override
   public void attachTo(StageHandle stageHandle) {
     overlay.visible(true);
-    LitiengineUiOverlayRegistry.add(overlay);
+    UiOverlayRegistry.add(overlay);
   }
 
   @Override
   public void toFront() {
-    LitiengineUiOverlayRegistry.toFront(overlay);
+    UiOverlayRegistry.toFront(overlay);
   }
 
   @Override

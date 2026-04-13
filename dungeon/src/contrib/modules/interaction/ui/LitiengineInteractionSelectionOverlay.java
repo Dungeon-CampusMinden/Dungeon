@@ -5,8 +5,8 @@ import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionChoices;
 import core.Game;
 import core.input.MouseButtons;
-import core.ui.overlay.LitiengineUiOverlay;
-import core.ui.overlay.LitiengineUiOverlayRegistry;
+import core.ui.overlay.UiOverlay;
+import core.ui.overlay.UiOverlayRegistry;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import java.awt.AlphaComposite;
@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  * <p>This intentionally mirrors the semantics of the old RingMenu, but uses the existing
  * LITIENGINE overlay infrastructure instead of scene2d.
  */
-final class LitiengineInteractionSelectionOverlay implements LitiengineUiOverlay {
+final class LitiengineInteractionSelectionOverlay implements UiOverlay {
 
   private static final int PANEL_WIDTH = 320;
   private static final int PANEL_PADDING = 16;
@@ -177,7 +177,7 @@ final class LitiengineInteractionSelectionOverlay implements LitiengineUiOverlay
 
   private void close(Interaction interaction) {
     visible = false;
-    LitiengineUiOverlayRegistry.remove(this);
+    UiOverlayRegistry.remove(this);
     onSelected.accept(interaction);
   }
 

@@ -1,14 +1,13 @@
 package contrib.hud.dialogs;
 
-import core.ui.UiNodeHandle;
-import core.ui.overlay.LitiengineUiNodeHandle;
+import core.ui.overlay.OverlayUiNodeHandle;
 
 /** Builds the LITIENGINE-backed pause menu dialog. */
 public final class PauseMenuDialogBuilder {
 
   private PauseMenuDialogBuilder() {}
 
-  public static UiNodeHandle build(DialogContext ctx) {
-    return new LitiengineUiNodeHandle(new LitienginePauseMenuOverlay());
+  public static core.ui.UiNodeHandle build(DialogContext ctx) {
+    return new OverlayUiNodeHandle(new LitienginePauseMenuOverlay());
   }
 }

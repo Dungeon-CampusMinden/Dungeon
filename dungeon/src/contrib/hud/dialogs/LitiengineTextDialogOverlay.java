@@ -5,7 +5,7 @@ import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
 import core.platform.litiengine.dialogs.LitiengineButtonRenderer;
-import core.ui.overlay.LitiengineUiOverlay;
+import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import java.awt.Graphics2D;
@@ -18,7 +18,7 @@ import java.util.List;
  *
  * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
  */
-final class LitiengineTextDialogOverlay implements LitiengineUiOverlay {
+final class LitiengineTextDialogOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 560;
   private static final int DEFAULT_HEIGHT = 260;

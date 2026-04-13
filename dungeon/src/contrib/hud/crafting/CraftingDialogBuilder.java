@@ -7,8 +7,7 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
 import core.Entity;
 import core.components.PlayerComponent;
-import core.ui.UiNodeHandle;
-import core.ui.overlay.LitiengineUiNodeHandle;
+import core.ui.overlay.OverlayUiNodeHandle;
 import core.utils.logging.DungeonLogger;
 
 /** Builds the LITIENGINE-backed crafting dialog. */
@@ -18,7 +17,7 @@ public final class CraftingDialogBuilder {
 
   private CraftingDialogBuilder() {}
 
-  public static UiNodeHandle build(DialogContext ctx) {
+  public static core.ui.UiNodeHandle build(DialogContext ctx) {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
     Entity craftEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
 
@@ -43,7 +42,7 @@ public final class CraftingDialogBuilder {
       new CraftingDialogController(heroInventory, craftInventory);
     controller.registerCallbacks(uiComponent);
 
-    return new LitiengineUiNodeHandle(
+    return new OverlayUiNodeHandle(
       new CraftingDialogOverlay(title, craftTitle, controller, ctx.dialogId()));
   }
 

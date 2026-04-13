@@ -6,7 +6,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.input.MouseButtons;
 import core.ui.dialogs.LitiengineDialogOverlaySupport;
-import core.ui.overlay.LitiengineUiOverlay;
+import core.ui.overlay.UiOverlay;
 import core.sound.SoundSpec;
 import core.ui.StageHandle;
 import core.utils.InputManager;
@@ -22,7 +22,7 @@ import java.util.List;
  *
  * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
  */
-final class KeypadDialogOverlay implements LitiengineUiOverlay {
+final class KeypadDialogOverlay implements UiOverlay {
 
   private static final String TITLE = "Keypad";
 

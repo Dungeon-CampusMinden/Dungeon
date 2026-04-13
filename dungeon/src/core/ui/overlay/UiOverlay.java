@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
  *
  * <p>Coordinates are window/screen coordinates with origin in the top-left corner.
  */
-public interface LitiengineUiOverlay {
+public interface UiOverlay {
 
   void render(Graphics2D g);
 

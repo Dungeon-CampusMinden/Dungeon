@@ -13,7 +13,7 @@ import core.input.MouseButtons;
 import core.render.LitiengineAnimationFrames;
 import core.render.LitiengineImages;
 import core.ui.dialogs.LitiengineDialogOverlaySupport;
-import core.ui.overlay.LitiengineUiOverlay;
+import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import core.utils.components.draw.animation.Animation;
@@ -36,7 +36,7 @@ import java.util.stream.Stream;
  * with an upper ingredient row, a lower result row and classic craft/cancel buttons.
  */
 final class CraftingDialogOverlay
-  implements LitiengineUiOverlay, InventoryComponentProvider {
+  implements UiOverlay, InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 1180;
   private static final int DEFAULT_HEIGHT = 600;

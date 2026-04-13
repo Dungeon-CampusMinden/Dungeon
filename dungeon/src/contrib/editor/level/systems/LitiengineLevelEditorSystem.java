@@ -21,7 +21,7 @@ import core.game.render.LitiengineGraphicsContext;
 import core.platform.litiengine.render.LitiengineOverlaySizing;
 import contrib.editor.level.ui.LitiengineLevelEditorOverlay;
 import contrib.debug.systems.LitiengineDebugDrawSystem;
-import core.ui.overlay.LitiengineUiOverlayRegistry;
+import core.ui.overlay.UiOverlayRegistry;
 import core.ui.StageHandle;
 import core.utils.*;
 import core.utils.logging.DungeonLogger;
@@ -208,8 +208,8 @@ public final class LitiengineLevelEditorSystem extends System {
       onModeEnter(this.currentMode);
 
       overlay.visible(true);
-      if (!LitiengineUiOverlayRegistry.contains(overlay)) {
-        LitiengineUiOverlayRegistry.add(overlay);
+      if (!UiOverlayRegistry.contains(overlay)) {
+        UiOverlayRegistry.add(overlay);
       }
 
       showFeedback("LITIENGINE level editor active", new Color(120, 220, 120));
@@ -224,7 +224,7 @@ public final class LitiengineLevelEditorSystem extends System {
     enablePlayerGodMode(false);
 
     overlay.visible(false);
-    LitiengineUiOverlayRegistry.remove(overlay);
+    UiOverlayRegistry.remove(overlay);
 
     feedbackMessage = "";
     feedbackUntilMs = 0L;
@@ -317,8 +317,8 @@ public final class LitiengineLevelEditorSystem extends System {
   }
 
   private void syncOverlay() {
-    if (!LitiengineUiOverlayRegistry.contains(overlay)) {
-      LitiengineUiOverlayRegistry.add(overlay);
+    if (!UiOverlayRegistry.contains(overlay)) {
+      UiOverlayRegistry.add(overlay);
     }
 
     StageHandle stage = Game.stage().orElse(null);

@@ -2,15 +2,14 @@ package contrib.hud.image;
 
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import core.ui.UiNodeHandle;
-import core.ui.overlay.LitiengineUiNodeHandle;
+import core.ui.overlay.OverlayUiNodeHandle;
 
 /** Builds the LITIENGINE-backed image dialog. */
 public final class ShowImageDialogBuilder {
 
   private ShowImageDialogBuilder() {}
 
-  public static UiNodeHandle build(DialogContext ctx) {
+  public static core.ui.UiNodeHandle build(DialogContext ctx) {
     String imagePath = ctx.require(DialogContextKeys.IMAGE, String.class);
     TransitionSpeed speed =
       ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
@@ -28,7 +27,7 @@ public final class ShowImageDialogBuilder {
     int imageTextColorRgba8888 =
       ctx.find(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, Integer.class).orElse(0x000000ff);
 
-    return new LitiengineUiNodeHandle(
+    return new OverlayUiNodeHandle(
       new ShowImageOverlay(
         imagePath, speed, maxSize, imageText, imageTextScale, imageTextColorRgba8888));
   }

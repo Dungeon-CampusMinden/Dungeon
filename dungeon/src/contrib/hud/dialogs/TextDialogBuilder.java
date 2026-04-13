@@ -1,7 +1,6 @@
 package contrib.hud.dialogs;
 
-import core.ui.UiNodeHandle;
-import core.ui.overlay.LitiengineUiNodeHandle;
+import core.ui.overlay.OverlayUiNodeHandle;
 
 /** Builds the LITIENGINE-backed text dialog. */
 public final class TextDialogBuilder {
@@ -10,7 +9,7 @@ public final class TextDialogBuilder {
 
   private TextDialogBuilder() {}
 
-  public static UiNodeHandle build(DialogContext ctx) {
+  public static core.ui.UiNodeHandle build(DialogContext ctx) {
     String title = ctx.require(DialogContextKeys.TITLE, String.class);
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String confirmLabel =
@@ -20,7 +19,7 @@ public final class TextDialogBuilder {
     String[] additionalButtons =
       ctx.find(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class).orElse(new String[] {});
 
-    return new LitiengineUiNodeHandle(
+    return new OverlayUiNodeHandle(
       new LitiengineTextDialogOverlay(
         title, text, confirmLabel, cancelLabel, additionalButtons, ctx.dialogId()));
   }

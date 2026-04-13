@@ -2,7 +2,7 @@ package contrib.hud.dialogs;
 
 import core.Game;
 import core.input.MouseButtons;
-import core.ui.overlay.LitiengineUiOverlay;
+import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import java.awt.Graphics2D;
@@ -13,7 +13,7 @@ import java.awt.Rectangle;
  *
  * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
  */
-final class LitiengineOkDialogOverlay implements LitiengineUiOverlay {
+final class LitiengineOkDialogOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 460;
   private static final int DEFAULT_HEIGHT = 220;
