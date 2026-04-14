@@ -8,16 +8,48 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 /**
- * Bridges client-side keyboard and mouse events into the backend-agnostic {@link InputManager}.
+ * Bridges LitieEngine input events to the core InputManager.
  *
- * <p>This bridge translates backend-specific AWT/LITIENGINE input events to the project's internal
- * input codes defined in {@link Keys} and {@link MouseButtons}.
+ * <p>ClientInputBridge connects the LitieEngine input system to the core game engine's InputManager,
+ * translating AWT key and mouse events into the engine's input code system. It provides a single
+ * installation point that registers all necessary event listeners.
+ *
+ * <p>Key responsibilities:
+ * <ul>
+ *   <li>Listening for keyboard press, release, and type events from LitieEngine
+ *   <li>Listening for mouse button press and release events from LitieEngine
+ *   <li>Mapping AWT key codes and mouse button codes to engine-specific input codes
+ *   <li>Forwarding mapped events to InputManager for distribution to game systems
+ * </ul>
+ *
+ * <p>The bridge supports a comprehensive set of keyboard inputs (letters, numbers, arrows, function keys,
+ * modifiers) and mouse buttons (left, right, middle).
+ *
+ * <p>Installation is thread-safe and idempotent: calling install() multiple times is safe.
+ *
+ * <p>This class is not instantiable; all members are static.
  */
 public final class ClientInputBridge {
+
   private static boolean installed = false;
 
   private ClientInputBridge() {}
 
+  /**
+   * Installs the input bridge by registering event listeners with LitieEngine.
+   *
+   * <p>This method registers the following listeners:
+   * <ul>
+   *   <li>Keyboard press listener - translates key presses to InputManager key down events
+   *   <li>Keyboard release listener - translates key releases to InputManager key up events
+   *   <li>Keyboard type listener - forwards typed characters to InputManager
+   *   <li>Mouse button press listener - translates button presses to InputManager button down events
+   *   <li>Mouse button release listener - translates button releases to InputManager button-up events
+   * </ul>
+   *
+   * <p>This method is thread-safe and idempotent: calling it multiple times has no additional effect
+   * after the first call (later calls are no-ops due to the installed flag).
+   */
   public static synchronized void install() {
     if (installed) {
       return;
@@ -69,12 +101,6 @@ public final class ClientInputBridge {
         });
   }
 
-  /**
-   * Maps AWT key codes to the project's backend-agnostic input codes.
-   *
-   * <p>This mapping intentionally only covers gameplay-relevant pressed/released keys. Typed text
-   * input is handled separately via {@code onKeyTyped}.
-   */
   private static int mapAwtKeyToInputCode(int awtKey) {
     return switch (awtKey) {
       case KeyEvent.VK_W -> Keys.W;
@@ -138,7 +164,6 @@ public final class ClientInputBridge {
     };
   }
 
-  /** Maps AWT mouse button codes to the project's backend-agnostic input codes. */
   private static int mapAwtButtonToInputCode(int awtButton) {
     return switch (awtButton) {
       case MouseEvent.BUTTON1 -> MouseButtons.LEFT;
