@@ -1,7 +1,7 @@
 package contrib.hud.dialogs;
 
 import contrib.hud.elements.AttributeBarDialogData;
-import contrib.hud.elements.LitiengineAttributeBarOverlay;
+import contrib.hud.elements.AttributeBarOverlay;
 import contrib.hud.utils.AttributeBarUtil;
 import core.ui.overlay.OverlayUiNodeHandle;
 
@@ -14,8 +14,8 @@ public final class ProgressBarDialogBuilder {
     AttributeBarDialogData data =
       ctx.require(DialogContextKeys.PROGRESS_BAR, AttributeBarDialogData.class);
 
-    LitiengineAttributeBarOverlay overlay =
-      new LitiengineAttributeBarOverlay(data.styleName());
+    AttributeBarOverlay overlay =
+      new AttributeBarOverlay(data.styleName());
 
     AttributeBarUtil.updatePosition(overlay, data.pc(), data.verticalOffset());
     overlay.setVisible(true);

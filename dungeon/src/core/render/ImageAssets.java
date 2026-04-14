@@ -91,7 +91,7 @@ public final class ImageAssets {
    * - "character/wizard"  -> "character/wizard/wizard.png"
    * - "foo.png"           -> "foo.png"
    */
-  static String resolveImplicitFilePath(String pathString) {
+  public static String resolveImplicitFilePath(String pathString) {
     if (pathString == null || pathString.isEmpty()) return pathString;
 
     pathString = normalize(pathString);

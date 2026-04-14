@@ -32,7 +32,7 @@ public final class MultiplayerClient {
     Game.windowTitle("Dev Client - " + PreRunConfiguration.username());
     Game.userOnSetup(
         () -> {
-          ClientRuntimeSetup.installDebugger();
+          ClientRuntimeSetup.installDebugSystems();
           System.out.println("DevClient started");
         });
 

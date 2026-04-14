@@ -2,7 +2,7 @@ package contrib.hud.image;
 
 import core.Game;
 import core.render.ImageAssets;
-import core.ui.dialogs.LitiengineDialogOverlaySupport;
+import contrib.hud.overlays.DialogFrameRenderer;
 import core.ui.overlay.UiOverlay;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -72,8 +72,8 @@ final class ShowImageOverlay implements UiOverlay {
 
     ensureImageLoaded();
 
-    LitiengineDialogOverlaySupport.RenderState state =
-      LitiengineDialogOverlaySupport.beginDialog(g);
+    DialogFrameRenderer.RenderState state =
+      DialogFrameRenderer.beginDialog(g);
 
     try {
       if (image == null) {
@@ -82,7 +82,7 @@ final class ShowImageOverlay implements UiOverlay {
         renderImage(g);
       }
     } finally {
-      LitiengineDialogOverlaySupport.finishDialog(g, state);
+      DialogFrameRenderer.finishDialog(g, state);
     }
 
     advanceAnimation();
@@ -154,7 +154,7 @@ final class ShowImageOverlay implements UiOverlay {
 
     FontMetrics fm = g.getFontMetrics();
     int maxTextWidth = Math.max(40, imageWidth - 2 * TEXT_SIDE_PADDING);
-    List<String> lines = LitiengineDialogOverlaySupport.wrapText(imageText, fm, maxTextWidth);
+    List<String> lines = DialogFrameRenderer.wrapText(imageText, fm, maxTextWidth);
 
     int textBlockHeight = lines.size() * fm.getHeight();
     int boxWidth = maxTextWidth + TEXT_SIDE_PADDING;
@@ -198,14 +198,14 @@ final class ShowImageOverlay implements UiOverlay {
     g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, easedAnimation()));
 
     int textY =
-      LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, "Image");
+      DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Image");
 
-    LitiengineDialogOverlaySupport.drawWrappedText(
+    DialogFrameRenderer.drawWrappedText(
       g,
       "Could not load image:\n" + imagePath,
-      x + LitiengineDialogOverlaySupport.PADDING,
+      x + DialogFrameRenderer.PADDING,
       textY,
-      width - 2 * LitiengineDialogOverlaySupport.PADDING);
+      width - 2 * DialogFrameRenderer.PADDING);
   }
 
   private void advanceAnimation() {

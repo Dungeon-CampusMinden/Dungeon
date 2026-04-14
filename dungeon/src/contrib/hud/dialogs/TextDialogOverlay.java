@@ -5,7 +5,6 @@ import contrib.hud.overlays.DialogFrameRenderer;
 import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
-import core.platform.litiengine.dialogs.LitiengineButtonRenderer;
 import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
@@ -92,7 +91,7 @@ final class TextDialogOverlay implements UiOverlay {
         width - 2 * DialogFrameRenderer.PADDING);
 
       for (int i = 0; i < labels.size() && i < actionButtons.size(); i++) {
-        LitiengineButtonRenderer.draw(g, actionButtons.get(i), labels.get(i));
+        DialogFrameRenderer.drawButton(g, actionButtons.get(i), labels.get(i));
       }
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
