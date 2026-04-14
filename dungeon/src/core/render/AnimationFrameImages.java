@@ -5,14 +5,46 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
+
 /**
- * Utility to resolve engine-agnostic {@link AnimationFrame}s into LITIENGINE/AWT {@link BufferedImage}s.
+ * Utility class for converting animation frames to renderable images.
  *
- * <p>Caches the resolved image in {@link AnimationFrame#backendHandle()} to avoid repeated work.
+ * <p>AnimationFrameImages provides static methods to extract and process animation frames from
+ * sprite sheets and texture assets. It handles frame region extraction, horizontal flipping,
+ * and image caching for performance optimization.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Converting AnimationFrame objects to BufferedImage instances
+ *   <li>Loading textures from an asset management system
+ *   <li>Extracting regions from sprite sheets
+ *   <li>Applying frame transformations (horizontal flips)
+ *   <li>Caching processed images for reuse
+ * </ul>
+ *
+ * <p>This class is not instantiable; all methods are static utilities.
  */
 public final class AnimationFrameImages {
   private AnimationFrameImages() {}
 
+  /**
+   * Converts an AnimationFrame to a BufferedImage, applying transformations as needed.
+   *
+   * <p>This method processes an animation frame by:
+   * <ol>
+   *   <li>Checking the cached image (backend handle)
+   *   <li>Loading the texture asset from the frame's path
+   *   <li>Extracting the frame region if specified (for sprite sheets)
+   *   <li>Applying horizontal flip transformation if indicated
+   *   <li>Caching the result for future calls
+   * </ol>
+   *
+   * <p>Defensive checks are performed to ensure region bounds are valid within the source image.
+   * If any processing step fails (invalid region, missing texture, etc.), null is returned.
+   *
+   * @param frame the animation frame to convert (might be null)
+   * @return the processed BufferedImage, or null if the frame is invalid or processing fails
+   */
   public static BufferedImage toImage(final AnimationFrame frame) {
     if (frame == null) return null;
 
@@ -74,12 +106,6 @@ public final class AnimationFrameImages {
     }
   }
 
-  /**
-   * Matches the "folder name implies png" convention (same as in Animation/Texture helpers):
-   * - "character/wizard/" -> "character/wizard/wizard.png"
-   * - "character/wizard"  -> "character/wizard/wizard.png"
-   * - "foo.png"           -> "foo.png"
-   */
   private static String resolveImplicitFilePath(String pathString) {
     if (pathString == null || pathString.isEmpty()) return pathString;
 
