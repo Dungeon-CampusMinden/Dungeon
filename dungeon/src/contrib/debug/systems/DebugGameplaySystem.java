@@ -1,4 +1,4 @@
-package core.platform.gdx.systems;
+package contrib.debug.systems;
 
 import contrib.debug.DebugMonsterSpawner;
 import contrib.debug.controls.DebugInputHandler;
@@ -13,15 +13,19 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 
 /**
- * Auxiliary class to accelerate the creation and testing of specific game scenarios.
+ * Debug system for gameplay-oriented runtime test actions.
  *
- * <p>It provides useful functionalities that can aid in verifying the correct behavior of a game
- * implementation.
+ * <p>This system provides debug actions such as camera zooming, teleporting, opening doors,
+ * spawning test monsters, pausing, one-frame stepping and toggling the debug HUD.
  *
- * <p>Add the Debugger in the Game-Loop by adding the {@link #execute()} call in {@link
- * Game#userOnFrame(IVoidFunction)}
+ * <p>The system is backend-neutral. Concrete input polling is delegated to {@link
+ * DebugInputHandler}, pause state is delegated to {@link DebugPauseController}, and gameplay
+ * mutations are delegated to {@link DebugGameplayActions} or {@link DebugMonsterSpawner}.
+ *
+ * <p>Add this system to the game loop by adding the {@link #execute()} call in {@link
+ * Game#userOnFrame(IVoidFunction)} or by registering it as a normal ECS system.
  */
-public class Debugger extends System {
+public class DebugGameplaySystem extends System {
 
   private static final DebugPauseController PAUSE_CONTROLLER = new DebugPauseController();
 
@@ -35,7 +39,7 @@ public class Debugger extends System {
       DebugGameplayActions::loadNextLevel,
       () -> {
         if (!LevelEditorSystem.active()) {
-          SPAWN_MONSTER_ON_CURSOR();
+          spawnMonsterOnCursor();
         }
       },
       DebugGameplayActions::openDoors,
@@ -43,83 +47,69 @@ public class Debugger extends System {
       PAUSE_CONTROLLER::advanceFrame,
       () -> Platform.render().toggleDebugHud());
 
-  /** Creates a new Debugger system. */
-  public Debugger() {
+  /** Creates a new debug gameplay system. */
+  public DebugGameplaySystem() {
     super(AuthoritativeSide.CLIENT);
   }
 
-  public static void ZOOM_CAMERA(float amount) {
+  public static void zoomCamera(float amount) {
     DebugGameplayActions.zoomCamera(amount);
   }
 
-  /** Teleports the Player to the current position of the cursor. */
-  public static void TELEPORT_TO_CURSOR() {
+  /** Teleports the player to the current cursor position. */
+  public static void teleportToCursor() {
     DebugGameplayActions.teleportToCursor();
   }
 
-  /** Teleports the Player to the end of the level, on a neighboring accessible tile if possible. */
-  public static void TELEPORT_TO_END() {
+  /** Teleports the player next to the level end if possible. */
+  public static void teleportToEnd() {
     DebugGameplayActions.teleportToEndNeighbor();
   }
 
-  /** Will teleport the Player on the EndTile so the next level gets loaded. */
-  public static void LOAD_NEXT_LEVEL() {
+  /** Teleports the player onto the end tile so the next level can be loaded. */
+  public static void loadNextLevel() {
     DebugGameplayActions.loadNextLevel();
   }
 
-  /** Teleports the player to the start of the level. */
-  public static void TELEPORT_TO_START() {
+  /** Teleports the player to the level start. */
+  public static void teleportToStart() {
     DebugGameplayActions.teleportToStart();
   }
 
-  /**
-   * Teleports the player to the given tile.
-   *
-   * @param targetLocation the tile to teleport to
-   */
-  public static void TELEPORT(Tile targetLocation) {
+  public static void teleport(Tile targetLocation) {
     DebugGameplayActions.teleport(targetLocation);
   }
 
-  /**
-   * Teleports the player to the given location.
-   *
-   * @param targetLocation the location to teleport to
-   */
-  public static void TELEPORT(Point targetLocation) {
+  public static void teleport(Point targetLocation) {
     DebugGameplayActions.teleport(targetLocation);
   }
 
-  /** Spawns a monster at the cursor's position. */
-  public static void SPAWN_MONSTER_ON_CURSOR() {
+  /** Spawns a debug monster at the cursor position. */
+  public static void spawnMonsterOnCursor() {
     DebugMonsterSpawner.spawnAtCursor();
   }
 
-  /**
-   * Spawn a monster at the given position if it is in the level and accessible.
-   *
-   * @param position The location to spawn the monster on.
-   */
-  public static void SPAWN_MONSTER(Point position) {
+  /** Spawns a debug monster at the given position. */
+  public static void spawnMonster(Point position) {
     DebugMonsterSpawner.spawnAt(position);
   }
 
-  /** Pauses the game. */
-  public static void PAUSE_GAME() {
+  /** Toggles the debug pause menu. */
+  public static void pauseGame() {
     PAUSE_CONTROLLER.togglePause();
   }
 
   /** Advances one frame while paused. */
-  public static void ADVANCE_FRAME() {
+  public static void advanceFrame() {
     PAUSE_CONTROLLER.advanceFrame();
   }
 
   @Override
   public void stop() {
-    // Cant be stopped
+    // Debug systems are not stopped by gameplay state changes.
   }
 
-  /** Checks for key input corresponding to debugger functionalities. */
+  /** Checks for key input corresponding to debug gameplay actions. */
   public void execute() {
     DebugInputHandler.handle(INPUT_ACTIONS);
     PAUSE_CONTROLLER.updateFrameAdvance();
