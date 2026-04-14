@@ -1,8 +1,5 @@
 package systems;
 
-import static coderunner.BlocklyCommands.DISABLE_SHOOT_ON_HERO;
-import static coderunner.BlocklyCommands.MAGIC_OFFSET;
-
 import client.Client;
 import coderunner.BlocklyCommands;
 import com.badlogic.gdx.Gdx;
@@ -11,6 +8,7 @@ import components.PushableComponent;
 import contrib.components.AIComponent;
 import contrib.components.BlockComponent;
 import contrib.components.ItemComponent;
+import contrib.components.SkillComponent;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
@@ -28,6 +26,7 @@ import entities.MiscFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
+import static coderunner.BlocklyCommands.*;
 
 /**
  * A system that executes queued {@link BlocklyCommands.Commands} in the game thread.
@@ -83,6 +82,8 @@ public class BlocklyCommandExecuteSystem extends System {
         case HERO_DROP_BREADCRUMBS -> dropItem(BREADCRUMB);
         case HERO_DROP_CLOVER -> dropItem(CLOVER);
         case HERO_FIREBALL -> shootFireball();
+        case HERO_SHOOT_GREEN_PORTAL  -> shootGreenPortal();
+        case HERO_SHOOT_BLUE_PORTAL -> shootBluePortal();
         case HERO_PICKUP -> pickup();
         case HERO_USE_DOWN -> interact(Direction.DOWN);
         case HERO_USE_HERE -> interact(Direction.NONE);
@@ -356,6 +357,34 @@ public class BlocklyCommandExecuteSystem extends System {
    */
   private void shootFireball() {
     FireballScheduler.shoot();
+    rest(10);
+  }
+
+  private void shootGreenPortal(){
+    Game.player().ifPresent(hero -> {
+      var skill = hero.fetch(SkillComponent.class)
+        .flatMap(sc -> sc.getSkills().stream()
+          .filter(s -> "GREEN_PORTAL".equals(s.name()))
+          .findFirst());
+      skill.ifPresent(s -> {
+        s.execute(hero);
+      });
+    });
+    rest(10);
+  }
+
+  private void shootBluePortal(){
+
+    EventScheduler.scheduleAction(() -> {
+      Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
+      hero.fetch(SkillComponent.class)
+        .flatMap(sc -> sc.getSkills().stream()
+          .filter(s -> "BLUE_PORTAL".equals(s.name()))
+          .findFirst())
+        .ifPresent(skill -> {
+          skill.execute(hero);
+        });
+    }, 0);
     rest(10);
   }
 

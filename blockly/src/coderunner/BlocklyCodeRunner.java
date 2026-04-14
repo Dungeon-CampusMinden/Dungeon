@@ -48,6 +48,8 @@ public class BlocklyCodeRunner {
           "hero.push",
           "hero.pickup",
           "hero.shootFireball",
+          "hero.shootGreenPortal",
+          "hero.shootBluePortal",
           "hero.active",
           "hero.isNearTile",
           "hero.isNearComponent",

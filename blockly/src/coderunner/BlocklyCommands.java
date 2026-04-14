@@ -84,7 +84,13 @@ public class BlocklyCommands {
     HERO_FIREBALL,
 
     /** Do nothing for a short amount of time (hero rests). */
-    REST
+    REST,
+
+    /** Shoot a blue portal projectile in the hero's current viewing direction. */
+    HERO_SHOOT_BLUE_PORTAL,
+
+    /** Shoot a green portal projectile in the hero's current viewing direction. */
+    HERO_SHOOT_GREEN_PORTAL
   }
 
   /**
