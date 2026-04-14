@@ -7,9 +7,26 @@ import core.platform.PathfindingAdapter;
 import java.util.*;
 
 /**
- * Pure-Java grid pathfinding (4-neighborhood) as a backend-agnostic fallback.
+ * A PathfindingAdapter implementation using breadth-first search (BFS) on grid-based levels.
  *
- * <p>Uses BFS (uniform cost). Returns shortest path in number of steps.
+ * <p>GridPathfindingAdapter implements pathfinding for grid-based dungeons by applying BFS,
+ * which guarantees to find the shortest path (in terms of tile count) if one exists.
+ *
+ * <p>Pathfinding behavior:
+ * <ul>
+ *   <li>Searches the 4-directional grid (up, down, left, right)
+ *   <li>Only traverses accessible tiles
+ *   <li>Respects dynamic obstacles managed by DynamicObstacles
+ *   <li>Returns paths as lists of tiles (inclusive of start and end)
+ *   <li>Returns empty paths if start/end are the same, if the end is blocked, or if no path exists
+ * </ul>
+ *
+ * <p>Return semantics:
+ * <ul>
+ *   <li>Valid path: Optional containing an unmodifiable list of tiles from start to end
+ *   <li>No path exists: Optional containing an empty list
+ *   <li>Invalid input (null level, null start/end): Optional containing an empty list or single tile
+ * </ul>
  */
 public final class GridPathfindingAdapter implements PathfindingAdapter {
   private static final int[][] DIRS = new int[][] {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
@@ -53,7 +70,7 @@ public final class GridPathfindingAdapter implements PathfindingAdapter {
 
     if (!visited.contains(goalC)) return Optional.of(List.of());
 
-    // Reconstruct (inclusive: start..end)
+    // Reconstruct (inclusive: start...end)
     final List<Tile> tiles = new ArrayList<>();
     Coordinate cur = goalC;
 
