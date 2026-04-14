@@ -83,7 +83,7 @@ public final class LitiengineStarter {
 
         ClientRuntimeSetup.installHudSystems();
         ClientRuntimeSetup.installGameplayExtensions();
-        ClientRuntimeSetup.installDebugger();
+        ClientRuntimeSetup.installDebugSystems();
       });
 
     Game.userOnLevelLoad(
@@ -95,8 +95,6 @@ public final class LitiengineStarter {
         Game.startTile().map(Tile::position).ifPresent(LitiengineStarter::spawnVerificationFixtures);
       });
 
-    ClientRuntimeSetup.init();
-    Game.initialize();
     GameLoop.run(args);
   }
 
