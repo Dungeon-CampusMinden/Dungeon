@@ -6,10 +6,24 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 /**
- * Small AWT-side image effect helpers for the LITIENGINE renderer.
+ * Utility class for rendering image effects and visual enhancements.
  *
- * <p>These effects replace old libGDX shader semantics with CPU-side drawing.
+ * <p>ImageEffects provides static methods for applying visual effects to sprites and images,
+ * such as outlines, tinting, and color animations. It includes caching mechanisms for performance
+ * optimization when rendering frequently used effects.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Drawing sprites with customizable outline effects
+ *   <li>Computing dynamic outline widths with pulsing/beating effects
+ *   <li>Computing dynamic outline colors with rainbow animation support
+ *   <li>Caching tinted silhouettes for performance
+ * </ul>
+ *
+ * <p>This class uses a thread-safe cache to store computed tinted silhouettes, reducing the
+ * computational overhead of repeatedly generating the same tinted images.
  */
 public final class ImageEffects {
 
@@ -17,6 +31,25 @@ public final class ImageEffects {
 
   private ImageEffects() {}
 
+  /**
+   * Draws a sprite with an optional outline effect on the given graphics context.
+   *
+   * <p>This method renders the sprite at the specified position and size, with an outline of the
+   * given color and thickness. The outline is created by drawing multiple offset copies of a
+   * tinted silhouette behind the original sprite.
+   *
+   * <p>If the outline width is 0 or less, the sprite is drawn without an outline. If either
+   * graphics context or sprite is null, the method returns without drawing anything.
+   *
+   * @param g the Graphics2D context to draw on
+   * @param sprite the sprite image to draw
+   * @param x the x-coordinate for drawing
+   * @param y the y-coordinate for drawing
+   * @param width the width to scale the sprite to
+   * @param height the height to scale the sprite to
+   * @param outlineColor the color of the outline effect
+   * @param outlinePx the thickness of the outline in pixels
+   */
   public static void drawOutlinedSprite(
     final Graphics2D g,
     final BufferedImage sprite,
@@ -55,6 +88,16 @@ public final class ImageEffects {
     g.drawImage(sprite, x, y, width, height, null);
   }
 
+  /**
+   * Computes the effective outline width based on the effect configuration and current time.
+   *
+   * <p>If beat intensity is set, the outline width oscillates sinusoidally with time, creating
+   * a pulsing effect. The oscillation frequency is controlled by the beat speed parameter.
+   *
+   * @param effect the outline effect component defining width and beat parameters
+   * @param nowMs the current time in milliseconds since epoch
+   * @return the effective outline width in pixels (minimum 1)
+   */
   public static int effectiveOutlineWidth(
     final OutlineEffectComponent effect, final long nowMs) {
     int baseWidth = Math.max(1, effect.width());
@@ -68,6 +111,18 @@ public final class ImageEffects {
     return Math.max(1, (int) Math.round(baseWidth * factor));
   }
 
+  /**
+   * Computes the effective outline color based on the effect configuration and current time.
+   *
+   * <p>If rainbow mode is enabled, the color cycles through the hue spectrum at a rate controlled
+   * by the beat speed parameter. The alpha channel from the effect's base color is preserved.
+   *
+   * <p>If rainbow mode is disabled, the effect's configured color is returned unchanged.
+   *
+   * @param effect the outline effect component defining color and animation parameters
+   * @param nowMs the current time in milliseconds since epoch
+   * @return the effective outline color, either static or animated based on rainbow mode
+   */
   public static Color effectiveOutlineColor(
     final OutlineEffectComponent effect, final long nowMs) {
     if (!effect.rainbow()) {
