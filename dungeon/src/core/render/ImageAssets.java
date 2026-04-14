@@ -2,16 +2,35 @@ package core.render;
 
 import core.platform.Platform;
 import core.utils.logging.DungeonLogger;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.*;
 
 /**
- * Loads images through the engine-agnostic Platform.resources() abstraction.
- * Adds a small path-resolution layer to survive different workingDirs and
- * "assets/" prefix conventions.
+ * Utility class for loading and caching image assets.
+ *
+ * <p>ImageAssets provides a centralized image loading system with intelligent path resolution
+ * and caching. It handles the complexities of locating assets in different directory structures
+ * that may result from various project configurations and build processes.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Loading images from the resource system with automatic caching
+ *   <li>Intelligent path resolution with support for implicit file paths
+ *   <li>Multiple candidate path generation for flexible asset locations
+ *   <li>Graceful error handling with single-log-per-error to avoid spam
+ *   <li>Support for common directory prefixes (assets/, dungeon/, etc.)
+ * </ul>
+ *
+ * <p>Path resolution attempts multiple candidates automatically:
+ * <ul>
+ *   <li>Original normalized path
+ *   <li>Paths with common prefixes stripped (assets/, dungeon/assets/, dungeon/)
+ *   <li>Paths with common prefixes added (for different working directories)
+ * </ul>
+ *
+ * <p>This class is not instantiable; all methods are static utilities.
  */
 public final class ImageAssets {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ImageAssets.class);
@@ -21,6 +40,28 @@ public final class ImageAssets {
 
   private ImageAssets() {}
 
+  /**
+   * Loads an image asset from the resource system, with caching and intelligent path resolution.
+   *
+   * <p>This method attempts to locate and load the image by:
+   * <ol>
+   *   <li>Resolving implicit file paths (e.g., "folder/image" → "folder/image.png")
+   *   <li>Generating candidate paths to handle different directory structures
+   *   <li>Checking the cache for previously loaded images
+   *   <li>Trying each candidate path in order
+   *   <li>Loading and caching the first successful image found
+   * </ol>
+   *
+   * <p>Errors are logged at most once per candidate path to avoid spamming the log output during
+   * repeated frames.
+   *
+   * <p>Null handling: Returns null if the input is null/blank or if the resource system is
+   * unavailable. Also returns null if no matching image is found after trying all candidates.
+   *
+   * @param texturePathString the path to the image asset (e.g., "textures/player.png" or
+   *     "textures/player")
+   * @return the loaded BufferedImage, or null if not found or loading failed
+   */
   public static BufferedImage get(final String texturePathString) {
     if (texturePathString == null || texturePathString.isBlank()) return null;
     if (Platform.resources() == null) return null;
@@ -85,11 +126,26 @@ public final class ImageAssets {
     return p;
   }
 
+
   /**
-   * Matches the "folder name implies png" convention:
-   * - "character/wizard/" -> "character/wizard/wizard.png"
-   * - "character/wizard"  -> "character/wizard/wizard.png"
-   * - "foo.png"           -> "foo.png"
+   * Resolves implicit file paths to explicit image file paths.
+   *
+   * <p>This method handles implicit image paths (directories or base names without extension)
+   * by automatically appending the ".png" extension. Explicit paths (already containing a file
+   * extension) are returned unchanged.
+   *
+   * <p>Transformation examples:
+   * <ul>
+   *   <li>"textures/player" → "textures/player/player.png"
+   *   <li>"textures/player/" → "textures/player/player.png"
+   *   <li>"textures/player.png" → "textures/player.png" (unchanged)
+   *   <li>"textures/player.jpg" → "textures/player.jpg" (unchanged)
+   * </ul>
+   *
+   * <p>Null or empty inputs are returned unchanged. The path is normalized before processing.
+   *
+   * @param pathString the implicit or explicit image path to resolve
+   * @return the explicit image file path with extension, or null/empty if input is null/empty
    */
   public static String resolveImplicitFilePath(String pathString) {
     if (pathString == null || pathString.isEmpty()) return pathString;
