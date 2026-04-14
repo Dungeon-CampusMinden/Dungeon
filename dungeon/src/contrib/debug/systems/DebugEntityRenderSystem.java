@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The {@code EntityDebugRenderSystem} is responsible for rendering debug information
+ * The {@code DebugEntityRenderSystem} is responsible for rendering debug information
  * for various entities within the game world during runtime. This includes visualizing
  * their position, orientation, and relevant components such as collision bounds,
  * interaction ranges, and animations.
@@ -36,7 +36,7 @@ import java.util.Objects;
  * <p>This system operates on the client-side and processes entities containing a
  * {@code PositionComponent}.
  */
-public final class EntityDebugRenderSystem extends System {
+public final class DebugEntityRenderSystem extends System {
 
   private static final float POSITION_RADIUS = 0.05f;
   private static final float ARROW_LENGTH = 0.5f;
@@ -52,7 +52,7 @@ public final class EntityDebugRenderSystem extends System {
 
   private static final ClientCursorAdapter CURSOR = new ClientCursorAdapter();
 
-  public EntityDebugRenderSystem() {
+  public DebugEntityRenderSystem() {
     super(AuthoritativeSide.CLIENT, PositionComponent.class);
   }
 

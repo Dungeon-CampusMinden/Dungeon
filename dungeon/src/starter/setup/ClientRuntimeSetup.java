@@ -1,7 +1,7 @@
 package starter.setup;
 
 import contrib.debug.systems.DebugRenderEffectsSystem;
-import contrib.debug.systems.EntityDebugRenderSystem;
+import contrib.debug.systems.DebugEntityRenderSystem;
 import contrib.debug.systems.DebugDrawSystem;
 import contrib.editor.level.systems.LevelEditorSystem;
 import contrib.hud.dialogs.DialogBackendInstaller;
@@ -38,7 +38,7 @@ public final class ClientRuntimeSetup {
     addIfAbsent(DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
     addIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
     addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
-    addIfAbsent(EntityDebugRenderSystem.class, EntityDebugRenderSystem::new);
+    addIfAbsent(DebugEntityRenderSystem.class, DebugEntityRenderSystem::new);
   }
 
   private static <T extends System> void addIfAbsent(Class<T> type, Supplier<T> factory) {
