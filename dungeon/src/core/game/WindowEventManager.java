@@ -6,14 +6,16 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /**
- * A static event manager for window-related events.
+ * A centralized manager for window-related events, allowing different parts of the application to
+ * register listeners for various window events without needing direct access to the windowing
+ * system.
  *
- * <p>Provides registration and dispatch methods for various window lifecycle events such as
- * creation, focus changes, iconification, maximization, refresh requests, file drops, and close
- * requests. Listeners are stored in thread-safe lists and invoked safely, suppressing any
- * exceptions thrown during listener execution.
+ * <p>This class provides static methods to register listeners for events such as window creation,
+ * file drops, focus changes, iconification, maximization, refresh requests, and close requests. It
+ * also provides methods to fire these events, which will notify all registered listeners.
  *
- * <p>This class cannot be instantiated.
+ * <p>Listeners are stored in thread-safe {@link CopyOnWriteArrayList} collections to allow for
+ * concurrent registration and event firing without the need for external synchronization.
  */
 public final class WindowEventManager {
 
@@ -45,7 +47,7 @@ public final class WindowEventManager {
   private static final List<BooleanSupplier> CLOSE_REQUESTED = new CopyOnWriteArrayList<>();
 
   /**
-   * Registers a listener that is called when the window is created.
+   * Registers a listener called when the window is created.
    *
    * @param l the listener to register; ignored if {@code null}
    */
@@ -54,7 +56,7 @@ public final class WindowEventManager {
   }
 
   /**
-   * Registers a listener that is called when files are dropped onto the window.
+   * Registers a listener called when files are dropped onto the window.
    *
    * @param l the listener to register; ignored if {@code null}
    */
@@ -63,7 +65,7 @@ public final class WindowEventManager {
   }
 
   /**
-   * Registers a listener that is called when the window focus changes.
+   * Registers a listener called when the window focus changes.
    *
    * @param l the listener to register, receiving {@code true} if the window gained focus and
    *     {@code false} if it lost focus; ignored if {@code null}
@@ -73,7 +75,7 @@ public final class WindowEventManager {
   }
 
   /**
-   * Registers a listener that is called when the window is iconified or restored.
+   * Registers a listener called when the window is iconified or restored.
    *
    * @param l the listener to register, receiving {@code true} when iconified and {@code false}
    *     when restored; ignored if {@code null}
@@ -83,7 +85,7 @@ public final class WindowEventManager {
   }
 
   /**
-   * Registers a listener that is called when the window is maximized or restored.
+   * Registers a listener called when the window is maximized or restored.
    *
    * @param l the listener to register, receiving {@code true} when maximized and {@code false}
    *     when restored; ignored if {@code null}
@@ -93,7 +95,7 @@ public final class WindowEventManager {
   }
 
   /**
-   * Registers a listener that is called when a window refresh is requested.
+   * Registers a listener called when a window refresh is requested.
    *
    * @param l the listener to register; ignored if {@code null}
    */
@@ -102,7 +104,7 @@ public final class WindowEventManager {
   }
 
   /**
-   * Registers a listener that is consulted when the window receives a close request.
+   * Registers a listener consulted when the window receives a close request.
    *
    * <p>The supplier should return {@code true} to allow the window to close, or {@code false} to
    * prevent it. If any registered supplier returns {@code false}, the close operation is canceled.
