@@ -3,10 +3,23 @@ package core.ui;
 import java.util.Optional;
 
 /**
- * Engine-neutral fallback handle for UIs that currently have no concrete visual backend.
+ * A no-op implementation of UiNodeHandle for headless or testing scenarios.
  *
- * <p>This is primarily used to keep dialog lifecycle and callback flows intact on backends
- * where no native dialog implementation exists yet.
+ * <p>HeadlessUiNodeHandle provides a minimal, non-functional implementation of the UiNodeHandle
+ * interface. It is useful for headless environments, unit tests, or scenarios where UI node
+ * management is not needed but the interface compliance is required.
+ *
+ * <p>Behavior characteristics:
+ * <ul>
+ *   <li>Only maintains a visibility flag (initially true)
+ *   <li>All attachment/positioning/z-ordering operations are no-ops
+ *   <li>Always reports as not attached
+ *   <li>Unwrap operations always return empty Optional
+ *   <li>Z-index always returns 0
+ * </ul>
+ *
+ * <p>This implementation is suitable for environments where UI rendering is not performed
+ * and UI management is not necessary.
  */
 public final class HeadlessUiNodeHandle implements UiNodeHandle {
   private boolean visible = true;
