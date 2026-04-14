@@ -389,4 +389,14 @@ public class BlocklyCommands {
           Server.waitDelta();
         });
   }
+
+  public static void shootBluePortal() {
+    Game.system(
+        BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_SHOOT_BLUE_PORTAL));
+  }
+
+  public static void shootGreenPortal() {
+    Game.system(
+        BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_SHOOT_GREEN_PORTAL));
+  }
 }
