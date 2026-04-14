@@ -1,5 +1,6 @@
 package core;
 
+import core.game.loop.ClientGameLoopHost;
 import core.platform.Platform;
 import core.ui.StageHandle;
 import contrib.utils.EntityUtils;
@@ -75,6 +76,7 @@ public final class Game {
    */
   public static void run() {
     initialize();
+    ensureDefaultLoopHost();
     GameLoop.run();
   }
 
@@ -939,6 +941,16 @@ public final class Game {
       LOGGER.info("Network handler initialized.");
     } catch (NetworkException e) {
       LOGGER.error("Failed to initialize network handler.", e);
+    }
+  }
+
+  private static void ensureDefaultLoopHost() {
+    if (PreRunConfiguration.isNetworkServer()) {
+      return;
+    }
+
+    if (Platform.loopHost() == null) {
+      Platform.loopHost(new ClientGameLoopHost());
     }
   }
 }

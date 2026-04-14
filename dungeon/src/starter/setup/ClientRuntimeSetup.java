@@ -9,19 +9,11 @@ import contrib.hud.systems.HudSystem;
 import contrib.modules.levelHide.LevelHideSystem;
 import core.System;
 import core.game.ECSManagement;
-import core.game.loop.ClientGameLoopHost;
-import core.platform.Platform;
-
 import java.util.function.Supplier;
 
 /** Central setup helper for the interactive client runtime. */
 public final class ClientRuntimeSetup {
   private ClientRuntimeSetup() {}
-
-  /** Selects the default interactive client loop host. */
-  public static void selectClientLoopHost() {
-    Platform.loopHost(new ClientGameLoopHost());
-  }
 
   /** Installs HUD systems if they are not already registered. */
   public static void installHudSystems() {
