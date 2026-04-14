@@ -113,8 +113,8 @@ public final class ClientLoopRuntime {
     InputManager.reset();
 
     // Host chooses which default systems exist
-    ECSManagement.bootstrapDefaultSystems(SystemProfile.LITIENGINE_CLIENT);
-    ECSManagement.bootstrapGameplaySystems(SystemProfile.LITIENGINE_CLIENT);
+    ECSManagement.initializeDefaultSystems(SystemProfile.LITIENGINE_CLIENT);
+    ECSManagement.initializeGameplaySystems(SystemProfile.LITIENGINE_CLIENT);
     ECSManagement.system(core.systems.LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
 
     ClientStartup.setupAndLoadInitialLevelOnce();

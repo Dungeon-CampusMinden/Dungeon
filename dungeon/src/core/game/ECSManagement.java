@@ -56,22 +56,22 @@ public final class ECSManagement {
     activeEntityStorage.add(new EntitySystemMapper());
   }
 
-  private static boolean defaultSystemsBootstrapped = false;
-
   /**
-   * Registers the default set of ECS systems according to the given {@link SystemProfile}.
+   * Initializes the default rendering and level management systems.
    *
-   * <p>This method is idempotent: systems are only created and registered if no instance of the
-   * respective system type is currently registered.
+   * <p>This method registers the fundamental systems required for the engine to operate:
+   * <ul>
+   *   <li>LevelSystem - Manages level loading and transitions
+   *   <li>Render systems (if enabled) - Platform-specific rendering systems
+   *   <li>EventScheduler - Manages scheduled events
+   *   <li>LevelTickSystem - Manages level-wide tick updates
+   * </ul>
    *
-   * <p>Thread-safety: the method is {@code synchronized} to avoid concurrent bootstrap attempts
-   * registering duplicate systems.
+   * <p>This initialization is idempotent: systems are only added if not already registered.
    *
-   * @param profile Controls which optional system groups (e.g. rendering, HUD) are included.
-   *     Must not be {@code null}.
+   * @param profile the system profile determining which systems to initialize (must not be null)
    */
-  public static synchronized void bootstrapDefaultSystems(SystemProfile profile) {
-    // Idempotent bootstrap: only add systems if not already registered.
+  public static synchronized void initializeDefaultSystems(SystemProfile profile) {
     registerIfAbsent(LevelSystem.class, LevelSystem::new);
 
     if (profile.includeRendering()) {
@@ -85,12 +85,25 @@ public final class ECSManagement {
   }
 
   /**
-   * Registers the core gameplay systems according to the given {@link SystemProfile}.
+   * Initializes the core gameplay systems.
    *
-   * <p>These are engine-core systems only. Contrib gameplay systems must still be wired explicitly
-   * by the respective host/bootstrap path.
+   * <p>This method registers the fundamental gameplay and movement systems required for entity
+   * movement and input handling:
+   * <ul>
+   *   <li>PositionSystem - Manages entity positioning
+   *   <li>PositionSyncSystem - Synchronizes positions across systems
+   *   <li>VelocitySystem - Manages entity velocity
+   *   <li>FrictionSystem - Applies friction to moving entities
+   *   <li>MoveSystem - Handles entity movement logic
+   *   <li>InputSystem (if enabled) - Processes player input
+   * </ul>
+   *
+   * <p>This initialization is idempotent: systems are only added if not already registered.
+   *
+   * @param profile the system profile determining which systems to initialize (must not be null)
+   * @throws IllegalArgumentException if the profile is null
    */
-  public static synchronized void bootstrapGameplaySystems(SystemProfile profile) {
+  public static synchronized void initializeGameplaySystems(SystemProfile profile) {
     if (profile == null) throw new IllegalArgumentException("profile must not be null");
 
     registerIfAbsent(PositionSystem.class, PositionSystem::new);
@@ -129,7 +142,7 @@ public final class ECSManagement {
   /**
    * The given entity will be added to the game.
    *
-   * <p>If given entity has an id that is already used by another entity, an {@link
+   * <p>If given entity has an id already used by another entity, an {@link
    * IllegalArgumentException} will be thrown.
    *
    * <p>For each {@link System}, it will be checked if the {@link System} will process this entity.
@@ -227,7 +240,7 @@ public final class ECSManagement {
    * <p>The game can only store one system of each system type.
    *
    * @param system the System to add
-   * @return an optional that contains the previous existing system of the given system class, if
+   * @return an optional that contains the previous existing system of the given system class if
    *     one exists
    * @see System
    * @see Optional
@@ -314,11 +327,11 @@ public final class ECSManagement {
   }
 
   /**
-   * Use this stream if you want to iterate over all entities in the current level, that contain the
+   * Use this stream if you want to iterate over all entities in the current level that contain the
    * given components.
    *
    * @param filter Set of Component classes that define the filter rules.
-   * @return a stream of all entities currently in the level, that contains the given components.
+   * @return a stream of all entities currently in the level that contains the given components.
    */
   public static Stream<Entity> levelEntities(Set<Class<? extends Component>> filter) {
     Stream<Entity> returnStream;
@@ -338,7 +351,7 @@ public final class ECSManagement {
    * <p>A player entity is defined as an entity that has a {@link PlayerComponent} with {@link
    * PlayerComponent#isLocal()} returning true.
    *
-   * @return the local player character, can be empty if no local player is present.
+   * @return the local player character can be empty if no local player is present.
    * @see PlayerComponent
    * @see #allPlayers()
    */
@@ -365,7 +378,7 @@ public final class ECSManagement {
   /**
    * Remove the stored system of the given class from the game. If the System is successfully
    * removed, the {@link System#triggerOnRemove(Entity)} method of the System will be called for
-   * each existing Entity that was associated with the removed System.
+   * each existing Entity associated with the removed System.
    *
    * @param system the class of the system to remove
    */
@@ -423,7 +436,7 @@ public final class ECSManagement {
   /**
    * Finds the entity that contains the given component instance.
    *
-   * <p>This searches across all entities in the current level.
+   * <p>This searches across all entities at the current level.
    *
    * @param component the component instance whose owning entity should be located
    * @return an {@link Optional} containing the found entity, or an empty {@code Optional} if none
@@ -477,20 +490,21 @@ public final class ECSManagement {
   }
 
   /**
-   * Backwards-compatible entry point.
+   * Executes one complete game tick, calculating delta time from the last tick.
    *
-   * <p>Historically, ECSManagement fetched delta time via libGDX (Gdx.graphics.getDeltaTime()).
-   * This method now computes an engine-agnostic delta using System.nanoTime() and forwards to
-   * {@link #executeOneTick(System.AuthoritativeSide, float)}.
+   * <p>This method measures the time elapsed since the last tick and calls
+   * {@link #executeOneTick(System.AuthoritativeSide, float, boolean)} with the calculated
+   * delta time. Rendering systems are included in this execution.
    *
-   * <p>Prefer calling {@link #executeOneTick(System.AuthoritativeSide, float)} from the host loop
-   * (libGDX / LITIENGINE) to provide the authoritative delta time.
+   * <p>On the first call, delta time is set to 0. Subsequent calls calculate the actual elapsed time.
+   *
+   * @param side the authoritative side determining which systems should execute (SERVER, CLIENT, or BOTH)
    */
   public static void executeOneTick(System.AuthoritativeSide side) {
     final long now = core.utils.Time.nowNs();
     final float deltaSeconds;
     if (lastTickNanos < 0L) {
-      deltaSeconds = 0f; // first tick: no meaningful delta yet
+      deltaSeconds = 0f;
     } else {
       deltaSeconds = (now - lastTickNanos) / 1_000_000_000f;
     }
@@ -499,27 +513,37 @@ public final class ECSManagement {
   }
 
   /**
-   * Execute one tick of the ECS (default: renderSystems = true).
+   * Executes one complete game tick with the specified delta time.
    *
-   * @param side the authoritative side for which to execute systems
-   * @param deltaSeconds time since last frame/tick in seconds (provided by host loop)
+   * <p>This method executes all systems that match the specified authoritative side with the given
+   * delta time. Rendering systems are included in this execution.
+   *
+   * @param side the authoritative side determining which systems should execute (SERVER, CLIENT, or BOTH)
+   * @param deltaSeconds the elapsed time in seconds since the last tick
    */
   public static void executeOneTick(System.AuthoritativeSide side, float deltaSeconds) {
     executeOneTick(side, deltaSeconds, true);
   }
 
   /**
-   * Execute one tick of the ECS.
+   * Executes one complete game tick with the specified delta time and rendering control.
    *
-   * <p>The host loop provides {@code deltaSeconds}. This removes the ECS dependency on any
-   * specific game framework (e.g. libGDX) for timing.
+   * <p>This method executes all systems that match the specified authoritative side with the given
+   * delta time. Each system's execution is scheduled based on its time-based or frame-based
+   * execution criteria. If a new level is loaded during execution, the tick is interrupted early.
    *
-   * <p>Use {@code renderSystems = false} for hosts that do not support the current libGDX-based
-   * render pipeline (e.g. LITIENGINE integration stage).
+   * <p>System execution:
+   * <ul>
+   *   <li>Only systems matching the authoritative side are executed
+   *   <li>Each system's delta time accumulates until its execution criteria are met
+   *   <li>Time-based systems execute when accumulated delta time exceeds their execution interval
+   *   <li>Frame-based systems execute when their frame counter exceeds their execution interval
+   *   <li>After execution, system timers and counters are reset
+   * </ul>
    *
-   * @param side the authoritative side for which to execute systems
-   * @param deltaSeconds time since last frame/tick in seconds (provided by host loop)
-   * @param renderSystems whether to call {@link System#render(float)} for all systems
+   * @param side the authoritative side determining which systems should execute (SERVER, CLIENT, or BOTH)
+   * @param deltaSeconds the elapsed time in seconds since the last tick (clamped to minimum 0)
+   * @param renderSystems if true, all render systems are executed; if false, rendering is skipped
    */
   public static void executeOneTick(
     System.AuthoritativeSide side, float deltaSeconds, boolean renderSystems) {
@@ -558,7 +582,6 @@ public final class ECSManagement {
       }
     }
 
-    // Render phase (can be disabled for non-libGDX hosts)
     if (renderSystems) {
       renderAll(deltaSeconds);
     }
@@ -579,11 +602,15 @@ public final class ECSManagement {
   }
 
   /**
-   * Executes the render phase for all registered systems.
+   * Renders all systems with the specified delta time.
    *
-   * <p>This is useful for hosts with separate update/render loops (e.g. LITIENGINE Screens).
+   * <p>This method calls the render method on all registered systems with the given delta time.
+   * It automatically skips rendering if the game is running in headless mode or if the window
+   * dimensions are invalid (width or height <= 0).
    *
-   * @param deltaSeconds time since last frame/tick in seconds
+   * <p>The delta time is clamped to a minimum of 0 to prevent negative values.
+   *
+   * @param deltaSeconds the elapsed time in seconds since the last render frame (clamped to minimum 0)
    */
   public static void renderAll(float deltaSeconds) {
     if (!(deltaSeconds >= 0f)) deltaSeconds = 0f;
