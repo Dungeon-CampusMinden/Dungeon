@@ -19,10 +19,29 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 /**
- * Represents an animation consisting of one or more frames.
+ * Represents an animated sprite with support for multiple animation sources and playback control.
  *
- * <p>Engine-agnostic: frames are exposed as {@link AnimationFrame}. Rendering backends are
- * responsible for converting frames into concrete drawables.
+ * <p>Animation encapsulates sprite animation data and provides methods for frame management,
+ * playback control, and scaling. It supports three source types:
+ * <ul>
+ *   <li>Single images or multiple individual image files (one frame per file)
+ *   <li>Spritesheets with a JSON configuration file defining frame regions
+ * </ul>
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Lazy loading of animation frames for memory efficiency
+ *   <li>Configurable frame timing and playback behavior
+ *   <li>Support for looping and non-looping animations
+ *   <li>Horizontal mirroring/flipping capability
+ *   <li>Serialization and cloning support
+ *   <li>Automatic world size calculation based on sprite dimensions and scale
+ * </ul>
+ *
+ * <p>Animations track frame progression via a frame counter that advances with each update call.
+ * The current frame is determined by dividing the frame counter by the configured frames-per-sprite value.
+ *
+ * <p>This class is serializable and cloneable for use in persistence and entity cloning scenarios.
  */
 public class Animation implements Serializable, Cloneable {
   @Serial private static final long serialVersionUID = 1L;
@@ -38,19 +57,17 @@ public class Animation implements Serializable, Cloneable {
     SPRITESHEET
   }
 
+  /** Animation configuration. */
   private AnimationConfig config;
 
   /** Logical world size (computed from sprite pixel size and scale). */
   private float width = 1;
   private float height = 1;
 
-  /** Sprite pixel-to-world scale used to compute width/height. */
-  private float spriteScale;
-
   /** Current frame counter. Serializable. */
   private int frameCount;
 
-  /** Lazily-built engine-agnostic frames. Not serializable. */
+  /** The frames of this animation. */
   private transient AnimationFrame[] frames;
 
   /** Indicates whether frames are built. */
@@ -69,6 +86,17 @@ public class Animation implements Serializable, Cloneable {
   private int spritePxW = 16;
   private int spritePxH = 16;
 
+  /**
+   * Constructs an Animation from a single image or spritesheet with custom configuration.
+   *
+   * <p>The path is resolved implicitly: if it lacks an image extension, ".png" is appended.
+   * If a spritesheet configuration is provided, the animation loads from a spritesheet;
+   * otherwise, it treats the path as a single image.
+   *
+   * @param path the path to the image or spritesheet (must not be null or empty)
+   * @param config the animation configuration; uses default if null
+   * @throws IllegalArgumentException if the path is null or empty
+   */
   public Animation(IPath path, AnimationConfig config) {
     if (path == null || path.pathString().isEmpty()) {
       throw new IllegalArgumentException("path can't be null or empty");
@@ -109,10 +137,25 @@ public class Animation implements Serializable, Cloneable {
     }
   }
 
+  /**
+   * Constructs an Animation from a single image or spritesheet with the default configuration.
+   *
+   * @param path the path to the image or spritesheet (must not be null or empty)
+   * @throws IllegalArgumentException if the path is null or empty
+   */
   public Animation(IPath path) {
     this(path, new AnimationConfig());
   }
 
+  /**
+   * Constructs an Animation from a list of image paths with custom configuration.
+   *
+   * <p>Each path represents one frame of the animation, played in sequence.
+   *
+   * @param paths the list of paths to animation frames (must not be null or empty)
+   * @param config the animation configuration; uses default if null
+   * @throws IllegalArgumentException if paths are null or empty
+   */
   public Animation(List<IPath> paths, AnimationConfig config) {
     if (paths == null || paths.isEmpty()) {
       throw new IllegalArgumentException("paths can't be null or empty");
@@ -121,7 +164,7 @@ public class Animation implements Serializable, Cloneable {
     this.sourceType = SourceType.SINGLE_OR_MULTI;
     this.framePaths = new ArrayList<>(paths);
 
-    int[] wh = tryReadImageSize(paths.get(0));
+    int[] wh = tryReadImageSize(paths.getFirst());
     if (wh != null) {
       spritePxW = wh[0];
       spritePxH = wh[1];
@@ -129,24 +172,39 @@ public class Animation implements Serializable, Cloneable {
     calculateWorldSize(spritePxW, spritePxH);
   }
 
+  /**
+   * Constructs an Animation from a variable number of image paths with the default configuration.
+   *
+   * @param paths the image paths for each animation frame
+   */
   public Animation(IPath... paths) {
     this(Arrays.asList(paths), new AnimationConfig());
   }
 
+  /**
+   * Constructs an Animation from a list of image paths with the default configuration.
+   *
+   * @param paths the list of paths to animation frames (must not be null or empty)
+   * @throws IllegalArgumentException if paths are null or empty
+   */
   public Animation(List<IPath> paths) {
     this(paths, new AnimationConfig());
   }
 
   /**
-   * Loads animations from a spritesheet directory or file path.
+   * Loads a set of named animations from a spritesheet with JSON configuration.
    *
-   * <p>Resolves:
-   * <ul>
-   *   <li>image: &lt;dir&gt;/&lt;dirName&gt;.png (if a directory path is passed)
-   *   <li>config: &lt;dir&gt;/&lt;dirName&gt;.json or &lt;file&gt;.json
-   * </ul>
+   * <p>The configuration file must be a JSON file in the same directory as the spritesheet image,
+   * with a matching name. For example, if the image is "sprites/character.png", the config
+   * should be "sprites/character.json".
    *
-   * @return name -> Animation map, or null if no json config exists.
+   * <p>The JSON configuration defines named animation sequences, each specifying row/column
+   * regions within the spritesheet.
+   *
+   * @param path the path to the spritesheet or its containing directory (must not be null or empty)
+   * @return a map of animation names to Animation objects, or null if the configuration cannot be loaded
+   * @throws IllegalArgumentException if the path is null or empty
+   * @throws IllegalArgumentException if the image file does not exist
    */
   public static Map<String, Animation> loadAnimationSpritesheet(IPath path) {
     if (path == null || path.pathString().isEmpty()) {
@@ -177,7 +235,16 @@ public class Animation implements Serializable, Cloneable {
     return animations;
   }
 
-  /** Returns the current engine-agnostic frame. */
+  /**
+   * Gets the current animation frame based on the frame counter and configuration.
+   *
+   * <p>The frame is determined by dividing the frame counter by the configured frames-per-sprite value.
+   * For looping animations, the frame index wraps around; for non-looping animations, it clamps to the last frame.
+   *
+   * <p>If frames have not yet been loaded, this method triggers lazy loading.
+   *
+   * @return the current AnimationFrame, or a missing texture placeholder if no frames are available
+   */
   public AnimationFrame getFrame() {
     ensureLoaded();
 
@@ -194,32 +261,76 @@ public class Animation implements Serializable, Cloneable {
     return frames[idx];
   }
 
+  /**
+   * Gets the world-space width of this animation.
+   *
+   * <p>This is calculated from the sprite pixel width, sprite scale, and the animation's scale X factor.
+   *
+   * @return the width in world units
+   */
   public float getWidth() {
     return width;
   }
 
+  /**
+   * Gets the world-space height of this animation.
+   *
+   * <p>This is calculated from the sprite pixel height, sprite scale, and the animation's scale Y factor.
+   *
+   * @return the height in world units
+   */
   public float getHeight() {
     return height;
   }
 
+  /**
+   * Gets the horizontal scale factor of this animation.
+   *
+   * @return the scale X value from the animation configuration
+   */
   public float getScaleX() {
     return config.scaleX();
   }
 
+  /**
+   * Gets the vertical scale factor of this animation.
+   *
+   * <p>If scale Y is 0 in the configuration, returns scale X instead.
+   *
+   * @return the scale Y value, or scale X if scale Y is 0
+   */
   public float getScaleY() {
     return config.scaleY() == 0 ? config.scaleX() : config.scaleY();
   }
 
+  /**
+   * Gets the sprite width in pixels (not world coordinates).
+   *
+   * @return the sprite pixel width
+   */
   public float getSpriteWidth() {
     // pixel width (not world width)
     return spritePxW;
   }
 
+  /**
+   * Gets the sprite height in pixels (not world coordinates).
+   *
+   * @return the sprite pixel height
+   */
   public float getSpriteHeight() {
     // pixel height (not world height)
     return spritePxH;
   }
 
+  /**
+   * Checks whether this animation has finished playing.
+   *
+   * <p>For looping animations, this method always returns false. For non-looping animations,
+   * it returns true when the frame counter has advanced beyond the last frame.
+   *
+   * @return true if the animation has finished, false otherwise
+   */
   public boolean isFinished() {
     ensureLoaded();
     int idx = frameCount / config.framesPerSprite();
@@ -227,29 +338,71 @@ public class Animation implements Serializable, Cloneable {
     return len == 0 || idx >= len;
   }
 
-  /** Advances the frame counter and returns the new current frame. */
+  /**
+   * Advances the animation by one frame and returns the current frame.
+   *
+   * <p>This increments the internal frame counter and returns the updated current frame.
+   *
+   * @return the current AnimationFrame after the update
+   */
   public AnimationFrame update() {
     frameCount++;
     return getFrame();
   }
 
+  /**
+   * Gets the current frame counter-value.
+   *
+   * <p>The frame counter tracks animation progression. It is divided by frames-per-sprite
+   * to determine the current frame index.
+   *
+   * @return the current frame counter-value
+   */
   public int frameCount() {
     return frameCount;
   }
 
+  /**
+   * Sets the frame counter to a specific value.
+   *
+   * <p>This allows direct control over animation progression, useful for seeking to a
+   * specific point in the animation.
+   *
+   * @param frameCount the new frame counter value
+   */
   public void frameCount(int frameCount) {
     this.frameCount = frameCount;
   }
 
+  /**
+   * Gets the animation configuration used by this animation.
+   *
+   * @return the animation configuration
+   */
   public AnimationConfig getConfig() {
     return config;
   }
 
+  /**
+   * Unloads all loaded animation frames and marks the animation as needing reload.
+   *
+   * <p>This forces lazy reloading on the next frame access. Useful for releasing memory
+   * or forcing frame reconstruction after configuration changes.
+   */
   public void unload() {
     frames = null;
     loaded = false;
   }
 
+  /**
+   * Sets the horizontal flip (mirroring) state and rebuilds frames.
+   *
+   * <p>This modifies the animation configuration and forces frames to be rebuilt with
+   * the new flip state applied.
+   *
+   * @param mirrored true to flip the animation horizontally, false for normal orientation
+   * @return this Animation instance for method chaining
+   */
   public Animation mirrored(boolean mirrored) {
     config.mirrored(mirrored);
     unload(); // rebuild frames with new flip hint
@@ -280,7 +433,7 @@ public class Animation implements Serializable, Cloneable {
         frames[i] = AnimationFrame.fullImage(p, flipX);
       }
 
-      int[] wh = tryReadImageSize(framePaths.get(0));
+      int[] wh = tryReadImageSize(framePaths.getFirst());
       if (wh != null) {
         spritePxW = wh[0];
         spritePxH = wh[1];
@@ -343,13 +496,8 @@ public class Animation implements Serializable, Cloneable {
     }
   }
 
-  /**
-   * Sets the width and height of the animation in world units.
-   *
-   * <p>Assumes the smallest dimension to be 1 tile in the world (before scale is applied).
-   */
   private void calculateWorldSize(int spriteWidth, int spriteHeight) {
-    spriteScale = (float) 1 / Math.min(spriteWidth, spriteHeight);
+    float spriteScale = (float) 1 / Math.min(spriteWidth, spriteHeight);
     width = (float) spriteWidth * spriteScale * getScaleX();
     height = (float) spriteHeight * spriteScale * getScaleY();
   }
@@ -372,11 +520,7 @@ public class Animation implements Serializable, Cloneable {
     return pathString.replaceAll("\\.(png|jpg|jpeg)$", ".json");
   }
 
-  /**
-   * Reads image dimensions via Platform.resources() + ImageIO.
-   *
-   * @return int[]{w,h} or null if unavailable.
-   */
+
   private static int[] tryReadImageSize(IPath path) {
     if (path == null || path.pathString() == null || path.pathString().isBlank()) return null;
     String p = path.pathString();
