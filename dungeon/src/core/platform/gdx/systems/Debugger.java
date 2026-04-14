@@ -1,28 +1,16 @@
 package core.platform.gdx.systems;
 
-import contrib.components.AIComponent;
-import contrib.components.CollideComponent;
-import contrib.components.HealthComponent;
+import contrib.debug.DebugMonsterSpawner;
 import contrib.debug.controls.DebugInputHandler;
 import contrib.debug.controls.DebugPauseController;
 import contrib.editor.level.systems.LevelEditorSystem;
-import contrib.utils.components.ai.fight.AIChaseBehaviour;
-import contrib.utils.components.ai.idle.RadiusWalk;
-import contrib.utils.components.ai.transition.SelfDefendTransition;
-import contrib.utils.components.skill.SkillTools;
-import core.Entity;
 import core.Game;
 import core.System;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
-import core.components.VelocityComponent;
 import core.debug.DebugGameplayActions;
 import core.level.Tile;
 import core.platform.Platform;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.components.path.SimpleIPath;
-import core.utils.logging.DungeonLogger;
 
 /**
  * Auxiliary class to accelerate the creation and testing of specific game scenarios.
@@ -34,8 +22,6 @@ import core.utils.logging.DungeonLogger;
  * Game#userOnFrame(IVoidFunction)}
  */
 public class Debugger extends System {
-
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Debugger.class);
 
   private static final DebugPauseController PAUSE_CONTROLLER = new DebugPauseController();
 
@@ -106,8 +92,7 @@ public class Debugger extends System {
 
   /** Spawns a monster at the cursor's position. */
   public static void SPAWN_MONSTER_ON_CURSOR() {
-    LOGGER.info("Spawn Monster on Cursor");
-    SPAWN_MONSTER(SkillTools.cursorPositionAsPoint());
+    DebugMonsterSpawner.spawnAtCursor();
   }
 
   /**
@@ -116,30 +101,7 @@ public class Debugger extends System {
    * @param position The location to spawn the monster on.
    */
   public static void SPAWN_MONSTER(Point position) {
-    Tile tile = null;
-    try {
-      tile = Game.tileAt(position).orElse(null);
-    } catch (NullPointerException ex) {
-      LOGGER.info(ex.getMessage());
-    }
-
-    if (tile != null && tile.isAccessible()) {
-      Entity monster = new Entity("Debug Monster");
-
-      monster.add(new PositionComponent(position));
-      monster.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
-      monster.add(new VelocityComponent(1));
-      monster.add(new HealthComponent());
-      monster.add(new CollideComponent());
-      monster.add(
-        new AIComponent(
-          new AIChaseBehaviour(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
-
-      Game.add(monster);
-      LOGGER.info("Spawned monster at position {}", position);
-    } else {
-      LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
-    }
+    DebugMonsterSpawner.spawnAt(position);
   }
 
   /** Pauses the game. */
