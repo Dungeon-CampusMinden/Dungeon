@@ -3,12 +3,9 @@ package core.platform.gdx.systems;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
-import contrib.components.UIComponent;
-import contrib.configuration.KeyboardConfig;
-import contrib.hud.UIUtils;
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogFactory;
-import contrib.hud.dialogs.DialogType;
+import contrib.debug.controls.DebugInputHandler;
+import contrib.debug.controls.DebugPauseController;
+import contrib.editor.level.systems.LevelEditorSystem;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
@@ -22,9 +19,7 @@ import core.components.VelocityComponent;
 import core.debug.DebugGameplayActions;
 import core.level.Tile;
 import core.platform.Platform;
-import core.ui.UiNodeHandle;
 import core.utils.IVoidFunction;
-import core.utils.InputManager;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
@@ -37,20 +32,30 @@ import core.utils.logging.DungeonLogger;
  *
  * <p>Add the Debugger in the Game-Loop by adding the {@link #execute()} call in {@link
  * Game#userOnFrame(IVoidFunction)}
- *
- * @see KeyboardConfig
  */
 public class Debugger extends System {
 
-  private enum FrameAdvanceState {
-    IDLE,
-    SKIP_CURRENT_EXECUTION,
-    PAUSE_AFTER_NEXT_EXECUTION
-  }
-
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Debugger.class);
-  private static Entity pauseMenu;
-  private static FrameAdvanceState frameAdvanceState = FrameAdvanceState.IDLE;
+
+  private static final DebugPauseController PAUSE_CONTROLLER = new DebugPauseController();
+
+  private static final DebugInputHandler.Actions INPUT_ACTIONS =
+    new DebugInputHandler.Actions(
+      () -> DebugGameplayActions.zoomCamera(-0.2f),
+      () -> DebugGameplayActions.zoomCamera(0.2f),
+      DebugGameplayActions::teleportToCursor,
+      DebugGameplayActions::teleportToEndNeighbor,
+      DebugGameplayActions::teleportToStart,
+      DebugGameplayActions::loadNextLevel,
+      () -> {
+        if (!LevelEditorSystem.active()) {
+          SPAWN_MONSTER_ON_CURSOR();
+        }
+      },
+      DebugGameplayActions::openDoors,
+      PAUSE_CONTROLLER::togglePause,
+      PAUSE_CONTROLLER::advanceFrame,
+      () -> Platform.render().toggleDebugHud());
 
   /** Creates a new Debugger system. */
   public Debugger() {
@@ -111,7 +116,6 @@ public class Debugger extends System {
    * @param position The location to spawn the monster on.
    */
   public static void SPAWN_MONSTER(Point position) {
-    // Get the tile at the given position
     Tile tile = null;
     try {
       tile = Game.tileAt(position).orElse(null);
@@ -119,85 +123,33 @@ public class Debugger extends System {
       LOGGER.info(ex.getMessage());
     }
 
-    // If the tile is accessible, spawn a monster at the position
     if (tile != null && tile.isAccessible()) {
       Entity monster = new Entity("Debug Monster");
 
-      // Add components to the monster entity
       monster.add(new PositionComponent(position));
       monster.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
       monster.add(new VelocityComponent(1));
       monster.add(new HealthComponent());
       monster.add(new CollideComponent());
       monster.add(
-          new AIComponent(
-              new AIChaseBehaviour(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
+        new AIComponent(
+          new AIChaseBehaviour(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
 
       Game.add(monster);
-      // Log that the monster was spawned
-      LOGGER.info("Spawned monster at position " + position);
+      LOGGER.info("Spawned monster at position {}", position);
     } else {
-      // Log that the monster couldn't be spawned
       LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
     }
   }
 
   /** Pauses the game. */
   public static void PAUSE_GAME() {
-    frameAdvanceState = FrameAdvanceState.IDLE;
-    if (isPaused()) {
-      unpause();
-    } else {
-      pause();
-    }
+    PAUSE_CONTROLLER.togglePause();
   }
 
-  private static void pause() {
-    UIComponent ui =
-      DialogFactory.show(
-        DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
-    ui.dialog().ifPresent(dialog -> dialog.setVisible(true));
-    pauseMenu = ui.dialogContext().ownerEntity();
-  }
-
-  private static void unpause() {
-    if (pauseMenu == null) return;
-    UIUtils.closeDialog(pauseMenu.fetch(UIComponent.class).orElseThrow());
-  }
-
-  private static boolean isPaused() {
-    if (pauseMenu == null) return false;
-    return pauseMenu.fetch(UIComponent.class)
-      .flatMap(UIComponent::dialog)
-      .map(UiNodeHandle::isAttached)
-      .orElse(false);
-  }
-
-  private static void ADVANCE_FRAME() {
-    if (!isPaused()) {
-      return;
-    }
-
-    unpause();
-    frameAdvanceState = FrameAdvanceState.SKIP_CURRENT_EXECUTION;
-    LOGGER.info("Advanced one frame");
-  }
-
-  private static void checkFrameAdvance() {
-    switch (frameAdvanceState) {
-      case IDLE -> {
-        // nothing to do
-      }
-      case SKIP_CURRENT_EXECUTION -> frameAdvanceState = FrameAdvanceState.PAUSE_AFTER_NEXT_EXECUTION;
-      case PAUSE_AFTER_NEXT_EXECUTION -> {
-        pause();
-        frameAdvanceState = FrameAdvanceState.IDLE;
-      }
-    }
-  }
-
-  private static void OPEN_DOORS() {
-    DebugGameplayActions.openDoors();
+  /** Advances one frame while paused. */
+  public static void ADVANCE_FRAME() {
+    PAUSE_CONTROLLER.advanceFrame();
   }
 
   @Override
@@ -205,32 +157,9 @@ public class Debugger extends System {
     // Cant be stopped
   }
 
-  /**
-   * Checks for key input corresponding to Debugger functionalities, and executes the relevant
-   * function if detected.
-   */
+  /** Checks for key input corresponding to debugger functionalities. */
   public void execute() {
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.value()))
-      Debugger.ZOOM_CAMERA(-0.2f);
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.value()))
-      Debugger.ZOOM_CAMERA(0.2f);
-
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value()))
-      Debugger.TELEPORT_TO_CURSOR();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.value()))
-      Debugger.TELEPORT_TO_END();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.value()))
-      Debugger.TELEPORT_TO_START();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value()))
-      Debugger.LOAD_NEXT_LEVEL();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value()))
-      Debugger.OPEN_DOORS();
-    if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value()))
-      Debugger.PAUSE_GAME();
-    if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.ADVANCE_FRAME.value()))
-      Debugger.ADVANCE_FRAME();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value()))
-      Platform.render().toggleDebugHud();
-    checkFrameAdvance();
+    DebugInputHandler.handle(INPUT_ACTIONS);
+    PAUSE_CONTROLLER.updateFrameAdvance();
   }
 }
