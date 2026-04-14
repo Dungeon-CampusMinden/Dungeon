@@ -91,7 +91,10 @@ final class TextDialogOverlay implements UiOverlay {
         width - 2 * DialogFrameRenderer.PADDING);
 
       for (int i = 0; i < labels.size() && i < actionButtons.size(); i++) {
-        DialogFrameRenderer.drawButton(g, actionButtons.get(i), labels.get(i));
+        Button button = actionButtons.get(i);
+        Rectangle buttonBounds = new Rectangle(button.x(), button.y(), button.width(), button.height());
+
+        DialogFrameRenderer.drawButton(g, buttonBounds, labels.get(i), false);
       }
     } finally {
       DialogFrameRenderer.finishDialog(g, state);

@@ -5,7 +5,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.input.MouseButtons;
-import core.ui.dialogs.LitiengineDialogOverlaySupport;
+import contrib.hud.overlays.DialogFrameRenderer;
 import core.ui.overlay.UiOverlay;
 import core.sound.SoundSpec;
 import core.ui.StageHandle;
@@ -65,22 +65,22 @@ final class KeypadDialogOverlay implements UiOverlay {
 
     handleInput();
 
-    LitiengineDialogOverlaySupport.RenderState state =
-      LitiengineDialogOverlaySupport.beginDialog(g);
+    DialogFrameRenderer.RenderState state =
+      DialogFrameRenderer.beginDialog(g);
 
     try {
       int contentY =
-        LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, TITLE);
+        DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, TITLE);
 
       drawDisplay(g, contentY);
 
       List<Rectangle> buttons = buttonBounds();
       for (int i = 0; i < BUTTON_LABELS.size(); i++) {
-        LitiengineDialogOverlaySupport.drawButton(
+        DialogFrameRenderer.drawButton(
           g, buttons.get(i), BUTTON_LABELS.get(i), pressedButtonIndex == i);
       }
     } finally {
-      LitiengineDialogOverlaySupport.finishDialog(g, state);
+      DialogFrameRenderer.finishDialog(g, state);
     }
   }
 

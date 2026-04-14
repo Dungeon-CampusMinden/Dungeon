@@ -4,10 +4,10 @@ import contrib.components.InventoryComponent;
 import contrib.hud.elements.InventoryComponentProvider;
 import contrib.hud.overlays.InventoryGridRenderer;
 import contrib.hud.overlays.ItemTooltipRenderer;
+import contrib.hud.overlays.DialogFrameRenderer;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
-import core.ui.dialogs.LitiengineDialogOverlaySupport;
 import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
@@ -90,7 +90,7 @@ final class DualInventoryDialogOverlay
       leftGridWidth
         + rightGridWidth
         + PANEL_GAP
-        + 2 * LitiengineDialogOverlaySupport.PADDING
+        + 2 * DialogFrameRenderer.PADDING
         + 2 * PANEL_PADDING;
     width = Math.max(DEFAULT_WIDTH, contentWidth);
 
@@ -101,7 +101,7 @@ final class DualInventoryDialogOverlay
     height =
       Math.max(
         DEFAULT_HEIGHT,
-        108 + maxGridHeight + 2 * PANEL_PADDING + LitiengineDialogOverlaySupport.PADDING);
+        108 + maxGridHeight + 2 * PANEL_PADDING + DialogFrameRenderer.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -116,12 +116,12 @@ final class DualInventoryDialogOverlay
     GridLayout leftGrid;
     GridLayout rightGrid;
 
-    LitiengineDialogOverlaySupport.RenderState state =
-      LitiengineDialogOverlaySupport.beginDialog(g);
+    DialogFrameRenderer.RenderState state =
+      DialogFrameRenderer.beginDialog(g);
 
     try {
       contentY =
-        LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, "Inventory");
+        DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Inventory");
 
       int totalGridWidth = leftGridWidth + PANEL_GAP + rightGridWidth;
       leftStartX = x + (width - totalGridWidth) / 2;
@@ -180,7 +180,7 @@ final class DualInventoryDialogOverlay
         drawHoverTooltip(g, leftGrid, rightGrid);
       }
     } finally {
-      LitiengineDialogOverlaySupport.finishDialog(g, state);
+      DialogFrameRenderer.finishDialog(g, state);
     }
 
     handleInput(leftGrid, rightGrid);

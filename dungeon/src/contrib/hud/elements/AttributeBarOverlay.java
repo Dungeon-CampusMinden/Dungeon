@@ -11,7 +11,7 @@ import java.awt.Graphics2D;
  * <p>This overlay doubles as the backend-agnostic {@link AttributeBarHandle}, so
  * AttributeBarSystem can continue to update it without knowing the concrete UI backend.
  */
-final class AttributeBarOverlay
+public final class AttributeBarOverlay
   implements UiOverlay, AttributeBarHandle, AttributeBarHandleProvider {
 
   private static final int DEFAULT_WIDTH = 50;
@@ -26,7 +26,7 @@ final class AttributeBarOverlay
   private boolean visible = true;
   private float value = 1f;
 
-  AttributeBarOverlay(String styleName) {
+  public AttributeBarOverlay(String styleName) {
     this.styleName = styleName == null ? "" : styleName;
   }
 

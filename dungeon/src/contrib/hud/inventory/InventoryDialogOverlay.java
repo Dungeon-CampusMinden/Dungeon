@@ -5,12 +5,12 @@ import contrib.entities.HeroController;
 import contrib.hud.elements.InventoryComponentProvider;
 import contrib.hud.overlays.InventoryGridRenderer;
 import contrib.hud.overlays.ItemTooltipRenderer;
+import contrib.hud.overlays.DialogFrameRenderer;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
 import core.input.MouseButtons;
 import core.network.messages.c2s.InputMessage;
-import core.ui.dialogs.LitiengineDialogOverlaySupport;
 import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
@@ -88,12 +88,12 @@ final class InventoryDialogOverlay
     width =
       Math.max(
         DEFAULT_WIDTH,
-        2 * LitiengineDialogOverlaySupport.PADDING + gridWidth + 2 * PANEL_PADDING);
+        2 * DialogFrameRenderer.PADDING + gridWidth + 2 * PANEL_PADDING);
 
     height =
       Math.max(
         DEFAULT_HEIGHT,
-        96 + gridHeight + 2 * PANEL_PADDING + LitiengineDialogOverlaySupport.PADDING);
+        96 + gridHeight + 2 * PANEL_PADDING + DialogFrameRenderer.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -106,11 +106,11 @@ final class InventoryDialogOverlay
 
     GridLayout grid;
 
-    LitiengineDialogOverlaySupport.RenderState state =
-      LitiengineDialogOverlaySupport.beginDialog(g);
+    DialogFrameRenderer.RenderState state =
+      DialogFrameRenderer.beginDialog(g);
 
     try {
-      contentY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
+      contentY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, title);
 
       startX = x + (width - gridWidth) / 2;
       gridTop = contentY + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
@@ -143,7 +143,7 @@ final class InventoryDialogOverlay
         drawHoverTooltip(g, grid);
       }
     } finally {
-      LitiengineDialogOverlaySupport.finishDialog(g, state);
+      DialogFrameRenderer.finishDialog(g, state);
     }
 
     handleInput(grid);
