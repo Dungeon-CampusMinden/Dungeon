@@ -126,7 +126,7 @@ public final class ClientLoopRuntime {
           final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
 
           core.Game.soundPlayer().update(deltaSeconds);
-          loopCore.beforeRender(deltaSeconds);
+          loopCore.beforeRender();
           loopCore.tick(deltaSeconds, false);
 
           // Must be called once per frame to clear justPressed/justReleased.
