@@ -49,8 +49,8 @@ public class MultiplayerServer {
   }
 
   private static void onSetup() {
-    ECSManagement.initializeDefaultSystems(SystemProfile.SERVER_SIMULATION);
-    ECSManagement.initializeGameplaySystems(SystemProfile.SERVER_SIMULATION);
+    ECSManagement.initializeDefaultSystems(SystemProfile.SERVER);
+    ECSManagement.initializeGameplaySystems(SystemProfile.SERVER);
 
     ECSManagement.system(
       LevelSystem.class,
