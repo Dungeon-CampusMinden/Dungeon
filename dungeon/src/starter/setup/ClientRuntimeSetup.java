@@ -1,6 +1,6 @@
 package starter.setup;
 
-import contrib.debug.controls.DebugControlsSystem;
+import contrib.debug.systems.DebugRenderEffectsSystem;
 import contrib.debug.systems.EntityDebugRenderSystem;
 import contrib.debug.systems.DebugDrawSystem;
 import contrib.editor.level.systems.LevelEditorSystem;
@@ -35,7 +35,7 @@ public final class ClientRuntimeSetup {
 
   /** Installs optional debug and editor systems. */
   public static void installDebugSystems() {
-    addIfAbsent(DebugControlsSystem.class, DebugControlsSystem::new);
+    addIfAbsent(DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
     addIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
     addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
     addIfAbsent(EntityDebugRenderSystem.class, EntityDebugRenderSystem::new);

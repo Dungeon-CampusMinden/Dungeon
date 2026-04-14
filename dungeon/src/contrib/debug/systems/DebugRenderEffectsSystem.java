@@ -1,4 +1,4 @@
-package contrib.debug.controls;
+package contrib.debug.systems;
 
 import contrib.configuration.KeyboardConfig;
 import core.System;
@@ -18,46 +18,36 @@ import core.utils.components.draw.DepthLayer;
 import core.utils.logging.DungeonLogger;
 
 /**
- * Lightweight debug controls for the LITIENGINE host.
+ * A debug system that handles keyboard input for toggling various rendering effects and debug
+ * features.
  *
- * <p>This intentionally contains only backend-neutral gameplay debug actions that are useful
- * during LITIENGINE testing. GDX/HUD-specific debugger features stay in the GDX debugger.
+ * <p>This system allows developers to enable/disable effects for scenes, levels, and depth layers,
+ * as well as various debug visualization modes. It manages regional color-grade effects with
+ * configurable regions and transition sizes.
  *
- * <p>Scene-pass, level-pass and depth-layer-pass verification are intentionally backend-local here,
- * because the corresponding pass pipelines also currently exist only on the LITIENGINE render path.
+ * <p>Key bindings:
+ * <ul>
+ *   <li>F5: Toggle regional depth-layer color grade
+ *   <li>F6: Toggle regional level color grade
+ *   <li>F7: Toggle scene effects
+ *   <li>F8: Toggle level effects
+ *   <li>F9: Toggle depth-layer effects
+ *   <li>F10: Toggle passthrough alpha/transparency debug view
+ *   <li>F11: Toggle passthrough world-position debug view
+ *   <li>F12: Toggle regional scene color grade (Shift+F12 to switch modes)
+ * </ul>
  */
-public final class DebugControlsSystem extends System {
+public final class DebugRenderEffectsSystem extends System {
   private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(DebugControlsSystem.class);
+    DungeonLogger.getLogger(DebugRenderEffectsSystem.class);
 
   private static final int TOGGLE_REGIONAL_DEPTH_COLOR_GRADE_KEY = Keys.F5;
   private static final int TOGGLE_REGIONAL_LEVEL_COLOR_GRADE_KEY = Keys.F6;
   private static final int TOGGLE_SCENE_EFFECTS_KEY = Keys.F7;
   private static final int TOGGLE_LEVEL_EFFECTS_KEY = Keys.F8;
   private static final int TOGGLE_DEPTH_LAYER_EFFECTS_KEY = Keys.F9;
-
-  /**
-   * Temporary backend-local key for toggling the passthrough alpha/transparency debug view.
-   *
-   * <p>This corresponds to the old {@code debugPMA} shader flag, but is re-modeled for the
-   * LITIENGINE scene-pass image pipeline.
-   */
   private static final int TOGGLE_PASSTHROUGH_PMA_KEY = Keys.F10;
-
-  /**
-   * Temporary backend-local key for toggling the passthrough world-position debug view.
-   *
-   * <p>This corresponds to the old {@code debugWorldPos} shader flag, but is re-modeled for the
-   * LITIENGINE scene-pass image pipeline.
-   */
   private static final int TOGGLE_PASSTHROUGH_WORLD_POS_KEY = Keys.F11;
-
-  /**
-   * Temporary backend-local key for starter-scoped regional scene color-grade verification.
-   *
-   * <p>Press F12 to enable/disable the dedicated starter demo effect.
-   * Press Shift+F12 to switch that same demo between regional mode and global mode.
-   */
   private static final int TOGGLE_REGIONAL_SCENE_COLOR_GRADE_KEY = Keys.F12;
 
   private static final String PASSTHROUGH_DEBUG_EFFECT_ID =
@@ -100,7 +90,7 @@ public final class DebugControlsSystem extends System {
   private float rememberedRegionalDepthColorGradeTransitionSize =
     DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE;
 
-  public DebugControlsSystem() {
+  public DebugRenderEffectsSystem() {
     super(AuthoritativeSide.CLIENT);
   }
 
@@ -129,14 +119,14 @@ public final class DebugControlsSystem extends System {
     if (InputManager.isKeyJustPressed(TOGGLE_SCENE_EFFECTS_KEY)) {
       boolean enabled = SceneEffectPipeline.toggleAll();
       LOGGER.info(
-        "LITIENGINE scene-pass effects are now {}.",
+        "Scene-pass effects are now {}.",
         enabled ? "enabled" : "disabled");
     }
 
     if (InputManager.isKeyJustPressed(TOGGLE_LEVEL_EFFECTS_KEY)) {
       boolean enabled = LevelEffectPipeline.toggleAll();
       LOGGER.info(
-        "LITIENGINE level-pass effects are now {}.",
+        "Level-pass effects are now {}.",
         enabled ? "enabled" : "disabled");
     }
 
@@ -146,7 +136,7 @@ public final class DebugControlsSystem extends System {
       } else {
         boolean enabled = DepthLayerEffectPipeline.toggleAll();
         LOGGER.info(
-          "LITIENGINE depth-layer-pass effects are now {}.",
+          "Depth-layer-pass effects are now {}.",
           enabled ? "enabled" : "disabled");
       }
     }
@@ -198,7 +188,7 @@ public final class DebugControlsSystem extends System {
     syncPassthroughEnabledState(effect);
 
     LOGGER.info(
-      "LITIENGINE passthrough alpha debug is now {}.",
+      "Passthrough alpha debug is now {}.",
       newState ? "enabled" : "disabled");
   }
 
@@ -209,7 +199,7 @@ public final class DebugControlsSystem extends System {
     syncPassthroughEnabledState(effect);
 
     LOGGER.info(
-      "LITIENGINE passthrough world-position debug is now {}.",
+      "Passthrough world-position debug is now {}.",
       newState ? "enabled" : "disabled");
   }
 
@@ -226,7 +216,7 @@ public final class DebugControlsSystem extends System {
     effect.enabled(newState);
 
     LOGGER.info(
-      "LITIENGINE starter regional scene color grade is now {}.",
+      "Starter regional scene color grade is now {}.",
       newState ? "enabled" : "disabled");
   }
 
@@ -254,7 +244,7 @@ public final class DebugControlsSystem extends System {
       effect.region(restoreRegion).transitionSize(restoreTransition);
 
       LOGGER.info(
-        "LITIENGINE starter scene color grade verification is now in regional mode.");
+        "Starter scene color grade verification is now in regional mode.");
       return;
     }
 
@@ -264,7 +254,7 @@ public final class DebugControlsSystem extends System {
     effect.region(null);
 
     LOGGER.info(
-      "LITIENGINE starter scene color grade verification is now in global mode.");
+      "Starter scene color grade verification is now in global mode.");
   }
 
   private void toggleRegionalLevelColorGradeEnabled() {
@@ -280,7 +270,7 @@ public final class DebugControlsSystem extends System {
     effect.enabled(newState);
 
     LOGGER.info(
-      "LITIENGINE starter regional level color grade is now {}.",
+      "Starter regional level color grade is now {}.",
       newState ? "enabled" : "disabled");
   }
 
@@ -308,7 +298,7 @@ public final class DebugControlsSystem extends System {
       effect.region(restoreRegion).transitionSize(restoreTransition);
 
       LOGGER.info(
-        "LITIENGINE starter level color grade verification is now in regional mode.");
+        "Starter level color grade verification is now in regional mode.");
       return;
     }
 
@@ -318,7 +308,7 @@ public final class DebugControlsSystem extends System {
     effect.region(null);
 
     LOGGER.info(
-      "LITIENGINE starter level color grade verification is now in global mode.");
+      "Starter level color grade verification is now in global mode.");
   }
 
   private void toggleRegionalDepthColorGradeEnabled() {
@@ -334,7 +324,7 @@ public final class DebugControlsSystem extends System {
     effect.enabled(newState);
 
     LOGGER.info(
-      "LITIENGINE starter regional depth-layer color grade is now {}.",
+      "Starter regional depth-layer color grade is now {}.",
       newState ? "enabled" : "disabled");
   }
 
@@ -362,7 +352,7 @@ public final class DebugControlsSystem extends System {
       effect.region(restoreRegion).transitionSize(restoreTransition);
 
       LOGGER.info(
-        "LITIENGINE starter depth-layer color grade verification is now in regional mode.");
+        "Starter depth-layer color grade verification is now in regional mode.");
       return;
     }
 
@@ -372,7 +362,7 @@ public final class DebugControlsSystem extends System {
     effect.region(null);
 
     LOGGER.info(
-      "LITIENGINE starter depth-layer color grade verification is now in global mode.");
+      "Starter depth-layer color grade verification is now in global mode.");
   }
 
   private void toggleDemoDepthLayerEffectGroup() {
@@ -387,7 +377,7 @@ public final class DebugControlsSystem extends System {
       DepthLayerEffectPipeline.toggleAll(STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER);
 
     LOGGER.info(
-      "LITIENGINE starter demo depth-layer effect group on layer '{}' is now {}.",
+      "Starter demo depth-layer effect group on layer '{}' is now {}.",
       STARTER_DEPTH_COLOR_GRADE_DEMO_LAYER,
       enabled ? "enabled" : "disabled");
   }
@@ -446,6 +436,6 @@ public final class DebugControlsSystem extends System {
 
   @Override
   public void stop() {
-    // Cant be stopped
+    // Cannot be stopped
   }
 }
