@@ -1,6 +1,6 @@
 package contrib.editor.level.mode;
 
-import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.editor.level.LevelEditorSystem;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.InputManager;
@@ -9,7 +9,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** LITIENGINE level editor mode for resizing the dungeon bounds. */
+/**
+ * A level editor mode for modifying the dimensions of a dungeon level.
+ *
+ * <p>LevelBoundsMode allows dynamic resizing of the level layout by adjusting its width and height.
+ * The mode provides the following capabilities:
+ * <ul>
+ *   <li>Increasing or decreasing the height of the level
+ *   <li>Increasing or decreasing the width of the level
+ *   <li>Automatic filling of new cells with SKIP elements
+ *   <li>Preservation of existing tiles and their level elements
+ * </ul>
+ *
+ * <p>The level must maintain a minimum size of 1x1. When expanding the level, new cells are
+ * initialized with the SKIP level element, while existing tiles retain their current values.
+ */
 public final class LevelBoundsMode extends LevelEditorMode {
 
   public LevelBoundsMode(LevelEditorSystem system) {

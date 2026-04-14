@@ -3,7 +3,7 @@ package starter.setup;
 import contrib.debug.systems.DebugRenderEffectsSystem;
 import contrib.debug.systems.DebugEntityRenderSystem;
 import contrib.debug.systems.DebugDrawSystem;
-import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.editor.level.LevelEditorSystem;
 import contrib.hud.dialogs.DialogBackendInstaller;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;

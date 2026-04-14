@@ -3,7 +3,7 @@ package contrib.debug.systems;
 import contrib.debug.DebugMonsterSpawner;
 import contrib.debug.controls.DebugInputHandler;
 import contrib.debug.controls.DebugPauseController;
-import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.editor.level.LevelEditorSystem;
 import core.Game;
 import core.System;
 import core.debug.DebugGameplayActions;
@@ -16,7 +16,7 @@ import core.utils.Point;
  * Debug system for gameplay-oriented runtime test actions.
  *
  * <p>This system provides debug actions such as camera zooming, teleporting, opening doors,
- * spawning test monsters, pausing, one-frame stepping and toggling the debug HUD.
+ * spawning test monsters, pausing, one-frame stepping, and toggling the debug HUD.
  *
  * <p>The system is backend-neutral. Concrete input polling is delegated to {@link
  * DebugInputHandler}, pause state is delegated to {@link DebugPauseController}, and gameplay

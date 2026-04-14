@@ -2,7 +2,23 @@ package contrib.editor.level.mode;
 
 import core.utils.Point;
 
-/** Shared snap behavior for LITIENGINE level editor modes. */
+/**
+ * Enumeration of different snap modes for the level editor.
+ *
+ * <p>EditorSnapMode defines how cursor positions and placements are snapped to a grid or snap
+ * pattern. Different modes provide varying levels of precision and flexibility for positioning
+ * game elements.
+ *
+ * <p>Available modes:
+ * <ul>
+ *   <li>OnGrid - Snap to full tile grid
+ *   <li>QuarterGrid - Snap to 1/4 tile grid (0.25 precision)
+ *   <li>PixelGrid - Snap to 1/16 tile grid (0.0625 precision, pixel-level)
+ *   <li>OffGrid - No snapping, free movement
+ *   <li>CheckerGridEven - Snap to even squares of a checkerboard pattern
+ *   <li>CheckerGridOdd - Snap to odd squares of a checkerboard pattern
+ * </ul>
+ */
 public enum EditorSnapMode {
   OnGrid("OnGrid"),
   QuarterGrid("QuarterGrid"),
@@ -17,18 +33,52 @@ public enum EditorSnapMode {
     this.displayName = displayName;
   }
 
+  /**
+   * Returns the display name for this snap mode.
+   *
+   * @return the human-readable name of this snap mode
+   */
   public String displayName() {
     return displayName;
   }
 
+  /**
+   * Returns the previous snap mode in the enumeration order.
+   *
+   * <p>Wraps around to the last mode if called on the first mode.
+   *
+   * @return the previous snap mode
+   */
   public EditorSnapMode previousMode() {
     return values()[(this.ordinal() - 1 + values().length) % values().length];
   }
 
+  /**
+   * Returns the next snap mode in the enumeration order.
+   *
+   * <p>Wraps around to the first mode if called on the last mode.
+   *
+   * @return the next snap mode
+   */
   public EditorSnapMode nextMode() {
     return values()[(this.ordinal() + 1) % values().length];
   }
 
+  /**
+   * Snaps the given position to this snap mode's grid or pattern.
+   *
+   * <p>The snapping behavior depends on the specific mode:
+   * <ul>
+   *   <li>OnGrid: Floors to the nearest integer
+   *   <li>QuarterGrid: Floors to nearest 0.25
+   *   <li>PixelGrid: Floors to nearest 0.0625 (1/16)
+   *   <li>OffGrid: Returns position unchanged
+   *   <li>CheckerGridEven/CheckerGridOdd: Snaps to the nearest square of the specified checkerboard parity
+   * </ul>
+   *
+   * @param position the world position to snap
+   * @return the snapped position according to this mode's grid pattern
+   */
   public Point getPosition(Point position) {
     return switch (this) {
       case OnGrid ->
@@ -75,6 +125,14 @@ public enum EditorSnapMode {
     };
   }
 
+  /**
+   * Determines whether collision/placement validation should be performed for this snap mode.
+   *
+   * <p>Blocking is enabled for grid-based snap modes where snapping ensures valid placements.
+   * For free-form modes like OffGrid, blocking is disabled to allow more flexibility.
+   *
+   * @return true if collision checking should be enabled for this snap mode, false otherwise
+   */
   public boolean checkBlocked() {
     return this == OnGrid
       || this == QuarterGrid

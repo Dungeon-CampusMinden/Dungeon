@@ -1,6 +1,6 @@
 package contrib.editor.level.mode;
 
-import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.editor.level.LevelEditorSystem;
 import contrib.systems.PositionSync;
 import core.Game;
 import core.components.PositionComponent;
@@ -14,7 +14,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** LITIENGINE level editor mode for shifting the whole level by one tile. */
+/**
+ * A level editor mode for shifting the entire dungeon level layout in cardinal directions.
+ *
+ * <p>ShiftLevelMode allows editors to translate all level tiles, named points, and entities in a
+ * direction while maintaining the level structure. This is useful for repositioning level content
+ * without resizing the level or manually moving individual elements.
+ *
+ * <p>Supported operations:
+ * <ul>
+ *   <li>Shifting the level up (increasing Y)
+ *   <li>Shifting the level down (decreasing Y)
+ *   <li>Shifting the level right (increasing X)
+ *   <li>Shifting the level left (decreasing X)
+ * </ul>
+ *
+ * <p>Shift behavior:
+ * <ul>
+ *   <li>All tiles in the level layout are shifted in the specified direction
+ *   <li>New border tiles are filled with SKIP elements
+ *   <li>All named points are translated by the shift offset
+ *   <li>All entities with PositionComponent are repositioned and synchronized
+ *   <li>Shifts are blocked if non-SKIP tiles are overwritten at the borders
+ * </ul>
+ *
+ * <p>The mode prevents data loss by validating that only SKIP elements exist at the border that
+ * would be overwritten before allowing a shift operation.
+ */
 public final class ShiftLevelMode extends LevelEditorMode {
 
   public ShiftLevelMode(LevelEditorSystem system) {
@@ -40,7 +66,7 @@ public final class ShiftLevelMode extends LevelEditorMode {
   protected List<String> getStatusLines() {
     return system()
       .currentDungeonLevelForModes()
-      .<List<String>>map(
+      .map(
         level ->
           List.of(
             "Current size: " + level.layout()[0].length + "x" + level.layout().length,
@@ -104,14 +130,13 @@ public final class ShiftLevelMode extends LevelEditorMode {
             }
           }
 
-          // Keep the second refresh pass from the old implementation.
           for (Tile[] tiles : layout) {
             for (int j = 0; j < cols; j++) {
               level.changeTileElementType(tiles[j], tiles[j].levelElement());
             }
           }
 
-          level.namedPoints().replaceAll((name, point) -> new Point(point.x() + x, point.y() + y));
+          level.namedPoints().replaceAll((_, point) -> new Point(point.x() + x, point.y() + y));
 
           Game.levelEntities(Set.of(PositionComponent.class))
             .forEach(

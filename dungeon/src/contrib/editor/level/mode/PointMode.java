@@ -1,7 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.components.UIComponent;
-import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.editor.level.LevelEditorSystem;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
@@ -21,7 +21,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** LITIENGINE level editor mode for creating, moving and deleting named points. */
+
+/**
+ * A level editor mode for creating and managing named points within a dungeon level.
+ *
+ * <p>PointMode enables editors to place, manipulate, and visualize named reference points in the
+ * level. These points serve as markers for important locations, spawn points, objectives, or other
+ * level-specific references.
+ *
+ * <p>Supported operations:
+ * <ul>
+ *   <li>Placing new named points at cursor positions
+ *   <li>Picking up and moving existing points
+ *   <li>Cloning points with automatic numbering
+ *   <li>Deleting points from the level
+ *   <li>Switching between different snap modes for flexible positioning
+ *   <li>Visual rendering of point markers with labels
+ * </ul>
+ *
+ * <p>The mode provides visual feedback with color-coded markers:
+ * <ul>
+ *   <li>Orange markers for existing points
+ *   <li>Green markers for held/moved points
+ *   <li>White labels for point names
+ * </ul>
+ *
+ * <p>When placing a new point, the editor is prompted to enter a name via a dialog.
+ * Held points can be cloned by right-clicking, with automatic numbering applied to the clone.
+ */
 public final class PointMode extends LevelEditorMode {
 
   private static final Color POINT_MARKER_COLOR = new Color(255, 196, 77, 220);

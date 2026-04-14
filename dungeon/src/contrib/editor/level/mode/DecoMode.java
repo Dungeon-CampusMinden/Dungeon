@@ -2,7 +2,7 @@ package contrib.editor.level.mode;
 
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
-import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.editor.level.LevelEditorSystem;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.systems.PositionSync;
@@ -21,17 +21,25 @@ import java.awt.Color;
 import java.util.*;
 
 /**
- * LITIENGINE level editor mode for placing, moving, deleting and pipetting deco entities.
+ * A level editor mode for placing, managing, and manipulating decorations (deco) in a dungeon level.
  *
- * <p>This version fully owns deco state and deco-specific helper logic.
+ * <p>DecoMode provides comprehensive functionality for decorating a level with various deco types.
+ * It supports the following operations:
+ * <ul>
+ *   <li>Placing new decorations at cursor positions
+ *   <li>Picking up and moving existing decorations
+ *   <li>Deleting decorations from the level
+ *   <li>Pipetting deco types from existing decorations
+ *   <li>Previewing deco placements with visual feedback
+ *   <li>Switching between different deco types and snap modes
+ * </ul>
+ *
+ * <p>The mode features intelligent placement validation, showing blocked (red) vs. valid (white)
+ * placements through color-coded visual indicators. It supports multiple snap modes for flexible
+ * positioning and remembers original entity tint colors for proper restoration.
  */
 public final class DecoMode extends LevelEditorMode {
 
-  /**
-   * DrawComponent tintColor uses packed RGBA8888.
-   *
-   * <p>White with ~50% alpha, equivalent to the old preview idea from the legacy deco editor mode.
-   */
   private static final int DECO_PREVIEW_TINT = 0xFFFFFF80;
   private static final int DECO_PREVIEW_BLOCKED_TINT = 0xFF6B6B99;
   private static final int DECO_DEFAULT_TINT = -1;

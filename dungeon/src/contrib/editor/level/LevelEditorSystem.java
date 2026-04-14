@@ -1,4 +1,4 @@
-package contrib.editor.level.systems;
+package contrib.editor.level;
 
 import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
@@ -19,7 +19,6 @@ import core.platform.Platform;
 import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
 import core.game.render.overlay.TileOverlaySizing;
-import contrib.editor.level.overlay.LevelEditorOverlay;
 import contrib.debug.systems.DebugDrawSystem;
 import core.ui.overlay.UiOverlayRegistry;
 import core.ui.StageHandle;
@@ -30,10 +29,24 @@ import java.awt.Graphics2D;
 import java.util.*;
 
 /**
- * Minimal LITIENGINE-native level editor.
+ * A system that provides an interactive in-game level editor for designing and editing dungeon
+ * levels.
  *
- * <p>This version keeps the editor lifecycle inside the LITIENGINE backend and ports the first
- * actual editing mode: tile painting.
+ * <p>The editor supports multiple editing modes:
+ * <ul>
+ *   <li>Tiles - edit tile types and properties
+ *   <li>Decos - place and manage decorative entities
+ *   <li>Points - set special points like spawn locations
+ *   <li>Level Bounds - define level boundaries
+ *   <li>Shift Level - shift level content
+ *   <li>Start Tiles - configure starting tile positions
+ *   <li>Save Level - save level configuration
+ *   <li>Deco Collider - manage collision data for decorative objects
+ * </ul>
+ *
+ * <p>The editor can be toggled with F4 and provides keyboard shortcuts (1-8) to switch between
+ * modes. It includes debug visualization capabilities for viewing tile properties and entity
+ * information.
  */
 public final class LevelEditorSystem extends System {
   private static final DungeonLogger LOGGER =
@@ -94,7 +107,7 @@ public final class LevelEditorSystem extends System {
   private final LevelEditorMode startTilesMode = new StartTilesMode(this);
   private final LevelEditorMode decoColliderMode = new DecoColliderMode(this);
 
-  /** Creates the LITIENGINE level editor. */
+  /** Creates the level editor. */
   public LevelEditorSystem() {
     super(AuthoritativeSide.CLIENT);
   }
@@ -212,9 +225,9 @@ public final class LevelEditorSystem extends System {
         UiOverlayRegistry.add(overlay);
       }
 
-      showFeedback("LITIENGINE level editor active", new Color(120, 220, 120));
+      showFeedback("Level editor active", new Color(120, 220, 120));
       syncOverlay();
-      LOGGER.info("Activated LITIENGINE level editor.");
+      LOGGER.info("Activated level editor.");
       return;
     }
 
@@ -229,7 +242,7 @@ public final class LevelEditorSystem extends System {
     feedbackMessage = "";
     feedbackUntilMs = 0L;
 
-    LOGGER.info("Deactivated LITIENGINE level editor.");
+    LOGGER.info("Deactivated level editor.");
   }
 
   private void suspendConflictingPlayerCallbacks() {
@@ -337,7 +350,7 @@ public final class LevelEditorSystem extends System {
     }
 
     overlay.content(
-      "LITIENGINE Level Editor",
+      "Level Editor",
       buildStatusLines(),
       currentFeedbackMessage(),
       currentFeedbackColor());
@@ -370,7 +383,7 @@ public final class LevelEditorSystem extends System {
     } else if (currentMode == Mode.DECO_COLLIDER) {
       lines.addAll(decoColliderMode.getFullStatusLines());
     } else {
-      lines.add("This mode is not ported yet on the LITIENGINE path.");
+      lines.add("This mode is not yet ported.");
     }
 
     return lines;
@@ -599,14 +612,30 @@ public final class LevelEditorSystem extends System {
     return "DRAW";
   }
 
+  /**
+   * Displays a feedback message to the user in the UI overlay.
+   *
+   * @param message the feedback message to display
+   * @param color the color of the feedback message
+   */
   public void showModeFeedback(String message, Color color) {
     showFeedback(message, color);
   }
 
+  /**
+   * Retrieves the current dungeon level for mode operations.
+   *
+   * @return an Optional containing the current DungeonLevel, or empty if no level is loaded
+   */
   public Optional<DungeonLevel> currentDungeonLevelForModes() {
     return currentDungeonLevel();
   }
 
+  /**
+   * Returns the current cursor position snapped to the nearest tile coordinates.
+   *
+   * @return a Point representing the snapped cursor position in world coordinates
+   */
   public Point snappedCursorTileForModes() {
     return snappedCursorTile();
   }

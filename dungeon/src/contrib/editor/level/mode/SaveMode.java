@@ -1,6 +1,6 @@
 package contrib.editor.level.mode;
 
-import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.editor.level.LevelEditorSystem;
 import core.level.loader.DungeonSaver;
 import core.utils.InputManager;
 import java.awt.Color;
@@ -8,7 +8,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** LITIENGINE save mode for exporting the current dungeon to the clipboard. */
+
+/**
+ * A level editor mode for saving and exporting dungeon levels.
+ *
+ * <p>SaveMode provides functionality to serialize and export the current dungeon level to the
+ * system clipboard. This allows editors to share level configurations or back up their work in a
+ * portable format.
+ *
+ * <p>The mode uses DungeonSaver for serialization, which converts the entire DungeonLevel into
+ * a format suitable for clipboard storage and later reimport.
+ *
+ * <p>Supported operations:
+ * <ul>
+ *   <li>Exporting the current level to clipboard via DungeonSaver
+ * </ul>
+ */
 public final class SaveMode extends LevelEditorMode {
 
   public SaveMode(LevelEditorSystem system) {

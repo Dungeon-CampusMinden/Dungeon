@@ -1,4 +1,4 @@
-package contrib.editor.level.overlay;
+package contrib.editor.level;
 
 import core.ui.overlay.UiOverlay;
 
@@ -9,10 +9,12 @@ import java.awt.Graphics2D;
 import java.util.List;
 
 /**
- * Minimal status overlay for the LITIENGINE level editor shell.
+ * Represents a graphical overlay for the level editor, used to display status information,
+ * messages, and feedback to the user.
  *
- * <p>This intentionally only visualizes editor state, selected mode and feedback messages.
- * Actual editing logic is added in follow-up commits.
+ * <p>The overlay supports configuration of its position, dimensions, content, and visibility.
+ * It is rendered as a rounded rectangle with an optional title, multiple status lines,
+ * and an additional feedback message.
  */
 public final class LevelEditorOverlay implements UiOverlay {
 
@@ -31,7 +33,7 @@ public final class LevelEditorOverlay implements UiOverlay {
   private int height = DEFAULT_HEIGHT;
   private boolean visible = true;
 
-  private String title = "LITIENGINE Level Editor";
+  private String title = "LevelEditorOverlay";
   private List<String> lines = List.of();
   private String feedback = "";
   private Color feedbackColor = Color.WHITE;

@@ -1,6 +1,6 @@
 package contrib.editor.level.mode;
 
-import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.editor.level.LevelEditorSystem;
 import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
@@ -15,7 +15,35 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** LITIENGINE level editor mode for editing start tiles. */
+/**
+ * A level editor mode for managing start tiles (spawn points) within a dungeon level.
+ *
+ * <p>StartTilesMode enables editors to define and manage multiple starting positions for entities
+ * (typically players) in the level. Each start tile is assigned a unique slot and visualized with
+ * a distinct color and label.
+ *
+ * <p>Supported operations:
+ * <ul>
+ *   <li>Navigating through existing start tile slots and creating new ones
+ *   <li>Placing or replacing start tiles at cursor positions
+ *   <li>Deleting start tiles from the level
+ *   <li>Visual rendering of all start tiles with indexed labels and color coding
+ * </ul>
+ *
+ * <p>Placement constraints:
+ * <ul>
+ *   <li>Start tiles can only be placed on FLOOR level elements
+ *   <li>Start tiles must be within level bounds
+ *   <li>At least one start tile must always exist
+ * </ul>
+ *
+ * <p>Visual representation:
+ * <ul>
+ *   <li>Each start tile is drawn as a colored rectangle outline
+ *   <li>A label "Start: #N" (where N is 1-indexed) displays the slot number
+ *   <li>Colors rotate through a predefined palette for easy distinction
+ * </ul>
+ */
 public final class StartTilesMode extends LevelEditorMode {
 
   private static final Color[] START_TILE_COLORS = {

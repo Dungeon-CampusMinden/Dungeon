@@ -3,15 +3,40 @@ package contrib.editor.level.mode;
 import core.input.Keys;
 import core.input.MouseButtons;
 import core.camera.CameraViewportState;
-import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.editor.level.LevelEditorSystem;
 import java.awt.Graphics2D;
 import java.util.*;
 
+
 /**
- * Abstract base class for LITIENGINE level editor modes.
+ * Abstract base class for level editor modes.
  *
- * <p>This mirrors the old editor architecture, but adapts the status API to the current
- * LITIENGINE overlay, which works with line lists instead of one large debug string.
+ * <p>LevelEditorMode defines the framework for implementing different editing modes in the level
+ * editor. Each mode represents a distinct set of editing tools and operations, such as placing
+ * decorations, modifying level bounds, or other level editing tasks.
+ *
+ * <p>Key responsibilities:
+ * <ul>
+ *   <li>Execute mode-specific logic each frame
+ *   <li>Provide visual feedback through status lines and controls
+ *   <li>Handle mode lifecycle (entering and exiting)
+ *   <li>Render mode-specific graphics
+ * </ul>
+ *
+ * <p>Subclasses must implement:
+ * <ul>
+ *   <li>{@code execute()} - Core logic executed every frame
+ *   <li>{@code getStatusLines()} - Mode-specific status information for the overlay
+ * </ul>
+ *
+ * <p>Standard input bindings are provided for common editor actions:
+ * <ul>
+ *   <li>E/Q - Primary up/down actions
+ *   <li>C/Z - Secondary up/down actions
+ *   <li>X - Tertiary action
+ *   <li>V - Quaternary action
+ *   <li>Arrow keys, mouse buttons - Additional inputs
+ * </ul>
  */
 public abstract class LevelEditorMode {
 

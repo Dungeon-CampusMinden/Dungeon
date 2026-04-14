@@ -1,7 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.components.CollideComponent;
-import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.editor.level.LevelEditorSystem;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.systems.PositionSync;
@@ -23,17 +23,42 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * LITIENGINE level editor mode that mirrors the legacy DecoTestSystem workflow.
+ * The DecoColliderMode class provides functionality for customizing and editing
+ * the collider properties of decorative game elements within a level editor
+ * environment.
  *
- * <p>It allows cycling through deco types, modifying collider offset/size, moving a temporary test
- * deco with the cursor and copying the resulting Rectangle definition to the clipboard.
+ * <p>It extends the LevelEditorMode class and offers a variety of
+ * operations such as changing the decorative entity, modifying the size and
+ * offset of a collider, and positioning the decorative entity in the game world.
+ *
+ * <p>This mode supports rapid value adjustments and clipboard functionality for
+ * storing collider information.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li> Allows switching between multiple collider editing modes, such as modifying
+ *   size and offset or changing the decorative entity. </li>
+ *   <li> Provides real-time feedback about the current editing state and operations. </li>
+ *   <li> Supports rapid-fire adjustment for continuous value changes. </li>
+ *   <li> Automatically updates the position and collider properties of the
+ *   selected decorative entity. </li>
+ *   <li> Integrates with the clipboard utility to facilitate copying collider
+ *   configurations for reuse. </li>
+ * </ul>
+ *
+ * <p>Usage context:
+ * Designed to be used in a level editor system for game development, where
+ * precise and efficient customization of game objects' colliders is necessary.
+ *
+ * <p>Thread Safety:
+ * This class is not thread-safe and is designed for single-threaded use
+ * within a level editor environment.
  */
 public final class DecoColliderMode extends LevelEditorMode {
 
   private static final DungeonLogger LOGGER =
     DungeonLogger.getLogger(DecoColliderMode.class);
 
-  // Keep the legacy DecoTestSystem controls to mirror the old workflow closely.
   private static final int CHANGE_MODE = Keys.UP;
   private static final int MODE_MODIFY_PLUS = Keys.RIGHT;
   private static final int MODE_MODIFY_MINUS = Keys.LEFT;
