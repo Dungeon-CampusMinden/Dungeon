@@ -45,7 +45,7 @@ public final class ListTilePath implements TilePath {
   /**
    * Removes all tiles from this path.
    *
-   * <p>After this call the path will be empty.
+   * <p>After this call, the path will be empty.
    */
   public void clear() {
     tiles.clear();
@@ -87,7 +87,7 @@ public final class ListTilePath implements TilePath {
   /**
    * Returns an unmodifiable view of the underlying tile list.
    *
-   * <p>The returned list reflects any subsequent changes to this path, but does not permit
+   * <p>The returned list reflects any later changes to this path but does not permit
    * direct modification.
    *
    * @return an unmodifiable {@link List} of the tiles in this path
