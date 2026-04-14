@@ -1,4 +1,4 @@
-package core.game.bootstrap;
+package core.game.startup;
 
 import contrib.crafting.Crafting;
 import core.Game;
@@ -8,14 +8,12 @@ import core.utils.logging.DungeonLogger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Runs the one-time "client startup" sequence:
- * <ul>
- *  <li> userOnSetup()
- *  <li> start network handler
- *  <li> load recipes
- *  <li> execute LevelSystem once to load initial level
- * </ul>
- * This is intentionally engine-agnostic (no gdx/litiengine imports).
+ * Runs the one-time client startup sequence after the runtime host has initialized the platform.
+ *
+ * <p>This step is intentionally separated from the concrete host runtime: host classes initialize
+ * windowing, input, rendering, audio, and platform adapters; this class starts the actual dungeon
+ * session by executing user setup, starting networking, loading recipes, and loading the initial
+ * level.
  */
 public final class ClientStartup {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientStartup.class);
@@ -39,7 +37,7 @@ public final class ClientStartup {
       // Load initial level once.
       Game.system(LevelSystem.class, LevelSystem::execute);
     } catch (Exception e) {
-      LOGGER.error("ClientStartup failed: {}", e.getMessage(), e);
+      LOGGER.error("Client startup failed: {}", e.getMessage(), e);
       throw e;
     }
   }

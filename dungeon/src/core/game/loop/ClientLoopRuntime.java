@@ -4,7 +4,7 @@ import contrib.modules.interaction.InteractionSelection;
 import contrib.modules.interaction.ui.OverlayInteractionSelectionUi;
 import core.camera.ClientCameraAdapter;
 import core.game.*;
-import core.game.bootstrap.ClientStartup;
+import core.game.startup.ClientStartup;
 import core.game.render.EcsRenderScreen;
 import core.input.bridge.ClientInputBridge;
 import core.platform.Platform;
