@@ -4,7 +4,6 @@ import core.ui.StageHandle;
 import core.ui.UiNodeHandle;
 import java.util.Optional;
 
-
 /**
  * A UI node handle adapter for overlay-based UI elements.
  *
