@@ -14,7 +14,7 @@ import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.loop.GameLoopHost;
-import core.platform.NullRenderAdapter;
+import core.platform.defaults.NullRenderAdapter;
 import core.platform.Platform;
 import core.platform.RenderAdapter;
 import core.resources.FileSystemResourcesAdapter;

@@ -1,7 +1,9 @@
-package core.platform;
+package core.platform.defaults;
 
 import core.level.Tile;
 import core.level.elements.ILevel;
+import core.platform.PathfindingAdapter;
+
 import java.util.List;
 import java.util.Optional;
 
