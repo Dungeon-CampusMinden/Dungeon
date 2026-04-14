@@ -362,21 +362,18 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   private void shootGreenPortal() {
-    Game.player()
-        .ifPresent(
-            hero -> {
-              var skill =
-                  hero.fetch(SkillComponent.class)
-                      .flatMap(
-                          sc ->
-                              sc.getSkills().stream()
-                                  .filter(s -> "GREEN_PORTAL".equals(s.name()))
-                                  .findFirst());
-              skill.ifPresent(
-                  s -> {
-                    s.execute(hero);
-                  });
-            });
+    EventScheduler.scheduleAction(
+        () -> {
+          Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
+          hero.fetch(SkillComponent.class)
+              .flatMap(
+                  sc ->
+                      sc.getSkills().stream()
+                          .filter(s -> "GREEN_PORTAL".equals(s.name()))
+                          .findFirst())
+              .ifPresent(skill -> skill.execute(hero));
+        },
+        0);
     rest(10);
   }
 

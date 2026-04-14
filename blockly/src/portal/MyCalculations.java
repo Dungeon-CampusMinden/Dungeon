@@ -6,11 +6,10 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
+import java.util.Arrays;
 import portal.portals.abstraction.Calculations;
 import portal.riddles.utils.PortalUtils;
 import portal.riddles.utils.Tools;
-
-import java.util.Arrays;
 
 /**
  * Eine konkrete Implementierung von {@link Calculations}, die grundlegende Berechnungen für das
@@ -79,7 +78,7 @@ public class MyCalculations extends Calculations {
    * @return Der letzte Punkt, den die Lichtwand noch erreichen darf
    */
   public Point calculateLightWallAndBridgeEnd(
-    Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
+      Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
     Point lastPoint = from;
     Point currentPoint = from;
 
