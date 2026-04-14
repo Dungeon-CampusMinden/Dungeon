@@ -1,14 +1,38 @@
 package core.ui.overlay;
 
 import core.ui.StageHandle;
-
+import core.ui.UiNodeHandle;
 import java.util.Optional;
 
-/** LITIENGINE-backed {@link core.ui.UiNodeHandle} for custom screen overlays. */
-public final class OverlayUiNodeHandle implements core.ui.UiNodeHandle {
+
+/**
+ * A UI node handle adapter for overlay-based UI elements.
+ *
+ * <p>OverlayUiNodeHandle implements UiNodeHandle to provide a unified interface for managing
+ * UiOverlay instances within the UI system. It acts as a wrapper that delegates operations
+ * (visibility, positioning, z-ordering) to the underlying overlay and its registry.
+ *
+ * <p>Key responsibilities:
+ * <ul>
+ *   <li>Managing overlay attachment and removal from the registry
+ *   <li>Controlling overlay visibility and positioning
+ *   <li>Handling z-ordering for overlay layering
+ *   <li>Centering overlays on stage handles
+ *   <li>Providing type-safe unwrapping of the underlying overlay
+ * </ul>
+ *
+ * <p>This handle integrates overlays with the standard UI node management system, allowing
+ * overlays to be treated as regular UI components.
+ */
+public final class OverlayUiNodeHandle implements UiNodeHandle {
 
   private final UiOverlay overlay;
 
+  /**
+   * Constructs an OverlayUiNodeHandle for the given overlay.
+   *
+   * @param overlay the UiOverlay to manage (must not be null)
+   */
   public OverlayUiNodeHandle(UiOverlay overlay) {
     this.overlay = overlay;
   }
