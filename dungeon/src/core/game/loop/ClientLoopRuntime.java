@@ -19,6 +19,8 @@ import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
 import de.gurkenlabs.litiengine.configuration.DisplayMode;
 
+import static starter.setup.ClientRuntimeSetup.selectClientLoopHost;
+
 public final class ClientLoopRuntime {
   private ClientLoopRuntime() {}
 
@@ -29,6 +31,7 @@ public final class ClientLoopRuntime {
   }
 
   public static void run(String[] args, GameLoopCore loopCore) {
+    selectClientLoopHost();
     syncDisplaySettings();
 
     // Register lifecycle listener BEFORE init so we can safely set up screens at the right time.
