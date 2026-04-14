@@ -4,6 +4,7 @@ import contrib.debug.controls.DebugControlsSystem;
 import contrib.debug.render.EntityDebugRenderSystem;
 import contrib.debug.systems.DebugDrawSystem;
 import contrib.editor.level.systems.LevelEditorSystem;
+import contrib.hud.dialogs.DialogFactoryBootstrap;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
 import contrib.modules.levelHide.LevelHideSystem;
@@ -17,6 +18,8 @@ public final class ClientRuntimeSetup {
 
   /** Installs HUD systems if they are not already registered. */
   public static void installHudSystems() {
+    DialogFactoryBootstrap.init();
+
     addIfAbsent(HudSystem.class, HudSystem::new);
     addIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
   }
