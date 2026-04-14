@@ -15,7 +15,6 @@ import contrib.modules.levelHide.LevelHideFactory;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.game.render.sprite.effects.*;
 import core.level.DungeonLevel;
@@ -48,9 +47,9 @@ import java.util.Set;
  * <p>This version also installs a small manual crafting, level-hide and sprite-effect
  * verification setup.
  */
-public final class LitiengineStarter {
+public final class BasicStarter {
 
-  private LitiengineStarter() {}
+  private BasicStarter() {}
 
   static void main(String[] args) {
     DungeonLoader.addLevel(Tuple.of("playground", DungeonLevel.class));
@@ -92,7 +91,7 @@ public final class LitiengineStarter {
           return;
         }
 
-        Game.startTile().map(Tile::position).ifPresent(LitiengineStarter::spawnVerificationFixtures);
+        Game.startTile().map(Tile::position).ifPresent(BasicStarter::spawnVerificationFixtures);
       });
 
     Game.run();
