@@ -7,6 +7,7 @@ import contrib.crafting.CraftingIngredient;
 import contrib.crafting.Recipe;
 import contrib.entities.EntityFactory;
 import contrib.entities.MiscFactory;
+import contrib.entities.WorldItemBuilder;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceBerry;
@@ -191,6 +192,11 @@ public final class BasicStarter {
    */
   private static void spawnVerificationFixtures(Point startPosition) {
     Game.add(MiscFactory.newCraftingCauldron(startPosition.translate(Vector2.of(1f, 0f))));
+
+    Game.add(
+      WorldItemBuilder.buildWorldItem(
+        new ItemPotionHealth(),
+        startPosition.translate(Vector2.of(1f, 2f))));
 
     Entity hueRemapDemoChest =
       MiscFactory.newChest(

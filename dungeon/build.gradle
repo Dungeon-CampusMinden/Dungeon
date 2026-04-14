@@ -68,9 +68,9 @@ sourceSets.main.resources.srcDirs = ['assets/']
 sourceSets.test.java.srcDirs = ['test/']
 sourceSets.test.resources.srcDirs = ['test_assets/']
 
-tasks.register('runLitiengineStarter', JavaExec) {
+tasks.register('runBasicStarter', JavaExec) {
     group 'starter'
-    mainClass = 'starter.LitiengineStarter'
+    mainClass = 'starter.BasicStarter'
     classpath = sourceSets.main.runtimeClasspath
     workingDir = projectDir
 }

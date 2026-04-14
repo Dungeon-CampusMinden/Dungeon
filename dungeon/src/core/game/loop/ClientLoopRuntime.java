@@ -1,5 +1,7 @@
 package core.game.loop;
 
+import contrib.modules.interaction.InteractionSelection;
+import contrib.modules.interaction.ui.OverlayInteractionSelectionUi;
 import core.camera.ClientCameraAdapter;
 import core.game.*;
 import core.game.bootstrap.ClientStartup;
@@ -78,6 +80,9 @@ public final class ClientLoopRuntime {
 
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.
     ClientInputBridge.install();
+
+    // Install backend-neutral interaction selection UI for complex interactables.
+    InteractionSelection.install(OverlayInteractionSelectionUi.INSTANCE);
 
     // Ensure we start with a clean input state.
     InputManager.reset();
