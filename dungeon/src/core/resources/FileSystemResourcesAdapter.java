@@ -10,21 +10,53 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Loads resources from the local filesystem.
+ * A ResourcesAdapter implementation that loads resources from the filesystem.
  *
- * Useful while assets still live in folders like:
- * - <repoRoot>/dungeon/assets/...
- * - <repoRoot>/assets/...
- * - <moduleDir>/assets/...
+ * <p>FileSystemResourcesAdapter provides access to resources located in the filesystem. It supports
+ * multiple root directories, checking each in order for the requested resource. Absolute paths are
+ * also supported and will be used directly without prefixing a root.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Supports multiple root directories for resource lookup
+ *   <li>Checks for resource existence using Files API
+ *   <li>Opens input streams for resource reading
+ *   <li>Normalizes paths to use forward slashes and remove leading "./"
+ *   <li>Provides meaningful error messages for missing resources
+ * </ul>
+ *
+ * <p>Path normalization ensures compatibility across platforms: backslashes are replaced with
+ * forward slashes, and the leading "./" is removed. Absolute paths are supported as-is, while
+ * relative paths are resolved against each configured root directory in order.
  */
 public final class FileSystemResourcesAdapter implements ResourcesAdapter {
   private final List<Path> roots;
 
+  /**
+   * Constructs a FileSystemResourcesAdapter that provides access to resources located in the
+   * specified root directories. The adapter ensures that the provided list of roots is not null and
+   * creates an unmodifiable copy of it for internal use.
+   *
+   * @param roots a list of root directories {@link Path} where the adapter should search for
+   *              resources. Must not be null.
+   * @throws NullPointerException if {@code roots} is null
+   */
   public FileSystemResourcesAdapter(List<Path> roots) {
     this.roots = List.copyOf(Objects.requireNonNull(roots));
   }
 
-  /** Creates an adapter that searches in CWD, parent, and grandparent. */
+  /**
+   * Automatically detects the current working directory and its immediate parent directories
+   * (up to two levels) and initializes a {@link FileSystemResourcesAdapter} with these directories
+   * as its root paths.
+   *
+   * <p>The detected paths provide a basis for locating resources within the filesystem. The method
+   * ensures that the current working directory and, if available, its parent and grandparent
+   * directories are included in the root paths list.
+   *
+   * @return a {@link FileSystemResourcesAdapter} instance initialized with the current working
+   *         directory and its parent directories as root paths.
+   */
   public static FileSystemResourcesAdapter autoDetect() {
     final Path cwd = Paths.get("").toAbsolutePath().normalize();
 
