@@ -30,6 +30,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Supplier;
 import level.produs.*;
+import portal.MyCalculations;
+import portal.MyEnergyPelletCatcherBehavior;
+import portal.PortalRegistry;
 import portal.controlls.Hero;
 import portal.portals.PortalColor;
 import portal.portals.PortalSkill;
@@ -151,6 +154,9 @@ public class Client {
 
           createHero();
           createSystems();
+          PortalRegistry.setDebugMode(false);
+          PortalRegistry.registerCalculations(() -> new MyCalculations());
+          PortalRegistry.registerPelletCatcherBehavior(()-> new MyEnergyPelletCatcherBehavior());
 
           startServer();
         });
