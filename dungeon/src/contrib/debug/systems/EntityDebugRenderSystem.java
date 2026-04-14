@@ -1,11 +1,10 @@
-package contrib.debug.render;
+package contrib.debug.systems;
 
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
-import contrib.debug.systems.DebugDrawSystem;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;

@@ -1,4 +1,4 @@
-package contrib.debug.render;
+package contrib.debug.systems;
 
 import core.Entity;
 import core.Game;
@@ -28,22 +28,38 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Debug renderer for the LITIENGINE host.
+ * A debug rendering system that visualizes the game world as a tile grid with overlaid entity
+ * markers and sprites. This system is useful for development and debugging purposes to understand
+ * the spatial layout of the level and entity positioning.
  *
- * <p>Draws a simple grid + entities using AWT, independent from libGDX pipeline.
+ * <p>Features:
+ * <ul>
+ *   <li>Renders the level tiles with textures or fallback colors</li>
+ *   <li>Displays entity sprites or markers on top of the grid</li>
+ *   <li>Shows debug information (tick count, entity count) as overlay text</li>
+ *   <li>Uses pixel-art friendly nearest-neighbor scaling for sprites</li>
+ * </ul>
+ *
+ * <p>The world is rendered with a fixed tile size (32 pixels), and entities are positioned
+ * relative to the world grid. Y-coordinates are flipped to match screen space conventions.
  */
 public final class DebugOverlayRenderSystem extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DebugOverlayRenderSystem.class);
 
-  // Treat dungeon world units as "tiles" (debug-only).
+  /** Tile size in pixels for rendering the level grid. */
   private static final int TILE_PX = 32;
+  /** Entity marker size in pixels. */
   private static final int ENTITY_PX = 10;
 
+  /** Whether to render tile textures if available. */
   private static final boolean DRAW_TILE_TEXTURES = true;
+  /** Whether to render entity sprites if available. */
   private static final boolean DRAW_ENTITY_SPRITES = true;
 
+  /** Cache for loaded tile images to avoid repeated asset lookups. */
   private final Map<String, BufferedImage> tileImageCache = new HashMap<>();
 
+  /** Constructs a new debug overlay render system. */
   public DebugOverlayRenderSystem() {
     super(AuthoritativeSide.BOTH, PositionComponent.class);
   }
@@ -58,7 +74,7 @@ public final class DebugOverlayRenderSystem extends System {
     Graphics2D g = RenderContext.get();
     if (g == null) return;
 
-    // Pixel-art friendly scaling (avoid blurry interpolation on scaled sprites).
+    // Use nearest-neighbor scaling for pixel-art friendly rendering (avoid blurry interpolation).
     Object oldInterpolation = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
@@ -80,12 +96,12 @@ public final class DebugOverlayRenderSystem extends System {
       long entities = ECSManagement.levelEntities().count();
       TextRenderer.render(
         g,
-        "Dungeon (LITIENGINE) tick=" + tick + " entities=" + entities + (levelOpt.isPresent() ? "" : " [no level loaded]"),
+        "Debug Overlay - tick=" + tick + " entities=" + entities + (levelOpt.isPresent() ? "" : " [no level loaded]"),
         10,
         20
       );
     } catch (Exception e) {
-      LOGGER.warn("LITIENGINE debug rendering failed: {}", e.getMessage(), e);
+      LOGGER.warn("Debug rendering failed: {}", e.getMessage(), e);
     } finally {
       g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldInterpolation);
     }
@@ -183,8 +199,7 @@ public final class DebugOverlayRenderSystem extends System {
     BufferedImage img = AnimationFrameImages.toImage(frame);
     if (img == null) return false;
 
-    float sxWorld = pos.x() * TILE_PX;
-    float syWorld = (levelHeight > 0) ? (levelHeight - 1 - pos.y()) * TILE_PX : (pos.y() * TILE_PX);
+    int sy = worldYToScreenY(pos.y(), levelHeight);
 
     int wPx = TILE_PX;
     int hPx = TILE_PX;
@@ -195,8 +210,9 @@ public final class DebugOverlayRenderSystem extends System {
       if (hWorld > 0) hPx = Math.max(1, Math.round(hWorld * TILE_PX));
     } catch (Exception ignored) {}
 
+    float sxWorld = pos.x() * TILE_PX;
     int drawX = Math.round(sxWorld + (TILE_PX - wPx) / 2f);
-    int drawY = Math.round(syWorld + TILE_PX - hPx);
+    int drawY = sy + TILE_PX - hPx;
 
     double scaleX = wPx / (double) img.getWidth();
     double scaleY = hPx / (double) img.getHeight();
@@ -206,7 +222,7 @@ public final class DebugOverlayRenderSystem extends System {
 
   private void drawEntityMarker(Graphics2D g, Entity e, Point pos, int levelHeight) {
     int sx = Math.round(pos.x() * TILE_PX);
-    int sy = (levelHeight > 0) ? Math.round((levelHeight - 1 - pos.y()) * TILE_PX) : Math.round(pos.y() * TILE_PX);
+    int sy = worldYToScreenY(pos.y(), levelHeight);
 
     Color c = new Color(255, 165, 0);
     if (e.isPresent(PlayerComponent.class)) {
@@ -217,6 +233,10 @@ public final class DebugOverlayRenderSystem extends System {
     g.setColor(c);
     int r = ENTITY_PX / 2;
     g.fillOval(sx - r, sy - r, ENTITY_PX, ENTITY_PX);
+  }
+
+  private int worldYToScreenY(float worldY, int levelHeight) {
+    return (levelHeight > 0) ? Math.round((levelHeight - 1 - worldY) * TILE_PX) : Math.round(worldY * TILE_PX);
   }
 
   private static String resolveImplicitFilePath(String pathString) {

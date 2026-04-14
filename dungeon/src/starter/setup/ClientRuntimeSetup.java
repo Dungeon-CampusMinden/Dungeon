@@ -1,7 +1,7 @@
 package starter.setup;
 
 import contrib.debug.controls.DebugControlsSystem;
-import contrib.debug.render.EntityDebugRenderSystem;
+import contrib.debug.systems.EntityDebugRenderSystem;
 import contrib.debug.systems.DebugDrawSystem;
 import contrib.editor.level.systems.LevelEditorSystem;
 import contrib.hud.dialogs.DialogBackendInstaller;
@@ -12,7 +12,11 @@ import core.System;
 import core.game.ECSManagement;
 import java.util.function.Supplier;
 
-/** Central setup helper for the interactive client runtime. */
+/**
+ * Provides utility methods to set up the runtime environment for client-side systems,
+ * including HUD systems, gameplay extensions, and debug systems.
+ * This class cannot be instantiated.
+ */
 public final class ClientRuntimeSetup {
   private ClientRuntimeSetup() {}
 
