@@ -9,6 +9,14 @@ export function fireball(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "hero.shootFireball();";
 }
 
+export function shoot_blue_portal(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return "hero.shootBluePortal();";
+}
+
+export function shoot_green_portal(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return "hero.shootGreenPortal();";
+}
+
 export function wait(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "hero.rest();";
 }

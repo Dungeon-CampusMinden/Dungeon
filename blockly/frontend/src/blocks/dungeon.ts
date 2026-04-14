@@ -753,6 +753,22 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 30,
     tooltip: "Zieh ein bewegliches Objekt rückwärts.",
   },
+  {
+    type: "shoot_blue_portal",
+    message0: "blue portal",
+    previousStatement: null,
+    nextStatement: null,
+    colour: 30,
+    tooltip: "blue portal in Richtung schießen",
+  },
+  {
+    type: "shoot_green_portal",
+    message0: "green portal",
+    previousStatement: null,
+    nextStatement: null,
+    colour: 30,
+    tooltip: "green portal in Richtung schießen",
+  },
   //  ---------------------- Items ----------------------
   {
     type: "item_breadcrumbs",
