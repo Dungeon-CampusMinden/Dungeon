@@ -38,7 +38,7 @@ public class DebugGameplaySystem extends System {
       DebugGameplayActions::teleportToStart,
       DebugGameplayActions::loadNextLevel,
       () -> {
-        if (!LevelEditorSystem.active()) {
+        if (!levelEditorActive()) {
           spawnMonsterOnCursor();
         }
       },
@@ -113,5 +113,15 @@ public class DebugGameplaySystem extends System {
   public void execute() {
     DebugInputHandler.handle(INPUT_ACTIONS);
     PAUSE_CONTROLLER.updateFrameAdvance();
+  }
+
+  private static boolean levelEditorActive() {
+    System system = Game.systems().get(LevelEditorSystem.class);
+
+    if (system instanceof LevelEditorSystem levelEditorSystem) {
+      return levelEditorSystem.active();
+    }
+
+    return false;
   }
 }
