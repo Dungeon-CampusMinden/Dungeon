@@ -945,7 +945,7 @@ public final class Game {
   }
 
   private static void ensureDefaultLoopHost() {
-    if (PreRunConfiguration.isNetworkServer()) {
+    if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
       return;
     }
 
