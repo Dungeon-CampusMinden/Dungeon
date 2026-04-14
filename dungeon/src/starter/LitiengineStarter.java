@@ -34,6 +34,8 @@ import core.utils.components.draw.DepthLayer;
 import core.utils.components.path.SimpleIPath;
 import java.awt.Color;
 import core.utils.Rectangle;
+import starter.setup.ClientRuntimeSetup;
+
 import java.io.IOException;
 import java.util.Set;
 
@@ -79,9 +81,9 @@ public final class LitiengineStarter {
         addCraftingTestItems(hero);
         Game.add(hero);
 
-        LitienginePlatformBootstrap.installHudSystems();
-        LitienginePlatformBootstrap.installGameplayExtensions();
-        LitienginePlatformBootstrap.installDebugger();
+        ClientRuntimeSetup.installHudSystems();
+        ClientRuntimeSetup.installGameplayExtensions();
+        ClientRuntimeSetup.installDebugger();
       });
 
     Game.userOnLevelLoad(
@@ -93,7 +95,7 @@ public final class LitiengineStarter {
         Game.startTile().map(Tile::position).ifPresent(LitiengineStarter::spawnVerificationFixtures);
       });
 
-    LitienginePlatformBootstrap.init();
+    ClientRuntimeSetup.init();
     Game.initialize();
     GameLoop.run(args);
   }

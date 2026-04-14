@@ -4,6 +4,8 @@ import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
 import core.utils.components.path.SimpleIPath;
+import starter.setup.ClientRuntimeSetup;
+
 import java.io.IOException;
 
 /** The main class for the Multiplayer Client for development and testing purposes. */
@@ -30,7 +32,7 @@ public final class MultiplayerClient {
     Game.windowTitle("Dev Client - " + PreRunConfiguration.username());
     Game.userOnSetup(
         () -> {
-          LitienginePlatformBootstrap.installDebugger();
+          ClientRuntimeSetup.installDebugger();
           System.out.println("DevClient started");
         });
 
