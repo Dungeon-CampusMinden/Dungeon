@@ -19,7 +19,7 @@ public class AnimationConfig implements Cloneable, Serializable {
   /** Optional spritesheet configuration (width, height, offsets, etc.). */
   private SpritesheetConfig config;
 
-  /** Number of update ticks each sprite frame is displayed for. Default: 10. */
+  /** The number of update ticks each sprite frame is displayed for. Default: 10. */
   private int framesPerSprite = 10;
 
   /** Horizontal scaling factor. Default: 1. */
@@ -148,7 +148,7 @@ public class AnimationConfig implements Cloneable, Serializable {
   }
 
   /**
-   * Sets whether sprites should be drawn centered.
+   * Sets whether sprites should be drawn-centered.
    *
    * @param centered true if centered
    * @return this config for chaining
@@ -207,7 +207,7 @@ public class AnimationConfig implements Cloneable, Serializable {
    * Loads a map of {@link AnimationConfig}s from a JSON file.
    *
    * @param jsonFilePath path to the JSON file (relative to assets)
-   * @return a map of animation name → {@link AnimationConfig}, or {@code null} if file not found
+   * @return a map of animation name → {@link AnimationConfig}, or {@code null} if a file is not found
    */
   public static Map<String, AnimationConfig> loadAnimationConfigMap(String jsonFilePath) {
     Map<String, AnimationConfig> animationMap = new HashMap<>();
@@ -232,7 +232,7 @@ public class AnimationConfig implements Cloneable, Serializable {
       return null;
     }
 
-    if (root == null || root.isEmpty()) return animationMap;
+    if (root.isEmpty()) return animationMap;
 
     for (Map.Entry<String, Object> animEntry : root.entrySet()) {
       String animationName = animEntry.getKey();
@@ -271,10 +271,8 @@ public class AnimationConfig implements Cloneable, Serializable {
     return animationMap;
   }
 
-  @SuppressWarnings("unchecked")
   private static Map<String, Object> asMap(Object o) {
     if (o instanceof Map<?, ?> m) {
-      // JsonHandler returns Map<String,Object>, but we still guard defensively
       Map<String, Object> out = new HashMap<>();
       for (Map.Entry<?, ?> e : m.entrySet()) {
         if (e.getKey() instanceof String k) {
