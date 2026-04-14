@@ -4,16 +4,20 @@ import coderunner.BlocklyCodeRunner;
 import coderunner.BlocklyCommands;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
+import contrib.components.CollideComponent;
+import contrib.components.SkillComponent;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.loader.DungeonLoader;
 import core.network.server.DialogTracker;
 import core.systems.PositionSystem;
+import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.draw.state.StateMachine;
@@ -24,7 +28,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 import level.produs.*;
+import portal.controlls.Hero;
+import portal.portals.PortalColor;
+import portal.portals.PortalSkill;
+import portal.portals.abstraction.PortalConfig;
+import portal.portals.components.PortableComponent;
 import server.FrontendServer;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
@@ -237,8 +247,63 @@ public class Client {
   public static void createHero() {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity hero = HeroTankControlledFactory.blocklyHero(ACTIVATE_TANKE_CONTROLLS);
+    Hero portalHero = new Hero(hero);
+    PortalConfig blocklyPortalConfig = createPortalConfig(portalHero);
+    hero.fetch(SkillComponent.class)
+        .ifPresent(
+            sc -> {
+              sc.addSkill(new PortalSkill(PortalColor.GREEN, blocklyPortalConfig));
+              sc.addSkill(new PortalSkill(PortalColor.BLUE, blocklyPortalConfig));
+            });
+    // allow hero teleportation
+    hero.add(new PortableComponent());
     hero.add(new AmmunitionComponent());
     Game.add(hero);
+  }
+
+  private static PortalConfig createPortalConfig(Hero portalHero) {
+    return new PortalConfig(portalHero) {
+      @Override
+      public long cooldown() {
+        return 500;
+      }
+
+      @Override
+      public float speed() {
+        return 5f;
+      }
+
+      @Override
+      public float range() {
+        return Integer.MAX_VALUE;
+      }
+
+      @Override
+      public Supplier<core.utils.Point> target() {
+        return () ->
+            portalHero
+                .hero()
+                .fetch(CollideComponent.class)
+                .map(cc -> cc.collider().absoluteCenter())
+                .or(
+                    () ->
+                        portalHero
+                            .hero()
+                            .fetch(PositionComponent.class)
+                            .map(PositionComponent::position))
+                .map(
+                    center -> {
+                      core.utils.Direction dir =
+                          portalHero
+                              .hero()
+                              .fetch(PositionComponent.class)
+                              .map(PositionComponent::viewDirection)
+                              .orElse(core.utils.Direction.DOWN);
+                      return center.translate(dir);
+                    })
+                .orElse(new Point(0, 0));
+      }
+    };
   }
 
   /**
