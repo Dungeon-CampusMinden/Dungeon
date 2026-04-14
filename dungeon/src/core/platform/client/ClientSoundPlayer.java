@@ -1,4 +1,4 @@
-package core.platform.sound;
+package core.platform.client;
 
 import core.sound.player.ISoundPlayer;
 import core.sound.player.PlayHandle;
@@ -9,10 +9,20 @@ import de.gurkenlabs.litiengine.sound.SFXPlayback;
 import de.gurkenlabs.litiengine.sound.Sound;
 import de.gurkenlabs.litiengine.sound.SoundEvent;
 import de.gurkenlabs.litiengine.sound.SoundPlaybackListener;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Client-side implementation of the sound player interface.
+ *
+ * <p>This class provides sound playback capabilities, managing active sound instances and
+ * applying updates such as volume, looping, and pause/resume functionality. It wraps the
+ * underlying audio engine and handles sound resource resolution from multiple possible
+ * directories.
+ *
+ * <p>Note: Pan and pitch adjustments are not supported by the current audio engine and
+ * will be logged as ignored when requested.
+ */
 public final class ClientSoundPlayer implements ISoundPlayer {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientSoundPlayer.class);
 
@@ -39,13 +49,13 @@ public final class ClientSoundPlayer implements ISoundPlayer {
     if (soundName == null || soundName.isBlank()) return Optional.empty();
 
     if (Game.audio() == null) {
-      LOGGER.warn("LITIENGINE audio subsystem not available yet (Game.audio() == null).");
+      LOGGER.warn("Audio subsystem not available yet (Game.audio() == null).");
       return Optional.empty();
     }
 
-    // LITIENGINE currently doesn't support pitch/pan in the same way libGDX does.
-    if (pitch != 1f) LOGGER.debug("Ignoring pitch={} (not supported by LITIENGINE SoundEngine)", pitch);
-    if (pan != 0f) LOGGER.debug("Ignoring pan={} (not supported by LITIENGINE SoundEngine)", pan);
+    // Audio engine doesn't support pitch/pan adjustments.
+    if (pitch != 1f) LOGGER.debug("Ignoring pitch={} (not supported by audio engine)", pitch);
+    if (pan != 0f) LOGGER.debug("Ignoring pan={} (not supported by audio engine)", pan);
 
     String resolved = resolvePath(soundName);
     if (resolved == null) {
@@ -69,7 +79,7 @@ public final class ClientSoundPlayer implements ISoundPlayer {
       active.put(instanceId, handle);
       return Optional.of(handle);
     } catch (Exception e) {
-      LOGGER.warn("Failed to play sound '{}' via LITIENGINE: {}", soundName, e.getMessage(), e);
+      LOGGER.warn("Failed to play sound '{}' via audio engine: {}", soundName, e.getMessage(), e);
       return Optional.empty();
     }
   }
@@ -144,12 +154,29 @@ public final class ClientSoundPlayer implements ISoundPlayer {
     stopAll();
   }
 
+  /**
+   * A client-side implementation of {@link PlayHandle} that manages the lifecycle and controls
+   * of a sound playback instance.
+   *
+   * <p>This implementation works in conjunction with {@link Sound} and {@link SFXPlayback} to
+   * control playback parameters such as volume and looping, as well as to handle events like
+   * sound completion or cancellation.
+   */
   private static final class ClientPlayHandle extends PlayHandle {
     private final Sound sound;
     private SFXPlayback playback;
     private float volume;
     private boolean looping;
 
+    /**
+     * Constructs a new client play handle for managing a sound playback instance.
+     *
+     * @param id the unique identifier for this play handle
+     * @param sound the Sound object being played
+     * @param playback the SFXPlayback instance managing the actual playback
+     * @param volume the initial playback volume
+     * @param looping whether the sound should loop
+     */
     ClientPlayHandle(long id, Sound sound, SFXPlayback playback, float volume, boolean looping) {
       super(id);
       this.sound = sound;
@@ -157,7 +184,7 @@ public final class ClientSoundPlayer implements ISoundPlayer {
       this.volume = volume;
       this.looping = looping;
 
-      // hook finish + cancel
+      // Hook finish and cancel events
       this.playback.addSoundPlaybackListener(new SoundPlaybackListener() {
         @Override
         public void finished(SoundEvent event) {
@@ -200,12 +227,12 @@ public final class ClientSoundPlayer implements ISoundPlayer {
 
     @Override
     public void pan(float pan, float volume) {
-      // not supported in LITIENGINE in the same way -> ignore
+      // not supported by the audio engine
     }
 
     @Override
     public void pitch(float pitch) {
-      // not supported -> ignore
+      // not supported by the audio engine
     }
 
     @Override
@@ -215,7 +242,7 @@ public final class ClientSoundPlayer implements ISoundPlayer {
 
     @Override
     public void looping(boolean looping) {
-      // LITIENGINE can't toggle looping mid-play easily -> restart if changed
+      // Audio engine can't toggle looping mid-play easily, so restart if changed
       if (this.looping == looping) return;
       this.looping = looping;
 

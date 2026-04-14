@@ -8,12 +8,12 @@ import core.game.startup.ClientStartup;
 import core.game.render.EcsRenderScreen;
 import core.input.bridge.ClientInputBridge;
 import core.platform.Platform;
-import core.platform.cursor.ClientCursorAdapter;
-import core.platform.sound.ClientSoundPlayer;
-import core.platform.runtime.ClientRuntimeAdapter;
-import core.platform.window.ClientWindowEventsBridge;
-import core.platform.window.ClientWindowAdapter;
-import core.platform.render.ClientRenderAdapter;
+import core.platform.client.ClientCursorAdapter;
+import core.platform.client.ClientSoundPlayer;
+import core.platform.client.ClientRuntimeAdapter;
+import core.platform.client.ClientWindowEventsBridge;
+import core.platform.client.ClientWindowAdapter;
+import core.platform.client.ClientRenderAdapter;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.utils.InputManager;
@@ -21,15 +21,40 @@ import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
 import de.gurkenlabs.litiengine.configuration.DisplayMode;
 
+/**
+ * Manages the client-side game loop runtime.
+ *
+ * <p>This class is responsible for initializing and running the client-side game loop,
+ * including setting up the game engine, binding platform adapters, configuring audio,
+ * input handling, and starting ECS systems.
+ *
+ * @see GameLoopCore
+ * @see Platform
+ * @see ECSManagement
+ */
 public final class ClientLoopRuntime {
   private ClientLoopRuntime() {}
 
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
 
+  /**
+   * Returns the current sound player instance.
+   *
+   * @return the ISoundPlayer instance used for audio playback
+   */
   public static ISoundPlayer soundPlayer() {
     return soundPlayer;
   }
 
+  /**
+   * Runs the client-side game loop with the specified arguments and loop core.
+   *
+   * <p>Initializes the game engine, sets up platform adapters, configures audio,
+   * input handling, and ECS systems. This method blocks until the game exits.
+   *
+   * @param args command line arguments to pass to the game engine
+   * @param loopCore the core game loop handler for tick and render operations
+   */
   public static void run(String[] args, GameLoopCore loopCore) {
     syncDisplaySettings();
 
@@ -44,7 +69,7 @@ public final class ClientLoopRuntime {
               Game.screens().display(EcsRenderScreen.NAME);
             }
           } catch (Exception e) {
-            Game.log().severe("Failed to set up debug screen in initialized(): " + e.getMessage());
+            Game.log().severe("Failed to set up render screen in initialized(): " + e.getMessage());
           }
         }
 
@@ -56,35 +81,35 @@ public final class ClientLoopRuntime {
               Game.screens().display(EcsRenderScreen.NAME);
             }
           } catch (Exception e) {
-            Game.log().severe("Failed to display debug screen in started(): " + e.getMessage());
+            Game.log().severe("Failed to display render screen in started(): " + e.getMessage());
           }
         }
       });
 
-    // Initialize LITIENGINE
+    // Initialize the game engine
     Game.init(args);
 
     ClientWindowEventsBridge.install();
 
-    // init sound backend after engine init
+    // Initialize sound backend after engine init
     soundPlayer = PreRunConfiguration.disableAudio()
       ? new NoSoundPlayer()
       : new ClientSoundPlayer();
 
-    // Bind platform adapters AFTER init so Game.window() etc. are available.
+    // Bind platform adapters AFTER init so Game.window() etc. are available
     Platform.window(new ClientWindowAdapter());
     Platform.runtime(new ClientRuntimeAdapter());
     Platform.render(new ClientRenderAdapter());
     Platform.cursor(new ClientCursorAdapter());
     Platform.camera(new ClientCameraAdapter());
 
-    // Bridge LITIENGINE input events into our engine-agnostic InputManager.
+    // Bridge game engine input events into the InputManager
     ClientInputBridge.install();
 
-    // Install backend-neutral interaction selection UI for complex interactables.
+    // Install backend-neutral interaction selection UI for complex interactable objects
     InteractionSelection.install(OverlayInteractionSelectionUi.INSTANCE);
 
-    // Ensure we start with a clean input state.
+    // Ensure a start with a clean input state
     InputManager.reset();
 
     // Host chooses which default systems exist
@@ -94,7 +119,7 @@ public final class ClientLoopRuntime {
 
     ClientStartup.setupAndLoadInitialLevelOnce();
 
-    // Drive ECS tick from LITIENGINE update loop.
+    // Drive ECS tick from game engine update loop.
     Game.loop()
       .attach(
         () -> {

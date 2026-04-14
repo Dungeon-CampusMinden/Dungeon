@@ -3,7 +3,7 @@ package core.platform.litiengine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import core.camera.CameraViewportState;
-import core.platform.render.ClientRenderAdapter;
+import core.platform.client.ClientRenderAdapter;
 import core.ui.StageHandle;
 import core.utils.Point;
 import java.util.Optional;

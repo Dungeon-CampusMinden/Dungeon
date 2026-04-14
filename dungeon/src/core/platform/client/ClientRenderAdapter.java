@@ -1,4 +1,4 @@
-package core.platform.render;
+package core.platform.client;
 
 import core.game.render.sprite.SpriteRenderSystem;
 import core.platform.RenderAdapter;
@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * LITIENGINE render adapter.
- *
- * <p>Bind client-side systems for the LITIENGINE backend.
+ * The {@code ClientRenderAdapter} class provides client-specific implementations for the
+ * {@code RenderAdapter} interface. It defines rendering systems, world-to-stage coordinate
+ * projection, and debug HUD toggling functionalities.
  */
 public final class ClientRenderAdapter implements RenderAdapter {
   @Override

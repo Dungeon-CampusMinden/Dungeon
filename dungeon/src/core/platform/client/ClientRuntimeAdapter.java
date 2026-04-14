@@ -1,4 +1,4 @@
-package core.platform.runtime;
+package core.platform.client;
 
 import core.platform.RuntimeAdapter;
 import de.gurkenlabs.litiengine.Game;
@@ -6,10 +6,17 @@ import de.gurkenlabs.litiengine.IGameLoop;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Runtime adapter for the LITIENGINE backend.
+ * The {@code ClientRuntimeAdapter} is an implementation of the {@link RuntimeAdapter} interface
+ * that provides runtime access for client-specific operations, including application lifecycle
+ * management and determining the graphical context availability.
  *
- * <p>Stops the LITIENGINE loop before terminating the JVM so the engine doesn't render another
- * frame while its shutdown hook is already nulling global state.
+ * <p>This class offers functionality to request a graceful exit of the application and to determine
+ * whether the application is running in a headless mode (without a graphical user interface).
+ *
+ * <p>The {@code ClientRuntimeAdapter} interacts with the {@code Game} core system to manage the
+ * termination process of the application and ensures that proper shutdown actions are performed,
+ * including waiting for the main game loop thread to complete if necessary.
+ *
  */
 public final class ClientRuntimeAdapter implements RuntimeAdapter {
   private static final long EXIT_JOIN_TIMEOUT_MS = 2000L;
@@ -43,7 +50,7 @@ public final class ClientRuntimeAdapter implements RuntimeAdapter {
             awaitLoopShutdown(loopThread);
             System.exit(Game.EXIT_GAME_CLOSED);
           },
-          "litiengine-exit");
+          "exit-game");
       exitThread.setDaemon(true);
       exitThread.start();
       return;
@@ -55,8 +62,6 @@ public final class ClientRuntimeAdapter implements RuntimeAdapter {
 
   @Override
   public boolean isHeadless() {
-    // LITIENGINE provides a "no GUI mode" flag.
-    // If no GUI is shown, we treat it as headless.
     return Game.isInNoGUIMode();
   }
 

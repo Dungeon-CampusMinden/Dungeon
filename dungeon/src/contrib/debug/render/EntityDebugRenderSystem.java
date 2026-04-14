@@ -16,7 +16,7 @@ import core.components.PositionComponent;
 import core.components.SoundComponent;
 import core.components.VelocityComponent;
 import core.input.Keys;
-import core.platform.cursor.ClientCursorAdapter;
+import core.platform.client.ClientCursorAdapter;
 import core.camera.CameraViewportState;
 import core.utils.InputManager;
 import core.utils.Point;
@@ -28,6 +28,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The {@code EntityDebugRenderSystem} is responsible for rendering debug information
+ * for various entities within the game world during runtime. This includes visualizing
+ * their position, orientation, and relevant components such as collision bounds,
+ * interaction ranges, and animations.
+ *
+ * <p>This system operates on the client-side and processes entities containing a
+ * {@code PositionComponent}.
+ */
 public final class EntityDebugRenderSystem extends System {
 
   private static final float POSITION_RADIUS = 0.05f;
