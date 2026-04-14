@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
  * Utility class for rendering image effects and visual enhancements.
  *
