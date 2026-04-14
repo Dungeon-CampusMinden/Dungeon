@@ -95,7 +95,7 @@ public final class LitiengineStarter {
         Game.startTile().map(Tile::position).ifPresent(LitiengineStarter::spawnVerificationFixtures);
       });
 
-    GameLoop.run(args);
+    Game.run();
   }
 
   /**

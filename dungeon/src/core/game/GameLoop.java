@@ -149,7 +149,7 @@ public final class GameLoop {
         "No GameLoopHost installed. Set Platform.loopHost(...) before calling GameLoop.run().");
     }
 
-    host.run(args, CORE);
+    host.run(args == null ? new String[0] : args, CORE);
   }
 
   /** Current tick number from ECS. */
