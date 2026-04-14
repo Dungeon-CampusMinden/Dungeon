@@ -1,4 +1,4 @@
-package contrib.hud.inventory;
+package contrib.hud.overlays;
 
 import contrib.hud.UIUtils;
 import contrib.item.Item;
@@ -11,7 +11,7 @@ import java.awt.Graphics2D;
  *
  * <p>This version intentionally mirrors the old libGDX inventory tooltip styling more closely.
  */
-final class LitiengineItemTooltipSupport {
+public final class ItemTooltipRenderer {
 
   private static final int TOOLTIP_OFFSET_X = 10;
   private static final int TOOLTIP_OFFSET_Y = 10;
@@ -24,9 +24,9 @@ final class LitiengineItemTooltipSupport {
   private static final Color TITLE_COLOR = Color.BLACK;
   private static final Color DESCRIPTION_COLOR = new Color(0x282828FF, false);
 
-  private LitiengineItemTooltipSupport() {}
+  private ItemTooltipRenderer() {}
 
-  static void drawTooltip(
+  public static void drawTooltip(
     Graphics2D g, Item item, int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
     if (g == null || item == null) {
       return;
@@ -90,7 +90,7 @@ final class LitiengineItemTooltipSupport {
     }
   }
 
-  static String displayName(Item item) {
+  public static String displayName(Item item) {
     if (item == null) {
       return "";
     }

@@ -1,6 +1,7 @@
 package contrib.hud.dialogs;
 
 import contrib.hud.elements.Button;
+import contrib.hud.overlays.DialogFrameRenderer;
 import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
@@ -77,24 +78,24 @@ final class TextDialogOverlay implements UiOverlay {
 
     handleInput();
 
-    DialogOverlaySupport.RenderState state =
-      DialogOverlaySupport.beginDialog(g);
+    DialogFrameRenderer.RenderState state =
+      DialogFrameRenderer.beginDialog(g);
 
     try {
-      int textY = DialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
+      int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, title);
 
-      DialogOverlaySupport.drawWrappedText(
+      DialogFrameRenderer.drawWrappedText(
         g,
         text,
-        x + DialogOverlaySupport.PADDING,
+        x + DialogFrameRenderer.PADDING,
         textY,
-        width - 2 * DialogOverlaySupport.PADDING);
+        width - 2 * DialogFrameRenderer.PADDING);
 
       for (int i = 0; i < labels.size() && i < actionButtons.size(); i++) {
         LitiengineButtonRenderer.draw(g, actionButtons.get(i), labels.get(i));
       }
     } finally {
-      DialogOverlaySupport.finishDialog(g, state);
+      DialogFrameRenderer.finishDialog(g, state);
     }
   }
 
@@ -175,7 +176,7 @@ final class TextDialogOverlay implements UiOverlay {
   }
 
   private List<Rectangle> buttonBounds(int buttonCount) {
-    return DialogOverlaySupport.centeredButtonRow(
+    return DialogFrameRenderer.centeredButtonRow(
       x, y, width, height, buttonCount, BUTTON_GAP);
   }
 

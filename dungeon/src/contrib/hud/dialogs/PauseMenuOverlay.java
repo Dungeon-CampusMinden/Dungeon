@@ -1,5 +1,6 @@
 package contrib.hud.dialogs;
 
+import contrib.hud.overlays.DialogFrameRenderer;
 import core.ui.overlay.UiOverlay;
 import java.awt.Graphics2D;
 
@@ -29,20 +30,20 @@ final class PauseMenuOverlay implements UiOverlay {
       return;
     }
 
-    DialogOverlaySupport.RenderState state =
-      DialogOverlaySupport.beginDialog(g);
+    DialogFrameRenderer.RenderState state =
+      DialogFrameRenderer.beginDialog(g);
 
     try {
-      int textY = DialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, TITLE);
+      int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, TITLE);
 
-      DialogOverlaySupport.drawWrappedText(
+      DialogFrameRenderer.drawWrappedText(
         g,
         MESSAGE,
-        x + DialogOverlaySupport.PADDING,
+        x + DialogFrameRenderer.PADDING,
         textY,
-        width - 2 * DialogOverlaySupport.PADDING);
+        width - 2 * DialogFrameRenderer.PADDING);
     } finally {
-      DialogOverlaySupport.finishDialog(g, state);
+      DialogFrameRenderer.finishDialog(g, state);
     }
   }
 

@@ -1,4 +1,4 @@
-package contrib.hud.inventory;
+package contrib.hud.overlays;
 
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
@@ -16,14 +16,14 @@ import java.awt.image.BufferedImage;
  * <p>This renderer intentionally mimics the legacy libGDX inventory styling more closely while
  * keeping the current LITIENGINE overlay architecture.
  */
-final class LitiengineInventoryGridRenderer {
+public final class InventoryGridRenderer {
 
-  static final int MAX_COLUMNS = 6;
-  static final int SLOT_WIDTH = 78;
-  static final int SLOT_HEIGHT = 78;
-  static final int SLOT_GAP = 8;
-  static final int INFO_LINE_GAP = 18;
-  static final int GRID_TOP_GAP = 12;
+  public static final int MAX_COLUMNS = 6;
+  public static final int SLOT_WIDTH = 78;
+  public static final int SLOT_HEIGHT = 78;
+  public static final int SLOT_GAP = 8;
+  public static final int INFO_LINE_GAP = 18;
+  public static final int GRID_TOP_GAP = 12;
 
   private static final int ITEM_ICON_PADDING = 8;
   private static final int STACK_PADDING = 5;
@@ -35,25 +35,25 @@ final class LitiengineInventoryGridRenderer {
   private static final Color STACK_TEXT = Color.WHITE;
   private static final Color STACK_SHADOW = new Color(0, 0, 0, 176);
 
-  private LitiengineInventoryGridRenderer() {}
+  private InventoryGridRenderer() {}
 
-  static int columnsFor(Item[] slots) {
+  public static int columnsFor(Item[] slots) {
     return Math.clamp(slots.length, 1, MAX_COLUMNS);
   }
 
-  static int rowsFor(Item[] slots, int columns) {
+  public static int rowsFor(Item[] slots, int columns) {
     return Math.max(1, (Math.max(1, slots.length) + columns - 1) / columns);
   }
 
-  static int gridWidth(int columns) {
+  public static int gridWidth(int columns) {
     return columns * SLOT_WIDTH + Math.max(0, columns - 1) * SLOT_GAP;
   }
 
-  static int gridHeight(int rows) {
+  public static int gridHeight(int rows) {
     return rows * SLOT_HEIGHT + Math.max(0, rows - 1) * SLOT_GAP;
   }
 
-  static void drawInventoryInfo(
+  public static void drawInventoryInfo(
     Graphics2D g, InventoryComponent inventory, Item[] slots, int x, int y) {
     g.setColor(INFO_COLOR);
     g.drawString(
@@ -62,14 +62,14 @@ final class LitiengineInventoryGridRenderer {
       y + g.getFontMetrics().getAscent());
   }
 
-  static void drawGrid(Graphics2D g, Item[] slots, int startX, int startY, int columns) {
+  public static void drawGrid(Graphics2D g, Item[] slots, int startX, int startY, int columns) {
     for (int i = 0; i < slots.length; i++) {
       Rectangle bounds = slotBounds(i, startX, startY, columns);
       drawSlot(g, bounds, slots[i]);
     }
   }
 
-  static Rectangle slotBounds(int index, int startX, int startY, int columns) {
+  public static Rectangle slotBounds(int index, int startX, int startY, int columns) {
     int col = index % columns;
     int row = index / columns;
 
@@ -80,7 +80,7 @@ final class LitiengineInventoryGridRenderer {
       SLOT_HEIGHT);
   }
 
-  static int findSlotIndexAt(
+  public static int findSlotIndexAt(
     int mouseX, int mouseY, Item[] slots, int startX, int startY, int columns) {
     for (int i = 0; i < slots.length; i++) {
       if (slotBounds(i, startX, startY, columns).contains(mouseX, mouseY)) {

@@ -3,6 +3,8 @@ package contrib.hud.inventory;
 import contrib.components.InventoryComponent;
 import contrib.entities.HeroController;
 import contrib.hud.elements.InventoryComponentProvider;
+import contrib.hud.overlays.InventoryGridRenderer;
+import contrib.hud.overlays.ItemTooltipRenderer;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
@@ -77,11 +79,11 @@ final class InventoryDialogOverlay
     }
 
     Item[] slots = inventory.items();
-    int columns = LitiengineInventoryGridRenderer.columnsFor(slots);
-    int rows = LitiengineInventoryGridRenderer.rowsFor(slots, columns);
+    int columns = InventoryGridRenderer.columnsFor(slots);
+    int rows = InventoryGridRenderer.rowsFor(slots, columns);
 
-    int gridWidth = LitiengineInventoryGridRenderer.gridWidth(columns);
-    int gridHeight = LitiengineInventoryGridRenderer.gridHeight(rows);
+    int gridWidth = InventoryGridRenderer.gridWidth(columns);
+    int gridHeight = InventoryGridRenderer.gridHeight(rows);
 
     width =
       Math.max(
@@ -111,7 +113,7 @@ final class InventoryDialogOverlay
       contentY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
 
       startX = x + (width - gridWidth) / 2;
-      gridTop = contentY + PANEL_HEADER_GAP + LitiengineInventoryGridRenderer.GRID_TOP_GAP;
+      gridTop = contentY + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle panelBounds =
         new Rectangle(
@@ -129,7 +131,7 @@ final class InventoryDialogOverlay
 
       grid = new GridLayout(startX, gridTop, columns, slots);
 
-      LitiengineInventoryGridRenderer.drawGrid(g, slots, startX, gridTop, columns);
+      InventoryGridRenderer.drawGrid(g, slots, startX, gridTop, columns);
 
       if (dragState != null) {
         Integer hoveredTargetSlotIndex = hoveredDropTargetSlotIndex(grid);
@@ -170,7 +172,7 @@ final class InventoryDialogOverlay
       return;
     }
 
-    LitiengineItemTooltipSupport.drawTooltip(
+    ItemTooltipRenderer.drawTooltip(
       g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
   }
 
@@ -335,7 +337,7 @@ final class InventoryDialogOverlay
 
   private void drawDropTargetHighlight(Graphics2D g, GridLayout grid, int slotIndex) {
     Rectangle bounds =
-      LitiengineInventoryGridRenderer.slotBounds(
+      InventoryGridRenderer.slotBounds(
         slotIndex, grid.startX(), grid.startY(), grid.columns());
 
     int insetX = bounds.x + DRAG_TARGET_INSET;
@@ -351,7 +353,7 @@ final class InventoryDialogOverlay
   }
 
   private int findSlotIndex(GridLayout grid, int mouseX, int mouseY) {
-    return LitiengineInventoryGridRenderer.findSlotIndexAt(
+    return InventoryGridRenderer.findSlotIndexAt(
       mouseX, mouseY, grid.slots(), grid.startX(), grid.startY(), grid.columns());
   }
 
@@ -405,7 +407,7 @@ final class InventoryDialogOverlay
       return "";
     }
 
-    String baseLabel = LitiengineItemTooltipSupport.displayName(item);
+    String baseLabel = ItemTooltipRenderer.displayName(item);
     return item.stackSize() > 1 ? baseLabel + " x" + item.stackSize() : baseLabel;
   }
 

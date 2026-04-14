@@ -5,14 +5,14 @@ import contrib.crafting.CraftingType;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.elements.ImageButton;
 import contrib.hud.elements.InventoryComponentProvider;
-import contrib.hud.inventory.LitiengineInventoryGridRenderer;
-import contrib.hud.inventory.LitiengineItemTooltipSupport;
+import contrib.hud.overlays.DialogFrameRenderer;
+import contrib.hud.overlays.InventoryGridRenderer;
+import contrib.hud.overlays.ItemTooltipRenderer;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
 import core.render.AnimationFrameImages;
 import core.render.ImageAssets;
-import core.ui.dialogs.LitiengineDialogOverlaySupport;
 import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
@@ -148,10 +148,10 @@ final class CraftingDialogOverlay
     Item[] craftingSlots = controller.craftingSlots();
     Item[] resultItems = currentResultItems();
 
-    int leftColumns = LitiengineInventoryGridRenderer.columnsFor(targetSlots);
-    int leftRows = LitiengineInventoryGridRenderer.rowsFor(targetSlots, leftColumns);
-    int leftGridWidth = LitiengineInventoryGridRenderer.gridWidth(leftColumns);
-    int leftGridHeight = LitiengineInventoryGridRenderer.gridHeight(leftRows);
+    int leftColumns = InventoryGridRenderer.columnsFor(targetSlots);
+    int leftRows = InventoryGridRenderer.rowsFor(targetSlots, leftColumns);
+    int leftGridWidth = InventoryGridRenderer.gridWidth(leftColumns);
+    int leftGridHeight = InventoryGridRenderer.gridHeight(leftRows);
 
     int rightPanelWidth = CLASSIC_CRAFTING_PANEL_WIDTH;
     int rightPanelHeight = Math.max(CLASSIC_CRAFTING_PANEL_HEIGHT, leftGridHeight + 2 * PANEL_PADDING);
@@ -160,13 +160,13 @@ final class CraftingDialogOverlay
     width =
       Math.max(
         DEFAULT_WIDTH,
-        totalContentWidth + 2 * LitiengineDialogOverlaySupport.PADDING);
+        totalContentWidth + 2 * DialogFrameRenderer.PADDING);
 
     height =
       Math.max(
         DEFAULT_HEIGHT,
         120 + Math.max(leftGridHeight + 2 * PANEL_PADDING, rightPanelHeight)
-          + LitiengineDialogOverlaySupport.PADDING);
+          + DialogFrameRenderer.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -183,12 +183,12 @@ final class CraftingDialogOverlay
     List<CraftingDialogLayout.SlotBounds> craftingBounds;
     List<CraftingDialogLayout.ItemBounds> resultBounds;
 
-    LitiengineDialogOverlaySupport.RenderState state =
-      LitiengineDialogOverlaySupport.beginDialog(g);
+    DialogFrameRenderer.RenderState state =
+      DialogFrameRenderer.beginDialog(g);
 
     try {
       contentY =
-        LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, "Crafting");
+        DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Crafting");
 
       int titleBaseline = contentY + g.getFontMetrics().getAscent();
       int contentStartX = x + (width - totalContentWidth) / 2;
@@ -203,7 +203,7 @@ final class CraftingDialogOverlay
       gridTop =
         titleBaseline
           + PANEL_HEADER_GAP
-          + LitiengineInventoryGridRenderer.GRID_TOP_GAP;
+          + InventoryGridRenderer.GRID_TOP_GAP;
 
       leftPanelBounds =
         new Rectangle(
@@ -228,7 +228,7 @@ final class CraftingDialogOverlay
 
       leftGrid =
         new GridLayout(InventorySide.TARGET, leftStartX, gridTop, leftColumns, targetSlots);
-      LitiengineInventoryGridRenderer.drawGrid(g, targetSlots, leftStartX, gridTop, leftColumns);
+      InventoryGridRenderer.drawGrid(g, targetSlots, leftStartX, gridTop, leftColumns);
 
       craftingBounds =
         mirrorLegacySlotBounds(
@@ -265,7 +265,7 @@ final class CraftingDialogOverlay
         drawHoverTooltip(g, leftGrid, rightPanelBounds, craftingBounds, resultItems, resultBounds);
       }
     } finally {
-      LitiengineDialogOverlaySupport.finishDialog(g, state);
+      DialogFrameRenderer.finishDialog(g, state);
     }
   }
 
@@ -707,7 +707,7 @@ final class CraftingDialogOverlay
     GridLayout leftGrid,
     List<CraftingDialogLayout.SlotBounds> craftingBounds) {
     int leftIndex =
-      LitiengineInventoryGridRenderer.findSlotIndexAt(
+      InventoryGridRenderer.findSlotIndexAt(
         mouseX, mouseY, leftGrid.slots(), leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
     if (leftIndex >= 0) {
       return new SlotSelection(InventorySide.TARGET, leftIndex);
@@ -742,12 +742,12 @@ final class CraftingDialogOverlay
     }
 
     int leftIndex =
-      LitiengineInventoryGridRenderer.findSlotIndexAt(
+      InventoryGridRenderer.findSlotIndexAt(
         mouseX, mouseY, leftGrid.slots(), leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
     if (leftIndex >= 0) {
       Item hoveredItem = controller.targetInventory().get(leftIndex).orElse(null);
       if (hoveredItem != null) {
-        LitiengineItemTooltipSupport.drawTooltip(
+        ItemTooltipRenderer.drawTooltip(
           g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
       }
       return;
@@ -757,7 +757,7 @@ final class CraftingDialogOverlay
       if (bounds.contains(mouseX, mouseY)) {
         Item hoveredItem = controller.craftingInventory().get(bounds.slotIndex()).orElse(null);
         if (hoveredItem != null) {
-          LitiengineItemTooltipSupport.drawTooltip(
+          ItemTooltipRenderer.drawTooltip(
             g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
         }
         return;
@@ -768,14 +768,10 @@ final class CraftingDialogOverlay
       CraftingDialogLayout.ItemBounds bounds = resultBounds.get(i);
       Rectangle rect = new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size());
       if (rect.contains(mouseX, mouseY)) {
-        LitiengineItemTooltipSupport.drawTooltip(
+        ItemTooltipRenderer.drawTooltip(
           g, resultItems[i], mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
         return;
       }
-    }
-
-    if (!rightPanelBounds.contains(mouseX, mouseY)) {
-      return;
     }
   }
 
@@ -801,11 +797,11 @@ final class CraftingDialogOverlay
     }
 
     int hoveredTargetSlotIndex =
-      LitiengineInventoryGridRenderer.findSlotIndexAt(
+      InventoryGridRenderer.findSlotIndexAt(
         mouseX, mouseY, leftGrid.slots(), leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
     if (hoveredTargetSlotIndex >= 0) {
       Rectangle slotBounds =
-        LitiengineInventoryGridRenderer.slotBounds(
+        InventoryGridRenderer.slotBounds(
           hoveredTargetSlotIndex, leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
       drawHighlight(g, slotBounds);
       return;
@@ -877,7 +873,7 @@ final class CraftingDialogOverlay
       return "";
     }
 
-    String baseLabel = LitiengineItemTooltipSupport.displayName(item);
+    String baseLabel = ItemTooltipRenderer.displayName(item);
     return item.stackSize() > 1 ? baseLabel + " x" + item.stackSize() : baseLabel;
   }
 

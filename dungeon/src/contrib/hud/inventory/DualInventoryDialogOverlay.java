@@ -2,6 +2,8 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.elements.InventoryComponentProvider;
+import contrib.hud.overlays.InventoryGridRenderer;
+import contrib.hud.overlays.ItemTooltipRenderer;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
@@ -76,13 +78,13 @@ final class DualInventoryDialogOverlay
     Item[] leftSlots = leftInventory.items();
     Item[] rightSlots = rightInventory.items();
 
-    int leftColumns = LitiengineInventoryGridRenderer.columnsFor(leftSlots);
-    int rightColumns = LitiengineInventoryGridRenderer.columnsFor(rightSlots);
-    int leftRows = LitiengineInventoryGridRenderer.rowsFor(leftSlots, leftColumns);
-    int rightRows = LitiengineInventoryGridRenderer.rowsFor(rightSlots, rightColumns);
+    int leftColumns = InventoryGridRenderer.columnsFor(leftSlots);
+    int rightColumns = InventoryGridRenderer.columnsFor(rightSlots);
+    int leftRows = InventoryGridRenderer.rowsFor(leftSlots, leftColumns);
+    int rightRows = InventoryGridRenderer.rowsFor(rightSlots, rightColumns);
 
-    int leftGridWidth = LitiengineInventoryGridRenderer.gridWidth(leftColumns);
-    int rightGridWidth = LitiengineInventoryGridRenderer.gridWidth(rightColumns);
+    int leftGridWidth = InventoryGridRenderer.gridWidth(leftColumns);
+    int rightGridWidth = InventoryGridRenderer.gridWidth(rightColumns);
 
     int contentWidth =
       leftGridWidth
@@ -92,8 +94,8 @@ final class DualInventoryDialogOverlay
         + 2 * PANEL_PADDING;
     width = Math.max(DEFAULT_WIDTH, contentWidth);
 
-    int leftGridHeight = LitiengineInventoryGridRenderer.gridHeight(leftRows);
-    int rightGridHeight = LitiengineInventoryGridRenderer.gridHeight(rightRows);
+    int leftGridHeight = InventoryGridRenderer.gridHeight(leftRows);
+    int rightGridHeight = InventoryGridRenderer.gridHeight(rightRows);
     int maxGridHeight = Math.max(leftGridHeight, rightGridHeight);
 
     height =
@@ -131,7 +133,7 @@ final class DualInventoryDialogOverlay
       g.drawString(rightTitle, rightStartX, titleBaseline);
 
       gridTop =
-        titleBaseline + PANEL_HEADER_GAP + LitiengineInventoryGridRenderer.GRID_TOP_GAP;
+        titleBaseline + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle leftPanelBounds =
         new Rectangle(
@@ -165,8 +167,8 @@ final class DualInventoryDialogOverlay
       rightGrid =
         new GridLayout(InventorySide.RIGHT, rightStartX, gridTop, rightColumns, rightSlots);
 
-      LitiengineInventoryGridRenderer.drawGrid(g, leftSlots, leftStartX, gridTop, leftColumns);
-      LitiengineInventoryGridRenderer.drawGrid(g, rightSlots, rightStartX, gridTop, rightColumns);
+      InventoryGridRenderer.drawGrid(g, leftSlots, leftStartX, gridTop, leftColumns);
+      InventoryGridRenderer.drawGrid(g, rightSlots, rightStartX, gridTop, rightColumns);
 
       if (dragState != null) {
         SlotSelection hoveredTarget = hoveredDropTarget(leftGrid, rightGrid);
@@ -324,7 +326,7 @@ final class DualInventoryDialogOverlay
       return;
     }
 
-    LitiengineItemTooltipSupport.drawTooltip(
+    ItemTooltipRenderer.drawTooltip(
       g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
   }
 
@@ -341,7 +343,7 @@ final class DualInventoryDialogOverlay
     GridLayout targetGrid = targetSlot.side() == InventorySide.LEFT ? leftGrid : rightGrid;
 
     Rectangle bounds =
-      LitiengineInventoryGridRenderer.slotBounds(
+      InventoryGridRenderer.slotBounds(
         targetSlot.slotIndex(),
         targetGrid.startX(),
         targetGrid.startY(),
@@ -393,21 +395,21 @@ final class DualInventoryDialogOverlay
       return "";
     }
 
-    String baseLabel = LitiengineItemTooltipSupport.displayName(item);
+    String baseLabel = ItemTooltipRenderer.displayName(item);
     return item.stackSize() > 1 ? baseLabel + " x" + item.stackSize() : baseLabel;
   }
 
   private SlotSelection findSlotSelection(
     int mouseX, int mouseY, GridLayout leftGrid, GridLayout rightGrid) {
     int leftIndex =
-      LitiengineInventoryGridRenderer.findSlotIndexAt(
+      InventoryGridRenderer.findSlotIndexAt(
         mouseX, mouseY, leftGrid.slots(), leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
     if (leftIndex >= 0) {
       return new SlotSelection(leftGrid.side(), leftIndex);
     }
 
     int rightIndex =
-      LitiengineInventoryGridRenderer.findSlotIndexAt(
+      InventoryGridRenderer.findSlotIndexAt(
         mouseX,
         mouseY,
         rightGrid.slots(),

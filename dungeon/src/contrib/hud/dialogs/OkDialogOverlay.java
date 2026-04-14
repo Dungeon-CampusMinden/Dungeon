@@ -1,5 +1,6 @@
 package contrib.hud.dialogs;
 
+import contrib.hud.overlays.DialogFrameRenderer;
 import core.Game;
 import core.input.MouseButtons;
 import core.ui.overlay.UiOverlay;
@@ -45,20 +46,20 @@ final class OkDialogOverlay implements UiOverlay {
 
     handleInput();
 
-    DialogOverlaySupport.RenderState state =
-      DialogOverlaySupport.beginDialog(g);
+    DialogFrameRenderer.RenderState state =
+      DialogFrameRenderer.beginDialog(g);
 
     try {
-      int textY = DialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
+      int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, title);
 
-      DialogOverlaySupport.drawWrappedText(
-        g, text, x + DialogOverlaySupport.PADDING, textY,
-        width - 2 * DialogOverlaySupport.PADDING);
+      DialogFrameRenderer.drawWrappedText(
+        g, text, x + DialogFrameRenderer.PADDING, textY,
+        width - 2 * DialogFrameRenderer.PADDING);
 
       Rectangle ok = okBounds();
-      DialogOverlaySupport.drawButton(g, ok, "OK", okPressed);
+      DialogFrameRenderer.drawButton(g, ok, "OK", okPressed);
     } finally {
-      DialogOverlaySupport.finishDialog(g, state);
+      DialogFrameRenderer.finishDialog(g, state);
     }
   }
 
@@ -93,7 +94,7 @@ final class OkDialogOverlay implements UiOverlay {
   }
 
   private Rectangle okBounds() {
-    return DialogOverlaySupport.centeredButtonRow(
+    return DialogFrameRenderer.centeredButtonRow(
         x, y, width, height, 1, BUTTON_GAP)
       .get(0);
   }

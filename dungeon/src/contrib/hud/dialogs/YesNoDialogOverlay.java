@@ -1,5 +1,6 @@
 package contrib.hud.dialogs;
 
+import contrib.hud.overlays.DialogFrameRenderer;
 import core.Game;
 import core.input.MouseButtons;
 import core.ui.overlay.UiOverlay;
@@ -50,23 +51,23 @@ final class YesNoDialogOverlay implements UiOverlay {
 
     handleInput();
 
-    DialogOverlaySupport.RenderState state =
-      DialogOverlaySupport.beginDialog(g);
+    DialogFrameRenderer.RenderState state =
+      DialogFrameRenderer.beginDialog(g);
 
     try {
-      int textY = DialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
+      int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, title);
 
-      DialogOverlaySupport.drawWrappedText(
-        g, text, x + DialogOverlaySupport.PADDING, textY,
-        width - 2 * DialogOverlaySupport.PADDING);
+      DialogFrameRenderer.drawWrappedText(
+        g, text, x + DialogFrameRenderer.PADDING, textY,
+        width - 2 * DialogFrameRenderer.PADDING);
 
       Rectangle no = noBounds();
       Rectangle yes = yesBounds();
 
-      DialogOverlaySupport.drawButton(g, no, NO_LABEL, noPressed);
-      DialogOverlaySupport.drawButton(g, yes, YES_LABEL, yesPressed);
+      DialogFrameRenderer.drawButton(g, no, NO_LABEL, noPressed);
+      DialogFrameRenderer.drawButton(g, yes, YES_LABEL, yesPressed);
     } finally {
-      DialogOverlaySupport.finishDialog(g, state);
+      DialogFrameRenderer.finishDialog(g, state);
     }
   }
 
@@ -111,13 +112,13 @@ final class YesNoDialogOverlay implements UiOverlay {
   }
 
   private Rectangle noBounds() {
-    return DialogOverlaySupport.centeredButtonRow(
+    return DialogFrameRenderer.centeredButtonRow(
         x, y, width, height, 2, BUTTON_GAP)
       .get(0);
   }
 
   private Rectangle yesBounds() {
-    return DialogOverlaySupport.centeredButtonRow(
+    return DialogFrameRenderer.centeredButtonRow(
         x, y, width, height, 2, BUTTON_GAP)
       .get(1);
   }

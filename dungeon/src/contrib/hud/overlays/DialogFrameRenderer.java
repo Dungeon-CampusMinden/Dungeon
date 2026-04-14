@@ -1,4 +1,4 @@
-package contrib.hud.dialogs;
+package contrib.hud.overlays;
 
 import core.Game;
 import java.awt.Color;
@@ -17,13 +17,13 @@ import java.util.List;
  * <p>Keeps duplicated panel, title, text wrapping and button drawing logic out of the concrete
  * OK/YES_NO/TEXT overlays.
  */
-final class DialogOverlaySupport {
+public final class DialogFrameRenderer {
 
-  static final int ARC = 14;
-  static final int PADDING = 20;
-  static final int BUTTON_WIDTH = 120;
-  static final int BUTTON_HEIGHT = 34;
-  static final int BUTTON_BOTTOM_MARGIN = 18;
+  public static final int ARC = 14;
+  public static final int PADDING = 20;
+  public static final int BUTTON_WIDTH = 120;
+  public static final int BUTTON_HEIGHT = 34;
+  public static final int BUTTON_BOTTOM_MARGIN = 18;
 
   private static final float BACKDROP_ALPHA = 0.35f;
   private static final Color PANEL_FILL = new Color(32, 32, 40, 235);
@@ -31,9 +31,9 @@ final class DialogOverlaySupport {
   private static final Color BUTTON_FILL = new Color(75, 95, 140);
   private static final Color BUTTON_PRESSED_FILL = new Color(105, 135, 190);
 
-  private DialogOverlaySupport() {}
+  private DialogFrameRenderer() {}
 
-  static RenderState beginDialog(Graphics2D g) {
+  public static RenderState beginDialog(Graphics2D g) {
     Composite oldComposite = g.getComposite();
     Color oldColor = g.getColor();
     Font oldFont = g.getFont();
@@ -45,13 +45,13 @@ final class DialogOverlaySupport {
     return new RenderState(oldComposite, oldColor, oldFont);
   }
 
-  static void finishDialog(Graphics2D g, RenderState state) {
+  public static void finishDialog(Graphics2D g, RenderState state) {
     g.setComposite(state.composite());
     g.setColor(state.color());
     g.setFont(state.font());
   }
 
-  static int drawFrameAndTitle(Graphics2D g, int x, int y, int width, int height, String title) {
+  public static int drawFrameAndTitle(Graphics2D g, int x, int y, int width, int height, String title) {
     g.setComposite(AlphaComposite.SrcOver);
     g.setColor(PANEL_FILL);
     g.fillRoundRect(x, y, width, height, ARC, ARC);
@@ -67,7 +67,7 @@ final class DialogOverlaySupport {
     return y + 62;
   }
 
-  static int drawWrappedText(Graphics2D g, String text, int x, int startY, int maxWidth) {
+  public static int drawWrappedText(Graphics2D g, String text, int x, int startY, int maxWidth) {
     FontMetrics fm = g.getFontMetrics();
     int y = startY;
 
@@ -79,7 +79,7 @@ final class DialogOverlaySupport {
     return y;
   }
 
-  static void drawButton(Graphics2D g, Rectangle bounds, String label, boolean pressed) {
+  public static void drawButton(Graphics2D g, Rectangle bounds, String label, boolean pressed) {
     g.setColor(pressed ? BUTTON_PRESSED_FILL : BUTTON_FILL);
     g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 10, 10);
 
@@ -92,7 +92,7 @@ final class DialogOverlaySupport {
     g.drawString(label, tx, ty);
   }
 
-  static List<Rectangle> centeredButtonRow(
+  public static List<Rectangle> centeredButtonRow(
     int dialogX, int dialogY, int dialogWidth, int dialogHeight, int buttonCount, int buttonGap) {
     List<Rectangle> bounds = new ArrayList<>();
     if (buttonCount <= 0) {
@@ -112,7 +112,7 @@ final class DialogOverlaySupport {
     return bounds;
   }
 
-  static List<String> wrapText(String text, FontMetrics fm, int maxWidth) {
+  public static List<String> wrapText(String text, FontMetrics fm, int maxWidth) {
     List<String> lines = new ArrayList<>();
     if (text == null || text.isBlank()) {
       lines.add("");
@@ -150,5 +150,5 @@ final class DialogOverlaySupport {
     return lines;
   }
 
-  record RenderState(Composite composite, Color color, Font font) {}
+  public record RenderState(Composite composite, Color color, Font font) {}
 }

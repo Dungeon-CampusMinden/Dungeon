@@ -1,5 +1,6 @@
 package contrib.hud.dialogs;
 
+import contrib.hud.overlays.DialogFrameRenderer;
 import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
@@ -73,29 +74,29 @@ final class FreeInputDialogOverlay implements UiOverlay {
 
     handleInput();
 
-    DialogOverlaySupport.RenderState state =
-      DialogOverlaySupport.beginDialog(g);
+    DialogFrameRenderer.RenderState state =
+      DialogFrameRenderer.beginDialog(g);
 
     try {
-      int textY = DialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
+      int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, title);
 
       int afterQuestionY =
-        DialogOverlaySupport.drawWrappedText(
+        DialogFrameRenderer.drawWrappedText(
           g,
           question,
-          x + DialogOverlaySupport.PADDING,
+          x + DialogFrameRenderer.PADDING,
           textY,
-          width - 2 * DialogOverlaySupport.PADDING);
+          width - 2 * DialogFrameRenderer.PADDING);
 
       drawInputField(g, afterQuestionY + 14);
 
       List<Rectangle> buttons = buttonBounds();
-      DialogOverlaySupport.drawButton(
+      DialogFrameRenderer.drawButton(
         g, buttons.get(0), confirmLabel, pressedButtonIndex == 0);
-      DialogOverlaySupport.drawButton(
+      DialogFrameRenderer.drawButton(
         g, buttons.get(1), cancelLabel, pressedButtonIndex == 1);
     } finally {
-      DialogOverlaySupport.finishDialog(g, state);
+      DialogFrameRenderer.finishDialog(g, state);
     }
   }
 
@@ -213,7 +214,7 @@ final class FreeInputDialogOverlay implements UiOverlay {
   }
 
   private List<Rectangle> buttonBounds() {
-    return DialogOverlaySupport.centeredButtonRow(x, y, width, height, 2, BUTTON_GAP);
+    return DialogFrameRenderer.centeredButtonRow(x, y, width, height, 2, BUTTON_GAP);
   }
 
   @Override
