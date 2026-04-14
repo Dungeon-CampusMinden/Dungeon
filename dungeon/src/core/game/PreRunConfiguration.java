@@ -5,6 +5,9 @@ import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -41,6 +44,7 @@ public final class PreRunConfiguration {
   private static IVoidFunction userOnFrame = () -> {};
   private static IVoidFunction userOnSetup = () -> {};
   private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
+  private static final List<IVoidFunction> clientStartupTasks = new ArrayList<>();
 
   /**
    * Gets the width of the game window.
@@ -366,5 +370,25 @@ public final class PreRunConfiguration {
     } else {
       throw new IllegalArgumentException("Username must not be empty or contain underscores.");
     }
+  }
+
+  /**
+   * Adds a new task to be executed during the client startup process.
+   *
+   * @param task The task to be added. Must not be null.
+   * @throws NullPointerException if the provided task is null.
+   */
+  public static void addClientStartupTask(IVoidFunction task) {
+    clientStartupTasks.add(Objects.requireNonNull(task, "task must not be null"));
+  }
+
+  /**
+   * Retrieves an unmodifiable list of tasks to be executed during the client startup process.
+   * These tasks are user-defined and executed in the order they were added.
+   *
+   * @return An unmodifiable list of {@link IVoidFunction} representing the client startup tasks.
+   */
+  public static List<IVoidFunction> clientStartupTasks() {
+    return List.copyOf(clientStartupTasks);
   }
 }

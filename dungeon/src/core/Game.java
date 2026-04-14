@@ -944,6 +944,15 @@ public final class Game {
     }
   }
 
+  /**
+   * Adds a task to be executed during the client's startup process.
+   *
+   * @param task The task to be executed, encapsulated as an IVoidFunction.
+   */
+  public static void addClientStartupTask(IVoidFunction task) {
+    PreRunConfiguration.addClientStartupTask(task);
+  }
+
   private static void ensureDefaultLoopHost() {
     if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
       return;

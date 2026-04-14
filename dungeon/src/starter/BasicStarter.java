@@ -95,6 +95,7 @@ public final class BasicStarter {
         Game.startTile().map(Tile::position).ifPresent(BasicStarter::spawnVerificationFixtures);
       });
 
+    Game.addClientStartupTask(Crafting::loadRecipes);
     Game.run();
   }
 

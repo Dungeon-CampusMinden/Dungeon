@@ -1,9 +1,9 @@
 package core.game.startup;
 
-import contrib.crafting.Crafting;
 import core.Game;
 import core.game.PreRunConfiguration;
 import core.systems.LevelSystem;
+import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -31,8 +31,9 @@ public final class ClientStartup {
       // Start networking (even in single player this may be a LocalNetworkHandler).
       Game.network().start();
 
-      // Load game data.
-      Crafting.loadRecipes();
+      for (IVoidFunction task : PreRunConfiguration.clientStartupTasks()) {
+        task.execute();
+      }
 
       // Load initial level once.
       Game.system(LevelSystem.class, LevelSystem::execute);
