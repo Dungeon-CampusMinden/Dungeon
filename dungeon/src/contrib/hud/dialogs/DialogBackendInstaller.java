@@ -9,22 +9,18 @@ import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;
 
 /**
- * Registers a temporary LITIENGINE dialog backend.
+ * Installs the available dialog backend implementations in the shared dialog factory.
  *
- * <p>At the current migration stage, this backend does not render actual dialogs yet.
- * Instead, it installs neutral fallback handles so dialog creation, lifecycle handling,
- * and callbacks can already work without depending on libGDX Scene2D.
- *
- * <p>The fallback registration is intentionally weak: real LITIENGINE dialog
- * implementations should be able to replace individual dialog types later without
- * changing this bootstrap.
+ * <p>The dialog factory itself only owns the registry. This class wires the default dialog types to
+ * the currently available neutral dialog builders and installs fallback handles for dialog types
+ * that do not have a concrete visual implementation yet.
  */
-public final class DialogFactoryBootstrap {
+public final class DialogBackendInstaller {
   private static boolean initialized = false;
 
-  private DialogFactoryBootstrap() {}
+  private DialogBackendInstaller() {}
 
-  public static synchronized void init() {
+  public static synchronized void install() {
     if (initialized) {
       return;
     }
@@ -41,7 +37,6 @@ public final class DialogFactoryBootstrap {
     registerFallback(DialogType.DefaultTypes.PROGRESS_BAR);
     registerFallback(DialogType.DefaultTypes.PAUSE_MENU);
 
-    // Real LITIENGINE dialog implementations available so far:
     DialogFactory.replace(DialogType.DefaultTypes.OK, OkDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.YES_NO, YesNoDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.TEXT, TextDialogBuilder::build);
@@ -51,16 +46,14 @@ public final class DialogFactoryBootstrap {
     DialogFactory.replace(DialogType.DefaultTypes.PAUSE_MENU, PauseMenuDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.KEYPAD, KeypadDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilder::build);
-    DialogFactory.replace(
-      DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);
-    DialogFactory.replace(
-      DialogType.DefaultTypes.CRAFTING_GUI, CraftingDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.CRAFTING_GUI, CraftingDialogBuilder::build);
 
     initialized = true;
   }
 
   private static void registerFallback(DialogType type) {
-    DialogFactory.registerIfAbsent(type, DialogFactoryBootstrap::createFallbackHandle);
+    DialogFactory.registerIfAbsent(type, DialogBackendInstaller::createFallbackHandle);
   }
 
   private static UiNodeHandle createFallbackHandle(DialogContext ctx) {
