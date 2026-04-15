@@ -18,9 +18,40 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Minimal real keypad dialog for the LITIENGINE backend.
+ * A UI overlay that renders a keypad dialog interface.
  *
- * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
+ * <p>This overlay displays
+ * a set of buttons and a small display area, allowing user interaction for
+ * entering digits, submitting input, and triggering associated actions.
+ *
+ * <p>This class handles input management, rendering operations, and button press
+ * events. It is designed to integrate with an entity that includes a
+ * {@code KeypadComponent} for managing user interaction and input logic.
+ *
+ * <p>Key Features:
+ * <ul>
+ *   <li>Render keypad buttons and the display area using predefined layout settings.</li>
+ *   <li>Handle mouse events to detect button presses and trigger corresponding actions.</li>
+ *   <li>Provide methods to set and retrieve the position, dimensions, and visibility of the overlay.</li>
+ * </ul>
+ *
+ * <p>Dependencies:
+ * <ul>
+ *   <li>{@code Entity}: Represents the keypad entity containing the logic for input actions.</li>
+ *   <li>{@code DialogFrameRenderer}: Utility responsible for rendering frame and button visuals.</li>
+ *   <li>{@code InputManager}: Input handling utility for detecting mouse interactions.</li>
+ *   <li>{@code KeypadComponent}: Component of the keypad entity responsible for managing entered digits,
+ *   backspace functionality, and input validation.</li>
+ *   <li>{@code StageHandle}: Represents the game stage for retrieving mouse coordinates.</li>
+ *   <li>{@code Game.audio()}: External audio utility for playing feedback sounds.</li>
+ *</ul>
+ *
+ * <p>Notes:
+ * <ul>
+ *   <li>The class is immutable in terms of its core behavior, though position, dimensions,
+ *   and visibility can be modified at runtime.</li>
+ *   <li>The keypad buttons are hardcoded with a specific layout and labels.</li>
+ * </ul>
  */
 final class KeypadDialogOverlay implements UiOverlay {
 
