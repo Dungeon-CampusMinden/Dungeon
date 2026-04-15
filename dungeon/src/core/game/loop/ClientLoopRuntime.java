@@ -18,12 +18,7 @@ import core.game.startup.ClientStartup;
 import core.game.render.EcsRenderScreen;
 import core.input.bridge.ClientInputBridge;
 import core.platform.Platform;
-import core.platform.client.ClientCursorAdapter;
-import core.platform.client.ClientSoundPlayer;
-import core.platform.client.ClientRuntimeAdapter;
-import core.platform.client.ClientWindowEventsBridge;
-import core.platform.client.ClientWindowAdapter;
-import core.platform.client.ClientRenderAdapter;
+import core.platform.client.*;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.utils.InputManager;
@@ -114,6 +109,7 @@ public final class ClientLoopRuntime {
     Platform.render(new ClientRenderAdapter());
     Platform.cursor(new ClientCursorAdapter());
     Platform.camera(new ClientCameraAdapter());
+    Platform.clipboard(new AwtClipboardAdapter());
 
     // Bridge game engine input events into the InputManager
     ClientInputBridge.install();
