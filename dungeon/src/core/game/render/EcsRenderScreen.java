@@ -10,13 +10,19 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 /**
- * Thin LITIENGINE screen that bridges the active Graphics2D context into the ECS render pipeline.
+ * The main render screen for the ECS-based game engine.
  *
- * <p>All actual drawing is performed by ECS render systems (e.g. LitiengineSpriteRenderSystem).
+ * <p>This screen manages the rendering of all ECS systems and UI overlays. It supports optional
+ * scene-level effect pipelines that process the entire rendered scene before display.
+ *
+ * <p>When scene effects are enabled, the screen renders to an intermediate buffer first,
+ * applies the effect pipeline, and then draws the result to the display. Otherwise,
+ * rendering is done directly for better performance.
  */
 public final class EcsRenderScreen extends Screen {
   public static final String NAME = "ecs-render";
 
+  /** Creates a new ECS render screen. */
   public EcsRenderScreen() {
     super(NAME);
   }
