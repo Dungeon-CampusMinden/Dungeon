@@ -94,6 +94,18 @@ public final class InventoryGridRenderer {
   }
 
   /**
+   * Renders a visual preview of a single inventory slot at the specified location.
+   *
+   * @param g the Graphics2D object used for rendering
+   * @param x the x coordinate of the top-left corner of the slot
+   * @param y the y coordinate of the top-left corner of the slot
+   * @param item the item to be displayed in the slot, or null if the slot is empty
+   */
+  public static void drawSlotPreview(Graphics2D g, int x, int y, Item item) {
+    drawSlot(g, new Rectangle(x, y, SLOT_WIDTH, SLOT_HEIGHT), item);
+  }
+
+  /**
    * Calculates the rectangular bounds of a specific slot in the grid.
    *
    * @param index the slot index

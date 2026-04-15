@@ -44,8 +44,6 @@ final class DualInventoryDialogOverlay
   private static final int DRAG_THRESHOLD_PX = 8;
   private static final int DRAG_PREVIEW_OFFSET_X = 14;
   private static final int DRAG_PREVIEW_OFFSET_Y = 18;
-  private static final int DRAG_PREVIEW_PADDING_X = 10;
-  private static final int DRAG_PREVIEW_PADDING_Y = 7;
   private static final int DRAG_TARGET_INSET = 3;
   private static final int DRAG_TARGET_ARC = 8;
 
@@ -85,6 +83,25 @@ final class DualInventoryDialogOverlay
 
     Item[] leftSlots = leftInventory.items();
     Item[] rightSlots = rightInventory.items();
+
+    Item[] visibleLeftSlots = leftSlots;
+    Item[] visibleRightSlots = rightSlots;
+
+    if (dragState != null && dragState.source() != null) {
+      if (dragState.source().side() == InventorySide.LEFT) {
+        visibleLeftSlots = leftSlots.clone();
+        if (dragState.source().slotIndex() >= 0
+          && dragState.source().slotIndex() < visibleLeftSlots.length) {
+          visibleLeftSlots[dragState.source().slotIndex()] = null;
+        }
+      } else {
+        visibleRightSlots = rightSlots.clone();
+        if (dragState.source().slotIndex() >= 0
+          && dragState.source().slotIndex() < visibleRightSlots.length) {
+          visibleRightSlots[dragState.source().slotIndex()] = null;
+        }
+      }
+    }
 
     int leftColumns = InventoryGridRenderer.columnsFor(leftSlots);
     int rightColumns = InventoryGridRenderer.columnsFor(rightSlots);
@@ -171,12 +188,12 @@ final class DualInventoryDialogOverlay
         rightPanelBounds.height);
 
       leftGrid =
-        new GridLayout(InventorySide.LEFT, leftStartX, gridTop, leftColumns, leftSlots);
+        new GridLayout(InventorySide.LEFT, leftStartX, gridTop, leftColumns, visibleLeftSlots);
       rightGrid =
-        new GridLayout(InventorySide.RIGHT, rightStartX, gridTop, rightColumns, rightSlots);
+        new GridLayout(InventorySide.RIGHT, rightStartX, gridTop, rightColumns, visibleRightSlots);
 
-      InventoryGridRenderer.drawGrid(g, leftSlots, leftStartX, gridTop, leftColumns);
-      InventoryGridRenderer.drawGrid(g, rightSlots, rightStartX, gridTop, rightColumns);
+      InventoryGridRenderer.drawGrid(g, visibleLeftSlots, leftStartX, gridTop, leftColumns);
+      InventoryGridRenderer.drawGrid(g, visibleRightSlots, rightStartX, gridTop, rightColumns);
 
       if (dragState != null) {
         SlotSelection hoveredTarget = hoveredDropTarget(leftGrid, rightGrid);
@@ -371,40 +388,14 @@ final class DualInventoryDialogOverlay
 
   private void drawDragPreview(Graphics2D g) {
     StageHandle stage = Game.stage().orElse(null);
-    if (stage == null || dragState == null) {
+    if (stage == null || dragState == null || dragState.item() == null) {
       return;
     }
 
     int previewX = stage.mouseX() + DRAG_PREVIEW_OFFSET_X;
     int previewY = stage.mouseY() + DRAG_PREVIEW_OFFSET_Y;
 
-    String label = dragLabel(dragState.item());
-    int textWidth = g.getFontMetrics().stringWidth(label);
-    int textHeight = g.getFontMetrics().getAscent();
-
-    int boxWidth = textWidth + 2 * DRAG_PREVIEW_PADDING_X;
-    int boxHeight = textHeight + 2 * DRAG_PREVIEW_PADDING_Y;
-
-    g.setColor(new Color(255, 255, 255, 235));
-    g.fillRect(previewX, previewY, boxWidth, boxHeight);
-
-    g.setColor(new Color(0x9dc1ebff, true));
-    g.drawRect(previewX, previewY, boxWidth, boxHeight);
-
-    g.setColor(Color.BLACK);
-    g.drawString(
-      label,
-      previewX + DRAG_PREVIEW_PADDING_X,
-      previewY + DRAG_PREVIEW_PADDING_Y + textHeight - 2);
-  }
-
-  private String dragLabel(Item item) {
-    if (item == null) {
-      return "";
-    }
-
-    String baseLabel = ItemTooltipRenderer.displayName(item);
-    return item.stackSize() > 1 ? baseLabel + " x" + item.stackSize() : baseLabel;
+    InventoryGridRenderer.drawSlotPreview(g, previewX, previewY, dragState.item());
   }
 
   private SlotSelection findSlotSelection(
