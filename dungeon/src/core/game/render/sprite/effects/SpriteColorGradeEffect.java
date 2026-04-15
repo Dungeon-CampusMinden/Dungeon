@@ -6,20 +6,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Applies HSV-style color grading to a sprite in the LITIENGINE Graphics2D render path.
+ * Represents a sprite effect that applies a color grading transformation to the input image.
+ * The effect modifies the hue, saturation, and brightness of a sprite based on configurable
+ * parameters. The changes are applied only if the effect is enabled.
  *
- * <p>This mirrors the gameplay-relevant part of the old ColorGradeShader semantics for per-sprite
- * rendering:
+ * <p>This effect supports chaining methods for configuring their parameters and uses a caching
+ * mechanism to avoid redundant calculations.
  *
- * <ul>
- *   <li>optional hue override ({@code hue < 0} keeps the original hue)
- *   <li>saturation multiplier
- *   <li>value/brightness multiplier
- * </ul>
- *
- * <p>The former GDX shader also had world-space region and transition-size semantics. Those do not
- * belong into the new sprite-effect pipeline and should be modeled separately if they are needed
- * again as a world-overlay or mask effect.
+ * <p>It is backed by the {@link SpriteEffect} interface, making it compatible with the LITIENGINE
+ * Graphics2D render path.
  */
 public final class SpriteColorGradeEffect implements SpriteEffect {
 
