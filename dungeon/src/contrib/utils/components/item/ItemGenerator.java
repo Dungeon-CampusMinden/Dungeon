@@ -17,7 +17,6 @@ import java.util.function.Supplier;
  * of that item being selected when generating a random item. The weights do not need to sum to 1.
  *
  * @see Item
- * @see contrib.entities.MiscFactory#generateRandomItems(int, int) generateRandomItems
  */
 public class ItemGenerator {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ItemGenerator.class);
@@ -118,7 +117,7 @@ public class ItemGenerator {
       }
     }
 
-    // Fallback, should never be reached
+    // Fallback should never be reached
     return weightedItems.keySet().iterator().next().get();
   }
 
