@@ -76,7 +76,6 @@ public final class LevelEditorSystem extends System {
   private long feedbackUntilMs = 0L;
 
   private static final Color LEVEL_BOUNDS_OUTLINE_COLOR = new Color(0, 255, 0, 77);
-  private static final float LEVEL_BOUNDS_OUTLINE_STROKE = 2.0f;
 
   private boolean internalStopped = false;
   private Mode previousMode = Mode.TILES;
@@ -93,7 +92,6 @@ public final class LevelEditorSystem extends System {
 
   private static final Color DEBUG_COORD_TEXT_COLOR = new Color(230, 230, 255, 220);
   private static final int DEBUG_TEXT_MIN_TILE_PX = 32;
-  private static final float DEBUG_ENTITY_STROKE = 2.0f;
   private static final int DEBUG_ENTITY_INSET_PX = 2;
 
   private boolean debugVisualizationActive = false;
@@ -625,7 +623,7 @@ public final class LevelEditorSystem extends System {
   /**
    * Retrieves the current dungeon level for mode operations.
    *
-   * @return an Optional containing the current DungeonLevel, or empty if no level is loaded
+   * @return an Optional containing the current DungeonLevel or empty if no level is loaded
    */
   public Optional<DungeonLevel> currentDungeonLevelForModes() {
     return currentDungeonLevel();
