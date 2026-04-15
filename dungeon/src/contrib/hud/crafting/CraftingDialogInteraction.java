@@ -1,13 +1,10 @@
 package contrib.hud.crafting;
 
-import contrib.hud.inventory.ItemDragPayload;
-
 /**
- * Backend-neutral interaction logic for crafting dialogs.
+ * A helper class for handling user interactions in the crafting dialog.
  *
- * <p>This class owns the semantic transfer behavior between the target inventory and the crafting
- * inventory. Concrete UI backends such as libGDX and LITIENGINE can delegate user interactions to
- * this class instead of implementing transfer rules themselves.
+ * <p>This class provides methods to translate UI interactions (clicks and drags) into
+ * inventory transfer operations using the shared crafting dialog controller.
  */
 public final class CraftingDialogInteraction {
 
@@ -26,62 +23,30 @@ public final class CraftingDialogInteraction {
   }
 
   /**
-   * Checks whether the given dragged payload can be accepted by the crafting input side.
-   *
-   * @param payload the dragged payload
-   * @return true if the payload contains a transferable item
-   */
-  public boolean acceptsDraggedItem(ItemDragPayload payload) {
-    return payload != null && payload.item() != null;
-  }
-
-  /**
-   * Handles dropping an inventory item into the crafting inventory.
-   *
-   * <p>The crafting dialog accepts dragged items as input for the crafting side.
-   *
-   * @param payload the dragged payload
-   * @return true if the transfer succeeded
-   */
-  public boolean handleDraggedItem(ItemDragPayload payload) {
-    if (!acceptsDraggedItem(payload)) {
-      return false;
-    }
-
-    return controller.transferByItem(
-      CraftingDialogController.InventorySide.TARGET, payload.item());
-  }
-
-  /**
    * Handles a slot-based transfer triggered by click interaction.
    *
    * @param sourceSide the side from which the item should be transferred
-   * @param slotIndex the clicked slot
-   * @return true if the transfer succeeded
+   * @param slotIndex  the clicked slot
    */
-  public boolean transferClickedSlot(
+  public void transferClickedSlot(
     CraftingDialogController.InventorySide sourceSide, int slotIndex) {
-    return controller.transferBySlot(sourceSide, slotIndex);
+    controller.transferBySlot(sourceSide, slotIndex);
   }
 
   /**
-   * Handles a slot-to-slot transfer triggered by a drag/drop style interaction.
+   * Handles a slot-to-slot transfer triggered by drag and drop interaction.
    *
-   * <p>This method allows UI backends to express "move item from this exact source slot to that
-   * exact target slot" without implementing crafting transfer rules themselves.
-   *
-   * @param sourceSide source inventory side
-   * @param sourceSlotIndex source slot index
-   * @param targetSide target inventory side
-   * @param targetSlotIndex target slot index
-   * @return true if the transfer succeeded
+   * @param sourceSide the source inventory side
+   * @param sourceSlotIndex the source slot index
+   * @param targetSide the target inventory side
+   * @param targetSlotIndex the target slot index
    */
-  public boolean transferDroppedSlot(
+  public void transferDroppedSlot(
     CraftingDialogController.InventorySide sourceSide,
     int sourceSlotIndex,
     CraftingDialogController.InventorySide targetSide,
     int targetSlotIndex) {
-    return controller.transferBySlotToSlot(
+    controller.transferBySlotToSlot(
       sourceSide, sourceSlotIndex, targetSide, targetSlotIndex);
   }
 }
