@@ -21,11 +21,22 @@ import java.awt.Rectangle;
 import java.util.stream.Stream;
 
 /**
- * Single-inventory overlay for the LITIENGINE backend.
+ * Represents an inventory dialog overlay used for managing and interacting with player or entity
+ * inventories. The dialog supports rendering, input handling, and item manipulation functionality.
  *
- * <p>This version renders inventory slots, supports right-click item usage for player inventories,
- * shows item hover information and adds drag-based item movement inside the player inventory as
- * well as dropping items outside the dialog.
+ * <p>It provides visual feedback through hover tooltips, drag-and-drop mechanics, and item slot
+ * highlights.
+ *
+ * <p>The class is intended to be used as a floating UI element for inventory management, fully
+ * integrated with game systems.
+ *
+ * <p>Key features include:
+ * <ul>
+ *   <li>Rendering the inventory UI and associated elements.</li>
+ *   <li>Drag-and-drop support for moving items between slots or dropping them.</li>
+ *   <li>Handling player input, including drag events and item slot interaction.</li>
+ *   <li>Visual feedback for hovered or targeted slots.</li>
+ * </ul>
  */
 final class InventoryDialogOverlay
   implements UiOverlay, InventoryComponentProvider {
