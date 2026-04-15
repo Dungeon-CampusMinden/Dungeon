@@ -65,8 +65,6 @@ final class CraftingDialogOverlay
   private static final int DRAG_THRESHOLD_PX = 8;
   private static final int DRAG_PREVIEW_OFFSET_X = 14;
   private static final int DRAG_PREVIEW_OFFSET_Y = 18;
-  private static final int DRAG_PREVIEW_PADDING_X = 10;
-  private static final int DRAG_PREVIEW_PADDING_Y = 7;
   private static final int DRAG_TARGET_INSET = 3;
   private static final int DRAG_TARGET_ARC = 8;
 
@@ -163,6 +161,25 @@ final class CraftingDialogOverlay
     Item[] craftingSlots = controller.craftingSlots();
     Item[] resultItems = currentResultItems();
 
+    Item[] visibleTargetSlots = targetSlots;
+    Item[] visibleCraftingSlots = craftingSlots;
+
+    if (dragState != null && dragState.source() != null) {
+      int sourceSlot = dragState.source().slotIndex();
+
+      if (dragState.source().side() == InventorySide.TARGET) {
+        visibleTargetSlots = targetSlots.clone();
+        if (sourceSlot >= 0 && sourceSlot < visibleTargetSlots.length) {
+          visibleTargetSlots[sourceSlot] = null;
+        }
+      } else {
+        visibleCraftingSlots = craftingSlots.clone();
+        if (sourceSlot >= 0 && sourceSlot < visibleCraftingSlots.length) {
+          visibleCraftingSlots[sourceSlot] = null;
+        }
+      }
+    }
+
     int leftColumns = InventoryGridRenderer.columnsFor(targetSlots);
     int leftRows = InventoryGridRenderer.rowsFor(targetSlots, leftColumns);
     int leftGridWidth = InventoryGridRenderer.gridWidth(leftColumns);
@@ -241,8 +258,8 @@ final class CraftingDialogOverlay
         leftPanelBounds.height);
 
       leftGrid =
-        new GridLayout(InventorySide.TARGET, leftStartX, gridTop, leftColumns, targetSlots);
-      InventoryGridRenderer.drawGrid(g, targetSlots, leftStartX, gridTop, leftColumns);
+        new GridLayout(InventorySide.TARGET, leftStartX, gridTop, leftColumns, visibleTargetSlots);
+      InventoryGridRenderer.drawGrid(g, visibleTargetSlots, leftStartX, gridTop, leftColumns);
 
       craftingBounds =
         mirrorLegacySlotBounds(
@@ -265,7 +282,7 @@ final class CraftingDialogOverlay
             rightPanelBounds.height));
 
       syncActionButtonBounds(legacyActionButtonBounds(rightPanelBounds));
-      drawLegacyCraftingPanel(g, rightPanelBounds, craftingBounds, resultItems, resultBounds);
+      drawLegacyCraftingPanel(g, rightPanelBounds, craftingBounds, visibleCraftingSlots, resultItems, resultBounds);
 
       if (dragState != null) {
         drawDropHighlights(g, leftGrid, leftPanelBounds, rightPanelBounds, craftingBounds);
@@ -304,6 +321,7 @@ final class CraftingDialogOverlay
     Graphics2D g,
     Rectangle panelBounds,
     List<CraftingDialogLayout.SlotBounds> craftingBounds,
+    Item[] visibleCraftingSlots,
     Item[] resultItems,
     List<CraftingDialogLayout.ItemBounds> resultBounds) {
 
@@ -311,7 +329,10 @@ final class CraftingDialogOverlay
 
     for (int i = 0; i < craftingBounds.size(); i++) {
       CraftingDialogLayout.SlotBounds bounds = craftingBounds.get(i);
-      Item item = controller.craftingInventory().get(bounds.slotIndex()).orElse(null);
+      Item item =
+        bounds.slotIndex() >= 0 && bounds.slotIndex() < visibleCraftingSlots.length
+          ? visibleCraftingSlots[bounds.slotIndex()]
+          : null;
       if (item == null) {
         continue;
       }
@@ -821,35 +842,10 @@ final class CraftingDialogOverlay
       return;
     }
 
-    String label = dragLabel(dragState.item());
-    FontMetrics fm = g.getFontMetrics();
-    int textWidth = fm.stringWidth(label);
-    int textHeight = fm.getHeight();
-
     int previewX = stage.mouseX() + DRAG_PREVIEW_OFFSET_X;
     int previewY = stage.mouseY() + DRAG_PREVIEW_OFFSET_Y;
-    int previewWidth = textWidth + 2 * DRAG_PREVIEW_PADDING_X;
-    int previewHeight = textHeight + 2 * DRAG_PREVIEW_PADDING_Y;
 
-    g.setColor(new Color(20, 22, 28, 220));
-    g.fillRoundRect(previewX, previewY, previewWidth, previewHeight, 10, 10);
-    g.setColor(new Color(180, 185, 200, 220));
-    g.drawRoundRect(previewX, previewY, previewWidth, previewHeight, 10, 10);
-
-    g.setColor(Color.WHITE);
-    g.drawString(
-      label,
-      previewX + DRAG_PREVIEW_PADDING_X,
-      previewY + DRAG_PREVIEW_PADDING_Y + textHeight - 2);
-  }
-
-  private String dragLabel(Item item) {
-    if (item == null) {
-      return "";
-    }
-
-    String baseLabel = ItemTooltipRenderer.displayName(item);
-    return item.stackSize() > 1 ? baseLabel + " x" + item.stackSize() : baseLabel;
+    InventoryGridRenderer.drawItemPreview(g, previewX, previewY, dragState.item());
   }
 
   private Optional<CraftingDialogAction> findActionButtonAt(int mouseX, int mouseY) {
