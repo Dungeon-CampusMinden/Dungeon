@@ -15,18 +15,31 @@ import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 
 /**
- * LITIENGINE render-only implementation for hidden world regions.
+ * A rendering system responsible for rendering level-hide regions in the game.
  *
- * <p>This system interprets the engine-neutral level-hide state and paints a dark overlay in
- * world-space using the current Graphics2D context.
+ * <p>This system processes entities with specific components and ensures that hidden or
+ * transitioning regions of the game world are visually represented appropriately on the screen.
+ * The rendering includes alpha transitions, regions, and smooth visibility effects.
  *
- * <p>The rendering is intentionally aligned with the former shader semantics:
- *
+ * <p>This system primarily operates on entities containing the following components:
  * <ul>
- *   <li>one continuous hide/reveal progress value,
- *   <li>one continuous transition band derived from transitionSize,
- *   <li>a smooth time-based easing instead of stepped edge bands.
+ *   <li>{@code LevelHideComponent}: Defines the region and transition parameters for hiding.</li>
+ *   <li>{@code LevelHideStateComponent}: Tracks the hiding state and transition progress.</li>
+ *   <li>{@code PositionComponent}: Provides the position of the entity in the game world.</li>
  * </ul>
+ *
+ * <p>Core functionality includes:
+ * <ul>
+ *   <li>Transitioning between visible and hidden states with smoothed alpha effects.</li>
+ *   <li>Drawing rectangular regions and applying transition effects on boundaries.</li>
+ *   <li>Rendering level-hide regions using screen-space rectangles despite having world-space definitions.</li>
+ *   <li>Creating smooth edges and transitions with bands and corner gradients.</li>
+ * </ul>
+ *
+ * <p>The system defines a hidden region's progress and visibility using alpha blending and
+ * ensures performance optimizations like avoiding unnecessary rendering for fully visible/hidden regions.
+ *
+ * <p>Note: This is a render-only system and does not modify the game state. It operates exclusively on the client-side.
  */
 public final class LevelHideRenderSystem extends System {
   private static final float TRANSITION_DURATION_SECONDS = 0.30f;
