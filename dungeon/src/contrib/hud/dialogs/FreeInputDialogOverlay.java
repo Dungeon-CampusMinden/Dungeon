@@ -13,9 +13,24 @@ import java.awt.Rectangle;
 import java.util.List;
 
 /**
- * A minimal real free-input dialog for the LITIENGINE backend.
+ * A class representing a free input dialog overlay.
  *
- * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
+ * <p>It displays a dialog with customizable title, question, placeholder text, and button labels,
+ * allowing the user to input text and interact through confirm or cancel actions.
+ *
+ * <p>The dialog is drawn in a graphical context and responds to user input such as typing,
+ * clicking buttons, or pressing control keys.
+ *
+ * <p>This class is intended to be used as part of a user interface overlay system
+ * and interacts with game stages and input management.
+ *
+ * <p>Features:
+ * <ul>
+ *    <li>Renders a dialog frame with a title, question, and input field.</li>
+ *    <li>Allows text input with optional placeholder text.</li>
+ *    <li>Supports customizable button labels and button actions.</li>
+ *    <li>Handles user interactions with keyboard and mouse inputs.</li>
+ * </ul>
  */
 final class FreeInputDialogOverlay implements UiOverlay {
 
@@ -133,7 +148,7 @@ final class FreeInputDialogOverlay implements UiOverlay {
       return;
     }
 
-    // 1) typed text
+    // typed text
     String typed = InputManager.consumeTypedCharacters();
     if (!typed.isEmpty()) {
       for (int i = 0; i < typed.length(); i++) {
@@ -144,7 +159,7 @@ final class FreeInputDialogOverlay implements UiOverlay {
       }
     }
 
-    // 2) control keys
+    // control keys
     if (InputManager.isKeyJustPressed(Keys.BACKSPACE) && !inputText.isEmpty()) {
       inputText.deleteCharAt(inputText.length() - 1);
     }
@@ -159,7 +174,7 @@ final class FreeInputDialogOverlay implements UiOverlay {
       return;
     }
 
-    // 3) mouse buttons
+    // mouse buttons
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
     List<Rectangle> buttons = buttonBounds();
