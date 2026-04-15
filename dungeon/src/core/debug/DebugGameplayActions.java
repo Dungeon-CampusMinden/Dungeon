@@ -123,7 +123,7 @@ public final class DebugGameplayActions {
         });
   }
 
-  /** Opens all exit and door tiles in the current level. */
+  /** Opens all exit and door tiles at the current level. */
   public static void openDoors() {
     Game.endTiles().forEach(ExitTile::open);
     Game.allTiles(LevelElement.DOOR).forEach(door -> ((DoorTile) door).open());
