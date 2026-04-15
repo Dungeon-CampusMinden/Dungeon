@@ -3,10 +3,11 @@ package contrib.modules.interaction;
 import java.util.function.Consumer;
 
 /**
- * Backend-specific launcher for choosing one interaction out of a multi-interaction source.
+ * Represents a user interface for selecting an interaction from a set of available interactions
+ * associated with an interactable entity.
  *
- * <p>The gameplay layer only depends on this abstraction. Concrete backends are free to implement
- * the UI as a scene2d widget, a LITIENGINE overlay, or any other presentation form.
+ * <p>Implementations of this interface are responsible for managing the presentation logic
+ * of the interaction selection, allowing users to choose from various interaction options.
  */
 public interface InteractionSelectionUi {
 
