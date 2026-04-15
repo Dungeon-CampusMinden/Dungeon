@@ -5,10 +5,22 @@ import core.ui.overlay.UiOverlay;
 import java.awt.Graphics2D;
 
 /**
- * Minimal pause overlay for the LITIENGINE backend.
+ * Represents a pause menu overlay in the game's UI.
  *
- * <p>This intentionally mirrors the very simple semantics of the existing libGDX pause menu:
- * it only visualizes the paused state and tells the user how to resume.
+ * <p>The pause menu overlay appears as a dialog box when the game is paused. It includes
+ * a title and a message instructing the user how to resume the game.
+ *
+ * <p>The overlay can be shown, hidden, and customized in terms of its position, size, and visibility.
+ *
+ * <p>Defaults:
+ * <ul>
+ *   <li>Width: 400 pixels</li>
+ *   <li>Height: 200 pixels</li>
+ * </ul>
+ *
+ * <p>Implements the {@link UiOverlay} interface, allowing it to be rendered above the
+ * game scene with configurable properties such as x and y coordinates, dimensions,
+ * and visibility.
  */
 final class PauseMenuOverlay implements UiOverlay {
 
