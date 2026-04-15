@@ -395,7 +395,7 @@ final class DualInventoryDialogOverlay
     int previewX = stage.mouseX() + DRAG_PREVIEW_OFFSET_X;
     int previewY = stage.mouseY() + DRAG_PREVIEW_OFFSET_Y;
 
-    InventoryGridRenderer.drawSlotPreview(g, previewX, previewY, dragState.item());
+    InventoryGridRenderer.drawItemPreview(g, previewX, previewY, dragState.item());
   }
 
   private SlotSelection findSlotSelection(

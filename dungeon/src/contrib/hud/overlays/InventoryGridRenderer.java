@@ -94,15 +94,26 @@ public final class InventoryGridRenderer {
   }
 
   /**
-   * Renders a visual preview of a single inventory slot at the specified location.
+   * Renders a preview of an item in an inventory slot at the specified location.
    *
-   * @param g the Graphics2D object used for rendering
-   * @param x the x coordinate of the top-left corner of the slot
-   * @param y the y coordinate of the top-left corner of the slot
-   * @param item the item to be displayed in the slot, or null if the slot is empty
+   * @param g the Graphics2D object used for rendering; must not be null
+   * @param x the x-coordinate of the top-left corner of the preview location
+   * @param y the y-coordinate of the top-left corner of the preview location
+   * @param item the item to render a preview for; if null, no item is rendered
    */
-  public static void drawSlotPreview(Graphics2D g, int x, int y, Item item) {
-    drawSlot(g, new Rectangle(x, y, SLOT_WIDTH, SLOT_HEIGHT), item);
+  public static void drawItemPreview(Graphics2D g, int x, int y, Item item) {
+    if (g == null || item == null) {
+      return;
+    }
+
+    Rectangle bounds = new Rectangle(x, y, SLOT_WIDTH, SLOT_HEIGHT);
+
+    BufferedImage icon = resolveItemIcon(item);
+    if (icon != null) {
+      drawItemIcon(g, bounds, icon);
+    }
+
+    drawStackSize(g, bounds, item);
   }
 
   /**
