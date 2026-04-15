@@ -7,9 +7,13 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 /**
- * Shared tooltip/text helper for LITIENGINE inventory-style overlays.
+ * A utility class for rendering item tooltips.
  *
- * <p>This version intentionally mirrors the old libGDX inventory tooltip styling more closely.
+ * <p>This class provides methods to draw styled tooltips for items, displaying their name and
+ * description.
+ *
+ * <p>Tooltips are automatically positioned to stay within the viewport boundaries
+ * and avoid clipping at screen edges.
  */
 public final class ItemTooltipRenderer {
 
@@ -26,6 +30,20 @@ public final class ItemTooltipRenderer {
 
   private ItemTooltipRenderer() {}
 
+  /**
+   * Draws an item tooltip at the specified mouse position.
+   *
+   * <p>The tooltip displays the item's display name and description. It automatically adjusts
+   * its position to remain visible within the viewport, repositioning to the left or top if
+   * it extends beyond the right or bottom edges.
+   *
+   * @param g the Graphics2D object to draw with
+   * @param item the item to display a tooltip for (might be null)
+   * @param mouseX the mouse x coordinate
+   * @param mouseY the mouse y coordinate
+   * @param viewportWidth the viewport width in pixels
+   * @param viewportHeight the viewport height in pixels
+   */
   public static void drawTooltip(
     Graphics2D g, Item item, int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
     if (g == null || item == null) {
@@ -90,6 +108,15 @@ public final class ItemTooltipRenderer {
     }
   }
 
+  /**
+   * Gets the display name for an item.
+   *
+   * <p>If the item has a display name, it is returned. Otherwise, the simple class name of the
+   * item is returned as a fallback.
+   *
+   * @param item the item to get the display name for (might be null)
+   * @return the display name or an empty string if the item is null
+   */
   public static String displayName(Item item) {
     if (item == null) {
       return "";
