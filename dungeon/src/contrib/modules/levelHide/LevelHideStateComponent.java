@@ -7,8 +7,8 @@ import core.utils.Time;
  * Runtime state for level-hide regions.
  *
  * <p>The static region definition lives in {@link LevelHideComponent}. This component stores the
- * current reveal/hide state and the timestamp of the most recent state transition so rendering
- * backends can animate the transition without keeping backend-specific shader state.
+ * current reveal/hide state and the timestamp of the most recent state transition, so rendering
+ * backends can animate the transition without keeping a backend-specific shader state.
  */
 public final class LevelHideStateComponent implements Component {
   private static final long INITIAL_SETTLED_OFFSET_MS = 10_000L;
