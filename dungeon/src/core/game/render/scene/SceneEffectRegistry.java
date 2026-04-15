@@ -3,9 +3,15 @@ package core.game.render.scene;
 import java.util.*;
 
 /**
- * Ordered collection of LITIENGINE scene-pass effects.
+ * The SceneEffectRegistry class manages a collection of scene effects with configurable priorities
+ * and insertion orders. Effects can be registered, removed, retrieved, and manipulated based on their
+ * priority and other properties.
  *
- * <p>Effects are sorted first by priority and then by insertion order.
+ * <p>This registry supports operations such as enabling/disabling effects, modifying effect priorities, and
+ * iterating over effects in a priority-respecting order.
+ *
+ * <p>It is designed to support toggleable effects via the ToggleableSceneEffect interface but can accommodate
+ * other immutable or customized effect types as well.
  */
 public final class SceneEffectRegistry {
 
@@ -90,7 +96,7 @@ public final class SceneEffectRegistry {
    *
    * @param identifier unique identifier
    * @param newPriority new priority
-   * @return true if updated, false if effect does not exist
+   * @return true if updated, false if the effect does not exist
    */
   public boolean changePriority(String identifier, int newPriority) {
     SceneEffect effect = effectMap.get(identifier);
@@ -175,7 +181,7 @@ public final class SceneEffectRegistry {
    * Toggles all toggleable scene effects at once.
    *
    * <p>If at least one toggleable effect is currently disabled, all toggleable effects will be
-   * enabled. Otherwise all toggleable effects will be disabled.
+   * enabled. Otherwise, all toggleable effects will be disabled.
    *
    * @return the new enabled state that was applied
    */
@@ -254,6 +260,13 @@ public final class SceneEffectRegistry {
     return getSorted(true);
   }
 
+  /**
+   * Optional helper contract for mutable scene effects that can be enabled/disabled globally.
+   */
+  public interface ToggleableSceneEffect extends SceneEffect {
+    void enabled(boolean enabled);
+  }
+
   private void removeFromSortedMap(Entry entry, int priority) {
     Set<Entry> set = sortedByPriority.get(priority);
     if (set != null) {
@@ -280,12 +293,5 @@ public final class SceneEffectRegistry {
     public int hashCode() {
       return Long.hashCode(insertionIndex);
     }
-  }
-
-  /**
-   * Optional helper contract for mutable scene effects that can be enabled/disabled globally.
-   */
-  public interface ToggleableSceneEffect extends SceneEffect {
-    void enabled(boolean enabled);
   }
 }
