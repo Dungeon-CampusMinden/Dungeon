@@ -1,10 +1,10 @@
 package contrib.hud.crafting;
 
 /**
- * Shared action metadata for crafting dialogs across UI backends.
+ * Enumeration of actions available in the crafting dialog.
  *
- * <p>The action model is backend-neutral: it describes what the dialog should expose,
- * while concrete button widgets remain backend-specific.
+ * <p>Each action represents a user-interactive button in the crafting interface, including
+ * configuration for the label, callback key, icon, and relative position/size within the dialog.
  */
 public enum CraftingDialogAction {
   CRAFT("Craft", CraftingDialogController.CALLBACK_CRAFT, "hud/check.png", 0.812f, 0.05f, 0.15f, 0.15f),
@@ -35,30 +35,65 @@ public enum CraftingDialogAction {
     this.relativeHeight = relativeHeight;
   }
 
+  /**
+   * Gets the display label for this action.
+   *
+   * @return the label text
+   */
   public String label() {
     return label;
   }
 
+  /**
+   * Gets the callback key associated with this action.
+   *
+   * @return the callback key identifier
+   */
   public String callbackKey() {
     return callbackKey;
   }
 
+  /**
+   * Gets the icon resource path for this action.
+   *
+   * @return the icon path
+   */
   public String iconPath() {
     return iconPath;
   }
 
+  /**
+   * Gets the relative X position of this action's button.
+   *
+   * @return the relative X position (0.0 to 1.0)
+   */
   public float relativeX() {
     return relativeX;
   }
 
+  /**
+   * Gets the relative Y position of this action's button.
+   *
+   * @return the relative Y position (0.0 to 1.0)
+   */
   public float relativeY() {
     return relativeY;
   }
 
+  /**
+   * Gets the relative width of this action's button.
+   *
+   * @return the relative width (0.0 to 1.0)
+   */
   public float relativeWidth() {
     return relativeWidth;
   }
 
+  /**
+   * Gets the relative height of this action's button.
+   *
+   * @return the relative height (0.0 to 1.0)
+   */
   public float relativeHeight() {
     return relativeHeight;
   }
