@@ -5,10 +5,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Global depth-layer effect pipeline for the LITIENGINE backend.
+ * A pipeline for applying effects to individual entity depth layers.
  *
- * <p>Effects in this pipeline are applied to rendered entity layers grouped by
- * {@code DrawComponent.depth()} before those layers are composited into the world.
+ * <p>This class manages effect registries for each depth layer independently, allowing
+ * different visual effects to be applied to different entity layers.
+ *
+ * <p>Effects are applied sequentially to each depth layer's rendered entities.
  */
 public final class DepthLayerEffectPipeline {
 
@@ -16,26 +18,51 @@ public final class DepthLayerEffectPipeline {
 
   private DepthLayerEffectPipeline() {}
 
+  /**
+   * Gets the effect registry for the specified depth layer, creating it if necessary.
+   *
+   * @param depthLayer the depth layer identifier
+   * @return the effect registry for the depth layer
+   */
   public static DepthLayerEffectRegistry effects(int depthLayer) {
     return EFFECTS_BY_DEPTH.computeIfAbsent(depthLayer, ignored -> new DepthLayerEffectRegistry());
   }
 
+  /**
+   * Checks whether any effects (enabled or disabled) are registered for the specified depth layer.
+   *
+   * @param depthLayer the depth layer to check
+   * @return true if effects exist for this depth layer, false otherwise
+   */
   public static boolean hasEffects(int depthLayer) {
     DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
     return effects != null && !effects.isEmpty();
   }
 
+  /**
+   * Checks whether any enabled effects are registered for the specified depth layer.
+   *
+   * @param depthLayer the depth layer to check
+   * @return true if at least one effect is enabled for this depth layer, false otherwise
+   */
   public static boolean hasEnabledEffects(int depthLayer) {
     DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
     return effects != null && effects.hasEnabledEffects();
   }
 
+  /**
+   * Checks whether any enabled effects exist in any depth layer.
+   *
+   * @return true if at least one enabled effect exists anywhere, false otherwise
+   */
   public static boolean hasAnyEnabledEffects() {
     return EFFECTS_BY_DEPTH.values().stream().anyMatch(DepthLayerEffectRegistry::hasEnabledEffects);
   }
 
   /**
-   * @return true if all toggleable depth-layer effect groups are currently enabled
+   * Checks whether all toggleable effects in all depth layers are enabled.
+   *
+   * @return true if all registered toggleable effect groups are enabled
    */
   public static boolean allEnabled() {
     boolean hasToggleableDepthEffects = false;
@@ -91,6 +118,15 @@ public final class DepthLayerEffectPipeline {
     return newState;
   }
 
+  /**
+   * Applies all enabled depth layer effects to the provided image for the specified depth layer.
+   *
+   * @param depthLayer the depth layer to apply effects for
+   * @param source the source image to apply effects to (can be null)
+   * @param nowMs the current timestamp in milliseconds
+   * @return the processed image with all effects applied, or the original image if no effects are enabled
+   * @throws IllegalStateException if an effect returns null
+   */
   public static BufferedImage apply(int depthLayer, BufferedImage source, long nowMs) {
     DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
     if (source == null || effects == null || !effects.hasEnabledEffects()) {
@@ -109,10 +145,18 @@ public final class DepthLayerEffectPipeline {
     return current;
   }
 
+  /**
+   * Clears all effects registered for the specified depth layer.
+   *
+   * @param depthLayer the depth layer to clear
+   */
   public static void clearDepth(int depthLayer) {
     EFFECTS_BY_DEPTH.remove(depthLayer);
   }
 
+  /**
+   * Clears all effects from all depth layers.
+   */
   public static void clear() {
     EFFECTS_BY_DEPTH.clear();
   }
