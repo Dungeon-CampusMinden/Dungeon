@@ -10,17 +10,20 @@ import core.utils.Point;
 import java.util.Objects;
 
 /**
- * Resets shared LITIENGINE camera state when the active level changes.
+ * A system that manages camera state transitions when levels change.
  *
- * <p>This keeps backend-local camera state out of the engine-neutral level loading code while
- * ensuring that a newly loaded level starts without stale follow smoothing or stale screen offsets.
- *
- * <p>After the reset, the camera is immediately seeded with the current follow target so the new
- * level does not briefly start at the origin before the renderer computes the first camera step.
+ * <p>This system monitors level changes and resets the camera state whenever the current level
+ * switches. It also seeds the camera focus position based on the platform's camera settings.
+ * This system runs on the client side only.
  */
 public final class CameraLifecycleSystem extends System {
   private ILevel previousLevel;
 
+  /**
+   * Creates a new camera lifecycle system.
+   *
+   * <p>This system operates on the client side only.
+   */
   public CameraLifecycleSystem() {
     super(AuthoritativeSide.CLIENT);
   }
