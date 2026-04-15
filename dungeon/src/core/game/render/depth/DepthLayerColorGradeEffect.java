@@ -37,8 +37,13 @@ public final class DepthLayerColorGradeEffect
   private float transitionSize = 2.0f;
   private boolean enabled = true;
 
-  public DepthLayerColorGradeEffect() {}
-
+  /**
+   * Creates a new depth layer color grade effect with specified HSV parameters.
+   *
+   * @param hue the target hue value (0.0 to 1.0), or negative to keep original hue
+   * @param saturationMultiplier the saturation multiplier (0.0 or higher)
+   * @param valueMultiplier the brightness multiplier (0.0 or higher)
+   */
   public DepthLayerColorGradeEffect(
     float hue, float saturationMultiplier, float valueMultiplier) {
     hue(hue);
@@ -46,31 +51,60 @@ public final class DepthLayerColorGradeEffect
     valueMultiplier(valueMultiplier);
   }
 
+  /**
+   * Gets the hue override value.
+   *
+   * @return the hue value (0.0 to 1.0), or negative if hue override is disabled
+   */
   public float hue() {
     return hue;
   }
 
+  /**
+   * Sets the hue override value.
+   *
+   * @param hue the target hue (0.0 to 1.0), or negative to disable hue override
+   * @return this effect for method chaining
+   */
   public DepthLayerColorGradeEffect hue(float hue) {
     this.hue = hue < 0f ? -1.0f : normalizeHue(hue);
     return this;
   }
 
+  /**
+   * Gets the saturation multiplier.
+   *
+   * @return the saturation multiplier (0.0 or higher)
+   */
   public float saturationMultiplier() {
     return saturationMultiplier;
   }
 
-  public DepthLayerColorGradeEffect saturationMultiplier(float saturationMultiplier) {
+  /**
+   * Sets the saturation multiplier.
+   *
+   * @param saturationMultiplier the saturation multiplier (negative values are clamped to 0)
+   */
+  public void saturationMultiplier(float saturationMultiplier) {
     this.saturationMultiplier = Math.max(0f, saturationMultiplier);
-    return this;
   }
 
+  /**
+   * Gets the value (brightness) multiplier.
+   *
+   * @return the value multiplier (0.0 or higher)
+   */
   public float valueMultiplier() {
     return valueMultiplier;
   }
 
-  public DepthLayerColorGradeEffect valueMultiplier(float valueMultiplier) {
+  /**
+   * Sets the value (brightness) multiplier.
+   *
+   * @param valueMultiplier the value multiplier (negative values are clamped to 0)
+   */
+  public void valueMultiplier(float valueMultiplier) {
     this.valueMultiplier = Math.max(0f, valueMultiplier);
-    return this;
   }
 
   /**
