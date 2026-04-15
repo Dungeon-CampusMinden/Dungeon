@@ -5,32 +5,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Backend-neutral layout helper for crafting dialogs.
+ * A layout calculator for positioning items in the crafting dialog.
  *
- * <p>This class contains only geometry calculations for the crafting input row and the result row.
- * It does not depend on any rendering backend and can therefore be reused by libGDX and
- * LITIENGINE-based crafting UIs alike.
+ * <p>This class handles the calculation of slot positions and sizes for both crafting input items
+ * and result items within the crafting dialog bounds.
+ *
+ * <p>It provides methods to retrieve visible slots with their calculated positions and sizes.
  */
 public final class CraftingDialogLayout {
 
   private static final int ITEM_GAP = 10;
-
-  // X coordinate of the center of the input item row.
   private static final float INPUT_ITEMS_X = 0.5f;
-
-  // Y coordinate of the bottom edge of the input item row.
   private static final float INPUT_ITEMS_Y = 0.775f;
-
-  // The size is based on the height of the crafting GUI and items are always square.
   private static final float INPUT_ITEMS_MAX_SIZE = 0.2f;
-
-  // X coordinate of the center of the result item row.
   private static final float RESULT_ITEM_X = 0.5f;
-
-  // Y coordinate of the bottom edge of the result item row.
   private static final float RESULT_ITEM_Y = 0.219f;
-
-  // The size is based on the height of the crafting GUI and items are always square.
   private static final float RESULT_ITEM_MAX_SIZE = 0.1f;
 
   /**
@@ -120,13 +109,34 @@ public final class CraftingDialogLayout {
     return count * itemSize + (count + 1) * ITEM_GAP;
   }
 
-  /** Positioned visible crafting slot. */
+  /**
+   * Represents the bounds of a crafting input slot.
+   *
+   * @param slotIndex the inventory slot index
+   * @param x the x coordinate of the slot
+   * @param y the y coordinate of the slot
+   * @param size the size of the slot
+   */
   public record SlotBounds(int slotIndex, int x, int y, int size) {
+
+    /**
+     * Checks whether the given pixel coordinates are within this slot.
+     *
+     * @param px pixel x coordinate
+     * @param py pixel y coordinate
+     * @return true if the coordinates are within these slot bounds
+     */
     public boolean contains(int px, int py) {
       return px >= x && px <= x + size && py >= y && py <= y + size;
     }
   }
 
-  /** Positioned result item preview slot. */
+  /**
+   * Represents the bounds of a result item display.
+   *
+   * @param x the x coordinate of the item
+   * @param y the y coordinate of the item
+   * @param size the size of the item display
+   */
   public record ItemBounds(int x, int y, int size) {}
 }
