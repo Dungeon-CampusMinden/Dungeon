@@ -7,17 +7,43 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
 import core.Entity;
 import core.components.PlayerComponent;
+import core.ui.UiNodeHandle;
 import core.ui.overlay.OverlayUiNodeHandle;
 import core.utils.logging.DungeonLogger;
 
-/** Builds the LITIENGINE-backed crafting dialog. */
+/**
+ * A builder for creating crafting dialog UI nodes.
+ *
+ * <p>This utility class constructs UI node handles that display a crafting dialog overlay.
+ *
+ * <p>It validates that both the player entity and crafting entity have InventoryComponents,
+ * registers crafting callbacks with the UI component, and retrieves custom titles from
+ * the dialog context or generates defaults based on entity names.
+ */
 public final class CraftingDialogBuilder {
   private static final DungeonLogger LOGGER =
     DungeonLogger.getLogger(CraftingDialogBuilder.class);
 
   private CraftingDialogBuilder() {}
 
-  public static core.ui.UiNodeHandle build(DialogContext ctx) {
+  /**
+   * Builds a UI node handle for a crafting dialog overlay.
+   *
+   * <p>This method requires the dialog context to contain both a primary entity (player) and a
+   * secondary entity (crafting station). Both entities must have InventoryComponents.
+   *
+   * <p>The player entity must also have a UIComponent to register crafting callbacks.
+   *
+   * <p>It retrieves optional custom titles from the context or generates default titles based on
+   * player names or entity names.
+   *
+   * @param ctx the dialog context containing the player entity, crafting entity, and optional configuration
+   * @return a UI node handle wrapping the created crafting dialog overlay
+   * @throws DialogCreationException if either entity lacks an InventoryComponent, or if the player
+   *         entity lacks a UIComponent
+   * @throws IllegalArgumentException if required, entities are not present in the context
+   */
+  public static UiNodeHandle build(DialogContext ctx) {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
     Entity craftEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
 
