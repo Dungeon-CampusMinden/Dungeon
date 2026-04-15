@@ -2,22 +2,20 @@ package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
-import contrib.crafting.CraftingType;
 import contrib.crafting.Recipe;
 import contrib.hud.UIUtils;
 import contrib.item.Item;
 import core.utils.logging.DungeonLogger;
-import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Shared controller for crafting dialogs across different UI backends.
+ * A controller for managing crafting dialog logic and inventory transfers.
  *
- * <p>This class owns the backend-neutral crafting interaction logic: item transfer between target
- * and crafting inventory, recipe lookup, result projection, callback payload handling, and the
- * standard craft/cancel callback registration.
+ * <p>This record manages the interaction between target inventory (player) and crafting inventory
+ * during a crafting session.
  *
- * <p>Rendering remains backend-specific.
+ * <p>It provides methods for transferring items between inventories,
+ * resolving recipes, executing craft actions, and managing callbacks for crafting operations.
  */
 public record CraftingDialogController(InventoryComponent targetInventory, InventoryComponent craftingInventory) {
   private static final DungeonLogger LOGGER =
@@ -34,10 +32,20 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    */
   public CraftingDialogController {}
 
+  /**
+   * Gets the target inventory's item slots.
+   *
+   * @return array of items in the target inventory
+   */
   public Item[] targetSlots() {
     return targetInventory.items();
   }
 
+  /**
+   * Gets the crafting inventory's item slots.
+   *
+   * @return array of items in the crafting inventory
+   */
   public Item[] craftingSlots() {
     return craftingInventory.items();
   }
@@ -72,27 +80,6 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    */
   public Optional<Recipe> currentRecipe() {
     return CraftingDialogLogic.currentRecipe(craftingInventory);
-  }
-
-  /**
-   * Returns the currently craftable item results.
-   *
-   * <p>Non-item crafting results are intentionally ignored here because both the current GDX and
-   * LITIENGINE crafting UIs only preview item results visually.
-   *
-   * @return current craftable item results
-   */
-  public Item[] resultItems() {
-    return currentRecipe()
-      .map(
-        recipe ->
-          Arrays.stream(recipe.results())
-            .filter(
-              result ->
-                result.resultType() == CraftingType.ITEM && result instanceof Item)
-            .map(Item.class::cast)
-            .toArray(Item[]::new))
-      .orElse(new Item[0]);
   }
 
   /**
@@ -219,16 +206,31 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
 
     uiComponent.registerCallback(
       CALLBACK_CANCEL,
-      data -> {
+      _ -> {
         cancel();
         UIUtils.closeDialog(uiComponent);
       });
 
-    uiComponent.onClose(ui -> cancel());
+    uiComponent.onClose(_ -> cancel());
   }
 
   /**
-   * Dialog-local source side for transfers.
+   * Specifies the inventory side involved in a crafting operation.
+   *
+   * <p>This enum is used to differentiate between the target inventory and
+   * the crafting inventory in operations such as transferring items or
+   * executing crafting actions.
+   *
+   * <p>The two sides are:
+   * <ul>
+   *   <li>TARGET: Represents the target inventory which receives crafted items
+   *   and provides source items.</li>
+   *   <li>CRAFTING: Represents the crafting inventory which holds the items
+   *   used as crafting input.</li>
+   * </ul>
+   *
+   * <p>The {@code InventorySide} enum is central to the behavior of crafting
+   * dialogs and operations, enabling backend-neutral manipulation of inventories.
    */
   public enum InventorySide {
     TARGET,
