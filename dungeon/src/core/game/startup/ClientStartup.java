@@ -8,12 +8,11 @@ import core.utils.logging.DungeonLogger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Runs the one-time client startup sequence after the runtime host has initialized the platform.
+ * Handles client-side initialization and setup during game startup.
  *
- * <p>This step is intentionally separated from the concrete host runtime: host classes initialize
- * windowing, input, rendering, audio, and platform adapters; this class starts the actual dungeon
- * session by executing user setup, starting networking, loading recipes, and loading the initial
- * level.
+ * <p>This utility class manages the one-time initialization of the client, including
+ * user setup, networking startup, and initial level loading. All initialization
+ * is performed exactly once, even if the setup method is called multiple times.
  */
 public final class ClientStartup {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientStartup.class);
@@ -21,6 +20,20 @@ public final class ClientStartup {
 
   private ClientStartup() {}
 
+  /**
+   * Sets up the client and loads the initial level.
+   *
+   * <p>This method performs the following in order:
+   * <ul>
+   *   <li>1. Executes user setup (spawning hero and other initial entities)</li>
+   *   <li>2. Starts networking (might be a LocalNetworkHandler for Single Player)</li>
+   *   <li>3. Executes all configured client startup tasks</li>
+   *   <li>4. Loads the initial level</li>
+   *</ul>
+   *
+   * <p>Subsequent calls to this method will have no effect. If an exception occurs
+   * during setup, it is logged and re-thrown.
+   */
   public static void setupAndLoadInitialLevelOnce() {
     if (!DID_RUN.compareAndSet(false, true)) return;
 
