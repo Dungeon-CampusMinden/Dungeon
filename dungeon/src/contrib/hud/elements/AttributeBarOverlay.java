@@ -6,10 +6,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 /**
- * Simple LITIENGINE overlay for entity attribute bars.
+ * A UI overlay for rendering attribute bars (health, mana, stamina, etc.).
  *
- * <p>This overlay doubles as the backend-agnostic {@link AttributeBarHandle}, so
- * AttributeBarSystem can continue to update it without knowing the concrete UI backend.
+ * <p>This overlay displays a rounded rectangular bar with a fill representing the current value.
+ *
+ * <p>It supports customizable styling based on the attribute type (health bar, mana bar, stamina bar),
+ * positioning, sizing, and visibility. The fill color changes based on the style name.
  */
 public final class AttributeBarOverlay
   implements UiOverlay, AttributeBarHandle, AttributeBarHandleProvider {
@@ -26,6 +28,19 @@ public final class AttributeBarOverlay
   private boolean visible = true;
   private float value = 1f;
 
+  /**
+   * Creates a new attribute bar overlay with the specified style.
+   *
+   * <p>The style name determines the fill color of the bar:
+   * <ul>
+   *   <li>"healthbar" - red (health)</li>
+   *   <li>"manabar" - blue (mana)</li>
+   *   <li>"staminabar" - green (stamina)</li>
+   *   <li>default - gray</li>
+   * </ul>
+   *
+   * @param styleName the style name for determining the bar's appearance (might be null)
+   */
   public AttributeBarOverlay(String styleName) {
     this.styleName = styleName == null ? "" : styleName;
   }
