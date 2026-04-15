@@ -6,9 +6,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Remaps one hue range to another hue in the LITIENGINE Graphics2D render path.
+ * A sprite effect that remaps hue values in an image.
  *
- * <p>Hue values are normalized to {@code [0, 1]}.
+ * <p>This effect allows you to change the color of pixels within a specified hue range to a target hue.
+ * It uses HSB (Hue, Saturation, Brightness) color space to identify and transform colors based on
+ * hue values. The effect includes a tolerance parameter to allow matching of colors close to the
+ * starting hue.
+ *
+ * <p>Results are cached to improve performance for repeated applications of the same effect to the
+ * same image.
  */
 public final class HueRemapSpriteEffect implements SpriteEffect {
 
@@ -19,43 +25,95 @@ public final class HueRemapSpriteEffect implements SpriteEffect {
   private float tolerance;
   private boolean enabled = true;
 
+  /**
+   * Creates a new HueRemapSpriteEffect with the specified hue remapping parameters.
+   *
+   * @param startingHue the hue value to match (0.0 to 1.0)
+   * @param targetHue the hue value to remap to (0.0 to 1.0)
+   * @param tolerance the acceptable distance from the starting hue (0.0 to 1.0)
+   */
   public HueRemapSpriteEffect(float startingHue, float targetHue, float tolerance) {
     this.startingHue = normalizeHue(startingHue);
     this.targetHue = normalizeHue(targetHue);
     this.tolerance = clamp01(tolerance);
   }
 
+  /**
+   * Creates a new HueRemapSpriteEffect with a default tolerance of 0.05.
+   *
+   * @param startingHue the hue value to match (0.0 to 1.0)
+   * @param targetHue the hue value to remap to (0.0 to 1.0)
+   */
   public HueRemapSpriteEffect(float startingHue, float targetHue) {
     this(startingHue, targetHue, 0.05f);
   }
 
+  /**
+   * Gets the starting hue value to match.
+   *
+   * @return the starting hue (0.0 to 1.0)
+   */
   public float startingHue() {
     return startingHue;
   }
 
+  /**
+   * Sets the starting hue value to match.
+   *
+   * @param startingHue the hue value to match (0.0 to 1.0)
+   * @return this effect for method chaining
+   */
   public HueRemapSpriteEffect startingHue(float startingHue) {
     this.startingHue = normalizeHue(startingHue);
     return this;
   }
 
+  /**
+   * Gets the target hue value to remap to.
+   *
+   * @return the target hue (0.0 to 1.0)
+   */
   public float targetHue() {
     return targetHue;
   }
 
+  /**
+   * Sets the target hue value to remap to.
+   *
+   * @param targetHue the hue value to remap to (0.0 to 1.0)
+   * @return this effect for method chaining
+   */
   public HueRemapSpriteEffect targetHue(float targetHue) {
     this.targetHue = normalizeHue(targetHue);
     return this;
   }
 
+  /**
+   * Gets the tolerance value for hue matching.
+   *
+   * @return the tolerance (0.0 to 1.0)
+   */
   public float tolerance() {
     return tolerance;
   }
 
+  /**
+   * Sets the tolerance value for hue matching.
+   *
+   * @param tolerance the acceptable distance from the starting hue (0.0 to 1.0)
+   * @return this effect for method chaining
+   */
   public HueRemapSpriteEffect tolerance(float tolerance) {
     this.tolerance = clamp01(tolerance);
     return this;
   }
 
+  /**
+   * Sets whether this effect is enabled.
+   *
+   * @param enabled true to enable the effect, false to disable it
+   * @return this effect for method chaining
+   */
   public HueRemapSpriteEffect enabled(boolean enabled) {
     this.enabled = enabled;
     return this;
