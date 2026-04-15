@@ -4,14 +4,25 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * Global access point for backend-specific interaction selection UIs.
+ * Provides a static API for managing and displaying an interaction selection UI.
  *
- * <p>The active backend installs its implementation during bootstrap.
+ * <p>This class serves as a centralized abstraction for managing backend-specific implementations
+ * of interaction selection UIs. It allows the gameplay layer to trigger interaction selection
+ * without being tied to a specific UI technology or framework.
+ *
+ * <p>The {@code InteractionSelection} class maintains a single backend implementation that must be
+ * installed using the {@link #install(InteractionSelectionUi)} method. Once installed, the
+ * {@link #show(IInteractable, Consumer)} method can be used to display the interaction chooser and
+ * handle user selections.
+ *
+ * <p>If no backend is installed and the {@code show} method is called, an exception will be thrown.
+ *
+ * <p>This class is utility-based and is not meant to be instantiated.
  */
 public final class InteractionSelection {
 
   private static final InteractionSelectionUi UNSUPPORTED =
-    (interactable, onSelected) -> {
+    (_, _) -> {
       throw new IllegalStateException("No InteractionSelectionUi installed.");
     };
 
@@ -32,7 +43,7 @@ public final class InteractionSelection {
    * Shows the interaction chooser using the currently installed backend implementation.
    *
    * @param interactable source of selectable interactions
-   * @param onSelected callback invoked with the chosen interaction, or {@code null} if cancelled
+   * @param onSelected callback invoked with the chosen interaction, or {@code null} if canceled
    */
   public static void show(IInteractable interactable, Consumer<Interaction> onSelected) {
     current.show(
