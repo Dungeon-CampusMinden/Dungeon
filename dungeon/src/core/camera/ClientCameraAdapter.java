@@ -10,7 +10,15 @@ import core.platform.Platform;
 import core.utils.Point;
 import java.util.Optional;
 
-/** Camera adapter for the LITIENGINE backend. */
+/**
+ * The ClientCameraAdapter class is an implementation of the CameraAdapter interface.
+ *
+ * <p>It provides support for various camera operations such as zooming, focusing,
+ * following targets, and determining viewport metrics.
+ *
+ * <p>This adapter interacts with the game's camera state and relevant components
+ * to calculate and manage the camera's behavior based on the current game context.
+ */
 public final class ClientCameraAdapter implements CameraAdapter {
 
   @Override
