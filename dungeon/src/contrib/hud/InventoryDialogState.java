@@ -5,10 +5,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Engine-neutral state holder for player inventory dialogs.
+ * Utility class for managing and tracking the state of a player's inventory dialog.
  *
- * <p>This replaces the old static inventory-open tracking that previously lived inside the
- * libGDX-specific InventoryGUI class.
+ * <p>This class provides methods to determine if the dialog is open, update its state,
+ * and clear the stored state for a specific player.
+ *
+ * <p>The state is identified and stored using a mapping of player IDs to their dialog
+ * open status.
+ *
+ * <p>This class is thread-safe.
  */
 public final class InventoryDialogState {
   private static final Map<Integer, Boolean> OPEN_BY_PLAYER_ID = new ConcurrentHashMap<>();
