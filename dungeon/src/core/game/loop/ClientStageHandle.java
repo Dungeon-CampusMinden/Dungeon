@@ -7,11 +7,15 @@ import java.awt.geom.Point2D;
 import java.util.Optional;
 
 /**
- * LITIENGINE-backed {@link StageHandle}.
+ * A client-specific implementation of the {@link StageHandle} interface for managing and interacting
+ * with a UI stage in the context of the client-side environment.
  *
- * <p>At the current migration stage, LITIENGINE dialogs are rendered as custom screen overlays
- * instead of a widget tree comparable to libGDX Scene2D. This handle still exposes the stage-like
- * information that the engine-agnostic HUD lifecycle expects.
+ * <p>This implementation provides an abstraction layer over client-specific UI stage management,
+ * offering features such as retrieving stage dimensions, querying mouse input, and interacting with
+ * the underlying UI stage object.
+ *
+ * <p>Note: Certain operations, such as adding actors or setting keyboard focus, are no-ops
+ * in this implementation and are not supported.
  */
 public final class ClientStageHandle implements StageHandle {
 
@@ -46,13 +50,12 @@ public final class ClientStageHandle implements StageHandle {
 
   @Override
   public void addActor(Object actor) {
-    // no-op for now:
-    // LITIENGINE dialog overlays are rendered through EcsRenderScreen, not a Stage widget tree.
+    // no-op
   }
 
   @Override
   public void setKeyboardFocus(Object actor) {
-    // no-op for now
+    // no-op
   }
 
   @Override
