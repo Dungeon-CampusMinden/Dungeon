@@ -1,10 +1,15 @@
 package core.game.render.level;
 
 /**
- * World-space metadata for one rendered LITIENGINE level-pass buffer.
+ * Represents contextual metadata related to the rendering or processing of a level's visible tiled region.
  *
- * @param minTileX world x coordinate of the left-most visible tile in the buffer
- * @param maxTileY world y coordinate of the top-most visible tile in the buffer
- * @param tilePx number of pixels per world tile inside the buffer
+ * <ul>
+ *   <li>{@code minTileX}: The minimum X-coordinate of the visible tile space.</li>
+ *   <li>{@code maxTileY}: The maximum Y-coordinate of the visible tile space.</li>
+ *   <li>{@code tilePx}: The pixel size of a single tile, used for scaling or transformations.</li>
+ * </ul>
+ *
+ * <p>Instances of this class are immutable and are frequently used to pass relevant data
+ * when applying post-processing effects to the level layer or for other rendering-related purposes.
  */
 public record LevelPassContext(int minTileX, int maxTileY, int tilePx) {}
