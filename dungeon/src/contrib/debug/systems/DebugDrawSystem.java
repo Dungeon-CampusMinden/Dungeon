@@ -16,18 +16,13 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Minimal free-form debug draw layer for the LITIENGINE backend.
+ * A system for rendering debug visualization primitives.
  *
- * <p>This system is intentionally lightweight. It allows backend-local code such as the
- * LITIENGINE level editor to enqueue temporary overlay primitives for the current frame:
+ * <p>This system manages queues of debug draw calls (rectangles, lines, circles, text, markers)
+ * in both world-space and screen-space coordinates.
  *
- * <ul>
- *   <li>world-space rectangle outlines
- *   <li>screen-space text
- * </ul>
- *
- * <p>The actual gameplay/world rendering remains the responsibility of the regular
- * LITIENGINE sprite renderer.
+ * <p>It provides static methods to queue draw calls that are rendered each frame if the debug HUD is visible.
+ * All queued calls are cleared after rendering.
  */
 public final class DebugDrawSystem extends System {
 
@@ -61,7 +56,12 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    if (!hudVisible) {
+    boolean hudIsVisible;
+    synchronized (LOCK) {
+      hudIsVisible = hudVisible;
+    }
+
+    if (!hudIsVisible) {
       clearQueuedDrawCalls();
       return;
     }
@@ -91,15 +91,32 @@ public final class DebugDrawSystem extends System {
     renderQueuedDrawCalls(base, rectangles, fills, texts, markers);
   }
 
+  /**
+   * Toggles the visibility of the debug HUD.
+   *
+   * <p>When toggled off, all queued draw calls are cleared.
+   */
   public static void toggleHUD() {
-    hudVisible = !hudVisible;
+    synchronized (LOCK) {
+      hudVisible = !hudVisible;
+    }
     clearQueuedDrawCalls();
   }
 
+  /**
+   * Checks whether the debug HUD is currently visible.
+   *
+   * @return true if the debug HUD is visible, false otherwise
+   */
   public static boolean isHudVisible() {
-    return hudVisible;
+    synchronized (LOCK) {
+      return hudVisible;
+    }
   }
 
+  /**
+   * Clears all queued debug draw calls.
+   */
   public static void clearQueuedDrawCalls() {
     synchronized (LOCK) {
       WORLD_RECTANGLES.clear();
@@ -112,8 +129,8 @@ public final class DebugDrawSystem extends System {
   /**
    * Queues a world-space rectangle outline for the current frame.
    *
-   * @param x world x of bottom-left corner
-   * @param y world y of bottom-left corner
+   * @param x world x of a bottom-left corner
+   * @param y world y of a bottom-left corner
    * @param width world width
    * @param height world height
    * @param color outline color
@@ -147,17 +164,13 @@ public final class DebugDrawSystem extends System {
     }
   }
 
-  public static void drawText(String text, Point screen) {
-    drawText(text, screen, Color.WHITE);
-  }
-
   /**
    * Queues a filled screen-space marker circle for the current frame.
    *
    * @param center center position in screen pixels
    * @param diameterPx marker diameter in pixels
    * @param fillColor fill color, may be null
-   * @param outlineColor outline color, may be null
+   * @param outlineColor outline color may be null
    */
   public static void drawScreenMarker(
     Point center, int diameterPx, Color fillColor, Color outlineColor) {
@@ -192,21 +205,10 @@ public final class DebugDrawSystem extends System {
     int tilePx = view.tilePx();
 
     for (WorldRectangle rectangle : rectangles) {
-      int screenX = (int) Math.round(view.offsetX() + rectangle.x() * tilePx);
-
-      int screenY =
-        levelHeight > 0
-          ? (int)
-          Math.round(
-            view.offsetY()
-            + (levelHeight - rectangle.y() - rectangle.height()) * tilePx)
-          : (int) Math.round(view.offsetY() + rectangle.y() * tilePx);
-
-      int screenWidth = Math.max(1, Math.round(rectangle.width() * tilePx));
-      int screenHeight = Math.max(1, Math.round(rectangle.height() * tilePx));
-
-      g.setColor(rectangle.color());
-      g.drawRect(screenX, screenY, screenWidth, screenHeight);
+      renderWorldRect(
+        g, view, levelHeight, tilePx,
+        rectangle.x(), rectangle.y(), rectangle.width(), rectangle.height(),
+        rectangle.color(), false);
     }
   }
 
@@ -262,20 +264,40 @@ public final class DebugDrawSystem extends System {
     int tilePx = view.tilePx();
 
     for (WorldFill fill : fills) {
-      int screenX = (int) Math.round(view.offsetX() + fill.x() * tilePx);
+      renderWorldRect(
+        g, view, levelHeight, tilePx,
+        fill.x(), fill.y(), fill.width(), fill.height(),
+        fill.color(), true);
+    }
+  }
 
-      int screenY =
-        levelHeight > 0
-          ? (int)
-          Math.round(
-            view.offsetY() + (levelHeight - fill.y() - fill.height()) * tilePx)
-          : (int) Math.round(view.offsetY() + fill.y() * tilePx);
+  private static void renderWorldRect(
+    Graphics2D g,
+    CameraViewportState.Viewport view,
+    int levelHeight,
+    int tilePx,
+    float x,
+    float y,
+    float width,
+    float height,
+    Color color,
+    boolean fill) {
 
-      int screenWidth = Math.max(1, Math.round(fill.width() * tilePx));
-      int screenHeight = Math.max(1, Math.round(fill.height() * tilePx));
+    int screenX = (int) Math.round(view.offsetX() + x * tilePx);
 
-      g.setColor(fill.color());
+    int screenY =
+      levelHeight > 0
+        ? (int) Math.round(view.offsetY() + (levelHeight - y - height) * tilePx)
+        : (int) Math.round(view.offsetY() + y * tilePx);
+
+    int screenWidth = Math.max(1, Math.round(width * tilePx));
+    int screenHeight = Math.max(1, Math.round(height * tilePx));
+
+    g.setColor(color);
+    if (fill) {
       g.fillRect(screenX, screenY, screenWidth, screenHeight);
+    } else {
+      g.drawRect(screenX, screenY, screenWidth, screenHeight);
     }
   }
 
@@ -335,11 +357,13 @@ public final class DebugDrawSystem extends System {
     SCREEN_RECTANGLES.clear();
 
     for (ScreenRectangle rect : rectangles) {
+      int roundX = Math.round(rect.topLeft().x());
+      int roundY = Math.round(rect.topLeft().y());
       if (rect.fill() != null) {
         g.setColor(rect.fill());
         g.fillRect(
-          Math.round(rect.topLeft().x()),
-          Math.round(rect.topLeft().y()),
+          roundX,
+          roundY,
           rect.width(),
           rect.height());
       }
@@ -347,8 +371,8 @@ public final class DebugDrawSystem extends System {
       if (rect.outline() != null) {
         g.setColor(rect.outline());
         g.drawRect(
-          Math.round(rect.topLeft().x()),
-          Math.round(rect.topLeft().y()),
+          roundX,
+          roundY,
           rect.width(),
           rect.height());
       }
@@ -392,8 +416,8 @@ public final class DebugDrawSystem extends System {
   /**
    * Queues a filled world-space rectangle for the current frame.
    *
-   * @param x world x of bottom-left corner
-   * @param y world y of bottom-left corner
+   * @param x world x of a bottom-left corner
+   * @param y world y of a bottom-left corner
    * @param width world width
    * @param height world height
    * @param color fill color
@@ -410,23 +434,53 @@ public final class DebugDrawSystem extends System {
     }
   }
 
+  /**
+   * Queues a world-space line for the current frame.
+   *
+   * @param from start position in world coordinates
+   * @param to end position in world coordinates
+   * @param color line color
+   */
   public static void drawWorldLine(Point from, Point to, Color color) {
     if (from == null || to == null || color == null) return;
     WORLD_LINES.add(new WorldLine(from, to, color));
   }
 
+  /**
+   * Queues a world-space circle outline for the current frame.
+   *
+   * @param center center position in world coordinates
+   * @param radius circle radius in world units
+   * @param color outline color
+   */
   public static void drawWorldCircleOutline(
     Point center, float radius, Color color) {
     if (center == null || color == null || radius <= 0f) return;
     WORLD_CIRCLE_OUTLINES.add(new WorldCircleOutline(center, radius, color));
   }
 
+  /**
+   * Queues a filled world-space circle for the current frame.
+   *
+   * @param center center position in world coordinates
+   * @param radius circle radius in world units
+   * @param color fill color
+   */
   public static void drawWorldCircleFill(
     Point center, float radius, Color color) {
     if (center == null || color == null || radius <= 0f) return;
     WORLD_CIRCLE_FILLS.add(new WorldCircleFill(center, radius, color));
   }
 
+  /**
+   * Queues a filled screen-space rectangle for the current frame.
+   *
+   * @param topLeft top-left corner in screen pixels
+   * @param width rectangle width in pixels
+   * @param height rectangle height in pixels
+   * @param fill fill color, may be null for no fill
+   * @param outline outline color may be null for no outline
+   */
   public static void drawScreenRectangle(
     Point topLeft, int width, int height, Color fill, Color outline) {
     if (topLeft == null || width <= 0 || height <= 0) return;
