@@ -50,8 +50,6 @@ final class InventoryDialogOverlay
   private static final int DRAG_THRESHOLD_PX = 8;
   private static final int DRAG_PREVIEW_OFFSET_X = 14;
   private static final int DRAG_PREVIEW_OFFSET_Y = 18;
-  private static final int DRAG_PREVIEW_PADDING_X = 10;
-  private static final int DRAG_PREVIEW_PADDING_Y = 7;
   private static final int DRAG_TARGET_INSET = 3;
   private static final int DRAG_TARGET_ARC = 8;
 
@@ -90,6 +88,16 @@ final class InventoryDialogOverlay
     }
 
     Item[] slots = inventory.items();
+    Item[] visibleSlots = slots;
+
+    if (dragState != null) {
+      visibleSlots = slots.clone();
+      int sourceSlot = dragState.sourceSlot();
+      if (sourceSlot >= 0 && sourceSlot < visibleSlots.length) {
+        visibleSlots[sourceSlot] = null;
+      }
+    }
+
     int columns = InventoryGridRenderer.columnsFor(slots);
     int rows = InventoryGridRenderer.rowsFor(slots, columns);
 
@@ -140,9 +148,9 @@ final class InventoryDialogOverlay
         panelBounds.width,
         panelBounds.height);
 
-      grid = new GridLayout(startX, gridTop, columns, slots);
+      grid = new GridLayout(startX, gridTop, columns, visibleSlots);
 
-      InventoryGridRenderer.drawGrid(g, slots, startX, gridTop, columns);
+      InventoryGridRenderer.drawGrid(g, visibleSlots, startX, gridTop, columns);
 
       if (dragState != null) {
         Integer hoveredTargetSlotIndex = hoveredDropTargetSlotIndex(grid);
@@ -158,6 +166,18 @@ final class InventoryDialogOverlay
     }
 
     handleInput(grid);
+  }
+
+  private void drawDragPreview(Graphics2D g) {
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null || dragState == null || dragState.item() == null) {
+      return;
+    }
+
+    int previewX = stage.mouseX() + DRAG_PREVIEW_OFFSET_X;
+    int previewY = stage.mouseY() + DRAG_PREVIEW_OFFSET_Y;
+
+    InventoryGridRenderer.drawItemPreview(g, previewX, previewY, dragState.item());
   }
 
   private void drawHoverTooltip(Graphics2D g, GridLayout grid) {
@@ -376,50 +396,12 @@ final class InventoryDialogOverlay
     return (-slot) - 1;
   }
 
-  private void drawDragPreview(Graphics2D g) {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null || dragState == null) {
-      return;
-    }
-
-    int previewX = stage.mouseX() + DRAG_PREVIEW_OFFSET_X;
-    int previewY = stage.mouseY() + DRAG_PREVIEW_OFFSET_Y;
-
-    String label = dragLabel(dragState.item());
-    int textWidth = g.getFontMetrics().stringWidth(label);
-    int textHeight = g.getFontMetrics().getAscent();
-
-    int boxWidth = textWidth + 2 * DRAG_PREVIEW_PADDING_X;
-    int boxHeight = textHeight + 2 * DRAG_PREVIEW_PADDING_Y;
-
-    g.setColor(new Color(255, 255, 255, 235));
-    g.fillRect(previewX, previewY, boxWidth, boxHeight);
-
-    g.setColor(new Color(0x9dc1ebff, true));
-    g.drawRect(previewX, previewY, boxWidth, boxHeight);
-
-    g.setColor(Color.BLACK);
-    g.drawString(
-      label,
-      previewX + DRAG_PREVIEW_PADDING_X,
-      previewY + DRAG_PREVIEW_PADDING_Y + textHeight - 2);
-  }
-
   private void drawPanelBackground(Graphics2D g, int x, int y, int width, int height) {
     g.setColor(new Color(62, 62, 99, 96));
     g.fillRect(x, y, width, height);
 
     g.setColor(new Color(0x9dc1ebff, true));
     g.drawRect(x, y, width, height);
-  }
-
-  private String dragLabel(Item item) {
-    if (item == null) {
-      return "";
-    }
-
-    String baseLabel = ItemTooltipRenderer.displayName(item);
-    return item.stackSize() > 1 ? baseLabel + " x" + item.stackSize() : baseLabel;
   }
 
   private void resetInteractionState() {
