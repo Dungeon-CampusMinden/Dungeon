@@ -1,6 +1,5 @@
 package contrib.hud.overlays;
 
-import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.render.AnimationFrameImages;
 import java.awt.Color;
@@ -11,10 +10,12 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 /**
- * Shared visual renderer for inventory slot grids in LITIENGINE overlays.
+ * A utility class for rendering inventory grids with items.
  *
- * <p>This renderer intentionally mimics the legacy libGDX inventory styling more closely while
- * keeping the current LITIENGINE overlay architecture.
+ * <p>This class provides static methods to render and manage a grid-based inventory display,
+ * including slot calculations, item rendering, stack indicators, and mouse interaction support.
+ *
+ * <p>It handles item icons, stack sizes, and provides visual feedback for empty and filled slots.
  */
 public final class InventoryGridRenderer {
 
@@ -22,13 +23,11 @@ public final class InventoryGridRenderer {
   public static final int SLOT_WIDTH = 78;
   public static final int SLOT_HEIGHT = 78;
   public static final int SLOT_GAP = 8;
-  public static final int INFO_LINE_GAP = 18;
   public static final int GRID_TOP_GAP = 12;
 
   private static final int ITEM_ICON_PADDING = 8;
   private static final int STACK_PADDING = 5;
 
-  private static final Color INFO_COLOR = Color.WHITE;
   private static final Color SLOT_FILL = new Color(62, 62, 99, 185);
   private static final Color EMPTY_SLOT_FILL = new Color(46, 46, 74, 150);
   private static final Color SLOT_BORDER = new Color(0x9dc1ebff, true);
@@ -37,31 +36,56 @@ public final class InventoryGridRenderer {
 
   private InventoryGridRenderer() {}
 
+  /**
+   * Calculates the optimal number of columns for displaying the given slots.
+   *
+   * @param slots the inventory slots to arrange
+   * @return the number of columns (between 1 and MAX_COLUMNS)
+   */
   public static int columnsFor(Item[] slots) {
     return Math.clamp(slots.length, 1, MAX_COLUMNS);
   }
 
+  /**
+   * Calculates the number of rows needed to display the given slots.
+   *
+   * @param slots the inventory slots to arrange
+   * @param columns the number of columns per row
+   * @return the number of rows (at least 1)
+   */
   public static int rowsFor(Item[] slots, int columns) {
     return Math.max(1, (Math.max(1, slots.length) + columns - 1) / columns);
   }
 
+  /**
+   * Calculates the total width of a grid with the specified number of columns.
+   *
+   * @param columns the number of columns
+   * @return the total width in pixels
+   */
   public static int gridWidth(int columns) {
     return columns * SLOT_WIDTH + Math.max(0, columns - 1) * SLOT_GAP;
   }
 
+  /**
+   * Calculates the total height of a grid with the specified number of rows.
+   *
+   * @param rows the number of rows
+   * @return the total height in pixels
+   */
   public static int gridHeight(int rows) {
     return rows * SLOT_HEIGHT + Math.max(0, rows - 1) * SLOT_GAP;
   }
 
-  public static void drawInventoryInfo(
-    Graphics2D g, InventoryComponent inventory, Item[] slots, int x, int y) {
-    g.setColor(INFO_COLOR);
-    g.drawString(
-      inventory.count() + " / " + slots.length + " slots used",
-      x,
-      y + g.getFontMetrics().getAscent());
-  }
-
+  /**
+   * Draws the complete inventory grid with all slots and items.
+   *
+   * @param g the Graphics2D object to draw with
+   * @param slots the inventory slots to render
+   * @param startX the x coordinate of the grid's top-left corner
+   * @param startY the y coordinate of the grid's top-left corner
+   * @param columns the number of columns in the grid
+   */
   public static void drawGrid(Graphics2D g, Item[] slots, int startX, int startY, int columns) {
     for (int i = 0; i < slots.length; i++) {
       Rectangle bounds = slotBounds(i, startX, startY, columns);
@@ -69,6 +93,15 @@ public final class InventoryGridRenderer {
     }
   }
 
+  /**
+   * Calculates the rectangular bounds of a specific slot in the grid.
+   *
+   * @param index the slot index
+   * @param startX the x coordinate of the grid's top-left corner
+   * @param startY the y coordinate of the grid's top-left corner
+   * @param columns the number of columns in the grid
+   * @return a Rectangle representing the slot's bounds
+   */
   public static Rectangle slotBounds(int index, int startX, int startY, int columns) {
     int col = index % columns;
     int row = index / columns;
@@ -80,6 +113,17 @@ public final class InventoryGridRenderer {
       SLOT_HEIGHT);
   }
 
+  /**
+   * Finds the inventory slot index at the specified mouse coordinates.
+   *
+   * @param mouseX the mouse x coordinate
+   * @param mouseY the mouse y coordinate
+   * @param slots the inventory slots array
+   * @param startX the x coordinate of the grid's top-left corner
+   * @param startY the y coordinate of the grid's top-left corner
+   * @param columns the number of columns in the grid
+   * @return the slot index if a slot is found at the coordinates, otherwise -1
+   */
   public static int findSlotIndexAt(
     int mouseX, int mouseY, Item[] slots, int startX, int startY, int columns) {
     for (int i = 0; i < slots.length; i++) {
