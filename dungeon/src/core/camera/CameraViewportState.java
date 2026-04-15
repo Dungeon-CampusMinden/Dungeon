@@ -15,18 +15,46 @@ public final class CameraViewportState {
 
   private CameraViewportState() {}
 
+  /**
+   * Represents the shared viewport/projection state for camera rendering.
+   *
+   * @param offsetX screen offset for X coordinate in pixels
+   * @param offsetY screen offset for Y coordinate in pixels
+   * @param levelHeight height of the current level in tiles
+   * @param tilePx size of a tile in pixels
+   */
   public record Viewport(double offsetX, double offsetY, int levelHeight, int tilePx) {}
 
   private static volatile Viewport CURRENT = DEFAULT_VIEWPORT;
 
+  /**
+   * Gets the current viewport state.
+   *
+   * @return the current viewport configuration
+   */
   public static Viewport get() {
     return CURRENT;
   }
 
+  /**
+   * Sets the current viewport state.
+   *
+   * @param offsetX screen offset for X coordinate in pixels
+   * @param offsetY screen offset for Y coordinate in pixels
+   * @param levelHeight height of the current level in tiles
+   * @param tilePx size of a tile in pixels
+   */
   public static void set(double offsetX, double offsetY, int levelHeight, int tilePx) {
     CURRENT = new Viewport(offsetX, offsetY, levelHeight, tilePx);
   }
 
+  /**
+   * Gets the current active viewport if it is valid.
+   *
+   * <p>A viewport is considered valid if it has been set and has a positive tile pixel size.
+   *
+   * @return an Optional containing the current viewport if valid, otherwise empty
+   */
   public static Optional<Viewport> activeViewport() {
     Viewport viewport = get();
     if (viewport == null || viewport.tilePx() <= 0) {
