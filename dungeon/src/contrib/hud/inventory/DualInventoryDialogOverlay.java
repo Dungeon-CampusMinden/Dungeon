@@ -16,13 +16,21 @@ import java.awt.*;
 import java.util.stream.Stream;
 
 /**
- * Dual-inventory overlay for the LITIENGINE backend.
+ * A UI overlay that provides a dual inventory dialog for managing two inventory parts simultaneously.
  *
- * <p>This version keeps the existing click-based transfer and additionally supports drag-based
- * item movement between both inventories.
+ * <p>The DualInventoryDialogOverlay class enables users to interact with two inventory panels,
+ * allowing item transfer between them and providing intuitive drag-and-drop functionality.
  *
- * <p>Dragging an item onto a concrete slot on the opposite side performs an exact slot-to-slot
- * transfer.
+ * <p>The overlay includes support for rendering panel backgrounds, handling input operations,
+ * and drawing UI elements like tooltips, drag previews, and drop target highlights.
+ *
+ * <p>Key Features:
+ * <ul>
+ *   <li>Two separate inventory panels with customizable titles.</li>
+ *   <li>Drag-and-drop functionality with labeled previews and defined drag thresholds.</li>
+ *   <li>Visual and interactive feedback for item transfers, including highlights and hover tooltips.</li>
+ *   <li>Ability to manage UI state such as visibility, dimensions, and interaction states.</li>
+ * </ul>
  */
 final class DualInventoryDialogOverlay
   implements UiOverlay, InventoryComponentProvider {
@@ -429,15 +437,6 @@ final class DualInventoryDialogOverlay
 
     g.setColor(new Color(0x9dc1ebff, true));
     g.drawRect(x, y, width, height);
-  }
-
-  private void drawPanelTitle(
-    Graphics2D g, String title, int panelStartX, int panelWidth, int baselineY) {
-    FontMetrics fm = g.getFontMetrics();
-    int textX = panelStartX + (panelWidth - fm.stringWidth(title)) / 2;
-
-    g.setColor(Color.WHITE);
-    g.drawString(title, textX, baselineY);
   }
 
   @Override
