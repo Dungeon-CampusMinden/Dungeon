@@ -58,7 +58,7 @@ public final class DrawComponent implements Component, Serializable {
   /**
    * Create a new DrawComponent.
    *
-   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   * @param path Path to the image in the assets' folder. If the path leads to a folder, it will be
    *     assumed that the target image file is within that folder with the same name as the folder
    *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
    * @param config The animation config to use
@@ -77,7 +77,7 @@ public final class DrawComponent implements Component, Serializable {
   /**
    * Create a new DrawComponent from a spritesheet configuration.
    *
-   * @param path Path to the spritesheet in the assets folder.
+   * @param path Path to the spritesheet in the assets' folder.
    * @param config The spritesheet configuration to use.
    * @see SpritesheetConfig
    */
@@ -88,7 +88,7 @@ public final class DrawComponent implements Component, Serializable {
   /**
    * Create a new DrawComponent with a default {@link AnimationConfig}.
    *
-   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   * @param path Path to the image in the assets' folder. If the path leads to a folder, it will be
    *     assumed that the target image file is within that folder with the same name as the folder
    *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
    * @see AnimationConfig
@@ -100,7 +100,7 @@ public final class DrawComponent implements Component, Serializable {
   /**
    * Create a new DrawComponent with a default {@link AnimationConfig}.
    *
-   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   * @param path Path to the image in the assets' folder. If the path leads to a folder, it will be
    *     assumed that the target image file is within that folder with the same name as the folder
    *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
    * @param defaultStateName Name of the state to be used as default
@@ -373,22 +373,49 @@ public final class DrawComponent implements Component, Serializable {
     return Vector2.of(getWidth(), getHeight());
   }
 
+  /**
+   * Retrieve the current animation frame of this component.
+   *
+   * @return The current {@link AnimationFrame} from the state machine.
+   */
   public AnimationFrame getFrame() {
     return stateMachine.getFrame();
   }
 
+  /**
+   * Checks whether a state with the given name exists within the state machine.
+   *
+   * @param name The name of the state to check for.
+   * @return true if a state with the specified name exists, false otherwise.
+   */
   public boolean hasState(String name) {
     return stateMachine.states().stream().anyMatch(s -> s.name.equals(name));
   }
 
+  /**
+   * Retrieves the state with the specified name from the state machine.
+   *
+   * @param name the name of the state to be retrieved
+   * @return an Optional containing the state if found, or an empty Optional if no state matches the specified name
+   */
   public Optional<State> getState(String name) {
     return stateMachine.states().stream().filter(s -> s.name.equals(name)).findFirst();
   }
 
+  /**
+   * Sets the visibility state of the object.
+   *
+   * @param visible a boolean value where true sets the object to visible, and false sets it to not visible
+   */
   public void isVisible(boolean visible) {
     this.isVisible = visible;
   }
 
+  /**
+   * Retrieves the current tint color value.
+   *
+   * @return The integer value representing the tint color.
+   */
   public int tintColor() {
     return tintColor;
   }
