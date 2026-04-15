@@ -21,10 +21,32 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * Simple LITIENGINE overlay for selecting one interaction out of several options.
+ * Represents a UI overlay that displays a panel for selecting an interaction.
+ * This overlay is rendered on top of the game screen, providing a list of available
+ * interactions and a cancel option.
  *
- * <p>This intentionally mirrors the semantics of the old RingMenu, but uses the existing
- * LITIENGINE overlay infrastructure instead of scene2d.
+ * <p>The selection is handled via mouse clicks,
+ * and the panel can be closed by either selecting an interaction or clicking outside the panel.
+ *
+ * <p>The panel is centered within the game window and styled with specific visual
+ * elements such as rounded corners and hover effects.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Dynamically adjusts its height based on the number of interactions.</li>
+ *   <li>Handles user input (mouse clicks) to select an interaction or cancel the selection.</li>
+ *   <li>Supports smooth integration with the game's UI system.</li>
+ *</ul>
+ *
+ * <p>The overlay becomes inactive (hidden) after a selection is made or canceled.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Renders the interaction selection panel with styled buttons.</li>
+ *   <li>Detects user input for interaction selection or cancellation.</li>
+ *   <li>Notifies a consumer callback upon selection or cancellation.</li>
+ *   <li>Manages panel visibility and position properties.</li>
+ * </ul>
  */
 final class InteractionSelectionOverlay implements UiOverlay {
 
@@ -142,14 +164,14 @@ final class InteractionSelectionOverlay implements UiOverlay {
       for (int i = 0; i < interactions.size(); i++) {
         if (interactionBounds(i).contains(mouseX, mouseY)) {
           close(interactions.get(i));
-          leftButtonDownLastFrame = leftButtonDown;
+          leftButtonDownLastFrame = true;
           return;
         }
       }
 
       if (cancelBounds().contains(mouseX, mouseY) || !panelBounds().contains(mouseX, mouseY)) {
         close(null);
-        leftButtonDownLastFrame = leftButtonDown;
+        leftButtonDownLastFrame = true;
         return;
       }
     }
