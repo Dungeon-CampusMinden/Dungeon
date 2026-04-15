@@ -13,9 +13,11 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**
- * LITIENGINE image popup that mirrors the old ShowImageUI feature set.
+ * Represents an overlay that displays an image with optional text and animated transition effects.
  *
- * <p>Supports image path, transition speed, max size, and optional centered overlay text.
+ * <p>This class implements {@link UiOverlay} to allow rendering within the user interface layer.
+ *
+ * <p>It supports customizable scaling, positioning, and transition animations for the image.
  */
 final class ShowImageOverlay implements UiOverlay {
 
