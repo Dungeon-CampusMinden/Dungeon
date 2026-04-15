@@ -2,14 +2,41 @@ package contrib.hud.image;
 
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
+import core.ui.UiNodeHandle;
 import core.ui.overlay.OverlayUiNodeHandle;
 
-/** Builds the LITIENGINE-backed image dialog. */
+/**
+ * A builder for creating image display dialog UI nodes.
+ *
+ * <p>This utility class constructs UI node handles that display an image dialog overlay.
+ *
+ * <p>It retrieves image configuration from the dialog context, including the image path,
+ * transition speed, size constraints, and optional overlay text.
+ */
 public final class ShowImageDialogBuilder {
 
   private ShowImageDialogBuilder() {}
 
-  public static core.ui.UiNodeHandle build(DialogContext ctx) {
+  /**
+   * Builds a UI node handle for an image display dialog overlay.
+   *
+   * <p>This method retrieves the required image path and optional configuration parameters
+   * from the dialog context.
+   *
+   * <p>If optional parameters are not provided, sensible defaults are used:
+   * <ul>
+   *   <li>Transition speed defaults to MEDIUM</li>
+   *   <li>The maximum size defaults to 0.85 (85% of screen)</li>
+   *   <li>Image text defaults to null (no text overlay)</li>
+   *   <li>Text scale defaults to 1.0</li>
+   *   <li>Text color defaults to black with full opacity (0x000000ff)</li>
+   * </ul>
+   *
+   * @param ctx the dialog context containing the image path and optional configuration
+   * @return a UI node handle wrapping the created image display overlay
+   * @throws IllegalArgumentException if the required image path is not present in the context
+   */
+  public static UiNodeHandle build(DialogContext ctx) {
     String imagePath = ctx.require(DialogContextKeys.IMAGE, String.class);
     TransitionSpeed speed =
       ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
