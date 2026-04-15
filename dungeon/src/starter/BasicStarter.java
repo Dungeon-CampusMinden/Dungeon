@@ -34,8 +34,6 @@ import core.utils.components.draw.DepthLayer;
 import core.utils.components.path.SimpleIPath;
 import java.awt.Color;
 import core.utils.Rectangle;
-import starter.setup.ClientRuntimeSetup;
-
 import java.io.IOException;
 import java.util.Set;
 
@@ -80,10 +78,6 @@ public final class BasicStarter {
         Entity hero = EntityFactory.newHero();
         addCraftingTestItems(hero);
         Game.add(hero);
-
-        ClientRuntimeSetup.installHudSystems();
-        ClientRuntimeSetup.installGameplayExtensions();
-        ClientRuntimeSetup.installDebugSystems();
       });
 
     Game.userOnLevelLoad(

@@ -1,7 +1,16 @@
 package core.game.loop;
 
+import contrib.debug.systems.DebugDrawSystem;
+import contrib.debug.systems.DebugEntityRenderSystem;
+import contrib.debug.systems.DebugRenderEffectsSystem;
+import contrib.editor.level.LevelEditorSystem;
+import contrib.hud.dialogs.DialogBackendInstaller;
+import contrib.hud.systems.AttributeBarSystem;
+import contrib.hud.systems.HudSystem;
 import contrib.modules.interaction.InteractionSelection;
 import contrib.modules.interaction.ui.OverlayInteractionSelectionUi;
+import contrib.modules.levelHide.LevelHideSystem;
+import core.System;
 import core.camera.ClientCameraAdapter;
 import core.game.*;
 import core.game.startup.ClientStartup;
@@ -20,6 +29,8 @@ import core.utils.InputManager;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
 import de.gurkenlabs.litiengine.configuration.DisplayMode;
+
+import java.util.function.Supplier;
 
 /**
  * Manages the client-side game loop runtime.
@@ -115,6 +126,7 @@ public final class ClientLoopRuntime {
     // Host chooses which default systems exist
     ECSManagement.initializeDefaultSystems(SystemProfile.CLIENT);
     ECSManagement.initializeGameplaySystems(SystemProfile.CLIENT);
+    installClientRuntimeSystems();
     ECSManagement.system(core.systems.LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
 
     ClientStartup.setupAndLoadInitialLevelOnce();
@@ -144,5 +156,35 @@ public final class ClientLoopRuntime {
     Game.config().graphics().setResolutionWidth(PreRunConfiguration.windowWidth());
     Game.config().graphics().setResolutionHeight(PreRunConfiguration.windowHeight());
     Game.config().save();
+  }
+
+  private static void installClientRuntimeSystems() {
+    installHudSystems();
+    installGameplayExtensions();
+    installDebugSystems();
+  }
+
+  private static void installHudSystems() {
+    DialogBackendInstaller.install();
+
+    addIfAbsent(HudSystem.class, HudSystem::new);
+    addIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
+  }
+
+  private static void installGameplayExtensions() {
+    addIfAbsent(LevelHideSystem.class, LevelHideSystem::new);
+  }
+
+  private static void installDebugSystems() {
+    addIfAbsent(DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
+    addIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
+    addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
+    addIfAbsent(DebugEntityRenderSystem.class, DebugEntityRenderSystem::new);
+  }
+
+  private static <T extends System> void addIfAbsent(Class<T> type, Supplier<T> factory) {
+    if (!ECSManagement.systems().containsKey(type)) {
+      ECSManagement.add(factory.get());
+    }
   }
 }
