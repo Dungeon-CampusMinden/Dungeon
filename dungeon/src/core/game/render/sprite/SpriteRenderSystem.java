@@ -11,7 +11,6 @@ import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
-import core.game.render.EcsRenderScreen;
 import core.render.AnimationFrameImages;
 import core.game.render.RenderContext;
 import core.render.ImageAssets;
@@ -32,7 +31,6 @@ import core.utils.Rectangle;
 import core.utils.Time;
 import core.utils.logging.DungeonLogger;
 import de.gurkenlabs.litiengine.graphics.ImageRenderer;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -42,11 +40,19 @@ import java.awt.image.RescaleOp;
 import java.util.*;
 
 /**
- * Sprite renderer for the LITIENGINE host.
+ * A render system responsible for rendering sprites and level tiles to the game screen.
  *
- * <p>Draws the current level tiles and entity sprites using LITIENGINE's Graphics2D pipeline.
- * The active Graphics2D is provided by {@link EcsRenderScreen} via
- * {@link RenderContext}.
+ * <p>This system handles the complete rendering pipeline, including:
+ * <ul>
+ *   <li>Level tile rendering with optional effect passes</li>
+ *   <li>Entity sprite rendering with depth sorting</li>
+ *   <li>Camera positioning and viewport calculation</li>
+ *   <li>Sprite effects such as shine and tinting</li>
+ *   <li>Outline effects</li>
+ *</ul>
+ *
+ * <p>The system supports both direct rendering and buffered rendering with effect pipelines.
+ * It optimizes performance through caching and view frustum culling.
  */
 public final class SpriteRenderSystem extends System {
   private static final DungeonLogger LOGGER =
@@ -63,6 +69,12 @@ public final class SpriteRenderSystem extends System {
 
   private final Map<String, BufferedImage> tileImageCache = new HashMap<>();
 
+  /**
+   * Creates a new sprite render system.
+   *
+   * <p>This system operates on both the client and server sides and requires entities
+   * to have a PositionComponent.
+   */
   public SpriteRenderSystem() {
     super(AuthoritativeSide.BOTH, PositionComponent.class);
   }
@@ -102,7 +114,7 @@ public final class SpriteRenderSystem extends System {
       levelOpt.ifPresent(level -> renderLevelWithPasses(g, level, view));
       renderEntities(g, levelOpt, view);
     } catch (Exception e) {
-      LOGGER.warn("LITIENGINE sprite rendering failed: {}", e.getMessage(), e);
+      LOGGER.warn("Sprite rendering failed: {}", e.getMessage(), e);
     } finally {
       g.setTransform(oldTx);
       g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldInterpolation);
@@ -239,7 +251,6 @@ public final class SpriteRenderSystem extends System {
     String raw = t.texturePath().pathString();
     if (raw == null || raw.isBlank()) return null;
 
-    // Use the same implicit resolution that LitiengineImages uses internally.
     String key = ImageAssets.resolveImplicitFilePath(raw);
 
     if (tileImageCache.containsKey(key)) {
