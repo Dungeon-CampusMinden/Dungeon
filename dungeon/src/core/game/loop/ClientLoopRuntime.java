@@ -2,6 +2,7 @@ package core.game.loop;
 
 import contrib.debug.systems.DebugDrawSystem;
 import contrib.debug.systems.DebugEntityRenderSystem;
+import contrib.debug.systems.DebugGameplaySystem;
 import contrib.debug.systems.DebugRenderEffectsSystem;
 import contrib.editor.level.LevelEditorSystem;
 import contrib.hud.dialogs.DialogBackendInstaller;
@@ -176,6 +177,7 @@ public final class ClientLoopRuntime {
   }
 
   private static void installDebugSystems() {
+    addIfAbsent(DebugGameplaySystem.class, DebugGameplaySystem::new);
     addIfAbsent(DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
     addIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
     addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
