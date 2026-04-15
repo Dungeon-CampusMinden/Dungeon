@@ -6,25 +6,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * CPU-side LITIENGINE replacement for the old sprite-local shine shader.
+ * A sprite effect that renders an animated shine overlay on sprites.
  *
- * <p>Unlike hue remap or color grading, shine is rendered as a separate overlay layer.
- * Therefore {@link #apply(BufferedImage, long)} keeps the input sprite unchanged, while
- * {@link #createOverlay(BufferedImage, long)} generates the animated highlight image.
- *
- * <p>This keeps the old core semantics:
- *
+ * <p>This effect creates a rotating light shine effect that moves across the sprite surface.
+ * It supports both small and large sprites with different rendering strategies:
  * <ul>
- *   <li>slice count
- *   <li>gap size between slices
- *   <li>rotation speed
- *   <li>shine color
- *   <li>padding
- * </ul>
+ *   <li>Small sprites use a single diagonal sweep</li>
+ *   <li>Large sprites use repeated rotating slices</li>
+ *</ul>
  *
- * <p>For very small sprites, the legacy repeated multi-slice pattern is hard to perceive.
- * Therefore this implementation switches to a single explicit moving sweep band for
- * small sprites, while larger sprites continue to use the repeated slice pattern.
+ * <p>The effect includes configurable parameters such as padding, slice count, gap size, rotation speed,
+ * and shine color. Results are cached for improved performance.
  */
 public final class ShineSpriteEffect implements SpriteEffect {
 
@@ -41,7 +33,9 @@ public final class ShineSpriteEffect implements SpriteEffect {
   private boolean enabled = true;
   private long animationStartMs = -1L;
 
-  /** Creates a shine effect with legacy-like default parameters. */
+  /**
+   * Creates a shine effect with default parameters.
+   */
   public ShineSpriteEffect() {}
 
   /**
@@ -60,46 +54,102 @@ public final class ShineSpriteEffect implements SpriteEffect {
     shineColor(shineColor);
   }
 
+  /**
+   * Gets the padding around the sprite for the shine effect.
+   *
+   * @return the padding in pixels
+   */
   public int padding() {
     return padding;
   }
 
+  /**
+   * Sets the padding around the sprite for the shine effect.
+   *
+   * @param padding the padding in pixels (negative values are clamped to 0)
+   * @return this effect for method chaining
+   */
   public ShineSpriteEffect padding(int padding) {
     this.padding = Math.max(0, padding);
     return this;
   }
 
+  /**
+   * Gets the number of shine slices for large sprites.
+   *
+   * @return the slice count
+   */
   public int sliceCount() {
     return sliceCount;
   }
 
+  /**
+   * Sets the number of shine slices for large sprites.
+   *
+   * @param sliceCount the number of slices (minimum 1)
+   * @return this effect for method chaining
+   */
   public ShineSpriteEffect sliceCount(int sliceCount) {
     this.sliceCount = Math.max(1, sliceCount);
     return this;
   }
 
+  /**
+   * Gets the gap size between shine slices.
+   *
+   * @return the gap size in the range [0, 1]
+   */
   public float gapSize() {
     return gapSize;
   }
 
+  /**
+   * Sets the gap size between shine slices.
+   *
+   * @param gapSize the gap size in the range [0, 1]
+   * @return this effect for method chaining
+   */
   public ShineSpriteEffect gapSize(float gapSize) {
     this.gapSize = clamp01(gapSize);
     return this;
   }
 
+  /**
+   * Gets the rotation speed of the shine effect.
+   *
+   * @return the rotation speed in rotations per second
+   */
   public float rotationSpeed() {
     return rotationSpeed;
   }
 
+  /**
+   * Sets the rotation speed of the shine effect.
+   *
+   * @param rotationSpeed the rotation speed in rotations per second
+   * @return this effect for method chaining
+   */
   public ShineSpriteEffect rotationSpeed(float rotationSpeed) {
     this.rotationSpeed = rotationSpeed;
     return this;
   }
 
+  /**
+   * Gets the color of the shine overlay.
+   *
+   * @return the shine color
+   */
   public Color shineColor() {
     return shineColor;
   }
 
+  /**
+   * Sets the color of the shine overlay.
+   *
+   * @param shineColor the shine color (must not be null)
+   * @return this effect for method chaining
+   * @throws IllegalArgumentException if shineColor is null
+   */
   public ShineSpriteEffect shineColor(Color shineColor) {
     if (shineColor == null) {
       throw new IllegalArgumentException("shineColor must not be null");
@@ -108,6 +158,12 @@ public final class ShineSpriteEffect implements SpriteEffect {
     return this;
   }
 
+  /**
+   * Sets whether this effect is enabled.
+   *
+   * @param enabled true to enable the effect, false to disable it
+   * @return this effect for method chaining
+   */
   public ShineSpriteEffect enabled(boolean enabled) {
     this.enabled = enabled;
     return this;
@@ -193,8 +249,6 @@ public final class ShineSpriteEffect implements SpriteEffect {
     float bandHalfWidth = bandWidth * 0.5f;
 
     double baseAngle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
-    float cos = (float) Math.cos(baseAngle);
-    float sin = (float) Math.sin(baseAngle);
 
     float phase = (float) normalizePhase(nowSeconds * rotationSpeed);
     float sweepCenter = -bandHalfWidth + phase * (1.0f + bandWidth);
