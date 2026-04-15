@@ -2,7 +2,6 @@ package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
-import contrib.crafting.CraftingResult;
 import contrib.crafting.CraftingType;
 import contrib.crafting.Recipe;
 import contrib.item.Item;
@@ -11,10 +10,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Shared backend-neutral crafting dialog logic.
+ * Provides the logic for handling crafting operations, including determining current recipes,
+ * crafting items, and canceling crafting attempts.
  *
- * <p>This class contains the semantic behavior used by different crafting UIs, independent of the
- * concrete rendering toolkit (libGDX Scene2D or LITIENGINE overlay).
+ * <p>This utility class is not instantiable.
  */
 public final class CraftingDialogLogic {
 
@@ -70,19 +69,5 @@ public final class CraftingDialogLogic {
   public static void cancel(
     InventoryComponent craftingInventory, InventoryComponent targetInventory) {
     craftingInventory.transferAll(targetInventory);
-  }
-
-  /**
-   * Converts a crafting result into a user-facing label.
-   *
-   * @param result the result to label
-   * @return display name for item results, otherwise the result type name
-   */
-  public static String resultLabel(CraftingResult result) {
-    if (result instanceof Item item) {
-      return item.displayName();
-    }
-
-    return result.resultType().name();
   }
 }
