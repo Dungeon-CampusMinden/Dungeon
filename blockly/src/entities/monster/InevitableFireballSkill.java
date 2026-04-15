@@ -21,11 +21,11 @@ import systems.BlocklyCommandExecuteSystem;
 public class InevitableFireballSkill extends FireballSkill {
 
   // Vector to center the fireball
-  private static final Vector2 CENTER_FIREBALL = Vector2.of(0f, 0f);
+  private static final Vector2 CENTER_FIREBALL = Vector2.of(0.5f, 0.5f);
 
   private static final Supplier<Point> TARGET_PLAYER =
       () -> {
-//        LevelManagementUtils.centerHero();
+        LevelManagementUtils.centerHero();
         return Game.player()
             .flatMap(hero -> hero.fetch(PositionComponent.class))
             .map(PositionComponent::position)
