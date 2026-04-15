@@ -1,11 +1,13 @@
 package core.game.render.overlay;
 
 /**
- * Shared tile-pixel dependent sizing helpers for LITIENGINE overlays.
+ * Utility class for computing tile overlay sizes and related dimensions.
  *
- * <p>This utility centralizes small overlay sizing rules that previously lived directly inside
- * editor/debug classes. The helpers operate purely on the active tile size in pixels and keep
- * minimum / clamp rules in one place.
+ * <p>This class provides methods to scale pixel sizes, stroke widths, and insets
+ * based on a tile's dimensions.
+ *
+ * <p>It also includes methods for calculating offsets
+ * and baseline alignment for text and annotations.
  */
 public final class TileOverlaySizing {
 
