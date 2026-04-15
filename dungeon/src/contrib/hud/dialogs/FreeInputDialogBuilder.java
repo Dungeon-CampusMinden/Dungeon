@@ -1,13 +1,39 @@
 package contrib.hud.dialogs;
 
+import core.ui.UiNodeHandle;
 import core.ui.overlay.OverlayUiNodeHandle;
 
-/** Builds the LITIENGINE-backed free-input dialog. */
+/**
+ * A builder for creating free text input dialog UI nodes.
+ *
+ * <p>This utility class constructs UI node handles that display a text input dialog overlay.
+ *
+ * <p>It retrieves the question text and optional configuration from the dialog context, including
+ * title, placeholder text, and button labels. Default values are used for any unspecified parameters.
+ */
 public final class FreeInputDialogBuilder {
 
   private FreeInputDialogBuilder() {}
 
-  public static core.ui.UiNodeHandle build(DialogContext ctx) {
+  /**
+   * Builds a UI node handle for a free text input dialog overlay.
+   *
+   * <p>This method requires the dialog context to contain a question text.
+   *
+   * <p>It retrieves optional configuration parameters from the context or uses sensible defaults:
+   * <ul>
+   *   <li>Title defaults to the overlay's default title</li>
+   *   <li>Prefill defaults to an empty string</li>
+   *   <li>Placeholder defaults to the overlay's default placeholder text</li>
+   *   <li>Confirm label defaults to "OK"</li>
+   *   <li>Cancel label defaults to "CANCEL"</li>
+   * </ul>
+   *
+   * @param ctx the dialog context containing the question and optional configuration
+   * @return a UI node handle wrapping the created free input dialog overlay
+   * @throws IllegalArgumentException if the required question is not present in the context
+   */
+  public static UiNodeHandle build(DialogContext ctx) {
     String title =
       ctx.find(DialogContextKeys.TITLE, String.class)
         .orElse(FreeInputDialogOverlay.TITLE_DEFAULT);
