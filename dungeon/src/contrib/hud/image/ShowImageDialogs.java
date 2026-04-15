@@ -9,10 +9,13 @@ import core.Game;
 import core.utils.IVoidFunction;
 
 /**
- * Entry points for show-image dialogs.
+ * A utility class for displaying images in popup dialogs.
  *
- * <p>This class centralizes the creation of image popups so that the public API for show-image dialogs
- * lives next to the corresponding dialog payload and backend-specific implementations.
+ * <p>This class provides convenient static methods to show images in dialogs with various
+ * configuration options.
+ *
+ * <p>Multiple overloads allow for simple usage with default parameters
+ * or full control over transition speed, size constraints, and text overlays.
  */
 public final class ShowImageDialogs {
 
@@ -52,23 +55,48 @@ public final class ShowImageDialogs {
     }
 
     DialogContext context = builder.build();
-    UIComponent ui = new UIComponent(context, true, true, new int[] {});
+    UIComponent ui = new UIComponent(context, true, true);
 
-    ui.onClose((uic) -> onClose.execute());
+    ui.onClose((_) -> onClose.execute());
 
     dialogEntity.add(ui);
     Game.add(dialogEntity);
   }
 
+  /**
+   * Displays an image in a popup with a specified transition speed.
+   *
+   * <p>Uses a default maximum size of 0.85 (85% of screen) and no text overlay.
+   *
+   * @param imagePath the path to the image to display
+   * @param speed the transition speed for showing the image
+   * @param onClose callback executed when the popup is closed
+   */
   public static void showImagePopUp(
     String imagePath, TransitionSpeed speed, IVoidFunction onClose) {
     showImagePopUp(imagePath, speed, 0.85f, null, onClose);
   }
 
+  /**
+   * Displays an image in a popup with the default transition speed.
+   *
+   * <p>Uses a default maximum size of 0.85 (85% of screen) and medium transition speed.
+   *
+   * @param imagePath the path to the image to display
+   * @param onClose callback executed when the popup is closed
+   */
   public static void showImagePopUp(String imagePath, IVoidFunction onClose) {
     showImagePopUp(imagePath, TransitionSpeed.MEDIUM, 0.85f, null, onClose);
   }
 
+  /**
+   * Displays an image in a popup with all default settings.
+   *
+   * <p>Uses default maximum size of 0.85 (85% of screen) and medium transition speed.
+   * The popup closes silently without executing any callback.
+   *
+   * @param imagePath the path to the image to display
+   */
   public static void showImagePopUp(String imagePath) {
     showImagePopUp(imagePath, TransitionSpeed.MEDIUM, 0.85f, null, () -> {});
   }
