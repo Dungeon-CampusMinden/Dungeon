@@ -8,23 +8,13 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
- * Applies HSV-style color grading to the fully rendered LITIENGINE scene image.
+ * Represents a color-grading effect applied to a scene.
+ * This effect allows manipulation of hue, saturation, and brightness values of the scene's visuals.
  *
- * <p>This is the scene-pass counterpart to the existing sprite-local color grade effect.
+ * <p>Additionally, it supports applying the effect to specific regions of the scene with optional transition areas.
  *
- * <p>It restores the globally applicable part of the former shader semantics:
- *
- * <ul>
- *   <li>optional hue override ({@code hue < 0} keeps the original hue)
- *   <li>saturation multiplier
- *   <li>value/brightness multiplier
- *   <li>optional world-space region
- *   <li>optional transition size around the region
- * </ul>
- *
- * <p>If no region is configured, the effect applies to the whole scene. If a region is configured,
- * the effect is fully active inside the region and fades out smoothly across the configured
- * transition band outside that region.
+ * <p>This class implements the {@link SceneEffectRegistry.ToggleableSceneEffect} interface, enabling
+ * toggling of the effect on or off.
  */
 public final class SceneColorGradeEffect
   implements SceneEffectRegistry.ToggleableSceneEffect {
@@ -32,22 +22,9 @@ public final class SceneColorGradeEffect
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
   private float valueMultiplier = 1.0f;
-
-  /**
-   * Optional world-space region for the scene-pass effect.
-   *
-   * <p>If {@code null}, the effect applies globally to the whole scene.
-   */
-  private Rectangle region = null;
-
-  /**
-   * Fade-out distance outside the configured region in world units.
-   *
-   * <p>Matches the old ColorGradeShader idea that the effect remains fully active inside the region
-   * and transitions smoothly within the expanded bounds.
-   */
   private float transitionSize = 2.0f;
 
+  private Rectangle region = null;
   private boolean enabled = true;
 
   /** Creates a neutral scene color-grade effect that leaves the scene unchanged. */
@@ -92,11 +69,9 @@ public final class SceneColorGradeEffect
    * Sets the saturation multiplier.
    *
    * @param saturationMultiplier multiplier for saturation; negative values are clamped to 0
-   * @return this effect for chaining
    */
-  public SceneColorGradeEffect saturationMultiplier(float saturationMultiplier) {
+  public void saturationMultiplier(float saturationMultiplier) {
     this.saturationMultiplier = Math.max(0f, saturationMultiplier);
-    return this;
   }
 
   /** @return value/brightness multiplier */
@@ -108,11 +83,9 @@ public final class SceneColorGradeEffect
    * Sets the value/brightness multiplier.
    *
    * @param valueMultiplier multiplier for value/brightness; negative values are clamped to 0
-   * @return this effect for chaining
    */
-  public SceneColorGradeEffect valueMultiplier(float valueMultiplier) {
+  public void valueMultiplier(float valueMultiplier) {
     this.valueMultiplier = Math.max(0f, valueMultiplier);
-    return this;
   }
 
   /**
