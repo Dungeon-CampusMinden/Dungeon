@@ -4,9 +4,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Ordered collection of LITIENGINE sprite effects.
+ * A registry for managing sprite effects, providing storage, retrieval, and ordering functionality
+ * for {@link SpriteEffect} instances. Effects are uniquely identified by an identifier string
+ * and can have an associated priority that determines their application order.
  *
- * <p>Effects are sorted first by priority, then by insertion order.
+ * <p>The registry ensures that effects are returned in a stable order based on their priority
+ * and insertion sequence. Effects with lower priority values are applied earlier, and for effects
+ * with the same priority, the insertion order is preserved.
+ *
+ * <p>This class is immutable, thread-unsafe, and stores its entries in an internal ordered
+ * map, maintaining predictable iteration order.
  */
 public final class SpriteEffectRegistry {
 
@@ -19,7 +26,7 @@ public final class SpriteEffectRegistry {
    * @param identifier unique identifier
    * @param effect effect instance
    * @param priority lower values are applied earlier
-   * @return true if added, false if identifier already exists
+   * @return true if added, false if the identifier already exists
    */
   public boolean add(String identifier, SpriteEffect effect, int priority) {
     Objects.requireNonNull(identifier, "identifier");
