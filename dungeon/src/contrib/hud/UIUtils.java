@@ -11,7 +11,14 @@ import core.utils.logging.DungeonLogger;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-/** Backend-neutral UI utility functions. */
+/**
+ * Utility class that provides helper methods for UI-related functionalities.
+ *
+ * <p>This class contains methods for formatting strings, manipulating dialogs,
+ * and retrieving inventory components from UI elements.
+ *
+ * <p>The class is not instantiable.
+ */
 public final class UIUtils {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(UIUtils.class.getName());
@@ -20,17 +27,11 @@ public final class UIUtils {
    * Limits the length of the string to 40 characters, after which a line break occurs
    * automatically.
    *
-   * <p>BlackMagic number which can be tweaked for better line break. VirtualWindowWidth / FontSize
+   * <p>BlackMagic number that can be tweaked for a better line break. VirtualWindowWidth / FontSize
    * = MAX_ROW_LENGTH 480 / 12 = 40
    */
   private static final int MAX_ROW_LENGTH = 40;
 
-  /**
-   * Line break character to use in the {@link UIUtils#formatString} method.
-   *
-   * <p>No need for {@code System.lineSeparator()} as libGDX wanted {@code '\n'} before and the
-   * wrapped text format remains compatible for the existing dialog content.
-   */
   private static final char LS = '\n';
 
   private UIUtils() {}
