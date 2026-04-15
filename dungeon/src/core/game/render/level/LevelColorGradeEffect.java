@@ -34,8 +34,27 @@ public final class LevelColorGradeEffect
   private float transitionSize = 2.0f;
   private boolean enabled = true;
 
+  /**
+   * Creates a new level color grade effect with default parameters.
+   *
+   * <p>Default values:
+   * <ul>
+   *   <li>hue: -1.0 (no override, keeps original hue)</li>
+   *   <li>saturationMultiplier: 1.0 (no change)</li>
+   *   <li>valueMultiplier: 1.0 (no change)</li>
+   *   <li>no region (applies globally)</li>
+   *   <li>transitionSize: 2.0</li>
+   * </ul>
+   */
   public LevelColorGradeEffect() {}
 
+  /**
+   * Creates a new level color grade effect with specified HSV parameters.
+   *
+   * @param hue the target hue value (0.0 to 1.0), or negative to keep the original hue
+   * @param saturationMultiplier the saturation multiplier (0.0 or higher)
+   * @param valueMultiplier the brightness multiplier (0.0 or higher)
+   */
   public LevelColorGradeEffect(
     float hue, float saturationMultiplier, float valueMultiplier) {
     hue(hue);
@@ -43,31 +62,60 @@ public final class LevelColorGradeEffect
     valueMultiplier(valueMultiplier);
   }
 
+  /**
+   * Gets the hue override value.
+   *
+   * @return the hue value (0.0 to 1.0), or negative if hue override is disabled
+   */
   public float hue() {
     return hue;
   }
 
+  /**
+   * Sets the hue override value.
+   *
+   * @param hue the target hue (0.0 to 1.0), or negative to disable hue override
+   * @return this effect for method chaining
+   */
   public LevelColorGradeEffect hue(float hue) {
     this.hue = hue < 0f ? -1.0f : normalizeHue(hue);
     return this;
   }
 
+  /**
+   * Gets the saturation multiplier.
+   *
+   * @return the saturation multiplier (0.0 or higher)
+   */
   public float saturationMultiplier() {
     return saturationMultiplier;
   }
 
-  public LevelColorGradeEffect saturationMultiplier(float saturationMultiplier) {
+  /**
+   * Sets the saturation multiplier.
+   *
+   * @param saturationMultiplier the saturation multiplier (negative values are clamped to 0)
+   */
+  public void saturationMultiplier(float saturationMultiplier) {
     this.saturationMultiplier = Math.max(0f, saturationMultiplier);
-    return this;
   }
 
+  /**
+   * Gets the value (brightness) multiplier.
+   *
+   * @return the value multiplier (0.0 or higher)
+   */
   public float valueMultiplier() {
     return valueMultiplier;
   }
 
-  public LevelColorGradeEffect valueMultiplier(float valueMultiplier) {
+  /**
+   * Sets the value (brightness) multiplier.
+   *
+   * @param valueMultiplier the value multiplier (negative values are clamped to 0)
+   */
+  public void valueMultiplier(float valueMultiplier) {
     this.valueMultiplier = Math.max(0f, valueMultiplier);
-    return this;
   }
 
   /**
