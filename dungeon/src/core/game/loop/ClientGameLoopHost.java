@@ -6,7 +6,15 @@ import core.ui.StageHandle;
 
 import java.util.Optional;
 
-/** Bridges the LITIENGINE host into the backend-agnostic {@link GameLoopHost} API. */
+/**
+ * Client-specific implementation of the {@link GameLoopHost} interface.
+ *
+ * <p>This class provides the necessary client-side integration for the engine-agnostic
+ * {@link GameLoopCore} by delegating to client-specific runtime implementations.
+ *
+ * <p>It facilitates the orchestration of the game loop, sound player, and UI stage
+ * for the client environment.
+ */
 public final class ClientGameLoopHost implements GameLoopHost {
 
   @Override
