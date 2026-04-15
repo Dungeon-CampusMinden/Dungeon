@@ -29,11 +29,26 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Crafting overlay for the LITIENGINE backend.
+ * Represents a crafting dialog interface overlay rendered on top of the game scene.
  *
- * <p>This variant visually follows the old libGDX crafting dialog more closely:
- * a normal target inventory on the left and a dedicated crafting panel on the right
- * with an upper ingredient row, a lower result row and classic craft/cancel buttons.
+ * <p>This overlay contains all visual elements and interactive logic required for crafting,
+ * such as crafting panels, inventory grids, action buttons, item icons, and drag/drop support.
+ *
+ * <p>It allows players to interact with their crafting inventory and recipes, displaying results
+ * and processing input for crafting actions.
+ *
+ * <p>This class extends the functionality provided by {@code UiOverlay} and
+ * {@code InventoryComponentProvider}, integrating advanced UI behaviors such as rendering, hit
+ * detection, and inventory component management.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Custom rendering of crafting panels and inventory grids.
+ *   <li>Drag-and-drop functionality for transferring items between inventory slots.
+ *   <li>Interactive action buttons for crafting-related operations.
+ *   <li>Support for legacy and modern crafting panel layouts.
+ *   <li>Hover tooltips for items and slot highlights during interactions.
+ * </ul>
  */
 final class CraftingDialogOverlay
   implements UiOverlay, InventoryComponentProvider {
@@ -191,9 +206,8 @@ final class CraftingDialogOverlay
         DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Crafting");
 
       int titleBaseline = contentY + g.getFontMetrics().getAscent();
-      int contentStartX = x + (width - totalContentWidth) / 2;
 
-      leftStartX = contentStartX;
+      leftStartX = x + (width - totalContentWidth) / 2;
       int rightPanelX = leftStartX + leftGridWidth + PANEL_GAP;
 
       g.setColor(Color.WHITE);
@@ -262,7 +276,7 @@ final class CraftingDialogOverlay
       if (dragState != null) {
         drawDragPreview(g);
       } else {
-        drawHoverTooltip(g, leftGrid, rightPanelBounds, craftingBounds, resultItems, resultBounds);
+        drawHoverTooltip(g, leftGrid, craftingBounds, resultItems, resultBounds);
       }
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
@@ -418,23 +432,6 @@ final class CraftingDialogOverlay
     g.setFont(oldFont);
   }
 
-  private void drawLegacyActionIcons(Graphics2D g) {
-    for (CraftingDialogAction action : CraftingDialogAction.values()) {
-      ImageButton button = actionButtons.get(action);
-      if (button == null) {
-        continue;
-      }
-
-      BufferedImage icon = AnimationFrameImages.toImage(button.animation().update());
-      if (icon == null) {
-        continue;
-      }
-
-      Rectangle bounds = new Rectangle(button.x(), button.y(), button.width(), button.height());
-      drawCenteredButtonIcon(g, icon, bounds);
-    }
-  }
-
   private void drawCenteredButtonIcon(Graphics2D g, BufferedImage icon, Rectangle bounds) {
     int maxWidth = bounds.width - 2 * BUTTON_ICON_PADDING;
     int maxHeight = bounds.height - 2 * BUTTON_ICON_PADDING;
@@ -469,21 +466,6 @@ final class CraftingDialogOverlay
             .map(Item.class::cast)
             .toArray(Item[]::new))
       .orElseGet(() -> new Item[0]);
-  }
-
-  private List<Rectangle> classicActionButtonBounds(Rectangle panelBounds) {
-    List<Rectangle> bounds = new ArrayList<>(CraftingDialogAction.values().length);
-
-    for (CraftingDialogAction action : CraftingDialogAction.values()) {
-      bounds.add(
-        new Rectangle(
-          panelBounds.x + Math.round(panelBounds.width * action.relativeX()),
-          panelBounds.y + Math.round(panelBounds.height * action.relativeY()),
-          Math.round(panelBounds.width * action.relativeWidth()),
-          Math.round(panelBounds.height * action.relativeHeight())));
-    }
-
-    return List.copyOf(bounds);
   }
 
   private void syncActionButtonBounds(Map<CraftingDialogAction, Rectangle> buttonBounds) {
@@ -612,7 +594,7 @@ final class CraftingDialogOverlay
       if (releasedButton.isPresent() && dragState == null) {
         pressedSlotSelection = null;
         triggerActionButton(releasedButton.get());
-        leftButtonDownLastFrame = leftButtonDown;
+        leftButtonDownLastFrame = false;
         return;
       }
 
@@ -725,7 +707,6 @@ final class CraftingDialogOverlay
   private void drawHoverTooltip(
     Graphics2D g,
     GridLayout leftGrid,
-    Rectangle rightPanelBounds,
     List<CraftingDialogLayout.SlotBounds> craftingBounds,
     Item[] resultItems,
     List<CraftingDialogLayout.ItemBounds> resultBounds) {
@@ -745,21 +726,15 @@ final class CraftingDialogOverlay
       InventoryGridRenderer.findSlotIndexAt(
         mouseX, mouseY, leftGrid.slots(), leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
     if (leftIndex >= 0) {
-      Item hoveredItem = controller.targetInventory().get(leftIndex).orElse(null);
-      if (hoveredItem != null) {
-        ItemTooltipRenderer.drawTooltip(
-          g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
-      }
+      controller.targetInventory().get(leftIndex).ifPresent(hoveredItem -> ItemTooltipRenderer.drawTooltip(
+        g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight()));
       return;
     }
 
     for (CraftingDialogLayout.SlotBounds bounds : craftingBounds) {
       if (bounds.contains(mouseX, mouseY)) {
-        Item hoveredItem = controller.craftingInventory().get(bounds.slotIndex()).orElse(null);
-        if (hoveredItem != null) {
-          ItemTooltipRenderer.drawTooltip(
-            g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
-        }
+        controller.craftingInventory().get(bounds.slotIndex()).ifPresent(hoveredItem -> ItemTooltipRenderer.drawTooltip(
+          g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight()));
         return;
       }
     }
@@ -922,13 +897,6 @@ final class CraftingDialogOverlay
     } catch (RuntimeException ignored) {
       return null;
     }
-  }
-
-  private void drawCenteredString(Graphics2D g, String text, Rectangle bounds) {
-    FontMetrics fm = g.getFontMetrics();
-    int textX = bounds.x + (bounds.width - fm.stringWidth(text)) / 2;
-    int textY = bounds.y + (bounds.height - fm.getHeight()) / 2 + fm.getAscent();
-    g.drawString(text, textX, textY);
   }
 
   @Override
