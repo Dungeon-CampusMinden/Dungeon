@@ -14,9 +14,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A minimal real text dialog for the LITIENGINE backend.
+ * A UI overlay component that represents a text dialog with customizable buttons and callbacks.
  *
- * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
+ * <p>The TextDialogOverlay class provides a dialog interface that can display a title, main text,
+ * and multiple buttons for user interactions.
+ *
+ * <p>This overlay is rendered on top of the game scene and allows for custom positioning, sizing, and visibility control.
+ *
+ * <p>Key features of this class include:
+ * <ul>
+ *   <li>A structured frame with a title and main text area.</li>
+ *   <li>Buttons for standard actions (confirm, cancel) and optional additional buttons.</li>
+ *   <li>Support for triggering callback actions based on button interactions.</li>
+ *   <li>Input handling for keyboard and mouse interactions.</li>
+ * </ul>
  */
 final class TextDialogOverlay implements UiOverlay {
 
