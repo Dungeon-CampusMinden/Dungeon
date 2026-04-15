@@ -9,10 +9,11 @@ import core.utils.components.path.SimpleIPath;
 import java.util.function.Consumer;
 
 /**
- * Represents a button with backend-neutral interaction state.
+ * Represents a UI button that can handle interactions such as hover, click, and press events.
  *
- * <p>The button owns its bounds, click semantics and visual state calculation. Concrete backends
- * can render the button using {@link #backgroundTexturePath()}.
+ * <p>The button supports backend-neutral input handling and provides functionality to update
+ * its state, retrieve its visual state, and react to user interactions via a customizable
+ * consumer callback.
  */
 public class Button {
 
@@ -27,7 +28,15 @@ public class Button {
   private boolean leftButtonDownLastFrame = false;
   private Consumer<Button> onClick = ignored -> {};
 
-  /** Visual state of the button background. */
+  /**
+   * Represents the visual state of a UI element, such as a button.
+   *
+   * <ul>
+   *   <li>IDLE: The default state when no interaction is occurring.
+   *   <li>HOVER: The state when the cursor is hovering over the element.
+   *   <li>PRESSED: The state when the element is actively being interacted with, such as when a mouse button is pressed.
+   * </ul>
+   */
   public enum VisualState {
     IDLE,
     HOVER,
