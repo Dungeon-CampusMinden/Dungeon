@@ -10,9 +10,25 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 /**
- * A minimal real yes/no dialog for the LITIENGINE backend.
+ * A dialog overlay that presents a Yes/No choice to the user.
  *
- * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
+ * <p>This class implements the {@link UiOverlay} interface for rendering a modal
+ * dialog box with a title, descriptive text, and Yes/No buttons.
+ *
+ * <p>The dialog overlays the game screen and captures user input for the buttons.
+ *
+ * <p>The dialog's visual appearance is managed via the {@link DialogFrameRenderer} utility
+ * class, which handles frame rendering, button layout, and text wrapping.
+ *
+ * <p>User interactions with the Yes/No buttons are relayed to registered callbacks using the {@link DialogCallbackResolver}.
+ *
+ * <p>Primary functionality:
+ * <ul>
+ *   <li>Render a dialog with customizable title and text</li>
+ *   <li>Capture input for Yes/No button presses</li>
+ *   <li>Trigger callbacks upon button confirmation</li>
+ *   <li>Support visibility toggling and positioning of the dialog overlay</li>
+ * </ul>
  */
 final class YesNoDialogOverlay implements UiOverlay {
 
@@ -114,7 +130,7 @@ final class YesNoDialogOverlay implements UiOverlay {
   private Rectangle noBounds() {
     return DialogFrameRenderer.centeredButtonRow(
         x, y, width, height, 2, BUTTON_GAP)
-      .get(0);
+      .getFirst();
   }
 
   private Rectangle yesBounds() {
