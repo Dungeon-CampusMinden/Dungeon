@@ -1,13 +1,26 @@
 package contrib.hud.dialogs;
 
+import core.ui.UiNodeHandle;
 import core.ui.overlay.OverlayUiNodeHandle;
 
-/** Builds the LITIENGINE-backed pause menu dialog. */
+/**
+ * A builder for creating pause menu dialog UI nodes.
+ *
+ * <p>This utility class constructs UI node handles that display a pause menu overlay.
+ *
+ * <p>The pause menu provides options to control game flow such as resume, restart, or exit.
+ */
 public final class PauseMenuDialogBuilder {
 
   private PauseMenuDialogBuilder() {}
 
-  public static core.ui.UiNodeHandle build(DialogContext ctx) {
+  /**
+   * Builds a UI node handle for a pause menu overlay.
+   *
+   * @param ctx the dialog context (not used for pause menu configuration)
+   * @return a UI node handle wrapping the created pause menu overlay
+   */
+  public static UiNodeHandle build(DialogContext ctx) {
     return new OverlayUiNodeHandle(new PauseMenuOverlay());
   }
 }
