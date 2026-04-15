@@ -6,25 +6,15 @@ import core.utils.Point;
 import java.awt.image.BufferedImage;
 
 /**
- * First LITIENGINE replacement for the old passthrough debug shader.
+ * Represents a passthrough debugging effect for visualizing specific scene attributes
+ * during rendering.
  *
- * <p>The old libGDX shader exposed two debug flags:
+ * <p>This effect allows enabling or disabling visual debug views, such
+ * as alpha transparency and world position, which can be used to analyze rendering
+ * characteristics.
  *
- * <ul>
- *   <li>{@code debugPMA}
- *   <li>{@code debugWorldPos}
- * </ul>
- *
- * <p>In the current Java2D/BufferedImage render path, a literal GPU-side passthrough shader no
- * longer exists. Therefore, this class re-models the same debug intent as a scene-pass image effect:
- *
- * <ul>
- *   <li>{@code debugPMA}: alpha/transparency visualization
- *   <li>{@code debugWorldPos}: world-position heatmap with tile-grid emphasis
- * </ul>
- *
- * <p>This effect is intentionally scene-pass based, because the old PassthroughShader was used in
- * the scene shader list, not as a sprite-local effect.
+ * <p>The effect is toggleable and implements a no-op rendering behavior
+ * when disabled or when no debug views are active.
  */
 public final class PassthroughDebugEffect
   implements SceneEffectRegistry.ToggleableSceneEffect {
@@ -45,11 +35,9 @@ public final class PassthroughDebugEffect
    * Enables or disables alpha/transparency debug visualization.
    *
    * @param debugPMA true to enable the alpha debug view
-   * @return this effect for chaining
    */
-  public PassthroughDebugEffect debugPMA(boolean debugPMA) {
+  public void debugPMA(boolean debugPMA) {
     this.debugPMA = debugPMA;
-    return this;
   }
 
   /** @return whether world-position debug visualization is enabled */
@@ -61,11 +49,9 @@ public final class PassthroughDebugEffect
    * Enables or disables world-position debug visualization.
    *
    * @param debugWorldPos true to enable the world-position debug view
-   * @return this effect for chaining
    */
-  public PassthroughDebugEffect debugWorldPos(boolean debugWorldPos) {
+  public void debugWorldPos(boolean debugWorldPos) {
     this.debugWorldPos = debugWorldPos;
-    return this;
   }
 
   @Override
@@ -98,7 +84,7 @@ public final class PassthroughDebugEffect
         if (debugPMA && debugWorldPos) {
           int alphaView = alphaDebugRgb(argb);
           int worldView = worldPositionDebugRgb(x, y, width, height, focus);
-          debugRgb = mixRgb(alphaView, worldView, 0.5f);
+          debugRgb = mixRgb(alphaView, worldView);
         } else if (debugPMA) {
           debugRgb = alphaDebugRgb(argb);
         } else {
@@ -113,26 +99,18 @@ public final class PassthroughDebugEffect
     return output;
   }
 
-  /**
-   * Re-models the old debugPMA flag as an alpha/transparency visualization.
-   *
-   * <p>Opaque pixels appear bright, semi-transparent pixels are tinted cyan, and fully transparent
-   * pixels appear black.
-   */
   private static int alphaDebugRgb(int argb) {
-    int alpha = (argb >>> 24) & 0xFF;
+    int r = (argb >>> 24) & 0xFF;
 
-    if (alpha <= 0) {
+    if (r == 0) {
       return 0x000000;
     }
 
-    int base = alpha;
-    int r = base;
-    int g = base;
-    int b = base;
+    int g = r;
+    int b = r;
 
     // Semi-transparent pixels are highlighted slightly cyan so they stand out from opaque areas.
-    if (alpha < 255) {
+    if (r < 255) {
       g = clamp255(g + 35);
       b = clamp255(b + 75);
     }
@@ -140,12 +118,6 @@ public final class PassthroughDebugEffect
     return (r << 16) | (g << 8) | b;
   }
 
-  /**
-   * Visualizes the world position corresponding to the current screen pixel.
-   *
-   * <p>Red varies with world X, green with world Y, and blue with the combined diagonal position.
-   * Tile boundaries are brightened to make the grid easier to read.
-   */
   private static int worldPositionDebugRgb(
     int screenX, int screenY, int screenWidth, int screenHeight, Point focus) {
     Point world =
@@ -156,8 +128,8 @@ public final class PassthroughDebugEffect
     int g = wrappedChannel(world.y(), 4.0f);
     int b = wrappedChannel(world.x() + world.y(), 8.0f);
 
-    boolean gridX = nearTileBoundary(world.x(), 0.08f);
-    boolean gridY = nearTileBoundary(world.y(), 0.08f);
+    boolean gridX = nearTileBoundary(world.x());
+    boolean gridY = nearTileBoundary(world.y());
     if (gridX || gridY) {
       r = clamp255(r + 70);
       g = clamp255(g + 70);
@@ -172,9 +144,9 @@ public final class PassthroughDebugEffect
     return clamp255(Math.round(normalized * 255.0f));
   }
 
-  private static boolean nearTileBoundary(float value, float tolerance) {
+  private static boolean nearTileBoundary(float value) {
     float frac = positiveModulo(value, 1.0f);
-    return frac <= tolerance || frac >= 1.0f - tolerance;
+    return frac <= (float) 0.08 || frac >= 1.0f - (float) 0.08;
   }
 
   private static float positiveModulo(float value, float modulo) {
@@ -182,8 +154,8 @@ public final class PassthroughDebugEffect
     return result < 0f ? result + modulo : result;
   }
 
-  private static int mixRgb(int rgbA, int rgbB, float weightB) {
-    float wb = clamp01(weightB);
+  private static int mixRgb(int rgbA, int rgbB) {
+    float wb = clamp01();
     float wa = 1.0f - wb;
 
     int r =
@@ -199,8 +171,8 @@ public final class PassthroughDebugEffect
     return (r << 16) | (g << 8) | b;
   }
 
-  private static float clamp01(float value) {
-    return Math.clamp(value, 0f, 1f);
+  private static float clamp01() {
+    return Math.clamp((float) 0.5, 0f, 1f);
   }
 
   private static int clamp255(int value) {
