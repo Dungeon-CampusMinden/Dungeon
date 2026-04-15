@@ -2,7 +2,13 @@ package core.game.render.scene;
 
 import java.awt.image.BufferedImage;
 
-/** Backend-specific post-processing effect for the fully rendered LITIENGINE scene. */
+/**
+ * Represents a scene effect that can be applied to a fully rendered scene image.
+ *
+ * <p>Scene effects are applied as post-processing operations on completed frames of the scene, often
+ * to introduce visual enhancements or transformations. They can be selectively enabled or
+ * disabled, and each effect should define its own application logic.
+ */
 public interface SceneEffect {
 
   /** @return true if the effect should currently be applied. */
