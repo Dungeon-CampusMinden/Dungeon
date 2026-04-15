@@ -10,9 +10,31 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 /**
- * A minimal real OK dialog for the LITIENGINE backend.
+ * A dialog overlay with a single "OK" button.
  *
- * <p>Rendered as a custom overlay via the LITIENGINE Graphics2D render bridge.
+ * <p>This class provides a user interface dialog overlay with a title and descriptive text,
+ * rendered above the game scene.
+ *
+ * <p>The dialog includes an "OK" button that triggers a callback when clicked.
+ *
+ * <p>Features include:
+ * <ul>
+ *   <li>Rendering the dialog frame, title, and content text within a centered area.</li>
+ *   <li>Handling mouse input to detect interaction with the "OK" button.</li>
+ *   <li>Managing visibility, dimensions, and position of the overlay.</li>
+ *</ul>
+ *
+ * <p>The overlay utilizes {@link DialogFrameRenderer} for drawing the dialog's frame and
+ * content elements.
+ *
+ * <p>Key properties:
+ * <ul>
+ *   <li>Width and height default to {@code 460} and {@code 220}, respectively, but can be customized.</li>
+ *   <li>Button layout includes predefined gaps and centering logic.</li>
+ * </ul>
+ *
+ * <p>The input logic ensures correct handling of mouse button states and triggers a callback via
+ * the {@link DialogCallbackResolver} on clicking the "OK" button.
  */
 final class OkDialogOverlay implements UiOverlay {
 
@@ -95,8 +117,7 @@ final class OkDialogOverlay implements UiOverlay {
 
   private Rectangle okBounds() {
     return DialogFrameRenderer.centeredButtonRow(
-        x, y, width, height, 1, BUTTON_GAP)
-      .get(0);
+        x, y, width, height, 1, BUTTON_GAP).getFirst();
   }
 
   @Override
