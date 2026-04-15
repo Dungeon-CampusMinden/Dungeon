@@ -13,7 +13,7 @@ import java.util.Optional;
  * <ul>
  *   <li>resolving the current focus target
  *   <li>softly approaching the focus target
- *   <li>calculating world bounds from viewport + zoom
+ *   <li>calculating world bounds from viewport plus zoom
  *   <li>performing a simple visibility test for world points
  * </ul>
  *
