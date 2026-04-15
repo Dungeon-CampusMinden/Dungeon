@@ -3,10 +3,13 @@ package core.game.render.scene;
 import java.awt.image.BufferedImage;
 
 /**
- * Global scene-pass effect pipeline for the LITIENGINE backend.
+ * A utility class that manages scene effects and provides functionality to apply them
+ * in a pipeline. This class operates on a global registry of scene effects and includes
+ * methods to manipulate, toggle, and apply effects to rendered frames.
  *
- * <p>Effects in this pipeline are applied to the fully rendered frame, after ECS world rendering
- * and UI overlay rendering have produced a complete scene image.
+ * <p>The {@code SceneEffectPipeline} is immutable and ensures that scene effects are applied in
+ * priority order when invoked. It also provides mechanisms to check the enabled state
+ * of effects and clear all registered effects.
  */
 public final class SceneEffectPipeline {
 
