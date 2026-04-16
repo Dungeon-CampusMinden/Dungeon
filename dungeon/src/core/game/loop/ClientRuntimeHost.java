@@ -16,7 +16,7 @@ import core.platform.client.ClientCameraAdapter;
 import core.game.*;
 import core.game.startup.ClientStartup;
 import core.game.render.EcsRenderScreen;
-import core.input.bridge.ClientInputBridge;
+import core.platform.client.ClientInputBridge;
 import core.platform.Platform;
 import core.platform.client.*;
 import core.sound.player.ISoundPlayer;

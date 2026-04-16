@@ -1,4 +1,4 @@
-package core.input.bridge;
+package core.platform.client;
 
 import core.input.Keys;
 import core.input.MouseButtons;
@@ -8,16 +8,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 /**
- * Bridges LitieEngine input events to the core InputManager.
+ * Bridges LITIENGINE input events to the core InputManager.
  *
- * <p>ClientInputBridge connects the LitieEngine input system to the core game engine's InputManager,
+ * <p>ClientInputBridge connects the LITIENGINE input system to the core game engine's InputManager,
  * translating AWT key and mouse events into the engine's input code system. It provides a single
  * installation point that registers all necessary event listeners.
  *
  * <p>Key responsibilities:
  * <ul>
- *   <li>Listening for keyboard press, release, and type events from LitieEngine
- *   <li>Listening for mouse button press and release events from LitieEngine
+ *   <li>Listening for keyboard press, release, and type events from LITIENGINE
+ *   <li>Listening for mouse button press and release events from LITIENGINE
  *   <li>Mapping AWT key codes and mouse button codes to engine-specific input codes
  *   <li>Forwarding mapped events to InputManager for distribution to game systems
  * </ul>
@@ -36,7 +36,7 @@ public final class ClientInputBridge {
   private ClientInputBridge() {}
 
   /**
-   * Installs the input bridge by registering event listeners with LitieEngine.
+   * Installs the input bridge by registering event listeners with LITIENGINE.
    *
    * <p>This method registers the following listeners:
    * <ul>
