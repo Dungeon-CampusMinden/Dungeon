@@ -1,8 +1,10 @@
 package core.systems.input;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.TimeUtils;
+import core.Game;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -302,6 +304,11 @@ public final class InputManager {
       Map<Integer, Long> previousTapTimesMs,
       Map<Integer, Long> downTimesMs,
       long nowMs) {
+    boolean capturesKeyboardFocus =
+        Game.stage().map(stage -> stage.getKeyboardFocus() != null).orElse(false);
+    if (capturesKeyboardFocus && code != Input.Keys.ESCAPE)
+      return; // Exemption to allow closing UI even in text focus
+
     boolean isNewPress =
         !pressed.contains(code) && (!justPressed.contains(code) || justReleased.contains(code));
     if (isNewPress) {
