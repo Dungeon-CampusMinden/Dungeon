@@ -9,7 +9,7 @@ import contrib.hud.dialogs.DialogBackendInstaller;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
 import contrib.modules.interaction.InteractionSelection;
-import contrib.modules.interaction.ui.OverlayInteractionSelectionUi;
+import contrib.modules.interaction.ui.InteractionSelectionOverlayUi;
 import contrib.modules.levelHide.LevelHideSystem;
 import core.System;
 import core.platform.client.ClientCameraAdapter;
@@ -115,7 +115,7 @@ public final class ClientLoopRuntime {
     ClientInputBridge.install();
 
     // Install backend-neutral interaction selection UI for complex interactable objects
-    InteractionSelection.install(OverlayInteractionSelectionUi.INSTANCE);
+    InteractionSelection.install(InteractionSelectionOverlayUi.INSTANCE);
 
     // Ensure a start with a clean input state
     InputManager.reset();

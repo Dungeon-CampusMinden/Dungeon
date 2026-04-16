@@ -19,12 +19,12 @@ import java.util.function.Consumer;
  * <p>This class follows the singleton pattern, with its single instance
  * accessible via the {@code INSTANCE} field.
  */
-public final class OverlayInteractionSelectionUi implements InteractionSelectionUi {
+public final class InteractionSelectionOverlayUi implements InteractionSelectionUi {
 
-  public static final OverlayInteractionSelectionUi INSTANCE =
-    new OverlayInteractionSelectionUi();
+  public static final InteractionSelectionOverlayUi INSTANCE =
+    new InteractionSelectionOverlayUi();
 
-  private OverlayInteractionSelectionUi() {}
+  private InteractionSelectionOverlayUi() {}
 
   @Override
   public void show(IInteractable interactable, Consumer<Interaction> onSelected) {
