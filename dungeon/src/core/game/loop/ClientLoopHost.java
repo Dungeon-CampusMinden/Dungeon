@@ -20,12 +20,12 @@ public final class ClientLoopHost implements GameLoopHost {
 
   @Override
   public ISoundPlayer soundPlayer() {
-    return ClientRuntimeHost.soundPlayer();
+    return ClientEngineHost.soundPlayer();
   }
 
   @Override
   public void run(String[] args, GameLoopCore core) {
-    ClientRuntimeHost.run(args, core);
+    ClientEngineHost.run(args, core);
   }
 
   @Override

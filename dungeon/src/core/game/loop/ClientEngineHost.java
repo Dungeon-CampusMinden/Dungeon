@@ -39,8 +39,8 @@ import java.util.function.Supplier;
  * @see Platform
  * @see ECSManagement
  */
-public final class ClientRuntimeHost {
-  private ClientRuntimeHost() {}
+public final class ClientEngineHost {
+  private ClientEngineHost() {}
 
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
 
