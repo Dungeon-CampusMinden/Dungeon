@@ -14,13 +14,11 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         },
       ]
     },
-
     {
       kind: "category",
       name: "Bewegung",
       colour: "180",
       contents: [
-
         {
           kind: "block",
           type: "move",

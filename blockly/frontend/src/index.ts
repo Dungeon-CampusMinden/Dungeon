@@ -187,7 +187,6 @@ workspace.addChangeListener(async (e: Blockly.Events.Abstract) => {
 
   // check that the two blocks are not the same
   if (newBlock && startBlock.id !== newBlock.id) {
-
     // get the connection tot the next blocks
     const nextConn = startBlock.nextConnection;
 
@@ -198,7 +197,6 @@ workspace.addChangeListener(async (e: Blockly.Events.Abstract) => {
       // disconnect() sorgt dafür, dass die Kinder im Workspace liegen bleiben
       nextConn.disconnect();
     }
-
     // deletes the start block
     startBlock.dispose(false);
   }
