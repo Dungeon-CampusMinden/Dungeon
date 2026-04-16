@@ -2,6 +2,7 @@ package core.game.loop;
 
 import core.game.GameLoopCore;
 import core.sound.player.ISoundPlayer;
+import core.ui.ClientStageHandle;
 import core.ui.StageHandle;
 
 import java.util.Optional;
