@@ -153,6 +153,21 @@ final class FreeInputDialogOverlay implements UiOverlay {
     if (!typed.isEmpty()) {
       for (int i = 0; i < typed.length(); i++) {
         char c = typed.charAt(i);
+
+        if (c == '\b') {
+          if (!inputText.isEmpty()) {
+            inputText.deleteCharAt(inputText.length() - 1);
+          }
+          continue;
+        }
+
+        if (c == 127) {
+          if (!inputText.isEmpty()) {
+            inputText.deleteCharAt(inputText.length() - 1);
+          }
+          continue;
+        }
+
         if (!Character.isISOControl(c)) {
           inputText.append(c);
         }
