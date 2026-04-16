@@ -17,9 +17,9 @@ import core.utils.IVoidFunction;
  * <p>Multiple overloads allow for simple usage with default parameters
  * or full control over transition speed, size constraints, and text overlays.
  */
-public final class ShowImageDialogs {
+public final class ShowImageDialogLauncher {
 
-  private ShowImageDialogs() {}
+  private ShowImageDialogLauncher() {}
 
   /**
    * Displays an image in a popup with the full image-dialog payload.
