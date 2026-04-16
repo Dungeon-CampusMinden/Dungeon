@@ -243,8 +243,7 @@ public class BlocklyCommands {
     }
 
     // Case: treat HOLE or GITTER as WALL
-    return target == LevelElement.WALL
-        && (actual == LevelElement.HOLE);
+    return target == LevelElement.WALL && (actual == LevelElement.HOLE);
   }
 
   /**
