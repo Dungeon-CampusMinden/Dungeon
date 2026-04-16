@@ -138,6 +138,7 @@ public final class PointMode extends LevelEditorMode {
 
     if (addPointDialog != null) {
       UIUtils.closeDialog(addPointDialog, true);
+      InputManager.consumeTypedCharacters();
       addPointDialog = null;
     }
   }
@@ -187,6 +188,8 @@ public final class PointMode extends LevelEditorMode {
   }
 
   private void openAddNamedPointDialog(Point snapPos) {
+    InputManager.consumeTypedCharacters();
+
     if (addPointDialog != null && addPointDialog.isVisible()) {
       return;
     }
@@ -212,6 +215,7 @@ public final class PointMode extends LevelEditorMode {
         }
 
         UIUtils.closeDialog(dialogUI, true);
+        InputManager.consumeTypedCharacters();
         addPointDialog = null;
       });
 
@@ -312,25 +316,5 @@ public final class PointMode extends LevelEditorMode {
     g.setColor(color);
     g.drawString(text, Math.round(pos.x()), Math.round(pos.y()));
     g.setColor(old);
-  }
-
-  private void drawHeldPointGhost(
-    String name,
-    Point pointPos,
-    int markerSize) {
-
-    Point screenCenter = CameraViewportState.worldCenterToScreen(pointPos);
-
-    DebugDrawSystem.drawScreenMarker(
-      screenCenter,
-      markerSize,
-      HELD_POINT_MARKER_COLOR,
-      Color.BLACK);
-
-    int radius = markerSize / 2;
-    DebugDrawSystem.drawText(
-      name + " (held)",
-      new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4),
-      POINT_LABEL_COLOR);
   }
 }

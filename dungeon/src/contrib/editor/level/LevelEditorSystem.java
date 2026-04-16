@@ -546,26 +546,17 @@ public final class LevelEditorSystem extends System {
       return;
     }
 
-    Point screenTopLeft = CameraViewportState.worldToScreen(new Point(worldX, worldY));
+    Point screenTopLeft =
+      CameraViewportState.worldToScreen(new Point(worldX, worldY + worldHeight - 1f));
+
     int px = Math.round(screenTopLeft.x());
     int py = Math.round(screenTopLeft.y());
-    int pw = Math.max(1, Math.round(worldWidth * view.tilePx()));
-    int ph = Math.max(1, Math.round(worldHeight * view.tilePx()));
+    int pw = CameraViewportState.worldLengthToScreen(worldWidth);
+    int ph = CameraViewportState.worldLengthToScreen(worldHeight);
 
     Color oldColor = g.getColor();
     g.setColor(color);
     g.drawRect(px, py, pw, ph);
-    g.setColor(oldColor);
-  }
-
-  private void drawScreenText(Graphics2D g, String text, Point screenPos, Color color) {
-    if (text == null || text.isBlank() || screenPos == null) {
-      return;
-    }
-
-    Color oldColor = g.getColor();
-    g.setColor(color);
-    g.drawString(text, Math.round(screenPos.x()), Math.round(screenPos.y()));
     g.setColor(oldColor);
   }
 }

@@ -7,6 +7,7 @@ import contrib.hud.elements.InventoryComponentProvider;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
+import core.ui.UiNodeHandle;
 import core.utils.logging.DungeonLogger;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -136,6 +137,8 @@ public final class UIUtils {
     if (callDefaultClose) {
       uiComponent.onClose().accept(uiComponent);
     }
+
+    uiComponent.dialog().ifPresent(UiNodeHandle::remove);
 
     try {
       Entity ownerEntity = uiComponent.dialogContext().ownerEntity();
