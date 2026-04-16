@@ -7,6 +7,8 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
+import core.Entity;
+import core.Game;
 import core.platform.Platform;
 import core.camera.CameraViewportState;
 import core.game.render.overlay.TileOverlaySizing;
@@ -68,6 +70,10 @@ public final class PointMode extends LevelEditorMode {
 
   @Override
   protected void execute() {
+    if (addPointDialog != null && addPointDialog.isVisible()) {
+      return;
+    }
+
     if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
       snapMode = snapMode.nextMode();
       system().showModeFeedback("Snap mode: " + snapMode.displayName(), Color.WHITE);
@@ -194,14 +200,21 @@ public final class PointMode extends LevelEditorMode {
       return;
     }
 
-    UIComponent dialogUI =
-      DialogFactory.show(
-        DialogContext.builder()
-          .type(DialogType.DefaultTypes.FREE_INPUT)
-          .put(DialogContextKeys.TITLE, "Add Named Point")
-          .put(DialogContextKeys.QUESTION, "Name of new point")
-          .build());
+    Entity player = Game.player().orElse(null);
 
+    DialogContext context =
+      DialogContext.builder()
+        .type(DialogType.DefaultTypes.FREE_INPUT)
+        .put(DialogContextKeys.TITLE, "Add Named Point")
+        .put(DialogContextKeys.QUESTION, "Name of new point")
+        .build();
+
+    UIComponent dialogUI =
+      player != null
+        ? DialogFactory.show(context, player.id())
+        : DialogFactory.show(context);
+
+    InputManager.consumeTypedCharacters();
     addPointDialog = dialogUI;
 
     dialogUI.registerCallback(

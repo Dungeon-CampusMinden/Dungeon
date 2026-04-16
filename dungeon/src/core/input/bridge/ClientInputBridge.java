@@ -117,6 +117,7 @@ public final class ClientInputBridge {
       case KeyEvent.VK_ESCAPE -> Keys.ESCAPE;
       case KeyEvent.VK_ENTER -> Keys.ENTER;
       case KeyEvent.VK_BACK_SPACE -> Keys.BACKSPACE;
+      case KeyEvent.VK_DELETE -> Keys.DELETE;
       case KeyEvent.VK_TAB -> Keys.TAB;
       case KeyEvent.VK_SHIFT -> Keys.SHIFT_LEFT;
 

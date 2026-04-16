@@ -283,28 +283,29 @@ public final class LevelEditorSystem extends System {
   }
 
   private Optional<Mode> selectedModeByHotkey() {
-    if (InputManager.isKeyPressed(MODE_1)) {
+    if (InputManager.isKeyJustPressed(MODE_1)) {
       return Optional.of(Mode.getMode(0));
     }
-    if (InputManager.isKeyPressed(MODE_2)) {
+    if (InputManager.isKeyJustPressed(MODE_2)) {
       return Optional.of(Mode.getMode(1));
     }
-    if (InputManager.isKeyPressed(MODE_3)) {
+    if (InputManager.isKeyJustPressed(MODE_3)) {
+
       return Optional.of(Mode.getMode(2));
     }
-    if (InputManager.isKeyPressed(MODE_4)) {
+    if (InputManager.isKeyJustPressed(MODE_4)) {
       return Optional.of(Mode.getMode(3));
     }
-    if (InputManager.isKeyPressed(MODE_5)) {
+    if (InputManager.isKeyJustPressed(MODE_5)) {
       return Optional.of(Mode.getMode(4));
     }
-    if (InputManager.isKeyPressed(MODE_6)) {
+    if (InputManager.isKeyJustPressed(MODE_6)) {
       return Optional.of(Mode.getMode(5));
     }
-    if (InputManager.isKeyPressed(MODE_7)) {
+    if (InputManager.isKeyJustPressed(MODE_7)) {
       return Optional.of(Mode.getMode(6));
     }
-    if (InputManager.isKeyPressed(MODE_8)) {
+    if (InputManager.isKeyJustPressed(MODE_8)) {
       return Optional.of(Mode.getMode(7));
     }
 
