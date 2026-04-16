@@ -183,10 +183,24 @@ workspace.addChangeListener(async (e: Blockly.Events.Abstract) => {
     extraStartBlocks.forEach(block => block?.dispose());
     return;
   }
+  const newBlock = newStartBlocks[0];
 
-  if (extraStartBlocks.length === 1) { // delete the old start block, so we can restore the new one
-    workspace.removeBlockById(startBlock.id);
-    startBlock.dispose();
+  // check that the two blocks are not the same
+  if (newBlock && startBlock.id !== newBlock.id) {
+
+    // get the connection tot the next blocks
+    const nextConn = startBlock.nextConnection;
+
+    // if there is a connection to other blocks, then disconnect it
+    // this is important because the start block should be deleted but
+    // the other blocks that are attached to them should not be deleted
+    if (nextConn && nextConn.isConnected()) {
+      // disconnect() sorgt dafür, dass die Kinder im Workspace liegen bleiben
+      nextConn.disconnect();
+    }
+
+    // deletes the start block
+    startBlock.dispose(false);
   }
 });
 
