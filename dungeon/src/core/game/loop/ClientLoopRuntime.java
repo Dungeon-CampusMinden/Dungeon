@@ -12,7 +12,7 @@ import contrib.modules.interaction.InteractionSelection;
 import contrib.modules.interaction.ui.OverlayInteractionSelectionUi;
 import contrib.modules.levelHide.LevelHideSystem;
 import core.System;
-import core.camera.ClientCameraAdapter;
+import core.platform.client.ClientCameraAdapter;
 import core.game.*;
 import core.game.startup.ClientStartup;
 import core.game.render.EcsRenderScreen;

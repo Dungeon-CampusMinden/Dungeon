@@ -1,6 +1,9 @@
-package core.camera;
+package core.platform.client;
 
 import core.Game;
+import core.camera.CameraMath;
+import core.camera.CameraState;
+import core.camera.CameraViewportState;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
