@@ -56,7 +56,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.KEYPAD, KeypadUI::build);
     register(DialogType.DefaultTypes.PROGRESS_BAR, AttributeBarUtil::buildProgressBar);
     register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);
-    LOGGER.debug("Registered built-in dialog types");
+    register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);
   }
 
   /**
@@ -361,6 +361,64 @@ public class DialogFactory {
           UIUtils.closeDialog(ui);
         });
 
+    return ui;
+  }
+
+  /**
+   * Shows a multiple choice dialog with a question, optional description, and a list of selectable
+   * options.
+   *
+   * @param question The question/prompt text displayed at the top
+   * @param title The dialog window title (may be blank for no title)
+   * @param description Optional description text below the question (may be null)
+   * @param options The list of {@link ChoiceOption}s to choose from
+   * @param canCancel Whether to append a cancel option
+   * @param onSelected Callback receiving the selected option text as a {@link
+   *     DialogResponseMessage.Payload}
+   * @param onCancel Callback executed when cancel is pressed (only relevant if canCancel is true)
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed
+   * @return The {@link UIComponent} containing the dialog
+   */
+  public static UIComponent showMultipleChoiceDialog(
+      String question,
+      String title,
+      String description,
+      List<ChoiceOption> options,
+      boolean canCancel,
+      Consumer<DialogResponseMessage.Payload> onSelected,
+      IVoidFunction onCancel,
+      int... targetEntityIds) {
+    Objects.requireNonNull(options, "options list cannot be null");
+    Objects.requireNonNull(onSelected, "onSelected callback cannot be null");
+
+    DialogContext.Builder builder =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.MULTIPLE_CHOICE)
+            .put(DialogContextKeys.TITLE, title)
+            .put(DialogContextKeys.MESSAGE, question)
+            .put(DialogContextKeys.OPTIONS, new ArrayList<>(options))
+            .put(DialogContextKeys.CAN_CANCEL, canCancel);
+    if (description != null) {
+      builder.put(DialogContextKeys.DESCRIPTION, description);
+    }
+
+    UIComponent ui = show(builder.build(), targetEntityIds);
+
+    ui.registerCallback(
+        DialogContextKeys.ON_OPTION_SELECTED,
+        data -> {
+          onSelected.accept(data);
+          UIUtils.closeDialog(ui);
+        });
+
+    if (canCancel && onCancel != null) {
+      ui.registerCallback(
+          DialogContextKeys.ON_CANCEL,
+          data -> {
+            onCancel.execute();
+            UIUtils.closeDialog(ui);
+          });
+    }
     return ui;
   }
 }

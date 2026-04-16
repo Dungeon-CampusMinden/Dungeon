@@ -84,5 +84,20 @@ public class DialogContextKeys {
   /** The key for the progress bar component in the dialog. */
   public static final String PROGRESS_BAR = "progressBar";
 
+  /** The key for the description text shown below the main message. */
+  public static final String DESCRIPTION = "description";
+
+  /**
+   * The key for the list of selectable options (ArrayList&lt;String&gt;) in a multiple choice
+   * dialog.
+   */
+  public static final String OPTIONS = "options";
+
+  /** The key for whether a cancel option should be appended (Boolean). */
+  public static final String CAN_CANCEL = "canCancel";
+
+  /** The key for the callback function to execute when an option is selected. */
+  public static final String ON_OPTION_SELECTED = "onOptionSelected";
+
   private DialogContextKeys() {}
 }
