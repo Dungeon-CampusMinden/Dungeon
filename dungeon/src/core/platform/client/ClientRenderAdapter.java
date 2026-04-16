@@ -4,7 +4,7 @@ import core.game.render.sprite.SpriteRenderSystem;
 import core.platform.RenderAdapter;
 import core.camera.CameraViewportState;
 import contrib.modules.levelHide.LevelHideRenderSystem;
-import core.camera.systems.CameraLevelSyncSystem;
+import core.camera.CameraLevelSyncSystem;
 import contrib.debug.systems.DebugDrawSystem;
 import core.ui.StageHandle;
 import core.utils.Point;

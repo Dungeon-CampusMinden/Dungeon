@@ -1,9 +1,7 @@
-package core.camera.systems;
+package core.camera;
 
 import core.Game;
 import core.System;
-import core.camera.CameraState;
-import core.camera.CameraViewportState;
 import core.level.elements.ILevel;
 import core.platform.Platform;
 import core.utils.Point;
