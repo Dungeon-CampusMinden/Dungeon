@@ -194,7 +194,6 @@ workspace.addChangeListener(async (e: Blockly.Events.Abstract) => {
     // this is important because the start block should be deleted but
     // the other blocks that are attached to them should not be deleted
     if (nextConn && nextConn.isConnected()) {
-      // disconnect() sorgt dafür, dass die Kinder im Workspace liegen bleiben
       nextConn.disconnect();
     }
     // deletes the start block
