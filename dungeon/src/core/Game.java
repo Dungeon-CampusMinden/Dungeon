@@ -1,6 +1,6 @@
 package core;
 
-import core.game.loop.ClientGameLoopHost;
+import core.game.loop.ClientLoopHost;
 import core.platform.Platform;
 import core.ui.StageHandle;
 import contrib.utils.EntityUtils;
@@ -959,7 +959,7 @@ public final class Game {
     }
 
     if (Platform.loopHost() == null) {
-      Platform.loopHost(new ClientGameLoopHost());
+      Platform.loopHost(new ClientLoopHost());
     }
   }
 }

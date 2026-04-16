@@ -16,7 +16,7 @@ import java.util.Optional;
  * <p>It facilitates the orchestration of the game loop, sound player, and UI stage
  * for the client environment.
  */
-public final class ClientGameLoopHost implements GameLoopHost {
+public final class ClientLoopHost implements GameLoopHost {
 
   @Override
   public ISoundPlayer soundPlayer() {
