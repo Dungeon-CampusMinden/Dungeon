@@ -214,15 +214,18 @@ public final class LevelEditorSystem extends System {
       return;
     }
 
-    renderLevelBoundsOutline();
-
-    if (layerDebugActive) {
-      renderLegacyLikeLayerDebug();
+    Graphics2D g = RenderContext.get();
+    if (g == null) {
+      return;
     }
 
-    Graphics2D g = RenderContext.get();
-    currentModeInstance().render(g, deltaSeconds);
+    renderLevelBoundsOutline(g);
 
+    if (layerDebugActive) {
+      renderLegacyLikeLayerDebug(g);
+    }
+
+    currentModeInstance().render(g, deltaSeconds);
     updateOverlay();
   }
 
@@ -393,81 +396,81 @@ public final class LevelEditorSystem extends System {
     return new Point((float) Math.floor(world.x()), (float) Math.floor(world.y()));
   }
 
-  private void renderLevelBoundsOutline() {
+  private void renderLevelBoundsOutline(Graphics2D g) {
     CameraViewportState.Viewport view = CameraViewportState.get();
     if (view == null || view.tilePx() <= 0) {
       return;
     }
 
     currentDungeonLevel()
-      .ifPresent(
-        level -> {
-          Tile[][] layout = level.layout();
-          if (layout.length == 0 || layout[0].length == 0) {
-            return;
-          }
+      .ifPresent(level -> {
+        Tile[][] layout = level.layout();
+        if (layout.length == 0 || layout[0].length == 0) {
+          return;
+        }
 
-          int levelWidth = layout[0].length;
-          int levelHeight = layout.length;
+        int levelWidth = layout[0].length;
+        int levelHeight = layout.length;
 
-          DebugDrawSystem.drawRectangleOutline(
-            0f,
-            0f,
-            levelWidth,
-            levelHeight,
-            LEVEL_BOUNDS_OUTLINE_COLOR);
-        });
+        drawWorldRectangleOutline(
+          g,
+          0f,
+          0f,
+          levelWidth,
+          levelHeight,
+          LEVEL_BOUNDS_OUTLINE_COLOR);
+      });
   }
 
-  private void renderLegacyLikeLayerDebug() {
+  private void renderLegacyLikeLayerDebug(Graphics2D g) {
     CameraViewportState.Viewport view = CameraViewportState.get();
     if (view == null || view.tilePx() <= 0) {
       return;
     }
 
-    renderLayerDebugTiles();
-    renderLayerDebugEntities(view);
+    renderLayerDebugTiles(g);
+    renderLayerDebugEntities(g, view);
   }
 
-  private void renderLayerDebugTiles() {
+  private void renderLayerDebugTiles(Graphics2D g) {
     currentDungeonLevel()
-      .ifPresent(
-        level -> {
-          Tile[][] layout = level.layout();
-          for (int y = 0; y < layout.length; y++) {
-            for (int x = 0; x < layout[y].length; x++) {
-              DebugDrawSystem.drawRectangleOutline(
-                x,
-                y,
-                1.0f,
-                1.0f,
-                DEBUG_LEVEL_TILE_OUTLINE_COLOR);
-            }
+      .ifPresent(level -> {
+        Tile[][] layout = level.layout();
+        for (int y = 0; y < layout.length; y++) {
+          for (int x = 0; x < layout[y].length; x++) {
+            drawWorldRectangleOutline(
+              g,
+              x,
+              y,
+              1.0f,
+              1.0f,
+              DEBUG_LEVEL_TILE_OUTLINE_COLOR);
           }
-        });
+        }
+      });
   }
 
-  private void renderLayerDebugEntities(CameraViewportState.Viewport view) {
+  private void renderLayerDebugEntities(Graphics2D g, CameraViewportState.Viewport view) {
     float insetWorld = DEBUG_ENTITY_INSET_PX / (float) view.tilePx();
     float sizeWorld = Math.max(0.05f, 1.0f - (2f * insetWorld));
 
     Game.levelEntities(Set.of(PositionComponent.class, DrawComponent.class))
-      .forEach(
-        entity -> {
-          PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
-          if (pc == null) {
-            return;
-          }
+      .forEach(entity -> {
+        PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
+        if (pc == null) {
+          return;
+        }
 
-          Point pos = pc.position();
+        Point pos = pc.position();
 
-          DebugDrawSystem.drawRectangleOutline(
-            pos.x() + insetWorld,
-            pos.y() + insetWorld,
-            sizeWorld,
-            sizeWorld,
-            debugEntityColor(entity));
-        });
+        drawWorldRectangleOutline(
+          g,
+          pos.x() + insetWorld,
+          pos.y() + insetWorld,
+          sizeWorld,
+          sizeWorld,
+          debugEntityColor(entity));
+      });
   }
 
   private Color debugEntityColor(Entity entity) {
@@ -534,5 +537,35 @@ public final class LevelEditorSystem extends System {
       }
       return values()[number];
     }
+  }
+
+  private void drawWorldRectangleOutline(
+    Graphics2D g, float worldX, float worldY, float worldWidth, float worldHeight, Color color) {
+    CameraViewportState.Viewport view = CameraViewportState.get();
+    if (view == null || view.tilePx() <= 0) {
+      return;
+    }
+
+    Point screenTopLeft = CameraViewportState.worldToScreen(new Point(worldX, worldY));
+    int px = Math.round(screenTopLeft.x());
+    int py = Math.round(screenTopLeft.y());
+    int pw = Math.max(1, Math.round(worldWidth * view.tilePx()));
+    int ph = Math.max(1, Math.round(worldHeight * view.tilePx()));
+
+    Color oldColor = g.getColor();
+    g.setColor(color);
+    g.drawRect(px, py, pw, ph);
+    g.setColor(oldColor);
+  }
+
+  private void drawScreenText(Graphics2D g, String text, Point screenPos, Color color) {
+    if (text == null || text.isBlank() || screenPos == null) {
+      return;
+    }
+
+    Color oldColor = g.getColor();
+    g.setColor(color);
+    g.drawString(text, Math.round(screenPos.x()), Math.round(screenPos.y()));
+    g.setColor(oldColor);
   }
 }

@@ -96,30 +96,26 @@ public final class StartTilesMode extends LevelEditorMode {
             .ifPresent(
               level -> {
                 int tilePx = view.tilePx();
+                if (tilePx <= 0) {
+                  return;
+                }
 
                 for (int i = 0; i < level.startTiles().size(); i++) {
                   Tile tile = level.startTiles().get(i);
                   Point pos = tile.position();
-
                   Color color = START_TILE_COLORS[i % START_TILE_COLORS.length];
 
-                  DebugDrawSystem.drawRectangleOutline(
-                    pos.x(),
-                    pos.y(),
-                    1.0f,
-                    1.0f,
-                    color);
-
                   Point screenTopLeft = CameraViewportState.worldToScreen(pos);
-                  Point labelPos =
-                    new Point(
-                      screenTopLeft.x() + 4,
-                      screenTopLeft.y() + TileOverlaySizing.scaledPixels(tilePx, 0.5f, 14));
+                  int x = Math.round(screenTopLeft.x());
+                  int y = Math.round(screenTopLeft.y());
 
-                  DebugDrawSystem.drawText(
-                    "Start: " + (i + 1),
-                    labelPos,
-                    color);
+                  Color oldColor = g.getColor();
+                  g.setColor(color);
+                  g.drawRect(x, y, tilePx, tilePx);
+
+                  int labelY = y + Math.max(14, tilePx / 2);
+                  g.drawString("Start: " + (i + 1), x + 4, labelY);
+                  g.setColor(oldColor);
                 }
               }));
   }

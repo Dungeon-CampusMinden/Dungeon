@@ -129,7 +129,7 @@ public final class PointMode extends LevelEditorMode {
 
   @Override
   public void render(Graphics2D g, float deltaSeconds) {
-    renderPointMarkers();
+    renderPointMarkers(g);
   }
 
   @Override
@@ -225,7 +225,7 @@ public final class PointMode extends LevelEditorMode {
     dialogUI.onClose(ui -> addPointDialog = null);
   }
 
-  private void renderPointMarkers() {
+  private void renderPointMarkers(Graphics2D g) {
     activeCameraView()
       .ifPresent(
         view ->
@@ -241,15 +241,16 @@ public final class PointMode extends LevelEditorMode {
                     POINT_MARKER_MAX_PX);
 
                 level.namedPoints()
-                  .forEach((name, pos) -> drawNamedPointMarker(name, pos, markerSize));
+                  .forEach((name, pos) -> drawNamedPointMarker(g, name, pos, markerSize));
 
                 if (heldPointName != null) {
-                  drawHeldPointGhost(heldPointName, currentSnapPosition(), markerSize);
+                  drawHeldPointGhost(g, heldPointName, currentSnapPosition(), markerSize);
                 }
               }));
   }
 
   private void drawNamedPointMarker(
+    Graphics2D g,
     String name,
     Point pointPos,
     int markerSize) {
@@ -257,17 +258,60 @@ public final class PointMode extends LevelEditorMode {
     Point screenCenter = CameraViewportState.worldCenterToScreen(pointPos);
     boolean heldPoint = name != null && name.equals(heldPointName);
 
-    DebugDrawSystem.drawScreenMarker(
+    drawMarker(
+      g,
       screenCenter,
       markerSize,
-      heldPoint ? HELD_POINT_MARKER_COLOR : POINT_MARKER_COLOR,
-      Color.BLACK);
+      heldPoint ? HELD_POINT_MARKER_COLOR : POINT_MARKER_COLOR);
 
     int radius = markerSize / 2;
-    DebugDrawSystem.drawText(
+    drawLabel(
+      g,
       name,
       new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4),
       POINT_LABEL_COLOR);
+  }
+
+  private void drawHeldPointGhost(
+    Graphics2D g,
+    String name,
+    Point pointPos,
+    int markerSize) {
+
+    Point screenCenter = CameraViewportState.worldCenterToScreen(pointPos);
+
+    drawMarker(
+      g,
+      screenCenter,
+      markerSize,
+      HELD_POINT_MARKER_COLOR);
+
+    int radius = markerSize / 2;
+    drawLabel(
+      g,
+      name + " (held)",
+      new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4),
+      POINT_LABEL_COLOR);
+  }
+
+  private void drawMarker(Graphics2D g, Point center, int size, Color fill) {
+    int radius = size / 2;
+    int x = Math.round(center.x()) - radius;
+    int y = Math.round(center.y()) - radius;
+
+    Color old = g.getColor();
+    g.setColor(fill);
+    g.fillOval(x, y, size, size);
+    g.setColor(Color.BLACK);
+    g.drawOval(x, y, size, size);
+    g.setColor(old);
+  }
+
+  private void drawLabel(Graphics2D g, String text, Point pos, Color color) {
+    Color old = g.getColor();
+    g.setColor(color);
+    g.drawString(text, Math.round(pos.x()), Math.round(pos.y()));
+    g.setColor(old);
   }
 
   private void drawHeldPointGhost(
