@@ -2,7 +2,7 @@ package contrib.hud.image;
 
 import core.Game;
 import core.render.ImageAssets;
-import contrib.hud.overlays.DialogFrameRenderer;
+import contrib.hud.renderers.DialogFrameRenderer;
 import core.ui.overlay.UiOverlay;
 import java.awt.AlphaComposite;
 import java.awt.Color;

@@ -1,6 +1,6 @@
 package contrib.hud.dialogs;
 
-import contrib.hud.overlays.DialogFrameRenderer;
+import contrib.hud.renderers.DialogFrameRenderer;
 import core.Game;
 import core.input.MouseButtons;
 import core.ui.overlay.UiOverlay;

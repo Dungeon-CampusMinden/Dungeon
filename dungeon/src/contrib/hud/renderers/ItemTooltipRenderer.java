@@ -1,4 +1,4 @@
-package contrib.hud.overlays;
+package contrib.hud.renderers;
 
 import contrib.hud.UIUtils;
 import contrib.item.Item;

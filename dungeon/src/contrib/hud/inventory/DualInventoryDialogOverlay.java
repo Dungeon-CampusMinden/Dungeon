@@ -2,9 +2,9 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.elements.InventoryComponentProvider;
-import contrib.hud.overlays.InventoryGridRenderer;
-import contrib.hud.overlays.ItemTooltipRenderer;
-import contrib.hud.overlays.DialogFrameRenderer;
+import contrib.hud.renderers.InventoryGridRenderer;
+import contrib.hud.renderers.ItemTooltipRenderer;
+import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;

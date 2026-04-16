@@ -5,7 +5,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.input.MouseButtons;
-import contrib.hud.overlays.DialogFrameRenderer;
+import contrib.hud.renderers.DialogFrameRenderer;
 import core.ui.overlay.UiOverlay;
 import core.sound.SoundSpec;
 import core.ui.StageHandle;

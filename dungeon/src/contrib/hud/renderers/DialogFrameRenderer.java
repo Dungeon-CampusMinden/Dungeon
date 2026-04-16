@@ -1,4 +1,4 @@
-package contrib.hud.overlays;
+package contrib.hud.renderers;
 
 import core.Game;
 import java.awt.Color;
