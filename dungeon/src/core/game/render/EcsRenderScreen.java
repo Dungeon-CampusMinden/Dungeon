@@ -2,7 +2,7 @@ package core.game.render;
 
 import core.game.ECSManagement;
 import core.game.render.scene.SceneEffectPipeline;
-import core.ui.overlay.UiOverlayRegistry;
+import core.ui.overlay.OverlayManager;
 import core.utils.Time;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.gui.screens.Screen;
@@ -61,7 +61,7 @@ public final class EcsRenderScreen extends Screen {
     RenderContext.set(g);
     try {
       ECSManagement.renderAll(deltaSeconds);
-      UiOverlayRegistry.renderAll(g);
+      OverlayManager.renderAll(g);
     } finally {
       RenderContext.clear();
     }

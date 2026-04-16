@@ -6,7 +6,7 @@ import contrib.modules.interaction.InteractionChoices;
 import core.Game;
 import core.input.MouseButtons;
 import core.ui.overlay.UiOverlay;
-import core.ui.overlay.UiOverlayRegistry;
+import core.ui.overlay.OverlayManager;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import java.awt.AlphaComposite;
@@ -199,7 +199,7 @@ final class InteractionSelectionOverlay implements UiOverlay {
 
   private void close(Interaction interaction) {
     visible = false;
-    UiOverlayRegistry.remove(this);
+    OverlayManager.remove(this);
     onSelected.accept(interaction);
   }
 

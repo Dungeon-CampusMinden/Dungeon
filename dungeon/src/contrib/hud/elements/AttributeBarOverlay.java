@@ -1,7 +1,7 @@
 package contrib.hud.elements;
 
 import core.ui.overlay.UiOverlay;
-import core.ui.overlay.UiOverlayRegistry;
+import core.ui.overlay.OverlayManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
@@ -86,7 +86,7 @@ public final class AttributeBarOverlay
   @Override
   public void remove() {
     visible = false;
-    UiOverlayRegistry.remove(this);
+    OverlayManager.remove(this);
   }
 
   @Override

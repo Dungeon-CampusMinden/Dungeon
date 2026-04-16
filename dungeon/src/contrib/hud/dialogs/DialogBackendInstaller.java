@@ -5,8 +5,8 @@ import contrib.hud.image.ShowImageDialogBuilder;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
 import contrib.modules.keypad.ui.KeypadDialogBuilder;
-import core.ui.HeadlessUiNodeHandle;
-import core.ui.UiNodeHandle;
+import core.ui.NullUiHandle;
+import core.ui.UiHandle;
 
 /**
  * Installs the available dialog backend implementations in the shared dialog factory.
@@ -56,7 +56,7 @@ public final class DialogBackendInstaller {
     DialogFactory.registerIfAbsent(type, DialogBackendInstaller::createFallbackHandle);
   }
 
-  private static UiNodeHandle createFallbackHandle(DialogContext ctx) {
-    return new HeadlessUiNodeHandle();
+  private static UiHandle createFallbackHandle(DialogContext ctx) {
+    return new NullUiHandle();
   }
 }

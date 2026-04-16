@@ -3,8 +3,8 @@ package contrib.hud.dialogs;
 import contrib.hud.elements.AttributeBarDialogData;
 import contrib.hud.elements.AttributeBarOverlay;
 import contrib.hud.utils.AttributeBarUtil;
-import core.ui.UiNodeHandle;
-import core.ui.overlay.OverlayUiNodeHandle;
+import core.ui.UiHandle;
+import core.ui.overlay.OverlayHandle;
 
 /**
  * A builder for creating progress bar dialog UI nodes.
@@ -30,7 +30,7 @@ public final class ProgressBarDialogBuilder {
    * @return a UI node handle wrapping the created attribute bar overlay
    * @throws IllegalArgumentException if the required progress bar data is not present in the context
    */
-  public static UiNodeHandle build(DialogContext ctx) {
+  public static UiHandle build(DialogContext ctx) {
     AttributeBarDialogData data =
       ctx.require(DialogContextKeys.PROGRESS_BAR, AttributeBarDialogData.class);
 
@@ -40,6 +40,6 @@ public final class ProgressBarDialogBuilder {
     AttributeBarUtil.updatePosition(overlay, data.pc(), data.verticalOffset());
     overlay.setVisible(true);
 
-    return new OverlayUiNodeHandle(overlay);
+    return new OverlayHandle(overlay);
   }
 }

@@ -3,7 +3,7 @@ package contrib.modules.interaction.ui;
 import contrib.modules.interaction.IInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionSelectionUi;
-import core.ui.overlay.UiOverlayRegistry;
+import core.ui.overlay.OverlayManager;
 import java.util.function.Consumer;
 
 /**
@@ -13,7 +13,7 @@ import java.util.function.Consumer;
  *
  * <p>This class uses an overlay mechanism to present interaction choices
  * and manage user selection. It registers the overlay into the
- * {@link UiOverlayRegistry} and ensures it is brought to the front for
+ * {@link OverlayManager} and ensures it is brought to the front for
  * user visibility.
  *
  * <p>This class follows the singleton pattern, with its single instance
@@ -31,7 +31,7 @@ public final class OverlayInteractionSelectionUi implements InteractionSelection
     InteractionSelectionOverlay overlay =
       new InteractionSelectionOverlay(interactable, onSelected);
 
-    UiOverlayRegistry.add(overlay);
-    UiOverlayRegistry.toFront(overlay);
+    OverlayManager.add(overlay);
+    OverlayManager.toFront(overlay);
   }
 }

@@ -6,7 +6,7 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.Entity;
-import core.ui.UiNodeHandle;
+import core.ui.UiHandle;
 import core.utils.logging.DungeonLogger;
 
 /**
@@ -73,7 +73,7 @@ public final class DebugPauseController {
 
     return pauseMenu.fetch(UIComponent.class)
       .flatMap(UIComponent::dialog)
-      .map(UiNodeHandle::isAttached)
+      .map(UiHandle::isAttached)
       .orElse(false);
   }
 

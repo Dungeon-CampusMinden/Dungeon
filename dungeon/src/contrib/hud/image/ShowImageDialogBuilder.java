@@ -2,8 +2,8 @@ package contrib.hud.image;
 
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import core.ui.UiNodeHandle;
-import core.ui.overlay.OverlayUiNodeHandle;
+import core.ui.UiHandle;
+import core.ui.overlay.OverlayHandle;
 
 /**
  * A builder for creating image display dialog UI nodes.
@@ -36,7 +36,7 @@ public final class ShowImageDialogBuilder {
    * @return a UI node handle wrapping the created image display overlay
    * @throws IllegalArgumentException if the required image path is not present in the context
    */
-  public static UiNodeHandle build(DialogContext ctx) {
+  public static UiHandle build(DialogContext ctx) {
     String imagePath = ctx.require(DialogContextKeys.IMAGE, String.class);
     TransitionSpeed speed =
       ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
@@ -54,7 +54,7 @@ public final class ShowImageDialogBuilder {
     int imageTextColorRgba8888 =
       ctx.find(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, Integer.class).orElse(0x000000ff);
 
-    return new OverlayUiNodeHandle(
+    return new OverlayHandle(
       new ShowImageOverlay(
         imagePath, speed, maxSize, imageText, imageTextScale, imageTextColorRgba8888));
   }

@@ -7,8 +7,8 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
 import core.Entity;
 import core.components.PlayerComponent;
-import core.ui.UiNodeHandle;
-import core.ui.overlay.OverlayUiNodeHandle;
+import core.ui.UiHandle;
+import core.ui.overlay.OverlayHandle;
 import core.utils.logging.DungeonLogger;
 
 /**
@@ -43,7 +43,7 @@ public final class CraftingDialogBuilder {
    *         entity lacks a UIComponent
    * @throws IllegalArgumentException if required, entities are not present in the context
    */
-  public static UiNodeHandle build(DialogContext ctx) {
+  public static UiHandle build(DialogContext ctx) {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
     Entity craftEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
 
@@ -68,7 +68,7 @@ public final class CraftingDialogBuilder {
       new CraftingDialogController(heroInventory, craftInventory);
     controller.registerCallbacks(uiComponent);
 
-    return new OverlayUiNodeHandle(
+    return new OverlayHandle(
       new CraftingDialogOverlay(title, craftTitle, controller, ctx.dialogId()));
   }
 

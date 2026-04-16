@@ -3,7 +3,8 @@ package contrib.modules.keypad.ui;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import core.Entity;
-import core.ui.overlay.OverlayUiNodeHandle;
+import core.ui.UiHandle;
+import core.ui.overlay.OverlayHandle;
 
 /**
  * A builder for creating keypad dialog UI nodes.
@@ -22,8 +23,8 @@ public final class KeypadDialogBuilder {
    * @return a UI node handle wrapping the created keypad dialog overlay
    * @throws IllegalArgumentException if the entity is not present in the dialog context
    */
-  public static core.ui.UiNodeHandle build(DialogContext ctx) {
+  public static UiHandle build(DialogContext ctx) {
     Entity keypad = ctx.requireEntity(DialogContextKeys.ENTITY);
-    return new OverlayUiNodeHandle(new KeypadDialogOverlay(keypad));
+    return new OverlayHandle(new KeypadDialogOverlay(keypad));
   }
 }

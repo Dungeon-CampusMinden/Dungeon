@@ -10,7 +10,7 @@ import core.game.PreRunConfiguration;
 import core.network.NetworkUtils;
 import core.network.messages.s2c.DialogShowMessage;
 import core.network.server.DialogTracker;
-import core.ui.UiNodeHandle;
+import core.ui.UiHandle;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
@@ -30,7 +30,7 @@ public final class HudSystem extends System {
    * The removeListener only gets the Entity after its Component is removed. Which means no longer
    * any access to the Group. This is why we need the last group an entity had as a mapping.
    */
-  private final Map<Entity, UiNodeHandle> entityGroupMap = new HashMap<>();
+  private final Map<Entity, UiHandle> entityGroupMap = new HashMap<>();
 
   private final Map<Entity, UIComponent> entityUIComponentMap = new HashMap<>();
 
@@ -51,7 +51,7 @@ public final class HudSystem extends System {
       .filter(entry -> entry.getValue().isVisible() && entry.getValue().canBeClosed())
       .max(
         Comparator.comparingInt(
-          entry -> entry.getValue().dialog().map(UiNodeHandle::getZIndex).orElse(-1)))
+          entry -> entry.getValue().dialog().map(UiHandle::getZIndex).orElse(-1)))
       .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
   }
 
@@ -61,7 +61,7 @@ public final class HudSystem extends System {
    * @param entity Entity which no longer has a UIComponent.
    */
   private void removeListener(final Entity entity) {
-    UiNodeHandle remove = entityGroupMap.remove(entity);
+    UiHandle remove = entityGroupMap.remove(entity);
     if (remove != null) {
       remove.remove();
     }
@@ -79,7 +79,7 @@ public final class HudSystem extends System {
         .fetch(UIComponent.class)
         .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
 
-    UiNodeHandle dialogHandle = resolveDialogHandle(component);
+    UiHandle dialogHandle = resolveDialogHandle(component);
 
     // check if we should draw it
     int[] myIds = Game.allPlayers().mapToInt(Entity::id).toArray();
@@ -128,12 +128,12 @@ public final class HudSystem extends System {
         });
   }
 
-  private UiNodeHandle resolveDialogHandle(UIComponent component) {
+  private UiHandle resolveDialogHandle(UIComponent component) {
     return component
       .dialog()
       .orElseGet(
         () -> {
-          UiNodeHandle created = DialogFactory.create(component.dialogContext());
+          UiHandle created = DialogFactory.create(component.dialogContext());
           component.dialog(created);
           return created;
         });
@@ -169,8 +169,8 @@ public final class HudSystem extends System {
     }
   }
 
-  private void addMapping(final Entity entity, final UiNodeHandle dialog, final UIComponent component) {
-    UiNodeHandle previous = entityGroupMap.put(entity, dialog);
+  private void addMapping(final Entity entity, final UiHandle dialog, final UIComponent component) {
+    UiHandle previous = entityGroupMap.put(entity, dialog);
     if (previous != null && previous != dialog) {
       previous.remove();
     }

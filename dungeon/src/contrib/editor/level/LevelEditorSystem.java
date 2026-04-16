@@ -2,7 +2,6 @@ package contrib.editor.level;
 
 import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
-import contrib.debug.systems.DebugDrawSystem;
 import contrib.editor.level.mode.DecoColliderMode;
 import contrib.editor.level.mode.DecoMode;
 import contrib.editor.level.mode.LevelBoundsMode;
@@ -25,7 +24,7 @@ import core.input.Keys;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.platform.Platform;
-import core.ui.overlay.UiOverlayRegistry;
+import core.ui.overlay.OverlayManager;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.utils.Time;
@@ -270,16 +269,16 @@ public final class LevelEditorSystem extends System {
   private void attachOverlay() {
     overlay.visible(true);
 
-    if (!UiOverlayRegistry.contains(overlay)) {
-      UiOverlayRegistry.add(overlay);
+    if (!OverlayManager.contains(overlay)) {
+      OverlayManager.add(overlay);
     }
 
-    UiOverlayRegistry.toFront(overlay);
+    OverlayManager.toFront(overlay);
   }
 
   private void detachOverlay() {
     overlay.visible(false);
-    UiOverlayRegistry.remove(overlay);
+    OverlayManager.remove(overlay);
   }
 
   private Optional<Mode> selectedModeByHotkey() {

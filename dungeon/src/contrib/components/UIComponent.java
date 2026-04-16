@@ -2,7 +2,7 @@ package contrib.components;
 
 import contrib.hud.dialogs.DialogContext;
 import core.Component;
-import core.ui.UiNodeHandle;
+import core.ui.UiHandle;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +36,7 @@ public final class UIComponent implements Component {
    * <p>The component itself only stores dialog state and configuration. Concrete dialog handle
    * creation is performed by the UI/HUD system.
    */
-  private UiNodeHandle dialog;
+  private UiHandle dialog;
 
   /**
    * Create a new UIComponent.
@@ -184,7 +184,7 @@ public final class UIComponent implements Component {
    *
    * @return optional dialog handle
    */
-  public Optional<UiNodeHandle> dialog() {
+  public Optional<UiHandle> dialog() {
     return Optional.ofNullable(dialog);
   }
 
@@ -193,7 +193,7 @@ public final class UIComponent implements Component {
    *
    * @param dialog the dialog handle created by the HUD layer
    */
-  public void dialog(UiNodeHandle dialog) {
+  public void dialog(UiHandle dialog) {
     this.dialog = dialog;
   }
 }

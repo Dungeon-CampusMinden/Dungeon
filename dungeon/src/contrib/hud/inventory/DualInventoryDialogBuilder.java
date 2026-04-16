@@ -6,7 +6,8 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
 import core.Entity;
 import core.components.PlayerComponent;
-import core.ui.overlay.OverlayUiNodeHandle;
+import core.ui.UiHandle;
+import core.ui.overlay.OverlayHandle;
 import core.utils.logging.DungeonLogger;
 
 /**
@@ -38,7 +39,7 @@ public final class DualInventoryDialogBuilder {
    * @throws DialogCreationException if either entity lacks an InventoryComponent
    * @throws IllegalArgumentException if required, entities are not present in the context
    */
-  public static core.ui.UiNodeHandle build(DialogContext ctx) {
+  public static UiHandle build(DialogContext ctx) {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
     Entity otherEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
 
@@ -55,7 +56,7 @@ public final class DualInventoryDialogBuilder {
     String otherTitle =
       ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(defaultTitle(otherEntity));
 
-    return new OverlayUiNodeHandle(
+    return new OverlayHandle(
       new DualInventoryDialogOverlay(title, inventory, otherTitle, otherInventory));
   }
 

@@ -1,7 +1,7 @@
 package contrib.hud.dialogs;
 
-import core.ui.UiNodeHandle;
-import core.ui.overlay.OverlayUiNodeHandle;
+import core.ui.UiHandle;
+import core.ui.overlay.OverlayHandle;
 
 /**
  * A builder for creating pause menu dialog UI nodes.
@@ -20,7 +20,7 @@ public final class PauseMenuDialogBuilder {
    * @param ctx the dialog context (not used for pause menu configuration)
    * @return a UI node handle wrapping the created pause menu overlay
    */
-  public static UiNodeHandle build(DialogContext ctx) {
-    return new OverlayUiNodeHandle(new PauseMenuOverlay());
+  public static UiHandle build(DialogContext ctx) {
+    return new OverlayHandle(new PauseMenuOverlay());
   }
 }

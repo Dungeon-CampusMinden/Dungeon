@@ -1,7 +1,7 @@
 package contrib.hud.dialogs;
 
-import core.ui.UiNodeHandle;
-import core.ui.overlay.OverlayUiNodeHandle;
+import core.ui.UiHandle;
+import core.ui.overlay.OverlayHandle;
 
 /**
  * A builder for creating free text input dialog UI nodes.
@@ -33,7 +33,7 @@ public final class FreeInputDialogBuilder {
    * @return a UI node handle wrapping the created free input dialog overlay
    * @throws IllegalArgumentException if the required question is not present in the context
    */
-  public static UiNodeHandle build(DialogContext ctx) {
+  public static UiHandle build(DialogContext ctx) {
     String title =
       ctx.find(DialogContextKeys.TITLE, String.class)
         .orElse(FreeInputDialogOverlay.TITLE_DEFAULT);
@@ -49,7 +49,7 @@ public final class FreeInputDialogBuilder {
       ctx.find(DialogContextKeys.CANCEL_LABEL, String.class)
         .orElse(FreeInputDialogOverlay.CANCEL_BUTTON);
 
-    return new OverlayUiNodeHandle(
+    return new OverlayHandle(
       new FreeInputDialogOverlay(
         title, question, prefill, placeholder, confirmLabel, cancelLabel, ctx.dialogId()));
   }

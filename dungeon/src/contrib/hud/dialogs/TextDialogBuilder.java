@@ -1,7 +1,7 @@
 package contrib.hud.dialogs;
 
-import core.ui.UiNodeHandle;
-import core.ui.overlay.OverlayUiNodeHandle;
+import core.ui.UiHandle;
+import core.ui.overlay.OverlayHandle;
 
 /**
  * A builder for creating text dialog UI nodes.
@@ -33,7 +33,7 @@ public final class TextDialogBuilder {
    * @return a UI node handle wrapping the created text dialog overlay
    * @throws IllegalArgumentException if the required title or message is not present in the context
    */
-  public static UiNodeHandle build(DialogContext ctx) {
+  public static UiHandle build(DialogContext ctx) {
     String title = ctx.require(DialogContextKeys.TITLE, String.class);
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String confirmLabel =
@@ -43,7 +43,7 @@ public final class TextDialogBuilder {
     String[] additionalButtons =
       ctx.find(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class).orElse(new String[] {});
 
-    return new OverlayUiNodeHandle(
+    return new OverlayHandle(
       new TextDialogOverlay(
         title, text, confirmLabel, cancelLabel, additionalButtons, ctx.dialogId()));
   }

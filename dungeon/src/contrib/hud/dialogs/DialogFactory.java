@@ -4,7 +4,7 @@ import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
-import core.ui.UiNodeHandle;
+import core.ui.UiHandle;
 import core.utils.IVoidFunction;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +25,7 @@ import java.util.function.Function;
  */
 public class DialogFactory {
 
-  private static final Map<DialogType, Function<DialogContext, UiNodeHandle>> registry =
+  private static final Map<DialogType, Function<DialogContext, UiHandle>> registry =
     new HashMap<>();
 
   /**
@@ -37,7 +37,7 @@ public class DialogFactory {
    * @param creator Function that creates a dialog from a context
    * @throws DialogCreationException if a dialog type with the given name is already registered
    */
-  public static void register(DialogType type, Function<DialogContext, UiNodeHandle> creator) {
+  public static void register(DialogType type, Function<DialogContext, UiHandle> creator) {
     Objects.requireNonNull(type, "type");
     Objects.requireNonNull(creator, "creator");
     if (registry.containsKey(type)) {
@@ -57,7 +57,7 @@ public class DialogFactory {
    * @return {@code true} if the creator was inserted, {@code false} if a creator already existed
    */
   public static boolean registerIfAbsent(
-    DialogType type, Function<DialogContext, UiNodeHandle> creator) {
+    DialogType type, Function<DialogContext, UiHandle> creator) {
     Objects.requireNonNull(type, "type");
     Objects.requireNonNull(creator, "creator");
 
@@ -78,7 +78,7 @@ public class DialogFactory {
    * @param type The unique type of the dialog
    * @param creator Function that creates a dialog from a context
    */
-  public static void replace(DialogType type, Function<DialogContext, UiNodeHandle> creator) {
+  public static void replace(DialogType type, Function<DialogContext, UiHandle> creator) {
     Objects.requireNonNull(type, "type");
     Objects.requireNonNull(creator, "creator");
     registry.put(type, creator);
@@ -102,10 +102,10 @@ public class DialogFactory {
    * @return The UiNodeHandle wrapping the created dialog
    * @throws DialogCreationException if the dialog type is not registered
    */
-  public static UiNodeHandle create(DialogContext ctx) {
+  public static UiHandle create(DialogContext ctx) {
     Objects.requireNonNull(ctx, "context");
 
-    Function<DialogContext, UiNodeHandle> creator = registry.get(ctx.dialogType());
+    Function<DialogContext, UiHandle> creator = registry.get(ctx.dialogType());
     if (creator == null) {
       throw new DialogCreationException("Unknown dialog type: " + ctx);
     }

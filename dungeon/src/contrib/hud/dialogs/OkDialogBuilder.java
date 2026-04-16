@@ -1,7 +1,7 @@
 package contrib.hud.dialogs;
 
-import core.ui.UiNodeHandle;
-import core.ui.overlay.OverlayUiNodeHandle;
+import core.ui.UiHandle;
+import core.ui.overlay.OverlayHandle;
 
 /**
  * A builder for creating OK dialog UI nodes.
@@ -26,11 +26,11 @@ public final class OkDialogBuilder {
    * @return a UI node handle wrapping the created OK dialog overlay
    * @throws IllegalArgumentException if the required message is not present in the context
    */
-  public static UiNodeHandle build(DialogContext ctx) {
+  public static UiHandle build(DialogContext ctx) {
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("OK");
 
-    return new OverlayUiNodeHandle(
+    return new OverlayHandle(
       new OkDialogOverlay(title, text, ctx.dialogId()));
   }
 }
