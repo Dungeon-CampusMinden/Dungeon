@@ -109,7 +109,7 @@ public final class ClientLoopRuntime {
     Platform.render(new ClientRenderAdapter());
     Platform.cursor(new ClientCursorAdapter());
     Platform.camera(new ClientCameraAdapter());
-    Platform.clipboard(new AwtClipboardAdapter());
+    Platform.clipboard(new ClientClipboardAdapter());
 
     // Bridge game engine input events into the InputManager
     ClientInputBridge.install();

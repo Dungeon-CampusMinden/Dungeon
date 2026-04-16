@@ -12,7 +12,7 @@ import java.awt.datatransfer.StringSelection;
  * <p>This implementation supports clipboard access universally, allowing text to be copied to the clipboard and
  * confirming support for clipboard functionality on all platforms.
  */
-public final class AwtClipboardAdapter implements ClipboardAdapter {
+public final class ClientClipboardAdapter implements ClipboardAdapter {
 
   @Override
   public void setContents(String text) {
