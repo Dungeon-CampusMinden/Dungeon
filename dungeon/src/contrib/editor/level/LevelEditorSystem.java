@@ -214,18 +214,15 @@ public final class LevelEditorSystem extends System {
       return;
     }
 
-    Graphics2D g = RenderContext.get();
-    if (g == null) {
-      return;
-    }
-
     renderLevelBoundsOutline();
 
     if (layerDebugActive) {
       renderLegacyLikeLayerDebug();
     }
 
+    Graphics2D g = RenderContext.get();
     currentModeInstance().render(g, deltaSeconds);
+
     updateOverlay();
   }
 

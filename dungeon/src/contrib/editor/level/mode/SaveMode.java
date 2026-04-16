@@ -2,6 +2,7 @@ package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
 import core.level.loader.DungeonSaver;
+import core.platform.Platform;
 import core.utils.InputManager;
 import java.awt.Color;
 import java.util.LinkedHashMap;
@@ -32,10 +33,17 @@ public final class SaveMode extends LevelEditorMode {
 
   @Override
   protected void execute() {
-    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      DungeonSaver.saveCurrentDungeon();
-      system().showModeFeedback("Exported level to clipboard!", Color.GREEN);
+    if (!InputManager.isKeyJustPressed(PRIMARY_UP)) {
+      return;
     }
+
+    if (!Platform.clipboard().isSupported()) {
+      system().showModeFeedback("Clipboard export is not supported on this runtime.", Color.YELLOW);
+      return;
+    }
+
+    DungeonSaver.saveCurrentDungeon();
+    system().showModeFeedback("Exported level to clipboard!", Color.GREEN);
   }
 
   @Override

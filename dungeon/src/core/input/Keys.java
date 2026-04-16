@@ -86,6 +86,7 @@ public final class Keys {
   public static final int ENTER = 66;
   public static final int BACKSPACE = 67;
   public static final int ESCAPE = 111;
+  public static final int DELETE = 112;
 
   // Function keys
   public static final int F1 = 131;

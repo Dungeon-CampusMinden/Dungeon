@@ -164,6 +164,10 @@ final class FreeInputDialogOverlay implements UiOverlay {
       inputText.deleteCharAt(inputText.length() - 1);
     }
 
+    if (InputManager.isKeyJustPressed(Keys.DELETE) && !inputText.isEmpty()) {
+      inputText.deleteCharAt(inputText.length() - 1);
+    }
+
     if (InputManager.isKeyJustPressed(Keys.ENTER)) {
       onSubmit();
       return;

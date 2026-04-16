@@ -60,6 +60,8 @@ public final class PointMode extends LevelEditorMode {
   private EditorSnapMode snapMode = EditorSnapMode.OnGrid;
   private String heldPointName = null;
 
+  private UIComponent addPointDialog;
+
   public PointMode(LevelEditorSystem system) {
     super(system, "Point Mode");
   }
@@ -133,6 +135,11 @@ public final class PointMode extends LevelEditorMode {
   @Override
   public void onExit() {
     heldPointName = null;
+
+    if (addPointDialog != null) {
+      UIUtils.closeDialog(addPointDialog, true);
+      addPointDialog = null;
+    }
   }
 
   @Override
@@ -180,7 +187,9 @@ public final class PointMode extends LevelEditorMode {
   }
 
   private void openAddNamedPointDialog(Point snapPos) {
-    final Point dialogSnapPos = snapPos;
+    if (addPointDialog != null && addPointDialog.isVisible()) {
+      return;
+    }
 
     UIComponent dialogUI =
       DialogFactory.show(
@@ -190,22 +199,30 @@ public final class PointMode extends LevelEditorMode {
           .put(DialogContextKeys.QUESTION, "Name of new point")
           .build());
 
+    addPointDialog = dialogUI;
+
     dialogUI.registerCallback(
       DialogContextKeys.INPUT_CALLBACK,
       data -> {
-        if (data instanceof String string) {
-          String pointName = string.trim();
-          if (!pointName.isEmpty()) {
-            system()
-              .currentDungeonLevelForModes()
-              .ifPresent(level -> level.addNamedPoint(pointName, dialogSnapPos));
-            system().showModeFeedback("Added point: " + pointName, new Color(120, 220, 120));
-          }
+        if (data instanceof String string && !string.isBlank()) {
+          system()
+            .currentDungeonLevelForModes()
+            .ifPresent(level -> level.addNamedPoint(string, snapPos));
+          system().showModeFeedback("Added point: " + string, new Color(120, 220, 120));
         }
+
         UIUtils.closeDialog(dialogUI, true);
+        addPointDialog = null;
       });
 
-    dialogUI.registerCallback(DialogContextKeys.ON_CANCEL, data -> UIUtils.closeDialog(dialogUI, true));
+    dialogUI.registerCallback(
+      DialogContextKeys.ON_CANCEL,
+      data -> {
+        UIUtils.closeDialog(dialogUI, true);
+        addPointDialog = null;
+      });
+
+    dialogUI.onClose(ui -> addPointDialog = null);
   }
 
   private void renderPointMarkers() {
