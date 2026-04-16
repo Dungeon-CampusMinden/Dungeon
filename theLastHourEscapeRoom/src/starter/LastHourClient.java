@@ -68,6 +68,7 @@ public final class LastHourClient {
           Game.stage().ifPresent(CursorUtil::initListener);
           Game.remove(AttributeBarSystem.class);
           TheLastHour.setupMusic();
+          TheLastHour.staticRenderTextures();
           System.out.println("DevClient started");
         });
 

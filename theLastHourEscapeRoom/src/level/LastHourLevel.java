@@ -3,6 +3,7 @@ package level;
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
+import contrib.entities.WorldItemBuilder;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.DialogUtils;
@@ -19,12 +20,15 @@ import contrib.modules.keypad.KeypadFactory;
 import contrib.modules.worldTimer.WorldTimerFactory;
 import contrib.modules.worldTimer.WorldTimerSystem;
 import contrib.systems.EventScheduler;
+import contrib.systems.LevelEditorSystem;
 import contrib.utils.EntityUtils;
+import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.InputComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
@@ -48,6 +52,8 @@ import java.util.*;
 import modules.computer.*;
 import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameUI;
+import modules.usbstick.UsbStickColor;
+import modules.usbstick.UsbStickItem;
 import util.InteractionHelper;
 import util.LastHourSounds;
 import util.Lore;
@@ -119,6 +125,8 @@ public class LastHourLevel extends DungeonLevel {
     if (!Game.isHeadless()) setupLightingShader();
     setupTimer();
     setupEndTrigger();
+    setupR2PaperTrigger();
+    setupUsbSticks();
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
@@ -425,6 +433,86 @@ public class LastHourLevel extends DungeonLevel {
             });
   }
 
+  private static final String R2_PAPER_IMAGE = "images/random_nothing.png";
+  private static final float R2_PAPER_SPEED = 45.0f;
+  private static final float R2_PAPER_MAX_SPEED = 45.0f;
+
+  /**
+   * Sets up a walk-over trigger at {@code r2-paper-trigger} that fires {@link #r2SpawnPapers()}.
+   */
+  private void setupR2PaperTrigger() {
+    Entity trigger = new Entity("r2-paper-trigger");
+    trigger.add(new PositionComponent(getPoint("r2-paper-trigger")));
+    trigger.add(
+        new CollideComponent(
+                Vector2.ZERO,
+                Vector2.ONE,
+                (e, other, dir) -> {
+                  other
+                      .fetch(InputComponent.class)
+                      .ifPresent(
+                          ic -> {
+                            r2SpawnPapers();
+                            Game.remove(trigger);
+                          });
+                },
+                null)
+            .isSolid(false));
+    Game.add(trigger);
+
+    Debugger.addAction(this::r2SpawnPapers);
+  }
+
+  /**
+   * Spawns four paper entities at the {@code r2-vent} named point and gives each an initial impulse
+   * so they spread out.
+   */
+  public void r2SpawnPapers() {
+    Point ventPos = getPoint("r2-vent");
+    float s = R2_PAPER_SPEED;
+
+    Vector2[] impulses = {
+      Vector2.of(-s, 1.5f * -s),
+      Vector2.of(s, 1.5f * -s),
+      Vector2.of(0, -2.0f * s),
+      Vector2.of(0, -1.0f * s)
+    };
+
+    for (int i = 0; i < impulses.length; i++) {
+      Entity paper = new Entity("r2-note");
+      paper.add(new PositionComponent(ventPos.translate(0, -0.25f)));
+      paper.add(new DrawComponent(new SimpleIPath("items/rpg/item_paper.png")));
+      paper.fetch(CollideComponent.class).ifPresent(cc -> cc.isSolid(false));
+      paper.fetch(DrawComponent.class).ifPresent(dc -> dc.depth(DepthLayer.BackgroundDeco.depth()));
+
+      VelocityComponent vc = new VelocityComponent(R2_PAPER_MAX_SPEED, 25f);
+      vc.applyForce("vent-impulse", impulses[i]);
+      paper.add(vc);
+
+      paper.add(
+          new InteractionComponent(
+              () ->
+                  new Interaction(
+                      (e, who) -> {
+                        DialogUtils.showImagePopUp(R2_PAPER_IMAGE, who.id());
+                      })));
+
+      Game.add(paper);
+    }
+  }
+
+  /** Places all four colored USB stick items at {@code r2-folders}, spaced 1 tile apart in +x. */
+  private void setupUsbSticks() {
+    Point origin = getPoint("r2-folders");
+    UsbStickColor[] colors = UsbStickColor.values();
+    for (int i = 0; i < colors.length; i++) {
+      Point pos = origin.translate(i, 0);
+      Entity usbEntity =
+          WorldItemBuilder.buildWorldItem(UsbStickItem.createUsbStickItem(colors[i]), pos);
+      Game.add(usbEntity);
+    }
+  }
+
   @Override
   protected void onTick() {
     checkPCStateUpdate();
@@ -440,6 +528,13 @@ public class LastHourLevel extends DungeonLevel {
       return;
 
     ls.clearLightSources();
+
+    if (LevelEditorSystem.active()) {
+      ls.ambientLight(1.0f);
+      return;
+    } else {
+      ls.ambientLight(0.0f);
+    }
 
     if (ComputerStateComponent.getState().isPresent()) {
       var state = ComputerStateComponent.getState().get();

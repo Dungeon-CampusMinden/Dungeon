@@ -2,6 +2,7 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import contrib.components.SkillComponent;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
@@ -24,10 +25,16 @@ import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.*;
 import core.utils.CursorUtil;
 import core.utils.Tuple;
+import core.utils.components.draw.TextureGenerator;
+import core.utils.components.draw.shader.HueRemapShader;
+import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLoggerConfig;
 import core.utils.settings.ClientSettings;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
 import level.LastHourLevel;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
@@ -62,6 +69,12 @@ public class TheLastHour {
    */
   public static void main(String[] args) {
     boolean runMpServer = args != null && Arrays.asList(args).contains(SERVER_ARGUMENT);
+
+    DungeonLoggerConfig.builder()
+        .consoleLevel(Level.WARNING)
+        .enableConsole(true)
+        .enableFile(false)
+        .build();
 
     if (runMpServer) {
       Game.userOnFrame(TheLastHour::onFrame);
@@ -108,6 +121,8 @@ public class TheLastHour {
       Game.add(hero);
       Game.stage().ifPresent(CursorUtil::initListener);
       setupMusic();
+
+      staticRenderTextures();
     }
 
     ECSManagement.add(new CollisionSystem());
@@ -117,6 +132,29 @@ public class TheLastHour {
       ECSManagement.add(new Debugger());
       ECSManagement.add(new DebugDrawSystem());
       ECSManagement.add(new LevelEditorSystem());
+    }
+  }
+
+  private static final List<Tuple<String, Color>> USB_TEXTURES =
+      List.of(
+          Tuple.of("items/usb-side-green.png", Color.GREEN),
+          Tuple.of("items/usb-side-blue.png", Color.BLUE),
+          Tuple.of("items/usb-side-yellow.png", Color.YELLOW));
+
+  /** Statically renders the needed textures. */
+  public static void staticRenderTextures() {
+    String basePath = "items/usb-side-red.png";
+    float baseHue = 0.0f;
+
+    for (Tuple<String, Color> usbTexture : USB_TEXTURES) {
+      ShaderList shaderList = new ShaderList();
+
+      String outTexturePath = usbTexture.a();
+      Color color = usbTexture.b();
+      float[] hsv = new float[3];
+      shaderList.add("hueRemap", new HueRemapShader(baseHue, color.toHsv(hsv)[0] / 360f));
+
+      TextureGenerator.registerRenderShaderTexture(basePath, outTexturePath, shaderList);
     }
   }
 
