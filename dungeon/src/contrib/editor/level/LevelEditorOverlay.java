@@ -1,25 +1,26 @@
 package contrib.editor.level;
 
 import core.ui.overlay.UiOverlay;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a graphical overlay for the level editor, used to display status information,
- * messages, and feedback to the user.
+ * Represents an overlay UI component for a level editor, providing a dynamically sized panel
+ * to display editor-related information, including status lines, a title, and feedback messages.
  *
- * <p>The overlay supports configuration of its position, dimensions, content, and visibility.
- * It is rendered as a rounded rectangle with an optional title, multiple status lines,
- * and an additional feedback message.
+ * <p>This class implements the {@code UiOverlay} interface, allowing it to be rendered
+ * on top of the main game screen and manipulated based on its position, size, and visibility.
+ *
+ * <p>It is a final class, meaning it cannot be subclassed.
  */
 public final class LevelEditorOverlay implements UiOverlay {
 
-  private static final int DEFAULT_WIDTH = 640;
-  private static final int DEFAULT_HEIGHT = 230;
+  private static final int DEFAULT_WIDTH = 700;
+  private static final int DEFAULT_HEIGHT = 300;
   private static final int PADDING = 12;
   private static final int ARC = 12;
 
@@ -33,7 +34,7 @@ public final class LevelEditorOverlay implements UiOverlay {
   private int height = DEFAULT_HEIGHT;
   private boolean visible = true;
 
-  private String title = "LevelEditorOverlay";
+  private String title = "";
   private List<String> lines = List.of();
   private String feedback = "";
   private Color feedbackColor = Color.WHITE;
@@ -41,7 +42,7 @@ public final class LevelEditorOverlay implements UiOverlay {
   /**
    * Updates the currently displayed editor information.
    *
-   * @param title overlay title
+   * @param title overlay title, may be blank
    * @param lines main status lines
    * @param feedback optional feedback message
    * @param feedbackColor color for the feedback message
@@ -51,6 +52,10 @@ public final class LevelEditorOverlay implements UiOverlay {
     this.lines = lines == null ? List.of() : List.copyOf(lines);
     this.feedback = feedback == null ? "" : feedback;
     this.feedbackColor = feedbackColor == null ? Color.WHITE : feedbackColor;
+
+    int estimatedLineCount = this.lines.size() + feedbackLines().size();
+    int estimatedHeight = 90 + estimatedLineCount * 18;
+    this.height = Math.max(DEFAULT_HEIGHT, estimatedHeight);
   }
 
   @Override
@@ -68,27 +73,57 @@ public final class LevelEditorOverlay implements UiOverlay {
       g2.drawRoundRect(x, y, width, height, ARC, ARC);
 
       g2.setColor(TEXT_COLOR);
-      g2.setFont(g2.getFont().deriveFont(Font.BOLD, 18f));
-      g2.drawString(title, x + PADDING, y + 28);
-
-      g2.setFont(g2.getFont().deriveFont(14f));
+      g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 15f));
       FontMetrics fm = g2.getFontMetrics();
 
-      int lineY = y + 54;
+      int lineY = y + PADDING + fm.getAscent();
+
+      if (!title.isBlank()) {
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 18f));
+        g2.setColor(TEXT_COLOR);
+        g2.drawString(title, x + PADDING, y + 28);
+
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 15f));
+        fm = g2.getFontMetrics();
+        lineY = y + 54;
+      }
+
       for (String line : lines) {
         g2.setColor(TEXT_COLOR);
-        g2.drawString(line, x + PADDING, lineY);
+        g2.drawString(line == null ? "" : line, x + PADDING, lineY);
         lineY += fm.getHeight();
       }
 
-      if (!feedback.isBlank()) {
+      List<String> feedbackLines = feedbackLines();
+      if (!feedbackLines.isEmpty()) {
         lineY += 6;
         g2.setColor(feedbackColor);
-        g2.drawString(feedback, x + PADDING, Math.min(lineY, y + height - PADDING));
+
+        for (String line : feedbackLines) {
+          if (lineY > y + height - PADDING) {
+            break;
+          }
+
+          g2.drawString(line, x + PADDING, lineY);
+          lineY += fm.getHeight();
+        }
       }
     } finally {
       g2.dispose();
     }
+  }
+
+  private List<String> feedbackLines() {
+    if (feedback == null || feedback.isBlank()) {
+      return List.of();
+    }
+
+    String[] split = feedback.split("\\R", -1);
+    List<String> result = new ArrayList<>(split.length);
+    for (String line : split) {
+      result.add(line == null ? "" : line);
+    }
+    return List.copyOf(result);
   }
 
   @Override

@@ -1,42 +1,25 @@
 package contrib.editor.level.mode;
 
+import contrib.editor.level.LevelEditorSystem;
+import core.camera.CameraViewportState;
 import core.input.Keys;
 import core.input.MouseButtons;
-import core.camera.CameraViewportState;
-import contrib.editor.level.LevelEditorSystem;
 import java.awt.Graphics2D;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Abstract base class for level editor modes.
+ * Represents an abstract mode within the level editor system.
  *
- * <p>LevelEditorMode defines the framework for implementing different editing modes in the level
- * editor. Each mode represents a distinct set of editing tools and operations, such as placing
- * decorations, modifying level bounds, or other level editing tasks.
+ * <p>Each mode implements its own behavior and actions while interacting with the editor.
  *
- * <p>Key responsibilities:
- * <ul>
- *   <li>Execute mode-specific logic each frame
- *   <li>Provide visual feedback through status lines and controls
- *   <li>Handle mode lifecycle (entering and exiting)
- *   <li>Render mode-specific graphics
- * </ul>
- *
- * <p>Subclasses must implement:
- * <ul>
- *   <li>{@code execute()} - Core logic executed every frame
- *   <li>{@code getStatusLines()} - Mode-specific status information for the overlay
- * </ul>
- *
- * <p>Standard input bindings are provided for common editor actions:
- * <ul>
- *   <li>E/Q - Primary up/down actions
- *   <li>C/Z - Secondary up/down actions
- *   <li>X - Tertiary action
- *   <li>V - Quaternary action
- *   <li>Arrow keys, mouse buttons - Additional inputs
- * </ul>
+ * <p>The mode defines specific input controls, rendering logic, and status information to provide
+ * functionality in a modular and extensible way. Subclasses must implement the abstract methods
+ * to specify their unique logic and state.
  */
 public abstract class LevelEditorMode {
 
@@ -118,7 +101,7 @@ public abstract class LevelEditorMode {
   }
 
   /**
-   * Builds the full overlay lines for this mode.
+   * Builds the full overlay lines for this mode using the old compact editor structure.
    *
    * @return combined lines with title, controls and settings
    */
@@ -129,17 +112,20 @@ public abstract class LevelEditorMode {
     Map<Integer, String> controls = getControls();
     if (!controls.isEmpty()) {
       lines.add("Controls:");
-      controls.forEach((key, description) -> lines.add(keyLabel(key) + ": " + description));
+      controls.forEach((key, description) -> lines.add(" - " + keyLabel(key) + ": " + description));
     }
 
+    lines.add("");
+    lines.add("Settings:");
+
     List<String> statusLines = getStatusLines();
-    if (!statusLines.isEmpty()) {
-      lines.add("");
-      lines.add("Settings:");
+    if (statusLines == null || statusLines.isEmpty()) {
+      lines.add(" -");
+    } else {
       lines.addAll(statusLines);
     }
 
-    return lines;
+    return List.copyOf(lines);
   }
 
   private String keyLabel(int keycode) {

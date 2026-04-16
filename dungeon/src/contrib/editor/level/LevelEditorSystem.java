@@ -2,59 +2,61 @@ package contrib.editor.level;
 
 import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
-import contrib.editor.level.mode.*;
+import contrib.debug.systems.DebugDrawSystem;
+import contrib.editor.level.mode.DecoColliderMode;
+import contrib.editor.level.mode.DecoMode;
+import contrib.editor.level.mode.LevelBoundsMode;
+import contrib.editor.level.mode.LevelEditorMode;
+import contrib.editor.level.mode.PointMode;
+import contrib.editor.level.mode.SaveMode;
+import contrib.editor.level.mode.ShiftLevelMode;
+import contrib.editor.level.mode.StartTilesMode;
+import contrib.editor.level.mode.TilesMode;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.camera.CameraViewportState;
 import core.components.DrawComponent;
 import core.components.InputComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.game.render.RenderContext;
 import core.input.Keys;
-import core.input.MouseButtons;
 import core.level.DungeonLevel;
 import core.level.Tile;
-import core.level.utils.LevelElement;
 import core.platform.Platform;
-import core.camera.CameraViewportState;
-import core.game.render.RenderContext;
-import core.game.render.overlay.TileOverlaySizing;
-import contrib.debug.systems.DebugDrawSystem;
 import core.ui.overlay.UiOverlayRegistry;
-import core.ui.StageHandle;
-import core.utils.*;
+import core.utils.InputManager;
+import core.utils.Point;
+import core.utils.Time;
 import core.utils.logging.DungeonLogger;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
- * A system that provides an interactive in-game level editor for designing and editing dungeon
- * levels.
+ * The LevelEditorSystem class provides a toolset for editing game levels
+ * within the game's runtime environment.
  *
- * <p>The editor supports multiple editing modes:
- * <ul>
- *   <li>Tiles - edit tile types and properties
- *   <li>Decos - place and manage decorative entities
- *   <li>Points - set special points like spawn locations
- *   <li>Level Bounds - define level boundaries
- *   <li>Shift Level - shift level content
- *   <li>Start Tiles - configure starting tile positions
- *   <li>Save Level - save level configuration
- *   <li>Deco Collider - manage collision data for decorative objects
- * </ul>
+ * <p>It includes features for interacting with tiles, entities, and dungeon levels, as well as providing visual
+ * feedback and debug overlays for level editing modes.
  *
- * <p>The editor can be toggled with F4 and provides keyboard shortcuts (1-8) to switch between
- * modes. It includes debug visualization capabilities for viewing tile properties and entity
- * information.
+ * <p>This system manages various modes for editing level elements, toggling
+ * debug visuals, and handling user interaction. It also supports rendering
+ * overlays and feedback for user actions.
  */
 public final class LevelEditorSystem extends System {
-  private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LevelEditorSystem.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LevelEditorSystem.class);
 
   private static final long FEEDBACK_DURATION_MS = 3000L;
 
   private static final int TOGGLE_ACTIVE = Keys.F4;
+  private static final int TOGGLE_LAYER_DEBUG = Keys.SPACE;
 
   private static final int MODE_1 = Keys.NUM_1;
   private static final int MODE_2 = Keys.NUM_2;
@@ -65,9 +67,30 @@ public final class LevelEditorSystem extends System {
   private static final int MODE_7 = Keys.NUM_7;
   private static final int MODE_8 = Keys.NUM_8;
 
+  private static final Color LEVEL_BOUNDS_OUTLINE_COLOR = new Color(0, 255, 0, 77);
+
+  private static final Color DEBUG_LEVEL_TILE_OUTLINE_COLOR = new Color(80, 140, 255, 150);
+  private static final Color DEBUG_PLAYER_ENTITY_COLOR = Color.RED;
+  private static final Color DEBUG_DECO_ENTITY_COLOR = Color.GREEN;
+  private static final Color DEBUG_NORMAL_ENTITY_COLOR = Color.WHITE;
+
+  private static final int DEBUG_ENTITY_INSET_PX = 2;
+
   private final LevelEditorOverlay overlay = new LevelEditorOverlay();
 
+  private final LevelEditorMode tilesMode = new TilesMode(this);
+  private final LevelEditorMode decoMode = new DecoMode(this);
+  private final LevelEditorMode pointMode = new PointMode(this);
+  private final LevelEditorMode levelBoundsMode = new LevelBoundsMode(this);
+  private final LevelEditorMode shiftLevelMode = new ShiftLevelMode(this);
+  private final LevelEditorMode startTilesMode = new StartTilesMode(this);
+  private final LevelEditorMode saveMode = new SaveMode(this);
+  private final LevelEditorMode decoColliderMode = new DecoColliderMode(this);
+
   private boolean active = false;
+  private boolean internalStopped = false;
+  private boolean layerDebugActive = false;
+
   private Mode currentMode = Mode.TILES;
   private Map<Integer, InputComponent.InputData> playerCallbacks = null;
 
@@ -75,83 +98,119 @@ public final class LevelEditorSystem extends System {
   private Color feedbackColor = Color.WHITE;
   private long feedbackUntilMs = 0L;
 
-  private static final Color LEVEL_BOUNDS_OUTLINE_COLOR = new Color(0, 255, 0, 77);
+  /**
+   * Returns whether the editor is currently active.
+   *
+   * @return true if active
+   */
+  public boolean active() {
+    return active;
+  }
 
-  private boolean internalStopped = false;
-  private Mode previousMode = Mode.TILES;
+  /**
+   * Activates or deactivates the level editor.
+   *
+   * @param active new editor state
+   */
+  public void active(boolean active) {
+    if (this.active == active) {
+      return;
+    }
 
-  private static final int TOGGLE_DEBUG_VISUALIZATION = Keys.SPACE;
+    this.active = active;
 
-  private static final Color DEBUG_LEVEL_TILE_OUTLINE_COLOR = new Color(80, 140, 255, 150);
-  private static final Color DEBUG_BLOCKED_TILE_FILL_COLOR = new Color(255, 80, 80, 85);
-  private static final Color DEBUG_SEE_THROUGH_TILE_FILL_COLOR = new Color(80, 220, 120, 70);
+    Entity player = Game.player().orElse(null);
+    if (player == null) {
+      if (!active) {
+        detachOverlay();
+      }
+      return;
+    }
 
-  private static final Color DEBUG_PLAYER_ENTITY_COLOR = Color.RED;
-  private static final Color DEBUG_DECO_ENTITY_COLOR = Color.GREEN;
-  private static final Color DEBUG_NORMAL_ENTITY_COLOR = Color.WHITE;
+    if (active) {
+      player
+        .fetch(InputComponent.class)
+        .ifPresent(
+          pc -> {
+            playerCallbacks = pc.callbacks();
+            pc.removeCallback(LevelEditorMode.PRIMARY_UP);
+            pc.removeCallback(LevelEditorMode.PRIMARY_DOWN);
+            pc.removeCallback(LevelEditorMode.SECONDARY_UP);
+            pc.removeCallback(LevelEditorMode.SECONDARY_DOWN);
+            pc.removeCallback(LevelEditorMode.TERTIARY);
+            pc.removeCallback(core.input.MouseButtons.LEFT);
+            pc.removeCallback(core.input.MouseButtons.RIGHT);
+          });
 
-  private static final Color DEBUG_COORD_TEXT_COLOR = new Color(230, 230, 255, 220);
-  private static final int DEBUG_TEXT_MIN_TILE_PX = 32;
-  private static final int DEBUG_ENTITY_INSET_PX = 2;
+      player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(true));
 
-  private boolean debugVisualizationActive = false;
+      attachOverlay();
+      onModeEnter(currentMode);
+      updateOverlay();
+      LOGGER.info("Level editor activated.");
+      return;
+    }
 
-  private final LevelEditorMode tilesMode = new TilesMode(this);
-  private final LevelEditorMode decoMode = new DecoMode(this);
-  private final LevelEditorMode saveMode = new SaveMode(this);
-  private final LevelEditorMode shiftLevelMode = new ShiftLevelMode(this);
-  private final LevelEditorMode levelBoundsMode = new LevelBoundsMode(this);
-  private final LevelEditorMode pointMode = new PointMode(this);
-  private final LevelEditorMode startTilesMode = new StartTilesMode(this);
-  private final LevelEditorMode decoColliderMode = new DecoColliderMode(this);
+    if (playerCallbacks != null) {
+      player
+        .fetch(InputComponent.class)
+        .ifPresent(
+          pc ->
+            playerCallbacks.forEach(
+              (key, value) ->
+                pc.registerCallback(
+                  key, value.callback(), value.repeat(), value.pauseable())));
+      playerCallbacks = null;
+    }
 
-  /** Creates the level editor. */
-  public LevelEditorSystem() {
-    super(AuthoritativeSide.CLIENT);
+    player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(false));
+
+    onModeExit(currentMode);
+    detachOverlay();
+    LOGGER.info("Level editor deactivated.");
   }
 
   @Override
   public void execute() {
     if (InputManager.isKeyJustPressed(TOGGLE_ACTIVE)) {
-      setActive(!this.active);
+      active(!active);
     }
 
-    if (!this.active) {
+    if (!active) {
       return;
     }
 
-    Optional<PlayerComponent> pc = Game.player().flatMap(e -> e.fetch(PlayerComponent.class));
-    if (pc.isPresent() && pc.get().openDialogs()) {
-      syncOverlay();
+    Optional<PlayerComponent> playerComponent =
+      Game.player().flatMap(player -> player.fetch(PlayerComponent.class));
+
+    if (playerComponent.isPresent() && playerComponent.get().openDialogs()) {
+      updateOverlay();
       return;
     }
 
-    if (InputManager.isKeyJustPressed(TOGGLE_DEBUG_VISUALIZATION)) {
-      debugVisualizationActive = !debugVisualizationActive;
-      showFeedback(
-        "Debug visualization: " + (debugVisualizationActive ? "ON" : "OFF"),
-        Color.WHITE);
+    if (InputManager.isKeyJustPressed(TOGGLE_LAYER_DEBUG)) {
+      layerDebugActive = !layerDebugActive;
     }
 
-    Mode oldMode = this.currentMode;
-    handleModeHotkeys();
+    Mode selectedMode = selectedModeByHotkey().orElse(currentMode);
+    boolean modeChanged = selectedMode != currentMode;
 
-    if (oldMode != this.currentMode) {
-      onModeExit(oldMode);
-      onModeEnter(this.currentMode);
-      this.previousMode = this.currentMode;
+    if (modeChanged) {
+      onModeExit(currentMode);
+      currentMode = selectedMode;
+      onModeEnter(currentMode);
     }
 
-    if (!this.internalStopped || oldMode != this.currentMode) {
-      executeCurrentMode();
+    if (!internalStopped || modeChanged) {
+      currentModeInstance().doExecute();
     }
 
-    syncOverlay();
+    updateOverlay();
   }
 
   @Override
   public void render(float deltaSeconds) {
-    if (!this.active) {
+    if (!active) {
       return;
     }
 
@@ -162,15 +221,98 @@ public final class LevelEditorSystem extends System {
 
     renderLevelBoundsOutline();
 
-    if (debugVisualizationActive) {
-      renderDebugVisualization();
+    if (layerDebugActive) {
+      renderLegacyLikeLayerDebug();
     }
 
-    activeModeInstance().render(g, deltaSeconds);
+    currentModeInstance().render(g, deltaSeconds);
+    updateOverlay();
   }
 
-  private LevelEditorMode activeModeInstance() {
-    return switch (this.currentMode) {
+  @Override
+  public void stop() {
+    this.internalStopped = true;
+  }
+
+  @Override
+  public void run() {
+    this.internalStopped = false;
+  }
+
+  /**
+   * Displays a feedback message in the editor overlay.
+   *
+   * @param message message text
+   * @param color message color
+   */
+  public void showModeFeedback(String message, Color color) {
+    showFeedback(message, color);
+  }
+
+  /**
+   * Retrieves the current dungeon level for mode operations.
+   *
+   * @return current dungeon level if present
+   */
+  public Optional<DungeonLevel> currentDungeonLevelForModes() {
+    return currentDungeonLevel();
+  }
+
+  /**
+   * Returns the cursor position snapped to tile coordinates.
+   *
+   * @return snapped tile position
+   */
+  public Point snappedCursorTileForModes() {
+    return snappedCursorTile();
+  }
+
+  private void attachOverlay() {
+    overlay.visible(true);
+
+    if (!UiOverlayRegistry.contains(overlay)) {
+      UiOverlayRegistry.add(overlay);
+    }
+
+    UiOverlayRegistry.toFront(overlay);
+  }
+
+  private void detachOverlay() {
+    overlay.visible(false);
+    UiOverlayRegistry.remove(overlay);
+  }
+
+  private Optional<Mode> selectedModeByHotkey() {
+    if (InputManager.isKeyPressed(MODE_1)) {
+      return Optional.of(Mode.getMode(0));
+    }
+    if (InputManager.isKeyPressed(MODE_2)) {
+      return Optional.of(Mode.getMode(1));
+    }
+    if (InputManager.isKeyPressed(MODE_3)) {
+      return Optional.of(Mode.getMode(2));
+    }
+    if (InputManager.isKeyPressed(MODE_4)) {
+      return Optional.of(Mode.getMode(3));
+    }
+    if (InputManager.isKeyPressed(MODE_5)) {
+      return Optional.of(Mode.getMode(4));
+    }
+    if (InputManager.isKeyPressed(MODE_6)) {
+      return Optional.of(Mode.getMode(5));
+    }
+    if (InputManager.isKeyPressed(MODE_7)) {
+      return Optional.of(Mode.getMode(6));
+    }
+    if (InputManager.isKeyPressed(MODE_8)) {
+      return Optional.of(Mode.getMode(7));
+    }
+
+    return Optional.empty();
+  }
+
+  private LevelEditorMode currentModeInstance() {
+    return switch (currentMode) {
       case TILES -> tilesMode;
       case DECOS -> decoMode;
       case POINTS -> pointMode;
@@ -182,208 +324,24 @@ public final class LevelEditorSystem extends System {
     };
   }
 
-  /** Returns whether the editor is currently active. */
-  public boolean active() {
-    return this.active;
-  }
-
-  private void executeCurrentMode() {
-    switch (currentMode) {
-      case TILES -> tilesMode.doExecute();
-      case DECOS -> decoMode.doExecute();
-      case POINTS -> pointMode.doExecute();
-      case LEVEL_BOUNDS -> levelBoundsMode.doExecute();
-      case SHIFT_LEVEL -> shiftLevelMode.doExecute();
-      case START_TILES -> startTilesMode.doExecute();
-      case SAVE_LEVEL -> saveMode.doExecute();
-      case DECO_COLLIDER -> decoColliderMode.doExecute();
-    }
-  }
-
-  private Point snappedCursorTile() {
-    Point cursorWorld = Platform.cursor().world();
-    return new Point((float) Math.floor(cursorWorld.x()), (float) Math.floor(cursorWorld.y()));
-  }
-
-  private void setActive(boolean active) {
-    if (this.active == active) {
+  private void updateOverlay() {
+    if (!active) {
       return;
-    }
-
-    this.active = active;
-
-    if (active) {
-      suspendConflictingPlayerCallbacks();
-      enablePlayerGodMode(true);
-
-      onModeEnter(this.currentMode);
-
-      overlay.visible(true);
-      if (!UiOverlayRegistry.contains(overlay)) {
-        UiOverlayRegistry.add(overlay);
-      }
-
-      showFeedback("Level editor active", new Color(120, 220, 120));
-      syncOverlay();
-      LOGGER.info("Activated level editor.");
-      return;
-    }
-
-    onModeExit(this.currentMode);
-
-    restorePlayerCallbacks();
-    enablePlayerGodMode(false);
-
-    overlay.visible(false);
-    UiOverlayRegistry.remove(overlay);
-
-    feedbackMessage = "";
-    feedbackUntilMs = 0L;
-
-    LOGGER.info("Deactivated level editor.");
-  }
-
-  private void suspendConflictingPlayerCallbacks() {
-    Entity player = Game.player().orElse(null);
-    if (player == null) {
-      return;
-    }
-
-    player.fetch(InputComponent.class)
-      .ifPresent(
-        pc -> {
-          playerCallbacks = pc.callbacks();
-
-          pc.removeCallback(Keys.E);
-          pc.removeCallback(Keys.Q);
-          pc.removeCallback(Keys.C);
-          pc.removeCallback(Keys.Z);
-          pc.removeCallback(Keys.X);
-          pc.removeCallback(Keys.V);
-          pc.removeCallback(MouseButtons.LEFT);
-          pc.removeCallback(MouseButtons.RIGHT);
-        });
-  }
-
-  private void restorePlayerCallbacks() {
-    if (playerCallbacks == null) {
-      return;
-    }
-
-    Entity player = Game.player().orElse(null);
-    if (player == null) {
-      playerCallbacks = null;
-      return;
-    }
-
-    player.fetch(InputComponent.class)
-      .ifPresent(
-        pc ->
-          playerCallbacks.forEach(
-            (key, value) ->
-              pc.registerCallback(key, value.callback(), value.repeat(), value.pauseable())));
-
-    playerCallbacks = null;
-  }
-
-  private void enablePlayerGodMode(boolean enabled) {
-    Game.player()
-      .flatMap(player -> player.fetch(HealthComponent.class))
-      .ifPresent(hc -> hc.godMode(enabled));
-  }
-
-  private void handleModeHotkeys() {
-    if (InputManager.isKeyJustPressed(MODE_1)) {
-      switchMode(Mode.getMode(0));
-    } else if (InputManager.isKeyJustPressed(MODE_2)) {
-      switchMode(Mode.getMode(1));
-    } else if (InputManager.isKeyJustPressed(MODE_3)) {
-      switchMode(Mode.getMode(2));
-    } else if (InputManager.isKeyJustPressed(MODE_4)) {
-      switchMode(Mode.getMode(3));
-    } else if (InputManager.isKeyJustPressed(MODE_5)) {
-      switchMode(Mode.getMode(4));
-    } else if (InputManager.isKeyJustPressed(MODE_6)) {
-      switchMode(Mode.getMode(5));
-    } else if (InputManager.isKeyJustPressed(MODE_7)) {
-      switchMode(Mode.getMode(6));
-    } else if (InputManager.isKeyJustPressed(MODE_8)) {
-      switchMode(Mode.getMode(7));
-    }
-  }
-
-  private void switchMode(Mode newMode) {
-    if (this.currentMode == newMode) {
-      return;
-    }
-
-    Mode oldMode = this.currentMode;
-
-    onModeExit(oldMode);
-    this.currentMode = newMode;
-    this.previousMode = newMode;
-    onModeEnter(newMode);
-
-    showFeedback("Switched to " + newMode.displayName() + " mode", Color.WHITE);
-  }
-
-  private void syncOverlay() {
-    if (!UiOverlayRegistry.contains(overlay)) {
-      UiOverlayRegistry.add(overlay);
-    }
-
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage != null) {
-      overlay.x(12);
-      overlay.y(12);
-      overlay.width(Math.clamp(Math.round(stage.getWidth()) - 24, 420, 820));
-      overlay.height(
-        currentMode == Mode.TILES
-          || currentMode == Mode.DECOS
-          || currentMode == Mode.POINTS
-          || currentMode == Mode.START_TILES
-          || currentMode == Mode.DECO_COLLIDER
-          ? 320
-          : 230);
     }
 
     overlay.content(
-      "Level Editor",
-      buildStatusLines(),
+      "",
+      buildLegacyStatusLines(),
       currentFeedbackMessage(),
       currentFeedbackColor());
   }
 
-  private List<String> buildStatusLines() {
+  private List<String> buildLegacyStatusLines() {
     List<String> lines = new ArrayList<>();
-    lines.add("F4: toggle editor");
-    lines.add("1-8: switch mode");
-    lines.add("Current mode: " + currentMode.displayName());
-    lines.add(
-      "SPACE: toggle debug visualization [" + (debugVisualizationActive ? "ON" : "OFF") + "]");
-    lines.add("Modes: " + modeSelectionText());
+    lines.add("Level Editor v2 | Modes: " + modeSelectionText());
+    lines.add("( SPACE to toggle layer debug shader [" + layerDebugActive + "] )");
     lines.add("");
-
-    if (currentMode == Mode.TILES) {
-      lines.addAll(tilesMode.getFullStatusLines());
-    } else if (currentMode == Mode.DECOS) {
-      lines.addAll(decoMode.getFullStatusLines());
-    } else if (currentMode == Mode.POINTS) {
-      lines.addAll(pointMode.getFullStatusLines());
-    } else if (currentMode == Mode.LEVEL_BOUNDS) {
-      lines.addAll(levelBoundsMode.getFullStatusLines());
-    } else if (currentMode == Mode.SHIFT_LEVEL) {
-      lines.addAll(shiftLevelMode.getFullStatusLines());
-    } else if (currentMode == Mode.START_TILES) {
-      lines.addAll(startTilesMode.getFullStatusLines());
-    } else if (currentMode == Mode.SAVE_LEVEL) {
-      lines.addAll(saveMode.getFullStatusLines());
-    } else if (currentMode == Mode.DECO_COLLIDER) {
-      lines.addAll(decoColliderMode.getFullStatusLines());
-    } else {
-      lines.add("This mode is not yet ported.");
-    }
-
+    lines.addAll(currentModeInstance().getFullStatusLines());
     return lines;
   }
 
@@ -395,11 +353,10 @@ public final class LevelEditorSystem extends System {
         sb.append(" | ");
       }
 
-      Mode mode = Mode.values()[i];
-      if (mode == currentMode) {
-        sb.append("[").append(i + 1).append("] ").append(mode.displayName());
+      if (Mode.values()[i] == currentMode) {
+        sb.append("[").append(i + 1).append("]");
       } else {
-        sb.append(i + 1).append(" ").append(mode.displayName());
+        sb.append(i + 1);
       }
     }
 
@@ -410,6 +367,14 @@ public final class LevelEditorSystem extends System {
     this.feedbackMessage = message == null ? "" : message;
     this.feedbackColor = color == null ? Color.WHITE : color;
     this.feedbackUntilMs = Time.nowMs() + FEEDBACK_DURATION_MS;
+
+    if (Color.RED.equals(this.feedbackColor)) {
+      LOGGER.error(this.feedbackMessage);
+    } else if (Color.YELLOW.equals(this.feedbackColor)) {
+      LOGGER.warn(this.feedbackMessage);
+    } else {
+      LOGGER.info(this.feedbackMessage);
+    }
   }
 
   private String currentFeedbackMessage() {
@@ -420,38 +385,15 @@ public final class LevelEditorSystem extends System {
     return Time.nowMs() <= feedbackUntilMs ? feedbackColor : Color.WHITE;
   }
 
-  private enum Mode {
-    TILES("Tiles"),
-    DECOS("Decos"),
-    POINTS("Points"),
-    LEVEL_BOUNDS("LevelBounds"),
-    SHIFT_LEVEL("ShiftLevel"),
-    START_TILES("StartTiles"),
-    SAVE_LEVEL("SaveLevel"),
-    DECO_COLLIDER("DecoCollider");
-
-    private final String displayName;
-
-    Mode(String displayName) {
-      this.displayName = displayName;
-    }
-
-    public String displayName() {
-      return displayName;
-    }
-
-    public static Mode getMode(int number) {
-      if (number < 0 || number >= values().length) {
-        throw new IllegalArgumentException("Invalid mode number: " + number);
-      }
-      return values()[number];
-    }
-  }
-
   private Optional<DungeonLevel> currentDungeonLevel() {
     return Game.currentLevel()
       .filter(DungeonLevel.class::isInstance)
       .map(DungeonLevel.class::cast);
+  }
+
+  private Point snappedCursorTile() {
+    Point world = Platform.cursor().world();
+    return new Point((float) Math.floor(world.x()), (float) Math.floor(world.y()));
   }
 
   private void renderLevelBoundsOutline() {
@@ -480,85 +422,37 @@ public final class LevelEditorSystem extends System {
         });
   }
 
-  private void onModeEnter(Mode mode) {
-    switch (Objects.requireNonNull(mode)) {
-      case DECOS -> decoMode.onEnter();
-      case POINTS -> pointMode.onEnter();
-      case START_TILES -> startTilesMode.onEnter();
-      case DECO_COLLIDER -> decoColliderMode.onEnter();
-      default -> {
-        // no-op for now
-      }
+  private void renderLegacyLikeLayerDebug() {
+    CameraViewportState.Viewport view = CameraViewportState.get();
+    if (view == null || view.tilePx() <= 0) {
+      return;
     }
+
+    renderLayerDebugTiles();
+    renderLayerDebugEntities(view);
   }
 
-  private void onModeExit(Mode mode) {
-    switch (mode) {
-      case DECOS -> decoMode.onExit();
-      case POINTS -> pointMode.onExit();
-      case DECO_COLLIDER -> decoColliderMode.onExit();
-      default -> {
-        // no-op for now
-      }
-    }
-  }
-
-  @Override
-  public void stop() {
-    this.internalStopped = true;
-  }
-
-  @Override
-  public void run() {
-    this.internalStopped = false;
-  }
-
-  private void renderDebugVisualization() {
-    CameraViewportState.activeViewport()
+  private void renderLayerDebugTiles() {
+    currentDungeonLevel()
       .ifPresent(
-        view ->
-          currentDungeonLevel()
-            .ifPresent(
-              level -> {
-                renderDebugTiles(level, view);
-                renderDebugEntities(view);
-              }));
+        level -> {
+          Tile[][] layout = level.layout();
+          for (int y = 0; y < layout.length; y++) {
+            for (int x = 0; x < layout[y].length; x++) {
+              DebugDrawSystem.drawRectangleOutline(
+                x,
+                y,
+                1.0f,
+                1.0f,
+                DEBUG_LEVEL_TILE_OUTLINE_COLOR);
+            }
+          }
+        });
   }
 
-  private void renderDebugTiles(DungeonLevel level, CameraViewportState.Viewport view) {
-    Tile[][] layout = level.layout();
-    int tilePx = view.tilePx();
-
-    for (int y = 0; y < layout.length; y++) {
-      for (int x = 0; x < layout[y].length; x++) {
-        Tile tile = layout[y][x];
-        LevelElement element = tile.levelElement();
-
-        if (!element.value()) {
-          DebugDrawSystem.fillWorldRectangle(
-            x, y, 1f, 1f, DEBUG_BLOCKED_TILE_FILL_COLOR);
-        } else if (element.canSeeThrough()) {
-          DebugDrawSystem.fillWorldRectangle(
-            x, y, 1f, 1f, DEBUG_SEE_THROUGH_TILE_FILL_COLOR);
-        }
-
-        DebugDrawSystem.drawRectangleOutline(
-          x, y, 1f, 1f, DEBUG_LEVEL_TILE_OUTLINE_COLOR);
-
-        if (tilePx >= DEBUG_TEXT_MIN_TILE_PX) {
-          DebugDrawSystem.drawText(
-            x + "," + y,
-            tileDebugTextPosition(x, y, view),
-            DEBUG_COORD_TEXT_COLOR);
-        }
-      }
-    }
-  }
-
-  private void renderDebugEntities(CameraViewportState.Viewport view) {
-    int tilePx = view.tilePx();
-    float insetWorld = TileOverlaySizing.worldInsetFromPixels(tilePx, DEBUG_ENTITY_INSET_PX);
-    float sizeWorld = Math.max(0.05f, 1f - insetWorld * 2f);
+  private void renderLayerDebugEntities(CameraViewportState.Viewport view) {
+    float insetWorld = DEBUG_ENTITY_INSET_PX / (float) view.tilePx();
+    float sizeWorld = Math.max(0.05f, 1.0f - (2f * insetWorld));
 
     Game.levelEntities(Set.of(PositionComponent.class, DrawComponent.class))
       .forEach(
@@ -576,13 +470,6 @@ public final class LevelEditorSystem extends System {
             sizeWorld,
             sizeWorld,
             debugEntityColor(entity));
-
-          if (tilePx >= DEBUG_TEXT_MIN_TILE_PX) {
-            DebugDrawSystem.drawText(
-              debugEntityLabel(entity),
-              entityDebugLabelPosition(pos, view),
-              debugEntityColor(entity));
-          }
         });
   }
 
@@ -598,66 +485,57 @@ public final class LevelEditorSystem extends System {
     return DEBUG_NORMAL_ENTITY_COLOR;
   }
 
-  private String debugEntityLabel(Entity entity) {
-    if (entity.isPresent(PlayerComponent.class)) {
-      return "PLAYER";
+  private void onModeEnter(Mode mode) {
+    switch (Objects.requireNonNull(mode)) {
+      case TILES -> tilesMode.onEnter();
+      case DECOS -> decoMode.onEnter();
+      case POINTS -> pointMode.onEnter();
+      case LEVEL_BOUNDS -> levelBoundsMode.onEnter();
+      case SHIFT_LEVEL -> shiftLevelMode.onEnter();
+      case START_TILES -> startTilesMode.onEnter();
+      case SAVE_LEVEL -> saveMode.onEnter();
+      case DECO_COLLIDER -> decoColliderMode.onEnter();
+    }
+  }
+
+  private void onModeExit(Mode mode) {
+    switch (Objects.requireNonNull(mode)) {
+      case TILES -> tilesMode.onExit();
+      case DECOS -> decoMode.onExit();
+      case POINTS -> pointMode.onExit();
+      case LEVEL_BOUNDS -> levelBoundsMode.onExit();
+      case SHIFT_LEVEL -> shiftLevelMode.onExit();
+      case START_TILES -> startTilesMode.onExit();
+      case SAVE_LEVEL -> saveMode.onExit();
+      case DECO_COLLIDER -> decoColliderMode.onExit();
+    }
+  }
+
+  private enum Mode {
+    TILES("Tiles"),
+    DECOS("Decos"),
+    POINTS("Points"),
+    LEVEL_BOUNDS("Level Bounds"),
+    SHIFT_LEVEL("Shift Level"),
+    START_TILES("Start Tiles"),
+    SAVE_LEVEL("Save Level"),
+    DECO_COLLIDER("Deco Collider");
+
+    private final String displayName;
+
+    Mode(String displayName) {
+      this.displayName = displayName;
     }
 
-    if (entity.isPresent(DecoComponent.class)) {
-      return "DECO";
+    public String displayName() {
+      return displayName;
     }
 
-    return "DRAW";
-  }
-
-  /**
-   * Displays a feedback message to the user in the UI overlay.
-   *
-   * @param message the feedback message to display
-   * @param color the color of the feedback message
-   */
-  public void showModeFeedback(String message, Color color) {
-    showFeedback(message, color);
-  }
-
-  /**
-   * Retrieves the current dungeon level for mode operations.
-   *
-   * @return an Optional containing the current DungeonLevel or empty if no level is loaded
-   */
-  public Optional<DungeonLevel> currentDungeonLevelForModes() {
-    return currentDungeonLevel();
-  }
-
-  /**
-   * Returns the current cursor position snapped to the nearest tile coordinates.
-   *
-   * @return a Point representing the snapped cursor position in world coordinates
-   */
-  public Point snappedCursorTileForModes() {
-    return snappedCursorTile();
-  }
-
-  private Point tileDebugTextPosition(
-    int tileX,
-    int tileY,
-    CameraViewportState.Viewport view) {
-
-    Point screenTopLeft = CameraViewportState.worldToScreen(new Point(tileX, tileY));
-
-    return new Point(
-      screenTopLeft.x() + 4,
-      screenTopLeft.y() + TileOverlaySizing.tileLabelYOffset(view.tilePx()));
-  }
-
-  private Point entityDebugLabelPosition(
-    Point pos,
-    CameraViewportState.Viewport view) {
-
-    Point screenTopLeft = CameraViewportState.worldToScreen(pos);
-
-    return new Point(
-      screenTopLeft.x() + 4,
-      screenTopLeft.y() + TileOverlaySizing.bottomAlignedLabelBaseline(view.tilePx(), 6));
+    public static Mode getMode(int number) {
+      if (number < 0 || number >= values().length) {
+        throw new IllegalArgumentException("Invalid mode number: " + number);
+      }
+      return values()[number];
+    }
   }
 }
