@@ -108,27 +108,6 @@ public class KeyboardConfig {
       new ConfigKey<>(new String[] {"debug", "spawn_monster"}, new ConfigIntValue(Input.Keys.X));
 
   /**
-   * Keybinding to teleport the player on the Start-Tile, if the {@link
-   * contrib.utils.components.Debugger} is active.
-   */
-  public static final ConfigKey<Integer> DEBUG_TELEPORT_TO_START =
-      new ConfigKey<>(new String[] {"debug", "teleport_Start"}, new ConfigIntValue(Input.Keys.J));
-
-  /**
-   * Keybinding to teleport the player next to the {@link core.level.elements.tile.ExitTile}, if the
-   * {@link contrib.utils.components.Debugger} is active.
-   */
-  public static final ConfigKey<Integer> DEBUG_TELEPORT_TO_END =
-      new ConfigKey<>(new String[] {"debug", "teleport_end"}, new ConfigIntValue(Input.Keys.H));
-
-  /**
-   * Keybinding to teleport the player on the {@link core.level.elements.tile.ExitTile}, if the
-   * {@link contrib.utils.components.Debugger} is active.
-   */
-  public static final ConfigKey<Integer> DEBUG_TELEPORT_ON_END =
-      new ConfigKey<>(new String[] {"debug", "teleport_onEnd"}, new ConfigIntValue(Input.Keys.G));
-
-  /**
    * Keybinding to teleport the player to the cursor mouse location, if the {@link
    * contrib.utils.components.Debugger} is active.
    */
@@ -164,4 +143,8 @@ public class KeyboardConfig {
    */
   public static final ConfigKey<Integer> DEBUG_VALUE_DOWN =
       new ConfigKey<>(new String[] {"debug", "value_down"}, new ConfigIntValue(Input.Keys.DOWN));
+
+  /** Keybinding to execute all registered debug actions. */
+  public static final ConfigKey<Integer> DEBUG_ACTION =
+      new ConfigKey<>(new String[] {"debug", "action"}, new ConfigIntValue(Input.Keys.NUMPAD_1));
 }
