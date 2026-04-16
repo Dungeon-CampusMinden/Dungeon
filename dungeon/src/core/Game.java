@@ -1,5 +1,6 @@
 package core;
 
+import core.game.GameRuntime;
 import core.game.loop.ClientLoopHost;
 import core.platform.Platform;
 import core.ui.StageHandle;
@@ -7,7 +8,6 @@ import contrib.utils.EntityUtils;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
-import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.elements.ILevel;
@@ -58,7 +58,7 @@ import java.util.stream.Stream;
  *
  * @see PreRunConfiguration
  * @see ECSManagement
- * @see GameLoop
+ * @see GameRuntime
  */
 public final class Game {
 
@@ -77,7 +77,7 @@ public final class Game {
   public static void run() {
     initialize();
     ensureDefaultLoopHost();
-    GameLoop.run();
+    GameRuntime.run();
   }
 
   /**
@@ -279,7 +279,7 @@ public final class Game {
    * @return The optional stage.
    */
   public static Optional<StageHandle> stage() {
-    return GameLoop.stage();
+    return GameRuntime.stage();
   }
 
   /**
@@ -853,7 +853,7 @@ public final class Game {
    * @return The current game tick.
    */
   public static int currentTick() {
-    return GameLoop.currentTick();
+    return GameRuntime.currentTick();
   }
 
   /**
@@ -899,7 +899,7 @@ public final class Game {
    * @return the current {@link ISoundPlayer} instance
    */
   public static ISoundPlayer soundPlayer() {
-    return GameLoop.soundPlayer();
+    return GameRuntime.soundPlayer();
   }
 
   /**

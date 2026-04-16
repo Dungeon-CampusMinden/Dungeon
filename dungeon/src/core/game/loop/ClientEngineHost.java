@@ -35,7 +35,7 @@ import java.util.function.Supplier;
  * including setting up the game engine, binding platform adapters, configuring audio,
  * input handling, and starting ECS systems.
  *
- * @see GameLoopCore
+ * @see GameLoop
  * @see Platform
  * @see ECSManagement
  */
@@ -62,7 +62,7 @@ public final class ClientEngineHost {
    * @param args command line arguments to pass to the game engine
    * @param loopCore the core game loop handler for tick and render operations
    */
-  public static void run(String[] args, GameLoopCore loopCore) {
+  public static void run(String[] args, GameLoop loopCore) {
     syncDisplaySettings();
 
     // Register lifecycle listener BEFORE init so we can safely set up screens at the right time.
@@ -124,7 +124,7 @@ public final class ClientEngineHost {
     ECSManagement.initializeDefaultSystems(SystemProfile.CLIENT);
     ECSManagement.initializeGameplaySystems(SystemProfile.CLIENT);
     installClientRuntimeSystems();
-    ECSManagement.system(core.systems.LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
+    ECSManagement.system(core.systems.LevelSystem.class, ls -> ls.onLevelLoad(GameRuntime.onLevelLoad));
 
     ClientStartup.setupAndLoadInitialLevelOnce();
 

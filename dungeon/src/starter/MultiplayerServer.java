@@ -12,10 +12,7 @@ import contrib.systems.PressurePlateSystem;
 import contrib.systems.ProjectileSystem;
 import core.Game;
 import core.System;
-import core.game.ECSManagement;
-import core.game.GameLoop;
-import core.game.PreRunConfiguration;
-import core.game.SystemProfile;
+import core.game.*;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
 import core.network.messages.s2c.LevelChangeEvent;
@@ -57,7 +54,7 @@ public class MultiplayerServer {
       levelSystem ->
         levelSystem.onLevelLoad(
           () -> {
-            GameLoop.onLevelLoad.execute();
+            GameRuntime.onLevelLoad.execute();
             Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
           }));
 

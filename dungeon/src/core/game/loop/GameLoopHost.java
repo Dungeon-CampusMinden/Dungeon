@@ -1,6 +1,6 @@
 package core.game.loop;
 
-import core.game.GameLoopCore;
+import core.game.GameLoop;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.ui.StageHandle;
@@ -17,7 +17,7 @@ import java.util.Optional;
  *
  * <p>Key responsibilities:
  * <ul>
- *   <li>Managing the main game loop lifecycle by bridging {@link GameLoopCore} with the
+ *   <li>Managing the main game loop lifecycle by bridging {@link GameLoop} with the
  *   platform runtime.</li>
  *   <li>Providing optional access to a UI stage using {@link StageHandle}, if the platform
  *   includes UI support.</li>
@@ -32,10 +32,10 @@ public interface GameLoopHost {
    * @param args optional command-line args (some engines need them for init)
    * @param core the engine-agnostic core loop
    */
-  void run(String[] args, GameLoopCore core);
+  void run(String[] args, GameLoop core);
 
   /** Convenience overload for hosts that don't need args. */
-  default void run(GameLoopCore core) {
+  default void run(GameLoop core) {
     run(new String[0], core);
   }
 

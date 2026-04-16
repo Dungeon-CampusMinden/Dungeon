@@ -13,6 +13,7 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.game.GameLoop;
 import core.game.loop.GameLoopHost;
 import core.platform.defaults.NullRenderAdapter;
 import core.platform.Platform;
@@ -202,7 +203,7 @@ class AttributeBarUtilTest {
 
   private static final class StubGameLoopHost implements GameLoopHost {
     @Override
-    public void run(String[] args, core.game.GameLoopCore core) {}
+    public void run(String[] args, GameLoop core) {}
 
     @Override
     public Optional<StageHandle> stage() {
