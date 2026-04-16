@@ -2,7 +2,7 @@ package level;
 
 import client.Client;
 import contrib.hud.DialogUtils;
-import contrib.hud.image.ShowImageDialogLauncher;
+import contrib.hud.showimage.ShowImageDialogLauncher;
 import core.Game;
 import core.System;
 import core.level.DungeonLevel;

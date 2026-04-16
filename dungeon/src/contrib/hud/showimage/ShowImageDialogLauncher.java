@@ -1,4 +1,4 @@
-package contrib.hud.image;
+package contrib.hud.showimage;
 
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;

@@ -1,4 +1,4 @@
-package contrib.hud.image;
+package contrib.hud.showimage;
 
 import core.Game;
 import core.render.ImageAssets;

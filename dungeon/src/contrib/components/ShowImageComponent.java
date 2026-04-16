@@ -1,7 +1,7 @@
 package contrib.components;
 
-import contrib.hud.image.ShowImageText;
-import contrib.hud.image.TransitionSpeed;
+import contrib.hud.showimage.ShowImageText;
+import contrib.hud.showimage.TransitionSpeed;
 import core.Component;
 import core.Entity;
 import java.util.function.BiConsumer;
