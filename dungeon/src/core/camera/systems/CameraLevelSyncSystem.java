@@ -16,7 +16,7 @@ import java.util.Objects;
  * switches. It also seeds the camera focus position based on the platform's camera settings.
  * This system runs on the client side only.
  */
-public final class CameraLifecycleSystem extends System {
+public final class CameraLevelSyncSystem extends System {
   private ILevel previousLevel;
 
   /**
@@ -24,7 +24,7 @@ public final class CameraLifecycleSystem extends System {
    *
    * <p>This system operates on the client side only.
    */
-  public CameraLifecycleSystem() {
+  public CameraLevelSyncSystem() {
     super(AuthoritativeSide.CLIENT);
   }
 

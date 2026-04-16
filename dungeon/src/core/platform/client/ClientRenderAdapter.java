@@ -4,7 +4,7 @@ import core.game.render.sprite.SpriteRenderSystem;
 import core.platform.RenderAdapter;
 import core.camera.CameraViewportState;
 import contrib.modules.levelHide.LevelHideRenderSystem;
-import core.camera.systems.CameraLifecycleSystem;
+import core.camera.systems.CameraLevelSyncSystem;
 import contrib.debug.systems.DebugDrawSystem;
 import core.ui.StageHandle;
 import core.utils.Point;
@@ -22,7 +22,7 @@ public final class ClientRenderAdapter implements RenderAdapter {
     return List.of(
       new SystemBinding(core.systems.SoundSystem.class, core.systems.SoundSystem::new),
       new SystemBinding(
-        CameraLifecycleSystem.class, CameraLifecycleSystem::new),
+        CameraLevelSyncSystem.class, CameraLevelSyncSystem::new),
       new SystemBinding(
         SpriteRenderSystem.class,
         SpriteRenderSystem::new),
