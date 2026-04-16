@@ -1,4 +1,4 @@
-package core.game.render.overlay;
+package core.game.render;
 
 /**
  * Utility class for computing tile overlay sizes and related dimensions.

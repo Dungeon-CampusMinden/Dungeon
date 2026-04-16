@@ -5,8 +5,6 @@ import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.camera.CameraViewportState;
-import core.game.render.overlay.TileOverlaySizing;
-import contrib.debug.systems.DebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
 import java.awt.Color;

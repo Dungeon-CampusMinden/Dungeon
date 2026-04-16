@@ -4,7 +4,7 @@ import core.Game;
 import core.System;
 import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
-import core.game.render.overlay.TileOverlaySizing;
+import core.game.render.TileOverlaySizing;
 import core.utils.Point;
 import java.awt.BasicStroke;
 import java.awt.Color;
