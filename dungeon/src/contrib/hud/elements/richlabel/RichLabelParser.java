@@ -24,6 +24,8 @@ public class RichLabelParser {
               + "|\\[shake((?:\\s+[^]]*)?)]|\\[/shake]"
               + "|\\[word-space=([^]]+)]"
               + "|\\[line-space=([^]]+)]"
+              + "|\\[tr((?:\\s+[^]]*)?)]"
+              + "|\\[pause=([^]]+)]"
               + "|\\[n]");
 
   private static final Map<String, Color> NAMED_COLORS = new HashMap<>();
@@ -49,6 +51,9 @@ public class RichLabelParser {
 
   /** Default shake speed (frequency multiplier). */
   static final float SHAKE_DEFAULT_SPEED = 10f;
+
+  /** Default typewriter speed in characters per second. */
+  static final float TYPEWRITER_DEFAULT_SPEED = 20f;
 
   /** Counter used to assign a unique phase to each [shake] block during parsing. */
   private int shakeBlockCounter;
@@ -102,6 +107,15 @@ public class RichLabelParser {
         // [line-space=N]
         float val = parseFloatValue(matcher.group(7), 1f);
         runs.add(new SpacingRun(-1f, val));
+      } else if (matcher.group(8) != null) {
+        // [tr] or [tr speed=N]
+        TagParams tp = TagParams.parse(matcher.group(8));
+        float speedMul = tp.getFloat("speed", 1f);
+        runs.add(new TypewriterRun(TYPEWRITER_DEFAULT_SPEED * speedMul));
+      } else if (matcher.group(9) != null) {
+        // [pause=N]
+        float duration = parseFloatValue(matcher.group(9), 0f);
+        runs.add(new PauseRun(duration));
       } else {
         String matched = matcher.group();
         if (matched.equals("[/color]")) {

@@ -2,6 +2,7 @@ package contrib.hud.dialogs;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -59,6 +60,17 @@ public record ChoiceOption(String label, Serializable value) implements Serializ
   }
 
   /**
+   * Creates a list of choice options from a collection of strings. Each string is used as both the
+   * label and the value.
+   *
+   * @param labels The strings to create options from.
+   * @return An unmodifiable list of ChoiceOptions.
+   */
+  public static List<ChoiceOption> ofList(Collection<String> labels) {
+    return labels.stream().map(ChoiceOption::of).toList();
+  }
+
+  /**
    * Creates a list of choice options from an array of serializable objects. Each object's {@link
    * Object#toString()} is used as the label; the object itself is the value.
    *
@@ -67,5 +79,16 @@ public record ChoiceOption(String label, Serializable value) implements Serializ
    */
   public static List<ChoiceOption> ofList(Serializable... values) {
     return Arrays.stream(values).map(ChoiceOption::ofValue).toList();
+  }
+
+  /**
+   * Creates a list of choice options from a collection of serializable objects. Each object's
+   * {@link Object#toString()} is used as the label; the object itself is the value.
+   *
+   * @param values The serializable objects to create options from.
+   * @return An unmodifiable list of ChoiceOptions.
+   */
+  public static List<ChoiceOption> ofValueList(Collection<? extends Serializable> values) {
+    return values.stream().map(ChoiceOption::ofValue).toList();
   }
 }

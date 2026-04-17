@@ -133,8 +133,9 @@ final class MultipleChoiceDialog {
         .padBottom(description != null ? 4 : 0)
         .row();
 
+    RichLabel descLabel = null;
     if (description != null && !description.isBlank()) {
-      RichLabel descLabel = new RichLabel(description, DESCRIPTION_FONT);
+      descLabel = new RichLabel(description, DESCRIPTION_FONT);
       descLabel.setWrap(true);
       header.add(descLabel).width(headerContentWidth).row();
     }
@@ -233,23 +234,38 @@ final class MultipleChoiceDialog {
 
     root.pack();
 
-    // Slide-in animation for option rows using draw-time offset to avoid Table layout conflicts
-    for (int i = 0; i < rowTables.size(); i++) {
-      SlideTable row = (SlideTable) rowTables.get(i);
-      float delay = i * SLIDE_STAGGER;
-      row.slideOffsetX = SLIDE_DISTANCE;
-      row.getColor().a = 0f;
-      row.addAction(
-          Actions.sequence(
-              Actions.delay(delay),
-              Actions.parallel(
-                  Actions.fadeIn(SLIDE_DURATION, Interpolation.fastSlow),
-                  new TemporalAction(SLIDE_DURATION, Interpolation.fastSlow) {
-                    @Override
-                    protected void update(float percent) {
-                      row.slideOffsetX = SLIDE_DISTANCE * (1f - percent);
-                    }
-                  })));
+    // Determine whether the question uses typewriter mode (contains a [tr] tag)
+    boolean questionHasTypewriter = !questionLabel.isTypewriterFinished();
+
+    // If typewriter is active, hide description and options until the chain completes.
+    // The chain is: question typewriter -> description typewriter -> option slide-in.
+    if (questionHasTypewriter) {
+      // Hide description initially
+      if (descLabel != null) {
+        descLabel.setVisible(false);
+      }
+      // Hide all option rows initially
+      for (Table row : rowTables) {
+        row.getColor().a = 0f;
+      }
+
+      final RichLabel finalDescLabel = descLabel;
+      questionLabel.onTypewriterFinished(
+          () -> {
+            if (finalDescLabel != null) {
+              finalDescLabel.setVisible(true);
+              if (!finalDescLabel.isTypewriterFinished()) {
+                finalDescLabel.onTypewriterFinished(() -> startOptionSlideIn(rowTables));
+              } else {
+                startOptionSlideIn(rowTables);
+              }
+            } else {
+              startOptionSlideIn(rowTables);
+            }
+          });
+    } else {
+      // No typewriter on question: slide in options immediately
+      startOptionSlideIn(rowTables);
     }
 
     // Grab keyboard focus on every frame the stage exists (ensures it works after mouse
@@ -299,6 +315,31 @@ final class MultipleChoiceDialog {
     if (newIndex >= 0 && newIndex < rowTables.size()) {
       rowTables.get(newIndex).setBackground(bgSelected);
       rowLabels.get(newIndex).setFontSpec(OPTION_FONT_SELECTED);
+    }
+  }
+
+  /**
+   * Starts the staggered slide-in animation for all option rows.
+   *
+   * @param rowTables the option row tables to animate
+   */
+  private static void startOptionSlideIn(List<Table> rowTables) {
+    for (int i = 0; i < rowTables.size(); i++) {
+      SlideTable row = (SlideTable) rowTables.get(i);
+      float delay = i * SLIDE_STAGGER;
+      row.slideOffsetX = SLIDE_DISTANCE;
+      row.getColor().a = 0f;
+      row.addAction(
+          Actions.sequence(
+              Actions.delay(delay),
+              Actions.parallel(
+                  Actions.fadeIn(SLIDE_DURATION, Interpolation.fastSlow),
+                  new TemporalAction(SLIDE_DURATION, Interpolation.fastSlow) {
+                    @Override
+                    protected void update(float percent) {
+                      row.slideOffsetX = SLIDE_DISTANCE * (1f - percent);
+                    }
+                  })));
     }
   }
 

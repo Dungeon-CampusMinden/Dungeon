@@ -44,12 +44,23 @@ public class RichLabelLayout {
   public record ShakeTarget(Actor actor, float baseX, float baseY, ShakeEffect shake) {}
 
   /**
+   * A record pairing a laid-out actor with its source run and full text content.
+   *
+   * @param actor the Scene2d actor
+   * @param run the source run that produced this actor
+   * @param fullText the full text content for TextRuns, or null for non-text runs
+   */
+  public record PlacedActor(Actor actor, Run run, String fullText) {}
+
+  /**
    * Result of a layout pass.
    *
    * @param prefHeight the computed preferred height
    * @param shakeTargets actors that should receive shake animation
+   * @param placedActors ordered list of actors paired with their source runs
    */
-  public record LayoutResult(float prefHeight, List<ShakeTarget> shakeTargets) {}
+  public record LayoutResult(
+      float prefHeight, List<ShakeTarget> shakeTargets, List<PlacedActor> placedActors) {}
 
   /**
    * Computes the preferred inline width of the given runs (ignoring block images).
@@ -387,6 +398,9 @@ public class RichLabelLayout {
     }
 
     List<ShakeTarget> shakeTargets = new ArrayList<>();
+    List<PlacedActor> placedActors = new ArrayList<>();
+    Map<Run, Actor> runToActor = new HashMap<>();
+    Map<Run, String> runToFullText = new HashMap<>();
 
     for (PlacedRun pr : placed) {
       int line = pr.line();
@@ -407,6 +421,8 @@ public class RichLabelLayout {
         float actorY = lineTop - lineTopDist - pr.height() - runDescent + runCapHeight;
         label.setBounds(pr.x(), actorY, pr.width(), pr.height());
         group.addActor(label);
+        runToActor.put(tr, label);
+        runToFullText.put(tr, trimmed);
 
         if (tr.shake() != null) {
           shakeTargets.add(new ShakeTarget(label, pr.x(), actorY, tr.shake()));
@@ -420,6 +436,7 @@ public class RichLabelLayout {
         float actorY = totalHeight - lineY[line] - lineH + yOffset;
         image.setBounds(pr.x(), actorY, pr.width(), pr.height());
         group.addActor(image);
+        runToActor.put(ir, image);
 
         if (ir.shake() != null) {
           shakeTargets.add(new ShakeTarget(image, pr.x(), actorY, ir.shake()));
@@ -432,10 +449,23 @@ public class RichLabelLayout {
         float actorY = totalHeight - lineY[line] - pr.height();
         image.setBounds(pr.x(), actorY, pr.width(), pr.height());
         group.addActor(image);
+        runToActor.put(ibr, image);
       }
     }
 
-    return new LayoutResult(totalHeight, shakeTargets);
+    // Build placedActors in original run order, including control runs
+    for (Run run : runs) {
+      if (run instanceof TypewriterRun || run instanceof PauseRun) {
+        placedActors.add(new PlacedActor(null, run, null));
+      } else {
+        Actor actor = runToActor.get(run);
+        if (actor != null) {
+          placedActors.add(new PlacedActor(actor, run, runToFullText.get(run)));
+        }
+      }
+    }
+
+    return new LayoutResult(totalHeight, shakeTargets, placedActors);
   }
 
   /** Clears the texture cache. */
