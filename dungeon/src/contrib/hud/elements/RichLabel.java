@@ -1,73 +1,86 @@
 package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
-import core.utils.FontHelper;
+import contrib.hud.elements.richlabel.RichLabelLayout;
+import contrib.hud.elements.richlabel.RichLabelParser;
+import contrib.hud.elements.richlabel.Run;
 import core.utils.FontSpec;
-import core.utils.components.draw.TextureMap;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * A rich-text label for libGDX Scene2d that supports inline images and color changes.
+ * A rich-text label for libGDX Scene2d that supports inline images, block images, color changes,
+ * font size overrides, and text effects.
  *
  * <p>Markup tags supported in the input text:
  *
  * <ul>
  *   <li>{@code [img=path/to/image.png]} - renders an inline image scaled to the font line height.
+ *   <li>{@code [img-block path=image.png]} or {@code [img-block path=image.png width=300]} or
+ *       {@code [img-block path=image.png width=50%]} - renders a block-level image on its own line,
+ *       centered horizontally. Width can be pixels or a percentage of the container width. Aspect
+ *       ratio is always preserved. Defaults to full container width.
  *   <li>{@code [color=red]} or {@code [color=#ff0000]} - changes the text color for subsequent
  *       text.
  *   <li>{@code [/color]} - resets the text color to the default.
+ *   <li>{@code [size=24]} - changes the font size for subsequent text.
+ *   <li>{@code [/size]} - resets the font size to the default.
+ *   <li>{@code [shake]} or {@code [shake strength=1.5]} or {@code [shake strength=1.5 speed=0.5]} -
+ *       applies a shake effect to subsequent runs. Named parameters: {@code strength} (multiplier
+ *       of default 1.3px) and {@code speed} (multiplier of default 10). Boolean parameters can be
+ *       specified by name alone (presence = true, absence = false).
+ *   <li>{@code [/shake]} - ends the shake effect.
+ *   <li>{@code [word-space=1.5]} - multiplies the default word spacing by the given factor for all
+ *       subsequent text. 1.0 is default spacing.
+ *   <li>{@code [line-space=1.5]} - multiplies the default line height by the given factor for all
+ *       subsequent lines. 1.0 is default spacing.
+ *   <li>{@code [n]} - forces a line break at the current position.
  * </ul>
  *
+ * <p>Tags with named parameters use space-separated {@code key=value} pairs. Boolean parameters are
+ * specified by name alone (presence = true, absence = false). This convention applies to all tags
+ * that accept named parameters ({@code [shake ...]}, {@code [img-block ...]}, and any future tags).
+ *
  * <p>The label performs word-level flow layout: each word and each image is a "run" that is placed
- * left-to-right and wrapped to the next line when it would exceed the available width.
+ * left-to-right and wrapped to the next line when it would exceed the available width. Runs with
+ * different font sizes are baseline-aligned within each line.
  */
 public class RichLabel extends WidgetGroup implements Disposable {
 
-  private static final Pattern TAG_PATTERN =
-      Pattern.compile("\\[img=([^]]+)]|\\[color=([^]]+)]|\\[/color]");
-
-  private static final Map<String, Color> NAMED_COLORS = new HashMap<>();
-
-  static {
-    NAMED_COLORS.put("white", Color.WHITE);
-    NAMED_COLORS.put("black", Color.BLACK);
-    NAMED_COLORS.put("red", Color.RED);
-    NAMED_COLORS.put("green", Color.GREEN);
-    NAMED_COLORS.put("blue", Color.BLUE);
-    NAMED_COLORS.put("yellow", Color.YELLOW);
-    NAMED_COLORS.put("cyan", Color.CYAN);
-    NAMED_COLORS.put("magenta", Color.MAGENTA);
-    NAMED_COLORS.put("orange", Color.ORANGE);
-    NAMED_COLORS.put("gray", Color.GRAY);
-    NAMED_COLORS.put("grey", Color.GRAY);
-    NAMED_COLORS.put("light_gray", Color.LIGHT_GRAY);
-    NAMED_COLORS.put("dark_gray", Color.DARK_GRAY);
-  }
-
-  private static final float IMAGE_SCALE = 1.5f;
-  private static final float IMAGE_GAP = 3f;
+  /** Suppresses invalidation while layout is in progress to prevent re-layout every frame. */
+  private boolean layoutInProgress = false;
 
   private FontSpec fontSpec;
-  private final Map<String, TextureRegion> textureCache = new HashMap<>();
-  private final List<Run> runs = new ArrayList<>();
-
   private String text;
   private float computedPrefHeight;
+  private float lastPrefHeightWidth;
   private boolean wrap = true;
+
+  private final RichLabelParser parser = new RichLabelParser();
+  private final RichLabelLayout layoutEngine = new RichLabelLayout();
+  private List<Run> runs = new ArrayList<>();
+
+  /** Accumulated time for shake effects, persists across layout calls. */
+  private float shakeElapsed;
+
+  /** Frame counter for choppy shake updates. */
+  private int shakeFrameCounter;
+
+  /** Only update shake positions every N frames for a more intense, choppy feel. */
+  private static final int SHAKE_UPDATE_INTERVAL = 3;
+
+  /** Actors that should be shaken each frame, rebuilt during layout. */
+  private final List<RichLabelLayout.ShakeTarget> shakeTargets = new ArrayList<>();
+
+  @Override
+  protected void childrenChanged() {
+    if (!layoutInProgress) {
+      super.childrenChanged();
+    }
+  }
 
   /**
    * Creates a new RichLabel with the given text and font specification.
@@ -78,7 +91,7 @@ public class RichLabel extends WidgetGroup implements Disposable {
   public RichLabel(String text, FontSpec fontSpec) {
     this.fontSpec = fontSpec;
     this.text = text;
-    parseText();
+    runs = parser.parse(text);
   }
 
   /**
@@ -113,13 +126,13 @@ public class RichLabel extends WidgetGroup implements Disposable {
   }
 
   /**
-   * Replaces the font specification used for default text rendering and re-parses the text.
+   * Replaces the font specification used for default text rendering and triggers a re-layout. Does
+   * not re-parse the text, preserving shake effect continuity.
    *
    * @param fontSpec the new font specification
    */
   public void setFontSpec(FontSpec fontSpec) {
     this.fontSpec = fontSpec;
-    parseText();
     invalidateHierarchy();
   }
 
@@ -130,7 +143,8 @@ public class RichLabel extends WidgetGroup implements Disposable {
    */
   public void setText(String text) {
     this.text = text;
-    parseText();
+    parser.clearShakeCache();
+    runs = parser.parse(text);
     invalidateHierarchy();
   }
 
@@ -145,312 +159,75 @@ public class RichLabel extends WidgetGroup implements Disposable {
 
   @Override
   public float getPrefWidth() {
-    BitmapFont font = FontHelper.getFont(fontSpec);
-    GlyphLayout glyphLayout = new GlyphLayout();
-    float spaceWidth = computeSpaceWidth(font, glyphLayout);
-    float width = 0;
+    return layoutEngine.computePrefWidth(runs, fontSpec);
+  }
 
-    for (int i = 0; i < runs.size(); i++) {
-      Run run = runs.get(i);
-      if (run instanceof TextRun tr) {
-        String trimmed = tr.word().stripLeading();
-        boolean hasLeadingSpace = tr.word().length() > trimmed.length();
-        if (hasLeadingSpace && width > 0) {
-          width += spaceWidth;
-        }
-        glyphLayout.setText(font, trimmed);
-        width += glyphLayout.width;
-      } else if (run instanceof ImageRun ir) {
-        TextureRegion region = getTextureRegion(ir.path());
-        if (region != null) {
-          float imgHeight = font.getCapHeight() * IMAGE_SCALE;
-          float imgWidth = (float) region.getRegionWidth() / region.getRegionHeight() * imgHeight;
-          if (i > 0) imgWidth += IMAGE_GAP;
-          if (i < runs.size() - 1) imgWidth += IMAGE_GAP;
-          width += imgWidth;
-        }
-      }
+  @Override
+  public void invalidate() {
+    super.invalidate();
+    computedPrefHeight = 0;
+  }
+
+  @Override
+  protected void sizeChanged() {
+    super.sizeChanged();
+    // Width affects wrapping which affects height. If the parent assigned a new width,
+    // invalidate so getPrefHeight is recomputed and the parent can re-allocate space.
+    if (wrap && getWidth() > 0 && getWidth() != lastPrefHeightWidth) {
+      computedPrefHeight = 0;
+      invalidateHierarchy();
     }
-    return width;
   }
 
   @Override
   public float getPrefHeight() {
-    // Trigger a dry layout to compute height if needed
-    if (computedPrefHeight <= 0) {
-      layoutRuns(getWidth() > 0 ? getWidth() : getPrefWidth());
+    float w = getWidth() > 0 ? getWidth() : getPrefWidth();
+    if (computedPrefHeight <= 0 || w != lastPrefHeightWidth) {
+      lastPrefHeightWidth = w;
+      computedPrefHeight = layoutEngine.computePrefHeight(runs, fontSpec, w, wrap);
     }
     return computedPrefHeight;
   }
 
   @Override
   public void layout() {
+    layoutInProgress = true;
     clearChildren();
+    clearActions();
+    shakeTargets.clear();
     float availableWidth = getWidth();
     if (availableWidth <= 0) {
       availableWidth = getPrefWidth();
     }
-    layoutRuns(availableWidth);
+    var result = layoutEngine.layoutRuns(this, runs, fontSpec, availableWidth, wrap);
+    computedPrefHeight = result.prefHeight();
+    shakeTargets.addAll(result.shakeTargets());
+    applyShakeOffsets();
+    layoutInProgress = false;
+  }
+
+  @Override
+  public void act(float delta) {
+    super.act(delta);
+    if (shakeTargets.isEmpty()) return;
+    shakeElapsed += delta;
+    shakeFrameCounter++;
+    if (shakeFrameCounter % SHAKE_UPDATE_INTERVAL != 0) return;
+    applyShakeOffsets();
+  }
+
+  /** Applies the current shake offsets to all shake targets based on {@link #shakeElapsed}. */
+  private void applyShakeOffsets() {
+    for (RichLabelLayout.ShakeTarget st : shakeTargets) {
+      float t = (shakeElapsed + st.shake().phase()) * st.shake().speed();
+      float offsetX = MathUtils.sin(t * 7.3f) * st.shake().strength();
+      float offsetY = MathUtils.cos(t * 5.9f) * st.shake().strength();
+      st.actor().setPosition(st.baseX() + offsetX, st.baseY() + offsetY);
+    }
   }
 
   @Override
   public void dispose() {
-    textureCache.clear();
-  }
-
-  // -- Internal types --
-
-  /** A sealed interface representing a single layout token (word or image). */
-  private sealed interface Run permits TextRun, ImageRun {}
-
-  /**
-   * A single word of text with an associated color.
-   *
-   * @param word the text content (single word, may include trailing space)
-   * @param color the color to render this word in
-   */
-  private record TextRun(String word, Color color) implements Run {}
-
-  /**
-   * An inline image reference.
-   *
-   * @param path the asset path of the image
-   */
-  private record ImageRun(String path) implements Run {}
-
-  // -- Parsing --
-
-  /** Parses the markup text into a flat list of runs (words and images). */
-  private void parseText() {
-    runs.clear();
-    if (text == null || text.isEmpty()) return;
-
-    Color currentColor = fontSpec.color();
-    Matcher matcher = TAG_PATTERN.matcher(text);
-    int lastEnd = 0;
-
-    while (matcher.find()) {
-      // Text before this tag
-      if (matcher.start() > lastEnd) {
-        String segment = text.substring(lastEnd, matcher.start());
-        addTextRuns(segment, currentColor);
-      }
-
-      if (matcher.group(1) != null) {
-        // [img=path]
-        runs.add(new ImageRun(matcher.group(1)));
-      } else if (matcher.group(2) != null) {
-        // [color=value]
-        currentColor = parseColor(matcher.group(2));
-      } else {
-        // [/color]
-        currentColor = fontSpec.color();
-      }
-      lastEnd = matcher.end();
-    }
-
-    // Remaining text after the last tag
-    if (lastEnd < text.length()) {
-      addTextRuns(text.substring(lastEnd), currentColor);
-    }
-  }
-
-  /**
-   * Splits a plain text segment into individual word runs, preserving whitespace as trailing space
-   * on words.
-   *
-   * @param segment the plain text segment to split
-   * @param color the color to apply to the resulting text runs
-   */
-  private void addTextRuns(String segment, Color color) {
-    // Split on whitespace boundaries, keeping the words and spaces
-    // We split by spaces but keep each word as a run. Spaces between words are attached as
-    // a leading space on the next word to ensure correct spacing during layout.
-    String[] parts = segment.split("(?<=\\s)|(?=\\s)");
-    StringBuilder current = new StringBuilder();
-    for (String part : parts) {
-      if (part.isBlank() && !current.isEmpty()) {
-        // Flush the current word, attach trailing space
-        runs.add(new TextRun(current.toString(), color));
-        current.setLength(0);
-        current.append(part);
-      } else if (part.isBlank()) {
-        current.append(part);
-      } else {
-        current.append(part);
-        runs.add(new TextRun(current.toString(), color));
-        current.setLength(0);
-      }
-    }
-    if (!current.isEmpty()) {
-      runs.add(new TextRun(current.toString(), color));
-    }
-  }
-
-  /**
-   * Parses a color string that is either a named color (e.g. "red") or a hex value (e.g.
-   * "#ff0000").
-   *
-   * @param value the color string to parse
-   * @return the parsed Color, or white if the value is not recognized
-   */
-  private static Color parseColor(String value) {
-    String lower = value.toLowerCase().trim();
-    Color named = NAMED_COLORS.get(lower);
-    if (named != null) return named;
-
-    // Try hex (with or without leading #)
-    try {
-      String hex = lower.startsWith("#") ? lower.substring(1) : lower;
-      if (hex.length() == 6) hex += "ff"; // add alpha
-      return Color.valueOf(hex);
-    } catch (Exception e) {
-      return Color.WHITE;
-    }
-  }
-
-  /**
-   * Strips all markup tags from the text, returning plain text only.
-   *
-   * @param input the markup text to strip
-   * @return the plain text with all tags removed
-   */
-  private String stripTags(String input) {
-    return TAG_PATTERN.matcher(input).replaceAll("");
-  }
-
-  // -- Layout --
-
-  /**
-   * Performs flow layout of all runs within the given width, creating Scene2d actors and
-   * positioning them. Also computes {@link #computedPrefHeight}.
-   *
-   * @param availableWidth the maximum width available for laying out runs
-   */
-  private void layoutRuns(float availableWidth) {
-    BitmapFont font = FontHelper.getFont(fontSpec);
-    GlyphLayout glyphLayout = new GlyphLayout();
-    float lineHeight = font.getLineHeight();
-    float spaceWidth = computeSpaceWidth(font, glyphLayout);
-
-    float x = 0;
-    float y = 0;
-
-    List<PlacedRun> placed = new ArrayList<>();
-
-    for (int i = 0; i < runs.size(); i++) {
-      Run run = runs.get(i);
-      float runWidth;
-      float runHeight;
-
-      if (run instanceof TextRun tr) {
-        String trimmed = tr.word().stripLeading();
-        boolean hasLeadingSpace = tr.word().length() > trimmed.length();
-        if (hasLeadingSpace && x > 0) {
-          x += spaceWidth;
-        }
-        glyphLayout.setText(font, trimmed);
-        runWidth = glyphLayout.width;
-        runHeight = lineHeight;
-
-        if (wrap && x > 0 && x + runWidth > availableWidth) {
-          x = 0;
-          y += lineHeight;
-        }
-
-        placed.add(new PlacedRun(run, x, y, runWidth, runHeight));
-        x += runWidth;
-
-      } else if (run instanceof ImageRun ir) {
-        TextureRegion region = getTextureRegion(ir.path());
-        float imgHeight = font.getCapHeight() * IMAGE_SCALE;
-        float imgWidth =
-            region != null
-                ? (float) region.getRegionWidth() / region.getRegionHeight() * imgHeight
-                : 0;
-        float leadGap = i > 0 ? IMAGE_GAP : 0;
-        float trailGap = i < runs.size() - 1 ? IMAGE_GAP : 0;
-        float totalImgWidth = imgWidth + leadGap + trailGap;
-
-        if (wrap && x > 0 && x + totalImgWidth > availableWidth) {
-          x = 0;
-          y += lineHeight;
-        }
-
-        x += leadGap;
-        placed.add(new PlacedRun(run, x, y, imgWidth, imgHeight));
-        x += imgWidth + trailGap;
-      }
-    }
-
-    float totalHeight = y + lineHeight;
-    computedPrefHeight = totalHeight;
-
-    for (PlacedRun pr : placed) {
-      if (pr.run() instanceof TextRun tr) {
-        String trimmed = tr.word().stripLeading();
-        if (trimmed.isEmpty()) continue;
-        FontSpec runFontSpec = fontSpec.withColor(tr.color());
-        Label label =
-            new Label(trimmed, new Label.LabelStyle(FontHelper.getFont(runFontSpec), null));
-        float actorY = totalHeight - pr.y() - lineHeight;
-        label.setBounds(pr.x(), actorY, pr.width(), pr.height());
-        addActor(label);
-
-      } else if (pr.run() instanceof ImageRun ir) {
-        TextureRegion region = getTextureRegion(ir.path());
-        if (region == null) continue;
-        Image image = new Image(new TextureRegionDrawable(region));
-        float actorY = totalHeight - pr.y() - lineHeight;
-        float yOffset = (FontHelper.getFont(fontSpec).getLineHeight() - pr.height()) / 2f;
-        image.setBounds(pr.x(), actorY + yOffset, pr.width(), pr.height());
-        addActor(image);
-      }
-    }
-  }
-
-  /**
-   * A positioned run used during layout computation.
-   *
-   * @param run the layout run
-   * @param x the x position
-   * @param y the y position
-   * @param width the width of the run
-   * @param height the height of the run
-   */
-  private record PlacedRun(Run run, float x, float y, float width, float height) {}
-
-  /**
-   * Computes the pixel width of a single space character in the given font.
-   *
-   * @param font the bitmap font to measure
-   * @param glyphLayout the glyph layout instance to reuse
-   * @return the width of a space character in pixels
-   */
-  private float computeSpaceWidth(BitmapFont font, GlyphLayout glyphLayout) {
-    glyphLayout.setText(font, " ");
-    return glyphLayout.width;
-  }
-
-  /**
-   * Loads or retrieves a cached texture region for the given asset path via TextureMap.
-   *
-   * @param path the asset path to load
-   * @return the loaded texture region, or null if loading failed
-   */
-  private TextureRegion getTextureRegion(String path) {
-    return textureCache.computeIfAbsent(
-        path,
-        p -> {
-          try {
-            TextureRegion region = TextureMap.instance().cloneTexture(p);
-            region
-                .getTexture()
-                .setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            return region;
-          } catch (Exception e) {
-            return null;
-          }
-        });
+    layoutEngine.clearTextureCache();
   }
 }
