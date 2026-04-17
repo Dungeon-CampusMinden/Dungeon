@@ -109,7 +109,16 @@ public class Debugger extends System {
                 return;
               }
 
-              pc.position(targetLocation);
+              // Adjust for collider offset so the collider's bottom-left lands on the target
+              Point adjustedPosition =
+                  player
+                      .fetch(CollideComponent.class)
+                      .map(
+                          cc -> {
+                            return targetLocation.translate(cc.collider().offset().scale(-1));
+                          })
+                      .orElse(targetLocation);
+              pc.position(adjustedPosition);
               LOGGER.info("Teleport successful");
             });
   }
