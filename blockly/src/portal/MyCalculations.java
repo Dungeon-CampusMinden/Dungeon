@@ -115,10 +115,22 @@ public class MyCalculations extends Calculations {
    */
   private static final float FORCE_MAGNITUDE = 20f;
 
+  /**
+   * Calculates the force vector applied by a tractor beam for the given direction.
+   *
+   * @param direction the beam direction
+   * @return the force vector to apply in that direction
+   */
   public Vector2 beamForce(Direction direction) {
     return Vector2.of(direction.x() * FORCE_MAGNITUDE, direction.y() * FORCE_MAGNITUDE);
   }
 
+  /**
+   * Calculates the force vector for the reversed tractor beam direction.
+   *
+   * @param direction the original beam direction
+   * @return the force vector applied when the beam is reversed
+   */
   public Vector2 reversedBeamForce(Direction direction) {
     return this.beamForce(direction).scale(-1);
   }

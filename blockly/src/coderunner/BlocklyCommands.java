@@ -390,11 +390,21 @@ public class BlocklyCommands {
         });
   }
 
+  /**
+   * Shoots a blue portal "projectile" in hero view direction.
+   *
+   * <p>Queues the command in the BlocklyCommandExecuteSystem queue to be executed
+   */
   public static void shootBluePortal() {
     Game.system(
         BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_SHOOT_BLUE_PORTAL));
   }
 
+  /**
+   * Shoots a green portal "projectile" in hero view direction.
+   *
+   * <p>Queues the command in the BlocklyCommandExecuteSystem queue to be executed
+   */
   public static void shootGreenPortal() {
     Game.system(
         BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_SHOOT_GREEN_PORTAL));
