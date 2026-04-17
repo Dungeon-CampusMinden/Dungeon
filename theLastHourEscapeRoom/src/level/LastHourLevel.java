@@ -7,6 +7,7 @@ import contrib.entities.WorldItemBuilder;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.DialogUtils;
+import contrib.hud.dialogs.ChoiceOption;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
@@ -128,7 +129,51 @@ public class LastHourLevel extends DungeonLevel {
     setupR2PaperTrigger();
     setupUsbSticks();
 
+    setupTestMcd();
+
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
+  }
+
+  private void setupTestMcd() {
+    Entity trigger = new Entity("test-mcd-trigger");
+    trigger.add(new PositionComponent(getPoint("r1-mcd")));
+    trigger.add(
+        new CollideComponent(
+                Vector2.ZERO,
+                Vector2.ONE,
+                (e, other, dir) ->
+                    other
+                        .fetch(InputComponent.class)
+                        .ifPresent(
+                            ic -> {
+                              Game.remove(trigger);
+                              List<ChoiceOption> opts =
+                                  List.of(
+                                      ChoiceOption.of(
+                                          "[img=items/rpg/item_scroll.png] Enchanted Scroll"),
+                                      ChoiceOption.of(
+                                          "[img=items/rpg/potion_purple.png] Mysterious Potion"),
+                                      ChoiceOption.of(
+                                          "[img=items/rpg/item_compass.png] Ancient Compass"),
+                                      ChoiceOption.of("[img=items/rpg/key1.png] Golden Key"),
+                                      ChoiceOption.of(
+                                          "[img=items/rpg/item_magnifying_glass.png] Magnifying"
+                                              + " Glass"));
+                              DialogFactory.showMultipleChoiceDialog(
+                                  "You found a [color=#aa00aa]mysterious chest[/color]! Which item do you take?",
+                                  null,
+null,
+                                  new ArrayList<>(opts),
+                                  false,
+                                  payload -> {
+                                    LOGGER.info("Test MCD selected: " + payload);
+                                  },
+                                  () -> {},
+                                  other.id());
+                            }),
+                null)
+            .isSolid(false));
+    Game.add(trigger);
   }
 
   private void showIntro(int targetId) {
@@ -508,7 +553,8 @@ public class LastHourLevel extends DungeonLevel {
     for (int i = 0; i < colors.length; i++) {
       Point pos = origin.translate(i, 0);
       Entity usbEntity =
-          WorldItemBuilder.buildWorldItem(UsbStickItem.createUsbStickItem(colors[i]), pos);
+          WorldItemBuilder.buildWorldItemSimpleInteraction(
+              UsbStickItem.createUsbStickItem(colors[i]), pos);
       Game.add(usbEntity);
     }
   }

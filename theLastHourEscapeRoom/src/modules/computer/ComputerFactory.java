@@ -31,7 +31,8 @@ public class ComputerFactory {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ComputerFactory.class);
   private static final String STATE_KEY = "computer_state";
-  private static final String ACCESS_PC_LABEL = "Access PC. This will have wild implications idk I just want to test the line wrapping. So here is another sentence to make this really long.";
+  private static final String ACCESS_PC_LABEL =
+      "Access PC. This will have wild implications idk I just want to test the line wrapping. So here is another sentence to make this really long.";
 
   /** Tracks whether the correct USB stick has already been inserted this session. */
   private static boolean usbAlreadyInserted = false;
@@ -121,7 +122,8 @@ public class ComputerFactory {
     List<ChoiceOption> options = new ArrayList<>();
     for (UsbStickItem.BaseUsbStick stick : usbSticks) {
       UsbStickColor color = stick.color();
-      options.add(ChoiceOption.of(color.displayName(), color.getTexturePath()));
+      options.add(
+          ChoiceOption.of("[img=" + color.getTexturePath() + "] " + color.displayName(), color));
     }
     options.add(ChoiceOption.of(ACCESS_PC_LABEL));
 
@@ -132,16 +134,14 @@ public class ComputerFactory {
         options,
         false,
         data -> {
-          if (data instanceof DialogResponseMessage.StringValue(String val)) {
-            if (val.equals(ACCESS_PC_LABEL)) {
-              openComputerDialog(pcEntity, who);
-            } else {
-              // Find the selected USB stick by display name
-              usbSticks.stream()
-                  .filter(s -> s.color().displayName().equals(val))
-                  .findFirst()
-                  .ifPresent(stick -> onUsbStickInserted(stick, pcEntity, who));
-            }
+          if (data instanceof DialogResponseMessage.CustomPayload(java.io.Serializable val)
+              && val instanceof UsbStickColor selectedColor) {
+            usbSticks.stream()
+                .filter(s -> s.color() == selectedColor)
+                .findFirst()
+                .ifPresent(stick -> onUsbStickInserted(stick, pcEntity, who));
+          } else {
+            openComputerDialog(pcEntity, who);
           }
         },
         () -> {},

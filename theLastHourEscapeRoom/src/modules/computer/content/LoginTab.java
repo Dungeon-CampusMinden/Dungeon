@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.elements.RichLabel;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 import modules.computer.ComputerDialog;
@@ -50,9 +51,11 @@ public class LoginTab extends ComputerTab {
 
     Label label = Scene2dElementFactory.createLabel(Lore.CompanyName, 64, Color.BLACK);
     this.add(label).center().padBottom(10).row();
-    Label flavor =
-        Scene2dElementFactory.createLabel(
-            "At the frontlines of science since 1984", 24, Color.GRAY);
+    RichLabel flavor =
+        new RichLabel(
+            "At the [color=red]frontlines[/color] of [color=#3399ff]science[/color] since 1984",
+            24,
+            Color.GRAY);
     this.add(flavor).center().padBottom(20).row();
 
     loginFeedback = Scene2dElementFactory.createLabel("", 24, Color.WHITE);
