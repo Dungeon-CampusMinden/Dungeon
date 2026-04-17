@@ -2,7 +2,6 @@ package contrib.hud.dialogs;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.*;
@@ -12,16 +11,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
+import contrib.hud.elements.RichLabel;
 import core.Game;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.BaseContainerUI;
-import core.utils.FontHelper;
 import core.utils.FontSpec;
-import core.utils.Scene2dElementFactory;
-import core.utils.components.draw.TextureMap;
-import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +34,6 @@ final class MultipleChoiceDialog {
   private static final float MAIN_BOX_PAD = 20;
   private static final float OPTION_WIDTH = 420;
   private static final float OPTION_PAD = 16;
-  private static final float ICON_SIZE = 24;
   private static final float GAP = 4;
 
   private static final FontSpec OPTION_FONT_NORMAL =
@@ -125,23 +119,24 @@ final class MultipleChoiceDialog {
 
     if (!title.isBlank()) {
       headerBg.setTopHeight(12);
-      Label titleLabel =
-          Scene2dElementFactory.createLabel(title, DialogDesign.DIALOG_FONT_SPEC_TITLE);
-      titleLabel.setAlignment(Align.center);
-      header.add(titleLabel).growX().padBottom(18).row();
+      RichLabel titleLabel = new RichLabel(title, DialogDesign.DIALOG_FONT_SPEC_TITLE);
+      header.add(titleLabel).center().padBottom(18).row();
     }
 
-    Label questionLabel =
-        Scene2dElementFactory.createLabel(message, DialogDesign.DIALOG_FONT_SPEC_NORMAL);
+    float headerContentWidth = OPTION_WIDTH - MAIN_BOX_PAD * 2;
+
+    RichLabel questionLabel = new RichLabel(message, DialogDesign.DIALOG_FONT_SPEC_NORMAL);
     questionLabel.setWrap(true);
-    questionLabel.setAlignment(Align.left);
-    header.add(questionLabel).growX().padBottom(description != null ? 4 : 0).row();
+    header
+        .add(questionLabel)
+        .width(headerContentWidth)
+        .padBottom(description != null ? 4 : 0)
+        .row();
 
     if (description != null && !description.isBlank()) {
-      Label descLabel = Scene2dElementFactory.createLabel(description, DESCRIPTION_FONT);
+      RichLabel descLabel = new RichLabel(description, DESCRIPTION_FONT);
       descLabel.setWrap(true);
-      descLabel.setAlignment(Align.left);
-      header.add(descLabel).growX().row();
+      header.add(descLabel).width(headerContentWidth).row();
     }
 
     root.add(header).width(OPTION_WIDTH).padBottom(GAP).row();
@@ -149,7 +144,7 @@ final class MultipleChoiceDialog {
     // Option rows
     final int[] selectedIndex = {-1};
     final List<Table> rowTables = new ArrayList<>();
-    final List<Label> rowLabels = new ArrayList<>();
+    final List<RichLabel> rowLabels = new ArrayList<>();
 
     for (int i = 0; i < allEntries.size(); i++) {
       ChoiceOption entry = allEntries.get(i);
@@ -158,22 +153,12 @@ final class MultipleChoiceDialog {
       row.setBackground(bgNormal);
       row.setTouchable(Touchable.enabled);
 
-      // Optional icon (resolve as skin drawable first, then as texture file path)
-      if (entry.iconPath() != null) {
-        Image icon = resolveIcon(entry.iconPath(), skin);
-        row.add(icon).size(ICON_SIZE).padRight(8);
-      }
+      RichLabel label = new RichLabel(entry.label(), OPTION_FONT_NORMAL);
 
-      Label label = Scene2dElementFactory.createLabel(entry.label(), OPTION_FONT_NORMAL);
-      label.setAlignment(Align.left);
-
-      // Compute the icon width contribution for max label width calculation
-      float iconSpace = (entry.iconPath() != null) ? ICON_SIZE + 8 : 0;
-      float maxLabelWidth = OPTION_WIDTH - OPTION_PAD * 2 - iconSpace;
+      float maxLabelWidth = OPTION_WIDTH - OPTION_PAD * 2;
       float naturalLabelWidth = label.getPrefWidth();
 
       if (naturalLabelWidth > maxLabelWidth) {
-        // Text exceeds max width - enable wrapping and constrain
         label.setWrap(true);
         row.add(label).width(maxLabelWidth).left();
       } else {
@@ -290,7 +275,7 @@ final class MultipleChoiceDialog {
    * @param newIndex The index to select, or -1 to clear.
    * @param selectedIndex Mutable array holding current selection.
    * @param rowTables All row Table actors.
-   * @param rowLabels All row Label actors.
+   * @param rowLabels All row RichLabel actors.
    * @param bgNormal Normal background drawable.
    * @param bgSelected Selected background drawable.
    */
@@ -298,7 +283,7 @@ final class MultipleChoiceDialog {
       int newIndex,
       int[] selectedIndex,
       List<Table> rowTables,
-      List<Label> rowLabels,
+      List<RichLabel> rowLabels,
       Drawable bgNormal,
       Drawable bgSelected) {
 
@@ -306,33 +291,15 @@ final class MultipleChoiceDialog {
     if (selectedIndex[0] >= 0 && selectedIndex[0] < rowTables.size()) {
       int old = selectedIndex[0];
       rowTables.get(old).setBackground(bgNormal);
-      applyFont(rowLabels.get(old), OPTION_FONT_NORMAL);
+      rowLabels.get(old).setFontSpec(OPTION_FONT_NORMAL);
     }
 
     // Select new
     selectedIndex[0] = newIndex;
     if (newIndex >= 0 && newIndex < rowTables.size()) {
       rowTables.get(newIndex).setBackground(bgSelected);
-      applyFont(rowLabels.get(newIndex), OPTION_FONT_SELECTED);
+      rowLabels.get(newIndex).setFontSpec(OPTION_FONT_SELECTED);
     }
-  }
-
-  /**
-   * Resolves an icon path to an {@link Image}. Tries the skin first; if the drawable is not found,
-   * attempts to load it as a texture file path.
-   *
-   * @param iconPath The skin drawable name or texture file path.
-   * @param skin The UI skin.
-   * @return An Image actor, or {@code null} if the icon could not be resolved.
-   */
-  private static Image resolveIcon(String iconPath, Skin skin) {
-    try {
-      return new Image(skin.getDrawable(iconPath));
-    } catch (com.badlogic.gdx.utils.GdxRuntimeException ignored) {
-      // Not a skin drawable — try as texture file path via TextureMap
-    }
-    Texture tex = TextureMap.instance().textureAt(new SimpleIPath(iconPath));
-    return new Image(tex);
   }
 
   /**
@@ -362,19 +329,6 @@ final class MultipleChoiceDialog {
   }
 
   /**
-   * Applies a FontSpec to a Label by replacing its style.
-   *
-   * @param label The label to update.
-   * @param spec The font specification to apply.
-   */
-  private static void applyFont(Label label, FontSpec spec) {
-    Label.LabelStyle style = new Label.LabelStyle(label.getStyle());
-    style.font = FontHelper.getFont(spec);
-    style.fontColor = spec.color();
-    label.setStyle(style);
-  }
-
-  /**
    * Confirms the selection at the given index, invoking the appropriate callback.
    *
    * @param index The selected index.
@@ -390,7 +344,7 @@ final class MultipleChoiceDialog {
     } else {
       DialogCallbackResolver.createButtonCallback(
               ctx.dialogId(), DialogContextKeys.ON_OPTION_SELECTED)
-          .accept(new DialogResponseMessage.StringValue(entries.get(index).label()));
+          .accept(new DialogResponseMessage.CustomPayload(entries.get(index).value()));
     }
   }
 
