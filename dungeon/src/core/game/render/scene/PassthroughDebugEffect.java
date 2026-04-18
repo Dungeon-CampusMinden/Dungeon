@@ -83,12 +83,12 @@ public final class PassthroughDebugEffect
         int debugRgb;
         if (debugPMA && debugWorldPos) {
           int alphaView = alphaDebugRgb(argb);
-          int worldView = worldPositionDebugRgb(x, y, width, height, focus);
+          int worldView = worldPositionDebugRgb(x, y, focus);
           debugRgb = mixRgb(alphaView, worldView);
         } else if (debugPMA) {
           debugRgb = alphaDebugRgb(argb);
         } else {
-          debugRgb = worldPositionDebugRgb(x, y, width, height, focus);
+          debugRgb = worldPositionDebugRgb(x, y, focus);
         }
 
         // Debug view should be fully visible and not inherit original scene alpha.
@@ -118,11 +118,10 @@ public final class PassthroughDebugEffect
     return (r << 16) | (g << 8) | b;
   }
 
-  private static int worldPositionDebugRgb(
-    int screenX, int screenY, int screenWidth, int screenHeight, Point focus) {
+  private static int worldPositionDebugRgb(int screenX, int screenY, Point focus) {
     Point world =
       CameraViewportState.screenToWorld(
-        new Point((float) screenX, (float) screenY), focus, screenWidth, screenHeight);
+        new Point((float) screenX, (float) screenY), focus);
 
     int r = wrappedChannel(world.x(), 4.0f);
     int g = wrappedChannel(world.y(), 4.0f);

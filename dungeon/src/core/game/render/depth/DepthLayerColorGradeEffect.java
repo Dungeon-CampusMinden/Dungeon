@@ -178,7 +178,7 @@ public final class DepthLayerColorGradeEffect
           continue;
         }
 
-        float influence = effectInfluenceAt(x, y, input.getWidth(), input.getHeight(), focus);
+        float influence = effectInfluenceAt(x, y, focus);
         if (influence <= 0f) {
           output.setRGB(x, y, argb);
           continue;
@@ -198,15 +198,14 @@ public final class DepthLayerColorGradeEffect
     return output;
   }
 
-  private float effectInfluenceAt(
-    int screenX, int screenY, int screenWidth, int screenHeight, Point focus) {
+  private float effectInfluenceAt(int screenX, int screenY, Point focus) {
     if (region == null) {
       return 1f;
     }
 
     Point world =
       CameraViewportState.screenToWorld(
-        new Point((float) screenX, (float) screenY), focus, screenWidth, screenHeight);
+        new Point((float) screenX, (float) screenY), focus);
 
     if (region.contains(world)) {
       return 1f;

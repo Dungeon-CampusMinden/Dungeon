@@ -74,23 +74,21 @@ public final class CameraViewportState {
    * @param screenPoint screen-space cursor position in pixels
    * @param focusPosition effective shared camera focus in world units; kept for source
    *     compatibility
-   * @param screenWidth current screen width in pixels; kept for source compatibility
-   * @param screenHeight current screen height in pixels; kept for source compatibility
    * @return corresponding world-space cursor position
    */
-  public static Point screenToWorld(
-    Point screenPoint, Point focusPosition, int screenWidth, int screenHeight) {
+  public static Point screenToWorld(Point screenPoint, Point focusPosition) {
     Objects.requireNonNull(screenPoint, "screenPoint");
     Objects.requireNonNull(focusPosition, "focusPosition");
 
     Viewport viewport = get();
     int tilePx = Math.max(1, viewport.tilePx());
+    double screenTileY = (screenPoint.y() - viewport.offsetY()) / tilePx;
 
     float worldX = (float) ((screenPoint.x() - viewport.offsetX()) / tilePx);
     float worldY =
       viewport.levelHeight() > 0
-        ? (float) (viewport.levelHeight() - ((screenPoint.y() - viewport.offsetY()) / tilePx))
-        : (float) ((screenPoint.y() - viewport.offsetY()) / tilePx);
+        ? (float) (viewport.levelHeight() - screenTileY)
+        : (float) screenTileY;
 
     return new Point(worldX, worldY);
   }

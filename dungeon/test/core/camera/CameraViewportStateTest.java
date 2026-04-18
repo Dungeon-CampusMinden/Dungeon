@@ -20,8 +20,7 @@ class CameraViewportStateTest {
   void screenToWorldMapsScreenCenterToTileCenter() {
     CameraViewportState.set(688, 242, 10, 32);
 
-    Point world =
-        CameraViewportState.screenToWorld(new Point(800, 450), new Point(3, 3), 1600, 900);
+    Point world = CameraViewportState.screenToWorld(new Point(800, 450), new Point(3, 3));
 
     assertEquals(3.5f, world.x(), EPSILON);
     assertEquals(3.5f, world.y(), EPSILON);
@@ -31,10 +30,8 @@ class CameraViewportStateTest {
   void screenToWorldKeepsWorldYStableForHorizontalCursorMovement() {
     CameraViewportState.set(688, 242, 10, 32);
 
-    Point left =
-        CameraViewportState.screenToWorld(new Point(640, 450), new Point(3, 3), 1600, 900);
-    Point right =
-        CameraViewportState.screenToWorld(new Point(960, 450), new Point(3, 3), 1600, 900);
+    Point left = CameraViewportState.screenToWorld(new Point(640, 450), new Point(3, 3));
+    Point right = CameraViewportState.screenToWorld(new Point(960, 450), new Point(3, 3));
 
     assertEquals(3.5f, left.y(), EPSILON);
     assertEquals(3.5f, right.y(), EPSILON);
