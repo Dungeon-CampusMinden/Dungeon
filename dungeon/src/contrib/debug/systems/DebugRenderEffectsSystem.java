@@ -96,10 +96,6 @@ public final class DebugRenderEffectsSystem extends System {
 
   @Override
   public void execute() {
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value())) {
-      Platform.render().toggleDebugHud();
-    }
-
     if (InputManager.isKeyJustPressed(TOGGLE_REGIONAL_DEPTH_COLOR_GRADE_KEY)) {
       if (isShiftPressed()) {
         toggleRegionalDepthColorGradeRegionMode();
