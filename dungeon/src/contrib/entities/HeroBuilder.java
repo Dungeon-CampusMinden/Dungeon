@@ -269,13 +269,14 @@ public final class HeroBuilder {
                   .playOnEntity(
                       entity, SoundSpec.builder(DEATH_SOUND_ID).volume(0.9f).maxDistance(20f));
 
-              // relink components for camera
-              Entity cameraDummy = new Entity("heroCamera");
-              cameraDummy.add(cc);
-              cameraDummy.add(poc);
-              Game.add(cameraDummy);
-
               deathCallback.accept(entity);
+
+              if (!Game.existInLevel(entity)) {
+                Entity cameraDummy = new Entity("heroCamera");
+                cameraDummy.add(cc);
+                cameraDummy.add(poc);
+                Game.add(cameraDummy);
+              }
             });
     hc.currentHealthpoints(characterClass.hp());
     hero.add(hc);

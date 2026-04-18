@@ -1,6 +1,5 @@
 package core.game.render.sprite;
 
-import contrib.modules.levelHide.LevelHideComponent;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -8,7 +7,6 @@ import core.camera.CameraMath;
 import core.camera.CameraState;
 import core.camera.CameraViewportState;
 import core.components.DrawComponent;
-import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.render.AnimationFrameImages;
@@ -363,16 +361,15 @@ public final class SpriteRenderSystem extends System {
 
       final Optional<DrawComponent> dcOpt = e.fetch(DrawComponent.class);
       if (dcOpt.isPresent()) {
-        if (tryDrawEntitySprite(g, e, pos, levelHeight, tilePx, dcOpt.get())) {
+        DrawComponent dc = dcOpt.get();
+        if (!dc.isVisible()) {
           continue;
         }
-      }
 
-      if (e.isPresent(LevelHideComponent.class)) {
+        tryDrawEntitySprite(g, e, pos, levelHeight, tilePx, dc);
         continue;
       }
 
-      drawEntityMarker(g, e, pos, levelHeight, tilePx);
     }
   }
 
@@ -530,25 +527,6 @@ public final class SpriteRenderSystem extends System {
 
     op.filter(source, tinted);
     return tinted;
-  }
-
-  private void drawEntityMarker(Graphics2D g, Entity e, Point pos, int levelHeight, int tilePx) {
-    int sx = Math.round(pos.x() * tilePx);
-    int sy =
-      (levelHeight > 0)
-        ? Math.round((levelHeight - 1 - pos.y()) * tilePx)
-        : Math.round(pos.y() * tilePx);
-
-    Color c = new Color(255, 165, 0);
-    if (e.isPresent(PlayerComponent.class)) {
-      boolean local = e.fetch(PlayerComponent.class).map(PlayerComponent::isLocal).orElse(false);
-      c = local ? Color.GREEN : Color.CYAN;
-    }
-
-    g.setColor(c);
-    int size = Math.max(6, Math.round(tilePx * 0.3f));
-    int r = size / 2;
-    g.fillOval(sx - r, sy - r, size, size);
   }
 
   private CameraView computeCameraView(Optional<ILevel> levelOpt) {
