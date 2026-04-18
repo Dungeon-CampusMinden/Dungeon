@@ -148,6 +148,7 @@ public final class BasicStarter {
     registerIfAbsent(CollisionSystem.class, CollisionSystem::new);
     registerIfAbsent(PathSystem.class, PathSystem::new);
     registerIfAbsent(AISystem.class, AISystem::new);
+    registerIfAbsent(SpikeSystem.class, SpikeSystem::new);
   }
 
   private static <T extends core.System> void registerIfAbsent(
