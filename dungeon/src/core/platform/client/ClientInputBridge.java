@@ -120,6 +120,7 @@ public final class ClientInputBridge {
       case KeyEvent.VK_DELETE -> Keys.DELETE;
       case KeyEvent.VK_TAB -> Keys.TAB;
       case KeyEvent.VK_SHIFT -> Keys.SHIFT_LEFT;
+      case KeyEvent.VK_COMMA -> Keys.COMMA;
 
       case KeyEvent.VK_0 -> Keys.NUM_0;
       case KeyEvent.VK_1 -> Keys.NUM_1;
