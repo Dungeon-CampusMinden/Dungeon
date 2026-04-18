@@ -174,8 +174,8 @@ final class InventoryDialogOverlay
       return;
     }
 
-    int previewX = stage.mouseX() + DRAG_PREVIEW_OFFSET_X;
-    int previewY = stage.mouseY() + DRAG_PREVIEW_OFFSET_Y;
+    int previewX = stage.mouseX() - InventoryGridRenderer.SLOT_WIDTH / 2;
+    int previewY = stage.mouseY() - InventoryGridRenderer.SLOT_HEIGHT / 2;
 
     InventoryGridRenderer.drawItemPreview(g, previewX, previewY, dragState.item());
   }

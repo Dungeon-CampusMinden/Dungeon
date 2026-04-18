@@ -37,7 +37,7 @@ final class DualInventoryDialogOverlay
 
   private static final int DEFAULT_WIDTH = 1100;
   private static final int DEFAULT_HEIGHT = 470;
-  private static final int PANEL_GAP = 18;
+  private static final int PANEL_GAP = 34;
   private static final int PANEL_HEADER_GAP = 8;
 
   private static final int PANEL_PADDING = 8;
@@ -278,11 +278,40 @@ final class DualInventoryDialogOverlay
       return;
     }
 
+    if (releasedSlotSelection.equals(completedDrag.source())) {
+      return;
+    }
+
     if (releasedSlotSelection.side() == completedDrag.source().side()) {
+      moveOrSwapWithinInventory(completedDrag.source(), releasedSlotSelection);
       return;
     }
 
     transferDraggedItem(completedDrag, releasedSlotSelection);
+  }
+
+  private void moveOrSwapWithinInventory(
+    SlotSelection sourceSelection, SlotSelection targetSelection) {
+    InventoryComponent inventory = inventoryOf(sourceSelection.side());
+
+    int sourceSlot = sourceSelection.slotIndex();
+    int targetSlot = targetSelection.slotIndex();
+
+    if (sourceSlot == targetSlot) {
+      return;
+    }
+
+    Item sourceItem = inventory.remove(sourceSlot).orElse(null);
+    if (sourceItem == null) {
+      return;
+    }
+
+    Item targetItem = inventory.remove(targetSlot).orElse(null);
+
+    inventory.set(targetSlot, sourceItem);
+    if (targetItem != null) {
+      inventory.set(sourceSlot, targetItem);
+    }
   }
 
   private void transferClickedItem(SlotSelection slotSelection) {
@@ -301,7 +330,20 @@ final class DualInventoryDialogOverlay
     InventoryComponent source = inventoryOf(drag.source().side());
     InventoryComponent destination = inventoryOf(releasedSlotSelection.side());
 
-    source.transfer(drag.source().slotIndex(), destination, releasedSlotSelection.slotIndex());
+    int sourceSlot = drag.source().slotIndex();
+    int targetSlot = releasedSlotSelection.slotIndex();
+
+    Item sourceItem = source.remove(sourceSlot).orElse(null);
+    if (sourceItem == null) {
+      return;
+    }
+
+    Item targetItem = destination.remove(targetSlot).orElse(null);
+
+    destination.set(targetSlot, sourceItem);
+    if (targetItem != null) {
+      source.set(sourceSlot, targetItem);
+    }
   }
 
   private SlotSelection hoveredDropTarget(GridLayout leftGrid, GridLayout rightGrid) {
@@ -392,8 +434,8 @@ final class DualInventoryDialogOverlay
       return;
     }
 
-    int previewX = stage.mouseX() + DRAG_PREVIEW_OFFSET_X;
-    int previewY = stage.mouseY() + DRAG_PREVIEW_OFFSET_Y;
+    int previewX = stage.mouseX() - InventoryGridRenderer.SLOT_WIDTH / 2;
+    int previewY = stage.mouseY() - InventoryGridRenderer.SLOT_HEIGHT / 2;
 
     InventoryGridRenderer.drawItemPreview(g, previewX, previewY, dragState.item());
   }
