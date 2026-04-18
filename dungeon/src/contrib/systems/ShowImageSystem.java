@@ -64,9 +64,8 @@ public class ShowImageSystem extends System {
 
       UIComponent uic = new UIComponent(context, true);
 
-      uic.registerCallback(
-        "onClose",
-        data -> {
+      uic.onClose(
+        _ -> {
           d.sic.isUIOpen(false);
           d.sic.onClose(d.e, newOverlay);
         });
