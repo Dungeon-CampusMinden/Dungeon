@@ -38,44 +38,72 @@ public class LaserCube {
     pc.rotation(directionToRotation(direction));
     pc.viewDirection(direction);
     laserCube.add(pc);
-    laserCube.add(new DrawComponent(new Animation(LASER_CUBE)));
+    DrawComponent drawComponent = new DrawComponent(new Animation(LASER_CUBE));
+    drawComponent.depth(10);
+    laserCube.add(drawComponent);
     laserCube.add(new LaserCubeComponent());
     TriConsumer<Entity, Entity, Direction> collideEnter =
-        (you, other, collisionDir) -> {
+        (cube, other, collisionDir) -> {
           other
               .fetch(LaserComponent.class)
               .ifPresent(
                   lc -> {
-                    if (you.fetch(LaserCubeComponent.class).get().isActive()
-                        || you.fetch(LaserCubeComponent.class).get().isBeingMoved()
-                        || pc.viewDirection() == collisionDir) {
+                    if (cube.fetch(LaserCubeComponent.class).get().isActive()) {
                       return;
                     }
-                    you.fetch(LaserCubeComponent.class).get().setActive(true);
+                    cube.add(lc);
+                    cube.fetch(LaserCubeComponent.class).get().setActive(true);
+                    LaserUtil.clearLaserPart(other);
+                    // Laser wird hier extended aus dem Cube raus.
                     Point newPos =
                         new Point(
                             pc.position().x() + pc.viewDirection().x(),
                             pc.position().y() + pc.viewDirection().y());
+                    Point snappedPosition =
+                      new Point(
+                        Math.round(pc.position().x() + pc.viewDirection().x()),
+                        Math.round(pc.position().y() + pc.viewDirection().y()));
+                    PositionComponent emitterPos = other.fetch(PositionComponent.class).get();
+                    if(emitterPos.viewDirection() == Direction.DOWN || emitterPos.viewDirection() == Direction.UP) {
+                      LaserUtil.extendTimes(
+                        (int) Math.abs(emitterPos.position().y()-pc.position().y())+1,
+                        emitterPos.viewDirection(),
+                        emitterPos.position(),
+                        other.fetch(PortalExtendComponent.class).get(),
+                        lc
+                      );
+                    } else if (emitterPos.viewDirection() == Direction.RIGHT || emitterPos.viewDirection() == Direction.LEFT) {
+                      LaserUtil.extendTimes(
+                        (int) Math.abs(emitterPos.position().x()-pc.position().x())+1,
+                        emitterPos.viewDirection(),
+                        emitterPos.position(),
+                        other.fetch(PortalExtendComponent.class).get(),
+                        lc
+                      );
+                    }
                     LaserUtil.extendLaser(
                         pc.viewDirection(),
-                        newPos,
+                        snappedPosition,
                         other.fetch(PortalExtendComponent.class).get(),
                         lc);
                   });
         };
 
     TriConsumer<Entity, Entity, Direction> collideLeave =
-        (you, other, collisionDir) -> {
+        (cube, other, collisionDir) -> {
+          CollideComponent cc = cube.fetch(CollideComponent.class).get();
+          if (!cc.isSolid() && !attached[0]) {
+            cc.isSolid(true);
+          }
           other
               .fetch(LaserComponent.class)
               .ifPresent(
                   lc -> {
-                    you.fetch(LaserCubeComponent.class).get().setActive(false);
+                    cube.fetch(LaserCubeComponent.class).get().setActive(false);
+                    cube.remove(LaserComponent.class);
+                    LaserUtil.reActivate(other);
                   });
-          CollideComponent cc = you.fetch(CollideComponent.class).get();
-          if (!cc.isSolid() && !attached[0]) {
-            cc.isSolid(true);
-          }
+
         };
 
     laserCube.add(
@@ -101,7 +129,7 @@ public class LaserCube {
                                 Vector2.ZERO,
                                 interactedPositioncomponent,
                                 interactorPositioncomponent);
-                        attachmentComponent.setTextureRotating(false);
+                        attachmentComponent.setTextureRotating(true);
                         attachmentComponent.setRotatingWithOrigin(true);
                         laserCube.add(attachmentComponent);
                         interacted.fetch(CollideComponent.class).ifPresent(cc -> cc.isSolid(false));
@@ -132,6 +160,9 @@ public class LaserCube {
                         attached[0] = false;
                         laserCube.fetch(LaserCubeComponent.class).get().setBeingMoved(false);
                         PositionSync.syncPosition(interacted);
+                        if (laserCube.fetch(LaserComponent.class).isPresent()) {
+                          LaserUtil.reActivate(laserCube);
+                        }
                       }
                     },
                     2f)));
@@ -155,4 +186,11 @@ public class LaserCube {
     }
     return rotation;
   }
+
+  private static int calculateNumberOfPoints(Point from, Point to) {
+    float dx = Math.abs(to.x() - from.x());
+    float dy = Math.abs(to.y() - from.y());
+    return (int) Math.max(dx, dy);
+  }
+
 }

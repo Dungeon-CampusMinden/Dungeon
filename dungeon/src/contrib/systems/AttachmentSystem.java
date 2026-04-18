@@ -108,19 +108,20 @@ public class AttachmentSystem extends System {
       if (asData.ac.isTextureRotating()) {
         switch (asData.originpc.viewDirection()) {
           case UP -> {
-            asData.copypc.rotation(90);
-          }
-          case RIGHT -> {
             asData.copypc.rotation(0);
           }
-          case DOWN -> {
+          case RIGHT -> {
             asData.copypc.rotation(270);
           }
-          case LEFT -> {
+          case DOWN -> {
             asData.copypc.rotation(180);
+          }
+          case LEFT -> {
+            asData.copypc.rotation(90);
           }
           default -> {}
         }
+        asData.copypc.viewDirection(asData.originpc.viewDirection());
       }
 
     } else {

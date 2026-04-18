@@ -81,14 +81,9 @@ public class LaserFactory {
    * @return the segment entity.
    */
   public static Entity createSegment(
-      Point from, Point to, int totalPoints, int index, Direction dir) {
-    int denom = Math.max(totalPoints - 1, 1);
-    float x = from.x() + index * (to.x() - from.x()) / denom;
-    float y = from.y() + index * (to.y() - from.y()) / denom;
-    Point p = new Point(x, y);
-
+      Point position, Direction dir) {
     Entity segment = new Entity("laserSegment");
-    PositionComponent pc = new PositionComponent(p);
+    PositionComponent pc = new PositionComponent(position);
     segment.add(pc);
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(LASER);

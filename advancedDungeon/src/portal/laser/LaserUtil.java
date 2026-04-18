@@ -2,7 +2,6 @@ package portal.laser;
 
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
-import contrib.systems.PositionSync;
 import contrib.utils.components.collide.Hitbox;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
@@ -39,21 +38,29 @@ public class LaserUtil {
       return;
     }
     laserComponent.setActive(true);
+    LaserPartComponent laserPart = new LaserPartComponent();
+    emitter.add(laserPart);
     PositionComponent pc = emitter.fetch(PositionComponent.class).get();
 
     Direction dir = pc.viewDirection();
-    Point end = calculateEndPoint(pc.position(), dir);
-    int totalPoints = calculateNumberOfPoints(pc.position(), end);
-
-    for (int i = 0; i < totalPoints; i++) {
-      Entity segment =
-          LaserFactory.createSegment(pc.position().translate(dir), end, totalPoints, i, dir);
+    Point currentPoint = pc.position();
+    Tile currentTile = Game.tileAt(pc.position()).orElse(null);
+    int totalPoints = 0;
+    while (currentTile != null
+      && !(currentTile instanceof WallTile)
+      && !(currentTile instanceof PortalTile)
+      && !Game.entityAtTile(currentTile)
+      .anyMatch(entity -> entity.name().startsWith("laserCube"))) {
+      Entity segment = LaserFactory.createSegment(currentPoint,  dir);
       segment.add(laserComponent);
+      segment.add(laserPart);
       Game.add(segment);
+      totalPoints++;
+      currentPoint = currentPoint.translate(dir);
+      currentTile = Game.tileAt(currentPoint).orElse(null);
     }
-
     updateEmitterVisual(emitter, true);
-    configureEmitterHitbox(emitter, totalPoints, dir);
+    configureEmitterHitbox(emitter, totalPoints-1, dir);
   }
 
   /**
@@ -71,6 +78,7 @@ public class LaserUtil {
     Game.levelEntities(Set.of(LaserComponent.class))
         .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
         .filter(entity -> entity.fetch(LaserEmitterComponent.class).isEmpty())
+        .filter(entity -> entity.fetch(LaserCubeComponent.class).isEmpty())
         .forEach(Game::remove);
 
     updateEmitterVisual(emitter, false);
@@ -89,20 +97,31 @@ public class LaserUtil {
    */
   public static void extendLaser(
       Direction direction, Point from, PortalExtendComponent pec, LaserComponent comp) {
-    Point end = calculateEndPoint(from, direction);
-    int totalPoints = calculateNumberOfPoints(from.translate(direction.opposite()), end);
 
     Entity newEmitter = LaserFactory.createEmitter(from, direction);
     newEmitter.add(comp);
     newEmitter.add(pec);
-    newEmitter.add(new LaserExtendComponent());
+    LaserPartComponent laserPart = new LaserPartComponent();
+    newEmitter.add(laserPart);
     newEmitter.remove(DrawComponent.class);
+    PositionComponent pc = newEmitter.fetch(PositionComponent.class).get();
 
-    for (int i = 0; i < totalPoints; i++) {
-      Entity segment = LaserFactory.createSegment(from, end, totalPoints, i, direction);
-      segment.add(comp);
-      segment.add(new LaserExtendComponent());
-      Game.add(segment);
+    Direction dir = pc.viewDirection();
+    Point currentPoint = pc.position();
+    Tile currentTile = Game.tileAt(pc.position()).orElse(null);
+    int totalPoints = 0;
+    while (currentTile != null
+      && !(currentTile instanceof WallTile)
+      && !(currentTile instanceof PortalTile)
+      && !Game.entityAtTile(currentTile)
+      .anyMatch(entity -> entity.name().startsWith("laserCube"))) {
+        Entity segment = LaserFactory.createSegment(currentPoint,  dir);
+        segment.add(comp);
+        segment.add(laserPart);
+        Game.add(segment);
+        currentPoint = currentPoint.translate(dir);
+        currentTile = Game.tileAt(currentPoint).orElse(null);
+        totalPoints++;
     }
 
     configureEmitterHitbox(newEmitter, totalPoints - 1, direction);
@@ -129,41 +148,56 @@ public class LaserUtil {
     }
   }
 
-  /**
-   * Helper method to figure out the end position of the laser.
-   *
-   * @param from starting position of the laser.
-   * @param beamDirection direction of the laser.
-   * @return the end position of the laser.
-   */
-  private static Point calculateEndPoint(Point from, Direction beamDirection) {
-    Point lastPoint = from;
-    Point currentPoint = from;
-    Tile currentTile = Game.tileAt(from).orElse(null);
-    while (currentTile != null
-        && !(currentTile instanceof WallTile)
-        && !(currentTile instanceof PortalTile)
-        && !Game.entityAtTile(currentTile)
-            .anyMatch(entity -> entity.name().startsWith("laserCube"))) {
-      lastPoint = currentPoint;
-      currentPoint = currentPoint.translate(beamDirection);
-      currentTile = Game.tileAt(currentPoint).orElse(null);
-    }
-    return lastPoint;
+  public static void reActivate(Entity laserPart) {
+    LaserComponent laserComponent = laserPart.fetch(LaserComponent.class).get();
+    Entity originalEmitter = Game.levelEntities(Set.of(LaserComponent.class))
+      .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
+      .filter(entity -> entity.fetch(LaserEmitterComponent.class).isPresent())
+      .findFirst().get();
+    deactivate(originalEmitter);
+    activate(originalEmitter);
   }
 
-  /**
-   * Helper method to figure out how long the laser is.
-   *
-   * @param from starting point of the laser.
-   * @param to end point of the laser.
-   * @return how long the laser is.
-   */
-  private static int calculateNumberOfPoints(Point from, Point to) {
-    float dx = Math.abs(to.x() - from.x());
-    float dy = Math.abs(to.y() - from.y());
-    return (int) Math.max(dx, dy);
+  public static void extendTimes(int times, Direction direction, Point from, PortalExtendComponent pec, LaserComponent comp) {
+    Entity newEmitter = LaserFactory.createEmitter(from, direction);
+    newEmitter.add(comp);
+    newEmitter.add(pec);
+    LaserPartComponent laserPart = new LaserPartComponent();
+    newEmitter.add(laserPart);
+    newEmitter.remove(DrawComponent.class);
+    PositionComponent pc = newEmitter.fetch(PositionComponent.class).get();
+
+    Direction dir = pc.viewDirection();
+    Point currentPoint = pc.position();
+    Tile currentTile = Game.tileAt(pc.position()).orElse(null);
+    int totalPoints = 0;
+    for (int i = 0; i < times; i++) {
+      Entity segment = LaserFactory.createSegment(currentPoint,  dir);
+      segment.add(comp);
+      segment.add(laserPart);
+      Game.add(segment);
+      currentPoint = currentPoint.translate(dir);
+      currentTile = Game.tileAt(currentPoint).orElse(null);
+      totalPoints++;
+    }
+
+    configureEmitterHitbox(newEmitter, totalPoints - 1, direction);
+    Game.add(newEmitter);
+
   }
+
+  public static void clearLaserPart(Entity laserPartEmitter) {
+    LaserComponent laserComponent = laserPartEmitter.fetch(LaserComponent.class).get();
+    LaserPartComponent laserPartComponent = laserPartEmitter.fetch(LaserPartComponent.class).get();
+    laserComponent.setBeingDeactivated(true);
+    Game.levelEntities(Set.of(LaserPartComponent.class))
+      .filter(entity -> entity.fetch(LaserPartComponent.class).get().equals(laserPartComponent))
+      .filter(entity -> entity.fetch(LaserEmitterComponent.class).isEmpty())
+      .filter(entity -> entity.fetch(LaserCubeComponent.class).isEmpty())
+      .forEach(Game::remove);
+    laserComponent.setBeingDeactivated(false);
+  }
+
 
   /**
    * Sets the hitbox of the CollideComponent so it fits the extended laser.
@@ -221,21 +255,5 @@ public class LaserUtil {
     DrawComponent dc = new DrawComponent(on ? EMITTER_ACTIVE : EMITTER_INACTIVE);
     dc.depth(DepthLayer.Normal.depth());
     emitter.add(dc);
-  }
-
-  /**
-   * Sets the hitbox to 0,0 when the laser is deactivated. Set to 0,0 so that collideLeave is still
-   * getting triggered but nothing else can collide with it, effectively removing it.
-   *
-   * @param emitter the emitter entity which hitbox is getting removed.
-   */
-  private static void removeEmitterHitbox(Entity emitter) {
-    emitter
-        .fetch(CollideComponent.class)
-        .ifPresent(
-            cc -> {
-              cc.collider(new Hitbox(Vector2.ZERO, Vector2.ZERO));
-              PositionSync.syncPosition(emitter);
-            });
   }
 }
