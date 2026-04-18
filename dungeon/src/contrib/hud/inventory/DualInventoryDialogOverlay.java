@@ -42,8 +42,6 @@ final class DualInventoryDialogOverlay
 
   private static final int PANEL_PADDING = 8;
   private static final int DRAG_THRESHOLD_PX = 8;
-  private static final int DRAG_PREVIEW_OFFSET_X = 14;
-  private static final int DRAG_PREVIEW_OFFSET_Y = 18;
   private static final int DRAG_TARGET_INSET = 3;
   private static final int DRAG_TARGET_ARC = 8;
 

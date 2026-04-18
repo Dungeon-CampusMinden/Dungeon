@@ -63,8 +63,6 @@ final class CraftingDialogOverlay
   private static final int CLASSIC_CRAFTING_PANEL_HEIGHT = 420;
 
   private static final int DRAG_THRESHOLD_PX = 8;
-  private static final int DRAG_PREVIEW_OFFSET_X = 14;
-  private static final int DRAG_PREVIEW_OFFSET_Y = 18;
   private static final int DRAG_TARGET_INSET = 3;
   private static final int DRAG_TARGET_ARC = 8;
 
@@ -842,8 +840,8 @@ final class CraftingDialogOverlay
       return;
     }
 
-    int previewX = stage.mouseX() + DRAG_PREVIEW_OFFSET_X;
-    int previewY = stage.mouseY() + DRAG_PREVIEW_OFFSET_Y;
+    int previewX = stage.mouseX() - InventoryGridRenderer.SLOT_WIDTH / 2;
+    int previewY = stage.mouseY() - InventoryGridRenderer.SLOT_HEIGHT / 2;
 
     InventoryGridRenderer.drawItemPreview(g, previewX, previewY, dragState.item());
   }
