@@ -24,6 +24,8 @@ import core.input.Keys;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.platform.Platform;
+import core.render.AnimationFrameImages;
+import core.render.effects.ImageEffects;
 import core.ui.overlay.OverlayManager;
 import core.utils.InputManager;
 import core.utils.Point;
@@ -31,6 +33,7 @@ import core.utils.Time;
 import core.utils.logging.DungeonLogger;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -451,26 +454,101 @@ public final class LevelEditorSystem extends System {
   }
 
   private void renderLayerDebugEntities(Graphics2D g, CameraViewportState.Viewport view) {
-    float insetWorld = DEBUG_ENTITY_INSET_PX / (float) view.tilePx();
-    float sizeWorld = Math.max(0.05f, 1.0f - (2f * insetWorld));
-
     Game.levelEntities(Set.of(PositionComponent.class, DrawComponent.class))
       .forEach(entity -> {
         PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
-        if (pc == null) {
+        DrawComponent dc = entity.fetch(DrawComponent.class).orElse(null);
+
+        if (pc == null || dc == null || !dc.isVisible()) {
           return;
         }
 
-        Point pos = pc.position();
-
-        drawWorldRectangleOutline(
-          g,
-          pos.x() + insetWorld,
-          pos.y() + insetWorld,
-          sizeWorld,
-          sizeWorld,
-          debugEntityColor(entity));
+        if (!tryDrawLayerDebugEntitySpriteOutline(g, entity, pc, dc, view)) {
+          drawLayerDebugEntityFallbackRectangle(g, entity, pc, view);
+        }
       });
+  }
+
+  private boolean tryDrawLayerDebugEntitySpriteOutline(
+    Graphics2D g,
+    Entity entity,
+    PositionComponent pc,
+    DrawComponent dc,
+    CameraViewportState.Viewport view) {
+
+    final core.utils.components.draw.animation.AnimationFrame frame;
+    try {
+      frame = dc.stateMachine().getFrame();
+    } catch (Exception ignored) {
+      return false;
+    }
+
+    BufferedImage sprite = AnimationFrameImages.toImage(frame);
+    if (sprite == null || sprite.getWidth() <= 0 || sprite.getHeight() <= 0) {
+      return false;
+    }
+
+    int tilePx = view.tilePx();
+    int levelHeight = view.levelHeight();
+
+    float sxWorld = pc.position().x() * tilePx;
+    float syWorld =
+      levelHeight > 0
+        ? (levelHeight - 1 - pc.position().y()) * tilePx
+        : pc.position().y() * tilePx;
+
+    int wPx = tilePx;
+    int hPx = tilePx;
+
+    try {
+      float wWorld = dc.stateMachine().getWidth();
+      float hWorld = dc.stateMachine().getHeight();
+
+      if (wWorld > 0f) {
+        wPx = Math.max(1, Math.round(wWorld * tilePx));
+      }
+
+      if (hWorld > 0f) {
+        hPx = Math.max(1, Math.round(hWorld * tilePx));
+      }
+    } catch (Exception ignored) {
+      // keep default tile-sized fallback dimensions
+    }
+
+    int drawX = Math.round(sxWorld + (tilePx - wPx) / 2f);
+    int drawY = Math.round(syWorld + tilePx - hPx);
+
+    ImageEffects.drawOutlinedSprite(
+      g,
+      sprite,
+      drawX,
+      drawY,
+      wPx,
+      hPx,
+      debugEntityColor(entity),
+      Math.max(1, DEBUG_ENTITY_INSET_PX));
+
+    return true;
+  }
+
+  private void drawLayerDebugEntityFallbackRectangle(
+    Graphics2D g,
+    Entity entity,
+    PositionComponent pc,
+    CameraViewportState.Viewport view) {
+
+    float insetWorld = DEBUG_ENTITY_INSET_PX / (float) view.tilePx();
+    float sizeWorld = Math.max(0.05f, 1.0f - (2f * insetWorld));
+
+    Point pos = pc.position();
+
+    drawWorldRectangleOutline(
+      g,
+      pos.x() + insetWorld,
+      pos.y() + insetWorld,
+      sizeWorld,
+      sizeWorld,
+      debugEntityColor(entity));
   }
 
   private Color debugEntityColor(Entity entity) {
