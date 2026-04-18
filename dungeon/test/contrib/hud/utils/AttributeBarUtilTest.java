@@ -32,6 +32,8 @@ import org.junit.jupiter.api.Test;
 /** Tests for player-specific visibility rules of attribute bars. */
 class AttributeBarUtilTest {
   private static final SimpleIPath TEST_TEXTURE = new SimpleIPath("test_assets/textures/mailbox.png");
+  private static final int LEVEL_HEIGHT = 10;
+  private static final int TILE_PX = 32;
 
   @BeforeEach
   void setUp() {
@@ -121,7 +123,7 @@ class AttributeBarUtilTest {
 
   @Test
   void localPlayerBarsArePositionedBelowTheEntity() {
-    Platform.render(new IdentityRenderAdapter());
+    Platform.render(new CameraProjectionRenderAdapter());
     Platform.loopHost(new StubGameLoopHost());
 
     Entity entity = new Entity("hero");
@@ -131,13 +133,13 @@ class AttributeBarUtilTest {
 
     AttributeBarUtil.updatePosition(handle, entity, 10f);
 
-    assertEquals(3.5f, handle.x);
-    assertEquals(20f, handle.y);
+    assertEquals(112f, handle.x);
+    assertEquals(208f, handle.y);
   }
 
   @Test
-  void nonPlayerBarsStayAboveTheEntity() {
-    Platform.render(new IdentityRenderAdapter());
+  void nonPlayerBarsArePositionedBelowTheEntity() {
+    Platform.render(new CameraProjectionRenderAdapter());
     Platform.loopHost(new StubGameLoopHost());
 
     Entity entity = new Entity("enemy");
@@ -146,8 +148,22 @@ class AttributeBarUtilTest {
 
     AttributeBarUtil.updatePosition(handle, entity, 10f);
 
-    assertEquals(3.5f, handle.x);
-    assertEquals(-11f, handle.y);
+    assertEquals(112f, handle.x);
+    assertEquals(208f, handle.y);
+  }
+
+  @Test
+  void positionComponentBarsUseSpriteBottomAnchor() {
+    Platform.render(new CameraProjectionRenderAdapter());
+    Platform.loopHost(new StubGameLoopHost());
+
+    PositionComponent positionComponent = new PositionComponent(new Point(3, 4));
+    RecordingAttributeBarHandle handle = new RecordingAttributeBarHandle();
+
+    AttributeBarUtil.updatePosition(handle, positionComponent, 10f);
+
+    assertEquals(112f, handle.x);
+    assertEquals(208f, handle.y);
   }
 
   @AfterEach
@@ -194,10 +210,13 @@ class AttributeBarUtilTest {
     public void setValue(float value) {}
   }
 
-  private static final class IdentityRenderAdapter implements RenderAdapter {
+  private static final class CameraProjectionRenderAdapter implements RenderAdapter {
     @Override
     public Optional<Point> projectWorldToStage(Point worldPoint, StageHandle stageHandle) {
-      return Optional.of(worldPoint);
+      return Optional.of(
+        new Point(
+          worldPoint.x() * TILE_PX,
+          ((LEVEL_HEIGHT - 1) - worldPoint.y()) * TILE_PX));
     }
   }
 

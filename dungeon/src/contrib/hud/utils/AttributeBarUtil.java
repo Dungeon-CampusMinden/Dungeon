@@ -33,6 +33,8 @@ public final class AttributeBarUtil {
   /** Gap between stacked bars. */
   public static final float BAR_GAP = 15f;
   private static final float BAR_MARGIN = 6f;
+  private static final float SPRITE_CENTER_X_OFFSET = 0.5f;
+  private static final float SPRITE_BOTTOM_Y_OFFSET = -1f;
 
   private AttributeBarUtil() {}
 
@@ -45,7 +47,7 @@ public final class AttributeBarUtil {
    * @param entity the entity to attach the bar to
    * @param barDisplayable the component providing bar data
    * @param barMapping map from component class to progress bar handle
-   * @param verticalOffset vertical offset above the entity
+   * @param verticalOffset vertical offset below the entity
    */
   public static void addBarToEntity(
     Entity entity,
@@ -84,23 +86,39 @@ public final class AttributeBarUtil {
         () -> LOGGER.error("Failed to create progress bar for entity {}", entity));
   }
 
+  /**
+   * Updates a bar position from a position component.
+   *
+   * @param bar the bar to move
+   * @param pc the position component that provides the entity tile position
+   * @param verticalOffset additional screen-space offset below the sprite
+   */
   public static void updatePosition(
     AttributeBarHandle bar, PositionComponent pc, float verticalOffset) {
-    Point anchorPoint = pc.position().translate(0.5f, 1f);
+    // Sprite rendering bottom-aligns entities to their tile, so the visual bottom edge projects
+    // from one world unit below the PositionComponent's tile origin.
+    Point anchorPoint =
+      pc.position().translate(SPRITE_CENTER_X_OFFSET, SPRITE_BOTTOM_Y_OFFSET);
     Game.stage()
       .flatMap(stageHandle -> Platform.render().projectWorldToStage(anchorPoint, stageHandle))
       .ifPresent(
-        screenPoint -> bar.setPosition(screenPoint.x(), screenPoint.y() - BAR_MARGIN - verticalOffset));
+        screenPoint ->
+          bar.setPosition(screenPoint.x(), barScreenY(screenPoint.y(), verticalOffset)));
   }
 
+  /**
+   * Updates a bar position from its owning entity.
+   *
+   * @param bar the bar to move
+   * @param entity the entity the bar follows
+   * @param verticalOffset additional screen-space offset below the sprite
+   */
   public static void updatePosition(AttributeBarHandle bar, Entity entity, float verticalOffset) {
-    boolean renderBelowEntity = shouldRenderBarBelowEntity(entity);
     Game.stage()
       .flatMap(stageHandle -> Platform.render().projectWorldToStage(barAnchorPoint(entity), stageHandle))
       .ifPresent(
         screenPoint ->
-          bar.setPosition(
-            screenPoint.x(), barScreenY(screenPoint.y(), renderBelowEntity, verticalOffset)));
+          bar.setPosition(screenPoint.x(), barScreenY(screenPoint.y(), verticalOffset)));
   }
 
   /**
@@ -109,7 +127,7 @@ public final class AttributeBarUtil {
    * @param entity the entity
    * @param barDisplayable the component providing bar data
    * @param barMapping map from component class to progress bar handle
-   * @param verticalOffset vertical offset
+   * @param verticalOffset vertical offset below the entity
    */
   public static void updateBar(
     Entity entity,
@@ -152,23 +170,13 @@ public final class AttributeBarUtil {
     PositionComponent positionComponent =
       entity.fetch(PositionComponent.class).orElseThrow();
 
-    DrawComponent drawComponent = entity.fetch(DrawComponent.class).orElse(null);
-    float width = drawComponent != null && drawComponent.getWidth() > 0f ? drawComponent.getWidth() : 1f;
-    float height =
-      drawComponent != null && drawComponent.getHeight() > 0f ? drawComponent.getHeight() : 1f;
-
-    float yOffset = shouldRenderBarBelowEntity(entity) ? 0f : height;
-    return positionComponent.position().translate(width * 0.5f, yOffset);
+    return positionComponent
+      .position()
+      .translate(SPRITE_CENTER_X_OFFSET, SPRITE_BOTTOM_Y_OFFSET);
   }
 
-  private static float barScreenY(float anchorY, boolean renderBelowEntity, float verticalOffset) {
-    return renderBelowEntity
-      ? anchorY + BAR_MARGIN + verticalOffset
-      : anchorY - BAR_MARGIN - verticalOffset;
-  }
-
-  private static boolean shouldRenderBarBelowEntity(Entity entity) {
-    return isLocalPlayer(entity);
+  private static float barScreenY(float anchorY, float verticalOffset) {
+    return anchorY + BAR_MARGIN + verticalOffset;
   }
 
   private static boolean isLocalPlayer(Entity entity) {

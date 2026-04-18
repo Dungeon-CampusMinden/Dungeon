@@ -3,7 +3,7 @@ package contrib.hud.elements;
 import core.Component;
 
 /**
- * Interface for components that can display a progress bar above an entity.
+ * Interface for components that can display a progress bar below an entity.
  *
  * <p>Components implementing this interface will have their bars automatically managed by the
  * AttributeBarSystem, with stacking based on priority (lower priority = closer to entity).
@@ -34,8 +34,7 @@ public interface BarDisplayable extends Component {
   /**
    * Returns the priority for bar stacking order.
    *
-   * <p>Lower priority values render closer to the entity (bottom), higher values further away
-   * (top).
+   * <p>Lower priority values render closer to the entity, higher values further below it.
    *
    * @return the priority (0 = closest to entity)
    */

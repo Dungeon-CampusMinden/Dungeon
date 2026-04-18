@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A system that displays attribute bars above entities.
+ * A system that displays attribute bars below entities.
  *
  * <p>Entities with {@link BarDisplayable}, {@link PositionComponent}, and {@link DrawComponent}
- * will have progress bars rendered above them, showing their current attribute values relative to
+ * will have progress bars rendered below them, showing their current attribute values relative to
  * the maximum. Bars are stacked automatically with configurable gaps, ordered by priority (lower
  * priority = closer to entity).
  *
