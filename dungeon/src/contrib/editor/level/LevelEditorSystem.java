@@ -489,13 +489,6 @@ public final class LevelEditorSystem extends System {
     }
 
     int tilePx = view.tilePx();
-    int levelHeight = view.levelHeight();
-
-    float sxWorld = pc.position().x() * tilePx;
-    float syWorld =
-      levelHeight > 0
-        ? (levelHeight - 1 - pc.position().y()) * tilePx
-        : pc.position().y() * tilePx;
 
     int wPx = tilePx;
     int hPx = tilePx;
@@ -515,8 +508,10 @@ public final class LevelEditorSystem extends System {
       // keep default tile-sized fallback dimensions
     }
 
-    int drawX = Math.round(sxWorld + (tilePx - wPx) / 2f);
-    int drawY = Math.round(syWorld + tilePx - hPx);
+    Point screenOrigin = CameraViewportState.worldToScreen(pc.position());
+
+    int drawX = Math.round(screenOrigin.x() + (tilePx - wPx) / 2f);
+    int drawY = Math.round(screenOrigin.y() + tilePx - hPx);
 
     ImageEffects.drawOutlinedSprite(
       g,
