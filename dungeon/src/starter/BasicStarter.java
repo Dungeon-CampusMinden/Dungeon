@@ -146,6 +146,8 @@ public final class BasicStarter {
   private static void ensureBasicStarterGameplaySystems() {
     registerIfAbsent(ProjectileSystem.class, ProjectileSystem::new);
     registerIfAbsent(ShowImageSystem.class, ShowImageSystem::new);
+    registerIfAbsent(HealthSystem.class, HealthSystem::new);
+    registerIfAbsent(CollisionSystem.class, CollisionSystem::new);
     registerIfAbsent(PathSystem.class, PathSystem::new);
     registerIfAbsent(AISystem.class, AISystem::new);
   }
