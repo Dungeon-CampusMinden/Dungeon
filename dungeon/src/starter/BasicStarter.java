@@ -20,9 +20,7 @@ import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceBerry;
 import contrib.item.concreteItem.ItemWoodenArrow;
 import contrib.modules.levelHide.LevelHideFactory;
-import contrib.systems.ManaRestoreSystem;
-import contrib.systems.ProjectileSystem;
-import contrib.systems.ShowImageSystem;
+import contrib.systems.*;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
@@ -148,6 +146,8 @@ public final class BasicStarter {
   private static void ensureBasicStarterGameplaySystems() {
     registerIfAbsent(ProjectileSystem.class, ProjectileSystem::new);
     registerIfAbsent(ShowImageSystem.class, ShowImageSystem::new);
+    registerIfAbsent(PathSystem.class, PathSystem::new);
+    registerIfAbsent(AISystem.class, AISystem::new);
   }
 
   private static <T extends core.System> void registerIfAbsent(
