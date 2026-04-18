@@ -2,6 +2,7 @@ package contrib.utils.components.ai.idle;
 
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
+import core.components.PositionComponent;
 import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
 import core.utils.Time;
@@ -28,7 +29,16 @@ public final class RadiusWalk implements Consumer<Entity> {
 
   @Override
   public void accept(final Entity entity) {
-    if (path == null || AIUtils.pathFinishedOrLeft(entity, path)) {
+    if (path == null) {
+      path = calculatePath(entity);
+
+      if (!AIUtils.pathFinishedOrLeft(entity, path)) {
+        AIUtils.followPath(entity, path);
+      }
+      return;
+    }
+
+    if (AIUtils.pathFinishedOrLeft(entity, path)) {
       handleWaitingForNextPath(entity);
       return;
     }
@@ -46,10 +56,24 @@ public final class RadiusWalk implements Consumer<Entity> {
     }
 
     waitStartedAtMs = Long.MIN_VALUE;
-    path = LevelUtils.calculateTilePathToRandomTileInRange(entity, radius);
+    path = calculatePath(entity);
 
     if (!AIUtils.pathFinishedOrLeft(entity, path)) {
       AIUtils.followPath(entity, path);
     }
+  }
+
+  /**
+   * Calculates a new radius path if the entity can be located.
+   *
+   * @param entity entity that should walk
+   * @return new path, or {@code null} if the entity has no position
+   */
+  private TilePath calculatePath(final Entity entity) {
+    if (entity.fetch(PositionComponent.class).isEmpty()) {
+      return null;
+    }
+
+    return LevelUtils.calculateTilePathToRandomTileInRange(entity, radius);
   }
 }

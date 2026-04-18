@@ -1,12 +1,13 @@
 package contrib.debug;
 
 import contrib.entities.DungeonMonster;
+import contrib.utils.components.ai.idle.RadiusWalk;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
-import contrib.utils.components.skill.SkillTools;
 
 /** Creates debug-only monster entities for runtime testing. */
 public final class DebugMonsterSpawner {

@@ -1,6 +1,7 @@
 package core.platform;
 
 import core.game.loop.GameLoopHost;
+import core.level.path.GridPathfindingAdapter;
 import core.platform.defaults.*;
 import core.resources.ClasspathResourcesAdapter;
 
@@ -36,7 +37,7 @@ public final class Platform {
   private static RuntimeAdapter runtime = new NullRuntimeAdapter();
   private static ResourcesAdapter resources = new ClasspathResourcesAdapter();
   private static RenderAdapter render = new NullRenderAdapter();
-  private static PathfindingAdapter pathfinding = new NullPathfindingAdapter();
+  private static PathfindingAdapter pathfinding = new GridPathfindingAdapter();
   private static CursorAdapter cursor = new NullCursorAdapter();
   private static CameraAdapter camera = new NullCameraAdapter();
   private static ClipboardAdapter clipboard = new NullClipboardAdapter();
