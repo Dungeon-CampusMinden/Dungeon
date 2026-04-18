@@ -22,6 +22,7 @@ import contrib.item.concreteItem.ItemWoodenArrow;
 import contrib.modules.levelHide.LevelHideFactory;
 import contrib.systems.ManaRestoreSystem;
 import contrib.systems.ProjectileSystem;
+import contrib.systems.ShowImageSystem;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
@@ -106,6 +107,8 @@ public final class BasicStarter {
         installLevelColorGradeDemo();
         installDepthLayerColorGradeDemo();
 
+        ensureBasicStarterGameplaySystems();
+
         Entity hero = EntityFactory.newHero();
         addStarterInventoryItems(hero);
         prepareHeroManaVerification(hero);
@@ -144,6 +147,7 @@ public final class BasicStarter {
 
   private static void ensureBasicStarterGameplaySystems() {
     registerIfAbsent(ProjectileSystem.class, ProjectileSystem::new);
+    registerIfAbsent(ShowImageSystem.class, ShowImageSystem::new);
   }
 
   private static <T extends core.System> void registerIfAbsent(
@@ -402,11 +406,11 @@ public final class BasicStarter {
 
     Game.add(
       MiscFactory.newLockedChest(
-        createChestTestItems(), origin.translate(Vector2.of(0f, 0f)), ItemKey.class));
+        createChestTestItems(), origin.translate(Vector2.of(0f, 5f)), ItemKey.class));
 
     Game.add(
       WorldItemBuilder.buildWorldItem(
-        new ItemKey(), origin.translate(Vector2.of(2f, 0.5f))));
+        new ItemKey(), origin.translate(Vector2.of(1f, 0.5f))));
   }
 
   /** Render/effect verification area with effect-specific chests. */
