@@ -394,7 +394,7 @@ public class HeroController {
       return false;
     }
 
-    item.use(entity);
+    item.use(entity, itemSlot);
     return true;
   }
 

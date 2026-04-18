@@ -25,12 +25,19 @@ public class ItemResourceBerry extends Item {
 
   @Override
   public void use(final Entity e) {
+    use(e, -1);
+  }
+
+  @Override
+  public void use(final Entity e, int itemSlot) {
     e.fetch(InventoryComponent.class)
         .ifPresent(
             component -> {
-              component.removeOne(this);
-              e.fetch(HealthComponent.class)
-                  .ifPresent(hc -> hc.receiveHit(new Damage(-HEAL_AMOUNT, DamageType.HEAL, null)));
+              if (removeOneFromInventory(component, itemSlot)) {
+                e.fetch(HealthComponent.class)
+                    .ifPresent(
+                        hc -> hc.receiveHit(new Damage(-HEAL_AMOUNT, DamageType.HEAL, null)));
+              }
             });
   }
 }

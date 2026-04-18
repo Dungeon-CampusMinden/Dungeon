@@ -359,6 +359,39 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
     user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
   }
 
+  /**
+   * Defines the behavior when an item gets used from a concrete inventory slot.
+   *
+   * <p>The default implementation delegates to {@link #use(Entity)} so existing item subclasses
+   * that override only the legacy method keep their behavior. Slot-sensitive consumables should
+   * override this method and remove from {@code itemSlot}.
+   *
+   * @param user Entity that uses the item
+   * @param itemSlot inventory slot index from which the item is used
+   */
+  public void use(final Entity user, int itemSlot) {
+    use(user);
+  }
+
+  /**
+   * Removes one unit from either the specified inventory slot or, if no valid slot is available,
+   * from a stack matching this item.
+   *
+   * @param inventory inventory to remove from
+   * @param itemSlot slot index to remove from, or a negative value for legacy behavior
+   * @return true if one unit was removed
+   */
+  protected boolean removeOneFromInventory(final InventoryComponent inventory, int itemSlot) {
+    if (itemSlot >= 0) {
+      Item slotItem = inventory.get(itemSlot).orElse(null);
+      if (slotItem != this) {
+        return false;
+      }
+      return inventory.removeOne(itemSlot);
+    }
+    return inventory.removeOne(this);
+  }
+
   @Override
   public boolean match(final CraftingIngredient input) {
     if (this.getClass().isInstance(input)) return ((Item) input).stackSize() <= stackSize;

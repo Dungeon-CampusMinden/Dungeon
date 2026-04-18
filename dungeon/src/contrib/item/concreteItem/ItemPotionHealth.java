@@ -59,11 +59,17 @@ public class ItemPotionHealth extends Item {
    */
   @Override
   public void use(final Entity e) {
+    use(e, -1);
+  }
+
+  @Override
+  public void use(final Entity e, int itemSlot) {
     e.fetch(InventoryComponent.class)
         .ifPresent(
             component -> {
-              component.removeOne(this);
-              this.healUser(this.heal_amount, e);
+              if (removeOneFromInventory(component, itemSlot)) {
+                this.healUser(this.heal_amount, e);
+              }
             });
   }
 

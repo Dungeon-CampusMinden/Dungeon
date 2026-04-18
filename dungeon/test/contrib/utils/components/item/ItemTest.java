@@ -3,7 +3,9 @@ package contrib.utils.components.item;
 import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.components.InventoryComponent;
+import contrib.entities.HeroController;
 import contrib.item.Item;
+import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
@@ -262,5 +264,23 @@ public class ItemTest {
     assertTrue(Arrays.asList(inventoryComponent.items()).contains(item));
     item.use(entity);
     assertFalse(Arrays.asList(inventoryComponent.items()).contains(item));
+  }
+
+  /** Tests that using an item from a slot consumes the item in that exact slot. */
+  @Test
+  public void testUseHealthPotionConsumesSelectedSlot() {
+    Entity entity = new Entity();
+    InventoryComponent inventoryComponent = new InventoryComponent(4);
+    entity.add(inventoryComponent);
+
+    ItemPotionHealth firstPotion = new ItemPotionHealth();
+    ItemPotionHealth selectedPotion = new ItemPotionHealth();
+    inventoryComponent.set(0, firstPotion);
+    inventoryComponent.set(2, selectedPotion);
+
+    assertTrue(HeroController.useItem(entity, 2));
+
+    assertSame(firstPotion, inventoryComponent.get(0).orElse(null));
+    assertTrue(inventoryComponent.get(2).isEmpty());
   }
 }

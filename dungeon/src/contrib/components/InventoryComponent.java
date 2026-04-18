@@ -232,8 +232,8 @@ public final class InventoryComponent implements Component {
    *   <li>the target slot must be empty
    * </ul>
    *
-   * <p>This provides a backend-neutral semantic foundation for exact slot drops in UI backends
-   * such as LITIENGINE.
+   * <p>This provides a backend-neutral semantic foundation for exact slot drops in UI backends such
+   * as LITIENGINE.
    *
    * @param sourceSlot the source slot index in this inventory
    * @param other the target inventory
@@ -367,6 +367,33 @@ public final class InventoryComponent implements Component {
       return Optional.empty();
     }
     return Optional.ofNullable(this.inventory[index]);
+  }
+
+  /**
+   * Removes one unit from the stack at the specified inventory index.
+   *
+   * <p>If the stack size reaches zero or below, the slot is cleared.
+   *
+   * @param index index of the item stack to reduce
+   * @return true if one unit was removed; false if the index is invalid or the slot is empty
+   */
+  public boolean removeOne(int index) {
+    if (index >= this.inventory.length || index < 0) {
+      LOGGER.warn("Tried to remove one item at invalid inventory index: {}", index);
+      return false;
+    }
+
+    Item item = inventory[index];
+    if (item == null) {
+      return false;
+    }
+
+    item.stackSize(item.stackSize() - 1);
+    if (item.stackSize() <= 0) {
+      inventory[index] = null;
+    }
+    this.onItemRemoved.accept(item);
+    return true;
   }
 
   /**

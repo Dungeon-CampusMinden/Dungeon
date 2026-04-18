@@ -27,19 +27,25 @@ public class ItemResourceEgg extends Item {
 
   @Override
   public void use(final Entity e) {
+    use(e, -1);
+  }
+
+  @Override
+  public void use(final Entity e, int itemSlot) {
     e.fetch(InventoryComponent.class)
         .ifPresent(
             component -> {
-              component.removeOne(this);
-              try {
-                Entity monster = EntityFactory.randomMonster();
-                monster
-                    .fetch(PositionComponent.class)
-                    .orElseThrow()
-                    .position(e.fetch(PositionComponent.class).orElseThrow().position());
-                Game.add(monster);
-              } catch (IOException ex) {
-                throw new RuntimeException(ex);
+              if (removeOneFromInventory(component, itemSlot)) {
+                try {
+                  Entity monster = EntityFactory.randomMonster();
+                  monster
+                      .fetch(PositionComponent.class)
+                      .orElseThrow()
+                      .position(e.fetch(PositionComponent.class).orElseThrow().position());
+                  Game.add(monster);
+                } catch (IOException ex) {
+                  throw new RuntimeException(ex);
+                }
               }
             });
   }
