@@ -40,6 +40,7 @@ public final class DebugMonsterSpawner {
 
     Entity monster = DungeonMonster.randomMonster().builder().build(position);
     monster.name("Debug Monster");
+    Game.add(monster);
 
     LOGGER.info("Spawned monster at position {}", position);
   }
