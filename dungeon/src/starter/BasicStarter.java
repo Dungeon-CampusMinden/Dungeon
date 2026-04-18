@@ -7,11 +7,7 @@ import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.crafting.CraftingIngredient;
 import contrib.crafting.Recipe;
-import contrib.entities.EntityFactory;
-import contrib.entities.MiscFactory;
-import contrib.entities.ShowImageFactory;
-import contrib.entities.SignFactory;
-import contrib.entities.WorldItemBuilder;
+import contrib.entities.*;
 import contrib.hud.showimage.ShowImageText;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemKey;
@@ -113,6 +109,8 @@ public final class BasicStarter {
         prepareHeroFireballVerification(hero);
         Game.add(hero);
       });
+
+    Game.userOnFrame(BasicStarter::onFrame);
 
     Game.userOnLevelLoad(
       firstLoad -> {
@@ -565,5 +563,9 @@ public final class BasicStarter {
   /** Adds a simple sign to the level. */
   private static void addSign(String title, String text, Point position) {
     Game.add(SignFactory.createSign(text, title, position, (sign, who) -> {}));
+  }
+
+  private static void onFrame() {
+    HeroController.drainAndApplyInputs();
   }
 }

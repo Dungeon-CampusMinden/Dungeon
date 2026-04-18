@@ -30,18 +30,37 @@ public class AIUtils {
    * @param path the tile path the entity should follow
    */
   public static void followPath(final Entity entity, final TilePath path) {
-    if (pathFinishedOrLeft(entity, path)) return;
+    if (path == null || path.isEmpty()) {
+      return;
+    }
 
     Tile currentTile = Game.tileAtEntity(entity).orElse(null);
-    Tile nextTile = findNextTile(path, currentTile);
+    Tile nextTile;
 
-    if (nextTile == null) return;
+    if (currentTile != null && onPath(path, currentTile)) {
+      nextTile = findNextTile(path, currentTile);
 
-    Vector2 direction = calculateDirection(currentTile, nextTile);
+      if (nextTile == null) {
+        return;
+      }
+    } else {
+      nextTile = path.get(0);
+    }
 
-    entity
-      .fetch(VelocityComponent.class)
-      .ifPresent(vc -> vc.applyForce("MOVEMENT", direction.normalize().scale(vc.maxSpeed())));
+    PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
+    VelocityComponent vc = entity.fetch(VelocityComponent.class).orElse(null);
+
+    if (pc == null || vc == null || nextTile == null) {
+      return;
+    }
+
+    Vector2 direction = pc.position().vectorTo(nextTile.position().toCenteredPoint());
+
+    if (direction.isZero()) {
+      return;
+    }
+
+    vc.applyForce("MOVEMENT", direction.normalize().scale(vc.maxSpeed()));
   }
 
   /**
