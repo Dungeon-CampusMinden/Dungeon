@@ -113,4 +113,52 @@ public class KeyboardConfig {
    */
   public static final ConfigKey<Integer> DEBUG_TOGGLE_HUD =
       new ConfigKey<>(new String[] {"debug", "toggle_hud"}, new ConfigIntValue(Keys.F3));
+
+  /** Keybinding to toggle the regional depth-layer color grade debug effect. */
+  public static final ConfigKey<Integer> DEBUG_RENDER_REGIONAL_DEPTH_COLOR_GRADE =
+    new ConfigKey<>(
+      new String[] {"debug", "render", "regional_depth_color_grade"},
+      new ConfigIntValue(Keys.F5));
+
+  /** Keybinding to toggle the regional level color grade debug effect. */
+  public static final ConfigKey<Integer> DEBUG_RENDER_REGIONAL_LEVEL_COLOR_GRADE =
+    new ConfigKey<>(
+      new String[] {"debug", "render", "regional_level_color_grade"},
+      new ConfigIntValue(Keys.F6));
+
+  /** Keybinding to toggle the regional scene color grade debug effect. */
+  public static final ConfigKey<Integer> DEBUG_RENDER_REGIONAL_SCENE_COLOR_GRADE =
+    new ConfigKey<>(
+      new String[] {"debug", "render", "regional_scene_color_grade"},
+      new ConfigIntValue(Keys.F7));
+
+  /** Keybinding to toggle all scene-pass effects. */
+  public static final ConfigKey<Integer> DEBUG_RENDER_SCENE_EFFECTS =
+    new ConfigKey<>(
+      new String[] {"debug", "render", "scene_effects"},
+      new ConfigIntValue(Keys.F8));
+
+  /** Keybinding to toggle all level-pass effects. */
+  public static final ConfigKey<Integer> DEBUG_RENDER_LEVEL_EFFECTS =
+    new ConfigKey<>(
+      new String[] {"debug", "render", "level_effects"},
+      new ConfigIntValue(Keys.F9));
+
+  /** Keybinding to toggle all depth-layer-pass effects. */
+  public static final ConfigKey<Integer> DEBUG_RENDER_DEPTH_LAYER_EFFECTS =
+    new ConfigKey<>(
+      new String[] {"debug", "render", "depth_layer_effects"},
+      new ConfigIntValue(Keys.F10));
+
+  /** Keybinding to toggle the passthrough alpha debug view. */
+  public static final ConfigKey<Integer> DEBUG_RENDER_PASSTHROUGH_ALPHA =
+    new ConfigKey<>(
+      new String[] {"debug", "render", "passthrough_alpha"},
+      new ConfigIntValue(Keys.F11));
+
+  /** Keybinding to toggle the passthrough world-position debug view. */
+  public static final ConfigKey<Integer> DEBUG_RENDER_PASSTHROUGH_WORLD_POSITION =
+    new ConfigKey<>(
+      new String[] {"debug", "render", "passthrough_world_position"},
+      new ConfigIntValue(Keys.F12));
 }

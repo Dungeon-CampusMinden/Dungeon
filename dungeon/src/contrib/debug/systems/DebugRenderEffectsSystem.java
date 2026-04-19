@@ -4,7 +4,6 @@ import contrib.configuration.KeyboardConfig;
 import core.System;
 import core.debug.DebugGameplayActions;
 import core.input.Keys;
-import core.platform.Platform;
 import core.game.render.depth.DepthLayerColorGradeEffect;
 import core.game.render.depth.DepthLayerEffectPipeline;
 import core.game.render.level.LevelColorGradeEffect;
@@ -40,15 +39,6 @@ import core.utils.logging.DungeonLogger;
 public final class DebugRenderEffectsSystem extends System {
   private static final DungeonLogger LOGGER =
     DungeonLogger.getLogger(DebugRenderEffectsSystem.class);
-
-  private static final int TOGGLE_REGIONAL_DEPTH_COLOR_GRADE_KEY = Keys.F5;
-  private static final int TOGGLE_REGIONAL_LEVEL_COLOR_GRADE_KEY = Keys.F6;
-  private static final int TOGGLE_REGIONAL_SCENE_COLOR_GRADE_KEY = Keys.F7;
-  private static final int TOGGLE_SCENE_EFFECTS_KEY = Keys.F8;
-  private static final int TOGGLE_LEVEL_EFFECTS_KEY = Keys.F9;
-  private static final int TOGGLE_DEPTH_LAYER_EFFECTS_KEY = Keys.F10;
-  private static final int TOGGLE_PASSTHROUGH_PMA_KEY = Keys.F11;
-  private static final int TOGGLE_PASSTHROUGH_WORLD_POS_KEY = Keys.F12;
 
   private static final String PASSTHROUGH_DEBUG_EFFECT_ID =
     "litiengine_debug_passthrough_scene_effect";
@@ -96,7 +86,8 @@ public final class DebugRenderEffectsSystem extends System {
 
   @Override
   public void execute() {
-    if (InputManager.isKeyJustPressed(TOGGLE_REGIONAL_DEPTH_COLOR_GRADE_KEY)) {
+    if (InputManager.isKeyJustPressed(
+      KeyboardConfig.DEBUG_RENDER_REGIONAL_DEPTH_COLOR_GRADE.value())) {
       if (isShiftPressed()) {
         toggleRegionalDepthColorGradeRegionMode();
       } else {
@@ -104,7 +95,8 @@ public final class DebugRenderEffectsSystem extends System {
       }
     }
 
-    if (InputManager.isKeyJustPressed(TOGGLE_REGIONAL_LEVEL_COLOR_GRADE_KEY)) {
+    if (InputManager.isKeyJustPressed(
+      KeyboardConfig.DEBUG_RENDER_REGIONAL_LEVEL_COLOR_GRADE.value())) {
       if (isShiftPressed()) {
         toggleRegionalLevelColorGradeRegionMode();
       } else {
@@ -112,21 +104,27 @@ public final class DebugRenderEffectsSystem extends System {
       }
     }
 
-    if (InputManager.isKeyJustPressed(TOGGLE_SCENE_EFFECTS_KEY)) {
+    if (InputManager.isKeyJustPressed(
+      KeyboardConfig.DEBUG_RENDER_REGIONAL_SCENE_COLOR_GRADE.value())) {
+      if (isShiftPressed()) {
+        toggleRegionalSceneColorGradeRegionMode();
+      } else {
+        toggleRegionalSceneColorGradeEnabled();
+      }
+    }
+
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_RENDER_SCENE_EFFECTS.value())) {
       boolean enabled = SceneEffectPipeline.toggleAll();
-      LOGGER.info(
-        "Scene-pass effects are now {}.",
-        enabled ? "enabled" : "disabled");
+      LOGGER.info("Scene-pass effects are now {}.", enabled ? "enabled" : "disabled");
     }
 
-    if (InputManager.isKeyJustPressed(TOGGLE_LEVEL_EFFECTS_KEY)) {
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_RENDER_LEVEL_EFFECTS.value())) {
       boolean enabled = LevelEffectPipeline.toggleAll();
-      LOGGER.info(
-        "Level-pass effects are now {}.",
-        enabled ? "enabled" : "disabled");
+      LOGGER.info("Level-pass effects are now {}.", enabled ? "enabled" : "disabled");
     }
 
-    if (InputManager.isKeyJustPressed(TOGGLE_DEPTH_LAYER_EFFECTS_KEY)) {
+    if (InputManager.isKeyJustPressed(
+      KeyboardConfig.DEBUG_RENDER_DEPTH_LAYER_EFFECTS.value())) {
       if (isShiftPressed()) {
         toggleDemoDepthLayerEffectGroup();
       } else {
@@ -137,20 +135,13 @@ public final class DebugRenderEffectsSystem extends System {
       }
     }
 
-    if (InputManager.isKeyJustPressed(TOGGLE_PASSTHROUGH_PMA_KEY)) {
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_RENDER_PASSTHROUGH_ALPHA.value())) {
       togglePassthroughPmaDebug();
     }
 
-    if (InputManager.isKeyJustPressed(TOGGLE_PASSTHROUGH_WORLD_POS_KEY)) {
+    if (InputManager.isKeyJustPressed(
+      KeyboardConfig.DEBUG_RENDER_PASSTHROUGH_WORLD_POSITION.value())) {
       togglePassthroughWorldPosDebug();
-    }
-
-    if (InputManager.isKeyJustPressed(TOGGLE_REGIONAL_SCENE_COLOR_GRADE_KEY)) {
-      if (isShiftPressed()) {
-        toggleRegionalSceneColorGradeRegionMode();
-      } else {
-        toggleRegionalSceneColorGradeEnabled();
-      }
     }
 
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.value())) {
