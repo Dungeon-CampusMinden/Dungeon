@@ -1,9 +1,10 @@
-package core.platform;
+package core.platform.adapters;
 
 import core.Entity;
 import core.camera.CameraMath;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.platform.Platform;
 import core.utils.Point;
 import core.utils.Rectangle;
 

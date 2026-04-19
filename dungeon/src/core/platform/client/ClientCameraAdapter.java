@@ -8,7 +8,7 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.level.Tile;
-import core.platform.CameraAdapter;
+import core.platform.adapters.CameraAdapter;
 import core.platform.Platform;
 import core.utils.Point;
 import java.util.Optional;

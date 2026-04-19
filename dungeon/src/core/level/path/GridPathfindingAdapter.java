@@ -3,7 +3,7 @@ package core.level.path;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
-import core.platform.PathfindingAdapter;
+import core.platform.adapters.PathfindingAdapter;
 import java.util.*;
 
 /**

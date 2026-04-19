@@ -1,7 +1,7 @@
 package core.platform.client;
 
 import core.game.render.sprite.SpriteRenderSystem;
-import core.platform.RenderAdapter;
+import core.platform.adapters.RenderAdapter;
 import core.camera.CameraViewportState;
 import contrib.modules.levelHide.LevelHideRenderSystem;
 import core.camera.CameraLevelSyncSystem;

@@ -1,6 +1,6 @@
-package core.platform.defaults;
+package core.platform.fallbacks;
 
-import core.platform.RenderAdapter;
+import core.platform.adapters.RenderAdapter;
 import java.util.List;
 
 /**

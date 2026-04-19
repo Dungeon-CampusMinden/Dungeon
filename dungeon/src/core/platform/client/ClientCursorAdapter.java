@@ -1,6 +1,6 @@
 package core.platform.client;
 
-import core.platform.CursorAdapter;
+import core.platform.adapters.CursorAdapter;
 import core.camera.CameraState;
 import core.camera.CameraViewportState;
 import core.utils.Point;

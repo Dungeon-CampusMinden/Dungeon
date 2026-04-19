@@ -1,6 +1,6 @@
 package core.resources;
 
-import core.platform.ResourcesAdapter;
+import core.platform.adapters.ResourcesAdapter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

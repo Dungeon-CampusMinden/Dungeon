@@ -1,6 +1,6 @@
 package core.platform.client;
 
-import core.platform.ClipboardAdapter;
+import core.platform.adapters.ClipboardAdapter;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;

@@ -1,6 +1,6 @@
-package core.platform.defaults;
+package core.platform.fallbacks;
 
-import core.platform.RuntimeAdapter;
+import core.platform.adapters.RuntimeAdapter;
 
 /** Safe default runtime: no app lifecycle, considered headless. */
 public final class NullRuntimeAdapter implements RuntimeAdapter {

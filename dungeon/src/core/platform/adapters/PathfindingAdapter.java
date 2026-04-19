@@ -1,4 +1,4 @@
-package core.platform;
+package core.platform.adapters;
 
 import core.level.Tile;
 import core.level.elements.ILevel;

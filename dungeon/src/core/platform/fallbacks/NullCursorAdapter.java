@@ -1,6 +1,6 @@
-package core.platform.defaults;
+package core.platform.fallbacks;
 
-import core.platform.CursorAdapter;
+import core.platform.adapters.CursorAdapter;
 import core.utils.Point;
 
 /** Safe default: no cursor available. */

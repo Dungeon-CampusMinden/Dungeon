@@ -1,4 +1,4 @@
-package core.platform;
+package core.platform.adapters;
 
 import core.Entity;
 import core.System;

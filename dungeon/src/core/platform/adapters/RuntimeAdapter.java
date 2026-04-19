@@ -1,4 +1,4 @@
-package core.platform;
+package core.platform.adapters;
 
 /**
  * Platform adapter interface for runtime and system operations.

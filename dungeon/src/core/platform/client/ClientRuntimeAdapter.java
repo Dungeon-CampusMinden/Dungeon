@@ -1,6 +1,6 @@
 package core.platform.client;
 
-import core.platform.RuntimeAdapter;
+import core.platform.adapters.RuntimeAdapter;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.IGameLoop;
 import java.util.concurrent.atomic.AtomicBoolean;

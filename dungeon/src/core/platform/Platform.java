@@ -2,7 +2,8 @@ package core.platform;
 
 import core.game.loop.GameLoopHost;
 import core.level.path.GridPathfindingAdapter;
-import core.platform.defaults.*;
+import core.platform.adapters.*;
+import core.platform.fallbacks.*;
 import core.resources.ClasspathResourcesAdapter;
 
 import java.util.Objects;

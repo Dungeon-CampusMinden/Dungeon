@@ -1,6 +1,6 @@
 package core.platform.client;
 
-import core.platform.WindowAdapter;
+import core.platform.adapters.WindowAdapter;
 import de.gurkenlabs.litiengine.Game;
 
 /**

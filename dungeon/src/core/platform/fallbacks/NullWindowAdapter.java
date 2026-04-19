@@ -1,6 +1,6 @@
-package core.platform.defaults;
+package core.platform.fallbacks;
 
-import core.platform.WindowAdapter;
+import core.platform.adapters.WindowAdapter;
 
 /** Safe default window: no window, size 0, title no-op. */
 public final class NullWindowAdapter implements WindowAdapter {
