@@ -27,8 +27,8 @@ import java.util.Objects;
  *   <li>GameLoopHost - Main game loop management
  * </ul>
  *
- * <p>Default implementations are provided via null-object adapters to ensure graceful degradation
- * in headless or incomplete environments. All setters require non-null values.
+ * <p>Default implementations are provided either by explicit null-object adapters or
+ * by interface-level no-op defaults, depending on the adapter type.
  *
  * <p>This class is not instantiable; all members are static.
  */
