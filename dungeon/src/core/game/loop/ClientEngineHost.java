@@ -95,7 +95,7 @@ public final class ClientEngineHost {
 
     // Initialize the game engine
     Game.init(args);
-
+    ClientShutdownExceptionFilter.install();
     ClientWindowEventsBridge.install();
 
     // Initialize sound backend after engine init

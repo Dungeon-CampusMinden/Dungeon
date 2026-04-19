@@ -59,20 +59,35 @@ public final class ClientWindowEventsBridge {
 
   private ClientWindowEventsBridge() {}
 
-  public static void install() {
+  /** Installs the custom window close hook once the client game window is available. */
+  public static synchronized void install() {
     if (installed) return;
-    installed = true;
 
     try {
-      final Container host = Game.window().getHostControl();
-      if (host instanceof JFrame frame) {
-        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        replaceCloseHook(frame);
+      if (Game.window() == null) {
+        LOGGER.warn("ClientWindowEventsBridge.install skipped: game window is not initialized yet.");
         return;
       }
-      if (host instanceof Window window) {
-        replaceCloseHook(window);
-        return;
+
+      final Container host = Game.window().getHostControl();
+      switch (host) {
+        case null -> {
+          LOGGER.warn("ClientWindowEventsBridge.install skipped: host control is null.");
+          return;
+        }
+        case JFrame frame -> {
+          frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+          replaceCloseHook(frame);
+          installed = true;
+          return;
+        }
+        case Window window -> {
+          replaceCloseHook(window);
+          installed = true;
+          return;
+        }
+        default -> {
+        }
       }
 
       LOGGER.warn("ClientWindowEventsBridge: host control is not a Window/JFrame: {}", host.getClass().getName());
