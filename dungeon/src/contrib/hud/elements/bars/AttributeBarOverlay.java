@@ -1,4 +1,4 @@
-package contrib.hud.elements;
+package contrib.hud.elements.bars;
 
 import core.ui.overlay.UiOverlay;
 import core.ui.overlay.OverlayManager;

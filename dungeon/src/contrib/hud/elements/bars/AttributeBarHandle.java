@@ -1,9 +1,9 @@
-package contrib.hud.elements;
+package contrib.hud.elements.bars;
 
 /**
  * Engine-agnostic handle for an attribute bar widget.
  *
- * <p>This keeps HUD systems independent from the concrete UI toolkit.
+ * <p>This keeps HUD systems independent of the concrete UI toolkit.
  */
 public interface AttributeBarHandle {
 

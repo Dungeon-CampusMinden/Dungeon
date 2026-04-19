@@ -1,6 +1,6 @@
 package contrib.components;
 
-import contrib.hud.elements.BarDisplayable;
+import contrib.hud.elements.bars.BarDisplayable;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;

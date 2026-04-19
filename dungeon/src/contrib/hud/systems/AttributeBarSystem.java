@@ -1,10 +1,10 @@
 package contrib.hud.systems;
 
-import contrib.hud.elements.BarDisplayable;
+import contrib.hud.elements.bars.BarDisplayable;
 import contrib.components.HealthComponent;
 import contrib.components.ManaComponent;
 import contrib.components.StaminaComponent;
-import contrib.hud.elements.AttributeBarHandle;
+import contrib.hud.elements.bars.AttributeBarHandle;
 import contrib.hud.utils.AttributeBarUtil;
 import core.System;
 import core.components.DrawComponent;

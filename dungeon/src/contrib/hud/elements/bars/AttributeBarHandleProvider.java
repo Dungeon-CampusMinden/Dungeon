@@ -1,4 +1,4 @@
-package contrib.hud.elements;
+package contrib.hud.elements.bars;
 
 /**
  * Exposes an {@link AttributeBarHandle} from a backend-specific UI node.
