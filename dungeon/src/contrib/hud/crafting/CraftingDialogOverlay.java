@@ -85,7 +85,7 @@ final class CraftingDialogOverlay
   private static final int BUTTON_ICON_PADDING = 6;
   private static final int ITEM_ICON_PADDING = 6;
 
-  private static final String LEGACY_BACKGROUND_TEXTURE_PATH = "hud/crafting/background.png";
+  private static final String BACKGROUND_TEXTURE_PATH = "hud/crafting/background.png";
 
   private static final Color INVENTORY_PANEL_FILL = new Color(62, 62, 99, 96);
   private static final Color INVENTORY_PANEL_OUTLINE = new Color(0x9dc1ebff, true);
@@ -260,7 +260,7 @@ final class CraftingDialogOverlay
       InventoryGridRenderer.drawGrid(g, visibleTargetSlots, leftStartX, gridTop, leftColumns);
 
       craftingBounds =
-        mirrorLegacySlotBounds(
+        createSlotBounds(
           rightPanelBounds,
           CLASSIC_LAYOUT.visibleCraftingSlots(
             craftingSlots,
@@ -270,7 +270,7 @@ final class CraftingDialogOverlay
             rightPanelBounds.height));
 
       resultBounds =
-        mirrorLegacyResultBounds(
+        createResultBounds(
           rightPanelBounds,
           CLASSIC_LAYOUT.resultSlots(
             resultItems,
@@ -279,8 +279,8 @@ final class CraftingDialogOverlay
             rightPanelBounds.width,
             rightPanelBounds.height));
 
-      syncActionButtonBounds(legacyActionButtonBounds(rightPanelBounds));
-      drawLegacyCraftingPanel(g, rightPanelBounds, craftingBounds, visibleCraftingSlots, resultItems, resultBounds);
+      syncActionButtonBounds(ActionButtonBounds(rightPanelBounds));
+      drawCraftingPanel(g, rightPanelBounds, craftingBounds, visibleCraftingSlots, resultItems, resultBounds);
 
       if (dragState != null) {
         drawDropHighlights(g, leftGrid, leftPanelBounds, rightPanelBounds, craftingBounds);
@@ -298,16 +298,16 @@ final class CraftingDialogOverlay
     }
   }
 
-  private Map<CraftingDialogAction, Rectangle> legacyActionButtonBounds(Rectangle panelBounds) {
+  private Map<CraftingDialogAction, Rectangle> ActionButtonBounds(Rectangle panelBounds) {
     Map<CraftingDialogAction, Rectangle> bounds = new EnumMap<>(CraftingDialogAction.class);
 
     for (CraftingDialogAction action : CraftingDialogAction.values()) {
       int buttonX = panelBounds.x + Math.round(panelBounds.width * action.relativeX());
-      int legacyBottomY = Math.round(panelBounds.height * action.relativeY());
+      int bottomY = Math.round(panelBounds.height * action.relativeY());
       int buttonWidth = Math.round(panelBounds.width * action.relativeWidth());
       int buttonHeight = Math.round(panelBounds.height * action.relativeHeight());
 
-      int buttonY = panelBounds.y + panelBounds.height - legacyBottomY - buttonHeight;
+      int buttonY = panelBounds.y + panelBounds.height - bottomY - buttonHeight;
 
       bounds.put(action, new Rectangle(buttonX, buttonY, buttonWidth, buttonHeight));
     }
@@ -315,7 +315,7 @@ final class CraftingDialogOverlay
     return bounds;
   }
 
-  private void drawLegacyCraftingPanel(
+  private void drawCraftingPanel(
     Graphics2D g,
     Rectangle panelBounds,
     List<CraftingDialogLayout.SlotBounds> craftingBounds,
@@ -323,7 +323,7 @@ final class CraftingDialogOverlay
     Item[] resultItems,
     List<CraftingDialogLayout.ItemBounds> resultBounds) {
 
-    drawLegacyCraftingBackground(g, panelBounds);
+    drawCraftingBackground(g, panelBounds);
 
     for (int i = 0; i < craftingBounds.size(); i++) {
       CraftingDialogLayout.SlotBounds bounds = craftingBounds.get(i);
@@ -351,11 +351,11 @@ final class CraftingDialogOverlay
       drawResultItemPresentation(g, slotBounds, item);
     }
 
-    drawLegacyActionBoxes(g);
+    drawActionBoxes(g);
   }
 
-  private void drawLegacyCraftingBackground(Graphics2D g, Rectangle panelBounds) {
-    BufferedImage background = ImageAssets.get(LEGACY_BACKGROUND_TEXTURE_PATH);
+  private void drawCraftingBackground(Graphics2D g, Rectangle panelBounds) {
+    BufferedImage background = ImageAssets.get(BACKGROUND_TEXTURE_PATH);
     if (background != null) {
       g.drawImage(
         background,
@@ -503,11 +503,11 @@ final class CraftingDialogOverlay
     }
   }
 
-  private List<CraftingDialogLayout.SlotBounds> mirrorLegacySlotBounds(
-    Rectangle panelBounds, List<CraftingDialogLayout.SlotBounds> legacyBounds) {
-    List<CraftingDialogLayout.SlotBounds> result = new ArrayList<>(legacyBounds.size());
+  private List<CraftingDialogLayout.SlotBounds> createSlotBounds(
+    Rectangle panelBounds, List<CraftingDialogLayout.SlotBounds> slotBounds) {
+    List<CraftingDialogLayout.SlotBounds> result = new ArrayList<>(slotBounds.size());
 
-    for (CraftingDialogLayout.SlotBounds bounds : legacyBounds) {
+    for (CraftingDialogLayout.SlotBounds bounds : slotBounds) {
       int localBottomY = bounds.y() - panelBounds.y;
       int mirroredY = panelBounds.y + panelBounds.height - localBottomY - bounds.size();
 
@@ -522,11 +522,11 @@ final class CraftingDialogOverlay
     return List.copyOf(result);
   }
 
-  private List<CraftingDialogLayout.ItemBounds> mirrorLegacyResultBounds(
-    Rectangle panelBounds, List<CraftingDialogLayout.ItemBounds> legacyBounds) {
-    List<CraftingDialogLayout.ItemBounds> result = new ArrayList<>(legacyBounds.size());
+  private List<CraftingDialogLayout.ItemBounds> createResultBounds(
+    Rectangle panelBounds, List<CraftingDialogLayout.ItemBounds> itemBounds) {
+    List<CraftingDialogLayout.ItemBounds> result = new ArrayList<>(itemBounds.size());
 
-    for (CraftingDialogLayout.ItemBounds bounds : legacyBounds) {
+    for (CraftingDialogLayout.ItemBounds bounds : itemBounds) {
       int localBottomY = bounds.y() - panelBounds.y;
       int mirroredY = panelBounds.y + panelBounds.height - localBottomY - bounds.size();
 
@@ -536,7 +536,7 @@ final class CraftingDialogOverlay
     return List.copyOf(result);
   }
 
-  private void drawLegacyActionBoxes(Graphics2D g) {
+  private void drawActionBoxes(Graphics2D g) {
     StageHandle stage = Game.stage().orElse(null);
     int mouseX = stage == null ? Integer.MIN_VALUE : stage.mouseX();
     int mouseY = stage == null ? Integer.MIN_VALUE : stage.mouseY();

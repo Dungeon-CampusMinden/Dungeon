@@ -224,7 +224,7 @@ public final class LevelEditorSystem extends System {
     renderLevelBoundsOutline(g);
 
     if (layerDebugActive) {
-      renderLegacyLikeLayerDebug(g);
+      renderLayerDebug(g);
     }
 
     currentModeInstance().render(g, deltaSeconds);
@@ -334,12 +334,12 @@ public final class LevelEditorSystem extends System {
 
     overlay.content(
       "",
-      buildLegacyStatusLines(),
+      buildStatusLines(),
       currentFeedbackMessage(),
       currentFeedbackColor());
   }
 
-  private List<String> buildLegacyStatusLines() {
+  private List<String> buildStatusLines() {
     List<String> lines = new ArrayList<>();
     lines.add("Level Editor v2 | Modes: " + modeSelectionText());
     lines.add("( SPACE to toggle layer debug shader [" + layerDebugActive + "] )");
@@ -425,7 +425,7 @@ public final class LevelEditorSystem extends System {
       });
   }
 
-  private void renderLegacyLikeLayerDebug(Graphics2D g) {
+  private void renderLayerDebug(Graphics2D g) {
     CameraViewportState.Viewport view = CameraViewportState.get();
     if (view == null || view.tilePx() <= 0) {
       return;
