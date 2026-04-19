@@ -1,4 +1,4 @@
-package core.platform.client;
+package core.platform.client.input;
 
 import core.input.Keys;
 import core.input.MouseButtons;

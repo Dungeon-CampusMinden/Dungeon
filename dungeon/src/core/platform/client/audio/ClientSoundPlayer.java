@@ -1,4 +1,4 @@
-package core.platform.client;
+package core.platform.client.audio;
 
 import core.sound.player.ISoundPlayer;
 import core.sound.player.PlayHandle;

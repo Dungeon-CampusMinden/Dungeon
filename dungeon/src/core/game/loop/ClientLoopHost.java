@@ -1,7 +1,7 @@
 package core.game.loop;
 
 import core.game.GameLoop;
-import core.platform.client.ClientEngineHost;
+import core.platform.client.host.ClientEngineHost;
 import core.sound.player.ISoundPlayer;
 import core.ui.ClientStageHandle;
 import core.ui.StageHandle;

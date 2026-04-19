@@ -1,4 +1,4 @@
-package core.platform.client;
+package core.platform.client.window;
 
 import core.utils.logging.DungeonLogger;
 import de.gurkenlabs.litiengine.Game;

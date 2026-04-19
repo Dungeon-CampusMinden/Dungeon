@@ -1,4 +1,4 @@
-package core.platform.client;
+package core.platform.client.host;
 
 import contrib.debug.systems.DebugDrawSystem;
 import contrib.debug.systems.DebugEntityRenderSystem;
@@ -16,6 +16,11 @@ import core.game.*;
 import core.game.startup.ClientStartup;
 import core.game.render.EcsRenderScreen;
 import core.platform.Platform;
+import core.platform.client.*;
+import core.platform.client.audio.ClientSoundPlayer;
+import core.platform.client.input.ClientInputBridge;
+import core.platform.client.window.ClientShutdownExceptionFilter;
+import core.platform.client.window.ClientWindowEventsBridge;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.utils.InputManager;
