@@ -1,5 +1,7 @@
-package contrib.hud.dialogs;
+package contrib.hud.dialogs.overlays;
 
+import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.renderers.DialogFrameRenderer;
 import core.Game;
 import core.input.MouseButtons;

@@ -1,4 +1,4 @@
-package contrib.hud.dialogs;
+package contrib.hud.dialogs.overlays;
 
 import contrib.hud.renderers.DialogFrameRenderer;
 import core.ui.overlay.UiOverlay;
@@ -22,7 +22,7 @@ import java.awt.Graphics2D;
  * game scene with configurable properties such as x and y coordinates, dimensions,
  * and visibility.
  */
-final class PauseMenuOverlay implements UiOverlay {
+final class PauseMenuDialogOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 400;
   private static final int DEFAULT_HEIGHT = 200;

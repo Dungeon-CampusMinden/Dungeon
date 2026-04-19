@@ -1,6 +1,7 @@
 package contrib.hud.dialogs;
 
 import contrib.hud.crafting.CraftingDialogBuilder;
+import contrib.hud.dialogs.builders.*;
 import contrib.hud.showimage.ShowImageDialogBuilder;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;

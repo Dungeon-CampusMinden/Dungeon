@@ -1,5 +1,8 @@
-package contrib.hud.dialogs;
+package contrib.hud.dialogs.builders;
 
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.OkDialogOverlay;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 
