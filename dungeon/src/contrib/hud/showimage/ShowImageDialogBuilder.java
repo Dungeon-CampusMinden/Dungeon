@@ -55,7 +55,7 @@ public final class ShowImageDialogBuilder {
       ctx.find(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, Integer.class).orElse(0x000000ff);
 
     return new OverlayHandle(
-      new ShowImageOverlay(
+      new ShowImageDialogOverlay(
         imagePath, speed, maxSize, imageText, imageTextScale, imageTextColorRgba8888));
   }
 }

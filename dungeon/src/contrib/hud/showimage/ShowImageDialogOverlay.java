@@ -19,7 +19,7 @@ import java.util.List;
  *
  * <p>It supports customizable scaling, positioning, and transition animations for the image.
  */
-final class ShowImageOverlay implements UiOverlay {
+final class ShowImageDialogOverlay implements UiOverlay {
 
   private static final float DEFAULT_MAX_SIZE = 0.85f;
   private static final int PANEL_PADDING = 12;
@@ -48,7 +48,7 @@ final class ShowImageOverlay implements UiOverlay {
   private boolean visible = true;
   private float animation;
 
-  ShowImageOverlay(
+  ShowImageDialogOverlay(
     String imagePath,
     TransitionSpeed transitionSpeed,
     float maxSize,
