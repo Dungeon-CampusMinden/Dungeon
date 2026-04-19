@@ -1,7 +1,7 @@
 package contrib.hud.dialogs.builders;
 
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.PauseMenuOverlay;
+import contrib.hud.dialogs.overlays.PauseMenuDialogOverlay;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 
@@ -23,6 +23,6 @@ public final class PauseMenuDialogBuilder {
    * @return a UI node handle wrapping the created pause menu overlay
    */
   public static UiHandle build(DialogContext ctx) {
-    return new OverlayHandle(new PauseMenuOverlay());
+    return new OverlayHandle(new PauseMenuDialogOverlay());
   }
 }

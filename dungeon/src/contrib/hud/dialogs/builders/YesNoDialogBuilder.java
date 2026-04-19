@@ -2,7 +2,7 @@ package contrib.hud.dialogs.builders;
 
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.YesNoDialogOverlay;
+import contrib.hud.dialogs.overlays.YesNoDialogOverlay;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 
@@ -33,7 +33,6 @@ public final class YesNoDialogBuilder {
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("Dialog");
 
-    return new OverlayHandle(
-      new YesNoDialogOverlay(title, text, ctx.dialogId()));
+    return new OverlayHandle(new YesNoDialogOverlay(title, text, ctx.dialogId()));
   }
 }

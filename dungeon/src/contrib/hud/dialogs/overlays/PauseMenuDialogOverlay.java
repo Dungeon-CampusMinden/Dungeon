@@ -22,7 +22,7 @@ import java.awt.Graphics2D;
  * game scene with configurable properties such as x and y coordinates, dimensions,
  * and visibility.
  */
-final class PauseMenuDialogOverlay implements UiOverlay {
+public final class PauseMenuDialogOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 400;
   private static final int DEFAULT_HEIGHT = 200;

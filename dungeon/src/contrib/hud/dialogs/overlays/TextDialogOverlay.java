@@ -31,7 +31,7 @@ import java.util.List;
  *   <li>Input handling for keyboard and mouse interactions.</li>
  * </ul>
  */
-final class TextDialogOverlay implements UiOverlay {
+public final class TextDialogOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 560;
   private static final int DEFAULT_HEIGHT = 260;
@@ -51,7 +51,17 @@ final class TextDialogOverlay implements UiOverlay {
   private int height = DEFAULT_HEIGHT;
   private boolean visible = true;
 
-  TextDialogOverlay(
+  /**
+   * Creates a text dialog overlay.
+   *
+   * @param title dialog title
+   * @param text message text
+   * @param confirmLabel confirm button label
+   * @param cancelLabel optional cancel button label
+   * @param additionalButtons optional additional button labels
+   * @param dialogId id used to resolve callbacks
+   */
+  public TextDialogOverlay(
     String title,
     String text,
     String confirmLabel,

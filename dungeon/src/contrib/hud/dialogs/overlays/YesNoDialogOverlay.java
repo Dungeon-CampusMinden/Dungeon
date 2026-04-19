@@ -32,7 +32,7 @@ import java.awt.Rectangle;
  *   <li>Support visibility toggling and positioning of the dialog overlay</li>
  * </ul>
  */
-final class YesNoDialogOverlay implements UiOverlay {
+public final class YesNoDialogOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 500;
   private static final int DEFAULT_HEIGHT = 230;
@@ -55,7 +55,14 @@ final class YesNoDialogOverlay implements UiOverlay {
   private boolean noPressed = false;
   private boolean leftButtonDownLastFrame = false;
 
-  YesNoDialogOverlay(String title, String text, String dialogId) {
+  /**
+   * Creates a yes/no dialog overlay.
+   *
+   * @param title dialog title
+   * @param text message text
+   * @param dialogId id used to resolve callbacks
+   */
+  public YesNoDialogOverlay(String title, String text, String dialogId) {
     this.title = title;
     this.text = text;
     this.dialogId = dialogId;

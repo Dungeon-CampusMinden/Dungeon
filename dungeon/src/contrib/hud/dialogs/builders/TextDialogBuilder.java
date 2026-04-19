@@ -2,7 +2,7 @@ package contrib.hud.dialogs.builders;
 
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.TextDialogOverlay;
+import contrib.hud.dialogs.overlays.TextDialogOverlay;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 

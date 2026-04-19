@@ -34,12 +34,19 @@ import java.util.List;
  *    <li>Handles user interactions with keyboard and mouse inputs.</li>
  * </ul>
  */
-final class FreeInputDialogOverlay implements UiOverlay {
+public final class FreeInputDialogOverlay implements UiOverlay {
 
-  static final String TITLE_DEFAULT = "Frage";
-  static final String OK_BUTTON = "OK";
-  static final String CANCEL_BUTTON = "Abbrechen";
-  static final String INPUT_PLACEHOLDER_DEFAULT = "Deine Antwort…";
+  /** Default dialog title. */
+  public static final String TITLE_DEFAULT = "Frage";
+
+  /** Default confirm button label. */
+  public static final String OK_BUTTON = "OK";
+
+  /** Default cancel button label. */
+  public static final String CANCEL_BUTTON = "Abbrechen";
+
+  /** Default placeholder shown when the input is empty. */
+  public static final String INPUT_PLACEHOLDER_DEFAULT = "Deine Antwort…";
 
   private static final int DEFAULT_WIDTH = 620;
   private static final int DEFAULT_HEIGHT = 300;
@@ -66,7 +73,18 @@ final class FreeInputDialogOverlay implements UiOverlay {
   private int pressedButtonIndex = -1;
   private boolean leftButtonDownLastFrame = false;
 
-  FreeInputDialogOverlay(
+  /**
+   * Creates a free input dialog overlay.
+   *
+   * @param title dialog title
+   * @param question question shown above the input field
+   * @param prefill initial input value
+   * @param placeholder placeholder shown when the input is empty
+   * @param confirmLabel confirm button label
+   * @param cancelLabel cancel button label
+   * @param dialogId id used to resolve callbacks
+   */
+  public FreeInputDialogOverlay(
     String title,
     String question,
     String prefill,

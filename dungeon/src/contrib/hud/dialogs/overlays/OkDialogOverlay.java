@@ -24,7 +24,7 @@ import java.awt.Rectangle;
  *   <li>Rendering the dialog frame, title, and content text within a centered area.</li>
  *   <li>Handling mouse input to detect interaction with the "OK" button.</li>
  *   <li>Managing visibility, dimensions, and position of the overlay.</li>
- *</ul>
+ * </ul>
  *
  * <p>The overlay utilizes {@link DialogFrameRenderer} for drawing the dialog's frame and
  * content elements.
@@ -38,7 +38,7 @@ import java.awt.Rectangle;
  * <p>The input logic ensures correct handling of mouse button states and triggers a callback via
  * the {@link DialogCallbackResolver} on clicking the "OK" button.
  */
-final class OkDialogOverlay implements UiOverlay {
+public final class OkDialogOverlay implements UiOverlay {
 
   private static final int DEFAULT_WIDTH = 460;
   private static final int DEFAULT_HEIGHT = 220;
@@ -56,7 +56,14 @@ final class OkDialogOverlay implements UiOverlay {
   private boolean okPressed = false;
   private boolean leftButtonDownLastFrame = false;
 
-  OkDialogOverlay(String title, String text, String dialogId) {
+  /**
+   * Creates an OK dialog overlay.
+   *
+   * @param title dialog title
+   * @param text message text
+   * @param dialogId id used to resolve callbacks
+   */
+  public OkDialogOverlay(String title, String text, String dialogId) {
     this.title = title;
     this.text = text;
     this.dialogId = dialogId;

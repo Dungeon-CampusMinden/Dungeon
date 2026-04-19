@@ -2,7 +2,7 @@ package contrib.hud.dialogs.builders;
 
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.OkDialogOverlay;
+import contrib.hud.dialogs.overlays.OkDialogOverlay;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 
@@ -33,7 +33,6 @@ public final class OkDialogBuilder {
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("OK");
 
-    return new OverlayHandle(
-      new OkDialogOverlay(title, text, ctx.dialogId()));
+    return new OverlayHandle(new OkDialogOverlay(title, text, ctx.dialogId()));
   }
 }
