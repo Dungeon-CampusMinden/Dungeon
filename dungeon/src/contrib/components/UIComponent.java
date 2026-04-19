@@ -10,13 +10,13 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * A UI Component which stores dialog configuration and callbacks.
+ * A UI Component that stores dialog configuration and callbacks.
  *
  * <p>Contains the {@link DialogContext} for creating the visual dialog and a map of callbacks that
  * are executed when the user interacts with the dialog. Callbacks are stored server-side only and
  * are not serialized.
  *
- * <p>Also allows to define whether the Elements are pausing the Game or not.
+ * <p>Also allows defining whether the Elements are pausing the Game or not.
  */
 public final class UIComponent implements Component {
 
@@ -28,13 +28,13 @@ public final class UIComponent implements Component {
   /** Server-side callbacks map. Keys match callback keys sent by clients. */
   private final Map<String, Consumer<Serializable>> callbacks = new HashMap<>();
 
-  private Consumer<UIComponent> onClose = (uiComponent) -> {};
+  private Consumer<UIComponent> onClose = (_) -> {};
 
   /**
    * Lazily installed by the HUD layer.
    *
-   * <p>The component itself only stores dialog state and configuration. Concrete dialog handle
-   * creation is performed by the UI/HUD system.
+   * <p>The component itself only stores the dialog state and configuration. The UI/HUD system
+   * performs concrete dialog handle creation.
    */
   private UiHandle dialog;
 
@@ -43,8 +43,8 @@ public final class UIComponent implements Component {
    *
    * @param dialogContext the context that defines the dialog to be shown
    * @param willPauseGame if the UI should pause the Game or not
-   * @param canBeClosed if the UI can be closed (e.g. with the close key)
-   * @param targetEntityIds the target entity ids this UI should be shown for (e.g. for inventory
+   * @param canBeClosed if the UI can be closed (e.g., with the close key)
+   * @param targetEntityIds the target entity ids this UI should be shown for (e.g., for inventory
    *     UIs). Empty array for all entities.
    */
   public UIComponent(
@@ -63,7 +63,7 @@ public final class UIComponent implements Component {
    *
    * @param dialogContext the context that defines the dialog to be shown
    * @param willPauseGame if the UI should pause the Game or not
-   * @param targetEntityIds the target entity ids this UI should be shown for (e.g. for inventory
+   * @param targetEntityIds the target entity ids this UI should be shown for (e.g., for inventory
    *     UIs). Empty array for all entities.
    */
   public UIComponent(DialogContext dialogContext, boolean willPauseGame, int... targetEntityIds) {
@@ -73,7 +73,7 @@ public final class UIComponent implements Component {
   /**
    * Create a new UIComponent.
    *
-   * <p>By default no target entity ids are set, meaning the UI will be shown for all entities.
+   * <p>By default, no target entity ids are set, meaning the UI will be shown for all entities.
    *
    * @param dialogContext the context that defines the dialog to be shown
    * @param willPauseGame if the UI should pause the Game or not
@@ -126,7 +126,7 @@ public final class UIComponent implements Component {
   /**
    * Gets all registered callbacks.
    *
-   * @return the callbacks map (unmodifiable view)
+   * @return the callbacks' map (unmodifiable view)
    */
   public Map<String, Consumer<Serializable>> callbacks() {
     return Map.copyOf(callbacks);
@@ -180,7 +180,7 @@ public final class UIComponent implements Component {
   }
 
   /**
-   * Returns the installed dialog handle, if one already exists.
+   * Returns the installed dialog handle if one already exists.
    *
    * @return optional dialog handle
    */
