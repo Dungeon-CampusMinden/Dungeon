@@ -237,8 +237,13 @@ public class BlocklyCommands {
       return true;
     }
     // Special case: treat DOOR or EXIT as FLOOR
-    return target == LevelElement.FLOOR
-        && (actual == LevelElement.DOOR || actual == LevelElement.EXIT);
+    if (target == LevelElement.FLOOR
+        && (actual == LevelElement.DOOR || actual == LevelElement.EXIT)) {
+      return true;
+    }
+
+    // Case: treat HOLE or GITTER as WALL
+    return target == LevelElement.WALL && (actual == LevelElement.HOLE);
   }
 
   /**

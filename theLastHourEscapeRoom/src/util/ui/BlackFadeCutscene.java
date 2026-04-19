@@ -30,7 +30,7 @@ import modules.computer.LastHourDialogTypes;
 public class BlackFadeCutscene extends Table {
 
   private static final String FONT_SIZES_KEY = "font_sizes";
-  private static final String MESSAGE_SPLIT_TOKEN = "\n\n";
+  private static final String MESSAGE_SPLIT_TOKEN = "/somerandomtoken/";
   private static final String FADE_IN_KEY = "fadeIn";
   private static final String FADE_OUT_KEY = "fadeOut";
 

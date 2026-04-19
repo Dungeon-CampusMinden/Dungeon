@@ -103,7 +103,8 @@ public final class Game {
           PreRunConfiguration.isNetworkServer(),
           PreRunConfiguration.networkServerAddress(),
           PreRunConfiguration.networkPort(),
-          PreRunConfiguration.username());
+          PreRunConfiguration.username(),
+          PreRunConfiguration.multiplayerCharacterClass());
       LOGGER.info("Network handler initialized.");
     } catch (NetworkException e) {
       LOGGER.error("Failed to initialize network handler.", e);

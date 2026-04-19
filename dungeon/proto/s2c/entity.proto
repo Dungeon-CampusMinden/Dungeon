@@ -30,6 +30,9 @@ message EntitySpawnEvent {
 
   // Character class ID (maps to CharacterClass enum ordinal).
   optional int32 character_class_id = 6;
+
+  // Optional metadata for subproject-specific state.
+  map<string, string> metadata = 7;
 }
 
 // Server-to-client: Batch spawn multiple entities.
@@ -42,23 +45,26 @@ message DrawInfo {
   // Path to the entity's texture or sprite sheet.
   string texture_path = 1;
 
+  // Rendering depth (lower values are drawn behind higher values).
+  int32 depth = 2;
+
   // X scale factor (default 1.0).
-  optional float scale_x = 2;
+  optional float scale_x = 3;
 
   // Y scale factor (default 1.0).
-  optional float scale_y = 3;
+  optional float scale_y = 4;
 
   // Current animation state.
-  optional AnimationInfo current_animation = 4;
+  optional AnimationInfo current_animation = 5;
 
   // Animation timing and behavior config (always present).
-  AnimationConfigInfo animation_config = 5;
+  AnimationConfigInfo animation_config = 6;
 
   // Spritesheet slicing geometry (only for spritesheet entities).
-  optional SpritesheetConfigInfo spritesheet_config = 6;
+  optional SpritesheetConfigInfo spritesheet_config = 7;
 
   // Explicit state definitions used to reconstruct custom state machines.
-  repeated DrawStateInfo states = 7;
+  repeated DrawStateInfo states = 8;
 }
 
 // Animation state information.
@@ -211,6 +217,9 @@ message EntityState {
 
   // Optional: Inventory contents.
   repeated ItemSlot inventory = 10;
+
+  // Optional metadata for subproject-specific state.
+  map<string, string> metadata = 11;
 }
 
 // Represents a slot in an inventory.

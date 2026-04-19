@@ -159,7 +159,12 @@ public final class AuthoritativeServerLoop {
   }
 
   private Entity spawnHeroForClient(ClientState state) {
-    Entity hero = HeroBuilder.builder().username(state.username()).isLocalPlayer(true).build();
+    Entity hero =
+        HeroBuilder.builder()
+            .username(state.username())
+            .characterClass(state.characterClass())
+            .isLocalPlayer(true)
+            .build();
     hero.fetch(PositionComponent.class)
         .ifPresent(pc -> pc.position(Game.startTile().map(Tile::position).orElse(new Point(0, 0))));
     // Add the hero to the game, after the client knows the id.

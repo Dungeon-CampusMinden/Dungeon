@@ -18,7 +18,15 @@ public final class NetworkConfig {
    * Translator for converting game state snapshots to/from byte arrays. Used by both client and
    * server.
    */
-  public static final SnapshotTranslator SNAPSHOT_TRANSLATOR = new DefaultSnapshotTranslator();
+  public static SnapshotTranslator SNAPSHOT_TRANSLATOR = new DefaultSnapshotTranslator();
+
+  /**
+   * Strategy for converting entities into spawn messages.
+   *
+   * <p>The default strategy requires {@code PositionComponent} and {@code DrawComponent}.
+   * Subprojects may replace this to support data-only entities.
+   */
+  public static EntitySpawnStrategy ENTITY_SPAWN_STRATEGY = new DefaultEntitySpawnStrategy();
 
   /** Maximum size of serialized payload for TCP communication, in bytes. */
   public static final int MAX_TCP_OBJECT_SIZE = 1 << 20; // 1 MiB
@@ -43,6 +51,21 @@ public final class NetworkConfig {
    * <p>This defines how often the client will send registration requests to the server over UDP.
    */
   public static final int UDP_REGISTER_INTERVAL_MS = 500;
+
+  /** Initial delay before the next UDP retry attempt, in milliseconds. */
+  public static final int UDP_RETRY_INITIAL_DELAY_MS = 500;
+
+  /** Multiplier applied to the UDP retry delay after each failed retry cycle. */
+  public static final int UDP_RETRY_MULTIPLIER = 2;
+
+  /** Maximum delay between UDP retry attempts, in milliseconds. */
+  public static final int UDP_RETRY_MAX_DELAY_MS = 120_000;
+
+  /** Interval for UDP keepalive re-registration while UDP is healthy, in milliseconds. */
+  public static final int UDP_KEEPALIVE_INTERVAL_MS = 2_000;
+
+  /** Time without a successful UDP acknowledgement after which UDP is considered stale. */
+  public static final int UDP_STALE_AFTER_MS = 4_500;
 
   /** Offset for the length field in TCP frames, in bytes. */
   public static final int TCP_LENGTH_FIELD_OFFSET = 0;

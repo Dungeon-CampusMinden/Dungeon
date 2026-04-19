@@ -16,10 +16,11 @@ public class FrontendServer {
   /**
    * Starts the frontend server.
    *
+   * @param port the port that the webserver should run on
    * @throws IOException if textures can not be loaded.
    */
-  public static void run() throws IOException {
-    server = HttpServer.create(new InetSocketAddress(8081), 0);
+  public static void run(int port) throws IOException {
+    server = HttpServer.create(new InetSocketAddress(port), 0);
     LOGGER.debug(new File(".").getAbsolutePath());
 
     server.createContext(
@@ -41,13 +42,11 @@ public class FrontendServer {
             resourcePath = "assets/index.html";
             is = loadAsset(resourcePath);
           }
-
           // SPA fallback
           if (is == null) {
             exchange.sendResponseHeaders(404, -1);
             return;
           }
-
           byte[] bytes = is.readAllBytes();
           is.close();
 
@@ -74,23 +73,18 @@ public class FrontendServer {
   private static InputStream loadAsset(String path) throws IOException {
     // load assets from jar asset path
     InputStream is = FrontendServer.class.getClassLoader().getResourceAsStream(path);
-
     if (is != null) return is;
-
     // fallback: loading assets from dev system
     File file = new File(path.replaceFirst("^assets", "blockly/frontend/dist"));
-
     if (file.exists()) {
       return new FileInputStream(file);
     }
-
     return null;
   }
 
   /** Stops the frontend server. */
   public static void stopServer() {
     if (server != null) {
-
       server.stop(0);
       System.out.println("Server gestoppt.");
     }

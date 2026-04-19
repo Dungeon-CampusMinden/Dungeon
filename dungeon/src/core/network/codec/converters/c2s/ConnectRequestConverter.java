@@ -5,6 +5,7 @@ import com.google.protobuf.Parser;
 import core.network.codec.CommonProtoConverters;
 import core.network.codec.MessageConverter;
 import core.network.messages.c2s.ConnectRequest;
+import java.util.Optional;
 
 /** Converter for client-to-server connect request messages. */
 public final class ConnectRequestConverter
@@ -24,6 +25,9 @@ public final class ConnectRequestConverter
     if (token != null && token.length > 0) {
       builder.setSessionToken(ByteString.copyFrom(token));
     }
+    request
+        .characterClass()
+        .ifPresent(characterClass -> builder.setCharacterClassId(characterClass.ordinal()));
     return builder.build();
   }
 
@@ -35,7 +39,13 @@ public final class ConnectRequestConverter
         CommonProtoConverters.toShortExact(proto.getProtocolVersion(), "protocol_version"),
         proto.getPlayerName(),
         sessionId,
-        token);
+        token,
+        proto.hasCharacterClassId()
+            ? Optional.of(
+                contrib.entities.CharacterClass.fromByteId(
+                    CommonProtoConverters.toByteExact(
+                        proto.getCharacterClassId(), "character_class_id")))
+            : Optional.empty());
   }
 
   @Override

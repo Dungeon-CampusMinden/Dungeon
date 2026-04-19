@@ -1,6 +1,7 @@
 package modules.computer.content;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import core.utils.Scene2dElementFactory;
 import java.util.List;
@@ -12,8 +13,10 @@ import util.Lore;
  */
 public class BlogTab extends ComputerTab {
 
-  private static final String TITLE = "Brenner Blog";
-  private float timeSinceLogin = 0f; // TODO: Fill from shared state somehow
+  private static BlogTab Instance;
+
+  private static int timestampOfLogin = 0;
+  private int lastVisibleCommentCount = 0;
 
   /**
    * Constructs a new BlogTab with the given shared ComputerStateComponent.
@@ -22,17 +25,66 @@ public class BlogTab extends ComputerTab {
    */
   public BlogTab(ComputerStateComponent sharedState) {
     super(sharedState, "blog", "My Blog", false);
+    Instance = this;
+  }
+
+  /**
+   * Gets the singleton instance of BlogTab.
+   *
+   * @return the current BlogTab instance, or null if none exists
+   */
+  public static BlogTab getInstance() {
+    return Instance;
+  }
+
+  /**
+   * Returns the number of seconds elapsed since the login timestamp.
+   *
+   * @return seconds since login, or 0 if no login timestamp has been set
+   */
+  public static int secondsSinceLogin() {
+    int timestampOfLogin =
+        ComputerStateComponent.getState().map(ComputerStateComponent::timestampOfLogin).orElse(0);
+    if (timestampOfLogin == 0) return 0;
+    return (int) (System.currentTimeMillis() / 1000L) - timestampOfLogin;
+  }
+
+  /**
+   * Returns whether a comment should be visible based on the time elapsed since login.
+   *
+   * @param comment the blog comment to check
+   * @return true if the comment's display delay has been reached
+   */
+  public static boolean isCommentVisible(BlogComment comment) {
+    return secondsSinceLogin() >= comment.timeBeforeDisplay();
+  }
+
+  /**
+   * Counts the total number of currently visible comments across all blog entries.
+   *
+   * @return the total count of visible comments
+   */
+  public static int countVisibleComments() {
+    int count = 0;
+    for (BlogTab.BlogEntry entry : Lore.BlogEntries) {
+      for (BlogTab.BlogComment comment : entry.comments()) {
+        if (isCommentVisible(comment)) count++;
+      }
+    }
+    return count;
   }
 
   protected void createActors() {
     this.clearChildren();
+    this.clearActions();
 
-    Label title = Scene2dElementFactory.createLabel(TITLE, 48, Color.BLACK);
+    lastVisibleCommentCount = countVisibleComments();
+
+    Label title = Scene2dElementFactory.createLabel(Lore.ScientistBlogName, 48, Color.BLACK);
 
     Table container = new Table(skin);
     container.top();
 
-    // TODO: show entries based on context
     List<BlogEntry> entriesToShow = Lore.BlogEntries;
 
     for (int i = 0; i < entriesToShow.size(); i++) {
@@ -50,6 +102,19 @@ public class BlogTab extends ComputerTab {
         .maxWidth(800)
         .minWidth(500)
         .grow();
+
+    // Periodically check if new comments should appear
+    this.addAction(
+        Actions.forever(
+            Actions.sequence(
+                Actions.delay(5f),
+                Actions.run(
+                    () -> {
+                      int current = countVisibleComments();
+                      if (current != lastVisibleCommentCount) {
+                        createActors();
+                      }
+                    }))));
   }
 
   private Table createBlogEntryTable(BlogEntry entry) {
@@ -65,12 +130,8 @@ public class BlogTab extends ComputerTab {
     table.add(content).growX().padTop(10).colspan(2).row();
 
     if (!entry.comments.isEmpty()) {
-      Table commentsTable = new Table();
-      for (int i = 0; i < entry.comments.size(); i++) {
-        BlogComment comment = entry.comments.get(i);
-        // TODO: add check for when comments are shown
-        commentsTable.add(createCommentTable(comment, i == 0)).growX().row();
-      }
+      List<BlogComment> visibleComments =
+          entry.comments.stream().filter(BlogTab::isCommentVisible).toList();
 
       table
           .add(Scene2dElementFactory.createHorizontalDivider())
@@ -85,7 +146,18 @@ public class BlogTab extends ComputerTab {
           .padLeft(50)
           .padRight(10)
           .width(4);
-      table.add(commentsTable).growX().row();
+
+      if (!visibleComments.isEmpty()) {
+        Table commentsTable = new Table();
+        for (int i = 0; i < visibleComments.size(); i++) {
+          BlogComment comment = visibleComments.get(i);
+          commentsTable.add(createCommentTable(comment, i == 0)).growX().row();
+        }
+        table.add(commentsTable).growX().row();
+      } else {
+        Label noComments = Scene2dElementFactory.createLabel("No comments yet.", 18, Color.GRAY);
+        table.add(noComments).growX().padTop(4).row();
+      }
     }
 
     return table;
@@ -111,6 +183,14 @@ public class BlogTab extends ComputerTab {
     table.add(content).growX().padTop(4).row();
 
     return table;
+  }
+
+  @Override
+  public void onShow() {
+    int current = countVisibleComments();
+    if (current != lastVisibleCommentCount) {
+      createActors();
+    }
   }
 
   @Override

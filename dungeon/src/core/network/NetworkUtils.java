@@ -88,4 +88,13 @@ public final class NetworkUtils {
         .map(ServerTransport::clientIdToSessionMap)
         .orElse(Map.of());
   }
+
+  /**
+   * Checks if the current instance is a network client that should use network callbacks.
+   *
+   * @return true if we're a client connected to a server
+   */
+  public static boolean isNetworkClient() {
+    return !Game.network().isServer() && Game.network().isConnected();
+  }
 }

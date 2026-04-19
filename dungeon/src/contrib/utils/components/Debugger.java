@@ -24,6 +24,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
+import core.network.NetworkUtils;
 import core.systems.CameraSystem;
 import core.systems.input.InputManager;
 import core.utils.Direction;
@@ -190,6 +191,8 @@ public class Debugger extends System {
 
   /** Pauses the game. */
   public static void PAUSE_GAME() {
+    if (NetworkUtils.isNetworkClient()) return;
+
     if (isPaused()) {
       unpause();
     } else {
@@ -198,7 +201,7 @@ public class Debugger extends System {
   }
 
   private static void pause() {
-    UIComponent ui = PauseDialog.showPauseDialog();
+    UIComponent ui = PauseDialog.showPauseDialog(Game.player().orElseThrow());
     pauseMenu = ui.dialogContext().ownerEntity();
   }
 

@@ -249,6 +249,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: roboto-semibold-32
 		fontColor: white
 	}
+	timer: {
+		font: roboto-semibold-32
+		background: timer-box
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {

@@ -27,11 +27,15 @@ public class TrashMinigameUI extends Group {
   /** Key for the note path for the Dialog API. */
   public static final String KEY_NOTE_PATH = "note_path";
 
+  /** Key for the paper count for the Dialog API. */
+  public static final String KEY_PAPER_COUNT = "paper_count";
+
   private final Table root;
   private final Table content;
   private final Group playfield;
 
   private final String importantNotePath;
+  private final int paperCount;
 
   /**
    * Builds the TrashMinigameUI from the given DialogContext.
@@ -41,21 +45,24 @@ public class TrashMinigameUI extends Group {
    */
   public static Group build(DialogContext dialogContext) {
     Optional<String> path = dialogContext.find(KEY_NOTE_PATH, String.class);
+    Optional<Integer> paperCount = dialogContext.find(KEY_PAPER_COUNT, Integer.class);
 
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup();
     }
-    return new TrashMinigameUI(path.orElse(null));
+    return new TrashMinigameUI(path.orElse(null), paperCount.orElse(50));
   }
 
   /**
    * Creates a new TrashMinigameUI.
    *
    * @param importantNotePath the path to the important note texture, or null if there is no note
+   * @param paperCount the number of crumbled papers to place in the playfield
    */
-  public TrashMinigameUI(String importantNotePath) {
+  public TrashMinigameUI(String importantNotePath, int paperCount) {
     setSize(Game.windowWidth(), Game.windowHeight());
     this.importantNotePath = importantNotePath;
+    this.paperCount = paperCount;
 
     // Root fills screen, only responsible for centering
     root = new Table();
@@ -89,8 +96,7 @@ public class TrashMinigameUI extends Group {
       playfield.addActor(note);
     }
 
-    int numPapers = 50;
-    for (int i = 0; i < numPapers; i++) {
+    for (int i = 0; i < paperCount; i++) {
       Texture texture = TextureMap.instance().textureAt(new SimpleIPath(CRUMBLED_TEXTURE));
       TrashItemActor paper = new TrashItemActor(texture, false);
 

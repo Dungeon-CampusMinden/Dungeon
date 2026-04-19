@@ -1,10 +1,10 @@
 {
-  "dead": {
+  "die": {
     "config": {
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 0,
+      "y": 128,
       "rows": 1,
       "columns": 4
     },
@@ -19,9 +19,9 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 32,
+      "y": 0,
       "rows": 1,
-      "columns": 1
+      "columns": 4
     },
     "framesPerSprite": 30,
     "scaleX": 2,
@@ -34,9 +34,9 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 64,
+      "y": 32,
       "rows": 1,
-      "columns": 1
+      "columns": 4
     },
     "framesPerSprite": 30,
     "scaleX": 2,
@@ -49,9 +49,9 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 96,
+      "y": 64,
       "rows": 1,
-      "columns": 1
+      "columns": 4
     },
     "framesPerSprite": 30,
     "scaleX": 2,
@@ -64,9 +64,9 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 128,
+      "y": 96,
       "rows": 1,
-      "columns": 1
+      "columns": 4
     },
     "framesPerSprite": 30,
     "scaleX": 2,
@@ -79,11 +79,11 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 32,
+      "y": 160,
       "rows": 1,
       "columns": 4
     },
-    "framesPerSprite": 5,
+    "framesPerSprite": 15,
     "scaleX": 2,
     "scaleY": 0,
     "isLooping": true,
@@ -94,11 +94,11 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 64,
+      "y": 192,
       "rows": 1,
       "columns": 4
     },
-    "framesPerSprite": 5,
+    "framesPerSprite": 15,
     "scaleX": 2,
     "scaleY": 0,
     "isLooping": true,
@@ -109,11 +109,11 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 96,
+      "y": 224,
       "rows": 1,
       "columns": 4
     },
-    "framesPerSprite": 5,
+    "framesPerSprite": 15,
     "scaleX": 2,
     "scaleY": 0,
     "isLooping": true,
@@ -124,11 +124,11 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 128,
+      "y": 256,
       "rows": 1,
       "columns": 4
     },
-    "framesPerSprite": 5,
+    "framesPerSprite": 15,
     "scaleX": 2,
     "scaleY": 0,
     "isLooping": true,
@@ -139,11 +139,11 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 160,
+      "y": 288,
       "rows": 1,
       "columns": 4
     },
-    "framesPerSprite": 10,
+    "framesPerSprite": 30,
     "scaleX": 2,
     "scaleY": 0,
     "isLooping": true,
@@ -154,11 +154,11 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 192,
+      "y": 320,
       "rows": 1,
       "columns": 4
     },
-    "framesPerSprite": 10,
+    "framesPerSprite": 30,
     "scaleX": 2,
     "scaleY": 0,
     "isLooping": true,
@@ -169,11 +169,11 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 224,
+      "y": 352,
       "rows": 1,
       "columns": 4
     },
-    "framesPerSprite": 10,
+    "framesPerSprite": 30,
     "scaleX": 2,
     "scaleY": 0,
     "isLooping": true,
@@ -184,11 +184,11 @@
       "spriteWidth": 32,
       "spriteHeight": 32,
       "x": 0,
-      "y": 256,
+      "y": 384,
       "rows": 1,
       "columns": 4
     },
-    "framesPerSprite": 10,
+    "framesPerSprite": 30,
     "scaleX": 2,
     "scaleY": 0,
     "isLooping": true,

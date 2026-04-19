@@ -1,6 +1,7 @@
 package contrib.hud.dialogs;
 
 import core.Game;
+import core.network.NetworkUtils;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.network.server.DialogTracker;
 import core.utils.logging.DungeonLogger;
@@ -34,7 +35,7 @@ public final class DialogCallbackResolver {
    */
   public static Consumer<DialogResponseMessage.Payload> createButtonCallback(
       String dialogId, String callbackKey) {
-    if (isNetworkClient()) {
+    if (NetworkUtils.isNetworkClient()) {
       return (payload) -> {
         DialogResponseMessage msg = new DialogResponseMessage(dialogId, callbackKey, payload);
         Game.network().send((short) 0, msg, true);
@@ -51,14 +52,5 @@ public final class DialogCallbackResolver {
                           dialogId,
                           callbackKey));
     }
-  }
-
-  /**
-   * Checks if the current instance is a network client that should use network callbacks.
-   *
-   * @return true if we're a client connected to a server
-   */
-  private static boolean isNetworkClient() {
-    return !Game.network().isServer() && Game.network().isConnected();
   }
 }

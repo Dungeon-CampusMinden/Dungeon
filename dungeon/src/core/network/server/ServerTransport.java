@@ -4,11 +4,11 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.*;
 
+import contrib.entities.CharacterClass;
 import contrib.entities.HeroController;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
+import core.game.PreRunConfiguration;
 import core.network.MessageDispatcher;
 import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
@@ -62,6 +62,7 @@ public final class ServerTransport {
   private final ConcurrentHashMap<Short, String> clientIdToName = new ConcurrentHashMap<>();
 
   private final AtomicInteger nextClientId = new AtomicInteger(1);
+  private int nextFallbackCharacterClassIndex = 0;
 
   // Netty resources
   private EventLoopGroup bossGroup;
@@ -323,6 +324,7 @@ public final class ServerTransport {
         if (udpAddr != null) {
           udpToClientId.remove(udpAddr);
         }
+        session.udpReady(false);
 
         // Remove Player Entity on disconnect
         session.clientState().flatMap(ClientState::playerEntity).ifPresent(Game::remove);
@@ -386,6 +388,7 @@ public final class ServerTransport {
         return;
       }
 
+      session.markUdpActivity();
       inboundQueue.offer(Tuple.of(session, msg));
     }
 
@@ -412,6 +415,7 @@ public final class ServerTransport {
         LOGGER.error("Dispatch error", e);
       }
     }
+    expireStaleUdpSessions(System.currentTimeMillis());
   }
 
   private void setupDispatchers() {
@@ -482,7 +486,13 @@ public final class ServerTransport {
     byte[] sessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
     session.attachClientState(
-        new ClientState(newClientId, playerName, ServerRuntime.SESSION_ID, sessionToken));
+        new ClientState(
+            newClientId,
+            playerName,
+            ServerRuntime.SESSION_ID,
+            sessionToken,
+            selectedCharacterClass(req)));
+    session.udpReady(false);
     clientIdToSession.put(newClientId, session);
 
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
@@ -548,14 +558,19 @@ public final class ServerTransport {
     String playerName = req.playerName();
     byte[] newSessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
-    // reattach old ClientState to new Session
+    // Reuse the previous ClientState so reconnects keep the original character class selection.
     ClientState oldClientState = oldSession.clientState().orElseThrow();
     oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
     session.attachClientState(oldClientState);
+    session.udpReady(false);
     clientIdToSession.put(clientId, session);
 
     // remove old mappings
     clientIdToName.put(clientId, playerName);
+    if (oldSession.udpAddress() != null) {
+      udpToClientId.remove(oldSession.udpAddress());
+    }
+    oldSession.udpReady(false);
     sessions.remove(oldSession.tcpCtx().channel().id());
     try {
       oldSession.close(); // should be already closed, but just in case
@@ -629,8 +644,27 @@ public final class ServerTransport {
     }
 
     sess.udpAddress(sender);
+    sess.markUdpActivity();
+    sess.udpReady(true);
     udpToClientId.put(sender, reg.clientId());
     tcpSession.sendMessage(new RegisterAck(true), true);
+  }
+
+  void expireStaleUdpSessions(long now) {
+    for (Session session : clientIdToSession.values()) {
+      if (!session.udpReady()) {
+        continue;
+      }
+      if (now - session.udpLastSeenTimeMs() <= UDP_STALE_AFTER_MS) {
+        continue;
+      }
+
+      InetSocketAddress udpAddress = session.udpAddress();
+      if (udpAddress != null) {
+        udpToClientId.remove(udpAddress);
+      }
+      session.udpReady(false);
+    }
   }
 
   /**
@@ -678,16 +712,15 @@ public final class ServerTransport {
       return;
     }
     Entity entity = optEntity.get();
-    PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
-    DrawComponent dc = entity.fetch(DrawComponent.class).orElse(null);
-    if (pc == null || dc == null) {
-      LOGGER.warn(
-          "Entity id='{}' missing components for spawn (entity was: '{}')",
-          entityId,
-          entity.name());
-      return;
-    }
-    session.sendMessage(new EntitySpawnEvent(entity), true);
+    NetworkConfig.ENTITY_SPAWN_STRATEGY
+        .buildSpawnEvent(entity)
+        .ifPresentOrElse(
+            event -> session.sendMessage(event, true),
+            () ->
+                LOGGER.warn(
+                    "Entity id='{}' not eligible for spawn (entity was: '{}')",
+                    entityId,
+                    entity.name()));
   }
 
   private void onInputMessage(Session session, InputMessage msg) {
@@ -802,5 +835,17 @@ public final class ServerTransport {
       return false;
     }
     return true;
+  }
+
+  CharacterClass selectedCharacterClass(ConnectRequest request) {
+    return request.characterClass().orElseGet(this::nextFallbackCharacterClass);
+  }
+
+  CharacterClass nextFallbackCharacterClass() {
+    List<CharacterClass> characterClasses = PreRunConfiguration.multiplayerCharacterClasses();
+    CharacterClass characterClass =
+        characterClasses.get(nextFallbackCharacterClassIndex % characterClasses.size());
+    nextFallbackCharacterClassIndex++;
+    return characterClass;
   }
 }

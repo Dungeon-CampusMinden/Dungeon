@@ -1,0 +1,3 @@
+- Quelle: https://kenney.nl/assets/emotes-pack
+- Author: Kenney
+- License: CC0

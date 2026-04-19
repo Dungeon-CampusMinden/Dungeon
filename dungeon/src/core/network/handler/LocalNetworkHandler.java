@@ -1,5 +1,6 @@
 package core.network.handler;
 
+import contrib.entities.CharacterClass;
 import contrib.entities.HeroController;
 import core.Game;
 import core.game.PreRunConfiguration;
@@ -14,6 +15,7 @@ import core.network.server.Session;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -33,7 +35,8 @@ public class LocalNetworkHandler implements INetworkHandler {
   // Dummy session and client state
   private final byte[] dummySessionToken = new byte[] {0, 1, 2, 3, 4, 5, 6, 7};
   private final ClientState dummyState =
-      new ClientState((short) 0, PreRunConfiguration.username(), 0, dummySessionToken);
+      new ClientState(
+          (short) 0, PreRunConfiguration.username(), 0, dummySessionToken, CharacterClass.WIZARD);
   private final Session dummySession =
       new Session(
           null,
@@ -48,7 +51,12 @@ public class LocalNetworkHandler implements INetworkHandler {
   private boolean isInitialized = false;
 
   @Override
-  public void initialize(boolean isServer, String serverAddress, int port, String username)
+  public void initialize(
+      boolean isServer,
+      String serverAddress,
+      int port,
+      String username,
+      Optional<CharacterClass> characterClass)
       throws NetworkException {
     this.isInitialized = true;
     dummySession.attachClientState(dummyState);

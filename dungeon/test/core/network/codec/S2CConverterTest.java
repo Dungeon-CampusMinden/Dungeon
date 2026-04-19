@@ -14,6 +14,7 @@ import contrib.item.Item;
 import contrib.item.concreteItem.ItemPotionHealth;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.level.utils.Coordinate;
 import core.network.codec.converters.s2c.ConnectAckConverter;
 import core.network.codec.converters.s2c.ConnectRejectConverter;
 import core.network.codec.converters.s2c.DialogCloseConverter;
@@ -32,12 +33,14 @@ import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
 import core.network.messages.s2c.DialogCloseMessage;
 import core.network.messages.s2c.DialogShowMessage;
+import core.network.messages.s2c.DoorTileState;
 import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntitySpawnBatch;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.GameOverEvent;
 import core.network.messages.s2c.LevelChangeEvent;
+import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.RegisterAck;
 import core.network.messages.s2c.SnapshotMessage;
 import core.network.messages.s2c.SoundPlayMessage;
@@ -48,6 +51,7 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.DrawInfoData;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 /** Tests for s2c message converters. */
@@ -88,6 +92,7 @@ public class S2CConverterTest {
         3.0f,
         "idle",
         20,
+        512,
         animationConfig,
         spritesheetConfig,
         List.of(
@@ -221,6 +226,7 @@ public class S2CConverterTest {
     assertNotNull(roundTrip.drawInfo().states());
     assertEquals(1, roundTrip.drawInfo().states().size());
     assertEquals("idle", roundTrip.drawInfo().states().getFirst().stateName());
+    assertEquals(512, roundTrip.drawInfo().depth());
   }
 
   /** Verifies entity spawn batch conversion roundtrip. */
@@ -325,15 +331,25 @@ public class S2CConverterTest {
   @Test
   public void testSnapshotRoundTrip() {
     EntityState state = EntityState.builder().entityId(5).build();
-    SnapshotMessage message = new SnapshotMessage(123, List.of(state));
+    LevelState levelState = new LevelState(Set.of(new DoorTileState(new Coordinate(4, 7), false)));
+    SnapshotMessage message = new SnapshotMessage(123, List.of(state), levelState);
 
     core.network.proto.s2c.SnapshotMessage proto = SNAPSHOT_CONVERTER.toProto(message);
     assertEquals(123, proto.getServerTick());
     assertEquals(1, proto.getEntitiesCount());
+    assertTrue(proto.hasLevelState());
+    assertEquals(1, proto.getLevelState().getDoorStatesCount());
+    assertTrue(proto.getLevelState().getDoorStates(0).hasCoordinate());
+    assertEquals(4, proto.getLevelState().getDoorStates(0).getCoordinate().getX());
+    assertEquals(7, proto.getLevelState().getDoorStates(0).getCoordinate().getY());
+    assertFalse(proto.getLevelState().getDoorStates(0).getOpen());
 
     SnapshotMessage roundTrip = SNAPSHOT_CONVERTER.fromProto(proto);
     assertEquals(123, roundTrip.serverTick());
     assertEquals(1, roundTrip.entities().size());
+    DoorTileState doorTileState = roundTrip.levelState().doorStates().iterator().next();
+    assertEquals(new Coordinate(4, 7), doorTileState.coordinate());
+    assertFalse(doorTileState.open());
   }
 
   /** Verifies game over conversion roundtrip. */

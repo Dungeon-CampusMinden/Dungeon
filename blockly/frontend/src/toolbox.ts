@@ -5,6 +5,17 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
   contents: [
     {
       kind: "category",
+      name: "Start",
+      colour: "160",
+      contents: [
+        {
+          kind: "block",
+          type: "start",
+        },
+      ]
+    },
+    {
+      kind: "category",
       name: "Bewegung",
       colour: "180",
       contents: [

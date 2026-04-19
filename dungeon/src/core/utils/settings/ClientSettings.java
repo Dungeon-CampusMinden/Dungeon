@@ -1,8 +1,6 @@
 package core.utils.settings;
 
 import com.badlogic.gdx.Input;
-import contrib.entities.CharacterClass;
-import contrib.entities.deco.Deco;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.function.BiConsumer;
@@ -55,30 +53,15 @@ public class ClientSettings {
   private void init() {
     IntSliderSetting masterVolume = new IntSliderSetting("Master Volume", 70, 0, 100, 5);
     IntSliderSetting effectsVolume = new IntSliderSetting("Effects Volume", 70, 0, 100, 5);
-    IntSliderSetting musicVolume = new IntSliderSetting("Music Volume", 0, 0, 100, 5);
+    IntSliderSetting musicVolume = new IntSliderSetting("Music Volume", 5, 0, 100, 5);
 
     masterVolume.onChange((v) -> onVolumeChange.accept(MASTER_VOLUME, v));
     effectsVolume.onChange((v) -> onVolumeChange.accept(EFFECTS_VOLUME, v));
     musicVolume.onChange((v) -> onVolumeChange.accept(MUSIC_VOLUME, v));
 
-    EnumSetting<CharacterClass> heroClassSetting =
-        new EnumSetting<>(
-            "Hero Class",
-            CharacterClass.WIZARD,
-            CharacterClass.values(),
-            ClientSettings::formatEnumTitle);
-
     registerSetting(MASTER_VOLUME, masterVolume);
     registerSetting(EFFECTS_VOLUME, effectsVolume);
     registerSetting(MUSIC_VOLUME, musicVolume);
-
-    registerSetting("hero", heroClassSetting);
-    registerSetting(
-        "deco",
-        new EnumSetting<>(
-            "Selected Deco", Deco.Desk, Deco.values(), ClientSettings::formatEnumTitle));
-
-    registerSetting("colorblind", new BoolSetting("Colorblind Mode", false));
 
     registerSetting("section1", new SectionDividerSetting("Controls"));
     registerSetting("controls1", new ButtonBindingSetting("Pause", Input.Keys.P, false));

@@ -8,12 +8,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import contrib.hud.dialogs.DialogCallbackResolver;
 import core.sound.Sounds;
 import core.utils.Cursors;
 import core.utils.Scene2dElementFactory;
 import java.util.Arrays;
 import java.util.List;
 import modules.computer.ComputerDialog;
+import modules.computer.ComputerFactory;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
 import util.Lore;
@@ -247,6 +249,19 @@ public class EmailsTab extends ComputerTab {
   }
 
   private void clickedAttachment(String attachmentName) {
+    if (Lore.VirusAttachmentNames.contains(attachmentName)) {
+      var newState =
+          ComputerStateComponent.getState()
+              .orElseThrow()
+              .withVirusType(
+                  Lore.CodePageIndexToVirusType.get(
+                      (int) (Math.random() * Lore.CodePageIndexToVirusType.size())))
+              .withInfection(true);
+      DialogCallbackResolver.createButtonCallback(
+              context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
+          .accept(newState);
+      return;
+    }
     ComputerDialog.getInstance()
         .ifPresent(
             c -> {

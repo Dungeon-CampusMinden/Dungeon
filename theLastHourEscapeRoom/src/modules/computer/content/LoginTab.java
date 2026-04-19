@@ -5,9 +5,11 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import contrib.hud.dialogs.DialogCallbackResolver;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 import modules.computer.ComputerDialog;
+import modules.computer.ComputerFactory;
 import modules.computer.ComputerProgress;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
@@ -18,7 +20,7 @@ public class LoginTab extends ComputerTab {
 
   // Password feedback
   private static final String WRONG_FEEDBACK = "Invalid username or password.";
-  private static final String CORRECT_FEEDBACK = "Login successful!\nWelcome Mr. So-And-So";
+  private static final String CORRECT_FEEDBACK = "Login successful!\nWelcome Dr. Mertens";
   private static final Color WRONG_COLOR = Color.RED;
   private static final Color CORRECT_COLOR = new Color(0, 0.5f, 0, 1);
 
@@ -44,7 +46,7 @@ public class LoginTab extends ComputerTab {
     }
 
     Image companyLogo = new Image(skin, Lore.CompanyDrawable);
-    this.add(companyLogo).width(200).height(200).center().padBottom(20).row();
+    this.add(companyLogo).width(200).height(200).center().padBottom(5).row();
 
     Label label = Scene2dElementFactory.createLabel(Lore.CompanyName, 64, Color.BLACK);
     this.add(label).center().padBottom(10).row();
@@ -88,7 +90,13 @@ public class LoginTab extends ComputerTab {
             if ((username.equalsIgnoreCase(Lore.LoginEmail)
                     && password.equalsIgnoreCase(Lore.LoginPassword))
                 || username.equals("skipp")) {
-              ComputerStateComponent.setState(ComputerProgress.LOGGED_IN);
+              DialogCallbackResolver.createButtonCallback(
+                      context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
+                  .accept(
+                      ComputerStateComponent.getState()
+                          .orElseThrow()
+                          .withState(ComputerProgress.LOGGED_IN)
+                          .withTimestampOfLogin((int) (System.currentTimeMillis() / 1000L)));
               ComputerDialog.getInstance()
                   .ifPresent(
                       computer -> {

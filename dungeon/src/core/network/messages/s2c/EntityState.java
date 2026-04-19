@@ -5,6 +5,7 @@ import core.network.messages.NetworkMessage;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -30,13 +31,14 @@ public class EntityState implements NetworkMessage {
   private final String stateName;
   private final Integer tintColor;
   private final Item[] inventory;
+  private final Map<String, String> metadata;
 
   /**
    * Constructs an EntityState object using the provided Builder.
    *
    * @param builder the Builder containing the entity's state data
    */
-  private EntityState(Builder builder) {
+  protected EntityState(Builder builder) {
     this.entityId = builder.entityId;
     this.entityName = builder.entityName;
     this.position = builder.position;
@@ -50,6 +52,7 @@ public class EntityState implements NetworkMessage {
     this.stateName = builder.stateName;
     this.tintColor = builder.tintColor;
     this.inventory = builder.inventory;
+    this.metadata = builder.metadata == null ? null : Map.copyOf(builder.metadata);
   }
 
   /**
@@ -178,6 +181,15 @@ public class EntityState implements NetworkMessage {
     return Optional.ofNullable(inventory);
   }
 
+  /**
+   * Gets optional metadata for subproject-specific state.
+   *
+   * @return an Optional containing metadata if present, otherwise an empty Optional
+   */
+  public Optional<Map<String, String>> metadata() {
+    return Optional.ofNullable(metadata);
+  }
+
   /** Builder class for constructing EntityState objects. */
   public static class Builder {
     private int entityId;
@@ -193,6 +205,7 @@ public class EntityState implements NetworkMessage {
     private String stateName;
     private Integer tintColor;
     private Item[] inventory;
+    private Map<String, String> metadata;
 
     /**
      * Sets the unique identifier for the entity.
@@ -345,6 +358,17 @@ public class EntityState implements NetworkMessage {
      */
     public Builder inventory(Item[] inventory) {
       this.inventory = inventory;
+      return this;
+    }
+
+    /**
+     * Sets metadata for subproject-specific state.
+     *
+     * @param metadata metadata key-value pairs
+     * @return the Builder instance
+     */
+    public Builder metadata(Map<String, String> metadata) {
+      this.metadata = metadata == null ? null : Map.copyOf(metadata);
       return this;
     }
 

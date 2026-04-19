@@ -1,11 +1,16 @@
 package core.network.codec.converters.s2c;
 
 import com.google.protobuf.Parser;
+import core.network.codec.CommonProtoConverters;
 import core.network.codec.MessageConverter;
+import core.network.messages.s2c.DoorTileState;
 import core.network.messages.s2c.EntityState;
+import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.SnapshotMessage;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /** Converter for server-to-client snapshot messages. */
 public final class SnapshotConverter
@@ -20,6 +25,7 @@ public final class SnapshotConverter
     for (EntityState state : message.entities()) {
       builder.addEntities(ENTITY_STATE_CONVERTER.toProto(state));
     }
+    builder.setLevelState(toProto(message.levelState()));
     return builder.build();
   }
 
@@ -29,7 +35,33 @@ public final class SnapshotConverter
     for (core.network.proto.s2c.EntityState state : proto.getEntitiesList()) {
       entities.add(ENTITY_STATE_CONVERTER.fromProto(state));
     }
-    return new SnapshotMessage(proto.getServerTick(), entities);
+    return new SnapshotMessage(proto.getServerTick(), entities, fromProto(proto.getLevelState()));
+  }
+
+  private static core.network.proto.s2c.LevelState toProto(LevelState message) {
+    core.network.proto.s2c.LevelState.Builder builder =
+        core.network.proto.s2c.LevelState.newBuilder();
+    for (DoorTileState doorState : message.doorStates()) {
+      builder.addDoorStates(
+          core.network.proto.s2c.DoorState.newBuilder()
+              .setCoordinate(CommonProtoConverters.toProto(doorState.coordinate()))
+              .setOpen(doorState.open())
+              .build());
+    }
+    return builder.build();
+  }
+
+  private static LevelState fromProto(core.network.proto.s2c.LevelState proto) {
+    Set<DoorTileState> doorStates = new LinkedHashSet<>();
+    for (core.network.proto.s2c.DoorState doorState : proto.getDoorStatesList()) {
+      if (!doorState.hasCoordinate()) {
+        throw new IllegalArgumentException("DoorState.coordinate is required.");
+      }
+      doorStates.add(
+          new DoorTileState(
+              CommonProtoConverters.fromProto(doorState.getCoordinate()), doorState.getOpen()));
+    }
+    return new LevelState(doorStates);
   }
 
   @Override

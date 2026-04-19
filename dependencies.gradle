@@ -1,6 +1,6 @@
 ext {
     // -- PLUGINS
-    spotlessVersion = '8.3.0'
+    spotlessVersion = '8.4.0'
     protobufGradlePluginVersion = '0.9.6'
 
     // -- DEPENDENCIES
@@ -9,15 +9,15 @@ ext {
     junitVersion = '6.0.3'
     junitLauncherVersion = '6.0.3'
 
-    mockitoVersion = '5.22.0'
-    protobufVersion = '4.34.0'
-    jk1licenseVersion = '3.1.1'
+    mockitoVersion = '5.23.0'
+    protobufVersion = '4.34.1'
+    jk1licenseVersion = '3.1.2'
     gdxControllersVersion = '2.2.4'
     beryxRuntimeVersion = '2.0.1'
 
 
     // -- NETWORK / SERVER
-    nettyVersion = '4.2.10.Final'
+    nettyVersion = '4.2.12.Final'
 
     supportDependencies = [
         // LibGDX

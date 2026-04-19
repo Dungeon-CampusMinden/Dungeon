@@ -40,7 +40,7 @@ public class WorldTimerSystem extends System {
 
   /** Create a new WorldTimerSystem. */
   public WorldTimerSystem() {
-    super(AuthoritativeSide.CLIENT, 17, WorldTimerComponent.class, PositionComponent.class);
+    super(AuthoritativeSide.CLIENT, 5, WorldTimerComponent.class, PositionComponent.class);
     FONT = FontHelper.getFont(TIMER_FONT);
   }
 
