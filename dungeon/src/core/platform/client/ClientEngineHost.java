@@ -1,4 +1,4 @@
-package core.game.loop;
+package core.platform.client;
 
 import contrib.debug.systems.DebugDrawSystem;
 import contrib.debug.systems.DebugEntityRenderSystem;
@@ -12,20 +12,16 @@ import contrib.modules.interaction.InteractionSelection;
 import contrib.modules.interaction.ui.InteractionSelectionOverlayUi;
 import contrib.modules.levelHide.LevelHideSystem;
 import core.System;
-import core.platform.client.ClientCameraAdapter;
 import core.game.*;
 import core.game.startup.ClientStartup;
 import core.game.render.EcsRenderScreen;
-import core.platform.client.ClientInputBridge;
 import core.platform.Platform;
-import core.platform.client.*;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.utils.InputManager;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
 import de.gurkenlabs.litiengine.configuration.DisplayMode;
-
 import java.util.function.Supplier;
 
 /**
