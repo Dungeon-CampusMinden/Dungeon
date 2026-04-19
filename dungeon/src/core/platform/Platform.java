@@ -20,9 +20,9 @@ import java.util.Objects;
  *   <li>WindowAdapter - Window and display management
  *   <li>RuntimeAdapter - Runtime/system operations
  *   <li>ResourcesAdapter - Resource loading from classpath or other sources
- *   <li>RenderAdapter - Graphics rendering
  *   <li>PathfindingAdapter - Pathfinding algorithms
  *   <li>CursorAdapter - Mouse cursor control
+ *   <li>RenderAdapter - Graphics rendering
  *   <li>CameraAdapter - Camera operations
  *   <li>ClipboardAdapter - Clipboard access
  *   <li>GameLoopHost - Main game loop management
@@ -34,14 +34,18 @@ import java.util.Objects;
  * <p>This class is not instantiable; all members are static.
  */
 public final class Platform {
+  private static final RenderAdapter DEFAULT_RENDER = new RenderAdapter() {};
+  private static final CameraAdapter DEFAULT_CAMERA = new CameraAdapter() {};
+  private static final ClipboardAdapter DEFAULT_CLIPBOARD = new ClipboardAdapter() {};
+
   private static WindowAdapter window = new NullWindowAdapter();
   private static RuntimeAdapter runtime = new NullRuntimeAdapter();
   private static ResourcesAdapter resources = new ClasspathResourcesAdapter();
-  private static RenderAdapter render = new NullRenderAdapter();
   private static PathfindingAdapter pathfinding = new GridPathfindingAdapter();
   private static CursorAdapter cursor = new NullCursorAdapter();
-  private static CameraAdapter camera = new CameraAdapter() {};
-  private static ClipboardAdapter clipboard = new ClipboardAdapter() {};
+  private static RenderAdapter render = DEFAULT_RENDER;
+  private static CameraAdapter camera = DEFAULT_CAMERA;
+  private static ClipboardAdapter clipboard = DEFAULT_CLIPBOARD;
   private static volatile GameLoopHost loopHost;
 
   private Platform() {}
