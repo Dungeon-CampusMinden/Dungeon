@@ -98,7 +98,8 @@ public class PortalSkill extends ProjectileSkill {
     // Target point calculation
     Point targetPoint = SkillTools.calculateLastPositionInRange(start, aimedOn, range);
 
-    Point position = start.translate(hitBoxSize.scale(-0.5)); // +offset
+    Point position =         start.translate(hitBoxSize.scale(-0.5)).translate(hitBoxOffset.scale(-1));
+
     PositionComponent pc = new PositionComponent(position);
     projectile.add(pc);
     // calculate rotation
