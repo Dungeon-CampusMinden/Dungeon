@@ -39,8 +39,8 @@ public final class Platform {
   private static RenderAdapter render = new NullRenderAdapter();
   private static PathfindingAdapter pathfinding = new GridPathfindingAdapter();
   private static CursorAdapter cursor = new NullCursorAdapter();
-  private static CameraAdapter camera = new NullCameraAdapter();
-  private static ClipboardAdapter clipboard = new NullClipboardAdapter();
+  private static CameraAdapter camera = new CameraAdapter() {};
+  private static ClipboardAdapter clipboard = new ClipboardAdapter() {};
   private static volatile GameLoopHost loopHost;
 
   private Platform() {}
