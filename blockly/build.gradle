@@ -197,11 +197,6 @@ runtime {
                        "--main-jar", "Blockly-desktop.jar",
                        "--main-class", "client.Client"]
 
-        // macOS requires -XstartOnFirstThread for any app that opens a graphical window (LWJGL/LibGDX)
-        if (System.getProperty('os.name').toLowerCase().contains('mac')) {
-            options += ["--java-options", "-XstartOnFirstThread"]
-        }
-
         imageOptions = options
     }
 }
@@ -209,7 +204,6 @@ runtime {
 
 tasks.register('jpackageImageWeb', Exec) {
     group = 'build'
-    description = 'Creates an application image for Blockly in web mode'
     dependsOn 'jre', 'installWebDist'
 
 
@@ -230,11 +224,6 @@ tasks.register('jpackageImageWeb', Exec) {
         '--main-class', 'client.Client',
         '--runtime-image', jreDir.absolutePath
     ]
-
-    // macOS requires -XstartOnFirstThread for any app that opens a graphical window (LWJGL/LibGDX)
-    if (os.contains('mac')) {
-        options += ['--java-options', '-XstartOnFirstThread']
-    }
 
     commandLine([jpackageExe] + options)
 }
