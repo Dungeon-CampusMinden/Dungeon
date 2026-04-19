@@ -7,7 +7,7 @@ import core.utils.logging.DungeonLogger;
 /**
  * Core implementation of the game loop tick and frame callback logic.
  *
- * <p>GameLoopCore handles the frame-by-frame execution of the game simulation, including network
+ * <p>GameLoop handles the frame-by-frame execution of the game simulation, including network
  * message polling, system execution, and rendering. It acts as a bridge between the platform-specific
  * GameLoopHost and the ECS (Entity-Component-System) management.
  *
@@ -38,14 +38,12 @@ public final class GameLoop {
    *
    */
   public void beforeRender() {
-    // Drain inbound network messages on the game thread before running systems.
     try {
       Game.network().pollAndDispatch();
     } catch (Exception e) {
       LOGGER.warn("Error while polling network messages: {}", e.getMessage(), e);
     }
 
-    // Frame callbacks are backend-agnostic.
     PreRunConfiguration.userOnFrame().execute();
   }
 

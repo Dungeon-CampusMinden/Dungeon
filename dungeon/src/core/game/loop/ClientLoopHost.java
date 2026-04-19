@@ -40,6 +40,27 @@ import de.gurkenlabs.litiengine.configuration.DisplayMode;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+/**
+ * A platform-specific implementation of {@link GameLoopHost} for client-side runtime environments.
+ *
+ * <p>The {@code ClientLoopHost} manages initialization, configuration, and runtime systems
+ * required for running a game client. This includes setting up rendering, input,
+ * sound playback, and other platform-specific resources.
+ *
+ * <p>It integrates the game loop into the client runtime environment and provides support for gameplay extensions,
+ * debugging features, and user interface systems.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Initializes the game engine and core runtime systems.</li>
+ *   <li>Configures platform-specific services, such as rendering, input, and audio playback.</li>
+ *   <li>Manages runtime systems for HUD, gameplay extensions, and debugging.</li>
+ *   <li>Provides access to a client-side {@link StageHandle} for managing UI components.</li>
+ *   <li>Offers a configurable sound player through the {@code soundPlayer()} method.</li>
+ * </ul>
+ *
+ * <p>This class is designed to be a final implementation and should not be extended.
+ */
 public final class ClientLoopHost implements GameLoopHost {
   private ISoundPlayer soundPlayer = new NoSoundPlayer();
 
@@ -49,19 +70,37 @@ public final class ClientLoopHost implements GameLoopHost {
   }
 
   @Override
-  public void run(String[] args, GameLoop loopCore) {
+  public void run(String[] args, GameLoop loop) {
+    initializeEngine(args);
+    wirePlatformServices();
+    initializeClientRuntime(loop);
+    Game.start();
+  }
+
+  @Override
+  public Optional<StageHandle> stage() {
+    return Optional.of(new ClientStageHandle());
+  }
+
+  private void initializeEngine(String[] args) {
     syncDisplaySettings();
-
-    Game.addGameListener(new GameListener() {
-      public void initialized() {
-        Game.screens().add(new EcsRenderScreen());
-        Game.screens().display("EcsRenderScreen");
-      }
-    });
-
+    registerRenderScreenListener();
     Game.init(args);
+  }
 
-    Thread.setDefaultUncaughtExceptionHandler(new ClientShutdownExceptionFilter());
+  private void registerRenderScreenListener() {
+    Game.addGameListener(
+      new GameListener() {
+        @Override
+        public void initialized(String... initArgs) {
+          Game.screens().add(new EcsRenderScreen());
+          Game.screens().display("EcsRenderScreen");
+        }
+      });
+  }
+
+  private void wirePlatformServices() {
+    ClientShutdownExceptionFilter.install();
 
     Platform.camera(new ClientCameraAdapter());
     Platform.cursor(new ClientCursorAdapter());
@@ -76,31 +115,28 @@ public final class ClientLoopHost implements GameLoopHost {
     ClientInputBridge.install();
     InteractionSelection.install(InteractionSelectionOverlayUi.INSTANCE);
     InputManager.reset();
+  }
 
+  private void initializeClientRuntime(GameLoop loopCore) {
     ECSManagement.initializeDefaultSystems(SystemProfile.CLIENT);
     ECSManagement.initializeGameplaySystems(SystemProfile.CLIENT);
     installClientRuntimeSystems();
     ECSManagement.system(
       core.systems.LevelSystem.class,
-      ls -> ls.onLevelLoad(GameRuntime.onLevelLoad));
+      levelSystem -> levelSystem.onLevelLoad(GameRuntime.onLevelLoad));
 
     ClientStartup.setupAndLoadInitialLevelOnce();
 
-    Game.loop().attach(() -> {
-      final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
+    Game.loop()
+      .attach(
+        () -> {
+          final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
 
-      core.Game.soundPlayer().update(deltaSeconds);
-      loopCore.beforeRender();
-      loopCore.tick(deltaSeconds, false);
-      InputManager.update();
-    });
-
-    Game.start();
-  }
-
-  @Override
-  public Optional<StageHandle> stage() {
-    return Optional.of(new ClientStageHandle());
+          core.Game.soundPlayer().update(deltaSeconds);
+          loopCore.beforeRender();
+          loopCore.tick(deltaSeconds, false);
+          InputManager.update();
+        });
   }
 
   private void syncDisplaySettings() {
