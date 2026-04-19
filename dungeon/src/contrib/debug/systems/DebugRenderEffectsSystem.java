@@ -29,12 +29,12 @@ import core.utils.logging.DungeonLogger;
  * <ul>
  *   <li>F5: Toggle regional depth-layer color grade
  *   <li>F6: Toggle regional level color grade
- *   <li>F7: Toggle scene effects
- *   <li>F8: Toggle level effects
- *   <li>F9: Toggle depth-layer effects
- *   <li>F10: Toggle passthrough alpha/transparency debug view
- *   <li>F11: Toggle passthrough world-position debug view
- *   <li>F12: Toggle regional scene color grade (Shift+F12 to switch modes)
+ *   <li>F7: Toggle regional scene color grade (Shift+F7 to switch modes)
+ *   <li>F8: Toggle scene effects
+ *   <li>F9: Toggle level effects
+ *   <li>F10: Toggle depth-layer effects
+ *   <li>F11: Toggle passthrough alpha/transparency debug view
+ *   <li>F12: Toggle passthrough world-position debug view
  * </ul>
  */
 public final class DebugRenderEffectsSystem extends System {
@@ -43,12 +43,12 @@ public final class DebugRenderEffectsSystem extends System {
 
   private static final int TOGGLE_REGIONAL_DEPTH_COLOR_GRADE_KEY = Keys.F5;
   private static final int TOGGLE_REGIONAL_LEVEL_COLOR_GRADE_KEY = Keys.F6;
-  private static final int TOGGLE_SCENE_EFFECTS_KEY = Keys.F7;
-  private static final int TOGGLE_LEVEL_EFFECTS_KEY = Keys.F8;
-  private static final int TOGGLE_DEPTH_LAYER_EFFECTS_KEY = Keys.F9;
-  private static final int TOGGLE_PASSTHROUGH_PMA_KEY = Keys.F10;
-  private static final int TOGGLE_PASSTHROUGH_WORLD_POS_KEY = Keys.F11;
-  private static final int TOGGLE_REGIONAL_SCENE_COLOR_GRADE_KEY = Keys.F12;
+  private static final int TOGGLE_REGIONAL_SCENE_COLOR_GRADE_KEY = Keys.F7;
+  private static final int TOGGLE_SCENE_EFFECTS_KEY = Keys.F8;
+  private static final int TOGGLE_LEVEL_EFFECTS_KEY = Keys.F9;
+  private static final int TOGGLE_DEPTH_LAYER_EFFECTS_KEY = Keys.F10;
+  private static final int TOGGLE_PASSTHROUGH_PMA_KEY = Keys.F11;
+  private static final int TOGGLE_PASSTHROUGH_WORLD_POS_KEY = Keys.F12;
 
   private static final String PASSTHROUGH_DEBUG_EFFECT_ID =
     "litiengine_debug_passthrough_scene_effect";
