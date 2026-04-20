@@ -20,11 +20,7 @@ import core.game.SystemProfile;
 import core.game.render.EcsRenderScreen;
 import core.game.startup.ClientStartup;
 import core.platform.Platform;
-import core.platform.client.ClientCameraAdapter;
-import core.platform.client.ClientCursorAdapter;
-import core.platform.client.ClientRenderAdapter;
-import core.platform.client.ClientRuntimeAdapter;
-import core.platform.client.ClientWindowAdapter;
+import core.platform.client.*;
 import core.platform.client.audio.ClientSoundPlayer;
 import core.platform.client.input.ClientInputBridge;
 import core.platform.client.window.ClientShutdownExceptionFilter;
@@ -107,6 +103,7 @@ public final class ClientLoopHost implements GameLoopHost {
     Platform.render(new ClientRenderAdapter());
     Platform.runtime(new ClientRuntimeAdapter());
     Platform.window(new ClientWindowAdapter());
+    Platform.clipboard(new ClientClipboardAdapter());
     ClientWindowEventsBridge.install();
 
     soundPlayer =
