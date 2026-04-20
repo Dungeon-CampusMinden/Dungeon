@@ -54,9 +54,10 @@ public final class AnimationFrameImages {
     }
 
     final String raw = frame.texturePath() == null ? null : frame.texturePath().pathString();
-    if (raw == null || raw.isBlank()) return null;
+    final String texturePath = ImageAssets.resolveImplicitFilePath(raw);
+    if (texturePath == null || texturePath.isBlank()) return null;
 
-    final BufferedImage base = ImageAssets.get(raw);
+    final BufferedImage base = ImageAssets.get(texturePath);
     if (base == null) return null;
 
     BufferedImage out = base;
@@ -103,19 +104,5 @@ public final class AnimationFrameImages {
     } finally {
       g.dispose();
     }
-  }
-
-  private static String resolveImplicitFilePath(String pathString) {
-    if (pathString == null || pathString.isEmpty()) return pathString;
-
-    // Already explicit image file
-    if (pathString.matches(".*\\.(png|jpg|jpeg)$")) {
-      return pathString;
-    }
-
-    // Folder or implicit base name
-    String dir = pathString.replaceAll("/$", "");
-    String baseName = dir.substring(dir.lastIndexOf('/') + 1);
-    return dir + "/" + baseName + ".png";
   }
 }
