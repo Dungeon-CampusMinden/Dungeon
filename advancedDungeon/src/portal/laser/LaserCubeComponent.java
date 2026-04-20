@@ -14,7 +14,6 @@ public class LaserCubeComponent implements Component {
   private Entity onLeaveCube;
   private Entity onLeaveLaser;
 
-
   /**
    * Returns the state of the laserCube.
    *

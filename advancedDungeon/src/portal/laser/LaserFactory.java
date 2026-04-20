@@ -80,8 +80,7 @@ public class LaserFactory {
    * @param dir in which direction the laser is extending.
    * @return the segment entity.
    */
-  public static Entity createSegment(
-      Point position, Direction dir) {
+  public static Entity createSegment(Point position, Direction dir) {
     Entity segment = new Entity("laserSegment");
     PositionComponent pc = new PositionComponent(position);
     segment.add(pc);

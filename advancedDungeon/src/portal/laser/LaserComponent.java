@@ -13,7 +13,6 @@ public class LaserComponent implements Component {
   private boolean isBeingReactivated;
   private LaserStatus currentStatus = LaserStatus.NONE;
 
-
   /**
    * Creates a LaserComponent with a given state.
    *

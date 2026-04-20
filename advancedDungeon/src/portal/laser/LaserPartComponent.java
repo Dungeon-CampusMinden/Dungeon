@@ -15,5 +15,4 @@ public class LaserPartComponent implements Component {
   public Direction getLaserDirection() {
     return laserDirection;
   }
-
 }
