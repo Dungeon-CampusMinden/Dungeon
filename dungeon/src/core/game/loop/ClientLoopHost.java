@@ -1,17 +1,5 @@
 package core.game.loop;
 
-import contrib.debug.systems.DebugDrawSystem;
-import contrib.debug.systems.DebugEntityRenderSystem;
-import contrib.debug.systems.DebugGameplaySystem;
-import contrib.debug.systems.DebugRenderEffectsSystem;
-import contrib.editor.level.LevelEditorSystem;
-import contrib.hud.dialogs.DialogBackendInstaller;
-import contrib.hud.systems.AttributeBarSystem;
-import contrib.hud.systems.HudSystem;
-import contrib.modules.interaction.InteractionSelection;
-import contrib.modules.interaction.ui.InteractionSelectionOverlayUi;
-import contrib.modules.levelhide.LevelHideSystem;
-import core.System;
 import core.game.ECSManagement;
 import core.game.GameLoop;
 import core.game.GameRuntime;
@@ -33,8 +21,13 @@ import core.utils.InputManager;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
 import de.gurkenlabs.litiengine.configuration.DisplayMode;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.ServiceLoader;
 
 /**
  * A platform-specific implementation of {@link GameLoopHost} for client-side runtime environments.
@@ -43,8 +36,9 @@ import java.util.function.Supplier;
  * required for running a game client. This includes setting up rendering, input,
  * sound playback, and other platform-specific resources.
  *
- * <p>It integrates the game loop into the client runtime environment and provides support for gameplay extensions,
- * debugging features, and user interface systems.
+ * <p>It integrates the game loop into the client runtime environment. Optional gameplay,
+ * debugging, or user interface systems are supplied by {@link ClientLoopHostInstaller}
+ * implementations.
  *
  * <p>Responsibilities:
  * <ul>
@@ -58,7 +52,34 @@ import java.util.function.Supplier;
  * <p>This class is designed to be a final implementation and should not be extended.
  */
 public final class ClientLoopHost implements GameLoopHost {
+  private final List<ClientLoopHostInstaller> installers;
   private ISoundPlayer soundPlayer = new NoSoundPlayer();
+
+  /**
+   * Creates a client loop host using all {@link ClientLoopHostInstaller} providers available on
+   * the classpath.
+   */
+  public ClientLoopHost() {
+    this(loadInstallers());
+  }
+
+  /**
+   * Creates a client loop host with explicit installers.
+   *
+   * @param installers installers that extend the client startup
+   */
+  public ClientLoopHost(ClientLoopHostInstaller... installers) {
+    this(Arrays.asList(installers));
+  }
+
+  /**
+   * Creates a client loop host with explicit installers.
+   *
+   * @param installers installers that extend the client startup
+   */
+  public ClientLoopHost(Collection<? extends ClientLoopHostInstaller> installers) {
+    this.installers = List.copyOf(Objects.requireNonNull(installers, "installers must not be null"));
+  }
 
   @Override
   public ISoundPlayer soundPlayer() {
@@ -110,14 +131,14 @@ public final class ClientLoopHost implements GameLoopHost {
       PreRunConfiguration.disableAudio() ? new NoSoundPlayer() : new ClientSoundPlayer();
 
     ClientInputBridge.install();
-    InteractionSelection.install(InteractionSelectionOverlayUi.INSTANCE);
+    installers.forEach(ClientLoopHostInstaller::installPlatformServices);
     InputManager.reset();
   }
 
   private void initializeClientRuntime(GameLoop loopCore) {
     ECSManagement.initializeDefaultSystems(SystemProfile.CLIENT);
     ECSManagement.initializeGameplaySystems(SystemProfile.CLIENT);
-    installClientRuntimeSystems();
+    installers.forEach(ClientLoopHostInstaller::installRuntimeSystems);
     ECSManagement.system(
       core.systems.LevelSystem.class,
       levelSystem -> levelSystem.onLevelLoad(GameRuntime.onLevelLoad));
@@ -146,33 +167,9 @@ public final class ClientLoopHost implements GameLoopHost {
     Game.config().save();
   }
 
-  private void installClientRuntimeSystems() {
-    installHudSystems();
-    installGameplayExtensions();
-    installDebugSystems();
-  }
-
-  private void installHudSystems() {
-    DialogBackendInstaller.install();
-    addIfAbsent(HudSystem.class, HudSystem::new);
-    addIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
-  }
-
-  private void installGameplayExtensions() {
-    addIfAbsent(LevelHideSystem.class, LevelHideSystem::new);
-  }
-
-  private void installDebugSystems() {
-    addIfAbsent(DebugGameplaySystem.class, DebugGameplaySystem::new);
-    addIfAbsent(DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
-    addIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
-    addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
-    addIfAbsent(DebugEntityRenderSystem.class, DebugEntityRenderSystem::new);
-  }
-
-  private <T extends System> void addIfAbsent(Class<T> type, Supplier<T> factory) {
-    if (!ECSManagement.systems().containsKey(type)) {
-      ECSManagement.add(factory.get());
-    }
+  private static List<ClientLoopHostInstaller> loadInstallers() {
+    List<ClientLoopHostInstaller> loadedInstallers = new ArrayList<>();
+    ServiceLoader.load(ClientLoopHostInstaller.class).forEach(loadedInstallers::add);
+    return loadedInstallers;
   }
 }
