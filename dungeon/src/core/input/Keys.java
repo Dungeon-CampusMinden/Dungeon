@@ -175,6 +175,7 @@ public final class Keys {
       case ENTER -> "ENTER";
       case BACKSPACE -> "BACKSPACE";
       case ESCAPE -> "ESCAPE";
+      case DELETE -> "DELETE";
 
       case F1 -> "F1";
       case F2 -> "F2";
