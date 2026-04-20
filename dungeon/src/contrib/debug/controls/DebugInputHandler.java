@@ -1,6 +1,7 @@
 package contrib.debug.controls;
 
 import contrib.configuration.KeyboardConfig;
+import core.input.Keys;
 import core.utils.InputManager;
 import java.util.Objects;
 
@@ -45,7 +46,8 @@ public final class DebugInputHandler {
       actions.openDoors().run();
     }
 
-    if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
+    if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())
+      && isShiftPressed()) {
       actions.toggleFullscreen().run();
     }
 
@@ -59,6 +61,11 @@ public final class DebugInputHandler {
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value())) {
       actions.toggleDebugHud().run();
     }
+  }
+
+  private static boolean isShiftPressed() {
+    return InputManager.isKeyPressed(Keys.SHIFT_LEFT)
+      || InputManager.isKeyPressed(Keys.SHIFT_RIGHT);
   }
 
   /** Collection of debugger actions that can be bound to the standard debug keymap. */

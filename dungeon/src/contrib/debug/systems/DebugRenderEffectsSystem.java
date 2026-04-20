@@ -135,7 +135,8 @@ public final class DebugRenderEffectsSystem extends System {
       }
     }
 
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_RENDER_PASSTHROUGH_ALPHA.value())) {
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_RENDER_PASSTHROUGH_ALPHA.value())
+      && !isShiftPressed()) {
       togglePassthroughPmaDebug();
     }
 
