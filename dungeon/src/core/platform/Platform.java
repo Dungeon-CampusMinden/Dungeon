@@ -36,7 +36,6 @@ import java.util.Objects;
 public final class Platform {
   private static final RenderAdapter DEFAULT_RENDER = new RenderAdapter() {};
   private static final CameraAdapter DEFAULT_CAMERA = new CameraAdapter() {};
-  private static final ClipboardAdapter DEFAULT_CLIPBOARD = new ClipboardAdapter() {};
 
   private static WindowAdapter window = new NullWindowAdapter();
   private static RuntimeAdapter runtime = new NullRuntimeAdapter();
@@ -45,7 +44,7 @@ public final class Platform {
   private static CursorAdapter cursor = new NullCursorAdapter();
   private static RenderAdapter render = DEFAULT_RENDER;
   private static CameraAdapter camera = DEFAULT_CAMERA;
-  private static ClipboardAdapter clipboard = DEFAULT_CLIPBOARD;
+  private static ClipboardAdapter clipboard = new NullClipboardAdapter();
   private static volatile GameLoopHost loopHost;
 
   private Platform() {}
