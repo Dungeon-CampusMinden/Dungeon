@@ -585,24 +585,14 @@ public final class LevelEditorSystem extends System {
   }
 
   private enum Mode {
-    TILES("Tiles"),
-    DECOS("Decos"),
-    POINTS("Points"),
-    LEVEL_BOUNDS("Level Bounds"),
-    SHIFT_LEVEL("Shift Level"),
-    START_TILES("Start Tiles"),
-    SAVE_LEVEL("Save Level"),
-    DECO_COLLIDER("Deco Collider");
-
-    private final String displayName;
-
-    Mode(String displayName) {
-      this.displayName = displayName;
-    }
-
-    public String displayName() {
-      return displayName;
-    }
+    TILES(),
+    DECOS(),
+    POINTS(),
+    LEVEL_BOUNDS(),
+    SHIFT_LEVEL(),
+    START_TILES(),
+    SAVE_LEVEL(),
+    DECO_COLLIDER();
 
     public static Mode getMode(int number) {
       if (number < 0 || number >= values().length) {
