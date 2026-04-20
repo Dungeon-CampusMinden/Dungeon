@@ -35,11 +35,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * The LevelEditorSystem class provides a toolset for editing game levels
@@ -60,15 +62,6 @@ public final class LevelEditorSystem extends System {
   private static final int TOGGLE_ACTIVE = Keys.F4;
   private static final int TOGGLE_LAYER_DEBUG = Keys.SPACE;
 
-  private static final int MODE_1 = Keys.NUM_1;
-  private static final int MODE_2 = Keys.NUM_2;
-  private static final int MODE_3 = Keys.NUM_3;
-  private static final int MODE_4 = Keys.NUM_4;
-  private static final int MODE_5 = Keys.NUM_5;
-  private static final int MODE_6 = Keys.NUM_6;
-  private static final int MODE_7 = Keys.NUM_7;
-  private static final int MODE_8 = Keys.NUM_8;
-
   private static final Color LEVEL_BOUNDS_OUTLINE_COLOR = new Color(0, 255, 0, 77);
 
   private static final Color DEBUG_LEVEL_TILE_OUTLINE_COLOR = new Color(80, 140, 255, 150);
@@ -79,15 +72,7 @@ public final class LevelEditorSystem extends System {
   private static final int DEBUG_ENTITY_INSET_PX = 2;
 
   private final LevelEditorOverlay overlay = new LevelEditorOverlay();
-
-  private final LevelEditorMode tilesMode = new TilesMode(this);
-  private final LevelEditorMode decoMode = new DecoMode(this);
-  private final LevelEditorMode pointMode = new PointMode(this);
-  private final LevelEditorMode levelBoundsMode = new LevelBoundsMode(this);
-  private final LevelEditorMode shiftLevelMode = new ShiftLevelMode(this);
-  private final LevelEditorMode startTilesMode = new StartTilesMode(this);
-  private final LevelEditorMode saveMode = new SaveMode(this);
-  private final LevelEditorMode decoColliderMode = new DecoColliderMode(this);
+  private final EnumMap<Mode, LevelEditorMode> modes = createModes();
 
   private boolean active = false;
   private boolean internalStopped = false;
@@ -285,46 +270,28 @@ public final class LevelEditorSystem extends System {
   }
 
   private Optional<Mode> selectedModeByHotkey() {
-    if (InputManager.isKeyJustPressed(MODE_1)) {
-      return Optional.of(Mode.getMode(0));
-    }
-    if (InputManager.isKeyJustPressed(MODE_2)) {
-      return Optional.of(Mode.getMode(1));
-    }
-    if (InputManager.isKeyJustPressed(MODE_3)) {
-
-      return Optional.of(Mode.getMode(2));
-    }
-    if (InputManager.isKeyJustPressed(MODE_4)) {
-      return Optional.of(Mode.getMode(3));
-    }
-    if (InputManager.isKeyJustPressed(MODE_5)) {
-      return Optional.of(Mode.getMode(4));
-    }
-    if (InputManager.isKeyJustPressed(MODE_6)) {
-      return Optional.of(Mode.getMode(5));
-    }
-    if (InputManager.isKeyJustPressed(MODE_7)) {
-      return Optional.of(Mode.getMode(6));
-    }
-    if (InputManager.isKeyJustPressed(MODE_8)) {
-      return Optional.of(Mode.getMode(7));
+    for (Mode mode : Mode.values()) {
+      if (InputManager.isKeyJustPressed(mode.hotkey())) {
+        return Optional.of(mode);
+      }
     }
 
     return Optional.empty();
   }
 
   private LevelEditorMode currentModeInstance() {
-    return switch (currentMode) {
-      case TILES -> tilesMode;
-      case DECOS -> decoMode;
-      case POINTS -> pointMode;
-      case LEVEL_BOUNDS -> levelBoundsMode;
-      case SHIFT_LEVEL -> shiftLevelMode;
-      case START_TILES -> startTilesMode;
-      case SAVE_LEVEL -> saveMode;
-      case DECO_COLLIDER -> decoColliderMode;
-    };
+    return modeInstance(currentMode);
+  }
+
+  private LevelEditorMode modeInstance(Mode mode) {
+    LevelEditorMode modeInstance =
+      modes.get(Objects.requireNonNull(mode, "mode must not be null"));
+
+    if (modeInstance == null) {
+      throw new IllegalStateException("No level editor mode registered for " + mode);
+    }
+
+    return modeInstance;
   }
 
   private void updateOverlay() {
@@ -351,15 +318,18 @@ public final class LevelEditorSystem extends System {
   private String modeSelectionText() {
     StringBuilder sb = new StringBuilder();
 
-    for (int i = 0; i < Mode.values().length; i++) {
+    Mode[] selectableModes = Mode.values();
+    for (int i = 0; i < selectableModes.length; i++) {
+      Mode mode = selectableModes[i];
+
       if (i > 0) {
         sb.append(" | ");
       }
 
-      if (Mode.values()[i] == currentMode) {
-        sb.append("[").append(i + 1).append("]");
+      if (mode == currentMode) {
+        sb.append("[").append(mode.hotkeyLabel()).append("]");
       } else {
-        sb.append(i + 1);
+        sb.append(mode.hotkeyLabel());
       }
     }
 
@@ -559,47 +529,21 @@ public final class LevelEditorSystem extends System {
   }
 
   private void onModeEnter(Mode mode) {
-    switch (Objects.requireNonNull(mode)) {
-      case TILES -> tilesMode.onEnter();
-      case DECOS -> decoMode.onEnter();
-      case POINTS -> pointMode.onEnter();
-      case LEVEL_BOUNDS -> levelBoundsMode.onEnter();
-      case SHIFT_LEVEL -> shiftLevelMode.onEnter();
-      case START_TILES -> startTilesMode.onEnter();
-      case SAVE_LEVEL -> saveMode.onEnter();
-      case DECO_COLLIDER -> decoColliderMode.onEnter();
-    }
+    modeInstance(mode).onEnter();
   }
 
   private void onModeExit(Mode mode) {
-    switch (Objects.requireNonNull(mode)) {
-      case TILES -> tilesMode.onExit();
-      case DECOS -> decoMode.onExit();
-      case POINTS -> pointMode.onExit();
-      case LEVEL_BOUNDS -> levelBoundsMode.onExit();
-      case SHIFT_LEVEL -> shiftLevelMode.onExit();
-      case START_TILES -> startTilesMode.onExit();
-      case SAVE_LEVEL -> saveMode.onExit();
-      case DECO_COLLIDER -> decoColliderMode.onExit();
-    }
+    modeInstance(mode).onExit();
   }
 
-  private enum Mode {
-    TILES(),
-    DECOS(),
-    POINTS(),
-    LEVEL_BOUNDS(),
-    SHIFT_LEVEL(),
-    START_TILES(),
-    SAVE_LEVEL(),
-    DECO_COLLIDER();
+  private EnumMap<Mode, LevelEditorMode> createModes() {
+    EnumMap<Mode, LevelEditorMode> registeredModes = new EnumMap<>(Mode.class);
 
-    public static Mode getMode(int number) {
-      if (number < 0 || number >= values().length) {
-        throw new IllegalArgumentException("Invalid mode number: " + number);
-      }
-      return values()[number];
+    for (Mode mode : Mode.values()) {
+      registeredModes.put(mode, mode.create(this));
     }
+
+    return registeredModes;
   }
 
   private void drawWorldRectangleOutline(
@@ -621,5 +565,41 @@ public final class LevelEditorSystem extends System {
     g.setColor(color);
     g.drawRect(px, py, pw, ph);
     g.setColor(oldColor);
+  }
+
+  private enum Mode {
+    TILES(Keys.NUM_1, "1", TilesMode::new),
+    DECOS(Keys.NUM_2, "2", DecoMode::new),
+    POINTS(Keys.NUM_3, "3", PointMode::new),
+    LEVEL_BOUNDS(Keys.NUM_4, "4", LevelBoundsMode::new),
+    SHIFT_LEVEL(Keys.NUM_5, "5", ShiftLevelMode::new),
+    START_TILES(Keys.NUM_6, "6", StartTilesMode::new),
+    SAVE_LEVEL(Keys.NUM_7, "7", SaveMode::new),
+    DECO_COLLIDER(Keys.NUM_8, "8", DecoColliderMode::new);
+
+    private final int hotkey;
+    private final String hotkeyLabel;
+    private final Function<LevelEditorSystem, LevelEditorMode> modeFactory;
+
+    Mode(
+      int hotkey,
+      String hotkeyLabel,
+      Function<LevelEditorSystem, LevelEditorMode> modeFactory) {
+      this.hotkey = hotkey;
+      this.hotkeyLabel = Objects.requireNonNull(hotkeyLabel, "hotkeyLabel must not be null");
+      this.modeFactory = Objects.requireNonNull(modeFactory, "modeFactory must not be null");
+    }
+
+    private int hotkey() {
+      return hotkey;
+    }
+
+    private String hotkeyLabel() {
+      return hotkeyLabel;
+    }
+
+    private LevelEditorMode create(LevelEditorSystem system) {
+      return modeFactory.apply(system);
+    }
   }
 }
