@@ -49,7 +49,7 @@ public final class LevelBoundsMode extends LevelEditorMode {
   protected List<String> getStatusLines() {
     return system()
       .currentDungeonLevelForModes()
-      .<List<String>>map(
+      .map(
         level ->
           List.of(
             "Current size: " + level.layout()[0].length + "x" + level.layout().length,
