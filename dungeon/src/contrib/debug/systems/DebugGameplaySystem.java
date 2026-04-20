@@ -53,56 +53,9 @@ public class DebugGameplaySystem extends System {
     super(AuthoritativeSide.CLIENT);
   }
 
-  public static void zoomCamera(float amount) {
-    DebugGameplayActions.zoomCamera(amount);
-  }
-
-  /** Teleports the player to the current cursor position. */
-  public static void teleportToCursor() {
-    DebugGameplayActions.teleportToCursor();
-  }
-
-  /** Teleports the player next to the level end if possible. */
-  public static void teleportToEnd() {
-    DebugGameplayActions.teleportToEndNeighbor();
-  }
-
-  /** Teleports the player onto the end tile so the next level can be loaded. */
-  public static void loadNextLevel() {
-    DebugGameplayActions.loadNextLevel();
-  }
-
-  /** Teleports the player to the level start. */
-  public static void teleportToStart() {
-    DebugGameplayActions.teleportToStart();
-  }
-
-  public static void teleport(Tile targetLocation) {
-    DebugGameplayActions.teleport(targetLocation);
-  }
-
-  public static void teleport(Point targetLocation) {
-    DebugGameplayActions.teleport(targetLocation);
-  }
-
   /** Spawns a debug monster at the cursor position. */
   public static void spawnMonsterOnCursor() {
     DebugMonsterSpawner.spawnAtCursor();
-  }
-
-  /** Spawns a debug monster at the given position. */
-  public static void spawnMonster(Point position) {
-    DebugMonsterSpawner.spawnAt(position);
-  }
-
-  /** Toggles the debug pause menu. */
-  public static void pauseGame() {
-    PAUSE_CONTROLLER.togglePause();
-  }
-
-  /** Advances one frame while paused. */
-  public static void advanceFrame() {
-    PAUSE_CONTROLLER.advanceFrame();
   }
 
   @Override
