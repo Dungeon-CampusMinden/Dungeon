@@ -1,4 +1,4 @@
-package contrib.modules.levelHide;
+package contrib.modules.levelhide;
 
 import core.Component;
 import core.utils.Rectangle;

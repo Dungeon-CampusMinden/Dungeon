@@ -58,7 +58,7 @@ public final class PointMode extends LevelEditorMode {
   private static final int POINT_MARKER_MIN_PX = 8;
   private static final int POINT_MARKER_MAX_PX = 18;
 
-  private EditorSnapMode snapMode = EditorSnapMode.OnGrid;
+  private EditorSnapMode snapMode = EditorSnapMode.ON_GRID;
   private String heldPointName = null;
 
   private UIComponent addPointDialog;

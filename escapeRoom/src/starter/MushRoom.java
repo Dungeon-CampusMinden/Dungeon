@@ -6,7 +6,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
-import contrib.modules.levelHide.LevelHideSystem;
+import contrib.modules.levelhide.LevelHideSystem;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;

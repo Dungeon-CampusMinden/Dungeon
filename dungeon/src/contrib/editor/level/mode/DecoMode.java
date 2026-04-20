@@ -47,7 +47,7 @@ public final class DecoMode extends LevelEditorMode {
   private static final double DECO_CURSOR_DISTANCE = 0.75d;
 
   private int selectedDecoIndex = 0;
-  private EditorSnapMode decoSnapMode = EditorSnapMode.OnGrid;
+  private EditorSnapMode decoSnapMode = EditorSnapMode.ON_GRID;
   private Entity decoPreviewEntity = null;
   private Entity heldDecoEntity = null;
   private Entity hoveredDecoEntity = null;

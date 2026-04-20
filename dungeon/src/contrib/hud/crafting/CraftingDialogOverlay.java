@@ -245,7 +245,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
                   rightPanelBounds.width,
                   rightPanelBounds.height));
 
-      syncActionButtonBounds(ActionButtonBounds(rightPanelBounds));
+      syncActionButtonBounds(actionButtonBounds(rightPanelBounds));
       drawCraftingPanel(
           g, rightPanelBounds, craftingBounds, visibleCraftingSlots, resultItems, resultBounds);
 
@@ -265,7 +265,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     }
   }
 
-  private Map<CraftingDialogAction, Rectangle> ActionButtonBounds(Rectangle panelBounds) {
+  private Map<CraftingDialogAction, Rectangle> actionButtonBounds(Rectangle panelBounds) {
     Map<CraftingDialogAction, Rectangle> bounds = new EnumMap<>(CraftingDialogAction.class);
 
     for (CraftingDialogAction action : CraftingDialogAction.values()) {

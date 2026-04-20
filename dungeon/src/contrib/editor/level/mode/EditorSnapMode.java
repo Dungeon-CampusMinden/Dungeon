@@ -20,12 +20,12 @@ import core.utils.Point;
  * </ul>
  */
 public enum EditorSnapMode {
-  OnGrid("OnGrid"),
-  QuarterGrid("QuarterGrid"),
-  PixelGrid("PixelGrid"),
-  OffGrid("OffGrid"),
-  CheckerGridEven("CheckerGridEven"),
-  CheckerGridOdd("CheckerGridOdd");
+  ON_GRID("OnGrid"),
+  QUARTER_GRID("QuarterGrid"),
+  PIXEL_GRID("PixelGrid"),
+  OFF_GRID("OffGrid"),
+  CHECKER_GRID_EVEN("CheckerGridEven"),
+  CHECKER_GRID_ODD("CheckerGridOdd");
 
   private final String displayName;
 
@@ -81,18 +81,18 @@ public enum EditorSnapMode {
    */
   public Point getPosition(Point position) {
     return switch (this) {
-      case OnGrid ->
+      case ON_GRID ->
         new Point((float) Math.floor(position.x()), (float) Math.floor(position.y()));
-      case QuarterGrid ->
+      case QUARTER_GRID ->
         new Point(
           (float) Math.floor(position.x() * 4) / 4.0f,
           (float) Math.floor(position.y() * 4) / 4.0f);
-      case PixelGrid ->
+      case PIXEL_GRID ->
         new Point(
           (float) Math.floor(position.x() * 16) / 16.0f,
           (float) Math.floor(position.y() * 16) / 16.0f);
-      case CheckerGridEven, CheckerGridOdd -> {
-        int parity = (this == CheckerGridEven) ? 0 : 1;
+      case CHECKER_GRID_EVEN, CHECKER_GRID_ODD -> {
+        int parity = (this == CHECKER_GRID_EVEN) ? 0 : 1;
 
         float px = position.x() - 0.5f;
         float py = position.y() - 0.5f;
@@ -121,7 +121,7 @@ public enum EditorSnapMode {
 
         yield new Point(bestX, bestY);
       }
-      case OffGrid -> position;
+      case OFF_GRID -> position;
     };
   }
 
@@ -134,9 +134,9 @@ public enum EditorSnapMode {
    * @return true if collision checking should be enabled for this snap mode, false otherwise
    */
   public boolean checkBlocked() {
-    return this == OnGrid
-      || this == QuarterGrid
-      || this == CheckerGridEven
-      || this == CheckerGridOdd;
+    return this == ON_GRID
+      || this == QUARTER_GRID
+      || this == CHECKER_GRID_EVEN
+      || this == CHECKER_GRID_ODD;
   }
 }

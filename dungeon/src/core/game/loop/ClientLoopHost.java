@@ -10,7 +10,7 @@ import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
 import contrib.modules.interaction.InteractionSelection;
 import contrib.modules.interaction.ui.InteractionSelectionOverlayUi;
-import contrib.modules.levelHide.LevelHideSystem;
+import contrib.modules.levelhide.LevelHideSystem;
 import core.System;
 import core.game.ECSManagement;
 import core.game.GameLoop;

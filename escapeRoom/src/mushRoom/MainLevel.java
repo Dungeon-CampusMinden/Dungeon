@@ -11,7 +11,7 @@ import contrib.hud.DialogUtils;
 import contrib.item.Item;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
-import contrib.modules.levelHide.LevelHideFactory;
+import contrib.modules.levelhide.LevelHideFactory;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelEditorSystem;

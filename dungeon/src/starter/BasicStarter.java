@@ -15,7 +15,7 @@ import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceBerry;
 import contrib.item.concreteItem.ItemWoodenArrow;
-import contrib.modules.levelHide.LevelHideFactory;
+import contrib.modules.levelhide.LevelHideFactory;
 import contrib.systems.*;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
