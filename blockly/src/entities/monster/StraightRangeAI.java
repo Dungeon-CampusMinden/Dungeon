@@ -51,7 +51,6 @@ public class StraightRangeAI implements Consumer<Entity>, ISkillUser {
   @Override
   public void accept(final Entity entity) {
     if (BlocklyCommands.DISABLE_SHOOT_ON_HERO) {
-      System.out.println("disable shoot on hero");
       return;
     }
 
