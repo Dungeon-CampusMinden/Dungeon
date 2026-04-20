@@ -1,237 +1,47 @@
 package core.game.render.level;
 
+import core.game.render.effects.AbstractColorGradeEffect;
 import core.utils.Point;
-import core.utils.Rectangle;
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
  * Applies HSV-style color grading to the rendered level layer only.
  *
- * <p>This is the level-pass counterpart to the existing scene and sprite-local color-grade effects.
- *
- * <p>It restores the missing world-space part of the old color-grade semantics for the level pass:
- *
- * <ul>
- *   <li>optional hue override ({@code hue < 0} keeps the original hue)
- *   <li>saturation multiplier
- *   <li>value/brightness multiplier
- *   <li>optional world-space region
- *   <li>optional transition size around the region
- * </ul>
- *
- * <p>If no region is configured, the effect applies to the whole level pass. If a region is
- * configured, the effect is fully active inside that region and fades out smoothly across the
- * configured transition band outside the region.
+ * <p>The shared color grading, region, transition, and enabled-state behavior lives in
+ * {@link AbstractColorGradeEffect}. This class supplies level-buffer to world-space coordinate
+ * mapping and the level effect API.
  */
 public final class LevelColorGradeEffect
+  extends AbstractColorGradeEffect<LevelColorGradeEffect>
   implements LevelEffectRegistry.ToggleableLevelEffect {
 
-  private float hue = -1.0f;
-  private float saturationMultiplier = 1.0f;
-  private float valueMultiplier = 1.0f;
-  private Rectangle region = null;
-  private float transitionSize = 2.0f;
-  private boolean enabled = true;
+  /** Creates a neutral level color-grade effect that leaves the level layer unchanged. */
+  public LevelColorGradeEffect() {
+    super();
+  }
 
   /**
-   * Creates a new level color grade effect with default parameters.
+   * Creates a level color-grade effect with the given HSV parameters.
    *
-   * <p>Default values:
-   * <ul>
-   *   <li>hue: -1.0 (no override, keeps original hue)</li>
-   *   <li>saturationMultiplier: 1.0 (no change)</li>
-   *   <li>valueMultiplier: 1.0 (no change)</li>
-   *   <li>no region (applies globally)</li>
-   *   <li>transitionSize: 2.0</li>
-   * </ul>
-   */
-  public LevelColorGradeEffect() {}
-
-  /**
-   * Creates a new level color grade effect with specified HSV parameters.
-   *
-   * @param hue the target hue value (0.0 to 1.0), or negative to keep the original hue
-   * @param saturationMultiplier the saturation multiplier (0.0 or higher)
-   * @param valueMultiplier the brightness multiplier (0.0 or higher)
+   * @param hue target hue in {@code [0, 1]}; values {@code < 0} keep the original hue
+   * @param saturationMultiplier saturation multiplier; negative values are clamped to 0
+   * @param valueMultiplier value/brightness multiplier; negative values are clamped to 0
    */
   public LevelColorGradeEffect(
     float hue, float saturationMultiplier, float valueMultiplier) {
-    hue(hue);
-    saturationMultiplier(saturationMultiplier);
-    valueMultiplier(valueMultiplier);
-  }
-
-  /**
-   * Gets the hue override value.
-   *
-   * @return the hue value (0.0 to 1.0), or negative if hue override is disabled
-   */
-  public float hue() {
-    return hue;
-  }
-
-  /**
-   * Sets the hue override value.
-   *
-   * @param hue the target hue (0.0 to 1.0), or negative to disable hue override
-   * @return this effect for method chaining
-   */
-  public LevelColorGradeEffect hue(float hue) {
-    this.hue = hue < 0f ? -1.0f : normalizeHue(hue);
-    return this;
-  }
-
-  /**
-   * Gets the saturation multiplier.
-   *
-   * @return the saturation multiplier (0.0 or higher)
-   */
-  public float saturationMultiplier() {
-    return saturationMultiplier;
-  }
-
-  /**
-   * Sets the saturation multiplier.
-   *
-   * @param saturationMultiplier the saturation multiplier (negative values are clamped to 0)
-   */
-  public void saturationMultiplier(float saturationMultiplier) {
-    this.saturationMultiplier = Math.max(0f, saturationMultiplier);
-  }
-
-  /**
-   * Gets the value (brightness) multiplier.
-   *
-   * @return the value multiplier (0.0 or higher)
-   */
-  public float valueMultiplier() {
-    return valueMultiplier;
-  }
-
-  /**
-   * Sets the value (brightness) multiplier.
-   *
-   * @param valueMultiplier the value multiplier (negative values are clamped to 0)
-   */
-  public void valueMultiplier(float valueMultiplier) {
-    this.valueMultiplier = Math.max(0f, valueMultiplier);
-  }
-
-  /**
-   * Returns the configured world-space region.
-   *
-   * @return region, or {@code null} if the effect applies globally
-   */
-  public Rectangle region() {
-    return region;
-  }
-
-  /**
-   * Sets the optional world-space region for the effect.
-   *
-   * @param region region in world coordinates; {@code null} means full-level effect
-   * @return this effect for chaining
-   */
-  public LevelColorGradeEffect region(Rectangle region) {
-    this.region = region;
-    return this;
-  }
-
-  /**
-   * Returns the transition size around the configured region.
-   *
-   * @return transition size in world units
-   */
-  public float transitionSize() {
-    return transitionSize;
-  }
-
-  /**
-   * Sets the transition size around the configured region.
-   *
-   * @param transitionSize transition size in world units; negative values are clamped to 0
-   * @return this effect for chaining
-   */
-  public LevelColorGradeEffect transitionSize(float transitionSize) {
-    this.transitionSize = Math.max(0f, transitionSize);
-    return this;
+    super(hue, saturationMultiplier, valueMultiplier);
   }
 
   @Override
-  public boolean enabled() {
-    return enabled;
-  }
-
-  @Override
-  public void enabled(boolean enabled) {
-    this.enabled = enabled;
+  protected LevelColorGradeEffect self() {
+    return this;
   }
 
   @Override
   public BufferedImage apply(BufferedImage input, LevelPassContext context, long nowMs) {
-    if (input == null || !enabled) {
-      return input;
-    }
-
-    BufferedImage output =
-      new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
-    for (int y = 0; y < input.getHeight(); y++) {
-      for (int x = 0; x < input.getWidth(); x++) {
-        int argb = input.getRGB(x, y);
-        int alpha = (argb >>> 24) & 0xFF;
-
-        if (alpha == 0) {
-          output.setRGB(x, y, 0);
-          continue;
-        }
-
-        float influence = effectInfluenceAt(x, y, context);
-        if (influence <= 0f) {
-          output.setRGB(x, y, argb);
-          continue;
-        }
-
-        int gradedArgb = gradeArgb(argb);
-
-        if (influence >= 1f) {
-          output.setRGB(x, y, gradedArgb);
-          continue;
-        }
-
-        output.setRGB(x, y, blendArgb(argb, gradedArgb, influence));
-      }
-    }
-
-    return output;
-  }
-
-  private float effectInfluenceAt(int bufferX, int bufferY, LevelPassContext context) {
-    if (region == null) {
-      return 1f;
-    }
-
-    Point world = worldPointForBufferPixel(bufferX, bufferY, context);
-
-    if (region.contains(world)) {
-      return 1f;
-    }
-
-    if (transitionSize <= 0f) {
-      return 0f;
-    }
-
-    Rectangle expanded = region.expand(transitionSize);
-    if (!expanded.contains(world)) {
-      return 0f;
-    }
-
-    float dx = axisOutsideDistance(world.x(), region.x(), region.x() + region.width());
-    float dy = axisOutsideDistance(world.y(), region.y(), region.y() + region.height());
-    float outsideDistance = (float) Math.hypot(dx, dy);
-
-    return clamp01(1f - outsideDistance / transitionSize);
+    return applyColorGrade(
+      input,
+      (bufferX, bufferY) -> worldPointForBufferPixel(bufferX, bufferY, context));
   }
 
   private static Point worldPointForBufferPixel(
@@ -242,68 +52,5 @@ public final class LevelColorGradeEffect
     float worldY = context.maxTileY() + 1.0f - ((bufferY + 0.5f) / tilePx);
 
     return new Point(worldX, worldY);
-  }
-
-  private int gradeArgb(int argb) {
-    int alpha = (argb >>> 24) & 0xFF;
-    int r = (argb >>> 16) & 0xFF;
-    int g = (argb >>> 8) & 0xFF;
-    int b = argb & 0xFF;
-
-    float[] hsb = Color.RGBtoHSB(r, g, b, null);
-
-    if (hue >= 0f) {
-      hsb[0] = hue;
-    }
-
-    hsb[1] = clamp01(hsb[1] * saturationMultiplier);
-    hsb[2] = clamp01(hsb[2] * valueMultiplier);
-
-    int gradedRgb = Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]) & 0x00FFFFFF;
-    return (alpha << 24) | gradedRgb;
-  }
-
-  private static int blendArgb(int originalArgb, int gradedArgb, float influence) {
-    float w = clamp01(influence);
-
-    int oa = (originalArgb >>> 24) & 0xFF;
-    int or = (originalArgb >>> 16) & 0xFF;
-    int og = (originalArgb >>> 8) & 0xFF;
-    int ob = originalArgb & 0xFF;
-
-    int ga = (gradedArgb >>> 24) & 0xFF;
-    int gr = (gradedArgb >>> 16) & 0xFF;
-    int gg = (gradedArgb >>> 8) & 0xFF;
-    int gb = gradedArgb & 0xFF;
-
-    int a = mixChannel(oa, ga, w);
-    int r = mixChannel(or, gr, w);
-    int g = mixChannel(og, gg, w);
-    int b = mixChannel(ob, gb, w);
-
-    return (a << 24) | (r << 16) | (g << 8) | b;
-  }
-
-  private static int mixChannel(int original, int graded, float influence) {
-    return Math.clamp(Math.round(original * (1f - influence) + graded * influence), 0, 255);
-  }
-
-  private static float axisOutsideDistance(float value, float min, float max) {
-    if (value < min) {
-      return min - value;
-    }
-    if (value > max) {
-      return value - max;
-    }
-    return 0f;
-  }
-
-  private static float normalizeHue(float hue) {
-    float normalized = hue % 1f;
-    return normalized < 0f ? normalized + 1f : normalized;
-  }
-
-  private static float clamp01(float value) {
-    return Math.clamp(value, 0f, 1f);
   }
 }
