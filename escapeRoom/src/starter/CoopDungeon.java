@@ -2,6 +2,7 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import contrib.client.ClientInstaller;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
@@ -39,6 +40,7 @@ public class CoopDungeon {
     onSetup();
 
     Game.windowTitle("Coop-Dungeon");
+    ClientInstaller.installDefaultLoopHost();
     Game.run();
   }
 

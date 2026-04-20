@@ -21,13 +21,12 @@ import core.utils.InputManager;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
 import de.gurkenlabs.litiengine.configuration.DisplayMode;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ServiceLoader;
 
 /**
  * A platform-specific implementation of {@link GameLoopHost} for client-side runtime environments.
@@ -37,8 +36,8 @@ import java.util.ServiceLoader;
  * sound playback, and other platform-specific resources.
  *
  * <p>It integrates the game loop into the client runtime environment. Optional gameplay,
- * debugging, or user interface systems are supplied by {@link ClientLoopHostInstaller}
- * implementations.
+ * debugging, or user interface systems can be supplied explicitly through
+ * {@link ClientLoopHostInstaller} implementations.
  *
  * <p>Responsibilities:
  * <ul>
@@ -56,11 +55,10 @@ public final class ClientLoopHost implements GameLoopHost {
   private ISoundPlayer soundPlayer = new NoSoundPlayer();
 
   /**
-   * Creates a client loop host using all {@link ClientLoopHostInstaller} providers available on
-   * the classpath.
+   * Creates a client loop host without optional installers.
    */
   public ClientLoopHost() {
-    this(loadInstallers());
+    this(Collections.emptyList());
   }
 
   /**
@@ -165,11 +163,5 @@ public final class ClientLoopHost implements GameLoopHost {
     Game.config().graphics().setResolutionWidth(PreRunConfiguration.windowWidth());
     Game.config().graphics().setResolutionHeight(PreRunConfiguration.windowHeight());
     Game.config().save();
-  }
-
-  private static List<ClientLoopHostInstaller> loadInstallers() {
-    List<ClientLoopHostInstaller> loadedInstallers = new ArrayList<>();
-    ServiceLoader.load(ClientLoopHostInstaller.class).forEach(loadedInstallers::add);
-    return loadedInstallers;
   }
 }

@@ -16,13 +16,11 @@ import core.game.loop.ClientLoopHostInstaller;
  * position. This system interacts with other ECS components to dynamically manage visibility
  * states within the game world.
  *
- * <p>This installer is typically registered as part of the client startup process through
- * mechanisms like {@link java.util.ServiceLoader} or by explicitly passing it to a
- * ClientLoopHost constructor.
+ * <p>This installer is registered explicitly through {@link ClientInstaller}.
  */
 public final class GameplayClientInstaller implements ClientLoopHostInstaller {
 
-  /** Creates a contrib gameplay client installer. */
+  /** Creates a gameplay client installer. */
   public GameplayClientInstaller() {}
 
   @Override

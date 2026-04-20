@@ -4,8 +4,8 @@ package core.game.loop;
  * Extension point for client loop host startup.
  *
  * <p>Implementations can contribute client-specific platform services and runtime systems without
- * making {@link ClientLoopHost} depend on those concrete features. Providers can be registered via
- * {@link java.util.ServiceLoader} or passed explicitly to a {@link ClientLoopHost} constructor.
+ * making {@link ClientLoopHost} depend on those concrete features. Installers are passed explicitly
+ * to a {@link ClientLoopHost} constructor.
  */
 public interface ClientLoopHostInstaller {
 

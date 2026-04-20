@@ -30,7 +30,7 @@ import core.game.loop.ClientLoopHostInstaller;
  */
 public final class DebugClientInstaller implements ClientLoopHostInstaller {
 
-  /** Creates a contrib debug client installer. */
+  /** Creates a debug client installer. */
   public DebugClientInstaller() {}
 
   @Override

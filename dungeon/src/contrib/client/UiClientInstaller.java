@@ -25,12 +25,11 @@ import core.game.loop.ClientLoopHostInstaller;
  *       client, allowing for the display of heads-up display (HUD) components and attribute bars.</li>
  * </ul>
  *
- * <p>This installer is intended to be registered as part of the client startup via mechanisms like
- * {@link java.util.ServiceLoader} or passing explicitly to a ClientLoopHost.
+ * <p>This installer is registered explicitly through {@link ClientInstaller}.
  */
 public final class UiClientInstaller implements ClientLoopHostInstaller {
 
-  /** Creates a contrib UI client installer. */
+  /** Creates a UI client installer. */
   public UiClientInstaller() {}
 
   @Override
