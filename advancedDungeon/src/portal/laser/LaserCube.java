@@ -144,10 +144,12 @@ public class LaserCube {
   }
 
   public static void onEnterCube(Entity cube, Entity laser, LaserComponent lc) {
-    if (cube.fetch(LaserCubeComponent.class).get().isActive()) {
+    LaserPartComponent laserPartComponent = laser.fetch(LaserPartComponent.class).get();
+    PositionComponent pc = cube.fetch(PositionComponent.class).get();
+
+    if (cube.fetch(LaserCubeComponent.class).get().isActive() || laserPartComponent.getLaserDirection() == pc.viewDirection()) {
       return;
     }
-    PositionComponent pc = cube.fetch(PositionComponent.class).get();
     cube.add(lc);
     cube.fetch(LaserCubeComponent.class).get().setActive(true);
     Point snappedPosition =

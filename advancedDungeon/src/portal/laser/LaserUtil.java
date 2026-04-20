@@ -39,11 +39,11 @@ public class LaserUtil {
       return;
     }
     laserComponent.setActive(true);
-    LaserPartComponent laserPart = new LaserPartComponent();
-    emitter.add(laserPart);
     PositionComponent pc = emitter.fetch(PositionComponent.class).get();
-
     Direction dir = pc.viewDirection();
+    LaserPartComponent laserPart = new LaserPartComponent(dir);
+    emitter.add(laserPart);
+
     Point currentPoint = pc.position();
     Tile currentTile = Game.tileAt(pc.position()).orElse(null);
     int totalPoints = 0;
@@ -61,7 +61,7 @@ public class LaserUtil {
       currentTile = Game.tileAt(currentPoint).orElse(null);
     }
     updateEmitterVisual(emitter, true);
-    configureEmitterHitbox(emitter, totalPoints-1, dir);
+    configureEmitterHitbox(emitter, totalPoints, dir);
   }
 
   /**
@@ -102,12 +102,13 @@ public class LaserUtil {
     Entity newEmitter = LaserFactory.createEmitter(from, direction);
     newEmitter.add(comp);
     newEmitter.add(pec);
-    LaserPartComponent laserPart = new LaserPartComponent();
-    newEmitter.add(laserPart);
     newEmitter.remove(DrawComponent.class);
     PositionComponent pc = newEmitter.fetch(PositionComponent.class).get();
-
     Direction dir = pc.viewDirection();
+
+    LaserPartComponent laserPart = new LaserPartComponent(dir);
+    newEmitter.add(laserPart);
+
     Point currentPoint = pc.position();
     Tile currentTile = Game.tileAt(pc.position()).orElse(null);
     int totalPoints = 0;
@@ -152,12 +153,13 @@ public class LaserUtil {
     Entity newEmitter = LaserFactory.createEmitter(from, direction);
     newEmitter.add(comp);
     newEmitter.add(pec);
-    LaserPartComponent laserPart = new LaserPartComponent();
-    newEmitter.add(laserPart);
     newEmitter.remove(DrawComponent.class);
     PositionComponent pc = newEmitter.fetch(PositionComponent.class).get();
-
     Direction dir = pc.viewDirection();
+
+    LaserPartComponent laserPart = new LaserPartComponent(dir);
+    newEmitter.add(laserPart);
+
     Point currentPoint = pc.position();
     Tile currentTile = Game.tileAt(pc.position()).orElse(null);
     int totalPoints = 0;
