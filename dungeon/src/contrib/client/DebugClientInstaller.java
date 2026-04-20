@@ -1,0 +1,46 @@
+package contrib.client;
+
+import contrib.debug.systems.DebugDrawSystem;
+import contrib.debug.systems.DebugEntityRenderSystem;
+import contrib.debug.systems.DebugGameplaySystem;
+import contrib.debug.systems.DebugRenderEffectsSystem;
+import contrib.editor.level.LevelEditorSystem;
+import core.game.loop.ClientLoopHostInstaller;
+
+/**
+ * A specialized client loop host installer that registers debug systems for runtime testing
+ * and development purposes.
+ *
+ * <p>The {@code DebugClientInstaller} class contributes a set of systems enabling
+ * enhanced debugging functionality, such as gameplay debugging, rendering effects debugging,
+ * level editing, debug drawing, and entity rendering insights. These systems are added
+ * to the client system execution pipeline if they are absent.
+ *
+ * <p>This class implements {@link ClientLoopHostInstaller} and overrides its
+ * {@link #installRuntimeSystems()} method to register the following systems:
+ * <ul>
+ *   <li>{@link DebugGameplaySystem}: Implements various debug functionalities for gameplay testing.</li>
+ *   <li>{@link DebugRenderEffectsSystem}: Provides debug support for rendering effects analysis.</li>
+ *   <li>{@link LevelEditorSystem}: Adds support for runtime level editing and testing.</li>
+ *   <li>{@link DebugDrawSystem}: Enables debug visualizations such as bounding boxes and debug overlays.</li>
+ *   <li>{@link DebugEntityRenderSystem}: Offers detailed rendering insights into debug entities.</li>
+ * </ul>
+ *
+ * <p>This class is final and cannot be extended.
+ */
+public final class DebugClientInstaller implements ClientLoopHostInstaller {
+
+  /** Creates a contrib debug client installer. */
+  public DebugClientInstaller() {}
+
+  @Override
+  public void installRuntimeSystems() {
+    SystemClientInstaller.addIfAbsent(DebugGameplaySystem.class, DebugGameplaySystem::new);
+    SystemClientInstaller.addIfAbsent(
+        DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
+    SystemClientInstaller.addIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
+    SystemClientInstaller.addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
+    SystemClientInstaller.addIfAbsent(
+        DebugEntityRenderSystem.class, DebugEntityRenderSystem::new);
+  }
+}

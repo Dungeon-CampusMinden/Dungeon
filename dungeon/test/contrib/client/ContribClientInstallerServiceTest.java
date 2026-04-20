@@ -18,8 +18,8 @@ public class ContribClientInstallerServiceTest {
             .map(ServiceLoader.Provider::type)
             .toList();
 
-    assertTrue(installerTypes.contains(ContribUiClientInstaller.class));
-    assertTrue(installerTypes.contains(ContribGameplayClientInstaller.class));
-    assertTrue(installerTypes.contains(ContribDebugClientInstaller.class));
+    assertTrue(installerTypes.contains(UiClientInstaller.class));
+    assertTrue(installerTypes.contains(GameplayClientInstaller.class));
+    assertTrue(installerTypes.contains(DebugClientInstaller.class));
   }
 }
