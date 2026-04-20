@@ -551,14 +551,6 @@ public final class DecoMode extends LevelEditorMode {
         });
   }
 
-  private void rememberOriginalTint(Entity entity) {
-    if (entity == null || rememberedEditorTints.containsKey(entity)) {
-      return;
-    }
-
-    entity.fetch(DrawComponent.class).ifPresent(dc -> rememberedEditorTints.put(entity, dc.tintColor()));
-  }
-
   private void applyEditorTint(Entity entity, int tint) {
     if (entity == null) {
       return;
