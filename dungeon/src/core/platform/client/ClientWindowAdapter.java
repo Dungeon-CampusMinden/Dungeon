@@ -2,6 +2,7 @@ package core.platform.client;
 
 import core.platform.adapters.WindowAdapter;
 import de.gurkenlabs.litiengine.Game;
+import de.gurkenlabs.litiengine.configuration.DisplayMode;
 
 /**
  * An implementation of the {@link WindowAdapter} interface that provides a concrete adapter
@@ -44,16 +45,27 @@ public final class ClientWindowAdapter implements WindowAdapter {
 
   @Override
   public boolean supportsFullscreen() {
-    return false;
+    return true;
   }
 
   @Override
   public boolean isFullscreen() {
-    return false;
+    try {
+      return Game.config().graphics().getDisplayMode() == DisplayMode.FULLSCREEN;
+    } catch (Exception ignored) {
+      return false;
+    }
   }
 
   @Override
   public void setFullscreen(boolean fullscreen) {
-    // no-op, not supported
+    try {
+      Game.config()
+        .graphics()
+        .setDisplayMode(fullscreen ? DisplayMode.FULLSCREEN : DisplayMode.WINDOWED);
+      Game.config().save();
+    } catch (Exception ignored) {
+      // fail-safe
+    }
   }
 }
