@@ -103,7 +103,7 @@ public abstract class LevelEditorMode {
   /**
    * Builds the full overlay lines for this mode using the old compact editor structure.
    *
-   * @return combined lines with title, controls and settings
+   * @return combined lines with title, controls, and settings
    */
   public final List<String> getFullStatusLines() {
     List<String> lines = new ArrayList<>();
