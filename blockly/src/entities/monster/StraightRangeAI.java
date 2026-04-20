@@ -67,8 +67,6 @@ public class StraightRangeAI implements Consumer<Entity>, ISkillUser {
                 })
             .orElse(false);
 
-    System.out.println("player in range "  + playerInRange);
-
     if (!playerInRange) {
       return;
     }
