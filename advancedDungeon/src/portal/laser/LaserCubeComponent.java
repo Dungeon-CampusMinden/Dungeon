@@ -1,12 +1,19 @@
 package portal.laser;
 
 import core.Component;
+import core.Entity;
 
 /** Holder component for the LaserCube. */
 public class LaserCubeComponent implements Component {
 
   private boolean active = false;
   private boolean isBeingMoved = false;
+  private LaserCubeStatus currentStatus = LaserCubeStatus.NONE;
+  private Entity onEnterCube;
+  private Entity onEnterLaser;
+  private Entity onLeaveCube;
+  private Entity onLeaveLaser;
+
 
   /**
    * Returns the state of the laserCube.
@@ -42,5 +49,45 @@ public class LaserCubeComponent implements Component {
    */
   public void setBeingMoved(boolean beingMoved) {
     isBeingMoved = beingMoved;
+  }
+
+  public LaserCubeStatus getCurrentStatus() {
+    return currentStatus;
+  }
+
+  public void setCurrentStatus(LaserCubeStatus currentStatus) {
+    this.currentStatus = currentStatus;
+  }
+
+  public Entity getOnEnterCube() {
+    return onEnterCube;
+  }
+
+  public void setOnEnterCube(Entity onEnterCube) {
+    this.onEnterCube = onEnterCube;
+  }
+
+  public Entity getOnEnterLaser() {
+    return onEnterLaser;
+  }
+
+  public void setOnEnterLaser(Entity onEnterLaser) {
+    this.onEnterLaser = onEnterLaser;
+  }
+
+  public Entity getOnLeaveCube() {
+    return onLeaveCube;
+  }
+
+  public void setOnLeaveCube(Entity onLeaveCube) {
+    this.onLeaveCube = onLeaveCube;
+  }
+
+  public Entity getOnLeaveLaser() {
+    return onLeaveLaser;
+  }
+
+  public void setOnLeaveLaser(Entity onLeaveLaser) {
+    this.onLeaveLaser = onLeaveLaser;
   }
 }

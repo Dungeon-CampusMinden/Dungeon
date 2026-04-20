@@ -13,6 +13,7 @@ import core.level.elements.tile.PortalTile;
 import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.path.SimpleIPath;
@@ -76,7 +77,7 @@ public class LaserUtil {
     }
     laserComponent.setActive(false);
     Game.levelEntities(Set.of(LaserComponent.class))
-        .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
+        .filter(entity -> entity.fetch(LaserComponent.class).isPresent() && entity.fetch(LaserComponent.class).get().equals(laserComponent))
         .filter(entity -> entity.fetch(LaserEmitterComponent.class).isEmpty())
         .filter(entity -> entity.fetch(LaserCubeComponent.class).isEmpty())
         .forEach(Game::remove);
@@ -142,20 +143,9 @@ public class LaserUtil {
         .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
         .filter(entity -> entity.fetch(LaserEmitterComponent.class).isPresent())
         .findFirst().get();
-      deactivate(originalEmitter);
-      activate(originalEmitter);
+      LaserUtil.setLaserToReactivate(originalEmitter);
       laserComponent.setBeingDeactivated(false);
     }
-  }
-
-  public static void reActivate(Entity laserPart) {
-    LaserComponent laserComponent = laserPart.fetch(LaserComponent.class).get();
-    Entity originalEmitter = Game.levelEntities(Set.of(LaserComponent.class))
-      .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
-      .filter(entity -> entity.fetch(LaserEmitterComponent.class).isPresent())
-      .findFirst().get();
-    deactivate(originalEmitter);
-    activate(originalEmitter);
   }
 
   public static void extendTimes(int times, Direction direction, Point from, PortalExtendComponent pec, LaserComponent comp) {
@@ -189,15 +179,61 @@ public class LaserUtil {
   public static void clearLaserPart(Entity laserPartEmitter) {
     LaserComponent laserComponent = laserPartEmitter.fetch(LaserComponent.class).get();
     LaserPartComponent laserPartComponent = laserPartEmitter.fetch(LaserPartComponent.class).get();
+    PortalExtendComponent pec = laserPartEmitter.fetch(PortalExtendComponent.class).get();
     laserComponent.setBeingDeactivated(true);
     Game.levelEntities(Set.of(LaserPartComponent.class))
       .filter(entity -> entity.fetch(LaserPartComponent.class).get().equals(laserPartComponent))
       .filter(entity -> entity.fetch(LaserEmitterComponent.class).isEmpty())
       .filter(entity -> entity.fetch(LaserCubeComponent.class).isEmpty())
       .forEach(Game::remove);
+    pec.setExtended(true);
     laserComponent.setBeingDeactivated(false);
   }
 
+
+  public static void setLaserToActivate(Entity laser) {
+    laser.fetch(LaserComponent.class).ifPresent(laserComponent -> {
+      if (laserComponent.getCurrentStatus() ==LaserStatus.NONE) {
+        laserComponent.setCurrentStatus(LaserStatus.ACTIVATE);
+      }
+    });
+  }
+
+  public static void setLaserToDeactivate(Entity laser) {
+    laser.fetch(LaserComponent.class).ifPresent(laserComponent -> {
+      if (laserComponent.getCurrentStatus() ==LaserStatus.NONE) {
+        laserComponent.setCurrentStatus(LaserStatus.DEACTIVATE);
+      }
+    });
+  }
+
+  public static void setLaserToReactivate(Entity laser) {
+    laser.fetch(LaserComponent.class).ifPresent(laserComponent -> {
+      if (laserComponent.getCurrentStatus() == LaserStatus.NONE && laserComponent.isActive()) {
+        laserComponent.setCurrentStatus(LaserStatus.REACTIVATE);
+      }
+    });
+  }
+
+  public static void setEnterCube(Entity cube, Entity laser) {
+    cube.fetch(LaserCubeComponent.class).ifPresent(laserCubeComponent -> {
+      if (laserCubeComponent.getCurrentStatus() == LaserCubeStatus.NONE && !laserCubeComponent.isActive()) {
+        laserCubeComponent.setOnEnterCube(cube);
+        laserCubeComponent.setOnEnterLaser(laser);
+        laserCubeComponent.setCurrentStatus(LaserCubeStatus.ENTER_CUBE);
+      }
+    });
+  }
+
+  public static void setCubeLeave(Entity cube, Entity laser) {
+    cube.fetch(LaserCubeComponent.class).ifPresent(laserCubeComponent -> {
+      if (laserCubeComponent.getCurrentStatus() == LaserCubeStatus.NONE && laserCubeComponent.isActive()) {
+        laserCubeComponent.setOnLeaveCube(cube);
+        laserCubeComponent.setOnLeaveLaser(laser);
+        laserCubeComponent.setCurrentStatus(LaserCubeStatus.LEAVE_CUBE);
+      }
+    });
+  }
 
   /**
    * Sets the hitbox of the CollideComponent so it fits the extended laser.
@@ -206,7 +242,7 @@ public class LaserUtil {
    * @param totalPoints how many tiles the laser is covering.
    * @param dir direction the laser is extending to.
    */
-  private static void configureEmitterHitbox(Entity emitter, int totalPoints, Direction dir) {
+  public static void configureEmitterHitbox(Entity emitter, int totalPoints, Direction dir) {
     float hitboxX = 1f;
     float hitboxY = 1f;
     float offsetX = 0.375f;

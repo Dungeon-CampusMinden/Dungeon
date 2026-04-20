@@ -10,6 +10,9 @@ public class LaserComponent implements Component {
 
   private boolean active;
   private boolean isBeingDeactivated;
+  private boolean isBeingReactivated;
+  private LaserStatus currentStatus = LaserStatus.NONE;
+
 
   /**
    * Creates a LaserComponent with a given state.
@@ -54,5 +57,21 @@ public class LaserComponent implements Component {
    */
   public void setBeingDeactivated(boolean beingDeactivated) {
     isBeingDeactivated = beingDeactivated;
+  }
+
+  public boolean isBeingReactivated() {
+    return isBeingReactivated;
+  }
+
+  public void setBeingReactivated(boolean beingReactivated) {
+    isBeingReactivated = beingReactivated;
+  }
+
+  public LaserStatus getCurrentStatus() {
+    return currentStatus;
+  }
+
+  public void setCurrentStatus(LaserStatus currentStatus) {
+    this.currentStatus = currentStatus;
   }
 }
