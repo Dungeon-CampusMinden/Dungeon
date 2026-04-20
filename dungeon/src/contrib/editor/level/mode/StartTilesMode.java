@@ -131,7 +131,7 @@ public final class StartTilesMode extends LevelEditorMode {
   protected List<String> getStatusLines() {
     return system()
       .currentDungeonLevelForModes()
-      .<List<String>>map(
+      .map(
         level -> {
           int size = level.startTiles().size();
           int shownIndex = Math.min(currentStartTileIndex, size);
