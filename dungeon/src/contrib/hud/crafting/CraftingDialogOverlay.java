@@ -8,13 +8,15 @@ import contrib.hud.elements.InventoryComponentProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
 import contrib.hud.renderers.ItemTooltipRenderer;
+import contrib.hud.utils.GridHitTest;
+import contrib.hud.utils.InventoryDragController;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
 import core.render.AnimationFrameImages;
 import core.render.ImageAssets;
-import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
+import core.ui.overlay.UiOverlay;
 import core.utils.InputManager;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
@@ -31,17 +33,18 @@ import java.util.stream.Stream;
 /**
  * Represents a crafting dialog interface overlay rendered on top of the game scene.
  *
- * <p>This overlay contains all visual elements and interactive logic required for crafting,
- * such as crafting panels, inventory grids, action buttons, item icons, and drag/drop support.
+ * <p>This overlay contains all visual elements and interactive logic required for crafting, such as
+ * crafting panels, inventory grids, action buttons, item icons, and drag/drop support.
  *
  * <p>It allows players to interact with their crafting inventory and recipes, displaying results
  * and processing input for crafting actions.
  *
- * <p>This class extends the functionality provided by {@code UiOverlay} and
- * {@code InventoryComponentProvider}, integrating advanced UI behaviors such as rendering, hit
- * detection, and inventory component management.
+ * <p>This class extends the functionality provided by {@code UiOverlay} and {@code
+ * InventoryComponentProvider}, integrating advanced UI behaviors such as rendering, hit detection,
+ * and inventory component management.
  *
  * <p>Key features:
+ *
  * <ul>
  *   <li>Custom rendering of crafting panels and inventory grids.
  *   <li>Drag-and-drop functionality for transferring items between inventory slots.
@@ -50,8 +53,7 @@ import java.util.stream.Stream;
  *   <li>Hover tooltips for items and slot highlights during interactions.
  * </ul>
  */
-final class CraftingDialogOverlay
-  implements UiOverlay, InventoryComponentProvider {
+final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 1180;
   private static final int DEFAULT_HEIGHT = 600;
@@ -63,8 +65,6 @@ final class CraftingDialogOverlay
   private static final int CLASSIC_CRAFTING_PANEL_HEIGHT = 420;
 
   private static final int DRAG_THRESHOLD_PX = 8;
-  private static final int DRAG_TARGET_INSET = 3;
-  private static final int DRAG_TARGET_ARC = 8;
 
   private static final int RESULT_ICON_PADDING = 2;
   private static final int RESULT_LABEL_TOP_GAP = 6;
@@ -105,6 +105,8 @@ final class CraftingDialogOverlay
   private final String dialogId;
   private final CraftingDialogController controller;
   private final CraftingDialogInteraction interaction;
+  private final InventoryDragController<InventorySide> dragController =
+      InventoryDragController.withAxisThreshold(DRAG_THRESHOLD_PX);
 
   private int x;
   private int y;
@@ -113,37 +115,29 @@ final class CraftingDialogOverlay
   private boolean visible = true;
 
   private final Map<CraftingDialogAction, ImageButton> actionButtons =
-    new EnumMap<>(CraftingDialogAction.class);
-
-  private SlotSelection pressedSlotSelection = null;
-  private boolean leftButtonDownLastFrame = false;
-  private int pressedMouseX = 0;
-  private int pressedMouseY = 0;
-  private DragState dragState = null;
+      new EnumMap<>(CraftingDialogAction.class);
 
   CraftingDialogOverlay(
-    String targetTitle,
-    String craftingTitle,
-    CraftingDialogController controller,
-    String dialogId) {
+      String targetTitle,
+      String craftingTitle,
+      CraftingDialogController controller,
+      String dialogId) {
     this.targetTitle = (targetTitle == null || targetTitle.isBlank()) ? "Inventory" : targetTitle;
     this.craftingTitle =
-      (craftingTitle == null || craftingTitle.isBlank()) ? "Crafting" : craftingTitle;
+        (craftingTitle == null || craftingTitle.isBlank()) ? "Crafting" : craftingTitle;
     this.controller = controller;
     this.interaction = new CraftingDialogInteraction(controller);
     this.dialogId = dialogId;
 
     for (CraftingDialogAction action : CraftingDialogAction.values()) {
       ImageButton button =
-        new ImageButton(new Animation(new SimpleIPath(action.iconPath())), 0, 0, 1, 1);
+          new ImageButton(new Animation(new SimpleIPath(action.iconPath())), 0, 0, 1, 1);
 
       button.onClick(
-        ignored ->
-          DialogCallbackResolver.createButtonCallback(dialogId, action.callbackKey())
-            .accept(
-              action == CraftingDialogAction.CRAFT
-                ? controller.craftingPayload()
-                : null));
+          ignored ->
+              DialogCallbackResolver.createButtonCallback(dialogId, action.callbackKey())
+                  .accept(
+                      action == CraftingDialogAction.CRAFT ? controller.craftingPayload() : null));
 
       actionButtons.put(action, button);
     }
@@ -159,24 +153,9 @@ final class CraftingDialogOverlay
     Item[] craftingSlots = controller.craftingSlots();
     Item[] resultItems = currentResultItems();
 
-    Item[] visibleTargetSlots = targetSlots;
-    Item[] visibleCraftingSlots = craftingSlots;
-
-    if (dragState != null && dragState.source() != null) {
-      int sourceSlot = dragState.source().slotIndex();
-
-      if (dragState.source().side() == InventorySide.TARGET) {
-        visibleTargetSlots = targetSlots.clone();
-        if (sourceSlot >= 0 && sourceSlot < visibleTargetSlots.length) {
-          visibleTargetSlots[sourceSlot] = null;
-        }
-      } else {
-        visibleCraftingSlots = craftingSlots.clone();
-        if (sourceSlot >= 0 && sourceSlot < visibleCraftingSlots.length) {
-          visibleCraftingSlots[sourceSlot] = null;
-        }
-      }
-    }
+    Item[] visibleTargetSlots = dragController.visibleSlots(targetSlots, InventorySide.TARGET);
+    Item[] visibleCraftingSlots =
+        dragController.visibleSlots(craftingSlots, InventorySide.CRAFTING);
 
     int leftColumns = InventoryGridRenderer.columnsFor(targetSlots);
     int leftRows = InventoryGridRenderer.rowsFor(targetSlots, leftColumns);
@@ -184,19 +163,18 @@ final class CraftingDialogOverlay
     int leftGridHeight = InventoryGridRenderer.gridHeight(leftRows);
 
     int rightPanelWidth = CLASSIC_CRAFTING_PANEL_WIDTH;
-    int rightPanelHeight = Math.max(CLASSIC_CRAFTING_PANEL_HEIGHT, leftGridHeight + 2 * PANEL_PADDING);
+    int rightPanelHeight =
+        Math.max(CLASSIC_CRAFTING_PANEL_HEIGHT, leftGridHeight + 2 * PANEL_PADDING);
 
     int totalContentWidth = leftGridWidth + PANEL_GAP + rightPanelWidth;
-    width =
-      Math.max(
-        DEFAULT_WIDTH,
-        totalContentWidth + 2 * DialogFrameRenderer.PADDING);
+    width = Math.max(DEFAULT_WIDTH, totalContentWidth + 2 * DialogFrameRenderer.PADDING);
 
     height =
-      Math.max(
-        DEFAULT_HEIGHT,
-        120 + Math.max(leftGridHeight + 2 * PANEL_PADDING, rightPanelHeight)
-          + DialogFrameRenderer.PADDING);
+        Math.max(
+            DEFAULT_HEIGHT,
+            120
+                + Math.max(leftGridHeight + 2 * PANEL_PADDING, rightPanelHeight)
+                + DialogFrameRenderer.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -207,18 +185,16 @@ final class CraftingDialogOverlay
     int leftStartX;
     int gridTop;
 
-    GridLayout leftGrid;
+    GridHitTest.Grid<InventorySide> leftGrid;
     Rectangle leftPanelBounds;
     Rectangle rightPanelBounds;
     List<CraftingDialogLayout.SlotBounds> craftingBounds;
     List<CraftingDialogLayout.ItemBounds> resultBounds;
 
-    DialogFrameRenderer.RenderState state =
-      DialogFrameRenderer.beginDialog(g);
+    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
 
     try {
-      contentY =
-        DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Crafting");
+      contentY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Crafting");
 
       int titleBaseline = contentY + g.getFontMetrics().getAscent();
 
@@ -229,67 +205,58 @@ final class CraftingDialogOverlay
       g.drawString(targetTitle, leftStartX, titleBaseline);
       g.drawString(craftingTitle, rightPanelX + PANEL_PADDING, titleBaseline);
 
-      gridTop =
-        titleBaseline
-          + PANEL_HEADER_GAP
-          + InventoryGridRenderer.GRID_TOP_GAP;
+      gridTop = titleBaseline + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
       leftPanelBounds =
-        new Rectangle(
-          leftStartX - PANEL_PADDING,
-          gridTop - PANEL_PADDING,
-          leftGridWidth + 2 * PANEL_PADDING,
-          leftGridHeight + 2 * PANEL_PADDING);
+          new Rectangle(
+              leftStartX - PANEL_PADDING,
+              gridTop - PANEL_PADDING,
+              leftGridWidth + 2 * PANEL_PADDING,
+              leftGridHeight + 2 * PANEL_PADDING);
 
       rightPanelBounds =
-        new Rectangle(
-          rightPanelX,
-          gridTop - PANEL_PADDING,
-          rightPanelWidth,
-          rightPanelHeight);
+          new Rectangle(rightPanelX, gridTop - PANEL_PADDING, rightPanelWidth, rightPanelHeight);
 
       drawInventoryPanelBackground(
-        g,
-        leftPanelBounds.x,
-        leftPanelBounds.y,
-        leftPanelBounds.width,
-        leftPanelBounds.height);
+          g, leftPanelBounds.x, leftPanelBounds.y, leftPanelBounds.width, leftPanelBounds.height);
 
       leftGrid =
-        new GridLayout(InventorySide.TARGET, leftStartX, gridTop, leftColumns, visibleTargetSlots);
+          new GridHitTest.Grid<>(
+              InventorySide.TARGET, leftStartX, gridTop, leftColumns, visibleTargetSlots);
       InventoryGridRenderer.drawGrid(g, visibleTargetSlots, leftStartX, gridTop, leftColumns);
 
       craftingBounds =
-        createSlotBounds(
-          rightPanelBounds,
-          CLASSIC_LAYOUT.visibleCraftingSlots(
-            craftingSlots,
-            rightPanelBounds.x,
-            rightPanelBounds.y,
-            rightPanelBounds.width,
-            rightPanelBounds.height));
+          createSlotBounds(
+              rightPanelBounds,
+              CLASSIC_LAYOUT.visibleCraftingSlots(
+                  craftingSlots,
+                  rightPanelBounds.x,
+                  rightPanelBounds.y,
+                  rightPanelBounds.width,
+                  rightPanelBounds.height));
 
       resultBounds =
-        createResultBounds(
-          rightPanelBounds,
-          CLASSIC_LAYOUT.resultSlots(
-            resultItems,
-            rightPanelBounds.x,
-            rightPanelBounds.y,
-            rightPanelBounds.width,
-            rightPanelBounds.height));
+          createResultBounds(
+              rightPanelBounds,
+              CLASSIC_LAYOUT.resultSlots(
+                  resultItems,
+                  rightPanelBounds.x,
+                  rightPanelBounds.y,
+                  rightPanelBounds.width,
+                  rightPanelBounds.height));
 
       syncActionButtonBounds(ActionButtonBounds(rightPanelBounds));
-      drawCraftingPanel(g, rightPanelBounds, craftingBounds, visibleCraftingSlots, resultItems, resultBounds);
+      drawCraftingPanel(
+          g, rightPanelBounds, craftingBounds, visibleCraftingSlots, resultItems, resultBounds);
 
-      if (dragState != null) {
+      if (dragController.isDragging()) {
         drawDropHighlights(g, leftGrid, leftPanelBounds, rightPanelBounds, craftingBounds);
       }
 
       handleInput(leftGrid, leftPanelBounds, rightPanelBounds, craftingBounds);
 
-      if (dragState != null) {
-        drawDragPreview(g);
+      if (dragController.isDragging()) {
+        dragController.drawDragPreview(g);
       } else {
         drawHoverTooltip(g, leftGrid, craftingBounds, resultItems, resultBounds);
       }
@@ -316,21 +283,21 @@ final class CraftingDialogOverlay
   }
 
   private void drawCraftingPanel(
-    Graphics2D g,
-    Rectangle panelBounds,
-    List<CraftingDialogLayout.SlotBounds> craftingBounds,
-    Item[] visibleCraftingSlots,
-    Item[] resultItems,
-    List<CraftingDialogLayout.ItemBounds> resultBounds) {
+      Graphics2D g,
+      Rectangle panelBounds,
+      List<CraftingDialogLayout.SlotBounds> craftingBounds,
+      Item[] visibleCraftingSlots,
+      Item[] resultItems,
+      List<CraftingDialogLayout.ItemBounds> resultBounds) {
 
     drawCraftingBackground(g, panelBounds);
 
     for (int i = 0; i < craftingBounds.size(); i++) {
       CraftingDialogLayout.SlotBounds bounds = craftingBounds.get(i);
       Item item =
-        bounds.slotIndex() >= 0 && bounds.slotIndex() < visibleCraftingSlots.length
-          ? visibleCraftingSlots[bounds.slotIndex()]
-          : null;
+          bounds.slotIndex() >= 0 && bounds.slotIndex() < visibleCraftingSlots.length
+              ? visibleCraftingSlots[bounds.slotIndex()]
+              : null;
       if (item == null) {
         continue;
       }
@@ -358,12 +325,7 @@ final class CraftingDialogOverlay
     BufferedImage background = ImageAssets.get(BACKGROUND_TEXTURE_PATH);
     if (background != null) {
       g.drawImage(
-        background,
-        panelBounds.x,
-        panelBounds.y,
-        panelBounds.width,
-        panelBounds.height,
-        null);
+          background, panelBounds.x, panelBounds.y, panelBounds.width, panelBounds.height, null);
       return;
     }
 
@@ -388,9 +350,9 @@ final class CraftingDialogOverlay
     int maxHeight = bounds.height - 2 * padding;
 
     double scale =
-      Math.min(
-        maxWidth / (double) Math.max(1, icon.getWidth()),
-        maxHeight / (double) Math.max(1, icon.getHeight()));
+        Math.min(
+            maxWidth / (double) Math.max(1, icon.getWidth()),
+            maxHeight / (double) Math.max(1, icon.getHeight()));
 
     int drawWidth = Math.max(1, (int) Math.round(icon.getWidth() * scale));
     int drawHeight = Math.max(1, (int) Math.round(icon.getHeight() * scale));
@@ -403,9 +365,10 @@ final class CraftingDialogOverlay
   private void drawResultItemPresentation(Graphics2D g, Rectangle bounds, Item item) {
     drawCraftingItemIcon(g, bounds, item, RESULT_ICON_PADDING);
 
-    String label = item.displayName() == null || item.displayName().isBlank()
-      ? item.getClass().getSimpleName()
-      : item.displayName();
+    String label =
+        item.displayName() == null || item.displayName().isBlank()
+            ? item.getClass().getSimpleName()
+            : item.displayName();
 
     Font oldFont = g.getFont();
     g.setFont(oldFont.deriveFont(Font.BOLD, 12f));
@@ -422,9 +385,7 @@ final class CraftingDialogOverlay
 
     g.setColor(RESULT_LABEL_TEXT);
     g.drawString(
-      label,
-      labelX + RESULT_LABEL_PADDING_X,
-      labelY + RESULT_LABEL_PADDING_Y + fm.getAscent());
+        label, labelX + RESULT_LABEL_PADDING_X, labelY + RESULT_LABEL_PADDING_Y + fm.getAscent());
 
     g.setFont(oldFont);
   }
@@ -456,9 +417,9 @@ final class CraftingDialogOverlay
     int maxHeight = bounds.height - 2 * BUTTON_ICON_PADDING;
 
     double scale =
-      Math.min(
-        maxWidth / (double) Math.max(1, icon.getWidth()),
-        maxHeight / (double) Math.max(1, icon.getHeight()));
+        Math.min(
+            maxWidth / (double) Math.max(1, icon.getWidth()),
+            maxHeight / (double) Math.max(1, icon.getHeight()));
 
     int drawWidth = Math.max(1, (int) Math.round(icon.getWidth() * scale));
     int drawHeight = Math.max(1, (int) Math.round(icon.getHeight() * scale));
@@ -477,14 +438,17 @@ final class CraftingDialogOverlay
   }
 
   private Item[] currentResultItems() {
-    return controller.currentRecipe()
-      .map(
-        recipe ->
-          Arrays.stream(recipe.results())
-            .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
-            .map(Item.class::cast)
-            .toArray(Item[]::new))
-      .orElseGet(() -> new Item[0]);
+    return controller
+        .currentRecipe()
+        .map(
+            recipe ->
+                Arrays.stream(recipe.results())
+                    .filter(
+                        result ->
+                            result.resultType() == CraftingType.ITEM && result instanceof Item)
+                    .map(Item.class::cast)
+                    .toArray(Item[]::new))
+        .orElseGet(() -> new Item[0]);
   }
 
   private void syncActionButtonBounds(Map<CraftingDialogAction, Rectangle> buttonBounds) {
@@ -504,7 +468,7 @@ final class CraftingDialogOverlay
   }
 
   private List<CraftingDialogLayout.SlotBounds> createSlotBounds(
-    Rectangle panelBounds, List<CraftingDialogLayout.SlotBounds> slotBounds) {
+      Rectangle panelBounds, List<CraftingDialogLayout.SlotBounds> slotBounds) {
     List<CraftingDialogLayout.SlotBounds> result = new ArrayList<>(slotBounds.size());
 
     for (CraftingDialogLayout.SlotBounds bounds : slotBounds) {
@@ -512,18 +476,15 @@ final class CraftingDialogOverlay
       int mirroredY = panelBounds.y + panelBounds.height - localBottomY - bounds.size();
 
       result.add(
-        new CraftingDialogLayout.SlotBounds(
-          bounds.slotIndex(),
-          bounds.x(),
-          mirroredY,
-          bounds.size()));
+          new CraftingDialogLayout.SlotBounds(
+              bounds.slotIndex(), bounds.x(), mirroredY, bounds.size()));
     }
 
     return List.copyOf(result);
   }
 
   private List<CraftingDialogLayout.ItemBounds> createResultBounds(
-    Rectangle panelBounds, List<CraftingDialogLayout.ItemBounds> itemBounds) {
+      Rectangle panelBounds, List<CraftingDialogLayout.ItemBounds> itemBounds) {
     List<CraftingDialogLayout.ItemBounds> result = new ArrayList<>(itemBounds.size());
 
     for (CraftingDialogLayout.ItemBounds bounds : itemBounds) {
@@ -562,31 +523,29 @@ final class CraftingDialogOverlay
   }
 
   private void drawActionBoxBackground(
-    Graphics2D g, Rectangle bounds, boolean hovered, boolean pressed) {
+      Graphics2D g, Rectangle bounds, boolean hovered, boolean pressed) {
     Color fill =
-      pressed
-        ? ACTION_BOX_PRESSED_FILL
-        : hovered ? ACTION_BOX_HOVER_FILL : ACTION_BOX_FILL;
+        pressed ? ACTION_BOX_PRESSED_FILL : hovered ? ACTION_BOX_HOVER_FILL : ACTION_BOX_FILL;
 
     Color border = hovered ? ACTION_BOX_HOVER_BORDER : ACTION_BOX_BORDER;
 
     g.setColor(fill);
-    g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, ACTION_BOX_ARC, ACTION_BOX_ARC);
+    g.fillRoundRect(
+        bounds.x, bounds.y, bounds.width, bounds.height, ACTION_BOX_ARC, ACTION_BOX_ARC);
 
     g.setColor(border);
-    g.drawRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, ACTION_BOX_ARC, ACTION_BOX_ARC);
+    g.drawRoundRect(
+        bounds.x, bounds.y, bounds.width, bounds.height, ACTION_BOX_ARC, ACTION_BOX_ARC);
   }
 
   private void handleInput(
-    GridLayout leftGrid,
-    Rectangle leftPanelBounds,
-    Rectangle rightPanelBounds,
-    List<CraftingDialogLayout.SlotBounds> craftingBounds) {
+      GridHitTest.Grid<InventorySide> leftGrid,
+      Rectangle leftPanelBounds,
+      Rectangle rightPanelBounds,
+      List<CraftingDialogLayout.SlotBounds> craftingBounds) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
-      pressedSlotSelection = null;
-      dragState = null;
-      leftButtonDownLastFrame = false;
+      dragController.reset();
       return;
     }
 
@@ -594,71 +553,45 @@ final class CraftingDialogOverlay
     int mouseY = stage.mouseY();
     boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (leftButtonDown && !leftButtonDownLastFrame) {
-      dragState = null;
+    Optional<InventoryDragController.Release<InventorySide>> release =
+        dragController.update(
+            leftButtonDown,
+            mouseX,
+            mouseY,
+            (slotMouseX, slotMouseY) -> {
+              if (findActionButtonAt(slotMouseX, slotMouseY).isPresent()) {
+                return null;
+              }
+              return findSlotSelection(slotMouseX, slotMouseY, leftGrid, craftingBounds);
+            },
+            this::itemOf);
 
-      if (findActionButtonAt(mouseX, mouseY).isPresent()) {
-        pressedSlotSelection = null;
-      } else {
-        pressedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, craftingBounds);
-        pressedMouseX = mouseX;
-        pressedMouseY = mouseY;
-      }
-    } else if (leftButtonDown) {
-      maybeStartDrag(mouseX, mouseY);
+    if (release.isEmpty()) {
+      return;
     }
 
-    if (!leftButtonDown && leftButtonDownLastFrame) {
-      Optional<CraftingDialogAction> releasedButton = findActionButtonAt(mouseX, mouseY);
-      if (releasedButton.isPresent() && dragState == null) {
-        pressedSlotSelection = null;
-        triggerActionButton(releasedButton.get());
-        leftButtonDownLastFrame = false;
-        return;
-      }
+    InventoryDragController.Release<InventorySide> released = release.get();
+    Optional<CraftingDialogAction> releasedButton = findActionButtonAt(mouseX, mouseY);
+    if (releasedButton.isPresent() && released.completedDrag() == null) {
+      triggerActionButton(releasedButton.get());
+      return;
+    }
 
-      SlotSelection releasedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, craftingBounds);
-      SlotSelection previouslyPressedSlot = pressedSlotSelection;
-      DragState completedDrag = dragState;
-
-      pressedSlotSelection = null;
-      dragState = null;
-
-      if (completedDrag != null) {
-        transferDraggedItem(
-          completedDrag,
-          releasedSlotSelection,
+    if (released.completedDrag() != null) {
+      transferDraggedItem(
+          released.completedDrag(),
+          released.releasedSlot(),
           leftPanelBounds,
           rightPanelBounds,
           mouseX,
           mouseY);
-      } else if (previouslyPressedSlot != null && previouslyPressedSlot.equals(releasedSlotSelection)) {
-        transferClickedItem(previouslyPressedSlot);
-      }
+    } else if (released.pressedSlot() != null
+        && released.pressedSlot().equals(released.releasedSlot())) {
+      transferClickedItem(released.pressedSlot());
     }
-
-    leftButtonDownLastFrame = leftButtonDown;
   }
 
-  private void maybeStartDrag(int mouseX, int mouseY) {
-    if (pressedSlotSelection == null || dragState != null) {
-      return;
-    }
-
-    if (Math.abs(mouseX - pressedMouseX) < DRAG_THRESHOLD_PX
-      && Math.abs(mouseY - pressedMouseY) < DRAG_THRESHOLD_PX) {
-      return;
-    }
-
-    Item item = itemOf(pressedSlotSelection);
-    if (item == null) {
-      return;
-    }
-
-    dragState = new DragState(pressedSlotSelection, item);
-  }
-
-  private void transferClickedItem(SlotSelection selection) {
+  private void transferClickedItem(GridHitTest.Slot<InventorySide> selection) {
     if (selection == null) {
       return;
     }
@@ -667,68 +600,70 @@ final class CraftingDialogOverlay
   }
 
   private void transferDraggedItem(
-    DragState completedDrag,
-    SlotSelection releasedSlotSelection,
-    Rectangle leftPanelBounds,
-    Rectangle rightPanelBounds,
-    int mouseX,
-    int mouseY) {
+      InventoryDragController.DragState<InventorySide> completedDrag,
+      GridHitTest.Slot<InventorySide> releasedSlotSelection,
+      Rectangle leftPanelBounds,
+      Rectangle rightPanelBounds,
+      int mouseX,
+      int mouseY) {
     if (completedDrag == null) {
       return;
     }
 
-    if (releasedSlotSelection != null && completedDrag.source().side() != releasedSlotSelection.side()) {
+    if (releasedSlotSelection != null
+        && completedDrag.source().side() != releasedSlotSelection.side()) {
       interaction.transferDroppedSlot(
-        completedDrag.source().side().controllerSide(),
-        completedDrag.source().slotIndex(),
-        releasedSlotSelection.side().controllerSide(),
-        releasedSlotSelection.slotIndex());
+          completedDrag.source().side().controllerSide(),
+          completedDrag.source().slotIndex(),
+          releasedSlotSelection.side().controllerSide(),
+          releasedSlotSelection.slotIndex());
       return;
     }
 
     if (completedDrag.source().side() == InventorySide.TARGET
-      && rightPanelBounds.contains(mouseX, mouseY)) {
+        && rightPanelBounds.contains(mouseX, mouseY)) {
       interaction.transferClickedSlot(
-        CraftingDialogController.InventorySide.TARGET,
-        completedDrag.source().slotIndex());
+          CraftingDialogController.InventorySide.TARGET, completedDrag.source().slotIndex());
       return;
     }
 
     if (completedDrag.source().side() == InventorySide.CRAFTING
-      && leftPanelBounds.contains(mouseX, mouseY)) {
+        && leftPanelBounds.contains(mouseX, mouseY)) {
       interaction.transferClickedSlot(
-        CraftingDialogController.InventorySide.CRAFTING,
-        completedDrag.source().slotIndex());
+          CraftingDialogController.InventorySide.CRAFTING, completedDrag.source().slotIndex());
     }
   }
 
-  private SlotSelection findSlotSelection(
-    int mouseX,
-    int mouseY,
-    GridLayout leftGrid,
-    List<CraftingDialogLayout.SlotBounds> craftingBounds) {
-    int leftIndex =
-      InventoryGridRenderer.findSlotIndexAt(
-        mouseX, mouseY, leftGrid.slots(), leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
-    if (leftIndex >= 0) {
-      return new SlotSelection(InventorySide.TARGET, leftIndex);
-    }
+  private GridHitTest.Slot<InventorySide> findSlotSelection(
+      int mouseX,
+      int mouseY,
+      GridHitTest.Grid<InventorySide> leftGrid,
+      List<CraftingDialogLayout.SlotBounds> craftingBounds) {
+    return GridHitTest.findSlotAt(
+        mouseX, mouseY, List.of(leftGrid), toBoundedSlots(craftingBounds));
+  }
+
+  private List<GridHitTest.BoundedSlot<InventorySide>> toBoundedSlots(
+      List<CraftingDialogLayout.SlotBounds> craftingBounds) {
+    List<GridHitTest.BoundedSlot<InventorySide>> slots = new ArrayList<>(craftingBounds.size());
 
     for (CraftingDialogLayout.SlotBounds bounds : craftingBounds) {
-      if (bounds.contains(mouseX, mouseY)) {
-        return new SlotSelection(InventorySide.CRAFTING, bounds.slotIndex());
-      }
+      slots.add(
+          new GridHitTest.BoundedSlot<>(
+              InventorySide.CRAFTING,
+              bounds.slotIndex(),
+              new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size())));
     }
 
-    return null;
+    return List.copyOf(slots);
   }
 
   private void drawHoverTooltip(
-    Graphics2D g,
-    GridLayout leftGrid,
-    List<CraftingDialogLayout.SlotBounds> craftingBounds,
-    Item[] resultItems,
-    List<CraftingDialogLayout.ItemBounds> resultBounds) {
+      Graphics2D g,
+      GridHitTest.Grid<InventorySide> leftGrid,
+      List<CraftingDialogLayout.SlotBounds> craftingBounds,
+      Item[] resultItems,
+      List<CraftingDialogLayout.ItemBounds> resultBounds) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       return;
@@ -741,21 +676,21 @@ final class CraftingDialogOverlay
       return;
     }
 
-    int leftIndex =
-      InventoryGridRenderer.findSlotIndexAt(
-        mouseX, mouseY, leftGrid.slots(), leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
-    if (leftIndex >= 0) {
-      controller.targetInventory().get(leftIndex).ifPresent(hoveredItem -> ItemTooltipRenderer.drawTooltip(
-        g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight()));
+    GridHitTest.Slot<InventorySide> hoveredSlot =
+        findSlotSelection(mouseX, mouseY, leftGrid, craftingBounds);
+    if (hoveredSlot != null) {
+      inventoryOf(hoveredSlot.side())
+          .get(hoveredSlot.slotIndex())
+          .ifPresent(
+              hoveredItem ->
+                  ItemTooltipRenderer.drawTooltip(
+                      g,
+                      hoveredItem,
+                      mouseX,
+                      mouseY,
+                      (int) stage.getWidth(),
+                      (int) stage.getHeight()));
       return;
-    }
-
-    for (CraftingDialogLayout.SlotBounds bounds : craftingBounds) {
-      if (bounds.contains(mouseX, mouseY)) {
-        controller.craftingInventory().get(bounds.slotIndex()).ifPresent(hoveredItem -> ItemTooltipRenderer.drawTooltip(
-          g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight()));
-        return;
-      }
     }
 
     for (int i = 0; i < resultBounds.size() && i < resultItems.length; i++) {
@@ -763,19 +698,20 @@ final class CraftingDialogOverlay
       Rectangle rect = new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size());
       if (rect.contains(mouseX, mouseY)) {
         ItemTooltipRenderer.drawTooltip(
-          g, resultItems[i], mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
+            g, resultItems[i], mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
         return;
       }
     }
   }
 
   private void drawDropHighlights(
-    Graphics2D g,
-    GridLayout leftGrid,
-    Rectangle leftPanelBounds,
-    Rectangle rightPanelBounds,
-    List<CraftingDialogLayout.SlotBounds> craftingBounds) {
+      Graphics2D g,
+      GridHitTest.Grid<InventorySide> leftGrid,
+      Rectangle leftPanelBounds,
+      Rectangle rightPanelBounds,
+      List<CraftingDialogLayout.SlotBounds> craftingBounds) {
     StageHandle stage = Game.stage().orElse(null);
+    InventoryDragController.DragState<InventorySide> dragState = dragController.dragState();
     if (stage == null || dragState == null) {
       return;
     }
@@ -790,14 +726,10 @@ final class CraftingDialogOverlay
       return;
     }
 
-    int hoveredTargetSlotIndex =
-      InventoryGridRenderer.findSlotIndexAt(
-        mouseX, mouseY, leftGrid.slots(), leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
-    if (hoveredTargetSlotIndex >= 0) {
-      Rectangle slotBounds =
-        InventoryGridRenderer.slotBounds(
-          hoveredTargetSlotIndex, leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
-      drawHighlight(g, slotBounds);
+    GridHitTest.Slot<InventorySide> hoveredTargetSlot =
+        GridHitTest.findGridSlotAt(mouseX, mouseY, List.of(leftGrid));
+    if (hoveredTargetSlot != null) {
+      drawHighlight(g, leftGrid.slotBounds(hoveredTargetSlot.slotIndex()));
       return;
     }
 
@@ -815,35 +747,7 @@ final class CraftingDialogOverlay
   }
 
   private void drawHighlight(Graphics2D g, Rectangle bounds) {
-    g.setColor(DRAG_HIGHLIGHT_FILL);
-    g.fillRoundRect(
-      bounds.x + DRAG_TARGET_INSET,
-      bounds.y + DRAG_TARGET_INSET,
-      bounds.width - 2 * DRAG_TARGET_INSET,
-      bounds.height - 2 * DRAG_TARGET_INSET,
-      DRAG_TARGET_ARC,
-      DRAG_TARGET_ARC);
-
-    g.setColor(DRAG_HIGHLIGHT);
-    g.drawRoundRect(
-      bounds.x + DRAG_TARGET_INSET,
-      bounds.y + DRAG_TARGET_INSET,
-      bounds.width - 2 * DRAG_TARGET_INSET,
-      bounds.height - 2 * DRAG_TARGET_INSET,
-      DRAG_TARGET_ARC,
-      DRAG_TARGET_ARC);
-  }
-
-  private void drawDragPreview(Graphics2D g) {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null || dragState == null || dragState.item() == null) {
-      return;
-    }
-
-    int previewX = stage.mouseX() - InventoryGridRenderer.SLOT_WIDTH / 2;
-    int previewY = stage.mouseY() - InventoryGridRenderer.SLOT_HEIGHT / 2;
-
-    InventoryGridRenderer.drawItemPreview(g, previewX, previewY, dragState.item());
+    InventoryDragController.drawDropHighlight(g, bounds, DRAG_HIGHLIGHT_FILL, DRAG_HIGHLIGHT);
   }
 
   private Optional<CraftingDialogAction> findActionButtonAt(int mouseX, int mouseY) {
@@ -864,10 +768,10 @@ final class CraftingDialogOverlay
     }
 
     DialogCallbackResolver.createButtonCallback(dialogId, action.callbackKey())
-      .accept(action == CraftingDialogAction.CRAFT ? controller.craftingPayload() : null);
+        .accept(action == CraftingDialogAction.CRAFT ? controller.craftingPayload() : null);
   }
 
-  private Item itemOf(SlotSelection selection) {
+  private Item itemOf(GridHitTest.Slot<InventorySide> selection) {
     if (selection == null) {
       return null;
     }
@@ -877,8 +781,8 @@ final class CraftingDialogOverlay
 
   private InventoryComponent inventoryOf(InventorySide side) {
     return side == InventorySide.TARGET
-      ? controller.targetInventory()
-      : controller.craftingInventory();
+        ? controller.targetInventory()
+        : controller.craftingInventory();
   }
 
   private BufferedImage resolveItemIcon(Item item) {
@@ -962,11 +866,4 @@ final class CraftingDialogOverlay
       return controllerSide;
     }
   }
-
-  private record SlotSelection(InventorySide side, int slotIndex) {}
-
-  private record DragState(SlotSelection source, Item item) {}
-
-  private record GridLayout(
-    InventorySide side, int startX, int startY, int columns, Item[] slots) {}
 }

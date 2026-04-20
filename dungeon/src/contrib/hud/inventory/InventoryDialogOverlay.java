@@ -3,21 +3,25 @@ package contrib.hud.inventory;
 import contrib.components.InventoryComponent;
 import contrib.entities.HeroController;
 import contrib.hud.elements.InventoryComponentProvider;
+import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
 import contrib.hud.renderers.ItemTooltipRenderer;
-import contrib.hud.renderers.DialogFrameRenderer;
+import contrib.hud.utils.GridHitTest;
+import contrib.hud.utils.InventoryDragController;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
 import core.input.MouseButtons;
 import core.network.messages.c2s.InputMessage;
-import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
+import core.ui.overlay.UiOverlay;
 import core.utils.InputManager;
 import core.utils.Vector2;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -31,15 +35,15 @@ import java.util.stream.Stream;
  * integrated with game systems.
  *
  * <p>Key features include:
+ *
  * <ul>
- *   <li>Rendering the inventory UI and associated elements.</li>
- *   <li>Drag-and-drop support for moving items between slots or dropping them.</li>
- *   <li>Handling player input, including drag events and item slot interaction.</li>
- *   <li>Visual feedback for hovered or targeted slots.</li>
+ *   <li>Rendering the inventory UI and associated elements.
+ *   <li>Drag-and-drop support for moving items between slots or dropping them.
+ *   <li>Handling player input, including drag events and item slot interaction.
+ *   <li>Visual feedback for hovered or targeted slots.
  * </ul>
  */
-final class InventoryDialogOverlay
-  implements UiOverlay, InventoryComponentProvider {
+final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 560;
   private static final int DEFAULT_HEIGHT = 430;
@@ -48,13 +52,13 @@ final class InventoryDialogOverlay
   private static final int PANEL_HEADER_GAP = 8;
 
   private static final int DRAG_THRESHOLD_PX = 8;
-  private static final int DRAG_TARGET_INSET = 3;
-  private static final int DRAG_TARGET_ARC = 8;
 
   private final String title;
   private final Entity owner;
   private final InventoryComponent inventory;
   private final boolean allowUseItems;
+  private final InventoryDragController<InventorySide> dragController =
+      InventoryDragController.withDistanceThreshold(DRAG_THRESHOLD_PX);
 
   private int x;
   private int y;
@@ -65,14 +69,8 @@ final class InventoryDialogOverlay
   private Integer pressedUseSlotIndex = null;
   private boolean rightButtonDownLastFrame = false;
 
-  private Integer pressedDragSlotIndex = null;
-  private boolean leftButtonDownLastFrame = false;
-  private int pressedMouseX = 0;
-  private int pressedMouseY = 0;
-  private DragState dragState = null;
-
   InventoryDialogOverlay(
-    String title, Entity owner, InventoryComponent inventory, boolean allowUseItems) {
+      String title, Entity owner, InventoryComponent inventory, boolean allowUseItems) {
     this.title = (title == null || title.isBlank()) ? "Inventory" : title;
     this.owner = owner;
     this.inventory = inventory;
@@ -86,15 +84,7 @@ final class InventoryDialogOverlay
     }
 
     Item[] slots = inventory.items();
-    Item[] visibleSlots = slots;
-
-    if (dragState != null) {
-      visibleSlots = slots.clone();
-      int sourceSlot = dragState.sourceSlot();
-      if (sourceSlot >= 0 && sourceSlot < visibleSlots.length) {
-        visibleSlots[sourceSlot] = null;
-      }
-    }
+    Item[] visibleSlots = dragController.visibleSlots(slots, InventorySide.PLAYER);
 
     int columns = InventoryGridRenderer.columnsFor(slots);
     int rows = InventoryGridRenderer.rowsFor(slots, columns);
@@ -103,14 +93,10 @@ final class InventoryDialogOverlay
     int gridHeight = InventoryGridRenderer.gridHeight(rows);
 
     width =
-      Math.max(
-        DEFAULT_WIDTH,
-        2 * DialogFrameRenderer.PADDING + gridWidth + 2 * PANEL_PADDING);
+        Math.max(DEFAULT_WIDTH, 2 * DialogFrameRenderer.PADDING + gridWidth + 2 * PANEL_PADDING);
 
     height =
-      Math.max(
-        DEFAULT_HEIGHT,
-        96 + gridHeight + 2 * PANEL_PADDING + DialogFrameRenderer.PADDING);
+        Math.max(DEFAULT_HEIGHT, 96 + gridHeight + 2 * PANEL_PADDING + DialogFrameRenderer.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -121,10 +107,9 @@ final class InventoryDialogOverlay
     int startX;
     int gridTop;
 
-    GridLayout grid;
+    GridHitTest.Grid<InventorySide> grid;
 
-    DialogFrameRenderer.RenderState state =
-      DialogFrameRenderer.beginDialog(g);
+    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
 
     try {
       contentY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, title);
@@ -133,29 +118,24 @@ final class InventoryDialogOverlay
       gridTop = contentY + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle panelBounds =
-        new Rectangle(
-          startX - PANEL_PADDING,
-          gridTop - PANEL_PADDING,
-          gridWidth + 2 * PANEL_PADDING,
-          gridHeight + 2 * PANEL_PADDING);
+          new Rectangle(
+              startX - PANEL_PADDING,
+              gridTop - PANEL_PADDING,
+              gridWidth + 2 * PANEL_PADDING,
+              gridHeight + 2 * PANEL_PADDING);
 
-      drawPanelBackground(
-        g,
-        panelBounds.x,
-        panelBounds.y,
-        panelBounds.width,
-        panelBounds.height);
+      drawPanelBackground(g, panelBounds.x, panelBounds.y, panelBounds.width, panelBounds.height);
 
-      grid = new GridLayout(startX, gridTop, columns, visibleSlots);
+      grid = new GridHitTest.Grid<>(InventorySide.PLAYER, startX, gridTop, columns, visibleSlots);
 
       InventoryGridRenderer.drawGrid(g, visibleSlots, startX, gridTop, columns);
 
-      if (dragState != null) {
-        Integer hoveredTargetSlotIndex = hoveredDropTargetSlotIndex(grid);
-        if (hoveredTargetSlotIndex != null) {
-          drawDropTargetHighlight(g, grid, hoveredTargetSlotIndex);
+      if (dragController.isDragging()) {
+        GridHitTest.Slot<InventorySide> hoveredTarget = hoveredDropTarget(grid);
+        if (hoveredTarget != null) {
+          drawDropTargetHighlight(g, grid, hoveredTarget.slotIndex());
         }
-        drawDragPreview(g);
+        dragController.drawDragPreview(g);
       } else {
         drawHoverTooltip(g, grid);
       }
@@ -166,19 +146,7 @@ final class InventoryDialogOverlay
     handleInput(grid);
   }
 
-  private void drawDragPreview(Graphics2D g) {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null || dragState == null || dragState.item() == null) {
-      return;
-    }
-
-    int previewX = stage.mouseX() - InventoryGridRenderer.SLOT_WIDTH / 2;
-    int previewY = stage.mouseY() - InventoryGridRenderer.SLOT_HEIGHT / 2;
-
-    InventoryGridRenderer.drawItemPreview(g, previewX, previewY, dragState.item());
-  }
-
-  private void drawHoverTooltip(Graphics2D g, GridLayout grid) {
+  private void drawHoverTooltip(Graphics2D g, GridHitTest.Grid<InventorySide> grid) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       return;
@@ -191,21 +159,21 @@ final class InventoryDialogOverlay
       return;
     }
 
-    int hoveredSlotIndex = findSlotIndex(grid, mouseX, mouseY);
-    if (hoveredSlotIndex < 0) {
+    GridHitTest.Slot<InventorySide> hoveredSlot = findSlotSelection(grid, mouseX, mouseY);
+    if (hoveredSlot == null) {
       return;
     }
 
-    Item hoveredItem = inventory.get(hoveredSlotIndex).orElse(null);
+    Item hoveredItem = inventory.get(hoveredSlot.slotIndex()).orElse(null);
     if (hoveredItem == null) {
       return;
     }
 
     ItemTooltipRenderer.drawTooltip(
-      g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
+        g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
   }
 
-  private void handleInput(GridLayout grid) {
+  private void handleInput(GridHitTest.Grid<InventorySide> grid) {
     if (!allowUseItems) {
       resetInteractionState();
       return;
@@ -224,49 +192,42 @@ final class InventoryDialogOverlay
     handleRightUseInput(grid, mouseX, mouseY);
   }
 
-  private void handleLeftDragInput(GridLayout grid, int mouseX, int mouseY) {
+  private void handleLeftDragInput(GridHitTest.Grid<InventorySide> grid, int mouseX, int mouseY) {
     boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
+    Optional<InventoryDragController.Release<InventorySide>> release =
+        dragController.update(
+            leftButtonDown,
+            mouseX,
+            mouseY,
+            (slotMouseX, slotMouseY) -> findSlotSelection(grid, slotMouseX, slotMouseY),
+            this::itemOf);
 
-    if (leftButtonDown && !leftButtonDownLastFrame) {
-      int slotIndex = findSlotIndex(grid, mouseX, mouseY);
-      pressedDragSlotIndex = slotIndex >= 0 ? slotIndex : null;
-      pressedMouseX = mouseX;
-      pressedMouseY = mouseY;
-      dragState = null;
-    } else if (leftButtonDown) {
-      maybeStartDrag(mouseX, mouseY);
+    if (release.isEmpty()) {
+      return;
     }
 
-    if (!leftButtonDown && leftButtonDownLastFrame) {
-      int releasedSlotIndex = findSlotIndex(grid, mouseX, mouseY);
-
-      DragState completedDrag = dragState;
-      pressedDragSlotIndex = null;
-      dragState = null;
-
-      if (completedDrag != null) {
-        handleDraggedRelease(completedDrag, releasedSlotIndex, mouseX, mouseY);
-      }
+    InventoryDragController.Release<InventorySide> released = release.get();
+    if (released.completedDrag() != null) {
+      handleDraggedRelease(released.completedDrag(), released.releasedSlot(), mouseX, mouseY);
     }
-
-    leftButtonDownLastFrame = leftButtonDown;
   }
 
-  private void handleRightUseInput(GridLayout grid, int mouseX, int mouseY) {
+  private void handleRightUseInput(GridHitTest.Grid<InventorySide> grid, int mouseX, int mouseY) {
     boolean rightButtonDown = InputManager.isButtonPressed(MouseButtons.RIGHT);
 
-    if (dragState != null) {
+    if (dragController.isDragging()) {
       rightButtonDownLastFrame = rightButtonDown;
       return;
     }
 
     if (rightButtonDown && !rightButtonDownLastFrame) {
-      int slotIndex = findSlotIndex(grid, mouseX, mouseY);
-      pressedUseSlotIndex = slotIndex >= 0 ? slotIndex : null;
+      GridHitTest.Slot<InventorySide> slot = findSlotSelection(grid, mouseX, mouseY);
+      pressedUseSlotIndex = slot == null ? null : slot.slotIndex();
     }
 
     if (!rightButtonDown && rightButtonDownLastFrame) {
-      int releasedSlotIndex = findSlotIndex(grid, mouseX, mouseY);
+      GridHitTest.Slot<InventorySide> releasedSlot = findSlotSelection(grid, mouseX, mouseY);
+      int releasedSlotIndex = releasedSlot == null ? -1 : releasedSlot.slotIndex();
 
       Integer previouslyPressedSlot = pressedUseSlotIndex;
       pressedUseSlotIndex = null;
@@ -279,37 +240,21 @@ final class InventoryDialogOverlay
     rightButtonDownLastFrame = rightButtonDown;
   }
 
-  private void maybeStartDrag(int mouseX, int mouseY) {
-    if (dragState != null || pressedDragSlotIndex == null) {
-      return;
-    }
-
-    int deltaX = mouseX - pressedMouseX;
-    int deltaY = mouseY - pressedMouseY;
-    int thresholdSquared = DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX;
-
-    if ((deltaX * deltaX) + (deltaY * deltaY) < thresholdSquared) {
-      return;
-    }
-
-    Item draggedItem = inventory.get(pressedDragSlotIndex).orElse(null);
-    if (draggedItem == null) {
-      pressedDragSlotIndex = null;
-      return;
-    }
-
-    dragState = new DragState(pressedDragSlotIndex, draggedItem);
-  }
-
   private void handleDraggedRelease(
-    DragState completedDrag, int releasedSlotIndex, int mouseX, int mouseY) {
-    if (releasedSlotIndex >= 0 && releasedSlotIndex != completedDrag.sourceSlot()) {
-      moveDraggedItem(completedDrag.sourceSlot(), releasedSlotIndex);
+      InventoryDragController.DragState<InventorySide> completedDrag,
+      GridHitTest.Slot<InventorySide> releasedSlot,
+      int mouseX,
+      int mouseY) {
+    int sourceSlot = completedDrag.source().slotIndex();
+    int releasedSlotIndex = releasedSlot == null ? -1 : releasedSlot.slotIndex();
+
+    if (releasedSlotIndex >= 0 && releasedSlotIndex != sourceSlot) {
+      moveDraggedItem(sourceSlot, releasedSlotIndex);
       return;
     }
 
     if (!dialogBounds().contains(mouseX, mouseY)) {
-      dropDraggedItem(completedDrag.sourceSlot());
+      dropDraggedItem(sourceSlot);
     }
   }
 
@@ -321,12 +266,11 @@ final class InventoryDialogOverlay
       HeroController.moveItem(owner, encodedSourceSlot, encodedTargetSlot);
     } else {
       Game.network()
-        .send(
-          (short) 0,
-          new InputMessage(
-            InputMessage.Action.INV_MOVE,
-            Vector2.of(encodedSourceSlot, encodedTargetSlot)),
-          true);
+          .send(
+              (short) 0,
+              new InputMessage(
+                  InputMessage.Action.INV_MOVE, Vector2.of(encodedSourceSlot, encodedTargetSlot)),
+              true);
     }
   }
 
@@ -335,14 +279,15 @@ final class InventoryDialogOverlay
       HeroController.dropItem(owner, inventory, sourceSlot);
     } else {
       Game.network()
-        .send(
-          (short) 0,
-          new InputMessage(InputMessage.Action.INV_DROP, Vector2.of(sourceSlot, 0)),
-          true);
+          .send(
+              (short) 0,
+              new InputMessage(InputMessage.Action.INV_DROP, Vector2.of(sourceSlot, 0)),
+              true);
     }
   }
 
-  private Integer hoveredDropTargetSlotIndex(GridLayout grid) {
+  private GridHitTest.Slot<InventorySide> hoveredDropTarget(GridHitTest.Grid<InventorySide> grid) {
+    InventoryDragController.DragState<InventorySide> dragState = dragController.dragState();
     if (dragState == null) {
       return null;
     }
@@ -352,38 +297,39 @@ final class InventoryDialogOverlay
       return null;
     }
 
-    int hoveredSlotIndex = findSlotIndex(grid, stage.mouseX(), stage.mouseY());
-    if (hoveredSlotIndex < 0) {
+    GridHitTest.Slot<InventorySide> hoveredSlot =
+        findSlotSelection(grid, stage.mouseX(), stage.mouseY());
+    if (hoveredSlot == null) {
       return null;
     }
 
-    if (hoveredSlotIndex == dragState.sourceSlot()) {
+    if (hoveredSlot.slotIndex() == dragState.source().slotIndex()) {
       return null;
     }
 
-    return hoveredSlotIndex;
+    return hoveredSlot;
   }
 
-  private void drawDropTargetHighlight(Graphics2D g, GridLayout grid, int slotIndex) {
-    Rectangle bounds =
-      InventoryGridRenderer.slotBounds(
-        slotIndex, grid.startX(), grid.startY(), grid.columns());
-
-    int insetX = bounds.x + DRAG_TARGET_INSET;
-    int insetY = bounds.y + DRAG_TARGET_INSET;
-    int insetWidth = bounds.width - 2 * DRAG_TARGET_INSET;
-    int insetHeight = bounds.height - 2 * DRAG_TARGET_INSET;
-
-    g.setColor(new Color(88, 168, 116, 70));
-    g.fillRoundRect(insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
-
-    g.setColor(new Color(132, 214, 156, 210));
-    g.drawRoundRect(insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
+  private void drawDropTargetHighlight(
+      Graphics2D g, GridHitTest.Grid<InventorySide> grid, int slotIndex) {
+    InventoryDragController.drawDropHighlight(
+        g,
+        grid.slotBounds(slotIndex),
+        InventoryDragController.DEFAULT_DROP_FILL,
+        InventoryDragController.DEFAULT_DROP_OUTLINE);
   }
 
-  private int findSlotIndex(GridLayout grid, int mouseX, int mouseY) {
-    return InventoryGridRenderer.findSlotIndexAt(
-      mouseX, mouseY, grid.slots(), grid.startX(), grid.startY(), grid.columns());
+  private GridHitTest.Slot<InventorySide> findSlotSelection(
+      GridHitTest.Grid<InventorySide> grid, int mouseX, int mouseY) {
+    return GridHitTest.findGridSlotAt(mouseX, mouseY, List.of(grid));
+  }
+
+  private Item itemOf(GridHitTest.Slot<InventorySide> slot) {
+    if (slot == null) {
+      return null;
+    }
+
+    return inventory.get(slot.slotIndex()).orElse(null);
   }
 
   private Rectangle dialogBounds() {
@@ -405,9 +351,7 @@ final class InventoryDialogOverlay
   private void resetInteractionState() {
     pressedUseSlotIndex = null;
     rightButtonDownLastFrame = false;
-    pressedDragSlotIndex = null;
-    leftButtonDownLastFrame = false;
-    dragState = null;
+    dragController.reset();
   }
 
   @Override
@@ -465,7 +409,7 @@ final class InventoryDialogOverlay
     return Stream.of(inventory);
   }
 
-  private record GridLayout(int startX, int startY, int columns, Item[] slots) {}
-
-  private record DragState(int sourceSlot, Item item) {}
+  private enum InventorySide {
+    PLAYER
+  }
 }

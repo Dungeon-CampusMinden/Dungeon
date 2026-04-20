@@ -2,38 +2,43 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.elements.InventoryComponentProvider;
+import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
 import contrib.hud.renderers.ItemTooltipRenderer;
-import contrib.hud.renderers.DialogFrameRenderer;
+import contrib.hud.utils.GridHitTest;
+import contrib.hud.utils.InventoryDragController;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
-import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
+import core.ui.overlay.UiOverlay;
 import core.utils.InputManager;
-
 import java.awt.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * A UI overlay that provides a dual inventory dialog for managing two inventory parts simultaneously.
+ * A UI overlay that provides a dual inventory dialog for managing two inventory parts
+ * simultaneously.
  *
  * <p>The DualInventoryDialogOverlay class enables users to interact with two inventory panels,
  * allowing item transfer between them and providing intuitive drag-and-drop functionality.
  *
- * <p>The overlay includes support for rendering panel backgrounds, handling input operations,
- * and drawing UI elements like tooltips, drag previews, and drop target highlights.
+ * <p>The overlay includes support for rendering panel backgrounds, handling input operations, and
+ * drawing UI elements like tooltips, drag previews, and drop target highlights.
  *
  * <p>Key Features:
+ *
  * <ul>
- *   <li>Two separate inventory panels with customizable titles.</li>
- *   <li>Drag-and-drop functionality with labeled previews and defined drag thresholds.</li>
- *   <li>Visual and interactive feedback for item transfers, including highlights and hover tooltips.</li>
- *   <li>Ability to manage UI state such as visibility, dimensions, and interaction states.</li>
+ *   <li>Two separate inventory panels with customizable titles.
+ *   <li>Drag-and-drop functionality with labeled previews and defined drag thresholds.
+ *   <li>Visual and interactive feedback for item transfers, including highlights and hover
+ *       tooltips.
+ *   <li>Ability to manage UI state such as visibility, dimensions, and interaction states.
  * </ul>
  */
-final class DualInventoryDialogOverlay
-  implements UiOverlay, InventoryComponentProvider {
+final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 1100;
   private static final int DEFAULT_HEIGHT = 470;
@@ -42,13 +47,13 @@ final class DualInventoryDialogOverlay
 
   private static final int PANEL_PADDING = 8;
   private static final int DRAG_THRESHOLD_PX = 8;
-  private static final int DRAG_TARGET_INSET = 3;
-  private static final int DRAG_TARGET_ARC = 8;
 
   private final String leftTitle;
   private final InventoryComponent leftInventory;
   private final String rightTitle;
   private final InventoryComponent rightInventory;
+  private final InventoryDragController<InventorySide> dragController =
+      InventoryDragController.withDistanceThreshold(DRAG_THRESHOLD_PX);
 
   private int x;
   private int y;
@@ -56,17 +61,11 @@ final class DualInventoryDialogOverlay
   private int height = DEFAULT_HEIGHT;
   private boolean visible = true;
 
-  private SlotSelection pressedSlotSelection = null;
-  private boolean leftButtonDownLastFrame = false;
-  private int pressedMouseX = 0;
-  private int pressedMouseY = 0;
-  private DragState dragState = null;
-
   DualInventoryDialogOverlay(
-    String leftTitle,
-    InventoryComponent leftInventory,
-    String rightTitle,
-    InventoryComponent rightInventory) {
+      String leftTitle,
+      InventoryComponent leftInventory,
+      String rightTitle,
+      InventoryComponent rightInventory) {
     this.leftTitle = (leftTitle == null || leftTitle.isBlank()) ? "Inventory" : leftTitle;
     this.leftInventory = leftInventory;
     this.rightTitle = (rightTitle == null || rightTitle.isBlank()) ? "Inventory" : rightTitle;
@@ -82,24 +81,8 @@ final class DualInventoryDialogOverlay
     Item[] leftSlots = leftInventory.items();
     Item[] rightSlots = rightInventory.items();
 
-    Item[] visibleLeftSlots = leftSlots;
-    Item[] visibleRightSlots = rightSlots;
-
-    if (dragState != null && dragState.source() != null) {
-      if (dragState.source().side() == InventorySide.LEFT) {
-        visibleLeftSlots = leftSlots.clone();
-        if (dragState.source().slotIndex() >= 0
-          && dragState.source().slotIndex() < visibleLeftSlots.length) {
-          visibleLeftSlots[dragState.source().slotIndex()] = null;
-        }
-      } else {
-        visibleRightSlots = rightSlots.clone();
-        if (dragState.source().slotIndex() >= 0
-          && dragState.source().slotIndex() < visibleRightSlots.length) {
-          visibleRightSlots[dragState.source().slotIndex()] = null;
-        }
-      }
-    }
+    Item[] visibleLeftSlots = dragController.visibleSlots(leftSlots, InventorySide.LEFT);
+    Item[] visibleRightSlots = dragController.visibleSlots(rightSlots, InventorySide.RIGHT);
 
     int leftColumns = InventoryGridRenderer.columnsFor(leftSlots);
     int rightColumns = InventoryGridRenderer.columnsFor(rightSlots);
@@ -110,11 +93,11 @@ final class DualInventoryDialogOverlay
     int rightGridWidth = InventoryGridRenderer.gridWidth(rightColumns);
 
     int contentWidth =
-      leftGridWidth
-        + rightGridWidth
-        + PANEL_GAP
-        + 2 * DialogFrameRenderer.PADDING
-        + 2 * PANEL_PADDING;
+        leftGridWidth
+            + rightGridWidth
+            + PANEL_GAP
+            + 2 * DialogFrameRenderer.PADDING
+            + 2 * PANEL_PADDING;
     width = Math.max(DEFAULT_WIDTH, contentWidth);
 
     int leftGridHeight = InventoryGridRenderer.gridHeight(leftRows);
@@ -122,9 +105,8 @@ final class DualInventoryDialogOverlay
     int maxGridHeight = Math.max(leftGridHeight, rightGridHeight);
 
     height =
-      Math.max(
-        DEFAULT_HEIGHT,
-        108 + maxGridHeight + 2 * PANEL_PADDING + DialogFrameRenderer.PADDING);
+        Math.max(
+            DEFAULT_HEIGHT, 108 + maxGridHeight + 2 * PANEL_PADDING + DialogFrameRenderer.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -136,15 +118,13 @@ final class DualInventoryDialogOverlay
     int rightStartX;
     int gridTop;
 
-    GridLayout leftGrid;
-    GridLayout rightGrid;
+    GridHitTest.Grid<InventorySide> leftGrid;
+    GridHitTest.Grid<InventorySide> rightGrid;
 
-    DialogFrameRenderer.RenderState state =
-      DialogFrameRenderer.beginDialog(g);
+    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
 
     try {
-      contentY =
-        DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Inventory");
+      contentY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Inventory");
 
       int totalGridWidth = leftGridWidth + PANEL_GAP + rightGridWidth;
       leftStartX = x + (width - totalGridWidth) / 2;
@@ -155,50 +135,47 @@ final class DualInventoryDialogOverlay
       g.drawString(leftTitle, leftStartX, titleBaseline);
       g.drawString(rightTitle, rightStartX, titleBaseline);
 
-      gridTop =
-        titleBaseline + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
+      gridTop = titleBaseline + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle leftPanelBounds =
-        new Rectangle(
-          leftStartX - PANEL_PADDING,
-          gridTop - PANEL_PADDING,
-          leftGridWidth + 2 * PANEL_PADDING,
-          leftGridHeight + 2 * PANEL_PADDING);
+          new Rectangle(
+              leftStartX - PANEL_PADDING,
+              gridTop - PANEL_PADDING,
+              leftGridWidth + 2 * PANEL_PADDING,
+              leftGridHeight + 2 * PANEL_PADDING);
 
       Rectangle rightPanelBounds =
-        new Rectangle(
-          rightStartX - PANEL_PADDING,
-          gridTop - PANEL_PADDING,
-          rightGridWidth + 2 * PANEL_PADDING,
-          rightGridHeight + 2 * PANEL_PADDING);
+          new Rectangle(
+              rightStartX - PANEL_PADDING,
+              gridTop - PANEL_PADDING,
+              rightGridWidth + 2 * PANEL_PADDING,
+              rightGridHeight + 2 * PANEL_PADDING);
 
       drawPanelBackground(
-        g,
-        leftPanelBounds.x,
-        leftPanelBounds.y,
-        leftPanelBounds.width,
-        leftPanelBounds.height);
+          g, leftPanelBounds.x, leftPanelBounds.y, leftPanelBounds.width, leftPanelBounds.height);
       drawPanelBackground(
-        g,
-        rightPanelBounds.x,
-        rightPanelBounds.y,
-        rightPanelBounds.width,
-        rightPanelBounds.height);
+          g,
+          rightPanelBounds.x,
+          rightPanelBounds.y,
+          rightPanelBounds.width,
+          rightPanelBounds.height);
 
       leftGrid =
-        new GridLayout(InventorySide.LEFT, leftStartX, gridTop, leftColumns, visibleLeftSlots);
+          new GridHitTest.Grid<>(
+              InventorySide.LEFT, leftStartX, gridTop, leftColumns, visibleLeftSlots);
       rightGrid =
-        new GridLayout(InventorySide.RIGHT, rightStartX, gridTop, rightColumns, visibleRightSlots);
+          new GridHitTest.Grid<>(
+              InventorySide.RIGHT, rightStartX, gridTop, rightColumns, visibleRightSlots);
 
       InventoryGridRenderer.drawGrid(g, visibleLeftSlots, leftStartX, gridTop, leftColumns);
       InventoryGridRenderer.drawGrid(g, visibleRightSlots, rightStartX, gridTop, rightColumns);
 
-      if (dragState != null) {
-        SlotSelection hoveredTarget = hoveredDropTarget(leftGrid, rightGrid);
+      if (dragController.isDragging()) {
+        GridHitTest.Slot<InventorySide> hoveredTarget = hoveredDropTarget(leftGrid, rightGrid);
         if (hoveredTarget != null) {
           drawDropTargetHighlight(g, hoveredTarget, leftGrid, rightGrid);
         }
-        drawDragPreview(g);
+        dragController.drawDragPreview(g);
       } else {
         drawHoverTooltip(g, leftGrid, rightGrid);
       }
@@ -209,12 +186,11 @@ final class DualInventoryDialogOverlay
     handleInput(leftGrid, rightGrid);
   }
 
-  private void handleInput(GridLayout leftGrid, GridLayout rightGrid) {
+  private void handleInput(
+      GridHitTest.Grid<InventorySide> leftGrid, GridHitTest.Grid<InventorySide> rightGrid) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
-      pressedSlotSelection = null;
-      dragState = null;
-      leftButtonDownLastFrame = false;
+      dragController.reset();
       return;
     }
 
@@ -222,56 +198,31 @@ final class DualInventoryDialogOverlay
     int mouseY = stage.mouseY();
     boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (leftButtonDown && !leftButtonDownLastFrame) {
-      pressedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
-      pressedMouseX = mouseX;
-      pressedMouseY = mouseY;
-      dragState = null;
-    } else if (leftButtonDown) {
-      maybeStartDrag(mouseX, mouseY);
+    Optional<InventoryDragController.Release<InventorySide>> release =
+        dragController.update(
+            leftButtonDown,
+            mouseX,
+            mouseY,
+            (slotMouseX, slotMouseY) ->
+                findSlotSelection(slotMouseX, slotMouseY, leftGrid, rightGrid),
+            this::itemOf);
+
+    if (release.isEmpty()) {
+      return;
     }
 
-    if (!leftButtonDown && leftButtonDownLastFrame) {
-      SlotSelection releasedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
-      SlotSelection previouslyPressedSlot = pressedSlotSelection;
-      DragState completedDrag = dragState;
-
-      pressedSlotSelection = null;
-      dragState = null;
-
-      if (completedDrag != null) {
-        handleDraggedRelease(completedDrag, releasedSlotSelection);
-      } else if (previouslyPressedSlot != null && previouslyPressedSlot.equals(releasedSlotSelection)) {
-        transferClickedItem(previouslyPressedSlot);
-      }
+    InventoryDragController.Release<InventorySide> released = release.get();
+    if (released.completedDrag() != null) {
+      handleDraggedRelease(released.completedDrag(), released.releasedSlot());
+    } else if (released.pressedSlot() != null
+        && released.pressedSlot().equals(released.releasedSlot())) {
+      transferClickedItem(released.pressedSlot());
     }
-
-    leftButtonDownLastFrame = leftButtonDown;
   }
 
-  private void maybeStartDrag(int mouseX, int mouseY) {
-    if (dragState != null || pressedSlotSelection == null) {
-      return;
-    }
-
-    int deltaX = mouseX - pressedMouseX;
-    int deltaY = mouseY - pressedMouseY;
-    int thresholdSquared = DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX;
-    if ((deltaX * deltaX) + (deltaY * deltaY) < thresholdSquared) {
-      return;
-    }
-
-    InventoryComponent source = inventoryOf(pressedSlotSelection.side());
-    Item draggedItem = source.get(pressedSlotSelection.slotIndex()).orElse(null);
-    if (draggedItem == null) {
-      pressedSlotSelection = null;
-      return;
-    }
-
-    dragState = new DragState(pressedSlotSelection, draggedItem);
-  }
-
-  private void handleDraggedRelease(DragState completedDrag, SlotSelection releasedSlotSelection) {
+  private void handleDraggedRelease(
+      InventoryDragController.DragState<InventorySide> completedDrag,
+      GridHitTest.Slot<InventorySide> releasedSlotSelection) {
     if (releasedSlotSelection == null) {
       return;
     }
@@ -289,7 +240,8 @@ final class DualInventoryDialogOverlay
   }
 
   private void moveOrSwapWithinInventory(
-    SlotSelection sourceSelection, SlotSelection targetSelection) {
+      GridHitTest.Slot<InventorySide> sourceSelection,
+      GridHitTest.Slot<InventorySide> targetSelection) {
     InventoryComponent inventory = inventoryOf(sourceSelection.side());
 
     int sourceSlot = sourceSelection.slotIndex();
@@ -312,7 +264,7 @@ final class DualInventoryDialogOverlay
     }
   }
 
-  private void transferClickedItem(SlotSelection slotSelection) {
+  private void transferClickedItem(GridHitTest.Slot<InventorySide> slotSelection) {
     InventoryComponent source = inventoryOf(slotSelection.side());
     InventoryComponent destination = oppositeInventoryOf(slotSelection.side());
 
@@ -324,7 +276,9 @@ final class DualInventoryDialogOverlay
     source.transfer(item, destination);
   }
 
-  private void transferDraggedItem(DragState drag, SlotSelection releasedSlotSelection) {
+  private void transferDraggedItem(
+      InventoryDragController.DragState<InventorySide> drag,
+      GridHitTest.Slot<InventorySide> releasedSlotSelection) {
     InventoryComponent source = inventoryOf(drag.source().side());
     InventoryComponent destination = inventoryOf(releasedSlotSelection.side());
 
@@ -344,7 +298,9 @@ final class DualInventoryDialogOverlay
     }
   }
 
-  private SlotSelection hoveredDropTarget(GridLayout leftGrid, GridLayout rightGrid) {
+  private GridHitTest.Slot<InventorySide> hoveredDropTarget(
+      GridHitTest.Grid<InventorySide> leftGrid, GridHitTest.Grid<InventorySide> rightGrid) {
+    InventoryDragController.DragState<InventorySide> dragState = dragController.dragState();
     if (dragState == null) {
       return null;
     }
@@ -354,7 +310,8 @@ final class DualInventoryDialogOverlay
       return null;
     }
 
-    SlotSelection hovered = findSlotSelection(stage.mouseX(), stage.mouseY(), leftGrid, rightGrid);
+    GridHitTest.Slot<InventorySide> hovered =
+        findSlotSelection(stage.mouseX(), stage.mouseY(), leftGrid, rightGrid);
 
     if (hovered == null) {
       return null;
@@ -367,7 +324,10 @@ final class DualInventoryDialogOverlay
     return hovered;
   }
 
-  private void drawHoverTooltip(Graphics2D g, GridLayout leftGrid, GridLayout rightGrid) {
+  private void drawHoverTooltip(
+      Graphics2D g,
+      GridHitTest.Grid<InventorySide> leftGrid,
+      GridHitTest.Grid<InventorySide> rightGrid) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       return;
@@ -380,7 +340,8 @@ final class DualInventoryDialogOverlay
       return;
     }
 
-    SlotSelection hoveredSlot = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
+    GridHitTest.Slot<InventorySide> hoveredSlot =
+        findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
     if (hoveredSlot == null) {
       return;
     }
@@ -392,7 +353,7 @@ final class DualInventoryDialogOverlay
     }
 
     ItemTooltipRenderer.drawTooltip(
-      g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
+        g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
   }
 
   private InventoryComponent inventoryOf(InventorySide side) {
@@ -404,62 +365,34 @@ final class DualInventoryDialogOverlay
   }
 
   private void drawDropTargetHighlight(
-    Graphics2D g, SlotSelection targetSlot, GridLayout leftGrid, GridLayout rightGrid) {
-    GridLayout targetGrid = targetSlot.side() == InventorySide.LEFT ? leftGrid : rightGrid;
+      Graphics2D g,
+      GridHitTest.Slot<InventorySide> targetSlot,
+      GridHitTest.Grid<InventorySide> leftGrid,
+      GridHitTest.Grid<InventorySide> rightGrid) {
+    GridHitTest.Grid<InventorySide> targetGrid =
+        targetSlot.side() == InventorySide.LEFT ? leftGrid : rightGrid;
 
-    Rectangle bounds =
-      InventoryGridRenderer.slotBounds(
-        targetSlot.slotIndex(),
-        targetGrid.startX(),
-        targetGrid.startY(),
-        targetGrid.columns());
-
-    int insetX = bounds.x + DRAG_TARGET_INSET;
-    int insetY = bounds.y + DRAG_TARGET_INSET;
-    int insetWidth = bounds.width - 2 * DRAG_TARGET_INSET;
-    int insetHeight = bounds.height - 2 * DRAG_TARGET_INSET;
-
-    g.setColor(new Color(88, 168, 116, 70));
-    g.fillRoundRect(insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
-
-    g.setColor(new Color(132, 214, 156, 210));
-    g.drawRoundRect(insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
+    InventoryDragController.drawDropHighlight(
+        g,
+        targetGrid.slotBounds(targetSlot.slotIndex()),
+        InventoryDragController.DEFAULT_DROP_FILL,
+        InventoryDragController.DEFAULT_DROP_OUTLINE);
   }
 
-  private void drawDragPreview(Graphics2D g) {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null || dragState == null || dragState.item() == null) {
-      return;
-    }
-
-    int previewX = stage.mouseX() - InventoryGridRenderer.SLOT_WIDTH / 2;
-    int previewY = stage.mouseY() - InventoryGridRenderer.SLOT_HEIGHT / 2;
-
-    InventoryGridRenderer.drawItemPreview(g, previewX, previewY, dragState.item());
+  private GridHitTest.Slot<InventorySide> findSlotSelection(
+      int mouseX,
+      int mouseY,
+      GridHitTest.Grid<InventorySide> leftGrid,
+      GridHitTest.Grid<InventorySide> rightGrid) {
+    return GridHitTest.findGridSlotAt(mouseX, mouseY, List.of(leftGrid, rightGrid));
   }
 
-  private SlotSelection findSlotSelection(
-    int mouseX, int mouseY, GridLayout leftGrid, GridLayout rightGrid) {
-    int leftIndex =
-      InventoryGridRenderer.findSlotIndexAt(
-        mouseX, mouseY, leftGrid.slots(), leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
-    if (leftIndex >= 0) {
-      return new SlotSelection(leftGrid.side(), leftIndex);
+  private Item itemOf(GridHitTest.Slot<InventorySide> slot) {
+    if (slot == null) {
+      return null;
     }
 
-    int rightIndex =
-      InventoryGridRenderer.findSlotIndexAt(
-        mouseX,
-        mouseY,
-        rightGrid.slots(),
-        rightGrid.startX(),
-        rightGrid.startY(),
-        rightGrid.columns());
-    if (rightIndex >= 0) {
-      return new SlotSelection(rightGrid.side(), rightIndex);
-    }
-
-    return null;
+    return inventoryOf(slot.side()).get(slot.slotIndex()).orElse(null);
   }
 
   private void drawPanelBackground(Graphics2D g, int x, int y, int width, int height) {
@@ -529,11 +462,4 @@ final class DualInventoryDialogOverlay
     LEFT,
     RIGHT
   }
-
-  private record SlotSelection(InventorySide side, int slotIndex) {}
-
-  private record DragState(SlotSelection source, Item item) {}
-
-  private record GridLayout(
-    InventorySide side, int startX, int startY, int columns, Item[] slots) {}
 }
