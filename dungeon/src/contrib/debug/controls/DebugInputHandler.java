@@ -45,6 +45,10 @@ public final class DebugInputHandler {
       actions.openDoors().run();
     }
 
+    if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
+      actions.toggleFullscreen().run();
+    }
+
     if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value())) {
       actions.togglePause().run();
     }
@@ -67,6 +71,7 @@ public final class DebugInputHandler {
     Runnable loadNextLevel,
     Runnable spawnMonsterOnCursor,
     Runnable openDoors,
+    Runnable toggleFullscreen,
     Runnable togglePause,
     Runnable advanceFrame,
     Runnable toggleDebugHud) {
@@ -80,6 +85,7 @@ public final class DebugInputHandler {
       Objects.requireNonNull(loadNextLevel, "loadNextLevel must not be null");
       Objects.requireNonNull(spawnMonsterOnCursor, "spawnMonsterOnCursor must not be null");
       Objects.requireNonNull(openDoors, "openDoors must not be null");
+      Objects.requireNonNull(toggleFullscreen, "toggleFullscreen must not be null");
       Objects.requireNonNull(togglePause, "togglePause must not be null");
       Objects.requireNonNull(advanceFrame, "advanceFrame must not be null");
       Objects.requireNonNull(toggleDebugHud, "toggleDebugHud must not be null");

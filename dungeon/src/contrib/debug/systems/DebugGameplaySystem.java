@@ -43,6 +43,7 @@ public class DebugGameplaySystem extends System {
         }
       },
       DebugGameplayActions::openDoors,
+      () -> Platform.window().toggleFullscreen(),
       PAUSE_CONTROLLER::togglePause,
       PAUSE_CONTROLLER::advanceFrame,
       () -> Platform.render().toggleDebugHud());
