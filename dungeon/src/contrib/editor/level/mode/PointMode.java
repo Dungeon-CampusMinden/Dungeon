@@ -233,12 +233,12 @@ public final class PointMode extends LevelEditorMode {
 
     dialogUI.registerCallback(
       DialogContextKeys.ON_CANCEL,
-      data -> {
+      _ -> {
         UIUtils.closeDialog(dialogUI, true);
         addPointDialog = null;
       });
 
-    dialogUI.onClose(ui -> addPointDialog = null);
+    dialogUI.onClose(_ -> addPointDialog = null);
   }
 
   private void renderPointMarkers(Graphics2D g) {
@@ -284,8 +284,8 @@ public final class PointMode extends LevelEditorMode {
     drawLabel(
       g,
       name,
-      new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4),
-      POINT_LABEL_COLOR);
+      new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4)
+    );
   }
 
   private void drawHeldPointGhost(
@@ -306,8 +306,8 @@ public final class PointMode extends LevelEditorMode {
     drawLabel(
       g,
       name + " (held)",
-      new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4),
-      POINT_LABEL_COLOR);
+      new Point(screenCenter.x() + radius + 4, screenCenter.y() - 4)
+    );
   }
 
   private void drawMarker(Graphics2D g, Point center, int size, Color fill) {
@@ -323,9 +323,9 @@ public final class PointMode extends LevelEditorMode {
     g.setColor(old);
   }
 
-  private void drawLabel(Graphics2D g, String text, Point pos, Color color) {
+  private void drawLabel(Graphics2D g, String text, Point pos) {
     Color old = g.getColor();
-    g.setColor(color);
+    g.setColor(PointMode.POINT_LABEL_COLOR);
     g.drawString(text, Math.round(pos.x()), Math.round(pos.y()));
     g.setColor(old);
   }
