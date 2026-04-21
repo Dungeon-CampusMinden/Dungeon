@@ -14,7 +14,7 @@ import portal.riddles.utils.Tools;
  * <p>Der Catcher ist so etwas wie ein Schalter, der durch ein Pellet ausgelöst werden kann. Hier
  * entscheidest du, wie dieser Schalter reagieren soll.
  */
-public class MyEnergyPelletCatcherBehavior extends EnergyPelletCatcherBehavior {
+public class BlocklyEnergyPelletCatcherBehavior extends EnergyPelletCatcherBehavior {
 
   /**
    * Wird aufgerufen, wenn ein Energy Pellet den Catcher trifft.
