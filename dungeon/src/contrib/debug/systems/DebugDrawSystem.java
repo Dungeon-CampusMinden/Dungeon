@@ -39,6 +39,7 @@ public final class DebugDrawSystem extends System {
 
   private static volatile boolean hudVisible = false;
 
+  /** Creates a new debug draw system. */
   public DebugDrawSystem() {
     super(AuthoritativeSide.CLIENT);
   }
@@ -123,6 +124,10 @@ public final class DebugDrawSystem extends System {
       WORLD_FILLS.clear();
       SCREEN_TEXTS.clear();
       SCREEN_MARKERS.clear();
+      WORLD_LINES.clear();
+      WORLD_CIRCLE_OUTLINES.clear();
+      WORLD_CIRCLE_FILLS.clear();
+      SCREEN_RECTANGLES.clear();
     }
   }
 
@@ -188,7 +193,7 @@ public final class DebugDrawSystem extends System {
 
   @Override
   public void stop() {
-    this.run = true;
+    // Debug draw remains active so queued calls are drained even during gameplay pauses.
   }
 
   @Override
