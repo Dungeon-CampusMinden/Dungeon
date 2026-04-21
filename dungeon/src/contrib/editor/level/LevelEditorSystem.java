@@ -36,6 +36,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -117,17 +118,7 @@ public final class LevelEditorSystem extends System {
     if (active) {
       player
         .fetch(InputComponent.class)
-        .ifPresent(
-          pc -> {
-            playerCallbacks = pc.callbacks();
-            pc.removeCallback(LevelEditorMode.PRIMARY_UP);
-            pc.removeCallback(LevelEditorMode.PRIMARY_DOWN);
-            pc.removeCallback(LevelEditorMode.SECONDARY_UP);
-            pc.removeCallback(LevelEditorMode.SECONDARY_DOWN);
-            pc.removeCallback(LevelEditorMode.TERTIARY);
-            pc.removeCallback(core.input.MouseButtons.LEFT);
-            pc.removeCallback(core.input.MouseButtons.RIGHT);
-          });
+        .ifPresent(this::removePlayerEditorCallbacks);
 
       player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(true));
 
@@ -141,12 +132,7 @@ public final class LevelEditorSystem extends System {
     if (playerCallbacks != null) {
       player
         .fetch(InputComponent.class)
-        .ifPresent(
-          pc ->
-            playerCallbacks.forEach(
-              (key, value) ->
-                pc.registerCallback(
-                  key, value.callback(), value.repeat(), value.pauseable())));
+        .ifPresent(this::restorePlayerEditorCallbacks);
       playerCallbacks = null;
     }
 
@@ -267,6 +253,29 @@ public final class LevelEditorSystem extends System {
   private void detachOverlay() {
     overlay.visible(false);
     OverlayManager.remove(overlay);
+  }
+
+  private void removePlayerEditorCallbacks(InputComponent inputComponent) {
+    Map<Integer, InputComponent.InputData> callbacks = inputComponent.callbacks();
+    playerCallbacks = new HashMap<>();
+
+    LevelEditorMode.editorInputs()
+      .forEach(
+        input -> {
+          InputComponent.InputData callback = callbacks.get(input);
+          if (callback != null) {
+            playerCallbacks.put(input, callback);
+          }
+
+          inputComponent.removeCallback(input);
+        });
+  }
+
+  private void restorePlayerEditorCallbacks(InputComponent inputComponent) {
+    playerCallbacks.forEach(
+      (key, value) ->
+        inputComponent.registerCallback(
+          key, value.callback(), value.repeat(), value.pauseable()));
   }
 
   private Optional<Mode> selectedModeByHotkey() {

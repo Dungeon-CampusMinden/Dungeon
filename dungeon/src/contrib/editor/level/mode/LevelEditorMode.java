@@ -41,6 +41,17 @@ public abstract class LevelEditorMode {
   /** Quaternary action button. */
   public static final int QUARTERNARY = Keys.V;
 
+  private static final List<Integer> EDITOR_INPUTS =
+    List.of(
+      PRIMARY_UP,
+      PRIMARY_DOWN,
+      SECONDARY_UP,
+      SECONDARY_DOWN,
+      TERTIARY,
+      QUARTERNARY,
+      MouseButtons.LEFT,
+      MouseButtons.RIGHT);
+
   private final LevelEditorSystem system;
   private final String name;
 
@@ -55,6 +66,15 @@ public abstract class LevelEditorMode {
 
   public final String name() {
     return this.name;
+  }
+
+  /**
+   * Returns all input codes the level editor uses and must reserve while active.
+   *
+   * @return immutable list of editor input codes
+   */
+  public static List<Integer> editorInputs() {
+    return EDITOR_INPUTS;
   }
 
   /** Decorator method to execute the mode logic. */
