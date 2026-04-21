@@ -54,9 +54,6 @@ import java.util.List;
  * </ul>
  */
 final class KeypadDialogOverlay implements UiOverlay {
-
-  private static final String TITLE = "Keypad";
-
   private static final int DEFAULT_WIDTH = 420;
   private static final int DEFAULT_HEIGHT = 500;
 
@@ -66,7 +63,6 @@ final class KeypadDialogOverlay implements UiOverlay {
 
   private static final int BUTTON_SIZE = 84;
   private static final int BUTTON_GAP = 12;
-  private static final int BUTTON_ROWS = 4;
   private static final int BUTTON_COLUMNS = 3;
   private static final int BUTTON_TOP_GAP = 22;
 
@@ -100,10 +96,7 @@ final class KeypadDialogOverlay implements UiOverlay {
       DialogFrameRenderer.beginDialog(g);
 
     try {
-      int contentY =
-        DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, TITLE);
-
-      drawDisplay(g, contentY);
+      drawDisplay(g);
 
       List<Rectangle> buttons = buttonBounds();
       for (int i = 0; i < BUTTON_LABELS.size(); i++) {
@@ -115,7 +108,7 @@ final class KeypadDialogOverlay implements UiOverlay {
     }
   }
 
-  private void drawDisplay(Graphics2D g, int contentY) {
+  private void drawDisplay(Graphics2D g) {
     Rectangle display = displayBounds();
 
     g.setColor(new Color(20, 20, 26, 230));
