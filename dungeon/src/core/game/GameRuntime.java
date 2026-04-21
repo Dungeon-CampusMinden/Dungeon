@@ -18,24 +18,12 @@ import java.util.*;
 import core.sound.player.ISoundPlayer;
 
 /**
- * Entry point and facade for the game loop and core game engine.
+ * Represents the runtime configuration and management for the game,
+ * including level loading, game loop execution, and system integration.
  *
- * <p>GameLoop provides a high-level interface for managing the main game loop execution and
- * accessing critical game state. It abstracts away the platform-specific game loop implementation
- * by delegating to a GameLoopHost.
- *
- * <p>Key responsibilities:
- * <ul>
- *   <li>Starting the game loop via the installed GameLoopHost
- *   <li>Level loading and entity placement at level start
- *   <li>Accessing the game stage and sound player
- *   <li>Querying the current game tick
- * </ul>
- *
- * <p>The game loop relies on a GameLoopHost being installed via {@link Platform#loopHost(GameLoopHost)}
- * before calling {@link #run()}.
- *
- * <p>This class is not instantiable; all members are static.
+ * <p>This final class provides static methods for managing essential
+ * game runtime operations such as initializing levels, handling the game
+ * loop, and accessing game services like the UI stage and sound player.
  */
 public final class GameRuntime {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameRuntime.class);
