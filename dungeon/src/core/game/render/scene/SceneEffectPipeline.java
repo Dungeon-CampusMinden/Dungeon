@@ -3,13 +3,18 @@ package core.game.render.scene;
 import java.awt.image.BufferedImage;
 
 /**
- * A utility class that manages scene effects and provides functionality to apply them
- * in a pipeline. This class operates on a global registry of scene effects and includes
- * methods to manipulate, toggle, and apply effects to rendered frames.
+ * Utility class for managing and applying scene effects in a rendering pipeline.
  *
- * <p>The {@code SceneEffectPipeline} is immutable and ensures that scene effects are applied in
- * priority order when invoked. It also provides mechanisms to check the enabled state
- * of effects and clear all registered effects.
+ * <p>This class provides a centralized mechanism to register, toggle, and apply post-processing
+ * effects to rendered scene images. Scene effects are prioritized and applied sequentially in the
+ * order defined by their priority and insertion sequence in the {@link SceneEffectRegistry}.
+ *
+ * <p>The {@code SceneEffectPipeline} is a global accessor to operations such as toggling all effects,
+ * applying enabled effects, and managing the effect registry. It primarily interacts with
+ * {@link SceneEffectRegistry} and ensures that all operations are consistent with the underlying
+ * registry.
+ *
+ * <p>This class is not intended to be instantiated and contains only static utility methods.
  */
 public final class SceneEffectPipeline {
 
