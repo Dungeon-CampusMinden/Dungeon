@@ -35,12 +35,12 @@ public final class DebugClientInstaller implements ClientLoopHostInstaller {
 
   @Override
   public void installRuntimeSystems() {
-    SystemClientInstaller.addIfAbsent(DebugGameplaySystem.class, DebugGameplaySystem::new);
-    SystemClientInstaller.addIfAbsent(
-        DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
-    SystemClientInstaller.addIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
-    SystemClientInstaller.addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
-    SystemClientInstaller.addIfAbsent(
-        DebugEntityRenderSystem.class, DebugEntityRenderSystem::new);
+    ClientLoopHostInstaller.addSystemIfAbsent(DebugGameplaySystem.class, DebugGameplaySystem::new);
+    ClientLoopHostInstaller.addSystemIfAbsent(
+      DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
+    ClientLoopHostInstaller.addSystemIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
+    ClientLoopHostInstaller.addSystemIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
+    ClientLoopHostInstaller.addSystemIfAbsent(
+      DebugEntityRenderSystem.class, DebugEntityRenderSystem::new);
   }
 }

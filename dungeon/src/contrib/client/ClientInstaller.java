@@ -44,7 +44,6 @@ public final class ClientInstaller {
    * @return default client installers
    */
   public static List<ClientLoopHostInstaller> defaultInstallers() {
-    return List.of(
-        new UiClientInstaller(), new GameplayClientInstaller(), new DebugClientInstaller());
+    return List.of(new UiClientInstaller(), new DebugClientInstaller());
   }
 }
