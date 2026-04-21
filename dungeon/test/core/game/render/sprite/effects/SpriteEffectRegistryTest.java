@@ -28,7 +28,7 @@ class SpriteEffectRegistryTest {
   }
 
   @Test
-  void removeKeepsOptionalApiAndUpdatesSortedView() {
+  void removeReturnsWhetherEffectWasPresentAndUpdatesSortedView() {
     SpriteEffectRegistry registry = new SpriteEffectRegistry();
     TestEffect first = new TestEffect("first", true);
     TestEffect second = new TestEffect("second", true);
@@ -36,9 +36,10 @@ class SpriteEffectRegistryTest {
     registry.add("first", first, 0);
     registry.add("second", second, 1);
 
-    assertSame(second, registry.remove("second").orElseThrow());
+    assertSame(second, registry.get("second").orElseThrow());
+    assertTrue(registry.remove("second"));
     assertTrue(registry.get("second").isEmpty());
-    assertTrue(registry.remove("missing").isEmpty());
+    assertFalse(registry.remove("missing"));
     assertEquals(List.of("first"), names(registry.getEnabledSorted()));
   }
 
