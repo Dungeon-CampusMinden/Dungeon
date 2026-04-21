@@ -759,7 +759,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "blue portal in Richtung schießen",
+    tooltip: "balues Portal in Blickrichtung schießen",
   },
   {
     type: "shoot_green_portal",
