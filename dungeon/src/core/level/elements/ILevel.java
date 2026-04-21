@@ -8,6 +8,7 @@ import core.level.elements.tile.*;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.level.utils.LevelTransformations;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -303,6 +304,7 @@ public interface ILevel {
     newTile.tintColor(tile.tintColor());
     newTile.visible(tile.visible());
     level.addTile(newTile);
+    LevelTransformations.remapStartTiles(level);
     newTile.refreshTexture();
     refreshNeighbourTexture(newTile.coordinate());
   }

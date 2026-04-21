@@ -12,6 +12,7 @@ import core.level.loader.parsers.V2FormatParser;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.level.utils.LevelTransformations;
 import core.platform.Platform;
 import core.level.path.GridPathfindingAdapter;
 import core.systems.LevelSystem;
@@ -740,5 +741,95 @@ public class DungeonLevelTest {
     assertNotEquals(
       LevelElement.WALL, level.tileAt(new Coordinate(1, 0)).orElseThrow().levelElement());
     assertEquals(3, counter.get());
+  }
+
+  /** Ensures changing a start tile remaps the start position to the replacement tile. */
+  @Test
+  public void test_changeTileElementType_remapsStartTileToReplacementTile() {
+    LevelElement[][] layout =
+      new LevelElement[][] {
+        new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+      };
+    DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
+    Tile oldStartTile = level.tileAt(new Coordinate(1, 0)).orElseThrow();
+    level.startTiles().add(oldStartTile);
+
+    level.changeTileElementType(oldStartTile, LevelElement.EXIT);
+
+    Tile replacementTile = level.tileAt(new Coordinate(1, 0)).orElseThrow();
+    assertSame(replacementTile, level.startTiles().getFirst());
+    assertNotSame(oldStartTile, level.startTiles().getFirst());
+  }
+
+  /** Ensures setLayout remaps start positions to the newly created tile instances. */
+  @Test
+  public void test_setLayout_remapsStartTilesToNewTileInstances() {
+    LevelElement[][] layout =
+      new LevelElement[][] {
+        {LevelElement.FLOOR, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.FLOOR}
+      };
+    DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
+    Tile oldStartTile = level.tileAt(new Coordinate(1, 0)).orElseThrow();
+    level.startTiles().add(oldStartTile);
+
+    level.setLayout(
+      new LevelElement[][] {
+        {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.EXIT}
+      });
+
+    Tile currentStartTile = level.tileAt(new Coordinate(1, 0)).orElseThrow();
+    assertSame(currentStartTile, level.startTiles().getFirst());
+    assertNotSame(oldStartTile, level.startTiles().getFirst());
+  }
+
+  /** Ensures setLayout drops start positions that are outside the new layout bounds. */
+  @Test
+  public void test_setLayout_dropsStartTilesOutsideNewBounds() {
+    LevelElement[][] layout =
+      new LevelElement[][] {
+        {LevelElement.FLOOR, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.FLOOR}
+      };
+    DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
+    level.startTiles().add(level.tileAt(new Coordinate(0, 0)).orElseThrow());
+    level.startTiles().add(level.tileAt(new Coordinate(1, 0)).orElseThrow());
+
+    level.setLayout(new LevelElement[][] {{LevelElement.FLOOR}});
+
+    assertEquals(1, level.startTiles().size());
+    assertSame(level.tileAt(new Coordinate(0, 0)).orElseThrow(), level.startTiles().getFirst());
+  }
+
+  /** Ensures translated start positions are remapped to current tile instances. */
+  @Test
+  public void test_translateStartTiles_remapsToShiftedTilePositions() {
+    LevelElement[][] layout =
+      new LevelElement[][] {
+        {LevelElement.FLOOR, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.FLOOR}
+      };
+    DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
+    level.startTiles().add(level.tileAt(new Coordinate(0, 0)).orElseThrow());
+
+    LevelTransformations.translateStartTiles(level, 1, 1);
+
+    assertSame(level.tileAt(new Coordinate(1, 1)).orElseThrow(), level.startTiles().getFirst());
+  }
+
+  /** Ensures a shifted layout keeps start positions on current tile instances. */
+  @Test
+  public void test_shiftedLayout_keepsStartTilesOnCurrentTiles() {
+    LevelElement[][] layout =
+      new LevelElement[][] {
+        {LevelElement.FLOOR, LevelElement.SKIP}, {LevelElement.FLOOR, LevelElement.SKIP}
+      };
+    DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
+    Tile oldStartTile = level.tileAt(new Coordinate(0, 0)).orElseThrow();
+    level.startTiles().add(oldStartTile);
+
+    level.setLayout(LevelTransformations.shiftedLayout(level.layout(), 1, 0));
+    LevelTransformations.translateStartTiles(level, 1, 0);
+
+    Tile currentStartTile = level.tileAt(new Coordinate(1, 0)).orElseThrow();
+    assertSame(currentStartTile, level.startTiles().getFirst());
+    assertNotSame(oldStartTile, level.startTiles().getFirst());
   }
 }

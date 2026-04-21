@@ -6,6 +6,7 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import core.level.utils.LevelTransformations;
 import core.utils.InputManager;
 import core.utils.Point;
 import java.awt.Color;
@@ -43,6 +44,11 @@ import java.util.Set;
  */
 public final class ShiftLevelMode extends LevelEditorMode {
 
+  /**
+   * Creates a new level-shift editor mode.
+   *
+   * @param system the owning level editor system
+   */
   public ShiftLevelMode(LevelEditorSystem system) {
     super(system, "Shift Level Mode");
   }
@@ -106,37 +112,9 @@ public final class ShiftLevelMode extends LevelEditorMode {
             return;
           }
 
-          int rows = layout.length;
-          int cols = layout[0].length;
-
-          LevelElement[][] newLayout = new LevelElement[rows][cols];
-
-          for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-              int newI = i - y;
-              int newJ = j - x;
-
-              if (newI >= 0 && newI < rows && newJ >= 0 && newJ < cols) {
-                newLayout[i][j] = layout[newI][newJ].levelElement();
-              } else {
-                newLayout[i][j] = LevelElement.SKIP;
-              }
-            }
-          }
-
-          for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-              level.changeTileElementType(layout[i][j], newLayout[i][j]);
-            }
-          }
-
-          for (Tile[] tiles : layout) {
-            for (int j = 0; j < cols; j++) {
-              level.changeTileElementType(tiles[j], tiles[j].levelElement());
-            }
-          }
-
-          level.namedPoints().replaceAll((_, point) -> new Point(point.x() + x, point.y() + y));
+          level.setLayout(LevelTransformations.shiftedLayout(layout, x, y));
+          LevelTransformations.translateStartTiles(level, x, y);
+          LevelTransformations.translateNamedPoints(level, x, y);
 
           Game.levelEntities(Set.of(PositionComponent.class))
             .forEach(

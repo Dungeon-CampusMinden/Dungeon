@@ -7,6 +7,7 @@ import core.level.elements.tile.*;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.level.utils.LevelTransformations;
 import core.level.utils.TileTextureFactory;
 import core.utils.Point;
 import core.utils.Tuple;
@@ -249,6 +250,7 @@ public class DungeonLevel implements ILevel, ITickable {
 
   @Override
   public void setLayout(LevelElement[][] layout) {
+    List<Coordinate> startTileCoordinates = LevelTransformations.startTileCoordinates(this);
     DesignLabel design = designLabel().orElseThrow();
     this.layout = convertLevelElementToTile(layout, design);
     floorTiles.clear();
@@ -258,7 +260,11 @@ public class DungeonLevel implements ILevel, ITickable {
     exitTiles.clear();
     skipTiles.clear();
     pitTiles.clear();
+    portalTiles.clear();
+    gitterTiles.clear();
+    glassWallTiles.clear();
     putTilesInLists();
+    LevelTransformations.remapStartTiles(this, startTileCoordinates);
   }
 
   @Override

@@ -3,6 +3,7 @@ package contrib.editor.level.mode;
 import contrib.editor.level.LevelEditorSystem;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import core.level.utils.LevelTransformations;
 import core.utils.InputManager;
 import java.awt.Color;
 import java.util.LinkedHashMap;
@@ -26,6 +27,11 @@ import java.util.Map;
  */
 public final class LevelBoundsMode extends LevelEditorMode {
 
+  /**
+   * Creates a new level-bounds editor mode.
+   *
+   * @param system the owning level editor system
+   */
   public LevelBoundsMode(LevelEditorSystem system) {
     super(system, "Level Bounds Mode");
   }
@@ -98,19 +104,7 @@ public final class LevelBoundsMode extends LevelEditorMode {
               + ")";
           system().showModeFeedback(feedback, Color.WHITE);
 
-          LevelElement[][] newLayout = new LevelElement[newRows][newCols];
-
-          for (int i = 0; i < newRows; i++) {
-            for (int j = 0; j < newCols; j++) {
-              if (i >= rows || j >= cols) {
-                newLayout[i][j] = LevelElement.SKIP;
-              } else {
-                newLayout[i][j] = layout[i][j].levelElement();
-              }
-            }
-          }
-
-          level.setLayout(newLayout);
+          level.setLayout(LevelTransformations.resizedLayout(layout, newRows, newCols));
         });
   }
 }
