@@ -29,6 +29,8 @@ import portal.portals.components.PortalComponent;
 public class PortalSkill extends ProjectileSkill {
 
   private final PortalColor portalColor;
+  private static final float HALF = -0.5f;
+  private static final float INVERT = -1f;
 
   /**
    * Creates a new portal skill.
@@ -98,7 +100,7 @@ public class PortalSkill extends ProjectileSkill {
     // Target point calculation
     Point targetPoint = SkillTools.calculateLastPositionInRange(start, aimedOn, range);
 
-    Point position =         start.translate(hitBoxSize.scale(-0.5)).translate(hitBoxOffset.scale(-1));
+    Point position = start.translate(hitBoxSize.scale(HALF)).translate(hitBoxOffset.scale(INVERT));
 
     PositionComponent pc = new PositionComponent(position);
     projectile.add(pc);

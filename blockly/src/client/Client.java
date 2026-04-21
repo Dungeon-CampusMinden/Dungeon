@@ -156,7 +156,8 @@ public class Client {
           createSystems();
           PortalRegistry.setDebugMode(false);
           PortalRegistry.registerCalculations(() -> new BlocklyPortalCalculations());
-          PortalRegistry.registerPelletCatcherBehavior(() -> new BlocklyEnergyPelletCatcherBehavior());
+          PortalRegistry.registerPelletCatcherBehavior(
+              () -> new BlocklyEnergyPelletCatcherBehavior());
 
           startServer();
         });
