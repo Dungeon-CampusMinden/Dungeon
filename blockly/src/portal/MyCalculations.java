@@ -20,7 +20,7 @@ import portal.riddles.utils.Tools;
  *
  * <p>Im Laufe des Spiels oder der Aufgaben können hier weitere Berechnungsmethoden hinzukommen.
  */
-public class MyCalculations extends Calculations {
+public class BlocklyPortalCalculations extends Calculations {
 
   /**
    * Berechnet die Position, an der ein Objekt nach einer Portal-Reise wieder erscheint.
