@@ -2,7 +2,6 @@ package contrib.debug.systems;
 
 import contrib.configuration.KeyboardConfig;
 import core.System;
-import core.debug.DebugGameplayActions;
 import core.input.Keys;
 import core.game.render.depth.DepthLayerColorGradeEffect;
 import core.game.render.depth.DepthLayerEffectPipeline;
@@ -143,29 +142,6 @@ public final class DebugRenderEffectsSystem extends System {
     if (InputManager.isKeyJustPressed(
       KeyboardConfig.DEBUG_RENDER_PASSTHROUGH_WORLD_POSITION.value())) {
       togglePassthroughWorldPosDebug();
-    }
-
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.value())) {
-      DebugGameplayActions.zoomCamera(-0.2f);
-    }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.value())) {
-      DebugGameplayActions.zoomCamera(0.2f);
-    }
-
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value())) {
-      DebugGameplayActions.teleportToCursor();
-    }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.value())) {
-      DebugGameplayActions.teleportToEndNeighbor();
-    }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.value())) {
-      DebugGameplayActions.teleportToStart();
-    }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value())) {
-      DebugGameplayActions.loadNextLevel();
-    }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())) {
-      DebugGameplayActions.openDoors();
     }
   }
 
