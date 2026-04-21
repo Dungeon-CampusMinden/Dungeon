@@ -16,7 +16,7 @@ import core.game.loop.ClientLoopHostInstaller;
  * initialization. It adds both platform-specific services and runtime systems needed for the
  * interactive presentation layer.
  *
- * <p>{@code UiClientInstaller} integrates with the following key components:
+ * <p>{@code PresentationClientInstaller} integrates with the following key components:
  *
  * <ul>
  *   <li>{@link InteractionSelection}: Configures the interaction selection backend to use the
@@ -30,12 +30,12 @@ import core.game.loop.ClientLoopHostInstaller;
  *       are available on the client.</li>
  * </ul>
  *
- * <p>This installer is registered explicitly through {@link ClientInstaller}.
+ * <p>This installer is registered explicitly through {@link ClientLoopHostFactory}.
  */
-public final class UiClientInstaller implements ClientLoopHostInstaller {
+public final class PresentationClientInstaller implements ClientLoopHostInstaller {
 
-  /** Creates a UI client installer. */
-  public UiClientInstaller() {}
+  /** Creates a presentation client installer. */
+  public PresentationClientInstaller() {}
 
   @Override
   public void installPlatformServices() {

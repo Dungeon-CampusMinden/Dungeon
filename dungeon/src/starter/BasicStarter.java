@@ -3,7 +3,7 @@ package starter;
 import contrib.components.InventoryComponent;
 import contrib.components.ManaComponent;
 import contrib.components.SkillComponent;
-import contrib.client.ClientInstaller;
+import contrib.client.ClientLoopHostFactory;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.crafting.CraftingIngredient;
@@ -124,7 +124,7 @@ public final class BasicStarter {
 
     Game.addClientStartupTask(BasicStarter::ensureManaRestoreSystem);
     Game.addClientStartupTask(Crafting::loadRecipes);
-    ClientInstaller.installDefaultLoopHost();
+    ClientLoopHostFactory.installDefaultLoopHost();
     Game.run();
   }
 

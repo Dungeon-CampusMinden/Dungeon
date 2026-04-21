@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
-import contrib.client.ClientInstaller;
+import contrib.client.ClientLoopHostFactory;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
 import contrib.modules.levelhide.LevelHideSystem;
@@ -50,7 +50,7 @@ public class MushRoom {
     onSetup();
 
     Game.windowTitle("MushRoom");
-    ClientInstaller.installDefaultLoopHost();
+    ClientLoopHostFactory.installDefaultLoopHost();
     Game.run();
   }
 

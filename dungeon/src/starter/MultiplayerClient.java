@@ -1,6 +1,6 @@
 package starter;
 
-import contrib.client.ClientInstaller;
+import contrib.client.ClientLoopHostFactory;
 import contrib.debug.systems.DebugDrawSystem;
 import contrib.debug.systems.DebugEntityRenderSystem;
 import contrib.debug.systems.DebugRenderEffectsSystem;
@@ -42,7 +42,7 @@ public final class MultiplayerClient {
         });
 
     // Start the game
-    ClientInstaller.installDefaultLoopHost();
+    ClientLoopHostFactory.installDefaultLoopHost();
     Game.run();
   }
 

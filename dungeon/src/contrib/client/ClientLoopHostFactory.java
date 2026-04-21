@@ -6,17 +6,16 @@ import core.platform.Platform;
 import java.util.List;
 
 /**
- * Provides utilities for setting up the client loop host and configuring default installers
- * during client initialization.
+ * Provides factory-style utilities for creating and installing the default client loop host.
  *
- * <p>This class is designed to simplify the client setup process and ensure the appropriate
- * components are installed for the client game loop to function correctly.
+ * <p>This class centralizes the creation of the default {@link ClientLoopHost} and the default set
+ * of {@link ClientLoopHostInstaller}s used during client startup.
  *
  * <p>All methods in this class are static and intended to be invoked during client startup.
  */
-public final class ClientInstaller {
+public final class ClientLoopHostFactory {
 
-  private ClientInstaller() {}
+  private ClientLoopHostFactory() {}
 
   /**
    * Installs the default client loop host if no host is configured yet.
@@ -44,6 +43,6 @@ public final class ClientInstaller {
    * @return default client installers
    */
   public static List<ClientLoopHostInstaller> defaultInstallers() {
-    return List.of(new UiClientInstaller(), new DebugClientInstaller());
+    return List.of(new PresentationClientInstaller(), new DebugClientInstaller());
   }
 }

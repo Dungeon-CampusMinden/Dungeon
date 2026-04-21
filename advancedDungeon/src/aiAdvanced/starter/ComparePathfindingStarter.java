@@ -7,7 +7,7 @@ import aiAdvanced.pathfinding.PathfindingLogic;
 import aiAdvanced.systems.PathfindingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
-import contrib.client.ClientInstaller;
+import contrib.client.ClientLoopHostFactory;
 import contrib.entities.*;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelTickSystem;
@@ -58,7 +58,7 @@ public class ComparePathfindingStarter {
     // Set up components and level
     onSetup();
     // build and start game
-    ClientInstaller.installDefaultLoopHost();
+    ClientLoopHostFactory.installDefaultLoopHost();
     Game.run();
   }
 

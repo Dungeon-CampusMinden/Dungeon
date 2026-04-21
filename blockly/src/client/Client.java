@@ -3,7 +3,7 @@ package client;
 import coderunner.BlocklyCodeRunner;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
-import contrib.client.ClientInstaller;
+import contrib.client.ClientLoopHostFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
@@ -78,7 +78,7 @@ public class Client {
 
     // build and start game
     try {
-      ClientInstaller.installDefaultLoopHost();
+      ClientLoopHostFactory.installDefaultLoopHost();
       Game.run();
     } finally {
       // Ensure that the server is stopped when the game ends
