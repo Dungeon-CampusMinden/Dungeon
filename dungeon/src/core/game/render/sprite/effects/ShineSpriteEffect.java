@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>The effect includes configurable parameters such as padding, slice count, gap size, rotation speed,
  * and shine color. Results are cached for improved performance.
  */
-public final class ShineSpriteEffect implements SpriteEffect {
+public final class ShineSpriteEffect implements ToggleableSpriteEffect {
 
   private static final double TWO_PI = Math.PI * 2.0;;
   private static final int SMALL_SPRITE_MAX_DIM = 48;

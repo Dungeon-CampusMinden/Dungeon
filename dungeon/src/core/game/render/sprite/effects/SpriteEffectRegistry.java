@@ -1,85 +1,158 @@
 package core.game.render.sprite.effects;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import core.game.render.effects.OrderedEffectRegistry;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
- * A registry for managing sprite effects, providing storage, retrieval, and ordering functionality
- * for {@link SpriteEffect} instances. Effects are uniquely identified by an identifier string
- * and can have an associated priority that determines their application order.
+ * Registry facade for sprite effects.
  *
- * <p>The registry ensures that effects are returned in a stable order based on their priority
- * and insertion sequence. Effects with lower priority values are applied earlier, and for effects
- * with the same priority, the insertion order is preserved.
- *
- * <p>This class is immutable, thread-unsafe, and stores its entries in an internal ordered
- * map, maintaining predictable iteration order.
+ * <p>The ordering and toggle mechanics are provided by {@link OrderedEffectRegistry}; this class
+ * preserves the sprite-specific public API and toggleable marker contract.
  */
 public final class SpriteEffectRegistry {
 
-  private final Map<String, Entry> entries = new LinkedHashMap<>();
-  private long insertionCounter = 0L;
+  private final OrderedEffectRegistry<SpriteEffect> effects =
+    new OrderedEffectRegistry<>(
+      SpriteEffect::enabled,
+      ToggleableSpriteEffect.class::isInstance,
+      (effect, enabled) -> ((ToggleableSpriteEffect) effect).enabled(enabled));
 
   /**
-   * Adds a new effect.
+   * Adds a sprite effect to the registry with the specified identifier and priority.
    *
-   * @param identifier unique identifier
-   * @param effect effect instance
-   * @param priority lower values are applied earlier
-   * @return true if added, false if the identifier already exists
+   * @param identifier unique identifier for this effect
+   * @param effect sprite effect to add
+   * @param priority priority level; lower values are processed earlier
+   * @return true if the effect was added, false if the identifier already exists
    */
   public boolean add(String identifier, SpriteEffect effect, int priority) {
-    Objects.requireNonNull(identifier, "identifier");
-    Objects.requireNonNull(effect, "effect");
-
-    if (entries.containsKey(identifier)) {
-      return false;
-    }
-
-    entries.put(identifier, new Entry(effect, priority, insertionCounter++));
-    return true;
+    return effects.add(identifier, effect, priority);
   }
 
   /**
-   * Removes an effect by identifier.
+   * Adds a sprite effect to the registry with default priority 0.
    *
-   * @param identifier unique identifier
+   * @param identifier unique identifier for this effect
+   * @param effect sprite effect to add
+   * @return true if the effect was added, false if the identifier already exists
+   */
+  public boolean add(String identifier, SpriteEffect effect) {
+    return effects.add(identifier, effect);
+  }
+
+  /**
+   * Removes the sprite effect with the specified identifier.
+   *
+   * @param identifier unique identifier of the effect to remove
    * @return removed effect if present
    */
   public Optional<SpriteEffect> remove(String identifier) {
-    Entry removed = entries.remove(identifier);
-    return removed == null ? Optional.empty() : Optional.of(removed.effect());
+    Optional<SpriteEffect> removed = effects.get(identifier);
+    effects.remove(identifier);
+    return removed;
   }
 
   /**
-   * Returns an effect by identifier.
+   * Gets the sprite effect with the specified identifier.
    *
-   * @param identifier unique identifier
+   * @param identifier unique identifier of the effect
    * @return effect if present
    */
   public Optional<SpriteEffect> get(String identifier) {
-    Entry entry = entries.get(identifier);
-    return entry == null ? Optional.empty() : Optional.of(entry.effect());
+    return effects.get(identifier);
   }
 
   /**
-   * Returns all enabled effects in stable application order.
+   * Changes the priority of an existing effect.
    *
-   * @return enabled effects sorted by priority and insertion order
+   * @param identifier unique identifier of the effect to update
+   * @param newPriority new priority level
+   * @return true if the priority was changed, false if no effect exists
+   */
+  public boolean changePriority(String identifier, int newPriority) {
+    return effects.changePriority(identifier, newPriority);
+  }
+
+  /**
+   * Checks whether any sprite effects in this registry are currently enabled.
+   *
+   * @return true if at least one effect is enabled
+   */
+  public boolean hasEnabledEffects() {
+    return effects.hasEnabledEffects();
+  }
+
+  /**
+   * Sets the enabled state of all toggleable sprite effects.
+   *
+   * @param enabled true to enable all effects, false to disable them
+   */
+  public void enableAll(boolean enabled) {
+    effects.enableAll(enabled);
+  }
+
+  /** Enables all toggleable sprite effects. */
+  public void enableAll() {
+    effects.enableAll();
+  }
+
+  /** Disables all toggleable sprite effects. */
+  public void disableAll() {
+    effects.disableAll();
+  }
+
+  /**
+   * Checks whether all toggleable sprite effects are enabled.
+   *
+   * @return true if at least one toggleable effect exists and all toggleable effects are enabled
+   */
+  public boolean allEnabled() {
+    return effects.allEnabled();
+  }
+
+  /**
+   * Toggles the enabled state of all toggleable sprite effects.
+   *
+   * @return the new enabled state after toggling
+   */
+  public boolean toggleAll() {
+    return effects.toggleAll();
+  }
+
+  /** Clears all effects from this registry. */
+  public void clear() {
+    effects.clear();
+  }
+
+  /**
+   * Checks whether this registry contains no effects.
+   *
+   * @return true if the registry is empty
+   */
+  public boolean isEmpty() {
+    return effects.isEmpty();
+  }
+
+  /**
+   * Gets all sprite effects sorted by priority and insertion order.
+   *
+   * @param onlyEnabled whether only enabled effects should be returned
+   * @return iterable of effects in priority order
+   */
+  public Iterable<SpriteEffect> getSorted(boolean onlyEnabled) {
+    return effects.getSorted(onlyEnabled);
+  }
+
+  /**
+   * Gets all enabled sprite effects sorted by priority and insertion order.
+   *
+   * @return list of enabled effects in priority order
    */
   public List<SpriteEffect> getEnabledSorted() {
-    return entries.values().stream()
-      .sorted(
-        Comparator.comparingInt(Entry::priority).thenComparingLong(Entry::insertionIndex))
-      .map(Entry::effect)
-      .filter(SpriteEffect::enabled)
-      .collect(Collectors.toList());
+    List<SpriteEffect> sorted = new ArrayList<>();
+    effects.getEnabledSorted().forEach(sorted::add);
+    return sorted;
   }
-
-  /** @return true if no effects are stored */
-  public boolean isEmpty() {
-    return entries.isEmpty();
-  }
-
-  private record Entry(SpriteEffect effect, int priority, long insertionIndex) {}
 }

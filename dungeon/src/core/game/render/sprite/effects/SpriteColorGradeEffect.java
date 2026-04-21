@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>It is backed by the {@link SpriteEffect} interface, making it compatible with the LITIENGINE
  * Graphics2D render path.
  */
-public final class SpriteColorGradeEffect implements SpriteEffect {
+public final class SpriteColorGradeEffect implements ToggleableSpriteEffect {
 
   private static final Map<CacheKey, BufferedImage> CACHE = new ConcurrentHashMap<>();
 

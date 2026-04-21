@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>Results are cached to improve performance for repeated applications of the same effect to the
  * same image.
  */
-public final class HueRemapSpriteEffect implements SpriteEffect {
+public final class HueRemapSpriteEffect implements ToggleableSpriteEffect {
 
   private static final Map<CacheKey, BufferedImage> CACHE = new ConcurrentHashMap<>();
 
