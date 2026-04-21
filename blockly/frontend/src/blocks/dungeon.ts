@@ -767,7 +767,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "green portal in Richtung schießen",
+    tooltip: "grünes Portal in Blickrichtung schießen",
   },
   //  ---------------------- Items ----------------------
   {
