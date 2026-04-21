@@ -271,7 +271,7 @@ public class Client {
     return new PortalConfig(portalHero) {
       @Override
       public long cooldown() {
-        return 500;
+        return 0;
       }
 
       @Override
