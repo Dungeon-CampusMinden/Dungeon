@@ -5,9 +5,11 @@ import contrib.entities.HeroController;
 import contrib.hud.elements.InventoryComponentProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
-import contrib.hud.renderers.ItemTooltipRenderer;
+import contrib.hud.renderers.InventoryPanelRendering;
 import contrib.hud.utils.GridHitTest;
 import contrib.hud.utils.InventoryDragController;
+import contrib.hud.utils.InventoryDropHandling;
+import contrib.hud.utils.InventoryTooltip;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
@@ -17,7 +19,6 @@ import core.ui.StageHandle;
 import core.ui.overlay.UiOverlay;
 import core.utils.InputManager;
 import core.utils.Vector2;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.List;
@@ -118,13 +119,10 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
       gridTop = contentY + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle panelBounds =
-          new Rectangle(
-              startX - PANEL_PADDING,
-              gridTop - PANEL_PADDING,
-              gridWidth + 2 * PANEL_PADDING,
-              gridHeight + 2 * PANEL_PADDING);
+          InventoryPanelRendering.panelBounds(
+              startX, gridTop, gridWidth, gridHeight, PANEL_PADDING);
 
-      drawPanelBackground(g, panelBounds.x, panelBounds.y, panelBounds.width, panelBounds.height);
+      InventoryPanelRendering.drawPanelBackground(g, panelBounds);
 
       grid = new GridHitTest.Grid<>(InventorySide.PLAYER, startX, gridTop, columns, visibleSlots);
 
@@ -133,7 +131,7 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
       if (dragController.isDragging()) {
         GridHitTest.Slot<InventorySide> hoveredTarget = hoveredDropTarget(grid);
         if (hoveredTarget != null) {
-          drawDropTargetHighlight(g, grid, hoveredTarget.slotIndex());
+          InventoryDropHandling.drawGridDropHighlight(g, hoveredTarget, grid);
         }
         dragController.drawDragPreview(g);
       } else {
@@ -147,30 +145,11 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
   }
 
   private void drawHoverTooltip(Graphics2D g, GridHitTest.Grid<InventorySide> grid) {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      return;
-    }
-
-    int mouseX = stage.mouseX();
-    int mouseY = stage.mouseY();
-
-    if (mouseX < x || mouseX > x + width || mouseY < y || mouseY > y + height) {
-      return;
-    }
-
-    GridHitTest.Slot<InventorySide> hoveredSlot = findSlotSelection(grid, mouseX, mouseY);
-    if (hoveredSlot == null) {
-      return;
-    }
-
-    Item hoveredItem = inventory.get(hoveredSlot.slotIndex()).orElse(null);
-    if (hoveredItem == null) {
-      return;
-    }
-
-    ItemTooltipRenderer.drawTooltip(
-        g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
+    InventoryTooltip.drawHoveredSlotTooltip(
+        g,
+        dialogBounds(),
+        (mouseX, mouseY) -> findSlotSelection(grid, mouseX, mouseY),
+        this::itemOf);
   }
 
   private void handleInput(GridHitTest.Grid<InventorySide> grid) {
@@ -287,25 +266,10 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
   }
 
   private GridHitTest.Slot<InventorySide> hoveredDropTarget(GridHitTest.Grid<InventorySide> grid) {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      return null;
-    }
-
-    return dragController.dropTargetAt(
-        stage.mouseX(),
-        stage.mouseY(),
+    return InventoryDropHandling.hoveredDropTarget(
+        dragController,
         (mouseX, mouseY) -> findSlotSelection(grid, mouseX, mouseY),
         (source, target) -> target.slotIndex() != source.slotIndex());
-  }
-
-  private void drawDropTargetHighlight(
-      Graphics2D g, GridHitTest.Grid<InventorySide> grid, int slotIndex) {
-    InventoryDragController.drawDropHighlight(
-        g,
-        grid.slotBounds(slotIndex),
-        InventoryDragController.DEFAULT_DROP_FILL,
-        InventoryDragController.DEFAULT_DROP_OUTLINE);
   }
 
   private GridHitTest.Slot<InventorySide> findSlotSelection(
@@ -327,14 +291,6 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
 
   private static int encodePlayerInventorySlot(int slot) {
     return (-slot) - 1;
-  }
-
-  private void drawPanelBackground(Graphics2D g, int x, int y, int width, int height) {
-    g.setColor(new Color(62, 62, 99, 96));
-    g.fillRect(x, y, width, height);
-
-    g.setColor(new Color(0x9dc1ebff, true));
-    g.drawRect(x, y, width, height);
   }
 
   private void resetInteractionState() {

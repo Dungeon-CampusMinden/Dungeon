@@ -7,9 +7,11 @@ import contrib.hud.elements.ImageButton;
 import contrib.hud.elements.InventoryComponentProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
-import contrib.hud.renderers.ItemTooltipRenderer;
+import contrib.hud.renderers.InventoryPanelRendering;
 import contrib.hud.utils.GridHitTest;
 import contrib.hud.utils.InventoryDragController;
+import contrib.hud.utils.InventoryDropHandling;
+import contrib.hud.utils.InventoryTooltip;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
@@ -86,9 +88,6 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
   private static final int ITEM_ICON_PADDING = 6;
 
   private static final String BACKGROUND_TEXTURE_PATH = "hud/crafting/background.png";
-
-  private static final Color INVENTORY_PANEL_FILL = new Color(62, 62, 99, 96);
-  private static final Color INVENTORY_PANEL_OUTLINE = new Color(0x9dc1ebff, true);
 
   private static final Color NUMBER_BADGE_FILL = new Color(0xFFFF4D4D, true);
   private static final Color NUMBER_BADGE_TEXT = Color.WHITE;
@@ -208,17 +207,13 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
       gridTop = titleBaseline + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
       leftPanelBounds =
-          new Rectangle(
-              leftStartX - PANEL_PADDING,
-              gridTop - PANEL_PADDING,
-              leftGridWidth + 2 * PANEL_PADDING,
-              leftGridHeight + 2 * PANEL_PADDING);
+          InventoryPanelRendering.panelBounds(
+              leftStartX, gridTop, leftGridWidth, leftGridHeight, PANEL_PADDING);
 
       rightPanelBounds =
           new Rectangle(rightPanelX, gridTop - PANEL_PADDING, rightPanelWidth, rightPanelHeight);
 
-      drawInventoryPanelBackground(
-          g, leftPanelBounds.x, leftPanelBounds.y, leftPanelBounds.width, leftPanelBounds.height);
+      InventoryPanelRendering.drawPanelBackground(g, leftPanelBounds);
 
       leftGrid =
           new GridHitTest.Grid<>(
@@ -427,14 +422,6 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     int drawY = bounds.y + (bounds.height - drawHeight) / 2;
 
     g.drawImage(icon, drawX, drawY, drawWidth, drawHeight, null);
-  }
-
-  private void drawInventoryPanelBackground(Graphics2D g, int x, int y, int width, int height) {
-    g.setColor(INVENTORY_PANEL_FILL);
-    g.fillRect(x, y, width, height);
-
-    g.setColor(INVENTORY_PANEL_OUTLINE);
-    g.drawRect(x, y, width, height);
   }
 
   private Item[] currentResultItems() {
@@ -664,41 +651,18 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
       List<CraftingDialogLayout.SlotBounds> craftingBounds,
       Item[] resultItems,
       List<CraftingDialogLayout.ItemBounds> resultBounds) {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      return;
-    }
-
-    int mouseX = stage.mouseX();
-    int mouseY = stage.mouseY();
-
-    if (mouseX < x || mouseX > x + width || mouseY < y || mouseY > y + height) {
-      return;
-    }
-
-    GridHitTest.Slot<InventorySide> hoveredSlot =
-        findSlotSelection(mouseX, mouseY, leftGrid, craftingBounds);
-    if (hoveredSlot != null) {
-      inventoryOf(hoveredSlot.side())
-          .get(hoveredSlot.slotIndex())
-          .ifPresent(
-              hoveredItem ->
-                  ItemTooltipRenderer.drawTooltip(
-                      g,
-                      hoveredItem,
-                      mouseX,
-                      mouseY,
-                      (int) stage.getWidth(),
-                      (int) stage.getHeight()));
+    if (InventoryTooltip.drawHoveredSlotTooltip(
+        g,
+        dialogBounds(),
+        (mouseX, mouseY) -> findSlotSelection(mouseX, mouseY, leftGrid, craftingBounds),
+        this::itemOf)) {
       return;
     }
 
     for (int i = 0; i < resultBounds.size() && i < resultItems.length; i++) {
       CraftingDialogLayout.ItemBounds bounds = resultBounds.get(i);
       Rectangle rect = new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size());
-      if (rect.contains(mouseX, mouseY)) {
-        ItemTooltipRenderer.drawTooltip(
-            g, resultItems[i], mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
+      if (InventoryTooltip.drawItemTooltip(g, rect, resultItems[i])) {
         return;
       }
     }
@@ -727,9 +691,8 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     }
 
     GridHitTest.Slot<InventorySide> hoveredTargetSlot =
-        dragController.dropTargetAt(
-            mouseX,
-            mouseY,
+        InventoryDropHandling.hoveredDropTarget(
+            dragController,
             (slotMouseX, slotMouseY) ->
                 GridHitTest.findGridSlotAt(slotMouseX, slotMouseY, List.of(leftGrid)),
             (source, target) -> target.side() != source.side());
@@ -752,7 +715,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
   }
 
   private void drawHighlight(Graphics2D g, Rectangle bounds) {
-    InventoryDragController.drawDropHighlight(g, bounds, DRAG_HIGHLIGHT_FILL, DRAG_HIGHLIGHT);
+    InventoryDropHandling.drawDropHighlight(g, bounds, DRAG_HIGHLIGHT_FILL, DRAG_HIGHLIGHT);
   }
 
   private Optional<CraftingDialogAction> findActionButtonAt(int mouseX, int mouseY) {
@@ -800,6 +763,10 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     } catch (RuntimeException ignored) {
       return null;
     }
+  }
+
+  private Rectangle dialogBounds() {
+    return new Rectangle(x, y, width, height);
   }
 
   @Override

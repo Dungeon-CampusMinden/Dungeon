@@ -23,9 +23,6 @@ public final class InventoryDragController<S> {
   /** Default outline used by inventory drop targets. */
   public static final Color DEFAULT_DROP_OUTLINE = new Color(132, 214, 156, 210);
 
-  private static final int DRAG_TARGET_INSET = 3;
-  private static final int DRAG_TARGET_ARC = 8;
-
   private final int thresholdPx;
   private final DragStartCondition dragStartCondition;
 
@@ -209,16 +206,7 @@ public final class InventoryDragController<S> {
    * @param outline the highlight outline color
    */
   public static void drawDropHighlight(Graphics2D g, Rectangle bounds, Color fill, Color outline) {
-    int insetX = bounds.x + DRAG_TARGET_INSET;
-    int insetY = bounds.y + DRAG_TARGET_INSET;
-    int insetWidth = bounds.width - 2 * DRAG_TARGET_INSET;
-    int insetHeight = bounds.height - 2 * DRAG_TARGET_INSET;
-
-    g.setColor(fill);
-    g.fillRoundRect(insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
-
-    g.setColor(outline);
-    g.drawRoundRect(insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
+    InventoryDropHandling.drawDropHighlight(g, bounds, fill, outline);
   }
 
   private void maybeStartDrag(int mouseX, int mouseY, ItemResolver<S> itemResolver) {

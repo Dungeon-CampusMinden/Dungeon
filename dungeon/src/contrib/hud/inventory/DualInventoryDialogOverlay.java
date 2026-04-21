@@ -4,9 +4,11 @@ import contrib.components.InventoryComponent;
 import contrib.hud.elements.InventoryComponentProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
-import contrib.hud.renderers.ItemTooltipRenderer;
+import contrib.hud.renderers.InventoryPanelRendering;
 import contrib.hud.utils.GridHitTest;
 import contrib.hud.utils.InventoryDragController;
+import contrib.hud.utils.InventoryDropHandling;
+import contrib.hud.utils.InventoryTooltip;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
@@ -138,27 +140,15 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
       gridTop = titleBaseline + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle leftPanelBounds =
-          new Rectangle(
-              leftStartX - PANEL_PADDING,
-              gridTop - PANEL_PADDING,
-              leftGridWidth + 2 * PANEL_PADDING,
-              leftGridHeight + 2 * PANEL_PADDING);
+          InventoryPanelRendering.panelBounds(
+              leftStartX, gridTop, leftGridWidth, leftGridHeight, PANEL_PADDING);
 
       Rectangle rightPanelBounds =
-          new Rectangle(
-              rightStartX - PANEL_PADDING,
-              gridTop - PANEL_PADDING,
-              rightGridWidth + 2 * PANEL_PADDING,
-              rightGridHeight + 2 * PANEL_PADDING);
+          InventoryPanelRendering.panelBounds(
+              rightStartX, gridTop, rightGridWidth, rightGridHeight, PANEL_PADDING);
 
-      drawPanelBackground(
-          g, leftPanelBounds.x, leftPanelBounds.y, leftPanelBounds.width, leftPanelBounds.height);
-      drawPanelBackground(
-          g,
-          rightPanelBounds.x,
-          rightPanelBounds.y,
-          rightPanelBounds.width,
-          rightPanelBounds.height);
+      InventoryPanelRendering.drawPanelBackground(g, leftPanelBounds);
+      InventoryPanelRendering.drawPanelBackground(g, rightPanelBounds);
 
       leftGrid =
           new GridHitTest.Grid<>(
@@ -173,7 +163,7 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
       if (dragController.isDragging()) {
         GridHitTest.Slot<InventorySide> hoveredTarget = hoveredDropTarget(leftGrid, rightGrid);
         if (hoveredTarget != null) {
-          drawDropTargetHighlight(g, hoveredTarget, leftGrid, rightGrid);
+          InventoryDropHandling.drawGridDropHighlight(g, hoveredTarget, leftGrid, rightGrid);
         }
         dragController.drawDragPreview(g);
       } else {
@@ -300,14 +290,8 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
 
   private GridHitTest.Slot<InventorySide> hoveredDropTarget(
       GridHitTest.Grid<InventorySide> leftGrid, GridHitTest.Grid<InventorySide> rightGrid) {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      return null;
-    }
-
-    return dragController.dropTargetAt(
-        stage.mouseX(),
-        stage.mouseY(),
+    return InventoryDropHandling.hoveredDropTarget(
+        dragController,
         (mouseX, mouseY) -> findSlotSelection(mouseX, mouseY, leftGrid, rightGrid),
         (source, target) -> target.side() != source.side());
   }
@@ -316,32 +300,11 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
       Graphics2D g,
       GridHitTest.Grid<InventorySide> leftGrid,
       GridHitTest.Grid<InventorySide> rightGrid) {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      return;
-    }
-
-    int mouseX = stage.mouseX();
-    int mouseY = stage.mouseY();
-
-    if (mouseX < x || mouseX > x + width || mouseY < y || mouseY > y + height) {
-      return;
-    }
-
-    GridHitTest.Slot<InventorySide> hoveredSlot =
-        findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
-    if (hoveredSlot == null) {
-      return;
-    }
-
-    InventoryComponent hoveredInventory = inventoryOf(hoveredSlot.side());
-    Item hoveredItem = hoveredInventory.get(hoveredSlot.slotIndex()).orElse(null);
-    if (hoveredItem == null) {
-      return;
-    }
-
-    ItemTooltipRenderer.drawTooltip(
-        g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
+    InventoryTooltip.drawHoveredSlotTooltip(
+        g,
+        dialogBounds(),
+        (mouseX, mouseY) -> findSlotSelection(mouseX, mouseY, leftGrid, rightGrid),
+        this::itemOf);
   }
 
   private InventoryComponent inventoryOf(InventorySide side) {
@@ -350,21 +313,6 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
 
   private InventoryComponent oppositeInventoryOf(InventorySide side) {
     return side == InventorySide.LEFT ? rightInventory : leftInventory;
-  }
-
-  private void drawDropTargetHighlight(
-      Graphics2D g,
-      GridHitTest.Slot<InventorySide> targetSlot,
-      GridHitTest.Grid<InventorySide> leftGrid,
-      GridHitTest.Grid<InventorySide> rightGrid) {
-    GridHitTest.Grid<InventorySide> targetGrid =
-        targetSlot.side() == InventorySide.LEFT ? leftGrid : rightGrid;
-
-    InventoryDragController.drawDropHighlight(
-        g,
-        targetGrid.slotBounds(targetSlot.slotIndex()),
-        InventoryDragController.DEFAULT_DROP_FILL,
-        InventoryDragController.DEFAULT_DROP_OUTLINE);
   }
 
   private GridHitTest.Slot<InventorySide> findSlotSelection(
@@ -383,12 +331,8 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
     return inventoryOf(slot.side()).get(slot.slotIndex()).orElse(null);
   }
 
-  private void drawPanelBackground(Graphics2D g, int x, int y, int width, int height) {
-    g.setColor(new Color(62, 62, 99, 96));
-    g.fillRect(x, y, width, height);
-
-    g.setColor(new Color(0x9dc1ebff, true));
-    g.drawRect(x, y, width, height);
+  private Rectangle dialogBounds() {
+    return new Rectangle(x, y, width, height);
   }
 
   @Override
