@@ -125,6 +125,32 @@ public final class InventoryDragController<S> {
   }
 
   /**
+   * Resolves the drop target at a pointer position for the active drag.
+   *
+   * @param mouseX the current mouse x coordinate
+   * @param mouseY the current mouse y coordinate
+   * @param slotFinder resolves slots at pointer positions
+   * @param targetFilter decides whether a hovered slot accepts the active drag source
+   * @return the accepted drop target, or {@code null}
+   */
+  public GridHitTest.Slot<S> dropTargetAt(
+      int mouseX, int mouseY, SlotFinder<S> slotFinder, DropTargetFilter<S> targetFilter) {
+    Objects.requireNonNull(slotFinder, "slotFinder");
+    Objects.requireNonNull(targetFilter, "targetFilter");
+
+    if (dragState == null) {
+      return null;
+    }
+
+    GridHitTest.Slot<S> target = slotFinder.findSlot(mouseX, mouseY);
+    if (target == null || !targetFilter.accepts(dragState.source(), target)) {
+      return null;
+    }
+
+    return target;
+  }
+
+  /**
    * Returns the slot array to render while hiding the dragged source item.
    *
    * @param slots the original slot array
@@ -238,6 +264,24 @@ public final class InventoryDragController<S> {
   }
 
   /**
+   * Decides whether a hovered slot can accept the active drag source.
+   *
+   * @param <S> logical side type of the slot
+   */
+  @FunctionalInterface
+  public interface DropTargetFilter<S> {
+
+    /**
+     * Checks whether {@code target} is a valid drop target for {@code source}.
+     *
+     * @param source the drag source slot
+     * @param target the hovered target slot
+     * @return true when the target should be accepted
+     */
+    boolean accepts(GridHitTest.Slot<S> source, GridHitTest.Slot<S> target);
+  }
+
+  /**
    * Resolves an item for a slot.
    *
    * @param <S> logical side type of the slot
@@ -266,7 +310,7 @@ public final class InventoryDragController<S> {
   /**
    * Describes a completed button release.
    *
-   * @param pressedSlot the slot that was pressed, or {@code null}
+   * @param pressedSlot the slot that was pressed or {@code null}
    * @param releasedSlot the slot where the button was released, or {@code null}
    * @param completedDrag the completed drag, or {@code null} for a click
    * @param <S> logical side type of the slot

@@ -300,28 +300,16 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
 
   private GridHitTest.Slot<InventorySide> hoveredDropTarget(
       GridHitTest.Grid<InventorySide> leftGrid, GridHitTest.Grid<InventorySide> rightGrid) {
-    InventoryDragController.DragState<InventorySide> dragState = dragController.dragState();
-    if (dragState == null) {
-      return null;
-    }
-
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       return null;
     }
 
-    GridHitTest.Slot<InventorySide> hovered =
-        findSlotSelection(stage.mouseX(), stage.mouseY(), leftGrid, rightGrid);
-
-    if (hovered == null) {
-      return null;
-    }
-
-    if (hovered.side() == dragState.source().side()) {
-      return null;
-    }
-
-    return hovered;
+    return dragController.dropTargetAt(
+        stage.mouseX(),
+        stage.mouseY(),
+        (mouseX, mouseY) -> findSlotSelection(mouseX, mouseY, leftGrid, rightGrid),
+        (source, target) -> target.side() != source.side());
   }
 
   private void drawHoverTooltip(

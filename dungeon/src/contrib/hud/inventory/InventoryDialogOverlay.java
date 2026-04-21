@@ -287,27 +287,16 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
   }
 
   private GridHitTest.Slot<InventorySide> hoveredDropTarget(GridHitTest.Grid<InventorySide> grid) {
-    InventoryDragController.DragState<InventorySide> dragState = dragController.dragState();
-    if (dragState == null) {
-      return null;
-    }
-
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       return null;
     }
 
-    GridHitTest.Slot<InventorySide> hoveredSlot =
-        findSlotSelection(grid, stage.mouseX(), stage.mouseY());
-    if (hoveredSlot == null) {
-      return null;
-    }
-
-    if (hoveredSlot.slotIndex() == dragState.source().slotIndex()) {
-      return null;
-    }
-
-    return hoveredSlot;
+    return dragController.dropTargetAt(
+        stage.mouseX(),
+        stage.mouseY(),
+        (mouseX, mouseY) -> findSlotSelection(grid, mouseX, mouseY),
+        (source, target) -> target.slotIndex() != source.slotIndex());
   }
 
   private void drawDropTargetHighlight(

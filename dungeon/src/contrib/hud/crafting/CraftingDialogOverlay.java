@@ -727,7 +727,12 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     }
 
     GridHitTest.Slot<InventorySide> hoveredTargetSlot =
-        GridHitTest.findGridSlotAt(mouseX, mouseY, List.of(leftGrid));
+        dragController.dropTargetAt(
+            mouseX,
+            mouseY,
+            (slotMouseX, slotMouseY) ->
+                GridHitTest.findGridSlotAt(slotMouseX, slotMouseY, List.of(leftGrid)),
+            (source, target) -> target.side() != source.side());
     if (hoveredTargetSlot != null) {
       drawHighlight(g, leftGrid.slotBounds(hoveredTargetSlot.slotIndex()));
       return;
