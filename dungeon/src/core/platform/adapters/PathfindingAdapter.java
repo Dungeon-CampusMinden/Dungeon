@@ -15,7 +15,7 @@ import java.util.Optional;
  * <p>Key responsibilities:
  * <ul>
  *   <li>Finding paths between two tiles in a level
- *   <li>Handling pathfinding failures and returning Optional results
+ *   <li>Distinguishing unavailable pathfinding context from an empty path result
  * </ul>
  */
 public interface PathfindingAdapter {
@@ -27,16 +27,20 @@ public interface PathfindingAdapter {
    * The implementation may use various pathfinding algorithms (A*, Dijkstra, etc.) to find
    * an optimal or valid path.
    *
-   * <p>Return value:
+   * <p>Return value semantics:
    * <ul>
-   *   <li>If a path is found, returns an Optional containing a list of tiles from start to end
-   *   <li>If no path exists, returns an empty Optional
+   *   <li>If pathfinding could run, returns an {@link Optional} containing a list of tiles
+   *   <li>If a path exists, that list contains the tiles from start to end
+   *   <li>If no path exists, that list is empty
+   *   <li>If pathfinding cannot run because the required context is unavailable, returns an empty
+   *       {@link Optional}
    * </ul>
    *
    * @param level the level to search within
    * @param start the starting tile
    * @param end the destination tile
-   * @return an Optional containing the path as a list of tiles, or empty if no path exists
+   * @return an {@link Optional} containing the path result, or empty if pathfinding cannot be
+   *     performed
    */
   Optional<List<Tile>> findPath(ILevel level, Tile start, Tile end);
 }

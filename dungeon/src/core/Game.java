@@ -764,7 +764,8 @@ public final class Game {
    * @param start the starting tile
    * @param end the target tile
    * @return an {@link Optional} containing a list of tiles representing the path from start to end,
-   *     or an empty {@code Optional} if no path exists or if there is no current level
+   *     an {@link Optional} containing an empty list if no path exists, or an empty {@code Optional}
+   *     if there is no current level or pathfinding cannot be performed
    */
   public static Optional<List<Tile>> findPath(final Tile start, final Tile end) {
     return currentLevel().flatMap(level -> Platform.pathfinding().findPath(level, start, end));
