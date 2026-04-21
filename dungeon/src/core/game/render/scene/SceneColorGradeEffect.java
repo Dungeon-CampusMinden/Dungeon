@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
  */
 public final class SceneColorGradeEffect
   extends AbstractColorGradeEffect<SceneColorGradeEffect>
-  implements SceneEffectRegistry.ToggleableSceneEffect {
+  implements ToggleableSceneEffect {
 
   /** Creates a neutral scene color-grade effect that leaves the scene unchanged. */
   public SceneColorGradeEffect() {

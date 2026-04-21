@@ -16,8 +16,7 @@ import java.awt.image.BufferedImage;
  * <p>The effect is toggleable and implements a no-op rendering behavior
  * when disabled or when no debug views are active.
  */
-public final class PassthroughDebugEffect
-  implements SceneEffectRegistry.ToggleableSceneEffect {
+public final class PassthroughDebugEffect implements ToggleableSceneEffect {
 
   private boolean debugPMA = false;
   private boolean debugWorldPos = false;

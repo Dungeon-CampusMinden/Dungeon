@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
  */
 public final class LevelColorGradeEffect
   extends AbstractColorGradeEffect<LevelColorGradeEffect>
-  implements LevelEffectRegistry.ToggleableLevelEffect {
+  implements ToggleableLevelEffect {
 
   /** Creates a neutral level color-grade effect that leaves the level layer unchanged. */
   public LevelColorGradeEffect() {

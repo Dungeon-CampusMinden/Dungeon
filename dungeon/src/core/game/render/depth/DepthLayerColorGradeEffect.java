@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
  */
 public final class DepthLayerColorGradeEffect
   extends AbstractColorGradeEffect<DepthLayerColorGradeEffect>
-  implements DepthLayerEffectRegistry.ToggleableDepthLayerEffect {
+  implements ToggleableDepthLayerEffect {
 
   /** Creates a neutral depth-layer color-grade effect that leaves the depth layer unchanged. */
   public DepthLayerColorGradeEffect() {
