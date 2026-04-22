@@ -82,7 +82,12 @@ public final class InventoryTooltip {
     return new MousePosition(mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
   }
 
-  /** Resolves a slot at a screen position. */
+  /**
+   * Functional interface for resolving a slot in an inventory-like overlay
+   * based on the current mouse position.
+   *
+   * @param <S> the type representing the logical inventory side
+   */
   @FunctionalInterface
   public interface SlotResolver<S> {
 
@@ -96,7 +101,11 @@ public final class InventoryTooltip {
     GridHitTest.Slot<S> findSlot(int mouseX, int mouseY);
   }
 
-  /** Resolves an item for a slot. */
+  /**
+   * A functional interface for resolving an item within a logical inventory slot.
+   *
+   * @param <S> the type representing a logical inventory side
+   */
   @FunctionalInterface
   public interface ItemResolver<S> {
 
