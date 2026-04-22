@@ -12,10 +12,13 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Adds presentation systems and debug HUD behavior to an existing render adapter.
+ * A wrapper class for the RenderAdapter interface that extends its functionality
+ * by adding additional rendering-related features and behavior.
  *
- * <p>The core client render adapter stays independent of optional presentation systems; this
- * wrapper is installed by the presentation client bootstrap.
+ * <p>This class is primarily designed to augment the adapter's default rendering systems
+ * with a presentation-specific system.
+ *
+ * <p>It also delegates the other rendering operations to the underlying RenderAdapter implementation.
  */
 public final class PresentationRenderAdapter implements RenderAdapter {
   private final RenderAdapter delegate;
