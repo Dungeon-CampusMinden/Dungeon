@@ -9,6 +9,8 @@ import java.util.Objects;
  * <p>This component holds a registry of sprite effects that can be applied to a sprite during rendering.
  * It is used to attach visual effects such as shine, hue remapping, or other sprite transformations
  * to game entities.
+ *
+ * @param effects the sprite effect registry
  */
 public record SpriteEffectsComponent(SpriteEffectRegistry effects) implements Component {
 
