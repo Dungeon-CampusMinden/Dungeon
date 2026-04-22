@@ -21,6 +21,8 @@ import java.util.Optional;
  * object.
  */
 public final class CameraMath {
+
+  /** The world origin. */
   public static final Point ORIGIN = new Point(0, 0);
 
   private static final float SNAP_EPSILON = 0.01f;
