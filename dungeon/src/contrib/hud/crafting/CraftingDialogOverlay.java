@@ -2,13 +2,12 @@ package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingType;
+import contrib.hud.crafting.CraftingDragDropController.InventorySide;
 import contrib.hud.inventory.InventoryComponentProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
 import contrib.hud.renderers.InventoryPanelRendering;
 import contrib.hud.utils.GridHitTest;
-import contrib.hud.utils.InventoryDragController;
-import contrib.hud.utils.InventoryDropHandling;
 import contrib.hud.utils.InventoryTooltip;
 import contrib.item.Item;
 import core.Game;
@@ -17,7 +16,6 @@ import core.ui.StageHandle;
 import core.ui.overlay.UiOverlay;
 import core.utils.InputManager;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -57,18 +55,12 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
   private static final int CLASSIC_CRAFTING_PANEL_WIDTH = 420;
   private static final int CLASSIC_CRAFTING_PANEL_HEIGHT = 420;
 
-  private static final int DRAG_THRESHOLD_PX = 8;
-
-  private static final Color DRAG_HIGHLIGHT = new Color(157, 193, 235, 180);
-  private static final Color DRAG_HIGHLIGHT_FILL = new Color(157, 193, 235, 45);
-
   private static final CraftingDialogLayout CLASSIC_LAYOUT = new CraftingDialogLayout();
 
   private final String targetTitle;
   private final String craftingTitle;
   private final CraftingDialogController controller;
-  private final InventoryDragController<InventorySide> dragController =
-      InventoryDragController.withAxisThreshold(DRAG_THRESHOLD_PX);
+  private final CraftingDragDropController dragDropController;
   private final CraftingActionRenderer actionRenderer;
   private final CraftingPanelRenderer panelRenderer;
 
@@ -87,6 +79,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     this.craftingTitle =
         (craftingTitle == null || craftingTitle.isBlank()) ? "Crafting" : craftingTitle;
     this.controller = controller;
+    this.dragDropController = new CraftingDragDropController(controller);
     this.actionRenderer = new CraftingActionRenderer(dialogId, controller);
     this.panelRenderer = new CraftingPanelRenderer(CLASSIC_LAYOUT);
   }
@@ -101,9 +94,10 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     Item[] craftingSlots = controller.craftingSlots();
     Item[] resultItems = currentResultItems();
 
-    Item[] visibleTargetSlots = dragController.visibleSlots(targetSlots, InventorySide.TARGET);
+    Item[] visibleTargetSlots =
+        dragDropController.visibleSlots(targetSlots, InventorySide.TARGET);
     Item[] visibleCraftingSlots =
-        dragController.visibleSlots(craftingSlots, InventorySide.CRAFTING);
+        dragDropController.visibleSlots(craftingSlots, InventorySide.CRAFTING);
 
     int leftColumns = InventoryGridRenderer.columnsFor(targetSlots);
     int leftRows = InventoryGridRenderer.rowsFor(targetSlots, leftColumns);
@@ -179,14 +173,14 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
           g, rightPanelBounds, craftingBounds, visibleCraftingSlots, resultItems, resultBounds);
       actionRenderer.draw(g);
 
-      if (dragController.isDragging()) {
+      if (dragDropController.isDragging()) {
         drawDropHighlights(g, leftGrid, leftPanelBounds, rightPanelBounds, craftingBounds);
       }
 
       handleInput(leftGrid, leftPanelBounds, rightPanelBounds, craftingBounds);
 
-      if (dragController.isDragging()) {
-        dragController.drawDragPreview(g);
+      if (dragDropController.isDragging()) {
+        dragDropController.drawDragPreview(g);
       } else {
         drawHoverTooltip(g, leftGrid, craftingBounds, resultItems, resultBounds);
       }
@@ -216,7 +210,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
       List<CraftingDialogLayout.SlotBounds> craftingBounds) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
-      dragController.reset();
+      dragDropController.reset();
       return;
     }
 
@@ -224,109 +218,38 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     int mouseY = stage.mouseY();
     boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    Optional<InventoryDragController.Release<InventorySide>> release =
-        dragController.update(
+    Optional<CraftingDialogAction> action =
+        dragDropController.handleInput(
             leftButtonDown,
             mouseX,
             mouseY,
-            (slotMouseX, slotMouseY) -> {
-              if (actionRenderer.findActionAt(slotMouseX, slotMouseY).isPresent()) {
-                return null;
-              }
-              return findSlotSelection(slotMouseX, slotMouseY, leftGrid, craftingBounds);
-            },
-            this::itemOf);
-
-    if (release.isEmpty()) {
-      return;
-    }
-
-    InventoryDragController.Release<InventorySide> released = release.get();
-    Optional<CraftingDialogAction> releasedButton = actionRenderer.findActionAt(mouseX, mouseY);
-    if (releasedButton.isPresent() && released.completedDrag() == null) {
-      actionRenderer.trigger(releasedButton.get());
-      return;
-    }
-
-    if (released.completedDrag() != null) {
-      transferDraggedItem(
-          released.completedDrag(),
-          released.releasedSlot(),
-          leftPanelBounds,
-          rightPanelBounds,
-          mouseX,
-          mouseY);
-    } else if (released.pressedSlot() != null
-        && released.pressedSlot().equals(released.releasedSlot())) {
-      transferClickedItem(released.pressedSlot());
-    }
+            leftGrid,
+            leftPanelBounds,
+            rightPanelBounds,
+            craftingBounds,
+            actionRenderer::findActionAt);
+    action.ifPresent(actionRenderer::trigger);
   }
 
-  private void transferClickedItem(GridHitTest.Slot<InventorySide> selection) {
-    if (selection == null) {
-      return;
-    }
-
-    controller.transferBySlot(selection.side().controllerSide(), selection.slotIndex());
-  }
-
-  private void transferDraggedItem(
-      InventoryDragController.DragState<InventorySide> completedDrag,
-      GridHitTest.Slot<InventorySide> releasedSlotSelection,
+  private void drawDropHighlights(
+      Graphics2D g,
+      GridHitTest.Grid<InventorySide> leftGrid,
       Rectangle leftPanelBounds,
       Rectangle rightPanelBounds,
-      int mouseX,
-      int mouseY) {
-    if (completedDrag == null) {
-      return;
-    }
-
-    if (releasedSlotSelection != null
-        && completedDrag.source().side() != releasedSlotSelection.side()) {
-      controller.transferBySlotToSlot(
-          completedDrag.source().side().controllerSide(),
-          completedDrag.source().slotIndex(),
-          releasedSlotSelection.side().controllerSide(),
-          releasedSlotSelection.slotIndex());
-      return;
-    }
-
-    if (completedDrag.source().side() == InventorySide.TARGET
-        && rightPanelBounds.contains(mouseX, mouseY)) {
-      controller.transferBySlot(
-          CraftingDialogController.InventorySide.TARGET, completedDrag.source().slotIndex());
-      return;
-    }
-
-    if (completedDrag.source().side() == InventorySide.CRAFTING
-        && leftPanelBounds.contains(mouseX, mouseY)) {
-      controller.transferBySlot(
-          CraftingDialogController.InventorySide.CRAFTING, completedDrag.source().slotIndex());
-    }
-  }
-
-  private GridHitTest.Slot<InventorySide> findSlotSelection(
-      int mouseX,
-      int mouseY,
-      GridHitTest.Grid<InventorySide> leftGrid,
       List<CraftingDialogLayout.SlotBounds> craftingBounds) {
-    return GridHitTest.findSlotAt(
-        mouseX, mouseY, List.of(leftGrid), toBoundedSlots(craftingBounds));
-  }
-
-  private List<GridHitTest.BoundedSlot<InventorySide>> toBoundedSlots(
-      List<CraftingDialogLayout.SlotBounds> craftingBounds) {
-    List<GridHitTest.BoundedSlot<InventorySide>> slots = new ArrayList<>(craftingBounds.size());
-
-    for (CraftingDialogLayout.SlotBounds bounds : craftingBounds) {
-      slots.add(
-          new GridHitTest.BoundedSlot<>(
-              InventorySide.CRAFTING,
-              bounds.slotIndex(),
-              new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size())));
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      return;
     }
 
-    return List.copyOf(slots);
+    dragDropController.drawDropHighlights(
+        g,
+        leftGrid,
+        leftPanelBounds,
+        rightPanelBounds,
+        craftingBounds,
+        stage.mouseX(),
+        stage.mouseY());
   }
 
   private void drawHoverTooltip(
@@ -338,8 +261,9 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     if (InventoryTooltip.drawHoveredSlotTooltip(
         g,
         dialogBounds(),
-        (mouseX, mouseY) -> findSlotSelection(mouseX, mouseY, leftGrid, craftingBounds),
-        this::itemOf)) {
+        (mouseX, mouseY) ->
+            dragDropController.findSlotSelection(mouseX, mouseY, leftGrid, craftingBounds),
+        dragDropController::itemOf)) {
       return;
     }
 
@@ -350,70 +274,6 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
         return;
       }
     }
-  }
-
-  private void drawDropHighlights(
-      Graphics2D g,
-      GridHitTest.Grid<InventorySide> leftGrid,
-      Rectangle leftPanelBounds,
-      Rectangle rightPanelBounds,
-      List<CraftingDialogLayout.SlotBounds> craftingBounds) {
-    StageHandle stage = Game.stage().orElse(null);
-    InventoryDragController.DragState<InventorySide> dragState = dragController.dragState();
-    if (stage == null || dragState == null) {
-      return;
-    }
-
-    int mouseX = stage.mouseX();
-    int mouseY = stage.mouseY();
-
-    if (dragState.source().side() == InventorySide.TARGET) {
-      if (rightPanelBounds.contains(mouseX, mouseY)) {
-        drawHighlight(g, rightPanelBounds);
-      }
-      return;
-    }
-
-    GridHitTest.Slot<InventorySide> hoveredTargetSlot =
-        InventoryDropHandling.hoveredDropTarget(
-            dragController,
-            (slotMouseX, slotMouseY) ->
-                GridHitTest.findGridSlotAt(slotMouseX, slotMouseY, List.of(leftGrid)),
-            (source, target) -> target.side() != source.side());
-    if (hoveredTargetSlot != null) {
-      drawHighlight(g, leftGrid.slotBounds(hoveredTargetSlot.slotIndex()));
-      return;
-    }
-
-    if (leftPanelBounds.contains(mouseX, mouseY)) {
-      drawHighlight(g, leftPanelBounds);
-      return;
-    }
-
-    for (CraftingDialogLayout.SlotBounds bounds : craftingBounds) {
-      if (bounds.contains(mouseX, mouseY)) {
-        drawHighlight(g, new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size()));
-        return;
-      }
-    }
-  }
-
-  private void drawHighlight(Graphics2D g, Rectangle bounds) {
-    InventoryDropHandling.drawDropHighlight(g, bounds, DRAG_HIGHLIGHT_FILL, DRAG_HIGHLIGHT);
-  }
-
-  private Item itemOf(GridHitTest.Slot<InventorySide> selection) {
-    if (selection == null) {
-      return null;
-    }
-
-    return inventoryOf(selection.side()).get(selection.slotIndex()).orElse(null);
-  }
-
-  private InventoryComponent inventoryOf(InventorySide side) {
-    return side == InventorySide.TARGET
-        ? controller.targetInventory()
-        : controller.craftingInventory();
   }
 
   private Rectangle dialogBounds() {
@@ -473,20 +333,5 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
   @Override
   public Stream<InventoryComponent> inventoryComponents() {
     return Stream.of(controller.targetInventory(), controller.craftingInventory());
-  }
-
-  private enum InventorySide {
-    TARGET(CraftingDialogController.InventorySide.TARGET),
-    CRAFTING(CraftingDialogController.InventorySide.CRAFTING);
-
-    private final CraftingDialogController.InventorySide controllerSide;
-
-    InventorySide(CraftingDialogController.InventorySide controllerSide) {
-      this.controllerSide = controllerSide;
-    }
-
-    public CraftingDialogController.InventorySide controllerSide() {
-      return controllerSide;
-    }
   }
 }
