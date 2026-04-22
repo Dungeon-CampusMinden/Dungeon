@@ -20,10 +20,19 @@ package core.input;
  */
 public final class MouseButtons {
 
+  /** Represents the left mouse button (LMB). */
   public static final int LEFT = 0;
+
+  /** Represents the right mouse button (RMB). */
   public static final int RIGHT = 1;
+
+  /** Represents the middle mouse button (MMB). */
   public static final int MIDDLE = 2;
+
+  /** Represents the back mouse button (MOUSE_BACK). */
   public static final int BACK = 3;
+
+  /** Represents the forward mouse button (MOUSE_FORWARD). */
   public static final int FORWARD = 4;
 
   private MouseButtons() {}
