@@ -20,11 +20,17 @@ import core.utils.Point;
  * </ul>
  */
 public enum EditorSnapMode {
+  /** Snap to the nearest whole tile grid. */
   ON_GRID("OnGrid"),
+  /** Snap to the nearest quarter tile grid (0.25 precision). */
   QUARTER_GRID("QuarterGrid"),
+  /** Snap to the nearest pixel grid (0.0625 precision, pixel-level). */
   PIXEL_GRID("PixelGrid"),
+  /** No snapping, free movement. */
   OFF_GRID("OffGrid"),
+  /** Snap to even squares of a checkerboard pattern. */
   CHECKER_GRID_EVEN("CheckerGridEven"),
+  /** Snap to odd squares of a checkerboard pattern. */
   CHECKER_GRID_ODD("CheckerGridOdd");
 
   private final String displayName;
