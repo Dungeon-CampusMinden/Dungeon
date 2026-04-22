@@ -22,10 +22,19 @@ import java.util.List;
  */
 public final class DialogFrameRenderer {
 
+  /** The arc size for rounded corners of dialog frames. */
   public static final int ARC = 14;
+
+  /** The padding around dialog content. */
   public static final int PADDING = 20;
+
+  /** The width of a button. */
   public static final int BUTTON_WIDTH = 120;
+
+  /** The height of a button. */
   public static final int BUTTON_HEIGHT = 34;
+
+  /** The bottom margin for buttons. */
   public static final int BUTTON_BOTTOM_MARGIN = 18;
 
   private static final float BACKDROP_ALPHA = 0.35f;
