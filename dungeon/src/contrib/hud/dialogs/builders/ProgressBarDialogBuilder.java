@@ -4,7 +4,7 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.elements.bars.AttributeBarDialogData;
 import contrib.hud.elements.bars.AttributeBarOverlay;
-import contrib.hud.utils.AttributeBarUtil;
+import contrib.hud.elements.bars.AttributeBarUtil;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 

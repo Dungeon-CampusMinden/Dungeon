@@ -5,7 +5,7 @@ import contrib.components.HealthComponent;
 import contrib.components.ManaComponent;
 import contrib.components.StaminaComponent;
 import contrib.hud.elements.bars.AttributeBarHandle;
-import contrib.hud.utils.AttributeBarUtil;
+import contrib.hud.elements.bars.AttributeBarUtil;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
