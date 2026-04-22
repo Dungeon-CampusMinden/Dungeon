@@ -103,7 +103,6 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
   private final String craftingTitle;
   private final String dialogId;
   private final CraftingDialogController controller;
-  private final CraftingDialogInteraction interaction;
   private final InventoryDragController<InventorySide> dragController =
       InventoryDragController.withAxisThreshold(DRAG_THRESHOLD_PX);
 
@@ -125,7 +124,6 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     this.craftingTitle =
         (craftingTitle == null || craftingTitle.isBlank()) ? "Crafting" : craftingTitle;
     this.controller = controller;
-    this.interaction = new CraftingDialogInteraction(controller);
     this.dialogId = dialogId;
 
     for (CraftingDialogAction action : CraftingDialogAction.values()) {
@@ -583,7 +581,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
       return;
     }
 
-    interaction.transferClickedSlot(selection.side().controllerSide(), selection.slotIndex());
+    controller.transferBySlot(selection.side().controllerSide(), selection.slotIndex());
   }
 
   private void transferDraggedItem(
@@ -599,7 +597,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
 
     if (releasedSlotSelection != null
         && completedDrag.source().side() != releasedSlotSelection.side()) {
-      interaction.transferDroppedSlot(
+      controller.transferBySlotToSlot(
           completedDrag.source().side().controllerSide(),
           completedDrag.source().slotIndex(),
           releasedSlotSelection.side().controllerSide(),
@@ -609,14 +607,14 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
 
     if (completedDrag.source().side() == InventorySide.TARGET
         && rightPanelBounds.contains(mouseX, mouseY)) {
-      interaction.transferClickedSlot(
+      controller.transferBySlot(
           CraftingDialogController.InventorySide.TARGET, completedDrag.source().slotIndex());
       return;
     }
 
     if (completedDrag.source().side() == InventorySide.CRAFTING
         && leftPanelBounds.contains(mouseX, mouseY)) {
-      interaction.transferClickedSlot(
+      controller.transferBySlot(
           CraftingDialogController.InventorySide.CRAFTING, completedDrag.source().slotIndex());
     }
   }
