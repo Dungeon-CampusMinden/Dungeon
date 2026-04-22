@@ -23,10 +23,10 @@ public final class SceneEffectPipeline {
   private SceneEffectPipeline() {}
 
   /**
-   * Retrieves the registry of scene effects managed by the rendering pipeline.
+   * Retrieves the global {@link SceneEffectRegistry} instance used for managing scene effects
+   * in the rendering pipeline.
    *
-   * @return the global {@link SceneEffectRegistry} used to register, enable, disable,
-   * and prioritize scene effects
+   * @return the singleton {@link SceneEffectRegistry} instance containing registered scene effects
    */
   public static SceneEffectRegistry effects() {
     return EFFECTS;
