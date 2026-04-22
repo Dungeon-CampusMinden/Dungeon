@@ -3,7 +3,7 @@ package contrib.client;
 import contrib.hud.dialogs.DialogBackendInstaller;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
-import contrib.game.ContribLevelLoadHooks;
+import contrib.game.LevelContentInstaller;
 import contrib.modules.interaction.InteractionSelection;
 import contrib.modules.interaction.ui.InteractionSelectionOverlayUi;
 import contrib.modules.levelhide.LevelHideSystem;
@@ -43,9 +43,9 @@ public final class PresentationClientInstaller implements ClientLoopHostInstalle
   @Override
   public void installPlatformServices() {
     InteractionSelection.install(InteractionSelectionOverlayUi.INSTANCE);
-    ContribLevelLoadHooks.install();
-    if (!(Platform.render() instanceof ContribRenderAdapter)) {
-      Platform.render(new ContribRenderAdapter(Platform.render()));
+    LevelContentInstaller.install();
+    if (!(Platform.render() instanceof PresentationRenderAdapter)) {
+      Platform.render(new PresentationRenderAdapter(Platform.render()));
     }
   }
 

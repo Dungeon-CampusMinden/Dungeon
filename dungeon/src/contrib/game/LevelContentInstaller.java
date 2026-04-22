@@ -5,11 +5,11 @@ import contrib.utils.CheckPatternPainter;
 import core.Game;
 import core.game.LevelLoadHooks;
 
-/** Installs contrib-specific behavior into the core level-load lifecycle. */
-public final class ContribLevelLoadHooks {
+/** Installs decoration and check-pattern behavior into the core level-load lifecycle. */
+public final class LevelContentInstaller {
   private static boolean installed;
 
-  private ContribLevelLoadHooks() {}
+  private LevelContentInstaller() {}
 
   /** Installs decoration spawning and optional check-pattern painting once. */
   public static void install() {

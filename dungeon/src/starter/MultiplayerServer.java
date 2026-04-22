@@ -1,7 +1,7 @@
 package starter;
 
 import contrib.entities.HeroController;
-import contrib.game.ContribLevelLoadHooks;
+import contrib.game.LevelContentInstaller;
 import contrib.systems.AISystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.FallingSystem;
@@ -48,7 +48,7 @@ public class MultiplayerServer {
   }
 
   private static void onSetup() {
-    ContribLevelLoadHooks.install();
+    LevelContentInstaller.install();
 
     ECSManagement.initializeDefaultSystems(SystemProfile.SERVER);
     ECSManagement.initializeGameplaySystems(SystemProfile.SERVER);

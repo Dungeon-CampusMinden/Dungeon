@@ -12,20 +12,20 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Adds contrib presentation systems and debug HUD behavior to an existing render adapter.
+ * Adds presentation systems and debug HUD behavior to an existing render adapter.
  *
- * <p>The core client render adapter stays independent of contrib systems; this wrapper is
- * installed by the contrib client bootstrap.
+ * <p>The core client render adapter stays independent of optional presentation systems; this
+ * wrapper is installed by the presentation client bootstrap.
  */
-public final class ContribRenderAdapter implements RenderAdapter {
+public final class PresentationRenderAdapter implements RenderAdapter {
   private final RenderAdapter delegate;
 
   /**
-   * Creates a contrib render adapter wrapper.
+   * Creates a presentation render adapter wrapper.
    *
    * @param delegate render adapter to extend
    */
-  public ContribRenderAdapter(RenderAdapter delegate) {
+  public PresentationRenderAdapter(RenderAdapter delegate) {
     this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
   }
 
