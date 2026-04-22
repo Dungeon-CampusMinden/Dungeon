@@ -73,11 +73,8 @@ public final class MiscFactory {
   private static final String CALLBACK_CRAFT = "craft";
   private static final String CALLBACK_CANCEL = "cancel";
 
-  /** Maximum number of items displayed per row in the inventory UI. */
-  private static final int INVENTORY_UI_MAX_ITEMS_PER_ROW = 6;
-
   /**
-   * The {@link ItemGenerator} used to generate random items for chests.
+   * The {@link ItemGenerator} used to generate random items for the chests.
    *
    * @see ItemGenerator
    * @see ItemGenerator#defaultItemGenerator()
@@ -143,7 +140,7 @@ public final class MiscFactory {
   }
 
   /**
-   * Gets the ItemGenerator used to generate random items for randomly filled chests.
+   * Gets the ItemGenerator used to generate random items for the randomly filled chests.
    *
    * <p>The default ItemGenerator is {@link ItemGenerator#defaultItemGenerator()}.
    *
@@ -350,7 +347,16 @@ public final class MiscFactory {
     return newCraftingCauldron(PositionComponent.ILLEGAL_POSITION);
   }
 
-  public static UIComponent createCraftingDialogUi(Entity who, Entity craftingEntity) {
+  /**
+   * Creates and returns a crafting dialog UI component for the specified entities.
+   *
+   * <p>This method generates a dialog interface for crafting, registers crafting-related callbacks,
+   * and handles dialog lifecycle events such as close behavior.
+   *
+   * @param who            The entity representing the player or user for whom the crafting dialog is created.
+   * @param craftingEntity The entity providing crafting functionality or inventory, such as a crafting station.
+   */
+  public static void createCraftingDialogUi(Entity who, Entity craftingEntity) {
     DialogContext context =
       DialogContext.builder()
         .type(DialogType.DefaultTypes.CRAFTING_GUI)
@@ -368,7 +374,7 @@ public final class MiscFactory {
 
     ui.registerCallback(
       CALLBACK_CRAFT,
-      data -> {
+      _ -> {
         InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
         InventoryComponent craftingInventory =
           craftingEntity.fetch(InventoryComponent.class).orElse(null);
@@ -382,7 +388,7 @@ public final class MiscFactory {
 
     ui.registerCallback(
       CALLBACK_CANCEL,
-      data -> {
+      _ -> {
         InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
         InventoryComponent craftingInventory =
           craftingEntity.fetch(InventoryComponent.class).orElse(null);
@@ -396,7 +402,7 @@ public final class MiscFactory {
       });
 
     ui.onClose(
-      uic -> {
+      _ -> {
         InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
         InventoryComponent craftingInventory =
           craftingEntity.fetch(InventoryComponent.class).orElse(null);
@@ -408,7 +414,6 @@ public final class MiscFactory {
         cancelCrafting(targetInventory, craftingInventory);
       });
 
-    return ui;
   }
 
   private static void craftFromInventory(
@@ -612,7 +617,7 @@ public final class MiscFactory {
    * <ul>
    *   <li>Attaches a {@link VelocityComponent} with a termination callback that resets the entity
    *       when the flight ends.
-   *   <li>Adds a {@link CollideComponent} that resets the entity once the projectile reaches it
+   *   <li>Adds a {@link CollideComponent} that resets the entity once the projectile reaches its
    *       endpoint.
    * </ul>
    *
@@ -669,7 +674,7 @@ public final class MiscFactory {
   }
 
   /**
-   * Create a book, that the player can read.
+   * Create a book that the player can read.
    *
    * @param position Position of the book.
    * @param text Text that is shown in a Dialog on interaction.
@@ -694,10 +699,10 @@ public final class MiscFactory {
   }
 
   /**
-   * Creates a new Entity that blocks a door aka. locks a door tile.
+   * Creates a new Entity that blocks a door aka. Locks a door tile.
    *
    * @param door the door Tile to be locked
-   * @param requiredKeyType the key type which is needed to unlock the door
+   * @param requiredKeyType the key type that is needed to unlock the door
    * @return a new DoorBlocker Entity
    */
   public static Entity createDoorBlocker(
