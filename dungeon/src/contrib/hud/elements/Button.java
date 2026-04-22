@@ -1,11 +1,5 @@
 package contrib.hud.elements;
 
-import core.Game;
-import core.input.MouseButtons;
-import core.ui.StageHandle;
-import core.utils.InputManager;
-import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
 import java.util.function.Consumer;
 
 /**
@@ -17,31 +11,12 @@ import java.util.function.Consumer;
  */
 public class Button {
 
-  private static final IPath BUTTON_IDLE_PATH = new SimpleIPath("hud/button/button_idle.png");
-  private static final IPath BUTTON_HOVER_PATH = new SimpleIPath("hud/button/button_hover.png");
-  private static final IPath BUTTON_PRESS_PATH = new SimpleIPath("hud/button/button_press.png");
-
   protected int x, y, width, height;
 
   private boolean pressed = false;
   private boolean hovered = false;
   private boolean leftButtonDownLastFrame = false;
   private Consumer<Button> onClick = ignored -> {};
-
-  /**
-   * Represents the visual state of a UI element, such as a button.
-   *
-   * <ul>
-   *   <li>IDLE: The default state when no interaction is occurring.
-   *   <li>HOVER: The state when the cursor is hovering over the element.
-   *   <li>PRESSED: The state when the element is actively being interacted with, such as when a mouse button is pressed.
-   * </ul>
-   */
-  public enum VisualState {
-    IDLE,
-    HOVER,
-    PRESSED
-  }
 
   /**
    * Create a new button.
@@ -65,25 +40,6 @@ public class Button {
    */
   public void onClick(Consumer<Button> onClick) {
     this.onClick = onClick != null ? onClick : ignored -> {};
-  }
-
-  /**
-   * Updates the button from the current engine-neutral stage/input abstractions.
-   *
-   * <p>This keeps the existing GDX call sites working while also allowing other backends to drive
-   * the same state machine explicitly via {@link #update(int, int, boolean)}.
-   */
-  public void updateFromStage() {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      resetInteractionState();
-      return;
-    }
-
-    update(
-      stage.mouseX(),
-      Math.round(stage.getHeight()) - stage.mouseY(),
-      InputManager.isButtonPressed(MouseButtons.LEFT));
   }
 
   /**
@@ -126,56 +82,11 @@ public class Button {
     this.leftButtonDownLastFrame = false;
   }
 
-  /**
-   * Returns the current backend-neutral visual state.
-   *
-   * <p>The pressed background is only shown while the cursor is still over the button, preserving
-   * the previous visual behaviour.
-   *
-   * @return current visual state
-   */
-  public VisualState visualState() {
-    if (!this.hovered) {
-      return VisualState.IDLE;
-    }
-
-    return this.pressed ? VisualState.PRESSED : VisualState.HOVER;
-  }
-
-  /**
-   * Returns the background asset path for the current visual state.
-   *
-   * <p>This can be consumed by any backend-specific renderer.
-   *
-   * @return button background asset path
-   */
-  public IPath backgroundTexturePath() {
-    return switch (visualState()) {
-      case PRESSED -> BUTTON_PRESS_PATH;
-      case HOVER -> BUTTON_HOVER_PATH;
-      case IDLE -> BUTTON_IDLE_PATH;
-    };
-  }
-
   protected boolean contains(int mouseX, int mouseY) {
     return mouseX >= this.x
       && mouseX <= this.x + this.width
       && mouseY >= this.y
       && mouseY <= this.y + this.height;
-  }
-
-  /**
-   * @return true if the button is currently hovered according to the last update cycle
-   */
-  protected boolean isMouseOver() {
-    return this.hovered;
-  }
-
-  /**
-   * @return true if a press started on this button and has not yet been released
-   */
-  protected boolean isPressed() {
-    return this.pressed;
   }
 
   /**
