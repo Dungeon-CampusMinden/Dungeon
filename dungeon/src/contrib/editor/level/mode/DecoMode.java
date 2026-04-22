@@ -53,6 +53,13 @@ public final class DecoMode extends LevelEditorMode {
   private Entity hoveredDecoEntity = null;
   private final Map<Entity, Integer> rememberedEditorTints = new IdentityHashMap<>();
 
+  /**
+   * Constructs a new instance of DecoMode, representing a specific editing mode
+   * within the level editor.
+   *
+   * @param system the LevelEditorSystem instance that manages the level editor
+   *               and provides the necessary context and functionality for this mode
+   */
   public DecoMode(LevelEditorSystem system) {
     super(system, "Deco Mode");
   }
