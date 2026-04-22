@@ -31,23 +31,23 @@ public final class Keys {
   // Numbers
   /** Key code for the 0 (zero) key. */
   public static final int NUM_0 = 7;
-  /** Key code for the 1 key. */
+  /** Key code for key 1. */
   public static final int NUM_1 = 8;
-  /** Key code for the 2 key. */
+  /** Key code for key 2. */
   public static final int NUM_2 = 9;
-  /** Key code for the 3 key. */
+  /** Key code for key 3. */
   public static final int NUM_3 = 10;
-  /** Key code for the 4 key. */
+  /** Key code for key 4. */
   public static final int NUM_4 = 11;
-  /** Key code for the 5 key. */
+  /** Key code for key 5. */
   public static final int NUM_5 = 12;
-  /** Key code for the 6 key. */
+  /** Key code for key 6. */
   public static final int NUM_6 = 13;
-  /** Key code for the 7 key. */
+  /** Key code for key 7. */
   public static final int NUM_7 = 14;
-  /** Key code for the 8 key. */
+  /** Key code for key 8. */
   public static final int NUM_8 = 15;
-  /** Key code for the 9 key. */
+  /** Key code for key 9. */
   public static final int NUM_9 = 16;
 
   // Arrows
@@ -61,63 +61,63 @@ public final class Keys {
   public static final int RIGHT = 22;
 
   // Letters
-  /** Key code for the A key. */
+  /** Key code for key A. */
   public static final int A = 29;
-  /** Key code for the B key. */
+  /** Key code for key B. */
   public static final int B = 30;
-  /** Key code for the C key. */
+  /** Key code for key C. */
   public static final int C = 31;
-  /** Key code for the D key. */
+  /** Key code for key D. */
   public static final int D = 32;
-  /** Key code for the E key. */
+  /** Key code for key E. */
   public static final int E = 33;
-  /** Key code for the F key. */
+  /** Key code for key F. */
   public static final int F = 34;
-  /** Key code for the G key. */
+  /** Key code for key G. */
   public static final int G = 35;
-  /** Key code for the H key. */
+  /** Key code for key H. */
   public static final int H = 36;
-  /** Key code for the I key. */
+  /** Key code for key I. */
   public static final int I = 37;
-  /** Key code for the J key. */
+  /** Key code for key J. */
   public static final int J = 38;
-  /** Key code for the K key. */
+  /** Key code for key K. */
   public static final int K = 39;
-  /** Key code for the L key. */
+  /** Key code for key L. */
   public static final int L = 40;
-  /** Key code for the M key. */
+  /** Key code for key M. */
   public static final int M = 41;
-  /** Key code for the N key. */
+  /** Key code for key N. */
   public static final int N = 42;
-  /** Key code for the O key. */
+  /** Key code for key O. */
   public static final int O = 43;
-  /** Key code for the P key. */
+  /** Key code for key P. */
   public static final int P = 44;
-  /** Key code for the Q key. */
+  /** Key code for key Q. */
   public static final int Q = 45;
-  /** Key code for the R key. */
+  /** Key code for key R. */
   public static final int R = 46;
-  /** Key code for the S key. */
+  /** Key code for key S. */
   public static final int S = 47;
-  /** Key code for the T key. */
+  /** Key code for key T. */
   public static final int T = 48;
-  /** Key code for the U key. */
+  /** Key code for key U. */
   public static final int U = 49;
-  /** Key code for the V key. */
+  /** Key code for key V. */
   public static final int V = 50;
-  /** Key code for the W key. */
+  /** Key code for key W. */
   public static final int W = 51;
-  /** Key code for the X key. */
+  /** Key code for key X. */
   public static final int X = 52;
-  /** Key code for the Y key. */
+  /** Key code for key Y. */
   public static final int Y = 53;
-  /** Key code for the Z key. */
+  /** Key code for key Z. */
   public static final int Z = 54;
 
   // Punctuation
-  /** Key code for the Comma (,) key. */
+  /** Key code for the Comma key. */
   public static final int COMMA = 55;
-  /** Key code for the Period (.) key. */
+  /** Key code for the Period key. */
   public static final int PERIOD = 56;
 
   // Modifiers
