@@ -20,6 +20,8 @@ import java.awt.image.BufferedImage;
  * rendering is done directly for better performance.
  */
 public final class EcsRenderScreen extends Screen {
+
+  /** The name of the ECS render screen. */
   public static final String NAME = "ECS_RENDER_SCREEN";
 
   /** Creates a new ECS render screen. */
