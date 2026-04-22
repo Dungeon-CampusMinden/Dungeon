@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class ShineSpriteEffect implements ToggleableSpriteEffect {
 
-  private static final double TWO_PI = Math.PI * 2.0;;
+  private static final double TWO_PI = Math.PI * 2.0;
   private static final int SMALL_SPRITE_MAX_DIM = 48;
 
   private static final Map<MaskCacheKey, float[]> ALPHA_MASK_CACHE = new ConcurrentHashMap<>();
@@ -248,8 +248,6 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
     float bandWidth = clamp(0.42f - gapSize * 0.18f, 0.22f, 0.42f);
     float bandHalfWidth = bandWidth * 0.5f;
 
-    double baseAngle = normalizePhase(nowSeconds * rotationSpeed) * TWO_PI;
-
     float phase = (float) normalizePhase(nowSeconds * rotationSpeed);
     float sweepCenter = -bandHalfWidth + phase * (1.0f + bandWidth);
 
@@ -404,7 +402,7 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
           continue;
         }
 
-        if (radius <= 0) {
+        if (radius == 0) {
           mask[y * paddedWidth + x] = 0.0f;
           continue;
         }
