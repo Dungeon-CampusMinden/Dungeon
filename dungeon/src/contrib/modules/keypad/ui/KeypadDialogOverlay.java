@@ -44,7 +44,7 @@ import java.util.List;
  *   backspace functionality, and input validation.</li>
  *   <li>{@code StageHandle}: Represents the game stage for retrieving mouse coordinates.</li>
  *   <li>{@code Game.audio()}: External audio utility for playing feedback sounds.</li>
- *</ul>
+ * </ul>
  *
  * <p>Notes:
  * <ul>
