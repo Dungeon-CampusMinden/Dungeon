@@ -9,7 +9,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
-import contrib.hud.InventoryDialogState;
+import contrib.hud.inventory.InventoryDialogState;
 import contrib.item.Item;
 import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;

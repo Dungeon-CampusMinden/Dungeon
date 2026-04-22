@@ -6,7 +6,7 @@ import static core.network.config.NetworkConfig.*;
 
 import contrib.components.UIComponent;
 import contrib.entities.HeroController;
-import contrib.hud.InventoryDialogState;
+import contrib.hud.inventory.InventoryDialogState;
 import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;

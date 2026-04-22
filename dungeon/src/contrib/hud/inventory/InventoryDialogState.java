@@ -1,4 +1,4 @@
-package contrib.hud;
+package contrib.hud.inventory;
 
 import core.Entity;
 import java.util.Map;
