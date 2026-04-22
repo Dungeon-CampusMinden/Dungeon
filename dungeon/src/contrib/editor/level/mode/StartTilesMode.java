@@ -59,6 +59,12 @@ public final class StartTilesMode extends LevelEditorMode {
 
   private int currentStartTileIndex = 0;
 
+  /**
+   * Initializes a new instance of the StartTilesMode class, which represents
+   * a mode in the level editor for defining and managing start tiles.
+   *
+   * @param system The LevelEditorSystem that manages this mode.
+   */
   public StartTilesMode(LevelEditorSystem system) {
     super(system, "Start Tiles Mode");
   }
