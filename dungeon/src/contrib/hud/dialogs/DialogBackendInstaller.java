@@ -21,6 +21,27 @@ public final class DialogBackendInstaller {
 
   private DialogBackendInstaller() {}
 
+  /**
+   * Installs the default dialog types and their corresponding implementations into the dialog factory.
+   *
+   * <p>This method ensures that all built-in dialog types defined in {@link DialogType.DefaultTypes}
+   * are registered in the {@link DialogFactory}.
+   *
+   * <p>Fallback handlers are also set up for types without visual implementations.
+   * Additionally, it binds each dialog type to its respective neutral builder.
+   *
+   * <p>If the installation process has already been completed, the method exits immediately
+   * without performing any actions.
+   *
+   * <p>The registration process includes:
+   * <ul>
+   *   <li>Registering fallback handlers for all built-in dialog types.</li>
+   *   <li>Replacing factory entries for specific dialog types with their corresponding builder methods.</li>
+   * </ul>
+   *
+   * <p>Note: This method is thread-safe and will only execute once, regardless of how many
+   * times it is invoked.
+   */
   public static synchronized void install() {
     if (initialized) {
       return;
