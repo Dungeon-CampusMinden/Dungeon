@@ -84,7 +84,7 @@ public final class DecoMode extends LevelEditorMode {
     Point cursorPos = Platform.cursor().world();
     Point snapPos = currentDecoSnapPosition();
 
-    if (InputManager.isKeyJustPressed(QUARTERNARY)) {
+    if (InputManager.isKeyJustPressed(QUATERNARY)) {
       pipetteDecoAtCursor();
     } else if (InputManager.isButtonJustPressed(MouseButtons.RIGHT) && heldDecoEntity == null) {
       pickupDecoAtCursor();
@@ -158,7 +158,7 @@ public final class DecoMode extends LevelEditorMode {
     controls.put(MouseButtons.LEFT, "Place new deco or place held deco");
     controls.put(MouseButtons.RIGHT, "Pick up placed deco near cursor");
     controls.put(TERTIARY, "Delete placed deco near cursor");
-    controls.put(QUARTERNARY, "Pipette deco type near cursor");
+    controls.put(QUATERNARY, "Pipette deco type near cursor");
     return controls;
   }
 

@@ -39,7 +39,7 @@ public abstract class LevelEditorMode {
   public static final int TERTIARY = Keys.X;
 
   /** Quaternary action button. */
-  public static final int QUARTERNARY = Keys.V;
+  public static final int QUATERNARY = Keys.V;
 
   private static final List<Integer> EDITOR_INPUTS =
     List.of(
@@ -48,7 +48,7 @@ public abstract class LevelEditorMode {
       SECONDARY_UP,
       SECONDARY_DOWN,
       TERTIARY,
-      QUARTERNARY,
+      QUATERNARY,
       MouseButtons.LEFT,
       MouseButtons.RIGHT);
 
@@ -159,7 +159,7 @@ public abstract class LevelEditorMode {
       case SECONDARY_UP -> "C";
       case SECONDARY_DOWN -> "Z";
       case TERTIARY -> "X";
-      case QUARTERNARY -> "V";
+      case QUATERNARY -> "V";
       case MouseButtons.LEFT -> "LMB";
       case MouseButtons.RIGHT -> "RMB";
       default -> Integer.toString(keycode);

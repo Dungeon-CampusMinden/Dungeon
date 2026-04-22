@@ -76,7 +76,7 @@ public final class TilesMode extends LevelEditorMode {
       brushSize = Math.max(1, brushSize - 1);
     }
 
-    if (InputManager.isKeyJustPressed(QUARTERNARY)) {
+    if (InputManager.isKeyJustPressed(QUATERNARY)) {
       tileElementAtCursor()
         .ifPresent(
           element -> {
@@ -131,7 +131,7 @@ public final class TilesMode extends LevelEditorMode {
     controls.put(MouseButtons.LEFT, "Paint with left tile");
     controls.put(MouseButtons.RIGHT, "Paint with right tile / hold for right-tile selection");
     controls.put(TERTIARY, "Erase to SKIP");
-    controls.put(QUARTERNARY, "Pipette tile to left paint");
+    controls.put(QUATERNARY, "Pipette tile to left paint");
     return controls;
   }
 

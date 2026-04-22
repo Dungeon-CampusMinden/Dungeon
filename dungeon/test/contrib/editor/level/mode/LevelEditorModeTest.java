@@ -20,7 +20,7 @@ public class LevelEditorModeTest {
         LevelEditorMode.SECONDARY_UP,
         LevelEditorMode.SECONDARY_DOWN,
         LevelEditorMode.TERTIARY,
-        LevelEditorMode.QUARTERNARY,
+        LevelEditorMode.QUATERNARY,
         MouseButtons.LEFT,
         MouseButtons.RIGHT),
       LevelEditorMode.editorInputs());
