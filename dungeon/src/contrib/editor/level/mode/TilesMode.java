@@ -50,6 +50,13 @@ public final class TilesMode extends LevelEditorMode {
   private int selectedTileIndexR = 2;
   private int brushSize = 1;
 
+  /**
+   * Constructs a new instance of the TilesMode class, representing a mode for editing tiles
+   * in a level editor system.
+   *
+   * @param system The LevelEditorSystem instance to which this mode is attached.
+   *               It provides the necessary context and functionality for the mode to operate.
+   */
   public TilesMode(LevelEditorSystem system) {
     super(system, "Tiles Mode");
   }
