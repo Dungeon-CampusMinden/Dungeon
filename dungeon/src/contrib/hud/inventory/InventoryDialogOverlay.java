@@ -2,7 +2,6 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.HeroController;
-import contrib.hud.elements.InventoryComponentProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
 import contrib.hud.renderers.InventoryPanelRendering;

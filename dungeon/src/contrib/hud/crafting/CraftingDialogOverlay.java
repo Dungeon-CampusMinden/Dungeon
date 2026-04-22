@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingType;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.elements.ImageButton;
-import contrib.hud.elements.InventoryComponentProvider;
+import contrib.hud.inventory.InventoryComponentProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
 import contrib.hud.renderers.InventoryPanelRendering;
