@@ -5,7 +5,11 @@ import java.awt.image.BufferedImage;
 /** Backend-specific post-processing effect for the rendered level layer only. */
 public interface LevelEffect {
 
-  /** @return true if the effect should currently be applied. */
+  /**
+   * Indicates whether this level effect is currently enabled.
+   *
+   * @return true if the effect is enabled; false otherwise
+   */
   boolean enabled();
 
   /**
