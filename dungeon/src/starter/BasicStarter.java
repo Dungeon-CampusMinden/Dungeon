@@ -78,6 +78,13 @@ public final class BasicStarter {
 
   private BasicStarter() {}
 
+  /**
+   * The entry point of the application that sets up and runs the game environment.
+   * Initializes game configurations, loads required resources, sets up gameplay systems,
+   * and defines behaviors for various game events.
+   *
+   * @param args command-line arguments passed to the application, typically not used in this context
+   */
   public static void main(String[] args) {
     DungeonLoader.addLevel(Tuple.of("playground", DungeonLevel.class));
 
@@ -172,11 +179,6 @@ public final class BasicStarter {
         });
   }
 
-  /**
-   * Registers a guaranteed local test recipe for the crafting verification area.
-   *
-   * <p>Recipe: Water Potion + Berry -> Health Potion
-   */
   private static void installCraftingTestRecipe() {
     Crafting.addRecipe(
       new Recipe(
@@ -185,12 +187,6 @@ public final class BasicStarter {
         new ItemPotionHealth[] {new ItemPotionHealth()}));
   }
 
-  /**
-   * Registers a visible regional scene-pass color-grade demo.
-   *
-   * <p>The effect is limited to an upper world-space region so it can be distinguished clearly
-   * from the separate level-pass and depth-layer-pass demos.
-   */
   private static void installSceneColorGradeDemo() {
     SceneEffectPipeline.effects().remove(STARTER_SCENE_COLOR_GRADE_DEMO_ID);
     SceneEffectPipeline.effects().add(
@@ -201,11 +197,6 @@ public final class BasicStarter {
       100);
   }
 
-  /**
-   * Registers a visible regional level-pass color-grade demo.
-   *
-   * <p>This affects only lower level tiles and not the entities on top of them.
-   */
   private static void installLevelColorGradeDemo() {
     LevelEffectPipeline.effects().remove(STARTER_LEVEL_COLOR_GRADE_DEMO_ID);
     LevelEffectPipeline.effects().add(
@@ -216,11 +207,6 @@ public final class BasicStarter {
       100);
   }
 
-  /**
-   * Registers a visible regional depth-layer color-grade demo.
-   *
-   * <p>This targets only the dedicated verification chest on the foreground-deco layer.
-   */
   private static void installDepthLayerColorGradeDemo() {
     int demoDepth = DepthLayer.ForegroundDeco.depth();
 
@@ -233,7 +219,6 @@ public final class BasicStarter {
       100);
   }
 
-  /** Adds deterministic starter items to the hero inventory. */
   private static void addStarterInventoryItems(Entity hero) {
     hero.fetch(InventoryComponent.class)
       .ifPresent(
@@ -248,11 +233,6 @@ public final class BasicStarter {
         });
   }
 
-  /**
-   * Spawns the full manual verification sandbox near the level start.
-   *
-   * @param startPosition world position of the level start
-   */
   private static void spawnVerificationFixtures(Point startPosition) {
     spawnHubZone(startPosition);
     spawnInventoryZone(startPosition.translate(Vector2.of(3f, 0f)));
@@ -264,7 +244,6 @@ public final class BasicStarter {
     spawnDebugAndEditorHintZone(startPosition.translate(Vector2.of(18f, 6f)));
   }
 
-  /** Spawn area with general instructions. */
   private static void spawnHubZone(Point origin) {
     addSign(
       "Verification Hub",
@@ -302,7 +281,6 @@ public final class BasicStarter {
         new ItemPotionHealth(), origin.translate(Vector2.of(1f, 0.5f))));
   }
 
-  /** Inventory verification area with multiple chest variants and ground items. */
   private static void spawnInventoryZone(Point origin) {
     addSign(
       "Inventory Zone",
@@ -331,7 +309,6 @@ public final class BasicStarter {
         new ItemWoodenArrow(8), origin.translate(Vector2.of(3f, 1.5f))));
   }
 
-  /** Crafting verification area. */
   private static void spawnCraftingZone(Point origin) {
     addSign(
       "Crafting Zone",
@@ -350,7 +327,6 @@ public final class BasicStarter {
     Game.add(MiscFactory.newChest(createCraftingSupportItems(), origin.translate(Vector2.of(2f, 0f))));
   }
 
-  /** Dialog and show-image verification area. */
   private static void spawnDialogZone(Point origin) {
     addSign(
       "Dialog Zone",
@@ -394,7 +370,6 @@ public final class BasicStarter {
           "Second image for reopen / close testing", 0.9f, 20, 20, 20)));
   }
 
-  /** Locked chest verification area. */
   private static void spawnLockedChestZone(Point origin) {
     addSign(
       "Locked Chest Zone",
@@ -416,7 +391,6 @@ public final class BasicStarter {
         new ItemKey(), origin.translate(Vector2.of(1f, 0.5f))));
   }
 
-  /** Render/effect verification area with effect-specific chests. */
   private static void spawnRenderAndEffectsZone(Point origin) {
     addSign(
       "Render & Effects Zone",
@@ -451,7 +425,6 @@ public final class BasicStarter {
     Game.add(depthLayerDemoChest);
   }
 
-  /** LevelHide verification area. */
   private static void spawnLevelHideZone(Point origin) {
     addSign(
       "Level Hide Zone",
@@ -466,7 +439,6 @@ public final class BasicStarter {
     Game.add(LevelHideFactory.createLevelHide(origin.translate(Vector2.of(0f, 0f)), 4f, 3f, 1.5f));
   }
 
-  /** Debug/editor guidance zone. */
   private static void spawnDebugAndEditorHintZone(Point origin) {
     addSign(
       "Debug Hotkeys",
@@ -492,7 +464,6 @@ public final class BasicStarter {
       origin.translate(Vector2.of(0f, 4.5f)));
   }
 
-  /** Visible hue-remap demo chest effect. */
   private static void installHueRemapDemoEffect(Entity entity) {
     SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
@@ -502,7 +473,6 @@ public final class BasicStarter {
     entity.add(new SpriteEffectsComponent(effects));
   }
 
-  /** Visible sprite color-grade demo chest effect. */
   private static void installColorGradeDemoEffect(Entity entity) {
     SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
@@ -512,7 +482,6 @@ public final class BasicStarter {
     entity.add(new SpriteEffectsComponent(effects));
   }
 
-  /** Visible animated shine demo chest effect. */
   private static void installShineDemoEffect(Entity entity) {
     SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
@@ -527,13 +496,11 @@ public final class BasicStarter {
     entity.add(new SpriteEffectsComponent(effects));
   }
 
-  /** Puts one chest explicitly onto the depth layer that is targeted by the depth effect demo. */
   private static void installDepthLayerDemoDepth(Entity entity) {
     entity.fetch(DrawComponent.class)
       .ifPresent(dc -> dc.depth(DepthLayer.ForegroundDeco.depth()));
   }
 
-  /** Creates a small set of mixed chest items. */
   private static Set<Item> createChestTestItems() {
     return Set.of(
       new ItemPotionWater(),
@@ -542,7 +509,6 @@ public final class BasicStarter {
       new ItemWoodenArrow(8));
   }
 
-  /** Creates a slightly larger set for transfer and inventory layout checks. */
   private static Set<Item> createLargeChestTestItems() {
     return Set.of(
       new ItemPotionWater(),
@@ -553,7 +519,6 @@ public final class BasicStarter {
       new ItemKey());
   }
 
-  /** Support items for crafting verification. */
   private static Set<Item> createCraftingSupportItems() {
     return Set.of(
       new ItemPotionWater(),
@@ -563,7 +528,6 @@ public final class BasicStarter {
       new ItemPotionHealth());
   }
 
-  /** Adds a simple sign to the level. */
   private static void addSign(String title, String text, Point position) {
     Game.add(SignFactory.createSign(text, title, position, (sign, who) -> {}));
   }
