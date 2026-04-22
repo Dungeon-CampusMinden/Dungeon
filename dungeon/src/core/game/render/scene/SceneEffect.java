@@ -11,7 +11,11 @@ import java.awt.image.BufferedImage;
  */
 public interface SceneEffect {
 
-  /** @return true if the effect should currently be applied. */
+  /**
+   * Checks whether this scene effect is currently enabled.
+   *
+   * @return true if the effect is enabled, false otherwise
+   */
   boolean enabled();
 
   /**
