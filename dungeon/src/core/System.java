@@ -16,9 +16,9 @@ import java.util.stream.Stream;
  * each system has. For example, it allows the system to pause and unpause.
  *
  * <p>A system will iterate over each {@link Entity} with specific {@link Component}s. Only if the
- * Entity contains each needed Component, the System will execute the system logic on it.
+ * Entity contains each necessary Component, the System will execute the system logic on it.
  *
- * <p>The needed Components will be defined as constructor parameters.
+ * <p>The necessary Components will be defined as constructor parameters.
  *
  * <p>The {@link Game} will add the System to a corresponding {@link EntitySystemMapper} or will
  * create a {@link EntitySystemMapper}.
@@ -32,7 +32,7 @@ public abstract class System {
   /**
    * Determines how many frames pass between two executions of the {@link #execute()}-loop.
    *
-   * <p>The value 1 means that no frames are skipped, the {@link #execute()}-loop is executed every
+   * <p>Value 1 means that no frames are skipped, the {@link #execute()}-loop is executed every
    * frame.
    */
   public static final int DEFAULT_EVERY_FRAME_EXECUTE = 1;
@@ -52,7 +52,7 @@ public abstract class System {
    *
    * <p>The default implementation is just empty.
    */
-  protected Consumer<Entity> onEntityAdd = (e) -> {};
+  protected Consumer<Entity> onEntityAdd = (_) -> {};
 
   /**
    * Will be called after an entity was removed from the corresponding {@link EntitySystemMapper}.
@@ -62,11 +62,23 @@ public abstract class System {
    *
    * <p>The default implementation is just empty.
    */
-  protected Consumer<Entity> onEntityRemove = (e) -> {};
+  protected Consumer<Entity> onEntityRemove = (_) -> {};
 
   private int lastExecuteInFrames = 0;
   private float deltaTime = 0f;
 
+  /**
+   * Constructs a new instance of the System class.
+   *
+   * @param authSide             The authoritative side of the system, which determines the source of control or validation logic.
+   * @param executeEveryXFrames  The number of frames after which the system should execute its logic. Must be greater than 0.
+   * @param executeEverySeconds  The time interval in seconds after which the system should execute its logic. Must be non-negative.
+   * @param filterRules          An optional varargs parameter specifying the classes of components that this system filters or operates upon.
+   *                             If null, an empty filter set will be initialized.
+   *
+   * @throws IllegalArgumentException If executeEveryXFrames is less than or equal to 0.
+   * @throws IllegalArgumentException If executeEverySeconds is negative.
+   */
   @SafeVarargs
   public System(
     AuthoritativeSide authSide,
@@ -94,6 +106,13 @@ public abstract class System {
     LOGGER.debug(String.format("A new %s was created", getClass().getName()));
   }
 
+  /**
+   * Constructs a new System with the specified parameters.
+   *
+   * @param authSide The authoritative side configuration for the system.
+   * @param executeEveryXFrames The frequency, in frames, at which the system is executed.
+   * @param filterRules A varargs parameter specifying the filtering rules using component classes.
+   */
   @SafeVarargs
   public System(
     AuthoritativeSide authSide,
@@ -102,6 +121,13 @@ public abstract class System {
     this(authSide, executeEveryXFrames, 0f, filterRules);
   }
 
+  /**
+   * Constructs a new System with the specified parameters.
+   *
+   * @param authSide the authoritative side where this system operates
+   * @param executeEverySeconds the interval, in seconds, at which this system should execute
+   * @param filterRules the set of component classes used as filter rules to determine system behavior
+   */
   @SafeVarargs
   public System(
     AuthoritativeSide authSide,
@@ -110,6 +136,12 @@ public abstract class System {
     this(authSide, DEFAULT_EVERY_FRAME_EXECUTE, executeEverySeconds, filterRules);
   }
 
+  /**
+   * Constructs a new System instance with the specified execution interval and filter rules.
+   *
+   * @param executeEverySeconds The interval, in seconds, at which the system should execute.
+   * @param filterRules         The filter rules defining which types of components this system will process.
+   */
   @SafeVarargs
   public System(float executeEverySeconds, Class<? extends Component>... filterRules) {
     this(AuthoritativeSide.SERVER, executeEverySeconds, filterRules);
@@ -279,14 +311,14 @@ public abstract class System {
   }
 
   /**
-   * @return the frame count the system should have between executes
+   * @return the frame count the system should have between executing
    */
   public int executeEveryXFrames() {
     return executeEveryXFrames;
   }
 
   /**
-   * @return the time interval in seconds between executes; values {@code <= 0} mean that frame-based
+   * @return the time interval in seconds between executing; values {@code <= 0} mean that frame-based
    *     scheduling is used instead
    */
   public float executeEverySeconds() {
@@ -301,7 +333,7 @@ public abstract class System {
   }
 
   /**
-   * @return the amount of frames the System did not execute
+   * @return the number of frames the System did not execute
    */
   public int lastExecuteInFrames() {
     return lastExecuteInFrames;
@@ -365,6 +397,6 @@ public abstract class System {
     /** The system operates on the server side. */
     SERVER,
     /** The system operates on both client and server sides. */
-    BOTH;
+    BOTH
   }
 }
