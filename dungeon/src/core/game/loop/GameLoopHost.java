@@ -34,17 +34,44 @@ public interface GameLoopHost {
    */
   void run(String[] args, GameLoop core);
 
-  /** Convenience overload for hosts that don't need args. */
+  /**
+   * Starts the host loop and drives the given core loop using default arguments.
+   *
+   * @param core the core game loop to be executed
+   */
   default void run(GameLoop core) {
     run(new String[0], core);
   }
 
-  /** Optional UI stage handle. */
+  /**
+   * Retrieves an optional handle to a UI stage.
+   *
+   * <p>This method provides access to a {@link StageHandle} if the platform or runtime
+   * environment supports a UI stage.
+   *
+   * <p>The returned {@link Optional} will be empty if
+   * no stage is available, implying that the platform does not include UI support or
+   * the stage has not been initialized.
+   *
+   * @return an {@link Optional} containing the {@link StageHandle} if a stage is available,
+   *         or an empty {@link Optional} if no stage is present
+   */
   default Optional<StageHandle> stage() {
     return Optional.empty();
   }
 
-  /** Host-provided sound player (defaults to no-audio). */
+  /**
+   * Provides a platform-specific sound player implementation.
+   *
+   * <p>This method returns an instance of {@link ISoundPlayer} to manage and play audio
+   * in the runtime environment.
+   *
+   * <p>By default, this returns a {@link NoSoundPlayer}, which
+   * is a no-op implementation that performs no actual sound playback. Platform-specific
+   * implementations may override this with a functional sound player.
+   *
+   * @return an instance of {@link ISoundPlayer}, which can be used to manage audio playback.
+   */
   default ISoundPlayer soundPlayer() {
     return new NoSoundPlayer();
   }
