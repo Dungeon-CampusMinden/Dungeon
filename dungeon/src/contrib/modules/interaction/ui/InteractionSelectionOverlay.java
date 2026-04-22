@@ -36,7 +36,7 @@ import java.util.function.Consumer;
  *   <li>Dynamically adjusts its height based on the number of interactions.</li>
  *   <li>Handles user input (mouse clicks) to select an interaction or cancel the selection.</li>
  *   <li>Supports smooth integration with the game's UI system.</li>
- *</ul>
+ * </ul>
  *
  * <p>The overlay becomes inactive (hidden) after a selection is made or canceled.
  *
