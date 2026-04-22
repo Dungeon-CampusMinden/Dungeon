@@ -44,7 +44,11 @@ public abstract class PlayHandle {
     return instanceId;
   }
 
-  /** @return true if {@link #callFinished()} has been triggered, false otherwise. */
+  /**
+   * Indicates whether the playback has finished.
+   *
+   * @return true if the playback is complete, false otherwise
+   */
   public final boolean isFinished() {
     return finished;
   }
@@ -93,14 +97,14 @@ public abstract class PlayHandle {
   /**
    * Sets the playback pitch (speed).
    *
-   * @param pitch the pitch multiplier (0.5=half speed, 1.0=normal, 2.0=double speed; default: 1.0)
+   * @param pitch the pitch multiplier (0.5=half-speed, 1.0=normal, 2.0=double speed; default: 1.0)
    */
   public abstract void pitch(float pitch);
 
   /**
    * Checks if the sound is currently playing.
    *
-   * <p>Returns false if stopped or finished. Looping audio always return true until explicitly
+   * <p>Returns false if stopped or finished. Looping audio always returns true until explicitly
    * stopped.
    *
    * @return true if actively playing, false if stopped/finished
@@ -108,9 +112,10 @@ public abstract class PlayHandle {
   public abstract boolean isPlaying();
 
   /**
-   * Enables or disables looping for the sound.
+   * Configures whether the sound playback should loop indefinitely.
    *
-   * <p>Returns true if the sound is currently set to loop, false otherwise.
+   * @param looping a boolean flag indicating a looping state;
+   *                true to enable looping, false to disable looping
    */
   public abstract void looping(boolean looping);
 
@@ -155,7 +160,7 @@ public abstract class PlayHandle {
    * <p>Called each frame by the sound player. Implementations should check if non-looping sounds
    * have finished and call {@link #callFinished()} when appropriate.
    *
-   * @param delta time elapsed since last update in seconds
+   * @param delta time elapsed since the last update in seconds
    */
   public abstract void update(float delta);
 }
