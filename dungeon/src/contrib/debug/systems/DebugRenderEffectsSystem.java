@@ -79,6 +79,12 @@ public final class DebugRenderEffectsSystem extends System {
   private float rememberedRegionalDepthColorGradeTransitionSize =
     DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE;
 
+  /**
+   * Constructs a new instance of the DebugRenderEffectsSystem.
+   *
+   * <p>This system is configured to operate on the client-side and is primarily used
+   * for debugging and rendering various visual effects within the application.
+   */
   public DebugRenderEffectsSystem() {
     super(AuthoritativeSide.CLIENT);
   }
