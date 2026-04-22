@@ -4,6 +4,7 @@ import core.game.render.sprite.SpriteRenderSystem;
 import core.platform.adapters.RenderAdapter;
 import core.camera.CameraViewportState;
 import core.camera.CameraLevelSyncSystem;
+import core.systems.SoundSystem;
 import core.ui.StageHandle;
 import core.utils.Point;
 import java.util.List;
@@ -18,12 +19,9 @@ public final class ClientRenderAdapter implements RenderAdapter {
   @Override
   public List<SystemBinding> defaultRenderSystems() {
     return List.of(
-      new SystemBinding(core.systems.SoundSystem.class, core.systems.SoundSystem::new),
-      new SystemBinding(
-        CameraLevelSyncSystem.class, CameraLevelSyncSystem::new),
-      new SystemBinding(
-        SpriteRenderSystem.class,
-        SpriteRenderSystem::new));
+      new SystemBinding(SoundSystem.class, SoundSystem::new),
+      new SystemBinding(CameraLevelSyncSystem.class, CameraLevelSyncSystem::new),
+      new SystemBinding(SpriteRenderSystem.class, SpriteRenderSystem::new));
   }
 
   @Override
@@ -33,6 +31,6 @@ public final class ClientRenderAdapter implements RenderAdapter {
     }
 
     return CameraViewportState.activeViewport()
-      .map(view -> CameraViewportState.worldToScreen(worldPoint));
+      .map(_ -> CameraViewportState.worldToScreen(worldPoint));
   }
 }
