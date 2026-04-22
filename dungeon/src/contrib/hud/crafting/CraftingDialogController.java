@@ -16,12 +16,18 @@ import java.util.Optional;
  *
  * <p>It provides methods for transferring items between inventories,
  * resolving recipes, executing craft actions, and managing callbacks for crafting operations.
+ *
+ * @param targetInventory   the inventory that receives crafted items and provides source items
+ * @param craftingInventory the inventory used as crafting input
  */
 public record CraftingDialogController(InventoryComponent targetInventory, InventoryComponent craftingInventory) {
   private static final DungeonLogger LOGGER =
     DungeonLogger.getLogger(CraftingDialogController.class);
 
+  /** Standard crafting callback. */
   public static final String CALLBACK_CRAFT = "craft";
+
+  /** Standard cancel callback. */
   public static final String CALLBACK_CANCEL = "cancel";
 
   /**
@@ -87,17 +93,16 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    *
    * @param sourceSide the source side
    * @param item       the item to move
-   * @return true if the transfer succeeded
    */
-  public boolean transferByItem(InventorySide sourceSide, Item item) {
+  public void transferByItem(InventorySide sourceSide, Item item) {
     if (item == null) {
-      return false;
+      return;
     }
 
-    return switch (sourceSide) {
+    switch (sourceSide) {
       case TARGET -> targetInventory.transfer(item, craftingInventory);
       case CRAFTING -> craftingInventory.transfer(item, targetInventory);
-    };
+    }
   }
 
   /**
@@ -105,13 +110,12 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    *
    * @param sourceSide the source side
    * @param slotIndex  the slot index
-   * @return true if the transfer succeeded
    */
-  public boolean transferBySlot(InventorySide sourceSide, int slotIndex) {
+  public void transferBySlot(InventorySide sourceSide, int slotIndex) {
     InventoryComponent source =
       sourceSide == InventorySide.TARGET ? targetInventory : craftingInventory;
     Item item = source.get(slotIndex).orElse(null);
-    return transferByItem(sourceSide, item);
+    transferByItem(sourceSide, item);
   }
 
   /**
@@ -128,23 +132,22 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    * <p>This provides the backend-neutral semantic foundation for exact slot drops in concrete UI
    * backends such as LITIENGINE.
    *
-   * @param sourceSide source inventory side
+   * @param sourceSide      source inventory side
    * @param sourceSlotIndex source slot index
-   * @param targetSide target inventory side
+   * @param targetSide      target inventory side
    * @param targetSlotIndex target slot index
-   * @return true if the transfer succeeded
    */
-  public boolean transferBySlotToSlot(
+  public void transferBySlotToSlot(
     InventorySide sourceSide,
     int sourceSlotIndex,
     InventorySide targetSide,
     int targetSlotIndex) {
     if (sourceSide == null || targetSide == null) {
-      return false;
+      return;
     }
 
     if (sourceSide == targetSide) {
-      return false;
+      return;
     }
 
     InventoryComponent source = inventoryOf(sourceSide);
@@ -152,19 +155,18 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
 
     Item item = source.get(sourceSlotIndex).orElse(null);
     if (item == null) {
-      return false;
+      return;
     }
 
     if (target.get(targetSlotIndex).isPresent()) {
-      return false;
+      return;
     }
 
     if (source.remove(sourceSlotIndex).isEmpty()) {
-      return false;
+      return;
     }
 
     target.set(targetSlotIndex, item);
-    return true;
   }
 
   private InventoryComponent inventoryOf(InventorySide side) {
@@ -233,7 +235,9 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    * dialogs and operations, enabling backend-neutral manipulation of inventories.
    */
   public enum InventorySide {
+    /** Represents the target inventory. */
     TARGET,
+    /** Represents the crafting inventory. */
     CRAFTING
   }
 }
