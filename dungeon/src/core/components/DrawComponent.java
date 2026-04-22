@@ -68,6 +68,15 @@ public final class DrawComponent implements Component, Serializable {
     this(path, config, null);
   }
 
+  /**
+   * Constructs a DrawComponent instance with the specified path, animation configuration,
+   * and an optional default state name for the state machine.
+   *
+   * @param path the IPath object representing the path configuration
+   * @param config the AnimationConfig object used for configuring animations
+   * @param defaultStateName the name of the default state for the state machine;
+   *                         if null, a state machine is created without a default state
+   */
   public DrawComponent(final IPath path, AnimationConfig config, String defaultStateName) {
     this.stateMachine = (defaultStateName == null)
       ? new StateMachine(path, config)
@@ -158,14 +167,34 @@ public final class DrawComponent implements Component, Serializable {
     this.depth = depthLayer.depth();
   }
 
+  /**
+   * Adds a transition to the state machine.
+   *
+   * @param transition the transition to be added to the state machine
+   */
   public void addTransition(Transition transition) {
     stateMachine.addTransition(transition);
   }
 
+  /**
+   * Adds a transition to the state machine, defining a state change from one state to another
+   * when a specific signal is received.
+   *
+   * @param from the initial state from which the transition originates
+   * @param signal the signal triggering the transition
+   * @param to the target state to which the transition leads
+   */
   public void addTransition(State from, String signal, State to) {
     stateMachine.addTransition(from, signal, to);
   }
 
+  /**
+   * Adds a transition to the state machine between two states based on a given signal.
+   *
+   * @param from the name of the starting state
+   * @param signal the signal that triggers the transition
+   * @param to the name of the target state
+   */
   public void addTransition(String from, String signal, String to) {
     stateMachine.addTransition(from, signal, to);
   }
@@ -390,25 +419,6 @@ public final class DrawComponent implements Component, Serializable {
    */
   public boolean hasState(String name) {
     return stateMachine.states().stream().anyMatch(s -> s.name.equals(name));
-  }
-
-  /**
-   * Retrieves the state with the specified name from the state machine.
-   *
-   * @param name the name of the state to be retrieved
-   * @return an Optional containing the state if found, or an empty Optional if no state matches the specified name
-   */
-  public Optional<State> getState(String name) {
-    return stateMachine.states().stream().filter(s -> s.name.equals(name)).findFirst();
-  }
-
-  /**
-   * Sets the visibility state of the object.
-   *
-   * @param visible a boolean value where true sets the object to visible, and false sets it to not visible
-   */
-  public void isVisible(boolean visible) {
-    this.isVisible = visible;
   }
 
   /**
