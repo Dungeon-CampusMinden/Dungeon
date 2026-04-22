@@ -73,6 +73,12 @@ public final class DecoColliderMode extends LevelEditorMode {
   private ColliderEditMode currentMode = ColliderEditMode.ChangeDeco;
   private int rapidFireCounter = 0;
 
+  /**
+   * Constructs a new instance of the DecoColliderMode class, an editing mode
+   * for managing decoration colliders in the Level Editor system.
+   *
+   * @param system the LevelEditorSystem instance to which this mode belongs.
+   */
   public DecoColliderMode(LevelEditorSystem system) {
     super(system, "Deco Collider Mode");
   }
