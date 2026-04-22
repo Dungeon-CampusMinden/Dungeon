@@ -109,7 +109,7 @@ public final class ClientLoopHost implements GameLoopHost {
         @Override
         public void initialized(String... initArgs) {
           Game.screens().add(new EcsRenderScreen());
-          Game.screens().display("EcsRenderScreen");
+          Game.screens().display(EcsRenderScreen.NAME);
         }
       });
   }
