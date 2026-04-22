@@ -46,7 +46,11 @@ public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffec
    */
   protected abstract T self();
 
-  /** @return target hue, or a negative value if original hue should be preserved */
+  /**
+   * Returns the target hue for the color-grade effect.
+   *
+   * @return the target hue in the range [0, 1], or a value less than 0 if the original hue is retained
+   */
   public float hue() {
     return hue;
   }
@@ -62,11 +66,6 @@ public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffec
     return self();
   }
 
-  /** @return saturation multiplier */
-  public float saturationMultiplier() {
-    return saturationMultiplier;
-  }
-
   /**
    * Sets the saturation multiplier.
    *
@@ -74,11 +73,6 @@ public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffec
    */
   public void saturationMultiplier(float saturationMultiplier) {
     this.saturationMultiplier = Math.max(0f, saturationMultiplier);
-  }
-
-  /** @return value/brightness multiplier */
-  public float valueMultiplier() {
-    return valueMultiplier;
   }
 
   /**
