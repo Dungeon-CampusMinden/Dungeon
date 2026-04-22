@@ -7,7 +7,9 @@ package contrib.hud.crafting;
  * configuration for the label, callback key, icon, and relative position/size within the dialog.
  */
 public enum CraftingDialogAction {
+  /** Craft action-button. */
   CRAFT("Craft", CraftingDialogController.CALLBACK_CRAFT, "hud/check.png", 0.812f, 0.05f, 0.15f, 0.15f),
+  /** Cancel action-button. */
   CANCEL("Cancel", CraftingDialogController.CALLBACK_CANCEL, "hud/cross.png", 0.036f, 0.05f, 0.15f, 0.15f);
 
   private final String label;
