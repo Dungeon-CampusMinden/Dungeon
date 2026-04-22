@@ -1,15 +1,18 @@
 package core.game.render.level;
 
 /**
- * Represents contextual metadata related to the rendering or processing of a level's visible tiled region.
+ * Represents metadata for the rendering of a visible level buffer in world space.
  *
- * <ul>
- *   <li>{@code minTileX}: The minimum X-coordinate of the visible tile space.</li>
- *   <li>{@code maxTileY}: The maximum Y-coordinate of the visible tile space.</li>
- *   <li>{@code tilePx}: The pixel size of a single tile, used for scaling or transformations.</li>
- * </ul>
+ * <p>This record provides details about the spatial context of the rendered level,
+ * including the minimum x-coordinate of visible tiles, the maximum y-coordinate
+ * of visible tiles, and the size of a single tile in pixels.
  *
- * <p>Instances of this class are immutable and are frequently used to pass relevant data
- * when applying post-processing effects to the level layer or for other rendering-related purposes.
+ * <p>The {@code LevelPassContext} is commonly used in level effects to translate
+ * buffer-space coordinates (e.g., pixel locations) into corresponding world-space
+ * locations or to assist in applying transformations during post-processing.
+ *
+ * @param minTileX the minimum x-coordinate of visible tiles in the level
+ * @param maxTileY the maximum y-coordinate of visible tiles in the level
+ * @param tilePx   the size of a single tile in pixels
  */
 public record LevelPassContext(int minTileX, int maxTileY, int tilePx) {}
