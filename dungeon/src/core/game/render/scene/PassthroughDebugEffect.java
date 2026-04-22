@@ -25,7 +25,11 @@ public final class PassthroughDebugEffect implements ToggleableSceneEffect {
   /** Creates a neutral debug effect with all debug views disabled. */
   public PassthroughDebugEffect() {}
 
-  /** @return whether alpha/transparency debug visualization is enabled */
+  /**
+   * Indicates whether the alpha/transparency debug visualization is enabled.
+   *
+   * @return true if the alpha debug view is enabled, false otherwise
+   */
   public boolean debugPMA() {
     return debugPMA;
   }
@@ -39,7 +43,11 @@ public final class PassthroughDebugEffect implements ToggleableSceneEffect {
     this.debugPMA = debugPMA;
   }
 
-  /** @return whether world-position debug visualization is enabled */
+  /**
+   * Checks whether the world-position debug visualization is enabled.
+   *
+   * @return true if the world-position debug view is enabled, false otherwise
+   */
   public boolean debugWorldPos() {
     return debugWorldPos;
   }
