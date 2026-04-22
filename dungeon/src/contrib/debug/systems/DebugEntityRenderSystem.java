@@ -52,6 +52,13 @@ public final class DebugEntityRenderSystem extends System {
 
   private static final ClientCursorAdapter CURSOR = new ClientCursorAdapter();
 
+  /**
+   * Constructs a new instance of the DebugEntityRenderSystem.
+   *
+   * <p>This system is responsible for rendering debugging information about entities,
+   * such as their positions, view directions, interaction ranges, and other visual
+   * overlays typically used for debugging purposes during development.
+   */
   public DebugEntityRenderSystem() {
     super(AuthoritativeSide.CLIENT, PositionComponent.class);
   }
