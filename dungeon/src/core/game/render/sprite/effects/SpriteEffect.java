@@ -15,7 +15,11 @@ import java.awt.image.BufferedImage;
  */
 public interface SpriteEffect {
 
-  /** @return true if the effect should currently be applied. */
+  /**
+   * Determines whether the effect is currently enabled and should be applied to sprites.
+   *
+   * @return {@code true} if the effect is enabled and should be applied; {@code false} otherwise
+   */
   boolean enabled();
 
   /**
