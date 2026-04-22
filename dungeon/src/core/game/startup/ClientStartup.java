@@ -29,7 +29,7 @@ public final class ClientStartup {
    *   <li>2. Starts networking (might be a LocalNetworkHandler for Single Player)</li>
    *   <li>3. Executes all configured client startup tasks</li>
    *   <li>4. Loads the initial level</li>
-   *</ul>
+   * </ul>
    *
    * <p>Subsequent calls to this method will have no effect. If an exception occurs
    * during setup, it is logged and re-thrown.
