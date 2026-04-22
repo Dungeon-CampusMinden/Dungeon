@@ -27,6 +27,12 @@ import java.util.Map;
  */
 public final class SaveMode extends LevelEditorMode {
 
+  /**
+   * Constructor for the SaveMode class, which initializes the save mode for the level editor system.
+   *
+   * @param system The LevelEditorSystem instance that this mode operates on. This parameter
+   *               represents the central system managing the level editor functionality.
+   */
   public SaveMode(LevelEditorSystem system) {
     super(system, "Save Mode");
   }
