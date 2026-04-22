@@ -22,19 +22,23 @@ public final class SceneEffectPipeline {
 
   private SceneEffectPipeline() {}
 
-  /** @return the global scene effect registry */
+  /**
+   * Retrieves the registry of scene effects managed by the rendering pipeline.
+   *
+   * @return the global {@link SceneEffectRegistry} used to register, enable, disable,
+   * and prioritize scene effects
+   */
   public static SceneEffectRegistry effects() {
     return EFFECTS;
   }
 
-  /** @return true if at least one scene effect is enabled */
+  /**
+   * Checks whether any scene effect managed by the current rendering pipeline is enabled.
+   *
+   * @return true if at least one scene effect is enabled, false otherwise
+   */
   public static boolean hasEnabledEffects() {
     return EFFECTS.hasEnabledEffects();
-  }
-
-  /** @return true if all toggleable scene effects are currently enabled */
-  public static boolean allEnabled() {
-    return EFFECTS.allEnabled();
   }
 
   /**
