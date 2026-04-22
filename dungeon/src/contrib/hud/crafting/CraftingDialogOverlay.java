@@ -8,7 +8,6 @@ import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
 import contrib.hud.renderers.InventoryPanelRendering;
 import contrib.hud.utils.GridHitTest;
-import contrib.hud.utils.InventoryTooltip;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
@@ -63,6 +62,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
   private final CraftingDragDropController dragDropController;
   private final CraftingActionRenderer actionRenderer;
   private final CraftingPanelRenderer panelRenderer;
+  private final CraftingTooltipController tooltipController;
 
   private int x;
   private int y;
@@ -82,6 +82,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     this.dragDropController = new CraftingDragDropController(controller);
     this.actionRenderer = new CraftingActionRenderer(dialogId, controller);
     this.panelRenderer = new CraftingPanelRenderer(CLASSIC_LAYOUT);
+    this.tooltipController = new CraftingTooltipController(dragDropController);
   }
 
   @Override
@@ -182,7 +183,8 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
       if (dragDropController.isDragging()) {
         dragDropController.drawDragPreview(g);
       } else {
-        drawHoverTooltip(g, leftGrid, craftingBounds, resultItems, resultBounds);
+        tooltipController.drawHoverTooltip(
+            g, dialogBounds(), leftGrid, craftingBounds, resultItems, resultBounds);
       }
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
@@ -250,30 +252,6 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
         craftingBounds,
         stage.mouseX(),
         stage.mouseY());
-  }
-
-  private void drawHoverTooltip(
-      Graphics2D g,
-      GridHitTest.Grid<InventorySide> leftGrid,
-      List<CraftingDialogLayout.SlotBounds> craftingBounds,
-      Item[] resultItems,
-      List<CraftingDialogLayout.ItemBounds> resultBounds) {
-    if (InventoryTooltip.drawHoveredSlotTooltip(
-        g,
-        dialogBounds(),
-        (mouseX, mouseY) ->
-            dragDropController.findSlotSelection(mouseX, mouseY, leftGrid, craftingBounds),
-        dragDropController::itemOf)) {
-      return;
-    }
-
-    for (int i = 0; i < resultBounds.size() && i < resultItems.length; i++) {
-      CraftingDialogLayout.ItemBounds bounds = resultBounds.get(i);
-      Rectangle rect = new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size());
-      if (InventoryTooltip.drawItemTooltip(g, rect, resultItems[i])) {
-        return;
-      }
-    }
   }
 
   private Rectangle dialogBounds() {
