@@ -114,6 +114,10 @@ public final class DebugInputHandler {
     Runnable advanceFrame,
     Runnable toggleDebugHud) {
 
+    /**
+     * Represents a collection of runnable actions used to handle debug-related input events
+     * in the game environment.
+     */
     public Actions {
       Objects.requireNonNull(zoomOut, "zoomOut must not be null");
       Objects.requireNonNull(zoomIn, "zoomIn must not be null");
