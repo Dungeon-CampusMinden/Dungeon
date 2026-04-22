@@ -63,6 +63,12 @@ public final class PointMode extends LevelEditorMode {
 
   private UIComponent addPointDialog;
 
+  /**
+   * Constructs a new PointMode for managing and rendering point markers in the level editor.
+   *
+   * @param system The LevelEditorSystem instance to which this mode belongs, providing necessary
+   *               context and functionality for the mode's operations.
+   */
   public PointMode(LevelEditorSystem system) {
     super(system, "Point Mode");
   }
