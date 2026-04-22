@@ -65,7 +65,14 @@ public final class DebugPauseController {
     }
   }
 
-  /** Returns whether the debugger pause menu is currently attached. */
+  /**
+   * Checks if the game is currently paused.
+   *
+   * <p>This method determines the pause state by verifying if the pause menu is present
+   * and its associated UI dialog is attached to the UI handle.
+   *
+   * @return true if the game is currently paused, false otherwise
+   */
   public boolean isPaused() {
     if (pauseMenu == null) {
       return false;
