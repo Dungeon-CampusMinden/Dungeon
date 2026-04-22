@@ -21,8 +21,8 @@ import java.util.function.Consumer;
  */
 public final class InteractionSelectionOverlayUi implements InteractionSelectionUi {
 
-  public static final InteractionSelectionOverlayUi INSTANCE =
-    new InteractionSelectionOverlayUi();
+  /** The singleton instance of {@code InteractionSelectionOverlayUi}. */
+  public static final InteractionSelectionOverlayUi INSTANCE = new InteractionSelectionOverlayUi();
 
   private InteractionSelectionOverlayUi() {}
 
