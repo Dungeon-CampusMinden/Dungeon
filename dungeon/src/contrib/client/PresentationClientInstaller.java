@@ -3,10 +3,13 @@ package contrib.client;
 import contrib.hud.dialogs.DialogBackendInstaller;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
+import contrib.game.ContribLevelLoadHooks;
 import contrib.modules.interaction.InteractionSelection;
 import contrib.modules.interaction.ui.InteractionSelectionOverlayUi;
 import contrib.modules.levelhide.LevelHideSystem;
+import contrib.systems.PositionSyncSystem;
 import core.game.loop.ClientLoopHostInstaller;
+import core.platform.Platform;
 
 /**
  * Installs client-side presentation systems and services into the client loop host.
@@ -40,11 +43,16 @@ public final class PresentationClientInstaller implements ClientLoopHostInstalle
   @Override
   public void installPlatformServices() {
     InteractionSelection.install(InteractionSelectionOverlayUi.INSTANCE);
+    ContribLevelLoadHooks.install();
+    if (!(Platform.render() instanceof ContribRenderAdapter)) {
+      Platform.render(new ContribRenderAdapter(Platform.render()));
+    }
   }
 
   @Override
   public void installRuntimeSystems() {
     DialogBackendInstaller.install();
+    ClientLoopHostInstaller.addSystemIfAbsent(PositionSyncSystem.class, PositionSyncSystem::new);
     ClientLoopHostInstaller.addSystemIfAbsent(LevelHideSystem.class, LevelHideSystem::new);
     ClientLoopHostInstaller.addSystemIfAbsent(HudSystem.class, HudSystem::new);
     ClientLoopHostInstaller.addSystemIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);

@@ -1,4 +1,4 @@
-package core.debug;
+package contrib.debug;
 
 import contrib.utils.components.skill.SkillTools;
 import core.Game;
@@ -22,8 +22,7 @@ import core.utils.logging.DungeonLogger;
  * truly backend-specific functionality locally.
  */
 public final class DebugGameplayActions {
-  private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(DebugGameplayActions.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DebugGameplayActions.class);
 
   private DebugGameplayActions() {}
 
@@ -70,21 +69,21 @@ public final class DebugGameplayActions {
     LOGGER.info("TELEPORT TO END");
 
     Game.endTiles().stream()
-      .findFirst()
-      .ifPresent(
-        end -> {
-          Coordinate endTile = end.coordinate();
-          Coordinate[] neighborTiles = {
-            endTile.translate(Direction.UP),
-            endTile.translate(Direction.DOWN),
-            endTile.translate(Direction.LEFT),
-            endTile.translate(Direction.RIGHT),
-          };
+        .findFirst()
+        .ifPresent(
+            end -> {
+              Coordinate endTile = end.coordinate();
+              Coordinate[] neighborTiles = {
+                endTile.translate(Direction.UP),
+                endTile.translate(Direction.DOWN),
+                endTile.translate(Direction.LEFT),
+                endTile.translate(Direction.RIGHT),
+              };
 
-          for (Coordinate neighborTile : neighborTiles) {
-            Game.tileAt(neighborTile).ifPresent(DebugGameplayActions::teleport);
-          }
-        });
+              for (Coordinate neighborTile : neighborTiles) {
+                Game.tileAt(neighborTile).ifPresent(DebugGameplayActions::teleport);
+              }
+            });
   }
 
   /**
@@ -103,24 +102,24 @@ public final class DebugGameplayActions {
    */
   public static void teleport(Point targetLocation) {
     Game.player()
-      .ifPresent(
-        player -> {
-          PositionComponent pc =
-            player
-              .fetch(PositionComponent.class)
-              .orElseThrow(
-                () -> MissingComponentException.build(player, PositionComponent.class));
+        .ifPresent(
+            player -> {
+              PositionComponent pc =
+                  player
+                      .fetch(PositionComponent.class)
+                      .orElseThrow(
+                          () -> MissingComponentException.build(player, PositionComponent.class));
 
-          LOGGER.info("Attempting to teleport to {}", targetLocation);
-          Tile t = Game.tileAt(targetLocation).orElse(null);
-          if (t == null || !t.isAccessible()) {
-            LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
-            return;
-          }
+              LOGGER.info("Attempting to teleport to {}", targetLocation);
+              Tile t = Game.tileAt(targetLocation).orElse(null);
+              if (t == null || !t.isAccessible()) {
+                LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
+                return;
+              }
 
-          pc.position(targetLocation);
-          LOGGER.info("Teleport successful");
-        });
+              pc.position(targetLocation);
+              LOGGER.info("Teleport successful");
+            });
   }
 
   /** Opens all exit and door tiles at the current level. */

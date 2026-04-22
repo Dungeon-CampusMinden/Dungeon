@@ -91,7 +91,6 @@ public final class ECSManagement {
    * movement and input handling:
    * <ul>
    *   <li>PositionSystem - Manages entity positioning
-   *   <li>PositionSyncSystem - Synchronizes positions across systems
    *   <li>VelocitySystem - Manages entity velocity
    *   <li>FrictionSystem - Applies friction to moving entities
    *   <li>MoveSystem - Handles entity movement logic
@@ -107,7 +106,6 @@ public final class ECSManagement {
     if (profile == null) throw new IllegalArgumentException("profile must not be null");
 
     registerIfAbsent(PositionSystem.class, PositionSystem::new);
-    registerIfAbsent(PositionSyncSystem.class, PositionSyncSystem::new);
     registerIfAbsent(VelocitySystem.class, VelocitySystem::new);
     registerIfAbsent(FrictionSystem.class, FrictionSystem::new);
     registerIfAbsent(MoveSystem.class, MoveSystem::new);

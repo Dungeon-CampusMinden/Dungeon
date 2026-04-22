@@ -1,6 +1,5 @@
 package core.systems;
 
-import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -101,7 +100,12 @@ public final class LevelSystem extends System {
    * @return True if the entity is on the end tile, else false.
    */
   private boolean isOnOpenEndTile(final Entity entity) {
-    Tile currentTile = Game.tileAt(EntityUtils.getPosition(entity)).orElse(null);
+    Tile currentTile =
+        entity
+            .fetch(PositionComponent.class)
+            .map(PositionComponent::position)
+            .flatMap(Game::tileAt)
+            .orElse(null);
     if (currentTile == null) {
       return false;
     }

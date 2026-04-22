@@ -1,6 +1,7 @@
 package starter;
 
 import contrib.entities.HeroController;
+import contrib.game.ContribLevelLoadHooks;
 import contrib.systems.AISystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.FallingSystem;
@@ -10,6 +11,7 @@ import contrib.systems.ManaRestoreSystem;
 import contrib.systems.PathSystem;
 import contrib.systems.PressurePlateSystem;
 import contrib.systems.ProjectileSystem;
+import contrib.systems.PositionSyncSystem;
 import core.Game;
 import core.System;
 import core.game.*;
@@ -46,6 +48,8 @@ public class MultiplayerServer {
   }
 
   private static void onSetup() {
+    ContribLevelLoadHooks.install();
+
     ECSManagement.initializeDefaultSystems(SystemProfile.SERVER);
     ECSManagement.initializeGameplaySystems(SystemProfile.SERVER);
 
@@ -59,6 +63,7 @@ public class MultiplayerServer {
           }));
 
     registerIfAbsent(ProjectileSystem.class, ProjectileSystem::new);
+    registerIfAbsent(PositionSyncSystem.class, PositionSyncSystem::new);
     registerIfAbsent(HealthSystem.class, HealthSystem::new);
     registerIfAbsent(ManaRestoreSystem.class, ManaRestoreSystem::new);
     registerIfAbsent(PathSystem.class, PathSystem::new);

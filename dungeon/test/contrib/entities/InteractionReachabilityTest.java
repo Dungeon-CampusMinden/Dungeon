@@ -12,7 +12,7 @@ import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
-import core.systems.PositionSyncSystem;
+import contrib.systems.PositionSyncSystem;
 import core.utils.Point;
 import java.util.Arrays;
 import java.util.Set;

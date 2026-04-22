@@ -3,9 +3,7 @@ package core.platform.client;
 import core.game.render.sprite.SpriteRenderSystem;
 import core.platform.adapters.RenderAdapter;
 import core.camera.CameraViewportState;
-import contrib.modules.levelhide.LevelHideRenderSystem;
 import core.camera.CameraLevelSyncSystem;
-import contrib.debug.systems.DebugDrawSystem;
 import core.ui.StageHandle;
 import core.utils.Point;
 import java.util.List;
@@ -14,7 +12,7 @@ import java.util.Optional;
 /**
  * The {@code ClientRenderAdapter} class provides client-specific implementations for the
  * {@code RenderAdapter} interface. It defines rendering systems, world-to-stage coordinate
- * projection, and debug HUD toggling functionalities.
+ * projection functionality.
  */
 public final class ClientRenderAdapter implements RenderAdapter {
   @Override
@@ -25,9 +23,7 @@ public final class ClientRenderAdapter implements RenderAdapter {
         CameraLevelSyncSystem.class, CameraLevelSyncSystem::new),
       new SystemBinding(
         SpriteRenderSystem.class,
-        SpriteRenderSystem::new),
-      new SystemBinding(
-        LevelHideRenderSystem.class, LevelHideRenderSystem::new));
+        SpriteRenderSystem::new));
   }
 
   @Override
@@ -38,10 +34,5 @@ public final class ClientRenderAdapter implements RenderAdapter {
 
     return CameraViewportState.activeViewport()
       .map(view -> CameraViewportState.worldToScreen(worldPoint));
-  }
-
-  @Override
-  public void toggleDebugHud() {
-    DebugDrawSystem.toggleHUD();
   }
 }

@@ -4,7 +4,6 @@ import core.game.GameRuntime;
 import core.game.loop.ClientLoopHost;
 import core.platform.Platform;
 import core.ui.StageHandle;
-import contrib.utils.EntityUtils;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
@@ -627,7 +626,8 @@ public final class Game {
                     .filter(e -> e.isPresent(PositionComponent.class))
                     .filter(
                         e ->
-                            Game.tileAt(EntityUtils.getPosition(e))
+                            Game.positionOf(e)
+                                .flatMap(Game::tileAt)
                                 .map(target::equals)
                                 .orElse(false)))
         .orElseGet(Stream::empty);

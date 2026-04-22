@@ -1,7 +1,5 @@
 package core.game;
 
-import contrib.entities.deco.DecoFactory;
-import contrib.utils.CheckPatternPainter;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -40,8 +38,7 @@ public final class GameRuntime {
    *   <li>Re-initializes all systems for the new level
    *   <li>Places player entities at the level's start tile
    *   <li>Re-adds persistent entities to the new level
-   *   <li>Spawns decorations from the level configuration
-   *   <li>Paints a checker pattern (if enabled and this is the first load)
+   *   <li>Runs registered level-load extension hooks
    * </ul>
    *
    * <p>This callback is only executed on the server (if network mode is active).
@@ -79,16 +76,7 @@ public final class GameRuntime {
         .forEach(ECSManagement::add);
 
       Game.currentLevel()
-        .ifPresent(
-          level ->
-            level
-              .decorations()
-              .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a()))));
-
-      if (firstLoad && Game.isCheckPatternEnabled()) {
-        Game.currentLevel()
-          .ifPresent(level -> CheckPatternPainter.paintCheckerPattern(level.layout()));
-      }
+        .ifPresent(level -> LevelLoadHooks.executeLevelPrepared(level, firstLoad));
 
       PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
     };

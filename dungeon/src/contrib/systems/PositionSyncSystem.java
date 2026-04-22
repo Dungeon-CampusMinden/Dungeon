@@ -1,7 +1,6 @@
-package core.systems;
+package contrib.systems;
 
 import contrib.components.CollideComponent;
-import contrib.systems.PositionSync;
 import core.System;
 import core.components.PositionComponent;
 
