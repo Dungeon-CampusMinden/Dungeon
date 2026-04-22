@@ -19,10 +19,19 @@ import java.awt.image.BufferedImage;
  */
 public final class InventoryGridRenderer {
 
+  /** The maximum number of columns in an inventory grid. */
   public static final int MAX_COLUMNS = 6;
+
+  /** The width of an inventory slot in pixels. */
   public static final int SLOT_WIDTH = 78;
+
+  /** The height of an inventory slot in pixels. */
   public static final int SLOT_HEIGHT = 78;
+
+  /** The gap between inventory slots in pixels. */
   public static final int SLOT_GAP = 8;
+
+  /** The gap between inventory rows in pixels. */
   public static final int GRID_TOP_GAP = 12;
 
   private static final int ITEM_ICON_PADDING = 8;
