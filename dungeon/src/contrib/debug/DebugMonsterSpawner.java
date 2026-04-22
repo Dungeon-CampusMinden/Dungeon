@@ -1,7 +1,6 @@
 package contrib.debug;
 
 import contrib.entities.DungeonMonster;
-import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
