@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <ul>
  *   <li>Small sprites use a single diagonal sweep</li>
  *   <li>Large sprites use repeated rotating slices</li>
- *</ul>
+ * </ul>
  *
  * <p>The effect includes configurable parameters such as padding, slice count, gap size, rotation speed,
  * and shine color. Results are cached for improved performance.
