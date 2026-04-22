@@ -60,10 +60,20 @@ public abstract class LevelEditorMode {
     this.name = Objects.requireNonNull(name, "name must not be null");
   }
 
+  /**
+   * Provides access to the LevelEditorSystem instance associated with this LevelEditorMode.
+   *
+   * @return the LevelEditorSystem instance for this mode
+   */
   public final LevelEditorSystem system() {
     return this.system;
   }
 
+  /**
+   * Retrieves the name of this LevelEditorMode instance.
+   *
+   * @return the name of this mode as a String
+   */
   public final String name() {
     return this.name;
   }
@@ -85,7 +95,14 @@ public abstract class LevelEditorMode {
   /** Executes the logic for this mode. Called every frame while active. */
   protected abstract void execute();
 
-  /** Render hook for this mode. Default: no-op. */
+  /**
+   * Renders the graphical content associated with this mode.
+   *
+   * <p>This method is responsible for drawing the necessary visuals on the provided graphics context during each frame.
+   *
+   * @param g the {@code Graphics2D} context used for rendering
+   * @param deltaSeconds the time in seconds since the last frame update
+   */
   public void render(Graphics2D g, float deltaSeconds) {
     // default: no-op
   }
