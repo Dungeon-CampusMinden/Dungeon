@@ -5,16 +5,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+
 /**
- * Engine-agnostic input state tracker.
+ * Manages keyboard and mouse input states for a single frame.
  *
- * <p>Backends feed input events via {@link #notifyKeyDown(int)}, {@link #notifyKeyUp(int)},
- * {@link #notifyButtonDown(int)}, {@link #notifyButtonUp(int)} and {@link #notifyKeyTyped(char)}.
+ * <p>This class tracks the state of keys and mouse buttons, allowing queries about whether a key
+ * or button is pressed, was just pressed/released, or was double-tapped. It also tracks how long a
+ * key or button has been held and provides a buffer for typed character input.
  *
- * <p>Call {@link #update()} once per frame to clear "just pressed/released" states.
+ * <p>The class uses a frame-based input model where state is updated once per frame via {@link
+ * #update()}. To receive input events, call the {@code notify*} methods.
  *
- * <p>Typed characters are buffered independently and remain available until explicitly consumed via
- * {@link #consumeTypedCharacters()}.
+ * <p>This is a static utility class and cannot be instantiated.
  */
 public final class InputManager {
 
@@ -292,6 +294,14 @@ public final class InputManager {
     justReleased.clear();
   }
 
+  /**
+   * Notifies the InputManager that a key has been pressed.
+   *
+   * <p>This method should be called by an input handler when a key down event is received. It
+   * updates the internal state to mark the key as just pressed.
+   *
+   * @param keycode The code of the key that was pressed.
+   */
   public static void notifyKeyDown(int keycode) {
     if (pressedKeys.contains(keycode) || justPressedKeys.contains(keycode)) return;
 
@@ -306,6 +316,14 @@ public final class InputManager {
       core.utils.Time.nowMs());
   }
 
+  /**
+   * Notifies the InputManager that a key has been released.
+   *
+   * <p>This method should be called by an input handler when a key up event is received. It
+   * updates the internal state to mark the key as just released.
+   *
+   * @param keycode The code of the key that was released.
+   */
   public static void notifyKeyUp(int keycode) {
     if (!pressedKeys.contains(keycode) && !justPressedKeys.contains(keycode)) return;
     registerRelease(keycode, pressedKeys, justReleasedKeys, keyDownTimesMs);
@@ -323,6 +341,14 @@ public final class InputManager {
     typedCharacters.append(character);
   }
 
+  /**
+   * Notifies the InputManager that a mouse button has been pressed.
+   *
+   * <p>This method should be called by an input handler when a mouse button down event is
+   * received. It updates the internal state to mark the button as just pressed.
+   *
+   * @param button The code of the mouse button that was pressed.
+   */
   public static void notifyButtonDown(int button) {
     if (pressedButtons.contains(button) || justPressedButtons.contains(button)) return;
 
@@ -337,6 +363,14 @@ public final class InputManager {
       core.utils.Time.nowMs());
   }
 
+  /**
+   * Notifies the InputManager that a mouse button has been released.
+   *
+   * <p>This method should be called by an input handler when a mouse button up event is received.
+   * It updates the internal state to mark the button as just released.
+   *
+   * @param button The code of the mouse button that was released.
+   */
   public static void notifyButtonUp(int button) {
     if (!pressedButtons.contains(button) && !justPressedButtons.contains(button)) return;
     registerRelease(button, pressedButtons, justReleasedButtons, buttonDownTimesMs);
