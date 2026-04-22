@@ -21,38 +21,32 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Represents a crafting dialog interface overlay rendered on top of the game scene.
+ * Represents a dialog overlay component in the user interface for crafting items.
  *
- * <p>This overlay contains all visual elements and interactive logic required for crafting, such as
- * crafting panels, inventory grids, action buttons, item icons, and drag/drop support.
+ * <p>This overlay handles rendering, input processing, and managing the crafting UI logic, such as displaying
+ * inventory slots, crafting slots, crafting results, and tooltips. It also provides drag-and-drop
+ * functionality and interacts with the crafting system to facilitate item crafting.
  *
- * <p>It allows players to interact with their crafting inventory and recipes, displaying results
- * and processing input for crafting actions.
+ * <p>The overlay operates based on the provided crafting and target inventories, as managed by the
+ * {@code CraftingDialogController}. It dynamically calculates and adjusts its layout and dimensions
+ * based on the crafting requirements and the visible inventory slots.
  *
- * <p>This class extends the functionality provided by {@code UiOverlay} and {@code
- * InventoryComponentProvider}, integrating advanced UI behaviors such as rendering, hit detection,
- * and inventory component management.
+ * <p>This class ensures responsiveness to user interactions, including mouse input, drag-and-drop
+ * operations, and tooltip rendering for crafting items. It maintains an internal state for the
+ * visibility, dimensions, and positioning of the dialog.
  *
- * <p>Key features:
+ * <p>Implements the {@code UiOverlay} interface to represent a customizable UI component and the
+ * {@code InventoryComponentProvider} interface to supply associated inventory components.
  *
+ * <p>Responsibilities:
  * <ul>
- *   <li>Custom rendering of crafting panels and inventory grids.
- *   <li>Drag-and-drop functionality for transferring items between inventory slots.
- *   <li>Interactive action buttons for crafting-related operations.
- *   <li>Support for legacy and modern crafting panel layouts.
- *   <li>Hover tooltips for items and slot highlights during interactions.
+ *   <li>Rendering the crafting dialog overlay with inventory panels, crafting slots, and result items.</li>
+ *   <li>Handling user input for dragging, dropping, and crafting actions.</li>
+ *   <li>Displaying dynamic tooltips and interactive feedback within the crafting dialog.</li>
+ *   <li>Managing visibility, dimensions, and layout of the overlay.</li>
  * </ul>
  */
 final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvider {
-
-  private static final int DEFAULT_WIDTH = 1180;
-  private static final int DEFAULT_HEIGHT = 600;
-
-  private static final int PANEL_GAP = 26;
-  private static final int PANEL_HEADER_GAP = 14;
-  private static final int PANEL_PADDING = 12;
-  private static final int CLASSIC_CRAFTING_PANEL_WIDTH = 420;
-  private static final int CLASSIC_CRAFTING_PANEL_HEIGHT = 420;
 
   private static final CraftingDialogLayout CLASSIC_LAYOUT = new CraftingDialogLayout();
 
@@ -66,8 +60,8 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
 
   private int x;
   private int y;
-  private int width = DEFAULT_WIDTH;
-  private int height = DEFAULT_HEIGHT;
+  private int width = CraftingDialogLayoutState.DEFAULT_WIDTH;
+  private int height = CraftingDialogLayoutState.DEFAULT_HEIGHT;
   private boolean visible = true;
 
   CraftingDialogOverlay(
@@ -100,24 +94,10 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     Item[] visibleCraftingSlots =
         dragDropController.visibleSlots(craftingSlots, InventorySide.CRAFTING);
 
-    int leftColumns = InventoryGridRenderer.columnsFor(targetSlots);
-    int leftRows = InventoryGridRenderer.rowsFor(targetSlots, leftColumns);
-    int leftGridWidth = InventoryGridRenderer.gridWidth(leftColumns);
-    int leftGridHeight = InventoryGridRenderer.gridHeight(leftRows);
-
-    int rightPanelWidth = CLASSIC_CRAFTING_PANEL_WIDTH;
-    int rightPanelHeight =
-        Math.max(CLASSIC_CRAFTING_PANEL_HEIGHT, leftGridHeight + 2 * PANEL_PADDING);
-
-    int totalContentWidth = leftGridWidth + PANEL_GAP + rightPanelWidth;
-    width = Math.max(DEFAULT_WIDTH, totalContentWidth + 2 * DialogFrameRenderer.PADDING);
-
-    height =
-        Math.max(
-            DEFAULT_HEIGHT,
-            120
-                + Math.max(leftGridHeight + 2 * PANEL_PADDING, rightPanelHeight)
-                + DialogFrameRenderer.PADDING);
+    CraftingDialogLayoutState.Measurement measurement =
+        CraftingDialogLayoutState.measure(targetSlots);
+    width = measurement.dialogWidth();
+    height = measurement.dialogHeight();
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -125,12 +105,6 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     }
 
     int contentY;
-    int leftStartX;
-    int gridTop;
-
-    GridHitTest.Grid<InventorySide> leftGrid;
-    Rectangle leftPanelBounds;
-    Rectangle rightPanelBounds;
     List<CraftingDialogLayout.SlotBounds> craftingBounds;
     List<CraftingDialogLayout.ItemBounds> resultBounds;
 
@@ -139,46 +113,46 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     try {
       contentY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Crafting");
 
-      int titleBaseline = contentY + g.getFontMetrics().getAscent();
-
-      leftStartX = x + (width - totalContentWidth) / 2;
-      int rightPanelX = leftStartX + leftGridWidth + PANEL_GAP;
+      CraftingDialogLayoutState layoutState =
+          CraftingDialogLayoutState.create(
+              x, contentY, g.getFontMetrics(), measurement, visibleTargetSlots);
 
       g.setColor(Color.WHITE);
-      g.drawString(targetTitle, leftStartX, titleBaseline);
-      g.drawString(craftingTitle, rightPanelX + PANEL_PADDING, titleBaseline);
+      g.drawString(targetTitle, layoutState.leftTitleX(), layoutState.titleBaseline());
+      g.drawString(craftingTitle, layoutState.craftingTitleX(), layoutState.titleBaseline());
 
-      gridTop = titleBaseline + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
+      InventoryPanelRendering.drawPanelBackground(g, layoutState.leftPanelBounds());
 
-      leftPanelBounds =
-          InventoryPanelRendering.panelBounds(
-              leftStartX, gridTop, leftGridWidth, leftGridHeight, PANEL_PADDING);
-
-      rightPanelBounds =
-          new Rectangle(rightPanelX, gridTop - PANEL_PADDING, rightPanelWidth, rightPanelHeight);
-
-      InventoryPanelRendering.drawPanelBackground(g, leftPanelBounds);
-
-      leftGrid =
-          new GridHitTest.Grid<>(
-              InventorySide.TARGET, leftStartX, gridTop, leftColumns, visibleTargetSlots);
-      InventoryGridRenderer.drawGrid(g, visibleTargetSlots, leftStartX, gridTop, leftColumns);
+      GridHitTest.Grid<InventorySide> leftGrid = layoutState.leftGrid();
+      InventoryGridRenderer.drawGrid(
+          g, visibleTargetSlots, leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
 
       craftingBounds =
-          panelRenderer.craftingSlotBounds(rightPanelBounds, craftingSlots);
+          panelRenderer.craftingSlotBounds(layoutState.rightPanelBounds(), craftingSlots);
 
-      resultBounds = panelRenderer.resultItemBounds(rightPanelBounds, resultItems);
+      resultBounds = panelRenderer.resultItemBounds(layoutState.rightPanelBounds(), resultItems);
 
-      actionRenderer.syncButtonBounds(actionRenderer.buttonBounds(rightPanelBounds));
+      actionRenderer.syncButtonBounds(actionRenderer.buttonBounds(layoutState.rightPanelBounds()));
       panelRenderer.draw(
-          g, rightPanelBounds, craftingBounds, visibleCraftingSlots, resultItems, resultBounds);
+          g,
+          layoutState.rightPanelBounds(),
+          craftingBounds,
+          visibleCraftingSlots,
+          resultItems,
+          resultBounds);
       actionRenderer.draw(g);
 
       if (dragDropController.isDragging()) {
-        drawDropHighlights(g, leftGrid, leftPanelBounds, rightPanelBounds, craftingBounds);
+        drawDropHighlights(
+            g,
+            leftGrid,
+            layoutState.leftPanelBounds(),
+            layoutState.rightPanelBounds(),
+            craftingBounds);
       }
 
-      handleInput(leftGrid, leftPanelBounds, rightPanelBounds, craftingBounds);
+      handleInput(
+          leftGrid, layoutState.leftPanelBounds(), layoutState.rightPanelBounds(), craftingBounds);
 
       if (dragDropController.isDragging()) {
         dragDropController.drawDragPreview(g);
