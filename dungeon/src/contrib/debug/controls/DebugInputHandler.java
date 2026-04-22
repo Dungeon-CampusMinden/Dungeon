@@ -14,7 +14,17 @@ import java.util.Objects;
 public final class DebugInputHandler {
   private DebugInputHandler() {}
 
-  /** Handles one debugger input pass. */
+  /**
+   * Handles debug-related input actions by mapping key presses to their respective operations
+   * defined in the provided {@link Actions} record.
+   *
+   * <p>This method processes various debug functionalities including zooming, teleportation, spawning,
+   * toggling states, and frame advancement in the game environment.
+   *
+   * @param actions the collection of runnable debug actions to trigger in response to input events;
+   *                must not be null
+   * @throws NullPointerException if the provided actions parameter is null
+   */
   public static void handle(Actions actions) {
     Objects.requireNonNull(actions, "actions must not be null");
 
@@ -68,7 +78,28 @@ public final class DebugInputHandler {
       || InputManager.isKeyPressed(Keys.SHIFT_RIGHT);
   }
 
-  /** Collection of debugger actions that can be bound to the standard debug keymap. */
+  /**
+   * Represents a collection of runnable actions used to handle debug-related input events
+   * in the game environment.
+   *
+   * <p>Each action corresponds to a specific operation that can be triggered by key events,
+   * including zooming, teleportation, state toggling, spawning entities, and frame advancement.
+   *
+   * <p>All actions are mandatory and must not be null when creating an instance of this record.
+   *
+   * @param zoomOut           Action for zooming out; must not be null.
+   * @param zoomIn            Action for zooming in; must not be null.
+   * @param teleportToCursor  Action for teleporting to the cursor; must not be null.
+   * @param teleportToEnd     Action for teleporting to the end of the level; must not be null.
+   * @param teleportToStart   Action for teleporting to the start of the level; must not be null.
+   * @param loadNextLevel     Action for loading the next level; must not be null.
+   * @param spawnMonsterOnCursor Action for spawning a monster at the cursor position; must not be null.
+   * @param openDoors         Action for opening all doors; must not be null.
+   * @param toggleFullscreen  Action for toggling fullscreen mode; must not be null.
+   * @param togglePause       Action for toggling the game's pause state; must not be null.
+   * @param advanceFrame      Action for advancing a single frame while the game is paused; must not be null.
+   * @param toggleDebugHud    Action for toggling the visibility of the debug HUD; must not be null.
+   */
   public record Actions(
     Runnable zoomOut,
     Runnable zoomIn,
