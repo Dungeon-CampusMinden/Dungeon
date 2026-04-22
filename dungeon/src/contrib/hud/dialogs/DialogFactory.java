@@ -52,21 +52,19 @@ public class DialogFactory {
    * <p>This is useful for weak/fallback backends that should not overwrite more specific dialog
    * implementations.
    *
-   * @param type The unique type of the dialog
+   * @param type    The unique type of the dialog
    * @param creator Function that creates a dialog from a context
-   * @return {@code true} if the creator was inserted, {@code false} if a creator already existed
    */
-  public static boolean registerIfAbsent(
+  public static void registerIfAbsent(
     DialogType type, Function<DialogContext, UiHandle> creator) {
     Objects.requireNonNull(type, "type");
     Objects.requireNonNull(creator, "creator");
 
     if (registry.containsKey(type)) {
-      return false;
+      return;
     }
 
     registry.put(type, creator);
-    return true;
   }
 
   /**
@@ -82,17 +80,6 @@ public class DialogFactory {
     Objects.requireNonNull(type, "type");
     Objects.requireNonNull(creator, "creator");
     registry.put(type, creator);
-  }
-
-  /**
-   * Checks whether a dialog creator is already registered for the given type.
-   *
-   * @param type the dialog type to check
-   * @return {@code true} if a creator is registered, otherwise {@code false}
-   */
-  public static boolean isRegistered(DialogType type) {
-    Objects.requireNonNull(type, "type");
-    return registry.containsKey(type);
   }
 
   /**
@@ -113,6 +100,17 @@ public class DialogFactory {
     return creator.apply(ctx);
   }
 
+  /**
+   * Displays a dialog by creating and associating a {@code UIComponent} with an entity.
+   *
+   * @param context The {@code DialogContext} containing metadata and state for the dialog. Must not be null.
+   * @param willPause Determines if the game or application flow should pause when this dialog is shown.
+   * @param canBeClosed Indicates whether the dialog can be closed by user interaction.
+   * @param targetEntityIds An array of entity IDs that the dialog may target or affect.
+   * @return The created {@code UIComponent} associated with the dialog entity.
+   * @throws NullPointerException if {@code context} is null.
+   * @throws DialogCreationException if the dialog entity cannot be found or created.
+   */
   public static UIComponent show(
     DialogContext context, boolean willPause, boolean canBeClosed, int[] targetEntityIds) {
     Objects.requireNonNull(context, "context");
@@ -139,10 +137,29 @@ public class DialogFactory {
     return ui;
   }
 
+  /**
+   * Displays a dialog by creating and associating a {@code UIComponent} with an entity.
+   *
+   * @param context The {@code DialogContext} containing metadata and state for the dialog. Must not be null.
+   * @param targetEntityIds An array of entity IDs that the dialog may target or affect.
+   * @return The created {@code UIComponent} associated with the dialog entity.
+   * @throws NullPointerException if {@code context} is null.
+   * @throws DialogCreationException if the dialog entity cannot be found or created.
+   */
   public static UIComponent show(final DialogContext context, int... targetEntityIds) {
     return show(context, true, true, targetEntityIds);
   }
 
+  /**
+   * Displays a simple "OK" dialog with a specified message and title, allowing the user to confirm
+   * the dialog. The dialog is associated with the specified target entities.
+   *
+   * @param text       The message to be displayed in the dialog.
+   * @param title      The title of the dialog.
+   * @param onConfirm  A callback function executed when the user confirms the dialog by pressing "OK".
+   * @param targetIds  Optional target entity IDs that the dialog may target or be associated with.
+   * @return           The {@code UIComponent} representing the created dialog.
+   */
   public static UIComponent showOkDialog(
     String text, String title, IVoidFunction onConfirm, int... targetIds) {
     DialogContext ctx =
@@ -154,13 +171,25 @@ public class DialogFactory {
 
     UIComponent ui = show(ctx, targetIds);
 
-    ui.registerCallback(DialogContextKeys.ON_CONFIRM, data -> UIUtils.closeDialog(ui, true, true));
-    ui.onClose(uic -> onConfirm.execute());
+    ui.registerCallback(DialogContextKeys.ON_CONFIRM, _ -> UIUtils.closeDialog(ui, true, true));
+    ui.onClose(_ -> onConfirm.execute());
 
     return ui;
   }
 
-  public static UIComponent showYesNoDialog(
+  /**
+   * Displays a "Yes/No" dialog with a specified message and title, allowing the user to respond.
+   * The dialog invokes the provided callback functions based on the user's response and is
+   * associated with the specified target entities.
+   *
+   * @param text            The message to be displayed in the dialog.
+   * @param title           The title of the dialog.
+   * @param onYes           A callback function executed when the user selects "Yes".
+   * @param onNo            A callback function executed when the user selects "No" or when the dialog
+   *                        is closed without choosing "Yes".
+   * @param targetEntityIds Optional target entity IDs that the dialog may target or be associated with.
+   */
+  public static void showYesNoDialog(
     String text, String title, IVoidFunction onYes, IVoidFunction onNo, int... targetEntityIds) {
     DialogContext ctx =
       DialogContext.builder()
@@ -173,13 +202,11 @@ public class DialogFactory {
 
     ui.registerCallback(
       DialogContextKeys.ON_YES,
-      data -> {
+      _ -> {
         onYes.execute();
         UIUtils.closeDialog(ui, true, false);
       });
-    ui.registerCallback(DialogContextKeys.ON_NO, data -> UIUtils.closeDialog(ui, true, true));
-    ui.onClose(uic -> onNo.execute());
-
-    return ui;
+    ui.registerCallback(DialogContextKeys.ON_NO, _ -> UIUtils.closeDialog(ui, true, true));
+    ui.onClose(_ -> onNo.execute());
   }
 }
