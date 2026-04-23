@@ -1,6 +1,6 @@
 package contrib.hud.elements.bars;
 
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import core.ui.overlay.OverlayManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -14,7 +14,7 @@ import java.awt.Graphics2D;
  * positioning, sizing, and visibility. The fill color changes based on the style name.
  */
 public final class AttributeBarOverlay
-  extends AbstractUiOverlay
+  extends BaseUiOverlay
   implements AttributeBarHandle, AttributeBarHandleProvider {
 
   private static final int DEFAULT_WIDTH = 50;

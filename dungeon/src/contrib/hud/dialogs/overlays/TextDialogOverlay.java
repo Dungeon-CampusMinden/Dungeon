@@ -8,7 +8,7 @@ import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
 import core.ui.StageHandle;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -31,7 +31,7 @@ import java.util.List;
  *   <li>Input handling for keyboard and mouse interactions.</li>
  * </ul>
  */
-public final class TextDialogOverlay extends AbstractUiOverlay {
+public final class TextDialogOverlay extends BaseUiOverlay {
 
   private static final int DEFAULT_WIDTH = 560;
   private static final int DEFAULT_HEIGHT = 260;

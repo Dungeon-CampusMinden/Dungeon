@@ -1,7 +1,7 @@
 package contrib.hud.dialogs.overlays;
 
 import contrib.hud.renderers.DialogFrameRenderer;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import java.awt.Graphics2D;
 
 /**
@@ -18,11 +18,11 @@ import java.awt.Graphics2D;
  *   <li>Height: 200 pixels</li>
  * </ul>
  *
- * <p>Extends {@link AbstractUiOverlay}, allowing it to be rendered above the
+ * <p>Extends {@link BaseUiOverlay}, allowing it to be rendered above the
  * game scene with configurable properties such as x and y coordinates, dimensions,
  * and visibility.
  */
-public final class PauseMenuDialogOverlay extends AbstractUiOverlay {
+public final class PauseMenuDialogOverlay extends BaseUiOverlay {
 
   private static final int DEFAULT_WIDTH = 400;
   private static final int DEFAULT_HEIGHT = 200;

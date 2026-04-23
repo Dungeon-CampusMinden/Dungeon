@@ -6,7 +6,7 @@ import contrib.hud.renderers.DialogFrameRenderer;
 import core.Game;
 import core.input.MouseButtons;
 import core.ui.StageHandle;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -14,7 +14,7 @@ import java.awt.Rectangle;
 /**
  * A dialog overlay that presents a Yes/No choice to the user.
  *
- * <p>This class extends {@link AbstractUiOverlay} for rendering a modal
+ * <p>This class extends {@link BaseUiOverlay} for rendering a modal
  * dialog box with a title, descriptive text, and Yes/No buttons.
  *
  * <p>The dialog overlays the game screen and captures user input for the buttons.
@@ -32,7 +32,7 @@ import java.awt.Rectangle;
  *   <li>Support visibility toggling and positioning of the dialog overlay</li>
  * </ul>
  */
-public final class YesNoDialogOverlay extends AbstractUiOverlay {
+public final class YesNoDialogOverlay extends BaseUiOverlay {
 
   private static final int DEFAULT_WIDTH = 500;
   private static final int DEFAULT_HEIGHT = 230;

@@ -3,7 +3,7 @@ package contrib.hud.showimage;
 import core.Game;
 import core.render.ImageAssets;
 import contrib.hud.renderers.DialogFrameRenderer;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
@@ -15,11 +15,11 @@ import java.util.List;
 /**
  * Represents an overlay that displays an image with optional text and animated transition effects.
  *
- * <p>This class extends {@link AbstractUiOverlay} to allow rendering within the user interface layer.
+ * <p>This class extends {@link BaseUiOverlay} to allow rendering within the user interface layer.
  *
  * <p>It supports customizable scaling, positioning, and transition animations for the image.
  */
-final class ShowImageDialogOverlay extends AbstractUiOverlay {
+final class ShowImageDialogOverlay extends BaseUiOverlay {
 
   private static final float DEFAULT_MAX_SIZE = 0.85f;
   private static final int PANEL_PADDING = 12;

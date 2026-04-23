@@ -3,7 +3,7 @@ package core.ui.overlay;
 import java.awt.Rectangle;
 
 /** Base implementation for overlays with rectangular bounds and visibility. */
-public abstract class AbstractUiOverlay implements UiOverlay {
+public abstract class BaseUiOverlay implements UiOverlay {
 
   protected int x;
   protected int y;
@@ -11,13 +11,13 @@ public abstract class AbstractUiOverlay implements UiOverlay {
   protected int height;
   protected boolean visible = true;
 
-  protected AbstractUiOverlay() {}
+  protected BaseUiOverlay() {}
 
-  protected AbstractUiOverlay(int width, int height) {
+  protected BaseUiOverlay(int width, int height) {
     this(0, 0, width, height);
   }
 
-  protected AbstractUiOverlay(int x, int y, int width, int height) {
+  protected BaseUiOverlay(int x, int y, int width, int height) {
     this.x = x;
     this.y = y;
     this.width = width;

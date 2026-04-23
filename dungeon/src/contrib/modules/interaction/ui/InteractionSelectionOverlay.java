@@ -7,7 +7,7 @@ import core.Game;
 import core.input.MouseButtons;
 import core.ui.overlay.OverlayManager;
 import core.ui.StageHandle;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -48,7 +48,7 @@ import java.util.function.Consumer;
  *   <li>Manages panel visibility and position properties.</li>
  * </ul>
  */
-final class InteractionSelectionOverlay extends AbstractUiOverlay {
+final class InteractionSelectionOverlay extends BaseUiOverlay {
 
   private static final int PANEL_WIDTH = 320;
   private static final int PANEL_PADDING = 16;

@@ -6,7 +6,7 @@ import contrib.hud.renderers.DialogFrameRenderer;
 import core.Game;
 import core.input.MouseButtons;
 import core.ui.StageHandle;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -38,7 +38,7 @@ import java.awt.Rectangle;
  * <p>The input logic ensures correct handling of mouse button states and triggers a callback via
  * the {@link DialogCallbackResolver} on clicking the "OK" button.
  */
-public final class OkDialogOverlay extends AbstractUiOverlay {
+public final class OkDialogOverlay extends BaseUiOverlay {
 
   private static final int DEFAULT_WIDTH = 460;
   private static final int DEFAULT_HEIGHT = 220;

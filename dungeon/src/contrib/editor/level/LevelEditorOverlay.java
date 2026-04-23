@@ -1,6 +1,6 @@
 package contrib.editor.level;
 
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -12,12 +12,12 @@ import java.util.List;
  * Represents an overlay UI component for a level editor, providing a dynamically sized panel
  * to display editor-related information, including status lines, a title, and feedback messages.
  *
- * <p>This class extends {@code AbstractUiOverlay}, allowing it to be rendered
+ * <p>This class extends {@code BaseUiOverlay}, allowing it to be rendered
  * on top of the main game screen and manipulated based on its position, size, and visibility.
  *
  * <p>It is a final class, meaning it cannot be subclassed.
  */
-public final class LevelEditorOverlay extends AbstractUiOverlay {
+public final class LevelEditorOverlay extends BaseUiOverlay {
 
   private static final int DEFAULT_WIDTH = 700;
   private static final int DEFAULT_HEIGHT = 300;

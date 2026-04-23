@@ -12,7 +12,7 @@ import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
 import core.ui.StageHandle;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.*;
 import java.util.Arrays;
@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * operations, and tooltip rendering for crafting items. It maintains an internal state for the
  * visibility, dimensions, and positioning of the dialog.
  *
- * <p>Extends {@code AbstractUiOverlay} to represent a customizable UI component and the
+ * <p>Extends {@code BaseUiOverlay} to represent a customizable UI component and the
  * {@code InventoryComponentProvider} interface to supply associated inventory components.
  *
  * <p>Responsibilities:
@@ -46,7 +46,7 @@ import java.util.stream.Stream;
  *   <li>Managing visibility, dimensions, and layout of the overlay.</li>
  * </ul>
  */
-final class CraftingDialogOverlay extends AbstractUiOverlay implements InventoryComponentProvider {
+final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryComponentProvider {
 
   private static final CraftingDialogLayout CLASSIC_LAYOUT = new CraftingDialogLayout();
 

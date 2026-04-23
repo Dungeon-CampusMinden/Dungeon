@@ -10,7 +10,7 @@ import contrib.hud.utils.InventoryDropHandling;
 import contrib.hud.utils.InventoryTooltip;
 import contrib.item.Item;
 import core.Game;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import java.awt.*;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +36,7 @@ import java.util.stream.Stream;
  *   <li>Ability to manage UI state such as visibility, dimensions, and interaction states.
  * </ul>
  */
-final class DualInventoryDialogOverlay extends AbstractUiOverlay
+final class DualInventoryDialogOverlay extends BaseUiOverlay
     implements InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 1100;

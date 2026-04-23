@@ -8,7 +8,7 @@ import core.input.MouseButtons;
 import contrib.hud.renderers.DialogFrameRenderer;
 import core.sound.SoundSpec;
 import core.ui.StageHandle;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -53,7 +53,7 @@ import java.util.List;
  *   <li>The keypad buttons are hardcoded with a specific layout and labels.</li>
  * </ul>
  */
-final class KeypadDialogOverlay extends AbstractUiOverlay {
+final class KeypadDialogOverlay extends BaseUiOverlay {
   private static final int DEFAULT_WIDTH = 420;
   private static final int DEFAULT_HEIGHT = 500;
 

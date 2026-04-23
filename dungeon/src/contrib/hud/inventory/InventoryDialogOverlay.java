@@ -15,7 +15,7 @@ import core.Game;
 import core.input.MouseButtons;
 import core.network.messages.c2s.InputMessage;
 import core.ui.StageHandle;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import core.utils.Vector2;
 import java.awt.Graphics2D;
@@ -43,7 +43,7 @@ import java.util.stream.Stream;
  *   <li>Visual feedback for hovered or targeted slots.
  * </ul>
  */
-final class InventoryDialogOverlay extends AbstractUiOverlay implements InventoryComponentProvider {
+final class InventoryDialogOverlay extends BaseUiOverlay implements InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 560;
   private static final int DEFAULT_HEIGHT = 430;

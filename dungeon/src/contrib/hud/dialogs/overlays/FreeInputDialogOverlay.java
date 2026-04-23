@@ -7,7 +7,7 @@ import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
 import core.ui.StageHandle;
-import core.ui.overlay.AbstractUiOverlay;
+import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -34,7 +34,7 @@ import java.util.List;
  *    <li>Handles user interactions with keyboard and mouse inputs.</li>
  * </ul>
  */
-public final class FreeInputDialogOverlay extends AbstractUiOverlay {
+public final class FreeInputDialogOverlay extends BaseUiOverlay {
 
   /** Default dialog title. */
   public static final String TITLE_DEFAULT = "Frage";
