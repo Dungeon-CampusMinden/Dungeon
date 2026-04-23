@@ -81,7 +81,13 @@ public final class DebugGameplayActions {
               };
 
               for (Coordinate neighborTile : neighborTiles) {
-                Game.tileAt(neighborTile).ifPresent(DebugGameplayActions::teleport);
+                Tile targetTile = Game.tileAt(neighborTile).orElse(null);
+                if (targetTile == null || !targetTile.isAccessible()) {
+                  continue;
+                }
+
+                teleport(targetTile);
+                break;
               }
             });
   }
