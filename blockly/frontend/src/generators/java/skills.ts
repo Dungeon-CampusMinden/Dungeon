@@ -5,18 +5,6 @@ export function interact(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "interagieren();";
 }
 
-export function fireball(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "hero.shootFireball();";
-}
-
-export function shoot_blue_portal(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "hero.shootBluePortal();";
-}
-
-export function shoot_green_portal(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "hero.shootGreenPortal();";
-}
-
 export function wait(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "hero.rest();";
 }
@@ -47,5 +35,30 @@ export function drop_item(
 ) {
   const item = generator.valueToCode(block, "ITEM", Order.NONE);
   return "hero.dropItem(" + item + ");";
+}
+
+export function projectile_fireball(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return ["fireball", Order.ATOMIC];
+}
+
+export function projectile_portal(block: Blockly.Block, generator: Blockly.Generator) {
+  const color = generator.valueToCode(block, "PORTAL_COLOR", Order.NONE);
+  return ["portal_" + color, Order.ATOMIC];
+}
+
+export function portal_blue(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return ["blue", Order.ATOMIC];
+}
+
+export function portal_green(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return ["green", Order.ATOMIC];
+}
+
+export function schiessen(block: Blockly.Block, generator: Blockly.Generator) {
+  const projectile = generator.valueToCode(block, "PROJECTILE", Order.NONE);
+  if (projectile === "fireball") return "hero.shootFireball();";
+  if (projectile === "portal_blue") return "hero.shootBluePortal();";
+  if (projectile === "portal_green") return "hero.shootGreenPortal();";
+  return "";
 }
 
