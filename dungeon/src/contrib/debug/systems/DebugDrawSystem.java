@@ -13,7 +13,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A system for rendering debug visualization primitives.
@@ -26,18 +26,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public final class DebugDrawSystem extends System {
 
-  private static final Object LOCK = new Object();
+  private static final DebugDrawQueue DRAW_QUEUE = new DebugDrawQueue();
 
-  private static final List<WorldRectangle> WORLD_RECTANGLES = new ArrayList<>();
-  private static final List<WorldFill> WORLD_FILLS = new ArrayList<>();
-  private static final List<ScreenText> SCREEN_TEXTS = new ArrayList<>();
-  private static final List<ScreenMarker> SCREEN_MARKERS = new ArrayList<>();
-  private static final List<WorldLine> WORLD_LINES = new CopyOnWriteArrayList<>();
-  private static final List<WorldCircleOutline> WORLD_CIRCLE_OUTLINES = new CopyOnWriteArrayList<>();
-  private static final List<WorldCircleFill> WORLD_CIRCLE_FILLS = new CopyOnWriteArrayList<>();
-  private static final List<ScreenRectangle> SCREEN_RECTANGLES = new CopyOnWriteArrayList<>();
-
-  private static volatile boolean hudVisible = false;
+  private static final AtomicBoolean HUD_VISIBLE = new AtomicBoolean(false);
 
   /** Creates a new debug draw system. */
   public DebugDrawSystem() {
@@ -57,12 +48,7 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    boolean hudIsVisible;
-    synchronized (LOCK) {
-      hudIsVisible = hudVisible;
-    }
-
-    if (!hudIsVisible) {
+    if (!isHudVisible()) {
       clearQueuedDrawCalls();
       return;
     }
@@ -73,23 +59,7 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    List<WorldRectangle> rectangles;
-    List<WorldFill> fills;
-    List<ScreenText> texts;
-    List<ScreenMarker> markers;
-
-    synchronized (LOCK) {
-      rectangles = new ArrayList<>(WORLD_RECTANGLES);
-      fills = new ArrayList<>(WORLD_FILLS);
-      texts = new ArrayList<>(SCREEN_TEXTS);
-      markers = new ArrayList<>(SCREEN_MARKERS);
-      WORLD_RECTANGLES.clear();
-      WORLD_FILLS.clear();
-      SCREEN_TEXTS.clear();
-      SCREEN_MARKERS.clear();
-    }
-
-    renderQueuedDrawCalls(base, rectangles, fills, texts, markers);
+    renderQueuedDrawCalls(base, DRAW_QUEUE.snapshotAndClear());
   }
 
   /**
@@ -98,9 +68,10 @@ public final class DebugDrawSystem extends System {
    * <p>When toggled off, all queued draw calls are cleared.
    */
   public static void toggleHUD() {
-    synchronized (LOCK) {
-      hudVisible = !hudVisible;
-    }
+    boolean visible;
+    do {
+      visible = HUD_VISIBLE.get();
+    } while (!HUD_VISIBLE.compareAndSet(visible, !visible));
     clearQueuedDrawCalls();
   }
 
@@ -110,25 +81,14 @@ public final class DebugDrawSystem extends System {
    * @return true if the debug HUD is visible, false otherwise
    */
   public static boolean isHudVisible() {
-    synchronized (LOCK) {
-      return hudVisible;
-    }
+    return HUD_VISIBLE.get();
   }
 
   /**
    * Clears all queued debug draw calls.
    */
   public static void clearQueuedDrawCalls() {
-    synchronized (LOCK) {
-      WORLD_RECTANGLES.clear();
-      WORLD_FILLS.clear();
-      SCREEN_TEXTS.clear();
-      SCREEN_MARKERS.clear();
-      WORLD_LINES.clear();
-      WORLD_CIRCLE_OUTLINES.clear();
-      WORLD_CIRCLE_FILLS.clear();
-      SCREEN_RECTANGLES.clear();
-    }
+    DRAW_QUEUE.clear();
   }
 
   /**
@@ -147,10 +107,8 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    synchronized (LOCK) {
-      WORLD_RECTANGLES.add(
-        new WorldRectangle(x, y, width, height, color == null ? Color.WHITE : color));
-    }
+    DRAW_QUEUE.addWorldRectangle(
+      new WorldRectangle(x, y, width, height, color == null ? Color.WHITE : color));
   }
 
   /**
@@ -164,9 +122,7 @@ public final class DebugDrawSystem extends System {
     Objects.requireNonNull(text, "text must not be null");
     Objects.requireNonNull(screen, "screen must not be null");
 
-    synchronized (LOCK) {
-      SCREEN_TEXTS.add(new ScreenText(text, screen, color == null ? Color.WHITE : color));
-    }
+    DRAW_QUEUE.addScreenText(new ScreenText(text, screen, color == null ? Color.WHITE : color));
   }
 
   /**
@@ -186,9 +142,7 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    synchronized (LOCK) {
-      SCREEN_MARKERS.add(new ScreenMarker(center, diameterPx, fillColor, outlineColor));
-    }
+    DRAW_QUEUE.addScreenMarker(new ScreenMarker(center, diameterPx, fillColor, outlineColor));
   }
 
   @Override
@@ -306,10 +260,7 @@ public final class DebugDrawSystem extends System {
     }
   }
 
-  private void renderWorldLines(java.awt.Graphics2D g) {
-    List<WorldLine> lines = new ArrayList<>(WORLD_LINES);
-    WORLD_LINES.clear();
-
+  private static void renderWorldLines(Graphics2D g, List<WorldLine> lines) {
     for (WorldLine line : lines) {
       Point from = CameraViewportState.worldToScreen(line.from());
       Point to = CameraViewportState.worldToScreen(line.to());
@@ -323,10 +274,7 @@ public final class DebugDrawSystem extends System {
     }
   }
 
-  private void renderWorldCircleOutlines(java.awt.Graphics2D g) {
-    List<WorldCircleOutline> circles = new ArrayList<>(WORLD_CIRCLE_OUTLINES);
-    WORLD_CIRCLE_OUTLINES.clear();
-
+  private static void renderWorldCircleOutlines(Graphics2D g, List<WorldCircleOutline> circles) {
     for (WorldCircleOutline circle : circles) {
       Point center = CameraViewportState.worldToScreen(circle.center());
       int radiusPx = CameraViewportState.worldLengthToScreen(circle.radius());
@@ -340,10 +288,7 @@ public final class DebugDrawSystem extends System {
     }
   }
 
-  private void renderWorldCircleFills(java.awt.Graphics2D g) {
-    List<WorldCircleFill> circles = new ArrayList<>(WORLD_CIRCLE_FILLS);
-    WORLD_CIRCLE_FILLS.clear();
-
+  private static void renderWorldCircleFills(Graphics2D g, List<WorldCircleFill> circles) {
     for (WorldCircleFill circle : circles) {
       Point center = CameraViewportState.worldToScreen(circle.center());
       int radiusPx = CameraViewportState.worldLengthToScreen(circle.radius());
@@ -357,10 +302,7 @@ public final class DebugDrawSystem extends System {
     }
   }
 
-  private void renderScreenRectangles(java.awt.Graphics2D g) {
-    List<ScreenRectangle> rectangles = new ArrayList<>(SCREEN_RECTANGLES);
-    SCREEN_RECTANGLES.clear();
-
+  private static void renderScreenRectangles(Graphics2D g, List<ScreenRectangle> rectangles) {
     for (ScreenRectangle rect : rectangles) {
       int roundX = Math.round(rect.topLeft().x());
       int roundY = Math.round(rect.topLeft().y());
@@ -386,10 +328,7 @@ public final class DebugDrawSystem extends System {
 
   private void renderQueuedDrawCalls(
     Graphics2D base,
-    List<WorldRectangle> rectangles,
-    List<WorldFill> fills,
-    List<ScreenText> texts,
-    List<ScreenMarker> markers) {
+    DebugDrawSnapshot queuedDrawCalls) {
 
     CameraViewportState.activeViewport()
       .ifPresent(
@@ -404,14 +343,14 @@ public final class DebugDrawSystem extends System {
                 ? view.levelHeight()
                 : Game.currentLevel().map(level -> level.layout().length).orElse(0);
 
-            renderWorldFills(g, fills, view, levelHeight);
-            renderWorldRectangles(g, rectangles, view, levelHeight);
-            renderScreenMarkers(g, markers);
-            renderScreenTexts(g, texts);
-            renderWorldCircleFills(g);
-            renderWorldLines(g);
-            renderWorldCircleOutlines(g);
-            renderScreenRectangles(g);
+            renderWorldFills(g, queuedDrawCalls.worldFills(), view, levelHeight);
+            renderWorldRectangles(g, queuedDrawCalls.worldRectangles(), view, levelHeight);
+            renderScreenMarkers(g, queuedDrawCalls.screenMarkers());
+            renderScreenTexts(g, queuedDrawCalls.screenTexts());
+            renderWorldCircleFills(g, queuedDrawCalls.worldCircleFills());
+            renderWorldLines(g, queuedDrawCalls.worldLines());
+            renderWorldCircleOutlines(g, queuedDrawCalls.worldCircleOutlines());
+            renderScreenRectangles(g, queuedDrawCalls.screenRectangles());
           } finally {
             g.dispose();
           }
@@ -434,9 +373,8 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    synchronized (LOCK) {
-      WORLD_FILLS.add(new WorldFill(x, y, width, height, color == null ? Color.WHITE : color));
-    }
+    DRAW_QUEUE.addWorldFill(
+      new WorldFill(x, y, width, height, color == null ? Color.WHITE : color));
   }
 
   /**
@@ -447,8 +385,11 @@ public final class DebugDrawSystem extends System {
    * @param color line color
    */
   public static void drawWorldLine(Point from, Point to, Color color) {
-    if (from == null || to == null || color == null) return;
-    WORLD_LINES.add(new WorldLine(from, to, color));
+    if (from == null || to == null || color == null) {
+      return;
+    }
+
+    DRAW_QUEUE.addWorldLine(new WorldLine(from, to, color));
   }
 
   /**
@@ -460,8 +401,11 @@ public final class DebugDrawSystem extends System {
    */
   public static void drawWorldCircleOutline(
     Point center, float radius, Color color) {
-    if (center == null || color == null || radius <= 0f) return;
-    WORLD_CIRCLE_OUTLINES.add(new WorldCircleOutline(center, radius, color));
+    if (center == null || color == null || radius <= 0f) {
+      return;
+    }
+
+    DRAW_QUEUE.addWorldCircleOutline(new WorldCircleOutline(center, radius, color));
   }
 
   /**
@@ -473,8 +417,11 @@ public final class DebugDrawSystem extends System {
    */
   public static void drawWorldCircleFill(
     Point center, float radius, Color color) {
-    if (center == null || color == null || radius <= 0f) return;
-    WORLD_CIRCLE_FILLS.add(new WorldCircleFill(center, radius, color));
+    if (center == null || color == null || radius <= 0f) {
+      return;
+    }
+
+    DRAW_QUEUE.addWorldCircleFill(new WorldCircleFill(center, radius, color));
   }
 
   /**
@@ -488,9 +435,102 @@ public final class DebugDrawSystem extends System {
    */
   public static void drawScreenRectangle(
     Point topLeft, int width, int height, Color fill, Color outline) {
-    if (topLeft == null || width <= 0 || height <= 0) return;
-    SCREEN_RECTANGLES.add(new ScreenRectangle(topLeft, width, height, fill, outline));
+    if (topLeft == null || width <= 0 || height <= 0) {
+      return;
+    }
+
+    DRAW_QUEUE.addScreenRectangle(new ScreenRectangle(topLeft, width, height, fill, outline));
   }
+
+  private static final class DebugDrawQueue {
+    private final List<WorldRectangle> worldRectangles = new ArrayList<>();
+    private final List<WorldFill> worldFills = new ArrayList<>();
+    private final List<ScreenText> screenTexts = new ArrayList<>();
+    private final List<ScreenMarker> screenMarkers = new ArrayList<>();
+    private final List<WorldLine> worldLines = new ArrayList<>();
+    private final List<WorldCircleOutline> worldCircleOutlines = new ArrayList<>();
+    private final List<WorldCircleFill> worldCircleFills = new ArrayList<>();
+    private final List<ScreenRectangle> screenRectangles = new ArrayList<>();
+
+    synchronized void addWorldRectangle(WorldRectangle rectangle) {
+      worldRectangles.add(rectangle);
+    }
+
+    synchronized void addWorldFill(WorldFill fill) {
+      worldFills.add(fill);
+    }
+
+    synchronized void addScreenText(ScreenText text) {
+      screenTexts.add(text);
+    }
+
+    synchronized void addScreenMarker(ScreenMarker marker) {
+      screenMarkers.add(marker);
+    }
+
+    synchronized void addWorldLine(WorldLine line) {
+      worldLines.add(line);
+    }
+
+    synchronized void addWorldCircleOutline(WorldCircleOutline circle) {
+      worldCircleOutlines.add(circle);
+    }
+
+    synchronized void addWorldCircleFill(WorldCircleFill circle) {
+      worldCircleFills.add(circle);
+    }
+
+    synchronized void addScreenRectangle(ScreenRectangle rectangle) {
+      screenRectangles.add(rectangle);
+    }
+
+    synchronized DebugDrawSnapshot snapshotAndClear() {
+      DebugDrawSnapshot snapshot =
+        new DebugDrawSnapshot(
+          List.copyOf(worldRectangles),
+          List.copyOf(worldFills),
+          List.copyOf(screenTexts),
+          List.copyOf(screenMarkers),
+          List.copyOf(worldLines),
+          List.copyOf(worldCircleOutlines),
+          List.copyOf(worldCircleFills),
+          List.copyOf(screenRectangles));
+      clear();
+      return snapshot;
+    }
+
+    synchronized void clear() {
+      worldRectangles.clear();
+      worldFills.clear();
+      screenTexts.clear();
+      screenMarkers.clear();
+      worldLines.clear();
+      worldCircleOutlines.clear();
+      worldCircleFills.clear();
+      screenRectangles.clear();
+    }
+
+    synchronized boolean isEmpty() {
+      return worldRectangles.isEmpty()
+        && worldFills.isEmpty()
+        && screenTexts.isEmpty()
+        && screenMarkers.isEmpty()
+        && worldLines.isEmpty()
+        && worldCircleOutlines.isEmpty()
+        && worldCircleFills.isEmpty()
+        && screenRectangles.isEmpty();
+    }
+  }
+
+  private record DebugDrawSnapshot(
+    List<WorldRectangle> worldRectangles,
+    List<WorldFill> worldFills,
+    List<ScreenText> screenTexts,
+    List<ScreenMarker> screenMarkers,
+    List<WorldLine> worldLines,
+    List<WorldCircleOutline> worldCircleOutlines,
+    List<WorldCircleFill> worldCircleFills,
+    List<ScreenRectangle> screenRectangles) {}
 
   private record WorldRectangle(float x, float y, float width, float height, Color color) {}
 

@@ -6,23 +6,14 @@ import core.game.render.RenderContext;
 import core.utils.Point;
 import java.awt.Color;
 import java.lang.reflect.Field;
-import java.util.List;
+import java.lang.reflect.Method;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /** Tests for debug draw queue lifecycle behavior. */
 class DebugDrawSystemTest {
 
-  private static final String[] QUEUE_FIELDS = {
-    "WORLD_RECTANGLES",
-    "WORLD_FILLS",
-    "SCREEN_TEXTS",
-    "SCREEN_MARKERS",
-    "WORLD_LINES",
-    "WORLD_CIRCLE_OUTLINES",
-    "WORLD_CIRCLE_FILLS",
-    "SCREEN_RECTANGLES",
-  };
+  private static final String QUEUE_FIELD = "DRAW_QUEUE";
 
   @AfterEach
   void cleanup() {
@@ -73,12 +64,13 @@ class DebugDrawSystemTest {
   }
 
   private static void assertAllQueuesEmpty() throws Exception {
-    for (String fieldName : QUEUE_FIELDS) {
-      Field field = DebugDrawSystem.class.getDeclaredField(fieldName);
-      field.setAccessible(true);
+    Field field = DebugDrawSystem.class.getDeclaredField(QUEUE_FIELD);
+    field.setAccessible(true);
 
-      List<?> queue = (List<?>) field.get(null);
-      assertTrue(queue.isEmpty(), fieldName + " should be empty");
-    }
+    Object queue = field.get(null);
+    Method isEmpty = queue.getClass().getDeclaredMethod("isEmpty");
+    isEmpty.setAccessible(true);
+
+    assertTrue((boolean) isEmpty.invoke(queue), "debug draw queue should be empty");
   }
 }
