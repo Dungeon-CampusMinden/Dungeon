@@ -10,11 +10,13 @@ public abstract class BaseUiOverlay implements UiOverlay {
   protected int width;
   protected int height;
   protected boolean visible = true;
+  private boolean autoCenter = true;
 
   protected BaseUiOverlay() {}
 
   protected BaseUiOverlay(int width, int height) {
-    this(0, 0, width, height);
+    this.width = width;
+    this.height = height;
   }
 
   protected BaseUiOverlay(int x, int y, int width, int height) {
@@ -22,6 +24,7 @@ public abstract class BaseUiOverlay implements UiOverlay {
     this.y = y;
     this.width = width;
     this.height = height;
+    this.autoCenter = false;
   }
 
   @Override
@@ -32,6 +35,7 @@ public abstract class BaseUiOverlay implements UiOverlay {
   @Override
   public void x(int x) {
     this.x = x;
+    this.autoCenter = false;
   }
 
   @Override
@@ -42,6 +46,7 @@ public abstract class BaseUiOverlay implements UiOverlay {
   @Override
   public void y(int y) {
     this.y = y;
+    this.autoCenter = false;
   }
 
   @Override
@@ -84,7 +89,7 @@ public abstract class BaseUiOverlay implements UiOverlay {
   }
 
   protected final void centerInIfUnpositioned(int outerWidth, int outerHeight) {
-    if (x == 0 && y == 0) {
+    if (autoCenter) {
       centerIn(outerWidth, outerHeight);
     }
   }

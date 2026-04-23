@@ -78,11 +78,16 @@ public final class OverlayHandle implements UiHandle {
       return;
     }
 
-    int x = Math.round((stageHandle.getWidth() - overlay.width()) / 2f);
-    int y = Math.round((stageHandle.getHeight() - overlay.height()) / 2f);
+    if (overlay instanceof BaseUiOverlay baseOverlay) {
+      baseOverlay.centerIn(
+          Math.round(stageHandle.getWidth()), Math.round(stageHandle.getHeight()));
+    } else {
+      int x = Math.round((stageHandle.getWidth() - overlay.width()) / 2f);
+      int y = Math.round((stageHandle.getHeight() - overlay.height()) / 2f);
 
-    overlay.x(x);
-    overlay.y(y);
+      overlay.x(x);
+      overlay.y(y);
+    }
   }
 
   @Override
