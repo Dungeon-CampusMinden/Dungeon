@@ -15,8 +15,9 @@ import core.components.PositionComponent;
 import core.components.SoundComponent;
 import core.components.VelocityComponent;
 import core.input.Keys;
-import core.platform.client.ClientCursorAdapter;
 import core.camera.CameraViewportState;
+import core.platform.Platform;
+import core.platform.adapters.CursorAdapter;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -49,8 +50,6 @@ public final class DebugEntityRenderSystem extends System {
   private static final int INFO_OFFSET_Y = 12;
   private static final Color INFO_BACKGROUND = new Color(0, 0, 0, 170);
   private static final Color INFO_OUTLINE = new Color(255, 255, 255, 70);
-
-  private static final ClientCursorAdapter CURSOR = new ClientCursorAdapter();
 
   /**
    * Constructs a new instance of the DebugEntityRenderSystem.
@@ -195,8 +194,9 @@ public final class DebugEntityRenderSystem extends System {
   }
 
   private boolean isEntityHovered(Entity entity, PositionComponent pc) {
-    int mouseX = CURSOR.screenX();
-    int mouseY = CURSOR.screenY();
+    CursorAdapter cursor = Platform.cursor();
+    int mouseX = cursor.screenX();
+    int mouseY = cursor.screenY();
 
     return entity
       .fetch(DrawComponent.class)
@@ -231,7 +231,7 @@ public final class DebugEntityRenderSystem extends System {
             && top <= mouseY
             && mouseY <= top + heightPx;
         })
-      .orElseGet(() -> pc.position().distance(CURSOR.world()) < HOVER_RADIUS);
+      .orElseGet(() -> pc.position().distance(cursor.world()) < HOVER_RADIUS);
   }
 
   private void drawEntityInfo(Entity entity, PositionComponent pc) {
