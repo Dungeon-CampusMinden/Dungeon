@@ -61,10 +61,6 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
             }, */
             {
               kind: "block",
-              type: "fireball",
-            },
-            {
-              kind: "block",
               type: "wait",
             },
             {
@@ -87,13 +83,20 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
               kind: "block",
               type: "drop_item",
             },
-            {
-              kind: "block",
-              type: "shoot_blue_portal",
+            { kind: "block",
+              type: "schiessen"
             },
-            {
-              kind: "block",
-              type: "shoot_green_portal",
+            { kind: "block",
+              type: "projectile_fireball"
+            },
+            { kind: "block",
+              type: "projectile_portal"
+            },
+            { kind: "block",
+              type: "portal_blue"
+            },
+            { kind: "block",
+              type: "portal_green"
             },
           ],
         },

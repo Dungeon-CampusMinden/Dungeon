@@ -684,14 +684,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: "Skill",
   },
   {
-    type: "fireball",
-    message0: "Feuerball",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 30,
-    tooltip: "Feuerball in Richtung schießen",
-  },
-  {
     type: "pickup",
     message0: "aufheben",
     previousStatement: null,
@@ -754,20 +746,36 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     tooltip: "Zieh ein bewegliches Objekt rückwärts.",
   },
   {
-    type: "shoot_blue_portal",
-    message0: "blue portal",
+    type: "schiessen",
+    message0: "schießen %1",
+    args0: [{ type: "input_value", name: "PROJECTILE", check: "Projectile" }],
     previousStatement: null,
     nextStatement: null,
-    colour: 30,
-    tooltip: "balues Portal in Blickrichtung schießen",
+    colour: 30
   },
   {
-    type: "shoot_green_portal",
-    message0: "green portal",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 30,
-    tooltip: "grünes Portal in Blickrichtung schießen",
+    type: "projectile_fireball",
+    message0: "Feuerball",
+    output: "Projectile",
+    colour: 10
+  },
+  {
+    type: "projectile_portal",
+    message0: "Portal %1",
+    args0: [{ type: "input_value",name: "PORTAL_COLOR",check: "PortalColor" }],
+    output: "Projectile",
+    colour: 260
+  },
+  {
+    type: "portal_blue",
+    message0: "blau",
+    output: "PortalColor",
+    colour: 210
+  },
+  { type: "portal_green",
+    message0: "grün",
+    output: "PortalColor",
+    colour: 120
   },
   //  ---------------------- Items ----------------------
   {
