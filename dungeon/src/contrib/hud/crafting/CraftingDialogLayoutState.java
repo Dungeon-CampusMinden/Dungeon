@@ -3,7 +3,7 @@ package contrib.hud.crafting;
 import contrib.hud.crafting.CraftingDragDropController.InventorySide;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
-import contrib.hud.renderers.InventoryPanelRendering;
+import contrib.hud.renderers.InventoryPanelRenderer;
 import contrib.hud.utils.GridHitTest;
 import contrib.item.Item;
 import java.awt.FontMetrics;
@@ -90,7 +90,7 @@ final class CraftingDialogLayoutState {
     int gridTop = titleBaseline + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
     Rectangle leftPanelBounds =
-        InventoryPanelRendering.panelBounds(
+        InventoryPanelRenderer.panelBounds(
             leftStartX,
             gridTop,
             measurement.leftGridWidth(),

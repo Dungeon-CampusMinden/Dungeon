@@ -5,12 +5,12 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 /** Shared rendering helpers for inventory-like panel backgrounds. */
-public final class InventoryPanelRendering {
+public final class InventoryPanelRenderer {
 
   private static final Color PANEL_FILL = new Color(62, 62, 99, 96);
   private static final Color PANEL_OUTLINE = new Color(0x9dc1ebff, true);
 
-  private InventoryPanelRendering() {}
+  private InventoryPanelRenderer() {}
 
   /**
    * Calculates panel bounds around a grid with symmetric padding.

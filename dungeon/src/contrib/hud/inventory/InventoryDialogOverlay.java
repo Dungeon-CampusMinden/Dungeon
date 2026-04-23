@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.entities.HeroController;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
-import contrib.hud.renderers.InventoryPanelRendering;
+import contrib.hud.renderers.InventoryPanelRenderer;
 import contrib.hud.utils.GridHitTest;
 import contrib.hud.utils.InventoryDragController;
 import contrib.hud.utils.InventoryDropHandling;
@@ -110,10 +110,10 @@ final class InventoryDialogOverlay extends BaseUiOverlay implements InventoryCom
       gridTop = contentY + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle panelBounds =
-          InventoryPanelRendering.panelBounds(
+          InventoryPanelRenderer.panelBounds(
               startX, gridTop, gridWidth, gridHeight, PANEL_PADDING);
 
-      InventoryPanelRendering.drawPanelBackground(g, panelBounds);
+      InventoryPanelRenderer.drawPanelBackground(g, panelBounds);
 
       grid = new GridHitTest.Grid<>(InventorySide.PLAYER, startX, gridTop, columns, visibleSlots);
 

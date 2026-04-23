@@ -3,7 +3,7 @@ package contrib.hud.inventory;
 import contrib.components.InventoryComponent;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
-import contrib.hud.renderers.InventoryPanelRendering;
+import contrib.hud.renderers.InventoryPanelRenderer;
 import contrib.hud.utils.GridHitTest;
 import contrib.hud.utils.InventoryDragController;
 import contrib.hud.utils.InventoryDropHandling;
@@ -129,15 +129,15 @@ final class DualInventoryDialogOverlay extends BaseUiOverlay
       gridTop = titleBaseline + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
 
       Rectangle leftPanelBounds =
-          InventoryPanelRendering.panelBounds(
+          InventoryPanelRenderer.panelBounds(
               leftStartX, gridTop, leftGridWidth, leftGridHeight, PANEL_PADDING);
 
       Rectangle rightPanelBounds =
-          InventoryPanelRendering.panelBounds(
+          InventoryPanelRenderer.panelBounds(
               rightStartX, gridTop, rightGridWidth, rightGridHeight, PANEL_PADDING);
 
-      InventoryPanelRendering.drawPanelBackground(g, leftPanelBounds);
-      InventoryPanelRendering.drawPanelBackground(g, rightPanelBounds);
+      InventoryPanelRenderer.drawPanelBackground(g, leftPanelBounds);
+      InventoryPanelRenderer.drawPanelBackground(g, rightPanelBounds);
 
       leftGrid =
           new GridHitTest.Grid<>(

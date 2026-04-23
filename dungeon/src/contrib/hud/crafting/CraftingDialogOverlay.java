@@ -6,7 +6,7 @@ import contrib.hud.crafting.CraftingDragDropController.InventorySide;
 import contrib.hud.inventory.InventoryComponentProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
-import contrib.hud.renderers.InventoryPanelRendering;
+import contrib.hud.renderers.InventoryPanelRenderer;
 import contrib.hud.utils.GridHitTest;
 import contrib.item.Item;
 import core.Game;
@@ -113,7 +113,7 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryComp
       g.drawString(targetTitle, layoutState.leftTitleX(), layoutState.titleBaseline());
       g.drawString(craftingTitle, layoutState.craftingTitleX(), layoutState.titleBaseline());
 
-      InventoryPanelRendering.drawPanelBackground(g, layoutState.leftPanelBounds());
+      InventoryPanelRenderer.drawPanelBackground(g, layoutState.leftPanelBounds());
 
       GridHitTest.Grid<InventorySide> leftGrid = layoutState.leftGrid();
       InventoryGridRenderer.drawGrid(
