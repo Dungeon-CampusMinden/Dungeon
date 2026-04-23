@@ -6,15 +6,12 @@ import contrib.hud.showimage.ShowImageDialogBuilder;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
 import contrib.modules.keypad.ui.KeypadDialogBuilder;
-import core.ui.NullUiHandle;
-import core.ui.UiHandle;
 
 /**
  * Installs the available dialog backend implementations in the shared dialog factory.
  *
  * <p>The dialog factory itself only owns the registry. This class wires the default dialog types to
- * the currently available neutral dialog builders and installs fallback handles for dialog types
- * that do not have a concrete visual implementation yet.
+ * the currently available neutral dialog builders.
  */
 public final class DialogBackendInstaller {
   private static boolean initialized = false;
@@ -27,17 +24,10 @@ public final class DialogBackendInstaller {
    * <p>This method ensures that all built-in dialog types defined in {@link DialogType.DefaultTypes}
    * are registered in the {@link DialogFactory}.
    *
-   * <p>Fallback handlers are also set up for types without visual implementations.
-   * Additionally, it binds each dialog type to its respective neutral builder.
+   * <p>Each dialog type is bound to its respective neutral builder implementation.
    *
    * <p>If the installation process has already been completed, the method exits immediately
    * without performing any actions.
-   *
-   * <p>The registration process includes:
-   * <ul>
-   *   <li>Registering fallback handlers for all built-in dialog types.</li>
-   *   <li>Replacing factory entries for specific dialog types with their corresponding builder methods.</li>
-   * </ul>
    *
    * <p>Note: This method is thread-safe and will only execute once, regardless of how many
    * times it is invoked.
@@ -46,18 +36,6 @@ public final class DialogBackendInstaller {
     if (initialized) {
       return;
     }
-
-    registerFallback(DialogType.DefaultTypes.OK);
-    registerFallback(DialogType.DefaultTypes.YES_NO);
-    registerFallback(DialogType.DefaultTypes.TEXT);
-    registerFallback(DialogType.DefaultTypes.IMAGE);
-    registerFallback(DialogType.DefaultTypes.FREE_INPUT);
-    registerFallback(DialogType.DefaultTypes.INVENTORY);
-    registerFallback(DialogType.DefaultTypes.DUAL_INVENTORY);
-    registerFallback(DialogType.DefaultTypes.CRAFTING_GUI);
-    registerFallback(DialogType.DefaultTypes.KEYPAD);
-    registerFallback(DialogType.DefaultTypes.PROGRESS_BAR);
-    registerFallback(DialogType.DefaultTypes.PAUSE_MENU);
 
     DialogFactory.replace(DialogType.DefaultTypes.OK, OkDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.YES_NO, YesNoDialogBuilder::build);
@@ -72,13 +50,5 @@ public final class DialogBackendInstaller {
     DialogFactory.replace(DialogType.DefaultTypes.CRAFTING_GUI, CraftingDialogBuilder::build);
 
     initialized = true;
-  }
-
-  private static void registerFallback(DialogType type) {
-    DialogFactory.registerIfAbsent(type, DialogBackendInstaller::createFallbackHandle);
-  }
-
-  private static UiHandle createFallbackHandle(DialogContext ctx) {
-    return new NullUiHandle();
   }
 }
