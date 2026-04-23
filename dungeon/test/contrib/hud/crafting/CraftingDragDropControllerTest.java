@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.utils.GridHitTest;
-import contrib.hud.utils.InventoryDragController;
+import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.InventoryDragController;
 import contrib.item.Item;
 import java.awt.Rectangle;
 import org.junit.jupiter.api.Test;

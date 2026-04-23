@@ -1,4 +1,4 @@
-package contrib.hud.renderers;
+package contrib.hud.itemgrid;
 
 import contrib.hud.UIUtils;
 import contrib.item.Item;

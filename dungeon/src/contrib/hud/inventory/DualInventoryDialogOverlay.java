@@ -2,12 +2,12 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.renderers.DialogFrameRenderer;
-import contrib.hud.renderers.InventoryGridRenderer;
-import contrib.hud.renderers.InventoryPanelRenderer;
-import contrib.hud.utils.GridHitTest;
-import contrib.hud.utils.InventoryDragController;
-import contrib.hud.utils.InventoryDropHandling;
-import contrib.hud.utils.InventoryTooltip;
+import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.InventoryDragController;
+import contrib.hud.itemgrid.InventoryDropHandling;
+import contrib.hud.itemgrid.InventoryGridRenderer;
+import contrib.hud.itemgrid.InventoryPanelRenderer;
+import contrib.hud.itemgrid.InventoryTooltip;
 import contrib.item.Item;
 import core.Game;
 import core.ui.overlay.BaseUiOverlay;

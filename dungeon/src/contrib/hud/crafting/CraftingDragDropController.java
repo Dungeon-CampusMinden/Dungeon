@@ -1,9 +1,9 @@
 package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.utils.GridHitTest;
-import contrib.hud.utils.InventoryDragController;
-import contrib.hud.utils.InventoryDropHandling;
+import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.InventoryDragController;
+import contrib.hud.itemgrid.InventoryDropHandling;
 import contrib.item.Item;
 import java.awt.Color;
 import java.awt.Graphics2D;

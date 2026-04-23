@@ -1,7 +1,7 @@
 package contrib.hud.crafting;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import contrib.hud.renderers.InventoryGridRenderer;
+import contrib.hud.itemgrid.InventoryGridRenderer;
 import contrib.item.Item;
 import java.awt.Font;
 import java.awt.FontMetrics;

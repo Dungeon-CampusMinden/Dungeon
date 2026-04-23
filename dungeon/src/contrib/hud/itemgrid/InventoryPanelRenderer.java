@@ -1,4 +1,4 @@
-package contrib.hud.renderers;
+package contrib.hud.itemgrid;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

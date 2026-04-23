@@ -1,6 +1,5 @@
-package contrib.hud.utils;
+package contrib.hud.itemgrid;
 
-import contrib.hud.renderers.ItemTooltipRenderer;
 import contrib.item.Item;
 import core.Game;
 import core.ui.StageHandle;

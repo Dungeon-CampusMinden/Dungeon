@@ -1,4 +1,4 @@
-package contrib.hud.renderers;
+package contrib.hud.itemgrid;
 
 import contrib.item.Item;
 import core.render.AnimationFrameImages;

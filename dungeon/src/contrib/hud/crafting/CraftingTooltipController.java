@@ -1,7 +1,7 @@
 package contrib.hud.crafting;
 
-import contrib.hud.utils.GridHitTest;
-import contrib.hud.utils.InventoryTooltip;
+import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.InventoryTooltip;
 import contrib.item.Item;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;

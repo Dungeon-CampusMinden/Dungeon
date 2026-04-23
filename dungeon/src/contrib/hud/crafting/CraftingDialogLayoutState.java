@@ -1,9 +1,9 @@
 package contrib.hud.crafting;
 
 import contrib.hud.renderers.DialogFrameRenderer;
-import contrib.hud.renderers.InventoryGridRenderer;
-import contrib.hud.renderers.InventoryPanelRenderer;
-import contrib.hud.utils.GridHitTest;
+import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.InventoryGridRenderer;
+import contrib.hud.itemgrid.InventoryPanelRenderer;
 import contrib.item.Item;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;

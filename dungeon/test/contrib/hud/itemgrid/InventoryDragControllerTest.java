@@ -1,4 +1,4 @@
-package contrib.hud.utils;
+package contrib.hud.itemgrid;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

@@ -1,4 +1,4 @@
-package contrib.hud.utils;
+package contrib.hud.itemgrid;
 
 import core.Game;
 import core.ui.StageHandle;
