@@ -3,7 +3,7 @@ package contrib.hud.showimage;
 import core.Game;
 import core.render.ImageAssets;
 import contrib.hud.renderers.DialogFrameRenderer;
-import core.ui.overlay.UiOverlay;
+import core.ui.overlay.AbstractUiOverlay;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
@@ -15,11 +15,11 @@ import java.util.List;
 /**
  * Represents an overlay that displays an image with optional text and animated transition effects.
  *
- * <p>This class implements {@link UiOverlay} to allow rendering within the user interface layer.
+ * <p>This class extends {@link AbstractUiOverlay} to allow rendering within the user interface layer.
  *
  * <p>It supports customizable scaling, positioning, and transition animations for the image.
  */
-final class ShowImageDialogOverlay implements UiOverlay {
+final class ShowImageDialogOverlay extends AbstractUiOverlay {
 
   private static final float DEFAULT_MAX_SIZE = 0.85f;
   private static final int PANEL_PADDING = 12;
@@ -41,11 +41,6 @@ final class ShowImageDialogOverlay implements UiOverlay {
   private String loadedImagePath;
   private BufferedImage image;
 
-  private int x;
-  private int y;
-  private int width = 480;
-  private int height = 320;
-  private boolean visible = true;
   private float animation;
 
   ShowImageDialogOverlay(
@@ -55,6 +50,7 @@ final class ShowImageDialogOverlay implements UiOverlay {
     String imageText,
     float imageTextScale,
     int imageTextColorRgba8888) {
+    super(480, 320);
 
     this.imagePath = imagePath;
     this.transitionSpeed = transitionSpeed == null ? TransitionSpeed.MEDIUM : transitionSpeed;
@@ -248,55 +244,5 @@ final class ShowImageDialogOverlay implements UiOverlay {
     int b = (rgba8888 >>> 8) & 0xFF;
     int a = rgba8888 & 0xFF;
     return new Color(r, g, b, a);
-  }
-
-  @Override
-  public int x() {
-    return x;
-  }
-
-  @Override
-  public void x(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public int y() {
-    return y;
-  }
-
-  @Override
-  public void y(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int width() {
-    return width;
-  }
-
-  @Override
-  public void width(int width) {
-    this.width = width;
-  }
-
-  @Override
-  public int height() {
-    return height;
-  }
-
-  @Override
-  public void height(int height) {
-    this.height = height;
-  }
-
-  @Override
-  public boolean visible() {
-    return visible;
-  }
-
-  @Override
-  public void visible(boolean visible) {
-    this.visible = visible;
   }
 }

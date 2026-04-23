@@ -5,9 +5,9 @@ import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionChoices;
 import core.Game;
 import core.input.MouseButtons;
-import core.ui.overlay.UiOverlay;
 import core.ui.overlay.OverlayManager;
 import core.ui.StageHandle;
+import core.ui.overlay.AbstractUiOverlay;
 import core.utils.InputManager;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -48,7 +48,7 @@ import java.util.function.Consumer;
  *   <li>Manages panel visibility and position properties.</li>
  * </ul>
  */
-final class InteractionSelectionOverlay implements UiOverlay {
+final class InteractionSelectionOverlay extends AbstractUiOverlay {
 
   private static final int PANEL_WIDTH = 320;
   private static final int PANEL_PADDING = 16;
@@ -61,15 +61,11 @@ final class InteractionSelectionOverlay implements UiOverlay {
   private final List<Interaction> interactions;
   private final Consumer<Interaction> onSelected;
 
-  private int x;
-  private int y;
-  private int width = PANEL_WIDTH;
-  private int height = 220;
-  private boolean visible = true;
   private boolean leftButtonDownLastFrame = false;
 
   InteractionSelectionOverlay(
     IInteractable interactable, Consumer<Interaction> onSelected) {
+    super(PANEL_WIDTH, 220);
     this.interactions = InteractionChoices.from(Objects.requireNonNull(interactable));
     this.onSelected = Objects.requireNonNull(onSelected);
   }
@@ -86,10 +82,7 @@ final class InteractionSelectionOverlay implements UiOverlay {
         + (interactions.size() + 1) * BUTTON_HEIGHT
         + interactions.size() * BUTTON_GAP;
 
-    if (x == 0 && y == 0) {
-      x = Math.round((Game.windowWidth() - width) / 2f);
-      y = Math.round((Game.windowHeight() - height) / 2f);
-    }
+    centerInIfUnpositioned(Game.windowWidth(), Game.windowHeight());
 
     drawOverlay(g);
     handleInput();
@@ -180,7 +173,7 @@ final class InteractionSelectionOverlay implements UiOverlay {
   }
 
   private Rectangle panelBounds() {
-    return new Rectangle(x, y, width, height);
+    return bounds();
   }
 
   private Rectangle interactionBounds(int index) {
@@ -201,55 +194,5 @@ final class InteractionSelectionOverlay implements UiOverlay {
     visible = false;
     OverlayManager.remove(this);
     onSelected.accept(interaction);
-  }
-
-  @Override
-  public int x() {
-    return x;
-  }
-
-  @Override
-  public void x(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public int y() {
-    return y;
-  }
-
-  @Override
-  public void y(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int width() {
-    return width;
-  }
-
-  @Override
-  public void width(int width) {
-    this.width = width;
-  }
-
-  @Override
-  public int height() {
-    return height;
-  }
-
-  @Override
-  public void height(int height) {
-    this.height = height;
-  }
-
-  @Override
-  public boolean visible() {
-    return visible;
-  }
-
-  @Override
-  public void visible(boolean visible) {
-    this.visible = visible;
   }
 }

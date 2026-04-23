@@ -6,8 +6,8 @@ import contrib.hud.renderers.DialogFrameRenderer;
 import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
-import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
+import core.ui.overlay.AbstractUiOverlay;
 import core.utils.InputManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -34,7 +34,7 @@ import java.util.List;
  *    <li>Handles user interactions with keyboard and mouse inputs.</li>
  * </ul>
  */
-public final class FreeInputDialogOverlay implements UiOverlay {
+public final class FreeInputDialogOverlay extends AbstractUiOverlay {
 
   /** Default dialog title. */
   public static final String TITLE_DEFAULT = "Frage";
@@ -64,12 +64,6 @@ public final class FreeInputDialogOverlay implements UiOverlay {
 
   private final StringBuilder inputText;
 
-  private int x;
-  private int y;
-  private int width = DEFAULT_WIDTH;
-  private int height = DEFAULT_HEIGHT;
-  private boolean visible = true;
-
   private int pressedButtonIndex = -1;
   private boolean leftButtonDownLastFrame = false;
 
@@ -92,6 +86,7 @@ public final class FreeInputDialogOverlay implements UiOverlay {
     String confirmLabel,
     String cancelLabel,
     String dialogId) {
+    super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.title = title;
     this.question = question;
     this.placeholder = placeholder;
@@ -269,55 +264,5 @@ public final class FreeInputDialogOverlay implements UiOverlay {
 
   private List<Rectangle> buttonBounds() {
     return DialogFrameRenderer.centeredButtonRow(x, y, width, height, 2, BUTTON_GAP);
-  }
-
-  @Override
-  public int x() {
-    return x;
-  }
-
-  @Override
-  public void x(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public int y() {
-    return y;
-  }
-
-  @Override
-  public void y(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int width() {
-    return width;
-  }
-
-  @Override
-  public void width(int width) {
-    this.width = width;
-  }
-
-  @Override
-  public int height() {
-    return height;
-  }
-
-  @Override
-  public void height(int height) {
-    this.height = height;
-  }
-
-  @Override
-  public boolean visible() {
-    return visible;
-  }
-
-  @Override
-  public void visible(boolean visible) {
-    this.visible = visible;
   }
 }

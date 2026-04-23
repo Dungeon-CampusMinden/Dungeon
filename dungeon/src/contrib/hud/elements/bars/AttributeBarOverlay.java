@@ -1,6 +1,6 @@
 package contrib.hud.elements.bars;
 
-import core.ui.overlay.UiOverlay;
+import core.ui.overlay.AbstractUiOverlay;
 import core.ui.overlay.OverlayManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -14,18 +14,14 @@ import java.awt.Graphics2D;
  * positioning, sizing, and visibility. The fill color changes based on the style name.
  */
 public final class AttributeBarOverlay
-  implements UiOverlay, AttributeBarHandle, AttributeBarHandleProvider {
+  extends AbstractUiOverlay
+  implements AttributeBarHandle, AttributeBarHandleProvider {
 
   private static final int DEFAULT_WIDTH = 50;
   private static final int DEFAULT_HEIGHT = 10;
 
   private final String styleName;
 
-  private int x;
-  private int y;
-  private int width = DEFAULT_WIDTH;
-  private int height = DEFAULT_HEIGHT;
-  private boolean visible = true;
   private float value = 1f;
 
   /**
@@ -42,6 +38,7 @@ public final class AttributeBarOverlay
    * @param styleName the style name for determining the bar's appearance (might be null)
    */
   public AttributeBarOverlay(String styleName) {
+    super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.styleName = styleName == null ? "" : styleName;
   }
 
@@ -108,55 +105,5 @@ public final class AttributeBarOverlay
   @Override
   public AttributeBarHandle attributeBarHandle() {
     return this;
-  }
-
-  @Override
-  public int x() {
-    return x;
-  }
-
-  @Override
-  public void x(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public int y() {
-    return y;
-  }
-
-  @Override
-  public void y(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int width() {
-    return width;
-  }
-
-  @Override
-  public void width(int width) {
-    this.width = width;
-  }
-
-  @Override
-  public int height() {
-    return height;
-  }
-
-  @Override
-  public void height(int height) {
-    this.height = height;
-  }
-
-  @Override
-  public boolean visible() {
-    return visible;
-  }
-
-  @Override
-  public void visible(boolean visible) {
-    this.visible = visible;
   }
 }

@@ -7,8 +7,8 @@ import contrib.hud.renderers.DialogFrameRenderer;
 import core.Game;
 import core.input.Keys;
 import core.input.MouseButtons;
-import core.ui.overlay.UiOverlay;
 import core.ui.StageHandle;
+import core.ui.overlay.AbstractUiOverlay;
 import core.utils.InputManager;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -31,7 +31,7 @@ import java.util.List;
  *   <li>Input handling for keyboard and mouse interactions.</li>
  * </ul>
  */
-public final class TextDialogOverlay implements UiOverlay {
+public final class TextDialogOverlay extends AbstractUiOverlay {
 
   private static final int DEFAULT_WIDTH = 560;
   private static final int DEFAULT_HEIGHT = 260;
@@ -44,12 +44,6 @@ public final class TextDialogOverlay implements UiOverlay {
   private final String[] additionalButtons;
   private final String dialogId;
   private final List<Button> actionButtons = new ArrayList<>();
-
-  private int x;
-  private int y;
-  private int width = DEFAULT_WIDTH;
-  private int height = DEFAULT_HEIGHT;
-  private boolean visible = true;
 
   /**
    * Creates a text dialog overlay.
@@ -68,6 +62,7 @@ public final class TextDialogOverlay implements UiOverlay {
     String cancelLabel,
     String[] additionalButtons,
     String dialogId) {
+    super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.title = title;
     this.text = text;
     this.confirmLabel = confirmLabel;
@@ -203,55 +198,5 @@ public final class TextDialogOverlay implements UiOverlay {
   private List<Rectangle> buttonBounds(int buttonCount) {
     return DialogFrameRenderer.centeredButtonRow(
       x, y, width, height, buttonCount, BUTTON_GAP);
-  }
-
-  @Override
-  public int x() {
-    return x;
-  }
-
-  @Override
-  public void x(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public int y() {
-    return y;
-  }
-
-  @Override
-  public void y(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int width() {
-    return width;
-  }
-
-  @Override
-  public void width(int width) {
-    this.width = width;
-  }
-
-  @Override
-  public int height() {
-    return height;
-  }
-
-  @Override
-  public void height(int height) {
-    this.height = height;
-  }
-
-  @Override
-  public boolean visible() {
-    return visible;
-  }
-
-  @Override
-  public void visible(boolean visible) {
-    this.visible = visible;
   }
 }

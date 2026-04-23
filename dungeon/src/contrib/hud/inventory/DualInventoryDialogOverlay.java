@@ -10,10 +10,7 @@ import contrib.hud.utils.InventoryDropHandling;
 import contrib.hud.utils.InventoryTooltip;
 import contrib.item.Item;
 import core.Game;
-import core.input.MouseButtons;
-import core.ui.StageHandle;
-import core.ui.overlay.UiOverlay;
-import core.utils.InputManager;
+import core.ui.overlay.AbstractUiOverlay;
 import java.awt.*;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +36,8 @@ import java.util.stream.Stream;
  *   <li>Ability to manage UI state such as visibility, dimensions, and interaction states.
  * </ul>
  */
-final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentProvider {
+final class DualInventoryDialogOverlay extends AbstractUiOverlay
+    implements InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 1100;
   private static final int DEFAULT_HEIGHT = 470;
@@ -56,17 +54,12 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
   private final InventoryDragController<InventorySide> dragController =
       InventoryDragController.withDistanceThreshold(DRAG_THRESHOLD_PX);
 
-  private int x;
-  private int y;
-  private int width = DEFAULT_WIDTH;
-  private int height = DEFAULT_HEIGHT;
-  private boolean visible = true;
-
   DualInventoryDialogOverlay(
       String leftTitle,
       InventoryComponent leftInventory,
       String rightTitle,
       InventoryComponent rightInventory) {
+    super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.leftTitle = (leftTitle == null || leftTitle.isBlank()) ? "Inventory" : leftTitle;
     this.leftInventory = leftInventory;
     this.rightTitle = (rightTitle == null || rightTitle.isBlank()) ? "Inventory" : rightTitle;
@@ -109,10 +102,7 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
         Math.max(
             DEFAULT_HEIGHT, 108 + maxGridHeight + 2 * PANEL_PADDING + DialogFrameRenderer.PADDING);
 
-    if (x == 0 && y == 0) {
-      x = (Game.windowWidth() - width) / 2;
-      y = (Game.windowHeight() - height) / 2;
-    }
+    centerInIfUnpositioned(Game.windowWidth(), Game.windowHeight());
 
     int contentY;
     int leftStartX;
@@ -177,30 +167,17 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
 
   private void handleInput(
       GridHitTest.Grid<InventorySide> leftGrid, GridHitTest.Grid<InventorySide> rightGrid) {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      dragController.reset();
-      return;
-    }
-
-    int mouseX = stage.mouseX();
-    int mouseY = stage.mouseY();
-    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
-
-    Optional<InventoryDragController.Release<InventorySide>> release =
-        dragController.update(
-            leftButtonDown,
-            mouseX,
-            mouseY,
+    Optional<InventoryDragController.MouseUpdate<InventorySide>> update =
+        dragController.updateFromPrimaryMouse(
             (slotMouseX, slotMouseY) ->
                 findSlotSelection(slotMouseX, slotMouseY, leftGrid, rightGrid),
             this::itemOf);
 
-    if (release.isEmpty()) {
+    if (update.isEmpty() || update.get().release().isEmpty()) {
       return;
     }
 
-    InventoryDragController.Release<InventorySide> released = release.get();
+    InventoryDragController.Release<InventorySide> released = update.get().release().get();
     if (released.completedDrag() != null) {
       handleDraggedRelease(released.completedDrag(), released.releasedSlot());
     } else if (released.pressedSlot() != null
@@ -301,7 +278,7 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
       GridHitTest.Grid<InventorySide> rightGrid) {
     InventoryTooltip.drawHoveredSlotTooltip(
         g,
-        dialogBounds(),
+        bounds(),
         (mouseX, mouseY) -> findSlotSelection(mouseX, mouseY, leftGrid, rightGrid),
         this::itemOf);
   }
@@ -328,60 +305,6 @@ final class DualInventoryDialogOverlay implements UiOverlay, InventoryComponentP
     }
 
     return inventoryOf(slot.side()).get(slot.slotIndex()).orElse(null);
-  }
-
-  private Rectangle dialogBounds() {
-    return new Rectangle(x, y, width, height);
-  }
-
-  @Override
-  public int x() {
-    return x;
-  }
-
-  @Override
-  public void x(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public int y() {
-    return y;
-  }
-
-  @Override
-  public void y(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int width() {
-    return width;
-  }
-
-  @Override
-  public void width(int width) {
-    this.width = width;
-  }
-
-  @Override
-  public int height() {
-    return height;
-  }
-
-  @Override
-  public void height(int height) {
-    this.height = height;
-  }
-
-  @Override
-  public boolean visible() {
-    return visible;
-  }
-
-  @Override
-  public void visible(boolean visible) {
-    this.visible = visible;
   }
 
   @Override

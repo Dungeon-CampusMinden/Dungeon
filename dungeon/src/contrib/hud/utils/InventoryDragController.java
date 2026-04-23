@@ -3,7 +3,9 @@ package contrib.hud.utils;
 import contrib.hud.renderers.InventoryGridRenderer;
 import contrib.item.Item;
 import core.Game;
+import core.input.MouseButtons;
 import core.ui.StageHandle;
+import core.utils.InputManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -101,6 +103,35 @@ public final class InventoryDragController<S> {
 
     buttonDownLastFrame = buttonDown;
     return release;
+  }
+
+  /**
+   * Updates drag state from the current stage mouse position and the primary mouse button.
+   *
+   * <p>If no stage is available, the controller is reset and no release is returned.
+   *
+   * @param slotFinder resolves slots at pointer positions
+   * @param itemResolver resolves items inside slots
+   * @return the current pointer position and optional release
+   */
+  public Optional<MouseUpdate<S>> updateFromPrimaryMouse(
+      SlotFinder<S> slotFinder, ItemResolver<S> itemResolver) {
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      reset();
+      return Optional.empty();
+    }
+
+    int mouseX = stage.mouseX();
+    int mouseY = stage.mouseY();
+    Optional<Release<S>> release =
+        update(
+            InputManager.isButtonPressed(MouseButtons.LEFT),
+            mouseX,
+            mouseY,
+            slotFinder,
+            itemResolver);
+    return Optional.of(new MouseUpdate<>(mouseX, mouseY, release));
   }
 
   /**
@@ -307,4 +338,14 @@ public final class InventoryDragController<S> {
       GridHitTest.Slot<S> pressedSlot,
       GridHitTest.Slot<S> releasedSlot,
       DragState<S> completedDrag) {}
+
+  /**
+   * Describes one drag input update at the current mouse position.
+   *
+   * @param mouseX the mouse x coordinate
+   * @param mouseY the mouse y coordinate
+   * @param release a release event if the primary mouse button was released this frame
+   * @param <S> logical side type of the slot
+   */
+  public record MouseUpdate<S>(int mouseX, int mouseY, Optional<Release<S>> release) {}
 }

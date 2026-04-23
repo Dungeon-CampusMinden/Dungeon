@@ -1,6 +1,6 @@
 package contrib.editor.level;
 
-import core.ui.overlay.UiOverlay;
+import core.ui.overlay.AbstractUiOverlay;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -12,12 +12,12 @@ import java.util.List;
  * Represents an overlay UI component for a level editor, providing a dynamically sized panel
  * to display editor-related information, including status lines, a title, and feedback messages.
  *
- * <p>This class implements the {@code UiOverlay} interface, allowing it to be rendered
+ * <p>This class extends {@code AbstractUiOverlay}, allowing it to be rendered
  * on top of the main game screen and manipulated based on its position, size, and visibility.
  *
  * <p>It is a final class, meaning it cannot be subclassed.
  */
-public final class LevelEditorOverlay implements UiOverlay {
+public final class LevelEditorOverlay extends AbstractUiOverlay {
 
   private static final int DEFAULT_WIDTH = 700;
   private static final int DEFAULT_HEIGHT = 300;
@@ -28,16 +28,14 @@ public final class LevelEditorOverlay implements UiOverlay {
   private static final Color PANEL_BORDER = new Color(210, 210, 225);
   private static final Color TEXT_COLOR = Color.WHITE;
 
-  private int x = 12;
-  private int y = 12;
-  private int width = DEFAULT_WIDTH;
-  private int height = DEFAULT_HEIGHT;
-  private boolean visible = true;
-
   private String title = "";
   private List<String> lines = List.of();
   private String feedback = "";
   private Color feedbackColor = Color.WHITE;
+
+  public LevelEditorOverlay() {
+    super(12, 12, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+  }
 
   /**
    * Updates the currently displayed editor information.
@@ -124,55 +122,5 @@ public final class LevelEditorOverlay implements UiOverlay {
       result.add(line == null ? "" : line);
     }
     return List.copyOf(result);
-  }
-
-  @Override
-  public int x() {
-    return x;
-  }
-
-  @Override
-  public void x(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public int y() {
-    return y;
-  }
-
-  @Override
-  public void y(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int width() {
-    return width;
-  }
-
-  @Override
-  public void width(int width) {
-    this.width = width;
-  }
-
-  @Override
-  public int height() {
-    return height;
-  }
-
-  @Override
-  public void height(int height) {
-    this.height = height;
-  }
-
-  @Override
-  public boolean visible() {
-    return visible;
-  }
-
-  @Override
-  public void visible(boolean visible) {
-    this.visible = visible;
   }
 }

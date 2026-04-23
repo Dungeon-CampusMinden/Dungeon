@@ -1,7 +1,7 @@
 package contrib.hud.dialogs.overlays;
 
 import contrib.hud.renderers.DialogFrameRenderer;
-import core.ui.overlay.UiOverlay;
+import core.ui.overlay.AbstractUiOverlay;
 import java.awt.Graphics2D;
 
 /**
@@ -18,11 +18,11 @@ import java.awt.Graphics2D;
  *   <li>Height: 200 pixels</li>
  * </ul>
  *
- * <p>Implements the {@link UiOverlay} interface, allowing it to be rendered above the
+ * <p>Extends {@link AbstractUiOverlay}, allowing it to be rendered above the
  * game scene with configurable properties such as x and y coordinates, dimensions,
  * and visibility.
  */
-public final class PauseMenuDialogOverlay implements UiOverlay {
+public final class PauseMenuDialogOverlay extends AbstractUiOverlay {
 
   private static final int DEFAULT_WIDTH = 400;
   private static final int DEFAULT_HEIGHT = 200;
@@ -30,11 +30,9 @@ public final class PauseMenuDialogOverlay implements UiOverlay {
   private static final String TITLE = "Pause";
   private static final String MESSAGE = "Game Paused\n\nPress <P> to resume";
 
-  private int x;
-  private int y;
-  private int width = DEFAULT_WIDTH;
-  private int height = DEFAULT_HEIGHT;
-  private boolean visible = true;
+  public PauseMenuDialogOverlay() {
+    super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+  }
 
   @Override
   public void render(Graphics2D g) {
@@ -57,55 +55,5 @@ public final class PauseMenuDialogOverlay implements UiOverlay {
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
     }
-  }
-
-  @Override
-  public int x() {
-    return x;
-  }
-
-  @Override
-  public void x(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public int y() {
-    return y;
-  }
-
-  @Override
-  public void y(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int width() {
-    return width;
-  }
-
-  @Override
-  public void width(int width) {
-    this.width = width;
-  }
-
-  @Override
-  public int height() {
-    return height;
-  }
-
-  @Override
-  public void height(int height) {
-    this.height = height;
-  }
-
-  @Override
-  public boolean visible() {
-    return visible;
-  }
-
-  @Override
-  public void visible(boolean visible) {
-    this.visible = visible;
   }
 }

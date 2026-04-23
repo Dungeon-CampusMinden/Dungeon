@@ -12,7 +12,7 @@ import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
 import core.ui.StageHandle;
-import core.ui.overlay.UiOverlay;
+import core.ui.overlay.AbstractUiOverlay;
 import core.utils.InputManager;
 import java.awt.*;
 import java.util.Arrays;
@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * operations, and tooltip rendering for crafting items. It maintains an internal state for the
  * visibility, dimensions, and positioning of the dialog.
  *
- * <p>Implements the {@code UiOverlay} interface to represent a customizable UI component and the
+ * <p>Extends {@code AbstractUiOverlay} to represent a customizable UI component and the
  * {@code InventoryComponentProvider} interface to supply associated inventory components.
  *
  * <p>Responsibilities:
@@ -46,7 +46,7 @@ import java.util.stream.Stream;
  *   <li>Managing visibility, dimensions, and layout of the overlay.</li>
  * </ul>
  */
-final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvider {
+final class CraftingDialogOverlay extends AbstractUiOverlay implements InventoryComponentProvider {
 
   private static final CraftingDialogLayout CLASSIC_LAYOUT = new CraftingDialogLayout();
 
@@ -58,17 +58,12 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
   private final CraftingPanelRenderer panelRenderer;
   private final CraftingTooltipController tooltipController;
 
-  private int x;
-  private int y;
-  private int width = CraftingDialogLayoutState.DEFAULT_WIDTH;
-  private int height = CraftingDialogLayoutState.DEFAULT_HEIGHT;
-  private boolean visible = true;
-
   CraftingDialogOverlay(
       String targetTitle,
       String craftingTitle,
       CraftingDialogController controller,
       String dialogId) {
+    super(CraftingDialogLayoutState.DEFAULT_WIDTH, CraftingDialogLayoutState.DEFAULT_HEIGHT);
     this.targetTitle = (targetTitle == null || targetTitle.isBlank()) ? "Inventory" : targetTitle;
     this.craftingTitle =
         (craftingTitle == null || craftingTitle.isBlank()) ? "Crafting" : craftingTitle;
@@ -99,10 +94,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
     width = measurement.dialogWidth();
     height = measurement.dialogHeight();
 
-    if (x == 0 && y == 0) {
-      x = (Game.windowWidth() - width) / 2;
-      y = (Game.windowHeight() - height) / 2;
-    }
+    centerInIfUnpositioned(Game.windowWidth(), Game.windowHeight());
 
     int contentY;
     List<CraftingDialogLayout.SlotBounds> craftingBounds;
@@ -158,7 +150,7 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
         dragDropController.drawDragPreview(g);
       } else {
         tooltipController.drawHoverTooltip(
-            g, dialogBounds(), leftGrid, craftingBounds, resultItems, resultBounds);
+            g, bounds(), leftGrid, craftingBounds, resultItems, resultBounds);
       }
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
@@ -226,60 +218,6 @@ final class CraftingDialogOverlay implements UiOverlay, InventoryComponentProvid
         craftingBounds,
         stage.mouseX(),
         stage.mouseY());
-  }
-
-  private Rectangle dialogBounds() {
-    return new Rectangle(x, y, width, height);
-  }
-
-  @Override
-  public int x() {
-    return x;
-  }
-
-  @Override
-  public void x(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public int y() {
-    return y;
-  }
-
-  @Override
-  public void y(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int width() {
-    return width;
-  }
-
-  @Override
-  public void width(int width) {
-    this.width = width;
-  }
-
-  @Override
-  public int height() {
-    return height;
-  }
-
-  @Override
-  public void height(int height) {
-    this.height = height;
-  }
-
-  @Override
-  public boolean visible() {
-    return visible;
-  }
-
-  @Override
-  public void visible(boolean visible) {
-    this.visible = visible;
   }
 
   @Override

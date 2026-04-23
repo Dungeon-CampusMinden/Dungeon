@@ -15,7 +15,7 @@ import core.Game;
 import core.input.MouseButtons;
 import core.network.messages.c2s.InputMessage;
 import core.ui.StageHandle;
-import core.ui.overlay.UiOverlay;
+import core.ui.overlay.AbstractUiOverlay;
 import core.utils.InputManager;
 import core.utils.Vector2;
 import java.awt.Graphics2D;
@@ -43,7 +43,7 @@ import java.util.stream.Stream;
  *   <li>Visual feedback for hovered or targeted slots.
  * </ul>
  */
-final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvider {
+final class InventoryDialogOverlay extends AbstractUiOverlay implements InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 560;
   private static final int DEFAULT_HEIGHT = 430;
@@ -60,17 +60,12 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
   private final InventoryDragController<InventorySide> dragController =
       InventoryDragController.withDistanceThreshold(DRAG_THRESHOLD_PX);
 
-  private int x;
-  private int y;
-  private int width = DEFAULT_WIDTH;
-  private int height = DEFAULT_HEIGHT;
-  private boolean visible = true;
-
   private Integer pressedUseSlotIndex = null;
   private boolean rightButtonDownLastFrame = false;
 
   InventoryDialogOverlay(
       String title, Entity owner, InventoryComponent inventory, boolean allowUseItems) {
+    super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.title = (title == null || title.isBlank()) ? "Inventory" : title;
     this.owner = owner;
     this.inventory = inventory;
@@ -98,10 +93,7 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
     height =
         Math.max(DEFAULT_HEIGHT, 96 + gridHeight + 2 * PANEL_PADDING + DialogFrameRenderer.PADDING);
 
-    if (x == 0 && y == 0) {
-      x = (Game.windowWidth() - width) / 2;
-      y = (Game.windowHeight() - height) / 2;
-    }
+    centerInIfUnpositioned(Game.windowWidth(), Game.windowHeight());
 
     int contentY;
     int startX;
@@ -146,7 +138,7 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
   private void drawHoverTooltip(Graphics2D g, GridHitTest.Grid<InventorySide> grid) {
     InventoryTooltip.drawHoveredSlotTooltip(
         g,
-        dialogBounds(),
+        bounds(),
         (mouseX, mouseY) -> findSlotSelection(grid, mouseX, mouseY),
         this::itemOf);
   }
@@ -163,30 +155,30 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
       return;
     }
 
+    handleLeftDragInput(grid);
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
-
-    handleLeftDragInput(grid, mouseX, mouseY);
     handleRightUseInput(grid, mouseX, mouseY);
   }
 
-  private void handleLeftDragInput(GridHitTest.Grid<InventorySide> grid, int mouseX, int mouseY) {
-    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
-    Optional<InventoryDragController.Release<InventorySide>> release =
-        dragController.update(
-            leftButtonDown,
-            mouseX,
-            mouseY,
+  private void handleLeftDragInput(GridHitTest.Grid<InventorySide> grid) {
+    Optional<InventoryDragController.MouseUpdate<InventorySide>> update =
+        dragController.updateFromPrimaryMouse(
             (slotMouseX, slotMouseY) -> findSlotSelection(grid, slotMouseX, slotMouseY),
             this::itemOf);
 
-    if (release.isEmpty()) {
+    if (update.isEmpty() || update.get().release().isEmpty()) {
       return;
     }
 
-    InventoryDragController.Release<InventorySide> released = release.get();
+    InventoryDragController.MouseUpdate<InventorySide> mouseUpdate = update.get();
+    InventoryDragController.Release<InventorySide> released = mouseUpdate.release().get();
     if (released.completedDrag() != null) {
-      handleDraggedRelease(released.completedDrag(), released.releasedSlot(), mouseX, mouseY);
+      handleDraggedRelease(
+          released.completedDrag(),
+          released.releasedSlot(),
+          mouseUpdate.mouseX(),
+          mouseUpdate.mouseY());
     }
   }
 
@@ -231,7 +223,7 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
       return;
     }
 
-    if (!dialogBounds().contains(mouseX, mouseY)) {
+    if (!bounds().contains(mouseX, mouseY)) {
       dropDraggedItem(sourceSlot);
     }
   }
@@ -284,10 +276,6 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
     return inventory.get(slot.slotIndex()).orElse(null);
   }
 
-  private Rectangle dialogBounds() {
-    return new Rectangle(x, y, width, height);
-  }
-
   private static int encodePlayerInventorySlot(int slot) {
     return (-slot) - 1;
   }
@@ -296,56 +284,6 @@ final class InventoryDialogOverlay implements UiOverlay, InventoryComponentProvi
     pressedUseSlotIndex = null;
     rightButtonDownLastFrame = false;
     dragController.reset();
-  }
-
-  @Override
-  public int x() {
-    return x;
-  }
-
-  @Override
-  public void x(int x) {
-    this.x = x;
-  }
-
-  @Override
-  public int y() {
-    return y;
-  }
-
-  @Override
-  public void y(int y) {
-    this.y = y;
-  }
-
-  @Override
-  public int width() {
-    return width;
-  }
-
-  @Override
-  public void width(int width) {
-    this.width = width;
-  }
-
-  @Override
-  public int height() {
-    return height;
-  }
-
-  @Override
-  public void height(int height) {
-    this.height = height;
-  }
-
-  @Override
-  public boolean visible() {
-    return visible;
-  }
-
-  @Override
-  public void visible(boolean visible) {
-    this.visible = visible;
   }
 
   @Override
