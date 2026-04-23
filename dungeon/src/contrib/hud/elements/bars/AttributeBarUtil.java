@@ -42,7 +42,7 @@ public final class AttributeBarUtil {
    *
    * @param entity the entity to attach the bar to
    * @param barDisplayable the component providing bar data
-   * @param barMapping map from component class to progress bar handle
+   * @param barMapping map from the component class to a progress bar handle
    * @param verticalOffset vertical offset below the entity
    */
   public static void addBarToEntity(
@@ -65,13 +65,12 @@ public final class AttributeBarUtil {
         .put(DialogContextKeys.OWNER_ENTITY, barEntity.id())
         .build();
 
-    UIComponent uiComp = new UIComponent(context, false, false, new int[] {});
+    UIComponent uiComp = new UIComponent(context, false, false);
     barEntity.add(uiComp);
     Game.add(barEntity);
 
     uiComp.dialog()
-      .flatMap(handle -> handle.unwrap(AttributeBarHandleProvider.class))
-      .map(AttributeBarHandleProvider::attributeBarHandle)
+      .flatMap(handle -> handle.unwrap(AttributeBarHandle.class))
       .ifPresentOrElse(
         handle -> {
           barMapping.put(barDisplayable.getClass(), handle);
@@ -122,7 +121,7 @@ public final class AttributeBarUtil {
    *
    * @param entity the entity
    * @param barDisplayable the component providing bar data
-   * @param barMapping map from component class to progress bar handle
+   * @param barMapping map from the component class to a progress bar handle
    * @param verticalOffset vertical offset below the entity
    */
   public static void updateBar(

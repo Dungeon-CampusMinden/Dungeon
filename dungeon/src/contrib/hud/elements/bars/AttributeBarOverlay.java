@@ -13,9 +13,7 @@ import java.awt.Graphics2D;
  * <p>It supports customizable styling based on the attribute type (health bar, mana bar, stamina bar),
  * positioning, sizing, and visibility. The fill color changes based on the style name.
  */
-public final class AttributeBarOverlay
-  extends BaseUiOverlay
-  implements AttributeBarHandle, AttributeBarHandleProvider {
+public final class AttributeBarOverlay extends BaseUiOverlay implements AttributeBarHandle {
 
   private static final int DEFAULT_WIDTH = 50;
   private static final int DEFAULT_HEIGHT = 10;
@@ -77,7 +75,7 @@ public final class AttributeBarOverlay
   }
 
   private static float clamp01(float v) {
-    return Math.max(0f, Math.min(1f, v));
+    return Math.clamp(v, 0f, 1f);
   }
 
   @Override
@@ -100,10 +98,5 @@ public final class AttributeBarOverlay
   @Override
   public void setValue(float value) {
     this.value = clamp01(value);
-  }
-
-  @Override
-  public AttributeBarHandle attributeBarHandle() {
-    return this;
   }
 }
