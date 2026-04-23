@@ -3,8 +3,6 @@ package core.render.effects;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class for rendering image effects and visual enhancements.
@@ -26,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class ImageEffects {
 
-  private static final Map<TintKey, BufferedImage> TINT_CACHE = new ConcurrentHashMap<>();
+  private static final ImageEffectCache<BufferedImage> TINT_CACHE = new ImageEffectCache<>(32);
 
   private ImageEffects() {}
 
@@ -134,14 +132,9 @@ public final class ImageEffects {
   }
 
   private static BufferedImage tintedSilhouette(final BufferedImage source, final Color color) {
-    final TintKey key =
-      new TintKey(
-        System.identityHashCode(source),
-        source.getWidth(),
-        source.getHeight(),
-        color.getRGB());
+    final TintKey key = new TintKey(color.getRGB());
 
-    return TINT_CACHE.computeIfAbsent(key, ignored -> buildTintedSilhouette(source, color));
+    return TINT_CACHE.getOrCompute(source, key, image -> buildTintedSilhouette(image, color));
   }
 
   private static BufferedImage buildTintedSilhouette(
@@ -172,5 +165,5 @@ public final class ImageEffects {
     return tinted;
   }
 
-  private record TintKey(int identityHash, int width, int height, int rgb) {}
+  private record TintKey(int rgb) {}
 }

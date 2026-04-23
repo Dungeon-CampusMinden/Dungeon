@@ -1,9 +1,8 @@
 package core.game.render.sprite.effects;
 
 import core.game.render.effects.ColorGradeUtils;
+import core.render.effects.ImageEffectCache;
 import java.awt.image.BufferedImage;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a sprite effect that applies a color grading transformation to the input image.
@@ -18,15 +17,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class SpriteColorGradeEffect implements ToggleableSpriteEffect {
 
-  private static final Map<CacheKey, BufferedImage> CACHE = new ConcurrentHashMap<>();
+  private static final ImageEffectCache<BufferedImage> CACHE = new ImageEffectCache<>(16);
 
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
   private float valueMultiplier = 1.0f;
   private boolean enabled = true;
-
-  /** Creates a neutral color-grade effect that leaves the sprite unchanged. */
-  public SpriteColorGradeEffect() {}
 
   /**
    * Creates a color-grade effect with the given parameters.
@@ -63,43 +59,21 @@ public final class SpriteColorGradeEffect implements ToggleableSpriteEffect {
   }
 
   /**
-   * Returns the saturation multiplier.
-   *
-   * @return saturation multiplier
-   */
-  public float saturationMultiplier() {
-    return saturationMultiplier;
-  }
-
-  /**
    * Sets the saturation multiplier.
    *
    * @param saturationMultiplier multiplier for saturation; negative values are clamped to 0
-   * @return this effect for chaining
    */
-  public SpriteColorGradeEffect saturationMultiplier(float saturationMultiplier) {
+  public void saturationMultiplier(float saturationMultiplier) {
     this.saturationMultiplier = ColorGradeUtils.clampMultiplier(saturationMultiplier);
-    return this;
-  }
-
-  /**
-   * Returns the value/brightness multiplier.
-   *
-   * @return value multiplier
-   */
-  public float valueMultiplier() {
-    return valueMultiplier;
   }
 
   /**
    * Sets the value/brightness multiplier.
    *
    * @param valueMultiplier multiplier for value/brightness; negative values are clamped to 0
-   * @return this effect for chaining
    */
-  public SpriteColorGradeEffect valueMultiplier(float valueMultiplier) {
+  public void valueMultiplier(float valueMultiplier) {
     this.valueMultiplier = ColorGradeUtils.clampMultiplier(valueMultiplier);
-    return this;
   }
 
   /**
@@ -126,14 +100,11 @@ public final class SpriteColorGradeEffect implements ToggleableSpriteEffect {
 
     CacheKey key =
       new CacheKey(
-        System.identityHashCode(input),
-        input.getWidth(),
-        input.getHeight(),
         Float.floatToIntBits(hue),
         Float.floatToIntBits(saturationMultiplier),
         Float.floatToIntBits(valueMultiplier));
 
-    return CACHE.computeIfAbsent(key, ignored -> grade(input));
+    return CACHE.getOrCompute(input, key, this::grade);
   }
 
   private BufferedImage grade(BufferedImage source) {
@@ -159,9 +130,6 @@ public final class SpriteColorGradeEffect implements ToggleableSpriteEffect {
   }
 
   private record CacheKey(
-    int identityHash,
-    int width,
-    int height,
     int hueBits,
     int saturationMultiplierBits,
     int valueMultiplierBits) {}

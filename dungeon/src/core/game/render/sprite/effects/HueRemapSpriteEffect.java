@@ -1,9 +1,8 @@
 package core.game.render.sprite.effects;
 
+import core.render.effects.ImageEffectCache;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A sprite effect that remaps hue values in an image.
@@ -18,11 +17,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class HueRemapSpriteEffect implements ToggleableSpriteEffect {
 
-  private static final Map<CacheKey, BufferedImage> CACHE = new ConcurrentHashMap<>();
+  private static final ImageEffectCache<BufferedImage> CACHE = new ImageEffectCache<>(16);
 
-  private float startingHue;
-  private float targetHue;
-  private float tolerance;
+  private final float startingHue;
+  private final float targetHue;
+  private final float tolerance;
   private boolean enabled = true;
 
   /**
@@ -36,76 +35,6 @@ public final class HueRemapSpriteEffect implements ToggleableSpriteEffect {
     this.startingHue = normalizeHue(startingHue);
     this.targetHue = normalizeHue(targetHue);
     this.tolerance = clamp01(tolerance);
-  }
-
-  /**
-   * Creates a new HueRemapSpriteEffect with a default tolerance of 0.05.
-   *
-   * @param startingHue the hue value to match (0.0 to 1.0)
-   * @param targetHue the hue value to remap to (0.0 to 1.0)
-   */
-  public HueRemapSpriteEffect(float startingHue, float targetHue) {
-    this(startingHue, targetHue, 0.05f);
-  }
-
-  /**
-   * Gets the starting hue value to match.
-   *
-   * @return the starting hue (0.0 to 1.0)
-   */
-  public float startingHue() {
-    return startingHue;
-  }
-
-  /**
-   * Sets the starting hue value to match.
-   *
-   * @param startingHue the hue value to match (0.0 to 1.0)
-   * @return this effect for method chaining
-   */
-  public HueRemapSpriteEffect startingHue(float startingHue) {
-    this.startingHue = normalizeHue(startingHue);
-    return this;
-  }
-
-  /**
-   * Gets the target hue value to remap to.
-   *
-   * @return the target hue (0.0 to 1.0)
-   */
-  public float targetHue() {
-    return targetHue;
-  }
-
-  /**
-   * Sets the target hue value to remap to.
-   *
-   * @param targetHue the hue value to remap to (0.0 to 1.0)
-   * @return this effect for method chaining
-   */
-  public HueRemapSpriteEffect targetHue(float targetHue) {
-    this.targetHue = normalizeHue(targetHue);
-    return this;
-  }
-
-  /**
-   * Gets the tolerance value for hue matching.
-   *
-   * @return the tolerance (0.0 to 1.0)
-   */
-  public float tolerance() {
-    return tolerance;
-  }
-
-  /**
-   * Sets the tolerance value for hue matching.
-   *
-   * @param tolerance the acceptable distance from the starting hue (0.0 to 1.0)
-   * @return this effect for method chaining
-   */
-  public HueRemapSpriteEffect tolerance(float tolerance) {
-    this.tolerance = clamp01(tolerance);
-    return this;
   }
 
   /**
@@ -132,14 +61,11 @@ public final class HueRemapSpriteEffect implements ToggleableSpriteEffect {
 
     CacheKey key =
       new CacheKey(
-        System.identityHashCode(input),
-        input.getWidth(),
-        input.getHeight(),
         Float.floatToIntBits(startingHue),
         Float.floatToIntBits(targetHue),
         Float.floatToIntBits(tolerance));
 
-    return CACHE.computeIfAbsent(key, ignored -> remap(input));
+    return CACHE.getOrCompute(input, key, this::remap);
   }
 
   private BufferedImage remap(BufferedImage source) {
@@ -188,9 +114,6 @@ public final class HueRemapSpriteEffect implements ToggleableSpriteEffect {
   }
 
   private record CacheKey(
-    int identityHash,
-    int width,
-    int height,
     int startingHueBits,
     int targetHueBits,
     int toleranceBits) {}

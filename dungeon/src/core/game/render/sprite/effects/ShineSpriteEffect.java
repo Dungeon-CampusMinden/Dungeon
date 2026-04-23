@@ -1,9 +1,8 @@
 package core.game.render.sprite.effects;
 
+import core.render.effects.ImageEffectCache;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A sprite effect that renders an animated shine overlay on sprites.
@@ -23,7 +22,7 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
   private static final double TWO_PI = Math.PI * 2.0;
   private static final int SMALL_SPRITE_MAX_DIM = 48;
 
-  private static final Map<MaskCacheKey, float[]> ALPHA_MASK_CACHE = new ConcurrentHashMap<>();
+  private static final ImageEffectCache<float[]> ALPHA_MASK_CACHE = new ImageEffectCache<>(16);
 
   private int padding = 20;
   private int sliceCount = 4;
@@ -37,22 +36,6 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
    * Creates a shine effect with default parameters.
    */
   public ShineSpriteEffect() {}
-
-  /**
-   * Creates a shine effect with explicit parameters.
-   *
-   * @param sliceCount number of light slices
-   * @param gapSize gap size between slices in {@code [0, 1]}
-   * @param rotationSpeed rotations per second
-   * @param shineColor color of the shine overlay
-   */
-  public ShineSpriteEffect(
-    int sliceCount, float gapSize, float rotationSpeed, Color shineColor) {
-    sliceCount(sliceCount);
-    gapSize(gapSize);
-    rotationSpeed(rotationSpeed);
-    shineColor(shineColor);
-  }
 
   /**
    * Gets the padding around the sprite for the shine effect.
@@ -75,15 +58,6 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
   }
 
   /**
-   * Gets the number of shine slices for large sprites.
-   *
-   * @return the slice count
-   */
-  public int sliceCount() {
-    return sliceCount;
-  }
-
-  /**
    * Sets the number of shine slices for large sprites.
    *
    * @param sliceCount the number of slices (minimum 1)
@@ -92,15 +66,6 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
   public ShineSpriteEffect sliceCount(int sliceCount) {
     this.sliceCount = Math.max(1, sliceCount);
     return this;
-  }
-
-  /**
-   * Gets the gap size between shine slices.
-   *
-   * @return the gap size in the range [0, 1]
-   */
-  public float gapSize() {
-    return gapSize;
   }
 
   /**
@@ -115,15 +80,6 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
   }
 
   /**
-   * Gets the rotation speed of the shine effect.
-   *
-   * @return the rotation speed in rotations per second
-   */
-  public float rotationSpeed() {
-    return rotationSpeed;
-  }
-
-  /**
    * Sets the rotation speed of the shine effect.
    *
    * @param rotationSpeed the rotation speed in rotations per second
@@ -132,15 +88,6 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
   public ShineSpriteEffect rotationSpeed(float rotationSpeed) {
     this.rotationSpeed = rotationSpeed;
     return this;
-  }
-
-  /**
-   * Gets the color of the shine overlay.
-   *
-   * @return the shine color
-   */
-  public Color shineColor() {
-    return shineColor;
   }
 
   /**
@@ -245,7 +192,7 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
       Math.max(1.0f, Math.abs(cx * dirX) + Math.abs(cy * dirY));
 
     // Very wide and explicit band for tiny sprites.
-    float bandWidth = clamp(0.42f - gapSize * 0.18f, 0.22f, 0.42f);
+    float bandWidth = clamp(0.42f - gapSize * 0.18f);
     float bandHalfWidth = bandWidth * 0.5f;
 
     float phase = (float) normalizePhase(nowSeconds * rotationSpeed);
@@ -375,12 +322,10 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
   }
 
   private static float[] expandedAlphaMask(BufferedImage source, int padding) {
-    MaskCacheKey key =
-      new MaskCacheKey(
-        System.identityHashCode(source), source.getWidth(), source.getHeight(), padding);
+    MaskCacheKey key = new MaskCacheKey(padding);
 
-    return ALPHA_MASK_CACHE.computeIfAbsent(
-      key, ignored -> buildExpandedAlphaMask(source, padding));
+    return ALPHA_MASK_CACHE.getOrCompute(
+      source, key, image -> buildExpandedAlphaMask(image, padding));
   }
 
   private static float[] buildExpandedAlphaMask(BufferedImage source, int padding) {
@@ -482,9 +427,9 @@ public final class ShineSpriteEffect implements ToggleableSpriteEffect {
     return Math.clamp(value, 0.0f, 1.0f);
   }
 
-  private static float clamp(float value, float min, float max) {
-    return Math.max(min, Math.min(max, value));
+  private static float clamp(float value) {
+    return Math.clamp(value, (float) 0.22, (float) 0.42);
   }
 
-  private record MaskCacheKey(int identityHash, int width, int height, int padding) {}
+  private record MaskCacheKey(int padding) {}
 }
