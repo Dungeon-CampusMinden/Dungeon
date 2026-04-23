@@ -203,8 +203,8 @@ public final class DebugRenderEffectsSystem extends System {
     if (currentRegion == null) {
       Rectangle restoreRegion =
         rememberedRegionalSceneColorGradeRegion != null
-          ? copy(rememberedRegionalSceneColorGradeRegion)
-          : copy(DEFAULT_STARTER_SCENE_COLOR_GRADE_REGION);
+          ? Rectangle.copyOf(rememberedRegionalSceneColorGradeRegion)
+          : Rectangle.copyOf(DEFAULT_STARTER_SCENE_COLOR_GRADE_REGION);
 
       float restoreTransition =
         rememberedRegionalSceneColorGradeTransitionSize > 0f
@@ -218,7 +218,7 @@ public final class DebugRenderEffectsSystem extends System {
       return;
     }
 
-    rememberedRegionalSceneColorGradeRegion = copy(currentRegion);
+    rememberedRegionalSceneColorGradeRegion = Rectangle.copyOf(currentRegion);
     rememberedRegionalSceneColorGradeTransitionSize = effect.transitionSize();
 
     effect.region(null);
@@ -257,8 +257,8 @@ public final class DebugRenderEffectsSystem extends System {
     if (currentRegion == null) {
       Rectangle restoreRegion =
         rememberedRegionalLevelColorGradeRegion != null
-          ? copy(rememberedRegionalLevelColorGradeRegion)
-          : copy(DEFAULT_STARTER_LEVEL_COLOR_GRADE_REGION);
+          ? Rectangle.copyOf(rememberedRegionalLevelColorGradeRegion)
+          : Rectangle.copyOf(DEFAULT_STARTER_LEVEL_COLOR_GRADE_REGION);
 
       float restoreTransition =
         rememberedRegionalLevelColorGradeTransitionSize > 0f
@@ -272,7 +272,7 @@ public final class DebugRenderEffectsSystem extends System {
       return;
     }
 
-    rememberedRegionalLevelColorGradeRegion = copy(currentRegion);
+    rememberedRegionalLevelColorGradeRegion = Rectangle.copyOf(currentRegion);
     rememberedRegionalLevelColorGradeTransitionSize = effect.transitionSize();
 
     effect.region(null);
@@ -311,8 +311,8 @@ public final class DebugRenderEffectsSystem extends System {
     if (currentRegion == null) {
       Rectangle restoreRegion =
         rememberedRegionalDepthColorGradeRegion != null
-          ? copy(rememberedRegionalDepthColorGradeRegion)
-          : copy(DEFAULT_STARTER_DEPTH_COLOR_GRADE_REGION);
+          ? Rectangle.copyOf(rememberedRegionalDepthColorGradeRegion)
+          : Rectangle.copyOf(DEFAULT_STARTER_DEPTH_COLOR_GRADE_REGION);
 
       float restoreTransition =
         rememberedRegionalDepthColorGradeTransitionSize > 0f
@@ -326,7 +326,7 @@ public final class DebugRenderEffectsSystem extends System {
       return;
     }
 
-    rememberedRegionalDepthColorGradeRegion = copy(currentRegion);
+    rememberedRegionalDepthColorGradeRegion = Rectangle.copyOf(currentRegion);
     rememberedRegionalDepthColorGradeTransitionSize = effect.transitionSize();
 
     effect.region(null);
@@ -398,10 +398,6 @@ public final class DebugRenderEffectsSystem extends System {
 
   private static void syncPassthroughEnabledState(PassthroughDebugEffect effect) {
     effect.enabled(effect.debugPMA() || effect.debugWorldPos());
-  }
-
-  private static Rectangle copy(Rectangle rectangle) {
-    return new Rectangle(rectangle.x(), rectangle.y(), rectangle.width(), rectangle.height());
   }
 
   @Override

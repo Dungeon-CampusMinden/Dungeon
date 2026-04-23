@@ -11,7 +11,30 @@ package core.utils;
 public record Rectangle(float width, float height, float x, float y) {
 
   /**
-   * Creates a Rectangle with specified size and offset.
+   * Creates a Rectangle from bounds in position-first order.
+   *
+   * @param x x position of the rectangle
+   * @param y y position of the rectangle
+   * @param width width of the rectangle
+   * @param height height of the rectangle
+   * @return a new Rectangle
+   */
+  public static Rectangle ofBounds(float x, float y, float width, float height) {
+    return new Rectangle(width, height, x, y);
+  }
+
+  /**
+   * Creates a Rectangle with the same size and offset as another Rectangle.
+   *
+   * @param rectangle the rectangle to copy
+   * @return a new Rectangle with the same values
+   */
+  public static Rectangle copyOf(Rectangle rectangle) {
+    return ofBounds(rectangle.x(), rectangle.y(), rectangle.width(), rectangle.height());
+  }
+
+  /**
+   * Creates a Rectangle with a specified size and offset.
    *
    * @param size size of the rectangle
    * @param offset offset position of the rectangle
