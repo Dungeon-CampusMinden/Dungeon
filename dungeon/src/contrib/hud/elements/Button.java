@@ -82,6 +82,15 @@ public class Button {
     this.leftButtonDownLastFrame = false;
   }
 
+  /**
+   * Returns whether this button is currently pressed.
+   *
+   * @return true if the button was pressed and has not been released yet
+   */
+  public boolean isPressed() {
+    return this.pressed;
+  }
+
   protected boolean contains(int mouseX, int mouseY) {
     return mouseX >= this.x
       && mouseX <= this.x + this.width

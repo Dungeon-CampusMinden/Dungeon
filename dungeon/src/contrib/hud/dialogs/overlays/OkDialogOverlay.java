@@ -1,6 +1,7 @@
 package contrib.hud.dialogs.overlays;
 
 import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.dialogs.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.renderers.DialogFrameRenderer;
 import core.Game;
@@ -9,7 +10,6 @@ import core.ui.StageHandle;
 import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 
 /**
  * A dialog overlay with a single "OK" button.
@@ -46,10 +46,7 @@ public final class OkDialogOverlay extends BaseUiOverlay {
 
   private final String title;
   private final String text;
-  private final String dialogId;
-
-  private boolean okPressed = false;
-  private boolean leftButtonDownLastFrame = false;
+  private final DialogButtonInputHandler buttonInput = new DialogButtonInputHandler(1);
 
   /**
    * Creates an OK dialog overlay.
@@ -62,7 +59,10 @@ public final class OkDialogOverlay extends BaseUiOverlay {
     super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.title = title;
     this.text = text;
-    this.dialogId = dialogId;
+    this.buttonInput.onClick(
+      0,
+      () -> DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CONFIRM)
+        .accept(null));
   }
 
   @Override
@@ -71,6 +71,8 @@ public final class OkDialogOverlay extends BaseUiOverlay {
       return;
     }
 
+    buttonInput.updateBounds(DialogFrameRenderer.centeredButtonRow(
+      x, y, width, height, 1, BUTTON_GAP));
     handleInput();
 
     DialogFrameRenderer.RenderState state =
@@ -83,8 +85,7 @@ public final class OkDialogOverlay extends BaseUiOverlay {
         g, text, x + DialogFrameRenderer.PADDING, textY,
         width - 2 * DialogFrameRenderer.PADDING);
 
-      Rectangle ok = okBounds();
-      DialogFrameRenderer.drawButton(g, ok, "OK", okPressed);
+      DialogFrameRenderer.drawButton(g, buttonInput.bounds(0), "OK", buttonInput.isPressed(0));
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
     }
@@ -93,35 +94,14 @@ public final class OkDialogOverlay extends BaseUiOverlay {
   private void handleInput() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
-      okPressed = false;
-      leftButtonDownLastFrame = false;
+      buttonInput.resetInteractionState();
       return;
     }
 
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
-    Rectangle ok = okBounds();
     boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (leftButtonDown && !leftButtonDownLastFrame) {
-      okPressed = ok.contains(mouseX, mouseY);
-    }
-
-    if (!leftButtonDown && leftButtonDownLastFrame) {
-      boolean releasedInside = okPressed && ok.contains(mouseX, mouseY);
-      okPressed = false;
-
-      if (releasedInside) {
-        DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CONFIRM)
-          .accept(null);
-      }
-    }
-
-    leftButtonDownLastFrame = leftButtonDown;
-  }
-
-  private Rectangle okBounds() {
-    return DialogFrameRenderer.centeredButtonRow(
-        x, y, width, height, 1, BUTTON_GAP).getFirst();
+    buttonInput.update(mouseX, mouseY, leftButtonDown);
   }
 }

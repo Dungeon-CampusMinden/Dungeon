@@ -1,6 +1,7 @@
 package contrib.hud.dialogs.overlays;
 
 import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.dialogs.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.renderers.DialogFrameRenderer;
 import core.Game;
@@ -63,9 +64,7 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
   private final String dialogId;
 
   private final StringBuilder inputText;
-
-  private int pressedButtonIndex = -1;
-  private boolean leftButtonDownLastFrame = false;
+  private final DialogButtonInputHandler buttonInput = new DialogButtonInputHandler(2);
 
   /**
    * Creates a free input dialog overlay.
@@ -94,6 +93,8 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
     this.cancelLabel = cancelLabel;
     this.dialogId = dialogId;
     this.inputText = new StringBuilder(prefill == null ? "" : prefill);
+    this.buttonInput.onClick(0, this::onSubmit);
+    this.buttonInput.onClick(1, this::onCancel);
   }
 
   @Override
@@ -102,6 +103,8 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
       return;
     }
 
+    List<Rectangle> buttons = buttonBounds();
+    buttonInput.updateBounds(buttons);
     handleInput();
 
     DialogFrameRenderer.RenderState state =
@@ -120,11 +123,10 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
 
       drawInputField(g, afterQuestionY + 14);
 
-      List<Rectangle> buttons = buttonBounds();
       DialogFrameRenderer.drawButton(
-        g, buttons.get(0), confirmLabel, pressedButtonIndex == 0);
+        g, buttons.get(0), confirmLabel, buttonInput.isPressed(0));
       DialogFrameRenderer.drawButton(
-        g, buttons.get(1), cancelLabel, pressedButtonIndex == 1);
+        g, buttons.get(1), cancelLabel, buttonInput.isPressed(1));
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
     }
@@ -158,8 +160,7 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
   private void handleInput() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
-      pressedButtonIndex = -1;
-      leftButtonDownLastFrame = false;
+      buttonInput.resetInteractionState();
       return;
     }
 
@@ -211,37 +212,9 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
     // mouse buttons
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
-    List<Rectangle> buttons = buttonBounds();
     boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (leftButtonDown && !leftButtonDownLastFrame) {
-      pressedButtonIndex = buttonIndexAt(mouseX, mouseY, buttons);
-    }
-
-    if (!leftButtonDown && leftButtonDownLastFrame) {
-      int releasedIndex = buttonIndexAt(mouseX, mouseY, buttons);
-      int previouslyPressed = pressedButtonIndex;
-      pressedButtonIndex = -1;
-
-      if (previouslyPressed >= 0 && previouslyPressed == releasedIndex) {
-        if (releasedIndex == 0) {
-          onSubmit();
-        } else if (releasedIndex == 1) {
-          onCancel();
-        }
-      }
-    }
-
-    leftButtonDownLastFrame = leftButtonDown;
-  }
-
-  private int buttonIndexAt(int mouseX, int mouseY, List<Rectangle> buttons) {
-    for (int i = 0; i < buttons.size(); i++) {
-      if (buttons.get(i).contains(mouseX, mouseY)) {
-        return i;
-      }
-    }
-    return -1;
+    buttonInput.update(mouseX, mouseY, leftButtonDown);
   }
 
   private void onSubmit() {

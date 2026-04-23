@@ -1,8 +1,8 @@
 package contrib.hud.dialogs.overlays;
 
 import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.dialogs.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.elements.Button;
 import contrib.hud.renderers.DialogFrameRenderer;
 import core.Game;
 import core.input.Keys;
@@ -43,7 +43,7 @@ public final class TextDialogOverlay extends BaseUiOverlay {
   private final String cancelLabel;
   private final String[] additionalButtons;
   private final String dialogId;
-  private final List<Button> actionButtons = new ArrayList<>();
+  private final DialogButtonInputHandler buttonInput;
 
   /**
    * Creates a text dialog overlay.
@@ -69,17 +69,16 @@ public final class TextDialogOverlay extends BaseUiOverlay {
     this.cancelLabel = cancelLabel;
     this.additionalButtons = additionalButtons != null ? additionalButtons : new String[] {};
     this.dialogId = dialogId;
+    this.buttonInput = new DialogButtonInputHandler(buttonLabels().size());
 
     initButtons();
   }
 
   private void initButtons() {
-    actionButtons.clear();
-
-    for (String label : buttonLabels()) {
-      Button button = new Button(0, 0, 1, 1);
-      button.onClick(ignored -> triggerCallback(label));
-      actionButtons.add(button);
+    List<String> labels = buttonLabels();
+    for (int i = 0; i < labels.size(); i++) {
+      String label = labels.get(i);
+      buttonInput.onClick(i, () -> triggerCallback(label));
     }
   }
 
@@ -91,7 +90,7 @@ public final class TextDialogOverlay extends BaseUiOverlay {
 
     List<String> labels = buttonLabels();
     List<Rectangle> bounds = buttonBounds(labels.size());
-    syncButtonBounds(bounds);
+    buttonInput.updateBounds(bounds);
 
     handleInput();
 
@@ -108,11 +107,8 @@ public final class TextDialogOverlay extends BaseUiOverlay {
         textY,
         width - 2 * DialogFrameRenderer.PADDING);
 
-      for (int i = 0; i < labels.size() && i < actionButtons.size(); i++) {
-        Button button = actionButtons.get(i);
-        Rectangle buttonBounds = new Rectangle(button.x(), button.y(), button.width(), button.height());
-
-        DialogFrameRenderer.drawButton(g, buttonBounds, labels.get(i), false);
+      for (int i = 0; i < labels.size(); i++) {
+        DialogFrameRenderer.drawButton(g, bounds.get(i), labels.get(i), buttonInput.isPressed(i));
       }
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
@@ -122,7 +118,7 @@ public final class TextDialogOverlay extends BaseUiOverlay {
   private void handleInput() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
-      actionButtons.forEach(Button::resetInteractionState);
+      buttonInput.resetInteractionState();
       return;
     }
 
@@ -140,20 +136,7 @@ public final class TextDialogOverlay extends BaseUiOverlay {
     int mouseY = stage.mouseY();
     boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    for (Button button : actionButtons) {
-      button.update(mouseX, mouseY, leftButtonDown);
-    }
-  }
-
-  private void syncButtonBounds(List<Rectangle> bounds) {
-    for (int i = 0; i < bounds.size() && i < actionButtons.size(); i++) {
-      Rectangle rect = bounds.get(i);
-      Button button = actionButtons.get(i);
-      button.x(rect.x);
-      button.y(rect.y);
-      button.width(rect.width);
-      button.height(rect.height);
-    }
+    buttonInput.update(mouseX, mouseY, leftButtonDown);
   }
 
   private void triggerCallback(String label) {

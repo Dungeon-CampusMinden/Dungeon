@@ -1,11 +1,12 @@
 package contrib.modules.keypad.ui;
 
+import contrib.hud.dialogs.DialogButtonInputHandler;
+import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.modules.keypad.KeypadComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.input.MouseButtons;
-import contrib.hud.renderers.DialogFrameRenderer;
 import core.sound.SoundSpec;
 import core.ui.StageHandle;
 import core.ui.overlay.BaseUiOverlay;
@@ -70,13 +71,17 @@ final class KeypadDialogOverlay extends BaseUiOverlay {
     Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "Back", "0", "Submit");
 
   private final Entity keypad;
-
-  private int pressedButtonIndex = -1;
-  private boolean leftButtonDownLastFrame = false;
+  private final DialogButtonInputHandler buttonInput =
+    new DialogButtonInputHandler(BUTTON_LABELS.size());
 
   KeypadDialogOverlay(Entity keypad) {
     super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.keypad = keypad;
+
+    for (int i = 0; i < BUTTON_LABELS.size(); i++) {
+      String label = BUTTON_LABELS.get(i);
+      this.buttonInput.onClick(i, () -> onButtonPress(label));
+    }
   }
 
   @Override
@@ -85,6 +90,8 @@ final class KeypadDialogOverlay extends BaseUiOverlay {
       return;
     }
 
+    List<Rectangle> buttons = buttonBounds();
+    buttonInput.updateBounds(buttons);
     handleInput();
 
     DialogFrameRenderer.RenderState state =
@@ -93,10 +100,9 @@ final class KeypadDialogOverlay extends BaseUiOverlay {
     try {
       drawDisplay(g);
 
-      List<Rectangle> buttons = buttonBounds();
       for (int i = 0; i < BUTTON_LABELS.size(); i++) {
         DialogFrameRenderer.drawButton(
-          g, buttons.get(i), BUTTON_LABELS.get(i), pressedButtonIndex == i);
+          g, buttons.get(i), BUTTON_LABELS.get(i), buttonInput.isPressed(i));
       }
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
@@ -124,40 +130,15 @@ final class KeypadDialogOverlay extends BaseUiOverlay {
   private void handleInput() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
-      pressedButtonIndex = -1;
-      leftButtonDownLastFrame = false;
+      buttonInput.resetInteractionState();
       return;
     }
 
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
-    List<Rectangle> buttons = buttonBounds();
     boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (leftButtonDown && !leftButtonDownLastFrame) {
-      pressedButtonIndex = findButtonIndex(mouseX, mouseY, buttons);
-    }
-
-    if (!leftButtonDown && leftButtonDownLastFrame) {
-      int releasedIndex = findButtonIndex(mouseX, mouseY, buttons);
-      int previouslyPressed = pressedButtonIndex;
-      pressedButtonIndex = -1;
-
-      if (previouslyPressed >= 0 && previouslyPressed == releasedIndex) {
-        onButtonPress(BUTTON_LABELS.get(releasedIndex));
-      }
-    }
-
-    leftButtonDownLastFrame = leftButtonDown;
-  }
-
-  private int findButtonIndex(int mouseX, int mouseY, List<Rectangle> buttons) {
-    for (int i = 0; i < buttons.size(); i++) {
-      if (buttons.get(i).contains(mouseX, mouseY)) {
-        return i;
-      }
-    }
-    return -1;
+    buttonInput.update(mouseX, mouseY, leftButtonDown);
   }
 
   private void onButtonPress(String action) {

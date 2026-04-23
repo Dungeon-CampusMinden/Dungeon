@@ -1,6 +1,7 @@
 package contrib.hud.dialogs.overlays;
 
 import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.dialogs.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.renderers.DialogFrameRenderer;
 import core.Game;
@@ -10,6 +11,7 @@ import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.List;
 
 /**
  * A dialog overlay that presents a Yes/No choice to the user.
@@ -43,11 +45,7 @@ public final class YesNoDialogOverlay extends BaseUiOverlay {
 
   private final String title;
   private final String text;
-  private final String dialogId;
-
-  private boolean yesPressed = false;
-  private boolean noPressed = false;
-  private boolean leftButtonDownLastFrame = false;
+  private final DialogButtonInputHandler buttonInput = new DialogButtonInputHandler(2);
 
   /**
    * Creates a yes/no dialog overlay.
@@ -60,7 +58,14 @@ public final class YesNoDialogOverlay extends BaseUiOverlay {
     super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.title = title;
     this.text = text;
-    this.dialogId = dialogId;
+    this.buttonInput.onClick(
+      0,
+      () -> DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_NO)
+        .accept(null));
+    this.buttonInput.onClick(
+      1,
+      () -> DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_YES)
+        .accept(null));
   }
 
   @Override
@@ -69,6 +74,8 @@ public final class YesNoDialogOverlay extends BaseUiOverlay {
       return;
     }
 
+    List<Rectangle> buttons = buttonBounds();
+    buttonInput.updateBounds(buttons);
     handleInput();
 
     DialogFrameRenderer.RenderState state =
@@ -81,11 +88,8 @@ public final class YesNoDialogOverlay extends BaseUiOverlay {
         g, text, x + DialogFrameRenderer.PADDING, textY,
         width - 2 * DialogFrameRenderer.PADDING);
 
-      Rectangle no = noBounds();
-      Rectangle yes = yesBounds();
-
-      DialogFrameRenderer.drawButton(g, no, NO_LABEL, noPressed);
-      DialogFrameRenderer.drawButton(g, yes, YES_LABEL, yesPressed);
+      DialogFrameRenderer.drawButton(g, buttons.get(0), NO_LABEL, buttonInput.isPressed(0));
+      DialogFrameRenderer.drawButton(g, buttons.get(1), YES_LABEL, buttonInput.isPressed(1));
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
     }
@@ -94,52 +98,19 @@ public final class YesNoDialogOverlay extends BaseUiOverlay {
   private void handleInput() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
-      yesPressed = false;
-      noPressed = false;
-      leftButtonDownLastFrame = false;
+      buttonInput.resetInteractionState();
       return;
     }
 
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
-
-    Rectangle no = noBounds();
-    Rectangle yes = yesBounds();
     boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (leftButtonDown && !leftButtonDownLastFrame) {
-      noPressed = no.contains(mouseX, mouseY);
-      yesPressed = yes.contains(mouseX, mouseY);
-    }
-
-    if (!leftButtonDown && leftButtonDownLastFrame) {
-      boolean releasedOnNo = noPressed && no.contains(mouseX, mouseY);
-      boolean releasedOnYes = yesPressed && yes.contains(mouseX, mouseY);
-
-      noPressed = false;
-      yesPressed = false;
-
-      if (releasedOnYes) {
-        DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_YES)
-          .accept(null);
-      } else if (releasedOnNo) {
-        DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_NO)
-          .accept(null);
-      }
-    }
-
-    leftButtonDownLastFrame = leftButtonDown;
+    buttonInput.update(mouseX, mouseY, leftButtonDown);
   }
 
-  private Rectangle noBounds() {
+  private List<Rectangle> buttonBounds() {
     return DialogFrameRenderer.centeredButtonRow(
-        x, y, width, height, 2, BUTTON_GAP)
-      .getFirst();
-  }
-
-  private Rectangle yesBounds() {
-    return DialogFrameRenderer.centeredButtonRow(
-        x, y, width, height, 2, BUTTON_GAP)
-      .get(1);
+      x, y, width, height, 2, BUTTON_GAP);
   }
 }
