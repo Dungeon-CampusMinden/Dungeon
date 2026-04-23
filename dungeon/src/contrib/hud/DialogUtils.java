@@ -2,7 +2,10 @@ package contrib.hud;
 
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.*;
+import contrib.hud.showimage.ShowImageText;
+import contrib.hud.showimage.TransitionSpeed;
 import core.Entity;
+import core.Game;
 import core.utils.IVoidFunction;
 
 /**
@@ -40,5 +43,40 @@ public class DialogUtils {
     text = text.replaceAll("\\s+", " ").trim();
     UIComponent ui = DialogFactory.showOkDialog(text, title, onFinished, targetIds);
     return ui.dialogContext().ownerEntity();
+  }
+
+  /**
+   * Displays an image popup with the default transition speed and size.
+   *
+   * @param imagePath  the path to the image to display
+   * @param onFinished the function to execute when the popup is closed
+   */
+  public static void showImagePopup(String imagePath, IVoidFunction onFinished) {
+    showImagePopup(imagePath, TransitionSpeed.MEDIUM, 0.85f, null, onFinished);
+  }
+
+  /**
+   * Displays an image popup with the given configuration.
+   *
+   * @param imagePath  the path to the image to display
+   * @param speed      the transition speed for showing the image
+   * @param maxSize    the maximum size factor of the image relative to the screen
+   * @param textConfig optional text configuration rendered on top of the image
+   * @param onFinished the function to execute when the popup is closed
+   */
+  public static void showImagePopup(
+      String imagePath,
+      TransitionSpeed speed,
+      float maxSize,
+      ShowImageText textConfig,
+      IVoidFunction onFinished) {
+    Entity dialogEntity = new Entity();
+    DialogContext context =
+        DialogContextHelper.imageDialogContext(
+            imagePath, speed, maxSize, textConfig, dialogEntity.id());
+
+    Game.add(dialogEntity);
+    UIComponent ui = DialogFactory.show(context);
+    ui.onClose((_) -> onFinished.execute());
   }
 }
