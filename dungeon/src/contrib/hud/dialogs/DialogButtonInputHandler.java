@@ -58,7 +58,7 @@ public final class DialogButtonInputHandler {
   }
 
   /**
-   * Updates all managed buttons from explicit mouse state.
+   * Updates all managed buttons from the explicit mouse state.
    *
    * @param mouseX mouse x in stage coordinates
    * @param mouseY mouse y in stage coordinates
