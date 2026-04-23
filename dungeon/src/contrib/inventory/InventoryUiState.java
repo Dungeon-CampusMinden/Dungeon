@@ -1,24 +1,22 @@
-package contrib.hud.inventory;
+package contrib.inventory;
 
 import core.Entity;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Utility class for managing and tracking the state of a player's inventory dialog.
+ * Manages the UI state for player inventories, such as whether the inventory dialog
+ * for a specific player is open or closed.
  *
- * <p>This class provides methods to determine if the dialog is open, update its state,
- * and clear the stored state for a specific player.
+ * <p>This class provides static methods to interact with player inventory states, including
+ * checking, updating, and clearing the inventory open state for players.
  *
- * <p>The state is identified and stored using a mapping of player IDs to their dialog
- * open status.
- *
- * <p>This class is thread-safe.
+ * <p>The state is maintained internally in a thread-safe manner.
  */
-public final class InventoryDialogState {
+public final class InventoryUiState {
   private static final Map<Integer, Boolean> OPEN_BY_PLAYER_ID = new ConcurrentHashMap<>();
 
-  private InventoryDialogState() {}
+  private InventoryUiState() {}
 
   /**
    * Returns whether the player's inventory dialog is currently considered open.
