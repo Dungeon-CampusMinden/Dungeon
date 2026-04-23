@@ -1,6 +1,7 @@
 package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
+import contrib.hud.InventoryComponentProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryDragController;

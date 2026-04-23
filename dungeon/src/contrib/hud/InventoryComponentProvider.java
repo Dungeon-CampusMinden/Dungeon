@@ -1,4 +1,4 @@
-package contrib.hud.inventory;
+package contrib.hud;
 
 import contrib.components.InventoryComponent;
 import java.util.stream.Stream;
