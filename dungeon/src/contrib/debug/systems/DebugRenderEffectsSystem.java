@@ -67,17 +67,29 @@ public final class DebugRenderEffectsSystem extends System {
   private static final float DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE = 2.0f;
   private static final float DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE = 1.5f;
 
-  private Rectangle rememberedRegionalSceneColorGradeRegion = null;
-  private float rememberedRegionalSceneColorGradeTransitionSize =
-    DEFAULT_STARTER_SCENE_COLOR_GRADE_TRANSITION_SIZE;
+  private final DebugColorGradeSystem regionalSceneColorGrade =
+    new DebugColorGradeSystem(
+      STARTER_SCENE_COLOR_GRADE_DEMO_ID,
+      "scene",
+      DEFAULT_STARTER_SCENE_COLOR_GRADE_REGION,
+      DEFAULT_STARTER_SCENE_COLOR_GRADE_TRANSITION_SIZE,
+      this::starterSceneColorGradeDemoEffect);
 
-  private Rectangle rememberedRegionalLevelColorGradeRegion = null;
-  private float rememberedRegionalLevelColorGradeTransitionSize =
-    DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE;
+  private final DebugColorGradeSystem regionalLevelColorGrade =
+    new DebugColorGradeSystem(
+      STARTER_LEVEL_COLOR_GRADE_DEMO_ID,
+      "level",
+      DEFAULT_STARTER_LEVEL_COLOR_GRADE_REGION,
+      DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE,
+      this::starterLevelColorGradeDemoEffect);
 
-  private Rectangle rememberedRegionalDepthColorGradeRegion = null;
-  private float rememberedRegionalDepthColorGradeTransitionSize =
-    DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE;
+  private final DebugColorGradeSystem regionalDepthColorGrade =
+    new DebugColorGradeSystem(
+      STARTER_DEPTH_COLOR_GRADE_DEMO_ID,
+      "depth-layer",
+      DEFAULT_STARTER_DEPTH_COLOR_GRADE_REGION,
+      DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE,
+      this::starterDepthColorGradeDemoEffect);
 
   /**
    * Constructs a new instance of the DebugRenderEffectsSystem.
@@ -94,27 +106,27 @@ public final class DebugRenderEffectsSystem extends System {
     if (InputManager.isKeyJustPressed(
       KeyboardConfig.DEBUG_RENDER_REGIONAL_DEPTH_COLOR_GRADE.value())) {
       if (isShiftPressed()) {
-        toggleRegionalDepthColorGradeRegionMode();
+        regionalDepthColorGrade.toggleRegionMode(LOGGER);
       } else {
-        toggleRegionalDepthColorGradeEnabled();
+        regionalDepthColorGrade.toggleEnabled(LOGGER);
       }
     }
 
     if (InputManager.isKeyJustPressed(
       KeyboardConfig.DEBUG_RENDER_REGIONAL_LEVEL_COLOR_GRADE.value())) {
       if (isShiftPressed()) {
-        toggleRegionalLevelColorGradeRegionMode();
+        regionalLevelColorGrade.toggleRegionMode(LOGGER);
       } else {
-        toggleRegionalLevelColorGradeEnabled();
+        regionalLevelColorGrade.toggleEnabled(LOGGER);
       }
     }
 
     if (InputManager.isKeyJustPressed(
       KeyboardConfig.DEBUG_RENDER_REGIONAL_SCENE_COLOR_GRADE.value())) {
       if (isShiftPressed()) {
-        toggleRegionalSceneColorGradeRegionMode();
+        regionalSceneColorGrade.toggleRegionMode(LOGGER);
       } else {
-        toggleRegionalSceneColorGradeEnabled();
+        regionalSceneColorGrade.toggleEnabled(LOGGER);
       }
     }
 
@@ -171,168 +183,6 @@ public final class DebugRenderEffectsSystem extends System {
     LOGGER.info(
       "Passthrough world-position debug is now {}.",
       newState ? "enabled" : "disabled");
-  }
-
-  private void toggleRegionalSceneColorGradeEnabled() {
-    SceneColorGradeEffect effect = starterSceneColorGradeDemoEffect();
-    if (effect == null) {
-      LOGGER.warn(
-        "No starter regional scene color grade demo is registered under id '{}'.",
-        STARTER_SCENE_COLOR_GRADE_DEMO_ID);
-      return;
-    }
-
-    boolean newState = !effect.enabled();
-    effect.enabled(newState);
-
-    LOGGER.info(
-      "Starter regional scene color grade is now {}.",
-      newState ? "enabled" : "disabled");
-  }
-
-  private void toggleRegionalSceneColorGradeRegionMode() {
-    SceneColorGradeEffect effect = starterSceneColorGradeDemoEffect();
-    if (effect == null) {
-      LOGGER.warn(
-        "No starter regional scene color grade demo is registered under id '{}'.",
-        STARTER_SCENE_COLOR_GRADE_DEMO_ID);
-      return;
-    }
-
-    Rectangle currentRegion = effect.region();
-    if (currentRegion == null) {
-      Rectangle restoreRegion =
-        rememberedRegionalSceneColorGradeRegion != null
-          ? Rectangle.copyOf(rememberedRegionalSceneColorGradeRegion)
-          : Rectangle.copyOf(DEFAULT_STARTER_SCENE_COLOR_GRADE_REGION);
-
-      float restoreTransition =
-        rememberedRegionalSceneColorGradeTransitionSize > 0f
-          ? rememberedRegionalSceneColorGradeTransitionSize
-          : DEFAULT_STARTER_SCENE_COLOR_GRADE_TRANSITION_SIZE;
-
-      effect.region(restoreRegion).transitionSize(restoreTransition);
-
-      LOGGER.info(
-        "Starter scene color grade verification is now in regional mode.");
-      return;
-    }
-
-    rememberedRegionalSceneColorGradeRegion = Rectangle.copyOf(currentRegion);
-    rememberedRegionalSceneColorGradeTransitionSize = effect.transitionSize();
-
-    effect.region(null);
-
-    LOGGER.info(
-      "Starter scene color grade verification is now in global mode.");
-  }
-
-  private void toggleRegionalLevelColorGradeEnabled() {
-    LevelColorGradeEffect effect = starterLevelColorGradeDemoEffect();
-    if (effect == null) {
-      LOGGER.warn(
-        "No starter regional level color grade demo is registered under id '{}'.",
-        STARTER_LEVEL_COLOR_GRADE_DEMO_ID);
-      return;
-    }
-
-    boolean newState = !effect.enabled();
-    effect.enabled(newState);
-
-    LOGGER.info(
-      "Starter regional level color grade is now {}.",
-      newState ? "enabled" : "disabled");
-  }
-
-  private void toggleRegionalLevelColorGradeRegionMode() {
-    LevelColorGradeEffect effect = starterLevelColorGradeDemoEffect();
-    if (effect == null) {
-      LOGGER.warn(
-        "No starter regional level color grade demo is registered under id '{}'.",
-        STARTER_LEVEL_COLOR_GRADE_DEMO_ID);
-      return;
-    }
-
-    Rectangle currentRegion = effect.region();
-    if (currentRegion == null) {
-      Rectangle restoreRegion =
-        rememberedRegionalLevelColorGradeRegion != null
-          ? Rectangle.copyOf(rememberedRegionalLevelColorGradeRegion)
-          : Rectangle.copyOf(DEFAULT_STARTER_LEVEL_COLOR_GRADE_REGION);
-
-      float restoreTransition =
-        rememberedRegionalLevelColorGradeTransitionSize > 0f
-          ? rememberedRegionalLevelColorGradeTransitionSize
-          : DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE;
-
-      effect.region(restoreRegion).transitionSize(restoreTransition);
-
-      LOGGER.info(
-        "Starter level color grade verification is now in regional mode.");
-      return;
-    }
-
-    rememberedRegionalLevelColorGradeRegion = Rectangle.copyOf(currentRegion);
-    rememberedRegionalLevelColorGradeTransitionSize = effect.transitionSize();
-
-    effect.region(null);
-
-    LOGGER.info(
-      "Starter level color grade verification is now in global mode.");
-  }
-
-  private void toggleRegionalDepthColorGradeEnabled() {
-    DepthLayerColorGradeEffect effect = starterDepthColorGradeDemoEffect();
-    if (effect == null) {
-      LOGGER.warn(
-        "No starter regional depth-layer color grade demo is registered under id '{}'.",
-        STARTER_DEPTH_COLOR_GRADE_DEMO_ID);
-      return;
-    }
-
-    boolean newState = !effect.enabled();
-    effect.enabled(newState);
-
-    LOGGER.info(
-      "Starter regional depth-layer color grade is now {}.",
-      newState ? "enabled" : "disabled");
-  }
-
-  private void toggleRegionalDepthColorGradeRegionMode() {
-    DepthLayerColorGradeEffect effect = starterDepthColorGradeDemoEffect();
-    if (effect == null) {
-      LOGGER.warn(
-        "No starter regional depth-layer color grade demo is registered under id '{}'.",
-        STARTER_DEPTH_COLOR_GRADE_DEMO_ID);
-      return;
-    }
-
-    Rectangle currentRegion = effect.region();
-    if (currentRegion == null) {
-      Rectangle restoreRegion =
-        rememberedRegionalDepthColorGradeRegion != null
-          ? Rectangle.copyOf(rememberedRegionalDepthColorGradeRegion)
-          : Rectangle.copyOf(DEFAULT_STARTER_DEPTH_COLOR_GRADE_REGION);
-
-      float restoreTransition =
-        rememberedRegionalDepthColorGradeTransitionSize > 0f
-          ? rememberedRegionalDepthColorGradeTransitionSize
-          : DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE;
-
-      effect.region(restoreRegion).transitionSize(restoreTransition);
-
-      LOGGER.info(
-        "Starter depth-layer color grade verification is now in regional mode.");
-      return;
-    }
-
-    rememberedRegionalDepthColorGradeRegion = Rectangle.copyOf(currentRegion);
-    rememberedRegionalDepthColorGradeTransitionSize = effect.transitionSize();
-
-    effect.region(null);
-
-    LOGGER.info(
-      "Starter depth-layer color grade verification is now in global mode.");
   }
 
   private void toggleDemoDepthLayerEffectGroup() {
