@@ -2,8 +2,7 @@ package contrib.hud.showimage;
 
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogType;
+import contrib.hud.dialogs.DialogContextHelper;
 import core.Entity;
 import core.Game;
 import core.utils.IVoidFunction;
@@ -39,22 +38,9 @@ public final class ShowImageDialogLauncher {
 
     Entity dialogEntity = new Entity();
 
-    var builder =
-      DialogContext.builder()
-        .type(DialogType.DefaultTypes.IMAGE)
-        .put(DialogContextKeys.IMAGE, imagePath)
-        .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, speed)
-        .put(DialogContextKeys.IMAGE_MAX_SIZE, maxSize)
-        .put(DialogContextKeys.OWNER_ENTITY, dialogEntity.id());
-
-    if (textConfig != null && textConfig.text() != null && !textConfig.text().isBlank()) {
-      builder
-        .put(DialogContextKeys.IMAGE_TEXT, textConfig.text())
-        .put(DialogContextKeys.IMAGE_TEXT_SCALE, textConfig.scale())
-        .put(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, textConfig.rgba8888Color());
-    }
-
-    DialogContext context = builder.build();
+    DialogContext context =
+      DialogContextHelper.imageDialogContext(
+        imagePath, speed, maxSize, textConfig, dialogEntity.id());
     UIComponent ui = new UIComponent(context, true, true);
 
     ui.onClose((_) -> onClose.execute());

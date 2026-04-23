@@ -4,9 +4,9 @@ import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogContextHelper;
 import contrib.hud.dialogs.DialogCreationException;
 import core.Entity;
-import core.components.PlayerComponent;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 import core.utils.logging.DungeonLogger;
@@ -60,9 +60,9 @@ public final class CraftingDialogBuilder {
       entity.fetch(UIComponent.class)
         .orElseThrow(() -> new DialogCreationException("Owner entity has no UIComponent"));
 
-    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(defaultTitle(entity));
+    String title = DialogContextHelper.inventoryTitle(ctx, DialogContextKeys.TITLE, entity);
     String craftTitle =
-      ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(defaultTitle(craftEntity));
+      DialogContextHelper.inventoryTitle(ctx, DialogContextKeys.SECONDARY_TITLE, craftEntity);
 
     CraftingDialogController controller =
       new CraftingDialogController(heroInventory, craftInventory);
@@ -70,13 +70,5 @@ public final class CraftingDialogBuilder {
 
     return new OverlayHandle(
       new CraftingDialogOverlay(title, craftTitle, controller, ctx.dialogId()));
-  }
-
-  private static String defaultTitle(Entity entity) {
-    return entity
-      .fetch(PlayerComponent.class)
-      .map(PlayerComponent::playerName)
-      .filter(name -> !name.isBlank())
-      .orElseGet(() -> entity.name().isBlank() ? "Inventory" : entity.name());
   }
 }

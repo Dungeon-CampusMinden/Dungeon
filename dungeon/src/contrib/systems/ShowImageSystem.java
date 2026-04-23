@@ -3,9 +3,7 @@ package contrib.systems;
 import contrib.components.ShowImageComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogType;
-import contrib.hud.showimage.ShowImageText;
+import contrib.hud.dialogs.DialogContextHelper;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -44,23 +42,13 @@ public class ShowImageSystem extends System {
     if (overlay == null && d.sic.isUIOpen()) {
       Entity newOverlay = new Entity("show-image-overlay");
 
-      var builder =
-        DialogContext.builder()
-          .type(DialogType.DefaultTypes.IMAGE)
-          .put(DialogContextKeys.IMAGE, d.sic.imagePath())
-          .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, d.sic.transitionSpeed())
-          .put(DialogContextKeys.IMAGE_MAX_SIZE, d.sic.maxSize())
-          .put(DialogContextKeys.OWNER_ENTITY, newOverlay.id());
-
-      ShowImageText textConfig = d.sic.textConfig();
-      if (textConfig != null && textConfig.text() != null && !textConfig.text().isBlank()) {
-        builder
-          .put(DialogContextKeys.IMAGE_TEXT, textConfig.text())
-          .put(DialogContextKeys.IMAGE_TEXT_SCALE, textConfig.scale())
-          .put(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, textConfig.rgba8888Color());
-      }
-
-      DialogContext context = builder.build();
+      DialogContext context =
+        DialogContextHelper.imageDialogContext(
+          d.sic.imagePath(),
+          d.sic.transitionSpeed(),
+          d.sic.maxSize(),
+          d.sic.textConfig(),
+          newOverlay.id());
 
       UIComponent uic = new UIComponent(context, true);
 
