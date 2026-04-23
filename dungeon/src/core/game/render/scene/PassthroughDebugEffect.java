@@ -1,6 +1,5 @@
 package core.game.render.scene;
 
-import core.camera.CameraState;
 import core.camera.CameraViewportState;
 import core.utils.Point;
 import java.awt.image.BufferedImage;
@@ -82,8 +81,6 @@ public final class PassthroughDebugEffect implements ToggleableSceneEffect {
     int height = input.getHeight();
     BufferedImage output = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-    Point focus = CameraState.focusPosition();
-
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         int argb = input.getRGB(x, y);
@@ -91,12 +88,12 @@ public final class PassthroughDebugEffect implements ToggleableSceneEffect {
         int debugRgb;
         if (debugPMA && debugWorldPos) {
           int alphaView = alphaDebugRgb(argb);
-          int worldView = worldPositionDebugRgb(x, y, focus);
+          int worldView = worldPositionDebugRgb(x, y);
           debugRgb = mixRgb(alphaView, worldView);
         } else if (debugPMA) {
           debugRgb = alphaDebugRgb(argb);
         } else {
-          debugRgb = worldPositionDebugRgb(x, y, focus);
+          debugRgb = worldPositionDebugRgb(x, y);
         }
 
         // Debug view should be fully visible and not inherit original scene alpha.
@@ -126,10 +123,8 @@ public final class PassthroughDebugEffect implements ToggleableSceneEffect {
     return (r << 16) | (g << 8) | b;
   }
 
-  private static int worldPositionDebugRgb(int screenX, int screenY, Point focus) {
-    Point world =
-      CameraViewportState.screenToWorld(
-        new Point((float) screenX, (float) screenY), focus);
+  private static int worldPositionDebugRgb(int screenX, int screenY) {
+    Point world = CameraViewportState.screenToWorld(new Point((float) screenX, (float) screenY));
 
     int r = wrappedChannel(world.x(), 4.0f);
     int g = wrappedChannel(world.y(), 4.0f);

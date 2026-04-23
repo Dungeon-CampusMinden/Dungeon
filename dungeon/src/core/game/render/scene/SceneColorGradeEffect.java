@@ -1,6 +1,5 @@
 package core.game.render.scene;
 
-import core.camera.CameraState;
 import core.camera.CameraViewportState;
 import core.game.render.effects.BaseColorGradeEffect;
 import core.utils.Point;
@@ -45,11 +44,9 @@ public final class SceneColorGradeEffect
       return input;
     }
 
-    Point focus = CameraState.focusPosition();
     return applyColorGrade(
       input,
       (screenX, screenY) ->
-        CameraViewportState.screenToWorld(
-          new Point((float) screenX, (float) screenY), focus));
+        CameraViewportState.screenToWorld(new Point((float) screenX, (float) screenY)));
   }
 }
