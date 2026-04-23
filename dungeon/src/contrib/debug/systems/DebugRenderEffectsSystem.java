@@ -67,24 +67,24 @@ public final class DebugRenderEffectsSystem extends System {
   private static final float DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE = 2.0f;
   private static final float DEFAULT_STARTER_DEPTH_COLOR_GRADE_TRANSITION_SIZE = 1.5f;
 
-  private final DebugColorGradeSystem regionalSceneColorGrade =
-    new DebugColorGradeSystem(
+  private final DebugColorGradeController regionalSceneColorGrade =
+    new DebugColorGradeController(
       STARTER_SCENE_COLOR_GRADE_DEMO_ID,
       "scene",
       DEFAULT_STARTER_SCENE_COLOR_GRADE_REGION,
       DEFAULT_STARTER_SCENE_COLOR_GRADE_TRANSITION_SIZE,
       this::starterSceneColorGradeDemoEffect);
 
-  private final DebugColorGradeSystem regionalLevelColorGrade =
-    new DebugColorGradeSystem(
+  private final DebugColorGradeController regionalLevelColorGrade =
+    new DebugColorGradeController(
       STARTER_LEVEL_COLOR_GRADE_DEMO_ID,
       "level",
       DEFAULT_STARTER_LEVEL_COLOR_GRADE_REGION,
       DEFAULT_STARTER_LEVEL_COLOR_GRADE_TRANSITION_SIZE,
       this::starterLevelColorGradeDemoEffect);
 
-  private final DebugColorGradeSystem regionalDepthColorGrade =
-    new DebugColorGradeSystem(
+  private final DebugColorGradeController regionalDepthColorGrade =
+    new DebugColorGradeController(
       STARTER_DEPTH_COLOR_GRADE_DEMO_ID,
       "depth-layer",
       DEFAULT_STARTER_DEPTH_COLOR_GRADE_REGION,

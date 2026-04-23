@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * A system that provides debugging capabilities for color grading effects.
+ * Controller for debug color-grade effect toggles.
  *
  * <p>The class enables toggling of effect states, switching between regional and
  * global modes, and managing effect configurations such as regions and transition sizes.
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * <p>Instances of this class are immutable except for internally maintained state
  * related to remembered configurations.
  */
-final class DebugColorGradeSystem {
+final class DebugColorGradeController {
 
   private final String effectId;
   private final String passLabel;
@@ -26,7 +26,7 @@ final class DebugColorGradeSystem {
   private Rectangle rememberedRegion = null;
   private float rememberedTransitionSize;
 
-  DebugColorGradeSystem(
+  DebugColorGradeController(
     String effectId,
     String passLabel,
     Rectangle defaultRegion,
