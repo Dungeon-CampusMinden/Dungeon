@@ -2,7 +2,7 @@ package core.game.render.scene;
 
 import core.camera.CameraState;
 import core.camera.CameraViewportState;
-import core.game.render.effects.AbstractColorGradeEffect;
+import core.game.render.effects.BaseColorGradeEffect;
 import core.utils.Point;
 import java.awt.image.BufferedImage;
 
@@ -10,11 +10,11 @@ import java.awt.image.BufferedImage;
  * Applies HSV-style color grading to the fully rendered scene image.
  *
  * <p>The shared color grading, region, transition, and enabled-state behavior lives in
- * {@link AbstractColorGradeEffect}. This class supplies scene-buffer to world-space coordinate
+ * {@link BaseColorGradeEffect}. This class supplies scene-buffer to world-space coordinate
  * mapping and the scene effect API.
  */
 public final class SceneColorGradeEffect
-  extends AbstractColorGradeEffect<SceneColorGradeEffect>
+  extends BaseColorGradeEffect<SceneColorGradeEffect>
   implements ToggleableSceneEffect {
 
   /** Creates a neutral scene color-grade effect that leaves the scene unchanged. */

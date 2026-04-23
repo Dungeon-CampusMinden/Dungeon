@@ -1,6 +1,6 @@
 package core.game.render.level;
 
-import core.game.render.effects.AbstractColorGradeEffect;
+import core.game.render.effects.BaseColorGradeEffect;
 import core.utils.Point;
 import java.awt.image.BufferedImage;
 
@@ -8,11 +8,11 @@ import java.awt.image.BufferedImage;
  * Applies HSV-style color grading to the rendered level layer only.
  *
  * <p>The shared color grading, region, transition, and enabled-state behavior lives in
- * {@link AbstractColorGradeEffect}. This class supplies level-buffer to world-space coordinate
+ * {@link BaseColorGradeEffect}. This class supplies level-buffer to world-space coordinate
  * mapping and the level effect API.
  */
 public final class LevelColorGradeEffect
-  extends AbstractColorGradeEffect<LevelColorGradeEffect>
+  extends BaseColorGradeEffect<LevelColorGradeEffect>
   implements ToggleableLevelEffect {
 
   /** Creates a neutral level color-grade effect that leaves the level layer unchanged. */

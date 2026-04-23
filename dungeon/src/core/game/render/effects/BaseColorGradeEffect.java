@@ -2,7 +2,6 @@ package core.game.render.effects;
 
 import core.utils.Point;
 import core.utils.Rectangle;
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
@@ -13,7 +12,7 @@ import java.util.Objects;
  *
  * @param <T> concrete effect type for fluent setters
  */
-public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffect<T>> {
+public abstract class BaseColorGradeEffect<T extends BaseColorGradeEffect<T>> {
 
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
@@ -23,7 +22,7 @@ public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffec
   private boolean enabled = true;
 
   /** Creates a neutral color-grade effect. */
-  protected AbstractColorGradeEffect() {}
+  protected BaseColorGradeEffect() {}
 
   /**
    * Creates a color-grade effect with the given HSV parameters.
@@ -32,7 +31,7 @@ public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffec
    * @param saturationMultiplier saturation multiplier; negative values are clamped to 0
    * @param valueMultiplier value/brightness multiplier; negative values are clamped to 0
    */
-  protected AbstractColorGradeEffect(
+  protected BaseColorGradeEffect(
     float hue, float saturationMultiplier, float valueMultiplier) {
     hue(hue);
     saturationMultiplier(saturationMultiplier);
@@ -62,7 +61,7 @@ public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffec
    * @return this effect for chaining
    */
   public T hue(float hue) {
-    this.hue = hue < 0f ? -1.0f : normalizeHue(hue);
+    this.hue = ColorGradeUtils.normalizeTargetHue(hue);
     return self();
   }
 
@@ -70,18 +69,22 @@ public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffec
    * Sets the saturation multiplier.
    *
    * @param saturationMultiplier multiplier for saturation; negative values are clamped to 0
+   * @return this effect for chaining
    */
-  public void saturationMultiplier(float saturationMultiplier) {
-    this.saturationMultiplier = Math.max(0f, saturationMultiplier);
+  public T saturationMultiplier(float saturationMultiplier) {
+    this.saturationMultiplier = ColorGradeUtils.clampMultiplier(saturationMultiplier);
+    return self();
   }
 
   /**
    * Sets the value/brightness multiplier.
    *
    * @param valueMultiplier multiplier for value/brightness; negative values are clamped to 0
+   * @return this effect for chaining
    */
-  public void valueMultiplier(float valueMultiplier) {
-    this.valueMultiplier = Math.max(0f, valueMultiplier);
+  public T valueMultiplier(float valueMultiplier) {
+    this.valueMultiplier = ColorGradeUtils.clampMultiplier(valueMultiplier);
+    return self();
   }
 
   /**
@@ -178,7 +181,8 @@ public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffec
           continue;
         }
 
-        int gradedArgb = gradeArgb(argb);
+        int gradedArgb =
+          ColorGradeUtils.gradeArgb(argb, hue, saturationMultiplier, valueMultiplier);
 
         if (influence >= 1f) {
           output.setRGB(x, y, gradedArgb);
@@ -234,25 +238,6 @@ public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffec
     return clamp01(1f - outsideDistance / transitionSize);
   }
 
-  private int gradeArgb(int argb) {
-    int alpha = (argb >>> 24) & 0xFF;
-    int r = (argb >>> 16) & 0xFF;
-    int g = (argb >>> 8) & 0xFF;
-    int b = argb & 0xFF;
-
-    float[] hsb = Color.RGBtoHSB(r, g, b, null);
-
-    if (hue >= 0f) {
-      hsb[0] = hue;
-    }
-
-    hsb[1] = clamp01(hsb[1] * saturationMultiplier);
-    hsb[2] = clamp01(hsb[2] * valueMultiplier);
-
-    int gradedRgb = Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]) & 0x00FFFFFF;
-    return (alpha << 24) | gradedRgb;
-  }
-
   private static int blendArgb(int originalArgb, int gradedArgb, float influence) {
     float w = clamp01(influence);
 
@@ -286,11 +271,6 @@ public abstract class AbstractColorGradeEffect<T extends AbstractColorGradeEffec
       return value - max;
     }
     return 0f;
-  }
-
-  private static float normalizeHue(float hue) {
-    float normalized = hue % 1f;
-    return normalized < 0f ? normalized + 1f : normalized;
   }
 
   private static float clamp01(float value) {

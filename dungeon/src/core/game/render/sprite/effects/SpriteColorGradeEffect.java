@@ -1,6 +1,6 @@
 package core.game.render.sprite.effects;
 
-import java.awt.Color;
+import core.game.render.effects.ColorGradeUtils;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,7 +58,7 @@ public final class SpriteColorGradeEffect implements ToggleableSpriteEffect {
    * @return this effect for chaining
    */
   public SpriteColorGradeEffect hue(float hue) {
-    this.hue = hue < 0f ? -1.0f : normalizeHue(hue);
+    this.hue = ColorGradeUtils.normalizeTargetHue(hue);
     return this;
   }
 
@@ -78,7 +78,7 @@ public final class SpriteColorGradeEffect implements ToggleableSpriteEffect {
    * @return this effect for chaining
    */
   public SpriteColorGradeEffect saturationMultiplier(float saturationMultiplier) {
-    this.saturationMultiplier = Math.max(0f, saturationMultiplier);
+    this.saturationMultiplier = ColorGradeUtils.clampMultiplier(saturationMultiplier);
     return this;
   }
 
@@ -98,7 +98,7 @@ public final class SpriteColorGradeEffect implements ToggleableSpriteEffect {
    * @return this effect for chaining
    */
   public SpriteColorGradeEffect valueMultiplier(float valueMultiplier) {
-    this.valueMultiplier = Math.max(0f, valueMultiplier);
+    this.valueMultiplier = ColorGradeUtils.clampMultiplier(valueMultiplier);
     return this;
   }
 
@@ -150,34 +150,12 @@ public final class SpriteColorGradeEffect implements ToggleableSpriteEffect {
           continue;
         }
 
-        int r = (argb >>> 16) & 0xFF;
-        int g = (argb >>> 8) & 0xFF;
-        int b = argb & 0xFF;
-
-        float[] hsb = Color.RGBtoHSB(r, g, b, null);
-
-        if (hue >= 0f) {
-          hsb[0] = hue;
-        }
-
-        hsb[1] = clamp01(hsb[1] * saturationMultiplier);
-        hsb[2] = clamp01(hsb[2] * valueMultiplier);
-
-        int gradedRgb = Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]) & 0x00FFFFFF;
-        output.setRGB(x, y, (alpha << 24) | gradedRgb);
+        output.setRGB(
+          x, y, ColorGradeUtils.gradeArgb(argb, hue, saturationMultiplier, valueMultiplier));
       }
     }
 
     return output;
-  }
-
-  private static float normalizeHue(float hue) {
-    float normalized = hue % 1f;
-    return normalized < 0f ? normalized + 1f : normalized;
-  }
-
-  private static float clamp01(float value) {
-    return Math.clamp(value, 0f, 1f);
   }
 
   private record CacheKey(
