@@ -1,6 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
+import core.input.InputLabel.InputCode;
 import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
@@ -129,16 +130,16 @@ public final class TilesMode extends LevelEditorMode {
   }
 
   @Override
-  protected Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(PRIMARY_UP, "Next left tile");
-    controls.put(PRIMARY_DOWN, "Previous left tile");
-    controls.put(SECONDARY_UP, "Brush +1");
-    controls.put(SECONDARY_DOWN, "Brush -1");
-    controls.put(MouseButtons.LEFT, "Paint with left tile");
-    controls.put(MouseButtons.RIGHT, "Paint with right tile / hold for right-tile selection");
-    controls.put(TERTIARY, "Erase to SKIP");
-    controls.put(QUATERNARY, "Pipette tile to left paint");
+  protected Map<InputCode, String> getControls() {
+    Map<InputCode, String> controls = new LinkedHashMap<>();
+    controls.put(key(PRIMARY_UP), "Next left tile");
+    controls.put(key(PRIMARY_DOWN), "Previous left tile");
+    controls.put(key(SECONDARY_UP), "Brush +1");
+    controls.put(key(SECONDARY_DOWN), "Brush -1");
+    controls.put(mouseButton(MouseButtons.LEFT), "Paint with left tile");
+    controls.put(mouseButton(MouseButtons.RIGHT), "Paint with right tile / hold for right-tile selection");
+    controls.put(key(TERTIARY), "Erase to SKIP");
+    controls.put(key(QUATERNARY), "Pipette tile to left paint");
     return controls;
   }
 

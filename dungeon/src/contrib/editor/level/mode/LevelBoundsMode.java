@@ -1,6 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
+import core.input.InputLabel.InputCode;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelTransformations;
@@ -65,12 +66,12 @@ public final class LevelBoundsMode extends LevelEditorMode {
   }
 
   @Override
-  protected Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(PRIMARY_UP, "Height +1");
-    controls.put(PRIMARY_DOWN, "Height -1");
-    controls.put(SECONDARY_UP, "Width +1");
-    controls.put(SECONDARY_DOWN, "Width -1");
+  protected Map<InputCode, String> getControls() {
+    Map<InputCode, String> controls = new LinkedHashMap<>();
+    controls.put(key(PRIMARY_UP), "Height +1");
+    controls.put(key(PRIMARY_DOWN), "Height -1");
+    controls.put(key(SECONDARY_UP), "Width +1");
+    controls.put(key(SECONDARY_DOWN), "Width -1");
     return controls;
   }
 

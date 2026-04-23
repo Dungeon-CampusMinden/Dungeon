@@ -1,6 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
+import core.input.InputLabel.InputCode;
 import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
@@ -162,12 +163,12 @@ public final class StartTilesMode extends LevelEditorMode {
   }
 
   @Override
-  protected Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(PRIMARY_UP, "Next start tile slot");
-    controls.put(PRIMARY_DOWN, "Previous start tile slot");
-    controls.put(MouseButtons.LEFT, "Place or replace selected start tile");
-    controls.put(MouseButtons.RIGHT, "Delete start tile on cursor");
+  protected Map<InputCode, String> getControls() {
+    Map<InputCode, String> controls = new LinkedHashMap<>();
+    controls.put(key(PRIMARY_UP), "Next start tile slot");
+    controls.put(key(PRIMARY_DOWN), "Previous start tile slot");
+    controls.put(mouseButton(MouseButtons.LEFT), "Place or replace selected start tile");
+    controls.put(mouseButton(MouseButtons.RIGHT), "Delete start tile on cursor");
     return controls;
   }
 

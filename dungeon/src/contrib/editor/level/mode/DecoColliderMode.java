@@ -8,6 +8,7 @@ import contrib.systems.PositionSync;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.input.InputLabel.InputCode;
 import core.input.Keys;
 import core.platform.Platform;
 import core.utils.ClipboardUtil;
@@ -156,12 +157,12 @@ public final class DecoColliderMode extends LevelEditorMode {
   }
 
   @Override
-  protected Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(CHANGE_MODE, "Next collider edit mode");
-    controls.put(MODE_MODIFY_MINUS, "Modify current value -");
-    controls.put(MODE_MODIFY_PLUS, "Modify current value +");
-    controls.put(MOVE_DECO, "Move test deco to cursor");
+  protected Map<InputCode, String> getControls() {
+    Map<InputCode, String> controls = new LinkedHashMap<>();
+    controls.put(key(CHANGE_MODE), "Next collider edit mode");
+    controls.put(key(MODE_MODIFY_MINUS), "Modify current value -");
+    controls.put(key(MODE_MODIFY_PLUS), "Modify current value +");
+    controls.put(key(MOVE_DECO), "Move test deco to cursor");
     return controls;
   }
 

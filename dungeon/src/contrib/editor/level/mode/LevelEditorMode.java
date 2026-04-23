@@ -2,6 +2,8 @@ package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
 import core.camera.CameraViewportState;
+import core.input.InputLabel;
+import core.input.InputLabel.InputCode;
 import core.input.Keys;
 import core.input.MouseButtons;
 import java.awt.Graphics2D;
@@ -127,9 +129,9 @@ public abstract class LevelEditorMode {
   /**
    * Returns the controls of this mode.
    *
-   * @return ordered map of control keys to action descriptions
+   * @return ordered map of typed control inputs to action descriptions
    */
-  protected Map<Integer, String> getControls() {
+  protected Map<InputCode, String> getControls() {
     return new LinkedHashMap<>();
   }
 
@@ -146,10 +148,10 @@ public abstract class LevelEditorMode {
     List<String> lines = new ArrayList<>();
     lines.add("--- " + name() + " ---");
 
-    Map<Integer, String> controls = getControls();
+    Map<InputCode, String> controls = getControls();
     if (!controls.isEmpty()) {
       lines.add("Controls:");
-      controls.forEach((key, description) -> lines.add(" - " + keyLabel(key) + ": " + description));
+      controls.forEach((input, description) -> lines.add(" - " + input.label() + ": " + description));
     }
 
     lines.add("");
@@ -165,21 +167,11 @@ public abstract class LevelEditorMode {
     return List.copyOf(lines);
   }
 
-  private String keyLabel(int keycode) {
-    return switch (keycode) {
-      case Keys.UP -> "UP";
-      case Keys.DOWN -> "DOWN";
-      case Keys.LEFT -> "LEFT";
-      case Keys.RIGHT -> "RIGHT";
-      case PRIMARY_UP -> "E";
-      case PRIMARY_DOWN -> "Q";
-      case SECONDARY_UP -> "C";
-      case SECONDARY_DOWN -> "Z";
-      case TERTIARY -> "X";
-      case QUATERNARY -> "V";
-      case MouseButtons.LEFT -> "LMB";
-      case MouseButtons.RIGHT -> "RMB";
-      default -> Integer.toString(keycode);
-    };
+  protected static InputCode key(int keycode) {
+    return InputLabel.keyboard(keycode);
+  }
+
+  protected static InputCode mouseButton(int button) {
+    return InputLabel.mouseButton(button);
   }
 }

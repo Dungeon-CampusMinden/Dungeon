@@ -9,6 +9,7 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.Entity;
 import core.Game;
+import core.input.InputLabel.InputCode;
 import core.platform.Platform;
 import core.camera.CameraViewportState;
 import core.game.render.TileOverlaySizing;
@@ -172,12 +173,12 @@ public final class PointMode extends LevelEditorMode {
   }
 
   @Override
-  protected Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(SECONDARY_UP, "Change snap mode");
-    controls.put(core.input.MouseButtons.LEFT, "Place point / open name dialog");
-    controls.put(core.input.MouseButtons.RIGHT, "Pick point / clone held point");
-    controls.put(TERTIARY, "Delete point");
+  protected Map<InputCode, String> getControls() {
+    Map<InputCode, String> controls = new LinkedHashMap<>();
+    controls.put(key(SECONDARY_UP), "Change snap mode");
+    controls.put(mouseButton(core.input.MouseButtons.LEFT), "Place point / open name dialog");
+    controls.put(mouseButton(core.input.MouseButtons.RIGHT), "Pick point / clone held point");
+    controls.put(key(TERTIARY), "Delete point");
     return controls;
   }
 

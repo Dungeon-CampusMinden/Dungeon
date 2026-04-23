@@ -4,6 +4,7 @@ import contrib.editor.level.LevelEditorSystem;
 import contrib.systems.PositionSync;
 import core.Game;
 import core.components.PositionComponent;
+import core.input.InputLabel.InputCode;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelTransformations;
@@ -83,12 +84,12 @@ public final class ShiftLevelMode extends LevelEditorMode {
   }
 
   @Override
-  protected Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(PRIMARY_UP, "Shift level up");
-    controls.put(PRIMARY_DOWN, "Shift level down");
-    controls.put(SECONDARY_UP, "Shift level right");
-    controls.put(SECONDARY_DOWN, "Shift level left");
+  protected Map<InputCode, String> getControls() {
+    Map<InputCode, String> controls = new LinkedHashMap<>();
+    controls.put(key(PRIMARY_UP), "Shift level up");
+    controls.put(key(PRIMARY_DOWN), "Shift level down");
+    controls.put(key(SECONDARY_UP), "Shift level right");
+    controls.put(key(SECONDARY_DOWN), "Shift level left");
     return controls;
   }
 

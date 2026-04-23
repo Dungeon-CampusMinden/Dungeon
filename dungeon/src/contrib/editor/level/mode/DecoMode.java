@@ -11,6 +11,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.input.InputLabel.InputCode;
 import core.input.MouseButtons;
 import core.platform.Platform;
 import core.utils.InputManager;
@@ -157,15 +158,15 @@ public final class DecoMode extends LevelEditorMode {
   }
 
   @Override
-  protected Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(PRIMARY_UP, "Next deco");
-    controls.put(PRIMARY_DOWN, "Previous deco");
-    controls.put(SECONDARY_UP, "Next snap mode");
-    controls.put(MouseButtons.LEFT, "Place new deco or place held deco");
-    controls.put(MouseButtons.RIGHT, "Pick up placed deco near cursor");
-    controls.put(TERTIARY, "Delete placed deco near cursor");
-    controls.put(QUATERNARY, "Pipette deco type near cursor");
+  protected Map<InputCode, String> getControls() {
+    Map<InputCode, String> controls = new LinkedHashMap<>();
+    controls.put(key(PRIMARY_UP), "Next deco");
+    controls.put(key(PRIMARY_DOWN), "Previous deco");
+    controls.put(key(SECONDARY_UP), "Next snap mode");
+    controls.put(mouseButton(MouseButtons.LEFT), "Place new deco or place held deco");
+    controls.put(mouseButton(MouseButtons.RIGHT), "Pick up placed deco near cursor");
+    controls.put(key(TERTIARY), "Delete placed deco near cursor");
+    controls.put(key(QUATERNARY), "Pipette deco type near cursor");
     return controls;
   }
 

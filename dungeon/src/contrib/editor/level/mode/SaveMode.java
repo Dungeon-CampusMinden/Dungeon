@@ -1,6 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
+import core.input.InputLabel.InputCode;
 import core.level.loader.DungeonSaver;
 import core.platform.Platform;
 import core.utils.InputManager;
@@ -58,9 +59,9 @@ public final class SaveMode extends LevelEditorMode {
   }
 
   @Override
-  protected Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(PRIMARY_UP, "Save level to clipboard");
+  protected Map<InputCode, String> getControls() {
+    Map<InputCode, String> controls = new LinkedHashMap<>();
+    controls.put(key(PRIMARY_UP), "Save level to clipboard");
     return controls;
   }
 }
