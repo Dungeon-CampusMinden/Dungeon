@@ -1,6 +1,7 @@
 package contrib.debug.systems;
 
 import contrib.configuration.KeyboardConfig;
+import contrib.debug.controls.DebugColorGradeController;
 import core.System;
 import core.input.Keys;
 import core.game.render.depth.DepthLayerColorGradeEffect;

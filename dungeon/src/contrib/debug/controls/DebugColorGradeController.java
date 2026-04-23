@@ -1,4 +1,4 @@
-package contrib.debug.systems;
+package contrib.debug.controls;
 
 import core.game.render.effects.BaseColorGradeEffect;
 import core.utils.Rectangle;
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * <p>Instances of this class are immutable except for internally maintained state
  * related to remembered configurations.
  */
-final class DebugColorGradeController {
+public final class DebugColorGradeController {
 
   private final String effectId;
   private final String passLabel;
@@ -26,7 +26,16 @@ final class DebugColorGradeController {
   private Rectangle rememberedRegion = null;
   private float rememberedTransitionSize;
 
-  DebugColorGradeController(
+  /**
+   * Creates a controller for one debug color-grade effect.
+   *
+   * @param effectId effect registry id used for warning messages
+   * @param passLabel human-readable render pass label used for log messages
+   * @param defaultRegion fallback region restored when switching back to regional mode
+   * @param defaultTransitionSize fallback transition size restored with the default region
+   * @param effectSupplier supplier for the currently registered color-grade effect
+   */
+  public DebugColorGradeController(
     String effectId,
     String passLabel,
     Rectangle defaultRegion,
@@ -40,7 +49,12 @@ final class DebugColorGradeController {
     this.rememberedTransitionSize = defaultTransitionSize;
   }
 
-  void toggleEnabled(DungeonLogger logger) {
+  /**
+   * Toggles the configured color-grade effect if it is registered.
+   *
+   * @param logger logger used for status messages and warnings
+   */
+  public void toggleEnabled(DungeonLogger logger) {
     BaseColorGradeEffect<?> effect = effectOrWarn(logger);
     if (effect == null) {
       return;
@@ -55,7 +69,12 @@ final class DebugColorGradeController {
       newState ? "enabled" : "disabled");
   }
 
-  void toggleRegionMode(DungeonLogger logger) {
+  /**
+   * Switches the configured color-grade effect between regional and global mode.
+   *
+   * @param logger logger used for status messages and warnings
+   */
+  public void toggleRegionMode(DungeonLogger logger) {
     BaseColorGradeEffect<?> effect = effectOrWarn(logger);
     if (effect == null) {
       return;
