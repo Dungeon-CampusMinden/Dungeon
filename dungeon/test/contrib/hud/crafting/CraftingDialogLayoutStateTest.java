@@ -1,7 +1,6 @@
 package contrib.hud.crafting;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import contrib.hud.crafting.CraftingDragDropController.InventorySide;
 import contrib.hud.renderers.InventoryGridRenderer;
 import contrib.item.Item;
 import java.awt.Font;
@@ -44,7 +43,7 @@ public class CraftingDialogLayoutStateTest {
     assertEquals(expectedLeftX, state.leftTitleX());
     assertEquals(expectedLeftX, state.leftGrid().startX());
     assertEquals(expectedGridTop, state.leftGrid().startY());
-    assertEquals(InventorySide.TARGET, state.leftGrid().side());
+    assertEquals(CraftingInventorySide.TARGET, state.leftGrid().side());
     assertEquals(expectedLeftX - 12, state.leftPanelBounds().x);
     assertEquals(
         expectedLeftX + measurement.leftGridWidth() + 26 + 12, state.craftingTitleX());

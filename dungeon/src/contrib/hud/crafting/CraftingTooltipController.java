@@ -1,6 +1,5 @@
 package contrib.hud.crafting;
 
-import contrib.hud.crafting.CraftingDragDropController.InventorySide;
 import contrib.hud.utils.GridHitTest;
 import contrib.hud.utils.InventoryTooltip;
 import contrib.item.Item;
@@ -20,7 +19,7 @@ final class CraftingTooltipController {
   void drawHoverTooltip(
       Graphics2D g,
       Rectangle dialogBounds,
-      GridHitTest.Grid<InventorySide> leftGrid,
+      GridHitTest.Grid<CraftingInventorySide> leftGrid,
       List<CraftingDialogLayout.SlotBounds> craftingBounds,
       Item[] resultItems,
       List<CraftingDialogLayout.ItemBounds> resultBounds) {

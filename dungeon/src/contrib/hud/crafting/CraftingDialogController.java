@@ -94,7 +94,7 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    * @param sourceSide the source side
    * @param item       the item to move
    */
-  public void transferByItem(InventorySide sourceSide, Item item) {
+  void transferByItem(CraftingInventorySide sourceSide, Item item) {
     if (item == null) {
       return;
     }
@@ -111,9 +111,9 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    * @param sourceSide the source side
    * @param slotIndex  the slot index
    */
-  public void transferBySlot(InventorySide sourceSide, int slotIndex) {
+  void transferBySlot(CraftingInventorySide sourceSide, int slotIndex) {
     InventoryComponent source =
-      sourceSide == InventorySide.TARGET ? targetInventory : craftingInventory;
+      sourceSide == CraftingInventorySide.TARGET ? targetInventory : craftingInventory;
     Item item = source.get(slotIndex).orElse(null);
     transferByItem(sourceSide, item);
   }
@@ -137,10 +137,10 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    * @param targetSide      target inventory side
    * @param targetSlotIndex target slot index
    */
-  public void transferBySlotToSlot(
-    InventorySide sourceSide,
+  void transferBySlotToSlot(
+    CraftingInventorySide sourceSide,
     int sourceSlotIndex,
-    InventorySide targetSide,
+    CraftingInventorySide targetSide,
     int targetSlotIndex) {
     if (sourceSide == null || targetSide == null) {
       return;
@@ -169,8 +169,8 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
     target.set(targetSlotIndex, item);
   }
 
-  private InventoryComponent inventoryOf(InventorySide side) {
-    return side == InventorySide.TARGET ? targetInventory : craftingInventory;
+  private InventoryComponent inventoryOf(CraftingInventorySide side) {
+    return side == CraftingInventorySide.TARGET ? targetInventory : craftingInventory;
   }
 
   /**
@@ -214,30 +214,5 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
       });
 
     uiComponent.onClose(_ -> cancel());
-  }
-
-  /**
-   * Specifies the inventory side involved in a crafting operation.
-   *
-   * <p>This enum is used to differentiate between the target inventory and
-   * the crafting inventory in operations such as transferring items or
-   * executing crafting actions.
-   *
-   * <p>The two sides are:
-   * <ul>
-   *   <li>TARGET: Represents the target inventory which receives crafted items
-   *   and provides source items.</li>
-   *   <li>CRAFTING: Represents the crafting inventory which holds the items
-   *   used as crafting input.</li>
-   * </ul>
-   *
-   * <p>The {@code InventorySide} enum is central to the behavior of crafting
-   * dialogs and operations, enabling backend-neutral manipulation of inventories.
-   */
-  public enum InventorySide {
-    /** Represents the target inventory. */
-    TARGET,
-    /** Represents the crafting inventory. */
-    CRAFTING
   }
 }

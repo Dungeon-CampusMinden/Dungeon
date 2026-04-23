@@ -1,6 +1,5 @@
 package contrib.hud.crafting;
 
-import contrib.hud.crafting.CraftingDragDropController.InventorySide;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
 import contrib.hud.renderers.InventoryPanelRenderer;
@@ -25,7 +24,7 @@ final class CraftingDialogLayoutState {
   private final int titleBaseline;
   private final int leftTitleX;
   private final int craftingTitleX;
-  private final GridHitTest.Grid<InventorySide> leftGrid;
+  private final GridHitTest.Grid<CraftingInventorySide> leftGrid;
   private final Rectangle leftPanelBounds;
   private final Rectangle rightPanelBounds;
 
@@ -34,7 +33,7 @@ final class CraftingDialogLayoutState {
       int titleBaseline,
       int leftTitleX,
       int craftingTitleX,
-      GridHitTest.Grid<InventorySide> leftGrid,
+      GridHitTest.Grid<CraftingInventorySide> leftGrid,
       Rectangle leftPanelBounds,
       Rectangle rightPanelBounds) {
     this.measurement = measurement;
@@ -104,9 +103,9 @@ final class CraftingDialogLayoutState {
             measurement.rightPanelWidth(),
             measurement.rightPanelHeight());
 
-    GridHitTest.Grid<InventorySide> leftGrid =
+    GridHitTest.Grid<CraftingInventorySide> leftGrid =
         new GridHitTest.Grid<>(
-            InventorySide.TARGET,
+            CraftingInventorySide.TARGET,
             leftStartX,
             gridTop,
             measurement.leftColumns(),
@@ -142,7 +141,7 @@ final class CraftingDialogLayoutState {
     return craftingTitleX;
   }
 
-  GridHitTest.Grid<InventorySide> leftGrid() {
+  GridHitTest.Grid<CraftingInventorySide> leftGrid() {
     return leftGrid;
   }
 

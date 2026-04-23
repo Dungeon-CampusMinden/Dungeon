@@ -2,7 +2,6 @@ package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingType;
-import contrib.hud.crafting.CraftingDragDropController.InventorySide;
 import contrib.hud.inventory.InventoryComponentProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.renderers.InventoryGridRenderer;
@@ -85,9 +84,9 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryComp
     Item[] resultItems = currentResultItems();
 
     Item[] visibleTargetSlots =
-        dragDropController.visibleSlots(targetSlots, InventorySide.TARGET);
+        dragDropController.visibleSlots(targetSlots, CraftingInventorySide.TARGET);
     Item[] visibleCraftingSlots =
-        dragDropController.visibleSlots(craftingSlots, InventorySide.CRAFTING);
+        dragDropController.visibleSlots(craftingSlots, CraftingInventorySide.CRAFTING);
 
     CraftingDialogLayoutState.Measurement measurement =
         CraftingDialogLayoutState.measure(targetSlots);
@@ -115,7 +114,7 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryComp
 
       InventoryPanelRenderer.drawPanelBackground(g, layoutState.leftPanelBounds());
 
-      GridHitTest.Grid<InventorySide> leftGrid = layoutState.leftGrid();
+      GridHitTest.Grid<CraftingInventorySide> leftGrid = layoutState.leftGrid();
       InventoryGridRenderer.drawGrid(
           g, visibleTargetSlots, leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
 
@@ -172,7 +171,7 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryComp
   }
 
   private void handleInput(
-      GridHitTest.Grid<InventorySide> leftGrid,
+      GridHitTest.Grid<CraftingInventorySide> leftGrid,
       Rectangle leftPanelBounds,
       Rectangle rightPanelBounds,
       List<CraftingDialogLayout.SlotBounds> craftingBounds) {
@@ -201,7 +200,7 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryComp
 
   private void drawDropHighlights(
       Graphics2D g,
-      GridHitTest.Grid<InventorySide> leftGrid,
+      GridHitTest.Grid<CraftingInventorySide> leftGrid,
       Rectangle leftPanelBounds,
       Rectangle rightPanelBounds,
       List<CraftingDialogLayout.SlotBounds> craftingBounds) {

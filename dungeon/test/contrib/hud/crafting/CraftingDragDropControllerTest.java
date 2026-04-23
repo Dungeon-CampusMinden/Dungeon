@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.crafting.CraftingDragDropController.InventorySide;
 import contrib.hud.utils.GridHitTest;
 import contrib.hud.utils.InventoryDragController;
 import contrib.item.Item;
@@ -30,7 +29,7 @@ public class CraftingDragDropControllerTest {
     CraftingDragDropController controller =
         dragDropController(targetInventory, craftingInventory);
 
-    controller.transferClickedItem(new GridHitTest.Slot<>(InventorySide.TARGET, 0));
+    controller.transferClickedItem(new GridHitTest.Slot<>(CraftingInventorySide.TARGET, 0));
 
     assertTrue(targetInventory.get(0).isEmpty());
     assertSame(item, craftingInventory.get(0).orElse(null));
@@ -48,8 +47,8 @@ public class CraftingDragDropControllerTest {
         dragDropController(targetInventory, craftingInventory);
 
     controller.transferDraggedItem(
-        drag(InventorySide.TARGET, 0, item),
-        new GridHitTest.Slot<>(InventorySide.CRAFTING, 2),
+        drag(CraftingInventorySide.TARGET, 0, item),
+        new GridHitTest.Slot<>(CraftingInventorySide.CRAFTING, 2),
         LEFT_PANEL,
         RIGHT_PANEL,
         0,
@@ -71,7 +70,7 @@ public class CraftingDragDropControllerTest {
         dragDropController(targetInventory, craftingInventory);
 
     controller.transferDraggedItem(
-        drag(InventorySide.TARGET, 1, item),
+        drag(CraftingInventorySide.TARGET, 1, item),
         null,
         LEFT_PANEL,
         RIGHT_PANEL,
@@ -94,7 +93,7 @@ public class CraftingDragDropControllerTest {
         dragDropController(targetInventory, craftingInventory);
 
     controller.transferDraggedItem(
-        drag(InventorySide.CRAFTING, 0, item),
+        drag(CraftingInventorySide.CRAFTING, 0, item),
         null,
         LEFT_PANEL,
         RIGHT_PANEL,
@@ -111,8 +110,8 @@ public class CraftingDragDropControllerTest {
         new CraftingDialogController(targetInventory, craftingInventory));
   }
 
-  private InventoryDragController.DragState<InventorySide> drag(
-      InventorySide side, int slotIndex, Item item) {
+  private InventoryDragController.DragState<CraftingInventorySide> drag(
+      CraftingInventorySide side, int slotIndex, Item item) {
     return new InventoryDragController.DragState<>(
         new GridHitTest.Slot<>(side, slotIndex), item);
   }
