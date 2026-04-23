@@ -67,8 +67,9 @@ public final class PassthroughDebugEffect implements ToggleableSceneEffect {
   }
 
   @Override
-  public void enabled(boolean enabled) {
+  public PassthroughDebugEffect enabled(boolean enabled) {
     this.enabled = enabled;
+    return this;
   }
 
   @Override

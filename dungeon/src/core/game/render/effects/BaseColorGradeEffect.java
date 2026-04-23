@@ -140,9 +140,11 @@ public abstract class BaseColorGradeEffect<T extends BaseColorGradeEffect<T>> {
    * Sets the enabled state.
    *
    * @param enabled true to enable the effect, false to disable it
+   * @return this effect for chaining
    */
-  public void enabled(boolean enabled) {
+  public T enabled(boolean enabled) {
     this.enabled = enabled;
+    return self();
   }
 
   /**

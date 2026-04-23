@@ -9,6 +9,7 @@ public interface ToggleableLevelEffect extends LevelEffect {
    * Sets the enabled state of this effect.
    *
    * @param enabled true to enable the effect, false to disable it
+   * @return this effect for chaining
    */
-  void enabled(boolean enabled);
+  LevelEffect enabled(boolean enabled);
 }

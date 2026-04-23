@@ -21,6 +21,13 @@ class BaseColorGradeEffectTest {
     assertSame(effect, effect.valueMultiplier(0.5f));
   }
 
+  @Test
+  void enabledSetterIsFluent() {
+    TestColorGradeEffect effect = new TestColorGradeEffect();
+
+    assertSame(effect, effect.enabled(false));
+  }
+
   private static final class TestColorGradeEffect
     extends BaseColorGradeEffect<TestColorGradeEffect> {
 
