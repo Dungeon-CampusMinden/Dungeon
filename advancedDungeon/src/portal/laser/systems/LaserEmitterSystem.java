@@ -1,6 +1,10 @@
-package portal.laser;
+package portal.laser.systems;
 
 import core.System;
+import portal.laser.LaserStatus;
+import portal.laser.LaserUtil;
+import portal.laser.components.LaserComponent;
+import portal.laser.components.LaserEmitterComponent;
 
 public class LaserEmitterSystem extends System {
 
@@ -17,18 +21,15 @@ public class LaserEmitterSystem extends System {
               switch (lc.getCurrentStatus()) {
                 case ACTIVATE -> {
                   LaserUtil.activate(entity);
-                  java.lang.System.out.println("Activated a Laser");
                   lc.setCurrentStatus(LaserStatus.NONE);
                 }
                 case DEACTIVATE -> {
                   LaserUtil.deactivate(entity);
-                  java.lang.System.out.println("Deactivated a Laser");
                   lc.setCurrentStatus(LaserStatus.NONE);
                 }
                 case REACTIVATE -> {
                   LaserUtil.deactivate(entity);
                   LaserUtil.activate(entity);
-                  java.lang.System.out.println("Reactivated a Laser");
                   lc.setCurrentStatus(LaserStatus.NONE);
                 }
                 case NONE -> {}

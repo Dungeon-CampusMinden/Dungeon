@@ -15,6 +15,7 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Map;
+import portal.laser.components.LaserComponent;
 import portal.util.ToggleableComponent;
 
 /** Class to create the LaserReceiver Entity. */

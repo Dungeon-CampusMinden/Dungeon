@@ -17,6 +17,10 @@ import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.path.SimpleIPath;
 import java.util.Set;
+import portal.laser.components.LaserComponent;
+import portal.laser.components.LaserCubeComponent;
+import portal.laser.components.LaserEmitterComponent;
+import portal.laser.components.LaserPartComponent;
 import portal.portals.components.PortalExtendComponent;
 
 /** Util class for everything laser related. */
@@ -100,7 +104,6 @@ public class LaserUtil {
    */
   public static void extendLaser(
       Direction direction, Point from, PortalExtendComponent pec, LaserComponent comp) {
-
     Entity newEmitter = LaserFactory.createEmitter(from, direction);
     newEmitter.add(comp);
     newEmitter.add(pec);
@@ -166,7 +169,6 @@ public class LaserUtil {
     newEmitter.add(laserPart);
 
     Point currentPoint = pc.position();
-    Tile currentTile = Game.tileAt(pc.position()).orElse(null);
     int totalPoints = 0;
     for (int i = 0; i < times; i++) {
       Entity segment = LaserFactory.createSegment(currentPoint, dir);
@@ -174,7 +176,6 @@ public class LaserUtil {
       segment.add(laserPart);
       Game.add(segment);
       currentPoint = currentPoint.translate(dir);
-      currentTile = Game.tileAt(currentPoint).orElse(null);
       totalPoints++;
     }
 
@@ -192,7 +193,6 @@ public class LaserUtil {
         .filter(entity -> entity.fetch(LaserEmitterComponent.class).isEmpty())
         .filter(entity -> entity.fetch(LaserCubeComponent.class).isEmpty())
         .forEach(Game::remove);
-    pec.setExtended(true);
     laserComponent.setBeingDeactivated(false);
   }
 
@@ -236,8 +236,8 @@ public class LaserUtil {
             laserCubeComponent -> {
               if (laserCubeComponent.getCurrentStatus() == LaserCubeStatus.NONE
                   && !laserCubeComponent.isActive()) {
-                laserCubeComponent.setOnEnterCube(cube);
-                laserCubeComponent.setOnEnterLaser(laser);
+                LaserPartComponent laserPartComponent = laser.fetch(LaserPartComponent.class).get();
+                cube.add(laserPartComponent);
                 laserCubeComponent.setCurrentStatus(LaserCubeStatus.ENTER_CUBE);
               }
             });
@@ -249,8 +249,6 @@ public class LaserUtil {
             laserCubeComponent -> {
               if (laserCubeComponent.getCurrentStatus() == LaserCubeStatus.NONE
                   && laserCubeComponent.isActive()) {
-                laserCubeComponent.setOnLeaveCube(cube);
-                laserCubeComponent.setOnLeaveLaser(laser);
                 laserCubeComponent.setCurrentStatus(LaserCubeStatus.LEAVE_CUBE);
               }
             });

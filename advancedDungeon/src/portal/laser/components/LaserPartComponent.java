@@ -1,4 +1,4 @@
-package portal.laser;
+package portal.laser.components;
 
 import core.Component;
 import core.utils.Direction;

@@ -16,6 +16,9 @@ import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
+import portal.laser.components.LaserComponent;
+import portal.laser.components.LaserCubeComponent;
+import portal.laser.components.LaserPartComponent;
 import portal.portals.components.PortalExtendComponent;
 
 /** Class to create the LaserCube Entity. */
@@ -89,7 +92,9 @@ public class LaserCube {
                         attachmentComponent.setRotatingWithOrigin(true);
                         laserCube.add(attachmentComponent);
                         attached[0] = true;
-                        laserCube.fetch(LaserCubeComponent.class).get().setBeingMoved(true);
+                        if (laserCube.fetch(LaserComponent.class).isPresent()) {
+                          LaserUtil.setLaserToReactivate(laserCube);
+                        }
                       } else {
                         laserCube.remove(AttachmentComponent.class);
                         Game.tileAt(interactedPositioncomponent.coordinate())
@@ -113,7 +118,6 @@ public class LaserCube {
                         interactedPositioncomponent.rotation(
                             directionToRotation(interactorPositioncomponent.viewDirection()));
                         attached[0] = false;
-                        laserCube.fetch(LaserCubeComponent.class).get().setBeingMoved(false);
                         PositionSync.syncPosition(interacted);
                         if (laserCube.fetch(LaserComponent.class).isPresent()) {
                           LaserUtil.setLaserToReactivate(laserCube);
@@ -147,9 +151,10 @@ public class LaserCube {
     PositionComponent pc = cube.fetch(PositionComponent.class).get();
 
     if (cube.fetch(LaserCubeComponent.class).get().isActive()
-        || laserPartComponent.getLaserDirection() == pc.viewDirection()) {
+        || laserPartComponent.getLaserDirection() == pc.viewDirection().opposite()) {
       return;
     }
+    cube.add(laserPartComponent);
     cube.add(lc);
     cube.fetch(LaserCubeComponent.class).get().setActive(true);
     Point snappedPosition =
@@ -182,8 +187,6 @@ public class LaserCube {
   }
 
   public static void onLeaveCube(Entity cube, Entity laser) {
-    cube.fetch(LaserCubeComponent.class).get().setActive(false);
-    cube.remove(LaserComponent.class);
     LaserUtil.setLaserToReactivate(laser);
   }
 }

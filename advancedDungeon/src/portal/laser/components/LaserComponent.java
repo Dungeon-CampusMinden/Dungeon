@@ -1,6 +1,7 @@
-package portal.laser;
+package portal.laser.components;
 
 import core.Component;
+import portal.laser.LaserStatus;
 
 /**
  * Similar to the {@link portal.util.ToggleableComponent ToggleableComponent} it stores a boolean to
@@ -10,7 +11,6 @@ public class LaserComponent implements Component {
 
   private boolean active;
   private boolean isBeingDeactivated;
-  private boolean isBeingReactivated;
   private LaserStatus currentStatus = LaserStatus.NONE;
 
   /**
@@ -56,14 +56,6 @@ public class LaserComponent implements Component {
    */
   public void setBeingDeactivated(boolean beingDeactivated) {
     isBeingDeactivated = beingDeactivated;
-  }
-
-  public boolean isBeingReactivated() {
-    return isBeingReactivated;
-  }
-
-  public void setBeingReactivated(boolean beingReactivated) {
-    isBeingReactivated = beingReactivated;
   }
 
   public LaserStatus getCurrentStatus() {

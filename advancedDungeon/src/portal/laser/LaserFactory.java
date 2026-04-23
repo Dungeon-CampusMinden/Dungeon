@@ -12,6 +12,8 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.List;
 import java.util.Map;
+import portal.laser.components.LaserComponent;
+import portal.laser.components.LaserEmitterComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
 
@@ -73,10 +75,7 @@ public class LaserFactory {
   /**
    * Creates a visual segment for the laser when extended.
    *
-   * @param from position where the laser starts.
-   * @param to position where the laser ends.
-   * @param totalPoints how long the laser is.
-   * @param index which segment this is.
+   * @param position position where the laser starts.
    * @param dir in which direction the laser is extending.
    * @return the segment entity.
    */
