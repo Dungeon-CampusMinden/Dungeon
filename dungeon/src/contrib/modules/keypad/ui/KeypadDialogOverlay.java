@@ -6,11 +6,8 @@ import contrib.modules.keypad.KeypadComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.input.MouseButtons;
 import core.sound.SoundSpec;
-import core.ui.StageHandle;
 import core.ui.overlay.BaseUiOverlay;
-import core.utils.InputManager;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -128,17 +125,7 @@ final class KeypadDialogOverlay extends BaseUiOverlay {
   }
 
   private void handleInput() {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      buttonInput.resetInteractionState();
-      return;
-    }
-
-    int mouseX = stage.mouseX();
-    int mouseY = stage.mouseY();
-    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
-
-    buttonInput.update(mouseX, mouseY, leftButtonDown);
+    buttonInput.updateFromStage();
   }
 
   private void onButtonPress(String action) {

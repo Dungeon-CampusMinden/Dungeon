@@ -4,10 +4,7 @@ import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.renderers.DialogFrameRenderer;
-import core.Game;
 import core.input.Keys;
-import core.input.MouseButtons;
-import core.ui.StageHandle;
 import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.Color;
@@ -158,12 +155,6 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
   }
 
   private void handleInput() {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      buttonInput.resetInteractionState();
-      return;
-    }
-
     // typed text
     String typed = InputManager.consumeTypedCharacters();
     if (!typed.isEmpty()) {
@@ -209,12 +200,7 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
       return;
     }
 
-    // mouse buttons
-    int mouseX = stage.mouseX();
-    int mouseY = stage.mouseY();
-    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
-
-    buttonInput.update(mouseX, mouseY, leftButtonDown);
+    buttonInput.updateFromStage();
   }
 
   private void onSubmit() {

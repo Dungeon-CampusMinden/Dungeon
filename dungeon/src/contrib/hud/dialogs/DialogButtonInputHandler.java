@@ -1,6 +1,10 @@
 package contrib.hud.dialogs;
 
 import contrib.hud.elements.Button;
+import core.Game;
+import core.input.MouseButtons;
+import core.ui.StageHandle;
+import core.utils.InputManager;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +72,22 @@ public final class DialogButtonInputHandler {
     for (Button button : buttons) {
       button.update(mouseX, mouseY, leftButtonDown);
     }
+  }
+
+  /**
+   * Updates all managed buttons from the current game stage mouse state.
+   *
+   * @return true if a stage was available and the buttons were updated, false otherwise
+   */
+  public boolean updateFromStage() {
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      resetInteractionState();
+      return false;
+    }
+
+    update(stage.mouseX(), stage.mouseY(), InputManager.isButtonPressed(MouseButtons.LEFT));
+    return true;
   }
 
   /** Resets transient interaction state for all buttons. */

@@ -4,11 +4,7 @@ import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.renderers.DialogFrameRenderer;
-import core.Game;
-import core.input.MouseButtons;
-import core.ui.StageHandle;
 import core.ui.overlay.BaseUiOverlay;
-import core.utils.InputManager;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.List;
@@ -96,17 +92,7 @@ public final class YesNoDialogOverlay extends BaseUiOverlay {
   }
 
   private void handleInput() {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      buttonInput.resetInteractionState();
-      return;
-    }
-
-    int mouseX = stage.mouseX();
-    int mouseY = stage.mouseY();
-    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
-
-    buttonInput.update(mouseX, mouseY, leftButtonDown);
+    buttonInput.updateFromStage();
   }
 
   private List<Rectangle> buttonBounds() {

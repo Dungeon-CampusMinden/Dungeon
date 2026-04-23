@@ -4,10 +4,7 @@ import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.renderers.DialogFrameRenderer;
-import core.Game;
 import core.input.Keys;
-import core.input.MouseButtons;
-import core.ui.StageHandle;
 import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import java.awt.Graphics2D;
@@ -116,12 +113,6 @@ public final class TextDialogOverlay extends BaseUiOverlay {
   }
 
   private void handleInput() {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      buttonInput.resetInteractionState();
-      return;
-    }
-
     if (InputManager.isKeyJustPressed(Keys.ENTER)) {
       onConfirm();
       return;
@@ -132,11 +123,7 @@ public final class TextDialogOverlay extends BaseUiOverlay {
       return;
     }
 
-    int mouseX = stage.mouseX();
-    int mouseY = stage.mouseY();
-    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
-
-    buttonInput.update(mouseX, mouseY, leftButtonDown);
+    buttonInput.updateFromStage();
   }
 
   private void triggerCallback(String label) {
