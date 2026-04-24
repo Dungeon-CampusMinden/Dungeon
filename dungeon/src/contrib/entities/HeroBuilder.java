@@ -8,7 +8,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.systems.HealthSystem;
 import contrib.hud.systems.HudSystem;
-import contrib.systems.PositionSync;
+import contrib.utils.components.position.PositionSyncUtils;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
@@ -53,7 +53,7 @@ public final class HeroBuilder {
                         pc -> {
                           pc.position(Game.currentLevel().flatMap(ILevel::startTile).orElseThrow());
                           pc.viewDirection(Direction.DOWN);
-                          PositionSync.syncPosition(hero);
+                          PositionSyncUtils.syncPosition(hero);
                         });
 
                 hero.fetch(VelocityComponent.class)

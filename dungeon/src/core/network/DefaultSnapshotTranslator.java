@@ -4,7 +4,7 @@ import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ManaComponent;
 import contrib.components.UIComponent;
-import contrib.systems.PositionSync;
+import contrib.utils.components.position.PositionSyncUtils;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -192,7 +192,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                     } catch (IllegalArgumentException ignored) {
                                     }
                                   });
-                          PositionSync.syncPosition(entity);
+                          PositionSyncUtils.syncPosition(entity);
                         });
 
                 entity
