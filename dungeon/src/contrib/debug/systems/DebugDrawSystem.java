@@ -1,8 +1,6 @@
 package contrib.debug.systems;
 
 import contrib.debug.draw.*;
-import contrib.debug.info.DebugQuickInfoStore;
-import core.Entity;
 import core.System;
 import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
@@ -10,19 +8,16 @@ import core.utils.Point;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Public entry point for debug draw primitives and their rendering system.
  *
- * <p>The static methods enqueue transient draw calls for the next frame, while entity quick info is
- * stored separately and can be rendered by other debug systems.
+ * <p>The static methods enqueue transient draw calls for the next frame.
  */
 public final class DebugDrawSystem extends System {
 
   private static final DebugDrawQueue DRAW_QUEUE = new DebugDrawQueue();
-  private static final DebugQuickInfoStore ENTITY_QUICK_INFO = new DebugQuickInfoStore();
   private static final AtomicBoolean HUD_VISIBLE = new AtomicBoolean(false);
 
   /** Creates a new debug draw system. */
@@ -184,9 +179,5 @@ public final class DebugDrawSystem extends System {
   @Override
   public void run() {
     this.run = true;
-  }
-
-  static Optional<String> entityQuickInfo(Entity entity) {
-    return ENTITY_QUICK_INFO.get(Objects.requireNonNull(entity, "entity must not be null"));
   }
 }
