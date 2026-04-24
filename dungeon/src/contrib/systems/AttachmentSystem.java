@@ -1,7 +1,7 @@
 package contrib.systems;
 
 import contrib.components.AttachmentComponent;
-import contrib.utils.components.position.PositionSyncUtils;
+import contrib.utils.components.collide.ColliderSync;
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
@@ -128,7 +128,7 @@ public class AttachmentSystem extends System {
       asData.copypc.position(
           asData.originpc.position().translate(asData.ac.getOffset().scale(asData.ac.getScale())));
     }
-    PositionSyncUtils.syncPosition(asData.e);
+    ColliderSync.sync(asData.e);
   }
 
   private record ASData(

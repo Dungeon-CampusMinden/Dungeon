@@ -2,8 +2,8 @@ package core.systems;
 
 import contrib.components.CollideComponent;
 import contrib.systems.CollisionSystem;
-import contrib.utils.components.position.PositionSyncUtils;
 import contrib.utils.components.collide.Collider;
+import contrib.utils.components.collide.ColliderSync;
 import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.Game;
@@ -58,7 +58,7 @@ public class MoveSystem extends System {
         .map(MSData::of)
         .peek(this::updatePosition)
         .map(MSData::e)
-        .forEach(PositionSyncUtils::syncPosition);
+        .forEach(ColliderSync::sync);
   }
 
   /**

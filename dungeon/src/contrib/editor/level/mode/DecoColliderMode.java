@@ -4,7 +4,7 @@ import contrib.components.CollideComponent;
 import contrib.editor.level.LevelEditorSystem;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
-import contrib.utils.components.position.PositionSyncUtils;
+import contrib.utils.components.collide.ColliderSync;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -118,7 +118,7 @@ public final class DecoColliderMode extends LevelEditorMode {
       testEntity
         .fetch(PositionComponent.class)
         .ifPresent(pc -> pc.position(cursorWorld()));
-      PositionSyncUtils.syncPosition(testEntity);
+      ColliderSync.sync(testEntity);
     }
   }
 

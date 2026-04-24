@@ -8,7 +8,7 @@ import contrib.hud.DialogUtils;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
-import contrib.utils.components.position.PositionSyncUtils;
+import contrib.utils.components.collide.ColliderSync;
 import core.Entity;
 import core.Game;
 import core.components.*;
@@ -94,7 +94,7 @@ public class PortalStarter {
                         pc -> {
                           pc.position(Game.currentLevel().flatMap(ILevel::startTile).orElseThrow());
                           pc.viewDirection(Direction.DOWN);
-                          PositionSyncUtils.syncPosition(hero);
+                          ColliderSync.sync(hero);
                         });
 
                 hero.fetch(VelocityComponent.class)

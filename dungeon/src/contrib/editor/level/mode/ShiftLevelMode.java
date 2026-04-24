@@ -1,7 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
-import contrib.utils.components.position.PositionSyncUtils;
+import contrib.utils.components.collide.ColliderSync;
 import core.Game;
 import core.components.PositionComponent;
 import core.input.InputLabel.InputCode;
@@ -123,7 +123,7 @@ public final class ShiftLevelMode extends LevelEditorMode {
                 PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
                 Point old = pc.position();
                 pc.position(new Point(old.x() + x, old.y() + y));
-                PositionSyncUtils.syncPosition(entity);
+                ColliderSync.sync(entity);
               });
         });
   }

@@ -2,8 +2,8 @@ package contrib.systems;
 
 import contrib.components.CollideComponent;
 import contrib.utils.components.collide.Collider;
+import contrib.utils.components.collide.ColliderSync;
 import contrib.utils.components.collide.CollisionUtils;
-import contrib.utils.components.position.PositionSyncUtils;
 import core.Entity;
 import core.System;
 import core.components.PlayerComponent;
@@ -52,7 +52,7 @@ public final class CollisionSystem extends System {
   }
 
   private void onAddEntity(Entity e) {
-    PositionSyncUtils.syncPosition(e);
+    ColliderSync.sync(e);
   }
 
   /**
@@ -302,7 +302,7 @@ public final class CollisionSystem extends System {
     }
 
     eb.fetch(PositionComponent.class).orElseThrow().position(newPos);
-    PositionSyncUtils.syncPosition(eb);
+    ColliderSync.sync(eb);
   }
 
   private record CollisionKey(int a, int b) {}

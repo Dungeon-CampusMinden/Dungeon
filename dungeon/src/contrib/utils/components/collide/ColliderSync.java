@@ -1,28 +1,22 @@
-package contrib.utils.components.position;
+package contrib.utils.components.collide;
 
 import contrib.components.CollideComponent;
 import core.Entity;
 import core.components.PositionComponent;
 
 /**
- * Utility methods for syncing position-dependent component state after a position update.
- *
- * <p>Currently, this updates:
- *
- * <ul>
- *   <li>{@link CollideComponent} by copying the entity position and scale to its collider
- * </ul>
+ * Synchronizes a collider with the entity position and scale.
  */
-public final class PositionSyncUtils {
+public final class ColliderSync {
 
-  private PositionSyncUtils() {}
+  private ColliderSync() {}
 
   /**
-   * Syncs the position of the given entity with its dependent components.
+   * Syncs the collider of the given entity with its current position and scale.
    *
    * @param entity the entity to sync
    */
-  public static void syncPosition(Entity entity) {
+  public static void sync(Entity entity) {
     entity
         .fetch(PositionComponent.class)
         .ifPresent(

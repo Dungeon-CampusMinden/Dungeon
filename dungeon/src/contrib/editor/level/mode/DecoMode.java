@@ -5,7 +5,7 @@ import contrib.components.DecoComponent;
 import contrib.editor.level.LevelEditorSystem;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
-import contrib.utils.components.position.PositionSyncUtils;
+import contrib.utils.components.collide.ColliderSync;
 import contrib.utils.components.collide.Collider;
 import core.Entity;
 import core.Game;
@@ -246,7 +246,7 @@ public final class DecoMode extends LevelEditorMode {
 
     Point actualPos = alignedDecoPosition(entity, snapPos);
     entity.fetch(PositionComponent.class).ifPresent(pc -> pc.position(actualPos));
-    PositionSyncUtils.syncPosition(entity);
+    ColliderSync.sync(entity);
   }
 
   private Point alignedDecoPosition(Entity entity, Point snapPos) {

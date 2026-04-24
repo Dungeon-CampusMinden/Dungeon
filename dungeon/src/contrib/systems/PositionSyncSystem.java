@@ -1,7 +1,7 @@
 package contrib.systems;
 
 import contrib.components.CollideComponent;
-import contrib.utils.components.position.PositionSyncUtils;
+import contrib.utils.components.collide.ColliderSync;
 import core.System;
 import core.components.PositionComponent;
 
@@ -16,11 +16,11 @@ public final class PositionSyncSystem extends System {
   /** Creates a new position sync system. */
   public PositionSyncSystem() {
     super(AuthoritativeSide.BOTH, PositionComponent.class, CollideComponent.class);
-    onEntityAdd = PositionSyncUtils::syncPosition;
+    onEntityAdd = ColliderSync::sync;
   }
 
   @Override
   public void execute() {
-    filteredEntityStream().forEach(PositionSyncUtils::syncPosition);
+    filteredEntityStream().forEach(ColliderSync::sync);
   }
 }

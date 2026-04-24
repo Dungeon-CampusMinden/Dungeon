@@ -1,7 +1,7 @@
 package portal.tractorBeam;
 
 import contrib.components.CollideComponent;
-import contrib.utils.components.position.PositionSyncUtils;
+import contrib.utils.components.collide.ColliderSync;
 import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
@@ -57,7 +57,7 @@ public class TractorBeamComponent implements Component {
 
         emitterCC.collider(oldhitbox.removeFirst());
         oldhitbox.clear();
-        PositionSyncUtils.syncPosition(e);
+        ColliderSync.sync(e);
       }
     }
     active = true;
@@ -79,7 +79,7 @@ public class TractorBeamComponent implements Component {
                           collideComponent.collider().size(),
                           collideComponent.collider().offset()));
                   collideComponent.collider(new Hitbox(0, 0));
-                  PositionSyncUtils.syncPosition(e);
+                  ColliderSync.sync(e);
                 });
       }
     }
