@@ -3,9 +3,9 @@ package contrib.hud.dialogs;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import contrib.hud.UIUtils;
+import contrib.hud.elements.RichLabel;
 import core.Game;
 import core.utils.BaseContainerUI;
-import core.utils.Scene2dElementFactory;
 
 /**
  * Package-private builder for OK dialogs.
@@ -54,10 +54,10 @@ final class OkDialog {
     DialogDesign.setDialogDefaults(dialog, title);
     Table content = dialog.getContentTable();
 
-    content
-        .add(Scene2dElementFactory.createLabel(text, DialogDesign.DIALOG_FONT_SPEC_NORMAL))
-        .padBottom(10)
-        .row();
+    RichLabel label =
+        new RichLabel(RichLabel.toRichText(text), DialogDesign.DIALOG_FONT_SPEC_NORMAL, false);
+    label.setWrap(true);
+    content.add(label).width(450).padBottom(10).row();
     dialog.button(
         DEFAULT_OK_BUTTON,
         DEFAULT_OK_BUTTON,
