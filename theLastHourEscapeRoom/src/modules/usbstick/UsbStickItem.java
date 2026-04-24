@@ -1,12 +1,30 @@
 package modules.usbstick;
 
 import contrib.item.Item;
+import contrib.item.ItemRegistry;
 import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 
 /** Utility class that provides factory methods and item implementations for USB sticks. */
 public class UsbStickItem {
+
+  static {
+    ItemRegistry.register(RedUsbStick.class);
+    ItemRegistry.register(GreenUsbStick.class);
+    ItemRegistry.register(YellowUsbStick.class);
+    ItemRegistry.register(BlueUsbStick.class);
+  }
+
+  /**
+   * Ensures that the static initializer of this class has been executed.
+   *
+   * <p>Call this once during startup (server- and client-side) before the network layer can
+   * encounter USB stick items in inventories.
+   */
+  public static void ensureRegistration() {
+    // No-op to ensure the static block is called.
+  }
 
   /**
    * Create an Item instance for the given USB stick color.

@@ -129,6 +129,7 @@ public class LastHourLevel extends DungeonLevel {
     setupTimer();
     setupEndTrigger();
     setupR2PaperTrigger();
+    setupR2Decorations();
     setupUsbSticks();
 
     setupTestMcd();
@@ -554,6 +555,51 @@ public class LastHourLevel extends DungeonLevel {
     }
   }
 
+  /**
+   * Sets up decorative interactables in room 2: an air-conditioner-style floor vent on top of the
+   * {@code r2-vent} point and a writing table on {@code r2-desk}, both with interaction dialogs.
+   */
+  private void setupR2Decorations() {
+    Entity vent =
+        DecoFactory.createDeco(getPoint("r2-vent"), Deco.FloorBarsSmall);
+    vent.remove(DecoComponent.class);
+    vent.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (e, who) -> {
+                      DialogFactory.showOkDialog(
+                          "Just an ordinary air conditioner.", "", () -> {}, who.id());
+                    })));
+    Game.add(vent);
+
+    Entity desk = DecoFactory.createDeco(getPoint("r2-desk").translate(3f / 16f, 1f / 16f), Deco.WritingTable);
+    desk.remove(DecoComponent.class);
+    desk.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (e, who) -> {
+                      DialogFactory.showOkDialog(
+                          "[tr speed=0]A note from a colleague:[n][n]"
+                              + "[tr speed=2.0]Hey, hope you're doing alright! Things have been pretty hectic"
+                              + " around here lately, so I figured I'd leave you a quick note"
+                              + " instead of trying to catch you between meetings.[n][n]"
+                              + "[pause=0.3]Oh, and about that USB stick of yours I borrowed,"
+                              + " here's the quick rundown:[n][n]"
+                              + "[tr speed=1.0]- [color=#444477]B[/color]rought it back and left it with the control panel key.[n]"
+                              + "- [color=#444477]L[/color]ightning quick, by the way - best stick I've used.[n]"
+                              + "- [color=#444477]U[/color]seful little thing, really saved me this week.[n]"
+                              + "- [color=#444477]E[/color]xpect I'll ask to borrow it again sometime soon![n][n]"
+                              + "[pause=0.3][tr speed=2.0]Anyway, take care and don't stay too late again. See you"
+                              + " tomorrow!",
+                          "",
+                          () -> {},
+                          who.id());
+                    })));
+    Game.add(desk);
+  }
+
   /** Places all four colored USB stick items at {@code r2-folders}, spaced 1 tile apart in +x. */
   private void setupUsbSticks() {
     Point origin = getPoint("r2-folders");
@@ -625,18 +671,20 @@ public class LastHourLevel extends DungeonLevel {
     }
 
     DrawComponent dc = pc.fetch(DrawComponent.class).orElseThrow();
-    if (!pcStateToDCState(cscLastTick).equals(pcStateToDCState(csc))) {
-      // Update local state to match shared state
-      if (csc.isInfected()) {
+    String prevDcState = pcStateToDCState(cscLastTick);
+    String newDcState = pcStateToDCState(csc);
+    if (!prevDcState.equals(newDcState)) {
+      // Drive the DrawComponent state machine based on the actual transition, not just the
+      // resulting state. The state machine only knows:
+      //   OFF -PC_SIGNAL_ON-> ON, ON -PC_SIGNAL_INFECT-> VIRUS, VIRUS -PC_SIGNAL_CLEAR-> ON.
+      if (newDcState.equals(PC_STATE_VIRUS)) {
         dc.sendSignal(PC_SIGNAL_INFECT);
         Sounds.play(LastHourSounds.COMPUTER_VIRUS_CAUGHT, 1, 1.0f);
-      } else {
-        if (csc.state() == ComputerProgress.ON) {
-          dc.sendSignal(PC_SIGNAL_ON);
-        } else {
-          dc.sendSignal(PC_SIGNAL_CLEAR);
-          Sounds.play(CoreSounds.INTERFACE_BUTTON_BACKWARD);
-        }
+      } else if (prevDcState.equals(PC_STATE_VIRUS) && newDcState.equals(PC_STATE_ON)) {
+        dc.sendSignal(PC_SIGNAL_CLEAR);
+        Sounds.play(CoreSounds.INTERFACE_BUTTON_BACKWARD);
+      } else if (prevDcState.equals(PC_STATE_OFF) && newDcState.equals(PC_STATE_ON)) {
+        dc.sendSignal(PC_SIGNAL_ON);
       }
     }
 

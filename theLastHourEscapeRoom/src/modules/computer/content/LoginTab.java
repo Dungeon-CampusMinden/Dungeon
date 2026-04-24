@@ -19,6 +19,9 @@ import util.Lore;
 /** Tab for logging into the computer, containing username and password fields and feedback. */
 public class LoginTab extends ComputerTab {
 
+  /** Key for identifying the login tab in the computer dialog. */
+  public static final String KEY = "login";
+
   // Password feedback
   private static final String WRONG_FEEDBACK = "Invalid username or password.";
   private static final String CORRECT_FEEDBACK = "Login successful!\nWelcome Dr. Mertens";
@@ -36,7 +39,7 @@ public class LoginTab extends ComputerTab {
    * @param sharedState the shared computer state component
    */
   public LoginTab(ComputerStateComponent sharedState) {
-    super(sharedState, "login", "Login", false);
+    super(sharedState, KEY, "Login", false);
   }
 
   protected void createActors() {
@@ -53,11 +56,12 @@ public class LoginTab extends ComputerTab {
     this.add(label).center().padBottom(10).row();
     RichLabel flavor =
         new RichLabel(
-            "[img=items/rpg/item_gem_ruby.png] At the [color=red]frontlines[/color] of"
-                + " [img=items/rpg/shield_gold.png] [color=#3399ff]science[/color] since 1984"
+            "[img=items/rpg/potion_red.png] At the [color=red]frontlines[/color] of"
+                + " [img path=items/rpg/shield_gold.png noGapRight] [color=#3399ff]science[/color] since 1984"
                 + " [img=items/rpg/potion_red.png]",
             24,
-            Color.GRAY);
+            Color.GRAY,
+            false);
     this.add(flavor).center().padBottom(20).row();
 
     loginFeedback = Scene2dElementFactory.createLabel("", 24, Color.WHITE);
