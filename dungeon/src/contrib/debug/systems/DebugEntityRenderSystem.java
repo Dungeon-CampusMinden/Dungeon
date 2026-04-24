@@ -336,6 +336,10 @@ public final class DebugEntityRenderSystem extends System {
             .append(player.isLocal() ? " (LOCAL)" : " (REMOTE)")
             .append("\n"));
 
+    DebugDrawSystem
+      .entityQuickInfo(entity)
+      .ifPresent(quickInfo -> info.append(quickInfo).append("\n"));
+
     if (InputManager.isKeyPressed(Keys.SHIFT_LEFT) || InputManager.isKeyPressed(Keys.SHIFT_RIGHT)) {
       List<String> componentNames =
         entity
