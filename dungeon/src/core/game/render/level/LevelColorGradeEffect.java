@@ -1,6 +1,7 @@
 package core.game.render.level;
 
 import core.game.render.effects.BaseColorGradeEffect;
+import core.game.render.effects.ToggleableEffect;
 import core.utils.Point;
 import java.awt.image.BufferedImage;
 
@@ -13,7 +14,7 @@ import java.awt.image.BufferedImage;
  */
 public final class LevelColorGradeEffect
   extends BaseColorGradeEffect<LevelColorGradeEffect>
-  implements ToggleableLevelEffect {
+  implements LevelEffect, ToggleableEffect<LevelColorGradeEffect> {
 
   /** Creates a neutral level color-grade effect that leaves the level layer unchanged. */
   public LevelColorGradeEffect() {

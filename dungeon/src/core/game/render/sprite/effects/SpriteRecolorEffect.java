@@ -1,5 +1,6 @@
 package core.game.render.sprite.effects;
 
+import core.game.render.effects.ToggleableEffect;
 import core.game.render.image.ImageEffectCache;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -15,7 +16,8 @@ import java.awt.image.BufferedImage;
  * <p>Results are cached to improve performance for repeated applications of the same effect to the
  * same image.
  */
-public final class SpriteRecolorEffect implements ToggleableSpriteEffect {
+public final class SpriteRecolorEffect
+  implements SpriteEffect, ToggleableEffect<SpriteRecolorEffect> {
 
   private static final ImageEffectCache<BufferedImage> CACHE = new ImageEffectCache<>(16);
 

@@ -1,6 +1,7 @@
 package core.game.render.sprite.effects;
 
 import core.game.render.effects.ColorGradeUtils;
+import core.game.render.effects.ToggleableEffect;
 import core.game.render.image.ImageEffectCache;
 import java.awt.image.BufferedImage;
 
@@ -15,7 +16,8 @@ import java.awt.image.BufferedImage;
  * <p>It is backed by the {@link SpriteEffect} interface, making it compatible with the LITIENGINE
  * Graphics2D render path.
  */
-public final class SpriteColorGradeEffect implements ToggleableSpriteEffect {
+public final class SpriteColorGradeEffect
+  implements SpriteEffect, ToggleableEffect<SpriteColorGradeEffect> {
 
   private static final ImageEffectCache<BufferedImage> CACHE = new ImageEffectCache<>(16);
 

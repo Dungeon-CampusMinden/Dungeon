@@ -1,5 +1,6 @@
 package core.game.render.sprite.effects;
 
+import core.game.render.effects.ToggleableEffect;
 import core.game.render.image.ImageEffectCache;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -17,7 +18,8 @@ import java.awt.image.BufferedImage;
  * <p>The effect includes configurable parameters such as padding, slice count, gap size, rotation speed,
  * and shine color. Results are cached for improved performance.
  */
-public final class ShineSpriteEffect implements ToggleableSpriteEffect {
+public final class ShineSpriteEffect
+  implements SpriteEffect, ToggleableEffect<ShineSpriteEffect> {
 
   private static final double TWO_PI = Math.PI * 2.0;
   private static final int SMALL_SPRITE_MAX_DIM = 48;

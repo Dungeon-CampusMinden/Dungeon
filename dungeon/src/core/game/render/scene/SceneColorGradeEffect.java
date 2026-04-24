@@ -2,6 +2,7 @@ package core.game.render.scene;
 
 import core.camera.CameraViewportState;
 import core.game.render.effects.BaseColorGradeEffect;
+import core.game.render.effects.ToggleableEffect;
 import core.utils.Point;
 import java.awt.image.BufferedImage;
 
@@ -14,7 +15,7 @@ import java.awt.image.BufferedImage;
  */
 public final class SceneColorGradeEffect
   extends BaseColorGradeEffect<SceneColorGradeEffect>
-  implements ToggleableSceneEffect {
+  implements SceneEffect, ToggleableEffect<SceneColorGradeEffect> {
 
   /** Creates a neutral scene color-grade effect that leaves the scene unchanged. */
   public SceneColorGradeEffect() {

@@ -2,6 +2,7 @@ package core.game.render.depth;
 
 import core.camera.CameraViewportState;
 import core.game.render.effects.BaseColorGradeEffect;
+import core.game.render.effects.ToggleableEffect;
 import core.utils.Point;
 import java.awt.image.BufferedImage;
 
@@ -14,7 +15,7 @@ import java.awt.image.BufferedImage;
  */
 public final class DepthLayerColorGradeEffect
   extends BaseColorGradeEffect<DepthLayerColorGradeEffect>
-  implements ToggleableDepthLayerEffect {
+  implements DepthLayerEffect, ToggleableEffect<DepthLayerColorGradeEffect> {
 
   /** Creates a neutral depth-layer color-grade effect that leaves the depth layer unchanged. */
   public DepthLayerColorGradeEffect() {

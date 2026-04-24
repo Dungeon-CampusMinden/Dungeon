@@ -1,6 +1,7 @@
 package core.game.render.scene;
 
 import core.camera.CameraViewportState;
+import core.game.render.effects.ToggleableEffect;
 import core.utils.Point;
 import java.awt.image.BufferedImage;
 
@@ -15,7 +16,8 @@ import java.awt.image.BufferedImage;
  * <p>The effect is toggleable and implements a no-op rendering behavior
  * when disabled or when no debug views are active.
  */
-public final class PassthroughDebugEffect implements ToggleableSceneEffect {
+public final class PassthroughDebugEffect
+  implements SceneEffect, ToggleableEffect<PassthroughDebugEffect> {
 
   private boolean debugPMA = false;
   private boolean debugWorldPos = false;

@@ -1,5 +1,6 @@
 package core.game.render.sprite.effects;
 
+import core.game.render.effects.ToggleableEffect;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -111,7 +112,7 @@ class SpriteEffectRegistryTest {
   }
 
   private static final class ToggleableTestEffect extends TestEffect
-    implements ToggleableSpriteEffect {
+    implements ToggleableEffect<ToggleableTestEffect> {
 
     private ToggleableTestEffect(String name, boolean enabled) {
       super(name, enabled);
