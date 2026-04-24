@@ -2,21 +2,16 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.HeroController;
-import contrib.hud.dialogs.DialogInventoryProvider;
-import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryDragController;
-import contrib.hud.itemgrid.InventoryDropHandling;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
 import core.input.MouseButtons;
 import core.network.messages.c2s.InputMessage;
 import core.ui.StageHandle;
-import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
 import core.utils.Vector2;
-import java.awt.Graphics2D;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -39,19 +34,16 @@ import java.util.stream.Stream;
  *   <li>Visual feedback for hovered or targeted slots.
  * </ul>
  */
-final class InventoryDialogOverlay extends BaseUiOverlay implements DialogInventoryProvider {
+final class InventoryDialogOverlay
+    extends BaseInventoryOverlay<InventoryDialogOverlay.InventorySide> {
 
   private static final int DEFAULT_WIDTH = 560;
   private static final int DEFAULT_HEIGHT = 430;
-
-  private static final int DRAG_THRESHOLD_PX = 8;
 
   private final String title;
   private final Entity owner;
   private final InventoryComponent inventory;
   private final boolean allowUseItems;
-  private final InventoryDragController<InventorySide> dragController =
-      InventoryDragController.withDistanceThreshold(DRAG_THRESHOLD_PX);
 
   private Integer pressedUseSlotIndex = null;
   private boolean rightButtonDownLastFrame = false;
@@ -66,56 +58,27 @@ final class InventoryDialogOverlay extends BaseUiOverlay implements DialogInvent
   }
 
   @Override
-  public void render(Graphics2D g) {
-    if (!visible) {
-      return;
-    }
-
+  protected InventoryDialogLayoutState.Measurement<InventorySide> measure() {
     Item[] slots = inventory.items();
-    Item[] visibleSlots = dragController.visibleSlots(slots, InventorySide.PLAYER);
+    Item[] visibleSlots = visibleSlots(slots, InventorySide.PLAYER);
 
-    InventoryDialogLayoutState.Measurement<InventorySide> measurement =
-        InventoryDialogLayoutState.measure(
-            DEFAULT_WIDTH,
-            DEFAULT_HEIGHT,
-            0,
-            false,
-            List.of(
-                InventoryDialogLayoutState.PanelSpec.of(
-                    InventorySide.PLAYER, title, slots, visibleSlots)));
-
-    width = measurement.dialogWidth();
-    height = measurement.dialogHeight();
-
-    centerInIfUnpositioned(Game.windowWidth(), Game.windowHeight());
-
-    InventoryDialogLayoutState<InventorySide> layoutState = null;
-
-    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
-
-    try {
-      int contentY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, title);
-      layoutState = InventoryDialogRenderer.draw(g, x, contentY, measurement);
-
-      if (dragController.isDragging()) {
-        GridHitTest.Slot<InventorySide> hoveredTarget = hoveredDropTarget(layoutState.grids());
-        if (hoveredTarget != null) {
-          InventoryDropHandling.drawGridDropHighlight(g, hoveredTarget, layoutState.grids());
-        }
-        dragController.drawDragPreview(g);
-      } else {
-        InventoryDialogInput.drawHoverTooltip(g, bounds(), layoutState.grids(), this::itemOf);
-      }
-    } finally {
-      DialogFrameRenderer.finishDialog(g, state);
-    }
-
-    if (layoutState != null) {
-      handleInput(layoutState.grids());
-    }
+    return InventoryDialogLayoutState.measure(
+        DEFAULT_WIDTH,
+        DEFAULT_HEIGHT,
+        0,
+        false,
+        List.of(
+            InventoryDialogLayoutState.PanelSpec.of(
+                InventorySide.PLAYER, title, slots, visibleSlots)));
   }
 
-  private void handleInput(List<GridHitTest.Grid<InventorySide>> grids) {
+  @Override
+  protected String dialogTitle() {
+    return title;
+  }
+
+  @Override
+  protected void handleInput(List<GridHitTest.Grid<InventorySide>> grids) {
     if (!allowUseItems) {
       resetInteractionState();
       return;
@@ -134,8 +97,7 @@ final class InventoryDialogOverlay extends BaseUiOverlay implements DialogInvent
   }
 
   private void handleLeftDragInput(List<GridHitTest.Grid<InventorySide>> grids) {
-    InventoryDialogInput.handlePrimaryInput(
-        dragController, grids, this::itemOf, this::handleDraggedRelease, null);
+    handlePrimaryInput(grids, this::handleDraggedRelease, null);
   }
 
   private void handleRightUseInput(
@@ -215,14 +177,14 @@ final class InventoryDialogOverlay extends BaseUiOverlay implements DialogInvent
     }
   }
 
-  private GridHitTest.Slot<InventorySide> hoveredDropTarget(
-      List<GridHitTest.Grid<InventorySide>> grids) {
-    return InventoryDialogInput.hoveredDropTarget(
-        dragController, grids, (source, target) -> target.slotIndex() != source.slotIndex());
+  @Override
+  protected Item itemOf(GridHitTest.Slot<InventorySide> slot) {
+    return InventoryDialogInput.itemOf(slot, side -> inventory);
   }
 
-  private Item itemOf(GridHitTest.Slot<InventorySide> slot) {
-    return InventoryDialogInput.itemOf(slot, side -> inventory);
+  @Override
+  protected InventoryDragController.DropTargetFilter<InventorySide> dropTargetFilter() {
+    return (source, target) -> target.slotIndex() != source.slotIndex();
   }
 
   private static int encodePlayerInventorySlot(int slot) {
@@ -232,7 +194,7 @@ final class InventoryDialogOverlay extends BaseUiOverlay implements DialogInvent
   private void resetInteractionState() {
     pressedUseSlotIndex = null;
     rightButtonDownLastFrame = false;
-    dragController.reset();
+    resetDragState();
   }
 
   @Override
@@ -240,7 +202,7 @@ final class InventoryDialogOverlay extends BaseUiOverlay implements DialogInvent
     return Stream.of(inventory);
   }
 
-  private enum InventorySide {
+  enum InventorySide {
     PLAYER
   }
 }
