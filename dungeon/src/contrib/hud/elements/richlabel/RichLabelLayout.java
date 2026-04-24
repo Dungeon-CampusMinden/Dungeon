@@ -84,6 +84,13 @@ public class RichLabelLayout {
   /**
    * Computes the preferred inline width of the given runs (ignoring block images).
    *
+   * <p>The returned value is the width of the widest line produced by hard line breaks ({@code [n]}
+   * / {@link LineBreakRun}) and block images (which force a line break). Soft wrapping based on an
+   * available width is not applied here — that is the caller's responsibility via {@link
+   * #computePrefHeight} once a width has been assigned. This means a label whose text contains
+   * explicit line breaks will report a preferred width matching its longest line rather than the
+   * sum of all words on a single line.
+   *
    * @param runs the parsed runs
    * @param fontSpec the default font specification
    * @return the preferred width in pixels
@@ -92,32 +99,44 @@ public class RichLabelLayout {
     BitmapFont font = FontHelper.getFont(fontSpec);
     GlyphLayout glyphLayout = new GlyphLayout();
     float spaceWidth = computeSpaceWidth(font, glyphLayout);
-    float width = 0;
+    float wordSpaceMul = 1f;
+    float lineWidth = 0;
+    float maxWidth = 0;
 
     for (int i = 0; i < runs.size(); i++) {
       Run run = runs.get(i);
+      if (run instanceof SpacingRun sr) {
+        if (sr.wordSpaceMultiplier() >= 0) wordSpaceMul = sr.wordSpaceMultiplier();
+        continue;
+      }
+      if (run instanceof LineBreakRun || run instanceof ImageBlockRun) {
+        if (lineWidth > maxWidth) maxWidth = lineWidth;
+        lineWidth = 0;
+        continue;
+      }
       if (run instanceof TextRun tr) {
         String trimmed = tr.word().stripLeading();
         boolean hasLeadingSpace = tr.word().length() > trimmed.length();
-        if (hasLeadingSpace && width > 0) {
-          width += spaceWidth;
+        if (hasLeadingSpace && lineWidth > 0) {
+          lineWidth += spaceWidth * wordSpaceMul;
         }
         BitmapFont runFont = fontForRun(tr, fontSpec);
         glyphLayout.setText(runFont, trimmed);
-        width += glyphLayout.width;
+        lineWidth += glyphLayout.width;
       } else if (run instanceof ImageRun ir) {
         TextureRegion region = getTextureRegion(ir);
         if (region != null) {
           BitmapFont imgFont = fontForImage(ir, fontSpec);
           float imgHeight = imgFont.getCapHeight() * IMAGE_SCALE * ir.scale();
           float imgWidth = (float) region.getRegionWidth() / region.getRegionHeight() * imgHeight;
-          if (i > 0) imgWidth += IMAGE_GAP;
-          if (i < runs.size() - 1) imgWidth += IMAGE_GAP;
-          width += imgWidth;
+          if (i > 0 && !ir.noGapLeft()) imgWidth += IMAGE_GAP;
+          if (i < runs.size() - 1 && !ir.noGapRight()) imgWidth += IMAGE_GAP;
+          lineWidth += imgWidth;
         }
       }
     }
-    return width;
+    if (lineWidth > maxWidth) maxWidth = lineWidth;
+    return maxWidth;
   }
 
   /**
@@ -421,8 +440,8 @@ public class RichLabelLayout {
             region != null
                 ? (float) region.getRegionWidth() / region.getRegionHeight() * imgHeight
                 : 0;
-        float leadGap = i > 0 ? IMAGE_GAP : 0;
-        float trailGap = i < runs.size() - 1 ? IMAGE_GAP : 0;
+        float leadGap = (i > 0 && !ir.noGapLeft()) ? IMAGE_GAP : 0;
+        float trailGap = (i < runs.size() - 1 && !ir.noGapRight()) ? IMAGE_GAP : 0;
         float totalImgWidth = imgWidth + leadGap + trailGap;
 
         if (wrap && x > 0 && x + totalImgWidth > availableWidth) {

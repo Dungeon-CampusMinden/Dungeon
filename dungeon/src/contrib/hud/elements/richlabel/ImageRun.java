@@ -21,6 +21,12 @@ package contrib.hud.elements.richlabel;
  * @param regionY the y coordinate of the sub-region in pixels, or {@code -1} for the full texture
  * @param regionW the width of the sub-region in pixels, or {@code -1} for the full texture
  * @param regionH the height of the sub-region in pixels, or {@code -1} for the full texture
+ * @param noGapLeft if {@code true}, suppresses the additional inline-image gap on the left side
+ *     (the natural word-space contributed by surrounding whitespace is unaffected). Has no effect
+ *     when the image already has no left gap (e.g. it is the first run on its line).
+ * @param noGapRight if {@code true}, suppresses the additional inline-image gap on the right side
+ *     (the natural word-space contributed by surrounding whitespace is unaffected). Has no effect
+ *     when the image already has no right gap (e.g. it is the last run).
  */
 public record ImageRun(
     String path,
@@ -30,7 +36,9 @@ public record ImageRun(
     int regionX,
     int regionY,
     int regionW,
-    int regionH)
+    int regionH,
+    boolean noGapLeft,
+    boolean noGapRight)
     implements Run {
 
   /**
@@ -42,7 +50,7 @@ public record ImageRun(
    * @return a new ImageRun referencing the entire texture at {@code path}
    */
   public static ImageRun fullTexture(String path, ShakeEffect shake, int sizeOverride) {
-    return new ImageRun(path, shake, sizeOverride, 1f, -1, -1, -1, -1);
+    return new ImageRun(path, shake, sizeOverride, 1f, -1, -1, -1, -1, false, false);
   }
 
   /**

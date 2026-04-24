@@ -126,7 +126,11 @@ public class RichLabelParser {
           int rw = (int) params.getFloat("w", -1f);
           int rh = (int) params.getFloat("h", -1f);
           float scale = params.getFloat("scale", 1f);
-          runs.add(new ImageRun(path, currentShake, currentSize, scale, rx, ry, rw, rh));
+          boolean noGapLeft = params.getBoolean("noGapLeft");
+          boolean noGapRight = params.getBoolean("noGapRight");
+          runs.add(
+              new ImageRun(
+                  path, currentShake, currentSize, scale, rx, ry, rw, rh, noGapLeft, noGapRight));
         }
       } else if (matcher.group(3) != null) {
         TagParams params = TagParams.parse(matcher.group(3));
@@ -180,15 +184,6 @@ public class RichLabelParser {
       addTextRuns(runs, text.substring(lastEnd), currentColor, currentSize, currentShake);
     }
 
-    // Remove purely whitespace text runs immediately before an image run
-    for (int i = runs.size() - 1; i >= 0; i--) {
-      if (runs.get(i) instanceof TextRun tr
-          && tr.word().isBlank()
-          && i + 1 < runs.size()
-          && (runs.get(i + 1) instanceof ImageRun || runs.get(i + 1) instanceof ImageBlockRun)) {
-        runs.remove(i);
-      }
-    }
 
     return runs;
   }
@@ -312,7 +307,9 @@ public class RichLabelParser {
         region.x(),
         region.y(),
         region.width(),
-        region.height());
+        region.height(),
+        false,
+        false);
   }
 
   private ShakeEffect parseShake(String params) {

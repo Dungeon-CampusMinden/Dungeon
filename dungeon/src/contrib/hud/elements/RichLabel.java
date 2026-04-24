@@ -85,6 +85,14 @@ public class RichLabel extends WidgetGroup implements Disposable {
   private boolean wrap = true;
 
   /**
+   * Optional upper bound on the value returned by {@link #getPrefWidth()}. {@code 0} (the default)
+   * disables the clamp. Used to let parent layouts (e.g. a {@code Window}/{@code Dialog} that packs
+   * to its content's preferred size) shrink to fit short text while still capping the width for
+   * long text so it wraps instead of stretching the parent across the whole stage.
+   */
+  private float maxPrefWidth = 0f;
+
+  /**
    * Whether an implicit leading {@code [tr]} (typewriter at default speed) is prepended when
    * parsing the text. The input text can always override this with an explicit {@code [tr]} tag.
    */
@@ -285,7 +293,35 @@ public class RichLabel extends WidgetGroup implements Disposable {
 
   @Override
   public float getPrefWidth() {
-    return layoutEngine.computePrefWidth(runs, fontSpec);
+    float pref = layoutEngine.computePrefWidth(runs, fontSpec);
+    if (maxPrefWidth > 0f && pref > maxPrefWidth) return maxPrefWidth;
+    return pref;
+  }
+
+  /**
+   * Sets an upper bound on the value returned by {@link #getPrefWidth()}.
+   *
+   * <p>This lets the label report a smaller preferred width to its parent layout when its natural
+   * (unwrapped) width would exceed the given limit, without forcing a fixed width. The label still
+   * shrinks below the limit for short text. When the parent assigns the clamped width back to the
+   * label, normal {@link #setWrap(boolean) wrap} behaviour kicks in and the text wraps to multiple
+   * lines.
+   *
+   * @param maxPrefWidth the maximum preferred width in pixels, or {@code 0} to disable the clamp
+   */
+  public void setMaxPrefWidth(float maxPrefWidth) {
+    if (this.maxPrefWidth == maxPrefWidth) return;
+    this.maxPrefWidth = maxPrefWidth;
+    invalidateHierarchy();
+  }
+
+  /**
+   * Returns the current upper bound on {@link #getPrefWidth()}, or {@code 0} if no clamp is set.
+   *
+   * @return the maximum preferred width in pixels, or {@code 0}
+   */
+  public float getMaxPrefWidth() {
+    return maxPrefWidth;
   }
 
   @Override
@@ -579,7 +615,10 @@ public class RichLabel extends WidgetGroup implements Disposable {
         }
         continue;
       }
-      // Future entries: hide if typewriter is active at this point
+      if (entry instanceof SpeedChange(float speed1)) {
+        speed = speed1;
+        continue;
+      }
       if (speed > 0) {
         if (entry instanceof TextReveal tr) {
           tr.label.setText("");
