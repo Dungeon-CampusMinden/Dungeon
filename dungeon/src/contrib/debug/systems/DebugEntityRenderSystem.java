@@ -1,19 +1,13 @@
 package contrib.debug.systems;
 
-import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
-import contrib.components.HealthComponent;
-import contrib.components.InventoryComponent;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
-import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.components.SoundComponent;
-import core.components.VelocityComponent;
 import core.input.Keys;
 import core.camera.CameraViewportState;
 import core.platform.Platform;
@@ -25,8 +19,6 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.animation.Animation;
 import java.awt.Color;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * The {@code DebugEntityRenderSystem} is responsible for rendering debug information
@@ -50,6 +42,8 @@ public final class DebugEntityRenderSystem extends System {
   private static final int INFO_OFFSET_Y = 12;
   private static final Color INFO_BACKGROUND = new Color(0, 0, 0, 170);
   private static final Color INFO_OUTLINE = new Color(255, 255, 255, 70);
+
+  private final DebugEntityInfoFormatter infoFormatter = new DebugEntityInfoFormatter();
 
   /**
    * Constructs a new instance of the DebugEntityRenderSystem.
@@ -235,7 +229,7 @@ public final class DebugEntityRenderSystem extends System {
   }
 
   private void drawEntityInfo(Entity entity, PositionComponent pc) {
-    String text = buildInfoText(entity, pc);
+    String text = infoFormatter.format(entity, pc, isShiftPressed());
     String[] lines = text.split("\\R");
 
     int longestLineLength = Arrays.stream(lines).mapToInt(String::length).max().orElse(0);
@@ -264,99 +258,13 @@ public final class DebugEntityRenderSystem extends System {
     }
   }
 
-  private String buildInfoText(Entity entity, PositionComponent pc) {
-    Point position = pc.position();
-
-    StringBuilder info = new StringBuilder();
-    info.append(entity.name()).append(" (").append(entity.id()).append(")\n");
-    info.append("Position: (")
-      .append(String.format("%.2f", position.x()))
-      .append(", ")
-      .append(String.format("%.2f", position.y()))
-      .append("); ")
-      .append(pc.viewDirection())
-      .append("\n");
-
-    entity
-      .fetch(VelocityComponent.class)
-      .ifPresent(
-        vc -> {
-          String velStr =
-            String.format("(%.2f, %.2f)", vc.currentVelocity().x(), vc.currentVelocity().y());
-          info.append("Velocity: ").append(velStr).append("\n");
-        });
-
-    entity
-      .fetch(HealthComponent.class)
-      .ifPresent(
-        hc ->
-          info.append("Health: ")
-            .append(hc.currentHealthpoints())
-            .append("/")
-            .append(hc.maximalHealthpoints())
-            .append(hc.isDead() ? " (DEAD)" : "")
-            .append(hc.godMode() ? " (GOD)" : "")
-            .append("\n"));
-
-    entity
-      .fetch(DrawComponent.class)
-      .ifPresent(
-        dc ->
-          info.append("Animation State: ")
-            .append(dc.currentStateName())
-            .append(" (")
-            .append(dc.currentState().getData())
-            .append(")\n"));
-
-    entity
-      .fetch(SoundComponent.class)
-      .ifPresent(sc -> info.append("Sound Instances: ").append(sc.sounds().size()).append("\n"));
-
-    entity
-      .fetch(InventoryComponent.class)
-      .ifPresent(
-        ic ->
-          info.append("Inventory: ")
-            .append(Arrays.stream(ic.items()).filter(Objects::nonNull).count())
-            .append("/")
-            .append(ic.items().length)
-            .append(" items\n"));
-
-    entity
-      .fetch(AIComponent.class)
-      .ifPresent(
-        ai -> info.append("AI State: ").append(ai.active() ? "Active" : "Inactive").append("\n"));
-
-    entity
-      .fetch(PlayerComponent.class)
-      .ifPresent(
-        player ->
-          info.append("Player: ")
-            .append(player.playerName())
-            .append(player.isLocal() ? " (LOCAL)" : " (REMOTE)")
-            .append("\n"));
-
-    if (InputManager.isKeyPressed(Keys.SHIFT_LEFT) || InputManager.isKeyPressed(Keys.SHIFT_RIGHT)) {
-      List<String> componentNames =
-        entity
-          .componentStream()
-          .map(comp -> comp.getClass().getSimpleName())
-          .sorted(String::compareToIgnoreCase)
-          .toList();
-
-      if (!componentNames.isEmpty()) {
-        info.append("Components:\n");
-        for (String componentName : componentNames) {
-          info.append("  - ").append(componentName).append("\n");
-        }
-      }
-    }
-
-    return info.toString().trim();
-  }
-
   private static boolean samePoint(Point a, Point b) {
     return Math.abs(a.x() - b.x()) < 0.0001f && Math.abs(a.y() - b.y()) < 0.0001f;
+  }
+
+  private static boolean isShiftPressed() {
+    return InputManager.isKeyPressed(Keys.SHIFT_LEFT)
+      || InputManager.isKeyPressed(Keys.SHIFT_RIGHT);
   }
 
   private static Color withAlpha(Color color, float alpha) {
