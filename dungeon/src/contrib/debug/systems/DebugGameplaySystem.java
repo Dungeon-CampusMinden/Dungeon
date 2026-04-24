@@ -34,7 +34,7 @@ public class DebugGameplaySystem extends System {
       DebugGameplayActions::teleportToCursor,
       DebugGameplayActions::teleportToEndNeighbor,
       DebugGameplayActions::teleportToStart,
-      DebugGameplayActions::teleportOntoExit,
+      DebugGameplayActions::teleportToExit,
       () -> {
         if (!levelEditorActive()) {
           spawnMonsterOnCursor();
