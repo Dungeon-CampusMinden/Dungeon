@@ -5,7 +5,7 @@ import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
 import contrib.game.LevelContentInstaller;
 import contrib.modules.interaction.InteractionSelection;
-import contrib.modules.interaction.ui.InteractionSelectionOverlayUi;
+import contrib.modules.interaction.ui.InteractionMenuUi;
 import contrib.modules.levelhide.LevelHideSystem;
 import contrib.systems.PositionSyncSystem;
 import core.game.loop.ClientLoopHostInstaller;
@@ -23,7 +23,7 @@ import core.platform.Platform;
  *
  * <ul>
  *   <li>{@link InteractionSelection}: Configures the interaction selection backend to use the
- *       {@link InteractionSelectionOverlayUi} singleton instance for presenting interaction
+ *       {@link InteractionMenuUi} singleton instance for presenting interaction
  *       overlays.</li>
  *   <li>{@link DialogBackendInstaller}: Wires up the shared dialog backend registry to support
  *       various custom and default dialog types.</li>
@@ -42,7 +42,7 @@ public final class PresentationClientInstaller implements ClientLoopHostInstalle
 
   @Override
   public void installPlatformServices() {
-    InteractionSelection.install(InteractionSelectionOverlayUi.INSTANCE);
+    InteractionSelection.install(InteractionMenuUi.INSTANCE);
     LevelContentInstaller.install();
     if (!(Platform.render() instanceof PresentationRenderAdapter)) {
       Platform.render(new PresentationRenderAdapter(Platform.render()));

@@ -48,7 +48,7 @@ import java.util.function.Consumer;
  *   <li>Manages panel visibility and position properties.</li>
  * </ul>
  */
-final class InteractionSelectionOverlay extends BaseUiOverlay {
+final class InteractionMenuOverlay extends BaseUiOverlay {
 
   private static final int PANEL_WIDTH = 320;
   private static final int PANEL_PADDING = 16;
@@ -63,7 +63,7 @@ final class InteractionSelectionOverlay extends BaseUiOverlay {
 
   private boolean leftButtonDownLastFrame = false;
 
-  InteractionSelectionOverlay(
+  InteractionMenuOverlay(
     IInteractable interactable, Consumer<Interaction> onSelected) {
     super(PANEL_WIDTH, 220);
     this.interactions = InteractionChoices.from(Objects.requireNonNull(interactable));

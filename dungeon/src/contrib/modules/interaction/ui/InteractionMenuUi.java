@@ -19,17 +19,17 @@ import java.util.function.Consumer;
  * <p>This class follows the singleton pattern, with its single instance
  * accessible via the {@code INSTANCE} field.
  */
-public final class InteractionSelectionOverlayUi implements InteractionSelectionUi {
+public final class InteractionMenuUi implements InteractionSelectionUi {
 
   /** The singleton instance of {@code InteractionSelectionOverlayUi}. */
-  public static final InteractionSelectionOverlayUi INSTANCE = new InteractionSelectionOverlayUi();
+  public static final InteractionMenuUi INSTANCE = new InteractionMenuUi();
 
-  private InteractionSelectionOverlayUi() {}
+  private InteractionMenuUi() {}
 
   @Override
   public void show(IInteractable interactable, Consumer<Interaction> onSelected) {
-    InteractionSelectionOverlay overlay =
-      new InteractionSelectionOverlay(interactable, onSelected);
+    InteractionMenuOverlay overlay =
+      new InteractionMenuOverlay(interactable, onSelected);
 
     OverlayManager.add(overlay);
     OverlayManager.toFront(overlay);
