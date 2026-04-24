@@ -1,10 +1,10 @@
 package contrib.editor.level;
 
 import contrib.editor.level.mode.DecoColliderMode;
-import contrib.editor.level.mode.DecoMode;
+import contrib.editor.level.mode.deco.DecoMode;
 import contrib.editor.level.mode.LevelBoundsMode;
 import contrib.editor.level.mode.LevelEditorMode;
-import contrib.editor.level.mode.PointMode;
+import contrib.editor.level.mode.point.PointMode;
 import contrib.editor.level.mode.SaveMode;
 import contrib.editor.level.mode.ShiftLevelMode;
 import contrib.editor.level.mode.StartTilesMode;
