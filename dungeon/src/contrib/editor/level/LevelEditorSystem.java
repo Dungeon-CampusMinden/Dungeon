@@ -1,11 +1,8 @@
 package contrib.editor.level;
 
-import contrib.components.HealthComponent;
 import contrib.editor.level.mode.LevelEditorMode;
-import core.Entity;
 import core.Game;
 import core.System;
-import core.components.InputComponent;
 import core.components.PlayerComponent;
 import core.game.render.RenderContext;
 import core.input.Keys;
@@ -16,8 +13,6 @@ import core.utils.Point;
 import core.utils.logging.DungeonLogger;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -27,9 +22,8 @@ import java.util.Optional;
  * <p>It includes features for interacting with tiles, entities, and dungeon levels, as well as providing visual
  * feedback and debug overlays for level editing modes.
  *
- * <p>This system manages various modes for editing level elements, toggling
- * debug visuals, and handling user interaction. It also supports rendering
- * overlays and feedback for user actions.
+ * <p>This system orchestrates editor mode execution, rendering, and overlay updates while the
+ * session object manages activation, input capture, and run/pause behavior.
  */
 public final class LevelEditorSystem extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LevelEditorSystem.class);
@@ -40,13 +34,10 @@ public final class LevelEditorSystem extends System {
   private final LevelEditorDebugRenderer layerDebugRenderer = new LevelEditorDebugRenderer();
   private final LevelEditorModeRegistry modeRegistry = new LevelEditorModeRegistry(this);
   private final LevelEditorOverlayPresenter overlayPresenter = new LevelEditorOverlayPresenter();
+  private final LevelEditorSession session = new LevelEditorSession();
 
-  private boolean active = false;
-  private boolean internalStopped = false;
   private boolean layerDebugActive = false;
-
   private LevelEditorModeRegistry.Mode currentMode = LevelEditorModeRegistry.Mode.TILES;
-  private Map<Integer, InputComponent.InputData> playerCallbacks = null;
 
   /**
    * Returns whether the editor is currently active.
@@ -54,7 +45,7 @@ public final class LevelEditorSystem extends System {
    * @return true if active
    */
   public boolean active() {
-    return active;
+    return session.active();
   }
 
   /**
@@ -63,55 +54,36 @@ public final class LevelEditorSystem extends System {
    * @param active new editor state
    */
   public void active(boolean active) {
-    if (this.active == active) {
-      return;
-    }
-
-    this.active = active;
-
-    Entity player = Game.player().orElse(null);
-    if (player == null) {
-      if (!active) {
-        overlayPresenter.detach();
-      }
+    LevelEditorSession.ActivationTransition transition = session.changeActivation(active);
+    if (!transition.changed()) {
       return;
     }
 
     if (active) {
-      player
-        .fetch(InputComponent.class)
-        .ifPresent(this::removePlayerEditorCallbacks);
-
-      player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(true));
-
-      overlayPresenter.attach();
-      onModeEnter(currentMode);
-      updateOverlay();
-      LOGGER.info("Level editor activated.");
+      if (transition.hasCapturedPlayer()) {
+        overlayPresenter.attach();
+        onModeEnter(currentMode);
+        updateOverlay();
+        LOGGER.info("Level editor activated.");
+      }
       return;
     }
 
-    if (playerCallbacks != null) {
-      player
-        .fetch(InputComponent.class)
-        .ifPresent(this::restorePlayerEditorCallbacks);
-      playerCallbacks = null;
+    if (transition.hadCapturedPlayer()) {
+      onModeExit(currentMode);
+      LOGGER.info("Level editor deactivated.");
     }
 
-    player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(false));
-
-    onModeExit(currentMode);
     overlayPresenter.detach();
-    LOGGER.info("Level editor deactivated.");
   }
 
   @Override
   public void execute() {
     if (InputManager.isKeyJustPressed(TOGGLE_ACTIVE)) {
-      active(!active);
+      active(!active());
     }
 
-    if (!active) {
+    if (!active()) {
       return;
     }
 
@@ -136,7 +108,7 @@ public final class LevelEditorSystem extends System {
       onModeEnter(currentMode);
     }
 
-    if (!internalStopped || modeChanged) {
+    if (session.shouldExecuteMode(modeChanged)) {
       currentModeInstance().doExecute();
     }
 
@@ -145,7 +117,7 @@ public final class LevelEditorSystem extends System {
 
   @Override
   public void render(float deltaSeconds) {
-    if (!active) {
+    if (!active()) {
       return;
     }
 
@@ -161,12 +133,12 @@ public final class LevelEditorSystem extends System {
 
   @Override
   public void stop() {
-    this.internalStopped = true;
+    session.stop();
   }
 
   @Override
   public void run() {
-    this.internalStopped = false;
+    session.run();
   }
 
   /**
@@ -197,35 +169,12 @@ public final class LevelEditorSystem extends System {
     return snappedCursorTile();
   }
 
-  private void removePlayerEditorCallbacks(InputComponent inputComponent) {
-    Map<Integer, InputComponent.InputData> callbacks = inputComponent.callbacks();
-    playerCallbacks = new HashMap<>();
-
-    LevelEditorMode.editorInputs()
-      .forEach(
-        input -> {
-          InputComponent.InputData callback = callbacks.get(input);
-          if (callback != null) {
-            playerCallbacks.put(input, callback);
-          }
-
-          inputComponent.removeCallback(input);
-        });
-  }
-
-  private void restorePlayerEditorCallbacks(InputComponent inputComponent) {
-    playerCallbacks.forEach(
-      (key, value) ->
-        inputComponent.registerCallback(
-          key, value.callback(), value.repeat(), value.pauseable()));
-  }
-
   private LevelEditorMode currentModeInstance() {
     return modeRegistry.mode(currentMode);
   }
 
   private void updateOverlay() {
-    if (!active) {
+    if (!active()) {
       return;
     }
 
