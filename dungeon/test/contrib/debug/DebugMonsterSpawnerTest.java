@@ -1,5 +1,6 @@
 package contrib.debug;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -83,6 +84,14 @@ public class DebugMonsterSpawnerTest {
         monster.fetch(PositionComponent.class).map(PositionComponent::position).orElseThrow();
 
     assertNotEquals(before, after);
+  }
+
+  /** Null positions are ignored instead of using exceptions as control flow. */
+  @Test
+  public void nullPositionDoesNotSpawnMonster() {
+    assertDoesNotThrow(() -> DebugMonsterSpawner.spawnAt(null));
+
+    assertFalse(Game.levelEntities().anyMatch(entity -> entity.isPresent(AIComponent.class)));
   }
 
   /**

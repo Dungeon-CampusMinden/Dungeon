@@ -26,13 +26,12 @@ public final class DebugMonsterSpawner {
    * @param position target spawn position
    */
   public static void spawnAt(Point position) {
-    Tile tile = null;
-    try {
-      tile = Game.tileAt(position).orElse(null);
-    } catch (NullPointerException ex) {
-      LOGGER.info(ex.getMessage());
+    if (position == null) {
+      LOGGER.info("Cannot spawn monster at null position");
+      return;
     }
 
+    Tile tile = Game.tileAt(position).orElse(null);
     if (tile == null || !tile.isAccessible()) {
       LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
       return;
