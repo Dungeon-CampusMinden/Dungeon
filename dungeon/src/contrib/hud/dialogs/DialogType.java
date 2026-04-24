@@ -58,7 +58,10 @@ public interface DialogType {
     PAUSE_MENU("PAUSE_MENU"),
 
     /** Multiple choice selection dialog. */
-    MULTIPLE_CHOICE("MULTIPLE_CHOICE");
+    MULTIPLE_CHOICE("MULTIPLE_CHOICE"),
+
+    /** Sequenced speaker dialogue (NPC talks). */
+    DIALOG_DIALOG("DIALOG_DIALOG");
 
     private final String type;
 

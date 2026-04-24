@@ -57,6 +57,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.PROGRESS_BAR, AttributeBarUtil::buildProgressBar);
     register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);
+    register(DialogType.DefaultTypes.DIALOG_DIALOG, DialogDialog::build);
   }
 
   /**
@@ -419,6 +420,46 @@ public class DialogFactory {
             UIUtils.closeDialog(ui);
           });
     }
+    return ui;
+  }
+
+  /**
+   * Shows a sequenced speaker dialogue (NPC dialog).
+   *
+   * <p>Each {@link DialogEntry} is shown one after another. The user advances by clicking anywhere
+   * on the dialog or pressing any key. While a typewriter reveal is still running, the advance
+   * instead skips to the end of the current text. After the last entry has been confirmed, {@code
+   * onFinished} is invoked and the dialog is closed.
+   *
+   * @param entries The non-empty list of dialog entries to display in order.
+   * @param onFinished Callback executed after the last entry has been confirmed.
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed.
+   * @return The {@link UIComponent} containing the dialog.
+   */
+  public static UIComponent showDialogDialog(
+      List<DialogEntry> entries, IVoidFunction onFinished, int... targetEntityIds) {
+    Objects.requireNonNull(entries, "entries list cannot be null");
+    if (entries.isEmpty()) {
+      throw new IllegalArgumentException("entries list cannot be empty");
+    }
+    Objects.requireNonNull(onFinished, "onFinished callback cannot be null");
+
+    DialogContext ctx =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.DIALOG_DIALOG)
+            .put(DialogContextKeys.ENTRIES, new ArrayList<>(entries))
+            .build();
+
+    UIComponent ui = show(ctx, targetEntityIds);
+
+    ui.registerCallback(
+        DialogContextKeys.ON_CONFIRM,
+        data -> {
+          onFinished.execute();
+          UIUtils.closeDialog(ui);
+        });
+    ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onFinished.execute());
+
     return ui;
   }
 }
