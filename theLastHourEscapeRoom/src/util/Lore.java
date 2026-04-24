@@ -1,5 +1,7 @@
 package util;
 
+import com.badlogic.gdx.Input;
+import contrib.configuration.KeyboardConfig;
 import core.utils.Tuple;
 import java.util.Collections;
 import java.util.List;
@@ -65,21 +67,44 @@ public class Lore {
   /** First post intro dialog. */
   public static final String PostIntroDialogText1 =
       """
-        Your task is to reconstruct Dr. Mertens' final steps. Gain access to his PC, investigate his communication, and uncover the clues he left behind.
-
-        But be careful: not every piece of information can be trusted. Among helpful messages, there may be deliberate manipulation attempts.
-
-        If you discover what he was working on, you may come closer to understanding why he disappeared.""";
+        Your task is to reconstruct [color=#aa00aa]Dr. Mertens'[/color] final steps.[n][pause=0.5]Gain access to his PC, investigate his communication, and uncover the clues he left behind.
+        [p]
+        But be careful: not every piece of information can be trusted.[n][pause=0.5]Among helpful messages, there may be deliberate [color=#aa0000]manipulation attempts[/color].
+        [p]
+        If you discover what he was working on, you may come closer to understanding why he[tr speed=0.1]...[pause=0.5][tr speed=0.3][shake strength=0.4 speed=0.5][color=#880000] disappeared[/color][/shake].""";
 
   /** 2nd intro dialog. */
   public static final String PostIntroDialogText2 =
-      """
-        Controls:
-
-        Move -> WASD
-        Interact -> E
-        Pause/Settings -> P
-        Close Dialog -> <ESC>""";
+      "[size=24]Controls:\n\n"
+          + "Move -> "
+          + "[key code="
+          + core.configuration.KeyboardConfig.MOVEMENT_UP.value()
+          + "]"
+          + "[key code="
+          + core.configuration.KeyboardConfig.MOVEMENT_LEFT.value()
+          + "]"
+          + "[key code="
+          + core.configuration.KeyboardConfig.MOVEMENT_DOWN.value()
+          + "]"
+          + "[key code="
+          + core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value()
+          + "]\n"
+          + "Interact -> "
+          + "[key code="
+          + KeyboardConfig.INTERACT_WORLD.value()
+          + "]"
+          + " / "
+          + "[key code="
+          + Input.Buttons.LEFT
+          + " type=mouse]\n"
+          + "Pause/Settings -> "
+          + "[key code="
+          + KeyboardConfig.PAUSE_MENU.value()
+          + "]\n"
+          + "Close Dialog -> "
+          + "[key code="
+          + KeyboardConfig.CLOSE_UI.value()
+          + "]";
 
   /** List of outro texts, each with a corresponding font sizes. */
   public static final List<Tuple<String, Integer>> OutroTexts =

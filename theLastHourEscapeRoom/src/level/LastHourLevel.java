@@ -1,5 +1,6 @@
 package level;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
@@ -10,6 +11,7 @@ import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.ChoiceOption;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogEntry;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.modules.emote.Emote;
@@ -136,41 +138,41 @@ public class LastHourLevel extends DungeonLevel {
 
   private void setupTestMcd() {
     Entity trigger = new Entity("test-mcd-trigger");
+
+    List<String> options =
+        List.of(
+            "[img=items/rpg/item_scroll.png] Enchanted Scroll [key code=" + Input.Keys.B + "]",
+            "[shake strength=0.6] [img=items/rpg/potion_purple.png] [color=#aa00aa]Mysterious Potion [img=items/rpg/potion_purple.png]",
+            "[size=30][img=items/rpg/item_compass.png] Ancient Compass",
+            "[img=items/rpg/key1.png] Golden Key",
+            "[img=items/rpg/item_magnifying_glass.png] Magnifying"
+                + " Glass [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png]");
+    String question =
+        "[tr speed=1.0][word-space=2.0]You found a [n][shake][size=30][color=#aa00aa]mysterious chest[/color][/size][/shake][n][word-space=1.0][pause=0.2][tr speed=1.5] Which [shake strength=0.6 speed=0.2]item[/shake] do you take?[pause=0.5]";
+    //    String description =
+    //        "[tr speed=1.0]Look at this scroll: [img-block path=items/rpg/item_scroll.png
+    // width=80]";
+    String description = null;
+
     trigger.add(new PositionComponent(getPoint("r1-mcd")));
     trigger.add(
         new CollideComponent(
                 Vector2.ZERO,
                 Vector2.ONE,
-                (e, other, dir) ->
-                    other
-                        .fetch(InputComponent.class)
-                        .ifPresent(
-                            ic -> {
-                              Game.remove(trigger);
-                              List<ChoiceOption> opts =
-                                  List.of(
-                                      ChoiceOption.of(
-                                          "[img=items/rpg/item_scroll.png] Enchanted Scroll"),
-                                      ChoiceOption.of(
-                                          "[img=items/rpg/potion_purple.png] Mysterious Potion"),
-                                      ChoiceOption.of(
-                                          "[img=items/rpg/item_compass.png] Ancient Compass"),
-                                      ChoiceOption.of("[img=items/rpg/key1.png] Golden Key"),
-                                      ChoiceOption.of(
-                                          "[img=items/rpg/item_magnifying_glass.png] Magnifying"
-                                              + " Glass"));
-                              DialogFactory.showMultipleChoiceDialog(
-                                  "You found a [color=#aa00aa]mysterious chest[/color]! Which item do you take?",
-                                  null,
-null,
-                                  new ArrayList<>(opts),
-                                  false,
-                                  payload -> {
-                                    LOGGER.info("Test MCD selected: " + payload);
-                                  },
-                                  () -> {},
-                                  other.id());
-                            }),
+                (e, other, dir) -> {
+                  List<ChoiceOption> opts = ChoiceOption.ofList(options);
+                  DialogFactory.showMultipleChoiceDialog(
+                      question,
+                      null,
+                      description,
+                      new ArrayList<>(opts),
+                      false,
+                      payload -> {
+                        LOGGER.warn("Option selected: " + payload);
+                      },
+                      () -> {},
+                      other.id());
+                },
                 null)
             .isSolid(false));
     Game.add(trigger);
@@ -182,11 +184,17 @@ null,
         false,
         true,
         () ->
-            DialogFactory.showTextDialog(
-                Lore.PostIntroDialogText1,
-                "",
-                () -> DialogFactory.showOkDialog(Lore.PostIntroDialogText2, "", () -> {}, targetId),
-                null,
+            DialogFactory.showDialogDialog(
+                List.of(
+                    DialogEntry.of(
+                        "[color=#aaaaaa][size=25]...",
+                        "logo/cat_logo_64x64.png",
+                        Lore.PostIntroDialogText1),
+                    DialogEntry.of(
+                        "[color=#aaaaaa][size=25]...",
+                        "logo/cat_logo_64x64.png",
+                        Lore.PostIntroDialogText2)),
+                () -> {},
                 targetId),
         targetId);
     INTRO_SHOWN_TO.add(targetId);

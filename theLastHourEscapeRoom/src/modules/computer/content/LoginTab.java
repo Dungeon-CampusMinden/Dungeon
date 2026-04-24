@@ -53,7 +53,9 @@ public class LoginTab extends ComputerTab {
     this.add(label).center().padBottom(10).row();
     RichLabel flavor =
         new RichLabel(
-            "At the [color=red]frontlines[/color] of [color=#3399ff]science[/color] since 1984",
+            "[img=items/rpg/item_gem_ruby.png] At the [color=red]frontlines[/color] of"
+                + " [img=items/rpg/shield_gold.png] [color=#3399ff]science[/color] since 1984"
+                + " [img=items/rpg/potion_red.png]",
             24,
             Color.GRAY);
     this.add(flavor).center().padBottom(20).row();

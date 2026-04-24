@@ -128,9 +128,9 @@ public class ComputerFactory {
     options.add(ChoiceOption.of(ACCESS_PC_LABEL));
 
     DialogFactory.showMultipleChoiceDialog(
-        "You are carrying USB sticks.\nWhat do you want to do?",
-        "",
-        "You can plug in a USB stick or just use the computer.",
+        "[tr speed=2.0][line-space=2.0]You are carrying USB sticks.[n]What do you want to do?",
+        null,
+        null,
         options,
         false,
         data -> {
