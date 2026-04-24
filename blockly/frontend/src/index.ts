@@ -49,6 +49,22 @@ setupButtons(workspace);
 // Disable all blocks that aren't connected to the start block.
 workspace.addChangeListener(Blockly.Events.disableOrphans);
 
+workspace.addChangeListener((event: Blockly.Events.Abstract) => {
+  if (event.type === Blockly.Events.CLICK ) {
+    const clickEvent = event as Blockly.Events.Click;
+    console.log(clickEvent.targetType); // 'zoom_reset', 'block', 'workspace', etc.
+    if (clickEvent.targetType === "zoom_controls") {
+      const blocks = workspace.getBlocksByType('start', false);
+      console.log(blocks);
+
+      if (blocks.length > 0) {
+        const startBlock = blocks[0]; // Nimm den ersten gefundenen Block
+        workspace.centerOnBlock(startBlock.id);
+      }
+    }
+  }
+})
+
 // Disable the toolbox flyout auto-close
 const toolboxFlyout = workspace.getToolbox()?.getFlyout();
 if (toolboxFlyout) {
