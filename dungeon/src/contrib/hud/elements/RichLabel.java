@@ -23,28 +23,40 @@ import java.util.List;
  *
  * <ul>
  *   <li>{@code [img=path/to/image.png]} - renders an inline image scaled to the font line height.
+ *   <li>{@code [img path=image.png]}, {@code [img path=image.png scale=1.5]} or {@code [img
+ *       path=sheet.png x=64 y=0 w=64 h=64 scale=1.5]} - the named-parameter form of the inline
+ *       image tag. The optional {@code x}, {@code y}, {@code w}, {@code h} parameters select a
+ *       sub-region of the texture for use in spritesheets; all four must be supplied together. The
+ *       optional {@code scale} parameter is a multiplier on top of the font-derived image height,
+ *       letting an image render larger (or smaller) than the surrounding text while preserving its
+ *       aspect ratio.
  *   <li>{@code [img-block path=image.png]} or {@code [img-block path=image.png width=300]} or
  *       {@code [img-block path=image.png width=50%]} - renders a block-level image on its own line,
  *       centered horizontally. Width can be pixels or a percentage of the container width. Aspect
  *       ratio is always preserved. Defaults to full container width.
+ *   <li>{@code [key code=<int>]} or {@code [key code=<int> type=<inputMethod>]} or {@code [key
+ *       code=<int> outline]} - renders an input-prompt graphic (keyboard key, mouse button, ...)
+ *       inline. Behaves exactly like {@code [img]} regarding sizing, spacing and shake. The
+ *       required {@code code} parameter holds the libGDX {@code Input.Keys} or {@code
+ *       Input.Buttons} integer. The optional {@code type} parameter selects the lookup space:
+ *       {@code keyboard} (default), {@code mouse}, {@code playstation}, {@code xbox} or {@code
+ *       touch}. Unknown codes / unsupported input methods log a warning and render nothing.
  *   <li>{@code [color=red]} or {@code [color=#ff0000]} - changes the text color for subsequent
  *       text.
  *   <li>{@code [/color]} - resets the text color to the default.
  *   <li>{@code [size=24]} - changes the font size for subsequent text.
  *   <li>{@code [/size]} - resets the font size to the default.
  *   <li>{@code [shake]} or {@code [shake strength=1.5]} or {@code [shake strength=1.5 speed=0.5]} -
- *       applies a shake effect to subsequent runs. Named parameters: {@code strength} (multiplier
- *       of default 1.3px) and {@code speed} (multiplier of default 10). Boolean parameters can be
- *       specified by name alone (presence = true, absence = false).
+ *       applies a shake effect to subsequent runs. Named parameters: {@code strength} and {@code
+ *       speed}.
  *   <li>{@code [/shake]} - ends the shake effect.
  *   <li>{@code [word-space=1.5]} - multiplies the default word spacing by the given factor for all
  *       subsequent text. 1.0 is default spacing.
  *   <li>{@code [line-space=1.5]} - multiplies the default line height by the given factor for all
  *       subsequent lines. 1.0 is default spacing.
- *   <li>{@code [tr]} or {@code [tr speed=0.5]} - enables typewriter mode. The {@code speed}
- *       parameter is a multiplier of the default rate (10 characters per second), so {@code
- *       speed=0.5} yields 5 chars/s. A speed of 0 disables typewriter mode (text appears
- *       instantly). Typewriter mode is disabled by default until a {@code [tr]} tag is encountered.
+ *   <li>{@code [tr]} or {@code [tr speed=0.5]} - sets typewriter mode speed. The {@code speed}
+ *       parameter is a multiplier of the default rate. A speed of 0 disables typewriter mode (text
+ *       appears instantly).
  *   <li>{@code [pause=0.5]} - pauses the typewriter for the specified duration in seconds. Has no
  *       effect when typewriter mode is disabled.
  *   <li>{@code [n]} - forces a line break at the current position.
@@ -72,9 +84,15 @@ public class RichLabel extends WidgetGroup implements Disposable {
   private float lastPrefHeightWidth;
   private boolean wrap = true;
 
+  /**
+   * Whether an implicit leading {@code [tr]} (typewriter at default speed) is prepended when
+   * parsing the text. The input text can always override this with an explicit {@code [tr]} tag.
+   */
+  private final boolean typewriterEnabledByDefault;
+
   private final RichLabelParser parser = new RichLabelParser();
   private final RichLabelLayout layoutEngine = new RichLabelLayout();
-  private List<Run> runs = new ArrayList<>();
+  private List<Run> runs;
 
   /** Accumulated time for shake effects, persists across layout calls. */
   private float shakeElapsed;
@@ -111,6 +129,13 @@ public class RichLabel extends WidgetGroup implements Disposable {
   /** Whether the typewriter has finished revealing all content. */
   private boolean typewriterFinished = true;
 
+  /**
+   * If true, the typewriter advancement is paused (no characters are revealed and pause timers do
+   * not tick down). Used to gate the start of a typewriter reveal until an external chain (e.g. a
+   * previous label finishing) completes.
+   */
+  private boolean typewriterPaused;
+
   /** Optional callback invoked once when the typewriter finishes revealing all content. */
   private Runnable onTypewriterFinished;
 
@@ -122,15 +147,34 @@ public class RichLabel extends WidgetGroup implements Disposable {
   }
 
   /**
-   * Creates a new RichLabel with the given text and font specification.
+   * Creates a new RichLabel with the given text and font specification. The typewriter is enabled
+   * by default; use {@link #RichLabel(String, FontSpec, boolean)} to opt out.
    *
    * @param text the markup text to display
    * @param fontSpec the font specification for default text rendering
    */
   public RichLabel(String text, FontSpec fontSpec) {
+    this(text, fontSpec, true);
+  }
+
+  /**
+   * Creates a new RichLabel with the given text, font specification, and a flag controlling whether
+   * the typewriter is enabled by default.
+   *
+   * <p>When {@code typewriterEnabledByDefault} is {@code false}, the parser will not prepend an
+   * implicit leading {@code [tr]} tag, so text appears instantly unless the input text itself
+   * contains an explicit {@code [tr]} tag (which always overrides this default).
+   *
+   * @param text the markup text to display
+   * @param fontSpec the font specification for default text rendering
+   * @param typewriterEnabledByDefault whether the typewriter is implicitly enabled at default speed
+   *     for this label
+   */
+  public RichLabel(String text, FontSpec fontSpec, boolean typewriterEnabledByDefault) {
     this.fontSpec = fontSpec;
     this.text = text;
-    runs = parser.parse(text);
+    this.typewriterEnabledByDefault = typewriterEnabledByDefault;
+    runs = parser.parse(text, typewriterEnabledByDefault);
   }
 
   /**
@@ -145,6 +189,20 @@ public class RichLabel extends WidgetGroup implements Disposable {
   }
 
   /**
+   * Creates a new RichLabel with the given text, font size, color, and a flag controlling whether
+   * the typewriter is enabled by default. See {@link #RichLabel(String, FontSpec, boolean)}.
+   *
+   * @param text the markup text to display
+   * @param fontSize the font size
+   * @param fontColor the default font color
+   * @param typewriterEnabledByDefault whether the typewriter is implicitly enabled at default speed
+   *     for this label
+   */
+  public RichLabel(String text, int fontSize, Color fontColor, boolean typewriterEnabledByDefault) {
+    this(text, FontSpec.of(fontSize, fontColor), typewriterEnabledByDefault);
+  }
+
+  /**
    * Creates a new RichLabel with the given text and font size, using white as the default color.
    *
    * @param text the markup text to display
@@ -152,6 +210,34 @@ public class RichLabel extends WidgetGroup implements Disposable {
    */
   public RichLabel(String text, int fontSize) {
     this(text, fontSize, Color.WHITE);
+  }
+
+  /**
+   * Creates a new RichLabel with the given text and font size, using white as the default color,
+   * and a flag controlling whether the typewriter is enabled by default. See {@link
+   * #RichLabel(String, FontSpec, boolean)}.
+   *
+   * @param text the markup text to display
+   * @param fontSize the font size
+   * @param typewriterEnabledByDefault whether the typewriter is implicitly enabled at default speed
+   *     for this label
+   */
+  public RichLabel(String text, int fontSize, boolean typewriterEnabledByDefault) {
+    this(text, fontSize, Color.WHITE, typewriterEnabledByDefault);
+  }
+
+  /**
+   * Converts a plain text string to RichLabel-compatible markup by replacing newline characters
+   * ({@code \n}) with the {@code [n]} line-break tag understood by {@link RichLabel}.
+   *
+   * <p>Useful for adapting legacy text intended for plain {@link Label} usage so it renders with
+   * the same line breaks inside a {@link RichLabel}.
+   *
+   * @param text input text, may contain {@code \n}; may be {@code null}
+   * @return text with {@code \n} replaced by {@code [n]}, or {@code null} if {@code text} is null
+   */
+  public static String toRichText(String text) {
+    return text == null ? null : text.replace("\n", "[n]");
   }
 
   /**
@@ -183,7 +269,7 @@ public class RichLabel extends WidgetGroup implements Disposable {
   public void setText(String text) {
     this.text = text;
     parser.clearShakeCache();
-    runs = parser.parse(text);
+    runs = parser.parse(text, typewriterEnabledByDefault);
     resetTypewriter();
     invalidateHierarchy();
   }
@@ -290,6 +376,32 @@ public class RichLabel extends WidgetGroup implements Disposable {
     this.onTypewriterFinished = callback;
   }
 
+  /**
+   * Pauses typewriter advancement. While paused, no further characters are revealed and pause
+   * timers ({@code [pause=...]} tags) do not tick down. Use this to defer the start of the reveal
+   * until an external trigger (e.g. another RichLabel finishing) occurs.
+   *
+   * <p>This is independent of {@code [pause=...]} tags inside the text: those represent in-stream
+   * pauses while the reveal is otherwise running.
+   */
+  public void pauseTypewriter() {
+    this.typewriterPaused = true;
+  }
+
+  /** Resumes typewriter advancement after {@link #pauseTypewriter()}. */
+  public void resumeTypewriter() {
+    this.typewriterPaused = false;
+  }
+
+  /**
+   * Returns whether the typewriter is currently externally paused via {@link #pauseTypewriter()}.
+   *
+   * @return true if paused
+   */
+  public boolean isTypewriterPaused() {
+    return typewriterPaused;
+  }
+
   /** Instantly reveals all remaining typewriter content. */
   public void skipTypewriter() {
     if (typewriterFinished) return;
@@ -298,11 +410,11 @@ public class RichLabel extends WidgetGroup implements Disposable {
     suppressInvalidation = true;
     // Reveal everything
     for (RevealEntry entry : revealSchedule) {
-      if (entry instanceof TextReveal tr) {
-        tr.label.setText(tr.fullText);
-        tr.label.setVisible(true);
-      } else if (entry instanceof ActorReveal ar) {
-        ar.actor.setVisible(true);
+      if (entry instanceof TextReveal(Label label, String fullText)) {
+        label.setText(fullText);
+        label.setVisible(true);
+      } else if (entry instanceof ActorReveal(Actor actor)) {
+        actor.setVisible(true);
       }
     }
     suppressInvalidation = false;
@@ -314,7 +426,7 @@ public class RichLabel extends WidgetGroup implements Disposable {
 
   /**
    * Resets the typewriter state so that the next layout pass will start the reveal from the
-   * beginning. Typewriter speed resets to 0 (disabled) until a [tr] tag is encountered.
+   * beginning. Typewriter speed starts from the implicit default on first reveal processing.
    */
   public void resetTypewriter() {
     revealIndex = 0;
@@ -396,11 +508,11 @@ public class RichLabel extends WidgetGroup implements Disposable {
 
     boolean hasTypewriter = false;
     for (RichLabelLayout.PlacedActor pa : placedActors) {
-      if (pa.run() instanceof TypewriterRun tr) {
-        revealSchedule.add(new SpeedChange(tr.speed()));
-        if (tr.speed() > 0) hasTypewriter = true;
-      } else if (pa.run() instanceof PauseRun pr) {
-        revealSchedule.add(new PauseEntry(pr.duration()));
+      if (pa.run() instanceof TypewriterRun(float speed)) {
+        revealSchedule.add(new SpeedChange(speed));
+        if (speed > 0) hasTypewriter = true;
+      } else if (pa.run() instanceof PauseRun(float duration)) {
+        revealSchedule.add(new PauseEntry(duration));
       } else if (pa.actor() != null) {
         if (pa.fullText() != null) {
           revealSchedule.add(new TextReveal((Label) pa.actor(), pa.fullText()));
@@ -446,24 +558,24 @@ public class RichLabel extends WidgetGroup implements Disposable {
       RevealEntry entry = revealSchedule.get(i);
       if (i < revealIndex) {
         // Already fully revealed
-        if (entry instanceof SpeedChange sc) speed = sc.speed;
+        if (entry instanceof SpeedChange(float speed1)) speed = speed1;
         continue;
       }
       if (i == revealIndex) {
         // Currently being revealed
-        if (entry instanceof TextReveal tr) {
+        if (entry instanceof TextReveal(Label label, String fullText)) {
           if (speed > 0) {
             if (revealCharOffset <= 0) {
-              tr.label.setText("");
-              tr.label.setVisible(true);
+              label.setText("");
+              label.setVisible(true);
             } else {
-              tr.label.setText(tr.fullText.substring(0, revealCharOffset));
-              tr.label.setVisible(true);
+              label.setText(fullText.substring(0, revealCharOffset));
+              label.setVisible(true);
             }
           }
           // If speed is 0, label stays fully visible (instant)
-        } else if (entry instanceof SpeedChange sc) {
-          speed = sc.speed;
+        } else if (entry instanceof SpeedChange(float speed1)) {
+          speed = speed1;
         }
         continue;
       }
@@ -472,8 +584,8 @@ public class RichLabel extends WidgetGroup implements Disposable {
         if (entry instanceof TextReveal tr) {
           tr.label.setText("");
           tr.label.setVisible(true);
-        } else if (entry instanceof ActorReveal ar) {
-          ar.actor.setVisible(false);
+        } else if (entry instanceof ActorReveal(Actor actor)) {
+          actor.setVisible(false);
         }
       }
     }
@@ -486,6 +598,7 @@ public class RichLabel extends WidgetGroup implements Disposable {
    */
   private void advanceTypewriter(float delta) {
     if (typewriterFinished) return;
+    if (typewriterPaused) return;
 
     suppressInvalidation = true;
 
@@ -505,8 +618,8 @@ public class RichLabel extends WidgetGroup implements Disposable {
     while (revealIndex < revealSchedule.size()) {
       RevealEntry entry = revealSchedule.get(revealIndex);
 
-      if (entry instanceof SpeedChange sc) {
-        typewriterSpeed = sc.speed;
+      if (entry instanceof SpeedChange(float speed)) {
+        typewriterSpeed = speed;
         revealIndex++;
         revealCharOffset = 0;
 
@@ -517,9 +630,9 @@ public class RichLabel extends WidgetGroup implements Disposable {
         continue;
       }
 
-      if (entry instanceof PauseEntry pe) {
+      if (entry instanceof PauseEntry(float duration)) {
         if (typewriterSpeed > 0) {
-          typewriterPauseRemaining = pe.duration;
+          typewriterPauseRemaining = duration;
           revealIndex++;
           revealCharOffset = 0;
           if (typewriterPauseRemaining > 0) {
@@ -543,14 +656,14 @@ public class RichLabel extends WidgetGroup implements Disposable {
       // Typewriter active: consume characters
       float charTime = 1f / typewriterSpeed;
 
-      if (entry instanceof TextReveal tr) {
-        int totalChars = tr.fullText.length();
+      if (entry instanceof TextReveal(Label label, String fullText)) {
+        int totalChars = fullText.length();
         while (revealCharOffset < totalChars && revealCharAccum >= charTime) {
           revealCharAccum -= charTime;
           revealCharOffset++;
         }
-        tr.label.setText(tr.fullText.substring(0, revealCharOffset));
-        tr.label.setVisible(true);
+        label.setText(fullText.substring(0, revealCharOffset));
+        label.setVisible(true);
         if (revealCharOffset >= totalChars) {
           revealIndex++;
           revealCharOffset = 0;
@@ -560,10 +673,10 @@ public class RichLabel extends WidgetGroup implements Disposable {
         return; // Waiting for more time
       }
 
-      if (entry instanceof ActorReveal ar) {
+      if (entry instanceof ActorReveal(Actor actor)) {
         if (revealCharAccum >= charTime) {
           revealCharAccum -= charTime;
-          ar.actor.setVisible(true);
+          actor.setVisible(true);
           revealIndex++;
           revealCharOffset = 0;
           continue;
@@ -593,11 +706,11 @@ public class RichLabel extends WidgetGroup implements Disposable {
     while (revealIndex < revealSchedule.size()) {
       RevealEntry entry = revealSchedule.get(revealIndex);
       if (entry instanceof SpeedChange) break;
-      if (entry instanceof TextReveal tr) {
-        tr.label.setText(tr.fullText);
-        tr.label.setVisible(true);
-      } else if (entry instanceof ActorReveal ar) {
-        ar.actor.setVisible(true);
+      if (entry instanceof TextReveal(Label label, String fullText)) {
+        label.setText(fullText);
+        label.setVisible(true);
+      } else if (entry instanceof ActorReveal(Actor actor)) {
+        actor.setVisible(true);
       }
       // PauseEntry is skipped when speed is 0
       revealIndex++;

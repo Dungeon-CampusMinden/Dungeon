@@ -1,6 +1,10 @@
 package contrib.hud.elements.richlabel;
 
 import com.badlogic.gdx.graphics.Color;
+import contrib.hud.input.InputMethod;
+import contrib.hud.input.InputPromptHelper;
+import contrib.hud.input.InputPromptHelper.InputPromptRegion;
+import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,15 +14,19 @@ import java.util.regex.Pattern;
 
 /**
  * Parses rich-text markup into a flat list of {@link Run} tokens. Handles all supported tags:
- * {@code [img]}, {@code [img-block]}, {@code [color]}, {@code [size]}, {@code [shake]}, and their
- * closing variants.
+ * {@code [img]}, {@code [img-block]}, {@code [key]}, {@code [color]}, {@code [size]}, {@code
+ * [shake]}, and their closing variants.
  */
 public class RichLabelParser {
+
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(RichLabelParser.class);
 
   static final Pattern TAG_PATTERN =
       Pattern.compile(
           "\\[img=([^]]+)]"
+              + "|\\[img((?:\\s+[^]]*))]"
               + "|\\[img-block((?:\\s+[^]]*))]"
+              + "|\\[key((?:\\s+[^]]*))]"
               + "|\\[color=([^]]+)]|\\[/color]"
               + "|\\[size=([^]]+)]|\\[/size]"
               + "|\\[shake((?:\\s+[^]]*)?)]|\\[/shake]"
@@ -53,7 +61,10 @@ public class RichLabelParser {
   static final float SHAKE_DEFAULT_SPEED = 10f;
 
   /** Default typewriter speed in characters per second. */
-  static final float TYPEWRITER_DEFAULT_SPEED = 20f;
+  static final float TYPEWRITER_DEFAULT_SPEED = 35f;
+
+  /** Default size multiplier applied to all {@code [key]}-derived images. */
+  static final float KEY_DEFAULT_SCALE = 1.5f;
 
   /** Counter used to assign a unique phase to each [shake] block during parsing. */
   private int shakeBlockCounter;
@@ -62,15 +73,35 @@ public class RichLabelParser {
   private final List<ShakeEffect> shakeEffectCache = new ArrayList<>();
 
   /**
-   * Parses the markup text into a flat list of runs.
+   * Parses the markup text into a flat list of runs, with the typewriter implicitly enabled at
+   * default speed. Equivalent to {@code parse(text, true)}.
    *
    * @param text the markup text to parse
    * @return the list of parsed runs
    */
   public List<Run> parse(String text) {
+    return parse(text, true);
+  }
+
+  /**
+   * Parses the markup text into a flat list of runs.
+   *
+   * @param text the markup text to parse
+   * @param implicitTypewriter if {@code true}, an implicit leading {@code [tr speed=1.0]} is
+   *     prepended so the typewriter is enabled by default. If {@code false}, no implicit typewriter
+   *     run is added; the typewriter is then only active if the input text contains an explicit
+   *     {@code [tr]} tag.
+   * @return the list of parsed runs
+   */
+  public List<Run> parse(String text, boolean implicitTypewriter) {
     List<Run> runs = new ArrayList<>();
     shakeBlockCounter = 0;
     if (text == null || text.isEmpty()) return runs;
+
+    if (implicitTypewriter) {
+      // Default behavior is equivalent to an implicit leading [tr speed=1.0].
+      runs.add(new TypewriterRun(TYPEWRITER_DEFAULT_SPEED));
+    }
 
     Color currentColor = null;
     int currentSize = -1;
@@ -85,36 +116,50 @@ public class RichLabelParser {
       }
 
       if (matcher.group(1) != null) {
-        runs.add(new ImageRun(matcher.group(1), currentShake));
+        runs.add(ImageRun.fullTexture(matcher.group(1), currentShake, currentSize));
       } else if (matcher.group(2) != null) {
         TagParams params = TagParams.parse(matcher.group(2));
+        String path = params.getString("path", null);
+        if (path != null) {
+          int rx = (int) params.getFloat("x", -1f);
+          int ry = (int) params.getFloat("y", -1f);
+          int rw = (int) params.getFloat("w", -1f);
+          int rh = (int) params.getFloat("h", -1f);
+          float scale = params.getFloat("scale", 1f);
+          runs.add(new ImageRun(path, currentShake, currentSize, scale, rx, ry, rw, rh));
+        }
+      } else if (matcher.group(3) != null) {
+        TagParams params = TagParams.parse(matcher.group(3));
         String path = params.getString("path", null);
         if (path != null) {
           String widthSpec = params.getString("width", null);
           runs.add(new ImageBlockRun(path, widthSpec));
         }
-      } else if (matcher.group(3) != null) {
-        currentColor = parseColor(matcher.group(3));
       } else if (matcher.group(4) != null) {
-        currentSize = parseSizeValue(matcher.group(4));
+        ImageRun keyImage = parseKeyTag(matcher.group(4), currentShake, currentSize);
+        if (keyImage != null) runs.add(keyImage);
       } else if (matcher.group(5) != null) {
-        currentShake = parseShake(matcher.group(5));
+        currentColor = parseColor(matcher.group(5));
       } else if (matcher.group(6) != null) {
-        // [word-space=N]
-        float val = parseFloatValue(matcher.group(6), 1f);
-        runs.add(new SpacingRun(val, -1f));
+        currentSize = parseSizeValue(matcher.group(6));
       } else if (matcher.group(7) != null) {
-        // [line-space=N]
-        float val = parseFloatValue(matcher.group(7), 1f);
-        runs.add(new SpacingRun(-1f, val));
+        currentShake = parseShake(matcher.group(7));
       } else if (matcher.group(8) != null) {
+        // [word-space=N]
+        float val = parseFloatValue(matcher.group(8), 1f);
+        runs.add(new SpacingRun(val, -1f));
+      } else if (matcher.group(9) != null) {
+        // [line-space=N]
+        float val = parseFloatValue(matcher.group(9), 1f);
+        runs.add(new SpacingRun(-1f, val));
+      } else if (matcher.group(10) != null) {
         // [tr] or [tr speed=N]
-        TagParams tp = TagParams.parse(matcher.group(8));
+        TagParams tp = TagParams.parse(matcher.group(10));
         float speedMul = tp.getFloat("speed", 1f);
         runs.add(new TypewriterRun(TYPEWRITER_DEFAULT_SPEED * speedMul));
-      } else if (matcher.group(9) != null) {
+      } else if (matcher.group(11) != null) {
         // [pause=N]
-        float duration = parseFloatValue(matcher.group(9), 0f);
+        float duration = parseFloatValue(matcher.group(11), 0f);
         runs.add(new PauseRun(duration));
       } else {
         String matched = matcher.group();
@@ -201,6 +246,73 @@ public class RichLabelParser {
     } catch (NumberFormatException e) {
       return defaultValue;
     }
+  }
+
+  /**
+   * Parses a {@code [key]} tag's parameter string and resolves it to an {@link ImageRun} that
+   * references the matching cell of an input-prompt spritesheet. The {@code code} parameter is
+   * required and holds the libGDX key or button integer; the optional {@code type} parameter
+   * selects the lookup space ({@code keyboard} (default), {@code mouse}, {@code playstation},
+   * {@code xbox}, {@code touch}). The optional {@code outline} boolean flag selects the outlined
+   * spritesheet variant. Returns {@code null} (and logs a warning) when the tag cannot be resolved,
+   * so the markup is silently dropped at render time instead of throwing.
+   *
+   * @param params the raw parameter string of the tag (everything after {@code [key} and before the
+   *     closing {@code ]}).
+   * @param shake the current shake effect to attach to the resulting image run, or {@code null}.
+   * @param sizeOverride the current font size override to scale the image with, or {@code -1}.
+   * @return the resolved {@link ImageRun}, or {@code null} when the tag cannot be resolved.
+   */
+  private static ImageRun parseKeyTag(String params, ShakeEffect shake, int sizeOverride) {
+    TagParams tp = TagParams.parse(params);
+    String codeStr = tp.getString("code", null);
+    if (codeStr == null) {
+      LOGGER.warn("[key] tag is missing required 'code' parameter; ignoring");
+      return null;
+    }
+    int code;
+    try {
+      code = Integer.parseInt(codeStr);
+    } catch (NumberFormatException e) {
+      LOGGER.warn("[key] tag has non-integer code '" + codeStr + "'; ignoring");
+      return null;
+    }
+    String type = tp.getString("type", "keyboard").toLowerCase();
+    boolean outline = tp.getBoolean("outline");
+
+    InputPromptRegion region;
+    try {
+      if ("mouse".equals(type)) {
+        region = InputPromptHelper.lookupMouseButton(code, outline);
+      } else {
+        InputMethod method;
+        try {
+          method = InputMethod.valueOf(type.toUpperCase());
+        } catch (IllegalArgumentException e) {
+          LOGGER.warn("[key] tag has unknown type '" + type + "'; ignoring");
+          return null;
+        }
+        region = InputPromptHelper.lookupKey(method, code, outline);
+      }
+    } catch (UnsupportedOperationException e) {
+      LOGGER.warn("[key] tag uses unsupported input method '" + type + "'; ignoring");
+      return null;
+    }
+
+    if (region == null) {
+      LOGGER.warn(
+          "[key] tag has no prompt mapping for code=" + code + " type=" + type + "; ignoring");
+      return null;
+    }
+    return new ImageRun(
+        region.texturePath(),
+        shake,
+        sizeOverride,
+        KEY_DEFAULT_SCALE,
+        region.x(),
+        region.y(),
+        region.width(),
+        region.height());
   }
 
   private ShakeEffect parseShake(String params) {
