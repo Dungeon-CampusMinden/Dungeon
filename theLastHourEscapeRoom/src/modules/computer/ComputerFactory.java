@@ -10,9 +10,11 @@ import contrib.modules.emote.Emote;
 import contrib.modules.emote.EmoteFactory;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
+import contrib.systems.EventScheduler;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.game.PreRunConfiguration;
 import core.network.codec.DialogValueCodecRegistry;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.logging.DungeonLogger;
@@ -31,14 +33,16 @@ public class ComputerFactory {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ComputerFactory.class);
   private static final String STATE_KEY = "computer_state";
-  private static final String ACCESS_PC_LABEL =
-      "Access PC. This will have wild implications idk I just want to test the line wrapping. So here is another sentence to make this really long.";
+  private static final String ACCESS_PC_LABEL = "Just access the PC";
 
   /** Tracks whether the correct USB stick has already been inserted this session. */
   private static boolean usbAlreadyInserted = false;
 
   /** Key for updating the computer state from the dialog callbacks. */
   public static final String UPDATE_STATE_KEY = "update_state";
+
+  /** Delay in milliseconds between triggering the unknown-device virus and the forced shutdown. */
+  public static final long UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS = 10_000L;
 
   static {
     ensureRegistration();
@@ -77,13 +81,17 @@ public class ComputerFactory {
                       }
 
                       // Check if the player carries any USB sticks
-                      // Skip USB dialog if correct stick was already inserted or PC is infected
+                      // Skip USB dialog if correct stick was already inserted, PC is infected,
+                      // or PC is still pre-login (no point plugging in a stick before logging in)
                       List<UsbStickItem.BaseUsbStick> usbSticks = findUsbSticks(who);
-                      boolean isInfected =
-                          ComputerStateComponent.getState()
-                              .map(ComputerStateComponent::isInfected)
-                              .orElse(false);
-                      if (!usbAlreadyInserted && !isInfected && !usbSticks.isEmpty()) {
+                      ComputerStateComponent state = ComputerStateComponent.getState().orElse(null);
+                      boolean isInfected = state != null && state.isInfected();
+                      boolean isLoggedIn =
+                          state != null && state.state().hasReached(ComputerProgress.LOGGED_IN);
+                      if (!usbAlreadyInserted
+                          && !isInfected
+                          && isLoggedIn
+                          && !usbSticks.isEmpty()) {
                         showUsbStickChoice(usbSticks, entity, who);
                       } else {
                         openComputerDialog(entity, who);
@@ -122,27 +130,42 @@ public class ComputerFactory {
     List<ChoiceOption> options = new ArrayList<>();
     for (UsbStickItem.BaseUsbStick stick : usbSticks) {
       UsbStickColor color = stick.color();
+      // Use the enum's stable name() as the wire value; the label keeps the rich icon+text markup.
       options.add(
-          ChoiceOption.of("[img=" + color.getTexturePath() + "] " + color.displayName(), color));
+          ChoiceOption.of(
+              "[img=" + color.getTexturePath() + "] " + color.displayName(), color.name()));
     }
+    // ACCESS_PC_LABEL doubles as the sentinel string for "open the PC directly" (label == value).
     options.add(ChoiceOption.of(ACCESS_PC_LABEL));
 
     DialogFactory.showMultipleChoiceDialog(
-        "[tr speed=2.0][line-space=2.0]You are carrying USB sticks.[n]What do you want to do?",
+        "[tr speed=0][line-space=2.0]You are carrying USB sticks.[n]Do you want to plug one of them in?",
         null,
         null,
         options,
         false,
         data -> {
-          if (data instanceof DialogResponseMessage.CustomPayload(java.io.Serializable val)
-              && val instanceof UsbStickColor selectedColor) {
-            usbSticks.stream()
-                .filter(s -> s.color() == selectedColor)
-                .findFirst()
-                .ifPresent(stick -> onUsbStickInserted(stick, pcEntity, who));
-          } else {
+          String choice =
+              (data instanceof DialogResponseMessage.StringValue(String s)) ? s : null;
+          if (choice == null || ACCESS_PC_LABEL.equals(choice)) {
             openComputerDialog(pcEntity, who);
+            return;
           }
+          UsbStickColor selectedColor;
+          try {
+            selectedColor = UsbStickColor.valueOf(choice);
+          } catch (IllegalArgumentException e) {
+            LOGGER.warn("Unexpected USB choice payload: " + choice);
+            openComputerDialog(pcEntity, who);
+            return;
+          }
+          UsbStickColor finalSelected = selectedColor;
+          usbSticks.stream()
+              .filter(s -> s.color() == finalSelected)
+              .findFirst()
+              .ifPresentOrElse(
+                  stick -> onUsbStickInserted(stick, pcEntity, who),
+                  () -> openComputerDialog(pcEntity, who));
         },
         () -> {},
         who.id());
@@ -167,22 +190,39 @@ public class ComputerFactory {
     } else {
       LOGGER.info(
           "Wrong USB stick inserted: " + stick.color().displayName() + " - triggering virus");
-      // Pick a random virus type and infect the computer
-      List<String> virusTypes = new ArrayList<>(Lore.VirusTypeToCode.keySet());
-      String randomVirus = virusTypes.get(new java.util.Random().nextInt(virusTypes.size()));
       ComputerStateComponent.setInfection(true);
-      ComputerStateComponent.setVirusType(randomVirus);
-      DialogFactory.showOkDialog(
-          "You plugged in the "
-              + stick.color().displayName()
-              + ".\n\n"
-              + "The screen flickers and a warning appears:\n"
-              + "\""
-              + randomVirus
-              + " detected! System locked.\"",
-          "",
-          () -> {},
-          who.id());
+      ComputerStateComponent.setVirusType(Lore.UnknownDeviceVirusType);
+      openComputerDialog(pcEntity, who);
+      // Multiplayer: the server's EventScheduler keeps ticking (it does not pause when a player
+      // opens a dialog) and authoritatively triggers the shutdown, which is then broadcast to
+      // every client via the regular snapshot / state propagation path.
+      // Single-player: the EventScheduler would be paused while the computer dialog is open, so a
+      // queued action would either never fire or, worse, fire late on dialog close and clobber
+      // any newly logged-in state. Instead the non-pausable ComputerStateSyncSystem drives the
+      // shutdown locally and authoritatively.
+      if (PreRunConfiguration.multiplayerEnabled()) {
+        EventScheduler.scheduleAction(
+            ComputerFactory::shutdownPcAfterUnknownDevice, UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS);
+      }
+    }
+  }
+
+  /**
+   * Resets the PC to the pre-login state after an "Unknown Device" security shutdown. The infection
+   * is cleared and the computer is moved back to {@link ComputerProgress#ON}. The locally entered
+   * login name and password are wiped so they have to be re-entered. All other state (timestamps,
+   * email selection, browser history, opened files, ...) is preserved so the player's progress is
+   * retained when they log back in.
+   */
+  static void shutdownPcAfterUnknownDevice() {
+    if (ComputerStateComponent.getState().isEmpty()) return;
+    ComputerStateComponent.setInfection(false);
+    ComputerStateComponent.setVirusType(null);
+    ComputerStateComponent.setState(ComputerProgress.ON);
+    if (!Game.isHeadless()) {
+      ComputerStateLocal local = ComputerStateLocal.getInstance();
+      local.username("");
+      local.password("");
     }
   }
 

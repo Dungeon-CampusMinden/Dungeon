@@ -26,6 +26,7 @@ import java.util.*;
 import level.LastHourLevelClient;
 import modules.computer.*;
 import modules.trash.TrashMinigameUI;
+import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
 import util.ui.BlackFadeCutscene;
@@ -49,6 +50,7 @@ public final class LastHourClient {
     PreRunConfiguration.multiplayerCharacterClass(null); // server decides
 
     registerCustomDialogs();
+    UsbStickItem.ensureRegistration();
 
     DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevelClient.class));
 
@@ -67,6 +69,7 @@ public final class LastHourClient {
           }
           Game.stage().ifPresent(CursorUtil::initListener);
           Game.remove(AttributeBarSystem.class);
+          Game.add(new ComputerStateSyncSystem());
           TheLastHour.setupMusic();
           TheLastHour.staticRenderTextures();
           System.out.println("DevClient started");

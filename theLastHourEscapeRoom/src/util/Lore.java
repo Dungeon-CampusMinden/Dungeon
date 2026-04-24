@@ -97,6 +97,10 @@ public class Lore {
           + "[key code="
           + Input.Buttons.LEFT
           + " type=mouse]\n"
+          + "Inventory -> "
+          + "[key code="
+          + KeyboardConfig.INVENTORY_OPEN.value()
+          + "]\n"
           + "Pause/Settings -> "
           + "[key code="
           + KeyboardConfig.PAUSE_MENU.value()
@@ -312,6 +316,13 @@ public class Lore {
           "Trojan", "verify before trust",
           "Ransomware", "backup your data",
           "Adware", "read before click");
+
+  /**
+   * Special virus type triggered exclusively by plugging a wrong USB stick into the PC. This type
+   * is never produced by emails or browser sites and cannot be neutralized via the standard virus
+   * tab pass phrase flow. Instead the system shuts itself down after a short delay.
+   */
+  public static final String UnknownDeviceVirusType = "Unknown Device";
 
   /** File name of the access code document downloaded from the recovery portal. */
   public static final String AccessCodeDownloadFileName = "unlock_code.pdf";

@@ -18,7 +18,9 @@ import core.utils.Cursors;
 import core.utils.FontHelper;
 import core.utils.Scene2dElementFactory;
 import core.utils.logging.DungeonLogger;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import modules.computer.content.*;
@@ -106,12 +108,15 @@ public class ComputerDialog extends Group {
 
   /**
    * Updates the shared state of the computer and propagates changes to tabs. If the infection
-   * status has changed, tabs will be added or removed accordingly.
+   * status has changed, tabs will be added or removed accordingly. If the computer progress has
+   * regressed (e.g. forced shutdown back to pre-login), all tabs that require a higher progress are
+   * removed and the local UI is reset to the login tab so it matches the new shared state.
    *
    * @param newState the new shared state to update to
    */
   public void updateState(ComputerStateComponent newState) {
     if (sharedState.equals(newState)) return;
+    ComputerProgress oldProgress = sharedState.state();
     this.sharedState = newState;
     if (newState.isInfected()) {
       if (!tabContentMap.containsKey(VirusTab.KEY)) {
@@ -122,9 +127,33 @@ public class ComputerDialog extends Group {
         closeTab(VirusTab.KEY);
       }
     }
+    if (newState.state().progress() < oldProgress.progress()) {
+      rebuildTabsForRegressedProgress();
+    }
     for (ComputerTab tab : tabContentMap.values()) {
       tab.setSharedState(newState);
     }
+  }
+
+  /**
+   * Removes every tab that requires a higher progress than the current {@link #sharedState} and
+   * rebuilds the available tabs from scratch. Switches the active tab back to the login tab so the
+   * UI reflects the regressed state. The virus tab (if present) is preserved.
+   */
+  private void rebuildTabsForRegressedProgress() {
+    List<String> keysToClose = new ArrayList<>(tabContentMap.keySet());
+    for (String key : keysToClose) {
+      if (key.equals(VirusTab.KEY)) continue;
+      ComputerTab tab = tabContentMap.remove(key);
+      if (tab != null) tab.onRemove();
+    }
+    ComputerStateLocal.getInstance().openFiles().clear();
+    addTabsForState(ComputerProgress.ON);
+    if (sharedState.state().hasReached(ComputerProgress.LOGGED_IN)) {
+      addTabsForState(ComputerProgress.LOGGED_IN);
+    }
+    String desired = tabContentMap.containsKey(VirusTab.KEY) ? VirusTab.KEY : LoginTab.KEY;
+    setActiveTab(desired);
   }
 
   private void createActors() {

@@ -8,10 +8,7 @@ import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
 import contrib.modules.emote.EmoteSystem;
-import contrib.systems.AttributeBarSystem;
-import contrib.systems.CollisionSystem;
-import contrib.systems.DebugDrawSystem;
-import contrib.systems.LevelEditorSystem;
+import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -37,6 +34,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import level.LastHourLevel;
+import modules.computer.ComputerStateSyncSystem;
+import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
 
@@ -85,6 +84,7 @@ public class TheLastHour {
     }
 
     DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevel.class));
+    UsbStickItem.ensureRegistration();
     try {
       Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     } catch (IOException e) {
@@ -128,6 +128,8 @@ public class TheLastHour {
 
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
+    ECSManagement.add(new EventScheduler());
+    ECSManagement.add(new ComputerStateSyncSystem());
 
     if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
@@ -159,8 +161,7 @@ public class TheLastHour {
     }
 
     // Invert the keyboard / mouse input-prompt spritesheet so the white-on-transparent icons
-    // read clearly against the dark HUD text used in this game. The result overwrites the
-    // TextureMap entry at the original asset path; on-disk PNGs are untouched.
+    // read clearly against the dark HUD text used in this game.
     String keyboardPromptPath = "hud/input/keyboard_mouse.png";
     ShaderList invertShaders = new ShaderList();
     invertShaders.add("invert", new ColorGradeShader().invert(true));
