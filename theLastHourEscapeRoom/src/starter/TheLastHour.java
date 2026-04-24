@@ -26,6 +26,7 @@ import core.systems.*;
 import core.utils.CursorUtil;
 import core.utils.Tuple;
 import core.utils.components.draw.TextureGenerator;
+import core.utils.components.draw.shader.ColorGradeShader;
 import core.utils.components.draw.shader.HueRemapShader;
 import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
@@ -156,6 +157,15 @@ public class TheLastHour {
 
       TextureGenerator.registerRenderShaderTexture(basePath, outTexturePath, shaderList);
     }
+
+    // Invert the keyboard / mouse input-prompt spritesheet so the white-on-transparent icons
+    // read clearly against the dark HUD text used in this game. The result overwrites the
+    // TextureMap entry at the original asset path; on-disk PNGs are untouched.
+    String keyboardPromptPath = "hud/input/keyboard_mouse.png";
+    ShaderList invertShaders = new ShaderList();
+    invertShaders.add("invert", new ColorGradeShader().invert(true));
+    TextureGenerator.registerRenderShaderTexture(
+        keyboardPromptPath, keyboardPromptPath, invertShaders);
   }
 
   /**
