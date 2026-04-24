@@ -27,9 +27,9 @@ import core.utils.Point;
  */
 public class DebugGameplaySystem extends System {
 
-  private static final DebugPauseController PAUSE_CONTROLLER = new DebugPauseController();
+  private final DebugPauseController pauseController = new DebugPauseController();
 
-  private static final DebugInputHandler.Actions INPUT_ACTIONS =
+  private final DebugInputHandler.Actions inputActions =
     new DebugInputHandler.Actions(
       () -> DebugGameplayActions.zoomCamera(-0.2f),
       () -> DebugGameplayActions.zoomCamera(0.2f),
@@ -44,8 +44,8 @@ public class DebugGameplaySystem extends System {
       },
       DebugGameplayActions::openDoors,
       () -> Platform.window().toggleFullscreen(),
-      PAUSE_CONTROLLER::togglePause,
-      PAUSE_CONTROLLER::advanceFrame,
+      pauseController::togglePause,
+      pauseController::advanceFrame,
       () -> Platform.render().toggleDebugHud());
 
   /** Creates a new debug gameplay system. */
@@ -65,8 +65,8 @@ public class DebugGameplaySystem extends System {
 
   /** Checks for key input corresponding to debug gameplay actions. */
   public void execute() {
-    DebugInputHandler.handle(INPUT_ACTIONS);
-    PAUSE_CONTROLLER.updateFrameAdvance();
+    DebugInputHandler.handle(inputActions);
+    pauseController.updateFrameAdvance();
   }
 
   private static boolean levelEditorActive() {
