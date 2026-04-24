@@ -3,7 +3,7 @@ package contrib.entities;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
-import contrib.inventory.InventoryUiState;
+import contrib.hud.inventory.InventoryDialogState;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.systems.HealthSystem;
@@ -398,7 +398,7 @@ public final class HeroBuilder {
                               Entity entity = firstUI.a();
 
                               // Check if this is the player's inventory
-                              if (InventoryUiState.isOpen(entity)) {
+                              if (InventoryDialogState.isOpen(entity)) {
                                 // Use toggleInventory which properly notifies server via
                                 // InventoryUIMessage
                                 HeroController.toggleInventory(entity);

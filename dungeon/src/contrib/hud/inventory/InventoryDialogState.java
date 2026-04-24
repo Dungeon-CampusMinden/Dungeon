@@ -1,4 +1,4 @@
-package contrib.inventory;
+package contrib.hud.inventory;
 
 import core.Entity;
 import java.util.Map;
@@ -13,10 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>The state is maintained internally in a thread-safe manner.
  */
-public final class InventoryUiState {
+public final class InventoryDialogState {
   private static final Map<Integer, Boolean> OPEN_BY_PLAYER_ID = new ConcurrentHashMap<>();
 
-  private InventoryUiState() {}
+  private InventoryDialogState() {}
 
   /**
    * Returns whether the player's inventory dialog is currently considered open.
