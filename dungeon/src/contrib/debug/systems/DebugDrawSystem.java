@@ -1,6 +1,7 @@
 package contrib.debug.systems;
 
-import contrib.debug.draw.*;
+import contrib.debug.draw.DebugDrawQueue;
+import contrib.debug.draw.DebugDrawRenderer;
 import core.System;
 import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
@@ -90,8 +91,7 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    DRAW_QUEUE.addWorldRectangle(
-      new WorldRectangle(x, y, width, height, color == null ? Color.WHITE : color));
+    DRAW_QUEUE.addWorldRectangle(x, y, width, height, color == null ? Color.WHITE : color);
   }
 
   /**
@@ -105,7 +105,7 @@ public final class DebugDrawSystem extends System {
     Objects.requireNonNull(text, "text must not be null");
     Objects.requireNonNull(screen, "screen must not be null");
 
-    DRAW_QUEUE.addScreenText(new ScreenText(text, screen, color == null ? Color.WHITE : color));
+    DRAW_QUEUE.addScreenText(text, screen, color == null ? Color.WHITE : color);
   }
 
   /**
@@ -120,7 +120,7 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    DRAW_QUEUE.addWorldLine(new WorldLine(from, to, color));
+    DRAW_QUEUE.addWorldLine(from, to, color);
   }
 
   /**
@@ -135,7 +135,7 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    DRAW_QUEUE.addWorldCircleOutline(new WorldCircleOutline(center, radius, color));
+    DRAW_QUEUE.addWorldCircleOutline(center, radius, color);
   }
 
   /**
@@ -150,7 +150,7 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    DRAW_QUEUE.addWorldCircleFill(new WorldCircleFill(center, radius, color));
+    DRAW_QUEUE.addWorldCircleFill(center, radius, color);
   }
 
   /**
@@ -168,7 +168,7 @@ public final class DebugDrawSystem extends System {
       return;
     }
 
-    DRAW_QUEUE.addScreenRectangle(new ScreenRectangle(topLeft, width, height, fill, outline));
+    DRAW_QUEUE.addScreenRectangle(topLeft, width, height, fill, outline);
   }
 
   @Override

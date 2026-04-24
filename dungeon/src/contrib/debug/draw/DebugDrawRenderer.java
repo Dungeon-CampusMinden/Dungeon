@@ -63,12 +63,12 @@ public final class DebugDrawRenderer {
 
   private static void renderWorldRectangles(
     Graphics2D g,
-    List<WorldRectangle> rectangles,
+    List<DebugDrawSnapshot.WorldRectangle> rectangles,
     CameraViewportState.Viewport view,
     int levelHeight) {
 
     int tilePx = view.tilePx();
-    for (WorldRectangle rectangle : rectangles) {
+    for (DebugDrawSnapshot.WorldRectangle rectangle : rectangles) {
       renderWorldRect(
         g,
         view,
@@ -83,11 +83,11 @@ public final class DebugDrawRenderer {
     }
   }
 
-  private static void renderScreenTexts(Graphics2D g, List<ScreenText> texts) {
+  private static void renderScreenTexts(Graphics2D g, List<DebugDrawSnapshot.ScreenText> texts) {
     FontMetrics metrics = g.getFontMetrics();
     int lineHeight = Math.max(metrics.getHeight(), 14);
 
-    for (ScreenText text : texts) {
+    for (DebugDrawSnapshot.ScreenText text : texts) {
       String[] lines = text.text().split("\\R", -1);
       float x = text.screen().x();
       float y = text.screen().y();
@@ -104,8 +104,9 @@ public final class DebugDrawRenderer {
     }
   }
 
-  private static void renderScreenMarkers(Graphics2D g, List<ScreenMarker> markers) {
-    for (ScreenMarker marker : markers) {
+  private static void renderScreenMarkers(
+    Graphics2D g, List<DebugDrawSnapshot.ScreenMarker> markers) {
+    for (DebugDrawSnapshot.ScreenMarker marker : markers) {
       int radius = marker.diameterPx() / 2;
       int x = Math.round(marker.center().x()) - radius;
       int y = Math.round(marker.center().y()) - radius;
@@ -123,10 +124,13 @@ public final class DebugDrawRenderer {
   }
 
   private static void renderWorldFills(
-    Graphics2D g, List<WorldFill> fills, CameraViewportState.Viewport view, int levelHeight) {
+    Graphics2D g,
+    List<DebugDrawSnapshot.WorldFill> fills,
+    CameraViewportState.Viewport view,
+    int levelHeight) {
 
     int tilePx = view.tilePx();
-    for (WorldFill fill : fills) {
+    for (DebugDrawSnapshot.WorldFill fill : fills) {
       renderWorldRect(
         g,
         view,
@@ -171,8 +175,8 @@ public final class DebugDrawRenderer {
     g.drawRect(screenX, screenY, screenWidth, screenHeight);
   }
 
-  private static void renderWorldLines(Graphics2D g, List<WorldLine> lines) {
-    for (WorldLine line : lines) {
+  private static void renderWorldLines(Graphics2D g, List<DebugDrawSnapshot.WorldLine> lines) {
+    for (DebugDrawSnapshot.WorldLine line : lines) {
       Point from = CameraViewportState.worldToScreen(line.from());
       Point to = CameraViewportState.worldToScreen(line.to());
 
@@ -182,8 +186,9 @@ public final class DebugDrawRenderer {
     }
   }
 
-  private static void renderWorldCircleOutlines(Graphics2D g, List<WorldCircleOutline> circles) {
-    for (WorldCircleOutline circle : circles) {
+  private static void renderWorldCircleOutlines(
+    Graphics2D g, List<DebugDrawSnapshot.WorldCircleOutline> circles) {
+    for (DebugDrawSnapshot.WorldCircleOutline circle : circles) {
       Point center = CameraViewportState.worldToScreen(circle.center());
       int radiusPx = CameraViewportState.worldLengthToScreen(circle.radius());
 
@@ -196,8 +201,9 @@ public final class DebugDrawRenderer {
     }
   }
 
-  private static void renderWorldCircleFills(Graphics2D g, List<WorldCircleFill> circles) {
-    for (WorldCircleFill circle : circles) {
+  private static void renderWorldCircleFills(
+    Graphics2D g, List<DebugDrawSnapshot.WorldCircleFill> circles) {
+    for (DebugDrawSnapshot.WorldCircleFill circle : circles) {
       Point center = CameraViewportState.worldToScreen(circle.center());
       int radiusPx = CameraViewportState.worldLengthToScreen(circle.radius());
 
@@ -210,8 +216,9 @@ public final class DebugDrawRenderer {
     }
   }
 
-  private static void renderScreenRectangles(Graphics2D g, List<ScreenRectangle> rectangles) {
-    for (ScreenRectangle rect : rectangles) {
+  private static void renderScreenRectangles(
+    Graphics2D g, List<DebugDrawSnapshot.ScreenRectangle> rectangles) {
+    for (DebugDrawSnapshot.ScreenRectangle rect : rectangles) {
       int roundX = Math.round(rect.topLeft().x());
       int roundY = Math.round(rect.topLeft().y());
 
