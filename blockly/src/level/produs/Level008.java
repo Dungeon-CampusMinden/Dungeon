@@ -44,7 +44,6 @@ public class Level008 extends BlocklyLevel {
         "wait",
         "pickup",
         "drop_item",
-        "Items",
         // Kategorien
         "Abfragen",
         "Bedingung",
