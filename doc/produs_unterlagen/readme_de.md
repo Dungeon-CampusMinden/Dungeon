@@ -38,7 +38,7 @@ Man braucht nur **Java 21** auf dem Computer. Sonst nichts.
 
 **Java 21 installieren:**
 
-- **Windows / Mac / Linux:** Lade [Java 21] (https://www.oracle.com/de/java/technologies/downloads/#java21) herunter. Wähle dort die passende Version für dein Betriebssystem (Windows, macOS oder Linux) und installiere es. Starte dein Gerät neu.
+- **Windows / Mac / Linux:** Lade [Java 21](https://www.oracle.com/de/java/technologies/downloads/#java21) herunter. Wähle dort die passende Version für dein Betriebssystem (Windows, macOS oder Linux) und installiere es. Starte dein Gerät neu.
 
 **Tipp:** Um zu prüfen, ob Java korrekt installiert ist, öffne ein Terminal (Windows: `cmd` oder PowerShell; Mac/Linux: Terminal) und tippe:
 
