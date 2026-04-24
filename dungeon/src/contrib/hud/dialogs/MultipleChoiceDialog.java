@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import contrib.configuration.KeyboardConfig;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
 import core.Game;
@@ -25,7 +26,8 @@ import java.util.List;
  *
  * <p>Creates a dialog with a header box (title, question, optional description) and a vertical list
  * of individually styled selection boxes below it. Supports keyboard navigation (W/Up, S/Down) and
- * mouse hover for selection, and Enter/click to confirm.
+ * mouse hover for selection, and the configured interact key (see {@link
+ * contrib.configuration.KeyboardConfig#INTERACT_WORLD})/click to confirm.
  */
 final class MultipleChoiceDialog {
 
@@ -137,6 +139,9 @@ final class MultipleChoiceDialog {
     if (description != null && !description.isBlank()) {
       descLabel = new RichLabel(description, DESCRIPTION_FONT);
       descLabel.setWrap(true);
+      // Pause the description's typewriter immediately so it doesn't advance while the question
+      // is still being revealed (and the descLabel is hidden). Resumed in the chain callback.
+      descLabel.pauseTypewriter();
       header.add(descLabel).width(headerContentWidth).row();
     }
 
@@ -154,7 +159,7 @@ final class MultipleChoiceDialog {
       row.setBackground(bgNormal);
       row.setTouchable(Touchable.enabled);
 
-      RichLabel label = new RichLabel(entry.label(), OPTION_FONT_NORMAL);
+      RichLabel label = new RichLabel(entry.label(), OPTION_FONT_NORMAL, false);
 
       float maxLabelWidth = OPTION_WIDTH - OPTION_PAD * 2;
       float naturalLabelWidth = label.getPrefWidth();
@@ -216,7 +221,7 @@ final class MultipleChoiceDialog {
               next = current <= 0 ? total - 1 : current - 1;
             } else if (keycode == Input.Keys.S || keycode == Input.Keys.DOWN) {
               next = current >= total - 1 ? 0 : current + 1;
-            } else if (keycode == Input.Keys.ENTER || keycode == Input.Keys.NUMPAD_ENTER) {
+            } else if (keycode == KeyboardConfig.INTERACT_WORLD.value()) {
               if (current >= 0) {
                 confirmSelection(current, allEntries, cancelIndex, ctx);
               }
@@ -254,6 +259,7 @@ final class MultipleChoiceDialog {
           () -> {
             if (finalDescLabel != null) {
               finalDescLabel.setVisible(true);
+              finalDescLabel.resumeTypewriter();
               if (!finalDescLabel.isTypewriterFinished()) {
                 finalDescLabel.onTypewriterFinished(() -> startOptionSlideIn(rowTables));
               } else {
