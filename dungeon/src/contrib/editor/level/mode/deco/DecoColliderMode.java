@@ -1,7 +1,8 @@
-package contrib.editor.level.mode;
+package contrib.editor.level.mode.deco;
 
 import contrib.components.CollideComponent;
 import contrib.editor.level.LevelEditorSystem;
+import contrib.editor.level.mode.LevelEditorMode;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.utils.components.collide.ColliderSync;

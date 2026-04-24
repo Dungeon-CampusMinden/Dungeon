@@ -1,6 +1,6 @@
 package contrib.editor.level;
 
-import contrib.editor.level.mode.DecoColliderMode;
+import contrib.editor.level.mode.deco.DecoColliderMode;
 import contrib.editor.level.mode.deco.DecoMode;
 import contrib.editor.level.mode.LevelBoundsMode;
 import contrib.editor.level.mode.LevelEditorMode;
