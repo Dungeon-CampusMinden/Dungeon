@@ -408,11 +408,6 @@ public enum Deco {
       new AnimationConfig(new SpritesheetConfig(13, 13, 1, 1, 38, 35)).scaleX(1.95f),
       new Rectangle(2.15f, 1.30f, 0.00f, 0.00f)),
   /** A decoration. */
-  DeskWithPC2(
-      "office/Julia_PC.png",
-      new AnimationConfig(new SpritesheetConfig(13, 13, 1, 1, 38, 41)).scaleX(2.05f),
-      new Rectangle(2.05f, 1.55f, 0.00f, 0.00f)),
-  /** A decoration. */
   WallCorner(
       "office/office-partitions-1.png",
       new AnimationConfig(new SpritesheetConfig(0, 4, 1, 1, 64, 60)).scaleX(3.20f),
