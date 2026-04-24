@@ -391,7 +391,7 @@ final class MultipleChoiceDialog {
     } else {
       DialogCallbackResolver.createButtonCallback(
               ctx.dialogId(), DialogContextKeys.ON_OPTION_SELECTED)
-          .accept(new DialogResponseMessage.CustomPayload(entries.get(index).value()));
+          .accept(new DialogResponseMessage.StringValue(entries.get(index).value()));
     }
   }
 

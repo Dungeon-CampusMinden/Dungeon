@@ -98,5 +98,6 @@ public final class DialogValueCodecRegistry {
 
   private void registerDefaults() {
     register(new core.network.codec.codecs.TransitionSpeedCodec());
+    register(new core.network.codec.codecs.ArrayListCodec());
   }
 }

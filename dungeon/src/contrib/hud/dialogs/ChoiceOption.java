@@ -1,5 +1,8 @@
 package contrib.hud.dialogs;
 
+import contrib.hud.elements.RichLabel;
+import core.network.messages.c2s.DialogResponseMessage;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,22 +11,29 @@ import java.util.List;
 /**
  * A single selectable option in a {@link MultipleChoiceDialog}.
  *
- * <p>Each option has a display label (which may contain {@link contrib.hud.elements.RichLabel}
- * markup) and a serializable value that is returned when the option is selected.
+ * <p>Each option has a display label (which may contain {@link RichLabel}
+ * markup) and a plain {@link String} value that is sent back to the server when the option is
+ * selected. Use enum {@link Enum#name()} or another stable string discriminator for the value, and
+ * parse it at the call site (e.g. {@code MyEnum.valueOf(value)}).
+ *
+ * <p>Keeping the value as a String avoids forcing every project to register a {@code
+ * DialogValueCodec} for every custom type that could be carried by an MCD response — strings have
+ * built-in wire support via {@link
+ * DialogResponseMessage.StringValue}.
  *
  * @param label The text (with optional rich markup) displayed for this option.
- * @param value The serializable value returned when this option is selected.
+ * @param value The string value returned when this option is selected.
  */
-public record ChoiceOption(String label, Serializable value) implements Serializable {
+public record ChoiceOption(String label, String value) implements Serializable {
 
   /**
-   * Creates a choice option with a label and an associated value.
+   * Creates a choice option with a label and an associated string value.
    *
    * @param label The text displayed for this option (may contain RichLabel markup).
-   * @param value The serializable value returned on selection.
+   * @param value The string value returned on selection.
    * @return A new ChoiceOption.
    */
-  public static ChoiceOption of(String label, Serializable value) {
+  public static ChoiceOption of(String label, String value) {
     return new ChoiceOption(label, value);
   }
 
@@ -35,17 +45,6 @@ public record ChoiceOption(String label, Serializable value) implements Serializ
    */
   public static ChoiceOption of(String label) {
     return new ChoiceOption(label, label);
-  }
-
-  /**
-   * Creates a choice option from a serializable object. The label is derived from the object's
-   * {@link Object#toString()} method; the value is the object itself.
-   *
-   * @param value The serializable object to use as both label source and value.
-   * @return A new ChoiceOption.
-   */
-  public static ChoiceOption ofValue(Serializable value) {
-    return new ChoiceOption(value.toString(), value);
   }
 
   /**
@@ -68,27 +67,5 @@ public record ChoiceOption(String label, Serializable value) implements Serializ
    */
   public static List<ChoiceOption> ofList(Collection<String> labels) {
     return labels.stream().map(ChoiceOption::of).toList();
-  }
-
-  /**
-   * Creates a list of choice options from an array of serializable objects. Each object's {@link
-   * Object#toString()} is used as the label; the object itself is the value.
-   *
-   * @param values The serializable objects to create options from.
-   * @return An unmodifiable list of ChoiceOptions.
-   */
-  public static List<ChoiceOption> ofList(Serializable... values) {
-    return Arrays.stream(values).map(ChoiceOption::ofValue).toList();
-  }
-
-  /**
-   * Creates a list of choice options from a collection of serializable objects. Each object's
-   * {@link Object#toString()} is used as the label; the object itself is the value.
-   *
-   * @param values The serializable objects to create options from.
-   * @return An unmodifiable list of ChoiceOptions.
-   */
-  public static List<ChoiceOption> ofValueList(Collection<? extends Serializable> values) {
-    return values.stream().map(ChoiceOption::ofValue).toList();
   }
 }
