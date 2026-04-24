@@ -1,7 +1,7 @@
 package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.InventoryComponentProvider;
+import contrib.hud.dialogs.DialogInventoryProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryDragController;
@@ -34,7 +34,7 @@ import java.util.stream.Stream;
  * </ul>
  */
 final class DualInventoryDialogOverlay extends BaseUiOverlay
-    implements InventoryComponentProvider {
+    implements DialogInventoryProvider {
 
   private static final int DEFAULT_WIDTH = 1100;
   private static final int DEFAULT_HEIGHT = 470;

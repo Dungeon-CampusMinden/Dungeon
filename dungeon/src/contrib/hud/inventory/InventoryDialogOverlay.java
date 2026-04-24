@@ -2,7 +2,7 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.HeroController;
-import contrib.hud.InventoryComponentProvider;
+import contrib.hud.dialogs.DialogInventoryProvider;
 import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryDragController;
@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  *   <li>Visual feedback for hovered or targeted slots.
  * </ul>
  */
-final class InventoryDialogOverlay extends BaseUiOverlay implements InventoryComponentProvider {
+final class InventoryDialogOverlay extends BaseUiOverlay implements DialogInventoryProvider {
 
   private static final int DEFAULT_WIDTH = 560;
   private static final int DEFAULT_HEIGHT = 430;
