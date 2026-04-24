@@ -91,8 +91,8 @@ public class DialogContextKeys {
   /** The key for the optional image overlay text color encoded as RGBA8888. */
   public static final String IMAGE_TEXT_COLOR_RGBA8888 = "imageTextColorRgba8888";
 
-  /** The key for the progress bar component in the dialog. */
-  public static final String PROGRESS_BAR = "progressBar";
+  /** The key for the attribute bar component in the dialog. */
+  public static final String ATTRIBUTE_BAR = "attributeBar";
 
   private DialogContextKeys() {}
 }

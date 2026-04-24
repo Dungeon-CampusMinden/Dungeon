@@ -24,7 +24,7 @@ public interface DialogType {
    * <p>These types are automatically registered with {@link DialogFactory} at startup.
    */
   enum DefaultTypes implements DialogType {
-    /** Simple dialog with a message and single OK button. */
+    /** Simple dialog with a message and a single OK button. */
     OK("OK"),
 
     /** Confirmation dialog with Yes and No buttons. */
@@ -51,8 +51,8 @@ public interface DialogType {
     /** Numeric keypad input dialog. */
     KEYPAD("KEYPAD"),
 
-    /** Progress bar display dialog. */
-    PROGRESS_BAR("PROGRESS_BAR"),
+    /** Attribute bar display dialog. */
+    ATTRIBUTE_BAR("ATTRIBUTE_BAR"),
 
     /** Pause menu dialog. */
     PAUSE_MENU("PAUSE_MENU");

@@ -54,10 +54,10 @@ public final class AttributeBarUtil {
 
     DialogContext context =
       DialogContext.builder()
-        .type(DialogType.DefaultTypes.PROGRESS_BAR)
+        .type(DialogType.DefaultTypes.ATTRIBUTE_BAR)
         .center(false)
         .put(
-          DialogContextKeys.PROGRESS_BAR,
+          DialogContextKeys.ATTRIBUTE_BAR,
           new AttributeBarDialogData(
             entity.fetch(PositionComponent.class).orElseThrow(),
             barDisplayable.barStyleName(),
