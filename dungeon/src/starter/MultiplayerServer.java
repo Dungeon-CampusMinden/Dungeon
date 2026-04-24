@@ -11,7 +11,7 @@ import contrib.systems.ManaRestoreSystem;
 import contrib.systems.PathSystem;
 import contrib.systems.PressurePlateSystem;
 import contrib.systems.ProjectileSystem;
-import contrib.systems.PositionSyncSystem;
+import contrib.systems.ColliderSyncSystem;
 import core.Game;
 import core.System;
 import core.game.*;
@@ -63,7 +63,7 @@ public class MultiplayerServer {
           }));
 
     registerIfAbsent(ProjectileSystem.class, ProjectileSystem::new);
-    registerIfAbsent(PositionSyncSystem.class, PositionSyncSystem::new);
+    registerIfAbsent(ColliderSyncSystem.class, ColliderSyncSystem::new);
     registerIfAbsent(HealthSystem.class, HealthSystem::new);
     registerIfAbsent(ManaRestoreSystem.class, ManaRestoreSystem::new);
     registerIfAbsent(PathSystem.class, PathSystem::new);

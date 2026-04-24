@@ -11,10 +11,10 @@ import core.components.PositionComponent;
  * <p>This is required on hosts that do not run the collision system locally, because static
  * colliders would otherwise stay at the origin.
  */
-public final class PositionSyncSystem extends System {
+public final class ColliderSyncSystem extends System {
 
-  /** Creates a new position sync system. */
-  public PositionSyncSystem() {
+  /** Creates a new collider sync system. */
+  public ColliderSyncSystem() {
     super(AuthoritativeSide.BOTH, PositionComponent.class, CollideComponent.class);
     onEntityAdd = ColliderSync::sync;
   }

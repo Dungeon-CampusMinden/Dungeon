@@ -7,7 +7,7 @@ import contrib.game.LevelContentInstaller;
 import contrib.modules.interaction.InteractionSelection;
 import contrib.modules.interaction.ui.InteractionMenuUi;
 import contrib.modules.levelhide.LevelHideSystem;
-import contrib.systems.PositionSyncSystem;
+import contrib.systems.ColliderSyncSystem;
 import core.game.loop.ClientLoopHostInstaller;
 import core.platform.Platform;
 
@@ -52,7 +52,7 @@ public final class PresentationClientInstaller implements ClientLoopHostInstalle
   @Override
   public void installRuntimeSystems() {
     DialogBackendInstaller.install();
-    ClientLoopHostInstaller.addSystemIfAbsent(PositionSyncSystem.class, PositionSyncSystem::new);
+    ClientLoopHostInstaller.addSystemIfAbsent(ColliderSyncSystem.class, ColliderSyncSystem::new);
     ClientLoopHostInstaller.addSystemIfAbsent(LevelHideSystem.class, LevelHideSystem::new);
     ClientLoopHostInstaller.addSystemIfAbsent(HudSystem.class, HudSystem::new);
     ClientLoopHostInstaller.addSystemIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);

@@ -12,7 +12,7 @@ import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
-import contrib.systems.PositionSyncSystem;
+import contrib.systems.ColliderSyncSystem;
 import core.utils.Point;
 import java.util.Arrays;
 import java.util.Set;
@@ -26,7 +26,7 @@ class InteractionReachabilityTest {
   @BeforeEach
   void setUp() {
     Game.add(new LevelSystem());
-    Game.add(new PositionSyncSystem());
+    Game.add(new ColliderSyncSystem());
     Game.currentLevel(createFloorLevel(20, 5));
   }
 
