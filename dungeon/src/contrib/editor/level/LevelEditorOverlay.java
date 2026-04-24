@@ -123,4 +123,20 @@ public final class LevelEditorOverlay extends BaseUiOverlay {
     }
     return List.copyOf(result);
   }
+
+  String title() {
+    return title;
+  }
+
+  List<String> lines() {
+    return lines;
+  }
+
+  String feedback() {
+    return feedback;
+  }
+
+  Color feedbackColor() {
+    return feedbackColor;
+  }
 }

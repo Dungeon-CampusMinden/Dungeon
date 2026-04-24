@@ -1,15 +1,7 @@
 package contrib.editor.level;
 
 import contrib.components.HealthComponent;
-import contrib.editor.level.mode.DecoColliderMode;
-import contrib.editor.level.mode.DecoMode;
-import contrib.editor.level.mode.LevelBoundsMode;
 import contrib.editor.level.mode.LevelEditorMode;
-import contrib.editor.level.mode.PointMode;
-import contrib.editor.level.mode.SaveMode;
-import contrib.editor.level.mode.ShiftLevelMode;
-import contrib.editor.level.mode.StartTilesMode;
-import contrib.editor.level.mode.TilesMode;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -19,21 +11,14 @@ import core.game.render.RenderContext;
 import core.input.Keys;
 import core.level.DungeonLevel;
 import core.platform.Platform;
-import core.ui.overlay.OverlayManager;
 import core.utils.InputManager;
 import core.utils.Point;
-import core.utils.Time;
 import core.utils.logging.DungeonLogger;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * The LevelEditorSystem class provides a toolset for editing game levels
@@ -49,25 +34,19 @@ import java.util.function.Function;
 public final class LevelEditorSystem extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LevelEditorSystem.class);
 
-  private static final long FEEDBACK_DURATION_MS = 3000L;
-
   private static final int TOGGLE_ACTIVE = Keys.F4;
   private static final int TOGGLE_LAYER_DEBUG = Keys.SPACE;
 
-  private final LevelEditorOverlay overlay = new LevelEditorOverlay();
   private final LevelEditorDebugRenderer layerDebugRenderer = new LevelEditorDebugRenderer();
-  private final EnumMap<Mode, LevelEditorMode> modes = createModes();
+  private final LevelEditorModeRegistry modeRegistry = new LevelEditorModeRegistry(this);
+  private final LevelEditorOverlayPresenter overlayPresenter = new LevelEditorOverlayPresenter();
 
   private boolean active = false;
   private boolean internalStopped = false;
   private boolean layerDebugActive = false;
 
-  private Mode currentMode = Mode.TILES;
+  private LevelEditorModeRegistry.Mode currentMode = LevelEditorModeRegistry.Mode.TILES;
   private Map<Integer, InputComponent.InputData> playerCallbacks = null;
-
-  private String feedbackMessage = "";
-  private Color feedbackColor = Color.WHITE;
-  private long feedbackUntilMs = 0L;
 
   /**
    * Returns whether the editor is currently active.
@@ -93,7 +72,7 @@ public final class LevelEditorSystem extends System {
     Entity player = Game.player().orElse(null);
     if (player == null) {
       if (!active) {
-        detachOverlay();
+        overlayPresenter.detach();
       }
       return;
     }
@@ -105,7 +84,7 @@ public final class LevelEditorSystem extends System {
 
       player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(true));
 
-      attachOverlay();
+      overlayPresenter.attach();
       onModeEnter(currentMode);
       updateOverlay();
       LOGGER.info("Level editor activated.");
@@ -122,7 +101,7 @@ public final class LevelEditorSystem extends System {
     player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(false));
 
     onModeExit(currentMode);
-    detachOverlay();
+    overlayPresenter.detach();
     LOGGER.info("Level editor deactivated.");
   }
 
@@ -148,7 +127,7 @@ public final class LevelEditorSystem extends System {
       layerDebugActive = !layerDebugActive;
     }
 
-    Mode selectedMode = selectedModeByHotkey().orElse(currentMode);
+    LevelEditorModeRegistry.Mode selectedMode = modeRegistry.selectedModeByHotkey().orElse(currentMode);
     boolean modeChanged = selectedMode != currentMode;
 
     if (modeChanged) {
@@ -197,7 +176,7 @@ public final class LevelEditorSystem extends System {
    * @param color message color
    */
   public void showModeFeedback(String message, Color color) {
-    showFeedback(message, color);
+    overlayPresenter.showFeedback(message, color);
   }
 
   /**
@@ -216,21 +195,6 @@ public final class LevelEditorSystem extends System {
    */
   public Point snappedCursorTileForModes() {
     return snappedCursorTile();
-  }
-
-  private void attachOverlay() {
-    overlay.visible(true);
-
-    if (!OverlayManager.contains(overlay)) {
-      OverlayManager.add(overlay);
-    }
-
-    OverlayManager.toFront(overlay);
-  }
-
-  private void detachOverlay() {
-    overlay.visible(false);
-    OverlayManager.remove(overlay);
   }
 
   private void removePlayerEditorCallbacks(InputComponent inputComponent) {
@@ -256,29 +220,8 @@ public final class LevelEditorSystem extends System {
           key, value.callback(), value.repeat(), value.pauseable()));
   }
 
-  private Optional<Mode> selectedModeByHotkey() {
-    for (Mode mode : Mode.values()) {
-      if (InputManager.isKeyJustPressed(mode.hotkey())) {
-        return Optional.of(mode);
-      }
-    }
-
-    return Optional.empty();
-  }
-
   private LevelEditorMode currentModeInstance() {
-    return modeInstance(currentMode);
-  }
-
-  private LevelEditorMode modeInstance(Mode mode) {
-    LevelEditorMode modeInstance =
-      modes.get(Objects.requireNonNull(mode, "mode must not be null"));
-
-    if (modeInstance == null) {
-      throw new IllegalStateException("No level editor mode registered for " + mode);
-    }
-
-    return modeInstance;
+    return modeRegistry.mode(currentMode);
   }
 
   private void updateOverlay() {
@@ -286,63 +229,8 @@ public final class LevelEditorSystem extends System {
       return;
     }
 
-    overlay.content(
-      "",
-      buildStatusLines(),
-      currentFeedbackMessage(),
-      currentFeedbackColor());
-  }
-
-  private List<String> buildStatusLines() {
-    List<String> lines = new ArrayList<>();
-    lines.add("Level Editor v2 | Modes: " + modeSelectionText());
-    lines.add("( SPACE to toggle layer debug shader [" + layerDebugActive + "] )");
-    lines.add("");
-    lines.addAll(currentModeInstance().getFullStatusLines());
-    return lines;
-  }
-
-  private String modeSelectionText() {
-    StringBuilder sb = new StringBuilder();
-
-    Mode[] selectableModes = Mode.values();
-    for (int i = 0; i < selectableModes.length; i++) {
-      Mode mode = selectableModes[i];
-
-      if (i > 0) {
-        sb.append(" | ");
-      }
-
-      if (mode == currentMode) {
-        sb.append("[").append(mode.hotkeyLabel()).append("]");
-      } else {
-        sb.append(mode.hotkeyLabel());
-      }
-    }
-
-    return sb.toString();
-  }
-
-  private void showFeedback(String message, Color color) {
-    this.feedbackMessage = message == null ? "" : message;
-    this.feedbackColor = color == null ? Color.WHITE : color;
-    this.feedbackUntilMs = Time.nowMs() + FEEDBACK_DURATION_MS;
-
-    if (Color.RED.equals(this.feedbackColor)) {
-      LOGGER.error(this.feedbackMessage);
-    } else if (Color.YELLOW.equals(this.feedbackColor)) {
-      LOGGER.warn(this.feedbackMessage);
-    } else {
-      LOGGER.info(this.feedbackMessage);
-    }
-  }
-
-  private String currentFeedbackMessage() {
-    return Time.nowMs() <= feedbackUntilMs ? feedbackMessage : "";
-  }
-
-  private Color currentFeedbackColor() {
-    return Time.nowMs() <= feedbackUntilMs ? feedbackColor : Color.WHITE;
+    overlayPresenter.update(
+      currentModeInstance(), modeRegistry.modeSelectionText(currentMode), layerDebugActive);
   }
 
   private Optional<DungeonLevel> currentDungeonLevel() {
@@ -356,57 +244,11 @@ public final class LevelEditorSystem extends System {
     return new Point((float) Math.floor(world.x()), (float) Math.floor(world.y()));
   }
 
-  private void onModeEnter(Mode mode) {
-    modeInstance(mode).onEnter();
+  private void onModeEnter(LevelEditorModeRegistry.Mode mode) {
+    modeRegistry.mode(mode).onEnter();
   }
 
-  private void onModeExit(Mode mode) {
-    modeInstance(mode).onExit();
-  }
-
-  private EnumMap<Mode, LevelEditorMode> createModes() {
-    EnumMap<Mode, LevelEditorMode> registeredModes = new EnumMap<>(Mode.class);
-
-    for (Mode mode : Mode.values()) {
-      registeredModes.put(mode, mode.create(this));
-    }
-
-    return registeredModes;
-  }
-
-  private enum Mode {
-    TILES(Keys.NUM_1, "1", TilesMode::new),
-    DECOS(Keys.NUM_2, "2", DecoMode::new),
-    POINTS(Keys.NUM_3, "3", PointMode::new),
-    LEVEL_BOUNDS(Keys.NUM_4, "4", LevelBoundsMode::new),
-    SHIFT_LEVEL(Keys.NUM_5, "5", ShiftLevelMode::new),
-    START_TILES(Keys.NUM_6, "6", StartTilesMode::new),
-    SAVE_LEVEL(Keys.NUM_7, "7", SaveMode::new),
-    DECO_COLLIDER(Keys.NUM_8, "8", DecoColliderMode::new);
-
-    private final int hotkey;
-    private final String hotkeyLabel;
-    private final Function<LevelEditorSystem, LevelEditorMode> modeFactory;
-
-    Mode(
-      int hotkey,
-      String hotkeyLabel,
-      Function<LevelEditorSystem, LevelEditorMode> modeFactory) {
-      this.hotkey = hotkey;
-      this.hotkeyLabel = Objects.requireNonNull(hotkeyLabel, "hotkeyLabel must not be null");
-      this.modeFactory = Objects.requireNonNull(modeFactory, "modeFactory must not be null");
-    }
-
-    private int hotkey() {
-      return hotkey;
-    }
-
-    private String hotkeyLabel() {
-      return hotkeyLabel;
-    }
-
-    private LevelEditorMode create(LevelEditorSystem system) {
-      return modeFactory.apply(system);
-    }
+  private void onModeExit(LevelEditorModeRegistry.Mode mode) {
+    modeRegistry.mode(mode).onExit();
   }
 }
