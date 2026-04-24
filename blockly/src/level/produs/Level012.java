@@ -44,7 +44,6 @@ public class Level012 extends BlocklyLevel {
         "while_loop",
         // Inventar und Charakter
         "drop_item",
-        "Items",
         "wait",
         // Kategorien
         "Abfragen",

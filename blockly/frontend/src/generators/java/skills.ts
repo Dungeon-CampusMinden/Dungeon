@@ -1,10 +1,6 @@
 import * as Blockly from "blockly";
 import {Order} from "../java.ts";
 
-export function interact(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "interagieren();";
-}
-
 export function fireball(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "hero.shootFireball();";
 }

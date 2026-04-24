@@ -61,15 +61,6 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
       name: "Inventar & Charakter",
       colour: "40",
       contents: [
-        {
-          kind: "category",
-          name: "Skills",
-          colour: "30",
-          contents: [
-            /* {
-              kind: "block",
-              type: "interact",
-            }, */
             {
               kind: "block",
               type: "fireball",
@@ -100,23 +91,6 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
             },
           ],
         },
-        {
-          kind: "category",
-          name: "Items",
-          colour: "50",
-          contents: [
-            {
-              kind: "block",
-              type: "item_breadcrumbs",
-            },
-            {
-              kind: "block",
-              type: "item_clover",
-            },
-          ],
-        },
-      ],
-    },
     {
       kind: "category",
       name: "Abfragen",

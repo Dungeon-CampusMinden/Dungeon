@@ -41,7 +41,6 @@ public class Level016 extends BlocklyLevel {
     this.blockBlocklyElement(
         // Inventar und Charakter
         "drop_item",
-        "Items",
         "wait",
         // Bedingung
         "logic_breadcrumbs_direction",
