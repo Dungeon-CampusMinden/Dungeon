@@ -9,6 +9,7 @@ import core.level.elements.tile.FloorTile;
 import core.level.elements.tile.TileFactory;
 import core.level.elements.tile.WallTile;
 import core.level.loader.parsers.V2FormatParser;
+import core.level.path.TilePath;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -60,9 +61,9 @@ public class DungeonLevelTest {
    * @param level the dungeon level to perform pathfinding on
    * @param start the starting tile
    * @param end the end (target) tile
-   * @return a list of tiles representing the path from start to end
+   * @return a tile path representing the path from start to end
    */
-  private static List<Tile> findPath(DungeonLevel level, Tile start, Tile end) {
+  private static TilePath findPath(DungeonLevel level, Tile start, Tile end) {
     Game.currentLevel(level);
     return Game.findPath(start, end).orElseThrow();
   }
@@ -156,7 +157,7 @@ public class DungeonLevelTest {
     DungeonLevel tileLevel = new DungeonLevel(layout);
     tileLevel.startTiles().add(layout[0][0]);
 
-    List<Tile> path =
+    TilePath path =
       findPath(tileLevel, tileLevel.startTile().orElseThrow(), tileLevel.endTile().orElseThrow());
 
     assertEquals(7, path.size());
@@ -191,7 +192,7 @@ public class DungeonLevelTest {
     DungeonLevel tileLevel = new DungeonLevel(layout);
     tileLevel.startTiles().add(layout[0][0]);
 
-    List<Tile> path =
+    TilePath path =
       findPath(tileLevel, tileLevel.startTile().orElseThrow(), tileLevel.endTile().orElseThrow());
 
     assertEquals(5, path.size());
@@ -264,7 +265,7 @@ public class DungeonLevelTest {
     Tile startTile = tileLevel.tileAt(layout[0][1].coordinate()).orElseThrow();
     Tile endTile = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
 
-    List<Tile> path = findPath(tileLevel, startTile, endTile);
+    TilePath path = findPath(tileLevel, startTile, endTile);
     assertTrue(path.isEmpty());
   }
 
@@ -288,7 +289,7 @@ public class DungeonLevelTest {
     Tile startTile = tileLevel.tileAt(layout[0][1].coordinate()).orElseThrow();
     Tile endTile = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
 
-    List<Tile> path = findPath(tileLevel, startTile, endTile);
+    TilePath path = findPath(tileLevel, startTile, endTile);
     assertTrue(path.isEmpty());
   }
 
@@ -313,7 +314,7 @@ public class DungeonLevelTest {
     Tile startTile = tileLevel.tileAt(layout[0][1].coordinate()).orElseThrow();
     Tile endTile = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
 
-    List<Tile> path = findPath(tileLevel, startTile, endTile);
+    TilePath path = findPath(tileLevel, startTile, endTile);
     assertTrue(path.isEmpty());
   }
 

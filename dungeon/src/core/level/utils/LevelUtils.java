@@ -35,8 +35,7 @@ public final class LevelUtils {
    * @return the last tile of the path, or {@code null} if {@code path} is {@code null} or empty
    */
   public static Tile lastTile(final TilePath path) {
-    if (path == null || path.isEmpty()) return null;
-    return path.get(path.size() - 1);
+    return path == null ? null : path.last();
   }
 
   /**
@@ -406,7 +405,7 @@ public final class LevelUtils {
     if (fromTile == null || toTile == null) return List.of();
     if (!fromTile.isAccessible() || !toTile.isAccessible()) return List.of();
 
-    return Game.findPath(fromTile, toTile).orElse(List.of());
+    return Game.findPath(fromTile, toTile).map(LevelUtils::toTileList).orElse(List.of());
   }
 
   /**
@@ -419,7 +418,7 @@ public final class LevelUtils {
    * @return A {@link TilePath} representing the path from the start point to the end point.
    */
   public static TilePath calculateTilePath(final Point from, final Point to) {
-    return new ListTilePath(calculatePathTiles(from, to));
+    return calculateTilePath(from.toCoordinate(), to.toCoordinate());
   }
 
   /**
@@ -432,7 +431,21 @@ public final class LevelUtils {
    * @return A {@link TilePath} representing the path from the start coordinate to the end coordinate.
    */
   public static TilePath calculateTilePath(final Coordinate from, final Coordinate to) {
-    return new ListTilePath(calculatePathTiles(from, to));
+    final Tile fromTile = Game.tileAt(from).orElse(null);
+    final Tile toTile = Game.tileAt(to).orElse(null);
+
+    if (fromTile == null || toTile == null) return new ListTilePath();
+    if (!fromTile.isAccessible() || !toTile.isAccessible()) return new ListTilePath();
+
+    return Game.findPath(fromTile, toTile).orElseGet(ListTilePath::new);
+  }
+
+  private static List<Tile> toTileList(final TilePath path) {
+    final List<Tile> tiles = new ArrayList<>(path.size());
+    for (Tile tile : path) {
+      tiles.add(tile);
+    }
+    return List.copyOf(tiles);
   }
 
   /**

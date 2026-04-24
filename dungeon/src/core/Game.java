@@ -10,6 +10,7 @@ import core.game.ECSManagement;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.elements.ILevel;
+import core.level.path.TilePath;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
@@ -763,11 +764,11 @@ public final class Game {
    *
    * @param start the starting tile
    * @param end the target tile
-   * @return an {@link Optional} containing a list of tiles representing the path from start to end,
-   *     an {@link Optional} containing an empty list if no path exists, or an empty {@code Optional}
-   *     if there is no current level or pathfinding cannot be performed
+   * @return an {@link Optional} containing a {@link TilePath} from start to end, an {@link
+   *     Optional} containing an empty path if no path exists, or an empty {@code Optional} if
+   *     there is no current level or pathfinding cannot be performed
    */
-  public static Optional<List<Tile>> findPath(final Tile start, final Tile end) {
+  public static Optional<TilePath> findPath(final Tile start, final Tile end) {
     return currentLevel().flatMap(level -> Platform.pathfinding().findPath(level, start, end));
   }
 

@@ -2,7 +2,7 @@ package core.platform.adapters;
 
 import core.level.Tile;
 import core.level.elements.ILevel;
-import java.util.List;
+import core.level.path.TilePath;
 import java.util.Optional;
 
 /**
@@ -29,9 +29,9 @@ public interface PathfindingAdapter {
    *
    * <p>Return value semantics:
    * <ul>
-   *   <li>If pathfinding could run, returns an {@link Optional} containing a list of tiles
-   *   <li>If a path exists, that list contains the tiles from start to end
-   *   <li>If no path exists, that list is empty
+   *   <li>If pathfinding could run, returns an {@link Optional} containing a {@link TilePath}
+   *   <li>If a path exists, that path contains the tiles from start to end
+   *   <li>If no path exists, that path is empty
    *   <li>If pathfinding cannot run because the required context is unavailable, returns an empty
    *       {@link Optional}
    * </ul>
@@ -42,5 +42,5 @@ public interface PathfindingAdapter {
    * @return an {@link Optional} containing the path result, or empty if pathfinding cannot be
    *     performed
    */
-  Optional<List<Tile>> findPath(ILevel level, Tile start, Tile end);
+  Optional<TilePath> findPath(ILevel level, Tile start, Tile end);
 }
