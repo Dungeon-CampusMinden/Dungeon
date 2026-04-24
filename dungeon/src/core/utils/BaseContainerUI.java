@@ -171,6 +171,8 @@ public class BaseContainerUI extends Table implements IResizable {
     }
 
     this.clearChildren();
+    this.align(align);
+
     Cell<Actor> cell = this.add(content).align(align);
 
     if (grow) cell.grow();
