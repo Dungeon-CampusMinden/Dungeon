@@ -1,6 +1,5 @@
 package contrib.hud.inventory;
 
-import contrib.hud.dialogs.DialogInventoryProvider;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryDragController;
 import contrib.hud.itemgrid.InventoryDropHandling;
@@ -21,7 +20,7 @@ import java.util.List;
  * @param <S> the type representing the inventory side or context
  */
 abstract class BaseInventoryOverlay<S> extends BaseUiOverlay
-    implements DialogInventoryProvider {
+    implements InventoryDialogProvider {
 
   private static final int DRAG_THRESHOLD_PX = 8;
 

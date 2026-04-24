@@ -3,7 +3,7 @@ package contrib.hud;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogCreationException;
-import contrib.hud.dialogs.DialogInventoryProvider;
+import contrib.hud.inventory.InventoryDialogProvider;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -113,16 +113,16 @@ public final class UIUtils {
    * Retrieves all inventory components from the concrete dialog node of the given UI component.
    *
    * <p>The dialog stays backend-specific internally, but the extraction is performed via the
-   * backend-neutral {@link DialogInventoryProvider} capability.
+   * backend-neutral {@link InventoryDialogProvider} capability.
    *
    * @param ui the UI component whose dialog contains inventory data
    * @return stream of contained inventory components
    */
   public static Stream<InventoryComponent> getInventoriesFromUI(UIComponent ui) {
     return ui.dialog()
-      .flatMap(handle -> handle.unwrap(DialogInventoryProvider.class))
+      .flatMap(handle -> handle.unwrap(InventoryDialogProvider.class))
       .stream()
-      .flatMap(DialogInventoryProvider::inventoryComponents);
+      .flatMap(InventoryDialogProvider::inventoryComponents);
   }
 
   /**
