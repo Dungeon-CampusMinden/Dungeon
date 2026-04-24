@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+
+import core.game.render.sprite.effects.SpriteOutlineRenderer;
 import org.junit.jupiter.api.Test;
 
 /** Tests for image effect rendering helpers. */
-class ImageEffectsTest {
+class SpriteOutlineRendererTest {
 
   @Test
   void outlinedSpriteUsesUpdatedSourcePixelsForCachedTint() {
@@ -29,7 +31,7 @@ class ImageEffectsTest {
     try {
       graphics.setBackground(new Color(0, 0, 0, 0));
       graphics.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-      ImageEffects.drawOutlinedSprite(graphics, sprite, 1, 1, 1, 1, Color.RED, 1);
+      SpriteOutlineRenderer.drawOutlinedSprite(graphics, sprite, 1, 1, 1, 1, Color.RED, 1);
     } finally {
       graphics.dispose();
     }

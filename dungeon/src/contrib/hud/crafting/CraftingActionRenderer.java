@@ -4,7 +4,7 @@ import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.elements.ImageButton;
 import core.Game;
 import core.input.MouseButtons;
-import core.render.AnimationFrameImages;
+import core.game.render.image.ImageFrameResolver;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import core.utils.components.draw.animation.Animation;
@@ -99,7 +99,7 @@ final class CraftingActionRenderer {
 
       drawActionBoxBackground(g, bounds, hovered, pressed);
 
-      BufferedImage icon = AnimationFrameImages.toImage(button.animation().update());
+      BufferedImage icon = ImageFrameResolver.toImage(button.animation().update());
       if (icon != null) {
         drawCenteredButtonIcon(g, icon, bounds);
       }

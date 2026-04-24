@@ -1,4 +1,4 @@
-package core.render;
+package core.game.render.image;
 
 import core.utils.components.draw.animation.AnimationFrame;
 import java.awt.Graphics2D;
@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 /**
  * Utility class for converting animation frames to renderable images.
  *
- * <p>AnimationFrameImages provides static methods to extract and process animation frames from
+ * <p>ImageFrameResolver provides static methods to extract and process animation frames from
  * sprite sheets and texture assets. It handles frame region extraction, horizontal flipping,
  * and image caching for performance optimization.
  *
@@ -23,8 +23,8 @@ import java.awt.image.BufferedImage;
  *
  * <p>This class is not instantiable; all methods are static utilities.
  */
-public final class AnimationFrameImages {
-  private AnimationFrameImages() {}
+public final class ImageFrameResolver {
+  private ImageFrameResolver() {}
 
   /**
    * Converts an AnimationFrame to a BufferedImage, applying transformations as needed.

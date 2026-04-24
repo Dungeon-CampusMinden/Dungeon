@@ -1,4 +1,4 @@
-package core.render.effects;
+package core.game.render.image;
 
 import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;

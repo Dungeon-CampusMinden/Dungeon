@@ -1,8 +1,8 @@
 package contrib.hud.crafting;
 
 import contrib.item.Item;
-import core.render.AnimationFrameImages;
-import core.render.ImageAssets;
+import core.game.render.image.ImageFrameResolver;
+import core.game.render.image.ImageAssets;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -234,7 +234,7 @@ final class CraftingPanelRenderer {
     }
 
     try {
-      return AnimationFrameImages.toImage(item.inventoryAnimation().update());
+      return ImageFrameResolver.toImage(item.inventoryAnimation().update());
     } catch (RuntimeException ignored) {
       return null;
     }

@@ -1,7 +1,7 @@
 package contrib.hud.itemgrid;
 
 import contrib.item.Item;
-import core.render.AnimationFrameImages;
+import core.game.render.image.ImageFrameResolver;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -191,7 +191,7 @@ public final class InventoryGridRenderer {
     }
 
     try {
-      return AnimationFrameImages.toImage(item.inventoryAnimation().update());
+      return ImageFrameResolver.toImage(item.inventoryAnimation().update());
     } catch (RuntimeException ignored) {
       return null;
     }

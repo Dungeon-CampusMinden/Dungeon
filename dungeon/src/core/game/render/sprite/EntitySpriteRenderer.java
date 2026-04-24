@@ -8,9 +8,9 @@ import core.game.render.depth.DepthLayerEffectPipeline;
 import core.game.render.sprite.effects.ShineSpriteEffect;
 import core.game.render.sprite.effects.SpriteEffectPipeline;
 import core.game.render.sprite.effects.SpriteEffectsComponent;
-import core.render.AnimationFrameImages;
-import core.render.effects.ImageEffects;
-import core.render.effects.OutlineEffectComponent;
+import core.game.render.image.ImageFrameResolver;
+import core.game.render.sprite.effects.SpriteOutlineRenderer;
+import core.game.render.sprite.effects.SpriteOutlineComponent;
 import core.utils.Point;
 import core.utils.Time;
 import de.gurkenlabs.litiengine.graphics.ImageRenderer;
@@ -165,7 +165,7 @@ final class EntitySpriteRenderer {
       return;
     }
 
-    BufferedImage img = AnimationFrameImages.toImage(frame);
+    BufferedImage img = ImageFrameResolver.toImage(frame);
     if (img == null) return;
 
     BufferedImage renderImg = applyTintIfNeeded(img, dc.tintColor());
@@ -196,7 +196,7 @@ final class EntitySpriteRenderer {
     ArrayList<OverlayDraw> shineOverlays =
         createShineOverlays(entity, renderImg, nowMs, drawX, drawY, wPx, hPx);
 
-    OutlineEffectComponent outline = entity.fetch(OutlineEffectComponent.class).orElse(null);
+    SpriteOutlineComponent outline = entity.fetch(SpriteOutlineComponent.class).orElse(null);
 
     if (outline == null) {
       drawScaledImage(g, renderImg, drawX, drawY, wPx, hPx);
@@ -204,10 +204,10 @@ final class EntitySpriteRenderer {
       return;
     }
 
-    int outlinePx = ImageEffects.effectiveOutlineWidth(outline, nowMs);
-    Color outlineColor = ImageEffects.effectiveOutlineColor(outline, nowMs);
+    int outlinePx = SpriteOutlineRenderer.effectiveOutlineWidth(outline, nowMs);
+    Color outlineColor = SpriteOutlineRenderer.effectiveOutlineColor(outline, nowMs);
 
-    ImageEffects.drawOutlinedSprite(g, renderImg, drawX, drawY, wPx, hPx, outlineColor, outlinePx);
+    SpriteOutlineRenderer.drawOutlinedSprite(g, renderImg, drawX, drawY, wPx, hPx, outlineColor, outlinePx);
     drawOverlayImages(g, shineOverlays);
   }
 

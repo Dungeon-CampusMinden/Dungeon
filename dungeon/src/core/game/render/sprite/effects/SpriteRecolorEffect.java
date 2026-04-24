@@ -1,11 +1,11 @@
 package core.game.render.sprite.effects;
 
-import core.render.effects.ImageEffectCache;
+import core.game.render.image.ImageEffectCache;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
- * A sprite effect that remaps hue values in an image.
+ * A sprite recolor effect that remaps hue values in an image.
  *
  * <p>This effect allows you to change the color of pixels within a specified hue range to a target hue.
  * It uses HSB (Hue, Saturation, Brightness) color space to identify and transform colors based on
@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
  * <p>Results are cached to improve performance for repeated applications of the same effect to the
  * same image.
  */
-public final class HueRemapSpriteEffect implements ToggleableSpriteEffect {
+public final class SpriteRecolorEffect implements ToggleableSpriteEffect {
 
   private static final ImageEffectCache<BufferedImage> CACHE = new ImageEffectCache<>(16);
 
@@ -31,7 +31,7 @@ public final class HueRemapSpriteEffect implements ToggleableSpriteEffect {
    * @param targetHue the hue value to remap to (0.0 to 1.0)
    * @param tolerance the acceptable distance from the starting hue (0.0 to 1.0)
    */
-  public HueRemapSpriteEffect(float startingHue, float targetHue, float tolerance) {
+  public SpriteRecolorEffect(float startingHue, float targetHue, float tolerance) {
     this.startingHue = normalizeHue(startingHue);
     this.targetHue = normalizeHue(targetHue);
     this.tolerance = clamp01(tolerance);
@@ -43,7 +43,7 @@ public final class HueRemapSpriteEffect implements ToggleableSpriteEffect {
    * @param enabled true to enable the effect, false to disable it
    * @return this effect for method chaining
    */
-  public HueRemapSpriteEffect enabled(boolean enabled) {
+  public SpriteRecolorEffect enabled(boolean enabled) {
     this.enabled = enabled;
     return this;
   }

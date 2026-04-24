@@ -30,7 +30,7 @@ import core.game.render.level.LevelColorGradeEffect;
 import core.game.render.level.LevelEffectPipeline;
 import core.game.render.scene.SceneColorGradeEffect;
 import core.game.render.scene.SceneEffectPipeline;
-import core.game.render.sprite.effects.HueRemapSpriteEffect;
+import core.game.render.sprite.effects.SpriteRecolorEffect;
 import core.game.render.sprite.effects.ShineSpriteEffect;
 import core.game.render.sprite.effects.SpriteColorGradeEffect;
 import core.game.render.sprite.effects.SpriteEffectRegistry;
@@ -468,7 +468,7 @@ public final class BasicStarter {
     SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
       "demo_hue_remap_warm_to_cyan",
-      new HueRemapSpriteEffect(0.08f, 0.56f, 0.18f),
+      new SpriteRecolorEffect(0.08f, 0.56f, 0.18f),
       100);
     entity.add(new SpriteEffectsComponent(effects));
   }

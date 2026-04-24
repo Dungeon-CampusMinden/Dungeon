@@ -6,11 +6,11 @@ import java.awt.image.BufferedImage;
 import org.junit.jupiter.api.Test;
 
 /** Tests for hue remap cache behavior. */
-class HueRemapSpriteEffectTest {
+class SpriteRecolorEffectTest {
 
   @Test
   void applyInvalidatesCachedResultWhenSourcePixelsChange() {
-    HueRemapSpriteEffect effect = new HueRemapSpriteEffect(0.0f, 1.0f / 3.0f, 0.01f);
+    SpriteRecolorEffect effect = new SpriteRecolorEffect(0.0f, 1.0f / 3.0f, 0.01f);
     BufferedImage source = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
     source.setRGB(0, 0, 0xFFFF0000);
 

@@ -1,4 +1,4 @@
-package core.render.effects;
+package core.game.render.sprite.effects;
 
 import core.Component;
 import java.awt.Color;
@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * A component that defines visual outline effect properties for entities.
  *
- * <p>OutlineEffectComponent encapsulates all parameters needed to render an outline effect around
+ * <p>SpriteOutlineComponent encapsulates all parameters needed to render an outline effect around
  * a sprite, including width, color, and optional animations. It supports pulsing effects and
  * rainbow color cycling.
  *
@@ -23,7 +23,7 @@ import java.util.Objects;
  * <p>This component follows the fluent builder pattern, allowing method chaining for convenient
  * configuration.
  */
-public final class OutlineEffectComponent implements Component {
+public final class SpriteOutlineComponent implements Component {
 
   private int width;
   private Color color;
@@ -40,7 +40,7 @@ public final class OutlineEffectComponent implements Component {
    * @param beatIntensity the intensity of the pulsing effect, clamped to [0, ∞) (0 disables pulsing)
    * @throws NullPointerException if color is null
    */
-  public OutlineEffectComponent(
+  public SpriteOutlineComponent(
     final int width, final Color color, final float beatSpeed, final float beatIntensity) {
     this.width = Math.max(1, width);
     this.color = Objects.requireNonNull(color, "color");
@@ -58,7 +58,7 @@ public final class OutlineEffectComponent implements Component {
    * @param color the outline color (must not be null)
    * @throws NullPointerException if color is null
    */
-  public OutlineEffectComponent(final int width, final Color color) {
+  public SpriteOutlineComponent(final int width, final Color color) {
     this(width, color, 1.0f, 0f);
   }
 
@@ -69,7 +69,7 @@ public final class OutlineEffectComponent implements Component {
    *
    * @param width the base outline thickness in pixels (must be at least 1)
    */
-  public OutlineEffectComponent(final int width) {
+  public SpriteOutlineComponent(final int width) {
     this(width, Color.WHITE);
   }
 
@@ -88,7 +88,7 @@ public final class OutlineEffectComponent implements Component {
    * @param width the outline thickness in pixels (will be clamped to at least 1)
    * @return this component for method chaining
    */
-  public OutlineEffectComponent width(final int width) {
+  public SpriteOutlineComponent width(final int width) {
     this.width = Math.max(1, width);
     return this;
   }
@@ -109,7 +109,7 @@ public final class OutlineEffectComponent implements Component {
    * @return this component for method chaining
    * @throws NullPointerException if color is null
    */
-  public OutlineEffectComponent color(final Color color) {
+  public SpriteOutlineComponent color(final Color color) {
     this.color = Objects.requireNonNull(color, "color");
     return this;
   }
@@ -131,7 +131,7 @@ public final class OutlineEffectComponent implements Component {
    * @param beatSpeed the animation speed multiplier
    * @return this component for method chaining
    */
-  public OutlineEffectComponent beatSpeed(final float beatSpeed) {
+  public SpriteOutlineComponent beatSpeed(final float beatSpeed) {
     this.beatSpeed = beatSpeed;
     return this;
   }
@@ -154,7 +154,7 @@ public final class OutlineEffectComponent implements Component {
    * @param beatIntensity the pulsing effect intensity (will be clamped to at least 0)
    * @return this component for method chaining
    */
-  public OutlineEffectComponent beatIntensity(final float beatIntensity) {
+  public SpriteOutlineComponent beatIntensity(final float beatIntensity) {
     this.beatIntensity = Math.max(0f, beatIntensity);
     return this;
   }
@@ -177,7 +177,7 @@ public final class OutlineEffectComponent implements Component {
    * @param rainbow true to enable rainbow animation, false to disable
    * @return this component for method chaining
    */
-  public OutlineEffectComponent rainbow(final boolean rainbow) {
+  public SpriteOutlineComponent rainbow(final boolean rainbow) {
     this.rainbow = rainbow;
     return this;
   }

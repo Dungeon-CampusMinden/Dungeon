@@ -1,7 +1,7 @@
 package contrib.hud.showimage;
 
 import core.Game;
-import core.render.ImageAssets;
+import core.game.render.image.ImageAssets;
 import contrib.hud.renderers.DialogFrameRenderer;
 import core.ui.overlay.BaseUiOverlay;
 import java.awt.AlphaComposite;

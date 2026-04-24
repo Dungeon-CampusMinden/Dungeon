@@ -9,8 +9,8 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
-import core.render.AnimationFrameImages;
-import core.render.effects.ImageEffects;
+import core.game.render.image.ImageFrameResolver;
+import core.game.render.sprite.effects.SpriteOutlineRenderer;
 import core.utils.Point;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -136,7 +136,7 @@ final class LevelEditorDebugRenderer {
       return false;
     }
 
-    BufferedImage sprite = AnimationFrameImages.toImage(frame);
+    BufferedImage sprite = ImageFrameResolver.toImage(frame);
     if (sprite == null || sprite.getWidth() <= 0 || sprite.getHeight() <= 0) {
       return false;
     }
@@ -166,7 +166,7 @@ final class LevelEditorDebugRenderer {
     int drawX = Math.round(screenOrigin.x() + (tilePx - wPx) / 2f);
     int drawY = Math.round(screenOrigin.y() + tilePx - hPx);
 
-    ImageEffects.drawOutlinedSprite(
+    SpriteOutlineRenderer.drawOutlinedSprite(
         g, sprite, drawX, drawY, wPx, hPx, debugEntityColor(entity), Math.max(1, DEBUG_ENTITY_INSET_PX));
 
     return true;

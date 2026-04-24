@@ -1,4 +1,6 @@
-package core.render.effects;
+package core.game.render.sprite.effects;
+
+import core.game.render.image.ImageEffectCache;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -7,7 +9,7 @@ import java.awt.image.BufferedImage;
 /**
  * Utility class for rendering image effects and visual enhancements.
  *
- * <p>ImageEffects provides static methods for applying visual effects to sprites and images,
+ * <p>SpriteOutlineRenderer provides static methods for applying visual effects to sprites and images,
  * such as outlines, tinting, and color animations. It includes caching mechanisms for performance
  * optimization when rendering frequently used effects.
  *
@@ -22,11 +24,11 @@ import java.awt.image.BufferedImage;
  * <p>This class uses a thread-safe cache to store computed tinted silhouettes, reducing the
  * computational overhead of repeatedly generating the same tinted images.
  */
-public final class ImageEffects {
+public final class SpriteOutlineRenderer {
 
   private static final ImageEffectCache<BufferedImage> TINT_CACHE = new ImageEffectCache<>(32);
 
-  private ImageEffects() {}
+  private SpriteOutlineRenderer() {}
 
   /**
    * Draws a sprite with an optional outline effect on the given graphics context.
@@ -96,7 +98,7 @@ public final class ImageEffects {
    * @return the effective outline width in pixels (minimum 1)
    */
   public static int effectiveOutlineWidth(
-    final OutlineEffectComponent effect, final long nowMs) {
+    final SpriteOutlineComponent effect, final long nowMs) {
     int baseWidth = Math.max(1, effect.width());
 
     if (effect.beatIntensity() <= 0f) {
@@ -121,7 +123,7 @@ public final class ImageEffects {
    * @return the effective outline color, either static or animated based on rainbow mode
    */
   public static Color effectiveOutlineColor(
-    final OutlineEffectComponent effect, final long nowMs) {
+    final SpriteOutlineComponent effect, final long nowMs) {
     if (!effect.rainbow()) {
       return effect.color();
     }

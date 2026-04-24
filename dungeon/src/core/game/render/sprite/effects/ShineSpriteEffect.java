@@ -1,6 +1,6 @@
 package core.game.render.sprite.effects;
 
-import core.render.effects.ImageEffectCache;
+import core.game.render.image.ImageEffectCache;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 

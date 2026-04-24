@@ -5,7 +5,7 @@ import core.game.render.level.LevelPassContext;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
-import core.render.ImageAssets;
+import core.game.render.image.ImageAssets;
 import core.utils.Time;
 import de.gurkenlabs.litiengine.graphics.ImageRenderer;
 import java.awt.Color;

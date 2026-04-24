@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import core.game.render.image.ImageEffectCache;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the shared image effect cache. */

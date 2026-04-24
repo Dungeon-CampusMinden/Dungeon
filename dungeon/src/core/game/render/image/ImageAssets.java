@@ -1,4 +1,4 @@
-package core.render;
+package core.game.render.image;
 
 import core.platform.Platform;
 import core.utils.logging.DungeonLogger;
