@@ -79,7 +79,7 @@ public class TextDialog {
 
     ScrollPane pane = Scene2dElementFactory.createScrollPane(labelTable, false, true);
     pane.setScrollbarsOnTop(false);
-    content.add(pane).width(450).maxHeight(350).padBottom(10).row();
+    content.add(pane).maxWidth(675).maxHeight(350).padBottom(10).row();
 
     dialog.button(
         confirmButton, confirmButton, skin.get("clean-green", TextButton.TextButtonStyle.class));

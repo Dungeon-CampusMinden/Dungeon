@@ -57,7 +57,8 @@ final class OkDialog {
     RichLabel label =
         new RichLabel(RichLabel.toRichText(text), DialogDesign.DIALOG_FONT_SPEC_NORMAL, false);
     label.setWrap(true);
-    content.add(label).width(450).padBottom(10).row();
+    label.setMaxPrefWidth(675);
+    content.add(label).padBottom(10).row();
     dialog.button(
         DEFAULT_OK_BUTTON,
         DEFAULT_OK_BUTTON,
