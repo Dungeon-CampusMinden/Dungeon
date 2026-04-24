@@ -3,7 +3,7 @@ package contrib.hud.crafting;
 import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingType;
 import contrib.hud.inventory.InventoryDialogProvider;
-import contrib.hud.renderers.DialogFrameRenderer;
+import contrib.hud.itemgrid.BaseItemGridOverlay;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryGridRenderer;
 import contrib.hud.itemgrid.InventoryPanelRenderer;
@@ -11,9 +11,9 @@ import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
 import core.ui.StageHandle;
-import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +34,8 @@ import java.util.stream.Stream;
  * operations, and tooltip rendering for crafting items. It maintains an internal state for the
  * visibility, dimensions, and positioning of the dialog.
  *
- * <p>Extends {@code BaseUiOverlay} to represent a customizable UI component and the
- * {@code InventoryComponentProvider} interface to supply associated inventory components.
+ * <p>It extends a shared dialog overlay base and implements {@code InventoryComponentProvider} to
+ * supply associated inventory components.
  *
  * <p>Responsibilities:
  * <ul>
@@ -45,7 +45,10 @@ import java.util.stream.Stream;
  *   <li>Managing visibility, dimensions, and layout of the overlay.</li>
  * </ul>
  */
-final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryDialogProvider {
+final class CraftingDialogOverlay
+    extends BaseItemGridOverlay<
+        CraftingDialogLayoutState.Measurement, CraftingDialogOverlay.RenderContext>
+    implements InventoryDialogProvider {
 
   private static final CraftingDialogLayout CLASSIC_LAYOUT = new CraftingDialogLayout();
 
@@ -74,11 +77,28 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryDial
   }
 
   @Override
-  public void render(Graphics2D g) {
-    if (!visible) {
-      return;
-    }
+  protected CraftingDialogLayoutState.Measurement measureDialog() {
+    return CraftingDialogLayoutState.measure(controller.targetSlots());
+  }
 
+  @Override
+  protected int dialogWidth(CraftingDialogLayoutState.Measurement measurement) {
+    return measurement.dialogWidth();
+  }
+
+  @Override
+  protected int dialogHeight(CraftingDialogLayoutState.Measurement measurement) {
+    return measurement.dialogHeight();
+  }
+
+  @Override
+  protected String dialogTitle() {
+    return "Crafting";
+  }
+
+  @Override
+  protected RenderContext renderContent(
+      Graphics2D g, int contentY, CraftingDialogLayoutState.Measurement measurement) {
     Item[] targetSlots = controller.targetSlots();
     Item[] craftingSlots = controller.craftingSlots();
     Item[] resultItems = currentResultItems();
@@ -88,72 +108,36 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryDial
     Item[] visibleCraftingSlots =
         dragDropController.visibleSlots(craftingSlots, CraftingInventorySide.CRAFTING);
 
-    CraftingDialogLayoutState.Measurement measurement =
-        CraftingDialogLayoutState.measure(targetSlots);
-    width = measurement.dialogWidth();
-    height = measurement.dialogHeight();
+    CraftingDialogLayoutState layoutState =
+        CraftingDialogLayoutState.create(
+            x, contentY, g.getFontMetrics(), measurement, visibleTargetSlots);
 
-    centerInIfUnpositioned(Game.windowWidth(), Game.windowHeight());
+    g.setColor(Color.WHITE);
+    g.drawString(targetTitle, layoutState.leftTitleX(), layoutState.titleBaseline());
+    g.drawString(craftingTitle, layoutState.craftingTitleX(), layoutState.titleBaseline());
 
-    int contentY;
-    List<CraftingDialogLayout.SlotBounds> craftingBounds;
-    List<CraftingDialogLayout.ItemBounds> resultBounds;
+    InventoryPanelRenderer.drawPanelBackground(g, layoutState.leftPanelBounds());
 
-    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
+    GridHitTest.Grid<CraftingInventorySide> leftGrid = layoutState.leftGrid();
+    InventoryGridRenderer.drawGrid(
+        g, visibleTargetSlots, leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
 
-    try {
-      contentY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Crafting");
+    List<CraftingDialogLayout.SlotBounds> craftingBounds =
+        panelRenderer.craftingSlotBounds(layoutState.rightPanelBounds(), craftingSlots);
+    List<CraftingDialogLayout.ItemBounds> resultBounds =
+        panelRenderer.resultItemBounds(layoutState.rightPanelBounds(), resultItems);
 
-      CraftingDialogLayoutState layoutState =
-          CraftingDialogLayoutState.create(
-              x, contentY, g.getFontMetrics(), measurement, visibleTargetSlots);
+    actionRenderer.syncButtonBounds(actionRenderer.buttonBounds(layoutState.rightPanelBounds()));
+    panelRenderer.draw(
+        g,
+        layoutState.rightPanelBounds(),
+        craftingBounds,
+        visibleCraftingSlots,
+        resultItems,
+        resultBounds);
+    actionRenderer.draw(g);
 
-      g.setColor(Color.WHITE);
-      g.drawString(targetTitle, layoutState.leftTitleX(), layoutState.titleBaseline());
-      g.drawString(craftingTitle, layoutState.craftingTitleX(), layoutState.titleBaseline());
-
-      InventoryPanelRenderer.drawPanelBackground(g, layoutState.leftPanelBounds());
-
-      GridHitTest.Grid<CraftingInventorySide> leftGrid = layoutState.leftGrid();
-      InventoryGridRenderer.drawGrid(
-          g, visibleTargetSlots, leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
-
-      craftingBounds =
-          panelRenderer.craftingSlotBounds(layoutState.rightPanelBounds(), craftingSlots);
-
-      resultBounds = panelRenderer.resultItemBounds(layoutState.rightPanelBounds(), resultItems);
-
-      actionRenderer.syncButtonBounds(actionRenderer.buttonBounds(layoutState.rightPanelBounds()));
-      panelRenderer.draw(
-          g,
-          layoutState.rightPanelBounds(),
-          craftingBounds,
-          visibleCraftingSlots,
-          resultItems,
-          resultBounds);
-      actionRenderer.draw(g);
-
-      if (dragDropController.isDragging()) {
-        drawDropHighlights(
-            g,
-            leftGrid,
-            layoutState.leftPanelBounds(),
-            layoutState.rightPanelBounds(),
-            craftingBounds);
-      }
-
-      handleInput(
-          leftGrid, layoutState.leftPanelBounds(), layoutState.rightPanelBounds(), craftingBounds);
-
-      if (dragDropController.isDragging()) {
-        dragDropController.drawDragPreview(g);
-      } else {
-        tooltipController.drawHoverTooltip(
-            g, bounds(), leftGrid, craftingBounds, resultItems, resultBounds);
-      }
-    } finally {
-      DialogFrameRenderer.finishDialog(g, state);
-    }
+    return new RenderContext(layoutState, leftGrid, craftingBounds, resultItems, resultBounds);
   }
 
   private Item[] currentResultItems() {
@@ -170,11 +154,8 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryDial
         .orElseGet(() -> new Item[0]);
   }
 
-  private void handleInput(
-      GridHitTest.Grid<CraftingInventorySide> leftGrid,
-      Rectangle leftPanelBounds,
-      Rectangle rightPanelBounds,
-      List<CraftingDialogLayout.SlotBounds> craftingBounds) {
+  @Override
+  protected void handleInput(RenderContext content) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       dragDropController.reset();
@@ -190,20 +171,32 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryDial
             leftButtonDown,
             mouseX,
             mouseY,
-            leftGrid,
-            leftPanelBounds,
-            rightPanelBounds,
-            craftingBounds,
+            content.leftGrid(),
+            content.layoutState().leftPanelBounds(),
+            content.layoutState().rightPanelBounds(),
+            content.craftingBounds(),
             actionRenderer::findActionAt);
     action.ifPresent(actionRenderer::trigger);
   }
 
-  private void drawDropHighlights(
-      Graphics2D g,
-      GridHitTest.Grid<CraftingInventorySide> leftGrid,
-      Rectangle leftPanelBounds,
-      Rectangle rightPanelBounds,
-      List<CraftingDialogLayout.SlotBounds> craftingBounds) {
+  @Override
+  protected void drawPointerFeedback(Graphics2D g, RenderContext content) {
+    if (dragDropController.isDragging()) {
+      drawDropHighlights(g, content);
+      dragDropController.drawDragPreview(g);
+      return;
+    }
+
+    tooltipController.drawHoverTooltip(
+        g,
+        bounds(),
+        content.leftGrid(),
+        content.craftingBounds(),
+        content.resultItems(),
+        content.resultBounds());
+  }
+
+  private void drawDropHighlights(Graphics2D g, RenderContext content) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       return;
@@ -211,10 +204,10 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryDial
 
     dragDropController.drawDropHighlights(
         g,
-        leftGrid,
-        leftPanelBounds,
-        rightPanelBounds,
-        craftingBounds,
+        content.leftGrid(),
+        content.layoutState().leftPanelBounds(),
+        content.layoutState().rightPanelBounds(),
+        content.craftingBounds(),
         stage.mouseX(),
         stage.mouseY());
   }
@@ -223,4 +216,11 @@ final class CraftingDialogOverlay extends BaseUiOverlay implements InventoryDial
   public Stream<InventoryComponent> inventoryComponents() {
     return Stream.of(controller.targetInventory(), controller.craftingInventory());
   }
+
+  record RenderContext(
+      CraftingDialogLayoutState layoutState,
+      GridHitTest.Grid<CraftingInventorySide> leftGrid,
+      List<CraftingDialogLayout.SlotBounds> craftingBounds,
+      Item[] resultItems,
+      List<CraftingDialogLayout.ItemBounds> resultBounds) {}
 }

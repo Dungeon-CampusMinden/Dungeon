@@ -1,12 +1,10 @@
 package contrib.hud.inventory;
 
+import contrib.hud.itemgrid.BaseItemGridOverlay;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryDragController;
 import contrib.hud.itemgrid.InventoryDropHandling;
-import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.item.Item;
-import core.Game;
-import core.ui.overlay.BaseUiOverlay;
 import java.awt.Graphics2D;
 import java.util.List;
 
@@ -19,7 +17,9 @@ import java.util.List;
  *
  * @param <S> the type representing the inventory side or context
  */
-abstract class BaseInventoryOverlay<S> extends BaseUiOverlay
+abstract class BaseInventoryOverlay<S>
+    extends BaseItemGridOverlay<
+        InventoryDialogLayoutState.Measurement<S>, InventoryDialogLayoutState<S>>
     implements InventoryDialogProvider {
 
   private static final int DRAG_THRESHOLD_PX = 8;
@@ -32,29 +32,24 @@ abstract class BaseInventoryOverlay<S> extends BaseUiOverlay
   }
 
   @Override
-  public final void render(Graphics2D g) {
-    if (!visible) {
-      return;
-    }
+  protected final InventoryDialogLayoutState.Measurement<S> measureDialog() {
+    return measure();
+  }
 
-    InventoryDialogLayoutState.Measurement<S> measurement = measure();
-    width = measurement.dialogWidth();
-    height = measurement.dialogHeight();
+  @Override
+  protected final int dialogWidth(InventoryDialogLayoutState.Measurement<S> measurement) {
+    return measurement.dialogWidth();
+  }
 
-    centerInIfUnpositioned(Game.windowWidth(), Game.windowHeight());
+  @Override
+  protected final int dialogHeight(InventoryDialogLayoutState.Measurement<S> measurement) {
+    return measurement.dialogHeight();
+  }
 
-    InventoryDialogLayoutState<S> layoutState;
-    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
-
-    try {
-      int contentY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, dialogTitle());
-      layoutState = InventoryDialogRenderer.draw(g, x, contentY, measurement);
-      drawPointerFeedback(g, layoutState.grids());
-    } finally {
-      DialogFrameRenderer.finishDialog(g, state);
-    }
-
-    handleInput(layoutState.grids());
+  @Override
+  protected final InventoryDialogLayoutState<S> renderContent(
+      Graphics2D g, int contentY, InventoryDialogLayoutState.Measurement<S> measurement) {
+    return InventoryDialogRenderer.draw(g, x, contentY, measurement);
   }
 
   protected final Item[] visibleSlots(Item[] slots, S side) {
@@ -73,7 +68,14 @@ abstract class BaseInventoryOverlay<S> extends BaseUiOverlay
     dragController.reset();
   }
 
-  private void drawPointerFeedback(Graphics2D g, List<GridHitTest.Grid<S>> grids) {
+  @Override
+  protected final void handleInput(InventoryDialogLayoutState<S> content) {
+    handleInput(content.grids());
+  }
+
+  @Override
+  protected final void drawPointerFeedback(Graphics2D g, InventoryDialogLayoutState<S> content) {
+    List<GridHitTest.Grid<S>> grids = content.grids();
     if (dragController.isDragging()) {
       GridHitTest.Slot<S> hoveredTarget =
           InventoryDialogInput.hoveredDropTarget(dragController, grids, dropTargetFilter());
