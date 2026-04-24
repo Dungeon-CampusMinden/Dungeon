@@ -7,10 +7,8 @@ import contrib.debug.controls.DebugPauseController;
 import contrib.editor.level.LevelEditorSystem;
 import core.Game;
 import core.System;
-import core.level.Tile;
 import core.platform.Platform;
 import core.utils.IVoidFunction;
-import core.utils.Point;
 
 /**
  * Debug system for gameplay-oriented runtime test actions.
@@ -36,7 +34,7 @@ public class DebugGameplaySystem extends System {
       DebugGameplayActions::teleportToCursor,
       DebugGameplayActions::teleportToEndNeighbor,
       DebugGameplayActions::teleportToStart,
-      DebugGameplayActions::loadNextLevel,
+      DebugGameplayActions::teleportOntoExit,
       () -> {
         if (!levelEditorActive()) {
           spawnMonsterOnCursor();

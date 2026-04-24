@@ -59,7 +59,7 @@ public final class DebugGameplayActions {
   }
 
   /** Teleports the player onto an end tile so the next level can be triggered. */
-  public static void loadNextLevel() {
+  public static void teleportOntoExit() {
     LOGGER.info("TELEPORT ON END");
     Game.endTiles().stream().findFirst().ifPresent(DebugGameplayActions::teleport);
   }
