@@ -2,7 +2,7 @@ package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingType;
-import contrib.hud.InventoryDialogProvider;
+import contrib.hud.itemgrid.InventoryDialogProvider;
 import contrib.hud.itemgrid.BaseItemGridOverlay;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryGridRenderer;

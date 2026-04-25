@@ -1,4 +1,4 @@
-package contrib.hud;
+package contrib.hud.itemgrid;
 
 import contrib.components.InventoryComponent;
 import java.util.stream.Stream;
