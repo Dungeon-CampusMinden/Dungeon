@@ -6,6 +6,7 @@ import core.level.Tile;
 import core.level.path.ListTilePath;
 import core.level.path.TilePath;
 import core.level.utils.Coordinate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,17 +21,6 @@ public class PathComponent implements Component {
   private TilePath path;
 
   /**
-   * Creates a new {@code PathComponent} with the given {@link TilePath}.
-   *
-   * @param path the tile path to store; must not be {@code null}
-   * @throws IllegalArgumentException if {@code path} is {@code null}
-   */
-  public PathComponent(final TilePath path) {
-    if (path == null) throw new IllegalArgumentException("Path cannot be null.");
-    this.path = path;
-  }
-
-  /**
    * Creates a new {@code PathComponent} from a list of {@link Coordinate} objects.
    *
    * <p>Each coordinate is resolved to the corresponding {@link Tile} in the current level via
@@ -43,15 +33,15 @@ public class PathComponent implements Component {
   public PathComponent(final List<Coordinate> coordinates) {
     if (coordinates == null) throw new IllegalArgumentException("Path cannot be null.");
 
-    ListTilePath p = new ListTilePath();
+    List<Tile> tiles = new ArrayList<>(coordinates.size());
     for (Coordinate c : coordinates) {
       Tile tile = Game.tileAt(c).orElse(null);
       if (tile == null) {
         throw new IllegalArgumentException("Path contains an invalid coordinate: " + c);
       }
-      p.add(tile);
+      tiles.add(tile);
     }
-    this.path = p;
+    this.path = new ListTilePath(tiles);
   }
 
   /**

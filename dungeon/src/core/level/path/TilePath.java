@@ -7,7 +7,7 @@ import java.util.Iterator;
  * Interface representing a sequence/path of tiles.
  *
  * <p>TilePath provides an ordered collection of tiles that form a path through a level.
- * It supports iteration, indexing, and convenience methods for path manipulation.
+ * It supports iteration, indexing, and convenience methods for path inspection.
  *
  * <p>Key characteristics:
  * <ul>
@@ -17,7 +17,8 @@ import java.util.Iterator;
  *   <li>Empty path support
  * </ul>
  *
- * <p>Implementations should typically be immutable or at least not modified after creation.
+ * <p>Implementations are expected to model immutable paths. Callers should replace a path instead
+ * of mutating it in place.
  */
 public interface TilePath extends Iterable<Tile> {
 

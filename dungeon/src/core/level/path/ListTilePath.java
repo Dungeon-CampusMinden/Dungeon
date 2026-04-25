@@ -1,13 +1,14 @@
 package core.level.path;
 
 import core.level.Tile;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * A {@link TilePath} implementation that stores tiles in an ordered {@link List}.
+ * An immutable {@link TilePath} implementation backed by an ordered {@link List}.
  *
- * <p>Tiles are kept in insertion order and can be accessed by index, iterated over, or retrieved
- * as an unmodifiable list view.
+ * <p>The provided tiles are copied during construction. Afterward the path cannot be modified.
  */
 public final class ListTilePath implements TilePath {
 
@@ -18,7 +19,7 @@ public final class ListTilePath implements TilePath {
    * Creates an empty {@code ListTilePath} with no tiles.
    */
   public ListTilePath() {
-    this.tiles = new ArrayList<>();
+    this.tiles = List.of();
   }
 
   /**
@@ -28,27 +29,10 @@ public final class ListTilePath implements TilePath {
    * collection.
    *
    * @param tiles the collection of tiles to initialize this path with; must not be {@code null}
+   *     and must not contain {@code null} elements
    */
   public ListTilePath(final Collection<Tile> tiles) {
-    this.tiles = new ArrayList<>(tiles);
-  }
-
-  /**
-   * Appends the specified tile to the end of this path.
-   *
-   * @param tile the tile to add; must not be {@code null}
-   */
-  public void add(final Tile tile) {
-    tiles.add(tile);
-  }
-
-  /**
-   * Removes all tiles from this path.
-   *
-   * <p>After this call, the path will be empty.
-   */
-  public void clear() {
-    tiles.clear();
+    this.tiles = List.copyOf(tiles);
   }
 
   /**
@@ -85,14 +69,11 @@ public final class ListTilePath implements TilePath {
   }
 
   /**
-   * Returns an unmodifiable view of the underlying tile list.
-   *
-   * <p>The returned list reflects any later changes to this path but does not permit
-   * direct modification.
+   * Returns the immutable tile list backing this path.
    *
    * @return an unmodifiable {@link List} of the tiles in this path
    */
   public List<Tile> asUnmodifiableList() {
-    return Collections.unmodifiableList(tiles);
+    return tiles;
   }
 }
