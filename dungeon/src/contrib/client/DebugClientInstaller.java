@@ -27,7 +27,7 @@ import core.game.loop.ClientLoopHostInstaller;
  *   <li>{@link DebugEntityRenderSystem}: Offers detailed rendering insights into debug entities.</li>
  * </ul>
  *
- * <p>This installer is registered explicitly through {@link ClientLoopHostFactory}.
+ * <p>This installer is registered explicitly through {@link ClientLoopHostSetup}.
  */
 public final class DebugClientInstaller implements ClientLoopHostInstaller {
 

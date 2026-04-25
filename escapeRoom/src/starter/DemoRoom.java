@@ -2,7 +2,7 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-import contrib.client.ClientLoopHostFactory;
+import contrib.client.ClientLoopHostSetup;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
@@ -37,7 +37,7 @@ public class DemoRoom {
     onSetup();
 
     Game.windowTitle("Demo-Room");
-    ClientLoopHostFactory.installDefaultLoopHost();
+    ClientLoopHostSetup.installDefaultLoopHost();
     Game.run();
   }
 
