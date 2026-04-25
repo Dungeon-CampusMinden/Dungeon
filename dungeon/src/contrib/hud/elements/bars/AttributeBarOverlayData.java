@@ -16,7 +16,7 @@ import java.io.Serializable;
  * @param verticalOffset The vertical offset to apply to the bar dialog, allowing it
  *                       to be positioned above or below the entity as needed.
  */
-public record AttributeBarDialogData(
+public record AttributeBarOverlayData(
   PositionComponent pc,
   String styleName,
   float verticalOffset)

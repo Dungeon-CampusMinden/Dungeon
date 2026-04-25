@@ -58,7 +58,7 @@ public final class AttributeBarUtil {
         .center(false)
         .put(
           DialogContextKeys.ATTRIBUTE_BAR,
-          new AttributeBarDialogData(
+          new AttributeBarOverlayData(
             entity.fetch(PositionComponent.class).orElseThrow(),
             barDisplayable.barStyleName(),
             verticalOffset))

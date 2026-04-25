@@ -29,8 +29,8 @@ public final class AttributeBarOverlayBuilder {
    * @throws IllegalArgumentException if the required attribute bar data is not present in the context
    */
   public static UiHandle build(DialogContext ctx) {
-    AttributeBarDialogData data =
-      ctx.require(DialogContextKeys.ATTRIBUTE_BAR, AttributeBarDialogData.class);
+    AttributeBarOverlayData data =
+      ctx.require(DialogContextKeys.ATTRIBUTE_BAR, AttributeBarOverlayData.class);
 
     AttributeBarOverlay overlay =
       new AttributeBarOverlay(data.styleName());
