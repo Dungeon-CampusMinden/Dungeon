@@ -2,11 +2,13 @@ package contrib.hud.dialogs;
 
 import contrib.hud.crafting.CraftingDialogBuilder;
 import contrib.hud.dialogs.builders.*;
+import contrib.hud.dialogs.overlays.OkDialogOverlay;
 import contrib.hud.elements.bars.AttributeBarOverlayBuilder;
 import contrib.hud.showimage.ShowImageDialogBuilder;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
-import contrib.modules.keypad.ui.KeypadDialogBuilder;
+import contrib.modules.keypad.ui.KeypadDialogOverlay;
+import core.ui.overlay.OverlayHandle;
 
 /**
  * Installs the available dialog backend implementations in the shared dialog registry.
@@ -39,7 +41,13 @@ public final class DialogBackendInstaller {
       return;
     }
 
-    DialogRegistry.replace(DialogType.DefaultTypes.OK, OkDialogBuilder::build);
+    DialogRegistry.replace(
+        DialogType.DefaultTypes.OK,
+        ctx -> {
+          String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
+          String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("OK");
+          return new OverlayHandle(new OkDialogOverlay(title, text, ctx.dialogId()));
+        });
     DialogRegistry.replace(DialogType.DefaultTypes.YES_NO, YesNoDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.TEXT, TextDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.IMAGE, ShowImageDialogBuilder::build);
@@ -47,7 +55,9 @@ public final class DialogBackendInstaller {
     DialogRegistry.replace(
         DialogType.DefaultTypes.ATTRIBUTE_BAR, AttributeBarOverlayBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.PAUSE_MENU, PauseMenuDialogBuilder::build);
-    DialogRegistry.replace(DialogType.DefaultTypes.KEYPAD, KeypadDialogBuilder::build);
+    DialogRegistry.replace(
+        DialogType.DefaultTypes.KEYPAD,
+        ctx -> new OverlayHandle(new KeypadDialogOverlay(ctx.requireEntity(DialogContextKeys.ENTITY))));
     DialogRegistry.replace(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilder::build);
     DialogRegistry.replace(
         DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);

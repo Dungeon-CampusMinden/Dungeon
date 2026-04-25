@@ -51,7 +51,7 @@ import java.util.List;
  *   <li>The keypad buttons are hardcoded with a specific layout and labels.</li>
  * </ul>
  */
-final class KeypadDialogOverlay extends BaseUiOverlay {
+public final class KeypadDialogOverlay extends BaseUiOverlay {
   private static final int DEFAULT_WIDTH = 420;
   private static final int DEFAULT_HEIGHT = 500;
 
@@ -71,7 +71,7 @@ final class KeypadDialogOverlay extends BaseUiOverlay {
   private final DialogButtonInputHandler buttonInput =
     new DialogButtonInputHandler(BUTTON_LABELS.size());
 
-  KeypadDialogOverlay(Entity keypad) {
+  public KeypadDialogOverlay(Entity keypad) {
     super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.keypad = keypad;
 
