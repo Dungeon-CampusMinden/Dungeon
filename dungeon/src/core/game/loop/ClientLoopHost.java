@@ -15,7 +15,7 @@ import core.platform.client.window.ClientShutdownExceptionFilter;
 import core.platform.client.window.ClientWindowEventsBridge;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
-import core.ui.ClientStageHandle;
+import core.platform.client.ui.ClientStageHandle;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import de.gurkenlabs.litiengine.Game;

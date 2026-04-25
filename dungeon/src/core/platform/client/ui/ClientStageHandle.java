@@ -1,5 +1,6 @@
-package core.ui;
+package core.platform.client.ui;
 
+import core.ui.StageHandle;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.input.Input;
 import java.awt.geom.Point2D;
