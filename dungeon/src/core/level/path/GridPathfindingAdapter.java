@@ -3,7 +3,7 @@ package core.level.path;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
-import core.platform.adapters.PathfindingAdapter;
+
 import java.util.*;
 
 /**
@@ -30,7 +30,7 @@ import java.util.*;
  *   <li>Invalid start/end: Optional containing an empty path
  * </ul>
  */
-public final class GridPathfindingAdapter implements PathfindingAdapter {
+public final class GridPathfindingAdapter implements PathfindingService {
   private static final int[][] DIRS = new int[][] {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
   @Override

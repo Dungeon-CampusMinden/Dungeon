@@ -2,6 +2,7 @@ package core.platform;
 
 import core.game.loop.GameLoopHost;
 import core.level.path.GridPathfindingAdapter;
+import core.level.path.PathfindingService;
 import core.platform.adapters.*;
 import core.platform.fallbacks.*;
 import core.resources.ClasspathResourcesAdapter;
@@ -42,7 +43,7 @@ public final class Platform {
   private static WindowAdapter window = new NullWindowAdapter();
   private static RuntimeAdapter runtime = new NullRuntimeAdapter();
   private static ResourcesAdapter resources = new ClasspathResourcesAdapter();
-  private static PathfindingAdapter pathfinding = new GridPathfindingAdapter();
+  private static PathfindingService pathfinding = new GridPathfindingAdapter();
   private static CursorAdapter cursor = new NullCursorAdapter();
   private static RenderAdapter render = DEFAULT_RENDER;
   private static CameraAdapter camera = DEFAULT_CAMERA;
@@ -132,7 +133,7 @@ public final class Platform {
    *
    * @return the current PathfindingAdapter implementation
    */
-  public static PathfindingAdapter pathfinding() {
+  public static PathfindingService pathfinding() {
     return pathfinding;
   }
 
@@ -142,7 +143,7 @@ public final class Platform {
    * @param adapter the PathfindingAdapter implementation (must not be null)
    * @throws NullPointerException if the adapter is null
    */
-  public static void pathfinding(PathfindingAdapter adapter) {
+  public static void pathfinding(PathfindingService adapter) {
     pathfinding = Objects.requireNonNull(adapter);
   }
 
