@@ -1,4 +1,4 @@
-package contrib.hud.showimage;
+package contrib.hud.dialogs.showimage;
 
 import contrib.hud.dialogs.shared.DialogFrameMetrics;
 import contrib.hud.dialogs.shared.DialogFrameRenderer;

@@ -4,7 +4,7 @@ import contrib.hud.crafting.CraftingDialogBuilder;
 import contrib.hud.dialogs.builders.*;
 import contrib.hud.dialogs.overlays.OkDialogOverlay;
 import contrib.hud.elements.bars.AttributeBarOverlayBuilder;
-import contrib.hud.showimage.ShowImageDialogBuilder;
+import contrib.hud.dialogs.showimage.ShowImageDialogBuilder;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
 import contrib.modules.keypad.ui.KeypadDialogOverlay;

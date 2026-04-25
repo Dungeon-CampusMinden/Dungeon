@@ -1,7 +1,7 @@
 package contrib.hud.dialogs;
 
-import contrib.hud.showimage.ShowImageText;
-import contrib.hud.showimage.TransitionSpeed;
+import contrib.hud.dialogs.showimage.ShowImageText;
+import contrib.hud.dialogs.showimage.TransitionSpeed;
 import core.Entity;
 import core.components.PlayerComponent;
 

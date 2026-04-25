@@ -1,4 +1,4 @@
-package contrib.hud.showimage;
+package contrib.hud.dialogs.showimage;
 
 /**
  * Engine-neutral text configuration for show-image dialogs.

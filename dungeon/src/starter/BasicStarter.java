@@ -9,7 +9,7 @@ import contrib.crafting.Crafting;
 import contrib.crafting.CraftingIngredient;
 import contrib.crafting.Recipe;
 import contrib.entities.*;
-import contrib.hud.showimage.ShowImageText;
+import contrib.hud.dialogs.showimage.ShowImageText;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemKey;
 import contrib.item.concreteItem.ItemPotionHealth;
