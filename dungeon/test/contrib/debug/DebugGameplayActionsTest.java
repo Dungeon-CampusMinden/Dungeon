@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import contrib.components.AIComponent;
-import contrib.debug.systems.DebugGameplayActions;
+import contrib.debug.controls.DebugGameplayActions;
 import contrib.systems.AISystem;
 import core.Entity;
 import core.Game;
