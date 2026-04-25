@@ -1,7 +1,8 @@
-package core.game.render.scene;
+package contrib.debug.effects;
 
 import core.camera.CameraViewportState;
 import core.game.render.effects.ToggleableEffect;
+import core.game.render.scene.SceneEffect;
 import core.utils.Point;
 import java.awt.image.BufferedImage;
 
@@ -16,15 +17,15 @@ import java.awt.image.BufferedImage;
  * <p>The effect is toggleable and implements a no-op rendering behavior
  * when disabled or when no debug views are active.
  */
-public final class PassthroughDebugEffect
-  implements SceneEffect, ToggleableEffect<PassthroughDebugEffect> {
+public final class DebugPassthroughEffect
+  implements SceneEffect, ToggleableEffect<DebugPassthroughEffect> {
 
   private boolean debugPMA = false;
   private boolean debugWorldPos = false;
   private boolean enabled = true;
 
   /** Creates a neutral debug effect with all debug views disabled. */
-  public PassthroughDebugEffect() {}
+  public DebugPassthroughEffect() {}
 
   /**
    * Indicates whether the alpha/transparency debug visualization is enabled.
@@ -68,7 +69,7 @@ public final class PassthroughDebugEffect
   }
 
   @Override
-  public PassthroughDebugEffect enabled(boolean enabled) {
+  public DebugPassthroughEffect enabled(boolean enabled) {
     this.enabled = enabled;
     return this;
   }

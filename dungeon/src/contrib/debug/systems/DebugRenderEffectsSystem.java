@@ -8,7 +8,7 @@ import core.game.render.depth.DepthLayerColorGradeEffect;
 import core.game.render.depth.DepthLayerEffectPipeline;
 import core.game.render.level.LevelColorGradeEffect;
 import core.game.render.level.LevelEffectPipeline;
-import core.game.render.scene.PassthroughDebugEffect;
+import contrib.debug.effects.DebugPassthroughEffect;
 import core.game.render.scene.SceneColorGradeEffect;
 import core.game.render.scene.SceneEffectPipeline;
 import core.utils.InputManager;
@@ -165,7 +165,7 @@ public final class DebugRenderEffectsSystem extends System {
   }
 
   private void togglePassthroughPmaDebug() {
-    PassthroughDebugEffect effect = ensurePassthroughDebugEffectRegistered();
+    DebugPassthroughEffect effect = ensurePassthroughDebugEffectRegistered();
     boolean newState = !effect.debugPMA();
     effect.debugPMA(newState);
     syncPassthroughEnabledState(effect);
@@ -176,7 +176,7 @@ public final class DebugRenderEffectsSystem extends System {
   }
 
   private void togglePassthroughWorldPosDebug() {
-    PassthroughDebugEffect effect = ensurePassthroughDebugEffectRegistered();
+    DebugPassthroughEffect effect = ensurePassthroughDebugEffectRegistered();
     boolean newState = !effect.debugWorldPos();
     effect.debugWorldPos(newState);
     syncPassthroughEnabledState(effect);
@@ -232,14 +232,14 @@ public final class DebugRenderEffectsSystem extends System {
       || InputManager.isKeyPressed(Keys.SHIFT_RIGHT);
   }
 
-  private PassthroughDebugEffect ensurePassthroughDebugEffectRegistered() {
+  private DebugPassthroughEffect ensurePassthroughDebugEffectRegistered() {
     return SceneEffectPipeline.effects()
       .get(PASSTHROUGH_DEBUG_EFFECT_ID)
-      .filter(PassthroughDebugEffect.class::isInstance)
-      .map(PassthroughDebugEffect.class::cast)
+      .filter(DebugPassthroughEffect.class::isInstance)
+      .map(DebugPassthroughEffect.class::cast)
       .orElseGet(
         () -> {
-          PassthroughDebugEffect effect = new PassthroughDebugEffect();
+          DebugPassthroughEffect effect = new DebugPassthroughEffect();
           effect.enabled(false);
 
           SceneEffectPipeline.effects().add(PASSTHROUGH_DEBUG_EFFECT_ID, effect, 10_000);
@@ -247,7 +247,7 @@ public final class DebugRenderEffectsSystem extends System {
         });
   }
 
-  private static void syncPassthroughEnabledState(PassthroughDebugEffect effect) {
+  private static void syncPassthroughEnabledState(DebugPassthroughEffect effect) {
     effect.enabled(effect.debugPMA() || effect.debugWorldPos());
   }
 
