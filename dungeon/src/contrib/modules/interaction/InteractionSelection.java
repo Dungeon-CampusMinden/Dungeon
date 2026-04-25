@@ -1,7 +1,5 @@
 package contrib.modules.interaction;
 
-import contrib.modules.interaction.ui.InteractionSelectionUi;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 

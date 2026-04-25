@@ -2,6 +2,7 @@ package contrib.modules.interaction.ui;
 
 import contrib.modules.interaction.IInteractable;
 import contrib.modules.interaction.Interaction;
+import contrib.modules.interaction.InteractionSelectionUi;
 import core.ui.overlay.OverlayManager;
 import java.util.function.Consumer;
 

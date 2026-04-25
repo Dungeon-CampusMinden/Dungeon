@@ -1,7 +1,5 @@
-package contrib.modules.interaction.ui;
+package contrib.modules.interaction;
 
-import contrib.modules.interaction.IInteractable;
-import contrib.modules.interaction.Interaction;
 import java.util.function.Consumer;
 
 /**
