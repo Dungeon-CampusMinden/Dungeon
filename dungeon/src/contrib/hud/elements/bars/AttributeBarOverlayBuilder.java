@@ -12,9 +12,9 @@ import core.ui.overlay.OverlayHandle;
  *
  * <p>It retrieves bar configuration from the dialog context and positions the bar relative to a specific entity.
  */
-public final class AttributeBarDialogBuilder {
+public final class AttributeBarOverlayBuilder {
 
-  private AttributeBarDialogBuilder() {}
+  private AttributeBarOverlayBuilder() {}
 
   /**
    * Builds a UI node handle for an attribute bar overlay.

@@ -2,7 +2,7 @@ package contrib.hud.dialogs;
 
 import contrib.hud.crafting.CraftingDialogBuilder;
 import contrib.hud.dialogs.builders.*;
-import contrib.hud.elements.bars.AttributeBarDialogBuilder;
+import contrib.hud.elements.bars.AttributeBarOverlayBuilder;
 import contrib.hud.showimage.ShowImageDialogBuilder;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
@@ -43,7 +43,7 @@ public final class DialogBackendInstaller {
     DialogFactory.replace(DialogType.DefaultTypes.TEXT, TextDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.IMAGE, ShowImageDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.ATTRIBUTE_BAR, AttributeBarDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.ATTRIBUTE_BAR, AttributeBarOverlayBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.PAUSE_MENU, PauseMenuDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.KEYPAD, KeypadDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilder::build);
