@@ -1,6 +1,8 @@
 package contrib.debug.systems;
 
+import contrib.entities.DungeonMonster;
 import contrib.utils.components.skill.SkillTools;
+import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
@@ -50,6 +52,12 @@ public final class DebugGameplayActions {
   public static void teleportToCursor() {
     LOGGER.info("TELEPORT TO CURSOR");
     teleport(SkillTools.cursorPositionAsPoint());
+  }
+
+  /** Spawns a debug monster at the current cursor position. */
+  public static void spawnMonsterAtCursor() {
+    LOGGER.info("Spawn Monster on Cursor");
+    spawnAt(SkillTools.cursorPositionAsPoint());
   }
 
   /** Teleports the player to the level start tile. */
@@ -126,6 +134,30 @@ public final class DebugGameplayActions {
               pc.position(targetLocation);
               LOGGER.info("Teleport successful");
             });
+  }
+
+  /**
+   * Spawns a debug monster at the given position if the target tile exists and is accessible.
+   *
+   * @param position target spawn position
+   */
+  public static void spawnAt(Point position) {
+    if (position == null) {
+      LOGGER.info("Cannot spawn monster at null position");
+      return;
+    }
+
+    Tile tile = Game.tileAt(position).orElse(null);
+    if (tile == null || !tile.isAccessible()) {
+      LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
+      return;
+    }
+
+    Entity monster = DungeonMonster.randomMonster().builder().build(position);
+    monster.name("Debug Monster");
+    Game.add(monster);
+
+    LOGGER.info("Spawned monster at position {}", position);
   }
 
   /** Opens all exit and door tiles at the current level. */

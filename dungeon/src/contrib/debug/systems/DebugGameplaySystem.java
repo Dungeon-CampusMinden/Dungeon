@@ -16,7 +16,7 @@ import core.utils.IVoidFunction;
  *
  * <p>The system is backend-neutral. Concrete input polling is delegated to {@link
  * DebugInputHandler}, pause state is delegated to {@link DebugPauseController}, and gameplay
- * mutations are delegated to {@link DebugGameplayActions} or {@link DebugMonsterSpawner}.
+ * mutations are delegated to {@link DebugGameplayActions}.
  *
  * <p>Add this system to the game loop by adding the {@link #execute()} call in {@link
  * Game#userOnFrame(IVoidFunction)} or by registering it as a normal ECS system.
@@ -51,7 +51,7 @@ public class DebugGameplaySystem extends System {
 
   /** Spawns a debug monster at the cursor position. */
   public static void spawnMonsterOnCursor() {
-    DebugMonsterSpawner.spawnAtCursor();
+    DebugGameplayActions.spawnMonsterAtCursor();
   }
 
   @Override
