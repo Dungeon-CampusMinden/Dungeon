@@ -2,7 +2,7 @@ package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingType;
-import contrib.hud.inventory.InventoryDialogProvider;
+import contrib.hud.InventoryDialogProvider;
 import contrib.hud.itemgrid.BaseItemGridOverlay;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryGridRenderer;
@@ -34,7 +34,7 @@ import java.util.stream.Stream;
  * operations, and tooltip rendering for crafting items. It maintains an internal state for the
  * visibility, dimensions, and positioning of the dialog.
  *
- * <p>It extends a shared dialog overlay base and implements {@code InventoryComponentProvider} to
+ * <p>It extends a shared dialog overlay base and implements {@code InventoryDialogProvider} to
  * supply associated inventory components.
  *
  * <p>Responsibilities:
