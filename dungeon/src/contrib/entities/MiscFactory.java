@@ -9,7 +9,7 @@ import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogService;
 import contrib.hud.dialogs.DialogType;
 import contrib.item.Item;
 import contrib.item.concreteItem.*;
@@ -267,7 +267,7 @@ public final class MiscFactory {
                                 }
 
                                 UIComponent dialogUI =
-                                    DialogFactory.show(
+                                    DialogService.show(
                                         DialogContext.builder()
                                             .type(DialogType.DefaultTypes.YES_NO)
                                             .put(
@@ -366,7 +366,7 @@ public final class MiscFactory {
         .build();
 
     UIComponent ui =
-      DialogFactory.show(
+      DialogService.show(
         context,
         true,
         true,
@@ -449,7 +449,7 @@ public final class MiscFactory {
             .put(DialogContextKeys.OWNER_ENTITY, ownerEntity.id())
             .build();
 
-    return DialogFactory.show(context, true, true, new int[] {ownerEntity.id()});
+    return DialogService.show(context, true, true, new int[] {ownerEntity.id()});
   }
 
   /**
@@ -690,7 +690,7 @@ public final class MiscFactory {
             () ->
                 new Interaction(
                     (entity, entity2) -> {
-                      DialogFactory.showOkDialog(text, title, onClose);
+                      DialogService.showOkDialog(text, title, onClose);
                     },
                     1f)));
     book.add(
@@ -739,7 +739,7 @@ public final class MiscFactory {
                       }
 
                       UIComponent doorUI =
-                          DialogFactory.show(
+                          DialogService.show(
                               DialogContext.builder()
                                   .type(DialogType.DefaultTypes.YES_NO)
                                   .put(DialogContextKeys.TITLE, "Verschlossene Tür.")

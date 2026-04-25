@@ -4,7 +4,7 @@ import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogService;
 import contrib.hud.dialogs.DialogType;
 import core.Entity;
 import core.Game;
@@ -51,7 +51,7 @@ final class PointDialogController {
         .build();
 
     UIComponent dialogUI =
-      player != null ? DialogFactory.show(context, player.id()) : DialogFactory.show(context);
+      player != null ? DialogService.show(context, player.id()) : DialogService.show(context);
 
     InputManager.consumeTypedCharacters();
     addPointDialog = dialogUI;

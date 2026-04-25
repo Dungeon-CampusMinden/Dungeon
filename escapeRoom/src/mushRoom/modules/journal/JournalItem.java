@@ -10,7 +10,7 @@ import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogRegistry;
 import contrib.item.Item;
 import core.Entity;
 import core.utils.components.draw.TextureMap;
@@ -31,7 +31,7 @@ public class JournalItem extends Item {
   private int unlockedPages = BASE_PAGES_UNLOCKED;
 
   static {
-    DialogFactory.register(EscapeRoomDialogTypes.JOURNAL, JournalItem::buildMushroomJournalDialog);
+    DialogRegistry.register(EscapeRoomDialogTypes.JOURNAL, JournalItem::buildMushroomJournalDialog);
   }
 
   /** Constructs a new JournalItem. */

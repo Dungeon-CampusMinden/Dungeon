@@ -1,12 +1,12 @@
 package contrib.hud.dialogs;
 
 /**
- * Interface representing a dialog type identifier used by {@link DialogFactory}.
+ * Interface representing a dialog type identifier used by {@link DialogRegistry}.
  *
- * <p>Dialog types are used to register and look up dialog creator functions in the factory. Custom
- * dialog types can be created by implementing this interface.
+ * <p>Dialog types are used to register and look up dialog creator functions in the registry.
+ * Custom dialog types can be created by implementing this interface.
  *
- * @see DialogFactory#register(DialogType, java.util.function.Function)
+ * @see DialogRegistry#register(DialogType, java.util.function.Function)
  * @see DialogContext
  */
 public interface DialogType {
@@ -21,7 +21,7 @@ public interface DialogType {
   /**
    * Enumeration of built-in dialog types provided by the framework.
    *
-   * <p>These types are automatically registered with {@link DialogFactory} at startup.
+   * <p>These types are automatically registered with {@link DialogRegistry} at startup.
    */
   enum DefaultTypes implements DialogType {
     /** Simple dialog with a message and a single OK button. */

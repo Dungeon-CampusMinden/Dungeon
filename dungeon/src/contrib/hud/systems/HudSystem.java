@@ -1,7 +1,7 @@
 package contrib.hud.systems;
 
 import contrib.components.UIComponent;
-import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogRegistry;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -133,7 +133,7 @@ public final class HudSystem extends System {
       .dialog()
       .orElseGet(
         () -> {
-          UiHandle created = DialogFactory.create(component.dialogContext());
+          UiHandle created = DialogRegistry.create(component.dialogContext());
           component.dialog(created);
           return created;
         });

@@ -1,6 +1,6 @@
 package tools;
 
-import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogService;
 import contrib.systems.EventScheduler;
 import core.Game;
 
@@ -19,6 +19,6 @@ public class Timer {
    */
   public static EventScheduler.ScheduledAction startTimeToEndGame(int milliseconds) {
     return EventScheduler.scheduleAction(
-        () -> DialogFactory.showOkDialog("TIME OVER", "GAME OVER", Game::exit), milliseconds);
+        () -> DialogService.showOkDialog("TIME OVER", "GAME OVER", Game::exit), milliseconds);
   }
 }

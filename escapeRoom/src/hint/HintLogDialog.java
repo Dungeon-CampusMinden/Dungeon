@@ -42,7 +42,7 @@ public final class HintLogDialog {
   public static final String CALLBACK_PREV = "prev";
 
   static {
-    DialogFactory.register(EscapeRoomDialogTypes.SIMPLE_HINT, HintLogDialog::createHintDialog);
+    DialogRegistry.register(EscapeRoomDialogTypes.SIMPLE_HINT, HintLogDialog::createHintDialog);
   }
 
   /**
@@ -80,7 +80,7 @@ public final class HintLogDialog {
             .put("hintIndex", index)
             .build();
 
-    UIComponent ui = DialogFactory.show(context);
+    UIComponent ui = DialogService.show(context);
 
     // Register navigation callbacks
     ui.registerCallback(

@@ -18,7 +18,8 @@ import java.util.*;
  *
  * <p>Instances are created using the {@link Builder} class obtained via {@link #builder()}.
  *
- * @see DialogFactory
+ * @see DialogRegistry
+ * @see DialogService
  * @see DialogType
  */
 public final class DialogContext implements Serializable {
@@ -232,7 +233,7 @@ public final class DialogContext implements Serializable {
     /**
      * Sets the dialog type for this context.
      *
-     * @param value The dialog type (must be registered with {@link DialogFactory})
+     * @param value The dialog type (must be registered with {@link DialogRegistry})
      * @return This builder for method chaining
      * @throws NullPointerException if value is null
      */

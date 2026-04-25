@@ -11,7 +11,7 @@ import core.utils.IVoidFunction;
 /**
  * The DialogUtils class is responsible for displaying text popups and quizzes to the player.
  *
- * @see DialogFactory
+ * @see DialogService
  */
 public class DialogUtils {
 
@@ -41,7 +41,7 @@ public class DialogUtils {
     // removes newlines and empty spaces and multiple spaces from the title and text
     title = title.replaceAll("\\s+", " ").trim();
     text = text.replaceAll("\\s+", " ").trim();
-    UIComponent ui = DialogFactory.showOkDialog(text, title, onFinished, targetIds);
+    UIComponent ui = DialogService.showOkDialog(text, title, onFinished, targetIds);
     return ui.dialogContext().ownerEntity();
   }
 
@@ -76,7 +76,7 @@ public class DialogUtils {
             imagePath, speed, maxSize, textConfig, dialogEntity.id());
 
     Game.add(dialogEntity);
-    UIComponent ui = DialogFactory.show(context);
+    UIComponent ui = DialogService.show(context);
     ui.onClose((_) -> onFinished.execute());
   }
 }

@@ -9,10 +9,10 @@ import contrib.hud.inventory.InventoryDialogBuilder;
 import contrib.modules.keypad.ui.KeypadDialogBuilder;
 
 /**
- * Installs the available dialog backend implementations in the shared dialog factory.
+ * Installs the available dialog backend implementations in the shared dialog registry.
  *
- * <p>The dialog factory itself only owns the registry. This class wires the default dialog types to
- * the currently available neutral dialog builders.
+ * <p>The dialog registry itself only owns dialog creation. This class wires the default dialog
+ * types to the currently available neutral dialog builders.
  */
 public final class DialogBackendInstaller {
   private static boolean initialized = false;
@@ -20,10 +20,11 @@ public final class DialogBackendInstaller {
   private DialogBackendInstaller() {}
 
   /**
-   * Installs the default dialog types and their corresponding implementations into the dialog factory.
+   * Installs the default dialog types and their corresponding implementations into the dialog
+   * registry.
    *
    * <p>This method ensures that all built-in dialog types defined in {@link DialogType.DefaultTypes}
-   * are registered in the {@link DialogFactory}.
+   * are registered in the {@link DialogRegistry}.
    *
    * <p>Each dialog type is bound to its respective neutral builder implementation.
    *
@@ -38,17 +39,19 @@ public final class DialogBackendInstaller {
       return;
     }
 
-    DialogFactory.replace(DialogType.DefaultTypes.OK, OkDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.YES_NO, YesNoDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.TEXT, TextDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.IMAGE, ShowImageDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.ATTRIBUTE_BAR, AttributeBarOverlayBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.PAUSE_MENU, PauseMenuDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.KEYPAD, KeypadDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);
-    DialogFactory.replace(DialogType.DefaultTypes.CRAFTING_GUI, CraftingDialogBuilder::build);
+    DialogRegistry.replace(DialogType.DefaultTypes.OK, OkDialogBuilder::build);
+    DialogRegistry.replace(DialogType.DefaultTypes.YES_NO, YesNoDialogBuilder::build);
+    DialogRegistry.replace(DialogType.DefaultTypes.TEXT, TextDialogBuilder::build);
+    DialogRegistry.replace(DialogType.DefaultTypes.IMAGE, ShowImageDialogBuilder::build);
+    DialogRegistry.replace(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialogBuilder::build);
+    DialogRegistry.replace(
+        DialogType.DefaultTypes.ATTRIBUTE_BAR, AttributeBarOverlayBuilder::build);
+    DialogRegistry.replace(DialogType.DefaultTypes.PAUSE_MENU, PauseMenuDialogBuilder::build);
+    DialogRegistry.replace(DialogType.DefaultTypes.KEYPAD, KeypadDialogBuilder::build);
+    DialogRegistry.replace(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilder::build);
+    DialogRegistry.replace(
+        DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);
+    DialogRegistry.replace(DialogType.DefaultTypes.CRAFTING_GUI, CraftingDialogBuilder::build);
 
     initialized = true;
   }

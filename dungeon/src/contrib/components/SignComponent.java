@@ -84,7 +84,7 @@ public class SignComponent implements Component {
    * @return The dialog entity.
    */
   public Entity showDialog() {
-    UIComponent ui = DialogFactory.showOkDialog(this.text, this.title, () -> {});
+    UIComponent ui = DialogService.showOkDialog(this.text, this.title, () -> {});
 
     return ui.dialogContext().ownerEntity();
   }

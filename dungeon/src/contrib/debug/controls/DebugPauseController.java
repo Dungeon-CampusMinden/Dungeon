@@ -3,7 +3,7 @@ package contrib.debug.controls;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogService;
 import contrib.hud.dialogs.DialogType;
 import core.Entity;
 import core.ui.UiHandle;
@@ -86,7 +86,7 @@ public final class DebugPauseController {
 
   private void pause() {
     UIComponent ui =
-      DialogFactory.show(
+      DialogService.show(
         DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
 
     ui.dialog().ifPresent(dialog -> dialog.setVisible(true));
