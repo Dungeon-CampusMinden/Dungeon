@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
+import contrib.debug.draw.DebugEntityInfoFormatter;
 import core.Entity;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;

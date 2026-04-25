@@ -1,8 +1,9 @@
-package contrib.debug.systems;
+package contrib.debug.draw;
 
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
+import contrib.debug.systems.DebugEntityRenderSystem;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
@@ -16,9 +17,20 @@ import java.util.Locale;
 import java.util.Objects;
 
 /** Formats the hover information shown by {@link DebugEntityRenderSystem}. */
-final class DebugEntityInfoFormatter {
+public final class DebugEntityInfoFormatter {
 
-  String format(Entity entity, PositionComponent positionComponent, boolean includeComponents) {
+  /**
+   * Generates a formatted string containing detailed information about an entity, its position,
+   * and optionally its components, based on the provided parameters.
+   *
+   * @param entity the entity for which detailed information is to be formatted
+   * @param positionComponent the position component of the entity containing positional and directional data
+   * @param includeComponents a boolean flag indicating whether to include detailed component information
+   *                          in the formatted output
+   * @return a formatted string containing information about the entity, including its name, ID,
+   *         position, and optionally its components
+   */
+  public String format(Entity entity, PositionComponent positionComponent, boolean includeComponents) {
     Point position = positionComponent.position();
 
     StringBuilder info = new StringBuilder();

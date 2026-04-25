@@ -3,6 +3,7 @@ package contrib.debug.systems;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
 import contrib.debug.draw.DebugDrawFacade;
+import contrib.debug.draw.DebugEntityInfoFormatter;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
