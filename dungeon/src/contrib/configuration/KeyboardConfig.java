@@ -7,18 +7,26 @@ import core.configuration.values.ConfigIntValue;
 import core.input.Keys;
 import core.input.MouseButtons;
 
-/** WTF? . */
+/**
+ * Configuration class for mapping keyboard inputs to specific actions within the application.
+ *
+ * <p>The class is annotated with {@code @ConfigMap} to define a JSON-Path prefix for fields
+ * used within it.
+ *
+ * <p>Each field in this class represents a specific keybinding, associated with a particular
+ * action or debug functionality.
+ */
 @ConfigMap(path = {"keyboard"})
 public class KeyboardConfig {
-  /** WTF? . */
+  /** This key is used to open the player's inventory. */
   public static final ConfigKey<Integer> INVENTORY_OPEN =
       new ConfigKey<>(new String[] {"inventory", "open"}, new ConfigIntValue(Keys.I));
 
-  /** WTF? . */
+  /** This key is used to close the player's inventory. */
   public static final ConfigKey<Integer> CLOSE_UI =
       new ConfigKey<>(new String[] {"ui", "close"}, new ConfigIntValue(Keys.ESCAPE));
 
-  /** WTF? . */
+  /** This key is used to interact with the world. */
   public static final ConfigKey<Integer> INTERACT_WORLD =
       new ConfigKey<>(new String[] {"interact", "world"}, new ConfigIntValue(Keys.E));
 
@@ -26,7 +34,7 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> MOUSE_INTERACT_WORLD =
       new ConfigKey<>(new String[] {"interact", "mouse"}, new ConfigIntValue(MouseButtons.RIGHT));
 
-  /** WTF? . */
+  /** This key is used to use an item. Only works if the player's inventory dialog is open. */
   public static final ConfigKey<Integer> USE_ITEM =
       new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Keys.E));
 
