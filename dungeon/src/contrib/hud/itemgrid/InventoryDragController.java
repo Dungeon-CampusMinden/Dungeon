@@ -134,6 +134,44 @@ public final class InventoryDragController<S> {
   }
 
   /**
+   * Handles primary-button inventory input and dispatches click or drag releases.
+   *
+   * @param dragController the drag controller managing pointer state
+   * @param slotFinder resolves slots at pointer positions
+   * @param itemResolver resolves items inside slots
+   * @param dragReleaseHandler receives completed drags
+   * @param clickReleaseHandler receives click releases on the same slot
+   * @param <S> logical side type of the slot
+   */
+  public static <S> void handlePrimaryInput(
+      InventoryDragController<S> dragController,
+      SlotFinder<S> slotFinder,
+      ItemResolver<S> itemResolver,
+      DragReleaseHandler<S> dragReleaseHandler,
+      ClickReleaseHandler<S> clickReleaseHandler) {
+    Optional<MouseUpdate<S>> update = dragController.updateFromPrimaryMouse(slotFinder, itemResolver);
+
+    if (update.isEmpty() || update.get().release().isEmpty()) {
+      return;
+    }
+
+    MouseUpdate<S> mouseUpdate = update.get();
+    Release<S> release = mouseUpdate.release().get();
+
+    if (release.completedDrag() != null) {
+      dragReleaseHandler.handle(
+          release.completedDrag(), release.releasedSlot(), mouseUpdate.mouseX(), mouseUpdate.mouseY());
+      return;
+    }
+
+    if (clickReleaseHandler != null
+        && release.pressedSlot() != null
+        && release.pressedSlot().equals(release.releasedSlot())) {
+      clickReleaseHandler.handle(release.pressedSlot());
+    }
+  }
+
+  /**
    * Returns the currently active drag state.
    *
    * @return the active drag state, or {@code null}
@@ -314,6 +352,41 @@ public final class InventoryDragController<S> {
      * @return the item in the slot, or {@code null}
      */
     Item itemAt(GridHitTest.Slot<S> slot);
+  }
+
+  /**
+   * Handles a completed drag release.
+   *
+   * @param <S> logical side type of the slot
+   */
+  @FunctionalInterface
+  public interface DragReleaseHandler<S> {
+
+    /**
+     * Handles a completed drag release.
+     *
+     * @param drag the completed drag state
+     * @param releasedSlot the slot where the pointer was released, or {@code null}
+     * @param mouseX the release x coordinate
+     * @param mouseY the release y coordinate
+     */
+    void handle(DragState<S> drag, GridHitTest.Slot<S> releasedSlot, int mouseX, int mouseY);
+  }
+
+  /**
+   * Handles a primary-button click release on a slot.
+   *
+   * @param <S> logical side type of the slot
+   */
+  @FunctionalInterface
+  public interface ClickReleaseHandler<S> {
+
+    /**
+     * Handles a click release on a slot.
+     *
+     * @param slot the clicked slot
+     */
+    void handle(GridHitTest.Slot<S> slot);
   }
 
   /**

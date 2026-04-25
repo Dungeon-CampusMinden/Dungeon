@@ -7,6 +7,7 @@ import contrib.hud.itemgrid.InventoryDragController;
 import contrib.hud.itemgrid.InventoryDropHandling;
 import contrib.hud.itemgrid.InventoryGridRenderer;
 import contrib.hud.itemgrid.InventoryPanelRenderer;
+import contrib.hud.itemgrid.InventoryTooltip;
 import contrib.item.Item;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -82,10 +83,14 @@ abstract class BaseInventoryOverlay<S>
 
   protected final void handlePrimaryInput(
       List<GridHitTest.Grid<S>> grids,
-      InventoryDialogInput.DragReleaseHandler<S> dragReleaseHandler,
-      InventoryDialogInput.ClickReleaseHandler<S> clickReleaseHandler) {
-    InventoryDialogInput.handlePrimaryInput(
-        dragController, grids, this::itemOf, dragReleaseHandler, clickReleaseHandler);
+      InventoryDragController.DragReleaseHandler<S> dragReleaseHandler,
+      InventoryDragController.ClickReleaseHandler<S> clickReleaseHandler) {
+    InventoryDragController.handlePrimaryInput(
+        dragController,
+        (mouseX, mouseY) -> findSlotSelection(grids, mouseX, mouseY),
+        this::itemOf,
+        dragReleaseHandler,
+        clickReleaseHandler);
   }
 
   protected final void resetDragState() {
@@ -102,7 +107,10 @@ abstract class BaseInventoryOverlay<S>
     List<GridHitTest.Grid<S>> grids = content.grids();
     if (dragController.isDragging()) {
       GridHitTest.Slot<S> hoveredTarget =
-          InventoryDialogInput.hoveredDropTarget(dragController, grids, dropTargetFilter());
+          InventoryDropHandling.hoveredDropTarget(
+              dragController,
+              (mouseX, mouseY) -> findSlotSelection(grids, mouseX, mouseY),
+              dropTargetFilter());
       if (hoveredTarget != null) {
         InventoryDropHandling.drawGridDropHighlight(g, hoveredTarget, grids);
       }
@@ -110,7 +118,13 @@ abstract class BaseInventoryOverlay<S>
       return;
     }
 
-    InventoryDialogInput.drawHoverTooltip(g, bounds(), grids, this::itemOf);
+    InventoryTooltip.drawHoveredSlotTooltip(
+        g, bounds(), (mouseX, mouseY) -> findSlotSelection(grids, mouseX, mouseY), this::itemOf);
+  }
+
+  protected final GridHitTest.Slot<S> findSlotSelection(
+      List<GridHitTest.Grid<S>> grids, int mouseX, int mouseY) {
+    return GridHitTest.findGridSlotAt(mouseX, mouseY, grids);
   }
 
   protected abstract InventoryDialogLayoutState.Measurement<S> measure();

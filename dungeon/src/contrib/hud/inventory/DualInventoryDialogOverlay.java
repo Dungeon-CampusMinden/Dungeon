@@ -172,7 +172,11 @@ final class DualInventoryDialogOverlay
 
   @Override
   protected Item itemOf(GridHitTest.Slot<InventorySide> slot) {
-    return InventoryDialogInput.itemOf(slot, this::inventoryOf);
+    if (slot == null) {
+      return null;
+    }
+
+    return inventoryOf(slot.side()).get(slot.slotIndex()).orElse(null);
   }
 
   @Override

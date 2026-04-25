@@ -110,14 +110,12 @@ final class InventoryDialogOverlay
     }
 
     if (rightButtonDown && !rightButtonDownLastFrame) {
-      GridHitTest.Slot<InventorySide> slot =
-          InventoryDialogInput.findSlotSelection(grids, mouseX, mouseY);
+      GridHitTest.Slot<InventorySide> slot = findSlotSelection(grids, mouseX, mouseY);
       pressedUseSlotIndex = slot == null ? null : slot.slotIndex();
     }
 
     if (!rightButtonDown && rightButtonDownLastFrame) {
-      GridHitTest.Slot<InventorySide> releasedSlot =
-          InventoryDialogInput.findSlotSelection(grids, mouseX, mouseY);
+      GridHitTest.Slot<InventorySide> releasedSlot = findSlotSelection(grids, mouseX, mouseY);
       int releasedSlotIndex = releasedSlot == null ? -1 : releasedSlot.slotIndex();
 
       Integer previouslyPressedSlot = pressedUseSlotIndex;
@@ -179,7 +177,11 @@ final class InventoryDialogOverlay
 
   @Override
   protected Item itemOf(GridHitTest.Slot<InventorySide> slot) {
-    return InventoryDialogInput.itemOf(slot, side -> inventory);
+    if (slot == null) {
+      return null;
+    }
+
+    return inventory.get(slot.slotIndex()).orElse(null);
   }
 
   @Override
