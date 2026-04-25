@@ -1,13 +1,11 @@
 package contrib.hud.itemgrid;
 
 import contrib.item.Item;
-import core.game.render.image.ImageFrameResolver;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 
 /**
  * A utility class for rendering inventory grids with items.
@@ -116,12 +114,7 @@ public final class InventoryGridRenderer {
     }
 
     Rectangle bounds = new Rectangle(x, y, SLOT_WIDTH, SLOT_HEIGHT);
-
-    BufferedImage icon = resolveItemIcon(item);
-    if (icon != null) {
-      drawItemIcon(g, bounds, icon);
-    }
-
+    ItemIconRenderer.drawItemIcon(g, bounds, item, ITEM_ICON_PADDING);
     drawStackSize(g, bounds, item);
   }
 
@@ -177,46 +170,8 @@ public final class InventoryGridRenderer {
       return;
     }
 
-    BufferedImage icon = resolveItemIcon(item);
-    if (icon != null) {
-      drawItemIcon(g, bounds, icon);
-    }
-
+    ItemIconRenderer.drawItemIcon(g, bounds, item, ITEM_ICON_PADDING);
     drawStackSize(g, bounds, item);
-  }
-
-  private static BufferedImage resolveItemIcon(Item item) {
-    if (item == null || item.inventoryAnimation() == null) {
-      return null;
-    }
-
-    try {
-      return ImageFrameResolver.toImage(item.inventoryAnimation().update());
-    } catch (RuntimeException ignored) {
-      return null;
-    }
-  }
-
-  private static void drawItemIcon(Graphics2D g, Rectangle bounds, BufferedImage icon) {
-    int maxWidth = bounds.width - 2 * ITEM_ICON_PADDING;
-    int maxHeight = bounds.height - 2 * ITEM_ICON_PADDING;
-
-    if (maxWidth <= 0 || maxHeight <= 0) {
-      return;
-    }
-
-    double scale =
-      Math.min(
-        maxWidth / (double) Math.max(1, icon.getWidth()),
-        maxHeight / (double) Math.max(1, icon.getHeight()));
-
-    int drawWidth = Math.max(1, (int) Math.round(icon.getWidth() * scale));
-    int drawHeight = Math.max(1, (int) Math.round(icon.getHeight() * scale));
-
-    int drawX = bounds.x + (bounds.width - drawWidth) / 2;
-    int drawY = bounds.y + (bounds.height - drawHeight) / 2;
-
-    g.drawImage(icon, drawX, drawY, drawWidth, drawHeight, null);
   }
 
   private static void drawStackSize(Graphics2D g, Rectangle bounds, Item item) {

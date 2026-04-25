@@ -1,7 +1,7 @@
 package contrib.hud.crafting;
 
 import contrib.item.Item;
-import core.game.render.image.ImageFrameResolver;
+import contrib.hud.itemgrid.ItemIconRenderer;
 import core.game.render.image.ImageAssets;
 import java.awt.Color;
 import java.awt.Font;
@@ -157,25 +157,7 @@ final class CraftingPanelRenderer {
   }
 
   private void drawCraftingItemIcon(Graphics2D g, Rectangle bounds, Item item, int padding) {
-    BufferedImage icon = resolveItemIcon(item);
-    if (icon == null) {
-      return;
-    }
-
-    int maxWidth = bounds.width - 2 * padding;
-    int maxHeight = bounds.height - 2 * padding;
-
-    double scale =
-        Math.min(
-            maxWidth / (double) Math.max(1, icon.getWidth()),
-            maxHeight / (double) Math.max(1, icon.getHeight()));
-
-    int drawWidth = Math.max(1, (int) Math.round(icon.getWidth() * scale));
-    int drawHeight = Math.max(1, (int) Math.round(icon.getHeight() * scale));
-    int drawX = bounds.x + (bounds.width - drawWidth) / 2;
-    int drawY = bounds.y + (bounds.height - drawHeight) / 2;
-
-    g.drawImage(icon, drawX, drawY, drawWidth, drawHeight, null);
+    ItemIconRenderer.drawItemIcon(g, bounds, item, padding);
   }
 
   private void drawResultItemPresentation(Graphics2D g, Rectangle bounds, Item item) {
@@ -226,17 +208,5 @@ final class CraftingPanelRenderer {
     g.drawString(label, badgeX + NUMBER_PADDING, badgeY + fm.getAscent() + 1);
 
     g.setFont(oldFont);
-  }
-
-  private BufferedImage resolveItemIcon(Item item) {
-    if (item == null || item.inventoryAnimation() == null) {
-      return null;
-    }
-
-    try {
-      return ImageFrameResolver.toImage(item.inventoryAnimation().update());
-    } catch (RuntimeException ignored) {
-      return null;
-    }
   }
 }
