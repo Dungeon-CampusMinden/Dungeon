@@ -1,6 +1,6 @@
 package contrib.client;
 
-import contrib.hud.dialogs.DialogBackendInstaller;
+import contrib.hud.dialogs.DialogRegistryInstaller;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
 import contrib.game.LevelContentInstaller;
@@ -25,7 +25,7 @@ import core.platform.Platform;
  *   <li>{@link InteractionSelection}: Configures the interaction selection backend to use the
  *       {@link InteractionMenuUi} singleton instance for presenting interaction
  *       overlays.</li>
- *   <li>{@link DialogBackendInstaller}: Wires up the shared dialog backend registry to support
+ *   <li>{@link DialogRegistryInstaller}: Wires up the shared dialog backend registry to support
  *       various custom and default dialog types.</li>
  *   <li>{@link LevelHideSystem}: Maintains the client-side visibility state of hidden or revealed
  *       world regions.</li>
@@ -51,7 +51,7 @@ public final class PresentationClientInstaller implements ClientLoopHostInstalle
 
   @Override
   public void installRuntimeSystems() {
-    DialogBackendInstaller.install();
+    DialogRegistryInstaller.install();
     ClientLoopHostInstaller.addSystemIfAbsent(ColliderSyncSystem.class, ColliderSyncSystem::new);
     ClientLoopHostInstaller.addSystemIfAbsent(LevelHideSystem.class, LevelHideSystem::new);
     ClientLoopHostInstaller.addSystemIfAbsent(HudSystem.class, HudSystem::new);

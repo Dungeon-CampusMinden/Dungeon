@@ -15,10 +15,10 @@ import core.ui.overlay.OverlayHandle;
  * <p>The dialog registry itself only owns dialog creation. This class wires the default dialog
  * types to the currently available neutral dialog builders.
  */
-public final class DialogBackendInstaller {
+public final class DialogRegistryInstaller {
   private static boolean initialized = false;
 
-  private DialogBackendInstaller() {}
+  private DialogRegistryInstaller() {}
 
   /**
    * Installs the default dialog types and their corresponding implementations into the dialog
