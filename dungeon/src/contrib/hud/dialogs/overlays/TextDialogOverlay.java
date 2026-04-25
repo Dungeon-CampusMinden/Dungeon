@@ -119,7 +119,7 @@ public final class TextDialogOverlay extends BaseUiOverlay {
       return;
     }
 
-    if (InputManager.isKeyJustPressed(Keys.ESCAPE)) {
+    if (hasCancelButton() && InputManager.isKeyJustPressed(Keys.ESCAPE)) {
       onCancel();
       return;
     }
@@ -149,11 +149,15 @@ public final class TextDialogOverlay extends BaseUiOverlay {
     DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CANCEL).accept(null);
   }
 
+  private boolean hasCancelButton() {
+    return cancelLabel != null && !cancelLabel.isBlank();
+  }
+
   private List<String> buttonLabels() {
     List<String> labels = new ArrayList<>();
     labels.add(confirmLabel);
 
-    if (cancelLabel != null && !cancelLabel.isBlank()) {
+    if (hasCancelButton()) {
       labels.add(cancelLabel);
     }
 

@@ -2,7 +2,6 @@ package contrib.hud.dialogs;
 
 import contrib.hud.crafting.CraftingDialogBuilder;
 import contrib.hud.dialogs.builders.*;
-import contrib.hud.dialogs.overlays.OkDialogOverlay;
 import contrib.hud.elements.bars.AttributeBarOverlayBuilder;
 import contrib.hud.dialogs.showimage.ShowImageDialogBuilder;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
@@ -41,13 +40,7 @@ public final class DialogBackendInstaller {
       return;
     }
 
-    DialogRegistry.replace(
-        DialogType.DefaultTypes.OK,
-        ctx -> {
-          String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
-          String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("OK");
-          return new OverlayHandle(new OkDialogOverlay(title, text, ctx.dialogId()));
-        });
+    DialogRegistry.replace(DialogType.DefaultTypes.OK, TextDialogBuilder::buildOk);
     DialogRegistry.replace(DialogType.DefaultTypes.YES_NO, YesNoDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.TEXT, TextDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.IMAGE, ShowImageDialogBuilder::build);

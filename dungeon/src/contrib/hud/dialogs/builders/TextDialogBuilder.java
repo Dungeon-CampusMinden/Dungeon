@@ -17,6 +17,8 @@ import core.ui.overlay.OverlayHandle;
 public final class TextDialogBuilder {
 
   private static final String DEFAULT_CONFIRM_LABEL = "Ok";
+  private static final String DEFAULT_OK_TITLE = "OK";
+  private static final String DEFAULT_OK_CONFIRM_LABEL = "OK";
 
   private TextDialogBuilder() {}
 
@@ -37,12 +39,33 @@ public final class TextDialogBuilder {
    * @throws IllegalArgumentException if the required title or message is not present in the context
    */
   public static UiHandle build(DialogContext ctx) {
-    String title = ctx.require(DialogContextKeys.TITLE, String.class);
+    return build(ctx, false);
+  }
+
+  /**
+   * Builds a UI node handle for a simple OK dialog using the shared text dialog overlay.
+   *
+   * <p>This builder keeps the OK dialog on the same rendering and input path as other text dialogs
+   * while providing OK-specific defaults for title and confirm label.
+   *
+   * @param ctx the dialog context containing at least the message text
+   * @return a UI node handle wrapping the created text dialog overlay
+   * @throws IllegalArgumentException if the required message is not present in the context
+   */
+  public static UiHandle buildOk(DialogContext ctx) {
+    return build(ctx, true);
+  }
+
+  private static UiHandle build(DialogContext ctx, boolean okDialog) {
+    String title =
+      okDialog
+        ? ctx.find(DialogContextKeys.TITLE, String.class).orElse(DEFAULT_OK_TITLE)
+        : ctx.require(DialogContextKeys.TITLE, String.class);
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String confirmLabel =
-      ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(DEFAULT_CONFIRM_LABEL);
-    String cancelLabel =
-      ctx.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(null);
+      ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class)
+        .orElse(okDialog ? DEFAULT_OK_CONFIRM_LABEL : DEFAULT_CONFIRM_LABEL);
+    String cancelLabel = ctx.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(null);
     String[] additionalButtons =
       ctx.find(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class).orElse(new String[] {});
 
