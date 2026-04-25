@@ -1,6 +1,6 @@
 package contrib.hud.inventory;
 
-import contrib.hud.dialogs.shared.DialogFrameMetrics;
+import contrib.hud.frame.DialogFrameMetrics;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryGridRenderer;
 import contrib.hud.itemgrid.InventoryPanelRenderer;

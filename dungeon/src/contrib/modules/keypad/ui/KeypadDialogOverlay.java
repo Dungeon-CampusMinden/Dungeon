@@ -1,7 +1,7 @@
 package contrib.modules.keypad.ui;
 
 import contrib.hud.dialogs.DialogButtonInputHandler;
-import contrib.hud.dialogs.shared.DialogFrameRenderer;
+import contrib.hud.frame.DialogFrameRenderer;
 import contrib.modules.keypad.KeypadComponent;
 import core.Entity;
 import core.Game;

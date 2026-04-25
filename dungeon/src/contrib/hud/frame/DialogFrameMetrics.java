@@ -1,4 +1,4 @@
-package contrib.hud.dialogs.shared;
+package contrib.hud.frame;
 
 /** Shared dialog frame sizing constants used by layout and rendering code. */
 public final class DialogFrameMetrics {
