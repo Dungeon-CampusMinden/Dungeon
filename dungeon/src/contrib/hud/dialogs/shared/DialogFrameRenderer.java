@@ -1,13 +1,13 @@
-package contrib.hud.renderers;
+package contrib.hud.dialogs.shared;
 
 import core.Game;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.AlphaComposite;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,21 +21,6 @@ import java.util.List;
  * styling throughout the dialog UI.
  */
 public final class DialogFrameRenderer {
-
-  /** The arc size for rounded corners of dialog frames. */
-  public static final int ARC = 14;
-
-  /** The padding around dialog content. */
-  public static final int PADDING = 20;
-
-  /** The width of a button. */
-  public static final int BUTTON_WIDTH = 120;
-
-  /** The height of a button. */
-  public static final int BUTTON_HEIGHT = 34;
-
-  /** The bottom margin for buttons. */
-  public static final int BUTTON_BOTTOM_MARGIN = 18;
 
   private static final float BACKDROP_ALPHA = 0.35f;
   private static final Color PANEL_FILL = new Color(32, 32, 40, 235);
@@ -92,14 +77,16 @@ public final class DialogFrameRenderer {
   public static int drawFrameAndTitle(Graphics2D g, int x, int y, int width, int height, String title) {
     g.setComposite(AlphaComposite.SrcOver);
     g.setColor(PANEL_FILL);
-    g.fillRoundRect(x, y, width, height, ARC, ARC);
+    g.fillRoundRect(
+        x, y, width, height, DialogFrameMetrics.ARC, DialogFrameMetrics.ARC);
 
     g.setColor(PANEL_BORDER);
-    g.drawRoundRect(x, y, width, height, ARC, ARC);
+    g.drawRoundRect(
+        x, y, width, height, DialogFrameMetrics.ARC, DialogFrameMetrics.ARC);
 
     g.setColor(Color.WHITE);
     g.setFont(g.getFont().deriveFont(Font.BOLD, 18f));
-    g.drawString(title, x + PADDING, y + 32);
+    g.drawString(title, x + DialogFrameMetrics.PADDING, y + 32);
 
     g.setFont(g.getFont().deriveFont(15f));
     return y + 62;
@@ -160,20 +147,28 @@ public final class DialogFrameRenderer {
    * @return a list of rectangles representing the bounds of each button
    */
   public static List<Rectangle> centeredButtonRow(
-    int dialogX, int dialogY, int dialogWidth, int dialogHeight, int buttonCount, int buttonGap) {
+      int dialogX, int dialogY, int dialogWidth, int dialogHeight, int buttonCount, int buttonGap) {
     List<Rectangle> bounds = new ArrayList<>();
     if (buttonCount <= 0) {
       return bounds;
     }
 
-    int totalWidth = buttonCount * BUTTON_WIDTH + (buttonCount - 1) * buttonGap;
+    int totalWidth =
+        buttonCount * DialogFrameMetrics.BUTTON_WIDTH + (buttonCount - 1) * buttonGap;
     int startX = dialogX + (dialogWidth - totalWidth) / 2;
-    int by = dialogY + dialogHeight - BUTTON_HEIGHT - BUTTON_BOTTOM_MARGIN;
+    int by =
+        dialogY
+            + dialogHeight
+            - DialogFrameMetrics.BUTTON_HEIGHT
+            - DialogFrameMetrics.BUTTON_BOTTOM_MARGIN;
 
     for (int i = 0; i < buttonCount; i++) {
       bounds.add(
-        new Rectangle(
-          startX + i * (BUTTON_WIDTH + buttonGap), by, BUTTON_WIDTH, BUTTON_HEIGHT));
+          new Rectangle(
+              startX + i * (DialogFrameMetrics.BUTTON_WIDTH + buttonGap),
+              by,
+              DialogFrameMetrics.BUTTON_WIDTH,
+              DialogFrameMetrics.BUTTON_HEIGHT));
     }
 
     return bounds;

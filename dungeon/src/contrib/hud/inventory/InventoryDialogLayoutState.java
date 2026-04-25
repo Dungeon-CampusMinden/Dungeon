@@ -1,9 +1,9 @@
 package contrib.hud.inventory;
 
+import contrib.hud.dialogs.shared.DialogFrameMetrics;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryGridRenderer;
 import contrib.hud.itemgrid.InventoryPanelRenderer;
-import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.item.Item;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
@@ -17,9 +17,9 @@ final class InventoryDialogLayoutState<S> {
   static final int PANEL_HEADER_GAP = 8;
 
   private static final int BASE_VERTICAL_CHROME =
-      96 + 2 * PANEL_PADDING + DialogFrameRenderer.PADDING;
+      96 + 2 * PANEL_PADDING + DialogFrameMetrics.PADDING;
   private static final int TITLED_VERTICAL_CHROME =
-      108 + 2 * PANEL_PADDING + DialogFrameRenderer.PADDING;
+      108 + 2 * PANEL_PADDING + DialogFrameMetrics.PADDING;
 
   private final boolean showPanelTitles;
   private final int titleBaseline;
@@ -46,7 +46,7 @@ final class InventoryDialogLayoutState<S> {
     int dialogWidth =
         Math.max(
             defaultWidth,
-            totalGridWidth + 2 * DialogFrameRenderer.PADDING + 2 * PANEL_PADDING);
+            totalGridWidth + 2 * DialogFrameMetrics.PADDING + 2 * PANEL_PADDING);
     int dialogHeight =
         Math.max(
             defaultHeight,

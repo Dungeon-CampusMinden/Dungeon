@@ -3,7 +3,8 @@ package contrib.hud.dialogs.overlays;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.renderers.DialogFrameRenderer;
+import contrib.hud.dialogs.shared.DialogFrameMetrics;
+import contrib.hud.dialogs.shared.DialogFrameRenderer;
 import core.input.Keys;
 import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
@@ -100,9 +101,9 @@ public final class TextDialogOverlay extends BaseUiOverlay {
       DialogFrameRenderer.drawWrappedText(
         g,
         text,
-        x + DialogFrameRenderer.PADDING,
+        x + DialogFrameMetrics.PADDING,
         textY,
-        width - 2 * DialogFrameRenderer.PADDING);
+        width - 2 * DialogFrameMetrics.PADDING);
 
       for (int i = 0; i < labels.size(); i++) {
         DialogFrameRenderer.drawButton(g, bounds.get(i), labels.get(i), buttonInput.isPressed(i));

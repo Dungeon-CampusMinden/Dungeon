@@ -2,8 +2,8 @@ package contrib.hud.inventory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import contrib.hud.dialogs.shared.DialogFrameMetrics;
 import contrib.hud.itemgrid.InventoryGridRenderer;
-import contrib.hud.renderers.DialogFrameRenderer;
 import contrib.item.Item;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -32,7 +32,7 @@ public class InventoryDialogLayoutStateTest {
         Math.max(
             560,
             gridWidth
-                + 2 * DialogFrameRenderer.PADDING
+                + 2 * DialogFrameMetrics.PADDING
                 + 2 * InventoryDialogLayoutState.PANEL_PADDING),
         measurement.dialogWidth());
     assertEquals(430, measurement.dialogHeight());

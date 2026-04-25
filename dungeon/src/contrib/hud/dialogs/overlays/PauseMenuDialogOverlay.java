@@ -1,6 +1,7 @@
 package contrib.hud.dialogs.overlays;
 
-import contrib.hud.renderers.DialogFrameRenderer;
+import contrib.hud.dialogs.shared.DialogFrameMetrics;
+import contrib.hud.dialogs.shared.DialogFrameRenderer;
 import core.ui.overlay.BaseUiOverlay;
 import java.awt.Graphics2D;
 
@@ -49,9 +50,9 @@ public final class PauseMenuDialogOverlay extends BaseUiOverlay {
       DialogFrameRenderer.drawWrappedText(
         g,
         MESSAGE,
-        x + DialogFrameRenderer.PADDING,
+        x + DialogFrameMetrics.PADDING,
         textY,
-        width - 2 * DialogFrameRenderer.PADDING);
+        width - 2 * DialogFrameMetrics.PADDING);
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
     }

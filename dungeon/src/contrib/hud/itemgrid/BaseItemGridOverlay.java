@@ -1,6 +1,6 @@
 package contrib.hud.itemgrid;
 
-import contrib.hud.renderers.DialogFrameRenderer;
+import contrib.hud.dialogs.shared.DialogFrameRenderer;
 import core.Game;
 import core.ui.overlay.BaseUiOverlay;
 import java.awt.Graphics2D;

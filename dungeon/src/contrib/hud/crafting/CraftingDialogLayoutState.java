@@ -1,6 +1,6 @@
 package contrib.hud.crafting;
 
-import contrib.hud.renderers.DialogFrameRenderer;
+import contrib.hud.dialogs.shared.DialogFrameMetrics;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryGridRenderer;
 import contrib.hud.itemgrid.InventoryPanelRenderer;
@@ -57,14 +57,14 @@ final class CraftingDialogLayoutState {
 
     int totalContentWidth = leftGridWidth + PANEL_GAP + rightPanelWidth;
     int dialogWidth =
-        Math.max(DEFAULT_WIDTH, totalContentWidth + 2 * DialogFrameRenderer.PADDING);
+        Math.max(DEFAULT_WIDTH, totalContentWidth + 2 * DialogFrameMetrics.PADDING);
 
     int dialogHeight =
         Math.max(
             DEFAULT_HEIGHT,
             120
                 + Math.max(leftGridHeight + 2 * PANEL_PADDING, rightPanelHeight)
-                + DialogFrameRenderer.PADDING);
+                + DialogFrameMetrics.PADDING);
 
     return new Measurement(
         dialogWidth,

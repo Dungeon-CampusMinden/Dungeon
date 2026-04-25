@@ -1,8 +1,9 @@
 package contrib.hud.showimage;
 
+import contrib.hud.dialogs.shared.DialogFrameMetrics;
+import contrib.hud.dialogs.shared.DialogFrameRenderer;
 import core.Game;
 import core.game.render.image.ImageAssets;
-import contrib.hud.renderers.DialogFrameRenderer;
 import core.ui.overlay.BaseUiOverlay;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -201,9 +202,9 @@ final class ShowImageDialogOverlay extends BaseUiOverlay {
     DialogFrameRenderer.drawWrappedText(
       g,
       "Could not load image:\n" + imagePath,
-      x + DialogFrameRenderer.PADDING,
+      x + DialogFrameMetrics.PADDING,
       textY,
-      width - 2 * DialogFrameRenderer.PADDING);
+      width - 2 * DialogFrameMetrics.PADDING);
   }
 
   private void advanceAnimation() {

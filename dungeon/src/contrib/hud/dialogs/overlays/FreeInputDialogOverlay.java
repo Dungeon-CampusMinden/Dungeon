@@ -3,7 +3,8 @@ package contrib.hud.dialogs.overlays;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.renderers.DialogFrameRenderer;
+import contrib.hud.dialogs.shared.DialogFrameMetrics;
+import contrib.hud.dialogs.shared.DialogFrameRenderer;
 import core.input.Keys;
 import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
@@ -114,9 +115,9 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
         DialogFrameRenderer.drawWrappedText(
           g,
           question,
-          x + DialogFrameRenderer.PADDING,
+          x + DialogFrameMetrics.PADDING,
           textY,
-          width - 2 * DialogFrameRenderer.PADDING);
+          width - 2 * DialogFrameMetrics.PADDING);
 
       drawInputField(g, afterQuestionY + 14);
 

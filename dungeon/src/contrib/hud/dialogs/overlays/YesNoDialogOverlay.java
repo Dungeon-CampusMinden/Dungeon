@@ -3,7 +3,8 @@ package contrib.hud.dialogs.overlays;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.renderers.DialogFrameRenderer;
+import contrib.hud.dialogs.shared.DialogFrameMetrics;
+import contrib.hud.dialogs.shared.DialogFrameRenderer;
 import core.ui.overlay.BaseUiOverlay;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -81,8 +82,8 @@ public final class YesNoDialogOverlay extends BaseUiOverlay {
       int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, title);
 
       DialogFrameRenderer.drawWrappedText(
-        g, text, x + DialogFrameRenderer.PADDING, textY,
-        width - 2 * DialogFrameRenderer.PADDING);
+        g, text, x + DialogFrameMetrics.PADDING, textY,
+        width - 2 * DialogFrameMetrics.PADDING);
 
       DialogFrameRenderer.drawButton(g, buttons.get(0), NO_LABEL, buttonInput.isPressed(0));
       DialogFrameRenderer.drawButton(g, buttons.get(1), YES_LABEL, buttonInput.isPressed(1));
