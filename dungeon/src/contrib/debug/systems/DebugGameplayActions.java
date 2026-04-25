@@ -1,4 +1,4 @@
-package contrib.debug;
+package contrib.debug.systems;
 
 import contrib.utils.components.skill.SkillTools;
 import core.Game;

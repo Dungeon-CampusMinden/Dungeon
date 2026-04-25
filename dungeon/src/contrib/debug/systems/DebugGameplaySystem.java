@@ -1,7 +1,5 @@
 package contrib.debug.systems;
 
-import contrib.debug.DebugMonsterSpawner;
-import contrib.debug.DebugGameplayActions;
 import contrib.debug.controls.DebugInputHandler;
 import contrib.debug.controls.DebugPauseController;
 import contrib.editor.level.LevelEditorSystem;

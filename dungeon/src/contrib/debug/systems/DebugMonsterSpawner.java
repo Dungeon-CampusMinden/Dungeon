@@ -1,4 +1,4 @@
-package contrib.debug;
+package contrib.debug.systems;
 
 import contrib.entities.DungeonMonster;
 import contrib.utils.components.skill.SkillTools;
