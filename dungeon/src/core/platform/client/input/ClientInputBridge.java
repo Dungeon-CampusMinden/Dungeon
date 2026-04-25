@@ -59,7 +59,7 @@ public final class ClientInputBridge {
     Input.keyboard()
       .onKeyPressed(
         e -> {
-          final int keyCode = mapAwtKeyToInputCode(e.getKeyCode());
+          final int keyCode = mapAwtKeyToInputCode(e.getKeyCode(), e.getKeyLocation());
           if (keyCode != -1) {
             InputManager.notifyKeyDown(keyCode);
           }
@@ -68,7 +68,7 @@ public final class ClientInputBridge {
     Input.keyboard()
       .onKeyReleased(
         e -> {
-          final int keyCode = mapAwtKeyToInputCode(e.getKeyCode());
+          final int keyCode = mapAwtKeyToInputCode(e.getKeyCode(), e.getKeyLocation());
           if (keyCode != -1) {
             InputManager.notifyKeyUp(keyCode);
           }
@@ -101,12 +101,34 @@ public final class ClientInputBridge {
         });
   }
 
-  private static int mapAwtKeyToInputCode(int awtKey) {
+  private static int mapAwtKeyToInputCode(int awtKey, int awtKeyLocation) {
     return switch (awtKey) {
-      case KeyEvent.VK_W -> Keys.W;
       case KeyEvent.VK_A -> Keys.A;
-      case KeyEvent.VK_S -> Keys.S;
+      case KeyEvent.VK_B -> Keys.B;
+      case KeyEvent.VK_C -> Keys.C;
       case KeyEvent.VK_D -> Keys.D;
+      case KeyEvent.VK_E -> Keys.E;
+      case KeyEvent.VK_F -> Keys.F;
+      case KeyEvent.VK_G -> Keys.G;
+      case KeyEvent.VK_H -> Keys.H;
+      case KeyEvent.VK_I -> Keys.I;
+      case KeyEvent.VK_J -> Keys.J;
+      case KeyEvent.VK_K -> Keys.K;
+      case KeyEvent.VK_L -> Keys.L;
+      case KeyEvent.VK_M -> Keys.M;
+      case KeyEvent.VK_N -> Keys.N;
+      case KeyEvent.VK_O -> Keys.O;
+      case KeyEvent.VK_P -> Keys.P;
+      case KeyEvent.VK_Q -> Keys.Q;
+      case KeyEvent.VK_R -> Keys.R;
+      case KeyEvent.VK_S -> Keys.S;
+      case KeyEvent.VK_T -> Keys.T;
+      case KeyEvent.VK_U -> Keys.U;
+      case KeyEvent.VK_V -> Keys.V;
+      case KeyEvent.VK_W -> Keys.W;
+      case KeyEvent.VK_X -> Keys.X;
+      case KeyEvent.VK_Y -> Keys.Y;
+      case KeyEvent.VK_Z -> Keys.Z;
 
       case KeyEvent.VK_UP -> Keys.UP;
       case KeyEvent.VK_DOWN -> Keys.DOWN;
@@ -119,7 +141,7 @@ public final class ClientInputBridge {
       case KeyEvent.VK_BACK_SPACE -> Keys.BACKSPACE;
       case KeyEvent.VK_DELETE -> Keys.DELETE;
       case KeyEvent.VK_TAB -> Keys.TAB;
-      case KeyEvent.VK_SHIFT -> Keys.SHIFT_LEFT;
+      case KeyEvent.VK_SHIFT -> mapShiftKey(awtKeyLocation);
       case KeyEvent.VK_COMMA -> Keys.COMMA;
       case KeyEvent.VK_PERIOD -> Keys.PERIOD;
 
@@ -147,24 +169,14 @@ public final class ClientInputBridge {
       case KeyEvent.VK_F11 -> Keys.F11;
       case KeyEvent.VK_F12 -> Keys.F12;
 
-      case KeyEvent.VK_E -> Keys.E;
-      case KeyEvent.VK_I -> Keys.I;
-      case KeyEvent.VK_Q -> Keys.Q;
-      case KeyEvent.VK_M -> Keys.M;
-      case KeyEvent.VK_C -> Keys.C;
-      case KeyEvent.VK_G -> Keys.G;
-      case KeyEvent.VK_H -> Keys.H;
-      case KeyEvent.VK_J -> Keys.J;
-      case KeyEvent.VK_K -> Keys.K;
-      case KeyEvent.VK_L -> Keys.L;
-      case KeyEvent.VK_O -> Keys.O;
-      case KeyEvent.VK_P -> Keys.P;
-      case KeyEvent.VK_X -> Keys.X;
-      case KeyEvent.VK_V -> Keys.V;
-      case KeyEvent.VK_Z -> Keys.Z;
-
       default -> -1;
     };
+  }
+
+  private static int mapShiftKey(int awtKeyLocation) {
+    return awtKeyLocation == KeyEvent.KEY_LOCATION_RIGHT
+      ? Keys.SHIFT_RIGHT
+      : Keys.SHIFT_LEFT;
   }
 
   private static int mapAwtButtonToInputCode(int awtButton) {
