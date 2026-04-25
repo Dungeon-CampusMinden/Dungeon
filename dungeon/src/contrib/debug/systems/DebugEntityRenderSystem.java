@@ -2,6 +2,7 @@ package contrib.debug.systems;
 
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
+import contrib.debug.draw.DebugDrawFacade;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
@@ -61,7 +62,7 @@ public final class DebugEntityRenderSystem extends System {
 
   @Override
   public void render(float delta) {
-    if (!DebugDrawSystem.isHudVisible()) {
+    if (!DebugDrawFacade.isHudVisible()) {
       return;
     }
 
@@ -81,11 +82,11 @@ public final class DebugEntityRenderSystem extends System {
     Point centerPos = EntityUtils.getPosition(entity);
     Vector2 view = pc.viewDirection();
 
-    DebugDrawSystem.drawWorldCircleFill(
+    DebugDrawFacade.drawWorldCircleFill(
       position, POSITION_RADIUS, withAlpha(Color.ORANGE, alpha));
 
     if (!samePoint(position, centerPos)) {
-      DebugDrawSystem.drawWorldCircleFill(
+      DebugDrawFacade.drawWorldCircleFill(
         centerPos, POSITION_RADIUS, withAlpha(Color.BLUE, alpha));
     }
 
@@ -115,7 +116,7 @@ public final class DebugEntityRenderSystem extends System {
     float endY = position.y() + view.y() * ARROW_LENGTH;
 
     Point end = new Point(endX, endY);
-    DebugDrawSystem.drawWorldLine(position, end, Color.YELLOW);
+    DebugDrawFacade.drawWorldLine(position, end, Color.YELLOW);
 
     Point leftHead =
       new Point(
@@ -127,8 +128,8 @@ public final class DebugEntityRenderSystem extends System {
         end.x() + view.y() * ARROW_HEAD_SIZE,
         end.y() - view.x() * ARROW_HEAD_SIZE);
 
-    DebugDrawSystem.drawWorldLine(end, leftHead, Color.YELLOW);
-    DebugDrawSystem.drawWorldLine(end, rightHead, Color.YELLOW);
+    DebugDrawFacade.drawWorldLine(end, leftHead, Color.YELLOW);
+    DebugDrawFacade.drawWorldLine(end, rightHead, Color.YELLOW);
   }
 
   private void drawCollideHitbox(Entity entity, float alpha) {
@@ -145,7 +146,7 @@ public final class DebugEntityRenderSystem extends System {
 
     Color color = cc.isSolid() ? Color.RED : Color.WHITE;
 
-    DebugDrawSystem.drawRectangleOutline(
+    DebugDrawFacade.drawRectangleOutline(
       bottomLeft.x(), bottomLeft.y(), width, height, withAlpha(color, alpha));
   }
 
@@ -157,7 +158,7 @@ public final class DebugEntityRenderSystem extends System {
 
     float radius = ic.interactions().interact().range();
 
-    DebugDrawSystem.drawWorldCircleOutline(
+    DebugDrawFacade.drawWorldCircleOutline(
       pos, radius, withAlpha(Color.CYAN, alpha));
   }
 
@@ -183,7 +184,7 @@ public final class DebugEntityRenderSystem extends System {
       y -= height / 2f;
     }
 
-    DebugDrawSystem.drawRectangleOutline(
+    DebugDrawFacade.drawRectangleOutline(
       x, y, width, height, withAlpha(Color.GREEN, alpha));
   }
 
@@ -242,7 +243,7 @@ public final class DebugEntityRenderSystem extends System {
         anchor.x() + INFO_OFFSET_X,
         anchor.y() - bgHeight - INFO_OFFSET_Y);
 
-    DebugDrawSystem.drawScreenRectangle(
+    DebugDrawFacade.drawScreenRectangle(
       topLeft,
       bgWidth,
       bgHeight,
@@ -253,7 +254,7 @@ public final class DebugEntityRenderSystem extends System {
     float textY = topLeft.y() + INFO_PADDING + 10;
 
     for (String line : lines) {
-      DebugDrawSystem.drawText(line, new Point(textX, textY), Color.WHITE);
+      DebugDrawFacade.drawText(line, new Point(textX, textY), Color.WHITE);
       textY += INFO_LINE_HEIGHT;
     }
   }
