@@ -3,13 +3,11 @@ package core.platform.client;
 import core.Game;
 import core.camera.CameraMath;
 import core.camera.CameraState;
-import core.camera.CameraViewportState;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.level.Tile;
 import core.platform.adapters.CameraAdapter;
-import core.platform.Platform;
 import core.utils.Point;
 import java.util.Optional;
 
@@ -40,18 +38,8 @@ public final class ClientCameraAdapter implements CameraAdapter {
   }
 
   @Override
-  public boolean supportsFocusPosition() {
-    return true;
-  }
-
-  @Override
   public Point focusPosition() {
     return CameraState.focusPosition();
-  }
-
-  @Override
-  public void focusPosition(Point focusPosition) {
-    CameraState.focusPosition(focusPosition);
   }
 
   @Override
@@ -78,24 +66,5 @@ public final class ClientCameraAdapter implements CameraAdapter {
       Game.currentLevel().isPresent() ? Game.startTile().map(Tile::position) : Optional.empty();
 
     return CameraMath.resolveFocus(trackedPoint, levelStartPoint);
-  }
-
-  @Override
-  public boolean supportsViewportMetrics() {
-    return true;
-  }
-
-  @Override
-  public float viewportWidth() {
-    return CameraViewportState.activeViewport()
-      .map(view -> Platform.window().width() / (float) Math.max(1, view.tilePx()))
-      .orElse(0f);
-  }
-
-  @Override
-  public float viewportHeight() {
-    return CameraViewportState.activeViewport()
-      .map(view -> Platform.window().height() / (float) Math.max(1, view.tilePx()))
-      .orElse(0f);
   }
 }
