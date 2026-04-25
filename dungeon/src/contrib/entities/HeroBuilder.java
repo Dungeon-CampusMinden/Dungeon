@@ -3,7 +3,7 @@ package contrib.entities;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
-import contrib.hud.inventory.InventoryDialogState;
+import contrib.inventory.InventoryDialogState;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.systems.HealthSystem;

@@ -1,6 +1,6 @@
 package contrib.configuration;
 
-import contrib.hud.inventory.InventoryDialogState;
+import contrib.inventory.InventoryDialogState;
 import core.configuration.ConfigKey;
 import core.configuration.ConfigMap;
 import core.configuration.values.ConfigIntValue;
