@@ -47,7 +47,7 @@ import java.util.stream.Stream;
  */
 final class CraftingDialogOverlay
     extends BaseItemGridOverlay<
-        CraftingDialogLayoutState.Measurement, CraftingDialogOverlay.RenderContext>
+        CraftingDialogLayoutState.Measurement, CraftingDialogOverlay.CraftingRenderState>
     implements InventoryDialogProvider {
 
   private static final CraftingDialogLayout CLASSIC_LAYOUT = new CraftingDialogLayout();
@@ -97,7 +97,7 @@ final class CraftingDialogOverlay
   }
 
   @Override
-  protected RenderContext renderContent(
+  protected CraftingRenderState renderContent(
       Graphics2D g, int contentY, CraftingDialogLayoutState.Measurement measurement) {
     Item[] targetSlots = controller.targetSlots();
     Item[] craftingSlots = controller.craftingSlots();
@@ -137,7 +137,7 @@ final class CraftingDialogOverlay
         resultBounds);
     actionRenderer.draw(g);
 
-    return new RenderContext(layoutState, leftGrid, craftingBounds, resultItems, resultBounds);
+    return new CraftingRenderState(layoutState, leftGrid, craftingBounds, resultItems, resultBounds);
   }
 
   private Item[] currentResultItems() {
@@ -155,7 +155,7 @@ final class CraftingDialogOverlay
   }
 
   @Override
-  protected void handleInput(RenderContext content) {
+  protected void handleInput(CraftingRenderState content) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       dragDropController.reset();
@@ -180,7 +180,7 @@ final class CraftingDialogOverlay
   }
 
   @Override
-  protected void drawPointerFeedback(Graphics2D g, RenderContext content) {
+  protected void drawPointerFeedback(Graphics2D g, CraftingRenderState content) {
     if (dragDropController.isDragging()) {
       drawDropHighlights(g, content);
       dragDropController.drawDragPreview(g);
@@ -196,7 +196,7 @@ final class CraftingDialogOverlay
         content.resultBounds());
   }
 
-  private void drawDropHighlights(Graphics2D g, RenderContext content) {
+  private void drawDropHighlights(Graphics2D g, CraftingRenderState content) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       return;
@@ -217,7 +217,7 @@ final class CraftingDialogOverlay
     return Stream.of(controller.targetInventory(), controller.craftingInventory());
   }
 
-  record RenderContext(
+  record CraftingRenderState(
       CraftingDialogLayoutState layoutState,
       GridHitTest.Grid<CraftingInventorySide> leftGrid,
       List<CraftingDialogLayout.SlotBounds> craftingBounds,
