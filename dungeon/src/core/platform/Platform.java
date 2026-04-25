@@ -5,6 +5,7 @@ import core.level.path.GridPathfindingAdapter;
 import core.platform.adapters.*;
 import core.platform.fallbacks.*;
 import core.resources.ClasspathResourcesAdapter;
+import core.resources.ResourcesAdapter;
 
 import java.util.Objects;
 
