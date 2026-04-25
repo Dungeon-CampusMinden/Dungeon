@@ -3,7 +3,6 @@ package contrib.hud;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogCreationException;
-import contrib.hud.itemgrid.InventoryDialogProvider;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
