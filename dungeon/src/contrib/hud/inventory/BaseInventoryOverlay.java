@@ -5,7 +5,10 @@ import contrib.hud.itemgrid.BaseItemGridOverlay;
 import contrib.hud.itemgrid.GridHitTest;
 import contrib.hud.itemgrid.InventoryDragController;
 import contrib.hud.itemgrid.InventoryDropHandling;
+import contrib.hud.itemgrid.InventoryGridRenderer;
+import contrib.hud.itemgrid.InventoryPanelRenderer;
 import contrib.item.Item;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
 
@@ -50,7 +53,27 @@ abstract class BaseInventoryOverlay<S>
   @Override
   protected final InventoryDialogLayoutState<S> renderContent(
       Graphics2D g, int contentY, InventoryDialogLayoutState.Measurement<S> measurement) {
-    return InventoryDialogRenderer.draw(g, x, contentY, measurement);
+    InventoryDialogLayoutState<S> layoutState =
+        InventoryDialogLayoutState.create(x, contentY, g.getFontMetrics(), measurement);
+
+    if (layoutState.showPanelTitles()) {
+      g.setColor(Color.WHITE);
+      for (InventoryDialogLayoutState.PanelLayout<S> panel : layoutState.panels()) {
+        g.drawString(panel.title(), panel.grid().startX(), layoutState.titleBaseline());
+      }
+    }
+
+    for (InventoryDialogLayoutState.PanelLayout<S> panel : layoutState.panels()) {
+      InventoryPanelRenderer.drawPanelBackground(g, panel.panelBounds());
+      InventoryGridRenderer.drawGrid(
+          g,
+          panel.grid().slots(),
+          panel.grid().startX(),
+          panel.grid().startY(),
+          panel.grid().columns());
+    }
+
+    return layoutState;
   }
 
   protected final Item[] visibleSlots(Item[] slots, S side) {
