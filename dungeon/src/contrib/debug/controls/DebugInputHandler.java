@@ -1,6 +1,7 @@
 package contrib.debug.controls;
 
-import contrib.configuration.KeyboardConfig;
+import contrib.configuration.DebugKeyboardConfig;
+import core.configuration.KeyboardConfig;
 import core.input.Keys;
 import core.utils.InputManager;
 import java.util.Objects;
@@ -28,47 +29,47 @@ public final class DebugInputHandler {
   public static void handle(Actions actions) {
     Objects.requireNonNull(actions, "actions must not be null");
 
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_ZOOM_OUT.value())) {
       actions.zoomOut().run();
     }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_ZOOM_IN.value())) {
       actions.zoomIn().run();
     }
 
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value())) {
       actions.teleportToCursor().run();
     }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_TELEPORT_TO_END.value())) {
       actions.teleportToEnd().run();
     }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_TELEPORT_TO_START.value())) {
       actions.teleportToStart().run();
     }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_TELEPORT_ON_END.value())) {
       actions.loadNextLevel().run();
     }
 
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_SPAWN_MONSTER.value())) {
       actions.spawnMonsterOnCursor().run();
     }
 
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_OPEN_DOORS.value())) {
       actions.openDoors().run();
     }
 
-    if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())
+    if (InputManager.isKeyJustPressed(KeyboardConfig.TOGGLE_FULLSCREEN.value())
       && isShiftPressed()) {
       actions.toggleFullscreen().run();
     }
 
-    if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value())) {
+    if (InputManager.isKeyJustPressed(KeyboardConfig.PAUSE.value())) {
       actions.togglePause().run();
     }
-    if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.ADVANCE_FRAME.value())) {
+    if (InputManager.isKeyJustPressed(KeyboardConfig.ADVANCE_FRAME.value())) {
       actions.advanceFrame().run();
     }
 
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_TOGGLE_HUD.value())) {
       actions.toggleDebugHud().run();
     }
   }

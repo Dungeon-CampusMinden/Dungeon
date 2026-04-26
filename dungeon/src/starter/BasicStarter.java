@@ -4,6 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.components.ManaComponent;
 import contrib.components.SkillComponent;
 import contrib.client.ClientLoopHostSetup;
+import contrib.configuration.DebugKeyboardConfig;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.crafting.CraftingIngredient;
@@ -89,7 +90,10 @@ public final class BasicStarter {
     DungeonLoader.addLevel(Tuple.of("playground", DungeonLevel.class));
 
     try {
-      Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
+      Game.loadConfig(
+        new SimpleIPath("dungeon_config.json"),
+        KeyboardConfig.class,
+        DebugKeyboardConfig.class);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

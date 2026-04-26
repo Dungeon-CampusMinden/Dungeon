@@ -1,6 +1,6 @@
 package contrib.debug.systems;
 
-import contrib.configuration.KeyboardConfig;
+import contrib.configuration.DebugKeyboardConfig;
 import contrib.debug.controls.DebugColorGradeController;
 import core.System;
 import core.input.Keys;
@@ -105,7 +105,7 @@ public final class DebugRenderEffectsSystem extends System {
   @Override
   public void execute() {
     if (InputManager.isKeyJustPressed(
-      KeyboardConfig.DEBUG_RENDER_REGIONAL_DEPTH_COLOR_GRADE.value())) {
+      DebugKeyboardConfig.DEBUG_RENDER_REGIONAL_DEPTH_COLOR_GRADE.value())) {
       if (isShiftPressed()) {
         regionalDepthColorGrade.toggleRegionMode(LOGGER);
       } else {
@@ -114,7 +114,7 @@ public final class DebugRenderEffectsSystem extends System {
     }
 
     if (InputManager.isKeyJustPressed(
-      KeyboardConfig.DEBUG_RENDER_REGIONAL_LEVEL_COLOR_GRADE.value())) {
+      DebugKeyboardConfig.DEBUG_RENDER_REGIONAL_LEVEL_COLOR_GRADE.value())) {
       if (isShiftPressed()) {
         regionalLevelColorGrade.toggleRegionMode(LOGGER);
       } else {
@@ -123,7 +123,7 @@ public final class DebugRenderEffectsSystem extends System {
     }
 
     if (InputManager.isKeyJustPressed(
-      KeyboardConfig.DEBUG_RENDER_REGIONAL_SCENE_COLOR_GRADE.value())) {
+      DebugKeyboardConfig.DEBUG_RENDER_REGIONAL_SCENE_COLOR_GRADE.value())) {
       if (isShiftPressed()) {
         regionalSceneColorGrade.toggleRegionMode(LOGGER);
       } else {
@@ -131,18 +131,18 @@ public final class DebugRenderEffectsSystem extends System {
       }
     }
 
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_RENDER_SCENE_EFFECTS.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_RENDER_SCENE_EFFECTS.value())) {
       boolean enabled = SceneEffectPipeline.toggleAll();
       LOGGER.info("Scene-pass effects are now {}.", enabled ? "enabled" : "disabled");
     }
 
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_RENDER_LEVEL_EFFECTS.value())) {
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_RENDER_LEVEL_EFFECTS.value())) {
       boolean enabled = LevelEffectPipeline.toggleAll();
       LOGGER.info("Level-pass effects are now {}.", enabled ? "enabled" : "disabled");
     }
 
     if (InputManager.isKeyJustPressed(
-      KeyboardConfig.DEBUG_RENDER_DEPTH_LAYER_EFFECTS.value())) {
+      DebugKeyboardConfig.DEBUG_RENDER_DEPTH_LAYER_EFFECTS.value())) {
       if (isShiftPressed()) {
         toggleDemoDepthLayerEffectGroup();
       } else {
@@ -153,13 +153,13 @@ public final class DebugRenderEffectsSystem extends System {
       }
     }
 
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_RENDER_PASSTHROUGH_ALPHA.value())
+    if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_RENDER_PASSTHROUGH_ALPHA.value())
       && !isShiftPressed()) {
       togglePassthroughPmaDebug();
     }
 
     if (InputManager.isKeyJustPressed(
-      KeyboardConfig.DEBUG_RENDER_PASSTHROUGH_WORLD_POSITION.value())) {
+      DebugKeyboardConfig.DEBUG_RENDER_PASSTHROUGH_WORLD_POSITION.value())) {
       togglePassthroughWorldPosDebug();
     }
   }

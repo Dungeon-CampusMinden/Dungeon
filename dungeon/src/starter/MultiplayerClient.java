@@ -1,6 +1,7 @@
 package starter;
 
 import contrib.client.ClientLoopHostSetup;
+import contrib.configuration.DebugKeyboardConfig;
 import contrib.debug.systems.DebugDrawSystem;
 import contrib.debug.systems.DebugEntityRenderSystem;
 import contrib.debug.systems.DebugRenderEffectsSystem;
@@ -31,7 +32,10 @@ public final class MultiplayerClient {
     PreRunConfiguration.username("Player1");
 
     // Game Settings
-    Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
+    Game.loadConfig(
+      new SimpleIPath("dungeon_config.json"),
+      KeyboardConfig.class,
+      DebugKeyboardConfig.class);
     Game.disableAudio(false);
     Game.frameRate(30);
     Game.windowTitle("Dev Client - " + PreRunConfiguration.username());
