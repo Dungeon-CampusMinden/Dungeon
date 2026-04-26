@@ -15,7 +15,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelTransformations;
 import core.platform.Platform;
-import core.level.path.GridPathfindingAdapter;
+import core.level.path.BfsPathfindingService;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
@@ -52,7 +52,7 @@ public class DungeonLevelTest {
     ECSManagement.removeAllEntities();
     ECSManagement.removeAllSystems();
     ECSManagement.add(new LevelSystem());
-    Platform.pathfinding(new GridPathfindingAdapter());
+    Platform.pathfinding(new BfsPathfindingService());
   }
 
   /**

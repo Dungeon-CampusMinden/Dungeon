@@ -7,9 +7,9 @@ import core.level.utils.Coordinate;
 import java.util.*;
 
 /**
- * A PathfindingAdapter implementation using breadth-first search (BFS) on grid-based levels.
+ * A Pathfinding service implementation using breadth-first search (BFS) on grid-based levels.
  *
- * <p>GridPathfindingAdapter implements pathfinding for grid-based dungeons by applying BFS,
+ * <p>BfsPathfindingService implements pathfinding for grid-based dungeons by applying BFS,
  * which guarantees to find the shortest path (in terms of tile count) if one exists.
  *
  * <p>Pathfinding behavior:
@@ -30,7 +30,7 @@ import java.util.*;
  *   <li>Invalid start/end: Optional containing an empty path
  * </ul>
  */
-public final class GridPathfindingAdapter implements PathfindingService {
+public final class BfsPathfindingService implements PathfindingService {
   private static final int[][] DIRS = new int[][] {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
   @Override

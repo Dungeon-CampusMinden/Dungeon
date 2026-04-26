@@ -1,7 +1,7 @@
 package core.platform;
 
 import core.game.loop.GameLoopHost;
-import core.level.path.GridPathfindingAdapter;
+import core.level.path.BfsPathfindingService;
 import core.level.path.PathfindingService;
 import core.platform.adapters.*;
 import core.platform.fallbacks.*;
@@ -43,7 +43,7 @@ public final class Platform {
   private static WindowAdapter window = new NullWindowAdapter();
   private static RuntimeAdapter runtime = new NullRuntimeAdapter();
   private static ResourcesAdapter resources = new ClasspathResourcesAdapter();
-  private static PathfindingService pathfinding = new GridPathfindingAdapter();
+  private static PathfindingService pathfinding = new BfsPathfindingService();
   private static CursorAdapter cursor = new NullCursorAdapter();
   private static RenderAdapter render = DEFAULT_RENDER;
   private static CameraAdapter camera = DEFAULT_CAMERA;
