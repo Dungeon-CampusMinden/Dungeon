@@ -13,9 +13,9 @@ import java.util.List;
  *
  * <p>All methods in this class are static and intended to be invoked during client startup.
  */
-public final class ClientLoopHostSetup {
+public final class DefaultClientLoopHostFactory {
 
-  private ClientLoopHostSetup() {}
+  private DefaultClientLoopHostFactory() {}
 
   /**
    * Installs the default client loop host if no host is configured yet.

@@ -36,7 +36,7 @@ import core.platform.Platform;
  *       are available on the client.</li>
  * </ul>
  *
- * <p>This installer is registered explicitly through {@link ClientLoopHostSetup}.
+ * <p>This installer is registered explicitly through {@link DefaultClientLoopHostFactory}.
  */
 public final class PresentationClientInstaller implements ClientLoopHostInstaller {
 
