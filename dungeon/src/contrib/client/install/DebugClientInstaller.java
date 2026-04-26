@@ -1,7 +1,7 @@
 package contrib.client.install;
 
 import contrib.debug.systems.DebugDrawSystem;
-import contrib.debug.systems.DebugEntityRenderSystem;
+import contrib.debug.systems.DebugEntityOverlaySystem;
 import contrib.debug.systems.DebugGameplaySystem;
 import contrib.debug.systems.DebugRenderEffectsSystem;
 import core.game.systems.SystemRegistration;
@@ -25,7 +25,7 @@ import core.platform.client.loop.ClientLoopHostInstaller;
  *   <li>{@link DebugRenderEffectsSystem}: Provides debug support for rendering effects analysis.
  *   <li>{@link DebugDrawSystem}: Enables debug visualizations such as bounding boxes and debug
  *       overlays.
- *   <li>{@link DebugEntityRenderSystem}: Offers detailed rendering insights into debug entities.
+ *   <li>{@link DebugEntityOverlaySystem}: Offers detailed rendering insights into debug entities.
  * </ul>
  */
 public final class DebugClientInstaller implements ClientLoopHostInstaller {
@@ -38,6 +38,6 @@ public final class DebugClientInstaller implements ClientLoopHostInstaller {
     SystemRegistration.addIfAbsent(DebugGameplaySystem.class, DebugGameplaySystem::new);
     SystemRegistration.addIfAbsent(DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
     SystemRegistration.addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
-    SystemRegistration.addIfAbsent(DebugEntityRenderSystem.class, DebugEntityRenderSystem::new);
+    SystemRegistration.addIfAbsent(DebugEntityOverlaySystem.class, DebugEntityOverlaySystem::new);
   }
 }

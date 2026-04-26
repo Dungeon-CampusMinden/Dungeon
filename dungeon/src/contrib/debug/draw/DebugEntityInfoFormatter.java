@@ -3,7 +3,7 @@ package contrib.debug.draw;
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
-import contrib.debug.systems.DebugEntityRenderSystem;
+import contrib.debug.systems.DebugEntityOverlaySystem;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-/** Formats the hover information shown by {@link DebugEntityRenderSystem}. */
+/** Formats the hover information shown by {@link DebugEntityOverlaySystem}. */
 public final class DebugEntityInfoFormatter {
 
   /**

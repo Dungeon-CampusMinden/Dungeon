@@ -3,7 +3,7 @@ package starter;
 import contrib.client.DefaultClientLoopHostFactory;
 import contrib.configuration.DebugKeyboardConfig;
 import contrib.debug.systems.DebugDrawSystem;
-import contrib.debug.systems.DebugEntityRenderSystem;
+import contrib.debug.systems.DebugEntityOverlaySystem;
 import contrib.debug.systems.DebugRenderEffectsSystem;
 import contrib.editor.level.LevelEditorSystem;
 import core.Game;
@@ -52,7 +52,7 @@ public final class MultiplayerClient {
     addIfAbsent(DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
     addIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
     addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
-    addIfAbsent(DebugEntityRenderSystem.class, DebugEntityRenderSystem::new);
+    addIfAbsent(DebugEntityOverlaySystem.class, DebugEntityOverlaySystem::new);
   }
 
   private static <T extends core.System> void addIfAbsent(Class<T> type, Supplier<T> factory) {

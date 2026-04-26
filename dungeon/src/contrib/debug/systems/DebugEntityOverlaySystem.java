@@ -23,7 +23,7 @@ import java.awt.Color;
 import java.util.Arrays;
 
 /**
- * The {@code DebugEntityRenderSystem} is responsible for rendering debug information for various
+ * The {@code DebugEntityOverlaySystem} is responsible for rendering debug information for various
  * entities within the game world during runtime. This includes visualizing their position,
  * orientation, and relevant components such as collision bounds, interaction ranges, and
  * animations.
@@ -31,7 +31,7 @@ import java.util.Arrays;
  * <p>This system operates on the client-side and processes entities containing a {@code
  * PositionComponent}.
  */
-public final class DebugEntityRenderSystem extends System {
+public final class DebugEntityOverlaySystem extends System {
 
   private static final float POSITION_RADIUS = 0.05f;
   private static final float ARROW_LENGTH = 0.5f;
@@ -48,13 +48,13 @@ public final class DebugEntityRenderSystem extends System {
   private final DebugEntityInfoFormatter infoFormatter = new DebugEntityInfoFormatter();
 
   /**
-   * Constructs a new instance of the DebugEntityRenderSystem.
+   * Constructs a new instance of the DebugEntityOverlaySystem.
    *
    * <p>This system is responsible for rendering debugging information about entities, such as their
    * positions, view directions, interaction ranges, and other visual overlays typically used for
    * debugging purposes during development.
    */
-  public DebugEntityRenderSystem() {
+  public DebugEntityOverlaySystem() {
     super(AuthoritativeSide.CLIENT, PositionComponent.class);
   }
 
