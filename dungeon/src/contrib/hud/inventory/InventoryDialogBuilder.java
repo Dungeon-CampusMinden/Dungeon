@@ -3,7 +3,7 @@ package contrib.hud.inventory;
 import contrib.components.InventoryComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogContextHelper;
+import contrib.hud.dialogs.DialogContextFactory;
 import contrib.hud.dialogs.DialogCreationException;
 import core.Entity;
 import core.components.PlayerComponent;
@@ -47,7 +47,7 @@ public final class InventoryDialogBuilder {
       throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
     }
 
-    String title = DialogContextHelper.inventoryTitle(ctx, DialogContextKeys.TITLE, entity);
+    String title = DialogContextFactory.inventoryTitle(ctx, DialogContextKeys.TITLE, entity);
     boolean allowUseItems = entity.isPresent(PlayerComponent.class);
 
     return new OverlayHandle(

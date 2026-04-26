@@ -3,7 +3,7 @@ package contrib.hud.inventory;
 import contrib.components.InventoryComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogContextHelper;
+import contrib.hud.dialogs.DialogContextFactory;
 import contrib.hud.dialogs.DialogCreationException;
 import core.Entity;
 import core.ui.UiHandle;
@@ -52,9 +52,9 @@ public final class DualInventoryDialogBuilder {
       throw new DialogCreationException("Missing InventoryComponent for DualInventoryDialog");
     }
 
-    String title = DialogContextHelper.inventoryTitle(ctx, DialogContextKeys.TITLE, entity);
+    String title = DialogContextFactory.inventoryTitle(ctx, DialogContextKeys.TITLE, entity);
     String otherTitle =
-      DialogContextHelper.inventoryTitle(ctx, DialogContextKeys.SECONDARY_TITLE, otherEntity);
+      DialogContextFactory.inventoryTitle(ctx, DialogContextKeys.SECONDARY_TITLE, otherEntity);
 
     return new OverlayHandle(
       new DualInventoryDialogOverlay(title, inventory, otherTitle, otherInventory));

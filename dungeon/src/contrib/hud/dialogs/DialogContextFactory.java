@@ -5,12 +5,15 @@ import contrib.hud.dialogs.showimage.TransitionSpeed;
 import core.Entity;
 import core.components.PlayerComponent;
 
-/** Shared helpers for common dialog context construction and default values. */
-public final class DialogContextHelper {
+/**
+ * A utility class providing factory methods for building dialog contexts
+ * for various types of dialogs.
+ */
+public final class DialogContextFactory {
 
   private static final String DEFAULT_INVENTORY_TITLE = "Inventory";
 
-  private DialogContextHelper() {}
+  private DialogContextFactory() {}
 
   /**
    * Builds the common context payload for image dialogs.

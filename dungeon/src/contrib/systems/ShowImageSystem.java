@@ -3,7 +3,7 @@ package contrib.systems;
 import contrib.components.ShowImageComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextHelper;
+import contrib.hud.dialogs.DialogContextFactory;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -43,7 +43,7 @@ public class ShowImageSystem extends System {
       Entity newOverlay = new Entity("show-image-overlay");
 
       DialogContext context =
-        DialogContextHelper.imageDialogContext(
+        DialogContextFactory.imageDialogContext(
           d.sic.imagePath(),
           d.sic.transitionSpeed(),
           d.sic.maxSize(),

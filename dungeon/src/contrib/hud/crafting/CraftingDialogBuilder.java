@@ -5,7 +5,7 @@ import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogContextHelper;
+import contrib.hud.dialogs.DialogContextFactory;
 import contrib.hud.dialogs.DialogCreationException;
 import contrib.item.Item;
 import core.Entity;
@@ -62,9 +62,9 @@ public final class CraftingDialogBuilder {
       entity.fetch(UIComponent.class)
         .orElseThrow(() -> new DialogCreationException("Owner entity has no UIComponent"));
 
-    String title = DialogContextHelper.inventoryTitle(ctx, DialogContextKeys.TITLE, entity);
+    String title = DialogContextFactory.inventoryTitle(ctx, DialogContextKeys.TITLE, entity);
     String craftTitle =
-      DialogContextHelper.inventoryTitle(ctx, DialogContextKeys.SECONDARY_TITLE, craftEntity);
+      DialogContextFactory.inventoryTitle(ctx, DialogContextKeys.SECONDARY_TITLE, craftEntity);
 
     CraftingDialogController controller =
       new CraftingDialogController(heroInventory, craftInventory);

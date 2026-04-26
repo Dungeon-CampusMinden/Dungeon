@@ -72,7 +72,7 @@ public class DialogUtils {
       IVoidFunction onFinished) {
     Entity dialogEntity = new Entity();
     DialogContext context =
-        DialogContextHelper.imageDialogContext(
+        DialogContextFactory.imageDialogContext(
             imagePath, speed, maxSize, textConfig, dialogEntity.id());
 
     Game.add(dialogEntity);
