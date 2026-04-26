@@ -1,4 +1,4 @@
-package core.platform.fallbacks;
+package core.platform.client.adapters;
 
 import core.platform.adapters.CursorAdapter;
 import core.utils.Point;

@@ -3,6 +3,7 @@ package core.platform.client;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import core.camera.CameraViewportState;
+import core.platform.client.adapters.ClientRenderAdapter;
 import core.ui.StageHandle;
 import core.utils.Point;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package core.platform.client;
+package core.platform.client.adapters;
 
 import core.platform.adapters.RuntimeAdapter;
 import de.gurkenlabs.litiengine.Game;

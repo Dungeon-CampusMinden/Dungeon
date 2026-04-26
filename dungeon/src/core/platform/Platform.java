@@ -4,7 +4,9 @@ import core.game.loop.GameLoopHost;
 import core.level.path.BfsPathfindingService;
 import core.level.path.PathfindingService;
 import core.platform.adapters.*;
-import core.platform.fallbacks.*;
+import core.platform.client.adapters.NullCursorAdapter;
+import core.platform.client.adapters.NullRuntimeAdapter;
+import core.platform.client.adapters.NullWindowAdapter;
 import core.resources.ClasspathResourcesAdapter;
 import core.resources.ResourcesAdapter;
 

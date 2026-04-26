@@ -1,4 +1,4 @@
-package core.platform.client;
+package core.platform.client.adapters;
 
 import core.game.render.sprite.SpriteRenderSystem;
 import core.platform.adapters.RenderAdapter;

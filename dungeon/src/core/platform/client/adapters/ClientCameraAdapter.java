@@ -1,4 +1,4 @@
-package core.platform.client;
+package core.platform.client.adapters;
 
 import core.Game;
 import core.camera.CameraMath;
