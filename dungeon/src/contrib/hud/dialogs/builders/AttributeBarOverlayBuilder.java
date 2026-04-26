@@ -1,7 +1,10 @@
-package contrib.hud.elements.bars;
+package contrib.hud.dialogs.builders;
 
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.elements.bars.AttributeBarLayout;
+import contrib.hud.elements.bars.AttributeBarOverlay;
+import contrib.hud.elements.bars.AttributeBarOverlayData;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 

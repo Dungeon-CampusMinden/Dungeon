@@ -6,7 +6,7 @@ import contrib.hud.dialogs.builders.TextDialogBuilder;
 import contrib.hud.dialogs.overlays.PauseMenuDialogOverlay;
 import contrib.hud.dialogs.overlays.YesNoDialogOverlay;
 import contrib.hud.dialogs.showimage.ShowImageDialogBuilder;
-import contrib.hud.elements.bars.AttributeBarOverlayBuilder;
+import contrib.hud.dialogs.builders.AttributeBarOverlayBuilder;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
 import core.ui.overlay.OverlayHandle;
