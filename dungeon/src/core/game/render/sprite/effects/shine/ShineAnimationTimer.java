@@ -13,7 +13,7 @@ package core.game.render.sprite.effects.shine;
  * <p>Instances of this class are immutable after initialization of the
  * animation start time through the first method call.
  */
-final class ShineAnimationClock {
+final class ShineAnimationTimer {
 
   private long animationStartMs = -1L;
 

@@ -28,7 +28,7 @@ public final class ShineSpriteEffect
   private float rotationSpeed = 0.2f;
   private Color shineColor = new Color(255, 255, 128, 255);
   private boolean enabled = true;
-  private final ShineAnimationClock animationClock = new ShineAnimationClock();
+  private final ShineAnimationTimer animationClock = new ShineAnimationTimer();
 
   /**
    * Creates a shine effect with default parameters.
