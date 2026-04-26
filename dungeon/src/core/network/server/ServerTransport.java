@@ -7,7 +7,7 @@ import static core.network.config.NetworkConfig.*;
 import contrib.components.UIComponent;
 import contrib.entities.HeroController;
 import contrib.hud.UIUtils;
-import contrib.inventory.InventoryDialogState;
+import contrib.inventory.InventoryUiState;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -447,7 +447,7 @@ public final class ServerTransport {
     }
 
     Entity player = sessionEntity.get();
-    if (msg.open() == InventoryDialogState.isOpen(player)) {
+    if (msg.open() == InventoryUiState.isOpen(player)) {
       LOGGER.debug(
           "Ignoring redundant InventoryUIMessage (open={}) from client {}",
           msg.open(),

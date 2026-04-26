@@ -13,10 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>The state is maintained internally in a thread-safe manner.
  */
-public final class InventoryDialogState {
+public final class InventoryUiState {
   private static final Map<Integer, Boolean> OPEN_BY_PLAYER_ID = new ConcurrentHashMap<>();
 
-  private InventoryDialogState() {}
+  private InventoryUiState() {}
 
   /**
    * Returns whether the player's inventory dialog is currently considered open.

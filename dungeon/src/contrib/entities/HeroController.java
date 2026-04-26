@@ -9,7 +9,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
-import contrib.inventory.InventoryDialogState;
+import contrib.inventory.InventoryUiState;
 import contrib.item.Item;
 import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
@@ -222,7 +222,7 @@ public class HeroController {
     }
     var pc = playerComp.get();
 
-    if (pc.openDialogs() && !InventoryDialogState.isOpen(hero)) {
+    if (pc.openDialogs() && !InventoryUiState.isOpen(hero)) {
       LOGGER.debug("Player {} has other dialogs open, cannot toggle inventory.", hero.id());
       return;
     }
@@ -247,7 +247,7 @@ public class HeroController {
     if (!Game.network().isServer()) {
       Game.network().send((short) 0, new InventoryUIMessage(isUIOpen), true);
     }
-    InventoryDialogState.setOpen(hero, isUIOpen);
+    InventoryUiState.setOpen(hero, isUIOpen);
   }
 
   /**
