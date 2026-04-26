@@ -2,7 +2,7 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.itemgrid.GridHitTest;
-import contrib.hud.itemgrid.InventoryDragController;
+import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.item.Item;
 import java.util.List;
 import java.util.stream.Stream;
@@ -85,7 +85,7 @@ final class DualInventoryDialogOverlay
   }
 
   private void handleDraggedRelease(
-      InventoryDragController.DragState<InventorySide> completedDrag,
+      ItemGridDragController.DragState<InventorySide> completedDrag,
       GridHitTest.Slot<InventorySide> releasedSlotSelection) {
     if (!acceptsDrop(completedDrag.source(), releasedSlotSelection)) {
       return;
@@ -137,7 +137,7 @@ final class DualInventoryDialogOverlay
   }
 
   private void transferDraggedItem(
-      InventoryDragController.DragState<InventorySide> drag,
+      ItemGridDragController.DragState<InventorySide> drag,
       GridHitTest.Slot<InventorySide> releasedSlotSelection) {
     InventoryComponent source = inventoryOf(drag.source().side());
     InventoryComponent destination = inventoryOf(releasedSlotSelection.side());
@@ -181,7 +181,7 @@ final class DualInventoryDialogOverlay
   }
 
   @Override
-  protected InventoryDragController.DropTargetFilter<InventorySide> dropTargetFilter() {
+  protected ItemGridDragController.DropTargetFilter<InventorySide> dropTargetFilter() {
     return this::acceptsDrop;
   }
 

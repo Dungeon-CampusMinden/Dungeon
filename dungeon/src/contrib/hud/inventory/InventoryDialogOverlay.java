@@ -3,7 +3,7 @@ package contrib.hud.inventory;
 import contrib.components.InventoryComponent;
 import contrib.entities.HeroController;
 import contrib.hud.itemgrid.GridHitTest;
-import contrib.hud.itemgrid.InventoryDragController;
+import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
@@ -130,7 +130,7 @@ final class InventoryDialogOverlay
   }
 
   private void handleDraggedRelease(
-      InventoryDragController.DragState<InventorySide> completedDrag,
+      ItemGridDragController.DragState<InventorySide> completedDrag,
       GridHitTest.Slot<InventorySide> releasedSlot,
       int mouseX,
       int mouseY) {
@@ -185,7 +185,7 @@ final class InventoryDialogOverlay
   }
 
   @Override
-  protected InventoryDragController.DropTargetFilter<InventorySide> dropTargetFilter() {
+  protected ItemGridDragController.DropTargetFilter<InventorySide> dropTargetFilter() {
     return (source, target) -> target.slotIndex() != source.slotIndex();
   }
 

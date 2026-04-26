@@ -7,13 +7,13 @@ import static org.mockito.Mockito.mock;
 import contrib.item.Item;
 import org.junit.jupiter.api.Test;
 
-/** Tests for {@link InventoryDragController}. */
-public class InventoryDragControllerTest {
+/** Tests for {@link ItemGridDragController}. */
+public class ItemGridDragControllerTest {
 
   /** Drop target resolution returns the hovered slot when the active drag is accepted. */
   @Test
   public void dropTargetAtAcceptedHoveredSlot() {
-    InventoryDragController<Side> controller = draggingController();
+    ItemGridDragController<Side> controller = draggingController();
     GridHitTest.Slot<Side> target = new GridHitTest.Slot<>(Side.RIGHT, 1);
 
     GridHitTest.Slot<Side> result =
@@ -25,7 +25,7 @@ public class InventoryDragControllerTest {
   /** Drop target resolution ignores hovered slots rejected by the target filter. */
   @Test
   public void dropTargetAtRejectedHoveredSlot() {
-    InventoryDragController<Side> controller = draggingController();
+    ItemGridDragController<Side> controller = draggingController();
     GridHitTest.Slot<Side> target = new GridHitTest.Slot<>(Side.LEFT, 1);
 
     GridHitTest.Slot<Side> result =
@@ -37,7 +37,7 @@ public class InventoryDragControllerTest {
   /** Drop target resolution returns null when no drag is active. */
   @Test
   public void dropTargetAtWithoutDrag() {
-    InventoryDragController<Side> controller = InventoryDragController.withDistanceThreshold(4);
+    ItemGridDragController<Side> controller = ItemGridDragController.withDistanceThreshold(4);
     GridHitTest.Slot<Side> target = new GridHitTest.Slot<>(Side.RIGHT, 1);
 
     GridHitTest.Slot<Side> result =
@@ -46,8 +46,8 @@ public class InventoryDragControllerTest {
     assertNull(result);
   }
 
-  private InventoryDragController<Side> draggingController() {
-    InventoryDragController<Side> controller = InventoryDragController.withDistanceThreshold(4);
+  private ItemGridDragController<Side> draggingController() {
+    ItemGridDragController<Side> controller = ItemGridDragController.withDistanceThreshold(4);
     GridHitTest.Slot<Side> source = new GridHitTest.Slot<>(Side.LEFT, 0);
     Item item = mock(Item.class);
 

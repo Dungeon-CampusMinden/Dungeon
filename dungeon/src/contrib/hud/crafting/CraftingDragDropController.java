@@ -2,7 +2,7 @@ package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.itemgrid.GridHitTest;
-import contrib.hud.itemgrid.InventoryDragController;
+import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.hud.itemgrid.InventoryDropHandling;
 import contrib.item.Item;
 import java.awt.Color;
@@ -21,8 +21,8 @@ final class CraftingDragDropController {
   private static final Color DRAG_HIGHLIGHT_FILL = new Color(157, 193, 235, 45);
 
   private final CraftingDialogController controller;
-  private final InventoryDragController<CraftingInventorySide> dragController =
-      InventoryDragController.withAxisThreshold(DRAG_THRESHOLD_PX);
+  private final ItemGridDragController<CraftingInventorySide> dragController =
+      ItemGridDragController.withAxisThreshold(DRAG_THRESHOLD_PX);
 
   CraftingDragDropController(CraftingDialogController controller) {
     this.controller = controller;
@@ -53,7 +53,7 @@ final class CraftingDragDropController {
       Rectangle rightPanelBounds,
       List<CraftingDialogLayout.SlotBounds> craftingBounds,
       ActionHitTest actionHitTest) {
-    Optional<InventoryDragController.Release<CraftingInventorySide>> release =
+    Optional<ItemGridDragController.Release<CraftingInventorySide>> release =
         dragController.update(
             leftButtonDown,
             mouseX,
@@ -70,7 +70,7 @@ final class CraftingDragDropController {
       return Optional.empty();
     }
 
-    InventoryDragController.Release<CraftingInventorySide> released = release.get();
+    ItemGridDragController.Release<CraftingInventorySide> released = release.get();
     Optional<CraftingDialogAction> releasedButton = actionHitTest.findActionAt(mouseX, mouseY);
     if (releasedButton.isPresent() && released.completedDrag() == null) {
       return releasedButton;
@@ -101,7 +101,7 @@ final class CraftingDragDropController {
   }
 
   void transferDraggedItem(
-      InventoryDragController.DragState<CraftingInventorySide> completedDrag,
+      ItemGridDragController.DragState<CraftingInventorySide> completedDrag,
       GridHitTest.Slot<CraftingInventorySide> releasedSlotSelection,
       Rectangle leftPanelBounds,
       Rectangle rightPanelBounds,
@@ -150,7 +150,7 @@ final class CraftingDragDropController {
       List<CraftingDialogLayout.SlotBounds> craftingBounds,
       int mouseX,
       int mouseY) {
-    InventoryDragController.DragState<CraftingInventorySide> dragState = dragController.dragState();
+    ItemGridDragController.DragState<CraftingInventorySide> dragState = dragController.dragState();
     if (dragState == null) {
       return;
     }

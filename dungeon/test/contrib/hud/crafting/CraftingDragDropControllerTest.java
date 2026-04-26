@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.itemgrid.GridHitTest;
-import contrib.hud.itemgrid.InventoryDragController;
+import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.item.Item;
 import java.awt.Rectangle;
 import org.junit.jupiter.api.Test;
@@ -110,9 +110,9 @@ public class CraftingDragDropControllerTest {
         new CraftingDialogController(targetInventory, craftingInventory));
   }
 
-  private InventoryDragController.DragState<CraftingInventorySide> drag(
+  private ItemGridDragController.DragState<CraftingInventorySide> drag(
       CraftingInventorySide side, int slotIndex, Item item) {
-    return new InventoryDragController.DragState<>(
+    return new ItemGridDragController.DragState<>(
         new GridHitTest.Slot<>(side, slotIndex), item);
   }
 

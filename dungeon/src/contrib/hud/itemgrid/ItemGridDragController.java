@@ -16,7 +16,7 @@ import java.util.Optional;
  *
  * @param <S> logical side type of the slot
  */
-public final class InventoryDragController<S> {
+public final class ItemGridDragController<S> {
 
   /** Default translucent fill used by inventory drop targets. */
   public static final Color DEFAULT_DROP_FILL = new Color(88, 168, 116, 70);
@@ -33,7 +33,7 @@ public final class InventoryDragController<S> {
   private int pressedMouseY = 0;
   private DragState<S> dragState = null;
 
-  private InventoryDragController(int thresholdPx, DragStartCondition dragStartCondition) {
+  private ItemGridDragController(int thresholdPx, DragStartCondition dragStartCondition) {
     this.thresholdPx = thresholdPx;
     this.dragStartCondition = dragStartCondition;
   }
@@ -45,8 +45,8 @@ public final class InventoryDragController<S> {
    * @param <S> logical side type of the slot
    * @return a drag controller
    */
-  public static <S> InventoryDragController<S> withDistanceThreshold(int thresholdPx) {
-    return new InventoryDragController<>(
+  public static <S> ItemGridDragController<S> withDistanceThreshold(int thresholdPx) {
+    return new ItemGridDragController<>(
         thresholdPx,
         (deltaX, deltaY, threshold) -> deltaX * deltaX + deltaY * deltaY >= threshold * threshold);
   }
@@ -58,8 +58,8 @@ public final class InventoryDragController<S> {
    * @param <S> logical side type of the slot
    * @return a drag controller
    */
-  public static <S> InventoryDragController<S> withAxisThreshold(int thresholdPx) {
-    return new InventoryDragController<>(
+  public static <S> ItemGridDragController<S> withAxisThreshold(int thresholdPx) {
+    return new ItemGridDragController<>(
         thresholdPx,
         (deltaX, deltaY, threshold) ->
             Math.abs(deltaX) >= threshold || Math.abs(deltaY) >= threshold);
@@ -144,7 +144,7 @@ public final class InventoryDragController<S> {
    * @param <S> logical side type of the slot
    */
   public static <S> void handlePrimaryInput(
-      InventoryDragController<S> dragController,
+      ItemGridDragController<S> dragController,
       SlotFinder<S> slotFinder,
       ItemResolver<S> itemResolver,
       DragReleaseHandler<S> dragReleaseHandler,

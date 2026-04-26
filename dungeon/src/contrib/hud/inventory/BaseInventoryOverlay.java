@@ -3,7 +3,7 @@ package contrib.hud.inventory;
 import contrib.hud.InventoryDialogProvider;
 import contrib.hud.itemgrid.BaseItemGridOverlay;
 import contrib.hud.itemgrid.GridHitTest;
-import contrib.hud.itemgrid.InventoryDragController;
+import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.hud.itemgrid.InventoryDropHandling;
 import contrib.hud.itemgrid.InventoryGridRenderer;
 import contrib.hud.itemgrid.InventoryPanelRenderer;
@@ -29,8 +29,8 @@ abstract class BaseInventoryOverlay<S>
 
   private static final int DRAG_THRESHOLD_PX = 8;
 
-  protected final InventoryDragController<S> dragController =
-      InventoryDragController.withDistanceThreshold(DRAG_THRESHOLD_PX);
+  protected final ItemGridDragController<S> dragController =
+      ItemGridDragController.withDistanceThreshold(DRAG_THRESHOLD_PX);
 
   protected BaseInventoryOverlay(int defaultWidth, int defaultHeight) {
     super(defaultWidth, defaultHeight);
@@ -83,9 +83,9 @@ abstract class BaseInventoryOverlay<S>
 
   protected final void handlePrimaryInput(
       List<GridHitTest.Grid<S>> grids,
-      InventoryDragController.DragReleaseHandler<S> dragReleaseHandler,
-      InventoryDragController.ClickReleaseHandler<S> clickReleaseHandler) {
-    InventoryDragController.handlePrimaryInput(
+      ItemGridDragController.DragReleaseHandler<S> dragReleaseHandler,
+      ItemGridDragController.ClickReleaseHandler<S> clickReleaseHandler) {
+    ItemGridDragController.handlePrimaryInput(
         dragController,
         (mouseX, mouseY) -> findSlotSelection(grids, mouseX, mouseY),
         this::itemOf,
@@ -135,5 +135,5 @@ abstract class BaseInventoryOverlay<S>
 
   protected abstract void handleInput(List<GridHitTest.Grid<S>> grids);
 
-  protected abstract InventoryDragController.DropTargetFilter<S> dropTargetFilter();
+  protected abstract ItemGridDragController.DropTargetFilter<S> dropTargetFilter();
 }

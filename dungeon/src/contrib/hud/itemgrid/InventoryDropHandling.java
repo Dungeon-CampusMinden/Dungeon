@@ -26,9 +26,9 @@ public final class InventoryDropHandling {
    * @return the accepted target slot, or {@code null}
    */
   public static <S> GridHitTest.Slot<S> hoveredDropTarget(
-      InventoryDragController<S> dragController,
-      InventoryDragController.SlotFinder<S> slotFinder,
-      InventoryDragController.DropTargetFilter<S> targetFilter) {
+      ItemGridDragController<S> dragController,
+      ItemGridDragController.SlotFinder<S> slotFinder,
+      ItemGridDragController.DropTargetFilter<S> targetFilter) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       return null;
@@ -69,8 +69,8 @@ public final class InventoryDropHandling {
     drawDropHighlight(
         g,
         targetBounds,
-        InventoryDragController.DEFAULT_DROP_FILL,
-        InventoryDragController.DEFAULT_DROP_OUTLINE);
+        ItemGridDragController.DEFAULT_DROP_FILL,
+        ItemGridDragController.DEFAULT_DROP_OUTLINE);
   }
 
   /**
