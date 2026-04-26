@@ -11,13 +11,13 @@ import contrib.entities.deco.Deco;
  */
 final class DecoColliderState {
   private Deco selectedDeco = Deco.values()[0];
-  private DecoColliderEditMode editMode = DecoColliderEditMode.CHANGE_DECO;
+  private DecoColliderEditOperation editMode = DecoColliderEditOperation.CHANGE_DECO;
 
   Deco selectedDeco() {
     return selectedDeco;
   }
 
-  DecoColliderEditMode editMode() {
+  DecoColliderEditOperation editMode() {
     return editMode;
   }
 

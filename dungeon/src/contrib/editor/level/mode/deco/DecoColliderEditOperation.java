@@ -9,7 +9,7 @@ package contrib.editor.level.mode.deco;
  * <p>The enum also provides methods to retrieve a display name for each mode, navigate to the next
  * mode cyclically, and determine if the mode involves copying the collider to the clipboard.
  */
-enum DecoColliderEditMode {
+enum DecoColliderEditOperation {
   /** Change the decoration of the collider. */
   CHANGE_DECO("Change deco"),
   /** Modify the X offset of the collider. */
@@ -23,7 +23,7 @@ enum DecoColliderEditMode {
 
   private final String displayName;
 
-  DecoColliderEditMode(String displayName) {
+  DecoColliderEditOperation(String displayName) {
     this.displayName = displayName;
   }
 
@@ -31,7 +31,7 @@ enum DecoColliderEditMode {
     return displayName;
   }
 
-  DecoColliderEditMode next() {
+  DecoColliderEditOperation next() {
     return values()[(ordinal() + 1) % values().length];
   }
 
