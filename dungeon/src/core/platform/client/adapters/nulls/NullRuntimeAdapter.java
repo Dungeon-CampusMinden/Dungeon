@@ -1,4 +1,4 @@
-package core.platform.client.adapters;
+package core.platform.client.adapters.nulls;
 
 import core.platform.adapters.RuntimeAdapter;
 
