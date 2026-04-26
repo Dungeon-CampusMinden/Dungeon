@@ -20,7 +20,7 @@ import java.util.Optional;
  *
  * <p>It also delegates the other rendering operations to the underlying RenderAdapter implementation.
  */
-public final class PresentationRenderAdapter implements RenderAdapter {
+public final class ClientPresentationRenderAdapter implements RenderAdapter {
   private final RenderAdapter delegate;
 
   /**
@@ -28,7 +28,7 @@ public final class PresentationRenderAdapter implements RenderAdapter {
    *
    * @param delegate render adapter to extend
    */
-  public PresentationRenderAdapter(RenderAdapter delegate) {
+  public ClientPresentationRenderAdapter(RenderAdapter delegate) {
     this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
   }
 
