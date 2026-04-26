@@ -2,7 +2,7 @@ package core.game.render.level;
 
 import java.awt.image.BufferedImage;
 
-/** Backend-specific post-processing effect for the rendered level layer only. */
+/** Post-processing effect for the rendered level layer. */
 public interface LevelEffect {
 
   /**
