@@ -10,8 +10,8 @@ import core.input.MouseButtons;
 /**
  * Configuration class for mapping keyboard inputs to specific actions within the application.
  *
- * <p>The class is annotated with {@code @ConfigMap} to define a JSON-Path prefix for fields
- * used within it.
+ * <p>The class is annotated with {@code @ConfigMap} to define a JSON-Path prefix for fields used
+ * within it.
  *
  * <p>Each field in this class represents a specific gameplay or UI keybinding used by contrib
  * systems.
@@ -44,7 +44,7 @@ public class KeyboardConfig {
    * @see InventoryDialogState#isOpen(core.Entity)
    */
   public static final ConfigKey<Integer> MOUSE_USE_ITEM =
-    new ConfigKey<>(new String[] {"item", "mouse"}, new ConfigIntValue(MouseButtons.RIGHT));
+      new ConfigKey<>(new String[] {"item", "mouse"}, new ConfigIntValue(MouseButtons.RIGHT));
 
   /**
    * Quickly transfers an item from one inventory to another. E.g. chest to player or player to
@@ -60,13 +60,11 @@ public class KeyboardConfig {
 
   /** Select the next skill as active Skill in the {@link contrib.components.SkillComponent}. */
   public static final ConfigKey<Integer> NEXT_SKILL =
-      new ConfigKey<>(
-          new String[] {"skill", "select next skill"}, new ConfigIntValue(Keys.PERIOD));
+      new ConfigKey<>(new String[] {"skill", "select next skill"}, new ConfigIntValue(Keys.PERIOD));
 
   /** Select the previous skill as active Skill in the {@link contrib.components.SkillComponent}. */
   public static final ConfigKey<Integer> PREV_SKILL =
-      new ConfigKey<>(
-          new String[] {"skill", "select prev skill"}, new ConfigIntValue(Keys.COMMA));
+      new ConfigKey<>(new String[] {"skill", "select prev skill"}, new ConfigIntValue(Keys.COMMA));
 
   /** This key is used shoot the active skill. */
   public static final ConfigKey<Integer> MOUSE_USE_SKILL =

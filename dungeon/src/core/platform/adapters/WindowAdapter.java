@@ -7,14 +7,15 @@ package core.platform.adapters;
  * window properties independently of the underlying graphics framework or platform.
  *
  * <p>Key responsibilities:
+ *
  * <ul>
  *   <li>Querying window dimensions (width and height)
  *   <li>Setting the window title
  *   <li>Managing fullscreen mode (if supported)
  * </ul>
  *
- * <p>All methods except dimension and title operations provide default implementations for
- * graceful degradation on platforms that don't support certain features.
+ * <p>All methods except dimension and title operations provide default implementations for graceful
+ * degradation on platforms that don't support certain features.
  */
 public interface WindowAdapter {
 
@@ -78,8 +79,8 @@ public interface WindowAdapter {
   /**
    * Toggles the window fullscreen state.
    *
-   * <p>If fullscreen is supported, this method switches between fullscreen and windowed modes.
-   * If fullscreen is not supported, this method does nothing.
+   * <p>If fullscreen is supported, this method switches between fullscreen and windowed modes. If
+   * fullscreen is not supported, this method does nothing.
    */
   default void toggleFullscreen() {
     if (!supportsFullscreen()) {

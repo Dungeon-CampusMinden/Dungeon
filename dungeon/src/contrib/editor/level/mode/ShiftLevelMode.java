@@ -24,6 +24,7 @@ import java.util.Set;
  * without resizing the level or manually moving individual elements.
  *
  * <p>Supported operations:
+ *
  * <ul>
  *   <li>Shifting the level up (increasing Y)
  *   <li>Shifting the level down (decreasing Y)
@@ -32,6 +33,7 @@ import java.util.Set;
  * </ul>
  *
  * <p>Shift behavior:
+ *
  * <ul>
  *   <li>All tiles in the level layout are shifted in the specified direction
  *   <li>New border tiles are filled with SKIP elements
@@ -72,15 +74,15 @@ public final class ShiftLevelMode extends LevelEditorMode {
   @Override
   protected List<String> getStatusLines() {
     return system()
-      .currentDungeonLevelForModes()
-      .map(
-        level ->
-          List.of(
-            "Current size: " + level.layout()[0].length + "x" + level.layout().length,
-            "Named points: " + level.namedPoints().size(),
-            "Blocked if a non-SKIP border tile would be overwritten.",
-            "Also shifts named points and entities with PositionComponent."))
-      .orElse(List.of("Current size: <no dungeon level>"));
+        .currentDungeonLevelForModes()
+        .map(
+            level ->
+                List.of(
+                    "Current size: " + level.layout()[0].length + "x" + level.layout().length,
+                    "Named points: " + level.namedPoints().size(),
+                    "Blocked if a non-SKIP border tile would be overwritten.",
+                    "Also shifts named points and entities with PositionComponent."))
+        .orElse(List.of("Current size: <no dungeon level>"));
   }
 
   @Override
@@ -102,30 +104,30 @@ public final class ShiftLevelMode extends LevelEditorMode {
     system().showModeFeedback("Shifting level " + directionName, Color.WHITE);
 
     system()
-      .currentDungeonLevelForModes()
-      .ifPresent(
-        level -> {
-          Tile[][] layout = level.layout();
+        .currentDungeonLevelForModes()
+        .ifPresent(
+            level -> {
+              Tile[][] layout = level.layout();
 
-          if (!canShift(layout, x, y)) {
-            system().showModeFeedback(
-              "Cannot shift level: overwriting non-SKIP tiles!", Color.RED);
-            return;
-          }
+              if (!canShift(layout, x, y)) {
+                system()
+                    .showModeFeedback("Cannot shift level: overwriting non-SKIP tiles!", Color.RED);
+                return;
+              }
 
-          level.setLayout(LevelTransformations.shiftedLayout(layout, x, y));
-          LevelTransformations.translateStartTiles(level, x, y);
-          LevelTransformations.translateNamedPoints(level, x, y);
+              level.setLayout(LevelTransformations.shiftedLayout(layout, x, y));
+              LevelTransformations.translateStartTiles(level, x, y);
+              LevelTransformations.translateNamedPoints(level, x, y);
 
-          Game.levelEntities(Set.of(PositionComponent.class))
-            .forEach(
-              entity -> {
-                PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
-                Point old = pc.position();
-                pc.position(new Point(old.x() + x, old.y() + y));
-                ColliderSync.sync(entity);
-              });
-        });
+              Game.levelEntities(Set.of(PositionComponent.class))
+                  .forEach(
+                      entity -> {
+                        PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
+                        Point old = pc.position();
+                        pc.position(new Point(old.x() + x, old.y() + y));
+                        ColliderSync.sync(entity);
+                      });
+            });
   }
 
   private boolean canShift(Tile[][] layout, int x, int y) {

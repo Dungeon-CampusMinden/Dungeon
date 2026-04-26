@@ -5,9 +5,9 @@ import java.util.function.Consumer;
 /**
  * Represents a UI button that can handle interactions such as hover, click, and press events.
  *
- * <p>The button supports backend-neutral input handling and provides functionality to update
- * its state, retrieve its visual state, and react to user interactions via a customizable
- * consumer callback.
+ * <p>The button supports backend-neutral input handling and provides functionality to update its
+ * state, retrieve its visual state, and react to user interactions via a customizable consumer
+ * callback.
  */
 public class Button {
 
@@ -93,9 +93,9 @@ public class Button {
 
   protected boolean contains(int mouseX, int mouseY) {
     return mouseX >= this.x
-      && mouseX <= this.x + this.width
-      && mouseY >= this.y
-      && mouseY <= this.y + this.height;
+        && mouseX <= this.x + this.width
+        && mouseY >= this.y
+        && mouseY <= this.y + this.height;
   }
 
   /**

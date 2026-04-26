@@ -7,18 +7,17 @@ import core.utils.Point;
 import java.awt.image.BufferedImage;
 
 /**
- * Represents a passthrough debugging effect for visualizing specific scene attributes
- * during rendering.
+ * Represents a passthrough debugging effect for visualizing specific scene attributes during
+ * rendering.
  *
- * <p>This effect allows enabling or disabling visual debug views, such
- * as alpha transparency and world position, which can be used to analyze rendering
- * characteristics.
+ * <p>This effect allows enabling or disabling visual debug views, such as alpha transparency and
+ * world position, which can be used to analyze rendering characteristics.
  *
- * <p>The effect is toggleable and implements a no-op rendering behavior
- * when disabled or when no debug views are active.
+ * <p>The effect is toggleable and implements a no-op rendering behavior when disabled or when no
+ * debug views are active.
  */
 public final class DebugPassthroughEffect
-  implements SceneEffect, ToggleableEffect<DebugPassthroughEffect> {
+    implements SceneEffect, ToggleableEffect<DebugPassthroughEffect> {
 
   private boolean debugPMA = false;
   private boolean debugWorldPos = false;
@@ -163,15 +162,9 @@ public final class DebugPassthroughEffect
     float wb = clamp01();
     float wa = 1.0f - wb;
 
-    int r =
-      clamp255(
-        Math.round(((rgbA >>> 16) & 0xFF) * wa + ((rgbB >>> 16) & 0xFF) * wb));
-    int g =
-      clamp255(
-        Math.round(((rgbA >>> 8) & 0xFF) * wa + ((rgbB >>> 8) & 0xFF) * wb));
-    int b =
-      clamp255(
-        Math.round((rgbA & 0xFF) * wa + (rgbB & 0xFF) * wb));
+    int r = clamp255(Math.round(((rgbA >>> 16) & 0xFF) * wa + ((rgbB >>> 16) & 0xFF) * wb));
+    int g = clamp255(Math.round(((rgbA >>> 8) & 0xFF) * wa + ((rgbB >>> 8) & 0xFF) * wb));
+    int b = clamp255(Math.round((rgbA & 0xFF) * wa + (rgbB & 0xFF) * wb));
 
     return (r << 16) | (g << 8) | b;
   }

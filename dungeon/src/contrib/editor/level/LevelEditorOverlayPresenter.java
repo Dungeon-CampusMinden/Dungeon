@@ -13,7 +13,7 @@ import java.util.function.LongSupplier;
 /** Presenter that keeps the level editor overlay and transient feedback in sync. */
 final class LevelEditorOverlayPresenter {
   private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LevelEditorOverlayPresenter.class);
+      DungeonLogger.getLogger(LevelEditorOverlayPresenter.class);
 
   private static final long FEEDBACK_DURATION_MS = 3000L;
 
@@ -52,10 +52,10 @@ final class LevelEditorOverlayPresenter {
     Objects.requireNonNull(currentMode, "currentMode must not be null");
 
     overlay.content(
-      "",
-      buildStatusLines(currentMode, modeSelectionText, layerDebugActive),
-      currentFeedbackMessage(),
-      currentFeedbackColor());
+        "",
+        buildStatusLines(currentMode, modeSelectionText, layerDebugActive),
+        currentFeedbackMessage(),
+        currentFeedbackColor());
   }
 
   void showFeedback(String message, Color color) {
@@ -85,7 +85,7 @@ final class LevelEditorOverlayPresenter {
   }
 
   private List<String> buildStatusLines(
-    LevelEditorMode currentMode, String modeSelectionText, boolean layerDebugActive) {
+      LevelEditorMode currentMode, String modeSelectionText, boolean layerDebugActive) {
     List<String> lines = new ArrayList<>();
     lines.add("Level Editor v2 | Modes: " + modeSelectionText);
     lines.add("( SPACE to toggle layer debug shader [" + layerDebugActive + "] )");

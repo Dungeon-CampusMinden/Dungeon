@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Manages a collection of {@link UiOverlay} objects and provides methods to manipulate and render them.
+ * Manages a collection of {@link UiOverlay} objects and provides methods to manipulate and render
+ * them.
  *
  * <p>This class is designed as a utility for handling UI overlays that need to be rendered on top
  * of the game scene. It maintains a globally accessible, synchronized list of overlays, allowing
@@ -21,11 +22,11 @@ public final class OverlayManager {
   private OverlayManager() {}
 
   /**
-   * Adds the specified overlay to the collection if it is not already present.
-   * The method ensures thread safety by using synchronization.
+   * Adds the specified overlay to the collection if it is not already present. The method ensures
+   * thread safety by using synchronization.
    *
-   * @param overlay the {@link UiOverlay} instance to add; must not be null.
-   *                If the overlay is already present in the collection, it will not be added again.
+   * @param overlay the {@link UiOverlay} instance to add; must not be null. If the overlay is
+   *     already present in the collection, it will not be added again.
    */
   public static synchronized void add(UiOverlay overlay) {
     if (overlay != null && !OVERLAYS.contains(overlay)) {
@@ -34,11 +35,11 @@ public final class OverlayManager {
   }
 
   /**
-   * Removes the specified overlay from the collection if it is present.
-   * The method ensures thread safety by using synchronization.
+   * Removes the specified overlay from the collection if it is present. The method ensures thread
+   * safety by using synchronization.
    *
-   * @param overlay the {@link UiOverlay} instance to remove; must not be null.
-   *                If the overlay is not in the collection, no action will be taken.
+   * @param overlay the {@link UiOverlay} instance to remove; must not be null. If the overlay is
+   *     not in the collection, no action will be taken.
    */
   public static synchronized void remove(UiOverlay overlay) {
     OVERLAYS.remove(overlay);
@@ -58,12 +59,12 @@ public final class OverlayManager {
   /**
    * Moves the specified {@link UiOverlay} instance to the front of the overlay collection.
    *
-   * <p>If the overlay is already present in the collection, it will be removed and re-added
-   * to the end of the list, ensuring it is rendered above other overlays. If the overlay
-   * is not present, no action will be taken.
+   * <p>If the overlay is already present in the collection, it will be removed and re-added to the
+   * end of the list, ensuring it is rendered above other overlays. If the overlay is not present,
+   * no action will be taken.
    *
-   * @param overlay the {@link UiOverlay} instance to move to the front; must not be null.
-   *                If the argument is null, the method does nothing.
+   * @param overlay the {@link UiOverlay} instance to move to the front; must not be null. If the
+   *     argument is null, the method does nothing.
    */
   public static synchronized void toFront(UiOverlay overlay) {
     if (overlay == null) {
@@ -78,9 +79,9 @@ public final class OverlayManager {
    * Renders all visible {@link UiOverlay} instances from the overlay collection onto the provided
    * {@link Graphics2D} context.
    *
-   * <p>This method iterates over a copy of the overlay collection to ensure thread safety
-   * during iteration. Only overlays that are visible (determined by {@link UiOverlay#visible()})
-   * will be rendered by invoking their {@link UiOverlay#render(Graphics2D)} method.
+   * <p>This method iterates over a copy of the overlay collection to ensure thread safety during
+   * iteration. Only overlays that are visible (determined by {@link UiOverlay#visible()}) will be
+   * rendered by invoking their {@link UiOverlay#render(Graphics2D)} method.
    *
    * @param g the {@link Graphics2D} context to render the overlays onto; must not be null
    */

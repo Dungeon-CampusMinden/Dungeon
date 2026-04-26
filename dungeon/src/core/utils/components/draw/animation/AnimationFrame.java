@@ -8,24 +8,24 @@ import java.util.Objects;
 /**
  * Represents a single frame of an animation.
  *
- * <p>AnimationFrame encapsulates all data needed to render one frame of an animation, including
- * the texture/image source, optional region information for sprite sheets, and horizontal flip state.
+ * <p>AnimationFrame encapsulates all data needed to render one frame of an animation, including the
+ * texture/image source, optional region information for sprite sheets, and horizontal flip state.
  *
  * <p>A frame can reference either:
+ *
  * <ul>
  *   <li>A full image (entire texture file as one frame)
  *   <li>A region of a sprite sheet (defined by x, y, width, height coordinates)
  * </ul>
  *
  * <p>Frames support horizontal flipping/mirroring for efficient animation variation without
- * duplicating image assets. The backend handle provides an internal cache for rendering
- * backends to store compiled/processed versions of the frame.
+ * duplicating image assets. The backend handle provides an internal cache for rendering backends to
+ * store compiled/processed versions of the frame.
  *
  * <p>This class is serializable for persistence in animation data structures.
  */
 public final class AnimationFrame implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private final IPath texturePath;
 
@@ -66,7 +66,8 @@ public final class AnimationFrame implements Serializable {
   /**
    * Factory method to create a sprite sheet region frame without flipping.
    *
-   * <p>The resulting frame will reference a specific rectangular region within a larger sprite sheet.
+   * <p>The resulting frame will reference a specific rectangular region within a larger sprite
+   * sheet.
    *
    * @param texturePath the path to the sprite sheet image
    * @param x the x-coordinate (in pixels) of the region within the sprite sheet
@@ -82,7 +83,8 @@ public final class AnimationFrame implements Serializable {
   /**
    * Factory method to create a sprite sheet region frame with optional horizontal flipping.
    *
-   * <p>The resulting frame will reference a specific rectangular region within a larger sprite sheet.
+   * <p>The resulting frame will reference a specific rectangular region within a larger sprite
+   * sheet.
    *
    * @param texturePath the path to the sprite sheet image
    * @param x the x-coordinate (in pixels) of the region within the sprite sheet
@@ -93,7 +95,7 @@ public final class AnimationFrame implements Serializable {
    * @return a new AnimationFrame referencing the specified region
    */
   public static AnimationFrame region(
-    final IPath texturePath, int x, int y, int w, int h, final boolean flipX) {
+      final IPath texturePath, int x, int y, int w, int h, final boolean flipX) {
     return new AnimationFrame(texturePath, x, y, w, h, flipX);
   }
 
@@ -111,11 +113,11 @@ public final class AnimationFrame implements Serializable {
    * @throws NullPointerException if texturePath is null
    */
   public AnimationFrame(
-    final IPath texturePath,
-    final int regionX,
-    final int regionY,
-    final int regionW,
-    final int regionH) {
+      final IPath texturePath,
+      final int regionX,
+      final int regionY,
+      final int regionW,
+      final int regionH) {
     this(texturePath, regionX, regionY, regionW, regionH, false);
   }
 
@@ -134,12 +136,12 @@ public final class AnimationFrame implements Serializable {
    * @throws NullPointerException if texturePath is null
    */
   public AnimationFrame(
-    final IPath texturePath,
-    final int regionX,
-    final int regionY,
-    final int regionW,
-    final int regionH,
-    final boolean flipX) {
+      final IPath texturePath,
+      final int regionX,
+      final int regionY,
+      final int regionW,
+      final int regionH,
+      final boolean flipX) {
     this.texturePath = Objects.requireNonNull(texturePath, "texturePath");
     this.regionX = regionX;
     this.regionY = regionY;
@@ -216,8 +218,8 @@ public final class AnimationFrame implements Serializable {
   /**
    * Gets the backend-specific cached handle for this frame.
    *
-   * <p>The backend handle is used by rendering systems to store compiled or cached versions
-   * of this frame (e.g., compiled GPU textures). It is transient and not serialized.
+   * <p>The backend handle is used by rendering systems to store compiled or cached versions of this
+   * frame (e.g., compiled GPU textures). It is transient and not serialized.
    *
    * @return the backend handle, or null if not set
    */
@@ -228,10 +230,11 @@ public final class AnimationFrame implements Serializable {
   /**
    * Sets the backend-specific cached handle for this frame.
    *
-   * <p>The backend handle is used by rendering systems to store compiled or cached versions
-   * of this frame (e.g., compiled GPU textures). It is transient and not serialized.
+   * <p>The backend handle is used by rendering systems to store compiled or cached versions of this
+   * frame (e.g., compiled GPU textures). It is transient and not serialized.
    *
-   * @param backendHandle the backend handle object, typically a compiled texture or similar resource
+   * @param backendHandle the backend handle object, typically a compiled texture or similar
+   *     resource
    */
   public void backendHandle(final Object backendHandle) {
     this.backendHandle = backendHandle;
@@ -240,9 +243,12 @@ public final class AnimationFrame implements Serializable {
   @Override
   public String toString() {
     return "AnimationFrame{"
-      + "texturePath=" + texturePath
-      + ", region=" + (hasRegion() ? (regionX + "," + regionY + "," + regionW + "," + regionH) : "<full>")
-      + ", flipX=" + flipX
-      + "}";
+        + "texturePath="
+        + texturePath
+        + ", region="
+        + (hasRegion() ? (regionX + "," + regionY + "," + regionW + "," + regionH) : "<full>")
+        + ", flipX="
+        + flipX
+        + "}";
   }
 }

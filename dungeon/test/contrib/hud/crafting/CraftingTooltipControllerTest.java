@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 
 import contrib.components.InventoryComponent;
+import contrib.hud.crafting.input.CraftingDragDropController;
+import contrib.hud.crafting.input.CraftingTooltipController;
 import contrib.item.Item;
 import java.util.List;
 import org.junit.jupiter.api.Test;

@@ -7,10 +7,10 @@ import core.camera.CameraViewportState;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.level.DungeonLevel;
-import core.level.Tile;
 import core.game.render.image.ImageFrameResolver;
 import core.game.render.sprite.effects.SpriteOutlineRenderer;
+import core.level.DungeonLevel;
+import core.level.Tile;
 import core.utils.Point;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -21,27 +21,28 @@ import java.util.Set;
 /**
  * This class is responsible for rendering debug information in the Level Editor.
  *
- * <p>It provides visualizations for level boundaries, tiles, and entities during a debugging session.
- * The main purpose of this renderer is to aid in development and debugging by providing
+ * <p>It provides visualizations for level boundaries, tiles, and entities during a debugging
+ * session. The main purpose of this renderer is to aid in development and debugging by providing
  * graphical insights into level geometry and entity placement.
  *
  * <p>The rendering includes:
+ *
  * <ul>
- *   <li>Outlining the bounds of the dungeon level.</li>
- *   <li>Debug representations for tiles within the dungeon.</li>
- *   <li>Entity outlines based on their types (player, decoration, or generic).</li>
+ *   <li>Outlining the bounds of the dungeon level.
+ *   <li>Debug representations for tiles within the dungeon.
+ *   <li>Entity outlines based on their types (player, decoration, or generic).
  * </ul>
  *
- * <p>The rendering logic relies on a camera viewport for translating world coordinates
- * into screen coordinates and uses color coding to differentiate between debug elements.
+ * <p>The rendering logic relies on a camera viewport for translating world coordinates into screen
+ * coordinates and uses color coding to differentiate between debug elements.
  *
  * <p>Key rendering behaviors:
- *   <li>Highlighting level bounds.</li>
- *   <li>Rendering outlines for tiles and debugging graphical properties.</li>
- *   <li>Rendering outlines or fallback rectangles for visible entities.</li>
+ * <li>Highlighting level bounds.
+ * <li>Rendering outlines for tiles and debugging graphical properties.
+ * <li>Rendering outlines or fallback rectangles for visible entities.
  *
- * <p>Methods in this class are primarily invoked during debug mode to overlay helpful visual data
- * over the game level.
+ *     <p>Methods in this class are primarily invoked during debug mode to overlay helpful visual
+ *     data over the game level.
  */
 final class LevelEditorDebugRenderer {
   private static final Color LEVEL_BOUNDS_OUTLINE_COLOR = new Color(0, 255, 0, 77);
@@ -78,7 +79,8 @@ final class LevelEditorDebugRenderer {
               int levelWidth = layout[0].length;
               int levelHeight = layout.length;
 
-              drawWorldRectangleOutline(g, 0f, 0f, levelWidth, levelHeight, LEVEL_BOUNDS_OUTLINE_COLOR);
+              drawWorldRectangleOutline(
+                  g, 0f, 0f, levelWidth, levelHeight, LEVEL_BOUNDS_OUTLINE_COLOR);
             });
   }
 
@@ -167,7 +169,14 @@ final class LevelEditorDebugRenderer {
     int drawY = Math.round(screenOrigin.y() + tilePx - hPx);
 
     SpriteOutlineRenderer.drawOutlinedSprite(
-        g, sprite, drawX, drawY, wPx, hPx, debugEntityColor(entity), Math.max(1, DEBUG_ENTITY_INSET_PX));
+        g,
+        sprite,
+        drawX,
+        drawY,
+        wPx,
+        hPx,
+        debugEntityColor(entity),
+        Math.max(1, DEBUG_ENTITY_INSET_PX));
 
     return true;
   }
@@ -181,7 +190,12 @@ final class LevelEditorDebugRenderer {
     Point pos = pc.position();
 
     drawWorldRectangleOutline(
-        g, pos.x() + insetWorld, pos.y() + insetWorld, sizeWorld, sizeWorld, debugEntityColor(entity));
+        g,
+        pos.x() + insetWorld,
+        pos.y() + insetWorld,
+        sizeWorld,
+        sizeWorld,
+        debugEntityColor(entity));
   }
 
   private Color debugEntityColor(Entity entity) {

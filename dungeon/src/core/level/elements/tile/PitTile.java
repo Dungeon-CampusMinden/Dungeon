@@ -56,8 +56,8 @@ public class PitTile extends Tile {
   /**
    * Closes this pit.
    *
-   * <p>When the pit is closed, it becomes accessible again (entities can walk over it). If the pit is
-   * already closed, this call has no effect.
+   * <p>When the pit is closed, it becomes accessible again (entities can walk over it). If the pit
+   * is already closed, this call has no effect.
    *
    * <p>Closing the pit also triggers a texture refresh to reflect the new state.
    */

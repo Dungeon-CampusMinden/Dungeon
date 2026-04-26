@@ -3,9 +3,7 @@ package contrib.hud;
 import contrib.components.InventoryComponent;
 import java.util.stream.Stream;
 
-/**
- * Exposes inventory components from a backend-specific inventory dialog root.
- */
+/** Exposes inventory components from a backend-specific inventory dialog root. */
 public interface InventoryDialogProvider {
 
   /**

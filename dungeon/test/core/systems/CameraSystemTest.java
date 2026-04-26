@@ -20,8 +20,8 @@ public class CameraSystemTest {
   private static final float FOCUS_LERP = 0.1f;
 
   /**
-   * Tests camera focus calculation when a tracked entity is present.
-   * Verifies that the camera steps towards the tracked point over time using linear interpolation.
+   * Tests camera focus calculation when a tracked entity is present. Verifies that the camera steps
+   * towards the tracked point over time using linear interpolation.
    */
   @Test
   public void executeWithEntity() {
@@ -33,8 +33,8 @@ public class CameraSystemTest {
   }
 
   /**
-   * Tests camera focus calculation when no tracked entity is present.
-   * Verifies that the camera uses the start point as the focus when no entity is being tracked.
+   * Tests camera focus calculation when no tracked entity is present. Verifies that the camera uses
+   * the start point as the focus when no entity is being tracked.
    */
   @Test
   public void executeWithoutEntity() {
@@ -46,8 +46,9 @@ public class CameraSystemTest {
   }
 
   /**
-   * Tests camera focus calculation when neither a tracked entity nor a level start point are available.
-   * Verifies that the camera defaults to the origin (0, 0) when no reference points exist.
+   * Tests camera focus calculation when neither a tracked entity nor a level start point are
+   * available. Verifies that the camera defaults to the origin (0, 0) when no reference points
+   * exist.
    */
   @Test
   public void executeWithoutLevel() {
@@ -59,24 +60,24 @@ public class CameraSystemTest {
   }
 
   /**
-   * Tests that a point within the camera's viewport is correctly identified as visible.
-   * Verifies that points inside the frustum area are recognized by the visibility check.
+   * Tests that a point within the camera's viewport is correctly identified as visible. Verifies
+   * that points inside the frustum area are recognized by the visibility check.
    */
   @Test
   public void isPointInFrustumWithVisiblePoint() {
     assertTrue(
-      CameraMath.isPointVisible(
-        new Point(1.0f, 1.0f), ORIGIN, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, ZOOM, 1.0f));
+        CameraMath.isPointVisible(
+            new Point(1.0f, 1.0f), ORIGIN, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, ZOOM, 1.0f));
   }
 
   /**
-   * Tests that a point outside the camera's viewport is correctly identified as invisible.
-   * Verifies that points outside the frustum area are not recognized by the visibility check.
+   * Tests that a point outside the camera's viewport is correctly identified as invisible. Verifies
+   * that points outside the frustum area are not recognized by the visibility check.
    */
   @Test
   public void isPointInFrustumWithInvisiblePoint() {
     assertFalse(
-      CameraMath.isPointVisible(
-        new Point(100.0f, 100.0f), ORIGIN, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, ZOOM, 1.0f));
+        CameraMath.isPointVisible(
+            new Point(100.0f, 100.0f), ORIGIN, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, ZOOM, 1.0f));
   }
 }

@@ -45,12 +45,12 @@ final class ShowImageDialogOverlay extends BaseUiOverlay {
   private float animation;
 
   ShowImageDialogOverlay(
-    String imagePath,
-    TransitionSpeed transitionSpeed,
-    float maxSize,
-    String imageText,
-    float imageTextScale,
-    int imageTextColorRgba8888) {
+      String imagePath,
+      TransitionSpeed transitionSpeed,
+      float maxSize,
+      String imageText,
+      float imageTextScale,
+      int imageTextColorRgba8888) {
     super(480, 320);
 
     this.imagePath = imagePath;
@@ -71,8 +71,7 @@ final class ShowImageDialogOverlay extends BaseUiOverlay {
 
     ensureImageLoaded();
 
-    DialogFrameRenderer.RenderState state =
-      DialogFrameRenderer.beginDialog(g);
+    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
 
     try {
       if (image == null) {
@@ -141,14 +140,15 @@ final class ShowImageDialogOverlay extends BaseUiOverlay {
     g.drawRoundRect(x, y, width, height, PANEL_ARC, PANEL_ARC);
   }
 
-  private void renderOverlayText(Graphics2D g, int imageX, int imageY, int imageWidth, int imageHeight) {
+  private void renderOverlayText(
+      Graphics2D g, int imageX, int imageY, int imageWidth, int imageHeight) {
     if (imageText == null || imageText.isBlank()) {
       return;
     }
 
     Font previousFont = g.getFont();
     Font textFont =
-      previousFont.deriveFont(Math.max(14f, previousFont.getSize2D() * imageTextScale));
+        previousFont.deriveFont(Math.max(14f, previousFont.getSize2D() * imageTextScale));
     g.setFont(textFont);
 
     FontMetrics fm = g.getFontMetrics();
@@ -196,15 +196,14 @@ final class ShowImageDialogOverlay extends BaseUiOverlay {
 
     g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, easedAnimation()));
 
-    int textY =
-      DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Image");
+    int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, "Image");
 
     DialogFrameRenderer.drawWrappedText(
-      g,
-      "Could not load image:\n" + imagePath,
-      x + DialogFrameMetrics.PADDING,
-      textY,
-      width - 2 * DialogFrameMetrics.PADDING);
+        g,
+        "Could not load image:\n" + imagePath,
+        x + DialogFrameMetrics.PADDING,
+        textY,
+        width - 2 * DialogFrameMetrics.PADDING);
   }
 
   private void advanceAnimation() {

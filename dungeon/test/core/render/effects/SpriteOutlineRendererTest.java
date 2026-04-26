@@ -2,11 +2,10 @@ package core.render.effects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import core.game.render.sprite.effects.SpriteOutlineRenderer;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-
-import core.game.render.sprite.effects.SpriteOutlineRenderer;
 import org.junit.jupiter.api.Test;
 
 /** Tests for image effect rendering helpers. */

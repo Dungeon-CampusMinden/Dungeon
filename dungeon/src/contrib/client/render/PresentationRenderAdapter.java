@@ -12,13 +12,14 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * A wrapper class for the RenderAdapter interface that extends its functionality
- * by adding additional rendering-related features and behavior.
+ * A wrapper class for the RenderAdapter interface that extends its functionality by adding
+ * additional rendering-related features and behavior.
  *
- * <p>This class is primarily designed to augment the adapter's default rendering systems
- * with a presentation-specific system.
+ * <p>This class is primarily designed to augment the adapter's default rendering systems with a
+ * presentation-specific system.
  *
- * <p>It also delegates the other rendering operations to the underlying RenderAdapter implementation.
+ * <p>It also delegates the other rendering operations to the underlying RenderAdapter
+ * implementation.
  */
 public final class PresentationRenderAdapter implements RenderAdapter {
   private final RenderAdapter delegate;

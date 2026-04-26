@@ -60,9 +60,9 @@ public final class PatrolWalk implements Consumer<Entity> {
     initialized = true;
 
     PositionComponent position =
-      entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     Point center = position.position();
     Tile tile = core.Game.tileAt(position.position()).orElse(null);
@@ -94,15 +94,15 @@ public final class PatrolWalk implements Consumer<Entity> {
     }
 
     PositionComponent position =
-      entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
       if (AIUtils.pathLeft(entity, currentPath)) {
         currentPath =
-          LevelUtils.calculateTilePath(
-            position.position(), this.checkpoints.get(currentCheckpoint).position());
+            LevelUtils.calculateTilePath(
+                position.position(), this.checkpoints.get(currentCheckpoint).position());
       }
       AIUtils.followPath(entity, currentPath);
       return;
@@ -123,14 +123,13 @@ public final class PatrolWalk implements Consumer<Entity> {
 
     selectNextCheckpoint();
     currentPath =
-      LevelUtils.calculateTilePath(
-        position.position(), this.checkpoints.get(currentCheckpoint).position());
+        LevelUtils.calculateTilePath(
+            position.position(), this.checkpoints.get(currentCheckpoint).position());
   }
 
   private void beginPause() {
     waitStartedAtMs = Time.nowMs();
-    currentPauseDurationMs =
-      maxPauseTimeMs <= 0L ? 0L : RANDOM.nextLong(maxPauseTimeMs + 1L);
+    currentPauseDurationMs = maxPauseTimeMs <= 0L ? 0L : RANDOM.nextLong(maxPauseTimeMs + 1L);
   }
 
   private boolean isWaiting() {

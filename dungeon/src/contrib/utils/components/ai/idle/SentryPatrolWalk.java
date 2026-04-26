@@ -70,8 +70,9 @@ public final class SentryPatrolWalk implements Consumer<Entity> {
   }
 
   private void pathCalculator(Point from, Point to) {
-    currentPath = canEnterWalls
-      ? LevelUtils.calculateTilePathInsideWall(from, to)
-      : LevelUtils.calculateTilePath(from, to);
+    currentPath =
+        canEnterWalls
+            ? LevelUtils.calculateTilePathInsideWall(from, to)
+            : LevelUtils.calculateTilePath(from, to);
   }
 }

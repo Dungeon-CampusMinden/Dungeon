@@ -3,8 +3,8 @@ package contrib.editor.level.mode.deco;
 import contrib.entities.deco.Deco;
 
 /**
- * Represents the current state of a DecoCollider, managing the selected decorative object
- * and the editor mode.
+ * Represents the current state of a DecoCollider, managing the selected decorative object and the
+ * editor mode.
  *
  * <p>This class stores the current decoration selection and editing mode for a DecoCollider,
  * allowing updates to these states through cycling or shifting operations.

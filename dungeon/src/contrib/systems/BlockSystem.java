@@ -20,28 +20,28 @@ import java.util.function.Consumer;
  * <p>Entities with {@link BlockComponent} and {@link PositionComponent} will be processed by this
  * system. The tile coordinate under the entity is registered in {@link DynamicObstacles}.
  *
- * <p>If an entity moves, the old coordinate is unblocked and the new coordinate is blocked.
- * If a {@link BlockComponent} gets removed, the respective coordinate is unblocked.
+ * <p>If an entity moves, the old coordinate is unblocked and the new coordinate is blocked. If a
+ * {@link BlockComponent} gets removed, the respective coordinate is unblocked.
  */
 public final class BlockSystem extends System {
 
   private final Map<PositionComponent, Coordinate> oldTileCoords = new HashMap<>();
 
   private final Consumer<Entity> onRemove =
-    entity -> {
-      final BSData data = buildDataObject(entity);
-      final Coordinate c = currentTileCoord(data.pc);
-      oldTileCoords.remove(data.pc);
-      DynamicObstacles.unblock(c);
-    };
+      entity -> {
+        final BSData data = buildDataObject(entity);
+        final Coordinate c = currentTileCoord(data.pc);
+        oldTileCoords.remove(data.pc);
+        DynamicObstacles.unblock(c);
+      };
 
   private final Consumer<Entity> onAdd =
-    entity -> {
-      final BSData data = buildDataObject(entity);
-      final Coordinate c = currentTileCoord(data.pc);
-      oldTileCoords.put(data.pc, c);
-      DynamicObstacles.block(c);
-    };
+      entity -> {
+        final BSData data = buildDataObject(entity);
+        final Coordinate c = currentTileCoord(data.pc);
+        oldTileCoords.put(data.pc, c);
+        DynamicObstacles.block(c);
+      };
 
   /** Creates a new BlockSystem. */
   public BlockSystem() {
@@ -53,8 +53,8 @@ public final class BlockSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream(BlockComponent.class, PositionComponent.class)
-      .map(this::buildDataObject)
-      .forEach(this::updateTiles);
+        .map(this::buildDataObject)
+        .forEach(this::updateTiles);
   }
 
   private void updateTiles(final BSData data) {
@@ -74,8 +74,8 @@ public final class BlockSystem extends System {
 
   private BSData buildDataObject(final Entity e) {
     final PositionComponent pc =
-      e.fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+        e.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
     return new BSData(e, pc);
   }
 

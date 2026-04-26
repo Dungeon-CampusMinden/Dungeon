@@ -6,10 +6,11 @@ import java.util.Iterator;
 /**
  * Interface representing a sequence/path of tiles.
  *
- * <p>TilePath provides an ordered collection of tiles that form a path through a level.
- * It supports iteration, indexing, and convenience methods for path inspection.
+ * <p>TilePath provides an ordered collection of tiles that form a path through a level. It supports
+ * iteration, indexing, and convenience methods for path inspection.
  *
  * <p>Key characteristics:
+ *
  * <ul>
  *   <li>Ordered sequence of tiles from start to goal
  *   <li>Random access via index

@@ -11,14 +11,15 @@ import java.awt.image.BufferedImage;
  *
  * <ul>
  *   <li>An "expanded alpha mask" is a float array representing alpha channel values, calculated
- *       from the source image with added padding where necessary.</li>
+ *       from the source image with added padding where necessary.
  *   <li>Padding extends the image boundaries, and the mask values in the padding areas are
- *       calculated by sampling nearby alpha channel values and applying a feathering effect.</li>
+ *       calculated by sampling nearby alpha channel values and applying a feathering effect.
  *   <li>The caching mechanism ensures efficient reuse of precomputed masks for identical input
- *       configurations.</li>
+ *       configurations.
  * </ul>
  *
- * Thread-safety: This class is thread-safe due to the internal synchronization in the caching layer.
+ * Thread-safety: This class is thread-safe due to the internal synchronization in the caching
+ * layer.
  */
 final class ShineAlphaMaskCache {
 
@@ -29,7 +30,7 @@ final class ShineAlphaMaskCache {
   static float[] expandedAlphaMask(final BufferedImage source, final int padding) {
     final MaskCacheKey key = new MaskCacheKey(padding);
     return ALPHA_MASK_CACHE.getOrCompute(
-      source, key, image -> buildExpandedAlphaMask(image, padding));
+        source, key, image -> buildExpandedAlphaMask(image, padding));
   }
 
   private static float[] buildExpandedAlphaMask(final BufferedImage source, final int padding) {

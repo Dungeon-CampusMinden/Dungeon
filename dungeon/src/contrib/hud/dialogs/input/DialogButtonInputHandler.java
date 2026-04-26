@@ -38,11 +38,13 @@ public final class DialogButtonInputHandler {
    * @param onClick callback invoked on click
    */
   public void onClick(int index, Runnable onClick) {
-    button(index).onClick(ignored -> {
-      if (onClick != null) {
-        onClick.run();
-      }
-    });
+    button(index)
+        .onClick(
+            ignored -> {
+              if (onClick != null) {
+                onClick.run();
+              }
+            });
   }
 
   /**

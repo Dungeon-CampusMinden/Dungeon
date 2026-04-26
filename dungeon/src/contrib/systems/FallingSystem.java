@@ -78,21 +78,21 @@ public class FallingSystem extends System {
 
   private void teleportPlayerIfPossible(Entity player) {
     PositionComponent pc =
-      player
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
+        player
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
 
     getSafeTile(pc.position())
-      .ifPresentOrElse(
-        safeTile -> teleportEntityTo(player, safeTile.coordinate().toPoint()),
-        () -> LOGGER.warn("No safe place to teleport."));
+        .ifPresentOrElse(
+            safeTile -> teleportEntityTo(player, safeTile.coordinate().toPoint()),
+            () -> LOGGER.warn("No safe place to teleport."));
   }
 
   private void teleportEntityTo(Entity entity, Point targetLocation) {
     PositionComponent pc =
-      entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     Tile targetTile = Game.tileAt(targetLocation).orElse(null);
     if (targetTile == null || !targetTile.isAccessible()) {

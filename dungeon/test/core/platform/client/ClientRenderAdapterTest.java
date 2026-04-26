@@ -23,9 +23,9 @@ class ClientRenderAdapterTest {
     CameraViewportState.set(100, 50, 10, 32);
 
     Point projected =
-      new ClientRenderAdapter()
-        .projectWorldToStage(new Point(2.5f, 3f), new StubStageHandle())
-        .orElseThrow();
+        new ClientRenderAdapter()
+            .projectWorldToStage(new Point(2.5f, 3f), new StubStageHandle())
+            .orElseThrow();
 
     assertEquals(180f, projected.x());
     assertEquals(242f, projected.y());

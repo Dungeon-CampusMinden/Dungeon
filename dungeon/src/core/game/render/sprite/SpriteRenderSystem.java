@@ -23,11 +23,12 @@ import java.util.Optional;
  * as a no-op.
  *
  * <p>The rendering process includes the following steps:
+ *
  * <ul>
- *   <li>Calculating the camera view and viewport dimensions.</li>
- *   <li>Rendering the level tiles based on the current camera viewport.</li>
- *   <li>Rendering the entities visible within the viewport.</li>
- *   <li>Configuring rendering hints for better visual fidelity.</li>
+ *   <li>Calculating the camera view and viewport dimensions.
+ *   <li>Rendering the level tiles based on the current camera viewport.
+ *   <li>Rendering the entities visible within the viewport.
+ *   <li>Configuring rendering hints for better visual fidelity.
  * </ul>
  *
  * <p>Any exceptions encountered during the render process are logged for debugging purposes.
@@ -77,7 +78,8 @@ public final class SpriteRenderSystem extends System {
       g.fillRect(0, 0, screenWidth, screenHeight);
 
       final Optional<ILevel> levelOpt = Game.currentLevel();
-      final SpriteViewport view = spriteViewportCalculator.calculate(levelOpt, screenWidth, screenHeight);
+      final SpriteViewport view =
+          spriteViewportCalculator.calculate(levelOpt, screenWidth, screenHeight);
 
       // Publish view for cursor mapping
       CameraViewportState.set(view.offsetX(), view.offsetY(), view.levelHeight(), view.tilePx());

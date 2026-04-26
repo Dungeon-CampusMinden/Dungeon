@@ -7,11 +7,11 @@ import java.awt.image.BufferedImage;
  * interface can define various transformations, such as color grading, blurring, or other visual
  * effects.
  *
- * <p>The effect is applied only if it is enabled, allowing for dynamic control over the
- * visual appearance of sprites in the game.
+ * <p>The effect is applied only if it is enabled, allowing for dynamic control over the visual
+ * appearance of sprites in the game.
  *
- * <p>Implementations should ensure that the {@code apply} method returns a non-null image, even
- * if the effect does not modify the input image.
+ * <p>Implementations should ensure that the {@code apply} method returns a non-null image, even if
+ * the effect does not modify the input image.
  */
 public interface SpriteEffect {
 

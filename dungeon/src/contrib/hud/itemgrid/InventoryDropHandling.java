@@ -47,7 +47,7 @@ public final class InventoryDropHandling {
    */
   @SafeVarargs
   public static <S> void drawGridDropHighlight(
-    Graphics2D g, ItemGridHitTest.Slot<S> targetSlot, ItemGridHitTest.Grid<S>... grids) {
+      Graphics2D g, ItemGridHitTest.Slot<S> targetSlot, ItemGridHitTest.Grid<S>... grids) {
     drawGridDropHighlight(g, targetSlot, Arrays.asList(grids));
   }
 
@@ -60,7 +60,7 @@ public final class InventoryDropHandling {
    * @param <S> logical inventory side type
    */
   public static <S> void drawGridDropHighlight(
-    Graphics2D g, ItemGridHitTest.Slot<S> targetSlot, List<ItemGridHitTest.Grid<S>> grids) {
+      Graphics2D g, ItemGridHitTest.Slot<S> targetSlot, List<ItemGridHitTest.Grid<S>> grids) {
     Rectangle targetBounds = ItemGridHitTest.boundsOf(targetSlot, grids);
     if (targetBounds == null) {
       return;

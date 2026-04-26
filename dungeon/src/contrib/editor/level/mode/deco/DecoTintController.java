@@ -8,12 +8,11 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * The {@code DecoTintController} class manages the visual tinting of decorative entities
- * within an editor context.
+ * The {@code DecoTintController} class manages the visual tinting of decorative entities within an
+ * editor context.
  *
- * <p>It provides functionality to update, highlight, clear, and
- * restore the tinting of entities with various states such as "hovered", "placement", or
- * "default".
+ * <p>It provides functionality to update, highlight, clear, and restore the tinting of entities
+ * with various states such as "hovered", "placement", or "default".
  */
 final class DecoTintController {
   private static final int DECO_PREVIEW_TINT = 0xFFFFFF80;
@@ -35,9 +34,9 @@ final class DecoTintController {
 
   void updateHoveredDecoIndicator(Optional<Entity> hoveredDeco) {
     boolean sameEntity =
-      hoveredDecoEntity != null
-        && hoveredDeco.isPresent()
-        && hoveredDecoEntity.equals(hoveredDeco.get());
+        hoveredDecoEntity != null
+            && hoveredDeco.isPresent()
+            && hoveredDecoEntity.equals(hoveredDeco.get());
 
     if (sameEntity) {
       return;
@@ -46,10 +45,10 @@ final class DecoTintController {
     clearHoveredDecoIndicator();
 
     hoveredDeco.ifPresent(
-      entity -> {
-        hoveredDecoEntity = entity;
-        applyEditorTint(entity, DECO_HOVER_TINT);
-      });
+        entity -> {
+          hoveredDecoEntity = entity;
+          applyEditorTint(entity, DECO_HOVER_TINT);
+        });
   }
 
   void clearHoveredDecoIndicator() {
@@ -67,10 +66,10 @@ final class DecoTintController {
     }
 
     return hoveredDecoEntity
-      .fetch(DecoComponent.class)
-      .map(DecoComponent::type)
-      .map(Enum::name)
-      .orElse("unknown");
+        .fetch(DecoComponent.class)
+        .map(DecoComponent::type)
+        .map(Enum::name)
+        .orElse("unknown");
   }
 
   void restoreEditorTint(Entity entity) {
@@ -80,12 +79,14 @@ final class DecoTintController {
 
     Integer originalTint = rememberedEditorTints.remove(entity);
 
-    entity.fetch(DrawComponent.class)
-      .ifPresent(dc -> dc.tintColor(originalTint != null ? originalTint : DECO_DEFAULT_TINT));
+    entity
+        .fetch(DrawComponent.class)
+        .ifPresent(dc -> dc.tintColor(originalTint != null ? originalTint : DECO_DEFAULT_TINT));
   }
 
   void restoreAllRememberedEditorTints() {
-    for (Map.Entry<Entity, Integer> entry : new IdentityHashMap<>(rememberedEditorTints).entrySet()) {
+    for (Map.Entry<Entity, Integer> entry :
+        new IdentityHashMap<>(rememberedEditorTints).entrySet()) {
       Entity entity = entry.getKey();
       Integer tint = entry.getValue();
 
@@ -102,11 +103,12 @@ final class DecoTintController {
       return;
     }
 
-    entity.fetch(DrawComponent.class)
-      .ifPresent(
-        dc -> {
-          rememberedEditorTints.putIfAbsent(entity, dc.tintColor());
-          dc.tintColor(tint);
-        });
+    entity
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            dc -> {
+              rememberedEditorTints.putIfAbsent(entity, dc.tintColor());
+              dc.tintColor(tint);
+            });
   }
 }

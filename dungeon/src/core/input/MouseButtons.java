@@ -8,6 +8,7 @@ package core.input;
  * corresponding button code integers.
  *
  * <p>Supported buttons:
+ *
  * <ul>
  *   <li>LEFT: Left mouse button (LMB)
  *   <li>RIGHT: Right mouse button (RMB)
@@ -40,9 +41,9 @@ public final class MouseButtons {
   /**
    * Converts a button code to its human-readable string representation.
    *
-   * <p>This method maps button code integers to their string names (e.g., LMB, RMB, MMB).
-   * For known buttons, it returns the button name or abbreviation. For unknown button codes,
-   * it returns a format string containing the raw button code (e.g., "MOUSE(5)").
+   * <p>This method maps button code integers to their string names (e.g., LMB, RMB, MMB). For known
+   * buttons, it returns the button name or abbreviation. For unknown button codes, it returns a
+   * format string containing the raw button code (e.g., "MOUSE(5)").
    *
    * @param button the button code to convert
    * @return the human-readable string representation of the button code

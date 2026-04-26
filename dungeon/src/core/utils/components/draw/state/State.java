@@ -93,9 +93,7 @@ public class State implements Serializable {
     return animation;
   }
 
-  /**
-   * Updates the animation state. This should be called regularly to progress animation frames.
-   */
+  /** Updates the animation state. This should be called regularly to progress animation frames. */
   public void update() {
     getAnimation().update();
   }
@@ -240,14 +238,14 @@ public class State implements Serializable {
   @Override
   public String toString() {
     return getClass().getSimpleName()
-      + "{"
-      + "name='"
-      + name
-      + '\''
-      + ", animation="
-      + animation
-      + ", data="
-      + data
-      + '}';
+        + "{"
+        + "name='"
+        + name
+        + '\''
+        + ", animation="
+        + animation
+        + ", data="
+        + data
+        + '}';
   }
 }

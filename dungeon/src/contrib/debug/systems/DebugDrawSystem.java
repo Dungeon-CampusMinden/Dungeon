@@ -1,15 +1,13 @@
 package contrib.debug.systems;
 
-import contrib.debug.draw.DebugDrawService;
 import contrib.debug.draw.DebugDrawRenderer;
+import contrib.debug.draw.DebugDrawService;
 import core.System;
 import core.camera.CameraViewportState;
 import core.game.render.RenderContext;
 import java.awt.Graphics2D;
 
-/**
- * ECS system responsible for draining queued debug draw calls and rendering them each frame.
- */
+/** ECS system responsible for draining queued debug draw calls and rendering them each frame. */
 public final class DebugDrawSystem extends System {
 
   /** Creates a new debug draw system. */

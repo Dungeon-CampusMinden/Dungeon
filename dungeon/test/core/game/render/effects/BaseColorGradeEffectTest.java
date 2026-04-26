@@ -29,7 +29,7 @@ class BaseColorGradeEffectTest {
   }
 
   private static final class TestColorGradeEffect
-    extends BaseColorGradeEffect<TestColorGradeEffect> {
+      extends BaseColorGradeEffect<TestColorGradeEffect> {
 
     @Override
     protected TestColorGradeEffect self() {

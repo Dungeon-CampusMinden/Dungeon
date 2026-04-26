@@ -7,8 +7,8 @@ import core.System;
  * A system that restores mana to all entities with a {@link ManaComponent}.
  *
  * <p>The restoration is based on the mana regeneration rate defined in each {@code ManaComponent}.
- * The amount restored per execution is calculated from the elapsed time since this system was
- * last executed.
+ * The amount restored per execution is calculated from the elapsed time since this system was last
+ * executed.
  */
 public class ManaRestoreSystem extends System {
 
@@ -40,7 +40,7 @@ public class ManaRestoreSystem extends System {
     }
 
     filteredEntityStream()
-      .flatMap(e -> e.fetch(ManaComponent.class).stream())
-      .forEach(m -> m.restore(m.restorePerSecond() * deltaSeconds));
+        .flatMap(e -> e.fetch(ManaComponent.class).stream())
+        .forEach(m -> m.restore(m.restorePerSecond() * deltaSeconds));
   }
 }

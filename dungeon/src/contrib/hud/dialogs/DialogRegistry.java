@@ -9,15 +9,16 @@ import java.util.function.Function;
 /**
  * Central registry for creating dialogs from {@link DialogContext}s.
  *
- * <p>Backends may either register new dialog creators, register weak fallbacks, or replace
- * existing creators with more specific implementations.
+ * <p>Backends may either register new dialog creators, register weak fallbacks, or replace existing
+ * creators with more specific implementations.
  *
  * @see DialogContext
  * @see DialogType
  */
 public final class DialogRegistry {
 
-  private static final Map<DialogType, Function<DialogContext, UiHandle>> REGISTRY = new HashMap<>();
+  private static final Map<DialogType, Function<DialogContext, UiHandle>> REGISTRY =
+      new HashMap<>();
 
   private DialogRegistry() {}
 

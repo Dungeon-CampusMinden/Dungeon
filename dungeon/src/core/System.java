@@ -70,21 +70,23 @@ public abstract class System {
   /**
    * Constructs a new instance of the System class.
    *
-   * @param authSide             The authoritative side of the system, which determines the source of control or validation logic.
-   * @param executeEveryXFrames  The number of frames after which the system should execute its logic. Must be greater than 0.
-   * @param executeEverySeconds  The time interval in seconds after which the system should execute its logic. Must be non-negative.
-   * @param filterRules          An optional varargs parameter specifying the classes of components that this system filters or operates upon.
-   *                             If null, an empty filter set will be initialized.
-   *
+   * @param authSide The authoritative side of the system, which determines the source of control or
+   *     validation logic.
+   * @param executeEveryXFrames The number of frames after which the system should execute its
+   *     logic. Must be greater than 0.
+   * @param executeEverySeconds The time interval in seconds after which the system should execute
+   *     its logic. Must be non-negative.
+   * @param filterRules An optional varargs parameter specifying the classes of components that this
+   *     system filters or operates upon. If null, an empty filter set will be initialized.
    * @throws IllegalArgumentException If executeEveryXFrames is less than or equal to 0.
    * @throws IllegalArgumentException If executeEverySeconds is negative.
    */
   @SafeVarargs
   public System(
-    AuthoritativeSide authSide,
-    int executeEveryXFrames,
-    float executeEverySeconds,
-    Class<? extends Component>... filterRules) {
+      AuthoritativeSide authSide,
+      int executeEveryXFrames,
+      float executeEverySeconds,
+      Class<? extends Component>... filterRules) {
     if (executeEveryXFrames <= 0) {
       throw new IllegalArgumentException("executeEveryXFrames must be > 0");
     }
@@ -115,9 +117,9 @@ public abstract class System {
    */
   @SafeVarargs
   public System(
-    AuthoritativeSide authSide,
-    int executeEveryXFrames,
-    Class<? extends Component>... filterRules) {
+      AuthoritativeSide authSide,
+      int executeEveryXFrames,
+      Class<? extends Component>... filterRules) {
     this(authSide, executeEveryXFrames, 0f, filterRules);
   }
 
@@ -126,13 +128,14 @@ public abstract class System {
    *
    * @param authSide the authoritative side where this system operates
    * @param executeEverySeconds the interval, in seconds, at which this system should execute
-   * @param filterRules the set of component classes used as filter rules to determine system behavior
+   * @param filterRules the set of component classes used as filter rules to determine system
+   *     behavior
    */
   @SafeVarargs
   public System(
-    AuthoritativeSide authSide,
-    float executeEverySeconds,
-    Class<? extends Component>... filterRules) {
+      AuthoritativeSide authSide,
+      float executeEverySeconds,
+      Class<? extends Component>... filterRules) {
     this(authSide, DEFAULT_EVERY_FRAME_EXECUTE, executeEverySeconds, filterRules);
   }
 
@@ -140,7 +143,8 @@ public abstract class System {
    * Constructs a new System instance with the specified execution interval and filter rules.
    *
    * @param executeEverySeconds The interval, in seconds, at which the system should execute.
-   * @param filterRules         The filter rules defining which types of components this system will process.
+   * @param filterRules The filter rules defining which types of components this system will
+   *     process.
    */
   @SafeVarargs
   public System(float executeEverySeconds, Class<? extends Component>... filterRules) {
@@ -318,8 +322,8 @@ public abstract class System {
   }
 
   /**
-   * @return the time interval in seconds between executing; values {@code <= 0} mean that frame-based
-   *     scheduling is used instead
+   * @return the time interval in seconds between executing; values {@code <= 0} mean that
+   *     frame-based scheduling is used instead
    */
   public float executeEverySeconds() {
     return executeEverySeconds;

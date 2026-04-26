@@ -14,8 +14,8 @@ import java.io.Serializable;
  *
  * <p>Various systems access the position of an entity through this component. For example, {@link
  * core.systems.VelocitySystem} updates the position and direction of view values based on the
- * velocity and the previous position of an entity, while rendering systems use it to draw an
- * entity in the right place.
+ * velocity and the previous position of an entity, while rendering systems use it to draw an entity
+ * in the right place.
  *
  * <p>If the position is the {@link #ILLEGAL_POSITION}, the {@link core.systems.PositionSystem} will
  * change the position to a random position of an accessible tile in the current level.

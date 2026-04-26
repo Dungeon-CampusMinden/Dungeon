@@ -23,11 +23,11 @@ public final class InteractionChoices {
     Objects.requireNonNull(interactable, "interactable must not be null");
 
     return List.of(
-      interactable.look(),
-      interactable.interact(),
-      interactable.take(),
-      interactable.talk(),
-      interactable.usewithitem(),
-      interactable.attack());
+        interactable.look(),
+        interactable.interact(),
+        interactable.take(),
+        interactable.talk(),
+        interactable.usewithitem(),
+        interactable.attack());
   }
 }

@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Manages the UI state for player inventories, such as whether the inventory dialog
- * for a specific player is open or closed.
+ * Manages the UI state for player inventories, such as whether the inventory dialog for a specific
+ * player is open or closed.
  *
  * <p>This class provides static methods to interact with player inventory states, including
  * checking, updating, and clearing the inventory open state for players.

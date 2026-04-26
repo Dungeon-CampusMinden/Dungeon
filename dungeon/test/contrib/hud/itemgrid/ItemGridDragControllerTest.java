@@ -57,7 +57,8 @@ public class ItemGridDragControllerTest {
     return controller;
   }
 
-  private boolean differentSide(ItemGridHitTest.Slot<Side> source, ItemGridHitTest.Slot<Side> target) {
+  private boolean differentSide(
+      ItemGridHitTest.Slot<Side> source, ItemGridHitTest.Slot<Side> target) {
     return source.side() != target.side();
   }
 

@@ -9,13 +9,12 @@ import java.awt.image.BufferedImage;
 /**
  * Applies HSV-style color grading to the fully rendered scene image.
  *
- * <p>The shared color grading, region, transition, and enabled-state behavior lives in
- * {@link BaseColorGradeEffect}. This class supplies scene-buffer to world-space coordinate
- * mapping and the scene effect API.
+ * <p>The shared color grading, region, transition, and enabled-state behavior lives in {@link
+ * BaseColorGradeEffect}. This class supplies scene-buffer to world-space coordinate mapping and the
+ * scene effect API.
  */
-public final class SceneColorGradeEffect
-  extends BaseColorGradeEffect<SceneColorGradeEffect>
-  implements SceneEffect, ToggleableEffect<SceneColorGradeEffect> {
+public final class SceneColorGradeEffect extends BaseColorGradeEffect<SceneColorGradeEffect>
+    implements SceneEffect, ToggleableEffect<SceneColorGradeEffect> {
 
   /** Creates a neutral scene color-grade effect that leaves the scene unchanged. */
   public SceneColorGradeEffect() {
@@ -29,8 +28,7 @@ public final class SceneColorGradeEffect
    * @param saturationMultiplier saturation multiplier; negative values are clamped to 0
    * @param valueMultiplier value/brightness multiplier; negative values are clamped to 0
    */
-  public SceneColorGradeEffect(
-    float hue, float saturationMultiplier, float valueMultiplier) {
+  public SceneColorGradeEffect(float hue, float saturationMultiplier, float valueMultiplier) {
     super(hue, saturationMultiplier, valueMultiplier);
   }
 
@@ -46,8 +44,8 @@ public final class SceneColorGradeEffect
     }
 
     return applyColorGrade(
-      input,
-      (screenX, screenY) ->
-        CameraViewportState.screenToWorld(new Point((float) screenX, (float) screenY)));
+        input,
+        (screenX, screenY) ->
+            CameraViewportState.screenToWorld(new Point((float) screenX, (float) screenY)));
   }
 }

@@ -15,9 +15,7 @@ public final class ListTilePath implements TilePath {
   /** The internal list holding the tiles that make up this path. */
   private final List<Tile> tiles;
 
-  /**
-   * Creates an empty {@code ListTilePath} with no tiles.
-   */
+  /** Creates an empty {@code ListTilePath} with no tiles. */
   public ListTilePath() {
     this.tiles = List.of();
   }
@@ -28,8 +26,8 @@ public final class ListTilePath implements TilePath {
    * <p>The order of the tiles in the new path matches the iteration order of the provided
    * collection.
    *
-   * @param tiles the collection of tiles to initialize this path with; must not be {@code null}
-   *     and must not contain {@code null} elements
+   * @param tiles the collection of tiles to initialize this path with; must not be {@code null} and
+   *     must not contain {@code null} elements
    */
   public ListTilePath(final Collection<Tile> tiles) {
     this.tiles = List.copyOf(tiles);
@@ -50,8 +48,8 @@ public final class ListTilePath implements TilePath {
    *
    * @param index zero-based index of the tile to return
    * @return the tile at the given index
-   * @throws IndexOutOfBoundsException if {@code index} is out of range
-   *     ({@code index < 0 || index >= size()})
+   * @throws IndexOutOfBoundsException if {@code index} is out of range ({@code index < 0 || index
+   *     >= size()})
    */
   @Override
   public Tile get(final int index) {

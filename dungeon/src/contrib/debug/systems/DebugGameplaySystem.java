@@ -27,23 +27,23 @@ public class DebugGameplaySystem extends System {
   private final DebugPauseController pauseController = new DebugPauseController();
 
   private final DebugInputHandler.Actions inputActions =
-    new DebugInputHandler.Actions(
-      () -> DebugGameplayActions.zoomCamera(-0.2f),
-      () -> DebugGameplayActions.zoomCamera(0.2f),
-      DebugGameplayActions::teleportToCursor,
-      DebugGameplayActions::teleportToEndNeighbor,
-      DebugGameplayActions::teleportToStart,
-      DebugGameplayActions::teleportToExit,
-      () -> {
-        if (!levelEditorActive()) {
-          spawnMonsterOnCursor();
-        }
-      },
-      DebugGameplayActions::openDoors,
-      () -> Platform.window().toggleFullscreen(),
-      pauseController::togglePause,
-      pauseController::advanceFrame,
-      () -> Platform.render().toggleDebugHud());
+      new DebugInputHandler.Actions(
+          () -> DebugGameplayActions.zoomCamera(-0.2f),
+          () -> DebugGameplayActions.zoomCamera(0.2f),
+          DebugGameplayActions::teleportToCursor,
+          DebugGameplayActions::teleportToEndNeighbor,
+          DebugGameplayActions::teleportToStart,
+          DebugGameplayActions::teleportToExit,
+          () -> {
+            if (!levelEditorActive()) {
+              spawnMonsterOnCursor();
+            }
+          },
+          DebugGameplayActions::openDoors,
+          () -> Platform.window().toggleFullscreen(),
+          pauseController::togglePause,
+          pauseController::advanceFrame,
+          () -> Platform.render().toggleDebugHud());
 
   /** Creates a new debug gameplay system. */
   public DebugGameplaySystem() {

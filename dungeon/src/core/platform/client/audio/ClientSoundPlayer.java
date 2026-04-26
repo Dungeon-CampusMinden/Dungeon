@@ -15,21 +15,18 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Client-side implementation of the sound player interface.
  *
- * <p>This class provides sound playback capabilities, managing active sound instances and
- * applying updates such as volume, looping, and pause/resume functionality. It wraps the
- * underlying audio engine and handles sound resource resolution from multiple possible
- * directories.
+ * <p>This class provides sound playback capabilities, managing active sound instances and applying
+ * updates such as volume, looping, and pause/resume functionality. It wraps the underlying audio
+ * engine and handles sound resource resolution from multiple possible directories.
  *
- * <p>Note: Pan and pitch adjustments are not supported by the current audio engine and
- * will be logged as ignored when requested.
+ * <p>Note: Pan and pitch adjustments are not supported by the current audio engine and will be
+ * logged as ignored when requested.
  */
 public final class ClientSoundPlayer implements ISoundPlayer {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientSoundPlayer.class);
 
   private static final String[] SOUND_DIRS = {
-    "sounds/",
-    "assets/sounds/",
-    "dungeon/assets/sounds/"
+    "sounds/", "assets/sounds/", "dungeon/assets/sounds/"
   };
   private static final String[] EXT = {".wav", ".ogg", ".mp3"};
 
@@ -37,13 +34,13 @@ public final class ClientSoundPlayer implements ISoundPlayer {
 
   @Override
   public Optional<PlayHandle> playWithInstance(
-    long instanceId,
-    String soundName,
-    float volume,
-    boolean looping,
-    float pitch,
-    float pan,
-    Runnable onFinished) {
+      long instanceId,
+      String soundName,
+      float volume,
+      boolean looping,
+      float pitch,
+      float pan,
+      Runnable onFinished) {
 
     if (volume < 0f || volume > 1f) throw new IllegalArgumentException("Volume must be in [0,1].");
     if (soundName == null || soundName.isBlank()) return Optional.empty();
@@ -69,7 +66,8 @@ public final class ClientSoundPlayer implements ISoundPlayer {
       SFXPlayback playback = Game.audio().playSound(s, looping, maxDistance, volume);
 
       if (playback == null) {
-        LOGGER.warn("Failed to play sound '{}' (resolved='{}'): playback is null", soundName, resolved);
+        LOGGER.warn(
+            "Failed to play sound '{}' (resolved='{}'): playback is null", soundName, resolved);
         return Optional.empty();
       }
 
@@ -135,10 +133,13 @@ public final class ClientSoundPlayer implements ISoundPlayer {
 
   @Override
   public void update(float delta) {
-    active.values().removeIf(h -> {
-      h.update(delta);
-      return h.isFinished() && !h.isPlaying();
-    });
+    active
+        .values()
+        .removeIf(
+            h -> {
+              h.update(delta);
+              return h.isFinished() && !h.isPlaying();
+            });
   }
 
   @Override
@@ -155,12 +156,12 @@ public final class ClientSoundPlayer implements ISoundPlayer {
   }
 
   /**
-   * A client-side implementation of {@link PlayHandle} that manages the lifecycle and controls
-   * of a sound playback instance.
+   * A client-side implementation of {@link PlayHandle} that manages the lifecycle and controls of a
+   * sound playback instance.
    *
    * <p>This implementation works in conjunction with {@link Sound} and {@link SFXPlayback} to
-   * control playback parameters such as volume and looping, as well as to handle events like
-   * sound completion or cancellation.
+   * control playback parameters such as volume and looping, as well as to handle events like sound
+   * completion or cancellation.
    */
   private static final class ClientPlayHandle extends PlayHandle {
     private final Sound sound;
@@ -185,17 +186,18 @@ public final class ClientSoundPlayer implements ISoundPlayer {
       this.looping = looping;
 
       // Hook finish and cancel events
-      this.playback.addSoundPlaybackListener(new SoundPlaybackListener() {
-        @Override
-        public void finished(SoundEvent event) {
-          finishOnce();
-        }
+      this.playback.addSoundPlaybackListener(
+          new SoundPlaybackListener() {
+            @Override
+            public void finished(SoundEvent event) {
+              finishOnce();
+            }
 
-        @Override
-        public void cancelled(SoundEvent event) {
-          finishOnce();
-        }
-      });
+            @Override
+            public void cancelled(SoundEvent event) {
+              finishOnce();
+            }
+          });
     }
 
     private void finishOnce() {

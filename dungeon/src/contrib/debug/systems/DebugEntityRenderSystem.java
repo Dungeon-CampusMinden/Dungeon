@@ -8,10 +8,10 @@ import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.System;
+import core.camera.CameraViewportState;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.input.Keys;
-import core.camera.CameraViewportState;
 import core.platform.Platform;
 import core.platform.adapters.CursorAdapter;
 import core.utils.InputManager;
@@ -23,13 +23,13 @@ import java.awt.Color;
 import java.util.Arrays;
 
 /**
- * The {@code DebugEntityRenderSystem} is responsible for rendering debug information
- * for various entities within the game world during runtime. This includes visualizing
- * their position, orientation, and relevant components such as collision bounds,
- * interaction ranges, and animations.
+ * The {@code DebugEntityRenderSystem} is responsible for rendering debug information for various
+ * entities within the game world during runtime. This includes visualizing their position,
+ * orientation, and relevant components such as collision bounds, interaction ranges, and
+ * animations.
  *
- * <p>This system operates on the client-side and processes entities containing a
- * {@code PositionComponent}.
+ * <p>This system operates on the client-side and processes entities containing a {@code
+ * PositionComponent}.
  */
 public final class DebugEntityRenderSystem extends System {
 
@@ -50,9 +50,9 @@ public final class DebugEntityRenderSystem extends System {
   /**
    * Constructs a new instance of the DebugEntityRenderSystem.
    *
-   * <p>This system is responsible for rendering debugging information about entities,
-   * such as their positions, view directions, interaction ranges, and other visual
-   * overlays typically used for debugging purposes during development.
+   * <p>This system is responsible for rendering debugging information about entities, such as their
+   * positions, view directions, interaction ranges, and other visual overlays typically used for
+   * debugging purposes during development.
    */
   public DebugEntityRenderSystem() {
     super(AuthoritativeSide.CLIENT, PositionComponent.class);
@@ -72,9 +72,9 @@ public final class DebugEntityRenderSystem extends System {
 
   private void drawEntityDebug(Entity entity) {
     PositionComponent pc =
-      entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     boolean isDeco = entity.isPresent(DecoComponent.class);
     float alpha = isDeco ? 0.4f : 1.0f;
@@ -83,12 +83,11 @@ public final class DebugEntityRenderSystem extends System {
     Point centerPos = EntityUtils.getPosition(entity);
     Vector2 view = pc.viewDirection();
 
-    DebugDrawService.drawWorldCircleFill(
-      position, POSITION_RADIUS, withAlpha(Color.ORANGE, alpha));
+    DebugDrawService.drawWorldCircleFill(position, POSITION_RADIUS, withAlpha(Color.ORANGE, alpha));
 
     if (!samePoint(position, centerPos)) {
       DebugDrawService.drawWorldCircleFill(
-        centerPos, POSITION_RADIUS, withAlpha(Color.BLUE, alpha));
+          centerPos, POSITION_RADIUS, withAlpha(Color.BLUE, alpha));
     }
 
     if (!isDeco) {
@@ -120,14 +119,10 @@ public final class DebugEntityRenderSystem extends System {
     DebugDrawService.drawWorldLine(position, end, Color.YELLOW);
 
     Point leftHead =
-      new Point(
-        end.x() - view.y() * ARROW_HEAD_SIZE,
-        end.y() + view.x() * ARROW_HEAD_SIZE);
+        new Point(end.x() - view.y() * ARROW_HEAD_SIZE, end.y() + view.x() * ARROW_HEAD_SIZE);
 
     Point rightHead =
-      new Point(
-        end.x() + view.y() * ARROW_HEAD_SIZE,
-        end.y() - view.x() * ARROW_HEAD_SIZE);
+        new Point(end.x() + view.y() * ARROW_HEAD_SIZE, end.y() - view.x() * ARROW_HEAD_SIZE);
 
     DebugDrawService.drawWorldLine(end, leftHead, Color.YELLOW);
     DebugDrawService.drawWorldLine(end, rightHead, Color.YELLOW);
@@ -135,9 +130,9 @@ public final class DebugEntityRenderSystem extends System {
 
   private void drawCollideHitbox(Entity entity, float alpha) {
     CollideComponent cc =
-      entity
-        .fetch(CollideComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, CollideComponent.class));
+        entity
+            .fetch(CollideComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, CollideComponent.class));
 
     Point bottomLeft = cc.collider().absoluteBottomLeft();
     Point topRight = cc.collider().absoluteTopRight();
@@ -148,26 +143,25 @@ public final class DebugEntityRenderSystem extends System {
     Color color = cc.isSolid() ? Color.RED : Color.WHITE;
 
     DebugDrawService.drawRectangleOutline(
-      bottomLeft.x(), bottomLeft.y(), width, height, withAlpha(color, alpha));
+        bottomLeft.x(), bottomLeft.y(), width, height, withAlpha(color, alpha));
   }
 
   private void drawInteractionRange(Entity entity, Point pos, float alpha) {
     InteractionComponent ic =
-      entity
-        .fetch(InteractionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, InteractionComponent.class));
+        entity
+            .fetch(InteractionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, InteractionComponent.class));
 
     float radius = ic.interactions().interact().range();
 
-    DebugDrawService.drawWorldCircleOutline(
-      pos, radius, withAlpha(Color.CYAN, alpha));
+    DebugDrawService.drawWorldCircleOutline(pos, radius, withAlpha(Color.CYAN, alpha));
   }
 
   private void drawTextureBounds(Entity entity, PositionComponent pc, float alpha) {
     DrawComponent dc =
-      entity
-        .fetch(DrawComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+        entity
+            .fetch(DrawComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
 
     Animation animation = dc.currentAnimation();
     if (animation == null) {
@@ -185,8 +179,7 @@ public final class DebugEntityRenderSystem extends System {
       y -= height / 2f;
     }
 
-    DebugDrawService.drawRectangleOutline(
-      x, y, width, height, withAlpha(Color.GREEN, alpha));
+    DebugDrawService.drawRectangleOutline(x, y, width, height, withAlpha(Color.GREEN, alpha));
   }
 
   private boolean isEntityHovered(Entity entity, PositionComponent pc) {
@@ -195,39 +188,39 @@ public final class DebugEntityRenderSystem extends System {
     int mouseY = cursor.screenY();
 
     return entity
-      .fetch(DrawComponent.class)
-      .map(
-        dc -> {
-          Animation animation = dc.currentAnimation();
-          if (animation == null) {
-            return false;
-          }
+        .fetch(DrawComponent.class)
+        .map(
+            dc -> {
+              Animation animation = dc.currentAnimation();
+              if (animation == null) {
+                return false;
+              }
 
-          float widthWorld = animation.getWidth() * pc.scale().x();
-          float heightWorld = animation.getHeight() * pc.scale().y();
+              float widthWorld = animation.getWidth() * pc.scale().x();
+              float heightWorld = animation.getHeight() * pc.scale().y();
 
-          float x = pc.position().x();
-          float y = pc.position().y();
+              float x = pc.position().x();
+              float y = pc.position().y();
 
-          if (animation.getConfig().centered()) {
-            x -= widthWorld / 2f;
-            y -= heightWorld / 2f;
-          }
+              if (animation.getConfig().centered()) {
+                x -= widthWorld / 2f;
+                y -= heightWorld / 2f;
+              }
 
-          Point bottomLeftScreen = CameraViewportState.worldToScreen(new Point(x, y));
+              Point bottomLeftScreen = CameraViewportState.worldToScreen(new Point(x, y));
 
-          int widthPx = CameraViewportState.worldLengthToScreen(widthWorld);
-          int heightPx = CameraViewportState.worldLengthToScreen(heightWorld);
+              int widthPx = CameraViewportState.worldLengthToScreen(widthWorld);
+              int heightPx = CameraViewportState.worldLengthToScreen(heightWorld);
 
-          int left = Math.round(bottomLeftScreen.x());
-          int top = Math.round(bottomLeftScreen.y()) - heightPx;
+              int left = Math.round(bottomLeftScreen.x());
+              int top = Math.round(bottomLeftScreen.y()) - heightPx;
 
-          return left <= mouseX
-            && mouseX <= left + widthPx
-            && top <= mouseY
-            && mouseY <= top + heightPx;
-        })
-      .orElseGet(() -> pc.position().distance(cursor.world()) < HOVER_RADIUS);
+              return left <= mouseX
+                  && mouseX <= left + widthPx
+                  && top <= mouseY
+                  && mouseY <= top + heightPx;
+            })
+        .orElseGet(() -> pc.position().distance(cursor.world()) < HOVER_RADIUS);
   }
 
   private void drawEntityInfo(Entity entity, PositionComponent pc) {
@@ -239,17 +232,9 @@ public final class DebugEntityRenderSystem extends System {
     int bgHeight = lines.length * INFO_LINE_HEIGHT + INFO_PADDING * 2;
 
     Point anchor = CameraViewportState.worldToScreen(pc.position());
-    Point topLeft =
-      new Point(
-        anchor.x() + INFO_OFFSET_X,
-        anchor.y() - bgHeight - INFO_OFFSET_Y);
+    Point topLeft = new Point(anchor.x() + INFO_OFFSET_X, anchor.y() - bgHeight - INFO_OFFSET_Y);
 
-    DebugDrawService.drawScreenRectangle(
-      topLeft,
-      bgWidth,
-      bgHeight,
-      INFO_BACKGROUND,
-      INFO_OUTLINE);
+    DebugDrawService.drawScreenRectangle(topLeft, bgWidth, bgHeight, INFO_BACKGROUND, INFO_OUTLINE);
 
     float textX = topLeft.x() + INFO_PADDING;
     float textY = topLeft.y() + INFO_PADDING + 10;
@@ -266,7 +251,7 @@ public final class DebugEntityRenderSystem extends System {
 
   private static boolean isShiftPressed() {
     return InputManager.isKeyPressed(Keys.SHIFT_LEFT)
-      || InputManager.isKeyPressed(Keys.SHIFT_RIGHT);
+        || InputManager.isKeyPressed(Keys.SHIFT_RIGHT);
   }
 
   private static Color withAlpha(Color color, float alpha) {

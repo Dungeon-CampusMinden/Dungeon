@@ -12,8 +12,8 @@ import java.awt.Graphics2D;
  * <p>This class provides methods to draw styled tooltips for items, displaying their name and
  * description.
  *
- * <p>Tooltips are automatically positioned to stay within the viewport boundaries
- * and avoid clipping at screen edges.
+ * <p>Tooltips are automatically positioned to stay within the viewport boundaries and avoid
+ * clipping at screen edges.
  */
 public final class ItemTooltipRenderer {
 
@@ -33,9 +33,9 @@ public final class ItemTooltipRenderer {
   /**
    * Draws an item tooltip at the specified mouse position.
    *
-   * <p>The tooltip displays the item's display name and description. It automatically adjusts
-   * its position to remain visible within the viewport, repositioning to the left or top if
-   * it extends beyond the right or bottom edges.
+   * <p>The tooltip displays the item's display name and description. It automatically adjusts its
+   * position to remain visible within the viewport, repositioning to the left or top if it extends
+   * beyond the right or bottom edges.
    *
    * @param g the Graphics2D object to draw with
    * @param item the item to display a tooltip for (might be null)
@@ -45,17 +45,17 @@ public final class ItemTooltipRenderer {
    * @param viewportHeight the viewport height in pixels
    */
   public static void drawTooltip(
-    Graphics2D g, Item item, int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
+      Graphics2D g, Item item, int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
     if (g == null || item == null) {
       return;
     }
 
     String itemTitle = displayName(item);
     String formattedDescription =
-      UIUtils.formatString(item.description() == null ? "" : item.description());
+        UIUtils.formatString(item.description() == null ? "" : item.description());
 
     String[] descriptionLines =
-      formattedDescription.isBlank() ? new String[0] : formattedDescription.split("\\R");
+        formattedDescription.isBlank() ? new String[0] : formattedDescription.split("\\R");
 
     FontMetrics metrics = g.getFontMetrics();
 
@@ -65,7 +65,7 @@ public final class ItemTooltipRenderer {
     }
 
     int tooltipWidth =
-      Math.max(metrics.stringWidth(itemTitle), descriptionWidth) + 2 * TOOLTIP_PADDING_X;
+        Math.max(metrics.stringWidth(itemTitle), descriptionWidth) + 2 * TOOLTIP_PADDING_X;
 
     int tooltipHeight = 2 * TOOLTIP_PADDING_Y + metrics.getAscent();
     if (descriptionLines.length > 0) {
@@ -111,8 +111,8 @@ public final class ItemTooltipRenderer {
   /**
    * Gets the display name for an item.
    *
-   * <p>If the item has a display name, it is returned. Otherwise, the simple class name of the
-   * item is returned as a fallback.
+   * <p>If the item has a display name, it is returned. Otherwise, the simple class name of the item
+   * is returned as a fallback.
    *
    * @param item the item to get the display name for (might be null)
    * @return the display name or an empty string if the item is null
@@ -124,7 +124,7 @@ public final class ItemTooltipRenderer {
 
     String displayName = item.displayName();
     return displayName == null || displayName.isBlank()
-      ? item.getClass().getSimpleName()
-      : displayName;
+        ? item.getClass().getSimpleName()
+        : displayName;
   }
 }

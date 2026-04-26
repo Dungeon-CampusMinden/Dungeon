@@ -1,10 +1,10 @@
 package contrib.hud.dialogs.overlays;
 
 import contrib.hud.dialogs.DialogCallbackResolver;
-import contrib.hud.dialogs.input.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.frame.DialogFrameMetrics;
 import contrib.hud.dialogs.frame.DialogFrameRenderer;
+import contrib.hud.dialogs.input.DialogButtonInputHandler;
 import core.input.Keys;
 import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
@@ -19,18 +19,19 @@ import java.util.List;
  * <p>It displays a dialog with customizable title, question, placeholder text, and button labels,
  * allowing the user to input text and interact through confirm or cancel actions.
  *
- * <p>The dialog is drawn in a graphical context and responds to user input such as typing,
- * clicking buttons, or pressing control keys.
+ * <p>The dialog is drawn in a graphical context and responds to user input such as typing, clicking
+ * buttons, or pressing control keys.
  *
- * <p>This class is intended to be used as part of a user interface overlay system
- * and interacts with game stages and input management.
+ * <p>This class is intended to be used as part of a user interface overlay system and interacts
+ * with game stages and input management.
  *
  * <p>Features:
+ *
  * <ul>
- *    <li>Renders a dialog frame with a title, question, and input field.</li>
- *    <li>Allows text input with optional placeholder text.</li>
- *    <li>Supports customizable button labels and button actions.</li>
- *    <li>Handles user interactions with keyboard and mouse inputs.</li>
+ *   <li>Renders a dialog frame with a title, question, and input field.
+ *   <li>Allows text input with optional placeholder text.
+ *   <li>Supports customizable button labels and button actions.
+ *   <li>Handles user interactions with keyboard and mouse inputs.
  * </ul>
  */
 public final class FreeInputDialogOverlay extends BaseUiOverlay {
@@ -76,13 +77,13 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
    * @param dialogId id used to resolve callbacks
    */
   public FreeInputDialogOverlay(
-    String title,
-    String question,
-    String prefill,
-    String placeholder,
-    String confirmLabel,
-    String cancelLabel,
-    String dialogId) {
+      String title,
+      String question,
+      String prefill,
+      String placeholder,
+      String confirmLabel,
+      String cancelLabel,
+      String dialogId) {
     super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.title = title;
     this.question = question;
@@ -105,26 +106,23 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
     buttonInput.updateBounds(buttons);
     handleInput();
 
-    DialogFrameRenderer.RenderState state =
-      DialogFrameRenderer.beginDialog(g);
+    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
 
     try {
       int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, title);
 
       int afterQuestionY =
-        DialogFrameRenderer.drawWrappedText(
-          g,
-          question,
-          x + DialogFrameMetrics.PADDING,
-          textY,
-          width - 2 * DialogFrameMetrics.PADDING);
+          DialogFrameRenderer.drawWrappedText(
+              g,
+              question,
+              x + DialogFrameMetrics.PADDING,
+              textY,
+              width - 2 * DialogFrameMetrics.PADDING);
 
       drawInputField(g, afterQuestionY + 14);
 
-      DialogFrameRenderer.drawButton(
-        g, buttons.get(0), confirmLabel, buttonInput.isPressed(0));
-      DialogFrameRenderer.drawButton(
-        g, buttons.get(1), cancelLabel, buttonInput.isPressed(1));
+      DialogFrameRenderer.drawButton(g, buttons.get(0), confirmLabel, buttonInput.isPressed(0));
+      DialogFrameRenderer.drawButton(g, buttons.get(1), cancelLabel, buttonInput.isPressed(1));
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
     }
@@ -151,7 +149,10 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
     }
 
     int textX = input.x + 12;
-    int textY = input.y + ((input.height - g.getFontMetrics().getHeight()) / 2) + g.getFontMetrics().getAscent();
+    int textY =
+        input.y
+            + ((input.height - g.getFontMetrics().getHeight()) / 2)
+            + g.getFontMetrics().getAscent();
     g.drawString(shownText, textX, textY);
   }
 
@@ -206,12 +207,11 @@ public final class FreeInputDialogOverlay extends BaseUiOverlay {
 
   private void onSubmit() {
     DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.INPUT_CALLBACK)
-      .accept(inputText.toString());
+        .accept(inputText.toString());
   }
 
   private void onCancel() {
-    DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CANCEL)
-      .accept(null);
+    DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CANCEL).accept(null);
   }
 
   private Rectangle inputBounds(int preferredY) {

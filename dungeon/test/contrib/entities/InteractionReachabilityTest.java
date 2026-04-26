@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogType;
+import contrib.systems.ColliderSyncSystem;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -12,7 +13,6 @@ import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
-import contrib.systems.ColliderSyncSystem;
 import core.utils.Point;
 import java.util.Arrays;
 import java.util.Set;

@@ -3,6 +3,10 @@ package contrib.hud.crafting;
 import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingType;
 import contrib.hud.InventoryDialogProvider;
+import contrib.hud.crafting.input.CraftingDragDropController;
+import contrib.hud.crafting.input.CraftingTooltipController;
+import contrib.hud.crafting.render.CraftingActionRenderer;
+import contrib.hud.crafting.render.CraftingPanelRenderer;
 import contrib.hud.itemgrid.BaseItemGridOverlay;
 import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.render.InventoryGridRenderer;
@@ -20,30 +24,11 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Represents a dialog overlay component in the user interface for crafting items.
+ * Represents an overlay for a crafting dialog, extending the base item grid overlay framework
+ * to handle crafting-specific interactions, rendering, and input handling.
  *
- * <p>This overlay handles rendering, input processing, and managing the crafting UI logic, such as displaying
- * inventory slots, crafting slots, crafting results, and tooltips. It also provides drag-and-drop
- * functionality and interacts with the crafting system to facilitate item crafting.
- *
- * <p>The overlay operates based on the provided crafting and target inventories, as managed by the
- * {@code CraftingDialogController}. It dynamically calculates and adjusts its layout and dimensions
- * based on the crafting requirements and the visible inventory slots.
- *
- * <p>This class ensures responsiveness to user interactions, including mouse input, drag-and-drop
- * operations, and tooltip rendering for crafting items. It maintains an internal state for the
- * visibility, dimensions, and positioning of the dialog.
- *
- * <p>It extends a shared dialog overlay base and implements {@code InventoryDialogProvider} to
- * supply associated inventory components.
- *
- * <p>Responsibilities:
- * <ul>
- *   <li>Rendering the crafting dialog overlay with inventory panels, crafting slots, and result items.</li>
- *   <li>Handling user input for dragging, dropping, and crafting actions.</li>
- *   <li>Displaying dynamic tooltips and interactive feedback within the crafting dialog.</li>
- *   <li>Managing visibility, dimensions, and layout of the overlay.</li>
- * </ul>
+ * <p>This class is responsible for managing the layout, drawing, drag-and-drop functionality,
+ * and tooltips for the crafting dialog interface.
  */
 final class CraftingDialogOverlay
     extends BaseItemGridOverlay<
@@ -137,7 +122,8 @@ final class CraftingDialogOverlay
         resultBounds);
     actionRenderer.draw(g);
 
-    return new CraftingRenderState(layoutState, leftGrid, craftingBounds, resultItems, resultBounds);
+    return new CraftingRenderState(
+        layoutState, leftGrid, craftingBounds, resultItems, resultBounds);
   }
 
   private Item[] currentResultItems() {

@@ -19,16 +19,12 @@ class ClientInputBridgeTest {
 
   @Test
   void mapsLeftShiftToLeftShiftKey() throws Exception {
-    assertEquals(
-      Keys.SHIFT_LEFT,
-      mapAwtKey(KeyEvent.VK_SHIFT, KeyEvent.KEY_LOCATION_LEFT));
+    assertEquals(Keys.SHIFT_LEFT, mapAwtKey(KeyEvent.VK_SHIFT, KeyEvent.KEY_LOCATION_LEFT));
   }
 
   @Test
   void mapsRightShiftToRightShiftKey() throws Exception {
-    assertEquals(
-      Keys.SHIFT_RIGHT,
-      mapAwtKey(KeyEvent.VK_SHIFT, KeyEvent.KEY_LOCATION_RIGHT));
+    assertEquals(Keys.SHIFT_RIGHT, mapAwtKey(KeyEvent.VK_SHIFT, KeyEvent.KEY_LOCATION_RIGHT));
   }
 
   @Test
@@ -110,19 +106,18 @@ class ClientInputBridgeTest {
 
   private static Set<Integer> expectedMappedKeys() {
     return Arrays.stream(Keys.class.getFields())
-      .filter(field -> field.getType() == int.class)
-      .filter(field -> Modifier.isStatic(field.getModifiers()))
-      .filter(field -> Modifier.isFinal(field.getModifiers()))
-      .filter(field -> !field.getName().equals("ANY_KEY"))
-      .filter(field -> !field.getName().equals("UNKNOWN"))
-      .map(ClientInputBridgeTest::readIntField)
-      .collect(Collectors.toSet());
+        .filter(field -> field.getType() == int.class)
+        .filter(field -> Modifier.isStatic(field.getModifiers()))
+        .filter(field -> Modifier.isFinal(field.getModifiers()))
+        .filter(field -> !field.getName().equals("ANY_KEY"))
+        .filter(field -> !field.getName().equals("UNKNOWN"))
+        .map(ClientInputBridgeTest::readIntField)
+        .collect(Collectors.toSet());
   }
 
   private static int mapAwtKey(int awtKey, int keyLocation) throws Exception {
     Method method =
-      ClientInputBridge.class.getDeclaredMethod(
-        "mapAwtKeyToInputCode", int.class, int.class);
+        ClientInputBridge.class.getDeclaredMethod("mapAwtKeyToInputCode", int.class, int.class);
     method.setAccessible(true);
     return (int) method.invoke(null, awtKey, keyLocation);
   }

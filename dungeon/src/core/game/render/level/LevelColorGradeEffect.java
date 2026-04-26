@@ -8,13 +8,12 @@ import java.awt.image.BufferedImage;
 /**
  * Applies HSV-style color grading to the rendered level layer only.
  *
- * <p>The shared color grading, region, transition, and enabled-state behavior lives in
- * {@link BaseColorGradeEffect}. This class supplies level-buffer to world-space coordinate
- * mapping and the level effect API.
+ * <p>The shared color grading, region, transition, and enabled-state behavior lives in {@link
+ * BaseColorGradeEffect}. This class supplies level-buffer to world-space coordinate mapping and the
+ * level effect API.
  */
-public final class LevelColorGradeEffect
-  extends BaseColorGradeEffect<LevelColorGradeEffect>
-  implements LevelEffect, ToggleableEffect<LevelColorGradeEffect> {
+public final class LevelColorGradeEffect extends BaseColorGradeEffect<LevelColorGradeEffect>
+    implements LevelEffect, ToggleableEffect<LevelColorGradeEffect> {
 
   /** Creates a neutral level color-grade effect that leaves the level layer unchanged. */
   public LevelColorGradeEffect() {
@@ -28,8 +27,7 @@ public final class LevelColorGradeEffect
    * @param saturationMultiplier saturation multiplier; negative values are clamped to 0
    * @param valueMultiplier value/brightness multiplier; negative values are clamped to 0
    */
-  public LevelColorGradeEffect(
-    float hue, float saturationMultiplier, float valueMultiplier) {
+  public LevelColorGradeEffect(float hue, float saturationMultiplier, float valueMultiplier) {
     super(hue, saturationMultiplier, valueMultiplier);
   }
 
@@ -41,12 +39,11 @@ public final class LevelColorGradeEffect
   @Override
   public BufferedImage apply(BufferedImage input, LevelPassContext context, long nowMs) {
     return applyColorGrade(
-      input,
-      (bufferX, bufferY) -> worldPointForBufferPixel(bufferX, bufferY, context));
+        input, (bufferX, bufferY) -> worldPointForBufferPixel(bufferX, bufferY, context));
   }
 
   private static Point worldPointForBufferPixel(
-    int bufferX, int bufferY, LevelPassContext context) {
+      int bufferX, int bufferY, LevelPassContext context) {
     int tilePx = Math.max(1, context.tilePx());
 
     float worldX = context.minTileX() + ((bufferX + 0.5f) / tilePx);

@@ -16,8 +16,7 @@ import core.utils.logging.DungeonLogger;
  * be reused by different debug control entry points.
  */
 public final class DebugPauseController {
-  private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(DebugPauseController.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DebugPauseController.class);
 
   private enum FrameAdvanceState {
     IDLE,
@@ -57,7 +56,7 @@ public final class DebugPauseController {
         // nothing to do
       }
       case SKIP_CURRENT_EXECUTION ->
-        frameAdvanceState = FrameAdvanceState.PAUSE_AFTER_NEXT_EXECUTION;
+          frameAdvanceState = FrameAdvanceState.PAUSE_AFTER_NEXT_EXECUTION;
       case PAUSE_AFTER_NEXT_EXECUTION -> {
         pause();
         frameAdvanceState = FrameAdvanceState.IDLE;
@@ -68,8 +67,8 @@ public final class DebugPauseController {
   /**
    * Checks if the game is currently paused.
    *
-   * <p>This method determines the pause state by verifying if the pause menu is present
-   * and its associated UI dialog is attached to the UI handle.
+   * <p>This method determines the pause state by verifying if the pause menu is present and its
+   * associated UI dialog is attached to the UI handle.
    *
    * @return true if the game is currently paused, false otherwise
    */
@@ -78,16 +77,17 @@ public final class DebugPauseController {
       return false;
     }
 
-    return pauseMenu.fetch(UIComponent.class)
-      .flatMap(UIComponent::dialog)
-      .map(UiHandle::isAttached)
-      .orElse(false);
+    return pauseMenu
+        .fetch(UIComponent.class)
+        .flatMap(UIComponent::dialog)
+        .map(UiHandle::isAttached)
+        .orElse(false);
   }
 
   private void pause() {
     UIComponent ui =
-      DialogService.show(
-        DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
+        DialogService.show(
+            DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
 
     ui.dialog().ifPresent(dialog -> dialog.setVisible(true));
     pauseMenu = ui.dialogContext().ownerEntity();

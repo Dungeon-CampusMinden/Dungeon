@@ -5,9 +5,9 @@ import java.awt.Graphics2D;
 /**
  * A thread-local context holder for the current Graphics2D rendering surface.
  *
- * <p>This utility class provides thread-safe access to the active Graphics2D object
- * used during rendering. It allows render systems and other components to retrieve
- * the current graphics context without passing it through method parameters.
+ * <p>This utility class provides thread-safe access to the active Graphics2D object used during
+ * rendering. It allows render systems and other components to retrieve the current graphics context
+ * without passing it through method parameters.
  */
 public final class RenderContext {
   private static final ThreadLocal<Graphics2D> CURRENT = new ThreadLocal<>();
@@ -32,9 +32,7 @@ public final class RenderContext {
     return CURRENT.get();
   }
 
-  /**
-   * Clears the current Graphics2D rendering context for the calling thread.
-   */
+  /** Clears the current Graphics2D rendering context for the calling thread. */
   public static void clear() {
     CURRENT.remove();
   }

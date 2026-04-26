@@ -9,8 +9,8 @@ import java.awt.image.BufferedImage;
  * effects to rendered scene images. Scene effects are prioritized and applied sequentially in the
  * order defined by their priority and insertion sequence in the {@link SceneEffectRegistry}.
  *
- * <p>The {@code SceneEffectPipeline} is a global accessor to operations such as toggling all effects,
- * applying enabled effects, and managing the effect registry. It primarily interacts with
+ * <p>The {@code SceneEffectPipeline} is a global accessor to operations such as toggling all
+ * effects, applying enabled effects, and managing the effect registry. It primarily interacts with
  * {@link SceneEffectRegistry} and ensures that all operations are consistent with the underlying
  * registry.
  *
@@ -23,8 +23,8 @@ public final class SceneEffectPipeline {
   private SceneEffectPipeline() {}
 
   /**
-   * Retrieves the global {@link SceneEffectRegistry} instance used for managing scene effects
-   * in the rendering pipeline.
+   * Retrieves the global {@link SceneEffectRegistry} instance used for managing scene effects in
+   * the rendering pipeline.
    *
    * @return the singleton {@link SceneEffectRegistry} instance containing registered scene effects
    */
@@ -67,7 +67,7 @@ public final class SceneEffectPipeline {
       current = effect.apply(current, nowMs);
       if (current == null) {
         throw new IllegalStateException(
-          effect.getClass().getSimpleName() + " returned null scene image.");
+            effect.getClass().getSimpleName() + " returned null scene image.");
       }
     }
 

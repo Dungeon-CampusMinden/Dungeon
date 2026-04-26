@@ -27,8 +27,8 @@ public final class SpikeSystem extends System {
     }
 
     filteredEntityStream(SpikyComponent.class)
-      .map(e -> e.fetch(SpikyComponent.class))
-      .flatMap(Optional::stream)
-      .forEach(spiky -> spiky.reduceCoolDown(deltaSeconds));
+        .map(e -> e.fetch(SpikyComponent.class))
+        .flatMap(Optional::stream)
+        .forEach(spiky -> spiky.reduceCoolDown(deltaSeconds));
   }
 }

@@ -52,8 +52,8 @@ public class VelocitySystemTest {
     pc = new PositionComponent();
 
     Map<String, Animation> animationMap =
-      Animation.loadAnimationSpritesheet(
-        new SimpleIPath("test_assets/textures/test_hero/test_hero.png"));
+        Animation.loadAnimationSpritesheet(
+            new SimpleIPath("test_assets/textures/test_hero/test_hero.png"));
 
     State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
     State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");

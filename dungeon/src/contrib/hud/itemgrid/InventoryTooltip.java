@@ -83,8 +83,8 @@ public final class InventoryTooltip {
   }
 
   /**
-   * Functional interface for resolving a slot in an inventory-like overlay
-   * based on the current mouse position.
+   * Functional interface for resolving a slot in an inventory-like overlay based on the current
+   * mouse position.
    *
    * @param <S> the type representing the logical inventory side
    */

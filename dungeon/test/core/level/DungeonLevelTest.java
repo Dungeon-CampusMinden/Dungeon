@@ -9,13 +9,13 @@ import core.level.elements.tile.FloorTile;
 import core.level.elements.tile.TileFactory;
 import core.level.elements.tile.WallTile;
 import core.level.loader.parsers.V2FormatParser;
+import core.level.path.BfsPathfindingService;
 import core.level.path.TilePath;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelTransformations;
 import core.platform.Platform;
-import core.level.path.BfsPathfindingService;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
  * Tests for the {@link DungeonLevel} class.
  *
  * <p>This test class covers the core functionality of the DungeonLevel including:
+ *
  * <ul>
  *   <li>Level construction from tiles and level elements
  *   <li>Pathfinding on level layouts
@@ -76,16 +77,16 @@ public class DungeonLevelTest {
   @Test
   public void test_levelCTOR_Tiles() {
     Tile[][] tileLayout =
-      new Tile[][] {
-        {
-          new WallTile(new SimpleIPath(""), new Coordinate(0, 0), DesignLabel.DEFAULT),
-          new FloorTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT)
-        },
-        {
-          new WallTile(new SimpleIPath(""), new Coordinate(0, 1), DesignLabel.DEFAULT),
-          new ExitTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT)
-        }
-      };
+        new Tile[][] {
+          {
+            new WallTile(new SimpleIPath(""), new Coordinate(0, 0), DesignLabel.DEFAULT),
+            new FloorTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT)
+          },
+          {
+            new WallTile(new SimpleIPath(""), new Coordinate(0, 1), DesignLabel.DEFAULT),
+            new ExitTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT)
+          }
+        };
     DungeonLevel tileLevel = new DungeonLevel(tileLayout);
     Tile[][] layout = tileLevel.layout();
     assertArrayEquals(tileLayout, layout);
@@ -94,15 +95,15 @@ public class DungeonLevelTest {
   /**
    * Tests the construction of a DungeonLevel from a 2D array of LevelElement values.
    *
-   * <p>Verifies that LevelElements are correctly converted to appropriate Tile objects during
-   * level construction.
+   * <p>Verifies that LevelElements are correctly converted to appropriate Tile objects during level
+   * construction.
    */
   @Test
   public void test_levelCTOR_LevelElements() {
     LevelElement[][] elementsLayout =
-      new LevelElement[][] {
-        {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.EXIT}
-      };
+        new LevelElement[][] {
+          {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.EXIT}
+        };
     DungeonLevel tileLevel = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT);
     Tile[][] layout = tileLevel.layout();
     assertSame(elementsLayout[0][0], layout[0][0].levelElement());
@@ -112,8 +113,8 @@ public class DungeonLevelTest {
   }
 
   /**
-   * Tests the construction of a DungeonLevel from LevelElements and verifies that tile type
-   * lists are properly populated.
+   * Tests the construction of a DungeonLevel from LevelElements and verifies that tile type lists
+   * are properly populated.
    *
    * <p>Verifies that the level correctly categorizes tiles into their respective type lists
    * (floors, doors, holes, walls, and skips).
@@ -121,11 +122,11 @@ public class DungeonLevelTest {
   @Test
   public void test_levelCTOR_LevelElements_tileTypeLists() {
     LevelElement[][] elementsLayout =
-      new LevelElement[][] {
-        {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.EXIT, LevelElement.SKIP},
-        {LevelElement.WALL, LevelElement.WALL, LevelElement.SKIP, LevelElement.SKIP},
-        {LevelElement.DOOR, LevelElement.DOOR, LevelElement.HOLE, LevelElement.HOLE},
-      };
+        new LevelElement[][] {
+          {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.EXIT, LevelElement.SKIP},
+          {LevelElement.WALL, LevelElement.WALL, LevelElement.SKIP, LevelElement.SKIP},
+          {LevelElement.DOOR, LevelElement.DOOR, LevelElement.HOLE, LevelElement.HOLE},
+        };
     DungeonLevel tileLevel = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT);
     assertEquals(2, tileLevel.floorTiles().size());
     assertEquals(2, tileLevel.doorTiles().size());
@@ -137,9 +138,9 @@ public class DungeonLevelTest {
   /**
    * Tests pathfinding from a start position to an end position when only one valid path exists.
    *
-   * <p>Creates a 3x3 level with walls configured so that only one unique path is possible from
-   * the start to the exit. Verifies that the pathfinding algorithm finds the correct path with
-   * the expected number of steps.
+   * <p>Creates a 3x3 level with walls configured so that only one unique path is possible from the
+   * start to the exit. Verifies that the pathfinding algorithm finds the correct path with the
+   * expected number of steps.
    */
   @Test
   public void test_findPath_onlyOnePathPossible() {
@@ -147,7 +148,7 @@ public class DungeonLevelTest {
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
         layout[y][x] =
-          new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
+            new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
       }
     }
     layout[1][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT);
@@ -158,7 +159,7 @@ public class DungeonLevelTest {
     tileLevel.startTiles().add(layout[0][0]);
 
     TilePath path =
-      findPath(tileLevel, tileLevel.startTile().orElseThrow(), tileLevel.endTile().orElseThrow());
+        findPath(tileLevel, tileLevel.startTile().orElseThrow(), tileLevel.endTile().orElseThrow());
 
     assertEquals(7, path.size());
     assertEquals(layout[0][0], path.get(0));
@@ -173,9 +174,9 @@ public class DungeonLevelTest {
   /**
    * Tests pathfinding from a start position to an end position when multiple valid paths exist.
    *
-   * <p>Creates a 3x3 level where multiple paths from start to exit are possible. Verifies that
-   * the pathfinding algorithm finds a valid path (not necessarily the shortest one) that
-   * successfully connects the start and end positions.
+   * <p>Creates a 3x3 level where multiple paths from start to exit are possible. Verifies that the
+   * pathfinding algorithm finds a valid path (not necessarily the shortest one) that successfully
+   * connects the start and end positions.
    */
   @Test
   public void test_findPath_moreThanOnePathPossible() {
@@ -183,7 +184,7 @@ public class DungeonLevelTest {
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
         layout[y][x] =
-          new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
+            new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
       }
     }
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
@@ -193,7 +194,7 @@ public class DungeonLevelTest {
     tileLevel.startTiles().add(layout[0][0]);
 
     TilePath path =
-      findPath(tileLevel, tileLevel.startTile().orElseThrow(), tileLevel.endTile().orElseThrow());
+        findPath(tileLevel, tileLevel.startTile().orElseThrow(), tileLevel.endTile().orElseThrow());
 
     assertEquals(5, path.size());
     assertEquals(layout[0][0], path.get(0));
@@ -206,8 +207,8 @@ public class DungeonLevelTest {
   /**
    * Tests pathfinding in a level containing skip tiles.
    *
-   * <p>Verifies that the pathfinding algorithm correctly handles skip tiles (non-accessible
-   * tiles that can be passed through) and finds the correct path between two positions.
+   * <p>Verifies that the pathfinding algorithm correctly handles skip tiles (non-accessible tiles
+   * that can be passed through) and finds the correct path between two positions.
    */
   @Test
   public void test_findPath_withSkips() {
@@ -228,8 +229,8 @@ public class DungeonLevelTest {
   /**
    * Tests pathfinding in a level without skip tiles.
    *
-   * <p>Verifies that the pathfinding algorithm correctly calculates the path length in a
-   * simple level containing only floor tiles.
+   * <p>Verifies that the pathfinding algorithm correctly calculates the path length in a simple
+   * level containing only floor tiles.
    */
   @Test
   public void test_findPath_withoutSkips() {
@@ -257,7 +258,7 @@ public class DungeonLevelTest {
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
         layout[y][x] =
-          new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
+            new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
       }
     }
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
@@ -281,7 +282,7 @@ public class DungeonLevelTest {
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
         layout[y][x] =
-          new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
+            new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
       }
     }
     layout[2][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 2), DesignLabel.DEFAULT);
@@ -296,8 +297,8 @@ public class DungeonLevelTest {
   /**
    * Tests pathfinding when both the start and end positions are not accessible.
    *
-   * <p>Verifies that the pathfinding algorithm correctly returns an empty path when both the
-   * start and end positions are non-accessible tiles.
+   * <p>Verifies that the pathfinding algorithm correctly returns an empty path when both the start
+   * and end positions are non-accessible tiles.
    */
   @Test
   public void test_findPath_startAndEndPositionNotAccessible() {
@@ -305,7 +306,7 @@ public class DungeonLevelTest {
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
         layout[y][x] =
-          new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
+            new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
       }
     }
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
@@ -321,8 +322,8 @@ public class DungeonLevelTest {
   /**
    * Tests the retrieval of a tile at a specific coordinate.
    *
-   * <p>Verifies that {@link DungeonLevel#tileAt(core.level.utils.Coordinate)} returns the
-   * correct tile at the specified coordinate position.
+   * <p>Verifies that {@link DungeonLevel#tileAt(core.level.utils.Coordinate)} returns the correct
+   * tile at the specified coordinate position.
    */
   @Test
   public void test_getTileAt() {
@@ -334,7 +335,7 @@ public class DungeonLevelTest {
     levelLayout[0][0] = LevelElement.EXIT;
     var level = new DungeonLevel(levelLayout, DesignLabel.DEFAULT);
     assertEquals(
-      levelLayout[1][2], level.tileAt(new Coordinate(2, 1)).orElseThrow().levelElement());
+        levelLayout[1][2], level.tileAt(new Coordinate(2, 1)).orElseThrow().levelElement());
   }
 
   /**
@@ -384,8 +385,8 @@ public class DungeonLevelTest {
   /**
    * Tests retrieval of a random tile point (coordinate) from the level.
    *
-   * <p>Verifies that {@link DungeonLevel#randomTilePoint()} returns a valid coordinate point
-   * within the level layout.
+   * <p>Verifies that {@link DungeonLevel#randomTilePoint()} returns a valid coordinate point within
+   * the level layout.
    */
   @Test
   public void test_getRandomTilePoint() {
@@ -402,8 +403,8 @@ public class DungeonLevelTest {
   /**
    * Tests retrieval of a random tile point of a specific element type from the level.
    *
-   * <p>Verifies that {@link DungeonLevel#randomTilePoint(LevelElement)} returns a valid
-   * coordinate of a tile matching the specified element type.
+   * <p>Verifies that {@link DungeonLevel#randomTilePoint(LevelElement)} returns a valid coordinate
+   * of a tile matching the specified element type.
    */
   @Test
   public void test_getRandomTilePoint_WithElementType() {
@@ -432,20 +433,20 @@ public class DungeonLevelTest {
   /**
    * Tests the string representation of a level.
    *
-   * <p>Verifies that {@link DungeonLevel#toString()} correctly serializes the level layout into
-   * a string format that matches the expected level representation.
+   * <p>Verifies that {@link DungeonLevel#toString()} correctly serializes the level layout into a
+   * string format that matches the expected level representation.
    */
   @Test
   public void test_toString() {
     LevelElement[][] tileLayout =
-      new LevelElement[][] {
-        new LevelElement[] {
-          LevelElement.WALL, LevelElement.FLOOR,
-        },
-        new LevelElement[] {
-          LevelElement.EXIT, LevelElement.WALL,
-        }
-      };
+        new LevelElement[][] {
+          new LevelElement[] {
+            LevelElement.WALL, LevelElement.FLOOR,
+          },
+          new LevelElement[] {
+            LevelElement.EXIT, LevelElement.WALL,
+          }
+        };
     var level = new DungeonLevel(tileLayout, DesignLabel.DEFAULT);
     List<String> lines = new ArrayList<>();
     for (LevelElement[] tiles : tileLayout) {
@@ -469,243 +470,240 @@ public class DungeonLevelTest {
   /**
    * Tests adding a floor tile to the level.
    *
-   * <p>Verifies that a floor tile can be added to the level correctly and that it is contained
-   * in the floor tiles list, associated with the correct level, and counted as an accessible
-   * tile.
+   * <p>Verifies that a floor tile can be added to the level correctly and that it is contained in
+   * the floor tiles list, associated with the correct level, and counted as an accessible tile.
    */
   @Test
   public void test_addTile_FloorTile() {
     DungeonLevel level =
-      new DungeonLevel(
-        new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
-        DesignLabel.DEFAULT);
+        new DungeonLevel(
+            new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
+            DesignLabel.DEFAULT);
     Tile tile =
-      TileFactory.createTile(
-        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT);
+        TileFactory.createTile(
+            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
     assertTrue(level.floorTiles().contains(tile));
     assertSame(level, tile.level());
     assertEquals(
-      3,
-      Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
+        3,
+        Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
   /**
    * Tests adding an exit tile to the level.
    *
-   * <p>Verifies that an exit tile can be added to the level correctly and that it is contained
-   * in the exit tiles list, associated with the correct level, and counted as an accessible
-   * tile.
+   * <p>Verifies that an exit tile can be added to the level correctly and that it is contained in
+   * the exit tiles list, associated with the correct level, and counted as an accessible tile.
    */
   @Test
   public void test_addTile_ExitTile() {
     DungeonLevel level =
-      new DungeonLevel(
-        new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
-        DesignLabel.DEFAULT);
+        new DungeonLevel(
+            new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
+            DesignLabel.DEFAULT);
     Tile tile =
-      TileFactory.createTile(
-        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
+        TileFactory.createTile(
+            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
     assertTrue(level.exitTiles().contains(tile));
     assertSame(level, tile.level());
     assertEquals(
-      3,
-      Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
+        3,
+        Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
   /**
    * Tests adding a door tile to the level.
    *
-   * <p>Verifies that a door tile can be added to the level correctly and that it is contained
-   * in the door tiles list, associated with the correct level, and counted as an accessible
-   * tile.
+   * <p>Verifies that a door tile can be added to the level correctly and that it is contained in
+   * the door tiles list, associated with the correct level, and counted as an accessible tile.
    */
   @Test
   public void test_addTile_DoorTile() {
     DungeonLevel level =
-      new DungeonLevel(
-        new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
-        DesignLabel.DEFAULT);
+        new DungeonLevel(
+            new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
+            DesignLabel.DEFAULT);
     Tile tile =
-      TileFactory.createTile(
-        new SimpleIPath(".png"), new Coordinate(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
+        TileFactory.createTile(
+            new SimpleIPath(".png"), new Coordinate(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
     assertTrue(level.doorTiles().contains(tile));
     assertSame(level, tile.level());
     assertEquals(
-      3,
-      Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
+        3,
+        Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
   /**
    * Tests adding a skip tile to the level.
    *
-   * <p>Verifies that a skip tile can be added to the level correctly and that it is contained
-   * in the skip tiles list, associated with the correct level, and correctly handled in
-   * accessibility calculations.
+   * <p>Verifies that a skip tile can be added to the level correctly and that it is contained in
+   * the skip tiles list, associated with the correct level, and correctly handled in accessibility
+   * calculations.
    */
   @Test
   public void test_addTile_SkipTile() {
     DungeonLevel level =
-      new DungeonLevel(
-        new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
-        DesignLabel.DEFAULT);
+        new DungeonLevel(
+            new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
+            DesignLabel.DEFAULT);
     Tile tile =
-      TileFactory.createTile(
-        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
+        TileFactory.createTile(
+            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
     assertTrue(level.skipTiles().contains(tile));
     assertSame(level, tile.level());
     assertEquals(
-      2,
-      Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
+        2,
+        Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
   /**
    * Tests adding a wall tile to the level.
    *
-   * <p>Verifies that a wall tile can be added to the level correctly and that it is contained
-   * in the wall tiles list, associated with the correct level, and correctly affects the
-   * count of accessible tiles.
+   * <p>Verifies that a wall tile can be added to the level correctly and that it is contained in
+   * the wall tiles list, associated with the correct level, and correctly affects the count of
+   * accessible tiles.
    */
   @Test
   public void test_addTile_WallTile() {
     DungeonLevel level =
-      new DungeonLevel(
-        new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
-        DesignLabel.DEFAULT);
+        new DungeonLevel(
+            new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
+            DesignLabel.DEFAULT);
     Tile tile =
-      TileFactory.createTile(
-        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.WALL, DesignLabel.DEFAULT);
+        TileFactory.createTile(
+            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.WALL, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
     assertTrue(level.wallTiles().contains(tile));
     assertSame(level, tile.level());
     assertEquals(
-      2,
-      Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
+        2,
+        Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
   /**
    * Tests adding a hole tile to the level.
    *
-   * <p>Verifies that a hole tile can be added to the level correctly and that it is contained
-   * in the hole tiles list, associated with the correct level, and correctly affects the
-   * count of accessible tiles.
+   * <p>Verifies that a hole tile can be added to the level correctly and that it is contained in
+   * the hole tiles list, associated with the correct level, and correctly affects the count of
+   * accessible tiles.
    */
   @Test
   public void test_addTile_HoleTile() {
     DungeonLevel level =
-      new DungeonLevel(
-        new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
-        DesignLabel.DEFAULT);
+        new DungeonLevel(
+            new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
+            DesignLabel.DEFAULT);
     Tile tile =
-      TileFactory.createTile(
-        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
+        TileFactory.createTile(
+            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
     assertTrue(level.holeTiles().contains(tile));
     assertSame(level, tile.level());
     assertEquals(
-      2,
-      Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
+        2,
+        Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
   }
 
   /**
    * Tests changing a tile element type when the new type is the same as the current one.
    *
-   * <p>Verifies that changing a tile to the same element type maintains the level's tile count
-   * and accessibility properties without causing inconsistencies.
+   * <p>Verifies that changing a tile to the same element type maintains the level's tile count and
+   * accessibility properties without causing inconsistencies.
    */
   @Test
   public void test_changeTileElementType_SameElementType() {
     LevelElement[][] layout =
-      new LevelElement[][] {
-        new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
-      };
+        new LevelElement[][] {
+          new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+        };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.changeTileElementType(
-      level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.FLOOR);
+        level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.FLOOR);
 
     assertEquals(
-      3,
-      Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
+        3,
+        Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
 
     AtomicInteger counter = new AtomicInteger();
     Arrays.stream(level.layout())
-      .flatMap(Arrays::stream)
-      .sorted(Comparator.comparingInt(Tile::index))
-      .filter(Tile::isAccessible)
-      .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.index()));
+        .flatMap(Arrays::stream)
+        .sorted(Comparator.comparingInt(Tile::index))
+        .filter(Tile::isAccessible)
+        .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.index()));
     assertEquals(3, counter.get());
   }
 
   /**
    * Tests changing a tile element type to another accessible type.
    *
-   * <p>Verifies that changing a floor tile to an exit tile (both accessible) maintains the
-   * level's tile count and accessibility properties.
+   * <p>Verifies that changing a floor tile to an exit tile (both accessible) maintains the level's
+   * tile count and accessibility properties.
    */
   @Test
   public void test_changeTileElementType_SameAccess() {
     LevelElement[][] layout =
-      new LevelElement[][] {
-        new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
-      };
+        new LevelElement[][] {
+          new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+        };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.changeTileElementType(
-      level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.EXIT);
+        level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.EXIT);
 
     assertEquals(
-      3,
-      Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
+        3,
+        Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
 
     AtomicInteger counter = new AtomicInteger();
     Arrays.stream(level.layout())
-      .flatMap(Arrays::stream)
-      .filter(Tile::isAccessible)
-      .sorted(Comparator.comparingInt(Tile::index))
-      .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.index()));
+        .flatMap(Arrays::stream)
+        .filter(Tile::isAccessible)
+        .sorted(Comparator.comparingInt(Tile::index))
+        .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.index()));
     assertEquals(3, counter.get());
   }
 
   /**
    * Tests changing a tile element type from an accessible type to a non-accessible type.
    *
-   * <p>Verifies that changing a floor tile to a wall tile properly reduces the count of
-   * accessible tiles and maintains correct tile indexing.
+   * <p>Verifies that changing a floor tile to a wall tile properly reduces the count of accessible
+   * tiles and maintains correct tile indexing.
    */
   @Test
   public void test_changeTileElementType_toNotAccessible() {
     LevelElement[][] layout =
-      new LevelElement[][] {
-        new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
-      };
+        new LevelElement[][] {
+          new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+        };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.changeTileElementType(
-      level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.WALL);
+        level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.WALL);
 
     assertEquals(
-      2,
-      Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
+        2,
+        Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
 
     AtomicInteger counter = new AtomicInteger();
     Arrays.stream(level.layout())
-      .flatMap(Arrays::stream)
-      .sorted(Comparator.comparingInt(Tile::index))
-      .filter(Tile::isAccessible)
-      .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.index()));
+        .flatMap(Arrays::stream)
+        .sorted(Comparator.comparingInt(Tile::index))
+        .filter(Tile::isAccessible)
+        .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.index()));
     assertEquals(2, counter.get());
   }
 
@@ -719,28 +717,28 @@ public class DungeonLevelTest {
   @Test
   public void test_changeTileElementType_notOnLevel() {
     LevelElement[][] layout =
-      new LevelElement[][] {
-        new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
-      };
+        new LevelElement[][] {
+          new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+        };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.changeTileElementType(
-      TileFactory.createTile(
-        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT),
-      LevelElement.WALL);
+        TileFactory.createTile(
+            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT),
+        LevelElement.WALL);
 
     assertEquals(
-      3,
-      Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
+        3,
+        Arrays.stream(level.layout()).flatMap(Arrays::stream).filter(Tile::isAccessible).count());
 
     AtomicInteger counter = new AtomicInteger();
     Arrays.stream(level.layout())
-      .flatMap(Arrays::stream)
-      .sorted(Comparator.comparingInt(Tile::index))
-      .filter(Tile::isAccessible)
-      .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.index()));
+        .flatMap(Arrays::stream)
+        .sorted(Comparator.comparingInt(Tile::index))
+        .filter(Tile::isAccessible)
+        .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.index()));
 
     assertNotEquals(
-      LevelElement.WALL, level.tileAt(new Coordinate(1, 0)).orElseThrow().levelElement());
+        LevelElement.WALL, level.tileAt(new Coordinate(1, 0)).orElseThrow().levelElement());
     assertEquals(3, counter.get());
   }
 
@@ -748,9 +746,9 @@ public class DungeonLevelTest {
   @Test
   public void test_changeTileElementType_remapsStartTileToReplacementTile() {
     LevelElement[][] layout =
-      new LevelElement[][] {
-        new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
-      };
+        new LevelElement[][] {
+          new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
+        };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     Tile oldStartTile = level.tileAt(new Coordinate(1, 0)).orElseThrow();
     level.startTiles().add(oldStartTile);
@@ -766,17 +764,17 @@ public class DungeonLevelTest {
   @Test
   public void test_setLayout_remapsStartTilesToNewTileInstances() {
     LevelElement[][] layout =
-      new LevelElement[][] {
-        {LevelElement.FLOOR, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.FLOOR}
-      };
+        new LevelElement[][] {
+          {LevelElement.FLOOR, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.FLOOR}
+        };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     Tile oldStartTile = level.tileAt(new Coordinate(1, 0)).orElseThrow();
     level.startTiles().add(oldStartTile);
 
     level.setLayout(
-      new LevelElement[][] {
-        {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.EXIT}
-      });
+        new LevelElement[][] {
+          {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.EXIT}
+        });
 
     Tile currentStartTile = level.tileAt(new Coordinate(1, 0)).orElseThrow();
     assertSame(currentStartTile, level.startTiles().getFirst());
@@ -787,9 +785,9 @@ public class DungeonLevelTest {
   @Test
   public void test_setLayout_dropsStartTilesOutsideNewBounds() {
     LevelElement[][] layout =
-      new LevelElement[][] {
-        {LevelElement.FLOOR, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.FLOOR}
-      };
+        new LevelElement[][] {
+          {LevelElement.FLOOR, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.FLOOR}
+        };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.startTiles().add(level.tileAt(new Coordinate(0, 0)).orElseThrow());
     level.startTiles().add(level.tileAt(new Coordinate(1, 0)).orElseThrow());
@@ -804,9 +802,9 @@ public class DungeonLevelTest {
   @Test
   public void test_translateStartTiles_remapsToShiftedTilePositions() {
     LevelElement[][] layout =
-      new LevelElement[][] {
-        {LevelElement.FLOOR, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.FLOOR}
-      };
+        new LevelElement[][] {
+          {LevelElement.FLOOR, LevelElement.FLOOR}, {LevelElement.FLOOR, LevelElement.FLOOR}
+        };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.startTiles().add(level.tileAt(new Coordinate(0, 0)).orElseThrow());
 
@@ -819,9 +817,9 @@ public class DungeonLevelTest {
   @Test
   public void test_shiftedLayout_keepsStartTilesOnCurrentTiles() {
     LevelElement[][] layout =
-      new LevelElement[][] {
-        {LevelElement.FLOOR, LevelElement.SKIP}, {LevelElement.FLOOR, LevelElement.SKIP}
-      };
+        new LevelElement[][] {
+          {LevelElement.FLOOR, LevelElement.SKIP}, {LevelElement.FLOOR, LevelElement.SKIP}
+        };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     Tile oldStartTile = level.tileAt(new Coordinate(0, 0)).orElseThrow();
     level.startTiles().add(oldStartTile);

@@ -114,8 +114,8 @@ public abstract class PlayHandle {
   /**
    * Configures whether the sound playback should loop indefinitely.
    *
-   * @param looping a boolean flag indicating a looping state;
-   *                true to enable looping, false to disable looping
+   * @param looping a boolean flag indicating a looping state; true to enable looping, false to
+   *     disable looping
    */
   public abstract void looping(boolean looping);
 

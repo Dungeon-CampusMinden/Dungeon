@@ -1,10 +1,10 @@
 package contrib.hud.dialogs.overlays;
 
 import contrib.hud.dialogs.DialogCallbackResolver;
-import contrib.hud.dialogs.input.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.frame.DialogFrameMetrics;
 import contrib.hud.dialogs.frame.DialogFrameRenderer;
+import contrib.hud.dialogs.input.DialogButtonInputHandler;
 import core.input.Keys;
 import core.ui.overlay.BaseUiOverlay;
 import core.utils.InputManager;
@@ -19,14 +19,16 @@ import java.util.List;
  * <p>The TextDialogOverlay class provides a dialog interface that can display a title, main text,
  * and multiple buttons for user interactions.
  *
- * <p>This overlay is rendered on top of the game scene and allows for custom positioning, sizing, and visibility control.
+ * <p>This overlay is rendered on top of the game scene and allows for custom positioning, sizing,
+ * and visibility control.
  *
  * <p>Key features of this class include:
+ *
  * <ul>
- *   <li>A structured frame with a title and main text area.</li>
- *   <li>Buttons for standard actions (confirm, cancel) and optional additional buttons.</li>
- *   <li>Support for triggering callback actions based on button interactions.</li>
- *   <li>Input handling for keyboard and mouse interactions.</li>
+ *   <li>A structured frame with a title and main text area.
+ *   <li>Buttons for standard actions (confirm, cancel) and optional additional buttons.
+ *   <li>Support for triggering callback actions based on button interactions.
+ *   <li>Input handling for keyboard and mouse interactions.
  * </ul>
  */
 public final class TextDialogOverlay extends BaseUiOverlay {
@@ -54,12 +56,12 @@ public final class TextDialogOverlay extends BaseUiOverlay {
    * @param dialogId id used to resolve callbacks
    */
   public TextDialogOverlay(
-    String title,
-    String text,
-    String confirmLabel,
-    String cancelLabel,
-    String[] additionalButtons,
-    String dialogId) {
+      String title,
+      String text,
+      String confirmLabel,
+      String cancelLabel,
+      String[] additionalButtons,
+      String dialogId) {
     super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.title = title;
     this.text = text;
@@ -92,18 +94,13 @@ public final class TextDialogOverlay extends BaseUiOverlay {
 
     handleInput();
 
-    DialogFrameRenderer.RenderState state =
-      DialogFrameRenderer.beginDialog(g);
+    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
 
     try {
       int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, title);
 
       DialogFrameRenderer.drawWrappedText(
-        g,
-        text,
-        x + DialogFrameMetrics.PADDING,
-        textY,
-        width - 2 * DialogFrameMetrics.PADDING);
+          g, text, x + DialogFrameMetrics.PADDING, textY, width - 2 * DialogFrameMetrics.PADDING);
 
       for (int i = 0; i < labels.size(); i++) {
         DialogFrameRenderer.drawButton(g, bounds.get(i), labels.get(i), buttonInput.isPressed(i));
@@ -142,7 +139,8 @@ public final class TextDialogOverlay extends BaseUiOverlay {
   }
 
   private void onConfirm() {
-    DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CONFIRM).accept(null);
+    DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CONFIRM)
+        .accept(null);
   }
 
   private void onCancel() {
@@ -171,7 +169,6 @@ public final class TextDialogOverlay extends BaseUiOverlay {
   }
 
   private List<Rectangle> buttonBounds(int buttonCount) {
-    return DialogFrameRenderer.centeredButtonRow(
-      x, y, width, height, buttonCount, BUTTON_GAP);
+    return DialogFrameRenderer.centeredButtonRow(x, y, width, height, buttonCount, BUTTON_GAP);
   }
 }

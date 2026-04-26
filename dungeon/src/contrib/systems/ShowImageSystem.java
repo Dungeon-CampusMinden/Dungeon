@@ -27,8 +27,8 @@ public class ShowImageSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream(ShowImageComponent.class, DrawComponent.class, PositionComponent.class)
-      .map(this::buildDataObject)
-      .forEach(this::execute);
+        .map(this::buildDataObject)
+        .forEach(this::execute);
   }
 
   /**
@@ -43,20 +43,20 @@ public class ShowImageSystem extends System {
       Entity newOverlay = new Entity("show-image-overlay");
 
       DialogContext context =
-        DialogContextFactory.imageDialogContext(
-          d.sic.imagePath(),
-          d.sic.transitionSpeed(),
-          d.sic.maxSize(),
-          d.sic.textConfig(),
-          newOverlay.id());
+          DialogContextFactory.imageDialogContext(
+              d.sic.imagePath(),
+              d.sic.transitionSpeed(),
+              d.sic.maxSize(),
+              d.sic.textConfig(),
+              newOverlay.id());
 
       UIComponent uic = new UIComponent(context, true);
 
       uic.onClose(
-        _ -> {
-          d.sic.isUIOpen(false);
-          d.sic.onClose(d.e, newOverlay);
-        });
+          _ -> {
+            d.sic.isUIOpen(false);
+            d.sic.onClose(d.e, newOverlay);
+          });
 
       newOverlay.add(uic);
       d.sic.overlay(newOverlay);
@@ -71,15 +71,11 @@ public class ShowImageSystem extends System {
 
   private SIData buildDataObject(Entity e) {
     return new SIData(
-      e,
-      e.fetch(ShowImageComponent.class).orElseThrow(),
-      e.fetch(DrawComponent.class).orElseThrow(),
-      e.fetch(PositionComponent.class).orElseThrow());
+        e,
+        e.fetch(ShowImageComponent.class).orElseThrow(),
+        e.fetch(DrawComponent.class).orElseThrow(),
+        e.fetch(PositionComponent.class).orElseThrow());
   }
 
-  private record SIData(
-    Entity e,
-    ShowImageComponent sic,
-    DrawComponent dc,
-    PositionComponent pc) {}
+  private record SIData(Entity e, ShowImageComponent sic, DrawComponent dc, PositionComponent pc) {}
 }

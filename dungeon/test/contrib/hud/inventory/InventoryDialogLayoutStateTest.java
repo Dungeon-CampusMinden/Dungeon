@@ -71,7 +71,9 @@ public class InventoryDialogLayoutStateTest {
     assertEquals(expectedLeftX, state.panels().getFirst().grid().startX());
     assertEquals(expectedGridTop, state.panels().getFirst().grid().startY());
     assertEquals(TestSide.LEFT, state.panels().getFirst().grid().side());
-    assertEquals(expectedLeftX - InventoryDialogLayoutState.PANEL_PADDING, state.panels().getFirst().panelBounds().x);
+    assertEquals(
+        expectedLeftX - InventoryDialogLayoutState.PANEL_PADDING,
+        state.panels().getFirst().panelBounds().x);
     assertEquals(expectedRightX, state.panels().get(1).grid().startX());
     assertEquals(TestSide.RIGHT, state.panels().get(1).grid().side());
   }

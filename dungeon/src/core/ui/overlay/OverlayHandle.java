@@ -10,16 +10,17 @@ import java.util.Optional;
  * <p>The {@code OverlayHandle} class provides an implementation of the {@link UiHandle} interface
  * for handling {@link UiOverlay} instances.
  *
- * <p>It allows controlling overlay properties such as visibility,
- * attachment to stages, z-order, and positioning, and also facilitates type-safe access to
- * the underlying {@link UiOverlay} object.
+ * <p>It allows controlling overlay properties such as visibility, attachment to stages, z-order,
+ * and positioning, and also facilitates type-safe access to the underlying {@link UiOverlay}
+ * object.
  *
  * <p>Key functionalities:
+ *
  * <ul>
- *   <li>Attaching/detaching the overlay to/from a stage.</li>
- *   <li>Controlling the overlay's visibility and z-order.</li>
- *   <li>Centering the overlay on a stage.</li>
- *   <li>Providing type-safe unwrapping of the underlying overlay instance.</li>
+ *   <li>Attaching/detaching the overlay to/from a stage.
+ *   <li>Controlling the overlay's visibility and z-order.
+ *   <li>Centering the overlay on a stage.
+ *   <li>Providing type-safe unwrapping of the underlying overlay instance.
  * </ul>
  */
 public final class OverlayHandle implements UiHandle {
@@ -79,8 +80,7 @@ public final class OverlayHandle implements UiHandle {
     }
 
     if (overlay instanceof BaseUiOverlay baseOverlay) {
-      baseOverlay.centerIn(
-          Math.round(stageHandle.getWidth()), Math.round(stageHandle.getHeight()));
+      baseOverlay.centerIn(Math.round(stageHandle.getWidth()), Math.round(stageHandle.getHeight()));
     } else {
       int x = Math.round((stageHandle.getWidth() - overlay.width()) / 2f);
       int y = Math.round((stageHandle.getHeight() - overlay.height()) / 2f);

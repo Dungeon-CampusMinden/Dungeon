@@ -15,6 +15,7 @@ import java.util.Objects;
  * also supported and will be used directly without prefixing a root.
  *
  * <p>Key features:
+ *
  * <ul>
  *   <li>Supports multiple root directories for resource lookup
  *   <li>Checks for resource existence using Files API
@@ -36,7 +37,7 @@ public final class FileSystemResourcesAdapter implements ResourcesAdapter {
    * creates an unmodifiable copy of it for internal use.
    *
    * @param roots a list of root directories {@link Path} where the adapter should search for
-   *              resources. Must not be null.
+   *     resources. Must not be null.
    * @throws NullPointerException if {@code roots} is null
    */
   public FileSystemResourcesAdapter(List<Path> roots) {
@@ -44,16 +45,16 @@ public final class FileSystemResourcesAdapter implements ResourcesAdapter {
   }
 
   /**
-   * Automatically detects the current working directory and its immediate parent directories
-   * (up to two levels) and initializes a {@link FileSystemResourcesAdapter} with these directories
-   * as its root paths.
+   * Automatically detects the current working directory and its immediate parent directories (up to
+   * two levels) and initializes a {@link FileSystemResourcesAdapter} with these directories as its
+   * root paths.
    *
    * <p>The detected paths provide a basis for locating resources within the filesystem. The method
    * ensures that the current working directory and, if available, its parent and grandparent
    * directories are included in the root paths list.
    *
    * @return a {@link FileSystemResourcesAdapter} instance initialized with the current working
-   *         directory and its parent directories as root paths.
+   *     directory and its parent directories as root paths.
    */
   public static FileSystemResourcesAdapter autoDetect() {
     final Path cwd = Paths.get("").toAbsolutePath().normalize();

@@ -18,8 +18,8 @@ import java.util.Map;
  * A level editor mode for placing, managing, and manipulating decorations (deco) in a dungeon
  * level.
  *
- * <p>DecoMode provides comprehensive functionality for decorating a level with various deco
- * types. It supports the following operations:
+ * <p>DecoMode provides comprehensive functionality for decorating a level with various deco types.
+ * It supports the following operations:
  *
  * <ul>
  *   <li>Placing new decorations at cursor positions
@@ -47,7 +47,7 @@ public final class DecoMode extends LevelEditorMode {
    * editor.
    *
    * @param system the LevelEditorSystem instance that manages the level editor and provides the
-   *               necessary context and functionality for this mode
+   *     necessary context and functionality for this mode
    */
   public DecoMode(LevelEditorSystem system) {
     super(system, "Deco Mode");
@@ -76,29 +76,29 @@ public final class DecoMode extends LevelEditorMode {
 
     if (InputManager.isKeyJustPressed(QUATERNARY)) {
       placementController
-        .pipetteDecoAt(cursorPos)
-        .ifPresent(
-          deco -> {
-            selectDeco(deco);
-            system().showModeFeedback("Picked deco type: " + deco.name(), Color.WHITE);
-          });
+          .pipetteDecoAt(cursorPos)
+          .ifPresent(
+              deco -> {
+                selectDeco(deco);
+                system().showModeFeedback("Picked deco type: " + deco.name(), Color.WHITE);
+              });
     } else if (InputManager.isButtonJustPressed(MouseButtons.RIGHT)
-      && !placementController.hasHeldDeco()) {
+        && !placementController.hasHeldDeco()) {
       tintController.clearHoveredDecoIndicator();
       placementController
-        .pickupDecoAt(cursorPos, snapPos, tintController)
-        .ifPresent(
-          pickedName ->
-            system().showModeFeedback(
-              "Picked up deco: " + pickedName, new Color(120, 220, 120)));
+          .pickupDecoAt(cursorPos, snapPos, tintController)
+          .ifPresent(
+              pickedName ->
+                  system()
+                      .showModeFeedback("Picked up deco: " + pickedName, new Color(120, 220, 120)));
     } else if (InputManager.isKeyJustPressed(TERTIARY) && !placementController.hasHeldDeco()) {
       tintController.clearHoveredDecoIndicator();
       placementController
-        .deleteDecoAt(cursorPos)
-        .ifPresent(
-          removedName ->
-            system().showModeFeedback(
-              "Removed deco: " + removedName, new Color(255, 180, 180)));
+          .deleteDecoAt(cursorPos)
+          .ifPresent(
+              removedName ->
+                  system()
+                      .showModeFeedback("Removed deco: " + removedName, new Color(255, 180, 180)));
     } else if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
       if (placementController.hasHeldDeco()) {
         placeHeldDeco(snapPos);
@@ -144,25 +144,25 @@ public final class DecoMode extends LevelEditorMode {
     Deco currentDeco = selectedDeco();
 
     return List.of(
-      "Cursor tile: (" + (int) cursor.x() + ", " + (int) cursor.y() + ")",
-      "Current deco: "
-        + (Math.floorMod(selectedDecoIndex, Deco.values().length) + 1)
-        + "/"
-        + Deco.values().length
-        + " ("
-        + currentDeco.name()
-        + ")",
-      "Snap mode: " + decoSnapMode.displayName(),
-      "Placement: "
-        + (placementController.isCurrentDecoPlacementBlocked(
-              decoSnapMode, currentDecoSnapPosition())
-            ? "blocked"
-            : "valid"),
-      "Hover: " + tintController.currentHoveredDecoName(),
-      "Preview tint: white = valid, red = blocked",
-      placementController.hasHeldDeco()
-        ? "State: holding placed deco"
-        : "State: preview ghost active");
+        "Cursor tile: (" + (int) cursor.x() + ", " + (int) cursor.y() + ")",
+        "Current deco: "
+            + (Math.floorMod(selectedDecoIndex, Deco.values().length) + 1)
+            + "/"
+            + Deco.values().length
+            + " ("
+            + currentDeco.name()
+            + ")",
+        "Snap mode: " + decoSnapMode.displayName(),
+        "Placement: "
+            + (placementController.isCurrentDecoPlacementBlocked(
+                    decoSnapMode, currentDecoSnapPosition())
+                ? "blocked"
+                : "valid"),
+        "Hover: " + tintController.currentHoveredDecoName(),
+        "Preview tint: white = valid, red = blocked",
+        placementController.hasHeldDeco()
+            ? "State: holding placed deco"
+            : "State: preview ghost active");
   }
 
   @Override
@@ -201,11 +201,12 @@ public final class DecoMode extends LevelEditorMode {
 
   private void refreshPreviewEntity() {
     placementController.refreshPreviewEntity(
-      selectedDeco(), currentDecoSnapPosition(), tintController);
+        selectedDeco(), currentDecoSnapPosition(), tintController);
   }
 
   private void placeHeldDeco(Point snapPos) {
-    if (placementController.isCurrentDecoPlacementBlocked(decoSnapMode, currentDecoSnapPosition())) {
+    if (placementController.isCurrentDecoPlacementBlocked(
+        decoSnapMode, currentDecoSnapPosition())) {
       system().showModeFeedback("Cannot place held deco: target blocked", new Color(255, 210, 120));
       return;
     }
@@ -217,7 +218,8 @@ public final class DecoMode extends LevelEditorMode {
   }
 
   private void placeSelectedDeco(Point snapPos) {
-    if (placementController.isCurrentDecoPlacementBlocked(decoSnapMode, currentDecoSnapPosition())) {
+    if (placementController.isCurrentDecoPlacementBlocked(
+        decoSnapMode, currentDecoSnapPosition())) {
       system().showModeFeedback("Cannot place deco: target blocked", new Color(255, 210, 120));
       return;
     }
@@ -228,8 +230,8 @@ public final class DecoMode extends LevelEditorMode {
 
   private void updatePlacementIndicator(Point snapPos) {
     tintController.updatePlacementIndicator(
-      placementController.indicatorEntity(),
-      placementController.isCurrentDecoPlacementBlocked(decoSnapMode, snapPos));
+        placementController.indicatorEntity(),
+        placementController.isCurrentDecoPlacementBlocked(decoSnapMode, snapPos));
   }
 
   private Point currentDecoSnapPosition() {

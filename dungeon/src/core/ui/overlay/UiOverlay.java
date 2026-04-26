@@ -5,11 +5,12 @@ import java.awt.Graphics2D;
 /**
  * Interface for overlay-based UI elements that render on top of the game scene.
  *
- * <p>UiOverlay defines the contract for UI components that are rendered as overlays, independent
- * of the main stage hierarchy. Overlays are typically used for HUDs, menus, dialogs, and other
+ * <p>UiOverlay defines the contract for UI components that are rendered as overlays, independent of
+ * the main stage hierarchy. Overlays are typically used for HUDs, menus, dialogs, and other
  * floating UI elements that need to appear above game content.
  *
  * <p>Key properties:
+ *
  * <ul>
  *   <li>Rendering: Custom drawing logic via {@link #render(Graphics2D)}
  *   <li>Position: X and Y coordinates for placement
@@ -23,8 +24,8 @@ public interface UiOverlay {
   /**
    * Renders this overlay on the given graphics context.
    *
-   * <p>Implementations should draw all visual content for the overlay using the provided
-   * Graphics2D object.
+   * <p>Implementations should draw all visual content for the overlay using the provided Graphics2D
+   * object.
    *
    * @param g the Graphics2D context to render on
    */

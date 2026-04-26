@@ -19,16 +19,16 @@ public class LevelEditorModeTest {
   @Test
   public void editorInputsContainAllReservedInputs() {
     assertIterableEquals(
-      List.of(
-        LevelEditorMode.PRIMARY_UP,
-        LevelEditorMode.PRIMARY_DOWN,
-        LevelEditorMode.SECONDARY_UP,
-        LevelEditorMode.SECONDARY_DOWN,
-        LevelEditorMode.TERTIARY,
-        LevelEditorMode.QUATERNARY,
-        MouseButtons.LEFT,
-        MouseButtons.RIGHT),
-      LevelEditorMode.editorInputs());
+        List.of(
+            LevelEditorMode.PRIMARY_UP,
+            LevelEditorMode.PRIMARY_DOWN,
+            LevelEditorMode.SECONDARY_UP,
+            LevelEditorMode.SECONDARY_DOWN,
+            LevelEditorMode.TERTIARY,
+            LevelEditorMode.QUATERNARY,
+            MouseButtons.LEFT,
+            MouseButtons.RIGHT),
+        LevelEditorMode.editorInputs());
   }
 
   /** Ensures callers cannot accidentally mutate the central editor input list. */
@@ -43,15 +43,15 @@ public class LevelEditorModeTest {
     LevelEditorMode mode = new TypedControlMode();
 
     assertIterableEquals(
-      List.of(
-        "--- Typed Controls ---",
-        "Controls:",
-        " - UNKNOWN: Keyboard code 0",
-        " - LMB: Mouse code 0",
-        "",
-        "Settings:",
-        " -"),
-      mode.getFullStatusLines());
+        List.of(
+            "--- Typed Controls ---",
+            "Controls:",
+            " - UNKNOWN: Keyboard code 0",
+            " - LMB: Mouse code 0",
+            "",
+            "Settings:",
+            " -"),
+        mode.getFullStatusLines());
   }
 
   private static final class TypedControlMode extends LevelEditorMode {

@@ -2,12 +2,12 @@ package contrib.hud.inventory;
 
 import contrib.hud.InventoryDialogProvider;
 import contrib.hud.itemgrid.BaseItemGridOverlay;
-import contrib.hud.itemgrid.ItemGridHitTest;
-import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.hud.itemgrid.InventoryDropHandling;
+import contrib.hud.itemgrid.InventoryTooltip;
+import contrib.hud.itemgrid.ItemGridDragController;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.render.InventoryGridRenderer;
 import contrib.hud.itemgrid.render.InventoryPanelRenderer;
-import contrib.hud.itemgrid.InventoryTooltip;
 import contrib.item.Item;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -123,7 +123,7 @@ abstract class BaseInventoryOverlay<S>
   }
 
   protected final ItemGridHitTest.Slot<S> findSlotSelection(
-    List<ItemGridHitTest.Grid<S>> grids, int mouseX, int mouseY) {
+      List<ItemGridHitTest.Grid<S>> grids, int mouseX, int mouseY) {
     return ItemGridHitTest.findGridSlotAt(mouseX, mouseY, grids);
   }
 

@@ -31,8 +31,7 @@ public abstract class BaseColorGradeEffect<T extends BaseColorGradeEffect<T>> {
    * @param saturationMultiplier saturation multiplier; negative values are clamped to 0
    * @param valueMultiplier value/brightness multiplier; negative values are clamped to 0
    */
-  protected BaseColorGradeEffect(
-    float hue, float saturationMultiplier, float valueMultiplier) {
+  protected BaseColorGradeEffect(float hue, float saturationMultiplier, float valueMultiplier) {
     hue(hue);
     saturationMultiplier(saturationMultiplier);
     valueMultiplier(valueMultiplier);
@@ -48,7 +47,8 @@ public abstract class BaseColorGradeEffect<T extends BaseColorGradeEffect<T>> {
   /**
    * Returns the target hue for the color-grade effect.
    *
-   * @return the target hue in the range [0, 1], or a value less than 0 if the original hue is retained
+   * @return the target hue in the range [0, 1], or a value less than 0 if the original hue is
+   *     retained
    */
   public float hue() {
     return hue;
@@ -155,7 +155,7 @@ public abstract class BaseColorGradeEffect<T extends BaseColorGradeEffect<T>> {
    * @return transformed image, or the original input if disabled or input is null
    */
   protected final BufferedImage applyColorGrade(
-    BufferedImage input, WorldPointResolver worldPointResolver) {
+      BufferedImage input, WorldPointResolver worldPointResolver) {
     if (input == null || !enabled) {
       return input;
     }
@@ -165,7 +165,7 @@ public abstract class BaseColorGradeEffect<T extends BaseColorGradeEffect<T>> {
     }
 
     BufferedImage output =
-      new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
     for (int y = 0; y < input.getHeight(); y++) {
       for (int x = 0; x < input.getWidth(); x++) {
@@ -184,7 +184,7 @@ public abstract class BaseColorGradeEffect<T extends BaseColorGradeEffect<T>> {
         }
 
         int gradedArgb =
-          ColorGradeUtils.gradeArgb(argb, hue, saturationMultiplier, valueMultiplier);
+            ColorGradeUtils.gradeArgb(argb, hue, saturationMultiplier, valueMultiplier);
 
         if (influence >= 1f) {
           output.setRGB(x, y, gradedArgb);
@@ -198,9 +198,7 @@ public abstract class BaseColorGradeEffect<T extends BaseColorGradeEffect<T>> {
     return output;
   }
 
-  /**
-   * Maps an effect buffer pixel to a world-space point.
-   */
+  /** Maps an effect buffer pixel to a world-space point. */
   @FunctionalInterface
   protected interface WorldPointResolver {
     /**

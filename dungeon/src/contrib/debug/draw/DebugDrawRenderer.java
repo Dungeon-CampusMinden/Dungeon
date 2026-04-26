@@ -27,7 +27,7 @@ public final class DebugDrawRenderer {
    * @param drawCalls immutable draw commands to render
    */
   public static void render(
-    Graphics2D base, CameraViewportState.Viewport view, DebugDrawSnapshot drawCalls) {
+      Graphics2D base, CameraViewportState.Viewport view, DebugDrawSnapshot drawCalls) {
 
     if (drawCalls.isEmpty()) {
       return;
@@ -66,24 +66,24 @@ public final class DebugDrawRenderer {
   }
 
   private static void renderWorldRectangles(
-    Graphics2D g,
-    List<DebugDrawSnapshot.WorldRectangle> rectangles,
-    CameraViewportState.Viewport view,
-    int levelHeight) {
+      Graphics2D g,
+      List<DebugDrawSnapshot.WorldRectangle> rectangles,
+      CameraViewportState.Viewport view,
+      int levelHeight) {
 
     int tilePx = view.tilePx();
     for (DebugDrawSnapshot.WorldRectangle rectangle : rectangles) {
       renderWorldRect(
-        g,
-        view,
-        levelHeight,
-        tilePx,
-        rectangle.x(),
-        rectangle.y(),
-        rectangle.width(),
-        rectangle.height(),
-        rectangle.color(),
-        false);
+          g,
+          view,
+          levelHeight,
+          tilePx,
+          rectangle.x(),
+          rectangle.y(),
+          rectangle.width(),
+          rectangle.height(),
+          rectangle.color(),
+          false);
     }
   }
 
@@ -109,7 +109,7 @@ public final class DebugDrawRenderer {
   }
 
   private static void renderScreenMarkers(
-    Graphics2D g, List<DebugDrawSnapshot.ScreenMarker> markers) {
+      Graphics2D g, List<DebugDrawSnapshot.ScreenMarker> markers) {
     for (DebugDrawSnapshot.ScreenMarker marker : markers) {
       int radius = marker.diameterPx() / 2;
       int x = Math.round(marker.center().x()) - radius;
@@ -128,44 +128,44 @@ public final class DebugDrawRenderer {
   }
 
   private static void renderWorldFills(
-    Graphics2D g,
-    List<DebugDrawSnapshot.WorldFill> fills,
-    CameraViewportState.Viewport view,
-    int levelHeight) {
+      Graphics2D g,
+      List<DebugDrawSnapshot.WorldFill> fills,
+      CameraViewportState.Viewport view,
+      int levelHeight) {
 
     int tilePx = view.tilePx();
     for (DebugDrawSnapshot.WorldFill fill : fills) {
       renderWorldRect(
-        g,
-        view,
-        levelHeight,
-        tilePx,
-        fill.x(),
-        fill.y(),
-        fill.width(),
-        fill.height(),
-        fill.color(),
-        true);
+          g,
+          view,
+          levelHeight,
+          tilePx,
+          fill.x(),
+          fill.y(),
+          fill.width(),
+          fill.height(),
+          fill.color(),
+          true);
     }
   }
 
   private static void renderWorldRect(
-    Graphics2D g,
-    CameraViewportState.Viewport view,
-    int levelHeight,
-    int tilePx,
-    float x,
-    float y,
-    float width,
-    float height,
-    Color color,
-    boolean fill) {
+      Graphics2D g,
+      CameraViewportState.Viewport view,
+      int levelHeight,
+      int tilePx,
+      float x,
+      float y,
+      float width,
+      float height,
+      Color color,
+      boolean fill) {
 
     int screenX = (int) Math.round(view.offsetX() + x * tilePx);
     int screenY =
-      levelHeight > 0
-        ? (int) Math.round(view.offsetY() + (levelHeight - y - height) * tilePx)
-        : (int) Math.round(view.offsetY() + y * tilePx);
+        levelHeight > 0
+            ? (int) Math.round(view.offsetY() + (levelHeight - y - height) * tilePx)
+            : (int) Math.round(view.offsetY() + y * tilePx);
 
     int screenWidth = Math.max(1, Math.round(width * tilePx));
     int screenHeight = Math.max(1, Math.round(height * tilePx));
@@ -186,42 +186,42 @@ public final class DebugDrawRenderer {
 
       g.setColor(line.color());
       g.drawLine(
-        Math.round(from.x()), Math.round(from.y()), Math.round(to.x()), Math.round(to.y()));
+          Math.round(from.x()), Math.round(from.y()), Math.round(to.x()), Math.round(to.y()));
     }
   }
 
   private static void renderWorldCircleOutlines(
-    Graphics2D g, List<DebugDrawSnapshot.WorldCircleOutline> circles) {
+      Graphics2D g, List<DebugDrawSnapshot.WorldCircleOutline> circles) {
     for (DebugDrawSnapshot.WorldCircleOutline circle : circles) {
       Point center = CameraViewportState.worldToScreen(circle.center());
       int radiusPx = CameraViewportState.worldLengthToScreen(circle.radius());
 
       g.setColor(circle.color());
       g.drawOval(
-        Math.round(center.x()) - radiusPx,
-        Math.round(center.y()) - radiusPx,
-        radiusPx * 2,
-        radiusPx * 2);
+          Math.round(center.x()) - radiusPx,
+          Math.round(center.y()) - radiusPx,
+          radiusPx * 2,
+          radiusPx * 2);
     }
   }
 
   private static void renderWorldCircleFills(
-    Graphics2D g, List<DebugDrawSnapshot.WorldCircleFill> circles) {
+      Graphics2D g, List<DebugDrawSnapshot.WorldCircleFill> circles) {
     for (DebugDrawSnapshot.WorldCircleFill circle : circles) {
       Point center = CameraViewportState.worldToScreen(circle.center());
       int radiusPx = CameraViewportState.worldLengthToScreen(circle.radius());
 
       g.setColor(circle.color());
       g.fillOval(
-        Math.round(center.x()) - radiusPx,
-        Math.round(center.y()) - radiusPx,
-        radiusPx * 2,
-        radiusPx * 2);
+          Math.round(center.x()) - radiusPx,
+          Math.round(center.y()) - radiusPx,
+          radiusPx * 2,
+          radiusPx * 2);
     }
   }
 
   private static void renderScreenRectangles(
-    Graphics2D g, List<DebugDrawSnapshot.ScreenRectangle> rectangles) {
+      Graphics2D g, List<DebugDrawSnapshot.ScreenRectangle> rectangles) {
     for (DebugDrawSnapshot.ScreenRectangle rect : rectangles) {
       int roundX = Math.round(rect.topLeft().x());
       int roundY = Math.round(rect.topLeft().y());

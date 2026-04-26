@@ -7,6 +7,7 @@ package core.platform.adapters;
  * runtime behavior without coupling to specific platform implementations.
  *
  * <p>Key responsibilities:
+ *
  * <ul>
  *   <li>Requesting application exit/shutdown
  *   <li>Detecting whether the application is running in headless mode
@@ -25,9 +26,9 @@ public interface RuntimeAdapter {
   /**
    * Checks whether the application is running in headless mode.
    *
-   * <p>Headless mode indicates the absence of a display/graphics output (e.g., running on a
-   * server or in a test environment). In headless mode, certain UI and rendering operations
-   * may not be available.
+   * <p>Headless mode indicates the absence of a display/graphics output (e.g., running on a server
+   * or in a test environment). In headless mode, certain UI and rendering operations may not be
+   * available.
    *
    * @return true if running in headless mode, false otherwise
    */

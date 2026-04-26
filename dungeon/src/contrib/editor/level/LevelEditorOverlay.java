@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents an overlay UI component for a level editor, providing a dynamically sized panel
- * to display editor-related information, including status lines, a title, and feedback messages.
+ * Represents an overlay UI component for a level editor, providing a dynamically sized panel to
+ * display editor-related information, including status lines, a title, and feedback messages.
  *
- * <p>This class extends {@code BaseUiOverlay}, allowing it to be rendered
- * on top of the main game screen and manipulated based on its position, size, and visibility.
+ * <p>This class extends {@code BaseUiOverlay}, allowing it to be rendered on top of the main game
+ * screen and manipulated based on its position, size, and visibility.
  *
  * <p>It is a final class, meaning it cannot be subclassed.
  */

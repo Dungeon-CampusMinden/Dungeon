@@ -207,14 +207,16 @@ public class AnimationConfig implements Cloneable, Serializable {
    * Loads a map of {@link AnimationConfig}s from a JSON file.
    *
    * @param jsonFilePath path to the JSON file (relative to assets)
-   * @return a map of animation name → {@link AnimationConfig}, or {@code null} if a file is not found
+   * @return a map of animation name → {@link AnimationConfig}, or {@code null} if a file is not
+   *     found
    */
   public static Map<String, AnimationConfig> loadAnimationConfigMap(String jsonFilePath) {
     Map<String, AnimationConfig> animationMap = new HashMap<>();
 
     // Engine-neutral resource lookup (works for libGDX and non-libGDX hosts like LITIENGINE)
-    if (jsonFilePath == null || jsonFilePath.isBlank()
-      || !core.platform.Platform.resources().exists(jsonFilePath)) {
+    if (jsonFilePath == null
+        || jsonFilePath.isBlank()
+        || !core.platform.Platform.resources().exists(jsonFilePath)) {
       return null;
     }
 

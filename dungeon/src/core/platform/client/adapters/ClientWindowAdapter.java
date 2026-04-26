@@ -5,12 +5,12 @@ import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.configuration.DisplayMode;
 
 /**
- * An implementation of the {@link WindowAdapter} interface that provides a concrete adapter
- * for managing window operations in a game context.
+ * An implementation of the {@link WindowAdapter} interface that provides a concrete adapter for
+ * managing window operations in a game context.
  *
- * <p>This class interacts with the {@code Game.window()} method to perform window-related operations,
- * such as retrieving window dimensions or setting the window title. For unsupported operations
- * like fullscreen toggling, the implementation provides safe no-op behavior.
+ * <p>This class interacts with the {@code Game.window()} method to perform window-related
+ * operations, such as retrieving window dimensions or setting the window title. For unsupported
+ * operations like fullscreen toggling, the implementation provides safe no-op behavior.
  */
 public final class ClientWindowAdapter implements WindowAdapter {
 
@@ -61,8 +61,8 @@ public final class ClientWindowAdapter implements WindowAdapter {
   public void setFullscreen(boolean fullscreen) {
     try {
       Game.config()
-        .graphics()
-        .setDisplayMode(fullscreen ? DisplayMode.FULLSCREEN : DisplayMode.WINDOWED);
+          .graphics()
+          .setDisplayMode(fullscreen ? DisplayMode.FULLSCREEN : DisplayMode.WINDOWED);
       Game.config().save();
     } catch (Exception ignored) {
       // fail-safe

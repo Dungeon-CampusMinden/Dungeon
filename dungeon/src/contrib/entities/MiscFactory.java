@@ -200,8 +200,7 @@ public final class MiscFactory {
                         interactor
                             .fetch(InventoryComponent.class)
                             .ifPresent(
-                                ignored ->
-                                    showDualInventoryUi(interactor, interacted, interactor)),
+                                ignored -> showDualInventoryUi(interactor, interacted, interactor)),
                     ADJACENT_TILE_INTERACTION_RADIUS)));
 
     return chest;
@@ -322,13 +321,13 @@ public final class MiscFactory {
     cauldron.add(invComp);
 
     cauldron.add(
-      new InteractionComponent(
-        () ->
-          new Interaction(
-            (entity, who) ->
-              who.fetch(InventoryComponent.class)
-                .ifPresent(ic -> createCraftingDialogUi(who, entity)),
-            ADJACENT_TILE_INTERACTION_RADIUS)));
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (entity, who) ->
+                        who.fetch(InventoryComponent.class)
+                            .ifPresent(ic -> createCraftingDialogUi(who, entity)),
+                    ADJACENT_TILE_INTERACTION_RADIUS)));
 
     cauldron.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return cauldron;
@@ -353,73 +352,68 @@ public final class MiscFactory {
    * <p>This method generates a dialog interface for crafting, registers crafting-related callbacks,
    * and handles dialog lifecycle events such as close behavior.
    *
-   * @param who            The entity representing the player or user for whom the crafting dialog is created.
-   * @param craftingEntity The entity providing crafting functionality or inventory, such as a crafting station.
+   * @param who The entity representing the player or user for whom the crafting dialog is created.
+   * @param craftingEntity The entity providing crafting functionality or inventory, such as a
+   *     crafting station.
    */
   public static void createCraftingDialogUi(Entity who, Entity craftingEntity) {
     DialogContext context =
-      DialogContext.builder()
-        .type(DialogType.DefaultTypes.CRAFTING_GUI)
-        .put(DialogContextKeys.ENTITY, who.id())
-        .put(DialogContextKeys.SECONDARY_ENTITY, craftingEntity.id())
-        .put(DialogContextKeys.OWNER_ENTITY, who.id())
-        .build();
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.CRAFTING_GUI)
+            .put(DialogContextKeys.ENTITY, who.id())
+            .put(DialogContextKeys.SECONDARY_ENTITY, craftingEntity.id())
+            .put(DialogContextKeys.OWNER_ENTITY, who.id())
+            .build();
 
-    UIComponent ui =
-      DialogService.show(
-        context,
-        true,
-        true,
-        new int[] {who.id()});
+    UIComponent ui = DialogService.show(context, true, true, new int[] {who.id()});
 
     ui.registerCallback(
-      CALLBACK_CRAFT,
-      _ -> {
-        InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
-        InventoryComponent craftingInventory =
-          craftingEntity.fetch(InventoryComponent.class).orElse(null);
+        CALLBACK_CRAFT,
+        _ -> {
+          InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
+          InventoryComponent craftingInventory =
+              craftingEntity.fetch(InventoryComponent.class).orElse(null);
 
-        if (targetInventory == null || craftingInventory == null) {
-          return;
-        }
+          if (targetInventory == null || craftingInventory == null) {
+            return;
+          }
 
-        craftFromInventory(targetInventory, craftingInventory);
-      });
+          craftFromInventory(targetInventory, craftingInventory);
+        });
 
     ui.registerCallback(
-      CALLBACK_CANCEL,
-      _ -> {
-        InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
-        InventoryComponent craftingInventory =
-          craftingEntity.fetch(InventoryComponent.class).orElse(null);
+        CALLBACK_CANCEL,
+        _ -> {
+          InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
+          InventoryComponent craftingInventory =
+              craftingEntity.fetch(InventoryComponent.class).orElse(null);
 
-        if (targetInventory == null || craftingInventory == null) {
-          return;
-        }
+          if (targetInventory == null || craftingInventory == null) {
+            return;
+          }
 
-        cancelCrafting(targetInventory, craftingInventory);
-        UIUtils.closeDialog(ui, false);
-      });
+          cancelCrafting(targetInventory, craftingInventory);
+          UIUtils.closeDialog(ui, false);
+        });
 
     ui.onClose(
-      _ -> {
-        InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
-        InventoryComponent craftingInventory =
-          craftingEntity.fetch(InventoryComponent.class).orElse(null);
+        _ -> {
+          InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
+          InventoryComponent craftingInventory =
+              craftingEntity.fetch(InventoryComponent.class).orElse(null);
 
-        if (targetInventory == null || craftingInventory == null) {
-          return;
-        }
+          if (targetInventory == null || craftingInventory == null) {
+            return;
+          }
 
-        cancelCrafting(targetInventory, craftingInventory);
-      });
-
+          cancelCrafting(targetInventory, craftingInventory);
+        });
   }
 
   private static void craftFromInventory(
-    InventoryComponent targetInventory, InventoryComponent craftingInventory) {
+      InventoryComponent targetInventory, InventoryComponent craftingInventory) {
     Item[] ingredients =
-      Arrays.stream(craftingInventory.items()).filter(Objects::nonNull).toArray(Item[]::new);
+        Arrays.stream(craftingInventory.items()).filter(Objects::nonNull).toArray(Item[]::new);
 
     Optional<Recipe> recipe = Crafting.recipeByIngredients(ingredients);
     if (recipe.isEmpty()) {
@@ -428,14 +422,14 @@ public final class MiscFactory {
 
     CraftingResult[] results = recipe.get().results();
     Arrays.stream(results)
-      .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
-      .forEach(result -> targetInventory.add((Item) result));
+        .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
+        .forEach(result -> targetInventory.add((Item) result));
 
     craftingInventory.clear();
   }
 
   private static void cancelCrafting(
-    InventoryComponent targetInventory, InventoryComponent craftingInventory) {
+      InventoryComponent targetInventory, InventoryComponent craftingInventory) {
     craftingInventory.transferAll(targetInventory);
   }
 
@@ -549,8 +543,7 @@ public final class MiscFactory {
                         interactor
                             .fetch(InventoryComponent.class)
                             .ifPresent(
-                                ignored ->
-                                    showDualInventoryUi(interacted, interactor, interactor)),
+                                ignored -> showDualInventoryUi(interacted, interactor, interactor)),
                     ADJACENT_TILE_INTERACTION_RADIUS)));
 
     return cookingPot;

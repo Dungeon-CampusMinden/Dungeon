@@ -8,16 +8,16 @@ import java.awt.image.BufferedImage;
 /**
  * A sprite recolor effect that remaps hue values in an image.
  *
- * <p>This effect allows you to change the color of pixels within a specified hue range to a target hue.
- * It uses HSB (Hue, Saturation, Brightness) color space to identify and transform colors based on
- * hue values. The effect includes a tolerance parameter to allow matching of colors close to the
+ * <p>This effect allows you to change the color of pixels within a specified hue range to a target
+ * hue. It uses HSB (Hue, Saturation, Brightness) color space to identify and transform colors based
+ * on hue values. The effect includes a tolerance parameter to allow matching of colors close to the
  * starting hue.
  *
  * <p>Results are cached to improve performance for repeated applications of the same effect to the
  * same image.
  */
 public final class SpriteRecolorEffect
-  implements SpriteEffect, ToggleableEffect<SpriteRecolorEffect> {
+    implements SpriteEffect, ToggleableEffect<SpriteRecolorEffect> {
 
   private static final ImageEffectCache<BufferedImage> CACHE = new ImageEffectCache<>(16);
 
@@ -62,17 +62,17 @@ public final class SpriteRecolorEffect
     }
 
     CacheKey key =
-      new CacheKey(
-        Float.floatToIntBits(startingHue),
-        Float.floatToIntBits(targetHue),
-        Float.floatToIntBits(tolerance));
+        new CacheKey(
+            Float.floatToIntBits(startingHue),
+            Float.floatToIntBits(targetHue),
+            Float.floatToIntBits(tolerance));
 
     return CACHE.getOrCompute(input, key, this::remap);
   }
 
   private BufferedImage remap(BufferedImage source) {
     BufferedImage output =
-      new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
     for (int y = 0; y < source.getHeight(); y++) {
       for (int x = 0; x < source.getWidth(); x++) {
@@ -115,8 +115,5 @@ public final class SpriteRecolorEffect
     return Math.clamp(value, 0f, 1f);
   }
 
-  private record CacheKey(
-    int startingHueBits,
-    int targetHueBits,
-    int toleranceBits) {}
+  private record CacheKey(int startingHueBits, int targetHueBits, int toleranceBits) {}
 }

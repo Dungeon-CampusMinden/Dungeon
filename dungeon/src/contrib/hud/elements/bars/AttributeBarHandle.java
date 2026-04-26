@@ -7,9 +7,7 @@ package contrib.hud.elements.bars;
  */
 public interface AttributeBarHandle {
 
-  /**
-   * Removes the bar from the UI.
-   */
+  /** Removes the bar from the UI. */
   void remove();
 
   /**

@@ -18,7 +18,7 @@ public class ISoundPlayerContractTest {
     RecordingSoundPlayer player = new RecordingSoundPlayer();
 
     Optional<PlayHandle> handle =
-      player.playWithInstance(1L, "test", 0.7f, false, 1.0f, 0.0f, null);
+        player.playWithInstance(1L, "test", 0.7f, false, 1.0f, 0.0f, null);
 
     assertTrue(handle.isPresent());
     assertEquals(1L, handle.orElseThrow().instanceId());
@@ -30,11 +30,11 @@ public class ISoundPlayerContractTest {
     RecordingSoundPlayer player = new RecordingSoundPlayer();
 
     RecordingPlayHandle handle =
-      (RecordingPlayHandle)
-        player.playWithInstance(2L, "test", 0.7f, false, 1.25f, 0.0f, null).orElseThrow();
+        (RecordingPlayHandle)
+            player.playWithInstance(2L, "test", 0.7f, false, 1.25f, 0.0f, null).orElseThrow();
 
     ISoundPlayer.SoundUpdate update =
-      ISoundPlayer.SoundUpdate.builder().paused(true).looping(true).build();
+        ISoundPlayer.SoundUpdate.builder().paused(true).looping(true).build();
 
     assertTrue(player.updateSound(2L, update));
 
@@ -49,11 +49,10 @@ public class ISoundPlayerContractTest {
     RecordingSoundPlayer player = new RecordingSoundPlayer();
 
     RecordingPlayHandle handle =
-      (RecordingPlayHandle)
-        player.playWithInstance(3L, "test", 0.8f, false, 1.0f, 0.0f, null).orElseThrow();
+        (RecordingPlayHandle)
+            player.playWithInstance(3L, "test", 0.8f, false, 1.0f, 0.0f, null).orElseThrow();
 
-    ISoundPlayer.SoundUpdate update =
-      ISoundPlayer.SoundUpdate.builder().pan(-0.5f, 0.4f).build();
+    ISoundPlayer.SoundUpdate update = ISoundPlayer.SoundUpdate.builder().pan(-0.5f, 0.4f).build();
 
     assertTrue(player.updateSound(3L, update));
 
@@ -78,8 +77,8 @@ public class ISoundPlayerContractTest {
     RecordingSoundPlayer player = new RecordingSoundPlayer();
 
     RecordingPlayHandle handle =
-      (RecordingPlayHandle)
-        player.playWithInstance(5L, "test", 0.5f, false, 1.0f, 0.0f, null).orElseThrow();
+        (RecordingPlayHandle)
+            player.playWithInstance(5L, "test", 0.5f, false, 1.0f, 0.0f, null).orElseThrow();
 
     handle.stop();
     player.update(0.016f);
@@ -116,9 +115,7 @@ public class ISoundPlayerContractTest {
     RecordingSoundPlayer player = new RecordingSoundPlayer();
 
     assertTrue(player.get(999L).isEmpty());
-    assertFalse(
-      player.updateSound(
-        999L, ISoundPlayer.SoundUpdate.builder().volume(0.3f).build()));
+    assertFalse(player.updateSound(999L, ISoundPlayer.SoundUpdate.builder().volume(0.3f).build()));
     assertFalse(player.stopByInstance(999L));
   }
 
@@ -134,13 +131,13 @@ public class ISoundPlayerContractTest {
 
     @Override
     public Optional<PlayHandle> playWithInstance(
-      long instanceId,
-      String soundName,
-      float volume,
-      boolean looping,
-      float pitch,
-      float pan,
-      Runnable onFinished) {
+        long instanceId,
+        String soundName,
+        float volume,
+        boolean looping,
+        float pitch,
+        float pan,
+        Runnable onFinished) {
 
       if (soundName == null || soundName.isBlank()) {
         return Optional.empty();
@@ -192,11 +189,13 @@ public class ISoundPlayerContractTest {
 
     @Override
     public void update(float delta) {
-      activeHandles.entrySet().removeIf(
-        entry -> {
-          entry.getValue().update(delta);
-          return entry.getValue().isFinished();
-        });
+      activeHandles
+          .entrySet()
+          .removeIf(
+              entry -> {
+                entry.getValue().update(delta);
+                return entry.getValue().isFinished();
+              });
     }
 
     @Override

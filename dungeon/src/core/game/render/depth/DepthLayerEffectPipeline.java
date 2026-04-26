@@ -7,8 +7,8 @@ import java.util.TreeMap;
 /**
  * A pipeline for applying effects to individual entity depth layers.
  *
- * <p>This class manages effect registries for each depth layer independently, allowing
- * different visual effects to be applied to different entity layers.
+ * <p>This class manages effect registries for each depth layer independently, allowing different
+ * visual effects to be applied to different entity layers.
  *
  * <p>Effects are applied sequentially to each depth layer's rendered entities.
  */
@@ -124,7 +124,8 @@ public final class DepthLayerEffectPipeline {
    * @param depthLayer the depth layer to apply effects for
    * @param source the source image to apply effects to (can be null)
    * @param nowMs the current timestamp in milliseconds
-   * @return the processed image with all effects applied, or the original image if no effects are enabled
+   * @return the processed image with all effects applied, or the original image if no effects are
+   *     enabled
    * @throws IllegalStateException if an effect returns null
    */
   public static BufferedImage apply(int depthLayer, BufferedImage source, long nowMs) {
@@ -138,7 +139,7 @@ public final class DepthLayerEffectPipeline {
       current = effect.apply(current, depthLayer, nowMs);
       if (current == null) {
         throw new IllegalStateException(
-          effect.getClass().getSimpleName() + " returned null depth-layer image.");
+            effect.getClass().getSimpleName() + " returned null depth-layer image.");
       }
     }
 
@@ -154,9 +155,7 @@ public final class DepthLayerEffectPipeline {
     EFFECTS_BY_DEPTH.remove(depthLayer);
   }
 
-  /**
-   * Clears all effects from all depth layers.
-   */
+  /** Clears all effects from all depth layers. */
   public static void clear() {
     EFFECTS_BY_DEPTH.clear();
   }

@@ -14,9 +14,9 @@ import java.util.Map;
 /**
  * Level editor mode for steering collider tuning input for decorative entities.
  *
- * <p>The mode keeps the editor-facing input flow and overlay wiring thin while
- * {@link DecoColliderController} manages test-entity lifecycle, collider mutation,
- * and clipboard export behavior.
+ * <p>The mode keeps the editor-facing input flow and overlay wiring thin while {@link
+ * DecoColliderController} manages test-entity lifecycle, collider mutation, and clipboard export
+ * behavior.
  */
 public final class DecoColliderMode extends LevelEditorMode {
 
@@ -32,8 +32,8 @@ public final class DecoColliderMode extends LevelEditorMode {
   private int rapidFireCounter = 0;
 
   /**
-   * Constructs a new instance of the DecoColliderMode class, an editing mode
-   * for managing decoration colliders in the Level Editor system.
+   * Constructs a new instance of the DecoColliderMode class, an editing mode for managing
+   * decoration colliders in the Level Editor system.
    *
    * @param system the LevelEditorSystem instance to which this mode belongs.
    */
@@ -60,10 +60,11 @@ public final class DecoColliderMode extends LevelEditorMode {
     }
 
     if (InputManager.isKeyPressed(MODE_MODIFY_MINUS)
-      || InputManager.isKeyPressed(MODE_MODIFY_PLUS)) {
+        || InputManager.isKeyPressed(MODE_MODIFY_PLUS)) {
       if (rapidFireCounter <= 0) {
         rapidFireCounter = RAPID_FIRE_THRESHOLD;
-        controller.applyCurrentEdit(InputManager.isKeyPressed(MODE_MODIFY_PLUS) ? 1 : -1, cursorWorld());
+        controller.applyCurrentEdit(
+            InputManager.isKeyPressed(MODE_MODIFY_PLUS) ? 1 : -1, cursorWorld());
       }
       rapidFireCounter--;
     }
@@ -86,13 +87,14 @@ public final class DecoColliderMode extends LevelEditorMode {
   @Override
   protected List<String> getStatusLines() {
     return List.of(
-      "Edit mode: " + controller.state().editMode().displayName(),
-      "Current deco: " + controller.state().selectedDeco().name(),
-      "Test entity: " + (controller.hasTestEntity() ? "active" : "<none>"),
-      "Collider: " + controller.colliderString().orElse(controller.hasTestEntity()
-        ? "<missing collide component>"
-        : "<none>"),
-      "Clipboard copy: automatic after collider edits");
+        "Edit mode: " + controller.state().editMode().displayName(),
+        "Current deco: " + controller.state().selectedDeco().name(),
+        "Test entity: " + (controller.hasTestEntity() ? "active" : "<none>"),
+        "Collider: "
+            + controller
+                .colliderString()
+                .orElse(controller.hasTestEntity() ? "<missing collide component>" : "<none>"),
+        "Clipboard copy: automatic after collider edits");
   }
 
   @Override

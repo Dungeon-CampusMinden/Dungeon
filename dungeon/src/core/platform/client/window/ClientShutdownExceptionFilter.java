@@ -19,15 +19,12 @@ public final class ClientShutdownExceptionFilter implements UncaughtExceptionHan
   private static final String RENDER_COMPONENT_CLASS =
       "de.gurkenlabs.litiengine.graphics.RenderComponent";
   private static final String RENDER_GRAPHICS_METHOD = "renderGraphics";
-  private static final String WINDOW_CURSOR_CALL =
-      "de.gurkenlabs.litiengine.GameWindow.cursor()";
+  private static final String WINDOW_CURSOR_CALL = "de.gurkenlabs.litiengine.GameWindow.cursor()";
   private static final String GAME_WINDOW_CALL = "de.gurkenlabs.litiengine.Game.window()";
 
   private final UncaughtExceptionHandler delegate;
 
-  /**
-   * Installs the shutdown exception filter around the current default exception handler.
-   */
+  /** Installs the shutdown exception filter around the current default exception handler. */
   public static void install() {
     Thread.UncaughtExceptionHandler current = Thread.getDefaultUncaughtExceptionHandler();
     if (current instanceof ClientShutdownExceptionFilter) {

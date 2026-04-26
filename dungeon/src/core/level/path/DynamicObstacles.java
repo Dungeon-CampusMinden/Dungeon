@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * management without modifying the static level geometry.
  *
  * <p>Use cases:
+ *
  * <ul>
  *   <li>Blocking paths around entities or objects
  *   <li>Temporarily disabling passage through certain coordinates
@@ -31,8 +32,8 @@ public final class DynamicObstacles {
   /**
    * Marks a coordinate as blocked/obstacle.
    *
-   * <p>After blocking, the coordinate will be considered an obstacle for pathfinding and
-   * movement checks. Null coordinates are ignored.
+   * <p>After blocking, the coordinate will be considered an obstacle for pathfinding and movement
+   * checks. Null coordinates are ignored.
    *
    * @param c the coordinate to block, or null (safely ignored)
    */
@@ -43,8 +44,8 @@ public final class DynamicObstacles {
   /**
    * Removes a blocked/obstacle status from a coordinate.
    *
-   * <p>After unblocking, the coordinate will no longer be considered an obstacle.
-   * Null coordinates are ignored.
+   * <p>After unblocking, the coordinate will no longer be considered an obstacle. Null coordinates
+   * are ignored.
    *
    * @param c the coordinate to unblock, or null (safely ignored)
    */

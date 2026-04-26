@@ -6,9 +6,9 @@ import core.game.render.image.ImageEffectCache;
 import java.awt.image.BufferedImage;
 
 /**
- * Represents a sprite effect that applies a color grading transformation to the input image.
- * The effect modifies the hue, saturation, and brightness of a sprite based on configurable
- * parameters. The changes are applied only if the effect is enabled.
+ * Represents a sprite effect that applies a color grading transformation to the input image. The
+ * effect modifies the hue, saturation, and brightness of a sprite based on configurable parameters.
+ * The changes are applied only if the effect is enabled.
  *
  * <p>This effect supports chaining methods for configuring their parameters and uses a caching
  * mechanism to avoid redundant calculations.
@@ -17,7 +17,7 @@ import java.awt.image.BufferedImage;
  * Graphics2D render path.
  */
 public final class SpriteColorGradeEffect
-  implements SpriteEffect, ToggleableEffect<SpriteColorGradeEffect> {
+    implements SpriteEffect, ToggleableEffect<SpriteColorGradeEffect> {
 
   private static final ImageEffectCache<BufferedImage> CACHE = new ImageEffectCache<>(16);
 
@@ -33,8 +33,7 @@ public final class SpriteColorGradeEffect
    * @param saturationMultiplier multiplier for saturation
    * @param valueMultiplier multiplier for value/brightness
    */
-  public SpriteColorGradeEffect(
-    float hue, float saturationMultiplier, float valueMultiplier) {
+  public SpriteColorGradeEffect(float hue, float saturationMultiplier, float valueMultiplier) {
     this.hue(hue);
     this.saturationMultiplier(saturationMultiplier);
     this.valueMultiplier(valueMultiplier);
@@ -101,17 +100,17 @@ public final class SpriteColorGradeEffect
     }
 
     CacheKey key =
-      new CacheKey(
-        Float.floatToIntBits(hue),
-        Float.floatToIntBits(saturationMultiplier),
-        Float.floatToIntBits(valueMultiplier));
+        new CacheKey(
+            Float.floatToIntBits(hue),
+            Float.floatToIntBits(saturationMultiplier),
+            Float.floatToIntBits(valueMultiplier));
 
     return CACHE.getOrCompute(input, key, this::grade);
   }
 
   private BufferedImage grade(BufferedImage source) {
     BufferedImage output =
-      new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
     for (int y = 0; y < source.getHeight(); y++) {
       for (int x = 0; x < source.getWidth(); x++) {
@@ -124,15 +123,12 @@ public final class SpriteColorGradeEffect
         }
 
         output.setRGB(
-          x, y, ColorGradeUtils.gradeArgb(argb, hue, saturationMultiplier, valueMultiplier));
+            x, y, ColorGradeUtils.gradeArgb(argb, hue, saturationMultiplier, valueMultiplier));
       }
     }
 
     return output;
   }
 
-  private record CacheKey(
-    int hueBits,
-    int saturationMultiplierBits,
-    int valueMultiplierBits) {}
+  private record CacheKey(int hueBits, int saturationMultiplierBits, int valueMultiplierBits) {}
 }

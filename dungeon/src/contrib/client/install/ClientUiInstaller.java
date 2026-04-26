@@ -46,4 +46,3 @@ public final class ClientUiInstaller implements ClientLoopHostInstaller {
     SystemRegistration.addIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
   }
 }
-

@@ -12,9 +12,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Represents a finite state machine that can manage states, transitions, and animations tied to those states.
+ * Represents a finite state machine that can manage states, transitions, and animations tied to
+ * those states.
  *
- * <p>Supports signal-based transitions, automatic epsilon transitions, and customizable configurations.
+ * <p>Supports signal-based transitions, automatic epsilon transitions, and customizable
+ * configurations.
  */
 public class StateMachine implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
@@ -27,9 +29,7 @@ public class StateMachine implements Serializable {
    */
   private static boolean resetFrame = true;
 
-  /**
-   * Default name for the idle state.
-   */
+  /** Default name for the idle state. */
   public static final String IDLE_STATE = "idle";
 
   private State currentState;
@@ -38,7 +38,8 @@ public class StateMachine implements Serializable {
   private final Map<State, List<EpsilonTransition>> epsilonTransitions = new HashMap<>();
 
   /**
-   * Constructs a StateMachine with an animation loaded from the specified path and spritesheet configuration.
+   * Constructs a StateMachine with an animation loaded from the specified path and spritesheet
+   * configuration.
    *
    * @param path the resource path to load the animation from
    * @param config the spritesheet configuration for the animation
@@ -59,7 +60,8 @@ public class StateMachine implements Serializable {
   }
 
   /**
-   * Constructs a StateMachine by loading an animation from the specified path with default configuration.
+   * Constructs a StateMachine by loading an animation from the specified path with default
+   * configuration.
    *
    * @param path the resource path to load the animation from
    */
@@ -68,8 +70,8 @@ public class StateMachine implements Serializable {
   }
 
   /**
-   * Constructs a StateMachine with an animation loaded from the specified path,
-   * using a custom default state name.
+   * Constructs a StateMachine with an animation loaded from the specified path, using a custom
+   * default state name.
    *
    * @param path the resource path to load the animation from
    * @param defaultStateName the name of the default state to set as initial
@@ -79,7 +81,8 @@ public class StateMachine implements Serializable {
   }
 
   /**
-   * Constructs a StateMachine with an animation loaded from the specified path and animation configuration.
+   * Constructs a StateMachine with an animation loaded from the specified path and animation
+   * configuration.
    *
    * @param path the resource path to load the animation from
    * @param config the animation configuration
@@ -89,8 +92,8 @@ public class StateMachine implements Serializable {
   }
 
   /**
-   * Constructs a StateMachine with an animation loaded from the specified path,
-   * with custom animation configuration and default state name.
+   * Constructs a StateMachine with an animation loaded from the specified path, with custom
+   * animation configuration and default state name.
    *
    * @param path the resource path to load the animation from
    * @param config the animation configuration
@@ -107,7 +110,10 @@ public class StateMachine implements Serializable {
     }
 
     State defaultState =
-      states.stream().filter(s -> s.name.equals(defaultStateName)).findFirst().orElse(states.get(0));
+        states.stream()
+            .filter(s -> s.name.equals(defaultStateName))
+            .findFirst()
+            .orElse(states.get(0));
     currentState = defaultState;
     currentState.onEnter();
   }
@@ -126,7 +132,8 @@ public class StateMachine implements Serializable {
    * Constructs a StateMachine with the specified states and default state.
    *
    * @param states the list of states for this state machine
-   * @param defaultState the state to set as the initial current state; if null, the first state is used
+   * @param defaultState the state to set as the initial current state; if null, the first state is
+   *     used
    * @throws IllegalArgumentException if states is null or empty
    */
   public StateMachine(List<State> states, State defaultState) {
@@ -227,7 +234,8 @@ public class StateMachine implements Serializable {
    * @param from the name of the source state
    * @param signal the signal that triggers this transition
    * @param to the name of the target state
-   * @return the previously existing transition for this signal from the source state, or null if none existed
+   * @return the previously existing transition for this signal from the source state, or null if
+   *     none existed
    * @throws IllegalArgumentException if either state doesn't exist
    */
   public Transition addTransition(String from, String signal, String to) {
@@ -244,23 +252,25 @@ public class StateMachine implements Serializable {
    * @param from the source state
    * @param signal the signal that triggers this transition
    * @param to the target state
-   * @return the previously existing transition for this signal from the source state, or null if none existed
+   * @return the previously existing transition for this signal from the source state, or null if
+   *     none existed
    */
   public Transition addTransition(State from, String signal, State to) {
     List<Transition> fromTransitions = getTransitionList(from);
     Transition existing =
-      fromTransitions.stream().filter(t -> t.signal().equals(signal)).findFirst().orElse(null);
+        fromTransitions.stream().filter(t -> t.signal().equals(signal)).findFirst().orElse(null);
     if (existing != null) fromTransitions.remove(existing);
     fromTransitions.add(new Transition(signal, to));
     return existing;
   }
 
   /**
-   * Compatibility helper: allows DrawComponent to call addTransition(Transition).
-   * Uses the current state as source.
+   * Compatibility helper: allows DrawComponent to call addTransition(Transition). Uses the current
+   * state as source.
    *
    * @param transition the transition to add from the current state
-   * @return the previously existing transition, or null if none existed or the transition parameter was null
+   * @return the previously existing transition, or null if none existed or the transition parameter
+   *     was null
    */
   public Transition addTransition(Transition transition) {
     if (transition == null) return null;
@@ -268,7 +278,8 @@ public class StateMachine implements Serializable {
   }
 
   /**
-   * Adds an epsilon transition (automatic transition) with a condition function and optional data supplier.
+   * Adds an epsilon transition (automatic transition) with a condition function and optional data
+   * supplier.
    *
    * @param from the source state
    * @param function the condition function that determines when the transition should occur
@@ -277,10 +288,10 @@ public class StateMachine implements Serializable {
    * @return the previously existing epsilon transition to the target state, or null if none existed
    */
   public EpsilonTransition addEpsilonTransition(
-    State from, Function<State, Boolean> function, State to, Supplier<Object> dataSupplier) {
+      State from, Function<State, Boolean> function, State to, Supplier<Object> dataSupplier) {
     List<EpsilonTransition> fromTransitions = getEpsilonTransitionList(from);
     EpsilonTransition existing =
-      fromTransitions.stream().filter(t -> t.targetState() == to).findFirst().orElse(null);
+        fromTransitions.stream().filter(t -> t.targetState() == to).findFirst().orElse(null);
     if (existing != null) fromTransitions.remove(existing);
     fromTransitions.add(new EpsilonTransition(function, to, dataSupplier));
     return existing;
@@ -294,7 +305,8 @@ public class StateMachine implements Serializable {
    * @param to the target state
    * @return the previously existing epsilon transition to the target state, or null if none existed
    */
-  public EpsilonTransition addEpsilonTransition(State from, Function<State, Boolean> function, State to) {
+  public EpsilonTransition addEpsilonTransition(
+      State from, Function<State, Boolean> function, State to) {
     return addEpsilonTransition(from, function, to, null);
   }
 
@@ -330,7 +342,7 @@ public class StateMachine implements Serializable {
   public boolean removeTransition(State from, String signal) {
     List<Transition> fromTransitions = getTransitionList(from);
     Transition transition =
-      fromTransitions.stream().filter(t -> t.signal().equals(signal)).findFirst().orElse(null);
+        fromTransitions.stream().filter(t -> t.signal().equals(signal)).findFirst().orElse(null);
     if (transition != null) return fromTransitions.remove(transition);
     return false;
   }
@@ -359,24 +371,20 @@ public class StateMachine implements Serializable {
     changeState(t.targetState(), signal.data);
   }
 
-  /**
-   * Updates the current state and checks for automatic (epsilon) transitions.
-   */
+  /** Updates the current state and checks for automatic (epsilon) transitions. */
   public void update() {
     currentState.update();
     checkEpsilonTransitions();
   }
 
-  /**
-   * Resets the state machine to the first state.
-   */
+  /** Resets the state machine to the first state. */
   public void reset() {
     changeState(states.get(0), null);
   }
 
   /**
-   * Returns the current frame of the animation in the current state.
-   * Engine-agnostic: returns current frame instead of a platform-specific Sprite.
+   * Returns the current frame of the animation in the current state. Engine-agnostic: returns
+   * current frame instead of a platform-specific Sprite.
    *
    * @return the current animation frame
    */
@@ -437,21 +445,27 @@ public class StateMachine implements Serializable {
   @Override
   public String toString() {
     StringBuilder sb =
-      new StringBuilder("StateMachine{" + "currentState=" + currentState.name + "}\n");
+        new StringBuilder("StateMachine{" + "currentState=" + currentState.name + "}\n");
     sb.append("States:\n");
     for (State state : states) {
       sb.append("- ").append(state.name).append(" (object: ").append(state).append(")\n");
       for (Transition t : getTransitionList(state)) {
-        sb.append("-- \"").append(t.signal()).append("\" -> ").append(t.targetState().name).append("\n");
+        sb.append("-- \"")
+            .append(t.signal())
+            .append("\" -> ")
+            .append(t.targetState().name)
+            .append("\n");
       }
     }
     return sb.toString();
   }
 
   /**
-   * Sets the global configuration for whether frame counters should be reset when animation states change.
+   * Sets the global configuration for whether frame counters should be reset when animation states
+   * change.
    *
-   * @param value true to reset frame counters on state change, false to continue from current frame count
+   * @param value true to reset frame counters on state change, false to continue from current frame
+   *     count
    */
   public static void setResetFrame(boolean value) {
     resetFrame = value;
@@ -474,10 +488,11 @@ public class StateMachine implements Serializable {
   }
 
   /**
-   * Sets the global configuration for whether frame counters should be reset when animation states change.
-   * This is an alias for {@link #setResetFrame(boolean)}.
+   * Sets the global configuration for whether frame counters should be reset when animation states
+   * change. This is an alias for {@link #setResetFrame(boolean)}.
    *
-   * @param value true to reset frame counters on state change, false to continue from current frame count
+   * @param value true to reset frame counters on state change, false to continue from current frame
+   *     count
    */
   public static void resetFrameOnStateChange(boolean value) {
     resetFrame = value;

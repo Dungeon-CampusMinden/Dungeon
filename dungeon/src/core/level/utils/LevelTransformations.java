@@ -15,8 +15,8 @@ public final class LevelTransformations {
   /**
    * Creates a resized copy of a level layout.
    *
-   * <p>Existing cells keep their current {@link LevelElement}; new cells are filled with
-   * {@link LevelElement#SKIP}. Cells outside the new bounds are omitted.
+   * <p>Existing cells keep their current {@link LevelElement}; new cells are filled with {@link
+   * LevelElement#SKIP}. Cells outside the new bounds are omitted.
    *
    * @param layout the current tile layout
    * @param rows the target row count
@@ -42,8 +42,8 @@ public final class LevelTransformations {
   /**
    * Creates a shifted copy of a level layout.
    *
-   * <p>Cells shifted outside the layout are omitted. Newly exposed cells are filled with
-   * {@link LevelElement#SKIP}.
+   * <p>Cells shifted outside the layout are omitted. Newly exposed cells are filled with {@link
+   * LevelElement#SKIP}.
    *
    * @param layout the current tile layout
    * @param xOffset horizontal shift offset
@@ -78,10 +78,7 @@ public final class LevelTransformations {
    * @return start-tile coordinates in list order
    */
   public static List<Coordinate> startTileCoordinates(ILevel level) {
-    return level.startTiles().stream()
-        .filter(Objects::nonNull)
-        .map(Tile::coordinate)
-        .toList();
+    return level.startTiles().stream().filter(Objects::nonNull).map(Tile::coordinate).toList();
   }
 
   /**

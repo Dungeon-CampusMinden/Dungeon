@@ -86,8 +86,8 @@ public class PathComponent implements Component {
   /**
    * Returns a string representation of this component, including the number of tiles in the path.
    *
-   * @return a string in the format {@code PathComponent{path(size)=N}}, where {@code N} is the
-   *     path size or {@code -1} if the path is {@code null}
+   * @return a string in the format {@code PathComponent{path(size)=N}}, where {@code N} is the path
+   *     size or {@code -1} if the path is {@code null}
    */
   @Override
   public String toString() {

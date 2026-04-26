@@ -1,8 +1,8 @@
 package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.ItemGridDragController;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.item.Item;
 import java.util.List;
 import java.util.stream.Stream;
@@ -176,7 +176,7 @@ final class DualInventoryDialogOverlay
   }
 
   private boolean acceptsDrop(
-    ItemGridHitTest.Slot<InventorySide> source, ItemGridHitTest.Slot<InventorySide> target) {
+      ItemGridHitTest.Slot<InventorySide> source, ItemGridHitTest.Slot<InventorySide> target) {
     return target != null && !target.equals(source);
   }
 

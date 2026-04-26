@@ -28,6 +28,7 @@ public final class AttributeBarLayout {
 
   /** Gap between stacked bars. */
   public static final float BAR_GAP = 15f;
+
   private static final float BAR_MARGIN = 6f;
   private static final float SPRITE_CENTER_X_OFFSET = 0.5f;
   private static final float SPRITE_BOTTOM_Y_OFFSET = -1f;
@@ -46,39 +47,40 @@ public final class AttributeBarLayout {
    * @param verticalOffset vertical offset below the entity
    */
   public static void addBarToEntity(
-    Entity entity,
-    BarDisplayable barDisplayable,
-    Map<Class<? extends BarDisplayable>, AttributeBarHandle> barMapping,
-    float verticalOffset) {
+      Entity entity,
+      BarDisplayable barDisplayable,
+      Map<Class<? extends BarDisplayable>, AttributeBarHandle> barMapping,
+      float verticalOffset) {
     Entity barEntity = Entity.createLocalEntity(barDisplayable.barStyleName() + "_" + entity.id());
 
     DialogContext context =
-      DialogContext.builder()
-        .type(DialogType.DefaultTypes.ATTRIBUTE_BAR)
-        .center(false)
-        .put(
-          DialogContextKeys.ATTRIBUTE_BAR,
-          new AttributeBarOverlayData(
-            entity.fetch(PositionComponent.class).orElseThrow(),
-            barDisplayable.barStyleName(),
-            verticalOffset))
-        .put(DialogContextKeys.OWNER_ENTITY, barEntity.id())
-        .build();
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.ATTRIBUTE_BAR)
+            .center(false)
+            .put(
+                DialogContextKeys.ATTRIBUTE_BAR,
+                new AttributeBarOverlayData(
+                    entity.fetch(PositionComponent.class).orElseThrow(),
+                    barDisplayable.barStyleName(),
+                    verticalOffset))
+            .put(DialogContextKeys.OWNER_ENTITY, barEntity.id())
+            .build();
 
     UIComponent uiComp = new UIComponent(context, false, false);
     barEntity.add(uiComp);
     Game.add(barEntity);
 
-    uiComp.dialog()
-      .flatMap(handle -> handle.unwrap(AttributeBarHandle.class))
-      .ifPresentOrElse(
-        handle -> {
-          barMapping.put(barDisplayable.getClass(), handle);
-          updatePosition(handle, entity, verticalOffset);
-          handle.setValue(barDisplayable.current() / barDisplayable.max());
-          handle.setVisible(shouldShowBar(entity, barDisplayable));
-        },
-        () -> LOGGER.error("Failed to create progress bar for entity {}", entity));
+    uiComp
+        .dialog()
+        .flatMap(handle -> handle.unwrap(AttributeBarHandle.class))
+        .ifPresentOrElse(
+            handle -> {
+              barMapping.put(barDisplayable.getClass(), handle);
+              updatePosition(handle, entity, verticalOffset);
+              handle.setValue(barDisplayable.current() / barDisplayable.max());
+              handle.setVisible(shouldShowBar(entity, barDisplayable));
+            },
+            () -> LOGGER.error("Failed to create progress bar for entity {}", entity));
   }
 
   /**
@@ -89,16 +91,15 @@ public final class AttributeBarLayout {
    * @param verticalOffset additional screen-space offset below the sprite
    */
   public static void updatePosition(
-    AttributeBarHandle bar, PositionComponent pc, float verticalOffset) {
+      AttributeBarHandle bar, PositionComponent pc, float verticalOffset) {
     // Sprite rendering bottom-aligns entities to their tile, so the visual bottom edge projects
     // from one world unit below the PositionComponent's tile origin.
-    Point anchorPoint =
-      pc.position().translate(SPRITE_CENTER_X_OFFSET, SPRITE_BOTTOM_Y_OFFSET);
+    Point anchorPoint = pc.position().translate(SPRITE_CENTER_X_OFFSET, SPRITE_BOTTOM_Y_OFFSET);
     Game.stage()
-      .flatMap(stageHandle -> Platform.render().projectWorldToStage(anchorPoint, stageHandle))
-      .ifPresent(
-        screenPoint ->
-          bar.setPosition(screenPoint.x(), barScreenY(screenPoint.y(), verticalOffset)));
+        .flatMap(stageHandle -> Platform.render().projectWorldToStage(anchorPoint, stageHandle))
+        .ifPresent(
+            screenPoint ->
+                bar.setPosition(screenPoint.x(), barScreenY(screenPoint.y(), verticalOffset)));
   }
 
   /**
@@ -110,10 +111,12 @@ public final class AttributeBarLayout {
    */
   public static void updatePosition(AttributeBarHandle bar, Entity entity, float verticalOffset) {
     Game.stage()
-      .flatMap(stageHandle -> Platform.render().projectWorldToStage(barAnchorPoint(entity), stageHandle))
-      .ifPresent(
-        screenPoint ->
-          bar.setPosition(screenPoint.x(), barScreenY(screenPoint.y(), verticalOffset)));
+        .flatMap(
+            stageHandle ->
+                Platform.render().projectWorldToStage(barAnchorPoint(entity), stageHandle))
+        .ifPresent(
+            screenPoint ->
+                bar.setPosition(screenPoint.x(), barScreenY(screenPoint.y(), verticalOffset)));
   }
 
   /**
@@ -125,10 +128,10 @@ public final class AttributeBarLayout {
    * @param verticalOffset vertical offset below the entity
    */
   public static void updateBar(
-    Entity entity,
-    BarDisplayable barDisplayable,
-    Map<Class<? extends BarDisplayable>, AttributeBarHandle> barMapping,
-    float verticalOffset) {
+      Entity entity,
+      BarDisplayable barDisplayable,
+      Map<Class<? extends BarDisplayable>, AttributeBarHandle> barMapping,
+      float verticalOffset) {
     AttributeBarHandle bar = barMapping.get(barDisplayable.getClass());
     if (bar == null) {
       return;
@@ -141,7 +144,8 @@ public final class AttributeBarLayout {
   }
 
   static boolean shouldShowBar(Entity entity, BarDisplayable barDisplayable) {
-    boolean entityVisible = entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false);
+    boolean entityVisible =
+        entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false);
     if (!entityVisible) {
       return false;
     }
@@ -154,7 +158,8 @@ public final class AttributeBarLayout {
         return manaComponent.wasConsumed() || manaComponent.current() != manaComponent.max();
       }
       if (barDisplayable instanceof StaminaComponent staminaComponent) {
-        return staminaComponent.wasConsumed() || staminaComponent.current() != staminaComponent.max();
+        return staminaComponent.wasConsumed()
+            || staminaComponent.current() != staminaComponent.max();
       }
     }
 
@@ -162,12 +167,9 @@ public final class AttributeBarLayout {
   }
 
   static Point barAnchorPoint(Entity entity) {
-    PositionComponent positionComponent =
-      entity.fetch(PositionComponent.class).orElseThrow();
+    PositionComponent positionComponent = entity.fetch(PositionComponent.class).orElseThrow();
 
-    return positionComponent
-      .position()
-      .translate(SPRITE_CENTER_X_OFFSET, SPRITE_BOTTOM_Y_OFFSET);
+    return positionComponent.position().translate(SPRITE_CENTER_X_OFFSET, SPRITE_BOTTOM_Y_OFFSET);
   }
 
   private static float barScreenY(float anchorY, float verticalOffset) {

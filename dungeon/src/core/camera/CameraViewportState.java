@@ -83,9 +83,9 @@ public final class CameraViewportState {
 
     float worldX = (float) ((screenPoint.x() - viewport.offsetX()) / tilePx);
     float worldY =
-      viewport.levelHeight() > 0
-        ? (float) (viewport.levelHeight() - screenTileY)
-        : (float) screenTileY;
+        viewport.levelHeight() > 0
+            ? (float) (viewport.levelHeight() - screenTileY)
+            : (float) screenTileY;
 
     return new Point(worldX, worldY);
   }
@@ -105,9 +105,9 @@ public final class CameraViewportState {
 
     float screenX = (float) (worldPoint.x() * tilePx + viewport.offsetX());
     float screenY =
-      levelHeight > 0
-        ? (float) (((levelHeight - 1) - worldPoint.y()) * tilePx + viewport.offsetY())
-        : (float) (worldPoint.y() * tilePx + viewport.offsetY());
+        levelHeight > 0
+            ? (float) (((levelHeight - 1) - worldPoint.y()) * tilePx + viewport.offsetY())
+            : (float) (worldPoint.y() * tilePx + viewport.offsetY());
 
     return new Point(screenX, screenY);
   }
@@ -134,5 +134,4 @@ public final class CameraViewportState {
     float halfTile = tilePx * 0.5f;
     return new Point(topLeft.x() + halfTile, topLeft.y() + halfTile);
   }
-
 }

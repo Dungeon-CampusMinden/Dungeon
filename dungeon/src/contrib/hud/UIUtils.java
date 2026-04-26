@@ -14,8 +14,8 @@ import java.util.stream.Stream;
 /**
  * Utility class that provides helper methods for UI-related functionalities.
  *
- * <p>This class contains methods for formatting strings, manipulating dialogs,
- * and retrieving inventory components from UI elements.
+ * <p>This class contains methods for formatting strings, manipulating dialogs, and retrieving
+ * inventory components from UI elements.
  *
  * <p>The class is not instantiable.
  */
@@ -118,10 +118,8 @@ public final class UIUtils {
    * @return stream of contained inventory components
    */
   public static Stream<InventoryComponent> getInventoriesFromUI(UIComponent ui) {
-    return ui.dialog()
-      .flatMap(handle -> handle.unwrap(InventoryDialogProvider.class))
-      .stream()
-      .flatMap(InventoryDialogProvider::inventoryComponents);
+    return ui.dialog().flatMap(handle -> handle.unwrap(InventoryDialogProvider.class)).stream()
+        .flatMap(InventoryDialogProvider::inventoryComponents);
   }
 
   /**
@@ -132,7 +130,7 @@ public final class UIUtils {
    * @param callDefaultClose whether to call the default onClose callback
    */
   public static void closeDialog(
-    UIComponent uiComponent, boolean deleteOwner, boolean callDefaultClose) {
+      UIComponent uiComponent, boolean deleteOwner, boolean callDefaultClose) {
     if (callDefaultClose) {
       uiComponent.onClose().accept(uiComponent);
     }
@@ -146,8 +144,8 @@ public final class UIUtils {
       for (Integer targetId : uiComponent.targetEntityIds()) {
         Optional<Entity> target = Game.findEntityById(targetId);
         target
-          .flatMap(t -> t.fetch(PlayerComponent.class))
-          .ifPresent(PlayerComponent::decrementOpenDialogs);
+            .flatMap(t -> t.fetch(PlayerComponent.class))
+            .ifPresent(PlayerComponent::decrementOpenDialogs);
       }
 
       LOGGER.debug("Closed dialog on entity {}", ownerEntity.id());

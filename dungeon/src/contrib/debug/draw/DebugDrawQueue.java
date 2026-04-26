@@ -30,7 +30,7 @@ public final class DebugDrawQueue {
    * @param color outline color
    */
   public synchronized void addWorldRectangle(
-    float x, float y, float width, float height, Color color) {
+      float x, float y, float width, float height, Color color) {
     worldRectangles.add(new DebugDrawSnapshot.WorldRectangle(x, y, width, height, color));
   }
 
@@ -67,9 +67,9 @@ public final class DebugDrawQueue {
    * @param outlineColor outline color, or {@code null} for no outline
    */
   public synchronized void addScreenMarker(
-    Point center, int diameterPx, Color fillColor, Color outlineColor) {
+      Point center, int diameterPx, Color fillColor, Color outlineColor) {
     screenMarkers.add(
-      new DebugDrawSnapshot.ScreenMarker(center, diameterPx, fillColor, outlineColor));
+        new DebugDrawSnapshot.ScreenMarker(center, diameterPx, fillColor, outlineColor));
   }
 
   /**
@@ -115,9 +115,9 @@ public final class DebugDrawQueue {
    * @param outline outline color, or {@code null} for no outline
    */
   public synchronized void addScreenRectangle(
-    Point topLeft, int width, int height, Color fill, Color outline) {
+      Point topLeft, int width, int height, Color fill, Color outline) {
     screenRectangles.add(
-      new DebugDrawSnapshot.ScreenRectangle(topLeft, width, height, fill, outline));
+        new DebugDrawSnapshot.ScreenRectangle(topLeft, width, height, fill, outline));
   }
 
   /**
@@ -131,15 +131,15 @@ public final class DebugDrawQueue {
     }
 
     DebugDrawSnapshot snapshot =
-      new DebugDrawSnapshot(
-        List.copyOf(worldRectangles),
-        List.copyOf(worldFills),
-        List.copyOf(screenTexts),
-        List.copyOf(screenMarkers),
-        List.copyOf(worldLines),
-        List.copyOf(worldCircleOutlines),
-        List.copyOf(worldCircleFills),
-        List.copyOf(screenRectangles));
+        new DebugDrawSnapshot(
+            List.copyOf(worldRectangles),
+            List.copyOf(worldFills),
+            List.copyOf(screenTexts),
+            List.copyOf(screenMarkers),
+            List.copyOf(worldLines),
+            List.copyOf(worldCircleOutlines),
+            List.copyOf(worldCircleFills),
+            List.copyOf(screenRectangles));
     clear();
     return snapshot;
   }
@@ -163,12 +163,12 @@ public final class DebugDrawQueue {
    */
   public synchronized boolean isEmpty() {
     return worldRectangles.isEmpty()
-      && worldFills.isEmpty()
-      && screenTexts.isEmpty()
-      && screenMarkers.isEmpty()
-      && worldLines.isEmpty()
-      && worldCircleOutlines.isEmpty()
-      && worldCircleFills.isEmpty()
-      && screenRectangles.isEmpty();
+        && worldFills.isEmpty()
+        && screenTexts.isEmpty()
+        && screenMarkers.isEmpty()
+        && worldLines.isEmpty()
+        && worldCircleOutlines.isEmpty()
+        && worldCircleFills.isEmpty()
+        && screenRectangles.isEmpty();
   }
 }

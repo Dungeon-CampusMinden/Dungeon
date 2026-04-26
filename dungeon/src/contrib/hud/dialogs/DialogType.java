@@ -3,8 +3,8 @@ package contrib.hud.dialogs;
 /**
  * Interface representing a dialog type identifier used by {@link DialogRegistry}.
  *
- * <p>Dialog types are used to register and look up dialog creator functions in the registry.
- * Custom dialog types can be created by implementing this interface.
+ * <p>Dialog types are used to register and look up dialog creator functions in the registry. Custom
+ * dialog types can be created by implementing this interface.
  *
  * @see DialogRegistry#register(DialogType, java.util.function.Function)
  * @see DialogContext

@@ -37,8 +37,8 @@ public record ShowImageTextConfig(String text, float scale, int colorRgba8888) {
   /**
    * Returns the configured color as RGBA8888.
    *
-   * <p>This method intentionally keeps the old method name so existing call sites such as
-   * {@code ShowImageSystem} and {@code DialogUtils} do not need to change in this commit.
+   * <p>This method intentionally keeps the old method name so existing call sites such as {@code
+   * ShowImageSystem} and {@code DialogUtils} do not need to change in this commit.
    *
    * @return the configured color as RGBA8888
    */
@@ -72,7 +72,7 @@ public record ShowImageTextConfig(String text, float scale, int colorRgba8888) {
    * @return a new text config
    */
   public static ShowImageTextConfig ofRgba(
-    String text, float scale, int red, int green, int blue, int alpha) {
+      String text, float scale, int red, int green, int blue, int alpha) {
     return new ShowImageTextConfig(text, scale, rgba8888(red, green, blue, alpha));
   }
 

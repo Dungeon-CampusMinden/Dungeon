@@ -63,7 +63,7 @@ public final class DebugDrawService {
    * @param color outline color
    */
   public static void drawRectangleOutline(
-    float x, float y, float width, float height, Color color) {
+      float x, float y, float width, float height, Color color) {
 
     if (width <= 0 || height <= 0) {
       return;
@@ -141,7 +141,7 @@ public final class DebugDrawService {
    * @param outline outline color may be null for no outline
    */
   public static void drawScreenRectangle(
-    Point topLeft, int width, int height, Color fill, Color outline) {
+      Point topLeft, int width, int height, Color fill, Color outline) {
     if (topLeft == null || width <= 0 || height <= 0) {
       return;
     }

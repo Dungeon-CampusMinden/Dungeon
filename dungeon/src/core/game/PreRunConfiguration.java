@@ -383,8 +383,8 @@ public final class PreRunConfiguration {
   }
 
   /**
-   * Retrieves an unmodifiable list of tasks to be executed during the client startup process.
-   * These tasks are user-defined and executed in the order they were added.
+   * Retrieves an unmodifiable list of tasks to be executed during the client startup process. These
+   * tasks are user-defined and executed in the order they were added.
    *
    * @return An unmodifiable list of {@link IVoidFunction} representing the client startup tasks.
    */

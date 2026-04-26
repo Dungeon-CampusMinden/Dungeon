@@ -8,11 +8,12 @@ import java.awt.image.BufferedImage;
 /**
  * Utility class for converting animation frames to renderable images.
  *
- * <p>ImageFrameResolver provides static methods to extract and process animation frames from
- * sprite sheets and texture assets. It handles frame region extraction, horizontal flipping,
- * and image caching for performance optimization.
+ * <p>ImageFrameResolver provides static methods to extract and process animation frames from sprite
+ * sheets and texture assets. It handles frame region extraction, horizontal flipping, and image
+ * caching for performance optimization.
  *
  * <p>Key features:
+ *
  * <ul>
  *   <li>Converting AnimationFrame objects to BufferedImage instances
  *   <li>Loading textures from an asset management system
@@ -30,6 +31,7 @@ public final class ImageFrameResolver {
    * Converts an AnimationFrame to a BufferedImage, applying transformations as needed.
    *
    * <p>This method processes an animation frame by:
+   *
    * <ol>
    *   <li>Checking the cached image (backend handle)
    *   <li>Loading the texture asset from the frame's path
@@ -38,8 +40,8 @@ public final class ImageFrameResolver {
    *   <li>Caching the result for future calls
    * </ol>
    *
-   * <p>Defensive checks are performed to ensure region bounds are valid within the source image.
-   * If any processing step fails (invalid region, missing texture, etc.), null is returned.
+   * <p>Defensive checks are performed to ensure region bounds are valid within the source image. If
+   * any processing step fails (invalid region, missing texture, etc.), null is returned.
    *
    * @param frame the animation frame to convert (might be null)
    * @return the processed BufferedImage, or null if the frame is invalid or processing fails
@@ -93,7 +95,7 @@ public final class ImageFrameResolver {
     if (src == null) return null;
 
     final BufferedImage dst =
-      new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
     final Graphics2D g = dst.createGraphics();
     try {

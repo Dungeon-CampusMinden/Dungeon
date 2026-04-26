@@ -40,8 +40,8 @@ import java.util.Map;
  *   <li>White labels for point names
  * </ul>
  *
- * <p>When placing a new point, the editor is prompted to enter a name via a dialog. Held points
- * can be cloned by right-clicking, with automatic numbering applied to the clone.
+ * <p>When placing a new point, the editor is prompted to enter a name via a dialog. Held points can
+ * be cloned by right-clicking, with automatic numbering applied to the clone.
  */
 public final class PointMode extends LevelEditorMode {
 
@@ -55,7 +55,7 @@ public final class PointMode extends LevelEditorMode {
    * Constructs a new PointMode for managing and rendering point markers in the level editor.
    *
    * @param system The LevelEditorSystem instance to which this mode belongs, providing necessary
-   *               context and functionality for the mode's operations.
+   *     context and functionality for the mode's operations.
    */
   public PointMode(LevelEditorSystem system) {
     super(system, "Point Mode");
@@ -113,10 +113,13 @@ public final class PointMode extends LevelEditorMode {
     Point cursor = currentSnapPosition();
 
     return List.of(
-      "Cursor point: (" + cursor.x() + ", " + cursor.y() + ")",
-      "Snap mode: " + snapMode.displayName(),
-      "Held point: " + (placementController.heldPointName() == null ? "<none>" : placementController.heldPointName()),
-      "Total points: " + placementController.totalPoints());
+        "Cursor point: (" + cursor.x() + ", " + cursor.y() + ")",
+        "Snap mode: " + snapMode.displayName(),
+        "Held point: "
+            + (placementController.heldPointName() == null
+                ? "<none>"
+                : placementController.heldPointName()),
+        "Total points: " + placementController.totalPoints());
   }
 
   @Override

@@ -60,6 +60,7 @@ public final class ECSManagement {
    * Initializes the default rendering and level management systems.
    *
    * <p>This method registers the fundamental systems required for the engine to operate:
+   *
    * <ul>
    *   <li>LevelSystem - Manages level loading and transitions
    *   <li>Render systems (if enabled) - Platform-specific rendering systems
@@ -89,6 +90,7 @@ public final class ECSManagement {
    *
    * <p>This method registers the fundamental gameplay and movement systems required for entity
    * movement and input handling:
+   *
    * <ul>
    *   <li>PositionSystem - Manages entity positioning
    *   <li>VelocitySystem - Manages entity velocity
@@ -116,7 +118,7 @@ public final class ECSManagement {
   }
 
   private static void registerIfAbsent(
-    Class<? extends System> type, java.util.function.Supplier<? extends System> factory) {
+      Class<? extends System> type, java.util.function.Supplier<? extends System> factory) {
     if (!SYSTEMS.containsKey(type)) {
       ECSManagement.add(factory.get());
     }
@@ -238,8 +240,8 @@ public final class ECSManagement {
    * <p>The game can only store one system of each system type.
    *
    * @param system the System to add
-   * @return an optional that contains the previous existing system of the given system class if
-   *     one exists
+   * @return an optional that contains the previous existing system of the given system class if one
+   *     exists
    * @see System
    * @see Optional
    */
@@ -490,13 +492,15 @@ public final class ECSManagement {
   /**
    * Executes one complete game tick, calculating delta time from the last tick.
    *
-   * <p>This method measures the time elapsed since the last tick and calls
-   * {@link #executeOneTick(System.AuthoritativeSide, float, boolean)} with the calculated
-   * delta time. Rendering systems are included in this execution.
+   * <p>This method measures the time elapsed since the last tick and calls {@link
+   * #executeOneTick(System.AuthoritativeSide, float, boolean)} with the calculated delta time.
+   * Rendering systems are included in this execution.
    *
-   * <p>On the first call, delta time is set to 0. Subsequent calls calculate the actual elapsed time.
+   * <p>On the first call, delta time is set to 0. Subsequent calls calculate the actual elapsed
+   * time.
    *
-   * @param side the authoritative side determining which systems should execute (SERVER, CLIENT, or BOTH)
+   * @param side the authoritative side determining which systems should execute (SERVER, CLIENT, or
+   *     BOTH)
    */
   public static void executeOneTick(System.AuthoritativeSide side) {
     final long now = core.utils.Time.nowNs();
@@ -516,7 +520,8 @@ public final class ECSManagement {
    * <p>This method executes all systems that match the specified authoritative side with the given
    * delta time. Rendering systems are included in this execution.
    *
-   * @param side the authoritative side determining which systems should execute (SERVER, CLIENT, or BOTH)
+   * @param side the authoritative side determining which systems should execute (SERVER, CLIENT, or
+   *     BOTH)
    * @param deltaSeconds the elapsed time in seconds since the last tick
    */
   public static void executeOneTick(System.AuthoritativeSide side, float deltaSeconds) {
@@ -531,6 +536,7 @@ public final class ECSManagement {
    * execution criteria. If a new level is loaded during execution, the tick is interrupted early.
    *
    * <p>System execution:
+   *
    * <ul>
    *   <li>Only systems matching the authoritative side are executed
    *   <li>Each system's delta time accumulates until its execution criteria are met
@@ -539,19 +545,20 @@ public final class ECSManagement {
    *   <li>After execution, system timers and counters are reset
    * </ul>
    *
-   * @param side the authoritative side determining which systems should execute (SERVER, CLIENT, or BOTH)
+   * @param side the authoritative side determining which systems should execute (SERVER, CLIENT, or
+   *     BOTH)
    * @param deltaSeconds the elapsed time in seconds since the last tick (clamped to minimum 0)
    * @param renderSystems if true, all render systems are executed; if false, rendering is skipped
    */
   public static void executeOneTick(
-    System.AuthoritativeSide side, float deltaSeconds, boolean renderSystems) {
+      System.AuthoritativeSide side, float deltaSeconds, boolean renderSystems) {
 
     if (!(deltaSeconds >= 0f)) deltaSeconds = 0f;
 
     List<System> authoritativeSystems =
-      ECSManagement.systems().values().stream()
-        .filter(sys -> isAuthoritative(side, sys))
-        .toList();
+        ECSManagement.systems().values().stream()
+            .filter(sys -> isAuthoritative(side, sys))
+            .toList();
 
     // Execute logic for each system.
     for (System system : authoritativeSystems) {
@@ -567,11 +574,11 @@ public final class ECSManagement {
       system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
 
       boolean dueByTime =
-        system.usesTimeBasedScheduling() && system.deltaTime() >= system.executeEverySeconds();
+          system.usesTimeBasedScheduling() && system.deltaTime() >= system.executeEverySeconds();
 
       boolean dueByFrames =
-        !system.usesTimeBasedScheduling()
-          && system.lastExecuteInFrames() >= system.executeEveryXFrames();
+          !system.usesTimeBasedScheduling()
+              && system.lastExecuteInFrames() >= system.executeEveryXFrames();
 
       if (system.isRunning() && (dueByTime || dueByFrames)) {
         system.execute();
@@ -602,13 +609,14 @@ public final class ECSManagement {
   /**
    * Renders all systems with the specified delta time.
    *
-   * <p>This method calls the render method on all registered systems with the given delta time.
-   * It automatically skips rendering if the game is running in headless mode or if the window
+   * <p>This method calls the render method on all registered systems with the given delta time. It
+   * automatically skips rendering if the game is running in headless mode or if the window
    * dimensions are invalid (width or height <= 0).
    *
    * <p>The delta time is clamped to a minimum of 0 to prevent negative values.
    *
-   * @param deltaSeconds the elapsed time in seconds since the last render frame (clamped to minimum 0)
+   * @param deltaSeconds the elapsed time in seconds since the last render frame (clamped to minimum
+   *     0)
    */
   public static void renderAll(float deltaSeconds) {
     if (!(deltaSeconds >= 0f)) deltaSeconds = 0f;

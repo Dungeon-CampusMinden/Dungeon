@@ -5,13 +5,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
 /**
  * Manages keyboard and mouse input states for a single frame.
  *
- * <p>This class tracks the state of keys and mouse buttons, allowing queries about whether a key
- * or button is pressed, was just pressed/released, or was double-tapped. It also tracks how long a
- * key or button has been held and provides a buffer for typed character input.
+ * <p>This class tracks the state of keys and mouse buttons, allowing queries about whether a key or
+ * button is pressed, was just pressed/released, or was double-tapped. It also tracks how long a key
+ * or button has been held and provides a buffer for typed character input.
  *
  * <p>The class uses a frame-based input model where state is updated once per frame via {@link
  * #update()}. To receive input events, call the {@code notify*} methods.
@@ -91,7 +90,7 @@ public final class InputManager {
    */
   public static boolean isKeyDoubleTapped(int keycode, long maxIntervalMs) {
     return isDoubleTapped(
-      keycode, justPressedKeys, lastKeyTapTimesMs, previousKeyTapTimesMs, maxIntervalMs);
+        keycode, justPressedKeys, lastKeyTapTimesMs, previousKeyTapTimesMs, maxIntervalMs);
   }
 
   /**
@@ -146,7 +145,7 @@ public final class InputManager {
    */
   public static boolean isButtonDoubleTapped(int button, long maxIntervalMs) {
     return isDoubleTapped(
-      button, justPressedButtons, lastButtonTapTimesMs, previousButtonTapTimesMs, maxIntervalMs);
+        button, justPressedButtons, lastButtonTapTimesMs, previousButtonTapTimesMs, maxIntervalMs);
   }
 
   /**
@@ -224,16 +223,16 @@ public final class InputManager {
   }
 
   private static void registerPress(
-    int code,
-    Set<Integer> justPressed,
-    Set<Integer> pressed,
-    Set<Integer> justReleased,
-    Map<Integer, Long> lastTapTimesMs,
-    Map<Integer, Long> previousTapTimesMs,
-    Map<Integer, Long> downTimesMs,
-    long nowMs) {
+      int code,
+      Set<Integer> justPressed,
+      Set<Integer> pressed,
+      Set<Integer> justReleased,
+      Map<Integer, Long> lastTapTimesMs,
+      Map<Integer, Long> previousTapTimesMs,
+      Map<Integer, Long> downTimesMs,
+      long nowMs) {
     boolean isNewPress =
-      !pressed.contains(code) && (!justPressed.contains(code) || justReleased.contains(code));
+        !pressed.contains(code) && (!justPressed.contains(code) || justReleased.contains(code));
     if (isNewPress) {
       justReleased.remove(code);
       Long lastTap = lastTapTimesMs.get(code);
@@ -249,18 +248,18 @@ public final class InputManager {
   }
 
   private static void registerRelease(
-    int code, Set<Integer> pressed, Set<Integer> justReleased, Map<Integer, Long> downTimesMs) {
+      int code, Set<Integer> pressed, Set<Integer> justReleased, Map<Integer, Long> downTimesMs) {
     pressed.remove(code);
     justReleased.add(code);
     downTimesMs.remove(code);
   }
 
   private static boolean isDoubleTapped(
-    int code,
-    Set<Integer> justPressed,
-    Map<Integer, Long> lastTapTimesMs,
-    Map<Integer, Long> previousTapTimesMs,
-    long maxIntervalMs) {
+      int code,
+      Set<Integer> justPressed,
+      Map<Integer, Long> lastTapTimesMs,
+      Map<Integer, Long> previousTapTimesMs,
+      long maxIntervalMs) {
     if (!justPressed.contains(code) || maxIntervalMs < 0) {
       return false;
     }
@@ -270,10 +269,10 @@ public final class InputManager {
   }
 
   private static boolean isHeld(
-    int code,
-    long holdDurationMs,
-    Map<Integer, Long> downTimesMs,
-    java.util.function.IntPredicate isPressed) {
+      int code,
+      long holdDurationMs,
+      Map<Integer, Long> downTimesMs,
+      java.util.function.IntPredicate isPressed) {
     if (holdDurationMs <= 0) {
       return isPressed.test(code);
     }
@@ -285,7 +284,7 @@ public final class InputManager {
   }
 
   private static void updateFrame(
-    Set<Integer> justPressed, Set<Integer> pressed, Set<Integer> justReleased) {
+      Set<Integer> justPressed, Set<Integer> pressed, Set<Integer> justReleased) {
     if (!justReleased.isEmpty()) {
       justPressed.removeAll(justReleased);
     }
@@ -306,21 +305,21 @@ public final class InputManager {
     if (pressedKeys.contains(keycode) || justPressedKeys.contains(keycode)) return;
 
     registerPress(
-      keycode,
-      justPressedKeys,
-      pressedKeys,
-      justReleasedKeys,
-      lastKeyTapTimesMs,
-      previousKeyTapTimesMs,
-      keyDownTimesMs,
-      core.utils.Time.nowMs());
+        keycode,
+        justPressedKeys,
+        pressedKeys,
+        justReleasedKeys,
+        lastKeyTapTimesMs,
+        previousKeyTapTimesMs,
+        keyDownTimesMs,
+        core.utils.Time.nowMs());
   }
 
   /**
    * Notifies the InputManager that a key has been released.
    *
-   * <p>This method should be called by an input handler when a key up event is received. It
-   * updates the internal state to mark the key as just released.
+   * <p>This method should be called by an input handler when a key up event is received. It updates
+   * the internal state to mark the key as just released.
    *
    * @param keycode The code of the key that was released.
    */
@@ -344,8 +343,8 @@ public final class InputManager {
   /**
    * Notifies the InputManager that a mouse button has been pressed.
    *
-   * <p>This method should be called by an input handler when a mouse button down event is
-   * received. It updates the internal state to mark the button as just pressed.
+   * <p>This method should be called by an input handler when a mouse button down event is received.
+   * It updates the internal state to mark the button as just pressed.
    *
    * @param button The code of the mouse button that was pressed.
    */
@@ -353,14 +352,14 @@ public final class InputManager {
     if (pressedButtons.contains(button) || justPressedButtons.contains(button)) return;
 
     registerPress(
-      button,
-      justPressedButtons,
-      pressedButtons,
-      justReleasedButtons,
-      lastButtonTapTimesMs,
-      previousButtonTapTimesMs,
-      buttonDownTimesMs,
-      core.utils.Time.nowMs());
+        button,
+        justPressedButtons,
+        pressedButtons,
+        justReleasedButtons,
+        lastButtonTapTimesMs,
+        previousButtonTapTimesMs,
+        buttonDownTimesMs,
+        core.utils.Time.nowMs());
   }
 
   /**

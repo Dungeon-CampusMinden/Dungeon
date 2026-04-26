@@ -12,7 +12,7 @@ import core.platform.client.loop.ClientLoopHostInstaller;
  * client system execution pipeline if they are absent:
  *
  * <ul>
- *   <li>{@link LevelEditorSystem}: Adds support for runtime level editing and testing.</li>
+ *   <li>{@link LevelEditorSystem}: Adds support for runtime level editing and testing.
  * </ul>
  */
 public class EditorClientInstaller implements ClientLoopHostInstaller {

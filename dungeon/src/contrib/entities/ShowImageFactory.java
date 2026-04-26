@@ -1,9 +1,9 @@
 package contrib.entities;
 
 import contrib.components.ShowImageComponent;
+import contrib.hud.dialogs.showimage.ShowImageTextConfig;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
-import contrib.hud.dialogs.showimage.ShowImageTextConfig;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;

@@ -39,7 +39,7 @@ public final class ColorGradeUtils {
    * @return graded pixel in ARGB format
    */
   public static int gradeArgb(
-    int argb, float hue, float saturationMultiplier, float valueMultiplier) {
+      int argb, float hue, float saturationMultiplier, float valueMultiplier) {
     int alpha = (argb >>> 24) & 0xFF;
     if (alpha == 0) {
       return 0;

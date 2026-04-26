@@ -8,21 +8,21 @@ import core.components.PositionComponent;
 import core.game.loop.GameLoop;
 import core.game.loop.GameLoopHost;
 import core.platform.Platform;
+import core.sound.player.ISoundPlayer;
 import core.ui.StageHandle;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
-import core.sound.player.ISoundPlayer;
 
 /**
- * Represents the runtime configuration and management for the game,
- * including level loading, game loop execution, and system integration.
+ * Represents the runtime configuration and management for the game, including level loading, game
+ * loop execution, and system integration.
  *
- * <p>This final class provides static methods for managing essential
- * game runtime operations such as initializing levels, handling the game
- * loop, and accessing game services like the UI stage and sound player.
+ * <p>This final class provides static methods for managing essential game runtime operations such
+ * as initializing levels, handling the game loop, and accessing game services like the UI stage and
+ * sound player.
  */
 public final class GameRuntime {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameRuntime.class);
@@ -34,6 +34,7 @@ public final class GameRuntime {
    * Callback function executed when a new level is loaded.
    *
    * <p>This callback performs essential level initialization tasks:
+   *
    * <ul>
    *   <li>Removes and re-adds all player entities to the new level
    *   <li>Re-initializes all systems for the new level
@@ -45,42 +46,43 @@ public final class GameRuntime {
    * <p>This callback is only executed on the server (if network mode is active).
    */
   public static final IVoidFunction onLevelLoad =
-    () -> {
-      if (!PreRunConfiguration.isNetworkServer()) return; // no authority
+      () -> {
+        if (!PreRunConfiguration.isNetworkServer()) return; // no authority
 
-      List<Entity> allPlayers = ECSManagement.allPlayers().toList();
-      boolean firstLoad = Game.currentLevel()
-        .map(level -> !ECSManagement.levelStorageMap().containsKey(level))
-        .orElse(true);
-      allPlayers.forEach(ECSManagement::remove);
+        List<Entity> allPlayers = ECSManagement.allPlayers().toList();
+        boolean firstLoad =
+            Game.currentLevel()
+                .map(level -> !ECSManagement.levelStorageMap().containsKey(level))
+                .orElse(true);
+        allPlayers.forEach(ECSManagement::remove);
 
-      // cleanup systems
-      Map<Class<? extends System>, System> s = ECSManagement.systems();
-      ECSManagement.removeAllSystems();
+        // cleanup systems
+        Map<Class<? extends System>, System> s = ECSManagement.systems();
+        ECSManagement.removeAllSystems();
 
-      ECSManagement.activeEntityStorage(
-        ECSManagement.levelStorageMap()
-          .computeIfAbsent(Game.currentLevel().orElse(null), _ -> new HashSet<>()));
+        ECSManagement.activeEntityStorage(
+            ECSManagement.levelStorageMap()
+                .computeIfAbsent(Game.currentLevel().orElse(null), _ -> new HashSet<>()));
 
-      // re-add systems
-      s.values().forEach(ECSManagement::add);
+        // re-add systems
+        s.values().forEach(ECSManagement::add);
 
-      try {
-        allPlayers.forEach(GameRuntime::placeOnLevelStart);
-      } catch (MissingComponentException e) {
-        LOGGER.warn(e.getMessage());
-      }
+        try {
+          allPlayers.forEach(GameRuntime::placeOnLevelStart);
+        } catch (MissingComponentException e) {
+          LOGGER.warn(e.getMessage());
+        }
 
-      ECSManagement.allEntities()
-        .filter(Entity::isPersistent)
-        .map(ECSManagement::remove)
-        .forEach(ECSManagement::add);
+        ECSManagement.allEntities()
+            .filter(Entity::isPersistent)
+            .map(ECSManagement::remove)
+            .forEach(ECSManagement::add);
 
-      Game.currentLevel()
-        .ifPresent(level -> LevelLoadHooks.executeLevelPrepared(level, firstLoad));
+        Game.currentLevel()
+            .ifPresent(level -> LevelLoadHooks.executeLevelPrepared(level, firstLoad));
 
-      PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
-    };
+        PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
+      };
 
   /**
    * Places an entity on the level at the level's start tile.
@@ -89,8 +91,8 @@ public final class GameRuntime {
    * It also sets the entity's initial view direction to DOWN. If the entity has a DrawComponent,
    * its animation state is reset.
    *
-   * <p>This method is used during level loading and level transitions to properly initialize
-   * player and other placed entities.
+   * <p>This method is used during level loading and level transitions to properly initialize player
+   * and other placed entities.
    *
    * @param entity the entity to place on the level start tile
    * @throws IllegalStateException if entity cannot be added
@@ -99,14 +101,14 @@ public final class GameRuntime {
   public static void placeOnLevelStart(final Entity entity) {
     ECSManagement.add(entity);
     entity
-      .fetch(PositionComponent.class)
-      .ifPresent(
-        pc -> {
-          Game.startTile()
-            .ifPresentOrElse(
-              pc::position, () -> LOGGER.warn("No start tile found for the current level"));
-          pc.viewDirection(Direction.DOWN); // look down by default
-        });
+        .fetch(PositionComponent.class)
+        .ifPresent(
+            pc -> {
+              Game.startTile()
+                  .ifPresentOrElse(
+                      pc::position, () -> LOGGER.warn("No start tile found for the current level"));
+              pc.viewDirection(Direction.DOWN); // look down by default
+            });
 
     // reset animations
     entity.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
@@ -115,10 +117,11 @@ public final class GameRuntime {
   /**
    * Starts the game loop using the default arguments.
    *
-   * <p>This method starts the game loop via the installed GameLoopHost with no additional arguments.
-   * It is equivalent to calling {@link #run(String[])}.
+   * <p>This method starts the game loop via the installed GameLoopHost with no additional
+   * arguments. It is equivalent to calling {@link #run(String[])}.
    *
-   * @throws IllegalStateException if no GameLoopHost has been installed via {@link Platform#loopHost(GameLoopHost)}
+   * @throws IllegalStateException if no GameLoopHost has been installed via {@link
+   *     Platform#loopHost(GameLoopHost)}
    * @see #run(String[])
    */
   public static void run() {
@@ -128,11 +131,13 @@ public final class GameRuntime {
   /**
    * Starts the game loop with the specified command-line arguments.
    *
-   * <p>This method delegates to the installed GameLoopHost to start and run the main game loop.
-   * The GameLoopHost manages the actual rendering and execution loop.
+   * <p>This method delegates to the installed GameLoopHost to start and run the main game loop. The
+   * GameLoopHost manages the actual rendering and execution loop.
    *
-   * @param args command-line arguments to pass to the GameLoopHost, or null (treated as an empty array)
-   * @throws IllegalStateException if no GameLoopHost has been installed via {@link Platform#loopHost(GameLoopHost)}
+   * @param args command-line arguments to pass to the GameLoopHost, or null (treated as an empty
+   *     array)
+   * @throws IllegalStateException if no GameLoopHost has been installed via {@link
+   *     Platform#loopHost(GameLoopHost)}
    * @see Platform#loopHost(GameLoopHost)
    */
   public static void run(String[] args) {
@@ -140,7 +145,7 @@ public final class GameRuntime {
 
     if (host == null) {
       throw new IllegalStateException(
-        "No GameLoopHost installed. Set Platform.loopHost(...) before calling GameLoop.run().");
+          "No GameLoopHost installed. Set Platform.loopHost(...) before calling GameLoop.run().");
     }
 
     host.run(args == null ? new String[0] : args, CORE);
@@ -162,8 +167,8 @@ public final class GameRuntime {
   /**
    * Gets the game stage handle (UI container).
    *
-   * <p>The stage handle provides access to the UI system and allows adding actors and managing
-   * UI elements. This method returns an empty Optional if no GameLoopHost is installed.
+   * <p>The stage handle provides access to the UI system and allows adding actors and managing UI
+   * elements. This method returns an empty Optional if no GameLoopHost is installed.
    *
    * @return an Optional containing the stage handle, or empty if not available
    */
@@ -175,10 +180,11 @@ public final class GameRuntime {
   /**
    * Gets the sound player for audio playback.
    *
-   * <p>The sound player provides audio capabilities for the game. If no GameLoopHost is installed, it
-   * returns a no-op sound player that safely handles all operations without producing sound.
+   * <p>The sound player provides audio capabilities for the game. If no GameLoopHost is installed,
+   * it returns a no-op sound player that safely handles all operations without producing sound.
    *
-   * @return the ISoundPlayer instance from the GameLoopHost, or a no-op implementation if unavailable
+   * @return the ISoundPlayer instance from the GameLoopHost, or a no-op implementation if
+   *     unavailable
    */
   public static ISoundPlayer soundPlayer() {
     GameLoopHost host = Platform.loopHost();

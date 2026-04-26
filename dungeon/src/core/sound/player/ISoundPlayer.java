@@ -236,7 +236,6 @@ public interface ISoundPlayer {
    * Immediately stops all currently playing audio.
    *
    * <p>Triggers onFinished callbacks for all stopped audio.
-   *
    */
   void stopAll();
 

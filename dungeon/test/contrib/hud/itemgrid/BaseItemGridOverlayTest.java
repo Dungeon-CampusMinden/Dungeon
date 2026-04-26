@@ -24,7 +24,8 @@ class BaseItemGridOverlayTest {
       graphics.dispose();
     }
 
-    assertEquals(List.of("measure", "render:86", "input:content", "feedback:content"), overlay.calls);
+    assertEquals(
+        List.of("measure", "render:86", "input:content", "feedback:content"), overlay.calls);
     assertEquals(320, overlay.width());
     assertEquals(180, overlay.height());
   }

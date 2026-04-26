@@ -57,9 +57,9 @@ public final class InteractionComponent implements Component {
   /**
    * Triggers an interaction between two entities.
    *
-   * <p>If the interactions provider is an {@link ISimpleIInteractable}, the default interaction
-   * is executed directly. Otherwise, an interaction selection dialog is displayed to allow the
-   * user to choose which interaction to perform.
+   * <p>If the interactions provider is an {@link ISimpleIInteractable}, the default interaction is
+   * executed directly. Otherwise, an interaction selection dialog is displayed to allow the user to
+   * choose which interaction to perform.
    *
    * @param entity the entity being interacted with
    * @param who the entity performing the interaction
@@ -71,13 +71,13 @@ public final class InteractionComponent implements Component {
     }
 
     InteractionSelection.show(
-      interactions,
-      interaction -> {
-        if (interaction != null) {
-          interaction.interact(entity, who);
-        }
-        // null = canceled
-      });
+        interactions,
+        interaction -> {
+          if (interaction != null) {
+            interaction.interact(entity, who);
+          }
+          // null = canceled
+        });
   }
 
   /**

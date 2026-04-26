@@ -28,10 +28,11 @@ public final class TextDialogBuilder {
    * <p>This method requires the dialog context to contain a title and message text.
    *
    * <p>It retrieves optional button labels from the context or uses defaults:
+   *
    * <ul>
-   *   <li>Confirm label defaults to "Ok"</li>
-   *   <li>Cancel label defaults to null (no cancel button)</li>
-   *   <li>Additional buttons default to an empty array</li>
+   *   <li>Confirm label defaults to "Ok"
+   *   <li>Cancel label defaults to null (no cancel button)
+   *   <li>Additional buttons default to an empty array
    * </ul>
    *
    * @param ctx the dialog context containing the title, message, and optional button configuration
@@ -58,19 +59,19 @@ public final class TextDialogBuilder {
 
   private static UiHandle build(DialogContext ctx, boolean okDialog) {
     String title =
-      okDialog
-        ? ctx.find(DialogContextKeys.TITLE, String.class).orElse(DEFAULT_OK_TITLE)
-        : ctx.require(DialogContextKeys.TITLE, String.class);
+        okDialog
+            ? ctx.find(DialogContextKeys.TITLE, String.class).orElse(DEFAULT_OK_TITLE)
+            : ctx.require(DialogContextKeys.TITLE, String.class);
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String confirmLabel =
-      ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class)
-        .orElse(okDialog ? DEFAULT_OK_CONFIRM_LABEL : DEFAULT_CONFIRM_LABEL);
+        ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class)
+            .orElse(okDialog ? DEFAULT_OK_CONFIRM_LABEL : DEFAULT_CONFIRM_LABEL);
     String cancelLabel = ctx.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(null);
     String[] additionalButtons =
-      ctx.find(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class).orElse(new String[] {});
+        ctx.find(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class).orElse(new String[] {});
 
     return new OverlayHandle(
-      new TextDialogOverlay(
-        title, text, confirmLabel, cancelLabel, additionalButtons, ctx.dialogId()));
+        new TextDialogOverlay(
+            title, text, confirmLabel, cancelLabel, additionalButtons, ctx.dialogId()));
   }
 }

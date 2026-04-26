@@ -30,7 +30,7 @@ class DebugEntityInfoFormatterTest {
     try {
       Entity entity = new Entity("Debug Wolf");
       PositionComponent positionComponent =
-        new PositionComponent(new Point(12.345f, -7.89f), Direction.LEFT);
+          new PositionComponent(new Point(12.345f, -7.89f), Direction.LEFT);
       VelocityComponent velocityComponent = new VelocityComponent();
       velocityComponent.currentVelocity(Vector2.of(1.25f, -3.5f));
 
@@ -49,19 +49,20 @@ class DebugEntityInfoFormatterTest {
       entity.add(aiComponent);
       entity.add(new PlayerComponent(false, "NetPlayer"));
 
-      List<String> actualLines = formatter.format(entity, positionComponent, false).lines().toList();
+      List<String> actualLines =
+          formatter.format(entity, positionComponent, false).lines().toList();
 
       assertIterableEquals(
-        List.of(
-          entity.name() + " (" + entity.id() + ")",
-          "Position: (12.35, -7.89); LEFT",
-          "Velocity: (1.25, -3.50)",
-          "Health: 1/20 (GOD)",
-          "Sound Instances: 0",
-          "Inventory: 0/3 items",
-          "AI State: Inactive",
-          "Player: NetPlayer (REMOTE)"),
-        actualLines);
+          List.of(
+              entity.name() + " (" + entity.id() + ")",
+              "Position: (12.35, -7.89); LEFT",
+              "Velocity: (1.25, -3.50)",
+              "Health: 1/20 (GOD)",
+              "Sound Instances: 0",
+              "Inventory: 0/3 items",
+              "AI State: Inactive",
+              "Player: NetPlayer (REMOTE)"),
+          actualLines);
     } finally {
       Locale.setDefault(previousLocale);
     }
@@ -79,11 +80,8 @@ class DebugEntityInfoFormatterTest {
     List<String> actualLines = formatter.format(entity, positionComponent, true).lines().toList();
 
     assertIterableEquals(
-      List.of(
-        "Components:",
-        "  - HealthComponent",
-        "  - PlayerComponent",
-        "  - PositionComponent"),
-      actualLines.subList(actualLines.size() - 4, actualLines.size()));
+        List.of(
+            "Components:", "  - HealthComponent", "  - PlayerComponent", "  - PositionComponent"),
+        actualLines.subList(actualLines.size() - 4, actualLines.size()));
   }
 }

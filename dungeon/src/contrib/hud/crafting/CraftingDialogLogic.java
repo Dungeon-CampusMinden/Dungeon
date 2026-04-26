@@ -27,7 +27,7 @@ public final class CraftingDialogLogic {
    */
   public static Optional<Recipe> currentRecipe(InventoryComponent craftingInventory) {
     Item[] ingredients =
-      Arrays.stream(craftingInventory.items()).filter(Objects::nonNull).toArray(Item[]::new);
+        Arrays.stream(craftingInventory.items()).filter(Objects::nonNull).toArray(Item[]::new);
 
     if (ingredients.length == 0) {
       return Optional.empty();
@@ -45,16 +45,16 @@ public final class CraftingDialogLogic {
    * @param targetInventory the inventory receiving crafting results
    */
   public static void craft(
-    InventoryComponent craftingInventory, InventoryComponent targetInventory) {
+      InventoryComponent craftingInventory, InventoryComponent targetInventory) {
     Optional<Recipe> recipe = currentRecipe(craftingInventory);
     if (recipe.isEmpty()) {
       return;
     }
 
     Arrays.stream(recipe.get().results())
-      .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
-      .map(Item.class::cast)
-      .forEach(targetInventory::add);
+        .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
+        .map(Item.class::cast)
+        .forEach(targetInventory::add);
 
     craftingInventory.clear();
   }
@@ -67,7 +67,7 @@ public final class CraftingDialogLogic {
    * @param targetInventory the inventory receiving the returned items
    */
   public static void cancel(
-    InventoryComponent craftingInventory, InventoryComponent targetInventory) {
+      InventoryComponent craftingInventory, InventoryComponent targetInventory) {
     craftingInventory.transferAll(targetInventory);
   }
 }

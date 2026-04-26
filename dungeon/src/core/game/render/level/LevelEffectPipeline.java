@@ -5,9 +5,9 @@ import java.awt.image.BufferedImage;
 /**
  * A pipeline for applying effects to the rendered level layer.
  *
- * <p>This class manages a centralized registry of level effects and provides methods to apply
- * all registered effects to a rendered level image. Effects are applied sequentially in
- * their configured order.
+ * <p>This class manages a centralized registry of level effects and provides methods to apply all
+ * registered effects to a rendered level image. Effects are applied sequentially in their
+ * configured order.
  */
 public final class LevelEffectPipeline {
 
@@ -57,11 +57,11 @@ public final class LevelEffectPipeline {
    * @param source the source image to apply effects to (can be null)
    * @param context the level pass context containing rendering information
    * @param nowMs the current timestamp in milliseconds
-   * @return the processed image with all effects applied, or the original image if no effects are enabled
+   * @return the processed image with all effects applied, or the original image if no effects are
+   *     enabled
    * @throws IllegalStateException if an effect returns null
    */
-  public static BufferedImage apply(
-    BufferedImage source, LevelPassContext context, long nowMs) {
+  public static BufferedImage apply(BufferedImage source, LevelPassContext context, long nowMs) {
     if (source == null || !hasEnabledEffects()) {
       return source;
     }
@@ -71,16 +71,14 @@ public final class LevelEffectPipeline {
       current = effect.apply(current, context, nowMs);
       if (current == null) {
         throw new IllegalStateException(
-          effect.getClass().getSimpleName() + " returned null level image.");
+            effect.getClass().getSimpleName() + " returned null level image.");
       }
     }
 
     return current;
   }
 
-  /**
-   * Clears all registered level effects.
-   */
+  /** Clears all registered level effects. */
   public static void clear() {
     EFFECTS.clear();
   }

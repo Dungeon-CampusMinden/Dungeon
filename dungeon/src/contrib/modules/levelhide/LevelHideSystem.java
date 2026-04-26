@@ -44,20 +44,22 @@ public final class LevelHideSystem extends System {
       return;
     }
 
-    filteredEntityStream().forEach(entity -> updateRegion(entity, lastPlayerPosition, currentPlayerPosition));
+    filteredEntityStream()
+        .forEach(entity -> updateRegion(entity, lastPlayerPosition, currentPlayerPosition));
     lastPlayerPosition = currentPlayerPosition;
   }
 
   private void updateRegion(Entity entity, Point lastPos, Point currentPos) {
     PositionComponent positionComponent = entity.fetch(PositionComponent.class).orElseThrow();
     LevelHideComponent levelHideComponent = entity.fetch(LevelHideComponent.class).orElseThrow();
-    LevelHideStateComponent stateComponent = entity.fetch(LevelHideStateComponent.class).orElseThrow();
+    LevelHideStateComponent stateComponent =
+        entity.fetch(LevelHideStateComponent.class).orElseThrow();
 
     Rectangle activeRegion =
-      levelHideComponent
-        .region()
-        .expand(levelHideComponent.transitionSize() / 2f)
-        .translate(Vector2.of(positionComponent.position()));
+        levelHideComponent
+            .region()
+            .expand(levelHideComponent.transitionSize() / 2f)
+            .translate(Vector2.of(positionComponent.position()));
 
     boolean wasInside = lastPos != null && activeRegion.contains(lastPos);
     boolean isInside = activeRegion.contains(currentPos);
@@ -73,7 +75,7 @@ public final class LevelHideSystem extends System {
 
   private Optional<Point> currentPlayerPosition() {
     return Game.player()
-      .flatMap(player -> player.fetch(PositionComponent.class).map(PositionComponent::position));
+        .flatMap(player -> player.fetch(PositionComponent.class).map(PositionComponent::position));
   }
 
   private void playGlobal(String soundId) {

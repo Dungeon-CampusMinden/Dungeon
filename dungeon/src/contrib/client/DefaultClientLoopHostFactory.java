@@ -4,9 +4,9 @@ import contrib.client.install.ClientGameplayInstaller;
 import contrib.client.install.ClientUiInstaller;
 import contrib.client.install.DebugClientInstaller;
 import contrib.client.install.EditorClientInstaller;
+import core.platform.Platform;
 import core.platform.client.loop.ClientLoopHost;
 import core.platform.client.loop.ClientLoopHostInstaller;
-import core.platform.Platform;
 import java.util.List;
 
 /**

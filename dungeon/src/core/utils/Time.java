@@ -3,8 +3,8 @@ package core.utils;
 /**
  * A utility class for time-related operations.
  *
- * <p>This class provides static methods to retrieve the current time in different precisions
- * and to calculate elapsed time since a given timestamp.
+ * <p>This class provides static methods to retrieve the current time in different precisions and to
+ * calculate elapsed time since a given timestamp.
  */
 public final class Time {
   private Time() {}

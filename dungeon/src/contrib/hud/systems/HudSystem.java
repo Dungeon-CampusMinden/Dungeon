@@ -48,11 +48,11 @@ public final class HudSystem extends System {
    */
   public Optional<Tuple<Entity, UIComponent>> topmostCloseableUI() {
     return entityUIComponentMap.entrySet().stream()
-      .filter(entry -> entry.getValue().isVisible() && entry.getValue().canBeClosed())
-      .max(
-        Comparator.comparingInt(
-          entry -> entry.getValue().dialog().map(UiHandle::getZIndex).orElse(-1)))
-      .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
+        .filter(entry -> entry.getValue().isVisible() && entry.getValue().canBeClosed())
+        .max(
+            Comparator.comparingInt(
+                entry -> entry.getValue().dialog().map(UiHandle::getZIndex).orElse(-1)))
+        .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
   }
 
   /**
@@ -75,9 +75,9 @@ public final class HudSystem extends System {
    */
   private void addListener(final Entity entity) {
     UIComponent component =
-      entity
-        .fetch(UIComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
+        entity
+            .fetch(UIComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
 
     UiHandle dialogHandle = resolveDialogHandle(component);
 
@@ -85,9 +85,9 @@ public final class HudSystem extends System {
     int[] myIds = Game.allPlayers().mapToInt(Entity::id).toArray();
     int[] targetIds = component.targetEntityIds();
     int[] affectedIds =
-      Arrays.stream(myIds)
-        .filter(id -> Arrays.stream(targetIds).anyMatch(targetId -> targetId == id))
-        .toArray();
+        Arrays.stream(myIds)
+            .filter(id -> Arrays.stream(targetIds).anyMatch(targetId -> targetId == id))
+            .toArray();
 
     if (targetIds.length != 0 && affectedIds.length == 0) {
       // This UI is not for any of the current players
@@ -98,45 +98,45 @@ public final class HudSystem extends System {
     for (Integer targetId : targetIds) {
       Optional<Entity> target = Game.findEntityById(targetId);
       target
-        .flatMap(t -> t.fetch(PlayerComponent.class))
-        .ifPresent(PlayerComponent::incrementOpenDialogs);
+          .flatMap(t -> t.fetch(PlayerComponent.class))
+          .ifPresent(PlayerComponent::incrementOpenDialogs);
     }
 
     Game.stage()
-      .ifPresentOrElse(
-        stageHandle -> {
-          if (!dialogHandle.isAttached()) {
-            dialogHandle.attachTo(stageHandle);
-          } else {
-            dialogHandle.toFront();
-          }
+        .ifPresentOrElse(
+            stageHandle -> {
+              if (!dialogHandle.isAttached()) {
+                dialogHandle.attachTo(stageHandle);
+              } else {
+                dialogHandle.toFront();
+              }
 
-          if (component.dialogContext().center()) {
-            dialogHandle.centerOn(stageHandle);
-          }
+              if (component.dialogContext().center()) {
+                dialogHandle.centerOn(stageHandle);
+              }
 
-          addMapping(entity, dialogHandle, component);
-          DialogTracker.instance().registerDialog(component);
-        },
-        () -> {
-          // Headless mode
-          if (PreRunConfiguration.multiplayerEnabled()
-            && PreRunConfiguration.isNetworkServer()) {
-            sendDialogToClients(entity, component, affectedIds);
-            addMapping(entity, dialogHandle, component);
-          }
-        });
+              addMapping(entity, dialogHandle, component);
+              DialogTracker.instance().registerDialog(component);
+            },
+            () -> {
+              // Headless mode
+              if (PreRunConfiguration.multiplayerEnabled()
+                  && PreRunConfiguration.isNetworkServer()) {
+                sendDialogToClients(entity, component, affectedIds);
+                addMapping(entity, dialogHandle, component);
+              }
+            });
   }
 
   private UiHandle resolveDialogHandle(UIComponent component) {
     return component
-      .dialog()
-      .orElseGet(
-        () -> {
-          UiHandle created = DialogRegistry.create(component.dialogContext());
-          component.dialog(created);
-          return created;
-        });
+        .dialog()
+        .orElseGet(
+            () -> {
+              UiHandle created = DialogRegistry.create(component.dialogContext());
+              component.dialog(created);
+              return created;
+            });
   }
 
   /**
@@ -149,11 +149,12 @@ public final class HudSystem extends System {
    * @param component the UIComponent to send
    * @param targetIds all clients that are connect and should receive the dialog
    */
-  private void sendDialogToClients(final Entity entity, final UIComponent component, int[] targetIds) {
+  private void sendDialogToClients(
+      final Entity entity, final UIComponent component, int[] targetIds) {
     Set<Short> clientIds =
-      (targetIds.length == 0)
-        ? NetworkUtils.getAllConnectedClientIds()
-        : NetworkUtils.entityIdsToClientIds(targetIds);
+        (targetIds.length == 0)
+            ? NetworkUtils.getAllConnectedClientIds()
+            : NetworkUtils.entityIdsToClientIds(targetIds);
 
     if (clientIds.isEmpty()) {
       return; // No clients to send to
@@ -163,7 +164,7 @@ public final class HudSystem extends System {
 
     // Send dialog to all target clients
     DialogShowMessage msg =
-      new DialogShowMessage(component.dialogContext(), component.canBeClosed());
+        new DialogShowMessage(component.dialogContext(), component.canBeClosed());
     for (short clientId : clientIds) {
       Game.network().send(clientId, msg, true);
     }
@@ -187,8 +188,8 @@ public final class HudSystem extends System {
     for (Integer targetId : previousUiComponent.targetEntityIds()) {
       Optional<Entity> target = Game.findEntityById(targetId);
       target
-        .flatMap(t -> t.fetch(PlayerComponent.class))
-        .ifPresent(PlayerComponent::decrementOpenDialogs);
+          .flatMap(t -> t.fetch(PlayerComponent.class))
+          .ifPresent(PlayerComponent::decrementOpenDialogs);
     }
   }
 
@@ -207,7 +208,9 @@ public final class HudSystem extends System {
 
   private boolean pausesGame(final Entity entity) {
     Optional<UIComponent> uiComponent = entity.fetch(UIComponent.class);
-    return uiComponent.filter(component -> component.isVisible() && component.willPauseGame()).isPresent();
+    return uiComponent
+        .filter(component -> component.isVisible() && component.willPauseGame())
+        .isPresent();
   }
 
   private void pauseGame() {

@@ -24,7 +24,7 @@ public class LevelEditorModeRegistryTest {
     LevelEditorModeRegistry registry = new LevelEditorModeRegistry(new LevelEditorSystem());
 
     assertEquals(
-      "1 | 2 | [3] | 4 | 5 | 6 | 7 | 8",
-      registry.modeSelectionText(LevelEditorModeRegistry.Mode.POINTS));
+        "1 | 2 | [3] | 4 | 5 | 6 | 7 | 8",
+        registry.modeSelectionText(LevelEditorModeRegistry.Mode.POINTS));
   }
 }

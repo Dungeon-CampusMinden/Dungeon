@@ -21,8 +21,7 @@ class OrderedEffectRegistryTest {
     registry.add("disabled", new TestEffect("disabled", false, true), -10);
 
     assertEquals(List.of("early", "same", "late"), names(registry.getEnabledSorted()));
-    assertEquals(
-      List.of("disabled", "early", "same", "late"), names(registry.getSorted(false)));
+    assertEquals(List.of("disabled", "early", "same", "late"), names(registry.getSorted(false)));
   }
 
   @Test
@@ -62,9 +61,7 @@ class OrderedEffectRegistryTest {
 
   private static OrderedEffectRegistry<TestEffect> newRegistry() {
     return new OrderedEffectRegistry<>(
-      TestEffect::enabled,
-      TestEffect::toggleable,
-      (effect, enabled) -> effect.enabled(enabled));
+        TestEffect::enabled, TestEffect::toggleable, (effect, enabled) -> effect.enabled(enabled));
   }
 
   private static List<String> names(Iterable<TestEffect> effects) {

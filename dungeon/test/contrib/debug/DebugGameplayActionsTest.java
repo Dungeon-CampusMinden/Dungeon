@@ -36,11 +36,7 @@ public class DebugGameplayActionsTest {
     Game.currentLevel(
         new DungeonLevel(
             new LevelElement[][] {
-              row(),
-              row(),
-              row(),
-              row(),
-              row(),
+              row(), row(), row(), row(), row(),
             },
             DesignLabel.DEFAULT));
   }

@@ -14,10 +14,11 @@ import java.util.Optional;
  * <p>It provides methods for transferring items between inventories, resolving recipes, and
  * executing craft actions.
  *
- * @param targetInventory   the inventory that receives crafted items and provides source items
+ * @param targetInventory the inventory that receives crafted items and provides source items
  * @param craftingInventory the inventory used as crafting input
  */
-public record CraftingDialogController(InventoryComponent targetInventory, InventoryComponent craftingInventory) {
+public record CraftingDialogController(
+    InventoryComponent targetInventory, InventoryComponent craftingInventory) {
   /** Standard crafting callback. */
   public static final String CALLBACK_CRAFT = "craft";
 
@@ -27,7 +28,7 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
   /**
    * Creates a new controller for one crafting dialog session.
    *
-   * @param targetInventory   the inventory that receives crafted items and provides source items
+   * @param targetInventory the inventory that receives crafted items and provides source items
    * @param craftingInventory the inventory used as crafting input
    */
   public CraftingDialogController {}
@@ -86,7 +87,7 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    * Transfers the given item from the specified side to the opposite side.
    *
    * @param sourceSide the source side
-   * @param item       the item to move
+   * @param item the item to move
    */
   void transferByItem(CraftingInventorySide sourceSide, Item item) {
     if (item == null) {
@@ -103,11 +104,11 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    * Transfers the item at the given slot from the specified side to the opposite side.
    *
    * @param sourceSide the source side
-   * @param slotIndex  the slot index
+   * @param slotIndex the slot index
    */
-  void transferBySlot(CraftingInventorySide sourceSide, int slotIndex) {
+  public void transferBySlot(CraftingInventorySide sourceSide, int slotIndex) {
     InventoryComponent source =
-      sourceSide == CraftingInventorySide.TARGET ? targetInventory : craftingInventory;
+        sourceSide == CraftingInventorySide.TARGET ? targetInventory : craftingInventory;
     Item item = source.get(slotIndex).orElse(null);
     transferByItem(sourceSide, item);
   }
@@ -126,16 +127,16 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    * <p>This provides the backend-neutral semantic foundation for exact slot drops in concrete UI
    * backends such as LITIENGINE.
    *
-   * @param sourceSide      source inventory side
+   * @param sourceSide source inventory side
    * @param sourceSlotIndex source slot index
-   * @param targetSide      target inventory side
+   * @param targetSide target inventory side
    * @param targetSlotIndex target slot index
    */
-  void transferBySlotToSlot(
-    CraftingInventorySide sourceSide,
-    int sourceSlotIndex,
-    CraftingInventorySide targetSide,
-    int targetSlotIndex) {
+  public void transferBySlotToSlot(
+      CraftingInventorySide sourceSide,
+      int sourceSlotIndex,
+      CraftingInventorySide targetSide,
+      int targetSlotIndex) {
     if (sourceSide == null || targetSide == null) {
       return;
     }
@@ -167,16 +168,12 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
     return side == CraftingInventorySide.TARGET ? targetInventory : craftingInventory;
   }
 
-  /**
-   * Executes the craft action on the current crafting inventory.
-   */
+  /** Executes the craft action on the current crafting inventory. */
   public void craft() {
     CraftingDialogLogic.craft(craftingInventory, targetInventory);
   }
 
-  /**
-   * Cancels the current crafting attempt and returns all inputs to the target inventory.
-   */
+  /** Cancels the current crafting attempt and returns all inputs to the target inventory. */
   public void cancel() {
     CraftingDialogLogic.cancel(craftingInventory, targetInventory);
   }

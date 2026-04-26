@@ -6,10 +6,11 @@ import core.utils.Point;
  * Enumeration of different snap modes for the level editor.
  *
  * <p>EditorSnapMode defines how cursor positions and placements are snapped to a grid or snap
- * pattern. Different modes provide varying levels of precision and flexibility for positioning
- * game elements.
+ * pattern. Different modes provide varying levels of precision and flexibility for positioning game
+ * elements.
  *
  * <p>Available modes:
+ *
  * <ul>
  *   <li>OnGrid - Snap to full tile grid
  *   <li>QuarterGrid - Snap to 1/4 tile grid (0.25 precision)
@@ -74,12 +75,14 @@ public enum EditorSnapMode {
    * Snaps the given position to this snap mode's grid or pattern.
    *
    * <p>The snapping behavior depends on the specific mode:
+   *
    * <ul>
    *   <li>OnGrid: Floors to the nearest integer
    *   <li>QuarterGrid: Floors to nearest 0.25
    *   <li>PixelGrid: Floors to nearest 0.0625 (1/16)
    *   <li>OffGrid: Returns position unchanged
-   *   <li>CheckerGridEven/CheckerGridOdd: Snaps to the nearest square of the specified checkerboard parity
+   *   <li>CheckerGridEven/CheckerGridOdd: Snaps to the nearest square of the specified checkerboard
+   *       parity
    * </ul>
    *
    * @param position the world position to snap
@@ -87,16 +90,15 @@ public enum EditorSnapMode {
    */
   public Point getPosition(Point position) {
     return switch (this) {
-      case ON_GRID ->
-        new Point((float) Math.floor(position.x()), (float) Math.floor(position.y()));
+      case ON_GRID -> new Point((float) Math.floor(position.x()), (float) Math.floor(position.y()));
       case QUARTER_GRID ->
-        new Point(
-          (float) Math.floor(position.x() * 4) / 4.0f,
-          (float) Math.floor(position.y() * 4) / 4.0f);
+          new Point(
+              (float) Math.floor(position.x() * 4) / 4.0f,
+              (float) Math.floor(position.y() * 4) / 4.0f);
       case PIXEL_GRID ->
-        new Point(
-          (float) Math.floor(position.x() * 16) / 16.0f,
-          (float) Math.floor(position.y() * 16) / 16.0f);
+          new Point(
+              (float) Math.floor(position.x() * 16) / 16.0f,
+              (float) Math.floor(position.y() * 16) / 16.0f);
       case CHECKER_GRID_EVEN, CHECKER_GRID_ODD -> {
         int parity = (this == CHECKER_GRID_EVEN) ? 0 : 1;
 
@@ -134,15 +136,15 @@ public enum EditorSnapMode {
   /**
    * Determines whether collision/placement validation should be performed for this snap mode.
    *
-   * <p>Blocking is enabled for grid-based snap modes where snapping ensures valid placements.
-   * For free-form modes like OffGrid, blocking is disabled to allow more flexibility.
+   * <p>Blocking is enabled for grid-based snap modes where snapping ensures valid placements. For
+   * free-form modes like OffGrid, blocking is disabled to allow more flexibility.
    *
    * @return true if collision checking should be enabled for this snap mode, false otherwise
    */
   public boolean checkBlocked() {
     return this == ON_GRID
-      || this == QUARTER_GRID
-      || this == CHECKER_GRID_EVEN
-      || this == CHECKER_GRID_ODD;
+        || this == QUARTER_GRID
+        || this == CHECKER_GRID_EVEN
+        || this == CHECKER_GRID_ODD;
   }
 }

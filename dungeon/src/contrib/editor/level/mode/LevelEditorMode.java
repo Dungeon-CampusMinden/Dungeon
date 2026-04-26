@@ -20,8 +20,8 @@ import java.util.Optional;
  * <p>Each mode implements its own behavior and actions while interacting with the editor.
  *
  * <p>The mode defines specific input controls, rendering logic, and status information to provide
- * functionality in a modular and extensible way. Subclasses must implement the abstract methods
- * to specify their unique logic and state.
+ * functionality in a modular and extensible way. Subclasses must implement the abstract methods to
+ * specify their unique logic and state.
  */
 public abstract class LevelEditorMode {
 
@@ -44,15 +44,15 @@ public abstract class LevelEditorMode {
   public static final int QUATERNARY = Keys.V;
 
   private static final List<Integer> EDITOR_INPUTS =
-    List.of(
-      PRIMARY_UP,
-      PRIMARY_DOWN,
-      SECONDARY_UP,
-      SECONDARY_DOWN,
-      TERTIARY,
-      QUATERNARY,
-      MouseButtons.LEFT,
-      MouseButtons.RIGHT);
+      List.of(
+          PRIMARY_UP,
+          PRIMARY_DOWN,
+          SECONDARY_UP,
+          SECONDARY_DOWN,
+          TERTIARY,
+          QUATERNARY,
+          MouseButtons.LEFT,
+          MouseButtons.RIGHT);
 
   private final LevelEditorSystem system;
   private final String name;
@@ -100,7 +100,8 @@ public abstract class LevelEditorMode {
   /**
    * Renders the graphical content associated with this mode.
    *
-   * <p>This method is responsible for drawing the necessary visuals on the provided graphics context during each frame.
+   * <p>This method is responsible for drawing the necessary visuals on the provided graphics
+   * context during each frame.
    *
    * @param g the {@code Graphics2D} context used for rendering
    * @param deltaSeconds the time in seconds since the last frame update
@@ -151,7 +152,8 @@ public abstract class LevelEditorMode {
     Map<InputCode, String> controls = getControls();
     if (!controls.isEmpty()) {
       lines.add("Controls:");
-      controls.forEach((input, description) -> lines.add(" - " + input.label() + ": " + description));
+      controls.forEach(
+          (input, description) -> lines.add(" - " + input.label() + ": " + description));
     }
 
     lines.add("");

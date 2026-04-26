@@ -11,12 +11,14 @@ import java.io.InputStream;
  * resource location strategy.
  *
  * <p>Key responsibilities:
+ *
  * <ul>
  *   <li>Checking whether a resource exists at a given path
  *   <li>Opening input streams for reading resource content
  * </ul>
  *
- * <p>Implementations must handle path normalization and resolution according to their storage backend.
+ * <p>Implementations must handle path normalization and resolution according to their storage
+ * backend.
  */
 public interface ResourcesAdapter {
 
@@ -39,5 +41,3 @@ public interface ResourcesAdapter {
    */
   InputStream open(String path) throws IOException;
 }
-
-

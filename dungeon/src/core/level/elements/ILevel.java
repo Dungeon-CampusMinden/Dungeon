@@ -21,7 +21,6 @@ import java.util.function.Function;
  *
  * <p>This is the datatype used in every API call inside the dungeon framework to define a level.
  * Each level you want to use needs to implement this interface.
- *
  */
 public interface ILevel {
 

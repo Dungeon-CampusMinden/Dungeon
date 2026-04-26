@@ -6,8 +6,8 @@ import java.util.function.Consumer;
  * Represents a user interface for selecting an interaction from a set of available interactions
  * associated with an interactable entity.
  *
- * <p>Implementations of this interface are responsible for managing the presentation logic
- * of the interaction selection, allowing users to choose from various interaction options.
+ * <p>Implementations of this interface are responsible for managing the presentation logic of the
+ * interaction selection, allowing users to choose from various interaction options.
  */
 public interface InteractionSelectionUi {
 

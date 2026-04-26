@@ -4,10 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import core.game.render.image.ImageEffectCache;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import core.game.render.image.ImageEffectCache;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the shared image effect cache. */
@@ -50,7 +49,8 @@ class ImageEffectCacheTest {
 
     BufferedImage first = cache.getOrCompute(source, "first", image -> copyPixel(image, calls));
     cache.getOrCompute(source, "second", image -> copyPixel(image, calls));
-    BufferedImage recomputed = cache.getOrCompute(source, "first", image -> copyPixel(image, calls));
+    BufferedImage recomputed =
+        cache.getOrCompute(source, "first", image -> copyPixel(image, calls));
 
     assertNotSame(first, recomputed);
     assertEquals(3, calls.get());
@@ -62,8 +62,7 @@ class ImageEffectCacheTest {
     return image;
   }
 
-  private static BufferedImage copyPixel(
-    final BufferedImage source, final AtomicInteger calls) {
+  private static BufferedImage copyPixel(final BufferedImage source, final AtomicInteger calls) {
     calls.incrementAndGet();
     return image(source.getRGB(0, 0));
   }

@@ -18,26 +18,26 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The DecoPlacementController is responsible for managing the placement, movement,
- * preview, and deletion of decorative entities (Deco) within a level editor system.
+ * The DecoPlacementController is responsible for managing the placement, movement, preview, and
+ * deletion of decorative entities (Deco) within a level editor system.
  *
- * <p>It provides functionality such as maintaining a preview decoration, handling
- * held decorations, and ensuring proper alignment and collision check during
- * placement operations.
+ * <p>It provides functionality such as maintaining a preview decoration, handling held decorations,
+ * and ensuring proper alignment and collision check during placement operations.
  *
- * <p>This controller interacts with the level editor system, the deco tint controller,
- * and the game world to ensure that decorations are placed or managed correctly
- * within the level's coordinate and collision constraints.
+ * <p>This controller interacts with the level editor system, the deco tint controller, and the game
+ * world to ensure that decorations are placed or managed correctly within the level's coordinate
+ * and collision constraints.
  *
  * <p>Features:
+ *
  * <ul>
- *   <li>Handles decoration preview entity creation, removal, and updates.</li>
- *   <li>Manages a held decoration entity for placement or manipulation.</li>
- *   <li>Ensures correct alignment of decorations based on snapping positions.</li>
- *   <li>Detects and applies collision rules for decoration placement.</li>
- *   <li>Supports deletion of decoration and retrieval operations.</li>
- *   <li>Synchronizes placed decorations with the current dungeon level.</li>
- *   <li>Provides utility methods for querying decoration entities.</li>
+ *   <li>Handles decoration preview entity creation, removal, and updates.
+ *   <li>Manages a held decoration entity for placement or manipulation.
+ *   <li>Ensures correct alignment of decorations based on snapping positions.
+ *   <li>Detects and applies collision rules for decoration placement.
+ *   <li>Supports deletion of decoration and retrieval operations.
+ *   <li>Synchronizes placed decorations with the current dungeon level.
+ *   <li>Provides utility methods for querying decoration entities.
  * </ul>
  */
 final class DecoPlacementController {
@@ -68,7 +68,8 @@ final class DecoPlacementController {
     setupDecoPreviewEntity(snapPos, selectedDeco);
   }
 
-  void refreshPreviewEntity(Deco selectedDeco, Point currentSnapPos, DecoTintController tintController) {
+  void refreshPreviewEntity(
+      Deco selectedDeco, Point currentSnapPos, DecoTintController tintController) {
     Point previewPos = currentSnapPos;
 
     if (decoPreviewEntity != null) {
@@ -97,8 +98,7 @@ final class DecoPlacementController {
     updateEditorDecoPosition(heldDecoEntity, snapPos);
   }
 
-  Optional<String> pickupDecoAt(
-    Point worldPos, Point snapPos, DecoTintController tintController) {
+  Optional<String> pickupDecoAt(Point worldPos, Point snapPos, DecoTintController tintController) {
     Optional<Entity> placedDeco = findPlacedDecoNear(worldPos);
     if (placedDeco.isEmpty()) {
       return Optional.empty();
@@ -122,7 +122,8 @@ final class DecoPlacementController {
   }
 
   void placeSelectedDeco(Deco selectedDeco, Point snapPos) {
-    Point placementPos = decoPreviewEntity != null ? alignedDecoPosition(decoPreviewEntity, snapPos) : snapPos;
+    Point placementPos =
+        decoPreviewEntity != null ? alignedDecoPosition(decoPreviewEntity, snapPos) : snapPos;
     Entity placedDeco = DecoFactory.createDeco(placementPos, selectedDeco);
     Game.add(placedDeco);
     syncPlacedDecos();
@@ -142,7 +143,7 @@ final class DecoPlacementController {
 
   Optional<Deco> pipetteDecoAt(Point worldPos) {
     return findPlacedDecoNear(worldPos)
-      .flatMap(entity -> entity.fetch(DecoComponent.class).map(DecoComponent::type));
+        .flatMap(entity -> entity.fetch(DecoComponent.class).map(DecoComponent::type));
   }
 
   void releaseHeldDecoIfNecessary(DecoTintController tintController) {
@@ -166,10 +167,10 @@ final class DecoPlacementController {
 
     if (heldDecoEntity != null) {
       Point placementPos =
-        heldDecoEntity
-          .fetch(PositionComponent.class)
-          .map(PositionComponent::position)
-          .orElse(currentSnapPos);
+          heldDecoEntity
+              .fetch(PositionComponent.class)
+              .map(PositionComponent::position)
+              .orElse(currentSnapPos);
       return isDecoPlacementBlocked(heldDecoEntity, placementPos);
     }
 
@@ -206,11 +207,11 @@ final class DecoPlacementController {
     }
 
     Vector2 offset =
-      entity
-        .fetch(CollideComponent.class)
-        .map(CollideComponent::collider)
-        .map(Collider::offset)
-        .orElse(Vector2.ZERO);
+        entity
+            .fetch(CollideComponent.class)
+            .map(CollideComponent::collider)
+            .map(Collider::offset)
+            .orElse(Vector2.ZERO);
 
     return snapPos.translate(offset.scale(-1));
   }
@@ -221,9 +222,9 @@ final class DecoPlacementController {
     }
 
     return decoPreviewEntity
-      .fetch(PositionComponent.class)
-      .map(PositionComponent::position)
-      .orElse(fallback);
+        .fetch(PositionComponent.class)
+        .map(PositionComponent::position)
+        .orElse(fallback);
   }
 
   private Optional<Entity> findPlacedDecoNear(Point worldPos) {
@@ -232,17 +233,17 @@ final class DecoPlacementController {
     }
 
     return Game.levelEntities()
-      .filter(entity -> entity.isPresent(DecoComponent.class))
-      .filter(entity -> entity.isPresent(PositionComponent.class))
-      .filter(entity -> !entity.equals(decoPreviewEntity))
-      .filter(
-        entity ->
-          entity
-            .fetch(PositionComponent.class)
-            .map(PositionComponent::position)
-            .map(pos -> pos.distance(worldPos) <= DECO_CURSOR_DISTANCE)
-            .orElse(false))
-      .findFirst();
+        .filter(entity -> entity.isPresent(DecoComponent.class))
+        .filter(entity -> entity.isPresent(PositionComponent.class))
+        .filter(entity -> !entity.equals(decoPreviewEntity))
+        .filter(
+            entity ->
+                entity
+                    .fetch(PositionComponent.class)
+                    .map(PositionComponent::position)
+                    .map(pos -> pos.distance(worldPos) <= DECO_CURSOR_DISTANCE)
+                    .orElse(false))
+        .findFirst();
   }
 
   private boolean isDecoPlacementBlocked(Entity movingDeco, Point placementPos) {
@@ -252,7 +253,9 @@ final class DecoPlacementController {
 
     Optional<CollideComponent> movingCollide = movingDeco.fetch(CollideComponent.class);
     if (movingCollide.isEmpty()) {
-      return findPlacedDecoNear(placementPos).filter(entity -> !entity.equals(movingDeco)).isPresent();
+      return findPlacedDecoNear(placementPos)
+          .filter(entity -> !entity.equals(movingDeco))
+          .isPresent();
     }
 
     Point oldColliderPos = movingCollide.get().collider().position();
@@ -260,12 +263,13 @@ final class DecoPlacementController {
 
     try {
       return Game.levelEntities()
-        .filter(entity -> entity.isPresent(DecoComponent.class))
-        .filter(entity -> entity.isPresent(CollideComponent.class))
-        .filter(entity -> !entity.equals(movingDeco))
-        .filter(entity -> !entity.equals(decoPreviewEntity))
-        .map(entity -> entity.fetch(CollideComponent.class).orElseThrow())
-        .anyMatch(otherCollide -> movingCollide.get().collider().collide(otherCollide.collider()));
+          .filter(entity -> entity.isPresent(DecoComponent.class))
+          .filter(entity -> entity.isPresent(CollideComponent.class))
+          .filter(entity -> !entity.equals(movingDeco))
+          .filter(entity -> !entity.equals(decoPreviewEntity))
+          .map(entity -> entity.fetch(CollideComponent.class).orElseThrow())
+          .anyMatch(
+              otherCollide -> movingCollide.get().collider().collide(otherCollide.collider()));
     } finally {
       movingCollide.get().collider().position(oldColliderPos);
     }
@@ -273,31 +277,31 @@ final class DecoPlacementController {
 
   private void syncPlacedDecos() {
     system
-      .currentDungeonLevelForModes()
-      .ifPresent(
-        level -> {
-          List<Tuple<Deco, Point>> placedDecos =
-            Game.levelEntities()
-              .filter(entity -> entity.isPresent(DecoComponent.class))
-              .filter(entity -> entity.isPresent(PositionComponent.class))
-              .filter(entity -> !entity.equals(decoPreviewEntity))
-              .map(
-                entity ->
-                  new Tuple<>(
-                    entity.fetch(DecoComponent.class).orElseThrow().type(),
-                    entity.fetch(PositionComponent.class).orElseThrow().position()))
-              .toList();
+        .currentDungeonLevelForModes()
+        .ifPresent(
+            level -> {
+              List<Tuple<Deco, Point>> placedDecos =
+                  Game.levelEntities()
+                      .filter(entity -> entity.isPresent(DecoComponent.class))
+                      .filter(entity -> entity.isPresent(PositionComponent.class))
+                      .filter(entity -> !entity.equals(decoPreviewEntity))
+                      .map(
+                          entity ->
+                              new Tuple<>(
+                                  entity.fetch(DecoComponent.class).orElseThrow().type(),
+                                  entity.fetch(PositionComponent.class).orElseThrow().position()))
+                      .toList();
 
-          level.decorations().clear();
-          level.decorations().addAll(placedDecos);
-        });
+              level.decorations().clear();
+              level.decorations().addAll(placedDecos);
+            });
   }
 
   private String decoName(Entity entity) {
     return entity
-      .fetch(DecoComponent.class)
-      .map(DecoComponent::type)
-      .map(Enum::name)
-      .orElse("Deco");
+        .fetch(DecoComponent.class)
+        .map(DecoComponent::type)
+        .map(Enum::name)
+        .orElse("Deco");
   }
 }

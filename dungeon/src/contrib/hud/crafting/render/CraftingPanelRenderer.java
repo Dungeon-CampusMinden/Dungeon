@@ -1,7 +1,8 @@
-package contrib.hud.crafting;
+package contrib.hud.crafting.render;
 
-import contrib.item.Item;
+import contrib.hud.crafting.CraftingDialogLayout;
 import contrib.hud.itemgrid.render.ItemIconRenderer;
+import contrib.item.Item;
 import core.game.render.image.ImageAssets;
 import java.awt.Color;
 import java.awt.Font;
@@ -12,8 +13,15 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Renders the crafting panel background, ingredient previews, and result previews. */
-final class CraftingPanelRenderer {
+/**
+ * Renderer for the crafting panel that handles the visual presentation of crafting items and result items.
+ *
+ * <p>This class is responsible for rendering crafting slots, result items, and their associated visual elements
+ * (backgrounds, badges, labels).
+ *
+ * <p>It uses a {@link CraftingDialogLayout} to determine the positioning of items within the crafting panel.
+ */
+public final class CraftingPanelRenderer {
 
   private static final int RESULT_ICON_PADDING = 2;
   private static final int RESULT_LABEL_TOP_GAP = 6;
@@ -35,30 +43,59 @@ final class CraftingPanelRenderer {
 
   private final CraftingDialogLayout layout;
 
-  CraftingPanelRenderer(CraftingDialogLayout layout) {
+  /**
+   * Constructs a new {@code CraftingPanelRenderer} with the specified layout configuration.
+   *
+   * @param layout the {@link CraftingDialogLayout} that determines item positioning within the crafting panel
+   */
+  public CraftingPanelRenderer(CraftingDialogLayout layout) {
     this.layout = layout;
   }
 
-  List<CraftingDialogLayout.SlotBounds> craftingSlotBounds(
+  /**
+   * Calculates the bounds for visible crafting slots within the panel.
+   *
+   * @param panelBounds the bounding rectangle of the crafting panel
+   * @param craftingSlots the array of items in the crafting slots
+   * @return a list of {@link CraftingDialogLayout.SlotBounds} representing the positions and sizes of visible crafting slots
+   */
+  public List<CraftingDialogLayout.SlotBounds> craftingSlotBounds(
       Rectangle panelBounds, Item[] craftingSlots) {
     return mirrorSlotBounds(
         panelBounds,
         layout.visibleCraftingSlots(
-            craftingSlots,
-            panelBounds.x,
-            panelBounds.y,
-            panelBounds.width,
-            panelBounds.height));
+            craftingSlots, panelBounds.x, panelBounds.y, panelBounds.width, panelBounds.height));
   }
 
-  List<CraftingDialogLayout.ItemBounds> resultItemBounds(Rectangle panelBounds, Item[] resultItems) {
+  /**
+   * Calculates the bounds for result items within the panel.
+   *
+   * @param panelBounds the bounding rectangle of the crafting panel
+   * @param resultItems the array of result items to position
+   * @return a list of {@link CraftingDialogLayout.ItemBounds} representing the positions and sizes of result items
+   */
+  public List<CraftingDialogLayout.ItemBounds> resultItemBounds(
+      Rectangle panelBounds, Item[] resultItems) {
     return mirrorResultBounds(
         panelBounds,
         layout.resultSlots(
             resultItems, panelBounds.x, panelBounds.y, panelBounds.width, panelBounds.height));
   }
 
-  void draw(
+  /**
+   * Renders the complete crafting panel with all items and visual elements.
+   *
+   * <p>This method orchestrates the drawing of the crafting panel background, crafting items with their
+   * ingredient badges, and result items with their labels.
+   *
+   * @param g the {@link Graphics2D} context used for rendering
+   * @param panelBounds the bounding rectangle of the crafting panel
+   * @param craftingBounds a list of slot bounds for crafting items
+   * @param visibleCraftingSlots the array of visible crafting items
+   * @param resultItems the array of result items to display
+   * @param resultBounds a list of item bounds for result items
+   */
+  public void draw(
       Graphics2D g,
       Rectangle panelBounds,
       List<CraftingDialogLayout.SlotBounds> craftingBounds,
@@ -137,9 +174,7 @@ final class CraftingPanelRenderer {
   }
 
   private void drawResultItems(
-      Graphics2D g,
-      Item[] resultItems,
-      List<CraftingDialogLayout.ItemBounds> resultBounds) {
+      Graphics2D g, Item[] resultItems, List<CraftingDialogLayout.ItemBounds> resultBounds) {
     for (int i = 0; i < resultBounds.size() && i < resultItems.length; i++) {
       CraftingDialogLayout.ItemBounds bounds = resultBounds.get(i);
       Item item = resultItems[i];

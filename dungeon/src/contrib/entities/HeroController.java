@@ -28,7 +28,6 @@ import core.network.server.ClientState;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Queue;
@@ -132,45 +131,44 @@ public class HeroController {
     }
 
     resolveInteractionTarget(hero, point)
-      .ifPresentOrElse(
-        entity -> {
-          InteractionComponent ic = entity.fetch(InteractionComponent.class).orElseThrow();
-          LOGGER.trace("Hero {} interacting with entity {}", hero.id(), entity.id());
-          ic.triggerInteraction(entity, hero);
-        },
-        () -> {
-          LOGGER.trace("No reachable interactable entity found for hero {}", hero.id());
-          DialogUtils.showTextPopup("Dafür bin ich zu weit weg.", "Zu weit weg.", hero.id());
-        });
+        .ifPresentOrElse(
+            entity -> {
+              InteractionComponent ic = entity.fetch(InteractionComponent.class).orElseThrow();
+              LOGGER.trace("Hero {} interacting with entity {}", hero.id(), entity.id());
+              ic.triggerInteraction(entity, hero);
+            },
+            () -> {
+              LOGGER.trace("No reachable interactable entity found for hero {}", hero.id());
+              DialogUtils.showTextPopup("Dafür bin ich zu weit weg.", "Zu weit weg.", hero.id());
+            });
   }
 
   private static Optional<Entity> resolveInteractionTarget(Entity hero, Point point) {
     Optional<Entity> pointTarget =
-      nearestReachableInteractable(
-        Game.entityAtPoint(point).filter(entity -> entity.id() != hero.id()),
-        hero,
-        point);
+        nearestReachableInteractable(
+            Game.entityAtPoint(point).filter(entity -> entity.id() != hero.id()), hero, point);
 
     if (pointTarget.isPresent()) {
       return pointTarget;
     }
 
     return nearestReachableInteractable(
-      LevelUtils.tilesInRange(point, INTERACTION_TARGET_SEARCH_RADIUS).stream()
-        .flatMap(Game::entityAtTile)
-        .filter(entity -> entity.id() != hero.id()),
-      hero,
-      point);
+        LevelUtils.tilesInRange(point, INTERACTION_TARGET_SEARCH_RADIUS).stream()
+            .flatMap(Game::entityAtTile)
+            .filter(entity -> entity.id() != hero.id()),
+        hero,
+        point);
   }
 
   private static Optional<Entity> nearestReachableInteractable(
-    Stream<Entity> candidates, Entity hero, Point referencePoint) {
+      Stream<Entity> candidates, Entity hero, Point referencePoint) {
     return candidates
-      .filter(entity -> entity.fetch(InteractionComponent.class).isPresent())
-      .filter(entity -> isWithinInteractionRange(entity, hero))
-      .min(
-        Comparator.comparingDouble(
-          entity -> Point.calculateDistance(EntityUtils.getPosition(entity), referencePoint)));
+        .filter(entity -> entity.fetch(InteractionComponent.class).isPresent())
+        .filter(entity -> isWithinInteractionRange(entity, hero))
+        .min(
+            Comparator.comparingDouble(
+                entity ->
+                    Point.calculateDistance(EntityUtils.getPosition(entity), referencePoint)));
   }
 
   private static boolean isWithinInteractionRange(Entity entity, Entity hero) {
@@ -178,7 +176,8 @@ public class HeroController {
   }
 
   private static float interactionRange(Entity entity) {
-    InteractionComponent interactionComponent = entity.fetch(InteractionComponent.class).orElse(null);
+    InteractionComponent interactionComponent =
+        entity.fetch(InteractionComponent.class).orElse(null);
     if (interactionComponent == null) {
       return Interaction.DEFAULT_INTERACTION_RADIUS;
     }
@@ -464,7 +463,7 @@ public class HeroController {
             Optional<InventoryComponent> invComp = playerEntity.fetch(InventoryComponent.class);
             if (invComp.isEmpty()) {
               LOGGER.warn(
-                "No inventory component found for entity {} to drop item", playerEntity.id());
+                  "No inventory component found for entity {} to drop item", playerEntity.id());
               break;
             }
             int itemIndex = (int) msg.point().x();

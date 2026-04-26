@@ -16,8 +16,8 @@ public abstract class ToggleableEffectRegistry<E> extends EffectRegistryFacade<E
    */
   protected ToggleableEffectRegistry(Predicate<? super E> enabledPredicate) {
     super(
-      enabledPredicate,
-      ToggleableEffect.class::isInstance,
-      (effect, enabled) -> ((ToggleableEffect<?>) effect).enabled(enabled));
+        enabledPredicate,
+        ToggleableEffect.class::isInstance,
+        (effect, enabled) -> ((ToggleableEffect<?>) effect).enabled(enabled));
   }
 }

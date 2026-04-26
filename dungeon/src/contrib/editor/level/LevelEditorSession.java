@@ -9,13 +9,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents a session for the level editor in a game, allowing control over
- * session activation, player capture, and input handling for editor functionality.
+ * Represents a session for the level editor in a game, allowing control over session activation,
+ * player capture, and input handling for editor functionality.
  *
  * <p>This class provides methods to manage the lifecycle and behavior of the level editor session.
  *
- * <p>The session interacts with the game's player entity, allowing the editor to
- * override player inputs and toggle god mode.
+ * <p>The session interacts with the game's player entity, allowing the editor to override player
+ * inputs and toggle god mode.
  */
 final class LevelEditorSession {
 
@@ -80,8 +80,8 @@ final class LevelEditorSession {
     }
 
     capturedPlayer
-      .fetch(HealthComponent.class)
-      .ifPresent(healthComponent -> healthComponent.godMode(false));
+        .fetch(HealthComponent.class)
+        .ifPresent(healthComponent -> healthComponent.godMode(false));
 
     capturedPlayer = null;
   }
@@ -91,23 +91,24 @@ final class LevelEditorSession {
     capturedPlayerCallbacks = new HashMap<>();
 
     LevelEditorMode.editorInputs()
-      .forEach(
-        input -> {
-          InputComponent.InputData callback = callbacks.get(input);
-          if (callback != null) {
-            capturedPlayerCallbacks.put(input, callback);
-          }
+        .forEach(
+            input -> {
+              InputComponent.InputData callback = callbacks.get(input);
+              if (callback != null) {
+                capturedPlayerCallbacks.put(input, callback);
+              }
 
-          inputComponent.removeCallback(input);
-        });
+              inputComponent.removeCallback(input);
+            });
   }
 
   private void restorePlayerEditorInputs(InputComponent inputComponent) {
     capturedPlayerCallbacks.forEach(
-      (key, value) ->
-        inputComponent.registerCallback(
-          key, value.callback(), value.repeat(), value.pauseable()));
+        (key, value) ->
+            inputComponent.registerCallback(
+                key, value.callback(), value.repeat(), value.pauseable()));
   }
 
-  record ActivationTransition(boolean changed, boolean hadCapturedPlayer, boolean hasCapturedPlayer) {}
+  record ActivationTransition(
+      boolean changed, boolean hadCapturedPlayer, boolean hasCapturedPlayer) {}
 }

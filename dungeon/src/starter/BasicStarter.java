@@ -1,9 +1,9 @@
 package starter;
 
+import contrib.client.DefaultClientLoopHostFactory;
 import contrib.components.InventoryComponent;
 import contrib.components.ManaComponent;
 import contrib.components.SkillComponent;
-import contrib.client.DefaultClientLoopHostFactory;
 import contrib.configuration.DebugKeyboardConfig;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
@@ -31,11 +31,11 @@ import core.game.render.level.LevelColorGradeEffect;
 import core.game.render.level.LevelEffectPipeline;
 import core.game.render.scene.SceneColorGradeEffect;
 import core.game.render.scene.SceneEffectPipeline;
-import core.game.render.sprite.effects.SpriteRecolorEffect;
-import core.game.render.sprite.effects.shine.ShineSpriteEffect;
 import core.game.render.sprite.effects.SpriteColorGradeEffect;
 import core.game.render.sprite.effects.SpriteEffectRegistry;
 import core.game.render.sprite.effects.SpriteEffectsComponent;
+import core.game.render.sprite.effects.SpriteRecolorEffect;
+import core.game.render.sprite.effects.shine.ShineSpriteEffect;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
@@ -53,12 +53,12 @@ import java.util.function.Supplier;
 /**
  * Entry point for the LITIENGINE-based dungeon game.
  *
- * <p>This starter initializes and starts the game by configuring levels, loading settings,
- * setting up the game window, and launching the client host loop.
+ * <p>This starter initializes and starts the game by configuring levels, loading settings, setting
+ * up the game window, and launching the client host loop.
  *
  * <p>In addition to a basic playable setup, this starter installs a deterministic manual
- * verification sandbox near the start tile. The sandbox is meant to validate that visible
- * old functionality is still present after the port:
+ * verification sandbox near the start tile. The sandbox is meant to validate that visible old
+ * functionality is still present after the port:
  *
  * <ul>
  *   <li>inventory interaction
@@ -80,20 +80,19 @@ public final class BasicStarter {
   private BasicStarter() {}
 
   /**
-   * The entry point of the application that sets up and runs the game environment.
-   * Initializes game configurations, loads required resources, sets up gameplay systems,
-   * and defines behaviors for various game events.
+   * The entry point of the application that sets up and runs the game environment. Initializes game
+   * configurations, loads required resources, sets up gameplay systems, and defines behaviors for
+   * various game events.
    *
-   * @param args command-line arguments passed to the application, typically not used in this context
+   * @param args command-line arguments passed to the application, typically not used in this
+   *     context
    */
   public static void main(String[] args) {
     DungeonLoader.addLevel(Tuple.of("playground", DungeonLevel.class));
 
     try {
       Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        KeyboardConfig.class,
-        DebugKeyboardConfig.class);
+          new SimpleIPath("dungeon_config.json"), KeyboardConfig.class, DebugKeyboardConfig.class);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -107,31 +106,31 @@ public final class BasicStarter {
     PreRunConfiguration.fullScreen(false);
 
     Game.userOnSetup(
-      () -> {
-        installCraftingTestRecipe();
-        installSceneColorGradeDemo();
-        installLevelColorGradeDemo();
-        installDepthLayerColorGradeDemo();
+        () -> {
+          installCraftingTestRecipe();
+          installSceneColorGradeDemo();
+          installLevelColorGradeDemo();
+          installDepthLayerColorGradeDemo();
 
-        ensureBasicStarterGameplaySystems();
+          ensureBasicStarterGameplaySystems();
 
-        Entity hero = EntityFactory.newHero();
-        addStarterInventoryItems(hero);
-        prepareHeroManaVerification(hero);
-        prepareHeroFireballVerification(hero);
-        Game.add(hero);
-      });
+          Entity hero = EntityFactory.newHero();
+          addStarterInventoryItems(hero);
+          prepareHeroManaVerification(hero);
+          prepareHeroFireballVerification(hero);
+          Game.add(hero);
+        });
 
     Game.userOnFrame(BasicStarter::onFrame);
 
     Game.userOnLevelLoad(
-      firstLoad -> {
-        if (!firstLoad) {
-          return;
-        }
+        firstLoad -> {
+          if (!firstLoad) {
+            return;
+          }
 
-        Game.startTile().map(Tile::position).ifPresent(BasicStarter::spawnVerificationFixtures);
-      });
+          Game.startTile().map(Tile::position).ifPresent(BasicStarter::spawnVerificationFixtures);
+        });
 
     Game.addClientStartupTask(BasicStarter::ensureManaRestoreSystem);
     Game.addClientStartupTask(Crafting::loadRecipes);
@@ -147,11 +146,11 @@ public final class BasicStarter {
 
   private static void prepareHeroManaVerification(Entity hero) {
     hero.fetch(ManaComponent.class)
-      .ifPresent(
-        mana -> {
-          float visibleStartMana = Math.max(10f, mana.maxAmount() * 0.20f);
-          mana.currentAmount(visibleStartMana);
-        });
+        .ifPresent(
+            mana -> {
+              float visibleStartMana = Math.max(10f, mana.maxAmount() * 0.20f);
+              mana.currentAmount(visibleStartMana);
+            });
   }
 
   private static void ensureBasicStarterGameplaySystems() {
@@ -164,8 +163,7 @@ public final class BasicStarter {
     registerIfAbsent(SpikeSystem.class, SpikeSystem::new);
   }
 
-  private static <T extends core.System> void registerIfAbsent(
-    Class<T> type, Supplier<T> factory) {
+  private static <T extends core.System> void registerIfAbsent(Class<T> type, Supplier<T> factory) {
     if (!ECSManagement.systems().containsKey(type)) {
       ECSManagement.add(factory.get());
     }
@@ -173,68 +171,74 @@ public final class BasicStarter {
 
   private static void prepareHeroFireballVerification(Entity hero) {
     hero.fetch(SkillComponent.class)
-      .ifPresent(
-        skillComponent -> {
-          int guard = skillComponent.getSkills().size();
-          while (guard-- > 0
-            && skillComponent.activeSkill().filter(FireballSkill.class::isInstance).isEmpty()) {
-            skillComponent.nextSkill();
-          }
-        });
+        .ifPresent(
+            skillComponent -> {
+              int guard = skillComponent.getSkills().size();
+              while (guard-- > 0
+                  && skillComponent
+                      .activeSkill()
+                      .filter(FireballSkill.class::isInstance)
+                      .isEmpty()) {
+                skillComponent.nextSkill();
+              }
+            });
   }
 
   private static void installCraftingTestRecipe() {
     Crafting.addRecipe(
-      new Recipe(
-        false,
-        new CraftingIngredient[] {new ItemPotionWater(), new ItemResourceBerry()},
-        new ItemPotionHealth[] {new ItemPotionHealth()}));
+        new Recipe(
+            false,
+            new CraftingIngredient[] {new ItemPotionWater(), new ItemResourceBerry()},
+            new ItemPotionHealth[] {new ItemPotionHealth()}));
   }
 
   private static void installSceneColorGradeDemo() {
     SceneEffectPipeline.effects().remove(STARTER_SCENE_COLOR_GRADE_DEMO_ID);
-    SceneEffectPipeline.effects().add(
-      STARTER_SCENE_COLOR_GRADE_DEMO_ID,
-      new SceneColorGradeEffect(-1.0f, 0.72f, 1.08f)
-        .region(new Rectangle(1f, 5f, 10f, 4f))
-        .transitionSize(2.0f),
-      100);
+    SceneEffectPipeline.effects()
+        .add(
+            STARTER_SCENE_COLOR_GRADE_DEMO_ID,
+            new SceneColorGradeEffect(-1.0f, 0.72f, 1.08f)
+                .region(new Rectangle(1f, 5f, 10f, 4f))
+                .transitionSize(2.0f),
+            100);
   }
 
   private static void installLevelColorGradeDemo() {
     LevelEffectPipeline.effects().remove(STARTER_LEVEL_COLOR_GRADE_DEMO_ID);
-    LevelEffectPipeline.effects().add(
-      STARTER_LEVEL_COLOR_GRADE_DEMO_ID,
-      new LevelColorGradeEffect(-1.0f, 0.58f, 0.82f)
-        .region(new Rectangle(3f, 0f, 7f, 4f))
-        .transitionSize(2.0f),
-      100);
+    LevelEffectPipeline.effects()
+        .add(
+            STARTER_LEVEL_COLOR_GRADE_DEMO_ID,
+            new LevelColorGradeEffect(-1.0f, 0.58f, 0.82f)
+                .region(new Rectangle(3f, 0f, 7f, 4f))
+                .transitionSize(2.0f),
+            100);
   }
 
   private static void installDepthLayerColorGradeDemo() {
     int demoDepth = DepthLayer.ForegroundDeco.depth();
 
     DepthLayerEffectPipeline.effects(demoDepth).remove(STARTER_DEPTH_COLOR_GRADE_DEMO_ID);
-    DepthLayerEffectPipeline.effects(demoDepth).add(
-      STARTER_DEPTH_COLOR_GRADE_DEMO_ID,
-      new DepthLayerColorGradeEffect(-1.0f, 0.35f, 1.28f)
-        .region(new Rectangle(7f, 5f, 3f, 3f))
-        .transitionSize(1.5f),
-      100);
+    DepthLayerEffectPipeline.effects(demoDepth)
+        .add(
+            STARTER_DEPTH_COLOR_GRADE_DEMO_ID,
+            new DepthLayerColorGradeEffect(-1.0f, 0.35f, 1.28f)
+                .region(new Rectangle(7f, 5f, 3f, 3f))
+                .transitionSize(1.5f),
+            100);
   }
 
   private static void addStarterInventoryItems(Entity hero) {
     hero.fetch(InventoryComponent.class)
-      .ifPresent(
-        inventory -> {
-          inventory.add(new ItemPotionWater());
-          inventory.add(new ItemPotionWater());
-          inventory.add(new ItemPotionHealth());
-          inventory.add(new ItemResourceBerry());
-          inventory.add(new ItemResourceBerry());
-          inventory.add(new ItemWoodenArrow(8));
-          inventory.add(new ItemKey());
-        });
+        .ifPresent(
+            inventory -> {
+              inventory.add(new ItemPotionWater());
+              inventory.add(new ItemPotionWater());
+              inventory.add(new ItemPotionHealth());
+              inventory.add(new ItemResourceBerry());
+              inventory.add(new ItemResourceBerry());
+              inventory.add(new ItemWoodenArrow(8));
+              inventory.add(new ItemKey());
+            });
   }
 
   private static void spawnVerificationFixtures(Point startPosition) {
@@ -250,8 +254,8 @@ public final class BasicStarter {
 
   private static void spawnHubZone(Point origin) {
     addSign(
-      "Verification Hub",
-      """
+        "Verification Hub",
+        """
       This BasicStarter is a manual verification sandbox.
       Test at least:
       - movement
@@ -265,11 +269,11 @@ public final class BasicStarter {
       - debug hotkeys
       - level editor
       """,
-      origin.translate(Vector2.of(0f, 1.5f)));
+        origin.translate(Vector2.of(0f, 1.5f)));
 
     addSign(
-      "Core Controls",
-      """
+        "Core Controls",
+        """
       I = inventory
       E = interact / use item
       Q = use active skill
@@ -278,17 +282,17 @@ public final class BasicStarter {
       F3 = debug HUD
       F4 = level editor
       """,
-      origin.translate(Vector2.of(0f, 3.5f)));
+        origin.translate(Vector2.of(0f, 3.5f)));
 
     Game.add(
-      WorldItemBuilder.buildWorldItem(
-        new ItemPotionHealth(), origin.translate(Vector2.of(1f, 0.5f))));
+        WorldItemBuilder.buildWorldItem(
+            new ItemPotionHealth(), origin.translate(Vector2.of(1f, 0.5f))));
   }
 
   private static void spawnInventoryZone(Point origin) {
     addSign(
-      "Inventory Zone",
-      """
+        "Inventory Zone",
+        """
       Verify:
       - open chest
       - move items between inventories
@@ -297,26 +301,27 @@ public final class BasicStarter {
       - dropping world items
       - using player items
       """,
-      origin.translate(Vector2.of(0f, 2f)));
+        origin.translate(Vector2.of(0f, 2f)));
 
     Game.add(MiscFactory.newChest(createChestTestItems(), origin.translate(Vector2.of(0f, 0f))));
-    Game.add(MiscFactory.newChest(createLargeChestTestItems(), origin.translate(Vector2.of(2f, 0f))));
+    Game.add(
+        MiscFactory.newChest(createLargeChestTestItems(), origin.translate(Vector2.of(2f, 0f))));
 
     Game.add(
-      WorldItemBuilder.buildWorldItem(
-        new ItemPotionWater(), origin.translate(Vector2.of(1f, 1.5f))));
+        WorldItemBuilder.buildWorldItem(
+            new ItemPotionWater(), origin.translate(Vector2.of(1f, 1.5f))));
     Game.add(
-      WorldItemBuilder.buildWorldItem(
-        new ItemResourceBerry(), origin.translate(Vector2.of(2f, 1.5f))));
+        WorldItemBuilder.buildWorldItem(
+            new ItemResourceBerry(), origin.translate(Vector2.of(2f, 1.5f))));
     Game.add(
-      WorldItemBuilder.buildWorldItem(
-        new ItemWoodenArrow(8), origin.translate(Vector2.of(3f, 1.5f))));
+        WorldItemBuilder.buildWorldItem(
+            new ItemWoodenArrow(8), origin.translate(Vector2.of(3f, 1.5f))));
   }
 
   private static void spawnCraftingZone(Point origin) {
     addSign(
-      "Crafting Zone",
-      """
+        "Crafting Zone",
+        """
       Verify:
       - open crafting cauldron
       - move Water Potion + Berry into crafting
@@ -325,16 +330,17 @@ public final class BasicStarter {
       - cancel returns ingredients
       - close dialog also returns ingredients
       """,
-      origin.translate(Vector2.of(0f, 2f)));
+        origin.translate(Vector2.of(0f, 2f)));
 
     Game.add(MiscFactory.newCraftingCauldron(origin.translate(Vector2.of(0f, 0f))));
-    Game.add(MiscFactory.newChest(createCraftingSupportItems(), origin.translate(Vector2.of(2f, 0f))));
+    Game.add(
+        MiscFactory.newChest(createCraftingSupportItems(), origin.translate(Vector2.of(2f, 0f))));
   }
 
   private static void spawnDialogZone(Point origin) {
     addSign(
-      "Dialog Zone",
-      """
+        "Dialog Zone",
+        """
       Verify:
       - reading sign dialogs
       - closing dialogs with ESC
@@ -342,63 +348,61 @@ public final class BasicStarter {
       - image overlay closes correctly
       - image text is visible
       """,
-      origin.translate(Vector2.of(0f, 2f)));
+        origin.translate(Vector2.of(0f, 2f)));
 
     Game.add(
-      SignFactory.createSign(
-        "The sign dialog is working if you can read this text and close it again.",
-        "Simple Sign",
-        origin.translate(Vector2.of(0f, 0f)),
-        (sign, who) -> {}));
+        SignFactory.createSign(
+            "The sign dialog is working if you can read this text and close it again.",
+            "Simple Sign",
+            origin.translate(Vector2.of(0f, 0f)),
+            (sign, who) -> {}));
 
     Game.add(
-      ShowImageFactory.createShowImage(
-        origin.translate(Vector2.of(2f, 0f)),
-        "items/book/red_book.png",
-        "items/book/red_book.png",
-        (trigger, overlay) -> {},
-        0.80f,
-        1.5f,
-        ShowImageTextConfig.ofRgb(
-          "ShowImage overlay verification", 1.0f, 0, 0, 0)));
+        ShowImageFactory.createShowImage(
+            origin.translate(Vector2.of(2f, 0f)),
+            "items/book/red_book.png",
+            "items/book/red_book.png",
+            (trigger, overlay) -> {},
+            0.80f,
+            1.5f,
+            ShowImageTextConfig.ofRgb("ShowImage overlay verification", 1.0f, 0, 0, 0)));
 
     Game.add(
-      ShowImageFactory.createShowImage(
-        origin.translate(Vector2.of(4f, 0f)),
-        "items/book/spell_book.png",
-        "items/book/spell_book.png",
-        (trigger, overlay) -> {},
-        0.95f,
-        1.5f,
-        ShowImageTextConfig.ofRgb(
-          "Second image for reopen / close testing", 0.9f, 20, 20, 20)));
+        ShowImageFactory.createShowImage(
+            origin.translate(Vector2.of(4f, 0f)),
+            "items/book/spell_book.png",
+            "items/book/spell_book.png",
+            (trigger, overlay) -> {},
+            0.95f,
+            1.5f,
+            ShowImageTextConfig.ofRgb(
+                "Second image for reopen / close testing", 0.9f, 20, 20, 20)));
   }
 
   private static void spawnLockedChestZone(Point origin) {
     addSign(
-      "Locked Chest Zone",
-      """
+        "Locked Chest Zone",
+        """
       Verify:
       - interaction with locked chest
       - missing / present key behavior
       - confirm dialog
       - chest opens after consuming key
       """,
-      origin.translate(Vector2.of(0f, 2f)));
+        origin.translate(Vector2.of(0f, 2f)));
 
     Game.add(
-      MiscFactory.newLockedChest(
-        createChestTestItems(), origin.translate(Vector2.of(0f, 5f)), ItemKey.class));
+        MiscFactory.newLockedChest(
+            createChestTestItems(), origin.translate(Vector2.of(0f, 5f)), ItemKey.class));
 
     Game.add(
-      WorldItemBuilder.buildWorldItem(
-        new ItemKey(), origin.translate(Vector2.of(1f, 0.5f))));
+        WorldItemBuilder.buildWorldItem(new ItemKey(), origin.translate(Vector2.of(1f, 0.5f))));
   }
 
   private static void spawnRenderAndEffectsZone(Point origin) {
     addSign(
-      "Render & Effects Zone",
-      """
+        "Render & Effects Zone",
+        """
       Verify visually:
       - hue remap
       - sprite color grading
@@ -406,47 +410,47 @@ public final class BasicStarter {
       - dedicated depth-layer effect
       - regional scene/level/depth effects
       """,
-      origin.translate(Vector2.of(0f, 3f)));
+        origin.translate(Vector2.of(0f, 3f)));
 
     Entity hueRemapDemoChest =
-      MiscFactory.newChest(createChestTestItems(), origin.translate(Vector2.of(0f, 0f)));
+        MiscFactory.newChest(createChestTestItems(), origin.translate(Vector2.of(0f, 0f)));
     installHueRemapDemoEffect(hueRemapDemoChest);
     Game.add(hueRemapDemoChest);
 
     Entity colorGradeDemoChest =
-      MiscFactory.newChest(createChestTestItems(), origin.translate(Vector2.of(2f, 0f)));
+        MiscFactory.newChest(createChestTestItems(), origin.translate(Vector2.of(2f, 0f)));
     installColorGradeDemoEffect(colorGradeDemoChest);
     Game.add(colorGradeDemoChest);
 
     Entity shineDemoChest =
-      MiscFactory.newChest(createChestTestItems(), origin.translate(Vector2.of(4f, 0f)));
+        MiscFactory.newChest(createChestTestItems(), origin.translate(Vector2.of(4f, 0f)));
     installShineDemoEffect(shineDemoChest);
     Game.add(shineDemoChest);
 
     Entity depthLayerDemoChest =
-      MiscFactory.newChest(createChestTestItems(), origin.translate(Vector2.of(6f, 0f)));
+        MiscFactory.newChest(createChestTestItems(), origin.translate(Vector2.of(6f, 0f)));
     installDepthLayerDemoDepth(depthLayerDemoChest);
     Game.add(depthLayerDemoChest);
   }
 
   private static void spawnLevelHideZone(Point origin) {
     addSign(
-      "Level Hide Zone",
-      """
+        "Level Hide Zone",
+        """
       Verify:
       - region is darkened before entering
       - walking into the area reveals it
       - leaving the area hides it again
       """,
-      origin.translate(Vector2.of(0f, 3f)));
+        origin.translate(Vector2.of(0f, 3f)));
 
     Game.add(LevelHideFactory.createLevelHide(origin.translate(Vector2.of(0f, 0f)), 4f, 3f, 1.5f));
   }
 
   private static void spawnDebugAndEditorHintZone(Point origin) {
     addSign(
-      "Debug Hotkeys",
-      """
+        "Debug Hotkeys",
+        """
       Verify with hotkeys:
       - F3 toggle debug HUD
       - X spawn monster at cursor
@@ -454,82 +458,78 @@ public final class BasicStarter {
       - J / H / G / O teleport variants
       - C open doors
       """,
-      origin.translate(Vector2.of(0f, 2f)));
+        origin.translate(Vector2.of(0f, 2f)));
 
     addSign(
-      "Editor Hotkeys",
-      """
+        "Editor Hotkeys",
+        """
       Verify with F4:
       - activate level editor
       - switch modes 1..7
       - tile / deco / point / bounds / shift / start tiles / save
       - clipboard export in save mode
       """,
-      origin.translate(Vector2.of(0f, 4.5f)));
+        origin.translate(Vector2.of(0f, 4.5f)));
   }
 
   private static void installHueRemapDemoEffect(Entity entity) {
     SpriteEffectRegistry effects = new SpriteEffectRegistry();
-    effects.add(
-      "demo_hue_remap_warm_to_cyan",
-      new SpriteRecolorEffect(0.08f, 0.56f, 0.18f),
-      100);
+    effects.add("demo_hue_remap_warm_to_cyan", new SpriteRecolorEffect(0.08f, 0.56f, 0.18f), 100);
     entity.add(new SpriteEffectsComponent(effects));
   }
 
   private static void installColorGradeDemoEffect(Entity entity) {
     SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
-      "demo_color_grade_desaturate_brighten",
-      new SpriteColorGradeEffect(-1.0f, 0.20f, 1.35f),
-      100);
+        "demo_color_grade_desaturate_brighten",
+        new SpriteColorGradeEffect(-1.0f, 0.20f, 1.35f),
+        100);
     entity.add(new SpriteEffectsComponent(effects));
   }
 
   private static void installShineDemoEffect(Entity entity) {
     SpriteEffectRegistry effects = new SpriteEffectRegistry();
     effects.add(
-      "demo_shine_overlay",
-      new ShineSpriteEffect()
-        .padding(0)
-        .sliceCount(2)
-        .gapSize(0.72f)
-        .rotationSpeed(0.90f)
-        .shineColor(new Color(255, 255, 128, 255)),
-      100);
+        "demo_shine_overlay",
+        new ShineSpriteEffect()
+            .padding(0)
+            .sliceCount(2)
+            .gapSize(0.72f)
+            .rotationSpeed(0.90f)
+            .shineColor(new Color(255, 255, 128, 255)),
+        100);
     entity.add(new SpriteEffectsComponent(effects));
   }
 
   private static void installDepthLayerDemoDepth(Entity entity) {
-    entity.fetch(DrawComponent.class)
-      .ifPresent(dc -> dc.depth(DepthLayer.ForegroundDeco.depth()));
+    entity.fetch(DrawComponent.class).ifPresent(dc -> dc.depth(DepthLayer.ForegroundDeco.depth()));
   }
 
   private static Set<Item> createChestTestItems() {
     return Set.of(
-      new ItemPotionWater(),
-      new ItemPotionHealth(),
-      new ItemResourceBerry(),
-      new ItemWoodenArrow(8));
+        new ItemPotionWater(),
+        new ItemPotionHealth(),
+        new ItemResourceBerry(),
+        new ItemWoodenArrow(8));
   }
 
   private static Set<Item> createLargeChestTestItems() {
     return Set.of(
-      new ItemPotionWater(),
-      new ItemPotionHealth(),
-      new ItemResourceBerry(),
-      new ItemWoodenArrow(8),
-      new ItemWoodenArrow(16),
-      new ItemKey());
+        new ItemPotionWater(),
+        new ItemPotionHealth(),
+        new ItemResourceBerry(),
+        new ItemWoodenArrow(8),
+        new ItemWoodenArrow(16),
+        new ItemKey());
   }
 
   private static Set<Item> createCraftingSupportItems() {
     return Set.of(
-      new ItemPotionWater(),
-      new ItemPotionWater(),
-      new ItemResourceBerry(),
-      new ItemResourceBerry(),
-      new ItemPotionHealth());
+        new ItemPotionWater(),
+        new ItemPotionWater(),
+        new ItemResourceBerry(),
+        new ItemResourceBerry(),
+        new ItemPotionHealth());
   }
 
   private static void addSign(String title, String text, Point position) {

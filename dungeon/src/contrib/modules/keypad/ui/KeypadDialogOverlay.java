@@ -1,7 +1,7 @@
 package contrib.modules.keypad.ui;
 
-import contrib.hud.dialogs.input.DialogButtonInputHandler;
 import contrib.hud.dialogs.frame.DialogFrameRenderer;
+import contrib.hud.dialogs.input.DialogButtonInputHandler;
 import contrib.modules.keypad.KeypadComponent;
 import core.Entity;
 import core.Game;
@@ -18,37 +18,40 @@ import java.util.List;
 /**
  * A UI overlay that renders a keypad dialog interface.
  *
- * <p>This overlay displays
- * a set of buttons and a small display area, allowing user interaction for
+ * <p>This overlay displays a set of buttons and a small display area, allowing user interaction for
  * entering digits, submitting input, and triggering associated actions.
  *
- * <p>This class handles input management, rendering operations, and button press
- * events. It is designed to integrate with an entity that includes a
- * {@code KeypadComponent} for managing user interaction and input logic.
+ * <p>This class handles input management, rendering operations, and button press events. It is
+ * designed to integrate with an entity that includes a {@code KeypadComponent} for managing user
+ * interaction and input logic.
  *
  * <p>Key Features:
+ *
  * <ul>
- *   <li>Render keypad buttons and the display area using predefined layout settings.</li>
- *   <li>Handle mouse events to detect button presses and trigger corresponding actions.</li>
- *   <li>Provide methods to set and retrieve the position, dimensions, and visibility of the overlay.</li>
+ *   <li>Render keypad buttons and the display area using predefined layout settings.
+ *   <li>Handle mouse events to detect button presses and trigger corresponding actions.
+ *   <li>Provide methods to set and retrieve the position, dimensions, and visibility of the
+ *       overlay.
  * </ul>
  *
  * <p>Dependencies:
+ *
  * <ul>
- *   <li>{@code Entity}: Represents the keypad entity containing the logic for input actions.</li>
- *   <li>{@code DialogFrameRenderer}: Utility responsible for rendering frame and button visuals.</li>
- *   <li>{@code InputManager}: Input handling utility for detecting mouse interactions.</li>
- *   <li>{@code KeypadComponent}: Component of the keypad entity responsible for managing entered digits,
- *   backspace functionality, and input validation.</li>
- *   <li>{@code StageHandle}: Represents the game stage for retrieving mouse coordinates.</li>
- *   <li>{@code Game.audio()}: External audio utility for playing feedback sounds.</li>
+ *   <li>{@code Entity}: Represents the keypad entity containing the logic for input actions.
+ *   <li>{@code DialogFrameRenderer}: Utility responsible for rendering frame and button visuals.
+ *   <li>{@code InputManager}: Input handling utility for detecting mouse interactions.
+ *   <li>{@code KeypadComponent}: Component of the keypad entity responsible for managing entered
+ *       digits, backspace functionality, and input validation.
+ *   <li>{@code StageHandle}: Represents the game stage for retrieving mouse coordinates.
+ *   <li>{@code Game.audio()}: External audio utility for playing feedback sounds.
  * </ul>
  *
  * <p>Notes:
+ *
  * <ul>
- *   <li>The class is immutable in terms of its core behavior, though position, dimensions,
- *   and visibility can be modified at runtime.</li>
- *   <li>The keypad buttons are hardcoded with a specific layout and labels.</li>
+ *   <li>The class is immutable in terms of its core behavior, though position, dimensions, and
+ *       visibility can be modified at runtime.
+ *   <li>The keypad buttons are hardcoded with a specific layout and labels.
  * </ul>
  */
 public final class KeypadDialogOverlay extends BaseUiOverlay {
@@ -65,11 +68,11 @@ public final class KeypadDialogOverlay extends BaseUiOverlay {
   private static final int BUTTON_TOP_GAP = 22;
 
   private static final List<String> BUTTON_LABELS =
-    Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "Back", "0", "Submit");
+      Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "Back", "0", "Submit");
 
   private final Entity keypad;
   private final DialogButtonInputHandler buttonInput =
-    new DialogButtonInputHandler(BUTTON_LABELS.size());
+      new DialogButtonInputHandler(BUTTON_LABELS.size());
 
   public KeypadDialogOverlay(Entity keypad) {
     super(DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -91,15 +94,14 @@ public final class KeypadDialogOverlay extends BaseUiOverlay {
     buttonInput.updateBounds(buttons);
     handleInput();
 
-    DialogFrameRenderer.RenderState state =
-      DialogFrameRenderer.beginDialog(g);
+    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
 
     try {
       drawDisplay(g);
 
       for (int i = 0; i < BUTTON_LABELS.size(); i++) {
         DialogFrameRenderer.drawButton(
-          g, buttons.get(i), BUTTON_LABELS.get(i), buttonInput.isPressed(i));
+            g, buttons.get(i), BUTTON_LABELS.get(i), buttonInput.isPressed(i));
       }
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
@@ -183,11 +185,11 @@ public final class KeypadDialogOverlay extends BaseUiOverlay {
       int col = i % BUTTON_COLUMNS;
       int row = i / BUTTON_COLUMNS;
       bounds.add(
-        new Rectangle(
-          startX + col * (BUTTON_SIZE + BUTTON_GAP),
-          startY + row * (BUTTON_SIZE + BUTTON_GAP),
-          BUTTON_SIZE,
-          BUTTON_SIZE));
+          new Rectangle(
+              startX + col * (BUTTON_SIZE + BUTTON_GAP),
+              startY + row * (BUTTON_SIZE + BUTTON_GAP),
+              BUTTON_SIZE,
+              BUTTON_SIZE));
     }
     return bounds;
   }

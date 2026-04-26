@@ -66,8 +66,8 @@ public class AIUtils {
   /**
    * Returns {@code true} if the entity has either finished the path or has left the path.
    *
-   * <p>This is a convenience combination of {@link #pathFinished(Entity, TilePath)} and
-   * {@link #pathLeft(Entity, TilePath)}.
+   * <p>This is a convenience combination of {@link #pathFinished(Entity, TilePath)} and {@link
+   * #pathLeft(Entity, TilePath)}.
    *
    * @param entity the entity to check
    * @param path the tile path to check against
@@ -93,36 +93,38 @@ public class AIUtils {
     if (path == null || path.isEmpty()) return true;
 
     return entity
-      .fetch(PositionComponent.class)
-      .map(pc -> {
-        Tile current = Game.tileAt(pc.position()).orElse(null);
-        Tile last = path.last();
-        return last != null && last.equals(current);
-      })
-      .orElse(false);
+        .fetch(PositionComponent.class)
+        .map(
+            pc -> {
+              Tile current = Game.tileAt(pc.position()).orElse(null);
+              Tile last = path.last();
+              return last != null && last.equals(current);
+            })
+        .orElse(false);
   }
 
   /**
    * Returns {@code true} if the entity's current tile is no longer part of the path.
    *
-   * <p>This can happen when an entity is displaced or moved off the path. If the path is
-   * {@code null} or empty, {@code true} is returned immediately.
+   * <p>This can happen when an entity is displaced or moved off the path. If the path is {@code
+   * null} or empty, {@code true} is returned immediately.
    *
    * @param entity the entity to check; must have a {@link PositionComponent}
    * @param path the tile path to check against
-   * @return {@code true} if the path is {@code null}, empty, or the entity's current tile is not
-   *     on the path; {@code false} otherwise
+   * @return {@code true} if the path is {@code null}, empty, or the entity's current tile is not on
+   *     the path; {@code false} otherwise
    */
   public static boolean pathLeft(final Entity entity, final TilePath path) {
     if (path == null || path.isEmpty()) return true;
 
     return entity
-      .fetch(PositionComponent.class)
-      .map(pc -> {
-        Tile current = Game.tileAt(pc.position()).orElse(null);
-        return !onPath(path, current);
-      })
-      .orElse(true);
+        .fetch(PositionComponent.class)
+        .map(
+            pc -> {
+              Tile current = Game.tileAt(pc.position()).orElse(null);
+              return !onPath(path, current);
+            })
+        .orElse(true);
   }
 
   /**
@@ -166,8 +168,8 @@ public class AIUtils {
   /**
    * Calculates the movement direction vector from the current tile to the next tile.
    *
-   * <p>Sums all directional components returned by {@link Tile#directionTo(Tile)} to produce
-   * a combined direction vector. The resulting vector may be diagonal if the tiles are positioned
+   * <p>Sums all directional components returned by {@link Tile#directionTo(Tile)} to produce a
+   * combined direction vector. The resulting vector may be diagonal if the tiles are positioned
    * diagonally relative to each other.
    *
    * @param currentTile the tile the entity is currently on

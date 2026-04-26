@@ -1,6 +1,7 @@
 package core.components;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import contrib.systems.HealthSystem;
 import core.platform.Platform;
 import core.resources.FileSystemResourcesAdapter;
@@ -21,7 +22,7 @@ import org.junit.jupiter.api.Test;
 public class DrawComponentTest {
 
   private final IPath animationPath =
-    new SimpleIPath("test_assets/textures/test_hero/test_hero.png");
+      new SimpleIPath("test_assets/textures/test_hero/test_hero.png");
   private final IPath simplePath = new SimpleIPath("test_assets/textures/mailbox.png");
   private DrawComponent animationComponent;
 
@@ -107,6 +108,7 @@ public class DrawComponentTest {
     assertNotNull(animationComponent.stateMachine().getState(StateMachine.IDLE_STATE));
     assertNotNull(animationComponent.stateMachine().getState(VelocitySystem.STATE_NAME));
     assertNotNull(animationComponent.stateMachine().getState(HealthSystem.DEATH_STATE));
-    assertEquals(4, animationComponent.currentAnimation().getConfig().config().orElseThrow().columns());
+    assertEquals(
+        4, animationComponent.currentAnimation().getConfig().config().orElseThrow().columns());
   }
 }

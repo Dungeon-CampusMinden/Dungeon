@@ -43,9 +43,9 @@ public final class StaticRadiusWalk implements Consumer<Entity> {
   private void handleWaitingForNextPath(final Entity entity) {
     if (center == null) {
       PositionComponent pc =
-        entity
-          .fetch(PositionComponent.class)
-          .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+          entity
+              .fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
       if (pc.position().equals(PositionComponent.ILLEGAL_POSITION)) {
         return;
@@ -62,9 +62,9 @@ public final class StaticRadiusWalk implements Consumer<Entity> {
     }
 
     PositionComponent pc =
-      entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     if (pc.position().equals(PositionComponent.ILLEGAL_POSITION)) {
       return;

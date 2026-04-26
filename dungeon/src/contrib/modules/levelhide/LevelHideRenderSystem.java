@@ -18,28 +18,32 @@ import java.awt.RenderingHints;
  * A rendering system responsible for rendering level-hide regions in the game.
  *
  * <p>This system processes entities with specific components and ensures that hidden or
- * transitioning regions of the game world are visually represented appropriately on the screen.
- * The rendering includes alpha transitions, regions, and smooth visibility effects.
+ * transitioning regions of the game world are visually represented appropriately on the screen. The
+ * rendering includes alpha transitions, regions, and smooth visibility effects.
  *
  * <p>This system primarily operates on entities containing the following components:
+ *
  * <ul>
- *   <li>{@code LevelHideComponent}: Defines the region and transition parameters for hiding.</li>
- *   <li>{@code LevelHideStateComponent}: Tracks the hiding state and transition progress.</li>
- *   <li>{@code PositionComponent}: Provides the position of the entity in the game world.</li>
+ *   <li>{@code LevelHideComponent}: Defines the region and transition parameters for hiding.
+ *   <li>{@code LevelHideStateComponent}: Tracks the hiding state and transition progress.
+ *   <li>{@code PositionComponent}: Provides the position of the entity in the game world.
  * </ul>
  *
  * <p>Core functionality includes:
+ *
  * <ul>
- *   <li>Transitioning between visible and hidden states with smoothed alpha effects.</li>
- *   <li>Drawing rectangular regions and applying transition effects on boundaries.</li>
- *   <li>Rendering level-hide regions using screen-space rectangles despite having world-space definitions.</li>
- *   <li>Creating smooth edges and transitions with bands and corner gradients.</li>
+ *   <li>Transitioning between visible and hidden states with smoothed alpha effects.
+ *   <li>Drawing rectangular regions and applying transition effects on boundaries.
+ *   <li>Rendering level-hide regions using screen-space rectangles despite having world-space
+ *       definitions.
+ *   <li>Creating smooth edges and transitions with bands and corner gradients.
  * </ul>
  *
- * <p>The system defines a hidden region's progress and visibility using alpha blending and
- * ensures performance optimizations like avoiding unnecessary rendering for fully visible/hidden regions.
+ * <p>The system defines a hidden region's progress and visibility using alpha blending and ensures
+ * performance optimizations like avoiding unnecessary rendering for fully visible/hidden regions.
  *
- * <p>Note: This is a render-only system and does not modify the game state. It operates exclusively on the client-side.
+ * <p>Note: This is a render-only system and does not modify the game state. It operates exclusively
+ * on the client-side.
  */
 public final class LevelHideRenderSystem extends System {
   private static final float TRANSITION_DURATION_SECONDS = 0.30f;
@@ -48,10 +52,10 @@ public final class LevelHideRenderSystem extends System {
   /** Creates a new render-only system for level-hide regions. */
   public LevelHideRenderSystem() {
     super(
-      AuthoritativeSide.CLIENT,
-      LevelHideComponent.class,
-      LevelHideStateComponent.class,
-      PositionComponent.class);
+        AuthoritativeSide.CLIENT,
+        LevelHideComponent.class,
+        LevelHideStateComponent.class,
+        PositionComponent.class);
   }
 
   @Override
@@ -72,7 +76,7 @@ public final class LevelHideRenderSystem extends System {
   private void renderRegion(Graphics2D baseGraphics, Entity entity) {
     LevelHideComponent hideComponent = entity.fetch(LevelHideComponent.class).orElseThrow();
     LevelHideStateComponent stateComponent =
-      entity.fetch(LevelHideStateComponent.class).orElseThrow();
+        entity.fetch(LevelHideStateComponent.class).orElseThrow();
     PositionComponent positionComponent = entity.fetch(PositionComponent.class).orElseThrow();
 
     float hiddenProgress = hiddenProgress(stateComponent);
@@ -81,7 +85,7 @@ public final class LevelHideRenderSystem extends System {
     }
 
     core.utils.Rectangle worldRegion =
-      hideComponent.region().translate(Vector2.of(positionComponent.position()));
+        hideComponent.region().translate(Vector2.of(positionComponent.position()));
     ScreenRect region = toScreenRect(worldRegion);
     int transitionPixels = transitionPixels(hideComponent.transitionSize());
     int alpha = alphaFor(hiddenProgress);
@@ -111,7 +115,8 @@ public final class LevelHideRenderSystem extends System {
     g.fillRect(region.x, region.y, region.width, region.height);
   }
 
-  private void drawTransitionBands(Graphics2D g, ScreenRect region, int transitionPixels, int alpha) {
+  private void drawTransitionBands(
+      Graphics2D g, ScreenRect region, int transitionPixels, int alpha) {
     int leftX = region.x - transitionPixels;
     int rightX = region.right();
     int topY = region.y - transitionPixels;
@@ -119,124 +124,124 @@ public final class LevelHideRenderSystem extends System {
 
     // left
     fillWithPaint(
-      g,
-      new LinearGradientPaint(
-        region.x,
-        0,
+        g,
+        new LinearGradientPaint(
+            region.x,
+            0,
+            leftX,
+            0,
+            new float[] {0f, 1f},
+            new Color[] {colorWithAlpha(alpha), colorWithAlpha(0)}),
         leftX,
-        0,
-        new float[] {0f, 1f},
-        new Color[] {colorWithAlpha(alpha), colorWithAlpha(0)}),
-      leftX,
-      region.y,
-      transitionPixels,
-      region.height);
+        region.y,
+        transitionPixels,
+        region.height);
 
     // right
     fillWithPaint(
-      g,
-      new LinearGradientPaint(
+        g,
+        new LinearGradientPaint(
+            rightX,
+            0,
+            rightX + transitionPixels,
+            0,
+            new float[] {0f, 1f},
+            new Color[] {colorWithAlpha(alpha), colorWithAlpha(0)}),
         rightX,
-        0,
-        rightX + transitionPixels,
-        0,
-        new float[] {0f, 1f},
-        new Color[] {colorWithAlpha(alpha), colorWithAlpha(0)}),
-      rightX,
-      region.y,
-      transitionPixels,
-      region.height);
+        region.y,
+        transitionPixels,
+        region.height);
 
     // top
     fillWithPaint(
-      g,
-      new LinearGradientPaint(
-        0,
-        region.y,
-        0,
+        g,
+        new LinearGradientPaint(
+            0,
+            region.y,
+            0,
+            topY,
+            new float[] {0f, 1f},
+            new Color[] {colorWithAlpha(alpha), colorWithAlpha(0)}),
+        region.x,
         topY,
-        new float[] {0f, 1f},
-        new Color[] {colorWithAlpha(alpha), colorWithAlpha(0)}),
-      region.x,
-      topY,
-      region.width,
-      transitionPixels);
+        region.width,
+        transitionPixels);
 
     // bottom
     fillWithPaint(
-      g,
-      new LinearGradientPaint(
-        0,
+        g,
+        new LinearGradientPaint(
+            0,
+            bottomY,
+            0,
+            bottomY + transitionPixels,
+            new float[] {0f, 1f},
+            new Color[] {colorWithAlpha(alpha), colorWithAlpha(0)}),
+        region.x,
         bottomY,
-        0,
-        bottomY + transitionPixels,
-        new float[] {0f, 1f},
-        new Color[] {colorWithAlpha(alpha), colorWithAlpha(0)}),
-      region.x,
-      bottomY,
-      region.width,
-      transitionPixels);
+        region.width,
+        transitionPixels);
   }
 
   private void drawTransitionCorners(
-    Graphics2D g, ScreenRect region, int transitionPixels, int alpha) {
+      Graphics2D g, ScreenRect region, int transitionPixels, int alpha) {
     drawCorner(
-      g,
-      region.x,
-      region.y,
-      region.x - transitionPixels,
-      region.y - transitionPixels,
-      transitionPixels,
-      alpha);
+        g,
+        region.x,
+        region.y,
+        region.x - transitionPixels,
+        region.y - transitionPixels,
+        transitionPixels,
+        alpha);
 
     drawCorner(
-      g,
-      region.right(),
-      region.y,
-      region.right(),
-      region.y - transitionPixels,
-      transitionPixels,
-      alpha);
+        g,
+        region.right(),
+        region.y,
+        region.right(),
+        region.y - transitionPixels,
+        transitionPixels,
+        alpha);
 
     drawCorner(
-      g,
-      region.x,
-      region.bottom(),
-      region.x - transitionPixels,
-      region.bottom(),
-      transitionPixels,
-      alpha);
+        g,
+        region.x,
+        region.bottom(),
+        region.x - transitionPixels,
+        region.bottom(),
+        transitionPixels,
+        alpha);
 
     drawCorner(
-      g,
-      region.right(),
-      region.bottom(),
-      region.right(),
-      region.bottom(),
-      transitionPixels,
-      alpha);
+        g,
+        region.right(),
+        region.bottom(),
+        region.right(),
+        region.bottom(),
+        transitionPixels,
+        alpha);
   }
 
   private void drawCorner(
-    Graphics2D g,
-    int centerX,
-    int centerY,
-    int areaX,
-    int areaY,
-    int transitionPixels,
-    int alpha) {
+      Graphics2D g,
+      int centerX,
+      int centerY,
+      int areaX,
+      int areaY,
+      int transitionPixels,
+      int alpha) {
     fillWithPaint(
-      g,
-      new RadialGradientPaint(
-        centerX,
-        centerY,
+        g,
+        new RadialGradientPaint(
+            centerX,
+            centerY,
+            transitionPixels,
+            new float[] {0f, 1f},
+            new Color[] {colorWithAlpha(alpha), colorWithAlpha(0)}),
+        areaX,
+        areaY,
         transitionPixels,
-        new float[] {0f, 1f},
-        new Color[] {colorWithAlpha(alpha), colorWithAlpha(0)}),
-      areaX,
-      areaY,
-      transitionPixels,
-      transitionPixels);
+        transitionPixels);
   }
 
   private void fillWithPaint(Graphics2D g, Paint paint, int x, int y, int width, int height) {
@@ -273,10 +278,10 @@ public final class LevelHideRenderSystem extends System {
     Point screenTopLeft = CameraViewportState.worldToScreen(topLeftWorld);
 
     return new ScreenRect(
-      Math.round(screenTopLeft.x()),
-      Math.round(screenTopLeft.y()),
-      Math.max(1, CameraViewportState.worldLengthToScreen(worldRect.width())),
-      Math.max(1, CameraViewportState.worldLengthToScreen(worldRect.height())));
+        Math.round(screenTopLeft.x()),
+        Math.round(screenTopLeft.y()),
+        Math.max(1, CameraViewportState.worldLengthToScreen(worldRect.width())),
+        Math.max(1, CameraViewportState.worldLengthToScreen(worldRect.height())));
   }
 
   private int alphaFor(float hiddenProgress) {

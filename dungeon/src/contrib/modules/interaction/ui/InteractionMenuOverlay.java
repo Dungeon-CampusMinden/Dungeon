@@ -5,9 +5,9 @@ import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionChoices;
 import core.Game;
 import core.input.MouseButtons;
-import core.ui.overlay.OverlayManager;
 import core.ui.StageHandle;
 import core.ui.overlay.BaseUiOverlay;
+import core.ui.overlay.OverlayManager;
 import core.utils.InputManager;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -21,31 +21,33 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * Represents a UI overlay that displays a panel for selecting an interaction.
- * This overlay is rendered on top of the game screen, providing a list of available
- * interactions and a cancel option.
+ * Represents a UI overlay that displays a panel for selecting an interaction. This overlay is
+ * rendered on top of the game screen, providing a list of available interactions and a cancel
+ * option.
  *
- * <p>The selection is handled via mouse clicks,
- * and the panel can be closed by either selecting an interaction or clicking outside the panel.
+ * <p>The selection is handled via mouse clicks, and the panel can be closed by either selecting an
+ * interaction or clicking outside the panel.
  *
- * <p>The panel is centered within the game window and styled with specific visual
- * elements such as rounded corners and hover effects.
+ * <p>The panel is centered within the game window and styled with specific visual elements such as
+ * rounded corners and hover effects.
  *
  * <p>Key features:
+ *
  * <ul>
- *   <li>Dynamically adjusts its height based on the number of interactions.</li>
- *   <li>Handles user input (mouse clicks) to select an interaction or cancel the selection.</li>
- *   <li>Supports smooth integration with the game's UI system.</li>
+ *   <li>Dynamically adjusts its height based on the number of interactions.
+ *   <li>Handles user input (mouse clicks) to select an interaction or cancel the selection.
+ *   <li>Supports smooth integration with the game's UI system.
  * </ul>
  *
  * <p>The overlay becomes inactive (hidden) after a selection is made or canceled.
  *
  * <p>Responsibilities:
+ *
  * <ul>
- *   <li>Renders the interaction selection panel with styled buttons.</li>
- *   <li>Detects user input for interaction selection or cancellation.</li>
- *   <li>Notifies a consumer callback upon selection or cancellation.</li>
- *   <li>Manages panel visibility and position properties.</li>
+ *   <li>Renders the interaction selection panel with styled buttons.
+ *   <li>Detects user input for interaction selection or cancellation.
+ *   <li>Notifies a consumer callback upon selection or cancellation.
+ *   <li>Manages panel visibility and position properties.
  * </ul>
  */
 final class InteractionMenuOverlay extends BaseUiOverlay {
@@ -63,8 +65,7 @@ final class InteractionMenuOverlay extends BaseUiOverlay {
 
   private boolean leftButtonDownLastFrame = false;
 
-  InteractionMenuOverlay(
-    IInteractable interactable, Consumer<Interaction> onSelected) {
+  InteractionMenuOverlay(IInteractable interactable, Consumer<Interaction> onSelected) {
     super(PANEL_WIDTH, 220);
     this.interactions = InteractionChoices.from(Objects.requireNonNull(interactable));
     this.onSelected = Objects.requireNonNull(onSelected);
@@ -77,10 +78,10 @@ final class InteractionMenuOverlay extends BaseUiOverlay {
     }
 
     height =
-      PANEL_PADDING * 3
-        + TITLE_HEIGHT
-        + (interactions.size() + 1) * BUTTON_HEIGHT
-        + interactions.size() * BUTTON_GAP;
+        PANEL_PADDING * 3
+            + TITLE_HEIGHT
+            + (interactions.size() + 1) * BUTTON_HEIGHT
+            + interactions.size() * BUTTON_GAP;
 
     centerInIfUnpositioned(Game.windowWidth(), Game.windowHeight());
 
@@ -177,17 +178,14 @@ final class InteractionMenuOverlay extends BaseUiOverlay {
   }
 
   private Rectangle interactionBounds(int index) {
-    int buttonY =
-      y + PANEL_PADDING * 2 + TITLE_HEIGHT + index * (BUTTON_HEIGHT + BUTTON_GAP);
+    int buttonY = y + PANEL_PADDING * 2 + TITLE_HEIGHT + index * (BUTTON_HEIGHT + BUTTON_GAP);
 
-    return new Rectangle(
-      x + PANEL_PADDING, buttonY, width - 2 * PANEL_PADDING, BUTTON_HEIGHT);
+    return new Rectangle(x + PANEL_PADDING, buttonY, width - 2 * PANEL_PADDING, BUTTON_HEIGHT);
   }
 
   private Rectangle cancelBounds() {
     int buttonY = y + height - PANEL_PADDING - BUTTON_HEIGHT;
-    return new Rectangle(
-      x + PANEL_PADDING, buttonY, width - 2 * PANEL_PADDING, BUTTON_HEIGHT);
+    return new Rectangle(x + PANEL_PADDING, buttonY, width - 2 * PANEL_PADDING, BUTTON_HEIGHT);
   }
 
   private void close(Interaction interaction) {

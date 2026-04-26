@@ -3,8 +3,8 @@ package core.platform.adapters;
 import core.utils.Point;
 
 /**
- * An interface representing a generic camera adapter for managing camera behaviors
- * such as zooming, focusing, and following targets.
+ * An interface representing a generic camera adapter for managing camera behaviors such as zooming,
+ * focusing, and following targets.
  */
 public interface CameraAdapter {
 
@@ -20,8 +20,8 @@ public interface CameraAdapter {
   /**
    * Gets the current zoom level.
    *
-   * <p>The default zoom level is 1.0. Values greater than 1.0 represent magnification;
-   * values less than 1.0 represent reduction.
+   * <p>The default zoom level is 1.0. Values greater than 1.0 represent magnification; values less
+   * than 1.0 represent reduction.
    *
    * @return the current zoom level
    */
@@ -34,7 +34,8 @@ public interface CameraAdapter {
    *
    * <p>This is a no-op by default. Implementations that support zoom should override this method.
    *
-   * @param zoom the zoom level to set (typically 1.0 for normal, > 1.0 for magnified, < 1.0 for reduced)
+   * @param zoom the zoom level to set (typically 1.0 for normal, > 1.0 for magnified, < 1.0 for
+   *     reduced)
    */
   default void zoom(float zoom) {
     // no-op by default

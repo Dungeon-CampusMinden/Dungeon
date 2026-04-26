@@ -20,104 +20,109 @@ import java.util.Objects;
 public final class DebugEntityInfoFormatter {
 
   /**
-   * Generates a formatted string containing detailed information about an entity, its position,
-   * and optionally its components, based on the provided parameters.
+   * Generates a formatted string containing detailed information about an entity, its position, and
+   * optionally its components, based on the provided parameters.
    *
    * @param entity the entity for which detailed information is to be formatted
-   * @param positionComponent the position component of the entity containing positional and directional data
-   * @param includeComponents a boolean flag indicating whether to include detailed component information
-   *                          in the formatted output
+   * @param positionComponent the position component of the entity containing positional and
+   *     directional data
+   * @param includeComponents a boolean flag indicating whether to include detailed component
+   *     information in the formatted output
    * @return a formatted string containing information about the entity, including its name, ID,
-   *         position, and optionally its components
+   *     position, and optionally its components
    */
-  public String format(Entity entity, PositionComponent positionComponent, boolean includeComponents) {
+  public String format(
+      Entity entity, PositionComponent positionComponent, boolean includeComponents) {
     Point position = positionComponent.position();
 
     StringBuilder info = new StringBuilder();
     info.append(entity.name()).append(" (").append(entity.id()).append(")\n");
     info.append("Position: (")
-      .append(formatFloat(position.x()))
-      .append(", ")
-      .append(formatFloat(position.y()))
-      .append("); ")
-      .append(positionComponent.viewDirection())
-      .append("\n");
+        .append(formatFloat(position.x()))
+        .append(", ")
+        .append(formatFloat(position.y()))
+        .append("); ")
+        .append(positionComponent.viewDirection())
+        .append("\n");
 
     entity
-      .fetch(VelocityComponent.class)
-      .ifPresent(
-        velocityComponent -> {
-          String velocity =
-            "("
-              + formatFloat(velocityComponent.currentVelocity().x())
-              + ", "
-              + formatFloat(velocityComponent.currentVelocity().y())
-              + ")";
-          info.append("Velocity: ").append(velocity).append("\n");
-        });
+        .fetch(VelocityComponent.class)
+        .ifPresent(
+            velocityComponent -> {
+              String velocity =
+                  "("
+                      + formatFloat(velocityComponent.currentVelocity().x())
+                      + ", "
+                      + formatFloat(velocityComponent.currentVelocity().y())
+                      + ")";
+              info.append("Velocity: ").append(velocity).append("\n");
+            });
 
     entity
-      .fetch(HealthComponent.class)
-      .ifPresent(
-        healthComponent ->
-          info.append("Health: ")
-            .append(healthComponent.currentHealthpoints())
-            .append("/")
-            .append(healthComponent.maximalHealthpoints())
-            .append(healthComponent.isDead() ? " (DEAD)" : "")
-            .append(healthComponent.godMode() ? " (GOD)" : "")
-            .append("\n"));
+        .fetch(HealthComponent.class)
+        .ifPresent(
+            healthComponent ->
+                info.append("Health: ")
+                    .append(healthComponent.currentHealthpoints())
+                    .append("/")
+                    .append(healthComponent.maximalHealthpoints())
+                    .append(healthComponent.isDead() ? " (DEAD)" : "")
+                    .append(healthComponent.godMode() ? " (GOD)" : "")
+                    .append("\n"));
 
     entity
-      .fetch(DrawComponent.class)
-      .ifPresent(
-        drawComponent ->
-          info.append("Animation State: ")
-            .append(drawComponent.currentStateName())
-            .append(" (")
-            .append(drawComponent.currentState().getData())
-            .append(")\n"));
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            drawComponent ->
+                info.append("Animation State: ")
+                    .append(drawComponent.currentStateName())
+                    .append(" (")
+                    .append(drawComponent.currentState().getData())
+                    .append(")\n"));
 
     entity
-      .fetch(SoundComponent.class)
-      .ifPresent(
-        soundComponent ->
-          info.append("Sound Instances: ").append(soundComponent.sounds().size()).append("\n"));
+        .fetch(SoundComponent.class)
+        .ifPresent(
+            soundComponent ->
+                info.append("Sound Instances: ")
+                    .append(soundComponent.sounds().size())
+                    .append("\n"));
 
     entity
-      .fetch(InventoryComponent.class)
-      .ifPresent(
-        inventoryComponent ->
-          info.append("Inventory: ")
-            .append(Arrays.stream(inventoryComponent.items()).filter(Objects::nonNull).count())
-            .append("/")
-            .append(inventoryComponent.items().length)
-            .append(" items\n"));
+        .fetch(InventoryComponent.class)
+        .ifPresent(
+            inventoryComponent ->
+                info.append("Inventory: ")
+                    .append(
+                        Arrays.stream(inventoryComponent.items()).filter(Objects::nonNull).count())
+                    .append("/")
+                    .append(inventoryComponent.items().length)
+                    .append(" items\n"));
 
     entity
-      .fetch(AIComponent.class)
-      .ifPresent(
-        aiComponent ->
-          info.append("AI State: ")
-            .append(aiComponent.active() ? "Active" : "Inactive")
-            .append("\n"));
+        .fetch(AIComponent.class)
+        .ifPresent(
+            aiComponent ->
+                info.append("AI State: ")
+                    .append(aiComponent.active() ? "Active" : "Inactive")
+                    .append("\n"));
 
     entity
-      .fetch(PlayerComponent.class)
-      .ifPresent(
-        playerComponent ->
-          info.append("Player: ")
-            .append(playerComponent.playerName())
-            .append(playerComponent.isLocal() ? " (LOCAL)" : " (REMOTE)")
-            .append("\n"));
+        .fetch(PlayerComponent.class)
+        .ifPresent(
+            playerComponent ->
+                info.append("Player: ")
+                    .append(playerComponent.playerName())
+                    .append(playerComponent.isLocal() ? " (LOCAL)" : " (REMOTE)")
+                    .append("\n"));
 
     if (includeComponents) {
       List<String> componentNames =
-        entity
-          .componentStream()
-          .map(component -> component.getClass().getSimpleName())
-          .sorted(String::compareToIgnoreCase)
-          .toList();
+          entity
+              .componentStream()
+              .map(component -> component.getClass().getSimpleName())
+              .sorted(String::compareToIgnoreCase)
+              .toList();
 
       if (!componentNames.isEmpty()) {
         info.append("Components:\n");

@@ -16,11 +16,11 @@ import java.awt.Graphics2D;
 import java.util.Optional;
 
 /**
- * The LevelEditorSystem class provides a toolset for editing game levels
- * within the game's runtime environment.
+ * The LevelEditorSystem class provides a toolset for editing game levels within the game's runtime
+ * environment.
  *
- * <p>It includes features for interacting with tiles, entities, and dungeon levels, as well as providing visual
- * feedback and debug overlays for level editing modes.
+ * <p>It includes features for interacting with tiles, entities, and dungeon levels, as well as
+ * providing visual feedback and debug overlays for level editing modes.
  *
  * <p>This system orchestrates editor mode execution, rendering, and overlay updates while the
  * session object manages activation, input capture, and run/pause behavior.
@@ -88,7 +88,7 @@ public final class LevelEditorSystem extends System {
     }
 
     Optional<PlayerComponent> playerComponent =
-      Game.player().flatMap(player -> player.fetch(PlayerComponent.class));
+        Game.player().flatMap(player -> player.fetch(PlayerComponent.class));
 
     if (playerComponent.isPresent() && playerComponent.get().openDialogs()) {
       updateOverlay();
@@ -99,7 +99,8 @@ public final class LevelEditorSystem extends System {
       layerDebugActive = !layerDebugActive;
     }
 
-    LevelEditorModeRegistry.Mode selectedMode = modeRegistry.selectedModeByHotkey().orElse(currentMode);
+    LevelEditorModeRegistry.Mode selectedMode =
+        modeRegistry.selectedModeByHotkey().orElse(currentMode);
     boolean modeChanged = selectedMode != currentMode;
 
     if (modeChanged) {
@@ -179,13 +180,11 @@ public final class LevelEditorSystem extends System {
     }
 
     overlayPresenter.update(
-      currentModeInstance(), modeRegistry.modeSelectionText(currentMode), layerDebugActive);
+        currentModeInstance(), modeRegistry.modeSelectionText(currentMode), layerDebugActive);
   }
 
   private Optional<DungeonLevel> currentDungeonLevel() {
-    return Game.currentLevel()
-      .filter(DungeonLevel.class::isInstance)
-      .map(DungeonLevel.class::cast);
+    return Game.currentLevel().filter(DungeonLevel.class::isInstance).map(DungeonLevel.class::cast);
   }
 
   private Point snappedCursorTile() {

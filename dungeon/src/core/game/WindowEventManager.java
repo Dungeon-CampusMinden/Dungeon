@@ -67,8 +67,8 @@ public final class WindowEventManager {
   /**
    * Registers a listener called when the window focus changes.
    *
-   * @param l the listener to register, receiving {@code true} if the window gained focus and
-   *     {@code false} if it lost focus; ignored if {@code null}
+   * @param l the listener to register, receiving {@code true} if the window gained focus and {@code
+   *     false} if it lost focus; ignored if {@code null}
    */
   public static void registerFocusChangedListener(Consumer<Boolean> l) {
     if (l != null) FOCUS_CHANGED.add(l);
@@ -77,8 +77,8 @@ public final class WindowEventManager {
   /**
    * Registers a listener called when the window is iconified or restored.
    *
-   * @param l the listener to register, receiving {@code true} when iconified and {@code false}
-   *     when restored; ignored if {@code null}
+   * @param l the listener to register, receiving {@code true} when iconified and {@code false} when
+   *     restored; ignored if {@code null}
    */
   public static void registerIconifiedListener(Consumer<Boolean> l) {
     if (l != null) ICONIFIED.add(l);
@@ -87,8 +87,8 @@ public final class WindowEventManager {
   /**
    * Registers a listener called when the window is maximized or restored.
    *
-   * @param l the listener to register, receiving {@code true} when maximized and {@code false}
-   *     when restored; ignored if {@code null}
+   * @param l the listener to register, receiving {@code true} when maximized and {@code false} when
+   *     restored; ignored if {@code null}
    */
   public static void registerMaximizedListener(Consumer<Boolean> l) {
     if (l != null) MAXIMIZED.add(l);
@@ -161,9 +161,7 @@ public final class WindowEventManager {
     MAXIMIZED.forEach(c -> safe(() -> c.accept(maximized)));
   }
 
-  /**
-   * Fires the refresh-requested event, notifying all registered listeners.
-   */
+  /** Fires the refresh-requested event, notifying all registered listeners. */
   public static void fireRefreshRequested() {
     REFRESH_REQUESTED.forEach(WindowEventManager::safe);
   }
@@ -182,7 +180,8 @@ public final class WindowEventManager {
     for (BooleanSupplier s : CLOSE_REQUESTED) {
       try {
         allow &= s.getAsBoolean();
-      } catch (Exception ignored) {}
+      } catch (Exception ignored) {
+      }
     }
     return allow;
   }
@@ -193,6 +192,9 @@ public final class WindowEventManager {
    * @param r the runnable to execute
    */
   private static void safe(Runnable r) {
-    try { r.run(); } catch (Exception ignored) {}
+    try {
+      r.run();
+    } catch (Exception ignored) {
+    }
   }
 }

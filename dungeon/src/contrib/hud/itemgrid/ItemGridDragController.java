@@ -150,7 +150,8 @@ public final class ItemGridDragController<S> {
       ItemResolver<S> itemResolver,
       DragReleaseHandler<S> dragReleaseHandler,
       ClickReleaseHandler<S> clickReleaseHandler) {
-    Optional<MouseUpdate<S>> update = dragController.updateFromPrimaryMouse(slotFinder, itemResolver);
+    Optional<MouseUpdate<S>> update =
+        dragController.updateFromPrimaryMouse(slotFinder, itemResolver);
 
     if (update.isEmpty() || update.get().release().isEmpty()) {
       return;
@@ -161,7 +162,10 @@ public final class ItemGridDragController<S> {
 
     if (release.completedDrag() != null) {
       dragReleaseHandler.handle(
-          release.completedDrag(), release.releasedSlot(), mouseUpdate.mouseX(), mouseUpdate.mouseY());
+          release.completedDrag(),
+          release.releasedSlot(),
+          mouseUpdate.mouseX(),
+          mouseUpdate.mouseY());
       return;
     }
 

@@ -92,7 +92,8 @@ public class LevelEditorSessionTest {
     assertTrue(deactivated.hadCapturedPlayer());
     assertFalse(deactivated.hasCapturedPlayer());
     assertTrue(inputComponent.callbacks().containsKey(LevelEditorMode.PRIMARY_DOWN));
-    assertSame(editorCallback, inputComponent.callbacks().get(LevelEditorMode.PRIMARY_DOWN).callback());
+    assertSame(
+        editorCallback, inputComponent.callbacks().get(LevelEditorMode.PRIMARY_DOWN).callback());
     assertFalse(healthComponent.godMode());
   }
 

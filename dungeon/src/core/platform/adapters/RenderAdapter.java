@@ -12,11 +12,12 @@ import java.util.function.Supplier;
 /**
  * Platform adapter interface for graphics rendering and rendering-related operations.
  *
- * <p>RenderAdapter abstracts rendering functionality, allowing different rendering backends
- * (e.g., LibGDX, AWT, custom renderers) to provide rendering capabilities without coupling the
- * game engine to a specific implementation.
+ * <p>RenderAdapter abstracts rendering functionality, allowing different rendering backends (e.g.,
+ * LibGDX, AWT, custom renderers) to provide rendering capabilities without coupling the game engine
+ * to a specific implementation.
  *
  * <p>Key responsibilities:
+ *
  * <ul>
  *   <li>Providing default rendering systems for the engine
  *   <li>Coordinate transformation between world and screen/stage space
@@ -33,8 +34,8 @@ public interface RenderAdapter {
   /**
    * Record representing a system type binding with its factory.
    *
-   * <p>Used to define render systems that should be automatically registered when the adapter
-   * is initialized.
+   * <p>Used to define render systems that should be automatically registered when the adapter is
+   * initialized.
    *
    * @param type the System class type to register
    * @param factory a supplier function that creates instances of the system
@@ -45,8 +46,8 @@ public interface RenderAdapter {
    * Provides the default rendering systems for this adapter.
    *
    * <p>These systems are automatically registered in the engine when the adapter is initialized.
-   * Implementations can return a list of systems specific to their rendering backend.
-   * The default implementation returns an empty list.
+   * Implementations can return a list of systems specific to their rendering backend. The default
+   * implementation returns an empty list.
    *
    * @return a list of system bindings, or an empty list if no default systems are provided
    */
@@ -63,7 +64,8 @@ public interface RenderAdapter {
    *
    * @param worldPoint the point in world coordinates to project
    * @param stageHandle the stage to project onto
-   * @return an Optional containing the projected point in stage/screen coordinates, or empty if the projection is not supported
+   * @return an Optional containing the projected point in stage/screen coordinates, or empty if the
+   *     projection is not supported
    */
   default Optional<Point> projectWorldToStage(Point worldPoint, StageHandle stageHandle) {
     return Optional.empty();
@@ -72,16 +74,18 @@ public interface RenderAdapter {
   /**
    * Enables Premultiplied Alpha (PMA) blending mode.
    *
-   * <p>PMA blending is typically used for optimized alpha blending with premultiplied color channels.
-   * This version applies to all rendering operations. The default implementation is a no-op.
+   * <p>PMA blending is typically used for optimized alpha blending with premultiplied color
+   * channels. This version applies to all rendering operations. The default implementation is a
+   * no-op.
    */
   default void setPMABlending() {}
 
   /**
    * Enables Premultiplied Alpha (PMA) blending mode for a specific batch object.
    *
-   * <p>PMA blending is typically used for optimized alpha blending with premultiplied color channels.
-   * This version applies to the specified batch object. The default implementation is a no-op.
+   * <p>PMA blending is typically used for optimized alpha blending with premultiplied color
+   * channels. This version applies to the specified batch object. The default implementation is a
+   * no-op.
    *
    * @param batch the batch object to configure (framework-specific type)
    */
@@ -90,16 +94,16 @@ public interface RenderAdapter {
   /**
    * Enables straight (non-premultiplied) alpha blending mode.
    *
-   * <p>Straight alpha blending treats alpha channels without premultiplication.
-   * This version applies to all rendering operations. The default implementation is a no-op.
+   * <p>Straight alpha blending treats alpha channels without premultiplication. This version
+   * applies to all rendering operations. The default implementation is a no-op.
    */
   default void setStraightAlphaBlending() {}
 
   /**
    * Enables straight (non-premultiplied) alpha blending mode for a specific batch object.
    *
-   * <p>Straight alpha blending treats alpha channels without premultiplication.
-   * This version applies to the specified batch object. The default implementation is a no-op.
+   * <p>Straight alpha blending treats alpha channels without premultiplication. This version
+   * applies to the specified batch object. The default implementation is a no-op.
    *
    * @param batch the batch object to configure (framework-specific type)
    */
@@ -108,8 +112,8 @@ public interface RenderAdapter {
   /**
    * Changes the rendering depth (z-order) of an entity.
    *
-   * <p>Depth typically controls the layering order: entities with higher depth values are
-   * rendered on top of entities with lower depth values. The default implementation is a no-op.
+   * <p>Depth typically controls the layering order: entities with higher depth values are rendered
+   * on top of entities with lower depth values. The default implementation is a no-op.
    *
    * @param entity the entity whose depth should be changed
    * @param depth the new depth/z-order value

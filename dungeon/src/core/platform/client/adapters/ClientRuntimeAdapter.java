@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>The {@code ClientRuntimeAdapter} interacts with the {@code Game} core system to manage the
  * termination process of the application and ensures that proper shutdown actions are performed,
  * including waiting for the main game loop thread to complete if necessary.
- *
  */
 public final class ClientRuntimeAdapter implements RuntimeAdapter {
   private static final long EXIT_JOIN_TIMEOUT_MS = 2000L;
@@ -45,12 +44,12 @@ public final class ClientRuntimeAdapter implements RuntimeAdapter {
 
     if (loopThread == Thread.currentThread()) {
       Thread exitThread =
-        new Thread(
-          () -> {
-            awaitLoopShutdown(loopThread);
-            System.exit(Game.EXIT_GAME_CLOSED);
-          },
-          "exit-game");
+          new Thread(
+              () -> {
+                awaitLoopShutdown(loopThread);
+                System.exit(Game.EXIT_GAME_CLOSED);
+              },
+              "exit-game");
       exitThread.setDaemon(true);
       exitThread.start();
       return;

@@ -11,9 +11,9 @@ import java.util.function.Consumer;
  * without being tied to a specific UI technology or framework.
  *
  * <p>The {@code InteractionSelection} class maintains a single backend implementation that must be
- * installed using the {@link #install(InteractionSelectionUi)} method. Once installed, the
- * {@link #show(IInteractable, Consumer)} method can be used to display the interaction chooser and
- * handle user selections.
+ * installed using the {@link #install(InteractionSelectionUi)} method. Once installed, the {@link
+ * #show(IInteractable, Consumer)} method can be used to display the interaction chooser and handle
+ * user selections.
  *
  * <p>If no backend is installed and the {@code show} method is called, an exception will be thrown.
  *
@@ -22,9 +22,9 @@ import java.util.function.Consumer;
 public final class InteractionSelection {
 
   private static final InteractionSelectionUi UNSUPPORTED =
-    (_, _) -> {
-      throw new IllegalStateException("No InteractionSelectionUi installed.");
-    };
+      (_, _) -> {
+        throw new IllegalStateException("No InteractionSelectionUi installed.");
+      };
 
   private static volatile InteractionSelectionUi current = UNSUPPORTED;
 
@@ -47,7 +47,7 @@ public final class InteractionSelection {
    */
   public static void show(IInteractable interactable, Consumer<Interaction> onSelected) {
     current.show(
-      Objects.requireNonNull(interactable, "interactable must not be null"),
-      Objects.requireNonNull(onSelected, "onSelected must not be null"));
+        Objects.requireNonNull(interactable, "interactable must not be null"),
+        Objects.requireNonNull(onSelected, "onSelected must not be null"));
   }
 }

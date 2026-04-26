@@ -44,23 +44,21 @@ final class InventoryDialogLayoutState<S> {
     int maxGridHeight = panels.stream().mapToInt(PanelSpec::gridHeight).max().orElse(0);
 
     int dialogWidth =
-        Math.max(
-            defaultWidth,
-            totalGridWidth + 2 * DialogFrameMetrics.PADDING + 2 * PANEL_PADDING);
+        Math.max(defaultWidth, totalGridWidth + 2 * DialogFrameMetrics.PADDING + 2 * PANEL_PADDING);
     int dialogHeight =
         Math.max(
             defaultHeight,
             (showPanelTitles ? TITLED_VERTICAL_CHROME : BASE_VERTICAL_CHROME) + maxGridHeight);
 
-    return new Measurement<>(dialogWidth, dialogHeight, totalGridWidth, panelGap, showPanelTitles, panels);
+    return new Measurement<>(
+        dialogWidth, dialogHeight, totalGridWidth, panelGap, showPanelTitles, panels);
   }
 
   static <S> InventoryDialogLayoutState<S> create(
       int dialogX, int contentY, FontMetrics fontMetrics, Measurement<S> measurement) {
     int titleBaseline = contentY + (measurement.showPanelTitles() ? fontMetrics.getAscent() : 0);
     int gridTop = titleBaseline + PANEL_HEADER_GAP + InventoryGridRenderer.GRID_TOP_GAP;
-    int panelStartX =
-        dialogX + (measurement.dialogWidth() - measurement.totalGridWidth()) / 2;
+    int panelStartX = dialogX + (measurement.dialogWidth() - measurement.totalGridWidth()) / 2;
 
     List<PanelLayout<S>> layouts = new ArrayList<>();
     for (PanelSpec<S> panel : measurement.panels()) {
@@ -74,8 +72,7 @@ final class InventoryDialogLayoutState<S> {
       panelStartX += panel.gridWidth() + measurement.panelGap();
     }
 
-    return new InventoryDialogLayoutState<>(
-        measurement.showPanelTitles(), titleBaseline, layouts);
+    return new InventoryDialogLayoutState<>(measurement.showPanelTitles(), titleBaseline, layouts);
   }
 
   boolean showPanelTitles() {
@@ -96,12 +93,7 @@ final class InventoryDialogLayoutState<S> {
 
   /** Measured panel geometry independent of a concrete dialog position. */
   record PanelSpec<S>(
-      S side,
-      String title,
-      Item[] visibleSlots,
-      int columns,
-      int gridWidth,
-      int gridHeight) {
+      S side, String title, Item[] visibleSlots, int columns, int gridWidth, int gridHeight) {
 
     static <S> PanelSpec<S> of(S side, String title, Item[] slots, Item[] visibleSlots) {
       int columns = InventoryGridRenderer.columnsFor(slots);

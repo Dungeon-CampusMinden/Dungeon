@@ -9,13 +9,13 @@ import java.awt.image.BufferedImage;
 /**
  * Applies HSV-style color grading to one rendered entity depth layer only.
  *
- * <p>The shared color grading, region, transition, and enabled-state behavior lives in
- * {@link BaseColorGradeEffect}. This class supplies depth-buffer to world-space coordinate
- * mapping and the depth-layer effect API.
+ * <p>The shared color grading, region, transition, and enabled-state behavior lives in {@link
+ * BaseColorGradeEffect}. This class supplies depth-buffer to world-space coordinate mapping and the
+ * depth-layer effect API.
  */
 public final class DepthLayerColorGradeEffect
-  extends BaseColorGradeEffect<DepthLayerColorGradeEffect>
-  implements DepthLayerEffect, ToggleableEffect<DepthLayerColorGradeEffect> {
+    extends BaseColorGradeEffect<DepthLayerColorGradeEffect>
+    implements DepthLayerEffect, ToggleableEffect<DepthLayerColorGradeEffect> {
 
   /** Creates a neutral depth-layer color-grade effect that leaves the depth layer unchanged. */
   public DepthLayerColorGradeEffect() {
@@ -29,8 +29,7 @@ public final class DepthLayerColorGradeEffect
    * @param saturationMultiplier saturation multiplier; negative values are clamped to 0
    * @param valueMultiplier value/brightness multiplier; negative values are clamped to 0
    */
-  public DepthLayerColorGradeEffect(
-    float hue, float saturationMultiplier, float valueMultiplier) {
+  public DepthLayerColorGradeEffect(float hue, float saturationMultiplier, float valueMultiplier) {
     super(hue, saturationMultiplier, valueMultiplier);
   }
 
@@ -46,8 +45,8 @@ public final class DepthLayerColorGradeEffect
     }
 
     return applyColorGrade(
-      input,
-      (screenX, screenY) ->
-        CameraViewportState.screenToWorld(new Point((float) screenX, (float) screenY)));
+        input,
+        (screenX, screenY) ->
+            CameraViewportState.screenToWorld(new Point((float) screenX, (float) screenY)));
   }
 }

@@ -2,25 +2,24 @@ package core.game.render.sprite.effects.shine;
 
 import core.game.render.effects.ToggleableEffect;
 import core.game.render.sprite.effects.SpriteEffect;
-
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
  * A sprite effect that renders an animated shine overlay on sprites.
  *
- * <p>This effect creates a rotating light shine effect that moves across the sprite surface.
- * It supports both small and large sprites with different rendering strategies:
+ * <p>This effect creates a rotating light shine effect that moves across the sprite surface. It
+ * supports both small and large sprites with different rendering strategies:
+ *
  * <ul>
- *   <li>Small sprites use a single diagonal sweep</li>
- *   <li>Large sprites use repeated rotating slices</li>
+ *   <li>Small sprites use a single diagonal sweep
+ *   <li>Large sprites use repeated rotating slices
  * </ul>
  *
- * <p>The effect includes configurable parameters such as padding, slice count, gap size, rotation speed,
- * and shine color. Results are cached for improved performance.
+ * <p>The effect includes configurable parameters such as padding, slice count, gap size, rotation
+ * speed, and shine color. Results are cached for improved performance.
  */
-public final class ShineSpriteEffect
-  implements SpriteEffect, ToggleableEffect<ShineSpriteEffect> {
+public final class ShineSpriteEffect implements SpriteEffect, ToggleableEffect<ShineSpriteEffect> {
 
   private int padding = 20;
   private int sliceCount = 4;
@@ -30,9 +29,7 @@ public final class ShineSpriteEffect
   private boolean enabled = true;
   private final ShineAnimationTimer animationClock = new ShineAnimationTimer();
 
-  /**
-   * Creates a shine effect with default parameters.
-   */
+  /** Creates a shine effect with default parameters. */
   public ShineSpriteEffect() {}
 
   /**
@@ -119,9 +116,7 @@ public final class ShineSpriteEffect
     return enabled;
   }
 
-  /**
-   * Shine is rendered as a separate overlay image at draw time.
-   */
+  /** Shine is rendered as a separate overlay image at draw time. */
   @Override
   public BufferedImage apply(BufferedImage input, long nowMs) {
     return input;
@@ -143,7 +138,7 @@ public final class ShineSpriteEffect
     }
 
     return ShineOverlayRenderer.render(
-      source, renderConfig(), animationClock.elapsedSeconds(nowMs));
+        source, renderConfig(), animationClock.elapsedSeconds(nowMs));
   }
 
   private static float clamp01(float value) {

@@ -1,11 +1,11 @@
 package core.game.render.sprite.effects;
 
-import core.game.render.effects.ToggleableEffect;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import core.game.render.effects.ToggleableEffect;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +24,7 @@ class SpriteEffectRegistryTest {
     registry.add("disabled", new TestEffect("disabled", false), -10);
 
     assertEquals(List.of("early", "same", "late"), names(registry.getEnabledSorted()));
-    assertEquals(
-      List.of("disabled", "early", "same", "late"), names(registry.getSorted(false)));
+    assertEquals(List.of("disabled", "early", "same", "late"), names(registry.getSorted(false)));
   }
 
   @Test
@@ -112,7 +111,7 @@ class SpriteEffectRegistryTest {
   }
 
   private static final class ToggleableTestEffect extends TestEffect
-    implements ToggleableEffect<ToggleableTestEffect> {
+      implements ToggleableEffect<ToggleableTestEffect> {
 
     private ToggleableTestEffect(String name, boolean enabled) {
       super(name, enabled);

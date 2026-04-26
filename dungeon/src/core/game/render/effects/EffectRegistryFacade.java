@@ -21,11 +21,11 @@ public abstract class EffectRegistryFacade<E> {
    * @param enabledSetter setter used to toggle mutable effects
    */
   protected EffectRegistryFacade(
-    Predicate<? super E> enabledPredicate,
-    Predicate<? super E> toggleablePredicate,
-    BiConsumer<? super E, Boolean> enabledSetter) {
+      Predicate<? super E> enabledPredicate,
+      Predicate<? super E> toggleablePredicate,
+      BiConsumer<? super E, Boolean> enabledSetter) {
     this.effects =
-      new OrderedEffectRegistry<>(enabledPredicate, toggleablePredicate, enabledSetter);
+        new OrderedEffectRegistry<>(enabledPredicate, toggleablePredicate, enabledSetter);
   }
 
   /**

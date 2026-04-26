@@ -5,12 +5,12 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.game.render.depth.DepthLayerEffectPipeline;
-import core.game.render.sprite.effects.shine.ShineSpriteEffect;
+import core.game.render.image.ImageFrameResolver;
 import core.game.render.sprite.effects.SpriteEffectPipeline;
 import core.game.render.sprite.effects.SpriteEffectsComponent;
-import core.game.render.image.ImageFrameResolver;
-import core.game.render.sprite.effects.SpriteOutlineRenderer;
 import core.game.render.sprite.effects.SpriteOutlineComponent;
+import core.game.render.sprite.effects.SpriteOutlineRenderer;
+import core.game.render.sprite.effects.shine.ShineSpriteEffect;
 import core.utils.Point;
 import core.utils.Time;
 import de.gurkenlabs.litiengine.graphics.ImageRenderer;
@@ -27,24 +27,30 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 /**
- * Handles rendering of entities with sprite-based visuals based on their position, depth, and sprite effects.
+ * Handles rendering of entities with sprite-based visuals based on their position, depth, and
+ * sprite effects.
  *
- * <p>This class is responsible for organizing and rendering entities into appropriate layers based on their depth
- * and visibility within the specified camera view. Additional effects such as outlines, sprite tinting, and shine
- * overlays are also applied if configured.
+ * <p>This class is responsible for organizing and rendering entities into appropriate layers based
+ * on their depth and visibility within the specified camera view. Additional effects such as
+ * outlines, sprite tinting, and shine overlays are also applied if configured.
  *
  * <p>Responsibilities:
+ *
  * <ul>
- *   <li>Organize visible entities by depth and sort them for proper rendering order.</li>
- *   <li>Render entities with their visuals adjusted for depth-based effects, including blending and additional visual filters.</li>
- *   <li>Handle sprite rendering for individual entities, including scaling, position adjustment, and application of effects.</li>
- *   <li>Manage and render overlays with special effects such as shine or custom highlighting over entity sprites.</li>
+ *   <li>Organize visible entities by depth and sort them for proper rendering order.
+ *   <li>Render entities with their visuals adjusted for depth-based effects, including blending and
+ *       additional visual filters.
+ *   <li>Handle sprite rendering for individual entities, including scaling, position adjustment,
+ *       and application of effects.
+ *   <li>Manage and render overlays with special effects such as shine or custom highlighting over
+ *       entity sprites.
  * </ul>
  *
- * <p>The primary entry point is the {@code render} method, which processes and draws all visible entities within the provided screen context.
+ * <p>The primary entry point is the {@code render} method, which processes and draws all visible
+ * entities within the provided screen context.
  *
- * <p>Thread Safety:
- * This class is not thread-safe and must be used from within the rendering thread.
+ * <p>Thread Safety: This class is not thread-safe and must be used from within the rendering
+ * thread.
  */
 final class EntitySpriteRenderer {
   void render(Graphics2D g, SpriteViewport view, int screenWidth, int screenHeight) {
@@ -207,7 +213,8 @@ final class EntitySpriteRenderer {
     int outlinePx = SpriteOutlineRenderer.effectiveOutlineWidth(outline, nowMs);
     Color outlineColor = SpriteOutlineRenderer.effectiveOutlineColor(outline, nowMs);
 
-    SpriteOutlineRenderer.drawOutlinedSprite(g, renderImg, drawX, drawY, wPx, hPx, outlineColor, outlinePx);
+    SpriteOutlineRenderer.drawOutlinedSprite(
+        g, renderImg, drawX, drawY, wPx, hPx, outlineColor, outlinePx);
     drawOverlayImages(g, shineOverlays);
   }
 

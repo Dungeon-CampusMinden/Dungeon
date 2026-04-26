@@ -3,11 +3,11 @@ package core.game;
 /**
  * Enumeration defining system configuration profiles for different deployment scenarios.
  *
- * <p>SystemProfile determines which optional systems should be initialized based on the
- * deployment context (client or server). It controls whether rendering and input systems
- * are enabled.
+ * <p>SystemProfile determines which optional systems should be initialized based on the deployment
+ * context (client or server). It controls whether rendering and input systems are enabled.
  *
  * <p>Available profiles:
+ *
  * <ul>
  *   <li>CLIENT - Full client profile with rendering and input systems enabled
  *   <li>SERVER - Headless server profile with rendering and input systems disabled
@@ -18,16 +18,16 @@ public enum SystemProfile {
   /**
    * Client profile: Rendering and input systems enabled.
    *
-   * <p>Used for standard client installations where the game is rendered and user input
-   * is processed.
+   * <p>Used for standard client installations where the game is rendered and user input is
+   * processed.
    */
   CLIENT(true, true),
 
   /**
    * Server profile: Rendering and input systems disabled.
    *
-   * <p>Used for headless server installations where game simulation runs without rendering
-   * or direct user input.
+   * <p>Used for headless server installations where game simulation runs without rendering or
+   * direct user input.
    */
   SERVER(false, false);
 

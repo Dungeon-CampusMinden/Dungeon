@@ -1,11 +1,11 @@
 package contrib.hud.systems;
 
-import contrib.hud.elements.bars.BarDisplayable;
 import contrib.components.HealthComponent;
 import contrib.components.ManaComponent;
 import contrib.components.StaminaComponent;
 import contrib.hud.elements.bars.AttributeBarHandle;
 import contrib.hud.elements.bars.AttributeBarLayout;
+import contrib.hud.elements.bars.BarDisplayable;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -34,7 +34,7 @@ public final class AttributeBarSystem extends System {
 
   /** Mapping from entity ID to a map of component class to backend-agnostic bar handles. */
   private final Map<Integer, Map<Class<? extends BarDisplayable>, AttributeBarHandle>> barMapping =
-    new HashMap<>();
+      new HashMap<>();
 
   /**
    * Creates a new {@code AttributeBarSystem}.
@@ -46,13 +46,13 @@ public final class AttributeBarSystem extends System {
   public AttributeBarSystem() {
     super(AuthoritativeSide.CLIENT, DrawComponent.class, PositionComponent.class);
     this.onEntityRemove =
-      entity -> {
-        Map<Class<? extends BarDisplayable>, AttributeBarHandle> entityBars =
-          barMapping.remove(entity.id());
-        if (entityBars != null) {
-          entityBars.values().forEach(AttributeBarHandle::remove);
-        }
-      };
+        entity -> {
+          Map<Class<? extends BarDisplayable>, AttributeBarHandle> entityBars =
+              barMapping.remove(entity.id());
+          if (entityBars != null) {
+            entityBars.values().forEach(AttributeBarHandle::remove);
+          }
+        };
   }
 
   /**
@@ -77,21 +77,21 @@ public final class AttributeBarSystem extends System {
 
     // Get existing bars for this entity
     Map<Class<? extends BarDisplayable>, AttributeBarHandle> entityBars =
-      barMapping.computeIfAbsent(entity.id(), k -> new HashMap<>());
+        barMapping.computeIfAbsent(entity.id(), k -> new HashMap<>());
 
     // Remove bars for components that no longer exist
     entityBars
-      .entrySet()
-      .removeIf(
-        entry -> {
-          boolean exists =
-            currentBars.stream().anyMatch(b -> b.getClass().equals(entry.getKey()));
-          if (!exists) {
-            entry.getValue().remove();
-            return true;
-          }
-          return false;
-        });
+        .entrySet()
+        .removeIf(
+            entry -> {
+              boolean exists =
+                  currentBars.stream().anyMatch(b -> b.getClass().equals(entry.getKey()));
+              if (!exists) {
+                entry.getValue().remove();
+                return true;
+              }
+              return false;
+            });
 
     // Add bars for new components
     for (BarDisplayable barDisplayable : currentBars) {

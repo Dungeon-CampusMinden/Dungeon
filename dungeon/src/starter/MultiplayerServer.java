@@ -3,6 +3,7 @@ package starter;
 import contrib.entities.HeroController;
 import contrib.game.LevelContentInstaller;
 import contrib.systems.AISystem;
+import contrib.systems.ColliderSyncSystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.FallingSystem;
 import contrib.systems.HealthSystem;
@@ -11,7 +12,6 @@ import contrib.systems.ManaRestoreSystem;
 import contrib.systems.PathSystem;
 import contrib.systems.PressurePlateSystem;
 import contrib.systems.ProjectileSystem;
-import contrib.systems.ColliderSyncSystem;
 import core.Game;
 import core.System;
 import core.game.*;
@@ -27,8 +27,7 @@ import java.util.function.Supplier;
 
 /** The main class for the Multiplayer Server for development and testing purposes. */
 public class MultiplayerServer {
-  private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(MultiplayerServer.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(MultiplayerServer.class);
 
   /**
    * Main method to start the development server.
@@ -54,13 +53,13 @@ public class MultiplayerServer {
     ECSManagement.initializeGameplaySystems(SystemProfile.SERVER);
 
     ECSManagement.system(
-      LevelSystem.class,
-      levelSystem ->
-        levelSystem.onLevelLoad(
-          () -> {
-            GameRuntime.onLevelLoad.execute();
-            Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
-          }));
+        LevelSystem.class,
+        levelSystem ->
+            levelSystem.onLevelLoad(
+                () -> {
+                  GameRuntime.onLevelLoad.execute();
+                  Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
+                }));
 
     registerIfAbsent(ProjectileSystem.class, ProjectileSystem::new);
     registerIfAbsent(ColliderSyncSystem.class, ColliderSyncSystem::new);
@@ -78,8 +77,7 @@ public class MultiplayerServer {
     HeroController.drainAndApplyInputs();
   }
 
-  private static <T extends System> void registerIfAbsent(
-    Class<T> type, Supplier<T> factory) {
+  private static <T extends System> void registerIfAbsent(Class<T> type, Supplier<T> factory) {
     if (!ECSManagement.systems().containsKey(type)) {
       ECSManagement.add(factory.get());
     }

@@ -23,12 +23,14 @@ import javax.imageio.ImageIO;
  *
  * <p>Animation encapsulates sprite animation data and provides methods for frame management,
  * playback control, and scaling. It supports three source types:
+ *
  * <ul>
  *   <li>Single images or multiple individual image files (one frame per file)
  *   <li>Spritesheets with a JSON configuration file defining frame regions
  * </ul>
  *
  * <p>Key features:
+ *
  * <ul>
  *   <li>Lazy loading of animation frames for memory efficiency
  *   <li>Configurable frame timing and playback behavior
@@ -39,7 +41,8 @@ import javax.imageio.ImageIO;
  * </ul>
  *
  * <p>Animations track frame progression via a frame counter that advances with each update call.
- * The current frame is determined by dividing the frame counter by the configured frames-per-sprite value.
+ * The current frame is determined by dividing the frame counter by the configured frames-per-sprite
+ * value.
  *
  * <p>This class is serializable and cloneable for use in persistence and entity cloning scenarios.
  */
@@ -62,6 +65,7 @@ public class Animation implements Serializable, Cloneable {
 
   /** Logical world size (computed from sprite pixel size and scale). */
   private float width = 1;
+
   private float height = 1;
 
   /** Current frame counter. Serializable. */
@@ -84,14 +88,15 @@ public class Animation implements Serializable, Cloneable {
 
   /** Cached sprite pixel dimensions (used by getSpriteWidth/Height and world-size calculation). */
   private int spritePxW = 16;
+
   private int spritePxH = 16;
 
   /**
    * Constructs an Animation from a single image or spritesheet with custom configuration.
    *
-   * <p>The path is resolved implicitly: if it lacks an image extension, ".png" is appended.
-   * If a spritesheet configuration is provided, the animation loads from a spritesheet;
-   * otherwise, it treats the path as a single image.
+   * <p>The path is resolved implicitly: if it lacks an image extension, ".png" is appended. If a
+   * spritesheet configuration is provided, the animation loads from a spritesheet; otherwise, it
+   * treats the path as a single image.
    *
    * @param path the path to the image or spritesheet (must not be null or empty)
    * @param config the animation configuration; uses default if null
@@ -195,14 +200,15 @@ public class Animation implements Serializable, Cloneable {
    * Loads a set of named animations from a spritesheet with JSON configuration.
    *
    * <p>The configuration file must be a JSON file in the same directory as the spritesheet image,
-   * with a matching name. For example, if the image is "sprites/character.png", the config
-   * should be "sprites/character.json".
+   * with a matching name. For example, if the image is "sprites/character.png", the config should
+   * be "sprites/character.json".
    *
-   * <p>The JSON configuration defines named animation sequences, each specifying row/column
-   * regions within the spritesheet.
+   * <p>The JSON configuration defines named animation sequences, each specifying row/column regions
+   * within the spritesheet.
    *
    * @param path the path to the spritesheet or its containing directory (must not be null or empty)
-   * @return a map of animation names to Animation objects, or null if the configuration cannot be loaded
+   * @return a map of animation names to Animation objects, or null if the configuration cannot be
+   *     loaded
    * @throws IllegalArgumentException if the path is null or empty
    * @throws IllegalArgumentException if the image file does not exist
    */
@@ -238,8 +244,9 @@ public class Animation implements Serializable, Cloneable {
   /**
    * Gets the current animation frame based on the frame counter and configuration.
    *
-   * <p>The frame is determined by dividing the frame counter by the configured frames-per-sprite value.
-   * For looping animations, the frame index wraps around; for non-looping animations, it clamps to the last frame.
+   * <p>The frame is determined by dividing the frame counter by the configured frames-per-sprite
+   * value. For looping animations, the frame index wraps around; for non-looping animations, it
+   * clamps to the last frame.
    *
    * <p>If frames have not yet been loaded, this method triggers lazy loading.
    *
@@ -264,7 +271,8 @@ public class Animation implements Serializable, Cloneable {
   /**
    * Gets the world-space width of this animation.
    *
-   * <p>This is calculated from the sprite pixel width, sprite scale, and the animation's scale X factor.
+   * <p>This is calculated from the sprite pixel width, sprite scale, and the animation's scale X
+   * factor.
    *
    * @return the width in world units
    */
@@ -275,7 +283,8 @@ public class Animation implements Serializable, Cloneable {
   /**
    * Gets the world-space height of this animation.
    *
-   * <p>This is calculated from the sprite pixel height, sprite scale, and the animation's scale Y factor.
+   * <p>This is calculated from the sprite pixel height, sprite scale, and the animation's scale Y
+   * factor.
    *
    * @return the height in world units
    */
@@ -326,8 +335,8 @@ public class Animation implements Serializable, Cloneable {
   /**
    * Checks whether this animation has finished playing.
    *
-   * <p>For looping animations, this method always returns false. For non-looping animations,
-   * it returns true when the frame counter has advanced beyond the last frame.
+   * <p>For looping animations, this method always returns false. For non-looping animations, it
+   * returns true when the frame counter has advanced beyond the last frame.
    *
    * @return true if the animation has finished, false otherwise
    */
@@ -353,8 +362,8 @@ public class Animation implements Serializable, Cloneable {
   /**
    * Gets the current frame counter-value.
    *
-   * <p>The frame counter tracks animation progression. It is divided by frames-per-sprite
-   * to determine the current frame index.
+   * <p>The frame counter tracks animation progression. It is divided by frames-per-sprite to
+   * determine the current frame index.
    *
    * @return the current frame counter-value
    */
@@ -365,8 +374,8 @@ public class Animation implements Serializable, Cloneable {
   /**
    * Sets the frame counter to a specific value.
    *
-   * <p>This allows direct control over animation progression, useful for seeking to a
-   * specific point in the animation.
+   * <p>This allows direct control over animation progression, useful for seeking to a specific
+   * point in the animation.
    *
    * @param frameCount the new frame counter value
    */
@@ -386,8 +395,8 @@ public class Animation implements Serializable, Cloneable {
   /**
    * Unloads all loaded animation frames and marks the animation as needing reload.
    *
-   * <p>This forces lazy reloading on the next frame access. Useful for releasing memory
-   * or forcing frame reconstruction after configuration changes.
+   * <p>This forces lazy reloading on the next frame access. Useful for releasing memory or forcing
+   * frame reconstruction after configuration changes.
    */
   public void unload() {
     frames = null;
@@ -397,8 +406,8 @@ public class Animation implements Serializable, Cloneable {
   /**
    * Sets the horizontal flip (mirroring) state and rebuilds frames.
    *
-   * <p>This modifies the animation configuration and forces frames to be rebuilt with
-   * the new flip state applied.
+   * <p>This modifies the animation configuration and forces frames to be rebuilt with the new flip
+   * state applied.
    *
    * @param mirrored true to flip the animation horizontally, false for normal orientation
    * @return this Animation instance for method chaining
@@ -486,13 +495,8 @@ public class Animation implements Serializable, Cloneable {
       int x = i % cols;
       int y = i / cols;
       frames[i] =
-        AnimationFrame.region(
-          sheetPath,
-          offX + spritePxW * x,
-          offY + spritePxH * y,
-          spritePxW,
-          spritePxH,
-          flipX);
+          AnimationFrame.region(
+              sheetPath, offX + spritePxW * x, offY + spritePxH * y, spritePxW, spritePxH, flipX);
     }
   }
 
@@ -519,7 +523,6 @@ public class Animation implements Serializable, Cloneable {
     }
     return pathString.replaceAll("\\.(png|jpg|jpeg)$", ".json");
   }
-
 
   private static int[] tryReadImageSize(IPath path) {
     if (path == null || path.pathString() == null || path.pathString().isBlank()) return null;

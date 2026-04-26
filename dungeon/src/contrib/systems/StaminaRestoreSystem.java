@@ -39,7 +39,7 @@ public class StaminaRestoreSystem extends System {
     }
 
     filteredEntityStream()
-      .flatMap(e -> e.fetch(StaminaComponent.class).stream())
-      .forEach(c -> c.restore(c.restorePerSecond() * deltaSeconds));
+        .flatMap(e -> e.fetch(StaminaComponent.class).stream())
+        .forEach(c -> c.restore(c.restorePerSecond() * deltaSeconds));
   }
 }

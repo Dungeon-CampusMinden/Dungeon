@@ -42,9 +42,9 @@ public final class OrderedEffectRegistry<E> {
    * @param enabledSetter setter used to toggle mutable effects
    */
   public OrderedEffectRegistry(
-    Predicate<? super E> enabledPredicate,
-    Predicate<? super E> toggleablePredicate,
-    BiConsumer<? super E, Boolean> enabledSetter) {
+      Predicate<? super E> enabledPredicate,
+      Predicate<? super E> toggleablePredicate,
+      BiConsumer<? super E, Boolean> enabledSetter) {
     this.enabledPredicate = Objects.requireNonNull(enabledPredicate, "enabledPredicate");
     this.toggleablePredicate = Objects.requireNonNull(toggleablePredicate, "toggleablePredicate");
     this.enabledSetter = Objects.requireNonNull(enabledSetter, "enabledSetter");
@@ -239,44 +239,44 @@ public final class OrderedEffectRegistry<E> {
    */
   public Iterable<E> getSorted(boolean onlyEnabled) {
     return () ->
-      new Iterator<>() {
-        private final Iterator<Set<Entry<E>>> priorityIterator =
-          sortedByPriority.values().iterator();
-        private Iterator<Entry<E>> currentSetIterator = Collections.emptyIterator();
-        private E nextEffect = null;
+        new Iterator<>() {
+          private final Iterator<Set<Entry<E>>> priorityIterator =
+              sortedByPriority.values().iterator();
+          private Iterator<Entry<E>> currentSetIterator = Collections.emptyIterator();
+          private E nextEffect = null;
 
-        @Override
-        public boolean hasNext() {
-          if (nextEffect != null) {
-            return true;
-          }
+          @Override
+          public boolean hasNext() {
+            if (nextEffect != null) {
+              return true;
+            }
 
-          while (true) {
-            if (currentSetIterator.hasNext()) {
-              E candidate = currentSetIterator.next().effect();
-              if (!onlyEnabled || enabledPredicate.test(candidate)) {
-                nextEffect = candidate;
-                return true;
+            while (true) {
+              if (currentSetIterator.hasNext()) {
+                E candidate = currentSetIterator.next().effect();
+                if (!onlyEnabled || enabledPredicate.test(candidate)) {
+                  nextEffect = candidate;
+                  return true;
+                }
+              } else if (priorityIterator.hasNext()) {
+                currentSetIterator = priorityIterator.next().iterator();
+              } else {
+                return false;
               }
-            } else if (priorityIterator.hasNext()) {
-              currentSetIterator = priorityIterator.next().iterator();
-            } else {
-              return false;
             }
           }
-        }
 
-        @Override
-        public E next() {
-          if (!hasNext()) {
-            throw new NoSuchElementException();
+          @Override
+          public E next() {
+            if (!hasNext()) {
+              throw new NoSuchElementException();
+            }
+
+            E result = nextEffect;
+            nextEffect = null;
+            return result;
           }
-
-          E result = nextEffect;
-          nextEffect = null;
-          return result;
-        }
-      };
+        };
   }
 
   /**
@@ -298,8 +298,7 @@ public final class OrderedEffectRegistry<E> {
     }
   }
 
-  private record Entry<E>(E effect, long insertionIndex)
-    implements Comparable<Entry<E>> {
+  private record Entry<E>(E effect, long insertionIndex) implements Comparable<Entry<E>> {
     @Override
     public int compareTo(Entry<E> other) {
       return Long.compare(this.insertionIndex, other.insertionIndex);

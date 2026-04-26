@@ -1,15 +1,15 @@
 package contrib.editor.level.mode.point;
 
 import contrib.editor.level.LevelEditorSystem;
-import core.utils.Point;
 import core.level.utils.Coordinate;
+import core.utils.Point;
 import java.awt.Color;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * The PointPlacementController class manages the placement, pickup, cloning,
- * and deletion of named points in the level editor.
+ * The PointPlacementController class manages the placement, pickup, cloning, and deletion of named
+ * points in the level editor.
  *
  * <p>It interacts with the underlying LevelEditorSystem to modify and retrieve named points within
  * the current dungeon level.
@@ -49,7 +49,9 @@ final class PointPlacementController {
       return;
     }
 
-    system.currentDungeonLevelForModes().ifPresent(level -> level.addNamedPoint(heldPointName, snapPos));
+    system
+        .currentDungeonLevelForModes()
+        .ifPresent(level -> level.addNamedPoint(heldPointName, snapPos));
     system.showModeFeedback("Placed point: " + heldPointName, new Color(120, 220, 120));
     heldPointName = null;
   }
@@ -62,14 +64,14 @@ final class PointPlacementController {
       system.showModeFeedback("No point to pick up on coordinate!", new Color(255, 220, 120));
     } else if (clickedPoint.isEmpty()) {
       system
-        .currentDungeonLevelForModes()
-        .ifPresent(
-          level -> {
-            String baseName = heldPointName.replaceAll("\\d+$", "");
-            String newPointName = baseName + (level.getHighestPointNumber(baseName) + 1);
-            level.addNamedPoint(newPointName, snapPos);
-            system.showModeFeedback("Cloned point: " + newPointName, new Color(120, 220, 120));
-          });
+          .currentDungeonLevelForModes()
+          .ifPresent(
+              level -> {
+                String baseName = heldPointName.replaceAll("\\d+$", "");
+                String newPointName = baseName + (level.getHighestPointNumber(baseName) + 1);
+                level.addNamedPoint(newPointName, snapPos);
+                system.showModeFeedback("Cloned point: " + newPointName, new Color(120, 220, 120));
+              });
     } else {
       system.showModeFeedback("Picked point: " + heldPointName, new Color(120, 220, 120));
     }
@@ -77,15 +79,16 @@ final class PointPlacementController {
 
   void deletePointAt(Point cursorPos) {
     findNamedPointAt(cursorPos)
-      .ifPresent(
-        pointName ->
-          system
-            .currentDungeonLevelForModes()
-            .ifPresent(
-              level -> {
-                level.removeNamedPoint(pointName);
-                system.showModeFeedback("Removed point: " + pointName, new Color(255, 180, 180));
-              }));
+        .ifPresent(
+            pointName ->
+                system
+                    .currentDungeonLevelForModes()
+                    .ifPresent(
+                        level -> {
+                          level.removeNamedPoint(pointName);
+                          system.showModeFeedback(
+                              "Removed point: " + pointName, new Color(255, 180, 180));
+                        }));
   }
 
   void clearHeldPoint() {
@@ -99,12 +102,12 @@ final class PointPlacementController {
 
     Coordinate toCheck = worldPos.toCoordinate();
     return system
-      .currentDungeonLevelForModes()
-      .flatMap(
-        level ->
-          level.namedPoints().entrySet().stream()
-            .filter(entry -> entry.getValue().toCoordinate().equals(toCheck))
-            .map(Map.Entry::getKey)
-            .findFirst());
+        .currentDungeonLevelForModes()
+        .flatMap(
+            level ->
+                level.namedPoints().entrySet().stream()
+                    .filter(entry -> entry.getValue().toCoordinate().equals(toCheck))
+                    .map(Map.Entry::getKey)
+                    .findFirst());
   }
 }

@@ -27,15 +27,15 @@ public class LevelEditorOverlayPresenterTest {
 
     assertEquals("", overlay.title());
     assertIterableEquals(
-      List.of(
-        "Level Editor v2 | Modes: 1 | [2] | 3",
-        "( SPACE to toggle layer debug shader [true] )",
-        "",
-        "--- Test Mode ---",
-        "",
-        "Settings:",
-        " - brush: floor"),
-      overlay.lines());
+        List.of(
+            "Level Editor v2 | Modes: 1 | [2] | 3",
+            "( SPACE to toggle layer debug shader [true] )",
+            "",
+            "--- Test Mode ---",
+            "",
+            "Settings:",
+            " - brush: floor"),
+        overlay.lines());
     assertEquals("Placed tile", overlay.feedback());
     assertEquals(Color.GREEN, overlay.feedbackColor());
   }
@@ -45,7 +45,7 @@ public class LevelEditorOverlayPresenterTest {
   public void feedbackExpiresAfterTimeout() {
     AtomicLong nowMs = new AtomicLong(1_000L);
     LevelEditorOverlayPresenter presenter =
-      new LevelEditorOverlayPresenter(new LevelEditorOverlay(), nowMs::get);
+        new LevelEditorOverlayPresenter(new LevelEditorOverlay(), nowMs::get);
 
     presenter.showFeedback("Expired soon", Color.YELLOW);
     assertEquals("Expired soon", presenter.currentFeedbackMessage());
@@ -61,8 +61,7 @@ public class LevelEditorOverlayPresenterTest {
   @Test
   public void attachAndDetachManageOverlayLifecycle() {
     LevelEditorOverlay overlay = new LevelEditorOverlay();
-    LevelEditorOverlayPresenter presenter =
-      new LevelEditorOverlayPresenter(overlay, () -> 0L);
+    LevelEditorOverlayPresenter presenter = new LevelEditorOverlayPresenter(overlay, () -> 0L);
 
     presenter.detach();
 

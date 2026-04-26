@@ -3,11 +3,11 @@ package contrib.entities;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
-import contrib.inventory.InventoryDialogState;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
-import contrib.systems.HealthSystem;
 import contrib.hud.systems.HudSystem;
+import contrib.inventory.InventoryDialogState;
+import contrib.systems.HealthSystem;
 import contrib.utils.components.collide.ColliderSync;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.skill.Skill;
@@ -373,13 +373,13 @@ public final class HeroBuilder {
                         InputMessage.Action.INTERACT, SkillTools.cursorPositionAsPoint())),
         false);
     inputComp.registerCallback(
-      KeyboardConfig.INTERACT_WORLD.value(),
-      (caller) ->
-        Game.network()
-          .sendInput(
-            new InputMessage(
-              InputMessage.Action.INTERACT, keyboardInteractionPoint(caller))),
-      false);
+        KeyboardConfig.INTERACT_WORLD.value(),
+        (caller) ->
+            Game.network()
+                .sendInput(
+                    new InputMessage(
+                        InputMessage.Action.INTERACT, keyboardInteractionPoint(caller))),
+        false);
 
     // UI controls
     inputComp.registerCallback(
@@ -426,7 +426,7 @@ public final class HeroBuilder {
     Direction facing = positionComponent.viewDirection();
 
     return Game.tileAt(position, facing)
-      .map(Tile::position)
-      .orElseGet(() -> position.translate(facing));
+        .map(Tile::position)
+        .orElseGet(() -> position.translate(facing));
   }
 }

@@ -1,11 +1,11 @@
 package core.game.render.sprite;
 
+import core.game.render.image.ImageAssets;
 import core.game.render.level.LevelEffectPipeline;
 import core.game.render.level.LevelPassContext;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
-import core.game.render.image.ImageAssets;
 import core.utils.Time;
 import de.gurkenlabs.litiengine.graphics.ImageRenderer;
 import java.awt.Color;
@@ -18,14 +18,17 @@ import java.util.Map;
 /**
  * LevelTileRenderer is responsible for rendering the visible tiles of a level onto the screen.
  *
- * <p>It uses a tile image cache to optimize rendering performance by avoiding redundant image loading.
+ * <p>It uses a tile image cache to optimize rendering performance by avoiding redundant image
+ * loading.
  *
- * <p>The renderer can operate in two modes: a direct rendering mode that draws tiles directly to the
- * Graphics2D context, and an effect pipeline mode that first renders the visible portion of the level
- * to an off-screen buffer, applies visual effects, and then draws the processed image to the screen.
+ * <p>The renderer can operate in two modes: a direct rendering mode that draws tiles directly to
+ * the Graphics2D context, and an effect pipeline mode that first renders the visible portion of the
+ * level to an off-screen buffer, applies visual effects, and then draws the processed image to the
+ * screen.
  *
  * <p>The renderer determines which tiles are visible based on the provided CameraView and renders
- * them accordingly. If a tile has an associated texture, it will be drawn using that texture; otherwise.
+ * them accordingly. If a tile has an associated texture, it will be drawn using that texture;
+ * otherwise.
  */
 final class LevelTileRenderer {
   private final Map<String, BufferedImage> tileImageCache = new HashMap<>();

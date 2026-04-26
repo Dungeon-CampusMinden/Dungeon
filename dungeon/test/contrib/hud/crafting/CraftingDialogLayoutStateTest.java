@@ -1,6 +1,7 @@
 package contrib.hud.crafting;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import contrib.hud.itemgrid.render.InventoryGridRenderer;
 import contrib.item.Item;
 import java.awt.Font;
@@ -31,22 +32,17 @@ public class CraftingDialogLayoutStateTest {
         CraftingDialogLayoutState.measure(visibleTargetSlots);
 
     CraftingDialogLayoutState state =
-        CraftingDialogLayoutState.create(
-            100, 80, fontMetrics(), measurement, visibleTargetSlots);
+        CraftingDialogLayoutState.create(100, 80, fontMetrics(), measurement, visibleTargetSlots);
 
     int expectedLeftX = 100 + (measurement.dialogWidth() - measurement.totalContentWidth()) / 2;
-    int expectedGridTop =
-        state.titleBaseline()
-            + 14
-            + InventoryGridRenderer.GRID_TOP_GAP;
+    int expectedGridTop = state.titleBaseline() + 14 + InventoryGridRenderer.GRID_TOP_GAP;
 
     assertEquals(expectedLeftX, state.leftTitleX());
     assertEquals(expectedLeftX, state.leftGrid().startX());
     assertEquals(expectedGridTop, state.leftGrid().startY());
     assertEquals(CraftingInventorySide.TARGET, state.leftGrid().side());
     assertEquals(expectedLeftX - 12, state.leftPanelBounds().x);
-    assertEquals(
-        expectedLeftX + measurement.leftGridWidth() + 26 + 12, state.craftingTitleX());
+    assertEquals(expectedLeftX + measurement.leftGridWidth() + 26 + 12, state.craftingTitleX());
   }
 
   private FontMetrics fontMetrics() {

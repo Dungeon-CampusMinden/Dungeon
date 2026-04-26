@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * A level editor mode for saving and exporting dungeon levels.
  *
@@ -18,10 +17,11 @@ import java.util.Map;
  * system clipboard. This allows editors to share level configurations or back up their work in a
  * portable format.
  *
- * <p>The mode uses DungeonSaver for serialization, which converts the entire DungeonLevel into
- * a format suitable for clipboard storage and later reimport.
+ * <p>The mode uses DungeonSaver for serialization, which converts the entire DungeonLevel into a
+ * format suitable for clipboard storage and later reimport.
  *
  * <p>Supported operations:
+ *
  * <ul>
  *   <li>Exporting the current level to clipboard via DungeonSaver
  * </ul>
@@ -29,10 +29,11 @@ import java.util.Map;
 public final class SaveMode extends LevelEditorMode {
 
   /**
-   * Constructor for the SaveMode class, which initializes the save mode for the level editor system.
+   * Constructor for the SaveMode class, which initializes the save mode for the level editor
+   * system.
    *
    * @param system The LevelEditorSystem instance that this mode operates on. This parameter
-   *               represents the central system managing the level editor functionality.
+   *     represents the central system managing the level editor functionality.
    */
   public SaveMode(LevelEditorSystem system) {
     super(system, "Save Mode");

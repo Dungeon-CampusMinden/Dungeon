@@ -8,10 +8,11 @@ import java.net.URL;
  * A ResourcesAdapter implementation that loads resources from the Java classpath.
  *
  * <p>ClasspathResourcesAdapter provides access to resources packaged within the application
- * (typically in JAR files or on the build classpath). It uses the context ClassLoader to locate
- * and open resources by their path.
+ * (typically in JAR files or on the build classpath). It uses the context ClassLoader to locate and
+ * open resources by their path.
  *
  * <p>Key features:
+ *
  * <ul>
  *   <li>Checks for resource existence using ClassLoader resource lookup
  *   <li>Opens input streams for resource reading
@@ -19,8 +20,8 @@ import java.net.URL;
  *   <li>Provides meaningful error messages for missing resources
  * </ul>
  *
- * <p>Path normalization ensures compatibility with ClassLoader semantics: paths should not
- * start with "/". Null or blank paths are rejected.
+ * <p>Path normalization ensures compatibility with ClassLoader semantics: paths should not start
+ * with "/". Null or blank paths are rejected.
  */
 public final class ClasspathResourcesAdapter implements ResourcesAdapter {
 

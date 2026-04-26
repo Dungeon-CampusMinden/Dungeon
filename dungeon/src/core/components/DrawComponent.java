@@ -69,18 +69,19 @@ public final class DrawComponent implements Component, Serializable {
   }
 
   /**
-   * Constructs a DrawComponent instance with the specified path, animation configuration,
-   * and an optional default state name for the state machine.
+   * Constructs a DrawComponent instance with the specified path, animation configuration, and an
+   * optional default state name for the state machine.
    *
    * @param path the IPath object representing the path configuration
    * @param config the AnimationConfig object used for configuring animations
-   * @param defaultStateName the name of the default state for the state machine;
-   *                         if null, a state machine is created without a default state
+   * @param defaultStateName the name of the default state for the state machine; if null, a state
+   *     machine is created without a default state
    */
   public DrawComponent(final IPath path, AnimationConfig config, String defaultStateName) {
-    this.stateMachine = (defaultStateName == null)
-      ? new StateMachine(path, config)
-      : new StateMachine(path, config, defaultStateName);
+    this.stateMachine =
+        (defaultStateName == null)
+            ? new StateMachine(path, config)
+            : new StateMachine(path, config, defaultStateName);
   }
 
   /**
@@ -177,8 +178,8 @@ public final class DrawComponent implements Component, Serializable {
   }
 
   /**
-   * Adds a transition to the state machine, defining a state change from one state to another
-   * when a specific signal is received.
+   * Adds a transition to the state machine, defining a state change from one state to another when
+   * a specific signal is received.
    *
    * @param from the initial state from which the transition originates
    * @param signal the signal triggering the transition

@@ -5,26 +5,25 @@ import java.util.Optional;
 /**
  * Interface for managing and interacting with a UI element handle.
  *
- * <p>The {@code UiHandle} interface defines a contract for controlling the lifecycle,
- * visibility, attachment, and positioning of a user interface element within a stage.
+ * <p>The {@code UiHandle} interface defines a contract for controlling the lifecycle, visibility,
+ * attachment, and positioning of a user interface element within a stage.
  *
- * <p>It provides abstraction over specific UI framework implementations while enabling
- * type-safe access to the underlying framework-specific objects.
+ * <p>It provides abstraction over specific UI framework implementations while enabling type-safe
+ * access to the underlying framework-specific objects.
  *
  * <p>Key responsibilities:
+ *
  * <ul>
- *   <li>Managing the visibility state of the UI element.</li>
- *   <li>Attaching the UI element to a stage.</li>
- *   <li>Controlling z-order priority and bringing the element to the front.</li>
- *   <li>Positioning the UI element relative to a stage.</li>
- *   <li>Providing type-safe unwrapping to access framework-specific implementations.</li>
+ *   <li>Managing the visibility state of the UI element.
+ *   <li>Attaching the UI element to a stage.
+ *   <li>Controlling z-order priority and bringing the element to the front.
+ *   <li>Positioning the UI element relative to a stage.
+ *   <li>Providing type-safe unwrapping to access framework-specific implementations.
  * </ul>
  */
 public interface UiHandle {
 
-  /**
-   * Removes this UI element from the stage.
-   */
+  /** Removes this UI element from the stage. */
   void remove();
 
   /**
@@ -62,9 +61,7 @@ public interface UiHandle {
    */
   void attachTo(StageHandle stageHandle);
 
-  /**
-   * Brings this UI element to the front, increasing its z-order priority.
-   */
+  /** Brings this UI element to the front, increasing its z-order priority. */
   void toFront();
 
   /**
@@ -77,8 +74,7 @@ public interface UiHandle {
   /**
    * Unwraps this handle to a specific framework type in a type-safe manner.
    *
-   * <p>This method allows access to the underlying framework-specific implementation
-   * when needed.
+   * <p>This method allows access to the underlying framework-specific implementation when needed.
    *
    * @param <T> the target type
    * @param type the target class to unwrap to

@@ -4,9 +4,7 @@ import contrib.components.CollideComponent;
 import core.Entity;
 import core.components.PositionComponent;
 
-/**
- * Synchronizes a collider with the entity position and scale.
- */
+/** Synchronizes a collider with the entity position and scale. */
 public final class ColliderSync {
 
   private ColliderSync() {}

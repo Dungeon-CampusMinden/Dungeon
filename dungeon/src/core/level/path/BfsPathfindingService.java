@@ -3,16 +3,16 @@ package core.level.path;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
-
 import java.util.*;
 
 /**
  * A Pathfinding service implementation using breadth-first search (BFS) on grid-based levels.
  *
- * <p>BfsPathfindingService implements pathfinding for grid-based dungeons by applying BFS,
- * which guarantees to find the shortest path (in terms of tile count) if one exists.
+ * <p>BfsPathfindingService implements pathfinding for grid-based dungeons by applying BFS, which
+ * guarantees to find the shortest path (in terms of tile count) if one exists.
  *
  * <p>Pathfinding behavior:
+ *
  * <ul>
  *   <li>Searches the 4-directional grid (up, down, left, right)
  *   <li>Only traverses accessible tiles
@@ -23,6 +23,7 @@ import java.util.*;
  * </ul>
  *
  * <p>Return semantics:
+ *
  * <ul>
  *   <li>Valid path: Optional containing a path of tiles from start to end
  *   <li>No path exists: Optional containing an empty path

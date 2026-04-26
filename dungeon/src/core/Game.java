@@ -1,17 +1,14 @@
 package core;
 
-import core.game.GameRuntime;
-import core.platform.client.loop.ClientLoopHost;
-import core.platform.Platform;
-import core.ui.StageHandle;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
+import core.game.GameRuntime;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.path.TilePath;
 import core.level.elements.tile.ExitTile;
+import core.level.path.TilePath;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
@@ -21,9 +18,12 @@ import core.network.handler.INetworkHandler;
 import core.network.handler.LocalNetworkHandler;
 import core.network.handler.NettyNetworkHandler;
 import core.network.handler.SlowNettyNetworkHandler;
+import core.platform.Platform;
+import core.platform.client.loop.ClientLoopHost;
 import core.sound.AudioApi;
 import core.sound.player.ISoundPlayer;
 import core.systems.LevelSystem;
+import core.ui.StageHandle;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
@@ -760,13 +760,14 @@ public final class Game {
   }
 
   /**
-   * Finds a path from the start tile to the end tile using the platform's pathfinding implementation.
+   * Finds a path from the start tile to the end tile using the platform's pathfinding
+   * implementation.
    *
    * @param start the starting tile
    * @param end the target tile
    * @return an {@link Optional} containing a {@link TilePath} from start to end, an {@link
-   *     Optional} containing an empty path if no path exists, or an empty {@code Optional} if
-   *     there is no current level or pathfinding cannot be performed
+   *     Optional} containing an empty path if no path exists, or an empty {@code Optional} if there
+   *     is no current level or pathfinding cannot be performed
    */
   public static Optional<TilePath> findPath(final Tile start, final Tile end) {
     return currentLevel().flatMap(level -> Platform.pathfinding().findPath(level, start, end));
@@ -916,7 +917,8 @@ public final class Game {
   }
 
   /**
-   * Initializes the game by setting up the network handler and registering necessary event listeners.
+   * Initializes the game by setting up the network handler and registering necessary event
+   * listeners.
    *
    * <p>This method is typically called internally when starting the game, but can also be called
    * manually if needed. It ensures that the network handler is properly initialized based on the
@@ -936,10 +938,10 @@ public final class Game {
     try {
       networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
       networkHandler.initialize(
-        PreRunConfiguration.isNetworkServer(),
-        PreRunConfiguration.networkServerAddress(),
-        PreRunConfiguration.networkPort(),
-        PreRunConfiguration.username());
+          PreRunConfiguration.isNetworkServer(),
+          PreRunConfiguration.networkServerAddress(),
+          PreRunConfiguration.networkPort(),
+          PreRunConfiguration.username());
       LOGGER.info("Network handler initialized.");
     } catch (NetworkException e) {
       LOGGER.error("Failed to initialize network handler.", e);

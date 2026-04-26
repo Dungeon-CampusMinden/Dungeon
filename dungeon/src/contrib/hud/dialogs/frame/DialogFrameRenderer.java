@@ -17,8 +17,7 @@ import java.util.List;
  * <p>This class provides static methods to render dialog overlays with rounded frames, titles,
  * wrapped text, and buttons.
  *
- * <p>It manages graphics state transitions and applies consistent
- * styling throughout the dialog UI.
+ * <p>It manages graphics state transitions and applies consistent styling throughout the dialog UI.
  */
 public final class DialogFrameRenderer {
 
@@ -33,8 +32,9 @@ public final class DialogFrameRenderer {
   /**
    * Initializes graphics rendering for a dialog by applying a semi-transparent black backdrop.
    *
-   * <p>This method saves the current graphics state and applies a dark overlay to the entire screen.
-   * The saved state should be restored using {@link #finishDialog(Graphics2D, RenderState)}.
+   * <p>This method saves the current graphics state and applies a dark overlay to the entire
+   * screen. The saved state should be restored using {@link #finishDialog(Graphics2D,
+   * RenderState)}.
    *
    * @param g the Graphics2D object to modify
    * @return the saved graphics state for later restoration
@@ -74,15 +74,14 @@ public final class DialogFrameRenderer {
    * @param title the title text to display
    * @return the y coordinate where content should begin rendering (after the title)
    */
-  public static int drawFrameAndTitle(Graphics2D g, int x, int y, int width, int height, String title) {
+  public static int drawFrameAndTitle(
+      Graphics2D g, int x, int y, int width, int height, String title) {
     g.setComposite(AlphaComposite.SrcOver);
     g.setColor(PANEL_FILL);
-    g.fillRoundRect(
-        x, y, width, height, DialogFrameMetrics.ARC, DialogFrameMetrics.ARC);
+    g.fillRoundRect(x, y, width, height, DialogFrameMetrics.ARC, DialogFrameMetrics.ARC);
 
     g.setColor(PANEL_BORDER);
-    g.drawRoundRect(
-        x, y, width, height, DialogFrameMetrics.ARC, DialogFrameMetrics.ARC);
+    g.drawRoundRect(x, y, width, height, DialogFrameMetrics.ARC, DialogFrameMetrics.ARC);
 
     g.setColor(Color.WHITE);
     g.setFont(g.getFont().deriveFont(Font.BOLD, 18f));
@@ -153,8 +152,7 @@ public final class DialogFrameRenderer {
       return bounds;
     }
 
-    int totalWidth =
-        buttonCount * DialogFrameMetrics.BUTTON_WIDTH + (buttonCount - 1) * buttonGap;
+    int totalWidth = buttonCount * DialogFrameMetrics.BUTTON_WIDTH + (buttonCount - 1) * buttonGap;
     int startX = dialogX + (dialogWidth - totalWidth) / 2;
     int by =
         dialogY

@@ -6,8 +6,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.itemgrid.ItemGridHitTest;
+import contrib.hud.crafting.input.CraftingDragDropController;
 import contrib.hud.itemgrid.ItemGridDragController;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.item.Item;
 import java.awt.Rectangle;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,7 @@ public class CraftingDragDropControllerTest {
     InventoryComponent craftingInventory = new InventoryComponent(3);
     targetInventory.set(0, item);
 
-    CraftingDragDropController controller =
-        dragDropController(targetInventory, craftingInventory);
+    CraftingDragDropController controller = dragDropController(targetInventory, craftingInventory);
 
     controller.transferClickedItem(new ItemGridHitTest.Slot<>(CraftingInventorySide.TARGET, 0));
 
@@ -43,8 +43,7 @@ public class CraftingDragDropControllerTest {
     InventoryComponent craftingInventory = new InventoryComponent(3);
     targetInventory.set(0, item);
 
-    CraftingDragDropController controller =
-        dragDropController(targetInventory, craftingInventory);
+    CraftingDragDropController controller = dragDropController(targetInventory, craftingInventory);
 
     controller.transferDraggedItem(
         drag(CraftingInventorySide.TARGET, 0, item),
@@ -66,8 +65,7 @@ public class CraftingDragDropControllerTest {
     InventoryComponent craftingInventory = new InventoryComponent(3);
     targetInventory.set(1, item);
 
-    CraftingDragDropController controller =
-        dragDropController(targetInventory, craftingInventory);
+    CraftingDragDropController controller = dragDropController(targetInventory, craftingInventory);
 
     controller.transferDraggedItem(
         drag(CraftingInventorySide.TARGET, 1, item),
@@ -89,8 +87,7 @@ public class CraftingDragDropControllerTest {
     InventoryComponent craftingInventory = new InventoryComponent(3);
     craftingInventory.set(0, item);
 
-    CraftingDragDropController controller =
-        dragDropController(targetInventory, craftingInventory);
+    CraftingDragDropController controller = dragDropController(targetInventory, craftingInventory);
 
     controller.transferDraggedItem(
         drag(CraftingInventorySide.CRAFTING, 0, item),

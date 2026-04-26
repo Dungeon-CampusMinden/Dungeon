@@ -48,10 +48,10 @@ public final class UIComponent implements Component {
    *     UIs). Empty array for all entities.
    */
   public UIComponent(
-    DialogContext dialogContext,
-    boolean willPauseGame,
-    boolean canBeClosed,
-    int... targetEntityIds) {
+      DialogContext dialogContext,
+      boolean willPauseGame,
+      boolean canBeClosed,
+      int... targetEntityIds) {
     this.dialogContext = dialogContext;
     this.willPauseGame = willPauseGame;
     this.canBeClosed = canBeClosed;
@@ -85,9 +85,9 @@ public final class UIComponent implements Component {
   /**
    * Registers a callback for the given key.
    *
-   * <p>Callbacks are stored server-side only. When a client sends a
-   * {@link core.network.messages.c2s.DialogResponseMessage}, the server looks up the callback by
-   * key and executes it with the provided data.
+   * <p>Callbacks are stored server-side only. When a client sends a {@link
+   * core.network.messages.c2s.DialogResponseMessage}, the server looks up the callback by key and
+   * executes it with the provided data.
    *
    * @param key the callback key (e.g., "onConfirm", "craft", "cancel")
    * @param callback the callback to execute, receives optional custom data

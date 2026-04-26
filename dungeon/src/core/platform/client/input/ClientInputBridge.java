@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
  * installation point that registers all necessary event listeners.
  *
  * <p>Key responsibilities:
+ *
  * <ul>
  *   <li>Listening for keyboard press, release, and type events from LITIENGINE
  *   <li>Listening for mouse button press and release events from LITIENGINE
@@ -22,8 +23,8 @@ import java.awt.event.MouseEvent;
  *   <li>Forwarding mapped events to InputManager for distribution to game systems
  * </ul>
  *
- * <p>The bridge supports a comprehensive set of keyboard inputs (letters, numbers, arrows, function keys,
- * modifiers) and mouse buttons (left, right, middle).
+ * <p>The bridge supports a comprehensive set of keyboard inputs (letters, numbers, arrows, function
+ * keys, modifiers) and mouse buttons (left, right, middle).
  *
  * <p>Installation is thread-safe and idempotent: calling install() multiple times is safe.
  *
@@ -39,16 +40,19 @@ public final class ClientInputBridge {
    * Installs the input bridge by registering event listeners with LITIENGINE.
    *
    * <p>This method registers the following listeners:
+   *
    * <ul>
    *   <li>Keyboard press listener - translates key presses to InputManager key down events
    *   <li>Keyboard release listener - translates key releases to InputManager key up events
    *   <li>Keyboard type listener - forwards typed characters to InputManager
-   *   <li>Mouse button press listener - translates button presses to InputManager button down events
-   *   <li>Mouse button release listener - translates button releases to InputManager button-up events
+   *   <li>Mouse button press listener - translates button presses to InputManager button down
+   *       events
+   *   <li>Mouse button release listener - translates button releases to InputManager button-up
+   *       events
    * </ul>
    *
-   * <p>This method is thread-safe and idempotent: calling it multiple times has no additional effect
-   * after the first call (later calls are no-ops due to the installed flag).
+   * <p>This method is thread-safe and idempotent: calling it multiple times has no additional
+   * effect after the first call (later calls are no-ops due to the installed flag).
    */
   public static synchronized void install() {
     if (installed) {
@@ -57,48 +61,48 @@ public final class ClientInputBridge {
     installed = true;
 
     Input.keyboard()
-      .onKeyPressed(
-        e -> {
-          final int keyCode = mapAwtKeyToInputCode(e.getKeyCode(), e.getKeyLocation());
-          if (keyCode != -1) {
-            InputManager.notifyKeyDown(keyCode);
-          }
-        });
+        .onKeyPressed(
+            e -> {
+              final int keyCode = mapAwtKeyToInputCode(e.getKeyCode(), e.getKeyLocation());
+              if (keyCode != -1) {
+                InputManager.notifyKeyDown(keyCode);
+              }
+            });
 
     Input.keyboard()
-      .onKeyReleased(
-        e -> {
-          final int keyCode = mapAwtKeyToInputCode(e.getKeyCode(), e.getKeyLocation());
-          if (keyCode != -1) {
-            InputManager.notifyKeyUp(keyCode);
-          }
-        });
+        .onKeyReleased(
+            e -> {
+              final int keyCode = mapAwtKeyToInputCode(e.getKeyCode(), e.getKeyLocation());
+              if (keyCode != -1) {
+                InputManager.notifyKeyUp(keyCode);
+              }
+            });
 
     Input.keyboard()
-      .onKeyTyped(
-        e -> {
-          if (e.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
-            InputManager.notifyKeyTyped(e.getKeyChar());
-          }
-        });
+        .onKeyTyped(
+            e -> {
+              if (e.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
+                InputManager.notifyKeyTyped(e.getKeyChar());
+              }
+            });
 
     Input.mouse()
-      .onPressed(
-        e -> {
-          final int buttonCode = mapAwtButtonToInputCode(e.getButton());
-          if (buttonCode != -1) {
-            InputManager.notifyButtonDown(buttonCode);
-          }
-        });
+        .onPressed(
+            e -> {
+              final int buttonCode = mapAwtButtonToInputCode(e.getButton());
+              if (buttonCode != -1) {
+                InputManager.notifyButtonDown(buttonCode);
+              }
+            });
 
     Input.mouse()
-      .onReleased(
-        e -> {
-          final int buttonCode = mapAwtButtonToInputCode(e.getButton());
-          if (buttonCode != -1) {
-            InputManager.notifyButtonUp(buttonCode);
-          }
-        });
+        .onReleased(
+            e -> {
+              final int buttonCode = mapAwtButtonToInputCode(e.getButton());
+              if (buttonCode != -1) {
+                InputManager.notifyButtonUp(buttonCode);
+              }
+            });
   }
 
   private static int mapAwtKeyToInputCode(int awtKey, int awtKeyLocation) {
@@ -174,9 +178,7 @@ public final class ClientInputBridge {
   }
 
   private static int mapShiftKey(int awtKeyLocation) {
-    return awtKeyLocation == KeyEvent.KEY_LOCATION_RIGHT
-      ? Keys.SHIFT_RIGHT
-      : Keys.SHIFT_LEFT;
+    return awtKeyLocation == KeyEvent.KEY_LOCATION_RIGHT ? Keys.SHIFT_RIGHT : Keys.SHIFT_LEFT;
   }
 
   private static int mapAwtButtonToInputCode(int awtButton) {

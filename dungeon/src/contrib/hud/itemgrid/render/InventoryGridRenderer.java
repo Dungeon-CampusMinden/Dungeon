@@ -132,10 +132,10 @@ public final class InventoryGridRenderer {
     int row = index / columns;
 
     return new Rectangle(
-      startX + col * (SLOT_WIDTH + SLOT_GAP),
-      startY + row * (SLOT_HEIGHT + SLOT_GAP),
-      SLOT_WIDTH,
-      SLOT_HEIGHT);
+        startX + col * (SLOT_WIDTH + SLOT_GAP),
+        startY + row * (SLOT_HEIGHT + SLOT_GAP),
+        SLOT_WIDTH,
+        SLOT_HEIGHT);
   }
 
   /**
@@ -150,7 +150,7 @@ public final class InventoryGridRenderer {
    * @return the slot index if a slot is found at the coordinates, otherwise -1
    */
   public static int findSlotIndexAt(
-    int mouseX, int mouseY, Item[] slots, int startX, int startY, int columns) {
+      int mouseX, int mouseY, Item[] slots, int startX, int startY, int columns) {
     for (int i = 0; i < slots.length; i++) {
       if (slotBounds(i, startX, startY, columns).contains(mouseX, mouseY)) {
         return i;

@@ -2,19 +2,20 @@ package core.game.render.image;
 
 import core.platform.Platform;
 import core.utils.logging.DungeonLogger;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.*;
+import javax.imageio.ImageIO;
 
 /**
  * Utility class for loading and caching image assets.
  *
- * <p>ImageAssets provides a centralized image loading system with intelligent path resolution
- * and caching. It handles the complexities of locating assets in different directory structures
- * that may result from various project configurations and build processes.
+ * <p>ImageAssets provides a centralized image loading system with intelligent path resolution and
+ * caching. It handles the complexities of locating assets in different directory structures that
+ * may result from various project configurations and build processes.
  *
  * <p>Key features:
+ *
  * <ul>
  *   <li>Loading images from the resource system with automatic caching
  *   <li>Intelligent path resolution with support for implicit file paths
@@ -24,6 +25,7 @@ import java.util.*;
  * </ul>
  *
  * <p>Path resolution attempts multiple candidates automatically:
+ *
  * <ul>
  *   <li>Original normalized path
  *   <li>Paths with common prefixes stripped (assets/, dungeon/assets/, dungeon/)
@@ -44,6 +46,7 @@ public final class ImageAssets {
    * Loads an image asset from the resource system, with caching and intelligent path resolution.
    *
    * <p>This method attempts to locate and load the image by:
+   *
    * <ol>
    *   <li>Resolving implicit file paths (e.g., "folder/image" → "folder/image.png")
    *   <li>Generating candidate paths to handle different directory structures
@@ -126,15 +129,15 @@ public final class ImageAssets {
     return p;
   }
 
-
   /**
    * Resolves implicit file paths to explicit image file paths.
    *
-   * <p>This method handles implicit image paths (directories or base names without extension)
-   * by automatically appending the ".png" extension. Explicit paths (already containing a file
+   * <p>This method handles implicit image paths (directories or base names without extension) by
+   * automatically appending the ".png" extension. Explicit paths (already containing a file
    * extension) are returned unchanged.
    *
    * <p>Transformation examples:
+   *
    * <ul>
    *   <li>"textures/player" → "textures/player/player.png"
    *   <li>"textures/player/" → "textures/player/player.png"

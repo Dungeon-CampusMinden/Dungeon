@@ -11,8 +11,8 @@ import java.util.Objects;
  * A system that manages camera state transitions when levels change.
  *
  * <p>This system monitors level changes and resets the camera state whenever the current level
- * switches. It also seeds the camera focus position based on the platform's camera settings.
- * This system runs on the client side only.
+ * switches. It also seeds the camera focus position based on the platform's camera settings. This
+ * system runs on the client side only.
  */
 public final class CameraLevelSyncSystem extends System {
   private ILevel previousLevel;
@@ -41,9 +41,9 @@ public final class CameraLevelSyncSystem extends System {
 
   private void seedCurrentFocus() {
     Point seededFocus =
-      Platform.camera().supportsFollowTargetResolution()
-        ? Platform.camera().resolveFollowTarget()
-        : Platform.camera().focusPosition();
+        Platform.camera().supportsFollowTargetResolution()
+            ? Platform.camera().resolveFollowTarget()
+            : Platform.camera().focusPosition();
 
     CameraState.seedFocus(seededFocus);
   }

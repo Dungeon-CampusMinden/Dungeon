@@ -15,21 +15,17 @@ import java.awt.Color;
 import java.util.Optional;
 
 /**
- * The DecoColliderController class provides functionality for managing and
- * fine-tuning collider properties of decorative game entities within the
- * Level Editor system.
+ * The DecoColliderController class provides functionality for managing and fine-tuning collider
+ * properties of decorative game entities within the Level Editor system.
  *
- * <p>It allows toggling edit modes, adjusting collider sizes,
- * offsets, and swapping decorative entities while providing visual feedback
- * and interaction with the system.
+ * <p>It allows toggling edit modes, adjusting collider sizes, offsets, and swapping decorative
+ * entities while providing visual feedback and interaction with the system.
  *
- * <p>This class handles temporary "test" entities for collider manipulation,
- * integration with the clipboard for saving collider information, and supports
- * contextual feedback to the user.
+ * <p>This class handles temporary "test" entities for collider manipulation, integration with the
+ * clipboard for saving collider information, and supports contextual feedback to the user.
  */
 final class DecoColliderController {
-  private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(DecoColliderController.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DecoColliderController.class);
 
   private static final float STEP = 0.05f;
   private static final float MIN_SIZE = STEP;
@@ -81,9 +77,7 @@ final class DecoColliderController {
 
   void moveTestEntity(Point cursorWorld) {
     ensureTestEntity(cursorWorld);
-    testEntity
-      .fetch(PositionComponent.class)
-      .ifPresent(pc -> pc.position(cursorWorld));
+    testEntity.fetch(PositionComponent.class).ifPresent(pc -> pc.position(cursorWorld));
     ColliderSync.sync(testEntity);
   }
 
@@ -93,24 +87,24 @@ final class DecoColliderController {
     }
 
     return testEntity
-      .fetch(CollideComponent.class)
-      .map(
-        cc ->
-          String.format(
-            "new Rectangle(%.2ff, %.2ff, %.2ff, %.2ff)",
-            cc.collider().width(),
-            cc.collider().height(),
-            cc.collider().offset().x(),
-            cc.collider().offset().y()));
+        .fetch(CollideComponent.class)
+        .map(
+            cc ->
+                String.format(
+                    "new Rectangle(%.2ff, %.2ff, %.2ff, %.2ff)",
+                    cc.collider().width(),
+                    cc.collider().height(),
+                    cc.collider().offset().x(),
+                    cc.collider().offset().y()));
   }
 
   private void changeDeco(int change, Point cursorWorld) {
     ensureTestEntity(cursorWorld);
     Point currentPosition =
-      testEntity
-        .fetch(PositionComponent.class)
-        .map(PositionComponent::position)
-        .orElse(cursorWorld);
+        testEntity
+            .fetch(PositionComponent.class)
+            .map(PositionComponent::position)
+            .orElse(cursorWorld);
 
     state.shiftSelectedDeco(change);
 
@@ -139,8 +133,7 @@ final class DecoColliderController {
 
     collideComponent.get().collider().offset(Vector2.of(newX, newY));
     system.showModeFeedback(
-      (xAxis ? "Collider offset X" : "Collider offset Y") + " updated",
-      Color.WHITE);
+        (xAxis ? "Collider offset X" : "Collider offset Y") + " updated", Color.WHITE);
   }
 
   private void modifySize(boolean widthAxis, int change, Point cursorWorld) {
@@ -150,11 +143,13 @@ final class DecoColliderController {
     }
 
     if (widthAxis) {
-      float newWidth = Math.max(MIN_SIZE, collideComponent.get().collider().width() + change * STEP);
+      float newWidth =
+          Math.max(MIN_SIZE, collideComponent.get().collider().width() + change * STEP);
       collideComponent.get().collider().width(newWidth);
       system.showModeFeedback("Collider width updated", Color.WHITE);
     } else {
-      float newHeight = Math.max(MIN_SIZE, collideComponent.get().collider().height() + change * STEP);
+      float newHeight =
+          Math.max(MIN_SIZE, collideComponent.get().collider().height() + change * STEP);
       collideComponent.get().collider().height(newHeight);
       system.showModeFeedback("Collider height updated", Color.WHITE);
     }

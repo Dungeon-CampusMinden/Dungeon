@@ -8,20 +8,21 @@ import java.awt.Graphics2D;
 /**
  * Represents a pause menu overlay in the game's UI.
  *
- * <p>The pause menu overlay appears as a dialog box when the game is paused. It includes
- * a title and a message instructing the user how to resume the game.
+ * <p>The pause menu overlay appears as a dialog box when the game is paused. It includes a title
+ * and a message instructing the user how to resume the game.
  *
- * <p>The overlay can be shown, hidden, and customized in terms of its position, size, and visibility.
+ * <p>The overlay can be shown, hidden, and customized in terms of its position, size, and
+ * visibility.
  *
  * <p>Defaults:
+ *
  * <ul>
- *   <li>Width: 400 pixels</li>
- *   <li>Height: 200 pixels</li>
+ *   <li>Width: 400 pixels
+ *   <li>Height: 200 pixels
  * </ul>
  *
- * <p>Extends {@link BaseUiOverlay}, allowing it to be rendered above the
- * game scene with configurable properties such as x and y coordinates, dimensions,
- * and visibility.
+ * <p>Extends {@link BaseUiOverlay}, allowing it to be rendered above the game scene with
+ * configurable properties such as x and y coordinates, dimensions, and visibility.
  */
 public final class PauseMenuDialogOverlay extends BaseUiOverlay {
 
@@ -41,18 +42,17 @@ public final class PauseMenuDialogOverlay extends BaseUiOverlay {
       return;
     }
 
-    DialogFrameRenderer.RenderState state =
-      DialogFrameRenderer.beginDialog(g);
+    DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
 
     try {
       int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, TITLE);
 
       DialogFrameRenderer.drawWrappedText(
-        g,
-        MESSAGE,
-        x + DialogFrameMetrics.PADDING,
-        textY,
-        width - 2 * DialogFrameMetrics.PADDING);
+          g,
+          MESSAGE,
+          x + DialogFrameMetrics.PADDING,
+          textY,
+          width - 2 * DialogFrameMetrics.PADDING);
     } finally {
       DialogFrameRenderer.finishDialog(g, state);
     }

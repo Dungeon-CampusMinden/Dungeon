@@ -10,8 +10,8 @@ import java.awt.Graphics2D;
  *
  * <p>This overlay displays a rounded rectangular bar with a fill representing the current value.
  *
- * <p>It supports customizable styling based on the attribute type (health bar, mana bar, stamina bar),
- * positioning, sizing, and visibility. The fill color changes based on the style name.
+ * <p>It supports customizable styling based on the attribute type (health bar, mana bar, stamina
+ * bar), positioning, sizing, and visibility. The fill color changes based on the style name.
  */
 public final class AttributeBarOverlay extends BaseUiOverlay implements AttributeBarHandle {
 
@@ -26,11 +26,12 @@ public final class AttributeBarOverlay extends BaseUiOverlay implements Attribut
    * Creates a new attribute bar overlay with the specified style.
    *
    * <p>The style name determines the fill color of the bar:
+   *
    * <ul>
-   *   <li>"healthbar" - red (health)</li>
-   *   <li>"manabar" - blue (mana)</li>
-   *   <li>"staminabar" - green (stamina)</li>
-   *   <li>default - gray</li>
+   *   <li>"healthbar" - red (health)
+   *   <li>"manabar" - blue (mana)
+   *   <li>"staminabar" - green (stamina)
+   *   <li>default - gray
    * </ul>
    *
    * @param styleName the style name for determining the bar's appearance (might be null)

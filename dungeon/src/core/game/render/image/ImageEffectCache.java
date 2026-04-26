@@ -14,15 +14,14 @@ import java.util.function.Function;
  * derived values are limited per source image and keyed by the current pixel signature plus the
  * effect parameters.
  *
- * <p>Reusing a {@link BufferedImage} instance with changed pixel data therefore
- * produces a different cache entry.
+ * <p>Reusing a {@link BufferedImage} instance with changed pixel data therefore produces a
+ * different cache entry.
  *
  * @param <T> cached derived value type
  */
 public final class ImageEffectCache<T> {
   private final int maxEntriesPerSource;
-  private final Map<BufferedImage, LinkedHashMap<CacheKey, T>> entries =
-    new WeakHashMap<>();
+  private final Map<BufferedImage, LinkedHashMap<CacheKey, T>> entries = new WeakHashMap<>();
 
   /**
    * Creates a cache with a bounded number of derived values per source image.
@@ -46,9 +45,9 @@ public final class ImageEffectCache<T> {
    * @return cached or newly computed derived value
    */
   public T getOrCompute(
-    final BufferedImage source,
-    final Object effectKey,
-    final Function<BufferedImage, T> builder) {
+      final BufferedImage source,
+      final Object effectKey,
+      final Function<BufferedImage, T> builder) {
     Objects.requireNonNull(source, "source");
     Objects.requireNonNull(effectKey, "effectKey");
     Objects.requireNonNull(builder, "builder");
@@ -69,7 +68,7 @@ public final class ImageEffectCache<T> {
 
     synchronized (entries) {
       final LinkedHashMap<CacheKey, T> sourceEntries =
-        entries.computeIfAbsent(source, ignored -> newSourceEntries());
+          entries.computeIfAbsent(source, ignored -> newSourceEntries());
       final T cached = sourceEntries.get(key);
       if (cached != null) {
         return cached;

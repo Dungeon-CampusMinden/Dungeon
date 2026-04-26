@@ -14,11 +14,11 @@ import java.util.Optional;
 /**
  * The ClientCameraAdapter class is an implementation of the CameraAdapter interface.
  *
- * <p>It provides support for various camera operations such as zooming, focusing,
- * following targets, and determining viewport metrics.
+ * <p>It provides support for various camera operations such as zooming, focusing, following
+ * targets, and determining viewport metrics.
  *
- * <p>This adapter interacts with the game's camera state and relevant components
- * to calculate and manage the camera's behavior based on the current game context.
+ * <p>This adapter interacts with the game's camera state and relevant components to calculate and
+ * manage the camera's behavior based on the current game context.
  */
 public final class ClientCameraAdapter implements CameraAdapter {
 
@@ -50,20 +50,20 @@ public final class ClientCameraAdapter implements CameraAdapter {
   @Override
   public Point resolveFollowTarget() {
     Optional<Point> playerPos =
-      Game.player()
-        .flatMap(player -> player.fetch(PositionComponent.class))
-        .map(PositionComponent::position);
+        Game.player()
+            .flatMap(player -> player.fetch(PositionComponent.class))
+            .map(PositionComponent::position);
 
     Optional<Point> cameraComponentPos =
-      ECSManagement.levelEntities()
-        .filter(entity -> entity.isPresent(CameraComponent.class))
-        .findFirst()
-        .flatMap(entity -> entity.fetch(PositionComponent.class))
-        .map(PositionComponent::position);
+        ECSManagement.levelEntities()
+            .filter(entity -> entity.isPresent(CameraComponent.class))
+            .findFirst()
+            .flatMap(entity -> entity.fetch(PositionComponent.class))
+            .map(PositionComponent::position);
 
     Optional<Point> trackedPoint = playerPos.isPresent() ? playerPos : cameraComponentPos;
     Optional<Point> levelStartPoint =
-      Game.currentLevel().isPresent() ? Game.startTile().map(Tile::position) : Optional.empty();
+        Game.currentLevel().isPresent() ? Game.startTile().map(Tile::position) : Optional.empty();
 
     return CameraMath.resolveFocus(trackedPoint, levelStartPoint);
   }

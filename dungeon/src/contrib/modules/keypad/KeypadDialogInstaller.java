@@ -1,8 +1,8 @@
 package contrib.modules.keypad;
 
+import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogRegistry;
 import contrib.hud.dialogs.DialogType;
-import contrib.hud.dialogs.DialogContextKeys;
 import contrib.modules.keypad.ui.KeypadDialogOverlay;
 import core.ui.overlay.OverlayHandle;
 
@@ -19,9 +19,10 @@ public final class KeypadDialogInstaller {
     }
 
     DialogRegistry.replace(
-      DialogType.DefaultTypes.KEYPAD,
-      context ->
-        new OverlayHandle(new KeypadDialogOverlay(context.requireEntity(DialogContextKeys.ENTITY))));
+        DialogType.DefaultTypes.KEYPAD,
+        context ->
+            new OverlayHandle(
+                new KeypadDialogOverlay(context.requireEntity(DialogContextKeys.ENTITY))));
     installed = true;
   }
 }

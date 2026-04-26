@@ -3,9 +3,8 @@ package core.game.render.sprite.effects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.awt.image.BufferedImage;
-
 import core.game.render.sprite.effects.shine.ShineSpriteEffect;
+import java.awt.image.BufferedImage;
 import org.junit.jupiter.api.Test;
 
 /** Tests for shine overlay cache behavior. */

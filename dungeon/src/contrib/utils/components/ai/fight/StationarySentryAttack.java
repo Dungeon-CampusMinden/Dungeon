@@ -34,11 +34,11 @@ public final class StationarySentryAttack implements Consumer<Entity>, ISkillUse
    * @param canEnterWalls whether the sentry can move inside walls.
    */
   public StationarySentryAttack(
-    Point spawnPoint,
-    float attackRange,
-    Skill fightSkill,
-    Direction shootDirection,
-    boolean canEnterWalls) {
+      Point spawnPoint,
+      float attackRange,
+      Skill fightSkill,
+      Direction shootDirection,
+      boolean canEnterWalls) {
     this.spawnPoint = spawnPoint;
     this.attackRange = attackRange;
     this.shootDirection = shootDirection;
@@ -47,11 +47,10 @@ public final class StationarySentryAttack implements Consumer<Entity>, ISkillUse
       this.fightSkill = dps;
     } else {
       throw new IllegalArgumentException(
-        "Skill for SentryFightBehaviour must be a DamageProjectileSkill!");
+          "Skill for SentryFightBehaviour must be a DamageProjectileSkill!");
     }
 
-    Point targetEndPoint =
-      this.spawnPoint.translate(this.shootDirection.scale(this.attackRange));
+    Point targetEndPoint = this.spawnPoint.translate(this.shootDirection.scale(this.attackRange));
     this.fightSkill.endPointSupplier(targetEndPoint::toCenteredPoint);
   }
 

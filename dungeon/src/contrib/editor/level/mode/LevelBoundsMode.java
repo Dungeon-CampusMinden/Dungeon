@@ -15,6 +15,7 @@ import java.util.Map;
  *
  * <p>LevelBoundsMode allows dynamic resizing of the level layout by adjusting its width and height.
  * The mode provides the following capabilities:
+ *
  * <ul>
  *   <li>Increasing or decreasing the height of the level
  *   <li>Increasing or decreasing the width of the level
@@ -54,14 +55,14 @@ public final class LevelBoundsMode extends LevelEditorMode {
   @Override
   protected List<String> getStatusLines() {
     return system()
-      .currentDungeonLevelForModes()
-      .map(
-        level ->
-          List.of(
-            "Current size: " + level.layout()[0].length + "x" + level.layout().length,
-            "New cells are filled with SKIP.",
-            "Existing tiles keep their current LevelElement."))
-      .orElse(List.of("Current size: <no dungeon level>"));
+        .currentDungeonLevelForModes()
+        .map(
+            level ->
+                List.of(
+                    "Current size: " + level.layout()[0].length + "x" + level.layout().length,
+                    "New cells are filled with SKIP.",
+                    "Existing tiles keep their current LevelElement."))
+        .orElse(List.of("Current size: <no dungeon level>"));
   }
 
   @Override
@@ -76,35 +77,35 @@ public final class LevelBoundsMode extends LevelEditorMode {
 
   private void addSize(int addX, int addY) {
     system()
-      .currentDungeonLevelForModes()
-      .ifPresent(
-        level -> {
-          Tile[][] layout = level.layout();
-          int rows = layout.length;
-          int cols = layout[0].length;
+        .currentDungeonLevelForModes()
+        .ifPresent(
+            level -> {
+              Tile[][] layout = level.layout();
+              int rows = layout.length;
+              int cols = layout[0].length;
 
-          int newRows = rows + addY;
-          int newCols = cols + addX;
+              int newRows = rows + addY;
+              int newCols = cols + addX;
 
-          if (newRows < 1 || newCols < 1) {
-            system().showModeFeedback("Level size must stay at least 1x1.", Color.YELLOW);
-            return;
-          }
+              if (newRows < 1 || newCols < 1) {
+                system().showModeFeedback("Level size must stay at least 1x1.", Color.YELLOW);
+                return;
+              }
 
-          String feedback =
-            "Resized level by: ("
-              + addX
-              + ", "
-              + addY
-              + ")"
-              + "\nNew size: ("
-              + newCols
-              + ", "
-              + newRows
-              + ")";
-          system().showModeFeedback(feedback, Color.WHITE);
+              String feedback =
+                  "Resized level by: ("
+                      + addX
+                      + ", "
+                      + addY
+                      + ")"
+                      + "\nNew size: ("
+                      + newCols
+                      + ", "
+                      + newRows
+                      + ")";
+              system().showModeFeedback(feedback, Color.WHITE);
 
-          level.setLayout(LevelTransformations.resizedLayout(layout, newRows, newCols));
-        });
+              level.setLayout(LevelTransformations.resizedLayout(layout, newRows, newCols));
+            });
   }
 }

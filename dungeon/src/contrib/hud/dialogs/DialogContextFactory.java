@@ -6,8 +6,8 @@ import core.Entity;
 import core.components.PlayerComponent;
 
 /**
- * A utility class providing factory methods for building dialog contexts
- * for various types of dialogs.
+ * A utility class providing factory methods for building dialog contexts for various types of
+ * dialogs.
  */
 public final class DialogContextFactory {
 
@@ -26,18 +26,18 @@ public final class DialogContextFactory {
    * @return the configured image dialog context
    */
   public static DialogContext imageDialogContext(
-    String imagePath,
-    TransitionSpeed speed,
-    float maxSize,
-    ShowImageTextConfig textConfig,
-    int ownerEntityId) {
+      String imagePath,
+      TransitionSpeed speed,
+      float maxSize,
+      ShowImageTextConfig textConfig,
+      int ownerEntityId) {
     DialogContext.Builder builder =
-      DialogContext.builder()
-        .type(DialogType.DefaultTypes.IMAGE)
-        .put(DialogContextKeys.IMAGE, imagePath)
-        .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, speed)
-        .put(DialogContextKeys.IMAGE_MAX_SIZE, maxSize)
-        .put(DialogContextKeys.OWNER_ENTITY, ownerEntityId);
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.IMAGE)
+            .put(DialogContextKeys.IMAGE, imagePath)
+            .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, speed)
+            .put(DialogContextKeys.IMAGE_MAX_SIZE, maxSize)
+            .put(DialogContextKeys.OWNER_ENTITY, ownerEntityId);
 
     putImageText(builder, textConfig);
 
@@ -64,10 +64,10 @@ public final class DialogContextFactory {
    */
   public static String defaultInventoryTitle(Entity entity) {
     return entity
-      .fetch(PlayerComponent.class)
-      .map(PlayerComponent::playerName)
-      .filter(name -> !name.isBlank())
-      .orElseGet(() -> entity.name().isBlank() ? DEFAULT_INVENTORY_TITLE : entity.name());
+        .fetch(PlayerComponent.class)
+        .map(PlayerComponent::playerName)
+        .filter(name -> !name.isBlank())
+        .orElseGet(() -> entity.name().isBlank() ? DEFAULT_INVENTORY_TITLE : entity.name());
   }
 
   private static void putImageText(DialogContext.Builder builder, ShowImageTextConfig textConfig) {
@@ -76,8 +76,8 @@ public final class DialogContextFactory {
     }
 
     builder
-      .put(DialogContextKeys.IMAGE_TEXT, textConfig.text())
-      .put(DialogContextKeys.IMAGE_TEXT_SCALE, textConfig.scale())
-      .put(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, textConfig.rgba8888Color());
+        .put(DialogContextKeys.IMAGE_TEXT, textConfig.text())
+        .put(DialogContextKeys.IMAGE_TEXT_SCALE, textConfig.scale())
+        .put(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, textConfig.rgba8888Color());
   }
 }

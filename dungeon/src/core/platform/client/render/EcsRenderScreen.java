@@ -16,9 +16,9 @@ import java.awt.image.BufferedImage;
  * <p>This screen manages the rendering of all ECS systems and UI overlays. It supports optional
  * scene-level effect pipelines that process the entire rendered scene before display.
  *
- * <p>When scene effects are enabled, the screen renders to an intermediate buffer first,
- * applies the effect pipeline, and then draws the result to the display. Otherwise,
- * rendering is done directly for better performance.
+ * <p>When scene effects are enabled, the screen renders to an intermediate buffer first, applies
+ * the effect pipeline, and then draws the result to the display. Otherwise, rendering is done
+ * directly for better performance.
  */
 public final class EcsRenderScreen extends Screen {
 
@@ -42,10 +42,10 @@ public final class EcsRenderScreen extends Screen {
     }
 
     BufferedImage sceneBuffer =
-      new BufferedImage(
-        Math.max(1, core.Game.windowWidth()),
-        Math.max(1, core.Game.windowHeight()),
-        BufferedImage.TYPE_INT_ARGB);
+        new BufferedImage(
+            Math.max(1, core.Game.windowWidth()),
+            Math.max(1, core.Game.windowHeight()),
+            BufferedImage.TYPE_INT_ARGB);
 
     Graphics2D sceneGraphics = sceneBuffer.createGraphics();
     try {
@@ -55,8 +55,7 @@ public final class EcsRenderScreen extends Screen {
       sceneGraphics.dispose();
     }
 
-    BufferedImage processed =
-      SceneEffectPipeline.apply(sceneBuffer, Time.nowMs());
+    BufferedImage processed = SceneEffectPipeline.apply(sceneBuffer, Time.nowMs());
     g.drawImage(processed, 0, 0, null);
   }
 

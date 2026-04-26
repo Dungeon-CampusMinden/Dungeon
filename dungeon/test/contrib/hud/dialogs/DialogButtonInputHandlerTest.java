@@ -36,10 +36,7 @@ public class DialogButtonInputHandlerTest {
 
     handler.onClick(0, () -> clickedIndex.set(0));
     handler.onClick(1, () -> clickedIndex.set(1));
-    handler.updateBounds(
-      List.of(
-        new Rectangle(0, 0, 10, 10),
-        new Rectangle(20, 0, 10, 10)));
+    handler.updateBounds(List.of(new Rectangle(0, 0, 10, 10), new Rectangle(20, 0, 10, 10)));
 
     handler.update(5, 5, true);
     assertTrue(handler.isPressed(0));
@@ -74,7 +71,9 @@ public class DialogButtonInputHandlerTest {
     assertEquals(0, clicks.get());
   }
 
-  /** The stage shortcut reads mouse position and primary button state from the current game stage. */
+  /**
+   * The stage shortcut reads mouse position and primary button state from the current game stage.
+   */
   @Test
   public void updateFromStageUsesCurrentStageMouseInput() {
     DialogButtonInputHandler handler = new DialogButtonInputHandler(1);

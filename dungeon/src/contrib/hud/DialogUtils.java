@@ -48,7 +48,7 @@ public class DialogUtils {
   /**
    * Displays an image popup with the default transition speed and size.
    *
-   * @param imagePath  the path to the image to display
+   * @param imagePath the path to the image to display
    * @param onFinished the function to execute when the popup is closed
    */
   public static void showImagePopup(String imagePath, IVoidFunction onFinished) {
@@ -58,9 +58,9 @@ public class DialogUtils {
   /**
    * Displays an image popup with the given configuration.
    *
-   * @param imagePath  the path to the image to display
-   * @param speed      the transition speed for showing the image
-   * @param maxSize    the maximum size factor of the image relative to the screen
+   * @param imagePath the path to the image to display
+   * @param speed the transition speed for showing the image
+   * @param maxSize the maximum size factor of the image relative to the screen
    * @param textConfig optional text configuration rendered on top of the image
    * @param onFinished the function to execute when the popup is closed
    */

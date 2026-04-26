@@ -9,8 +9,8 @@ import java.util.Objects;
  * <p>This class maintains the current camera zoom level, focus position, and follow target in a
  * thread-safe manner.
  *
- * <p>It provides methods to query and update these values, as well as to
- * advance the focus position toward the follow target using configurable smoothing.
+ * <p>It provides methods to query and update these values, as well as to advance the focus position
+ * toward the follow target using configurable smoothing.
  */
 public final class CameraState {
   private static final float MIN_ZOOM = 0.25f;
@@ -85,8 +85,8 @@ public final class CameraState {
   /**
    * Seeds the camera focus with an initial position.
    *
-   * <p>Both the focus position and follow target are set to the provided value, and the focus
-   * is marked as initialized.
+   * <p>Both the focus position and follow target are set to the provided value, and the focus is
+   * marked as initialized.
    *
    * @param seededFocus the initial focus position (must not be null)
    * @throws NullPointerException if seededFocus is null

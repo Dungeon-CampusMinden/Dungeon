@@ -17,25 +17,18 @@ import java.util.List;
  * @param screenRectangles queued screen-space rectangles
  */
 public record DebugDrawSnapshot(
-  List<WorldRectangle> worldRectangles,
-  List<WorldFill> worldFills,
-  List<ScreenText> screenTexts,
-  List<ScreenMarker> screenMarkers,
-  List<WorldLine> worldLines,
-  List<WorldCircleOutline> worldCircleOutlines,
-  List<WorldCircleFill> worldCircleFills,
-  List<ScreenRectangle> screenRectangles) {
+    List<WorldRectangle> worldRectangles,
+    List<WorldFill> worldFills,
+    List<ScreenText> screenTexts,
+    List<ScreenMarker> screenMarkers,
+    List<WorldLine> worldLines,
+    List<WorldCircleOutline> worldCircleOutlines,
+    List<WorldCircleFill> worldCircleFills,
+    List<ScreenRectangle> screenRectangles) {
 
   private static final DebugDrawSnapshot EMPTY =
-    new DebugDrawSnapshot(
-      List.of(),
-      List.of(),
-      List.of(),
-      List.of(),
-      List.of(),
-      List.of(),
-      List.of(),
-      List.of());
+      new DebugDrawSnapshot(
+          List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
 
   static DebugDrawSnapshot empty() {
     return EMPTY;
@@ -43,13 +36,13 @@ public record DebugDrawSnapshot(
 
   boolean isEmpty() {
     return worldRectangles.isEmpty()
-      && worldFills.isEmpty()
-      && screenTexts.isEmpty()
-      && screenMarkers.isEmpty()
-      && worldLines.isEmpty()
-      && worldCircleOutlines.isEmpty()
-      && worldCircleFills.isEmpty()
-      && screenRectangles.isEmpty();
+        && worldFills.isEmpty()
+        && screenTexts.isEmpty()
+        && screenMarkers.isEmpty()
+        && worldLines.isEmpty()
+        && worldCircleOutlines.isEmpty()
+        && worldCircleFills.isEmpty()
+        && screenRectangles.isEmpty();
   }
 
   /**
@@ -91,8 +84,7 @@ public record DebugDrawSnapshot(
    * @param fillColor fill color, or {@code null} for no fill
    * @param outlineColor outline color, or {@code null} for no outline
    */
-  record ScreenMarker(
-    Point center, int diameterPx, Color fillColor, Color outlineColor) {}
+  record ScreenMarker(Point center, int diameterPx, Color fillColor, Color outlineColor) {}
 
   /**
    * World-space line draw command.
@@ -130,6 +122,5 @@ public record DebugDrawSnapshot(
    * @param fill fill color, or {@code null} for no fill
    * @param outline outline color, or {@code null} for no outline
    */
-  record ScreenRectangle(
-    Point topLeft, int width, int height, Color fill, Color outline) {}
+  record ScreenRectangle(Point topLeft, int width, int height, Color fill, Color outline) {}
 }

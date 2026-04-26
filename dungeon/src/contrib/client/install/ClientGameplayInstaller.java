@@ -5,8 +5,8 @@ import contrib.game.LevelContentInstaller;
 import contrib.modules.levelhide.LevelHideSystem;
 import contrib.systems.ColliderSyncSystem;
 import core.game.systems.SystemRegistration;
-import core.platform.client.loop.ClientLoopHostInstaller;
 import core.platform.Platform;
+import core.platform.client.loop.ClientLoopHostInstaller;
 
 /**
  * Installs client-side gameplay systems and services into the client loop host.
@@ -45,4 +45,3 @@ public final class ClientGameplayInstaller implements ClientLoopHostInstaller {
     SystemRegistration.addIfAbsent(LevelHideSystem.class, LevelHideSystem::new);
   }
 }
-

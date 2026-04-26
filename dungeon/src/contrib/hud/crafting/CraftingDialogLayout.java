@@ -33,7 +33,7 @@ public final class CraftingDialogLayout {
    * @return positioned visible crafting slots
    */
   public List<SlotBounds> visibleCraftingSlots(
-    Item[] craftingSlots, int dialogX, int dialogY, int dialogWidth, int dialogHeight) {
+      Item[] craftingSlots, int dialogX, int dialogY, int dialogWidth, int dialogHeight) {
     if (craftingSlots == null || craftingSlots.length == 0) {
       return List.of();
     }
@@ -74,7 +74,7 @@ public final class CraftingDialogLayout {
    * @return positioned result slots
    */
   public List<ItemBounds> resultSlots(
-    Item[] resultItems, int dialogX, int dialogY, int dialogWidth, int dialogHeight) {
+      Item[] resultItems, int dialogX, int dialogY, int dialogWidth, int dialogHeight) {
     if (resultItems == null || resultItems.length == 0) {
       return List.of();
     }
@@ -95,14 +95,14 @@ public final class CraftingDialogLayout {
 
   private int craftingItemSize(int visibleItemCount, int dialogWidth, int dialogHeight) {
     return Math.min(
-      Math.round(dialogHeight * INPUT_ITEMS_MAX_SIZE),
-      (dialogWidth - visibleItemCount * ITEM_GAP) / visibleItemCount);
+        Math.round(dialogHeight * INPUT_ITEMS_MAX_SIZE),
+        (dialogWidth - visibleItemCount * ITEM_GAP) / visibleItemCount);
   }
 
   private int resultItemSize(int resultCount, int dialogWidth, int dialogHeight) {
     return Math.min(
-      Math.round(dialogHeight * RESULT_ITEM_MAX_SIZE),
-      (dialogWidth - resultCount * ITEM_GAP) / resultCount);
+        Math.round(dialogHeight * RESULT_ITEM_MAX_SIZE),
+        (dialogWidth - resultCount * ITEM_GAP) / resultCount);
   }
 
   private int rowWidth(int count, int itemSize) {

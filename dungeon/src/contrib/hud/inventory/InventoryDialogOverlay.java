@@ -2,8 +2,8 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.HeroController;
-import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.ItemGridDragController;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
@@ -101,7 +101,7 @@ final class InventoryDialogOverlay
   }
 
   private void handleRightUseInput(
-    List<ItemGridHitTest.Grid<InventorySide>> grids, int mouseX, int mouseY) {
+      List<ItemGridHitTest.Grid<InventorySide>> grids, int mouseX, int mouseY) {
     boolean rightButtonDown = InputManager.isButtonPressed(MouseButtons.RIGHT);
 
     if (dragController.isDragging()) {

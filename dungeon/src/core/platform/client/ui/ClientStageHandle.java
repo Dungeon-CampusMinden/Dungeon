@@ -7,15 +7,15 @@ import java.awt.geom.Point2D;
 import java.util.Optional;
 
 /**
- * A client-specific implementation of the {@link StageHandle} interface for managing and interacting
- * with a UI stage in the context of the client-side environment.
+ * A client-specific implementation of the {@link StageHandle} interface for managing and
+ * interacting with a UI stage in the context of the client-side environment.
  *
  * <p>This implementation provides an abstraction layer over client-specific UI stage management,
  * offering features such as retrieving stage dimensions, querying mouse input, and interacting with
  * the underlying UI stage object.
  *
- * <p>Note: Certain operations, such as adding actors or setting keyboard focus, are no-ops
- * in this implementation and are not supported.
+ * <p>Note: Certain operations, such as adding actors or setting keyboard focus, are no-ops in this
+ * implementation and are not supported.
  */
 public final class ClientStageHandle implements StageHandle {
 

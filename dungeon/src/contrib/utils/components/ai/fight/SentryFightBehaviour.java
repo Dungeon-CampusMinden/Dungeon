@@ -41,12 +41,12 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
    * @param canEnterWalls whether the sentry can move inside walls.
    */
   public SentryFightBehaviour(
-    Point pointA,
-    Point pointB,
-    float attackRange,
-    Skill fightSkill,
-    Direction shootDirection,
-    boolean canEnterWalls) {
+      Point pointA,
+      Point pointB,
+      float attackRange,
+      Skill fightSkill,
+      Direction shootDirection,
+      boolean canEnterWalls) {
     this.pointA = pointA;
     this.pointB = pointB;
     this.attackRange = attackRange;
@@ -56,16 +56,16 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
       this.fightSkill = dps;
     } else {
       throw new IllegalArgumentException(
-        "Skill for SentryFightBehaviour must be a DamageProjectileSkill!");
+          "Skill for SentryFightBehaviour must be a DamageProjectileSkill!");
     }
   }
 
   @Override
   public void accept(Entity entity) {
     PositionComponent entityPosComp =
-      entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     // patrol
     if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
@@ -84,8 +84,7 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
     }
 
     // set a new targetEndPoint based on the current Position of the entity and the given direction
-    Point targetEndPoint =
-      entityPosComp.position().translate(shootDirection.scale(attackRange));
+    Point targetEndPoint = entityPosComp.position().translate(shootDirection.scale(attackRange));
     fightSkill.endPointSupplier(() -> targetEndPoint);
 
     // attack if player is in range
@@ -110,9 +109,9 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
 
   private void pathCalculator(Point from, Point to) {
     currentPath =
-      canEnterWalls
-        ? LevelUtils.calculateTilePathInsideWall(from, to)
-        : LevelUtils.calculateTilePath(from, to);
+        canEnterWalls
+            ? LevelUtils.calculateTilePathInsideWall(from, to)
+            : LevelUtils.calculateTilePath(from, to);
   }
 
   @Override

@@ -9,7 +9,6 @@ import core.platform.client.adapters.NullRuntimeAdapter;
 import core.platform.client.adapters.NullWindowAdapter;
 import core.resources.ClasspathResourcesAdapter;
 import core.resources.ResourcesAdapter;
-
 import java.util.Objects;
 
 /**
@@ -20,6 +19,7 @@ import java.util.Objects;
  * engine from specific platform implementations (e.g., LibGDX, Swing, headless).
  *
  * <p>Managed adapters:
+ *
  * <ul>
  *   <li>WindowAdapter - Window and display management
  *   <li>RuntimeAdapter - Runtime/system operations
@@ -32,8 +32,8 @@ import java.util.Objects;
  *   <li>GameLoopHost - Main game loop management
  * </ul>
  *
- * <p>Default implementations are provided either by explicit null-object adapters or
- * by interface-level no-op defaults, depending on the adapter type.
+ * <p>Default implementations are provided either by explicit null-object adapters or by
+ * interface-level no-op defaults, depending on the adapter type.
  *
  * <p>This class is not instantiable; all members are static.
  */

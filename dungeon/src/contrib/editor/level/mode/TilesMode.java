@@ -1,7 +1,7 @@
 package contrib.editor.level.mode;
 
-import contrib.editor.level.LevelEditorSystem;
 import contrib.debug.draw.DebugDrawService;
+import contrib.editor.level.LevelEditorSystem;
 import core.input.InputLabelFormatter.InputCode;
 import core.input.MouseButtons;
 import core.level.Tile;
@@ -16,15 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
 /**
  * A level editor mode for painting and editing tiles in a dungeon level.
  *
  * <p>TilesMode provides a brush-based interface for modifying the level layout by changing tile
- * elements. Editors can select different tile types for left and right mouse buttons and paint
- * them onto the level with variable brush sizes.
+ * elements. Editors can select different tile types for left and right mouse buttons and paint them
+ * onto the level with variable brush sizes.
  *
  * <p>Supported operations:
+ *
  * <ul>
  *   <li>Selecting tile elements for left and right painting
  *   <li>Adjusting brush size (1-7 tiles)
@@ -36,9 +36,11 @@ import java.util.Optional;
  * </ul>
  *
  * <p>Brush behavior:
+ *
  * <ul>
  *   <li>Left-click paints with the selected left tile using the current brush size
- *   <li>Right-click paints with the selected right tile using brush size 1 and selects the right tile when held
+ *   <li>Right-click paints with the selected right tile using brush size 1 and selects the right
+ *       tile when held
  *   <li>Brush size ranges from 1 to 7, with a diamond-shaped (manhattan distance) coverage pattern
  *   <li>Tertiary key erases tiles to SKIP with brush size 1
  * </ul>
@@ -52,11 +54,11 @@ public final class TilesMode extends LevelEditorMode {
   private int brushSize = 1;
 
   /**
-   * Constructs a new instance of the TilesMode class, representing a mode for editing tiles
-   * in a level editor system.
+   * Constructs a new instance of the TilesMode class, representing a mode for editing tiles in a
+   * level editor system.
    *
-   * @param system The LevelEditorSystem instance to which this mode is attached.
-   *               It provides the necessary context and functionality for the mode to operate.
+   * @param system The LevelEditorSystem instance to which this mode is attached. It provides the
+   *     necessary context and functionality for the mode to operate.
    */
   public TilesMode(LevelEditorSystem system) {
     super(system, "Tiles Mode");
@@ -86,12 +88,13 @@ public final class TilesMode extends LevelEditorMode {
 
     if (InputManager.isKeyJustPressed(QUATERNARY)) {
       tileElementAtCursor()
-        .ifPresent(
-          element -> {
-            selectedTileIndexL = element.ordinal();
-            system().showModeFeedback(
-              "Picked tile " + element.name() + " for left paint", Color.WHITE);
-          });
+          .ifPresent(
+              element -> {
+                selectedTileIndexL = element.ordinal();
+                system()
+                    .showModeFeedback(
+                        "Picked tile " + element.name() + " for left paint", Color.WHITE);
+              });
     }
 
     if (InputManager.isButtonPressed(MouseButtons.LEFT)) {
@@ -108,14 +111,10 @@ public final class TilesMode extends LevelEditorMode {
     Color previewColor = new Color(255, 255, 255, 64);
 
     forEachBrushTile(
-      currentPreviewBrushSize(),
-      tilePos ->
-        DebugDrawService.drawRectangleOutline(
-          tilePos.x(),
-          tilePos.y(),
-          1.0f,
-          1.0f,
-          previewColor));
+        currentPreviewBrushSize(),
+        tilePos ->
+            DebugDrawService.drawRectangleOutline(
+                tilePos.x(), tilePos.y(), 1.0f, 1.0f, previewColor));
   }
 
   @Override
@@ -123,10 +122,10 @@ public final class TilesMode extends LevelEditorMode {
     Point cursor = system().snappedCursorTileForModes();
 
     return List.of(
-      "Cursor tile: (" + (int) cursor.x() + ", " + (int) cursor.y() + ")",
-      "Left paint: " + selectedLeftElement().name(),
-      "Right paint: " + selectedRightElement().name(),
-      "Brush size: " + brushSize);
+        "Cursor tile: (" + (int) cursor.x() + ", " + (int) cursor.y() + ")",
+        "Left paint: " + selectedLeftElement().name(),
+        "Right paint: " + selectedRightElement().name(),
+        "Brush size: " + brushSize);
   }
 
   @Override
@@ -137,7 +136,8 @@ public final class TilesMode extends LevelEditorMode {
     controls.put(key(SECONDARY_UP), "Brush +1");
     controls.put(key(SECONDARY_DOWN), "Brush -1");
     controls.put(mouseButton(MouseButtons.LEFT), "Paint with left tile");
-    controls.put(mouseButton(MouseButtons.RIGHT), "Paint with right tile / hold for right-tile selection");
+    controls.put(
+        mouseButton(MouseButtons.RIGHT), "Paint with right tile / hold for right-tile selection");
     controls.put(key(TERTIARY), "Erase to SKIP");
     controls.put(key(QUATERNARY), "Pipette tile to left paint");
     return controls;
@@ -145,14 +145,15 @@ public final class TilesMode extends LevelEditorMode {
 
   private void applyBrush(LevelElement element, int targetBrushSize) {
     system()
-      .currentDungeonLevelForModes()
-      .ifPresent(
-        level ->
-          forEachBrushTile(
-            targetBrushSize,
-            targetPos ->
-              level.tileAt(targetPos)
-                .ifPresent(tile -> level.changeTileElementType(tile, element))));
+        .currentDungeonLevelForModes()
+        .ifPresent(
+            level ->
+                forEachBrushTile(
+                    targetBrushSize,
+                    targetPos ->
+                        level
+                            .tileAt(targetPos)
+                            .ifPresent(tile -> level.changeTileElementType(tile, element))));
   }
 
   private void forEachBrushTile(int targetBrushSize, java.util.function.Consumer<Point> consumer) {
@@ -185,9 +186,9 @@ public final class TilesMode extends LevelEditorMode {
   private Optional<LevelElement> tileElementAtCursor() {
     Point cursorPos = system().snappedCursorTileForModes();
     return system()
-      .currentDungeonLevelForModes()
-      .flatMap(level -> level.tileAt(cursorPos))
-      .map(Tile::levelElement);
+        .currentDungeonLevelForModes()
+        .flatMap(level -> level.tileAt(cursorPos))
+        .map(Tile::levelElement);
   }
 
   private LevelElement selectedLeftElement() {

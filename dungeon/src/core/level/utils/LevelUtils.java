@@ -25,7 +25,6 @@ public final class LevelUtils {
         Vector2.of(-1, 0), Vector2.of(1, 0), Vector2.of(0, -1), Vector2.of(0, 1),
       };
 
-
   /**
    * Returns the last {@link Tile} of the given {@link TilePath}.
    *
@@ -428,7 +427,8 @@ public final class LevelUtils {
    *
    * @param from The start coordinate.
    * @param to The end coordinate.
-   * @return A {@link TilePath} representing the path from the start coordinate to the end coordinate.
+   * @return A {@link TilePath} representing the path from the start coordinate to the end
+   *     coordinate.
    */
   public static TilePath calculateTilePath(final Coordinate from, final Coordinate to) {
     final Tile fromTile = Game.tileAt(from).orElse(null);
@@ -455,8 +455,8 @@ public final class LevelUtils {
    * <p>If no player exists in the game, the path will be calculated from the given entity to the
    * given entity.
    *
-   * <p>Throws a {@link core.utils.components.MissingComponentException} if the entity has no
-   * {@link core.components.PositionComponent}.
+   * <p>Throws a {@link core.utils.components.MissingComponentException} if the entity has no {@link
+   * core.components.PositionComponent}.
    *
    * @param entity the entity from which the path to the player is calculated
    * @return a {@link TilePath} from the entity to the player, or from the entity to itself if no
@@ -464,10 +464,10 @@ public final class LevelUtils {
    */
   public static TilePath calculateTilePathToPlayer(final Entity entity) {
     final Point from =
-      entity
-        .fetch(PositionComponent.class)
-        .map(PositionComponent::position)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .map(PositionComponent::position)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     final Point to = Game.player().flatMap(Game::positionOf).orElse(from);
     return calculateTilePath(from, to);
@@ -532,10 +532,10 @@ public final class LevelUtils {
    */
   public static TilePath calculateTilePathToRandomTileInRange(final Entity entity, float radius) {
     final Point from =
-      entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class))
-        .position();
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class))
+            .position();
 
     final Point target = randomAccessibleTileInRangeAsPoint(from, radius).orElse(from);
     return calculateTilePath(from, target);

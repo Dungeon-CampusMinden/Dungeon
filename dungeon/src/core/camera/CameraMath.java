@@ -45,7 +45,7 @@ public final class CameraMath {
    * @return resolved camera focus point
    */
   public static Point resolveFocus(
-    final Optional<Point> trackedPoint, final Optional<Point> levelStartPoint) {
+      final Optional<Point> trackedPoint, final Optional<Point> levelStartPoint) {
     Objects.requireNonNull(trackedPoint, "trackedPoint");
     Objects.requireNonNull(levelStartPoint, "levelStartPoint");
     return trackedPoint.orElseGet(() -> levelStartPoint.orElse(ORIGIN));
@@ -63,7 +63,7 @@ public final class CameraMath {
    * @return next camera position
    */
   public static Point stepTowardsFocus(
-    final Point currentPosition, final Point focusPoint, final float focusLerp) {
+      final Point currentPosition, final Point focusPoint, final float focusLerp) {
     Objects.requireNonNull(focusPoint, "focusPoint");
 
     final float clampedLerp = Math.clamp(focusLerp, 0f, 1f);
@@ -72,10 +72,8 @@ public final class CameraMath {
       return focusPoint;
     }
 
-    final float newX =
-      currentPosition.x() * (1 - clampedLerp) + focusPoint.x() * clampedLerp;
-    final float newY =
-      currentPosition.y() * (1 - clampedLerp) + focusPoint.y() * clampedLerp;
+    final float newX = currentPosition.x() * (1 - clampedLerp) + focusPoint.x() * clampedLerp;
+    final float newY = currentPosition.y() * (1 - clampedLerp) + focusPoint.y() * clampedLerp;
 
     final Point next = new Point(newX, newY);
     if (next.distance(focusPoint) <= SNAP_EPSILON) {
@@ -94,10 +92,10 @@ public final class CameraMath {
    * @return visible world bounds
    */
   public static Rectangle worldBounds(
-    final Point cameraCenter,
-    final float viewportWidth,
-    final float viewportHeight,
-    final float zoom) {
+      final Point cameraCenter,
+      final float viewportWidth,
+      final float viewportHeight,
+      final float zoom) {
     Objects.requireNonNull(cameraCenter, "cameraCenter");
 
     final float safeViewportWidth = Math.max(0f, viewportWidth);
@@ -115,9 +113,9 @@ public final class CameraMath {
   /**
    * Checks if a point is visible inside an axis-aligned camera view.
    *
-   * <p>The view is expanded by the given margin to preserve the old
-   * {@code GdxCameraSystem.isPointInFrustum(...)} semantics, which used a small bounding box around
-   * the point instead of testing the point alone.
+   * <p>The view is expanded by the given margin to preserve the old {@code
+   * GdxCameraSystem.isPointInFrustum(...)} semantics, which used a small bounding box around the
+   * point instead of testing the point alone.
    *
    * @param point world point to test
    * @param cameraCenter camera center position
@@ -128,17 +126,16 @@ public final class CameraMath {
    * @return {@code true} if the point is visible, otherwise {@code false}
    */
   public static boolean isPointVisible(
-    final Point point,
-    final Point cameraCenter,
-    final float viewportWidth,
-    final float viewportHeight,
-    final float zoom,
-    final float margin) {
+      final Point point,
+      final Point cameraCenter,
+      final float viewportWidth,
+      final float viewportHeight,
+      final float zoom,
+      final float margin) {
     Objects.requireNonNull(point, "point");
 
     final Rectangle visibleBounds =
-      worldBounds(cameraCenter, viewportWidth, viewportHeight, zoom)
-        .expand(Math.max(0f, margin));
+        worldBounds(cameraCenter, viewportWidth, viewportHeight, zoom).expand(Math.max(0f, margin));
 
     return visibleBounds.contains(point);
   }

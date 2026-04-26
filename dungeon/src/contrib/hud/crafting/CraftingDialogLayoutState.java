@@ -56,8 +56,7 @@ final class CraftingDialogLayoutState {
         Math.max(CLASSIC_CRAFTING_PANEL_HEIGHT, leftGridHeight + 2 * PANEL_PADDING);
 
     int totalContentWidth = leftGridWidth + PANEL_GAP + rightPanelWidth;
-    int dialogWidth =
-        Math.max(DEFAULT_WIDTH, totalContentWidth + 2 * DialogFrameMetrics.PADDING);
+    int dialogWidth = Math.max(DEFAULT_WIDTH, totalContentWidth + 2 * DialogFrameMetrics.PADDING);
 
     int dialogHeight =
         Math.max(

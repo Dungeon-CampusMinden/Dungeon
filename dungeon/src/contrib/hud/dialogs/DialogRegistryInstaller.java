@@ -27,16 +27,16 @@ public final class DialogRegistryInstaller {
    * Installs the default dialog types and their corresponding implementations into the dialog
    * registry.
    *
-   * <p>This method ensures that all built-in dialog types defined in {@link DialogType.DefaultTypes}
-   * are registered in the {@link DialogRegistry}.
+   * <p>This method ensures that all built-in dialog types defined in {@link
+   * DialogType.DefaultTypes} are registered in the {@link DialogRegistry}.
    *
    * <p>Each dialog type is bound to its respective neutral dialog implementation.
    *
-   * <p>If the installation process has already been completed, the method exits immediately
-   * without performing any actions.
+   * <p>If the installation process has already been completed, the method exits immediately without
+   * performing any actions.
    *
-   * <p>Note: This method is thread-safe and will only execute once, regardless of how many
-   * times it is invoked.
+   * <p>Note: This method is thread-safe and will only execute once, regardless of how many times it
+   * is invoked.
    */
   public static synchronized void install() {
     if (initialized) {
@@ -46,20 +46,22 @@ public final class DialogRegistryInstaller {
     DialogRegistry.replace(DialogType.DefaultTypes.TEXT, TextDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.OK, TextDialogBuilder::buildOk);
     DialogRegistry.replace(
-      DialogType.DefaultTypes.YES_NO,
-      ctx ->
-        new OverlayHandle(
-          new YesNoDialogOverlay(
-            ctx.find(DialogContextKeys.TITLE, String.class).orElse(DEFAULT_YES_NO_TITLE),
-            ctx.require(DialogContextKeys.MESSAGE, String.class),
-            ctx.dialogId())));
+        DialogType.DefaultTypes.YES_NO,
+        ctx ->
+            new OverlayHandle(
+                new YesNoDialogOverlay(
+                    ctx.find(DialogContextKeys.TITLE, String.class).orElse(DEFAULT_YES_NO_TITLE),
+                    ctx.require(DialogContextKeys.MESSAGE, String.class),
+                    ctx.dialogId())));
     DialogRegistry.replace(DialogType.DefaultTypes.IMAGE, ShowImageDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialogBuilder::build);
-    DialogRegistry.replace(DialogType.DefaultTypes.ATTRIBUTE_BAR, AttributeBarOverlayBuilder::build);
     DialogRegistry.replace(
-      DialogType.DefaultTypes.PAUSE_MENU, _ -> new OverlayHandle(new PauseMenuDialogOverlay()));
+        DialogType.DefaultTypes.ATTRIBUTE_BAR, AttributeBarOverlayBuilder::build);
+    DialogRegistry.replace(
+        DialogType.DefaultTypes.PAUSE_MENU, _ -> new OverlayHandle(new PauseMenuDialogOverlay()));
     DialogRegistry.replace(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilder::build);
-    DialogRegistry.replace(DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);
+    DialogRegistry.replace(
+        DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.CRAFTING_GUI, CraftingDialogBuilder::build);
 
     initialized = true;

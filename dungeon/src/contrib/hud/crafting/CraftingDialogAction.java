@@ -8,9 +8,23 @@ package contrib.hud.crafting;
  */
 public enum CraftingDialogAction {
   /** Craft action-button. */
-  CRAFT("Craft", CraftingDialogController.CALLBACK_CRAFT, "hud/check.png", 0.812f, 0.05f, 0.15f, 0.15f),
+  CRAFT(
+      "Craft",
+      CraftingDialogController.CALLBACK_CRAFT,
+      "hud/check.png",
+      0.812f,
+      0.05f,
+      0.15f,
+      0.15f),
   /** Cancel action-button. */
-  CANCEL("Cancel", CraftingDialogController.CALLBACK_CANCEL, "hud/cross.png", 0.036f, 0.05f, 0.15f, 0.15f);
+  CANCEL(
+      "Cancel",
+      CraftingDialogController.CALLBACK_CANCEL,
+      "hud/cross.png",
+      0.036f,
+      0.05f,
+      0.15f,
+      0.15f);
 
   private final String label;
   private final String callbackKey;
@@ -21,13 +35,13 @@ public enum CraftingDialogAction {
   private final float relativeHeight;
 
   CraftingDialogAction(
-    String label,
-    String callbackKey,
-    String iconPath,
-    float relativeX,
-    float relativeY,
-    float relativeWidth,
-    float relativeHeight) {
+      String label,
+      String callbackKey,
+      String iconPath,
+      float relativeX,
+      float relativeY,
+      float relativeWidth,
+      float relativeHeight) {
     this.label = label;
     this.callbackKey = callbackKey;
     this.iconPath = iconPath;

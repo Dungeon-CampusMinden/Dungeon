@@ -8,7 +8,9 @@ import core.level.utils.LevelUtils;
 import core.utils.Time;
 import java.util.function.Consumer;
 
-/** Implements an idle AI that lets the entity walk in a specific radius from its current position. */
+/**
+ * Implements an idle AI that lets the entity walk in a specific radius from its current position.
+ */
 public final class RadiusWalk implements Consumer<Entity> {
   private final float radius;
   private final long breakTimeMs;

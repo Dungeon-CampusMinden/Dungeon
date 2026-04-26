@@ -82,10 +82,7 @@ final class LevelEditorModeRegistry {
     private final String hotkeyLabel;
     private final Function<LevelEditorSystem, LevelEditorMode> modeFactory;
 
-    Mode(
-      int hotkey,
-      String hotkeyLabel,
-      Function<LevelEditorSystem, LevelEditorMode> modeFactory) {
+    Mode(int hotkey, String hotkeyLabel, Function<LevelEditorSystem, LevelEditorMode> modeFactory) {
       this.hotkey = hotkey;
       this.hotkeyLabel = Objects.requireNonNull(hotkeyLabel, "hotkeyLabel must not be null");
       this.modeFactory = Objects.requireNonNull(modeFactory, "modeFactory must not be null");

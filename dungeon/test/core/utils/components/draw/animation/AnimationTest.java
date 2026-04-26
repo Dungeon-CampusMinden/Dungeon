@@ -62,7 +62,7 @@ class AnimationTest {
   @Test
   void widthHeight_respectIndependentScaleY() {
     AnimationConfig cfg =
-      new AnimationConfig().framesPerSprite(1).scaleX(1.5f).scaleY(0.5f).isLooping(true);
+        new AnimationConfig().framesPerSprite(1).scaleX(1.5f).scaleY(0.5f).isLooping(true);
 
     Animation anim = new Animation(new SimpleIPath("missing_a.png"), cfg);
 
@@ -75,11 +75,7 @@ class AnimationTest {
   @Test
   void getFrame_loops_whenLoopingEnabled() {
     AnimationConfig cfg =
-      new AnimationConfig()
-        .framesPerSprite(3)
-        .scaleX(1f)
-        .scaleY(0f)
-        .isLooping(true);
+        new AnimationConfig().framesPerSprite(3).scaleX(1f).scaleY(0f).isLooping(true);
 
     IPath p1 = new SimpleIPath("a.png");
     IPath p2 = new SimpleIPath("b.png");
@@ -114,7 +110,7 @@ class AnimationTest {
   @Test
   void getFrame_clamps_whenNotLooping_and_isFinishedReflectsThat() {
     AnimationConfig cfg =
-      new AnimationConfig().framesPerSprite(2).scaleX(1f).scaleY(1f).isLooping(false);
+        new AnimationConfig().framesPerSprite(2).scaleX(1f).scaleY(1f).isLooping(false);
 
     IPath p1 = new SimpleIPath("a.png");
     IPath p2 = new SimpleIPath("b.png");
@@ -149,7 +145,7 @@ class AnimationTest {
   @Test
   void update_incrementsFrameCount_andReturnsCurrentFrame() {
     AnimationConfig cfg =
-      new AnimationConfig().framesPerSprite(2).scaleX(1f).scaleY(1f).isLooping(true);
+        new AnimationConfig().framesPerSprite(2).scaleX(1f).scaleY(1f).isLooping(true);
 
     IPath p1 = new SimpleIPath("a.png");
     IPath p2 = new SimpleIPath("b.png");
