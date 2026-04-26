@@ -47,7 +47,7 @@ import java.util.TreeMap;
  * This class is not thread-safe and must be used from within the rendering thread.
  */
 final class EntitySpriteRenderer {
-  void render(Graphics2D g, CameraView view, int screenWidth, int screenHeight) {
+  void render(Graphics2D g, SpriteViewport view, int screenWidth, int screenHeight) {
     final int levelHeight = view.levelHeight();
 
     TreeMap<Integer, List<Entity>> depthGroups = visibleEntitiesByDepth(view);
@@ -58,7 +58,7 @@ final class EntitySpriteRenderer {
     }
   }
 
-  private TreeMap<Integer, List<Entity>> visibleEntitiesByDepth(CameraView view) {
+  private TreeMap<Integer, List<Entity>> visibleEntitiesByDepth(SpriteViewport view) {
     final TreeMap<Integer, List<Entity>> depthGroups = new TreeMap<>();
 
     ECSManagement.levelEntities()
@@ -90,7 +90,7 @@ final class EntitySpriteRenderer {
     return depthGroups;
   }
 
-  private boolean isWithinVisibleTileBounds(Point pos, CameraView view) {
+  private boolean isWithinVisibleTileBounds(Point pos, SpriteViewport view) {
     return !(pos.x() < view.minTileX()
         || pos.x() > view.maxTileX()
         || pos.y() < view.minTileY()
@@ -102,7 +102,7 @@ final class EntitySpriteRenderer {
       int depthLayer,
       List<Entity> entitiesAtDepth,
       int levelHeight,
-      CameraView view,
+      SpriteViewport view,
       int screenWidth,
       int screenHeight) {
 

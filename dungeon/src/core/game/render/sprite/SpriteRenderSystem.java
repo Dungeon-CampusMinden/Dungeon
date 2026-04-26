@@ -38,7 +38,7 @@ import java.util.Optional;
 public final class SpriteRenderSystem extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(SpriteRenderSystem.class);
 
-  private final CameraViewCalculator cameraViewCalculator = new CameraViewCalculator();
+  private final SpriteViewportCalculator spriteViewportCalculator = new SpriteViewportCalculator();
   private final LevelTileRenderer levelTileRenderer = new LevelTileRenderer();
   private final EntitySpriteRenderer entitySpriteRenderer = new EntitySpriteRenderer();
 
@@ -77,7 +77,7 @@ public final class SpriteRenderSystem extends System {
       g.fillRect(0, 0, screenWidth, screenHeight);
 
       final Optional<ILevel> levelOpt = Game.currentLevel();
-      final CameraView view = cameraViewCalculator.calculate(levelOpt, screenWidth, screenHeight);
+      final SpriteViewport view = spriteViewportCalculator.calculate(levelOpt, screenWidth, screenHeight);
 
       // Publish view for cursor mapping
       CameraViewportState.set(view.offsetX(), view.offsetY(), view.levelHeight(), view.tilePx());

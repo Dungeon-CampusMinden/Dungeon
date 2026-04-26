@@ -30,7 +30,7 @@ import java.util.Map;
 final class LevelTileRenderer {
   private final Map<String, BufferedImage> tileImageCache = new HashMap<>();
 
-  void render(Graphics2D g, ILevel level, CameraView view) {
+  void render(Graphics2D g, ILevel level, SpriteViewport view) {
     if (!LevelEffectPipeline.hasEnabledEffects()) {
       renderLevelTiles(g, level, view);
       return;
@@ -46,7 +46,7 @@ final class LevelTileRenderer {
     g.drawImage(processed, levelBuffer.drawX(), levelBuffer.drawY(), null);
   }
 
-  private void renderLevelTiles(Graphics2D g, ILevel level, CameraView view) {
+  private void renderLevelTiles(Graphics2D g, ILevel level, SpriteViewport view) {
     final Tile[][] layout = level.layout();
     if (layout == null || layout.length == 0 || layout[0].length == 0) return;
 
@@ -79,7 +79,7 @@ final class LevelTileRenderer {
     }
   }
 
-  private VisibleLevelBuffer renderVisibleLevelToBuffer(ILevel level, CameraView view) {
+  private VisibleLevelBuffer renderVisibleLevelToBuffer(ILevel level, SpriteViewport view) {
     final Tile[][] layout = level.layout();
     if (layout == null || layout.length == 0 || layout[0].length == 0) {
       return null;

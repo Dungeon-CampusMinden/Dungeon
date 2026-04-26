@@ -11,28 +11,22 @@ import core.utils.Rectangle;
 import java.util.Optional;
 
 /**
- * CameraViewCalculator is responsible for determining the viewport and rendering bounds
- * for a camera in the game.
+ * A utility class for calculating the parameters of a sprite viewport, determining the visible
+ * portion of a game level to render based on the camera's position and screen dimensions.
  *
- * <p>It calculates the visible tiles, pixel offsets, and other
- * camera-related parameters based on the current level, screen size, and camera state.
+ * <p>The viewport calculation takes into account factors such as camera smoothing, level size,
+ * rendering margins, zoom levels, and tile size.
  *
- * <p>This ensures the game world is rendered appropriately within the user's viewport.
- *
- * <p>This class operates with a fixed tile size and uses optional smoothing for camera motion.
- * It also calculates margins to reduce rendering artifacts such as pop-in.
+ * <p>The result of this calculation is a {@link SpriteViewport}, which specifies the render offset,
+ * visible tile range, and tile metadata required for sprite rendering.
  */
-final class CameraViewCalculator {
+final class SpriteViewportCalculator {
   private static final int BASE_TILE_PX = 32;
   private static final int MIN_TILE_PX = 8;
-
-  // How many tiles beyond the viewport we still render (avoid pop-in).
   private static final int VIEW_MARGIN_TILES = 2;
-
-  // Optional smoothing (0 = no smoothing, 1 = jump). Keep small and stable.
   private static final float CAMERA_LERP = 0.20f;
 
-  CameraView calculate(Optional<ILevel> levelOpt, int screenW, int screenH) {
+  SpriteViewport calculate(Optional<ILevel> levelOpt, int screenW, int screenH) {
     final int levelHeight =
         levelOpt.map(level -> level.layout() != null ? level.layout().length : 0).orElse(0);
     final int tilePx = effectiveTilePx();
@@ -60,7 +54,7 @@ final class CameraViewCalculator {
     final double offsetX = (screenW / 2.0) - focusPxX;
     final double offsetY = (screenH / 2.0) - focusPxY;
 
-    return new CameraView(
+    return new SpriteViewport(
         offsetX, offsetY, minTileX, maxTileX, minTileY, maxTileY, levelHeight, tilePx);
   }
 

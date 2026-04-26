@@ -1,7 +1,7 @@
 package core.game.render.sprite;
 
 /**
- * Immutable camera viewport data used by sprite and level renderers.
+ * A record representing the viewport parameters for sprite rendering.
  *
  * @param offsetX screen offset for X coordinate in pixels
  * @param offsetY screen offset for Y coordinate in pixels
@@ -12,7 +12,7 @@ package core.game.render.sprite;
  * @param levelHeight height of the current level in tiles
  * @param tilePx size of a tile in pixels
  */
-record CameraView(
+record SpriteViewport(
     double offsetX,
     double offsetY,
     int minTileX,
