@@ -1,6 +1,6 @@
 package contrib.components;
 
-import contrib.hud.dialogs.showimage.ShowImageText;
+import contrib.hud.dialogs.showimage.ShowImageTextConfig;
 import contrib.hud.dialogs.showimage.TransitionSpeed;
 import core.Component;
 import core.Entity;
@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 public class ShowImageComponent implements Component {
 
   private String imagePath;
-  private ShowImageText textConfig;
+  private ShowImageTextConfig textConfig;
   private boolean isUIOpen = false;
   private TransitionSpeed transitionSpeed = TransitionSpeed.MEDIUM;
   private BiConsumer<Entity, Entity> onOpenAction;
@@ -78,7 +78,7 @@ public class ShowImageComponent implements Component {
    *
    * @return the text config
    */
-  public ShowImageText textConfig() {
+  public ShowImageTextConfig textConfig() {
     return textConfig;
   }
 
@@ -88,7 +88,7 @@ public class ShowImageComponent implements Component {
    * @param textConfig the text config
    * @return this component for chaining
    */
-  public ShowImageComponent textConfig(ShowImageText textConfig) {
+  public ShowImageComponent textConfig(ShowImageTextConfig textConfig) {
     this.textConfig = textConfig;
     return this;
   }

@@ -10,7 +10,7 @@ import contrib.crafting.Crafting;
 import contrib.crafting.CraftingIngredient;
 import contrib.crafting.Recipe;
 import contrib.entities.*;
-import contrib.hud.dialogs.showimage.ShowImageText;
+import contrib.hud.dialogs.showimage.ShowImageTextConfig;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemKey;
 import contrib.item.concreteItem.ItemPotionHealth;
@@ -359,7 +359,7 @@ public final class BasicStarter {
         (trigger, overlay) -> {},
         0.80f,
         1.5f,
-        ShowImageText.ofRgb(
+        ShowImageTextConfig.ofRgb(
           "ShowImage overlay verification", 1.0f, 0, 0, 0)));
 
     Game.add(
@@ -370,7 +370,7 @@ public final class BasicStarter {
         (trigger, overlay) -> {},
         0.95f,
         1.5f,
-        ShowImageText.ofRgb(
+        ShowImageTextConfig.ofRgb(
           "Second image for reopen / close testing", 0.9f, 20, 20, 20)));
   }
 

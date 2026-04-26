@@ -10,7 +10,7 @@ package contrib.hud.dialogs.showimage;
  * @param scale the scale of the text
  * @param colorRgba8888 the text color encoded as RGBA8888
  */
-public record ShowImageText(String text, float scale, int colorRgba8888) {
+public record ShowImageTextConfig(String text, float scale, int colorRgba8888) {
 
   /** Default text color in RGBA8888: opaque black. */
   public static final int DEFAULT_COLOR_RGBA8888 = 0x000000ff;
@@ -21,7 +21,7 @@ public record ShowImageText(String text, float scale, int colorRgba8888) {
    * @param text the text to display
    * @param scale the scale of the text
    */
-  public ShowImageText(String text, float scale) {
+  public ShowImageTextConfig(String text, float scale) {
     this(text, scale, DEFAULT_COLOR_RGBA8888);
   }
 
@@ -30,7 +30,7 @@ public record ShowImageText(String text, float scale, int colorRgba8888) {
    *
    * @param text the text to display
    */
-  public ShowImageText(String text) {
+  public ShowImageTextConfig(String text) {
     this(text, 1f, DEFAULT_COLOR_RGBA8888);
   }
 
@@ -56,8 +56,8 @@ public record ShowImageText(String text, float scale, int colorRgba8888) {
    * @param blue blue channel in range 0..255
    * @return a new text config
    */
-  public static ShowImageText ofRgb(String text, float scale, int red, int green, int blue) {
-    return new ShowImageText(text, scale, rgba8888(red, green, blue, 255));
+  public static ShowImageTextConfig ofRgb(String text, float scale, int red, int green, int blue) {
+    return new ShowImageTextConfig(text, scale, rgba8888(red, green, blue, 255));
   }
 
   /**
@@ -71,9 +71,9 @@ public record ShowImageText(String text, float scale, int colorRgba8888) {
    * @param alpha alpha channel in range 0..255
    * @return a new text config
    */
-  public static ShowImageText ofRgba(
+  public static ShowImageTextConfig ofRgba(
     String text, float scale, int red, int green, int blue, int alpha) {
-    return new ShowImageText(text, scale, rgba8888(red, green, blue, alpha));
+    return new ShowImageTextConfig(text, scale, rgba8888(red, green, blue, alpha));
   }
 
   private static int rgba8888(int red, int green, int blue, int alpha) {

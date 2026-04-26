@@ -3,7 +3,7 @@ package contrib.entities;
 import contrib.components.ShowImageComponent;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
-import contrib.hud.dialogs.showimage.ShowImageText;
+import contrib.hud.dialogs.showimage.ShowImageTextConfig;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -39,7 +39,7 @@ public class ShowImageFactory {
       BiConsumer<Entity, Entity> onClose,
       float maxSize,
       float radius,
-      ShowImageText text) {
+      ShowImageTextConfig text) {
     Entity entity = new Entity("show-image");
     entity.add(new PositionComponent(pos.translate(Vector2.of(X_OFFSET, Y_OFFSET))));
 

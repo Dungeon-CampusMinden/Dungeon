@@ -1,6 +1,6 @@
 package contrib.hud.dialogs;
 
-import contrib.hud.dialogs.showimage.ShowImageText;
+import contrib.hud.dialogs.showimage.ShowImageTextConfig;
 import contrib.hud.dialogs.showimage.TransitionSpeed;
 import core.Entity;
 import core.components.PlayerComponent;
@@ -26,7 +26,7 @@ public final class DialogContextHelper {
     String imagePath,
     TransitionSpeed speed,
     float maxSize,
-    ShowImageText textConfig,
+    ShowImageTextConfig textConfig,
     int ownerEntityId) {
     DialogContext.Builder builder =
       DialogContext.builder()
@@ -67,7 +67,7 @@ public final class DialogContextHelper {
       .orElseGet(() -> entity.name().isBlank() ? DEFAULT_INVENTORY_TITLE : entity.name());
   }
 
-  private static void putImageText(DialogContext.Builder builder, ShowImageText textConfig) {
+  private static void putImageText(DialogContext.Builder builder, ShowImageTextConfig textConfig) {
     if (textConfig == null || textConfig.text() == null || textConfig.text().isBlank()) {
       return;
     }

@@ -2,7 +2,7 @@ package contrib.hud;
 
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.*;
-import contrib.hud.dialogs.showimage.ShowImageText;
+import contrib.hud.dialogs.showimage.ShowImageTextConfig;
 import contrib.hud.dialogs.showimage.TransitionSpeed;
 import core.Entity;
 import core.Game;
@@ -68,7 +68,7 @@ public class DialogUtils {
       String imagePath,
       TransitionSpeed speed,
       float maxSize,
-      ShowImageText textConfig,
+      ShowImageTextConfig textConfig,
       IVoidFunction onFinished) {
     Entity dialogEntity = new Entity();
     DialogContext context =
