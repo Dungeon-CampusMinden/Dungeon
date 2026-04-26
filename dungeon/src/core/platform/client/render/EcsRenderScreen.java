@@ -1,6 +1,7 @@
-package core.game.render;
+package core.platform.client.render;
 
 import core.game.ECSManagement;
+import core.game.render.RenderContext;
 import core.game.render.scene.SceneEffectPipeline;
 import core.ui.overlay.OverlayManager;
 import core.utils.Time;

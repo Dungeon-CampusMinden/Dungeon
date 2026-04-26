@@ -6,7 +6,7 @@ import core.game.PreRunConfiguration;
 import core.game.SystemProfile;
 import core.game.loop.GameLoop;
 import core.game.loop.GameLoopHost;
-import core.game.render.EcsRenderScreen;
+import core.platform.client.render.EcsRenderScreen;
 import core.game.startup.ClientStartup;
 import core.platform.Platform;
 import core.platform.client.*;
