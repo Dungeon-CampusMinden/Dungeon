@@ -7,32 +7,26 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 /**
- * The PointRenderer class provides functionality for rendering named points and the associated
+ * The PointModeRenderer class provides functionality for rendering named points and the associated
  * graphical markers and labels within the level editor.
  *
  * <p>This class is used to visually represent anchor points or markers on a dungeon level, as well
  * as highlight a held point.
  *
  * <p>Responsibilities:
- *
  * <ul>
  *   <li>Draws named point markers with customizable colors, sizes, and labels.
  *   <li>Highlights a currently held point with a distinct appearance.
  *   <li>Supports rendering ghost markers for held points being moved.
  * </ul>
  *
- * >
- *
  * <p>Features:
- *
  * <ul>
  *   <li>Dynamically scales marker sizes based on tile size, clamped within specified bounds.
  *   <li>Automatically adjusts marker appearance for held points or hovered items.
  * </ul>
- *
- * >
  */
-final class PointRenderer {
+final class PointModeRenderer {
 
   private static final Color POINT_MARKER_COLOR = new Color(255, 196, 77, 220);
   private static final Color HELD_POINT_MARKER_COLOR = new Color(120, 220, 120, 230);
@@ -42,7 +36,7 @@ final class PointRenderer {
 
   private final LevelEditorSystem system;
 
-  PointRenderer(LevelEditorSystem system) {
+  PointModeRenderer(LevelEditorSystem system) {
     this.system = system;
   }
 

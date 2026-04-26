@@ -47,7 +47,7 @@ public final class PointMode extends LevelEditorMode {
 
   private final PointPlacementController placementController;
   private final PointDialogController dialogController;
-  private final PointRenderer renderer;
+  private final PointModeRenderer renderer;
 
   private EditorSnapMode snapMode = EditorSnapMode.ON_GRID;
 
@@ -61,7 +61,7 @@ public final class PointMode extends LevelEditorMode {
     super(system, "Point Mode");
     this.placementController = new PointPlacementController(system);
     this.dialogController = new PointDialogController(placementController);
-    this.renderer = new PointRenderer(system);
+    this.renderer = new PointModeRenderer(system);
   }
 
   @Override
