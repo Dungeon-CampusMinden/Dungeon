@@ -7,6 +7,7 @@ import contrib.hud.systems.HudSystem;
 import contrib.game.LevelContentInstaller;
 import contrib.modules.interaction.InteractionSelection;
 import contrib.modules.interaction.ui.InteractionMenuUi;
+import contrib.modules.keypad.KeypadDialogInstaller;
 import contrib.modules.levelhide.LevelHideSystem;
 import contrib.systems.ColliderSyncSystem;
 import core.game.loop.ClientLoopHostInstaller;
@@ -28,6 +29,7 @@ import core.platform.Platform;
  *       overlays.</li>
  *   <li>{@link DialogRegistryInstaller}: Wires up the shared dialog backend registry to support
  *       various custom and default dialog types.</li>
+ *   <li>{@link KeypadDialogInstaller}: Registers keypad-module UI bindings for keypad dialogs.</li>
  *   <li>{@link LevelHideSystem}: Maintains the client-side visibility state of hidden or revealed
  *       world regions.</li>
  *   <li>{@link HudSystem} and {@link AttributeBarSystem}: Ensure HUD elements and attribute bars
@@ -53,6 +55,7 @@ public final class PresentationClientInstaller implements ClientLoopHostInstalle
   @Override
   public void installRuntimeSystems() {
     DialogRegistryInstaller.install();
+    KeypadDialogInstaller.install();
     ClientLoopHostInstaller.addSystemIfAbsent(ColliderSyncSystem.class, ColliderSyncSystem::new);
     ClientLoopHostInstaller.addSystemIfAbsent(LevelHideSystem.class, LevelHideSystem::new);
     ClientLoopHostInstaller.addSystemIfAbsent(HudSystem.class, HudSystem::new);
