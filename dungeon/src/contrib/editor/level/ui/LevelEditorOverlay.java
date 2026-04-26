@@ -1,4 +1,4 @@
-package contrib.editor.level;
+package contrib.editor.level.ui;
 
 import core.ui.overlay.BaseUiOverlay;
 import java.awt.Color;

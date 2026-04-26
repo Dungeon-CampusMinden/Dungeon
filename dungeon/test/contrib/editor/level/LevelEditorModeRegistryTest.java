@@ -3,6 +3,7 @@ package contrib.editor.level;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import contrib.editor.level.mode.LevelEditorModeRegistry;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link LevelEditorModeRegistry}. */

@@ -1,4 +1,4 @@
-package contrib.editor.level;
+package contrib.editor.level.render;
 
 import contrib.components.DecoComponent;
 import core.Entity;
@@ -19,32 +19,21 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * This class is responsible for rendering debug information in the Level Editor.
+ * Provides rendering functionality for debug visuals within the level editor.
  *
- * <p>It provides visualizations for level boundaries, tiles, and entities during a debugging
- * session. The main purpose of this renderer is to aid in development and debugging by providing
- * graphical insights into level geometry and entity placement.
+ * <p>This includes rendering level bounds, debug outlines for tiles, and entities.
  *
- * <p>The rendering includes:
+ * <p>The debug visuals are primarily intended to help developers and designers
+ * during level development by providing visual cues about the state of the level and entities.
  *
+ * <p>Key features include:
  * <ul>
- *   <li>Outlining the bounds of the dungeon level.
- *   <li>Debug representations for tiles within the dungeon.
- *   <li>Entity outlines based on their types (player, decoration, or generic).
+ *   <li>Rendering level bounds as an outlined rectangle.</li>
+ *   <li>Supporting optional visualization of layer-specific debug information such as tiles and entities.</li>
+ *   <li>Providing visual indicators for different types of entities (e.g., player, decorative, and normal).</li>
  * </ul>
- *
- * <p>The rendering logic relies on a camera viewport for translating world coordinates into screen
- * coordinates and uses color coding to differentiate between debug elements.
- *
- * <p>Key rendering behaviors:
- * <li>Highlighting level bounds.
- * <li>Rendering outlines for tiles and debugging graphical properties.
- * <li>Rendering outlines or fallback rectangles for visible entities.
- *
- *     <p>Methods in this class are primarily invoked during debug mode to overlay helpful visual
- *     data over the game level.
  */
-final class LevelEditorDebugRenderer {
+public final class LevelEditorDebugRenderer {
   private static final Color LEVEL_BOUNDS_OUTLINE_COLOR = new Color(0, 255, 0, 77);
 
   private static final Color DEBUG_LEVEL_TILE_OUTLINE_COLOR = new Color(80, 140, 255, 150);
@@ -54,7 +43,14 @@ final class LevelEditorDebugRenderer {
 
   private static final int DEBUG_ENTITY_INSET_PX = 2;
 
-  void render(Graphics2D g, boolean layerDebugActive) {
+  /**
+   * Renders the debug visuals for the level editor, including level bounds and optional
+   * layer debugging information if the debug mode is active.
+   *
+   * @param g the graphics context used for rendering
+   * @param layerDebugActive indicates whether to render layer debug visuals
+   */
+  public void render(Graphics2D g, boolean layerDebugActive) {
     renderLevelBoundsOutline(g);
 
     if (layerDebugActive) {

@@ -1,6 +1,10 @@
 package contrib.editor.level;
 
 import contrib.editor.level.mode.LevelEditorMode;
+import contrib.editor.level.mode.LevelEditorModeRegistry;
+import contrib.editor.level.render.LevelEditorDebugRenderer;
+import contrib.editor.level.state.LevelEditorSession;
+import contrib.editor.level.ui.LevelEditorOverlayPresenter;
 import core.Game;
 import core.System;
 import core.components.PlayerComponent;

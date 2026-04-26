@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.components.HealthComponent;
 import contrib.editor.level.mode.LevelEditorMode;
+import contrib.editor.level.state.LevelEditorSession;
 import core.Entity;
 import core.Game;
 import core.components.InputComponent;

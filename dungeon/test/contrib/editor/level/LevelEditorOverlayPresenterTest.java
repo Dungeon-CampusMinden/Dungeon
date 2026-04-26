@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.editor.level.mode.LevelEditorMode;
+import contrib.editor.level.ui.LevelEditorOverlay;
+import contrib.editor.level.ui.LevelEditorOverlayPresenter;
 import core.ui.overlay.OverlayManager;
 import java.awt.Color;
 import java.util.List;
