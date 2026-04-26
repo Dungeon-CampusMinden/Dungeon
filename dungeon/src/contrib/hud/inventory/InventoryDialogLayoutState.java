@@ -1,7 +1,7 @@
 package contrib.hud.inventory;
 
 import contrib.hud.frame.DialogFrameMetrics;
-import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.InventoryGridRenderer;
 import contrib.hud.itemgrid.InventoryPanelRenderer;
 import contrib.item.Item;
@@ -69,7 +69,7 @@ final class InventoryDialogLayoutState<S> {
               panel.title(),
               InventoryPanelRenderer.panelBounds(
                   panelStartX, gridTop, panel.gridWidth(), panel.gridHeight(), PANEL_PADDING),
-              new GridHitTest.Grid<>(
+              new ItemGridHitTest.Grid<>(
                   panel.side(), panelStartX, gridTop, panel.columns(), panel.visibleSlots())));
       panelStartX += panel.gridWidth() + measurement.panelGap();
     }
@@ -90,7 +90,7 @@ final class InventoryDialogLayoutState<S> {
     return panels;
   }
 
-  List<GridHitTest.Grid<S>> grids() {
+  List<ItemGridHitTest.Grid<S>> grids() {
     return panels.stream().map(PanelLayout::grid).toList();
   }
 
@@ -126,5 +126,5 @@ final class InventoryDialogLayoutState<S> {
       List<PanelSpec<S>> panels) {}
 
   /** Concrete panel layout with positioned bounds and hit-test grid. */
-  record PanelLayout<S>(String title, Rectangle panelBounds, GridHitTest.Grid<S> grid) {}
+  record PanelLayout<S>(String title, Rectangle panelBounds, ItemGridHitTest.Grid<S> grid) {}
 }

@@ -1,7 +1,7 @@
 package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.item.Item;
 import java.util.List;
@@ -77,7 +77,7 @@ final class DualInventoryDialogOverlay
   }
 
   @Override
-  protected void handleInput(List<GridHitTest.Grid<InventorySide>> grids) {
+  protected void handleInput(List<ItemGridHitTest.Grid<InventorySide>> grids) {
     handlePrimaryInput(
         grids,
         (drag, releasedSlot, mouseX, mouseY) -> handleDraggedRelease(drag, releasedSlot),
@@ -86,7 +86,7 @@ final class DualInventoryDialogOverlay
 
   private void handleDraggedRelease(
       ItemGridDragController.DragState<InventorySide> completedDrag,
-      GridHitTest.Slot<InventorySide> releasedSlotSelection) {
+      ItemGridHitTest.Slot<InventorySide> releasedSlotSelection) {
     if (!acceptsDrop(completedDrag.source(), releasedSlotSelection)) {
       return;
     }
@@ -100,8 +100,8 @@ final class DualInventoryDialogOverlay
   }
 
   private void moveOrSwapWithinInventory(
-      GridHitTest.Slot<InventorySide> sourceSelection,
-      GridHitTest.Slot<InventorySide> targetSelection) {
+      ItemGridHitTest.Slot<InventorySide> sourceSelection,
+      ItemGridHitTest.Slot<InventorySide> targetSelection) {
     InventoryComponent inventory = inventoryOf(sourceSelection.side());
 
     int sourceSlot = sourceSelection.slotIndex();
@@ -124,7 +124,7 @@ final class DualInventoryDialogOverlay
     }
   }
 
-  private void transferClickedItem(GridHitTest.Slot<InventorySide> slotSelection) {
+  private void transferClickedItem(ItemGridHitTest.Slot<InventorySide> slotSelection) {
     InventoryComponent source = inventoryOf(slotSelection.side());
     InventoryComponent destination = oppositeInventoryOf(slotSelection.side());
 
@@ -138,7 +138,7 @@ final class DualInventoryDialogOverlay
 
   private void transferDraggedItem(
       ItemGridDragController.DragState<InventorySide> drag,
-      GridHitTest.Slot<InventorySide> releasedSlotSelection) {
+      ItemGridHitTest.Slot<InventorySide> releasedSlotSelection) {
     InventoryComponent source = inventoryOf(drag.source().side());
     InventoryComponent destination = inventoryOf(releasedSlotSelection.side());
 
@@ -167,7 +167,7 @@ final class DualInventoryDialogOverlay
   }
 
   @Override
-  protected Item itemOf(GridHitTest.Slot<InventorySide> slot) {
+  protected Item itemOf(ItemGridHitTest.Slot<InventorySide> slot) {
     if (slot == null) {
       return null;
     }
@@ -176,7 +176,7 @@ final class DualInventoryDialogOverlay
   }
 
   private boolean acceptsDrop(
-      GridHitTest.Slot<InventorySide> source, GridHitTest.Slot<InventorySide> target) {
+    ItemGridHitTest.Slot<InventorySide> source, ItemGridHitTest.Slot<InventorySide> target) {
     return target != null && !target.equals(source);
   }
 

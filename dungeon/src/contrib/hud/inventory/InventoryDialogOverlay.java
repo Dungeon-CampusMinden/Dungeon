@@ -2,7 +2,7 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.HeroController;
-import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.item.Item;
 import core.Entity;
@@ -78,7 +78,7 @@ final class InventoryDialogOverlay
   }
 
   @Override
-  protected void handleInput(List<GridHitTest.Grid<InventorySide>> grids) {
+  protected void handleInput(List<ItemGridHitTest.Grid<InventorySide>> grids) {
     if (!allowUseItems) {
       resetInteractionState();
       return;
@@ -96,12 +96,12 @@ final class InventoryDialogOverlay
     handleRightUseInput(grids, mouseX, mouseY);
   }
 
-  private void handleLeftDragInput(List<GridHitTest.Grid<InventorySide>> grids) {
+  private void handleLeftDragInput(List<ItemGridHitTest.Grid<InventorySide>> grids) {
     handlePrimaryInput(grids, this::handleDraggedRelease, null);
   }
 
   private void handleRightUseInput(
-      List<GridHitTest.Grid<InventorySide>> grids, int mouseX, int mouseY) {
+    List<ItemGridHitTest.Grid<InventorySide>> grids, int mouseX, int mouseY) {
     boolean rightButtonDown = InputManager.isButtonPressed(MouseButtons.RIGHT);
 
     if (dragController.isDragging()) {
@@ -110,12 +110,12 @@ final class InventoryDialogOverlay
     }
 
     if (rightButtonDown && !rightButtonDownLastFrame) {
-      GridHitTest.Slot<InventorySide> slot = findSlotSelection(grids, mouseX, mouseY);
+      ItemGridHitTest.Slot<InventorySide> slot = findSlotSelection(grids, mouseX, mouseY);
       pressedUseSlotIndex = slot == null ? null : slot.slotIndex();
     }
 
     if (!rightButtonDown && rightButtonDownLastFrame) {
-      GridHitTest.Slot<InventorySide> releasedSlot = findSlotSelection(grids, mouseX, mouseY);
+      ItemGridHitTest.Slot<InventorySide> releasedSlot = findSlotSelection(grids, mouseX, mouseY);
       int releasedSlotIndex = releasedSlot == null ? -1 : releasedSlot.slotIndex();
 
       Integer previouslyPressedSlot = pressedUseSlotIndex;
@@ -131,7 +131,7 @@ final class InventoryDialogOverlay
 
   private void handleDraggedRelease(
       ItemGridDragController.DragState<InventorySide> completedDrag,
-      GridHitTest.Slot<InventorySide> releasedSlot,
+      ItemGridHitTest.Slot<InventorySide> releasedSlot,
       int mouseX,
       int mouseY) {
     int sourceSlot = completedDrag.source().slotIndex();
@@ -176,7 +176,7 @@ final class InventoryDialogOverlay
   }
 
   @Override
-  protected Item itemOf(GridHitTest.Slot<InventorySide> slot) {
+  protected Item itemOf(ItemGridHitTest.Slot<InventorySide> slot) {
     if (slot == null) {
       return null;
     }

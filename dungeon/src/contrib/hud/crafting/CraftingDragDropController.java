@@ -1,7 +1,7 @@
 package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.hud.itemgrid.InventoryDropHandling;
 import contrib.item.Item;
@@ -48,7 +48,7 @@ final class CraftingDragDropController {
       boolean leftButtonDown,
       int mouseX,
       int mouseY,
-      GridHitTest.Grid<CraftingInventorySide> leftGrid,
+      ItemGridHitTest.Grid<CraftingInventorySide> leftGrid,
       Rectangle leftPanelBounds,
       Rectangle rightPanelBounds,
       List<CraftingDialogLayout.SlotBounds> craftingBounds,
@@ -92,7 +92,7 @@ final class CraftingDragDropController {
     return Optional.empty();
   }
 
-  void transferClickedItem(GridHitTest.Slot<CraftingInventorySide> selection) {
+  void transferClickedItem(ItemGridHitTest.Slot<CraftingInventorySide> selection) {
     if (selection == null) {
       return;
     }
@@ -102,7 +102,7 @@ final class CraftingDragDropController {
 
   void transferDraggedItem(
       ItemGridDragController.DragState<CraftingInventorySide> completedDrag,
-      GridHitTest.Slot<CraftingInventorySide> releasedSlotSelection,
+      ItemGridHitTest.Slot<CraftingInventorySide> releasedSlotSelection,
       Rectangle leftPanelBounds,
       Rectangle rightPanelBounds,
       int mouseX,
@@ -133,18 +133,18 @@ final class CraftingDragDropController {
     }
   }
 
-  GridHitTest.Slot<CraftingInventorySide> findSlotSelection(
+  ItemGridHitTest.Slot<CraftingInventorySide> findSlotSelection(
       int mouseX,
       int mouseY,
-      GridHitTest.Grid<CraftingInventorySide> leftGrid,
+      ItemGridHitTest.Grid<CraftingInventorySide> leftGrid,
       List<CraftingDialogLayout.SlotBounds> craftingBounds) {
-    return GridHitTest.findSlotAt(
+    return ItemGridHitTest.findSlotAt(
         mouseX, mouseY, List.of(leftGrid), toBoundedSlots(craftingBounds));
   }
 
   void drawDropHighlights(
       Graphics2D g,
-      GridHitTest.Grid<CraftingInventorySide> leftGrid,
+      ItemGridHitTest.Grid<CraftingInventorySide> leftGrid,
       Rectangle leftPanelBounds,
       Rectangle rightPanelBounds,
       List<CraftingDialogLayout.SlotBounds> craftingBounds,
@@ -162,11 +162,11 @@ final class CraftingDragDropController {
       return;
     }
 
-    GridHitTest.Slot<CraftingInventorySide> hoveredTargetSlot =
+    ItemGridHitTest.Slot<CraftingInventorySide> hoveredTargetSlot =
         InventoryDropHandling.hoveredDropTarget(
             dragController,
             (slotMouseX, slotMouseY) ->
-                GridHitTest.findGridSlotAt(slotMouseX, slotMouseY, List.of(leftGrid)),
+                ItemGridHitTest.findGridSlotAt(slotMouseX, slotMouseY, List.of(leftGrid)),
             (source, target) -> target.side() != source.side());
     if (hoveredTargetSlot != null) {
       drawHighlight(g, leftGrid.slotBounds(hoveredTargetSlot.slotIndex()));
@@ -186,7 +186,7 @@ final class CraftingDragDropController {
     }
   }
 
-  Item itemOf(GridHitTest.Slot<CraftingInventorySide> selection) {
+  Item itemOf(ItemGridHitTest.Slot<CraftingInventorySide> selection) {
     if (selection == null) {
       return null;
     }
@@ -194,14 +194,14 @@ final class CraftingDragDropController {
     return inventoryOf(selection.side()).get(selection.slotIndex()).orElse(null);
   }
 
-  private List<GridHitTest.BoundedSlot<CraftingInventorySide>> toBoundedSlots(
+  private List<ItemGridHitTest.BoundedSlot<CraftingInventorySide>> toBoundedSlots(
       List<CraftingDialogLayout.SlotBounds> craftingBounds) {
-    List<GridHitTest.BoundedSlot<CraftingInventorySide>> slots =
+    List<ItemGridHitTest.BoundedSlot<CraftingInventorySide>> slots =
         new ArrayList<>(craftingBounds.size());
 
     for (CraftingDialogLayout.SlotBounds bounds : craftingBounds) {
       slots.add(
-          new GridHitTest.BoundedSlot<>(
+          new ItemGridHitTest.BoundedSlot<>(
               CraftingInventorySide.CRAFTING,
               bounds.slotIndex(),
               new Rectangle(bounds.x(), bounds.y(), bounds.size(), bounds.size())));

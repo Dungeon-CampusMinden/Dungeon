@@ -31,7 +31,7 @@ public final class InventoryTooltip {
       return false;
     }
 
-    GridHitTest.Slot<S> hoveredSlot = slotResolver.findSlot(mouse.x(), mouse.y());
+    ItemGridHitTest.Slot<S> hoveredSlot = slotResolver.findSlot(mouse.x(), mouse.y());
     if (hoveredSlot == null) {
       return false;
     }
@@ -97,7 +97,7 @@ public final class InventoryTooltip {
      * @param mouseY the mouse y coordinate
      * @return the slot, or {@code null}
      */
-    GridHitTest.Slot<S> findSlot(int mouseX, int mouseY);
+    ItemGridHitTest.Slot<S> findSlot(int mouseX, int mouseY);
   }
 
   /**
@@ -114,7 +114,7 @@ public final class InventoryTooltip {
      * @param slot the slot to inspect
      * @return the item, or {@code null}
      */
-    Item itemAt(GridHitTest.Slot<S> slot);
+    Item itemAt(ItemGridHitTest.Slot<S> slot);
   }
 
   private record MousePosition(int x, int y, int viewportWidth, int viewportHeight) {}

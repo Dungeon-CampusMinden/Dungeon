@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Objects;
 
 /** Utility methods and value objects for hit-testing inventory-like slot layouts. */
-public final class GridHitTest {
+public final class ItemGridHitTest {
 
-  private GridHitTest() {}
+  private ItemGridHitTest() {}
 
   /**
    * Finds a slot at the given screen position.

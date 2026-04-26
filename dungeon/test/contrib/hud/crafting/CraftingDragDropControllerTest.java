@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.item.Item;
 import java.awt.Rectangle;
@@ -29,7 +29,7 @@ public class CraftingDragDropControllerTest {
     CraftingDragDropController controller =
         dragDropController(targetInventory, craftingInventory);
 
-    controller.transferClickedItem(new GridHitTest.Slot<>(CraftingInventorySide.TARGET, 0));
+    controller.transferClickedItem(new ItemGridHitTest.Slot<>(CraftingInventorySide.TARGET, 0));
 
     assertTrue(targetInventory.get(0).isEmpty());
     assertSame(item, craftingInventory.get(0).orElse(null));
@@ -48,7 +48,7 @@ public class CraftingDragDropControllerTest {
 
     controller.transferDraggedItem(
         drag(CraftingInventorySide.TARGET, 0, item),
-        new GridHitTest.Slot<>(CraftingInventorySide.CRAFTING, 2),
+        new ItemGridHitTest.Slot<>(CraftingInventorySide.CRAFTING, 2),
         LEFT_PANEL,
         RIGHT_PANEL,
         0,
@@ -113,7 +113,7 @@ public class CraftingDragDropControllerTest {
   private ItemGridDragController.DragState<CraftingInventorySide> drag(
       CraftingInventorySide side, int slotIndex, Item item) {
     return new ItemGridDragController.DragState<>(
-        new GridHitTest.Slot<>(side, slotIndex), item);
+        new ItemGridHitTest.Slot<>(side, slotIndex), item);
   }
 
   private Item item() {

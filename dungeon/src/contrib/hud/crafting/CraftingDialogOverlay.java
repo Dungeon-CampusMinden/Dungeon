@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingType;
 import contrib.hud.InventoryDialogProvider;
 import contrib.hud.itemgrid.BaseItemGridOverlay;
-import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.InventoryGridRenderer;
 import contrib.hud.itemgrid.InventoryPanelRenderer;
 import contrib.item.Item;
@@ -118,7 +118,7 @@ final class CraftingDialogOverlay
 
     InventoryPanelRenderer.drawPanelBackground(g, layoutState.leftPanelBounds());
 
-    GridHitTest.Grid<CraftingInventorySide> leftGrid = layoutState.leftGrid();
+    ItemGridHitTest.Grid<CraftingInventorySide> leftGrid = layoutState.leftGrid();
     InventoryGridRenderer.drawGrid(
         g, visibleTargetSlots, leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
 
@@ -219,7 +219,7 @@ final class CraftingDialogOverlay
 
   record CraftingRenderState(
       CraftingDialogLayoutState layoutState,
-      GridHitTest.Grid<CraftingInventorySide> leftGrid,
+      ItemGridHitTest.Grid<CraftingInventorySide> leftGrid,
       List<CraftingDialogLayout.SlotBounds> craftingBounds,
       Item[] resultItems,
       List<CraftingDialogLayout.ItemBounds> resultBounds) {}

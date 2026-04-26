@@ -14,9 +14,9 @@ public class ItemGridDragControllerTest {
   @Test
   public void dropTargetAtAcceptedHoveredSlot() {
     ItemGridDragController<Side> controller = draggingController();
-    GridHitTest.Slot<Side> target = new GridHitTest.Slot<>(Side.RIGHT, 1);
+    ItemGridHitTest.Slot<Side> target = new ItemGridHitTest.Slot<>(Side.RIGHT, 1);
 
-    GridHitTest.Slot<Side> result =
+    ItemGridHitTest.Slot<Side> result =
         controller.dropTargetAt(10, 20, (mouseX, mouseY) -> target, this::differentSide);
 
     assertEquals(target, result);
@@ -26,9 +26,9 @@ public class ItemGridDragControllerTest {
   @Test
   public void dropTargetAtRejectedHoveredSlot() {
     ItemGridDragController<Side> controller = draggingController();
-    GridHitTest.Slot<Side> target = new GridHitTest.Slot<>(Side.LEFT, 1);
+    ItemGridHitTest.Slot<Side> target = new ItemGridHitTest.Slot<>(Side.LEFT, 1);
 
-    GridHitTest.Slot<Side> result =
+    ItemGridHitTest.Slot<Side> result =
         controller.dropTargetAt(10, 20, (mouseX, mouseY) -> target, this::differentSide);
 
     assertNull(result);
@@ -38,9 +38,9 @@ public class ItemGridDragControllerTest {
   @Test
   public void dropTargetAtWithoutDrag() {
     ItemGridDragController<Side> controller = ItemGridDragController.withDistanceThreshold(4);
-    GridHitTest.Slot<Side> target = new GridHitTest.Slot<>(Side.RIGHT, 1);
+    ItemGridHitTest.Slot<Side> target = new ItemGridHitTest.Slot<>(Side.RIGHT, 1);
 
-    GridHitTest.Slot<Side> result =
+    ItemGridHitTest.Slot<Side> result =
         controller.dropTargetAt(10, 20, (mouseX, mouseY) -> target, this::differentSide);
 
     assertNull(result);
@@ -48,7 +48,7 @@ public class ItemGridDragControllerTest {
 
   private ItemGridDragController<Side> draggingController() {
     ItemGridDragController<Side> controller = ItemGridDragController.withDistanceThreshold(4);
-    GridHitTest.Slot<Side> source = new GridHitTest.Slot<>(Side.LEFT, 0);
+    ItemGridHitTest.Slot<Side> source = new ItemGridHitTest.Slot<>(Side.LEFT, 0);
     Item item = mock(Item.class);
 
     controller.update(true, 0, 0, (mouseX, mouseY) -> source, slot -> item);
@@ -57,7 +57,7 @@ public class ItemGridDragControllerTest {
     return controller;
   }
 
-  private boolean differentSide(GridHitTest.Slot<Side> source, GridHitTest.Slot<Side> target) {
+  private boolean differentSide(ItemGridHitTest.Slot<Side> source, ItemGridHitTest.Slot<Side> target) {
     return source.side() != target.side();
   }
 

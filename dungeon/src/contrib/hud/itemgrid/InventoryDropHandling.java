@@ -25,7 +25,7 @@ public final class InventoryDropHandling {
    * @param <S> logical inventory side type
    * @return the accepted target slot, or {@code null}
    */
-  public static <S> GridHitTest.Slot<S> hoveredDropTarget(
+  public static <S> ItemGridHitTest.Slot<S> hoveredDropTarget(
       ItemGridDragController<S> dragController,
       ItemGridDragController.SlotFinder<S> slotFinder,
       ItemGridDragController.DropTargetFilter<S> targetFilter) {
@@ -47,7 +47,7 @@ public final class InventoryDropHandling {
    */
   @SafeVarargs
   public static <S> void drawGridDropHighlight(
-      Graphics2D g, GridHitTest.Slot<S> targetSlot, GridHitTest.Grid<S>... grids) {
+    Graphics2D g, ItemGridHitTest.Slot<S> targetSlot, ItemGridHitTest.Grid<S>... grids) {
     drawGridDropHighlight(g, targetSlot, Arrays.asList(grids));
   }
 
@@ -60,8 +60,8 @@ public final class InventoryDropHandling {
    * @param <S> logical inventory side type
    */
   public static <S> void drawGridDropHighlight(
-      Graphics2D g, GridHitTest.Slot<S> targetSlot, List<GridHitTest.Grid<S>> grids) {
-    Rectangle targetBounds = GridHitTest.boundsOf(targetSlot, grids);
+    Graphics2D g, ItemGridHitTest.Slot<S> targetSlot, List<ItemGridHitTest.Grid<S>> grids) {
+    Rectangle targetBounds = ItemGridHitTest.boundsOf(targetSlot, grids);
     if (targetBounds == null) {
       return;
     }

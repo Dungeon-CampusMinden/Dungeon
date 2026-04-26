@@ -2,7 +2,7 @@ package contrib.hud.inventory;
 
 import contrib.hud.InventoryDialogProvider;
 import contrib.hud.itemgrid.BaseItemGridOverlay;
-import contrib.hud.itemgrid.GridHitTest;
+import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.hud.itemgrid.InventoryDropHandling;
 import contrib.hud.itemgrid.InventoryGridRenderer;
@@ -82,7 +82,7 @@ abstract class BaseInventoryOverlay<S>
   }
 
   protected final void handlePrimaryInput(
-      List<GridHitTest.Grid<S>> grids,
+      List<ItemGridHitTest.Grid<S>> grids,
       ItemGridDragController.DragReleaseHandler<S> dragReleaseHandler,
       ItemGridDragController.ClickReleaseHandler<S> clickReleaseHandler) {
     ItemGridDragController.handlePrimaryInput(
@@ -104,9 +104,9 @@ abstract class BaseInventoryOverlay<S>
 
   @Override
   protected final void drawPointerFeedback(Graphics2D g, InventoryDialogLayoutState<S> content) {
-    List<GridHitTest.Grid<S>> grids = content.grids();
+    List<ItemGridHitTest.Grid<S>> grids = content.grids();
     if (dragController.isDragging()) {
-      GridHitTest.Slot<S> hoveredTarget =
+      ItemGridHitTest.Slot<S> hoveredTarget =
           InventoryDropHandling.hoveredDropTarget(
               dragController,
               (mouseX, mouseY) -> findSlotSelection(grids, mouseX, mouseY),
@@ -122,18 +122,18 @@ abstract class BaseInventoryOverlay<S>
         g, bounds(), (mouseX, mouseY) -> findSlotSelection(grids, mouseX, mouseY), this::itemOf);
   }
 
-  protected final GridHitTest.Slot<S> findSlotSelection(
-      List<GridHitTest.Grid<S>> grids, int mouseX, int mouseY) {
-    return GridHitTest.findGridSlotAt(mouseX, mouseY, grids);
+  protected final ItemGridHitTest.Slot<S> findSlotSelection(
+    List<ItemGridHitTest.Grid<S>> grids, int mouseX, int mouseY) {
+    return ItemGridHitTest.findGridSlotAt(mouseX, mouseY, grids);
   }
 
   protected abstract InventoryDialogLayoutState.Measurement<S> measure();
 
   protected abstract String dialogTitle();
 
-  protected abstract Item itemOf(GridHitTest.Slot<S> slot);
+  protected abstract Item itemOf(ItemGridHitTest.Slot<S> slot);
 
-  protected abstract void handleInput(List<GridHitTest.Grid<S>> grids);
+  protected abstract void handleInput(List<ItemGridHitTest.Grid<S>> grids);
 
   protected abstract ItemGridDragController.DropTargetFilter<S> dropTargetFilter();
 }

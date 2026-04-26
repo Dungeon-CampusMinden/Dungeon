@@ -27,7 +27,7 @@ public final class ItemGridDragController<S> {
   private final int thresholdPx;
   private final DragStartCondition dragStartCondition;
 
-  private GridHitTest.Slot<S> pressedSlot = null;
+  private ItemGridHitTest.Slot<S> pressedSlot = null;
   private boolean buttonDownLastFrame = false;
   private int pressedMouseX = 0;
   private int pressedMouseY = 0;
@@ -93,7 +93,7 @@ public final class ItemGridDragController<S> {
     }
 
     if (!buttonDown && buttonDownLastFrame) {
-      GridHitTest.Slot<S> releasedSlot = slotFinder.findSlot(mouseX, mouseY);
+      ItemGridHitTest.Slot<S> releasedSlot = slotFinder.findSlot(mouseX, mouseY);
       release = Optional.of(new Release<>(pressedSlot, releasedSlot, dragState));
 
       pressedSlot = null;
@@ -198,7 +198,7 @@ public final class ItemGridDragController<S> {
    * @param targetFilter decides whether a hovered slot accepts the active drag source
    * @return the accepted drop target, or {@code null}
    */
-  public GridHitTest.Slot<S> dropTargetAt(
+  public ItemGridHitTest.Slot<S> dropTargetAt(
       int mouseX, int mouseY, SlotFinder<S> slotFinder, DropTargetFilter<S> targetFilter) {
     Objects.requireNonNull(slotFinder, "slotFinder");
     Objects.requireNonNull(targetFilter, "targetFilter");
@@ -207,7 +207,7 @@ public final class ItemGridDragController<S> {
       return null;
     }
 
-    GridHitTest.Slot<S> target = slotFinder.findSlot(mouseX, mouseY);
+    ItemGridHitTest.Slot<S> target = slotFinder.findSlot(mouseX, mouseY);
     if (target == null || !targetFilter.accepts(dragState.source(), target)) {
       return null;
     }
@@ -316,7 +316,7 @@ public final class ItemGridDragController<S> {
      * @param mouseY the mouse y coordinate
      * @return the matching slot, or {@code null}
      */
-    GridHitTest.Slot<S> findSlot(int mouseX, int mouseY);
+    ItemGridHitTest.Slot<S> findSlot(int mouseX, int mouseY);
   }
 
   /**
@@ -334,7 +334,7 @@ public final class ItemGridDragController<S> {
      * @param target the hovered target slot
      * @return true when the target should be accepted
      */
-    boolean accepts(GridHitTest.Slot<S> source, GridHitTest.Slot<S> target);
+    boolean accepts(ItemGridHitTest.Slot<S> source, ItemGridHitTest.Slot<S> target);
   }
 
   /**
@@ -351,7 +351,7 @@ public final class ItemGridDragController<S> {
      * @param slot the slot to inspect
      * @return the item in the slot, or {@code null}
      */
-    Item itemAt(GridHitTest.Slot<S> slot);
+    Item itemAt(ItemGridHitTest.Slot<S> slot);
   }
 
   /**
@@ -370,7 +370,7 @@ public final class ItemGridDragController<S> {
      * @param mouseX the release x coordinate
      * @param mouseY the release y coordinate
      */
-    void handle(DragState<S> drag, GridHitTest.Slot<S> releasedSlot, int mouseX, int mouseY);
+    void handle(DragState<S> drag, ItemGridHitTest.Slot<S> releasedSlot, int mouseX, int mouseY);
   }
 
   /**
@@ -386,7 +386,7 @@ public final class ItemGridDragController<S> {
      *
      * @param slot the clicked slot
      */
-    void handle(GridHitTest.Slot<S> slot);
+    void handle(ItemGridHitTest.Slot<S> slot);
   }
 
   /**
@@ -396,7 +396,7 @@ public final class ItemGridDragController<S> {
    * @param item the dragged item
    * @param <S> logical side type of the slot
    */
-  public record DragState<S>(GridHitTest.Slot<S> source, Item item) {}
+  public record DragState<S>(ItemGridHitTest.Slot<S> source, Item item) {}
 
   /**
    * Describes a completed button release.
@@ -407,8 +407,8 @@ public final class ItemGridDragController<S> {
    * @param <S> logical side type of the slot
    */
   public record Release<S>(
-      GridHitTest.Slot<S> pressedSlot,
-      GridHitTest.Slot<S> releasedSlot,
+      ItemGridHitTest.Slot<S> pressedSlot,
+      ItemGridHitTest.Slot<S> releasedSlot,
       DragState<S> completedDrag) {}
 
   /**
