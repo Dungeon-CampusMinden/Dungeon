@@ -1,7 +1,7 @@
 package contrib.client.install;
 
 import contrib.client.DefaultClientLoopHostFactory;
-import contrib.client.render.ClientPresentationRenderAdapter;
+import contrib.client.render.PresentationRenderAdapter;
 import contrib.hud.dialogs.DialogRegistryInstaller;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
@@ -48,8 +48,8 @@ public final class ClientPresentationInstaller implements ClientLoopHostInstalle
   public void installPlatformServices() {
     InteractionSelection.install(InteractionMenuUi.INSTANCE);
     LevelContentInstaller.install();
-    if (!(Platform.render() instanceof ClientPresentationRenderAdapter)) {
-      Platform.render(new ClientPresentationRenderAdapter(Platform.render()));
+    if (!(Platform.render() instanceof PresentationRenderAdapter)) {
+      Platform.render(new PresentationRenderAdapter(Platform.render()));
     }
   }
 
