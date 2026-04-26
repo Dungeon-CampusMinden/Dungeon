@@ -1,4 +1,4 @@
-package contrib.client;
+package contrib.client.render;
 
 import contrib.debug.draw.DebugDrawFacade;
 import contrib.modules.levelhide.LevelHideRenderSystem;

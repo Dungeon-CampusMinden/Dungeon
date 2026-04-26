@@ -1,5 +1,6 @@
 package contrib.client;
 
+import contrib.client.render.PresentationRenderAdapter;
 import contrib.hud.dialogs.DialogRegistryInstaller;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
