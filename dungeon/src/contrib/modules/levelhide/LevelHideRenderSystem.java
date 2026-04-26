@@ -274,7 +274,7 @@ public final class LevelHideRenderSystem extends System {
   }
 
   private ScreenRect toScreenRect(core.utils.Rectangle worldRect) {
-    Point topLeftWorld = new Point(worldRect.x(), worldRect.y() + worldRect.height());
+    Point topLeftWorld = new Point(worldRect.x(), worldRect.y() + worldRect.height() - 1f);
     Point screenTopLeft = CameraViewportState.worldToScreen(topLeftWorld);
 
     return new ScreenRect(
