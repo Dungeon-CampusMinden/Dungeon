@@ -1,5 +1,7 @@
 package contrib.client;
 
+import contrib.client.install.ClientPresentationInstaller;
+import contrib.client.install.DebugClientInstaller;
 import core.game.loop.ClientLoopHost;
 import core.game.loop.ClientLoopHostInstaller;
 import core.platform.Platform;

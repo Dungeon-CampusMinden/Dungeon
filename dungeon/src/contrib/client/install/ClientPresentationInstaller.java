@@ -1,5 +1,6 @@
-package contrib.client;
+package contrib.client.install;
 
+import contrib.client.DefaultClientLoopHostFactory;
 import contrib.client.render.PresentationRenderAdapter;
 import contrib.hud.dialogs.DialogRegistryInstaller;
 import contrib.hud.systems.AttributeBarSystem;

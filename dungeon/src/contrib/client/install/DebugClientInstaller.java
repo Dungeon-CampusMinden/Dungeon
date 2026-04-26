@@ -1,5 +1,6 @@
-package contrib.client;
+package contrib.client.install;
 
+import contrib.client.DefaultClientLoopHostFactory;
 import contrib.debug.systems.DebugDrawSystem;
 import contrib.debug.systems.DebugEntityRenderSystem;
 import contrib.debug.systems.DebugGameplaySystem;
