@@ -1,7 +1,7 @@
 package contrib.hud.dialogs.overlays;
 
-import contrib.hud.frame.DialogFrameMetrics;
-import contrib.hud.frame.DialogFrameRenderer;
+import contrib.hud.dialogs.frame.DialogFrameMetrics;
+import contrib.hud.dialogs.frame.DialogFrameRenderer;
 import core.ui.overlay.BaseUiOverlay;
 import java.awt.Graphics2D;
 

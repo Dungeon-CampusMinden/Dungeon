@@ -1,4 +1,4 @@
-package contrib.hud.frame;
+package contrib.hud.dialogs.frame;
 
 import core.Game;
 import java.awt.AlphaComposite;

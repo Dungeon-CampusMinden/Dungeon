@@ -1,7 +1,7 @@
 package contrib.hud.dialogs.showimage;
 
-import contrib.hud.frame.DialogFrameMetrics;
-import contrib.hud.frame.DialogFrameRenderer;
+import contrib.hud.dialogs.frame.DialogFrameMetrics;
+import contrib.hud.dialogs.frame.DialogFrameRenderer;
 import core.Game;
 import core.game.render.image.ImageAssets;
 import core.ui.overlay.BaseUiOverlay;
