@@ -41,7 +41,7 @@ public final class DebugRenderEffectsSystem extends System {
     DungeonLogger.getLogger(DebugRenderEffectsSystem.class);
 
   private static final String PASSTHROUGH_DEBUG_EFFECT_ID =
-    "litiengine_debug_passthrough_scene_effect";
+    "debug_passthrough_scene_effect";
 
   private static final String STARTER_SCENE_COLOR_GRADE_DEMO_ID =
     "starter_scene_color_grade_demo";
