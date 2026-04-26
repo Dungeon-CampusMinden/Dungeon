@@ -5,7 +5,7 @@ import contrib.components.HealthComponent;
 import contrib.components.ManaComponent;
 import contrib.components.StaminaComponent;
 import contrib.hud.elements.bars.AttributeBarHandle;
-import contrib.hud.elements.bars.AttributeBarUtil;
+import contrib.hud.elements.bars.AttributeBarLayout;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -98,8 +98,8 @@ public final class AttributeBarSystem extends System {
       Class<? extends BarDisplayable> componentClass = barDisplayable.getClass();
       if (!entityBars.containsKey(componentClass)) {
         int priority = barDisplayable.barPriority();
-        float verticalOffset = priority * AttributeBarUtil.BAR_GAP;
-        AttributeBarUtil.addBarToEntity(entity, barDisplayable, entityBars, verticalOffset);
+        float verticalOffset = priority * AttributeBarLayout.BAR_GAP;
+        AttributeBarLayout.addBarToEntity(entity, barDisplayable, entityBars, verticalOffset);
         LOGGER.debug("Added {} bar for entity {}", barDisplayable.barStyleName(), entity.id());
       }
     }
@@ -110,8 +110,8 @@ public final class AttributeBarSystem extends System {
       AttributeBarHandle bar = entityBars.get(componentClass);
       if (bar != null) {
         int priority = barDisplayable.barPriority();
-        float verticalOffset = priority * AttributeBarUtil.BAR_GAP;
-        AttributeBarUtil.updateBar(entity, barDisplayable, entityBars, verticalOffset);
+        float verticalOffset = priority * AttributeBarLayout.BAR_GAP;
+        AttributeBarLayout.updateBar(entity, barDisplayable, entityBars, verticalOffset);
       }
     }
   }

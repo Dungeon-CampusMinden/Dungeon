@@ -35,7 +35,7 @@ public final class AttributeBarOverlayBuilder {
     AttributeBarOverlay overlay =
       new AttributeBarOverlay(data.styleName());
 
-    AttributeBarUtil.updatePosition(overlay, data.pc(), data.verticalOffset());
+    AttributeBarLayout.updatePosition(overlay, data.pc(), data.verticalOffset());
     overlay.setVisible(true);
 
     return new OverlayHandle(overlay);

@@ -23,8 +23,8 @@ import java.util.Map;
  * <p>Attribute bars are client-side only visual elements that follow entities. They are created
  * using the standard entity ID system via {@link core.utils.EntityIdProvider}.
  */
-public final class AttributeBarUtil {
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AttributeBarUtil.class);
+public final class AttributeBarLayout {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AttributeBarLayout.class);
 
   /** Gap between stacked bars. */
   public static final float BAR_GAP = 15f;
@@ -32,7 +32,7 @@ public final class AttributeBarUtil {
   private static final float SPRITE_CENTER_X_OFFSET = 0.5f;
   private static final float SPRITE_BOTTOM_Y_OFFSET = -1f;
 
-  private AttributeBarUtil() {}
+  private AttributeBarLayout() {}
 
   /**
    * Creates a progress bar for the given entity and maps it in the provided map.
