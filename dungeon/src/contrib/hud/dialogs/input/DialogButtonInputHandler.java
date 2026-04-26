@@ -1,4 +1,4 @@
-package contrib.hud.dialogs;
+package contrib.hud.dialogs.input;
 
 import contrib.hud.elements.Button;
 import core.Game;

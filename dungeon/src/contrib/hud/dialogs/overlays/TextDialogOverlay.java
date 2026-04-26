@@ -1,7 +1,7 @@
 package contrib.hud.dialogs.overlays;
 
 import contrib.hud.dialogs.DialogCallbackResolver;
-import contrib.hud.dialogs.DialogButtonInputHandler;
+import contrib.hud.dialogs.input.DialogButtonInputHandler;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.frame.DialogFrameMetrics;
 import contrib.hud.frame.DialogFrameRenderer;

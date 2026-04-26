@@ -1,6 +1,6 @@
 package contrib.modules.keypad.ui;
 
-import contrib.hud.dialogs.DialogButtonInputHandler;
+import contrib.hud.dialogs.input.DialogButtonInputHandler;
 import contrib.hud.frame.DialogFrameRenderer;
 import contrib.modules.keypad.KeypadComponent;
 import core.Entity;
