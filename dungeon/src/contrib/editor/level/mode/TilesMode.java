@@ -1,7 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
-import contrib.debug.draw.DebugDrawFacade;
+import contrib.debug.draw.DebugDrawService;
 import core.input.InputLabelFormatter.InputCode;
 import core.input.MouseButtons;
 import core.level.Tile;
@@ -110,7 +110,7 @@ public final class TilesMode extends LevelEditorMode {
     forEachBrushTile(
       currentPreviewBrushSize(),
       tilePos ->
-        DebugDrawFacade.drawRectangleOutline(
+        DebugDrawService.drawRectangleOutline(
           tilePos.x(),
           tilePos.y(),
           1.0f,

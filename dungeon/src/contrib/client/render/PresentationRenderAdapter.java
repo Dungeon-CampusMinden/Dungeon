@@ -1,6 +1,6 @@
 package contrib.client.render;
 
-import contrib.debug.draw.DebugDrawFacade;
+import contrib.debug.draw.DebugDrawService;
 import contrib.modules.levelhide.LevelHideRenderSystem;
 import core.Entity;
 import core.platform.adapters.RenderAdapter;
@@ -71,6 +71,6 @@ public final class PresentationRenderAdapter implements RenderAdapter {
 
   @Override
   public void toggleDebugHud() {
-    DebugDrawFacade.toggleHUD();
+    DebugDrawService.toggleHUD();
   }
 }

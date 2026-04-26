@@ -10,12 +10,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <p>The static methods enqueue draw calls for the next rendered frame.
  */
-public final class DebugDrawFacade {
+public final class DebugDrawService {
 
   private static final DebugDrawQueue DRAW_QUEUE = new DebugDrawQueue();
   private static final AtomicBoolean HUD_VISIBLE = new AtomicBoolean(false);
 
-  private DebugDrawFacade() {}
+  private DebugDrawService() {}
 
   /**
    * Toggles the visibility of the debug HUD.

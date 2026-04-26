@@ -1,6 +1,6 @@
 package contrib.debug.systems;
 
-import contrib.debug.draw.DebugDrawFacade;
+import contrib.debug.draw.DebugDrawService;
 import contrib.debug.draw.DebugDrawRenderer;
 import core.System;
 import core.camera.CameraViewportState;
@@ -25,18 +25,18 @@ public final class DebugDrawSystem extends System {
   @Override
   public void render(float deltaSeconds) {
     Graphics2D base = RenderContext.get();
-    if (base == null || !DebugDrawFacade.isHudVisible()) {
-      DebugDrawFacade.clearQueuedDrawCalls();
+    if (base == null || !DebugDrawService.isHudVisible()) {
+      DebugDrawService.clearQueuedDrawCalls();
       return;
     }
 
     CameraViewportState.Viewport view = CameraViewportState.get();
     if (view == null || view.tilePx() <= 0) {
-      DebugDrawFacade.clearQueuedDrawCalls();
+      DebugDrawService.clearQueuedDrawCalls();
       return;
     }
 
-    DebugDrawRenderer.render(base, view, DebugDrawFacade.snapshotAndClear());
+    DebugDrawRenderer.render(base, view, DebugDrawService.snapshotAndClear());
   }
 
   @Override
