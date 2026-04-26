@@ -1,4 +1,4 @@
-package contrib.hud.itemgrid;
+package contrib.hud.itemgrid.render;
 
 import contrib.item.Item;
 import java.awt.Color;

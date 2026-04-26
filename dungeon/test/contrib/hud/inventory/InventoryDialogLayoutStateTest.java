@@ -3,7 +3,7 @@ package contrib.hud.inventory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import contrib.hud.dialogs.frame.DialogFrameMetrics;
-import contrib.hud.itemgrid.InventoryGridRenderer;
+import contrib.hud.itemgrid.render.InventoryGridRenderer;
 import contrib.item.Item;
 import java.awt.Font;
 import java.awt.FontMetrics;

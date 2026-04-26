@@ -1,5 +1,6 @@
 package contrib.hud.itemgrid;
 
+import contrib.hud.itemgrid.render.InventoryGridRenderer;
 import contrib.item.Item;
 import java.awt.Rectangle;
 import java.util.List;

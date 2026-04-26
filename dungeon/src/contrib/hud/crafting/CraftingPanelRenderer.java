@@ -1,7 +1,7 @@
 package contrib.hud.crafting;
 
 import contrib.item.Item;
-import contrib.hud.itemgrid.ItemIconRenderer;
+import contrib.hud.itemgrid.render.ItemIconRenderer;
 import core.game.render.image.ImageAssets;
 import java.awt.Color;
 import java.awt.Font;

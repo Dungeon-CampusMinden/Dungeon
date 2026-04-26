@@ -2,8 +2,8 @@ package contrib.hud.inventory;
 
 import contrib.hud.dialogs.frame.DialogFrameMetrics;
 import contrib.hud.itemgrid.ItemGridHitTest;
-import contrib.hud.itemgrid.InventoryGridRenderer;
-import contrib.hud.itemgrid.InventoryPanelRenderer;
+import contrib.hud.itemgrid.render.InventoryGridRenderer;
+import contrib.hud.itemgrid.render.InventoryPanelRenderer;
 import contrib.item.Item;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
