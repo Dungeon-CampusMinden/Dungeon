@@ -1,4 +1,4 @@
-package core.game.render.sprite.effects;
+package core.game.render.sprite.effects.shine;
 
 /**
  * A helper class used to track the timing of an animation for a shine effect.

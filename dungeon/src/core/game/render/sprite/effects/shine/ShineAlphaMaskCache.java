@@ -1,4 +1,4 @@
-package core.game.render.sprite.effects;
+package core.game.render.sprite.effects.shine;
 
 import core.game.render.image.ImageEffectCache;
 import java.awt.image.BufferedImage;

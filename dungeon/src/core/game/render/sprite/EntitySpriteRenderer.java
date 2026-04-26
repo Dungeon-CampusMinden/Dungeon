@@ -5,7 +5,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
 import core.game.render.depth.DepthLayerEffectPipeline;
-import core.game.render.sprite.effects.ShineSpriteEffect;
+import core.game.render.sprite.effects.shine.ShineSpriteEffect;
 import core.game.render.sprite.effects.SpriteEffectPipeline;
 import core.game.render.sprite.effects.SpriteEffectsComponent;
 import core.game.render.image.ImageFrameResolver;

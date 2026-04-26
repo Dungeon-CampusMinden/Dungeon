@@ -1,6 +1,8 @@
-package core.game.render.sprite.effects;
+package core.game.render.sprite.effects.shine;
 
 import core.game.render.effects.ToggleableEffect;
+import core.game.render.sprite.effects.SpriteEffect;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 

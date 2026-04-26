@@ -32,7 +32,7 @@ import core.game.render.level.LevelEffectPipeline;
 import core.game.render.scene.SceneColorGradeEffect;
 import core.game.render.scene.SceneEffectPipeline;
 import core.game.render.sprite.effects.SpriteRecolorEffect;
-import core.game.render.sprite.effects.ShineSpriteEffect;
+import core.game.render.sprite.effects.shine.ShineSpriteEffect;
 import core.game.render.sprite.effects.SpriteColorGradeEffect;
 import core.game.render.sprite.effects.SpriteEffectRegistry;
 import core.game.render.sprite.effects.SpriteEffectsComponent;

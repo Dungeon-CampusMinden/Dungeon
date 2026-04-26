@@ -1,4 +1,4 @@
-package core.game.render.sprite.effects;
+package core.game.render.sprite.effects.shine;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
