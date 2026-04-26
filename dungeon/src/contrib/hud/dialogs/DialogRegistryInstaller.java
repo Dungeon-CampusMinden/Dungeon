@@ -1,19 +1,24 @@
 package contrib.hud.dialogs;
 
 import contrib.hud.crafting.CraftingDialogBuilder;
-import contrib.hud.dialogs.builders.*;
-import contrib.hud.elements.bars.AttributeBarOverlayBuilder;
+import contrib.hud.dialogs.builders.FreeInputDialogBuilder;
+import contrib.hud.dialogs.builders.TextDialogBuilder;
+import contrib.hud.dialogs.overlays.PauseMenuDialogOverlay;
+import contrib.hud.dialogs.overlays.YesNoDialogOverlay;
 import contrib.hud.dialogs.showimage.ShowImageDialogBuilder;
+import contrib.hud.elements.bars.AttributeBarOverlayBuilder;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
+import core.ui.overlay.OverlayHandle;
 
 /**
  * Installs the available dialog backend implementations in the shared dialog registry.
  *
  * <p>The dialog registry itself only owns dialog creation. This class wires the default dialog
- * types to the currently available neutral dialog builders.
+ * types to the currently available neutral dialog factories.
  */
 public final class DialogRegistryInstaller {
+  private static final String DEFAULT_YES_NO_TITLE = "Dialog";
   private static boolean initialized = false;
 
   private DialogRegistryInstaller() {}
@@ -25,7 +30,7 @@ public final class DialogRegistryInstaller {
    * <p>This method ensures that all built-in dialog types defined in {@link DialogType.DefaultTypes}
    * are registered in the {@link DialogRegistry}.
    *
-   * <p>Each dialog type is bound to its respective neutral builder implementation.
+   * <p>Each dialog type is bound to its respective neutral dialog implementation.
    *
    * <p>If the installation process has already been completed, the method exits immediately
    * without performing any actions.
@@ -40,11 +45,19 @@ public final class DialogRegistryInstaller {
 
     DialogRegistry.replace(DialogType.DefaultTypes.TEXT, TextDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.OK, TextDialogBuilder::buildOk);
-    DialogRegistry.replace(DialogType.DefaultTypes.YES_NO, YesNoDialogBuilder::build);
+    DialogRegistry.replace(
+      DialogType.DefaultTypes.YES_NO,
+      ctx ->
+        new OverlayHandle(
+          new YesNoDialogOverlay(
+            ctx.find(DialogContextKeys.TITLE, String.class).orElse(DEFAULT_YES_NO_TITLE),
+            ctx.require(DialogContextKeys.MESSAGE, String.class),
+            ctx.dialogId())));
     DialogRegistry.replace(DialogType.DefaultTypes.IMAGE, ShowImageDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.ATTRIBUTE_BAR, AttributeBarOverlayBuilder::build);
-    DialogRegistry.replace(DialogType.DefaultTypes.PAUSE_MENU, PauseMenuDialogBuilder::build);
+    DialogRegistry.replace(
+      DialogType.DefaultTypes.PAUSE_MENU, _ -> new OverlayHandle(new PauseMenuDialogOverlay()));
     DialogRegistry.replace(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.CRAFTING_GUI, CraftingDialogBuilder::build);
