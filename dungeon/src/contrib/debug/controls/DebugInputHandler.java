@@ -30,47 +30,47 @@ public final class DebugInputHandler {
     Objects.requireNonNull(actions, "actions must not be null");
 
     if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_ZOOM_OUT.value())) {
-      actions.zoomOut().run();
+      actions.camera().zoomOut().run();
     }
     if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_ZOOM_IN.value())) {
-      actions.zoomIn().run();
+      actions.camera().zoomIn().run();
     }
 
     if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value())) {
-      actions.teleportToCursor().run();
+      actions.teleport().toCursor().run();
     }
     if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_TELEPORT_TO_END.value())) {
-      actions.teleportToEnd().run();
+      actions.teleport().toEnd().run();
     }
     if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_TELEPORT_TO_START.value())) {
-      actions.teleportToStart().run();
+      actions.teleport().toStart().run();
     }
     if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_TELEPORT_ON_END.value())) {
-      actions.loadNextLevel().run();
+      actions.teleport().loadNextLevel().run();
     }
 
     if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_SPAWN_MONSTER.value())) {
-      actions.spawnMonsterOnCursor().run();
+      actions.gameplay().spawnMonsterOnCursor().run();
     }
 
     if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_OPEN_DOORS.value())) {
-      actions.openDoors().run();
+      actions.gameplay().openDoors().run();
     }
 
     if (InputManager.isKeyJustPressed(KeyboardConfig.TOGGLE_FULLSCREEN.value())
         && isShiftPressed()) {
-      actions.toggleFullscreen().run();
+      actions.display().toggleFullscreen().run();
     }
 
     if (InputManager.isKeyJustPressed(KeyboardConfig.PAUSE.value())) {
-      actions.togglePause().run();
+      actions.pause().togglePause().run();
     }
     if (InputManager.isKeyJustPressed(KeyboardConfig.ADVANCE_FRAME.value())) {
-      actions.advanceFrame().run();
+      actions.pause().advanceFrame().run();
     }
 
     if (InputManager.isKeyJustPressed(DebugKeyboardConfig.DEBUG_TOGGLE_HUD.value())) {
-      actions.toggleDebugHud().run();
+      actions.display().toggleDebugHud().run();
     }
   }
 
@@ -80,80 +80,113 @@ public final class DebugInputHandler {
   }
 
   /**
-   * Represents a collection of runnable actions used to handle debug-related input events in the
-   * game environment.
+   * Represents debug actions grouped by concern to avoid a fragile positional constructor with
+   * unrelated callbacks.
    *
-   * <p>Each action corresponds to a specific operation that can be triggered by key events,
-   * including zooming, teleportation, state toggling, spawning entities, and frame advancement.
-   *
-   * <p>All actions are mandatory and must not be null when creating an instance of this record.
-   *
-   * @param zoomOut Action for zooming out; must not be null.
-   * @param zoomIn Action for zooming in; must not be null.
-   * @param teleportToCursor Action for teleporting to the cursor; must not be null.
-   * @param teleportToEnd Action for teleporting to the end of the level; must not be null.
-   * @param teleportToStart Action for teleporting to the start of the level; must not be null.
-   * @param loadNextLevel Action for loading the next level; must not be null.
-   * @param spawnMonsterOnCursor Action for spawning a monster at the cursor position; must not be
-   *     null.
-   * @param openDoors Action for opening all doors; must not be null.
-   * @param toggleFullscreen Action for toggling fullscreen mode; must not be null.
-   * @param togglePause Action for toggling the game's pause state; must not be null.
-   * @param advanceFrame Action for advancing a single frame while the game is paused; must not be
-   *     null.
-   * @param toggleDebugHud Action for toggling the visibility of the debug HUD; must not be null.
+   * @param camera Camera-related debug actions; must not be null.
+   * @param teleport Teleport and level-transition actions; must not be null.
+   * @param gameplay Gameplay mutation actions; must not be null.
+   * @param display Display and HUD actions; must not be null.
+   * @param pause Pause and frame-step actions; must not be null.
    */
   public record Actions(
-      Runnable zoomOut,
-      Runnable zoomIn,
-      Runnable teleportToCursor,
-      Runnable teleportToEnd,
-      Runnable teleportToStart,
-      Runnable loadNextLevel,
-      Runnable spawnMonsterOnCursor,
-      Runnable openDoors,
-      Runnable toggleFullscreen,
-      Runnable togglePause,
-      Runnable advanceFrame,
-      Runnable toggleDebugHud) {
+      CameraActions camera,
+      TeleportActions teleport,
+      GameplayActions gameplay,
+      DisplayActions display,
+      PauseActions pause) {
 
-    /**
-     * Represents a collection of runnable actions used to handle debug-related input events in the
-     * game environment.
-     *
-     * <p>Each action corresponds to a specific operation that can be triggered by key events,
-     * including zooming, teleportation, state toggling, spawning entities, and frame advancement.
-     *
-     * <p>All actions are mandatory and must not be null when creating an instance of this record.
-     *
-     * @param zoomOut Action for zooming out; must not be null.
-     * @param zoomIn Action for zooming in; must not be null.
-     * @param teleportToCursor Action for teleporting to the cursor; must not be null.
-     * @param teleportToEnd Action for teleporting to the end of the level; must not be null.
-     * @param teleportToStart Action for teleporting to the start of the level; must not be null.
-     * @param loadNextLevel Action for loading the next level; must not be null.
-     * @param spawnMonsterOnCursor Action for spawning a monster at the cursor position; must not be
-     *     null.
-     * @param openDoors Action for opening all doors; must not be null.
-     * @param toggleFullscreen Action for toggling fullscreen mode; must not be null.
-     * @param togglePause Action for toggling the game's pause state; must not be null.
-     * @param advanceFrame Action for advancing a single frame while the game is paused; must not be
-     *     null.
-     * @param toggleDebugHud Action for toggling the visibility of the debug HUD; must not be null.
-     */
     public Actions {
+      Objects.requireNonNull(camera, "camera must not be null");
+      Objects.requireNonNull(teleport, "teleport must not be null");
+      Objects.requireNonNull(gameplay, "gameplay must not be null");
+      Objects.requireNonNull(display, "display must not be null");
+      Objects.requireNonNull(pause, "pause must not be null");
+    }
+  }
+
+  /**
+   * Represents actions that can be performed on a camera, such as zooming in and out.
+   *
+   * <p>Each action is defined as a {@link Runnable}, allowing the actions to be executed flexibly
+   * when triggered. This class ensures that the provided actions are not null.
+   *
+   * @param zoomOut the action to zoom the camera out
+   * @param zoomIn the action to zoom the camera in
+   */
+  public record CameraActions(Runnable zoomOut, Runnable zoomIn) {
+    public CameraActions {
       Objects.requireNonNull(zoomOut, "zoomOut must not be null");
       Objects.requireNonNull(zoomIn, "zoomIn must not be null");
-      Objects.requireNonNull(teleportToCursor, "teleportToCursor must not be null");
-      Objects.requireNonNull(teleportToEnd, "teleportToEnd must not be null");
-      Objects.requireNonNull(teleportToStart, "teleportToStart must not be null");
+    }
+  }
+
+  /**
+   * Represents actions related to teleportation and level transitions.
+   *
+   * <p>Each action is defined as a {@link Runnable}, allowing the actions to be executed flexibly
+   * when triggered. This class ensures that the provided actions are not null.
+   *
+   * @param toCursor the action to teleport the player to the cursor position
+   * @param toEnd the action to teleport the player to the end of the current level
+   * @param toStart the action to teleport the player to the start of the current level
+   * @param loadNextLevel the action to load and transition to the next level
+   */
+  public record TeleportActions(
+      Runnable toCursor, Runnable toEnd, Runnable toStart, Runnable loadNextLevel) {
+    public TeleportActions {
+      Objects.requireNonNull(toCursor, "toCursor must not be null");
+      Objects.requireNonNull(toEnd, "toEnd must not be null");
+      Objects.requireNonNull(toStart, "toStart must not be null");
       Objects.requireNonNull(loadNextLevel, "loadNextLevel must not be null");
+    }
+  }
+
+  /**
+   * Represents gameplay-related debug actions, such as spawning enemies and opening doors.
+   *
+   * <p>Each action is defined as a {@link Runnable}, allowing the actions to be executed flexibly
+   * when triggered. This class ensures that the provided actions are not null.
+   *
+   * @param spawnMonsterOnCursor the action to spawn a monster at the cursor position
+   * @param openDoors the action to open all doors in the current level
+   */
+  public record GameplayActions(Runnable spawnMonsterOnCursor, Runnable openDoors) {
+    public GameplayActions {
       Objects.requireNonNull(spawnMonsterOnCursor, "spawnMonsterOnCursor must not be null");
       Objects.requireNonNull(openDoors, "openDoors must not be null");
+    }
+  }
+
+  /**
+   * Represents display-related debug actions, such as toggling fullscreen and HUD visibility.
+   *
+   * <p>Each action is defined as a {@link Runnable}, allowing the actions to be executed flexibly
+   * when triggered. This class ensures that the provided actions are not null.
+   *
+   * @param toggleFullscreen the action to toggle fullscreen mode on or off
+   * @param toggleDebugHud the action to toggle the debug HUD visibility
+   */
+  public record DisplayActions(Runnable toggleFullscreen, Runnable toggleDebugHud) {
+    public DisplayActions {
       Objects.requireNonNull(toggleFullscreen, "toggleFullscreen must not be null");
+      Objects.requireNonNull(toggleDebugHud, "toggleDebugHud must not be null");
+    }
+  }
+
+  /**
+   * Represents pause-related debug actions, such as toggling pause and advancing the game frame by frame.
+   *
+   * <p>Each action is defined as a {@link Runnable}, allowing the actions to be executed flexibly
+   * when triggered. This class ensures that the provided actions are not null.
+   *
+   * @param togglePause the action to toggle the pause state of the game
+   * @param advanceFrame the action to advance the game by a single frame when paused
+   */
+  public record PauseActions(Runnable togglePause, Runnable advanceFrame) {
+    public PauseActions {
       Objects.requireNonNull(togglePause, "togglePause must not be null");
       Objects.requireNonNull(advanceFrame, "advanceFrame must not be null");
-      Objects.requireNonNull(toggleDebugHud, "toggleDebugHud must not be null");
     }
   }
 }
