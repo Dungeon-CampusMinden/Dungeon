@@ -1,8 +1,12 @@
 package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
+import contrib.crafting.Crafting;
+import contrib.crafting.CraftingType;
 import contrib.crafting.Recipe;
 import contrib.item.Item;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -74,14 +78,23 @@ public record CraftingDialogController(
     craftingInventory.setItems(items);
   }
 
-  /**
-   * Resolves the currently matching recipe for the current crafting inventory contents.
-   *
-   * @return current recipe if one matches
-   */
-  public Optional<Recipe> currentRecipe() {
-    return CraftingDialogLogic.currentRecipe(craftingInventory);
-  }
+   /**
+    * Resolves the currently matching recipe for the current crafting inventory contents.
+    *
+    * @return current recipe if one matches
+    */
+   public Optional<Recipe> currentRecipe() {
+     Item[] ingredients =
+         Arrays.stream(craftingInventory.items())
+             .filter(Objects::nonNull)
+             .toArray(Item[]::new);
+
+     if (ingredients.length == 0) {
+       return Optional.empty();
+     }
+
+     return Crafting.recipeByIngredients(ingredients);
+   }
 
   /**
    * Transfers the given item from the specified side to the opposite side.
@@ -164,17 +177,27 @@ public record CraftingDialogController(
     target.set(targetSlotIndex, item);
   }
 
+   /** Executes the craft action on the current crafting inventory. */
+   public void craft() {
+     Optional<Recipe> recipe = currentRecipe();
+     if (recipe.isEmpty()) {
+       return;
+     }
+
+     Arrays.stream(recipe.get().results())
+         .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
+         .map(Item.class::cast)
+         .forEach(targetInventory::add);
+
+     craftingInventory.clear();
+   }
+
+   /** Cancels the current crafting attempt and returns all inputs to the target inventory. */
+   public void cancel() {
+     craftingInventory.transferAll(targetInventory);
+   }
+
   private InventoryComponent inventoryOf(CraftingInventorySide side) {
     return side == CraftingInventorySide.TARGET ? targetInventory : craftingInventory;
-  }
-
-  /** Executes the craft action on the current crafting inventory. */
-  public void craft() {
-    CraftingDialogLogic.craft(craftingInventory, targetInventory);
-  }
-
-  /** Cancels the current crafting attempt and returns all inputs to the target inventory. */
-  public void cancel() {
-    CraftingDialogLogic.cancel(craftingInventory, targetInventory);
   }
 }
