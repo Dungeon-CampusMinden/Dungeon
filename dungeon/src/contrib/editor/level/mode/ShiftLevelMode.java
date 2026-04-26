@@ -4,7 +4,7 @@ import contrib.editor.level.LevelEditorSystem;
 import contrib.utils.components.collide.ColliderSync;
 import core.Game;
 import core.components.PositionComponent;
-import core.input.InputLabel.InputCode;
+import core.input.InputLabelFormatter.InputCode;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelTransformations;

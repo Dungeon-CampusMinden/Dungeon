@@ -1,9 +1,8 @@
 package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
-import core.input.InputLabel.InputCode;
+import core.input.InputLabelFormatter.InputCode;
 import core.level.Tile;
-import core.level.utils.LevelElement;
 import core.level.utils.LevelTransformations;
 import core.utils.InputManager;
 import java.awt.Color;

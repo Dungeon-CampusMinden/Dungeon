@@ -1,7 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
-import core.input.InputLabel.InputCode;
+import core.input.InputLabelFormatter.InputCode;
 import core.level.loader.DungeonSaver;
 import core.platform.Platform;
 import core.utils.InputManager;

@@ -2,7 +2,7 @@ package contrib.editor.level.mode.deco;
 
 import contrib.editor.level.LevelEditorSystem;
 import contrib.editor.level.mode.LevelEditorMode;
-import core.input.InputLabel.InputCode;
+import core.input.InputLabelFormatter.InputCode;
 import core.input.Keys;
 import core.platform.Platform;
 import core.utils.InputManager;

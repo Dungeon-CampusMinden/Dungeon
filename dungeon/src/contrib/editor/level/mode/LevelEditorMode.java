@@ -2,8 +2,8 @@ package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
 import core.camera.CameraViewportState;
-import core.input.InputLabel;
-import core.input.InputLabel.InputCode;
+import core.input.InputLabelFormatter;
+import core.input.InputLabelFormatter.InputCode;
 import core.input.Keys;
 import core.input.MouseButtons;
 import java.awt.Graphics2D;
@@ -168,10 +168,10 @@ public abstract class LevelEditorMode {
   }
 
   protected static InputCode key(int keycode) {
-    return InputLabel.keyboard(keycode);
+    return InputLabelFormatter.keyboard(keycode);
   }
 
   protected static InputCode mouseButton(int button) {
-    return InputLabel.mouseButton(button);
+    return InputLabelFormatter.mouseButton(button);
   }
 }

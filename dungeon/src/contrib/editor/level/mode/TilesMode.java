@@ -2,7 +2,7 @@ package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
 import contrib.debug.draw.DebugDrawFacade;
-import core.input.InputLabel.InputCode;
+import core.input.InputLabelFormatter.InputCode;
 import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;

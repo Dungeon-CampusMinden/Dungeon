@@ -4,7 +4,7 @@ import contrib.editor.level.LevelEditorSystem;
 import contrib.editor.level.mode.EditorSnapMode;
 import contrib.editor.level.mode.LevelEditorMode;
 import contrib.entities.deco.Deco;
-import core.input.InputLabel.InputCode;
+import core.input.InputLabelFormatter.InputCode;
 import core.input.MouseButtons;
 import core.platform.Platform;
 import core.utils.InputManager;

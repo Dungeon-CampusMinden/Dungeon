@@ -8,7 +8,7 @@ import java.util.Objects;
  * <p>Keyboard keys and mouse buttons can use overlapping integer codes. Callers must provide the
  * input type so labels are resolved through the matching input registry.
  */
-public final class InputLabel {
+public final class InputLabelFormatter {
 
   /** Supported input code categories. */
   public enum InputType {
@@ -41,11 +41,11 @@ public final class InputLabel {
      * @return input label
      */
     public String label() {
-      return InputLabel.label(type, code);
+      return InputLabelFormatter.label(type, code);
     }
   }
 
-  private InputLabel() {}
+  private InputLabelFormatter() {}
 
   /**
    * Creates a typed keyboard input code.

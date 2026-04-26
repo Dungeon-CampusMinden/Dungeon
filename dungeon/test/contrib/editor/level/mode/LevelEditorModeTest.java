@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import contrib.editor.level.LevelEditorSystem;
-import core.input.InputLabel.InputCode;
+import core.input.InputLabelFormatter.InputCode;
 import core.input.Keys;
 import core.input.MouseButtons;
 import java.util.LinkedHashMap;
