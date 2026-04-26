@@ -21,7 +21,7 @@ import core.platform.Platform;
  * initialization. It adds both platform-specific services and runtime systems needed for the
  * interactive presentation layer.
  *
- * <p>{@code PresentationClientInstaller} integrates with the following key components:
+ * <p>{@code ClientPresentationInstaller} integrates with the following key parts:
  *
  * <ul>
  *   <li>{@link InteractionSelection}: Configures the interaction selection backend to use the
@@ -38,10 +38,10 @@ import core.platform.Platform;
  *
  * <p>This installer is registered explicitly through {@link DefaultClientLoopHostFactory}.
  */
-public final class PresentationClientInstaller implements ClientLoopHostInstaller {
+public final class ClientPresentationInstaller implements ClientLoopHostInstaller {
 
   /** Creates a presentation client installer. */
-  public PresentationClientInstaller() {}
+  public ClientPresentationInstaller() {}
 
   @Override
   public void installPlatformServices() {

@@ -43,6 +43,6 @@ public final class DefaultClientLoopHostFactory {
    * @return default client installers
    */
   public static List<ClientLoopHostInstaller> defaultInstallers() {
-    return List.of(new PresentationClientInstaller(), new DebugClientInstaller());
+    return List.of(new ClientPresentationInstaller(), new DebugClientInstaller());
   }
 }
