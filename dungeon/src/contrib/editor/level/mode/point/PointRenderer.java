@@ -2,7 +2,6 @@ package contrib.editor.level.mode.point;
 
 import contrib.editor.level.LevelEditorSystem;
 import core.camera.CameraViewportState;
-import core.game.render.TileOverlaySizing;
 import core.utils.Point;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -28,6 +27,7 @@ import java.awt.Graphics2D;
  * </ul>>
  */
 final class PointRenderer {
+
   private static final Color POINT_MARKER_COLOR = new Color(255, 196, 77, 220);
   private static final Color HELD_POINT_MARKER_COLOR = new Color(120, 220, 120, 230);
   private static final Color POINT_LABEL_COLOR = Color.WHITE;
@@ -49,7 +49,7 @@ final class PointRenderer {
             .ifPresent(
               level -> {
                 int markerSize =
-                  TileOverlaySizing.scaledPixelsClamped(
+                  scaledPixelsClamped(
                     view.tilePx(), 1f / 3f, POINT_MARKER_MIN_PX, POINT_MARKER_MAX_PX);
 
                 level.namedPoints().forEach((name, pos) -> drawNamedPointMarker(g, name, pos, markerSize, heldPointName));
@@ -58,6 +58,15 @@ final class PointRenderer {
                   drawHeldPointGhost(g, heldPointName, snapPos, markerSize);
                 }
               }));
+  }
+
+  private static int scaledPixels(int tilePx, float factor, int minPx) {
+    int safeTilePx = Math.max(1, tilePx);
+    return Math.max(minPx, Math.round(safeTilePx * factor));
+  }
+
+  private static int scaledPixelsClamped(int tilePx, float factor, int minPx, int maxPx) {
+    return Math.clamp(scaledPixels(tilePx, factor, minPx), minPx, maxPx);
   }
 
   private void drawNamedPointMarker(

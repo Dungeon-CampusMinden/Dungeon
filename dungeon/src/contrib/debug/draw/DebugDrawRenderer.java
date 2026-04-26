@@ -2,7 +2,6 @@ package contrib.debug.draw;
 
 import core.Game;
 import core.camera.CameraViewportState;
-import core.game.render.TileOverlaySizing;
 import core.utils.Point;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -36,7 +35,7 @@ public final class DebugDrawRenderer {
 
     Graphics2D g = (Graphics2D) base.create();
     try {
-      g.setStroke(new BasicStroke(TileOverlaySizing.scaledStroke(view.tilePx(), 1f / 16f, 1f)));
+      g.setStroke(new BasicStroke(scaledStroke(view.tilePx(), 1f / 16f, 1f)));
 
       int levelHeight = resolveLevelHeight(view);
 
@@ -51,6 +50,11 @@ public final class DebugDrawRenderer {
     } finally {
       g.dispose();
     }
+  }
+
+  private static float scaledStroke(int tilePx, float factor, float minPx) {
+    int safeTilePx = Math.max(1, tilePx);
+    return Math.max(minPx, safeTilePx * factor);
   }
 
   private static int resolveLevelHeight(CameraViewportState.Viewport view) {
