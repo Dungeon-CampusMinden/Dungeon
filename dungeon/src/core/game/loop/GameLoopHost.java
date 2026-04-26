@@ -1,6 +1,5 @@
 package core.game.loop;
 
-import core.game.GameLoop;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.ui.StageHandle;

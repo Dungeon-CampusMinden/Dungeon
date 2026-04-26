@@ -6,7 +6,7 @@ import contrib.debug.systems.DebugEntityRenderSystem;
 import contrib.debug.systems.DebugGameplaySystem;
 import contrib.debug.systems.DebugRenderEffectsSystem;
 import contrib.editor.level.LevelEditorSystem;
-import core.game.loop.ClientLoopHostInstaller;
+import core.platform.client.loop.ClientLoopHostInstaller;
 
 /**
  * A specialized client loop host installer that registers debug systems for runtime testing

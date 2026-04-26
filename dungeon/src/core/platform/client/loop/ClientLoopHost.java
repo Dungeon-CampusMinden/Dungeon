@@ -1,10 +1,11 @@
-package core.game.loop;
+package core.platform.client.loop;
 
 import core.game.ECSManagement;
-import core.game.GameLoop;
 import core.game.GameRuntime;
 import core.game.PreRunConfiguration;
 import core.game.SystemProfile;
+import core.game.loop.GameLoop;
+import core.game.loop.GameLoopHost;
 import core.game.render.EcsRenderScreen;
 import core.game.startup.ClientStartup;
 import core.platform.Platform;

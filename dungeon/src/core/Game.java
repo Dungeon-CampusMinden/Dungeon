@@ -1,7 +1,7 @@
 package core;
 
 import core.game.GameRuntime;
-import core.game.loop.ClientLoopHost;
+import core.platform.client.loop.ClientLoopHost;
 import core.platform.Platform;
 import core.ui.StageHandle;
 import core.components.PlayerComponent;

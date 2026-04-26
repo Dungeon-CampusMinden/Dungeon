@@ -1,4 +1,4 @@
-package core.game.loop;
+package core.platform.client.loop;
 
 import core.game.ECSManagement;
 import java.util.function.Supplier;

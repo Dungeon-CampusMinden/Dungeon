@@ -11,7 +11,7 @@ import contrib.modules.interaction.ui.InteractionMenuUi;
 import contrib.modules.keypad.KeypadDialogInstaller;
 import contrib.modules.levelhide.LevelHideSystem;
 import contrib.systems.ColliderSyncSystem;
-import core.game.loop.ClientLoopHostInstaller;
+import core.platform.client.loop.ClientLoopHostInstaller;
 import core.platform.Platform;
 
 /**
