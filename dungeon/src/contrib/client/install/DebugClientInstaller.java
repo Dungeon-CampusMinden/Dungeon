@@ -6,6 +6,7 @@ import contrib.debug.systems.DebugEntityRenderSystem;
 import contrib.debug.systems.DebugGameplaySystem;
 import contrib.debug.systems.DebugRenderEffectsSystem;
 import contrib.editor.level.LevelEditorSystem;
+import core.game.systems.SystemRegistration;
 import core.platform.client.loop.ClientLoopHostInstaller;
 
 /**
@@ -37,12 +38,10 @@ public final class DebugClientInstaller implements ClientLoopHostInstaller {
 
   @Override
   public void installRuntimeSystems() {
-    ClientLoopHostInstaller.addSystemIfAbsent(DebugGameplaySystem.class, DebugGameplaySystem::new);
-    ClientLoopHostInstaller.addSystemIfAbsent(
-      DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
-    ClientLoopHostInstaller.addSystemIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
-    ClientLoopHostInstaller.addSystemIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
-    ClientLoopHostInstaller.addSystemIfAbsent(
-      DebugEntityRenderSystem.class, DebugEntityRenderSystem::new);
+    SystemRegistration.addIfAbsent(DebugGameplaySystem.class, DebugGameplaySystem::new);
+    SystemRegistration.addIfAbsent(DebugRenderEffectsSystem.class, DebugRenderEffectsSystem::new);
+    SystemRegistration.addIfAbsent(LevelEditorSystem.class, LevelEditorSystem::new);
+    SystemRegistration.addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
+    SystemRegistration.addIfAbsent(DebugEntityRenderSystem.class, DebugEntityRenderSystem::new);
   }
 }

@@ -11,6 +11,7 @@ import contrib.modules.interaction.ui.InteractionMenuUi;
 import contrib.modules.keypad.KeypadDialogInstaller;
 import contrib.modules.levelhide.LevelHideSystem;
 import contrib.systems.ColliderSyncSystem;
+import core.game.systems.SystemRegistration;
 import core.platform.client.loop.ClientLoopHostInstaller;
 import core.platform.Platform;
 
@@ -57,9 +58,9 @@ public final class ClientPresentationInstaller implements ClientLoopHostInstalle
   public void installRuntimeSystems() {
     DialogRegistryInstaller.install();
     KeypadDialogInstaller.install();
-    ClientLoopHostInstaller.addSystemIfAbsent(ColliderSyncSystem.class, ColliderSyncSystem::new);
-    ClientLoopHostInstaller.addSystemIfAbsent(LevelHideSystem.class, LevelHideSystem::new);
-    ClientLoopHostInstaller.addSystemIfAbsent(HudSystem.class, HudSystem::new);
-    ClientLoopHostInstaller.addSystemIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
+    SystemRegistration.addIfAbsent(ColliderSyncSystem.class, ColliderSyncSystem::new);
+    SystemRegistration.addIfAbsent(LevelHideSystem.class, LevelHideSystem::new);
+    SystemRegistration.addIfAbsent(HudSystem.class, HudSystem::new);
+    SystemRegistration.addIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
   }
 }
