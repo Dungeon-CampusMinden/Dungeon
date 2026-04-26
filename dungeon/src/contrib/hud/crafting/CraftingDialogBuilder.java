@@ -4,9 +4,9 @@ import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextFactory;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
+import contrib.hud.dialogs.InventoryDialogSetup;
 import contrib.item.Item;
 import core.Entity;
 import core.ui.UiHandle;
@@ -46,26 +46,26 @@ public final class CraftingDialogBuilder {
    * @throws IllegalArgumentException if required, entities are not present in the context
    */
   public static UiHandle build(DialogContext ctx) {
-    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    Entity craftEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
-
-    InventoryComponent heroInventory = entity.fetch(InventoryComponent.class).orElse(null);
-    InventoryComponent craftInventory = craftEntity.fetch(InventoryComponent.class).orElse(null);
-
-    if (heroInventory == null || craftInventory == null) {
-      Entity missingEntity = heroInventory == null ? entity : craftEntity;
-      LOGGER.warn("Entity {} has no InventoryComponent for CraftingGuiDialog", missingEntity);
-      throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
-    }
+    InventoryDialogSetup.ResolvedInventory resolvedHeroInventory =
+        InventoryDialogSetup.requireInventory(
+            ctx, DialogContextKeys.ENTITY, LOGGER, "CraftingGuiDialog");
+    InventoryDialogSetup.ResolvedInventory resolvedCraftInventory =
+        InventoryDialogSetup.requireInventory(
+            ctx, DialogContextKeys.SECONDARY_ENTITY, LOGGER, "CraftingGuiDialog");
+    Entity entity = resolvedHeroInventory.entity();
+    InventoryComponent heroInventory = resolvedHeroInventory.inventory();
+    InventoryComponent craftInventory = resolvedCraftInventory.inventory();
 
     UIComponent uiComponent =
         entity
             .fetch(UIComponent.class)
             .orElseThrow(() -> new DialogCreationException("Owner entity has no UIComponent"));
 
-    String title = DialogContextFactory.inventoryTitle(ctx, DialogContextKeys.TITLE, entity);
+    String title =
+        InventoryDialogSetup.resolveTitle(ctx, DialogContextKeys.TITLE, resolvedHeroInventory);
     String craftTitle =
-        DialogContextFactory.inventoryTitle(ctx, DialogContextKeys.SECONDARY_TITLE, craftEntity);
+        InventoryDialogSetup.resolveTitle(
+            ctx, DialogContextKeys.SECONDARY_TITLE, resolvedCraftInventory);
 
     CraftingDialogController controller =
         new CraftingDialogController(heroInventory, craftInventory);

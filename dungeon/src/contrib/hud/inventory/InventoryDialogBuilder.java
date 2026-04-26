@@ -2,9 +2,8 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextFactory;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogCreationException;
+import contrib.hud.dialogs.InventoryDialogSetup;
 import core.Entity;
 import core.components.PlayerComponent;
 import core.ui.UiHandle;
@@ -34,19 +33,16 @@ public final class InventoryDialogBuilder {
    *
    * @param ctx the dialog context containing the entity and optional configuration
    * @return a UI node handle wrapping the created inventory dialog overlay
-   * @throws DialogCreationException if the entity lacks an InventoryComponent
    * @throws IllegalArgumentException if the entity is not present in the context
    */
   public static UiHandle build(DialogContext ctx) {
-    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-
-    if (inventory == null) {
-      LOGGER.warn("Entity {} has no InventoryComponent for InventoryDialog", entity);
-      throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
-    }
-
-    String title = DialogContextFactory.inventoryTitle(ctx, DialogContextKeys.TITLE, entity);
+    InventoryDialogSetup.ResolvedInventory resolvedInventory =
+        InventoryDialogSetup.requireInventory(
+            ctx, DialogContextKeys.ENTITY, LOGGER, "InventoryDialog");
+    Entity entity = resolvedInventory.entity();
+    InventoryComponent inventory = resolvedInventory.inventory();
+    String title =
+        InventoryDialogSetup.resolveTitle(ctx, DialogContextKeys.TITLE, resolvedInventory);
     boolean allowUseItems = entity.isPresent(PlayerComponent.class);
 
     return new OverlayHandle(new InventoryDialogOverlay(title, entity, inventory, allowUseItems));

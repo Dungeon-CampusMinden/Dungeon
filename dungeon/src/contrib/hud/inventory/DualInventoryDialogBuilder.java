@@ -2,10 +2,8 @@ package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextFactory;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogCreationException;
-import core.Entity;
+import contrib.hud.dialogs.InventoryDialogSetup;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 import core.utils.logging.DungeonLogger;
@@ -16,7 +14,7 @@ import core.utils.logging.DungeonLogger;
  * <p>This utility class constructs UI node handles that display a dual-inventory dialog overlay,
  * allowing interaction between two entities' inventories.
  *
- * <p>>It validates that both entities have InventoryComponents and retrieves custom titles from the
+ * <p>It validates that both entities have InventoryComponents and retrieves custom titles from the
  * dialog context or generates defaults.
  */
 public final class DualInventoryDialogBuilder {
@@ -36,25 +34,22 @@ public final class DualInventoryDialogBuilder {
    *
    * @param ctx the dialog context containing the entities and optional configuration
    * @return a UI node handle wrapping the created dual-inventory dialog overlay
-   * @throws DialogCreationException if either entity lacks an InventoryComponent
    * @throws IllegalArgumentException if required, entities are not present in the context
    */
   public static UiHandle build(DialogContext ctx) {
-    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    Entity otherEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
-
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-    InventoryComponent otherInventory = otherEntity.fetch(InventoryComponent.class).orElse(null);
-
-    if (inventory == null || otherInventory == null) {
-      Entity missingEntity = inventory == null ? entity : otherEntity;
-      LOGGER.warn("Entity {} has no InventoryComponent for DualInventoryDialog", missingEntity);
-      throw new DialogCreationException("Missing InventoryComponent for DualInventoryDialog");
-    }
-
-    String title = DialogContextFactory.inventoryTitle(ctx, DialogContextKeys.TITLE, entity);
+    InventoryDialogSetup.ResolvedInventory resolvedInventory =
+        InventoryDialogSetup.requireInventory(
+            ctx, DialogContextKeys.ENTITY, LOGGER, "DualInventoryDialog");
+    InventoryDialogSetup.ResolvedInventory resolvedOtherInventory =
+        InventoryDialogSetup.requireInventory(
+            ctx, DialogContextKeys.SECONDARY_ENTITY, LOGGER, "DualInventoryDialog");
+    InventoryComponent inventory = resolvedInventory.inventory();
+    InventoryComponent otherInventory = resolvedOtherInventory.inventory();
+    String title =
+        InventoryDialogSetup.resolveTitle(ctx, DialogContextKeys.TITLE, resolvedInventory);
     String otherTitle =
-        DialogContextFactory.inventoryTitle(ctx, DialogContextKeys.SECONDARY_TITLE, otherEntity);
+        InventoryDialogSetup.resolveTitle(
+            ctx, DialogContextKeys.SECONDARY_TITLE, resolvedOtherInventory);
 
     return new OverlayHandle(
         new DualInventoryDialogOverlay(title, inventory, otherTitle, otherInventory));
