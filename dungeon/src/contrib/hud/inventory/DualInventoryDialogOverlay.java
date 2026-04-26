@@ -87,11 +87,7 @@ final class DualInventoryDialogOverlay
   private void handleDraggedRelease(
       InventoryDragController.DragState<InventorySide> completedDrag,
       GridHitTest.Slot<InventorySide> releasedSlotSelection) {
-    if (releasedSlotSelection == null) {
-      return;
-    }
-
-    if (releasedSlotSelection.equals(completedDrag.source())) {
+    if (!acceptsDrop(completedDrag.source(), releasedSlotSelection)) {
       return;
     }
 
@@ -179,9 +175,14 @@ final class DualInventoryDialogOverlay
     return inventoryOf(slot.side()).get(slot.slotIndex()).orElse(null);
   }
 
+  private boolean acceptsDrop(
+      GridHitTest.Slot<InventorySide> source, GridHitTest.Slot<InventorySide> target) {
+    return target != null && !target.equals(source);
+  }
+
   @Override
   protected InventoryDragController.DropTargetFilter<InventorySide> dropTargetFilter() {
-    return (source, target) -> target.side() != source.side();
+    return this::acceptsDrop;
   }
 
   @Override
