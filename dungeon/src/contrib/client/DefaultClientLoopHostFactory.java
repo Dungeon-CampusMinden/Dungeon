@@ -3,6 +3,7 @@ package contrib.client;
 import contrib.client.install.ClientGameplayInstaller;
 import contrib.client.install.ClientUiInstaller;
 import contrib.client.install.DebugClientInstaller;
+import contrib.client.install.EditorClientInstaller;
 import core.platform.client.loop.ClientLoopHost;
 import core.platform.client.loop.ClientLoopHostInstaller;
 import core.platform.Platform;
@@ -49,6 +50,7 @@ public final class DefaultClientLoopHostFactory {
     return List.of(
         new ClientUiInstaller(),
         new ClientGameplayInstaller(),
-        new DebugClientInstaller());
+        new DebugClientInstaller(),
+        new EditorClientInstaller());
   }
 }
