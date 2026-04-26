@@ -1,11 +1,8 @@
 package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
-import contrib.components.UIComponent;
 import contrib.crafting.Recipe;
-import contrib.hud.UIUtils;
 import contrib.item.Item;
-import core.utils.logging.DungeonLogger;
 import java.util.Optional;
 
 /**
@@ -14,16 +11,13 @@ import java.util.Optional;
  * <p>This record manages the interaction between target inventory (player) and crafting inventory
  * during a crafting session.
  *
- * <p>It provides methods for transferring items between inventories,
- * resolving recipes, executing craft actions, and managing callbacks for crafting operations.
+ * <p>It provides methods for transferring items between inventories, resolving recipes, and
+ * executing craft actions.
  *
  * @param targetInventory   the inventory that receives crafted items and provides source items
  * @param craftingInventory the inventory used as crafting input
  */
 public record CraftingDialogController(InventoryComponent targetInventory, InventoryComponent craftingInventory) {
-  private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(CraftingDialogController.class);
-
   /** Standard crafting callback. */
   public static final String CALLBACK_CRAFT = "craft";
 
@@ -185,34 +179,5 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
    */
   public void cancel() {
     CraftingDialogLogic.cancel(craftingInventory, targetInventory);
-  }
-
-  /**
-   * Registers the standard craft/cancel callbacks for this dialog controller.
-   *
-   * @param uiComponent the UI component that owns the dialog
-   */
-  public void registerCallbacks(UIComponent uiComponent) {
-    uiComponent.registerCallback(
-      CALLBACK_CRAFT,
-      data -> {
-        if (data instanceof Item[] items) {
-          applyCraftingPayload(items);
-        } else {
-          LOGGER.warn("Invalid data for crafting callback: expected Item[], got {}", data);
-        }
-
-        craft();
-        UIUtils.closeDialog(uiComponent);
-      });
-
-    uiComponent.registerCallback(
-      CALLBACK_CANCEL,
-      _ -> {
-        cancel();
-        UIUtils.closeDialog(uiComponent);
-      });
-
-    uiComponent.onClose(_ -> cancel());
   }
 }

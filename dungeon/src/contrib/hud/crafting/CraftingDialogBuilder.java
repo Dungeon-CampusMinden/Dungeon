@@ -2,10 +2,12 @@ package contrib.hud.crafting;
 
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
+import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogContextHelper;
 import contrib.hud.dialogs.DialogCreationException;
+import contrib.item.Item;
 import core.Entity;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
@@ -66,9 +68,34 @@ public final class CraftingDialogBuilder {
 
     CraftingDialogController controller =
       new CraftingDialogController(heroInventory, craftInventory);
-    controller.registerCallbacks(uiComponent);
+    registerCallbacks(uiComponent, controller);
 
     return new OverlayHandle(
       new CraftingDialogOverlay(title, craftTitle, controller, ctx.dialogId()));
+  }
+
+  private static void registerCallbacks(
+    UIComponent uiComponent, CraftingDialogController controller) {
+    uiComponent.registerCallback(
+      CraftingDialogController.CALLBACK_CRAFT,
+      data -> {
+        if (data instanceof Item[] items) {
+          controller.applyCraftingPayload(items);
+        } else {
+          LOGGER.warn("Invalid data for crafting callback: expected Item[], got {}", data);
+        }
+
+        controller.craft();
+        UIUtils.closeDialog(uiComponent);
+      });
+
+    uiComponent.registerCallback(
+      CraftingDialogController.CALLBACK_CANCEL,
+      _ -> {
+        controller.cancel();
+        UIUtils.closeDialog(uiComponent);
+      });
+
+    uiComponent.onClose(_ -> controller.cancel());
   }
 }
