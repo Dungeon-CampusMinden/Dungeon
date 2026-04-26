@@ -1,4 +1,4 @@
-package contrib.hud.dialogs.builders;
+package contrib.hud.dialogs.factories;
 
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
@@ -9,16 +9,21 @@ import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 
 /**
- * A builder for creating attribute bar dialog UI nodes.
+ * Factory class for creating attribute bar overlay UI handles.
  *
- * <p>This utility class constructs UI node handles that display an attribute bar overlay.
+ * <p>This class is responsible for constructing and configuring attribute bar overlays based on
+ * data provided in a {@link DialogContext}.
  *
- * <p>It retrieves bar configuration from the dialog context and positions the bar relative to a
- * specific entity.
+ * <p>Attribute bar overlays are UI components displayed relative to a specified entity, styled,
+ * and positioned according to the configuration in the context.
+ *
+ * <p>The overlays are created as visible elements ready for interaction.
+ *
+ * <p>This class cannot be instantiated, as it only provides static utility methods.
  */
-public final class AttributeBarOverlayBuilder {
+public final class AttributeBarOverlayFactory {
 
-  private AttributeBarOverlayBuilder() {}
+  private AttributeBarOverlayFactory() {}
 
   /**
    * Builds a UI node handle for an attribute bar overlay.
