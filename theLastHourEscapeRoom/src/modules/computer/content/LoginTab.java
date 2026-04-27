@@ -62,6 +62,7 @@ public class LoginTab extends ComputerTab {
             24,
             Color.GRAY,
             false);
+    flavor.setAlignment(Align.center);
     this.add(flavor).center().padBottom(20).row();
 
     loginFeedback = Scene2dElementFactory.createLabel("", 24, Color.WHITE);

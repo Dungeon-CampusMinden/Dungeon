@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import contrib.hud.elements.richlabel.PauseRun;
 import contrib.hud.elements.richlabel.RichLabelLayout;
@@ -91,6 +92,13 @@ public class RichLabel extends WidgetGroup implements Disposable {
    * long text so it wraps instead of stretching the parent across the whole stage.
    */
   private float maxPrefWidth = 0f;
+
+  /**
+   * Horizontal alignment of each text line. One of {@link Align#left} (default), {@link
+   * Align#center}, or {@link Align#right}; only the horizontal bits are inspected. Block images
+   * ({@code [img-block ...]}) are always centered horizontally regardless of this setting.
+   */
+  private int alignment = Align.left;
 
   /**
    * Whether an implicit leading {@code [tr]} (typewriter at default speed) is prepended when
@@ -324,6 +332,33 @@ public class RichLabel extends WidgetGroup implements Disposable {
     return maxPrefWidth;
   }
 
+  /**
+   * Sets the horizontal alignment of each text line, mirroring {@link
+   * com.badlogic.gdx.scenes.scene2d.ui.Label#setAlignment(int)}.
+   *
+   * <p>Only the horizontal bits ({@link Align#left}, {@link Align#center}, {@link Align#right}) of
+   * the value are inspected; vertical bits are ignored. Lines shorter than the available width are
+   * shifted accordingly. Block images ({@code [img-block ...]}) remain centered regardless of the
+   * alignment.
+   *
+   * @param alignment the alignment, e.g. {@link Align#left}, {@link Align#center}, {@link
+   *     Align#right}
+   */
+  public void setAlignment(int alignment) {
+    if (this.alignment == alignment) return;
+    this.alignment = alignment;
+    invalidateHierarchy();
+  }
+
+  /**
+   * Returns the current horizontal alignment.
+   *
+   * @return the alignment value
+   */
+  public int getAlignment() {
+    return alignment;
+  }
+
   @Override
   public void invalidate() {
     if (suppressInvalidation) return;
@@ -363,7 +398,7 @@ public class RichLabel extends WidgetGroup implements Disposable {
     if (availableWidth <= 0) {
       availableWidth = getPrefWidth();
     }
-    var result = layoutEngine.layoutRuns(this, runs, fontSpec, availableWidth, wrap);
+    var result = layoutEngine.layoutRuns(this, runs, fontSpec, availableWidth, wrap, alignment);
     computedPrefHeight = result.prefHeight();
     shakeTargets.addAll(result.shakeTargets());
     applyShakeOffsets();

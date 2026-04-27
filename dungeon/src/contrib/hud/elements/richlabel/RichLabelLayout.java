@@ -161,12 +161,47 @@ public class RichLabelLayout {
    * @param fontSpec the default font specification
    * @param availableWidth the maximum width
    * @param wrap whether to wrap lines
+   * @param align horizontal alignment of each line, one of {@link Align#left}, {@link
+   *     Align#center}, {@link Align#right} (only the horizontal bits are inspected). Block images
+   *     are always centered regardless of this setting.
    * @return the layout result with preferred height and shake targets
    */
   public LayoutResult layoutRuns(
-      WidgetGroup group, List<Run> runs, FontSpec fontSpec, float availableWidth, boolean wrap) {
+      WidgetGroup group,
+      List<Run> runs,
+      FontSpec fontSpec,
+      float availableWidth,
+      boolean wrap,
+      int align) {
     List<PlacedRun> placed = new ArrayList<>();
     List<LineMetrics> lines = buildLines(runs, fontSpec, availableWidth, wrap, placed);
+
+    // Apply per-line horizontal alignment by shifting placed runs (excluding block images,
+    // which are independently centered against availableWidth).
+    if ((align & (Align.center | Align.right)) != 0) {
+      int lineCount = lines.size();
+      float[] lineRight = new float[lineCount];
+      for (PlacedRun pr : placed) {
+        if (pr.run() instanceof ImageBlockRun) continue;
+        float right = pr.x() + pr.width();
+        if (right > lineRight[pr.line()]) lineRight[pr.line()] = right;
+      }
+      float[] offsets = new float[lineCount];
+      for (int i = 0; i < lineCount; i++) {
+        float slack = availableWidth - lineRight[i];
+        if (slack <= 0) continue;
+        if ((align & Align.right) != 0) offsets[i] = slack;
+        else if ((align & Align.center) != 0) offsets[i] = slack / 2f;
+      }
+      for (int i = 0; i < placed.size(); i++) {
+        PlacedRun pr = placed.get(i);
+        if (pr.run() instanceof ImageBlockRun) continue;
+        float off = offsets[pr.line()];
+        if (off != 0f) {
+          placed.set(i, new PlacedRun(pr.run(), pr.x() + off, pr.line(), pr.width(), pr.height()));
+        }
+      }
+    }
 
     // Seal: derive baseline metrics for every line.
     int n = lines.size();

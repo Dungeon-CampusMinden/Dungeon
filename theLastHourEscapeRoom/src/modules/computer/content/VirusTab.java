@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.elements.RichLabel;
 import core.sound.Sounds;
@@ -54,9 +55,11 @@ public class VirusTab extends ComputerTab {
     title(STANDARD_TAB_TITLE);
 
     RichLabel virusLabel = new RichLabel(STANDARD_TITLE, 48, Color.RED, false);
+    virusLabel.setAlignment(Align.center);
     this.add(virusLabel).expandX().center().row();
 
     RichLabel typeLabel = new RichLabel("Virus Type: " + virusType, 20, Color.RED, false);
+    typeLabel.setAlignment(Align.center);
     this.add(typeLabel).expandX().center().padTop(5).row();
 
     RichLabel explainLabel =
@@ -66,6 +69,7 @@ public class VirusTab extends ComputerTab {
             20,
             Color.RED,
             false);
+    explainLabel.setAlignment(Align.center);
     this.add(explainLabel).expandX().center().padTop(5).row();
 
     TextField codeField = Scene2dElementFactory.createTextField("");
@@ -110,12 +114,15 @@ public class VirusTab extends ComputerTab {
    */
   private void buildUnknownDeviceLayout() {
     RichLabel header = new RichLabel(UNKNOWN_DEVICE_TITLE, 48, Color.RED, false);
+    header.setAlignment(Align.center);
     this.add(header).expandX().center().row();
 
     RichLabel typeLabel = new RichLabel("Detected: " + virusType, 20, Color.RED, false);
+    typeLabel.setAlignment(Align.center);
     this.add(typeLabel).expandX().center().padTop(5).row();
 
     RichLabel explainLabel = new RichLabel(UNKNOWN_DEVICE_DESCRIPTION, 20, Color.RED, false);
+    explainLabel.setAlignment(Align.center);
     this.add(explainLabel).expandX().center().padTop(20).row();
 
     this.center();
