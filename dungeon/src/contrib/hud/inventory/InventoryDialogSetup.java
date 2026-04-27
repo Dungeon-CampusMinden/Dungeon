@@ -1,6 +1,9 @@
-package contrib.hud.dialogs;
+package contrib.hud.inventory;
 
 import contrib.components.InventoryComponent;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextFactory;
+import contrib.hud.dialogs.DialogCreationException;
 import core.Entity;
 import core.utils.logging.DungeonLogger;
 
@@ -25,7 +28,7 @@ public final class InventoryDialogSetup {
    * @return the resolved entity and inventory
    */
   public static ResolvedInventory requireInventory(
-      DialogContext ctx, String entityKey, DungeonLogger logger, String dialogName) {
+    DialogContext ctx, String entityKey, DungeonLogger logger, String dialogName) {
     Entity entity = ctx.requireEntity(entityKey);
     InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
 

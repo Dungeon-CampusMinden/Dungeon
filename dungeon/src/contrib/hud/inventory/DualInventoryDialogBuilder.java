@@ -3,7 +3,6 @@ package contrib.hud.inventory;
 import contrib.components.InventoryComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.InventoryDialogSetup;
 import core.ui.UiHandle;
 import core.ui.overlay.OverlayHandle;
 import core.utils.logging.DungeonLogger;

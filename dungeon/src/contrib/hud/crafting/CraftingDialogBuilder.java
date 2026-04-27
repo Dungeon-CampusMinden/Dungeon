@@ -6,7 +6,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
-import contrib.hud.dialogs.InventoryDialogSetup;
+import contrib.hud.inventory.InventoryDialogSetup;
 import contrib.item.Item;
 import core.Entity;
 import core.ui.UiHandle;
