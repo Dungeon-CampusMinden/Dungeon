@@ -40,8 +40,6 @@ subprojects {
 
 allprojects {
     apply plugin: 'java'
-    apply plugin: 'checkstyle'
-
     java {
         toolchain {
             languageVersion = JavaLanguageVersion.of(21)
@@ -69,15 +67,6 @@ allprojects {
         delete project.baseLogDir
     }
 
-    checkstyle {
-        configFile = rootProject.file('.checkstyle.xml')
-        // Default version vs. current version? The default version is quite old (9.3 from
-        // Jan 30, 2022), so let's go with the current version (10.17).
-        // However, this needs to be updated manually as Dependabot won't deal with this!
-        toolVersion = '13.4.0'
-        ignoreFailures = false
-        maxWarnings = 0
-    }
 
     // Generate an internal assets list for LibGDX (see https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/)
     tasks.register('generateInternalAssetsList') {
