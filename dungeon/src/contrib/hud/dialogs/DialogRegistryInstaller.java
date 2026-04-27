@@ -6,7 +6,9 @@ import contrib.hud.dialogs.builders.TextDialogBuilder;
 import contrib.hud.dialogs.overlays.PauseMenuDialogOverlay;
 import contrib.hud.dialogs.overlays.YesNoDialogOverlay;
 import contrib.hud.dialogs.showimage.ShowImageDialogBuilder;
-import contrib.hud.dialogs.factories.AttributeBarOverlayFactory;
+import contrib.hud.elements.bars.AttributeBarLayout;
+import contrib.hud.elements.bars.AttributeBarOverlay;
+import contrib.hud.elements.bars.AttributeBarOverlayData;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
 import core.ui.overlay.OverlayHandle;
@@ -56,7 +58,15 @@ public final class DialogRegistryInstaller {
     DialogRegistry.replace(DialogType.DefaultTypes.IMAGE, ShowImageDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialogBuilder::build);
     DialogRegistry.replace(
-        DialogType.DefaultTypes.ATTRIBUTE_BAR, AttributeBarOverlayFactory::build);
+        DialogType.DefaultTypes.ATTRIBUTE_BAR,
+        ctx -> {
+          AttributeBarOverlayData data =
+              ctx.require(DialogContextKeys.ATTRIBUTE_BAR, AttributeBarOverlayData.class);
+          AttributeBarOverlay overlay = new AttributeBarOverlay(data.styleName());
+          AttributeBarLayout.updatePosition(overlay, data.pc(), data.verticalOffset());
+          overlay.setVisible(true);
+          return new OverlayHandle(overlay);
+        });
     DialogRegistry.replace(
         DialogType.DefaultTypes.PAUSE_MENU, _ -> new OverlayHandle(new PauseMenuDialogOverlay()));
     DialogRegistry.replace(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilder::build);
