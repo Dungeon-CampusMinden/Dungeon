@@ -424,30 +424,35 @@ public class DialogFactory {
   }
 
   /**
-   * Shows a sequenced speaker dialogue (NPC dialog).
+   * Shows a sequenced speaker dialogue (NPC dialog) from a single script string.
    *
-   * <p>Each {@link DialogEntry} is shown one after another. The user advances by clicking anywhere
-   * on the dialog or pressing any key. While a typewriter reveal is still running, the advance
-   * instead skips to the end of the current text. After the last entry has been confirmed, {@code
-   * onFinished} is invoked and the dialog is closed.
+   * <p>The {@code dialog} string is split into pages by the {@code [p]} tag. Each page may begin
+   * with an optional {@code [speaker img=<path> name="<displayName>"]} tag that sets the speaker
+   * portrait and display name for that page. If a page omits the tag, it inherits the speaker from
+   * the previous page; if there is no previous speaker (or a parameter is omitted), a default
+   * placeholder image and the name {@code [color=#444444]Unknown[/color]} are used. Pages are
+   * shown one after another. The user advances by clicking anywhere on the dialog or pressing the
+   * configured interact key. While a typewriter reveal is still running, the advance instead skips
+   * to the end of the current text. After the last page has been confirmed, {@code onFinished} is
+   * invoked and the dialog is closed.
    *
-   * @param entries The non-empty list of dialog entries to display in order.
-   * @param onFinished Callback executed after the last entry has been confirmed.
+   * @param dialog The non-empty dialog script.
+   * @param onFinished Callback executed after the last page has been confirmed.
    * @param targetEntityIds The target entity IDs for which the dialog is displayed.
    * @return The {@link UIComponent} containing the dialog.
    */
   public static UIComponent showDialogDialog(
-      List<DialogEntry> entries, IVoidFunction onFinished, int... targetEntityIds) {
-    Objects.requireNonNull(entries, "entries list cannot be null");
-    if (entries.isEmpty()) {
-      throw new IllegalArgumentException("entries list cannot be empty");
+      String dialog, IVoidFunction onFinished, int... targetEntityIds) {
+    Objects.requireNonNull(dialog, "dialog string cannot be null");
+    if (dialog.isBlank()) {
+      throw new IllegalArgumentException("dialog string cannot be blank");
     }
     Objects.requireNonNull(onFinished, "onFinished callback cannot be null");
 
     DialogContext ctx =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.DIALOG_DIALOG)
-            .put(DialogContextKeys.ENTRIES, new ArrayList<>(entries))
+            .put(DialogContextKeys.DIALOG, dialog)
             .build();
 
     UIComponent ui = show(ctx, targetEntityIds);

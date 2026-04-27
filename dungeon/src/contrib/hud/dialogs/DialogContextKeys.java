@@ -99,11 +99,8 @@ public class DialogContextKeys {
   /** The key for the callback function to execute when an option is selected. */
   public static final String ON_OPTION_SELECTED = "onOptionSelected";
 
-  /**
-   * The key for the list of {@link DialogEntry} items (ArrayList&lt;DialogEntry&gt;) to display in
-   * a {@link DialogDialog} sequence.
-   */
-  public static final String ENTRIES = "entries";
+  /** The key for the dialog script (String) used by {@link DialogDialog}. */
+  public static final String DIALOG = "dialog";
 
   private DialogContextKeys() {}
 }

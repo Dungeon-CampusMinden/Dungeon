@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Scaling;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
+import contrib.hud.elements.richlabel.TagParams;
 import core.Game;
 import core.utils.BaseContainerUI;
 import core.utils.FontSpec;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Package-private builder for a sequenced speaker dialogue ("DialogDialog").
@@ -55,6 +57,15 @@ final class DialogDialog {
   /** Distance in pixels from the top edge of the stage to the top of the dialog. */
   private static final float TOP_OFFSET = 100;
 
+  /** Default speaker portrait used when none is supplied by the script. */
+  static final String DEFAULT_SPEAKER_IMAGE = "animation/missing_texture.png";
+
+  /** Default speaker name used when none is supplied by the script. */
+  static final String DEFAULT_SPEAKER_NAME = "[color=#444444]Unknown[/color]";
+
+  /** Tag used inside the dialog script to split into multiple pages. */
+  private static final Pattern PAGE_BREAK_PATTERN = Pattern.compile("\\s*\\[p]\\s*");
+
   private DialogDialog() {}
 
   /**
@@ -63,18 +74,19 @@ final class DialogDialog {
    * <p>On headless servers, returns a {@link HeadlessDialogGroup} placeholder containing all
    * speaker lines concatenated (one per line) so the server can still log/forward the payload.
    *
-   * @param ctx The dialog context. Requires {@link DialogContextKeys#ENTRIES} as a non-empty {@code
-   *     ArrayList<DialogEntry>}.
+   * @param ctx The dialog context. Requires {@link DialogContextKeys#DIALOG} as a non-blank
+   *     {@link String} script.
    * @return A fully configured DialogDialog or HeadlessDialogGroup.
    */
-  @SuppressWarnings("unchecked")
   static Group build(DialogContext ctx) {
-    List<DialogEntry> rawEntries =
-        (List<DialogEntry>) ctx.require(DialogContextKeys.ENTRIES, ArrayList.class);
-    if (rawEntries.isEmpty()) {
-      throw new DialogCreationException("DialogDialog requires at least one DialogEntry");
+    String script = ctx.require(DialogContextKeys.DIALOG, String.class);
+    if (script.isBlank()) {
+      throw new DialogCreationException("DialogDialog requires a non-blank dialog script");
     }
-    List<DialogEntry> entries = expandPageBreaks(rawEntries);
+    List<DialogEntry> entries = parseScript(script);
+    if (entries.isEmpty()) {
+      throw new DialogCreationException("DialogDialog script produced no pages");
+    }
 
     if (Game.isHeadless()) {
       StringBuilder combined = new StringBuilder();
@@ -209,29 +221,73 @@ final class DialogDialog {
   }
 
   /** Tag used inside {@link DialogEntry#text()} to split a single entry into multiple pages. */
-  private static final java.util.regex.Pattern PAGE_BREAK_PATTERN =
-      java.util.regex.Pattern.compile("\\s*\\[p]\\s*");
+  private static final java.util.regex.Pattern LEGACY_PAGE_BREAK_PATTERN = PAGE_BREAK_PATTERN;
 
-  /**
-   * Expands the {@code [p]} page-break tag: any entry whose text contains {@code [p]} is replaced
-   * by N entries, one per segment, all sharing the original speaker name and image. Empty segments
-   * are skipped. Entries without {@code [p]} are returned unchanged.
-   */
-  private static List<DialogEntry> expandPageBreaks(List<DialogEntry> entries) {
-    List<DialogEntry> out = new ArrayList<>(entries.size());
-    for (DialogEntry e : entries) {
-      String text = e.text();
-      if (text == null || !text.contains("[p]")) {
-        out.add(e);
-        continue;
+  /** Parses the script string into dialog pages with resolved speaker metadata. */
+  private static List<DialogEntry> parseScript(String script) {
+    String[] parts = PAGE_BREAK_PATTERN.split(script, -1);
+    List<DialogEntry> out = new ArrayList<>(parts.length);
+    String currentImage = null;
+    String currentName = null;
+    for (String rawPart : parts) {
+      String part = rawPart;
+      SpeakerTagParse parsedSpeakerTag = parseLeadingSpeakerTag(part);
+      if (parsedSpeakerTag != null) {
+        TagParams tp = TagParams.parse(parsedSpeakerTag.params());
+        String img = tp.getString("img", null);
+        String name = tp.getString("name", null);
+        if (img != null) currentImage = img;
+        if (name != null) currentName = name;
+        part = parsedSpeakerTag.remainingText();
       }
-      String[] parts = PAGE_BREAK_PATTERN.split(text, -1);
-      for (String part : parts) {
-        if (part.isEmpty()) continue;
-        out.add(DialogEntry.of(e.speakerName(), e.imagePath(), part));
-      }
+      String text = part.strip();
+      if (text.isEmpty()) continue;
+      String image = currentImage != null ? currentImage : DEFAULT_SPEAKER_IMAGE;
+      String name = currentName != null ? currentName : DEFAULT_SPEAKER_NAME;
+      out.add(DialogEntry.of(name, image, text));
     }
     return out;
+  }
+
+  private record SpeakerTagParse(String params, String remainingText) {}
+
+  private static SpeakerTagParse parseLeadingSpeakerTag(String page) {
+    int len = page.length();
+    int i = 0;
+    while (i < len && Character.isWhitespace(page.charAt(i))) i++;
+
+    if (i >= len || page.charAt(i) != '[') return null;
+    if (!page.regionMatches(true, i + 1, "speaker", 0, "speaker".length())) return null;
+
+    int afterKeyword = i + 1 + "speaker".length();
+    if (afterKeyword >= len) return null;
+    char next = page.charAt(afterKeyword);
+    if (!(Character.isWhitespace(next) || next == ']')) return null;
+
+    boolean inQuotes = false;
+    boolean escaped = false;
+    for (int pos = afterKeyword; pos < len; pos++) {
+      char c = page.charAt(pos);
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (inQuotes && c == '\\') {
+        escaped = true;
+        continue;
+      }
+      if (c == '"') {
+        inQuotes = !inQuotes;
+        continue;
+      }
+      if (c == ']' && !inQuotes) {
+        int textStart = pos + 1;
+        while (textStart < len && Character.isWhitespace(page.charAt(textStart))) textStart++;
+        return new SpeakerTagParse(page.substring(afterKeyword, pos), page.substring(textStart));
+      }
+    }
+
+    return null;
   }
 
   /**
