@@ -116,7 +116,7 @@ final class DialogDialog {
 
     RichLabel nameLabel =
         new RichLabel(
-            RichLabel.toRichText(entries.getFirst().speakerName()), NAME_FONT_SPEC, false);
+            RichLabel.toRichText(entries.getFirst().speakerName()), NAME_FONT_SPEC);
 
     Table leftColumn = new Table();
     leftColumn.add(speakerImage).size(IMAGE_SIZE).row();
@@ -131,7 +131,7 @@ final class DialogDialog {
 
     // -- Right column: the spoken text (RichLabel, with potential typewriter) --
     RichLabel textLabel =
-        new RichLabel(RichLabel.toRichText(entries.getFirst().text()), TEXT_FONT_SPEC);
+        new RichLabel(RichLabel.toRichText(entries.getFirst().text()), TEXT_FONT_SPEC, true);
     textLabel.setWrap(true);
 
     content.add(leftColumn).top().padTop(anchorPadTop).padRight(COLUMN_GAP);

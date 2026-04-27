@@ -121,13 +121,13 @@ final class MultipleChoiceDialog {
 
     if (!title.isBlank()) {
       headerBg.setTopHeight(12);
-      RichLabel titleLabel = new RichLabel(title, DialogDesign.DIALOG_FONT_SPEC_TITLE);
+      RichLabel titleLabel = new RichLabel(title, DialogDesign.DIALOG_FONT_SPEC_TITLE, true);
       header.add(titleLabel).center().padBottom(18).row();
     }
 
     float headerContentWidth = OPTION_WIDTH - MAIN_BOX_PAD * 2;
 
-    RichLabel questionLabel = new RichLabel(message, DialogDesign.DIALOG_FONT_SPEC_NORMAL);
+    RichLabel questionLabel = new RichLabel(message, DialogDesign.DIALOG_FONT_SPEC_NORMAL, true);
     questionLabel.setWrap(true);
     header
         .add(questionLabel)
@@ -137,7 +137,7 @@ final class MultipleChoiceDialog {
 
     RichLabel descLabel = null;
     if (description != null && !description.isBlank()) {
-      descLabel = new RichLabel(description, DESCRIPTION_FONT);
+      descLabel = new RichLabel(description, DESCRIPTION_FONT, true);
       descLabel.setWrap(true);
       // Pause the description's typewriter immediately so it doesn't advance while the question
       // is still being revealed (and the descLabel is hidden). Resumed in the chain callback.
@@ -159,7 +159,7 @@ final class MultipleChoiceDialog {
       row.setBackground(bgNormal);
       row.setTouchable(Touchable.enabled);
 
-      RichLabel label = new RichLabel(entry.label(), OPTION_FONT_NORMAL, false);
+      RichLabel label = new RichLabel(entry.label(), OPTION_FONT_NORMAL);
 
       float maxLabelWidth = OPTION_WIDTH - OPTION_PAD * 2;
       float naturalLabelWidth = label.getPrefWidth();

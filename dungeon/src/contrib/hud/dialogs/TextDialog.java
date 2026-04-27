@@ -70,7 +70,7 @@ public class TextDialog {
     Table content = dialog.getContentTable();
 
     RichLabel label =
-        new RichLabel(RichLabel.toRichText(message), DialogDesign.DIALOG_FONT_SPEC_NORMAL, false);
+        new RichLabel(RichLabel.toRichText(message), DialogDesign.DIALOG_FONT_SPEC_NORMAL);
     label.setWrap(true);
 
     Table labelTable = new Table();

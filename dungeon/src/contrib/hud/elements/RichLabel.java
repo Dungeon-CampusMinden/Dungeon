@@ -163,14 +163,14 @@ public class RichLabel extends WidgetGroup implements Disposable {
   }
 
   /**
-   * Creates a new RichLabel with the given text and font specification. The typewriter is enabled
-   * by default; use {@link #RichLabel(String, FontSpec, boolean)} to opt out.
+   * Creates a new RichLabel with the given text and font specification. The typewriter is disabled
+   * by default; use {@link #RichLabel(String, FontSpec, boolean)} to opt in.
    *
    * @param text the markup text to display
    * @param fontSpec the font specification for default text rendering
    */
   public RichLabel(String text, FontSpec fontSpec) {
-    this(text, fontSpec, true);
+    this(text, fontSpec, false);
   }
 
   /**

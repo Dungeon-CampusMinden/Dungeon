@@ -55,7 +55,7 @@ final class OkDialog {
     Table content = dialog.getContentTable();
 
     RichLabel label =
-        new RichLabel(RichLabel.toRichText(text), DialogDesign.DIALOG_FONT_SPEC_NORMAL, false);
+        new RichLabel(RichLabel.toRichText(text), DialogDesign.DIALOG_FONT_SPEC_NORMAL);
     label.setWrap(true);
     label.setMaxPrefWidth(675);
     content.add(label).padBottom(10).row();
