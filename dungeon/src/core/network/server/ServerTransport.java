@@ -7,10 +7,10 @@ import static core.network.config.NetworkConfig.*;
 import contrib.components.UIComponent;
 import contrib.entities.HeroController;
 import contrib.hud.UIUtils;
-import contrib.inventory.InventoryUiState;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.network.MessageDispatcher;
 import core.network.config.NetworkConfig;
@@ -447,7 +447,12 @@ public final class ServerTransport {
     }
 
     Entity player = sessionEntity.get();
-    if (msg.open() == InventoryUiState.isOpen(player)) {
+    boolean isCurrentlyOpen =
+        player
+            .fetch(PlayerComponent.class)
+            .map(PlayerComponent::isInventoryOpen)
+            .orElse(false);
+    if (msg.open() == isCurrentlyOpen) {
       LOGGER.debug(
           "Ignoring redundant InventoryUIMessage (open={}) from client {}",
           msg.open(),

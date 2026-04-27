@@ -6,7 +6,6 @@ import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.systems.HudSystem;
-import contrib.inventory.InventoryUiState;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.collide.ColliderSync;
 import contrib.utils.components.health.Damage;
@@ -398,7 +397,10 @@ public final class HeroBuilder {
                               Entity entity = firstUI.a();
 
                               // Check if this is the player's inventory
-                              if (InventoryUiState.isOpen(entity)) {
+                              if (entity
+                                  .fetch(PlayerComponent.class)
+                                  .map(PlayerComponent::isInventoryOpen)
+                                  .orElse(false)) {
                                 // Use toggleInventory which properly notifies server via
                                 // InventoryUIMessage
                                 HeroController.toggleInventory(entity);

@@ -1,6 +1,5 @@
 package contrib.configuration;
 
-import contrib.inventory.InventoryUiState;
 import core.configuration.ConfigKey;
 import core.configuration.ConfigMap;
 import core.configuration.values.ConfigIntValue;
@@ -41,7 +40,7 @@ public class KeyboardConfig {
   /**
    * This key is used to use an item. Only works if the player's inventory dialog is open.
    *
-   * @see InventoryUiState#isOpen(core.Entity)
+   * @see core.components.PlayerComponent#isInventoryOpen()
    */
   public static final ConfigKey<Integer> MOUSE_USE_ITEM =
       new ConfigKey<>(new String[] {"item", "mouse"}, new ConfigIntValue(MouseButtons.RIGHT));

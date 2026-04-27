@@ -21,6 +21,7 @@ public final class PlayerComponent implements Component, Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   private int openDialogs = 0;
+  private boolean inventoryOpen = false;
   private final boolean isLocalPlayer;
   private final String playerName;
 
@@ -90,5 +91,23 @@ public final class PlayerComponent implements Component, Serializable {
    */
   public String playerName() {
     return playerName;
+  }
+
+  /**
+   * Checks whether the player's inventory is currently open.
+   *
+   * @return true if the inventory is open, false otherwise
+   */
+  public boolean isInventoryOpen() {
+    return inventoryOpen;
+  }
+
+  /**
+   * Sets whether the player's inventory is open.
+   *
+   * @param open true to mark the inventory as open, false to close it
+   */
+  public void setInventoryOpen(boolean open) {
+    inventoryOpen = open;
   }
 }
