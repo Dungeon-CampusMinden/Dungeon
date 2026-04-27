@@ -38,7 +38,7 @@ You only need **Java 21** on your computer. Nothing else.
 
 **Installing Java 21:**
 
-- **Windows / Mac / Linux:** Download Java 21 from [https://jdk.java.net/21/](https://jdk.java.net/21/). Choose the version matching your operating system (Windows, macOS or Linux). Extract the archive and add the `bin` folder to your system's `PATH` variable - or alternatively use an installer like [Adoptium Temurin 21](https://adoptium.net/temurin/releases/?version=21), which handles this automatically.
+- **Windows / Mac / Linux:** Download [Java 21](https://www.oracle.com/de/java/technologies/downloads/#java21). Choose the version matching your operating system (Windows, macOS or Linux) and install it. Restart your device. 
 
 **Tip:** To verify that Java is installed correctly, open a terminal (Windows: `cmd` or PowerShell; Mac/Linux: Terminal) and type:
 

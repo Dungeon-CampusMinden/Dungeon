@@ -26,7 +26,6 @@ public class Level017 extends BlocklyLevel {
     this.blockBlocklyElement(
         // Inventar und Charakter
         "drop_item",
-        "Items",
         "wait",
         // Variable
         "get_number",
