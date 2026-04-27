@@ -26,7 +26,7 @@ public final class InteractionSelectionPresenter implements InteractionSelection
 
   @Override
   public void show(IInteractable interactable, Consumer<Interaction> onSelected) {
-    InteractionChoiceOverlay overlay = new InteractionChoiceOverlay(interactable, onSelected);
+    InteractionSelectionOverlay overlay = new InteractionSelectionOverlay(interactable, onSelected);
     OverlayManager.add(overlay);
     OverlayManager.toFront(overlay);
   }
