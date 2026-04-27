@@ -89,6 +89,14 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
               kind: "block",
               type: "drop_item",
             },
+            {
+              kind: "block",
+              type: "shoot_blue_portal",
+            },
+            {
+              kind: "block",
+              type: "shoot_green_portal",
+            },
           ],
         },
     {
