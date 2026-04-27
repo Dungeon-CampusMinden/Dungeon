@@ -212,7 +212,13 @@ public final class CraftingDragDropController {
     }
   }
 
-  Item itemOf(ItemGridHitTest.Slot<CraftingInventorySide> selection) {
+  /**
+   * Retrieves an item from the inventory based on the given slot selection.
+   *
+   * @param selection the slot selection containing the side of the inventory and the slot index
+   * @return the item located in the specified slot, or null if the slot is empty or the selection is null
+   */
+  public Item itemOf(ItemGridHitTest.Slot<CraftingInventorySide> selection) {
     if (selection == null) {
       return null;
     }

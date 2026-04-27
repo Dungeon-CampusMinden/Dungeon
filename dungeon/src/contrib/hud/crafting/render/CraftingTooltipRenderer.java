@@ -1,7 +1,8 @@
-package contrib.hud.crafting.input;
+package contrib.hud.crafting.render;
 
 import contrib.hud.crafting.CraftingDialogLayout;
 import contrib.hud.crafting.CraftingInventorySide;
+import contrib.hud.crafting.input.CraftingDragDropController;
 import contrib.hud.itemgrid.InventoryTooltip;
 import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.item.Item;
@@ -10,21 +11,26 @@ import java.awt.Rectangle;
 import java.util.List;
 
 /**
- * Controller responsible for drawing tooltips in the crafting dialog.
+ * Renders a tooltip for crafting-related UI elements.
  *
- * <p>This class handles the display of item tooltips when hovering over items
- * in the crafting interface, including items in the left grid and result items.
+ * <p>The {@code CraftingTooltipRenderer} is responsible for rendering tooltips that display
+ * information about the items or slots the user interacts with in the crafting dialog.
+ *
+ * <p>It uses a {@code CraftingDragDropController} to determine item and slot interactions.
+ *
+ * <p>This class is immutable and thread-safe, but the tooltip rendering functionality is
+ * intended to be used only within the UI thread due to its reliance on graphical operations.
  */
-public final class CraftingTooltipController {
+public final class CraftingTooltipRenderer {
 
   private final CraftingDragDropController dragDropController;
 
   /**
-   * Constructs a CraftingTooltipController with the specified drag-drop controller.
+   * Constructs a new {@code CraftingTooltipRenderer} instance with the specified drag-and-drop controller.
    *
-   * @param dragDropController the controller responsible for handling drag-drop operations
+   * @param dragDropController the {@code CraftingDragDropController} used to manage item and slot interactions
    */
-  public CraftingTooltipController(CraftingDragDropController dragDropController) {
+  public CraftingTooltipRenderer(CraftingDragDropController dragDropController) {
     this.dragDropController = dragDropController;
   }
 

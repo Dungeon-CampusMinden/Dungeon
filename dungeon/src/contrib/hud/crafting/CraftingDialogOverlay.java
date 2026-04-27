@@ -2,7 +2,7 @@ package contrib.hud.crafting;
 
 import contrib.crafting.CraftingType;
 import contrib.hud.crafting.input.CraftingDragDropController;
-import contrib.hud.crafting.input.CraftingTooltipController;
+import contrib.hud.crafting.render.CraftingTooltipRenderer;
 import contrib.hud.crafting.render.CraftingActionRenderer;
 import contrib.hud.crafting.render.CraftingPanelRenderer;
 import contrib.hud.itemgrid.BaseItemGridOverlay;
@@ -39,7 +39,7 @@ final class CraftingDialogOverlay
   private final CraftingDragDropController dragDropController;
   private final CraftingActionRenderer actionRenderer;
   private final CraftingPanelRenderer panelRenderer;
-  private final CraftingTooltipController tooltipController;
+  private final CraftingTooltipRenderer tooltipController;
 
   CraftingDialogOverlay(
       String targetTitle,
@@ -54,7 +54,7 @@ final class CraftingDialogOverlay
     this.dragDropController = new CraftingDragDropController(controller);
     this.actionRenderer = new CraftingActionRenderer(dialogId, controller);
     this.panelRenderer = new CraftingPanelRenderer(CLASSIC_LAYOUT);
-    this.tooltipController = new CraftingTooltipController(dragDropController);
+    this.tooltipController = new CraftingTooltipRenderer(dragDropController);
   }
 
   @Override

@@ -7,20 +7,20 @@ import static org.mockito.Mockito.mock;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.crafting.input.CraftingDragDropController;
-import contrib.hud.crafting.input.CraftingTooltipController;
+import contrib.hud.crafting.render.CraftingTooltipRenderer;
 import contrib.item.Item;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-/** Tests for {@link CraftingTooltipController}. */
-public class CraftingTooltipControllerTest {
+/** Tests for {@link CraftingTooltipRenderer}. */
+public class CraftingTooltipRendererTest {
 
   /** Result hit-testing returns the hovered result item. */
   @Test
   public void resultItemAtReturnsHoveredResultItem() {
     Item first = mock(Item.class);
     Item second = mock(Item.class);
-    CraftingTooltipController controller = tooltipController();
+    CraftingTooltipRenderer controller = tooltipController();
 
     Item result =
         controller.resultItemAt(
@@ -38,7 +38,7 @@ public class CraftingTooltipControllerTest {
   @Test
   public void resultItemAtReturnsNullOutsideResultBounds() {
     Item item = mock(Item.class);
-    CraftingTooltipController controller = tooltipController();
+    CraftingTooltipRenderer controller = tooltipController();
 
     Item result =
         controller.resultItemAt(
@@ -50,7 +50,7 @@ public class CraftingTooltipControllerTest {
   /** Result hit-testing never reads past the available result item array. */
   @Test
   public void resultItemIndexAtIgnoresBoundsWithoutResultItem() {
-    CraftingTooltipController controller = tooltipController();
+    CraftingTooltipRenderer controller = tooltipController();
 
     int result =
         controller.resultItemIndexAt(
@@ -64,9 +64,9 @@ public class CraftingTooltipControllerTest {
     assertEquals(-1, result);
   }
 
-  private CraftingTooltipController tooltipController() {
+  private CraftingTooltipRenderer tooltipController() {
     CraftingDialogController dialogController =
         new CraftingDialogController(new InventoryComponent(1), new InventoryComponent(1));
-    return new CraftingTooltipController(new CraftingDragDropController(dialogController));
+    return new CraftingTooltipRenderer(new CraftingDragDropController(dialogController));
   }
 }
