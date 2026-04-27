@@ -11,7 +11,7 @@ import core.platform.client.loop.ClientLoopHostInstaller;
  * A specialized client loop host installer that registers debug systems for runtime testing and
  * development purposes.
  *
- * <p>The {@code DebugClientInstaller} class contributes a set of systems enabling enhanced
+ * <p>The {@code ClientDebugInstaller} class contributes a set of systems enabling enhanced
  * debugging functionality, such as gameplay debugging, rendering effects debugging, debug drawing,
  * and entity rendering insights.
  *
@@ -28,10 +28,10 @@ import core.platform.client.loop.ClientLoopHostInstaller;
  *   <li>{@link DebugEntityOverlaySystem}: Offers detailed rendering insights into debug entities.
  * </ul>
  */
-public final class DebugClientInstaller implements ClientLoopHostInstaller {
+public final class ClientDebugInstaller implements ClientLoopHostInstaller {
 
   /** Creates a debug client installer. */
-  public DebugClientInstaller() {}
+  public ClientDebugInstaller() {}
 
   @Override
   public void installRuntimeSystems() {
