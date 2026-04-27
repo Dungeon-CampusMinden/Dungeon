@@ -1,6 +1,6 @@
 package contrib.client.install;
 
-import contrib.client.render.PresentationRenderAdapter;
+import contrib.client.render.LayeredRenderAdapter;
 import contrib.game.LevelContentInstaller;
 import contrib.modules.levelhide.LevelHideSystem;
 import contrib.systems.ColliderSyncSystem;
@@ -19,7 +19,7 @@ import core.platform.client.loop.ClientLoopHostInstaller;
  *
  * <ul>
  *   <li>{@link LevelContentInstaller}: Sets up level content resources and assets.
- *   <li>{@link PresentationRenderAdapter}: Wraps the existing render adapter to provide
+ *   <li>{@link LayeredRenderAdapter}: Wraps the existing render adapter to provide
  *       presentation-specific rendering capabilities.
  *   <li>{@link ColliderSyncSystem}: Synchronizes collider states between client and server.
  *   <li>{@link LevelHideSystem}: Maintains the client-side visibility state of hidden or revealed
@@ -34,8 +34,8 @@ public final class ClientGameplayInstaller implements ClientLoopHostInstaller {
   @Override
   public void installPlatformServices() {
     LevelContentInstaller.install();
-    if (!(Platform.render() instanceof PresentationRenderAdapter)) {
-      Platform.render(new PresentationRenderAdapter(Platform.render()));
+    if (!(Platform.render() instanceof LayeredRenderAdapter)) {
+      Platform.render(new LayeredRenderAdapter(Platform.render()));
     }
   }
 

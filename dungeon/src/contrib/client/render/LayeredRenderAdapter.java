@@ -12,24 +12,27 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * A wrapper class for the RenderAdapter interface that extends its functionality by adding
- * additional rendering-related features and behavior.
+ * A wrapper implementation of the {@link RenderAdapter} interface that extends or modifies
+ * the behavior of an existing RenderAdapter instance.
  *
- * <p>This class is primarily designed to augment the adapter's default rendering systems with a
- * presentation-specific system.
+ * <p>The {@code LayeredRenderAdapter} delegates rendering-related operations to an underlying
+ * {@code RenderAdapter}, allowing additional functionality to be layered on top of the base implementation.
  *
- * <p>It also delegates the other rendering operations to the underlying RenderAdapter
- * implementation.
+ * <p>This class is particularly useful when you want to enhance or override specific behaviors
+ * without modifying the original {@code RenderAdapter}.
  */
-public final class PresentationRenderAdapter implements RenderAdapter {
+public final class LayeredRenderAdapter implements RenderAdapter {
   private final RenderAdapter delegate;
 
   /**
-   * Creates a presentation render adapter wrapper.
+   * Wraps an existing {@link RenderAdapter} instance to extend or modify its functionality.
    *
-   * @param delegate render adapter to extend
+   * <p>This adapter delegates all method calls to the provided {@code delegate} RenderAdapter, allowing
+   * additional behavior to be layered on top of the base implementation without modifying it directly.
+   *
+   * @param delegate the underlying {@link RenderAdapter} to which calls are delegated; must not be null
    */
-  public PresentationRenderAdapter(RenderAdapter delegate) {
+  public LayeredRenderAdapter(RenderAdapter delegate) {
     this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
   }
 
