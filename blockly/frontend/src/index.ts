@@ -49,21 +49,18 @@ setupButtons(workspace);
 // Disable all blocks that aren't connected to the start block.
 workspace.addChangeListener(Blockly.Events.disableOrphans);
 
-workspace.addChangeListener((event: Blockly.Events.Abstract) => {
-  if (event.type === Blockly.Events.CLICK ) {
-    const clickEvent = event as Blockly.Events.Click;
-    console.log(clickEvent.targetType); // 'zoom_reset', 'block', 'workspace', etc.
-    if (clickEvent.targetType === "zoom_controls") {
-      const blocks = workspace.getBlocksByType('start', false);
-      console.log(blocks);
-
-      if (blocks.length > 0) {
-        const startBlock = blocks[0]; // Nimm den ersten gefundenen Block
-        workspace.centerOnBlock(startBlock.id);
-      }
+// @ts-expect-error the blocklyZoomReset is always on the gui
+document.querySelector('g.blocklyZoom.blocklyZoomReset').addEventListener('pointerdown', (e) => {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    // set zoom level to start
+    workspace.setScale(workspace.options.zoomOptions.startScale);
+    // center on the start block
+    const blocks = workspace.getBlocksByType('start', false);
+    if (blocks.length > 0) {
+      workspace.centerOnBlock(blocks[0].id);
     }
-  }
-})
+  }, true);
 
 // Disable the toolbox flyout auto-close
 const toolboxFlyout = workspace.getToolbox()?.getFlyout();
