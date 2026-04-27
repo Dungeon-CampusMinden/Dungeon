@@ -5,7 +5,6 @@ import contrib.hud.itemgrid.ItemGridDragController;
 import contrib.hud.itemgrid.ItemGridHitTest;
 import contrib.item.Item;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * A UI overlay that provides a dual inventory dialog for managing two inventory parts
@@ -183,11 +182,6 @@ final class DualInventoryDialogOverlay
   @Override
   protected ItemGridDragController.DropTargetFilter<InventorySide> dropTargetFilter() {
     return this::acceptsDrop;
-  }
-
-  @Override
-  public Stream<InventoryComponent> inventoryComponents() {
-    return Stream.of(leftInventory, rightInventory);
   }
 
   enum InventorySide {

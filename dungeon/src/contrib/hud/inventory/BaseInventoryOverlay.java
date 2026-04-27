@@ -1,6 +1,5 @@
 package contrib.hud.inventory;
 
-import contrib.hud.InventoryDialogProvider;
 import contrib.hud.itemgrid.BaseItemGridOverlay;
 import contrib.hud.itemgrid.InventoryDropHandling;
 import contrib.hud.itemgrid.InventoryTooltip;
@@ -24,8 +23,7 @@ import java.util.List;
  */
 abstract class BaseInventoryOverlay<S>
     extends BaseItemGridOverlay<
-        InventoryDialogLayoutState.Measurement<S>, InventoryDialogLayoutState<S>>
-    implements InventoryDialogProvider {
+        InventoryDialogLayoutState.Measurement<S>, InventoryDialogLayoutState<S>> {
 
   private static final int DRAG_THRESHOLD_PX = 8;
 

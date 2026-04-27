@@ -1,8 +1,6 @@
 package contrib.hud.crafting;
 
-import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingType;
-import contrib.hud.InventoryDialogProvider;
 import contrib.hud.crafting.input.CraftingDragDropController;
 import contrib.hud.crafting.input.CraftingTooltipController;
 import contrib.hud.crafting.render.CraftingActionRenderer;
@@ -21,7 +19,6 @@ import java.awt.Graphics2D;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Represents an overlay for a crafting dialog, extending the base item grid overlay framework
@@ -32,8 +29,7 @@ import java.util.stream.Stream;
  */
 final class CraftingDialogOverlay
     extends BaseItemGridOverlay<
-        CraftingDialogLayoutState.Measurement, CraftingDialogOverlay.CraftingRenderState>
-    implements InventoryDialogProvider {
+        CraftingDialogLayoutState.Measurement, CraftingDialogOverlay.CraftingRenderState> {
 
   private static final CraftingDialogLayout CLASSIC_LAYOUT = new CraftingDialogLayout();
 
@@ -196,11 +192,6 @@ final class CraftingDialogOverlay
         content.craftingBounds(),
         stage.mouseX(),
         stage.mouseY());
-  }
-
-  @Override
-  public Stream<InventoryComponent> inventoryComponents() {
-    return Stream.of(controller.targetInventory(), controller.craftingInventory());
   }
 
   record CraftingRenderState(

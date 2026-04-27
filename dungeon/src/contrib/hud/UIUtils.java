@@ -2,6 +2,7 @@ package contrib.hud;
 
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
+import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
 import core.Entity;
 import core.Game;
@@ -109,17 +110,32 @@ public final class UIUtils {
   }
 
   /**
-   * Retrieves all inventory components from the concrete dialog node of the given UI component.
+   * Retrieves a stream of {@link InventoryComponent} instances associated with the provided UI component.
    *
-   * <p>The dialog stays backend-specific internally, but the extraction is performed via the
-   * backend-neutral {@link InventoryDialogProvider} capability.
+   * <p>The returned {@code InventoryComponent}s are extracted from the dialog context of the given UI component
+   * using predefined context keys.
    *
-   * @param ui the UI component whose dialog contains inventory data
-   * @return stream of contained inventory components
+   * @param uiComponent the UI component from which to extract associated inventory components;
+   *                    if {@code null} or if its dialog context is {@code null}, an empty stream is returned
+   * @return a stream containing the retrieved {@link InventoryComponent} instances; returns an empty stream if no inventories can be found
    */
-  public static Stream<InventoryComponent> getInventoriesFromUI(UIComponent ui) {
-    return ui.dialog().flatMap(handle -> handle.unwrap(InventoryDialogProvider.class)).stream()
-        .flatMap(InventoryDialogProvider::inventoryComponents);
+  public static Stream<InventoryComponent> getInventoriesFromUI(UIComponent uiComponent) {
+    if (uiComponent == null || uiComponent.dialogContext() == null) {
+      return Stream.empty();
+    }
+
+    return Stream.of(DialogContextKeys.ENTITY, DialogContextKeys.SECONDARY_ENTITY)
+      .map(key -> inventoryFromContext(uiComponent, key))
+      .flatMap(Optional::stream);
+  }
+
+  private static Optional<InventoryComponent> inventoryFromContext(UIComponent uiComponent, String key) {
+    try {
+      return Optional.of(uiComponent.dialogContext().requireEntity(key))
+        .flatMap(entity -> entity.fetch(InventoryComponent.class));
+    } catch (IllegalArgumentException | DialogCreationException exception) {
+      return Optional.empty();
+    }
   }
 
   /**

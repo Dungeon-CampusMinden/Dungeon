@@ -13,7 +13,6 @@ import core.ui.StageHandle;
 import core.utils.InputManager;
 import core.utils.Vector2;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Represents an inventory dialog overlay used for managing and interacting with player or entity
@@ -197,11 +196,6 @@ final class InventoryDialogOverlay
     pressedUseSlotIndex = null;
     rightButtonDownLastFrame = false;
     resetDragState();
-  }
-
-  @Override
-  public Stream<InventoryComponent> inventoryComponents() {
-    return Stream.of(inventory);
   }
 
   enum InventorySide {
