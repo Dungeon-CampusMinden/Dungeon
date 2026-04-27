@@ -11,6 +11,7 @@ import contrib.hud.elements.bars.AttributeBarOverlay;
 import contrib.hud.elements.bars.AttributeBarOverlayData;
 import contrib.hud.inventory.DualInventoryDialogBuilder;
 import contrib.hud.inventory.InventoryDialogBuilder;
+import contrib.modules.keypad.ui.KeypadDialogOverlay;
 import core.ui.overlay.OverlayHandle;
 
 /**
@@ -73,6 +74,11 @@ public final class DialogRegistryInstaller {
     DialogRegistry.replace(
         DialogType.DefaultTypes.DUAL_INVENTORY, DualInventoryDialogBuilder::build);
     DialogRegistry.replace(DialogType.DefaultTypes.CRAFTING_GUI, CraftingDialogBuilder::build);
+    DialogRegistry.replace(
+        DialogType.DefaultTypes.KEYPAD,
+        context ->
+            new OverlayHandle(
+                new KeypadDialogOverlay(context.requireEntity(DialogContextKeys.ENTITY))));
 
     initialized = true;
   }

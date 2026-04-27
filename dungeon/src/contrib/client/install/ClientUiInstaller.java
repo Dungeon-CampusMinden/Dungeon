@@ -5,7 +5,6 @@ import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
 import contrib.modules.interaction.InteractionSelection;
 import contrib.modules.interaction.ui.InteractionSelectionPresenter;
-import contrib.modules.keypad.KeypadDialogInstaller;
 import core.game.systems.SystemRegistration;
 import core.platform.client.loop.ClientLoopHostInstaller;
 
@@ -33,7 +32,6 @@ public final class ClientUiInstaller implements ClientLoopHostInstaller {
   @Override
   public void installRuntimeSystems() {
     DialogRegistryInstaller.install();
-    KeypadDialogInstaller.install();
     SystemRegistration.addIfAbsent(HudSystem.class, HudSystem::new);
     SystemRegistration.addIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
   }
