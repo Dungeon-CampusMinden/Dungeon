@@ -5,7 +5,18 @@ import contrib.crafting.CraftingIngredient;
 import contrib.crafting.CraftingResult;
 import contrib.crafting.CraftingType;
 import contrib.entities.WorldItemBuilder;
-import contrib.item.concreteItem.*;
+import contrib.item.concreteItem.ItemBigKey;
+import contrib.item.concreteItem.ItemFairy;
+import contrib.item.concreteItem.ItemHammer;
+import contrib.item.concreteItem.ItemHeart;
+import contrib.item.concreteItem.ItemKey;
+import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.item.concreteItem.ItemPotionWater;
+import contrib.item.concreteItem.ItemResourceBerry;
+import contrib.item.concreteItem.ItemResourceEgg;
+import contrib.item.concreteItem.ItemResourceMushroomRed;
+import contrib.item.concreteItem.ItemWoodenArrow;
+import contrib.item.concreteItem.ItemWoodenBow;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
@@ -13,8 +24,11 @@ import core.level.elements.tile.FloorTile;
 import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Random;
 /**
  * Abstract class that represents every item in the game.
  *

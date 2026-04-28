@@ -36,12 +36,26 @@ import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.client.ClientNetwork;
 import core.network.messages.c2s.InputMessage;
-import core.network.messages.s2c.*;
+import core.network.messages.s2c.DialogCloseMessage;
+import core.network.messages.s2c.DialogShowMessage;
+import core.network.messages.s2c.EntityDespawnEvent;
+import core.network.messages.s2c.EntitySpawnEvent;
+import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.LevelChangeEvent;
+import core.network.messages.s2c.SnapshotMessage;
+import core.network.messages.s2c.SoundPlayMessage;
+import core.network.messages.s2c.SoundStopMessage;
 import core.network.server.SoundTracker;
 import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
-import core.systems.*;
+import core.systems.CameraSystem;
+import core.systems.DrawSystem;
+import core.systems.FrictionSystem;
+import core.systems.LevelSystem;
+import core.systems.MoveSystem;
+import core.systems.PositionSystem;
+import core.systems.VelocitySystem;
 import core.systems.input.InputManager;
 import core.systems.input.InputSystem;
 import core.systems.input.JoystickSystem;
@@ -50,8 +64,12 @@ import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.DrawComponentFactory;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
-
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 /**
  * The Dungeon-GameLoop.
  *

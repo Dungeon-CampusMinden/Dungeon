@@ -9,13 +9,21 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
-import contrib.components.*;
+import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
+import contrib.components.DecoComponent;
+import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.System;
-import core.components.*;
+import core.components.DrawComponent;
+import core.components.PlayerComponent;
+import core.components.PositionComponent;
+import core.components.SoundComponent;
+import core.components.VelocityComponent;
 import core.game.WindowEventManager;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
@@ -28,8 +36,12 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.BlendUtils;
 import core.utils.components.draw.ColorUtils;
 import core.utils.components.draw.animation.Animation;
-import java.util.*;
-
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 /**
  * A debug system that visually overlays entity information on top of the game world.
  *

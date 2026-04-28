@@ -1,7 +1,8 @@
 package level;
 
-import static level.LastHourLevel.*;
-
+import static level.LastHourLevel.checkInteractFeedback;
+import static level.LastHourLevel.setupLightingShader;
+import static level.LastHourLevel.updateLightingShader;
 import contrib.modules.worldTimer.WorldTimerSystem;
 import contrib.utils.EntityUtils;
 import core.Entity;
@@ -11,8 +12,8 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import java.util.Map;
-import modules.computer.*;
-
+import modules.computer.ComputerDialog;
+import modules.computer.ComputerStateComponent;
 /** The Last Hour Room. */
 public class LastHourLevelClient extends DungeonLevel {
 

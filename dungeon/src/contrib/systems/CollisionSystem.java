@@ -14,7 +14,8 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**

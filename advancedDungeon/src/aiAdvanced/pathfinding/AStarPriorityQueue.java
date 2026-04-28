@@ -1,8 +1,12 @@
 package aiAdvanced.pathfinding;
 
 import core.level.utils.Coordinate;
-import java.util.*;
-
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 /**
  * AStarPriorityQueue is a custom priority queue implementation for pathfinding algorithms. It uses
  * a priority map to manage elements based on their priority. The queue ensures that elements are

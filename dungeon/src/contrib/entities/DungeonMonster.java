@@ -2,7 +2,8 @@ package contrib.entities;
 
 import contrib.utils.components.health.DamageType;
 import core.Game;
-import java.util.*;
+import java.util.Random;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /** Defines and build Monster-Entities for the Dungeon. */

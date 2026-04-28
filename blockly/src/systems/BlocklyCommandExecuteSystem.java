@@ -1,7 +1,17 @@
 package systems;
 
-import static coderunner.BlocklyCommands.*;
-
+import static coderunner.BlocklyCommands.DISABLE_SHOOT_ON_HERO;
+import static coderunner.BlocklyCommands.MAGIC_OFFSET;
+import static coderunner.BlocklyCommands.dropItem;
+import static coderunner.BlocklyCommands.interact;
+import static coderunner.BlocklyCommands.move;
+import static coderunner.BlocklyCommands.pickup;
+import static coderunner.BlocklyCommands.push;
+import static coderunner.BlocklyCommands.rest;
+import static coderunner.BlocklyCommands.rotate;
+import static coderunner.BlocklyCommands.shootBluePortal;
+import static coderunner.BlocklyCommands.shootFireball;
+import static coderunner.BlocklyCommands.shootGreenPortal;
 import client.Client;
 import coderunner.BlocklyCommands;
 import com.badlogic.gdx.Gdx;
@@ -22,10 +32,18 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
-import core.utils.*;
+import core.utils.Direction;
+import core.utils.IVoidFunction;
+import core.utils.MissingPlayerException;
+import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 

@@ -3,7 +3,7 @@ package core.components;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import core.Component;
 import core.utils.Vector2;
-import core.utils.components.draw.*;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
@@ -13,8 +13,7 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.draw.state.Transition;
 import core.utils.components.path.IPath;
-import java.util.*;
-
+import java.util.List;
 /**
  * Store all {@link Animation}s for an entity.
  *

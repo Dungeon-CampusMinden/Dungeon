@@ -3,8 +3,11 @@ package contrib.hud.dialogs;
 import core.Entity;
 import core.Game;
 import java.io.Serializable;
-import java.util.*;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 /**
  * Immutable context object that encapsulates all configuration data needed to create a dialog.
  *

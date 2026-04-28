@@ -2,8 +2,12 @@ package core.network.client;
 
 import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
-import static core.network.config.NetworkConfig.*;
-
+import static core.network.config.NetworkConfig.MAX_TCP_OBJECT_SIZE;
+import static core.network.config.NetworkConfig.SAFE_UDP_MTU;
+import static core.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
+import static core.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
+import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_LENGTH;
+import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
 import contrib.entities.CharacterClass;
 import core.Game;
 import core.network.ConnectionListener;
@@ -21,7 +25,14 @@ import core.utils.Tuple;
 import core.utils.logging.DungeonLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -38,7 +49,11 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**

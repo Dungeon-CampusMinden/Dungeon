@@ -15,8 +15,12 @@ import core.network.server.DialogTracker;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
-
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 /**
  * The basic handling of any UIComponent. Adds them to the Stage, updates the Stage each Frame to
  * allow EventHandling.

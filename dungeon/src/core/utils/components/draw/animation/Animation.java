@@ -9,9 +9,13 @@ import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
-import java.io.*;
-import java.util.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 /**
  * Represents an animation consisting of one or more {@link Sprite}s.
  *

@@ -1,7 +1,9 @@
 package portal.controlls;
 
 import com.badlogic.gdx.Input;
-import contrib.components.*;
+import contrib.components.ItemComponent;
+import contrib.components.SkillComponent;
+import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroController;
 import contrib.hud.DialogUtils;

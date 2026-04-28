@@ -1,6 +1,9 @@
 package portal.physicsobject;
 
-import contrib.components.*;
+import contrib.components.CollideComponent;
+import contrib.components.LeverComponent;
+import contrib.components.PressurePlateComponent;
+import contrib.components.ProjectileComponent;
 import contrib.utils.ICommand;
 import core.Component;
 import core.Entity;

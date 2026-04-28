@@ -7,11 +7,21 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
-import core.utils.*;
+import core.utils.Direction;
+import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import java.util.*;
-
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Random;
+import java.util.Set;
 /** Offers some utility functions to work on and with {@link core.level.elements.ILevel}. */
 public final class LevelUtils {
 
