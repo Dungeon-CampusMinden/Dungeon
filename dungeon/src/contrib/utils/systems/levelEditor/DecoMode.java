@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
 /** Deco Mode for the Level Editor. Allows placing, removing, and moving decorative entities. */
 public class DecoMode extends LevelEditorMode {
 

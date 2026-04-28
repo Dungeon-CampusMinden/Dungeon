@@ -29,9 +29,9 @@ import core.utils.Vector2;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**

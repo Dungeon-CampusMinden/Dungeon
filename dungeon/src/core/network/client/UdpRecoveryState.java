@@ -5,6 +5,7 @@ import static core.network.config.NetworkConfig.UDP_RETRY_INITIAL_DELAY_MS;
 import static core.network.config.NetworkConfig.UDP_RETRY_MAX_DELAY_MS;
 import static core.network.config.NetworkConfig.UDP_RETRY_MULTIPLIER;
 import static core.network.config.NetworkConfig.UDP_STALE_AFTER_MS;
+
 /**
  * Tracks whether UDP is currently usable and when the next maintenance cycle should run.
  *

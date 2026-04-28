@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 /**
  * AStarPriorityQueue is a custom priority queue implementation for pathfinding algorithms. It uses
  * a priority map to manage elements based on their priority. The queue ensures that elements are

@@ -31,8 +31,8 @@ import core.utils.components.draw.BlendUtils;
 import core.utils.components.draw.ColorUtils;
 import core.utils.components.draw.DrawConfig;
 import core.utils.components.draw.FrameBufferPool;
-import core.utils.components.draw.TileUtils;
 import core.utils.components.draw.TextureMap;
+import core.utils.components.draw.TileUtils;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.shader.AbstractShader;
 import core.utils.components.draw.shader.ShaderList;
@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+
 /**
  * This system draws the entities on the screen using a multi-pass rendering pipeline:
  *

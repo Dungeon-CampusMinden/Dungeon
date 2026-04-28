@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 /**
  * System responsible for updating the position of entities based on their velocity, while
  * considering collision and accessibility of the target tiles.

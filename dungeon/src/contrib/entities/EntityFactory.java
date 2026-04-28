@@ -1,6 +1,5 @@
 package contrib.entities;
 
-
 import contrib.item.Item;
 import contrib.modules.interaction.DropItemsInteraction;
 import contrib.modules.interaction.InteractionComponent;

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
 /**
  * The basic handling of any UIComponent. Adds them to the Stage, updates the Stage each Frame to
  * allow EventHandling.

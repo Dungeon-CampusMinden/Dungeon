@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+
 /** Offers some utility functions to work on and with {@link core.level.elements.ILevel}. */
 public final class LevelUtils {
 

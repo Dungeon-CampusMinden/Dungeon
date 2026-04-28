@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.Align;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
-
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;

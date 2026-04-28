@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
 /**
  * A debug system that visually overlays entity information on top of the game world.
  *

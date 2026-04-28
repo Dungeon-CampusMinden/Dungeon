@@ -8,6 +8,7 @@ import static core.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
 import static core.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
 import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_LENGTH;
 import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
+
 import contrib.entities.CharacterClass;
 import core.Game;
 import core.network.ConnectionListener;
@@ -32,8 +33,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.SocketChannel;

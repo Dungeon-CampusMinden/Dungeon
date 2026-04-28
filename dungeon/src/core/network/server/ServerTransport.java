@@ -9,6 +9,7 @@ import static core.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
 import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_LENGTH;
 import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
 import static core.network.config.NetworkConfig.UDP_STALE_AFTER_MS;
+
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroController;
 import core.Entity;
@@ -39,8 +40,8 @@ import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.SocketChannel;

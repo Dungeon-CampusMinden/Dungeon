@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+
 /**
  * A pool manager for FrameBuffer objects (FBOs) to optimize VRAM usage by reusing FBOs of exact
  * sizes. This pool maintains a soft and hard limit on the number of FBOs, culling unused ones over

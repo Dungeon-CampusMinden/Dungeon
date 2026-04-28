@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
 /**
  * A collection class for managing multiple AbstractShader instances with unique identifiers and
  * assigned priorities. Supports adding, removing, retrieving, and iterating over shaders sorted

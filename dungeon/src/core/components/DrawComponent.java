@@ -14,6 +14,7 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.draw.state.Transition;
 import core.utils.components.path.IPath;
 import java.util.List;
+
 /**
  * Store all {@link Animation}s for an entity.
  *
