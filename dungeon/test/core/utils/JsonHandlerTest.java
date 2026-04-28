@@ -95,18 +95,6 @@ public class JsonHandlerTest {
       return Files.readString(filePath);
     } catch (IOException | URISyntaxException e) {
       throw new RuntimeException("Failed to read JSON file from JAR: " + path, e);
-    } finally {
-      // Closing the FileSystem created by newFileSystem is important.
-      // However, if we get an existing one, we should not close it.
-      // This logic is simplified here as the method is not actively tested.
-      try {
-        if (fileSystem != null && fileSystem.provider().getScheme().equals("jar")) {
-          // Only close if we created it and it's a JAR FS.
-          // This check is not perfect and depends on how newFileSystem was called.
-        }
-      } catch (Exception e) {
-        // Ignore close exceptions
-      }
     }
   }
 
