@@ -85,6 +85,7 @@ public class AntiMaterialBarrier {
               || other.isPresent(PortalExtendComponent.class)
               || otherEntityName.contains("energyPelletLauncher")) {
             // do nothing
+            return;
           } else {
             Game.remove(other);
           }

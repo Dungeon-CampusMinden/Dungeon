@@ -563,15 +563,14 @@ public class LastHourLevel extends DungeonLevel {
   /** Plays ambient sounds at random intervals. */
   private void playAmbientSound() {
     // TODO: Copied from MushRoom, use different sounds.
-    double r = Math.random();
-    if (r < 0.20) {
-      //      Sounds.TREE_AMBIENT_CREAK.play();
-    } else if (r < 0.40) {
-      //      Sounds.ANIMAL_AMBIENT.play();
-    } else if (r < 0.60) {
-      //      Sounds.random(Sounds.WIND_AMBIENT_1, Sounds.WIND_AMBIENT_2, Sounds.WIND_AMBIENT_3);
-    }
-
+    // double r = Math.random();
+    // if (r < 0.20) {
+    //   Sounds.TREE_AMBIENT_CREAK.play();
+    // } else if (r < 0.40) {
+    //   Sounds.ANIMAL_AMBIENT.play();
+    // } else if (r < 0.60) {
+    //   Sounds.random(Sounds.WIND_AMBIENT_1, Sounds.WIND_AMBIENT_2, Sounds.WIND_AMBIENT_3);
+    // }
     EventScheduler.scheduleAction(this::playAmbientSound, (long) (Math.random() * 10000 + 10000));
   }
 }
