@@ -11,9 +11,12 @@
     </module>
 
     <module name="TreeWalker">
+        <module name="AvoidStarImport"/>
         <module name="EmptyBlock"/>
         <module name="FallThrough"/>
         <module name="InvalidJavadocPosition"/>
+        <module name="JavadocMethod"/>
+        <module name="JavadocType"/>
         <module name="MissingDeprecated"/>
         <module name="MissingJavadocMethod"/>
         <module name="MissingJavadocType"/>
