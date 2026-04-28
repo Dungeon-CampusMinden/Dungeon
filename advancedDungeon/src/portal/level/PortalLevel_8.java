@@ -152,7 +152,7 @@ public class PortalLevel_8 extends AdvancedLevel {
 
       if (getTractorBeamComponent(tractorBeam).isReversed()) {
         TractorBeamFactory.reverseTractorBeam(
-            tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+            tractorBeam.fetch(TractorBeamComponent.class).get().getRelevantEntities());
       }
 
     } else {
@@ -178,7 +178,7 @@ public class PortalLevel_8 extends AdvancedLevel {
 
       if (!getTractorBeamComponent(tractorBeam).isReversed()) {
         TractorBeamFactory.reverseTractorBeam(
-            tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+            tractorBeam.fetch(TractorBeamComponent.class).get().getRelevantEntities());
       }
 
     } else {

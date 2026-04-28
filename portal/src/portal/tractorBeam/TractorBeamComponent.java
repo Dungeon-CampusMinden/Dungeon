@@ -12,12 +12,13 @@ import core.utils.Vector2;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+
 import portal.portals.components.PortalExtendComponent;
 
 /** Component represents a tractor beam that can be extended and trimmed. */
 public class TractorBeamComponent implements Component {
 
-  private List<Entity> tractorBeamEntities;
   private boolean active = false;
   private boolean reversed = false;
   private List<Hitbox> oldhitbox = new ArrayList<>();
@@ -30,18 +31,15 @@ public class TractorBeamComponent implements Component {
   /**
    * Constructs a TractorBeamComponent so it can be extended and trimmed.
    *
-   * @param tractorBeamEntities The list of Entities for the Animation.
    */
-  public TractorBeamComponent(List<Entity> tractorBeamEntities) {
-    this.tractorBeamEntities = tractorBeamEntities;
-
+  public TractorBeamComponent() {;
     activate();
   }
 
   /** Activates the TractorBeam if not already active. */
   public void activate() {
     if (active) return;
-    for (Entity e : tractorBeamEntities) {
+    for (Entity e : getRelevantEntities()) {
       if (Game.allEntities().noneMatch(g -> g.equals(e))) {
         Game.add(e);
       }
@@ -60,7 +58,7 @@ public class TractorBeamComponent implements Component {
   /** Deactivates the TractorBeam if not already deactivated. */
   public void deactivate() {
     if (!active) return;
-    for (Entity e : tractorBeamEntities) {
+    for (Entity e : getRelevantEntities()) {
       boolean isEmitter = "beamEmitter".equals(e.name());
       if (!isEmitter) {
         Game.remove(e);
@@ -118,10 +116,10 @@ public class TractorBeamComponent implements Component {
    * @param pec Component for further processing.
    */
   public void extend(Direction direction, Point from, PortalExtendComponent pec) {
-    TractorBeamFactory.extendTractorBeam(direction, from, this.tractorBeamEntities, pec, this);
+    TractorBeamFactory.extendTractorBeam(direction, from, getRelevantEntities(), pec, this);
 
     if (active) {
-      for (Entity e : tractorBeamEntities) {
+      for (Entity e : getRelevantEntities()) {
         if (Game.allEntities().noneMatch(g -> g.equals(e))) {
           Game.add(e);
         }
@@ -131,16 +129,7 @@ public class TractorBeamComponent implements Component {
 
   /** Trims the beam with the internal list. */
   public void trim() {
-    TractorBeamFactory.trimAfterFirstBeamEmitter(this.tractorBeamEntities);
-  }
-
-  /**
-   * Returns the list of all the entities that form the tractor beam.
-   *
-   * @return the entire list of the entities.
-   */
-  public List<Entity> getTractorBeamEntities() {
-    return tractorBeamEntities;
+    TractorBeamFactory.trimAfterFirstBeamEmitter(getRelevantEntities());
   }
 
   /**
@@ -181,5 +170,16 @@ public class TractorBeamComponent implements Component {
    */
   public void reversedForceToApply(Vector2 reversedForceToApply) {
     this.reversedForceToApply = reversedForceToApply;
+  }
+
+  /**
+   * Returns the list of all the entities that form the tractor beam.
+   *
+   * @return the entire list of the entities.
+   */
+  public List<Entity> getRelevantEntities() {
+    return Game.levelEntities(Set.of(TractorBeamComponent.class))
+      .filter(entity -> entity.fetch(TractorBeamComponent.class).get().equals(this))
+      .toList();
   }
 }

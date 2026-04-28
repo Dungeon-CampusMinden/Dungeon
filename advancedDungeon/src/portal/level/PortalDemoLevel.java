@@ -60,13 +60,13 @@ public class PortalDemoLevel extends AdvancedLevel {
         @Override
         public void execute() {
           TractorBeamFactory.reverseTractorBeam(
-              tractorBeam1.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+              tractorBeam1.fetch(TractorBeamComponent.class).get().getRelevantEntities());
         }
 
         @Override
         public void undo() {
           TractorBeamFactory.reverseTractorBeam(
-              tractorBeam1.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+              tractorBeam1.fetch(TractorBeamComponent.class).get().getRelevantEntities());
         }
       };
 

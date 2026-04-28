@@ -83,7 +83,7 @@ public class TractorBeamFactory {
    */
   public static void reverse(Entity tractorBeam) {
     reverseTractorBeam(
-        tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+        tractorBeam.fetch(TractorBeamComponent.class).get().getRelevantEntities());
   }
 
   /**
@@ -193,7 +193,7 @@ public class TractorBeamFactory {
     Entity beamEmitter = factory.createBeamEmitter(from, direction);
 
     tractorBeamEntities.add(beamEmitter);
-    TractorBeamComponent tbc = new TractorBeamComponent(tractorBeamEntities);
+    TractorBeamComponent tbc = new TractorBeamComponent();
     beamEmitter.add(tbc);
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend = tbc::extend;
