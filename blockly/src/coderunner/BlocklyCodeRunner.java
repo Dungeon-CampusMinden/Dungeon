@@ -1,5 +1,6 @@
 package coderunner;
 
+import client.FolderExtractor;
 import core.Game;
 import core.utils.logging.DungeonLogger;
 import java.io.*;
@@ -8,7 +9,6 @@ import java.lang.reflect.Method;
 import java.net.*;
 import java.nio.file.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -55,12 +55,6 @@ public class BlocklyCodeRunner {
           "loadLevel",
           "loadNextLevel");
 
-  /**
-   * The name of the temporary folder where the compiled code will be stored. This folder is created
-   * in the system's temporary directory. (default: "blockly")
-   */
-  public static String TEMP_FOLDER_NAME = "blockly";
-
   private static final int DEFAULT_SLEEP_AFTER_EACH_LINE = 0; // milliseconds
 
   private static final String CodeWrapper =
@@ -103,7 +97,6 @@ public class BlocklyCodeRunner {
   private final AtomicBoolean codeRunning = new AtomicBoolean(false);
   private ExecutorService executor;
   private Future<?> currentExecution;
-  private boolean folderTransfered = false;
 
   private BlocklyCodeRunner() {} // private constructor for singleton
 
@@ -129,33 +122,6 @@ public class BlocklyCodeRunner {
     executeJavaCode(code, DEFAULT_SLEEP_AFTER_EACH_LINE);
   }
 
-  private void prepareCompilerResources(Path tempDir) throws Exception {
-    // create directory
-    Path libFolder = Files.createDirectories(tempDir.resolve("unpacked_libs"));
-    URI jarUri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-
-    try (FileSystem zipFs = FileSystems.newFileSystem(URI.create("jar:" + jarUri), Map.of())) {
-      Path root = zipFs.getPath("/");
-
-      // go through the jar and process each file
-      Files.walk(root)
-          .filter(Files::isRegularFile) // only files
-          .forEach(source -> copyToTemp(source, root, libFolder));
-    }
-  }
-
-  private void copyToTemp(Path source, Path root, Path targetDir) {
-    try {
-      // path relativ to jar file
-      Path target = targetDir.resolve(root.relativize(source).toString());
-
-      Files.createDirectories(target.getParent());
-      Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-    } catch (IOException e) {
-      System.err.println("Skip: " + source + " (" + e.getMessage() + ")");
-    }
-  }
-
   /**
    * Executes the given Java code.
    *
@@ -169,15 +135,11 @@ public class BlocklyCodeRunner {
     code = String.format(CodeWrapper, code, sleepAfterEachLine);
 
     // In system temp directory
-    Path tempDir = tempFolder();
+    Path tempDir = FolderExtractor.tempFolder();
     Path libFolder = tempDir.resolve("unpacked_libs");
 
     String path =
         String.valueOf(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-    if (!folderTransfered && path.endsWith(".jar")) {
-      prepareCompilerResources(tempDir);
-      folderTransfered = true;
-    }
 
     Path tempFile;
     if (tempDir == null) {
@@ -194,7 +156,10 @@ public class BlocklyCodeRunner {
     ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
     int compilationResult;
-    if (path.endsWith(".jar")) {
+
+    String operatingSystem = java.lang.System.getProperty("os.name");
+
+    if (path.endsWith(".jar") && operatingSystem.contains("Windows")) {
       String[] compilerArgs = {
         "-classpath", libFolder.toAbsolutePath().toString(), tempFile.toFile().toString()
       };
@@ -292,34 +257,5 @@ public class BlocklyCodeRunner {
       code = code.replaceAll(regex, "$0 sleep();");
     }
     return code;
-  }
-
-  /**
-   * Returns the path to the BlocklyCodeRunner's temporary folder.
-   *
-   * <p>If no temporary folder is found it will generate a new one in the system's temporary
-   * directory.
-   *
-   * @return Path to the temporary folder. If no folder is found or cannot be created, returns null.
-   */
-  private Path tempFolder() {
-    File tempDir = new File(System.getProperty("java.io.tmpdir"));
-    File[] tempFiles = tempDir.listFiles();
-    if (tempFiles != null) {
-      for (File file : tempFiles) {
-        if (file.isDirectory() && file.getName().equals(TEMP_FOLDER_NAME)) {
-          return file.toPath();
-        }
-      }
-    }
-
-    // If no temp folder found, create a new one
-    try {
-      tempDir = Files.createDirectory(Paths.get(tempDir.getPath(), TEMP_FOLDER_NAME)).toFile();
-    } catch (IOException e) {
-      LOGGER.error("Error creating temp folder: " + e.getMessage());
-      return null;
-    }
-    return tempDir.toPath();
   }
 }
