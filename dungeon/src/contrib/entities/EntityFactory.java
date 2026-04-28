@@ -1,5 +1,9 @@
 package contrib.entities;
 
+import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
+import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import contrib.modules.interaction.DropItemsInteraction;
 import contrib.modules.interaction.InteractionComponent;

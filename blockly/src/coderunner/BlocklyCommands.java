@@ -1,5 +1,6 @@
 package coderunner;
 
+import contrib.components.ItemComponent;
 import contrib.components.LeverComponent;
 import contrib.utils.EntityUtils;
 import core.Component;

@@ -84,6 +84,7 @@ import portal.portals.PortalSkill;
 import portal.portals.abstraction.Calculations;
 import portal.portals.abstraction.PortalConfig;
 import portal.portals.components.PortableComponent;
+import portal.riddles.MyPlayerController;
 
 /**
  * Starter for the Portal Dungeon.
