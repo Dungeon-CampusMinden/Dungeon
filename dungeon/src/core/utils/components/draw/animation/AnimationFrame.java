@@ -39,18 +39,6 @@ public final class AnimationFrame implements Serializable {
   private transient Object backendHandle;
 
   /**
-   * Factory method to create a full-image animation frame without flipping.
-   *
-   * <p>The resulting frame will reference the entire image file as a single frame.
-   *
-   * @param texturePath the path to the texture/image file
-   * @return a new AnimationFrame referencing the full image
-   */
-  public static AnimationFrame fullImage(final IPath texturePath) {
-    return fullImage(texturePath, false);
-  }
-
-  /**
    * Factory method to create a full-image animation frame with optional horizontal flipping.
    *
    * <p>The resulting frame will reference the entire image file as a single frame.
@@ -61,23 +49,6 @@ public final class AnimationFrame implements Serializable {
    */
   public static AnimationFrame fullImage(final IPath texturePath, final boolean flipX) {
     return new AnimationFrame(texturePath, -1, -1, -1, -1, flipX);
-  }
-
-  /**
-   * Factory method to create a sprite sheet region frame without flipping.
-   *
-   * <p>The resulting frame will reference a specific rectangular region within a larger sprite
-   * sheet.
-   *
-   * @param texturePath the path to the sprite sheet image
-   * @param x the x-coordinate (in pixels) of the region within the sprite sheet
-   * @param y the y-coordinate (in pixels) of the region within the sprite sheet
-   * @param w the width (in pixels) of the region
-   * @param h the height (in pixels) of the region
-   * @return a new AnimationFrame referencing the specified region
-   */
-  public static AnimationFrame region(final IPath texturePath, int x, int y, int w, int h) {
-    return region(texturePath, x, y, w, h, false);
   }
 
   /**
@@ -97,28 +68,6 @@ public final class AnimationFrame implements Serializable {
   public static AnimationFrame region(
       final IPath texturePath, int x, int y, int w, int h, final boolean flipX) {
     return new AnimationFrame(texturePath, x, y, w, h, flipX);
-  }
-
-  /**
-   * Constructs an AnimationFrame without horizontal flipping.
-   *
-   * <p>The region parameters define a sprite sheet region. Use negative values for all region
-   * parameters to create a full-image frame instead.
-   *
-   * @param texturePath the path to the texture/image file (must not be null)
-   * @param regionX the x-coordinate of the region (use -1 for full-image frames)
-   * @param regionY the y-coordinate of the region (use -1 for full-image frames)
-   * @param regionW the width of the region (use -1 for full-image frames)
-   * @param regionH the height of the region (use -1 for full-image frames)
-   * @throws NullPointerException if texturePath is null
-   */
-  public AnimationFrame(
-      final IPath texturePath,
-      final int regionX,
-      final int regionY,
-      final int regionW,
-      final int regionH) {
-    this(texturePath, regionX, regionY, regionW, regionH, false);
   }
 
   /**
