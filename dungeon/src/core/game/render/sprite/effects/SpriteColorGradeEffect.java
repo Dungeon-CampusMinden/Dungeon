@@ -40,15 +40,6 @@ public final class SpriteColorGradeEffect
   }
 
   /**
-   * Returns the target hue.
-   *
-   * @return target hue, or a negative value if the original hue should be preserved
-   */
-  public float hue() {
-    return hue;
-  }
-
-  /**
    * Sets the target hue.
    *
    * @param hue target hue in {@code [0, 1]}; values {@code < 0} keep the original hue
