@@ -17,11 +17,6 @@ public final class DepthLayerColorGradeEffect
     extends BaseColorGradeEffect<DepthLayerColorGradeEffect>
     implements DepthLayerEffect, ToggleableEffect<DepthLayerColorGradeEffect> {
 
-  /** Creates a neutral depth-layer color-grade effect that leaves the depth layer unchanged. */
-  public DepthLayerColorGradeEffect() {
-    super();
-  }
-
   /**
    * Creates a depth-layer color-grade effect with the given HSV parameters.
    *
@@ -39,7 +34,7 @@ public final class DepthLayerColorGradeEffect
   }
 
   @Override
-  public BufferedImage apply(BufferedImage input, int depthLayer, long nowMs) {
+  public BufferedImage apply(BufferedImage input) {
     if (input == null || !enabled()) {
       return input;
     }

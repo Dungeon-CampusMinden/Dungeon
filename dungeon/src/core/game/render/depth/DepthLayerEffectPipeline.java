@@ -51,15 +51,6 @@ public final class DepthLayerEffectPipeline {
   }
 
   /**
-   * Checks whether any enabled effects exist in any depth layer.
-   *
-   * @return true if at least one enabled effect exists anywhere, false otherwise
-   */
-  public static boolean hasAnyEnabledEffects() {
-    return EFFECTS_BY_DEPTH.values().stream().anyMatch(DepthLayerEffectRegistry::hasEnabledEffects);
-  }
-
-  /**
    * Checks whether all toggleable effects in all depth layers are enabled.
    *
    * @return true if all registered toggleable effect groups are enabled
@@ -77,17 +68,6 @@ public final class DepthLayerEffectPipeline {
     }
 
     return hasToggleableDepthEffects;
-  }
-
-  /**
-   * Returns whether all toggleable effects of one specific depth layer are currently enabled.
-   *
-   * @param depthLayer depth layer to inspect
-   * @return true if the layer exists and all its toggleable effects are enabled
-   */
-  public static boolean allEnabled(int depthLayer) {
-    DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
-    return effects != null && effects.allEnabled();
   }
 
   /**
@@ -123,36 +103,26 @@ public final class DepthLayerEffectPipeline {
    *
    * @param depthLayer the depth layer to apply effects for
    * @param source the source image to apply effects to (can be null)
-   * @param nowMs the current timestamp in milliseconds
    * @return the processed image with all effects applied, or the original image if no effects are
    *     enabled
    * @throws IllegalStateException if an effect returns null
    */
-  public static BufferedImage apply(int depthLayer, BufferedImage source, long nowMs) {
+  public static BufferedImage apply(int depthLayer, BufferedImage source) {
     DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
     if (source == null || effects == null || !effects.hasEnabledEffects()) {
       return source;
     }
 
-    BufferedImage current = source;
-    for (DepthLayerEffect effect : effects.getEnabledSorted()) {
-      current = effect.apply(current, depthLayer, nowMs);
-      if (current == null) {
-        throw new IllegalStateException(
-            effect.getClass().getSimpleName() + " returned null depth-layer image.");
-      }
-    }
+     BufferedImage current = source;
+     for (DepthLayerEffect effect : effects.getEnabledSorted()) {
+       current = effect.apply(current);
+       if (current == null) {
+         throw new IllegalStateException(
+             effect.getClass().getSimpleName() + " returned null depth-layer image.");
+       }
+     }
 
     return current;
-  }
-
-  /**
-   * Clears all effects registered for the specified depth layer.
-   *
-   * @param depthLayer the depth layer to clear
-   */
-  public static void clearDepth(int depthLayer) {
-    EFFECTS_BY_DEPTH.remove(depthLayer);
   }
 
   /** Clears all effects from all depth layers. */

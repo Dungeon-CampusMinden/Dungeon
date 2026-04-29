@@ -135,7 +135,7 @@ final class EntitySpriteRenderer {
       layerGraphics.dispose();
     }
 
-    BufferedImage processed = DepthLayerEffectPipeline.apply(depthLayer, layerBuffer, Time.nowMs());
+    BufferedImage processed = DepthLayerEffectPipeline.apply(depthLayer, layerBuffer);
 
     g.drawImage(
         processed, Math.round((float) -view.offsetX()), Math.round((float) -view.offsetY()), null);

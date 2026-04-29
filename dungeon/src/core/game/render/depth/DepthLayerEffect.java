@@ -16,9 +16,7 @@ public interface DepthLayerEffect {
    * Applies the effect to the rendered image of a single entity depth layer.
    *
    * @param input rendered depth-layer image
-   * @param depthLayer the depth layer this image belongs to
-   * @param nowMs current timestamp in milliseconds
    * @return transformed depth-layer image, never {@code null}
    */
-  BufferedImage apply(BufferedImage input, int depthLayer, long nowMs);
+  BufferedImage apply(BufferedImage input);
 }
