@@ -35,15 +35,6 @@ public interface GameLoopHost {
   void run(String[] args, GameLoop core);
 
   /**
-   * Starts the host loop and drives the given core loop using default arguments.
-   *
-   * @param core the core game loop to be executed
-   */
-  default void run(GameLoop core) {
-    run(new String[0], core);
-  }
-
-  /**
    * Retrieves an optional handle to a UI stage.
    *
    * <p>This method provides access to a {@link StageHandle} if the platform or runtime environment
