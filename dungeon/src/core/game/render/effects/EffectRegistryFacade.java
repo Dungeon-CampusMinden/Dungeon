@@ -100,11 +100,6 @@ public abstract class EffectRegistryFacade<E> {
     effects.enableAll(enabled);
   }
 
-  /** Enables all toggleable effects. */
-  public void enableAll() {
-    effects.enableAll();
-  }
-
   /** Disables all toggleable effects. */
   public void disableAll() {
     effects.disableAll();
