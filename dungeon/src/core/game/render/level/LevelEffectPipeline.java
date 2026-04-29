@@ -67,9 +67,4 @@ public final class LevelEffectPipeline {
 
     return current;
   }
-
-  /** Clears all registered level effects. */
-  public static void clear() {
-    EFFECTS.clear();
-  }
 }
