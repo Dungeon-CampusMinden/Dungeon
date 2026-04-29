@@ -109,17 +109,6 @@ public final class DialogButtonInputHandler {
     return button(index).isPressed();
   }
 
-  /**
-   * Returns the current bounds of the indexed button.
-   *
-   * @param index button index
-   * @return button bounds in stage coordinates
-   */
-  public Rectangle bounds(int index) {
-    Button button = button(index);
-    return new Rectangle(button.x(), button.y(), button.width(), button.height());
-  }
-
   private Button button(int index) {
     return buttons.get(index);
   }
