@@ -128,7 +128,7 @@ public final class InventoryComponent implements Component {
   }
 
   /**
-   * Remove item from specific index in inventory.
+   * Remove item from a specific index in the inventory.
    *
    * @param index Index of item to remove.
    * @return An {@link Optional} containing the removed item, or {@link Optional#empty()} if no item
@@ -428,15 +428,6 @@ public final class InventoryComponent implements Component {
       }
     }
     return -1;
-  }
-
-  /**
-   * Checks if the inventory is empty.
-   *
-   * @return true if the inventory contains no items, false otherwise.
-   */
-  public boolean isEmpty() {
-    return count() == 0;
   }
 
   /**
