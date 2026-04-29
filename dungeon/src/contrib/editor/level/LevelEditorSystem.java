@@ -132,7 +132,7 @@ public final class LevelEditorSystem extends System {
     }
 
     layerDebugRenderer.render(g, layerDebugActive);
-    currentModeInstance().render(g, deltaSeconds);
+    currentModeInstance().render();
     updateOverlay();
   }
 

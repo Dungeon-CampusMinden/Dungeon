@@ -6,7 +6,7 @@ import core.input.InputLabelFormatter;
 import core.input.InputLabelFormatter.InputCode;
 import core.input.Keys;
 import core.input.MouseButtons;
-import java.awt.Graphics2D;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -97,16 +97,8 @@ public abstract class LevelEditorMode {
   /** Executes the logic for this mode. Called every frame while active. */
   protected abstract void execute();
 
-  /**
-   * Renders the graphical content associated with this mode.
-   *
-   * <p>This method is responsible for drawing the necessary visuals on the provided graphics
-   * context during each frame.
-   *
-   * @param g the {@code Graphics2D} context used for rendering
-   * @param deltaSeconds the time in seconds since the last frame update
-   */
-  public void render(Graphics2D g, float deltaSeconds) {
+  /** Renders the mode-specific overlay. Default: no-op. */
+  public void render() {
     // default: no-op
   }
 
