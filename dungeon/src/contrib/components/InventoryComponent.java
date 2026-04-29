@@ -27,10 +27,9 @@ public final class InventoryComponent implements Component {
 
   private static final int DEFAULT_MAX_SIZE = 24;
   private final Item[] inventory;
-  // Callbacks, Consumer takes the added/removed Item as parameter (can be null if a null item was
-  // added/removed)
-  private Consumer<Item> onItemAdded = item -> {};
-  private Consumer<Item> onItemRemoved = item -> {};
+
+  private final Consumer<Item> onItemAdded = _ -> {};
+  private final Consumer<Item> onItemRemoved = _ -> {};
 
   /**
    * The default {@link InventoryComponent} constructor. Creates an empty inventory with {@link
@@ -221,79 +220,19 @@ public final class InventoryComponent implements Component {
   }
 
   /**
-   * Transfers the item from a concrete source slot of this inventory to a concrete target slot of
-   * another inventory.
-   *
-   * <p>This method is intentionally strict:
-   *
-   * <ul>
-   *   <li>source and target inventory must differ
-   *   <li>the source slot must contain an item
-   *   <li>the target slot must be empty
-   * </ul>
-   *
-   * <p>This provides a backend-neutral semantic foundation for exact slot drops in UI backends such
-   * as LITIENGINE.
-   *
-   * @param sourceSlot the source slot index in this inventory
-   * @param other the target inventory
-   * @param targetSlot the target slot index in the other inventory
-   * @return true if the transfer succeeded, false otherwise
-   */
-  public boolean transfer(int sourceSlot, final InventoryComponent other, int targetSlot) {
-    if (other == null || other.equals(this)) {
-      return false;
-    }
-
-    if (sourceSlot < 0 || sourceSlot >= this.inventory.length) {
-      LOGGER.warn("Tried to transfer item from invalid source inventory index: {}", sourceSlot);
-      return false;
-    }
-
-    if (targetSlot < 0 || targetSlot >= other.inventory.length) {
-      LOGGER.warn("Tried to transfer item to invalid target inventory index: {}", targetSlot);
-      return false;
-    }
-
-    Item item = this.get(sourceSlot).orElse(null);
-    if (item == null) {
-      return false;
-    }
-
-    if (other.get(targetSlot).isPresent()) {
-      return false;
-    }
-
-    Optional<Item> removed = this.remove(sourceSlot);
-    if (removed.isEmpty()) {
-      return false;
-    }
-
-    other.set(targetSlot, removed.get());
-    return true;
-  }
-
-  /**
    * Transfer all items from this inventory to the given inventory.
    *
    * <p>Items that cannot be transferred (e.g., because the other inventory is full) will remain in
    * this inventory.
    *
    * @param other {@link InventoryComponent} to transfer the items to.
-   * @return true if all items were successfully transferred, false if some items could not be
-   *     transferred.
    */
-  public boolean transferAll(final InventoryComponent other) {
-    boolean allTransferred = true;
+  public void transferAll(final InventoryComponent other) {
     for (Item item : this.items()) {
       if (item != null) {
-        boolean transferred = this.transfer(item, other);
-        if (!transferred) {
-          allTransferred = false;
-        }
+        this.transfer(item, other);
       }
     }
-    return allTransferred;
   }
 
   /**
@@ -498,56 +437,6 @@ public final class InventoryComponent implements Component {
    */
   public boolean isEmpty() {
     return count() == 0;
-  }
-
-  /**
-   * Sets a callback function to be executed when an item is added to the inventory.
-   *
-   * <p>The consumer takes the added {@link Item} as its parameter (can be null if a null item was
-   * added).
-   *
-   * @param onItemAdded A {@link Consumer} that defines the action to be performed when an item is
-   *     added.
-   */
-  public void onItemAdded(Consumer<Item> onItemAdded) {
-    this.onItemAdded = onItemAdded;
-  }
-
-  /**
-   * Returns the callback function that is executed when an item is added to the inventory.
-   *
-   * <p>The consumer takes the added {@link Item} as its parameter (can be null if a null item was
-   * added).
-   *
-   * @return A {@link Consumer} that defines the action performed when an item is added.
-   */
-  public Consumer<Item> onItemAdded() {
-    return this.onItemAdded;
-  }
-
-  /**
-   * Sets a callback function to be executed when an item is removed from the inventory.
-   *
-   * <p>The consumer takes the removed {@link Item} as its parameter (can be null if a null item was
-   * removed).
-   *
-   * @param onItemRemoved A {@link Consumer} that defines the action to be performed when an item is
-   *     removed.
-   */
-  public void onItemRemoved(Consumer<Item> onItemRemoved) {
-    this.onItemRemoved = onItemRemoved;
-  }
-
-  /**
-   * Returns the callback function that is executed when an item is removed from the inventory.
-   *
-   * <p>The consumer takes the removed {@link Item} as its parameter (can be null if a null item was
-   * removed).
-   *
-   * @return A {@link Consumer} that defines the action performed when an item is removed.
-   */
-  public Consumer<Item> onItemRemoved() {
-    return this.onItemRemoved;
   }
 
   /**
