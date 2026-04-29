@@ -72,9 +72,4 @@ public final class SceneEffectPipeline {
 
      return current;
    }
-
-  /** Clears all registered scene effects. */
-  public static void clear() {
-    EFFECTS.clear();
-  }
 }
