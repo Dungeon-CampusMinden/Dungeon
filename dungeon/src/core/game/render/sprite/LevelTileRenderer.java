@@ -55,13 +55,10 @@ final class LevelTileRenderer {
     final int height = layout.length;
     final int width = layout[0].length;
 
-    final int minX = Math.clamp(view.minTileX(), 0, width - 1);
-    final int maxX = Math.clamp(view.maxTileX(), 0, width - 1);
-    final int minY = Math.clamp(view.minTileY(), 0, height - 1);
-    final int maxY = Math.clamp(view.maxTileY(), 0, height - 1);
+    TileBounds bounds = calculateTileBounds(view, width, height);
 
-    for (int y = minY; y <= maxY; y++) {
-      for (int x = minX; x <= maxX; x++) {
+    for (int y = bounds.minY; y <= bounds.maxY; y++) {
+      for (int x = bounds.minX; x <= bounds.maxX; x++) {
         final Tile tile = layout[y][x];
         if (tile == null) continue;
 
@@ -69,14 +66,7 @@ final class LevelTileRenderer {
         final int sx = x * tilePx;
         final int sy = (height - 1 - y) * tilePx;
 
-        final LevelElement elem = tile.levelElement();
-        BufferedImage img = imageForTile(tile);
-        if (img != null) {
-          drawTileImage(g, img, sx, sy, tilePx);
-        } else {
-          g.setColor(colorFor(elem));
-          g.fillRect(sx, sy, tilePx, tilePx);
-        }
+        renderTile(g, tile, tilePx, sx, sy);
       }
     }
   }
@@ -90,18 +80,15 @@ final class LevelTileRenderer {
     final int height = layout.length;
     final int width = layout[0].length;
 
-    final int minX = Math.clamp(view.minTileX(), 0, width - 1);
-    final int maxX = Math.clamp(view.maxTileX(), 0, width - 1);
-    final int minY = Math.clamp(view.minTileY(), 0, height - 1);
-    final int maxY = Math.clamp(view.maxTileY(), 0, height - 1);
+    TileBounds bounds = calculateTileBounds(view, width, height);
 
-    if (minX > maxX || minY > maxY) {
+    if (bounds.minX > bounds.maxX || bounds.minY > bounds.maxY) {
       return null;
     }
 
     final int tilePx = view.tilePx();
-    final int bufferWidth = Math.max(1, (maxX - minX + 1) * tilePx);
-    final int bufferHeight = Math.max(1, (maxY - minY + 1) * tilePx);
+    final int bufferWidth = Math.max(1, (bounds.maxX - bounds.minX + 1) * tilePx);
+    final int bufferHeight = Math.max(1, (bounds.maxY - bounds.minY + 1) * tilePx);
 
     BufferedImage buffer =
         new BufferedImage(bufferWidth, bufferHeight, BufferedImage.TYPE_INT_ARGB);
@@ -111,33 +98,26 @@ final class LevelTileRenderer {
       bg.setRenderingHint(
           RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-      for (int y = minY; y <= maxY; y++) {
-        for (int x = minX; x <= maxX; x++) {
+      for (int y = bounds.minY; y <= bounds.maxY; y++) {
+        for (int x = bounds.minX; x <= bounds.maxX; x++) {
           final Tile tile = layout[y][x];
           if (tile == null) {
             continue;
           }
 
-          final int sx = (x - minX) * tilePx;
-          final int sy = (maxY - y) * tilePx;
+          final int sx = (x - bounds.minX) * tilePx;
+          final int sy = (bounds.maxY - y) * tilePx;
 
-          final LevelElement elem = tile.levelElement();
-          BufferedImage img = imageForTile(tile);
-          if (img != null) {
-            drawTileImage(bg, img, sx, sy, tilePx);
-          } else {
-            bg.setColor(colorFor(elem));
-            bg.fillRect(sx, sy, tilePx, tilePx);
-          }
+          renderTile(bg, tile, tilePx, sx, sy);
         }
       }
     } finally {
       bg.dispose();
     }
 
-    int drawX = minX * tilePx;
-    int drawY = (height - 1 - maxY) * tilePx;
-    return new VisibleLevelBuffer(buffer, drawX, drawY, new LevelPassContext(minX, maxY, tilePx));
+    int drawX = bounds.minX * tilePx;
+    int drawY = (height - 1 - bounds.maxY) * tilePx;
+    return new VisibleLevelBuffer(buffer, drawX, drawY, new LevelPassContext(bounds.minX, bounds.maxY, tilePx));
   }
 
   private void drawTileImage(Graphics2D g, BufferedImage img, int sx, int sy, int tilePx) {
@@ -145,6 +125,25 @@ final class LevelTileRenderer {
     double scaleX = tilePx / (double) img.getWidth();
     double scaleY = tilePx / (double) img.getHeight();
     ImageRenderer.renderScaled(g, img, sx, sy, scaleX, scaleY);
+  }
+
+  private void renderTile(Graphics2D g, Tile tile, int tilePx, int sx, int sy) {
+    final LevelElement elem = tile.levelElement();
+    BufferedImage img = imageForTile(tile);
+    if (img != null) {
+      drawTileImage(g, img, sx, sy, tilePx);
+    } else {
+      g.setColor(colorFor(elem));
+      g.fillRect(sx, sy, tilePx, tilePx);
+    }
+  }
+
+  private TileBounds calculateTileBounds(SpriteViewport view, int width, int height) {
+    final int minX = Math.clamp(view.minTileX(), 0, width - 1);
+    final int maxX = Math.clamp(view.maxTileX(), 0, width - 1);
+    final int minY = Math.clamp(view.minTileY(), 0, height - 1);
+    final int maxY = Math.clamp(view.maxTileY(), 0, height - 1);
+    return new TileBounds(minX, maxX, minY, maxY);
   }
 
   private BufferedImage imageForTile(Tile t) {
@@ -176,4 +175,6 @@ final class LevelTileRenderer {
 
   private record VisibleLevelBuffer(
       BufferedImage image, int drawX, int drawY, LevelPassContext context) {}
+
+  private record TileBounds(int minX, int maxX, int minY, int maxY) {}
 }
