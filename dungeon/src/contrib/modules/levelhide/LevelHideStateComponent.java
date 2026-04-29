@@ -42,15 +42,6 @@ public final class LevelHideStateComponent implements Component {
   }
 
   /**
-   * Returns the timestamp at which the current transition started.
-   *
-   * @return transition start timestamp in milliseconds
-   */
-  public long transitionStartedAtMs() {
-    return transitionStartedAtMs;
-  }
-
-  /**
    * Returns the elapsed time in seconds since the current transition started.
    *
    * @return elapsed transition time in seconds
