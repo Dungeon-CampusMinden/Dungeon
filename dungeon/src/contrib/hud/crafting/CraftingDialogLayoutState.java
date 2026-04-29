@@ -8,7 +8,18 @@ import contrib.item.Item;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
 
-/** Calculated geometry for one rendered crafting dialog frame. */
+/**
+ * Represents the layout state for a crafting dialog.
+ *
+ * <p>This encapsulates the layout measurements and coordinates for various components in the
+ * crafting dialog, such as the title positions, grids for items, and bounding rectangles for left and right panels.
+ *
+ * <p>This class leverages pre-defined default dimensions and dynamically calculated measurements
+ * to establish an organized structure for the crafting interface.
+ *
+ * <p>The class is immutable, ensuring that the layout state remains consistent and cannot be
+ * altered once created.
+ */
 final class CraftingDialogLayoutState {
 
   static final int DEFAULT_WIDTH = 1180;
@@ -20,7 +31,6 @@ final class CraftingDialogLayoutState {
   private static final int CLASSIC_CRAFTING_PANEL_WIDTH = 420;
   private static final int CLASSIC_CRAFTING_PANEL_HEIGHT = 420;
 
-  private final Measurement measurement;
   private final int titleBaseline;
   private final int leftTitleX;
   private final int craftingTitleX;
@@ -29,14 +39,12 @@ final class CraftingDialogLayoutState {
   private final Rectangle rightPanelBounds;
 
   private CraftingDialogLayoutState(
-      Measurement measurement,
       int titleBaseline,
       int leftTitleX,
       int craftingTitleX,
       ItemGridHitTest.Grid<CraftingInventorySide> leftGrid,
       Rectangle leftPanelBounds,
       Rectangle rightPanelBounds) {
-    this.measurement = measurement;
     this.titleBaseline = titleBaseline;
     this.leftTitleX = leftTitleX;
     this.craftingTitleX = craftingTitleX;
@@ -111,21 +119,12 @@ final class CraftingDialogLayoutState {
             visibleTargetSlots);
 
     return new CraftingDialogLayoutState(
-        measurement,
-        titleBaseline,
+      titleBaseline,
         leftStartX,
         rightPanelX + PANEL_PADDING,
         leftGrid,
         leftPanelBounds,
         rightPanelBounds);
-  }
-
-  int dialogWidth() {
-    return measurement.dialogWidth();
-  }
-
-  int dialogHeight() {
-    return measurement.dialogHeight();
   }
 
   int titleBaseline() {
