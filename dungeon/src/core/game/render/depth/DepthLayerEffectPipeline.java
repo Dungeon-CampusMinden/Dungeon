@@ -124,9 +124,4 @@ public final class DepthLayerEffectPipeline {
 
     return current;
   }
-
-  /** Clears all effects from all depth layers. */
-  public static void clear() {
-    EFFECTS_BY_DEPTH.clear();
-  }
 }
