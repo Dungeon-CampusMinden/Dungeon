@@ -85,7 +85,7 @@ public final class SpriteColorGradeEffect
   }
 
   @Override
-  public BufferedImage apply(BufferedImage input, long nowMs) {
+  public BufferedImage apply(BufferedImage input) {
     if (input == null || !enabled) {
       return input;
     }

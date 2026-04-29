@@ -179,8 +179,8 @@ final class EntitySpriteRenderer {
       return;
     }
 
-    long nowMs = Time.nowMs();
-    renderImg = SpriteEffectPipeline.apply(entity, renderImg, nowMs);
+     long nowMs = Time.nowMs();
+     renderImg = SpriteEffectPipeline.apply(entity, renderImg);
 
     float sxWorld = pos.x() * tilePx;
     float syWorld = (levelHeight > 0) ? (levelHeight - 1 - pos.y()) * tilePx : (pos.y() * tilePx);

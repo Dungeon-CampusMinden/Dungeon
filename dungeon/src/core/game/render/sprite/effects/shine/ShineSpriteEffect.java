@@ -118,7 +118,7 @@ public final class ShineSpriteEffect implements SpriteEffect, ToggleableEffect<S
 
   /** Shine is rendered as a separate overlay image at draw time. */
   @Override
-  public BufferedImage apply(BufferedImage input, long nowMs) {
+  public BufferedImage apply(BufferedImage input) {
     return input;
   }
 

@@ -56,7 +56,7 @@ public final class SpriteRecolorEffect
   }
 
   @Override
-  public BufferedImage apply(BufferedImage input, long nowMs) {
+  public BufferedImage apply(BufferedImage input) {
     if (input == null || !enabled) {
       return input;
     }

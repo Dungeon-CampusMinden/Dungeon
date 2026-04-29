@@ -27,13 +27,11 @@ public final class SpriteEffectPipeline {
    *     of enabled sprite effects to be applied
    * @param sprite the {@code BufferedImage} representing the sprite image to which the effects will
    *     be applied
-   * @param nowMs the current time in milliseconds, used as a reference for applying time-based
-   *     sprite effects
    * @return the {@code BufferedImage} resulting from the applied sprite effects, or the original
    *     sprite if no effects are available or applicable
    * @throws IllegalStateException if a sprite effect returns a null sprite image during processing
    */
-  public static BufferedImage apply(Entity entity, BufferedImage sprite, long nowMs) {
+  public static BufferedImage apply(Entity entity, BufferedImage sprite) {
     if (entity == null || sprite == null) {
       return sprite;
     }
@@ -45,7 +43,7 @@ public final class SpriteEffectPipeline {
 
     BufferedImage current = sprite;
     for (SpriteEffect effect : component.effects().getEnabledSorted()) {
-      current = effect.apply(current, nowMs);
+      current = effect.apply(current);
       if (current == null) {
         throw new IllegalStateException(
             effect.getClass().getSimpleName() + " returned null sprite image.");
