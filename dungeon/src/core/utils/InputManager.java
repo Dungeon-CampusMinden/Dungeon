@@ -19,8 +19,6 @@ import java.util.Set;
  */
 public final class InputManager {
 
-  private static final long DEFAULT_DOUBLE_TAP_INTERVAL_MS = 300L;
-
   private static final Set<Integer> justPressedKeys = new HashSet<>();
   private static final Set<Integer> pressedKeys = new HashSet<>();
   private static final Set<Integer> justReleasedKeys = new HashSet<>();
@@ -60,40 +58,6 @@ public final class InputManager {
   }
 
   /**
-   * Checks if a key was just released in the current frame.
-   *
-   * @param keycode The key to check.
-   * @return true if the key was just released, false otherwise.
-   */
-  public static boolean isKeyJustReleased(int keycode) {
-    return justReleasedKeys.contains(keycode);
-  }
-
-  /**
-   * Checks if a key was double-tapped in the current frame.
-   *
-   * @param keycode The key to check.
-   * @return true only on the second tap's press frame if the previous tap was within the default
-   *     interval, false otherwise.
-   */
-  public static boolean isKeyDoubleTapped(int keycode) {
-    return isKeyDoubleTapped(keycode, DEFAULT_DOUBLE_TAP_INTERVAL_MS);
-  }
-
-  /**
-   * Checks if a key was double-tapped in the current frame.
-   *
-   * @param keycode The key to check.
-   * @param maxIntervalMs Maximum time in milliseconds between taps.
-   * @return true only on the second tap's press frame if the previous tap was within the given
-   *     interval, false otherwise.
-   */
-  public static boolean isKeyDoubleTapped(int keycode, long maxIntervalMs) {
-    return isDoubleTapped(
-        keycode, justPressedKeys, lastKeyTapTimesMs, previousKeyTapTimesMs, maxIntervalMs);
-  }
-
-  /**
    * Checks if a mouse button was just pressed in the current frame.
    *
    * @param button The button to check.
@@ -115,69 +79,11 @@ public final class InputManager {
   }
 
   /**
-   * Checks if a mouse button was just released in the current frame.
-   *
-   * @param button The button to check.
-   * @return true if the button was just released, false otherwise.
-   */
-  public static boolean isButtonJustReleased(int button) {
-    return justReleasedButtons.contains(button);
-  }
-
-  /**
-   * Checks if a mouse button was double-tapped in the current frame.
-   *
-   * @param button The button to check.
-   * @return true only on the second tap's press frame if the previous tap was within the default
-   *     interval, false otherwise.
-   */
-  public static boolean isButtonDoubleTapped(int button) {
-    return isButtonDoubleTapped(button, DEFAULT_DOUBLE_TAP_INTERVAL_MS);
-  }
-
-  /**
-   * Checks if a mouse button was double-tapped in the current frame.
-   *
-   * @param button The button to check.
-   * @param maxIntervalMs Maximum time in milliseconds between taps.
-   * @return true only on the second tap's press frame if the previous tap was within the given
-   *     interval, false otherwise.
-   */
-  public static boolean isButtonDoubleTapped(int button, long maxIntervalMs) {
-    return isDoubleTapped(
-        button, justPressedButtons, lastButtonTapTimesMs, previousButtonTapTimesMs, maxIntervalMs);
-  }
-
-  /**
-   * Checks if a key has been held for at least the given duration.
-   *
-   * @param keycode The key to check.
-   * @param holdDurationMs Duration in milliseconds the key must be held. If {@code <= 0}, behaves
-   *     like {@link #isKeyPressed(int)}.
-   * @return true if the key has been held long enough, false otherwise.
-   */
-  public static boolean isKeyHeld(int keycode, long holdDurationMs) {
-    return isHeld(keycode, holdDurationMs, keyDownTimesMs, InputManager::isKeyPressed);
-  }
-
-  /**
-   * Checks if a mouse button has been held for at least the given duration.
-   *
-   * @param button The button to check.
-   * @param holdDurationMs Duration in milliseconds the button must be held. If {@code <= 0},
-   *     behaves like {@link #isButtonPressed(int)}.
-   * @return true if the button has been held long enough, false otherwise.
-   */
-  public static boolean isButtonHeld(int button, long holdDurationMs) {
-    return isHeld(button, holdDurationMs, buttonDownTimesMs, InputManager::isButtonPressed);
-  }
-
-  /**
    * Returns all currently buffered typed characters and clears the buffer.
    *
    * <p>This is intended for text-input UIs such as FREE_INPUT dialogs.
    *
-   * @return typed characters since the last consume call
+   * @return typed characters since the last consumption call
    */
   public static String consumeTypedCharacters() {
     if (typedCharacters.isEmpty()) {
@@ -193,7 +99,7 @@ public final class InputManager {
    * Clears all tracked input states.
    *
    * <p>Useful when changing input processors or when focus is lost. This also clears tap history,
-   * hold start times and typed text input.
+   *  holds start times and typed text input.
    */
   public static void reset() {
     justPressedKeys.clear();
@@ -252,35 +158,6 @@ public final class InputManager {
     pressed.remove(code);
     justReleased.add(code);
     downTimesMs.remove(code);
-  }
-
-  private static boolean isDoubleTapped(
-      int code,
-      Set<Integer> justPressed,
-      Map<Integer, Long> lastTapTimesMs,
-      Map<Integer, Long> previousTapTimesMs,
-      long maxIntervalMs) {
-    if (!justPressed.contains(code) || maxIntervalMs < 0) {
-      return false;
-    }
-    Long lastTap = lastTapTimesMs.get(code);
-    Long previousTap = previousTapTimesMs.get(code);
-    return lastTap != null && previousTap != null && lastTap - previousTap <= maxIntervalMs;
-  }
-
-  private static boolean isHeld(
-      int code,
-      long holdDurationMs,
-      Map<Integer, Long> downTimesMs,
-      java.util.function.IntPredicate isPressed) {
-    if (holdDurationMs <= 0) {
-      return isPressed.test(code);
-    }
-    Long downTime = downTimesMs.get(code);
-    if (downTime == null || !isPressed.test(code)) {
-      return false;
-    }
-    return core.utils.Time.sinceMs(downTime) >= holdDurationMs;
   }
 
   private static void updateFrame(
@@ -365,7 +242,7 @@ public final class InputManager {
   /**
    * Notifies the InputManager that a mouse button has been released.
    *
-   * <p>This method should be called by an input handler when a mouse button up event is received.
+   * <p>This method should be called by an input handler when a mouse-button-up event is received.
    * It updates the internal state to mark the button as just released.
    *
    * @param button The code of the mouse button that was released.
