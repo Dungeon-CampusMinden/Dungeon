@@ -1,10 +1,11 @@
 package contrib.hud.dialogs;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.*;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
@@ -15,6 +16,8 @@ import contrib.hud.elements.richlabel.TagParams;
 import core.Game;
 import core.utils.BaseContainerUI;
 import core.utils.FontSpec;
+import core.utils.components.draw.TextureMap;
+import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,10 +61,10 @@ final class DialogDialog {
   private static final float TOP_OFFSET = 100;
 
   /** Default speaker portrait used when none is supplied by the script. */
-  static final String DEFAULT_SPEAKER_IMAGE = "animation/missing_texture.png";
+  static final String DEFAULT_SPEAKER_IMAGE = "other/unknown.png";
 
   /** Default speaker name used when none is supplied by the script. */
-  static final String DEFAULT_SPEAKER_NAME = "[color=#444444]Unknown[/color]";
+  static final String DEFAULT_SPEAKER_NAME = "";
 
   /** Tag used inside the dialog script to split into multiple pages. */
   private static final Pattern PAGE_BREAK_PATTERN = Pattern.compile("\\s*\\[p]\\s*");
@@ -204,35 +207,34 @@ final class DialogDialog {
           }
         });
 
-    // Wrap in an actor that disposes textures on stage removal.
+    // Wrap in an actor that clears the local texture cache on stage removal. Textures themselves
+    // are owned by the TextureMap and must not be disposed here.
     dialog.pack();
     return new BaseContainerUI(dialog, Align.top, 0f, TOP_OFFSET, false, true) {
       @Override
       protected void setStage(Stage stage) {
         super.setStage(stage);
         if (stage == null) {
-          for (Texture t : textureCache.values()) {
-            t.dispose();
-          }
           textureCache.clear();
         }
       }
     };
   }
 
-  /** Tag used inside {@link DialogEntry#text()} to split a single entry into multiple pages. */
-  private static final java.util.regex.Pattern LEGACY_PAGE_BREAK_PATTERN = PAGE_BREAK_PATTERN;
-
   /** Parses the script string into dialog pages with resolved speaker metadata. */
   private static List<DialogEntry> parseScript(String script) {
     String[] parts = PAGE_BREAK_PATTERN.split(script, -1);
     List<DialogEntry> out = new ArrayList<>(parts.length);
-    String currentImage = null;
-    String currentName = null;
+    String currentImage = DEFAULT_SPEAKER_IMAGE;
+    String currentName = DEFAULT_SPEAKER_NAME;
     for (String rawPart : parts) {
       String part = rawPart;
       SpeakerTagParse parsedSpeakerTag = parseLeadingSpeakerTag(part);
       if (parsedSpeakerTag != null) {
+        // A speaker tag starts a fresh speaker context for this page: omitted fields intentionally
+        // fall back to defaults instead of inheriting from previous pages.
+        currentImage = DEFAULT_SPEAKER_IMAGE;
+        currentName = DEFAULT_SPEAKER_NAME;
         TagParams tp = TagParams.parse(parsedSpeakerTag.params());
         String img = tp.getString("img", null);
         String name = tp.getString("name", null);
@@ -242,9 +244,7 @@ final class DialogDialog {
       }
       String text = part.strip();
       if (text.isEmpty()) continue;
-      String image = currentImage != null ? currentImage : DEFAULT_SPEAKER_IMAGE;
-      String name = currentName != null ? currentName : DEFAULT_SPEAKER_NAME;
-      out.add(DialogEntry.of(name, image, text));
+      out.add(DialogEntry.of(currentName, currentImage, text));
     }
     return out;
   }
@@ -300,7 +300,9 @@ final class DialogDialog {
       RichLabel nameLabel,
       RichLabel textLabel,
       Map<String, Texture> cache) {
-    Texture tex = cache.computeIfAbsent(entry.imagePath(), p -> new Texture(Gdx.files.internal(p)));
+    Texture tex =
+        cache.computeIfAbsent(
+            entry.imagePath(), p -> TextureMap.instance().textureAt(new SimpleIPath(p)));
     speakerImage.setDrawable(new TextureRegionDrawable(tex));
     nameLabel.setText(RichLabel.toRichText(entry.speakerName()));
     textLabel.setText(RichLabel.toRichText(entry.text()));

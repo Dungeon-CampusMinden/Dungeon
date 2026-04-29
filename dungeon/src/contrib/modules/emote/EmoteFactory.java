@@ -20,7 +20,7 @@ public class EmoteFactory {
    */
   public static Entity createEmote(Point position, Emote emote, int duration) {
     Entity entity = new Entity();
-    entity.add(new PositionComponent(position));
+    entity.add(new PositionComponent(position.translate(-0.5f, 0.5f)));
     entity.add(new EmoteComponent(emote, duration));
     DrawComponent dc = new DrawComponent(new SimpleIPath(emote.getPath()));
     dc.depth(DepthLayer.AbovePlayer.depth());

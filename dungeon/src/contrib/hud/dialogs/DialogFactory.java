@@ -429,8 +429,8 @@ public class DialogFactory {
    * <p>The {@code dialog} string is split into pages by the {@code [p]} tag. Each page may begin
    * with an optional {@code [speaker img=<path> name="<displayName>"]} tag that sets the speaker
    * portrait and display name for that page. If a page omits the tag, it inherits the speaker from
-   * the previous page; if there is no previous speaker (or a parameter is omitted), a default
-   * placeholder image and the name {@code [color=#444444]Unknown[/color]} are used. Pages are
+   * the previous page. If a page includes a speaker tag, unspecified speaker parameters on that
+   * tag fall back to a default placeholder image and no name. Pages are
    * shown one after another. The user advances by clicking anywhere on the dialog or pressing the
    * configured interact key. While a typewriter reveal is still running, the advance instead skips
    * to the end of the current text. After the last page has been confirmed, {@code onFinished} is
