@@ -39,15 +39,6 @@ dependencies {
     // LITIENGINE: the main dependency for game development
     implementation "de.gurkenlabs:litiengine:0.11.1"
 
-    // LibGDX: expose this API to users because of core.level.elements.ILevel
-    api supportDependencies.gdx
-    api supportDependencies.gdx_platform
-    api supportDependencies.gdx_backend_lwjgl3
-    api supportDependencies.gdx_lwjgl3_glfw_awt_macos
-    api supportDependencies.gdx_freetype
-    api supportDependencies.gdx_freetype_platform
-    api supportDependencies.gdx_backend_headless
-
     // Netty for server-client communication
     implementation supportDependencies.netty_all
 
@@ -56,11 +47,7 @@ dependencies {
     testImplementation supportDependencies.junitLauncher
     testRuntimeOnly supportDependencies.junitLauncher
     testImplementation supportDependencies.mockito_core
-    testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:1.14.0"
-    testImplementation("com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion")
-    testImplementation("com.badlogicgames.gdx:gdx:$gdxVersion")
 }
-
 
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
