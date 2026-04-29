@@ -38,7 +38,7 @@ public final class CameraState {
    * @param newZoom the desired zoom factor; values outside the range [0.25, 4.0] are clamped
    */
   public static void zoom(float newZoom) {
-    zoom = clamp(newZoom, MIN_ZOOM, MAX_ZOOM);
+    zoom = Math.clamp(newZoom, MIN_ZOOM, MAX_ZOOM);
   }
 
   /**
@@ -48,27 +48,6 @@ public final class CameraState {
    */
   public static Point focusPosition() {
     return copy(focusPosition);
-  }
-
-  /**
-   * Sets the camera focus position directly.
-   *
-   * @param newFocusPosition the new focus position (must not be null)
-   * @throws NullPointerException if the newFocusPosition is null
-   */
-  public static void focusPosition(Point newFocusPosition) {
-    Objects.requireNonNull(newFocusPosition, "newFocusPosition");
-    focusPosition = copy(newFocusPosition);
-    focusInitialized = true;
-  }
-
-  /**
-   * Gets the current follow target position.
-   *
-   * @return a copy of the current follow target
-   */
-  public static Point followTarget() {
-    return copy(followTarget);
   }
 
   /**
@@ -104,18 +83,22 @@ public final class CameraState {
    * <p>On the first step, the focus snaps directly to the target. Afterward smoothing is applied
    * via {@link CameraMath#stepTowardsFocus(Point, Point, float)}.
    *
-   * @param focusLerp smoothing factor in range {@code [0, 1]}
+   * @param focusLerpFactor smoothing factor in range {@code [0, 1]}
    * @return updated focus position
    */
-  public static Point stepFocus(float focusLerp) {
+  public static Point stepFocus(float focusLerpFactor) {
     if (!focusInitialized) {
-      focusPosition = copy(followTarget);
+      Point target = copy(followTarget);
+      focusPosition = target;
       focusInitialized = true;
-      return copy(focusPosition);
+      return target;
     }
 
-    focusPosition = CameraMath.stepTowardsFocus(focusPosition, followTarget, focusLerp);
-    return copy(focusPosition);
+    Point current = copy(focusPosition);
+    Point target = copy(followTarget);
+    Point newPosition = CameraMath.stepTowardsFocus(current, target, focusLerpFactor);
+    focusPosition = newPosition;
+    return copy(newPosition);
   }
 
   /**
@@ -129,11 +112,8 @@ public final class CameraState {
     focusInitialized = false;
   }
 
-  private static float clamp(float value, float min, float max) {
-    return Math.max(min, Math.min(max, value));
-  }
-
   private static Point copy(Point point) {
     return new Point(point.x(), point.y());
   }
 }
+
