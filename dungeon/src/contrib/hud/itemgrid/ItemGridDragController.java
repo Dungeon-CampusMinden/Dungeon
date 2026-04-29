@@ -8,7 +8,6 @@ import core.ui.StageHandle;
 import core.utils.InputManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -268,18 +267,6 @@ public final class ItemGridDragController<S> {
     pressedSlot = null;
     buttonDownLastFrame = false;
     dragState = null;
-  }
-
-  /**
-   * Draws a rounded drop-target highlight inside the given bounds.
-   *
-   * @param g the graphics context
-   * @param bounds the bounds to highlight
-   * @param fill the highlight fill color
-   * @param outline the highlight outline color
-   */
-  public static void drawDropHighlight(Graphics2D g, Rectangle bounds, Color fill, Color outline) {
-    InventoryDropHandling.drawDropHighlight(g, bounds, fill, outline);
   }
 
   private void maybeStartDrag(int mouseX, int mouseY, ItemResolver<S> itemResolver) {
