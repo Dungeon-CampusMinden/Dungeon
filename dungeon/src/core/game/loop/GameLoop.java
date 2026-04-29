@@ -51,19 +51,6 @@ public final class GameLoop {
   }
 
   /**
-   * Advances the game simulation by one tick using the given delta time and executes systems that
-   * are intended to run during rendering.
-   *
-   * <p>This is a convenience overload for {@link #tick(float, boolean)} with {@code renderSystems}
-   * set to {@code true}.
-   *
-   * @param deltaSeconds elapsed time since the last frame/tick in seconds
-   */
-  public void tick(final float deltaSeconds) {
-    tick(deltaSeconds, true);
-  }
-
-  /**
    * Advances the game simulation by one tick using the given delta time and executes systems based
    * on the {@code renderSystems} flag.
    *
