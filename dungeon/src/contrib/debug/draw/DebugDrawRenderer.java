@@ -35,13 +35,11 @@ public final class DebugDrawRenderer {
 
     Graphics2D g = (Graphics2D) base.create();
     try {
-      g.setStroke(new BasicStroke(scaledStroke(view.tilePx(), 1f / 16f, 1f)));
+      g.setStroke(new BasicStroke(scaledStroke(view.tilePx())));
 
       int levelHeight = resolveLevelHeight(view);
 
-      renderWorldFills(g, drawCalls.worldFills(), view, levelHeight);
       renderWorldRectangles(g, drawCalls.worldRectangles(), view, levelHeight);
-      renderScreenMarkers(g, drawCalls.screenMarkers());
       renderScreenTexts(g, drawCalls.screenTexts());
       renderWorldCircleFills(g, drawCalls.worldCircleFills());
       renderWorldLines(g, drawCalls.worldLines());
@@ -52,9 +50,9 @@ public final class DebugDrawRenderer {
     }
   }
 
-  private static float scaledStroke(int tilePx, float factor, float minPx) {
+  private static float scaledStroke(int tilePx) {
     int safeTilePx = Math.max(1, tilePx);
-    return Math.max(minPx, safeTilePx * factor);
+    return Math.max((float) 1.0, safeTilePx * (float) 0.0625);
   }
 
   private static int resolveLevelHeight(CameraViewportState.Viewport view) {
@@ -82,8 +80,8 @@ public final class DebugDrawRenderer {
           rectangle.y(),
           rectangle.width(),
           rectangle.height(),
-          rectangle.color(),
-          false);
+          rectangle.color()
+      );
     }
   }
 
@@ -108,46 +106,6 @@ public final class DebugDrawRenderer {
     }
   }
 
-  private static void renderScreenMarkers(
-      Graphics2D g, List<DebugDrawSnapshot.ScreenMarker> markers) {
-    for (DebugDrawSnapshot.ScreenMarker marker : markers) {
-      int radius = marker.diameterPx() / 2;
-      int x = Math.round(marker.center().x()) - radius;
-      int y = Math.round(marker.center().y()) - radius;
-
-      if (marker.fillColor() != null) {
-        g.setColor(marker.fillColor());
-        g.fillOval(x, y, marker.diameterPx(), marker.diameterPx());
-      }
-
-      if (marker.outlineColor() != null) {
-        g.setColor(marker.outlineColor());
-        g.drawOval(x, y, marker.diameterPx(), marker.diameterPx());
-      }
-    }
-  }
-
-  private static void renderWorldFills(
-      Graphics2D g,
-      List<DebugDrawSnapshot.WorldFill> fills,
-      CameraViewportState.Viewport view,
-      int levelHeight) {
-
-    int tilePx = view.tilePx();
-    for (DebugDrawSnapshot.WorldFill fill : fills) {
-      renderWorldRect(
-          g,
-          view,
-          levelHeight,
-          tilePx,
-          fill.x(),
-          fill.y(),
-          fill.width(),
-          fill.height(),
-          fill.color(),
-          true);
-    }
-  }
 
   private static void renderWorldRect(
       Graphics2D g,
@@ -158,8 +116,7 @@ public final class DebugDrawRenderer {
       float y,
       float width,
       float height,
-      Color color,
-      boolean fill) {
+      Color color) {
 
     int screenX = (int) Math.round(view.offsetX() + x * tilePx);
     int screenY =
@@ -171,11 +128,6 @@ public final class DebugDrawRenderer {
     int screenHeight = Math.max(1, Math.round(height * tilePx));
 
     g.setColor(color);
-    if (fill) {
-      g.fillRect(screenX, screenY, screenWidth, screenHeight);
-      return;
-    }
-
     g.drawRect(screenX, screenY, screenWidth, screenHeight);
   }
 

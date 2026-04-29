@@ -12,9 +12,7 @@ import java.util.List;
  */
 public final class DebugDrawQueue {
   private final List<DebugDrawSnapshot.WorldRectangle> worldRectangles = new ArrayList<>();
-  private final List<DebugDrawSnapshot.WorldFill> worldFills = new ArrayList<>();
   private final List<DebugDrawSnapshot.ScreenText> screenTexts = new ArrayList<>();
-  private final List<DebugDrawSnapshot.ScreenMarker> screenMarkers = new ArrayList<>();
   private final List<DebugDrawSnapshot.WorldLine> worldLines = new ArrayList<>();
   private final List<DebugDrawSnapshot.WorldCircleOutline> worldCircleOutlines = new ArrayList<>();
   private final List<DebugDrawSnapshot.WorldCircleFill> worldCircleFills = new ArrayList<>();
@@ -106,9 +104,7 @@ public final class DebugDrawQueue {
     DebugDrawSnapshot snapshot =
         new DebugDrawSnapshot(
             List.copyOf(worldRectangles),
-            List.copyOf(worldFills),
             List.copyOf(screenTexts),
-            List.copyOf(screenMarkers),
             List.copyOf(worldLines),
             List.copyOf(worldCircleOutlines),
             List.copyOf(worldCircleFills),
@@ -120,9 +116,7 @@ public final class DebugDrawQueue {
   /** Removes all queued draw commands. */
   public synchronized void clear() {
     worldRectangles.clear();
-    worldFills.clear();
     screenTexts.clear();
-    screenMarkers.clear();
     worldLines.clear();
     worldCircleOutlines.clear();
     worldCircleFills.clear();
@@ -136,9 +130,7 @@ public final class DebugDrawQueue {
    */
   public synchronized boolean isEmpty() {
     return worldRectangles.isEmpty()
-        && worldFills.isEmpty()
         && screenTexts.isEmpty()
-        && screenMarkers.isEmpty()
         && worldLines.isEmpty()
         && worldCircleOutlines.isEmpty()
         && worldCircleFills.isEmpty()
