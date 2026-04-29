@@ -22,7 +22,6 @@ import core.utils.InputManager;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
 import de.gurkenlabs.litiengine.configuration.DisplayMode;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -59,15 +58,6 @@ public final class ClientLoopHost implements GameLoopHost {
   /** Creates a client loop host without optional installers. */
   public ClientLoopHost() {
     this(Collections.emptyList());
-  }
-
-  /**
-   * Creates a client loop host with explicit installers.
-   *
-   * @param installers installers that extend the client startup
-   */
-  public ClientLoopHost(ClientLoopHostInstaller... installers) {
-    this(Arrays.asList(installers));
   }
 
   /**
