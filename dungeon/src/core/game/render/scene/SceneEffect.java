@@ -22,8 +22,7 @@ public interface SceneEffect {
    * Applies the effect to the fully rendered scene image.
    *
    * @param input fully rendered frame image
-   * @param nowMs current timestamp in milliseconds
    * @return transformed scene image, never {@code null}
    */
-  BufferedImage apply(BufferedImage input, long nowMs);
+  BufferedImage apply(BufferedImage input);
 }

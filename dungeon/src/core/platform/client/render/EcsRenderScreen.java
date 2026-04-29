@@ -4,7 +4,6 @@ import core.game.ECSManagement;
 import core.game.render.RenderContext;
 import core.game.render.scene.SceneEffectPipeline;
 import core.ui.overlay.OverlayManager;
-import core.utils.Time;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.gui.screens.Screen;
 import java.awt.Graphics2D;
@@ -55,7 +54,7 @@ public final class EcsRenderScreen extends Screen {
       sceneGraphics.dispose();
     }
 
-    BufferedImage processed = SceneEffectPipeline.apply(sceneBuffer, Time.nowMs());
+     BufferedImage processed = SceneEffectPipeline.apply(sceneBuffer);
     g.drawImage(processed, 0, 0, null);
   }
 

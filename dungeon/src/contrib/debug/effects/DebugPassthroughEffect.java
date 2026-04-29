@@ -74,7 +74,7 @@ public final class DebugPassthroughEffect
   }
 
   @Override
-  public BufferedImage apply(BufferedImage input, long nowMs) {
+  public BufferedImage apply(BufferedImage input) {
     if (input == null || !enabled || (!debugPMA && !debugWorldPos)) {
       return input;
     }

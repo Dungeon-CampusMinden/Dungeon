@@ -16,11 +16,6 @@ import java.awt.image.BufferedImage;
 public final class SceneColorGradeEffect extends BaseColorGradeEffect<SceneColorGradeEffect>
     implements SceneEffect, ToggleableEffect<SceneColorGradeEffect> {
 
-  /** Creates a neutral scene color-grade effect that leaves the scene unchanged. */
-  public SceneColorGradeEffect() {
-    super();
-  }
-
   /**
    * Creates a scene color-grade effect with the given HSV parameters.
    *
@@ -38,7 +33,7 @@ public final class SceneColorGradeEffect extends BaseColorGradeEffect<SceneColor
   }
 
   @Override
-  public BufferedImage apply(BufferedImage input, long nowMs) {
+  public BufferedImage apply(BufferedImage input) {
     if (input == null || !enabled()) {
       return input;
     }
