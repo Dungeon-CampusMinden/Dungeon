@@ -470,9 +470,15 @@ public enum Deco {
 
   /** A decoration. */
   LogBig(
-      "objects/nature/big_log.png",
-      new AnimationConfig().scaleX(2),
-      new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+    "objects/nature/big_log.png",
+    new AnimationConfig().scaleX(2),
+    new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+
+  /** A decoration. */
+  Phone(
+      "office/phone.png",
+      new AnimationConfig().scaleX(0.5f),
+      new Rectangle(0.5f, 0.5f, 0, 0)),
   ;
 
   private IPath path;
