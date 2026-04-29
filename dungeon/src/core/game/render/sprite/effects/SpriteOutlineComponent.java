@@ -28,9 +28,9 @@ public final class SpriteOutlineComponent implements Component {
 
   private int width;
   private Color color;
-  private float beatSpeed;
-  private float beatIntensity;
-  private boolean rainbow;
+  private final float beatSpeed;
+  private final float beatIntensity;
+  private final boolean rainbow;
 
   /**
    * Constructs an OutlineEffectComponent with all parameters specified.
@@ -49,30 +49,6 @@ public final class SpriteOutlineComponent implements Component {
     this.beatSpeed = beatSpeed;
     this.beatIntensity = Math.max(0f, beatIntensity);
     this.rainbow = false;
-  }
-
-  /**
-   * Constructs an OutlineEffectComponent with default animation parameters.
-   *
-   * <p>Uses default values: beatSpeed = 1.0, beatIntensity = 0 (no pulsing), rainbow = false.
-   *
-   * @param width the base outline thickness in pixels (must be at least 1)
-   * @param color the outline color (must not be null)
-   * @throws NullPointerException if color is null
-   */
-  public SpriteOutlineComponent(final int width, final Color color) {
-    this(width, color, 1.0f, 0f);
-  }
-
-  /**
-   * Constructs an OutlineEffectComponent with a white outline and default parameters.
-   *
-   * <p>Uses default values: color = white, beatSpeed = 1.0, beatIntensity = 0, rainbow = false.
-   *
-   * @param width the base outline thickness in pixels (must be at least 1)
-   */
-  public SpriteOutlineComponent(final int width) {
-    this(width, Color.WHITE);
   }
 
   /**
@@ -126,19 +102,6 @@ public final class SpriteOutlineComponent implements Component {
   }
 
   /**
-   * Sets the animation speed multiplier.
-   *
-   * <p>Controls the frequency of pulsing and rainbow color cycling effects.
-   *
-   * @param beatSpeed the animation speed multiplier
-   * @return this component for method chaining
-   */
-  public SpriteOutlineComponent beatSpeed(final float beatSpeed) {
-    this.beatSpeed = beatSpeed;
-    return this;
-  }
-
-  /**
    * Returns the beat intensity (pulsing effect strength).
    *
    * @return the current beat intensity (0 means no pulsing)
@@ -148,39 +111,11 @@ public final class SpriteOutlineComponent implements Component {
   }
 
   /**
-   * Sets the beat intensity for the pulsing effect.
-   *
-   * <p>A value of 0 disables pulsing. Higher values create stronger pulsing animations. Negative
-   * values are clamped to 0.
-   *
-   * @param beatIntensity the pulsing effect intensity (will be clamped to at least 0)
-   * @return this component for method chaining
-   */
-  public SpriteOutlineComponent beatIntensity(final float beatIntensity) {
-    this.beatIntensity = Math.max(0f, beatIntensity);
-    return this;
-  }
-
-  /**
    * Returns whether rainbow color cycling is enabled.
    *
    * @return true if rainbow mode is active, false otherwise
    */
   public boolean rainbow() {
     return rainbow;
-  }
-
-  /**
-   * Sets whether to enable rainbow color cycling animation.
-   *
-   * <p>When enabled, the outline color cycles through the hue spectrum at a rate controlled by
-   * beatSpeed.
-   *
-   * @param rainbow true to enable rainbow animation, false to disable
-   * @return this component for method chaining
-   */
-  public SpriteOutlineComponent rainbow(final boolean rainbow) {
-    this.rainbow = rainbow;
-    return this;
   }
 }
