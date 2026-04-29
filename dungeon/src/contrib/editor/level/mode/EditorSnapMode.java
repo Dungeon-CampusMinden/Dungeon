@@ -50,17 +50,6 @@ public enum EditorSnapMode {
   }
 
   /**
-   * Returns the previous snap mode in the enumeration order.
-   *
-   * <p>Wraps around to the last mode if called on the first mode.
-   *
-   * @return the previous snap mode
-   */
-  public EditorSnapMode previousMode() {
-    return values()[(this.ordinal() - 1 + values().length) % values().length];
-  }
-
-  /**
    * Returns the next snap mode in the enumeration order.
    *
    * <p>Wraps around to the first mode if called on the last mode.
