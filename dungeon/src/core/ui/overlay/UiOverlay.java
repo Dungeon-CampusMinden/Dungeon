@@ -100,18 +100,4 @@ public interface UiOverlay {
    * @param visible true to show the overlay, false to hide it
    */
   void visible(boolean visible);
-
-  /**
-   * Checks whether the given pixel coordinates are contained within this overlay's bounds.
-   *
-   * <p>This method performs an inclusive boundary check: coordinates exactly on the edges
-   * (including the right and bottom boundaries) are considered contained.
-   *
-   * @param px the x pixel coordinate to check
-   * @param py the y pixel coordinate to check
-   * @return true if (px, py) is within the overlay's rectangular bounds, false otherwise
-   */
-  default boolean contains(int px, int py) {
-    return px >= x() && px <= x() + width() && py >= y() && py <= y() + height();
-  }
 }
