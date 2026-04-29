@@ -45,16 +45,6 @@ public abstract class BaseColorGradeEffect<T extends BaseColorGradeEffect<T>> {
   protected abstract T self();
 
   /**
-   * Returns the target hue for the color-grade effect.
-   *
-   * @return the target hue in the range [0, 1], or a value less than 0 if the original hue is
-   *     retained
-   */
-  public float hue() {
-    return hue;
-  }
-
-  /**
    * Sets the target hue.
    *
    * @param hue target hue in {@code [0, 1]}; values {@code < 0} keep the original hue
