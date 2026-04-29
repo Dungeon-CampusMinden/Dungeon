@@ -35,19 +35,6 @@ public final class DebugDrawQueue {
   }
 
   /**
-   * Adds a filled world-space rectangle draw command.
-   *
-   * @param x world x-coordinate of the bottom-left corner
-   * @param y world y-coordinate of the bottom-left corner
-   * @param width rectangle width in world units
-   * @param height rectangle height in world units
-   * @param color fill color
-   */
-  public synchronized void addWorldFill(float x, float y, float width, float height, Color color) {
-    worldFills.add(new DebugDrawSnapshot.WorldFill(x, y, width, height, color));
-  }
-
-  /**
    * Adds a screen-space text draw command.
    *
    * @param text text to render
@@ -56,20 +43,6 @@ public final class DebugDrawQueue {
    */
   public synchronized void addScreenText(String text, Point screen, Color color) {
     screenTexts.add(new DebugDrawSnapshot.ScreenText(text, screen, color));
-  }
-
-  /**
-   * Adds a screen-space marker draw command.
-   *
-   * @param center center position in screen pixels
-   * @param diameterPx marker diameter in pixels
-   * @param fillColor fill color, or {@code null} for no fill
-   * @param outlineColor outline color, or {@code null} for no outline
-   */
-  public synchronized void addScreenMarker(
-      Point center, int diameterPx, Color fillColor, Color outlineColor) {
-    screenMarkers.add(
-        new DebugDrawSnapshot.ScreenMarker(center, diameterPx, fillColor, outlineColor));
   }
 
   /**
