@@ -116,7 +116,7 @@ final class EntitySpriteRenderer {
       return;
     }
 
-    if (!DepthLayerEffectPipeline.hasEnabledEffects(depthLayer)) {
+    if (DepthLayerEffectPipeline.hasNoEnabledEffects(depthLayer)) {
       renderEntityList(g, entitiesAtDepth, levelHeight, view.tilePx());
       return;
     }

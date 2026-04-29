@@ -39,16 +39,27 @@ public final class DepthLayerEffectPipeline {
     return effects != null && !effects.isEmpty();
   }
 
-  /**
-   * Checks whether any enabled effects are registered for the specified depth layer.
-   *
-   * @param depthLayer the depth layer to check
-   * @return true if at least one effect is enabled for this depth layer, false otherwise
-   */
-  public static boolean hasEnabledEffects(int depthLayer) {
-    DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
-    return effects != null && effects.hasEnabledEffects();
-  }
+   /**
+    * Checks whether any enabled effects are registered for the specified depth layer.
+    *
+    * @param depthLayer the depth layer to check
+    * @return true if at least one effect is enabled for this depth layer, false otherwise
+    */
+   public static boolean hasEnabledEffects(int depthLayer) {
+     DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
+     return effects != null && effects.hasEnabledEffects();
+   }
+
+   /**
+    * Checks whether no enabled effects are registered for the specified depth layer.
+    *
+    * @param depthLayer the depth layer to check
+    * @return true if all effects are disabled for this depth layer, false otherwise
+    */
+   public static boolean hasNoEnabledEffects(int depthLayer) {
+     DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
+     return effects == null || effects.hasNoEnabledEffects();
+   }
 
   /**
    * Checks whether all toggleable effects in all depth layers are enabled.
@@ -107,11 +118,11 @@ public final class DepthLayerEffectPipeline {
    *     enabled
    * @throws IllegalStateException if an effect returns null
    */
-  public static BufferedImage apply(int depthLayer, BufferedImage source) {
-    DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
-    if (source == null || effects == null || !effects.hasEnabledEffects()) {
-      return source;
-    }
+   public static BufferedImage apply(int depthLayer, BufferedImage source) {
+     DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
+     if (source == null || hasNoEnabledEffects(depthLayer)) {
+       return source;
+     }
 
      BufferedImage current = source;
      for (DepthLayerEffect effect : effects.getEnabledSorted()) {

@@ -146,19 +146,28 @@ public final class OrderedEffectRegistry<E> {
     return true;
   }
 
-  /**
-   * Checks whether any registered effect is enabled.
-   *
-   * @return true if at least one effect is enabled
-   */
-  public boolean hasEnabledEffects() {
-    for (E effect : effectMap.values()) {
-      if (enabledPredicate.test(effect)) {
-        return true;
-      }
-    }
-    return false;
-  }
+   /**
+    * Checks whether any registered effect is enabled.
+    *
+    * @return true if at least one effect is enabled
+    */
+   public boolean hasEnabledEffects() {
+     for (E effect : effectMap.values()) {
+       if (enabledPredicate.test(effect)) {
+         return true;
+       }
+     }
+     return false;
+   }
+
+   /**
+    * Checks whether no effects are enabled (all effects are disabled).
+    *
+    * @return true if all effects are disabled
+    */
+   public boolean hasNoEnabledEffects() {
+     return !hasEnabledEffects();
+   }
 
   /**
    * Sets the enabled state for all toggleable effects.
@@ -171,11 +180,6 @@ public final class OrderedEffectRegistry<E> {
         enabledSetter.accept(effect, enabled);
       }
     }
-  }
-
-  /** Enables all toggleable effects. */
-  public void enableAll() {
-    enableAll(true);
   }
 
   /** Disables all toggleable effects. */

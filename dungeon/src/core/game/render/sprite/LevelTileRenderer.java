@@ -6,7 +6,6 @@ import core.game.render.level.LevelPassContext;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
-import core.utils.Time;
 import de.gurkenlabs.litiengine.graphics.ImageRenderer;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -34,7 +33,7 @@ final class LevelTileRenderer {
   private final Map<String, BufferedImage> tileImageCache = new HashMap<>();
 
   void render(Graphics2D g, ILevel level, SpriteViewport view) {
-    if (!LevelEffectPipeline.hasEnabledEffects()) {
+    if (LevelEffectPipeline.hasNoEnabledEffects()) {
       renderLevelTiles(g, level, view);
       return;
     }
@@ -45,7 +44,7 @@ final class LevelTileRenderer {
     }
 
     BufferedImage processed =
-        LevelEffectPipeline.apply(levelBuffer.image(), levelBuffer.context(), Time.nowMs());
+        LevelEffectPipeline.apply(levelBuffer.image(), levelBuffer.context());
     g.drawImage(processed, levelBuffer.drawX(), levelBuffer.drawY(), null);
   }
 
@@ -56,10 +55,10 @@ final class LevelTileRenderer {
     final int height = layout.length;
     final int width = layout[0].length;
 
-    final int minX = clamp(view.minTileX(), 0, width - 1);
-    final int maxX = clamp(view.maxTileX(), 0, width - 1);
-    final int minY = clamp(view.minTileY(), 0, height - 1);
-    final int maxY = clamp(view.maxTileY(), 0, height - 1);
+    final int minX = Math.clamp(view.minTileX(), 0, width - 1);
+    final int maxX = Math.clamp(view.maxTileX(), 0, width - 1);
+    final int minY = Math.clamp(view.minTileY(), 0, height - 1);
+    final int maxY = Math.clamp(view.maxTileY(), 0, height - 1);
 
     for (int y = minY; y <= maxY; y++) {
       for (int x = minX; x <= maxX; x++) {
@@ -91,10 +90,10 @@ final class LevelTileRenderer {
     final int height = layout.length;
     final int width = layout[0].length;
 
-    final int minX = clamp(view.minTileX(), 0, width - 1);
-    final int maxX = clamp(view.maxTileX(), 0, width - 1);
-    final int minY = clamp(view.minTileY(), 0, height - 1);
-    final int maxY = clamp(view.maxTileY(), 0, height - 1);
+    final int minX = Math.clamp(view.minTileX(), 0, width - 1);
+    final int maxX = Math.clamp(view.maxTileX(), 0, width - 1);
+    final int minY = Math.clamp(view.minTileY(), 0, height - 1);
+    final int maxY = Math.clamp(view.maxTileY(), 0, height - 1);
 
     if (minX > maxX || minY > maxY) {
       return null;
@@ -164,9 +163,6 @@ final class LevelTileRenderer {
     return img;
   }
 
-  private static int clamp(int v, int min, int max) {
-    return Math.max(min, Math.min(max, v));
-  }
 
   private static Color colorFor(LevelElement elem) {
     if (elem == null) return Color.DARK_GRAY;

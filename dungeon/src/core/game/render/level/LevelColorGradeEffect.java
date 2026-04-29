@@ -15,11 +15,6 @@ import java.awt.image.BufferedImage;
 public final class LevelColorGradeEffect extends BaseColorGradeEffect<LevelColorGradeEffect>
     implements LevelEffect, ToggleableEffect<LevelColorGradeEffect> {
 
-  /** Creates a neutral level color-grade effect that leaves the level layer unchanged. */
-  public LevelColorGradeEffect() {
-    super();
-  }
-
   /**
    * Creates a level color-grade effect with the given HSV parameters.
    *
@@ -37,7 +32,7 @@ public final class LevelColorGradeEffect extends BaseColorGradeEffect<LevelColor
   }
 
   @Override
-  public BufferedImage apply(BufferedImage input, LevelPassContext context, long nowMs) {
+  public BufferedImage apply(BufferedImage input, LevelPassContext context) {
     return applyColorGrade(
         input, (bufferX, bufferY) -> worldPointForBufferPixel(bufferX, bufferY, context));
   }

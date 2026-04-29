@@ -32,14 +32,14 @@ public final class EcsRenderScreen extends Screen {
 
   @Override
   public void render(Graphics2D g) {
-    super.render(g);
+     super.render(g);
 
-    final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
+     final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
 
-    if (!SceneEffectPipeline.hasEnabledEffects()) {
-      renderDirect(g, deltaSeconds);
-      return;
-    }
+     if (SceneEffectPipeline.hasNoEnabledEffects()) {
+       renderDirect(g, deltaSeconds);
+       return;
+     }
 
     BufferedImage sceneBuffer =
         new BufferedImage(

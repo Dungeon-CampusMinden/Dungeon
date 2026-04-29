@@ -82,14 +82,23 @@ public abstract class EffectRegistryFacade<E> {
     return effects.changePriority(identifier, newPriority);
   }
 
-  /**
-   * Checks whether any registered effect is enabled.
-   *
-   * @return true if at least one effect is enabled
-   */
-  public boolean hasEnabledEffects() {
-    return effects.hasEnabledEffects();
-  }
+   /**
+    * Checks whether any registered effect is enabled.
+    *
+    * @return true if at least one effect is enabled
+    */
+   public boolean hasEnabledEffects() {
+     return effects.hasEnabledEffects();
+   }
+
+   /**
+    * Checks whether no registered effects are enabled (all effects are disabled).
+    *
+    * @return true if all effects are disabled
+    */
+   public boolean hasNoEnabledEffects() {
+     return effects.hasNoEnabledEffects();
+   }
 
   /**
    * Sets the enabled state for all toggleable effects.

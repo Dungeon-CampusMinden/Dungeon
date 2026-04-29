@@ -17,8 +17,7 @@ public interface LevelEffect {
    *
    * @param input rendered level-layer image
    * @param context world-space metadata for the rendered visible level buffer
-   * @param nowMs current timestamp in milliseconds
    * @return transformed level-layer image, never {@code null}
    */
-  BufferedImage apply(BufferedImage input, LevelPassContext context, long nowMs);
+  BufferedImage apply(BufferedImage input, LevelPassContext context);
 }

@@ -32,14 +32,14 @@ public final class SceneEffectPipeline {
     return EFFECTS;
   }
 
-  /**
-   * Checks whether any scene effect managed by the current rendering pipeline is enabled.
-   *
-   * @return true if at least one scene effect is enabled, false otherwise
-   */
-  public static boolean hasEnabledEffects() {
-    return EFFECTS.hasEnabledEffects();
-  }
+   /**
+    * Checks whether no scene effects managed by the current rendering pipeline are enabled.
+    *
+    * @return true if all scene effects are disabled, false otherwise
+    */
+   public static boolean hasNoEnabledEffects() {
+     return EFFECTS.hasNoEnabledEffects();
+   }
 
   /**
    * Toggles all toggleable scene effects at once.
@@ -57,10 +57,10 @@ public final class SceneEffectPipeline {
    * @param nowMs current timestamp in milliseconds
    * @return processed frame image
    */
-  public static BufferedImage apply(BufferedImage source, long nowMs) {
-    if (source == null || !hasEnabledEffects()) {
-      return source;
-    }
+   public static BufferedImage apply(BufferedImage source, long nowMs) {
+     if (source == null || hasNoEnabledEffects()) {
+       return source;
+     }
 
     BufferedImage current = source;
     for (SceneEffect effect : EFFECTS.getEnabledSorted()) {
