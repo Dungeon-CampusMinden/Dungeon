@@ -184,7 +184,6 @@ public class RichLabelParser {
       addTextRuns(runs, text.substring(lastEnd), currentColor, currentSize, currentShake);
     }
 
-
     return runs;
   }
 

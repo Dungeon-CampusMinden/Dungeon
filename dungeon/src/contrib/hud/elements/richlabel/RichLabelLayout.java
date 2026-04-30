@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * <h2>Baseline-anchored line model</h2>
  *
- * Each line owns a single shared <em>baseline</em>. All text runs on a line are placed so their
+ * <p>Each line owns a single shared <em>baseline</em>. All text runs on a line are placed so their
  * font baselines coincide with that baseline regardless of font size. Inline images are anchored
  * <em>to</em> the baseline:
  *
@@ -33,12 +33,12 @@ import java.util.Map;
  *   <li>An image whose render height is &le; the line's text band (cap-height + |descent| of the
  *       largest text run) sits with its bottom edge on the baseline.
  *   <li>An image taller than the text band keeps its bottom anchored as if it were the size of the
- *       text band, then spreads the surplus height equally above and below — visually centering it
+ *       text band, then spreads the surplus height equally above and below - visually centering it
  *       around the text band while still appearing baseline-anchored.
  * </ul>
  *
- * Per line we therefore track {@code textAbove} / {@code textBelow} (the text band) and the list of
- * image heights placed on the line. The actual {@code aboveBaseline} / {@code belowBaseline}
+ * <p>Per line we therefore track {@code textAbove} / {@code textBelow} (the text band) and the list
+ * of image heights placed on the line. The actual {@code aboveBaseline} / {@code belowBaseline}
  * distances are derived once the line is sealed (i.e. after the next wrap / line break / end of
  * input), so an image can wrap onto a line whose final text band is not yet known.
  */
@@ -340,10 +340,13 @@ public class RichLabelLayout {
     /**
      * Standard text line: seeded with the default font's natural line height as the above-baseline
      * extent. {@code textBelow} stays {@code 0} because libGDX renders the visible baseline at the
-     * label's bottom edge — glyph descenders intentionally render below the line bounds (matching
+     * label's bottom edge - glyph descenders intentionally render below the line bounds (matching
      * the legacy layout). Using the full {@code lineHeight} here keeps baseline-to-baseline
      * distance equal to {@code font.getLineHeight()} for text-only paragraphs, so widget bounds
      * tightly contain every label.
+     *
+     * @param defaultFont font used as baseline for a fresh text line
+     * @return initialized line metrics for a text line
      */
     static LineMetrics forText(BitmapFont defaultFont) {
       return new LineMetrics(defaultFont.getLineHeight(), 0f);
@@ -352,6 +355,8 @@ public class RichLabelLayout {
     /**
      * Used only as a forced break before a block image when there is no preceding text on the
      * current line. Contributes nothing to the line height by itself.
+     *
+     * @return zero-height metrics used as a separator line
      */
     static LineMetrics forBlockSeparator() {
       return new LineMetrics(0f, 0f);
@@ -365,6 +370,8 @@ public class RichLabelLayout {
     /**
      * Marks this line as fully occupied by a block image of the given height. Block images are
      * neither baselined nor split: the line's full height equals the image height.
+     *
+     * @param imgHeight rendered block image height in pixels
      */
     void makeBlock(float imgHeight) {
       textAbove = imgHeight;
@@ -372,6 +379,11 @@ public class RichLabelLayout {
       imageHeights.clear();
     }
 
+    /**
+     * Computes the above-baseline extent required by the current line.
+     *
+     * @return maximum above-baseline extent in pixels
+     */
     float aboveBaseline() {
       // textAbove already encodes the line's natural above-baseline extent (max font.lineHeight).
       // For images we anchor the bottom to the baseline (small) or split the surplus equally
@@ -387,6 +399,11 @@ public class RichLabelLayout {
       return above;
     }
 
+    /**
+     * Computes the below-baseline extent required by the current line.
+     *
+     * @return maximum below-baseline extent in pixels
+     */
     float belowBaseline() {
       // Text-only lines contribute nothing below the baseline (descenders render outside the
       // line bounds, matching the legacy layout). Only tall images push the line bottom down.
@@ -399,6 +416,11 @@ public class RichLabelLayout {
       return below;
     }
 
+    /**
+     * Returns the full line height as above-baseline plus below-baseline extent.
+     *
+     * @return line height in pixels
+     */
     float lineHeight() {
       return aboveBaseline() + belowBaseline();
     }
@@ -408,6 +430,13 @@ public class RichLabelLayout {
    * Single flow-layout pass shared by {@link #computePrefHeight} and {@link #layoutRuns}. Builds
    * the per-line {@link LineMetrics} list and, when {@code placedOut} is non-null, records the
    * x-position / line / size of each placed run.
+   *
+   * @param runs parsed rich-text runs to place
+   * @param fontSpec default font specification
+   * @param availableWidth width available for wrapping
+   * @param wrap whether soft wrapping is enabled
+   * @param placedOut optional output list for placed run geometry (null to skip recording)
+   * @return computed line metrics for the full layout pass
    */
   private List<LineMetrics> buildLines(
       List<Run> runs,

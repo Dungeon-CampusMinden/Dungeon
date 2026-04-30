@@ -63,4 +63,3 @@ public final class ArrayListCodec implements DialogValueCodec<ArrayList> {
     }
   }
 }
-

@@ -88,8 +88,8 @@ public class TextureGenerator {
    * @param srcY The y coordinate (in pixels) of the top-left corner of the region to extract.
    * @param width The width of the region to extract, in pixels.
    * @param height The height of the region to extract, in pixels.
-   * @param outPath The (virtual) path under which the extracted region is registered in the
-   *     {@link TextureMap}. By convention, generated textures use the {@code @gen/} prefix.
+   * @param outPath The (virtual) path under which the extracted region is registered in the {@link
+   *     TextureMap}. By convention, generated textures use the {@code @gen/} prefix.
    */
   public static void registerSpritesheetRegionTexture(
       String sourcePath, int srcX, int srcY, int width, int height, String outPath) {

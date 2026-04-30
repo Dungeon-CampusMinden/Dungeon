@@ -2,7 +2,6 @@ package contrib.hud.dialogs;
 
 import contrib.hud.elements.RichLabel;
 import core.network.messages.c2s.DialogResponseMessage;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,15 +10,14 @@ import java.util.List;
 /**
  * A single selectable option in a {@link MultipleChoiceDialog}.
  *
- * <p>Each option has a display label (which may contain {@link RichLabel}
- * markup) and a plain {@link String} value that is sent back to the server when the option is
- * selected. Use enum {@link Enum#name()} or another stable string discriminator for the value, and
- * parse it at the call site (e.g. {@code MyEnum.valueOf(value)}).
+ * <p>Each option has a display label (which may contain {@link RichLabel} markup) and a plain
+ * {@link String} value that is sent back to the server when the option is selected. Use enum {@link
+ * Enum#name()} or another stable string discriminator for the value, and parse it at the call site
+ * (e.g. {@code MyEnum.valueOf(value)}).
  *
  * <p>Keeping the value as a String avoids forcing every project to register a {@code
  * DialogValueCodec} for every custom type that could be carried by an MCD response — strings have
- * built-in wire support via {@link
- * DialogResponseMessage.StringValue}.
+ * built-in wire support via {@link DialogResponseMessage.StringValue}.
  *
  * @param label The text (with optional rich markup) displayed for this option.
  * @param value The string value returned when this option is selected.
