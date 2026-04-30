@@ -85,7 +85,5 @@ public class ComputerStateSyncSystem extends System {
 
   /** Cannot be paused. */
   @Override
-  public void stop() {
-
-  }
+  public void stop() {}
 }

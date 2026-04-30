@@ -110,6 +110,22 @@ public class Lore {
           + KeyboardConfig.CLOSE_UI.value()
           + "]";
 
+  /** Note found on the writing desk in room 2. */
+  public static final String R2DeskNoteText =
+      "[tr speed=0]A note from a colleague:[n][n]"
+          + "[tr speed=2.0]Hey, hope you're doing alright! Things have been pretty hectic"
+          + " around here lately, so I figured I'd leave you a quick note"
+          + " instead of trying to catch you between meetings.[n][n]"
+          + "[pause=0.3]Oh, and about that USB stick of yours I borrowed,"
+          + " here's the quick rundown:[n][n]"
+          + "[tr speed=1.0]- [color=#444477]B[/color]rought it back and left it with the control"
+          + " panel key.[n]"
+          + "- [color=#444477]L[/color]ightning quick, by the way - best stick I've used.[n]"
+          + "- [color=#444477]U[/color]seful little thing, really saved me this week.[n]"
+          + "- [color=#444477]E[/color]xpect I'll ask to borrow it again sometime soon![n][n]"
+          + "[pause=0.3][tr speed=2.0]Anyway, take care and don't stay too late again. See you"
+          + " tomorrow!";
+
   /** List of outro texts, each with a corresponding font sizes. */
   public static final List<Tuple<String, Integer>> OutroTexts =
       List.of(
