@@ -63,7 +63,7 @@ public final class OverlayHandle implements UiHandle {
   }
 
   @Override
-  public void attachTo(StageHandle stageHandle) {
+  public void attachTo() {
     overlay.visible(true);
     OverlayManager.add(overlay);
   }

@@ -56,10 +56,8 @@ public interface UiHandle {
 
   /**
    * Attaches this UI element to the specified stage.
-   *
-   * @param stageHandle the stage to attach to
    */
-  void attachTo(StageHandle stageHandle);
+  void attachTo();
 
   /** Brings this UI element to the front, increasing its z-order priority. */
   void toFront();

@@ -27,7 +27,7 @@ public final class HudSystem extends System {
   private boolean ipaused = false;
 
   /**
-   * The removeListener only gets the Entity after its Component is removed. Which means no longer
+   * The removeListener only gets the Entity after its Component is removed. Which means there is no longer
    * any access to the Group. This is why we need the last group an entity had as a mapping.
    */
   private final Map<Entity, UiHandle> entityGroupMap = new HashMap<>();
@@ -58,7 +58,7 @@ public final class HudSystem extends System {
   /**
    * Once a UIComponent is removed, its Dialog has to be removed from the Stage.
    *
-   * @param entity Entity which no longer has a UIComponent.
+   * @param entity Entity that no longer has a UIComponent.
    */
   private void removeListener(final Entity entity) {
     UiHandle remove = entityGroupMap.remove(entity);
@@ -71,7 +71,7 @@ public final class HudSystem extends System {
    * When an Entity with a UIComponent is added, its dialog has to be added to the Stage for UI
    * Representation.
    *
-   * @param entity Entity which now has a UIComponent.
+   * @param entity Entity that now has a UIComponent.
    */
   private void addListener(final Entity entity) {
     UIComponent component =
@@ -106,7 +106,7 @@ public final class HudSystem extends System {
         .ifPresentOrElse(
             stageHandle -> {
               if (!dialogHandle.isAttached()) {
-                dialogHandle.attachTo(stageHandle);
+                dialogHandle.attachTo();
               } else {
                 dialogHandle.toFront();
               }
@@ -142,12 +142,12 @@ public final class HudSystem extends System {
   /**
    * Sends the dialog to all connected and relevant clients.
    *
-   * <p>A dialog is relevant for a client, if the targetEntityIds of the UIComponent contains the id
+   * <p>A dialog is relevant for a client if the targetEntityIds of the UIComponent contains the id
    * of an entity controlled by the client or if targetEntityIds is empty (meaning all clients).
    *
-   * @param entity the entity which owns the UIComponent
+   * @param entity the entity that owns the UIComponent
    * @param component the UIComponent to send
-   * @param targetIds all clients that are connect and should receive the dialog
+   * @param targetIds all clients that are connected and should receive the dialog
    */
   private void sendDialogToClients(
       final Entity entity, final UIComponent component, int[] targetIds) {
