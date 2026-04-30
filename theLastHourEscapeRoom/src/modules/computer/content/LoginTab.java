@@ -60,8 +60,7 @@ public class LoginTab extends ComputerTab {
                 + " [img path=items/rpg/shield_gold.png noGapRight] [color=#3399ff]science[/color] since 1984"
                 + " [img=items/rpg/potion_red.png]",
             24,
-            Color.GRAY,
-            false);
+            Color.GRAY);
     flavor.setAlignment(Align.center);
     this.add(flavor).center().padBottom(20).row();
 

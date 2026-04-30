@@ -141,12 +141,10 @@ public class ComputerFactory {
     DialogFactory.showMultipleChoiceDialog(
         "[tr speed=0][line-space=2.0]You are carrying USB sticks.[n]Do you want to plug one of them in?",
         null,
-        null,
         options,
         false,
         data -> {
-          String choice =
-              (data instanceof DialogResponseMessage.StringValue(String s)) ? s : null;
+          String choice = (data instanceof DialogResponseMessage.StringValue(String s)) ? s : null;
           if (choice == null || ACCESS_PC_LABEL.equals(choice)) {
             openComputerDialog(pcEntity, who);
             return;
@@ -278,7 +276,7 @@ public class ComputerFactory {
                 if (isNowInfected) {
                   Game.add(
                       EmoteFactory.createEmote(
-                          LastHourLevel.getInstance().getPoint("pc-main").translate(0.5f, 2f),
+                          LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
                           Emote.FACE_ANGRY,
                           3000));
                 }

@@ -54,11 +54,11 @@ public class VirusTab extends ComputerTab {
     }
     title(STANDARD_TAB_TITLE);
 
-    RichLabel virusLabel = new RichLabel(STANDARD_TITLE, 48, Color.RED, false);
+    RichLabel virusLabel = new RichLabel(STANDARD_TITLE, 48, Color.RED);
     virusLabel.setAlignment(Align.center);
     this.add(virusLabel).expandX().center().row();
 
-    RichLabel typeLabel = new RichLabel("Virus Type: " + virusType, 20, Color.RED, false);
+    RichLabel typeLabel = new RichLabel("Virus Type: " + virusType, 20, Color.RED);
     typeLabel.setAlignment(Align.center);
     this.add(typeLabel).expandX().center().padTop(5).row();
 
@@ -67,8 +67,7 @@ public class VirusTab extends ComputerTab {
             "The system has been locked down for protection.[n]"
                 + "A reboot with the security pass phrase is required!",
             20,
-            Color.RED,
-            false);
+            Color.RED);
     explainLabel.setAlignment(Align.center);
     this.add(explainLabel).expandX().center().padTop(5).row();
 
@@ -113,15 +112,15 @@ public class VirusTab extends ComputerTab {
    * only informs the player that the system is shutting down.
    */
   private void buildUnknownDeviceLayout() {
-    RichLabel header = new RichLabel(UNKNOWN_DEVICE_TITLE, 48, Color.RED, false);
+    RichLabel header = new RichLabel(UNKNOWN_DEVICE_TITLE, 48, Color.RED);
     header.setAlignment(Align.center);
     this.add(header).expandX().center().row();
 
-    RichLabel typeLabel = new RichLabel("Detected: " + virusType, 20, Color.RED, false);
+    RichLabel typeLabel = new RichLabel("Detected: " + virusType, 20, Color.RED);
     typeLabel.setAlignment(Align.center);
     this.add(typeLabel).expandX().center().padTop(5).row();
 
-    RichLabel explainLabel = new RichLabel(UNKNOWN_DEVICE_DESCRIPTION, 20, Color.RED, false);
+    RichLabel explainLabel = new RichLabel(UNKNOWN_DEVICE_DESCRIPTION, 20, Color.RED);
     explainLabel.setAlignment(Align.center);
     this.add(explainLabel).expandX().center().padTop(20).row();
 

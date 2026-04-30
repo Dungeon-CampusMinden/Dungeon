@@ -23,6 +23,7 @@ import core.systems.*;
 import core.utils.CursorUtil;
 import core.utils.Tuple;
 import core.utils.components.draw.TextureGenerator;
+import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.shader.ColorGradeShader;
 import core.utils.components.draw.shader.HueRemapShader;
 import core.utils.components.draw.shader.ShaderList;
@@ -167,6 +168,44 @@ public class TheLastHour {
     invertShaders.add("invert", new ColorGradeShader().invert(true));
     TextureGenerator.registerRenderShaderTexture(
         keyboardPromptPath, keyboardPromptPath, invertShaders);
+
+    // Put the first frame of the idle animation of the rogue and the char03 characters into a
+    // special texture in "@gen/char03.png" and "@gen/rogue.png", so they can be used for Dialogs
+    // without needing to parse the spritesheet again.
+    registerCharacterPortrait(CharacterClass.THE_LAST_HOUR_ROGUE, ROGUE_PORTRAIT_PATH);
+    registerCharacterPortrait(CharacterClass.THE_LAST_HOUR_CHAR03, CHAR03_PORTRAIT_PATH);
+  }
+
+  /** Path of the generated portrait texture for the Rogue character. */
+  public static final String ROGUE_PORTRAIT_PATH = "@gen/rogue.png";
+
+  /** Path of the generated portrait texture for the Char03 character. */
+  public static final String CHAR03_PORTRAIT_PATH = "@gen/char03.png";
+
+  /** Width / height in pixels of a single frame in the character spritesheets. */
+  private static final int CHARACTER_FRAME_SIZE = 32;
+
+  private static final int CHARACTER_FRAME_PADDING = 8;
+
+  /**
+   * Extracts the first frame from the given character's spritesheet and registers it as a
+   * standalone texture in the {@link TextureMap} under {@code outPath}.
+   *
+   * @param characterClass character whose sprite sheet should be sampled
+   * @param outPath virtual texture-map output path for the generated portrait
+   */
+  private static void registerCharacterPortrait(CharacterClass characterClass, String outPath) {
+    String sheetPath = characterClass.textures().pathString();
+    if (!sheetPath.endsWith(".png")) {
+      sheetPath = sheetPath + "/" + sheetPath.substring(sheetPath.lastIndexOf('/') + 1) + ".png";
+    }
+    TextureGenerator.registerSpritesheetRegionTexture(
+        sheetPath,
+        CHARACTER_FRAME_PADDING,
+        CHARACTER_FRAME_PADDING,
+        CHARACTER_FRAME_SIZE - CHARACTER_FRAME_PADDING * 2,
+        CHARACTER_FRAME_SIZE - CHARACTER_FRAME_PADDING * 2,
+        outPath);
   }
 
   /**
