@@ -12,16 +12,6 @@ package core.ui;
 public interface StageHandle {
 
   /**
-   * Returns the raw underlying stage object.
-   *
-   * <p>This provides access to the framework-specific stage implementation for cases where direct
-   * access is necessary.
-   *
-   * @return the underlying stage object, framework-specific type
-   */
-  Object raw();
-
-  /**
    * Gets the width of the stage.
    *
    * @return the stage width in pixels (or framework units)
