@@ -4,7 +4,6 @@ import core.ui.StageHandle;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.input.Input;
 import java.awt.geom.Point2D;
-import java.util.Optional;
 
 /**
  * A client-specific implementation of the {@link StageHandle} interface for managing and
@@ -15,11 +14,6 @@ import java.util.Optional;
  * the underlying UI stage object.
  */
 public final class ClientStageHandle implements StageHandle {
-
-  @Override
-  public Object raw() {
-    return Game.screens();
-  }
 
   @Override
   public float getWidth() {
