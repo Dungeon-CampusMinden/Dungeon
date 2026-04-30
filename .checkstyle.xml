@@ -11,6 +11,7 @@
     </module>
 
     <module name="TreeWalker">
+        <module name="AtclauseOrder"/>
         <module name="AvoidStarImport"/>
         <module name="EmptyBlock"/>
         <module name="FallThrough"/>
