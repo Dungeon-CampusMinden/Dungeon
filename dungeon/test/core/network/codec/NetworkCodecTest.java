@@ -26,6 +26,7 @@ import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class NetworkCodecTest {
@@ -70,6 +71,16 @@ class NetworkCodecTest {
         new ConnectReject(ConnectReject.Reason.INVALID_NAME),
         new DialogCloseMessage("dialog-2"),
         new EntityDespawnEvent(77, "left"),
+        new DeltaSnapshotMessage(
+            10,
+            12,
+            List.of(
+                new EntityDelta(
+                    5,
+                    EntityState.builder().entityId(5).rotation(90.0f).build(),
+                    Set.of(EntityStateField.POSITION))),
+            List.of(8),
+            null),
         new GameOverEvent("Game over"),
         new LevelChangeEvent("level-1", "data"),
         new RegisterAck(true),
