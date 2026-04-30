@@ -366,29 +366,37 @@ public class DialogFactory {
   }
 
   /**
-   * Shows a multiple choice dialog with a question, optional description, and a list of selectable
-   * options.
+   * Shows a multiple choice dialog with a script-driven question (see {@link DialogScript} for the
+   * supported {@code [speaker]} / {@code [speaker clear]} / {@code [p]} markup) and a list of
+   * selectable options.
    *
-   * @param question The question/prompt text displayed at the top
+   * <p>The {@code dialog} string is parsed exactly like for {@link #showDialogDialog}: it can
+   * contain multiple speaker pages separated by {@code [p]} and {@code [speaker ...]} tags. The
+   * selectable options appear once the script has finished playing and the last page's typewriter
+   * has fully revealed its text.
+   *
+   * @param dialog The dialog script (non-blank). May contain {@code [speaker]}/{@code [p]} markup.
    * @param title The dialog window title (may be blank for no title)
-   * @param description Optional description text below the question (may be null)
    * @param options The list of {@link ChoiceOption}s to choose from
    * @param canCancel Whether to append a cancel option
-   * @param onSelected Callback receiving the selected option text as a {@link
+   * @param onSelected Callback receiving the selected option value as a {@link
    *     DialogResponseMessage.Payload}
    * @param onCancel Callback executed when cancel is pressed (only relevant if canCancel is true)
    * @param targetEntityIds The target entity IDs for which the dialog is displayed
    * @return The {@link UIComponent} containing the dialog
    */
   public static UIComponent showMultipleChoiceDialog(
-      String question,
+      String dialog,
       String title,
-      String description,
       List<ChoiceOption> options,
       boolean canCancel,
       Consumer<DialogResponseMessage.Payload> onSelected,
       IVoidFunction onCancel,
       int... targetEntityIds) {
+    Objects.requireNonNull(dialog, "dialog string cannot be null");
+    if (dialog.isBlank()) {
+      throw new IllegalArgumentException("dialog string cannot be blank");
+    }
     Objects.requireNonNull(options, "options list cannot be null");
     Objects.requireNonNull(onSelected, "onSelected callback cannot be null");
 
@@ -396,12 +404,9 @@ public class DialogFactory {
         DialogContext.builder()
             .type(DialogType.DefaultTypes.MULTIPLE_CHOICE)
             .put(DialogContextKeys.TITLE, title)
-            .put(DialogContextKeys.MESSAGE, question)
+            .put(DialogContextKeys.DIALOG, dialog)
             .put(DialogContextKeys.OPTIONS, new ArrayList<>(options))
             .put(DialogContextKeys.CAN_CANCEL, canCancel);
-    if (description != null) {
-      builder.put(DialogContextKeys.DESCRIPTION, description);
-    }
 
     UIComponent ui = show(builder.build(), targetEntityIds);
 
@@ -429,12 +434,14 @@ public class DialogFactory {
    * <p>The {@code dialog} string is split into pages by the {@code [p]} tag. Each page may begin
    * with an optional {@code [speaker img=<path> name="<displayName>"]} tag that sets the speaker
    * portrait and display name for that page. If a page omits the tag, it inherits the speaker from
-   * the previous page. If a page includes a speaker tag, unspecified speaker parameters on that
-   * tag fall back to a default placeholder image and no name. Pages are
-   * shown one after another. The user advances by clicking anywhere on the dialog or pressing the
-   * configured interact key. While a typewriter reveal is still running, the advance instead skips
-   * to the end of the current text. After the last page has been confirmed, {@code onFinished} is
-   * invoked and the dialog is closed.
+   * the previous page (the very first page without a tag has no speaker, in which case its
+   * portrait/name column is omitted entirely). If a page includes a speaker tag, unspecified
+   * speaker parameters on that tag fall back to a default placeholder image and no name. The
+   * special form {@code [speaker clear]} resets the speaker to "no speaker" for this and subsequent
+   * pages until another {@code [speaker]} tag is seen. Pages are shown one after another. The user
+   * advances by clicking anywhere on the dialog or pressing the configured interact key. While a
+   * typewriter reveal is still running, the advance instead skips to the end of the current text.
+   * After the last page has been confirmed, {@code onFinished} is invoked and the dialog is closed.
    *
    * @param dialog The non-empty dialog script.
    * @param onFinished Callback executed after the last page has been confirmed.

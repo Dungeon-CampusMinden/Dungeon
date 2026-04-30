@@ -24,24 +24,34 @@ import java.util.List;
 /**
  * Package-private builder for multiple choice dialogs.
  *
- * <p>Creates a dialog with a header box (title, question, optional description) and a vertical list
- * of individually styled selection boxes below it. Supports keyboard navigation (W/Up, S/Down) and
- * mouse hover for selection, and the configured interact key (see {@link
- * contrib.configuration.KeyboardConfig#INTERACT_WORLD})/click to confirm.
+ * <p>Renders a {@link DialogScriptView} (parsed from a single dialog script string via {@link
+ * DialogScript}) as the question content, with an optional title above and a vertical list of
+ * individually styled selection boxes that appear once the script has finished playing.
+ *
+ * <p>Behaviour:
+ *
+ * <ul>
+ *   <li>While the script is still revealing pages, clicks anywhere (and the configured interact
+ *       key, see {@link contrib.configuration.KeyboardConfig#INTERACT_WORLD}) advance the script
+ *       view, exactly like a {@link DialogDialog}.
+ *   <li>Once the last page's text has been fully revealed, the option rows slide in. After that,
+ *       clicks outside the option rows are ignored (they do not confirm anything); option rows are
+ *       hover-/click-selectable and confirm immediately on click.
+ *   <li>Keyboard W/S (or Up/Down) navigates between options; INTERACT_WORLD confirms while choices
+ *       are active, otherwise it advances the script.
+ * </ul>
  */
 final class MultipleChoiceDialog {
 
   private static final String TITLE_DEFAULT = "";
   private static final String CANCEL_LABEL = "Abbrechen";
   private static final float MAIN_BOX_PAD = 20;
-  private static final float OPTION_WIDTH = 420;
+  private static final float OPTION_WIDTH = DialogScriptView.FULL_TEXT_WIDTH + MAIN_BOX_PAD * 2;
   private static final float OPTION_PAD = 16;
   private static final float GAP = 4;
 
   private static final FontSpec OPTION_FONT_NORMAL =
       FontSpec.of("fonts/Roboto-SemiBold.ttf", 18, Color.BLACK);
-  private static final FontSpec DESCRIPTION_FONT =
-      OPTION_FONT_NORMAL.withColor(Color.GRAY).withSize(16);
   private static final FontSpec OPTION_FONT_SELECTED = OPTION_FONT_NORMAL.withColor(Color.WHITE);
 
   private static final float SLIDE_DISTANCE = 60;
@@ -61,28 +71,32 @@ final class MultipleChoiceDialog {
   @SuppressWarnings("unchecked")
   static Group build(DialogContext ctx) {
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(TITLE_DEFAULT);
-    String message = ctx.require(DialogContextKeys.MESSAGE, String.class);
-    String description = ctx.find(DialogContextKeys.DESCRIPTION, String.class).orElse(null);
+    String script = ctx.require(DialogContextKeys.DIALOG, String.class);
+    if (script.isBlank()) {
+      throw new DialogCreationException("MultipleChoiceDialog requires a non-blank dialog script");
+    }
     List<ChoiceOption> options =
         (List<ChoiceOption>) ctx.require(DialogContextKeys.OPTIONS, ArrayList.class);
     boolean canCancel = ctx.find(DialogContextKeys.CAN_CANCEL, Boolean.class).orElse(false);
 
     if (Game.isHeadless()) {
+      List<DialogEntry> entries =
+          DialogScript.parseNonEmpty(script, () -> "MultipleChoiceDialog script produced no pages");
       List<String> allButtons = new ArrayList<>();
       for (ChoiceOption opt : options) allButtons.add(opt.label());
       if (canCancel) allButtons.add(CANCEL_LABEL);
-      return new HeadlessDialogGroup(title, message, allButtons.toArray(new String[0]));
+      return new HeadlessDialogGroup(
+          title, DialogScript.toHeadlessText(entries), allButtons.toArray(new String[0]));
     }
 
-    return buildDialog(title, message, description, options, canCancel, ctx);
+    return buildDialog(title, script, options, canCancel, ctx);
   }
 
   /**
-   * Builds the Scene2D UI with a header box and individual option rows.
+   * Builds the Scene2D UI: header (optional title + script view) + option rows.
    *
-   * @param title The dialog window title.
-   * @param message The question/prompt text.
-   * @param description Optional description text (may be null).
+   * @param title The dialog window title (may be blank for no title).
+   * @param script Dialog script string consumed by {@link DialogScriptView}.
    * @param options The list of selectable options.
    * @param canCancel Whether to append a cancel option.
    * @param ctx The dialog context.
@@ -90,8 +104,7 @@ final class MultipleChoiceDialog {
    */
   private static Group buildDialog(
       String title,
-      String message,
-      String description,
+      String script,
       List<ChoiceOption> options,
       boolean canCancel,
       DialogContext ctx) {
@@ -115,7 +128,7 @@ final class MultipleChoiceDialog {
     Table root = new Table();
     root.defaults().maxWidth(OPTION_WIDTH);
 
-    // Header box
+    // Header box: optional title + the script view
     Table header = new Table();
     header.setBackground(headerBg);
 
@@ -125,39 +138,26 @@ final class MultipleChoiceDialog {
       header.add(titleLabel).center().padBottom(18).row();
     }
 
-    float headerContentWidth = OPTION_WIDTH - MAIN_BOX_PAD * 2;
+    DialogScriptView scriptView = new DialogScriptView(script);
+    // Keep MCD's header content slightly inset when a speaker column is present.
+    scriptView.setSpeakerColumnPadLeft(10f);
+    header.add(scriptView).row();
 
-    RichLabel questionLabel = new RichLabel(message, DialogDesign.DIALOG_FONT_SPEC_NORMAL, true);
-    questionLabel.setWrap(true);
-    header
-        .add(questionLabel)
-        .width(headerContentWidth)
-        .padBottom(description != null ? 4 : 0)
-        .row();
-
-    RichLabel descLabel = null;
-    if (description != null && !description.isBlank()) {
-      descLabel = new RichLabel(description, DESCRIPTION_FONT, true);
-      descLabel.setWrap(true);
-      // Pause the description's typewriter immediately so it doesn't advance while the question
-      // is still being revealed (and the descLabel is hidden). Resumed in the chain callback.
-      descLabel.pauseTypewriter();
-      header.add(descLabel).width(headerContentWidth).row();
-    }
-
-    root.add(header).width(OPTION_WIDTH).padBottom(GAP).row();
+    root.add(header).padBottom(GAP).row();
 
     // Option rows
     final int[] selectedIndex = {-1};
     final List<Table> rowTables = new ArrayList<>();
     final List<RichLabel> rowLabels = new ArrayList<>();
+    final boolean[] choicesActive = {false};
 
     for (int i = 0; i < allEntries.size(); i++) {
       ChoiceOption entry = allEntries.get(i);
 
       Table row = new SlideTable();
       row.setBackground(bgNormal);
-      row.setTouchable(Touchable.enabled);
+      // Disabled until choices become active so clicks during script playback don't confirm.
+      row.setTouchable(Touchable.disabled);
 
       RichLabel label = new RichLabel(entry.label(), OPTION_FONT_NORMAL);
 
@@ -176,7 +176,7 @@ final class MultipleChoiceDialog {
 
       final int idx = i;
 
-      // Click listener - confirm immediately; hover to select; exit to clear
+      // Click listener: confirm immediately; hover to select; exit to clear
       row.addListener(
           new InputListener() {
             @Override
@@ -207,13 +207,41 @@ final class MultipleChoiceDialog {
           .row();
     }
 
+    // Click on the script view (or anywhere on the root that isn't an option row) advances the
+    // script while it is still playing. Once choices are active, these listeners become no-ops;
+    // option rows handle their own clicks via their per-row listeners.
+    InputListener advanceListener =
+        new InputListener() {
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            if (choicesActive[0]) return false;
+            scriptView.advance();
+            return true;
+          }
+        };
+    scriptView.addListener(advanceListener);
+    root.addListener(advanceListener);
+
     // Keyboard listener on root
     root.addListener(
         new InputListener() {
           @Override
           public boolean keyDown(InputEvent event, int keycode) {
             int total = allEntries.size();
-            if (total == 0) return false;
+
+            if (keycode == KeyboardConfig.INTERACT_WORLD.value()) {
+              if (!choicesActive[0]) {
+                scriptView.advance();
+                return true;
+              }
+              int current = selectedIndex[0];
+              if (current >= 0) {
+                confirmSelection(current, allEntries, cancelIndex, ctx);
+              }
+              return true;
+            }
+
+            if (!choicesActive[0] || total == 0) return false;
 
             int current = selectedIndex[0];
             int next = current;
@@ -221,11 +249,6 @@ final class MultipleChoiceDialog {
               next = current <= 0 ? total - 1 : current - 1;
             } else if (keycode == Input.Keys.S || keycode == Input.Keys.DOWN) {
               next = current >= total - 1 ? 0 : current + 1;
-            } else if (keycode == KeyboardConfig.INTERACT_WORLD.value()) {
-              if (current >= 0) {
-                confirmSelection(current, allEntries, cancelIndex, ctx);
-              }
-              return true;
             } else {
               return false;
             }
@@ -237,42 +260,21 @@ final class MultipleChoiceDialog {
 
     root.setTouchable(Touchable.enabled);
 
-    root.pack();
-
-    // Determine whether the question uses typewriter mode (contains a [tr] tag)
-    boolean questionHasTypewriter = !questionLabel.isTypewriterFinished();
-
-    // If typewriter is active, hide description and options until the chain completes.
-    // The chain is: question typewriter -> description typewriter -> option slide-in.
-    if (questionHasTypewriter) {
-      // Hide description initially
-      if (descLabel != null) {
-        descLabel.setVisible(false);
-      }
-      // Hide all option rows initially
-      for (Table row : rowTables) {
-        row.getColor().a = 0f;
-      }
-
-      final RichLabel finalDescLabel = descLabel;
-      questionLabel.onTypewriterFinished(
-          () -> {
-            if (finalDescLabel != null) {
-              finalDescLabel.setVisible(true);
-              finalDescLabel.resumeTypewriter();
-              if (!finalDescLabel.isTypewriterFinished()) {
-                finalDescLabel.onTypewriterFinished(() -> startOptionSlideIn(rowTables));
-              } else {
-                startOptionSlideIn(rowTables);
-              }
-            } else {
-              startOptionSlideIn(rowTables);
-            }
-          });
-    } else {
-      // No typewriter on question: slide in options immediately
-      startOptionSlideIn(rowTables);
+    // Hide all option rows initially; they slide in once the script's last page is revealed.
+    for (Table row : rowTables) {
+      row.getColor().a = 0f;
     }
+
+    scriptView.setOnLastPageRevealed(
+        () -> {
+          choicesActive[0] = true;
+          for (Table row : rowTables) {
+            row.setTouchable(Touchable.enabled);
+          }
+          startOptionSlideIn(rowTables);
+        });
+
+    root.pack();
 
     // Grab keyboard focus on every frame the stage exists (ensures it works after mouse
     // interaction)
@@ -288,7 +290,15 @@ final class MultipleChoiceDialog {
           }
         });
 
-    return new BaseContainerUI(root);
+    return new BaseContainerUI(root) {
+      @Override
+      protected void setStage(Stage stage) {
+        super.setStage(stage);
+        if (stage == null) {
+          scriptView.disposeCache();
+        }
+      }
+    };
   }
 
   /**
