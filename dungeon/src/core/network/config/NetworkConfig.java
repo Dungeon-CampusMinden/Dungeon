@@ -107,6 +107,20 @@ public final class NetworkConfig {
   public static final int SERVER_SNAPSHOT_HZ = 60;
 
   /**
+   * Server delta snapshot rate, in Hertz (Hz).
+   *
+   * <p>Delta snapshots are sent between full baseline snapshots and contain only changed fields.
+   */
+  public static final int SERVER_DELTA_SNAPSHOT_HZ = 20;
+
+  /**
+   * Interval between full baseline snapshots, in server ticks.
+   *
+   * <p>Full snapshots are sent reliably and provide the baseline for delta snapshots.
+   */
+  public static final int FULL_SNAPSHOT_INTERVAL_TICKS = SERVER_TICK_HZ * 6;
+
+  /**
    * Maximum allowed sequence gap for network packets.
    *
    * <p>This defines the maximum difference between expected and received packet sequence numbers

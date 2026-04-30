@@ -109,9 +109,13 @@ public final class CommonProtoConverters {
       throw new IllegalArgumentException("PositionInfo.position is required.");
     }
 
+    Direction viewDirection =
+        proto.hasViewDirection() ? fromProto(proto.getViewDirection()) : Direction.NONE;
     PositionComponent component =
-        new PositionComponent(fromProto(proto.getPosition()), fromProto(proto.getViewDirection()));
-    component.rotation(proto.getRotation());
+        new PositionComponent(fromProto(proto.getPosition()), viewDirection);
+    if (proto.hasRotation()) {
+      component.rotation(proto.getRotation());
+    }
     if (proto.hasScale()) {
       component.scale(fromProto(proto.getScale()));
     }

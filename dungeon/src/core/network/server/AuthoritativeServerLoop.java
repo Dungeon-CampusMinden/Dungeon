@@ -1,5 +1,7 @@
 package core.network.server;
 
+import static core.network.config.NetworkConfig.FULL_SNAPSHOT_INTERVAL_TICKS;
+import static core.network.config.NetworkConfig.SERVER_DELTA_SNAPSHOT_HZ;
 import static core.network.config.NetworkConfig.SERVER_SNAPSHOT_HZ;
 import static core.network.config.NetworkConfig.SERVER_TICK_HZ;
 
@@ -12,13 +14,15 @@ import core.game.ECSManagement;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
+import core.network.delta.SnapshotDeltaCompressor;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.*;
 
 /**
  * The main server loop for the authoritative multiplayer server.
@@ -49,6 +53,7 @@ public final class AuthoritativeServerLoop {
   private final ServerTransport net;
   private final ScheduledExecutorService executor;
   private volatile int serverTick = 0;
+  private String snapshotLevelName;
 
   /**
    * Creates a new AuthoritativeServerLoop with the given ServerTransport.
@@ -80,7 +85,7 @@ public final class AuthoritativeServerLoop {
         });
 
     long tickPeriodMs = 1000L / SERVER_TICK_HZ;
-    long snapshotPeriodMs = 1000L / SERVER_SNAPSHOT_HZ;
+    long snapshotPeriodMs = 1000L / SERVER_DELTA_SNAPSHOT_HZ;
 
     executor.scheduleAtFixedRate(this::tick, 0, tickPeriodMs, TimeUnit.MILLISECONDS);
     executor.scheduleAtFixedRate(
@@ -102,7 +107,11 @@ public final class AuthoritativeServerLoop {
           TimeUnit.MILLISECONDS);
     }
 
-    LOGGER.info("ServerLoop started: tickHz={}, snapshotHz={}", SERVER_TICK_HZ, SERVER_SNAPSHOT_HZ);
+    LOGGER.info(
+        "ServerLoop started: tickHz={}, snapshotHz={}, deltaSnapshotHz={}",
+        SERVER_TICK_HZ,
+        SERVER_SNAPSHOT_HZ,
+        SERVER_DELTA_SNAPSHOT_HZ);
   }
 
   /** Stops the server loop, shutting down the executor service. */
@@ -142,13 +151,60 @@ public final class AuthoritativeServerLoop {
   }
 
   private void sendSnapshot() {
+    Set<ClientState> clients = net.connectedClients();
+    if (clients.isEmpty()) {
+      return;
+    }
+    clearSnapshotBaselinesOnLevelChange(clients);
+
     Game.network()
         .snapshotTranslator()
         .translateToSnapshot(serverTick)
-        .ifPresent(
-            snapshot -> {
-              Game.network().broadcast(snapshot, true);
-            });
+        .ifPresent(snapshot -> clients.forEach(client -> sendSnapshotToClient(client, snapshot)));
+  }
+
+  private void sendSnapshotToClient(ClientState client, SnapshotMessage currentSnapshot) {
+    int lastFullSnapshotTick = client.lastFullSnapshotTick();
+    boolean needsFullSnapshot =
+        lastFullSnapshotTick < 0
+            || currentSnapshot.serverTick() - lastFullSnapshotTick >= FULL_SNAPSHOT_INTERVAL_TICKS;
+
+    if (needsFullSnapshot) {
+      Game.network()
+          .send(client.clientId(), currentSnapshot, true)
+          .thenAccept(
+              success -> {
+                if (success) {
+                  client.lastFullSnapshot(currentSnapshot);
+                }
+              });
+      return;
+    }
+
+    client
+        .lastFullSnapshot()
+        .flatMap(baseline -> SnapshotDeltaCompressor.compress(baseline, currentSnapshot))
+        .ifPresent(delta -> Game.network().send(client.clientId(), delta, false));
+  }
+
+  private void clearSnapshotBaselinesOnLevelChange(Set<ClientState> clients) {
+    Optional<String> currentLevel = currentLevelName();
+    if (currentLevel.isEmpty()) {
+      return;
+    }
+    String levelName = currentLevel.orElseThrow();
+    if (!levelName.equals(snapshotLevelName)) {
+      clients.forEach(ClientState::clearSnapshotBaseline);
+      snapshotLevelName = levelName;
+    }
+  }
+
+  private Optional<String> currentLevelName() {
+    try {
+      return Optional.of(DungeonLoader.currentLevel());
+    } catch (IndexOutOfBoundsException e) {
+      return Optional.empty();
+    }
   }
 
   private void syncClientsToEntities() {

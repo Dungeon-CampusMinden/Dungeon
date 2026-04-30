@@ -35,16 +35,10 @@ import core.level.loader.LevelParser;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.client.ClientNetwork;
+import core.network.delta.SnapshotDeltaCompressor;
 import core.network.messages.c2s.InputMessage;
-import core.network.messages.s2c.DialogCloseMessage;
-import core.network.messages.s2c.DialogShowMessage;
-import core.network.messages.s2c.EntityDespawnEvent;
-import core.network.messages.s2c.EntitySpawnEvent;
-import core.network.messages.s2c.GameOverEvent;
-import core.network.messages.s2c.LevelChangeEvent;
-import core.network.messages.s2c.SnapshotMessage;
-import core.network.messages.s2c.SoundPlayMessage;
-import core.network.messages.s2c.SoundStopMessage;
+import core.network.messages.s2c.*;
+import core.network.server.ClientState;
 import core.network.server.SoundTracker;
 import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
@@ -426,6 +420,9 @@ public final class GameLoop extends ScreenAdapter {
         LevelChangeEvent.class,
         (ctx, event) -> {
           LOGGER.info("Received LevelChangeEvent event: {}", event.levelName());
+          if (ctx != null) {
+            ctx.clientState().ifPresent(state -> state.clearSnapshotBaseline());
+          }
           try {
             Game.currentLevel(LevelParser.parseLevel(event.levelData(), event.levelName()));
             Game.player().ifPresent(GameLoop::placeOnLevelStart);
@@ -444,9 +441,54 @@ public final class GameLoop extends ScreenAdapter {
         SnapshotMessage.class,
         (ctx, event) -> {
           try {
+            Optional<ClientState> clientState = ctx == null ? Optional.empty() : ctx.clientState();
+            if (clientState.isPresent()
+                && event.serverTick() <= clientState.orElseThrow().latestAppliedSnapshotTick()) {
+              LOGGER.debug("Ignoring stale full snapshot at tick {}.", event.serverTick());
+              return;
+            }
             Game.network().snapshotTranslator().applySnapshot(event, dispatcher);
+            clientState.ifPresent(
+                state -> {
+                  state.lastFullSnapshot(event);
+                  state.latestAppliedSnapshotTick(event.serverTick());
+                });
           } catch (Exception e) {
             LOGGER.warn("Error while applying snapshot message: {}", e.getMessage(), e);
+          }
+        });
+    dispatcher.registerHandler(
+        DeltaSnapshotMessage.class,
+        (ctx, event) -> {
+          try {
+            Optional<ClientState> clientState = ctx == null ? Optional.empty() : ctx.clientState();
+            if (clientState.isEmpty()) {
+              LOGGER.debug("Ignoring delta snapshot without client state.");
+              return;
+            }
+            ClientState state = clientState.orElseThrow();
+            if (event.serverTick() <= state.latestAppliedSnapshotTick()) {
+              LOGGER.debug("Ignoring stale delta snapshot at tick {}.", event.serverTick());
+              return;
+            }
+
+            Optional<SnapshotMessage> baseline = state.lastFullSnapshot();
+            if (baseline.isEmpty() || baseline.orElseThrow().serverTick() != event.baseTick()) {
+              LOGGER.debug(
+                  "Ignoring delta snapshot for base tick {}; no matching local baseline.",
+                  event.baseTick());
+              return;
+            }
+
+            event
+                .removedEntityIds()
+                .forEach(entityId -> Game.findEntityById(entityId).ifPresent(Game::remove));
+            SnapshotMessage changedSnapshot =
+                SnapshotDeltaCompressor.materializeChangedSnapshot(baseline.orElseThrow(), event);
+            Game.network().snapshotTranslator().applySnapshot(changedSnapshot, dispatcher);
+            state.latestAppliedSnapshotTick(event.serverTick());
+          } catch (Exception e) {
+            LOGGER.warn("Error while applying delta snapshot message: {}", e.getMessage(), e);
           }
         });
 

@@ -5,8 +5,6 @@ import contrib.item.Item;
 import core.network.codec.CommonProtoConverters;
 import core.network.codec.MessageConverter;
 import core.network.messages.s2c.EntityState;
-import core.utils.Direction;
-import core.utils.Vector2;
 import java.util.List;
 
 /** Converter for server-to-client entity state messages. */
@@ -24,23 +22,18 @@ public final class EntityStateConverter
     boolean hasViewDirection = message.viewDirection().isPresent();
     boolean hasRotation = message.rotation().isPresent();
     boolean hasScale = message.scale().isPresent();
-    if (hasPosition) {
-      // TODO: Support partial position updates once snapshot diffing is introduced.
-      Direction viewDirection =
-          message.viewDirection().map(CommonProtoConverters::parseDirection).orElse(Direction.NONE);
-      float rotation = message.rotation().orElse(0.0f);
-      Vector2 scale = message.scale().orElse(Vector2.ONE);
-
-      core.network.proto.common.PositionInfo positionInfo =
-          core.network.proto.common.PositionInfo.newBuilder()
-              .setPosition(CommonProtoConverters.toProto(message.position().orElseThrow()))
-              .setViewDirection(CommonProtoConverters.toProto(viewDirection))
-              .setRotation(rotation)
-              .setScale(CommonProtoConverters.toProto(scale))
-              .build();
-      builder.setPosition(positionInfo);
-    } else if (hasViewDirection || hasRotation || hasScale) {
-      throw new IllegalArgumentException("Position is required to send rotation or scale.");
+    if (hasPosition || hasViewDirection || hasRotation || hasScale) {
+      core.network.proto.common.PositionInfo.Builder positionInfo =
+          core.network.proto.common.PositionInfo.newBuilder();
+      message.position().map(CommonProtoConverters::toProto).ifPresent(positionInfo::setPosition);
+      message
+          .viewDirection()
+          .map(CommonProtoConverters::parseDirection)
+          .map(CommonProtoConverters::toProto)
+          .ifPresent(positionInfo::setViewDirection);
+      message.rotation().ifPresent(positionInfo::setRotation);
+      message.scale().map(CommonProtoConverters::toProto).ifPresent(positionInfo::setScale);
+      builder.setPosition(positionInfo.build());
     }
     message.currentHealth().ifPresent(builder::setCurrentHealth);
     message.maxHealth().ifPresent(builder::setMaxHealth);
@@ -77,13 +70,19 @@ public final class EntityStateConverter
     }
     if (proto.hasPosition()) {
       core.network.proto.common.PositionInfo positionInfo = proto.getPosition();
-      builder.position(CommonProtoConverters.fromProto(positionInfo.getPosition()));
-      core.network.proto.common.Direction viewDirection = positionInfo.getViewDirection();
-      if (viewDirection != core.network.proto.common.Direction.DIRECTION_UNSPECIFIED
-          && viewDirection != core.network.proto.common.Direction.UNRECOGNIZED) {
-        builder.viewDirection(CommonProtoConverters.fromProto(viewDirection));
+      if (positionInfo.hasPosition()) {
+        builder.position(CommonProtoConverters.fromProto(positionInfo.getPosition()));
       }
-      builder.rotation(positionInfo.getRotation());
+      if (positionInfo.hasViewDirection()) {
+        core.network.proto.common.Direction viewDirection = positionInfo.getViewDirection();
+        if (viewDirection != core.network.proto.common.Direction.DIRECTION_UNSPECIFIED
+            && viewDirection != core.network.proto.common.Direction.UNRECOGNIZED) {
+          builder.viewDirection(CommonProtoConverters.fromProto(viewDirection));
+        }
+      }
+      if (positionInfo.hasRotation()) {
+        builder.rotation(positionInfo.getRotation());
+      }
       if (positionInfo.hasScale()) {
         builder.scale(CommonProtoConverters.fromProto(positionInfo.getScale()));
       }

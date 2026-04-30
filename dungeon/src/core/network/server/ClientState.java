@@ -5,6 +5,7 @@ import core.Entity;
 import core.Game;
 import core.network.config.NetworkConfig;
 import core.network.messages.c2s.InputMessage;
+import core.network.messages.s2c.SnapshotMessage;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -75,6 +76,12 @@ public class ClientState {
    */
   private long lastActivityTimeMs;
 
+  /** Last full snapshot that was successfully scheduled for this client. */
+  private volatile SnapshotMessage lastFullSnapshot;
+
+  /** Latest snapshot tick applied by this client. */
+  private volatile int latestAppliedSnapshotTick = -1;
+
   /**
    * Constructs a new ClientState for a fresh connection.
    *
@@ -136,6 +143,7 @@ public class ClientState {
     this.lastProcessedSeq = -1;
     this.expectedSeq = 0;
     this.lastClientTick = 0;
+    clearSnapshotBaseline();
     if (!preserveHero) {
       Game.remove(this.playerEntity);
       this.playerEntity = null;
@@ -362,6 +370,57 @@ public class ClientState {
       return wrappedDiff >= 0 && wrappedDiff <= NetworkConfig.MAX_SEQUENCE_GAP;
     }
     return false; // Too old or large gap
+  }
+
+  /**
+   * Returns the last full snapshot baseline for this client.
+   *
+   * @return the last full snapshot if one has been sent
+   */
+  public Optional<SnapshotMessage> lastFullSnapshot() {
+    return Optional.ofNullable(lastFullSnapshot);
+  }
+
+  /**
+   * Updates the full snapshot baseline for this client.
+   *
+   * @param snapshot the full snapshot baseline
+   */
+  public void lastFullSnapshot(SnapshotMessage snapshot) {
+    this.lastFullSnapshot = snapshot;
+  }
+
+  /**
+   * Returns the tick of the last full snapshot baseline.
+   *
+   * @return the baseline tick, or -1 when no baseline exists
+   */
+  public int lastFullSnapshotTick() {
+    return lastFullSnapshot().map(SnapshotMessage::serverTick).orElse(-1);
+  }
+
+  /** Clears the cached full snapshot baseline. */
+  public void clearSnapshotBaseline() {
+    this.lastFullSnapshot = null;
+    this.latestAppliedSnapshotTick = -1;
+  }
+
+  /**
+   * Returns the latest snapshot tick applied by this client.
+   *
+   * @return latest applied snapshot tick, or -1 if none has been applied
+   */
+  public int latestAppliedSnapshotTick() {
+    return latestAppliedSnapshotTick;
+  }
+
+  /**
+   * Updates the latest applied snapshot tick.
+   *
+   * @param serverTick the accepted server tick
+   */
+  public void latestAppliedSnapshotTick(int serverTick) {
+    this.latestAppliedSnapshotTick = serverTick;
   }
 
   @Override
