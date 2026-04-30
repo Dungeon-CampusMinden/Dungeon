@@ -26,8 +26,8 @@ import java.util.Objects;
  */
 public final class SpriteOutlineComponent implements Component {
 
-  private int width;
-  private Color color;
+  private final int width;
+  private final Color color;
   private final float beatSpeed;
   private final float beatIntensity;
   private final boolean rainbow;
@@ -61,35 +61,12 @@ public final class SpriteOutlineComponent implements Component {
   }
 
   /**
-   * Sets the outline width.
-   *
-   * @param width the outline thickness in pixels (will be clamped to at least 1)
-   * @return this component for method chaining
-   */
-  public SpriteOutlineComponent width(final int width) {
-    this.width = Math.max(1, width);
-    return this;
-  }
-
-  /**
    * Returns the outline color.
    *
    * @return the current outline color
    */
   public Color color() {
     return color;
-  }
-
-  /**
-   * Sets the outline color.
-   *
-   * @param color the new outline color (must not be null)
-   * @return this component for method chaining
-   * @throws NullPointerException if color is null
-   */
-  public SpriteOutlineComponent color(final Color color) {
-    this.color = Objects.requireNonNull(color, "color");
-    return this;
   }
 
   /**
