@@ -2,8 +2,10 @@ package level;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import contrib.components.CharacterClassComponent;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
+import contrib.entities.CharacterClass;
 import contrib.entities.WorldItemBuilder;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
@@ -11,7 +13,6 @@ import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.ChoiceOption;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogEntry;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.modules.emote.Emote;
@@ -57,6 +58,7 @@ import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameUI;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
+import starter.TheLastHour;
 import util.InteractionHelper;
 import util.LastHourSounds;
 import util.Lore;
@@ -70,6 +72,10 @@ public class LastHourLevel extends DungeonLevel {
 
   private DoorTile storageDoor;
   private Entity pc;
+  private Entity r2Phone;
+  private Entity ringingPhoneEmote;
+  private boolean isPhoneRinging = false;
+  private String ringingPhoneDialog = "";
   private ComputerStateComponent cscLastTick;
   private Entity keypad;
   private int lastKnownVisibleCommentCount = 0;
@@ -82,6 +88,7 @@ public class LastHourLevel extends DungeonLevel {
   private static final String PC_SIGNAL_ON = "on";
   private static final String PC_SIGNAL_INFECT = "infect";
   private static final String PC_SIGNAL_CLEAR = "clear";
+  private static final int PHONE_RINGING_EMOTE_DURATION_MS = 60 * 60 * 1000;
 
   private static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
 
@@ -149,11 +156,8 @@ public class LastHourLevel extends DungeonLevel {
             "[img=items/rpg/item_magnifying_glass.png] Magnifying"
                 + " Glass [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png]");
     String question =
-        "[tr speed=1.0][word-space=2.0]You found a [n][shake][size=30][color=#aa00aa]mysterious chest[/color][/size][/shake][n][word-space=1.0][pause=0.2][tr speed=1.5] Which [shake strength=0.6 speed=0.2]item[/shake] do you take?[pause=0.5]";
-    //    String description =
-    //        "[tr speed=1.0]Look at this scroll: [img-block path=items/rpg/item_scroll.png
-    // width=80]";
-    String description = null;
+        "[speaker][tr speed=1.0][word-space=2.0]You found a [n][shake][size=30][color=#aa00aa]mysterious chest[/color][/size][/shake][n][word-space=1.0][pause=0.2][tr speed=1.5] Which [shake strength=0.6 speed=0.2]item[/shake] do you take?[pause=0.5]"
+            + "[p][speaker clear][tr speed=1.0][word-space=2.0]You found a [n][shake][size=30][color=#aa00aa]mysterious chest[/color][/size][/shake][n][word-space=1.0][pause=0.2][tr speed=1.5] Which [shake strength=0.6 speed=0.2]item[/shake] do you take?[pause=0.5]";
 
     trigger.add(new PositionComponent(getPoint("r1-mcd")));
     trigger.add(
@@ -165,7 +169,6 @@ public class LastHourLevel extends DungeonLevel {
                   DialogFactory.showMultipleChoiceDialog(
                       question,
                       null,
-                      description,
                       new ArrayList<>(opts),
                       false,
                       payload -> {
@@ -186,15 +189,10 @@ public class LastHourLevel extends DungeonLevel {
         true,
         () ->
             DialogFactory.showDialogDialog(
-                List.of(
-                    DialogEntry.of(
-                        "[color=#aaaaaa][size=25]...",
-                        "logo/cat_logo_64x64.png",
-                        Lore.PostIntroDialogText1),
-                    DialogEntry.of(
-                        "[color=#aaaaaa][size=25]...",
-                        "logo/cat_logo_64x64.png",
-                        Lore.PostIntroDialogText2)),
+                "[speaker img=logo/cat_logo_64x64.png name=\"[color=#aaaaaa][size=25]...\"]"
+                    + Lore.PostIntroDialogText1
+                    + "[p]"
+                    + Lore.PostIntroDialogText2,
                 () -> {},
                 targetId),
         targetId);
@@ -513,8 +511,6 @@ public class LastHourLevel extends DungeonLevel {
                 null)
             .isSolid(false));
     Game.add(trigger);
-
-    Debugger.addAction(this::r2SpawnPapers);
   }
 
   /**
@@ -560,8 +556,7 @@ public class LastHourLevel extends DungeonLevel {
    * {@code r2-vent} point and a writing table on {@code r2-desk}, both with interaction dialogs.
    */
   private void setupR2Decorations() {
-    Entity vent =
-        DecoFactory.createDeco(getPoint("r2-vent"), Deco.FloorBarsSmall);
+    Entity vent = DecoFactory.createDeco(getPoint("r2-vent"), Deco.FloorBarsSmall);
     vent.remove(DecoComponent.class);
     vent.add(
         new InteractionComponent(
@@ -573,31 +568,117 @@ public class LastHourLevel extends DungeonLevel {
                     })));
     Game.add(vent);
 
-    Entity desk = DecoFactory.createDeco(getPoint("r2-desk").translate(3f / 16f, 1f / 16f), Deco.WritingTable);
+    Entity desk =
+        DecoFactory.createDeco(
+            getPoint("r2-desk").translate(-3f / 16f, 1f / 16f), Deco.WritingTable);
     desk.remove(DecoComponent.class);
     desk.add(
         new InteractionComponent(
             () ->
                 new Interaction(
                     (e, who) -> {
+                      DialogFactory.showOkDialog(Lore.R2DeskNoteText, "", () -> {}, who.id());
+                    })));
+    Game.add(desk);
+
+    setupPhone();
+  }
+
+  private void setupPhone() {
+    r2Phone = DecoFactory.createDeco(getPoint("r2-phone"), Deco.Phone);
+    r2Phone.remove(DecoComponent.class);
+    Game.add(r2Phone);
+    DrawSystem.getInstance().changeEntityDepth(r2Phone, DepthLayer.AbovePlayer.depth());
+    updatePhoneInteraction();
+
+    Debugger.addAction(
+        () -> {
+          ringPhone(
+              "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] Hello? Can you hear me?"
+                  + "[p]My name is Sam Altman. I'm the CEO of Ciphera Labs."
+                  + "[p][speaker name=\"Sam Altman\"]How are you guys doing?[pause=0.5] I heard you got trapped in a crime scene."
+                  + "[p][speaker img={path}]Yes, we are trying to understand what happened here, recover the system and rescue the project data."
+                  + "[p][speaker name=\"Sam Altman\"]Oh, that's great to hear![pause=0.5] Listen, I know this is a tough situation, but I want you to know that we're doing everything we can to help you out."
+                  + "[p]In fact, Dr. Mertens left me a note instructing me to use the green USB Stick to do[tr speed=0.3]... [tr speed=1]something, in case he vanishes."
+                  + "[p]It doesn't say what needs to be done, but I'm sure you can figure it out."
+                  + "[p]I need to go now, good luck! [shake][color=#333333]*click*[/color][/shake]");
+        });
+  }
+
+  /**
+   * Triggers phone ringing and sets the dialog shown when answering the call.
+   *
+   * @param dialogText dialog script to display when the phone is answered
+   */
+  public void ringPhone(String dialogText) {
+    isPhoneRinging = true;
+    ringingPhoneDialog = dialogText;
+    updatePhoneInteraction();
+
+    if (ringingPhoneEmote == null) {
+      ringingPhoneEmote =
+          EmoteFactory.createEmote(
+              EntityUtils.getPosition(r2Phone), Emote.EXCLAMATION, PHONE_RINGING_EMOTE_DURATION_MS);
+      Game.add(ringingPhoneEmote);
+    }
+  }
+
+  private void stopPhoneRinging() {
+    isPhoneRinging = false;
+    ringingPhoneDialog = "";
+    updatePhoneInteraction();
+    if (ringingPhoneEmote != null) {
+      Game.remove(ringingPhoneEmote);
+      ringingPhoneEmote = null;
+    }
+  }
+
+  private void updatePhoneInteraction() {
+    if (r2Phone == null) return;
+
+    r2Phone.remove(InteractionComponent.class);
+    r2Phone.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (e, who) -> {
+                      if (isPhoneRinging) {
+                        String genTexturePath = portraitPathFor(who);
+                        ringingPhoneDialog = ringingPhoneDialog.replace("{path}", genTexturePath);
+                        DialogFactory.showDialogDialog(ringingPhoneDialog, this::stopPhoneRinging);
+                        return;
+                      }
+
                       DialogFactory.showOkDialog(
-                          "[tr speed=0]A note from a colleague:[n][n]"
-                              + "[tr speed=2.0]Hey, hope you're doing alright! Things have been pretty hectic"
-                              + " around here lately, so I figured I'd leave you a quick note"
-                              + " instead of trying to catch you between meetings.[n][n]"
-                              + "[pause=0.3]Oh, and about that USB stick of yours I borrowed,"
-                              + " here's the quick rundown:[n][n]"
-                              + "[tr speed=1.0]- [color=#444477]B[/color]rought it back and left it with the control panel key.[n]"
-                              + "- [color=#444477]L[/color]ightning quick, by the way - best stick I've used.[n]"
-                              + "- [color=#444477]U[/color]seful little thing, really saved me this week.[n]"
-                              + "- [color=#444477]E[/color]xpect I'll ask to borrow it again sometime soon![n][n]"
-                              + "[pause=0.3][tr speed=2.0]Anyway, take care and don't stay too late again. See you"
-                              + " tomorrow!",
+                          "The phone seems to be working, but you don't know how to dial out...",
                           "",
                           () -> {},
                           who.id());
                     })));
-    Game.add(desk);
+  }
+
+  /**
+   * Returns the path of the pre-rendered character portrait texture for the given hero entity.
+   *
+   * <p>The portrait textures are generated at startup by {@link
+   * starter.TheLastHour#staticRenderTextures()} and registered in the {@link
+   * core.utils.components.draw.TextureMap} under the {@code @gen/} virtual paths.
+   *
+   * @param who The hero entity that interacted with the phone.
+   * @return The (virtual) texture path of the portrait, or the default speaker image if the
+   *     character class is unknown / has no portrait.
+   */
+  private static String portraitPathFor(Entity who) {
+    CharacterClass cc =
+        who.fetch(CharacterClassComponent.class)
+            .map(CharacterClassComponent::characterClass)
+            .orElse(null);
+    if (cc == null) return "other/unknown.png";
+    return switch (cc) {
+      case THE_LAST_HOUR_ROGUE -> TheLastHour.ROGUE_PORTRAIT_PATH;
+      case THE_LAST_HOUR_CHAR03 -> TheLastHour.CHAR03_PORTRAIT_PATH;
+      default -> "other/unknown.png";
+    };
   }
 
   /** Places all four colored USB stick items at {@code r2-folders}, spaced 1 tile apart in +x. */
@@ -694,7 +775,7 @@ public class LastHourLevel extends DungeonLevel {
       if (currentVisibleComments > lastKnownVisibleCommentCount) {
         Sounds.play(LastHourSounds.COMPUTER_COMMENT_RECEIVED);
         Game.add(
-            EmoteFactory.createEmote(getPoint("pc-main").translate(0.5f, 2f), Emote.IDEA, 4000));
+            EmoteFactory.createEmote(getPoint("pc-main").translate(1, 1.5f), Emote.IDEA, 4000));
       }
       lastKnownVisibleCommentCount = currentVisibleComments;
     }
