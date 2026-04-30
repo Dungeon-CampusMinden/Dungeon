@@ -33,15 +33,6 @@ public final class ShineSpriteEffect implements SpriteEffect, ToggleableEffect<S
   public ShineSpriteEffect() {}
 
   /**
-   * Gets the padding around the sprite for the shine effect.
-   *
-   * @return the padding in pixels
-   */
-  public int padding() {
-    return padding;
-  }
-
-  /**
    * Sets the padding around the sprite for the shine effect.
    *
    * @param padding the padding in pixels (negative values are clamped to 0)
