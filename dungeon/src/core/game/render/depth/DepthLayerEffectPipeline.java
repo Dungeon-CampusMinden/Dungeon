@@ -39,18 +39,7 @@ public final class DepthLayerEffectPipeline {
     return effects != null && !effects.isEmpty();
   }
 
-   /**
-    * Checks whether any enabled effects are registered for the specified depth layer.
-    *
-    * @param depthLayer the depth layer to check
-    * @return true if at least one effect is enabled for this depth layer, false otherwise
-    */
-   public static boolean hasEnabledEffects(int depthLayer) {
-     DepthLayerEffectRegistry effects = EFFECTS_BY_DEPTH.get(depthLayer);
-     return effects != null && effects.hasEnabledEffects();
-   }
-
-   /**
+  /**
     * Checks whether no enabled effects are registered for the specified depth layer.
     *
     * @param depthLayer the depth layer to check
