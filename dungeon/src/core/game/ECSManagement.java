@@ -503,7 +503,7 @@ public final class ECSManagement {
    *     BOTH)
    */
   public static void executeOneTick(System.AuthoritativeSide side) {
-    final long now = core.utils.Time.nowNs();
+    final long now = core.utils.Time.currentTimeNanos();
     final float deltaSeconds;
     if (lastTickNanos < 0L) {
       deltaSeconds = 0f;

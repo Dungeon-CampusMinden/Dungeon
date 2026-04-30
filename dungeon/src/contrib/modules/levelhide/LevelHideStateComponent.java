@@ -14,7 +14,7 @@ public final class LevelHideStateComponent implements Component {
   private static final long INITIAL_SETTLED_OFFSET_MS = 10_000L;
 
   private boolean hiding = true;
-  private long transitionStartedAtMs = Time.nowMs() - INITIAL_SETTLED_OFFSET_MS;
+  private long transitionStartedAtMs = Time.currentTimeMillis() - INITIAL_SETTLED_OFFSET_MS;
 
   /**
    * Returns whether the region is currently hidden.
@@ -38,7 +38,7 @@ public final class LevelHideStateComponent implements Component {
       return;
     }
     this.hiding = hiding;
-    this.transitionStartedAtMs = Time.nowMs();
+    this.transitionStartedAtMs = Time.currentTimeMillis();
   }
 
   /**
@@ -47,6 +47,6 @@ public final class LevelHideStateComponent implements Component {
    * @return elapsed transition time in seconds
    */
   public float transitionElapsedSeconds() {
-    return Math.max(0f, (Time.nowMs() - transitionStartedAtMs) / 1000f);
+    return Math.max(0f, (Time.currentTimeMillis() - transitionStartedAtMs) / 1000f);
   }
 }

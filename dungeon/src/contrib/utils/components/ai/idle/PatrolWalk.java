@@ -128,7 +128,7 @@ public final class PatrolWalk implements Consumer<Entity> {
   }
 
   private void beginPause() {
-    waitStartedAtMs = Time.nowMs();
+    waitStartedAtMs = Time.currentTimeMillis();
     currentPauseDurationMs = maxPauseTimeMs <= 0L ? 0L : RANDOM.nextLong(maxPauseTimeMs + 1L);
   }
 
@@ -137,7 +137,7 @@ public final class PatrolWalk implements Consumer<Entity> {
   }
 
   private boolean pauseFinished() {
-    return Time.sinceMs(waitStartedAtMs) >= currentPauseDurationMs;
+    return Time.elapsedTimeMs(waitStartedAtMs) >= currentPauseDurationMs;
   }
 
   private void endPause() {

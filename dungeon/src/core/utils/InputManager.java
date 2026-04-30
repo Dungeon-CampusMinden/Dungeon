@@ -189,7 +189,7 @@ public final class InputManager {
         lastKeyTapTimesMs,
         previousKeyTapTimesMs,
         keyDownTimesMs,
-        core.utils.Time.nowMs());
+        core.utils.Time.currentTimeMillis());
   }
 
   /**
@@ -236,7 +236,7 @@ public final class InputManager {
         lastButtonTapTimesMs,
         previousButtonTapTimesMs,
         buttonDownTimesMs,
-        core.utils.Time.nowMs());
+        core.utils.Time.currentTimeMillis());
   }
 
   /**

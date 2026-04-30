@@ -179,7 +179,7 @@ final class EntitySpriteRenderer {
       return;
     }
 
-     long nowMs = Time.nowMs();
+     long nowMs = Time.currentTimeMillis();
      renderImg = SpriteEffectPipeline.apply(entity, renderImg);
 
     float sxWorld = pos.x() * tilePx;

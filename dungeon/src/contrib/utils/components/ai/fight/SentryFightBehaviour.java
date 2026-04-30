@@ -99,7 +99,7 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
     if (fightSkill == null) return;
 
     if (LevelUtils.playerInRange(entity, attackRange)) {
-      long now = Time.nowMs();
+      long now = Time.currentTimeMillis();
       if (now - lastAttackTime >= fightSkill.cooldown()) {
         useSkill(fightSkill, entity);
         lastAttackTime = now;

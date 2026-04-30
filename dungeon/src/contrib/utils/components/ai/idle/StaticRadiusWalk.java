@@ -54,10 +54,10 @@ public final class StaticRadiusWalk implements Consumer<Entity> {
     }
 
     if (waitStartedAtMs == Long.MIN_VALUE) {
-      waitStartedAtMs = Time.nowMs();
+      waitStartedAtMs = Time.currentTimeMillis();
     }
 
-    if (Time.sinceMs(waitStartedAtMs) < breakTimeMs) {
+    if (Time.elapsedTimeMs(waitStartedAtMs) < breakTimeMs) {
       return;
     }
 

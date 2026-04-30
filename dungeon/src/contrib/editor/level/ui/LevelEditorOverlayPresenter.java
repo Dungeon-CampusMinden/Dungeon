@@ -36,7 +36,7 @@ public final class LevelEditorOverlayPresenter {
    * Creates a new LevelEditorOverlayPresenter with default overlay and current system time.
    */
   public LevelEditorOverlayPresenter() {
-    this(new LevelEditorOverlay(), Time::nowMs);
+    this(new LevelEditorOverlay(), Time::currentTimeMillis);
   }
 
   /**

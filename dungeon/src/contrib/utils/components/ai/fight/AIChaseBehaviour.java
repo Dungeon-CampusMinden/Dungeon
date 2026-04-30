@@ -75,13 +75,13 @@ public class AIChaseBehaviour implements Consumer<Entity> {
   }
 
   private void refreshPathIfDue(final Entity entity) {
-    if (path == null || Time.sinceMs(lastPathUpdateMs) >= repathIntervalMs) {
+    if (path == null || Time.elapsedTimeMs(lastPathUpdateMs) >= repathIntervalMs) {
       refreshPath(entity);
     }
   }
 
   private void refreshPath(final Entity entity) {
     path = LevelUtils.calculateTilePathToPlayer(entity);
-    lastPathUpdateMs = Time.nowMs();
+    lastPathUpdateMs = Time.currentTimeMillis();
   }
 }
