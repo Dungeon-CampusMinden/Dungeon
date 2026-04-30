@@ -2,6 +2,7 @@ package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
 import core.camera.CameraViewportState;
+import core.game.render.RenderContext;
 import core.input.InputLabelFormatter.InputCode;
 import core.input.MouseButtons;
 import core.level.Tile;
@@ -92,7 +93,12 @@ public final class StartTilesMode extends LevelEditorMode {
   }
 
   @Override
-  public void render(Graphics2D g, float deltaSeconds) {
+  public void render() {
+    Graphics2D g = RenderContext.get();
+    if (g == null) {
+      return;
+    }
+
     activeCameraView()
         .ifPresent(
             view ->

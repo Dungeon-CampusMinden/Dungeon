@@ -2,6 +2,7 @@ package contrib.editor.level.mode;
 
 import contrib.debug.draw.DebugDrawService;
 import contrib.editor.level.LevelEditorSystem;
+import core.game.render.RenderContext;
 import core.input.InputLabelFormatter.InputCode;
 import core.input.MouseButtons;
 import core.level.Tile;
@@ -107,7 +108,12 @@ public final class TilesMode extends LevelEditorMode {
   }
 
   @Override
-  public void render(Graphics2D g, float deltaSeconds) {
+  public void render() {
+    Graphics2D g = RenderContext.get();
+    if (g == null) {
+      return;
+    }
+
     Color previewColor = new Color(255, 255, 255, 64);
 
     forEachBrushTile(

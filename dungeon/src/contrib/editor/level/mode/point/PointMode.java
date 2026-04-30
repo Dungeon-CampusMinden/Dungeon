@@ -3,6 +3,7 @@ package contrib.editor.level.mode.point;
 import contrib.editor.level.LevelEditorSystem;
 import contrib.editor.level.mode.EditorSnapMode;
 import contrib.editor.level.mode.LevelEditorMode;
+import core.game.render.RenderContext;
 import core.input.InputLabelFormatter.InputCode;
 import core.input.MouseButtons;
 import core.platform.Platform;
@@ -98,7 +99,12 @@ public final class PointMode extends LevelEditorMode {
   }
 
   @Override
-  public void render(Graphics2D g, float deltaSeconds) {
+  public void render() {
+    Graphics2D g = RenderContext.get();
+    if (g == null) {
+      return;
+    }
+
     renderer.render(g, placementController.heldPointName(), currentSnapPosition());
   }
 
