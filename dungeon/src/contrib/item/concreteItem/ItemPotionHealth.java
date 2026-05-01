@@ -3,6 +3,7 @@ package contrib.item.concreteItem;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingIngredient;
+
 import contrib.item.HealthPotionType;
 import contrib.item.Item;
 import contrib.utils.components.health.Damage;
@@ -19,7 +20,6 @@ import core.utils.components.path.SimpleIPath;
  * representation in the game.
  */
 public class ItemPotionHealth extends Item {
-
   /** The default texture for all health potions. */
   public static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/potion/health_potion.png");
 
@@ -92,8 +92,9 @@ public class ItemPotionHealth extends Item {
     if (this.heal_amount == HealthPotionType.WEAK.getHealAmount()) {
       return new ItemPotionHealth(HealthPotionType.WEAK);
     }
-  if (this.heal_amount == HealthPotionType.NORMAL.getHealAmount()) {
-     return new ItemPotionHealth(HealthPotionType.NORMAL);
-   }
-   return new ItemPotionHealth(HealthPotionType.GREATER);
- }
+    if (this.heal_amount == HealthPotionType.NORMAL.getHealAmount()) {
+      return new ItemPotionHealth(HealthPotionType.NORMAL);
+    }
+    return new ItemPotionHealth(HealthPotionType.GREATER);
+  }
+}

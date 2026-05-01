@@ -1,3 +1,4 @@
+
 package contrib.item;
 
 import contrib.components.InventoryComponent;
@@ -372,14 +373,14 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
 
   @Override
   public Item copy() {
-    Item copy = new Item(
-      this.displayName,
-      this.description,
-      this.inventoryAnimation,
-      this.worldAnimation,
-      this.stackSize,
-      this.maxStackSize
-    );
+    Item copy =
+        new Item(
+            this.displayName,
+            this.description,
+            this.inventoryAnimation,
+            this.worldAnimation,
+            this.stackSize,
+            this.maxStackSize);
 
     copy.simpleInteraction = this.simpleInteraction;
 
