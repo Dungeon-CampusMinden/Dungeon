@@ -76,10 +76,10 @@ public final class ClientLoopHost implements GameLoopHost {
   }
 
   @Override
-  public void run(String[] args, GameLoop loop) {
+  public void run(String[] args, GameLoop gameLoop) {
     initializeEngine(args);
     wirePlatformServices();
-    initializeClientRuntime(loop);
+    initializeClientRuntime(gameLoop);
     Game.start();
   }
 

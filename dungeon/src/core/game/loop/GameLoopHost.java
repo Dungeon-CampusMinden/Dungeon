@@ -27,12 +27,18 @@ import java.util.Optional;
 public interface GameLoopHost {
 
   /**
-   * Start the host loop and drive the given core loop.
+   * Starts the host loop and drives the given game loop.
    *
-   * @param args optional command-line args (some engines need them for init)
-   * @param core the engine-agnostic core loop
+   * <p>This method initiates the platform-specific runtime loop and passes control to the provided
+   * engine-agnostic game loop.
+   *
+   * <p>The host remains responsible for managing platform resources and
+   * lifecycle events while delegating the core game logic to the provided {@link GameLoop}.
+   *
+   * @param args optional command-line arguments that may be required by the platform runtime
+   * @param gameLoop the engine-agnostic game loop that drives the core game logic
    */
-  void run(String[] args, GameLoop core);
+  void run(String[] args, GameLoop gameLoop);
 
   /**
    * Retrieves an optional handle to a UI stage.

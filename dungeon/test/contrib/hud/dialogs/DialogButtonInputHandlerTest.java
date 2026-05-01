@@ -110,7 +110,7 @@ public class DialogButtonInputHandlerTest {
 
   private record StubLoopHost(StageHandle stageHandle) implements GameLoopHost {
     @Override
-    public void run(String[] args, GameLoop core) {}
+    public void run(String[] args, GameLoop gameLoop) {}
 
     @Override
     public Optional<StageHandle> stage() {
