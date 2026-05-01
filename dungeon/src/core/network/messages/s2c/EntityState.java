@@ -2,11 +2,10 @@ package core.network.messages.s2c;
 
 import contrib.item.Item;
 import core.network.messages.NetworkMessage;
-import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
-import java.io.Serial;
-import java.util.List;
+import core.utils.Vector2;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -19,41 +18,41 @@ import java.util.Optional;
  * @see core.network.SnapshotTranslator
  */
 public class EntityState implements NetworkMessage {
-  @Serial private static final long serialVersionUID = 1L;
-
   private final int entityId;
   private final String entityName;
   private final Point position;
   private final String viewDirection;
   private final Float rotation;
+  private final Vector2 scale;
   private final Integer curHealth;
   private final Integer maxHealth;
   private final Float curMana;
   private final Float maxMana;
   private final String stateName;
   private final Integer tintColor;
-  private final List<SoundSpec> sounds;
   private final Item[] inventory;
+  private final Map<String, String> metadata;
 
   /**
    * Constructs an EntityState object using the provided Builder.
    *
    * @param builder the Builder containing the entity's state data
    */
-  private EntityState(Builder builder) {
+  protected EntityState(Builder builder) {
     this.entityId = builder.entityId;
     this.entityName = builder.entityName;
     this.position = builder.position;
     this.viewDirection = builder.viewDirection;
     this.rotation = builder.rotation;
+    this.scale = builder.scale;
     this.curHealth = builder.curHealth;
     this.maxHealth = builder.maxHealth;
     this.curMana = builder.curMana;
     this.maxMana = builder.maxMana;
     this.stateName = builder.stateName;
     this.tintColor = builder.tintColor;
-    this.sounds = builder.sounds;
     this.inventory = builder.inventory;
+    this.metadata = builder.metadata == null ? null : Map.copyOf(builder.metadata);
   }
 
   /**
@@ -99,6 +98,15 @@ public class EntityState implements NetworkMessage {
    */
   public Optional<Float> rotation() {
     return Optional.ofNullable(rotation);
+  }
+
+  /**
+   * Gets the optional scale of the entity.
+   *
+   * @return an Optional containing the scale if present, otherwise an empty Optional
+   */
+  public Optional<Vector2> scale() {
+    return Optional.ofNullable(scale);
   }
 
   /**
@@ -156,15 +164,6 @@ public class EntityState implements NetworkMessage {
   }
 
   /**
-   * Gets the optional audio list of the entity.
-   *
-   * @return an Optional containing the audio list if present, otherwise an empty Optional
-   */
-  public Optional<List<SoundSpec>> sounds() {
-    return Optional.ofNullable(sounds);
-  }
-
-  /**
    * Creates a new Builder instance for constructing an EntityState.
    *
    * @return a new Builder instance
@@ -182,6 +181,15 @@ public class EntityState implements NetworkMessage {
     return Optional.ofNullable(inventory);
   }
 
+  /**
+   * Gets optional metadata for subproject-specific state.
+   *
+   * @return an Optional containing metadata if present, otherwise an empty Optional
+   */
+  public Optional<Map<String, String>> metadata() {
+    return Optional.ofNullable(metadata);
+  }
+
   /** Builder class for constructing EntityState objects. */
   public static class Builder {
     private int entityId;
@@ -189,14 +197,15 @@ public class EntityState implements NetworkMessage {
     private Point position;
     private String viewDirection;
     private Float rotation;
+    private Vector2 scale;
     private Integer curHealth;
     private Integer maxHealth;
     private Float curMana;
     private Float maxMana;
     private String stateName;
     private Integer tintColor;
-    private List<SoundSpec> sounds;
     private Item[] inventory;
+    private Map<String, String> metadata;
 
     /**
      * Sets the unique identifier for the entity.
@@ -250,6 +259,17 @@ public class EntityState implements NetworkMessage {
      */
     public Builder rotation(Float rotation) {
       this.rotation = rotation;
+      return this;
+    }
+
+    /**
+     * Sets the scale of the entity.
+     *
+     * @param scale the scale value
+     * @return the Builder instance
+     */
+    public Builder scale(Vector2 scale) {
+      this.scale = scale;
       return this;
     }
 
@@ -331,17 +351,6 @@ public class EntityState implements NetworkMessage {
     }
 
     /**
-     * Sets the audio list for the entity.
-     *
-     * @param sounds the list of SoundSpec instances
-     * @return the Builder instance
-     */
-    public Builder sounds(List<SoundSpec> sounds) {
-      this.sounds = sounds;
-      return this;
-    }
-
-    /**
      * Sets the inventory items for the entity.
      *
      * @param inventory the array of Item instances
@@ -349,6 +358,17 @@ public class EntityState implements NetworkMessage {
      */
     public Builder inventory(Item[] inventory) {
       this.inventory = inventory;
+      return this;
+    }
+
+    /**
+     * Sets metadata for subproject-specific state.
+     *
+     * @param metadata metadata key-value pairs
+     * @return the Builder instance
+     */
+    public Builder metadata(Map<String, String> metadata) {
+      this.metadata = metadata == null ? null : Map.copyOf(metadata);
       return this;
     }
 

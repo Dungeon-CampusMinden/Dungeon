@@ -44,7 +44,6 @@ public class Level012 extends BlocklyLevel {
         "while_loop",
         // Inventar und Charakter
         "drop_item",
-        "Items",
         "wait",
         // Kategorien
         "Abfragen",
@@ -54,8 +53,8 @@ public class Level012 extends BlocklyLevel {
         "Bedingungen",
         "Sonstige");
 
-    addPopup(new ImagePopup("popups/level012/01_schaltplan.png"));
-    addCodePopup(new ImagePopup("popups/overview1.png"));
+    addPopup(new ImagePopup("popups/level012/01_schaltplan.jpg"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override

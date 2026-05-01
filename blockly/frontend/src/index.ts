@@ -14,6 +14,7 @@ import {
   setupButtons
 } from "./utils/workspace.ts";
 import {getCurrentLevel, LevelChangedEvent, setupLevelSelector, updateLevelList} from "./utils/level.ts";
+import {addListenerToFlyOut, updateElementAlignment} from "./utils/popup.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -48,11 +49,42 @@ setupButtons(workspace);
 // Disable all blocks that aren't connected to the start block.
 workspace.addChangeListener(Blockly.Events.disableOrphans);
 
+// @ts-expect-error the blocklyZoomReset is always on the gui
+document.querySelector('g.blocklyZoom.blocklyZoomReset').addEventListener('pointerdown', (e) => {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    // set zoom level to start
+    workspace.setScale(workspace.options.zoomOptions.startScale);
+    // center on the start block
+    const blocks = workspace.getBlocksByType('start', false);
+    if (blocks.length > 0) {
+      workspace.centerOnBlock(blocks[0].id);
+    }
+  }, true);
+
 // Disable the toolbox flyout auto-close
 const toolboxFlyout = workspace.getToolbox()?.getFlyout();
 if (toolboxFlyout) {
   toolboxFlyout.autoClose = false;
 }
+
+const containers = [".blocklyToolboxDiv", ".blocklyToolboxFlyout", ".injectionDiv"];
+
+containers.forEach(selector => {
+  const el = document.querySelector(selector);
+  if (el) {
+    el.addEventListener('wheel', () => {
+      requestAnimationFrame(updateElementAlignment);
+    }, { passive: true });
+
+    el.addEventListener('touchmove', () => {
+      requestAnimationFrame(updateElementAlignment);
+    }, { passive: true });
+  }
+});
+
+
+addListenerToFlyOut();
 
 // Level Selector
 const levelSelector = setupLevelSelector();
@@ -83,6 +115,9 @@ levelSelector.addEventListener("levelChanged", (event) => {
   // Update toolbox
   workspace.updateToolbox(toolbox);
   workspace.getToolbox()?.refreshSelection();
+  updateElementAlignment();
+
+
 });
 
 // This function resets the code and output divs, shows the
@@ -161,10 +196,21 @@ workspace.addChangeListener(async (e: Blockly.Events.Abstract) => {
     extraStartBlocks.forEach(block => block?.dispose());
     return;
   }
+  const newBlock = newStartBlocks[0];
 
-  if (extraStartBlocks.length === 1) { // delete the old start block, so we can restore the new one
-    workspace.removeBlockById(startBlock.id);
-    startBlock.dispose();
+  // check that the two blocks are not the same
+  if (newBlock && startBlock.id !== newBlock.id) {
+    // get the connection tot the next blocks
+    const nextConn = startBlock.nextConnection;
+
+    // if there is a connection to other blocks, then disconnect it
+    // this is important because the start block should be deleted but
+    // the other blocks that are attached to them should not be deleted
+    if (nextConn && nextConn.isConnected()) {
+      nextConn.disconnect();
+    }
+    // deletes the start block
+    startBlock.dispose(false);
   }
 });
 
@@ -189,3 +235,5 @@ updateLevelList().then(() => {
 
 placeDefaultStartBlock(workspace);
 workspace.scrollCenter(); // centering workspace
+
+

@@ -12,7 +12,7 @@ export function set_number(block: Blockly.Block, generator: Blockly.Generator) {
     javaGenerator.variables.set(variable_name!, Number(field_value));
     return `${variable_name} = ${field_value};`;
   } else {
-    return null;
+    return "no value was assigned to the variable";
   }
 }
 
@@ -64,7 +64,7 @@ export function set_number_expression(
       javaGenerator.variables.set(variable_name, variable_name);
       return `int ${variable_name} = ${value};`;
     }
-  return null;
+  return "no value was assigned to the variable";
 }
 
 export function get_variable(

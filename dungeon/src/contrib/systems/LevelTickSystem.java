@@ -17,7 +17,7 @@ public class LevelTickSystem extends System {
 
   /** Creates a new LevelTickSystem. */
   public LevelTickSystem() {
-    super(AuthoritativeSide.SERVER);
+    super(AuthoritativeSide.BOTH);
   }
 
   /** The current level of the game. */
@@ -31,5 +31,10 @@ public class LevelTickSystem extends System {
     if (currentLevel != Game.currentLevel().orElse(null)) {
       this.currentLevel = Game.currentLevel().orElse(null);
     }
+  }
+
+  @Override
+  public void stop() {
+    // Cant be stopped
   }
 }

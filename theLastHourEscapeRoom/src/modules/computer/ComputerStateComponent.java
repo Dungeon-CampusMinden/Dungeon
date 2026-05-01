@@ -1,0 +1,138 @@
+package modules.computer;
+
+import core.Component;
+import core.Entity;
+import core.game.ECSManagement;
+import core.network.messages.c2s.DialogResponseMessage;
+import java.io.Serializable;
+import java.util.Optional;
+import java.util.Set;
+
+/**
+ * Component that stores the state of the computer.
+ *
+ * @param state the current progress state of the computer
+ * @param isInfected whether the computer is currently infected with a virus
+ * @param virusType the type of virus currently infecting the computer, or an empty string if not
+ *     infected
+ * @param timestampOfLogin the timestamp of the last login to the computer, or 0 if never logged in
+ */
+public record ComputerStateComponent(
+    ComputerProgress state, boolean isInfected, String virusType, int timestampOfLogin)
+    implements Component, Serializable, DialogResponseMessage.Payload {
+
+  /**
+   * Create a new ComputerStateComponent with the given state.
+   *
+   * @param newState the new state of the computer
+   * @return a new ComputerStateComponent with the updated state
+   */
+  public ComputerStateComponent withState(ComputerProgress newState) {
+    return new ComputerStateComponent(
+        newState, this.isInfected, this.virusType, this.timestampOfLogin);
+  }
+
+  /**
+   * Create a new ComputerStateComponent with the given infection status.
+   *
+   * @param infected the new infection status
+   * @return a new ComputerStateComponent with the updated infection status
+   */
+  public ComputerStateComponent withInfection(boolean infected) {
+    return new ComputerStateComponent(this.state, infected, this.virusType, this.timestampOfLogin);
+  }
+
+  /**
+   * Create a new ComputerStateComponent with the given virus type.
+   *
+   * @param virusType the new type of virus
+   * @return a new ComputerStateComponent with the updated virus type
+   */
+  public ComputerStateComponent withVirusType(String virusType) {
+    return new ComputerStateComponent(
+        this.state, this.isInfected, virusType, this.timestampOfLogin);
+  }
+
+  /**
+   * Create a new ComputerStateComponent with the given timestamp of login.
+   *
+   * @param timestampOfLogin the new timestamp of login
+   * @return a new ComputerStateComponent with the updated timestamp of login
+   */
+  public ComputerStateComponent withTimestampOfLogin(int timestampOfLogin) {
+    return new ComputerStateComponent(
+        this.state, this.isInfected, this.virusType, timestampOfLogin);
+  }
+
+  /**
+   * Updates the state of the computer on the existing state entity within the current level.
+   *
+   * @param state the new computer progress state to set
+   * @throws java.util.NoSuchElementException if no state Entity is found
+   */
+  public static void setState(ComputerProgress state) {
+    Entity e = getStateEntity().orElseThrow();
+    ComputerStateComponent csc = e.fetch(ComputerStateComponent.class).orElseThrow();
+    e.remove(ComputerStateComponent.class);
+    e.add(csc.withState(state));
+  }
+
+  /**
+   * Updates the infection status on the existing state entity within the current level.
+   *
+   * @param infected the new infection status to set
+   * @throws java.util.NoSuchElementException if no state Entity is found
+   */
+  public static void setInfection(boolean infected) {
+    Entity e = getStateEntity().orElseThrow();
+    ComputerStateComponent csc = e.fetch(ComputerStateComponent.class).orElseThrow();
+    e.remove(ComputerStateComponent.class);
+    e.add(csc.withInfection(infected));
+  }
+
+  /**
+   * Updates the virus type on the existing state entity within the current level.
+   *
+   * @param virusType the new virus type string to set
+   * @throws java.util.NoSuchElementException if no state Entity is found
+   */
+  public static void setVirusType(String virusType) {
+    Entity e = getStateEntity().orElseThrow();
+    ComputerStateComponent csc = e.fetch(ComputerStateComponent.class).orElseThrow();
+    e.remove(ComputerStateComponent.class);
+    e.add(csc.withVirusType(virusType));
+  }
+
+  /**
+   * Updates the timestamp of login on the existing state entity within the current level.
+   *
+   * @param timestampOfLogin the new timestamp of login to set
+   * @throws java.util.NoSuchElementException if no state Entity is found
+   */
+  public static void setTimestampOfLogin(int timestampOfLogin) {
+    Entity e = getStateEntity().orElseThrow();
+    ComputerStateComponent csc = e.fetch(ComputerStateComponent.class).orElseThrow();
+    e.remove(ComputerStateComponent.class);
+    e.add(csc.withTimestampOfLogin(timestampOfLogin));
+  }
+
+  /**
+   * Retrieves the entity in the current level that holds the ComputerStateComponent.
+   *
+   * @return An {@link Optional} containing the Entity with the ComputerStateComponent if it exists,
+   *     or an empty Optional if it does not
+   */
+  private static Optional<Entity> getStateEntity() {
+    return ECSManagement.levelEntities(Set.of(ComputerStateComponent.class)).findFirst();
+  }
+
+  /**
+   * Retrieves the current ComputerStateComponent from the state entity.
+   *
+   * @return An {@link Optional} containing the ComputerStateComponent if it exists, or an empty
+   *     Optional if it does not
+   */
+  public static Optional<ComputerStateComponent> getState() {
+    return getStateEntity().flatMap(entity -> entity.fetch(ComputerStateComponent.class));
+  }
+}

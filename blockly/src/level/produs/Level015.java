@@ -30,7 +30,6 @@ public class Level015 extends BlocklyLevel {
     this.blockBlocklyElement(
         // Inventar und Charakter
         "drop_item",
-        "Items",
         "wait",
         // Bedingung
         "logic_monster_direction",
@@ -44,7 +43,7 @@ public class Level015 extends BlocklyLevel {
         "Variablen",
         "Sonstige");
 
-    addCodePopup(new ImagePopup("popups/overview1.png"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override

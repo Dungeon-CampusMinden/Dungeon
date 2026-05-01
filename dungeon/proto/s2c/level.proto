@@ -1,0 +1,19 @@
+// Level change messages.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "LevelProto";
+
+// Server-to-client: Level has changed.
+// Maps to: core.network.messages.s2c.LevelChangeEvent
+message LevelChangeEvent {
+  // Name/identifier of the new level.
+  string level_name = 1;
+
+  // Serialized level data (existing format).
+  string level_data = 2;
+}

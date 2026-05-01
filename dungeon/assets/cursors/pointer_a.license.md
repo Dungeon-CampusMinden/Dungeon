@@ -1,0 +1,4 @@
+- Quelle: https://kenney.nl/assets/cursor-pack
+- Author: Kenney
+- License: CC0
+- Also applies to: cursor_alias, pointer_l, cross_small, bracket_a_vertical, cursor_disabled

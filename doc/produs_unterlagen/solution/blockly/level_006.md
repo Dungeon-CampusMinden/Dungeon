@@ -2,11 +2,7 @@
 title: "Blockly Lösung: Level 6"
 ---
 
-## Blöcke
-![solution](./img/loesung_level_006.png)
-
 ## Code
-
 ```java
 hero.rotate(Direction.LEFT);
 for(int i = 1; i <= 3; i++){

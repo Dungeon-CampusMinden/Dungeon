@@ -32,7 +32,7 @@ public class PitSystem extends System {
    * and VelocityComponent.
    */
   public PitSystem() {
-    super(PositionComponent.class, VelocityComponent.class);
+    super(PositionComponent.class, VelocityComponent.class, CollideComponent.class);
   }
 
   @Override

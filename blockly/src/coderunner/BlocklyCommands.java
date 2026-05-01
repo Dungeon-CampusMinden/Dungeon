@@ -84,7 +84,13 @@ public class BlocklyCommands {
     HERO_FIREBALL,
 
     /** Do nothing for a short amount of time (hero rests). */
-    REST
+    REST,
+
+    /** Shoot a blue portal projectile in the hero's current viewing direction. */
+    HERO_SHOOT_BLUE_PORTAL,
+
+    /** Shoot a green portal projectile in the hero's current viewing direction. */
+    HERO_SHOOT_GREEN_PORTAL
   }
 
   /**
@@ -237,8 +243,13 @@ public class BlocklyCommands {
       return true;
     }
     // Special case: treat DOOR or EXIT as FLOOR
-    return target == LevelElement.FLOOR
-        && (actual == LevelElement.DOOR || actual == LevelElement.EXIT);
+    if (target == LevelElement.FLOOR
+        && (actual == LevelElement.DOOR || actual == LevelElement.EXIT)) {
+      return true;
+    }
+
+    // Case: treat HOLE or GITTER as WALL
+    return target == LevelElement.WALL && (actual == LevelElement.HOLE);
   }
 
   /**
@@ -382,5 +393,25 @@ public class BlocklyCommands {
           // wait one more time to make sure the last command of the queue has finished executing
           Server.waitDelta();
         });
+  }
+
+  /**
+   * Shoots a blue portal "projectile" in hero view direction.
+   *
+   * <p>Queues the command in the BlocklyCommandExecuteSystem queue to be executed
+   */
+  public static void shootBluePortal() {
+    Game.system(
+        BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_SHOOT_BLUE_PORTAL));
+  }
+
+  /**
+   * Shoots a green portal "projectile" in hero view direction.
+   *
+   * <p>Queues the command in the BlocklyCommandExecuteSystem queue to be executed
+   */
+  public static void shootGreenPortal() {
+    Game.system(
+        BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_SHOOT_GREEN_PORTAL));
   }
 }

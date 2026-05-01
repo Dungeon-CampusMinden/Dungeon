@@ -2,7 +2,7 @@ package core.components;
 
 import core.Component;
 import core.Entity;
-import core.systems.InputSystem;
+import core.systems.input.InputSystem;
 import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
 import java.util.Map;

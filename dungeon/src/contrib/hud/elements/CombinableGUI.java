@@ -1,8 +1,9 @@
 package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.utils.Disposable;
 import core.utils.Vector2;
 
 /**
@@ -22,14 +23,12 @@ import core.utils.Vector2;
  * available space and return it as a {@link Vector2}. It should not be greater than the available
  * space.
  */
-public abstract class CombinableGUI {
+public abstract class CombinableGUI extends Group implements Disposable {
 
   // Position of the GUI-Element and its size
   private int x, y, width, height;
   // Drag and Drop context object for the GUICombination
   private DragAndDrop dragAndDrop;
-  // Actor "dummy". Only used for DragAndDrop (thx GDX <3)
-  private Actor actor;
 
   /**
    * Set the drag and drop object. This should not be called directly as it is called by the parent
@@ -116,7 +115,7 @@ public abstract class CombinableGUI {
    * @param x the x coordinate.
    */
   public final void x(int x) {
-    this.actor.setPosition(x, this.y);
+    setPosition(x, this.y);
     this.x = x;
   }
 
@@ -135,7 +134,7 @@ public abstract class CombinableGUI {
    * @param y the y coordinate.
    */
   public final void y(int y) {
-    this.actor.setPosition(this.x, y);
+    setPosition(this.x, y);
     this.y = y;
   }
 
@@ -158,7 +157,7 @@ public abstract class CombinableGUI {
     if (width < 0) {
       throw new IllegalArgumentException("Width cannot be negative");
     }
-    this.actor.setSize(width, this.height);
+    setSize(width, this.height);
     this.width = width;
   }
 
@@ -181,23 +180,12 @@ public abstract class CombinableGUI {
     if (height < 0) {
       throw new IllegalArgumentException("Height cannot be negative");
     }
-    this.actor.setSize(this.width, height);
+    setSize(this.width, height);
     this.height = height;
   }
 
-  /**
-   * Generate a GDX-Actor for the element with the current position and size.
-   *
-   * <p>This Actor may be used for GDX-functionality like DragAndDrop.
-   *
-   * @return an Actor for the element.
-   */
-  protected Actor actor() {
-    if (this.actor == null) {
-      this.actor = new Actor();
-      this.actor.setPosition(this.x, this.y);
-      this.actor.setSize(this.width, this.height);
-    }
-    return this.actor;
+  @Override
+  public void dispose() {
+    // Default implementation does nothing
   }
 }

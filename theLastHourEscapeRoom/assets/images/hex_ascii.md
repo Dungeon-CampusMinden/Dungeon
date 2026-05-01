@@ -1,0 +1,3 @@
+- Source: https://commons.wikimedia.org/wiki/File:ASCII-Table.png
+- Author: wukong
+- License: CC SA 4.0

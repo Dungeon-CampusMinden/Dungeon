@@ -33,7 +33,6 @@ public class Level019 extends BlocklyLevel {
     this.blockBlocklyElement(
         // Inventar und Charakter
         "drop_item",
-        "Items",
         "wait",
         // Variable
         "get_number",
@@ -45,8 +44,8 @@ public class Level019 extends BlocklyLevel {
         // Kategorien
         "Sonstige");
 
-    addPopup(new ImagePopup("popups/level019/01_intro.png"));
-    addCodePopup(new ImagePopup("popups/overview1.png"));
+    addPopup(new ImagePopup("popups/level019/01_intro.jpg"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override

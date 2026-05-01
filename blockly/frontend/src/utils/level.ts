@@ -262,5 +262,6 @@ export const setupLevelSelector = () => {
     setLevelProgress(0);
   }
 
+
   return select;
 }

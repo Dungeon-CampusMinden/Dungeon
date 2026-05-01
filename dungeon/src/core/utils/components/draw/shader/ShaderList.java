@@ -1,7 +1,5 @@
 package core.utils.components.draw.shader;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -9,8 +7,7 @@ import java.util.*;
  * assigned priorities. Supports adding, removing, retrieving, and iterating over shaders sorted
  * first by priority and then by insertion order.
  */
-public class ShaderList implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public class ShaderList {
 
   /** Unique counter to track insertion order of shaders. */
   private long insertionCounter = 0;

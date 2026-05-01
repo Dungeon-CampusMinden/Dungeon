@@ -4,6 +4,8 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.components.SoundComponent;
+import core.game.PreRunConfiguration;
+import core.network.server.SoundTracker;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
 import java.util.List;
@@ -62,7 +64,7 @@ public final class AudioApi {
    * Plays a sound on a specific entity.
    *
    * <p>Adds a SoundSpec to the entity's SoundComponent (creates component if needed). The sound
-   * will be synced to clients via snapshots and played by client SoundSystem.
+   * will be sent to clients via SoundPlayMessage and played by client SoundSystem.
    *
    * <p>To implement a `onFinished` callback, use the returned instance ID to register the callback
    * on * the {@link AudioApi#registerOnFinished(long, Runnable)}.
@@ -83,17 +85,22 @@ public final class AudioApi {
 
     SoundSpec spec = builder.build();
 
-    SoundComponent sc =
-        entity
-            .fetch(SoundComponent.class)
-            .orElseGet(
-                () -> {
-                  SoundComponent newSc = new SoundComponent();
-                  entity.add(newSc);
-                  return newSc;
-                });
+    if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
+      SoundTracker.instance().registerAndSend(spec, entity.id());
+    }
 
-    sc.add(spec);
+    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+      SoundComponent sc =
+          entity
+              .fetch(SoundComponent.class)
+              .orElseGet(
+                  () -> {
+                    SoundComponent newSc = new SoundComponent();
+                    entity.add(newSc);
+                    return newSc;
+                  });
+      sc.add(spec);
+    }
     LOGGER.debug(
         "Added sound '{}' (instance={}) to entity {}",
         spec.soundName(),
@@ -156,6 +163,13 @@ public final class AudioApi {
    * @return true if found and removed, false if instance doesn't exist
    */
   public boolean stopInstance(long instanceId) {
+    if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
+      SoundTracker.instance().stopSound(instanceId);
+      return true;
+    }
+
+    onFinishedCallbacks.remove(instanceId);
+    boolean removed = false;
     for (Entity entity : Game.allEntities().toList()) {
       Optional<SoundComponent> scOpt = entity.fetch(SoundComponent.class);
       if (scOpt.isPresent()) {
@@ -164,12 +178,13 @@ public final class AudioApi {
         sc.removeByInstance(instanceId);
         if (sc.sounds().size() < sizeBefore) {
           LOGGER.debug("Stopped sound instance {} on entity {}", instanceId, entity.id());
-          onFinishedCallbacks.remove(instanceId);
-          return true;
+          removed = true;
         }
       }
     }
-    return false;
+
+    boolean stopped = Game.soundPlayer().stopByInstance(instanceId);
+    return removed || stopped;
   }
 
   /**
@@ -193,19 +208,24 @@ public final class AudioApi {
   }
 
   /**
-   * Registers an onFinished callback for a sound instance (server-side only).
+   * Registers an onFinished callback for a sound instance.
    *
-   * <p>When the client finishes playing the sound, it sends a SoundFinishedMessage to the server.
-   * The server then calls {@link #notifySoundFinished(long)} which triggers this callback.
+   * <p>When the client finishes playing the sound in multiplayer, it sends a SoundFinishedMessage
+   * to the server. The server then calls {@link #notifySoundFinished(long)} which triggers this
+   * callback. In local play, callbacks are executed directly on the client.
    *
    * @param instanceId the sound instance ID to watch
    * @param callback the callback to execute when finished (null-safe, ignored if null)
    */
   public void registerOnFinished(long instanceId, Runnable callback) {
     if (callback != null) {
-      onFinishedCallbacks
-          .computeIfAbsent(instanceId, k -> new CopyOnWriteArrayList<>())
-          .add(callback);
+      if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
+        SoundTracker.instance().registerOnFinished(instanceId, callback);
+      } else {
+        onFinishedCallbacks
+            .computeIfAbsent(instanceId, k -> new CopyOnWriteArrayList<>())
+            .add(callback);
+      }
       LOGGER.debug("Registered registerOnFinished callback for sound instance {}", instanceId);
     }
   }
@@ -230,18 +250,22 @@ public final class AudioApi {
   }
 
   /**
-   * Called by server when a client reports sound completion.
+   * Called when a sound finishes playing.
    *
    * <p>Removes the callback from the registry and executes it if present.
    *
-   * @param instanceId the sound instance ID that finished playing on the client
+   * @param instanceId the sound instance ID that finished playing
    */
   public void notifySoundFinished(long instanceId) {
-    List<Runnable> callbacks = onFinishedCallbacks.remove(instanceId);
-    if (callbacks != null && !callbacks.isEmpty()) {
-      LOGGER.debug(
-          "Sound instance {} finished, executing {} callback", instanceId, callbacks.size());
-      callbacks.forEach(Runnable::run);
+    if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
+      SoundTracker.instance().notifySoundFinished(instanceId);
+    } else {
+      List<Runnable> callbacks = onFinishedCallbacks.remove(instanceId);
+      if (callbacks != null && !callbacks.isEmpty()) {
+        LOGGER.debug(
+            "Sound instance {} finished, executing {} callback", instanceId, callbacks.size());
+        callbacks.forEach(Runnable::run);
+      }
     }
   }
 
@@ -253,7 +277,7 @@ public final class AudioApi {
    *
    * @return the SoundHub entity
    */
-  private Entity ensureSoundHub() {
+  public Entity ensureSoundHub() {
     if (currentSoundHubId != null) {
       Optional<Entity> hub = Game.findEntityById(currentSoundHubId);
       if (hub.isPresent()) {

@@ -5,7 +5,7 @@ import contrib.systems.LevelEditorSystem;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
-import core.utils.InputManager;
+import core.systems.input.InputManager;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

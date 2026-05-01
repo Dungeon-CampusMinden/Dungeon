@@ -48,7 +48,6 @@ public class Level004 extends BlocklyLevel {
         "wait",
         "pickup",
         "drop_item",
-        "Items",
         // Kategorien
         "Abfragen",
         "Bedingung",
@@ -57,12 +56,12 @@ public class Level004 extends BlocklyLevel {
         "Bedingungen",
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/level004/webpopups/01_inventory_character.png"));
-    addWebPopup(new ImagePopup("popups/level004/webpopups/02_inventory_character2.png"));
+    addWebPopup(new ImagePopup("popups/level004/webpopups/01_inventory_character.jpg"));
+    addWebPopup(new ImagePopup("popups/level004/webpopups/02_inventory_character2.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level004/codepopups/01_inventory_character.png"));
-    addCodePopup(new ImagePopup("popups/level004/codepopups/02_inventory_character2.png"));
-    addCodePopup(new ImagePopup("popups/overview1.png"));
+    addCodePopup(new ImagePopup("popups/level004/codepopups/01_inventory_character.jpg"));
+    addCodePopup(new ImagePopup("popups/level004/codepopups/02_inventory_character2.jpg"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override

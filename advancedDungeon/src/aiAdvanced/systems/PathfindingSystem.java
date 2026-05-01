@@ -8,7 +8,7 @@ import contrib.components.PathComponent;
 import core.Entity;
 import core.System;
 import core.level.utils.Coordinate;
-import core.utils.InputManager;
+import core.systems.input.InputManager;
 import core.utils.Tuple;
 import java.util.ArrayList;
 import java.util.List;

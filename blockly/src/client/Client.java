@@ -1,26 +1,44 @@
 package client;
 
 import coderunner.BlocklyCodeRunner;
+import coderunner.BlocklyCommands;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
+import contrib.components.CollideComponent;
+import contrib.components.SkillComponent;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.loader.DungeonLoader;
 import core.network.server.DialogTracker;
 import core.systems.PositionSystem;
+import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
+import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 import level.produs.*;
+import portal.BlocklyEnergyPelletCatcherBehavior;
+import portal.BlocklyPortalCalculations;
+import portal.PortalRegistry;
+import portal.controlls.Hero;
+import portal.portals.PortalColor;
+import portal.portals.PortalSkill;
+import portal.portals.abstraction.PortalConfig;
+import portal.portals.components.PortableComponent;
+import server.FrontendServer;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
 import systems.TintTilesSystem;
@@ -53,6 +71,8 @@ public class Client {
    */
   public static boolean runInWeb = false;
 
+  private static int webserverPort = 8081;
+
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
    * frontend.
@@ -61,10 +81,23 @@ public class Client {
    * @throws IOException if textures can not be loaded.
    */
   public static void main(String[] args) throws IOException {
-    for (String arg : args) {
-      if (arg.equalsIgnoreCase("web=true")) {
-        runInWeb = true;
+    try {
+      Properties props = new Properties();
+      // loads the file that sets the web mode (incase jar was created with jardesktop or jarweb)
+      props.load(Client.class.getResourceAsStream("/application.properties"));
+      runInWeb = Boolean.parseBoolean(props.getProperty("web"));
+    } catch (Exception e) {
+      for (String arg : args) {
+        // incase the program is executed from runBlockly or the normal jar
+        if (arg.equalsIgnoreCase("web=true")) {
+          runInWeb = true;
+        }
       }
+    }
+
+    if (runInWeb) {
+      FrontendServer.run(webserverPort);
+      openBrowser("http://localhost:" + webserverPort);
     }
 
     StateMachine.setResetFrame(false);
@@ -84,6 +117,7 @@ public class Client {
         httpServer.stop(0);
       }
       BlocklyCodeRunner.instance().stopCode();
+      FrontendServer.stopServer();
     }
   }
 
@@ -120,10 +154,12 @@ public class Client {
 
           createHero();
           createSystems();
+          PortalRegistry.setDebugMode(false);
+          PortalRegistry.registerCalculations(() -> new BlocklyPortalCalculations());
+          PortalRegistry.registerPelletCatcherBehavior(
+              () -> new BlocklyEnergyPelletCatcherBehavior());
 
           startServer();
-
-          DungeonLoader.loadLevel(0);
         });
   }
 
@@ -218,8 +254,63 @@ public class Client {
   public static void createHero() {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity hero = HeroTankControlledFactory.blocklyHero(ACTIVATE_TANKE_CONTROLLS);
+    Hero portalHero = new Hero(hero);
+    PortalConfig blocklyPortalConfig = createPortalConfig(portalHero);
+    hero.fetch(SkillComponent.class)
+        .ifPresent(
+            sc -> {
+              sc.addSkill(new PortalSkill(PortalColor.GREEN, blocklyPortalConfig));
+              sc.addSkill(new PortalSkill(PortalColor.BLUE, blocklyPortalConfig));
+            });
+    // allow hero teleportation
+    hero.add(new PortableComponent());
     hero.add(new AmmunitionComponent());
     Game.add(hero);
+  }
+
+  private static PortalConfig createPortalConfig(Hero portalHero) {
+    return new PortalConfig(portalHero) {
+      @Override
+      public long cooldown() {
+        return 0;
+      }
+
+      @Override
+      public float speed() {
+        return 5f;
+      }
+
+      @Override
+      public float range() {
+        return Integer.MAX_VALUE;
+      }
+
+      @Override
+      public Supplier<core.utils.Point> target() {
+        return () ->
+            portalHero
+                .hero()
+                .fetch(CollideComponent.class)
+                .map(cc -> cc.collider().absoluteCenter())
+                .or(
+                    () ->
+                        portalHero
+                            .hero()
+                            .fetch(PositionComponent.class)
+                            .map(PositionComponent::position))
+                .map(
+                    center -> {
+                      core.utils.Direction dir =
+                          portalHero
+                              .hero()
+                              .fetch(PositionComponent.class)
+                              .map(PositionComponent::viewDirection)
+                              .orElse(core.utils.Direction.DOWN);
+                      return center.translate(dir);
+                    })
+                .orElse(new Point(0, 0));
+      }
+    };
   }
 
   /**
@@ -245,8 +336,21 @@ public class Client {
     Game.system(PositionSystem.class, System::stop);
     Game.system(BlocklyCommandExecuteSystem.class, s -> s.clear());
     createHero();
+    BlocklyCommands.DISABLE_SHOOT_ON_HERO = false;
     DungeonLoader.reloadCurrentLevel();
     Game.system(PositionSystem.class, System::run);
     DialogTracker.instance().clear();
+  }
+
+  private static void openBrowser(String url) {
+    // open the browser on this port
+    if (Desktop.isDesktopSupported()) {
+      Desktop desktop = Desktop.getDesktop();
+      try {
+        desktop.browse(new URI(url));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
 }

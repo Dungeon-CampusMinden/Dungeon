@@ -6,7 +6,7 @@ import contrib.systems.DebugDrawSystem;
 import contrib.utils.CheckPatternPainter;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
-import core.utils.InputManager;
+import core.systems.input.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.LinkedHashMap;

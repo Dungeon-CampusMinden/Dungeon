@@ -24,15 +24,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import portal.PortalRegistry;
 import portal.antiMaterialBarrier.AntiMaterialBarrierSystem;
 import portal.controlls.Hero;
 import portal.controlls.PlayerController;
+import portal.energyPellet.abstraction.EnergyPelletCatcherBehavior;
 import portal.laserGrid.LasergridSystem;
 import portal.level.*;
 import portal.portals.PortalColor;
 import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
+import portal.portals.abstraction.Calculations;
 import portal.portals.abstraction.PortalConfig;
+import portal.portals.components.PortableComponent;
 
 /**
  * Starter for the Portal Dungeon.
@@ -163,6 +167,7 @@ public class PortalStarter {
       sc.removeAll();
       sc.addSkill(new PortalSkill(PortalColor.GREEN, ((PortalConfig) o)));
       sc.addSkill(new PortalSkill(PortalColor.BLUE, ((PortalConfig) o)));
+      hero.hero().add(new PortableComponent());
 
     } catch (Exception e) {
       recompilePaused = true;
@@ -186,6 +191,31 @@ public class PortalStarter {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          PortalRegistry.setDebugMode(DEBUG_MODE);
+          PortalRegistry.registerCalculations(
+              () -> {
+                try {
+                  return (Calculations)
+                      DynamicCompiler.loadUserInstance(
+                          new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java"),
+                          "portal.riddles.MyCalculations");
+                } catch (Exception e) {
+                  throw new RuntimeException("Failed to load MyCalculations", e);
+                }
+              });
+
+          PortalRegistry.registerPelletCatcherBehavior(
+              () -> {
+                try {
+                  return (EnergyPelletCatcherBehavior)
+                      DynamicCompiler.loadUserInstance(
+                          new SimpleIPath(
+                              "advancedDungeon/src/portal/riddles/MyEnergyPelletCatcherBehavior.java"),
+                          "portal.riddles.MyEnergyPelletCatcherBehavior");
+                } catch (Exception e) {
+                  throw new RuntimeException("Failed to load MyEnergyPelletCatcherBehavior", e);
+                }
+              });
           WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
                 if (isInFocus && !DEBUG_MODE) recompilePlayerControl();
@@ -206,6 +236,8 @@ public class PortalStarter {
           DungeonLoader.addLevel(Tuple.of("lightbridge1", LightBridgeLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("lightwall1", LightWallLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("tractorbeam1", TractorBeamLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel8", PortalLevel_8.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel9", PortalLevel_9.class));
           createSystems();
           createHero();
 
@@ -218,6 +250,7 @@ public class PortalStarter {
     Entity heroEntity = EntityFactory.newHero(DEATH_CALLBACK);
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
+
     if (LEVELEDITOR_MODE) {
       heroEntity.fetch(InputComponent.class).get().removeCallbacks();
       heroEntity
@@ -292,7 +325,8 @@ public class PortalStarter {
   }
 
   private static void createSystems() {
-    if (LEVELEDITOR_MODE) Game.add(new LevelEditorSystem());
+    if (LEVELEDITOR_MODE)
+      Game.add(new LevelEditorSystem(/* "./advancedDungeon/assets/levels/portal/") */ ));
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());

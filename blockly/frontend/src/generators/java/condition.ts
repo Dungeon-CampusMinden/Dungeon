@@ -133,7 +133,7 @@ export function controls_if(
 
   do {
     const conditionCode =
-      generator.valueToCode(block, "IF" + n, Order.NONE) || "falsch";
+      generator.valueToCode(block, "IF" + n, Order.NONE) || "missing if condition";
     let branchCode = generator.statementToCode(block, "DO" + n);
     if (generator.STATEMENT_SUFFIX) {
       branchCode =

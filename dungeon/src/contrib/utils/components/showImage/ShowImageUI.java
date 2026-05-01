@@ -14,6 +14,7 @@ import contrib.components.ShowImageComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.HeadlessDialogGroup;
 import core.Game;
 
 /** UI element that displays an image with optional text, used through the ShowImageSystem. */
@@ -70,10 +71,15 @@ public class ShowImageUI extends Group {
    */
   public static Group build(DialogContext ctx) {
     String img_path = ctx.require(DialogContextKeys.IMAGE, String.class);
-    ShowImageUI showImageUI = new ShowImageUI(new ShowImageComponent(img_path));
 
+    if (Game.isHeadless()) {
+      return new HeadlessDialogGroup();
+    }
+
+    ShowImageUI showImageUI = new ShowImageUI(new ShowImageComponent(img_path));
     ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
         .ifPresent(showImageUI.component::transitionSpeed);
+
     return showImageUI;
   }
 

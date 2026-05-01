@@ -26,11 +26,14 @@ public final class Session {
 
   private final ChannelHandlerContext tcpCtx;
   private volatile InetSocketAddress udpAddress;
+  private volatile boolean udpReady;
+  private volatile long udpLastSeenTimeMs;
 
   private volatile ClientState clientState;
 
-  private final BiFunction<InetSocketAddress, Object, CompletableFuture<Boolean>> udpSender;
-  private final BiFunction<ChannelHandlerContext, Object, CompletableFuture<Boolean>> tcpSender;
+  private final BiFunction<InetSocketAddress, NetworkMessage, CompletableFuture<Boolean>> udpSender;
+  private final BiFunction<ChannelHandlerContext, NetworkMessage, CompletableFuture<Boolean>>
+      tcpSender;
 
   /**
    * Creates a Session with TCP context and senders.
@@ -41,8 +44,8 @@ public final class Session {
    */
   public Session(
       ChannelHandlerContext tcpCtx,
-      BiFunction<InetSocketAddress, Object, CompletableFuture<Boolean>> udpSender,
-      BiFunction<ChannelHandlerContext, Object, CompletableFuture<Boolean>> tcpSender) {
+      BiFunction<InetSocketAddress, NetworkMessage, CompletableFuture<Boolean>> udpSender,
+      BiFunction<ChannelHandlerContext, NetworkMessage, CompletableFuture<Boolean>> tcpSender) {
     this.tcpCtx = tcpCtx;
     this.udpSender = udpSender;
     this.tcpSender = tcpSender;
@@ -130,6 +133,38 @@ public final class Session {
     this.udpAddress = addr;
   }
 
+  /**
+   * Returns whether UDP is currently considered healthy for this session.
+   *
+   * @return true when UDP is ready to be used, false otherwise
+   */
+  public boolean udpReady() {
+    return udpReady;
+  }
+
+  /**
+   * Updates whether UDP is currently considered healthy for this session.
+   *
+   * @param ready true when UDP is healthy, false otherwise
+   */
+  public void udpReady(boolean ready) {
+    this.udpReady = ready;
+  }
+
+  /**
+   * Returns the timestamp of the last known UDP activity for this session.
+   *
+   * @return the last UDP activity time in system milliseconds
+   */
+  public long udpLastSeenTimeMs() {
+    return udpLastSeenTimeMs;
+  }
+
+  /** Updates the last-known UDP activity timestamp to the current system time. */
+  public void markUdpActivity() {
+    this.udpLastSeenTimeMs = System.currentTimeMillis();
+  }
+
   /** Closes the TCP channel associated with this session. */
   public void close() {
     try {
@@ -173,10 +208,12 @@ public final class Session {
   }
 
   private CompletableFuture<Boolean> sendUdpObject(NetworkMessage msg) {
-    if (udpSender == null || udpAddress == null) {
-      LOGGER.warn("UDP sender or address is null; cannot send UDP message.");
-      return CompletableFuture.completedFuture(false);
+    if (!udpReady || udpSender == null || udpAddress == null) {
+      return sendTcpObject(msg);
     }
-    return udpSender.apply(udpAddress, msg);
+    return udpSender
+        .apply(udpAddress, msg)
+        .thenCompose(
+            success -> success ? CompletableFuture.completedFuture(true) : sendTcpObject(msg));
   }
 }

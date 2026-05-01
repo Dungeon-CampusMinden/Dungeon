@@ -2,9 +2,6 @@
 title: "Blockly Lösung: Level 1"
 ---
 
-## Blöcke
-![solution](./img/loesung_level_001.png)
-
 ## Code
 
 ```java

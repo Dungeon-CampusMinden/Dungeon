@@ -14,6 +14,7 @@ import core.utils.TriConsumer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -46,6 +47,20 @@ public class ItemHeart extends Item {
    */
   public ItemHeart() {
     this(1);
+  }
+
+  /**
+   * Returns the amount of healing applied when this heart is collected.
+   *
+   * @return the healing amount
+   */
+  public int healAmount() {
+    return healAmount;
+  }
+
+  @Override
+  public Map<String, String> itemData() {
+    return Map.of(DATA_KEY_HEAL_AMOUNT, Integer.toString(healAmount));
   }
 
   /**

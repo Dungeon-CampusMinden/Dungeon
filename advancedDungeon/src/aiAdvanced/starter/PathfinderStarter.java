@@ -67,7 +67,6 @@ public class PathfinderStarter {
             throw new RuntimeException(e);
           }
           Game.system(LevelSystem.class, ls -> ls.onEndTile(DungeonLoader::loadNextLevel));
-          DungeonLoader.loadLevel(0);
         });
   }
 

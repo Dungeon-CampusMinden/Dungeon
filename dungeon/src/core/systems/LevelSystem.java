@@ -136,38 +136,32 @@ public final class LevelSystem extends System {
   /**
    * Execute the system logic.
    *
-   * <p>Will load a new level if no level exists or one of the managed entities are on the end tile.
-   *
-   * <p>Will draw the level.
+   * <p>If no level exists yet, the system will do nothing. If all players are on the end tile, the
+   * onEndTile callback will be executed. If all players are on the same open door, the level behind
+   * that door will be loaded. Otherwise, the system will check if any pits should be opened.
    */
   @Override
   public void execute() {
     if (currentLevel == null) {
-      try {
-        DungeonLoader.loadLevel(0);
-        execute();
-      } catch (IndexOutOfBoundsException e) {
-        LOGGER.warn("Can´t load level 0, because no level is added to the DungeonLoader.");
-      }
-    } else {
-      if (Game.allPlayers().findAny().isEmpty()) return;
-
-      // Load next level if all heroes are on the end tile
-      if (Game.allPlayers().allMatch(this::isOnOpenEndTile)) {
-        onEndTile.execute();
-        return;
-      }
-
-      // Check if all heroes are on the same open door and load that level
-      List<ILevel> doorLevels =
-          Game.allPlayers().map(this::isOnDoor).flatMap(Optional::stream).distinct().toList();
-
-      if (doorLevels.size() == 1) {
-        loadLevel(doorLevels.get(0));
-        playSound();
-      }
+      return;
     }
 
+    if (Game.allPlayers().findAny().isEmpty()) return;
+
+    // Load next level if all heroes are on the end tile
+    if (Game.allPlayers().allMatch(this::isOnOpenEndTile)) {
+      onEndTile.execute();
+      return;
+    }
+
+    // Check if all heroes are on the same open door and load that level
+    List<ILevel> doorLevels =
+        Game.allPlayers().map(this::isOnDoor).flatMap(Optional::stream).distinct().toList();
+
+    if (doorLevels.size() == 1) {
+      loadLevel(doorLevels.get(0));
+      playSound();
+    }
     openPits();
   }
 

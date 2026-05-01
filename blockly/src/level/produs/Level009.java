@@ -46,7 +46,6 @@ public class Level009 extends BlocklyLevel {
         "wait",
         "pickup",
         "drop_item",
-        "Items",
         // Kategorien
         "Abfragen",
         "Bedingung",
@@ -55,8 +54,8 @@ public class Level009 extends BlocklyLevel {
         "Bedingungen",
         "Sonstige");
 
-    addPopup(new ImagePopup("popups/level009/01_schaltplan.png"));
-    addCodePopup(new ImagePopup("popups/overview1.png"));
+    addPopup(new ImagePopup("popups/level009/01_schaltplan.jpg"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override

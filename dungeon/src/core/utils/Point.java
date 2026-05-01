@@ -1,8 +1,6 @@
 package core.utils;
 
 import core.level.utils.Coordinate;
-import java.io.Serial;
-import java.io.Serializable;
 
 /**
  * A record representing a 2D point with x and y Float coordinates.
@@ -15,8 +13,7 @@ import java.io.Serializable;
  * @see Vector2
  * @see Coordinate
  */
-public record Point(float x, float y) implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public record Point(float x, float y) {
 
   /**
    * Create a new point from another point.
@@ -100,6 +97,17 @@ public record Point(float x, float y) implements Serializable {
    */
   public double distance(Point otherPos) {
     return Math.sqrt(Math.pow(otherPos.x() - x(), 2) + Math.pow(otherPos.y() - y(), 2));
+  }
+
+  /**
+   * Calculates the squared distance between this point and the given point. More efficient when
+   * only comparing distances is necessary.
+   *
+   * @param otherPos The point to which the squared distance is calculated.
+   * @return The squared distance between this point and the given point.
+   */
+  public double distanceSquared(Point otherPos) {
+    return Math.pow(otherPos.x() - x(), 2) + Math.pow(otherPos.y() - y(), 2);
   }
 
   /**

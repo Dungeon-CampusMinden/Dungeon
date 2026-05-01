@@ -115,6 +115,7 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   private void onEntityChanged(Entity changed, boolean added) {
+    if (changed.fetch(DrawComponent.class).isEmpty()) return;
     DSData data = DSData.build(changed);
     int depth = data.dc.depth();
     List<Entity> entitiesAtDepth = sortedEntities.get(depth);
@@ -667,9 +668,17 @@ public final class DrawSystem extends System implements Disposable {
       // --- Draw FBO Texture (Shader Result) ---
       Texture fboTexture = finalFbo.getColorBufferTexture();
 
+      float worldWidth = dsd.dc.getWidth();
+      float worldHeight = dsd.dc.getHeight();
+
       float padding = dsd.dc.shaders().getTotalPadding();
-      float unitSize = dsd.getUnitSizeInPixels();
-      float paddingWorldUnits = padding / unitSize;
+      float paddingX = padding / dsd.dc.getSpriteWidth();
+      float paddingY = padding / dsd.dc.getSpriteHeight();
+
+      // Final world size includes padding on all sides
+      Vector2 finalWorldSize =
+          Vector2.of(
+              worldWidth + 2 * paddingX * worldWidth, worldHeight + 2 * paddingY * worldHeight);
 
       // Scale is being factored into the transformation everywhere except the position, since it is
       // passed directly to the draw method. Thus, we need to factor it in here to offset the
@@ -678,13 +687,8 @@ public final class DrawSystem extends System implements Disposable {
           dsd.pc
               .position()
               .translate(
-                  -paddingWorldUnits * dsd.pc.scale().x(), -paddingWorldUnits * dsd.pc.scale().y());
-
-      // Final world size includes padding on all sides
-      float worldWidth = dsd.dc.getWidth();
-      float worldHeight = dsd.dc.getHeight();
-      Vector2 finalWorldSize =
-          Vector2.of(worldWidth + 2 * paddingWorldUnits, worldHeight + 2 * paddingWorldUnits);
+                  -paddingX * dsd.pc.scale().x() * worldWidth,
+                  -paddingY * dsd.pc.scale().y() * worldHeight);
 
       DrawConfig conf = makeConfig(dsd, finalWorldSize, dsd.pc.scale());
       draw(offsetPosition, fboTexture, conf);
@@ -963,16 +967,6 @@ public final class DrawSystem extends System implements Disposable {
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
       return new DSData(entity, dc, pc);
-    }
-
-    /**
-     * Returns the size of one world unit that this texture is drawn with, in pixels. The smallest
-     * dimension is assumed to be 1 world unit.
-     *
-     * @return the size of one world unit in pixels
-     */
-    float getUnitSizeInPixels() {
-      return Math.min(dc.getSpriteWidth(), dc.getSpriteHeight());
     }
   }
 }

@@ -5,6 +5,17 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
   contents: [
     {
       kind: "category",
+      name: "Start",
+      colour: "160",
+      contents: [
+        {
+          kind: "block",
+          type: "start",
+        },
+      ]
+    },
+    {
+      kind: "category",
       name: "Bewegung",
       colour: "180",
       contents: [
@@ -50,15 +61,6 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
       name: "Inventar & Charakter",
       colour: "40",
       contents: [
-        {
-          kind: "category",
-          name: "Skills",
-          colour: "30",
-          contents: [
-            /* {
-              kind: "block",
-              type: "interact",
-            }, */
             {
               kind: "block",
               type: "fireball",
@@ -87,25 +89,16 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
               kind: "block",
               type: "drop_item",
             },
-          ],
-        },
-        {
-          kind: "category",
-          name: "Items",
-          colour: "50",
-          contents: [
             {
               kind: "block",
-              type: "item_breadcrumbs",
+              type: "shoot_blue_portal",
             },
             {
               kind: "block",
-              type: "item_clover",
+              type: "shoot_green_portal",
             },
           ],
         },
-      ],
-    },
     {
       kind: "category",
       name: "Abfragen",

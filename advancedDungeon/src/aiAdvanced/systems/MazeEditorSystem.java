@@ -8,7 +8,7 @@ import core.System;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
-import core.utils.InputManager;
+import core.systems.input.InputManager;
 import core.utils.Point;
 
 /**

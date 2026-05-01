@@ -1,11 +1,10 @@
 package contrib.hud.dialogs;
 
 import core.Game;
+import core.network.NetworkUtils;
 import core.network.messages.c2s.DialogResponseMessage;
-import core.network.messages.c2s.DialogResponseMessage.ResponseType;
 import core.network.server.DialogTracker;
 import core.utils.logging.DungeonLogger;
-import java.io.Serializable;
 import java.util.function.Consumer;
 
 /**
@@ -32,50 +31,26 @@ public final class DialogCallbackResolver {
    *
    * @param dialogId the unique identifier of the dialog
    * @param callbackKey the key identifying the specific callback for the button
-   * @return a Consumer that accepts serializable data and executes the appropriate callback
+   * @return a Consumer that accepts dialog payload data and executes the appropriate callback
    */
-  public static Consumer<Serializable> createButtonCallback(String dialogId, String callbackKey) {
-    if (isNetworkClient()) {
-      return (data) -> {
-        DialogResponseMessage msg =
-            new DialogResponseMessage(dialogId, ResponseType.CALLBACK, callbackKey, data);
+  public static Consumer<DialogResponseMessage.Payload> createButtonCallback(
+      String dialogId, String callbackKey) {
+    if (NetworkUtils.isNetworkClient()) {
+      return (payload) -> {
+        DialogResponseMessage msg = new DialogResponseMessage(dialogId, callbackKey, payload);
         Game.network().send((short) 0, msg, true);
       };
     } else {
-      return (data) ->
+      return (payload) ->
           DialogTracker.instance()
               .getCallback(dialogId, callbackKey)
               .ifPresentOrElse(
-                  callback -> callback.accept(data),
+                  callback -> callback.accept(payload),
                   () ->
                       LOGGER.warn(
                           "No callback found for dialogId: {} and callbackKey: {}",
                           dialogId,
                           callbackKey));
     }
-  }
-
-  /**
-   * Sends a dialog closed message over the network.
-   *
-   * <p>This method notifies the server (or other clients in network mode) that a dialog has been
-   * closed. It creates and sends a {@link DialogResponseMessage} with {@link ResponseType#CLOSED}
-   * to indicate the dialog closure.
-   *
-   * @param dialogId the unique identifier of the dialog that was closed
-   */
-  public static void sendDialogClosed(String dialogId) {
-    DialogResponseMessage msg =
-        new DialogResponseMessage(dialogId, ResponseType.CLOSED, null, null);
-    Game.network().send((short) 0, msg, true);
-  }
-
-  /**
-   * Checks if the current instance is a network client that should use network callbacks.
-   *
-   * @return true if we're a client connected to a server
-   */
-  private static boolean isNetworkClient() {
-    return !Game.network().isServer() && Game.network().isConnected();
   }
 }

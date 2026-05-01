@@ -9,13 +9,16 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.components.SoundComponent;
+import core.level.elements.tile.DoorTile;
 import core.network.messages.c2s.RequestEntitySpawn;
+import core.network.messages.s2c.DoorTileState;
 import core.network.messages.s2c.EntityState;
+import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Direction;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The default implementation of {@link SnapshotTranslator}.
@@ -93,6 +96,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                         builder.position(pc.position());
                         builder.viewDirection(pc.viewDirection());
                         builder.rotation(pc.rotation());
+                        builder.scale(pc.scale());
                       });
 
               // Health
@@ -119,21 +123,24 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                         builder.tintColor(dc.tintColor());
                       });
 
-              // Sounds
-              e.fetch(SoundComponent.class)
-                  .ifPresent(
-                      sc -> {
-                        if (!sc.sounds().isEmpty()) {
-                          builder.sounds(sc.sounds());
-                        }
-                      });
-
               // Inventory
               e.fetch(InventoryComponent.class).ifPresent(ic -> builder.inventory(ic.items()));
 
               list.add(builder.build());
             });
-    return Optional.of(new SnapshotMessage(serverTick, list));
+    return Optional.of(new SnapshotMessage(serverTick, list, currentLevelState()));
+  }
+
+  private LevelState currentLevelState() {
+    Set<DoorTileState> doorStates =
+        Game.currentLevel()
+            .map(
+                level ->
+                    level.doorTiles().stream()
+                        .map(door -> new DoorTileState(door.coordinate(), door.isOpen()))
+                        .collect(Collectors.toSet()))
+            .orElseGet(Set::of);
+    return new LevelState(doorStates);
   }
 
   private boolean isClientRelevant(Entity entity) {
@@ -141,11 +148,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
       // Normal Entity
       return true;
     }
-    // Sound Entity
-    if (entity.isPresent(SoundComponent.class)) {
-      return true;
-    }
-
     return false;
   }
 
@@ -160,6 +162,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
       return;
     }
     latestServerTick = snapshot.serverTick();
+    this.applyLevelState(snapshot.levelState());
 
     snapshot
         .entities()
@@ -170,7 +173,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                 Optional<Entity> targetEntity = Game.findEntityById(entityId);
 
                 if (targetEntity.isEmpty()) {
-                  LOGGER.warn(
+                  LOGGER.info(
                       "No entity found for snapshot with id: {}. Requesting spawn.", entityId);
                   Game.network().send((short) 0, new RequestEntitySpawn(entityId), true);
                   return;
@@ -189,9 +192,15 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                   viewDir -> {
                                     try {
                                       pc.viewDirection(Direction.valueOf(viewDir));
-                                    } catch (IllegalArgumentException ignored) {
+                                    } catch (IllegalArgumentException e) {
+                                      LOGGER.warn(
+                                          "Invalid view direction '{}' for entity id: {}. Skipping view direction update.",
+                                          viewDir,
+                                          snap.entityId());
                                     }
                                   });
+                          snap.rotation().ifPresent(pc::rotation);
+                          snap.scale().ifPresent(pc::scale);
                           PositionSync.syncPosition(entity);
                         });
 
@@ -201,12 +210,26 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                         dc -> {
                           snap.stateName()
                               .ifPresent(
-                                  stateName ->
-                                      dc.stateMachine()
-                                          .setState(
-                                              stateName,
-                                              Direction.valueOf(
-                                                  snap.viewDirection().orElse("DOWN"))));
+                                  stateName -> {
+                                    if (!dc.hasState(stateName)) {
+                                      LOGGER.debug(
+                                          "Ignoring unknown snapshot state '{}' for entity id {}.",
+                                          stateName,
+                                          entityId);
+                                      return;
+                                    }
+                                    Direction direction = Direction.DOWN;
+                                    try {
+                                      direction =
+                                          Direction.valueOf(snap.viewDirection().orElse("DOWN"));
+                                    } catch (IllegalArgumentException e) {
+                                      LOGGER.warn(
+                                          "Invalid state name '{}' for entity id: {}. Skipping state update.",
+                                          stateName,
+                                          snap.entityId());
+                                    }
+                                    dc.stateMachine().setState(stateName, direction);
+                                  });
                           snap.tintColor().ifPresent(dc::tintColor);
                         });
 
@@ -235,29 +258,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                       entity.add(mc);
                                       snap.currentMana().ifPresent(mc::currentAmount);
                                     }));
-
-                // Sounds
-                snap.sounds()
-                    .ifPresentOrElse(
-                        soundSpecs -> {
-                          SoundComponent sc =
-                              entity
-                                  .fetch(SoundComponent.class)
-                                  .orElseGet(
-                                      () -> {
-                                        SoundComponent newSc = new SoundComponent();
-                                        entity.add(newSc);
-                                        return newSc;
-                                      });
-                          // replace all sounds and stop removed ones
-                          var removedSounds = sc.replaceAll(soundSpecs);
-                          removedSounds.forEach(
-                              spec -> Game.audio().stopInstance(spec.instanceId()));
-                        },
-                        () -> {
-                          // No audio in snapshot, clear if present
-                          Game.audio().stopAllOnEntity(entity);
-                        });
 
                 // Inventory
                 snap.inventory()
@@ -292,5 +292,31 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                     e);
               }
             });
+  }
+
+  private void applyLevelState(LevelState levelState) {
+    levelState
+        .doorStates()
+        .forEach(
+            doorState ->
+                Game.tileAt(doorState.coordinate())
+                    .ifPresentOrElse(
+                        tile -> {
+                          if (tile instanceof DoorTile doorTile) {
+                            if (doorState.open()) {
+                              doorTile.open();
+                            } else {
+                              doorTile.close();
+                            }
+                            return;
+                          }
+                          LOGGER.debug(
+                              "Ignoring door state for non-door tile at coordinate: {}",
+                              doorState.coordinate());
+                        },
+                        () ->
+                            LOGGER.debug(
+                                "Ignoring door state for missing tile at coordinate: {}",
+                                doorState.coordinate())));
   }
 }

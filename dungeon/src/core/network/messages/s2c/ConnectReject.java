@@ -9,26 +9,13 @@ import core.network.messages.NetworkMessage;
  * server full, invalid player name, incompatible version).
  *
  * @param reason The reason for the connection rejection.
- * @param extraData Optional extra data providing additional context about the rejection.
  */
-public record ConnectReject(byte reason, Object extraData) implements NetworkMessage {
+public record ConnectReject(byte reason) implements NetworkMessage {
   /**
-   * Create a new ConnectReject with no extra data.
-   *
    * @param reason The reason for the connection rejection.
    */
   public ConnectReject(Reason reason) {
-    this(reason.getCode(), null);
-  }
-
-  /**
-   * Create a new ConnectReject with extra data.
-   *
-   * @param reason The reason for the connection rejection.
-   * @param extraData Optional extra data providing additional context about the rejection.
-   */
-  public ConnectReject(Reason reason, Object extraData) {
-    this(reason.getCode(), extraData);
+    this(reason.getCode());
   }
 
   /** Enumeration of possible connection rejection reasons. */

@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'com.google.protobuf'
 }
 
 
@@ -13,9 +14,15 @@ dependencies {
     api supportDependencies.gdx_freetype
     api supportDependencies.gdx_freetype_platform
     api supportDependencies.gdx_backend_headless
+    api supportDependencies.gdx_controllers
+    api supportDependencies.gdx_controllers_desktop
 
     // Netty for server-client communication
     implementation supportDependencies.netty_all
+
+    // Protobuf for network serialization
+    api supportDependencies.protobuf_java
+    implementation supportDependencies.protobuf_java_util
 
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
@@ -27,12 +34,44 @@ dependencies {
     testImplementation("com.badlogicgames.gdx:gdx:$gdxVersion")
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    generateProtoTasks {
+        all().configureEach { task ->
+            task.builtins {
+                java { }
+            }
+        }
+    }
+}
 
-sourceSets.main.java.srcDirs = ['src/']
-sourceSets.main.resources.srcDirs = ['assets/']
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/', "$buildDir/generated/sources/proto/main/java"]
+        }
+        resources {
+            srcDirs = ['assets/']
+        }
+        proto {
+            srcDir 'proto'
+        }
+    }
+    test {
+        java {
+            srcDirs = ['test/']
+        }
+        resources {
+            srcDirs = ['test_assets/']
+        }
+    }
+}
 
-sourceSets.test.java.srcDirs = ['test/']
-sourceSets.test.resources.srcDirs = ['test_assets/']
+tasks.named('compileJava') {
+    dependsOn 'generateProto'
+}
 
 tasks.register('runBasicStarter', JavaExec) {
     group 'starter'
@@ -61,4 +100,14 @@ tasks.register('runMPClient', JavaExec) {
 
 tasks.named('test', Test) {
     useJUnitPlatform()
+}
+
+tasks.named('checkstyleMain') {
+    exclude 'build/generated/source/proto/**'
+    exclude '**/core/network/proto/**'
+}
+
+tasks.named('checkstyleTest') {
+    exclude 'build/generated/source/proto/**'
+    exclude '**/core/network/proto/**'
 }

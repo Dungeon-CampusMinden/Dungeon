@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.utils.Disposable;
 import contrib.components.UIComponent;
 import core.Game;
 import core.utils.Vector2;
@@ -21,7 +22,7 @@ import java.util.Arrays;
  * com.badlogic.gdx.scenes.scene2d.Stage Stage} for display. This addition should be facilitated
  * through the use of a {@link UIComponent}.
  */
-public final class GUICombination extends Group {
+public final class GUICombination extends Group implements Disposable {
 
   /** The gap between the CombinableGUIs in pixels. */
   public static final int GAP = 10;
@@ -43,10 +44,7 @@ public final class GUICombination extends Group {
 
     if (Game.isHeadless()) {
       this.dragAndDrop = null;
-      this.combinableGuis.forEach(
-          combinableGUI -> {
-            this.addActor(combinableGUI.actor());
-          });
+      this.combinableGuis.forEach(this::addActor);
       return;
     }
     this.dragAndDrop = new DragAndDrop();
@@ -55,7 +53,7 @@ public final class GUICombination extends Group {
     this.combinableGuis.forEach(
         combinableGUI -> {
           combinableGUI.dragAndDrop(this.dragAndDrop);
-          this.addActor(combinableGUI.actor());
+          this.addActor(combinableGUI);
         });
     this.scalePositionChildren();
   }
@@ -131,4 +129,14 @@ public final class GUICombination extends Group {
    * @param height foo
    */
   public record AvailableSpace(int x, int y, int width, int height) {}
+
+  @Override
+  public void dispose() {
+    for (CombinableGUI combinableGUI : this.combinableGuis) {
+      combinableGUI.dispose();
+    }
+    if (this.dragAndDrop != null) {
+      this.dragAndDrop.clear();
+    }
+  }
 }
