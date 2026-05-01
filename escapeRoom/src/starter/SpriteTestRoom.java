@@ -1,6 +1,6 @@
 package starter;
 
-import contrib.client.DefaultClientLoopHostFactory;
+import contrib.client.ClientLoopHostProvider;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
@@ -34,7 +34,7 @@ public class SpriteTestRoom {
     onSetup();
 
     Game.windowTitle("Sprite Test Room");
-    DefaultClientLoopHostFactory.installDefaultLoopHost();
+    ClientLoopHostProvider.installDefaultLoopHost();
     Game.run();
   }
 

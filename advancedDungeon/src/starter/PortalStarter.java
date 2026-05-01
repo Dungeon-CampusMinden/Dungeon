@@ -1,7 +1,7 @@
 package starter;
 
 import com.badlogic.gdx.Input;
-import contrib.client.DefaultClientLoopHostFactory;
+import contrib.client.ClientLoopHostProvider;
 import contrib.components.*;
 import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
@@ -182,7 +182,7 @@ public class PortalStarter {
   public static void main(String[] args) throws IOException {
     configGame();
     onSetup();
-    DefaultClientLoopHostFactory.installDefaultLoopHost();
+    ClientLoopHostProvider.installDefaultLoopHost();
     Game.run();
   }
 

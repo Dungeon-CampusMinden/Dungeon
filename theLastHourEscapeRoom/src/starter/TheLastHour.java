@@ -1,6 +1,6 @@
 package starter;
 
-import contrib.client.DefaultClientLoopHostFactory;
+import contrib.client.ClientLoopHostProvider;
 import contrib.entities.EntityFactory;
 import contrib.modules.keypad.KeypadSystem;
 import contrib.systems.CollisionSystem;
@@ -42,7 +42,7 @@ public class TheLastHour {
     Game.userOnSetup(TheLastHour::onUserSetup);
     Game.frameRate(60);
     Game.windowTitle("The Last Hour");
-    DefaultClientLoopHostFactory.installDefaultLoopHost();
+    ClientLoopHostProvider.installDefaultLoopHost();
     Game.run();
   }
 

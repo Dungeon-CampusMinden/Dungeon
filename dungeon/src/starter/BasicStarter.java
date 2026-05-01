@@ -1,6 +1,6 @@
 package starter;
 
-import contrib.client.DefaultClientLoopHostFactory;
+import contrib.client.ClientLoopHostProvider;
 import contrib.components.InventoryComponent;
 import contrib.components.ManaComponent;
 import contrib.components.SkillComponent;
@@ -132,7 +132,7 @@ public final class BasicStarter {
 
     Game.addClientStartupTask(BasicStarter::ensureManaRestoreSystem);
     Game.addClientStartupTask(Crafting::loadRecipes);
-    DefaultClientLoopHostFactory.installDefaultLoopHost();
+    ClientLoopHostProvider.installDefaultLoopHost();
     Game.run();
   }
 

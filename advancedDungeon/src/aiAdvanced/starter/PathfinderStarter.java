@@ -7,7 +7,7 @@ import aiAdvanced.pathfinding.PathfindingLogic;
 import aiAdvanced.pathfinding.SusPathFinding;
 import aiAdvanced.systems.MazeEditorSystem;
 import aiAdvanced.systems.PathfindingSystem;
-import contrib.client.DefaultClientLoopHostFactory;
+import contrib.client.ClientLoopHostProvider;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroBuilder;
 import contrib.systems.*;
@@ -52,7 +52,7 @@ public class PathfinderStarter {
     onLevelLoad();
 
     // build and start game
-    DefaultClientLoopHostFactory.installDefaultLoopHost();
+    ClientLoopHostProvider.installDefaultLoopHost();
     Game.run();
   }
 
