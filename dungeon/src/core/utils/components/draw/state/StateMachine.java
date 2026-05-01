@@ -60,7 +60,7 @@ public class StateMachine implements Serializable {
   }
 
   /**
-   * Constructs a StateMachine by loading an animation from the specified path with default
+   * Constructs a StateMachine by loading an animation from the specified path with the default
    * configuration.
    *
    * @param path the resource path to load the animation from
@@ -109,12 +109,10 @@ public class StateMachine implements Serializable {
       states.add(new State(IDLE_STATE, new Animation(path, config)));
     }
 
-    State defaultState =
-        states.stream()
-            .filter(s -> s.name.equals(defaultStateName))
-            .findFirst()
-            .orElse(states.get(0));
-    currentState = defaultState;
+    currentState = states.stream()
+        .filter(s -> s.name.equals(defaultStateName))
+        .findFirst()
+        .orElse(states.getFirst());
     currentState.onEnter();
   }
 
@@ -122,10 +120,10 @@ public class StateMachine implements Serializable {
    * Constructs a StateMachine with the specified states and uses the first state as the default.
    *
    * @param states the list of states for this state machine
-   * @throws IllegalArgumentException if states is null or empty
+   * @throws IllegalArgumentException if states are null or empty
    */
   public StateMachine(List<State> states) {
-    this(states, states != null && !states.isEmpty() ? states.get(0) : null);
+    this(states, states != null && !states.isEmpty() ? states.getFirst() : null);
   }
 
   /**
@@ -134,19 +132,19 @@ public class StateMachine implements Serializable {
    * @param states the list of states for this state machine
    * @param defaultState the state to set as the initial current state; if null, the first state is
    *     used
-   * @throws IllegalArgumentException if states is null or empty
+   * @throws IllegalArgumentException if states are null or empty
    */
   public StateMachine(List<State> states, State defaultState) {
     if (states == null || states.isEmpty()) {
       throw new IllegalArgumentException("states can't be null/empty");
     }
     this.states = new ArrayList<>(states);
-    this.currentState = defaultState == null ? this.states.get(0) : defaultState;
+    this.currentState = defaultState == null ? this.states.getFirst() : defaultState;
     this.currentState.onEnter();
   }
 
   private void setInitialState() {
-    currentState = states.get(0);
+    currentState = states.getFirst();
     currentState.onEnter();
   }
 
@@ -182,50 +180,11 @@ public class StateMachine implements Serializable {
    *
    * @param name the name of the state to retrieve
    * @return the state with the specified name, or null if not found
-   * @throws IllegalArgumentException if name is null
+   * @throws IllegalArgumentException if the name is null
    */
   public State getState(String name) {
     if (name == null) throw new IllegalArgumentException("name can't be empty");
     return states.stream().filter(s -> s.name.equals(name)).findFirst().orElse(null);
-  }
-
-  /**
-   * Adds a new state to the state machine. If a state with the same name exists, it will be
-   * replaced.
-   *
-   * @param state the state to add
-   * @return the previously existing state with the same name, or null if none existed
-   */
-  public State addState(State state) {
-    if (state == null) return null;
-    State existing = getState(state.name);
-    if (existing != null) removeState(existing);
-    states.add(state);
-    return existing;
-  }
-
-  /**
-   * Removes a state by its name.
-   *
-   * @param name the name of the state to remove
-   * @return the removed state, or null if no state with that name existed
-   */
-  public State removeState(String name) {
-    State existing = getState(name);
-    if (existing != null) removeState(existing);
-    return existing;
-  }
-
-  /**
-   * Removes the specified state from this state machine.
-   *
-   * @param state the state to remove
-   * @return true if the state was successfully removed, false otherwise
-   */
-  public boolean removeState(State state) {
-    if (state == null) return false;
-    removeAllTransitions(state);
-    return states.remove(state);
   }
 
   /**
@@ -266,7 +225,7 @@ public class StateMachine implements Serializable {
 
   /**
    * Compatibility helper: allows DrawComponent to call addTransition(Transition). Uses the current
-   * state as source.
+   * state as a source.
    *
    * @param transition the transition to add from the current state
    * @return the previously existing transition, or null if none existed or the transition parameter
@@ -281,79 +240,37 @@ public class StateMachine implements Serializable {
    * Adds an epsilon transition (automatic transition) with a condition function and optional data
    * supplier.
    *
-   * @param from the source state
-   * @param function the condition function that determines when the transition should occur
-   * @param to the target state
+   * @param from         the source state
+   * @param function     the condition function that determines when the transition should occur
+   * @param to           the target state
    * @param dataSupplier optional supplier that provides data to pass when the transition occurs
-   * @return the previously existing epsilon transition to the target state, or null if none existed
    */
-  public EpsilonTransition addEpsilonTransition(
+  public void addEpsilonTransition(
       State from, Function<State, Boolean> function, State to, Supplier<Object> dataSupplier) {
     List<EpsilonTransition> fromTransitions = getEpsilonTransitionList(from);
-    EpsilonTransition existing =
-        fromTransitions.stream().filter(t -> t.targetState() == to).findFirst().orElse(null);
-    if (existing != null) fromTransitions.remove(existing);
+    fromTransitions.stream().filter(t -> t.targetState() == to).findFirst().ifPresent(fromTransitions::remove);
     fromTransitions.add(new EpsilonTransition(function, to, dataSupplier));
-    return existing;
   }
 
   /**
    * Adds an epsilon transition (automatic transition) with a condition function.
    *
-   * @param from the source state
+   * @param from     the source state
    * @param function the condition function that determines when the transition should occur
-   * @param to the target state
-   * @return the previously existing epsilon transition to the target state, or null if none existed
+   * @param to       the target state
    */
-  public EpsilonTransition addEpsilonTransition(
+  public void addEpsilonTransition(
       State from, Function<State, Boolean> function, State to) {
-    return addEpsilonTransition(from, function, to, null);
-  }
-
-  private void removeAllTransitions(State state) {
-    transitions.remove(state);
-    epsilonTransitions.remove(state);
-
-    transitions.values().forEach(list -> list.removeIf(t -> t.targetState() == state));
-    epsilonTransitions.values().forEach(list -> list.removeIf(t -> t.targetState() == state));
-  }
-
-  /**
-   * Removes a transition from a state by signal name.
-   *
-   * @param from the name of the source state
-   * @param signal the signal identifying the transition to remove
-   * @return true if the transition was successfully removed, false otherwise
-   * @throws IllegalArgumentException if the source state doesn't exist
-   */
-  public boolean removeTransition(String from, String signal) {
-    State stFrom = getState(from);
-    if (stFrom == null) throw new IllegalArgumentException("State '" + from + "' doesn't exist");
-    return removeTransition(stFrom, signal);
-  }
-
-  /**
-   * Removes a transition from a state by signal.
-   *
-   * @param from the source state
-   * @param signal the signal identifying the transition to remove
-   * @return true if the transition was successfully removed, false otherwise
-   */
-  public boolean removeTransition(State from, String signal) {
-    List<Transition> fromTransitions = getTransitionList(from);
-    Transition transition =
-        fromTransitions.stream().filter(t -> t.signal().equals(signal)).findFirst().orElse(null);
-    if (transition != null) return fromTransitions.remove(transition);
-    return false;
+    addEpsilonTransition(from, function, to, null);
   }
 
   private List<EpsilonTransition> getEpsilonTransitionList(State state) {
-    epsilonTransitions.computeIfAbsent(state, k -> new ArrayList<>());
+    epsilonTransitions.computeIfAbsent(state, _ -> new ArrayList<>());
     return epsilonTransitions.get(state);
   }
 
   private List<Transition> getTransitionList(State state) {
-    transitions.computeIfAbsent(state, k -> new ArrayList<>());
+    transitions.computeIfAbsent(state, _ -> new ArrayList<>());
     return transitions.get(state);
   }
 
@@ -379,12 +296,12 @@ public class StateMachine implements Serializable {
 
   /** Resets the state machine to the first state. */
   public void reset() {
-    changeState(states.get(0), null);
+    changeState(states.getFirst(), null);
   }
 
   /**
    * Returns the current frame of the animation in the current state. Engine-agnostic: returns
-   * current frame instead of a platform-specific Sprite.
+   * the current frame instead of a platform-specific Sprite.
    *
    * @return the current animation frame
    */
@@ -464,8 +381,7 @@ public class StateMachine implements Serializable {
    * Sets the global configuration for whether frame counters should be reset when animation states
    * change.
    *
-   * @param value true to reset frame counters on state change, false to continue from current frame
-   *     count
+   * @param value true to reset frame counters on state change, false to continue from the current frame count
    */
   public static void setResetFrame(boolean value) {
     resetFrame = value;
@@ -485,17 +401,6 @@ public class StateMachine implements Serializable {
     } else {
       throw new IllegalArgumentException("State '" + stateName + "' doesn't exist");
     }
-  }
-
-  /**
-   * Sets the global configuration for whether frame counters should be reset when animation states
-   * change. This is an alias for {@link #setResetFrame(boolean)}.
-   *
-   * @param value true to reset frame counters on state change, false to continue from current frame
-   *     count
-   */
-  public static void resetFrameOnStateChange(boolean value) {
-    resetFrame = value;
   }
 
   private void changeState(State newState, Object data) {
