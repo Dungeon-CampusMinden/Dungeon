@@ -5,18 +5,18 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Shared viewport/projection state for the active camera rendering path.
+ * Shared viewport/projection configuration for the active camera rendering path.
  *
- * <p>This state stores screen offsets and tile scaling that are needed to convert between
+ * <p>This viewport stores screen offsets and tile scaling that are needed to convert between
  * world-space and screen-space coordinates.
  */
-public final class CameraViewportState {
+public final class CameraViewport {
   private static final Viewport DEFAULT_VIEWPORT = new Viewport(0, 0, 0, 32);
 
-  private CameraViewportState() {}
+  private CameraViewport() {}
 
   /**
-   * Represents the shared viewport/projection state for camera rendering.
+   * Represents the shared viewport/projection configuration for camera rendering.
    *
    * @param offsetX screen offset for X coordinate in pixels
    * @param offsetY screen offset for Y coordinate in pixels
@@ -28,7 +28,7 @@ public final class CameraViewportState {
   private static volatile Viewport CURRENT = DEFAULT_VIEWPORT;
 
   /**
-   * Gets the current viewport state.
+   * Gets the current viewport configuration.
    *
    * @return the current viewport configuration
    */
@@ -37,7 +37,7 @@ public final class CameraViewportState {
   }
 
   /**
-   * Sets the current viewport state.
+   * Sets the current viewport configuration.
    *
    * @param offsetX screen offset for X coordinate in pixels
    * @param offsetY screen offset for Y coordinate in pixels
@@ -63,7 +63,7 @@ public final class CameraViewportState {
     return Optional.of(viewport);
   }
 
-  /** Resets the shared viewport state to its default state. */
+  /** Resets the shared viewport to its default configuration. */
   public static void reset() {
     CURRENT = DEFAULT_VIEWPORT;
   }

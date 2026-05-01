@@ -1,6 +1,6 @@
 package core.platform.client.adapters;
 
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.platform.adapters.CursorAdapter;
 import core.utils.Point;
 import de.gurkenlabs.litiengine.input.Input;
@@ -32,6 +32,6 @@ public final class ClientCursorAdapter implements CursorAdapter {
       return new Point(0, 0);
     }
 
-    return CameraViewportState.screenToWorld(new Point((float) p.getX(), (float) p.getY()));
+    return CameraViewport.screenToWorld(new Point((float) p.getX(), (float) p.getY()));
   }
 }

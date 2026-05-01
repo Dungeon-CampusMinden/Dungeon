@@ -3,7 +3,7 @@ package contrib.editor.level.render;
 import contrib.components.DecoComponent;
 import core.Entity;
 import core.Game;
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
@@ -59,7 +59,7 @@ public final class LevelEditorDebugRenderer {
   }
 
   private void renderLevelBoundsOutline(Graphics2D g) {
-    CameraViewportState.Viewport view = CameraViewportState.get();
+    CameraViewport.Viewport view = CameraViewport.get();
     if (view == null || view.tilePx() <= 0) {
       return;
     }
@@ -81,7 +81,7 @@ public final class LevelEditorDebugRenderer {
   }
 
   private void renderLayerDebug(Graphics2D g) {
-    CameraViewportState.Viewport view = CameraViewportState.get();
+    CameraViewport.Viewport view = CameraViewport.get();
     if (view == null || view.tilePx() <= 0) {
       return;
     }
@@ -103,7 +103,7 @@ public final class LevelEditorDebugRenderer {
             });
   }
 
-  private void renderLayerDebugEntities(Graphics2D g, CameraViewportState.Viewport view) {
+  private void renderLayerDebugEntities(Graphics2D g, CameraViewport.Viewport view) {
     Game.levelEntities(Set.of(PositionComponent.class, DrawComponent.class))
         .forEach(
             entity -> {
@@ -125,7 +125,7 @@ public final class LevelEditorDebugRenderer {
       Entity entity,
       PositionComponent pc,
       DrawComponent dc,
-      CameraViewportState.Viewport view) {
+      CameraViewport.Viewport view) {
 
     final core.utils.components.draw.animation.AnimationFrame frame;
     try {
@@ -159,7 +159,7 @@ public final class LevelEditorDebugRenderer {
       // keep default tile-sized fallback dimensions
     }
 
-    Point screenOrigin = CameraViewportState.worldToScreen(pc.position());
+    Point screenOrigin = CameraViewport.worldToScreen(pc.position());
 
     int drawX = Math.round(screenOrigin.x() + (tilePx - wPx) / 2f);
     int drawY = Math.round(screenOrigin.y() + tilePx - hPx);
@@ -178,7 +178,7 @@ public final class LevelEditorDebugRenderer {
   }
 
   private void drawLayerDebugEntityFallbackRectangle(
-      Graphics2D g, Entity entity, PositionComponent pc, CameraViewportState.Viewport view) {
+      Graphics2D g, Entity entity, PositionComponent pc, CameraViewport.Viewport view) {
 
     float insetWorld = DEBUG_ENTITY_INSET_PX / (float) view.tilePx();
     float sizeWorld = Math.max(0.05f, 1.0f - (2f * insetWorld));
@@ -212,18 +212,18 @@ public final class LevelEditorDebugRenderer {
 
   private void drawWorldRectangleOutline(
       Graphics2D g, float worldX, float worldY, float worldWidth, float worldHeight, Color color) {
-    CameraViewportState.Viewport view = CameraViewportState.get();
+    CameraViewport.Viewport view = CameraViewport.get();
     if (view == null || view.tilePx() <= 0) {
       return;
     }
 
     Point screenTopLeft =
-        CameraViewportState.worldToScreen(new Point(worldX, worldY + worldHeight - 1f));
+        CameraViewport.worldToScreen(new Point(worldX, worldY + worldHeight - 1f));
 
     int px = Math.round(screenTopLeft.x());
     int py = Math.round(screenTopLeft.y());
-    int pw = CameraViewportState.worldLengthToScreen(worldWidth);
-    int ph = CameraViewportState.worldLengthToScreen(worldHeight);
+    int pw = CameraViewport.worldLengthToScreen(worldWidth);
+    int ph = CameraViewport.worldLengthToScreen(worldHeight);
 
     Color oldColor = g.getColor();
     g.setColor(color);

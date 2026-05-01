@@ -1,7 +1,7 @@
 package core.platform.client.adapters;
 
 import core.camera.CameraLevelSyncSystem;
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.game.render.sprite.SpriteRenderSystem;
 import core.platform.adapters.RenderAdapter;
 import core.systems.SoundSystem;
@@ -30,7 +30,7 @@ public final class ClientRenderAdapter implements RenderAdapter {
       return Optional.empty();
     }
 
-    return CameraViewportState.activeViewport()
-        .map(_ -> CameraViewportState.worldToScreen(worldPoint));
+    return CameraViewport.activeViewport()
+        .map(_ -> CameraViewport.worldToScreen(worldPoint));
   }
 }

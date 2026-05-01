@@ -2,7 +2,7 @@ package core.game.render.sprite;
 
 import core.Game;
 import core.System;
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.components.PositionComponent;
 import core.game.render.RenderContext;
 import core.level.elements.ILevel;
@@ -82,7 +82,7 @@ public final class SpriteRenderSystem extends System {
           spriteViewportCalculator.calculate(levelOpt, screenWidth, screenHeight);
 
       // Publish view for cursor mapping
-      CameraViewportState.set(view.offsetX(), view.offsetY(), view.levelHeight(), view.tilePx());
+      CameraViewport.set(view.offsetX(), view.offsetY(), view.levelHeight(), view.tilePx());
 
       g.translate(view.offsetX(), view.offsetY());
 

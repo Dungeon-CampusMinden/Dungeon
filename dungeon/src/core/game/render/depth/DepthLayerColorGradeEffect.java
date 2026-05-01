@@ -1,6 +1,6 @@
 package core.game.render.depth;
 
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.game.render.effects.BaseColorGradeEffect;
 import core.game.render.effects.ToggleableEffect;
 import core.utils.Point;
@@ -42,6 +42,6 @@ public final class DepthLayerColorGradeEffect
     return applyColorGrade(
         input,
         (screenX, screenY) ->
-            CameraViewportState.screenToWorld(new Point((float) screenX, (float) screenY)));
+            CameraViewport.screenToWorld(new Point((float) screenX, (float) screenY)));
   }
 }

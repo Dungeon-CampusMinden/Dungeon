@@ -1,6 +1,6 @@
 package contrib.debug.effects;
 
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.game.render.effects.ToggleableEffect;
 import core.game.render.scene.SceneEffect;
 import core.utils.Point;
@@ -126,7 +126,7 @@ public final class DebugPassthroughEffect
   }
 
   private static int worldPositionDebugRgb(int screenX, int screenY) {
-    Point world = CameraViewportState.screenToWorld(new Point((float) screenX, (float) screenY));
+    Point world = CameraViewport.screenToWorld(new Point((float) screenX, (float) screenY));
 
     int r = wrappedChannel(world.x(), 4.0f);
     int g = wrappedChannel(world.y(), 4.0f);

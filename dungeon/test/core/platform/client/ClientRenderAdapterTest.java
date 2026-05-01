@@ -2,7 +2,7 @@ package core.platform.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.platform.client.adapters.ClientRenderAdapter;
 import core.ui.StageHandle;
 import core.utils.Point;
@@ -15,12 +15,12 @@ class ClientRenderAdapterTest {
 
   @AfterEach
   void tearDown() {
-    CameraViewportState.reset();
+    CameraViewport.reset();
   }
 
   @Test
   void projectWorldToStageUsesSharedCameraView() {
-    CameraViewportState.set(100, 50, 10, 32);
+    CameraViewport.set(100, 50, 10, 32);
 
     Point projected =
         new ClientRenderAdapter()

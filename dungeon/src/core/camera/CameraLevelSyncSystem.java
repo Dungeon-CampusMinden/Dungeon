@@ -34,7 +34,7 @@ public final class CameraLevelSyncSystem extends System {
     }
 
     CameraState.resetFocus();
-    CameraViewportState.reset();
+    CameraViewport.reset();
     seedCurrentFocus();
     previousLevel = currentLevel;
   }

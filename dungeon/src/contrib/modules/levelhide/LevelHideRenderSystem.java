@@ -2,7 +2,7 @@ package contrib.modules.levelhide;
 
 import core.Entity;
 import core.System;
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.components.PositionComponent;
 import core.game.render.RenderContext;
 import core.utils.Point;
@@ -66,7 +66,7 @@ public final class LevelHideRenderSystem extends System {
   @Override
   public void render(float deltaSeconds) {
     Graphics2D g = RenderContext.get();
-    if (g == null || CameraViewportState.activeViewport().isEmpty()) {
+    if (g == null || CameraViewport.activeViewport().isEmpty()) {
       return;
     }
 
@@ -269,19 +269,19 @@ public final class LevelHideRenderSystem extends System {
       return 0;
     }
 
-    int px = CameraViewportState.worldLengthToScreen(transitionSizeWorldUnits);
+    int px = CameraViewport.worldLengthToScreen(transitionSizeWorldUnits);
     return Math.max(1, px);
   }
 
   private ScreenRect toScreenRect(core.utils.Rectangle worldRect) {
     Point topLeftWorld = new Point(worldRect.x(), worldRect.y() + worldRect.height() - 1f);
-    Point screenTopLeft = CameraViewportState.worldToScreen(topLeftWorld);
+    Point screenTopLeft = CameraViewport.worldToScreen(topLeftWorld);
 
     return new ScreenRect(
         Math.round(screenTopLeft.x()),
         Math.round(screenTopLeft.y()),
-        Math.max(1, CameraViewportState.worldLengthToScreen(worldRect.width())),
-        Math.max(1, CameraViewportState.worldLengthToScreen(worldRect.height())));
+        Math.max(1, CameraViewport.worldLengthToScreen(worldRect.width())),
+        Math.max(1, CameraViewport.worldLengthToScreen(worldRect.height())));
   }
 
   private int alphaFor(float hiddenProgress) {

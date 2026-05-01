@@ -1,7 +1,7 @@
 package contrib.debug.draw;
 
 import core.Game;
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.utils.Point;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -27,7 +27,7 @@ public final class DebugDrawRenderer {
    * @param drawCalls immutable draw commands to render
    */
   public static void render(
-      Graphics2D base, CameraViewportState.Viewport view, DebugDrawSnapshot drawCalls) {
+          Graphics2D base, CameraViewport.Viewport view, DebugDrawSnapshot drawCalls) {
 
     if (drawCalls.isEmpty()) {
       return;
@@ -55,7 +55,7 @@ public final class DebugDrawRenderer {
     return Math.max((float) 1.0, safeTilePx * (float) 0.0625);
   }
 
-  private static int resolveLevelHeight(CameraViewportState.Viewport view) {
+  private static int resolveLevelHeight(CameraViewport.Viewport view) {
     if (view.levelHeight() > 0) {
       return view.levelHeight();
     }
@@ -66,7 +66,7 @@ public final class DebugDrawRenderer {
   private static void renderWorldRectangles(
       Graphics2D g,
       List<DebugDrawSnapshot.WorldRectangle> rectangles,
-      CameraViewportState.Viewport view,
+      CameraViewport.Viewport view,
       int levelHeight) {
 
     int tilePx = view.tilePx();
@@ -109,7 +109,7 @@ public final class DebugDrawRenderer {
 
   private static void renderWorldRect(
       Graphics2D g,
-      CameraViewportState.Viewport view,
+      CameraViewport.Viewport view,
       int levelHeight,
       int tilePx,
       float x,
@@ -133,8 +133,8 @@ public final class DebugDrawRenderer {
 
   private static void renderWorldLines(Graphics2D g, List<DebugDrawSnapshot.WorldLine> lines) {
     for (DebugDrawSnapshot.WorldLine line : lines) {
-      Point from = CameraViewportState.worldToScreen(line.from());
-      Point to = CameraViewportState.worldToScreen(line.to());
+      Point from = CameraViewport.worldToScreen(line.from());
+      Point to = CameraViewport.worldToScreen(line.to());
 
       g.setColor(line.color());
       g.drawLine(
@@ -145,8 +145,8 @@ public final class DebugDrawRenderer {
   private static void renderWorldCircleOutlines(
       Graphics2D g, List<DebugDrawSnapshot.WorldCircleOutline> circles) {
     for (DebugDrawSnapshot.WorldCircleOutline circle : circles) {
-      Point center = CameraViewportState.worldToScreen(circle.center());
-      int radiusPx = CameraViewportState.worldLengthToScreen(circle.radius());
+      Point center = CameraViewport.worldToScreen(circle.center());
+      int radiusPx = CameraViewport.worldLengthToScreen(circle.radius());
 
       g.setColor(circle.color());
       g.drawOval(
@@ -160,8 +160,8 @@ public final class DebugDrawRenderer {
   private static void renderWorldCircleFills(
       Graphics2D g, List<DebugDrawSnapshot.WorldCircleFill> circles) {
     for (DebugDrawSnapshot.WorldCircleFill circle : circles) {
-      Point center = CameraViewportState.worldToScreen(circle.center());
-      int radiusPx = CameraViewportState.worldLengthToScreen(circle.radius());
+      Point center = CameraViewport.worldToScreen(circle.center());
+      int radiusPx = CameraViewport.worldLengthToScreen(circle.radius());
 
       g.setColor(circle.color());
       g.fillOval(

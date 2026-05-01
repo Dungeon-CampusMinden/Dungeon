@@ -1,7 +1,7 @@
 package contrib.editor.level.mode;
 
 import contrib.editor.level.LevelEditorSystem;
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.input.InputLabelFormatter;
 import core.input.InputLabelFormatter.InputCode;
 import core.input.Keys;
@@ -128,8 +128,8 @@ public abstract class LevelEditorMode {
     return new LinkedHashMap<>();
   }
 
-  protected final Optional<CameraViewportState.Viewport> activeCameraView() {
-    return CameraViewportState.activeViewport();
+  protected final Optional<CameraViewport.Viewport> activeCameraView() {
+    return CameraViewport.activeViewport();
   }
 
   /**

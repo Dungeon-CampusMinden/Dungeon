@@ -1,7 +1,7 @@
 package contrib.editor.level.mode.point;
 
 import contrib.editor.level.LevelEditorSystem;
-import core.camera.CameraViewportState;
+import core.camera.CameraViewport;
 import core.utils.Point;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -41,7 +41,7 @@ final class PointModeRenderer {
   }
 
   void render(Graphics2D g, String heldPointName, Point snapPos) {
-    CameraViewportState.activeViewport()
+    CameraViewport.activeViewport()
         .ifPresent(
             view ->
                 system
@@ -76,7 +76,7 @@ final class PointModeRenderer {
 
   private void drawNamedPointMarker(
       Graphics2D g, String name, Point pointPos, int markerSize, String heldPointName) {
-    Point screenCenter = CameraViewportState.worldCenterToScreen(pointPos);
+    Point screenCenter = CameraViewport.worldCenterToScreen(pointPos);
     boolean heldPoint = name != null && name.equals(heldPointName);
 
     drawMarker(
@@ -87,7 +87,7 @@ final class PointModeRenderer {
   }
 
   private void drawHeldPointGhost(Graphics2D g, String name, Point pointPos, int markerSize) {
-    Point screenCenter = CameraViewportState.worldCenterToScreen(pointPos);
+    Point screenCenter = CameraViewport.worldCenterToScreen(pointPos);
 
     drawMarker(g, screenCenter, markerSize, HELD_POINT_MARKER_COLOR);
 
