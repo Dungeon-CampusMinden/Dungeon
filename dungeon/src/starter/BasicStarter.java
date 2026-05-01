@@ -84,10 +84,8 @@ public final class BasicStarter {
    * configurations, loads required resources, sets up gameplay systems, and defines behaviors for
    * various game events.
    *
-   * @param args command-line arguments passed to the application, typically not used in this
-   *     context
    */
-  public static void main(String[] args) {
+  static void main() {
     DungeonLoader.addLevel(Tuple.of("playground", DungeonLevel.class));
 
     try {

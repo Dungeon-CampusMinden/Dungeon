@@ -76,7 +76,7 @@ public final class Game {
    */
   public static void run() {
     initialize();
-    ensureDefaultLoopHost();
+    ensureFallbackClientLoopHost();
     GameRuntime.run();
   }
 
@@ -957,7 +957,7 @@ public final class Game {
     PreRunConfiguration.addClientStartupTask(task);
   }
 
-  private static void ensureDefaultLoopHost() {
+  private static void ensureFallbackClientLoopHost() {
     if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
       return;
     }
