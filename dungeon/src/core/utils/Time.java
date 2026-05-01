@@ -7,6 +7,7 @@ package core.utils;
  * calculate elapsed time since a given timestamp.
  */
 public final class Time {
+
   private Time() {}
 
   /**
