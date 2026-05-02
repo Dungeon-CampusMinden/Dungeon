@@ -71,7 +71,6 @@ public class PortalFactory {
       PortalColor color) {
     Entity portal = new Entity(portalName);
     // To allow collision with the stationary Portal elements like lightwalls.
-    portal.add(new VelocityComponent(0.0000000001f));
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texturePath);
 
     State fallback = new State("NONE", animationMap.get("fallback"));
@@ -91,6 +90,8 @@ public class PortalFactory {
     CollideComponent cc =
         PortalCollisionHandler.setCollideComponent(
             direction, PortalCollisionHandler.createOnCollideHandler(color));
+    cc.isSolid(false);
+    cc.staticCallback((a) -> false);
     cc.onHold(PortalCollisionHandler.createOnHoldHandler(color));
 
     cc.isSolid(false);
