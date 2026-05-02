@@ -3,7 +3,6 @@ package contrib.item.concreteItem;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.crafting.CraftingIngredient;
-
 import contrib.item.HealthPotionType;
 import contrib.item.Item;
 import contrib.utils.components.health.Damage;
@@ -12,8 +11,6 @@ import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * This class represents a health potion item in the game. The health potion can be used to restore
@@ -22,14 +19,12 @@ import java.util.Objects;
  * representation in the game.
  */
 public class ItemPotionHealth extends Item {
+
   /** The default texture for all health potions. */
   public static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/potion/health_potion.png");
 
-  /** The type metadata used to configure this potion. */
-  private final HealthPotionType type;
-
   /** The amount of health that this potion restores when used. */
-  private final int healAmount;
+  private final int heal_amount;
 
   /**
    * Constructs a new health potion with the specified type. The type determines the name and the
@@ -43,8 +38,7 @@ public class ItemPotionHealth extends Item {
         type.getName() + " Health Potion",
         "It heals you for " + type.getHealAmount() + " health points.",
         new Animation(DEFAULT_TEXTURE));
-    this.type = type;
-    this.healAmount = type.getHealAmount();
+    this.heal_amount = type.getHealAmount();
   }
 
   /**
@@ -69,7 +63,7 @@ public class ItemPotionHealth extends Item {
         .ifPresent(
             component -> {
               component.removeOne(this);
-              this.healUser(this.healAmount, e);
+              this.healUser(this.getAmount(), e);
             });
   }
 
@@ -90,53 +84,23 @@ public class ItemPotionHealth extends Item {
     if (!(input instanceof ItemPotionHealth other)) {
       return super.match(input);
     }
-    return other.healAmount == this.healAmount;
-  }
-
-  /**
-   * Returns the potion type used to configure this item.
-   *
-   * @return the health potion type
-   */
-  public HealthPotionType type() {
-    return type;
-  }
-
-  /**
-   * Returns the amount of health restored when this potion is used.
-   *
-   * @return the healing amount
-   */
-  public int healAmount() {
-    return healAmount;
+    return other.getAmount() == this.getAmount();
   }
 
   @Override
-  public Map<String, String> itemData() {
-    return Map.of(
-        DATA_KEY_POTION_TYPE, type.name(),
-        DATA_KEY_HEAL_AMOUNT, Integer.toString(healAmount));
+  public int getAmount() {
+    return this.heal_amount;
   }
-
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ItemPotionHealth other)) return false;
-
-    return this.healAmount == other.healAmount;
+  public void setAmount(int count) {
+    // not applicable for potion (heal amount is fixed)
   }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(ItemPotionHealth.class, healAmount);
-  }
-
   @Override
   public ItemPotionHealth copy() {
-    if (this.heal_amount == HealthPotionType.WEAK.getHealAmount()) {
+    if (this.getAmount() == HealthPotionType.WEAK.getHealAmount()) {
       return new ItemPotionHealth(HealthPotionType.WEAK);
     }
-    if (this.heal_amount == HealthPotionType.NORMAL.getHealAmount()) {
+    if (this.getAmount() == HealthPotionType.NORMAL.getHealAmount()) {
       return new ItemPotionHealth(HealthPotionType.NORMAL);
     }
     return new ItemPotionHealth(HealthPotionType.GREATER);
