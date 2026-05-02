@@ -91,10 +91,12 @@ public class ItemPotionHealth extends Item {
   public int getAmount() {
     return this.heal_amount;
   }
+
   @Override
   public void setAmount(int count) {
     // not applicable for potion (heal amount is fixed)
   }
+
   @Override
   public ItemPotionHealth copy() {
     if (this.getAmount() == HealthPotionType.WEAK.getHealAmount()) {

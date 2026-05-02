@@ -1,4 +1,3 @@
-
 package contrib.item;
 
 import contrib.components.InventoryComponent;
@@ -489,9 +488,9 @@ public class Item implements CraftingIngredient, CraftingResult {
     copy.simpleInteraction = this.simpleInteraction;
 
     return copy;
-    }
+  }
 
-@Override 
+  @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;
     if (obj == null || getClass() != obj.getClass()) return false;

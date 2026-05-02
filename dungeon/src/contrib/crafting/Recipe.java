@@ -96,5 +96,4 @@ public record Recipe(boolean ordered, CraftingIngredient[] ingredients, Crafting
     }
     return copy;
   }
-
 }
