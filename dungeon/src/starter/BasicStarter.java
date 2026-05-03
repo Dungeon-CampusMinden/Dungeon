@@ -1,5 +1,6 @@
 package starter;
 
+import contrib.client.ClientLoopHostProvider;
 import contrib.entities.EntityFactory;
 import core.Game;
 import core.configuration.KeyboardConfig;
@@ -22,6 +23,7 @@ public class BasicStarter {
 
   /** Main entry point to launch the basic dungeon game. */
   static void main() {
+    ClientLoopHostProvider.installDefaultLoopHost();
     DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
     try {
       Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
