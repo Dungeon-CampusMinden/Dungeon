@@ -3,6 +3,7 @@ package core.systems;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import contrib.components.CollideComponent;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -16,7 +17,10 @@ import core.platform.Platform;
 import core.resources.FileSystemResourcesAdapter;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.level.utils.Coordinate;
+import core.level.utils.DesignLabel;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -116,6 +120,57 @@ public class LevelSystemTest {
     api.execute();
 
     verify(onLevelLoader, times(2)).execute();
+  }
+
+  /** Tests that an exit tile is triggered when the player's hitbox overlaps it. */
+  @Test
+  public void test_execute_heroHitboxOverlapsEndTile() {
+    api.loadLevel(level);
+
+    IVoidFunction onEndTile = Mockito.mock(IVoidFunction.class);
+    api.onEndTile(onEndTile);
+
+    Entity hero = new Entity();
+    hero.add(new PositionComponent(new Point(2.5f, 3.0f)));
+    hero.add(new PlayerComponent());
+    hero.add(new CollideComponent());
+    Game.add(hero);
+
+    ExitTile end = new ExitTile(null, new Coordinate(3, 3), DesignLabel.DEFAULT);
+    Tile floor = Mockito.mock(Tile.class);
+    when(level.tileAt((Point) any())).thenReturn(Optional.of(floor));
+    when(level.endTiles()).thenReturn(Set.of(end));
+    when(level.layout()).thenReturn(new Tile[0][0]);
+
+    api.execute();
+
+    verify(onEndTile).execute();
+    Mockito.verifyNoMoreInteractions(onEndTile);
+  }
+
+  /** Tests that standing on the final exit only triggers the end callback once. */
+  @Test
+  public void test_execute_heroOnEndTileTriggersOnlyOnce() {
+    api.loadLevel(level);
+
+    IVoidFunction onEndTile = Mockito.mock(IVoidFunction.class);
+    api.onEndTile(onEndTile);
+
+    Entity hero = new Entity();
+    hero.add(new PositionComponent(new Point(3, 3)));
+    hero.add(new PlayerComponent());
+    Game.add(hero);
+
+    ExitTile end = Mockito.mock(ExitTile.class);
+    when(end.isOpen()).thenReturn(true);
+    when(level.tileAt((Point) any())).thenReturn(Optional.of(end));
+    when(level.layout()).thenReturn(new Tile[0][0]);
+
+    api.execute();
+    api.execute();
+
+    verify(onEndTile).execute();
+    Mockito.verifyNoMoreInteractions(onEndTile);
   }
 
   /**

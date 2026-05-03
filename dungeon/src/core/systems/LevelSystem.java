@@ -1,5 +1,8 @@
 package core.systems;
 
+import contrib.components.CollideComponent;
+import contrib.utils.components.collide.Collider;
+import contrib.utils.components.collide.Hitbox;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -14,6 +17,7 @@ import core.level.loader.DungeonLoader;
 import core.level.path.DynamicObstacles;
 import core.sound.SoundSpec;
 import core.utils.IVoidFunction;
+import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
@@ -48,6 +52,7 @@ public final class LevelSystem extends System {
   private static ILevel currentLevel;
   private IVoidFunction onLevelLoad = () -> {};
   private IVoidFunction onEndTile;
+  private boolean endTileTriggered;
 
   /**
    * Create a new {@link LevelSystem}.
@@ -79,6 +84,7 @@ public final class LevelSystem extends System {
    */
   public void loadLevel(final ILevel level) {
     currentLevel = level;
+    endTileTriggered = false;
     DynamicObstacles.clear();
     onLevelLoad.execute();
     LOGGER.info("A new level was loaded.");
@@ -100,17 +106,42 @@ public final class LevelSystem extends System {
    * @return True if the entity is on the end tile, else false.
    */
   private boolean isOnOpenEndTile(final Entity entity) {
-    Tile currentTile =
+    PositionComponent positionComponent =
         entity
             .fetch(PositionComponent.class)
-            .map(PositionComponent::position)
-            .flatMap(Game::tileAt)
-            .orElse(null);
-    if (currentTile == null) {
-      return false;
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    Tile currentTile = Game.tileAt(positionComponent.position()).orElse(null);
+
+    if (currentTile instanceof ExitTile endTile && endTile.isOpen()) {
+      return true;
     }
 
-    return currentTile instanceof ExitTile endTile && endTile.isOpen();
+    return entity
+        .fetch(CollideComponent.class)
+        .map(CollideComponent::collider)
+        .map(collider -> overlapsOpenEndTile(collider, positionComponent))
+        .orElse(false);
+  }
+
+  private boolean overlapsOpenEndTile(
+      final Collider collider, final PositionComponent positionComponent) {
+    Point oldPosition = collider.position();
+    var oldScale = collider.scale();
+    collider.position(positionComponent.position());
+    collider.scale(positionComponent.scale());
+
+    try {
+      return Game.endTiles().stream()
+          .filter(ExitTile::isOpen)
+          .anyMatch(
+              endTile ->
+                  collider.collide(
+                      new Hitbox(
+                          1f, 1f, endTile.coordinate().x(), endTile.coordinate().y())));
+    } finally {
+      collider.position(oldPosition);
+      collider.scale(oldScale);
+    }
   }
 
   private Optional<ILevel> isOnDoor(final Entity entity) {
@@ -159,7 +190,8 @@ public final class LevelSystem extends System {
       if (Game.allPlayers().findAny().isEmpty()) return;
 
       // Load next level if all heroes are on the end tile
-      if (Game.allPlayers().allMatch(this::isOnOpenEndTile)) {
+      if (!endTileTriggered && Game.allPlayers().allMatch(this::isOnOpenEndTile)) {
+        endTileTriggered = true;
         onEndTile.execute();
         return;
       }

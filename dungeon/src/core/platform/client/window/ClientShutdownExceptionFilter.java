@@ -21,6 +21,9 @@ public final class ClientShutdownExceptionFilter implements UncaughtExceptionHan
   private static final String RENDER_GRAPHICS_METHOD = "renderGraphics";
   private static final String WINDOW_CURSOR_CALL = "de.gurkenlabs.litiengine.GameWindow.cursor()";
   private static final String GAME_WINDOW_CALL = "de.gurkenlabs.litiengine.Game.window()";
+  private static final String SCREEN_MANAGER_CURRENT_CALL =
+      "de.gurkenlabs.litiengine.gui.screens.ScreenManager.current()";
+  private static final String GAME_SCREENS_CALL = "de.gurkenlabs.litiengine.Game.screens()";
 
   private final UncaughtExceptionHandler delegate;
 
@@ -73,10 +76,12 @@ public final class ClientShutdownExceptionFilter implements UncaughtExceptionHan
     }
 
     String message = throwable.getMessage();
-    return message != null
-        && message.contains(WINDOW_CURSOR_CALL)
-        && message.contains(GAME_WINDOW_CALL)
-        && hasRenderGraphicsFrame(throwable);
+    return message != null && isKnownShutdownMessage(message) && hasRenderGraphicsFrame(throwable);
+  }
+
+  private static boolean isKnownShutdownMessage(final String message) {
+    return (message.contains(WINDOW_CURSOR_CALL) && message.contains(GAME_WINDOW_CALL))
+        || (message.contains(SCREEN_MANAGER_CURRENT_CALL) && message.contains(GAME_SCREENS_CALL));
   }
 
   private static boolean hasRenderGraphicsFrame(final Throwable throwable) {

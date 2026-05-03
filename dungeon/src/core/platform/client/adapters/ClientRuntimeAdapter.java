@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * including waiting for the main game loop thread to complete if necessary.
  */
 public final class ClientRuntimeAdapter implements RuntimeAdapter {
-  private static final long EXIT_JOIN_TIMEOUT_MS = 2000L;
+  private static final long EXIT_JOIN_TIMEOUT_MS = 250L;
   private static final AtomicBoolean EXIT_REQUESTED = new AtomicBoolean(false);
 
   @Override
