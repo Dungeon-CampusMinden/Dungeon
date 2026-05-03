@@ -2,6 +2,7 @@ package contrib.hud.dialogs.overlays;
 
 import contrib.hud.dialogs.frame.DialogFrameMetrics;
 import contrib.hud.dialogs.frame.DialogFrameRenderer;
+import core.Game;
 import core.ui.overlay.BaseUiOverlay;
 import java.awt.Graphics2D;
 
@@ -45,9 +46,11 @@ public final class PauseMenuDialogOverlay extends BaseUiOverlay {
     DialogFrameRenderer.RenderState state = DialogFrameRenderer.beginDialog(g);
 
     try {
+      centerInIfUnpositioned(Game.windowWidth(), Game.windowHeight());
+
       int textY = DialogFrameRenderer.drawFrameAndTitle(g, x, y, width, height, TITLE);
 
-      DialogFrameRenderer.drawWrappedText(
+      DialogFrameRenderer.drawWrappedTextCentered(
           g,
           MESSAGE,
           x + DialogFrameMetrics.PADDING,

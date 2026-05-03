@@ -87,7 +87,7 @@ public final class DebugPauseController {
   private void pause() {
     UIComponent ui =
         DialogService.show(
-            DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
+            DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(true).build());
 
     ui.dialog().ifPresent(dialog -> dialog.setVisible(true));
     pauseMenu = ui.dialogContext().ownerEntity();

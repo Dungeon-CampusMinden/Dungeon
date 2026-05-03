@@ -114,6 +114,27 @@ public final class DialogFrameRenderer {
   }
 
   /**
+   * Draws centered text with automatic line wrapping within a maximum width.
+   *
+   * @param g        the Graphics2D object to draw with
+   * @param text     the text to draw (may contain newlines)
+   * @param x        the left edge of the available text area
+   * @param startY   the y coordinate where text begins
+   * @param maxWidth the maximum width for text lines
+   */
+  public static void drawWrappedTextCentered(
+      Graphics2D g, String text, int x, int startY, int maxWidth) {
+    FontMetrics fm = g.getFontMetrics();
+    int y = startY;
+
+    for (String line : wrapText(text, fm, maxWidth)) {
+      int centeredX = x + (maxWidth - fm.stringWidth(line)) / 2;
+      g.drawString(line, centeredX, y);
+      y += fm.getHeight();
+    }
+  }
+
+  /**
    * Draws a styled button with a text label.
    *
    * @param g the Graphics2D object to draw with
