@@ -17,13 +17,12 @@ import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import portal.PortalRegistry;
-import portal.portals.components.PortalExtendComponent;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+import portal.PortalRegistry;
+import portal.portals.components.PortalExtendComponent;
 
 public class LightWallUtil {
 
@@ -33,9 +32,9 @@ public class LightWallUtil {
   private static Map<String, Animation> SEGMENT_ANIMATION_CACHE;
   private static final SimpleIPath SEGMENT_SPRITESHEET_PATH = new SimpleIPath("portal/light_wall");
   private static final SimpleIPath EMITTER_TEXTURE_ACTIVE =
-    new SimpleIPath("portal/light_wall_emitter/light_wall_emitter_active.png");
+      new SimpleIPath("portal/light_wall_emitter/light_wall_emitter_active.png");
   private static final SimpleIPath EMITTER_TEXTURE_INACTIVE =
-    new SimpleIPath("portal/light_wall_emitter/light_wall_emitter_inactive.png");
+      new SimpleIPath("portal/light_wall_emitter/light_wall_emitter_inactive.png");
 
   private static Map<String, Animation> segmentAnimations() {
     if (SEGMENT_ANIMATION_CACHE == null) {
@@ -46,32 +45,42 @@ public class LightWallUtil {
 
   /** Activates the beam and creates segments and collider. */
   public static void activate(Entity emitter) {
-    emitter.fetch(EmitterComponent.class).ifPresent(emitterComponent -> {
-      if (emitterComponent.isActive()) return; // mehrfaches Aktivieren verhindern
-      emitterComponent.setActive(true);
-      PositionComponent emitterPosition = emitter.fetch(PositionComponent.class).get();
-      BeamComponent beamComponent = emitter.fetch(BeamComponent.class).get();
-      Point end = calculateEndPoint(emitterPosition.position(), emitterPosition.viewDirection());
-      createSegments(emitterPosition.position(), end, emitterPosition.viewDirection(), beamComponent, false);
-      createCollider(emitter, emitterPosition.viewDirection(),emitterPosition.position(), end, true);
-      updateEmitterVisual(emitter, true);
-    });
-
+    emitter
+        .fetch(EmitterComponent.class)
+        .ifPresent(
+            emitterComponent -> {
+              if (emitterComponent.isActive()) return; // mehrfaches Aktivieren verhindern
+              emitterComponent.setActive(true);
+              PositionComponent emitterPosition = emitter.fetch(PositionComponent.class).get();
+              BeamComponent beamComponent = emitter.fetch(BeamComponent.class).get();
+              Point end =
+                  calculateEndPoint(emitterPosition.position(), emitterPosition.viewDirection());
+              createSegments(
+                  emitterPosition.position(),
+                  end,
+                  emitterPosition.viewDirection(),
+                  beamComponent,
+                  false);
+              createCollider(
+                  emitter, emitterPosition.viewDirection(), emitterPosition.position(), end, true);
+              updateEmitterVisual(emitter, true);
+            });
   }
 
   /** Deactivates the beam and removes segments and collider. */
   public static void deactivate(Entity emitter) {
-    emitter.fetch(EmitterComponent.class).ifPresent(emitterComponent -> {
-      if (!emitterComponent.isActive()) return; /// mehrfaches Deaktivieren verhindern
-      emitterComponent.setActive(false);
-      getRelevantEntities(emitter.fetch(BeamComponent.class).get())
-        .filter(entity -> !entity.isPresent(EmitterComponent.class))
-        .forEach(Game::remove);
-      emitter.fetch(CollideComponent.class).ifPresent(cc -> cc.collider(new Hitbox(0, 0)));
-      updateEmitterVisual(emitter, false);
-    });
-
-
+    emitter
+        .fetch(EmitterComponent.class)
+        .ifPresent(
+            emitterComponent -> {
+              if (!emitterComponent.isActive()) return; // / mehrfaches Deaktivieren verhindern
+              emitterComponent.setActive(false);
+              getRelevantEntities(emitter.fetch(BeamComponent.class).get())
+                  .filter(entity -> !entity.isPresent(EmitterComponent.class))
+                  .forEach(Game::remove);
+              emitter.fetch(CollideComponent.class).ifPresent(cc -> cc.collider(new Hitbox(0, 0)));
+              updateEmitterVisual(emitter, false);
+            });
   }
 
   /**
@@ -81,9 +90,9 @@ public class LightWallUtil {
    * @param to End point
    * @param direction Direction
    */
-  private static void createSegments(Point from, Point to, Direction direction, BeamComponent beamComponent, boolean isExtended) {
-    int totalPoints =
-      (int) Math.max(Math.abs(to.x() - from.x()), Math.abs(to.y() - from.y())) + 1;
+  private static void createSegments(
+      Point from, Point to, Direction direction, BeamComponent beamComponent, boolean isExtended) {
+    int totalPoints = (int) Math.max(Math.abs(to.x() - from.x()), Math.abs(to.y() - from.y())) + 1;
     float x;
     float y;
     for (int i = 0; i < totalPoints; i++) {
@@ -113,7 +122,8 @@ public class LightWallUtil {
    * @param end End point
    * @param direction Direction
    */
-  private static void createCollider(Entity emitter, Direction direction, Point start, Point end, boolean hasPEC) {
+  private static void createCollider(
+      Entity emitter, Direction direction, Point start, Point end, boolean hasPEC) {
     float width = 1f, height = 1f, offsetX = 0f, offsetY = 0f;
     if (direction == Direction.LEFT || direction == Direction.RIGHT) {
       float len = Math.abs(end.x() - start.x()) + 1f;
@@ -128,35 +138,34 @@ public class LightWallUtil {
     pc.rotation(rotationFor(direction));
     emitter.add(pc);
     emitter.remove(CollideComponent.class);
-    CollideComponent cc = new CollideComponent(
-      Vector2.of(offsetX, offsetY),
-      Vector2.of(width, height));
+    CollideComponent cc =
+        new CollideComponent(Vector2.of(offsetX, offsetY), Vector2.of(width, height));
     emitter.add(cc);
 
     if (hasPEC) {
       PortalExtendComponent pec = new PortalExtendComponent();
       pec.onExtend =
-        (dir, exitPosition, portalExtendComponent) -> {
-          Point startPoint = exitPosition.translate(dir);
-          Point endPoint = calculateEndPoint(startPoint, dir);
-          BeamComponent beamComponent = emitter.fetch(BeamComponent.class).get();
-          Entity extendedEmitter = LightWallFactory.createEmitter(startPoint, dir,true);
-          createSegments(startPoint, endPoint, dir, beamComponent, true);
-          extendedEmitter.remove(DrawComponent.class);
-          extendedEmitter.remove(EmitterComponent.class);
-          extendedEmitter.remove(BeamComponent.class);
-          extendedEmitter.add(beamComponent);
-          extendedEmitter.add(new BeamExtendedComponent());
-          createCollider(extendedEmitter, dir, startPoint, endPoint, false);
-          Game.add(extendedEmitter);
-        };
+          (dir, exitPosition, portalExtendComponent) -> {
+            Point startPoint = exitPosition.translate(dir);
+            Point endPoint = calculateEndPoint(startPoint, dir);
+            BeamComponent beamComponent = emitter.fetch(BeamComponent.class).get();
+            Entity extendedEmitter = LightWallFactory.createEmitter(startPoint, dir, true);
+            createSegments(startPoint, endPoint, dir, beamComponent, true);
+            extendedEmitter.remove(DrawComponent.class);
+            extendedEmitter.remove(EmitterComponent.class);
+            extendedEmitter.remove(BeamComponent.class);
+            extendedEmitter.add(beamComponent);
+            extendedEmitter.add(new BeamExtendedComponent());
+            createCollider(extendedEmitter, dir, startPoint, endPoint, false);
+            Game.add(extendedEmitter);
+          };
       pec.onTrim =
-        (e) -> {
-          getRelevantEntities(e.fetch(BeamComponent.class).get())
-            .filter(entity -> !entity.isPresent(EmitterComponent.class))
-            .filter(entity -> entity.isPresent(BeamExtendedComponent.class))
-            .forEach(Game::remove);
-        };
+          (e) -> {
+            getRelevantEntities(e.fetch(BeamComponent.class).get())
+                .filter(entity -> !entity.isPresent(EmitterComponent.class))
+                .filter(entity -> entity.isPresent(BeamExtendedComponent.class))
+                .forEach(Game::remove);
+          };
       emitter.add(pec);
     }
   }
@@ -169,11 +178,10 @@ public class LightWallUtil {
    * @param beamDirection Direction
    * @return End point of the beam
    */
-  private static Point calculateEndPoint(
-    Point from, Direction beamDirection) {
+  private static Point calculateEndPoint(Point from, Direction beamDirection) {
     try {
       return PortalRegistry.getCalculations()
-        .calculateLightWallAndBridgeEnd(from, beamDirection, stoppingTiles);
+          .calculateLightWallAndBridgeEnd(from, beamDirection, stoppingTiles);
     } catch (Exception e) {
       if (PortalRegistry.isDebugMode()) e.printStackTrace();
       DialogUtils.showTextPopup("Da stimmt etwas mit meinen Berechnungen nicht,", "Code Error");
@@ -206,6 +214,6 @@ public class LightWallUtil {
 
   public static Stream<Entity> getRelevantEntities(BeamComponent beamComponent) {
     return Game.levelEntities(Set.of(BeamComponent.class))
-      .filter(entity -> entity.fetch(BeamComponent.class).get().equals(beamComponent));
+        .filter(entity -> entity.fetch(BeamComponent.class).get().equals(beamComponent));
   }
 }

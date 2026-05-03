@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
 import portal.portals.components.PortalExtendComponent;
 
 /** Component represents a tractor beam that can be extended and trimmed. */
@@ -28,11 +27,9 @@ public class TractorBeamComponent implements Component {
   /** Store old forces for the Entities. */
   public HashMap<Entity, Vector2> oldForces = new HashMap<>();
 
-  /**
-   * Constructs a TractorBeamComponent so it can be extended and trimmed.
-   *
-   */
-  public TractorBeamComponent() {;
+  /** Constructs a TractorBeamComponent so it can be extended and trimmed. */
+  public TractorBeamComponent() {
+    ;
     activate();
   }
 
@@ -179,7 +176,7 @@ public class TractorBeamComponent implements Component {
    */
   public List<Entity> getRelevantEntities() {
     return Game.levelEntities(Set.of(TractorBeamComponent.class))
-      .filter(entity -> entity.fetch(TractorBeamComponent.class).get().equals(this))
-      .toList();
+        .filter(entity -> entity.fetch(TractorBeamComponent.class).get().equals(this))
+        .toList();
   }
 }

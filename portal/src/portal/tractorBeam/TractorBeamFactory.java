@@ -82,8 +82,7 @@ public class TractorBeamFactory {
    * @param tractorBeam the tractor beam entity whose direction or force should be reversed
    */
   public static void reverse(Entity tractorBeam) {
-    reverseTractorBeam(
-        tractorBeam.fetch(TractorBeamComponent.class).get().getRelevantEntities());
+    reverseTractorBeam(tractorBeam.fetch(TractorBeamComponent.class).get().getRelevantEntities());
   }
 
   /**

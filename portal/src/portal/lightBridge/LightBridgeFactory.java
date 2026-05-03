@@ -1,31 +1,17 @@
 package portal.lightBridge;
 
 import contrib.components.CollideComponent;
-import contrib.hud.DialogUtils;
-import contrib.utils.components.collide.Hitbox;
-import core.Component;
 import core.Entity;
-import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.Tile;
-import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
-import core.utils.components.draw.DepthLayer;
-import core.utils.components.draw.animation.Animation;
-import core.utils.components.draw.animation.AnimationConfig;
-import core.utils.components.draw.state.State;
-import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import portal.PortalRegistry;
 import portal.lightWall.BeamComponent;
 import portal.lightWall.EmitterComponent;
-import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
 
 /**
@@ -41,9 +27,9 @@ public class LightBridgeFactory {
   private static final SimpleIPath SEGMENT_SPRITESHEET_PATH =
       new SimpleIPath("portal/light_bridge");
   private static final SimpleIPath EMITTER_TEXTURE_ACTIVE =
-    new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_active.png");
+      new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_active.png");
   private static final SimpleIPath EMITTER_TEXTURE_INACTIVE =
-    new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_inactive.png");
+      new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_inactive.png");
 
   /** Number of tiles by which the extended start point is offset in front of the emitter. */
   public static int spawnOffset = 1;
@@ -71,13 +57,13 @@ public class LightBridgeFactory {
     emitter.add(pc);
     emitter.add(new DrawComponent(active ? EMITTER_TEXTURE_ACTIVE : EMITTER_TEXTURE_INACTIVE));
     emitter.add(
-      new CollideComponent(
-        Vector2.of(0f, 0f),
-        Vector2.of(1f, 1f),
-        CollideComponent.DEFAULT_COLLIDER,
-        CollideComponent.DEFAULT_COLLIDER));
+        new CollideComponent(
+            Vector2.of(0f, 0f),
+            Vector2.of(1f, 1f),
+            CollideComponent.DEFAULT_COLLIDER,
+            CollideComponent.DEFAULT_COLLIDER));
     emitter.add(new PortalIgnoreComponent());
-//    if (active) activate();
+    //    if (active) activate();
     return emitter;
   }
 
