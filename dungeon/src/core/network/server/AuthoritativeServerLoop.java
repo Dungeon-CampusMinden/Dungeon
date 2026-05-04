@@ -176,6 +176,7 @@ public final class AuthoritativeServerLoop {
               success -> {
                 if (success) {
                   client.lastFullSnapshot(currentSnapshot);
+                  client.resetKnownSnapshotEntityIds(currentSnapshot);
                 }
               });
       return;
@@ -183,8 +184,18 @@ public final class AuthoritativeServerLoop {
 
     client
         .lastFullSnapshot()
-        .flatMap(baseline -> SnapshotDeltaCompressor.compress(baseline, currentSnapshot))
-        .ifPresent(delta -> Game.network().send(client.clientId(), delta, false));
+        .flatMap(
+            baseline ->
+                SnapshotDeltaCompressor.compress(
+                    baseline, currentSnapshot, client.knownSnapshotEntityIds()))
+        .ifPresent(
+            delta -> {
+              client.trackKnownSnapshotEntityIds(
+                  delta.entityDeltas().stream()
+                      .map(entityDelta -> entityDelta.entityId())
+                      .toList());
+              Game.network().send(client.clientId(), delta, false);
+            });
   }
 
   private void clearSnapshotBaselinesOnLevelChange(Set<ClientState> clients) {

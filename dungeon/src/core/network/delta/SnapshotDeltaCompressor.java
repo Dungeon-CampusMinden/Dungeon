@@ -13,6 +13,7 @@ import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -37,7 +38,26 @@ public final class SnapshotDeltaCompressor {
   public static Optional<DeltaSnapshotMessage> compress(
       SnapshotMessage baseline, SnapshotMessage current) {
     Objects.requireNonNull(baseline, "baseline");
+    return compress(baseline, current, entitiesById(baseline).keySet());
+  }
+
+  /**
+   * Creates a delta from a full baseline snapshot to the current full snapshot.
+   *
+   * <p>The known entity IDs include all entities sent to the client since the current full
+   * baseline. This lets the delta report removals for entities that were created after the baseline
+   * and removed before the next full snapshot.
+   *
+   * @param baseline full snapshot used as the delta base
+   * @param current current full snapshot
+   * @param knownEntityIds entity IDs sent to the client since the full baseline
+   * @return a delta snapshot if anything changed, otherwise an empty Optional
+   */
+  public static Optional<DeltaSnapshotMessage> compress(
+      SnapshotMessage baseline, SnapshotMessage current, Collection<Integer> knownEntityIds) {
+    Objects.requireNonNull(baseline, "baseline");
     Objects.requireNonNull(current, "current");
+    Objects.requireNonNull(knownEntityIds, "knownEntityIds");
 
     Map<Integer, EntityState> baselineEntities = entitiesById(baseline);
     Map<Integer, EntityState> currentEntities = entitiesById(current);
@@ -52,8 +72,10 @@ public final class SnapshotDeltaCompressor {
       createEntityDelta(baselineState, currentState).ifPresent(entityDeltas::add);
     }
 
+    Set<Integer> removableEntityIds = new LinkedHashSet<>(baselineEntities.keySet());
+    removableEntityIds.addAll(knownEntityIds);
     List<Integer> removedEntityIds =
-        baselineEntities.keySet().stream().filter(id -> !currentEntities.containsKey(id)).toList();
+        removableEntityIds.stream().filter(id -> !currentEntities.containsKey(id)).toList();
     LevelState levelStateDelta = levelStateDelta(baseline.levelState(), current.levelState());
 
     DeltaSnapshotMessage delta =

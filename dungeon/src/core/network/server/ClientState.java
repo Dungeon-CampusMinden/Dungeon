@@ -7,7 +7,10 @@ import core.network.config.NetworkConfig;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.SnapshotMessage;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Server-side state tracking for a connected client. Manages sequence numbering, tick correlation,
@@ -81,6 +84,12 @@ public class ClientState {
 
   /** Latest snapshot tick applied by this client. */
   private volatile int latestAppliedSnapshotTick = -1;
+
+  /** Entity IDs known by the client through reliable lifecycle events or snapshots. */
+  private final Set<Integer> networkSyncedEntityIds = ConcurrentHashMap.newKeySet();
+
+  /** Entity IDs sent to this client since the current full snapshot baseline. */
+  private final Set<Integer> knownSnapshotEntityIds = ConcurrentHashMap.newKeySet();
 
   /**
    * Constructs a new ClientState for a fresh connection.
@@ -403,6 +412,67 @@ public class ClientState {
   public void clearSnapshotBaseline() {
     this.lastFullSnapshot = null;
     this.latestAppliedSnapshotTick = -1;
+    this.knownSnapshotEntityIds.clear();
+  }
+
+  /**
+   * Returns the network-synchronized entity IDs currently tracked by the client.
+   *
+   * @return an immutable copy of tracked entity IDs
+   */
+  public Set<Integer> networkSyncedEntityIds() {
+    return Set.copyOf(networkSyncedEntityIds);
+  }
+
+  /**
+   * Tracks a local entity as network synchronized.
+   *
+   * @param entityId the entity ID
+   */
+  public void trackNetworkEntity(int entityId) {
+    networkSyncedEntityIds.add(entityId);
+  }
+
+  /**
+   * Stops tracking a local entity as network synchronized.
+   *
+   * @param entityId the entity ID
+   */
+  public void untrackNetworkEntity(int entityId) {
+    networkSyncedEntityIds.remove(entityId);
+  }
+
+  /** Clears all locally tracked network-synchronized entity IDs. */
+  public void clearNetworkEntities() {
+    networkSyncedEntityIds.clear();
+  }
+
+  /**
+   * Returns entity IDs sent in the current full-baseline window.
+   *
+   * @return an immutable copy of known snapshot entity IDs
+   */
+  public Set<Integer> knownSnapshotEntityIds() {
+    return Set.copyOf(knownSnapshotEntityIds);
+  }
+
+  /**
+   * Resets the known snapshot entity IDs to the entities contained in a full baseline snapshot.
+   *
+   * @param snapshot the new full snapshot baseline
+   */
+  public void resetKnownSnapshotEntityIds(SnapshotMessage snapshot) {
+    knownSnapshotEntityIds.clear();
+    snapshot.entities().forEach(entity -> knownSnapshotEntityIds.add(entity.entityId()));
+  }
+
+  /**
+   * Tracks entity IDs included in a delta snapshot for the current full-baseline window.
+   *
+   * @param entityIds entity IDs included in a delta snapshot
+   */
+  public void trackKnownSnapshotEntityIds(Collection<Integer> entityIds) {
+    knownSnapshotEntityIds.addAll(entityIds);
   }
 
   /**

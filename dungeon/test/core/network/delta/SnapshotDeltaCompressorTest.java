@@ -123,4 +123,20 @@ public class SnapshotDeltaCompressorTest {
     assertEquals(new Coordinate(4, 7), doorState.coordinate());
     assertTrue(doorState.open());
   }
+
+  /** Verifies delta removals include entities created after the full baseline. */
+  @Test
+  void compressRemovesKnownEntitiesCreatedAfterBaseline() {
+    SnapshotMessage baseline =
+        new SnapshotMessage(
+            10, List.of(EntityState.builder().entityId(1).build()), new LevelState(Set.of()));
+    SnapshotMessage current =
+        new SnapshotMessage(
+            12, List.of(EntityState.builder().entityId(1).build()), new LevelState(Set.of()));
+
+    DeltaSnapshotMessage delta =
+        SnapshotDeltaCompressor.compress(baseline, current, List.of(1, 2)).orElseThrow();
+
+    assertEquals(List.of(2), delta.removedEntityIds());
+  }
 }
