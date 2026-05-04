@@ -293,7 +293,13 @@ public class LightBridgeUtil {
     return from;
   }
 
-  public static Stream<Entity> getRelevantEntities(BeamComponent beamComponent) {
+  /**
+   * Returns a Stream all Entities with the same Component given as the parameter.
+   *
+   * @param beamComponent Component to filter for.
+   * @return Stream of all Entities that have the given Component.
+   */
+  private static Stream<Entity> getRelevantEntities(BeamComponent beamComponent) {
     return Game.levelEntities(Set.of(BeamComponent.class))
         .filter(entity -> entity.fetch(BeamComponent.class).get().equals(beamComponent));
   }

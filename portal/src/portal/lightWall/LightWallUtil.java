@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import portal.PortalRegistry;
 import portal.portals.components.PortalExtendComponent;
 
+/** Utility Class for everything LightWall related. */
 public class LightWallUtil {
 
   private static final LevelElement[] stoppingTiles = {
@@ -230,6 +231,12 @@ public class LightWallUtil {
     emitter.name(on ? "lightWallEmitter" : "lightWallEmitterInactive");
   }
 
+  /**
+   * Returns a Stream all Entities with the same Component given as the parameter.
+   *
+   * @param beamComponent Component to filter for.
+   * @return Stream of all Entities that have the given Component.
+   */
   private static Stream<Entity> getRelevantEntities(BeamComponent beamComponent) {
     return Game.levelEntities(Set.of(BeamComponent.class))
         .filter(entity -> entity.fetch(BeamComponent.class).get().equals(beamComponent));
