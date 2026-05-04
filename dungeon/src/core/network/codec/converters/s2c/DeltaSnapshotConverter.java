@@ -101,12 +101,10 @@ public final class DeltaSnapshotConverter
     return switch (field) {
       case ENTITY_STATE_FIELD_ENTITY_NAME -> Optional.of(EntityStateField.ENTITY_NAME);
       case ENTITY_STATE_FIELD_POSITION -> Optional.of(EntityStateField.POSITION);
-      case ENTITY_STATE_FIELD_VIEW_DIRECTION ->
-          Optional.of(EntityStateField.VIEW_DIRECTION);
+      case ENTITY_STATE_FIELD_VIEW_DIRECTION -> Optional.of(EntityStateField.VIEW_DIRECTION);
       case ENTITY_STATE_FIELD_ROTATION -> Optional.of(EntityStateField.ROTATION);
       case ENTITY_STATE_FIELD_SCALE -> Optional.of(EntityStateField.SCALE);
-      case ENTITY_STATE_FIELD_CURRENT_HEALTH ->
-          Optional.of(EntityStateField.CURRENT_HEALTH);
+      case ENTITY_STATE_FIELD_CURRENT_HEALTH -> Optional.of(EntityStateField.CURRENT_HEALTH);
       case ENTITY_STATE_FIELD_MAX_HEALTH -> Optional.of(EntityStateField.MAX_HEALTH);
       case ENTITY_STATE_FIELD_CURRENT_MANA -> Optional.of(EntityStateField.CURRENT_MANA);
       case ENTITY_STATE_FIELD_MAX_MANA -> Optional.of(EntityStateField.MAX_MANA);
