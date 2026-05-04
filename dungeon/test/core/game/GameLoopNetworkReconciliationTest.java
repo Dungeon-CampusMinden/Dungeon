@@ -30,9 +30,9 @@ public class GameLoopNetworkReconciliationTest {
   public void reconcileNetworkEntitiesRemovesOnlyTrackedEntitiesMissingFromSnapshot() {
     ClientState state =
         new ClientState((short) 1, "tester", 1, new byte[] {1, 2, 3}, CharacterClass.WIZARD);
-    Entity keptNetworkEntity = new Entity(1);
-    Entity staleNetworkEntity = new Entity(2);
-    Entity localEntity = new Entity(3);
+    Entity keptNetworkEntity = new Entity();
+    Entity staleNetworkEntity = new Entity();
+    Entity localEntity = new Entity();
     Game.add(keptNetworkEntity);
     Game.add(staleNetworkEntity);
     Game.add(localEntity);
