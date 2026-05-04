@@ -1,8 +1,13 @@
 package entities.monster;
 
 import components.TintDirectionComponent;
-import contrib.components.*;
-import contrib.entities.*;
+import contrib.components.AIComponent;
+import contrib.components.BlockViewComponent;
+import contrib.components.CollideComponent;
+import contrib.components.SpikyComponent;
+import contrib.entities.MonsterBuilder;
+import contrib.entities.MonsterDeathSound;
+import contrib.entities.MonsterIdleSound;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;

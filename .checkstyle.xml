@@ -12,23 +12,19 @@
 
     <module name="TreeWalker">
         <module name="AtclauseOrder"/>
+        <module name="AvoidStarImport"/>
+        <module name="EmptyBlock"/>
+        <module name="FallThrough"/>
         <module name="InvalidJavadocPosition"/>
-        <module name="JavadocBlockTagLocation"/>
-        <module name="JavadocContentLocation"/>
         <module name="JavadocMethod"/>
-        <module name="JavadocMissingLeadingAsterisk"/>
-        <module name="JavadocMissingWhitespaceAfterAsterisk"/>
-        <module name="JavadocParagraph"/>
-        <module name="JavadocStyle"/>
-        <module name="JavadocTagContinuationIndentation"/>
         <module name="JavadocType"/>
-        <module name="JavadocVariable">
-            <property name="accessModifiers" value="public"/>
-        </module>
         <module name="MissingDeprecated"/>
         <module name="MissingJavadocMethod"/>
         <module name="MissingJavadocType"/>
         <module name="MissingOverride"/>
-        <module name="RequireEmptyLineBeforeBlockTagGroup"/>
+        <module name="ModifierOrder"/>
+        <module name="OneTopLevelClass"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
     </module>
 </module>

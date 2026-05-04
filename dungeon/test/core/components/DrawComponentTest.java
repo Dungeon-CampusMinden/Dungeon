@@ -1,7 +1,8 @@
 package core.components;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.badlogic.gdx.graphics.Texture;
 import contrib.systems.HealthSystem;

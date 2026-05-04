@@ -1,8 +1,14 @@
 package entities;
 
 import client.Client;
-import components.*;
-import contrib.components.*;
+import components.AmmunitionComponent;
+import components.BlocklyItemComponent;
+import components.BreadcrumbComponent;
+import components.CloverComponent;
+import components.PushableComponent;
+import contrib.components.BlockComponent;
+import contrib.components.BlockViewComponent;
+import contrib.components.CollideComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
 import contrib.modules.interaction.Interaction;

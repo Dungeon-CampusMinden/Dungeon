@@ -1,6 +1,6 @@
 package contrib.components;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
