@@ -31,6 +31,7 @@ import portal.lightWall.EmitterComponent;
 import portal.lightWall.LightWallFactory;
 import portal.portals.components.PortalExtendComponent;
 
+/** Utility Class for everything LightBridge related. */
 public class LightBridgeUtil {
 
   private static final SimpleIPath SEGMENT_SPRITESHEET_PATH =
@@ -58,6 +59,7 @@ public class LightBridgeUtil {
   /**
    * Updates the visual representation of the emitter.
    *
+   * @param emitter the emitter which is to be updated
    * @param on true if active; false if inactive
    */
   private static void updateEmitterVisual(Entity emitter, boolean on) {
@@ -67,7 +69,11 @@ public class LightBridgeUtil {
     emitter.name(on ? "lightWallEmitter" : "lightWallEmitterInactive");
   }
 
-  /** Activates the beam and creates segments and collider. */
+  /**
+   * Activates the beam and creates segments and collider.
+   *
+   * @param emitter the emitter that should be activated.
+   */
   public static void activate(Entity emitter) {
     emitter
         .fetch(EmitterComponent.class)
@@ -92,7 +98,11 @@ public class LightBridgeUtil {
             });
   }
 
-  /** Deactivates the beam and removes segments and collider. */
+  /**
+   * Deactivates the beam and removes segments and collider.
+   *
+   * @param emitter the emitter that should be deactivated.
+   */
   public static void deactivate(Entity emitter) {
     emitter
         .fetch(EmitterComponent.class)
@@ -118,6 +128,8 @@ public class LightBridgeUtil {
    * @param direction Direction The count is based on the maximum delta in x or y. Each segment gets
    *     its position and rotation. Performance note: simple linear interpolation; for very long
    *     bridges consider streaming/tiling.
+   * @param beamComponent BeamComponent from the Emitter.
+   * @param isExtended if true, marks the segments as extended via the Portal.
    */
   private static void createSegments(
       Point from, Point to, Direction direction, BeamComponent beamComponent, boolean isExtended) {
@@ -149,6 +161,8 @@ public class LightBridgeUtil {
    * registered by this beam, add it to the local set and increment the global reference counter. On
    * the first cover for a pit, store the original open-state and previous timeToOpen, then close it
    * and set timeToOpen far into the future. Subsequent covers only increment the counter.
+   *
+   * @param beamComponent BeamComponent from the Emitter.
    */
   public static void coverPit(BeamComponent beamComponent) {
     getRelevantEntities(beamComponent)
@@ -201,6 +215,15 @@ public class LightBridgeUtil {
     myCoveredPits.clear();
   }
 
+  /**
+   * Creates a Collider for the Portals to collide with, with the given size position and direciton.
+   *
+   * @param emitter The emitter that gets the new Collider.
+   * @param direction Direction of the Collider.
+   * @param start Start Point.
+   * @param end End Point.
+   * @param hasPEC True if its the base Emitter.
+   */
   private static void createCollider(
       Entity emitter, Direction direction, Point start, Point end, boolean hasPEC) {
     float width = 1f, height = 1f, offsetX = 0f, offsetY = 0f;

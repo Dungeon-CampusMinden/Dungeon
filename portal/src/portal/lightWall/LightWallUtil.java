@@ -43,7 +43,11 @@ public class LightWallUtil {
     return SEGMENT_ANIMATION_CACHE;
   }
 
-  /** Activates the beam and creates segments and collider. */
+  /**
+   * Activates the beam and creates segments and collider.
+   *
+   * @param emitter the emitter that should be deactivated.
+   */
   public static void activate(Entity emitter) {
     emitter
         .fetch(EmitterComponent.class)
@@ -67,7 +71,11 @@ public class LightWallUtil {
             });
   }
 
-  /** Deactivates the beam and removes segments and collider. */
+  /**
+   * Deactivates the beam and removes segments and collider.
+   *
+   * @param emitter the emitter that should be deactivated.
+   */
   public static void deactivate(Entity emitter) {
     emitter
         .fetch(EmitterComponent.class)
@@ -89,6 +97,8 @@ public class LightWallUtil {
    * @param from Start point
    * @param to End point
    * @param direction Direction
+   * @param beamComponent BeamComponent from the Emitter.
+   * @param isExtended if true, marks the segments as extended via the Portal.
    */
   private static void createSegments(
       Point from, Point to, Direction direction, BeamComponent beamComponent, boolean isExtended) {
@@ -118,9 +128,11 @@ public class LightWallUtil {
   /**
    * Creates the collider for the light wall.
    *
-   * @param start Start point
-   * @param end End point
-   * @param direction Direction
+   * @param emitter The emitter that gets the new Collider.
+   * @param direction Direction of the Collider.
+   * @param start Start Point.
+   * @param end End Point.
+   * @param hasPEC True if its the base Emitter.
    */
   private static void createCollider(
       Entity emitter, Direction direction, Point start, Point end, boolean hasPEC) {
@@ -205,6 +217,12 @@ public class LightWallUtil {
     };
   }
 
+  /**
+   * Updates the visual representation of the emitter.
+   *
+   * @param emitter the emitter which is to be updated
+   * @param on true if active; false if inactive
+   */
   private static void updateEmitterVisual(Entity emitter, boolean on) {
     DrawComponent dc = new DrawComponent(on ? EMITTER_TEXTURE_ACTIVE : EMITTER_TEXTURE_INACTIVE);
     dc.depth(DepthLayer.Normal.depth());
@@ -212,7 +230,7 @@ public class LightWallUtil {
     emitter.name(on ? "lightWallEmitter" : "lightWallEmitterInactive");
   }
 
-  public static Stream<Entity> getRelevantEntities(BeamComponent beamComponent) {
+  private static Stream<Entity> getRelevantEntities(BeamComponent beamComponent) {
     return Game.levelEntities(Set.of(BeamComponent.class))
         .filter(entity -> entity.fetch(BeamComponent.class).get().equals(beamComponent));
   }
