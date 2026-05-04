@@ -441,18 +441,23 @@ public final class GameLoop extends ScreenAdapter {
         SnapshotMessage.class,
         (ctx, event) -> {
           try {
-            Optional<ClientState> clientState = ctx == null ? Optional.empty() : ctx.clientState();
-            if (clientState.isPresent()
-                && event.serverTick() <= clientState.orElseThrow().latestAppliedSnapshotTick()) {
-              LOGGER.debug("Ignoring stale full snapshot at tick {}.", event.serverTick());
-              return;
+            Optional<ClientState> clientState =
+                ctx == null ? Optional.empty() : ctx.clientState();
+            if (clientState.isPresent()) {
+              ClientState state = clientState.orElseThrow();
+              if (event.serverTick() > state.lastFullSnapshotTick()) {
+                state.lastFullSnapshot(event);
+              }
+              if (event.serverTick() <= state.latestAppliedSnapshotTick()) {
+                LOGGER.debug(
+                    "Stored baseline but skipped stale full snapshot at tick {}.",
+                    event.serverTick());
+                return;
+              }
             }
             Game.network().snapshotTranslator().applySnapshot(event, dispatcher);
             clientState.ifPresent(
-                state -> {
-                  state.lastFullSnapshot(event);
-                  state.latestAppliedSnapshotTick(event.serverTick());
-                });
+                state -> state.latestAppliedSnapshotTick(event.serverTick()));
           } catch (Exception e) {
             LOGGER.warn("Error while applying snapshot message: {}", e.getMessage(), e);
           }
