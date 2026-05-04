@@ -39,6 +39,7 @@ import core.network.delta.SnapshotDeltaCompressor;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.*;
 import core.network.server.ClientState;
+import core.network.server.Session;
 import core.network.server.SoundTracker;
 import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
@@ -347,6 +348,37 @@ public final class GameLoop extends ScreenAdapter {
     } else LOGGER.warn("No levels found to load!");
   }
 
+  private static Optional<ClientState> clientState(Session ctx) {
+    return ctx == null ? Optional.empty() : ctx.clientState();
+  }
+
+  private static void trackNetworkEntity(Session ctx, int entityId) {
+    clientState(ctx).ifPresent(state -> state.trackNetworkEntity(entityId));
+  }
+
+  private static void untrackNetworkEntity(Session ctx, int entityId) {
+    clientState(ctx).ifPresent(state -> state.untrackNetworkEntity(entityId));
+  }
+
+  /**
+   * Removes tracked network entities that are no longer present in an authoritative full snapshot.
+   *
+   * @param state the client state that tracks local network entities
+   * @param snapshot the authoritative full snapshot that was just applied
+   */
+  static void reconcileNetworkEntities(ClientState state, SnapshotMessage snapshot) {
+    Set<Integer> snapshotEntityIds = new HashSet<>();
+    snapshot.entities().forEach(entityState -> snapshotEntityIds.add(entityState.entityId()));
+
+    for (Integer entityId : state.networkSyncedEntityIds()) {
+      if (snapshotEntityIds.contains(entityId)) {
+        continue;
+      }
+      Game.findEntityById(entityId).ifPresent(Game::remove);
+      state.untrackNetworkEntity(entityId);
+    }
+  }
+
   private void setupMessageHandlers() {
     MessageDispatcher dispatcher = Game.network().messageDispatcher();
 
@@ -385,6 +417,7 @@ public final class GameLoop extends ScreenAdapter {
                     .isLocalPlayer(isLocal)
                     .username(pc.playerName())
                     .build());
+            trackNetworkEntity(ctx, event.entityId());
             return;
           }
 
@@ -397,6 +430,7 @@ public final class GameLoop extends ScreenAdapter {
           }
           newEntity.persistent(event.isPersistent());
           Game.add(newEntity);
+          trackNetworkEntity(ctx, event.entityId());
         });
 
     dispatcher.registerHandler(
@@ -407,6 +441,7 @@ public final class GameLoop extends ScreenAdapter {
                   + event.entityId()
                   + ", reason: "
                   + event.reason());
+          untrackNetworkEntity(ctx, event.entityId());
           Entity entity =
               Game.allEntities().filter(e -> e.id() == event.entityId()).findFirst().orElse(null);
           if (entity == null) {
@@ -421,7 +456,12 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, event) -> {
           LOGGER.info("Received LevelChangeEvent event: {}", event.levelName());
           if (ctx != null) {
-            ctx.clientState().ifPresent(state -> state.clearSnapshotBaseline());
+            ctx.clientState()
+                .ifPresent(
+                    state -> {
+                      state.clearSnapshotBaseline();
+                      state.clearNetworkEntities();
+                    });
           }
           try {
             Game.currentLevel(LevelParser.parseLevel(event.levelData(), event.levelName()));
@@ -441,8 +481,7 @@ public final class GameLoop extends ScreenAdapter {
         SnapshotMessage.class,
         (ctx, event) -> {
           try {
-            Optional<ClientState> clientState =
-                ctx == null ? Optional.empty() : ctx.clientState();
+            Optional<ClientState> clientState = clientState(ctx);
             if (clientState.isPresent()) {
               ClientState state = clientState.orElseThrow();
               if (event.serverTick() > state.lastFullSnapshotTick()) {
@@ -457,7 +496,10 @@ public final class GameLoop extends ScreenAdapter {
             }
             Game.network().snapshotTranslator().applySnapshot(event, dispatcher);
             clientState.ifPresent(
-                state -> state.latestAppliedSnapshotTick(event.serverTick()));
+                state -> {
+                  state.latestAppliedSnapshotTick(event.serverTick());
+                  reconcileNetworkEntities(state, event);
+                });
           } catch (Exception e) {
             LOGGER.warn("Error while applying snapshot message: {}", e.getMessage(), e);
           }
@@ -466,7 +508,7 @@ public final class GameLoop extends ScreenAdapter {
         DeltaSnapshotMessage.class,
         (ctx, event) -> {
           try {
-            Optional<ClientState> clientState = ctx == null ? Optional.empty() : ctx.clientState();
+            Optional<ClientState> clientState = clientState(ctx);
             if (clientState.isEmpty()) {
               LOGGER.debug("Ignoring delta snapshot without client state.");
               return;
@@ -487,7 +529,11 @@ public final class GameLoop extends ScreenAdapter {
 
             event
                 .removedEntityIds()
-                .forEach(entityId -> Game.findEntityById(entityId).ifPresent(Game::remove));
+                .forEach(
+                    entityId -> {
+                      Game.findEntityById(entityId).ifPresent(Game::remove);
+                      state.untrackNetworkEntity(entityId);
+                    });
             SnapshotMessage changedSnapshot =
                 SnapshotDeltaCompressor.materializeChangedSnapshot(baseline.orElseThrow(), event);
             Game.network().snapshotTranslator().applySnapshot(changedSnapshot, dispatcher);

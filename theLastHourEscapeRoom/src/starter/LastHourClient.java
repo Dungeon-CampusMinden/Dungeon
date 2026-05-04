@@ -98,7 +98,9 @@ public final class LastHourClient {
               }
 
               if (event.playerComponent() != null) {
-                spawnPlayer(event);
+                if (spawnPlayer(event) && ctx != null) {
+                  ctx.clientState().ifPresent(state -> state.trackNetworkEntity(event.entityId()));
+                }
                 return;
               }
 
@@ -121,19 +123,22 @@ public final class LastHourClient {
               applyCollideMetadata(newEntity, event.metadata());
               newEntity.persistent(event.isPersistent());
               Game.add(newEntity);
+              if (ctx != null) {
+                ctx.clientState().ifPresent(state -> state.trackNetworkEntity(event.entityId()));
+              }
             });
   }
 
-  private static void spawnPlayer(EntitySpawnEvent event) {
+  private static boolean spawnPlayer(EntitySpawnEvent event) {
     PlayerComponent playerComponent = event.playerComponent();
     if (playerComponent == null) {
-      return;
+      return false;
     }
 
     boolean alreadyGotAHero = Game.player().isPresent();
     boolean isLocal = Objects.equals(playerComponent.playerName(), PreRunConfiguration.username());
     if (alreadyGotAHero && isLocal) {
-      return;
+      return false;
     }
 
     Entity hero =
@@ -147,6 +152,7 @@ public final class LastHourClient {
     applySpawnPosition(hero, event.positionComponent());
     applyCollideMetadata(hero, event.metadata());
     Game.add(hero);
+    return true;
   }
 
   private static void applySpawnPosition(Entity entity, PositionComponent positionComponent) {
