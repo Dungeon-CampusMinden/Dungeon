@@ -43,15 +43,13 @@ public class Level012 extends BlocklyLevel {
         // Schleifen
         "while_loop",
         // Inventar und Charakter
-        "drop_item",
         "wait",
         // Kategorien
         "Abfragen",
         "Bedingung",
         "Wahrheitsausdruecke",
         "Variablen",
-        "Bedingungen",
-        "Sonstige");
+        "Bedingungen");
 
     addPopup(new ImagePopup("popups/level012/01_schaltplan.jpg"));
     addCodePopup(new ImagePopup("popups/overview1.jpg"));

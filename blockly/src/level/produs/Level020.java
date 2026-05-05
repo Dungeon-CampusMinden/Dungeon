@@ -83,16 +83,7 @@ public class Level020 extends BlocklyLevel {
   public Level020(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "Level 20");
-    this.blockBlocklyElement(
-        // Inventar und Charakter
-        "drop_item",
-        // Variable
-        "get_number",
-        "switch_case",
-        "case_block",
-        "default_block",
-        // Kategorien
-        "Sonstige");
+    this.blockBlocklyElement();
 
     addWebPopup(new ImagePopup("popups/level020/webpopups/01_intro.jpg"));
 

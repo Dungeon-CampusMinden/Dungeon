@@ -53,8 +53,7 @@ public class Level004 extends BlocklyLevel {
         "Bedingung",
         "Wahrheitsausdruecke",
         "Variablen",
-        "Bedingungen",
-        "Sonstige");
+        "Bedingungen");
 
     addWebPopup(new ImagePopup("popups/level004/webpopups/01_inventory_character.jpg"));
     addWebPopup(new ImagePopup("popups/level004/webpopups/02_inventory_character2.jpg"));
