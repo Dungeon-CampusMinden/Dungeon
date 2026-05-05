@@ -13,6 +13,8 @@ import util.Lore;
  */
 public class BlogTab extends ComputerTab {
 
+  public static final String KEY = "blog";
+
   private static BlogTab Instance;
 
   private static int timestampOfLogin = 0;
@@ -24,7 +26,7 @@ public class BlogTab extends ComputerTab {
    * @param sharedState the shared computer state component
    */
   public BlogTab(ComputerStateComponent sharedState) {
-    super(sharedState, "blog", "My Blog", false);
+    super(sharedState, KEY, "My Blog", false);
     Instance = this;
   }
 

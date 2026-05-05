@@ -17,6 +17,8 @@ import core.components.DrawComponent;
 import core.game.PreRunConfiguration;
 import core.network.codec.DialogValueCodecRegistry;
 import core.network.messages.c2s.DialogResponseMessage;
+import core.sound.CoreSounds;
+import core.sound.Sounds;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +28,7 @@ import java.util.Set;
 import level.LastHourLevel;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
+import util.LastHourSounds;
 import util.Lore;
 
 /** Factory class for creating and managing the computer dialog in the escape room level. */
@@ -35,8 +38,6 @@ public class ComputerFactory {
   private static final String STATE_KEY = "computer_state";
   private static final String ACCESS_PC_LABEL = "Just access the PC";
 
-  /** Tracks whether the correct USB stick has already been inserted this session. */
-  private static boolean usbAlreadyInserted = false;
 
   /** Key for updating the computer state from the dialog callbacks. */
   public static final String UPDATE_STATE_KEY = "update_state";
@@ -88,6 +89,7 @@ public class ComputerFactory {
                       boolean isInfected = state != null && state.isInfected();
                       boolean isLoggedIn =
                           state != null && state.state().hasReached(ComputerProgress.LOGGED_IN);
+                      boolean usbAlreadyInserted = state != null && state.usbInserted();
                       if (!usbAlreadyInserted
                           && !isInfected
                           && isLoggedIn
@@ -183,7 +185,7 @@ public class ComputerFactory {
       LOGGER.info("Correct USB stick inserted: " + stick.color().displayName());
       // Remove the stick from inventory and mark as inserted
       who.fetch(InventoryComponent.class).ifPresent(inv -> inv.removeOne(stick));
-      usbAlreadyInserted = true;
+      ComputerStateComponent.setUsbInserted(true);
       openComputerDialog(pcEntity, who);
     } else {
       LOGGER.info(
@@ -244,36 +246,32 @@ public class ComputerFactory {
           computerDialogInstance.registerCallback(
               UPDATE_STATE_KEY,
               data -> {
-                boolean isNowInfected = false;
-                if (data
-                    instanceof
-                    ComputerStateComponent(
-                        ComputerProgress computerState,
-                        boolean isInfected,
-                        String virusType,
-                        int timestampOfLogin)) {
-                  ComputerStateComponent.setState(computerState);
-                  ComputerStateComponent.setInfection(isInfected);
-                  ComputerStateComponent.setVirusType(virusType);
-                  ComputerStateComponent.setTimestampOfLogin(timestampOfLogin);
-                  isNowInfected = isInfected;
-                } else if (data instanceof DialogResponseMessage.CustomPayload(var wrappedValue)) {
-                  if (wrappedValue
-                      instanceof
-                      ComputerStateComponent(
-                          ComputerProgress state1,
-                          boolean isInfected,
-                          String virusType,
-                          int timestampOfLogin)) {
-                    ComputerStateComponent.setState(state1);
-                    ComputerStateComponent.setInfection(isInfected);
-                    ComputerStateComponent.setVirusType(virusType);
-                    ComputerStateComponent.setTimestampOfLogin(timestampOfLogin);
-                    isNowInfected = isInfected;
-                  }
+                ComputerStateComponent newState = null;
+                if (data instanceof ComputerStateComponent csc) {
+                  newState = csc;
+                } else if (data instanceof DialogResponseMessage.CustomPayload(var wrappedValue)
+                    && wrappedValue instanceof ComputerStateComponent csc) {
+                  newState = csc;
+                }
+                if (newState == null) return;
+
+                ComputerStateComponent previousState =
+                    stateEntity.fetch(ComputerStateComponent.class).orElse(null);
+                if (previousState == null) return;
+
+                boolean wasInfected =
+                    ComputerStateComponent.getState().map(ComputerStateComponent::isInfected).orElse(false);
+                stateEntity.remove(ComputerStateComponent.class);
+                stateEntity.add(newState);
+
+                // In multiplayer, only the server should emit sounds so clients receive them via
+                // sound network messages from the authoritative callback execution.
+                if (!PreRunConfiguration.multiplayerEnabled()
+                    || PreRunConfiguration.isNetworkServer()) {
+                  playControlPanelSounds(previousState, newState);
                 }
 
-                if (isNowInfected) {
+                if (newState.isInfected() && !wasInfected) {
                   Game.add(
                       EmoteFactory.createEmote(
                           LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
@@ -300,5 +298,28 @@ public class ComputerFactory {
 
     Optional<ComputerStateComponent> state = ctx.find(STATE_KEY, ComputerStateComponent.class);
     return new ComputerDialog(state.orElseThrow(), ctx);
+  }
+
+  private static void playControlPanelSounds(
+      ComputerStateComponent previousState, ComputerStateComponent newState) {
+    if (previousState.lightsOn() != newState.lightsOn()) {
+      if (newState.lightsOn()) {
+        // Reuse the same buzz used when room electricity is turned on in progression.
+        Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON);
+      } else {
+        Sounds.play(LastHourSounds.CONTROL_PANEL_LIGHTS_OFF);
+      }
+    }
+
+    if (previousState.door1Open() != newState.door1Open()) {
+      Sounds.play(newState.door1Open() ? CoreSounds.DOOR_OPEN : CoreSounds.DOOR_CLOSE);
+    }
+    if (previousState.door2Open() != newState.door2Open()) {
+      Sounds.play(newState.door2Open() ? CoreSounds.DOOR_OPEN : CoreSounds.DOOR_CLOSE);
+    }
+
+    if (previousState.acOn() != newState.acOn()) {
+      Sounds.play(newState.acOn() ? LastHourSounds.CONTROL_PANEL_AC_ON : LastHourSounds.CONTROL_PANEL_AC_OFF);
+    }
   }
 }
