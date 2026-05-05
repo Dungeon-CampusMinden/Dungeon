@@ -24,6 +24,11 @@ public enum CoreSounds implements ISound {
   SETTINGS_SLIDER_STEP("kenney_ui_select_002", 0.3f),
   /** A sound effect. */
   SETTINGS_ENUM_VALUE_SELECTED("kenney_ui_drop_004", 0.3f),
+
+  /** A sound effect. */
+  DOOR_OPEN("qubodup_DoorOpen", 0.5f),
+  /** A sound effect. */
+  DOOR_CLOSE("qubodup_DoorClose", 0.5f),
   ;
 
   private final String soundName;
