@@ -178,6 +178,34 @@ public final class ItemRegistry {
     return Optional.of(item);
   }
 
+  /**
+   * Creates a deep copy of an Item while preserving its concrete type and data.
+   *
+   * @param item the item to copy
+   * @return a new item instance with the same data
+   */
+  public static Item copyOf(Item item) {
+    String itemId = ItemRegistry.idFor(item);
+
+    Item copy =
+        ItemRegistry.create(itemId, item.itemData())
+            .orElseGet(
+                () -> {
+                  try {
+                    return ItemRegistry.lookup(itemId)
+                        .orElseThrow()
+                        .getDeclaredConstructor()
+                        .newInstance();
+                  } catch (ReflectiveOperationException e) {
+                    throw new IllegalStateException("Could not copy item: " + itemId, e);
+                  }
+                });
+
+    copy.maxStackSize(item.maxStackSize());
+    copy.stackSize(item.stackSize());
+    return copy;
+  }
+
   /** Factory for creating items from serialized item data. */
   @FunctionalInterface
   public interface ItemFactory {

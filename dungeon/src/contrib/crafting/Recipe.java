@@ -1,5 +1,7 @@
 package contrib.crafting;
 
+import contrib.item.Item;
+import contrib.item.ItemRegistry;
 import java.util.Arrays;
 
 /**
@@ -90,10 +92,17 @@ public record Recipe(boolean ordered, CraftingIngredient[] ingredients, Crafting
    *     the recipe
    */
   public CraftingResult[] results() {
-    CraftingResult[] copy = new CraftingResult[this.results.length];
+    CraftingResult[] copiedResults = new CraftingResult[this.results.length];
+
     for (int i = 0; i < this.results.length; i++) {
-      copy[i] = this.results[i].copy();
+      if (this.results[i] instanceof Item item) {
+        copiedResults[i] = ItemRegistry.copyOf(item);
+      } else {
+        copiedResults[i] = this.results[i];
+      }
     }
-    return copy;
+
+    return copiedResults;
   }
 }
+

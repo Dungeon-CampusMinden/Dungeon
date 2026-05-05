@@ -475,22 +475,6 @@ public class Item implements CraftingIngredient, CraftingResult {
   }
 
   @Override
-  public Item copy() {
-    Item copy =
-        new Item(
-            this.displayName,
-            this.description,
-            this.inventoryAnimation,
-            this.worldAnimation,
-            this.stackSize,
-            this.maxStackSize);
-
-    copy.simpleInteraction = this.simpleInteraction;
-
-    return copy;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;
     if (obj == null || getClass() != obj.getClass()) return false;

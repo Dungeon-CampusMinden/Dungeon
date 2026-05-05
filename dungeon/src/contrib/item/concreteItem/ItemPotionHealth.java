@@ -63,7 +63,7 @@ public class ItemPotionHealth extends Item {
         .ifPresent(
             component -> {
               component.removeOne(this);
-              this.healUser(this.getAmount(), e);
+              this.healUser(this.heal_amount, e);
             });
   }
 
@@ -84,27 +84,8 @@ public class ItemPotionHealth extends Item {
     if (!(input instanceof ItemPotionHealth other)) {
       return super.match(input);
     }
-    return other.getAmount() == this.getAmount();
-  }
-
-  @Override
-  public int getAmount() {
-    return this.heal_amount;
-  }
-
-  @Override
-  public void setAmount(int count) {
-    // not applicable for potion (heal amount is fixed)
-  }
-
-  @Override
-  public ItemPotionHealth copy() {
-    if (this.getAmount() == HealthPotionType.WEAK.getHealAmount()) {
-      return new ItemPotionHealth(HealthPotionType.WEAK);
-    }
-    if (this.getAmount() == HealthPotionType.NORMAL.getHealAmount()) {
-      return new ItemPotionHealth(HealthPotionType.NORMAL);
-    }
-    return new ItemPotionHealth(HealthPotionType.GREATER);
+    return other.heal_amount == this.heal_amount;
   }
 }
+
+

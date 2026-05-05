@@ -16,8 +16,6 @@ public interface CraftingResult {
    */
   CraftingType resultType();
 
-  CraftingResult copy();
-
   int getAmount();
 
   void setAmount(int count);
