@@ -71,11 +71,15 @@ public class LastHourLevel extends DungeonLevel {
   private static LastHourLevel Instance = null;
 
   private DoorTile storageDoor;
+  private DoorTile exitDoor;
   private Entity pc;
   private Entity r2Phone;
   private Entity ringingPhoneEmote;
   private boolean isPhoneRinging = false;
   private String ringingPhoneDialog = "";
+  private Runnable onCurrentPhoneCallResolved;
+  private boolean firstPhoneCallTriggered = false;
+  private boolean secondPhoneCallScheduled = false;
   private ComputerStateComponent cscLastTick;
   private Entity keypad;
   private int lastKnownVisibleCommentCount = 0;
@@ -89,6 +93,7 @@ public class LastHourLevel extends DungeonLevel {
   private static final String PC_SIGNAL_INFECT = "infect";
   private static final String PC_SIGNAL_CLEAR = "clear";
   private static final int PHONE_RINGING_EMOTE_DURATION_MS = 60 * 60 * 1000;
+  private static final long SECOND_PHONE_RING_DELAY_MS = 60_000L;
 
   private static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
 
@@ -121,10 +126,17 @@ public class LastHourLevel extends DungeonLevel {
 
     DoorTile entryDoor = (DoorTile) tileAt(getPoint("door-entry")).orElseThrow();
     entryDoor.close();
+    this.exitDoor = entryDoor;
 
     keypad =
         KeypadFactory.createKeypad(
-            getPoint("keypad-storage"), Lore.DoorCode, () -> storageDoor.open(), true);
+            getPoint("keypad-storage"),
+            Lore.DoorCode,
+            () -> {
+              storageDoor.open();
+              triggerFirstPhoneCall();
+            },
+            true);
     Game.add(keypad);
 
     setupPC();
@@ -135,7 +147,6 @@ public class LastHourLevel extends DungeonLevel {
     if (!Game.isHeadless()) setupLightingShader();
     setupTimer();
     setupEndTrigger();
-    setupR2PaperTrigger();
     setupR2Decorations();
     setupUsbSticks();
 
@@ -373,7 +384,7 @@ public class LastHourLevel extends DungeonLevel {
     Game.add(pc);
 
     Entity computerState = new Entity("computer-state");
-    computerState.add(new ComputerStateComponent(ComputerProgress.OFF, false, null, 0));
+    computerState.add(ComputerStateComponent.of(ComputerProgress.OFF, false, null, 0));
     Game.add(computerState);
 
     // Power switch (hidden under papers)
@@ -403,6 +414,11 @@ public class LastHourLevel extends DungeonLevel {
                           who.id());
                     })));
     Game.add(paper);
+
+    Debugger.addAction(() -> {
+      ComputerStateComponent.setState(ComputerProgress.ON);
+      Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
+    });
 
     Entity profilePaper = DecoFactory.createDeco(getPoint("profile-paper"), Deco.SheetWritten1);
     profilePaper.remove(DecoComponent.class);
@@ -490,30 +506,6 @@ public class LastHourLevel extends DungeonLevel {
   private static final float R2_PAPER_MAX_SPEED = 45.0f;
 
   /**
-   * Sets up a walk-over trigger at {@code r2-paper-trigger} that fires {@link #r2SpawnPapers()}.
-   */
-  private void setupR2PaperTrigger() {
-    Entity trigger = new Entity("r2-paper-trigger");
-    trigger.add(new PositionComponent(getPoint("r2-paper-trigger")));
-    trigger.add(
-        new CollideComponent(
-                Vector2.ZERO,
-                Vector2.ONE,
-                (e, other, dir) -> {
-                  other
-                      .fetch(InputComponent.class)
-                      .ifPresent(
-                          ic -> {
-                            r2SpawnPapers();
-                            Game.remove(trigger);
-                          });
-                },
-                null)
-            .isSolid(false));
-    Game.add(trigger);
-  }
-
-  /**
    * Spawns four paper entities at the {@code r2-vent} named point and gives each an initial impulse
    * so they spread out.
    */
@@ -568,9 +560,7 @@ public class LastHourLevel extends DungeonLevel {
                     })));
     Game.add(vent);
 
-    Entity desk =
-        DecoFactory.createDeco(
-            getPoint("r2-desk").translate(-3f / 16f, 1f / 16f), Deco.WritingTable);
+    Entity desk = DecoFactory.createDeco(getPoint("r2-desk"), Deco.WritingTable);
     desk.remove(DecoComponent.class);
     desk.add(
         new InteractionComponent(
@@ -590,19 +580,18 @@ public class LastHourLevel extends DungeonLevel {
     Game.add(r2Phone);
     DrawSystem.getInstance().changeEntityDepth(r2Phone, DepthLayer.AbovePlayer.depth());
     updatePhoneInteraction();
+  }
 
-    Debugger.addAction(
-        () -> {
-          ringPhone(
-              "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] Hello? Can you hear me?"
-                  + "[p]My name is Sam Altman. I'm the CEO of Ciphera Labs."
-                  + "[p][speaker name=\"Sam Altman\"]How are you guys doing?[pause=0.5] I heard you got trapped in a crime scene."
-                  + "[p][speaker img={path}]Yes, we are trying to understand what happened here, recover the system and rescue the project data."
-                  + "[p][speaker name=\"Sam Altman\"]Oh, that's great to hear![pause=0.5] Listen, I know this is a tough situation, but I want you to know that we're doing everything we can to help you out."
-                  + "[p]In fact, Dr. Mertens left me a note instructing me to use the green USB Stick to do[tr speed=0.3]... [tr speed=1]something, in case he vanishes."
-                  + "[p]It doesn't say what needs to be done, but I'm sure you can figure it out."
-                  + "[p]I need to go now, good luck! [shake][color=#333333]*click*[/color][/shake]");
-        });
+  private void triggerFirstPhoneCall() {
+    if (firstPhoneCallTriggered) return;
+    firstPhoneCallTriggered = true;
+    ringPhone(Lore.Ringing1, this::scheduleSecondPhoneCall);
+  }
+
+  private void scheduleSecondPhoneCall() {
+    if (secondPhoneCallScheduled) return;
+    secondPhoneCallScheduled = true;
+    EventScheduler.scheduleAction(() -> ringPhone(Lore.Ringing2), SECOND_PHONE_RING_DELAY_MS);
   }
 
   /**
@@ -611,8 +600,14 @@ public class LastHourLevel extends DungeonLevel {
    * @param dialogText dialog script to display when the phone is answered
    */
   public void ringPhone(String dialogText) {
+    ringPhone(dialogText, null);
+  }
+
+  private void ringPhone(String dialogText, Runnable onResolved) {
     isPhoneRinging = true;
     ringingPhoneDialog = dialogText;
+    onCurrentPhoneCallResolved = onResolved;
+    Sounds.play(LastHourSounds.PHONE_RINGING);
     updatePhoneInteraction();
 
     if (ringingPhoneEmote == null) {
@@ -626,10 +621,15 @@ public class LastHourLevel extends DungeonLevel {
   private void stopPhoneRinging() {
     isPhoneRinging = false;
     ringingPhoneDialog = "";
+    Runnable resolvedCallback = onCurrentPhoneCallResolved;
+    onCurrentPhoneCallResolved = null;
     updatePhoneInteraction();
     if (ringingPhoneEmote != null) {
       Game.remove(ringingPhoneEmote);
       ringingPhoneEmote = null;
+    }
+    if (resolvedCallback != null) {
+      resolvedCallback.run();
     }
   }
 
@@ -644,8 +644,8 @@ public class LastHourLevel extends DungeonLevel {
                     (e, who) -> {
                       if (isPhoneRinging) {
                         String genTexturePath = portraitPathFor(who);
-                        ringingPhoneDialog = ringingPhoneDialog.replace("{path}", genTexturePath);
-                        DialogFactory.showDialogDialog(ringingPhoneDialog, this::stopPhoneRinging);
+                        String callDialog = ringingPhoneDialog.replace("{path}", genTexturePath);
+                        DialogFactory.showDialogDialog(callDialog, this::stopPhoneRinging);
                         return;
                       }
 
@@ -720,7 +720,9 @@ public class LastHourLevel extends DungeonLevel {
     if (ComputerStateComponent.getState().isPresent()) {
       var state = ComputerStateComponent.getState().get();
       if (state.state().hasReached(ComputerProgress.ON)) {
-        ls.ambientLight(0.2f);
+        if (state.lightsOn()) {
+          ls.ambientLight(0.2f);
+        }
         Color color = state.isInfected() ? Color.RED : Color.BLUE;
         float intensity = state.isInfected() ? 0.8f : 0.5f;
         ls.addLightSource(pcPos, intensity, color);
@@ -784,7 +786,29 @@ public class LastHourLevel extends DungeonLevel {
       ComputerDialog.getInstance().ifPresent(cd -> cd.updateState(csc));
     }
 
+    applyControlPanelChanges(cscLastTick, csc);
+
     cscLastTick = csc;
+  }
+
+  /**
+   * Applies any world-affecting control-panel state diffs between the previous and current
+   * ComputerStateComponent snapshots.
+   */
+  private void applyControlPanelChanges(ComputerStateComponent prev, ComputerStateComponent now) {
+    // Door 1 (storage)
+    if (prev.door1Open() != now.door1Open() && storageDoor != null) {
+      if (now.door1Open()) storageDoor.open();
+      else storageDoor.close();
+    }
+    // Door 2 (exit)
+    if (!prev.door2Open() && now.door2Open() && exitDoor != null) {
+      exitDoor.open();
+    }
+    // AC (one-shot paper spawn on rising edge)
+    if (!prev.acOn() && now.acOn()) {
+      r2SpawnPapers();
+    }
   }
 
   /** The entity that currently has the solid (in-range) interaction outline, or {@code null}. */
