@@ -36,6 +36,20 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+            - name: Check if PR is from fork
+              run:  |
+                    IS_FORK=$(gh pr view ${{ github.event.issue.number }} \
+                    --repo ${{ github.repository }} \
+                    --json isCrossRepository \
+                    -q '.isCrossRepository')
+
+                    if [ "$IS_FORK" = "true" ]; then
+                    echo "::error::/spotless is not supported for fork PRs. Please run ./gradlew spotlessApply locally."
+                    exit 1
+                    fi
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Checkout PR Branch
               uses: actions/checkout@v6
               with:
@@ -62,3 +76,4 @@ jobs:
                   else
                       echo "No changes to commit."
                   fi
+
