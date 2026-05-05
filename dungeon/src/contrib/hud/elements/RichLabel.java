@@ -60,6 +60,11 @@ import java.util.List;
  *       appears instantly).
  *   <li>{@code [pause=0.5]} - pauses the typewriter for the specified duration in seconds. Has no
  *       effect when typewriter mode is disabled.
+ *   <li>{@code [align=left|center|right]} - sets the horizontal alignment of all subsequent lines
+ *       until another {@code [align=...]} tag overrides it. Lines without any align tag use the
+ *       alignment programmatically assigned via {@link #setAlignment(int)} (default: {@link
+ *       Align#left}). Block images ({@code [img-block ...]}) remain centered regardless of this
+ *       setting.
  *   <li>{@code [n]} - forces a line break at the current position.
  * </ul>
  *

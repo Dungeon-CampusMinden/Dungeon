@@ -1,6 +1,7 @@
 package contrib.hud.elements.richlabel;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.utils.Align;
 import contrib.hud.input.InputMethod;
 import contrib.hud.input.InputPromptHelper;
 import contrib.hud.input.InputPromptHelper.InputPromptRegion;
@@ -34,6 +35,7 @@ public class RichLabelParser {
               + "|\\[line-space=([^]]+)]"
               + "|\\[tr((?:\\s+[^]]*)?)]"
               + "|\\[pause=([^]]+)]"
+              + "|\\[align=([^]]+)]"
               + "|\\[n]");
 
   private static final Map<String, Color> NAMED_COLORS = new HashMap<>();
@@ -165,6 +167,9 @@ public class RichLabelParser {
         // [pause=N]
         float duration = parseFloatValue(matcher.group(11), 0f);
         runs.add(new PauseRun(duration));
+      } else if (matcher.group(12) != null) {
+        // [align=left|center|right]
+        runs.add(new AlignRun(parseAlignValue(matcher.group(12))));
       } else {
         String matched = matcher.group();
         if (matched.equals("[/color]")) {
@@ -239,6 +244,29 @@ public class RichLabelParser {
       return Float.parseFloat(value.trim());
     } catch (NumberFormatException e) {
       return defaultValue;
+    }
+  }
+
+  /**
+   * Parses an alignment keyword ({@code left}, {@code center}, {@code right}) into the
+   * corresponding libGDX {@link Align} bits. Unknown / blank values reset to {@code -1}, which the
+   * layout engine interprets as "use the programmatic default".
+   *
+   * @param value the raw alignment keyword
+   * @return the matching {@link Align} constant or {@code -1} for "reset to default"
+   */
+  private static int parseAlignValue(String value) {
+    if (value == null) return -1;
+    switch (value.trim().toLowerCase()) {
+      case "left":
+        return Align.left;
+      case "center":
+      case "centre":
+        return Align.center;
+      case "right":
+        return Align.right;
+      default:
+        return -1;
     }
   }
 

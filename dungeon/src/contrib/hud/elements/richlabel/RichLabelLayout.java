@@ -177,9 +177,18 @@ public class RichLabelLayout {
     List<LineMetrics> lines = buildLines(runs, fontSpec, availableWidth, wrap, placed);
 
     // Apply per-line horizontal alignment by shifting placed runs (excluding block images,
-    // which are independently centered against availableWidth).
-    if ((align & (Align.center | Align.right)) != 0) {
-      int lineCount = lines.size();
+    // which are independently centered against availableWidth). Each line may carry its own
+    // align (set by [align=...] tags during parsing); lines without an explicit override use
+    // the {@code align} value passed in here.
+    int lineCount = lines.size();
+    int[] perLineAlign = new int[lineCount];
+    boolean anyNonLeft = false;
+    for (int i = 0; i < lineCount; i++) {
+      int la = lines.get(i).align;
+      perLineAlign[i] = (la >= 0) ? la : align;
+      if ((perLineAlign[i] & (Align.center | Align.right)) != 0) anyNonLeft = true;
+    }
+    if (anyNonLeft) {
       float[] lineRight = new float[lineCount];
       for (PlacedRun pr : placed) {
         if (pr.run() instanceof ImageBlockRun) continue;
@@ -188,10 +197,12 @@ public class RichLabelLayout {
       }
       float[] offsets = new float[lineCount];
       for (int i = 0; i < lineCount; i++) {
+        int la = perLineAlign[i];
+        if ((la & (Align.center | Align.right)) == 0) continue;
         float slack = availableWidth - lineRight[i];
         if (slack <= 0) continue;
-        if ((align & Align.right) != 0) offsets[i] = slack;
-        else if ((align & Align.center) != 0) offsets[i] = slack / 2f;
+        if ((la & Align.right) != 0) offsets[i] = slack;
+        else if ((la & Align.center) != 0) offsets[i] = slack / 2f;
       }
       for (int i = 0; i < placed.size(); i++) {
         PlacedRun pr = placed.get(i);
@@ -330,6 +341,12 @@ public class RichLabelLayout {
     float textAbove;
     float textBelow;
     float lineSpaceMul = 1f;
+    /**
+     * Per-line horizontal alignment override. {@code -1} means "use the alignment passed to the
+     * layout call" (i.e. the programmatic default of the {@link contrib.hud.elements.RichLabel}).
+     */
+    int align = -1;
+
     final List<Float> imageHeights = new ArrayList<>();
 
     private LineMetrics(float textAbove, float textBelow) {
@@ -449,6 +466,7 @@ public class RichLabelLayout {
     float baseSpaceWidth = computeSpaceWidth(defaultFont, glyphLayout);
     float wordSpaceMul = 1f;
     float lineSpaceMul = 1f;
+    int currentAlign = -1; // -1 = inherit programmatic default
 
     float x = 0;
     List<LineMetrics> lines = new ArrayList<>();
@@ -463,12 +481,22 @@ public class RichLabelLayout {
         continue;
       }
 
+      if (run instanceof AlignRun ar) {
+        currentAlign = ar.align();
+        // Apply immediately to the current (in-progress) line so an [align] tag at the start
+        // of a line takes effect for that line, not just the next one.
+        lines.get(lines.size() - 1).align = currentAlign;
+        continue;
+      }
+
       float spaceWidth = baseSpaceWidth * wordSpaceMul;
 
       if (run instanceof LineBreakRun) {
         x = 0;
         lines.add(LineMetrics.forText(defaultFont));
-        lines.get(lines.size() - 1).lineSpaceMul = lineSpaceMul;
+        LineMetrics nl = lines.get(lines.size() - 1);
+        nl.lineSpaceMul = lineSpaceMul;
+        nl.align = currentAlign;
         continue;
       }
 
@@ -485,6 +513,7 @@ public class RichLabelLayout {
         if (wrap && x > 0 && x + runWidth > availableWidth) {
           x = 0;
           lines.add(LineMetrics.forText(defaultFont));
+          lines.get(lines.size() - 1).align = currentAlign;
         }
 
         LineMetrics current = lines.get(lines.size() - 1);
@@ -511,6 +540,7 @@ public class RichLabelLayout {
         if (wrap && x > 0 && x + totalImgWidth > availableWidth) {
           x = 0;
           lines.add(LineMetrics.forText(defaultFont));
+          lines.get(lines.size() - 1).align = currentAlign;
         }
 
         LineMetrics current = lines.get(lines.size() - 1);
@@ -550,7 +580,9 @@ public class RichLabelLayout {
         // Only create a successor line if more runs follow, to avoid an empty trailing line.
         if (i + 1 < runs.size()) {
           lines.add(LineMetrics.forText(defaultFont));
-          lines.get(lines.size() - 1).lineSpaceMul = lineSpaceMul;
+          LineMetrics nl = lines.get(lines.size() - 1);
+          nl.lineSpaceMul = lineSpaceMul;
+          nl.align = currentAlign;
         }
         x = 0;
       }
