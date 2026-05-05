@@ -45,6 +45,30 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key for the timestamp of login. */
   public static final String METADATA_TIMESTAMP_OF_LOGIN = "timestampOfLogin";
 
+  /** Metadata key indicating whether the correct USB stick has been inserted. */
+  public static final String METADATA_USB_INSERTED = "computer.usbInserted";
+
+  /** Metadata key for the heater temperature. */
+  public static final String METADATA_HEATER_CELSIUS = "computer.heaterCelsius";
+
+  /** Metadata key indicating whether room lights are on. */
+  public static final String METADATA_LIGHTS_ON = "computer.lightsOn";
+
+  /** Metadata key indicating whether door 1 is open. */
+  public static final String METADATA_DOOR1_OPEN = "computer.door1Open";
+
+  /** Metadata key indicating whether door 2 has been unlocked. */
+  public static final String METADATA_DOOR2_UNLOCKED = "computer.door2Unlocked";
+
+  /** Metadata key indicating whether door 2 is open. */
+  public static final String METADATA_DOOR2_OPEN = "computer.door2Open";
+
+  /** Metadata key indicating whether the air conditioning is on. */
+  public static final String METADATA_AC_ON = "computer.acOn";
+
+  /** Metadata key indicating whether security cameras are on. */
+  public static final String METADATA_CAMERAS_ON = "computer.camerasOn";
+
   /** Metadata key for the keypad's correct digit sequence. */
   public static final String METADATA_KEYPAD_CORRECT_DIGITS = "keypad.correctDigits";
 
@@ -127,17 +151,21 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   }
 
   private Map<String, String> computerStateMetadata(ComputerStateComponent state) {
-    return Map.of(
-        METADATA_TYPE,
-        TYPE_COMPUTER,
-        METADATA_PROGRESS,
-        state.state().name(),
-        METADATA_INFECTED,
-        String.valueOf(state.isInfected()),
-        METADATA_VIRUS_TYPE,
-        state.virusType() == null ? "" : state.virusType(),
-        METADATA_TIMESTAMP_OF_LOGIN,
-        String.valueOf(state.timestampOfLogin()));
+    Map<String, String> metadata = new HashMap<>();
+    metadata.put(METADATA_TYPE, TYPE_COMPUTER);
+    metadata.put(METADATA_PROGRESS, state.state().name());
+    metadata.put(METADATA_INFECTED, String.valueOf(state.isInfected()));
+    metadata.put(METADATA_VIRUS_TYPE, state.virusType() == null ? "" : state.virusType());
+    metadata.put(METADATA_TIMESTAMP_OF_LOGIN, String.valueOf(state.timestampOfLogin()));
+    metadata.put(METADATA_USB_INSERTED, String.valueOf(state.usbInserted()));
+    metadata.put(METADATA_LIGHTS_ON, String.valueOf(state.lightsOn()));
+    metadata.put(METADATA_HEATER_CELSIUS, String.valueOf(state.heaterCelsius()));
+    metadata.put(METADATA_DOOR1_OPEN, String.valueOf(state.door1Open()));
+    metadata.put(METADATA_DOOR2_UNLOCKED, String.valueOf(state.door2Unlocked()));
+    metadata.put(METADATA_DOOR2_OPEN, String.valueOf(state.door2Open()));
+    metadata.put(METADATA_AC_ON, String.valueOf(state.acOn()));
+    metadata.put(METADATA_CAMERAS_ON, String.valueOf(state.camerasOn()));
+    return metadata;
   }
 
   private Map<String, String> keypadMetadata(KeypadComponent keypad) {

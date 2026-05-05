@@ -64,6 +64,8 @@ public class Lore {
               32),
           Tuple.of("The Last Hour", 120));
 
+  private static final String MertensColor = "#aa00aa";
+
   /** First post intro dialog. */
   public static final String PostIntroDialogText1 =
       """
@@ -333,12 +335,25 @@ public class Lore {
           "Ransomware", "backup your data",
           "Adware", "read before click");
 
-  /**
-   * Special virus type triggered exclusively by plugging a wrong USB stick into the PC. This type
+  /** Special virus type triggered exclusively by plugging a wrong USB stick into the PC. This type
    * is never produced by emails or browser sites and cannot be neutralized via the standard virus
    * tab pass phrase flow. Instead the system shuts itself down after a short delay.
    */
   public static final String UnknownDeviceVirusType = "Unknown Device";
+
+  /** Password required to unlock door 2 in the control panel. */
+  public static final String ControlPanelDoor2Password = "voss-out";
+
+  /** Placeholder poem shown inside the hint.md file on the USB drive. */
+  public static final String HintFilePoem =
+      "When the room turns silent\n"
+          + "and the timer ticks low,\n"
+          + "look not for a key,\n"
+          + "but for words you should know.\n\n"
+          + "A name on the wire,\n"
+          + "a sign-off so brief,\n"
+          + "two halves and a dash,\n"
+          + "spell the door's relief.";
 
   /** File name of the access code document downloaded from the recovery portal. */
   public static final String AccessCodeDownloadFileName = "unlock_code.pdf";
@@ -350,4 +365,37 @@ public class Lore {
 
   /** The actual numeric door code as a list of individual digits. */
   public static final List<Integer> DoorCode = List.of(3, 7, 5, 8);
+
+  public static final String Ringing1 =
+      "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] Hello? Can you hear me?"
+          + "[p]My name is Daniel Krell. I'm the CEO of Ciphera Labs."
+          + "[p][speaker name=\"Daniel Krell?\"]How are you guys doing?[pause=0.5] You are still inside, right?"
+          + "[p][speaker img={path}]Yes, we are trying to understand what happened here, recover the system and rescue the project data."
+          + "[p][speaker name=\"Daniel Krell?\"]Oh, that's great to hear![pause=0.5] Listen, I know this is a tough situation, but I want you to know that we're doing everything we can to help you out."
+          + "[p]In fact, [color="
+          + MertensColor
+          + "]Dr. Mertens[/color] left me a note instructing me to use the green USB Stick to do[tr speed=0.3]... [tr speed=1]something, in case he vanishes."
+          + "[p]It doesn't say what needs to be done, but I'm sure you can figure it out."
+          + "[p]I need to go now, good luck![n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]";
+
+  public static final String Ringing2 =
+      "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] ...Hello? Do you copy?"
+          + "[p]It's Adrian Voss."
+          + "[p][speaker name=\"Adrian Voss?\"]I've been trying to reach you.[pause=0.5] Heard you got trapped in a crime scene."
+          + "[p][speaker img={path}]Another call?"
+          + "[p][speaker name=\"Adrian Voss?\"]Did someone else try to contact you before?"
+          + "[p][speaker img={path}]Yes, someone called Daniel Krell who claimed to be the CEO of Ciphera Labs."
+          + "[p][speaker name=\"Adrian Voss?\"]I've never heard of that person, but they lied to you."
+        + "[p][speaker img={path}]Well the door locked shut behind us. We're trying to understand what happened and get out."
+          + "[p][speaker name=\"Adrian Voss?\"]Stay focused.[pause=0.5] Navigate [color="
+          + MertensColor
+          + "]Mertens'[/color] lab with caution."
+          + "[p]Before he went missing, [color="
+          + MertensColor
+          + "]Mertens[/color] tried to pass something to me, but he never actually did."
+          + "[p]He kept saying [shake strength=0.3 speed=0.5][color="
+          + MertensColor
+          + "]\"you'd like the looks, it's your favorite\"[/color][/shake] to me, but I'm not sure what he meant."
+          + "[p]Maybe you'll have better luck connecting that to something inside the lab."
+          + "[p]Whatever you do, be careful. Voss out.[n][n][pause=0.5][shake strength=0.3 speed=0.3][color=#333333]*click*[/color][/shake]";
 }

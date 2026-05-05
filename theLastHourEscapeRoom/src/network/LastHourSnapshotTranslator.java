@@ -173,17 +173,29 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
   }
 
   private Map<String, String> computerStateMetadata(ComputerStateComponent state) {
-    return Map.of(
-        LastHourEntitySpawnStrategy.METADATA_TYPE,
-        LastHourEntitySpawnStrategy.TYPE_COMPUTER,
-        LastHourEntitySpawnStrategy.METADATA_PROGRESS,
-        state.state().name(),
-        LastHourEntitySpawnStrategy.METADATA_INFECTED,
-        String.valueOf(state.isInfected()),
+    Map<String, String> metadata = new HashMap<>();
+    metadata.put(LastHourEntitySpawnStrategy.METADATA_TYPE, LastHourEntitySpawnStrategy.TYPE_COMPUTER);
+    metadata.put(LastHourEntitySpawnStrategy.METADATA_PROGRESS, state.state().name());
+    metadata.put(LastHourEntitySpawnStrategy.METADATA_INFECTED, String.valueOf(state.isInfected()));
+    metadata.put(
         LastHourEntitySpawnStrategy.METADATA_VIRUS_TYPE,
-        state.virusType() == null ? "" : state.virusType(),
+        state.virusType() == null ? "" : state.virusType());
+    metadata.put(
         LastHourEntitySpawnStrategy.METADATA_TIMESTAMP_OF_LOGIN,
         String.valueOf(state.timestampOfLogin()));
+    metadata.put(LastHourEntitySpawnStrategy.METADATA_USB_INSERTED, String.valueOf(state.usbInserted()));
+    metadata.put(LastHourEntitySpawnStrategy.METADATA_LIGHTS_ON, String.valueOf(state.lightsOn()));
+    metadata.put(
+        LastHourEntitySpawnStrategy.METADATA_HEATER_CELSIUS,
+        String.valueOf(state.heaterCelsius()));
+    metadata.put(LastHourEntitySpawnStrategy.METADATA_DOOR1_OPEN, String.valueOf(state.door1Open()));
+    metadata.put(
+        LastHourEntitySpawnStrategy.METADATA_DOOR2_UNLOCKED,
+        String.valueOf(state.door2Unlocked()));
+    metadata.put(LastHourEntitySpawnStrategy.METADATA_DOOR2_OPEN, String.valueOf(state.door2Open()));
+    metadata.put(LastHourEntitySpawnStrategy.METADATA_AC_ON, String.valueOf(state.acOn()));
+    metadata.put(LastHourEntitySpawnStrategy.METADATA_CAMERAS_ON, String.valueOf(state.camerasOn()));
+    return metadata;
   }
 
   private Map<String, String> keypadMetadata(KeypadComponent keypad) {
@@ -246,7 +258,46 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     int timestampOfLogin =
         Integer.parseInt(
             metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_TIMESTAMP_OF_LOGIN, "0"));
-    return Optional.of(new ComputerStateComponent(progress, infected, virusType, timestampOfLogin));
+    boolean usbInserted =
+        Boolean.parseBoolean(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_USB_INSERTED, "false"));
+    boolean lightsOn =
+        Boolean.parseBoolean(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_LIGHTS_ON, "true"));
+    int heaterCelsius =
+        Integer.parseInt(
+            metadata.getOrDefault(
+                LastHourEntitySpawnStrategy.METADATA_HEATER_CELSIUS,
+                String.valueOf(ComputerStateComponent.DEFAULT_HEATER_CELSIUS)));
+    boolean door1Open =
+        Boolean.parseBoolean(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_DOOR1_OPEN, "true"));
+    boolean door2Unlocked =
+        Boolean.parseBoolean(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_DOOR2_UNLOCKED, "false"));
+    boolean door2Open =
+        Boolean.parseBoolean(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_DOOR2_OPEN, "false"));
+    boolean acOn =
+        Boolean.parseBoolean(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_AC_ON, "false"));
+    boolean camerasOn =
+        Boolean.parseBoolean(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_CAMERAS_ON, "false"));
+    return Optional.of(
+        new ComputerStateComponent(
+            progress,
+            infected,
+            virusType,
+            timestampOfLogin,
+            usbInserted,
+            lightsOn,
+            heaterCelsius,
+            door1Open,
+            door2Unlocked,
+            door2Open,
+            acOn,
+            camerasOn));
   }
 
   /**

@@ -23,6 +23,18 @@ public enum LastHourSounds implements ISound {
 
   /** Sounds like a beep-boop-beeeeep. */
   ELECTRICITY_TURNED_ON("kenney_ui_maximize_001", 1.0f),
+
+  /** Control panel AC switched on (placeholder path). */
+  CONTROL_PANEL_AC_ON("kenney_ui_minimize_006", 0.9f),
+
+  /** Control panel AC switched off (placeholder path). */
+  CONTROL_PANEL_AC_OFF("kenney_ui_maximize_006", 0.9f),
+
+  /** Control panel lights switched off (placeholder path). */
+  CONTROL_PANEL_LIGHTS_OFF("kenney_ui_minimize_001", 1.0f),
+
+  /** One-shot ring sound played when the desk phone starts ringing. */
+  PHONE_RINGING("kenney_ui_question_002", 1.0f),
   ;
 
   private final String soundName;
