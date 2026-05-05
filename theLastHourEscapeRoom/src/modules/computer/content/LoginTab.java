@@ -52,16 +52,20 @@ public class LoginTab extends ComputerTab {
     Image companyLogo = new Image(skin, Lore.CompanyDrawable);
     this.add(companyLogo).width(200).height(200).center().padBottom(5).row();
 
-    Label label = Scene2dElementFactory.createLabel(Lore.CompanyName, 64, Color.BLACK);
-    this.add(label).center().padBottom(10).row();
+    RichLabel brandHeader =
+        new RichLabel(
+            "[align=center][size=64][color=#3399ff]Ciphera[/color] [color=#aa00aa]Labs[/color][/size]",
+            24,
+            Color.BLACK,
+            false);
+    this.add(brandHeader).center().padBottom(10).row();
     RichLabel flavor =
         new RichLabel(
-            "[img=items/rpg/potion_red.png] At the [color=red]frontlines[/color] of"
+            "[align=center][img=items/rpg/potion_red.png] At the [color=red]frontlines[/color] of"
                 + " [img path=items/rpg/shield_gold.png noGapRight] [color=#3399ff]science[/color] since 1984"
                 + " [img=items/rpg/potion_red.png]",
             24,
             Color.GRAY);
-    flavor.setAlignment(Align.center);
     this.add(flavor).center().padBottom(20).row();
 
     loginFeedback = Scene2dElementFactory.createLabel("", 24, Color.WHITE);
