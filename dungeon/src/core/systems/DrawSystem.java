@@ -307,6 +307,25 @@ public final class DrawSystem extends System implements Disposable {
     }
   }
 
+  /**
+   * Makes the render pipeline use the current window size without waiting for resize debouncing.
+   *
+   * <p>Fullscreen transitions are discrete mode switches, not interactive resize drags. Deferring
+   * FBO resizing during those transitions can leave stale-sized framebuffers on screen for several
+   * frames on Windows and Linux.
+   */
+  public void useCurrentWindowSizeImmediately() {
+    int currentWidth = Game.windowWidth();
+    int currentHeight = Game.windowHeight();
+    if (currentWidth <= 0 || currentHeight <= 0) return;
+
+    stableWidth = currentWidth;
+    stableHeight = currentHeight;
+    unstableWidth = currentWidth;
+    unstableHeight = currentHeight;
+    stableResizeFrames = 0;
+  }
+
   @Override
   public void render(float delta) {
     if (stableWidth == -1) return;
