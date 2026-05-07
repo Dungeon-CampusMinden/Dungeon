@@ -60,6 +60,7 @@ public class Item implements CraftingIngredient, CraftingResult {
     ItemRegistry.register(ItemHammer.class);
     ItemRegistry.register(ItemHeart.class, Item::createHeartFromData);
     ItemRegistry.register(ItemKey.class);
+    ItemRegistry.register(HintItem.class);
   }
 
   private String displayName;
