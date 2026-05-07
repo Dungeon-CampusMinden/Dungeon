@@ -408,34 +408,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 0,
   },
   {
-    type: "logic_breadcrumbs_direction",
-    message0: "Brotkrume %1",
-    output: "Boolean",
-    tooltip: "Überprüfe, ob eine Brotkrume in der Richtung liegt",
-    args0: [
-      {
-        type: "input_value",
-        name: "DIRECTION",
-        check: "Direction",
-      },
-    ],
-    colour: 0,
-  },
-  {
-    type: "logic_clover_direction",
-    message0: "Kleeblatt %1",
-    output: "Boolean",
-    tooltip: "Überprüfe, ob eine Kleeblatt in der Richtung liegt",
-    args0: [
-      {
-        type: "input_value",
-        name: "DIRECTION",
-        check: "Direction",
-      },
-    ],
-    colour: 0,
-  },
-  {
     type: "logic_active_direction",
     message0: "aktiv %1",
     output: "Boolean",

@@ -84,24 +84,6 @@ export function logic_switch_direction(
   return [code, Order.NONE];
 }
 
-export function logic_breadcrumbs_direction(
-  block: Blockly.Block,
-  generator: Blockly.Generator
-) {
-  const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearComponent(BreadcrumbComponent.class, " + dir + ")";
-  return [code, Order.NONE];
-}
-
-export function logic_clover_direction(
-  block: Blockly.Block,
-  generator: Blockly.Generator
-) {
-  const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearComponent(CloverComponent.class, " + dir + ")";
-  return [code, Order.NONE];
-}
-
 export function logic_active_direction(
   block: Blockly.Block,
   generator: Blockly.Generator
