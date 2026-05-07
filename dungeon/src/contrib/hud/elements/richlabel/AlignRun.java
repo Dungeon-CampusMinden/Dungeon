@@ -13,4 +13,3 @@ package contrib.hud.elements.richlabel;
  * @param align the libGDX align bits, or {@code -1} to reset to the programmatic default
  */
 public record AlignRun(int align) implements Run {}
-

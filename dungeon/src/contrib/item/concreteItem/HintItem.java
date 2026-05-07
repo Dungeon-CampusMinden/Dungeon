@@ -29,18 +29,15 @@ public class HintItem extends Item {
   /**
    * Creates a new {@link HintItem} with full control over visuals and texts.
    *
-   * @param imagePath Path to the image that is shown via {@link
-   *     DialogUtils#showImagePopUp(String, int...)} when the item is used from the inventory.
+   * @param imagePath Path to the image that is shown via {@link DialogUtils#showImagePopUp(String,
+   *     int...)} when the item is used from the inventory.
    * @param worldSprite Path to the sprite used for both the inventory icon and the dropped
    *     world-item representation.
    * @param name Display name of the item.
    * @param description Description of the item.
    */
   public HintItem(
-      final IPath imagePath,
-      final IPath worldSprite,
-      final String name,
-      final String description) {
+      final IPath imagePath, final IPath worldSprite, final String name, final String description) {
     super(name, description, new Animation(Objects.requireNonNull(worldSprite, "worldSprite")));
     this.imagePath = Objects.requireNonNull(imagePath, "imagePath");
   }
@@ -82,4 +79,3 @@ public class HintItem extends Item {
     DialogUtils.showImagePopUp(imagePath.pathString(), user.id());
   }
 }
-

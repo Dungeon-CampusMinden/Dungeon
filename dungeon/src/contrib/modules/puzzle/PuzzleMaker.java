@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Factory and runtime registry for {@link Puzzle} instances.
@@ -56,10 +55,7 @@ public final class PuzzleMaker {
    * @return the created puzzle
    */
   public static Puzzle makePuzzle(
-      IPath imagePath,
-      int pieceCount,
-      IPath worldSprite,
-      BiConsumer<Puzzle, Entity> onComplete) {
+      IPath imagePath, int pieceCount, IPath worldSprite, BiConsumer<Puzzle, Entity> onComplete) {
     return makePuzzle(imagePath, pieceCount, worldSprite, onComplete, System.nanoTime(), false);
   }
 

@@ -60,9 +60,7 @@ public class PuzzleUI extends Group {
   /** Maximum displayed playfield height in pixels (image is scaled down to fit). */
   private static final float MAX_PLAYFIELD_H = 500f;
 
-  /**
-   * Side tray width as factor of the playfield width. 1.2 means "playfield width + 20%".
-   */
+  /** Side tray width as factor of the playfield width. 1.2 means "playfield width + 20%". */
   private static final float SIDE_TRAY_W_FACTOR = 1.2f;
 
   /**
@@ -501,7 +499,8 @@ public class PuzzleUI extends Group {
                 if (statusLabel != null) {
                   statusLabel.setText("[color=green]SOLVED");
                 }
-                DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_COMPLETE).accept(null);
+                DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_COMPLETE)
+                    .accept(null);
               }
             }
           });

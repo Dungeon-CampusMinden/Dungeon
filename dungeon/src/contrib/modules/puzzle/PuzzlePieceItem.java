@@ -90,8 +90,10 @@ public class PuzzlePieceItem extends Item {
     UIComponent ui = DialogFactory.show(ctx, user.id());
 
     ui.registerCallback(DialogContextKeys.ON_CLOSE, payload -> UIUtils.closeDialog(ui));
-    ui.registerCallback(DialogContextKeys.ON_COMPLETE, payload -> {
-      PuzzleMaker.lookup(puzzleId).ifPresent(p -> p.tryFireCallback(user));
-    });
+    ui.registerCallback(
+        DialogContextKeys.ON_COMPLETE,
+        payload -> {
+          PuzzleMaker.lookup(puzzleId).ifPresent(p -> p.tryFireCallback(user));
+        });
   }
 }

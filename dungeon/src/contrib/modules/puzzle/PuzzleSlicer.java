@@ -65,13 +65,7 @@ final class PuzzleSlicer {
     Random rng = new Random(seed);
 
     List<float[]> polygons = new ArrayList<>();
-    polygons.add(
-        new float[] {
-          0f, 0f,
-          width, 0f,
-          width, height,
-          0f, height
-        });
+    polygons.add(new float[] {0f, 0f, width, 0f, width, height, 0f, height});
 
     while (polygons.size() < pieceCount) {
       int idx = indexOfLargest(polygons);
@@ -324,6 +318,3 @@ final class PuzzleSlicer {
     return new int[] {x0, y0, x1, y1};
   }
 }
-
-
-

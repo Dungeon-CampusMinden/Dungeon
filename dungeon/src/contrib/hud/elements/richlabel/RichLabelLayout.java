@@ -341,6 +341,7 @@ public class RichLabelLayout {
     float textAbove;
     float textBelow;
     float lineSpaceMul = 1f;
+
     /**
      * Per-line horizontal alignment override. {@code -1} means "use the alignment passed to the
      * layout call" (i.e. the programmatic default of the {@link contrib.hud.elements.RichLabel}).
