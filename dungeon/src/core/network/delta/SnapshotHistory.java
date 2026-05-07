@@ -3,7 +3,6 @@ package core.network.delta;
 import core.network.messages.s2c.SnapshotMessage;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -55,11 +54,9 @@ public final class SnapshotHistory {
    * @return newest snapshot, if any
    */
   public synchronized Optional<SnapshotMessage> newest() {
-    SnapshotMessage newest = null;
-    for (Map.Entry<Integer, SnapshotMessage> entry : snapshots.entrySet()) {
-      newest = entry.getValue();
-    }
-    return Optional.ofNullable(newest).map(SnapshotHistory::copyOf);
+    return snapshots.isEmpty()
+        ? Optional.empty()
+        : Optional.of(copyOf(snapshots.lastEntry().getValue()));
   }
 
   /**

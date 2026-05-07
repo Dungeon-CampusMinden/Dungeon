@@ -96,7 +96,7 @@ public final class DeltaSnapshotConverter
     };
   }
 
-  private static java.util.Optional<EntityStateField> fromProto(
+  private static Optional<EntityStateField> fromProto(
       core.network.proto.s2c.EntityStateField field) {
     return switch (field) {
       case ENTITY_STATE_FIELD_ENTITY_NAME -> Optional.of(EntityStateField.ENTITY_NAME);
@@ -112,7 +112,7 @@ public final class DeltaSnapshotConverter
       case ENTITY_STATE_FIELD_TINT_COLOR -> Optional.of(EntityStateField.TINT_COLOR);
       case ENTITY_STATE_FIELD_INVENTORY -> Optional.of(EntityStateField.INVENTORY);
       case ENTITY_STATE_FIELD_METADATA -> Optional.of(EntityStateField.METADATA);
-      case ENTITY_STATE_FIELD_UNSPECIFIED, UNRECOGNIZED -> java.util.Optional.empty();
+      case ENTITY_STATE_FIELD_UNSPECIFIED, UNRECOGNIZED -> Optional.empty();
     };
   }
 

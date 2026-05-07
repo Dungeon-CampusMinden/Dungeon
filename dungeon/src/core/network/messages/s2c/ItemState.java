@@ -56,30 +56,41 @@ public record ItemState(
    * @return new domain item instance
    */
   public Item toItem() {
-    Class<? extends Item> itemClass =
-        ItemRegistry.lookup(itemType)
-            .orElseThrow(() -> new IllegalArgumentException("Unknown item type: " + itemType));
-    Optional<Item> itemFromData =
-        itemData.isEmpty() ? Optional.empty() : ItemRegistry.create(itemType, itemData);
-    if (!itemData.isEmpty() && itemFromData.isEmpty()) {
-      throw new IllegalArgumentException(
-          "Item data provided but no factory registered for item type: " + itemType);
-    }
-
-    Item item;
-    if (itemFromData.isPresent()) {
-      item = itemFromData.get();
-    } else {
-      try {
-        item = itemClass.getDeclaredConstructor().newInstance();
-      } catch (ReflectiveOperationException e) {
-        throw new IllegalArgumentException("Failed to instantiate item type: " + itemType, e);
-      }
-    }
+    Item item =
+        itemFromData()
+            .orElseGet(
+                () -> {
+                  Class<? extends Item> itemClass =
+                      ItemRegistry.lookup(itemType)
+                          .orElseThrow(
+                              () -> new IllegalArgumentException("Unknown item type: " + itemType));
+                  return instantiate(itemClass);
+                });
     if (maxStackSize > 0) {
       item.maxStackSize(maxStackSize);
     }
     item.stackSize(stackSize);
     return item;
+  }
+
+  private Optional<Item> itemFromData() {
+    if (itemData.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(
+        ItemRegistry.create(itemType, itemData)
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        "Item data provided but no factory registered for item type: "
+                            + itemType)));
+  }
+
+  private static Item instantiate(Class<? extends Item> itemClass) {
+    try {
+      return itemClass.getDeclaredConstructor().newInstance();
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalArgumentException("Failed to instantiate item type: " + itemClass, e);
+    }
   }
 }

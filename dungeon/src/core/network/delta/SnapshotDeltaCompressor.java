@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 
 /** Builds and applies field-level deltas between full snapshot baselines and current snapshots. */
 public final class SnapshotDeltaCompressor {
@@ -128,136 +130,134 @@ public final class SnapshotDeltaCompressor {
       EntityState baseline, EntityState current) {
     EntityState.Builder builder = EntityState.builder().entityId(current.entityId());
     EnumSet<EntityStateField> clearedFields = EnumSet.noneOf(EntityStateField.class);
-    boolean[] hasChangedFields = {false};
+    boolean hasChangedFields = false;
 
-    diffOptional(
-        baseline.entityName(),
-        current.entityName(),
-        builder::entityName,
-        clearedFields,
-        EntityStateField.ENTITY_NAME,
-        hasChangedFields);
-    diffOptional(
-        baseline.position(),
-        current.position(),
-        builder::position,
-        clearedFields,
-        EntityStateField.POSITION,
-        hasChangedFields);
-    diffOptional(
-        baseline.viewDirection(),
-        current.viewDirection(),
-        builder::viewDirection,
-        clearedFields,
-        EntityStateField.VIEW_DIRECTION,
-        hasChangedFields);
-    diffOptional(
-        baseline.rotation(),
-        current.rotation(),
-        builder::rotation,
-        clearedFields,
-        EntityStateField.ROTATION,
-        hasChangedFields);
-    diffOptional(
-        baseline.scale(),
-        current.scale(),
-        builder::scale,
-        clearedFields,
-        EntityStateField.SCALE,
-        hasChangedFields,
-        SnapshotDeltaCompressor::vectorEquals);
-    diffOptional(
-        baseline.currentHealth(),
-        current.currentHealth(),
-        builder::currentHealth,
-        clearedFields,
-        EntityStateField.CURRENT_HEALTH,
-        hasChangedFields);
-    diffOptional(
-        baseline.maxHealth(),
-        current.maxHealth(),
-        builder::maxHealth,
-        clearedFields,
-        EntityStateField.MAX_HEALTH,
-        hasChangedFields);
-    diffOptional(
-        baseline.currentMana(),
-        current.currentMana(),
-        builder::currentMana,
-        clearedFields,
-        EntityStateField.CURRENT_MANA,
-        hasChangedFields);
-    diffOptional(
-        baseline.maxMana(),
-        current.maxMana(),
-        builder::maxMana,
-        clearedFields,
-        EntityStateField.MAX_MANA,
-        hasChangedFields);
-    diffOptional(
-        baseline.stateName(),
-        current.stateName(),
-        builder::stateName,
-        clearedFields,
-        EntityStateField.STATE_NAME,
-        hasChangedFields);
-    diffOptional(
-        baseline.tintColor(),
-        current.tintColor(),
-        builder::tintColor,
-        clearedFields,
-        EntityStateField.TINT_COLOR,
-        hasChangedFields);
-    diffOptional(
-        baseline.inventory(),
-        current.inventory(),
-        builder::inventorySlots,
-        clearedFields,
-        EntityStateField.INVENTORY,
-        hasChangedFields,
-        Objects::equals);
-    diffOptional(
-        baseline.metadata(),
-        current.metadata(),
-        builder::metadata,
-        clearedFields,
-        EntityStateField.METADATA,
-        hasChangedFields);
+    hasChangedFields |=
+        diffOptional(
+            baseline.entityName(),
+            current.entityName(),
+            builder::entityName,
+            clearedFields,
+            EntityStateField.ENTITY_NAME);
+    hasChangedFields |=
+        diffOptional(
+            baseline.position(),
+            current.position(),
+            builder::position,
+            clearedFields,
+            EntityStateField.POSITION);
+    hasChangedFields |=
+        diffOptional(
+            baseline.viewDirection(),
+            current.viewDirection(),
+            builder::viewDirection,
+            clearedFields,
+            EntityStateField.VIEW_DIRECTION);
+    hasChangedFields |=
+        diffOptional(
+            baseline.rotation(),
+            current.rotation(),
+            builder::rotation,
+            clearedFields,
+            EntityStateField.ROTATION);
+    hasChangedFields |=
+        diffOptional(
+            baseline.scale(),
+            current.scale(),
+            builder::scale,
+            clearedFields,
+            EntityStateField.SCALE,
+            SnapshotDeltaCompressor::vectorEquals);
+    hasChangedFields |=
+        diffOptional(
+            baseline.currentHealth(),
+            current.currentHealth(),
+            builder::currentHealth,
+            clearedFields,
+            EntityStateField.CURRENT_HEALTH);
+    hasChangedFields |=
+        diffOptional(
+            baseline.maxHealth(),
+            current.maxHealth(),
+            builder::maxHealth,
+            clearedFields,
+            EntityStateField.MAX_HEALTH);
+    hasChangedFields |=
+        diffOptional(
+            baseline.currentMana(),
+            current.currentMana(),
+            builder::currentMana,
+            clearedFields,
+            EntityStateField.CURRENT_MANA);
+    hasChangedFields |=
+        diffOptional(
+            baseline.maxMana(),
+            current.maxMana(),
+            builder::maxMana,
+            clearedFields,
+            EntityStateField.MAX_MANA);
+    hasChangedFields |=
+        diffOptional(
+            baseline.stateName(),
+            current.stateName(),
+            builder::stateName,
+            clearedFields,
+            EntityStateField.STATE_NAME);
+    hasChangedFields |=
+        diffOptional(
+            baseline.tintColor(),
+            current.tintColor(),
+            builder::tintColor,
+            clearedFields,
+            EntityStateField.TINT_COLOR);
+    hasChangedFields |=
+        diffOptional(
+            baseline.inventory(),
+            current.inventory(),
+            builder::inventorySlots,
+            clearedFields,
+            EntityStateField.INVENTORY,
+            Objects::equals);
+    hasChangedFields |=
+        diffOptional(
+            baseline.metadata(),
+            current.metadata(),
+            builder::metadata,
+            clearedFields,
+            EntityStateField.METADATA);
 
-    if (!hasChangedFields[0] && clearedFields.isEmpty()) {
+    if (!hasChangedFields && clearedFields.isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(new EntityDelta(current.entityId(), builder.build(), clearedFields));
   }
 
-  private static <T> void diffOptional(
+  private static <T> boolean diffOptional(
       Optional<T> baseline,
       Optional<T> current,
-      java.util.function.Consumer<T> setter,
+      Consumer<T> setter,
       Set<EntityStateField> clearedFields,
-      EntityStateField field,
-      boolean[] hasChangedFields) {
-    diffOptional(
-        baseline, current, setter, clearedFields, field, hasChangedFields, Objects::equals);
+      EntityStateField field) {
+    return diffOptional(baseline, current, setter, clearedFields, field, Objects::equals);
   }
 
-  private static <T> void diffOptional(
+  private static <T> boolean diffOptional(
       Optional<T> baseline,
       Optional<T> current,
-      java.util.function.Consumer<T> setter,
+      Consumer<T> setter,
       Set<EntityStateField> clearedFields,
       EntityStateField field,
-      boolean[] hasChangedFields,
-      java.util.function.BiPredicate<T, T> equality) {
+      BiPredicate<T, T> equality) {
     if (current.isPresent()) {
       T currentValue = current.orElseThrow();
       if (baseline.isEmpty() || !equality.test(baseline.orElseThrow(), currentValue)) {
         setter.accept(currentValue);
-        hasChangedFields[0] = true;
+        return true;
       }
     } else if (baseline.isPresent()) {
       clearedFields.add(field);
     }
+    return false;
   }
 
   private static EntityState mergeEntityState(EntityState baseline, EntityDelta delta) {
@@ -389,7 +389,7 @@ public final class SnapshotDeltaCompressor {
       return builder.build();
     }
 
-    private static <T> void setIfNotNull(T value, java.util.function.Consumer<T> setter) {
+    private static <T> void setIfNotNull(T value, Consumer<T> setter) {
       if (value != null) {
         setter.accept(value);
       }
