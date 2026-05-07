@@ -13,6 +13,7 @@ import core.level.elements.tile.DoorTile;
 import core.network.messages.c2s.RequestEntitySpawn;
 import core.network.messages.s2c.DoorTileState;
 import core.network.messages.s2c.EntityState;
+import core.network.messages.s2c.InventorySlotState;
 import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Direction;
@@ -265,20 +266,30 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                 // Inventory
                 snap.inventory()
                     .ifPresentOrElse(
-                        items -> {
+                        slots -> {
+                          int inventorySize =
+                              slots.stream()
+                                      .mapToInt(InventorySlotState::slotIndex)
+                                      .max()
+                                      .orElse(-1)
+                                  + 1;
                           InventoryComponent ic =
                               entity
                                   .fetch(InventoryComponent.class)
+                                  .filter(existing -> existing.items().length >= inventorySize)
                                   .orElseGet(
                                       () -> {
+                                        entity.remove(InventoryComponent.class);
                                         InventoryComponent newIc =
-                                            new InventoryComponent(items.length);
+                                            new InventoryComponent(inventorySize);
                                         entity.add(newIc);
                                         return newIc;
                                       });
                           ic.clear();
-                          for (int i = 0; i < items.length; i++) {
-                            ic.set(i, items[i]);
+                          for (InventorySlotState slot : slots) {
+                            if (slot.item() != null) {
+                              ic.set(slot.slotIndex(), slot.item().toItem());
+                            }
                           }
                         },
                         () -> {

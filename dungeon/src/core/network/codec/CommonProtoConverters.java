@@ -1,10 +1,10 @@
 package core.network.codec;
 
 import contrib.item.Item;
-import contrib.item.ItemRegistry;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
+import core.network.messages.s2c.ItemState;
 import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
@@ -13,7 +13,6 @@ import core.utils.components.draw.DrawInfoData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /** Shared conversion helpers for common network protobuf sub-types. */
 public final class CommonProtoConverters {
@@ -518,14 +517,23 @@ public final class CommonProtoConverters {
    * @return the protobuf item
    */
   public static core.network.proto.common.Item toProto(Item item) {
-    String itemType = ItemRegistry.idFor(item);
+    return toProto(ItemState.fromItem(item));
+  }
+
+  /**
+   * Converts an {@link ItemState} into its protobuf representation.
+   *
+   * @param itemState immutable item state
+   * @return the protobuf item
+   */
+  public static core.network.proto.common.Item toProto(ItemState itemState) {
     core.network.proto.common.Item.Builder builder =
         core.network.proto.common.Item.newBuilder()
-            .setItemType(itemType)
-            .setStackSize(item.stackSize())
-            .setMaxStackSize(item.maxStackSize());
+            .setItemType(itemState.itemType())
+            .setStackSize(itemState.stackSize())
+            .setMaxStackSize(itemState.maxStackSize());
 
-    Map<String, String> itemData = item.itemData();
+    Map<String, String> itemData = itemState.itemData();
     if (itemData != null && !itemData.isEmpty()) {
       builder.putAllItemData(itemData);
     }
@@ -540,34 +548,18 @@ public final class CommonProtoConverters {
    * @return the domain item
    */
   public static Item fromProto(core.network.proto.common.Item proto) {
-    String itemType = proto.getItemType();
-    Class<? extends Item> itemClass =
-        ItemRegistry.lookup(itemType)
-            .orElseThrow(() -> new IllegalArgumentException("Unknown item type: " + itemType));
+    return itemStateFromProto(proto).toItem();
+  }
 
-    Map<String, String> itemData = proto.getItemDataMap();
-    try {
-      Optional<Item> itemFromData =
-          itemData.isEmpty() ? Optional.empty() : ItemRegistry.create(itemType, itemData);
-      if (!itemData.isEmpty() && itemFromData.isEmpty()) {
-        throw new IllegalArgumentException(
-            "Item data provided but no factory registered for item type: " + itemType);
-      }
-      Item item;
-      if (itemFromData.isPresent()) {
-        item = itemFromData.get();
-      } else {
-        item = itemClass.getDeclaredConstructor().newInstance();
-      }
-      int maxStackSize = proto.getMaxStackSize();
-      if (maxStackSize > 0) {
-        item.maxStackSize(maxStackSize);
-      }
-      item.stackSize(proto.getStackSize());
-      return item;
-    } catch (ReflectiveOperationException e) {
-      throw new IllegalArgumentException("Failed to instantiate item type: " + itemType, e);
-    }
+  /**
+   * Converts protobuf item data into an immutable {@link ItemState}.
+   *
+   * @param proto the protobuf item
+   * @return immutable item state
+   */
+  public static ItemState itemStateFromProto(core.network.proto.common.Item proto) {
+    return new ItemState(
+        proto.getItemType(), proto.getStackSize(), proto.getMaxStackSize(), proto.getItemDataMap());
   }
 
   /**

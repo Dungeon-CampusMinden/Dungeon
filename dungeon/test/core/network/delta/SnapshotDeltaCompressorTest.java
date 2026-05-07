@@ -2,14 +2,20 @@ package core.network.delta;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import contrib.item.HealthPotionType;
+import contrib.item.Item;
+import contrib.item.concreteItem.ItemPotionHealth;
 import core.level.utils.Coordinate;
 import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.DoorTileState;
 import core.network.messages.s2c.EntityDelta;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.EntityStateField;
+import core.network.messages.s2c.InventorySlotState;
+import core.network.messages.s2c.ItemState;
 import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Direction;
@@ -315,6 +321,85 @@ public class SnapshotDeltaCompressorTest {
         SnapshotDeltaCompressor.compress(baseline, current, Set.of(1, 2)).orElseThrow();
 
     assertEquals(List.of(2), delta.removedEntityIds());
+  }
+
+  /** Verifies inventory stack-size changes are detected without mutable item baselines. */
+  @Test
+  void compressDetectsInventoryStackSizeChanges() {
+    ItemPotionHealth baselineItem = new ItemPotionHealth(HealthPotionType.GREATER);
+    baselineItem.stackSize(1);
+    ItemPotionHealth currentItem = new ItemPotionHealth(HealthPotionType.GREATER);
+    currentItem.stackSize(2);
+    SnapshotMessage baseline =
+        new SnapshotMessage(
+            10,
+            List.of(EntityState.builder().entityId(1).inventory(new Item[] {baselineItem}).build()),
+            new LevelState(Set.of()));
+    SnapshotMessage current =
+        new SnapshotMessage(
+            11,
+            List.of(EntityState.builder().entityId(1).inventory(new Item[] {currentItem}).build()),
+            new LevelState(Set.of()));
+
+    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current).orElseThrow();
+
+    assertTrue(delta.entityDeltas().getFirst().changedState().inventory().isPresent());
+    SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
+    ItemState materializedItem =
+        entity(materialized, 1).inventory().orElseThrow().getFirst().item();
+    assertEquals(2, materializedItem.stackSize());
+  }
+
+  /** Verifies materialized inventory state does not expose mutable baseline item instances. */
+  @Test
+  void materializedInventoryDoesNotShareMutableItems() {
+    ItemPotionHealth item = new ItemPotionHealth(HealthPotionType.GREATER);
+    item.stackSize(1);
+    SnapshotMessage baseline =
+        new SnapshotMessage(
+            10,
+            List.of(EntityState.builder().entityId(1).inventory(new Item[] {item}).build()),
+            new LevelState(Set.of()));
+    DeltaSnapshotMessage delta =
+        new DeltaSnapshotMessage(
+            10,
+            11,
+            List.of(
+                new EntityDelta(
+                    1, EntityState.builder().entityId(1).currentHealth(7).build(), Set.of())),
+            List.of(),
+            null);
+
+    SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
+    InventorySlotState slot = entity(materialized, 1).inventory().orElseThrow().getFirst();
+    Item firstItem = slot.item().toItem();
+    Item secondItem = slot.item().toItem();
+    firstItem.stackSize(5);
+
+    assertNotSame(firstItem, secondItem);
+    assertEquals(1, slot.item().stackSize());
+    assertEquals(1, secondItem.stackSize());
+  }
+
+  /** Verifies empty current metadata clears baseline metadata in deltas. */
+  @Test
+  void compressClearsMetadataWhenCurrentMetadataIsEmpty() {
+    SnapshotMessage baseline =
+        new SnapshotMessage(
+            10,
+            List.of(EntityState.builder().entityId(1).metadata(Map.of("state", "active")).build()),
+            new LevelState(Set.of()));
+    SnapshotMessage current =
+        new SnapshotMessage(
+            11,
+            List.of(EntityState.builder().entityId(1).metadata(Map.of()).build()),
+            new LevelState(Set.of()));
+
+    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current).orElseThrow();
+
+    assertTrue(delta.entityDeltas().getFirst().clearedFields().contains(EntityStateField.METADATA));
+    SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
+    assertTrue(entity(materialized, 1).metadata().isEmpty());
   }
 
   /** Regression test for client/server delta flow across A -> B -> A. */

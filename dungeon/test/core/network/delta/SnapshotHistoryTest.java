@@ -2,10 +2,13 @@ package core.network.delta;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.SnapshotMessage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -62,6 +65,40 @@ class SnapshotHistoryTest {
     history.add(newest);
 
     assertEquals(newest, history.newest().orElseThrow());
+  }
+
+  /** Verifies stored snapshots are isolated from later source-list mutations. */
+  @Test
+  void storedSnapshotsAreNotAffectedByOriginalEntityListMutation() {
+    SnapshotHistory history = new SnapshotHistory(2);
+    List<EntityState> entities = new ArrayList<>();
+    entities.add(EntityState.builder().entityId(1).build());
+    SnapshotMessage snapshot = new SnapshotMessage(10, entities, new LevelState(Set.of()));
+
+    history.add(snapshot);
+    entities.add(EntityState.builder().entityId(2).build());
+
+    SnapshotMessage stored = history.snapshot(10).orElseThrow();
+    assertEquals(1, stored.entities().size());
+    assertEquals(1, stored.entities().getFirst().entityId());
+  }
+
+  /** Verifies returned snapshots cannot mutate the retained history entry. */
+  @Test
+  void returnedSnapshotsCannotMutateHistory() {
+    SnapshotHistory history = new SnapshotHistory(2);
+    history.add(
+        new SnapshotMessage(
+            10, List.of(EntityState.builder().entityId(1).build()), new LevelState(Set.of())));
+
+    SnapshotMessage returned = history.snapshot(10).orElseThrow();
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> returned.entities().add(EntityState.builder().entityId(2).build()));
+
+    SnapshotMessage secondRead = history.snapshot(10).orElseThrow();
+    assertEquals(1, secondRead.entities().size());
+    assertEquals(1, secondRead.entities().getFirst().entityId());
   }
 
   private static SnapshotMessage snapshot(int tick) {

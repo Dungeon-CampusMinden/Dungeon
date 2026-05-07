@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.hud.dialogs.DialogContext;
@@ -11,6 +12,7 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
 import contrib.item.HealthPotionType;
 import contrib.item.Item;
+import contrib.item.concreteItem.ItemKey;
 import contrib.item.concreteItem.ItemPotionHealth;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
@@ -43,6 +45,8 @@ import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.EntityStateField;
 import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.InventorySlotState;
+import core.network.messages.s2c.ItemState;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.RegisterAck;
@@ -327,11 +331,63 @@ public class S2CConverterTest {
     assertEquals(0x11223344, roundTrip.tintColor().orElseThrow());
     assertEquals(1.25f, roundTrip.scale().orElseThrow().x(), DELTA);
     assertEquals(0.75f, roundTrip.scale().orElseThrow().y(), DELTA);
-    assertEquals(3, roundTrip.inventory().orElseThrow().length);
-    assertEquals(ItemPotionHealth.class, roundTrip.inventory().orElseThrow()[1].getClass());
-    ItemPotionHealth roundTripItem = (ItemPotionHealth) roundTrip.inventory().orElseThrow()[1];
+    List<InventorySlotState> inventory = roundTrip.inventory().orElseThrow();
+    assertEquals(3, inventory.size());
+    assertEquals(0, inventory.get(0).slotIndex());
+    assertTrue(inventory.get(0).item() == null);
+    assertEquals(1, inventory.get(1).slotIndex());
+    assertEquals("ItemPotionHealth", inventory.get(1).item().itemType());
+    assertEquals(item.stackSize(), inventory.get(1).item().stackSize());
+    assertEquals(item.maxStackSize(), inventory.get(1).item().maxStackSize());
+    assertEquals(item.itemData(), inventory.get(1).item().itemData());
+    assertTrue(inventory.get(2).item() == null);
+    assertEquals(ItemPotionHealth.class, inventory.get(1).item().toItem().getClass());
+    ItemPotionHealth roundTripItem = (ItemPotionHealth) inventory.get(1).item().toItem();
     assertEquals(HealthPotionType.GREATER, roundTripItem.type());
     assertEquals(item.healAmount(), roundTripItem.healAmount());
+  }
+
+  /** Verifies empty inventory slots survive entity state conversion. */
+  @Test
+  public void testEntityStateEmptyInventoryRoundTrip() {
+    EntityState message =
+        EntityState.builder().entityId(7).inventory(new Item[] {null, null}).build();
+
+    core.network.proto.s2c.EntityState proto = ENTITY_STATE_CONVERTER.toProto(message);
+    assertEquals(2, proto.getInventoryCount());
+    assertFalse(proto.getInventory(0).hasItem());
+    assertFalse(proto.getInventory(1).hasItem());
+
+    EntityState roundTrip = ENTITY_STATE_CONVERTER.fromProto(proto);
+    List<InventorySlotState> inventory = roundTrip.inventory().orElseThrow();
+    assertEquals(2, inventory.size());
+    assertEquals(0, inventory.get(0).slotIndex());
+    assertTrue(inventory.get(0).item() == null);
+    assertEquals(1, inventory.get(1).slotIndex());
+    assertTrue(inventory.get(1).item() == null);
+  }
+
+  /** Verifies empty metadata maps are normalized to absent metadata. */
+  @Test
+  public void testEntityStateEmptyMetadataIsAbsent() {
+    EntityState message = EntityState.builder().entityId(7).metadata(Map.of()).build();
+
+    assertTrue(message.metadata().isEmpty());
+  }
+
+  /** Verifies item data without a registered factory fails instead of being ignored. */
+  @Test
+  public void testItemStateDataWithoutFactoryFails() {
+    ItemState itemState = new ItemState("ItemKey", 1, 1, Map.of("custom", "value"));
+
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class, itemState::toItem);
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains("Item data provided but no factory registered for item type: ItemKey"));
+    assertEquals(ItemKey.class.getSimpleName(), itemState.itemType());
   }
 
   /** Verifies entity state conversion supports partial position-component updates. */

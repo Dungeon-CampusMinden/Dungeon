@@ -1,13 +1,12 @@
 package core.network.delta;
 
-import contrib.item.Item;
 import core.level.utils.Coordinate;
-import core.network.codec.CommonProtoConverters;
 import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.DoorTileState;
 import core.network.messages.s2c.EntityDelta;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.EntityStateField;
+import core.network.messages.s2c.InventorySlotState;
 import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Point;
@@ -212,11 +211,11 @@ public final class SnapshotDeltaCompressor {
     diffOptional(
         baseline.inventory(),
         current.inventory(),
-        items -> builder.inventory(items.clone()),
+        builder::inventorySlots,
         clearedFields,
         EntityStateField.INVENTORY,
         hasChangedFields,
-        SnapshotDeltaCompressor::inventoryEquals);
+        Objects::equals);
     diffOptional(
         baseline.metadata(),
         current.metadata(),
@@ -315,30 +314,6 @@ public final class SnapshotDeltaCompressor {
     return Float.compare(left.x(), right.x()) == 0 && Float.compare(left.y(), right.y()) == 0;
   }
 
-  private static boolean inventoryEquals(Item[] left, Item[] right) {
-    if (left == right) {
-      return true;
-    }
-    if (left == null || right == null || left.length != right.length) {
-      return false;
-    }
-    for (int i = 0; i < left.length; i++) {
-      Item leftItem = left[i];
-      Item rightItem = right[i];
-      if (leftItem == rightItem) {
-        continue;
-      }
-      if (leftItem == null || rightItem == null) {
-        return false;
-      }
-      if (!CommonProtoConverters.toProto(leftItem)
-          .equals(CommonProtoConverters.toProto(rightItem))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   private static final class MutableEntityState {
     private int entityId;
     private String entityName;
@@ -352,7 +327,7 @@ public final class SnapshotDeltaCompressor {
     private Float maxMana;
     private String stateName;
     private Integer tintColor;
-    private Item[] inventory;
+    private List<InventorySlotState> inventory;
     private Map<String, String> metadata;
 
     static MutableEntityState from(EntityState state) {
@@ -374,7 +349,7 @@ public final class SnapshotDeltaCompressor {
       state.maxMana().ifPresent(value -> maxMana = value);
       state.stateName().ifPresent(value -> stateName = value);
       state.tintColor().ifPresent(value -> tintColor = value);
-      state.inventory().ifPresent(items -> inventory = items.clone());
+      state.inventory().ifPresent(items -> inventory = List.copyOf(items));
       state.metadata().ifPresent(value -> metadata = Map.copyOf(value));
     }
 
@@ -409,7 +384,7 @@ public final class SnapshotDeltaCompressor {
       setIfNotNull(maxMana, builder::maxMana);
       setIfNotNull(stateName, builder::stateName);
       setIfNotNull(tintColor, builder::tintColor);
-      setIfNotNull(inventory, items -> builder.inventory(items.clone()));
+      setIfNotNull(inventory, builder::inventorySlots);
       setIfNotNull(metadata, builder::metadata);
       return builder.build();
     }

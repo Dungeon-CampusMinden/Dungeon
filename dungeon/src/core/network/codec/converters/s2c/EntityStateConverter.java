@@ -1,10 +1,11 @@
 package core.network.codec.converters.s2c;
 
 import com.google.protobuf.Parser;
-import contrib.item.Item;
 import core.network.codec.CommonProtoConverters;
 import core.network.codec.MessageConverter;
 import core.network.messages.s2c.EntityState;
+import core.network.messages.s2c.InventorySlotState;
+import java.util.ArrayList;
 import java.util.List;
 
 /** Converter for server-to-client entity state messages. */
@@ -45,13 +46,13 @@ public final class EntityStateConverter
     message
         .inventory()
         .ifPresent(
-            items -> {
-              for (int i = 0; i < items.length; i++) {
+            slots -> {
+              for (InventorySlotState inventorySlot : slots) {
                 core.network.proto.s2c.ItemSlot.Builder slot =
-                    core.network.proto.s2c.ItemSlot.newBuilder().setSlotIndex(i);
-                Item item = items[i];
-                if (item != null) {
-                  slot.setItem(CommonProtoConverters.toProto(item));
+                    core.network.proto.s2c.ItemSlot.newBuilder()
+                        .setSlotIndex(inventorySlot.slotIndex());
+                if (inventorySlot.item() != null) {
+                  slot.setItem(CommonProtoConverters.toProto(inventorySlot.item()));
                 }
                 builder.addInventory(slot);
               }
@@ -108,22 +109,15 @@ public final class EntityStateConverter
 
     List<core.network.proto.s2c.ItemSlot> slots = proto.getInventoryList();
     if (!slots.isEmpty()) {
-      int maxIndex =
-          slots.stream().mapToInt(core.network.proto.s2c.ItemSlot::getSlotIndex).max().orElse(-1);
-      if (maxIndex < 0) {
-        throw new IllegalArgumentException("Inventory slot indices must be non-negative.");
-      }
-      Item[] items = new Item[maxIndex + 1];
+      List<InventorySlotState> inventorySlots = new ArrayList<>(slots.size());
       for (core.network.proto.s2c.ItemSlot slot : slots) {
         int index = slot.getSlotIndex();
-        if (index < 0 || index >= items.length) {
-          throw new IllegalArgumentException("Inventory slot index out of range: " + index);
-        }
-        if (slot.hasItem()) {
-          items[index] = CommonProtoConverters.fromProto(slot.getItem());
-        }
+        inventorySlots.add(
+            new InventorySlotState(
+                index,
+                slot.hasItem() ? CommonProtoConverters.itemStateFromProto(slot.getItem()) : null));
       }
-      builder.inventory(items);
+      builder.inventorySlots(inventorySlots);
     }
 
     if (!proto.getMetadataMap().isEmpty()) {

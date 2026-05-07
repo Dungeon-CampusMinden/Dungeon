@@ -2,6 +2,7 @@ package core.network.delta;
 
 import core.network.messages.s2c.SnapshotMessage;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,7 +32,7 @@ public final class SnapshotHistory {
   public synchronized void add(SnapshotMessage snapshot) {
     Objects.requireNonNull(snapshot, "snapshot");
     snapshots.remove(snapshot.serverTick());
-    snapshots.put(snapshot.serverTick(), snapshot);
+    snapshots.put(snapshot.serverTick(), copyOf(snapshot));
     while (snapshots.size() > capacity) {
       Integer oldestTick = snapshots.keySet().iterator().next();
       snapshots.remove(oldestTick);
@@ -45,7 +46,7 @@ public final class SnapshotHistory {
    * @return matching snapshot, if retained
    */
   public synchronized Optional<SnapshotMessage> snapshot(int serverTick) {
-    return Optional.ofNullable(snapshots.get(serverTick));
+    return Optional.ofNullable(snapshots.get(serverTick)).map(SnapshotHistory::copyOf);
   }
 
   /**
@@ -58,7 +59,7 @@ public final class SnapshotHistory {
     for (Map.Entry<Integer, SnapshotMessage> entry : snapshots.entrySet()) {
       newest = entry.getValue();
     }
-    return Optional.ofNullable(newest);
+    return Optional.ofNullable(newest).map(SnapshotHistory::copyOf);
   }
 
   /**
@@ -83,5 +84,10 @@ public final class SnapshotHistory {
    */
   public synchronized int size() {
     return snapshots.size();
+  }
+
+  private static SnapshotMessage copyOf(SnapshotMessage snapshot) {
+    return new SnapshotMessage(
+        snapshot.serverTick(), List.copyOf(snapshot.entities()), snapshot.levelState());
   }
 }
