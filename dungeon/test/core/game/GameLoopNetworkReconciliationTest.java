@@ -1,5 +1,6 @@
 package core.game;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.entities.CharacterClass;
@@ -50,6 +51,6 @@ public class GameLoopNetworkReconciliationTest {
     assertTrue(Game.findEntityById(localEntity.id()).isPresent());
     assertTrue(Game.findEntityById(staleNetworkEntity.id()).isEmpty());
     assertTrue(state.networkSyncedEntityIds().contains(keptNetworkEntity.id()));
-    assertTrue(!state.networkSyncedEntityIds().contains(staleNetworkEntity.id()));
+    assertFalse(state.networkSyncedEntityIds().contains(staleNetworkEntity.id()));
   }
 }

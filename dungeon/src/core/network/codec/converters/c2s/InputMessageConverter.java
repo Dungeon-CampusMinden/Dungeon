@@ -6,6 +6,7 @@ import core.network.codec.CommonProtoConverters;
 import core.network.codec.MessageConverter;
 import core.network.messages.c2s.InputMessage;
 import core.utils.Vector2;
+import java.util.Optional;
 
 /** Converter for client-to-server input messages. */
 public final class InputMessageConverter
@@ -20,6 +21,7 @@ public final class InputMessageConverter
             .setSessionId(message.sessionId())
             .setClientTick(message.clientTick())
             .setSequence(message.sequence());
+    message.lastSnapshotTick().ifPresent(builder::setLastSnapshotTick);
 
     switch (message.action()) {
       case MOVE -> {
@@ -99,6 +101,8 @@ public final class InputMessageConverter
     short sequence = CommonProtoConverters.toShortExact(proto.getSequence(), "sequence");
     int sessionId = proto.getSessionId();
     int clientTick = proto.getClientTick();
+    Optional<Integer> lastSnapshotTick =
+        proto.hasLastSnapshotTick() ? Optional.of(proto.getLastSnapshotTick()) : Optional.empty();
 
     return switch (proto.getActionCase()) {
       case MOVE -> {
@@ -107,6 +111,7 @@ public final class InputMessageConverter
             sessionId,
             clientTick,
             sequence,
+            lastSnapshotTick,
             InputMessage.Action.MOVE,
             new InputMessage.Move(Vector2.of(direction.getX(), direction.getY())));
       }
@@ -117,6 +122,7 @@ public final class InputMessageConverter
             sessionId,
             clientTick,
             sequence,
+            lastSnapshotTick,
             InputMessage.Action.CAST_SKILL,
             new InputMessage.CastSkill(CommonProtoConverters.fromProto(target), mainSkill));
       }
@@ -126,6 +132,7 @@ public final class InputMessageConverter
             sessionId,
             clientTick,
             sequence,
+            lastSnapshotTick,
             InputMessage.Action.INTERACT,
             new InputMessage.Interact(CommonProtoConverters.fromProto(target)));
       }
@@ -138,6 +145,7 @@ public final class InputMessageConverter
             sessionId,
             clientTick,
             sequence,
+            lastSnapshotTick,
             action,
             new InputMessage.SkillChange(nextSkill, mainSkill));
       }
@@ -146,6 +154,7 @@ public final class InputMessageConverter
               sessionId,
               clientTick,
               sequence,
+              lastSnapshotTick,
               InputMessage.Action.TOGGLE_INVENTORY,
               new InputMessage.ToggleInventory());
       case INV_DROP -> {
@@ -154,6 +163,7 @@ public final class InputMessageConverter
             sessionId,
             clientTick,
             sequence,
+            lastSnapshotTick,
             InputMessage.Action.INV_DROP,
             new InputMessage.InventoryDrop(slotIndex));
       }
@@ -164,6 +174,7 @@ public final class InputMessageConverter
             sessionId,
             clientTick,
             sequence,
+            lastSnapshotTick,
             InputMessage.Action.INV_MOVE,
             new InputMessage.InventoryMove(fromSlot, toSlot));
       }
@@ -173,6 +184,7 @@ public final class InputMessageConverter
             sessionId,
             clientTick,
             sequence,
+            lastSnapshotTick,
             InputMessage.Action.INV_USE,
             new InputMessage.InventoryUse(slotIndex));
       }
@@ -186,6 +198,7 @@ public final class InputMessageConverter
             sessionId,
             clientTick,
             sequence,
+            lastSnapshotTick,
             InputMessage.Action.CUSTOM,
             new InputMessage.Custom(
                 custom.getCommandId(), custom.getPayload().toByteArray(), schemaVersion));

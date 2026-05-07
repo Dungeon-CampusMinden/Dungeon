@@ -89,16 +89,13 @@ public final class SnapshotDeltaCompressor {
   }
 
   /**
-   * Materializes the entity changes in a delta against its full snapshot baseline.
-   *
-   * <p>The returned snapshot contains only changed entities and the level-state delta. It is meant
-   * to be applied through the normal snapshot application path after removals are handled.
+   * Materializes a complete snapshot by applying a delta to a retained full baseline.
    *
    * @param baseline full snapshot used as the delta base
-   * @param delta delta snapshot
-   * @return snapshot containing merged changed entities
+   * @param delta delta snapshot to apply
+   * @return full snapshot representing {@code delta.serverTick()}
    */
-  public static SnapshotMessage materializeChangedSnapshot(
+  public static SnapshotMessage materializeSnapshot(
       SnapshotMessage baseline, DeltaSnapshotMessage delta) {
     Objects.requireNonNull(baseline, "baseline");
     Objects.requireNonNull(delta, "delta");
@@ -111,20 +108,21 @@ public final class SnapshotDeltaCompressor {
               + ".");
     }
 
-    Map<Integer, EntityState> baselineEntities = entitiesById(baseline);
-    List<EntityState> changedEntities = new ArrayList<>();
+    Map<Integer, EntityState> materializedEntities = entitiesById(baseline);
+    delta.removedEntityIds().forEach(materializedEntities::remove);
     for (EntityDelta entityDelta : delta.entityDeltas()) {
-      EntityState baselineState = baselineEntities.get(entityDelta.entityId());
-      changedEntities.add(
+      EntityState baselineState = materializedEntities.get(entityDelta.entityId());
+      EntityState materializedState =
           baselineState == null
               ? copyOf(entityDelta.changedState())
-              : mergeEntityState(baselineState, entityDelta));
+              : mergeEntityState(baselineState, entityDelta);
+      materializedEntities.put(entityDelta.entityId(), materializedState);
     }
 
+    LevelState materializedLevelState =
+        materializeLevelState(baseline.levelState(), delta.levelStateDelta());
     return new SnapshotMessage(
-        delta.serverTick(),
-        changedEntities,
-        delta.levelStateDeltaOptional().orElseGet(() -> new LevelState(Set.of())));
+        delta.serverTick(), new ArrayList<>(materializedEntities.values()), materializedLevelState);
   }
 
   private static Optional<EntityDelta> createEntityDelta(
@@ -300,6 +298,17 @@ public final class SnapshotDeltaCompressor {
       result.put(doorState.coordinate(), doorState);
     }
     return result;
+  }
+
+  private static LevelState materializeLevelState(LevelState baseline, LevelState delta) {
+    if (delta == null) {
+      return baseline;
+    }
+    Map<Coordinate, DoorTileState> materializedDoors = doorStatesByCoordinate(baseline);
+    for (DoorTileState doorState : delta.doorStates()) {
+      materializedDoors.put(doorState.coordinate(), doorState);
+    }
+    return new LevelState(new LinkedHashSet<>(materializedDoors.values()));
   }
 
   private static boolean vectorEquals(Vector2 left, Vector2 right) {

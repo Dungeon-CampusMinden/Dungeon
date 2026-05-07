@@ -120,6 +120,12 @@ public final class NetworkConfig {
    */
   public static final int FULL_SNAPSHOT_INTERVAL_TICKS = SERVER_TICK_HZ * 6;
 
+  /** Number of full snapshots retained server-side for delta baselines. */
+  public static final int SERVER_DELTA_HISTORY_SIZE = 128;
+
+  /** Number of fully applied snapshots retained client-side for delta materialization. */
+  public static final int CLIENT_DELTA_HISTORY_SIZE = 128;
+
   /**
    * Maximum allowed sequence gap for network packets.
    *

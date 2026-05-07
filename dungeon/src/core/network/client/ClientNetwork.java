@@ -268,21 +268,34 @@ public final class ClientNetwork {
    * @param input input message to send
    */
   public void sendUnreliableInput(InputMessage input) {
+    InputMessage message = withSnapshotAck(input);
     try {
-      byte[] data = serialize(input);
+      byte[] data = serialize(message);
       if (data.length <= SAFE_UDP_MTU) {
-        send(input, false)
+        send(message, false)
             .thenAccept(
                 success ->
                     LOGGER.debug("InputMessage sent using active transport size={}B", data.length));
       } else {
         LOGGER.warn(
             "InputMessage too large ({} bytes); sending via TCP instead of UDP", data.length);
-        sendReliable(input);
+        sendReliable(message);
       }
     } catch (IOException e) {
       LOGGER.warn("Failed to serialize InputMessage", e);
     }
+  }
+
+  private InputMessage withSnapshotAck(InputMessage input) {
+    if (input.lastSnapshotTick().isPresent() || session == null) {
+      return input;
+    }
+    return session
+        .clientState()
+        .map(ClientState::latestAppliedSnapshotTick)
+        .filter(tick -> tick >= 0)
+        .map(input::withLastSnapshotTick)
+        .orElse(input);
   }
 
   /**

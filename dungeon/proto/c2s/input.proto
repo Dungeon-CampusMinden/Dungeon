@@ -22,6 +22,9 @@ message InputMessage {
   // Monotonically increasing sequence number per client.
   int32 sequence = 3;
 
+  // Highest server snapshot tick the client successfully applied.
+  optional int32 last_snapshot_tick = 4;
+
   // Action payload (exactly one must be set).
   oneof action {
     MoveAction move = 10;

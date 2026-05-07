@@ -10,6 +10,7 @@ import core.network.messages.c2s.DialogResponseMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
+import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.c2s.SoundFinishedMessage;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
@@ -71,6 +72,7 @@ class NetworkCodecTest {
         new RegisterUdp(42, new byte[] {9, 8, 7}, (short) 4),
         new RequestEntitySpawn(99),
         new SoundFinishedMessage(123L),
+        new SnapshotAck(123),
         new ConnectAck((short) 5, 42, new byte[] {4, 5, 6}),
         new ConnectReject(ConnectReject.Reason.INVALID_NAME),
         new DialogCloseMessage("dialog-2"),

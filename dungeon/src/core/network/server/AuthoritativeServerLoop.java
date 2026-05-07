@@ -1,6 +1,7 @@
 package core.network.server;
 
 import static core.network.config.NetworkConfig.FULL_SNAPSHOT_INTERVAL_TICKS;
+import static core.network.config.NetworkConfig.SERVER_DELTA_HISTORY_SIZE;
 import static core.network.config.NetworkConfig.SERVER_DELTA_SNAPSHOT_HZ;
 import static core.network.config.NetworkConfig.SERVER_SNAPSHOT_HZ;
 import static core.network.config.NetworkConfig.SERVER_TICK_HZ;
@@ -15,6 +16,7 @@ import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.network.delta.SnapshotDeltaCompressor;
+import core.network.delta.SnapshotHistory;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.GameOverEvent;
 import core.network.messages.s2c.SnapshotMessage;
@@ -54,6 +56,7 @@ public final class AuthoritativeServerLoop {
 
   private final ServerTransport net;
   private final ScheduledExecutorService executor;
+  private final SnapshotHistory snapshotHistory = new SnapshotHistory(SERVER_DELTA_HISTORY_SIZE);
   private volatile int serverTick = 0;
   private String snapshotLevelName;
 
@@ -162,34 +165,32 @@ public final class AuthoritativeServerLoop {
     Game.network()
         .snapshotTranslator()
         .translateToSnapshot(serverTick)
-        .ifPresent(snapshot -> clients.forEach(client -> sendSnapshotToClient(client, snapshot)));
+        .ifPresent(
+            snapshot -> {
+              snapshotHistory.add(snapshot);
+              clients.forEach(client -> sendSnapshotToClient(client, snapshot));
+            });
   }
 
   private void sendSnapshotToClient(ClientState client, SnapshotMessage currentSnapshot) {
-    int lastFullSnapshotTick = client.lastFullSnapshotTick();
-    boolean needsFullSnapshot =
-        lastFullSnapshotTick < 0
-            || currentSnapshot.serverTick() - lastFullSnapshotTick >= FULL_SNAPSHOT_INTERVAL_TICKS;
-
-    if (needsFullSnapshot) {
-      Game.network()
-          .send(client.clientId(), currentSnapshot, true)
-          .thenAccept(
-              success -> {
-                if (success) {
-                  client.lastFullSnapshot(currentSnapshot);
-                  client.resetKnownSnapshotEntityIds(currentSnapshot);
-                }
-              });
+    ClientSnapshotSyncState snapshotSync = client.snapshotSync();
+    if (!snapshotSync.hasAck()
+        || snapshotSync.fullSnapshotDue(
+            currentSnapshot.serverTick(), FULL_SNAPSHOT_INTERVAL_TICKS)) {
+      sendFullSnapshot(client, currentSnapshot);
       return;
     }
 
-    client
-        .lastFullSnapshot()
-        .flatMap(
-            baseline ->
-                SnapshotDeltaCompressor.compress(
-                    baseline, currentSnapshot, client.knownSnapshotEntityIds()))
+    int baseTick = snapshotSync.lastAckedSnapshotTick();
+    Optional<SnapshotMessage> baseSnapshot = snapshotHistory.snapshot(baseTick);
+    if (baseSnapshot.isEmpty()) {
+      sendFullSnapshot(client, currentSnapshot);
+      return;
+    }
+
+    SnapshotMessage baseline = baseSnapshot.orElseThrow();
+    client.ensureKnownSnapshotEntityIdsForBaseline(baseline);
+    SnapshotDeltaCompressor.compress(baseline, currentSnapshot, client.knownSnapshotEntityIds())
         .ifPresent(
             delta -> {
               client.trackKnownSnapshotEntityIds(
@@ -200,6 +201,17 @@ public final class AuthoritativeServerLoop {
             });
   }
 
+  private void sendFullSnapshot(ClientState client, SnapshotMessage currentSnapshot) {
+    Game.network()
+        .send(client.clientId(), currentSnapshot, true)
+        .thenAccept(
+            success -> {
+              if (success) {
+                client.snapshotSync().markFullSnapshotSent(currentSnapshot.serverTick());
+              }
+            });
+  }
+
   private void clearSnapshotBaselinesOnLevelChange(Set<ClientState> clients) {
     Optional<String> currentLevel = currentLevelName();
     if (currentLevel.isEmpty()) {
@@ -207,6 +219,7 @@ public final class AuthoritativeServerLoop {
     }
     String levelName = currentLevel.orElseThrow();
     if (!levelName.equals(snapshotLevelName)) {
+      snapshotHistory.clear();
       clients.forEach(ClientState::clearSnapshotBaseline);
       snapshotLevelName = levelName;
     }

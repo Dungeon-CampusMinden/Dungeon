@@ -5,6 +5,7 @@ import core.network.codec.converters.c2s.DialogResponseConverter;
 import core.network.codec.converters.c2s.InputMessageConverter;
 import core.network.codec.converters.c2s.RegisterUdpConverter;
 import core.network.codec.converters.c2s.RequestEntitySpawnConverter;
+import core.network.codec.converters.c2s.SnapshotAckConverter;
 import core.network.codec.converters.c2s.SoundFinishedConverter;
 import core.network.codec.converters.s2c.ConnectAckConverter;
 import core.network.codec.converters.s2c.ConnectRejectConverter;
@@ -39,6 +40,7 @@ public final class CoreConverters {
     registry.register(new RegisterUdpConverter());
     registry.register(new RequestEntitySpawnConverter());
     registry.register(new SoundFinishedConverter());
+    registry.register(new SnapshotAckConverter());
     registry.register(new ConnectAckConverter());
     registry.register(new ConnectRejectConverter());
     registry.register(new DialogShowConverter());

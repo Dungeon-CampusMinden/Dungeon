@@ -23,6 +23,7 @@ import core.network.messages.c2s.DialogResponseMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
+import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.c2s.SoundFinishedMessage;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
@@ -451,6 +452,7 @@ public final class ServerTransport {
     dispatcher.registerHandler(ConnectRequest.class, this::onConnectRequest);
     dispatcher.registerHandler(RequestEntitySpawn.class, this::onRequestEntitySpawn);
     dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
+    dispatcher.registerHandler(SnapshotAck.class, this::onSnapshotAck);
     dispatcher.registerHandler(SoundFinishedMessage.class, this::onSoundFinished);
     dispatcher.registerHandler(DialogResponseMessage.class, this::onDialogResponse);
   }
@@ -778,8 +780,25 @@ public final class ServerTransport {
       return;
     }
 
+    msg.lastSnapshotTick().ifPresent(tick -> acknowledgeSnapshot(session, tick));
+
     // 4. Enqueue
     HeroController.enqueueInput(state, msg);
+  }
+
+  private void onSnapshotAck(Session session, SnapshotAck ack) {
+    if (!isSessionValid(session)) {
+      return;
+    }
+    acknowledgeSnapshot(session, ack.serverTick());
+  }
+
+  private void acknowledgeSnapshot(Session session, int serverTick) {
+    if (serverTick < 0) {
+      return;
+    }
+    ClientState state = session.clientState().orElseThrow();
+    state.snapshotSync().acknowledge(serverTick);
   }
 
   /**

@@ -48,6 +48,43 @@ public class ClientStateTest {
     assertTrue(state.knownSnapshotEntityIds().isEmpty());
   }
 
+  /** Verifies known entity tracking is reset when the acknowledged baseline changes. */
+  @Test
+  public void knownSnapshotEntityIdsResetWhenBaselineChanges() {
+    ClientState state = clientState();
+    SnapshotMessage firstBaseline =
+        new SnapshotMessage(
+            20,
+            List.of(
+                EntityState.builder().entityId(1).build(),
+                EntityState.builder().entityId(2).build()),
+            new LevelState(Set.of()));
+    SnapshotMessage secondBaseline =
+        new SnapshotMessage(
+            21, List.of(EntityState.builder().entityId(1).build()), new LevelState(Set.of()));
+
+    state.ensureKnownSnapshotEntityIdsForBaseline(firstBaseline);
+    state.trackKnownSnapshotEntityIds(List.of(3));
+    state.ensureKnownSnapshotEntityIdsForBaseline(secondBaseline);
+
+    assertEquals(Set.of(1), state.knownSnapshotEntityIds());
+  }
+
+  /** Verifies known entity tracking is preserved while the acknowledged baseline is unchanged. */
+  @Test
+  public void knownSnapshotEntityIdsPreservedForSameBaseline() {
+    ClientState state = clientState();
+    SnapshotMessage baseline =
+        new SnapshotMessage(
+            20, List.of(EntityState.builder().entityId(1).build()), new LevelState(Set.of()));
+
+    state.ensureKnownSnapshotEntityIdsForBaseline(baseline);
+    state.trackKnownSnapshotEntityIds(List.of(2));
+    state.ensureKnownSnapshotEntityIdsForBaseline(baseline);
+
+    assertEquals(Set.of(1, 2), state.knownSnapshotEntityIds());
+  }
+
   private static ClientState clientState() {
     return new ClientState((short) 1, "tester", 1, new byte[] {1, 2, 3}, CharacterClass.WIZARD);
   }

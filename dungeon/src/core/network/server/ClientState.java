@@ -4,6 +4,7 @@ import contrib.entities.CharacterClass;
 import core.Entity;
 import core.Game;
 import core.network.config.NetworkConfig;
+import core.network.delta.SnapshotHistory;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.SnapshotMessage;
 import java.util.Arrays;
@@ -79,8 +80,12 @@ public class ClientState {
    */
   private long lastActivityTimeMs;
 
-  /** Last full snapshot that was successfully scheduled for this client. */
-  private volatile SnapshotMessage lastFullSnapshot;
+  /** Per-client server-side snapshot acknowledgement state. */
+  private final ClientSnapshotSyncState snapshotSync = new ClientSnapshotSyncState();
+
+  /** Client-side history of fully applied snapshots. */
+  private final SnapshotHistory appliedSnapshotHistory =
+      new SnapshotHistory(NetworkConfig.CLIENT_DELTA_HISTORY_SIZE);
 
   /** Latest snapshot tick applied by this client. */
   private volatile int latestAppliedSnapshotTick = -1;
@@ -88,8 +93,11 @@ public class ClientState {
   /** Entity IDs known by the client through reliable lifecycle events or snapshots. */
   private final Set<Integer> networkSyncedEntityIds = ConcurrentHashMap.newKeySet();
 
-  /** Entity IDs sent to this client since the current full snapshot baseline. */
+  /** Entity IDs sent to this client for the current acknowledged delta baseline. */
   private final Set<Integer> knownSnapshotEntityIds = ConcurrentHashMap.newKeySet();
+
+  /** Server tick of the baseline used by knownSnapshotEntityIds. */
+  private volatile int knownSnapshotBaseTick = -1;
 
   /**
    * Constructs a new ClientState for a fresh connection.
@@ -382,37 +390,21 @@ public class ClientState {
   }
 
   /**
-   * Returns the last full snapshot baseline for this client.
+   * Returns per-client server-side snapshot sync state.
    *
-   * @return the last full snapshot if one has been sent
+   * @return snapshot sync state
    */
-  public Optional<SnapshotMessage> lastFullSnapshot() {
-    return Optional.ofNullable(lastFullSnapshot);
+  public ClientSnapshotSyncState snapshotSync() {
+    return snapshotSync;
   }
 
-  /**
-   * Updates the full snapshot baseline for this client.
-   *
-   * @param snapshot the full snapshot baseline
-   */
-  public void lastFullSnapshot(SnapshotMessage snapshot) {
-    this.lastFullSnapshot = snapshot;
-  }
-
-  /**
-   * Returns the tick of the last full snapshot baseline.
-   *
-   * @return the baseline tick, or -1 when no baseline exists
-   */
-  public int lastFullSnapshotTick() {
-    return lastFullSnapshot().map(SnapshotMessage::serverTick).orElse(-1);
-  }
-
-  /** Clears the cached full snapshot baseline. */
+  /** Clears snapshot acknowledgement, applied-history, and delta tracking state. */
   public void clearSnapshotBaseline() {
-    this.lastFullSnapshot = null;
     this.latestAppliedSnapshotTick = -1;
+    this.snapshotSync.clear();
+    this.appliedSnapshotHistory.clear();
     this.knownSnapshotEntityIds.clear();
+    this.knownSnapshotBaseTick = -1;
   }
 
   /**
@@ -448,7 +440,7 @@ public class ClientState {
   }
 
   /**
-   * Returns entity IDs sent in the current full-baseline window.
+   * Returns entity IDs known for the current acknowledged delta baseline.
    *
    * @return an immutable copy of known snapshot entity IDs
    */
@@ -457,17 +449,29 @@ public class ClientState {
   }
 
   /**
-   * Resets the known snapshot entity IDs to the entities contained in a full baseline snapshot.
+   * Resets the known snapshot entity IDs to the entities contained in a baseline snapshot.
    *
    * @param snapshot the new full snapshot baseline
    */
   public void resetKnownSnapshotEntityIds(SnapshotMessage snapshot) {
     knownSnapshotEntityIds.clear();
     snapshot.entities().forEach(entity -> knownSnapshotEntityIds.add(entity.entityId()));
+    knownSnapshotBaseTick = snapshot.serverTick();
   }
 
   /**
-   * Tracks entity IDs included in a delta snapshot for the current full-baseline window.
+   * Resets known entity tracking when the acknowledged delta baseline changes.
+   *
+   * @param baseline the acknowledged baseline snapshot
+   */
+  public void ensureKnownSnapshotEntityIdsForBaseline(SnapshotMessage baseline) {
+    if (knownSnapshotBaseTick != baseline.serverTick()) {
+      resetKnownSnapshotEntityIds(baseline);
+    }
+  }
+
+  /**
+   * Tracks entity IDs included in a delta snapshot for the current acknowledged baseline.
    *
    * @param entityIds entity IDs included in a delta snapshot
    */
@@ -491,6 +495,35 @@ public class ClientState {
    */
   public void latestAppliedSnapshotTick(int serverTick) {
     this.latestAppliedSnapshotTick = serverTick;
+  }
+
+  /**
+   * Stores a fully applied client-side snapshot.
+   *
+   * @param snapshot applied full/materialized snapshot
+   */
+  public void rememberAppliedSnapshot(SnapshotMessage snapshot) {
+    appliedSnapshotHistory.add(snapshot);
+    latestAppliedSnapshotTick(snapshot.serverTick());
+  }
+
+  /**
+   * Finds an applied client-side snapshot by server tick.
+   *
+   * @param serverTick server tick to look up
+   * @return applied snapshot, if retained
+   */
+  public Optional<SnapshotMessage> appliedSnapshot(int serverTick) {
+    return appliedSnapshotHistory.snapshot(serverTick);
+  }
+
+  /**
+   * Returns the latest applied client-side snapshot.
+   *
+   * @return latest applied snapshot, if any
+   */
+  public Optional<SnapshotMessage> latestAppliedSnapshot() {
+    return appliedSnapshotHistory.newest();
   }
 
   @Override
