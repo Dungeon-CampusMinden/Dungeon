@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
+import contrib.hud.dialogs.DialogDesign;
 import contrib.hud.elements.richlabel.PauseRun;
 import contrib.hud.elements.richlabel.RichLabelLayout;
 import contrib.hud.elements.richlabel.RichLabelParser;
@@ -168,8 +169,17 @@ public class RichLabel extends WidgetGroup implements Disposable {
   }
 
   /**
+   * Creates a new RichLabel with the given text.
+   *
+   * @param text the markup text to display
+   */
+  public RichLabel(String text) {
+    this(text, DialogDesign.DIALOG_FONT_SPEC_NORMAL, false);
+  }
+
+  /**
    * Creates a new RichLabel with the given text and font specification. The typewriter is disabled
-   * by default; use {@link #RichLabel(String, FontSpec, boolean)} to opt in.
+   * by default.
    *
    * @param text the markup text to display
    * @param fontSpec the font specification for default text rendering
