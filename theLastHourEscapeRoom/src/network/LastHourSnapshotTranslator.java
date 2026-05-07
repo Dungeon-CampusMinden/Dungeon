@@ -174,7 +174,8 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
 
   private Map<String, String> computerStateMetadata(ComputerStateComponent state) {
     Map<String, String> metadata = new HashMap<>();
-    metadata.put(LastHourEntitySpawnStrategy.METADATA_TYPE, LastHourEntitySpawnStrategy.TYPE_COMPUTER);
+    metadata.put(
+        LastHourEntitySpawnStrategy.METADATA_TYPE, LastHourEntitySpawnStrategy.TYPE_COMPUTER);
     metadata.put(LastHourEntitySpawnStrategy.METADATA_PROGRESS, state.state().name());
     metadata.put(LastHourEntitySpawnStrategy.METADATA_INFECTED, String.valueOf(state.isInfected()));
     metadata.put(
@@ -183,18 +184,20 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     metadata.put(
         LastHourEntitySpawnStrategy.METADATA_TIMESTAMP_OF_LOGIN,
         String.valueOf(state.timestampOfLogin()));
-    metadata.put(LastHourEntitySpawnStrategy.METADATA_USB_INSERTED, String.valueOf(state.usbInserted()));
+    metadata.put(
+        LastHourEntitySpawnStrategy.METADATA_USB_INSERTED, String.valueOf(state.usbInserted()));
     metadata.put(LastHourEntitySpawnStrategy.METADATA_LIGHTS_ON, String.valueOf(state.lightsOn()));
     metadata.put(
-        LastHourEntitySpawnStrategy.METADATA_HEATER_CELSIUS,
-        String.valueOf(state.heaterCelsius()));
-    metadata.put(LastHourEntitySpawnStrategy.METADATA_DOOR1_OPEN, String.valueOf(state.door1Open()));
+        LastHourEntitySpawnStrategy.METADATA_HEATER_CELSIUS, String.valueOf(state.heaterCelsius()));
     metadata.put(
-        LastHourEntitySpawnStrategy.METADATA_DOOR2_UNLOCKED,
-        String.valueOf(state.door2Unlocked()));
-    metadata.put(LastHourEntitySpawnStrategy.METADATA_DOOR2_OPEN, String.valueOf(state.door2Open()));
+        LastHourEntitySpawnStrategy.METADATA_DOOR1_OPEN, String.valueOf(state.door1Open()));
+    metadata.put(
+        LastHourEntitySpawnStrategy.METADATA_DOOR2_UNLOCKED, String.valueOf(state.door2Unlocked()));
+    metadata.put(
+        LastHourEntitySpawnStrategy.METADATA_DOOR2_OPEN, String.valueOf(state.door2Open()));
     metadata.put(LastHourEntitySpawnStrategy.METADATA_AC_ON, String.valueOf(state.acOn()));
-    metadata.put(LastHourEntitySpawnStrategy.METADATA_CAMERAS_ON, String.valueOf(state.camerasOn()));
+    metadata.put(
+        LastHourEntitySpawnStrategy.METADATA_CAMERAS_ON, String.valueOf(state.camerasOn()));
     return metadata;
   }
 

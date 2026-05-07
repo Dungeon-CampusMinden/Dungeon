@@ -335,7 +335,8 @@ public class Lore {
           "Ransomware", "backup your data",
           "Adware", "read before click");
 
-  /** Special virus type triggered exclusively by plugging a wrong USB stick into the PC. This type
+  /**
+   * Special virus type triggered exclusively by plugging a wrong USB stick into the PC. This type
    * is never produced by emails or browser sites and cannot be neutralized via the standard virus
    * tab pass phrase flow. Instead the system shuts itself down after a short delay.
    */
@@ -386,7 +387,7 @@ public class Lore {
           + "[p][speaker name=\"Adrian Voss?\"]Did someone else try to contact you before?"
           + "[p][speaker img={path}]Yes, someone called Daniel Krell who claimed to be the CEO of Ciphera Labs."
           + "[p][speaker name=\"Adrian Voss?\"]I've never heard of that person, but they lied to you."
-        + "[p][speaker img={path}]Well the door locked shut behind us. We're trying to understand what happened and get out."
+          + "[p][speaker img={path}]Well the door locked shut behind us. We're trying to understand what happened and get out."
           + "[p][speaker name=\"Adrian Voss?\"]Stay focused.[pause=0.5] Navigate [color="
           + MertensColor
           + "]Mertens'[/color] lab with caution."

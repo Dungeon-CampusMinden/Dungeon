@@ -83,31 +83,19 @@ public class UsbDriveTab extends ComputerTab {
   // ----- Fake folder structure -----
 
   private static final String[] DOCUMENTS = {
-    "vacation_2023.txt",
-    "shopping_list.txt",
-    "old_resume.docx",
-    "todo.txt",
-    HINT_FILE
+    "vacation_2023.txt", "shopping_list.txt", "old_resume.docx", "todo.txt", HINT_FILE
   };
 
   private static final String[] PROJECTS = {
-    "ideas.txt",
-    "draft_proposal.docx",
-    "budget.xlsx",
-    "meeting_notes.md"
+    "ideas.txt", "draft_proposal.docx", "budget.xlsx", "meeting_notes.md"
   };
 
   private static final String[] BACKUPS = {
-    "backup_2024_q1.zip",
-    "backup_2024_q2.zip",
-    "config.bak"
+    "backup_2024_q1.zip", "backup_2024_q2.zip", "config.bak"
   };
 
   private static final String[] SYSTEM = {
-    "autorun.inf",
-    "drivers.bin",
-    "readme.txt",
-    CONTROL_PANEL_KEY_FILE
+    "autorun.inf", "drivers.bin", "readme.txt", CONTROL_PANEL_KEY_FILE
   };
 
   /**
@@ -125,8 +113,7 @@ public class UsbDriveTab extends ComputerTab {
     content.top().left();
     content.pad(10f);
 
-    Label header =
-        Scene2dElementFactory.createLabel(HEADER_TEXT, HEADER_FONT_SIZE, HEADER_COLOR);
+    Label header = Scene2dElementFactory.createLabel(HEADER_TEXT, HEADER_FONT_SIZE, HEADER_COLOR);
     header.setAlignment(Align.left);
     content.add(header).left().padBottom(2f).row();
 
@@ -135,7 +122,12 @@ public class UsbDriveTab extends ComputerTab {
     sub.setAlignment(Align.left);
     content.add(sub).left().padBottom(10f).row();
 
-    content.add(Scene2dElementFactory.createHorizontalDivider()).fillX().height(2f).padBottom(10f).row();
+    content
+        .add(Scene2dElementFactory.createHorizontalDivider())
+        .fillX()
+        .height(2f)
+        .padBottom(10f)
+        .row();
 
     addFolder(content, "Documents", DOCUMENTS);
     addFolder(content, "Projects", PROJECTS);
@@ -192,7 +184,8 @@ public class UsbDriveTab extends ComputerTab {
         .ifPresent(
             dialog -> {
               if (HINT_FILE.equals(fileName)) {
-                openOrFocus(dialog, "file-" + HINT_FILE, () -> new FileTab(sharedState(), HINT_FILE));
+                openOrFocus(
+                    dialog, "file-" + HINT_FILE, () -> new FileTab(sharedState(), HINT_FILE));
               } else if (CONTROL_PANEL_KEY_FILE.equals(fileName)) {
                 localState().controlPanelOpen(true);
                 openOrFocus(dialog, ControlPanelTab.KEY, () -> new ControlPanelTab(sharedState()));
@@ -214,4 +207,3 @@ public class UsbDriveTab extends ComputerTab {
     // Static page; nothing to refresh.
   }
 }
-

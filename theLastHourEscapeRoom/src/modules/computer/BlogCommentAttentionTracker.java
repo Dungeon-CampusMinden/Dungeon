@@ -106,4 +106,3 @@ public final class BlogCommentAttentionTracker {
     lastVisibleCommentCount = visibleCommentCount;
   }
 }
-

@@ -38,7 +38,6 @@ public class ComputerFactory {
   private static final String STATE_KEY = "computer_state";
   private static final String ACCESS_PC_LABEL = "Just access the PC";
 
-
   /** Key for updating the computer state from the dialog callbacks. */
   public static final String UPDATE_STATE_KEY = "update_state";
 
@@ -260,7 +259,9 @@ public class ComputerFactory {
                 if (previousState == null) return;
 
                 boolean wasInfected =
-                    ComputerStateComponent.getState().map(ComputerStateComponent::isInfected).orElse(false);
+                    ComputerStateComponent.getState()
+                        .map(ComputerStateComponent::isInfected)
+                        .orElse(false);
                 stateEntity.remove(ComputerStateComponent.class);
                 stateEntity.add(newState);
 
@@ -319,7 +320,10 @@ public class ComputerFactory {
     }
 
     if (previousState.acOn() != newState.acOn()) {
-      Sounds.play(newState.acOn() ? LastHourSounds.CONTROL_PANEL_AC_ON : LastHourSounds.CONTROL_PANEL_AC_OFF);
+      Sounds.play(
+          newState.acOn()
+              ? LastHourSounds.CONTROL_PANEL_AC_ON
+              : LastHourSounds.CONTROL_PANEL_AC_OFF);
     }
   }
 }

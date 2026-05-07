@@ -142,7 +142,6 @@ public class AboutTab extends ComputerTab {
     this.add(footerLabel).minWidth(0f).prefWidth(0f).expandX().fillX().padTop(4f);
   }
 
-
   @Override
   protected void updateState(ComputerStateComponent newStateComp) {
     // Static page; no state-dependent updates.

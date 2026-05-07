@@ -15,8 +15,8 @@ import modules.computer.ComputerStateComponent;
 import util.Lore;
 
 /**
- * Tab that exposes the room's environmental control panel. Opened by clicking the
- * {@code control-panel.key} file inside the USB drive tab.
+ * Tab that exposes the room's environmental control panel. Opened by clicking the {@code
+ * control-panel.key} file inside the USB drive tab.
  */
 public class ControlPanelTab extends ComputerTab {
 
@@ -116,8 +116,7 @@ public class ControlPanelTab extends ComputerTab {
     root.top();
 
     // Header.
-    Label header =
-        Scene2dElementFactory.createLabel(HEADER_TEXT, HEADER_FONT_SIZE, HEADER_COLOR);
+    Label header = Scene2dElementFactory.createLabel(HEADER_TEXT, HEADER_FONT_SIZE, HEADER_COLOR);
     header.setAlignment(Align.center);
     root.add(header).colspan(2).center().padBottom(2f).row();
 
@@ -135,13 +134,34 @@ public class ControlPanelTab extends ComputerTab {
 
     // Two-column body (left | right).
     root.add(buildLightSection()).top().growX().fill().height(CARD_HEIGHT).uniform().pad(CARD_PAD);
-    root.add(buildDoor2Section()).top().growX().fill().height(CARD_HEIGHT).uniform().pad(CARD_PAD).row();
+    root.add(buildDoor2Section())
+        .top()
+        .growX()
+        .fill()
+        .height(CARD_HEIGHT)
+        .uniform()
+        .pad(CARD_PAD)
+        .row();
 
     root.add(buildHeaterSection()).top().growX().fill().height(CARD_HEIGHT).uniform().pad(CARD_PAD);
-    root.add(buildAcSection()).top().growX().fill().height(CARD_HEIGHT).uniform().pad(CARD_PAD).row();
+    root.add(buildAcSection())
+        .top()
+        .growX()
+        .fill()
+        .height(CARD_HEIGHT)
+        .uniform()
+        .pad(CARD_PAD)
+        .row();
 
     root.add(buildDoor1Section()).top().growX().fill().height(CARD_HEIGHT).uniform().pad(CARD_PAD);
-    root.add(buildCamerasSection()).top().growX().fill().height(CARD_HEIGHT).uniform().pad(CARD_PAD).row();
+    root.add(buildCamerasSection())
+        .top()
+        .growX()
+        .fill()
+        .height(CARD_HEIGHT)
+        .uniform()
+        .pad(CARD_PAD)
+        .row();
 
     this.add(root).grow();
   }
@@ -214,11 +234,12 @@ public class ControlPanelTab extends ComputerTab {
   private Table buildDoor1Section() {
     Table card = newCard();
     card.add(sectionTitle(DOOR1_TITLE)).left().row();
-    door1StateLabel =
-        Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
+    door1StateLabel = Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
     card.add(door1StateLabel).left().padTop(SECTION_VALUE_PAD_TOP).row();
 
-    door1Button = Scene2dElementFactory.createButton(CLOSE_BUTTON, GREEN_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
+    door1Button =
+        Scene2dElementFactory.createButton(
+            CLOSE_BUTTON, GREEN_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
     door1Button.addListener(
         new ChangeListener() {
           @Override
@@ -235,8 +256,7 @@ public class ControlPanelTab extends ComputerTab {
   private Table buildDoor2Section() {
     Table card = newCard();
     card.add(sectionTitle(DOOR2_TITLE)).left().colspan(2).row();
-    door2StateLabel =
-        Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
+    door2StateLabel = Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
     card.add(door2StateLabel).left().colspan(2).padTop(SECTION_VALUE_PAD_TOP).row();
 
     door2PasswordField = Scene2dElementFactory.createTextField("");
@@ -245,14 +265,14 @@ public class ControlPanelTab extends ComputerTab {
     door2PasswordField.setPasswordCharacter('*');
 
     door2UnlockButton =
-        Scene2dElementFactory.createButton(UNLOCK_BUTTON, BLUE_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
+        Scene2dElementFactory.createButton(
+            UNLOCK_BUTTON, BLUE_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
     door2UnlockButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             String entered = door2PasswordField.getText();
-            if (entered != null
-                && entered.equalsIgnoreCase(Lore.ControlPanelDoor2Password)) {
+            if (entered != null && entered.equalsIgnoreCase(Lore.ControlPanelDoor2Password)) {
               door2FeedbackLabel.setText(DOOR2_UNLOCKED_NOTE);
               door2FeedbackLabel.setColor(STATE_ON_COLOR);
               postUpdate(sharedState().withDoor2Unlocked(true));
@@ -291,8 +311,7 @@ public class ControlPanelTab extends ComputerTab {
   private Table buildAcSection() {
     Table card = newCard();
     card.add(sectionTitle(AC_TITLE)).left().row();
-    acStateLabel =
-        Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
+    acStateLabel = Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
     card.add(acStateLabel).left().padTop(SECTION_VALUE_PAD_TOP).row();
     acButton = Scene2dElementFactory.createButton("", GREEN_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
     acButton.addListener(
@@ -310,10 +329,10 @@ public class ControlPanelTab extends ComputerTab {
   private Table buildCamerasSection() {
     Table card = newCard();
     card.add(sectionTitle(CAMERAS_TITLE)).left().row();
-    camerasStateLabel =
-        Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
+    camerasStateLabel = Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
     card.add(camerasStateLabel).left().padTop(SECTION_VALUE_PAD_TOP).row();
-    camerasButton = Scene2dElementFactory.createButton("", GREEN_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
+    camerasButton =
+        Scene2dElementFactory.createButton("", GREEN_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
     camerasButton.addListener(
         new ChangeListener() {
           @Override
@@ -436,5 +455,3 @@ public class ControlPanelTab extends ComputerTab {
     refreshHeater(newStateComp);
   }
 }
-
-

@@ -86,7 +86,9 @@ public class ComputerDialog extends Group {
 
     checkVirus();
 
-    BlogCommentAttentionTracker.AttentionChange change = blogCommentAttentionTracker.initialize(BlogTab.KEY.equals(activeTab), tabContentMap.containsKey(BlogTab.KEY));
+    BlogCommentAttentionTracker.AttentionChange change =
+        blogCommentAttentionTracker.initialize(
+            BlogTab.KEY.equals(activeTab), tabContentMap.containsKey(BlogTab.KEY));
     applyBlogAttentionChange(change);
 
     showContent(activeTab);
