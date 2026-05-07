@@ -61,7 +61,10 @@ public interface DialogType {
     MULTIPLE_CHOICE("MULTIPLE_CHOICE"),
 
     /** Sequenced speaker dialogue (NPC talks). */
-    DIALOG_DIALOG("DIALOG_DIALOG");
+    DIALOG_DIALOG("DIALOG_DIALOG"),
+
+    /** Jigsaw-style puzzle dialog. */
+    PUZZLE("PUZZLE");
 
     private final String type;
 

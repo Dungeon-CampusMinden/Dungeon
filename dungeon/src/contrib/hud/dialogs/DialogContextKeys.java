@@ -102,5 +102,8 @@ public class DialogContextKeys {
   /** The key for the dialog script (String) used by {@link DialogDialog}. */
   public static final String DIALOG = "dialog";
 
+  /** The key for the puzzle complete callback */
+  public static final String ON_COMPLETE = "onComplete";
+
   private DialogContextKeys() {}
 }

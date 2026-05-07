@@ -7,6 +7,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.modules.keypad.KeypadUI;
+import contrib.modules.puzzle.PuzzleDialog;
 import contrib.utils.AttributeBarUtil;
 import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
@@ -58,6 +59,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);
     register(DialogType.DefaultTypes.DIALOG_DIALOG, DialogDialog::build);
+    register(DialogType.DefaultTypes.PUZZLE, PuzzleDialog::build);
   }
 
   /**
