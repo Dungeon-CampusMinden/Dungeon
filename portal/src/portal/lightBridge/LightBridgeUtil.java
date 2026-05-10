@@ -236,9 +236,6 @@ public class LightBridgeUtil {
       height = Math.max(1f, len);
       offsetY = (direction == Direction.DOWN) ? -(height - 1f) : 0f;
     }
-    PositionComponent pc = new PositionComponent(start);
-    pc.rotation(rotationFor(direction));
-    emitter.add(pc);
     emitter.remove(CollideComponent.class);
     CollideComponent cc =
         new CollideComponent(Vector2.of(offsetX, offsetY), Vector2.of(width, height));
