@@ -146,7 +146,7 @@ public class TractorBeamFactory {
    *
    * @return a new tractor beam entity, or {@code null} if no more entities can be created
    */
-  private Entity createNextEntity() {
+  private Entity createNextEntity(TractorBeamComponent tractorBeamComponent) {
     if (!hasNext()) {
       return null;
     }
@@ -156,6 +156,7 @@ public class TractorBeamFactory {
     float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
 
     Entity tractorBeam = new Entity(tractorBeamName);
+    tractorBeam.add(tractorBeamComponent);
     tractorBeam.add(new PositionComponent(new Point(x, y)));
     tractorBeam
         .fetch(PositionComponent.class)
@@ -185,14 +186,17 @@ public class TractorBeamFactory {
   public static Entity createTractorBeam(Point from, Direction direction) {
     TractorBeamFactory factory = new TractorBeamFactory(from, direction);
     List<Entity> tractorBeamEntities = new ArrayList<>();
+    TractorBeamComponent tbc = new TractorBeamComponent();
 
     while (factory.hasNext()) {
-      tractorBeamEntities.add(factory.createNextEntity());
+      Entity beamElement = factory.createNextEntity(tbc);
+      tractorBeamEntities.add(beamElement);
+      Game.add(beamElement);
     }
+
     Entity beamEmitter = factory.createBeamEmitter(from, direction);
 
     tractorBeamEntities.add(beamEmitter);
-    TractorBeamComponent tbc = new TractorBeamComponent();
     beamEmitter.add(tbc);
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend = tbc::extend;
@@ -560,7 +564,7 @@ public class TractorBeamFactory {
     TractorBeamFactory factory = new TractorBeamFactory(from, direction);
 
     while (factory.hasNext()) {
-      Entity beamEntity = factory.createNextEntity();
+      Entity beamEntity = factory.createNextEntity(tbc);
       tractorBeamEntities.add(beamEntity);
       Game.add(beamEntity);
     }

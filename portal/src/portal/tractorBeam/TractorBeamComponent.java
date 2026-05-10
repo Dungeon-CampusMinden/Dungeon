@@ -29,7 +29,6 @@ public class TractorBeamComponent implements Component {
 
   /** Constructs a TractorBeamComponent so it can be extended and trimmed. */
   public TractorBeamComponent() {
-    ;
     activate();
   }
 
