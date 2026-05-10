@@ -3,7 +3,14 @@ package aiAdvanced.pathfinding;
 import contrib.utils.LevelUtils;
 import core.level.utils.Coordinate;
 import core.utils.Tuple;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * PathfindingLogic provides a basic structure for pathfinding algorithms.

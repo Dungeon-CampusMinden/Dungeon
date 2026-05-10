@@ -1,7 +1,10 @@
 package core.network.handler;
 
 import contrib.entities.CharacterClass;
-import core.network.*;
+import core.network.ConnectionListener;
+import core.network.MessageDispatcher;
+import core.network.NetworkException;
+import core.network.SnapshotTranslator;
 import core.network.client.ClientNetwork;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;

@@ -79,6 +79,10 @@ allprojects {
         maxWarnings = 0
     }
 
+    tasks.withType(Checkstyle).configureEach {
+        group = 'verification'
+    }
+
     // Generate an internal assets list for LibGDX (see https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/)
     tasks.register('generateInternalAssetsList') {
         group = 'assets'

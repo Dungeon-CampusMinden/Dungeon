@@ -3,7 +3,9 @@ package core.network.client;
 import static core.network.config.NetworkConfig.UDP_KEEPALIVE_INTERVAL_MS;
 import static core.network.config.NetworkConfig.UDP_RETRY_INITIAL_DELAY_MS;
 import static core.network.config.NetworkConfig.UDP_RETRY_MAX_DELAY_MS;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 

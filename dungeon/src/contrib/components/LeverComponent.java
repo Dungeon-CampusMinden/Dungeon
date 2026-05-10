@@ -2,6 +2,7 @@ package contrib.components;
 
 import contrib.systems.LeverSystem;
 import contrib.utils.ICommand;
+import contrib.utils.IEntityCommand;
 import core.Component;
 
 /**

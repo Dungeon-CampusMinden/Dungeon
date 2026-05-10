@@ -9,11 +9,16 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.*;
+import core.components.VelocityComponent;
+import core.utils.Direction;
+import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 import portal.portals.components.PortalComponent;
 import portal.riddles.utils.PortalUtils;
 

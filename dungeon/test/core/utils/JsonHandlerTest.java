@@ -1,6 +1,10 @@
 package core.utils;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -12,7 +16,12 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -86,18 +95,6 @@ public class JsonHandlerTest {
       return Files.readString(filePath);
     } catch (IOException | URISyntaxException e) {
       throw new RuntimeException("Failed to read JSON file from JAR: " + path, e);
-    } finally {
-      // Closing the FileSystem created by newFileSystem is important.
-      // However, if we get an existing one, we should not close it.
-      // This logic is simplified here as the method is not actively tested.
-      try {
-        if (fileSystem != null && fileSystem.provider().getScheme().equals("jar")) {
-          // Only close if we created it and it's a JAR FS.
-          // This check is not perfect and depends on how newFileSystem was called.
-        }
-      } catch (Exception e) {
-        // Ignore close exceptions
-      }
     }
   }
 

@@ -2,7 +2,10 @@ package core.components;
 
 import core.Component;
 import core.sound.SoundSpec;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Component for entities that emit audio. Contains a set of {@link SoundSpec} instances. Clients

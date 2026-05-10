@@ -12,15 +12,26 @@ import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.elements.astar.TileHeuristic;
-import core.level.elements.tile.*;
+import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.ExitTile;
+import core.level.elements.tile.FloorTile;
+import core.level.elements.tile.HoleTile;
+import core.level.elements.tile.PitTile;
+import core.level.elements.tile.SkipTile;
+import core.level.elements.tile.TileFactory;
+import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.function.Function;
 
 /**

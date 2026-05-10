@@ -1,7 +1,10 @@
 package contrib.hud;
 
 import contrib.components.UIComponent;
-import contrib.hud.dialogs.*;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import contrib.utils.components.showImage.ShowImageUI;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Entity;
