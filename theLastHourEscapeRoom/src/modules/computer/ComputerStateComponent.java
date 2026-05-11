@@ -25,6 +25,8 @@ import java.util.function.UnaryOperator;
  * @param door2Open whether door 2 (exit) is currently open according to the control panel
  * @param acOn whether the air conditioning has been turned on from the control panel
  * @param camerasOn whether the security cameras have been turned on from the control panel
+ * @param acVentConnected whether the control panel has been connected to the air conditioning vent
+ *     by entering the correct vent serial number
  */
 public record ComputerStateComponent(
     ComputerProgress state,
@@ -38,7 +40,8 @@ public record ComputerStateComponent(
     boolean door2Unlocked,
     boolean door2Open,
     boolean acOn,
-    boolean camerasOn)
+    boolean camerasOn,
+    boolean acVentConnected)
     implements Component, Serializable, DialogResponseMessage.Payload {
 
   /** Default heater temperature in Celsius. */
@@ -67,6 +70,7 @@ public record ComputerStateComponent(
         false,
         false,
         false,
+        false,
         false);
   }
 
@@ -89,7 +93,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -111,7 +116,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -133,7 +139,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -155,7 +162,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -177,7 +185,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -199,7 +208,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -221,7 +231,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -243,7 +254,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -265,7 +277,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -287,7 +300,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -309,7 +323,8 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
   }
 
   /**
@@ -331,7 +346,31 @@ public record ComputerStateComponent(
         door2Unlocked,
         door2Open,
         acOn,
-        camerasOn);
+        camerasOn,
+        acVentConnected);
+  }
+
+  /**
+   * Create a new ComputerStateComponent with the given air conditioning vent connection flag.
+   *
+   * @param acVentConnected whether the control panel is connected to the AC vent
+   * @return a new ComputerStateComponent with the updated flag
+   */
+  public ComputerStateComponent withAcVentConnected(boolean acVentConnected) {
+    return new ComputerStateComponent(
+        state,
+        isInfected,
+        virusType,
+        timestampOfLogin,
+        usbInserted,
+        lightsOn,
+        heaterCelsius,
+        door1Open,
+        door2Unlocked,
+        door2Open,
+        acOn,
+        camerasOn,
+        acVentConnected);
   }
 
   /**

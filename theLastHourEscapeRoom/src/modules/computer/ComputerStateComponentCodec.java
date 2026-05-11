@@ -52,6 +52,7 @@ public final class ComputerStateComponentCodec implements DialogValueCodec<Compu
       dataOutput.writeBoolean(value.door2Open());
       dataOutput.writeBoolean(value.acOn());
       dataOutput.writeBoolean(value.camerasOn());
+      dataOutput.writeBoolean(value.acVentConnected());
       dataOutput.flush();
       return outputStream.toByteArray();
     } catch (IOException e) {
@@ -74,6 +75,7 @@ public final class ComputerStateComponentCodec implements DialogValueCodec<Compu
       boolean door2Open = dataInput.readBoolean();
       boolean acOn = dataInput.readBoolean();
       boolean camerasOn = dataInput.readBoolean();
+      boolean acVentConnected = dataInput.available() > 0 && dataInput.readBoolean();
       return new ComputerStateComponent(
           state,
           infected,
@@ -86,7 +88,8 @@ public final class ComputerStateComponentCodec implements DialogValueCodec<Compu
           door2Unlocked,
           door2Open,
           acOn,
-          camerasOn);
+          camerasOn,
+          acVentConnected);
     } catch (IOException e) {
       throw new UncheckedIOException("Failed to decode ComputerStateComponent", e);
     }

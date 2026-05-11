@@ -9,9 +9,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.dialogs.DialogCallbackResolver;
+import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerStateComponent;
+import util.LastHourSounds;
 import util.Lore;
 
 /**
@@ -38,6 +40,12 @@ public class ControlPanelTab extends ComputerTab {
   private static final String AC_TITLE = "Air Conditioning";
   private static final String CAMERAS_TITLE = "Security Cameras";
 
+  private static final String AC_VENT_PREFIX = "sv000";
+  private static final String AC_VENT_HINT = "Serial";
+  private static final String AC_CONNECT_BUTTON = "Connect";
+  private static final String AC_STATUS_NO_CONNECTION = "No Connection";
+  private static final String AC_STATUS_CONNECTED = "Connected";
+
   private static final String STATE_ON = "ON";
   private static final String STATE_OFF = "OFF";
   private static final String STATE_OPEN = "OPEN";
@@ -56,8 +64,6 @@ public class ControlPanelTab extends ComputerTab {
   private static final String TURN_OFF_BUTTON = "Turn OFF";
 
   private static final String DOOR2_PASSWORD_HINT = "Password";
-  private static final String DOOR2_WRONG_PASSWORD = "Incorrect password.";
-  private static final String DOOR2_UNLOCKED_NOTE = "Password accepted. Door can now be opened.";
 
   private static final int HEADER_FONT_SIZE = 30;
   private static final int HEADER_SUB_FONT_SIZE = 14;
@@ -72,19 +78,16 @@ public class ControlPanelTab extends ComputerTab {
   private static final Color HEADER_COLOR = new Color(0.10f, 0.10f, 0.45f, 1f);
   private static final Color HEADER_SUB_COLOR = Color.GRAY;
   private static final Color SECTION_TITLE_COLOR = new Color(0.10f, 0.10f, 0.45f, 1f);
-  private static final Color SECTION_NOTE_COLOR = Color.DARK_GRAY;
   private static final Color STATE_ON_COLOR = new Color(0f, 0.85f, 0f, 1f);
   private static final Color STATE_OFF_COLOR = new Color(0.85f, 0f, 0f, 1f);
   private static final Color WRONG_COLOR = STATE_OFF_COLOR;
 
   private static final float CARD_PAD = 14f;
   private static final float CARD_INNER_PAD = 10f;
-  private static final float CARD_HEIGHT = 145f;
   private static final float SECTION_VALUE_PAD_TOP = 4f;
   private static final float HEADER_PAD_BOTTOM = 14f;
 
-  // ----- Live widgets we update in updateState(...) -----
-
+  // Widgets
   private Label lightStateLabel;
   private TextButton lightButton;
   private Label heaterValueLabel;
@@ -94,9 +97,11 @@ public class ControlPanelTab extends ComputerTab {
   private TextField door2PasswordField;
   private TextButton door2UnlockButton;
   private TextButton door2OpenButton;
-  private Label door2FeedbackLabel;
   private Label acStateLabel;
   private TextButton acButton;
+  private TextField acVentSerialField;
+  private TextButton acVentConnectButton;
+  private Label acVentStatusLabel;
   private Label camerasStateLabel;
   private TextButton camerasButton;
 
@@ -132,36 +137,17 @@ public class ControlPanelTab extends ComputerTab {
         .padBottom(HEADER_PAD_BOTTOM)
         .row();
 
-    // Two-column body (left | right).
-    root.add(buildLightSection()).top().growX().fill().height(CARD_HEIGHT).uniform().pad(CARD_PAD);
-    root.add(buildDoor2Section())
-        .top()
-        .growX()
-        .fill()
-        .height(CARD_HEIGHT)
-        .uniform()
-        .pad(CARD_PAD)
-        .row();
+    // Two-column body (left | right). Cells share the same width via uniform() but each row picks
+    // its own height based on the tallest card in the row, so sections that need more space (like
+    // the AC card with its connection sub-section) won't waste vertical space on the others.
+    root.add(buildLightSection()).top().growX().fill().uniformX().pad(CARD_PAD);
+    root.add(buildDoor2Section()).top().growX().fill().uniformX().pad(CARD_PAD).row();
 
-    root.add(buildHeaterSection()).top().growX().fill().height(CARD_HEIGHT).uniform().pad(CARD_PAD);
-    root.add(buildAcSection())
-        .top()
-        .growX()
-        .fill()
-        .height(CARD_HEIGHT)
-        .uniform()
-        .pad(CARD_PAD)
-        .row();
+    root.add(buildHeaterSection()).top().growX().fill().uniformX().pad(CARD_PAD);
+    root.add(buildAcSection()).top().growX().fill().uniformX().pad(CARD_PAD).row();
 
-    root.add(buildDoor1Section()).top().growX().fill().height(CARD_HEIGHT).uniform().pad(CARD_PAD);
-    root.add(buildCamerasSection())
-        .top()
-        .growX()
-        .fill()
-        .height(CARD_HEIGHT)
-        .uniform()
-        .pad(CARD_PAD)
-        .row();
+    root.add(buildDoor1Section()).top().growX().fill().uniformX().pad(CARD_PAD);
+    root.add(buildCamerasSection()).top().growX().fill().uniformX().pad(CARD_PAD).row();
 
     this.add(root).grow();
   }
@@ -273,12 +259,10 @@ public class ControlPanelTab extends ComputerTab {
           public void changed(ChangeEvent event, Actor actor) {
             String entered = door2PasswordField.getText();
             if (entered != null && entered.equalsIgnoreCase(Lore.ControlPanelDoor2Password)) {
-              door2FeedbackLabel.setText(DOOR2_UNLOCKED_NOTE);
-              door2FeedbackLabel.setColor(STATE_ON_COLOR);
               postUpdate(sharedState().withDoor2Unlocked(true));
+              Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
             } else {
-              door2FeedbackLabel.setText(DOOR2_WRONG_PASSWORD);
-              door2FeedbackLabel.setColor(WRONG_COLOR);
+              Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
             }
           }
         });
@@ -300,30 +284,81 @@ public class ControlPanelTab extends ComputerTab {
     row.add(door2OpenButton);
     card.add(row).left().padTop(8f).row();
 
-    door2FeedbackLabel =
-        Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE - 4, SECTION_NOTE_COLOR);
-    card.add(door2FeedbackLabel).left().padTop(2f).row();
-
     refreshDoor2();
     return card;
   }
 
   private Table buildAcSection() {
     Table card = newCard();
-    card.add(sectionTitle(AC_TITLE)).left().row();
+    card.add(sectionTitle(AC_TITLE)).left().colspan(2).row();
+
+    // Left half of the AC card: state + on/off toggle. Right half: connection sub-section that
+    // floats independently so it doesn't disturb the left layout.
+    Table left = new Table();
+    left.top().left();
+    left.defaults().left();
     acStateLabel = Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
-    card.add(acStateLabel).left().padTop(SECTION_VALUE_PAD_TOP).row();
+    left.add(acStateLabel).left().padTop(SECTION_VALUE_PAD_TOP).row();
     acButton = Scene2dElementFactory.createButton("", GREEN_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
     acButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
+            if (!sharedState().acVentConnected()) return;
             postUpdate(sharedState().withAcOn(!sharedState().acOn()));
           }
         });
-    card.add(acButton).left().padTop(8f).row();
+    left.add(acButton).left().padTop(8f).row();
+
+    card.add(left).top().left().growX();
+    card.add(buildAcConnectionSubSection()).top().right().padLeft(12f).row();
+
     refreshAc();
+    refreshAcConnection();
     return card;
+  }
+
+  private Table buildAcConnectionSubSection() {
+    Table sub = new Table(skin);
+    sub.setBackground(CARD_BACKGROUND);
+    sub.pad(CARD_INNER_PAD);
+    sub.top().right();
+    sub.defaults().left();
+
+    Label prefixLabel =
+        Scene2dElementFactory.createLabel(AC_VENT_PREFIX, SECTION_BODY_FONT_SIZE, Color.DARK_GRAY);
+    acVentSerialField = Scene2dElementFactory.createTextField("");
+    acVentSerialField.setMessageText(AC_VENT_HINT);
+    acVentConnectButton =
+        Scene2dElementFactory.createButton(
+            AC_CONNECT_BUTTON, BLUE_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
+    acVentConnectButton.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            if (sharedState().acVentConnected()) return;
+            String entered = acVentSerialField.getText();
+            if (entered != null && entered.equals(Lore.VentSerialNumber)) {
+              postUpdate(sharedState().withAcVentConnected(true));
+              Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
+            } else {
+              acVentStatusLabel.setColor(STATE_OFF_COLOR);
+              acVentStatusLabel.setText(AC_STATUS_NO_CONNECTION);
+              Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
+            }
+          }
+        });
+    acVentStatusLabel =
+        Scene2dElementFactory.createLabel(
+            AC_STATUS_NO_CONNECTION, SECTION_BODY_FONT_SIZE, STATE_OFF_COLOR);
+
+    Table inputRow = new Table();
+    inputRow.add(prefixLabel).padRight(2f);
+    inputRow.add(acVentSerialField).width(140f);
+    sub.add(inputRow).left().row();
+    sub.add(acVentConnectButton).left().padTop(6f).row();
+    sub.add(acVentStatusLabel).left().padTop(4f).row();
+    return sub;
   }
 
   private Table buildCamerasSection() {
@@ -426,6 +461,20 @@ public class ControlPanelTab extends ComputerTab {
     acStateLabel.setText(on ? STATE_ON : STATE_OFF);
     acStateLabel.setColor(on ? STATE_ON_COLOR : STATE_OFF_COLOR);
     acButton.setText(on ? TURN_OFF_BUTTON : TURN_ON_BUTTON);
+    acButton.setDisabled(!s.acVentConnected());
+  }
+
+  private void refreshAcConnection() {
+    refreshAcConnection(sharedState());
+  }
+
+  private void refreshAcConnection(ComputerStateComponent s) {
+    if (acVentStatusLabel == null) return;
+    boolean connected = s.acVentConnected();
+    acVentStatusLabel.setText(connected ? AC_STATUS_CONNECTED : AC_STATUS_NO_CONNECTION);
+    acVentStatusLabel.setColor(connected ? STATE_ON_COLOR : STATE_OFF_COLOR);
+    acVentSerialField.setDisabled(connected);
+    acVentConnectButton.setDisabled(connected);
   }
 
   private void refreshCameras() {
@@ -453,5 +502,6 @@ public class ControlPanelTab extends ComputerTab {
     refreshAc(newStateComp);
     refreshCameras(newStateComp);
     refreshHeater(newStateComp);
+    refreshAcConnection(newStateComp);
   }
 }

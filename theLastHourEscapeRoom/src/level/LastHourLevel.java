@@ -15,12 +15,15 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
+import contrib.item.Item;
 import contrib.modules.emote.Emote;
 import contrib.modules.emote.EmoteFactory;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadComponent;
 import contrib.modules.keypad.KeypadFactory;
+import contrib.modules.puzzle.Puzzle;
+import contrib.modules.puzzle.PuzzleMaker;
 import contrib.modules.worldTimer.WorldTimerFactory;
 import contrib.modules.worldTimer.WorldTimerSystem;
 import contrib.systems.EventScheduler;
@@ -94,6 +97,8 @@ public class LastHourLevel extends DungeonLevel {
   private static final String PC_SIGNAL_CLEAR = "clear";
   private static final int PHONE_RINGING_EMOTE_DURATION_MS = 60 * 60 * 1000;
   private static final long SECOND_PHONE_RING_DELAY_MS = 60_000L;
+
+  private static Puzzle puzzle;
 
   private static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
 
@@ -415,10 +420,11 @@ public class LastHourLevel extends DungeonLevel {
                     })));
     Game.add(paper);
 
-    Debugger.addAction(() -> {
-      ComputerStateComponent.setState(ComputerProgress.ON);
-      Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
-    });
+    Debugger.addAction(
+        () -> {
+          ComputerStateComponent.setState(ComputerProgress.ON);
+          Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
+        });
 
     Entity profilePaper = DecoFactory.createDeco(getPoint("profile-paper"), Deco.SheetWritten1);
     profilePaper.remove(DecoComponent.class);
@@ -510,6 +516,15 @@ public class LastHourLevel extends DungeonLevel {
    * so they spread out.
    */
   public void r2SpawnPapers() {
+    puzzle =
+        PuzzleMaker.makePuzzle(
+            new SimpleIPath("images/final-code.png"),
+            4,
+            new SimpleIPath("items/rpg/item_paper.png"),
+            null,
+            1586791695537379744L,
+            false);
+
     Point ventPos = getPoint("r2-vent");
     float s = R2_PAPER_SPEED;
 
@@ -521,23 +536,15 @@ public class LastHourLevel extends DungeonLevel {
     };
 
     for (int i = 0; i < impulses.length; i++) {
-      Entity paper = new Entity("r2-note");
-      paper.add(new PositionComponent(ventPos.translate(0, -0.25f)));
-      paper.add(new DrawComponent(new SimpleIPath("items/rpg/item_paper.png")));
+      Item item = puzzle.items().get(i);
+      Entity paper =
+          WorldItemBuilder.buildWorldItemSimpleInteraction(item, ventPos.translate(0, -0.25f));
       paper.fetch(CollideComponent.class).ifPresent(cc -> cc.isSolid(false));
       paper.fetch(DrawComponent.class).ifPresent(dc -> dc.depth(DepthLayer.BackgroundDeco.depth()));
 
       VelocityComponent vc = new VelocityComponent(R2_PAPER_MAX_SPEED, 25f);
       vc.applyForce("vent-impulse", impulses[i]);
       paper.add(vc);
-
-      paper.add(
-          new InteractionComponent(
-              () ->
-                  new Interaction(
-                      (e, who) -> {
-                        DialogUtils.showImagePopUp(R2_PAPER_IMAGE, who.id());
-                      })));
 
       Game.add(paper);
     }
@@ -555,8 +562,7 @@ public class LastHourLevel extends DungeonLevel {
             () ->
                 new Interaction(
                     (e, who) -> {
-                      DialogFactory.showOkDialog(
-                          "Just an ordinary air conditioner.", "", () -> {}, who.id());
+                      DialogFactory.showOkDialog(Lore.VentDialog, "", () -> {}, who.id());
                     })));
     Game.add(vent);
 
@@ -806,7 +812,7 @@ public class LastHourLevel extends DungeonLevel {
       exitDoor.open();
     }
     // AC (one-shot paper spawn on rising edge)
-    if (!prev.acOn() && now.acOn()) {
+    if (!prev.acOn() && now.acOn() && puzzle == null) {
       r2SpawnPapers();
     }
   }

@@ -69,6 +69,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key indicating whether security cameras are on. */
   public static final String METADATA_CAMERAS_ON = "computer.camerasOn";
 
+  /** Metadata key indicating whether the AC vent has been connected via the control panel. */
+  public static final String METADATA_AC_VENT_CONNECTED = "computer.acVentConnected";
+
   /** Metadata key for the keypad's correct digit sequence. */
   public static final String METADATA_KEYPAD_CORRECT_DIGITS = "keypad.correctDigits";
 
@@ -165,6 +168,7 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     metadata.put(METADATA_DOOR2_OPEN, String.valueOf(state.door2Open()));
     metadata.put(METADATA_AC_ON, String.valueOf(state.acOn()));
     metadata.put(METADATA_CAMERAS_ON, String.valueOf(state.camerasOn()));
+    metadata.put(METADATA_AC_VENT_CONNECTED, String.valueOf(state.acVentConnected()));
     return metadata;
   }
 

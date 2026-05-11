@@ -198,6 +198,9 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     metadata.put(LastHourEntitySpawnStrategy.METADATA_AC_ON, String.valueOf(state.acOn()));
     metadata.put(
         LastHourEntitySpawnStrategy.METADATA_CAMERAS_ON, String.valueOf(state.camerasOn()));
+    metadata.put(
+        LastHourEntitySpawnStrategy.METADATA_AC_VENT_CONNECTED,
+        String.valueOf(state.acVentConnected()));
     return metadata;
   }
 
@@ -287,6 +290,9 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     boolean camerasOn =
         Boolean.parseBoolean(
             metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_CAMERAS_ON, "false"));
+    boolean acVentConnected =
+        Boolean.parseBoolean(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_AC_VENT_CONNECTED, "false"));
     return Optional.of(
         new ComputerStateComponent(
             progress,
@@ -300,7 +306,8 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
             door2Unlocked,
             door2Open,
             acOn,
-            camerasOn));
+            camerasOn,
+            acVentConnected));
   }
 
   /**

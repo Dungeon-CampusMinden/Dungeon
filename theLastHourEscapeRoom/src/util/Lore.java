@@ -343,7 +343,7 @@ public class Lore {
   public static final String UnknownDeviceVirusType = "Unknown Device";
 
   /** Password required to unlock door 2 in the control panel. */
-  public static final String ControlPanelDoor2Password = "voss-out";
+  public static final String ControlPanelDoor2Password = "214795541";
 
   /** Placeholder poem shown inside the hint.md file on the USB drive. */
   public static final String HintFilePoem =
@@ -399,4 +399,9 @@ public class Lore {
           + "]\"you'd like the looks, it's your favorite\"[/color][/shake] to me, but I'm not sure what he meant."
           + "[p]Maybe you'll have better luck connecting that to something inside the lab."
           + "[p]Whatever you do, be careful. Voss out.[n][n][pause=0.5][shake strength=0.3 speed=0.3][color=#333333]*click*[/color][/shake]";
+
+  public static final String VentSerialNumber = "49221";
+  public static final String VentDialog =
+      "Just an ordinary air conditioner.[n][n]You see a text engraved on the steel rim of the gutter:[n][n][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: sv000"
+          + VentSerialNumber;
 }
