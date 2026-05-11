@@ -59,6 +59,7 @@ import core.systems.DrawSystem;
 import core.systems.FrictionSystem;
 import core.systems.LevelSystem;
 import core.systems.MoveSystem;
+import core.systems.NetworkPositionSmoothingSystem;
 import core.systems.PositionSystem;
 import core.systems.VelocitySystem;
 import core.systems.input.InputManager;
@@ -750,6 +751,7 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new PositionSystem());
     ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(onLevelLoad));
     ECSManagement.add(new CameraSystem());
+    ECSManagement.add(new NetworkPositionSmoothingSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
