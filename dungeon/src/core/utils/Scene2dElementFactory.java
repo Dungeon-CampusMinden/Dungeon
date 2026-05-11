@@ -150,6 +150,10 @@ public class Scene2dElementFactory {
     style.font = FontHelper.getFont(FONT_PATH_BOLD, fontSize, Color.WHITE, 0, Color.BLACK);
     element.getLabel().setStyle(style);
     element.setUserObject(Cursors.INTERACT);
+    if (element.getStyle().up != null) {
+      var up = element.getStyle().up;
+      element.pad(up.getTopHeight(), up.getLeftWidth(), up.getBottomHeight(), up.getRightWidth());
+    }
     addHoverSound(element);
     return element;
   }
