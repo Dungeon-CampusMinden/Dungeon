@@ -100,18 +100,11 @@ public final class NetworkConfig {
   public static final int SERVER_TICK_HZ = 60;
 
   /**
-   * Server snapshot rate, in Hertz (Hz).
-   *
-   * <p>This defines how many times per second the server sends game state snapshots to clients.
-   */
-  public static final int SERVER_SNAPSHOT_HZ = 60;
-
-  /**
    * Server delta snapshot rate, in Hertz (Hz).
    *
    * <p>Delta snapshots are sent between full baseline snapshots and contain only changed fields.
    */
-  public static final int SERVER_DELTA_SNAPSHOT_HZ = 20;
+  public static final int SERVER_DELTA_SNAPSHOT_HZ = 60;
 
   /**
    * Interval between full baseline snapshots, in server ticks.

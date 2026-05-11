@@ -3,7 +3,6 @@ package core.network.server;
 import static core.network.config.NetworkConfig.FULL_SNAPSHOT_INTERVAL_TICKS;
 import static core.network.config.NetworkConfig.SERVER_DELTA_HISTORY_SIZE;
 import static core.network.config.NetworkConfig.SERVER_DELTA_SNAPSHOT_HZ;
-import static core.network.config.NetworkConfig.SERVER_SNAPSHOT_HZ;
 import static core.network.config.NetworkConfig.SERVER_TICK_HZ;
 
 import contrib.entities.HeroBuilder;
@@ -113,9 +112,9 @@ public final class AuthoritativeServerLoop {
     }
 
     LOGGER.info(
-        "ServerLoop started: tickHz={}, snapshotHz={}, deltaSnapshotHz={}",
+        "ServerLoop started: tickHz={}, fullSnapshotHz={}, deltaSnapshotHz={}",
         SERVER_TICK_HZ,
-        SERVER_SNAPSHOT_HZ,
+        FULL_SNAPSHOT_INTERVAL_TICKS,
         SERVER_DELTA_SNAPSHOT_HZ);
   }
 
