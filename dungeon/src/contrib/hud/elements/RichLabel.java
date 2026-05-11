@@ -48,6 +48,13 @@ import java.util.List;
  *   <li>{@code [/color]} - resets the text color to the default.
  *   <li>{@code [size=24]} - changes the font size for subsequent text.
  *   <li>{@code [/size]} - resets the font size to the default.
+ *   <li>{@code [font=fonts/Roboto-Bold]} - changes the font (family) used for subsequent text to
+ *       the font file at the given internal path. If no file extension is specified, {@code .ttf}
+ *       is assumed (e.g. {@code fonts/Roboto-Bold -> fonts/Roboto-Bold.ttf}). All other properties
+ *       (color, size, alignment, shake, ...) are preserved; only the font face is swapped. The
+ *       override stays active until another {@code [font=...]} tag, a closing {@code [/font]}, or
+ *       the end of the text.
+ *   <li>{@code [/font]} - resets the font to the label's default font.
  *   <li>{@code [shake]} or {@code [shake strength=1.5]} or {@code [shake strength=1.5 speed=0.5]} -
  *       applies a shake effect to subsequent runs. Named parameters: {@code strength} and {@code
  *       speed}.

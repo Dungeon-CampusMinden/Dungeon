@@ -626,10 +626,7 @@ public class RichLabelLayout {
   }
 
   static BitmapFont fontForRun(TextRun tr, FontSpec fontSpec) {
-    if (tr.sizeOverride() > 0) {
-      return FontHelper.getFont(fontSpec.withSize(tr.sizeOverride()));
-    }
-    return FontHelper.getFont(fontSpec);
+    return FontHelper.getFont(applyOverrides(tr, fontSpec));
   }
 
   static BitmapFont fontForImage(ImageRun ir, FontSpec fontSpec) {
@@ -641,7 +638,22 @@ public class RichLabelLayout {
 
   static FontSpec fontSpecForRun(TextRun tr, FontSpec fontSpec) {
     Color color = tr.color() != null ? tr.color() : fontSpec.color();
-    FontSpec spec = fontSpec.withColor(color);
+    return applyOverrides(tr, fontSpec).withColor(color);
+  }
+
+  /**
+   * Applies the size and font-path overrides from the given {@link TextRun} to the supplied base
+   * {@link FontSpec}, leaving color untouched.
+   *
+   * @param tr the text run providing potential overrides
+   * @param fontSpec the base font specification
+   * @return a new {@link FontSpec} reflecting the run's overrides
+   */
+  private static FontSpec applyOverrides(TextRun tr, FontSpec fontSpec) {
+    FontSpec spec = fontSpec;
+    if (tr.fontPathOverride() != null) {
+      spec = spec.withPath(tr.fontPathOverride());
+    }
     if (tr.sizeOverride() > 0) {
       spec = spec.withSize(tr.sizeOverride());
     }

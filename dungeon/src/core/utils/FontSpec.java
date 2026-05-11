@@ -34,6 +34,16 @@ public record FontSpec(String path, int size, Color color, float borderWidth, Co
   }
 
   /**
+   * Creates a new FontSpec with the same parameters but a different font file path.
+   *
+   * @param path the new internal path to the TrueType font file
+   * @return a new FontSpec instance with the updated path
+   */
+  public FontSpec withPath(String path) {
+    return new FontSpec(path, this.size, this.color, this.borderWidth, this.borderColor);
+  }
+
+  /**
    * Creates a new FontSpec with the same parameters but different border settings.
    *
    * @param borderWidth the new border width in pixels

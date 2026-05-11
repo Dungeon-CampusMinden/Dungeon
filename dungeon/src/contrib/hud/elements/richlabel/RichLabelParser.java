@@ -36,6 +36,7 @@ public class RichLabelParser {
               + "|\\[tr((?:\\s+[^]]*)?)]"
               + "|\\[pause=([^]]+)]"
               + "|\\[align=([^]]+)]"
+              + "|\\[font=([^]]+)]|\\[/font]"
               + "|\\[n]");
 
   private static final Map<String, Color> NAMED_COLORS = new HashMap<>();
@@ -108,13 +109,14 @@ public class RichLabelParser {
     Color currentColor = null;
     int currentSize = -1;
     ShakeEffect currentShake = null;
+    String currentFontPath = null;
     Matcher matcher = TAG_PATTERN.matcher(text);
     int lastEnd = 0;
 
     while (matcher.find()) {
       if (matcher.start() > lastEnd) {
         String segment = text.substring(lastEnd, matcher.start());
-        addTextRuns(runs, segment, currentColor, currentSize, currentShake);
+        addTextRuns(runs, segment, currentColor, currentSize, currentShake, currentFontPath);
       }
 
       if (matcher.group(1) != null) {
@@ -170,6 +172,10 @@ public class RichLabelParser {
       } else if (matcher.group(12) != null) {
         // [align=left|center|right]
         runs.add(new AlignRun(parseAlignValue(matcher.group(12))));
+      } else if (matcher.group(13) != null) {
+        // [font=path/to/font] (defaults to .ttf when no extension is provided)
+        String path = matcher.group(13).trim();
+        currentFontPath = path.isEmpty() ? null : normalizeFontPath(path);
       } else {
         String matched = matcher.group();
         if (matched.equals("[/color]")) {
@@ -178,6 +184,8 @@ public class RichLabelParser {
           currentSize = -1;
         } else if (matched.equals("[/shake]")) {
           currentShake = null;
+        } else if (matched.equals("[/font]")) {
+          currentFontPath = null;
         } else if (matched.equals("[n]")) {
           runs.add(new LineBreakRun());
         }
@@ -186,7 +194,8 @@ public class RichLabelParser {
     }
 
     if (lastEnd < text.length()) {
-      addTextRuns(runs, text.substring(lastEnd), currentColor, currentSize, currentShake);
+      addTextRuns(
+          runs, text.substring(lastEnd), currentColor, currentSize, currentShake, currentFontPath);
     }
 
     return runs;
@@ -210,24 +219,29 @@ public class RichLabelParser {
   // -- Private helpers --
 
   private static void addTextRuns(
-      List<Run> runs, String segment, Color color, int sizeOverride, ShakeEffect shake) {
+      List<Run> runs,
+      String segment,
+      Color color,
+      int sizeOverride,
+      ShakeEffect shake,
+      String fontPath) {
     String[] parts = segment.split("(?<=\\s)|(?=\\s)");
     StringBuilder current = new StringBuilder();
     for (String part : parts) {
       if (part.isBlank() && !current.isEmpty()) {
-        runs.add(new TextRun(current.toString(), color, sizeOverride, shake));
+        runs.add(new TextRun(current.toString(), color, sizeOverride, shake, fontPath));
         current.setLength(0);
         current.append(part);
       } else if (part.isBlank()) {
         current.append(part);
       } else {
         current.append(part);
-        runs.add(new TextRun(current.toString(), color, sizeOverride, shake));
+        runs.add(new TextRun(current.toString(), color, sizeOverride, shake, fontPath));
         current.setLength(0);
       }
     }
     if (!current.isEmpty()) {
-      runs.add(new TextRun(current.toString(), color, sizeOverride, shake));
+      runs.add(new TextRun(current.toString(), color, sizeOverride, shake, fontPath));
     }
   }
 
@@ -367,5 +381,21 @@ public class RichLabelParser {
     } catch (Exception e) {
       return Color.WHITE;
     }
+  }
+
+  /**
+   * Normalizes a font path from a {@code [font=...]} tag.
+   *
+   * <p>If no file extension is present in the last path segment, {@code .ttf} is appended.
+   * Existing extensions are preserved.
+   *
+   * @param rawPath the raw font path value from markup
+   * @return the normalized font path
+   */
+  private static String normalizeFontPath(String rawPath) {
+    int lastSlash = Math.max(rawPath.lastIndexOf('/'), rawPath.lastIndexOf('\\'));
+    int lastDot = rawPath.lastIndexOf('.');
+    boolean hasExtension = lastDot > lastSlash && lastDot < rawPath.length() - 1;
+    return hasExtension ? rawPath : rawPath + ".ttf";
   }
 }
