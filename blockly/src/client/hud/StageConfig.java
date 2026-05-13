@@ -34,7 +34,7 @@ public class StageConfig {
               // table with size of parent(root), table has all the screen size
               rootTable.setFillParent(true);
 
-              velocityLabel = new Label("velocity: 1x", UIUtils.defaultSkin());
+              velocityLabel = new Label("Speed: 1x", UIUtils.defaultSkin(),"blank-white");
               Slider slider =
                   new Slider(1.0f, 8f, 0.5f, false, UIUtils.defaultSkin(), "clean-horizontal");
 
