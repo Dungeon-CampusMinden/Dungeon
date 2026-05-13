@@ -15,7 +15,7 @@ First, you need to decide whether you want to play the web version with a block-
 
 ### Web Version
 
-* Install [Java 21](https://www.oracle.com/de/java/technologies/downloads/#java21) on your system
+* Install [Java 25 LTS](https://www.oracle.com/de/java/technologies/downloads/#java25) on your system
 * Download the `Blockly-web.jar` file below
 * Start the dungeon by double-clicking the JAR file
     * or run `java -jar Blockly-web.jar` in your terminal
@@ -25,7 +25,7 @@ First, you need to decide whether you want to play the web version with a block-
 
 ### Desktop Version
 
-* Install [Java 21](https://www.oracle.com/de/java/technologies/downloads/#java21) on your system
+* Install [Java 25 LTS](https://www.oracle.com/de/java/technologies/downloads/#java25) on your system
 * Download the `Blockly-desktop.jar` file below
 * Start the dungeon by double-clicking the JAR file
     * or run `java -jar Blockly-desktop.jar` in your terminal
