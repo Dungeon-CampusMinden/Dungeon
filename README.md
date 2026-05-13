@@ -16,7 +16,7 @@ Bielefeld University of Applied Sciences website.
 
 ## Requirements
 
-[Java SE Development Kit 21 LTS] installed.
+[Java SE Development Kit 25] installed.
 
 ## Known Limitations
 
@@ -184,7 +184,7 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [PRODUS project]: #programming-dungeon-adventures-at-school-produs
   [project page]: https://www.hsbi.de/minden/produs/home
   [1]: dungeon/doc/img/monster.gif
-  [Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
+  [Java SE Development Kit 25]: https://jdk.java.net/25/
   [Freiraum 2025]: https://stiftung-hochschullehre.de/foerderung/freiraum/
   [Stiftung Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de/
   [Pakt für Informatik 2.0]: https://www.efre.nrw/einfach-machen/foerderung-finden/pakt-fuer-informatik-20
