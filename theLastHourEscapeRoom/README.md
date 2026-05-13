@@ -9,7 +9,7 @@ A scientist has vanished: You have 20 minutes to find out why. **The Last Hour**
 
 The Last Hour runs on Windows, Mac, and Unix systems. Mobile devices are not currently supported.
 
-The game requires [Java SE Development Kit 25](https://jdk.java.net/25/) to be installed.
+The game requires [Java SE Development Kit 25 LTS](https://jdk.java.net/25/) to be installed.
 
 ## How to Play (Singleplayer)
 
