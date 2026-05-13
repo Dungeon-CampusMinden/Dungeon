@@ -50,17 +50,6 @@ public class StageConfig {
                       float value = slider.getValue();
                       velocityLabel.setText("velocity: " + value + "x");
                       Client.MOVEMENT_FORCE = Vector2.of(7.5f * value, 7.5f * value);
-                      Game.player()
-                          .flatMap(e -> e.fetch(VelocityComponent.class))
-                          .ifPresent(
-                              vc -> {
-                                vc.maxSpeed(750);
-                                System.out.println(
-                                    "MOVEMENT_FORCE: "
-                                        + Client.MOVEMENT_FORCE
-                                        + " | maxSpeed: "
-                                        + vc.maxSpeed());
-                              });
                     }
                   });
 

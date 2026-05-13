@@ -321,6 +321,7 @@ public class Client {
     hero.add(new PortableComponent());
     hero.add(new AmmunitionComponent());
     Game.add(hero);
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(750));
   }
 
   private static PortalConfig createPortalConfig(Hero portalHero) {
