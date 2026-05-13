@@ -34,11 +34,11 @@ Das Blockly Dungeon ist die einsteigerfreundliche Variante. Man programmiert den
 
 ### Was muss installiert werden?
 
-Man braucht nur **Java 21** auf dem Computer. Sonst nichts.
+Man braucht nur **Java 25 LTS** auf dem Computer. Sonst nichts.
 
-**Java 21 installieren:**
+**Java 25 LTS installieren:**
 
-- **Windows / Mac / Linux:** Lade [Java 21](https://www.oracle.com/de/java/technologies/downloads/#java21) herunter. Wähle dort die passende Version für dein Betriebssystem (Windows, macOS oder Linux) und installiere es. Starte dein Gerät neu.
+- **Windows / Mac / Linux:** Lade [Java 25 LTS](https://www.oracle.com/de/java/technologies/downloads/#java25) herunter. Wähle dort die passende Version für dein Betriebssystem (Windows, macOS oder Linux) und installiere es. Starte dein Gerät neu.
 
 **Tipp:** Um zu prüfen, ob Java korrekt installiert ist, öffne ein Terminal (Windows: `cmd` oder PowerShell; Mac/Linux: Terminal) und tippe:
 
@@ -46,7 +46,7 @@ Man braucht nur **Java 21** auf dem Computer. Sonst nichts.
 java -version
 ```
 
-Es sollte eine Ausgabe wie `openjdk version "21.x.x"` erscheinen.
+Es sollte eine Ausgabe wie `openjdk version "25.x.x"` erscheinen.
 
 ### Blockly Dungeon herunterladen und starten
 
@@ -70,7 +70,7 @@ Im Java Dungeon löst man die gleichen Dungeon-Level wie in der Web-Version, sch
 
 ### Was muss installiert werden?
 
-1. **Java 21** (siehe [oben](#java-21-installieren))
+1. **Java 25 LTS** (siehe [oben](#java-25-lts-installieren))
 2. **Visual Studio Code** - herunterladen von: [https://code.visualstudio.com/](https://code.visualstudio.com/)
    - Verfügbar für Windows, Mac und Linux.
 3. **Die Blockly-Code-Runner-Erweiterung (.vsix-Datei)**
@@ -116,7 +116,7 @@ Das Advanced Dungeon ist ein eigenständiges Dungeon-Projekt für Fortgeschritte
 
 ### Was muss installiert werden?
 
-1. **Java** - eine mit dem Repository kompatible Java-Version (mindestens Java 21). Download: [https://jdk.java.net/21/](https://jdk.java.net/21/) oder [Adoptium Temurin 21](https://adoptium.net/temurin/releases/?version=21).
+1. **Java** - eine mit dem Repository kompatible Java-Version (mindestens Java 25). Download: [https://jdk.java.net/25/](https://jdk.java.net/25/) oder [Adoptium Temurin 25](https://adoptium.net/temurin/releases/?version=25).
 2. **Git** - wird benötigt, um das Projekt herunterzuladen. Download: [https://git-scm.com/downloads](https://git-scm.com/downloads)
    - **Windows:** Lade den Installer herunter und folge den Anweisungen. Die Standardeinstellungen sind in der Regel ausreichend.
    - **Mac:** Git ist häufig schon vorinstalliert. Falls nicht: `xcode-select --install` im Terminal ausführen oder von [https://git-scm.com/downloads/mac](https://git-scm.com/downloads/mac) herunterladen.
