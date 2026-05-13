@@ -87,6 +87,7 @@ public final class GameLoop extends ScreenAdapter {
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
   private boolean doSetup = true;
+  private int displayModeTransitionFrames = 0;
   private static final Set<IResizable> resizables = new HashSet<>();
 
   /**
@@ -203,14 +204,20 @@ public final class GameLoop extends ScreenAdapter {
   }
 
   private static void setupStage() {
-    stage =
-        new Stage(
-            new ScalingViewport(
-                Scaling.stretch,
-                PreRunConfiguration.windowWidth(),
-                PreRunConfiguration.windowHeight()),
-            new SpriteBatch());
+    int width = currentWindowWidth();
+    int height = currentWindowHeight();
+    stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
     Gdx.input.setInputProcessor(stage);
+  }
+
+  private static int currentWindowWidth() {
+    int width = Game.windowWidth();
+    return width > 0 ? width : PreRunConfiguration.windowWidth();
+  }
+
+  private static int currentWindowHeight() {
+    int height = Game.windowHeight();
+    return height > 0 ? height : PreRunConfiguration.windowHeight();
   }
 
   /**
@@ -518,6 +525,10 @@ public final class GameLoop extends ScreenAdapter {
    */
   private void frame(float delta) {
     fullscreenKey();
+    if (displayModeTransitionFrames > 0) {
+      synchronizeWindowSize();
+      displayModeTransitionFrames--;
+    }
     Game.soundPlayer().update(delta);
     PreRunConfiguration.userOnFrame().execute();
   }
@@ -525,11 +536,18 @@ public final class GameLoop extends ScreenAdapter {
   private void fullscreenKey() {
     if (InputManager.isKeyJustPressed(
         core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
+      boolean modeChanged;
       if (!Gdx.graphics.isFullscreen()) {
-        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        modeChanged = Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
       } else {
-        Gdx.graphics.setWindowedMode(
-            PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
+        modeChanged =
+            Gdx.graphics.setWindowedMode(
+                PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
+      }
+      if (modeChanged) {
+        displayModeTransitionFrames = 8;
+        synchronizeWindowSize();
+        Gdx.graphics.requestRendering();
       }
     }
   }
@@ -563,6 +581,7 @@ public final class GameLoop extends ScreenAdapter {
    * <p>Needs to be called before redraw something.
    */
   private void clearScreen() {
+    Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
     Gdx.gl.glClearColor(0, 0, 0, 1);
     Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
   }
@@ -570,6 +589,20 @@ public final class GameLoop extends ScreenAdapter {
   @Override
   public void resize(int width, int height) {
     super.resize(width, height);
+    if (width <= 0 || height <= 0) return;
+    resizeStageAndListeners(width, height);
+    DrawSystem.getInstance().useCurrentWindowSizeImmediately();
+  }
+
+  private static void synchronizeWindowSize() {
+    int width = Game.windowWidth();
+    int height = Game.windowHeight();
+    if (width <= 0 || height <= 0) return;
+    resizeStageAndListeners(width, height);
+    DrawSystem.getInstance().useCurrentWindowSizeImmediately();
+  }
+
+  private static void resizeStageAndListeners(int width, int height) {
     stage()
         .ifPresent(
             x -> {
