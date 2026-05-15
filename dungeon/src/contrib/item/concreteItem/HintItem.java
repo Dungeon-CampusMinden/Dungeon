@@ -18,8 +18,7 @@ import java.util.Objects;
  * items/rpg/item_paper.png} but can be overridden via the constructor.
  */
 public class HintItem extends Item {
-
-  private static final IPath DEFAULT_WORLD_SPRITE = new SimpleIPath("items/rpg/item_paper.png");
+  
   private static final String DEFAULT_NAME = "Hint";
   private static final String DEFAULT_DESCRIPTION =
       "A note with an image. [Use] to view the image.";
@@ -51,7 +50,7 @@ public class HintItem extends Item {
    * @param description Description of the item.
    */
   public HintItem(final IPath imagePath, final String name, final String description) {
-    this(imagePath, DEFAULT_WORLD_SPRITE, name, description);
+    this(imagePath, imagePath, name, description);
   }
 
   /**
@@ -60,7 +59,7 @@ public class HintItem extends Item {
    * @param imagePath Path to the image that is shown when the item is used from the inventory.
    */
   public HintItem(final IPath imagePath) {
-    this(imagePath, DEFAULT_WORLD_SPRITE, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+    this(imagePath, imagePath, DEFAULT_NAME, DEFAULT_DESCRIPTION);
   }
 
   /**
