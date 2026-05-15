@@ -18,7 +18,7 @@ import java.util.Objects;
  * items/rpg/item_paper.png} but can be overridden via the constructor.
  */
 public class HintItem extends Item {
-  
+
   private static final String DEFAULT_NAME = "Hint";
   private static final String DEFAULT_DESCRIPTION =
       "A note with an image. [Use] to view the image.";

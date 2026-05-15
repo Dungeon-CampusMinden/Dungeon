@@ -386,8 +386,8 @@ public class RichLabelParser {
   /**
    * Normalizes a font path from a {@code [font=...]} tag.
    *
-   * <p>If no file extension is present in the last path segment, {@code .ttf} is appended.
-   * Existing extensions are preserved.
+   * <p>If no file extension is present in the last path segment, {@code .ttf} is appended. Existing
+   * extensions are preserved.
    *
    * @param rawPath the raw font path value from markup
    * @return the normalized font path
