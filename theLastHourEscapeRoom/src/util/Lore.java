@@ -132,7 +132,22 @@ public class Lore {
   public static final List<Tuple<String, Integer>> OutroTexts =
       List.of(
           Tuple.of(
-              "This tunnel leads onward to the next room, but this is where the demo ends for now.",
+              "The exit door of Dr. Mertens' office finally clicks open - but his last message still echoes in your mind:",
+              32),
+          Tuple.of(
+              "\"The project files are hidden in a locker on the 6th floor.\"\n\n"
+                  + "You step out into the silent hallway, the timer behind you finally still.",
+              32),
+          Tuple.of(
+              "With the evidence secured and the truth about Dr. Mertens' disappearance"
+                  + " in your hands, you make your way up to recover the project files.",
+              32),
+          Tuple.of(
+              "As you reach the locker and open it, you find a final note from Dr. Mertens:\n\n"
+                  + "\"If you're reading this, it means you made it out. The project is safe with you now.\"\n\n",
+              32),
+          Tuple.of(
+              "A sense of relief washes over you, but also a lingering question: What exactly is \"Mythos\", and why did it attract such dangerous attention?\n\nYou should google it...",
               32),
           Tuple.of("Congratulations!\n\nYou escaped! :D", 120));
 
@@ -194,7 +209,7 @@ public class Lore {
                       "BinaryCoffee",
                       """
               I remember we briefly talked about that sequence in the canteen the other day.
-              At the time I couldn’t make sense of it either.
+              At the time I couldn't make sense of it either.
 
               Thinking about it again now, one detail came back to me: the numbers were grouped in blocks of eight, and you mentioned that they were all ones and zeros, akin to binary.
 
@@ -402,6 +417,7 @@ public class Lore {
 
   public static final String VentSerialNumber = "49221";
   public static final String VentDialog =
-      "Just an ordinary air conditioner.[n][n]You see a text engraved on the steel rim of the gutter:[n][n][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: sv000"
-          + VentSerialNumber;
+      "Just an ordinary air conditioner.[n][n]You see a text engraved on the steel rim of the gutter:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: sv000"
+          + VentSerialNumber
+          + "[n]";
 }
