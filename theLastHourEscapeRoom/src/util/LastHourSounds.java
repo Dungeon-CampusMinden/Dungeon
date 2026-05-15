@@ -35,6 +35,9 @@ public enum LastHourSounds implements ISound {
 
   /** One-shot ring sound played when the desk phone starts ringing. */
   PHONE_RINGING("kenney_ui_question_002", 1.0f),
+
+  /** A sound effect. */
+  TRASH_MINIGAME_WIN("kenney_ui_confirmation_002", 1.0f),
   ;
 
   private final String soundName;
