@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Splits a rectangular image into {@code pieceCount} convex polygonal pieces.
+ * Splits a rectangular image into {@code pieceCount} polygonal pieces with jagged cut edges.
  *
  * <p>Algorithm:
  *
@@ -17,7 +17,11 @@ import java.util.Random;
  *         <li>Pick the polygon with the largest area.
  *         <li>Pick a random point P1 on its perimeter (parameter {@code t1} in {@code [0, 1)}).
  *         <li>Pick a roughly opposite point P2 at perimeter parameter {@code t1 + 0.5 + jitter}.
- *         <li>Split the polygon along the chord {@code P1-P2} into two convex sub-polygons.
+ *         <li>Build a jagged chord between P1 and P2: place 3 intermediate points evenly along the
+ *             straight chord and offset each one orthogonally to the chord. The first intermediate
+ *             point is offset to a random side, and the remaining two alternate sides. Both
+ *             resulting sub-polygons share the exact same jagged edge (in reverse order) so the
+ *             pieces still tile perfectly.
  *       </ul>
  * </ol>
  *
@@ -41,6 +45,16 @@ final class PuzzleSlicer {
    * points (within the same {@code Random}, so determinism is preserved).
    */
   private static final float MAX_AREA_RATIO_DIFF = 0.30f;
+
+  /**
+   * Base orthogonal offset of the 3 jagged intermediate points, expressed as a fraction of the
+   * chord length. Kept small so the jagged edge stays well inside the parent polygon and does not
+   * self-intersect with other edges.
+   */
+  private static final float JAGGED_OFFSET_FRACTION = 0.06f;
+
+  /** Maximum extra jitter (as fraction of chord length) added to / subtracted from each offset. */
+  private static final float JAGGED_OFFSET_JITTER = 0.03f;
 
   private PuzzleSlicer() {}
 
@@ -108,7 +122,8 @@ final class PuzzleSlicer {
       Hit h2 = pointOnPerimeter(poly, t2 * perimeter);
       if (h1.edgeIndex == h2.edgeIndex) continue; // chord would lie on a single edge
 
-      float[][] result = splitAt(poly, h1, h2);
+      float[] jagged = makeJaggedPoints(h1, h2, rng);
+      float[][] result = splitAt(poly, h1, h2, jagged);
       if (result == null) continue;
       if (result[0].length < 6 || result[1].length < 6) continue; // need at least a triangle
 
@@ -142,7 +157,7 @@ final class PuzzleSlicer {
     // Simpler: pick t = 0.0 (somewhere on edge 0) and t = 0.5 across the polygon.
     Hit h1 = pointOnPerimeter(poly, perimeter * 0.25f);
     Hit h2 = pointOnPerimeter(poly, perimeter * 0.75f);
-    float[][] r = splitAt(poly, h1, h2);
+    float[][] r = splitAt(poly, h1, h2, null);
     if (r != null) return r;
     // Last resort: split the rectangle by midline.
     if (horizontal) {
@@ -162,26 +177,49 @@ final class PuzzleSlicer {
 
   /**
    * Splits {@code poly} along the chord between two boundary hits. Both hits must lie on different
-   * edges.
+   * edges. If {@code jagged} is non-null, it must contain 3 intermediate points along the cut (6
+   * floats: {@code x25,y25,x50,y50,x75,y75}). These points are inserted into both resulting
+   * polygons in opposite traversal order so that the two pieces share the exact same jagged seam.
    */
-  private static float[][] splitAt(float[] poly, Hit a, Hit b) {
+  private static float[][] splitAt(float[] poly, Hit a, Hit b, float[] jagged) {
     int n = poly.length / 2;
     Hit h1 = a, h2 = b;
+    boolean swapped = false;
     if (h1.edgeIndex > h2.edgeIndex) {
       Hit tmp = h1;
       h1 = h2;
       h2 = tmp;
+      swapped = true;
     }
 
-    // Polygon A: h1.point, vertices (h1.edgeIndex+1) .. h2.edgeIndex (inclusive), h2.point
+    // Polygon A: h1.point, vertices (h1.edgeIndex+1) .. h2.edgeIndex (inclusive), h2.point,
+    // then jagged points from h2 back to h1 (i.e. reversed cut direction).
     List<Vector2> a0 = new ArrayList<>();
     a0.add(new Vector2(h1.x, h1.y));
     for (int i = h1.edgeIndex + 1; i <= h2.edgeIndex; i++) {
       a0.add(new Vector2(poly[2 * i], poly[2 * i + 1]));
     }
     a0.add(new Vector2(h2.x, h2.y));
+    if (jagged != null) {
+      // The "cut direction" used to compute jagged points goes from `a` to `b`; we possibly
+      // swapped a and b above. Determine the order of jagged points along h1 -> h2 in the
+      // ORIGINAL (a -> b) direction and account for the swap.
+      // jagged is laid out a -> b: (J25, J50, J75). After swap it represents h2 -> h1.
+      // For polygon A (closing edge h2 -> h1) we therefore want jagged in its stored order
+      // when swapped, and in reverse order when not swapped.
+      if (swapped) {
+        a0.add(new Vector2(jagged[0], jagged[1]));
+        a0.add(new Vector2(jagged[2], jagged[3]));
+        a0.add(new Vector2(jagged[4], jagged[5]));
+      } else {
+        a0.add(new Vector2(jagged[4], jagged[5]));
+        a0.add(new Vector2(jagged[2], jagged[3]));
+        a0.add(new Vector2(jagged[0], jagged[1]));
+      }
+    }
 
-    // Polygon B: h2.point, vertices (h2.edgeIndex+1) .. (h1.edgeIndex) [wrapping], h1.point
+    // Polygon B: h2.point, vertices (h2.edgeIndex+1) .. (h1.edgeIndex) [wrapping], h1.point,
+    // then jagged points from h1 back to h2.
     List<Vector2> b0 = new ArrayList<>();
     b0.add(new Vector2(h2.x, h2.y));
     int i = (h2.edgeIndex + 1) % n;
@@ -191,8 +229,62 @@ final class PuzzleSlicer {
       i = (i + 1) % n;
     }
     b0.add(new Vector2(h1.x, h1.y));
+    if (jagged != null) {
+      // Mirror logic of polygon A: closing edge here is h1 -> h2.
+      if (swapped) {
+        b0.add(new Vector2(jagged[4], jagged[5]));
+        b0.add(new Vector2(jagged[2], jagged[3]));
+        b0.add(new Vector2(jagged[0], jagged[1]));
+      } else {
+        b0.add(new Vector2(jagged[0], jagged[1]));
+        b0.add(new Vector2(jagged[2], jagged[3]));
+        b0.add(new Vector2(jagged[4], jagged[5]));
+      }
+    }
 
     return new float[][] {toArray(a0), toArray(b0)};
+  }
+
+  /**
+   * Computes 3 jagged intermediate points along the straight chord {@code a -> b}. They are placed
+   * at parameter values {@code 0.25}, {@code 0.50}, {@code 0.75} on the chord and offset
+   * orthogonally to the chord. The first offset is randomly to one of the two sides; the remaining
+   * two alternate sides. Each offset magnitude has a small random jitter so the resulting tear
+   * looks natural rather than mechanical.
+   *
+   * @return flat array {@code {x25, y25, x50, y50, x75, y75}}
+   */
+  private static float[] makeJaggedPoints(Hit a, Hit b, Random rng) {
+    float dx = b.x - a.x;
+    float dy = b.y - a.y;
+    float len = (float) Math.sqrt(dx * dx + dy * dy);
+    if (len <= 0f) {
+      return new float[] {a.x, a.y, a.x, a.y, a.x, a.y};
+    }
+    // Unit chord direction and orthogonal (90 deg CCW in image-space).
+    float ux = dx / len;
+    float uy = dy / len;
+    float ox = -uy;
+    float oy = ux;
+
+    // Random side for the first jagged point; subsequent ones alternate.
+    float sign = rng.nextBoolean() ? 1f : -1f;
+
+    float[] out = new float[6];
+    float[] params = {0.25f, 0.50f, 0.75f};
+    for (int k = 0; k < 3; k++) {
+      float t = params[k];
+      float bx = a.x + dx * t;
+      float by = a.y + dy * t;
+      float jitter = (rng.nextFloat() - 0.5f) * 2f * JAGGED_OFFSET_JITTER;
+      float magnitude = (JAGGED_OFFSET_FRACTION + jitter) * len;
+      if (magnitude < 0f) magnitude = 0f;
+      float off = sign * magnitude;
+      out[2 * k] = bx + ox * off;
+      out[2 * k + 1] = by + oy * off;
+      sign = -sign;
+    }
+    return out;
   }
 
   private static float[] toArray(List<Vector2> pts) {
