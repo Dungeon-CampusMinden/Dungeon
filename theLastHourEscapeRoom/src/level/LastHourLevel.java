@@ -2,9 +2,7 @@ package level;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import contrib.components.CharacterClassComponent;
-import contrib.components.CollideComponent;
-import contrib.components.DecoComponent;
+import contrib.components.*;
 import contrib.entities.CharacterClass;
 import contrib.entities.WorldItemBuilder;
 import contrib.entities.deco.Deco;
@@ -16,6 +14,7 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.item.Item;
+import contrib.item.concreteItem.HintItem;
 import contrib.modules.emote.Emote;
 import contrib.modules.emote.EmoteFactory;
 import contrib.modules.interaction.Interaction;
@@ -58,7 +57,7 @@ import core.utils.logging.DungeonLogger;
 import java.util.*;
 import modules.computer.*;
 import modules.computer.content.BlogTab;
-import modules.trash.TrashMinigameUI;
+import modules.trash.TrashMinigameFactory;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
 import starter.TheLastHour;
@@ -424,6 +423,7 @@ public class LastHourLevel extends DungeonLevel {
         () -> {
           ComputerStateComponent.setState(ComputerProgress.ON);
           Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
+          r2SpawnPapers();
         });
 
     Entity profilePaper = DecoFactory.createDeco(getPoint("profile-paper"), Deco.SheetWritten1);
@@ -446,7 +446,6 @@ public class LastHourLevel extends DungeonLevel {
   private static final int trashIndex = 3;
 
   private void setupTrashcans() {
-    DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
     listPointsIndexed("trash")
         .forEach(
             t -> {
@@ -455,21 +454,14 @@ public class LastHourLevel extends DungeonLevel {
               Deco deco = trashcans[index % trashcans.length];
               Entity trashcan = DecoFactory.createDeco(p, deco);
               trashcan.remove(DecoComponent.class);
+              int paperCount = PaperCounts.get(index % PaperCounts.size());
+              Item reward = index == trashIndex ? new HintItem(new SimpleIPath(trashNote)) : null;
               trashcan.add(
                   new InteractionComponent(
                       () ->
                           new Interaction(
-                              (eInteract, who) -> {
-                                DialogContext.Builder builder = DialogContext.builder();
-                                builder.type(LastHourDialogTypes.TRASHCAN);
-                                builder.put(
-                                    TrashMinigameUI.KEY_NOTE_PATH,
-                                    index == trashIndex ? trashNote : null);
-                                builder.put(
-                                    TrashMinigameUI.KEY_PAPER_COUNT,
-                                    PaperCounts.get(index % PaperCounts.size()));
-                                DialogFactory.show(builder.build(), who.id());
-                              })));
+                              (eInteract, who) ->
+                                  TrashMinigameFactory.show(who, reward, paperCount, null))));
               Game.add(trashcan);
             });
   }
@@ -520,7 +512,7 @@ public class LastHourLevel extends DungeonLevel {
         PuzzleMaker.makePuzzle(
             new SimpleIPath("images/final-code.png"),
             4,
-            new SimpleIPath("items/rpg/item_paper.png"),
+            new SimpleIPath("items/puzzle-piece.png"),
             null,
             1586791695537379744L,
             false);
@@ -651,7 +643,8 @@ public class LastHourLevel extends DungeonLevel {
                       if (isPhoneRinging) {
                         String genTexturePath = portraitPathFor(who);
                         String callDialog = ringingPhoneDialog.replace("{path}", genTexturePath);
-                        DialogFactory.showDialogDialog(callDialog, this::stopPhoneRinging);
+                        DialogFactory.showDialogDialog(
+                            callDialog, this::stopPhoneRinging, who.id());
                         return;
                       }
 
@@ -687,17 +680,51 @@ public class LastHourLevel extends DungeonLevel {
     };
   }
 
-  /** Places all four colored USB stick items at {@code r2-folders}, spaced 1 tile apart in +x. */
+  /** Places the 4 colored USB sticks. */
   private void setupUsbSticks() {
-    Point origin = getPoint("r2-folders");
-    UsbStickColor[] colors = UsbStickColor.values();
-    for (int i = 0; i < colors.length; i++) {
-      Point pos = origin.translate(i, 0);
-      Entity usbEntity =
-          WorldItemBuilder.buildWorldItemSimpleInteraction(
-              UsbStickItem.createUsbStickItem(colors[i]), pos);
-      Game.add(usbEntity);
-    }
+    Item redUsb = UsbStickItem.createUsbStickItem(UsbStickColor.Red);
+    Item yellowUsb = UsbStickItem.createUsbStickItem(UsbStickColor.Yellow);
+    Item greenUsb = UsbStickItem.createUsbStickItem(UsbStickColor.Green);
+    Item blueUsb = UsbStickItem.createUsbStickItem(UsbStickColor.Blue);
+
+    Entity folder = DecoFactory.createDeco(getPoint("r2-folder"), Deco.FolderRed);
+    folder.remove(DecoComponent.class);
+    addInventory(folder, List.of(redUsb));
+    Game.add(folder);
+
+    Entity shelf = DecoFactory.createDeco(getPoint("r2-shelf"), Deco.BookshelfLarge);
+    shelf.remove(DecoComponent.class);
+    addInventory(shelf, List.of(greenUsb));
+    Game.add(shelf);
+
+    Entity usbOnTable =
+        WorldItemBuilder.buildWorldItemSimpleInteraction(yellowUsb, getPoint("r2-usb-on-table"));
+    DrawSystem.getInstance().changeEntityDepth(usbOnTable, DepthLayer.AbovePlayer.depth());
+    Game.add(usbOnTable);
+
+    Entity blueTrash = DecoFactory.createDeco(getPoint("r2-trash"), Deco.TrashCanBlue);
+    blueTrash.remove(DecoComponent.class);
+    final boolean[] awarded = {false};
+    blueTrash.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (eInteract, who) -> {
+                      if (awarded[0]) {
+                        TrashMinigameFactory.show(who, null, 30, null);
+                        return;
+                      }
+                      Item reward = UsbStickItem.createUsbStickItem(UsbStickColor.Blue);
+                      TrashMinigameFactory.show(
+                          who,
+                          reward,
+                          30,
+                          () -> {
+                            if (awarded[0]) return;
+                            awarded[0] = true;
+                          });
+                    })));
+    Game.add(blueTrash);
   }
 
   @Override
@@ -867,6 +894,27 @@ public class LastHourLevel extends DungeonLevel {
               // Update world cursor (only when entity is actually interactable)
               updateWorldCursor(inRange.isPresent());
             });
+  }
+
+  private static void addInventory(Entity entity, List<Item> items) {
+    InventoryComponent ic = new InventoryComponent();
+    items.forEach(ic::add);
+    entity.add(ic);
+    entity.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (e, who) -> {
+                      DialogContext ctx =
+                          new DialogContext(
+                              DialogType.DefaultTypes.DUAL_INVENTORY,
+                              true,
+                              Map.of(
+                                  DialogContextKeys.ENTITY, who.id(),
+                                  DialogContextKeys.SECONDARY_ENTITY, e.id()));
+                      ctx.owner(who.id());
+                      DialogFactory.show(ctx);
+                    })));
   }
 
   /**
