@@ -240,12 +240,18 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
         }
       }
 
-      batch.draw(
-          this.inventoryComponent.items()[i].inventoryAnimation().update(),
-          x,
-          y,
-          this.slotSize - (4 * BORDER_PADDING),
-          this.slotSize - (4 * BORDER_PADDING));
+      TextureRegion region = this.inventoryComponent.items()[i].inventoryAnimation().update();
+      float maxSize = this.slotSize - (4 * BORDER_PADDING);
+      float regionW = region.getRegionWidth();
+      float regionH = region.getRegionHeight();
+      float fitScale = (regionW <= 0 || regionH <= 0) ? 1f : maxSize / Math.max(regionW, regionH);
+      float drawW = regionW * fitScale;
+      float drawH = regionH * fitScale;
+      // center along the smaller dimension
+      float drawX = x + (maxSize - drawW) / 2f;
+      float drawY = y + (maxSize - drawH) / 2f;
+
+      batch.draw(region, drawX, drawY, drawW, drawH);
     }
   }
 
@@ -366,8 +372,17 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
                 InventoryGUI.this.inventoryComponent, isHeroInv, draggedSlot, itemToTransfer));
 
         // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
+        TextureRegion dragRegion = itemToTransfer.inventoryAnimation().update();
         Image image = new Image(new SpriteDrawable(itemToTransfer.inventoryAnimation().update()));
-        image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
+        float dragRegionW = dragRegion.getRegionWidth();
+        float dragRegionH = dragRegion.getRegionHeight();
+        float dragFitScale =
+            (dragRegionW <= 0 || dragRegionH <= 0)
+                ? 1f
+                : InventoryGUI.this.slotSize / Math.max(dragRegionW, dragRegionH);
+        float dragW = dragRegionW * dragFitScale;
+        float dragH = dragRegionH * dragFitScale;
+        image.setSize(dragW, dragH);
         payload.setDragActor(image);
         dragAndDrop().setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2);
 
