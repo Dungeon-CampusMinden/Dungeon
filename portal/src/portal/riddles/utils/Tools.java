@@ -146,7 +146,7 @@ public class Tools {
    *
    * <p>Einige Objekte im Spiel können an- oder ausgeschaltet werden, zum Beispiel Pellet-Catcher.
    * Diese Methode versucht, die entsprechende Schalter-Komponente aus dem übergebenen Objekt zu
-   * lesen und zu toggeln den Schalter.
+   * lesen und den Schalter zu toggeln.
    *
    * @param entity Das Objekt, dessen Schalter-Zustand deaktiviert werden soll
    */
