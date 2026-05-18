@@ -141,7 +141,7 @@ public class Tools {
     entity.fetch(ToggleableComponent.class).ifPresent(ToggleableComponent::deactivate);
   }
 
-    /**
+  /**
    * Toggelt den Schalter-Zustand eines Objekts.
    *
    * <p>Einige Objekte im Spiel können an- oder ausgeschaltet werden, zum Beispiel Pellet-Catcher.
