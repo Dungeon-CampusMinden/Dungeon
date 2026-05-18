@@ -61,35 +61,22 @@ public class BlocklyCommands {
      * Use the object located behind the hero (relative to the hero's current viewing direction).
      */
     HERO_USE_DOWN,
-
     /**
      * If there is a stone in front of the hero, push it forward and move the hero one tile ahead.
      */
     HERO_PUSH,
-
     /**
      * If there is a stone in front of the hero, pull it backward and move the hero one tile back.
      */
     HERO_PULL,
-
-    /** Drop a clover on the hero's current position. */
-    HERO_DROP_CLOVER,
-
-    /** Drop breadcrumbs on the hero's current position. */
-    HERO_DROP_BREADCRUMBS,
-
     /** Pick up an item from the hero's current position. */
     HERO_PICKUP,
-
     /** Shoot a fireball in the hero's current viewing direction. */
     HERO_FIREBALL,
-
     /** Do nothing for a short amount of time (hero rests). */
     REST,
-
     /** Shoot a blue portal projectile in the hero's current viewing direction. */
     HERO_SHOOT_BLUE_PORTAL,
-
     /** Shoot a green portal projectile in the hero's current viewing direction. */
     HERO_SHOOT_GREEN_PORTAL
   }
