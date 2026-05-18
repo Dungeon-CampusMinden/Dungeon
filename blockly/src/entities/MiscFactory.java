@@ -4,7 +4,7 @@ import client.Client;
 import components.AmmunitionComponent;
 import components.BlocklyItemComponent;
 import components.BreadcrumbComponent;
-import components.CloverComponent;
+
 import components.PushableComponent;
 import contrib.components.BlockComponent;
 import contrib.components.BlockViewComponent;
@@ -31,7 +31,6 @@ public class MiscFactory {
 
   private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
   private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/breadcrumbs.png");
-  private static final IPath CLOVER_PATH = new SimpleIPath("items/clover.png");
   private static final IPath SCROLL_PATH = new SimpleIPath("items/book/magic_scroll.png");
 
   /**
@@ -130,30 +129,6 @@ public class MiscFactory {
             () -> new Interaction((entity, entity2) -> Game.remove(breadcrumb), 0, false)));
 
     return breadcrumb;
-  }
-
-  /**
-   * Creates a Clover entity at the given position.
-   *
-   * <p>The Clover is a temporary item that can be picked up and removed upon interaction. It can be
-   * used for marking paths.
-   *
-   * @param position The initial position of the clover.
-   * @return A new clover entity.
-   */
-  public static Entity clover(Point position) {
-    Entity clover = new Entity("clover");
-    clover.add(new PositionComponent(position));
-    DrawComponent dc = new DrawComponent(new Animation(CLOVER_PATH));
-    dc.depth(DepthLayer.Ground.depth());
-    clover.add(dc);
-    clover.add(new BlocklyItemComponent());
-    clover.add(new CloverComponent());
-    clover.add(
-        new InteractionComponent(
-            () -> new Interaction((entity, entity2) -> Game.remove(clover), 0, false)));
-
-    return clover;
   }
 
   /**

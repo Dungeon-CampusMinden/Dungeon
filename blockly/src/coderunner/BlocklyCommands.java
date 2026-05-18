@@ -176,27 +176,6 @@ public class BlocklyCommands {
     Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_PICKUP));
   }
 
-  /**
-   * Drop a Blockly-Item at the heros position.
-   *
-   * <p>If the hero is not on the map, nothing will happen.
-   *
-   * @param item Name of the item to drop
-   */
-  public static void dropItem(String item) {
-    switch (item) {
-      case BlocklyCommandExecuteSystem.BREADCRUMB ->
-          Game.system(
-              BlocklyCommandExecuteSystem.class,
-              system -> system.add(Commands.HERO_DROP_BREADCRUMBS));
-      case BlocklyCommandExecuteSystem.CLOVER ->
-          Game.system(
-              BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_DROP_CLOVER));
-      default ->
-          throw new IllegalArgumentException("Can not convert " + item + " to droppable Item.");
-    }
-  }
-
   /** Attempts to push entities in front of the hero. */
   public static void push() {
     Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_PUSH));
