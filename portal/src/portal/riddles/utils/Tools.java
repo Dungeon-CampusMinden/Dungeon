@@ -141,6 +141,19 @@ public class Tools {
     entity.fetch(ToggleableComponent.class).ifPresent(ToggleableComponent::deactivate);
   }
 
+    /**
+   * Toggelt den Schalter-Zustand eines Objekts.
+   *
+   * <p>Einige Objekte im Spiel können an- oder ausgeschaltet werden, zum Beispiel Pellet-Catcher.
+   * Diese Methode versucht, die entsprechende Schalter-Komponente aus dem übergebenen Objekt zu
+   * lesen und zu toggeln den Schalter.
+   *
+   * @param entity Das Objekt, dessen Schalter-Zustand deaktiviert werden soll
+   */
+  public static void toggleComponent(Entity entity) {
+    entity.fetch(ToggleableComponent.class).ifPresent(ToggleableComponent::toggle);
+  }
+
   /**
    * Liefert das Portal mit dem angegebenen Namen zurück.
    *
