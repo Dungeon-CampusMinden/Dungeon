@@ -86,7 +86,8 @@ public class PortalFactory {
     sm.setState(direction.name(), null);
     portal.add(new DrawComponent(sm));
     updateVisual(color, direction);
-
+    // To allow collision with the stationary Portal elements like lightwalls.
+    portal.add(new VelocityComponent(0.0000000001f));
     PositionComponent pc = new PositionComponent(point);
     pc.viewDirection(direction);
     portal.add(pc);
@@ -94,8 +95,6 @@ public class PortalFactory {
     CollideComponent cc =
         PortalCollisionHandler.setCollideComponent(
             direction, PortalCollisionHandler.createOnCollideHandler(color));
-    cc.isSolid(false);
-    cc.staticCallback((a) -> false);
     cc.onHold(PortalCollisionHandler.createOnHoldHandler(color));
 
     cc.isSolid(false);

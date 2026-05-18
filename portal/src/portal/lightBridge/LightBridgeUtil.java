@@ -257,6 +257,7 @@ public class LightBridgeUtil {
             extendedEmitter.add(beamComponent);
             extendedEmitter.add(new BeamExtendedComponent());
             createCollider(extendedEmitter, dir, startPoint, endPoint, false);
+            coverPit(beamComponent);
             Game.add(extendedEmitter);
           };
       pec.onTrim =
@@ -265,6 +266,7 @@ public class LightBridgeUtil {
                 .filter(entity -> !entity.isPresent(EmitterComponent.class))
                 .filter(entity -> entity.isPresent(BeamExtendedComponent.class))
                 .forEach(Game::remove);
+                uncoverPit();
           };
       emitter.add(pec);
     }
