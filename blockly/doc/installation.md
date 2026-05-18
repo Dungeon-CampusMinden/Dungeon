@@ -128,7 +128,7 @@ Nach dem Erstellen der Executable müssen folgende Dateien in den `content`-Ordn
         cp ./blockly/build/libs/Blockly.jar ./blockly/frontend/webserver/content/blockly.jar
         ```
 
-Nun kann die Executable gestartet werden. Die erstellte Executable startet einen Webserver, welcher die Blockly-Oberfläche lädt und auch den Blockly-Dungeon in Java öffnet (dazu muss Java 21 oder höher installiert sein). Die Executable muss sich im selben Verzeichnis wie der `content`-Ordner befinden.
+Nun kann die Executable gestartet werden. Die erstellte Executable startet einen Webserver, welcher die Blockly-Oberfläche lädt und auch den Blockly-Dungeon in Java öffnet (dazu muss Java 25 oder höher installiert sein). Die Executable muss sich im selben Verzeichnis wie der `content`-Ordner befinden.
 
 Unter macOS (arm64) muss das Executable vorher freigegeben werden.  
 Dafür im Verzeichnis ein Terminal öffnen und:
@@ -141,4 +141,3 @@ Ab dann kann das Spiel mit
 über das Terminal gestartet werden.
 
 Evtl. die Webseite einmal neu laden, damit die Verbindung zum Dungeon korrekt läuft.
-

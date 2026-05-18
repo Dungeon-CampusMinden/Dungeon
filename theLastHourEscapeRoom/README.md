@@ -9,13 +9,13 @@ A scientist has vanished: You have 20 minutes to find out why. **The Last Hour**
 
 The Last Hour runs on Windows, Mac, and Unix systems. Mobile devices are not currently supported.
 
-The game requires [Java SE Development Kit 21 LTS](https://jdk.java.net/21/) to be installed.
+The game requires [Java SE Development Kit 25 LTS](https://jdk.java.net/25/) to be installed.
 
 ## How to Play (Singleplayer)
 
 * Download [TheLastHour.jar](https://github.com/Dungeon-CampusMinden/Dungeon/releases)
 * Start the game by double-clicking the downloaded JAR file
-* If the JAR doesn't launch, make sure Java 21 is installed and open a terminal:
+* If the JAR doesn't launch, make sure Java 25 is installed and open a terminal:
   * Verify your Java installation with `java --version`
   * Start the game with `java -jar /PATH/TO/JAR/TheLastHour.jar` (replace the path with the actual location of the downloaded JAR)
 

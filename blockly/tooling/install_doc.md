@@ -1,13 +1,13 @@
 # Raspberry Pi Installationsskript – Dokumentation
 
 ## 1. Übersicht  
-Dieses Bash-Skript automatisiert die Einrichtung der Raspberry PIs und des Workshop-Projekts. Es führt System-Updates durch, installiert Java (Temurin OpenJDK 21), Visual Studio Code und richtet ein Projekt das Workshop-Projekt ein. Das Skript ist für Debian-basierte Distributionen (z. B. Raspberry Pi OS) konzipiert und erfordert `sudo`-Rechte.
+Dieses Bash-Skript automatisiert die Einrichtung der Raspberry PIs und des Workshop-Projekts. Es führt System-Updates durch, installiert Java (Temurin OpenJDK 25), Visual Studio Code und richtet ein Projekt das Workshop-Projekt ein. Das Skript ist für Debian-basierte Distributionen (z. B. Raspberry Pi OS) konzipiert und erfordert `sudo`-Rechte.
 
 ---
 
 ## 2. Hauptfunktionen  
 - System-Update (`apt update && apt upgrade`)  
-- Installation Temurin OpenJDK 21 (arm64-Download, Extraktion nach `/opt/…`)  
+- Installation Temurin OpenJDK 25 (arm64-Download, Extraktion nach `/opt/…`)
 - Installation VS Code (arm-/amd64-Pakete)  
 - Download und des Workshop-Projekts:  
   - TAR-Datei herunterladen  
@@ -75,7 +75,7 @@ Workshop/
 ## 6. Aktuelle Probleme & Limitierungen  
 - **TAR-Struktur**: Skript erwartet exakt `Workshop`-Verzeichnis – Abweichungen führen zu Abbruch.  
 - **Cleanup**: Temporäre Dateien werden per `trap` gelöscht – evtl. Fehlermeldungen vor Cleanup nicht geloggt.  
-- **Java-Version**: Feste Version 21 – zukünftige Updates erfordern manuelles Anpassen `JAVA_VERSION` und URL.  
+- **Java-Version**: Feste Version 25 – zukünftige Updates erfordern manuelles Anpassen `JAVA_VERSION` und URL.
 
 ---
 

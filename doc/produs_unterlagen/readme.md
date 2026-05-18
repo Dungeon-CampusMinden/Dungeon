@@ -34,11 +34,11 @@ The Blockly Dungeon is the beginner-friendly variant. You program the hero using
 
 ### What needs to be installed?
 
-You only need **Java 21** on your computer. Nothing else.
+You only need **Java 25 LTS** on your computer. Nothing else.
 
-**Installing Java 21:**
+**Installing Java 25 LTS:**
 
-- **Windows / Mac / Linux:** Download [Java 21](https://www.oracle.com/de/java/technologies/downloads/#java21). Choose the version matching your operating system (Windows, macOS or Linux) and install it. Restart your device. 
+- **Windows / Mac / Linux:** Download [Java 25 LTS](https://www.oracle.com/de/java/technologies/downloads/#java25). Choose the version matching your operating system (Windows, macOS or Linux) and install it. Restart your device.
 
 **Tip:** To verify that Java is installed correctly, open a terminal (Windows: `cmd` or PowerShell; Mac/Linux: Terminal) and type:
 
@@ -46,7 +46,7 @@ You only need **Java 21** on your computer. Nothing else.
 java -version
 ```
 
-You should see output like `openjdk version "21.x.x"`.
+You should see output like `openjdk version "25.x.x"`.
 
 ### Download and start the Blockly Dungeon
 
@@ -70,7 +70,7 @@ In the Java Dungeon you solve the same dungeon levels as in the web version, but
 
 ### What needs to be installed?
 
-1. **Java 21** (see [above](#installing-java-21))
+1. **Java 25 LTS** (see [above](#installing-java-25-lts))
 2. **Visual Studio Code** - download from: [https://code.visualstudio.com/](https://code.visualstudio.com/)
    - Available for Windows, Mac and Linux.
 3. **The Blockly Code Runner extension (.vsix file)**
@@ -116,7 +116,7 @@ The Advanced Dungeon is a standalone dungeon project for advanced users. Here yo
 
 ### What needs to be installed?
 
-1. **Java** - a Java version compatible with the repository (at least Java 21). Download: [https://jdk.java.net/21/](https://jdk.java.net/21/) or [Adoptium Temurin 21](https://adoptium.net/temurin/releases/?version=21).
+1. **Java** - a Java version compatible with the repository (at least Java 25). Download: [https://jdk.java.net/25/](https://jdk.java.net/25/) or [Adoptium Temurin 25](https://adoptium.net/temurin/releases/?version=25).
 2. **Git** - needed to download the project. Download: [https://git-scm.com/downloads](https://git-scm.com/downloads)
    - **Windows:** Download the installer and follow the instructions. The default settings are usually sufficient.
    - **Mac:** Git is often already pre-installed. If not: run `xcode-select --install` in the terminal or download from [https://git-scm.com/downloads/mac](https://git-scm.com/downloads/mac).
