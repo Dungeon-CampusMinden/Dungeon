@@ -252,7 +252,7 @@ public class LastHourLevel extends DungeonLevel {
 
   private void setupTimer() {
     int unixTime = (int) (System.currentTimeMillis() / 1000L);
-    Game.add(WorldTimerFactory.createWorldTimer(getPoint("timer"), unixTime, 60 * 20));
+    Game.add(WorldTimerFactory.createWorldTimer(getPoint("timer"), unixTime, 60 * 60));
     if (!Game.isHeadless()) {
       Game.add(new WorldTimerSystem());
     }
@@ -281,6 +281,10 @@ public class LastHourLevel extends DungeonLevel {
 
     Entity desk1 = DecoFactory.createDeco(getPoint("desk-nothing1"), Deco.WritingTable);
     desk1.remove(DecoComponent.class);
+    Item passwordNote1 = new HintItem(new SimpleIPath("images/note-password-1.png"));
+    InventoryComponent desk1Inv = new InventoryComponent();
+    desk1Inv.add(passwordNote1);
+    desk1.add(desk1Inv);
     desk1.add(
         new InteractionComponent(
             () ->
@@ -289,9 +293,7 @@ public class LastHourLevel extends DungeonLevel {
                       DialogFactory.showOkDialog(
                           "A bunch of papers laying all over the place on the desk.\nYou weed through them, until a weird looking note catches your eye",
                           "",
-                          () -> {
-                            DialogUtils.showImagePopUp("images/note-password-1.png", who.id());
-                          },
+                          () -> openDualInventory(e, who),
                           who.id());
                     })));
 
@@ -902,19 +904,26 @@ public class LastHourLevel extends DungeonLevel {
     entity.add(ic);
     entity.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (e, who) -> {
-                      DialogContext ctx =
-                          new DialogContext(
-                              DialogType.DefaultTypes.DUAL_INVENTORY,
-                              true,
-                              Map.of(
-                                  DialogContextKeys.ENTITY, who.id(),
-                                  DialogContextKeys.SECONDARY_ENTITY, e.id()));
-                      ctx.owner(who.id());
-                      DialogFactory.show(ctx);
-                    })));
+            () -> new Interaction(LastHourLevel::openDualInventory)));
+  }
+
+  /**
+   * Opens the dual-inventory dialog between {@code who} (the hero) and {@code container} (the
+   * inventory-bearing entity). The container must already have an {@link InventoryComponent}.
+   *
+   * @param container the entity whose inventory should be shown on one side
+   * @param who the hero entity interacting with the container
+   */
+  private static void openDualInventory(Entity container, Entity who) {
+    DialogContext ctx =
+        new DialogContext(
+            DialogType.DefaultTypes.DUAL_INVENTORY,
+            true,
+            Map.of(
+                DialogContextKeys.ENTITY, who.id(),
+                DialogContextKeys.SECONDARY_ENTITY, container.id()));
+    ctx.owner(who.id());
+    DialogFactory.show(ctx);
   }
 
   /**
