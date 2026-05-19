@@ -45,7 +45,7 @@ public class StageConfig {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                       float value = slider.getValue();
-                      velocityLabel.setText("velocity: " + value + "x");
+                      velocityLabel.setText("Speed: " + value + "x");
                       Client.MOVEMENT_FORCE = Vector2.of(7.5f * value, 7.5f * value);
                     }
                   });
