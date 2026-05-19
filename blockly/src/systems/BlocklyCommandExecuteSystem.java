@@ -1,19 +1,11 @@
 package systems;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Supplier;
-
-import com.badlogic.gdx.Gdx;
+import static coderunner.BlocklyCommands.DISABLE_SHOOT_ON_HERO;
+import static coderunner.BlocklyCommands.MAGIC_OFFSET;
 
 import client.Client;
 import coderunner.BlocklyCommands;
-import static coderunner.BlocklyCommands.DISABLE_SHOOT_ON_HERO;
-import static coderunner.BlocklyCommands.MAGIC_OFFSET;
+import com.badlogic.gdx.Gdx;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.AIComponent;
@@ -33,6 +25,13 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
 
 /**
  * A system that executes queued {@link BlocklyCommands.Commands} in the game thread.
@@ -302,9 +301,8 @@ public class BlocklyCommandExecuteSystem extends System {
             comp.vc.currentVelocity(Vector2.ZERO);
             Point targetPoint = comp.targetPosition.toPoint();
 
-            //projected distance to the target along the movement axis
-            float remaining =
-                remainingTowardTarget(comp.pc.position(), targetPoint, direction);
+            // projected distance to the target along the movement axis
+            float remaining = remainingTowardTarget(comp.pc.position(), targetPoint, direction);
 
             // force from the speed slider
             float requestedForce = Client.MOVEMENT_FORCE.x();
@@ -317,7 +315,8 @@ public class BlocklyCommandExecuteSystem extends System {
             if (remaining <= distanceThreshold || remaining <= nextStep) {
 
               // snap to tile center to prevent false collisions with adjacent tiles (e.g. PitTile)
-              Game.tileAt(comp.targetPosition().translate(MAGIC_OFFSET)).ifPresent(comp.pc::position);
+              Game.tileAt(comp.targetPosition().translate(MAGIC_OFFSET))
+                  .ifPresent(comp.pc::position);
 
               // remaining distance is large enough for a full step —> apply force normally
             } else {
@@ -503,7 +502,6 @@ public class BlocklyCommandExecuteSystem extends System {
     this.disableQueue = false;
   }
 
-
   /**
    * Distance to target along the movement direction.
    *
@@ -531,7 +529,6 @@ public class BlocklyCommandExecuteSystem extends System {
   private static float blocklyMoveStepForForce(float force, float mass, int frameRate) {
     return force / mass / frameRate;
   }
-
 
   /**
    * Helper record bundling the core components of an entity during movement.
