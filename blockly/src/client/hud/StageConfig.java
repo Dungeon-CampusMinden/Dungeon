@@ -9,17 +9,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import contrib.hud.UIUtils;
 import core.Game;
-import core.components.VelocityComponent;
 import core.utils.Vector2;
-
 
 /**
  * Configures the LibGDX HUD stage for the Blockly client.
  *
- * <p>Sets up the UI layout with the velocity control widget, which allows adjusting
- * the hero's movement {@link Client#MOVEMENT_FORCE} at runtime via a slider.
+ * <p>Sets up the UI layout with the velocity control widget, which allows adjusting the hero's
+ * movement {@link Client#MOVEMENT_FORCE} at runtime via a slider.
  */
-
 public class StageConfig {
 
   /**
@@ -39,9 +36,9 @@ public class StageConfig {
               //  expands the table to fill the full screen by matching the stage size
               rootTable.setFillParent(true);
 
-              Label velocityLabel = new Label("Speed: 1x", UIUtils.defaultSkin(),"blank-white");
+              Label velocityLabel = new Label("Speed: 1x", UIUtils.defaultSkin(), "blank-white");
               Slider slider =
-                  new Slider(1.0f, 8f, 0.5f, false, UIUtils.defaultSkin(), "clean-horizontal");
+                  new Slider(1.0f, 8f, 1f, false, UIUtils.defaultSkin(), "clean-horizontal");
 
               slider.addListener(
                   new ChangeListener() {
