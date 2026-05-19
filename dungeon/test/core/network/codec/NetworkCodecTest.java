@@ -10,11 +10,16 @@ import core.network.messages.c2s.DialogResponseMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
+import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.c2s.SoundFinishedMessage;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
+import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.DialogCloseMessage;
+import core.network.messages.s2c.EntityDelta;
 import core.network.messages.s2c.EntityDespawnEvent;
+import core.network.messages.s2c.EntityState;
+import core.network.messages.s2c.EntityStateField;
 import core.network.messages.s2c.GameOverEvent;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.RegisterAck;
@@ -26,6 +31,7 @@ import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class NetworkCodecTest {
@@ -66,10 +72,21 @@ class NetworkCodecTest {
         new RegisterUdp(42, new byte[] {9, 8, 7}, (short) 4),
         new RequestEntitySpawn(99),
         new SoundFinishedMessage(123L),
+        new SnapshotAck(123),
         new ConnectAck((short) 5, 42, new byte[] {4, 5, 6}),
         new ConnectReject(ConnectReject.Reason.INVALID_NAME),
         new DialogCloseMessage("dialog-2"),
         new EntityDespawnEvent(77, "left"),
+        new DeltaSnapshotMessage(
+            10,
+            12,
+            List.of(
+                new EntityDelta(
+                    5,
+                    EntityState.builder().entityId(5).rotation(90.0f).build(),
+                    Set.of(EntityStateField.POSITION))),
+            List.of(8),
+            null),
         new GameOverEvent("Game over"),
         new LevelChangeEvent("level-1", "data"),
         new RegisterAck(true),

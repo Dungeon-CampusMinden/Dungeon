@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.hud.dialogs.DialogContext;
@@ -11,12 +12,14 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
 import contrib.item.HealthPotionType;
 import contrib.item.Item;
+import contrib.item.concreteItem.ItemKey;
 import contrib.item.concreteItem.ItemPotionHealth;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.network.codec.converters.s2c.ConnectAckConverter;
 import core.network.codec.converters.s2c.ConnectRejectConverter;
+import core.network.codec.converters.s2c.DeltaSnapshotConverter;
 import core.network.codec.converters.s2c.DialogCloseConverter;
 import core.network.codec.converters.s2c.DialogShowConverter;
 import core.network.codec.converters.s2c.EntityDespawnConverter;
@@ -31,14 +34,19 @@ import core.network.codec.converters.s2c.SoundPlayConverter;
 import core.network.codec.converters.s2c.SoundStopConverter;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
+import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.DialogCloseMessage;
 import core.network.messages.s2c.DialogShowMessage;
 import core.network.messages.s2c.DoorTileState;
+import core.network.messages.s2c.EntityDelta;
 import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntitySpawnBatch;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.EntityState;
+import core.network.messages.s2c.EntityStateField;
 import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.InventorySlotState;
+import core.network.messages.s2c.ItemState;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.RegisterAck;
@@ -51,6 +59,7 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.DrawInfoData;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -72,6 +81,8 @@ public class S2CConverterTest {
       new EntityDespawnConverter();
   private static final EntityStateConverter ENTITY_STATE_CONVERTER = new EntityStateConverter();
   private static final SnapshotConverter SNAPSHOT_CONVERTER = new SnapshotConverter();
+  private static final DeltaSnapshotConverter DELTA_SNAPSHOT_CONVERTER =
+      new DeltaSnapshotConverter();
   private static final GameOverConverter GAME_OVER_CONVERTER = new GameOverConverter();
   private static final LevelChangeConverter LEVEL_CHANGE_CONVERTER = new LevelChangeConverter();
   private static final RegisterAckConverter REGISTER_ACK_CONVERTER = new RegisterAckConverter();
@@ -320,11 +331,89 @@ public class S2CConverterTest {
     assertEquals(0x11223344, roundTrip.tintColor().orElseThrow());
     assertEquals(1.25f, roundTrip.scale().orElseThrow().x(), DELTA);
     assertEquals(0.75f, roundTrip.scale().orElseThrow().y(), DELTA);
-    assertEquals(3, roundTrip.inventory().orElseThrow().length);
-    assertEquals(ItemPotionHealth.class, roundTrip.inventory().orElseThrow()[1].getClass());
-    ItemPotionHealth roundTripItem = (ItemPotionHealth) roundTrip.inventory().orElseThrow()[1];
+    List<InventorySlotState> inventory = roundTrip.inventory().orElseThrow();
+    assertEquals(3, inventory.size());
+    assertEquals(0, inventory.get(0).slotIndex());
+    assertTrue(inventory.get(0).item() == null);
+    assertEquals(1, inventory.get(1).slotIndex());
+    assertEquals("ItemPotionHealth", inventory.get(1).item().itemType());
+    assertEquals(item.stackSize(), inventory.get(1).item().stackSize());
+    assertEquals(item.maxStackSize(), inventory.get(1).item().maxStackSize());
+    assertEquals(item.itemData(), inventory.get(1).item().itemData());
+    assertTrue(inventory.get(2).item() == null);
+    assertEquals(ItemPotionHealth.class, inventory.get(1).item().toItem().getClass());
+    ItemPotionHealth roundTripItem = (ItemPotionHealth) inventory.get(1).item().toItem();
     assertEquals(HealthPotionType.GREATER, roundTripItem.type());
     assertEquals(item.healAmount(), roundTripItem.healAmount());
+  }
+
+  /** Verifies empty inventory slots survive entity state conversion. */
+  @Test
+  public void testEntityStateEmptyInventoryRoundTrip() {
+    EntityState message =
+        EntityState.builder().entityId(7).inventory(new Item[] {null, null}).build();
+
+    core.network.proto.s2c.EntityState proto = ENTITY_STATE_CONVERTER.toProto(message);
+    assertEquals(2, proto.getInventoryCount());
+    assertFalse(proto.getInventory(0).hasItem());
+    assertFalse(proto.getInventory(1).hasItem());
+
+    EntityState roundTrip = ENTITY_STATE_CONVERTER.fromProto(proto);
+    List<InventorySlotState> inventory = roundTrip.inventory().orElseThrow();
+    assertEquals(2, inventory.size());
+    assertEquals(0, inventory.get(0).slotIndex());
+    assertTrue(inventory.get(0).item() == null);
+    assertEquals(1, inventory.get(1).slotIndex());
+    assertTrue(inventory.get(1).item() == null);
+  }
+
+  /** Verifies empty metadata maps are normalized to absent metadata. */
+  @Test
+  public void testEntityStateEmptyMetadataIsAbsent() {
+    EntityState message = EntityState.builder().entityId(7).metadata(Map.of()).build();
+
+    assertTrue(message.metadata().isEmpty());
+  }
+
+  /** Verifies item data without a registered factory fails instead of being ignored. */
+  @Test
+  public void testItemStateDataWithoutFactoryFails() {
+    ItemState itemState = new ItemState("ItemKey", 1, 1, Map.of("custom", "value"));
+
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class, itemState::toItem);
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains("Item data provided but no factory registered for item type: ItemKey"));
+    assertEquals(ItemKey.class.getSimpleName(), itemState.itemType());
+  }
+
+  /** Verifies entity state conversion supports partial position-component updates. */
+  @Test
+  public void testEntityStatePartialPositionInfoRoundTrip() {
+    EntityState message =
+        EntityState.builder()
+            .entityId(7)
+            .viewDirection(Direction.RIGHT)
+            .rotation(45.0f)
+            .scale(Vector2.of(2.0f, 3.0f))
+            .build();
+
+    core.network.proto.s2c.EntityState proto = ENTITY_STATE_CONVERTER.toProto(message);
+    assertTrue(proto.hasPosition());
+    assertFalse(proto.getPosition().hasPosition());
+    assertTrue(proto.getPosition().hasViewDirection());
+    assertTrue(proto.getPosition().hasRotation());
+    assertTrue(proto.getPosition().hasScale());
+
+    EntityState roundTrip = ENTITY_STATE_CONVERTER.fromProto(proto);
+    assertTrue(roundTrip.position().isEmpty());
+    assertEquals("RIGHT", roundTrip.viewDirection().orElseThrow());
+    assertEquals(45.0f, roundTrip.rotation().orElseThrow(), DELTA);
+    assertEquals(2.0f, roundTrip.scale().orElseThrow().x(), DELTA);
+    assertEquals(3.0f, roundTrip.scale().orElseThrow().y(), DELTA);
   }
 
   /** Verifies snapshot message conversion roundtrip. */
@@ -350,6 +439,42 @@ public class S2CConverterTest {
     DoorTileState doorTileState = roundTrip.levelState().doorStates().iterator().next();
     assertEquals(new Coordinate(4, 7), doorTileState.coordinate());
     assertFalse(doorTileState.open());
+  }
+
+  /** Verifies delta snapshot message conversion roundtrip. */
+  @Test
+  public void testDeltaSnapshotRoundTrip() {
+    EntityState changedState =
+        EntityState.builder()
+            .entityId(5)
+            .rotation(90.0f)
+            .metadata(Map.of("sync:type", "keypad"))
+            .build();
+    EntityDelta entityDelta =
+        new EntityDelta(
+            5, changedState, Set.of(EntityStateField.POSITION, EntityStateField.INVENTORY));
+    LevelState levelState = new LevelState(Set.of(new DoorTileState(new Coordinate(4, 7), true)));
+    DeltaSnapshotMessage message =
+        new DeltaSnapshotMessage(100, 103, List.of(entityDelta), List.of(9), levelState);
+
+    core.network.proto.s2c.DeltaSnapshotMessage proto = DELTA_SNAPSHOT_CONVERTER.toProto(message);
+    assertEquals(100, proto.getBaseTick());
+    assertEquals(103, proto.getServerTick());
+    assertEquals(1, proto.getEntityDeltasCount());
+    assertEquals(9, proto.getRemovedEntityIds(0));
+    assertTrue(proto.hasLevelStateDelta());
+
+    DeltaSnapshotMessage roundTrip = DELTA_SNAPSHOT_CONVERTER.fromProto(proto);
+    assertEquals(100, roundTrip.baseTick());
+    assertEquals(103, roundTrip.serverTick());
+    assertEquals(1, roundTrip.entityDeltas().size());
+    assertEquals(5, roundTrip.entityDeltas().getFirst().entityId());
+    assertEquals(
+        90.0f, roundTrip.entityDeltas().getFirst().changedState().rotation().orElseThrow());
+    assertTrue(
+        roundTrip.entityDeltas().getFirst().clearedFields().contains(EntityStateField.POSITION));
+    assertEquals(List.of(9), roundTrip.removedEntityIds());
+    assertTrue(roundTrip.levelStateDeltaOptional().isPresent());
   }
 
   /** Verifies game over conversion roundtrip. */

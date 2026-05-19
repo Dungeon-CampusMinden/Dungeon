@@ -236,6 +236,21 @@ public class Debugger extends System {
     Game.allTiles(LevelElement.DOOR).forEach(door -> ((DoorTile) door).open());
   }
 
+  private static void CHECK_DEBUG_HUD_INPUT() {
+    boolean toggleHudPressed =
+        InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value());
+    boolean toggleSystemListPressed =
+        InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SYSTEM_LIST.value());
+    boolean toggleSystemListHeld =
+        InputManager.isKeyPressed(KeyboardConfig.DEBUG_TOGGLE_SYSTEM_LIST.value());
+
+    if ((toggleHudPressed && toggleSystemListHeld) || toggleSystemListPressed) {
+      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleSystemList);
+    } else if (toggleHudPressed) {
+      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
+    }
+  }
+
   @Override
   public void stop() {
     // Cant be stopped
@@ -267,8 +282,7 @@ public class Debugger extends System {
       Debugger.PAUSE_GAME();
     if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.ADVANCE_FRAME.value()))
       Debugger.ADVANCE_FRAME();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value()))
-      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
+    if (InputManager.isKeyPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value())) CHECK_DEBUG_HUD_INPUT();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SCENE_HUD.value()))
       Game.stage().ifPresent(stage -> stage.setDebugAll(!stage.isDebugAll()));
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_UP.value())) {

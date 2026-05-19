@@ -52,6 +52,7 @@ public final class ECSManagement {
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
   private static int currentTick = 0;
+  private static System.AuthoritativeSide currentExecutionSide = System.AuthoritativeSide.BOTH;
 
   /**
    * Essential systems that are always added to the game.
@@ -437,6 +438,16 @@ public final class ECSManagement {
   }
 
   /**
+   * Checks whether a system is part of the current execution side selected by the ECS runner.
+   *
+   * @param system the system to check
+   * @return true if the system would be considered for execution in the current ECS tick
+   */
+  public static boolean isAuthoritativeInCurrentTick(System system) {
+    return isAuthoritative(currentExecutionSide, system);
+  }
+
+  /**
    * Returns the current tick number, incremented each time {@link
    * #executeOneTick(System.AuthoritativeSide)} is called.
    *
@@ -463,6 +474,7 @@ public final class ECSManagement {
    *     System.AuthoritativeSide#BOTH for all systems})
    */
   public static void executeOneTick(System.AuthoritativeSide side) {
+    currentExecutionSide = side;
     List<System> authoritativeSystems =
         ECSManagement.systems().values().stream()
             .filter(sys -> isAuthoritative(side, sys))

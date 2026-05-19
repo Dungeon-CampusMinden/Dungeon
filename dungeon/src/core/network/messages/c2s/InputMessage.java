@@ -8,6 +8,7 @@ import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -16,6 +17,7 @@ import java.util.regex.Pattern;
  * @param sessionId the session ID of the client sending the input
  * @param clientTick the client tick when the input was generated
  * @param sequence the sequence number of this input message (monotonically increasing per client)
+ * @param lastSnapshotTick highest server snapshot tick the client has successfully applied
  * @param action the action (e.g., move, cast skill, interact)
  * @param payload the typed payload for the action
  */
@@ -24,6 +26,7 @@ public record InputMessage(
     int sessionId,
     int clientTick,
     short sequence,
+    Optional<Integer> lastSnapshotTick,
     // PAYLOAD
     Action action,
     Payload payload)
@@ -42,13 +45,29 @@ public record InputMessage(
    * @param sessionId the session ID of the client sending the input
    * @param clientTick the client tick when the input was generated
    * @param sequence the sequence number of this input message (monotonically increasing per client)
+   * @param lastSnapshotTick highest server snapshot tick the client has successfully applied
    * @param action the action to execute
    * @param payload the typed payload for the action
    */
   public InputMessage {
+    lastSnapshotTick = lastSnapshotTick == null ? Optional.empty() : lastSnapshotTick;
     Objects.requireNonNull(action, "action");
     Objects.requireNonNull(payload, "payload");
     validatePayload(action, payload);
+  }
+
+  /**
+   * Creates an input message without a piggybacked snapshot acknowledgement.
+   *
+   * @param sessionId the session ID of the client sending the input
+   * @param clientTick the client tick when the input was generated
+   * @param sequence the sequence number of this input message
+   * @param action the action to execute
+   * @param payload the typed payload for the action
+   */
+  public InputMessage(
+      int sessionId, int clientTick, short sequence, Action action, Payload payload) {
+    this(sessionId, clientTick, sequence, Optional.empty(), action, payload);
   }
 
   /**
@@ -68,8 +87,20 @@ public record InputMessage(
         Game.network().session().sessionId(),
         Game.currentTick(),
         incrementAndGetSequence(),
+        Optional.empty(),
         action,
         payload);
+  }
+
+  /**
+   * Returns a copy of this input message with a piggybacked snapshot acknowledgement.
+   *
+   * @param serverTick highest server snapshot tick the client has successfully applied
+   * @return input message carrying the acknowledgement
+   */
+  public InputMessage withLastSnapshotTick(int serverTick) {
+    return new InputMessage(
+        sessionId, clientTick, sequence, Optional.of(serverTick), action, payload);
   }
 
   /**

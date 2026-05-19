@@ -32,10 +32,16 @@ message Coordinate {
 // Represents position and orientation state.
 // Maps to: core.components.PositionComponent
 message PositionInfo {
-  // TODO: Optional rotation/scale when partial updates are needed.
+  // Optional position for full or partial position-component updates.
   Point position = 1;
-  Direction view_direction = 2;
-  float rotation = 3;
+
+  // Optional view direction for partial updates.
+  optional Direction view_direction = 2;
+
+  // Optional rotation for partial updates.
+  optional float rotation = 3;
+
+  // Optional scale for partial updates.
   Vector2 scale = 4;
 }
 

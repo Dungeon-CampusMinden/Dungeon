@@ -13,12 +13,14 @@ import core.network.codec.converters.c2s.DialogResponseConverter;
 import core.network.codec.converters.c2s.InputMessageConverter;
 import core.network.codec.converters.c2s.RegisterUdpConverter;
 import core.network.codec.converters.c2s.RequestEntitySpawnConverter;
+import core.network.codec.converters.c2s.SnapshotAckConverter;
 import core.network.codec.converters.c2s.SoundFinishedConverter;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
+import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.c2s.SoundFinishedMessage;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -41,6 +43,7 @@ public class C2SConverterTest {
       new RequestEntitySpawnConverter();
   private static final SoundFinishedConverter SOUND_FINISHED_CONVERTER =
       new SoundFinishedConverter();
+  private static final SnapshotAckConverter SNAPSHOT_ACK_CONVERTER = new SnapshotAckConverter();
 
   /** Verifies connect request conversion with session data. */
   @Test
@@ -103,9 +106,48 @@ public class C2SConverterTest {
 
     InputMessage roundTrip = INPUT_MESSAGE_CONVERTER.fromProto(proto);
     assertEquals(InputMessage.Action.MOVE, roundTrip.action());
+    assertTrue(roundTrip.lastSnapshotTick().isEmpty());
     InputMessage.Move move = roundTrip.payloadAs(InputMessage.Move.class);
     assertEquals(1.5f, move.direction().x(), DELTA);
     assertEquals(-2.0f, move.direction().y(), DELTA);
+  }
+
+  /** Verifies input messages carry piggybacked snapshot acknowledgements. */
+  @Test
+  public void testInputMessageCarriesLastSnapshotTick() {
+    InputMessage message =
+        new InputMessage(
+            5,
+            10,
+            (short) 7,
+            Optional.of(99),
+            InputMessage.Action.MOVE,
+            new InputMessage.Move(Vector2.of(1.5f, -2.0f)));
+
+    core.network.proto.c2s.InputMessage proto = INPUT_MESSAGE_CONVERTER.toProto(message);
+    assertTrue(proto.hasLastSnapshotTick());
+    assertEquals(99, proto.getLastSnapshotTick());
+
+    InputMessage roundTrip = INPUT_MESSAGE_CONVERTER.fromProto(proto);
+    assertEquals(Optional.of(99), roundTrip.lastSnapshotTick());
+  }
+
+  /** Verifies input messages without snapshot acknowledgement remain compatible. */
+  @Test
+  public void testInputMessageWithoutSnapshotTickRoundTrip() {
+    InputMessage message =
+        new InputMessage(
+            5,
+            10,
+            (short) 7,
+            InputMessage.Action.MOVE,
+            new InputMessage.Move(Vector2.of(1.5f, -2.0f)));
+
+    core.network.proto.c2s.InputMessage proto = INPUT_MESSAGE_CONVERTER.toProto(message);
+    assertFalse(proto.hasLastSnapshotTick());
+
+    InputMessage roundTrip = INPUT_MESSAGE_CONVERTER.fromProto(proto);
+    assertTrue(roundTrip.lastSnapshotTick().isEmpty());
   }
 
   /** Verifies cast skill action conversion. */
@@ -506,6 +548,18 @@ public class C2SConverterTest {
 
     SoundFinishedMessage roundTrip = SOUND_FINISHED_CONVERTER.fromProto(proto);
     assertEquals(123L, roundTrip.soundInstanceId());
+  }
+
+  /** Verifies snapshot ack conversion. */
+  @Test
+  public void testSnapshotAckRoundTrip() {
+    SnapshotAck message = new SnapshotAck(123);
+
+    core.network.proto.c2s.SnapshotAck proto = SNAPSHOT_ACK_CONVERTER.toProto(message);
+    assertEquals(123, proto.getServerTick());
+
+    SnapshotAck roundTrip = SNAPSHOT_ACK_CONVERTER.fromProto(proto);
+    assertEquals(123, roundTrip.serverTick());
   }
 
   private record TestPayload(String label, int count) implements DialogResponseMessage.Payload {}
