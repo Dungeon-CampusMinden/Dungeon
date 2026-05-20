@@ -23,10 +23,10 @@ import util.LastHourSounds;
  * A minigame where the player has to find an important note (or item) hidden under crumbled papers
  * in a trashcan.
  *
- * <p>The minigame is "won" by clicking the special (non-crumpled) actor. On a win the actor is
- * raised to the front, briefly animated, a success sound is played, and after a short delay the
- * server is notified via {@link DialogCallbackResolver} using the configured callback key. The
- * server-side handler is responsible for awarding any item and closing the dialog.
+ * <p>The minigame is "won" by clicking the special (non-crumpled) actor. On a win the server is
+ * notified immediately via {@link DialogCallbackResolver} using the configured callback key so
+ * rewards are granted even if the dialog is closed early. Afterwards, the actor is raised to the
+ * front, briefly animated and a success sound is played.
  */
 public class TrashMinigameUI extends Group {
 
@@ -41,11 +41,17 @@ public class TrashMinigameUI extends Group {
   /** Key for the callback name fired on the server when the player wins. */
   public static final String KEY_CALLBACK_KEY = "callback_key";
 
+  /** Key for the callback name fired on the server after the win animation finishes. */
+  public static final String KEY_CLOSE_CALLBACK_KEY = "close_callback_key";
+
   /** Default callback key used if {@link #KEY_CALLBACK_KEY} is not set. */
   public static final String DEFAULT_CALLBACK_KEY = "onTrashWin";
 
+  /** Default close callback key used if {@link #KEY_CLOSE_CALLBACK_KEY} is not set. */
+  public static final String DEFAULT_CLOSE_CALLBACK_KEY = "onTrashClose";
+
   private static final float WIN_SCALE_DURATION = 1.2f;
-  private static final float WIN_HOLD_BEFORE_CALLBACK = 2.0f;
+  private static final float WIN_HOLD_DURATION = 2.0f;
 
   /**
    * Minimum on-screen size (in stage units, before this actor's own scale) of the special actor's
@@ -61,6 +67,7 @@ public class TrashMinigameUI extends Group {
   private final int paperCount;
   private final String dialogId;
   private final String callbackKey;
+  private final String closeCallbackKey;
 
   /**
    * Builds the TrashMinigameUI from the given DialogContext.
@@ -73,12 +80,18 @@ public class TrashMinigameUI extends Group {
     Optional<Integer> paperCount = dialogContext.find(KEY_PAPER_COUNT, Integer.class);
     String callbackKey =
         dialogContext.find(KEY_CALLBACK_KEY, String.class).orElse(DEFAULT_CALLBACK_KEY);
+    String closeCallbackKey =
+        dialogContext.find(KEY_CLOSE_CALLBACK_KEY, String.class).orElse(DEFAULT_CLOSE_CALLBACK_KEY);
 
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup();
     }
     return new TrashMinigameUI(
-        path.orElse(null), paperCount.orElse(50), dialogContext.dialogId(), callbackKey);
+        path.orElse(null),
+        paperCount.orElse(50),
+        dialogContext.dialogId(),
+        callbackKey,
+        closeCallbackKey);
   }
 
   /**
@@ -89,14 +102,21 @@ public class TrashMinigameUI extends Group {
    * @param paperCount the number of crumbled papers to place in the playfield
    * @param dialogId the id of the surrounding dialog (used to route the win callback)
    * @param callbackKey the callback key registered on the server for the win event
+   * @param closeCallbackKey the callback key registered on the server to close the dialog after the
+   *     win animation has finished
    */
   public TrashMinigameUI(
-      String importantNotePath, int paperCount, String dialogId, String callbackKey) {
+      String importantNotePath,
+      int paperCount,
+      String dialogId,
+      String callbackKey,
+      String closeCallbackKey) {
     setSize(Game.windowWidth(), Game.windowHeight());
     this.importantNotePath = importantNotePath;
     this.paperCount = paperCount;
     this.dialogId = dialogId;
     this.callbackKey = callbackKey;
+    this.closeCallbackKey = closeCallbackKey;
 
     root = new Table();
     root.setFillParent(true);
@@ -227,22 +247,25 @@ public class TrashMinigameUI extends Group {
     }
 
     /**
-     * Plays win feedback (raise to front, scale animation and sound), then notifies the server via
-     * the dialog callback after a short delay. The dialog is closed by the server-side handler.
+     * Plays win feedback (raise to front, scale animation and sound) and notifies the server via
+     * the dialog callback immediately so rewards are granted even if the dialog closes early.
      */
     private void triggerWin() {
       if (won) return;
       won = true;
       setTouchable(Touchable.disabled);
+
+      DialogCallbackResolver.createButtonCallback(dialogId, callbackKey).accept(null);
+
       toFront();
       Sounds.play(LastHourSounds.TRASH_MINIGAME_WIN);
       addAction(
           Actions.sequence(
               Actions.scaleTo(getScaleX() * 1.6f, getScaleY() * 1.6f, WIN_SCALE_DURATION),
-              Actions.delay(WIN_HOLD_BEFORE_CALLBACK),
+              Actions.delay(WIN_HOLD_DURATION),
               Actions.run(
                   () ->
-                      DialogCallbackResolver.createButtonCallback(dialogId, callbackKey)
+                      DialogCallbackResolver.createButtonCallback(dialogId, closeCallbackKey)
                           .accept(null))));
     }
   }

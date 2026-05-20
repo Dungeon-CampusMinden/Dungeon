@@ -60,20 +60,25 @@ public final class TrashMinigameFactory {
     if (reward != null) {
       builder
           .put(TrashMinigameUI.KEY_NOTE_PATH, resolveTexturePath(reward))
-          .put(TrashMinigameUI.KEY_CALLBACK_KEY, TrashMinigameUI.DEFAULT_CALLBACK_KEY);
+          .put(TrashMinigameUI.KEY_CALLBACK_KEY, TrashMinigameUI.DEFAULT_CALLBACK_KEY)
+          .put(TrashMinigameUI.KEY_CLOSE_CALLBACK_KEY, TrashMinigameUI.DEFAULT_CLOSE_CALLBACK_KEY);
     }
 
     DialogContext ctx = builder.build();
     UIComponent ui = DialogFactory.show(ctx, who.id());
 
     if (reward != null) {
+      // Award the reward immediately when the player clicks the special actor, so the item is
+      // granted even if the dialog is closed early.
       ui.registerCallback(
           TrashMinigameUI.DEFAULT_CALLBACK_KEY,
           payload -> {
             who.fetch(InventoryComponent.class).ifPresent(inv -> inv.add(reward));
             if (afterAward != null) afterAward.run();
-            UIUtils.closeDialog(ui);
           });
+      // Close the dialog only after the win animation has finished playing on the client.
+      ui.registerCallback(
+          TrashMinigameUI.DEFAULT_CLOSE_CALLBACK_KEY, payload -> UIUtils.closeDialog(ui));
     }
   }
 
