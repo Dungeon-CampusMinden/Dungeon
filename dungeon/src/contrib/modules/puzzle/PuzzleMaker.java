@@ -4,6 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.item.concreteItem.HintItem;
 import core.Entity;
 import core.utils.components.path.IPath;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,8 +17,10 @@ import java.util.function.BiConsumer;
  *
  * <p>The static {@link #makePuzzle} overloads create a fully-initialized {@link Puzzle} (including
  * one {@link PuzzlePieceItem} per piece and the initial polygon slicing of the source image), and
- * register the resulting instance under a generated id so the {@link PuzzleDialog} can look it up
- * later.
+ * register the resulting instance under a deterministic id derived from the source image, piece
+ * count and seed so the same puzzle is rebuilt with the same id on every machine. This is the
+ * mechanism that makes per-piece textures (registered by {@link PuzzleTextureGenerator}) align
+ * across the multiplayer server and its clients without explicit id negotiation.
  *
  * <p>The image is sliced into arbitrary convex polygons by {@link PuzzleSlicer}; you only specify
  * how many pieces you want (no rows / cols anymore). The slicing of a generic {@code N} pieces is
@@ -30,7 +33,6 @@ import java.util.function.BiConsumer;
  * Puzzle p = PuzzleMaker.makePuzzle(
  *     new SimpleIPath("images/my_picture.png"),
  *     12,                                       // total piece count (>= 2)
- *     new SimpleIPath("items/rpg/item_paper.png"),
  *     solver -> door.open());                    // completion callback
  *
  * List<Item> items = p.items();
@@ -50,13 +52,12 @@ public final class PuzzleMaker {
    *
    * @param imagePath path to the source image
    * @param pieceCount total number of puzzle pieces (must be {@code >= 2})
-   * @param worldSprite world sprite for the dropped piece items
    * @param onComplete callback fired exactly once when all pieces are placed correctly
    * @return the created puzzle
    */
   public static Puzzle makePuzzle(
-      IPath imagePath, int pieceCount, IPath worldSprite, BiConsumer<Puzzle, Entity> onComplete) {
-    return makePuzzle(imagePath, pieceCount, worldSprite, onComplete, System.nanoTime(), false);
+      IPath imagePath, int pieceCount, BiConsumer<Puzzle, Entity> onComplete) {
+    return makePuzzle(imagePath, pieceCount, onComplete, System.nanoTime(), false);
   }
 
   /**
@@ -64,30 +65,30 @@ public final class PuzzleMaker {
    *
    * @param imagePath path to the source image
    * @param pieceCount total number of puzzle pieces (must be {@code >= 2})
-   * @param worldSprite world sprite for the dropped piece items
    * @param onComplete callback fired exactly once when all pieces are placed correctly
    * @param seed RNG seed used for deterministic slicing and scatter
    * @return the created puzzle
    */
   public static Puzzle makePuzzle(
-      IPath imagePath,
-      int pieceCount,
-      IPath worldSprite,
-      BiConsumer<Puzzle, Entity> onComplete,
-      long seed) {
-    return makePuzzle(imagePath, pieceCount, worldSprite, onComplete, seed, false);
+      IPath imagePath, int pieceCount, BiConsumer<Puzzle, Entity> onComplete, long seed) {
+    return makePuzzle(imagePath, pieceCount, onComplete, seed, false);
   }
 
   /**
    * Creates a puzzle with explicit seed and debug flag.
    *
-   * <p>The actual polygon slicing is performed lazily on the first call to {@link
-   * Puzzle#regenerate(long, int, int)} (typically by the puzzle UI when it knows the loaded image
-   * dimensions). Until then, {@link Puzzle#polygons()} is empty.
+   * <p>The puzzle id is derived deterministically from {@code imagePath + pieceCount + seed} so the
+   * server and all clients agree on the id without explicit synchronisation; this is what lets the
+   * generated per-piece texture paths ({@code @gen/puzzle/<id>/<idx>.png}) refer to the same
+   * fragments on every machine.
+   *
+   * <p>On graphical hosts, the per-piece textures are materialized eagerly by {@link
+   * PuzzleTextureGenerator#ensureRegistered(Puzzle)}; on headless hosts (dedicated server) this is
+   * a no-op and the polygons are sliced lazily when the first {@link PuzzleUI} opens (or when a
+   * client first reconstructs a {@link PuzzlePieceItem}).
    *
    * @param imagePath path to the source image
    * @param pieceCount total number of puzzle pieces (must be {@code >= 2})
-   * @param worldSprite world sprite for the dropped piece items
    * @param onComplete callback fired exactly once when all pieces are placed correctly
    * @param seed RNG seed used for deterministic slicing and scatter
    * @param debug whether the puzzle UI should expose seed-tweaking controls
@@ -96,12 +97,10 @@ public final class PuzzleMaker {
   public static Puzzle makePuzzle(
       IPath imagePath,
       int pieceCount,
-      IPath worldSprite,
       BiConsumer<Puzzle, Entity> onComplete,
       long seed,
       boolean debug) {
     Objects.requireNonNull(imagePath, "imagePath");
-    Objects.requireNonNull(worldSprite, "worldSprite");
     if (pieceCount < 2) {
       throw new IllegalArgumentException("pieceCount must be >= 2");
     }
@@ -111,14 +110,52 @@ public final class PuzzleMaker {
     BiConsumer<Puzzle, Entity> effectiveOnComplete =
         onComplete == null ? defaultOnComplete() : onComplete;
 
-    String id = "puzzle-" + UUID.randomUUID();
-    Puzzle puzzle =
-        new Puzzle(id, imagePath, worldSprite, pieceCount, seed, debug, effectiveOnComplete);
-    for (int i = 0; i < pieceCount; i++) {
-      puzzle.addPiece(new PuzzlePieceItem(id, i, worldSprite));
+    String id = deterministicId(imagePath, pieceCount, seed);
+    return REGISTRY.computeIfAbsent(
+        id,
+        unused -> {
+          Puzzle p = new Puzzle(id, imagePath, pieceCount, seed, debug, effectiveOnComplete);
+          PuzzleTextureGenerator.ensureRegistered(p);
+          for (int i = 0; i < pieceCount; i++) {
+            p.addPiece(new PuzzlePieceItem(id, i, imagePath, pieceCount, seed));
+          }
+          return p;
+        });
+  }
+
+  /**
+   * Looks up (or lazily creates) the puzzle with the given id.
+   *
+   * <p>This is the entry point used by client-side code (notably the {@link PuzzlePieceItem} item
+   * factory) to reconstruct a puzzle definition that was first created on the server: the server's
+   * deterministic id, source image, piece count and seed are carried over the network as item data,
+   * and this method materializes the matching {@link Puzzle} locally so {@link PuzzleDialog} can
+   * look it up.
+   *
+   * @param id the deterministic puzzle id (see {@link Puzzle#id()})
+   * @param imagePath the source image path of the puzzle
+   * @param pieceCount the total number of pieces of the puzzle
+   * @param seed the RNG seed of the puzzle
+   * @return the existing or freshly created puzzle
+   */
+  public static Puzzle ensurePuzzle(String id, IPath imagePath, int pieceCount, long seed) {
+    Objects.requireNonNull(id, "id");
+    Objects.requireNonNull(imagePath, "imagePath");
+    if (pieceCount < 2) {
+      throw new IllegalArgumentException("pieceCount must be >= 2");
     }
-    REGISTRY.put(id, puzzle);
-    return puzzle;
+    PuzzlePieceItem.ensureRegistration();
+    return REGISTRY.computeIfAbsent(
+        id,
+        unused -> {
+          Puzzle p = new Puzzle(id, imagePath, pieceCount, seed, false, defaultOnComplete());
+          // Register the @gen piece textures before constructing the items (see makePuzzle).
+          PuzzleTextureGenerator.ensureRegistered(p);
+          for (int i = 0; i < pieceCount; i++) {
+            p.addPiece(new PuzzlePieceItem(id, i, imagePath, pieceCount, seed));
+          }
+          return p;
+        });
   }
 
   /**
@@ -150,6 +187,17 @@ public final class PuzzleMaker {
   }
 
   /**
+   * Derives a stable puzzle id from its identifying inputs. The same combination of image, piece
+   * count and seed always yields the same id, which is what lets the server and every client agree
+   * on the {@code @gen/puzzle/<id>/...} texture paths without round-tripping the id explicitly.
+   */
+  private static String deterministicId(IPath imagePath, int pieceCount, long seed) {
+    String raw = imagePath.pathString() + "|" + pieceCount + "|" + seed;
+    UUID uuid = UUID.nameUUIDFromBytes(raw.getBytes(StandardCharsets.UTF_8));
+    return "puzzle-" + uuid;
+  }
+
+  /**
    * Looks up a puzzle by its runtime id.
    *
    * @param id the puzzle id (see {@link Puzzle#id()})
@@ -166,6 +214,9 @@ public final class PuzzleMaker {
    * @param id the puzzle id
    */
   public static void unregister(String id) {
-    REGISTRY.remove(id);
+    Puzzle removed = REGISTRY.remove(id);
+    if (removed != null) {
+      PuzzleTextureGenerator.unregister(id, removed.pieceCount());
+    }
   }
 }

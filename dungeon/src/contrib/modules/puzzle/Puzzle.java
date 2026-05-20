@@ -18,10 +18,10 @@ import java.util.function.BiConsumer;
 /**
  * In-memory state and configuration of a single jigsaw puzzle instance.
  *
- * <p>Holds the immutable parameters (image, total piece count, world sprite, completion callback,
- * debug flag) and the mutable per-puzzle state (current RNG seed, polygon shape of every piece in
- * image-pixel coordinates, current playfield positions of pieces, which pieces are currently
- * snapped to their correct slot, and whether the completion callback has already been fired).
+ * <p>Holds the immutable parameters (image, total piece count, completion callback, debug flag) and
+ * the mutable per-puzzle state (current RNG seed, polygon shape of every piece in image-pixel
+ * coordinates, current playfield positions of pieces, which pieces are currently snapped to their
+ * correct slot, and whether the completion callback has already been fired).
  *
  * <p>The pieces are obtained by repeatedly splitting the largest current polygon along a chord
  * between two random points on its perimeter (see {@link PuzzleSlicer}). Polygons are recomputed
@@ -37,7 +37,6 @@ public class Puzzle {
 
   private final String id;
   private final IPath imagePath;
-  private final IPath worldSprite;
   private final int pieceCount;
   private final boolean debug;
   private final BiConsumer<Puzzle, Entity> onComplete;
@@ -65,8 +64,6 @@ public class Puzzle {
    *
    * @param id unique runtime id for this puzzle (used as the lookup key in {@link PuzzleMaker})
    * @param imagePath path to the source image that gets sliced into pieces
-   * @param worldSprite path to the sprite used for the dropped/world {@link Item} representation of
-   *     every piece
    * @param pieceCount total number of pieces ({@code >= 2})
    * @param seed RNG seed used for deterministic slicing and initial scatter
    * @param debug whether the UI should expose debug controls (seed input + reroll button)
@@ -76,7 +73,6 @@ public class Puzzle {
   Puzzle(
       String id,
       IPath imagePath,
-      IPath worldSprite,
       int pieceCount,
       long seed,
       boolean debug,
@@ -86,7 +82,6 @@ public class Puzzle {
     }
     this.id = id;
     this.imagePath = imagePath;
-    this.worldSprite = worldSprite;
     this.pieceCount = pieceCount;
     this.debug = debug;
     this.seed = seed;
@@ -105,13 +100,6 @@ public class Puzzle {
    */
   public IPath imagePath() {
     return imagePath;
-  }
-
-  /**
-   * @return path to the world sprite used for piece items
-   */
-  public IPath worldSprite() {
-    return worldSprite;
   }
 
   /**

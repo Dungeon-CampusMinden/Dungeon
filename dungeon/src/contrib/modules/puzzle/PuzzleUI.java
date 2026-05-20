@@ -1,11 +1,8 @@
 package contrib.modules.puzzle;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.FileTextureData;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -27,7 +24,7 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.elements.RichLabel;
 import core.Game;
 import core.utils.components.draw.TextureMap;
-import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.List;
@@ -136,12 +133,7 @@ public class PuzzleUI extends Group {
       puzzle.regenerate(puzzle.seed(), imageW, imageH);
     }
 
-    Pixmap srcPx = loadSourcePixmap(puzzle.imagePath(), full);
-    if (srcPx == null) {
-      window.add("Failed to load puzzle image (pixmap).").pad(20);
-      root.add(window).center();
-      return;
-    }
+    PuzzleTextureGenerator.ensureRegistered(puzzle);
 
     pfW = imageW;
     pfH = imageH;
@@ -181,8 +173,9 @@ public class PuzzleUI extends Group {
       int bbW = Math.max(1, bb[2] - bb[0]);
       int bbH = Math.max(1, bb[3] - bb[1]);
 
-      Texture pieceTex = buildPieceTexture(srcPx, poly, bbX, bbY, bbW, bbH);
-      ownedTextures.add(pieceTex);
+      Texture pieceTex =
+          TextureMap.instance()
+              .textureAt(new SimpleIPath(PuzzleTextureGenerator.texturePath(puzzle.id(), idx)));
 
       visible.add(new VisiblePiece(idx, pieceTex, bbX, bbY, bbW, bbH));
     }
@@ -232,8 +225,6 @@ public class PuzzleUI extends Group {
 
       playfield.addActor(actor);
     }
-
-    srcPx.dispose();
 
     TextButton close = new TextButton("Close", skin, "clean-green");
     close.addListener(
@@ -311,59 +302,11 @@ public class PuzzleUI extends Group {
       // Fallback: hash any non-numeric input so the user still gets a deterministic seed.
       s = text.hashCode();
     }
+    // Drop the previously generated piece textures so the next ensureRegistered call rebuilds
+    // them from the freshly sliced polygons.
+    PuzzleTextureGenerator.unregister(puzzle.id(), puzzle.pieceCount());
     puzzle.regenerate(s, imageW, imageH);
     rebuild();
-  }
-
-  /**
-   * Builds a Texture for a single piece by clipping the source pixmap to {@code poly}'s interior.
-   */
-  private Texture buildPieceTexture(
-      Pixmap srcPx, float[] poly, int bbX, int bbY, int bbW, int bbH) {
-    Pixmap dst = new Pixmap(bbW, bbH, Pixmap.Format.RGBA8888);
-    dst.setBlending(Pixmap.Blending.None);
-    dst.setColor(0f, 0f, 0f, 0f);
-    dst.fill();
-    int srcW = srcPx.getWidth();
-    int srcH = srcPx.getHeight();
-    for (int y = 0; y < bbH; y++) {
-      int sy = bbY + y;
-      if (sy < 0 || sy >= srcH) continue;
-      for (int x = 0; x < bbW; x++) {
-        int sx = bbX + x;
-        if (sx < 0 || sx >= srcW) continue;
-        if (PuzzleSlicer.contains(poly, sx + 0.5f, sy + 0.5f)) {
-          dst.drawPixel(x, y, srcPx.getPixel(sx, sy));
-        }
-      }
-    }
-    Texture tex = new Texture(dst);
-    dst.dispose();
-    return tex;
-  }
-
-  /**
-   * Loads the source image as a Pixmap. Tries {@link FileTextureData#consumePixmap()} first; falls
-   * back to loading the file via {@link Gdx#files}.
-   */
-  private static Pixmap loadSourcePixmap(IPath imagePath, Texture full) {
-    try {
-      if (full.getTextureData() instanceof FileTextureData) {
-        FileTextureData ftd = (FileTextureData) full.getTextureData();
-        if (!ftd.isPrepared()) ftd.prepare();
-        return ftd.consumePixmap();
-      }
-    } catch (RuntimeException ignored) {
-      // fall through to file-based loading
-    }
-    try {
-      FileHandle fh = Gdx.files.internal(imagePath.pathString());
-      if (!fh.exists()) fh = Gdx.files.local(imagePath.pathString());
-      if (fh.exists()) return new Pixmap(fh);
-    } catch (RuntimeException ex) {
-      LOGGER.warn("PuzzleUI: failed to load source pixmap '{}': {}", imagePath, ex.getMessage());
-    }
-    return null;
   }
 
   private void disposeOwnedTextures() {

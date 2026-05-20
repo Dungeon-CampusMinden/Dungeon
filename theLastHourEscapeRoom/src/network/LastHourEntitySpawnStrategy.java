@@ -1,7 +1,9 @@
 package network;
 
+import contrib.components.ItemComponent;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadComponent;
+import contrib.modules.puzzle.PuzzlePieceItem;
 import contrib.modules.worldTimer.WorldTimerComponent;
 import core.Entity;
 import core.components.PositionComponent;
@@ -93,6 +95,21 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key indicating whether the entity is interactable. */
   public static final String METADATA_INTERACTABLE = "interactable";
 
+  /** Metadata key marking the spawn as a puzzle-piece world item (value: parent puzzle id). */
+  public static final String METADATA_PUZZLE_PIECE_ID = "puzzlePiece.puzzleId";
+
+  /** Metadata key for the source image path of the parent puzzle. */
+  public static final String METADATA_PUZZLE_PIECE_IMAGE = "puzzlePiece.imagePath";
+
+  /** Metadata key for the total piece count of the parent puzzle. */
+  public static final String METADATA_PUZZLE_PIECE_COUNT = "puzzlePiece.pieceCount";
+
+  /** Metadata key for the RNG seed of the parent puzzle. */
+  public static final String METADATA_PUZZLE_PIECE_SEED = "puzzlePiece.seed";
+
+  /** Metadata key for the 0-based index of the puzzle piece itself. */
+  public static final String METADATA_PUZZLE_PIECE_INDEX = "puzzlePiece.pieceIndex";
+
   private final EntitySpawnStrategy delegate = new DefaultEntitySpawnStrategy();
 
   /**
@@ -120,6 +137,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     entity
         .fetch(InteractionComponent.class)
         .ifPresent(interaction -> metadata.put(METADATA_INTERACTABLE, String.valueOf(true)));
+    entity
+        .fetch(ItemComponent.class)
+        .ifPresent(itemComponent -> appendPuzzlePieceMetadata(itemComponent, metadata));
     LastHourCollideSync.appendMetadata(entity, metadata);
 
     if (defaultSpawn.isPresent() && !metadata.isEmpty()) {
@@ -195,5 +215,21 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
         .map(String::valueOf)
         .reduce((left, right) -> left + "," + right)
         .orElse("");
+  }
+
+  /**
+   * If the world-item entity carries a {@link PuzzlePieceItem}, attaches the parent puzzle's
+   * identifying metadata (id, image path, piece count, seed and the piece index) to the spawn
+   * event. The receiving client uses this to lazily materialize the matching {@code
+   * @gen/puzzle/<id>/<idx>.png} texture before the {@link core.components.DrawComponent} is built
+   * from the spawn event's draw info, so the piece is rendered with its actual image fragment.
+   */
+  private void appendPuzzlePieceMetadata(ItemComponent component, Map<String, String> metadata) {
+    if (!(component.item() instanceof PuzzlePieceItem piece)) return;
+    metadata.put(METADATA_PUZZLE_PIECE_ID, piece.puzzleId());
+    metadata.put(METADATA_PUZZLE_PIECE_IMAGE, piece.imagePath().pathString());
+    metadata.put(METADATA_PUZZLE_PIECE_COUNT, Integer.toString(piece.pieceCount()));
+    metadata.put(METADATA_PUZZLE_PIECE_SEED, Long.toString(piece.seed()));
+    metadata.put(METADATA_PUZZLE_PIECE_INDEX, Integer.toString(piece.pieceIndex()));
   }
 }
