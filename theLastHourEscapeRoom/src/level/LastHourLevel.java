@@ -95,7 +95,8 @@ public class LastHourLevel extends DungeonLevel {
   private static final String PC_SIGNAL_INFECT = "infect";
   private static final String PC_SIGNAL_CLEAR = "clear";
   private static final int PHONE_RINGING_EMOTE_DURATION_MS = 60 * 60 * 1000;
-  private static final long SECOND_PHONE_RING_DELAY_MS = 60_000L;
+  private static final long FIRST_PHONE_RING_DELAY_MS = 30_000L;
+  private static final long SECOND_PHONE_RING_DELAY_MS = 45_000L;
 
   private static Puzzle puzzle;
 
@@ -138,7 +139,7 @@ public class LastHourLevel extends DungeonLevel {
             Lore.DoorCode,
             () -> {
               storageDoor.open();
-              triggerFirstPhoneCall();
+              EventScheduler.scheduleAction(this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
             },
             true);
     Game.add(keypad);
@@ -512,12 +513,7 @@ public class LastHourLevel extends DungeonLevel {
   public void r2SpawnPapers() {
     puzzle =
         PuzzleMaker.makePuzzle(
-            new SimpleIPath("images/final-code.png"),
-            4,
-            new SimpleIPath("items/puzzle-piece.png"),
-            null,
-            1586791695537379744L,
-            false);
+            new SimpleIPath("images/final-code.png"), 4, null, 1586791695537379744L, false);
 
     Point ventPos = getPoint("r2-vent");
     float s = R2_PAPER_SPEED;
@@ -902,9 +898,7 @@ public class LastHourLevel extends DungeonLevel {
     InventoryComponent ic = new InventoryComponent();
     items.forEach(ic::add);
     entity.add(ic);
-    entity.add(
-        new InteractionComponent(
-            () -> new Interaction(LastHourLevel::openDualInventory)));
+    entity.add(new InteractionComponent(() -> new Interaction(LastHourLevel::openDualInventory)));
   }
 
   /**
