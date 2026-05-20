@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import contrib.hud.elements.RichLabel;
 import core.utils.Cursors;
 import core.utils.Scene2dElementFactory;
 import modules.computer.ComputerDialog;
@@ -62,8 +63,17 @@ public class UsbDriveTab extends ComputerTab {
   /** Folder marker character. */
   private static final String FOLDER_PREFIX = "[+] ";
 
-  /** File marker character. */
+  /** File marker character (idle state, identical for all files). */
   private static final String FILE_PREFIX = " -  ";
+
+  /** File marker shown on hover for files that can actually be opened. */
+  private static final String FILE_PREFIX_OPEN = " >  ";
+
+  /** File marker shown on hover for files that cannot be opened. */
+  private static final String FILE_PREFIX_LOCKED = " x  ";
+
+  /** Suffix shown on hover for files that cannot be opened. */
+  private static final String LOCKED_SUFFIX = "   [access denied]";
 
   /** Color for folder names. */
   private static final Color FOLDER_COLOR = new Color(0.10f, 0.10f, 0.45f, 1f);
@@ -71,8 +81,11 @@ public class UsbDriveTab extends ComputerTab {
   /** Color for ordinary file names. */
   private static final Color FILE_COLOR = new Color(0.15f, 0.15f, 0.15f, 1f);
 
-  /** Color for hover state on interactive entries. */
-  private static final Color HOVER_COLOR = new Color(0.10f, 0.45f, 0.85f, 1f);
+  /** RichLabel color tag prepended on hover for interactive (openable) files. */
+  private static final String HOVER_OPEN_COLOR_TAG = "[color=#00bb00]";
+
+  /** RichLabel color tag prepended on hover for non-interactive (locked) files. */
+  private static final String HOVER_LOCKED_COLOR_TAG = "[color=#bb0000]";
 
   /** Color for header text. */
   private static final Color HEADER_COLOR = new Color(0.10f, 0.10f, 0.45f, 1f);
@@ -152,31 +165,55 @@ public class UsbDriveTab extends ComputerTab {
 
   /** Adds a single file row to the given table. Hooks up click handlers for special files. */
   private void addFile(Table table, String fileName) {
-    Label file =
-        Scene2dElementFactory.createLabel(FILE_PREFIX + fileName, ENTRY_FONT_SIZE, FILE_COLOR);
+    final boolean interactive =
+        HINT_FILE.equals(fileName) || CONTROL_PANEL_KEY_FILE.equals(fileName);
+
+    final String idleText = FILE_PREFIX + fileName;
+    final String hoverText =
+        interactive
+            ? HOVER_OPEN_COLOR_TAG + FILE_PREFIX_OPEN + fileName + "[/color]"
+            : HOVER_LOCKED_COLOR_TAG + FILE_PREFIX_LOCKED + fileName + LOCKED_SUFFIX + "[/color]";
+
+    RichLabel file = new RichLabel(idleText, ENTRY_FONT_SIZE, FILE_COLOR);
     file.setAlignment(Align.left);
-    file.setTouchable(Touchable.enabled);
-    file.setUserObject(Cursors.INTERACT);
-    file.addListener(
+
+    // Needs to be disabled and listening to parent row container, since changing the text during
+    // the hover causes weird libgdx event schenanigans
+    file.setTouchable(Touchable.disabled);
+
+    Table row = new Table();
+    row.left();
+    row.add(file).left().padLeft(INDENT);
+    row.setTouchable(Touchable.enabled);
+    row.setUserObject(interactive ? Cursors.INTERACT : Cursors.DISABLED);
+    row.addListener(
         new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            onFileClicked(fileName);
+            if (interactive) {
+              onFileClicked(fileName);
+            }
+            // Locked files swallow the click silently.
           }
 
           @Override
           public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
             super.enter(event, x, y, pointer, fromActor);
-            file.setColor(HOVER_COLOR);
+            if (pointer != -1) return;
+            if (fromActor != null && fromActor.isDescendantOf(row)) return;
+            file.setText(hoverText);
           }
 
           @Override
           public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
             super.exit(event, x, y, pointer, toActor);
-            file.setColor(Color.WHITE);
+            if (pointer != -1) return;
+            if (toActor != null && toActor.isDescendantOf(row)) return;
+            file.setText(idleText);
           }
         });
-    table.add(file).left().padLeft(INDENT).padTop(ROW_PAD).padBottom(ROW_PAD).row();
+
+    table.add(row).left().growX().padTop(ROW_PAD).padBottom(ROW_PAD).row();
   }
 
   private void onFileClicked(String fileName) {
