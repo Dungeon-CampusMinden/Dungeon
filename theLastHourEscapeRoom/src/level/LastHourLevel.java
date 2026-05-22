@@ -1,6 +1,5 @@
 package level;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.*;
 import contrib.entities.CharacterClass;
@@ -8,7 +7,6 @@ import contrib.entities.WorldItemBuilder;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.DialogUtils;
-import contrib.hud.dialogs.ChoiceOption;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
@@ -155,47 +153,7 @@ public class LastHourLevel extends DungeonLevel {
     setupR2Decorations();
     setupUsbSticks();
 
-    setupTestMcd();
-
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
-  }
-
-  private void setupTestMcd() {
-    Entity trigger = new Entity("test-mcd-trigger");
-
-    List<String> options =
-        List.of(
-            "[img=items/rpg/item_scroll.png] Enchanted Scroll [key code=" + Input.Keys.B + "]",
-            "[shake strength=0.6] [img=items/rpg/potion_purple.png] [color=#aa00aa]Mysterious Potion [img=items/rpg/potion_purple.png]",
-            "[size=30][img=items/rpg/item_compass.png] Ancient Compass",
-            "[img=items/rpg/key1.png] Golden Key",
-            "[img=items/rpg/item_magnifying_glass.png] Magnifying"
-                + " Glass [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png] [img=items/rpg/item_magnifying_glass.png]");
-    String question =
-        "[speaker][tr speed=1.0][word-space=2.0]You found a [n][shake][size=30][color=#aa00aa]mysterious chest[/color][/size][/shake][n][word-space=1.0][pause=0.2][tr speed=1.5] Which [shake strength=0.6 speed=0.2]item[/shake] do you take?[pause=0.5]"
-            + "[p][speaker clear][tr speed=1.0][word-space=2.0]You found a [n][shake][size=30][color=#aa00aa]mysterious chest[/color][/size][/shake][n][word-space=1.0][pause=0.2][tr speed=1.5] Which [shake strength=0.6 speed=0.2]item[/shake] do you take?[pause=0.5]";
-
-    trigger.add(new PositionComponent(getPoint("r1-mcd")));
-    trigger.add(
-        new CollideComponent(
-                Vector2.ZERO,
-                Vector2.ONE,
-                (e, other, dir) -> {
-                  List<ChoiceOption> opts = ChoiceOption.ofList(options);
-                  DialogFactory.showMultipleChoiceDialog(
-                      question,
-                      null,
-                      new ArrayList<>(opts),
-                      false,
-                      payload -> {
-                        LOGGER.warn("Option selected: " + payload);
-                      },
-                      () -> {},
-                      other.id());
-                },
-                null)
-            .isSolid(false));
-    Game.add(trigger);
   }
 
   private void showIntro(int targetId) {
@@ -506,14 +464,29 @@ public class LastHourLevel extends DungeonLevel {
   private static final float R2_PAPER_SPEED = 45.0f;
   private static final float R2_PAPER_MAX_SPEED = 45.0f;
 
+  // Puzzle definition for the r2-papers puzzle. Shared between the server (which spawns the
+  // world items in r2SpawnPapers) and the client (which pre-generates the matching textures
+  // in ensureClientPuzzles) so both derive the same deterministic puzzle id.
+  private static final SimpleIPath R2_PUZZLE_IMAGE = new SimpleIPath("images/final-code.png");
+  private static final int R2_PUZZLE_PIECE_COUNT = 4;
+  private static final long R2_PUZZLE_SEED = 1586791695537379744L;
+
+  /**
+   * Pre-creates every {@link Puzzle} this level uses so the {@code @gen/puzzle/<id>/<i>.png}
+   * textures are materialized in the {@link core.utils.components.draw.TextureMap} before any
+   * network message references them. Must be called on the libGDX render thread.
+   */
+  public static void ensureClientPuzzles() {
+    PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+  }
+
   /**
    * Spawns four paper entities at the {@code r2-vent} named point and gives each an initial impulse
    * so they spread out.
    */
   public void r2SpawnPapers() {
     puzzle =
-        PuzzleMaker.makePuzzle(
-            new SimpleIPath("images/final-code.png"), 4, null, 1586791695537379744L, false);
+        PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
 
     Point ventPos = getPoint("r2-vent");
     float s = R2_PAPER_SPEED;
