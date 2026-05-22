@@ -155,6 +155,11 @@ public class PuzzlePieceItem extends Item {
     Puzzle puzzle = PuzzleMaker.ensurePuzzle(puzzleId, imagePath, pieceCount, seed);
     PuzzleTextureGenerator.ensureRegistered(puzzle);
 
+    // Return the canonical piece owned by the Puzzle so reference-equality checks
+    // (e.g. InventoryComponent.hasItem used by PuzzleUI) still match.
+    if (pieceIndex >= 0 && pieceIndex < puzzle.pieces().size()) {
+      return puzzle.pieces().get(pieceIndex);
+    }
     return new PuzzlePieceItem(puzzleId, pieceIndex, imagePath, pieceCount, seed);
   }
 

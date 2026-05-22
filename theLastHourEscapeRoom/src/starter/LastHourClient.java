@@ -6,6 +6,7 @@ import contrib.entities.HeroBuilder;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.puzzle.PuzzleMaker;
+import contrib.modules.puzzle.PuzzlePieceItem;
 import contrib.modules.puzzle.PuzzleTextureGenerator;
 import contrib.systems.AttributeBarSystem;
 import contrib.systems.PositionSync;
@@ -20,11 +21,13 @@ import core.level.loader.DungeonLoader;
 import core.network.config.NetworkConfig;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.utils.CursorUtil;
+import core.utils.EntityIdProvider;
 import core.utils.Tuple;
 import core.utils.components.draw.DrawComponentFactory;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.*;
+import level.LastHourLevel;
 import level.LastHourLevelClient;
 import modules.computer.*;
 import modules.trash.TrashMinigameUI;
@@ -53,6 +56,7 @@ public final class LastHourClient {
 
     registerCustomDialogs();
     UsbStickItem.ensureRegistration();
+    PuzzlePieceItem.ensureRegistration();
 
     DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevelClient.class));
 
@@ -66,6 +70,7 @@ public final class LastHourClient {
     Game.userOnSetup(
         () -> {
           registerEntitySpawnHandler();
+          LastHourLevel.ensureClientPuzzles();
           if (TheLastHour.DEBUG_MODE) {
             Game.add(new Debugger());
           }
