@@ -28,9 +28,7 @@ public class TractorBeamComponent implements Component {
   public HashMap<Entity, Vector2> oldForces = new HashMap<>();
 
   /** Constructs a TractorBeamComponent so it can be extended and trimmed. */
-  public TractorBeamComponent() {
-
-  }
+  public TractorBeamComponent() {}
 
   /** Activates the TractorBeam if not already active. */
   public void activate() {

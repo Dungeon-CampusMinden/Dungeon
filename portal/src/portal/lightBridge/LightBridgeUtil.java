@@ -266,7 +266,7 @@ public class LightBridgeUtil {
                 .filter(entity -> !entity.isPresent(EmitterComponent.class))
                 .filter(entity -> entity.isPresent(BeamExtendedComponent.class))
                 .forEach(Game::remove);
-                uncoverPit();
+            uncoverPit();
           };
       emitter.add(pec);
     }

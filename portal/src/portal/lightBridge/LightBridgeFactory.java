@@ -12,13 +12,6 @@ import core.utils.components.path.SimpleIPath;
 import java.util.*;
 import portal.lightWall.BeamComponent;
 import portal.lightWall.EmitterComponent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import portal.PortalRegistry;
-import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
 
 /**
