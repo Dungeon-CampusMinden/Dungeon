@@ -8,7 +8,6 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.utils.*;
 import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
