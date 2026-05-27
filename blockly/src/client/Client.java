@@ -257,6 +257,9 @@ public class Client {
     Game.add(new SpikeSystem());
     Game.add(new IdleSoundSystem());
     Game.add(new PathSystem());
+    // remove LevelTickSystem before adding to force it to run after the VelocitySystem and before
+    // the BlocklyCommandExecuteSystem.
+    Game.remove(LevelTickSystem.class);
     Game.add(new LevelTickSystem());
     Game.add(new LeverSystem());
     Game.add(new BlockSystem());
