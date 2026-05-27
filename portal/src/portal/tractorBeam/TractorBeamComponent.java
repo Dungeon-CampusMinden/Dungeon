@@ -1,26 +1,15 @@
 package portal.tractorBeam;
 
-import contrib.components.CollideComponent;
-import contrib.systems.PositionSync;
-import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
-import core.Game;
-import core.utils.Direction;
-import core.utils.Point;
 import core.utils.Vector2;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import portal.portals.components.PortalExtendComponent;
 
 /** Component represents a tractor beam that can be extended and trimmed. */
 public class TractorBeamComponent implements Component {
 
   private boolean active = false;
   private boolean reversed = false;
-  private List<Hitbox> oldhitbox = new ArrayList<>();
   private Vector2 forceToApply = Vector2.ZERO;
   private Vector2 reversedForceToApply = Vector2.ZERO;
 
@@ -30,60 +19,6 @@ public class TractorBeamComponent implements Component {
   /** Constructs a TractorBeamComponent so it can be extended and trimmed. */
   public TractorBeamComponent() {}
 
-  /** Activates the TractorBeam if not already active. */
-  public void activate() {
-    if (active) return;
-    for (Entity e : getRelevantEntities()) {
-      if (Game.allEntities().noneMatch(g -> g.equals(e))) {
-        Game.add(e);
-      }
-
-      if ("beamEmitter".equals(e.name()) && !oldhitbox.isEmpty()) {
-        CollideComponent emitterCC = e.fetch(CollideComponent.class).orElse(null);
-
-        emitterCC.collider(oldhitbox.removeFirst());
-        oldhitbox.clear();
-        PositionSync.syncPosition(e);
-      }
-    }
-    active = true;
-  }
-
-  /** Deactivates the TractorBeam if not already deactivated. */
-  public void deactivate() {
-    if (!active) return;
-    for (Entity e : getRelevantEntities()) {
-      boolean isEmitter = "beamEmitter".equals(e.name());
-      if (!isEmitter) {
-        Game.remove(e);
-      } else {
-        e.fetch(CollideComponent.class)
-            .ifPresent(
-                collideComponent -> {
-                  oldhitbox.add(
-                      new Hitbox(
-                          collideComponent.collider().size(),
-                          collideComponent.collider().offset()));
-                  collideComponent.collider(new Hitbox(0, 0));
-                  PositionSync.syncPosition(e);
-                });
-      }
-    }
-
-    active = false;
-  }
-
-  /** Toggles the active status of the TractorBeam. */
-  public void toggle() {
-    if (active) deactivate();
-    else activate();
-  }
-
-  /** Toggles the reversed status of the TractorBeam. */
-  public void toggleReversed() {
-    reversed = !reversed;
-  }
-
   /**
    * Shows the current status of the "active" status.
    *
@@ -91,6 +26,10 @@ public class TractorBeamComponent implements Component {
    */
   public boolean isActive() {
     return active;
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
   }
 
   /**
@@ -102,28 +41,8 @@ public class TractorBeamComponent implements Component {
     return reversed;
   }
 
-  /**
-   * Extends the beam from the given point into the given direction.
-   *
-   * @param direction Direction where it extends into.
-   * @param from Point from which the extending happens.
-   * @param pec Component for further processing.
-   */
-  public void extend(Direction direction, Point from, PortalExtendComponent pec) {
-    TractorBeamFactory.extendTractorBeam(direction, from, getRelevantEntities(), pec, this);
-
-    if (active) {
-      for (Entity e : getRelevantEntities()) {
-        if (Game.allEntities().noneMatch(g -> g.equals(e))) {
-          Game.add(e);
-        }
-      }
-    }
-  }
-
-  /** Trims the beam with the internal list. */
-  public void trim() {
-    TractorBeamFactory.trimAfterFirstBeamEmitter(getRelevantEntities());
+  public void setReversed(boolean reversed) {
+    this.reversed = reversed;
   }
 
   /**
@@ -164,16 +83,5 @@ public class TractorBeamComponent implements Component {
    */
   public void reversedForceToApply(Vector2 reversedForceToApply) {
     this.reversedForceToApply = reversedForceToApply;
-  }
-
-  /**
-   * Returns the list of all the entities that form the tractor beam.
-   *
-   * @return the entire list of the entities.
-   */
-  public List<Entity> getRelevantEntities() {
-    return Game.levelEntities(Set.of(TractorBeamComponent.class))
-        .filter(entity -> entity.fetch(TractorBeamComponent.class).get().equals(this))
-        .toList();
   }
 }
