@@ -52,15 +52,12 @@ public class Level013 extends BlocklyLevel {
         "logic_floor_direction",
         "logic_pit_direction",
         "logic_monster_direction",
-        "logic_breadcrumbs_direction",
-        "logic_clover_direction",
         "logic_bossView_direction",
         // Wahrheitsausdruecke
         "logic_operator",
         "usual_condition",
         // Kategorien
-        "Variablen",
-        "Sonstige");
+        "Variablen");
 
     addWebPopup(new ImagePopup("popups/level013/webpopups/01_Abfrage.jpg"));
     addWebPopup(new ImagePopup("popups/level013/webpopups/02_Abfrage.jpg"));

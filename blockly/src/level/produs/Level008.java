@@ -49,8 +49,7 @@ public class Level008 extends BlocklyLevel {
         "Bedingung",
         "Wahrheitsausdruecke",
         "Variablen",
-        "Bedingungen",
-        "Sonstige");
+        "Bedingungen");
 
     addPopup(new ImagePopup("popups/level008/01_schaltplan.jpg"));
 

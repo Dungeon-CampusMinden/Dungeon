@@ -26,10 +26,8 @@ import core.level.utils.Coordinate;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.MissingPlayerException;
-import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import entities.MiscFactory;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,12 +53,6 @@ import java.util.function.Supplier;
  */
 public class BlocklyCommandExecuteSystem extends System {
   private static final String MOVEMENT_FORCE_ID = "Movement";
-
-  /** String identifier for the breadcrumb item. */
-  public static final String BREADCRUMB = "Brotkrumen";
-
-  /** String identifier for the clover item. */
-  public static final String CLOVER = "Kleeblatt";
 
   /** String identifier for the boss entity. */
   public static final String BLOCKLY_BLACK_KNIGHT = "Blockly Black Knight";
@@ -89,8 +81,6 @@ public class BlocklyCommandExecuteSystem extends System {
         case HERO_TURN_RIGHT -> rotate(Direction.RIGHT);
         case HERO_PULL -> movePushable(false);
         case HERO_PUSH -> movePushable(true);
-        case HERO_DROP_BREADCRUMBS -> dropItem(BREADCRUMB);
-        case HERO_DROP_CLOVER -> dropItem(CLOVER);
         case HERO_FIREBALL -> shootFireball();
         case HERO_SHOOT_GREEN_PORTAL -> shootGreenPortal();
         case HERO_SHOOT_BLUE_PORTAL -> shootBluePortal();
@@ -462,29 +452,6 @@ public class BlocklyCommandExecuteSystem extends System {
                                     item ->
                                         item.fetch(InteractionComponent.class)
                                             .ifPresent(ic -> ic.triggerInteraction(item, hero)))));
-  }
-
-  /**
-   * Drop a Blockly-Item at the heros position.
-   *
-   * <p>If the player is not on the map, nothing will happen.
-   *
-   * @param item Name of the item to drop
-   */
-  private void dropItem(String item) {
-    Point heroPos =
-        Game.player()
-            .flatMap(hero -> hero.fetch(PositionComponent.class))
-            .map(PositionComponent::position)
-            .map(pos -> pos.translate(MAGIC_OFFSET))
-            .orElse(null);
-
-    switch (item) {
-      case BREADCRUMB -> Game.add(MiscFactory.breadcrumb(heroPos));
-      case CLOVER -> Game.add(MiscFactory.clover(heroPos));
-      default ->
-          throw new IllegalArgumentException("Can not convert " + item + " to droppable Item.");
-    }
   }
 
   /** Let the player do nothing for a short moment. */

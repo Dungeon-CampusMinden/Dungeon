@@ -75,19 +75,11 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
             },
             {
               kind: "block",
-              type: "pickup",
-            },
-            {
-              kind: "block",
               type: "push",
             },
             {
               kind: "block",
               type: "pull",
-            },
-            {
-              kind: "block",
-              type: "drop_item",
             },
             {
               kind: "block",
@@ -162,18 +154,6 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
           kind: "block",
           type: "get_variable",
         },
-        {
-          kind: "block",
-          type: "switch_case",
-        },
-        {
-          kind: "block",
-          type: "case_block",
-        },
-        {
-          kind: "block",
-          type: "default_block",
-        },
       ],
     },
     {
@@ -222,64 +202,11 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         },
         {
           kind: "block",
-          type: "logic_breadcrumbs_direction"
-        },
-        {
-          kind: "block",
-          type: "logic_clover_direction"
-        },
-        {
-          kind: "block",
           type: "logic_active_direction"
         },
         {
           kind: "block",
           type: "logic_bossView_direction"
-        },
-      ],
-    },
-    {
-      kind: "category",
-      name: "Sonstige",
-      colour: "300",
-      contents: [
-        {
-          kind: "category",
-          name: "Funktionen",
-          colour: "300",
-          contents: [
-            {
-              kind: "block",
-              type: "func_def",
-            },
-            {
-              kind: "block",
-              type: "func_call",
-            },
-          ],
-        },
-        {
-          kind: "category",
-          name: "Arrays",
-          colour: "200",
-          contents: [
-            {
-              kind: "block",
-              type: "var_array",
-            },
-            {
-              kind: "block",
-              type: "array_set",
-            },
-            {
-              kind: "block",
-              type: "array_get",
-            },
-            {
-              kind: "block",
-              type: "array_length",
-            },
-          ],
         },
       ],
     },

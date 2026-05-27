@@ -29,19 +29,15 @@ public class Level015 extends BlocklyLevel {
     super(layout, designLabel, namedPoints, "Level 15");
     this.blockBlocklyElement(
         // Inventar und Charakter
-        "drop_item",
         "wait",
         // Bedingung
         "logic_monster_direction",
-        "logic_breadcrumbs_direction",
-        "logic_clover_direction",
         "logic_bossView_direction",
         // Wahrheitsausdruecke
         "logic_operator",
         "usual_condition",
         // Kategorien
-        "Variablen",
-        "Sonstige");
+        "Variablen");
 
     addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }

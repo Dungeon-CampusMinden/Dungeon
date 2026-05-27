@@ -30,15 +30,13 @@ public class Level010 extends BlocklyLevel {
         // Schleifen
         "while_loop",
         // Inventar und Charakter
-        "drop_item",
         "wait",
         // Kategorien
         "Abfragen",
         "Bedingung",
         "Wahrheitsausdruecke",
         "Variablen",
-        "Bedingungen",
-        "Sonstige");
+        "Bedingungen");
 
     addWebPopup(new ImagePopup("popups/level010/webpopups/01_Feuerball.jpg"));
     addWebPopup(new ImagePopup("popups/level010/webpopups/02_Feuerball2.jpg"));
