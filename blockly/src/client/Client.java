@@ -117,7 +117,7 @@ public class Client {
    * @param args CLI arguments
    * @throws IOException if textures can not be loaded.
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws Exception {
     try {
       Properties props = new Properties();
       // loads the file that sets the web mode (incase jar was created with jardesktop or jarweb)
@@ -130,6 +130,18 @@ public class Client {
           runInWeb = true;
         }
       }
+    }
+
+    String path =
+        String.valueOf(Client.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+
+    String operatingSystem = java.lang.System.getProperty("os.name");
+
+    // extract the folder for the windows operatin system
+    // prevents the creation of temporary folders
+    if (path.endsWith(".jar") && operatingSystem.contains("Windows")) {
+      java.lang.System.out.println("Extracting folders");
+      FolderExtractor.prepareCompilerResources();
     }
 
     if (runInWeb) {
@@ -155,6 +167,7 @@ public class Client {
       }
       BlocklyCodeRunner.instance().stopCode();
       FrontendServer.stopServer();
+      FolderExtractor.deleteCompilerResources();
     }
   }
 

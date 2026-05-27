@@ -1,5 +1,6 @@
 package coderunner;
 
+import client.FolderExtractor;
 import core.Game;
 import core.utils.logging.DungeonLogger;
 import java.io.ByteArrayOutputStream;
@@ -7,12 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.*;
+import java.nio.file.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,12 +58,6 @@ public class BlocklyCodeRunner {
           "hero.moveToExit",
           "loadLevel",
           "loadNextLevel");
-
-  /**
-   * The name of the temporary folder where the compiled code will be stored. This folder is created
-   * in the system's temporary directory. (default: "blockly")
-   */
-  public static String TEMP_FOLDER_NAME = "blockly";
 
   private static final int DEFAULT_SLEEP_AFTER_EACH_LINE = 0; // milliseconds
 
@@ -131,7 +122,7 @@ public class BlocklyCodeRunner {
    * @param code Java code that should be executed.
    * @throws RuntimeException If an error occurs during execution.
    */
-  public void executeJavaCode(String code) throws RuntimeException {
+  public void executeJavaCode(String code) throws Exception {
     executeJavaCode(code, DEFAULT_SLEEP_AFTER_EACH_LINE);
   }
 
@@ -142,13 +133,18 @@ public class BlocklyCodeRunner {
    * @param sleepAfterEachLine The time to sleep after each line of code execution, in milliseconds.
    * @throws RuntimeException If an error occurs during execution.
    */
-  public void executeJavaCode(String code, int sleepAfterEachLine) throws RuntimeException {
+  public void executeJavaCode(String code, int sleepAfterEachLine) throws Exception {
     if (sleepAfterEachLine > 0) code = addSleepCalls(code); // no sleep if time is 0
     codeRunning.set(true);
     code = String.format(CodeWrapper, code, sleepAfterEachLine);
 
     // In system temp directory
-    Path tempDir = tempFolder();
+    Path tempDir = FolderExtractor.tempFolder();
+    Path libFolder = tempDir.resolve("unpacked_libs");
+
+    String path =
+        String.valueOf(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+
     Path tempFile;
     if (tempDir == null) {
       return;
@@ -163,7 +159,18 @@ public class BlocklyCodeRunner {
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
-    int compilationResult = compiler.run(null, null, errorStream, tempFile.toFile().toString());
+    int compilationResult;
+
+    String operatingSystem = java.lang.System.getProperty("os.name");
+
+    if (path.endsWith(".jar") && operatingSystem.contains("Windows")) {
+      String[] compilerArgs = {
+        "-classpath", libFolder.toAbsolutePath().toString(), tempFile.toFile().toString()
+      };
+      compilationResult = compiler.run(null, null, errorStream, compilerArgs);
+    } else {
+      compilationResult = compiler.run(null, null, errorStream, tempFile.toFile().toString());
+    }
 
     if (compilationResult != 0) {
       String errors = errorStream.toString();
@@ -254,34 +261,5 @@ public class BlocklyCodeRunner {
       code = code.replaceAll(regex, "$0 sleep();");
     }
     return code;
-  }
-
-  /**
-   * Returns the path to the BlocklyCodeRunner's temporary folder.
-   *
-   * <p>If no temporary folder is found it will generate a new one in the system's temporary
-   * directory.
-   *
-   * @return Path to the temporary folder. If no folder is found or cannot be created, returns null.
-   */
-  private Path tempFolder() {
-    File tempDir = new File(System.getProperty("java.io.tmpdir"));
-    File[] tempFiles = tempDir.listFiles();
-    if (tempFiles != null) {
-      for (File file : tempFiles) {
-        if (file.isDirectory() && file.getName().equals(TEMP_FOLDER_NAME)) {
-          return file.toPath();
-        }
-      }
-    }
-
-    // If no temp folder found, create a new one
-    try {
-      tempDir = Files.createDirectory(Paths.get(tempDir.getPath(), TEMP_FOLDER_NAME)).toFile();
-    } catch (IOException e) {
-      LOGGER.error("Error creating temp folder: " + e.getMessage());
-      return null;
-    }
-    return tempDir.toPath();
   }
 }
