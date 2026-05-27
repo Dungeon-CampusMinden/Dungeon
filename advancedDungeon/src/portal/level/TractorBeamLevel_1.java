@@ -15,6 +15,7 @@ import java.util.Map;
 import portal.lightBridge.LightBridgeFactory;
 import portal.physicsobject.PressurePlates;
 import portal.tractorBeam.TractorBeamFactory;
+import portal.tractorBeam.TractorBeamUtil;
 import portal.util.AdvancedLevel;
 
 /** Level in the portal dungeon. */
@@ -39,6 +40,7 @@ public class TractorBeamLevel_1 extends AdvancedLevel {
   protected void onFirstTick() {
     Entity tractorBeam =
         TractorBeamFactory.createTractorBeam(namedPoints.get("tractorbeam"), Direction.DOWN);
+    TractorBeamUtil.activate(tractorBeam);
     Game.add(tractorBeam);
     closeDoor(getPoint("door3"));
     Entity exitLever =
