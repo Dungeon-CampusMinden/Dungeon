@@ -1,6 +1,7 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.SkillComponent;
@@ -29,11 +30,15 @@ import core.utils.components.draw.shader.HueRemapShader;
 import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLoggerConfig;
+import core.utils.settings.ButtonBindingSetting;
 import core.utils.settings.ClientSettings;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
+
+import core.utils.settings.DescriptionSetting;
+import core.utils.settings.SectionDividerSetting;
 import level.LastHourLevel;
 import modules.computer.ComputerStateSyncSystem;
 import modules.usbstick.UsbStickItem;
@@ -125,6 +130,7 @@ public class TheLastHour {
       setupMusic();
 
       staticRenderTextures();
+      registerSettings();
     }
 
     ECSManagement.add(new CollisionSystem());
@@ -137,6 +143,16 @@ public class TheLastHour {
       ECSManagement.add(new DebugDrawSystem());
       ECSManagement.add(new LevelEditorSystem());
     }
+  }
+
+  private static void registerSettings() {
+    ClientSettings.registerSetting("controls_header", new SectionDividerSetting("Controls"));
+    ClientSettings.registerSetting(
+        "controls_description",
+        new DescriptionSetting("Use the mouse to hover over interactables, then press <E> to interact!"));
+    ClientSettings.registerSetting("pause", new ButtonBindingSetting("Pause", Input.Keys.P, false));
+    ClientSettings.registerSetting("interact", new ButtonBindingSetting("Interact", Input.Keys.E, false));
+    ClientSettings.registerSetting("inventory", new ButtonBindingSetting("Inventory", Input.Keys.I, false));
   }
 
   private static final List<Tuple<String, Color>> USB_TEXTURES =
