@@ -26,7 +26,7 @@ final class ClientConnectionDialog {
   private static final String HOST_LABEL = "IP / Host";
   private static final String PORT_LABEL = "Port";
   private static final String START_FAILED_MESSAGE =
-      "Verbindung fehlgeschlagen. Bitte Host und Port pruefen.";
+      "Verbindung fehlgeschlagen. Bitte Host und Port prüfen.";
   private static final String MISSING_CALLBACK_MESSAGE = "Verbindungs-Callback fehlt.";
 
   private static final Map<String, Function<ClientConnectionConfig, Boolean>> CONNECT_CALLBACKS =
@@ -55,6 +55,7 @@ final class ClientConnectionDialog {
     portField.setMessageText(Integer.toString(ClientConnectionConfig.DEFAULT_PORT));
     Label errorLabel = new Label("", skin);
     errorLabel.setColor(Color.RED);
+    errorLabel.setVisible(false);
 
     Dialog dialog =
         new HandledDialog(
@@ -94,13 +95,13 @@ final class ClientConnectionDialog {
     try {
       config = ClientConnectionConfig.fromFields(hostField.getText(), portField.getText());
     } catch (IllegalArgumentException e) {
-      errorLabel.setText(e.getMessage());
+      showError(errorLabel, e.getMessage());
       return false;
     }
 
     Function<ClientConnectionConfig, Boolean> callback = CONNECT_CALLBACKS.get(context.dialogId());
     if (callback == null) {
-      errorLabel.setText(MISSING_CALLBACK_MESSAGE);
+      showError(errorLabel, MISSING_CALLBACK_MESSAGE);
       return false;
     }
 
@@ -108,10 +109,15 @@ final class ClientConnectionDialog {
       uiComponent(context).ifPresent(ui -> UIUtils.closeDialog(ui, true));
       removeCallback(context.dialogId());
     } else {
-      errorLabel.setText(START_FAILED_MESSAGE);
+      showError(errorLabel, START_FAILED_MESSAGE);
       return false;
     }
     return true;
+  }
+
+  private static void showError(Label errorLabel, String message) {
+    errorLabel.setText(message);
+    errorLabel.setVisible(true);
   }
 
   private static Optional<UIComponent> uiComponent(DialogContext context) {
