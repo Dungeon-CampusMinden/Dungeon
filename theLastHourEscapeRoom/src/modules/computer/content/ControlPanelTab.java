@@ -141,13 +141,13 @@ public class ControlPanelTab extends ComputerTab {
     // its own height based on the tallest card in the row, so sections that need more space (like
     // the AC card with its connection sub-section) won't waste vertical space on the others.
     root.add(buildLightSection()).top().growX().fill().uniformX().pad(CARD_PAD);
-    root.add(buildDoor2Section()).top().growX().fill().uniformX().pad(CARD_PAD).row();
+    root.add(buildCamerasSection()).top().growX().fill().uniformX().pad(CARD_PAD).row();
 
     root.add(buildHeaterSection()).top().growX().fill().uniformX().pad(CARD_PAD);
     root.add(buildAcSection()).top().growX().fill().uniformX().pad(CARD_PAD).row();
 
     root.add(buildDoor1Section()).top().growX().fill().uniformX().pad(CARD_PAD);
-    root.add(buildCamerasSection()).top().growX().fill().uniformX().pad(CARD_PAD).row();
+    root.add(buildDoor2Section()).top().growX().fill().uniformX().pad(CARD_PAD).row();
 
     this.add(root).grow();
   }
