@@ -62,10 +62,6 @@ public class ClientSettings {
     registerSetting(MASTER_VOLUME, masterVolume);
     registerSetting(EFFECTS_VOLUME, effectsVolume);
     registerSetting(MUSIC_VOLUME, musicVolume);
-
-    registerSetting("section1", new SectionDividerSetting("Controls"));
-    registerSetting("controls1", new ButtonBindingSetting("Pause", Input.Keys.P, false));
-    registerSetting("controls2", new ButtonBindingSetting("Interact", Input.Keys.E));
   }
 
   /**
