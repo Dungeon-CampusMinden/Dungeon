@@ -61,6 +61,7 @@ allprojects {
         standardInput = System.in
         ignoreExitValue true
         workingDir = rootProject.projectDir
+        jvmArgs '--enable-native-access=ALL-UNNAMED'
         systemProperty 'BASELOGDIR', project.baseLogDir
         systemProperty 'BASEREFLECTIONDIR', project.baseReflectionDir
     }
