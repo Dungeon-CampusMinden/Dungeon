@@ -72,13 +72,8 @@ public interface INetworkHandler {
    */
   void sendInput(InputMessage input);
 
-  /**
-   * Starts the handler's processing loop.
-   *
-   * @return true if the start was successfully triggered, false if an immediate start failure
-   *     occurred
-   */
-  boolean start();
+  /** Starts the handler's processing loop. */
+  void start();
 
   /** Stops the handler and cleans up resources. */
   default void shutdown() {

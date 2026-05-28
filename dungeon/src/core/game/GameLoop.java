@@ -344,15 +344,27 @@ public final class GameLoop extends ScreenAdapter {
     }
 
     PreRunConfiguration.userOnSetup().execute();
-    if (PreRunConfiguration.autoStartNetwork()) {
+    if (shouldStartNetworkAutomatically()) {
       Game.network().start();
     }
 
     if (!Game.isHeadless()) InputManager.init();
 
-    if (PreRunConfiguration.autoLoadInitialLevel() && !DungeonLoader.levelOrder().isEmpty()) {
+    if (shouldLoadInitialLevelAutomatically() && !DungeonLoader.levelOrder().isEmpty()) {
       if (Game.currentLevel().isEmpty()) DungeonLoader.loadLevel(0); // load the first level
-    } else if (PreRunConfiguration.autoLoadInitialLevel()) LOGGER.warn("No levels found to load!");
+    } else if (shouldLoadInitialLevelAutomatically()) LOGGER.warn("No levels found to load!");
+  }
+
+  private static boolean shouldStartNetworkAutomatically() {
+    return !isMultiplayerClient();
+  }
+
+  private static boolean shouldLoadInitialLevelAutomatically() {
+    return !isMultiplayerClient();
+  }
+
+  private static boolean isMultiplayerClient() {
+    return PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
   }
 
   private static Optional<ClientState> clientState(Session ctx) {

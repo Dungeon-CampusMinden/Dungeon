@@ -486,14 +486,13 @@ public class DialogFactory {
   /**
    * Shows the local multiplayer client connection dialog.
    *
-   * <p>The dialog is not closable by user input. It closes itself only after the provided callback
-   * returns true.
+   * <p>The dialog is not closable by user input. It closes itself after the client connection
+   * listener reports a successful connection.
    *
    * @param onConnect callback that starts the network connection for the parsed config
    * @return The {@link UIComponent} containing the dialog
    */
-  public static UIComponent showClientConnectionDialog(
-      Function<ClientConnectionConfig, Boolean> onConnect) {
+  public static UIComponent showClientConnectionDialog(Consumer<ClientConnectionConfig> onConnect) {
     Objects.requireNonNull(onConnect, "onConnect callback cannot be null");
     DialogContext ctx =
         DialogContext.builder().type(DialogType.DefaultTypes.CLIENT_CONNECTION).build();

@@ -56,9 +56,6 @@ public final class LastHourClient {
     PreRunConfiguration.networkPort(7777);
     PreRunConfiguration.username("Player1");
     PreRunConfiguration.multiplayerCharacterClass(null); // server decides
-    PreRunConfiguration.autoStartNetwork(false);
-    PreRunConfiguration.autoLoadInitialLevel(false);
-    PreRunConfiguration.exitOnNetworkFailure(false);
 
     registerCustomDialogs();
     UsbStickItem.ensureRegistration();
@@ -94,11 +91,11 @@ public final class LastHourClient {
     Game.run();
   }
 
-  private static boolean connect(ClientConnectionConfig config) {
+  private static void connect(ClientConnectionConfig config) {
     PreRunConfiguration.networkServerAddress(config.host());
     PreRunConfiguration.networkPort(config.port());
     Game.initializeNetwork();
-    return Game.network().start();
+    Game.network().start();
   }
 
   private static void registerCustomDialogs() {

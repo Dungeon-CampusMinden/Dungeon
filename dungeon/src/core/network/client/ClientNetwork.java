@@ -10,8 +10,6 @@ import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_LENGTH;
 import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
 
 import contrib.entities.CharacterClass;
-import core.Game;
-import core.game.PreRunConfiguration;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.messages.NetworkMessage;
@@ -143,16 +141,13 @@ public final class ClientNetwork {
    * <p>This method is safe to call once. TCP startup waits up to the configured connect timeout;
    * after TCP connects, Netty performs IO on its own threads and sends the ConnectRequest
    * automatically.
-   *
-   * @return true if transport startup succeeded, false if the TCP connection failed immediately
    */
-  public boolean start() {
-    if (!running.compareAndSet(false, true)) return true;
+  public void start() {
+    if (!running.compareAndSet(false, true)) return;
     if (!startTcp()) {
-      return false;
+      return;
     }
     startUdpIfNeeded();
-    return true;
   }
 
   /**
@@ -403,7 +398,6 @@ public final class ClientNetwork {
                         // Point the session UDP to the server address as our logical peer
                         if (udpRemote != null) session.udpAddress(udpRemote);
 
-                        enqueueLifecycle(ClientNetwork.this::notifyConnected);
                         try {
                           byte[] data;
                           // Attempt to load last session from file
@@ -427,30 +421,26 @@ public final class ClientNetwork {
                           } else {
                             LOGGER.error(
                                 "ConnectRequest too large ({} bytes); cannot connect", data.length);
-                            enqueueLifecycle(() -> notifyDisconnected("ConnectRequest too large"));
-                            exitOnNetworkFailure(
-                                "Unable to connect to server at " + remoteHost + ":" + port);
+                            ctx.close();
                           }
                         } catch (IOException e) {
                           LOGGER.warn("Failed to send ConnectRequest", e);
+                          ctx.close();
                         }
                       }
 
                       @Override
                       public void channelInactive(ChannelHandlerContext ctx) {
                         LOGGER.info("TCP connection closed by server");
-                        connected.set(false);
-                        cancelUdpMaintenance();
-                        enqueueLifecycle(() -> notifyDisconnected(null));
+                        handleTransportClosed(null);
                         // invalidateLastSessionFile(); // TODO: decide if we want this
                       }
 
                       @Override
                       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
                         LOGGER.warn("TCP client error", cause);
-                        cancelUdpMaintenance();
-                        enqueueLifecycle(() -> notifyDisconnected(cause.getMessage()));
-                        exitOnNetworkFailure("TCP error: " + cause.getMessage());
+                        handleTransportClosed(cause.getMessage());
+                        ctx.close();
                       }
                     });
               }
@@ -499,7 +489,6 @@ public final class ClientNetwork {
     session = null;
     clientId = null;
     udpRecoveryState.enterRetryMode();
-    exitOnNetworkFailure("Unable to connect to server at " + remoteHost + ":" + port);
   }
 
   private void closeTransportResources() {
@@ -526,9 +515,24 @@ public final class ClientNetwork {
     }
   }
 
-  private void exitOnNetworkFailure(String reason) {
-    if (PreRunConfiguration.exitOnNetworkFailure()) {
-      Game.exit(reason);
+  private void handleTransportClosed(String reason) {
+    boolean wasActive = running.getAndSet(false) || connected.get();
+    connected.set(false);
+    cancelUdpMaintenance();
+    clientId = null;
+    session = null;
+    tcp = null;
+    if (udp != null) {
+      udp.close();
+      udp = null;
+    }
+    if (group != null) {
+      group.shutdownGracefully();
+      group = null;
+    }
+    udpRecoveryState.enterRetryMode();
+    if (wasActive) {
+      enqueueLifecycle(() -> notifyDisconnected(reason));
     }
   }
 
@@ -610,6 +614,7 @@ public final class ClientNetwork {
     onUdpUnavailable("UDP unavailable, using TCP fallback");
     ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
     saveLastSessionToFile(sessionId, sessionToken);
+    enqueueLifecycle(this::notifyConnected);
   }
 
   private void onConnectReject(Session session, ConnectReject.Reason reason) {

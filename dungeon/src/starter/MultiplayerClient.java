@@ -25,9 +25,6 @@ public final class MultiplayerClient {
     PreRunConfiguration.networkServerAddress("127.0.0.1");
     PreRunConfiguration.networkPort(7777);
     PreRunConfiguration.username("Player1");
-    PreRunConfiguration.autoStartNetwork(false);
-    PreRunConfiguration.autoLoadInitialLevel(false);
-    PreRunConfiguration.exitOnNetworkFailure(false);
 
     // Game Settings
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
@@ -45,10 +42,10 @@ public final class MultiplayerClient {
     Game.run();
   }
 
-  private static boolean connect(ClientConnectionConfig config) {
+  private static void connect(ClientConnectionConfig config) {
     PreRunConfiguration.networkServerAddress(config.host());
     PreRunConfiguration.networkPort(config.port());
     Game.initializeNetwork();
-    return Game.network().start();
+    Game.network().start();
   }
 }

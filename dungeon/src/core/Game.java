@@ -103,7 +103,7 @@ public final class Game {
 
     // Explicitly inject a SnapshotTranslator before initialization.
     networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
-    if (PreRunConfiguration.autoStartNetwork()) {
+    if (shouldStartNetworkAutomatically()) {
       initializeNetwork();
     }
 
@@ -115,6 +115,10 @@ public final class Game {
 
     // Start the main game loop
     GameLoop.run();
+  }
+
+  private static boolean shouldStartNetworkAutomatically() {
+    return !PreRunConfiguration.multiplayerEnabled() || PreRunConfiguration.isNetworkServer();
   }
 
   /**

@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import core.Game;
+import core.network.ConnectionListener;
 import core.network.client.ClientConnectionConfig;
 import core.utils.BaseContainerUI;
 import java.util.Map;
@@ -19,7 +20,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 /** Package-private builder for the local multiplayer client connection dialog. */
 final class ClientConnectionDialog {
@@ -33,7 +34,7 @@ final class ClientConnectionDialog {
       "Verbindung kann gerade nicht gestartet werden.";
   private static final String CONNECTING_MESSAGE = "Verbindung wird aufgebaut...";
 
-  private static final Map<String, Function<ClientConnectionConfig, Boolean>> CONNECT_CALLBACKS =
+  private static final Map<String, Consumer<ClientConnectionConfig>> CONNECT_CALLBACKS =
       new ConcurrentHashMap<>();
   private static final ExecutorService CONNECT_EXECUTOR =
       Executors.newCachedThreadPool(
@@ -46,8 +47,7 @@ final class ClientConnectionDialog {
 
   private ClientConnectionDialog() {}
 
-  static void registerCallback(
-      String dialogId, Function<ClientConnectionConfig, Boolean> callback) {
+  static void registerCallback(String dialogId, Consumer<ClientConnectionConfig> callback) {
     CONNECT_CALLBACKS.put(dialogId, callback);
   }
 
@@ -111,7 +111,7 @@ final class ClientConnectionDialog {
       return false;
     }
 
-    Function<ClientConnectionConfig, Boolean> callback = CONNECT_CALLBACKS.get(context.dialogId());
+    Consumer<ClientConnectionConfig> callback = CONNECT_CALLBACKS.get(context.dialogId());
     if (callback == null) {
       showError(errorLabel, MISSING_CALLBACK_MESSAGE);
       return false;
@@ -124,34 +124,48 @@ final class ClientConnectionDialog {
 
     setInputDisabled(hostField, portField, true);
     showStatus(errorLabel, CONNECTING_MESSAGE);
+    ConnectionListener listener = connectionListener(context, hostField, portField, errorLabel);
+    Game.network().addConnectionListener(listener);
     try {
       CONNECT_EXECUTOR.execute(
-          () -> runConnectAttempt(context, callback, config, hostField, portField, errorLabel));
+          () ->
+              runConnectAttempt(
+                  context, callback, config, hostField, portField, errorLabel, listener));
     } catch (RuntimeException e) {
-      CONNECTING_DIALOGS.remove(context.dialogId());
-      setInputDisabled(hostField, portField, false);
-      showError(errorLabel, START_FAILED_MESSAGE);
+      completeConnectAttempt(context, hostField, portField, errorLabel, false, listener);
     }
     return false;
   }
 
   private static void runConnectAttempt(
       DialogContext context,
-      Function<ClientConnectionConfig, Boolean> callback,
+      Consumer<ClientConnectionConfig> callback,
       ClientConnectionConfig config,
       TextField hostField,
       TextField portField,
-      Label errorLabel) {
-    boolean success = false;
+      Label errorLabel,
+      ConnectionListener listener) {
     try {
-      success = Boolean.TRUE.equals(callback.apply(config));
+      callback.accept(config);
     } catch (RuntimeException e) {
-      success = false;
+      postToUiThread(
+          () -> completeConnectAttempt(context, hostField, portField, errorLabel, false, listener));
     }
+  }
 
-    boolean connectionStarted = success;
-    postToUiThread(
-        () -> completeConnectAttempt(context, hostField, portField, errorLabel, connectionStarted));
+  private static ConnectionListener connectionListener(
+      DialogContext context, TextField hostField, TextField portField, Label errorLabel) {
+    return new ConnectionListener() {
+      @Override
+      public void onConnected() {
+        completeConnectAttempt(context, hostField, portField, errorLabel, true, this);
+      }
+
+      @Override
+      public void onDisconnected(String reason) {
+        completeConnectAttempt(context, hostField, portField, errorLabel, false, this);
+      }
+    };
   }
 
   private static void completeConnectAttempt(
@@ -159,7 +173,9 @@ final class ClientConnectionDialog {
       TextField hostField,
       TextField portField,
       Label errorLabel,
-      boolean success) {
+      boolean success,
+      ConnectionListener listener) {
+    Game.network().removeConnectionListener(listener);
     CONNECTING_DIALOGS.remove(context.dialogId());
     if (success) {
       uiComponent(context).ifPresent(ui -> UIUtils.closeDialog(ui, true));

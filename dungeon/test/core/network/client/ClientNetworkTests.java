@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import core.game.PreRunConfiguration;
 import core.network.ConnectionListener;
 import core.network.config.NetworkConfig;
 import core.network.messages.c2s.InputMessage;
@@ -49,7 +48,6 @@ public class ClientNetworkTests {
   @AfterEach
   public void cleanup() {
     client.shutdown("test");
-    PreRunConfiguration.exitOnNetworkFailure(true);
   }
 
   /** Validates that client network initializes without throwing exceptions. */
@@ -204,11 +202,10 @@ public class ClientNetworkTests {
   /** Validates that immediate TCP failures are retryable without leaving the client running. */
   @Test
   public void test_startFailureDoesNotLeaveRunningState() throws Exception {
-    PreRunConfiguration.exitOnNetworkFailure(false);
     int unusedPort = unusedLocalPort();
     client.initialize(TEST_HOST, unusedPort, "TestPlayer", Optional.empty());
 
-    assertFalse(client.start());
+    client.start();
     client.pollAndDispatch();
     assertFalse(client.isConnected());
     assertFalse(atomicBooleanField("running").get());

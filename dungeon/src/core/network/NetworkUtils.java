@@ -9,6 +9,7 @@ import core.network.server.ServerTransport;
 import core.network.server.Session;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -34,8 +35,9 @@ public final class NetworkUtils {
    */
   public static Set<Short> entityIdsToClientIds(int[] entityIds) {
     if (!Game.network().isServer() || !PreRunConfiguration.multiplayerEnabled()) {
-      Session session = Game.network().session();
-      return session == null ? Set.of() : Set.of(session.clientId()); // Single-player/client mode
+      return Optional.ofNullable(Game.network().session())
+          .map(session -> Set.of(session.clientId()))
+          .orElseGet(Set::of);
     }
 
     Set<Short> clientIds = new HashSet<>();

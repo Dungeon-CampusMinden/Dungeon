@@ -83,13 +83,12 @@ public class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public boolean start() {
+  public void start() {
     if (serverMode) {
       server = new ServerRuntime(port);
       server.start();
-      return true;
     } else {
-      return client.start();
+      client.start();
     }
   }
 
