@@ -4,9 +4,14 @@ import contrib.entities.CharacterClass;
 import core.Entity;
 import core.Game;
 import core.network.config.NetworkConfig;
+import core.network.delta.SnapshotHistory;
 import core.network.messages.c2s.InputMessage;
+import core.network.messages.s2c.SnapshotMessage;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Server-side state tracking for a connected client. Manages sequence numbering, tick correlation,
@@ -75,6 +80,25 @@ public class ClientState {
    */
   private long lastActivityTimeMs;
 
+  /** Per-client server-side snapshot acknowledgement state. */
+  private final ClientSnapshotSyncState snapshotSync = new ClientSnapshotSyncState();
+
+  /** Client-side history of fully applied snapshots. */
+  private final SnapshotHistory appliedSnapshotHistory =
+      new SnapshotHistory(NetworkConfig.CLIENT_DELTA_HISTORY_SIZE);
+
+  /** Latest snapshot tick applied by this client. */
+  private volatile int latestAppliedSnapshotTick = -1;
+
+  /** Entity IDs known by the client through reliable lifecycle events or snapshots. */
+  private final Set<Integer> networkSyncedEntityIds = ConcurrentHashMap.newKeySet();
+
+  /** Entity IDs sent to this client for the current acknowledged delta baseline. */
+  private final Set<Integer> knownSnapshotEntityIds = ConcurrentHashMap.newKeySet();
+
+  /** Server tick of the baseline used by knownSnapshotEntityIds. */
+  private volatile int knownSnapshotBaseTick = -1;
+
   /**
    * Constructs a new ClientState for a fresh connection.
    *
@@ -136,6 +160,7 @@ public class ClientState {
     this.lastProcessedSeq = -1;
     this.expectedSeq = 0;
     this.lastClientTick = 0;
+    clearSnapshotBaseline();
     if (!preserveHero) {
       Game.remove(this.playerEntity);
       this.playerEntity = null;
@@ -362,6 +387,143 @@ public class ClientState {
       return wrappedDiff >= 0 && wrappedDiff <= NetworkConfig.MAX_SEQUENCE_GAP;
     }
     return false; // Too old or large gap
+  }
+
+  /**
+   * Returns per-client server-side snapshot sync state.
+   *
+   * @return snapshot sync state
+   */
+  public ClientSnapshotSyncState snapshotSync() {
+    return snapshotSync;
+  }
+
+  /** Clears snapshot acknowledgement, applied-history, and delta tracking state. */
+  public void clearSnapshotBaseline() {
+    this.latestAppliedSnapshotTick = -1;
+    this.snapshotSync.clear();
+    this.appliedSnapshotHistory.clear();
+    this.knownSnapshotEntityIds.clear();
+    this.knownSnapshotBaseTick = -1;
+  }
+
+  /**
+   * Returns the network-synchronized entity IDs currently tracked by the client.
+   *
+   * @return an immutable copy of tracked entity IDs
+   */
+  public Set<Integer> networkSyncedEntityIds() {
+    return Set.copyOf(networkSyncedEntityIds);
+  }
+
+  /**
+   * Tracks a local entity as network synchronized.
+   *
+   * @param entityId the entity ID
+   */
+  public void trackNetworkEntity(int entityId) {
+    networkSyncedEntityIds.add(entityId);
+  }
+
+  /**
+   * Stops tracking a local entity as network synchronized.
+   *
+   * @param entityId the entity ID
+   */
+  public void untrackNetworkEntity(int entityId) {
+    networkSyncedEntityIds.remove(entityId);
+  }
+
+  /** Clears all locally tracked network-synchronized entity IDs. */
+  public void clearNetworkEntities() {
+    networkSyncedEntityIds.clear();
+  }
+
+  /**
+   * Returns entity IDs known for the current acknowledged delta baseline.
+   *
+   * @return an immutable copy of known snapshot entity IDs
+   */
+  public Set<Integer> knownSnapshotEntityIds() {
+    return Set.copyOf(knownSnapshotEntityIds);
+  }
+
+  /**
+   * Resets the known snapshot entity IDs to the entities contained in a baseline snapshot.
+   *
+   * @param snapshot the new full snapshot baseline
+   */
+  public void resetKnownSnapshotEntityIds(SnapshotMessage snapshot) {
+    knownSnapshotEntityIds.clear();
+    snapshot.entities().forEach(entity -> knownSnapshotEntityIds.add(entity.entityId()));
+    knownSnapshotBaseTick = snapshot.serverTick();
+  }
+
+  /**
+   * Resets known entity tracking when the acknowledged delta baseline changes.
+   *
+   * @param baseline the acknowledged baseline snapshot
+   */
+  public void ensureKnownSnapshotEntityIdsForBaseline(SnapshotMessage baseline) {
+    if (knownSnapshotBaseTick != baseline.serverTick()) {
+      resetKnownSnapshotEntityIds(baseline);
+    }
+  }
+
+  /**
+   * Tracks entity IDs included in a delta snapshot for the current acknowledged baseline.
+   *
+   * @param entityIds entity IDs included in a delta snapshot
+   */
+  public void trackKnownSnapshotEntityIds(Collection<Integer> entityIds) {
+    knownSnapshotEntityIds.addAll(entityIds);
+  }
+
+  /**
+   * Returns the latest snapshot tick applied by this client.
+   *
+   * @return latest applied snapshot tick, or -1 if none has been applied
+   */
+  public int latestAppliedSnapshotTick() {
+    return latestAppliedSnapshotTick;
+  }
+
+  /**
+   * Updates the latest applied snapshot tick.
+   *
+   * @param serverTick the accepted server tick
+   */
+  public void latestAppliedSnapshotTick(int serverTick) {
+    this.latestAppliedSnapshotTick = serverTick;
+  }
+
+  /**
+   * Stores a fully applied client-side snapshot.
+   *
+   * @param snapshot applied full/materialized snapshot
+   */
+  public void rememberAppliedSnapshot(SnapshotMessage snapshot) {
+    appliedSnapshotHistory.add(snapshot);
+    latestAppliedSnapshotTick(snapshot.serverTick());
+  }
+
+  /**
+   * Finds an applied client-side snapshot by server tick.
+   *
+   * @param serverTick server tick to look up
+   * @return applied snapshot, if retained
+   */
+  public Optional<SnapshotMessage> appliedSnapshot(int serverTick) {
+    return appliedSnapshotHistory.snapshot(serverTick);
+  }
+
+  /**
+   * Returns the latest applied client-side snapshot.
+   *
+   * @return latest applied snapshot, if any
+   */
+  public Optional<SnapshotMessage> latestAppliedSnapshot() {
+    return appliedSnapshotHistory.newest();
   }
 
   @Override

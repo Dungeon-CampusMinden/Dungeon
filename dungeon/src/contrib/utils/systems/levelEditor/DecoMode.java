@@ -17,7 +17,11 @@ import core.systems.input.InputManager;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Vector2;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /** Deco Mode for the Level Editor. Allows placing, removing, and moving decorative entities. */
 public class DecoMode extends LevelEditorMode {

@@ -14,7 +14,8 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -204,7 +205,10 @@ public final class CollisionSystem extends System {
     if (aStationary && bStationary) {
       // No-op. Previously this logged a warning, but stationary solid collisions on decorations
       // aren't uncommon.
-    } else if (aStationary) {
+      return;
+    }
+
+    if (aStationary) {
       solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d, true, true);
     } else if (bStationary) {
       solidCollide(

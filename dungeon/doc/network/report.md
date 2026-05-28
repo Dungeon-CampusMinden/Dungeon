@@ -5,7 +5,7 @@ Datum: 22.09.2025
 
 ## Executive Summary
 
-Ziel: Echtzeit-Multiplayer für bis zu 6 Spieler pro Sitzung mit server-autoritativer Architektur. Der Server läuft mit 30 Hz. Implementierung in Java 21 / LibGDX mit Netty, TCP-first und optionalem UDP-Fast-Path. Sitzungen sind ephemer und der Server ist initial headless, die Architektur ist modular für spätere Erweiterungen.
+Ziel: Echtzeit-Multiplayer für bis zu 6 Spieler pro Sitzung mit server-autoritativer Architektur. Der Server läuft mit 30 Hz. Implementierung in Java 25 / LibGDX mit Netty, TCP-first und optionalem UDP-Fast-Path. Sitzungen sind ephemer und der Server ist initial headless, die Architektur ist modular für spätere Erweiterungen.
 
 Unmittelbare Konsequenzen: strikte Trennung von Client- und Serverlogik, ein ECS-basiertes Replikationsschema, eine Transport-Abstraktion (reliable vs. unreliable) über Netty und eine Lokale-Server-Option für einfacheres Debugging/Singleplayer-Kompatibilität.
 

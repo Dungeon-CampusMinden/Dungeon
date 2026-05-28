@@ -1,6 +1,6 @@
 package contrib.entities;
 
-import contrib.components.*;
+import contrib.components.CharacterClassComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.SkillComponent;
 import contrib.components.UIComponent;
@@ -25,10 +25,18 @@ import core.configuration.KeyboardConfig;
 import core.network.input.InputCommandRouter;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.ClientState;
-import core.utils.*;
+import core.utils.Direction;
+import core.utils.Point;
+import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**

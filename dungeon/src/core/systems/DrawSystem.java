@@ -1,7 +1,9 @@
 package core.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -25,14 +27,24 @@ import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.*;
+import core.utils.components.draw.BlendUtils;
+import core.utils.components.draw.ColorUtils;
+import core.utils.components.draw.DrawConfig;
+import core.utils.components.draw.FrameBufferPool;
 import core.utils.components.draw.TextureMap;
+import core.utils.components.draw.TileUtils;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.shader.AbstractShader;
 import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.IPath;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
 
 /**
  * This system draws the entities on the screen using a multi-pass rendering pipeline:
@@ -293,6 +305,25 @@ public final class DrawSystem extends System implements Disposable {
         stableResizeFrames--;
       }
     }
+  }
+
+  /**
+   * Makes the render pipeline use the current window size without waiting for resize debouncing.
+   *
+   * <p>Fullscreen transitions are discrete mode switches, not interactive resize drags. Deferring
+   * FBO resizing during those transitions can leave stale-sized framebuffers on screen for several
+   * frames on Windows and Linux.
+   */
+  public void useCurrentWindowSizeImmediately() {
+    int currentWidth = Game.windowWidth();
+    int currentHeight = Game.windowHeight();
+    if (currentWidth <= 0 || currentHeight <= 0) return;
+
+    stableWidth = currentWidth;
+    stableHeight = currentHeight;
+    unstableWidth = currentWidth;
+    unstableHeight = currentHeight;
+    stableResizeFrames = 0;
   }
 
   @Override

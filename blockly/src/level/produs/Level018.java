@@ -27,8 +27,6 @@ public class Level018 extends BlocklyLevel {
     super(layout, designLabel, namedPoints, "Level 18");
     this.blockBlocklyElement(
         // Inventar und Charakter
-        "drop_item",
-        "Items",
         "wait",
         // Variable
         "get_number",
@@ -36,9 +34,7 @@ public class Level018 extends BlocklyLevel {
         "case_block",
         "default_block",
         // Bedingung
-        "logic_bossView_direction",
-        // Kategorien
-        "Sonstige");
+        "logic_bossView_direction");
 
     addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }

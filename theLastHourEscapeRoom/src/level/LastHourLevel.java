@@ -52,8 +52,17 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
-import modules.computer.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import modules.computer.ComputerDialog;
+import modules.computer.ComputerFactory;
+import modules.computer.ComputerProgress;
+import modules.computer.ComputerStateComponent;
+import modules.computer.LastHourDialogTypes;
 import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameFactory;
 import modules.usbstick.UsbStickColor;
@@ -928,15 +937,14 @@ public class LastHourLevel extends DungeonLevel {
   /** Plays ambient sounds at random intervals. */
   private void playAmbientSound() {
     // TODO: Copied from MushRoom, use different sounds.
-    double r = Math.random();
-    if (r < 0.20) {
-      //      Sounds.TREE_AMBIENT_CREAK.play();
-    } else if (r < 0.40) {
-      //      Sounds.ANIMAL_AMBIENT.play();
-    } else if (r < 0.60) {
-      //      Sounds.random(Sounds.WIND_AMBIENT_1, Sounds.WIND_AMBIENT_2, Sounds.WIND_AMBIENT_3);
-    }
-
+    // double r = Math.random();
+    // if (r < 0.20) {
+    //   Sounds.TREE_AMBIENT_CREAK.play();
+    // } else if (r < 0.40) {
+    //   Sounds.ANIMAL_AMBIENT.play();
+    // } else if (r < 0.60) {
+    //   Sounds.random(Sounds.WIND_AMBIENT_1, Sounds.WIND_AMBIENT_2, Sounds.WIND_AMBIENT_3);
+    // }
     EventScheduler.scheduleAction(this::playAmbientSound, (long) (Math.random() * 10000 + 10000));
   }
 }

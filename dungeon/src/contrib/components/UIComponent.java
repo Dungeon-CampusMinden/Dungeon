@@ -5,7 +5,8 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import core.Component;
 import core.network.messages.c2s.DialogResponseMessage;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**

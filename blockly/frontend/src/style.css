@@ -214,3 +214,11 @@ header {
 .cross span::after {
     transform: rotate(-45deg);
 }
+
+#buttons {
+    pointer-events: none;
+}
+
+#buttons button {
+    pointer-events: auto;
+}

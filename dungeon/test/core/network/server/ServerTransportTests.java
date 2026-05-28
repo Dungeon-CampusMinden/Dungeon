@@ -1,15 +1,24 @@
 package core.network.server;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.entities.CharacterClass;
 import core.Game;
 import core.game.PreRunConfiguration;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
+import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
+import core.network.messages.c2s.SnapshotAck;
+import core.utils.Vector2;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
@@ -366,11 +375,56 @@ public class ServerTransportTests {
     assertEquals(2, tcpCalls.get());
   }
 
+  /** Verifies explicit snapshot acknowledgements update client snapshot state. */
+  @Test
+  public void snapshotAckUpdatesClientSnapshotSyncState() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    Session session = registeredSession(transport, (short) 7);
+
+    invokeSnapshotAck(transport, session, new SnapshotAck(20));
+
+    assertEquals(20, session.clientState().orElseThrow().snapshotSync().lastAckedSnapshotTick());
+  }
+
+  /** Verifies piggybacked input snapshot acknowledgements update client snapshot state. */
+  @Test
+  public void inputMessageSnapshotAckUpdatesClientSnapshotSyncState() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    Session session = registeredSession(transport, (short) 8);
+
+    invokeInputMessage(
+        transport,
+        session,
+        new InputMessage(
+            ServerRuntime.SESSION_ID,
+            1,
+            (short) 1,
+            Optional.of(30),
+            InputMessage.Action.MOVE,
+            new InputMessage.Move(Vector2.of(1, 0))));
+
+    assertEquals(30, session.clientState().orElseThrow().snapshotSync().lastAckedSnapshotTick());
+  }
+
+  /** Verifies stale snapshot acknowledgements do not move the client backwards. */
+  @Test
+  public void olderSnapshotAckDoesNotMoveBackwards() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    Session session = registeredSession(transport, (short) 9);
+
+    invokeSnapshotAck(transport, session, new SnapshotAck(20));
+    invokeSnapshotAck(transport, session, new SnapshotAck(19));
+
+    assertEquals(20, session.clientState().orElseThrow().snapshotSync().lastAckedSnapshotTick());
+  }
+
   private Session testSession(AtomicInteger tcpCalls) {
     ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
     Channel channel = Mockito.mock(Channel.class);
+    ChannelId channelId = Mockito.mock(ChannelId.class);
     Mockito.when(ctx.channel()).thenReturn(channel);
     Mockito.when(channel.isActive()).thenReturn(true);
+    Mockito.when(channel.id()).thenReturn(channelId);
     return new Session(
         ctx,
         (target, msg) -> CompletableFuture.completedFuture(true),
@@ -378,6 +432,27 @@ public class ServerTransportTests {
           tcpCalls.incrementAndGet();
           return CompletableFuture.completedFuture(true);
         });
+  }
+
+  private Session registeredSession(ServerTransport transport, short clientId) throws Exception {
+    Session session = testSession(new AtomicInteger());
+    session.attachClientState(
+        new ClientState(
+            clientId,
+            "player" + clientId,
+            ServerRuntime.SESSION_ID,
+            new byte[] {1, 2, 3},
+            CharacterClass.WIZARD));
+    sessionsMap(transport).put(session.tcpCtx().channel().id(), session);
+    clientIdToSessionMap(transport).put(clientId, session);
+    return session;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<ChannelId, Session> sessionsMap(ServerTransport transport) throws Exception {
+    Field field = ServerTransport.class.getDeclaredField("sessions");
+    field.setAccessible(true);
+    return (Map<ChannelId, Session>) field.get(transport);
   }
 
   @SuppressWarnings("unchecked")
@@ -403,5 +478,22 @@ public class ServerTransportTests {
             "onUdpRegister", InetSocketAddress.class, Session.class, RegisterUdp.class);
     method.setAccessible(true);
     method.invoke(transport, sender, session, registerUdp);
+  }
+
+  private void invokeSnapshotAck(ServerTransport transport, Session session, SnapshotAck ack)
+      throws Exception {
+    Method method =
+        ServerTransport.class.getDeclaredMethod("onSnapshotAck", Session.class, SnapshotAck.class);
+    method.setAccessible(true);
+    method.invoke(transport, session, ack);
+  }
+
+  private void invokeInputMessage(ServerTransport transport, Session session, InputMessage message)
+      throws Exception {
+    Method method =
+        ServerTransport.class.getDeclaredMethod(
+            "onInputMessage", Session.class, InputMessage.class);
+    method.setAccessible(true);
+    method.invoke(transport, session, message);
   }
 }

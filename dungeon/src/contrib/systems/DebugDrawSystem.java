@@ -9,13 +9,22 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
-import contrib.components.*;
+import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
+import contrib.components.DecoComponent;
+import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.System;
-import core.components.*;
+import core.components.DrawComponent;
+import core.components.PlayerComponent;
+import core.components.PositionComponent;
+import core.components.SoundComponent;
+import core.components.VelocityComponent;
+import core.game.ECSManagement;
 import core.game.WindowEventManager;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
@@ -28,7 +37,13 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.BlendUtils;
 import core.utils.components.draw.ColorUtils;
 import core.utils.components.draw.animation.Animation;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A debug system that visually overlays entity information on top of the game world.
@@ -69,6 +84,7 @@ public class DebugDrawSystem extends System {
   private static final Map<Entity, String> quickInfoCache = new HashMap<Entity, String>();
 
   private boolean render = false;
+  private boolean renderSystemList = false;
 
   /** Creates a new DebugDrawSystem. */
   public DebugDrawSystem() {
@@ -83,6 +99,10 @@ public class DebugDrawSystem extends System {
 
   @Override
   public void render(float delta) {
+    if (!render && !renderSystemList) return;
+
+    if (renderSystemList) drawSystemList();
+
     if (!render) return;
 
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
@@ -91,6 +111,42 @@ public class DebugDrawSystem extends System {
     if (!LevelEditorSystem.active()) {
       drawNamedPoints();
     }
+  }
+
+  private void drawSystemList() {
+    String text = buildSystemListText();
+    GlyphLayout layout = new GlyphLayout(FONT, text);
+    float padding = 4f;
+    float textX = 10f;
+    float textY = Game.windowHeight() - 10f;
+    float bgX = textX - padding;
+    float bgY = textY - layout.height - padding;
+    float bgW = layout.width + 2f * padding;
+    float bgH = layout.height + 2f * padding;
+
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(DEBUG_CAM.combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
+    SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
+    SHAPE_RENDERER.end();
+
+    drawText(text, new Point(textX, textY));
+  }
+
+  private String buildSystemListText() {
+    List<String> systemNames =
+        Game.systems().values().stream()
+            .filter(System::isRunning)
+            .filter(ECSManagement::isAuthoritativeInCurrentTick)
+            .map(system -> system.getClass().getSimpleName())
+            .sorted(Comparator.naturalOrder())
+            .toList();
+
+    StringBuilder text =
+        new StringBuilder("Running Systems (").append(systemNames.size()).append(")");
+    systemNames.forEach(name -> text.append("\n - ").append(name));
+    return text.toString();
   }
 
   private void drawPosition(Entity entity) {
@@ -464,6 +520,11 @@ public class DebugDrawSystem extends System {
   /** Whether this debug system is currently active and drawing the overlays. */
   public void toggleHUD() {
     this.render = !this.render;
+  }
+
+  /** Toggles the screen-space list of currently running systems. */
+  public void toggleSystemList() {
+    this.renderSystemList = !this.renderSystemList;
   }
 
   @Override

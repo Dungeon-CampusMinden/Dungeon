@@ -8,7 +8,9 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
-import core.utils.*;
+import core.utils.MissingPlayerException;
+import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
 

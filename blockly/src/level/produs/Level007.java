@@ -43,14 +43,12 @@ public class Level007 extends BlocklyLevel {
         "wait",
         "pickup",
         "drop_item",
-        "Items",
         // Kategorien
         "Abfragen",
         "Bedingung",
         "Wahrheitsausdruecke",
         "Variablen",
-        "Bedingungen",
-        "Sonstige");
+        "Bedingungen");
 
     addPopup(new ImagePopup("popups/level007/01_hebel_schaltplan.jpg"));
     addCodePopup(new ImagePopup("popups/overview1.jpg"));

@@ -310,9 +310,9 @@ const setupResetButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => 
 const validateProgram = (fullProgram : string) => {
   // 1. Definition der Validierungsregeln
   const rules = [
-    { check: () => hasMissingIterationCount(fullProgram), msg: "Die Anzahl der Iterationen fehlt in der Schleife." },
+    { check: () => hasMissingIterationCount(fullProgram), msg: "Die Anzahl der Wiederholungen fehlt in der Schleife." },
     { check: () => hasMissingBossDirection(fullProgram), msg: "Der Boss-guckt-Befehl braucht eine Richtungsangabe"},
-    { check: () => hasEmptyWhileLoopHead(fullProgram), msg: "In der While-Schleife ist keine Bedingung angegeben." },
+    { check: () => hasEmptyWhileLoopHead(fullProgram), msg: "In der Schleife ist keine Bedingung angegeben." },
     { check: () => containsString(fullProgram,"missing if condition"), msg: "Im Wenn-Dann Befehl fehlt eine Abfrage." },
     { check: () => isMissingDirectionInIsNearTile(fullProgram, "WALL"), msg: "Das Wand-Element braucht eine Richtungangabe" },
     { check: () => isMissingDirectionInIsNearTile(fullProgram, "FLOOR"), msg: "Das Boden-Element braucht eine Richtungsangabe" },

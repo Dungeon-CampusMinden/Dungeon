@@ -125,6 +125,14 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> DEBUG_TOGGLE_HUD =
       new ConfigKey<>(new String[] {"debug", "toggle_hud"}, new ConfigIntValue(Input.Keys.F3));
 
+  /**
+   * Keybinding to toggle the {@link contrib.systems.DebugDrawSystem Debug-HUD}'s system list while
+   * holding {@link #DEBUG_TOGGLE_HUD}.
+   */
+  public static final ConfigKey<Integer> DEBUG_TOGGLE_SYSTEM_LIST =
+      new ConfigKey<>(
+          new String[] {"debug", "toggle_system_list"}, new ConfigIntValue(Input.Keys.A));
+
   /** Keybinding to toggle the {@link contrib.utils.components.Debugger}'s Scene2D debug mode. */
   public static final ConfigKey<Integer> DEBUG_TOGGLE_SCENE_HUD =
       new ConfigKey<>(

@@ -1,6 +1,8 @@
 package core.network.server;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.Game;
 import core.level.DungeonLevel;
@@ -9,7 +11,8 @@ import core.network.messages.NetworkMessage;
 import core.systems.LevelSystem;
 import core.utils.Tuple;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,23 +31,20 @@ import testingUtils.MockNetworkHandler;
  */
 public class ServerRuntimeTests {
 
-  private static final int TEST_PORT = 50000;
-  private static int portCounter = 0;
   private static final List<ServerRuntime> runtimes = new ArrayList<>();
   private static final ThreadLocal<ServerRuntime> currentRuntime = new ThreadLocal<>();
 
   /**
-   * Generates a unique port starting from the base TEST_PORT. Each call increments the port number
-   * and probes the loopback interface to ensure the port is actually available before returning it.
+   * Generates a unique port that can be bound by both TCP and UDP before returning it.
    *
    * @return a unique, available port number for testing
    */
   private static synchronized int uniquePort() {
-    final int maxAttempts = 1000;
+    final int maxAttempts = 100;
     int attempts = 0;
     while (attempts++ < maxAttempts) {
-      int candidate = TEST_PORT + (portCounter++);
-      if (isPortAvailableOnLoopback(candidate)) {
+      int candidate = availableTcpPort();
+      if (isUdpPortAvailable(candidate)) {
         return candidate;
       }
     }
@@ -52,9 +52,17 @@ public class ServerRuntimeTests {
         "Unable to find an available port after " + maxAttempts + " attempts");
   }
 
-  private static boolean isPortAvailableOnLoopback(int port) {
-    try (ServerSocket ss = new ServerSocket(port, 0, InetAddress.getByName("127.0.0.1"))) {
-      ss.setReuseAddress(true);
+  private static int availableTcpPort() {
+    try (ServerSocket serverSocket = new ServerSocket(0)) {
+      return serverSocket.getLocalPort();
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to reserve an available TCP port", e);
+    }
+  }
+
+  private static boolean isUdpPortAvailable(int port) {
+    try (DatagramSocket socket = new DatagramSocket(null)) {
+      socket.bind(new InetSocketAddress(port));
       return true;
     } catch (IOException e) {
       return false;

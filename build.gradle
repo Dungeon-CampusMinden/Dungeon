@@ -44,10 +44,10 @@ allprojects {
 
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+            languageVersion = JavaLanguageVersion.of(25)
         }
-        sourceCompatibility = JavaVersion.toVersion(21)
-        targetCompatibility = JavaVersion.toVersion(21)
+        sourceCompatibility = JavaVersion.toVersion(25)
+        targetCompatibility = JavaVersion.toVersion(25)
     }
 
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -74,9 +74,13 @@ allprojects {
         // Default version vs. current version? The default version is quite old (9.3 from
         // Jan 30, 2022), so let's go with the current version (10.17).
         // However, this needs to be updated manually as Dependabot won't deal with this!
-        toolVersion = '10.26.0'
+        toolVersion = '13.4.0'
         ignoreFailures = false
         maxWarnings = 0
+    }
+
+    tasks.withType(Checkstyle).configureEach {
+        group = 'verification'
     }
 
     // Generate an internal assets list for LibGDX (see https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/)

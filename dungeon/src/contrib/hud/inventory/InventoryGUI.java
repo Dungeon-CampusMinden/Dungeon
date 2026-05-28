@@ -31,7 +31,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.network.messages.c2s.InputMessage;
-import core.utils.*;
+import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;

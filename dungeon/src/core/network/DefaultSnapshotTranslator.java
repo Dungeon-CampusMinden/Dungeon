@@ -8,16 +8,23 @@ import contrib.systems.PositionSync;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.components.NetworkPositionComponent;
 import core.components.PositionComponent;
+import core.game.PreRunConfiguration;
 import core.level.elements.tile.DoorTile;
 import core.network.messages.c2s.RequestEntitySpawn;
 import core.network.messages.s2c.DoorTileState;
 import core.network.messages.s2c.EntityState;
+import core.network.messages.s2c.InventorySlotState;
 import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Direction;
+import core.utils.Point;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -186,7 +193,8 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                     .fetch(PositionComponent.class)
                     .ifPresent(
                         pc -> {
-                          snap.position().ifPresent(pc::position);
+                          snap.position()
+                              .ifPresent(position -> applySnapshotPosition(entity, pc, position));
                           snap.viewDirection()
                               .ifPresent(
                                   viewDir -> {
@@ -201,7 +209,9 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                   });
                           snap.rotation().ifPresent(pc::rotation);
                           snap.scale().ifPresent(pc::scale);
-                          PositionSync.syncPosition(entity);
+                          if (snap.position().isEmpty()) {
+                            PositionSync.syncPosition(entity);
+                          }
                         });
 
                 entity
@@ -262,20 +272,30 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                 // Inventory
                 snap.inventory()
                     .ifPresentOrElse(
-                        items -> {
+                        slots -> {
+                          int inventorySize =
+                              slots.stream()
+                                      .mapToInt(InventorySlotState::slotIndex)
+                                      .max()
+                                      .orElse(-1)
+                                  + 1;
                           InventoryComponent ic =
                               entity
                                   .fetch(InventoryComponent.class)
+                                  .filter(existing -> existing.items().length >= inventorySize)
                                   .orElseGet(
                                       () -> {
+                                        entity.remove(InventoryComponent.class);
                                         InventoryComponent newIc =
-                                            new InventoryComponent(items.length);
+                                            new InventoryComponent(inventorySize);
                                         entity.add(newIc);
                                         return newIc;
                                       });
                           ic.clear();
-                          for (int i = 0; i < items.length; i++) {
-                            ic.set(i, items[i]);
+                          for (InventorySlotState slot : slots) {
+                            if (slot.item() != null) {
+                              ic.set(slot.slotIndex(), slot.item().toItem());
+                            }
                           }
                         },
                         () -> {
@@ -292,6 +312,32 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                     e);
               }
             });
+  }
+
+  private void applySnapshotPosition(Entity entity, PositionComponent pc, Point target) {
+    if (!shouldSmoothSnapshotPosition(pc, target)) {
+      pc.position(target);
+      entity
+          .fetch(NetworkPositionComponent.class)
+          .ifPresent(networkPosition -> networkPosition.targetPosition(target));
+      PositionSync.syncPosition(entity);
+      return;
+    }
+
+    entity
+        .fetch(NetworkPositionComponent.class)
+        .ifPresentOrElse(
+            networkPosition -> networkPosition.targetPosition(target),
+            () -> entity.add(new NetworkPositionComponent(target)));
+  }
+
+  private boolean shouldSmoothSnapshotPosition(PositionComponent pc, Point target) {
+    if (!PreRunConfiguration.multiplayerEnabled() || PreRunConfiguration.isNetworkServer()) {
+      return false;
+    }
+    Point current = pc.position();
+    return !current.equals(PositionComponent.ILLEGAL_POSITION)
+        && current.distanceSquared(target) < 4;
   }
 
   private void applyLevelState(LevelState levelState) {

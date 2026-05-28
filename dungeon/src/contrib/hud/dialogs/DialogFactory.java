@@ -16,7 +16,11 @@ import core.game.PreRunConfiguration;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 

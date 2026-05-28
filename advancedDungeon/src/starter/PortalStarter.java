@@ -1,39 +1,90 @@
 package starter;
 
 import com.badlogic.gdx.Input;
-import contrib.components.*;
+import contrib.components.CharacterClassComponent;
+import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
+import contrib.components.ManaComponent;
+import contrib.components.SkillComponent;
+import contrib.components.StaminaComponent;
 import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
-import contrib.systems.*;
+import contrib.systems.AISystem;
+import contrib.systems.AttachmentSystem;
+import contrib.systems.CollisionSystem;
+import contrib.systems.EventScheduler;
+import contrib.systems.FallingSystem;
+import contrib.systems.HealthSystem;
+import contrib.systems.HudSystem;
+import contrib.systems.LevelEditorSystem;
+import contrib.systems.LevelTickSystem;
+import contrib.systems.LeverSystem;
+import contrib.systems.PitSystem;
+import contrib.systems.PositionSync;
+import contrib.systems.PressurePlateSystem;
+import contrib.systems.ProjectileSystem;
+import contrib.systems.SpikeSystem;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.components.*;
+import core.components.DrawComponent;
+import core.components.InputComponent;
+import core.components.PlayerComponent;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.game.WindowEventManager;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.systems.CameraSystem;
-import core.utils.*;
+import core.utils.Direction;
+import core.utils.JsonHandler;
+import core.utils.Point;
+import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import portal.PortalRegistry;
 import portal.antiMaterialBarrier.AntiMaterialBarrierSystem;
 import portal.controlls.Hero;
 import portal.controlls.PlayerController;
+import portal.energyPellet.abstraction.EnergyPelletCatcherBehavior;
 import portal.laserGrid.LasergridSystem;
-import portal.level.*;
+import portal.level.AdvancedControlLevel1;
+import portal.level.AdvancedControlLevel2;
+import portal.level.AntiMaterialLevel_1;
+import portal.level.CubeLevel_1;
+import portal.level.EnergyPelletLevel_1;
+import portal.level.InteractionLevel_1;
+import portal.level.LightBridgeLevel_1;
+import portal.level.LightWallLevel_1;
+import portal.level.ObjectsPortalLevel_1;
+import portal.level.PortalLevel_1;
+import portal.level.PortalLevel_8;
+import portal.level.PortalLevel_9;
+import portal.level.PortalSkillLevel_1;
+import portal.level.PortalSkillLevel_2;
+import portal.level.SphereLevel_1;
+import portal.level.TractorBeamLevel_1;
 import portal.portals.PortalColor;
 import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
+import portal.portals.abstraction.Calculations;
 import portal.portals.abstraction.PortalConfig;
 import portal.portals.components.PortableComponent;
+import portal.riddles.MyPlayerController;
 
 /**
  * Starter for the Portal Dungeon.
@@ -188,6 +239,31 @@ public class PortalStarter {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          PortalRegistry.setDebugMode(DEBUG_MODE);
+          PortalRegistry.registerCalculations(
+              () -> {
+                try {
+                  return (Calculations)
+                      DynamicCompiler.loadUserInstance(
+                          new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java"),
+                          "portal.riddles.MyCalculations");
+                } catch (Exception e) {
+                  throw new RuntimeException("Failed to load MyCalculations", e);
+                }
+              });
+
+          PortalRegistry.registerPelletCatcherBehavior(
+              () -> {
+                try {
+                  return (EnergyPelletCatcherBehavior)
+                      DynamicCompiler.loadUserInstance(
+                          new SimpleIPath(
+                              "advancedDungeon/src/portal/riddles/MyEnergyPelletCatcherBehavior.java"),
+                          "portal.riddles.MyEnergyPelletCatcherBehavior");
+                } catch (Exception e) {
+                  throw new RuntimeException("Failed to load MyEnergyPelletCatcherBehavior", e);
+                }
+              });
           WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
                 if (isInFocus && !DEBUG_MODE) recompilePlayerControl();

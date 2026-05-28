@@ -38,7 +38,7 @@ public final class SnapshotConverter
     return new SnapshotMessage(proto.getServerTick(), entities, fromProto(proto.getLevelState()));
   }
 
-  private static core.network.proto.s2c.LevelState toProto(LevelState message) {
+  static core.network.proto.s2c.LevelState toProto(LevelState message) {
     core.network.proto.s2c.LevelState.Builder builder =
         core.network.proto.s2c.LevelState.newBuilder();
     for (DoorTileState doorState : message.doorStates()) {
@@ -51,7 +51,7 @@ public final class SnapshotConverter
     return builder.build();
   }
 
-  private static LevelState fromProto(core.network.proto.s2c.LevelState proto) {
+  static LevelState fromProto(core.network.proto.s2c.LevelState proto) {
     Set<DoorTileState> doorStates = new LinkedHashSet<>();
     for (core.network.proto.s2c.DoorState doorState : proto.getDoorStatesList()) {
       if (!doorState.hasCoordinate()) {

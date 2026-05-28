@@ -168,97 +168,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: "Direction",
     colour: 200
   },
-  // ---------------------- Arrays ----------------------
-  {
-    type: "var_array",
-    previousStatement: null,
-    nextStatement: null,
-    message0: "Array erstellen %1",
-    args0: [
-      {
-        type: "field_variable",
-        name: "VAR",
-        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
-      },
-    ],
-    message1: "mit der Größe %1",
-    args1: [
-      {
-        type: "field_number",
-        name: "INPUT_A",
-        value: 1,
-        min: 1,
-        max: config.ARRAY_MAX_VALUE,
-      },
-    ],
-    colour: 200,
-    output: "array_set",
-  },
-  {
-    type: "array_set",
-    previousStatement: null,
-    nextStatement: null,
-    message0: "In Array %1",
-    args0: [
-      {
-        type: "field_variable",
-        name: "VAR",
-        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
-      },
-    ],
-    message1: "den Wert %1",
-    args1: [
-      {
-        type: "input_value",
-        name: "INPUT_VALUE",
-        check: ["Variable", "Number", "Expression"],
-      },
-    ],
-    message2: "an Index %1 setzen",
-    args2: [
-      {
-        type: "input_value",
-        name: "INPUT_INDEX",
-        check: ["Variable", "Number", "Expression"],
-      },
-    ],
-    colour: 200,
-    output: "array_set",
-  },
-  {
-    type: "array_get",
-    message0: "Hole Wert aus Array %1",
-    args0: [
-      {
-        type: "field_variable",
-        name: "VAR",
-        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
-      },
-    ],
-    message1: "von dem Index %1",
-    args1: [
-      {
-        type: "input_value",
-        name: "INPUT_INDEX",
-        check: ["Variable", "Number", "Expression"],
-      },
-    ],
-    output: 'Array_get',
-    colour: 200,
-  },
-  {
-    type: "array_length",
-    message0: "Länge von Array %1",
-    args0: [
-      {
-        type: "field_variable",
-        name: "VAR",
-        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
-      },
-    ],
-    output: 'Array_get',
-    colour: 200,
-  },
   // ---------------------- Loops ----------------------
   {
     type: "repeat",
@@ -499,34 +408,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 0,
   },
   {
-    type: "logic_breadcrumbs_direction",
-    message0: "Brotkrume %1",
-    output: "Boolean",
-    tooltip: "Überprüfe, ob eine Brotkrume in der Richtung liegt",
-    args0: [
-      {
-        type: "input_value",
-        name: "DIRECTION",
-        check: "Direction",
-      },
-    ],
-    colour: 0,
-  },
-  {
-    type: "logic_clover_direction",
-    message0: "Kleeblatt %1",
-    output: "Boolean",
-    tooltip: "Überprüfe, ob eine Kleeblatt in der Richtung liegt",
-    args0: [
-      {
-        type: "input_value",
-        name: "DIRECTION",
-        check: "Direction",
-      },
-    ],
-    colour: 0,
-  },
-  {
     type: "logic_active_direction",
     message0: "aktiv %1",
     output: "Boolean",
@@ -610,69 +491,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 250,
     suppressPrefixSuffix: true,
   },
-  // ----------------------- Switch Case ---------------------
-  {
-    type: "switch_case",
-    message0: "entscheide ueber %1",
-    args0: [
-      {
-        type: "input_value",
-        name: "SWITCH",
-        check: ["Variable"],
-      },
-    ],
-    message1: "%1", // Platz für case/default-Blöcke
-    args1: [
-      {
-        type: "input_statement",
-        name: "CASES",
-      },
-    ],
-    suppressPrefixSuffix: true,
-    previousStatement: null,
-    nextStatement: null,
-    colour: 210,
-    tooltip: "Verzweigt abhängig vom Wert.",
-  },
-  {
-    type: "case_block",
-    message0: "fall %1",
-    args0: [
-      {
-        type: "input_value",
-        name: "CASE",
-        check: ["Number"]
-      },
-    ],
-    message1: "%1",
-    args1: [
-      {
-        type: "input_statement",
-        name: "DO",
-      },
-    ],
-    suppressPrefixSuffix: true,
-    previousStatement: null,
-    nextStatement: null,
-    colour: 200,
-    tooltip: "Ein einzelner Fall im Switch.",
-  },
-  {
-    type: "default_block",
-    message0: "sonst",
-    message1: "%1",
-    args1: [
-      {
-        type: "input_statement",
-        name: "DO",
-      },
-    ],
-    suppressPrefixSuffix: true,
-    previousStatement: null,
-    nextStatement: null,
-    colour: 180,
-    tooltip: "Standardfall im Switch, wenn kein anderer zutrifft.",
-  },
   // ---------------------- Skills ----------------------
   {
     type: "interact",
@@ -690,29 +508,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 30,
     tooltip: "Feuerball in Richtung schießen",
-  },
-  {
-    type: "pickup",
-    message0: "aufheben",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 30,
-    tooltip: "Sammel den Gegenstand unter dir auf.",
-  },
-  {
-    type: "drop_item",
-    message0: "fallen lassen %1",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 30,
-    tooltip: "Gegenstand auf den Boden werfen.",
-    args0: [
-      {
-        type: "input_value",
-        name: "ITEM",
-        check: "Item",
-      },
-    ]
   },
   {
     type: "wait",
@@ -753,54 +548,20 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 30,
     tooltip: "Zieh ein bewegliches Objekt rückwärts.",
   },
-  //  ---------------------- Items ----------------------
   {
-    type: "item_breadcrumbs",
-    message0: "Brotkrumen",
-    output: "Item",
-    colour: 50
-  },
-  {
-    type: "item_clover",
-    message0: "Kleeblatt",
-    output: "Item",
-    colour: 50
-  },
-
-  //  ---------------------- Functions ----------------------
-  {
-    type: "func_def",
-    message0: "Funktion %1 definieren",
-    args0: [
-      {
-        type: "field_variable",
-        name: "FUNC_NAME",
-      },
-    ],
-    message1: "%{BKY_CONTROLS_REPEAT_INPUT_DO} %1",
-    args1: [
-      {
-        type: "input_statement",
-        name: "DO",
-      },
-    ],
+    type: "shoot_blue_portal",
+    message0: "blue portal",
     previousStatement: null,
     nextStatement: null,
-    output: "Function",
-    colour: 300,
+    colour: 30,
+    tooltip: "balues Portal in Blickrichtung schießen",
   },
   {
-    type: "func_call",
-    message0: "Funktion %1 aufrufen",
-    args0: [
-      {
-        type: "input_value",
-        name: "FUNC_NAME",
-        check: "Variable",
-      },
-    ],
+    type: "shoot_green_portal",
+    message0: "green portal",
     previousStatement: null,
     nextStatement: null,
-    colour: 300,
+    colour: 30,
+    tooltip: "grünes Portal in Blickrichtung schießen",
   }
 ]);

@@ -1,11 +1,13 @@
 package server;
 
 import coderunner.BlocklyCodeRunner;
-import com.sun.net.httpserver.*;
+import com.sun.net.httpserver.HttpServer;
 import core.utils.logging.DungeonLogger;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.nio.file.*;
 
 /** This class is hosting the html files for the blockly dungeon. */
 public class FrontendServer {

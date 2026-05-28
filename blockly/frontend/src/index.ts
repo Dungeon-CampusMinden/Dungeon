@@ -49,6 +49,19 @@ setupButtons(workspace);
 // Disable all blocks that aren't connected to the start block.
 workspace.addChangeListener(Blockly.Events.disableOrphans);
 
+// @ts-expect-error the blocklyZoomReset is always on the gui
+document.querySelector('g.blocklyZoom.blocklyZoomReset').addEventListener('pointerdown', (e) => {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    // set zoom level to start
+    workspace.setScale(workspace.options.zoomOptions.startScale);
+    // center on the start block
+    const blocks = workspace.getBlocksByType('start', false);
+    if (blocks.length > 0) {
+      workspace.centerOnBlock(blocks[0].id);
+    }
+  }, true);
+
 // Disable the toolbox flyout auto-close
 const toolboxFlyout = workspace.getToolbox()?.getFlyout();
 if (toolboxFlyout) {
@@ -183,10 +196,21 @@ workspace.addChangeListener(async (e: Blockly.Events.Abstract) => {
     extraStartBlocks.forEach(block => block?.dispose());
     return;
   }
+  const newBlock = newStartBlocks[0];
 
-  if (extraStartBlocks.length === 1) { // delete the old start block, so we can restore the new one
-    workspace.removeBlockById(startBlock.id);
-    startBlock.dispose();
+  // check that the two blocks are not the same
+  if (newBlock && startBlock.id !== newBlock.id) {
+    // get the connection tot the next blocks
+    const nextConn = startBlock.nextConnection;
+
+    // if there is a connection to other blocks, then disconnect it
+    // this is important because the start block should be deleted but
+    // the other blocks that are attached to them should not be deleted
+    if (nextConn && nextConn.isConnected()) {
+      nextConn.disconnect();
+    }
+    // deletes the start block
+    startBlock.dispose(false);
   }
 });
 

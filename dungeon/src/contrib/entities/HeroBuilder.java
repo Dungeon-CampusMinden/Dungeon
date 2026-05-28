@@ -1,6 +1,15 @@
 package contrib.entities;
 
-import contrib.components.*;
+import contrib.components.CatapultableComponent;
+import contrib.components.CharacterClassComponent;
+import contrib.components.CollideComponent;
+import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
+import contrib.components.ManaComponent;
+import contrib.components.SkillComponent;
+import contrib.components.SpikyComponent;
+import contrib.components.StaminaComponent;
+import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
@@ -15,19 +24,26 @@ import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
-import core.components.*;
+import core.components.CameraComponent;
+import core.components.DrawComponent;
+import core.components.InputComponent;
+import core.components.PlayerComponent;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.game.PreRunConfiguration;
 import core.level.elements.ILevel;
 import core.network.messages.c2s.InputMessage;
 import core.sound.SoundSpec;
 import core.systems.VelocitySystem;
-import core.utils.*;
-import core.utils.components.draw.*;
+import core.utils.Direction;
+import core.utils.Vector2;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**

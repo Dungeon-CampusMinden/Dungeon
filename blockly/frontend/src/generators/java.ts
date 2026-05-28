@@ -5,10 +5,7 @@ import * as character from "./java/character.ts";
 import * as loops from "./java/loops.ts";
 import * as logic from "./java/condition.ts";
 import * as skills from "./java/skills.ts";
-import * as arrays from "./java/arrays.ts";
-import * as functions from "./java/functions.ts";
 import * as directions from "./java/directions.ts";
-import * as items from "./java/items.ts";
 
 class JavaGenerator extends Blockly.Generator {
   public variables: Map<string, number|string>;
@@ -49,10 +46,7 @@ Object.assign(
   loops,
   logic,
   skills,
-  arrays,
-  functions,
-  directions,
-  items
+  directions
 );
 
 export const Order = {

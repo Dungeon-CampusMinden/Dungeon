@@ -5,6 +5,9 @@ import core.network.messages.NetworkMessage;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,7 +33,7 @@ public class EntityState implements NetworkMessage {
   private final Float maxMana;
   private final String stateName;
   private final Integer tintColor;
-  private final Item[] inventory;
+  private final List<InventorySlotState> inventory;
   private final Map<String, String> metadata;
 
   /**
@@ -51,8 +54,11 @@ public class EntityState implements NetworkMessage {
     this.maxMana = builder.maxMana;
     this.stateName = builder.stateName;
     this.tintColor = builder.tintColor;
-    this.inventory = builder.inventory;
-    this.metadata = builder.metadata == null ? null : Map.copyOf(builder.metadata);
+    this.inventory = builder.inventory == null ? null : List.copyOf(builder.inventory);
+    this.metadata =
+        builder.metadata == null || builder.metadata.isEmpty()
+            ? null
+            : Map.copyOf(builder.metadata);
   }
 
   /**
@@ -177,8 +183,8 @@ public class EntityState implements NetworkMessage {
    *
    * @return an Optional containing the inventory if present, otherwise an empty Optional
    */
-  public Optional<Item[]> inventory() {
-    return Optional.ofNullable(inventory);
+  public Optional<List<InventorySlotState>> inventory() {
+    return inventory == null ? Optional.empty() : Optional.of(List.copyOf(inventory));
   }
 
   /**
@@ -204,7 +210,7 @@ public class EntityState implements NetworkMessage {
     private Float maxMana;
     private String stateName;
     private Integer tintColor;
-    private Item[] inventory;
+    private List<InventorySlotState> inventory;
     private Map<String, String> metadata;
 
     /**
@@ -357,7 +363,27 @@ public class EntityState implements NetworkMessage {
      * @return the Builder instance
      */
     public Builder inventory(Item[] inventory) {
-      this.inventory = inventory;
+      if (inventory == null) {
+        this.inventory = null;
+        return this;
+      }
+      List<InventorySlotState> slots = new ArrayList<>(inventory.length);
+      for (int i = 0; i < inventory.length; i++) {
+        Item item = inventory[i];
+        slots.add(new InventorySlotState(i, item == null ? null : ItemState.fromItem(item)));
+      }
+      this.inventory = List.copyOf(slots);
+      return this;
+    }
+
+    /**
+     * Sets inventory slots for the entity.
+     *
+     * @param inventory inventory slot states
+     * @return the Builder instance
+     */
+    public Builder inventorySlots(Collection<InventorySlotState> inventory) {
+      this.inventory = inventory == null ? null : List.copyOf(inventory);
       return this;
     }
 
@@ -368,7 +394,7 @@ public class EntityState implements NetworkMessage {
      * @return the Builder instance
      */
     public Builder metadata(Map<String, String> metadata) {
-      this.metadata = metadata == null ? null : Map.copyOf(metadata);
+      this.metadata = metadata == null || metadata.isEmpty() ? null : Map.copyOf(metadata);
       return this;
     }
 
