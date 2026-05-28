@@ -34,7 +34,7 @@ public enum LastHourSounds implements ISound {
   CONTROL_PANEL_LIGHTS_OFF("kenney_ui_minimize_001", 1.0f),
 
   /** One-shot ring sound played when the desk phone starts ringing. */
-  PHONE_RINGING("kenney_ui_question_002", 1.0f),
+  PHONE_RINGING("phone-ringing", 0.4f),
 
   /** A sound effect. */
   TRASH_MINIGAME_WIN("kenney_ui_confirmation_002", 1.0f),
