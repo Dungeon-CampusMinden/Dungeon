@@ -62,7 +62,7 @@ public class TheLastHour {
   private static Music backgroundMusic;
 
   /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
-  public static final boolean DEBUG_MODE = true;
+  public static final boolean DEBUG_MODE = false;
 
   private static final CharacterClass[] MULTIPLAYER_CHARACTER_CLASSES = {
     CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03
@@ -128,6 +128,8 @@ public class TheLastHour {
       Game.add(hero);
       Game.stage().ifPresent(CursorUtil::initListener);
       setupMusic();
+
+      KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
 
       staticRenderTextures();
       registerSettings();
