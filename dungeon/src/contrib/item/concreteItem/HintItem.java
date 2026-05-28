@@ -127,8 +127,7 @@ public class HintItem extends Item {
   private static String require(Map<String, String> data, String key) {
     String value = data.get(key);
     if (value == null) {
-      throw new IllegalArgumentException(
-          "HintItem itemData is missing required key '" + key + "'");
+      throw new IllegalArgumentException("HintItem itemData is missing required key '" + key + "'");
     }
     return value;
   }

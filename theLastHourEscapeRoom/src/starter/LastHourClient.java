@@ -21,7 +21,6 @@ import core.level.loader.DungeonLoader;
 import core.network.config.NetworkConfig;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.utils.CursorUtil;
-import core.utils.EntityIdProvider;
 import core.utils.Tuple;
 import core.utils.components.draw.DrawComponentFactory;
 import core.utils.components.path.SimpleIPath;

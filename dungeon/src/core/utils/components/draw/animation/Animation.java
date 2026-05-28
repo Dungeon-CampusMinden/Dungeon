@@ -9,10 +9,9 @@ import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
-import org.lwjgl.glfw.GLFW;
-
 import java.io.*;
 import java.util.*;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Represents an animation consisting of one or more {@link Sprite}s.

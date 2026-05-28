@@ -1,6 +1,5 @@
 package core.utils.settings;
 
-import com.badlogic.gdx.Input;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.function.BiConsumer;

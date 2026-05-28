@@ -53,4 +53,3 @@ public class DescriptionSetting extends SettingValue<String> {
     throw new IllegalStateException();
   }
 }
-
