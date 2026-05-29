@@ -225,7 +225,7 @@ public class TractorBeamFactory {
           .fetch(TractorBeamComponent.class)
           .ifPresent(
               tbc -> {
-                tbc.setReversed(true);
+                tbc.setReversed(!tbc.isReversed());
               });
     }
   }
