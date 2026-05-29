@@ -23,6 +23,8 @@ import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.elements.RichLabel;
 import core.Game;
+import core.sound.CoreSounds;
+import core.sound.Sounds;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
@@ -40,8 +42,7 @@ import java.util.Random;
  * PuzzlePieceItem} is currently in the interacting hero's inventory are shown. Dropping a piece
  * within {@link #SNAP_THRESHOLD_FACTOR} of its correct slot snaps it into place; piece positions
  * are written back to the {@link Puzzle} so progress survives closing/reopening the dialog. The
- * completion callback is fired exactly once via {@link Puzzle#tryFireCallback()} as soon as every
- * piece is snapped to its slot.
+ * completion callback is fired exactly once as soon as every piece is snapped to its slot.
  *
  * <p>If {@link Puzzle#debug()} is true, a small panel below the playfield shows the current seed
  * and exposes "Apply" / "Random" buttons to re-slice the puzzle on the fly. Re-slicing resets all
@@ -165,7 +166,10 @@ public class PuzzleUI extends Group {
     List<VisiblePiece> visible = new ArrayList<>();
     List<float[]> polys = puzzle.polygons();
     for (PuzzlePieceItem piece : puzzle.pieces()) {
-      if (inv == null || !inv.hasItem(piece)) continue;
+      if (inv == null || !inv.hasItem(piece)) {
+        puzzle.unmarkPlaced(piece.pieceIndex());
+        continue;
+      }
       int idx = piece.pieceIndex();
       float[] poly = polys.get(idx);
       int[] bb = PuzzleSlicer.boundingBox(poly, imageW, imageH);
@@ -441,6 +445,7 @@ public class PuzzleUI extends Group {
               if (puzzle.isFullySolved()) {
                 if (statusLabel != null) {
                   statusLabel.setText("[color=green]SOLVED");
+                  Sounds.play(CoreSounds.INTERFACE_BUTTON_FORWARD);
                 }
                 DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_COMPLETE)
                     .accept(null);
