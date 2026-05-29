@@ -3,10 +3,9 @@ package core.utils.settings;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
-import core.utils.Scene2dElementFactory;
+import contrib.hud.elements.RichLabel;
 
 /**
  * A non-interactive setting that renders a descriptive text in the settings menu.
@@ -30,7 +29,7 @@ public class DescriptionSetting extends SettingValue<String> {
 
   @Override
   public Actor toUIActor() {
-    Label label = Scene2dElementFactory.createLabel(name(), FONT_SIZE, Color.BLACK);
+    RichLabel label = new RichLabel(name(), FONT_SIZE, Color.BLACK);
     label.setAlignment(Align.center);
     label.setWrap(true);
 

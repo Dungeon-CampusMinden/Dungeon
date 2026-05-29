@@ -7,15 +7,14 @@ import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
+import contrib.hud.elements.RichLabel;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
-import core.utils.Scene2dElementFactory;
 
 /** A SettingValue that allows the user to bind a keyboard key to an action. */
 public class ButtonBindingSetting extends SettingValue<Integer> {
@@ -51,16 +50,16 @@ public class ButtonBindingSetting extends SettingValue<Integer> {
   public Actor toUIActor() {
     dummy = new TextField("", UIUtils.defaultSkin());
 
-    Label label = Scene2dElementFactory.createLabel(name(), 24, Color.BLACK);
+    RichLabel label = new RichLabel(name(), 24, Color.BLACK);
     label.setAlignment(Align.right);
+    label.setWrap(false);
 
     Table buttonEntry = new Table();
     buttonEntry.left();
 
     Table buttonDisplay = new Table(UIUtils.defaultSkin());
     buttonDisplay.setBackground(editable ? "blue_square_depth_border" : "generic-area");
-    Label buttonLabel =
-        Scene2dElementFactory.createLabel(Input.Keys.toString(value()), 24, Color.BLACK);
+    RichLabel buttonLabel = new RichLabel(Input.Keys.toString(value()), 24, Color.BLACK);
     buttonLabel.setAlignment(Align.center);
     buttonDisplay.setTouchable(Touchable.enabled);
     buttonDisplay.addListener(
