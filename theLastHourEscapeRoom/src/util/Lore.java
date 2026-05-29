@@ -360,16 +360,16 @@ public class Lore {
   /** Password required to unlock door 2 in the control panel. */
   public static final String ControlPanelDoor2Password = "214795541";
 
-  /** Placeholder poem shown inside the hint.md file on the USB drive. */
+  /** Poem shown inside the hint.md file on the USB drive. */
   public static final String HintFilePoem =
-      "When the room turns silent\n"
-          + "and the timer ticks low,\n"
-          + "look not for a key,\n"
-          + "but for words you should know.\n\n"
-          + "A name on the wire,\n"
-          + "a sign-off so brief,\n"
-          + "two halves and a dash,\n"
-          + "spell the door's relief.";
+      "Behind the grate\n"
+          + "where dust has grown,\n"
+          + "small scraps lie trapped,\n"
+          + "forgotten, blown.\n\n"
+          + "No hand can reach,\n"
+          + "no tool can pry,\n"
+          + "but wake the sleeping wind,\n"
+          + "and watch them fly.";
 
   /** File name of the access code document downloaded from the recovery portal. */
   public static final String AccessCodeDownloadFileName = "unlock_code.pdf";
@@ -420,4 +420,18 @@ public class Lore {
       "Just an ordinary air conditioner.[n][n]You see a text engraved on the steel rim of the gutter:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: sv000"
           + VentSerialNumber
           + "[n]";
+
+  /**
+   * Partial serial numbers shown on the two decoy vents in room 1. Each ends in three dashes
+   * because the remaining digits are scratched off and unreadable.
+   */
+  public static final List<String> DecoyVentSerialNumbers = List.of("sv00057---", "sv00031---");
+
+  /**
+   * Dialog shown when interacting with a decoy vent in room 1. The {@code {serial}} placeholder is
+   * replaced with the partial, scratched-off serial number of the respective vent.
+   */
+  public static final String DecoyVentDialog =
+      "Just an ordinary air conditioner.[n][n]You see a text engraved on the steel rim of the gutter,"
+          + " but most of it has been scratched off and is no longer readable:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: {serial}[n]";
 }
