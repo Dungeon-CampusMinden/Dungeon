@@ -52,7 +52,6 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +61,6 @@ import modules.computer.ComputerDialog;
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerProgress;
 import modules.computer.ComputerStateComponent;
-import modules.computer.LastHourDialogTypes;
 import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameFactory;
 import modules.usbstick.UsbStickColor;
@@ -160,6 +158,8 @@ public class LastHourLevel extends DungeonLevel {
     setupTimer();
     setupEndTrigger();
     setupR2Decorations();
+    setupR1Vents();
+    setupR2DecoyContainers();
     setupUsbSticks();
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
@@ -550,6 +550,45 @@ public class LastHourLevel extends DungeonLevel {
     Game.add(desk);
 
     setupPhone();
+  }
+
+  /**
+   * Sets up the two decoy vents in room 1 at the {@code r1-vent0} and {@code r1-vent1} points. They
+   * look identical to the real vent and are interactable, but their dialog only reveals a partial,
+   * scratched-off serial number ending in three dashes.
+   */
+  private void setupR1Vents() {
+    String[] points = {"r1-vent0", "r1-vent1"};
+    for (int i = 0; i < points.length; i++) {
+      String serial = Lore.DecoyVentSerialNumbers.get(i % Lore.DecoyVentSerialNumbers.size());
+      Entity decoyVent = DecoFactory.createDeco(getPoint(points[i]), Deco.FloorBarsSmall);
+      decoyVent.remove(DecoComponent.class);
+      decoyVent.add(
+          new InteractionComponent(
+              () ->
+                  new Interaction(
+                      (e, who) -> {
+                        String dialog = Lore.DecoyVentDialog.replace("{serial}", serial);
+                        DialogFactory.showOkDialog(dialog, "", () -> {}, who.id());
+                      })));
+      Game.add(decoyVent);
+    }
+  }
+
+  /**
+   * Sets up two decoy containers in room 2: a shelf at {@code r2-decoy-shelf} and a cabinet at
+   * {@code r2-decoy-cabinet}. Both are interactable and open an (empty) inventory on interaction.
+   */
+  private void setupR2DecoyContainers() {
+    Entity decoyShelf = DecoFactory.createDeco(getPoint("r2-decoy-shelf"), Deco.BookshelfLarge);
+    decoyShelf.remove(DecoComponent.class);
+    addInventory(decoyShelf, List.of());
+    Game.add(decoyShelf);
+
+    Entity decoyCabinet = DecoFactory.createDeco(getPoint("r2-decoy-cabinet"), Deco.Cabinet);
+    decoyCabinet.remove(DecoComponent.class);
+    addInventory(decoyCabinet, List.of());
+    Game.add(decoyCabinet);
   }
 
   private void setupPhone() {
