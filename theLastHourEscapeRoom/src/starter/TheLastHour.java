@@ -132,8 +132,6 @@ public class TheLastHour {
       Game.stage().ifPresent(CursorUtil::initListener);
       setupMusic();
 
-      KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
-
       staticRenderTextures();
       registerSettings();
     }
@@ -145,6 +143,8 @@ public class TheLastHour {
 
     if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
+      KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN); // Unbind Debuggers' pause bind
+
       ECSManagement.add(new DebugDrawSystem());
       ECSManagement.add(new LevelEditorSystem());
     }

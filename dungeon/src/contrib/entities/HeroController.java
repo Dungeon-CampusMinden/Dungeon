@@ -31,7 +31,6 @@ import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
