@@ -8,9 +8,13 @@ import java.util.function.IntSupplier;
  */
 public final class BlogCommentAttentionTracker {
 
+  /** Describes how the blog tab's attention indicator should change after an update. */
   public enum AttentionChange {
+    /** No change to the attention indicator. */
     NONE,
+    /** The blog tab should request attention. */
     REQUEST,
+    /** The blog tab should dismiss its attention request. */
     DISMISS
   }
 
@@ -24,6 +28,13 @@ public final class BlogCommentAttentionTracker {
   private float nextCheckAtSeconds = 0f;
   private int lastVisibleCommentCount = 0;
 
+  /**
+   * Creates a tracker with the default check interval.
+   *
+   * @param visibleCommentCount supplies the current number of visible comments
+   * @param acknowledgedCommentCount supplies the number of acknowledged comments
+   * @param acknowledgedCommentCountUpdater persists the acknowledged comment count
+   */
   public BlogCommentAttentionTracker(
       IntSupplier visibleCommentCount,
       IntSupplier acknowledgedCommentCount,
@@ -35,6 +46,14 @@ public final class BlogCommentAttentionTracker {
         DEFAULT_CHECK_INTERVAL_SECONDS);
   }
 
+  /**
+   * Creates a tracker with a custom check interval.
+   *
+   * @param visibleCommentCount supplies the current number of visible comments
+   * @param acknowledgedCommentCount supplies the number of acknowledged comments
+   * @param acknowledgedCommentCountUpdater persists the acknowledged comment count
+   * @param checkIntervalSeconds minimum number of seconds between checks
+   */
   public BlogCommentAttentionTracker(
       IntSupplier visibleCommentCount,
       IntSupplier acknowledgedCommentCount,
@@ -46,6 +65,13 @@ public final class BlogCommentAttentionTracker {
     this.checkIntervalSeconds = checkIntervalSeconds;
   }
 
+  /**
+   * Computes the initial attention state when the computer dialog is opened.
+   *
+   * @param blogTabActive whether the blog tab is currently the active tab
+   * @param blogTabPresent whether the blog tab is present at all
+   * @return the resulting attention change
+   */
   public AttentionChange initialize(boolean blogTabActive, boolean blogTabPresent) {
     int currentVisible = visibleCommentCount.getAsInt();
     int acknowledged = acknowledgedCommentCount.getAsInt();
@@ -67,10 +93,19 @@ public final class BlogCommentAttentionTracker {
     return AttentionChange.REQUEST;
   }
 
+  /** Acknowledges all currently visible comments because the blog tab was viewed. */
   public void onBlogTabViewed() {
     acknowledgeVisibleComments(visibleCommentCount.getAsInt());
   }
 
+  /**
+   * Periodically re-evaluates whether the blog tab should request attention.
+   *
+   * @param nowSeconds the current time in seconds
+   * @param blogTabActive whether the blog tab is currently the active tab
+   * @param blogTabPresent whether the blog tab is present at all
+   * @return the resulting attention change
+   */
   public AttentionChange tick(float nowSeconds, boolean blogTabActive, boolean blogTabPresent) {
     if (!blogTabPresent || nowSeconds < nextCheckAtSeconds) {
       return AttentionChange.NONE;

@@ -223,6 +223,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
    * event. The receiving client uses this to lazily materialize the matching {@code
    * @gen/puzzle/<id>/<idx>.png} texture before the {@link core.components.DrawComponent} is built
    * from the spawn event's draw info, so the piece is rendered with its actual image fragment.
+   *
+   * @param component the item component of the world-item entity being spawned
+   * @param metadata the spawn event metadata map to augment
    */
   private void appendPuzzlePieceMetadata(ItemComponent component, Map<String, String> metadata) {
     if (!(component.item() instanceof PuzzlePieceItem piece)) return;

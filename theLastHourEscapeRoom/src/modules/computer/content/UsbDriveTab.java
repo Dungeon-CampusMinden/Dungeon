@@ -152,7 +152,13 @@ public class UsbDriveTab extends ComputerTab {
     this.add(scroll).grow();
   }
 
-  /** Adds a folder header row and all its children to the given table. */
+  /**
+   * Adds a folder header row and all its children to the given table.
+   *
+   * @param table the table to add the folder to
+   * @param name the folder name
+   * @param children the file names contained in the folder
+   */
   private void addFolder(Table table, String name, String[] children) {
     Label folder =
         Scene2dElementFactory.createLabel(FOLDER_PREFIX + name, ENTRY_FONT_SIZE, FOLDER_COLOR);
@@ -163,7 +169,12 @@ public class UsbDriveTab extends ComputerTab {
     }
   }
 
-  /** Adds a single file row to the given table. Hooks up click handlers for special files. */
+  /**
+   * Adds a single file row to the given table. Hooks up click handlers for special files.
+   *
+   * @param table the table to add the file row to
+   * @param fileName the name of the file
+   */
   private void addFile(Table table, String fileName) {
     final boolean interactive =
         HINT_FILE.equals(fileName) || CONTROL_PANEL_KEY_FILE.equals(fileName);

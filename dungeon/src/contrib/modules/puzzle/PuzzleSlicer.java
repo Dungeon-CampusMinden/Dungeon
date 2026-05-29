@@ -140,7 +140,12 @@ final class PuzzleSlicer {
     return null;
   }
 
-  /** Splits the polygon along its longer axis through the centroid. */
+  /**
+   * Splits the polygon along its longer axis through the centroid.
+   *
+   * @param poly the polygon to split
+   * @return the two resulting polygons
+   */
   private static float[][] forcedBisect(float[] poly) {
     float minX = Float.POSITIVE_INFINITY, minY = Float.POSITIVE_INFINITY;
     float maxX = Float.NEGATIVE_INFINITY, maxY = Float.NEGATIVE_INFINITY;
@@ -180,6 +185,12 @@ final class PuzzleSlicer {
    * edges. If {@code jagged} is non-null, it must contain 3 intermediate points along the cut (6
    * floats: {@code x25,y25,x50,y50,x75,y75}). These points are inserted into both resulting
    * polygons in opposite traversal order so that the two pieces share the exact same jagged seam.
+   *
+   * @param poly the polygon to split
+   * @param a the first boundary hit
+   * @param b the second boundary hit
+   * @param jagged optional intermediate cut points (6 floats), or {@code null} for a straight cut
+   * @return the two resulting polygons
    */
   private static float[][] splitAt(float[] poly, Hit a, Hit b, float[] jagged) {
     int n = poly.length / 2;
@@ -252,6 +263,9 @@ final class PuzzleSlicer {
    * two alternate sides. Each offset magnitude has a small random jitter so the resulting tear
    * looks natural rather than mechanical.
    *
+   * @param a the start boundary hit of the chord
+   * @param b the end boundary hit of the chord
+   * @param rng the random source used to jitter the offsets
    * @return flat array {@code {x25, y25, x50, y50, x75, y75}}
    */
   private static float[] makeJaggedPoints(Hit a, Hit b, Random rng) {
@@ -392,6 +406,11 @@ final class PuzzleSlicer {
   }
 
   /**
+   * Computes the integer bounding box of a polygon.
+   *
+   * @param poly the polygon
+   * @param clampW the maximum width to clamp the bounding box to
+   * @param clampH the maximum height to clamp the bounding box to
    * @return integer bounding box {@code {minX, minY, maxX, maxY}} rounded outward
    */
   static int[] boundingBox(float[] poly, int clampW, int clampH) {

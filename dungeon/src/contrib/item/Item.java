@@ -5,6 +5,7 @@ import contrib.crafting.CraftingIngredient;
 import contrib.crafting.CraftingResult;
 import contrib.crafting.CraftingType;
 import contrib.entities.WorldItemBuilder;
+import contrib.item.concreteItem.HintItem;
 import contrib.item.concreteItem.ItemBigKey;
 import contrib.item.concreteItem.ItemFairy;
 import contrib.item.concreteItem.ItemHammer;

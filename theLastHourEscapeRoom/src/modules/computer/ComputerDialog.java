@@ -33,7 +33,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import modules.computer.content.*;
+import modules.computer.content.AboutTab;
+import modules.computer.content.BlogTab;
+import modules.computer.content.BrowserTab;
+import modules.computer.content.ComputerTab;
+import modules.computer.content.ControlPanelTab;
+import modules.computer.content.EmailsTab;
+import modules.computer.content.FileTab;
+import modules.computer.content.LoginTab;
+import modules.computer.content.UsbDriveTab;
+import modules.computer.content.VirusTab;
 import util.LastHourSounds;
 
 /** Main dialog for computer interaction, containing tabs for different content. */

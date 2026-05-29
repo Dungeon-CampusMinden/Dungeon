@@ -1,7 +1,10 @@
 package level;
 
 import com.badlogic.gdx.graphics.Color;
-import contrib.components.*;
+import contrib.components.CharacterClassComponent;
+import contrib.components.CollideComponent;
+import contrib.components.DecoComponent;
+import contrib.components.InventoryComponent;
 import contrib.entities.CharacterClass;
 import contrib.entities.WorldItemBuilder;
 import contrib.entities.deco.Deco;
@@ -846,6 +849,9 @@ public class LastHourLevel extends DungeonLevel {
   /**
    * Applies any world-affecting control-panel state diffs between the previous and current
    * ComputerStateComponent snapshots.
+   *
+   * @param prev the previous computer state snapshot
+   * @param now the current computer state snapshot
    */
   private void applyControlPanelChanges(ComputerStateComponent prev, ComputerStateComponent now) {
     // Door 1 (storage)

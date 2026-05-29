@@ -264,7 +264,12 @@ public class PuzzleUI extends Group {
     root.add(window).center();
   }
 
-  /** Builds the debug panel: seed text field + Apply + Random buttons. */
+  /**
+   * Builds the debug panel: seed text field + Apply + Random buttons.
+   *
+   * @param skin the skin used to style the panel widgets
+   * @return the assembled debug panel
+   */
   private Table buildDebugPanel(Skin skin) {
     Table panel = new Table(skin);
     panel.add(new RichLabel("[size=14]Debug")).colspan(3).padBottom(4).row();
@@ -356,6 +361,7 @@ public class PuzzleUI extends Group {
    * @param countOnSide total number of pieces assigned to this side
    * @param actorW piece actor width
    * @param actorH piece actor height
+   * @return the computed tray position for the piece
    */
   private Vector2 trayPosition(
       boolean leftSide, int indexInSide, int countOnSide, float actorW, float actorH) {

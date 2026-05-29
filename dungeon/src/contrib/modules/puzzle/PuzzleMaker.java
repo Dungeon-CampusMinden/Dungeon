@@ -190,6 +190,11 @@ public final class PuzzleMaker {
    * Derives a stable puzzle id from its identifying inputs. The same combination of image, piece
    * count and seed always yields the same id, which is what lets the server and every client agree
    * on the {@code @gen/puzzle/<id>/...} texture paths without round-tripping the id explicitly.
+   *
+   * @param imagePath the source image path of the puzzle
+   * @param pieceCount the number of pieces the puzzle is split into
+   * @param seed the seed used to slice the puzzle
+   * @return the deterministic puzzle id
    */
   private static String deterministicId(IPath imagePath, int pieceCount, long seed) {
     String raw = imagePath.pathString() + "|" + pieceCount + "|" + seed;
