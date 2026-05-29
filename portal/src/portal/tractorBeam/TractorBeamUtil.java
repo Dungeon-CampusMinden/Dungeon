@@ -8,7 +8,6 @@ import contrib.systems.PositionSync;
 import contrib.utils.components.collide.Hitbox;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
@@ -19,67 +18,61 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
-import portal.PortalRegistry;
-import portal.lightWall.BeamComponent;
-import portal.lightWall.BeamExtendedComponent;
-import portal.lightWall.EmitterComponent;
-import portal.lightWall.LightWallFactory;
-import portal.portals.components.PortalComponent;
-import portal.portals.components.PortalExtendComponent;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import portal.PortalRegistry;
+import portal.portals.components.PortalComponent;
 
 public class TractorBeamUtil {
   private static final String BEAMFORCE =
-    "Die Berechnung der Kraft des Traktorstrahls ist nicht richtig.";
+      "Die Berechnung der Kraft des Traktorstrahls ist nicht richtig.";
   private static String beamEmitterName = "beamEmitter";
 
   /** Activates the TractorBeam if not already active. */
   public static void activate(Entity beam) {
     beam.fetch(TractorBeamComponent.class)
-      .ifPresent(
-        tbc -> {
-          if (tbc.isActive()) return;
-          PositionComponent pc = beam.fetch(PositionComponent.class).get();
-          Point to = calculateEndPoint(pc.position(), pc.viewDirection());
-          int totalPoints = calculateNumberOfPoints(pc.position(), to);
-          for (int i = 0; i < totalPoints; i++) {
-            Entity beamElement =
-              TractorBeamFactory.createNextEntity(
-                pc.position().translate(pc.viewDirection().scale(i)),
-                pc.viewDirection(),
-                tbc);
-            Game.add(beamElement);
-          }
-          configureCollider(beam,pc.viewDirection(),pc.position(),to);
-          tbc.setActive(true);
-        });
+        .ifPresent(
+            tbc -> {
+              if (tbc.isActive()) return;
+              PositionComponent pc = beam.fetch(PositionComponent.class).get();
+              Point to = calculateEndPoint(pc.position(), pc.viewDirection());
+              int totalPoints = calculateNumberOfPoints(pc.position(), to);
+              for (int i = 0; i < totalPoints; i++) {
+                Entity beamElement =
+                    TractorBeamFactory.createNextEntity(
+                        pc.position().translate(pc.viewDirection().scale(i)),
+                        pc.viewDirection(),
+                        tbc);
+                Game.add(beamElement);
+              }
+              configureCollider(beam, pc.viewDirection(), pc.position(), to);
+              tbc.setActive(true);
+            });
   }
 
   /** Deactivates the TractorBeam if not already deactivated. */
   public static void deactivate(Entity beam) {
     beam.fetch(TractorBeamComponent.class)
-      .ifPresent(
-        tbc -> {
-          if (!tbc.isActive()) return;
-          for (Entity e : getRelevantEntities(tbc)) {
-            boolean isEmitter = "beamEmitter".equals(e.name());
-            if (!isEmitter) {
-              Game.remove(e);
-            } else {
-              e.fetch(CollideComponent.class)
-                .ifPresent(
-                  collideComponent -> {
-                    collideComponent.collider(new Hitbox(0, 0));
-                    PositionSync.syncPosition(e);
-                  });
-            }
-          }
+        .ifPresent(
+            tbc -> {
+              if (!tbc.isActive()) return;
+              for (Entity e : getRelevantEntities(tbc)) {
+                boolean isEmitter = "beamEmitter".equals(e.name());
+                if (!isEmitter) {
+                  Game.remove(e);
+                } else {
+                  e.fetch(CollideComponent.class)
+                      .ifPresent(
+                          collideComponent -> {
+                            collideComponent.collider(new Hitbox(0, 0));
+                            PositionSync.syncPosition(e);
+                          });
+                }
+              }
 
-          tbc.setActive(false);
-        });
+              tbc.setActive(false);
+            });
   }
 
   /**
@@ -101,7 +94,7 @@ public class TractorBeamUtil {
     // remove all entities after first emitter
     if (firstEmitterIndex != -1 && firstEmitterIndex + 1 < entities.size()) {
       List<Entity> toRemove =
-        new ArrayList<>(entities.subList(firstEmitterIndex + 1, entities.size()));
+          new ArrayList<>(entities.subList(firstEmitterIndex + 1, entities.size()));
       for (Entity entity : toRemove) {
         Game.remove(entity);
       }
@@ -141,9 +134,9 @@ public class TractorBeamUtil {
     boolean secondStep = false;
 
     while (currentTile != null
-      && !currentTile.getClass().equals(WallTile.class)
-      && !currentTile.getClass().equals(GlasswandTile.class)
-      && (firstStep || secondStep || !lastTile.getClass().equals(PortalTile.class))) {
+        && !currentTile.getClass().equals(WallTile.class)
+        && !currentTile.getClass().equals(GlasswandTile.class)
+        && (firstStep || secondStep || !lastTile.getClass().equals(PortalTile.class))) {
       secondStep = firstStep;
       firstStep = false;
       lastPoint = currentPoint;
@@ -163,7 +156,7 @@ public class TractorBeamUtil {
    * @param end End Point.
    */
   private static void configureCollider(
-    Entity emitter, Direction direction, Point start, Point end) {
+      Entity emitter, Direction direction, Point start, Point end) {
     float width = 1f, height = 1f, offsetX = 0f, offsetY = 0f;
     if (direction == Direction.LEFT || direction == Direction.RIGHT) {
       float len = Math.abs(end.x() - start.x()) + 1f;
@@ -175,78 +168,80 @@ public class TractorBeamUtil {
       offsetY = (direction == Direction.DOWN) ? -(height - 1f) : 0f;
     }
 
-
     TriConsumer<Entity, Entity, Direction> onCollisionEnter =
-      (you, other, direction1) -> {
-        PositionComponent pc = you.fetch(PositionComponent.class).get();
-        you.fetch(TractorBeamComponent.class).get().forceToApply(beamForce(pc.viewDirection()));
-        you.fetch(TractorBeamComponent.class)
-          .get()
-          .reversedForceToApply(reversedBeamForce(pc.viewDirection()));
-      };
+        (you, other, direction1) -> {
+          PositionComponent pc = you.fetch(PositionComponent.class).get();
+          you.fetch(TractorBeamComponent.class).get().forceToApply(beamForce(pc.viewDirection()));
+          you.fetch(TractorBeamComponent.class)
+              .get()
+              .reversedForceToApply(reversedBeamForce(pc.viewDirection()));
+        };
 
     TriConsumer<Entity, Entity, Direction> onCollisionLeave =
-      (you, other, direction1) -> {
-        if (other.fetch(ProjectileComponent.class).isEmpty()) {
-          other.remove(FlyComponent.class);
-        }
-        if (other.isPresent(VelocityComponent.class)) {
-          other.fetch(VelocityComponent.class).get().currentVelocity(Vector2.ZERO);
-          other.fetch(VelocityComponent.class).get().clearForces();
-        }
-      };
+        (you, other, direction1) -> {
+          if (other.fetch(ProjectileComponent.class).isEmpty()) {
+            other.remove(FlyComponent.class);
+          }
+          if (other.isPresent(VelocityComponent.class)) {
+            other.fetch(VelocityComponent.class).get().currentVelocity(Vector2.ZERO);
+            other.fetch(VelocityComponent.class).get().clearForces();
+          }
+        };
 
-    emitter.add(new CollideComponent(Vector2.of(offsetX, offsetY), Vector2.of(width, height),onCollisionEnter, onCollisionLeave));
+    emitter.add(
+        new CollideComponent(
+            Vector2.of(offsetX, offsetY),
+            Vector2.of(width, height),
+            onCollisionEnter,
+            onCollisionLeave));
     emitter
-      .fetch(CollideComponent.class)
-      .ifPresent(
-        cc -> {
-          cc.onHold(createActionConsumer());
-          cc.isSolid(false);
-        });
-
+        .fetch(CollideComponent.class)
+        .ifPresent(
+            cc -> {
+              cc.onHold(createActionConsumer());
+              cc.isSolid(false);
+            });
   }
-
 
   private static TriConsumer<Entity, Entity, Direction> createActionConsumer() {
     return (you, other, collisionDir) ->
-      other
-        .fetch(VelocityComponent.class)
-        .ifPresent(
-          vc -> {
-            if (!you.fetch(TractorBeamComponent.class).get().isActive()) {
-              return;
-            }
-            if (you.fetch(TractorBeamComponent.class)
-              .get()
-              .forceToApply()
-              .equals(Vector2.ZERO)) {
-              return;
-            }
-            if (other.isPresent(PortalComponent.class)) {
-              return;
-            }
-            if (!other.isPresent(FlyComponent.class)) {
-              other.add(new FlyComponent());
-            }
-            Vector2 forceVector;
-            if (you.fetch(TractorBeamComponent.class).get().isReversed())
-              forceVector =
-                you.fetch(TractorBeamComponent.class).get().reversedForceToApply();
-            else forceVector = you.fetch(TractorBeamComponent.class).get().forceToApply();
-            if (you.fetch(TractorBeamComponent.class).get().oldForces.containsKey(other)) {
-              Vector2 oldForce =
-                you.fetch(TractorBeamComponent.class).get().oldForces.get(other);
-              if (oldForce.x() == 0 && forceVector.x() == 0) {
-                vc.applyForce(beamEmitterName, forceVector);
-              } else if (oldForce.y() == 0 && forceVector.y() == 0) {
-                vc.applyForce(beamEmitterName, forceVector);
-              }
-            } else {
-              vc.applyForce(beamEmitterName, forceVector);
-              you.fetch(TractorBeamComponent.class).get().oldForces.put(other, forceVector);
-            }
-          });
+        other
+            .fetch(VelocityComponent.class)
+            .ifPresent(
+                vc -> {
+                  if (!you.fetch(TractorBeamComponent.class).get().isActive()) {
+                    return;
+                  }
+                  if (you.fetch(TractorBeamComponent.class)
+                      .get()
+                      .forceToApply()
+                      .equals(Vector2.ZERO)) {
+                    return;
+                  }
+                  if (other.isPresent(PortalComponent.class)) {
+                    return;
+                  }
+                  if (!other.isPresent(FlyComponent.class)) {
+                    other.add(new FlyComponent());
+                  }
+                  Vector2 forceVector;
+                  if (you.fetch(TractorBeamComponent.class).get().isReversed())
+                    forceVector =
+                        you.fetch(TractorBeamComponent.class).get().reversedForceToApply();
+                  else forceVector = you.fetch(TractorBeamComponent.class).get().forceToApply();
+                  if (you.fetch(TractorBeamComponent.class).get().oldForces.containsKey(other)) {
+                    Vector2 oldForce =
+                        you.fetch(TractorBeamComponent.class).get().oldForces.get(other);
+                    if (oldForce.x() == 0 && forceVector.x() == 0) {
+                      vc.applyForce(beamEmitterName, forceVector);
+                    } else if (oldForce.y() == 0 && forceVector.y() == 0) {
+                      vc.applyForce(beamEmitterName, forceVector);
+                    }
+                  } else {
+                    vc.applyForce(beamEmitterName, forceVector);
+                    you.fetch(TractorBeamComponent.class).get().oldForces.put(other, forceVector);
+                  }
+                });
   }
 
   private static Vector2 reversedBeamForce(Direction dir) {
@@ -278,7 +273,7 @@ public class TractorBeamUtil {
    */
   public static List<Entity> getRelevantEntities(TractorBeamComponent tbc) {
     return Game.levelEntities(Set.of(TractorBeamComponent.class))
-      .filter(entity -> entity.fetch(TractorBeamComponent.class).get().equals(tbc))
-      .toList();
+        .filter(entity -> entity.fetch(TractorBeamComponent.class).get().equals(tbc))
+        .toList();
   }
 }
