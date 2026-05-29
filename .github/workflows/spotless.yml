@@ -21,6 +21,37 @@ jobs:
             cancel-in-progress: false
 
         steps:
+            - name: Check label sender permissions
+              run: |
+                  ACTOR="${{ github.actor }}"
+                  REPO="${{ github.repository }}"
+                  OWNER="${{ github.repository_owner }}"
+                  IS_AUTHORIZED=false
+
+                  if [[ "$ACTOR" == "$OWNER" ]]; then
+                      IS_AUTHORIZED=true
+                  fi
+
+                  if [[ "$IS_AUTHORIZED" == "false" ]] && \
+                     gh api "orgs/$OWNER/members/$ACTOR" > /dev/null 2>&1; then
+                      IS_AUTHORIZED=true
+                  fi
+
+                  if [[ "$IS_AUTHORIZED" == "false" ]] && \
+                     gh api "repos/$REPO/collaborators/$ACTOR" > /dev/null 2>&1; then
+                      IS_AUTHORIZED=true
+                  fi
+
+                  if [[ "$IS_AUTHORIZED" == "false" ]]; then
+                      gh pr edit "${{ github.event.pull_request.number }}" \
+                          --repo "$REPO" \
+                          --remove-label "tooling:spotless" || true
+                      echo "::error::Only OWNER, MEMBER or COLLABORATOR can trigger spotless formatting."
+                      exit 1
+                  fi
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Check if PR is from fork
               run:  |
                   IS_FORK="${{ github.event.pull_request.head.repo.full_name != github.repository }}"
