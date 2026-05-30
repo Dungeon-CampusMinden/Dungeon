@@ -24,12 +24,17 @@ import java.util.Set;
 import portal.PortalRegistry;
 import portal.portals.components.PortalComponent;
 
+/** Utility class for the TractorBeam. */
 public class TractorBeamUtil {
   private static final String BEAMFORCE =
       "Die Berechnung der Kraft des Traktorstrahls ist nicht richtig.";
   private static String beamEmitterName = "beamEmitter";
 
-  /** Activates the TractorBeam if not already active. */
+  /**
+   * Activates the TractorBeam if not already active.
+   *
+   * @param beam the beam that will be activated.
+   */
   public static void activate(Entity beam) {
     beam.fetch(TractorBeamComponent.class)
         .ifPresent(
@@ -51,7 +56,11 @@ public class TractorBeamUtil {
             });
   }
 
-  /** Deactivates the TractorBeam if not already deactivated. */
+  /**
+   * Deactivates the TractorBeam if not already deactivated.
+   *
+   * @param beam the beam that will be activated.
+   */
   public static void deactivate(Entity beam) {
     beam.fetch(TractorBeamComponent.class)
         .ifPresent(
@@ -79,6 +88,8 @@ public class TractorBeamUtil {
    * Removes all entities from the given list that come after the first `beamEmitter` entity.
    *
    * <p>The first `beamEmitter` and all entities before it remain in the list.
+   *
+   * @param tbc the component of the beam that will be trimmed.
    */
   public static void trimAfterFirstBeamEmitter(TractorBeamComponent tbc) {
     List<Entity> entities = getRelevantEntities(tbc);
@@ -269,6 +280,7 @@ public class TractorBeamUtil {
   /**
    * Returns the list of all the entities that form the tractor beam.
    *
+   * @param tbc the component of the beam that identifies the entire beam.
    * @return the entire list of the entities.
    */
   public static List<Entity> getRelevantEntities(TractorBeamComponent tbc) {

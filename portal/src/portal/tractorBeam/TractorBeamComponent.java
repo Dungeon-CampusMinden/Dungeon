@@ -28,6 +28,11 @@ public class TractorBeamComponent implements Component {
     return active;
   }
 
+  /**
+   * Sets if the beam is active or not.
+   *
+   * @param active new activation state of the beam.
+   */
   public void setActive(boolean active) {
     this.active = active;
   }
@@ -41,6 +46,11 @@ public class TractorBeamComponent implements Component {
     return reversed;
   }
 
+  /**
+   * Sets if the beam is reversed or not.
+   *
+   * @param reversed new reversed state of the beam.
+   */
   public void setReversed(boolean reversed) {
     this.reversed = reversed;
   }

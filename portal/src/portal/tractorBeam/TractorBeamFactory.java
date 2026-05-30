@@ -76,6 +76,9 @@ public class TractorBeamFactory {
    *
    * <p>This entity is one part of the visual representation for the whole beam.
    *
+   * @param point position of the new entity.
+   * @param direction direction of the beam.
+   * @param tractorBeamComponent beam component to identify the beam among others.
    * @return a new tractor beam entity, or {@code null} if no more entities can be created
    */
   public static Entity createNextEntity(

@@ -9,7 +9,6 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
-import java.util.*;
 import portal.lightWall.BeamComponent;
 import portal.lightWall.EmitterComponent;
 import portal.portals.components.PortalIgnoreComponent;
