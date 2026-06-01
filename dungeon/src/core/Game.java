@@ -103,7 +103,8 @@ public final class Game {
 
     // Explicitly inject a SnapshotTranslator before initialization.
     networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
-    if (shouldStartNetworkAutomatically()) {
+    // Multiplayer clients may need the connection dialog before host and port are known.
+    if (!isMultiplayerClient()) {
       initializeNetwork();
     }
 
@@ -115,10 +116,6 @@ public final class Game {
 
     // Start the main game loop
     GameLoop.run();
-  }
-
-  private static boolean shouldStartNetworkAutomatically() {
-    return !isMultiplayerClient();
   }
 
   /**

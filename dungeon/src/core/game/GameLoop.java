@@ -337,6 +337,7 @@ public final class GameLoop extends ScreenAdapter {
   private void setup() {
     LOGGER.info("Setting up game...");
     doSetup = false;
+    // Only multiplayer servers skip client setup and run headless.
     if (!PreRunConfiguration.multiplayerEnabled() || Game.isMultiplayerClient()) {
       setupClient();
     } else {
@@ -344,44 +345,26 @@ public final class GameLoop extends ScreenAdapter {
     }
 
     PreRunConfiguration.userOnSetup().execute();
-    startNetworkOrShowClientConnectionDialog();
+    // Clients without a configured address wait for the connection dialog to start networking.
+    if (!Game.isMultiplayerClient()) {
+      Game.network().start();
+    } else if (PreRunConfiguration.hasNetworkServerAddress()) {
+      Game.initializeNetwork();
+      Game.network().start();
+    } else {
+      DialogFactory.showClientConnectionDialog();
+    }
 
     if (!Game.isHeadless()) InputManager.init();
 
-    if (shouldLoadInitialLevelAutomatically() && !DungeonLoader.levelOrder().isEmpty()) {
-      if (Game.currentLevel().isEmpty()) DungeonLoader.loadLevel(0); // load the first level
-    } else if (shouldLoadInitialLevelAutomatically()) LOGGER.warn("No levels found to load!");
-  }
-
-  private static void startNetworkOrShowClientConnectionDialog() {
-    if (shouldStartNetworkAutomatically()) {
-      Game.network().start();
-      return;
+    // Multiplayer clients receive level state from the server instead of loading it locally.
+    if (!Game.isMultiplayerClient()) {
+      if (!DungeonLoader.levelOrder().isEmpty()) {
+        if (Game.currentLevel().isEmpty()) DungeonLoader.loadLevel(0); // load the first level
+      } else {
+        LOGGER.warn("No levels found to load!");
+      }
     }
-    if (shouldStartConfiguredClientNetwork()) {
-      Game.initializeNetwork();
-      Game.network().start();
-      return;
-    }
-    if (shouldShowClientConnectionDialog()) {
-      DialogFactory.showClientConnectionDialog();
-    }
-  }
-
-  static boolean shouldStartNetworkAutomatically() {
-    return !Game.isMultiplayerClient();
-  }
-
-  static boolean shouldStartConfiguredClientNetwork() {
-    return Game.isMultiplayerClient() && PreRunConfiguration.hasNetworkServerAddress();
-  }
-
-  static boolean shouldShowClientConnectionDialog() {
-    return Game.isMultiplayerClient() && !PreRunConfiguration.hasNetworkServerAddress();
-  }
-
-  static boolean shouldLoadInitialLevelAutomatically() {
-    return !Game.isMultiplayerClient();
   }
 
   private static Optional<ClientState> clientState(Session ctx) {
