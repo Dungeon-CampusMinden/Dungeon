@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
+import core.utils.Point;
 
 /**
  * A system that executes queued {@link BlocklyCommands.Commands} in the game thread.
