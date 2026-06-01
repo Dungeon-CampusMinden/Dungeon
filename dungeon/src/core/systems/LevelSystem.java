@@ -8,16 +8,12 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
 import core.level.loader.DungeonLoader;
-import core.sound.SoundSpec;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
-import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -107,32 +103,6 @@ public final class LevelSystem extends System {
     return currentTile instanceof ExitTile endTile && endTile.isOpen();
   }
 
-  private Optional<ILevel> isOnDoor(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Tile currentTile = Game.tileAt(pc.position()).orElse(null);
-
-    if (!(currentTile instanceof DoorTile doorTile)) {
-      return Optional.empty();
-    }
-    if (!doorTile.isOpen() || doorTile.otherDoor() == null || !doorTile.otherDoor().isOpen()) {
-      return Optional.empty();
-    }
-
-    List<Tile> startTiles = doorTile.otherDoor().level().startTiles();
-    Tile doorstep = doorTile.otherDoor().doorstep();
-    if (startTiles.isEmpty()) startTiles.add(doorstep);
-    startTiles.set(0, doorstep);
-
-    return Optional.ofNullable(doorTile.otherDoor().level());
-  }
-
-  private void playSound() {
-    Game.audio().playGlobal(SoundSpec.builder(SOUND_EFFECT).volume(0.3f));
-  }
-
   /**
    * Execute the system logic.
    *
@@ -152,15 +122,6 @@ public final class LevelSystem extends System {
     if (Game.allPlayers().allMatch(this::isOnOpenEndTile)) {
       onEndTile.execute();
       return;
-    }
-
-    // Check if all heroes are on the same open door and load that level
-    List<ILevel> doorLevels =
-        Game.allPlayers().map(this::isOnDoor).flatMap(Optional::stream).distinct().toList();
-
-    if (doorLevels.size() == 1) {
-      loadLevel(doorLevels.get(0));
-      playSound();
     }
     openPits();
   }
