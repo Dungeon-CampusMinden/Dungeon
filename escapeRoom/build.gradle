@@ -16,12 +16,6 @@ sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
 sourceSets.test.java.srcDirs = ['test/']
 
-tasks.register('runCoopDungeon', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.CoopDungeon'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
 tasks.register('runDemoRoom', JavaExec) {
     group 'starter'
     mainClass = 'starter.DemoRoom'
