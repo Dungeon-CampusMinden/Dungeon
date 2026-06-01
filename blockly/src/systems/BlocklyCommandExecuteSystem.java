@@ -24,6 +24,11 @@ import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.utils.*;
+import core.utils.Direction;
+import core.utils.IVoidFunction;
+import core.utils.MissingPlayerException;
+import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -32,7 +37,6 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
-import core.utils.Point;
 
 /**
  * A system that executes queued {@link BlocklyCommands.Commands} in the game thread.
