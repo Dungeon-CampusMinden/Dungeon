@@ -222,3 +222,26 @@ header {
 #buttons button {
     pointer-events: auto;
 }
+
+.headerRightContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.flag {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+#language-button {
+    align-self: center;
+    padding:0;
+    margin:0;
+    display: inline-flex;
+    border: none;
+    cursor: pointer;
+}

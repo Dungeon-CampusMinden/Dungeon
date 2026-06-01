@@ -49,6 +49,25 @@ setupButtons(workspace);
 // Disable all blocks that aren't connected to the start block.
 workspace.addChangeListener(Blockly.Events.disableOrphans);
 
+document.querySelector(".flag")?.addEventListener("click", event => {
+  const imgElement = event.currentTarget as HTMLImageElement;
+  if (imgElement == null) return;
+
+  const currentLang = imgElement.dataset.lang;
+
+  console.log("clicked");
+
+  if (currentLang == "en") {
+    imgElement.dataset.lang="de"
+    imgElement.src="german-flag.svg"
+    imgElement.alt = "German language"
+  } else {
+    imgElement.dataset.lang="en"
+    imgElement.src="english-flag.svg"
+    imgElement.alt = "English language"
+  }
+})
+
 // @ts-expect-error the blocklyZoomReset is always on the gui
 document.querySelector('g.blocklyZoom.blocklyZoomReset').addEventListener('pointerdown', (e) => {
     e.stopImmediatePropagation();
