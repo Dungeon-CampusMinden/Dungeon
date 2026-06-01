@@ -23,18 +23,6 @@ tasks.register('runPortal', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('runPathfinder', JavaExec) {
-    group 'starter'
-    mainClass = 'aiAdvanced.starter.PathfinderStarter'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-tasks.register('runPathFindingComparison', JavaExec) {
-    group 'starter'
-    mainClass = 'aiAdvanced.starter.ComparePathfindingStarter'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
 tasks.named('clean') {
     delete(
             file("$rootDir/currentAdvancedLevel.json"),
