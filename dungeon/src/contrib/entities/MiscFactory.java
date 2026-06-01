@@ -316,57 +316,6 @@ public final class MiscFactory {
   }
 
   /**
-   * Get an Entity that can be used as a crafting cauldron.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * @param position position of the crafting cauldron.
-   * @return A new Entity.
-   */
-  public static Entity newCraftingCauldron(Point position) {
-    Entity cauldron = new Entity("cauldron");
-    cauldron.add(new PositionComponent(position));
-    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/cauldron"));
-    dc.depth(DepthLayer.Player.depth());
-    cauldron.add(dc);
-    InventoryComponent invComp = new InventoryComponent();
-    cauldron.add(invComp);
-    cauldron.add(
-        new InteractionComponent(
-            () ->
-                new Interaction(
-                    (entity, who) ->
-                        who.fetch(InventoryComponent.class)
-                            .ifPresent(
-                                ic -> {
-                                  var context =
-                                      DialogContext.builder()
-                                          .type(DialogType.DefaultTypes.CRAFTING_GUI)
-                                          .put(DialogContextKeys.ENTITY, who.id())
-                                          .put(DialogContextKeys.SECONDARY_ENTITY, entity.id())
-                                          .put(DialogContextKeys.OWNER_ENTITY, who.id())
-                                          .build();
-                                  UIComponent ui = new UIComponent(context, true, who.id());
-                                  who.add(ui);
-                                }))));
-    cauldron.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
-    return cauldron;
-  }
-
-  /**
-   * Get an Entity that can be used as a crafting cauldron.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>The Entity is placed at the {@link PositionComponent#ILLEGAL_POSITION}. >.
-   *
-   * @return A new Entity.
-   */
-  public static Entity newCraftingCauldron() {
-    return newCraftingCauldron(PositionComponent.ILLEGAL_POSITION);
-  }
-
-  /**
    * Creates an Entity that can be used as a marker on the floor (x marks the spot).
    *
    * @param position Position where to spawn the marker.

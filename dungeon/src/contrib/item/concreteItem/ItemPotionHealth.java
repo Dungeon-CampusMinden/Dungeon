@@ -2,7 +2,6 @@ package contrib.item.concreteItem;
 
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
-import contrib.crafting.CraftingIngredient;
 import contrib.item.HealthPotionType;
 import contrib.item.Item;
 import contrib.utils.components.health.Damage;
@@ -86,7 +85,7 @@ public class ItemPotionHealth extends Item {
   }
 
   @Override
-  public boolean match(final CraftingIngredient input) {
+  public boolean match(final Item input) {
     if (!(input instanceof ItemPotionHealth other)) {
       return super.match(input);
     }

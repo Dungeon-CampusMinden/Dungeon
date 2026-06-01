@@ -4,7 +4,6 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
-import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.modules.keypad.KeypadUI;
 import contrib.utils.AttributeBarUtil;
@@ -56,7 +55,6 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialog::build);
     register(DialogType.DefaultTypes.INVENTORY, InventoryGUI::buildSimple);
     register(DialogType.DefaultTypes.DUAL_INVENTORY, InventoryGUI::buildDual);
-    register(DialogType.DefaultTypes.CRAFTING_GUI, CraftingGUI::build);
     register(DialogType.DefaultTypes.KEYPAD, KeypadUI::build);
     register(DialogType.DefaultTypes.PROGRESS_BAR, AttributeBarUtil::buildProgressBar);
     register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);

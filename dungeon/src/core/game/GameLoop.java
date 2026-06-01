@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import contrib.components.UIComponent;
-import contrib.crafting.Crafting;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.deco.DecoFactory;
@@ -343,8 +342,6 @@ public final class GameLoop extends ScreenAdapter {
     } else {
       Gdx.files = new HeadlessFiles();
     }
-
-    Crafting.loadRecipes();
 
     PreRunConfiguration.userOnSetup().execute();
     Game.network().start();

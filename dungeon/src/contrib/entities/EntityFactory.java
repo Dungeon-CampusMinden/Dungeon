@@ -136,18 +136,6 @@ public final class EntityFactory {
   }
 
   /**
-   * Get an Entity that can be used as a crafting cauldron.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
-   */
-  public static Entity newCraftingCauldron() throws IOException {
-    return MiscFactory.newCraftingCauldron();
-  }
-
-  /**
    * Creates a destructible stone entity.
    *
    * <p>The stone requires a hammer to break. All items in {@code items} are stored inside and
