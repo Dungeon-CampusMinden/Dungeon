@@ -1,9 +1,6 @@
 package contrib.item;
 
 import contrib.components.InventoryComponent;
-import contrib.crafting.CraftingIngredient;
-import contrib.crafting.CraftingResult;
-import contrib.crafting.CraftingType;
 import contrib.entities.WorldItemBuilder;
 import contrib.item.concreteItem.ItemBigKey;
 import contrib.item.concreteItem.ItemFairy;
@@ -45,7 +42,7 @@ import java.util.Random;
  * max stack size is 1 and the default stack size is 1. The values can be changed via the {@link
  * #stackSize()} and {@link #maxStackSize()} methods.
  */
-public class Item implements CraftingIngredient, CraftingResult {
+public class Item {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Item.class);
 
   /**
@@ -468,25 +465,33 @@ public class Item implements CraftingIngredient, CraftingResult {
     user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
   }
 
-  @Override
-  public boolean match(final CraftingIngredient input) {
-    if (this.getClass().isInstance(input)) return ((Item) input).stackSize() <= stackSize;
+  /**
+   * Check if the Item matches the input.
+   *
+   * @param input The input to match.
+   * @return True if the item matches the input, false otherwise.
+   */
+  public boolean match(final Item input) {
+    if (this.getClass().isInstance(input)) return input.stackSize() <= stackSize;
     return false;
   }
 
-  @Override
-  public void setAmount(int count) {
+  /**
+   * Sets the stacksize.
+   *
+   * @param count The stacksize to set.
+   */
+  public void amount(int count) {
     this.stackSize(count);
   }
 
-  @Override
-  public int getAmount() {
+  /**
+   * Get the stacksize.
+   *
+   * @return The stacksize
+   */
+  public int amount() {
     return stackSize;
-  }
-
-  @Override
-  public CraftingType resultType() {
-    return CraftingType.ITEM;
   }
 
   @Override
