@@ -386,7 +386,6 @@ public final class ClientNetwork {
 
                       @Override
                       public void channelActive(ChannelHandlerContext ctx) {
-                        connected.set(true);
                         updateUdpRemote(ctx.channel());
                         // Create a client-side Session bound to this TCP ctx and using client
                         // senders
@@ -601,6 +600,7 @@ public final class ClientNetwork {
 
   private void onConnectAck(short newClientId, int sessionId, byte[] sessionToken) {
     this.clientId = newClientId;
+    connected.set(true);
     LOGGER.info("Received ConnectAck clientId={}, sessionId={}", newClientId, sessionId);
     session.attachClientState(
         new ClientState(
