@@ -9,11 +9,7 @@ import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 
-/**
- * A Berry that restores hit point on usage.
- *
- * <p>Can be used for crafting.
- */
+/** A Berry that restores hit point on usage. */
 public class ItemResourceBerry extends Item {
 
   private static final int HEAL_AMOUNT = 5;

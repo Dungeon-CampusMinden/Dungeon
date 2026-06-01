@@ -6,7 +6,6 @@ import contrib.components.InventoryComponent;
  * An interface for dialogs that hold an inventory.
  *
  * @see contrib.hud.inventory.InventoryGUI
- * @see contrib.hud.crafting.CraftingGUI
  */
 public interface IInventoryHolder {
   /**

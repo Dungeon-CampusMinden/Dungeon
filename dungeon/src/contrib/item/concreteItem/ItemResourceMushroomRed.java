@@ -9,11 +9,7 @@ import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 
-/**
- * A Mushroom that removes a small amount of hit point on usage.
- *
- * <p>Can be used for crafting.
- */
+/** A Mushroom that removes a small amount of hit point on usage. */
 public class ItemResourceMushroomRed extends Item {
 
   private static final int DAMAGE_AMOUNT = 20;

@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * Registry for item IDs, classes, and optional item factories.
  *
- * <p>IDs should remain stable because they are used by crafting recipes and network payloads.
+ * <p>IDs should remain stable because they are used by network payloads.
  */
 public final class ItemRegistry {
   private static final Map<String, Class<? extends Item>> ITEMS = new HashMap<>();

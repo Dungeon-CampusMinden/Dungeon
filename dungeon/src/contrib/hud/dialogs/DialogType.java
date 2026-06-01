@@ -45,9 +45,6 @@ public interface DialogType {
     /** Dual inventory display for item transfers. */
     DUAL_INVENTORY("DUAL_INVENTORY"),
 
-    /** Crafting interface dialog. */
-    CRAFTING_GUI("CRAFTING_GUI"),
-
     /** Numeric keypad input dialog. */
     KEYPAD("KEYPAD"),
 

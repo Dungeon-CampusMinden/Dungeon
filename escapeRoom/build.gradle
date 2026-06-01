@@ -22,12 +22,6 @@ tasks.register('runCoopDungeon', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('runDemoRoom', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.DemoRoom'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
 tasks.register('runSpriteTestRoom', JavaExec) {
     group 'starter'
     mainClass = 'starter.SpriteTestRoom'
