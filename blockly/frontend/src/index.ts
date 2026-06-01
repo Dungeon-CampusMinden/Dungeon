@@ -55,15 +55,13 @@ document.querySelector(".flag")?.addEventListener("click", event => {
 
   const currentLang = imgElement.dataset.lang;
 
-  console.log("clicked");
-
   if (currentLang == "en") {
     imgElement.dataset.lang="de"
-    imgElement.src="german-flag.svg"
+    imgElement.src="german-flag.png"
     imgElement.alt = "German language"
   } else {
     imgElement.dataset.lang="en"
-    imgElement.src="english-flag.svg"
+    imgElement.src="english-flag.png"
     imgElement.alt = "English language"
   }
 })
