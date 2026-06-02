@@ -22,6 +22,30 @@ sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
 sourceSets.test.java.srcDirs = ['test/']
 
+tasks.register('runCoopDungeon', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.CoopDungeon'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runDemoRoom', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.DemoRoom'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runSpriteTestRoom', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.SpriteTestRoom'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runMushRoom', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.MushRoom'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 
 // Task to generate config launcher files automatically
 tasks.register('generateLauncherProperties') {
