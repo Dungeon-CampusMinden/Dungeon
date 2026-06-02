@@ -1,3 +1,0 @@
-- Source: https://en.wikipedia.org/wiki/File:Binary_to_Hexadecimal_or_Decimal.jpg
-- Author: OmarG1202
-- License: CC0

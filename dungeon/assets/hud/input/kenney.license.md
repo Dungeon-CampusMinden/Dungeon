@@ -1,3 +1,0 @@
-- Source: https://www.kenney.nl/assets/input-prompts
-- Author: Kenney
-- License: CC0
