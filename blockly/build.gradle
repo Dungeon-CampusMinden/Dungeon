@@ -170,7 +170,6 @@ runtime {
                '--compress', '2',
                '--no-header-files',
                '--no-man-pages',
-               '--strip-native-commands',
                '--vm', 'server']
 
     // Java modules to include in the custom JRE (only these will be bundled, reducing size)
