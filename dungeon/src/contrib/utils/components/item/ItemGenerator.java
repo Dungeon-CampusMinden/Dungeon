@@ -2,14 +2,19 @@ package contrib.utils.components.item;
 
 import contrib.item.HealthPotionType;
 import contrib.item.Item;
-import contrib.item.ItemRegistry;
+import contrib.item.concreteItem.ItemBigKey;
+import contrib.item.concreteItem.ItemFairy;
+import contrib.item.concreteItem.ItemHammer;
+import contrib.item.concreteItem.ItemHeart;
+import contrib.item.concreteItem.ItemKey;
 import contrib.item.concreteItem.ItemPotionHealth;
-import core.utils.logging.DungeonLogger;
-import java.lang.reflect.InvocationTargetException;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
+import contrib.item.concreteItem.ItemPotionWater;
+import contrib.item.concreteItem.ItemResourceBerry;
+import contrib.item.concreteItem.ItemResourceEgg;
+import contrib.item.concreteItem.ItemResourceMushroomRed;
+import contrib.item.concreteItem.ItemWoodenArrow;
+import contrib.item.concreteItem.ItemWoodenBow;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
@@ -24,7 +29,6 @@ import java.util.function.Supplier;
  * @see contrib.entities.MiscFactory#generateRandomItems(int, int) generateRandomItems
  */
 public class ItemGenerator {
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ItemGenerator.class);
   private final Random random;
   private final Map<Supplier<Item>, Double> weightedItems;
   private double totalWeight;
@@ -37,20 +41,21 @@ public class ItemGenerator {
   }
 
   /**
-   * Creates a default ItemGenerator with all items added with a weight of 1.
+   * Creates a default ItemGenerator with all default loot items added with a weight of 1.
    *
-   * <p>This method is a factory method that creates an instance of ItemGenerator, adds all items to
-   * it with a weight of 1, and then returns the instance. This is useful when you want a simple
-   * ItemGenerator that treats all items equally in terms of their probability of being generated.
+   * <p>This method is a factory method that creates an instance of ItemGenerator, adds all generic
+   * loot items to it with a weight of 1, and then returns the instance. This is useful when you
+   * want a simple ItemGenerator that treats all default loot equally in terms of its probability of
+   * being generated.
    *
    * <p>For {@link ItemPotionHealth}, the default health potion is replaced with a random health
    * potion using {@link HealthPotionType#randomType()}.
    *
-   * @return An ItemGenerator with all {@link ItemRegistry#entries()} added with a weight of 1.
+   * @return An ItemGenerator with default loot items added with a weight of 1.
    */
   public static ItemGenerator defaultItemGenerator() {
     ItemGenerator ig = new ItemGenerator();
-    ig.addAllItems();
+    ig.addDefaultLootItems();
     return ig;
   }
 
@@ -65,39 +70,19 @@ public class ItemGenerator {
     totalWeight += weight;
   }
 
-  private void addAllItems() {
-    List<Class<? extends Item>> itemClasses = new ArrayList<>(ItemRegistry.entries().values());
-    // Replace the default health potion with a random health potion
-    itemClasses.remove(ItemPotionHealth.class);
+  private void addDefaultLootItems() {
     addItem(() -> new ItemPotionHealth(HealthPotionType.randomType()), 1.0);
-
-    for (Class<? extends Item> itemClass : itemClasses) {
-      try {
-        addItem(createItemSupplier(itemClass), 1.0);
-      } catch (InvalidParameterException e) {
-        LOGGER.error("Failed to create item instance for {}", itemClass.getSimpleName(), e);
-      }
-    }
-  }
-
-  /**
-   * Creates a supplier that creates an instance of an item class using reflection.
-   *
-   * @param itemClass The class of the item to create
-   * @return An instance of the item class, or null if an instance could not be created
-   */
-  private Supplier<Item> createItemSupplier(Class<? extends Item> itemClass) {
-    return () -> {
-      try {
-        return itemClass.getDeclaredConstructor().newInstance();
-      } catch (InstantiationException
-          | IllegalAccessException
-          | NoSuchMethodException
-          | InvocationTargetException e) {
-        throw new InvalidParameterException(
-            "Could not create an instance of " + itemClass.getSimpleName(), e);
-      }
-    };
+    addItem(ItemPotionWater::new, 1.0);
+    addItem(ItemResourceBerry::new, 1.0);
+    addItem(ItemResourceEgg::new, 1.0);
+    addItem(ItemResourceMushroomRed::new, 1.0);
+    addItem(ItemWoodenArrow::new, 1.0);
+    addItem(ItemWoodenBow::new, 1.0);
+    addItem(ItemBigKey::new, 1.0);
+    addItem(ItemFairy::new, 1.0);
+    addItem(ItemHammer::new, 1.0);
+    addItem(ItemHeart::new, 1.0);
+    addItem(ItemKey::new, 1.0);
   }
 
   /**
