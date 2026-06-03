@@ -2,7 +2,6 @@ package contrib.hud.dialogs;
 
 import contrib.hud.elements.RichLabel;
 import core.network.messages.c2s.DialogResponseMessage;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.List;
  * @param label The text (with optional rich markup) displayed for this option.
  * @param value The string value returned when this option is selected.
  */
-public record ChoiceOption(String label, String value) implements Serializable {
+public record ChoiceOption(String label, String value) {
 
   /**
    * Creates a choice option with a label and an associated string value.

@@ -16,7 +16,6 @@ import core.game.PreRunConfiguration;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -413,7 +412,7 @@ public class DialogFactory {
             .type(DialogType.DefaultTypes.MULTIPLE_CHOICE)
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.DIALOG, dialog)
-            .put(DialogContextKeys.OPTIONS, new ArrayList<>(options))
+            .put(DialogContextKeys.OPTIONS, new ChoiceOptions(options))
             .put(DialogContextKeys.CAN_CANCEL, canCancel);
 
     UIComponent ui = show(builder.build(), targetEntityIds);

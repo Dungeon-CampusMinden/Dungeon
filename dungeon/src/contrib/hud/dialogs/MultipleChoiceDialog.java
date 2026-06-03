@@ -75,15 +75,14 @@ final class MultipleChoiceDialog {
    * @param ctx The dialog context.
    * @return The created dialog Group or HeadlessDialogGroup.
    */
-  @SuppressWarnings("unchecked")
   static Group build(DialogContext ctx) {
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(TITLE_DEFAULT);
     String script = ctx.require(DialogContextKeys.DIALOG, String.class);
     if (script.isBlank()) {
       throw new DialogCreationException("MultipleChoiceDialog requires a non-blank dialog script");
     }
-    List<ChoiceOption> options =
-        (List<ChoiceOption>) ctx.require(DialogContextKeys.OPTIONS, ArrayList.class);
+    ChoiceOptions choiceOptions = ctx.require(DialogContextKeys.OPTIONS, ChoiceOptions.class);
+    List<ChoiceOption> options = choiceOptions.values();
     boolean canCancel = ctx.find(DialogContextKeys.CAN_CANCEL, Boolean.class).orElse(false);
 
     if (Game.isHeadless()) {

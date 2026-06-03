@@ -88,8 +88,7 @@ public class DialogContextKeys {
   public static final String DESCRIPTION = "description";
 
   /**
-   * The key for the list of selectable options (ArrayList&lt;String&gt;) in a multiple choice
-   * dialog.
+   * The key for the list of selectable options ({@link ChoiceOptions}) in a multiple choice dialog.
    */
   public static final String OPTIONS = "options";
 

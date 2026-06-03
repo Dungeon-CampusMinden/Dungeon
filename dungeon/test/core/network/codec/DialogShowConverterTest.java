@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import contrib.hud.dialogs.ChoiceOption;
+import contrib.hud.dialogs.ChoiceOptions;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
@@ -13,6 +15,7 @@ import core.network.codec.converters.s2c.DialogShowConverter;
 import core.network.messages.s2c.DialogShowMessage;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link DialogShowConverter}. */
@@ -32,6 +35,10 @@ public class DialogShowConverterTest {
             .put(DialogContextKeys.OWNER_ENTITY, 10)
             .put(DialogContextKeys.ENTITY, 20)
             .put(DialogContextKeys.ADDITIONAL_BUTTONS, new String[] {"Retry", "Quit"})
+            .put(
+                DialogContextKeys.OPTIONS,
+                new ChoiceOptions(
+                    List.of(ChoiceOption.of("Look around", "LOOK"), ChoiceOption.of("Leave"))))
             .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.SLOW)
             .build();
 
@@ -60,6 +67,14 @@ public class DialogShowConverterTest {
                     DialogContextKeys.IMAGE_TRANSITION_SPEED.equals(attr.getKey())
                         && attr.getValueCase()
                             == core.network.proto.s2c.DialogAttribute.ValueCase.CUSTOM_VALUE));
+    assertTrue(
+        proto.getAttributesList().stream()
+            .anyMatch(
+                attr ->
+                    DialogContextKeys.OPTIONS.equals(attr.getKey())
+                        && attr.getValueCase()
+                            == core.network.proto.s2c.DialogAttribute.ValueCase
+                                .CHOICE_OPTION_LIST));
 
     DialogShowMessage roundTripMessage = CONVERTER.fromProto(proto);
     DialogContext roundTrip = roundTripMessage.context();
@@ -74,6 +89,10 @@ public class DialogShowConverterTest {
     assertArrayEquals(
         new String[] {"Retry", "Quit"},
         roundTrip.require(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class));
+    assertEquals(
+        new ChoiceOptions(
+            List.of(ChoiceOption.of("Look around", "LOOK"), ChoiceOption.of("Leave"))),
+        roundTrip.require(DialogContextKeys.OPTIONS, ChoiceOptions.class));
     assertEquals(
         TransitionSpeed.SLOW,
         roundTrip.require(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class));

@@ -77,7 +77,7 @@ import java.util.function.Consumer;
  */
 public final class ServerTransport {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerTransport.class);
-  private static final short SERVER_PROTOCOL_VERSION = 1;
+  private static final short SERVER_PROTOCOL_VERSION = 2;
 
   private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
 

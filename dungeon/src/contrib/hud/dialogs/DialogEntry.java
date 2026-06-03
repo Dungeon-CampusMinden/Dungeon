@@ -24,9 +24,9 @@ import java.util.List;
  * <p>An entry without a speaker (both {@code speakerName} and {@code imagePath} are {@code null})
  * is rendered without the portrait/name column; the text takes up the full content width.
  *
- * <p>{@code DialogEntry} is {@link Serializable} so a list of entries can be transported as part of
- * a {@link DialogContext} attribute payload (e.g. across the network, mirroring how {@link
- * ChoiceOption} is used by {@link MultipleChoiceDialog}).
+ * <p>{@code DialogEntry} remains {@link Serializable} for compatibility with existing local code.
+ * Network transport for dialog attributes still requires an explicitly supported protobuf field or
+ * a registered dialog value codec.
  *
  * @param speakerName Display name of the speaker, or {@code null} for no speaker.
  * @param imagePath Classpath/internal path to the speaker portrait image, or {@code null} for no
