@@ -225,7 +225,7 @@ public class LastHourLevel extends DungeonLevel {
 
   private void setupTimer() {
     int unixTime = (int) (System.currentTimeMillis() / 1000L);
-    Game.add(WorldTimerFactory.createWorldTimer(getPoint("timer"), unixTime, 15));
+    Game.add(WorldTimerFactory.createWorldTimer(getPoint("timer"), unixTime, 60 * 60));
   }
 
   /**
