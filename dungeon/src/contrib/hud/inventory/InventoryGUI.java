@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -372,8 +373,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
                 InventoryGUI.this.inventoryComponent, isHeroInv, draggedSlot, itemToTransfer));
 
         // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
-        TextureRegion dragRegion = itemToTransfer.inventoryAnimation().update();
-        Image image = new Image(new SpriteDrawable(itemToTransfer.inventoryAnimation().update()));
+        Sprite dragRegion = itemToTransfer.inventoryAnimation().update();
+        Image image = new Image(new SpriteDrawable(dragRegion));
         float dragRegionW = dragRegion.getRegionWidth();
         float dragRegionH = dragRegion.getRegionHeight();
         float dragFitScale =
