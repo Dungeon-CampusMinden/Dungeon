@@ -222,11 +222,21 @@ public class DebugDrawSystem extends System {
         .forEach(
             (name, point) -> {
               Color color = name.equals(highlightPoint) ? NAMED_POINT_HIGHLIGHT_COLOR : normalColor;
-              // Draw a small purple square at the point location
-              drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
-
-              // Draw the name of the point above it
-              drawTextInWorldCoordsCentered(FONT, name, point.translate(0.5f, 0.5f), color);
+              boolean onTile = isNearInteger(point.x()) && isNearInteger(point.y());
+              BlendUtils.setBlending();
+              SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+              if (onTile) {
+                // Point sits on an exact tile - draw as 1×1 rectangle with centered text
+                drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
+                drawTextInWorldCoordsCentered(FONT, name, point.translate(0.5f, 0.5f), color);
+              } else {
+                // Fractional position - draw a small filled dot with text above
+                SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+                SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+                SHAPE_RENDERER.circle(point.x(), point.y(), 0.08f, CIRCLE_SEGMENTS);
+                SHAPE_RENDERER.end();
+                drawTextInWorldCoordsCentered(FONT, name, point.translate(0f, 0.3f), color);
+              }
             });
   }
 
@@ -652,5 +662,11 @@ public class DebugDrawSystem extends System {
     float textX = screen.x - layout.width / 2f;
     float textY = screen.y + layout.height / 2f;
     drawText(font, text, new Point(textX, textY), color);
+  }
+
+  private static final float INTEGER_TOLERANCE = 0.01f;
+
+  private static boolean isNearInteger(float value) {
+    return Math.abs(value - Math.round(value)) < INTEGER_TOLERANCE;
   }
 }

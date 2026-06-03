@@ -116,6 +116,17 @@ message IntList {
     repeated int32 values = 1;
 }
 
+// A single selectable option in a dialog choice list.
+message DialogChoiceOption {
+    string label = 1;
+    string value = 2;
+}
+
+// Helper message for repeated dialog choice options.
+message DialogChoiceOptionList {
+    repeated DialogChoiceOption options = 1;
+}
+
 // Type-discriminated binary value for custom/extension types.
 // Used by dialog attributes and response payloads to carry
 // subproject-defined types through the codec registry.

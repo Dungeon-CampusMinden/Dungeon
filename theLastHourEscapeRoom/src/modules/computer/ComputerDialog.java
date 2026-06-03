@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -21,22 +22,26 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import core.Entity;
 import core.Game;
 import core.sound.Sounds;
 import core.utils.Cursors;
 import core.utils.FontHelper;
 import core.utils.Scene2dElementFactory;
 import core.utils.logging.DungeonLogger;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import modules.computer.content.AboutTab;
 import modules.computer.content.BlogTab;
 import modules.computer.content.BrowserTab;
 import modules.computer.content.ComputerTab;
+import modules.computer.content.ControlPanelTab;
 import modules.computer.content.EmailsTab;
 import modules.computer.content.FileTab;
 import modules.computer.content.LoginTab;
+import modules.computer.content.UsbDriveTab;
 import modules.computer.content.VirusTab;
 import util.LastHourSounds;
 
@@ -44,18 +49,19 @@ import util.LastHourSounds;
 public class ComputerDialog extends Group {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ComputerDialog.class);
+  private static final float ATTENTION_BLINK_STEP_SECONDS = 0.4f;
   private static ComputerDialog INSTANCE = null;
 
   private ComputerStateComponent sharedState;
   private final Skin skin;
-  private final Entity owner;
 
   private Table tabArea;
   private Table contentArea;
 
-  private String activeTab = null;
+  private String activeTab;
   private String previousTab = null;
   private final Map<String, ComputerTab> tabContentMap = new LinkedHashMap<>();
+  private final BlogCommentAttentionTracker blogCommentAttentionTracker;
 
   private final DialogContext ctx;
 
@@ -73,8 +79,13 @@ public class ComputerDialog extends Group {
     this.sharedState = state;
     this.ctx = ctx;
     this.skin = UIUtils.defaultSkin();
+    this.blogCommentAttentionTracker =
+        new BlogCommentAttentionTracker(
+            BlogTab::countVisibleComments,
+            () -> ComputerStateLocal.getInstance().acknowledgedBlogCommentCount(),
+            count -> ComputerStateLocal.getInstance().acknowledgedBlogCommentCount(count));
     this.setSize(Game.windowWidth(), Game.windowHeight());
-    this.owner = ctx.requireEntity(DialogContextKeys.OWNER_ENTITY);
+    ctx.requireEntity(DialogContextKeys.OWNER_ENTITY);
 
     // Tab restore comes first
     activeTab = ComputerStateLocal.getInstance().tab();
@@ -86,6 +97,7 @@ public class ComputerDialog extends Group {
     for (String s : ComputerStateLocal.getInstance().openFiles()) {
       addTab(new FileTab(sharedState, s));
     }
+    restoreControlPanelTabIfNeeded();
 
     if (!tabContentMap.containsKey(activeTab)) {
       activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
@@ -93,7 +105,27 @@ public class ComputerDialog extends Group {
 
     checkVirus();
 
+    BlogCommentAttentionTracker.AttentionChange change =
+        blogCommentAttentionTracker.initialize(
+            BlogTab.KEY.equals(activeTab), tabContentMap.containsKey(BlogTab.KEY));
+    applyBlogAttentionChange(change);
+
     showContent(activeTab);
+  }
+
+  private void applyBlogAttentionChange(BlogCommentAttentionTracker.AttentionChange change) {
+    if (change == BlogCommentAttentionTracker.AttentionChange.NONE
+        || !tabContentMap.containsKey(BlogTab.KEY)) {
+      return;
+    }
+
+    ComputerTab blogTab = tabContentMap.get(BlogTab.KEY);
+    if (change == BlogCommentAttentionTracker.AttentionChange.REQUEST) {
+      blogTab.requestAttention();
+    } else if (change == BlogCommentAttentionTracker.AttentionChange.DISMISS) {
+      blogTab.dismissAttention();
+    }
+    buildTabs();
   }
 
   private void checkVirus() {
@@ -122,12 +154,15 @@ public class ComputerDialog extends Group {
 
   /**
    * Updates the shared state of the computer and propagates changes to tabs. If the infection
-   * status has changed, tabs will be added or removed accordingly.
+   * status has changed, tabs will be added or removed accordingly. If the computer progress has
+   * regressed (e.g. forced shutdown back to pre-login), all tabs that require a higher progress are
+   * removed and the local UI is reset to the login tab so it matches the new shared state.
    *
    * @param newState the new shared state to update to
    */
   public void updateState(ComputerStateComponent newState) {
     if (sharedState.equals(newState)) return;
+    ComputerProgress oldProgress = sharedState.state();
     this.sharedState = newState;
     if (newState.isInfected()) {
       if (!tabContentMap.containsKey(VirusTab.KEY)) {
@@ -138,9 +173,41 @@ public class ComputerDialog extends Group {
         closeTab(VirusTab.KEY);
       }
     }
+    if (newState.state().progress() < oldProgress.progress()) {
+      rebuildTabsForRegressedProgress();
+    }
+
+    // Add the USB drive tab once the correct stick has been plugged in
+    if (newState.usbInserted()
+        && newState.state().hasReached(ComputerProgress.LOGGED_IN)
+        && !tabContentMap.containsKey(UsbDriveTab.KEY)) {
+      addTab(new UsbDriveTab(newState));
+    }
     for (ComputerTab tab : tabContentMap.values()) {
       tab.setSharedState(newState);
     }
+  }
+
+  /**
+   * Removes every tab that requires a higher progress than the current {@link #sharedState} and
+   * rebuilds the available tabs from scratch. Switches the active tab back to the login tab so the
+   * UI reflects the regressed state. The virus tab (if present) is preserved.
+   */
+  private void rebuildTabsForRegressedProgress() {
+    List<String> keysToClose = new ArrayList<>(tabContentMap.keySet());
+    for (String key : keysToClose) {
+      if (key.equals(VirusTab.KEY)) continue;
+      ComputerTab tab = tabContentMap.remove(key);
+      if (tab != null) tab.onRemove();
+    }
+    ComputerStateLocal.getInstance().openFiles().clear();
+    ComputerStateLocal.getInstance().controlPanelOpen(false);
+    addTabsForState(ComputerProgress.ON);
+    if (sharedState.state().hasReached(ComputerProgress.LOGGED_IN)) {
+      addTabsForState(ComputerProgress.LOGGED_IN);
+    }
+    String desired = tabContentMap.containsKey(VirusTab.KEY) ? VirusTab.KEY : LoginTab.KEY;
+    setActiveTab(desired);
   }
 
   private void createActors() {
@@ -208,12 +275,35 @@ public class ComputerDialog extends Group {
    */
   public void addTabsForState(ComputerProgress state) {
     if (state == ComputerProgress.ON) {
+      // About tab is always visible and sits to the LEFT of the Login tab,
+      // so it must be added first.
+      addTab(new AboutTab(sharedState));
       addTab(new LoginTab(sharedState));
     } else if (state == ComputerProgress.LOGGED_IN) {
-      addTab(new EmailsTab(sharedState));
-      addTab(new BrowserTab(sharedState));
+      ComputerTab emailsTab = new EmailsTab(sharedState);
+      emailsTab.dismissAttention();
+      addTab(emailsTab);
+
+      ComputerTab browserTab = new BrowserTab(sharedState);
+      browserTab.dismissAttention();
+      addTab(browserTab);
+
       addTab(new BlogTab(sharedState));
+      applyBlogAttentionChange(
+          blogCommentAttentionTracker.initialize(BlogTab.KEY.equals(activeTab), true));
+      if (sharedState.usbInserted() && !tabContentMap.containsKey(UsbDriveTab.KEY)) {
+        addTab(new UsbDriveTab(sharedState));
+      }
+      restoreControlPanelTabIfNeeded();
     }
+  }
+
+  private void restoreControlPanelTabIfNeeded() {
+    if (!ComputerStateLocal.getInstance().controlPanelOpen()) return;
+    if (!sharedState.usbInserted()) return;
+    if (!sharedState.state().hasReached(ComputerProgress.LOGGED_IN)) return;
+    if (tabContentMap.containsKey(ControlPanelTab.KEY)) return;
+    addTab(new ControlPanelTab(sharedState));
   }
 
   private void addUnfocusListener(Table container) {
@@ -321,6 +411,18 @@ public class ComputerDialog extends Group {
       tab.add(exit).height(40).width(40);
     }
 
+    // Faint red flashing for inactive tabs that still need the user's attention.
+    if (!isActive && computerTab.needsAttention()) {
+      Color tint = new Color(1f, 0.55f, 0.55f, 1f);
+      tab.addAction(
+          Actions.forever(
+              Actions.sequence(
+                  Actions.delay(ATTENTION_BLINK_STEP_SECONDS),
+                  Actions.color(tint, 0f),
+                  Actions.delay(ATTENTION_BLINK_STEP_SECONDS),
+                  Actions.color(Color.WHITE, 0f))));
+    }
+
     tabArea.add(tab).left().height(51).padBottom(-5);
   }
 
@@ -343,6 +445,10 @@ public class ComputerDialog extends Group {
     }
     contentArea.clearChildren();
     ComputerTab tab = tabContentMap.get(tabKey);
+    tab.dismissAttention();
+    if (BlogTab.KEY.equals(tabKey)) {
+      blogCommentAttentionTracker.onBlogTabViewed();
+    }
     contentArea.add(tab).grow();
     tab.onShow();
   }
@@ -351,14 +457,40 @@ public class ComputerDialog extends Group {
     previousTab = activeTab;
     activeTab = tabKey;
     ComputerStateLocal.getInstance().tab(tabKey);
+    ComputerTab newTab = tabContentMap.get(tabKey);
+    if (newTab != null) newTab.dismissAttention();
     showContent(activeTab);
     buildTabs();
+  }
+
+  /**
+   * Whether a tab with the given key is currently registered.
+   *
+   * @param tabKey the tab key to look up
+   * @return {@code true} if the tab exists
+   */
+  public boolean containsTab(String tabKey) {
+    return tabContentMap.containsKey(tabKey);
+  }
+
+  /**
+   * Activates (focuses) the tab with the given key, if it exists.
+   *
+   * @param tabKey the tab key to activate
+   */
+  public void activateTab(String tabKey) {
+    if (!tabContentMap.containsKey(tabKey)) return;
+    setActiveTab(tabKey);
   }
 
   @Override
   public void draw(Batch batch, float parentAlpha) {
     // Adjust size in case of window resize
     this.setSize(Game.windowWidth(), Game.windowHeight());
+    float nowSeconds = System.currentTimeMillis() / 1000f;
+    applyBlogAttentionChange(
+        blogCommentAttentionTracker.tick(
+            nowSeconds, BlogTab.KEY.equals(activeTab), tabContentMap.containsKey(BlogTab.KEY)));
 
     super.draw(batch, parentAlpha);
   }

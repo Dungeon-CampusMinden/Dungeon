@@ -1,7 +1,9 @@
 package network;
 
+import contrib.components.ItemComponent;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadComponent;
+import contrib.modules.puzzle.PuzzlePieceItem;
 import contrib.modules.worldTimer.WorldTimerComponent;
 import core.Entity;
 import core.components.PositionComponent;
@@ -45,6 +47,33 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key for the timestamp of login. */
   public static final String METADATA_TIMESTAMP_OF_LOGIN = "timestampOfLogin";
 
+  /** Metadata key indicating whether the correct USB stick has been inserted. */
+  public static final String METADATA_USB_INSERTED = "computer.usbInserted";
+
+  /** Metadata key for the heater temperature. */
+  public static final String METADATA_HEATER_CELSIUS = "computer.heaterCelsius";
+
+  /** Metadata key indicating whether room lights are on. */
+  public static final String METADATA_LIGHTS_ON = "computer.lightsOn";
+
+  /** Metadata key indicating whether door 1 is open. */
+  public static final String METADATA_DOOR1_OPEN = "computer.door1Open";
+
+  /** Metadata key indicating whether door 2 has been unlocked. */
+  public static final String METADATA_DOOR2_UNLOCKED = "computer.door2Unlocked";
+
+  /** Metadata key indicating whether door 2 is open. */
+  public static final String METADATA_DOOR2_OPEN = "computer.door2Open";
+
+  /** Metadata key indicating whether the air conditioning is on. */
+  public static final String METADATA_AC_ON = "computer.acOn";
+
+  /** Metadata key indicating whether security cameras are on. */
+  public static final String METADATA_CAMERAS_ON = "computer.camerasOn";
+
+  /** Metadata key indicating whether the AC vent has been connected via the control panel. */
+  public static final String METADATA_AC_VENT_CONNECTED = "computer.acVentConnected";
+
   /** Metadata key for the keypad's correct digit sequence. */
   public static final String METADATA_KEYPAD_CORRECT_DIGITS = "keypad.correctDigits";
 
@@ -65,6 +94,21 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Metadata key indicating whether the entity is interactable. */
   public static final String METADATA_INTERACTABLE = "interactable";
+
+  /** Metadata key marking the spawn as a puzzle-piece world item (value: parent puzzle id). */
+  public static final String METADATA_PUZZLE_PIECE_ID = "puzzlePiece.puzzleId";
+
+  /** Metadata key for the source image path of the parent puzzle. */
+  public static final String METADATA_PUZZLE_PIECE_IMAGE = "puzzlePiece.imagePath";
+
+  /** Metadata key for the total piece count of the parent puzzle. */
+  public static final String METADATA_PUZZLE_PIECE_COUNT = "puzzlePiece.pieceCount";
+
+  /** Metadata key for the RNG seed of the parent puzzle. */
+  public static final String METADATA_PUZZLE_PIECE_SEED = "puzzlePiece.seed";
+
+  /** Metadata key for the 0-based index of the puzzle piece itself. */
+  public static final String METADATA_PUZZLE_PIECE_INDEX = "puzzlePiece.pieceIndex";
 
   private final EntitySpawnStrategy delegate = new DefaultEntitySpawnStrategy();
 
@@ -93,6 +137,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     entity
         .fetch(InteractionComponent.class)
         .ifPresent(interaction -> metadata.put(METADATA_INTERACTABLE, String.valueOf(true)));
+    entity
+        .fetch(ItemComponent.class)
+        .ifPresent(itemComponent -> appendPuzzlePieceMetadata(itemComponent, metadata));
     LastHourCollideSync.appendMetadata(entity, metadata);
 
     if (defaultSpawn.isPresent() && !metadata.isEmpty()) {
@@ -127,17 +174,22 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   }
 
   private Map<String, String> computerStateMetadata(ComputerStateComponent state) {
-    return Map.of(
-        METADATA_TYPE,
-        TYPE_COMPUTER,
-        METADATA_PROGRESS,
-        state.state().name(),
-        METADATA_INFECTED,
-        String.valueOf(state.isInfected()),
-        METADATA_VIRUS_TYPE,
-        state.virusType() == null ? "" : state.virusType(),
-        METADATA_TIMESTAMP_OF_LOGIN,
-        String.valueOf(state.timestampOfLogin()));
+    Map<String, String> metadata = new HashMap<>();
+    metadata.put(METADATA_TYPE, TYPE_COMPUTER);
+    metadata.put(METADATA_PROGRESS, state.state().name());
+    metadata.put(METADATA_INFECTED, String.valueOf(state.isInfected()));
+    metadata.put(METADATA_VIRUS_TYPE, state.virusType() == null ? "" : state.virusType());
+    metadata.put(METADATA_TIMESTAMP_OF_LOGIN, String.valueOf(state.timestampOfLogin()));
+    metadata.put(METADATA_USB_INSERTED, String.valueOf(state.usbInserted()));
+    metadata.put(METADATA_LIGHTS_ON, String.valueOf(state.lightsOn()));
+    metadata.put(METADATA_HEATER_CELSIUS, String.valueOf(state.heaterCelsius()));
+    metadata.put(METADATA_DOOR1_OPEN, String.valueOf(state.door1Open()));
+    metadata.put(METADATA_DOOR2_UNLOCKED, String.valueOf(state.door2Unlocked()));
+    metadata.put(METADATA_DOOR2_OPEN, String.valueOf(state.door2Open()));
+    metadata.put(METADATA_AC_ON, String.valueOf(state.acOn()));
+    metadata.put(METADATA_CAMERAS_ON, String.valueOf(state.camerasOn()));
+    metadata.put(METADATA_AC_VENT_CONNECTED, String.valueOf(state.acVentConnected()));
+    return metadata;
   }
 
   private Map<String, String> keypadMetadata(KeypadComponent keypad) {
@@ -163,5 +215,24 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
         .map(String::valueOf)
         .reduce((left, right) -> left + "," + right)
         .orElse("");
+  }
+
+  /**
+   * If the world-item entity carries a {@link PuzzlePieceItem}, attaches the parent puzzle's
+   * identifying metadata (id, image path, piece count, seed and the piece index) to the spawn
+   * event. The receiving client uses this to lazily materialize the matching {@code
+   * @gen/puzzle/<id>/<idx>.png} texture before the {@link core.components.DrawComponent} is built
+   * from the spawn event's draw info, so the piece is rendered with its actual image fragment.
+   *
+   * @param component the item component of the world-item entity being spawned
+   * @param metadata the spawn event metadata map to augment
+   */
+  private void appendPuzzlePieceMetadata(ItemComponent component, Map<String, String> metadata) {
+    if (!(component.item() instanceof PuzzlePieceItem piece)) return;
+    metadata.put(METADATA_PUZZLE_PIECE_ID, piece.puzzleId());
+    metadata.put(METADATA_PUZZLE_PIECE_IMAGE, piece.imagePath().pathString());
+    metadata.put(METADATA_PUZZLE_PIECE_COUNT, Integer.toString(piece.pieceCount()));
+    metadata.put(METADATA_PUZZLE_PIECE_SEED, Long.toString(piece.seed()));
+    metadata.put(METADATA_PUZZLE_PIECE_INDEX, Integer.toString(piece.pieceIndex()));
   }
 }

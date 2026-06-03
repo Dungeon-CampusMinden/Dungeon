@@ -211,7 +211,7 @@ public class BrowserTab extends ComputerTab {
     return table;
   }
 
-  private Actor createSecurityCodePage(String pageUrl, int index) {
+  private Actor createSecurityCodePage(String pageUrl) {
     Table table = new Table();
     table.top().left();
     table.pad(20);
@@ -297,7 +297,7 @@ public class BrowserTab extends ComputerTab {
     dataHeader.setAlignment(Align.left);
     table.add(dataHeader).left().padBottom(8).row();
 
-    String asciiCode = Lore.AsciiCodes.get(index);
+    String asciiCode = Lore.AsciiCodes.getFirst();
     String binaryData = toBinary(asciiCode);
 
     // Stack binary codes vertically in 8-bit rows
@@ -343,19 +343,19 @@ public class BrowserTab extends ComputerTab {
     inputRow.add(passwordField).width(300).height(45).padRight(10);
 
     Label feedback = Scene2dElementFactory.createLabel("", 18, Color.RED);
+    passwordField.setTextFieldListener(
+        (textField, c) -> {
+          if (c == '\r' || c == '\n') {
+            tryVerifySecurityCode(passwordField, feedback, asciiCode, pageUrl);
+          }
+        });
 
     Button submitButton = Scene2dElementFactory.createButton("Verify", "clean-green", 20);
     submitButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            String input = passwordField.getText().trim();
-            if (input.equals(asciiCode)) {
-              navigate(pageUrl + "/download");
-            } else {
-              feedback.setText("Incorrect password. Please check your decryption manual.");
-              feedback.setColor(Color.RED);
-            }
+            tryVerifySecurityCode(passwordField, feedback, asciiCode, pageUrl);
           }
         });
     inputRow.add(submitButton).height(45);
@@ -397,7 +397,7 @@ public class BrowserTab extends ComputerTab {
     return scrollPane;
   }
 
-  private Actor createDownloadPage(int index) {
+  private Actor createDownloadPage() {
     Table table = new Table();
     table.top().padTop(40);
 
@@ -420,26 +420,25 @@ public class BrowserTab extends ComputerTab {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            if (index == 0) {
-              ComputerDialog.getInstance()
-                  .ifPresent(
-                      c -> c.addTab(new FileTab(sharedState(), Lore.AccessCodeDownloadFileName)));
-            } else {
-              String virusType = Lore.CodePageIndexToVirusType.get(index - 1);
-              var newState =
-                  ComputerStateComponent.getState()
-                      .orElseThrow()
-                      .withVirusType(virusType)
-                      .withInfection(true);
-              DialogCallbackResolver.createButtonCallback(
-                      context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-                  .accept(newState);
-            }
+            ComputerDialog.getInstance()
+                .ifPresent(
+                    c -> c.addTab(new FileTab(sharedState(), Lore.AccessCodeDownloadFileName)));
           }
         });
     table.add(downloadButton).center();
 
     return table;
+  }
+
+  private void tryVerifySecurityCode(
+      TextField passwordField, Label feedback, String asciiCode, String pageUrl) {
+    String input = passwordField.getText().trim();
+    if (input.equals(asciiCode)) {
+      navigate(pageUrl + "/download");
+    } else {
+      feedback.setText("Incorrect password. Please check your decryption manual.");
+      feedback.setColor(Color.RED);
+    }
   }
 
   private Map<String, Actor> getWebsites() {
@@ -454,11 +453,11 @@ public class BrowserTab extends ComputerTab {
         "https://www.example.com",
         Scene2dElementFactory.createLabel("Helloooo world :D", 96, Color.BLACK));
 
-    for (int i = 0; i < Lore.EmailCodeUrls.size(); i++) {
-      String url = Lore.EmailCodeUrls.get(i);
-      websites.put(url, createSecurityCodePage(url, i));
-      websites.put(url + "/download", createDownloadPage(i));
-    }
+    // Only the real URL (index 0) gets a code page; phishing URLs (indices 1+) are in
+    // Lore.VirusWebsites and handled by the early-return in navigate().
+    String realUrl = Lore.EmailCodeUrls.getFirst();
+    websites.put(realUrl, createSecurityCodePage(realUrl));
+    websites.put(realUrl + "/download", createDownloadPage());
   }
 
   @Override

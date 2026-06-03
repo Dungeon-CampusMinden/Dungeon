@@ -157,4 +157,28 @@ public abstract class ComputerTab extends Table {
 
   /** Called when the tab is removed from the dialog. */
   public void onRemove() {}
+
+  /**
+   * Returns whether this tab currently needs the user's attention. Tabs that need attention are
+   * faintly flashing red in the tab header until the user clicks them. The state is backed by
+   * {@link ComputerStateLocal} so it persists across reopening the computer UI.
+   *
+   * @return {@code true} if this tab still needs the user's attention.
+   */
+  public boolean needsAttention() {
+    return ComputerStateLocal.getInstance().tabNeedsAttention(key);
+  }
+
+  /**
+   * Clears the "needs attention" state for this tab. After calling this method the tab will no
+   * longer flash red, also when the computer UI is reopened.
+   */
+  public void dismissAttention() {
+    ComputerStateLocal.getInstance().dismissTabAttention(key);
+  }
+
+  /** Marks this tab as needing attention again. */
+  public void requestAttention() {
+    ComputerStateLocal.getInstance().markTabNeedsAttention(key);
+  }
 }

@@ -4,7 +4,6 @@ import static level.LastHourLevel.checkInteractFeedback;
 import static level.LastHourLevel.setupLightingShader;
 import static level.LastHourLevel.updateLightingShader;
 
-import contrib.modules.worldTimer.WorldTimerSystem;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
@@ -36,7 +35,6 @@ public class LastHourLevelClient extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.add(new WorldTimerSystem());
     setupLightingShader();
   }
 

@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import contrib.hud.elements.RichLabel;
 import core.utils.Scene2dElementFactory;
 
 /** A non-interactive setting used to visually separate sections of the settings menu. */
@@ -23,8 +23,9 @@ public class SectionDividerSetting extends SettingValue<Boolean> {
 
   @Override
   public Actor toUIActor() {
-    Label label = Scene2dElementFactory.createLabel(name(), 24, Color.BLACK);
+    RichLabel label = new RichLabel(name(), 24, Color.BLACK);
     label.setAlignment(Align.center);
+    label.setWrap(false);
 
     Image dividerL = Scene2dElementFactory.createHorizontalDivider();
     Image dividerR = Scene2dElementFactory.createHorizontalDivider();

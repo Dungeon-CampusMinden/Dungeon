@@ -4,14 +4,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
+import contrib.hud.elements.RichLabel;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
-import core.utils.Scene2dElementFactory;
 
 /** A concrete implementation of SettingValue for boolean settings. */
 public class BoolSetting extends SettingValue<Boolean> {
@@ -28,8 +27,9 @@ public class BoolSetting extends SettingValue<Boolean> {
 
   @Override
   public Actor toUIActor() {
-    Label label = Scene2dElementFactory.createLabel(name(), 24, Color.BLACK);
+    RichLabel label = new RichLabel(name(), 24, Color.BLACK);
     label.setAlignment(Align.right);
+    label.setWrap(false);
 
     CheckBox checkBox = new CheckBox("", UIUtils.defaultSkin());
     checkBox.setChecked(value());

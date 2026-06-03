@@ -22,17 +22,17 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.network.NetworkUtils;
 import core.systems.CameraSystem;
 import core.systems.input.InputManager;
-import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Auxiliary class to accelerate the creation and testing of specific game scenarios.
@@ -50,6 +50,7 @@ public class Debugger extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Debugger.class);
   private static Entity pauseMenu;
   private static int advanceTimer = 0;
+  private static final List<Runnable> actions = new ArrayList<>();
 
   /** Use this value to quickly test different states or values in any other part of the game. */
   public static int multiPurposeDebugValue = 0;
@@ -74,39 +75,6 @@ public class Debugger extends System {
   public static void TELEPORT_TO_CURSOR() {
     LOGGER.info("TELEPORT TO CURSOR");
     TELEPORT(SkillTools.cursorPositionAsPoint());
-  }
-
-  /** Teleports the Player to the end of the level, on a neighboring accessible tile if possible. */
-  public static void TELEPORT_TO_END() {
-    LOGGER.info("TELEPORT TO END");
-
-    Game.endTiles().stream()
-        .findFirst()
-        .ifPresent(
-            end -> {
-              Coordinate endTile = end.coordinate();
-              Coordinate[] neighborTiles = {
-                endTile.translate(Direction.UP),
-                endTile.translate(Direction.DOWN),
-                endTile.translate(Direction.LEFT),
-                endTile.translate(Direction.RIGHT),
-              };
-              for (Coordinate neighborTile : neighborTiles) {
-                Game.tileAt(neighborTile).ifPresent(Debugger::TELEPORT);
-              }
-            });
-  }
-
-  /** Will teleport the Player on the EndTile so the next level gets loaded. */
-  public static void LOAD_NEXT_LEVEL() {
-    LOGGER.info("TELEPORT ON END");
-    Game.endTiles().stream().findFirst().ifPresent(Debugger::TELEPORT);
-  }
-
-  /** Teleports the player to the start of the level. */
-  public static void TELEPORT_TO_START() {
-    LOGGER.info("TELEPORT TO START");
-    Game.startTile().ifPresent(Debugger::TELEPORT);
   }
 
   /**
@@ -141,7 +109,16 @@ public class Debugger extends System {
                 return;
               }
 
-              pc.position(targetLocation);
+              // Adjust for collider offset so the collider's bottom-left lands on the target
+              Point adjustedPosition =
+                  player
+                      .fetch(CollideComponent.class)
+                      .map(
+                          cc -> {
+                            return targetLocation.translate(cc.collider().offset().scale(-1));
+                          })
+                      .orElse(targetLocation);
+              pc.position(adjustedPosition);
               LOGGER.info("Teleport successful");
             });
   }
@@ -202,6 +179,7 @@ public class Debugger extends System {
 
   private static void pause() {
     UIComponent ui = PauseDialog.showPauseDialog(Game.player().orElseThrow());
+    if (ui == null) return;
     pauseMenu = ui.dialogContext().ownerEntity();
   }
 
@@ -236,6 +214,26 @@ public class Debugger extends System {
     Game.allTiles(LevelElement.DOOR).forEach(door -> ((DoorTile) door).open());
   }
 
+  private static void executeActions() {
+    for (Runnable action : actions) {
+      action.run();
+    }
+  }
+
+  /** Clears the debug actions. */
+  public static void clearActions() {
+    actions.clear();
+  }
+
+  /**
+   * Adds a debug action.
+   *
+   * @param action The action to add
+   */
+  public static void addAction(Runnable action) {
+    actions.add(action);
+  }
+
   private static void CHECK_DEBUG_HUD_INPUT() {
     boolean toggleHudPressed =
         InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value());
@@ -268,12 +266,6 @@ public class Debugger extends System {
 
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value()))
       Debugger.TELEPORT_TO_CURSOR();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.value()))
-      Debugger.TELEPORT_TO_END();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_START.value()))
-      Debugger.TELEPORT_TO_START();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value()))
-      Debugger.LOAD_NEXT_LEVEL();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value())
         && !LevelEditorSystem.active()) Debugger.SPAWN_MONSTER_ON_CURSOR();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value()))
@@ -292,6 +284,10 @@ public class Debugger extends System {
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_DOWN.value())) {
       multiPurposeDebugValue -= 1;
       LOGGER.info("multiPurposeDebugValue: " + multiPurposeDebugValue);
+    }
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ACTION.value())) {
+      LOGGER.info("Executed actions.");
+      executeActions();
     }
 
     checkFrameAdvance();

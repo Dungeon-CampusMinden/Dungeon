@@ -2,7 +2,6 @@ package contrib.hud.dialogs;
 
 import core.Entity;
 import core.Game;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -16,8 +15,9 @@ import java.util.UUID;
  * creators. This allows flexible dialog configuration without requiring method signature changes
  * when adding new parameters.
  *
- * <p>This class is fully {@link Serializable}. Callbacks are stored separately in {@link
- * contrib.components.UIComponent} and are not part of this context.
+ * <p>Callbacks are stored separately in {@link contrib.components.UIComponent} and are not part of
+ * this context. Network transport only supports attributes handled by {@link
+ * core.network.codec.converters.s2c.DialogShowConverter}.
  *
  * <p>Instances are created using the {@link Builder} class obtained via {@link #builder()}.
  *
@@ -27,7 +27,7 @@ import java.util.UUID;
 public final class DialogContext {
   private final DialogType dialogType;
   private final boolean center;
-  private final Map<String, Serializable> attributes;
+  private final Map<String, Object> attributes;
   private final String dialogId;
 
   /**
@@ -35,11 +35,9 @@ public final class DialogContext {
    *
    * @param dialogType The type of dialog to create
    * @param center Whether the dialog should be centered on screen
-   * @param attributes Map of serializable attributes for dialog configuration (if null, an empty
-   *     map is used)
+   * @param attributes Map of attributes for dialog configuration (if null, an empty map is used)
    */
-  public DialogContext(
-      DialogType dialogType, boolean center, Map<String, Serializable> attributes) {
+  public DialogContext(DialogType dialogType, boolean center, Map<String, Object> attributes) {
     this(dialogType, center, attributes, null);
   }
 
@@ -48,15 +46,11 @@ public final class DialogContext {
    *
    * @param dialogType The type of dialog to create
    * @param center Whether the dialog should be centered on screen
-   * @param attributes Map of serializable attributes for dialog configuration (if null, an empty
-   *     map is used)
+   * @param attributes Map of attributes for dialog configuration (if null, an empty map is used)
    * @param dialogId The dialog ID to use (if null, a new ID is generated)
    */
   public DialogContext(
-      DialogType dialogType,
-      boolean center,
-      Map<String, Serializable> attributes,
-      String dialogId) {
+      DialogType dialogType, boolean center, Map<String, Object> attributes, String dialogId) {
     attributes = attributes == null ? new HashMap<>() : new HashMap<>(attributes);
     this.dialogType = dialogType;
     this.center = center;
@@ -69,11 +63,11 @@ public final class DialogContext {
    *
    * @param key The key to look up
    * @param type The expected class type of the value
-   * @param <T> The expected type of the value, must be Serializable
+   * @param <T> The expected type of the value
    * @return An Optional containing the value if present and of the correct type, empty otherwise
    * @throws DialogCreationException if the value exists but is not of the expected type
    */
-  public <T extends Serializable> Optional<T> find(String key, Class<T> type) {
+  public <T> Optional<T> find(String key, Class<T> type) {
     Objects.requireNonNull(key, "key");
     Objects.requireNonNull(type, "type");
     Object value = attributes.get(key);
@@ -97,11 +91,11 @@ public final class DialogContext {
    *
    * @param key The key to look up
    * @param type The expected class type of the value
-   * @param <T> The expected type of the value, must be Serializable
+   * @param <T> The expected type of the value
    * @return The attribute value
    * @throws DialogCreationException if the attribute is missing or of wrong type
    */
-  public <T extends Serializable> T require(String key, Class<T> type) {
+  public <T> T require(String key, Class<T> type) {
     return find(key, type)
         .orElseThrow(() -> new DialogCreationException("Missing required attribute '" + key + "'"));
   }
@@ -162,7 +156,7 @@ public final class DialogContext {
    *
    * @return The attributes map
    */
-  public Map<String, Serializable> attributes() {
+  public Map<String, Object> attributes() {
     return attributes;
   }
 
@@ -233,7 +227,7 @@ public final class DialogContext {
   public static final class Builder {
     private DialogType type;
     private boolean center = true;
-    private final Map<String, Serializable> attributes = new HashMap<>();
+    private final Map<String, Object> attributes = new HashMap<>();
     private String dialogId;
 
     private Builder() {}
@@ -288,11 +282,11 @@ public final class DialogContext {
      * Stores a key-value pair in the context attributes.
      *
      * @param key The key to store the value under
-     * @param value The serializable value to store, or null to remove the key
+     * @param value The value to store, or null to remove the key
      * @return This builder for method chaining
      * @throws NullPointerException if key is null
      */
-    public Builder put(String key, Serializable value) {
+    public Builder put(String key, Object value) {
       Objects.requireNonNull(key, "key");
       if (value == null) {
         attributes.remove(key);

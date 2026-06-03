@@ -1,5 +1,6 @@
 package modules.computer;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import modules.computer.content.EmailsTab;
@@ -15,9 +16,12 @@ public class ComputerStateLocal {
   private EmailsTab.Email selectedEmail;
   private float emailListScrollY;
   private String browserUrl = "";
+  private int acknowledgedBlogCommentCount = -1;
+  private boolean controlPanelOpen = false;
 
   private final Set<String> openFiles = new LinkedHashSet<>();
   private final Set<String> browserHistory = new LinkedHashSet<>();
+  private final Set<String> dismissedAttentionTabs = new HashSet<>();
 
   private ComputerStateLocal() {
     this.tab = "login";
@@ -159,5 +163,71 @@ public class ComputerStateLocal {
    */
   public Set<String> browserHistory() {
     return browserHistory;
+  }
+
+  /**
+   * Returns whether the tab with the given key still needs the user's attention. By default every
+   * tab key that has never been dismissed is considered to need attention.
+   *
+   * @param tabKey The key of the tab to check.
+   * @return {@code true} if the tab still needs the user's attention.
+   */
+  public boolean tabNeedsAttention(String tabKey) {
+    return !dismissedAttentionTabs.contains(tabKey);
+  }
+
+  /**
+   * Marks the tab with the given key as no longer needing the user's attention. The change is
+   * persisted for the lifetime of this singleton, i.e. across reopening the computer UI.
+   *
+   * @param tabKey The key of the tab to dismiss.
+   */
+  public void dismissTabAttention(String tabKey) {
+    dismissedAttentionTabs.add(tabKey);
+  }
+
+  /**
+   * Marks the tab with the given key as needing attention again.
+   *
+   * @param tabKey The key of the tab that should start flashing.
+   */
+  public void markTabNeedsAttention(String tabKey) {
+    dismissedAttentionTabs.remove(tabKey);
+  }
+
+  /**
+   * Returns how many blog comments have already been acknowledged by visiting the blog tab.
+   *
+   * @return the acknowledged visible-comment count, or {@code -1} if uninitialized.
+   */
+  public int acknowledgedBlogCommentCount() {
+    return acknowledgedBlogCommentCount;
+  }
+
+  /**
+   * Stores how many blog comments are acknowledged by the player.
+   *
+   * @param count visible comment count to persist as acknowledged.
+   */
+  public void acknowledgedBlogCommentCount(int count) {
+    this.acknowledgedBlogCommentCount = count;
+  }
+
+  /**
+   * Returns whether the control panel tab was opened during this client session.
+   *
+   * @return {@code true} if the control panel tab should be restored when reopening the PC UI
+   */
+  public boolean controlPanelOpen() {
+    return controlPanelOpen;
+  }
+
+  /**
+   * Stores whether the control panel tab should be restored when reopening the PC UI.
+   *
+   * @param controlPanelOpen {@code true} once the control panel key file has been opened
+   */
+  public void controlPanelOpen(boolean controlPanelOpen) {
+    this.controlPanelOpen = controlPanelOpen;
   }
 }

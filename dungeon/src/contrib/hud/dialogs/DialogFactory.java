@@ -6,6 +6,7 @@ import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.modules.keypad.KeypadUI;
+import contrib.modules.puzzle.PuzzleDialog;
 import contrib.utils.AttributeBarUtil;
 import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
@@ -16,6 +17,7 @@ import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -58,7 +60,9 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.KEYPAD, KeypadUI::build);
     register(DialogType.DefaultTypes.PROGRESS_BAR, AttributeBarUtil::buildProgressBar);
     register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);
-    LOGGER.debug("Registered built-in dialog types");
+    register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);
+    register(DialogType.DefaultTypes.DIALOG_DIALOG, DialogDialog::build);
+    register(DialogType.DefaultTypes.PUZZLE, PuzzleDialog::build);
   }
 
   /**
@@ -362,6 +366,116 @@ public class DialogFactory {
           onCancel.execute();
           UIUtils.closeDialog(ui);
         });
+
+    return ui;
+  }
+
+  /**
+   * Shows a multiple choice dialog with a script-driven question (see {@link DialogScript} for the
+   * supported {@code [speaker]} / {@code [speaker clear]} / {@code [p]} markup) and a list of
+   * selectable options.
+   *
+   * <p>The {@code dialog} string is parsed exactly like for {@link #showDialogDialog}: it can
+   * contain multiple speaker pages separated by {@code [p]} and {@code [speaker ...]} tags. The
+   * selectable options appear once the script has finished playing and the last page's typewriter
+   * has fully revealed its text.
+   *
+   * @param dialog The dialog script (non-blank). May contain {@code [speaker]}/{@code [p]} markup.
+   * @param title The dialog window title (may be blank for no title)
+   * @param options The list of {@link ChoiceOption}s to choose from
+   * @param canCancel Whether to append a cancel option
+   * @param onSelected Callback receiving the selected option value as a {@link
+   *     DialogResponseMessage.Payload}
+   * @param onCancel Callback executed when cancel is pressed (only relevant if canCancel is true)
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed
+   * @return The {@link UIComponent} containing the dialog
+   */
+  public static UIComponent showMultipleChoiceDialog(
+      String dialog,
+      String title,
+      List<ChoiceOption> options,
+      boolean canCancel,
+      Consumer<DialogResponseMessage.Payload> onSelected,
+      IVoidFunction onCancel,
+      int... targetEntityIds) {
+    Objects.requireNonNull(dialog, "dialog string cannot be null");
+    if (dialog.isBlank()) {
+      throw new IllegalArgumentException("dialog string cannot be blank");
+    }
+    Objects.requireNonNull(options, "options list cannot be null");
+    Objects.requireNonNull(onSelected, "onSelected callback cannot be null");
+
+    DialogContext.Builder builder =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.MULTIPLE_CHOICE)
+            .put(DialogContextKeys.TITLE, title)
+            .put(DialogContextKeys.DIALOG, dialog)
+            .put(DialogContextKeys.OPTIONS, new ChoiceOptions(options))
+            .put(DialogContextKeys.CAN_CANCEL, canCancel);
+
+    UIComponent ui = show(builder.build(), targetEntityIds);
+
+    ui.registerCallback(
+        DialogContextKeys.ON_OPTION_SELECTED,
+        data -> {
+          onSelected.accept(data);
+          UIUtils.closeDialog(ui);
+        });
+
+    if (canCancel && onCancel != null) {
+      ui.registerCallback(
+          DialogContextKeys.ON_CANCEL,
+          data -> {
+            onCancel.execute();
+            UIUtils.closeDialog(ui);
+          });
+    }
+    return ui;
+  }
+
+  /**
+   * Shows a sequenced speaker dialogue (NPC dialog) from a single script string.
+   *
+   * <p>The {@code dialog} string is split into pages by the {@code [p]} tag. Each page may begin
+   * with an optional {@code [speaker img=<path> name="<displayName>"]} tag that sets the speaker
+   * portrait and display name for that page. If a page omits the tag, it inherits the speaker from
+   * the previous page (the very first page without a tag has no speaker, in which case its
+   * portrait/name column is omitted entirely). If a page includes a speaker tag, unspecified
+   * speaker parameters on that tag fall back to a default placeholder image and no name. The
+   * special form {@code [speaker clear]} resets the speaker to "no speaker" for this and subsequent
+   * pages until another {@code [speaker]} tag is seen. Pages are shown one after another. The user
+   * advances by clicking anywhere on the dialog or pressing the configured interact key. While a
+   * typewriter reveal is still running, the advance instead skips to the end of the current text.
+   * After the last page has been confirmed, {@code onFinished} is invoked and the dialog is closed.
+   *
+   * @param dialog The non-empty dialog script.
+   * @param onFinished Callback executed after the last page has been confirmed.
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed.
+   * @return The {@link UIComponent} containing the dialog.
+   */
+  public static UIComponent showDialogDialog(
+      String dialog, IVoidFunction onFinished, int... targetEntityIds) {
+    Objects.requireNonNull(dialog, "dialog string cannot be null");
+    if (dialog.isBlank()) {
+      throw new IllegalArgumentException("dialog string cannot be blank");
+    }
+    Objects.requireNonNull(onFinished, "onFinished callback cannot be null");
+
+    DialogContext ctx =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.DIALOG_DIALOG)
+            .put(DialogContextKeys.DIALOG, dialog)
+            .build();
+
+    UIComponent ui = show(ctx, targetEntityIds);
+
+    ui.registerCallback(
+        DialogContextKeys.ON_CONFIRM,
+        data -> {
+          onFinished.execute();
+          UIUtils.closeDialog(ui);
+        });
+    ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onFinished.execute());
 
     return ui;
   }

@@ -1,12 +1,15 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import contrib.components.SkillComponent;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
 import contrib.modules.emote.EmoteSystem;
+import contrib.modules.worldTimer.WorldTimerSystem;
 import contrib.systems.AttributeBarSystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.DebugDrawSystem;
@@ -28,11 +31,24 @@ import core.systems.PositionSystem;
 import core.systems.VelocitySystem;
 import core.utils.CursorUtil;
 import core.utils.Tuple;
+import core.utils.components.draw.TextureGenerator;
+import core.utils.components.draw.TextureMap;
+import core.utils.components.draw.shader.ColorGradeShader;
+import core.utils.components.draw.shader.HueRemapShader;
+import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLoggerConfig;
+import core.utils.settings.ButtonBindingSetting;
 import core.utils.settings.ClientSettings;
+import core.utils.settings.DescriptionSetting;
+import core.utils.settings.SectionDividerSetting;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
 import level.LastHourLevel;
+import modules.computer.ComputerStateSyncSystem;
+import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
 
@@ -67,6 +83,12 @@ public class TheLastHour {
   public static void main(String[] args) {
     boolean runMpServer = args != null && Arrays.asList(args).contains(SERVER_ARGUMENT);
 
+    DungeonLoggerConfig.builder()
+        .consoleLevel(Level.WARNING)
+        .enableConsole(true)
+        .enableFile(false)
+        .build();
+
     if (runMpServer) {
       Game.userOnFrame(TheLastHour::onFrame);
       PreRunConfiguration.multiplayerEnabled(true);
@@ -75,6 +97,7 @@ public class TheLastHour {
     }
 
     DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevel.class));
+    UsbStickItem.ensureRegistration();
     try {
       Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     } catch (IOException e) {
@@ -112,16 +135,122 @@ public class TheLastHour {
       Game.add(hero);
       Game.stage().ifPresent(CursorUtil::initListener);
       setupMusic();
+
+      staticRenderTextures();
+      registerSettings();
     }
 
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
+    ECSManagement.add(new ComputerStateSyncSystem());
+
+    registerLocalWorldTimerSystem();
 
     if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
+      KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN); // Unbind Debuggers' pause bind
+
       ECSManagement.add(new DebugDrawSystem());
       ECSManagement.add(new LevelEditorSystem());
     }
+  }
+
+  /** Registers the local world timer render/callback system on non-headless clients. */
+  public static void registerLocalWorldTimerSystem() {
+    if (Game.isHeadless()) {
+      return;
+    }
+    ECSManagement.add(new WorldTimerSystem().onTimerExpired(LastHourLevel::onTimerExpired));
+  }
+
+  private static void registerSettings() {
+    ClientSettings.registerSetting("controls_header", new SectionDividerSetting("Controls"));
+    ClientSettings.registerSetting(
+        "controls_description",
+        new DescriptionSetting(
+            "Use the mouse to find interactables, then press [key code="
+                + Input.Keys.E
+                + "] to interact!"));
+    ClientSettings.registerSetting("pause", new ButtonBindingSetting("Pause", Input.Keys.P, false));
+    ClientSettings.registerSetting(
+        "interact", new ButtonBindingSetting("Interact", Input.Keys.E, false));
+    ClientSettings.registerSetting(
+        "inventory", new ButtonBindingSetting("Inventory", Input.Keys.I, false));
+    ClientSettings.registerSetting(
+        "inventory_description",
+        new DescriptionSetting(
+            "In the inventory, use [key code="
+                + Input.Buttons.RIGHT
+                + " type=mouse] to use an Item"));
+  }
+
+  private static final List<Tuple<String, Color>> USB_TEXTURES =
+      List.of(
+          Tuple.of("items/usb-side-green.png", Color.GREEN),
+          Tuple.of("items/usb-side-blue.png", Color.BLUE),
+          Tuple.of("items/usb-side-yellow.png", Color.YELLOW));
+
+  /** Statically renders the needed textures. */
+  public static void staticRenderTextures() {
+    String basePath = "items/usb-side-red.png";
+    float baseHue = 0.0f;
+
+    for (Tuple<String, Color> usbTexture : USB_TEXTURES) {
+      ShaderList shaderList = new ShaderList();
+
+      String outTexturePath = usbTexture.a();
+      Color color = usbTexture.b();
+      float[] hsv = new float[3];
+      shaderList.add("hueRemap", new HueRemapShader(baseHue, color.toHsv(hsv)[0] / 360f));
+
+      TextureGenerator.registerRenderShaderTexture(basePath, outTexturePath, shaderList);
+    }
+
+    // Invert the keyboard / mouse input-prompt spritesheet so the white-on-transparent icons
+    // read clearly against the dark HUD text used in this game.
+    String keyboardPromptPath = "hud/input/keyboard_mouse.png";
+    ShaderList invertShaders = new ShaderList();
+    invertShaders.add("invert", new ColorGradeShader().invert(true));
+    TextureGenerator.registerRenderShaderTexture(
+        keyboardPromptPath, keyboardPromptPath, invertShaders);
+
+    // Put the first frame of the idle animation of the rogue and the char03 characters into a
+    // special texture in "@gen/char03.png" and "@gen/rogue.png", so they can be used for Dialogs
+    // without needing to parse the spritesheet again.
+    registerCharacterPortrait(CharacterClass.THE_LAST_HOUR_ROGUE, ROGUE_PORTRAIT_PATH);
+    registerCharacterPortrait(CharacterClass.THE_LAST_HOUR_CHAR03, CHAR03_PORTRAIT_PATH);
+  }
+
+  /** Path of the generated portrait texture for the Rogue character. */
+  public static final String ROGUE_PORTRAIT_PATH = "@gen/rogue.png";
+
+  /** Path of the generated portrait texture for the Char03 character. */
+  public static final String CHAR03_PORTRAIT_PATH = "@gen/char03.png";
+
+  /** Width / height in pixels of a single frame in the character spritesheets. */
+  private static final int CHARACTER_FRAME_SIZE = 32;
+
+  private static final int CHARACTER_FRAME_PADDING = 8;
+
+  /**
+   * Extracts the first frame from the given character's spritesheet and registers it as a
+   * standalone texture in the {@link TextureMap} under {@code outPath}.
+   *
+   * @param characterClass character whose sprite sheet should be sampled
+   * @param outPath virtual texture-map output path for the generated portrait
+   */
+  private static void registerCharacterPortrait(CharacterClass characterClass, String outPath) {
+    String sheetPath = characterClass.textures().pathString();
+    if (!sheetPath.endsWith(".png")) {
+      sheetPath = sheetPath + "/" + sheetPath.substring(sheetPath.lastIndexOf('/') + 1) + ".png";
+    }
+    TextureGenerator.registerSpritesheetRegionTexture(
+        sheetPath,
+        CHARACTER_FRAME_PADDING,
+        CHARACTER_FRAME_PADDING,
+        CHARACTER_FRAME_SIZE - CHARACTER_FRAME_PADDING * 2,
+        CHARACTER_FRAME_SIZE - CHARACTER_FRAME_PADDING * 2,
+        outPath);
   }
 
   /**

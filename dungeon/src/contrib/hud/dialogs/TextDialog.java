@@ -2,12 +2,12 @@ package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import contrib.hud.UIUtils;
+import contrib.hud.elements.RichLabel;
 import core.Game;
 import core.utils.BaseContainerUI;
 import core.utils.Scene2dElementFactory;
@@ -73,7 +73,8 @@ public class TextDialog {
     DialogDesign.setDialogDefaults(dialog, title);
     Table content = dialog.getContentTable();
 
-    Label label = Scene2dElementFactory.createLabel(message, DialogDesign.DIALOG_FONT_SPEC_NORMAL);
+    RichLabel label =
+        new RichLabel(RichLabel.toRichText(message), DialogDesign.DIALOG_FONT_SPEC_NORMAL);
     label.setWrap(true);
 
     Table labelTable = new Table();
@@ -82,7 +83,7 @@ public class TextDialog {
 
     ScrollPane pane = Scene2dElementFactory.createScrollPane(labelTable, false, true);
     pane.setScrollbarsOnTop(false);
-    content.add(pane).width(450).maxHeight(350).padBottom(10).row();
+    content.add(pane).maxWidth(675).maxHeight(350).padBottom(10).row();
 
     dialog.button(
         confirmButton, confirmButton, skin.get("clean-green", TextButton.TextButtonStyle.class));

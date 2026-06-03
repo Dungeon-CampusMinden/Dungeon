@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Represents an animation consisting of one or more {@link Sprite}s.
@@ -406,7 +407,15 @@ public class Animation implements Cloneable {
   }
 
   private static boolean canUseTextures() {
-    return !Game.isHeadless();
+    if (Game.isHeadless()) return false;
+    // GL calls are only legal on the thread that owns the GL context (the libGDX render
+    // thread). Item reconstruction during network message deserialization runs on the
+    // Netty event loop, where touching GL aborts the JVM.
+    try {
+      return GLFW.glfwGetCurrentContext() != 0L;
+    } catch (Throwable t) {
+      return false;
+    }
   }
 
   private void ensureLoaded() {

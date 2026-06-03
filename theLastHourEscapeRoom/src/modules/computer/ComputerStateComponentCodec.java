@@ -44,6 +44,15 @@ public final class ComputerStateComponentCodec implements DialogValueCodec<Compu
         dataOutput.writeUTF(value.virusType());
       }
       dataOutput.writeInt(value.timestampOfLogin());
+      dataOutput.writeBoolean(value.usbInserted());
+      dataOutput.writeBoolean(value.lightsOn());
+      dataOutput.writeInt(value.heaterCelsius());
+      dataOutput.writeBoolean(value.door1Open());
+      dataOutput.writeBoolean(value.door2Unlocked());
+      dataOutput.writeBoolean(value.door2Open());
+      dataOutput.writeBoolean(value.acOn());
+      dataOutput.writeBoolean(value.camerasOn());
+      dataOutput.writeBoolean(value.acVentConnected());
       dataOutput.flush();
       return outputStream.toByteArray();
     } catch (IOException e) {
@@ -58,7 +67,29 @@ public final class ComputerStateComponentCodec implements DialogValueCodec<Compu
       boolean infected = dataInput.readBoolean();
       String virusType = dataInput.readBoolean() ? dataInput.readUTF() : null;
       int timestampOfLogin = dataInput.readInt();
-      return new ComputerStateComponent(state, infected, virusType, timestampOfLogin);
+      boolean usbInserted = dataInput.readBoolean();
+      boolean lightsOn = dataInput.readBoolean();
+      int heaterCelsius = dataInput.readInt();
+      boolean door1Open = dataInput.readBoolean();
+      boolean door2Unlocked = dataInput.readBoolean();
+      boolean door2Open = dataInput.readBoolean();
+      boolean acOn = dataInput.readBoolean();
+      boolean camerasOn = dataInput.readBoolean();
+      boolean acVentConnected = dataInput.available() > 0 && dataInput.readBoolean();
+      return new ComputerStateComponent(
+          state,
+          infected,
+          virusType,
+          timestampOfLogin,
+          usbInserted,
+          lightsOn,
+          heaterCelsius,
+          door1Open,
+          door2Unlocked,
+          door2Open,
+          acOn,
+          camerasOn,
+          acVentConnected);
     } catch (IOException e) {
       throw new UncheckedIOException("Failed to decode ComputerStateComponent", e);
     }

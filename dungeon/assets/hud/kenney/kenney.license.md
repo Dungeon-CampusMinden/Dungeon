@@ -1,3 +1,0 @@
-- Source: https://www.kenney.nl/assets/board-game-icons
-- Author: Kenney
-- License: CC0

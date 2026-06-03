@@ -1,6 +1,9 @@
 package util;
 
+import com.badlogic.gdx.Input;
+import contrib.configuration.KeyboardConfig;
 import core.utils.Tuple;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import modules.computer.content.BlogTab;
@@ -57,36 +60,133 @@ public class Lore {
               "His office was found ransacked...\n\nHis project may have attracted more attention than he realized.",
               32),
           Tuple.of(
-              "Your intrusion to his office triggered an alarm and locked the door behind you.\n\nA timer on the wall shows: You have 20 minutes until something happens...",
+              "Your intrusion to his office triggered an alarm and locked the door behind you.\n\nA timer on the wall shows: You have 60 minutes until something happens...",
               32),
           Tuple.of("The Last Hour", 120));
+
+  private static final String MertensColor = "#aa00aa";
+
+  /**
+   * Dialog played as a recording of Dr. Mertens through the office security system speakers when
+   * the world timer expires.
+   */
+  public static final String TimerExpiredRecording =
+      "[speaker img=images/scientist_portrait.png name=\"[color="
+          + MertensColor
+          + "]Dr. Mertens (Recording)\"]"
+          + "[tr speed=1.0]This is an automated message from the security system of [color="
+          + MertensColor
+          + "]Dr. Elias Mertens[/color]."
+          + "[p][tr speed=1.0]If you are hearing this, the time has run out.[n][pause=0.5]"
+          + "As a final safeguard, all of my data is being [color=#aa0000][shake strength=0.4 speed=0.5]automatically destroyed[/shake][/color] right now."
+          + "[p]Whatever you did not manage to recover[tr speed=0.1]...[tr speed=0.4] is gone for good now.";
 
   /** First post intro dialog. */
   public static final String PostIntroDialogText1 =
       """
-        Your task is to reconstruct Dr. Mertens' final steps. Gain access to his PC, investigate his communication, and uncover the clues he left behind.
-
-        But be careful: not every piece of information can be trusted. Among helpful messages, there may be deliberate manipulation attempts.
-
-        If you discover what he was working on, you may come closer to understanding why he disappeared.""";
+        Your task is to reconstruct [color=#aa00aa]Dr. Mertens'[/color] final steps.[n][pause=0.5]Gain access to his PC, investigate his communication, and uncover the clues he left behind.
+        [p]
+        But be careful: not every piece of information can be trusted.[n][pause=0.5]Among helpful messages, there may be deliberate [color=#aa0000]manipulation attempts[/color].
+        [p]
+        If you discover what he was working on, you may come closer to understanding why he[tr speed=0.1]...[pause=0.5][tr speed=0.3][shake strength=0.4 speed=0.5][color=#880000] disappeared[/color][/shake].""";
 
   /** 2nd intro dialog. */
   public static final String PostIntroDialogText2 =
-      """
-        Controls:
+      "[size=24]Controls:\n\n"
+          + "Move -> "
+          + "[key code="
+          + core.configuration.KeyboardConfig.MOVEMENT_UP.value()
+          + "]"
+          + "[key code="
+          + core.configuration.KeyboardConfig.MOVEMENT_LEFT.value()
+          + "]"
+          + "[key code="
+          + core.configuration.KeyboardConfig.MOVEMENT_DOWN.value()
+          + "]"
+          + "[key code="
+          + core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value()
+          + "]\n"
+          + "Interact -> "
+          + "[key code="
+          + KeyboardConfig.INTERACT_WORLD.value()
+          + "]"
+          + " / "
+          + "[key code="
+          + Input.Buttons.LEFT
+          + " type=mouse]\n"
+          + "Inventory -> "
+          + "[key code="
+          + KeyboardConfig.INVENTORY_OPEN.value()
+          + "]\n"
+          + "Close Dialog -> "
+          + "[key code="
+          + KeyboardConfig.CLOSE_UI.value()
+          + "]\n"
+          + "Settings -> "
+          + "[key code="
+          + KeyboardConfig.PAUSE_MENU.value()
+          + "]\n"
+          + "[size=18][color=#888888]You can look the controls up in the Settings.[/color]\n\n"
+          + "[size=24][align=center]Use the mouse to find things to interact with!";
 
-        Move -> WASD
-        Interact -> E
-        Pause/Settings -> P
-        Close Dialog -> <ESC>""";
+  /** Note found on the writing desk in room 2. */
+  public static final String R2DeskNoteText =
+      "[tr speed=0]A note from a colleague:[n][n]"
+          + "[tr speed=2.4]Hey, hope you're doing alright! Things have been pretty hectic"
+          + " around here lately, so I figured I'd leave you a quick note"
+          + " instead of trying to catch you between meetings.[n][n]"
+          + "[pause=0.3]Oh, and about that USB stick of yours I borrowed,"
+          + " here's the quick rundown:[n][n]"
+          + "[tr speed=1.0]- [color=#444477]B[/color]rought it back and left it with the control"
+          + " panel key.[n]"
+          + "- [color=#444477]L[/color]ightning quick, by the way - best stick I've used.[n]"
+          + "- [color=#444477]U[/color]seful little thing, really saved me this week.[n]"
+          + "- [color=#444477]E[/color]xpect I'll ask to borrow it again sometime soon![n][n]"
+          + "[pause=0.3][tr speed=2.0]Anyway, take care and don't stay too late again. See you"
+          + " tomorrow!";
 
   /** List of outro texts, each with a corresponding font sizes. */
   public static final List<Tuple<String, Integer>> OutroTexts =
       List.of(
           Tuple.of(
-              "This tunnel leads onward to the next room, but this is where the demo ends for now.",
+              "The exit door of Dr. Mertens' office finally clicks open - but his last message still echoes in your mind:",
+              32),
+          Tuple.of(
+              "\"The project files are hidden in a locker on the 6th floor.\"\n\n"
+                  + "You step out into the silent hallway, the timer behind you finally still.",
+              32),
+          Tuple.of(
+              "With the evidence secured and the truth about Dr. Mertens' disappearance"
+                  + " in your hands, you make your way up to recover the project files.",
+              32),
+          Tuple.of(
+              "As you reach the locker and open it, you find a final note from Dr. Mertens:\n\n"
+                  + "\"If you're reading this, it means you made it out. The project is safe with you now.\"\n\n",
+              32),
+          Tuple.of(
+              "A sense of relief washes over you, but also a lingering question: What exactly is \"Mythos\", and why did it attract such dangerous attention?\n\nYou should google it...",
               32),
           Tuple.of("Congratulations!\n\nYou escaped! :D", 120));
+
+  /** List of outro texts shown when the timer expires before escape. */
+  public static final List<Tuple<String, Integer>> BadOutroTexts =
+      List.of(
+          Tuple.of(
+              "The office door finally unlocks, but the speakers are silent now - Dr. Mertens' automated warning already said everything:",
+              32),
+          Tuple.of(
+              "\"If you are hearing this, the time has run out.\"\n\nYou step into the hallway with empty hands, knowing the destruction protocol has already erased his data.",
+              32),
+          Tuple.of(
+              "You made it out alive, but the evidence is gone. Whatever Dr. Mertens discovered about \"Mythos\" died with his files.",
+              32),
+          Tuple.of(
+              "At the locker on the 6th floor, you find only scorched fragments and a final line in his handwriting:\n\n\"If this reaches you too late, protect the people - not the project.\"\n\n",
+              32),
+          Tuple.of(
+              "No breakthrough to recover. No proof to hand over. Only unanswered questions, and the certainty that someone wanted this truth buried.",
+              32),
+          Tuple.of("You escaped...", 120));
 
   /** List of blog entries, each with a title, content and a list of comments. */
   public static final List<BlogTab.BlogEntry> BlogEntries =
@@ -146,7 +246,7 @@ public class Lore {
                       "BinaryCoffee",
                       """
               I remember we briefly talked about that sequence in the canteen the other day.
-              At the time I couldn’t make sense of it either.
+              At the time I couldn't make sense of it either.
 
               Thinking about it again now, one detail came back to me: the numbers were grouped in blocks of eight, and you mentioned that they were all ones and zeros, akin to binary.
 
@@ -255,13 +355,20 @@ public class Lore {
       List.of("Tracking Details.pdf", "Linkin_Park_-_In_The_End.mp3.exe");
 
   /** List of URLs that lead to viruses. */
-  public static final List<String> VirusWebsites =
-      List.of(
-          "https://illegal-music-downloader.com/download/12345",
-          "https://adq.mmcaok.com/pl10fonmxdm1asmokxx0",
-          "https://local-connections-now.net/start",
-          "https://royal-transferdesk.org/secure",
-          "https://cryptogrowth-daily.biz/start?si=1ujg0h1ju8mnc980mumsdnuz0");
+  public static final List<String> VirusWebsites;
+
+  static {
+    List<String> sites = new java.util.ArrayList<>();
+    // Direct virus links from emails
+    sites.add("https://illegal-music-downloader.com/download/12345");
+    sites.add("https://adq.mmcaok.com/pl10fonmxdm1asmokxx0");
+    sites.add("https://local-connections-now.net/start");
+    sites.add("https://royal-transferdesk.org/secure");
+    sites.add("https://cryptogrowth-daily.biz/start?si=1ujg0h1ju8mnc980mumsdnuz0");
+    // Phishing code URLs (all EmailCodeUrls except the real one at index 0)
+    sites.addAll(EmailCodeUrls.subList(1, EmailCodeUrls.size()));
+    VirusWebsites = Collections.unmodifiableList(sites);
+  }
 
   /** List of ASCII codes used for the security code pages in the browser recovery portal. */
   public static final List<String> AsciiCodes = List.of("6548", "1765", "3912", "8256");
@@ -280,6 +387,27 @@ public class Lore {
           "Ransomware", "backup your data",
           "Adware", "read before click");
 
+  /**
+   * Special virus type triggered exclusively by plugging a wrong USB stick into the PC. This type
+   * is never produced by emails or browser sites and cannot be neutralized via the standard virus
+   * tab pass phrase flow. Instead the system shuts itself down after a short delay.
+   */
+  public static final String UnknownDeviceVirusType = "Unknown Device";
+
+  /** Password required to unlock door 2 in the control panel. */
+  public static final String ControlPanelDoor2Password = "214795541";
+
+  /** Poem shown inside the hint.md file on the USB drive. */
+  public static final String HintFilePoem =
+      "Behind the grate\n"
+          + "where dust has grown,\n"
+          + "small scraps lie trapped,\n"
+          + "forgotten, blown.\n\n"
+          + "No hand can reach,\n"
+          + "no tool can pry,\n"
+          + "but wake the sleeping wind,\n"
+          + "and watch them fly.";
+
   /** File name of the access code document downloaded from the recovery portal. */
   public static final String AccessCodeDownloadFileName = "unlock_code.pdf";
 
@@ -290,4 +418,57 @@ public class Lore {
 
   /** The actual numeric door code as a list of individual digits. */
   public static final List<Integer> DoorCode = List.of(3, 7, 5, 8);
+
+  public static final String Ringing1 =
+      "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] Hello? Can you hear me?"
+          + "[p]My name is Daniel Krell. I'm the CEO of Ciphera Labs."
+          + "[p][speaker name=\"Daniel Krell?\"]How are you guys doing?[pause=0.5] You are still inside, right?"
+          + "[p][speaker img={path}]Yes, we are trying to understand what happened here, recover the system and rescue the project data."
+          + "[p][speaker name=\"Daniel Krell?\"]Oh, that's great to hear![pause=0.5] Listen, I know this is a tough situation, but I want you to know that we're doing everything we can to help you out."
+          + "[p]In fact, [color="
+          + MertensColor
+          + "]Dr. Mertens[/color] left me a note instructing me to use the green USB Stick to do[tr speed=0.3]... [tr speed=1]something, in case he vanishes."
+          + "[p]It doesn't say what needs to be done, but I'm sure you can figure it out."
+          + "[p]I need to go now, good luck![n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]";
+
+  public static final String Ringing2 =
+      "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] ...Hello? Do you copy?"
+          + "[p]It's Adrian Voss."
+          + "[p][speaker name=\"Adrian Voss?\"]I've been trying to reach you.[pause=0.5] Heard you got trapped in a crime scene."
+          + "[p][speaker img={path}]Another call?"
+          + "[p][speaker name=\"Adrian Voss?\"]Did someone else try to contact you before?"
+          + "[p][speaker img={path}]Yes, someone called Daniel Krell who claimed to be the CEO of Ciphera Labs."
+          + "[p][speaker name=\"Adrian Voss?\"]I've never heard of that person, but they lied to you."
+          + "[p][speaker img={path}]Well the door locked shut behind us. We're trying to understand what happened and get out."
+          + "[p][speaker name=\"Adrian Voss?\"]Stay focused.[pause=0.5] Navigate [color="
+          + MertensColor
+          + "]Mertens'[/color] lab with caution."
+          + "[p]Before he went missing, [color="
+          + MertensColor
+          + "]Mertens[/color] tried to pass something to me, but he never actually did."
+          + "[p]He kept saying [shake strength=0.3 speed=0.5][color="
+          + MertensColor
+          + "]\"you'd like the looks, it's your favorite\"[/color][/shake] to me, but I'm not sure what he meant."
+          + "[p]Maybe you'll have better luck connecting that to something inside the lab."
+          + "[p]Whatever you do, be careful. Voss out.[n][n][pause=0.5][shake strength=0.3 speed=0.3][color=#333333]*click*[/color][/shake]";
+
+  public static final String VentSerialNumber = "49221";
+  public static final String VentDialog =
+      "Just an ordinary air conditioner.[n][n]You see a text engraved on the steel rim of the gutter:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: sv000"
+          + VentSerialNumber
+          + "[n]";
+
+  /**
+   * Partial serial numbers shown on the two decoy vents in room 1. Each ends in three dashes
+   * because the remaining digits are scratched off and unreadable.
+   */
+  public static final List<String> DecoyVentSerialNumbers = List.of("sv00057---", "sv00031---");
+
+  /**
+   * Dialog shown when interacting with a decoy vent in room 1. The {@code {serial}} placeholder is
+   * replaced with the partial, scratched-off serial number of the respective vent.
+   */
+  public static final String DecoyVentDialog =
+      "Just an ordinary air conditioner.[n][n]You see a text engraved on the steel rim of the gutter,"
+          + " but most of it has been scratched off and is no longer readable:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: {serial}[n]";
 }

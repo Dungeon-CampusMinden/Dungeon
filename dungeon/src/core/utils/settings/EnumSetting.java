@@ -3,12 +3,12 @@ package core.utils.settings;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import contrib.hud.elements.RichLabel;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
@@ -93,8 +93,9 @@ public class EnumSetting<E extends Enum<E>> extends SettingValue<E> {
 
   @Override
   public Actor toUIActor() {
-    Label label = Scene2dElementFactory.createLabel(name(), 24, Color.BLACK);
+    RichLabel label = new RichLabel(name(), 24, Color.BLACK);
     label.setAlignment(Align.right);
+    label.setWrap(false);
 
     SelectBox<E> selectBox = Scene2dElementFactory.createSelectBox(labelFormatter);
     selectBox.setItems(values);

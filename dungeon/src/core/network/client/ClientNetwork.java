@@ -75,7 +75,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
-  private static final short CLIENT_PROTOCOL_VERSION = 1;
+  private static final short CLIENT_PROTOCOL_VERSION = 2;
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();

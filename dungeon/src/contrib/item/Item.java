@@ -2,6 +2,7 @@ package contrib.item;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.WorldItemBuilder;
+import contrib.item.concreteItem.HintItem;
 import contrib.item.concreteItem.ItemBigKey;
 import contrib.item.concreteItem.ItemFairy;
 import contrib.item.concreteItem.ItemHammer;
@@ -72,6 +73,7 @@ public class Item {
     ItemRegistry.register(ItemHammer.class);
     ItemRegistry.register(ItemHeart.class, Item::createHeartFromData);
     ItemRegistry.register(ItemKey.class);
+    HintItem.ensureRegistration();
   }
 
   private String displayName;

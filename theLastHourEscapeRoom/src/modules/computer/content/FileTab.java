@@ -110,6 +110,16 @@ public class FileTab extends ComputerTab {
         "Hello.html", Scene2dElementFactory.createLabel("Helloooo world :D", 96, Color.BLACK));
     files.put("Help.html", createHelpPage());
     files.put(Lore.AccessCodeDownloadFileName, createUnlockCodePage());
+    files.put("hint.md", createHintPage());
+  }
+
+  private static Actor createHintPage() {
+    Table table = new Table();
+    table.center();
+    Label label = Scene2dElementFactory.createLabel(Lore.HintFilePoem, 28, Color.BLACK);
+    label.setAlignment(Align.center);
+    table.add(label).expand().center();
+    return table;
   }
 
   private static Actor createUnlockCodePage() {

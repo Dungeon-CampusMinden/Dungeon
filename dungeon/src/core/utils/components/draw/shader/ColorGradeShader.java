@@ -15,6 +15,7 @@ public class ColorGradeShader extends AbstractShader {
   private float saturationMultiplier = 1.0f;
   private float valueMultiplier = 1.0f;
   private float transitionSize = 2.0f;
+  private boolean invert = false;
 
   /** Constructs a ColorGradeShader. */
   public ColorGradeShader() {
@@ -43,7 +44,8 @@ public class ColorGradeShader extends AbstractShader {
         new FloatUniform("u_hue", hue),
         new FloatUniform("u_saturationMult", saturationMultiplier),
         new FloatUniform("u_valueMult", valueMultiplier),
-        new FloatUniform("u_transitionSize", transitionSize));
+        new FloatUniform("u_transitionSize", transitionSize),
+        new BoolUniform("u_invert", invert));
   }
 
   @Override
@@ -154,6 +156,28 @@ public class ColorGradeShader extends AbstractShader {
    */
   public ColorGradeShader transitionSize(float transitionSize) {
     this.transitionSize = transitionSize;
+    return this;
+  }
+
+  /**
+   * Gets whether color inversion is enabled.
+   *
+   * @return {@code true} if the output colors are inverted (per-channel {@code 1 - rgb}, alpha
+   *     preserved), independent of the hue-remap region.
+   */
+  public boolean invert() {
+    return invert;
+  }
+
+  /**
+   * Enables or disables full-image color inversion. When enabled, every pixel's RGB channels are
+   * replaced by {@code 1 - rgb} before the hue-remap region check, leaving alpha untouched.
+   *
+   * @param invert {@code true} to invert, {@code false} to leave colors unchanged.
+   * @return The ColorGradeShader instance for chaining.
+   */
+  public ColorGradeShader invert(boolean invert) {
+    this.invert = invert;
     return this;
   }
 }

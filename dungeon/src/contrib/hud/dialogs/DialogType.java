@@ -52,7 +52,16 @@ public interface DialogType {
     PROGRESS_BAR("PROGRESS_BAR"),
 
     /** Pause menu dialog. */
-    PAUSE_MENU("PAUSE_MENU");
+    PAUSE_MENU("PAUSE_MENU"),
+
+    /** Multiple choice selection dialog. */
+    MULTIPLE_CHOICE("MULTIPLE_CHOICE"),
+
+    /** Sequenced speaker dialogue (NPC talks). */
+    DIALOG_DIALOG("DIALOG_DIALOG"),
+
+    /** Jigsaw-style puzzle dialog. */
+    PUZZLE("PUZZLE");
 
     private final String type;
 

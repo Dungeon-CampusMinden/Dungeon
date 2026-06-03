@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.elements.RichLabel;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 import modules.computer.ComputerDialog;
@@ -21,6 +22,9 @@ import util.Lore;
 
 /** Tab for logging into the computer, containing username and password fields and feedback. */
 public class LoginTab extends ComputerTab {
+
+  /** Key for identifying the login tab in the computer dialog. */
+  public static final String KEY = "login";
 
   // Password feedback
   private static final String WRONG_FEEDBACK = "Invalid username or password.";
@@ -39,7 +43,7 @@ public class LoginTab extends ComputerTab {
    * @param sharedState the shared computer state component
    */
   public LoginTab(ComputerStateComponent sharedState) {
-    super(sharedState, "login", "Login", false);
+    super(sharedState, KEY, "Login", false);
   }
 
   protected void createActors() {
@@ -52,11 +56,20 @@ public class LoginTab extends ComputerTab {
     Image companyLogo = new Image(skin, Lore.CompanyDrawable);
     this.add(companyLogo).width(200).height(200).center().padBottom(5).row();
 
-    Label label = Scene2dElementFactory.createLabel(Lore.CompanyName, 64, Color.BLACK);
-    this.add(label).center().padBottom(10).row();
-    Label flavor =
-        Scene2dElementFactory.createLabel(
-            "At the frontlines of science since 1984", 24, Color.GRAY);
+    RichLabel brandHeader =
+        new RichLabel(
+            "[align=center][size=64][color=#3399ff]Ciphera[/color] [color=#aa00aa]Labs[/color][/size]",
+            24,
+            Color.BLACK,
+            false);
+    this.add(brandHeader).center().padBottom(10).row();
+    RichLabel flavor =
+        new RichLabel(
+            "[align=center][img=items/rpg/potion_red.png] At the [color=red]frontlines[/color] of"
+                + " [img path=items/rpg/shield_gold.png noGapRight] [color=#3399ff]science[/color] since 1984"
+                + " [img=items/rpg/potion_red.png]",
+            24,
+            Color.GRAY);
     this.add(flavor).center().padBottom(20).row();
 
     loginFeedback = Scene2dElementFactory.createLabel("", 24, Color.WHITE);
@@ -69,6 +82,12 @@ public class LoginTab extends ComputerTab {
         usernameField,
         (text) -> {
           localState().username(usernameField.getText());
+        });
+    usernameField.setTextFieldListener(
+        (textField, c) -> {
+          if (c == '\r' || c == '\n') {
+            tryLogin();
+          }
         });
 
     passwordField = Scene2dElementFactory.createTextField(localState().password());
@@ -83,33 +102,19 @@ public class LoginTab extends ComputerTab {
         (text) -> {
           localState().password(passwordField.getText());
         });
+    passwordField.setTextFieldListener(
+        (textField, c) -> {
+          if (c == '\r' || c == '\n') {
+            tryLogin();
+          }
+        });
 
     loginButton = Scene2dElementFactory.createButton("Login", "clean-green");
     loginButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            String username = localState().username();
-            String password = localState().password();
-            if ((username.equalsIgnoreCase(Lore.LoginEmail)
-                    && password.equalsIgnoreCase(Lore.LoginPassword))
-                || username.equals("skipp")) {
-              DialogCallbackResolver.createButtonCallback(
-                      context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-                  .accept(
-                      ComputerStateComponent.getState()
-                          .orElseThrow()
-                          .withState(ComputerProgress.LOGGED_IN)
-                          .withTimestampOfLogin((int) (System.currentTimeMillis() / 1000L)));
-              ComputerDialog.getInstance()
-                  .ifPresent(
-                      computer -> {
-                        computer.addTabsForState(ComputerProgress.LOGGED_IN);
-                      });
-              onLoginSuccess(false);
-            } else {
-              onWrongCredentials();
-            }
+            tryLogin();
           }
         });
 
@@ -149,5 +154,33 @@ public class LoginTab extends ComputerTab {
   private void onWrongCredentials() {
     loginFeedback.setText(WRONG_FEEDBACK);
     Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
+  }
+
+  private void tryLogin() {
+    if (loginButton == null || loginButton.isDisabled()) {
+      return;
+    }
+
+    String username = localState().username();
+    String password = localState().password();
+    if ((username.equalsIgnoreCase(Lore.LoginEmail)
+            && password.equalsIgnoreCase(Lore.LoginPassword))
+        || username.equals("skipp")) {
+      DialogCallbackResolver.createButtonCallback(
+              context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
+          .accept(
+              ComputerStateComponent.getState()
+                  .orElseThrow()
+                  .withState(ComputerProgress.LOGGED_IN)
+                  .withTimestampOfLogin((int) (System.currentTimeMillis() / 1000L)));
+      ComputerDialog.getInstance()
+          .ifPresent(
+              computer -> {
+                computer.addTabsForState(ComputerProgress.LOGGED_IN);
+              });
+      onLoginSuccess(false);
+    } else {
+      onWrongCredentials();
+    }
   }
 }

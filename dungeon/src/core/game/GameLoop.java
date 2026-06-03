@@ -691,7 +691,6 @@ public final class GameLoop extends ScreenAdapter {
     super.resize(width, height);
     if (width <= 0 || height <= 0) return;
     resizeStageAndListeners(width, height);
-    DrawSystem.getInstance().useCurrentWindowSizeImmediately();
   }
 
   private static void synchronizeWindowSize() {
