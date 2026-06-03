@@ -72,6 +72,11 @@ public class TrashMinigameUI extends Group {
   private final String callbackKey;
   private final String closeCallbackKey;
 
+  /** Last known playfield size, used to detect resizes and relayout the placed actors. */
+  private float lastPlayfieldWidth = -1f;
+
+  private float lastPlayfieldHeight = -1f;
+
   /**
    * Builds the TrashMinigameUI from the given DialogContext.
    *
@@ -144,28 +149,45 @@ public class TrashMinigameUI extends Group {
       TrashItemActor note =
           new TrashItemActor(
               TextureMap.instance().textureAt(new SimpleIPath(importantNotePath)), true);
-      note.setPosition(
-          (playfield.getWidth() - note.getWidth()) / 2,
-          (playfield.getHeight() - note.getHeight()) / 2);
       playfield.addActor(note);
     }
 
     for (int i = 0; i < paperCount; i++) {
       Texture texture = TextureMap.instance().textureAt(new SimpleIPath(CRUMBLED_TEXTURE));
       TrashItemActor paper = new TrashItemActor(texture, false);
-
-      float x = (float) Math.random() * (playfield.getWidth() - texture.getWidth());
-      float y = (float) Math.random() * (playfield.getHeight() - texture.getHeight());
-      paper.setPosition(x, y);
-
+      paper.setRelativePosition(MathUtils.random(), MathUtils.random());
       playfield.addActor(paper);
     }
+
+    // Apply the relative positions for the current playfield size.
+    relayoutItems();
   }
 
   @Override
   public void act(float delta) {
     super.act(delta);
     resize(Game.windowWidth(), Game.windowHeight());
+
+    // The playfield is laid out by the surrounding Table and changes size when the window is
+    // resized. When that happens, recompute every placed actor's position from its stored
+    // relative position so the items keep their proportional layout instead of sticking to the
+    // bottom-left corner.
+    float pw = playfield.getWidth();
+    float ph = playfield.getHeight();
+    if (pw != lastPlayfieldWidth || ph != lastPlayfieldHeight) {
+      lastPlayfieldWidth = pw;
+      lastPlayfieldHeight = ph;
+      relayoutItems();
+    }
+  }
+
+  /** Recomputes the absolute position of every placed item from its stored relative position. */
+  private void relayoutItems() {
+    for (var actor : playfield.getChildren()) {
+      if (actor instanceof TrashItemActor item) {
+        item.relayout();
+      }
+    }
   }
 
   /**
@@ -183,6 +205,14 @@ public class TrashMinigameUI extends Group {
     private final boolean isSpecial;
     private final Vector2 dragOffsetStage = new Vector2();
     private boolean won = false;
+
+    /**
+     * Position relative to the playfield's free area, in the range [0, 1]. Used to recompute the
+     * absolute position whenever the playfield is resized.
+     */
+    private float relX = 0.5f;
+
+    private float relY = 0.5f;
 
     /**
      * Creates a new TrashItemActor with the given texture.
@@ -245,8 +275,41 @@ public class TrashMinigameUI extends Group {
               newY = MathUtils.clamp(newY, yOffset, yOffset + areaHeight);
 
               setPosition(newX, newY);
+
+              // Remember the new position relative to the playfield so it survives resizes.
+              relX = areaWidth > 0 ? (newX - xOffset) / areaWidth : 0.5f;
+              relY = areaHeight > 0 ? (newY - yOffset) / areaHeight : 0.5f;
             }
           });
+    }
+
+    /**
+     * Sets this item's position relative to the playfield's free area.
+     *
+     * @param relX horizontal fraction in [0, 1]
+     * @param relY vertical fraction in [0, 1]
+     */
+    void setRelativePosition(float relX, float relY) {
+      this.relX = relX;
+      this.relY = relY;
+    }
+
+    /** Recomputes the absolute position from the stored relative position and current playfield. */
+    void relayout() {
+      if (isSpecial) {
+        setPosition(
+            (playfield.getWidth() - getWidth()) / 2, (playfield.getHeight() - getHeight()) / 2);
+        return;
+      }
+
+      float ownScaledWidth = getWidth() * getScaleX();
+      float ownScaledHeight = getHeight() * getScaleY();
+      float areaWidth = Math.max(playfield.getWidth() - ownScaledWidth, 0f);
+      float areaHeight = Math.max(playfield.getHeight() - ownScaledHeight, 0f);
+      float xOffset = 0.5f * ownScaledWidth - getWidth() * 0.5f;
+      float yOffset = 0.5f * ownScaledHeight - getHeight() * 0.5f;
+
+      setPosition(xOffset + relX * areaWidth, yOffset + relY * areaHeight);
     }
 
     /**
