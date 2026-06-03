@@ -329,6 +329,7 @@ public class RichLabelLayout {
 
   /** Clears the texture cache. */
   public void clearTextureCache() {
+    textureCache.forEach((k, v) -> v.getTexture().dispose());
     textureCache.clear();
   }
 

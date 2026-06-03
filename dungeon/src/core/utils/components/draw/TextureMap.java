@@ -98,18 +98,23 @@ public final class TextureMap extends HashMap<String, Texture> {
     Texture original = textureAt(new SimpleIPath(path));
     int w = original.getWidth();
     int h = original.getHeight();
+
     FrameBuffer fbo = new FrameBuffer(Pixmap.Format.RGBA8888, w, h, false);
     SpriteBatch batch = new SpriteBatch();
-    batch.getProjectionMatrix().setToOrtho2D(0, 0, w, h);
-    fbo.begin();
-    batch.begin();
-    batch.draw(original, 0, 0, w, h);
-    batch.end();
-    fbo.end();
-    batch.dispose();
-    TextureRegion region = new TextureRegion(fbo.getColorBufferTexture());
-    region.flip(false, true);
-    return region;
+
+    try{
+      batch.getProjectionMatrix().setToOrtho2D(0, 0, w, h);
+      fbo.begin();
+      batch.begin();
+      batch.draw(original, 0, 0, w, h);
+      batch.end();
+      TextureRegion region = new TextureRegion(fbo.getColorBufferTexture());
+      region.flip(false, true);
+      return region;
+    } finally {
+      fbo.end();
+      batch.dispose();
+    }
   }
 
   /**
