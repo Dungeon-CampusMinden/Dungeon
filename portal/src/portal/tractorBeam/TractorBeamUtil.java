@@ -212,6 +212,7 @@ public class TractorBeamUtil {
               cc.onHold(createActionConsumer());
               cc.isSolid(false);
             });
+    PositionSync.syncPosition(emitter);
   }
 
   private static TriConsumer<Entity, Entity, Direction> createActionConsumer() {
