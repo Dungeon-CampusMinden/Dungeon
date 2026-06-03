@@ -83,8 +83,7 @@ public class WorldTimerSystem extends System {
     }
 
     int displaySeconds = Math.max(0, secondsLeft);
-    String timerString =
-        String.format("%02d:%02d", displaySeconds / 60, displaySeconds % 60);
+    String timerString = String.format("%02d:%02d", displaySeconds / 60, displaySeconds % 60);
     GlyphLayout layout = new GlyphLayout(FONT, timerString);
 
     int fboWidth = (int) layout.width + PADDING_X * 2;

@@ -102,7 +102,7 @@ public final class TextureMap extends HashMap<String, Texture> {
     FrameBuffer fbo = new FrameBuffer(Pixmap.Format.RGBA8888, w, h, false);
     SpriteBatch batch = new SpriteBatch();
 
-    try{
+    try {
       batch.getProjectionMatrix().setToOrtho2D(0, 0, w, h);
       fbo.begin();
       batch.begin();
