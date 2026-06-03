@@ -66,6 +66,21 @@ public class Lore {
 
   private static final String MertensColor = "#aa00aa";
 
+  /**
+   * Dialog played as a recording of Dr. Mertens through the office security system speakers when
+   * the world timer expires.
+   */
+  public static final String TimerExpiredRecording =
+      "[speaker img=images/scientist_portrait.png name=\"[color="
+          + MertensColor
+          + "]Dr. Mertens (Recording)\"]"
+          + "[tr speed=1.0]This is an automated message from the security system of [color="
+          + MertensColor
+          + "]Dr. Elias Mertens[/color]."
+          + "[p][tr speed=1.0]If you are hearing this, the time has run out.[n][pause=0.5]"
+          + "As a final safeguard, all of my data is being [color=#aa0000][shake strength=0.4 speed=0.5]automatically destroyed[/shake][/color] right now."
+          + "[p]Whatever you did not manage to recover[tr speed=0.1]...[tr speed=0.4] is gone for good now.";
+
   /** First post intro dialog. */
   public static final String PostIntroDialogText1 =
       """
@@ -103,19 +118,21 @@ public class Lore {
           + "[key code="
           + KeyboardConfig.INVENTORY_OPEN.value()
           + "]\n"
-          + "Pause/Settings -> "
-          + "[key code="
-          + KeyboardConfig.PAUSE_MENU.value()
-          + "]\n"
           + "Close Dialog -> "
           + "[key code="
           + KeyboardConfig.CLOSE_UI.value()
-          + "]";
+          + "]\n"
+          + "Settings -> "
+          + "[key code="
+          + KeyboardConfig.PAUSE_MENU.value()
+          + "]\n"
+          + "[size=18][color=#888888]You can look the controls up in the Settings.[/color]\n\n"
+          + "[size=24][align=center]Use the mouse to find things to interact with!";
 
   /** Note found on the writing desk in room 2. */
   public static final String R2DeskNoteText =
       "[tr speed=0]A note from a colleague:[n][n]"
-          + "[tr speed=2.0]Hey, hope you're doing alright! Things have been pretty hectic"
+          + "[tr speed=2.4]Hey, hope you're doing alright! Things have been pretty hectic"
           + " around here lately, so I figured I'd leave you a quick note"
           + " instead of trying to catch you between meetings.[n][n]"
           + "[pause=0.3]Oh, and about that USB stick of yours I borrowed,"
@@ -150,6 +167,26 @@ public class Lore {
               "A sense of relief washes over you, but also a lingering question: What exactly is \"Mythos\", and why did it attract such dangerous attention?\n\nYou should google it...",
               32),
           Tuple.of("Congratulations!\n\nYou escaped! :D", 120));
+
+  /** List of outro texts shown when the timer expires before escape. */
+  public static final List<Tuple<String, Integer>> BadOutroTexts =
+      List.of(
+          Tuple.of(
+              "The office door finally unlocks, but the speakers are silent now - Dr. Mertens' automated warning already said everything:",
+              32),
+          Tuple.of(
+              "\"If you are hearing this, the time has run out.\"\n\nYou step into the hallway with empty hands, knowing the destruction protocol has already erased his data.",
+              32),
+          Tuple.of(
+              "You made it out alive, but the evidence is gone. Whatever Dr. Mertens discovered about \"Mythos\" died with his files.",
+              32),
+          Tuple.of(
+              "At the locker on the 6th floor, you find only scorched fragments and a final line in his handwriting:\n\n\"If this reaches you too late, protect the people - not the project.\"\n\n",
+              32),
+          Tuple.of(
+              "No breakthrough to recover. No proof to hand over. Only unanswered questions, and the certainty that someone wanted this truth buried.",
+              32),
+          Tuple.of("You escaped...", 120));
 
   /** List of blog entries, each with a title, content and a list of comments. */
   public static final List<BlogTab.BlogEntry> BlogEntries =

@@ -76,6 +76,7 @@ public final class LastHourClient {
           if (TheLastHour.DEBUG_MODE) {
             Game.add(new Debugger());
           }
+          TheLastHour.registerLocalWorldTimerSystem();
           Game.stage().ifPresent(CursorUtil::initListener);
           Game.remove(AttributeBarSystem.class);
           Game.add(new ComputerStateSyncSystem());

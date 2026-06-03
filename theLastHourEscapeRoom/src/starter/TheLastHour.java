@@ -9,10 +9,10 @@ import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
 import contrib.modules.emote.EmoteSystem;
+import contrib.modules.worldTimer.WorldTimerSystem;
 import contrib.systems.AttributeBarSystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.DebugDrawSystem;
-import contrib.systems.EventScheduler;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.Debugger;
 import core.Entity;
@@ -142,8 +142,9 @@ public class TheLastHour {
 
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
-    ECSManagement.add(new EventScheduler());
     ECSManagement.add(new ComputerStateSyncSystem());
+
+    registerLocalWorldTimerSystem();
 
     if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
@@ -154,17 +155,33 @@ public class TheLastHour {
     }
   }
 
+  /** Registers the local world timer render/callback system on non-headless clients. */
+  public static void registerLocalWorldTimerSystem() {
+    if (Game.isHeadless()) {
+      return;
+    }
+    ECSManagement.add(new WorldTimerSystem().onTimerExpired(LastHourLevel::onTimerExpired));
+  }
+
   private static void registerSettings() {
     ClientSettings.registerSetting("controls_header", new SectionDividerSetting("Controls"));
     ClientSettings.registerSetting(
         "controls_description",
         new DescriptionSetting(
-            "Use the mouse to hover over interactables, then press <E> to interact!"));
+            "Use the mouse to find interactables, then press [key code="
+                + Input.Keys.E
+                + "] to interact!"));
     ClientSettings.registerSetting("pause", new ButtonBindingSetting("Pause", Input.Keys.P, false));
     ClientSettings.registerSetting(
         "interact", new ButtonBindingSetting("Interact", Input.Keys.E, false));
     ClientSettings.registerSetting(
         "inventory", new ButtonBindingSetting("Inventory", Input.Keys.I, false));
+    ClientSettings.registerSetting(
+        "inventory_description",
+        new DescriptionSetting(
+            "In the inventory, use [key code="
+                + Input.Buttons.RIGHT
+                + " type=mouse] to use an Item"));
   }
 
   private static final List<Tuple<String, Color>> USB_TEXTURES =

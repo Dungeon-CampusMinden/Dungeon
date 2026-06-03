@@ -38,10 +38,31 @@ public class WorldTimerSystem extends System {
 
   private int currentUnixTime;
 
+  /** Callback fired once locally when the timer reaches zero, or {@code null} if unset. */
+  private Runnable onTimerExpired;
+
+  /** Whether the local expiry callback has already been fired. */
+  private boolean expiredFired = false;
+
   /** Create a new WorldTimerSystem. */
   public WorldTimerSystem() {
     super(AuthoritativeSide.CLIENT, 5, WorldTimerComponent.class, PositionComponent.class);
     FONT = FontHelper.getFont(TIMER_FONT);
+  }
+
+  /**
+   * Registers a callback that is invoked once, locally, at the moment the timer reaches zero (i.e.
+   * the remaining time becomes less than or equal to zero).
+   *
+   * <p>This system runs locally on each client, so the callback fires independently on each client
+   * for its own view of the timer.
+   *
+   * @param callback the callback to run when the timer expires
+   * @return this system, for fluent chaining
+   */
+  public WorldTimerSystem onTimerExpired(Runnable callback) {
+    this.onTimerExpired = callback;
+    return this;
   }
 
   @Override
@@ -54,7 +75,16 @@ public class WorldTimerSystem extends System {
     int secondsSinceStart = currentUnixTime - data.tc.timestamp();
     int secondsLeft = data.tc.duration() - secondsSinceStart;
 
-    String timerString = String.format("%02d:%02d", secondsLeft / 60, secondsLeft % 60);
+    if (secondsLeft <= 0 && !expiredFired) {
+      expiredFired = true;
+      if (onTimerExpired != null) {
+        onTimerExpired.run();
+      }
+    }
+
+    int displaySeconds = Math.max(0, secondsLeft);
+    String timerString =
+        String.format("%02d:%02d", displaySeconds / 60, displaySeconds % 60);
     GlyphLayout layout = new GlyphLayout(FONT, timerString);
 
     int fboWidth = (int) layout.width + PADDING_X * 2;

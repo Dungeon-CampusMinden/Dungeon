@@ -25,7 +25,6 @@ import contrib.modules.keypad.KeypadFactory;
 import contrib.modules.puzzle.Puzzle;
 import contrib.modules.puzzle.PuzzleMaker;
 import contrib.modules.worldTimer.WorldTimerFactory;
-import contrib.modules.worldTimer.WorldTimerSystem;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.EntityUtils;
@@ -47,6 +46,7 @@ import core.utils.CursorUtil;
 import core.utils.Cursors;
 import core.utils.Point;
 import core.utils.Rectangle;
+import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
@@ -109,6 +109,7 @@ public class LastHourLevel extends DungeonLevel {
   private static Puzzle puzzle;
 
   private static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
+  private static boolean timerExpired = false;
 
   /**
    * Creates a new Demo Level.
@@ -134,6 +135,7 @@ public class LastHourLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    timerExpired = false;
     storageDoor = (DoorTile) tileAt(getPoint("door-storage")).orElseThrow();
     storageDoor.close();
 
@@ -198,7 +200,7 @@ public class LastHourLevel extends DungeonLevel {
                       .ifPresent(
                           pc -> {
                             BlackFadeCutscene.show(
-                                Lore.OutroTexts, true, false, () -> Game.exit("Win"));
+                                endingLoreTexts(), true, false, () -> Game.exit("Win"));
                           });
                 },
                 null)
@@ -223,10 +225,26 @@ public class LastHourLevel extends DungeonLevel {
 
   private void setupTimer() {
     int unixTime = (int) (System.currentTimeMillis() / 1000L);
-    Game.add(WorldTimerFactory.createWorldTimer(getPoint("timer"), unixTime, 60 * 60));
-    if (!Game.isHeadless()) {
-      Game.add(new WorldTimerSystem());
-    }
+    Game.add(WorldTimerFactory.createWorldTimer(getPoint("timer"), unixTime, 15));
+  }
+
+  /**
+   * Called once, locally, when the world timer reaches zero. Plays a recording of Dr. Mertens
+   * through his office security system speakers, informing the local player that all of his data is
+   * now being automatically destroyed.
+   *
+   * <p>This is triggered locally on each client, so it only ever targets the local player.
+   */
+  public static void onTimerExpired() {
+    timerExpired = true;
+    Game.player()
+        .ifPresent(
+            player ->
+                DialogFactory.showDialogDialog(Lore.TimerExpiredRecording, () -> {}, player.id()));
+  }
+
+  private static List<Tuple<String, Integer>> endingLoreTexts() {
+    return timerExpired ? Lore.BadOutroTexts : Lore.OutroTexts;
   }
 
   static void setupLightingShader() {
@@ -428,13 +446,28 @@ public class LastHourLevel extends DungeonLevel {
               Entity trashcan = DecoFactory.createDeco(p, deco);
               trashcan.remove(DecoComponent.class);
               int paperCount = PaperCounts.get(index % PaperCounts.size());
-              Item reward = index == trashIndex ? new HintItem(new SimpleIPath(trashNote)) : null;
+              boolean hasReward = index == trashIndex;
+
+              final boolean[] awarded = {false};
               trashcan.add(
                   new InteractionComponent(
                       () ->
                           new Interaction(
-                              (eInteract, who) ->
-                                  TrashMinigameFactory.show(who, reward, paperCount, null))));
+                              (eInteract, who) -> {
+                                if (!hasReward || awarded[0]) {
+                                  TrashMinigameFactory.show(who, null, paperCount, null);
+                                  return;
+                                }
+                                Item reward = new HintItem(new SimpleIPath(trashNote));
+                                TrashMinigameFactory.show(
+                                    who,
+                                    reward,
+                                    paperCount,
+                                    () -> {
+                                      if (awarded[0]) return;
+                                      awarded[0] = true;
+                                    });
+                              })));
               Game.add(trashcan);
             });
   }
@@ -944,7 +977,7 @@ public class LastHourLevel extends DungeonLevel {
                 DialogContextKeys.ENTITY, who.id(),
                 DialogContextKeys.SECONDARY_ENTITY, container.id()));
     ctx.owner(who.id());
-    DialogFactory.show(ctx);
+    DialogFactory.show(ctx, who.id());
   }
 
   /**
