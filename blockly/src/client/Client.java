@@ -1,5 +1,6 @@
 package client;
 
+import client.hud.StageConfig;
 import coderunner.BlocklyCodeRunner;
 import coderunner.BlocklyCommands;
 import com.sun.net.httpserver.HttpServer;
@@ -94,7 +95,7 @@ public class Client {
   public static final String WIZARD_NAME = "Algorim";
 
   /** Force to apply for movement of all entities. */
-  public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
+  public static Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
   private static final boolean DEBUG_MODE = false;
   private static final boolean ACTIVATE_TANKE_CONTROLLS = DEBUG_MODE;
@@ -209,6 +210,7 @@ public class Client {
           PortalRegistry.registerPelletCatcherBehavior(
               () -> new BlocklyEnergyPelletCatcherBehavior());
 
+          StageConfig.setupStage();
           startServer();
         });
   }
@@ -319,6 +321,7 @@ public class Client {
     hero.add(new PortableComponent());
     hero.add(new AmmunitionComponent());
     Game.add(hero);
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(750));
   }
 
   private static PortalConfig createPortalConfig(Hero portalHero) {
