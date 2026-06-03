@@ -249,6 +249,12 @@ public class ControlPanelTab extends ComputerTab {
     door2PasswordField.setMessageText(DOOR2_PASSWORD_HINT);
     door2PasswordField.setPasswordMode(true);
     door2PasswordField.setPasswordCharacter('*');
+    door2PasswordField.setTextFieldListener(
+        (textField, c) -> {
+          if (c == '\r' || c == '\n') {
+            tryUnlockDoor2();
+          }
+        });
 
     door2UnlockButton =
         Scene2dElementFactory.createButton(
@@ -257,13 +263,7 @@ public class ControlPanelTab extends ComputerTab {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            String entered = door2PasswordField.getText();
-            if (entered != null && entered.equalsIgnoreCase(Lore.ControlPanelDoor2Password)) {
-              postUpdate(sharedState().withDoor2Unlocked(true));
-              Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
-            } else {
-              Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
-            }
+            tryUnlockDoor2();
           }
         });
 
@@ -329,6 +329,12 @@ public class ControlPanelTab extends ComputerTab {
         Scene2dElementFactory.createLabel(AC_VENT_PREFIX, SECTION_BODY_FONT_SIZE, Color.DARK_GRAY);
     acVentSerialField = Scene2dElementFactory.createTextField("");
     acVentSerialField.setMessageText(AC_VENT_HINT);
+    acVentSerialField.setTextFieldListener(
+        (textField, c) -> {
+          if (c == '\r' || c == '\n') {
+            tryConnectAcVent();
+          }
+        });
     acVentConnectButton =
         Scene2dElementFactory.createButton(
             AC_CONNECT_BUTTON, BLUE_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
@@ -336,16 +342,7 @@ public class ControlPanelTab extends ComputerTab {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            if (sharedState().acVentConnected()) return;
-            String entered = acVentSerialField.getText();
-            if (entered != null && entered.equals(Lore.VentSerialNumber)) {
-              postUpdate(sharedState().withAcVentConnected(true));
-              Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
-            } else {
-              acVentStatusLabel.setColor(STATE_OFF_COLOR);
-              acVentStatusLabel.setText(AC_STATUS_NO_CONNECTION);
-              Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
-            }
+            tryConnectAcVent();
           }
         });
     acVentStatusLabel =
@@ -396,6 +393,36 @@ public class ControlPanelTab extends ComputerTab {
         Scene2dElementFactory.createLabel(text, SECTION_TITLE_FONT_SIZE, SECTION_TITLE_COLOR);
     label.setAlignment(Align.left);
     return label;
+  }
+
+  private void tryUnlockDoor2() {
+    if (sharedState().door2Unlocked()) {
+      return;
+    }
+
+    String entered = door2PasswordField.getText();
+    if (entered != null && entered.equalsIgnoreCase(Lore.ControlPanelDoor2Password)) {
+      postUpdate(sharedState().withDoor2Unlocked(true));
+      Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
+    } else {
+      Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
+    }
+  }
+
+  private void tryConnectAcVent() {
+    if (sharedState().acVentConnected()) {
+      return;
+    }
+
+    String entered = acVentSerialField.getText();
+    if (entered != null && entered.equals(Lore.VentSerialNumber)) {
+      postUpdate(sharedState().withAcVentConnected(true));
+      Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
+    } else {
+      acVentStatusLabel.setColor(STATE_OFF_COLOR);
+      acVentStatusLabel.setText(AC_STATUS_NO_CONNECTION);
+      Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
+    }
   }
 
   private void postUpdate(ComputerStateComponent newState) {

@@ -343,19 +343,19 @@ public class BrowserTab extends ComputerTab {
     inputRow.add(passwordField).width(300).height(45).padRight(10);
 
     Label feedback = Scene2dElementFactory.createLabel("", 18, Color.RED);
+    passwordField.setTextFieldListener(
+        (textField, c) -> {
+          if (c == '\r' || c == '\n') {
+            tryVerifySecurityCode(passwordField, feedback, asciiCode, pageUrl);
+          }
+        });
 
     Button submitButton = Scene2dElementFactory.createButton("Verify", "clean-green", 20);
     submitButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            String input = passwordField.getText().trim();
-            if (input.equals(asciiCode)) {
-              navigate(pageUrl + "/download");
-            } else {
-              feedback.setText("Incorrect password. Please check your decryption manual.");
-              feedback.setColor(Color.RED);
-            }
+            tryVerifySecurityCode(passwordField, feedback, asciiCode, pageUrl);
           }
         });
     inputRow.add(submitButton).height(45);
@@ -428,6 +428,17 @@ public class BrowserTab extends ComputerTab {
     table.add(downloadButton).center();
 
     return table;
+  }
+
+  private void tryVerifySecurityCode(
+      TextField passwordField, Label feedback, String asciiCode, String pageUrl) {
+    String input = passwordField.getText().trim();
+    if (input.equals(asciiCode)) {
+      navigate(pageUrl + "/download");
+    } else {
+      feedback.setText("Incorrect password. Please check your decryption manual.");
+      feedback.setColor(Color.RED);
+    }
   }
 
   private Map<String, Actor> getWebsites() {

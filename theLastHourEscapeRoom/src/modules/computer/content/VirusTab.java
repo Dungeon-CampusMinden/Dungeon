@@ -73,6 +73,12 @@ public class VirusTab extends ComputerTab {
 
     TextField codeField = Scene2dElementFactory.createTextField("");
     codeField.setMessageText("Security Code");
+    codeField.setTextFieldListener(
+        (textField, c) -> {
+          if (c == '\r' || c == '\n') {
+            trySubmitCode(codeField, virusLabel);
+          }
+        });
     this.add(codeField).width(400).center().padTop(20).row();
 
     Button submitButton = Scene2dElementFactory.createButton("Submit", "clean-green", 24);
@@ -80,26 +86,7 @@ public class VirusTab extends ComputerTab {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            String inputCode = codeField.getText().replaceAll("\\s+", "");
-            String expected =
-                Lore.VirusTypeToCode.getOrDefault(virusType, "").replaceAll("\\s+", "");
-            if (virusType == null || inputCode.equalsIgnoreCase(expected)) {
-              virusLabel.setText("[color=#00cc00]Virus Neutralized!");
-              VirusTab.this.addAction(
-                  Actions.sequence(
-                      Actions.delay(1f),
-                      Actions.run(
-                          () ->
-                              DialogCallbackResolver.createButtonCallback(
-                                      context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-                                  .accept(
-                                      ComputerStateComponent.getState()
-                                          .orElseThrow()
-                                          .withInfection(false)))));
-              Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
-            } else {
-              Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
-            }
+            trySubmitCode(codeField, virusLabel);
           }
         });
     this.add(submitButton).width(400).center().padTop(10);
@@ -125,6 +112,28 @@ public class VirusTab extends ComputerTab {
     this.add(explainLabel).expandX().center().padTop(20).row();
 
     this.center();
+  }
+
+  private void trySubmitCode(TextField codeField, RichLabel virusLabel) {
+    String inputCode = codeField.getText().replaceAll("\\s+", "");
+    String expected = Lore.VirusTypeToCode.getOrDefault(virusType, "").replaceAll("\\s+", "");
+    if (virusType == null || inputCode.equalsIgnoreCase(expected)) {
+      virusLabel.setText("[color=#00cc00]Virus Neutralized!");
+      VirusTab.this.addAction(
+          Actions.sequence(
+              Actions.delay(1f),
+              Actions.run(
+                  () ->
+                      DialogCallbackResolver.createButtonCallback(
+                              context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
+                          .accept(
+                              ComputerStateComponent.getState()
+                                  .orElseThrow()
+                                  .withInfection(false)))));
+      Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
+    } else {
+      Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
+    }
   }
 
   @Override

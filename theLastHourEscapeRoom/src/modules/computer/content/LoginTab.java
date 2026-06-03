@@ -83,6 +83,12 @@ public class LoginTab extends ComputerTab {
         (text) -> {
           localState().username(usernameField.getText());
         });
+    usernameField.setTextFieldListener(
+        (textField, c) -> {
+          if (c == '\r' || c == '\n') {
+            tryLogin();
+          }
+        });
 
     passwordField = Scene2dElementFactory.createTextField(localState().password());
     passwordField.setMessageText("Password");
@@ -96,33 +102,19 @@ public class LoginTab extends ComputerTab {
         (text) -> {
           localState().password(passwordField.getText());
         });
+    passwordField.setTextFieldListener(
+        (textField, c) -> {
+          if (c == '\r' || c == '\n') {
+            tryLogin();
+          }
+        });
 
     loginButton = Scene2dElementFactory.createButton("Login", "clean-green");
     loginButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            String username = localState().username();
-            String password = localState().password();
-            if ((username.equalsIgnoreCase(Lore.LoginEmail)
-                    && password.equalsIgnoreCase(Lore.LoginPassword))
-                || username.equals("skipp")) {
-              DialogCallbackResolver.createButtonCallback(
-                      context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-                  .accept(
-                      ComputerStateComponent.getState()
-                          .orElseThrow()
-                          .withState(ComputerProgress.LOGGED_IN)
-                          .withTimestampOfLogin((int) (System.currentTimeMillis() / 1000L)));
-              ComputerDialog.getInstance()
-                  .ifPresent(
-                      computer -> {
-                        computer.addTabsForState(ComputerProgress.LOGGED_IN);
-                      });
-              onLoginSuccess(false);
-            } else {
-              onWrongCredentials();
-            }
+            tryLogin();
           }
         });
 
@@ -162,5 +154,33 @@ public class LoginTab extends ComputerTab {
   private void onWrongCredentials() {
     loginFeedback.setText(WRONG_FEEDBACK);
     Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
+  }
+
+  private void tryLogin() {
+    if (loginButton == null || loginButton.isDisabled()) {
+      return;
+    }
+
+    String username = localState().username();
+    String password = localState().password();
+    if ((username.equalsIgnoreCase(Lore.LoginEmail)
+            && password.equalsIgnoreCase(Lore.LoginPassword))
+        || username.equals("skipp")) {
+      DialogCallbackResolver.createButtonCallback(
+              context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
+          .accept(
+              ComputerStateComponent.getState()
+                  .orElseThrow()
+                  .withState(ComputerProgress.LOGGED_IN)
+                  .withTimestampOfLogin((int) (System.currentTimeMillis() / 1000L)));
+      ComputerDialog.getInstance()
+          .ifPresent(
+              computer -> {
+                computer.addTabsForState(ComputerProgress.LOGGED_IN);
+              });
+      onLoginSuccess(false);
+    } else {
+      onWrongCredentials();
+    }
   }
 }
