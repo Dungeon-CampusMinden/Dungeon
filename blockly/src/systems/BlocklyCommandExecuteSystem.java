@@ -23,7 +23,6 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
-import core.utils.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.MissingPlayerException;
