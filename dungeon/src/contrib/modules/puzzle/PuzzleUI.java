@@ -245,7 +245,7 @@ public class PuzzleUI extends Group {
     if (totalPresent == 0) {
       statusLabel = new RichLabel("You don't own any pieces of this puzzle yet.");
     } else {
-      statusLabel = new RichLabel("[size=20]" + totalPresent + " / " + puzzle.pieceCount());
+      statusLabel = new RichLabel("[size=28]" + totalPresent + " / " + puzzle.pieceCount());
       if (puzzle.isFullySolved()) {
         statusLabel.setText("[color=green]SOLVED");
       }
@@ -450,7 +450,7 @@ public class PuzzleUI extends Group {
 
               if (puzzle.isFullySolved()) {
                 if (statusLabel != null) {
-                  statusLabel.setText("[color=green]SOLVED");
+                  statusLabel.setText("[size=28][color=green]SOLVED");
                   Sounds.play(CoreSounds.INTERFACE_BUTTON_FORWARD);
                 }
                 DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_COMPLETE)

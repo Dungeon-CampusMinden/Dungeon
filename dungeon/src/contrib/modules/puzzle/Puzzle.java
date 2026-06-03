@@ -232,6 +232,21 @@ public class Puzzle {
   }
 
   /**
+   * Marks every piece of this puzzle as snapped to its correct slot.
+   *
+   * <p>Piece placement happens in {@link PuzzleUI}, which (in multiplayer) only runs on the client.
+   * The server's copy of this puzzle therefore never sees the individual {@link #markPlaced(int)}
+   * calls and would consider the puzzle unsolved. This method lets the completion path bring a
+   * non-UI copy (e.g. on the dedicated server) in sync with the solved state determined by the
+   * client UI, so {@link #tryFireCallback(Entity)} can actually fire the completion callback.
+   */
+  public void markSolved() {
+    for (int i = 0; i < pieceCount(); i++) {
+      placedCorrectly.add(i);
+    }
+  }
+
+  /**
    * @param pieceIndex piece index
    * @return whether the given piece is currently snapped to its correct slot
    */
