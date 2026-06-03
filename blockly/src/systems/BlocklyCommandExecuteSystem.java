@@ -1,11 +1,19 @@
 package systems;
 
-import static coderunner.BlocklyCommands.DISABLE_SHOOT_ON_HERO;
-import static coderunner.BlocklyCommands.MAGIC_OFFSET;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
+
+import com.badlogic.gdx.Gdx;
 
 import client.Client;
 import coderunner.BlocklyCommands;
-import com.badlogic.gdx.Gdx;
+import static coderunner.BlocklyCommands.DISABLE_SHOOT_ON_HERO;
+import static coderunner.BlocklyCommands.MAGIC_OFFSET;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.AIComponent;
@@ -23,18 +31,8 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
-import core.utils.Direction;
-import core.utils.IVoidFunction;
-import core.utils.MissingPlayerException;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Supplier;
 
 /**
  * A system that executes queued {@link BlocklyCommands.Commands} in the game thread.
@@ -302,10 +300,32 @@ public class BlocklyCommandExecuteSystem extends System {
             EntityComponents comp = entityComponents.get(i);
             comp.vc.clearForces();
             comp.vc.currentVelocity(Vector2.ZERO);
-            comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale((Client.MOVEMENT_FORCE.x())));
+            Point targetPoint = comp.targetPosition.toPoint();
+
+            //projected distance to the target along the movement axis
+            float remaining =
+                remainingTowardTarget(comp.pc.position(), targetPoint, direction);
+
+            // force from the speed slider
+            float requestedForce = Client.MOVEMENT_FORCE.x();
+
+            // distance traveled in one frame at the current slider force
+            float nextStep =
+                blocklyMoveStepForForce(requestedForce, comp.vc.mass(), Game.frameRate());
+
+            // snap if close enough or one step would overshoot
+            if (remaining <= distanceThreshold || remaining <= nextStep) {
+
+              // snap to tile center to prevent false collisions with adjacent tiles (e.g. PitTile)
+              Game.tileAt(comp.targetPosition().translate(MAGIC_OFFSET)).ifPresent(comp.pc::position);
+
+              // remaining distance is large enough for a full step —> apply force normally
+            } else {
+              comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale(requestedForce));
+            }
 
             lastDistances[i] = distances[i];
-            distances[i] = comp.pc.position().distance(comp.targetPosition.toPoint());
+            distances[i] = comp.pc.position().distance(targetPoint);
 
             if (comp.vc().maxSpeed() > 0
                 && Game.existInLevel(entities[i])
@@ -316,7 +336,6 @@ public class BlocklyCommandExecuteSystem extends System {
           if (allEntitiesArrived) {
 
             for (EntityComponents ec : entityComponents) {
-              // TODO FIND A WAY TO MAKE THE HERO MOVE FASTER
               ec.vc.currentVelocity(Vector2.ZERO);
               ec.vc.clearForces();
               // check the position-tile via new request in case a new level was loaded
@@ -483,6 +502,36 @@ public class BlocklyCommandExecuteSystem extends System {
     super.run();
     this.disableQueue = false;
   }
+
+
+  /**
+   * Distance to target along the movement direction.
+   *
+   * @param pos current entity position.
+   * @param target centre of the destination tile.
+   * @param direction unit direction vector of the current move.
+   * @return projected remaining distance in world units.
+   */
+  private static float remainingTowardTarget(Point pos, Point target, Direction direction) {
+    float dx = target.x() - pos.x();
+    float dy = target.y() - pos.y();
+    return dx * direction.x() + dy * direction.y();
+  }
+
+  /**
+   * Distance an entity travels in one frame.
+   *
+   * <p>Computes acceleration (force / mass) divided by frameRate.
+   *
+   * @param force applied movement force.
+   * @param mass entity mass.
+   * @param frameRate current frames per second.
+   * @return distance per frame in world units.
+   */
+  private static float blocklyMoveStepForForce(float force, float mass, int frameRate) {
+    return force / mass / frameRate;
+  }
+
 
   /**
    * Helper record bundling the core components of an entity during movement.
