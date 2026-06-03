@@ -13,6 +13,7 @@ ext {
     protobufVersion = '4.34.1'
     jk1licenseVersion = '3.1.2'
     gdxControllersVersion = '2.2.4'
+    beryxRuntimeVersion = '2.0.1'
 
 
     // -- NETWORK / SERVER

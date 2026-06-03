@@ -16,7 +16,6 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-
 tasks.register('runPortal', JavaExec) {
     group 'starter'
     mainClass = 'starter.PortalStarter'
@@ -29,4 +28,3 @@ tasks.named('clean') {
             file("$rootDir/currentPortalLevel.json"),
     )
 }
-
