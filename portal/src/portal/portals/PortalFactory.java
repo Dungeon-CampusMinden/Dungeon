@@ -189,7 +189,7 @@ public class PortalFactory {
    * @param portal the portal entity that is going to be ignored by the skills.
    */
   private static void ignorePortalInProjectiles(Entity portal) {
-    Game.allEntities()
+    Game.levelEntities()
         .filter(entity -> entity.isPresent(SkillComponent.class))
         .forEach(
             entity -> {

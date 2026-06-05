@@ -182,23 +182,23 @@ public class PortalDemoLevel extends AdvancedLevel {
     if (switch7.isOn()) LightWallFactory.activate(lightWall3);
     else LightWallFactory.deactivate(lightWall3);
     if (switch8.isOn()) {
-      Game.allEntities()
+      Game.levelEntities()
           .forEach(
               e ->
                   e.fetch(AntiMaterialBarrierComponent.class)
                       .ifPresent(AntiMaterialBarrierComponent::activate));
     } else {
-      Game.allEntities()
+      Game.levelEntities()
           .forEach(
               e ->
                   e.fetch(AntiMaterialBarrierComponent.class)
                       .ifPresent(AntiMaterialBarrierComponent::deactivate));
     }
     if (switch9.isOn()) {
-      Game.allEntities()
+      Game.levelEntities()
           .forEach(e -> e.fetch(LasergridComponent.class).ifPresent(LasergridComponent::activate));
     } else {
-      Game.allEntities()
+      Game.levelEntities()
           .forEach(
               e -> e.fetch(LasergridComponent.class).ifPresent(LasergridComponent::deactivate));
     }

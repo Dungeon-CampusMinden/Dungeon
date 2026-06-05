@@ -43,7 +43,7 @@ public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
 
     if (skill instanceof DamageProjectileSkill dps) {
       this.projectileSkill = dps;
-      Game.allEntities()
+      Game.levelEntities()
           .filter(e -> "antiMaterialBarrier".equals(e.name()))
           .forEach(e -> projectileSkill.ignoreEntity(e));
     } else {
@@ -86,7 +86,7 @@ public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
 
     String projectileEntityName = uniqueSkillName + "_projectile";
     Entity projectileEntity =
-        Game.allEntities()
+        Game.levelEntities()
             .filter(e -> e.name().equals(projectileEntityName))
             .findFirst()
             .orElse(null);

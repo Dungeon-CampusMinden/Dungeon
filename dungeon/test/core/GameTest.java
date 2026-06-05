@@ -31,7 +31,7 @@ public class GameTest {
     Game.add(new Entity());
     Game.add(new Entity());
     Game.add(new Entity());
-    assertEquals(8, Game.allEntities().count());
+    assertEquals(8, Game.levelEntities().count());
   }
 
   /** WTF? . */
@@ -47,9 +47,9 @@ public class GameTest {
     Game.add(new Entity());
     Game.add(new Entity());
     Game.add(new Entity());
-    assertEquals(8, Game.allEntities().count());
+    assertEquals(8, Game.levelEntities().count());
     Game.removeAllEntities();
-    assertEquals(0, Game.allEntities().count());
+    assertEquals(0, Game.levelEntities().count());
   }
 
   /** WTF? . */

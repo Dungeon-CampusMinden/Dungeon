@@ -493,17 +493,6 @@ public final class Game {
   }
 
   /**
-   * Use this stream if you want to iterate over all active entities.
-   *
-   * <p>Use {@link #levelEntities()} if you want to iterate over all active entities.
-   *
-   * @return a stream of all entities currently in the game
-   */
-  public static Stream<Entity> allEntities() {
-    return ECSManagement.allEntities();
-  }
-
-  /**
    * Finds the entity that contains the given component instance.
    *
    * <p>This searches across all entities in the game, not just those in the current level.
@@ -539,18 +528,6 @@ public final class Game {
    */
   public static boolean existInLevel(Entity entity) {
     return ECSManagement.existInLevel(entity);
-  }
-
-  /**
-   * Tries to find the given entity in the game.
-   *
-   * <p>This searches in the current level.
-   *
-   * @param entity the entity to search for
-   * @return {@code true} if the entity is found, {@code false} otherwise
-   */
-  public static boolean existInAll(final Entity entity) {
-    return ECSManagement.existInAll(entity);
   }
 
   /**
