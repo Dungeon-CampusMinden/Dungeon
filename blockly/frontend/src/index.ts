@@ -15,6 +15,7 @@ import {
 } from "./utils/workspace.ts";
 import {getCurrentLevel, LevelChangedEvent, setupLevelSelector, updateLevelList} from "./utils/level.ts";
 import {addListenerToFlyOut, updateElementAlignment} from "./utils/popup.ts";
+import {setupLanguageToggle} from "./language.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -49,22 +50,9 @@ setupButtons(workspace);
 // Disable all blocks that aren't connected to the start block.
 workspace.addChangeListener(Blockly.Events.disableOrphans);
 
-document.querySelector(".flag")?.addEventListener("click", event => {
-  const imgElement = event.currentTarget as HTMLImageElement;
-  if (imgElement == null) return;
+setupLanguageToggle(workspace);
 
-  const currentLang = imgElement.dataset.lang;
 
-  if (currentLang == "en") {
-    imgElement.dataset.lang="de"
-    imgElement.src="german-flag.png"
-    imgElement.alt = "German language"
-  } else {
-    imgElement.dataset.lang="en"
-    imgElement.src="english-flag.png"
-    imgElement.alt = "English language"
-  }
-})
 
 // @ts-expect-error the blocklyZoomReset is always on the gui
 document.querySelector('g.blocklyZoom.blocklyZoomReset').addEventListener('pointerdown', (e) => {
