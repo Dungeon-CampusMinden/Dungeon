@@ -170,7 +170,7 @@ public final class AudioApi {
 
     onFinishedCallbacks.remove(instanceId);
     boolean removed = false;
-    for (Entity entity : Game.allEntities().toList()) {
+    for (Entity entity : Game.levelEntities().toList()) {
       Optional<SoundComponent> scOpt = entity.fetch(SoundComponent.class);
       if (scOpt.isPresent()) {
         SoundComponent sc = scOpt.get();

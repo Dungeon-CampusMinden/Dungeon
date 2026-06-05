@@ -11,7 +11,6 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.level.elements.ILevel;
 import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.systems.DrawSystem;
@@ -20,7 +19,6 @@ import core.systems.SoundSystem;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
 import core.utils.logging.DungeonLogger;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,7 +46,6 @@ import java.util.stream.Stream;
 public final class ECSManagement {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ECSManagement.class);
   private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
-  private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
   private static int currentTick = 0;
@@ -75,7 +72,6 @@ public final class ECSManagement {
   private static boolean newLevelLoadedThisTick = false;
 
   static {
-    LEVEL_STORAGE_MAP.put(null, activeEntityStorage);
     activeEntityStorage.add(new EntitySystemMapper());
     for (System system : ESSENTIAL_SYSTEMS) {
       ECSManagement.add(system);
@@ -113,7 +109,7 @@ public final class ECSManagement {
    */
   public static Entity add(Entity entity) {
     // Prevent duplicate IDs for different entity instances
-    boolean duplicateIdExists = allEntities().anyMatch(e -> e != entity && e.id() == entity.id());
+    boolean duplicateIdExists = levelEntities().anyMatch(e -> e != entity && e.id() == entity.id());
     if (duplicateIdExists)
       throw new IllegalArgumentException(
           "An Entity with id " + entity.id() + " already exists in the game.");
@@ -216,15 +212,6 @@ public final class ECSManagement {
   }
 
   /**
-   * Get the current active {@link EntitySystemMapper}.
-   *
-   * @return The currently active {@link EntitySystemMapper}
-   */
-  public static Map<ILevel, Set<EntitySystemMapper>> levelStorageMap() {
-    return LEVEL_STORAGE_MAP;
-  }
-
-  /**
    * Set the current active {@link EntitySystemMapper}.
    *
    * @param entityStorage The new active {@link EntitySystemMapper}
@@ -270,6 +257,10 @@ public final class ECSManagement {
    */
   public static Stream<Entity> levelEntities() {
     return levelEntities(new HashSet<>());
+    //    Set<Entity> allEntities = new HashSet<>();
+    //          activeEntityStorage.forEach(
+    //            entitySystemMapper -> entitySystemMapper.stream().forEach(allEntities::add));
+    //    return allEntities.stream();
   }
 
   /**
@@ -351,29 +342,8 @@ public final class ECSManagement {
    * <p>This will also remove all entities from each system.
    */
   public static void removeAllEntities() {
-    allEntities().forEach(ECSManagement::remove);
+    levelEntities().forEach(ECSManagement::remove);
     LOGGER.info("All entities will be removed from the game.");
-  }
-
-  /**
-   * Use this stream if you want to iterate over all entities in the game.
-   *
-   * <p>This will return <strong>all</strong> entities, not just those in the current level.
-   *
-   * <p>Use {@link #levelEntities()} instead if you only want the entities of the current level.
-   *
-   * @return a stream of all entities currently in the game
-   */
-  public static Stream<Entity> allEntities() {
-    Set<Entity> allEntities = new HashSet<>();
-    LEVEL_STORAGE_MAP
-        .values()
-        .forEach(
-            entitySystemMappers ->
-                entitySystemMappers.forEach(
-                    entitySystemMapper -> entitySystemMapper.stream().forEach(allEntities::add)));
-
-    return allEntities.stream();
   }
 
   /**
@@ -386,7 +356,7 @@ public final class ECSManagement {
    *     is found
    */
   public static Optional<Entity> findInAll(final Component component) {
-    return allEntities()
+    return levelEntities()
         .filter(entity -> entity.fetch(component.getClass()).map(component::equals).orElse(false))
         .findFirst();
   }
@@ -404,18 +374,6 @@ public final class ECSManagement {
     return levelEntities()
         .filter(entity -> entity.fetch(component.getClass()).map(component::equals).orElse(false))
         .findFirst();
-  }
-
-  /**
-   * Tries to find the given entity in the game.
-   *
-   * <p>This searches across all entities in the game, not just those in the current level.
-   *
-   * @param entity the entity to search for
-   * @return {@code true} if the entity is found, {@code false} otherwise
-   */
-  public static boolean existInAll(Entity entity) {
-    return allEntities().anyMatch(entity1 -> entity1.equals(entity));
   }
 
   /**
@@ -513,6 +471,6 @@ public final class ECSManagement {
    *     entity with the given ID exists.
    */
   public static Optional<Entity> findEntityById(int entityId) {
-    return ECSManagement.allEntities().filter(e -> e.id() == entityId).findFirst();
+    return ECSManagement.levelEntities().filter(e -> e.id() == entityId).findFirst();
   }
 }
