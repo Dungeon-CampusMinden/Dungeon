@@ -92,6 +92,9 @@ public final class NetworkConfig {
    */
   public static final int TCP_INITIAL_BYTES_TO_STRIP = 4;
 
+  /** Timeout for TCP connection attempts, in milliseconds. */
+  public static final int TCP_CONNECT_TIMEOUT_MS = 2_500;
+
   /**
    * Server tick rate, in Hertz (Hz).
    *

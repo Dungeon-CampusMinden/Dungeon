@@ -4,6 +4,7 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.MAX_TCP_OBJECT_SIZE;
 import static core.network.config.NetworkConfig.SAFE_UDP_MTU;
+import static core.network.config.NetworkConfig.TCP_CONNECT_TIMEOUT_MS;
 import static core.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
 import static core.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
 import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_LENGTH;
@@ -76,7 +77,6 @@ public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
   private static final short CLIENT_PROTOCOL_VERSION = 2;
-  private static final int TCP_CONNECT_TIMEOUT_MILLIS = 2500;
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
@@ -352,7 +352,7 @@ public final class ClientNetwork {
     Bootstrap cb = new Bootstrap();
     cb.group(group)
         .channel(NioSocketChannel.class)
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TCP_CONNECT_TIMEOUT_MILLIS)
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TCP_CONNECT_TIMEOUT_MS)
         .handler(
             new ChannelInitializer<SocketChannel>() {
               @Override
