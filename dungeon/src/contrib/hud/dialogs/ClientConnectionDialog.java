@@ -1,16 +1,15 @@
 package contrib.hud.dialogs;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
+import contrib.hud.elements.RichLabel;
 import core.Game;
 import core.game.PreRunConfiguration;
 import core.network.ConnectionListener;
@@ -30,6 +29,8 @@ final class ClientConnectionDialog {
   private static final String PORT_LABEL = "Port";
   private static final String START_FAILED_MESSAGE = "Server nicht erreichbar.";
   private static final String CONNECTING_MESSAGE = "Verbindung wird aufgebaut...";
+  private static final String ERROR_COLOR = "#bb0000";
+  private static final String STATUS_COLOR = "light_gray";
 
   private static final ExecutorService CONNECT_EXECUTOR =
       Executors.newCachedThreadPool(
@@ -52,8 +53,7 @@ final class ClientConnectionDialog {
     hostField.setMessageText(ClientConnectionConfig.DEFAULT_HOST);
     TextField portField = new TextField("", skin);
     portField.setMessageText(Integer.toString(PreRunConfiguration.networkPort()));
-    Label errorLabel = new Label("", skin);
-    errorLabel.setColor(Color.RED);
+    RichLabel errorLabel = new RichLabel("", DialogDesign.DIALOG_FONT_SPEC_NORMAL);
     errorLabel.setVisible(false);
 
     Dialog dialog =
@@ -66,8 +66,8 @@ final class ClientConnectionDialog {
 
     Table fields = new Table();
     fields.defaults().pad(4);
-    fields.add(new Label(HOST_LABEL, skin)).left();
-    fields.add(new Label(PORT_LABEL, skin)).left().row();
+    fields.add(new RichLabel(HOST_LABEL, DialogDesign.DIALOG_FONT_SPEC_NORMAL)).left();
+    fields.add(new RichLabel(PORT_LABEL, DialogDesign.DIALOG_FONT_SPEC_NORMAL)).left().row();
     fields.add(hostField).width(320);
     fields.add(portField).width(110).row();
 
@@ -84,7 +84,7 @@ final class ClientConnectionDialog {
       DialogContext context,
       TextField hostField,
       TextField portField,
-      Label errorLabel,
+      RichLabel errorLabel,
       String button) {
     if (!CONNECT_BUTTON.equals(button)) {
       return false;
@@ -126,7 +126,7 @@ final class ClientConnectionDialog {
       ClientConnectionConfig config,
       TextField hostField,
       TextField portField,
-      Label errorLabel,
+      RichLabel errorLabel,
       ConnectionListener listener) {
     try {
       PreRunConfiguration.networkServerAddress(config.host());
@@ -140,7 +140,7 @@ final class ClientConnectionDialog {
   }
 
   private static ConnectionListener connectionListener(
-      DialogContext context, TextField hostField, TextField portField, Label errorLabel) {
+      DialogContext context, TextField hostField, TextField portField, RichLabel errorLabel) {
     return new ConnectionListener() {
       @Override
       public void onConnected() {
@@ -158,7 +158,7 @@ final class ClientConnectionDialog {
       DialogContext context,
       TextField hostField,
       TextField portField,
-      Label errorLabel,
+      RichLabel errorLabel,
       boolean success,
       ConnectionListener listener) {
     Game.network().removeConnectionListener(listener);
@@ -184,15 +184,16 @@ final class ClientConnectionDialog {
     portField.setDisabled(disabled);
   }
 
-  private static void showStatus(Label errorLabel, String message) {
-    errorLabel.setColor(Color.LIGHT_GRAY);
-    errorLabel.setText(message);
-    errorLabel.setVisible(true);
+  private static void showStatus(RichLabel errorLabel, String message) {
+    showRichMessage(errorLabel, STATUS_COLOR, message);
   }
 
-  private static void showError(Label errorLabel, String message) {
-    errorLabel.setColor(Color.RED);
-    errorLabel.setText(message);
+  private static void showError(RichLabel errorLabel, String message) {
+    showRichMessage(errorLabel, ERROR_COLOR, message);
+  }
+
+  private static void showRichMessage(RichLabel errorLabel, String color, String message) {
+    errorLabel.setText("[color=" + color + "]" + RichLabel.toRichText(message) + "[/color]");
     errorLabel.setVisible(true);
   }
 
