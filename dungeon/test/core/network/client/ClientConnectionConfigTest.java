@@ -87,6 +87,26 @@ public class ClientConnectionConfigTest {
     assertEquals(12345, config.port());
   }
 
+  /** Empty host input uses the explicit default host. */
+  @Test
+  public void emptyHostUsesExplicitDefaultHost() {
+    ClientConnectionConfig config =
+        ClientConnectionConfig.fromFields("", "12345", "example.org", 7777);
+
+    assertEquals("example.org", config.host());
+    assertEquals(12345, config.port());
+  }
+
+  /** Empty port input uses the explicit default port. */
+  @Test
+  public void emptyPortUsesExplicitDefaultPort() {
+    ClientConnectionConfig config =
+        ClientConnectionConfig.fromFields("example.org", "", "localhost", 12345);
+
+    assertEquals("example.org", config.host());
+    assertEquals(12345, config.port());
+  }
+
   /** Non-numeric port input is rejected. */
   @Test
   public void nonNumericPortIsRejected() {

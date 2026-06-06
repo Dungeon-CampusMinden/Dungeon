@@ -1,11 +1,9 @@
 package starter;
 
-import contrib.hud.dialogs.DialogFactory;
 import contrib.utils.components.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
-import core.network.client.ClientConnectionConfig;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 
@@ -22,7 +20,6 @@ public final class MultiplayerClient {
     // PreRun configuration for multiplayer client
     PreRunConfiguration.multiplayerEnabled(true);
     PreRunConfiguration.isNetworkServer(false);
-    PreRunConfiguration.networkServerAddress("127.0.0.1");
     PreRunConfiguration.networkPort(7777);
     PreRunConfiguration.username("Player1");
 
@@ -34,18 +31,10 @@ public final class MultiplayerClient {
     Game.userOnSetup(
         () -> {
           Game.add(new Debugger());
-          DialogFactory.showClientConnectionDialog(MultiplayerClient::connect);
           System.out.println("DevClient started");
         });
 
     // Start the game
     Game.run();
-  }
-
-  private static void connect(ClientConnectionConfig config) {
-    PreRunConfiguration.networkServerAddress(config.host());
-    PreRunConfiguration.networkPort(config.port());
-    Game.initializeNetwork();
-    Game.network().start();
   }
 }

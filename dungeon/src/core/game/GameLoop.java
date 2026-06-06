@@ -176,7 +176,7 @@ public final class GameLoop extends ScreenAdapter {
       config.setWindowedMode(PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
     }
 
-    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+    if (!PreRunConfiguration.multiplayerEnabled() || Game.isMultiplayerClient()) {
       new Lwjgl3Application(
           new com.badlogic.gdx.Game() {
             @Override
@@ -261,10 +261,10 @@ public final class GameLoop extends ScreenAdapter {
     clearScreen();
 
     // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
-    final boolean isMultiplayerClient =
-        PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
     ECSManagement.executeOneTick(
-        isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH);
+        Game.isMultiplayerClient()
+            ? System.AuthoritativeSide.CLIENT
+            : System.AuthoritativeSide.BOTH);
 
     InputManager.update();
     CameraSystem.camera().update();
@@ -337,16 +337,14 @@ public final class GameLoop extends ScreenAdapter {
   private void setup() {
     LOGGER.info("Setting up game...");
     doSetup = false;
-    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+    if (!PreRunConfiguration.multiplayerEnabled() || Game.isMultiplayerClient()) {
       setupClient();
     } else {
       Gdx.files = new HeadlessFiles();
     }
 
     PreRunConfiguration.userOnSetup().execute();
-    if (shouldStartNetworkAutomatically()) {
-      Game.network().start();
-    }
+    startNetworkOrShowClientConnectionDialog();
 
     if (!Game.isHeadless()) InputManager.init();
 
@@ -355,16 +353,35 @@ public final class GameLoop extends ScreenAdapter {
     } else if (shouldLoadInitialLevelAutomatically()) LOGGER.warn("No levels found to load!");
   }
 
-  private static boolean shouldStartNetworkAutomatically() {
-    return !isMultiplayerClient();
+  private static void startNetworkOrShowClientConnectionDialog() {
+    if (shouldStartNetworkAutomatically()) {
+      Game.network().start();
+      return;
+    }
+    if (shouldStartConfiguredClientNetwork()) {
+      Game.initializeNetwork();
+      Game.network().start();
+      return;
+    }
+    if (shouldShowClientConnectionDialog()) {
+      DialogFactory.showClientConnectionDialog();
+    }
   }
 
-  private static boolean shouldLoadInitialLevelAutomatically() {
-    return !isMultiplayerClient();
+  static boolean shouldStartNetworkAutomatically() {
+    return !Game.isMultiplayerClient();
   }
 
-  private static boolean isMultiplayerClient() {
-    return PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
+  static boolean shouldStartConfiguredClientNetwork() {
+    return Game.isMultiplayerClient() && PreRunConfiguration.hasNetworkServerAddress();
+  }
+
+  static boolean shouldShowClientConnectionDialog() {
+    return Game.isMultiplayerClient() && !PreRunConfiguration.hasNetworkServerAddress();
+  }
+
+  static boolean shouldLoadInitialLevelAutomatically() {
+    return !Game.isMultiplayerClient();
   }
 
   private static Optional<ClientState> clientState(Session ctx) {

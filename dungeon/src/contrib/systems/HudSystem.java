@@ -151,7 +151,7 @@ public final class HudSystem extends System {
     addMapping(entity, dialog, component);
     // Multiplayer clients only render dialogs. The server keeps callback ownership and
     // response authorization in DialogTracker.
-    if (!PreRunConfiguration.multiplayerEnabled() || PreRunConfiguration.isNetworkServer()) {
+    if (!Game.isMultiplayerClient()) {
       DialogTracker.instance().registerDialog(component);
     }
   }

@@ -31,7 +31,6 @@ Multiplayer requires two separate devices; local co-op on a single device is not
 1. Download the source code (or clone the repository) from GitHub on both devices
 2. On the **host device**, start the game with Gradle:
    * Run `./gradlew runTheLastHourServer` in one terminal and `./gradlew runTheLastHourClient` in a second terminal
-3. On the **client device**, open `theLastHourEscapeRoom/src/starter/LastHourClient` in a text editor of your choice
-4. Change the IP address in `PreRunConfiguration.networkServerAddress("127.0.0.1");` to the IP address of the host device. You can verify connectivity with a `ping`
-5. Also change `PreRunConfiguration.username("Player1");` to `PreRunConfiguration.username("Player2");`
-6. Start the game on the client with `./gradlew runTheLastHourClient`
+3. On the **client device**, change `PreRunConfiguration.username("Player1");` to `PreRunConfiguration.username("Player2");`
+4. Start the game on the client with `./gradlew runTheLastHourClient`
+5. Enter the host device's IP address in the connection dialog. You can verify connectivity with a `ping`

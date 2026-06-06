@@ -12,7 +12,6 @@ import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
 import core.game.PreRunConfiguration;
-import core.network.client.ClientConnectionConfig;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
@@ -489,19 +488,11 @@ public class DialogFactory {
    * <p>The dialog is not closable by user input. It closes itself after the client connection
    * listener reports a successful connection.
    *
-   * @param onConnect callback that starts the network connection for the parsed config
    * @return The {@link UIComponent} containing the dialog
    */
-  public static UIComponent showClientConnectionDialog(Consumer<ClientConnectionConfig> onConnect) {
-    Objects.requireNonNull(onConnect, "onConnect callback cannot be null");
+  public static UIComponent showClientConnectionDialog() {
     DialogContext ctx =
         DialogContext.builder().type(DialogType.DefaultTypes.CLIENT_CONNECTION).build();
-    ClientConnectionDialog.registerCallback(ctx.dialogId(), onConnect);
-    try {
-      return show(ctx, false, false);
-    } catch (RuntimeException e) {
-      ClientConnectionDialog.removeCallback(ctx.dialogId());
-      throw e;
-    }
+    return show(ctx, false, false);
   }
 }

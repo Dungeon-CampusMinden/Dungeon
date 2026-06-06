@@ -118,7 +118,19 @@ public final class Game {
   }
 
   private static boolean shouldStartNetworkAutomatically() {
-    return !PreRunConfiguration.multiplayerEnabled() || PreRunConfiguration.isNetworkServer();
+    return !isMultiplayerClient();
+  }
+
+  /**
+   * Checks whether this game instance is running as a multiplayer client.
+   *
+   * <p>A multiplayer client is a game instance with multiplayer enabled that connects to a separate
+   * network server instead of hosting the authoritative server runtime itself.
+   *
+   * @return True if multiplayer is enabled and this instance is not the network server.
+   */
+  public static boolean isMultiplayerClient() {
+    return PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
   }
 
   /**

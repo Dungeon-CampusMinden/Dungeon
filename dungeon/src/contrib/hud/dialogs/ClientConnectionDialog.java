@@ -12,15 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import core.Game;
+import core.game.PreRunConfiguration;
 import core.network.ConnectionListener;
 import core.network.client.ClientConnectionConfig;
 import core.utils.BaseContainerUI;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 /** Package-private builder for the local multiplayer client connection dialog. */
 final class ClientConnectionDialog {
@@ -30,12 +29,8 @@ final class ClientConnectionDialog {
   private static final String HOST_LABEL = "IP / Host";
   private static final String PORT_LABEL = "Port";
   private static final String START_FAILED_MESSAGE = "Server nicht erreichbar.";
-  private static final String MISSING_CALLBACK_MESSAGE =
-      "Verbindung kann gerade nicht gestartet werden.";
   private static final String CONNECTING_MESSAGE = "Verbindung wird aufgebaut...";
 
-  private static final Map<String, Consumer<ClientConnectionConfig>> CONNECT_CALLBACKS =
-      new ConcurrentHashMap<>();
   private static final ExecutorService CONNECT_EXECUTOR =
       Executors.newCachedThreadPool(
           runnable -> {
@@ -47,14 +42,6 @@ final class ClientConnectionDialog {
 
   private ClientConnectionDialog() {}
 
-  static void registerCallback(String dialogId, Consumer<ClientConnectionConfig> callback) {
-    CONNECT_CALLBACKS.put(dialogId, callback);
-  }
-
-  static void removeCallback(String dialogId) {
-    CONNECT_CALLBACKS.remove(dialogId);
-  }
-
   static Group build(DialogContext ctx) {
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup(TITLE, "", CONNECT_BUTTON);
@@ -64,7 +51,7 @@ final class ClientConnectionDialog {
     TextField hostField = new TextField("", skin);
     hostField.setMessageText(ClientConnectionConfig.DEFAULT_HOST);
     TextField portField = new TextField("", skin);
-    portField.setMessageText(Integer.toString(ClientConnectionConfig.DEFAULT_PORT));
+    portField.setMessageText(Integer.toString(PreRunConfiguration.networkPort()));
     Label errorLabel = new Label("", skin);
     errorLabel.setColor(Color.RED);
     errorLabel.setVisible(false);
@@ -105,15 +92,14 @@ final class ClientConnectionDialog {
 
     ClientConnectionConfig config;
     try {
-      config = ClientConnectionConfig.fromFields(hostField.getText(), portField.getText());
+      config =
+          ClientConnectionConfig.fromFields(
+              hostField.getText(),
+              portField.getText(),
+              ClientConnectionConfig.DEFAULT_HOST,
+              PreRunConfiguration.networkPort());
     } catch (IllegalArgumentException e) {
       showError(errorLabel, e.getMessage());
-      return false;
-    }
-
-    Consumer<ClientConnectionConfig> callback = CONNECT_CALLBACKS.get(context.dialogId());
-    if (callback == null) {
-      showError(errorLabel, MISSING_CALLBACK_MESSAGE);
       return false;
     }
 
@@ -128,9 +114,7 @@ final class ClientConnectionDialog {
     Game.network().addConnectionListener(listener);
     try {
       CONNECT_EXECUTOR.execute(
-          () ->
-              runConnectAttempt(
-                  context, callback, config, hostField, portField, errorLabel, listener));
+          () -> runConnectAttempt(context, config, hostField, portField, errorLabel, listener));
     } catch (RuntimeException e) {
       completeConnectAttempt(context, hostField, portField, errorLabel, false, listener);
     }
@@ -139,14 +123,16 @@ final class ClientConnectionDialog {
 
   private static void runConnectAttempt(
       DialogContext context,
-      Consumer<ClientConnectionConfig> callback,
       ClientConnectionConfig config,
       TextField hostField,
       TextField portField,
       Label errorLabel,
       ConnectionListener listener) {
     try {
-      callback.accept(config);
+      PreRunConfiguration.networkServerAddress(config.host());
+      PreRunConfiguration.networkPort(config.port());
+      Game.initializeNetwork();
+      Game.network().start();
     } catch (RuntimeException e) {
       postToUiThread(
           () -> completeConnectAttempt(context, hostField, portField, errorLabel, false, listener));
@@ -179,7 +165,6 @@ final class ClientConnectionDialog {
     CONNECTING_DIALOGS.remove(context.dialogId());
     if (success) {
       uiComponent(context).ifPresent(ui -> UIUtils.closeDialog(ui, true));
-      removeCallback(context.dialogId());
       return;
     }
     setInputDisabled(hostField, portField, false);
