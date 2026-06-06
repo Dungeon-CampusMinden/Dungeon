@@ -344,13 +344,15 @@ public final class GameLoop extends ScreenAdapter {
     }
 
     PreRunConfiguration.userOnSetup().execute();
-    Game.network().start();
+    if (PreRunConfiguration.autoStartNetwork()) {
+      Game.network().start();
+    }
 
     if (!Game.isHeadless()) InputManager.init();
 
-    if (!DungeonLoader.levelOrder().isEmpty()) {
+    if (PreRunConfiguration.autoLoadInitialLevel() && !DungeonLoader.levelOrder().isEmpty()) {
       if (Game.currentLevel().isEmpty()) DungeonLoader.loadLevel(0); // load the first level
-    } else LOGGER.warn("No levels found to load!");
+    } else if (PreRunConfiguration.autoLoadInitialLevel()) LOGGER.warn("No levels found to load!");
   }
 
   private static Optional<ClientState> clientState(Session ctx) {

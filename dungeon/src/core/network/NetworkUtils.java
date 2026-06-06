@@ -34,7 +34,8 @@ public final class NetworkUtils {
    */
   public static Set<Short> entityIdsToClientIds(int[] entityIds) {
     if (!Game.network().isServer() || !PreRunConfiguration.multiplayerEnabled()) {
-      return Set.of(Game.network().session().clientId()); // Single-player or client mode
+      Session session = Game.network().session();
+      return session == null ? Set.of() : Set.of(session.clientId()); // Single-player/client mode
     }
 
     Set<Short> clientIds = new HashSet<>();

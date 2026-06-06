@@ -29,6 +29,9 @@ public final class PreRunConfiguration {
   private static boolean NETWORK_IS_SERVER = true;
   private static String NETWORK_SERVER_ADDRESS = "127.0.0.1";
   private static int NETWORK_PORT = 7777;
+  private static boolean AUTO_START_NETWORK = true;
+  private static boolean AUTO_LOAD_INITIAL_LEVEL = true;
+  private static boolean EXIT_ON_NETWORK_FAILURE = true;
   private static String USERNAME = "Player";
   private static CharacterClass MULTIPLAYER_CHARACTER_CLASS = null;
   private static List<CharacterClass> MULTIPLAYER_CHARACTER_CLASSES =
@@ -329,6 +332,60 @@ public final class PreRunConfiguration {
    */
   public static void networkPort(int port) {
     NETWORK_PORT = port;
+  }
+
+  /**
+   * Checks if the network handler should be initialized and started automatically.
+   *
+   * @return true if the network handler should start during the default game setup, false otherwise
+   */
+  public static boolean autoStartNetwork() {
+    return AUTO_START_NETWORK;
+  }
+
+  /**
+   * Sets whether the network handler should be initialized and started automatically.
+   *
+   * @param autoStartNetwork true to start network during setup, false to start it manually later
+   */
+  public static void autoStartNetwork(boolean autoStartNetwork) {
+    AUTO_START_NETWORK = autoStartNetwork;
+  }
+
+  /**
+   * Checks if the first configured level should be loaded automatically during setup.
+   *
+   * @return true if the initial level should be loaded during setup, false otherwise
+   */
+  public static boolean autoLoadInitialLevel() {
+    return AUTO_LOAD_INITIAL_LEVEL;
+  }
+
+  /**
+   * Sets whether the first configured level should be loaded automatically during setup.
+   *
+   * @param autoLoadInitialLevel true to load the initial level during setup, false otherwise
+   */
+  public static void autoLoadInitialLevel(boolean autoLoadInitialLevel) {
+    AUTO_LOAD_INITIAL_LEVEL = autoLoadInitialLevel;
+  }
+
+  /**
+   * Checks if the game should exit when the network cannot be started.
+   *
+   * @return true if network start failures should exit the game, false otherwise
+   */
+  public static boolean exitOnNetworkFailure() {
+    return EXIT_ON_NETWORK_FAILURE;
+  }
+
+  /**
+   * Sets whether the game should exit when the network cannot be started.
+   *
+   * @param exitOnNetworkFailure true to exit on network start failures, false to keep running
+   */
+  public static void exitOnNetworkFailure(boolean exitOnNetworkFailure) {
+    EXIT_ON_NETWORK_FAILURE = exitOnNetworkFailure;
   }
 
   /**

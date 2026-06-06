@@ -12,6 +12,7 @@ import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
 import core.game.PreRunConfiguration;
+import core.network.client.ClientConnectionConfig;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
@@ -63,6 +64,8 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);
     register(DialogType.DefaultTypes.DIALOG_DIALOG, DialogDialog::build);
     register(DialogType.DefaultTypes.PUZZLE, PuzzleDialog::build);
+    register(DialogType.DefaultTypes.CLIENT_CONNECTION, ClientConnectionDialog::build);
+    LOGGER.debug("Registered built-in dialog types");
   }
 
   /**
@@ -478,5 +481,28 @@ public class DialogFactory {
     ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onFinished.execute());
 
     return ui;
+  }
+
+  /**
+   * Shows the local multiplayer client connection dialog.
+   *
+   * <p>The dialog is not closable by user input. It closes itself only after the provided callback
+   * returns true.
+   *
+   * @param onConnect callback that starts the network connection for the parsed config
+   * @return The {@link UIComponent} containing the dialog
+   */
+  public static UIComponent showClientConnectionDialog(
+      Function<ClientConnectionConfig, Boolean> onConnect) {
+    Objects.requireNonNull(onConnect, "onConnect callback cannot be null");
+    DialogContext ctx =
+        DialogContext.builder().type(DialogType.DefaultTypes.CLIENT_CONNECTION).build();
+    ClientConnectionDialog.registerCallback(ctx.dialogId(), onConnect);
+    try {
+      return show(ctx, false, false);
+    } catch (RuntimeException e) {
+      ClientConnectionDialog.removeCallback(ctx.dialogId());
+      throw e;
+    }
   }
 }

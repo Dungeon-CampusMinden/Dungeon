@@ -149,7 +149,9 @@ public final class HudSystem extends System {
             () -> sendDialogToClients(entity, component, affectedIds));
 
     addMapping(entity, dialog, component);
-    DialogTracker.instance().registerDialog(component);
+    if (!PreRunConfiguration.multiplayerEnabled() || PreRunConfiguration.isNetworkServer()) {
+      DialogTracker.instance().registerDialog(component);
+    }
   }
 
   /**

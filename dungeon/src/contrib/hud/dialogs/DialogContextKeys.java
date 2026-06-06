@@ -40,6 +40,9 @@ public class DialogContextKeys {
   /** The key for the callback function to execute on confirmation. */
   public static final String ON_CONFIRM = "onConfirm";
 
+  /** The key for the callback function to execute on client connection. */
+  public static final String ON_CONNECT = "onConnect";
+
   /** The key for the callback function to execute on a "Yes" response. */
   public static final String ON_YES = "onYes";
 

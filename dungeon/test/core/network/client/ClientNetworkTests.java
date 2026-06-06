@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import core.game.PreRunConfiguration;
 import core.network.ConnectionListener;
 import core.network.config.NetworkConfig;
 import core.network.messages.c2s.InputMessage;
@@ -15,6 +16,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,6 +49,7 @@ public class ClientNetworkTests {
   @AfterEach
   public void cleanup() {
     client.shutdown("test");
+    PreRunConfiguration.exitOnNetworkFailure(true);
   }
 
   /** Validates that client network initializes without throwing exceptions. */
@@ -196,6 +199,30 @@ public class ClientNetworkTests {
 
     assertEquals(0, udpCalls.get());
     assertEquals(1, tcpCalls.get());
+  }
+
+  /** Validates that immediate TCP failures are retryable without leaving the client running. */
+  @Test
+  public void test_startFailureDoesNotLeaveRunningState() throws Exception {
+    PreRunConfiguration.exitOnNetworkFailure(false);
+    int unusedPort = unusedLocalPort();
+    client.initialize(TEST_HOST, unusedPort, "TestPlayer", Optional.empty());
+
+    assertFalse(client.start());
+    client.pollAndDispatch();
+    assertFalse(client.isConnected());
+    assertFalse(atomicBooleanField("running").get());
+
+    assertDoesNotThrow(
+        () -> client.initialize(TEST_HOST, unusedPort, "TestPlayer", Optional.empty()));
+    assertFalse(atomicBooleanField("running").get());
+  }
+
+  private int unusedLocalPort() throws Exception {
+    try (ServerSocket socket = new ServerSocket(0)) {
+      socket.setReuseAddress(false);
+      return socket.getLocalPort();
+    }
   }
 
   private Session testSession(AtomicInteger udpCalls, AtomicInteger tcpCalls) {

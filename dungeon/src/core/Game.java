@@ -101,18 +101,10 @@ public final class Game {
       networkHandler = new LocalNetworkHandler();
     }
 
-    try {
-      // Explicitly inject a SnapshotTranslator before initialization
-      networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
-      networkHandler.initialize(
-          PreRunConfiguration.isNetworkServer(),
-          PreRunConfiguration.networkServerAddress(),
-          PreRunConfiguration.networkPort(),
-          PreRunConfiguration.username(),
-          PreRunConfiguration.multiplayerCharacterClass());
-      LOGGER.info("Network handler initialized.");
-    } catch (NetworkException e) {
-      LOGGER.error("Failed to initialize network handler.", e);
+    // Explicitly inject a SnapshotTranslator before initialization.
+    networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
+    if (PreRunConfiguration.autoStartNetwork()) {
+      initializeNetwork();
     }
 
     WindowEventManager.registerCloseRequestListener(
@@ -123,6 +115,27 @@ public final class Game {
 
     // Start the main game loop
     GameLoop.run();
+  }
+
+  /**
+   * Initializes the current network handler with the values from {@link PreRunConfiguration}.
+   *
+   * <p>This method is used by the default auto-start flow and can also be called by clients that
+   * collect host and port information after the LibGDX window has already opened.
+   */
+  public static void initializeNetwork() {
+    try {
+      network()
+          .initialize(
+              PreRunConfiguration.isNetworkServer(),
+              PreRunConfiguration.networkServerAddress(),
+              PreRunConfiguration.networkPort(),
+              PreRunConfiguration.username(),
+              PreRunConfiguration.multiplayerCharacterClass());
+      LOGGER.info("Network handler initialized.");
+    } catch (NetworkException e) {
+      LOGGER.error("Failed to initialize network handler.", e);
+    }
   }
 
   /**

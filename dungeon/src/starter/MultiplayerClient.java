@@ -1,9 +1,11 @@
 package starter;
 
+import contrib.hud.dialogs.DialogFactory;
 import contrib.utils.components.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
+import core.network.client.ClientConnectionConfig;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 
@@ -23,6 +25,9 @@ public final class MultiplayerClient {
     PreRunConfiguration.networkServerAddress("127.0.0.1");
     PreRunConfiguration.networkPort(7777);
     PreRunConfiguration.username("Player1");
+    PreRunConfiguration.autoStartNetwork(false);
+    PreRunConfiguration.autoLoadInitialLevel(false);
+    PreRunConfiguration.exitOnNetworkFailure(false);
 
     // Game Settings
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
@@ -32,10 +37,18 @@ public final class MultiplayerClient {
     Game.userOnSetup(
         () -> {
           Game.add(new Debugger());
+          DialogFactory.showClientConnectionDialog(MultiplayerClient::connect);
           System.out.println("DevClient started");
         });
 
     // Start the game
     Game.run();
+  }
+
+  private static boolean connect(ClientConnectionConfig config) {
+    PreRunConfiguration.networkServerAddress(config.host());
+    PreRunConfiguration.networkPort(config.port());
+    Game.initializeNetwork();
+    return Game.network().start();
   }
 }

@@ -11,6 +11,7 @@ import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
 
 import contrib.entities.CharacterClass;
 import core.Game;
+import core.game.PreRunConfiguration;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.messages.NetworkMessage;
@@ -117,6 +118,15 @@ public final class ClientNetwork {
    */
   public void initialize(
       String host, int port, String username, Optional<CharacterClass> characterClass) {
+    if (running.get()) {
+      LOGGER.warn("ClientNetwork is already running; ignoring re-initialization request.");
+      return;
+    }
+    closeTransportResources();
+    connected.set(false);
+    session = null;
+    clientId = null;
+    udpRecoveryState.enterRetryMode();
     this.remoteHost = host;
     this.port = port;
     this.username = username;
@@ -132,10 +142,13 @@ public final class ClientNetwork {
    * After start completes, the client will attempt the handshake over TCP; on TCP connect the
    * ConnectRequest is sent automatically.
    */
-  public void start() {
-    if (!running.compareAndSet(false, true)) return;
-    startTcp();
+  public boolean start() {
+    if (!running.compareAndSet(false, true)) return true;
+    if (!startTcp()) {
+      return false;
+    }
     startUdpIfNeeded();
+    return true;
   }
 
   /**
@@ -144,19 +157,12 @@ public final class ClientNetwork {
    * @param reason human-readable reason used for lifecycle callbacks and logging
    */
   public void shutdown(String reason) {
-    if (!running.compareAndSet(true, false)) return;
-    try {
-      cancelUdpMaintenance();
-      if (tcp != null) tcp.close().syncUninterruptibly();
-      if (udp != null) udp.close().syncUninterruptibly();
-    } catch (Exception e) {
-      LOGGER.warn("Error closing channels", e);
+    if (!running.compareAndSet(true, false)) {
+      closeTransportResources();
+      connected.set(false);
+      return;
     }
-    try {
-      if (group != null) group.shutdownGracefully();
-    } catch (Exception e) {
-      LOGGER.warn("Error shutting down event loop", e);
-    }
+    closeTransportResources();
     connected.set(false);
     LOGGER.info("ClientNetwork shutdown. Reason: {}", reason);
   }
@@ -343,7 +349,7 @@ public final class ClientNetwork {
 
   // ---- internals ----
 
-  private void startTcp() {
+  private boolean startTcp() {
     Bootstrap cb = new Bootstrap();
     cb.group(group)
         .channel(NioSocketChannel.class)
@@ -416,7 +422,8 @@ public final class ClientNetwork {
                             LOGGER.error(
                                 "ConnectRequest too large ({} bytes); cannot connect", data.length);
                             enqueueLifecycle(() -> notifyDisconnected("ConnectRequest too large"));
-                            Game.exit("Unable to connect to server at " + remoteHost + ":" + port);
+                            exitOnNetworkFailure(
+                                "Unable to connect to server at " + remoteHost + ":" + port);
                           }
                         } catch (IOException e) {
                           LOGGER.warn("Failed to send ConnectRequest", e);
@@ -437,7 +444,7 @@ public final class ClientNetwork {
                         LOGGER.warn("TCP client error", cause);
                         cancelUdpMaintenance();
                         enqueueLifecycle(() -> notifyDisconnected(cause.getMessage()));
-                        Game.exit("TCP error: " + cause.getMessage());
+                        exitOnNetworkFailure("TCP error: " + cause.getMessage());
                       }
                     });
               }
@@ -445,15 +452,69 @@ public final class ClientNetwork {
     try {
       ChannelFuture f = cb.connect(new InetSocketAddress(remoteHost, port)).syncUninterruptibly();
       tcp = f.channel();
+      return true;
     } catch (Exception e) {
-      if (e.getCause() instanceof ConnectException) {
+      if (hasCause(e, ConnectException.class)) {
         LOGGER.error(
             "Failed to connect TCP to server at {}:{} - {}", remoteHost, port, e.getMessage());
-        enqueueLifecycle(() -> notifyDisconnected("Connection refused"));
-        Game.exit("Unable to connect to server at " + remoteHost + ":" + port);
+        handleImmediateStartFailure("Connection refused");
       } else {
-        throw e;
+        LOGGER.error("Failed to start TCP client for {}:{} - {}", remoteHost, port, e.getMessage());
+        handleImmediateStartFailure("Network start failed: " + e.getMessage());
       }
+      return false;
+    }
+  }
+
+  private boolean hasCause(Throwable throwable, Class<? extends Throwable> causeType) {
+    Throwable current = throwable;
+    while (current != null) {
+      if (causeType.isInstance(current)) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
+  private void handleImmediateStartFailure(String reason) {
+    enqueueLifecycle(() -> notifyDisconnected(reason));
+    closeTransportResources();
+    connected.set(false);
+    running.set(false);
+    session = null;
+    clientId = null;
+    udpRecoveryState.enterRetryMode();
+    exitOnNetworkFailure("Unable to connect to server at " + remoteHost + ":" + port);
+  }
+
+  private void closeTransportResources() {
+    try {
+      cancelUdpMaintenance();
+      if (tcp != null) {
+        tcp.close().syncUninterruptibly();
+        tcp = null;
+      }
+      if (udp != null) {
+        udp.close().syncUninterruptibly();
+        udp = null;
+      }
+    } catch (Exception e) {
+      LOGGER.warn("Error closing channels", e);
+    }
+    try {
+      if (group != null) {
+        group.shutdownGracefully();
+        group = null;
+      }
+    } catch (Exception e) {
+      LOGGER.warn("Error shutting down event loop", e);
+    }
+  }
+
+  private void exitOnNetworkFailure(String reason) {
+    if (PreRunConfiguration.exitOnNetworkFailure()) {
+      Game.exit(reason);
     }
   }
 

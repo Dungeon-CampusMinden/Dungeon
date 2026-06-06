@@ -18,6 +18,7 @@ import core.components.PositionComponent;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
 import core.level.loader.DungeonLoader;
+import core.network.client.ClientConnectionConfig;
 import core.network.config.NetworkConfig;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.utils.CursorUtil;
@@ -55,6 +56,9 @@ public final class LastHourClient {
     PreRunConfiguration.networkPort(7777);
     PreRunConfiguration.username("Player1");
     PreRunConfiguration.multiplayerCharacterClass(null); // server decides
+    PreRunConfiguration.autoStartNetwork(false);
+    PreRunConfiguration.autoLoadInitialLevel(false);
+    PreRunConfiguration.exitOnNetworkFailure(false);
 
     registerCustomDialogs();
     UsbStickItem.ensureRegistration();
@@ -82,11 +86,19 @@ public final class LastHourClient {
           Game.add(new ComputerStateSyncSystem());
           TheLastHour.setupMusic();
           TheLastHour.staticRenderTextures();
+          DialogFactory.showClientConnectionDialog(LastHourClient::connect);
           System.out.println("DevClient started");
         });
 
     // Start the game
     Game.run();
+  }
+
+  private static boolean connect(ClientConnectionConfig config) {
+    PreRunConfiguration.networkServerAddress(config.host());
+    PreRunConfiguration.networkPort(config.port());
+    Game.initializeNetwork();
+    return Game.network().start();
   }
 
   private static void registerCustomDialogs() {

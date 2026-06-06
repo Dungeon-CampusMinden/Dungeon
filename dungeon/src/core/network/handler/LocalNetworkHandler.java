@@ -84,15 +84,16 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public void start() {
+  public boolean start() {
     if (!isInitialized) {
       LOGGER.error("LocalNetworkHandler cannot start because it is not initialized.");
-      return;
+      return false;
     }
     this.isRunning = true;
     Game.player().ifPresent(dummyState::playerEntity);
     LOGGER.info("LocalNetworkHandler started.");
     notifyConnected();
+    return true;
   }
 
   @Override
