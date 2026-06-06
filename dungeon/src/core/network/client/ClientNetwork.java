@@ -628,6 +628,7 @@ public final class ClientNetwork {
       session.sendMessage(connectRequest(), true);
     } else {
       // Close the connection upon rejection
+      enqueueLifecycle(() -> notifyRejected(reason));
       enqueueLifecycle(() -> notifyDisconnected(reasonStr));
       session.tcpCtx().close();
     }
@@ -849,6 +850,16 @@ public final class ClientNetwork {
         l.onDisconnected(cause);
       } catch (Exception e) {
         LOGGER.warn("onDisconnected error", e);
+      }
+    }
+  }
+
+  private void notifyRejected(ConnectReject.Reason reason) {
+    for (ConnectionListener l : connectionListeners) {
+      try {
+        l.onRejected(reason);
+      } catch (Exception e) {
+        LOGGER.warn("onRejected error", e);
       }
     }
   }
