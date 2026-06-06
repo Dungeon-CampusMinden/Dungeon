@@ -31,6 +31,5 @@ Multiplayer requires two separate devices; local co-op on a single device is not
 1. Download the source code (or clone the repository) from GitHub on both devices
 2. On the **host device**, start the game with Gradle:
    * Run `./gradlew runTheLastHourServer` in one terminal and `./gradlew runTheLastHourClient` in a second terminal
-3. On the **client device**, change `PreRunConfiguration.username("Player1");` to `PreRunConfiguration.username("Player2");`
-4. Start the game on the client with `./gradlew runTheLastHourClient`
-5. Enter the host device's IP address in the connection dialog. You can verify connectivity with a `ping`
+3. On the **client device**, start the game with `./gradlew runTheLastHourClient`
+4. Enter a player name and the host device's IP address in the connection dialog. You can verify connectivity with a `ping`

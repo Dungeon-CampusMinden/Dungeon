@@ -3,6 +3,7 @@ package core.network.client;
 import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.MAX_TCP_OBJECT_SIZE;
+import static core.network.config.NetworkConfig.PROTOCOL_VERSION;
 import static core.network.config.NetworkConfig.SAFE_UDP_MTU;
 import static core.network.config.NetworkConfig.TCP_CONNECT_TIMEOUT_MS;
 import static core.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
@@ -76,7 +77,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
-  private static final short CLIENT_PROTOCOL_VERSION = 2;
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
@@ -831,7 +831,7 @@ public final class ClientNetwork {
 
   private ConnectRequest connectRequest(int sessionId, byte[] sessionToken) {
     return new ConnectRequest(
-        CLIENT_PROTOCOL_VERSION, username, sessionId, sessionToken, requestedCharacterClass);
+        PROTOCOL_VERSION, username, sessionId, sessionToken, requestedCharacterClass);
   }
 
   private void notifyConnected() {

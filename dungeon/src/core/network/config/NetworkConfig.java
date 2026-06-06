@@ -37,6 +37,9 @@ public final class NetworkConfig {
   /** Safe UDP Maximum Transmission Unit (MTU) size to avoid fragmentation, in bytes. */
   public static final int SAFE_UDP_MTU = 1400;
 
+  /** Protocol version used by multiplayer clients and servers during the connection handshake. */
+  public static final short PROTOCOL_VERSION = 2;
+
   /**
    * Number of attempts for UDP client registration.
    *

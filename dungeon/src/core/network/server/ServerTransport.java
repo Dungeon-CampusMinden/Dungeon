@@ -3,6 +3,7 @@ package core.network.server;
 import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.MAX_TCP_OBJECT_SIZE;
+import static core.network.config.NetworkConfig.PROTOCOL_VERSION;
 import static core.network.config.NetworkConfig.SAFE_UDP_MTU;
 import static core.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
 import static core.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
@@ -77,7 +78,6 @@ import java.util.function.Consumer;
  */
 public final class ServerTransport {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerTransport.class);
-  private static final short SERVER_PROTOCOL_VERSION = 2;
 
   private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
 
@@ -489,11 +489,11 @@ public final class ServerTransport {
         req.playerName(),
         req.sessionId(),
         session);
-    if (req.protocolVersion() != SERVER_PROTOCOL_VERSION) {
+    if (req.protocolVersion() != PROTOCOL_VERSION) {
       session.sendMessage(new ConnectReject(ConnectReject.Reason.INCOMPATIBLE_VERSION), true);
       LOGGER.info(
           "Rejected ConnectRequest due to incompatible version: server={} client={}",
-          SERVER_PROTOCOL_VERSION,
+          PROTOCOL_VERSION,
           req.protocolVersion());
       return;
     }

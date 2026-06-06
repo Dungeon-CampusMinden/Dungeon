@@ -1,7 +1,10 @@
 package contrib.hud.dialogs;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -14,6 +17,7 @@ import core.Game;
 import core.game.PreRunConfiguration;
 import core.network.ConnectionListener;
 import core.network.client.ClientConnectionConfig;
+import core.network.config.NetworkConfig;
 import core.network.messages.s2c.ConnectReject;
 import core.utils.BaseContainerUI;
 import java.util.Locale;
@@ -37,6 +41,7 @@ final class ClientConnectionDialog {
       "Spielername ungültig oder bereits vergeben.";
   private static final String CONNECTING_MESSAGE = "Verbindung wird aufgebaut...";
   private static final String FALLBACK_USERNAME = "Player";
+  private static final String VERSION_COLOR = "#777777";
   private static final float USERNAME_FIELD_WIDTH = 438f;
   private static final String ERROR_COLOR = "#bb0000";
   private static final String STATUS_COLOR = "light_gray";
@@ -76,10 +81,12 @@ final class ClientConnectionDialog {
         new HandledDialog(
             TITLE, skin, (ignoredDialog, button) -> handleConnect(ctx, form, button));
     DialogDesign.setDialogDefaults(dialog, TITLE);
+    clearFocusOnEscape(dialog);
 
     Table fields = new Table();
     fields.defaults().pad(4);
-    fields.add(usernameLabel).left().colspan(2).row();
+    fields.add(usernameLabel).left();
+    fields.add(versionLabel()).right().top().pad(0).padTop(-2f).row();
     fields.add(usernameField).width(USERNAME_FIELD_WIDTH).colspan(2).row();
     fields.add(new RichLabel(HOST_LABEL, DialogDesign.DIALOG_FONT_SPEC_NORMAL)).left();
     fields.add(new RichLabel(PORT_LABEL, DialogDesign.DIALOG_FONT_SPEC_NORMAL)).left().row();
@@ -173,7 +180,9 @@ final class ClientConnectionDialog {
       public void onRejected(ConnectReject.Reason reason) {
         if (reason == ConnectReject.Reason.INVALID_NAME) {
           completeConnectAttempt(context, form, false, this, REJECTED_USERNAME_MESSAGE, true);
+          return;
         }
+        completeConnectAttempt(context, form, false, this, reason.toString(), false);
       }
     };
   }
@@ -283,6 +292,32 @@ final class ClientConnectionDialog {
   private static void focusUsername(TextField usernameField) {
     usernameField.selectAll();
     Game.stage().ifPresent(stage -> stage.setKeyboardFocus(usernameField));
+  }
+
+  private static RichLabel versionLabel() {
+    return new RichLabel(
+        "[color="
+            + VERSION_COLOR
+            + "][size=14]Client-Version "
+            + NetworkConfig.PROTOCOL_VERSION
+            + "[/size][/color]",
+        DialogDesign.DIALOG_FONT_SPEC_NORMAL);
+  }
+
+  private static void clearFocusOnEscape(Dialog dialog) {
+    dialog.addCaptureListener(
+        new InputListener() {
+          @Override
+          public boolean keyDown(InputEvent event, int keycode) {
+            if (keycode != Input.Keys.ESCAPE) {
+              return false;
+            }
+            event.getStage().setKeyboardFocus(null);
+            event.getStage().setScrollFocus(null);
+            event.stop();
+            return true;
+          }
+        });
   }
 
   private static void showRichMessage(RichLabel errorLabel, String color, String message) {
