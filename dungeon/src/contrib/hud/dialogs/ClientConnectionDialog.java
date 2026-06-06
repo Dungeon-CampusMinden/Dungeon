@@ -1,5 +1,6 @@
 package contrib.hud.dialogs;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -16,6 +17,8 @@ import core.utils.BaseContainerUI;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 
 /** Package-private builder for the local multiplayer client connection dialog. */
@@ -25,12 +28,21 @@ final class ClientConnectionDialog {
   private static final String CONNECT_BUTTON = "Verbinden";
   private static final String HOST_LABEL = "IP / Host";
   private static final String PORT_LABEL = "Port";
-  private static final String START_FAILED_MESSAGE =
-      "Verbindung fehlgeschlagen. Bitte Host und Port prüfen.";
-  private static final String MISSING_CALLBACK_MESSAGE = "Verbindungs-Callback fehlt.";
+  private static final String START_FAILED_MESSAGE = "Server nicht erreichbar.";
+  private static final String MISSING_CALLBACK_MESSAGE =
+      "Verbindung kann gerade nicht gestartet werden.";
+  private static final String CONNECTING_MESSAGE = "Verbindung wird aufgebaut...";
 
   private static final Map<String, Function<ClientConnectionConfig, Boolean>> CONNECT_CALLBACKS =
       new ConcurrentHashMap<>();
+  private static final ExecutorService CONNECT_EXECUTOR =
+      Executors.newCachedThreadPool(
+          runnable -> {
+            Thread thread = new Thread(runnable, "client-connect");
+            thread.setDaemon(true);
+            return thread;
+          });
+  private static final java.util.Set<String> CONNECTING_DIALOGS = ConcurrentHashMap.newKeySet();
 
   private ClientConnectionDialog() {}
 
@@ -105,17 +117,80 @@ final class ClientConnectionDialog {
       return false;
     }
 
-    if (Boolean.TRUE.equals(callback.apply(config))) {
-      uiComponent(context).ifPresent(ui -> UIUtils.closeDialog(ui, true));
-      removeCallback(context.dialogId());
-    } else {
-      showError(errorLabel, START_FAILED_MESSAGE);
+    if (!CONNECTING_DIALOGS.add(context.dialogId())) {
+      showStatus(errorLabel, CONNECTING_MESSAGE);
       return false;
     }
-    return true;
+
+    setInputDisabled(hostField, portField, true);
+    showStatus(errorLabel, CONNECTING_MESSAGE);
+    try {
+      CONNECT_EXECUTOR.execute(
+          () -> runConnectAttempt(context, callback, config, hostField, portField, errorLabel));
+    } catch (RuntimeException e) {
+      CONNECTING_DIALOGS.remove(context.dialogId());
+      setInputDisabled(hostField, portField, false);
+      showError(errorLabel, START_FAILED_MESSAGE);
+    }
+    return false;
+  }
+
+  private static void runConnectAttempt(
+      DialogContext context,
+      Function<ClientConnectionConfig, Boolean> callback,
+      ClientConnectionConfig config,
+      TextField hostField,
+      TextField portField,
+      Label errorLabel) {
+    boolean success = false;
+    try {
+      success = Boolean.TRUE.equals(callback.apply(config));
+    } catch (RuntimeException e) {
+      success = false;
+    }
+
+    boolean connectionStarted = success;
+    postToUiThread(
+        () -> completeConnectAttempt(context, hostField, portField, errorLabel, connectionStarted));
+  }
+
+  private static void completeConnectAttempt(
+      DialogContext context,
+      TextField hostField,
+      TextField portField,
+      Label errorLabel,
+      boolean success) {
+    CONNECTING_DIALOGS.remove(context.dialogId());
+    if (success) {
+      uiComponent(context).ifPresent(ui -> UIUtils.closeDialog(ui, true));
+      removeCallback(context.dialogId());
+      return;
+    }
+    setInputDisabled(hostField, portField, false);
+    showError(errorLabel, START_FAILED_MESSAGE);
+  }
+
+  private static void postToUiThread(Runnable runnable) {
+    if (Gdx.app == null) {
+      runnable.run();
+      return;
+    }
+    Gdx.app.postRunnable(runnable);
+  }
+
+  private static void setInputDisabled(TextField hostField, TextField portField, boolean disabled) {
+    hostField.setDisabled(disabled);
+    portField.setDisabled(disabled);
+  }
+
+  private static void showStatus(Label errorLabel, String message) {
+    errorLabel.setColor(Color.LIGHT_GRAY);
+    errorLabel.setText(message);
+    errorLabel.setVisible(true);
   }
 
   private static void showError(Label errorLabel, String message) {
+    errorLabel.setColor(Color.RED);
     errorLabel.setText(message);
     errorLabel.setVisible(true);
   }

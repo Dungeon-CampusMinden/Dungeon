@@ -1,6 +1,9 @@
 package core.network.client;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * Connection settings for a multiplayer client.
@@ -9,6 +12,15 @@ import java.util.Objects;
  * @param port server TCP/UDP port
  */
 public record ClientConnectionConfig(String host, int port) {
+  private static final String HOST_ERROR_MESSAGE = "Ungültige IP-Adresse oder ungültiger Hostname.";
+  private static final String PORT_ERROR_MESSAGE = "Ungültiger Port.";
+  private static final Pattern HOSTNAME_PATTERN =
+      Pattern.compile(
+          "(?=.{1,253}\\.?$)(?!-)[A-Za-z0-9-]{1,63}(?<!-)"
+              + "(\\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*\\.?");
+  private static final Pattern DIGITS_ONLY_PATTERN = Pattern.compile("[0-9]+");
+  private static final Pattern IPV4_CANDIDATE_PATTERN = Pattern.compile("[0-9.]+");
+
   /** Default host used when the dialog host field is empty. */
   public static final String DEFAULT_HOST = "127.0.0.1";
 
@@ -71,21 +83,70 @@ public record ClientConnectionConfig(String host, int port) {
     try {
       return Integer.parseInt(trimmed);
     } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("Port muss eine Zahl sein.", e);
+      throw new IllegalArgumentException(PORT_ERROR_MESSAGE, e);
     }
   }
 
   private static String validateHost(String host) {
     String trimmed = Objects.requireNonNullElse(host, "").trim();
     if (trimmed.isEmpty()) {
-      throw new IllegalArgumentException("Host darf nicht leer sein.");
+      throw new IllegalArgumentException(HOST_ERROR_MESSAGE);
+    }
+    if (trimmed.contains("/")) {
+      throw new IllegalArgumentException(HOST_ERROR_MESSAGE);
+    }
+    if (trimmed.contains(":")) {
+      return validateIpv6Literal(trimmed);
+    }
+    if (IPV4_CANDIDATE_PATTERN.matcher(trimmed).matches() && trimmed.contains(".")) {
+      return validateIpv4Literal(trimmed);
+    }
+    if (DIGITS_ONLY_PATTERN.matcher(trimmed).matches()) {
+      throw new IllegalArgumentException(HOST_ERROR_MESSAGE);
+    }
+    if (!HOSTNAME_PATTERN.matcher(trimmed).matches()) {
+      throw new IllegalArgumentException(HOST_ERROR_MESSAGE);
     }
     return trimmed;
   }
 
+  private static String validateIpv4Literal(String host) {
+    String[] octets = host.split("\\.", -1);
+    if (octets.length != 4) {
+      throw new IllegalArgumentException(HOST_ERROR_MESSAGE);
+    }
+    for (String octet : octets) {
+      if (octet.isEmpty()) {
+        throw new IllegalArgumentException(HOST_ERROR_MESSAGE);
+      }
+      int value;
+      try {
+        value = Integer.parseInt(octet);
+      } catch (NumberFormatException e) {
+        throw new IllegalArgumentException(HOST_ERROR_MESSAGE, e);
+      }
+      if (value > 255) {
+        throw new IllegalArgumentException(HOST_ERROR_MESSAGE);
+      }
+    }
+    return host;
+  }
+
+  private static String validateIpv6Literal(String host) {
+    try {
+      InetAddress address = InetAddress.getByName(host);
+      if (address.getHostAddress().contains(":")) {
+        return host;
+      }
+    } catch (UnknownHostException e) {
+      throw new IllegalArgumentException(HOST_ERROR_MESSAGE, e);
+    }
+    throw new IllegalArgumentException(HOST_ERROR_MESSAGE);
+  }
+
   private static void validatePort(int port) {
     if (port < 1 || port > 65535) {
-      throw new IllegalArgumentException("Port muss zwischen 1 und 65535 liegen.");
+      throw new IllegalArgumentException(PORT_ERROR_MESSAGE);
     }
   }
 }

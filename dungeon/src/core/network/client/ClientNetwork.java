@@ -32,6 +32,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
@@ -77,6 +78,7 @@ public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
   private static final short CLIENT_PROTOCOL_VERSION = 2;
+  private static final int TCP_CONNECT_TIMEOUT_MILLIS = 2500;
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
@@ -132,15 +134,17 @@ public final class ClientNetwork {
     this.username = username;
     this.requestedCharacterClass = characterClass == null ? Optional.empty() : characterClass;
     this.group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
-    this.udpRemote = new InetSocketAddress(host, port);
+    this.udpRemote = InetSocketAddress.createUnresolved(host, port);
   }
 
   /**
    * Start network IO: connect TCP and bind UDP.
    *
-   * <p>This method is safe to call once. It returns quickly Netty performs IO on its own threads.
-   * After start completes, the client will attempt the handshake over TCP; on TCP connect the
-   * ConnectRequest is sent automatically.
+   * <p>This method is safe to call once. TCP startup waits up to the configured connect timeout;
+   * after TCP connects, Netty performs IO on its own threads and sends the ConnectRequest
+   * automatically.
+   *
+   * @return true if transport startup succeeded, false if the TCP connection failed immediately
    */
   public boolean start() {
     if (!running.compareAndSet(false, true)) return true;
@@ -353,6 +357,7 @@ public final class ClientNetwork {
     Bootstrap cb = new Bootstrap();
     cb.group(group)
         .channel(NioSocketChannel.class)
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TCP_CONNECT_TIMEOUT_MILLIS)
         .handler(
             new ChannelInitializer<SocketChannel>() {
               @Override
@@ -387,6 +392,7 @@ public final class ClientNetwork {
                       @Override
                       public void channelActive(ChannelHandlerContext ctx) {
                         connected.set(true);
+                        updateUdpRemote(ctx.channel());
                         // Create a client-side Session bound to this TCP ctx and using client
                         // senders
                         session =
@@ -450,8 +456,9 @@ public final class ClientNetwork {
               }
             });
     try {
-      ChannelFuture f = cb.connect(new InetSocketAddress(remoteHost, port)).syncUninterruptibly();
+      ChannelFuture f = cb.connect(remoteHost, port).syncUninterruptibly();
       tcp = f.channel();
+      updateUdpRemote(tcp);
       return true;
     } catch (Exception e) {
       if (hasCause(e, ConnectException.class)) {
@@ -463,6 +470,13 @@ public final class ClientNetwork {
         handleImmediateStartFailure("Network start failed: " + e.getMessage());
       }
       return false;
+    }
+  }
+
+  private void updateUdpRemote(Channel channel) {
+    if (channel.remoteAddress() instanceof InetSocketAddress remoteAddress
+        && remoteAddress.getAddress() != null) {
+      udpRemote = new InetSocketAddress(remoteAddress.getAddress(), port);
     }
   }
 

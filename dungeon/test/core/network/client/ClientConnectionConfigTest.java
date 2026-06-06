@@ -25,6 +25,60 @@ public class ClientConnectionConfigTest {
     assertEquals("example.org", config.host());
   }
 
+  /** Local IPv4 addresses are accepted. */
+  @Test
+  public void ipv4HostIsAccepted() {
+    ClientConnectionConfig config = ClientConnectionConfig.fromFields("192.168.178.42", "");
+
+    assertEquals("192.168.178.42", config.host());
+  }
+
+  /** IPv6 literals are accepted. */
+  @Test
+  public void ipv6HostIsAccepted() {
+    ClientConnectionConfig config = ClientConnectionConfig.fromFields("::1", "");
+
+    assertEquals("::1", config.host());
+  }
+
+  /** CIDR masks are rejected because the client needs one concrete host. */
+  @Test
+  public void hostWithNetworkMaskIsRejected() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ClientConnectionConfig.fromFields("192.168.178.0/24", ""));
+  }
+
+  /** Mask placeholder characters are rejected before the network stack tries to resolve them. */
+  @Test
+  public void hostWithMaskPlaceholderIsRejected() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ClientConnectionConfig.fromFields("192.168.178.___", ""));
+  }
+
+  /** Malformed IPv4 addresses are rejected. */
+  @Test
+  public void malformedIpv4HostIsRejected() {
+    assertThrows(
+        IllegalArgumentException.class, () -> ClientConnectionConfig.fromFields("192.168.178", ""));
+  }
+
+  /** Numeric-only hosts are rejected as malformed IPv4 input. */
+  @Test
+  public void numericOnlyHostIsRejected() {
+    assertThrows(
+        IllegalArgumentException.class, () -> ClientConnectionConfig.fromFields("1231231231", ""));
+  }
+
+  /** IPv4 blocks above 255 are rejected. */
+  @Test
+  public void ipv4BlockAboveMaximumIsRejected() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ClientConnectionConfig.fromFields("192.168.178.999", ""));
+  }
+
   /** A valid port input is parsed and used. */
   @Test
   public void validPortIsUsed() {
