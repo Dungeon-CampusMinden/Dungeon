@@ -78,8 +78,7 @@ final class ClientConnectionDialog {
             usernameField, hostField, portField, usernameLabel, errorLabel, defaultUsername);
 
     Dialog dialog =
-        new HandledDialog(
-            TITLE, skin, (ignoredDialog, button) -> handleConnect(ctx, form, button));
+        new HandledDialog(TITLE, skin, (ignoredDialog, button) -> handleConnect(ctx, form, button));
     DialogDesign.setDialogDefaults(dialog, TITLE);
     clearFocusOnEscape(dialog);
 
