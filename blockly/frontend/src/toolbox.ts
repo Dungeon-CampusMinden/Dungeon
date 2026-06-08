@@ -1,11 +1,14 @@
 import * as Blockly from "blockly";
+import {myCustomMessages} from "./language.ts";
+
+Object.assign(Blockly.Msg, myCustomMessages.de);
 
 export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
   kind: "categoryToolbox",
   contents: [
     {
       kind: "category",
-      name: "Start",
+      name: "%{BKY_CAT_START}",
       colour: "160",
       contents: [
         {
@@ -16,7 +19,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     },
     {
       kind: "category",
-      name: "Bewegung",
+      name: "%{BKY_CAT_MOVEMENT}",
       colour: "180",
       contents: [
         {
@@ -31,7 +34,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     },
     {
       kind: "category",
-      name: "Richtungen",
+      name: "%{BKY_CAT_DIRECTIONS}",
       colour: "200",
       contents: [
         {
@@ -58,42 +61,42 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     },
     {
       kind: "category",
-      name: "Inventar & Charakter",
+      name: "%{BKY_CAT_INVENTORY}",
       colour: "40",
       contents: [
-            {
-              kind: "block",
-              type: "fireball",
-            },
-            {
-              kind: "block",
-              type: "wait",
-            },
-            {
-              kind: "block",
-              type: "use",
-            },
-            {
-              kind: "block",
-              type: "push",
-            },
-            {
-              kind: "block",
-              type: "pull",
-            },
-            {
-              kind: "block",
-              type: "shoot_blue_portal",
-            },
-            {
-              kind: "block",
-              type: "shoot_green_portal",
-            },
-          ],
+        {
+          kind: "block",
+          type: "fireball",
         },
+        {
+          kind: "block",
+          type: "wait",
+        },
+        {
+          kind: "block",
+          type: "use",
+        },
+        {
+          kind: "block",
+          type: "push",
+        },
+        {
+          kind: "block",
+          type: "pull",
+        },
+        {
+          kind: "block",
+          type: "shoot_blue_portal",
+        },
+        {
+          kind: "block",
+          type: "shoot_green_portal",
+        },
+      ],
+    },
     {
       kind: "category",
-      name: "Abfragen",
+      name: "%{BKY_CAT_QUERIES}",
       colour: "250",
       contents: [
         {
@@ -108,7 +111,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     },
     {
       kind: "category",
-      name: "Wahrheitsausdruecke",
+      name: "%{BKY_CAT_BOOLEAN}",
       colour: "120",
       contents: [
         {
@@ -131,7 +134,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     },
     {
       kind: "category",
-      name: "Variablen",
+      name: "%{BKY_CAT_VARIABLES}",
       colour: "220",
       contents: [
         {
@@ -158,7 +161,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     },
     {
       kind: "category",
-      name: "Schleife",
+      name: "%{BKY_CAT_LOOPS}",
       colour: "280",
       contents: [
         {
@@ -177,7 +180,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     },
     {
       kind: "category",
-      name: "Bedingung",
+      name: "%{BKY_CAT_CONDITIONS}",
       colour: "0",
       contents: [
         {

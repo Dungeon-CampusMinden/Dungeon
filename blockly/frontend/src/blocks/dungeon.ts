@@ -9,23 +9,23 @@ delete Blockly.Blocks["controls_ifelse"];
 export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   {
     type: "start",
-    message0: "Start",
+    message0: "%{BKY_BLOCK_START_MSG}",
     nextStatement: null,
     colour: 120,
-    tooltip: "Startpunkt des Spiels",
+    tooltip: "%{BKY_BLOCK_START_TOOLTIP}",
   },
   // ---------------------- Movement ----------------------
   {
     type: "move",
-    message0: "Gehe",
+    message0: "%{BKY_BLOCK_MOVE_MSG}",
     previousStatement: null,
     nextStatement: null,
     colour: 180,
-    tooltip: "Bewegt den Spieler in die Richtung in die er schaut",
+    tooltip: "%{BKY_BLOCK_MOVE_TOOLTIP}",
   },
   {
     type: "rotate",
-    message0: "Drehe %1",
+    message0: "%{BKY_BLOCK_ROTATE_MSG}",
     args0: [
       {
         type: "input_value",
@@ -36,7 +36,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     colour: 180,
-    tooltip: "Dreht den Spieler nach links oder rechts",
+    tooltip: "%{BKY_BLOCK_ROTATE_TOOLTIP}",
   },
   // ---------------------- Variables ----------------------
   {
@@ -44,7 +44,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     message0: "%{BKY_VARIABLES_SET}",
-    tooltip: "Verändert den Wert einer existierenden Variable",
+    tooltip: "%{BKY_BLOCK_SET_NUMBER_TOOLTIP}",
     args0: [
       {
         type: "field_variable",
@@ -57,14 +57,14 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: ["Expression", "Array_get", "Number"],
       },
     ],
-    colour:220,
+    colour: 220,
   },
   {
     type: "set_number_expression",
     previousStatement: null,
     nextStatement: null,
-    message0: "erstelle und %{BKY_VARIABLES_SET}",
-    tooltip: "Erstellt eine neue Variable mit einem Wert",
+    message0: "%{BKY_BLOCK_SET_EXPRESSION_MSG}",
+    tooltip: "%{BKY_BLOCK_SET_EXPRESSION_TOOLTIP}",
     args0: [
       {
         type: "field_variable",
@@ -105,10 +105,10 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         type: "field_dropdown",
         name: "OPERATOR",
         options: [
-          ["plus", "+"],
-          ["minus", "-"],
-          ["mal", "*"],
-          ["geteilt", "/"],
+          ["%{BKY_OP_PLUS}", "+"],
+          ["%{BKY_OP_MINUS}", "-"],
+          ["%{BKY_OP_MULTIPLY}", "*"],
+          ["%{BKY_OP_DIVIDE}", "/"],
         ],
       },
       {
@@ -119,7 +119,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Expression",
-    tooltip: "Rechenoperation",
+    tooltip: "%{BKY_BLOCK_EXPRESSION_TOOLTIP}",
     colour: 220,
   },
   {
@@ -140,31 +140,31 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   // ---------------------- Directions ----------------------
   {
     type: "direction_up",
-    message0: "vorne",
+    message0: "%{BKY_DIR_UP}",
     output: "Direction",
     colour: 200,
   },
   {
     type: "direction_down",
-    message0: "hinten",
+    message0: "%{BKY_DIR_DOWN}",
     output: "Direction",
     colour: 200
   },
   {
     type: "direction_left",
-    message0: "links",
+    message0: "%{BKY_DIR_LEFT}",
     output: "Direction",
     colour: 200
   },
   {
     type: "direction_right",
-    message0: "rechts",
+    message0: "%{BKY_DIR_RIGHT}",
     output: "Direction",
     colour: 200
   },
   {
     type: "direction_here",
-    message0: "hier",
+    message0: "%{BKY_DIR_HERE}",
     output: "Direction",
     colour: 200
   },
@@ -176,11 +176,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "TIMES",
-        check: ["Number",
-          "Variable",
-          "Array_get",
-          "Expression"
-        ]
+        check: ["Number", "Variable", "Array_get", "Expression"]
       },
     ],
     message1: "%{BKY_CONTROLS_REPEAT_INPUT_DO} %1",
@@ -232,7 +228,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       },
     ],
     output: "Number",
-    tooltip: "Anzahl wiederholungen",
+    tooltip: "%{BKY_BLOCK_REPEAT_NUMBER_TOOLTIP}",
     colour: 280,
   },
   // ---------------------- truth expressions ----------------------
@@ -250,7 +246,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       },
     ],
     output: "Boolean",
-    tooltip: "Gibt 'Wahr' oder 'Falsch' aus.",
+    tooltip: "%{BKY_BLOCK_LOGIC_BOOL_TOOLTIP}",
     colour: 120,
   },
   {
@@ -260,42 +256,34 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "INPUT_A",
-        check: ["Number",
-          "Variable",
-          "Array_get",
-          "Expression"
-        ],
+        check: ["Number", "Variable", "Array_get", "Expression"],
       },
       {
         type: "field_dropdown",
         name: "OPERATOR",
         options: [
-          ["gleich", "=="],
-          ["ungleich", "!="],
-          ["größer gleich", ">="],
-          ["größer", ">"],
-          ["kleiner gleich", "<="],
-          ["kleiner", "<"],
+          ["%{BKY_OP_EQ}", "=="],
+          ["%{BKY_OP_NEQ}", "!="],
+          ["%{BKY_OP_GTE}", ">="],
+          ["%{BKY_OP_GT}", ">"],
+          ["%{BKY_OP_LTE}", "<="],
+          ["%{BKY_OP_LT}", "<"],
         ],
       },
       {
         type: "input_value",
         name: "INPUT_B",
-        check: ["Number",
-          "Variable",
-          "Array_get",
-          "Expression"
-        ],
+        check: ["Number", "Variable", "Array_get", "Expression"],
       },
     ],
     inputsInline: true,
     output: "Boolean",
-    tooltip: "Vergleicht zwei Werte, z.B. ob sie gleich oder größer sind.",
+    tooltip: "%{BKY_BLOCK_USUAL_COND_TOOLTIP}",
     colour: 120,
   },
   {
     type: "not_condition",
-    message0: "nicht %1",
+    message0: "%{BKY_BLOCK_NOT_COND_MSG}",
     args0: [
       {
         type: "input_value",
@@ -305,7 +293,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Boolean",
-    tooltip: "Verneint oder kehrt eine Bedingung um.",
+    tooltip: "%{BKY_BLOCK_NOT_COND_TOOLTIP}",
     colour: 120,
   },
   {
@@ -321,8 +309,8 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         type: "field_dropdown",
         name: "LOGIC_OPERATOR",
         options: [
-          ["und", "&&"],
-          ["oder", "||"],
+          ["%{BKY_OP_AND}", "&&"],
+          ["%{BKY_OP_OR}", "||"],
         ],
       },
       {
@@ -333,15 +321,15 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Boolean",
-    tooltip: "Verknüpfe zwei Bedingungen. 'Und' nur, wenn beide wahr sind. 'Oder', wenn mindestens eine wahr ist.",
+    tooltip: "%{BKY_BLOCK_LOGIC_OP_TOOLTIP}",
     colour: 120,
   },
   // ---------------------- Conditions ----------------------
   {
     type: "logic_wall_direction",
-    message0: "Wand %1",
+    message0: "%{BKY_BLOCK_WALL_MSG}",
     output: "Boolean",
-    tooltip: "Überprüfe, ob eine Wand in die Richtung ist",
+    tooltip: "%{BKY_BLOCK_WALL_TOOLTIP}",
     args0: [
       {
         type: "input_value",
@@ -353,9 +341,9 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "logic_floor_direction",
-    message0: "Boden %1",
+    message0: "%{BKY_BLOCK_FLOOR_MSG}",
     output: "Boolean",
-    tooltip: "Überprüfe, ob ein Boden in die Richtung ist",
+    tooltip: "%{BKY_BLOCK_FLOOR_TOOLTIP}",
     args0: [
       {
         type: "input_value",
@@ -367,9 +355,9 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "logic_pit_direction",
-    message0: "Loch %1",
+    message0: "%{BKY_BLOCK_PIT_MSG}",
     output: "Boolean",
-    tooltip: "Überprüfe, ob ein Loch in die Richtung ist",
+    tooltip: "%{BKY_BLOCK_PIT_TOOLTIP}",
     args0: [
       {
         type: "input_value",
@@ -381,9 +369,9 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "logic_monster_direction",
-    message0: "Monster %1",
+    message0: "%{BKY_BLOCK_MONSTER_MSG}",
     output: "Boolean",
-    tooltip: "Überprüfe, ob ein Monster in die Richtung ist",
+    tooltip: "%{BKY_BLOCK_MONSTER_TOOLTIP}",
     args0: [
       {
         type: "input_value",
@@ -395,9 +383,9 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "logic_switch_direction",
-    message0: "Schalter/Fackel %1",
+    message0: "%{BKY_BLOCK_SWITCH_MSG}",
     output: "Boolean",
-    tooltip: "Überprüfe, ob ein Schalter in die Richtung ist",
+    tooltip: "%{BKY_BLOCK_SWITCH_TOOLTIP}",
     args0: [
       {
         type: "input_value",
@@ -409,9 +397,9 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "logic_active_direction",
-    message0: "aktiv %1",
+    message0: "%{BKY_BLOCK_ACTIVE_MSG}",
     output: "Boolean",
-    tooltip: "Überprüfe, ob ein aktives Objekt in der Richtung ist",
+    tooltip: "%{BKY_BLOCK_ACTIVE_TOOLTIP}",
     args0: [
       {
         type: "input_value",
@@ -423,9 +411,9 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "logic_bossView_direction",
-    message0: "boss guckt %1",
+    message0: "%{BKY_BLOCK_BOSS_MSG}",
     output: "Boolean",
-    tooltip: "Überprüfe, ob der Boss in eine bestimmte Richtung guckt",
+    tooltip: "%{BKY_BLOCK_BOSS_TOOLTIP}",
     args0: [
       {
         type: "input_value",
@@ -456,7 +444,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     output: "if",
-    tooltip: "Führt Anweisung aus, wenn die Bedingung wahr ist.",
+    tooltip: "%{BKY_BLOCK_IF_TOOLTIP}",
     colour: 250,
     suppressPrefixSuffix: true,
   },
@@ -487,43 +475,44 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     output: "if",
-    tooltip: "Führt Anweisung aus, wenn die Bedingung wahr ist, sonst andere Anweisung.",
+    // Hier setzen wir die neue Variable ein
+    tooltip: "%{BKY_BLOCK_IFELSE_TOOLTIP}",
     colour: 250,
     suppressPrefixSuffix: true,
   },
   // ---------------------- Skills ----------------------
   {
     type: "interact",
-    message0: "Interagieren",
+    message0: "%{BKY_BLOCK_INTERACT_MSG}",
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "Mit Items interagieren",
+    tooltip: "%{BKY_BLOCK_INTERACT_TOOLTIP}",
     output: "Skill",
   },
   {
     type: "fireball",
-    message0: "Feuerball",
+    message0: "%{BKY_BLOCK_FIREBALL_MSG}",
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "Feuerball in Richtung schießen",
+    tooltip: "%{BKY_BLOCK_FIREBALL_TOOLTIP}",
   },
   {
     type: "wait",
-    message0: "warte",
+    message0: "%{BKY_BLOCK_WAIT_MSG}",
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "Warte für einen kurzen Moment.",
+    tooltip: "%{BKY_BLOCK_WAIT_TOOLTIP}",
   },
   {
     type: "use",
-    message0: "benutzen %1",
+    message0: "%{BKY_BLOCK_USE_MSG}",
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "Benutze den Gegenstand in der gewünschten Richtung.",
+    tooltip: "%{BKY_BLOCK_USE_TOOLTIP}",
     args0: [
       {
         type: "input_value",
@@ -534,34 +523,34 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "push",
-    message0: "schiebe",
+    message0: "%{BKY_BLOCK_PUSH_MSG}",
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "Schieb ein bewegliches Objekt vorwärts.",
+    tooltip: "%{BKY_BLOCK_PUSH_TOOLTIP}",
   },
   {
     type: "pull",
-    message0: "ziehen",
+    message0: "%{BKY_BLOCK_PULL_MSG}",
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "Zieh ein bewegliches Objekt rückwärts.",
+    tooltip: "%{BKY_BLOCK_PULL_TOOLTIP}",
   },
   {
     type: "shoot_blue_portal",
-    message0: "blue portal",
+    message0: "%{BKY_BLOCK_BLUE_PORTAL_MSG}",
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "balues Portal in Blickrichtung schießen",
+    tooltip: "%{BKY_BLOCK_BLUE_PORTAL_TOOLTIP}",
   },
   {
     type: "shoot_green_portal",
-    message0: "green portal",
+    message0: "%{BKY_BLOCK_GREEN_PORTAL_MSG}",
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "grünes Portal in Blickrichtung schießen",
+    tooltip: "%{BKY_BLOCK_GREEN_PORTAL_TOOLTIP}",
   }
 ]);
