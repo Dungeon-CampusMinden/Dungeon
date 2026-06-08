@@ -42,12 +42,31 @@ import core.utils.settings.ButtonBindingSetting;
 import core.utils.settings.ClientSettings;
 import core.utils.settings.DescriptionSetting;
 import core.utils.settings.SectionDividerSetting;
+import java.awt.BorderLayout;
+import java.awt.GraphicsEnvironment;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import level.LastHourLevel;
 import modules.computer.ComputerStateSyncSystem;
 import modules.usbstick.UsbStickItem;
@@ -68,6 +87,7 @@ public class TheLastHour {
   private static final String APPLICATION_PROPERTIES = "/application.properties";
   private static final String SERVER_ARGUMENT = "--server";
   private static final String SERVER_PROPERTY = "server";
+  private static final String SERVER_STOP_REASON = "Server stopped from status window";
 
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static Music backgroundMusic;
@@ -151,6 +171,7 @@ public class TheLastHour {
                     GameLoop.onLevelLoad.execute();
                     Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
                   }));
+      showServerStatusWindow();
     } else {
       Entity hero =
           HeroBuilder.builder().characterClass(CharacterClass.THE_LAST_HOUR_CHAR03).build();
@@ -176,6 +197,92 @@ public class TheLastHour {
       ECSManagement.add(new DebugDrawSystem());
       ECSManagement.add(new LevelEditorSystem());
     }
+  }
+
+  private static void showServerStatusWindow() {
+    String serverInfo = serverInfoText();
+    if (GraphicsEnvironment.isHeadless()) {
+      System.out.println(serverInfo);
+      return;
+    }
+
+    SwingUtilities.invokeLater(() -> createServerStatusWindow(serverInfo).setVisible(true));
+  }
+
+  private static JFrame createServerStatusWindow(String serverInfo) {
+    JFrame frame = new JFrame("The Last Hour Server");
+    frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
+    JTextArea infoText = new JTextArea(serverInfo);
+    infoText.setEditable(false);
+    infoText.setFocusable(false);
+
+    JButton stopButton = new JButton("Stop Server");
+    stopButton.addActionListener(
+        event -> {
+          stopButton.setEnabled(false);
+          frame.dispose();
+          Game.exit(SERVER_STOP_REASON);
+        });
+
+    JPanel content = new JPanel(new BorderLayout(12, 12));
+    content.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+    content.add(new JLabel("Server is running"), BorderLayout.NORTH);
+    content.add(infoText, BorderLayout.CENTER);
+    content.add(stopButton, BorderLayout.SOUTH);
+
+    frame.addWindowListener(
+        new WindowAdapter() {
+          @Override
+          public void windowClosing(WindowEvent event) {
+            frame.dispose();
+            Game.exit(SERVER_STOP_REASON);
+          }
+        });
+    frame.setContentPane(content);
+    frame.pack();
+    frame.setLocationRelativeTo(null);
+    return frame;
+  }
+
+  private static String serverInfoText() {
+    StringBuilder info = new StringBuilder();
+    info.append("Port: ").append(PreRunConfiguration.networkPort()).append(System.lineSeparator());
+    info.append("IP addresses:").append(System.lineSeparator());
+    localIpAddresses().forEach(ip -> info.append("  ").append(ip).append(System.lineSeparator()));
+    return info.toString();
+  }
+
+  private static List<String> localIpAddresses() {
+    List<String> addresses = new ArrayList<>();
+
+    try {
+      for (NetworkInterface networkInterface :
+          Collections.list(NetworkInterface.getNetworkInterfaces())) {
+        if (!networkInterface.isUp()
+            || networkInterface.isLoopback()
+            || networkInterface.isVirtual()) {
+          continue;
+        }
+
+        Collections.list(networkInterface.getInetAddresses()).stream()
+            .filter(Inet4Address.class::isInstance)
+            .map(InetAddress::getHostAddress)
+            .forEach(addresses::add);
+      }
+    } catch (SocketException e) {
+      // Fall back below.
+    }
+
+    if (addresses.isEmpty()) {
+      try {
+        addresses.add(InetAddress.getLocalHost().getHostAddress());
+      } catch (UnknownHostException e) {
+        addresses.add("127.0.0.1");
+      }
+    }
+
+    return addresses;
   }
 
   /** Registers the local world timer render/callback system on non-headless clients. */
