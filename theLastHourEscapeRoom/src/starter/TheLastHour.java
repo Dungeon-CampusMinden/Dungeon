@@ -43,8 +43,10 @@ import core.utils.settings.ClientSettings;
 import core.utils.settings.DescriptionSetting;
 import core.utils.settings.SectionDividerSetting;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import level.LastHourLevel;
 import modules.computer.ComputerStateSyncSystem;
@@ -63,7 +65,9 @@ import network.LastHourSnapshotTranslator;
  */
 public class TheLastHour {
 
+  private static final String APPLICATION_PROPERTIES = "/application.properties";
   private static final String SERVER_ARGUMENT = "--server";
+  private static final String SERVER_PROPERTY = "server";
 
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static Music backgroundMusic;
@@ -81,7 +85,7 @@ public class TheLastHour {
    * @param args command-line arguments (not used in this starter)
    */
   public static void main(String[] args) {
-    boolean runMpServer = args != null && Arrays.asList(args).contains(SERVER_ARGUMENT);
+    boolean runMpServer = shouldRunMpServer(args);
 
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)
@@ -110,6 +114,25 @@ public class TheLastHour {
     NetworkConfig.SNAPSHOT_TRANSLATOR = new LastHourSnapshotTranslator();
     NetworkConfig.ENTITY_SPAWN_STRATEGY = new LastHourEntitySpawnStrategy();
     Game.run();
+  }
+
+  private static boolean shouldRunMpServer(String[] args) {
+    if (args != null && Arrays.asList(args).contains(SERVER_ARGUMENT)) {
+      return true;
+    }
+
+    try (InputStream propertiesStream =
+        TheLastHour.class.getResourceAsStream(APPLICATION_PROPERTIES)) {
+      if (propertiesStream == null) {
+        return false;
+      }
+
+      Properties properties = new Properties();
+      properties.load(propertiesStream);
+      return properties.containsKey(SERVER_PROPERTY);
+    } catch (IOException e) {
+      return false;
+    }
   }
 
   private static void onUserSetup(boolean runMpServer) {

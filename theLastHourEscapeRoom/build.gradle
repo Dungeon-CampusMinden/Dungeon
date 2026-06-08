@@ -54,6 +54,7 @@ tasks.register('buildTheLastHourJar', Jar) {
     group = 'jar'
     archiveBaseName.set('TheLastHour')
     archiveFileName.set('TheLastHour.jar')
+    dependsOn configurations.runtimeClasspath
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
@@ -85,8 +86,9 @@ tasks.register('buildTheLastHourJar', Jar) {
 
 tasks.register('buildTheLastHourServerJar', Jar) {
     group = 'jar'
-    archiveBaseName.set('TheLastHour')
+    archiveBaseName.set('TheLastHourServer')
     archiveFileName.set('TheLastHourServer.jar')
+    dependsOn configurations.runtimeClasspath
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
@@ -108,8 +110,12 @@ tasks.register('buildTheLastHourServerJar', Jar) {
     // manifest
     manifest {
         attributes(
-            'Main-Class': 'starter.TheLastHourServer'
+            'Main-Class': 'starter.TheLastHour'
         )
+    }
+
+    from(resources.text.fromString('server')) {
+        rename { 'application.properties' }
     }
 
     // exclude signature files
@@ -118,8 +124,9 @@ tasks.register('buildTheLastHourServerJar', Jar) {
 
 tasks.register('buildTheLastHourClientJar', Jar) {
     group = 'jar'
-    archiveBaseName.set('TheLastHour')
+    archiveBaseName.set('TheLastHourClient')
     archiveFileName.set('TheLastHourClient.jar')
+    dependsOn configurations.runtimeClasspath
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
@@ -141,7 +148,7 @@ tasks.register('buildTheLastHourClientJar', Jar) {
     // manifest
     manifest {
         attributes(
-            'Main-Class': 'starter.TheLastHourClient'
+            'Main-Class': 'starter.LastHourClient'
         )
     }
 
@@ -188,6 +195,5 @@ runtime {
 
     }
 }
-
 
 
