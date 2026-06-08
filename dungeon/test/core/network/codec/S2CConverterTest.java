@@ -19,6 +19,8 @@ import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.network.codec.converters.s2c.ConnectAckConverter;
 import core.network.codec.converters.s2c.ConnectRejectConverter;
+import core.network.codec.converters.s2c.DebugPongConverter;
+import core.network.codec.converters.s2c.DebugTelemetrySnapshotConverter;
 import core.network.codec.converters.s2c.DeltaSnapshotConverter;
 import core.network.codec.converters.s2c.DialogCloseConverter;
 import core.network.codec.converters.s2c.DialogShowConverter;
@@ -34,6 +36,8 @@ import core.network.codec.converters.s2c.SoundPlayConverter;
 import core.network.codec.converters.s2c.SoundStopConverter;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
+import core.network.messages.s2c.DebugPong;
+import core.network.messages.s2c.DebugTelemetrySnapshot;
 import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.DialogCloseMessage;
 import core.network.messages.s2c.DialogShowMessage;
@@ -88,6 +92,9 @@ public class S2CConverterTest {
   private static final RegisterAckConverter REGISTER_ACK_CONVERTER = new RegisterAckConverter();
   private static final SoundPlayConverter SOUND_PLAY_CONVERTER = new SoundPlayConverter();
   private static final SoundStopConverter SOUND_STOP_CONVERTER = new SoundStopConverter();
+  private static final DebugTelemetrySnapshotConverter DEBUG_TELEMETRY_SNAPSHOT_CONVERTER =
+      new DebugTelemetrySnapshotConverter();
+  private static final DebugPongConverter DEBUG_PONG_CONVERTER = new DebugPongConverter();
 
   private static DrawInfoData createDrawInfo() {
     DrawInfoData.AnimationConfigData animationConfig =
@@ -552,5 +559,60 @@ public class S2CConverterTest {
 
     SoundStopMessage roundTrip = SOUND_STOP_CONVERTER.fromProto(proto);
     assertEquals(55L, roundTrip.soundInstanceId());
+  }
+
+  /** Verifies debug telemetry snapshot conversion roundtrip. */
+  @Test
+  public void testDebugTelemetrySnapshotRoundTrip() {
+    DebugTelemetrySnapshot message =
+        new DebugTelemetrySnapshot(
+            12L,
+            1_000L,
+            new DebugTelemetrySnapshot.Transport(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L),
+            new DebugTelemetrySnapshot.Transport(31L, 32L, 33L, 34L, 35L, 36L, 37L, 38L),
+            new DebugTelemetrySnapshot.Udp(9L, 10L, 11L, 12L, "fallback", "drop", "failure"),
+            new DebugTelemetrySnapshot.Snapshots(13L, 14L, 15, 16, 17, 18, 19, 20, 21, 22L),
+            new DebugTelemetrySnapshot.Windows(23L, 24L, 25L, 26L),
+            List.of(new DebugTelemetrySnapshot.Client((short) 2, true, 101.5f, 500L, 44)));
+
+    core.network.proto.s2c.DebugTelemetrySnapshot proto =
+        DEBUG_TELEMETRY_SNAPSHOT_CONVERTER.toProto(message);
+    assertEquals(12L, proto.getRequestId());
+    assertEquals(1_000L, proto.getServerTimeMs());
+    assertEquals(1, proto.getClientsCount());
+    assertEquals(2, proto.getClients(0).getClientId());
+    assertTrue(proto.getClients(0).getUdpReady());
+    assertEquals(31L, proto.getDebugTcpOutboundMessages());
+    assertEquals(38L, proto.getDebugUdpInboundBytes());
+
+    DebugTelemetrySnapshot roundTrip = DEBUG_TELEMETRY_SNAPSHOT_CONVERTER.fromProto(proto);
+    assertEquals(message.requestId(), roundTrip.requestId());
+    assertEquals(message.transport().tcpOutboundBytes(), roundTrip.transport().tcpOutboundBytes());
+    assertEquals(
+        message.debugTransport().udpInboundBytes(), roundTrip.debugTransport().udpInboundBytes());
+    assertEquals(
+        message.snapshots().lastDeltaRemovals(), roundTrip.snapshots().lastDeltaRemovals());
+    assertEquals(message.udp().lastFallbackReason(), roundTrip.udp().lastFallbackReason());
+    assertEquals(1, roundTrip.clients().size());
+    assertEquals(2, roundTrip.clients().getFirst().clientId());
+    assertEquals(101.5f, roundTrip.clients().getFirst().rttEstimateMs(), DELTA);
+  }
+
+  /** Verifies debug pong conversion roundtrip. */
+  @Test
+  public void testDebugPongRoundTrip() {
+    DebugPong message = new DebugPong(5L, 10L, 20L, 30L);
+
+    core.network.proto.s2c.DebugPong proto = DEBUG_PONG_CONVERTER.toProto(message);
+    assertEquals(5L, proto.getRequestId());
+    assertEquals(10L, proto.getClientTimeNanos());
+    assertEquals(20L, proto.getServerReceiveTimeMs());
+    assertEquals(30L, proto.getServerSendTimeMs());
+
+    DebugPong roundTrip = DEBUG_PONG_CONVERTER.fromProto(proto);
+    assertEquals(message.requestId(), roundTrip.requestId());
+    assertEquals(message.clientTimeNanos(), roundTrip.clientTimeNanos());
+    assertEquals(message.serverReceiveTimeMs(), roundTrip.serverReceiveTimeMs());
+    assertEquals(message.serverSendTimeMs(), roundTrip.serverSendTimeMs());
   }
 }

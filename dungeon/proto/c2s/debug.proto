@@ -1,0 +1,32 @@
+// Client-to-server debug telemetry messages.
+
+syntax = "proto3";
+
+package dungeon.c2s;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.c2s";
+option java_outer_classname = "DebugProto";
+
+// Client-to-server: request server-side network telemetry.
+// Maps to: core.network.messages.c2s.DebugTelemetryRequest
+message DebugTelemetryRequest {
+  int64 request_id = 1;
+  DebugTelemetryRequestMode mode = 2;
+  int32 interval_ms = 3;
+}
+
+// Request mode for debug telemetry.
+enum DebugTelemetryRequestMode {
+  DEBUG_TELEMETRY_REQUEST_MODE_UNSPECIFIED = 0;
+  DEBUG_TELEMETRY_REQUEST_MODE_ONCE = 1;
+  DEBUG_TELEMETRY_REQUEST_MODE_START_STREAM = 2;
+  DEBUG_TELEMETRY_REQUEST_MODE_STOP_STREAM = 3;
+}
+
+// Client-to-server: debug ping for real RTT measurement.
+// Maps to: core.network.messages.c2s.DebugPing
+message DebugPing {
+  int64 request_id = 1;
+  int64 client_time_nanos = 2;
+}

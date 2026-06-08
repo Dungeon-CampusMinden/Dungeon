@@ -1,5 +1,6 @@
 package core.network.server;
 
+import core.network.NetworkTelemetry;
 import core.network.messages.NetworkMessage;
 import core.utils.logging.DungeonLogger;
 import io.netty.channel.ChannelHandlerContext;
@@ -209,11 +210,18 @@ public final class Session {
 
   private CompletableFuture<Boolean> sendUdpObject(NetworkMessage msg) {
     if (!udpReady || udpSender == null || udpAddress == null) {
+      NetworkTelemetry.recordUdpFallback("UDP not ready");
       return sendTcpObject(msg);
     }
     return udpSender
         .apply(udpAddress, msg)
         .thenCompose(
-            success -> success ? CompletableFuture.completedFuture(true) : sendTcpObject(msg));
+            success -> {
+              if (success) {
+                return CompletableFuture.completedFuture(true);
+              }
+              NetworkTelemetry.recordUdpFallback("UDP sender failed");
+              return sendTcpObject(msg);
+            });
   }
 }

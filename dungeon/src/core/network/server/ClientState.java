@@ -58,13 +58,13 @@ public class ClientState {
    * The estimated round-trip time (RTT) in milliseconds. Updated based on clientTick vs. server
    * reception time; used for lag compensation. Initialized to 0 (unknown).
    */
-  private float rttEstimateMs = 0.0f;
+  private volatile float rttEstimateMs = 0.0f;
 
   /**
    * The last known client tick (from InputMessage.clientTick). Helps in correlating client time
    * with server ticks for prediction/reconciliation.
    */
-  private long lastClientTick = 0;
+  private volatile long lastClientTick = 0;
 
   /**
    * The entity of the player (local player).
@@ -78,7 +78,7 @@ public class ClientState {
    * Timestamp of the last activity (heartbeat, input, or event) in system millis. Used for
    * disconnect detection (timeout) and reconnect window eligibility.
    */
-  private long lastActivityTimeMs;
+  private volatile long lastActivityTimeMs;
 
   /** Per-client server-side snapshot acknowledgement state. */
   private final ClientSnapshotSyncState snapshotSync = new ClientSnapshotSyncState();

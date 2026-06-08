@@ -32,10 +32,13 @@ import core.level.loader.DungeonLoader;
 import core.level.loader.LevelParser;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
+import core.network.NetworkTelemetry;
 import core.network.client.ClientNetwork;
 import core.network.delta.SnapshotDeltaCompressor;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.SnapshotAck;
+import core.network.messages.s2c.DebugPong;
+import core.network.messages.s2c.DebugTelemetrySnapshot;
 import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.DialogCloseMessage;
 import core.network.messages.s2c.DialogShowMessage;
@@ -501,13 +504,25 @@ public final class GameLoop extends ScreenAdapter {
           Game.exit(event.reason());
         });
     dispatcher.registerHandler(
+        DebugTelemetrySnapshot.class,
+        (ctx, event) -> {
+          NetworkTelemetry.recordServerSnapshot(event);
+        });
+    dispatcher.registerHandler(
+        DebugPong.class,
+        (ctx, event) -> {
+          NetworkTelemetry.recordDebugPong(event);
+        });
+    dispatcher.registerHandler(
         SnapshotMessage.class,
         (ctx, event) -> {
           try {
+            long applyStartNanos = java.lang.System.nanoTime();
             Optional<ClientState> clientState = clientState(ctx);
             if (clientState.isPresent()) {
               ClientState state = clientState.orElseThrow();
               if (event.serverTick() <= state.latestAppliedSnapshotTick()) {
+                NetworkTelemetry.recordStaleSnapshot(false);
                 LOGGER.debug("Skipped stale full snapshot at tick {}.", event.serverTick());
                 return;
               }
@@ -519,6 +534,12 @@ public final class GameLoop extends ScreenAdapter {
                   reconcileNetworkEntities(state, event);
                   sendSnapshotAck(event.serverTick());
                 });
+            NetworkTelemetry.recordSnapshotApplied(
+                false,
+                event.serverTick(),
+                event.entities().size(),
+                0,
+                java.lang.System.nanoTime() - applyStartNanos);
           } catch (Exception e) {
             LOGGER.warn("Error while applying snapshot message: {}", e.getMessage(), e);
           }
@@ -527,6 +548,7 @@ public final class GameLoop extends ScreenAdapter {
         DeltaSnapshotMessage.class,
         (ctx, event) -> {
           try {
+            long applyStartNanos = java.lang.System.nanoTime();
             Optional<ClientState> clientState = clientState(ctx);
             if (clientState.isEmpty()) {
               LOGGER.debug("Ignoring delta snapshot without client state.");
@@ -534,12 +556,14 @@ public final class GameLoop extends ScreenAdapter {
             }
             ClientState state = clientState.orElseThrow();
             if (event.serverTick() <= state.latestAppliedSnapshotTick()) {
+              NetworkTelemetry.recordStaleSnapshot(true);
               LOGGER.debug("Ignoring stale delta snapshot at tick {}.", event.serverTick());
               return;
             }
 
             Optional<SnapshotMessage> baseline = state.appliedSnapshot(event.baseTick());
             if (baseline.isEmpty()) {
+              NetworkTelemetry.recordStaleSnapshot(true);
               LOGGER.debug(
                   "Ignoring delta snapshot for base tick {}; no matching local baseline.",
                   event.baseTick());
@@ -560,6 +584,12 @@ public final class GameLoop extends ScreenAdapter {
             state.rememberAppliedSnapshot(materializedSnapshot);
             reconcileNetworkEntities(state, materializedSnapshot);
             sendSnapshotAck(event.serverTick());
+            NetworkTelemetry.recordSnapshotApplied(
+                true,
+                event.serverTick(),
+                changedSnapshot.entities().size(),
+                event.removedEntityIds().size(),
+                java.lang.System.nanoTime() - applyStartNanos);
           } catch (Exception e) {
             LOGGER.warn("Error while applying delta snapshot message: {}", e.getMessage(), e);
           }

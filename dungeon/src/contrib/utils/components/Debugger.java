@@ -241,8 +241,14 @@ public class Debugger extends System {
         InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SYSTEM_LIST.value());
     boolean toggleSystemListHeld =
         InputManager.isKeyPressed(KeyboardConfig.DEBUG_TOGGLE_SYSTEM_LIST.value());
+    boolean toggleNetworkTelemetryPressed =
+        InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_NETWORK_TELEMETRY.value());
+    boolean toggleNetworkTelemetryHeld =
+        InputManager.isKeyPressed(KeyboardConfig.DEBUG_TOGGLE_NETWORK_TELEMETRY.value());
 
-    if ((toggleHudPressed && toggleSystemListHeld) || toggleSystemListPressed) {
+    if ((toggleHudPressed && toggleNetworkTelemetryHeld) || toggleNetworkTelemetryPressed) {
+      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleNetworkTelemetry);
+    } else if ((toggleHudPressed && toggleSystemListHeld) || toggleSystemListPressed) {
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleSystemList);
     } else if (toggleHudPressed) {
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);

@@ -130,6 +130,14 @@ public class KeyboardConfig {
       new ConfigKey<>(
           new String[] {"debug", "toggle_system_list"}, new ConfigIntValue(Input.Keys.A));
 
+  /**
+   * Keybinding to toggle the {@link contrib.systems.DebugDrawSystem Debug-HUD}'s network telemetry
+   * while holding {@link #DEBUG_TOGGLE_HUD}.
+   */
+  public static final ConfigKey<Integer> DEBUG_TOGGLE_NETWORK_TELEMETRY =
+      new ConfigKey<>(
+          new String[] {"debug", "toggle_network_telemetry"}, new ConfigIntValue(Input.Keys.N));
+
   /** Keybinding to toggle the {@link contrib.utils.components.Debugger}'s Scene2D debug mode. */
   public static final ConfigKey<Integer> DEBUG_TOGGLE_SCENE_HUD =
       new ConfigKey<>(

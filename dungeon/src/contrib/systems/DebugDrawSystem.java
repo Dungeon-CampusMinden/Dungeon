@@ -28,6 +28,10 @@ import core.game.ECSManagement;
 import core.game.WindowEventManager;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
+import core.network.NetworkTelemetry;
+import core.network.NetworkUtils;
+import core.network.messages.c2s.DebugPing;
+import core.network.messages.c2s.DebugTelemetryRequest;
 import core.systems.CameraSystem;
 import core.systems.input.InputManager;
 import core.utils.FontHelper;
@@ -79,12 +83,18 @@ public class DebugDrawSystem extends System {
       withAlpha(Color.YELLOW, 0.7f); // more opaque yellow for highlighted named points
 
   private static final int CIRCLE_SEGMENTS = 60; // resolution of circles (higher = smoother)
+  private static final int DEBUG_TELEMETRY_STREAM_INTERVAL_MS = 1_000;
+  private static final int DEBUG_TELEMETRY_PING_INTERVAL_MS = 1_000;
   private static final BitmapFont FONT = FontHelper.getDefaultFont();
 
   private static final Map<Entity, String> quickInfoCache = new HashMap<Entity, String>();
 
   private boolean render = false;
   private boolean renderSystemList = false;
+  private boolean renderNetworkTelemetry = false;
+  private volatile long debugTelemetryStreamRequestId = -1L;
+  private volatile long nextDebugTelemetryPingTimeMs = 0L;
+  private volatile long nextDebugTelemetryStreamRetryTimeMs = 0L;
 
   /** Creates a new DebugDrawSystem. */
   public DebugDrawSystem() {
@@ -99,9 +109,13 @@ public class DebugDrawSystem extends System {
 
   @Override
   public void render(float delta) {
-    if (!render && !renderSystemList) return;
+    if (!render && !renderSystemList && !renderNetworkTelemetry) return;
 
     if (renderSystemList) drawSystemList();
+    if (renderNetworkTelemetry) {
+      updateNetworkTelemetryRequest();
+      drawNetworkTelemetry();
+    }
 
     if (!render) return;
 
@@ -115,10 +129,20 @@ public class DebugDrawSystem extends System {
 
   private void drawSystemList() {
     String text = buildSystemListText();
+    drawScreenOverlay(text, 10f, Game.windowHeight() - 10f);
+  }
+
+  private void drawNetworkTelemetry() {
+    String text = NetworkTelemetry.debugText();
+    GlyphLayout layout = new GlyphLayout(FONT, text);
+    float textX = 10f;
+    float textY = layout.height + 10f;
+    drawScreenOverlay(text, textX, textY);
+  }
+
+  private void drawScreenOverlay(String text, float textX, float textY) {
     GlyphLayout layout = new GlyphLayout(FONT, text);
     float padding = 4f;
-    float textX = 10f;
-    float textY = Game.windowHeight() - 10f;
     float bgX = textX - padding;
     float bgY = textY - layout.height - padding;
     float bgW = layout.width + 2f * padding;
@@ -527,6 +551,16 @@ public class DebugDrawSystem extends System {
     this.renderSystemList = !this.renderSystemList;
   }
 
+  /** Toggles the screen-space multiplayer network telemetry overlay. */
+  public void toggleNetworkTelemetry() {
+    this.renderNetworkTelemetry = !this.renderNetworkTelemetry;
+    if (renderNetworkTelemetry) {
+      startNetworkTelemetryStream();
+    } else {
+      stopNetworkTelemetryStream();
+    }
+  }
+
   @Override
   public void stop() {
     this.run = true; // This system can not be stopped.
@@ -539,6 +573,80 @@ public class DebugDrawSystem extends System {
 
   private static Color withAlpha(Color color, float alpha) {
     return ColorUtils.pmaColor(new Color(color.r, color.g, color.b, alpha));
+  }
+
+  private void startNetworkTelemetryStream() {
+    if (!NetworkUtils.isNetworkClient()) {
+      return;
+    }
+    nextDebugTelemetryStreamRetryTimeMs =
+        java.lang.System.currentTimeMillis() + DEBUG_TELEMETRY_STREAM_INTERVAL_MS;
+    debugTelemetryStreamRequestId = NetworkTelemetry.nextRequestId();
+    nextDebugTelemetryPingTimeMs = 0L;
+    Game.network()
+        .send(
+            (short) 0,
+            new DebugTelemetryRequest(
+                debugTelemetryStreamRequestId,
+                DebugTelemetryRequest.Mode.START_STREAM,
+                DEBUG_TELEMETRY_STREAM_INTERVAL_MS),
+            true)
+        .thenAccept(
+            success -> {
+              if (success) {
+                NetworkTelemetry.recordDebugRequestStatus("stream active");
+                return;
+              }
+              debugTelemetryStreamRequestId = -1L;
+              nextDebugTelemetryStreamRetryTimeMs =
+                  java.lang.System.currentTimeMillis() + DEBUG_TELEMETRY_STREAM_INTERVAL_MS;
+              NetworkTelemetry.recordDebugRequestStatus("stream start failed");
+            });
+  }
+
+  private void stopNetworkTelemetryStream() {
+    if (!NetworkUtils.isNetworkClient() || debugTelemetryStreamRequestId < 0L) {
+      debugTelemetryStreamRequestId = -1L;
+      return;
+    }
+    Game.network()
+        .send(
+            (short) 0,
+            new DebugTelemetryRequest(
+                debugTelemetryStreamRequestId,
+                DebugTelemetryRequest.Mode.STOP_STREAM,
+                DEBUG_TELEMETRY_STREAM_INTERVAL_MS),
+            true)
+        .thenAccept(
+            success ->
+                NetworkTelemetry.recordDebugRequestStatus(
+                    success ? "stream stopped" : "stop failed"));
+    debugTelemetryStreamRequestId = -1L;
+  }
+
+  private void updateNetworkTelemetryRequest() {
+    if (!NetworkUtils.isNetworkClient()) {
+      return;
+    }
+    long now = java.lang.System.currentTimeMillis();
+    if (debugTelemetryStreamRequestId < 0L && now >= nextDebugTelemetryStreamRetryTimeMs) {
+      startNetworkTelemetryStream();
+    }
+    if (now < nextDebugTelemetryPingTimeMs) {
+      return;
+    }
+    nextDebugTelemetryPingTimeMs = now + DEBUG_TELEMETRY_PING_INTERVAL_MS;
+    Game.network()
+        .send(
+            (short) 0,
+            new DebugPing(NetworkTelemetry.nextRequestId(), java.lang.System.nanoTime()),
+            true)
+        .thenAccept(
+            success -> {
+              if (!success) {
+                NetworkTelemetry.recordDebugRequestStatus("ping failed");
+              }
+            });
   }
 
   /**

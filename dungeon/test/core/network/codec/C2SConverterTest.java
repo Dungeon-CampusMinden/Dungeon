@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.entities.CharacterClass;
 import core.network.codec.converters.c2s.ConnectRequestConverter;
+import core.network.codec.converters.c2s.DebugPingConverter;
+import core.network.codec.converters.c2s.DebugTelemetryRequestConverter;
 import core.network.codec.converters.c2s.DialogResponseConverter;
 import core.network.codec.converters.c2s.InputMessageConverter;
 import core.network.codec.converters.c2s.RegisterUdpConverter;
@@ -16,6 +18,8 @@ import core.network.codec.converters.c2s.RequestEntitySpawnConverter;
 import core.network.codec.converters.c2s.SnapshotAckConverter;
 import core.network.codec.converters.c2s.SoundFinishedConverter;
 import core.network.messages.c2s.ConnectRequest;
+import core.network.messages.c2s.DebugPing;
+import core.network.messages.c2s.DebugTelemetryRequest;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
@@ -44,6 +48,9 @@ public class C2SConverterTest {
   private static final SoundFinishedConverter SOUND_FINISHED_CONVERTER =
       new SoundFinishedConverter();
   private static final SnapshotAckConverter SNAPSHOT_ACK_CONVERTER = new SnapshotAckConverter();
+  private static final DebugTelemetryRequestConverter DEBUG_TELEMETRY_REQUEST_CONVERTER =
+      new DebugTelemetryRequestConverter();
+  private static final DebugPingConverter DEBUG_PING_CONVERTER = new DebugPingConverter();
 
   /** Verifies connect request conversion with session data. */
   @Test
@@ -560,6 +567,40 @@ public class C2SConverterTest {
 
     SnapshotAck roundTrip = SNAPSHOT_ACK_CONVERTER.fromProto(proto);
     assertEquals(123, roundTrip.serverTick());
+  }
+
+  /** Verifies debug telemetry request conversion. */
+  @Test
+  public void testDebugTelemetryRequestRoundTrip() {
+    DebugTelemetryRequest message =
+        new DebugTelemetryRequest(77L, DebugTelemetryRequest.Mode.START_STREAM, 250);
+
+    core.network.proto.c2s.DebugTelemetryRequest proto =
+        DEBUG_TELEMETRY_REQUEST_CONVERTER.toProto(message);
+    assertEquals(77L, proto.getRequestId());
+    assertEquals(
+        core.network.proto.c2s.DebugTelemetryRequestMode.DEBUG_TELEMETRY_REQUEST_MODE_START_STREAM,
+        proto.getMode());
+    assertEquals(250, proto.getIntervalMs());
+
+    DebugTelemetryRequest roundTrip = DEBUG_TELEMETRY_REQUEST_CONVERTER.fromProto(proto);
+    assertEquals(message.requestId(), roundTrip.requestId());
+    assertEquals(message.mode(), roundTrip.mode());
+    assertEquals(message.intervalMs(), roundTrip.intervalMs());
+  }
+
+  /** Verifies debug ping conversion. */
+  @Test
+  public void testDebugPingRoundTrip() {
+    DebugPing message = new DebugPing(78L, 123_456L);
+
+    core.network.proto.c2s.DebugPing proto = DEBUG_PING_CONVERTER.toProto(message);
+    assertEquals(78L, proto.getRequestId());
+    assertEquals(123_456L, proto.getClientTimeNanos());
+
+    DebugPing roundTrip = DEBUG_PING_CONVERTER.fromProto(proto);
+    assertEquals(message.requestId(), roundTrip.requestId());
+    assertEquals(message.clientTimeNanos(), roundTrip.clientTimeNanos());
   }
 
   private record TestPayload(String label, int count) implements DialogResponseMessage.Payload {}

@@ -1,0 +1,79 @@
+// Server-to-client debug telemetry messages.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "DebugProto";
+
+// Per-client server telemetry values.
+message DebugTelemetryClient {
+  int32 client_id = 1;
+  bool udp_ready = 2;
+  float rtt_estimate_ms = 3;
+  int64 last_activity_age_ms = 4;
+  int32 latest_acked_snapshot_tick = 5;
+}
+
+// Server-to-client: authoritative network telemetry snapshot.
+// Maps to: core.network.messages.s2c.DebugTelemetrySnapshot
+message DebugTelemetrySnapshot {
+  int64 request_id = 1;
+  int64 server_time_ms = 2;
+
+  int64 tcp_outbound_messages = 3;
+  int64 tcp_outbound_bytes = 4;
+  int64 tcp_inbound_messages = 5;
+  int64 tcp_inbound_bytes = 6;
+  int64 udp_outbound_messages = 7;
+  int64 udp_outbound_bytes = 8;
+  int64 udp_inbound_messages = 9;
+  int64 udp_inbound_bytes = 10;
+
+  int64 udp_fallbacks = 11;
+  int64 udp_oversized_packets = 12;
+  int64 udp_send_failures = 13;
+  int64 udp_dropped_packets = 14;
+
+  int64 full_snapshots_sent = 15;
+  int64 delta_snapshots_sent = 16;
+  int32 last_full_snapshot_tick = 17;
+  int32 last_full_snapshot_bytes = 18;
+  int32 last_full_snapshot_entities = 19;
+  int32 last_delta_snapshot_tick = 20;
+  int32 last_delta_snapshot_bytes = 21;
+  int32 last_delta_snapshot_entity_deltas = 22;
+  int32 last_delta_snapshot_removals = 23;
+  int64 last_snapshot_build_micros = 24;
+
+  int64 transport_out_bytes_last_second = 25;
+  int64 transport_out_bytes_last_five_seconds = 26;
+  int64 snapshots_sent_last_second = 27;
+  int64 snapshots_sent_last_five_seconds = 28;
+
+  string last_udp_fallback_reason = 29;
+  string last_udp_drop_reason = 30;
+  string last_udp_failure_reason = 31;
+
+  repeated DebugTelemetryClient clients = 32;
+
+  int64 debug_tcp_outbound_messages = 33;
+  int64 debug_tcp_outbound_bytes = 34;
+  int64 debug_tcp_inbound_messages = 35;
+  int64 debug_tcp_inbound_bytes = 36;
+  int64 debug_udp_outbound_messages = 37;
+  int64 debug_udp_outbound_bytes = 38;
+  int64 debug_udp_inbound_messages = 39;
+  int64 debug_udp_inbound_bytes = 40;
+}
+
+// Server-to-client: debug pong for real RTT measurement.
+// Maps to: core.network.messages.s2c.DebugPong
+message DebugPong {
+  int64 request_id = 1;
+  int64 client_time_nanos = 2;
+  int64 server_receive_time_ms = 3;
+  int64 server_send_time_ms = 4;
+}

@@ -14,6 +14,7 @@ import core.game.ECSManagement;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
+import core.network.NetworkTelemetry;
 import core.network.delta.SnapshotDeltaCompressor;
 import core.network.delta.SnapshotHistory;
 import core.network.messages.s2c.EntitySpawnEvent;
@@ -161,11 +162,13 @@ public final class AuthoritativeServerLoop {
     }
     clearSnapshotBaselinesOnLevelChange(clients);
 
+    long buildStartNanos = System.nanoTime();
     Game.network()
         .snapshotTranslator()
         .translateToSnapshot(serverTick)
         .ifPresent(
             snapshot -> {
+              NetworkTelemetry.recordSnapshotBuild(System.nanoTime() - buildStartNanos);
               snapshotHistory.add(snapshot);
               clients.forEach(client -> sendSnapshotToClient(client, snapshot));
             });

@@ -14,6 +14,7 @@ import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
 import contrib.entities.CharacterClass;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
+import core.network.NetworkTelemetry;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
@@ -29,7 +30,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -284,6 +284,8 @@ public final class ClientNetwork {
       } else {
         LOGGER.warn(
             "InputMessage too large ({} bytes); sending via TCP instead of UDP", data.length);
+        NetworkTelemetry.recordUdpOversized(message, data.length);
+        NetworkTelemetry.recordUdpFallback("client input oversized");
         sendReliable(message);
       }
     } catch (IOException e) {
@@ -325,6 +327,7 @@ public final class ClientNetwork {
         LOGGER.error("Dispatch error", e);
       }
     }
+    updateTelemetryClientState();
   }
 
   /**
@@ -372,6 +375,7 @@ public final class ClientNetwork {
                           throws Exception {
                         int size = frame.readableBytes();
                         NetworkMessage msg = deserialize(frame);
+                        NetworkTelemetry.recordInboundTcp(msg, size);
                         if (msg
                             instanceof ConnectAck(short id, int sessionId, byte[] sessionToken)) {
                           onConnectAck(id, sessionId, sessionToken);
@@ -398,7 +402,7 @@ public final class ClientNetwork {
                         if (udpRemote != null) session.udpAddress(udpRemote);
 
                         try {
-                          byte[] data;
+                          ConnectRequest request;
                           // Attempt to load last session from file
                           Tuple<Integer, byte[]> lastSession = loadLastSessionFromFile();
                           if (lastSession != null) {
@@ -407,16 +411,26 @@ public final class ClientNetwork {
                             LOGGER.info(
                                 "Loaded last session from file: sessionId={}; Trying to reconnect.",
                                 sessionId);
-                            data = serialize(connectRequest(sessionId, sessionToken));
+                            request = connectRequest(sessionId, sessionToken);
                           } else {
                             LOGGER.info("No valid last session file found; starting new session.");
-                            data = serialize(connectRequest());
+                            request = connectRequest();
                           }
+                          byte[] data = serialize(request);
                           if (data.length <= MAX_TCP_OBJECT_SIZE) {
                             ByteBuf buf = ctx.alloc().buffer(4 + data.length);
                             buf.writeInt(data.length);
                             buf.writeBytes(data);
-                            ctx.writeAndFlush(buf);
+                            ctx.writeAndFlush(buf)
+                                .addListener(
+                                    future -> {
+                                      if (future.isSuccess()) {
+                                        NetworkTelemetry.recordOutboundTcp(request, data.length);
+                                        return;
+                                      }
+                                      LOGGER.warn("Failed to write ConnectRequest", future.cause());
+                                      ctx.close();
+                                    });
                           } else {
                             LOGGER.error(
                                 "ConnectRequest too large ({} bytes); cannot connect", data.length);
@@ -559,16 +573,24 @@ public final class ClientNetwork {
             new SimpleChannelInboundHandler<DatagramPacket>() {
               @Override
               protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
+                int size = pkt.content().readableBytes();
                 try {
+                  if (size <= 0) {
+                    NetworkTelemetry.recordUdpDrop("client invalid UDP size");
+                    return;
+                  }
                   NetworkMessage msg = deserialize(pkt.content());
+                  NetworkTelemetry.recordInboundUdp(msg, size);
                   if (session != null) {
                     inboundQueue.offer(Tuple.of(session, msg));
                   } else {
+                    NetworkTelemetry.recordUdpDrop("client session missing");
                     LOGGER.debug(
                         "Dropping UDP inbound before session init: {}",
                         msg.getClass().getSimpleName());
                   }
                 } catch (Exception e) {
+                  NetworkTelemetry.recordUdpDrop("client UDP decode error");
                   LOGGER.warn("UDP client decode error", e);
                 }
               }
@@ -705,6 +727,7 @@ public final class ClientNetwork {
           session.udpReady(true);
           session.markUdpActivity();
         }
+        updateTelemetryClientState();
         if (recovered) {
           LOGGER.info("UDP recovered, resuming UDP");
         }
@@ -718,6 +741,7 @@ public final class ClientNetwork {
       if (session != null) {
         session.udpReady(false);
       }
+      updateTelemetryClientState();
       ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
     }
   }
@@ -780,9 +804,11 @@ public final class ClientNetwork {
       return false;
     }
 
+    RegisterUdp registerUdp =
+        new RegisterUdp(session.sessionId(), session.sessionToken(), clientId);
     final byte[] payload;
     try {
-      payload = serialize(new RegisterUdp(session.sessionId(), session.sessionToken(), clientId));
+      payload = serialize(registerUdp);
     } catch (IOException e) {
       LOGGER.warn("Failed to serialize RegisterUdp for clientId={}", clientId, e);
       return false;
@@ -791,13 +817,24 @@ public final class ClientNetwork {
     if (payload.length > SAFE_UDP_MTU) {
       LOGGER.warn(
           "RegisterUdp too large ({} bytes); skipping clientId={}", payload.length, clientId);
+      NetworkTelemetry.recordUdpOversized(registerUdp, payload.length);
       return false;
     }
 
     try {
       udp.writeAndFlush(
               new DatagramPacket(udp.alloc().buffer(payload.length).writeBytes(payload), udpRemote))
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+          .addListener(
+              future -> {
+                if (future.isSuccess()) {
+                  NetworkTelemetry.recordOutboundUdp(registerUdp, payload.length);
+                  return;
+                }
+                NetworkTelemetry.recordUdpSendFailure(
+                    registerUdp, "client RegisterUdp write failed");
+                LOGGER.warn(
+                    "Failed to write RegisterUdp for clientId={}", clientId, future.cause());
+              });
       LOGGER.debug(
           "Sent RegisterUdp for clientId={} to {} using {} mode",
           clientId,
@@ -805,6 +842,7 @@ public final class ClientNetwork {
           udpRecoveryState.retryMode() ? "retry" : "keepalive");
       return true;
     } catch (Throwable t) {
+      NetworkTelemetry.recordUdpSendFailure(registerUdp, "client RegisterUdp send failed");
       LOGGER.warn("Error while sending RegisterUdp for clientId={}", clientId, t);
       return false;
     }
@@ -815,6 +853,7 @@ public final class ClientNetwork {
     if (session != null) {
       session.udpReady(false);
     }
+    updateTelemetryClientState();
     if (changed) {
       LOGGER.info(message);
     }
@@ -864,6 +903,23 @@ public final class ClientNetwork {
     }
   }
 
+  private void updateTelemetryClientState() {
+    Session currentSession = session;
+    long lastAck = udpRecoveryState.lastRegisterAckTimeMs();
+    long ackAge = lastAck > 0L ? System.currentTimeMillis() - lastAck : -1L;
+    int latestSnapshotTick =
+        currentSession == null
+            ? -1
+            : currentSession.clientState().map(ClientState::latestAppliedSnapshotTick).orElse(-1);
+    NetworkTelemetry.recordClientState(
+        isConnected(),
+        clientId(),
+        currentSession != null && currentSession.udpReady(),
+        udpRecoveryState.retryMode(),
+        ackAge,
+        latestSnapshotTick);
+  }
+
   // ---- client-side Session senders ----
 
   /**
@@ -876,19 +932,34 @@ public final class ClientNetwork {
   private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, NetworkMessage msg) {
     if (udp == null || !udp.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
+      NetworkTelemetry.recordUdpSendFailure(msg, "client UDP channel inactive");
       return CompletableFuture.completedFuture(false);
     }
     try {
       byte[] data = serialize(msg);
       if (data.length > SAFE_UDP_MTU) {
         LOGGER.warn("Skip UDP send; payload too large ({} B) to {}", data.length, target);
+        NetworkTelemetry.recordUdpOversized(msg, data.length);
         return CompletableFuture.completedFuture(false);
       }
-      udp.writeAndFlush(
-              new DatagramPacket(udp.alloc().buffer(data.length).writeBytes(data), target))
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-      return CompletableFuture.completedFuture(true);
+      CompletableFuture<Boolean> result = new CompletableFuture<>();
+      ChannelFuture writeFuture =
+          udp.writeAndFlush(
+              new DatagramPacket(udp.alloc().buffer(data.length).writeBytes(data), target));
+      writeFuture.addListener(
+          future -> {
+            if (future.isSuccess()) {
+              NetworkTelemetry.recordOutboundUdp(msg, data.length);
+              result.complete(true);
+              return;
+            }
+            NetworkTelemetry.recordUdpSendFailure(msg, "client UDP write failed");
+            LOGGER.warn("Failed to write UDP object to {}", target, future.cause());
+            result.complete(false);
+          });
+      return result;
     } catch (Exception e) {
+      NetworkTelemetry.recordUdpSendFailure(msg, "client UDP send failed");
       LOGGER.warn("Failed to send UDP object to {}", target, e);
       return CompletableFuture.completedFuture(false);
     }
@@ -914,8 +985,19 @@ public final class ClientNetwork {
       ByteBuf buf = ctx.alloc().buffer(TCP_LENGTH_FIELD_LENGTH + data.length);
       buf.writeInt(data.length);
       buf.writeBytes(data);
-      ctx.writeAndFlush(buf).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-      return CompletableFuture.completedFuture(true);
+      CompletableFuture<Boolean> result = new CompletableFuture<>();
+      ctx.writeAndFlush(buf)
+          .addListener(
+              future -> {
+                if (future.isSuccess()) {
+                  NetworkTelemetry.recordOutboundTcp(msg, data.length);
+                  result.complete(true);
+                  return;
+                }
+                LOGGER.warn("Failed to write TCP object to {}", ctx.channel(), future.cause());
+                result.complete(false);
+              });
+      return result;
     } catch (IOException e) {
       LOGGER.warn("Failed to send TCP object to {}: {}", ctx.channel(), e.getMessage());
       return CompletableFuture.completedFuture(false);
