@@ -61,7 +61,10 @@ public interface DialogType {
     DIALOG_DIALOG("DIALOG_DIALOG"),
 
     /** Jigsaw-style puzzle dialog. */
-    PUZZLE("PUZZLE");
+    PUZZLE("PUZZLE"),
+
+    /** Local multiplayer client connection dialog. */
+    CLIENT_CONNECTION("CLIENT_CONNECTION");
 
     private final String type;
 

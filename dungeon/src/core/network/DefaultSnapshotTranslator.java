@@ -10,7 +10,6 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.NetworkPositionComponent;
 import core.components.PositionComponent;
-import core.game.PreRunConfiguration;
 import core.level.elements.tile.DoorTile;
 import core.network.messages.c2s.RequestEntitySpawn;
 import core.network.messages.s2c.DoorTileState;
@@ -332,7 +331,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   }
 
   private boolean shouldSmoothSnapshotPosition(PositionComponent pc, Point target) {
-    if (!PreRunConfiguration.multiplayerEnabled() || PreRunConfiguration.isNetworkServer()) {
+    if (!Game.isMultiplayerClient()) {
       return false;
     }
     Point current = pc.position();

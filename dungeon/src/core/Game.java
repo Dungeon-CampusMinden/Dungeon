@@ -101,18 +101,11 @@ public final class Game {
       networkHandler = new LocalNetworkHandler();
     }
 
-    try {
-      // Explicitly inject a SnapshotTranslator before initialization
-      networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
-      networkHandler.initialize(
-          PreRunConfiguration.isNetworkServer(),
-          PreRunConfiguration.networkServerAddress(),
-          PreRunConfiguration.networkPort(),
-          PreRunConfiguration.username(),
-          PreRunConfiguration.multiplayerCharacterClass());
-      LOGGER.info("Network handler initialized.");
-    } catch (NetworkException e) {
-      LOGGER.error("Failed to initialize network handler.", e);
+    // Explicitly inject a SnapshotTranslator before initialization.
+    networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
+    // Multiplayer clients may need the connection dialog before host and port are known.
+    if (!isMultiplayerClient()) {
+      initializeNetwork();
     }
 
     WindowEventManager.registerCloseRequestListener(
@@ -123,6 +116,39 @@ public final class Game {
 
     // Start the main game loop
     GameLoop.run();
+  }
+
+  /**
+   * Checks whether this game instance is running as a multiplayer client.
+   *
+   * <p>A multiplayer client is a game instance with multiplayer enabled that connects to a separate
+   * network server instead of hosting the authoritative server runtime itself.
+   *
+   * @return True if multiplayer is enabled and this instance is not the network server.
+   */
+  public static boolean isMultiplayerClient() {
+    return PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
+  }
+
+  /**
+   * Initializes the current network handler with the values from {@link PreRunConfiguration}.
+   *
+   * <p>This method is used by the default auto-start flow and can also be called by clients that
+   * collect host and port information after the LibGDX window has already opened.
+   */
+  public static void initializeNetwork() {
+    try {
+      network()
+          .initialize(
+              PreRunConfiguration.isNetworkServer(),
+              PreRunConfiguration.networkServerAddress(),
+              PreRunConfiguration.networkPort(),
+              PreRunConfiguration.username(),
+              PreRunConfiguration.multiplayerCharacterClass());
+      LOGGER.info("Network handler initialized.");
+    } catch (NetworkException e) {
+      LOGGER.error("Failed to initialize network handler.", e);
+    }
   }
 
   /**
@@ -198,21 +224,24 @@ public final class Game {
   }
 
   /**
-   * Sets the window title in the pre-run configuration.
+   * Sets the configured game window title.
    *
-   * @param windowTitle The new window title.
+   * <p>If a window already exists, the title is updated immediately. Otherwise, the configured
+   * title is applied when the window is initialized.
+   *
+   * @param newTitle the new window title
    */
-  public static void windowTitle(final String windowTitle) {
-    PreRunConfiguration.windowTitle(windowTitle);
+  public static void windowTitle(final String newTitle) {
+    GameLoop.windowTitle(newTitle);
   }
 
   /**
-   * Updates the window title.
+   * Returns the configured game window title.
    *
-   * @param newTitle The new window title.
+   * @return the configured window title
    */
-  public static void updateWindowTitle(String newTitle) {
-    Gdx.graphics.setTitle(newTitle);
+  public static String windowTitle() {
+    return GameLoop.windowTitle();
   }
 
   /**

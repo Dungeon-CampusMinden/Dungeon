@@ -63,6 +63,8 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);
     register(DialogType.DefaultTypes.DIALOG_DIALOG, DialogDialog::build);
     register(DialogType.DefaultTypes.PUZZLE, PuzzleDialog::build);
+    register(DialogType.DefaultTypes.CLIENT_CONNECTION, ClientConnectionDialog::build);
+    LOGGER.debug("Registered built-in dialog types");
   }
 
   /**
@@ -478,5 +480,19 @@ public class DialogFactory {
     ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onFinished.execute());
 
     return ui;
+  }
+
+  /**
+   * Shows the local multiplayer client connection dialog.
+   *
+   * <p>The dialog is not closable by user input. It closes itself after the client connection
+   * listener reports a successful connection.
+   *
+   * @return The {@link UIComponent} containing the dialog
+   */
+  public static UIComponent showClientConnectionDialog() {
+    DialogContext ctx =
+        DialogContext.builder().type(DialogType.DefaultTypes.CLIENT_CONNECTION).build();
+    return show(ctx, false, false);
   }
 }

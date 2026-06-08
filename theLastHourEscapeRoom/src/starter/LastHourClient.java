@@ -18,6 +18,7 @@ import core.components.PositionComponent;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
 import core.level.loader.DungeonLoader;
+import core.network.ConnectionListener;
 import core.network.config.NetworkConfig;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.utils.CursorUtil;
@@ -51,9 +52,7 @@ public final class LastHourClient {
     // PreRun configuration for multiplayer client
     PreRunConfiguration.multiplayerEnabled(true);
     PreRunConfiguration.isNetworkServer(false);
-    PreRunConfiguration.networkServerAddress("127.0.0.1");
     PreRunConfiguration.networkPort(7777);
-    PreRunConfiguration.username("Player1");
     PreRunConfiguration.multiplayerCharacterClass(null); // server decides
 
     registerCustomDialogs();
@@ -66,7 +65,6 @@ public final class LastHourClient {
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     Game.disableAudio(false);
     Game.frameRate(60);
-    Game.windowTitle("Dev Client - " + PreRunConfiguration.username());
     NetworkConfig.SNAPSHOT_TRANSLATOR = new LastHourSnapshotTranslator();
     NetworkConfig.ENTITY_SPAWN_STRATEGY = new LastHourEntitySpawnStrategy();
     Game.userOnSetup(
@@ -82,7 +80,18 @@ public final class LastHourClient {
           Game.add(new ComputerStateSyncSystem());
           TheLastHour.setupMusic();
           TheLastHour.staticRenderTextures();
-          System.out.println("DevClient started");
+
+          Game.network()
+              .addConnectionListener(
+                  new ConnectionListener() {
+                    @Override
+                    public void onConnected() {
+                      Game.windowTitle("TheLastHour Client - " + PreRunConfiguration.username());
+                    }
+
+                    @Override
+                    public void onDisconnected(String reason) {}
+                  });
         });
 
     // Start the game

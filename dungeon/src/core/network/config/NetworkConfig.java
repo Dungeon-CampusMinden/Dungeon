@@ -37,6 +37,9 @@ public final class NetworkConfig {
   /** Safe UDP Maximum Transmission Unit (MTU) size to avoid fragmentation, in bytes. */
   public static final int SAFE_UDP_MTU = 1400;
 
+  /** Protocol version used by multiplayer clients and servers during the connection handshake. */
+  public static final short PROTOCOL_VERSION = 2;
+
   /**
    * Number of attempts for UDP client registration.
    *
@@ -91,6 +94,9 @@ public final class NetworkConfig {
    * <p>This is used to remove the length field from the beginning of TCP frames after decoding.
    */
   public static final int TCP_INITIAL_BYTES_TO_STRIP = 4;
+
+  /** Timeout for TCP connection attempts, in milliseconds. */
+  public static final int TCP_CONNECT_TIMEOUT_MS = 2_500;
 
   /**
    * Server tick rate, in Hertz (Hz).

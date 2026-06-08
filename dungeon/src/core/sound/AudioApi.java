@@ -89,7 +89,7 @@ public final class AudioApi {
       SoundTracker.instance().registerAndSend(spec, entity.id());
     }
 
-    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+    if (!PreRunConfiguration.multiplayerEnabled() || Game.isMultiplayerClient()) {
       SoundComponent sc =
           entity
               .fetch(SoundComponent.class)

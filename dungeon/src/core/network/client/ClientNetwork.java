@@ -3,14 +3,15 @@ package core.network.client;
 import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.MAX_TCP_OBJECT_SIZE;
+import static core.network.config.NetworkConfig.PROTOCOL_VERSION;
 import static core.network.config.NetworkConfig.SAFE_UDP_MTU;
+import static core.network.config.NetworkConfig.TCP_CONNECT_TIMEOUT_MS;
 import static core.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
 import static core.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
 import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_LENGTH;
 import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
 
 import contrib.entities.CharacterClass;
-import core.Game;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.messages.NetworkMessage;
@@ -31,6 +32,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
@@ -75,7 +77,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
-  private static final short CLIENT_PROTOCOL_VERSION = 2;
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
@@ -117,24 +118,35 @@ public final class ClientNetwork {
    */
   public void initialize(
       String host, int port, String username, Optional<CharacterClass> characterClass) {
+    if (running.get()) {
+      LOGGER.warn("ClientNetwork is already running; ignoring re-initialization request.");
+      return;
+    }
+    closeTransportResources();
+    connected.set(false);
+    session = null;
+    clientId = null;
+    udpRecoveryState.enterRetryMode();
     this.remoteHost = host;
     this.port = port;
     this.username = username;
     this.requestedCharacterClass = characterClass == null ? Optional.empty() : characterClass;
     this.group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
-    this.udpRemote = new InetSocketAddress(host, port);
+    this.udpRemote = InetSocketAddress.createUnresolved(host, port);
   }
 
   /**
    * Start network IO: connect TCP and bind UDP.
    *
-   * <p>This method is safe to call once. It returns quickly Netty performs IO on its own threads.
-   * After start completes, the client will attempt the handshake over TCP; on TCP connect the
-   * ConnectRequest is sent automatically.
+   * <p>This method is safe to call once. TCP startup waits up to the configured connect timeout;
+   * after TCP connects, Netty performs IO on its own threads and sends the ConnectRequest
+   * automatically.
    */
   public void start() {
     if (!running.compareAndSet(false, true)) return;
-    startTcp();
+    if (!startTcp()) {
+      return;
+    }
     startUdpIfNeeded();
   }
 
@@ -144,19 +156,12 @@ public final class ClientNetwork {
    * @param reason human-readable reason used for lifecycle callbacks and logging
    */
   public void shutdown(String reason) {
-    if (!running.compareAndSet(true, false)) return;
-    try {
-      cancelUdpMaintenance();
-      if (tcp != null) tcp.close().syncUninterruptibly();
-      if (udp != null) udp.close().syncUninterruptibly();
-    } catch (Exception e) {
-      LOGGER.warn("Error closing channels", e);
+    if (!running.compareAndSet(true, false)) {
+      closeTransportResources();
+      connected.set(false);
+      return;
     }
-    try {
-      if (group != null) group.shutdownGracefully();
-    } catch (Exception e) {
-      LOGGER.warn("Error shutting down event loop", e);
-    }
+    closeTransportResources();
     connected.set(false);
     LOGGER.info("ClientNetwork shutdown. Reason: {}", reason);
   }
@@ -343,10 +348,11 @@ public final class ClientNetwork {
 
   // ---- internals ----
 
-  private void startTcp() {
+  private boolean startTcp() {
     Bootstrap cb = new Bootstrap();
     cb.group(group)
         .channel(NioSocketChannel.class)
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TCP_CONNECT_TIMEOUT_MS)
         .handler(
             new ChannelInitializer<SocketChannel>() {
               @Override
@@ -380,7 +386,7 @@ public final class ClientNetwork {
 
                       @Override
                       public void channelActive(ChannelHandlerContext ctx) {
-                        connected.set(true);
+                        updateUdpRemote(ctx.channel());
                         // Create a client-side Session bound to this TCP ctx and using client
                         // senders
                         session =
@@ -391,7 +397,6 @@ public final class ClientNetwork {
                         // Point the session UDP to the server address as our logical peer
                         if (udpRemote != null) session.udpAddress(udpRemote);
 
-                        enqueueLifecycle(ClientNetwork.this::notifyConnected);
                         try {
                           byte[] data;
                           // Attempt to load last session from file
@@ -415,45 +420,118 @@ public final class ClientNetwork {
                           } else {
                             LOGGER.error(
                                 "ConnectRequest too large ({} bytes); cannot connect", data.length);
-                            enqueueLifecycle(() -> notifyDisconnected("ConnectRequest too large"));
-                            Game.exit("Unable to connect to server at " + remoteHost + ":" + port);
+                            ctx.close();
                           }
                         } catch (IOException e) {
                           LOGGER.warn("Failed to send ConnectRequest", e);
+                          ctx.close();
                         }
                       }
 
                       @Override
                       public void channelInactive(ChannelHandlerContext ctx) {
                         LOGGER.info("TCP connection closed by server");
-                        connected.set(false);
-                        cancelUdpMaintenance();
-                        enqueueLifecycle(() -> notifyDisconnected(null));
+                        handleTransportClosed(null);
                         // invalidateLastSessionFile(); // TODO: decide if we want this
                       }
 
                       @Override
                       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
                         LOGGER.warn("TCP client error", cause);
-                        cancelUdpMaintenance();
-                        enqueueLifecycle(() -> notifyDisconnected(cause.getMessage()));
-                        Game.exit("TCP error: " + cause.getMessage());
+                        handleTransportClosed(cause.getMessage());
+                        ctx.close();
                       }
                     });
               }
             });
     try {
-      ChannelFuture f = cb.connect(new InetSocketAddress(remoteHost, port)).syncUninterruptibly();
+      ChannelFuture f = cb.connect(remoteHost, port).syncUninterruptibly();
       tcp = f.channel();
+      updateUdpRemote(tcp);
+      return true;
     } catch (Exception e) {
-      if (e.getCause() instanceof ConnectException) {
+      if (hasCause(e, ConnectException.class)) {
         LOGGER.error(
             "Failed to connect TCP to server at {}:{} - {}", remoteHost, port, e.getMessage());
-        enqueueLifecycle(() -> notifyDisconnected("Connection refused"));
-        Game.exit("Unable to connect to server at " + remoteHost + ":" + port);
+        handleImmediateStartFailure("Connection refused");
       } else {
-        throw e;
+        LOGGER.error("Failed to start TCP client for {}:{} - {}", remoteHost, port, e.getMessage());
+        handleImmediateStartFailure("Network start failed: " + e.getMessage());
       }
+      return false;
+    }
+  }
+
+  private void updateUdpRemote(Channel channel) {
+    if (channel.remoteAddress() instanceof InetSocketAddress remoteAddress
+        && remoteAddress.getAddress() != null) {
+      udpRemote = new InetSocketAddress(remoteAddress.getAddress(), port);
+    }
+  }
+
+  private boolean hasCause(Throwable throwable, Class<? extends Throwable> causeType) {
+    Throwable current = throwable;
+    while (current != null) {
+      if (causeType.isInstance(current)) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
+  private void handleImmediateStartFailure(String reason) {
+    enqueueLifecycle(() -> notifyDisconnected(reason));
+    closeTransportResources();
+    connected.set(false);
+    running.set(false);
+    session = null;
+    clientId = null;
+    udpRecoveryState.enterRetryMode();
+  }
+
+  private void closeTransportResources() {
+    try {
+      cancelUdpMaintenance();
+      if (tcp != null) {
+        tcp.close().syncUninterruptibly();
+        tcp = null;
+      }
+      if (udp != null) {
+        udp.close().syncUninterruptibly();
+        udp = null;
+      }
+    } catch (Exception e) {
+      LOGGER.warn("Error closing channels", e);
+    }
+    try {
+      if (group != null) {
+        group.shutdownGracefully();
+        group = null;
+      }
+    } catch (Exception e) {
+      LOGGER.warn("Error shutting down event loop", e);
+    }
+  }
+
+  private void handleTransportClosed(String reason) {
+    boolean wasActive = running.getAndSet(false) || connected.get();
+    connected.set(false);
+    cancelUdpMaintenance();
+    clientId = null;
+    session = null;
+    tcp = null;
+    if (udp != null) {
+      udp.close();
+      udp = null;
+    }
+    if (group != null) {
+      group.shutdownGracefully();
+      group = null;
+    }
+    udpRecoveryState.enterRetryMode();
+    if (wasActive) {
+      enqueueLifecycle(() -> notifyDisconnected(reason));
     }
   }
 
@@ -522,6 +600,7 @@ public final class ClientNetwork {
 
   private void onConnectAck(short newClientId, int sessionId, byte[] sessionToken) {
     this.clientId = newClientId;
+    connected.set(true);
     LOGGER.info("Received ConnectAck clientId={}, sessionId={}", newClientId, sessionId);
     session.attachClientState(
         new ClientState(
@@ -535,6 +614,7 @@ public final class ClientNetwork {
     onUdpUnavailable("UDP unavailable, using TCP fallback");
     ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
     saveLastSessionToFile(sessionId, sessionToken);
+    enqueueLifecycle(this::notifyConnected);
   }
 
   private void onConnectReject(Session session, ConnectReject.Reason reason) {
@@ -548,6 +628,7 @@ public final class ClientNetwork {
       session.sendMessage(connectRequest(), true);
     } else {
       // Close the connection upon rejection
+      enqueueLifecycle(() -> notifyRejected(reason));
       enqueueLifecycle(() -> notifyDisconnected(reasonStr));
       session.tcpCtx().close();
     }
@@ -750,7 +831,7 @@ public final class ClientNetwork {
 
   private ConnectRequest connectRequest(int sessionId, byte[] sessionToken) {
     return new ConnectRequest(
-        CLIENT_PROTOCOL_VERSION, username, sessionId, sessionToken, requestedCharacterClass);
+        PROTOCOL_VERSION, username, sessionId, sessionToken, requestedCharacterClass);
   }
 
   private void notifyConnected() {
@@ -769,6 +850,16 @@ public final class ClientNetwork {
         l.onDisconnected(cause);
       } catch (Exception e) {
         LOGGER.warn("onDisconnected error", e);
+      }
+    }
+  }
+
+  private void notifyRejected(ConnectReject.Reason reason) {
+    for (ConnectionListener l : connectionListeners) {
+      try {
+        l.onRejected(reason);
+      } catch (Exception e) {
+        LOGGER.warn("onRejected error", e);
       }
     }
   }

@@ -268,7 +268,17 @@ public final class UIUtils {
    * @param uiComponent the UIComponent whose dialog is to be closed
    */
   public static void closeDialog(UIComponent uiComponent) {
-    if (!uiComponent.canBeClosed()) {
+    closeDialog(uiComponent, false);
+  }
+
+  /**
+   * Closes the dialog associated with the given UIComponent and optionally ignores close blocking.
+   *
+   * @param uiComponent the UIComponent whose dialog is to be closed
+   * @param force true to close even if the dialog cannot be closed by the user
+   */
+  public static void closeDialog(UIComponent uiComponent, boolean force) {
+    if (!force && !uiComponent.canBeClosed()) {
       LOGGER.debug(
           "Tried to close a non-closable dialog on entity {}",
           uiComponent.dialogContext().ownerEntity().id());

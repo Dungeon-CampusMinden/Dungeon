@@ -93,6 +93,7 @@ public final class GameLoop extends ScreenAdapter {
   private boolean doSetup = true;
   private int displayModeTransitionFrames = 0;
   private static final Set<IResizable> resizables = new HashSet<>();
+  private static String windowTitle = "Dungeon";
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -165,7 +166,7 @@ public final class GameLoop extends ScreenAdapter {
     config.setWindowSizeLimits(0, 0, 9999, 9999);
     config.setForegroundFPS(PreRunConfiguration.frameRate());
     config.setResizable(PreRunConfiguration.resizeable());
-    config.setTitle(PreRunConfiguration.windowTitle());
+    config.setTitle(Game.windowTitle());
     config.setWindowIcon(PreRunConfiguration.logoPath().pathString());
     config.disableAudio(PreRunConfiguration.disableAudio());
     config.setWindowListener(WindowEventManager.windowListener());
@@ -176,7 +177,7 @@ public final class GameLoop extends ScreenAdapter {
       config.setWindowedMode(PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
     }
 
-    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+    if (!PreRunConfiguration.multiplayerEnabled() || Game.isMultiplayerClient()) {
       new Lwjgl3Application(
           new com.badlogic.gdx.Game() {
             @Override
@@ -261,10 +262,10 @@ public final class GameLoop extends ScreenAdapter {
     clearScreen();
 
     // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
-    final boolean isMultiplayerClient =
-        PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
     ECSManagement.executeOneTick(
-        isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH);
+        Game.isMultiplayerClient()
+            ? System.AuthoritativeSide.CLIENT
+            : System.AuthoritativeSide.BOTH);
 
     InputManager.update();
     CameraSystem.camera().update();
@@ -337,20 +338,34 @@ public final class GameLoop extends ScreenAdapter {
   private void setup() {
     LOGGER.info("Setting up game...");
     doSetup = false;
-    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+    // Only multiplayer servers skip client setup and run headless.
+    if (!PreRunConfiguration.multiplayerEnabled() || Game.isMultiplayerClient()) {
       setupClient();
     } else {
       Gdx.files = new HeadlessFiles();
     }
 
     PreRunConfiguration.userOnSetup().execute();
-    Game.network().start();
+    // Clients without a configured address wait for the connection dialog to start networking.
+    if (!Game.isMultiplayerClient()) {
+      Game.network().start();
+    } else if (PreRunConfiguration.hasNetworkServerAddress()) {
+      Game.initializeNetwork();
+      Game.network().start();
+    } else {
+      DialogFactory.showClientConnectionDialog();
+    }
 
     if (!Game.isHeadless()) InputManager.init();
 
-    if (!DungeonLoader.levelOrder().isEmpty()) {
-      if (Game.currentLevel().isEmpty()) DungeonLoader.loadLevel(0); // load the first level
-    } else LOGGER.warn("No levels found to load!");
+    // Multiplayer clients receive level state from the server instead of loading it locally.
+    if (!Game.isMultiplayerClient()) {
+      if (!DungeonLoader.levelOrder().isEmpty()) {
+        if (Game.currentLevel().isEmpty()) DungeonLoader.loadLevel(0); // load the first level
+      } else {
+        LOGGER.warn("No levels found to load!");
+      }
+    }
   }
 
   private static Optional<ClientState> clientState(Session ctx) {
@@ -728,6 +743,30 @@ public final class GameLoop extends ScreenAdapter {
    */
   public static boolean removeResizable(IResizable resizable) {
     return resizables.remove(resizable);
+  }
+
+  /**
+   * Sets the configured game window title.
+   *
+   * <p>If a window already exists, the title is updated immediately. Otherwise, the configured
+   * title is applied when the window is initialized.
+   *
+   * @param newTitle the new window title
+   */
+  public static void windowTitle(final String newTitle) {
+    windowTitle = newTitle;
+    if (Gdx.graphics != null) {
+      Gdx.graphics.setTitle(newTitle);
+    }
+  }
+
+  /**
+   * Returns the configured game window title.
+   *
+   * @return the configured window title
+   */
+  public static String windowTitle() {
+    return windowTitle;
   }
 
   /**
