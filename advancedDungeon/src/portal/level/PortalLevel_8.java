@@ -17,6 +17,7 @@ import portal.physicsobject.Cube;
 import portal.physicsobject.PressurePlates;
 import portal.tractorBeam.TractorBeamComponent;
 import portal.tractorBeam.TractorBeamFactory;
+import portal.tractorBeam.TractorBeamUtil;
 import portal.util.AdvancedLevel;
 
 /** Portal level just for playing without any riddles. */
@@ -79,8 +80,7 @@ public class PortalLevel_8 extends AdvancedLevel {
 
     tractorBeam =
         TractorBeamFactory.createTractorBeam(namedPoints.get("traktorBeam"), Direction.LEFT);
-
-    tractorBeam.fetch(TractorBeamComponent.class).get().deactivate();
+    Game.add(tractorBeam);
 
     pressurePlate2 = PressurePlates.cubePressurePlate(namedPoints.get("pressurePlate2"), 1);
     Game.add(pressurePlate2);
@@ -143,7 +143,7 @@ public class PortalLevel_8 extends AdvancedLevel {
 
   private void checkTractorBeams() {
     if (plate2.isOn()) {
-      getTractorBeamComponent(tractorBeam).activate();
+      TractorBeamUtil.activate(tractorBeam);
 
       if (tractorBeamTask1 != null) {
         EventScheduler.cancelAction(tractorBeamTask1);
@@ -152,7 +152,8 @@ public class PortalLevel_8 extends AdvancedLevel {
 
       if (getTractorBeamComponent(tractorBeam).isReversed()) {
         TractorBeamFactory.reverseTractorBeam(
-            tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+            TractorBeamUtil.getRelevantEntities(
+                tractorBeam.fetch(TractorBeamComponent.class).get()));
       }
 
     } else {
@@ -162,14 +163,14 @@ public class PortalLevel_8 extends AdvancedLevel {
         tractorBeamTask1 =
             EventScheduler.scheduleAction(
                 () -> {
-                  getTractorBeamComponent(tractorBeam).deactivate();
+                  TractorBeamUtil.deactivate(tractorBeam);
                 },
                 3000);
       }
     }
 
     if (plate3.isOn()) {
-      tractorBeam.fetch(TractorBeamComponent.class).get().activate();
+      TractorBeamUtil.activate(tractorBeam);
 
       if (tractorBeamTask2 != null) {
         EventScheduler.cancelAction(tractorBeamTask2);
@@ -178,7 +179,8 @@ public class PortalLevel_8 extends AdvancedLevel {
 
       if (!getTractorBeamComponent(tractorBeam).isReversed()) {
         TractorBeamFactory.reverseTractorBeam(
-            tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+            TractorBeamUtil.getRelevantEntities(
+                tractorBeam.fetch(TractorBeamComponent.class).get()));
       }
 
     } else {
@@ -188,7 +190,7 @@ public class PortalLevel_8 extends AdvancedLevel {
         tractorBeamTask2 =
             EventScheduler.scheduleAction(
                 () -> {
-                  getTractorBeamComponent(tractorBeam).deactivate();
+                  TractorBeamUtil.deactivate(tractorBeam);
                 },
                 3000);
       }

@@ -2,74 +2,104 @@ package portal.tractorBeam;
 
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
-import contrib.components.ProjectileComponent;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
-import core.level.elements.tile.GlasswandTile;
-import core.level.elements.tile.PortalTile;
-import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
-import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import portal.PortalRegistry;
-import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
 
-/**
- * A factory for creating tractor beam entities between two points.
- *
- * <p>The factory interpolates positions between a start point ({@code from}) and an end point
- * ({@code to}), creating a sequence of entities that visually represent a continuous tractor beam.
- * The Beam is only one entity with a huge hitbox and can apply a pulling force to other entities it
- * collides with, based on the beam's direction.
- *
- * <p>Alternatively, a tractor beam can also be created by specifying only a start point and a
- * direction. In this case, the beam will extend from the start point until it hits the next wall.
- *
- * <p>Reversing the beam changes its color from blue to red.
- */
+/** A factory for creating tractor beam entities between two points. */
 public class TractorBeamFactory {
 
   private static final SimpleIPath TRACTOR_BEAM = new SimpleIPath("portal/tractor_beam");
   private static final SimpleIPath BEAM_EMITTER = new SimpleIPath("portal/beam_emitter");
   private static final String BEAMFORCE =
       "Die Berechnung der Kraft des Traktorstrahls ist nicht richtig.";
-  private final Point from;
-  private final Point to;
-  private final int totalPoints;
-  private int currentIndex = 0;
-  private final Direction beamDirection;
   private static String beamEmitterName = "beamEmitter";
   private static String tractorBeamName = "tractorBeam";
 
   /**
-   * Creates a new {@code TractorBeamFactory} for generating tractor beam entities from one specific
-   * point into a direction until a wall is in the way.
+   * Creates a tractor beam. It only needs a spawn point and an emitted direction. The beam is
+   * stopped by the next wall.
    *
-   * @param from the starting point of the tractor beam
-   * @param beamDirection the direction the beam is emitted to
+   * @param from the starting point of the beam
+   * @param direction the emitted direction of the tractor beam
+   * @return a list of all tractor beam entities
    */
-  public TractorBeamFactory(Point from, Direction beamDirection) {
-    this.from = from;
-    this.to = calculateEndPoint(from, beamDirection);
-    this.totalPoints = calculateNumberOfPoints(from, to);
-    this.beamDirection = beamDirection;
+  public static Entity createTractorBeam(Point from, Direction direction) {
+    Entity beamEmitter = createBeamEmitter(from, direction);
+
+    TractorBeamComponent tbc = new TractorBeamComponent();
+    beamEmitter.add(tbc);
+
+    PortalExtendComponent pec = new PortalExtendComponent();
+    pec.onExtend =
+        (dir, point, portalExtendComponent) -> {
+          Point to = TractorBeamUtil.calculateEndPoint(from, direction);
+          int totalPoints = TractorBeamUtil.calculateNumberOfPoints(from, to);
+
+          for (int i = 0; i < totalPoints; i++) {
+            Entity beamElement =
+                TractorBeamFactory.createNextEntity(
+                    from.translate(direction.scale(i + 1)), direction, tbc);
+            Game.add(beamElement);
+          }
+
+          Entity emitter = TractorBeamFactory.createBeamEmitter(from, direction);
+          emitter.add(tbc);
+          emitter.remove(DrawComponent.class);
+          Game.add(emitter);
+        };
+    pec.onTrim = (e) -> TractorBeamUtil.trimAfterFirstBeamEmitter(tbc);
+    beamEmitter.add(pec);
+
+    return beamEmitter;
+  }
+
+  /**
+   * Creates the next entity of the tractor beam.
+   *
+   * <p>This entity is one part of the visual representation for the whole beam.
+   *
+   * @param point position of the new entity.
+   * @param direction direction of the beam.
+   * @param tractorBeamComponent beam component to identify the beam among others.
+   * @return a new tractor beam entity, or {@code null} if no more entities can be created
+   */
+  public static Entity createNextEntity(
+      Point point, Direction direction, TractorBeamComponent tractorBeamComponent) {
+    Entity tractorBeam = new Entity(tractorBeamName);
+    tractorBeam.add(tractorBeamComponent);
+    tractorBeam.add(new PositionComponent(point));
+    tractorBeam.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(TRACTOR_BEAM);
+
+    State blue = State.fromMap(animationMap, "blue");
+    State red = State.fromMap(animationMap, "red");
+    StateMachine sm = new StateMachine(Arrays.asList(blue, red));
+    sm.addTransition(blue, "reverse_color", red);
+    sm.addTransition(red, "normalize_color", blue);
+    DrawComponent dc = new DrawComponent(sm, DepthLayer.Ground);
+    tractorBeam.add(dc);
+    if (tractorBeamComponent.isReversed()) {
+      dc.sendSignal("reverse_color");
+    }
+    return tractorBeam;
   }
 
   /**
@@ -86,124 +116,7 @@ public class TractorBeamFactory {
    */
   public static void reverse(Entity tractorBeam) {
     reverseTractorBeam(
-        tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-  }
-
-  /**
-   * Calculates the number of points (entities) between {@code from} and {@code to}.
-   *
-   * @param from the starting point
-   * @param to the end point
-   * @return the number of interpolated points, including both start and end
-   */
-  private int calculateNumberOfPoints(Point from, Point to) {
-    float dx = Math.abs(to.x() - from.x());
-    float dy = Math.abs(to.y() - from.y());
-    return (int) Math.max(dx, dy) + 1;
-  }
-
-  /**
-   * Determines the last available point for a tractor beam. The beam is stopped by a wallTile, so
-   * the EndPoint has to be last point in front of a wall tile.
-   *
-   * <p>Allow PortalTile on the first and second iteration (start or immediate portal exit).
-   *
-   * @param from the starting point
-   * @param beamDirection the emitted direction of the tractor beam
-   * @return the last available point
-   */
-  private Point calculateEndPoint(Point from, Direction beamDirection) {
-    Point lastPoint = from;
-    Tile lastTile = Game.tileAt(lastPoint).orElse(null);
-    Point currentPoint = from;
-    Tile currentTile = Game.tileAt(from).orElse(null);
-    boolean firstStep = true;
-    boolean secondStep = false;
-
-    while (currentTile != null
-        && !currentTile.getClass().equals(WallTile.class)
-        && !currentTile.getClass().equals(GlasswandTile.class)
-        && (firstStep || secondStep || !lastTile.getClass().equals(PortalTile.class))) {
-      secondStep = firstStep;
-      firstStep = false;
-      lastPoint = currentPoint;
-      lastTile = Game.tileAt(lastPoint).orElse(null);
-      currentPoint = currentPoint.translate(beamDirection);
-      currentTile = Game.tileAt(currentPoint).orElse(null);
-    }
-    return lastPoint;
-  }
-
-  /**
-   * Checks whether more entities can be generated.
-   *
-   * @return {@code true} if additional entities are available, {@code false} otherwise
-   */
-  private boolean hasNext() {
-    return currentIndex < totalPoints;
-  }
-
-  /**
-   * Creates the next entity of the tractor beam.
-   *
-   * <p>This entity is one part of the visual representation for the whole beam.
-   *
-   * @return a new tractor beam entity, or {@code null} if no more entities can be created
-   */
-  private Entity createNextEntity() {
-    if (!hasNext()) {
-      return null;
-    }
-
-    // Interpolated position between from and to
-    float x = from.x() + currentIndex * (to.x() - from.x()) / (totalPoints - 1);
-    float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
-
-    Entity tractorBeam = new Entity(tractorBeamName);
-    tractorBeam.add(new PositionComponent(new Point(x, y)));
-    tractorBeam
-        .fetch(PositionComponent.class)
-        .ifPresent(pc -> pc.rotation(rotationFor(beamDirection)));
-    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(TRACTOR_BEAM);
-
-    State blue = State.fromMap(animationMap, "blue");
-    State red = State.fromMap(animationMap, "red");
-    StateMachine sm = new StateMachine(Arrays.asList(blue, red));
-    sm.addTransition(blue, "reverse_color", red);
-    sm.addTransition(red, "normalize_color", blue);
-    DrawComponent dc = new DrawComponent(sm, DepthLayer.Ground);
-    tractorBeam.add(dc);
-
-    currentIndex++;
-    return tractorBeam;
-  }
-
-  /**
-   * Creates a tractor beam. It only needs a spawn point and an emitted direction. The beam is
-   * stopped by the next wall.
-   *
-   * @param from the starting point of the beam
-   * @param direction the emitted direction of the tractor beam
-   * @return a list of all tractor beam entities
-   */
-  public static Entity createTractorBeam(Point from, Direction direction) {
-    TractorBeamFactory factory = new TractorBeamFactory(from, direction);
-    List<Entity> tractorBeamEntities = new ArrayList<>();
-
-    while (factory.hasNext()) {
-      tractorBeamEntities.add(factory.createNextEntity());
-    }
-    Entity beamEmitter = factory.createBeamEmitter(from, direction);
-
-    tractorBeamEntities.add(beamEmitter);
-    TractorBeamComponent tbc = new TractorBeamComponent(tractorBeamEntities);
-    beamEmitter.add(tbc);
-    PortalExtendComponent pec = new PortalExtendComponent();
-    pec.onExtend = tbc::extend;
-    pec.onTrim = (e) -> tbc.trim();
-    beamEmitter.add(pec);
-
-    return beamEmitter;
+        TractorBeamUtil.getRelevantEntities(tractorBeam.fetch(TractorBeamComponent.class).get()));
   }
 
   /**
@@ -217,8 +130,7 @@ public class TractorBeamFactory {
    * @param direction the direction the beam is emitted to
    * @return the beam emitter entity
    */
-  public Entity createBeamEmitter(Point spawnPoint, Direction direction) {
-
+  private static Entity createBeamEmitter(Point spawnPoint, Direction direction) {
     Entity beamEmitter = new Entity(beamEmitterName);
 
     beamEmitter.add(new PortalIgnoreComponent());
@@ -232,84 +144,7 @@ public class TractorBeamFactory {
     sm = new StateMachine(List.of(idle));
     beamEmitter.add(new DrawComponent(sm));
 
-    float hitboxX = 1f;
-    float hitboxY = 1f;
-    float offsetX = 0f;
-    float offsetY = 0f;
-
-    switch (direction) {
-      case Direction.LEFT:
-        hitboxX = currentIndex;
-        offsetX = (-currentIndex) + 1;
-        break;
-      case Direction.UP:
-        hitboxY = currentIndex;
-        break;
-      case Direction.RIGHT:
-        hitboxX = currentIndex;
-        break;
-      case Direction.DOWN:
-        hitboxY = currentIndex;
-        offsetY = (-currentIndex) + 1;
-        break;
-    }
-
-    beamEmitter.add(
-        new CollideComponent(
-            Vector2.of(offsetX, offsetY),
-            Vector2.of(hitboxX, hitboxY),
-            createEnterConsumer(beamDirection),
-            createOnLeaveConsumer()));
-    beamEmitter
-        .fetch(CollideComponent.class)
-        .ifPresent(
-            cc -> {
-              cc.onHold(createActionConsumer());
-              cc.isSolid(false);
-            });
-
     return beamEmitter;
-  }
-
-  private static TriConsumer<Entity, Entity, Direction> createActionConsumer() {
-    return (you, other, collisionDir) ->
-        other
-            .fetch(VelocityComponent.class)
-            .ifPresent(
-                vc -> {
-                  if (!you.fetch(TractorBeamComponent.class).get().isActive()) {
-                    return;
-                  }
-                  if (you.fetch(TractorBeamComponent.class)
-                      .get()
-                      .forceToApply()
-                      .equals(Vector2.ZERO)) {
-                    return;
-                  }
-                  if (other.isPresent(PortalComponent.class)) {
-                    return;
-                  }
-                  if (!other.isPresent(FlyComponent.class)) {
-                    other.add(new FlyComponent());
-                  }
-                  Vector2 forceVector;
-                  if (you.fetch(TractorBeamComponent.class).get().isReversed())
-                    forceVector =
-                        you.fetch(TractorBeamComponent.class).get().reversedForceToApply();
-                  else forceVector = you.fetch(TractorBeamComponent.class).get().forceToApply();
-                  if (you.fetch(TractorBeamComponent.class).get().oldForces.containsKey(other)) {
-                    Vector2 oldForce =
-                        you.fetch(TractorBeamComponent.class).get().oldForces.get(other);
-                    if (oldForce.x() == 0 && forceVector.x() == 0) {
-                      vc.applyForce(beamEmitterName, forceVector);
-                    } else if (oldForce.y() == 0 && forceVector.y() == 0) {
-                      vc.applyForce(beamEmitterName, forceVector);
-                    }
-                  } else {
-                    vc.applyForce(beamEmitterName, forceVector);
-                    you.fetch(TractorBeamComponent.class).get().oldForces.put(other, forceVector);
-                  }
-                });
   }
 
   private static Vector2 beamForce(Direction dir) {
@@ -321,29 +156,6 @@ public class TractorBeamFactory {
       DialogUtils.showTextPopup(BEAMFORCE, "Code Error");
     }
     return Vector2.ZERO;
-  }
-
-  private static TriConsumer<Entity, Entity, Direction> createEnterConsumer(
-      Direction beamDirection) {
-    return (you, entity2, direction1) -> {
-      you.fetch(TractorBeamComponent.class).get().forceToApply(beamForce(beamDirection));
-      you.fetch(TractorBeamComponent.class)
-          .get()
-          .reversedForceToApply(reversedBeamForce(beamDirection));
-    };
-  }
-
-  private static TriConsumer<Entity, Entity, Direction> createOnLeaveConsumer() {
-    return (you, other, collisionDir) -> {
-      you.fetch(TractorBeamComponent.class).get().oldForces.remove(other);
-      if (other.fetch(ProjectileComponent.class).isEmpty()) {
-        other.remove(FlyComponent.class);
-      }
-      if (other.isPresent(VelocityComponent.class)) {
-        other.fetch(VelocityComponent.class).get().currentVelocity(Vector2.ZERO);
-        other.fetch(VelocityComponent.class).get().clearForces();
-      }
-    };
   }
 
   /**
@@ -367,7 +179,12 @@ public class TractorBeamFactory {
       }
     }
     if (lastEntity != null) {
-      lastEntity.fetch(TractorBeamComponent.class).ifPresent(TractorBeamComponent::toggleReversed);
+      lastEntity
+          .fetch(TractorBeamComponent.class)
+          .ifPresent(
+              tbc -> {
+                tbc.setReversed(!tbc.isReversed());
+              });
     }
   }
 
@@ -455,158 +272,6 @@ public class TractorBeamFactory {
       DialogUtils.showTextPopup(BEAMFORCE, "Code Error");
     }
     return Vector2.ZERO;
-  }
-
-  /**
-   * Reverses all tractor beam segments after the first beamEmitter. This ensures that the extended
-   * beam has the correct texture orientation and applies force in the correct direction.
-   *
-   * @param extensionBeamEntities the list of all entities that form the extended tractor beam
-   */
-  public static void reverseExtensionBeam(List<Entity> extensionBeamEntities) {
-    // find index of first beamEmitter
-
-    int firstEmitterIndex = indexOfFirstBeamEmitter(extensionBeamEntities);
-
-    if (firstEmitterIndex == -1) return;
-
-    // reverse all entities after the first beamEmitter
-    int i = firstEmitterIndex + 1;
-
-    while (i < extensionBeamEntities.size()) {
-
-      while (i < extensionBeamEntities.size()
-          && extensionBeamEntities.get(i).name().equals(tractorBeamName)) {
-        Entity tractorBeamEntity = extensionBeamEntities.get(i);
-        handleTractorBeamVisual(tractorBeamEntity);
-        i++;
-      }
-
-      if (i < extensionBeamEntities.size()
-          && extensionBeamEntities.get(i).name().equals(beamEmitterName)) {
-
-        Entity emitter = extensionBeamEntities.get(i);
-        if (emitter.fetch(PositionComponent.class).isEmpty()) {
-          return;
-        }
-        final Direction dir = emitter.fetch(PositionComponent.class).get().viewDirection();
-        // dynamically reload calculation of reversed force to apply
-        emitter.fetch(TractorBeamComponent.class).get().reversedForceToApply(dir);
-        emitter
-            .fetch(CollideComponent.class)
-            .ifPresent(
-                cc ->
-                    cc.onHold(
-                        (you, other, collisionDir) ->
-                            other
-                                .fetch(VelocityComponent.class)
-                                .ifPresent(
-                                    vc -> {
-                                      if (!other.isPresent(FlyComponent.class)) {
-                                        other.add(new FlyComponent());
-                                      }
-                                      Vector2 forceVector;
-                                      if (emitter
-                                          .fetch(TractorBeamComponent.class)
-                                          .get()
-                                          .isReversed())
-                                        forceVector =
-                                            emitter
-                                                .fetch(TractorBeamComponent.class)
-                                                .get()
-                                                .reversedForceToApply();
-                                      else
-                                        forceVector =
-                                            emitter
-                                                .fetch(TractorBeamComponent.class)
-                                                .get()
-                                                .forceToApply();
-                                      vc.applyForce(beamEmitterName, forceVector);
-                                    })));
-
-        i++;
-      } else {
-        break;
-      }
-    }
-  }
-
-  private static int indexOfFirstBeamEmitter(List<Entity> extensionBeamEntities) {
-    int firstEmitterIndex = -1;
-    for (int i = 0; i < extensionBeamEntities.size(); i++) {
-      if (extensionBeamEntities.get(i).name().equals(beamEmitterName)) {
-        firstEmitterIndex = i;
-        break;
-      }
-    }
-    return firstEmitterIndex;
-  }
-
-  /**
-   * Extends an existing tractor beam by creating additional beam entities in the given direction
-   * starting from the specified point.
-   *
-   * <p>New tractor beam entities are added to both the provided list and the game world. The newly
-   * created beam emitter has its DrawComponent removed to avoid duplicate rendering.
-   *
-   * @param direction the direction in which to extend the beam
-   * @param from the starting point of the extended beam segment
-   * @param tractorBeamEntities the list of existing tractor beam entities to append to
-   * @param extendComp the component so the new entity has the same components as its original
-   * @param tbc the component so the new entity has the same components as its original
-   */
-  public static void extendTractorBeam(
-      Direction direction,
-      Point from,
-      List<Entity> tractorBeamEntities,
-      PortalExtendComponent extendComp,
-      TractorBeamComponent tbc) {
-    TractorBeamFactory factory = new TractorBeamFactory(from, direction);
-
-    while (factory.hasNext()) {
-      Entity beamEntity = factory.createNextEntity();
-      tractorBeamEntities.add(beamEntity);
-      Game.add(beamEntity);
-    }
-
-    Entity emitter = factory.createBeamEmitter(from, direction);
-    emitter.add(tbc);
-    emitter.add(extendComp);
-    emitter.remove(DrawComponent.class);
-    tractorBeamEntities.add(emitter);
-    Game.add(emitter);
-
-    if (tbc.isReversed()) {
-      reverseExtensionBeam(tractorBeamEntities);
-    }
-  }
-
-  /**
-   * Removes all entities from the given list that come after the first `beamEmitter` entity.
-   *
-   * <p>The first `beamEmitter` and all entities before it remain in the list.
-   *
-   * @param entities the list of entities to trim.
-   */
-  public static void trimAfterFirstBeamEmitter(List<Entity> entities) {
-    int firstEmitterIndex = -1;
-
-    for (int i = 0; i < entities.size(); i++) {
-      if (beamEmitterName.equals(entities.get(i).name())) {
-        firstEmitterIndex = i;
-        break;
-      }
-    }
-
-    // remove all entities after first emitter
-    if (firstEmitterIndex != -1 && firstEmitterIndex + 1 < entities.size()) {
-      List<Entity> toRemove =
-          new ArrayList<>(entities.subList(firstEmitterIndex + 1, entities.size()));
-      for (Entity entity : toRemove) {
-        Game.remove(entity);
-      }
-      entities.subList(firstEmitterIndex + 1, entities.size()).clear();
-    }
   }
 
   /**
