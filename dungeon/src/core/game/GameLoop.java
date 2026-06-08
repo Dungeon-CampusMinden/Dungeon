@@ -39,10 +39,13 @@ import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.DialogCloseMessage;
 import core.network.messages.s2c.DialogShowMessage;
+import core.network.messages.s2c.EntityDelta;
 import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntitySpawnEvent;
+import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.GameOverEvent;
 import core.network.messages.s2c.LevelChangeEvent;
+import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.network.messages.s2c.SoundPlayMessage;
 import core.network.messages.s2c.SoundStopMessage;
@@ -545,6 +548,7 @@ public final class GameLoop extends ScreenAdapter {
 
             SnapshotMessage materializedSnapshot =
                 SnapshotDeltaCompressor.materializeSnapshot(baseline.orElseThrow(), event);
+            SnapshotMessage changedSnapshot = changedSnapshotForDelta(event, materializedSnapshot);
             event
                 .removedEntityIds()
                 .forEach(
@@ -552,7 +556,7 @@ public final class GameLoop extends ScreenAdapter {
                       Game.findEntityById(entityId).ifPresent(Game::remove);
                       state.untrackNetworkEntity(entityId);
                     });
-            Game.network().snapshotTranslator().applySnapshot(materializedSnapshot, dispatcher);
+            Game.network().snapshotTranslator().applySnapshot(changedSnapshot, dispatcher);
             state.rememberAppliedSnapshot(materializedSnapshot);
             reconcileNetworkEntities(state, materializedSnapshot);
             sendSnapshotAck(event.serverTick());
@@ -646,6 +650,20 @@ public final class GameLoop extends ScreenAdapter {
 
   private static void sendSnapshotAck(int serverTick) {
     Game.network().send((short) 0, new SnapshotAck(serverTick), true);
+  }
+
+  static SnapshotMessage changedSnapshotForDelta(
+      DeltaSnapshotMessage delta, SnapshotMessage materializedSnapshot) {
+    Set<Integer> changedEntityIds = new HashSet<>();
+    delta.entityDeltas().stream().map(EntityDelta::entityId).forEach(changedEntityIds::add);
+
+    List<EntityState> changedEntities =
+        materializedSnapshot.entities().stream()
+            .filter(entityState -> changedEntityIds.contains(entityState.entityId()))
+            .toList();
+    LevelState changedLevelState =
+        delta.levelStateDeltaOptional().orElseGet(() -> new LevelState(Set.of()));
+    return new SnapshotMessage(delta.serverTick(), changedEntities, changedLevelState);
   }
 
   private void fullscreenKey() {
