@@ -83,6 +83,74 @@ tasks.register('buildTheLastHourJar', Jar) {
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
 
+tasks.register('buildTheLastHourServerJar', Jar) {
+    group = 'jar'
+    archiveBaseName.set('TheLastHour')
+    archiveFileName.set('TheLastHourServer.jar')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // include compiled classes
+    from sourceSets.main.output
+    from project(':dungeon').sourceSets.main.output
+    from project(':theLastHourEscapeRoom').sourceSets.main.output
+    // include dependencies
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    // include assets
+    into('assets') {
+        from new File(project(':dungeon').projectDir, '/assets')
+        from new File(project(':theLastHourEscapeRoom').projectDir, '/assets')
+    }
+
+    // manifest
+    manifest {
+        attributes(
+            'Main-Class': 'starter.TheLastHourServer'
+        )
+    }
+
+    // exclude signature files
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}
+
+tasks.register('buildTheLastHourClientJar', Jar) {
+    group = 'jar'
+    archiveBaseName.set('TheLastHour')
+    archiveFileName.set('TheLastHourClient.jar')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // include compiled classes
+    from sourceSets.main.output
+    from project(':dungeon').sourceSets.main.output
+    from project(':theLastHourEscapeRoom').sourceSets.main.output
+    // include dependencies
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    // include assets
+    into('assets') {
+        from new File(project(':dungeon').projectDir, '/assets')
+        from new File(project(':theLastHourEscapeRoom').projectDir, '/assets')
+    }
+
+    // manifest
+    manifest {
+        attributes(
+            'Main-Class': 'starter.TheLastHourClient'
+        )
+    }
+
+    // exclude signature files
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}
+
+
+
 
 /*
     "Creates an image containing your application, a custom JRE, and appropriate start scripts.
