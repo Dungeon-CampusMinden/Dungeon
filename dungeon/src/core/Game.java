@@ -226,8 +226,8 @@ public final class Game {
   /**
    * Sets the configured game window title.
    *
-   * <p>If a window already exists, the title is updated immediately. Otherwise, the configured title
-   * is applied when the window is initialized.
+   * <p>If a window already exists, the title is updated immediately. Otherwise, the configured
+   * title is applied when the window is initialized.
    *
    * @param newTitle the new window title
    */
