@@ -156,7 +156,115 @@ tasks.register('buildTheLastHourClientJar', Jar) {
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
 
+tasks.register('installTheLastHourDist', Sync) {
+    group = 'build'
+    dependsOn tasks.named('buildTheLastHourJar')
+    dependsOn configurations.runtimeClasspath
 
+    into layout.buildDirectory.dir('installTheLastHour/theLastHour/lib')
+
+    from(tasks.named('buildTheLastHourJar'))
+    from(configurations.runtimeClasspath)
+}
+
+tasks.register('installTheLastHourServerDist', Sync) {
+    group = 'build'
+    dependsOn tasks.named('buildTheLastHourServerJar')
+    dependsOn configurations.runtimeClasspath
+
+    into layout.buildDirectory.dir('installTheLastHourServer/theLastHourServer/lib')
+
+    from(tasks.named('buildTheLastHourServerJar'))
+    from(configurations.runtimeClasspath)
+}
+
+tasks.register('installTheLastHourClientDist', Sync) {
+    group = 'build'
+    dependsOn tasks.named('buildTheLastHourClientJar')
+    dependsOn configurations.runtimeClasspath
+
+    into layout.buildDirectory.dir('installTheLastHourClient/theLastHourClient/lib')
+
+    from(tasks.named('buildTheLastHourClientJar'))
+    from(configurations.runtimeClasspath)
+}
+
+def configureTheLastHourJpackageImage(task, installTask, inputDirPath, appName, mainJar, mainClass, appArgs = []) {
+    task.group = 'build'
+    task.dependsOn 'jre', installTask
+
+    def os = System.getProperty('os.name').toLowerCase()
+    def javaHome = System.getProperty('java.home')
+    def jpackageExe = "${javaHome}/bin/jpackage${os.contains('windows') ? '.exe' : ''}"
+
+    def inputDir = layout.buildDirectory.dir(inputDirPath).get().asFile
+    def jreDir = layout.buildDirectory.dir('jre').get().asFile
+    def outputDir = layout.buildDirectory.dir('jpackage').get().asFile
+
+    def options = [
+        '--type', 'app-image',
+        '--name', appName,
+        '--dest', outputDir.absolutePath,
+        '--input', inputDir.absolutePath,
+        '--main-jar', mainJar,
+        '--main-class', mainClass,
+        '--runtime-image', jreDir.absolutePath
+    ]
+    appArgs.each { arg ->
+        options += ['--arguments', arg]
+    }
+
+    task.doFirst {
+        project.delete(new File(outputDir, appName))
+        project.delete(new File(outputDir, "${appName}.app"))
+    }
+    task.commandLine([jpackageExe] + options)
+}
+
+tasks.register('jpackageImageTheLastHour', Exec) {
+    configureTheLastHourJpackageImage(
+        it,
+        tasks.named('installTheLastHourDist'),
+        'installTheLastHour/theLastHour/lib',
+        'TheLastHour',
+        'TheLastHour.jar',
+        'starter.TheLastHour'
+    )
+}
+
+tasks.register('jpackageImageTheLastHourServer', Exec) {
+    configureTheLastHourJpackageImage(
+        it,
+        tasks.named('installTheLastHourServerDist'),
+        'installTheLastHourServer/theLastHourServer/lib',
+        'TheLastHourServer',
+        'TheLastHourServer.jar',
+        'starter.TheLastHour',
+        ['--server']
+    )
+}
+
+tasks.register('jpackageImageTheLastHourClient', Exec) {
+    configureTheLastHourJpackageImage(
+        it,
+        tasks.named('installTheLastHourClientDist'),
+        'installTheLastHourClient/theLastHourClient/lib',
+        'TheLastHourClient',
+        'TheLastHourClient.jar',
+        'starter.LastHourClient'
+    )
+}
+
+tasks.register('jpackageImageTheLastHourAll') {
+    group = 'build'
+    dependsOn tasks.named('jpackageImageTheLastHour')
+    dependsOn tasks.named('jpackageImageTheLastHourServer')
+    dependsOn tasks.named('jpackageImageTheLastHourClient')
+}
+
+tasks.named('jpackageImage') {
+    dependsOn tasks.named('installTheLastHourDist')
+}
 
 
 /*
@@ -187,13 +295,15 @@ runtime {
     // Configuration for jpackage tool
     jpackage {
 
-        // Directory containing all JARs (created by installDist task)    "../build/install/dungeon/lib"
-        def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
+        // Directory containing all JARs
+        def inputDir = layout.buildDirectory.dir('installTheLastHour/theLastHour/lib').get().asFile
 
         // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
-        imageOptions = ["--input", inputDir.absolutePath]
+        imageOptions = [
+            '--input', inputDir.absolutePath,
+            '--main-jar', 'TheLastHour.jar',
+            '--main-class', 'starter.TheLastHour'
+        ]
 
     }
 }
-
-
