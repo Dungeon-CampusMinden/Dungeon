@@ -224,21 +224,24 @@ public final class Game {
   }
 
   /**
-   * Sets the window title in the pre-run configuration.
+   * Sets the configured game window title.
    *
-   * @param windowTitle The new window title.
+   * <p>If a window already exists, the title is updated immediately. Otherwise, the configured title
+   * is applied when the window is initialized.
+   *
+   * @param newTitle the new window title
    */
-  public static void windowTitle(final String windowTitle) {
-    PreRunConfiguration.windowTitle(windowTitle);
+  public static void windowTitle(final String newTitle) {
+    GameLoop.windowTitle(newTitle);
   }
 
   /**
-   * Updates the window title.
+   * Returns the configured game window title.
    *
-   * @param newTitle The new window title.
+   * @return the configured window title
    */
-  public static void updateWindowTitle(String newTitle) {
-    Gdx.graphics.setTitle(newTitle);
+  public static String windowTitle() {
+    return GameLoop.windowTitle();
   }
 
   /**

@@ -93,6 +93,7 @@ public final class GameLoop extends ScreenAdapter {
   private boolean doSetup = true;
   private int displayModeTransitionFrames = 0;
   private static final Set<IResizable> resizables = new HashSet<>();
+  private static String windowTitle = "Dungeon";
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -165,7 +166,7 @@ public final class GameLoop extends ScreenAdapter {
     config.setWindowSizeLimits(0, 0, 9999, 9999);
     config.setForegroundFPS(PreRunConfiguration.frameRate());
     config.setResizable(PreRunConfiguration.resizeable());
-    config.setTitle(PreRunConfiguration.windowTitle());
+    config.setTitle(Game.windowTitle());
     config.setWindowIcon(PreRunConfiguration.logoPath().pathString());
     config.disableAudio(PreRunConfiguration.disableAudio());
     config.setWindowListener(WindowEventManager.windowListener());
@@ -742,6 +743,30 @@ public final class GameLoop extends ScreenAdapter {
    */
   public static boolean removeResizable(IResizable resizable) {
     return resizables.remove(resizable);
+  }
+
+  /**
+   * Sets the configured game window title.
+   *
+   * <p>If a window already exists, the title is updated immediately. Otherwise, the configured title
+   * is applied when the window is initialized.
+   *
+   * @param newTitle the new window title
+   */
+  public static void windowTitle(final String newTitle) {
+    windowTitle = newTitle;
+    if (Gdx.graphics != null) {
+      Gdx.graphics.setTitle(newTitle);
+    }
+  }
+
+  /**
+   * Returns the configured game window title.
+   *
+   * @return the configured window title
+   */
+  public static String windowTitle() {
+    return windowTitle;
   }
 
   /**

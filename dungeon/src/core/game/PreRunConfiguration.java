@@ -40,7 +40,6 @@ public final class PreRunConfiguration {
   private static boolean FULL_SCREEN = false;
 
   private static boolean RESIZEABLE = true;
-  private static String WINDOW_TITLE = "PM-Dungeon";
   private static IPath LOGO_PATH = new SimpleIPath("logo/cat_logo_35x35.png");
   private static boolean DISABLE_AUDIO = false;
   private static boolean DRAW_CHECK_PATTERN = true;
@@ -136,24 +135,6 @@ public final class PreRunConfiguration {
    */
   public static void resizeable(boolean resizeable) {
     RESIZEABLE = resizeable;
-  }
-
-  /**
-   * Gets the title of the game window.
-   *
-   * @return The title of the game window.
-   */
-  public static String windowTitle() {
-    return WINDOW_TITLE;
-  }
-
-  /**
-   * Sets the title of the game window.
-   *
-   * @param windowTitle The title of the game window.
-   */
-  public static void windowTitle(String windowTitle) {
-    WINDOW_TITLE = windowTitle;
   }
 
   /**

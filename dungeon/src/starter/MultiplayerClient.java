@@ -4,6 +4,7 @@ import contrib.utils.components.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
+import core.network.ConnectionListener;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 
@@ -21,17 +22,26 @@ public final class MultiplayerClient {
     PreRunConfiguration.multiplayerEnabled(true);
     PreRunConfiguration.isNetworkServer(false);
     PreRunConfiguration.networkPort(7777);
-    PreRunConfiguration.username("Player1");
 
     // Game Settings
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     Game.disableAudio(false);
     Game.frameRate(60);
-    Game.windowTitle("Dev Client - " + PreRunConfiguration.username());
     Game.userOnSetup(
         () -> {
           Game.add(new Debugger());
           System.out.println("DevClient started");
+          Game.network()
+              .addConnectionListener(
+                  new ConnectionListener() {
+                    @Override
+                    public void onConnected() {
+                      Game.windowTitle("Client - " + PreRunConfiguration.username());
+                    }
+
+                    @Override
+                    public void onDisconnected(String reason) {}
+                  });
         });
 
     // Start the game
