@@ -81,6 +81,9 @@ public class ClientState {
    */
   private volatile long lastActivityTimeMs;
 
+  /** True after the client confirms that its initial world bootstrap was applied. */
+  private volatile boolean initialWorldReady = false;
+
   /** Per-client server-side snapshot acknowledgement state. */
   private final ClientSnapshotSyncState snapshotSync = new ClientSnapshotSyncState();
 
@@ -161,6 +164,7 @@ public class ClientState {
     this.lastProcessedSeq = -1;
     this.expectedSeq = 0;
     this.lastClientTick = 0;
+    this.initialWorldReady = false;
     clearSnapshotBaseline(FullSnapshotSendReason.RECONNECT);
     if (!preserveHero) {
       Game.remove(this.playerEntity);
@@ -248,6 +252,24 @@ public class ClientState {
   /** Marks the last activity time (e.g., for heartbeat updates). Used for timeout detection. */
   public synchronized void updateLastActivity() {
     this.lastActivityTimeMs = System.currentTimeMillis();
+  }
+
+  /**
+   * Returns whether this client has completed its initial world bootstrap.
+   *
+   * @return true once the client sent {@code InitialWorldReady}
+   */
+  public boolean initialWorldReady() {
+    return initialWorldReady;
+  }
+
+  /**
+   * Updates whether this client has completed its initial world bootstrap.
+   *
+   * @param initialWorldReady true once the client sent {@code InitialWorldReady}
+   */
+  public void initialWorldReady(boolean initialWorldReady) {
+    this.initialWorldReady = initialWorldReady;
   }
 
   /**

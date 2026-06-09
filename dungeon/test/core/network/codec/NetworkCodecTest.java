@@ -9,6 +9,7 @@ import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.DebugPing;
 import core.network.messages.c2s.DebugTelemetryRequest;
 import core.network.messages.c2s.DialogResponseMessage;
+import core.network.messages.c2s.InitialWorldReady;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
@@ -25,6 +26,7 @@ import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.EntityStateField;
 import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.InitialWorldComplete;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.RegisterAck;
 import core.network.messages.s2c.SoundPlayMessage;
@@ -79,6 +81,7 @@ class NetworkCodecTest {
         new SnapshotAck(123),
         new DebugTelemetryRequest(1L, DebugTelemetryRequest.Mode.ONCE, 1_000),
         new DebugPing(2L, 123_456L),
+        new InitialWorldReady(),
         new ConnectAck((short) 5, 42, new byte[] {4, 5, 6}),
         new ConnectReject(ConnectReject.Reason.INVALID_NAME),
         new DialogCloseMessage("dialog-2"),
@@ -169,6 +172,7 @@ class NetworkCodecTest {
                     46,
                     47))),
         new DebugPong(4L, 5L, 6L, 7L),
+        new InitialWorldComplete(),
         new SoundPlayMessage(
             2,
             SoundSpec.builder("sound")

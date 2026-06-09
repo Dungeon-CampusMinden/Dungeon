@@ -4,6 +4,7 @@ import core.network.codec.converters.c2s.ConnectRequestConverter;
 import core.network.codec.converters.c2s.DebugPingConverter;
 import core.network.codec.converters.c2s.DebugTelemetryRequestConverter;
 import core.network.codec.converters.c2s.DialogResponseConverter;
+import core.network.codec.converters.c2s.InitialWorldReadyConverter;
 import core.network.codec.converters.c2s.InputMessageConverter;
 import core.network.codec.converters.c2s.RegisterUdpConverter;
 import core.network.codec.converters.c2s.RequestEntitySpawnConverter;
@@ -21,6 +22,7 @@ import core.network.codec.converters.s2c.EntitySpawnBatchConverter;
 import core.network.codec.converters.s2c.EntitySpawnEventConverter;
 import core.network.codec.converters.s2c.EntityStateConverter;
 import core.network.codec.converters.s2c.GameOverConverter;
+import core.network.codec.converters.s2c.InitialWorldCompleteConverter;
 import core.network.codec.converters.s2c.LevelChangeConverter;
 import core.network.codec.converters.s2c.RegisterAckConverter;
 import core.network.codec.converters.s2c.SnapshotConverter;
@@ -47,6 +49,7 @@ public final class CoreConverters {
     registry.register(new SnapshotAckConverter());
     registry.register(new DebugTelemetryRequestConverter());
     registry.register(new DebugPingConverter());
+    registry.register(new InitialWorldReadyConverter());
     registry.register(new ConnectAckConverter());
     registry.register(new ConnectRejectConverter());
     registry.register(new DialogShowConverter());
@@ -64,5 +67,6 @@ public final class CoreConverters {
     registry.register(new SoundStopConverter());
     registry.register(new DebugTelemetrySnapshotConverter());
     registry.register(new DebugPongConverter());
+    registry.register(new InitialWorldCompleteConverter());
   }
 }

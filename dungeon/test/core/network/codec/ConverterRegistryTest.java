@@ -9,8 +9,10 @@ import com.google.protobuf.Parser;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.DebugPing;
 import core.network.messages.c2s.DebugTelemetryRequest;
+import core.network.messages.c2s.InitialWorldReady;
 import core.network.messages.s2c.DebugPong;
 import core.network.messages.s2c.DebugTelemetrySnapshot;
+import core.network.messages.s2c.InitialWorldComplete;
 import core.network.messages.s2c.RegisterAck;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -92,6 +94,10 @@ class ConverterRegistryTest {
         25, Byte.toUnsignedInt(registry.typeId(registry.toProto(emptyDebugTelemetrySnapshot()))));
     assertEquals(
         26, Byte.toUnsignedInt(registry.typeId(registry.toProto(new DebugPong(4L, 5L, 6L, 7L)))));
+    assertEquals(
+        27, Byte.toUnsignedInt(registry.typeId(registry.toProto(new InitialWorldReady()))));
+    assertEquals(
+        28, Byte.toUnsignedInt(registry.typeId(registry.toProto(new InitialWorldComplete()))));
   }
 
   private static List<Message> protoDefaults() {
@@ -105,6 +111,7 @@ class ConverterRegistryTest {
         core.network.proto.c2s.SnapshotAck.getDefaultInstance(),
         core.network.proto.c2s.DebugTelemetryRequest.getDefaultInstance(),
         core.network.proto.c2s.DebugPing.getDefaultInstance(),
+        core.network.proto.c2s.InitialWorldReady.getDefaultInstance(),
         core.network.proto.s2c.ConnectAck.getDefaultInstance(),
         core.network.proto.s2c.ConnectReject.getDefaultInstance(),
         core.network.proto.s2c.DialogShowMessage.getDefaultInstance(),
@@ -121,7 +128,8 @@ class ConverterRegistryTest {
         core.network.proto.s2c.SoundPlayMessage.getDefaultInstance(),
         core.network.proto.s2c.SoundStopMessage.getDefaultInstance(),
         core.network.proto.s2c.DebugTelemetrySnapshot.getDefaultInstance(),
-        core.network.proto.s2c.DebugPong.getDefaultInstance());
+        core.network.proto.s2c.DebugPong.getDefaultInstance(),
+        core.network.proto.s2c.InitialWorldComplete.getDefaultInstance());
   }
 
   private static DebugTelemetrySnapshot emptyDebugTelemetrySnapshot() {

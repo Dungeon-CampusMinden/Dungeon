@@ -38,7 +38,7 @@ public final class NetworkConfig {
   public static final int SAFE_UDP_MTU = 1400;
 
   /** Protocol version used by multiplayer clients and servers during the connection handshake. */
-  public static final short PROTOCOL_VERSION = 2;
+  public static final short PROTOCOL_VERSION = 3;
 
   /**
    * Number of attempts for UDP client registration.

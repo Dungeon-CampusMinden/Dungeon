@@ -96,6 +96,14 @@ public interface INetworkHandler {
    */
   default void acknowledgeSnapshot(int serverTick, boolean immediateReliable) {}
 
+  /**
+   * Marks the initial multiplayer world bootstrap as locally applied.
+   *
+   * <p>Client implementations should notify registered {@link ConnectionListener}s on the game loop
+   * thread. Server and local implementations may ignore this signal.
+   */
+  default void markInitialWorldReady() {}
+
   /** Starts the handler's processing loop. */
   void start();
 

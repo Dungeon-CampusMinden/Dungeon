@@ -24,6 +24,7 @@ import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.DebugPing;
 import core.network.messages.c2s.DebugTelemetryRequest;
 import core.network.messages.c2s.DialogResponseMessage;
+import core.network.messages.c2s.InitialWorldReady;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
@@ -35,6 +36,7 @@ import core.network.messages.s2c.DebugPong;
 import core.network.messages.s2c.DebugTelemetrySnapshot;
 import core.network.messages.s2c.EntitySpawnBatch;
 import core.network.messages.s2c.EntitySpawnEvent;
+import core.network.messages.s2c.InitialWorldComplete;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.RegisterAck;
 import core.utils.logging.DungeonLogger;
@@ -181,14 +183,31 @@ public final class ServerTransport {
   }
 
   /**
-   * Gets a set of all currently connected clients' states.
+   * Gets a set of currently connected clients that completed the initial world bootstrap.
    *
-   * <p>This method filters out any sessions that are closed and collects the associated ClientState
-   * objects.
+   * <p>This method filters out closed sessions and clients that have not yet sent {@link
+   * InitialWorldReady}. Use {@link #establishedClients()} for bootstrap-only work such as spawning
+   * the player's hero before normal snapshots start.
    *
-   * @return A set of ClientState objects representing connected clients.
+   * @return a set of ClientState objects representing world-ready clients
    */
   public Set<ClientState> connectedClients() {
+    Set<ClientState> clients = new HashSet<>();
+    for (ClientState state : establishedClients()) {
+      if (state.initialWorldReady()) {
+        clients.add(state);
+      }
+    }
+    return clients;
+  }
+
+  /**
+   * Gets all currently established client states, including clients still applying the initial
+   * world bootstrap.
+   *
+   * @return a set of ClientState objects for active, authenticated sessions
+   */
+  public Set<ClientState> establishedClients() {
     Set<ClientState> clients = new HashSet<>();
     for (Session s : sessions.values()) {
       if (s.isClosed()) continue;
@@ -514,6 +533,7 @@ public final class ServerTransport {
   private void setupDispatchers() {
     MessageDispatcher dispatcher = Game.network().messageDispatcher();
     dispatcher.registerHandler(ConnectRequest.class, this::onConnectRequest);
+    dispatcher.registerHandler(InitialWorldReady.class, this::onInitialWorldReady);
     dispatcher.registerHandler(RequestEntitySpawn.class, this::onRequestEntitySpawn);
     dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
     dispatcher.registerHandler(SnapshotAck.class, this::onSnapshotAck);
@@ -687,18 +707,14 @@ public final class ServerTransport {
             sessionToken,
             selectedCharacterClass(req));
     session.udpReady(false);
+    session.attachClientState(clientState);
+    clientIdToSession.put(newClientId, session);
 
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
 
     sendInitialLevel(session.tcpCtx(), newClientId);
     sendInitialEntitySpawns(session, newClientId);
-
-    session.attachClientState(clientState);
-    clientIdToSession.put(newClientId, session);
-
-    // Resync dialogs for the new client
-    DialogTracker.instance().resyncDialogsToClient(newClientId);
-    SoundTracker.instance().resyncSoundsToClient(newClientId);
+    sendInitialWorldComplete(session, newClientId);
 
     LOGGER.info("Accepted client id={} name='{}' {}", newClientId, playerName, session);
   }
@@ -770,20 +786,17 @@ public final class ServerTransport {
     } catch (Exception ignored) {
     }
 
-    // 4. Send ConnectAck
-    session.sendMessage(new ConnectAck(clientId, ServerRuntime.SESSION_ID, newSessionToken), true);
-
-    sendInitialLevel(session.tcpCtx(), clientId);
-    sendInitialEntitySpawns(session, clientId);
-
     // Reuse the previous ClientState so reconnects keep the original character class selection.
     oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
     session.attachClientState(oldClientState);
     clientIdToSession.put(clientId, session);
 
-    // Resync dialogs for the reconnecting client
-    DialogTracker.instance().resyncDialogsToClient(clientId);
-    SoundTracker.instance().resyncSoundsToClient(clientId);
+    // 4. Send ConnectAck
+    session.sendMessage(new ConnectAck(clientId, ServerRuntime.SESSION_ID, newSessionToken), true);
+
+    sendInitialLevel(session.tcpCtx(), clientId);
+    sendInitialEntitySpawns(session, clientId);
+    sendInitialWorldComplete(session, clientId);
 
     LOGGER.info("Restored client id={} name='{}' {}", clientId, playerName, session);
   }
@@ -927,6 +940,24 @@ public final class ServerTransport {
                     entity.name()));
   }
 
+  private void onInitialWorldReady(Session session, InitialWorldReady msg) {
+    if (!isSessionValid(session)) {
+      LOGGER.warn("Ignoring InitialWorldReady from invalid session: {}", session);
+      return;
+    }
+
+    ClientState state = session.clientState().orElseThrow();
+    if (state.initialWorldReady()) {
+      return;
+    }
+
+    state.initialWorldReady(true);
+    state.updateLastActivity();
+    DialogTracker.instance().resyncDialogsToClient(state.clientId());
+    SoundTracker.instance().resyncSoundsToClient(state.clientId());
+    LOGGER.info("Client id={} completed initial world sync", state.clientId());
+  }
+
   private void onInputMessage(Session session, InputMessage msg) {
     // 1. Validate session
     if (!isSessionValid(session)) {
@@ -941,6 +972,13 @@ public final class ServerTransport {
           "Ignoring InputMessage with invalid sessionId={} from clientId={}",
           msg.sessionId(),
           state.clientId());
+      return;
+    }
+
+    if (!state.initialWorldReady()) {
+      LOGGER.debug(
+          "Ignoring InputMessage before initial world sync from clientId={}", state.clientId());
+      state.updateLastActivity();
       return;
     }
 
@@ -1066,6 +1104,11 @@ public final class ServerTransport {
         batchCount,
         spawnEvents.size(),
         clientId);
+  }
+
+  private void sendInitialWorldComplete(Session session, int clientId) {
+    session.sendMessage(new InitialWorldComplete(), true);
+    LOGGER.info("Sent InitialWorldComplete to clientId={}", clientId);
   }
 
   private boolean spawnBatchExceedsTcpLimit(

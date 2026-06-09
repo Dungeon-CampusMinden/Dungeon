@@ -12,6 +12,7 @@ import core.network.codec.converters.c2s.ConnectRequestConverter;
 import core.network.codec.converters.c2s.DebugPingConverter;
 import core.network.codec.converters.c2s.DebugTelemetryRequestConverter;
 import core.network.codec.converters.c2s.DialogResponseConverter;
+import core.network.codec.converters.c2s.InitialWorldReadyConverter;
 import core.network.codec.converters.c2s.InputMessageConverter;
 import core.network.codec.converters.c2s.RegisterUdpConverter;
 import core.network.codec.converters.c2s.RequestEntitySpawnConverter;
@@ -21,6 +22,7 @@ import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.DebugPing;
 import core.network.messages.c2s.DebugTelemetryRequest;
 import core.network.messages.c2s.DialogResponseMessage;
+import core.network.messages.c2s.InitialWorldReady;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
@@ -51,6 +53,8 @@ public class C2SConverterTest {
   private static final DebugTelemetryRequestConverter DEBUG_TELEMETRY_REQUEST_CONVERTER =
       new DebugTelemetryRequestConverter();
   private static final DebugPingConverter DEBUG_PING_CONVERTER = new DebugPingConverter();
+  private static final InitialWorldReadyConverter INITIAL_WORLD_READY_CONVERTER =
+      new InitialWorldReadyConverter();
 
   /** Verifies connect request conversion with session data. */
   @Test
@@ -601,6 +605,17 @@ public class C2SConverterTest {
     DebugPing roundTrip = DEBUG_PING_CONVERTER.fromProto(proto);
     assertEquals(message.requestId(), roundTrip.requestId());
     assertEquals(message.clientTimeNanos(), roundTrip.clientTimeNanos());
+  }
+
+  /** Verifies initial world ready conversion. */
+  @Test
+  public void testInitialWorldReadyRoundTrip() {
+    InitialWorldReady message = new InitialWorldReady();
+
+    core.network.proto.c2s.InitialWorldReady proto = INITIAL_WORLD_READY_CONVERTER.toProto(message);
+    InitialWorldReady roundTrip = INITIAL_WORLD_READY_CONVERTER.fromProto(proto);
+
+    assertEquals(message, roundTrip);
   }
 
   private record TestPayload(String label, int count) implements DialogResponseMessage.Payload {}

@@ -161,6 +161,11 @@ public class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
+  public void markInitialWorldReady() {
+    if (!serverMode) client.markInitialWorldReady();
+  }
+
+  @Override
   public void addConnectionListener(ConnectionListener listener) {
     if (!serverMode) client.addConnectionListener(listener);
   }

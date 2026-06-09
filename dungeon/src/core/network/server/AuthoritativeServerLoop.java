@@ -290,7 +290,7 @@ public final class AuthoritativeServerLoop {
 
   private void syncClientsToEntities() {
     // Spawn Hero if TCP client exists but no entity is associated
-    for (ClientState state : net.connectedClients()) {
+    for (ClientState state : net.establishedClients()) {
       if (state.playerEntity().isEmpty()) {
         state.playerEntity(spawnHeroForClient(state));
       }

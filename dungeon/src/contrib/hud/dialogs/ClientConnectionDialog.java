@@ -39,6 +39,7 @@ final class ClientConnectionDialog {
   private static final String T_INVALID_USERNAME = "invalid_username";
   private static final String T_REJECTED_USERNAME = "rejected_username";
   private static final String T_CONNECTING = "connecting";
+  private static final String T_SYNCING_WORLD = "syncing_world";
   private static final String T_FALLBACK_USERNAME = "fallback_username";
   private static final String T_CLIENT_VERSION = "client_version";
   private static final Translation trans = new Translation("dialog.client_connection_dialog");
@@ -176,6 +177,11 @@ final class ClientConnectionDialog {
     return new ConnectionListener() {
       @Override
       public void onConnected() {
+        showStatus(form.errorLabel(), trans.text(T_SYNCING_WORLD));
+      }
+
+      @Override
+      public void onInitialWorldReady() {
         completeConnectAttempt(context, form, true, this);
       }
 

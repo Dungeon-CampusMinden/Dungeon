@@ -35,6 +35,7 @@ import core.network.MessageDispatcher;
 import core.network.NetworkTelemetry;
 import core.network.client.ClientNetwork;
 import core.network.delta.SnapshotDeltaCompressor;
+import core.network.messages.c2s.InitialWorldReady;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.DebugPong;
 import core.network.messages.s2c.DebugTelemetrySnapshot;
@@ -47,6 +48,7 @@ import core.network.messages.s2c.EntitySpawnBatch;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.InitialWorldComplete;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.LevelState;
 import core.network.messages.s2c.SnapshotMessage;
@@ -98,6 +100,9 @@ public final class GameLoop extends ScreenAdapter {
   private static Stage stage;
   private boolean doSetup = true;
   private int displayModeTransitionFrames = 0;
+  private volatile boolean initialWorldCompleteReceived = false;
+  private volatile boolean initialWorldReadySent = false;
+  private volatile boolean initialWorldClientReady = false;
   private static final Set<IResizable> resizables = new HashSet<>();
   private static String windowTitle = "Dungeon";
 
@@ -269,6 +274,7 @@ public final class GameLoop extends ScreenAdapter {
       NetworkTelemetry.recordNetworkDispatchBatch(
           java.lang.System.nanoTime() - networkDispatchStartNanos);
     }
+    tryCompleteInitialWorldHandshake();
     frame(delta);
     clearScreen();
 
@@ -321,10 +327,13 @@ public final class GameLoop extends ScreenAdapter {
           .addConnectionListener(
               new ConnectionListener() {
                 @Override
-                public void onConnected() {}
+                public void onConnected() {
+                  resetInitialWorldHandshake();
+                }
 
                 @Override
                 public void onDisconnected(String reason) {
+                  resetInitialWorldHandshake();
                   InputMessage.resetSequence();
                 }
               });
@@ -467,6 +476,13 @@ public final class GameLoop extends ScreenAdapter {
     dispatcher.registerHandler(
         EntitySpawnBatch.class,
         (ctx, batch) -> batch.entities().forEach(event -> dispatcher.dispatch(ctx, event)));
+
+    dispatcher.registerHandler(
+        InitialWorldComplete.class,
+        (ctx, event) -> {
+          initialWorldCompleteReceived = true;
+          tryCompleteInitialWorldHandshake();
+        });
 
     dispatcher.registerHandler(
         EntityDespawnEvent.class,
@@ -724,6 +740,37 @@ public final class GameLoop extends ScreenAdapter {
               .flatMap(e -> e.fetch(UIComponent.class))
               .ifPresent(UIUtils::closeDialog);
         });
+  }
+
+  private void resetInitialWorldHandshake() {
+    initialWorldCompleteReceived = false;
+    initialWorldReadySent = false;
+    initialWorldClientReady = false;
+  }
+
+  private void tryCompleteInitialWorldHandshake() {
+    if (!Game.isMultiplayerClient()
+        || initialWorldClientReady
+        || !initialWorldCompleteReceived
+        || Game.player().isEmpty()) {
+      return;
+    }
+
+    if (initialWorldReadySent) {
+      return;
+    }
+    initialWorldReadySent = true;
+    Game.network()
+        .send((short) 0, new InitialWorldReady(), true)
+        .whenComplete(
+            (success, error) -> {
+              if (error == null && Boolean.TRUE.equals(success)) {
+                initialWorldClientReady = true;
+                Game.network().markInitialWorldReady();
+                return;
+              }
+              initialWorldReadySent = false;
+            });
   }
 
   /**

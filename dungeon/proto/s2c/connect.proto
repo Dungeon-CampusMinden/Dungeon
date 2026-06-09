@@ -36,3 +36,7 @@ message ConnectReject {
     REJECT_REASON_OTHER = 5;
   }
 }
+
+// Server-to-client: Marks the end of the initial level/entity bootstrap stream.
+// Maps to: core.network.messages.s2c.InitialWorldComplete
+message InitialWorldComplete {}

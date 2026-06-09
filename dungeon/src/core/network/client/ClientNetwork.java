@@ -88,6 +88,7 @@ public final class ClientNetwork {
 
   private final AtomicBoolean running = new AtomicBoolean(false);
   private final AtomicBoolean connected = new AtomicBoolean(false);
+  private final AtomicBoolean initialWorldReady = new AtomicBoolean(false);
 
   private volatile Session session;
 
@@ -140,6 +141,7 @@ public final class ClientNetwork {
     closeTransportResources();
     resetSnapshotAckState();
     connected.set(false);
+    initialWorldReady.set(false);
     session = null;
     clientId = null;
     udpRecoveryState.enterRetryMode();
@@ -175,10 +177,12 @@ public final class ClientNetwork {
     if (!running.compareAndSet(true, false)) {
       closeTransportResources();
       connected.set(false);
+      initialWorldReady.set(false);
       return;
     }
     closeTransportResources();
     connected.set(false);
+    initialWorldReady.set(false);
     resetSnapshotAckState();
     LOGGER.info("ClientNetwork shutdown. Reason: {}", reason);
   }
@@ -346,6 +350,13 @@ public final class ClientNetwork {
       return;
     }
     queueSnapshotAck(serverTick);
+  }
+
+  /** Marks the initial world bootstrap as locally applied and notifies lifecycle listeners once. */
+  public void markInitialWorldReady() {
+    if (initialWorldReady.compareAndSet(false, true)) {
+      enqueueLifecycle(this::notifyInitialWorldReady);
+    }
   }
 
   private void queueSnapshotAck(int serverTick) {
@@ -730,6 +741,7 @@ public final class ClientNetwork {
     enqueueLifecycle(() -> notifyDisconnected(reason));
     closeTransportResources();
     connected.set(false);
+    initialWorldReady.set(false);
     running.set(false);
     session = null;
     clientId = null;
@@ -777,6 +789,7 @@ public final class ClientNetwork {
   private void handleTransportClosed(String reason) {
     boolean wasActive = running.getAndSet(false) || connected.get();
     connected.set(false);
+    initialWorldReady.set(false);
     cancelUdpMaintenance();
     clientId = null;
     session = null;
@@ -871,6 +884,7 @@ public final class ClientNetwork {
   private void onConnectAck(short newClientId, int sessionId, byte[] sessionToken) {
     this.clientId = newClientId;
     connected.set(true);
+    initialWorldReady.set(false);
     LOGGER.info("Received ConnectAck clientId={}, sessionId={}", newClientId, sessionId);
     session.attachClientState(
         new ClientState(
@@ -1137,6 +1151,16 @@ public final class ClientNetwork {
         l.onDisconnected(cause);
       } catch (Exception e) {
         LOGGER.warn("onDisconnected error", e);
+      }
+    }
+  }
+
+  private void notifyInitialWorldReady() {
+    for (ConnectionListener l : connectionListeners) {
+      try {
+        l.onInitialWorldReady();
+      } catch (Exception e) {
+        LOGGER.warn("onInitialWorldReady error", e);
       }
     }
   }

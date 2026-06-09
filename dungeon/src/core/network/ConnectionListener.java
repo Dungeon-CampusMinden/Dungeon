@@ -25,4 +25,10 @@ public interface ConnectionListener {
    * @param reason the typed server-side rejection reason
    */
   default void onRejected(ConnectReject.Reason reason) {}
+
+  /**
+   * Called when the client has applied the initial multiplayer world bootstrap and is ready to show
+   * gameplay.
+   */
+  default void onInitialWorldReady() {}
 }

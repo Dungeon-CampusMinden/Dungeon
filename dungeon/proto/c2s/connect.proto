@@ -26,3 +26,7 @@ message ConnectRequest {
   // Requested player character class (absent means use the server default).
   optional int32 character_class_id = 5;
 }
+
+// Client-to-server: Confirms the client applied the initial world bootstrap.
+// Maps to: core.network.messages.c2s.InitialWorldReady
+message InitialWorldReady {}

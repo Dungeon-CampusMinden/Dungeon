@@ -36,6 +36,7 @@
       "invalid_username": "Spielername darf nicht leer sein und keinen Unterstrich enthalten.",
       "rejected_username": "Spielername ungültig oder bereits vergeben.",
       "connecting": "Verbindung wird aufgebaut...",
+      "syncing_world": "Spielwelt wird synchronisiert...",
       "fallback_username": "Player",
       "client_version": "Client-Version"
     },

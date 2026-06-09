@@ -36,6 +36,7 @@
 	  "invalid_username": "Player name must not be empty and must not contain an underscore.",
 	  "rejected_username": "Player name is invalid or already taken.",
 	  "connecting": "Establishing connection...",
+	  "syncing_world": "Synchronizing world...",
 	  "fallback_username": "Player",
 	  "client_version": "Client Version"
 	},
@@ -57,4 +58,3 @@
     "language": "Language"
   }
 }
-

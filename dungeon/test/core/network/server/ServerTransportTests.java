@@ -548,6 +548,7 @@ public class ServerTransportTests {
             ServerRuntime.SESSION_ID,
             new byte[] {1, 2, 3},
             CharacterClass.WIZARD));
+    session.clientState().orElseThrow().initialWorldReady(true);
     sessionsMap(transport).put(session.tcpCtx().channel().id(), session);
     clientIdToSessionMap(transport).put(clientId, session);
     return session;
@@ -564,6 +565,7 @@ public class ServerTransportTests {
             ServerRuntime.SESSION_ID,
             new byte[] {1, 2, 3},
             CharacterClass.WIZARD));
+    session.clientState().orElseThrow().initialWorldReady(true);
     sessionsMap(transport).put(session.tcpCtx().channel().id(), session);
     clientIdToSessionMap(transport).put(clientId, session);
     return session;

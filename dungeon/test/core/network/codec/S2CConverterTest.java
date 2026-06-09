@@ -29,6 +29,7 @@ import core.network.codec.converters.s2c.EntitySpawnBatchConverter;
 import core.network.codec.converters.s2c.EntitySpawnEventConverter;
 import core.network.codec.converters.s2c.EntityStateConverter;
 import core.network.codec.converters.s2c.GameOverConverter;
+import core.network.codec.converters.s2c.InitialWorldCompleteConverter;
 import core.network.codec.converters.s2c.LevelChangeConverter;
 import core.network.codec.converters.s2c.RegisterAckConverter;
 import core.network.codec.converters.s2c.SnapshotConverter;
@@ -49,6 +50,7 @@ import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.EntityStateField;
 import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.InitialWorldComplete;
 import core.network.messages.s2c.InventorySlotState;
 import core.network.messages.s2c.ItemState;
 import core.network.messages.s2c.LevelChangeEvent;
@@ -95,6 +97,8 @@ public class S2CConverterTest {
   private static final DebugTelemetrySnapshotConverter DEBUG_TELEMETRY_SNAPSHOT_CONVERTER =
       new DebugTelemetrySnapshotConverter();
   private static final DebugPongConverter DEBUG_PONG_CONVERTER = new DebugPongConverter();
+  private static final InitialWorldCompleteConverter INITIAL_WORLD_COMPLETE_CONVERTER =
+      new InitialWorldCompleteConverter();
 
   private static DrawInfoData createDrawInfo() {
     DrawInfoData.AnimationConfigData animationConfig =
@@ -661,5 +665,17 @@ public class S2CConverterTest {
     assertEquals(message.clientTimeNanos(), roundTrip.clientTimeNanos());
     assertEquals(message.serverReceiveTimeMs(), roundTrip.serverReceiveTimeMs());
     assertEquals(message.serverSendTimeMs(), roundTrip.serverSendTimeMs());
+  }
+
+  /** Verifies initial world complete conversion. */
+  @Test
+  public void testInitialWorldCompleteRoundTrip() {
+    InitialWorldComplete message = new InitialWorldComplete();
+
+    core.network.proto.s2c.InitialWorldComplete proto =
+        INITIAL_WORLD_COMPLETE_CONVERTER.toProto(message);
+    InitialWorldComplete roundTrip = INITIAL_WORLD_COMPLETE_CONVERTER.fromProto(proto);
+
+    assertEquals(message, roundTrip);
   }
 }
