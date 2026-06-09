@@ -1,19 +1,45 @@
 package core.language;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import core.utils.JsonHandler;
+import core.utils.components.draw.TextureMap;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Interface for selected languages.
+ * Manages the global language state used for localization.
  *
- * <p>Enables switching languages using JSON files.
+ * <p>Holds the current and fallback language and enables switching between them. It also keeps a
+ * registry of translation files per language; additional files can be registered via {@link
+ * #registerTranslationFile(Language, String)} to support multiple sources, e.g. one file for the
+ * core project and another for an implementing project.
+ *
+ * <p>The actual fetching of translations is delegated to {@link Translation}. For convenience, a
+ * default {@link Translation} without a base key is exposed through {@link #text(String)}, so
+ * translations can be retrieved without creating a dedicated {@link Translation} instance.
  */
 public class Localization {
   private static final Language FALLBACK_LANGUAGE = Language.DE;
   private static Language CURRENT_LANGUAGE = FALLBACK_LANGUAGE;
+
+  /** Base directory of the core translation files, registered for every language by default. */
+  private static final String DEFAULT_TRANSLATION_PATH = "language_default/";
+
+  /** Registered translation files per language, queried in registration order. */
+  private static final Map<Language, List<TranslationFile>> TRANSLATION_FILES =
+      new EnumMap<>(Language.class);
+
+  /** Default translation without a base key, backing the static {@link #text(String)} shortcut. */
+  private static final Translation DEFAULT_TRANSLATION = new Translation();
+
+  static {
+    // Register the core translation file (e.g. "language/de.json") for every language by default.
+    for (Language language : Language.values()) {
+      registerTranslationFile(language, DEFAULT_TRANSLATION_PATH + language + ".json");
+    }
+  }
 
   private Localization() {}
 
@@ -36,58 +62,80 @@ public class Localization {
   }
 
   /**
-   * Gets the value behind a JSON node path for the selected language.
+   * Gets the fallback language used when a translation is missing for the current language.
    *
-   * @param jsonNodes Nodes of the JSON up to the desired value as single params.
-   * @return value behind a JSON node path.
+   * @return fallback language.
    */
-  public static String text(String jsonNodes) throws IOException {
-    String jsonPath = "language/";
-    FileHandle fileHandler = Gdx.files.internal(jsonPath + currentLanguage().toString() + ".json");
-    String[] nodes = jsonNodes.split("\\.");
-
-    String jsonString = fileHandler.readString(StandardCharsets.UTF_8.name());
-    ;
-    String text = JsonHandler.getValueByPath(jsonString, nodes);
-
-    if (text != null) {
-      return text;
-    } else {
-      return fallbackText(jsonNodes);
-    }
-  }
-
-  /* In the case that there is no value for the selected language. */
-  private static String fallbackText(String jsonNodes) throws IOException {
-    String jsonPath = "language/";
-    FileHandle fileHandler = Gdx.files.internal(jsonPath + FALLBACK_LANGUAGE.toString() + ".json");
-    String[] nodes = jsonNodes.split("\\.");
-
-    String jsonString = fileHandler.readString(StandardCharsets.UTF_8.name());
-    ;
-    String text = JsonHandler.getValueByPath(jsonString, nodes);
-
-    if (text != null) {
-      return text;
-    } else {
-      return "Text not found!";
-    }
+  public static Language fallbackLanguage() {
+    return FALLBACK_LANGUAGE;
   }
 
   /**
-   * Adds language suffix to file.
+   * Gets the value behind a JSON node path for the selected language.
    *
-   * @param basePath Path of the base such as 'assets/images/open-book.png'.
-   * @return FileHandler for the current asset.
+   * <p>This is a convenience shortcut that defers to an internal {@link Translation} without a base
+   * key. Create a dedicated {@link Translation} instance when a base key is desired.
+   *
+   * @param jsonNodes Nodes of the JSON up to the desired value as single params.
+   * @return value behind a JSON node path.
+   * @throws IOException if the language file cannot be read.
+   */
+  public static String text(String jsonNodes) throws IOException {
+    return DEFAULT_TRANSLATION.text(jsonNodes);
+  }
+
+  /**
+   * Registers an additional translation file for the given language.
+   *
+   * <p>This enables multiple translation sources per language, e.g. one file with the core
+   * project's dialogs and another with an implementing project's own texts. When a key is
+   * requested, the registered files are searched in registration order and the first file that
+   * contains the key wins. Files are read and cached lazily the first time a translation is
+   * requested from them.
+   *
+   * @param language Language the translation file provides translations for.
+   * @param path Path to the translation JSON file, e.g. "language/en.json".
+   */
+  public static void registerTranslationFile(Language language, String path) {
+    TRANSLATION_FILES
+        .computeIfAbsent(language, key -> new ArrayList<>())
+        .add(new TranslationFile(path));
+  }
+
+  /**
+   * Gets the translation files registered for the given language in registration order.
+   *
+   * @param language Language to get the registered translation files for.
+   * @return the registered translation files, or an empty list if none are registered.
+   */
+  static List<TranslationFile> translationFiles(Language language) {
+    return TRANSLATION_FILES.getOrDefault(language, List.of());
+  }
+
+  /**
+   * Resolves the localized variant of an asset path for the current language.
+   *
+   * <p>The current language suffix is appended to the file name, e.g. {@code images/open-book.png}
+   * becomes {@code images/open-book_en.png}. If no asset exists for the current language - neither as
+   * an internal file nor as a texture registered in {@link TextureMap} - the fallback language
+   * variant is returned instead.
+   *
+   * @param basePath Path of the base asset such as 'images/open-book.png'.
+   * @return path to the localized asset, or the fallback language variant if it does not exist.
    */
   public static String asset(String basePath) {
-    FileHandle handler = Gdx.files.internal(addSuffix(basePath, false));
+    String localizedPath = addSuffix(basePath, false);
 
-    if (handler.exists()) {
-      return handler.path();
+    if (assetExists(localizedPath)) {
+      return localizedPath;
     } else {
-      return Gdx.files.internal(addSuffix(basePath, true)).path();
+      return addSuffix(basePath, true);
     }
+  }
+
+  /* An asset is available if it exists as an internal file or is registered in the TextureMap. */
+  private static boolean assetExists(String path) {
+    return Gdx.files.internal(path).exists() || TextureMap.instance().containsKey(path);
   }
 
   private static String addSuffix(String filePath, boolean fallback) {
@@ -96,7 +144,7 @@ public class Localization {
     String fileFormat = filePath.substring(index);
 
     if (fallback) {
-      return name + "_" + FALLBACK_LANGUAGE.toString() + fileFormat;
+      return name + "_" + FALLBACK_LANGUAGE + fileFormat;
     } else {
       return name + "_" + currentLanguage().toString() + fileFormat;
     }

@@ -1,0 +1,10 @@
+{
+    "dialog": {
+        "buttons": {
+            "ok": "OK",
+            "cancel": "Abbrechen",
+            "yes": "Ja",
+            "no": "Nein"
+        }
+    }
+}

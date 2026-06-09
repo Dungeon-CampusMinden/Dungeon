@@ -39,7 +39,7 @@ public class LanguageTester {
       Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
       addLanguageSystem();
       Game.disableAudio(true);
-      Game.frameRate(30);
+      Game.frameRate(60);
       Game.userOnSetup(
           () -> {
             TextureGenerator.registerGenerateColorTexture(TEST_PATH_DE, 100, 100, Color.RED);
@@ -55,6 +55,9 @@ public class LanguageTester {
   }
 
   private static void addLanguageSystem() {
+    Localization.registerTranslationFile(Language.DE, "language/de.json");
+    Localization.registerTranslationFile(Language.EN, "language/en.json");
+
     Game.add(
         new System() {
           @Override
