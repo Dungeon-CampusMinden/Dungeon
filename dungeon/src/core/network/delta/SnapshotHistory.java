@@ -1,10 +1,13 @@
 package core.network.delta;
 
 import core.network.messages.s2c.SnapshotMessage;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /** Fixed-size history of full snapshots indexed by server tick. */
 public final class SnapshotHistory {
@@ -29,13 +32,26 @@ public final class SnapshotHistory {
    * @param snapshot snapshot to store
    */
   public synchronized void add(SnapshotMessage snapshot) {
+    add(snapshot, Set.of());
+  }
+
+  /**
+   * Stores a full snapshot while preserving protected ticks outside the rolling capacity.
+   *
+   * <p>Protected ticks are intended for client-specific acknowledged or in-flight baselines. They
+   * remain available even when the normal rolling window advances, so stable play cannot evict the
+   * only baseline a client can currently acknowledge.
+   *
+   * @param snapshot snapshot to store
+   * @param protectedTicks snapshot ticks that must not be evicted by this insertion
+   */
+  public synchronized void add(SnapshotMessage snapshot, Collection<Integer> protectedTicks) {
     Objects.requireNonNull(snapshot, "snapshot");
+    Set<Integer> protectedTickSet = new HashSet<>(Objects.requireNonNull(protectedTicks));
+    protectedTickSet.removeIf(Objects::isNull);
     snapshots.remove(snapshot.serverTick());
     snapshots.put(snapshot.serverTick(), copyOf(snapshot));
-    while (snapshots.size() > capacity) {
-      Integer oldestTick = snapshots.keySet().iterator().next();
-      snapshots.remove(oldestTick);
-    }
+    evictOverflow(protectedTickSet);
   }
 
   /**
@@ -90,6 +106,33 @@ public final class SnapshotHistory {
    */
   public int capacity() {
     return capacity;
+  }
+
+  private void evictOverflow(Set<Integer> protectedTicks) {
+    while (unprotectedSize(protectedTicks) > capacity) {
+      boolean removed = false;
+      for (var iterator = snapshots.keySet().iterator(); iterator.hasNext(); ) {
+        Integer tick = iterator.next();
+        if (!protectedTicks.contains(tick)) {
+          iterator.remove();
+          removed = true;
+          break;
+        }
+      }
+      if (!removed) {
+        return;
+      }
+    }
+  }
+
+  private int unprotectedSize(Set<Integer> protectedTicks) {
+    int unprotected = 0;
+    for (Integer tick : snapshots.keySet()) {
+      if (!protectedTicks.contains(tick)) {
+        unprotected++;
+      }
+    }
+    return unprotected;
   }
 
   private static SnapshotMessage copyOf(SnapshotMessage snapshot) {

@@ -119,11 +119,30 @@ public final class NetworkConfig {
    */
   public static final int FULL_SNAPSHOT_INTERVAL_TICKS = SERVER_TICK_HZ * 6;
 
-  /** Number of full snapshots retained server-side for delta baselines. */
-  public static final int SERVER_DELTA_HISTORY_SIZE = 128;
+  /**
+   * Minimum retry interval for recovery full snapshots, in server ticks.
+   *
+   * <p>Reliable full snapshots are used for connect, reconnect, level-change, and missing-baseline
+   * recovery. Retrying faster than this creates avoidable TCP bursts while the previous full
+   * snapshot is still in flight.
+   */
+  public static final int FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS = SERVER_TICK_HZ;
 
-  /** Number of fully applied snapshots retained client-side for delta materialization. */
-  public static final int CLIENT_DELTA_HISTORY_SIZE = 128;
+  /**
+   * Number of full snapshots retained server-side for delta baselines.
+   *
+   * <p>This must comfortably exceed the normal full-baseline interval so an acknowledged baseline
+   * stays available during stable play instead of falling back to repeated full snapshots.
+   */
+  public static final int SERVER_DELTA_HISTORY_SIZE = SERVER_TICK_HZ * 10;
+
+  /**
+   * Number of fully applied snapshots retained client-side for delta materialization.
+   *
+   * <p>This mirrors the server-side retention so a normal client can keep materializing deltas
+   * across the steady-state full-baseline window.
+   */
+  public static final int CLIENT_DELTA_HISTORY_SIZE = SERVER_TICK_HZ * 10;
 
   /**
    * Maximum allowed sequence gap for network packets.

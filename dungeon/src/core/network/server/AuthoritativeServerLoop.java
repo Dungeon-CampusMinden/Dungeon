@@ -1,6 +1,7 @@
 package core.network.server;
 
 import static core.network.config.NetworkConfig.FULL_SNAPSHOT_INTERVAL_TICKS;
+import static core.network.config.NetworkConfig.FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS;
 import static core.network.config.NetworkConfig.SERVER_DELTA_HISTORY_SIZE;
 import static core.network.config.NetworkConfig.SERVER_DELTA_SNAPSHOT_HZ;
 import static core.network.config.NetworkConfig.SERVER_TICK_HZ;
@@ -18,11 +19,13 @@ import core.network.FullSnapshotSendReason;
 import core.network.NetworkTelemetry;
 import core.network.delta.SnapshotDeltaCompressor;
 import core.network.delta.SnapshotHistory;
+import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.GameOverEvent;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -175,7 +178,7 @@ public final class AuthoritativeServerLoop {
         .ifPresent(
             snapshot -> {
               NetworkTelemetry.recordSnapshotBuild(System.nanoTime() - buildStartNanos);
-              snapshotHistory.add(snapshot);
+              snapshotHistory.add(snapshot, protectedSnapshotTicks(clients));
               NetworkTelemetry.recordSnapshotHistory(
                   snapshot.serverTick(),
                   snapshotHistory.size(),
@@ -199,8 +202,11 @@ public final class AuthoritativeServerLoop {
         SERVER_TICK_HZ);
 
     if (!hasAck) {
-      sendFullSnapshot(client, currentSnapshot, snapshotSync.pendingFullSnapshotReason());
-      snapshotSync.pendingFullSnapshotReason(FullSnapshotSendReason.NO_ACK);
+      if (snapshotSync.fullSnapshotRecoveryDue(
+          currentSnapshot.serverTick(), FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS)) {
+        sendFullSnapshot(client, currentSnapshot, snapshotSync.pendingFullSnapshotReason());
+        snapshotSync.pendingFullSnapshotReason(FullSnapshotSendReason.NO_ACK);
+      }
       return;
     }
 
@@ -211,7 +217,10 @@ public final class AuthoritativeServerLoop {
 
     Optional<SnapshotMessage> baseSnapshot = snapshotHistory.snapshot(ackTick);
     if (baseSnapshot.isEmpty()) {
-      sendFullSnapshot(client, currentSnapshot, FullSnapshotSendReason.MISSING_BASELINE_HISTORY);
+      if (snapshotSync.fullSnapshotRecoveryDue(
+          currentSnapshot.serverTick(), FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS)) {
+        sendFullSnapshot(client, currentSnapshot, FullSnapshotSendReason.MISSING_BASELINE_HISTORY);
+      }
       return;
     }
 
@@ -224,12 +233,26 @@ public final class AuthoritativeServerLoop {
                   delta.entityDeltas().stream()
                       .map(entityDelta -> entityDelta.entityId())
                       .toList());
-              Game.network().send(client.clientId(), delta, false);
+              sendDeltaSnapshot(client, delta);
             });
+  }
+
+  private Set<Integer> protectedSnapshotTicks(Set<ClientState> clients) {
+    Set<Integer> protectedTicks = new HashSet<>();
+    clients.forEach(
+        client -> protectedTicks.addAll(client.snapshotSync().protectedSnapshotTicks()));
+    return Set.copyOf(protectedTicks);
+  }
+
+  private void sendDeltaSnapshot(ClientState client, DeltaSnapshotMessage delta) {
+    client.snapshotSync().markDeltaSnapshotSent(delta.serverTick());
+    Game.network().send(client.clientId(), delta, false);
   }
 
   private void sendFullSnapshot(
       ClientState client, SnapshotMessage currentSnapshot, FullSnapshotSendReason reason) {
+    ClientSnapshotSyncState snapshotSync = client.snapshotSync();
+    snapshotSync.markFullSnapshotScheduled(currentSnapshot.serverTick());
     NetworkTelemetry.recordFullSnapshotScheduled(
         client.clientId(), currentSnapshot.serverTick(), currentSnapshot.entities().size(), reason);
     Game.network()
@@ -237,7 +260,9 @@ public final class AuthoritativeServerLoop {
         .thenAccept(
             success -> {
               if (success) {
-                client.snapshotSync().markFullSnapshotSent(currentSnapshot.serverTick());
+                snapshotSync.markFullSnapshotSent(currentSnapshot.serverTick());
+              } else {
+                snapshotSync.markFullSnapshotSendFailed(currentSnapshot.serverTick());
               }
             });
   }
