@@ -116,8 +116,8 @@ public class Localization {
    * Resolves the localized variant of an asset path for the current language.
    *
    * <p>The current language suffix is appended to the file name, e.g. {@code images/open-book.png}
-   * becomes {@code images/open-book_en.png}. If no asset exists for the current language - neither as
-   * an internal file nor as a texture registered in {@link TextureMap} - the fallback language
+   * becomes {@code images/open-book_en.png}. If no asset exists for the current language - neither
+   * as an internal file nor as a texture registered in {@link TextureMap} - the fallback language
    * variant is returned instead.
    *
    * @param basePath Path of the base asset such as 'images/open-book.png'.
