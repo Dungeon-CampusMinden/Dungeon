@@ -32,3 +32,7 @@ export function push(_block: Blockly.Block, _generator: Blockly.Generator) {
 export function pull(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "hero.pull();";
 }
+
+export function pickup(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return "hero.pickup();";
+}
