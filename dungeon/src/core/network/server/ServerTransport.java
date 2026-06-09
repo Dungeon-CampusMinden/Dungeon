@@ -928,18 +928,8 @@ public final class ServerTransport {
       return;
     }
 
-    // 2. Validate sequence
+    // 2. Validate Session ID
     ClientState state = session.clientState().orElseThrow();
-    if (!state.isSeqPlausible(msg.sequence())) {
-      LOGGER.debug(
-          "Ignoring InputMessage with implausible sequence={} from clientId={}",
-          msg.sequence(),
-          state.clientId());
-      state.updateLastActivity(); // Still update activity timestamp
-      return;
-    }
-
-    // 3. Validate Session ID
     if (msg.sessionId() != ServerRuntime.SESSION_ID) {
       LOGGER.debug(
           "Ignoring InputMessage with invalid sessionId={} from clientId={}",
@@ -949,6 +939,16 @@ public final class ServerTransport {
     }
 
     msg.lastSnapshotTick().ifPresent(tick -> acknowledgeSnapshot(session, tick));
+
+    // 3. Validate sequence
+    if (!state.isSeqPlausible(msg.sequence())) {
+      LOGGER.debug(
+          "Ignoring InputMessage with implausible sequence={} from clientId={}",
+          msg.sequence(),
+          state.clientId());
+      state.updateLastActivity(); // Still update activity timestamp
+      return;
+    }
 
     // 4. Enqueue
     HeroController.enqueueInput(state, msg);

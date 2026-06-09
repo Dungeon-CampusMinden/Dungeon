@@ -36,7 +36,6 @@ import core.network.NetworkTelemetry;
 import core.network.client.ClientNetwork;
 import core.network.delta.SnapshotDeltaCompressor;
 import core.network.messages.c2s.InputMessage;
-import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.s2c.DebugPong;
 import core.network.messages.s2c.DebugTelemetrySnapshot;
 import core.network.messages.s2c.DeltaSnapshotMessage;
@@ -551,7 +550,7 @@ public final class GameLoop extends ScreenAdapter {
               reconcileNetworkEntities(state, event);
               long reconcileEndNanos = java.lang.System.nanoTime();
               long ackStartNanos = java.lang.System.nanoTime();
-              sendSnapshotAck(event.serverTick());
+              Game.network().acknowledgeSnapshot(event.serverTick());
               reconcileNanos = reconcileEndNanos - reconcileStartNanos;
               ackNanos = java.lang.System.nanoTime() - ackStartNanos;
             }
@@ -635,7 +634,7 @@ public final class GameLoop extends ScreenAdapter {
             reconcileNetworkEntities(state, materializedSnapshot);
             reconcileNanos += java.lang.System.nanoTime() - reconcileStartNanos;
             long ackStartNanos = java.lang.System.nanoTime();
-            sendSnapshotAck(event.serverTick());
+            Game.network().acknowledgeSnapshot(event.serverTick());
             ackNanos = java.lang.System.nanoTime() - ackStartNanos;
             NetworkTelemetry.recordSnapshotApplied(
                 true,
@@ -738,10 +737,6 @@ public final class GameLoop extends ScreenAdapter {
     }
     Game.soundPlayer().update(delta);
     PreRunConfiguration.userOnFrame().execute();
-  }
-
-  private static void sendSnapshotAck(int serverTick) {
-    Game.network().send((short) 0, new SnapshotAck(serverTick), true);
   }
 
   static SnapshotMessage changedSnapshotForDelta(

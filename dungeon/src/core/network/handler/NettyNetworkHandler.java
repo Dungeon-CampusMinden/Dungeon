@@ -150,6 +150,12 @@ public class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
+  public void acknowledgeSnapshot(int serverTick) {
+    if (serverMode) return;
+    client.acknowledgeSnapshot(serverTick);
+  }
+
+  @Override
   public void addConnectionListener(ConnectionListener listener) {
     if (!serverMode) client.addConnectionListener(listener);
   }

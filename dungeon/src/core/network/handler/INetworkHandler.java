@@ -72,6 +72,16 @@ public interface INetworkHandler {
    */
   void sendInput(InputMessage input);
 
+  /**
+   * Records that a server snapshot was applied locally and should be acknowledged.
+   *
+   * <p>Networked client implementations may coalesce acknowledgements, piggyback them on outgoing
+   * input messages, or send an explicit reliable acknowledgement when no recent input carried one.
+   *
+   * @param serverTick applied server snapshot tick
+   */
+  default void acknowledgeSnapshot(int serverTick) {}
+
   /** Starts the handler's processing loop. */
   void start();
 

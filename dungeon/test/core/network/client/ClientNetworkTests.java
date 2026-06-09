@@ -8,7 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.network.ConnectionListener;
 import core.network.config.NetworkConfig;
+import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
+import core.network.messages.c2s.SnapshotAck;
 import core.network.server.Session;
 import core.utils.Vector2;
 import io.netty.channel.Channel;
@@ -16,8 +18,11 @@ import io.netty.channel.ChannelHandlerContext;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
@@ -199,6 +204,121 @@ public class ClientNetworkTests {
     assertEquals(1, tcpCalls.get());
   }
 
+  /** Validates that explicit snapshot acknowledgements are coalesced to the newest tick. */
+  @Test
+  public void acknowledgeSnapshotCoalescesExplicitAckToLatestTick() throws Exception {
+    List<NetworkMessage> tcpMessages = new ArrayList<>();
+    Session session = recordingSession(new ArrayList<>(), tcpMessages);
+    session.udpAddress(new InetSocketAddress(TEST_HOST, TEST_PORT));
+    session.udpReady(true);
+    prepareConnectedClient(session, (short) 7);
+
+    client.acknowledgeSnapshot(10);
+    client.acknowledgeSnapshot(12);
+    setField("pendingSnapshotAckDeadlineNanos", java.lang.System.nanoTime() - 1L);
+
+    client.pollAndDispatch();
+
+    assertEquals(1, tcpMessages.size());
+    assertTrue(tcpMessages.get(0) instanceof SnapshotAck);
+    assertEquals(12, ((SnapshotAck) tcpMessages.get(0)).serverTick());
+  }
+
+  /** Validates that recent input piggybacking suppresses explicit snapshot acknowledgements. */
+  @Test
+  public void recentPiggybackedSnapshotAckSuppressesExplicitAckUntilQuiet() throws Exception {
+    List<NetworkMessage> udpMessages = new ArrayList<>();
+    List<NetworkMessage> tcpMessages = new ArrayList<>();
+    Session session = recordingSession(udpMessages, tcpMessages);
+    session.udpAddress(new InetSocketAddress(TEST_HOST, TEST_PORT));
+    session.udpReady(true);
+    prepareConnectedClient(session, (short) 7);
+
+    client.acknowledgeSnapshot(20);
+    client.sendUnreliableInput(
+        new InputMessage(
+            1, 1, (short) 1, InputMessage.Action.MOVE, new InputMessage.Move(Vector2.of(1, 0))));
+    setField("pendingSnapshotAckDeadlineNanos", java.lang.System.nanoTime() - 1L);
+
+    client.pollAndDispatch();
+
+    assertEquals(1, udpMessages.size());
+    assertTrue(udpMessages.get(0) instanceof InputMessage);
+    assertEquals(Optional.of(20), ((InputMessage) udpMessages.get(0)).lastSnapshotTick());
+    assertEquals(0, tcpMessages.size());
+
+    setField("pendingSnapshotAckDeadlineNanos", java.lang.System.nanoTime() - 1L);
+    setField(
+        "lastPiggybackedSnapshotAckNanos",
+        java.lang.System.nanoTime()
+            - TimeUnit.MILLISECONDS.toNanos(NetworkConfig.SNAPSHOT_ACK_EXPLICIT_DELAY_MS + 1L));
+
+    client.pollAndDispatch();
+
+    assertEquals(1, tcpMessages.size());
+    assertTrue(tcpMessages.get(0) instanceof SnapshotAck);
+    assertEquals(20, ((SnapshotAck) tcpMessages.get(0)).serverTick());
+  }
+
+  /** Validates that reliable input piggybacking does not trigger a duplicate explicit ack. */
+  @Test
+  public void reliableInputPiggybackSuppressesDuplicateExplicitAck() throws Exception {
+    List<NetworkMessage> tcpMessages = new ArrayList<>();
+    Session session = recordingSession(new ArrayList<>(), tcpMessages);
+    session.udpAddress(new InetSocketAddress(TEST_HOST, TEST_PORT));
+    session.udpReady(true);
+    prepareConnectedClient(session, (short) 7);
+
+    client.acknowledgeSnapshot(30);
+    client
+        .send(
+            new InputMessage(
+                1, 1, (short) 1, InputMessage.Action.MOVE, new InputMessage.Move(Vector2.of(1, 0))),
+            true)
+        .join();
+    setField("pendingSnapshotAckDeadlineNanos", java.lang.System.nanoTime() - 1L);
+    setField(
+        "lastPiggybackedSnapshotAckNanos",
+        java.lang.System.nanoTime()
+            - TimeUnit.MILLISECONDS.toNanos(NetworkConfig.SNAPSHOT_ACK_EXPLICIT_DELAY_MS + 1L));
+
+    client.pollAndDispatch();
+
+    assertEquals(1, tcpMessages.size());
+    assertTrue(tcpMessages.get(0) instanceof InputMessage);
+    assertEquals(Optional.of(30), ((InputMessage) tcpMessages.get(0)).lastSnapshotTick());
+    assertEquals(0, tcpMessages.stream().filter(SnapshotAck.class::isInstance).count());
+  }
+
+  /** Validates that TCP fallback input piggybacking suppresses duplicate explicit acks. */
+  @Test
+  public void fallbackInputPiggybackSuppressesDuplicateExplicitAck() throws Exception {
+    List<NetworkMessage> udpMessages = new ArrayList<>();
+    List<NetworkMessage> tcpMessages = new ArrayList<>();
+    Session session = recordingSession(udpMessages, tcpMessages, false);
+    session.udpAddress(new InetSocketAddress(TEST_HOST, TEST_PORT));
+    session.udpReady(true);
+    prepareConnectedClient(session, (short) 7);
+
+    client.acknowledgeSnapshot(40);
+    client.sendUnreliableInput(
+        new InputMessage(
+            1, 1, (short) 1, InputMessage.Action.MOVE, new InputMessage.Move(Vector2.of(1, 0))));
+    setField("pendingSnapshotAckDeadlineNanos", java.lang.System.nanoTime() - 1L);
+    setField(
+        "lastPiggybackedSnapshotAckNanos",
+        java.lang.System.nanoTime()
+            - TimeUnit.MILLISECONDS.toNanos(NetworkConfig.SNAPSHOT_ACK_EXPLICIT_DELAY_MS + 1L));
+
+    client.pollAndDispatch();
+
+    assertEquals(1, udpMessages.size());
+    assertEquals(1, tcpMessages.size());
+    assertTrue(tcpMessages.get(0) instanceof InputMessage);
+    assertEquals(Optional.of(40), ((InputMessage) tcpMessages.get(0)).lastSnapshotTick());
+    assertEquals(0, tcpMessages.stream().filter(SnapshotAck.class::isInstance).count());
+  }
+
   /** Validates that immediate TCP failures are retryable without leaving the client running. */
   @Test
   public void test_startFailureDoesNotLeaveRunningState() throws Exception {
@@ -231,6 +351,25 @@ public class ClientNetworkTests {
         },
         (ctx, msg) -> {
           tcpCalls.incrementAndGet();
+          return CompletableFuture.completedFuture(true);
+        });
+  }
+
+  private Session recordingSession(
+      List<NetworkMessage> udpMessages, List<NetworkMessage> tcpMessages) {
+    return recordingSession(udpMessages, tcpMessages, true);
+  }
+
+  private Session recordingSession(
+      List<NetworkMessage> udpMessages, List<NetworkMessage> tcpMessages, boolean udpSuccess) {
+    return new Session(
+        Mockito.mock(ChannelHandlerContext.class),
+        (target, msg) -> {
+          udpMessages.add(msg);
+          return CompletableFuture.completedFuture(udpSuccess);
+        },
+        (ctx, msg) -> {
+          tcpMessages.add(msg);
           return CompletableFuture.completedFuture(true);
         });
   }

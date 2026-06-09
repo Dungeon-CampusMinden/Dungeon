@@ -5,6 +5,7 @@ import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.MAX_TCP_OBJECT_SIZE;
 import static core.network.config.NetworkConfig.PROTOCOL_VERSION;
 import static core.network.config.NetworkConfig.SAFE_UDP_MTU;
+import static core.network.config.NetworkConfig.SNAPSHOT_ACK_EXPLICIT_DELAY_MS;
 import static core.network.config.NetworkConfig.TCP_CONNECT_TIMEOUT_MS;
 import static core.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
 import static core.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
@@ -19,6 +20,7 @@ import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
+import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
 import core.network.messages.s2c.RegisterAck;
@@ -82,6 +84,7 @@ public final class ClientNetwork {
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
   private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
   private final Queue<Runnable> lifecycleEvents = new ConcurrentLinkedQueue<>();
+  private final Object snapshotAckLock = new Object();
 
   private final AtomicBoolean running = new AtomicBoolean(false);
   private final AtomicBoolean connected = new AtomicBoolean(false);
@@ -103,8 +106,18 @@ public final class ClientNetwork {
 
   private final UdpRecoveryState udpRecoveryState = new UdpRecoveryState();
   private volatile ScheduledFuture<?> udpMaintenanceFuture;
+  private int pendingSnapshotAckTick = -1;
+  private long pendingSnapshotAckDeadlineNanos = 0L;
+  private int inFlightExplicitSnapshotAckTick = -1;
+  private int lastExplicitSnapshotAckTick = -1;
+  private int lastPiggybackedSnapshotAckTick = -1;
+  private long lastPiggybackedSnapshotAckNanos = 0L;
+  private int lastReliablePiggybackedSnapshotAckTick = -1;
+  private long snapshotAckGeneration = 0L;
 
   private record QueuedNetworkMessage(Session session, NetworkMessage message, long receiveNanos) {}
+
+  private record ExplicitSnapshotAck(int serverTick, long generation) {}
 
   /**
    * Initialize the client network with connection parameters.
@@ -125,6 +138,7 @@ public final class ClientNetwork {
       return;
     }
     closeTransportResources();
+    resetSnapshotAckState();
     connected.set(false);
     session = null;
     clientId = null;
@@ -165,6 +179,7 @@ public final class ClientNetwork {
     }
     closeTransportResources();
     connected.set(false);
+    resetSnapshotAckState();
     LOGGER.info("ClientNetwork shutdown. Reason: {}", reason);
   }
 
@@ -249,15 +264,21 @@ public final class ClientNetwork {
     }
 
     try {
+      NetworkMessage message = withSnapshotAck(msg);
+      long snapshotAckGeneration = snapshotAckGeneration();
       return session
-          .sendMessage(msg, reliable)
+          .sendMessageWithTransport(message, reliable)
           .thenApply(
-              success -> {
+              sendResult -> {
+                if (sendResult.success()) {
+                  recordPiggybackedSnapshotAck(
+                      message, sendResult.reliableTransport(), snapshotAckGeneration);
+                }
                 LOGGER.debug(
                     "Sending {} message: {}",
                     reliable ? "reliable" : "transport-selected",
                     msg.getClass().getSimpleName());
-                return success;
+                return sendResult.success();
               });
     } catch (Exception e) {
       LOGGER.warn("Failed to send message via Session", e);
@@ -275,7 +296,7 @@ public final class ClientNetwork {
    * @param input input message to send
    */
   public void sendUnreliableInput(InputMessage input) {
-    InputMessage message = withSnapshotAck(input);
+    InputMessage message = inputWithSnapshotAck(input);
     try {
       byte[] data = serialize(message);
       if (data.length <= SAFE_UDP_MTU) {
@@ -295,16 +316,79 @@ public final class ClientNetwork {
     }
   }
 
-  private InputMessage withSnapshotAck(InputMessage input) {
-    if (input.lastSnapshotTick().isPresent() || session == null) {
+  /**
+   * Records that a snapshot was applied locally and queues the latest tick for acknowledgement.
+   *
+   * <p>Explicit reliable acknowledgements are delayed briefly so outgoing input messages can carry
+   * the newest applied tick first. Newer snapshot ticks supersede older pending ticks.
+   *
+   * @param serverTick applied server snapshot tick
+   */
+  public void acknowledgeSnapshot(int serverTick) {
+    if (serverTick < 0) {
+      return;
+    }
+    long now = java.lang.System.nanoTime();
+    synchronized (snapshotAckLock) {
+      int alreadyReliable = Math.max(lastExplicitSnapshotAckTick, inFlightExplicitSnapshotAckTick);
+      if (serverTick <= alreadyReliable && serverTick <= pendingSnapshotAckTick) {
+        return;
+      }
+      if (serverTick > pendingSnapshotAckTick) {
+        pendingSnapshotAckTick = serverTick;
+      }
+      if (pendingSnapshotAckDeadlineNanos == 0L) {
+        pendingSnapshotAckDeadlineNanos = now + snapshotAckExplicitDelayNanos();
+      }
+    }
+  }
+
+  private NetworkMessage withSnapshotAck(NetworkMessage message) {
+    if (message instanceof InputMessage input) {
+      return inputWithSnapshotAck(input);
+    }
+    return message;
+  }
+
+  private InputMessage inputWithSnapshotAck(InputMessage input) {
+    if (session == null) {
       return input;
     }
-    return session
-        .clientState()
-        .map(ClientState::latestAppliedSnapshotTick)
-        .filter(tick -> tick >= 0)
-        .map(input::withLastSnapshotTick)
-        .orElse(input);
+    int latestTick = session.clientState().map(ClientState::latestAppliedSnapshotTick).orElse(-1);
+    synchronized (snapshotAckLock) {
+      latestTick = Math.max(latestTick, pendingSnapshotAckTick);
+    }
+    if (latestTick < 0 || input.lastSnapshotTick().orElse(-1) >= latestTick) {
+      return input;
+    }
+    return input.withLastSnapshotTick(latestTick);
+  }
+
+  private void recordPiggybackedSnapshotAck(
+      NetworkMessage message, boolean reliableCarrier, long generation) {
+    if (!(message instanceof InputMessage input)) {
+      return;
+    }
+    input
+        .lastSnapshotTick()
+        .ifPresent(
+            tick -> {
+              if (tick < 0) {
+                return;
+              }
+              synchronized (snapshotAckLock) {
+                if (generation != snapshotAckGeneration) {
+                  return;
+                }
+                if (tick >= lastPiggybackedSnapshotAckTick) {
+                  lastPiggybackedSnapshotAckTick = tick;
+                  lastPiggybackedSnapshotAckNanos = java.lang.System.nanoTime();
+                }
+                if (reliableCarrier && tick > lastReliablePiggybackedSnapshotAckTick) {
+                  lastReliablePiggybackedSnapshotAckTick = tick;
+                }
+              }
+            });
   }
 
   /**
@@ -336,6 +420,87 @@ public final class ClientNetwork {
       }
     }
     updateTelemetryClientState();
+    flushPendingSnapshotAckIfDue();
+  }
+
+  private void flushPendingSnapshotAckIfDue() {
+    ExplicitSnapshotAck ack = explicitSnapshotAckDue(java.lang.System.nanoTime());
+    if (ack == null) {
+      return;
+    }
+    sendReliable(new SnapshotAck(ack.serverTick()))
+        .thenAccept(
+            success -> completeExplicitSnapshotAck(ack.serverTick(), ack.generation(), success));
+  }
+
+  private ExplicitSnapshotAck explicitSnapshotAckDue(long now) {
+    synchronized (snapshotAckLock) {
+      if (!running.get() || !isConnected() || pendingSnapshotAckTick < 0) {
+        return null;
+      }
+      int reliableAckTick =
+          Math.max(
+              Math.max(lastExplicitSnapshotAckTick, inFlightExplicitSnapshotAckTick),
+              lastReliablePiggybackedSnapshotAckTick);
+      if (pendingSnapshotAckTick <= reliableAckTick) {
+        pendingSnapshotAckTick = -1;
+        pendingSnapshotAckDeadlineNanos = 0L;
+        return null;
+      }
+      if (pendingSnapshotAckDeadlineNanos > now) {
+        return null;
+      }
+      long explicitDelayNanos = snapshotAckExplicitDelayNanos();
+      if (pendingSnapshotAckTick <= lastPiggybackedSnapshotAckTick
+          && lastPiggybackedSnapshotAckNanos > 0L) {
+        long nextExplicitDeadline = lastPiggybackedSnapshotAckNanos + explicitDelayNanos;
+        if (now < nextExplicitDeadline) {
+          pendingSnapshotAckDeadlineNanos = nextExplicitDeadline;
+          return null;
+        }
+      }
+
+      int ackTick = pendingSnapshotAckTick;
+      pendingSnapshotAckTick = -1;
+      pendingSnapshotAckDeadlineNanos = 0L;
+      inFlightExplicitSnapshotAckTick = ackTick;
+      return new ExplicitSnapshotAck(ackTick, snapshotAckGeneration);
+    }
+  }
+
+  private void completeExplicitSnapshotAck(int serverTick, long generation, boolean success) {
+    long now = java.lang.System.nanoTime();
+    synchronized (snapshotAckLock) {
+      if (generation != snapshotAckGeneration) {
+        return;
+      }
+      if (inFlightExplicitSnapshotAckTick == serverTick) {
+        inFlightExplicitSnapshotAckTick = -1;
+      }
+      if (success) {
+        if (serverTick > lastExplicitSnapshotAckTick) {
+          lastExplicitSnapshotAckTick = serverTick;
+        }
+        return;
+      }
+      if (!running.get() || !isConnected()) {
+        return;
+      }
+      if (serverTick > pendingSnapshotAckTick && serverTick > lastExplicitSnapshotAckTick) {
+        pendingSnapshotAckTick = serverTick;
+        pendingSnapshotAckDeadlineNanos = now + snapshotAckExplicitDelayNanos();
+      }
+    }
+  }
+
+  private long snapshotAckExplicitDelayNanos() {
+    return TimeUnit.MILLISECONDS.toNanos(SNAPSHOT_ACK_EXPLICIT_DELAY_MS);
+  }
+
+  private long snapshotAckGeneration() {
+    synchronized (snapshotAckLock) {
+      return snapshotAckGeneration;
+    }
   }
 
   /**
@@ -512,6 +677,20 @@ public final class ClientNetwork {
     session = null;
     clientId = null;
     udpRecoveryState.enterRetryMode();
+    resetSnapshotAckState();
+  }
+
+  private void resetSnapshotAckState() {
+    synchronized (snapshotAckLock) {
+      pendingSnapshotAckTick = -1;
+      pendingSnapshotAckDeadlineNanos = 0L;
+      inFlightExplicitSnapshotAckTick = -1;
+      lastExplicitSnapshotAckTick = -1;
+      lastPiggybackedSnapshotAckTick = -1;
+      lastPiggybackedSnapshotAckNanos = 0L;
+      lastReliablePiggybackedSnapshotAckTick = -1;
+      snapshotAckGeneration++;
+    }
   }
 
   private void closeTransportResources() {
@@ -545,6 +724,7 @@ public final class ClientNetwork {
     clientId = null;
     session = null;
     tcp = null;
+    resetSnapshotAckState();
     if (udp != null) {
       udp.close();
       udp = null;

@@ -411,6 +411,28 @@ public class ServerTransportTests {
     assertEquals(30, session.clientState().orElseThrow().snapshotSync().lastAckedSnapshotTick());
   }
 
+  /** Verifies piggybacked snapshot acknowledgements survive input sequence rejection. */
+  @Test
+  public void implausibleInputSnapshotAckUpdatesClientSnapshotSyncState() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    Session session = registeredSession(transport, (short) 8);
+    ClientState state = session.clientState().orElseThrow();
+    state.advanceProcessedSeq(5);
+
+    invokeInputMessage(
+        transport,
+        session,
+        new InputMessage(
+            ServerRuntime.SESSION_ID,
+            1,
+            (short) 4,
+            Optional.of(40),
+            InputMessage.Action.MOVE,
+            new InputMessage.Move(Vector2.of(1, 0))));
+
+    assertEquals(40, state.snapshotSync().lastAckedSnapshotTick());
+  }
+
   /** Verifies stale snapshot acknowledgements do not move the client backwards. */
   @Test
   public void olderSnapshotAckDoesNotMoveBackwards() throws Exception {

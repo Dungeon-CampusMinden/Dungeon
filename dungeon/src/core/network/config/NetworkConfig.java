@@ -145,6 +145,15 @@ public final class NetworkConfig {
   public static final int CLIENT_DELTA_HISTORY_SIZE = SERVER_TICK_HZ * 10;
 
   /**
+   * Delay before sending an explicit reliable snapshot acknowledgement.
+   *
+   * <p>This gives normal client input messages a short window to piggyback the latest applied
+   * snapshot tick via {@code InputMessage.lastSnapshotTick}. When no recent input carries that
+   * acknowledgement, the client still sends a coalesced reliable {@code SnapshotAck}.
+   */
+  public static final int SNAPSHOT_ACK_EXPLICIT_DELAY_MS = 100;
+
+  /**
    * Maximum allowed sequence gap for network packets.
    *
    * <p>This defines the maximum difference between expected and received packet sequence numbers

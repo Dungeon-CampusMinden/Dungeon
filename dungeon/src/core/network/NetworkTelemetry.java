@@ -554,7 +554,7 @@ public final class NetworkTelemetry {
    * @param fullApplyNanos full-snapshot apply duration
    * @param deltaMaterializeNanos delta materialization duration
    * @param entityReconcileNanos entity reconciliation duration
-   * @param ackSendNanos snapshot ack send duration
+   * @param ackSendNanos snapshot ack queueing or send duration
    * @param stale true when the snapshot was dropped as stale
    */
   public static void recordSnapshotHandlerTiming(
@@ -872,7 +872,7 @@ public final class NetworkTelemetry {
         .append(formatMicros(lastDeltaMaterializeMicros))
         .append(" reconcile=")
         .append(formatMicros(lastEntityReconcileMicros))
-        .append(" ack=")
+        .append(" ackQueue=")
         .append(formatMicros(lastSnapshotAckMicros))
         .append(" stale=")
         .append(lastSnapshotHandlerStale)

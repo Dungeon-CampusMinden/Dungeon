@@ -37,6 +37,14 @@ public final class Session {
       tcpSender;
 
   /**
+   * Result of a transport send attempt.
+   *
+   * @param success true when the message was handed to a transport successfully
+   * @param reliableTransport true when the successful transport path was reliable TCP
+   */
+  public record SendResult(boolean success, boolean reliableTransport) {}
+
+  /**
    * Creates a Session with TCP context and senders.
    *
    * @param tcpCtx the TCP channel context
@@ -193,10 +201,22 @@ public final class Session {
    *     (if reliable) or sent (if unreliable), false otherwise
    */
   public CompletableFuture<Boolean> sendMessage(NetworkMessage msg, boolean reliable) {
+    return sendMessageWithTransport(msg, reliable).thenApply(SendResult::success);
+  }
+
+  /**
+   * Sends a NetworkMessage and reports whether the successful path used reliable transport.
+   *
+   * @param msg the NetworkMessage to send
+   * @param reliable true to send over TCP, false to prefer UDP with TCP fallback
+   * @return a CompletableFuture containing send success and the actual successful transport kind
+   */
+  public CompletableFuture<SendResult> sendMessageWithTransport(
+      NetworkMessage msg, boolean reliable) {
     if (reliable) {
-      return sendTcpObject(msg);
+      return sendTcpObject(msg).thenApply(success -> new SendResult(success, true));
     } else {
-      return sendUdpObject(msg);
+      return sendUdpObjectWithTransport(msg);
     }
   }
 
@@ -208,20 +228,20 @@ public final class Session {
     return tcpSender.apply(tcpCtx, msg);
   }
 
-  private CompletableFuture<Boolean> sendUdpObject(NetworkMessage msg) {
+  private CompletableFuture<SendResult> sendUdpObjectWithTransport(NetworkMessage msg) {
     if (!udpReady || udpSender == null || udpAddress == null) {
       NetworkTelemetry.recordUdpFallback("UDP not ready");
-      return sendTcpObject(msg);
+      return sendTcpObject(msg).thenApply(success -> new SendResult(success, true));
     }
     return udpSender
         .apply(udpAddress, msg)
         .thenCompose(
             success -> {
               if (success) {
-                return CompletableFuture.completedFuture(true);
+                return CompletableFuture.completedFuture(new SendResult(true, false));
               }
               NetworkTelemetry.recordUdpFallback("UDP sender failed");
-              return sendTcpObject(msg);
+              return sendTcpObject(msg).thenApply(tcpSuccess -> new SendResult(tcpSuccess, true));
             });
   }
 }
