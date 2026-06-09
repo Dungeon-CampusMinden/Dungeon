@@ -151,8 +151,13 @@ public class NettyNetworkHandler implements INetworkHandler {
 
   @Override
   public void acknowledgeSnapshot(int serverTick) {
+    acknowledgeSnapshot(serverTick, false);
+  }
+
+  @Override
+  public void acknowledgeSnapshot(int serverTick, boolean immediateReliable) {
     if (serverMode) return;
-    client.acknowledgeSnapshot(serverTick);
+    client.acknowledgeSnapshot(serverTick, immediateReliable);
   }
 
   @Override

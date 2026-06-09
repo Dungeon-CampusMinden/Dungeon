@@ -224,6 +224,22 @@ public class ClientNetworkTests {
     assertEquals(12, ((SnapshotAck) tcpMessages.get(0)).serverTick());
   }
 
+  /** Validates that baseline acknowledgements can bypass the coalescing delay. */
+  @Test
+  public void immediateSnapshotAckSendsReliableAckWithoutDelay() throws Exception {
+    List<NetworkMessage> tcpMessages = new ArrayList<>();
+    Session session = recordingSession(new ArrayList<>(), tcpMessages);
+    session.udpAddress(new InetSocketAddress(TEST_HOST, TEST_PORT));
+    session.udpReady(true);
+    prepareConnectedClient(session, (short) 7);
+
+    client.acknowledgeSnapshot(14, true);
+
+    assertEquals(1, tcpMessages.size());
+    assertTrue(tcpMessages.get(0) instanceof SnapshotAck);
+    assertEquals(14, ((SnapshotAck) tcpMessages.get(0)).serverTick());
+  }
+
   /** Validates that recent input piggybacking suppresses explicit snapshot acknowledgements. */
   @Test
   public void recentPiggybackedSnapshotAckSuppressesExplicitAckUntilQuiet() throws Exception {

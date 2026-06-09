@@ -550,7 +550,7 @@ public final class GameLoop extends ScreenAdapter {
               reconcileNetworkEntities(state, event);
               long reconcileEndNanos = java.lang.System.nanoTime();
               long ackStartNanos = java.lang.System.nanoTime();
-              Game.network().acknowledgeSnapshot(event.serverTick());
+              Game.network().acknowledgeSnapshot(event.serverTick(), true);
               reconcileNanos = reconcileEndNanos - reconcileStartNanos;
               ackNanos = java.lang.System.nanoTime() - ackStartNanos;
             }

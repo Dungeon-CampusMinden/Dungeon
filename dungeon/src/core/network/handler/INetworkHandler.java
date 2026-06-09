@@ -80,7 +80,21 @@ public interface INetworkHandler {
    *
    * @param serverTick applied server snapshot tick
    */
-  default void acknowledgeSnapshot(int serverTick) {}
+  default void acknowledgeSnapshot(int serverTick) {
+    acknowledgeSnapshot(serverTick, false);
+  }
+
+  /**
+   * Records that a server snapshot was applied locally and should be acknowledged.
+   *
+   * <p>Set {@code immediateReliable} for baseline/control-plane snapshots that should not wait for
+   * a piggyback window, such as full snapshots after connect or level changes. Leave it false for
+   * high-frequency delta snapshots so they can still be coalesced.
+   *
+   * @param serverTick applied server snapshot tick
+   * @param immediateReliable true to send an explicit reliable acknowledgement immediately
+   */
+  default void acknowledgeSnapshot(int serverTick, boolean immediateReliable) {}
 
   /** Starts the handler's processing loop. */
   void start();

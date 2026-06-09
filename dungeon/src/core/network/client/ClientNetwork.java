@@ -325,9 +325,30 @@ public final class ClientNetwork {
    * @param serverTick applied server snapshot tick
    */
   public void acknowledgeSnapshot(int serverTick) {
+    acknowledgeSnapshot(serverTick, false);
+  }
+
+  /**
+   * Records that a snapshot was applied locally and queues or sends its acknowledgement.
+   *
+   * <p>Use immediate reliable acknowledgements for full snapshots because they establish or refresh
+   * delta baselines. Delta snapshots should keep the delayed coalescing path.
+   *
+   * @param serverTick applied server snapshot tick
+   * @param immediateReliable true to send an explicit reliable acknowledgement immediately
+   */
+  public void acknowledgeSnapshot(int serverTick, boolean immediateReliable) {
     if (serverTick < 0) {
       return;
     }
+    if (immediateReliable) {
+      acknowledgeSnapshotImmediately(serverTick);
+      return;
+    }
+    queueSnapshotAck(serverTick);
+  }
+
+  private void queueSnapshotAck(int serverTick) {
     long now = java.lang.System.nanoTime();
     synchronized (snapshotAckLock) {
       int alreadyReliable = Math.max(lastExplicitSnapshotAckTick, inFlightExplicitSnapshotAckTick);
@@ -340,6 +361,42 @@ public final class ClientNetwork {
       if (pendingSnapshotAckDeadlineNanos == 0L) {
         pendingSnapshotAckDeadlineNanos = now + snapshotAckExplicitDelayNanos();
       }
+    }
+  }
+
+  private void acknowledgeSnapshotImmediately(int serverTick) {
+    ExplicitSnapshotAck ack = immediateSnapshotAck(serverTick);
+    if (ack == null) {
+      return;
+    }
+    sendReliable(new SnapshotAck(ack.serverTick()))
+        .thenAccept(
+            success -> completeExplicitSnapshotAck(ack.serverTick(), ack.generation(), success));
+  }
+
+  private ExplicitSnapshotAck immediateSnapshotAck(int serverTick) {
+    synchronized (snapshotAckLock) {
+      if (!running.get() || !isConnected()) {
+        return null;
+      }
+      int reliableAckTick =
+          Math.max(
+              Math.max(lastExplicitSnapshotAckTick, inFlightExplicitSnapshotAckTick),
+              lastReliablePiggybackedSnapshotAckTick);
+      int ackTick = Math.max(serverTick, pendingSnapshotAckTick);
+      if (ackTick <= reliableAckTick) {
+        if (pendingSnapshotAckTick <= reliableAckTick) {
+          pendingSnapshotAckTick = -1;
+          pendingSnapshotAckDeadlineNanos = 0L;
+        }
+        return null;
+      }
+      if (pendingSnapshotAckTick <= ackTick) {
+        pendingSnapshotAckTick = -1;
+        pendingSnapshotAckDeadlineNanos = 0L;
+      }
+      inFlightExplicitSnapshotAckTick = ackTick;
+      return new ExplicitSnapshotAck(ackTick, snapshotAckGeneration);
     }
   }
 
