@@ -43,6 +43,7 @@ import core.network.messages.s2c.DialogCloseMessage;
 import core.network.messages.s2c.DialogShowMessage;
 import core.network.messages.s2c.EntityDelta;
 import core.network.messages.s2c.EntityDespawnEvent;
+import core.network.messages.s2c.EntitySpawnBatch;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.GameOverEvent;
@@ -462,6 +463,10 @@ public final class GameLoop extends ScreenAdapter {
           Game.add(newEntity);
           trackNetworkEntity(ctx, event.entityId());
         });
+
+    dispatcher.registerHandler(
+        EntitySpawnBatch.class,
+        (ctx, batch) -> batch.entities().forEach(event -> dispatcher.dispatch(ctx, event)));
 
     dispatcher.registerHandler(
         EntityDespawnEvent.class,

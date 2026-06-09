@@ -33,6 +33,8 @@ import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
 import core.network.messages.s2c.DebugPong;
 import core.network.messages.s2c.DebugTelemetrySnapshot;
+import core.network.messages.s2c.EntitySpawnBatch;
+import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.RegisterAck;
 import core.utils.logging.DungeonLogger;
@@ -677,20 +679,22 @@ public final class ServerTransport {
     clientIdToName.put(newClientId, playerName);
 
     byte[] sessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
-
-    session.attachClientState(
+    ClientState clientState =
         new ClientState(
             newClientId,
             playerName,
             ServerRuntime.SESSION_ID,
             sessionToken,
-            selectedCharacterClass(req)));
+            selectedCharacterClass(req));
     session.udpReady(false);
-    clientIdToSession.put(newClientId, session);
 
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
 
     sendInitialLevel(session.tcpCtx(), newClientId);
+    sendInitialEntitySpawns(session, newClientId);
+
+    session.attachClientState(clientState);
+    clientIdToSession.put(newClientId, session);
 
     // Resync dialogs for the new client
     DialogTracker.instance().resyncDialogsToClient(newClientId);
@@ -751,12 +755,8 @@ public final class ServerTransport {
     String playerName = req.playerName();
     byte[] newSessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
-    // Reuse the previous ClientState so reconnects keep the original character class selection.
     ClientState oldClientState = oldSession.clientState().orElseThrow();
-    oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
-    session.attachClientState(oldClientState);
     session.udpReady(false);
-    clientIdToSession.put(clientId, session);
 
     // remove old mappings
     clientIdToName.put(clientId, playerName);
@@ -774,6 +774,12 @@ public final class ServerTransport {
     session.sendMessage(new ConnectAck(clientId, ServerRuntime.SESSION_ID, newSessionToken), true);
 
     sendInitialLevel(session.tcpCtx(), clientId);
+    sendInitialEntitySpawns(session, clientId);
+
+    // Reuse the previous ClientState so reconnects keep the original character class selection.
+    oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
+    session.attachClientState(oldClientState);
+    clientIdToSession.put(clientId, session);
 
     // Resync dialogs for the reconnecting client
     DialogTracker.instance().resyncDialogsToClient(clientId);
@@ -1028,6 +1034,49 @@ public final class ServerTransport {
       LOGGER.info("Sent initial LEVEL_CHANGE to clientId={}", clientId);
     } catch (Exception e) {
       LOGGER.warn("Failed sending initial LEVEL_CHANGE", e);
+    }
+  }
+
+  private void sendInitialEntitySpawns(Session session, int clientId) {
+    List<EntitySpawnEvent> spawnEvents =
+        Game.levelEntities()
+            .flatMap(entity -> NetworkConfig.ENTITY_SPAWN_STRATEGY.buildSpawnEvent(entity).stream())
+            .toList();
+    if (spawnEvents.isEmpty()) {
+      LOGGER.info("No initial entity spawns to send to clientId={}", clientId);
+      return;
+    }
+
+    int batchCount = 0;
+    List<EntitySpawnEvent> batch = new ArrayList<>();
+    for (EntitySpawnEvent spawnEvent : spawnEvents) {
+      if (!batch.isEmpty() && spawnBatchExceedsTcpLimit(batch, spawnEvent)) {
+        session.sendMessage(new EntitySpawnBatch(batch), true);
+        batchCount++;
+        batch = new ArrayList<>();
+      }
+      batch.add(spawnEvent);
+    }
+
+    session.sendMessage(new EntitySpawnBatch(batch), true);
+    batchCount++;
+
+    LOGGER.info(
+        "Sent {} initial entity spawn batches with {} entities to clientId={}",
+        batchCount,
+        spawnEvents.size(),
+        clientId);
+  }
+
+  private boolean spawnBatchExceedsTcpLimit(
+      List<EntitySpawnEvent> batch, EntitySpawnEvent nextSpawnEvent) {
+    List<EntitySpawnEvent> candidate = new ArrayList<>(batch);
+    candidate.add(nextSpawnEvent);
+    try {
+      return serialize(new EntitySpawnBatch(candidate)).length > MAX_TCP_OBJECT_SIZE;
+    } catch (IOException e) {
+      LOGGER.warn("Failed to estimate initial entity spawn batch size", e);
+      return false;
     }
   }
 
