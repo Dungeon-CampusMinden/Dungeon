@@ -1,5 +1,6 @@
 package contrib.utils.components;
 
+import com.badlogic.gdx.Input;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
@@ -274,8 +275,8 @@ public class Debugger extends System {
       Debugger.TELEPORT_TO_CURSOR();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value())
         && !LevelEditorSystem.active()) Debugger.SPAWN_MONSTER_ON_CURSOR();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value()))
-      Debugger.OPEN_DOORS();
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())
+        && !isControlPressed()) Debugger.OPEN_DOORS();
     if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value()))
       Debugger.PAUSE_GAME();
     if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.ADVANCE_FRAME.value()))
@@ -297,5 +298,10 @@ public class Debugger extends System {
     }
 
     checkFrameAdvance();
+  }
+
+  private static boolean isControlPressed() {
+    return InputManager.isKeyPressed(Input.Keys.CONTROL_LEFT)
+        || InputManager.isKeyPressed(Input.Keys.CONTROL_RIGHT);
   }
 }

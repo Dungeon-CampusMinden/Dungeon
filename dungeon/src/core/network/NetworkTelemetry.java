@@ -9,11 +9,16 @@ import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.SnapshotMessage;
 import core.network.server.ClientState;
 import core.network.server.Session;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.LongAdder;
@@ -28,6 +33,10 @@ import java.util.concurrent.atomic.LongAdder;
 public final class NetworkTelemetry {
 
   private static final long SERVER_SNAPSHOT_STALE_AFTER_MS = 2_000L;
+  private static final long NANOS_PER_MICRO = 1_000L;
+
+  private static final List<GarbageCollectorMXBean> GC_BEANS =
+      ManagementFactory.getGarbageCollectorMXBeans();
 
   private static final AtomicLong nextRequestId = new AtomicLong(1L);
 
@@ -60,30 +69,81 @@ public final class NetworkTelemetry {
   private static final LongAdder deltaSnapshotsApplied = new LongAdder();
   private static final LongAdder staleFullSnapshots = new LongAdder();
   private static final LongAdder staleDeltaSnapshots = new LongAdder();
+  private static final LongAdder staleFullSnapshotBytes = new LongAdder();
+  private static final LongAdder periodicFullSnapshotsSent = new LongAdder();
+  private static final LongAdder fallbackFullSnapshotsSent = new LongAdder();
+  private static final LongAdder missingBaselineFullFallbacks = new LongAdder();
 
   private static final RollingCounter transportOutBytesLastSecond = new RollingCounter(1_000L);
   private static final RollingCounter transportOutBytesLastFiveSeconds = new RollingCounter(5_000L);
+  private static final RollingCounter transportOutBytesLastThirtySeconds =
+      new RollingCounter(30_000L);
   private static final RollingCounter snapshotsSentLastSecond = new RollingCounter(1_000L);
   private static final RollingCounter snapshotsSentLastFiveSeconds = new RollingCounter(5_000L);
+  private static final RollingCounter snapshotsSentLastThirtySeconds = new RollingCounter(30_000L);
+  private static final RollingCounter fullSnapshotsSentLastSecond = new RollingCounter(1_000L);
+  private static final RollingCounter fullSnapshotsSentLastFiveSeconds = new RollingCounter(5_000L);
+  private static final RollingCounter fullSnapshotsSentLastThirtySeconds =
+      new RollingCounter(30_000L);
+  private static final RollingCounter fullSnapshotBytesLastSecond = new RollingCounter(1_000L);
+  private static final RollingCounter fullSnapshotBytesLastFiveSeconds = new RollingCounter(5_000L);
+  private static final RollingCounter fullSnapshotBytesLastThirtySeconds =
+      new RollingCounter(30_000L);
+
+  private static final RollingMax tcpDecodeMicrosLastTenSeconds = new RollingMax(10_000L);
+  private static final RollingMax queueAgeMicrosLastTenSeconds = new RollingMax(10_000L);
+  private static final RollingMax dispatchMicrosLastTenSeconds = new RollingMax(10_000L);
+  private static final RollingMax networkDispatchMicrosLastTenSeconds = new RollingMax(10_000L);
+  private static final RollingMax frameMicrosLastTenSeconds = new RollingMax(10_000L);
+  private static final RollingMax gcPauseMsLastTenSeconds = new RollingMax(10_000L);
+
+  private static final Map<Short, ClientTelemetry> serverClientTelemetry =
+      new ConcurrentHashMap<>();
+  private static final Map<Short, PendingFullSnapshot> pendingFullSnapshots =
+      new ConcurrentHashMap<>();
+  private static final Map<Integer, Integer> inboundFullSnapshotBytesByTick =
+      new ConcurrentHashMap<>();
 
   private static volatile int lastFullSnapshotSentTick = -1;
   private static volatile int lastFullSnapshotSentBytes = -1;
   private static volatile int lastFullSnapshotSentEntities = -1;
+  private static volatile String lastFullSnapshotSentReason = "n/a";
+  private static volatile long lastFullSnapshotSentTimeMs = -1L;
   private static volatile int lastDeltaSnapshotSentTick = -1;
   private static volatile int lastDeltaSnapshotSentBytes = -1;
   private static volatile int lastDeltaSnapshotSentEntityDeltas = -1;
   private static volatile int lastDeltaSnapshotSentRemovals = -1;
   private static volatile long lastSnapshotBuildMicros = -1L;
+  private static volatile int lastSnapshotHistoryServerTick = -1;
+  private static volatile int lastSnapshotHistorySize = -1;
+  private static volatile int lastSnapshotHistoryCapacityTicks = -1;
+  private static volatile double lastSnapshotHistoryCapacitySeconds = -1.0;
 
   private static volatile String lastAppliedSnapshotKind = "n/a";
   private static volatile int lastAppliedSnapshotTick = -1;
   private static volatile int lastAppliedSnapshotEntities = -1;
   private static volatile int lastAppliedSnapshotRemovals = -1;
   private static volatile long lastAppliedSnapshotMicros = -1L;
+  private static volatile long lastSnapshotStaleCheckMicros = -1L;
+  private static volatile long lastFullSnapshotApplyMicros = -1L;
+  private static volatile long lastDeltaMaterializeMicros = -1L;
+  private static volatile long lastEntityReconcileMicros = -1L;
+  private static volatile long lastSnapshotAckMicros = -1L;
+  private static volatile boolean lastSnapshotHandlerStale;
 
   private static volatile String lastUdpFallbackReason = "n/a";
   private static volatile String lastUdpDropReason = "n/a";
   private static volatile String lastUdpFailureReason = "n/a";
+
+  private static volatile String lastTcpDecodeType = "n/a";
+  private static volatile long lastTcpDecodeMicros = -1L;
+  private static volatile long lastQueueAgeMicros = -1L;
+  private static volatile long lastMessageDispatchMicros = -1L;
+  private static volatile long lastNetworkDispatchMicros = -1L;
+  private static volatile long lastFrameMicros = -1L;
+  private static volatile long lastGcPauseMs = -1L;
+  private static volatile long previousGcCollectionCount = -1L;
+  private static volatile long previousGcCollectionTimeMs = -1L;
 
   private static volatile boolean clientConnected;
   private static volatile short clientId;
@@ -96,6 +156,7 @@ public final class NetworkTelemetry {
 
   private static volatile DebugTelemetrySnapshot latestServerSnapshot;
   private static volatile long latestServerSnapshotReceivedTimeMs = -1L;
+  private static volatile long latestServerSnapshotClientCaptureNanos = -1L;
 
   private NetworkTelemetry() {}
 
@@ -140,26 +201,68 @@ public final class NetworkTelemetry {
     reset(deltaSnapshotsApplied);
     reset(staleFullSnapshots);
     reset(staleDeltaSnapshots);
+    reset(staleFullSnapshotBytes);
+    reset(periodicFullSnapshotsSent);
+    reset(fallbackFullSnapshotsSent);
+    reset(missingBaselineFullFallbacks);
     transportOutBytesLastSecond.reset();
     transportOutBytesLastFiveSeconds.reset();
+    transportOutBytesLastThirtySeconds.reset();
     snapshotsSentLastSecond.reset();
     snapshotsSentLastFiveSeconds.reset();
+    snapshotsSentLastThirtySeconds.reset();
+    fullSnapshotsSentLastSecond.reset();
+    fullSnapshotsSentLastFiveSeconds.reset();
+    fullSnapshotsSentLastThirtySeconds.reset();
+    fullSnapshotBytesLastSecond.reset();
+    fullSnapshotBytesLastFiveSeconds.reset();
+    fullSnapshotBytesLastThirtySeconds.reset();
+    tcpDecodeMicrosLastTenSeconds.reset();
+    queueAgeMicrosLastTenSeconds.reset();
+    dispatchMicrosLastTenSeconds.reset();
+    networkDispatchMicrosLastTenSeconds.reset();
+    frameMicrosLastTenSeconds.reset();
+    gcPauseMsLastTenSeconds.reset();
+    serverClientTelemetry.clear();
+    pendingFullSnapshots.clear();
+    inboundFullSnapshotBytesByTick.clear();
     lastFullSnapshotSentTick = -1;
     lastFullSnapshotSentBytes = -1;
     lastFullSnapshotSentEntities = -1;
+    lastFullSnapshotSentReason = "n/a";
+    lastFullSnapshotSentTimeMs = -1L;
     lastDeltaSnapshotSentTick = -1;
     lastDeltaSnapshotSentBytes = -1;
     lastDeltaSnapshotSentEntityDeltas = -1;
     lastDeltaSnapshotSentRemovals = -1;
     lastSnapshotBuildMicros = -1L;
+    lastSnapshotHistoryServerTick = -1;
+    lastSnapshotHistorySize = -1;
+    lastSnapshotHistoryCapacityTicks = -1;
+    lastSnapshotHistoryCapacitySeconds = -1.0;
     lastAppliedSnapshotKind = "n/a";
     lastAppliedSnapshotTick = -1;
     lastAppliedSnapshotEntities = -1;
     lastAppliedSnapshotRemovals = -1;
     lastAppliedSnapshotMicros = -1L;
+    lastSnapshotStaleCheckMicros = -1L;
+    lastFullSnapshotApplyMicros = -1L;
+    lastDeltaMaterializeMicros = -1L;
+    lastEntityReconcileMicros = -1L;
+    lastSnapshotAckMicros = -1L;
+    lastSnapshotHandlerStale = false;
     lastUdpFallbackReason = "n/a";
     lastUdpDropReason = "n/a";
     lastUdpFailureReason = "n/a";
+    lastTcpDecodeType = "n/a";
+    lastTcpDecodeMicros = -1L;
+    lastQueueAgeMicros = -1L;
+    lastMessageDispatchMicros = -1L;
+    lastNetworkDispatchMicros = -1L;
+    lastFrameMicros = -1L;
+    lastGcPauseMs = -1L;
+    previousGcCollectionCount = -1L;
+    previousGcCollectionTimeMs = -1L;
     clientConnected = false;
     clientId = 0;
     clientUdpReady = false;
@@ -170,6 +273,7 @@ public final class NetworkTelemetry {
     debugRequestStatus = "n/a";
     latestServerSnapshot = null;
     latestServerSnapshotReceivedTimeMs = -1L;
+    latestServerSnapshotClientCaptureNanos = -1L;
   }
 
   /**
@@ -179,6 +283,17 @@ public final class NetworkTelemetry {
    * @param bytes serialized payload size in bytes
    */
   public static void recordOutboundTcp(NetworkMessage message, int bytes) {
+    recordOutboundTcp(message, bytes, (short) 0);
+  }
+
+  /**
+   * Records a successfully queued outbound TCP message.
+   *
+   * @param message serialized message
+   * @param bytes serialized payload size in bytes
+   * @param peerClientId target client id on the server, or 0 when unknown/not server-side
+   */
+  public static void recordOutboundTcp(NetworkMessage message, int bytes, short peerClientId) {
     if (isDebugTelemetryMessage(message)) {
       debugTcpOutboundMessages.increment();
       debugTcpOutboundBytes.add(nonNegative(bytes));
@@ -187,7 +302,7 @@ public final class NetworkTelemetry {
     tcpOutboundMessages.increment();
     tcpOutboundBytes.add(nonNegative(bytes));
     recordTransportOutBytes(bytes);
-    recordSnapshotSent(message, bytes);
+    recordSnapshotSent(message, bytes, peerClientId);
   }
 
   /**
@@ -205,7 +320,7 @@ public final class NetworkTelemetry {
     udpOutboundMessages.increment();
     udpOutboundBytes.add(nonNegative(bytes));
     recordTransportOutBytes(bytes);
-    recordSnapshotSent(message, bytes);
+    recordSnapshotSent(message, bytes, (short) 0);
   }
 
   /**
@@ -215,6 +330,21 @@ public final class NetworkTelemetry {
    * @param bytes serialized payload size in bytes
    */
   public static void recordInboundTcp(NetworkMessage message, int bytes) {
+    recordInboundTcp(message, bytes, -1L);
+  }
+
+  /**
+   * Records a decoded inbound TCP message and its decode duration.
+   *
+   * @param message decoded message
+   * @param bytes serialized payload size in bytes
+   * @param decodeDurationNanos protobuf decode duration in nanoseconds, or -1 when unknown
+   */
+  public static void recordInboundTcp(NetworkMessage message, int bytes, long decodeDurationNanos) {
+    recordTcpDecode(message, decodeDurationNanos);
+    if (message instanceof SnapshotMessage snapshot) {
+      inboundFullSnapshotBytesByTick.put(snapshot.serverTick(), nonNegative(bytes));
+    }
     if (isDebugTelemetryMessage(message)) {
       debugTcpInboundMessages.increment();
       debugTcpInboundBytes.add(nonNegative(bytes));
@@ -288,7 +418,162 @@ public final class NetworkTelemetry {
    * @param durationNanos build duration in nanoseconds
    */
   public static void recordSnapshotBuild(long durationNanos) {
-    lastSnapshotBuildMicros = Math.max(0L, durationNanos / 1_000L);
+    lastSnapshotBuildMicros = nanosToMicros(durationNanos);
+  }
+
+  /**
+   * Records current server-side snapshot-history capacity.
+   *
+   * @param serverTick current authoritative snapshot tick
+   * @param historySize number of retained snapshots
+   * @param historyCapacityTicks maximum retained snapshots in tick-equivalent slots
+   * @param tickRate server tick rate
+   */
+  public static void recordSnapshotHistory(
+      int serverTick, int historySize, int historyCapacityTicks, int tickRate) {
+    lastSnapshotHistoryServerTick = serverTick;
+    lastSnapshotHistorySize = Math.max(0, historySize);
+    lastSnapshotHistoryCapacityTicks = Math.max(0, historyCapacityTicks);
+    lastSnapshotHistoryCapacitySeconds =
+        tickRate > 0 ? lastSnapshotHistoryCapacityTicks / (double) tickRate : -1.0;
+  }
+
+  /**
+   * Records per-client acknowledgement and baseline-history health.
+   *
+   * @param clientId client id
+   * @param serverTick current server tick
+   * @param ackTick latest acknowledged snapshot tick, or -1
+   * @param baselineInHistory whether the acknowledged baseline is still retained
+   * @param historyCapacityTicks snapshot history capacity in ticks
+   * @param tickRate server tick rate
+   */
+  public static void recordBaselineHealth(
+      short clientId,
+      int serverTick,
+      int ackTick,
+      boolean baselineInHistory,
+      int historyCapacityTicks,
+      int tickRate) {
+    if (clientId <= 0) {
+      return;
+    }
+    ClientTelemetry telemetry = clientTelemetry(clientId);
+    telemetry.serverCurrentTick = serverTick;
+    telemetry.latestAckedSnapshotTick = ackTick;
+    telemetry.ackAgeTicks = ackTick >= 0 ? Math.max(0, serverTick - ackTick) : -1;
+    telemetry.ackAgeMs =
+        telemetry.ackAgeTicks >= 0 && tickRate > 0
+            ? Math.round(telemetry.ackAgeTicks * 1000.0 / tickRate)
+            : -1L;
+    telemetry.ackBaselineInHistory = baselineInHistory;
+    telemetry.historyCapacityTicks = Math.max(0, historyCapacityTicks);
+    telemetry.historyCapacitySeconds =
+        tickRate > 0 ? telemetry.historyCapacityTicks / (double) tickRate : -1.0;
+  }
+
+  /**
+   * Records that the server decided to send a full snapshot to a client.
+   *
+   * <p>The serialized byte count is attached later when the transport confirms the send.
+   *
+   * @param clientId target client id
+   * @param serverTick snapshot tick
+   * @param entityCount entity count in the snapshot
+   * @param reason reason for sending the full snapshot
+   */
+  public static void recordFullSnapshotScheduled(
+      short clientId, int serverTick, int entityCount, FullSnapshotSendReason reason) {
+    if (clientId <= 0) {
+      return;
+    }
+    FullSnapshotSendReason normalizedReason = normalizeReason(reason);
+    pendingFullSnapshots.put(
+        clientId,
+        new PendingFullSnapshot(
+            serverTick,
+            Math.max(0, entityCount),
+            normalizedReason,
+            java.lang.System.currentTimeMillis()));
+  }
+
+  /**
+   * Records queue age and dispatch duration for a message handed to the game-thread dispatcher.
+   *
+   * @param message dispatched message
+   * @param queueAgeNanos age between Netty receive and dispatch start
+   * @param dispatchDurationNanos dispatch handler duration
+   */
+  public static void recordQueuedMessageDispatch(
+      NetworkMessage message, long queueAgeNanos, long dispatchDurationNanos) {
+    lastQueueAgeMicros = nanosToMicros(queueAgeNanos);
+    lastMessageDispatchMicros = nanosToMicros(dispatchDurationNanos);
+    String label = messageName(message);
+    queueAgeMicrosLastTenSeconds.add(lastQueueAgeMicros, label);
+    dispatchMicrosLastTenSeconds.add(lastMessageDispatchMicros, label);
+  }
+
+  /**
+   * Records total duration spent draining network messages in one loop iteration.
+   *
+   * @param durationNanos network dispatch batch duration
+   */
+  public static void recordNetworkDispatchBatch(long durationNanos) {
+    lastNetworkDispatchMicros = nanosToMicros(durationNanos);
+    networkDispatchMicrosLastTenSeconds.add(lastNetworkDispatchMicros, "batch");
+  }
+
+  /**
+   * Records latest frame or authoritative tick duration.
+   *
+   * @param durationNanos frame duration in nanoseconds
+   */
+  public static void recordFrameTime(long durationNanos) {
+    lastFrameMicros = nanosToMicros(durationNanos);
+    frameMicrosLastTenSeconds.add(lastFrameMicros, "frame");
+  }
+
+  /**
+   * Records latest client render frame delta.
+   *
+   * @param deltaSeconds frame delta in seconds
+   */
+  public static void recordFrameDelta(float deltaSeconds) {
+    if (deltaSeconds < 0f) {
+      return;
+    }
+    recordFrameTime((long) (deltaSeconds * 1_000_000_000L));
+  }
+
+  /**
+   * Records the timing split for a client snapshot handler.
+   *
+   * @param delta true when the handled message was a delta snapshot
+   * @param serverTick snapshot server tick
+   * @param staleCheckNanos stale-check duration
+   * @param fullApplyNanos full-snapshot apply duration
+   * @param deltaMaterializeNanos delta materialization duration
+   * @param entityReconcileNanos entity reconciliation duration
+   * @param ackSendNanos snapshot ack send duration
+   * @param stale true when the snapshot was dropped as stale
+   */
+  public static void recordSnapshotHandlerTiming(
+      boolean delta,
+      int serverTick,
+      long staleCheckNanos,
+      long fullApplyNanos,
+      long deltaMaterializeNanos,
+      long entityReconcileNanos,
+      long ackSendNanos,
+      boolean stale) {
+    lastAppliedSnapshotKind = delta ? "delta" : "full";
+    lastAppliedSnapshotTick = serverTick;
+    lastSnapshotStaleCheckMicros = nanosToMicros(staleCheckNanos);
+    lastFullSnapshotApplyMicros = nanosToMicros(fullApplyNanos);
+    lastDeltaMaterializeMicros = nanosToMicros(deltaMaterializeNanos);
+    lastEntityReconcileMicros = nanosToMicros(entityReconcileNanos);
+    lastSnapshotAckMicros = nanosToMicros(ackSendNanos);
+    lastSnapshotHandlerStale = stale;
   }
 
   /**
@@ -312,7 +597,10 @@ public final class NetworkTelemetry {
     lastAppliedSnapshotTick = serverTick;
     lastAppliedSnapshotEntities = entityCount;
     lastAppliedSnapshotRemovals = removedCount;
-    lastAppliedSnapshotMicros = Math.max(0L, durationNanos / 1_000L);
+    lastAppliedSnapshotMicros = nanosToMicros(durationNanos);
+    if (!delta) {
+      inboundFullSnapshotBytesByTick.remove(serverTick);
+    }
   }
 
   /**
@@ -321,10 +609,24 @@ public final class NetworkTelemetry {
    * @param delta true when this was a delta snapshot
    */
   public static void recordStaleSnapshot(boolean delta) {
+    recordStaleSnapshot(delta, -1);
+  }
+
+  /**
+   * Records a stale snapshot dropped by the client before application.
+   *
+   * @param delta true when this was a delta snapshot
+   * @param serverTick stale snapshot server tick, or -1 when unknown
+   */
+  public static void recordStaleSnapshot(boolean delta, int serverTick) {
     if (delta) {
       staleDeltaSnapshots.increment();
     } else {
       staleFullSnapshots.increment();
+      Integer bytes = inboundFullSnapshotBytesByTick.remove(serverTick);
+      if (bytes != null) {
+        staleFullSnapshotBytes.add(nonNegative(bytes));
+      }
     }
   }
 
@@ -361,6 +663,7 @@ public final class NetworkTelemetry {
   public static void recordServerSnapshot(DebugTelemetrySnapshot snapshot) {
     latestServerSnapshot = snapshot;
     latestServerSnapshotReceivedTimeMs = java.lang.System.currentTimeMillis();
+    latestServerSnapshotClientCaptureNanos = java.lang.System.nanoTime();
   }
 
   /**
@@ -392,7 +695,9 @@ public final class NetworkTelemetry {
    */
   public static DebugTelemetrySnapshot buildServerSnapshot(
       long requestId, Collection<Session> sessions) {
+    refreshGcTelemetry();
     long now = java.lang.System.currentTimeMillis();
+    long captureNanos = java.lang.System.nanoTime();
     List<DebugTelemetrySnapshot.Client> clients = new ArrayList<>();
     for (Session session : sessions) {
       if (session == null || session.isClosed()) {
@@ -403,18 +708,41 @@ public final class NetworkTelemetry {
         continue;
       }
       ClientState clientState = state.orElseThrow();
+      ClientTelemetry telemetry = clientTelemetry(clientState.clientId());
       clients.add(
           new DebugTelemetrySnapshot.Client(
               clientState.clientId(),
               session.udpReady(),
               debugRttEstimate(clientState),
               Math.max(0L, now - clientState.lastActivityTimeMs()),
-              clientState.snapshotSync().lastAckedSnapshotTick()));
+              clientState.snapshotSync().lastAckedSnapshotTick(),
+              telemetry.serverCurrentTick,
+              telemetry.ackAgeTicks,
+              telemetry.ackAgeMs,
+              telemetry.ackBaselineInHistory,
+              telemetry.historyCapacityTicks,
+              telemetry.historyCapacitySeconds,
+              telemetry.missingBaselineFullFallbacks.sum(),
+              telemetry.fullSnapshotsLastSecond.sum(),
+              telemetry.fullSnapshotsLastFiveSeconds.sum(),
+              telemetry.fullSnapshotsLastThirtySeconds.sum(),
+              telemetry.fullSnapshotBytesLastSecond.sum(),
+              telemetry.fullSnapshotBytesLastFiveSeconds.sum(),
+              telemetry.fullSnapshotBytesLastThirtySeconds.sum(),
+              telemetry.periodicFullSnapshots.sum(),
+              telemetry.fallbackFullSnapshots.sum(),
+              telemetry.lastFullSnapshotReason,
+              telemetry.lastFullSnapshotTimeMs < 0L
+                  ? -1L
+                  : Math.max(0L, now - telemetry.lastFullSnapshotTimeMs),
+              telemetry.lastFullSnapshotTick,
+              telemetry.lastFullSnapshotBytes));
     }
 
     return new DebugTelemetrySnapshot(
         requestId,
         now,
+        captureNanos,
         new DebugTelemetrySnapshot.Transport(
             tcpOutboundMessages.sum(),
             tcpOutboundBytes.sum(),
@@ -451,12 +779,46 @@ public final class NetworkTelemetry {
             lastDeltaSnapshotSentBytes,
             lastDeltaSnapshotSentEntityDeltas,
             lastDeltaSnapshotSentRemovals,
-            lastSnapshotBuildMicros),
+            lastSnapshotBuildMicros,
+            lastFullSnapshotSentReason,
+            staleFullSnapshotBytes.sum(),
+            periodicFullSnapshotsSent.sum(),
+            fallbackFullSnapshotsSent.sum(),
+            missingBaselineFullFallbacks.sum(),
+            lastSnapshotHistoryServerTick,
+            lastSnapshotHistorySize,
+            lastSnapshotHistoryCapacityTicks,
+            lastSnapshotHistoryCapacitySeconds),
         new DebugTelemetrySnapshot.Windows(
             transportOutBytesLastSecond.sum(),
             transportOutBytesLastFiveSeconds.sum(),
+            transportOutBytesLastThirtySeconds.sum(),
             snapshotsSentLastSecond.sum(),
-            snapshotsSentLastFiveSeconds.sum()),
+            snapshotsSentLastFiveSeconds.sum(),
+            snapshotsSentLastThirtySeconds.sum(),
+            fullSnapshotsSentLastSecond.sum(),
+            fullSnapshotsSentLastFiveSeconds.sum(),
+            fullSnapshotsSentLastThirtySeconds.sum(),
+            fullSnapshotBytesLastSecond.sum(),
+            fullSnapshotBytesLastFiveSeconds.sum(),
+            fullSnapshotBytesLastThirtySeconds.sum()),
+        new DebugTelemetrySnapshot.Timings(
+            lastTcpDecodeType,
+            lastTcpDecodeMicros,
+            tcpDecodeMicrosLastTenSeconds.max().value(),
+            tcpDecodeMicrosLastTenSeconds.max().label(),
+            lastQueueAgeMicros,
+            queueAgeMicrosLastTenSeconds.max().value(),
+            queueAgeMicrosLastTenSeconds.max().label(),
+            lastMessageDispatchMicros,
+            dispatchMicrosLastTenSeconds.max().value(),
+            dispatchMicrosLastTenSeconds.max().label(),
+            lastNetworkDispatchMicros,
+            networkDispatchMicrosLastTenSeconds.max().value(),
+            lastFrameMicros,
+            frameMicrosLastTenSeconds.max().value(),
+            lastGcPauseMs,
+            gcPauseMsLastTenSeconds.max().value()),
         clients);
   }
 
@@ -466,6 +828,7 @@ public final class NetworkTelemetry {
    * @return multiline telemetry text
    */
   public static String debugText() {
+    refreshGcTelemetry();
     StringBuilder text = new StringBuilder("Network Telemetry");
     text.append("\nClient local: ")
         .append(clientConnected ? "connected" : "disconnected")
@@ -501,6 +864,45 @@ public final class NetworkTelemetry {
         .append(formatCount(lastAppliedSnapshotRemovals))
         .append(" ")
         .append(formatMicros(lastAppliedSnapshotMicros));
+    text.append("\nClient snapshot path: staleCheck=")
+        .append(formatMicros(lastSnapshotStaleCheckMicros))
+        .append(" fullApply=")
+        .append(formatMicros(lastFullSnapshotApplyMicros))
+        .append(" deltaMat=")
+        .append(formatMicros(lastDeltaMaterializeMicros))
+        .append(" reconcile=")
+        .append(formatMicros(lastEntityReconcileMicros))
+        .append(" ack=")
+        .append(formatMicros(lastSnapshotAckMicros))
+        .append(" stale=")
+        .append(lastSnapshotHandlerStale)
+        .append(" staleFullBytes=")
+        .append(formatBytes(staleFullSnapshotBytes.sum()));
+    RollingMax.Sample queueMax = queueAgeMicrosLastTenSeconds.max();
+    RollingMax.Sample dispatchMax = dispatchMicrosLastTenSeconds.max();
+    RollingMax.Sample tcpDecodeMax = tcpDecodeMicrosLastTenSeconds.max();
+    text.append("\nClient timing: frame=")
+        .append(formatMicros(lastFrameMicros))
+        .append(" net=")
+        .append(formatMicros(lastNetworkDispatchMicros))
+        .append(" queue=")
+        .append(formatMicros(lastQueueAgeMicros))
+        .append(" dispatch=")
+        .append(formatMicros(lastMessageDispatchMicros))
+        .append(" tcpDecode=")
+        .append(lastTcpDecodeType)
+        .append(" ")
+        .append(formatMicros(lastTcpDecodeMicros))
+        .append(" max10(q/d/dec)=")
+        .append(formatMicros(queueMax.value()))
+        .append("/")
+        .append(formatMicros(dispatchMax.value()))
+        .append("/")
+        .append(tcpDecodeMax.label())
+        .append(" ")
+        .append(formatMicros(tcpDecodeMax.value()))
+        .append(" gc=")
+        .append(formatMillis(lastGcPauseMs));
     text.append("\nClient transport out: tcp=")
         .append(tcpOutboundMessages.sum())
         .append("/")
@@ -548,6 +950,10 @@ public final class NetworkTelemetry {
         .append(snapshot.clients().stream().filter(DebugTelemetrySnapshot.Client::udpReady).count())
         .append("/")
         .append(snapshot.clients().size());
+    text.append(" capture(c/s)=")
+        .append(formatNanos(latestServerSnapshotClientCaptureNanos))
+        .append("/")
+        .append(formatNanos(snapshot.serverTimeNanos()));
     text.append("\nServer snapshots: full=")
         .append(snapshot.snapshots().fullSent())
         .append(" last=")
@@ -562,10 +968,30 @@ public final class NetworkTelemetry {
         .append(formatDeltaSnapshot(snapshot))
         .append(" build=")
         .append(formatMicros(snapshot.snapshots().lastBuildMicros()))
-        .append(" rate1/5=")
+        .append(" reason=")
+        .append(snapshot.snapshots().lastFullReason())
+        .append(" periodic/fallback=")
+        .append(snapshot.snapshots().periodicFullSent())
+        .append("/")
+        .append(snapshot.snapshots().fallbackFullSent())
+        .append(" missingBase=")
+        .append(snapshot.snapshots().missingBaselineFullFallbacks())
+        .append(" staleFullBytes=")
+        .append(formatBytes(snapshot.snapshots().staleFullBytes()))
+        .append(" rate1/5/30=")
         .append(snapshot.windows().snapshotsSentLastSecond())
         .append("/")
-        .append(snapshot.windows().snapshotsSentLastFiveSeconds());
+        .append(snapshot.windows().snapshotsSentLastFiveSeconds())
+        .append("/")
+        .append(snapshot.windows().snapshotsSentLastThirtySeconds());
+    text.append("\nServer history: tick=")
+        .append(formatTick(snapshot.snapshots().historyServerTick()))
+        .append(" size=")
+        .append(formatCount(snapshot.snapshots().historySize()))
+        .append("/")
+        .append(formatCount(snapshot.snapshots().historyCapacityTicks()))
+        .append(" cap=")
+        .append(formatSeconds(snapshot.snapshots().historyCapacitySeconds()));
     text.append("\nServer transport out: tcp=")
         .append(snapshot.transport().tcpOutboundMessages())
         .append("/")
@@ -574,10 +1000,12 @@ public final class NetworkTelemetry {
         .append(snapshot.transport().udpOutboundMessages())
         .append("/")
         .append(formatBytes(snapshot.transport().udpOutboundBytes()))
-        .append(" bytes1/5=")
+        .append(" bytes1/5/30=")
         .append(formatBytes(snapshot.windows().transportOutBytesLastSecond()))
         .append("/")
-        .append(formatBytes(snapshot.windows().transportOutBytesLastFiveSeconds()));
+        .append(formatBytes(snapshot.windows().transportOutBytesLastFiveSeconds()))
+        .append("/")
+        .append(formatBytes(snapshot.windows().transportOutBytesLastThirtySeconds()));
     text.append("\nServer transport in:  tcp=")
         .append(snapshot.transport().tcpInboundMessages())
         .append("/")
@@ -602,8 +1030,38 @@ public final class NetworkTelemetry {
         .append(snapshot.udp().sendFailures())
         .append(" dropped=")
         .append(snapshot.udp().droppedPackets())
-        .append(" last=")
-        .append(snapshot.udp().lastFallbackReason());
+        .append(" last(f/drop/fail)=")
+        .append(snapshot.udp().lastFallbackReason())
+        .append("/")
+        .append(snapshot.udp().lastDropReason())
+        .append("/")
+        .append(snapshot.udp().lastFailureReason());
+    DebugTelemetrySnapshot.Timings timings = snapshot.timings();
+    text.append("\nServer timing: frame=")
+        .append(formatMicros(timings.lastFrameMicros()))
+        .append(" max10=")
+        .append(formatMicros(timings.maxFrameMicrosLastTenSeconds()))
+        .append(" net=")
+        .append(formatMicros(timings.lastNetworkDispatchMicros()))
+        .append(" max10=")
+        .append(formatMicros(timings.maxNetworkDispatchMicrosLastTenSeconds()))
+        .append(" queue=")
+        .append(formatMicros(timings.lastQueueAgeMicros()))
+        .append(" max10=")
+        .append(formatMicros(timings.maxQueueAgeMicrosLastTenSeconds()))
+        .append(" tcpDecode=")
+        .append(timings.lastTcpDecodeType())
+        .append(" ")
+        .append(formatMicros(timings.lastTcpDecodeMicros()))
+        .append(" max10=")
+        .append(timings.maxTcpDecodeTypeLastTenSeconds())
+        .append(" ")
+        .append(formatMicros(timings.maxTcpDecodeMicrosLastTenSeconds()))
+        .append(" gc=")
+        .append(formatMillis(timings.lastGcPauseMs()))
+        .append("/")
+        .append(formatMillis(timings.maxGcPauseMsLastTenSeconds()));
+    appendServerClientTelemetry(text, snapshot.clients());
   }
 
   private static void reset(LongAdder adder) {
@@ -614,9 +1072,10 @@ public final class NetworkTelemetry {
     long value = nonNegative(bytes);
     transportOutBytesLastSecond.add(value);
     transportOutBytesLastFiveSeconds.add(value);
+    transportOutBytesLastThirtySeconds.add(value);
   }
 
-  private static void recordSnapshotSent(NetworkMessage message, int bytes) {
+  private static void recordSnapshotSent(NetworkMessage message, int bytes, short peerClientId) {
     if (message instanceof SnapshotMessage snapshot) {
       fullSnapshotsSent.increment();
       lastFullSnapshotSentTick = snapshot.serverTick();
@@ -624,6 +1083,14 @@ public final class NetworkTelemetry {
       lastFullSnapshotSentEntities = snapshot.entities().size();
       snapshotsSentLastSecond.add(1L);
       snapshotsSentLastFiveSeconds.add(1L);
+      snapshotsSentLastThirtySeconds.add(1L);
+      fullSnapshotsSentLastSecond.add(1L);
+      fullSnapshotsSentLastFiveSeconds.add(1L);
+      fullSnapshotsSentLastThirtySeconds.add(1L);
+      fullSnapshotBytesLastSecond.add(nonNegative(bytes));
+      fullSnapshotBytesLastFiveSeconds.add(nonNegative(bytes));
+      fullSnapshotBytesLastThirtySeconds.add(nonNegative(bytes));
+      recordFullSnapshotSentForClient(peerClientId, snapshot, bytes);
     } else if (message instanceof DeltaSnapshotMessage delta) {
       deltaSnapshotsSent.increment();
       lastDeltaSnapshotSentTick = delta.serverTick();
@@ -632,7 +1099,48 @@ public final class NetworkTelemetry {
       lastDeltaSnapshotSentRemovals = delta.removedEntityIds().size();
       snapshotsSentLastSecond.add(1L);
       snapshotsSentLastFiveSeconds.add(1L);
+      snapshotsSentLastThirtySeconds.add(1L);
     }
+  }
+
+  private static void recordFullSnapshotSentForClient(
+      short clientId, SnapshotMessage snapshot, int bytes) {
+    if (clientId <= 0) {
+      return;
+    }
+    ClientTelemetry telemetry = clientTelemetry(clientId);
+    PendingFullSnapshot pending = pendingFullSnapshots.remove(clientId);
+    FullSnapshotSendReason reason =
+        pending != null && pending.serverTick() == snapshot.serverTick()
+            ? pending.reason()
+            : FullSnapshotSendReason.SERVER_FORCED_RESYNC;
+    String reasonText = reason.name();
+    long now = java.lang.System.currentTimeMillis();
+
+    telemetry.fullSnapshotsLastSecond.add(1L);
+    telemetry.fullSnapshotsLastFiveSeconds.add(1L);
+    telemetry.fullSnapshotsLastThirtySeconds.add(1L);
+    telemetry.fullSnapshotBytesLastSecond.add(nonNegative(bytes));
+    telemetry.fullSnapshotBytesLastFiveSeconds.add(nonNegative(bytes));
+    telemetry.fullSnapshotBytesLastThirtySeconds.add(nonNegative(bytes));
+    telemetry.lastFullSnapshotReason = reasonText;
+    telemetry.lastFullSnapshotTimeMs = now;
+    telemetry.lastFullSnapshotTick = snapshot.serverTick();
+    telemetry.lastFullSnapshotBytes = nonNegative(bytes);
+    if (reason == FullSnapshotSendReason.PERIODIC_BASELINE) {
+      telemetry.periodicFullSnapshots.increment();
+      periodicFullSnapshotsSent.increment();
+    } else {
+      telemetry.fallbackFullSnapshots.increment();
+      fallbackFullSnapshotsSent.increment();
+    }
+    if (reason == FullSnapshotSendReason.MISSING_BASELINE_HISTORY) {
+      telemetry.missingBaselineFullFallbacks.increment();
+      missingBaselineFullFallbacks.increment();
+    }
+
+    lastFullSnapshotSentReason = reasonText;
+    lastFullSnapshotSentTimeMs = now;
   }
 
   private static int nonNegative(int value) {
@@ -654,9 +1162,106 @@ public final class NetworkTelemetry {
         || message instanceof DebugPong;
   }
 
+  private static ClientTelemetry clientTelemetry(short clientId) {
+    return serverClientTelemetry.computeIfAbsent(clientId, ignored -> new ClientTelemetry());
+  }
+
+  private static FullSnapshotSendReason normalizeReason(FullSnapshotSendReason reason) {
+    return reason == null ? FullSnapshotSendReason.SERVER_FORCED_RESYNC : reason;
+  }
+
+  private static void recordTcpDecode(NetworkMessage message, long decodeDurationNanos) {
+    if (decodeDurationNanos < 0L) {
+      return;
+    }
+    lastTcpDecodeType = messageName(message);
+    lastTcpDecodeMicros = nanosToMicros(decodeDurationNanos);
+    tcpDecodeMicrosLastTenSeconds.add(lastTcpDecodeMicros, lastTcpDecodeType);
+  }
+
+  private static synchronized void refreshGcTelemetry() {
+    long collectionCount = 0L;
+    long collectionTimeMs = 0L;
+    for (GarbageCollectorMXBean bean : GC_BEANS) {
+      long count = bean.getCollectionCount();
+      long timeMs = bean.getCollectionTime();
+      if (count > 0L) {
+        collectionCount += count;
+      }
+      if (timeMs > 0L) {
+        collectionTimeMs += timeMs;
+      }
+    }
+
+    if (previousGcCollectionCount < 0L || previousGcCollectionTimeMs < 0L) {
+      previousGcCollectionCount = collectionCount;
+      previousGcCollectionTimeMs = collectionTimeMs;
+      return;
+    }
+
+    long countDelta = Math.max(0L, collectionCount - previousGcCollectionCount);
+    long timeDeltaMs = Math.max(0L, collectionTimeMs - previousGcCollectionTimeMs);
+    previousGcCollectionCount = collectionCount;
+    previousGcCollectionTimeMs = collectionTimeMs;
+    if (countDelta > 0L || timeDeltaMs > 0L) {
+      lastGcPauseMs = timeDeltaMs;
+      gcPauseMsLastTenSeconds.add(timeDeltaMs, "gc");
+    }
+  }
+
   private static float debugRttEstimate(ClientState clientState) {
     float estimate = clientState.rttEstimateMs();
     return clientState.lastClientTick() > 0L && estimate > 0f ? estimate : -1f;
+  }
+
+  private static long nanosToMicros(long nanos) {
+    return nanos < 0L ? -1L : Math.max(0L, nanos / NANOS_PER_MICRO);
+  }
+
+  private static void appendServerClientTelemetry(
+      StringBuilder text, List<DebugTelemetrySnapshot.Client> clients) {
+    for (DebugTelemetrySnapshot.Client client : clients) {
+      text.append("\nServer client ")
+          .append(client.clientId())
+          .append(": ack=")
+          .append(formatTick(client.latestAckedSnapshotTick()))
+          .append(" age=")
+          .append(formatCount(client.ackAgeTicks()))
+          .append("t/")
+          .append(formatMillis(client.ackAgeMs()))
+          .append(" hist=")
+          .append(client.ackBaselineInHistory())
+          .append(" cap=")
+          .append(formatCount(client.historyCapacityTicks()))
+          .append("t/")
+          .append(formatSeconds(client.historyCapacitySeconds()))
+          .append(" full1/5/30=")
+          .append(client.fullSnapshotsLastSecond())
+          .append("/")
+          .append(client.fullSnapshotsLastFiveSeconds())
+          .append("/")
+          .append(client.fullSnapshotsLastThirtySeconds())
+          .append(" bytes=")
+          .append(formatBytes(client.fullSnapshotBytesLastSecond()))
+          .append("/")
+          .append(formatBytes(client.fullSnapshotBytesLastFiveSeconds()))
+          .append("/")
+          .append(formatBytes(client.fullSnapshotBytesLastThirtySeconds()))
+          .append(" periodic/fallback=")
+          .append(client.periodicFullSnapshots())
+          .append("/")
+          .append(client.fallbackFullSnapshots())
+          .append(" missingBase=")
+          .append(client.missingBaselineFullFallbacks())
+          .append(" lastFull=")
+          .append(client.lastFullSnapshotReason())
+          .append("@")
+          .append(formatTick(client.lastFullSnapshotTick()))
+          .append("/")
+          .append(formatBytes(client.lastFullSnapshotBytes()))
+          .append(" age=")
+          .append(formatMillis(client.lastFullSnapshotAgeMs()));
+    }
   }
 
   private static String formatBytes(long bytes) {
@@ -677,6 +1282,20 @@ public final class NetworkTelemetry {
       return millis + " ms";
     }
     return String.format(Locale.ROOT, "%.1f s", millis / 1000.0);
+  }
+
+  private static String formatNanos(long nanos) {
+    if (nanos < 0L) {
+      return "n/a";
+    }
+    return Long.toString(nanos);
+  }
+
+  private static String formatSeconds(double seconds) {
+    if (seconds < 0.0) {
+      return "n/a";
+    }
+    return String.format(Locale.ROOT, "%.2f s", seconds);
   }
 
   private static String formatMicros(long micros) {
@@ -724,6 +1343,79 @@ public final class NetworkTelemetry {
         + formatCount(snapshots.lastDeltaEntityDeltas())
         + "/r="
         + formatCount(snapshots.lastDeltaRemovals());
+  }
+
+  private record PendingFullSnapshot(
+      int serverTick, int entityCount, FullSnapshotSendReason reason, long scheduledTimeMs) {}
+
+  private static final class ClientTelemetry {
+    private final RollingCounter fullSnapshotsLastSecond = new RollingCounter(1_000L);
+    private final RollingCounter fullSnapshotsLastFiveSeconds = new RollingCounter(5_000L);
+    private final RollingCounter fullSnapshotsLastThirtySeconds = new RollingCounter(30_000L);
+    private final RollingCounter fullSnapshotBytesLastSecond = new RollingCounter(1_000L);
+    private final RollingCounter fullSnapshotBytesLastFiveSeconds = new RollingCounter(5_000L);
+    private final RollingCounter fullSnapshotBytesLastThirtySeconds = new RollingCounter(30_000L);
+    private final LongAdder periodicFullSnapshots = new LongAdder();
+    private final LongAdder fallbackFullSnapshots = new LongAdder();
+    private final LongAdder missingBaselineFullFallbacks = new LongAdder();
+
+    private volatile int serverCurrentTick = -1;
+    private volatile int latestAckedSnapshotTick = -1;
+    private volatile int ackAgeTicks = -1;
+    private volatile long ackAgeMs = -1L;
+    private volatile boolean ackBaselineInHistory;
+    private volatile int historyCapacityTicks = -1;
+    private volatile double historyCapacitySeconds = -1.0;
+    private volatile String lastFullSnapshotReason = "n/a";
+    private volatile long lastFullSnapshotTimeMs = -1L;
+    private volatile int lastFullSnapshotTick = -1;
+    private volatile int lastFullSnapshotBytes = -1;
+  }
+
+  private static final class RollingMax {
+    private final long windowMs;
+    private final ArrayDeque<Sample> samples = new ArrayDeque<>();
+
+    private RollingMax(long windowMs) {
+      this.windowMs = windowMs;
+    }
+
+    private synchronized void add(long value, String label) {
+      if (value < 0L) {
+        return;
+      }
+      long now = java.lang.System.currentTimeMillis();
+      prune(now);
+      samples.addLast(new Sample(now, value, cleanReason(label)));
+    }
+
+    private synchronized Sample max() {
+      long now = java.lang.System.currentTimeMillis();
+      prune(now);
+      Sample max = Sample.empty();
+      for (Sample sample : samples) {
+        if (sample.value() > max.value()) {
+          max = sample;
+        }
+      }
+      return max;
+    }
+
+    private synchronized void reset() {
+      samples.clear();
+    }
+
+    private void prune(long now) {
+      while (!samples.isEmpty() && now - samples.peekFirst().timeMs() > windowMs) {
+        samples.removeFirst();
+      }
+    }
+
+    private record Sample(long timeMs, long value, String label) {
+      private static Sample empty() {
+        return new Sample(-1L, -1L, "n/a");
+      }
+    }
   }
 
   private static final class RollingCounter {

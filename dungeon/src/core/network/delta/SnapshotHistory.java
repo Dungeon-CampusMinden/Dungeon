@@ -83,6 +83,15 @@ public final class SnapshotHistory {
     return snapshots.size();
   }
 
+  /**
+   * Returns the maximum number of snapshots retained by this history.
+   *
+   * @return snapshot capacity
+   */
+  public int capacity() {
+    return capacity;
+  }
+
   private static SnapshotMessage copyOf(SnapshotMessage snapshot) {
     return new SnapshotMessage(
         snapshot.serverTick(), List.copyOf(snapshot.entities()), snapshot.levelState());

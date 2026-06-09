@@ -128,11 +128,14 @@ class ConverterRegistryTest {
     return new DebugTelemetrySnapshot(
         3L,
         4L,
+        5L,
         DebugTelemetrySnapshot.Transport.empty(),
         DebugTelemetrySnapshot.Transport.empty(),
         new DebugTelemetrySnapshot.Udp(0L, 0L, 0L, 0L, "n/a", "n/a", "n/a"),
-        new DebugTelemetrySnapshot.Snapshots(0L, 0L, -1, -1, -1, -1, -1, -1, -1, -1L),
-        new DebugTelemetrySnapshot.Windows(0L, 0L, 0L, 0L),
+        new DebugTelemetrySnapshot.Snapshots(
+            0L, 0L, -1, -1, -1, -1, -1, -1, -1, -1L, "n/a", 0L, 0L, 0L, 0L, -1, -1, -1, -1.0),
+        new DebugTelemetrySnapshot.Windows(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L),
+        DebugTelemetrySnapshot.Timings.empty(),
         List.of());
   }
 

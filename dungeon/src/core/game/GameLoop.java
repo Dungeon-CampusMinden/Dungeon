@@ -259,10 +259,15 @@ public final class GameLoop extends ScreenAdapter {
         DrawSystem.class,
         drawSystem -> DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
     // Drain any inbound network messages on the game thread before running systems
+    NetworkTelemetry.recordFrameDelta(delta);
+    long networkDispatchStartNanos = java.lang.System.nanoTime();
     try {
       Game.network().pollAndDispatch();
     } catch (Exception e) {
       LOGGER.warn("Error while polling network messages: {}", e.getMessage(), e);
+    } finally {
+      NetworkTelemetry.recordNetworkDispatchBatch(
+          java.lang.System.nanoTime() - networkDispatchStartNanos);
     }
     frame(delta);
     clearScreen();
@@ -516,30 +521,55 @@ public final class GameLoop extends ScreenAdapter {
     dispatcher.registerHandler(
         SnapshotMessage.class,
         (ctx, event) -> {
+          long staleCheckNanos = 0L;
+          long fullApplyNanos = 0L;
+          long reconcileNanos = 0L;
+          long ackNanos = 0L;
           try {
             long applyStartNanos = java.lang.System.nanoTime();
             Optional<ClientState> clientState = clientState(ctx);
             if (clientState.isPresent()) {
               ClientState state = clientState.orElseThrow();
+              long staleCheckStartNanos = java.lang.System.nanoTime();
               if (event.serverTick() <= state.latestAppliedSnapshotTick()) {
-                NetworkTelemetry.recordStaleSnapshot(false);
+                staleCheckNanos = java.lang.System.nanoTime() - staleCheckStartNanos;
+                NetworkTelemetry.recordStaleSnapshot(false, event.serverTick());
+                NetworkTelemetry.recordSnapshotHandlerTiming(
+                    false, event.serverTick(), staleCheckNanos, 0L, 0L, 0L, 0L, true);
                 LOGGER.debug("Skipped stale full snapshot at tick {}.", event.serverTick());
                 return;
               }
+              staleCheckNanos = java.lang.System.nanoTime() - staleCheckStartNanos;
             }
+            long fullApplyStartNanos = java.lang.System.nanoTime();
             Game.network().snapshotTranslator().applySnapshot(event, dispatcher);
-            clientState.ifPresent(
-                state -> {
-                  state.rememberAppliedSnapshot(event);
-                  reconcileNetworkEntities(state, event);
-                  sendSnapshotAck(event.serverTick());
-                });
+            fullApplyNanos = java.lang.System.nanoTime() - fullApplyStartNanos;
+            if (clientState.isPresent()) {
+              ClientState state = clientState.orElseThrow();
+              long reconcileStartNanos = java.lang.System.nanoTime();
+              state.rememberAppliedSnapshot(event);
+              reconcileNetworkEntities(state, event);
+              long reconcileEndNanos = java.lang.System.nanoTime();
+              long ackStartNanos = java.lang.System.nanoTime();
+              sendSnapshotAck(event.serverTick());
+              reconcileNanos = reconcileEndNanos - reconcileStartNanos;
+              ackNanos = java.lang.System.nanoTime() - ackStartNanos;
+            }
             NetworkTelemetry.recordSnapshotApplied(
                 false,
                 event.serverTick(),
                 event.entities().size(),
                 0,
                 java.lang.System.nanoTime() - applyStartNanos);
+            NetworkTelemetry.recordSnapshotHandlerTiming(
+                false,
+                event.serverTick(),
+                staleCheckNanos,
+                fullApplyNanos,
+                0L,
+                reconcileNanos,
+                ackNanos,
+                false);
           } catch (Exception e) {
             LOGGER.warn("Error while applying snapshot message: {}", e.getMessage(), e);
           }
@@ -547,6 +577,11 @@ public final class GameLoop extends ScreenAdapter {
     dispatcher.registerHandler(
         DeltaSnapshotMessage.class,
         (ctx, event) -> {
+          long staleCheckNanos = 0L;
+          long deltaMaterializeNanos = 0L;
+          long fullApplyNanos = 0L;
+          long reconcileNanos = 0L;
+          long ackNanos = 0L;
           try {
             long applyStartNanos = java.lang.System.nanoTime();
             Optional<ClientState> clientState = clientState(ctx);
@@ -555,24 +590,35 @@ public final class GameLoop extends ScreenAdapter {
               return;
             }
             ClientState state = clientState.orElseThrow();
+            long staleCheckStartNanos = java.lang.System.nanoTime();
             if (event.serverTick() <= state.latestAppliedSnapshotTick()) {
-              NetworkTelemetry.recordStaleSnapshot(true);
+              staleCheckNanos = java.lang.System.nanoTime() - staleCheckStartNanos;
+              NetworkTelemetry.recordStaleSnapshot(true, event.serverTick());
+              NetworkTelemetry.recordSnapshotHandlerTiming(
+                  true, event.serverTick(), staleCheckNanos, 0L, 0L, 0L, 0L, true);
               LOGGER.debug("Ignoring stale delta snapshot at tick {}.", event.serverTick());
               return;
             }
 
             Optional<SnapshotMessage> baseline = state.appliedSnapshot(event.baseTick());
             if (baseline.isEmpty()) {
-              NetworkTelemetry.recordStaleSnapshot(true);
+              staleCheckNanos = java.lang.System.nanoTime() - staleCheckStartNanos;
+              NetworkTelemetry.recordStaleSnapshot(true, event.serverTick());
+              NetworkTelemetry.recordSnapshotHandlerTiming(
+                  true, event.serverTick(), staleCheckNanos, 0L, 0L, 0L, 0L, true);
               LOGGER.debug(
                   "Ignoring delta snapshot for base tick {}; no matching local baseline.",
                   event.baseTick());
               return;
             }
+            staleCheckNanos = java.lang.System.nanoTime() - staleCheckStartNanos;
 
+            long materializeStartNanos = java.lang.System.nanoTime();
             SnapshotMessage materializedSnapshot =
                 SnapshotDeltaCompressor.materializeSnapshot(baseline.orElseThrow(), event);
             SnapshotMessage changedSnapshot = changedSnapshotForDelta(event, materializedSnapshot);
+            deltaMaterializeNanos = java.lang.System.nanoTime() - materializeStartNanos;
+            long removalReconcileStartNanos = java.lang.System.nanoTime();
             event
                 .removedEntityIds()
                 .forEach(
@@ -580,16 +626,32 @@ public final class GameLoop extends ScreenAdapter {
                       Game.findEntityById(entityId).ifPresent(Game::remove);
                       state.untrackNetworkEntity(entityId);
                     });
+            reconcileNanos += java.lang.System.nanoTime() - removalReconcileStartNanos;
+            long fullApplyStartNanos = java.lang.System.nanoTime();
             Game.network().snapshotTranslator().applySnapshot(changedSnapshot, dispatcher);
+            fullApplyNanos = java.lang.System.nanoTime() - fullApplyStartNanos;
+            long reconcileStartNanos = java.lang.System.nanoTime();
             state.rememberAppliedSnapshot(materializedSnapshot);
             reconcileNetworkEntities(state, materializedSnapshot);
+            reconcileNanos += java.lang.System.nanoTime() - reconcileStartNanos;
+            long ackStartNanos = java.lang.System.nanoTime();
             sendSnapshotAck(event.serverTick());
+            ackNanos = java.lang.System.nanoTime() - ackStartNanos;
             NetworkTelemetry.recordSnapshotApplied(
                 true,
                 event.serverTick(),
                 changedSnapshot.entities().size(),
                 event.removedEntityIds().size(),
                 java.lang.System.nanoTime() - applyStartNanos);
+            NetworkTelemetry.recordSnapshotHandlerTiming(
+                true,
+                event.serverTick(),
+                staleCheckNanos,
+                fullApplyNanos,
+                deltaMaterializeNanos,
+                reconcileNanos,
+                ackNanos,
+                false);
           } catch (Exception e) {
             LOGGER.warn("Error while applying delta snapshot message: {}", e.getMessage(), e);
           }

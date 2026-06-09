@@ -1,5 +1,6 @@
 package contrib.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -34,6 +35,7 @@ import core.network.messages.c2s.DebugPing;
 import core.network.messages.c2s.DebugTelemetryRequest;
 import core.systems.CameraSystem;
 import core.systems.input.InputManager;
+import core.utils.ClipboardUtil;
 import core.utils.FontHelper;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -114,7 +116,9 @@ public class DebugDrawSystem extends System {
     if (renderSystemList) drawSystemList();
     if (renderNetworkTelemetry) {
       updateNetworkTelemetryRequest();
-      drawNetworkTelemetry();
+      String telemetryText = NetworkTelemetry.debugText();
+      copyNetworkTelemetryIfRequested(telemetryText);
+      drawNetworkTelemetry(telemetryText);
     }
 
     if (!render) return;
@@ -132,12 +136,28 @@ public class DebugDrawSystem extends System {
     drawScreenOverlay(text, 10f, Game.windowHeight() - 10f);
   }
 
-  private void drawNetworkTelemetry() {
-    String text = NetworkTelemetry.debugText();
+  private void drawNetworkTelemetry(String text) {
     GlyphLayout layout = new GlyphLayout(FONT, text);
     float textX = 10f;
     float textY = layout.height + 10f;
     drawScreenOverlay(text, textX, textY);
+  }
+
+  private void copyNetworkTelemetryIfRequested(String text) {
+    if (!InputManager.isKeyJustPressed(Input.Keys.C) || !isControlPressed()) {
+      return;
+    }
+    try {
+      ClipboardUtil.copyToClipboard(text);
+      NetworkTelemetry.recordDebugRequestStatus("telemetry copied");
+    } catch (Exception e) {
+      NetworkTelemetry.recordDebugRequestStatus("telemetry copy failed");
+    }
+  }
+
+  private boolean isControlPressed() {
+    return InputManager.isKeyPressed(Input.Keys.CONTROL_LEFT)
+        || InputManager.isKeyPressed(Input.Keys.CONTROL_RIGHT);
   }
 
   private void drawScreenOverlay(String text, float textX, float textY) {

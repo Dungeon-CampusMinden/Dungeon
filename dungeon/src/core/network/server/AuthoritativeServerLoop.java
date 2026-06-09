@@ -14,6 +14,7 @@ import core.game.ECSManagement;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
+import core.network.FullSnapshotSendReason;
 import core.network.NetworkTelemetry;
 import core.network.delta.SnapshotDeltaCompressor;
 import core.network.delta.SnapshotHistory;
@@ -136,17 +137,22 @@ public final class AuthoritativeServerLoop {
 
   private void tick() {
     try {
+      long tickStartNanos = System.nanoTime();
       //noinspection NonAtomicOperationOnVolatileField only place where serverTick is modified
       serverTick++;
       // Drain any inbound network messages on the game thread before running systems
+      long networkDispatchStartNanos = System.nanoTime();
       try {
         Game.network().pollAndDispatch();
       } catch (Exception e) {
         LOGGER.warn("Error while polling network messages: " + e.getMessage());
+      } finally {
+        NetworkTelemetry.recordNetworkDispatchBatch(System.nanoTime() - networkDispatchStartNanos);
       }
       syncClientsToEntities();
       PreRunConfiguration.userOnFrame().execute();
       ECSManagement.executeOneTick(core.System.AuthoritativeSide.SERVER);
+      NetworkTelemetry.recordFrameTime(System.nanoTime() - tickStartNanos);
     } catch (Exception e) {
       LOGGER.error("Tick error", e);
     } catch (Throwable t) {
@@ -170,23 +176,42 @@ public final class AuthoritativeServerLoop {
             snapshot -> {
               NetworkTelemetry.recordSnapshotBuild(System.nanoTime() - buildStartNanos);
               snapshotHistory.add(snapshot);
+              NetworkTelemetry.recordSnapshotHistory(
+                  snapshot.serverTick(),
+                  snapshotHistory.size(),
+                  snapshotHistory.capacity(),
+                  SERVER_TICK_HZ);
               clients.forEach(client -> sendSnapshotToClient(client, snapshot));
             });
   }
 
   private void sendSnapshotToClient(ClientState client, SnapshotMessage currentSnapshot) {
     ClientSnapshotSyncState snapshotSync = client.snapshotSync();
-    if (!snapshotSync.hasAck()
-        || snapshotSync.fullSnapshotDue(
-            currentSnapshot.serverTick(), FULL_SNAPSHOT_INTERVAL_TICKS)) {
-      sendFullSnapshot(client, currentSnapshot);
+    int ackTick = snapshotSync.lastAckedSnapshotTick();
+    boolean hasAck = snapshotSync.hasAck();
+    boolean baselineInHistory = hasAck && snapshotHistory.contains(ackTick);
+    NetworkTelemetry.recordBaselineHealth(
+        client.clientId(),
+        currentSnapshot.serverTick(),
+        ackTick,
+        baselineInHistory,
+        snapshotHistory.capacity(),
+        SERVER_TICK_HZ);
+
+    if (!hasAck) {
+      sendFullSnapshot(client, currentSnapshot, snapshotSync.pendingFullSnapshotReason());
+      snapshotSync.pendingFullSnapshotReason(FullSnapshotSendReason.NO_ACK);
       return;
     }
 
-    int baseTick = snapshotSync.lastAckedSnapshotTick();
-    Optional<SnapshotMessage> baseSnapshot = snapshotHistory.snapshot(baseTick);
+    if (snapshotSync.fullSnapshotDue(currentSnapshot.serverTick(), FULL_SNAPSHOT_INTERVAL_TICKS)) {
+      sendFullSnapshot(client, currentSnapshot, FullSnapshotSendReason.PERIODIC_BASELINE);
+      return;
+    }
+
+    Optional<SnapshotMessage> baseSnapshot = snapshotHistory.snapshot(ackTick);
     if (baseSnapshot.isEmpty()) {
-      sendFullSnapshot(client, currentSnapshot);
+      sendFullSnapshot(client, currentSnapshot, FullSnapshotSendReason.MISSING_BASELINE_HISTORY);
       return;
     }
 
@@ -203,7 +228,10 @@ public final class AuthoritativeServerLoop {
             });
   }
 
-  private void sendFullSnapshot(ClientState client, SnapshotMessage currentSnapshot) {
+  private void sendFullSnapshot(
+      ClientState client, SnapshotMessage currentSnapshot, FullSnapshotSendReason reason) {
+    NetworkTelemetry.recordFullSnapshotScheduled(
+        client.clientId(), currentSnapshot.serverTick(), currentSnapshot.entities().size(), reason);
     Game.network()
         .send(client.clientId(), currentSnapshot, true)
         .thenAccept(
@@ -222,7 +250,7 @@ public final class AuthoritativeServerLoop {
     String levelName = currentLevel.orElseThrow();
     if (!levelName.equals(snapshotLevelName)) {
       snapshotHistory.clear();
-      clients.forEach(ClientState::clearSnapshotBaseline);
+      clients.forEach(client -> client.clearSnapshotBaseline(FullSnapshotSendReason.LEVEL_CHANGE));
       snapshotLevelName = levelName;
     }
   }

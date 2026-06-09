@@ -35,7 +35,6 @@ import core.network.messages.s2c.DebugPong;
 import core.network.messages.s2c.DebugTelemetrySnapshot;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.RegisterAck;
-import core.utils.Tuple;
 import core.utils.logging.DungeonLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -90,7 +89,7 @@ public final class ServerTransport {
   private static final int DEBUG_TELEMETRY_DEFAULT_INTERVAL_MS = 1_000;
   private static final int DEBUG_TELEMETRY_MIN_INTERVAL_MS = 250;
 
-  private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
+  private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
 
   // Transport/session mappings
   private final ConcurrentHashMap<ChannelId, Session> sessions = new ConcurrentHashMap<>();
@@ -112,6 +111,8 @@ public final class ServerTransport {
   private Channel tcpServer;
   private Channel udpChannel;
   private volatile ScheduledExecutorService debugTelemetryExecutor;
+
+  private record QueuedNetworkMessage(Session session, NetworkMessage message, long receiveNanos) {}
 
   /**
    * Starts the server transport on the specified port, initializing TCP and UDP channels.
@@ -282,7 +283,7 @@ public final class ServerTransport {
           .addListener(
               future -> {
                 if (future.isSuccess()) {
-                  NetworkTelemetry.recordOutboundTcp(msg, data.length);
+                  NetworkTelemetry.recordOutboundTcp(msg, data.length, clientId(ctx));
                   result.complete(true);
                   return;
                 }
@@ -373,14 +374,15 @@ public final class ServerTransport {
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) throws Exception {
       int size = frame.readableBytes();
       LOGGER.trace("TCP received {} bytes from {}", size, ctx.channel());
+      long receiveNanos = System.nanoTime();
       NetworkMessage msg = deserialize(frame);
-      NetworkTelemetry.recordInboundTcp(msg, size);
+      NetworkTelemetry.recordInboundTcp(msg, size, System.nanoTime() - receiveNanos);
       Session session = sessions.get(ctx.channel().id());
       if (session == null) {
         LOGGER.warn("Received TCP message for unknown session on channel {}", ctx.channel());
         return;
       }
-      inboundQueue.offer(Tuple.of(session, msg));
+      inboundQueue.offer(new QueuedNetworkMessage(session, msg, receiveNanos));
     }
 
     @Override
@@ -433,6 +435,7 @@ public final class ServerTransport {
       }
 
       NetworkMessage msg;
+      long receiveNanos = System.nanoTime();
       try {
         msg = deserialize(content);
         NetworkTelemetry.recordInboundUdp(msg, size);
@@ -471,7 +474,7 @@ public final class ServerTransport {
       }
 
       session.markUdpActivity();
-      inboundQueue.offer(Tuple.of(session, msg));
+      inboundQueue.offer(new QueuedNetworkMessage(session, msg, receiveNanos));
     }
 
     @Override
@@ -489,12 +492,18 @@ public final class ServerTransport {
    * @see MessageDispatcher
    */
   public void pollAndDispatch() {
-    Tuple<Session, NetworkMessage> msg;
+    QueuedNetworkMessage msg;
     while ((msg = inboundQueue.poll()) != null) {
+      long dispatchStartNanos = System.nanoTime();
       try {
-        Game.network().messageDispatcher().dispatch(msg.a(), msg.b());
+        Game.network().messageDispatcher().dispatch(msg.session(), msg.message());
       } catch (Exception e) {
         LOGGER.error("Dispatch error", e);
+      } finally {
+        NetworkTelemetry.recordQueuedMessageDispatch(
+            msg.message(),
+            dispatchStartNanos - msg.receiveNanos(),
+            System.nanoTime() - dispatchStartNanos);
       }
     }
     expireStaleUdpSessions(System.currentTimeMillis());
@@ -510,6 +519,14 @@ public final class ServerTransport {
     dispatcher.registerHandler(DialogResponseMessage.class, this::onDialogResponse);
     dispatcher.registerHandler(DebugTelemetryRequest.class, this::onDebugTelemetryRequest);
     dispatcher.registerHandler(DebugPing.class, this::onDebugPing);
+  }
+
+  private short clientId(ChannelHandlerContext ctx) {
+    if (ctx == null || ctx.channel() == null) {
+      return 0;
+    }
+    Session session = sessions.get(ctx.channel().id());
+    return session == null ? 0 : session.clientId();
   }
 
   private void onDebugTelemetryRequest(Session session, DebugTelemetryRequest request) {

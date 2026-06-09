@@ -80,7 +80,7 @@ public final class ClientNetwork {
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
-  private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
+  private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
   private final Queue<Runnable> lifecycleEvents = new ConcurrentLinkedQueue<>();
 
   private final AtomicBoolean running = new AtomicBoolean(false);
@@ -103,6 +103,8 @@ public final class ClientNetwork {
 
   private final UdpRecoveryState udpRecoveryState = new UdpRecoveryState();
   private volatile ScheduledFuture<?> udpMaintenanceFuture;
+
+  private record QueuedNetworkMessage(Session session, NetworkMessage message, long receiveNanos) {}
 
   /**
    * Initialize the client network with connection parameters.
@@ -319,12 +321,18 @@ public final class ClientNetwork {
         LOGGER.warn("Lifecycle runnable error", e);
       }
     }
-    Tuple<Session, NetworkMessage> msg;
+    QueuedNetworkMessage msg;
     while ((msg = inboundQueue.poll()) != null) {
+      long dispatchStartNanos = java.lang.System.nanoTime();
       try {
-        dispatcher.dispatch(msg.a(), msg.b());
+        dispatcher.dispatch(msg.session(), msg.message());
       } catch (Exception e) {
         LOGGER.error("Dispatch error", e);
+      } finally {
+        NetworkTelemetry.recordQueuedMessageDispatch(
+            msg.message(),
+            dispatchStartNanos - msg.receiveNanos(),
+            java.lang.System.nanoTime() - dispatchStartNanos);
       }
     }
     updateTelemetryClientState();
@@ -374,8 +382,10 @@ public final class ClientNetwork {
                       protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame)
                           throws Exception {
                         int size = frame.readableBytes();
+                        long receiveNanos = java.lang.System.nanoTime();
                         NetworkMessage msg = deserialize(frame);
-                        NetworkTelemetry.recordInboundTcp(msg, size);
+                        NetworkTelemetry.recordInboundTcp(
+                            msg, size, java.lang.System.nanoTime() - receiveNanos);
                         if (msg
                             instanceof ConnectAck(short id, int sessionId, byte[] sessionToken)) {
                           onConnectAck(id, sessionId, sessionToken);
@@ -384,7 +394,7 @@ public final class ClientNetwork {
                         } else if (msg instanceof RegisterAck(boolean ok)) {
                           onRegisterAck(ok);
                         } else {
-                          onNetworkMessage(msg, size);
+                          onNetworkMessage(msg, size, receiveNanos);
                         }
                       }
 
@@ -549,9 +559,9 @@ public final class ClientNetwork {
     }
   }
 
-  private void onNetworkMessage(NetworkMessage msg, int size) {
+  private void onNetworkMessage(NetworkMessage msg, int size, long receiveNanos) {
     if (session != null) {
-      inboundQueue.offer(Tuple.of(session, msg));
+      inboundQueue.offer(new QueuedNetworkMessage(session, msg, receiveNanos));
     } else {
       LOGGER.debug(
           "Dropping TCP inbound before session init: {} size={}B",
@@ -574,6 +584,7 @@ public final class ClientNetwork {
               @Override
               protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
                 int size = pkt.content().readableBytes();
+                long receiveNanos = java.lang.System.nanoTime();
                 try {
                   if (size <= 0) {
                     NetworkTelemetry.recordUdpDrop("client invalid UDP size");
@@ -582,7 +593,7 @@ public final class ClientNetwork {
                   NetworkMessage msg = deserialize(pkt.content());
                   NetworkTelemetry.recordInboundUdp(msg, size);
                   if (session != null) {
-                    inboundQueue.offer(Tuple.of(session, msg));
+                    inboundQueue.offer(new QueuedNetworkMessage(session, msg, receiveNanos));
                   } else {
                     NetworkTelemetry.recordUdpDrop("client session missing");
                     LOGGER.debug(

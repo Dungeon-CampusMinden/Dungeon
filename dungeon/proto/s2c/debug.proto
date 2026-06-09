@@ -15,6 +15,25 @@ message DebugTelemetryClient {
   float rtt_estimate_ms = 3;
   int64 last_activity_age_ms = 4;
   int32 latest_acked_snapshot_tick = 5;
+  int32 server_current_tick = 6;
+  int32 ack_age_ticks = 7;
+  int64 ack_age_ms = 8;
+  bool ack_baseline_in_history = 9;
+  int32 history_capacity_ticks = 10;
+  double history_capacity_seconds = 11;
+  int64 missing_baseline_full_fallbacks = 12;
+  int64 full_snapshots_last_second = 13;
+  int64 full_snapshots_last_five_seconds = 14;
+  int64 full_snapshots_last_thirty_seconds = 15;
+  int64 full_snapshot_bytes_last_second = 16;
+  int64 full_snapshot_bytes_last_five_seconds = 17;
+  int64 full_snapshot_bytes_last_thirty_seconds = 18;
+  int64 periodic_full_snapshots = 19;
+  int64 fallback_full_snapshots = 20;
+  string last_full_snapshot_reason = 21;
+  int64 last_full_snapshot_age_ms = 22;
+  int32 last_full_snapshot_tick = 23;
+  int32 last_full_snapshot_bytes = 24;
 }
 
 // Server-to-client: authoritative network telemetry snapshot.
@@ -67,6 +86,43 @@ message DebugTelemetrySnapshot {
   int64 debug_udp_outbound_bytes = 38;
   int64 debug_udp_inbound_messages = 39;
   int64 debug_udp_inbound_bytes = 40;
+
+  int64 server_time_nanos = 41;
+  string last_full_snapshot_reason = 42;
+  int64 stale_full_snapshot_bytes = 43;
+  int64 periodic_full_snapshots_sent = 44;
+  int64 fallback_full_snapshots_sent = 45;
+  int64 missing_baseline_full_fallbacks = 46;
+  int32 snapshot_history_server_tick = 47;
+  int32 snapshot_history_size = 48;
+  int32 snapshot_history_capacity_ticks = 49;
+  double snapshot_history_capacity_seconds = 50;
+
+  int64 transport_out_bytes_last_thirty_seconds = 51;
+  int64 snapshots_sent_last_thirty_seconds = 52;
+  int64 full_snapshots_sent_last_second = 53;
+  int64 full_snapshots_sent_last_five_seconds = 54;
+  int64 full_snapshots_sent_last_thirty_seconds = 55;
+  int64 full_snapshot_bytes_last_second = 56;
+  int64 full_snapshot_bytes_last_five_seconds = 57;
+  int64 full_snapshot_bytes_last_thirty_seconds = 58;
+
+  string last_tcp_decode_type = 59;
+  int64 last_tcp_decode_micros = 60;
+  int64 max_tcp_decode_micros_last_ten_seconds = 61;
+  string max_tcp_decode_type_last_ten_seconds = 62;
+  int64 last_queue_age_micros = 63;
+  int64 max_queue_age_micros_last_ten_seconds = 64;
+  string max_queue_age_type_last_ten_seconds = 65;
+  int64 last_dispatch_micros = 66;
+  int64 max_dispatch_micros_last_ten_seconds = 67;
+  string max_dispatch_type_last_ten_seconds = 68;
+  int64 last_network_dispatch_micros = 69;
+  int64 max_network_dispatch_micros_last_ten_seconds = 70;
+  int64 last_frame_micros = 71;
+  int64 max_frame_micros_last_ten_seconds = 72;
+  int64 last_gc_pause_ms = 73;
+  int64 max_gc_pause_ms_last_ten_seconds = 74;
 }
 
 // Server-to-client: debug pong for real RTT measurement.

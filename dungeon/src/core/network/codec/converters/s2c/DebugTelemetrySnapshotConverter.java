@@ -18,6 +18,7 @@ public final class DebugTelemetrySnapshotConverter
         core.network.proto.s2c.DebugTelemetrySnapshot.newBuilder()
             .setRequestId(message.requestId())
             .setServerTimeMs(message.serverTimeMs())
+            .setServerTimeNanos(message.serverTimeNanos())
             .setTcpOutboundMessages(message.transport().tcpOutboundMessages())
             .setTcpOutboundBytes(message.transport().tcpOutboundBytes())
             .setTcpInboundMessages(message.transport().tcpInboundMessages())
@@ -48,11 +49,51 @@ public final class DebugTelemetrySnapshotConverter
             .setLastDeltaSnapshotEntityDeltas(message.snapshots().lastDeltaEntityDeltas())
             .setLastDeltaSnapshotRemovals(message.snapshots().lastDeltaRemovals())
             .setLastSnapshotBuildMicros(message.snapshots().lastBuildMicros())
+            .setLastFullSnapshotReason(message.snapshots().lastFullReason())
+            .setStaleFullSnapshotBytes(message.snapshots().staleFullBytes())
+            .setPeriodicFullSnapshotsSent(message.snapshots().periodicFullSent())
+            .setFallbackFullSnapshotsSent(message.snapshots().fallbackFullSent())
+            .setMissingBaselineFullFallbacks(message.snapshots().missingBaselineFullFallbacks())
+            .setSnapshotHistoryServerTick(message.snapshots().historyServerTick())
+            .setSnapshotHistorySize(message.snapshots().historySize())
+            .setSnapshotHistoryCapacityTicks(message.snapshots().historyCapacityTicks())
+            .setSnapshotHistoryCapacitySeconds(message.snapshots().historyCapacitySeconds())
             .setTransportOutBytesLastSecond(message.windows().transportOutBytesLastSecond())
             .setTransportOutBytesLastFiveSeconds(
                 message.windows().transportOutBytesLastFiveSeconds())
+            .setTransportOutBytesLastThirtySeconds(
+                message.windows().transportOutBytesLastThirtySeconds())
             .setSnapshotsSentLastSecond(message.windows().snapshotsSentLastSecond())
             .setSnapshotsSentLastFiveSeconds(message.windows().snapshotsSentLastFiveSeconds())
+            .setSnapshotsSentLastThirtySeconds(message.windows().snapshotsSentLastThirtySeconds())
+            .setFullSnapshotsSentLastSecond(message.windows().fullSnapshotsSentLastSecond())
+            .setFullSnapshotsSentLastFiveSeconds(
+                message.windows().fullSnapshotsSentLastFiveSeconds())
+            .setFullSnapshotsSentLastThirtySeconds(
+                message.windows().fullSnapshotsSentLastThirtySeconds())
+            .setFullSnapshotBytesLastSecond(message.windows().fullSnapshotBytesLastSecond())
+            .setFullSnapshotBytesLastFiveSeconds(
+                message.windows().fullSnapshotBytesLastFiveSeconds())
+            .setFullSnapshotBytesLastThirtySeconds(
+                message.windows().fullSnapshotBytesLastThirtySeconds())
+            .setLastTcpDecodeType(message.timings().lastTcpDecodeType())
+            .setLastTcpDecodeMicros(message.timings().lastTcpDecodeMicros())
+            .setMaxTcpDecodeMicrosLastTenSeconds(
+                message.timings().maxTcpDecodeMicrosLastTenSeconds())
+            .setMaxTcpDecodeTypeLastTenSeconds(message.timings().maxTcpDecodeTypeLastTenSeconds())
+            .setLastQueueAgeMicros(message.timings().lastQueueAgeMicros())
+            .setMaxQueueAgeMicrosLastTenSeconds(message.timings().maxQueueAgeMicrosLastTenSeconds())
+            .setMaxQueueAgeTypeLastTenSeconds(message.timings().maxQueueAgeTypeLastTenSeconds())
+            .setLastDispatchMicros(message.timings().lastDispatchMicros())
+            .setMaxDispatchMicrosLastTenSeconds(message.timings().maxDispatchMicrosLastTenSeconds())
+            .setMaxDispatchTypeLastTenSeconds(message.timings().maxDispatchTypeLastTenSeconds())
+            .setLastNetworkDispatchMicros(message.timings().lastNetworkDispatchMicros())
+            .setMaxNetworkDispatchMicrosLastTenSeconds(
+                message.timings().maxNetworkDispatchMicrosLastTenSeconds())
+            .setLastFrameMicros(message.timings().lastFrameMicros())
+            .setMaxFrameMicrosLastTenSeconds(message.timings().maxFrameMicrosLastTenSeconds())
+            .setLastGcPauseMs(message.timings().lastGcPauseMs())
+            .setMaxGcPauseMsLastTenSeconds(message.timings().maxGcPauseMsLastTenSeconds())
             .setLastUdpFallbackReason(message.udp().lastFallbackReason())
             .setLastUdpDropReason(message.udp().lastDropReason())
             .setLastUdpFailureReason(message.udp().lastFailureReason());
@@ -72,6 +113,7 @@ public final class DebugTelemetrySnapshotConverter
     return new DebugTelemetrySnapshot(
         proto.getRequestId(),
         proto.getServerTimeMs(),
+        proto.getServerTimeNanos(),
         new DebugTelemetrySnapshot.Transport(
             proto.getTcpOutboundMessages(),
             proto.getTcpOutboundBytes(),
@@ -108,12 +150,46 @@ public final class DebugTelemetrySnapshotConverter
             proto.getLastDeltaSnapshotBytes(),
             proto.getLastDeltaSnapshotEntityDeltas(),
             proto.getLastDeltaSnapshotRemovals(),
-            proto.getLastSnapshotBuildMicros()),
+            proto.getLastSnapshotBuildMicros(),
+            proto.getLastFullSnapshotReason(),
+            proto.getStaleFullSnapshotBytes(),
+            proto.getPeriodicFullSnapshotsSent(),
+            proto.getFallbackFullSnapshotsSent(),
+            proto.getMissingBaselineFullFallbacks(),
+            proto.getSnapshotHistoryServerTick(),
+            proto.getSnapshotHistorySize(),
+            proto.getSnapshotHistoryCapacityTicks(),
+            proto.getSnapshotHistoryCapacitySeconds()),
         new DebugTelemetrySnapshot.Windows(
             proto.getTransportOutBytesLastSecond(),
             proto.getTransportOutBytesLastFiveSeconds(),
+            proto.getTransportOutBytesLastThirtySeconds(),
             proto.getSnapshotsSentLastSecond(),
-            proto.getSnapshotsSentLastFiveSeconds()),
+            proto.getSnapshotsSentLastFiveSeconds(),
+            proto.getSnapshotsSentLastThirtySeconds(),
+            proto.getFullSnapshotsSentLastSecond(),
+            proto.getFullSnapshotsSentLastFiveSeconds(),
+            proto.getFullSnapshotsSentLastThirtySeconds(),
+            proto.getFullSnapshotBytesLastSecond(),
+            proto.getFullSnapshotBytesLastFiveSeconds(),
+            proto.getFullSnapshotBytesLastThirtySeconds()),
+        new DebugTelemetrySnapshot.Timings(
+            proto.getLastTcpDecodeType(),
+            proto.getLastTcpDecodeMicros(),
+            proto.getMaxTcpDecodeMicrosLastTenSeconds(),
+            proto.getMaxTcpDecodeTypeLastTenSeconds(),
+            proto.getLastQueueAgeMicros(),
+            proto.getMaxQueueAgeMicrosLastTenSeconds(),
+            proto.getMaxQueueAgeTypeLastTenSeconds(),
+            proto.getLastDispatchMicros(),
+            proto.getMaxDispatchMicrosLastTenSeconds(),
+            proto.getMaxDispatchTypeLastTenSeconds(),
+            proto.getLastNetworkDispatchMicros(),
+            proto.getMaxNetworkDispatchMicrosLastTenSeconds(),
+            proto.getLastFrameMicros(),
+            proto.getMaxFrameMicrosLastTenSeconds(),
+            proto.getLastGcPauseMs(),
+            proto.getMaxGcPauseMsLastTenSeconds()),
         clients);
   }
 
@@ -145,6 +221,25 @@ public final class DebugTelemetrySnapshotConverter
         .setRttEstimateMs(client.rttEstimateMs())
         .setLastActivityAgeMs(client.lastActivityAgeMs())
         .setLatestAckedSnapshotTick(client.latestAckedSnapshotTick())
+        .setServerCurrentTick(client.serverCurrentTick())
+        .setAckAgeTicks(client.ackAgeTicks())
+        .setAckAgeMs(client.ackAgeMs())
+        .setAckBaselineInHistory(client.ackBaselineInHistory())
+        .setHistoryCapacityTicks(client.historyCapacityTicks())
+        .setHistoryCapacitySeconds(client.historyCapacitySeconds())
+        .setMissingBaselineFullFallbacks(client.missingBaselineFullFallbacks())
+        .setFullSnapshotsLastSecond(client.fullSnapshotsLastSecond())
+        .setFullSnapshotsLastFiveSeconds(client.fullSnapshotsLastFiveSeconds())
+        .setFullSnapshotsLastThirtySeconds(client.fullSnapshotsLastThirtySeconds())
+        .setFullSnapshotBytesLastSecond(client.fullSnapshotBytesLastSecond())
+        .setFullSnapshotBytesLastFiveSeconds(client.fullSnapshotBytesLastFiveSeconds())
+        .setFullSnapshotBytesLastThirtySeconds(client.fullSnapshotBytesLastThirtySeconds())
+        .setPeriodicFullSnapshots(client.periodicFullSnapshots())
+        .setFallbackFullSnapshots(client.fallbackFullSnapshots())
+        .setLastFullSnapshotReason(client.lastFullSnapshotReason())
+        .setLastFullSnapshotAgeMs(client.lastFullSnapshotAgeMs())
+        .setLastFullSnapshotTick(client.lastFullSnapshotTick())
+        .setLastFullSnapshotBytes(client.lastFullSnapshotBytes())
         .build();
   }
 
@@ -155,6 +250,25 @@ public final class DebugTelemetrySnapshotConverter
         proto.getUdpReady(),
         proto.getRttEstimateMs(),
         proto.getLastActivityAgeMs(),
-        proto.getLatestAckedSnapshotTick());
+        proto.getLatestAckedSnapshotTick(),
+        proto.getServerCurrentTick(),
+        proto.getAckAgeTicks(),
+        proto.getAckAgeMs(),
+        proto.getAckBaselineInHistory(),
+        proto.getHistoryCapacityTicks(),
+        proto.getHistoryCapacitySeconds(),
+        proto.getMissingBaselineFullFallbacks(),
+        proto.getFullSnapshotsLastSecond(),
+        proto.getFullSnapshotsLastFiveSeconds(),
+        proto.getFullSnapshotsLastThirtySeconds(),
+        proto.getFullSnapshotBytesLastSecond(),
+        proto.getFullSnapshotBytesLastFiveSeconds(),
+        proto.getFullSnapshotBytesLastThirtySeconds(),
+        proto.getPeriodicFullSnapshots(),
+        proto.getFallbackFullSnapshots(),
+        proto.getLastFullSnapshotReason(),
+        proto.getLastFullSnapshotAgeMs(),
+        proto.getLastFullSnapshotTick(),
+        proto.getLastFullSnapshotBytes());
   }
 }

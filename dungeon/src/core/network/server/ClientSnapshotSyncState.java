@@ -1,9 +1,12 @@
 package core.network.server;
 
+import core.network.FullSnapshotSendReason;
+
 /** Tracks per-client snapshot acknowledgement and full-snapshot pacing state. */
 public final class ClientSnapshotSyncState {
   private int lastAckedSnapshotTick = -1;
   private int lastFullSnapshotTick = -1;
+  private FullSnapshotSendReason pendingFullSnapshotReason = FullSnapshotSendReason.NO_ACK;
 
   /**
    * Returns the highest snapshot tick acknowledged by the client.
@@ -63,9 +66,39 @@ public final class ClientSnapshotSyncState {
     return lastFullSnapshotTick < 0 || currentTick - lastFullSnapshotTick >= intervalTicks;
   }
 
+  /**
+   * Records the reason that should be attached to the next full snapshot sent to this client.
+   *
+   * @param reason full snapshot reason
+   */
+  public synchronized void pendingFullSnapshotReason(FullSnapshotSendReason reason) {
+    pendingFullSnapshotReason =
+        reason == null ? FullSnapshotSendReason.SERVER_FORCED_RESYNC : reason;
+  }
+
+  /**
+   * Returns the currently pending full-snapshot reason.
+   *
+   * @return pending full snapshot reason
+   */
+  public synchronized FullSnapshotSendReason pendingFullSnapshotReason() {
+    return pendingFullSnapshotReason;
+  }
+
   /** Resets all snapshot sync state. */
   public synchronized void clear() {
+    clear(FullSnapshotSendReason.SERVER_FORCED_RESYNC);
+  }
+
+  /**
+   * Resets all snapshot sync state and records why a fresh full snapshot is needed.
+   *
+   * @param reason reason for invalidating the current baseline
+   */
+  public synchronized void clear(FullSnapshotSendReason reason) {
     lastAckedSnapshotTick = -1;
     lastFullSnapshotTick = -1;
+    pendingFullSnapshotReason =
+        reason == null ? FullSnapshotSendReason.SERVER_FORCED_RESYNC : reason;
   }
 }

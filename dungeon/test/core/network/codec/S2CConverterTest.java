@@ -568,34 +568,81 @@ public class S2CConverterTest {
         new DebugTelemetrySnapshot(
             12L,
             1_000L,
+            2_000L,
             new DebugTelemetrySnapshot.Transport(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L),
             new DebugTelemetrySnapshot.Transport(31L, 32L, 33L, 34L, 35L, 36L, 37L, 38L),
             new DebugTelemetrySnapshot.Udp(9L, 10L, 11L, 12L, "fallback", "drop", "failure"),
-            new DebugTelemetrySnapshot.Snapshots(13L, 14L, 15, 16, 17, 18, 19, 20, 21, 22L),
-            new DebugTelemetrySnapshot.Windows(23L, 24L, 25L, 26L),
-            List.of(new DebugTelemetrySnapshot.Client((short) 2, true, 101.5f, 500L, 44)));
+            new DebugTelemetrySnapshot.Snapshots(
+                13L,
+                14L,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22L,
+                "PERIODIC_BASELINE",
+                23L,
+                24L,
+                25L,
+                26L,
+                27,
+                28,
+                29,
+                0.48),
+            new DebugTelemetrySnapshot.Windows(
+                30L, 31L, 32L, 33L, 34L, 35L, 36L, 37L, 38L, 39L, 40L, 41L),
+            new DebugTelemetrySnapshot.Timings(
+                "SnapshotMessage",
+                42L,
+                43L,
+                "SnapshotMessage",
+                44L,
+                45L,
+                "DeltaSnapshotMessage",
+                46L,
+                47L,
+                "SnapshotAck",
+                48L,
+                49L,
+                50L,
+                51L,
+                52L,
+                53L),
+            List.of(
+                new DebugTelemetrySnapshot.Client(
+                    (short) 2, true, 101.5f, 500L, 44, 45, 1, 17L, true, 128, 2.13, 3L, 4L, 5L, 6L,
+                    7L, 8L, 9L, 10L, 11L, "NO_ACK", 12L, 46, 47)));
 
     core.network.proto.s2c.DebugTelemetrySnapshot proto =
         DEBUG_TELEMETRY_SNAPSHOT_CONVERTER.toProto(message);
     assertEquals(12L, proto.getRequestId());
     assertEquals(1_000L, proto.getServerTimeMs());
+    assertEquals(2_000L, proto.getServerTimeNanos());
     assertEquals(1, proto.getClientsCount());
     assertEquals(2, proto.getClients(0).getClientId());
     assertTrue(proto.getClients(0).getUdpReady());
+    assertEquals("NO_ACK", proto.getClients(0).getLastFullSnapshotReason());
     assertEquals(31L, proto.getDebugTcpOutboundMessages());
     assertEquals(38L, proto.getDebugUdpInboundBytes());
+    assertEquals("PERIODIC_BASELINE", proto.getLastFullSnapshotReason());
 
     DebugTelemetrySnapshot roundTrip = DEBUG_TELEMETRY_SNAPSHOT_CONVERTER.fromProto(proto);
     assertEquals(message.requestId(), roundTrip.requestId());
+    assertEquals(message.serverTimeNanos(), roundTrip.serverTimeNanos());
     assertEquals(message.transport().tcpOutboundBytes(), roundTrip.transport().tcpOutboundBytes());
     assertEquals(
         message.debugTransport().udpInboundBytes(), roundTrip.debugTransport().udpInboundBytes());
     assertEquals(
         message.snapshots().lastDeltaRemovals(), roundTrip.snapshots().lastDeltaRemovals());
     assertEquals(message.udp().lastFallbackReason(), roundTrip.udp().lastFallbackReason());
+    assertEquals(message.timings().lastTcpDecodeType(), roundTrip.timings().lastTcpDecodeType());
     assertEquals(1, roundTrip.clients().size());
     assertEquals(2, roundTrip.clients().getFirst().clientId());
     assertEquals(101.5f, roundTrip.clients().getFirst().rttEstimateMs(), DELTA);
+    assertEquals("NO_ACK", roundTrip.clients().getFirst().lastFullSnapshotReason());
   }
 
   /** Verifies debug pong conversion roundtrip. */

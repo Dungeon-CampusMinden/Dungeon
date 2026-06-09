@@ -3,6 +3,7 @@ package core.network.server;
 import contrib.entities.CharacterClass;
 import core.Entity;
 import core.Game;
+import core.network.FullSnapshotSendReason;
 import core.network.config.NetworkConfig;
 import core.network.delta.SnapshotHistory;
 import core.network.messages.c2s.InputMessage;
@@ -160,7 +161,7 @@ public class ClientState {
     this.lastProcessedSeq = -1;
     this.expectedSeq = 0;
     this.lastClientTick = 0;
-    clearSnapshotBaseline();
+    clearSnapshotBaseline(FullSnapshotSendReason.RECONNECT);
     if (!preserveHero) {
       Game.remove(this.playerEntity);
       this.playerEntity = null;
@@ -400,8 +401,17 @@ public class ClientState {
 
   /** Clears snapshot acknowledgement, applied-history, and delta tracking state. */
   public void clearSnapshotBaseline() {
+    clearSnapshotBaseline(FullSnapshotSendReason.SERVER_FORCED_RESYNC);
+  }
+
+  /**
+   * Clears snapshot acknowledgement, applied-history, and delta tracking state.
+   *
+   * @param reason reason why the next full snapshot should be sent
+   */
+  public void clearSnapshotBaseline(FullSnapshotSendReason reason) {
     this.latestAppliedSnapshotTick = -1;
-    this.snapshotSync.clear();
+    this.snapshotSync.clear(reason);
     this.appliedSnapshotHistory.clear();
     this.knownSnapshotEntityIds.clear();
     this.knownSnapshotBaseTick = -1;
