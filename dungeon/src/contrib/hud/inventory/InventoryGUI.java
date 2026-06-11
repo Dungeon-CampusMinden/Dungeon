@@ -32,6 +32,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.network.messages.c2s.InputMessage;
+import core.language.Translation;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -42,6 +43,7 @@ import java.util.Optional;
 /** WTF? . */
 public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Disposable {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryGUI.class);
+  private static final Translation trans = new Translation("dialog.inventory_dialog");
 
   private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
   private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
@@ -130,7 +132,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
     this(
         Game.findInAll(inventoryComponent)
             .map(InventoryGUI::generateTitleFromEntity)
-            .orElse("INVENTORY"),
+            .orElse(trans.text("title")),
         inventoryComponent);
   }
 

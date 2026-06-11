@@ -1,10 +1,53 @@
 {
-    "dialog": {
-        "buttons": {
-            "ok": "OK",
-            "cancel": "Abbrechen",
-            "yes": "Ja",
-            "no": "Nein"
-        }
+  "dialog": {
+    "ok_dialog": {
+      "ok": "OK"
+    },
+    "yes_no_dialog": {
+      "yes": "Ja",
+      "no": "Nein"
+    },
+    "text_dialog": {
+      "confirm": "OK"
+    },
+    "free_input_dialog": {
+      "title": "Frage",
+      "ok": "OK",
+      "cancel": "Abbrechen",
+      "placeholder": "Deine Antwort..."
+    },
+    "multiple_choice_dialog": {
+      "cancel": "Abbrechen"
+    },
+    "pause_dialog": {
+      "paused": "PAUSIERT",
+      "resume": "Fortsetzen",
+      "settings": "Einstellungen",
+      "quit_to_desktop": "Spiel beenden",
+      "back": "Zurueck"
+    },
+    "client_connection_dialog": {
+      "title": "Server verbinden",
+      "connect": "Verbinden",
+      "username": "Spielername",
+      "host": "IP / Host",
+      "port": "Port",
+      "start_failed": "Server nicht erreichbar.",
+      "invalid_username": "Spielername darf nicht leer sein und keinen Unterstrich enthalten.",
+      "rejected_username": "Spielername ungueltig oder bereits vergeben.",
+      "connecting": "Verbindung wird aufgebaut...",
+      "fallback_username": "Player",
+      "client_version": "Client-Version"
+    },
+    "keypad_dialog": {
+      "back": "Zurueck",
+      "submit": "Bestaetigen"
+    },
+    "inventory_dialog": {
+      "title": "INVENTAR"
+    },
+    "progress_bar_dialog": {
+      "title": "Fortschrittsanzeige"
     }
+  }
 }

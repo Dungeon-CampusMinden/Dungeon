@@ -15,6 +15,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
 import core.Game;
 import core.game.PreRunConfiguration;
+import core.language.Translation;
 import core.network.ConnectionListener;
 import core.network.client.ClientConnectionConfig;
 import core.network.config.NetworkConfig;
@@ -29,18 +30,18 @@ import java.util.concurrent.Executors;
 /** Package-private builder for the local multiplayer client connection dialog. */
 final class ClientConnectionDialog {
 
-  private static final String TITLE = "Server verbinden";
-  private static final String CONNECT_BUTTON = "Verbinden";
-  private static final String USERNAME_LABEL = "Spielername";
-  private static final String HOST_LABEL = "IP / Host";
-  private static final String PORT_LABEL = "Port";
-  private static final String START_FAILED_MESSAGE = "Server nicht erreichbar.";
-  private static final String INVALID_USERNAME_MESSAGE =
-      "Spielername darf nicht leer sein und keinen Unterstrich enthalten.";
-  private static final String REJECTED_USERNAME_MESSAGE =
-      "Spielername ungültig oder bereits vergeben.";
-  private static final String CONNECTING_MESSAGE = "Verbindung wird aufgebaut...";
-  private static final String FALLBACK_USERNAME = "Player";
+  private static final String T_TITLE = "title";
+  private static final String T_CONNECT = "connect";
+  private static final String T_USERNAME = "username";
+  private static final String T_HOST = "host";
+  private static final String T_PORT = "port";
+  private static final String T_START_FAILED = "start_failed";
+  private static final String T_INVALID_USERNAME = "invalid_username";
+  private static final String T_REJECTED_USERNAME = "rejected_username";
+  private static final String T_CONNECTING = "connecting";
+  private static final String T_FALLBACK_USERNAME = "fallback_username";
+  private static final String T_CLIENT_VERSION = "client_version";
+  private static final Translation trans = new Translation("dialog.client_connection_dialog");
   private static final String VERSION_COLOR = "#777777";
   private static final float USERNAME_FIELD_WIDTH = 438f;
   private static final String ERROR_COLOR = "#bb0000";
@@ -58,12 +59,16 @@ final class ClientConnectionDialog {
   private ClientConnectionDialog() {}
 
   static Group build(DialogContext ctx) {
+    String title = trans.text(T_TITLE);
+    String connectButton = trans.text(T_CONNECT);
+    String usernameLabelText = trans.text(T_USERNAME);
+
     if (Game.isHeadless()) {
-      return new HeadlessDialogGroup(TITLE, "", CONNECT_BUTTON);
+      return new HeadlessDialogGroup(title, "", connectButton);
     }
 
     Skin skin = UIUtils.defaultSkin();
-    RichLabel usernameLabel = new RichLabel(USERNAME_LABEL, DialogDesign.DIALOG_FONT_SPEC_NORMAL);
+    RichLabel usernameLabel = new RichLabel(usernameLabelText, DialogDesign.DIALOG_FONT_SPEC_NORMAL);
     String defaultUsername = defaultUsername();
     TextField usernameField = new TextField("", skin);
     usernameField.setMessageText(defaultUsername);
@@ -78,8 +83,8 @@ final class ClientConnectionDialog {
             usernameField, hostField, portField, usernameLabel, errorLabel, defaultUsername);
 
     Dialog dialog =
-        new HandledDialog(TITLE, skin, (ignoredDialog, button) -> handleConnect(ctx, form, button));
-    DialogDesign.setDialogDefaults(dialog, TITLE);
+        new HandledDialog(title, skin, (ignoredDialog, button) -> handleConnect(ctx, form, button));
+    DialogDesign.setDialogDefaults(dialog, title);
     clearFocusOnEscape(dialog);
 
     Table fields = new Table();
@@ -87,22 +92,22 @@ final class ClientConnectionDialog {
     fields.add(usernameLabel).left();
     fields.add(versionLabel()).right().top().pad(0).padTop(-2f).row();
     fields.add(usernameField).width(USERNAME_FIELD_WIDTH).colspan(2).row();
-    fields.add(new RichLabel(HOST_LABEL, DialogDesign.DIALOG_FONT_SPEC_NORMAL)).left();
-    fields.add(new RichLabel(PORT_LABEL, DialogDesign.DIALOG_FONT_SPEC_NORMAL)).left().row();
+    fields.add(new RichLabel(trans.text(T_HOST), DialogDesign.DIALOG_FONT_SPEC_NORMAL)).left();
+    fields.add(new RichLabel(trans.text(T_PORT), DialogDesign.DIALOG_FONT_SPEC_NORMAL)).left().row();
     fields.add(hostField).width(320);
     fields.add(portField).width(110).row();
 
     dialog.getContentTable().add(fields).padBottom(8).row();
     dialog.getContentTable().add(errorLabel).left().minHeight(24).padBottom(8).row();
     dialog.button(
-        CONNECT_BUTTON, CONNECT_BUTTON, skin.get("clean-green", TextButton.TextButtonStyle.class));
+        connectButton, connectButton, skin.get("clean-green", TextButton.TextButtonStyle.class));
     dialog.pack();
 
     return new BaseContainerUI(dialog);
   }
 
   private static boolean handleConnect(DialogContext context, ConnectionForm form, String button) {
-    if (!CONNECT_BUTTON.equals(button)) {
+    if (!trans.text(T_CONNECT).equals(button)) {
       return false;
     }
 
@@ -114,7 +119,7 @@ final class ClientConnectionDialog {
         form.usernameField().setText(username);
       }
     } catch (IllegalArgumentException e) {
-      showInvalidUsername(form, INVALID_USERNAME_MESSAGE);
+      showInvalidUsername(form, trans.text(T_INVALID_USERNAME));
       return false;
     }
 
@@ -132,12 +137,12 @@ final class ClientConnectionDialog {
     }
 
     if (!CONNECTING_DIALOGS.add(context.dialogId())) {
-      showStatus(form.errorLabel(), CONNECTING_MESSAGE);
+      showStatus(form.errorLabel(), trans.text(T_CONNECTING));
       return false;
     }
 
     setInputDisabled(form, true);
-    showStatus(form.errorLabel(), CONNECTING_MESSAGE);
+    showStatus(form.errorLabel(), trans.text(T_CONNECTING));
     ConnectionListener listener = connectionListener(context, form);
     Game.network().addConnectionListener(listener);
     try {
@@ -178,7 +183,7 @@ final class ClientConnectionDialog {
       @Override
       public void onRejected(ConnectReject.Reason reason) {
         if (reason == ConnectReject.Reason.INVALID_NAME) {
-          completeConnectAttempt(context, form, false, this, REJECTED_USERNAME_MESSAGE, true);
+          completeConnectAttempt(context, form, false, this, trans.text(T_REJECTED_USERNAME), true);
           return;
         }
         completeConnectAttempt(context, form, false, this, reason.toString(), false);
@@ -188,7 +193,7 @@ final class ClientConnectionDialog {
 
   private static void completeConnectAttempt(
       DialogContext context, ConnectionForm form, boolean success, ConnectionListener listener) {
-    completeConnectAttempt(context, form, success, listener, START_FAILED_MESSAGE, false);
+    completeConnectAttempt(context, form, success, listener, trans.text(T_START_FAILED), false);
   }
 
   private static void completeConnectAttempt(
@@ -236,13 +241,13 @@ final class ClientConnectionDialog {
   }
 
   private static void showInvalidUsername(ConnectionForm form, String message) {
-    form.usernameLabel().setText("[color=" + ERROR_COLOR + "]" + USERNAME_LABEL + "[/color]");
+    form.usernameLabel().setText("[color=" + ERROR_COLOR + "]" + trans.text(T_USERNAME) + "[/color]");
     showError(form.errorLabel(), message);
     focusUsername(form.usernameField());
   }
 
   private static void resetUsernameHint(ConnectionForm form) {
-    form.usernameLabel().setText(USERNAME_LABEL);
+    form.usernameLabel().setText(trans.text(T_USERNAME));
   }
 
   private static String usernameFromField(ConnectionForm form) {
@@ -256,7 +261,7 @@ final class ClientConnectionDialog {
 
   private static String normalizeUsername(String username) {
     if (username == null) {
-      return FALLBACK_USERNAME;
+      return trans.text(T_FALLBACK_USERNAME);
     }
 
     String normalized = username.trim();
@@ -267,7 +272,7 @@ final class ClientConnectionDialog {
 
     normalized = normalized.replace('_', ' ').replaceAll("\\s+", " ").trim();
     if (normalized.isBlank()) {
-      return FALLBACK_USERNAME;
+      return trans.text(T_FALLBACK_USERNAME);
     }
 
     return capitalizeWords(normalized);
@@ -285,7 +290,7 @@ final class ClientConnectionDialog {
       }
       result.append(Character.toTitleCase(word.charAt(0))).append(word.substring(1));
     }
-    return result.isEmpty() ? FALLBACK_USERNAME : result.toString();
+    return result.isEmpty() ? trans.text(T_FALLBACK_USERNAME) : result.toString();
   }
 
   private static void focusUsername(TextField usernameField) {
@@ -297,7 +302,9 @@ final class ClientConnectionDialog {
     return new RichLabel(
         "[color="
             + VERSION_COLOR
-            + "][size=14]Client-Version "
+            + "][size=14]"
+            + trans.text(T_CLIENT_VERSION)
+            + " "
             + NetworkConfig.PROTOCOL_VERSION
             + "[/size][/color]",
         DialogDesign.DIALOG_FONT_SPEC_NORMAL);
