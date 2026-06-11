@@ -553,7 +553,7 @@ public final class GameLoop extends ScreenAdapter {
               long staleCheckStartNanos = java.lang.System.nanoTime();
               if (event.serverTick() <= state.latestAppliedSnapshotTick()) {
                 staleCheckNanos = java.lang.System.nanoTime() - staleCheckStartNanos;
-                NetworkTelemetry.recordStaleSnapshot(false, event.serverTick());
+                NetworkTelemetry.recordHandlerStaleSnapshot(false, event.serverTick());
                 NetworkTelemetry.recordSnapshotHandlerTiming(
                     false, event.serverTick(), staleCheckNanos, 0L, 0L, 0L, 0L, true);
                 LOGGER.debug("Skipped stale full snapshot at tick {}.", event.serverTick());
@@ -613,7 +613,7 @@ public final class GameLoop extends ScreenAdapter {
             long staleCheckStartNanos = java.lang.System.nanoTime();
             if (event.serverTick() <= state.latestAppliedSnapshotTick()) {
               staleCheckNanos = java.lang.System.nanoTime() - staleCheckStartNanos;
-              NetworkTelemetry.recordStaleSnapshot(true, event.serverTick());
+              NetworkTelemetry.recordHandlerStaleSnapshot(true, event.serverTick());
               NetworkTelemetry.recordSnapshotHandlerTiming(
                   true, event.serverTick(), staleCheckNanos, 0L, 0L, 0L, 0L, true);
               LOGGER.debug("Ignoring stale delta snapshot at tick {}.", event.serverTick());
@@ -623,7 +623,7 @@ public final class GameLoop extends ScreenAdapter {
             Optional<SnapshotMessage> baseline = state.appliedSnapshot(event.baseTick());
             if (baseline.isEmpty()) {
               staleCheckNanos = java.lang.System.nanoTime() - staleCheckStartNanos;
-              NetworkTelemetry.recordStaleSnapshot(true, event.serverTick());
+              NetworkTelemetry.recordHandlerStaleSnapshot(true, event.serverTick());
               NetworkTelemetry.recordSnapshotHandlerTiming(
                   true, event.serverTick(), staleCheckNanos, 0L, 0L, 0L, 0L, true);
               LOGGER.debug(

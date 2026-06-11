@@ -23,7 +23,9 @@ import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
+import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.RegisterAck;
+import core.network.messages.s2c.SnapshotMessage;
 import core.network.server.ClientState;
 import core.network.server.Session;
 import core.utils.Tuple;
@@ -475,6 +477,9 @@ public final class ClientNetwork {
     }
     QueuedNetworkMessage msg;
     while ((msg = inboundQueue.poll()) != null) {
+      if (dropEarlyStaleSnapshot(msg.session(), msg.message(), true, "dispatch")) {
+        continue;
+      }
       long dispatchStartNanos = java.lang.System.nanoTime();
       try {
         dispatcher.dispatch(msg.session(), msg.message());
@@ -810,8 +815,12 @@ public final class ClientNetwork {
   }
 
   private void onNetworkMessage(NetworkMessage msg, int size, long receiveNanos) {
-    if (session != null) {
-      inboundQueue.offer(new QueuedNetworkMessage(session, msg, receiveNanos));
+    Session currentSession = session;
+    if (currentSession != null) {
+      if (dropEarlyStaleSnapshot(currentSession, msg, false, "queue")) {
+        return;
+      }
+      inboundQueue.offer(new QueuedNetworkMessage(currentSession, msg, receiveNanos));
     } else {
       LOGGER.debug(
           "Dropping TCP inbound before session init: {} size={}B",
@@ -842,8 +851,12 @@ public final class ClientNetwork {
                   }
                   NetworkMessage msg = deserialize(pkt.content());
                   NetworkTelemetry.recordInboundUdp(msg, size);
-                  if (session != null) {
-                    inboundQueue.offer(new QueuedNetworkMessage(session, msg, receiveNanos));
+                  Session currentSession = session;
+                  if (currentSession != null) {
+                    if (!dropEarlyStaleSnapshot(currentSession, msg, false, "queue")) {
+                      inboundQueue.offer(
+                          new QueuedNetworkMessage(currentSession, msg, receiveNanos));
+                    }
                   } else {
                     NetworkTelemetry.recordUdpDrop("client session missing");
                     LOGGER.debug(
@@ -1120,6 +1133,52 @@ public final class ClientNetwork {
       LOGGER.info(message);
     }
     ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
+  }
+
+  private boolean dropEarlyStaleSnapshot(
+      Session currentSession, NetworkMessage msg, boolean checkDeltaBaseline, String stage) {
+    Optional<ClientState> state =
+        currentSession == null ? Optional.empty() : currentSession.clientState();
+    if (state.isEmpty()) {
+      return false;
+    }
+
+    ClientState clientState = state.orElseThrow();
+    if (msg instanceof SnapshotMessage snapshot) {
+      return dropEarlyStaleSnapshot(
+          false, snapshot.serverTick(), clientState.latestAppliedSnapshotTick(), stage);
+    }
+    if (msg instanceof DeltaSnapshotMessage delta) {
+      if (dropEarlyStaleSnapshot(
+          true, delta.serverTick(), clientState.latestAppliedSnapshotTick(), stage)) {
+        return true;
+      }
+      if (checkDeltaBaseline && clientState.appliedSnapshot(delta.baseTick()).isEmpty()) {
+        NetworkTelemetry.recordEarlyStaleSnapshot(true, delta.serverTick());
+        LOGGER.debug(
+            "Dropped delta snapshot at tick {} before {}; missing local baseline {}.",
+            delta.serverTick(),
+            stage,
+            delta.baseTick());
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean dropEarlyStaleSnapshot(
+      boolean delta, int serverTick, int latestAppliedSnapshotTick, String stage) {
+    if (serverTick > latestAppliedSnapshotTick) {
+      return false;
+    }
+    NetworkTelemetry.recordEarlyStaleSnapshot(delta, serverTick);
+    LOGGER.debug(
+        "Dropped stale {} snapshot at tick {} before {}; latest applied tick is {}.",
+        delta ? "delta" : "full",
+        serverTick,
+        stage,
+        latestAppliedSnapshotTick);
+    return true;
   }
 
   private void enqueueLifecycle(Runnable r) {

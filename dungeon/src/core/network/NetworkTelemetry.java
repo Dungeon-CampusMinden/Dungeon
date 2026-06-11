@@ -70,6 +70,10 @@ public final class NetworkTelemetry {
   private static final LongAdder staleFullSnapshots = new LongAdder();
   private static final LongAdder staleDeltaSnapshots = new LongAdder();
   private static final LongAdder staleFullSnapshotBytes = new LongAdder();
+  private static final LongAdder earlyStaleFullSnapshots = new LongAdder();
+  private static final LongAdder earlyStaleDeltaSnapshots = new LongAdder();
+  private static final LongAdder handlerStaleFullSnapshots = new LongAdder();
+  private static final LongAdder handlerStaleDeltaSnapshots = new LongAdder();
   private static final LongAdder periodicFullSnapshotsSent = new LongAdder();
   private static final LongAdder fallbackFullSnapshotsSent = new LongAdder();
   private static final LongAdder missingBaselineFullFallbacks = new LongAdder();
@@ -130,6 +134,9 @@ public final class NetworkTelemetry {
   private static volatile long lastEntityReconcileMicros = -1L;
   private static volatile long lastSnapshotAckMicros = -1L;
   private static volatile boolean lastSnapshotHandlerStale;
+  private static volatile String lastStaleSnapshotDropStage = "n/a";
+  private static volatile String lastStaleSnapshotDropKind = "n/a";
+  private static volatile int lastStaleSnapshotDropTick = -1;
 
   private static volatile String lastUdpFallbackReason = "n/a";
   private static volatile String lastUdpDropReason = "n/a";
@@ -202,6 +209,10 @@ public final class NetworkTelemetry {
     reset(staleFullSnapshots);
     reset(staleDeltaSnapshots);
     reset(staleFullSnapshotBytes);
+    reset(earlyStaleFullSnapshots);
+    reset(earlyStaleDeltaSnapshots);
+    reset(handlerStaleFullSnapshots);
+    reset(handlerStaleDeltaSnapshots);
     reset(periodicFullSnapshotsSent);
     reset(fallbackFullSnapshotsSent);
     reset(missingBaselineFullFallbacks);
@@ -251,6 +262,9 @@ public final class NetworkTelemetry {
     lastEntityReconcileMicros = -1L;
     lastSnapshotAckMicros = -1L;
     lastSnapshotHandlerStale = false;
+    lastStaleSnapshotDropStage = "n/a";
+    lastStaleSnapshotDropKind = "n/a";
+    lastStaleSnapshotDropTick = -1;
     lastUdpFallbackReason = "n/a";
     lastUdpDropReason = "n/a";
     lastUdpFailureReason = "n/a";
@@ -342,9 +356,7 @@ public final class NetworkTelemetry {
    */
   public static void recordInboundTcp(NetworkMessage message, int bytes, long decodeDurationNanos) {
     recordTcpDecode(message, decodeDurationNanos);
-    if (message instanceof SnapshotMessage snapshot) {
-      inboundFullSnapshotBytesByTick.put(snapshot.serverTick(), nonNegative(bytes));
-    }
+    recordInboundSnapshotBytes(message, bytes);
     if (isDebugTelemetryMessage(message)) {
       debugTcpInboundMessages.increment();
       debugTcpInboundBytes.add(nonNegative(bytes));
@@ -361,6 +373,7 @@ public final class NetworkTelemetry {
    * @param bytes serialized datagram payload size in bytes
    */
   public static void recordInboundUdp(NetworkMessage message, int bytes) {
+    recordInboundSnapshotBytes(message, bytes);
     if (isDebugTelemetryMessage(message)) {
       debugUdpInboundMessages.increment();
       debugUdpInboundBytes.add(nonNegative(bytes));
@@ -368,6 +381,12 @@ public final class NetworkTelemetry {
     }
     udpInboundMessages.increment();
     udpInboundBytes.add(nonNegative(bytes));
+  }
+
+  private static void recordInboundSnapshotBytes(NetworkMessage message, int bytes) {
+    if (message instanceof SnapshotMessage snapshot) {
+      inboundFullSnapshotBytesByTick.put(snapshot.serverTick(), nonNegative(bytes));
+    }
   }
 
   /**
@@ -609,7 +628,7 @@ public final class NetworkTelemetry {
    * @param delta true when this was a delta snapshot
    */
   public static void recordStaleSnapshot(boolean delta) {
-    recordStaleSnapshot(delta, -1);
+    recordHandlerStaleSnapshot(delta, -1);
   }
 
   /**
@@ -619,15 +638,52 @@ public final class NetworkTelemetry {
    * @param serverTick stale snapshot server tick, or -1 when unknown
    */
   public static void recordStaleSnapshot(boolean delta, int serverTick) {
+    recordHandlerStaleSnapshot(delta, serverTick);
+  }
+
+  /**
+   * Records a stale snapshot dropped by the client before dispatch to a handler.
+   *
+   * @param delta true when this was a delta snapshot
+   * @param serverTick stale snapshot server tick, or -1 when unknown
+   */
+  public static void recordEarlyStaleSnapshot(boolean delta, int serverTick) {
+    recordStaleSnapshot(delta, serverTick, true);
+  }
+
+  /**
+   * Records a stale snapshot dropped by the client-side snapshot handler.
+   *
+   * @param delta true when this was a delta snapshot
+   * @param serverTick stale snapshot server tick, or -1 when unknown
+   */
+  public static void recordHandlerStaleSnapshot(boolean delta, int serverTick) {
+    recordStaleSnapshot(delta, serverTick, false);
+  }
+
+  private static void recordStaleSnapshot(boolean delta, int serverTick, boolean early) {
     if (delta) {
       staleDeltaSnapshots.increment();
+      if (early) {
+        earlyStaleDeltaSnapshots.increment();
+      } else {
+        handlerStaleDeltaSnapshots.increment();
+      }
     } else {
       staleFullSnapshots.increment();
+      if (early) {
+        earlyStaleFullSnapshots.increment();
+      } else {
+        handlerStaleFullSnapshots.increment();
+      }
       Integer bytes = inboundFullSnapshotBytesByTick.remove(serverTick);
       if (bytes != null) {
         staleFullSnapshotBytes.add(nonNegative(bytes));
       }
     }
+    lastStaleSnapshotDropStage = early ? "early" : "handler";
+    lastStaleSnapshotDropKind = delta ? "delta" : "full";
+    lastStaleSnapshotDropTick = serverTick;
   }
 
   /**
@@ -854,6 +910,14 @@ public final class NetworkTelemetry {
         .append(staleFullSnapshots.sum())
         .append("/")
         .append(staleDeltaSnapshots.sum())
+        .append(" early=")
+        .append(earlyStaleFullSnapshots.sum())
+        .append("/")
+        .append(earlyStaleDeltaSnapshots.sum())
+        .append(" handler=")
+        .append(handlerStaleFullSnapshots.sum())
+        .append("/")
+        .append(handlerStaleDeltaSnapshots.sum())
         .append(" last=")
         .append(lastAppliedSnapshotKind)
         .append("@")
@@ -876,6 +940,12 @@ public final class NetworkTelemetry {
         .append(formatMicros(lastSnapshotAckMicros))
         .append(" stale=")
         .append(lastSnapshotHandlerStale)
+        .append(" staleDrop=")
+        .append(lastStaleSnapshotDropStage)
+        .append(":")
+        .append(lastStaleSnapshotDropKind)
+        .append("@")
+        .append(formatTick(lastStaleSnapshotDropTick))
         .append(" staleFullBytes=")
         .append(formatBytes(staleFullSnapshotBytes.sum()));
     RollingMax.Sample queueMax = queueAgeMicrosLastTenSeconds.max();
