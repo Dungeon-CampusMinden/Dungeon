@@ -71,7 +71,8 @@ final class YesNoDialog {
         .padBottom(10)
         .row();
     dialog.button(yesLabel, yesLabel, skin.get("clean-green", TextButton.TextButtonStyle.class));
-    dialog.button(noLabel, noLabel, skin.get("clean-red-outline", TextButton.TextButtonStyle.class));
+    dialog.button(
+        noLabel, noLabel, skin.get("clean-red-outline", TextButton.TextButtonStyle.class));
 
     dialog.pack();
 

@@ -21,8 +21,7 @@ final class OkDialog {
   static final String T_OK = "ok";
   static final Translation trans = new Translation("dialog.ok_dialog");
 
-  private OkDialog() {
-  }
+  private OkDialog() {}
 
   /**
    * Builds an OK dialog from the given context.
@@ -66,10 +65,7 @@ final class OkDialog {
     label.setWrap(true);
     label.setMaxPrefWidth(675);
     content.add(label).padBottom(10).row();
-    dialog.button(
-        ok_text,
-        ok_text,
-        skin.get("clean-green", TextButton.TextButtonStyle.class));
+    dialog.button(ok_text, ok_text, skin.get("clean-green", TextButton.TextButtonStyle.class));
 
     dialog.pack();
 

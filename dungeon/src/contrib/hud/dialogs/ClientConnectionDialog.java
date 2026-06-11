@@ -68,7 +68,8 @@ final class ClientConnectionDialog {
     }
 
     Skin skin = UIUtils.defaultSkin();
-    RichLabel usernameLabel = new RichLabel(usernameLabelText, DialogDesign.DIALOG_FONT_SPEC_NORMAL);
+    RichLabel usernameLabel =
+        new RichLabel(usernameLabelText, DialogDesign.DIALOG_FONT_SPEC_NORMAL);
     String defaultUsername = defaultUsername();
     TextField usernameField = new TextField("", skin);
     usernameField.setMessageText(defaultUsername);
@@ -93,7 +94,10 @@ final class ClientConnectionDialog {
     fields.add(versionLabel()).right().top().pad(0).padTop(-2f).row();
     fields.add(usernameField).width(USERNAME_FIELD_WIDTH).colspan(2).row();
     fields.add(new RichLabel(trans.text(T_HOST), DialogDesign.DIALOG_FONT_SPEC_NORMAL)).left();
-    fields.add(new RichLabel(trans.text(T_PORT), DialogDesign.DIALOG_FONT_SPEC_NORMAL)).left().row();
+    fields
+        .add(new RichLabel(trans.text(T_PORT), DialogDesign.DIALOG_FONT_SPEC_NORMAL))
+        .left()
+        .row();
     fields.add(hostField).width(320);
     fields.add(portField).width(110).row();
 
@@ -241,7 +245,8 @@ final class ClientConnectionDialog {
   }
 
   private static void showInvalidUsername(ConnectionForm form, String message) {
-    form.usernameLabel().setText("[color=" + ERROR_COLOR + "]" + trans.text(T_USERNAME) + "[/color]");
+    form.usernameLabel()
+        .setText("[color=" + ERROR_COLOR + "]" + trans.text(T_USERNAME) + "[/color]");
     showError(form.errorLabel(), message);
     focusUsername(form.usernameField());
   }

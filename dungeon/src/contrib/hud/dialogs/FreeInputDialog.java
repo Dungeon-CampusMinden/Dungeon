@@ -48,7 +48,8 @@ final class FreeInputDialog {
   static Group build(DialogContext ctx) {
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(trans.text(T_TITLE));
     String question = ctx.find(DialogContextKeys.QUESTION, String.class).orElse("");
-    String okLabel = ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(trans.text(T_OK));
+    String okLabel =
+        ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(trans.text(T_OK));
     String cancelLabel =
         ctx.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(trans.text(T_CANCEL));
 

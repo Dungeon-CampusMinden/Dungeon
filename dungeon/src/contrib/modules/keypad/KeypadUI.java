@@ -19,9 +19,9 @@ import contrib.hud.dialogs.HeadlessDialogGroup;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.language.Translation;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.sound.SoundSpec;
-import core.language.Translation;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,8 +80,7 @@ public class KeypadUI extends Group {
     parentTable.add(tableButtons);
 
     List<String> actions =
-        Arrays.asList(
-            "1", "2", "3", "4", "5", "6", "7", "8", "9", ACTION_BACK, "0", ACTION_SUBMIT);
+        Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", ACTION_BACK, "0", ACTION_SUBMIT);
 
     for (int i = 0; i < actions.size(); i++) {
       String action = actions.get(i);

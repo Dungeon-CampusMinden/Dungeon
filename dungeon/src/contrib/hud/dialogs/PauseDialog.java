@@ -140,8 +140,7 @@ public class PauseDialog extends Table {
     TextButton settingsBtn =
         Scene2dElementFactory.createButton(trans.text(T_SETTINGS), "clean-blue-outline", 32);
     TextButton quitBtn =
-        Scene2dElementFactory.createButton(
-            trans.text(T_QUIT_TO_DESKTOP), "clean-red-outline", 32);
+        Scene2dElementFactory.createButton(trans.text(T_QUIT_TO_DESKTOP), "clean-red-outline", 32);
 
     resumeBtn.addListener(
         new ChangeListener() {
@@ -180,8 +179,7 @@ public class PauseDialog extends Table {
     Label label =
         Scene2dElementFactory.createLabel(
             trans.text(T_SETTINGS), FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
-    TextButton backBtn =
-        Scene2dElementFactory.createButton(trans.text(T_BACK), "clean-green", 32);
+    TextButton backBtn = Scene2dElementFactory.createButton(trans.text(T_BACK), "clean-green", 32);
     backBtn.addListener(
         new ChangeListener() {
           @Override

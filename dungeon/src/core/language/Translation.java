@@ -1,7 +1,5 @@
 package core.language;
 
-import java.io.IOException;
-
 /**
  * Fetches translations from the translation files registered in {@link Localization}.
  *
