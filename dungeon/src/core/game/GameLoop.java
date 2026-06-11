@@ -124,12 +124,15 @@ public final class GameLoop extends ScreenAdapter {
           Game.currentLevel()
               .ifPresent(level -> CheckPatternPainter.paintCheckerPattern(level.layout()));
 
-        if (!PreRunConfiguration.isNetworkServer()) return; // no authority
+        boolean serverAuthority = PreRunConfiguration.isNetworkServer();
+        if (serverAuthority) {
+          SoundTracker.instance().clear();
+        }
 
-        SoundTracker.instance().clear();
-
-        List<Entity> allPlayers = ECSManagement.allPlayers().toList();
-        allPlayers.forEach(ECSManagement::remove);
+        List<Entity> allPlayers = serverAuthority ? ECSManagement.allPlayers().toList() : List.of();
+        if (serverAuthority) {
+          allPlayers.forEach(ECSManagement::remove);
+        }
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
         Map<Class<? extends System>, System> s = ECSManagement.systems();
@@ -140,6 +143,8 @@ public final class GameLoop extends ScreenAdapter {
         // readd the systems so that each triggerOnAdd(entity) will be called (basically
         // setup). This will also create new EntitySystemMapper if needed.
         s.values().forEach(ECSManagement::add);
+
+        if (!serverAuthority) return; // no authority
 
         try {
           allPlayers.forEach(GameLoop::placeOnLevelStart);

@@ -285,7 +285,10 @@ public final class AudioApi {
       }
     }
 
-    Entity hub = new Entity("SoundHub");
+    Entity hub =
+        PreRunConfiguration.isNetworkServer()
+            ? new Entity("SoundHub")
+            : Entity.createLocalEntity("SoundHub");
     hub.persistent(true);
     hub.add(new SoundComponent());
     Game.add(hub);
