@@ -510,6 +510,14 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     tooltip: "Feuerball in Richtung schießen",
   },
   {
+    type: "pickup",
+    message0: "aufheben",
+    previousStatement: null,
+    nextStatement: null,
+    colour: 30,
+    tooltip: "Sammel den Gegenstand unter dir auf.",
+  },
+  {
     type: "wait",
     message0: "warte",
     previousStatement: null,
