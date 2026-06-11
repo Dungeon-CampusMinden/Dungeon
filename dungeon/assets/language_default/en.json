@@ -1,3 +1,54 @@
 {
+  "dialog": {
+	"ok_dialog": {
+	  "ok": "OK"
+	},
+	"yes_no_dialog": {
+	  "yes": "Yes",
+	  "no": "No"
+	},
+	"text_dialog": {
+	  "confirm": "OK"
+	},
+	"free_input_dialog": {
+	  "title": "Question",
+	  "ok": "OK",
+	  "cancel": "Cancel",
+	  "placeholder": "Your answer..."
+	},
+	"multiple_choice_dialog": {
+	  "cancel": "Cancel"
+	},
+	"pause_dialog": {
+	  "paused": "PAUSED",
+	  "resume": "Resume",
+	  "settings": "Settings",
+	  "quit_to_desktop": "Quit to Desktop",
+	  "back": "Back"
+	},
+	"client_connection_dialog": {
+	  "title": "Connect to Server",
+	  "connect": "Connect",
+	  "username": "Player Name",
+	  "host": "IP / Host",
+	  "port": "Port",
+	  "start_failed": "Server not reachable.",
+	  "invalid_username": "Player name must not be empty and must not contain an underscore.",
+	  "rejected_username": "Player name is invalid or already taken.",
+	  "connecting": "Establishing connection...",
+	  "fallback_username": "Player",
+	  "client_version": "Client Version"
+	},
+	"keypad_dialog": {
+	  "back": "Back",
+	  "submit": "Submit"
+	},
+	"inventory_dialog": {
+	  "title": "INVENTORY"
+	},
+	"progress_bar_dialog": {
+	  "title": "Progress Bar"
+	}
+  }
 }
 
