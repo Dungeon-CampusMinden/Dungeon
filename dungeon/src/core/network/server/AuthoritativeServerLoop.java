@@ -1,6 +1,5 @@
 package core.network.server;
 
-import static core.network.config.NetworkConfig.FULL_SNAPSHOT_INTERVAL_TICKS;
 import static core.network.config.NetworkConfig.FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS;
 import static core.network.config.NetworkConfig.SERVER_DELTA_HISTORY_SIZE;
 import static core.network.config.NetworkConfig.SERVER_DELTA_SNAPSHOT_HZ;
@@ -117,9 +116,9 @@ public final class AuthoritativeServerLoop {
     }
 
     LOGGER.info(
-        "ServerLoop started: tickHz={}, fullSnapshotHz={}, deltaSnapshotHz={}",
+        "ServerLoop started: tickHz={}, fullSnapshots={}, deltaSnapshotHz={}",
         SERVER_TICK_HZ,
-        FULL_SNAPSHOT_INTERVAL_TICKS,
+        "demand-driven",
         SERVER_DELTA_SNAPSHOT_HZ);
   }
 
@@ -205,13 +204,7 @@ public final class AuthoritativeServerLoop {
       if (snapshotSync.fullSnapshotRecoveryDue(
           currentSnapshot.serverTick(), FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS)) {
         sendFullSnapshot(client, currentSnapshot, snapshotSync.pendingFullSnapshotReason());
-        snapshotSync.pendingFullSnapshotReason(FullSnapshotSendReason.NO_ACK);
       }
-      return;
-    }
-
-    if (snapshotSync.fullSnapshotDue(currentSnapshot.serverTick(), FULL_SNAPSHOT_INTERVAL_TICKS)) {
-      sendFullSnapshot(client, currentSnapshot, FullSnapshotSendReason.PERIODIC_BASELINE);
       return;
     }
 
@@ -273,6 +266,10 @@ public final class AuthoritativeServerLoop {
       return;
     }
     String levelName = currentLevel.orElseThrow();
+    if (snapshotLevelName == null) {
+      snapshotLevelName = levelName;
+      return;
+    }
     if (!levelName.equals(snapshotLevelName)) {
       snapshotHistory.clear();
       clients.forEach(client -> client.clearSnapshotBaseline(FullSnapshotSendReason.LEVEL_CHANGE));

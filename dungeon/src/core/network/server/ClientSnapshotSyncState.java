@@ -10,7 +10,7 @@ public final class ClientSnapshotSyncState {
   private int lastFullSnapshotTick = -1;
   private int lastFullSnapshotAttemptTick = -1;
   private int lastDeltaSnapshotTick = -1;
-  private FullSnapshotSendReason pendingFullSnapshotReason = FullSnapshotSendReason.NO_ACK;
+  private FullSnapshotSendReason pendingFullSnapshotReason = FullSnapshotSendReason.INITIAL_SYNC;
 
   /**
    * Returns the highest snapshot tick acknowledged by the client.
@@ -144,6 +144,23 @@ public final class ClientSnapshotSyncState {
       return true;
     }
     return currentTick - lastFullBaselineTick >= retryIntervalTicks;
+  }
+
+  /**
+   * Requests a recovery full snapshot while preserving full-snapshot retry pacing state.
+   *
+   * <p>This invalidates the acknowledged delta baseline so the server stops sending deltas until a
+   * fresh full snapshot is acknowledged. It deliberately keeps the last full-snapshot attempt so
+   * repeated client requests cannot bypass recovery rate limiting while a reliable full snapshot is
+   * still in flight.
+   *
+   * @param reason recovery reason
+   */
+  public synchronized void requestRecoveryFullSnapshot(FullSnapshotSendReason reason) {
+    lastAckedSnapshotTick = -1;
+    lastDeltaSnapshotTick = -1;
+    pendingFullSnapshotReason =
+        reason == null ? FullSnapshotSendReason.SERVER_FORCED_RESYNC : reason;
   }
 
   /**

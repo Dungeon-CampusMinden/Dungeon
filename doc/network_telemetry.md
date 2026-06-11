@@ -4,7 +4,7 @@ The network telemetry overlay is a debug view for multiplayer transport, snapsho
 and frame/dispatch timing. It is intended to answer five questions:
 
 1. Is UDP healthy?
-2. Are full snapshots expected, or are they fallback/resync traffic?
+2. Are full snapshots expected baseline/recovery events, or unexplained reliable traffic?
 3. Are ACK baselines still present in snapshot history?
 4. Is a hitch happening in decode, queueing, dispatch, snapshot apply, reconciliation, ACK send, or
    GC?
@@ -23,22 +23,22 @@ Example shape:
 
 ```text
 Network Telemetry
-Client local: connected id=1 udp=ready mode=keepalive ackAge=31 ms snap=3337 rtt=16.3 ms debug=pong 16.3 ms
-Client snapshots: full=8 delta=1329 stale(f/d)=0/0 early=0/0 handler=0/0 last=delta@3337 e/r=1/0 201 us
-Client snapshot path: staleCheck=0 us fullApply=92 us deltaMat=43 us reconcile=63 us ackQueue=0 us stale=false staleDrop=n/a:n/a@n/a staleFullBytes=0 B
-Client timing: frame=17.39 ms net=2 us queue=4.84 ms dispatch=3 us tcpDecode=RegisterAck 33 us max10(q/d/dec)=16.69 ms DeltaSnapshotMessage/2.45 ms SnapshotMessage/SnapshotMessage 330 us qDepth=0/2 drain=0 gc=1 ms
-Client transport out: tcp=180/863 B udp=1631/47.9 KiB
-Client transport in:  tcp=45/334.2 KiB udp=1329/384.8 KiB
-Client debug tx/rx: tcp=43/84 udp=0/0
-Server authoritative: clients=1 udp=1/1 capture(c/s)=10192135073700/10192129719500
-Server snapshots: full=8 last=t3151/34.7 KiB/e=111 | delta=1329 last=t3337/305 B/d=1/r=0 build=88 us reason=PERIODIC_BASELINE periodic/fallback=7/1 missingBase=0 staleFullBytes=0 B rate1/5/30=25/97/723
-Server history: tick=3386 size=601/600 cap=10.00 s
-Server transport out: tcp=44/334.2 KiB udp=1329/384.8 KiB bytes1/5/30=7.1 KiB/62.5 KiB/380.6 KiB
-Server transport in:  tcp=180/863 B udp=1630/47.8 KiB
-Server debug tx/rx: tcp=83/43 udp=0/0
+Client local: connected id=1 udp=ready mode=keepalive ackAge=1.5 s snap=4374 rtt=31.3 ms debug=pong 31.3 ms
+Client snapshots: full=1 delta=2140 stale(f/d)=0/0 early=0/0 handler=0/0 last=delta@4374 e/r=1/0 112 us
+Client snapshot path: staleCheck=0 us fullApply=60 us deltaMat=26 us reconcile=25 us ackQueue=0 us stale=false staleDrop=n/a:n/a@n/a staleFullBytes=0 B
+Client timing: frame=16.68 ms net=1 us queue=3.75 ms dispatch=5 us tcpDecode=DebugTelemetrySnapshot 65 us max10(q/d/dec)=17.85 ms DeltaSnapshotMessage/1.05 ms DeltaSnapshotMessage/SoundPlayMessage 1.58 ms qDepth=0/5 drain=0 gc=1 ms
+Client transport out: tcp=285/1.5 KiB udp=3060/90.2 KiB
+Client transport in:  tcp=62/92.1 KiB udp=2140/608.5 KiB
+Client debug tx/rx: tcp=63/124 udp=0/0
+Server authoritative: clients=1 udp=1/1 capture(c/s)=16885016949900/16885012724600
+Server snapshots: full=1 last=t306/34.7 KiB/e=111 | delta=2140 last=t4374/305 B/d=1/r=0 build=187 us reason=INITIAL_SYNC periodic/recovery=0/1 missingBase=0 staleFullBytes=0 B rate1/5/30=38/219/1089
+Server history: tick=4410 size=601/600 cap=10.00 s
+Server transport out: tcp=62/92.1 KiB udp=2140/608.5 KiB bytes1/5/30=11.1 KiB/64.6 KiB/306.0 KiB
+Server transport in:  tcp=285/1.5 KiB udp=3060/90.2 KiB
+Server debug tx/rx: tcp=123/63 udp=0/0
 Server UDP: fallback=0 oversized=0 sendFail=0 dropped=0 last(f/drop/fail)=n/a/n/a/n/a
-Server timing: frame=248 us max10=2.95 ms net=1 us max10=140 us queue=4.35 ms max10=InputMessage 20.90 ms qDepth=0/4 drain=0 tcpDecode=DebugPing 22 us max10=DebugPing 33 us gc=2 ms/3 ms
-Server client 1: ack=3337 age=49t/817 ms hist=true cap=600t/10.00 s full1/5/30=0/1/5 bytes=0 B/34.7 KiB/173.7 KiB periodic/fallback=7/1 missingBase=0 lastFull=PERIODIC_BASELINE@3151/34.7 KiB age=3.8 s
+Server timing: frame=476 us max10=4.88 ms net=2 us max10=4.57 ms queue=22.47 ms max10=InputMessage 30.76 ms qDepth=0/4 drain=0 tcpDecode=DebugPing 26 us max10=SnapshotAck 125 us gc=3 ms/4 ms
+Server client 1: ack=4374 age=36t/600 ms hist=true cap=600t/10.00 s full1/5/30=0/0/0 bytes=0 B/0 B/0 B periodic/recovery=0/1 missingBase=0 lastFull=INITIAL_SYNC@306/34.7 KiB age=65.7 s
 ```
 
 ## Client Local
@@ -84,8 +84,9 @@ telemetry itself is not healthy.
 
 `full`
 : Cumulative number of full snapshots applied by the client. Expected: a few on connect, reconnect,
-level change, resync, or periodic server baseline. During stable play this should grow at most at
-the configured periodic baseline cadence unless recovery traffic is happening.
+level change, client missing-baseline recovery, server missing-baseline-history recovery, or hard
+server resync. During stable play this should stay flat after initial sync unless a concrete
+recovery reason is recorded.
 
 `delta`
 : Cumulative number of delta snapshots applied by the client. Expected: grows steadily during play.
@@ -95,7 +96,9 @@ minus skipped/no-change frames.
 `stale(f/d)`
 : Total stale full and delta snapshots dropped before application. Expected: `0/0` or very low. A
 rising full count means reliable full snapshots are arriving too late. A rising delta count can
-happen when newer snapshots already arrived or the local baseline is missing.
+happen when newer snapshots already arrived or the local baseline is missing. A missing local delta
+baseline now also sends a reliable client resync request so the server can respond with a
+client-specific recovery full snapshot.
 
 `early`
 : Stale full and delta snapshots dropped before the snapshot handler ran. This includes queue-time
@@ -145,7 +148,8 @@ ACKs. Expected: microseconds. High values suggest the send path is blocked or al
 
 `stale`
 : Whether the latest snapshot handler path dropped the snapshot as stale. For deltas, `true` can
-also mean the local baseline was missing. Expected: usually `false`.
+also mean the local baseline was missing. Missing local baselines should be rare; when they happen,
+the client requests a `CLIENT_MISSING_BASELINE` recovery full snapshot. Expected: usually `false`.
 
 `staleDrop=<stage>:<kind>@<tick>`
 : The latest stale-drop location, snapshot kind, and server tick. `stage` is usually `early`,
@@ -208,7 +212,9 @@ input messages. TCP should mostly carry reliable control messages and ACKs.
 `Client transport in: tcp=<messages>/<bytes> udp=<messages>/<bytes>`
 : Client gameplay transport received, excluding debug telemetry. Expected: UDP should carry deltas.
 TCP bytes grow when full snapshots or reliable events arrive. Repeated `~35 KiB` TCP bursts usually
-mean full snapshots; periodic baseline bursts are normal at the configured cadence.
+mean full snapshots. In stable play those bursts should be rare and explained by `lastFull`/`reason`;
+recurring full-sized TCP bursts without initial sync, level change, reconnect, resync, or recovery
+are suspicious.
 
 `Client debug tx/rx`
 : Debug telemetry messages sent/received by TCP and UDP. Expected: TCP grows while the overlay is
@@ -239,8 +245,10 @@ changes within one side, not for subtracting client minus server across differen
 
 `full`
 : Cumulative full snapshots sent by the server. Expected: low but not necessarily zero after
-startup. The current strategy sends periodic full baselines about every `6 s` per client. Additional
-growth should be explainable by connect, reconnect, level change, or missing baseline recovery.
+startup. The current strategy is demand-driven: full snapshots are sent for initial sync, level
+change, reconnect, client missing-baseline recovery, server missing-baseline-history recovery, hard
+server resync, or an explicitly enabled bounded safety fallback. Stable play should not show
+clock-driven full snapshot growth.
 
 `last=t<tick>/<bytes>/e=<entities>`
 : Tick, serialized size, and entity count of the last full snapshot. In current Last Hour sessions,
@@ -261,22 +269,28 @@ milliseconds. Sustained values above `16.6 ms` would exceed the 60 Hz tick budge
 : Reason for the last full snapshot. Possible values:
 
 - `NO_ACK`: client has not acknowledged a snapshot yet.
-- `PERIODIC_BASELINE`: configured periodic baseline interval elapsed.
+- `INITIAL_SYNC`: first reliable full snapshot baseline after initial world load.
+- `PERIODIC_BASELINE`: optional bounded periodic safety fallback, if that fallback is explicitly
+  enabled.
+- `CLIENT_MISSING_BASELINE`: client reported that it cannot materialize a delta because its local
+  `baseTick` is missing.
 - `MISSING_BASELINE_HISTORY`: client ACK references a baseline no longer retained by server history.
 - `LEVEL_CHANGE`: level changed and baselines were invalidated.
 - `RECONNECT`: client reconnected and needs a fresh baseline.
-- `CLIENT_RESYNC_REQUEST`: client explicitly requested resync.
+- `CLIENT_RESYNC_REQUEST`: client explicitly requested a general resync.
 - `SERVER_FORCED_RESYNC`: server forced a resync or no specific reason was attached.
 
-`periodic/fallback`
-: Cumulative full snapshots split into periodic baselines and non-periodic fallback/resync reasons.
-Expected stable play under the current strategy shows periodic growth at the configured baseline
-cadence. If fallback grows during stable local play, baseline/ACK health needs investigation.
+`periodic/recovery`
+: Cumulative full snapshots split into optional periodic safety fallbacks and demand-driven recovery
+or baseline reasons. Expected stable play after initial sync: periodic stays `0`, and recovery stays
+flat unless a concrete recovery event occurs.
 
 `missingBase`
-: Subset of fallback full snapshots caused by missing server baseline history. Expected after warmup:
-ideally `0` and not increasing. Growth here is a strong signal that ACK/history capacity or ordering
-needs attention.
+: Subset of recovery full snapshots caused by missing server baseline history. Expected after
+warmup: ideally `0` and not increasing. Growth here is a strong signal that ACK/history capacity or
+ordering needs attention. Client-local missing baselines are reported through the
+`CLIENT_MISSING_BASELINE` full-snapshot reason and recovery count; they are not included in
+`missingBase`.
 
 `staleFullBytes`
 : Server-side stale full bytes counter. This is usually `0` because stale full snapshot drops happen
@@ -294,8 +308,9 @@ changes are emitted.
 : Server tick of the latest snapshot-history sample.
 
 `size=<current>/<capacity>`
-: Number of retained baseline snapshots and maximum retained snapshots. Expected after warmup:
-usually full, for example `600/600`.
+: Number of retained baseline snapshots and maximum unprotected rolling snapshots. Protected
+acknowledged or in-flight client baselines may be retained outside the rolling capacity, so values
+such as `601/600` can be healthy.
 
 `cap`
 : Approximate time coverage of the snapshot history. With the current `600` retained snapshots at
@@ -310,8 +325,9 @@ with reliable events and full snapshots.
 
 `bytes1/5/30`
 : Rolling server outbound gameplay bytes over the last 1, 5, and 30 seconds. Expected stable local
-play can show periodic full-baseline bytes at the configured cadence. Extra large bursts outside
-that cadence should be explained by reliable events, reconnects, level changes, or resync.
+play should mostly reflect small delta traffic plus reliable control/debug-independent gameplay
+events. Large full-snapshot-sized bursts should be explained by initial sync, reconnect, level
+change, missing-baseline recovery, hard resync, or an explicitly enabled safety fallback.
 
 `Server transport in`
 : Server gameplay transport received, excluding debug telemetry. Expected: mostly UDP input and TCP
@@ -393,27 +409,28 @@ less. It should stay far below the history capacity.
 
 `hist`
 : Whether the acknowledged baseline exists in server `SnapshotHistory`. Expected: `true` during
-stable play. `false` means the server cannot build a delta from that ACK and may send a full
-snapshot.
+stable play. `false` means the server cannot build a delta from that ACK and may send a rate-limited
+`MISSING_BASELINE_HISTORY` recovery full snapshot.
 
 `cap`
 : Per-client view of snapshot history capacity in ticks and seconds. This should match the server
 history capacity.
 
 `full1/5/30`
-: Full snapshots sent to this client in the last 1, 5, and 30 seconds. With the current periodic
-full-baseline strategy, healthy stable play can show roughly one full snapshot every `6 s` per
-client, so the 30 second window can be around `5`. Values materially above the configured periodic
-cadence are suspicious.
+: Full snapshots sent to this client in the last 1, 5, and 30 seconds. Healthy stable play should
+show `0/0/0` after the initial full snapshot ages out of the rolling windows. A non-zero value is
+expected shortly after initial sync, reconnect, level change, missing-baseline recovery, hard resync,
+or an explicitly enabled safety fallback.
 
 `bytes`
-: Full snapshot bytes sent to this client in the last 1, 5, and 30 seconds. In stable play,
-periodic full bytes can appear at the `6 s` baseline cadence. Extra fallback full bytes are
-suspicious.
+: Full snapshot bytes sent to this client in the last 1, 5, and 30 seconds. Healthy stable play
+should show `0 B/0 B/0 B` after the initial full snapshot ages out. Full-snapshot bytes during
+stable play should line up with a concrete `lastFull` reason.
 
-`periodic/fallback`
-: Cumulative full snapshots to this client split by periodic baselines and fallback/resync reasons.
-Periodic growth at the configured cadence is normal. Fallback growth in stable play is suspicious.
+`periodic/recovery`
+: Cumulative full snapshots to this client split by optional periodic safety fallbacks and
+demand-driven recovery or baseline reasons. Expected stable play after initial sync: periodic stays
+`0`, and recovery stays flat.
 
 `missingBase`
 : Full snapshots to this client caused by missing baseline history. Expected after warmup: ideally
@@ -436,8 +453,10 @@ For client and host on the same machine, a healthy stable period usually looks l
 - Server client `hist=true`.
 - Server client ACK `age` stays far below `cap`.
 - `missingBase` does not increase after warmup.
-- `full1/5/30` matches the configured periodic cadence; fallback and `missingBase` stay flat after
-  warmup.
+- `full1/5/30` becomes `0/0/0` after the initial full snapshot ages out unless reconnect, level
+  change, missing-baseline recovery, hard resync, or an explicitly enabled safety fallback occurs.
+- `periodic/recovery` shows periodic `0`; recovery may include initial sync, but should stay flat
+  during stable play.
 - Client `early`, `handler`, and `stale(f/d)` stay `0/0` or nearly zero.
 - Full snapshot apply time stays below a few milliseconds locally.
 - Client `frame` stays around `16.6 ms` for 60 FPS.
@@ -452,8 +471,11 @@ For client and host on the same machine, a healthy stable period usually looks l
 - Server client `hist=false`.
 - Server client ACK age approaching or exceeding history `cap`.
 - `reason=MISSING_BASELINE_HISTORY` recurring during stable play.
-- `periodic/fallback` fallback side growing without reconnect or level change.
-- `full1/5/30` materially above the configured periodic cadence.
+- `reason=CLIENT_MISSING_BASELINE` recurring during stable play.
+- `periodic/recovery` periodic side growing when no safety fallback was intentionally enabled.
+- `periodic/recovery` recovery side growing without initial sync, reconnect, level change,
+  missing-baseline recovery, or hard resync.
+- `full1/5/30` staying non-zero or repeatedly returning to non-zero during otherwise stable play.
 - `staleFullBytes` increasing on the client.
 - Client `queue` or `dispatch` repeatedly above one frame, especially when the queue max type is a
   gameplay message such as `InputMessage` or `SnapshotMessage`.

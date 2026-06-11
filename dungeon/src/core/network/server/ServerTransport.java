@@ -16,6 +16,7 @@ import contrib.entities.HeroController;
 import core.Entity;
 import core.Game;
 import core.game.PreRunConfiguration;
+import core.network.FullSnapshotSendReason;
 import core.network.MessageDispatcher;
 import core.network.NetworkTelemetry;
 import core.network.config.NetworkConfig;
@@ -1014,6 +1015,9 @@ public final class ServerTransport {
       return;
     }
     acknowledgeSnapshot(session, ack.serverTick());
+    if (ack.resyncRequested()) {
+      requestSnapshotResync(session, ack);
+    }
   }
 
   private void acknowledgeSnapshot(Session session, int serverTick) {
@@ -1022,6 +1026,17 @@ public final class ServerTransport {
     }
     ClientState state = session.clientState().orElseThrow();
     state.snapshotSync().acknowledge(serverTick);
+  }
+
+  private void requestSnapshotResync(Session session, SnapshotAck ack) {
+    ClientState state = session.clientState().orElseThrow();
+    state.requestSnapshotResync(FullSnapshotSendReason.CLIENT_MISSING_BASELINE);
+    LOGGER.debug(
+        "Client {} requested snapshot resync: latestApplied={} missingBase={} delta={}",
+        state.clientId(),
+        ack.serverTick(),
+        ack.missingBaseTick(),
+        ack.deltaTick());
   }
 
   /**

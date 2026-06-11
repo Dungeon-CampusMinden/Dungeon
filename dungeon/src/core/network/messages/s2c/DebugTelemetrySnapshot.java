@@ -126,8 +126,8 @@ public record DebugTelemetrySnapshot(
    * @param lastBuildMicros last authoritative snapshot build duration in microseconds
    * @param lastFullReason reason for the last full snapshot
    * @param staleFullBytes serialized bytes of stale full snapshots dropped by clients
-   * @param periodicFullSent full snapshots sent for periodic baselines
-   * @param fallbackFullSent full snapshots sent for fallback/resync reasons
+   * @param periodicFullSent full snapshots sent for periodic safety fallbacks
+   * @param fallbackFullSent full snapshots sent for demand-driven recovery reasons
    * @param missingBaselineFullFallbacks full snapshots sent because baseline history was missing
    * @param historyServerTick server tick of the latest history sample
    * @param historySize number of retained snapshots
@@ -290,8 +290,8 @@ public record DebugTelemetrySnapshot(
    * @param fullSnapshotBytesLastSecond full-snapshot bytes sent over the last second
    * @param fullSnapshotBytesLastFiveSeconds full-snapshot bytes sent over the last five seconds
    * @param fullSnapshotBytesLastThirtySeconds full-snapshot bytes sent over the last thirty seconds
-   * @param periodicFullSnapshots periodic full snapshots sent to this client
-   * @param fallbackFullSnapshots fallback/resync full snapshots sent to this client
+   * @param periodicFullSnapshots periodic safety fallback full snapshots sent to this client
+   * @param fallbackFullSnapshots demand-driven recovery full snapshots sent to this client
    * @param lastFullSnapshotReason reason for the last full snapshot sent to this client
    * @param lastFullSnapshotAgeMs age of the last full snapshot sent to this client
    * @param lastFullSnapshotTick tick of the last full snapshot sent to this client

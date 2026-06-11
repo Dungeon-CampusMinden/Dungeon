@@ -624,6 +624,7 @@ public final class GameLoop extends ScreenAdapter {
             if (baseline.isEmpty()) {
               staleCheckNanos = java.lang.System.nanoTime() - staleCheckStartNanos;
               NetworkTelemetry.recordHandlerStaleSnapshot(true, event.serverTick());
+              Game.network().requestSnapshotResync(event.baseTick(), event.serverTick());
               NetworkTelemetry.recordSnapshotHandlerTiming(
                   true, event.serverTick(), staleCheckNanos, 0L, 0L, 0L, 0L, true);
               LOGGER.debug(

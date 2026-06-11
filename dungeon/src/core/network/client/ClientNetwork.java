@@ -83,6 +83,7 @@ public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
+  private static final long SNAPSHOT_RESYNC_REQUEST_RETRY_NANOS = TimeUnit.SECONDS.toNanos(1L);
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
   private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
@@ -118,6 +119,8 @@ public final class ClientNetwork {
   private int lastPiggybackedSnapshotAckTick = -1;
   private long lastPiggybackedSnapshotAckNanos = 0L;
   private int lastReliablePiggybackedSnapshotAckTick = -1;
+  private int lastSnapshotResyncMissingBaseTick = -1;
+  private long lastSnapshotResyncRequestNanos = 0L;
   private long snapshotAckGeneration = 0L;
 
   private record QueuedNetworkMessage(Session session, NetworkMessage message, long receiveNanos) {}
@@ -356,6 +359,26 @@ public final class ClientNetwork {
     queueSnapshotAck(serverTick);
   }
 
+  /**
+   * Requests a recovery full snapshot when a delta references a missing local baseline.
+   *
+   * @param missingBaseTick delta baseline tick missing on this client
+   * @param deltaTick delta snapshot tick that referenced the missing baseline
+   */
+  public void requestSnapshotResync(int missingBaseTick, int deltaTick) {
+    Session currentSession = session;
+    int latestAppliedTick =
+        currentSession == null
+            ? -1
+            : currentSession.clientState().map(ClientState::latestAppliedSnapshotTick).orElse(-1);
+    SnapshotAck request = snapshotResyncRequest(latestAppliedTick, missingBaseTick, deltaTick);
+    if (request == null) {
+      return;
+    }
+    sendReliable(request)
+        .thenAccept(success -> completeSnapshotResyncRequest(request.serverTick(), success));
+  }
+
   /** Marks the initial world bootstrap as locally applied and notifies lifecycle listeners once. */
   public void markInitialWorldReady() {
     if (initialWorldReady.compareAndSet(false, true)) {
@@ -387,6 +410,23 @@ public final class ClientNetwork {
     sendReliable(new SnapshotAck(ack.serverTick()))
         .thenAccept(
             success -> completeExplicitSnapshotAck(ack.serverTick(), ack.generation(), success));
+  }
+
+  private SnapshotAck snapshotResyncRequest(
+      int latestAppliedTick, int missingBaseTick, int deltaTick) {
+    long now = java.lang.System.nanoTime();
+    synchronized (snapshotAckLock) {
+      if (!running.get() || !isConnected()) {
+        return null;
+      }
+      if (missingBaseTick == lastSnapshotResyncMissingBaseTick
+          && now - lastSnapshotResyncRequestNanos < SNAPSHOT_RESYNC_REQUEST_RETRY_NANOS) {
+        return null;
+      }
+      lastSnapshotResyncMissingBaseTick = missingBaseTick;
+      lastSnapshotResyncRequestNanos = now;
+      return SnapshotAck.requestResync(latestAppliedTick, missingBaseTick, deltaTick);
+    }
   }
 
   private ExplicitSnapshotAck immediateSnapshotAck(int serverTick) {
@@ -569,6 +609,21 @@ public final class ClientNetwork {
       if (serverTick > pendingSnapshotAckTick && serverTick > lastExplicitSnapshotAckTick) {
         pendingSnapshotAckTick = serverTick;
         pendingSnapshotAckDeadlineNanos = now + snapshotAckExplicitDelayNanos();
+      }
+    }
+  }
+
+  private void completeSnapshotResyncRequest(int serverTick, boolean success) {
+    if (!success || serverTick < 0) {
+      return;
+    }
+    synchronized (snapshotAckLock) {
+      if (serverTick > lastExplicitSnapshotAckTick) {
+        lastExplicitSnapshotAckTick = serverTick;
+      }
+      if (pendingSnapshotAckTick <= serverTick) {
+        pendingSnapshotAckTick = -1;
+        pendingSnapshotAckDeadlineNanos = 0L;
       }
     }
   }
@@ -770,6 +825,8 @@ public final class ClientNetwork {
       lastPiggybackedSnapshotAckTick = -1;
       lastPiggybackedSnapshotAckNanos = 0L;
       lastReliablePiggybackedSnapshotAckTick = -1;
+      lastSnapshotResyncMissingBaseTick = -1;
+      lastSnapshotResyncRequestNanos = 0L;
       snapshotAckGeneration++;
     }
   }
@@ -1166,6 +1223,7 @@ public final class ClientNetwork {
       }
       if (checkDeltaBaseline && clientState.appliedSnapshot(delta.baseTick()).isEmpty()) {
         NetworkTelemetry.recordEarlyStaleSnapshot(true, delta.serverTick());
+        requestSnapshotResync(delta.baseTick(), delta.serverTick());
         LOGGER.debug(
             "Dropped delta snapshot at tick {} before {}; missing local baseline {}.",
             delta.serverTick(),

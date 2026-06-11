@@ -97,6 +97,14 @@ public interface INetworkHandler {
   default void acknowledgeSnapshot(int serverTick, boolean immediateReliable) {}
 
   /**
+   * Requests a recovery full snapshot because a delta baseline is missing locally.
+   *
+   * @param missingBaseTick delta baseline tick missing on this client
+   * @param deltaTick delta snapshot tick that referenced the missing baseline
+   */
+  default void requestSnapshotResync(int missingBaseTick, int deltaTick) {}
+
+  /**
    * Marks the initial multiplayer world bootstrap as locally applied.
    *
    * <p>Client implementations should notify registered {@link ConnectionListener}s on the game loop

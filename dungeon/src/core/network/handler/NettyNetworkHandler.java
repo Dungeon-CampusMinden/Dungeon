@@ -161,6 +161,12 @@ public class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
+  public void requestSnapshotResync(int missingBaseTick, int deltaTick) {
+    if (serverMode) return;
+    client.requestSnapshotResync(missingBaseTick, deltaTick);
+  }
+
+  @Override
   public void markInitialWorldReady() {
     if (!serverMode) client.markInitialWorldReady();
   }

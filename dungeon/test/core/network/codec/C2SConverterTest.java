@@ -571,6 +571,17 @@ public class C2SConverterTest {
 
     SnapshotAck roundTrip = SNAPSHOT_ACK_CONVERTER.fromProto(proto);
     assertEquals(123, roundTrip.serverTick());
+    assertFalse(roundTrip.resyncRequested());
+
+    SnapshotAck resync = SnapshotAck.requestResync(120, 100, 124);
+    core.network.proto.c2s.SnapshotAck resyncProto = SNAPSHOT_ACK_CONVERTER.toProto(resync);
+    assertEquals(120, resyncProto.getServerTick());
+    assertTrue(resyncProto.getResyncRequested());
+    assertEquals(100, resyncProto.getMissingBaseTick());
+    assertEquals(124, resyncProto.getDeltaTick());
+
+    SnapshotAck resyncRoundTrip = SNAPSHOT_ACK_CONVERTER.fromProto(resyncProto);
+    assertEquals(resync, resyncRoundTrip);
   }
 
   /** Verifies debug telemetry request conversion. */

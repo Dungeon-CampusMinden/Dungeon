@@ -38,7 +38,7 @@ public final class NetworkConfig {
   public static final int SAFE_UDP_MTU = 1400;
 
   /** Protocol version used by multiplayer clients and servers during the connection handshake. */
-  public static final short PROTOCOL_VERSION = 3;
+  public static final short PROTOCOL_VERSION = 4;
 
   /**
    * Number of attempts for UDP client registration.
@@ -108,16 +108,10 @@ public final class NetworkConfig {
   /**
    * Server delta snapshot rate, in Hertz (Hz).
    *
-   * <p>Delta snapshots are sent between full baseline snapshots and contain only changed fields.
+   * <p>Delta snapshots are sent against the latest client-acknowledged baseline and contain only
+   * changed fields.
    */
   public static final int SERVER_DELTA_SNAPSHOT_HZ = 60;
-
-  /**
-   * Interval between full baseline snapshots, in server ticks.
-   *
-   * <p>Full snapshots are sent reliably and provide the baseline for delta snapshots.
-   */
-  public static final int FULL_SNAPSHOT_INTERVAL_TICKS = SERVER_TICK_HZ * 6;
 
   /**
    * Minimum retry interval for recovery full snapshots, in server ticks.
@@ -131,8 +125,8 @@ public final class NetworkConfig {
   /**
    * Number of full snapshots retained server-side for delta baselines.
    *
-   * <p>This must comfortably exceed the normal full-baseline interval so an acknowledged baseline
-   * stays available during stable play instead of falling back to repeated full snapshots.
+   * <p>This must comfortably retain acknowledged delta baselines during stable play, jitter, idle
+   * periods, and client scheduling stalls instead of falling back to repeated full snapshots.
    */
   public static final int SERVER_DELTA_HISTORY_SIZE = SERVER_TICK_HZ * 10;
 
@@ -140,7 +134,7 @@ public final class NetworkConfig {
    * Number of fully applied snapshots retained client-side for delta materialization.
    *
    * <p>This mirrors the server-side retention so a normal client can keep materializing deltas
-   * across the steady-state full-baseline window.
+   * across jitter, idle periods, and local scheduling stalls.
    */
   public static final int CLIENT_DELTA_HISTORY_SIZE = SERVER_TICK_HZ * 10;
 

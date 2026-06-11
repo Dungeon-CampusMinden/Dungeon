@@ -440,6 +440,17 @@ public class ClientState {
   }
 
   /**
+   * Requests a recovery full snapshot without clearing full-snapshot retry state.
+   *
+   * @param reason reason why this client needs a fresh full snapshot baseline
+   */
+  public void requestSnapshotResync(FullSnapshotSendReason reason) {
+    this.snapshotSync.requestRecoveryFullSnapshot(reason);
+    this.knownSnapshotEntityIds.clear();
+    this.knownSnapshotBaseTick = -1;
+  }
+
+  /**
    * Returns the network-synchronized entity IDs currently tracked by the client.
    *
    * @return an immutable copy of tracked entity IDs
