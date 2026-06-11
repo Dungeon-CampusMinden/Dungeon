@@ -70,9 +70,8 @@ public class Translation {
    * @param jsonNodes Nodes of the JSON up to the desired value as single params, relative to the
    *     base key.
    * @return value behind a JSON node path.
-   * @throws IOException if a language file cannot be read.
    */
-  public String text(String jsonNodes) throws IOException {
+  public String text(String jsonNodes) {
     String fullPath = resolveKey(jsonNodes);
     String[] nodes = fullPath.split("\\.");
 
