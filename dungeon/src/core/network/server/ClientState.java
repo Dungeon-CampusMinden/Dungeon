@@ -551,6 +551,19 @@ public class ClientState {
   }
 
   /**
+   * Stores a fully applied client-side snapshot while retaining active delta baselines.
+   *
+   * @param snapshot applied full/materialized snapshot
+   * @param protectedSnapshotTicks snapshot ticks that must remain available for delta
+   *     materialization
+   */
+  public void rememberAppliedSnapshot(
+      SnapshotMessage snapshot, Collection<Integer> protectedSnapshotTicks) {
+    appliedSnapshotHistory.add(snapshot, protectedSnapshotTicks);
+    latestAppliedSnapshotTick(snapshot.serverTick());
+  }
+
+  /**
    * Finds an applied client-side snapshot by server tick.
    *
    * @param serverTick server tick to look up

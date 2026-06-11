@@ -74,6 +74,8 @@ public final class NetworkTelemetry {
   private static final LongAdder earlyStaleDeltaSnapshots = new LongAdder();
   private static final LongAdder handlerStaleFullSnapshots = new LongAdder();
   private static final LongAdder handlerStaleDeltaSnapshots = new LongAdder();
+  private static final LongAdder missingLocalDeltaBaselines = new LongAdder();
+  private static final LongAdder clientSnapshotResyncRequests = new LongAdder();
   private static final LongAdder periodicFullSnapshotsSent = new LongAdder();
   private static final LongAdder fallbackFullSnapshotsSent = new LongAdder();
   private static final LongAdder missingBaselineFullFallbacks = new LongAdder();
@@ -104,7 +106,7 @@ public final class NetworkTelemetry {
 
   private static final Map<Short, ClientTelemetry> serverClientTelemetry =
       new ConcurrentHashMap<>();
-  private static final Map<Short, PendingFullSnapshot> pendingFullSnapshots =
+  private static final Map<PendingFullSnapshotKey, PendingFullSnapshot> pendingFullSnapshots =
       new ConcurrentHashMap<>();
   private static final Map<Integer, Integer> inboundFullSnapshotBytesByTick =
       new ConcurrentHashMap<>();
@@ -138,6 +140,8 @@ public final class NetworkTelemetry {
   private static volatile String lastStaleSnapshotDropStage = "n/a";
   private static volatile String lastStaleSnapshotDropKind = "n/a";
   private static volatile int lastStaleSnapshotDropTick = -1;
+  private static volatile int lastMissingLocalBaseTick = -1;
+  private static volatile int lastMissingLocalDeltaTick = -1;
 
   private static volatile String lastUdpFallbackReason = "n/a";
   private static volatile String lastUdpDropReason = "n/a";
@@ -216,6 +220,8 @@ public final class NetworkTelemetry {
     reset(earlyStaleDeltaSnapshots);
     reset(handlerStaleFullSnapshots);
     reset(handlerStaleDeltaSnapshots);
+    reset(missingLocalDeltaBaselines);
+    reset(clientSnapshotResyncRequests);
     reset(periodicFullSnapshotsSent);
     reset(fallbackFullSnapshotsSent);
     reset(missingBaselineFullFallbacks);
@@ -269,6 +275,8 @@ public final class NetworkTelemetry {
     lastStaleSnapshotDropStage = "n/a";
     lastStaleSnapshotDropKind = "n/a";
     lastStaleSnapshotDropTick = -1;
+    lastMissingLocalBaseTick = -1;
+    lastMissingLocalDeltaTick = -1;
     lastUdpFallbackReason = "n/a";
     lastUdpDropReason = "n/a";
     lastUdpFailureReason = "n/a";
@@ -514,12 +522,25 @@ public final class NetworkTelemetry {
     }
     FullSnapshotSendReason normalizedReason = normalizeReason(reason);
     pendingFullSnapshots.put(
-        clientId,
+        new PendingFullSnapshotKey(clientId, serverTick),
         new PendingFullSnapshot(
             serverTick,
             Math.max(0, entityCount),
             normalizedReason,
             java.lang.System.currentTimeMillis()));
+  }
+
+  /**
+   * Clears pending full-snapshot reason telemetry when a scheduled send failed before accounting.
+   *
+   * @param clientId target client id
+   * @param serverTick snapshot tick
+   */
+  public static void recordFullSnapshotSendFailed(short clientId, int serverTick) {
+    if (clientId <= 0) {
+      return;
+    }
+    pendingFullSnapshots.remove(new PendingFullSnapshotKey(clientId, serverTick));
   }
 
   /**
@@ -685,6 +706,30 @@ public final class NetworkTelemetry {
    */
   public static void recordHandlerStaleSnapshot(boolean delta, int serverTick) {
     recordStaleSnapshot(delta, serverTick, false);
+  }
+
+  /**
+   * Records a delta that could not be applied because its local baseline was no longer retained.
+   *
+   * @param missingBaseTick delta baseline tick missing on this client
+   * @param deltaTick delta snapshot tick that referenced the missing baseline
+   */
+  public static void recordMissingLocalDeltaBaseline(int missingBaseTick, int deltaTick) {
+    missingLocalDeltaBaselines.increment();
+    lastMissingLocalBaseTick = missingBaseTick;
+    lastMissingLocalDeltaTick = deltaTick;
+  }
+
+  /**
+   * Records a reliable client request for a recovery full snapshot.
+   *
+   * @param missingBaseTick delta baseline tick missing on this client
+   * @param deltaTick delta snapshot tick that referenced the missing baseline
+   */
+  public static void recordClientSnapshotResyncRequest(int missingBaseTick, int deltaTick) {
+    clientSnapshotResyncRequests.increment();
+    lastMissingLocalBaseTick = missingBaseTick;
+    lastMissingLocalDeltaTick = deltaTick;
   }
 
   private static void recordStaleSnapshot(boolean delta, int serverTick, boolean early) {
@@ -976,7 +1021,15 @@ public final class NetworkTelemetry {
         .append("@")
         .append(formatTick(lastStaleSnapshotDropTick))
         .append(" staleFullBytes=")
-        .append(formatBytes(staleFullSnapshotBytes.sum()));
+        .append(formatBytes(staleFullSnapshotBytes.sum()))
+        .append(" missingLocalBase=")
+        .append(missingLocalDeltaBaselines.sum())
+        .append(" resyncReq=")
+        .append(clientSnapshotResyncRequests.sum())
+        .append(" lastMissing=")
+        .append(formatTick(lastMissingLocalBaseTick))
+        .append("->")
+        .append(formatTick(lastMissingLocalDeltaTick));
     RollingMax.Sample queueMax = queueAgeMicrosLastTenSeconds.max();
     RollingMax.Sample dispatchMax = dispatchMicrosLastTenSeconds.max();
     RollingMax.Sample tcpDecodeMax = tcpDecodeMicrosLastTenSeconds.max();
@@ -1226,7 +1279,8 @@ public final class NetworkTelemetry {
       return;
     }
     ClientTelemetry telemetry = clientTelemetry(clientId);
-    PendingFullSnapshot pending = pendingFullSnapshots.remove(clientId);
+    PendingFullSnapshot pending =
+        pendingFullSnapshots.remove(new PendingFullSnapshotKey(clientId, snapshot.serverTick()));
     FullSnapshotSendReason reason =
         pending != null && pending.serverTick() == snapshot.serverTick()
             ? pending.reason()
@@ -1461,6 +1515,8 @@ public final class NetworkTelemetry {
         + "/r="
         + formatCount(snapshots.lastDeltaRemovals());
   }
+
+  private record PendingFullSnapshotKey(short clientId, int serverTick) {}
 
   private record PendingFullSnapshot(
       int serverTick, int entityCount, FullSnapshotSendReason reason, long scheduledTimeMs) {}

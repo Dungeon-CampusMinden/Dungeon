@@ -425,6 +425,7 @@ public final class ClientNetwork {
       }
       lastSnapshotResyncMissingBaseTick = missingBaseTick;
       lastSnapshotResyncRequestNanos = now;
+      NetworkTelemetry.recordClientSnapshotResyncRequest(missingBaseTick, deltaTick);
       return SnapshotAck.requestResync(latestAppliedTick, missingBaseTick, deltaTick);
     }
   }
@@ -492,7 +493,7 @@ public final class ClientNetwork {
                 if (generation != snapshotAckGeneration) {
                   return;
                 }
-                if (tick >= lastPiggybackedSnapshotAckTick) {
+                if (reliableCarrier && tick >= lastPiggybackedSnapshotAckTick) {
                   lastPiggybackedSnapshotAckTick = tick;
                   lastPiggybackedSnapshotAckNanos = java.lang.System.nanoTime();
                 }
@@ -1222,7 +1223,7 @@ public final class ClientNetwork {
         return true;
       }
       if (checkDeltaBaseline && clientState.appliedSnapshot(delta.baseTick()).isEmpty()) {
-        NetworkTelemetry.recordEarlyStaleSnapshot(true, delta.serverTick());
+        NetworkTelemetry.recordMissingLocalDeltaBaseline(delta.baseTick(), delta.serverTick());
         requestSnapshotResync(delta.baseTick(), delta.serverTick());
         LOGGER.debug(
             "Dropped delta snapshot at tick {} before {}; missing local baseline {}.",

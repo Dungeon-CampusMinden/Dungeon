@@ -62,6 +62,7 @@ public final class AuthoritativeServerLoop {
   private final SnapshotHistory snapshotHistory = new SnapshotHistory(SERVER_DELTA_HISTORY_SIZE);
   private volatile int serverTick = 0;
   private String snapshotLevelName;
+  private Object snapshotLevelIdentity;
 
   /**
    * Creates a new AuthoritativeServerLoop with the given ServerTransport.
@@ -256,6 +257,8 @@ public final class AuthoritativeServerLoop {
                 snapshotSync.markFullSnapshotSent(currentSnapshot.serverTick());
               } else {
                 snapshotSync.markFullSnapshotSendFailed(currentSnapshot.serverTick());
+                NetworkTelemetry.recordFullSnapshotSendFailed(
+                    client.clientId(), currentSnapshot.serverTick());
               }
             });
   }
@@ -266,15 +269,21 @@ public final class AuthoritativeServerLoop {
       return;
     }
     String levelName = currentLevel.orElseThrow();
-    if (snapshotLevelName == null) {
-      snapshotLevelName = levelName;
+    Object levelIdentity = Game.currentLevel().map(level -> (Object) level).orElse(null);
+    if (snapshotLevelName == null && snapshotLevelIdentity == null) {
+      rememberSnapshotLevel(levelName, levelIdentity);
       return;
     }
-    if (!levelName.equals(snapshotLevelName)) {
+    if (!levelName.equals(snapshotLevelName) || levelIdentity != snapshotLevelIdentity) {
       snapshotHistory.clear();
       clients.forEach(client -> client.clearSnapshotBaseline(FullSnapshotSendReason.LEVEL_CHANGE));
-      snapshotLevelName = levelName;
+      rememberSnapshotLevel(levelName, levelIdentity);
     }
+  }
+
+  private void rememberSnapshotLevel(String levelName, Object levelIdentity) {
+    snapshotLevelName = levelName;
+    snapshotLevelIdentity = levelIdentity;
   }
 
   private Optional<String> currentLevelName() {

@@ -240,9 +240,9 @@ public class ClientNetworkTests {
     assertEquals(14, ((SnapshotAck) tcpMessages.get(0)).serverTick());
   }
 
-  /** Validates that recent input piggybacking suppresses explicit snapshot acknowledgements. */
+  /** Validates that UDP input piggybacking does not suppress reliable acknowledgements. */
   @Test
-  public void recentPiggybackedSnapshotAckSuppressesExplicitAckUntilQuiet() throws Exception {
+  public void udpInputPiggybackDoesNotSuppressExplicitAckWhenDue() throws Exception {
     List<NetworkMessage> udpMessages = new ArrayList<>();
     List<NetworkMessage> tcpMessages = new ArrayList<>();
     Session session = recordingSession(udpMessages, tcpMessages);
@@ -261,19 +261,15 @@ public class ClientNetworkTests {
     assertEquals(1, udpMessages.size());
     assertTrue(udpMessages.get(0) instanceof InputMessage);
     assertEquals(Optional.of(20), ((InputMessage) udpMessages.get(0)).lastSnapshotTick());
-    assertEquals(0, tcpMessages.size());
+    assertEquals(1, tcpMessages.size());
+    assertTrue(tcpMessages.get(0) instanceof SnapshotAck);
+    assertEquals(20, ((SnapshotAck) tcpMessages.get(0)).serverTick());
 
     setField("pendingSnapshotAckDeadlineNanos", java.lang.System.nanoTime() - 1L);
-    setField(
-        "lastPiggybackedSnapshotAckNanos",
-        java.lang.System.nanoTime()
-            - TimeUnit.MILLISECONDS.toNanos(NetworkConfig.SNAPSHOT_ACK_EXPLICIT_DELAY_MS + 1L));
 
     client.pollAndDispatch();
 
     assertEquals(1, tcpMessages.size());
-    assertTrue(tcpMessages.get(0) instanceof SnapshotAck);
-    assertEquals(20, ((SnapshotAck) tcpMessages.get(0)).serverTick());
   }
 
   /** Validates that reliable input piggybacking does not trigger a duplicate explicit ack. */

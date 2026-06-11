@@ -628,7 +628,8 @@ public final class GameLoop extends ScreenAdapter {
             Optional<SnapshotMessage> baseline = state.appliedSnapshot(event.baseTick());
             if (baseline.isEmpty()) {
               staleCheckNanos = java.lang.System.nanoTime() - staleCheckStartNanos;
-              NetworkTelemetry.recordHandlerStaleSnapshot(true, event.serverTick());
+              NetworkTelemetry.recordMissingLocalDeltaBaseline(
+                  event.baseTick(), event.serverTick());
               Game.network().requestSnapshotResync(event.baseTick(), event.serverTick());
               NetworkTelemetry.recordSnapshotHandlerTiming(
                   true, event.serverTick(), staleCheckNanos, 0L, 0L, 0L, 0L, true);
@@ -657,7 +658,7 @@ public final class GameLoop extends ScreenAdapter {
             Game.network().snapshotTranslator().applySnapshot(changedSnapshot, dispatcher);
             fullApplyNanos = java.lang.System.nanoTime() - fullApplyStartNanos;
             long reconcileStartNanos = java.lang.System.nanoTime();
-            state.rememberAppliedSnapshot(materializedSnapshot);
+            state.rememberAppliedSnapshot(materializedSnapshot, List.of(event.baseTick()));
             reconcileNetworkEntities(state, materializedSnapshot);
             reconcileNanos += java.lang.System.nanoTime() - reconcileStartNanos;
             long ackStartNanos = java.lang.System.nanoTime();

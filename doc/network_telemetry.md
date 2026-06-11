@@ -96,9 +96,9 @@ minus skipped/no-change frames.
 `stale(f/d)`
 : Total stale full and delta snapshots dropped before application. Expected: `0/0` or very low. A
 rising full count means reliable full snapshots are arriving too late. A rising delta count can
-happen when newer snapshots already arrived or the local baseline is missing. A missing local delta
-baseline now also sends a reliable client resync request so the server can respond with a
-client-specific recovery full snapshot.
+happen when newer snapshots already arrived. Missing local delta baselines are tracked separately on
+the client snapshot path line and can send a reliable client resync request so the server can
+respond with a client-specific recovery full snapshot.
 
 `early`
 : Stale full and delta snapshots dropped before the snapshot handler ran. This includes queue-time
@@ -147,9 +147,9 @@ reliable ACK because they refresh the delta baseline; deltas usually use coalesc
 ACKs. Expected: microseconds. High values suggest the send path is blocked or allocating heavily.
 
 `stale`
-: Whether the latest snapshot handler path dropped the snapshot as stale. For deltas, `true` can
-also mean the local baseline was missing. Missing local baselines should be rare; when they happen,
-the client requests a `CLIENT_MISSING_BASELINE` recovery full snapshot. Expected: usually `false`.
+: Whether the latest snapshot handler path dropped the snapshot before application. Missing local
+delta baselines are not counted in `stale(f/d)`, but this flag can still be `true` for a handler
+drop. Expected: usually `false`.
 
 `staleDrop=<stage>:<kind>@<tick>`
 : The latest stale-drop location, snapshot kind, and server tick. `stage` is usually `early`,
@@ -159,6 +159,18 @@ whether obsolete snapshots are being rejected before expensive work.
 `staleFullBytes`
 : Serialized bytes of stale full snapshots dropped by this client. Expected: `0 B`. If this grows,
 TCP is delivering full snapshots that the client no longer needs.
+
+`missingLocalBase`
+: Deltas that referenced a local baseline the client no longer retained. Expected: `0` during stable
+play after warmup.
+
+`resyncReq`
+: Reliable client resync requests admitted by the client-side rate limiter. Expected: flat during
+stable play; growth should line up with `missingLocalBase` and a bounded
+`CLIENT_MISSING_BASELINE` recovery full snapshot.
+
+`lastMissing=<base>-><delta>`
+: Latest missing local delta baseline and the delta tick that exposed it.
 
 ## Client Timing
 
@@ -453,6 +465,7 @@ For client and host on the same machine, a healthy stable period usually looks l
 - Server client `hist=true`.
 - Server client ACK `age` stays far below `cap`.
 - `missingBase` does not increase after warmup.
+- Client `missingLocalBase` and `resyncReq` stay flat at `0` after warmup.
 - `full1/5/30` becomes `0/0/0` after the initial full snapshot ages out unless reconnect, level
   change, missing-baseline recovery, hard resync, or an explicitly enabled safety fallback occurs.
 - `periodic/recovery` shows periodic `0`; recovery may include initial sync, but should stay flat
@@ -472,6 +485,7 @@ For client and host on the same machine, a healthy stable period usually looks l
 - Server client ACK age approaching or exceeding history `cap`.
 - `reason=MISSING_BASELINE_HISTORY` recurring during stable play.
 - `reason=CLIENT_MISSING_BASELINE` recurring during stable play.
+- Client `missingLocalBase` or `resyncReq` recurring during stable play.
 - `periodic/recovery` periodic side growing when no safety fallback was intentionally enabled.
 - `periodic/recovery` recovery side growing without initial sync, reconnect, level change,
   missing-baseline recovery, or hard resync.
