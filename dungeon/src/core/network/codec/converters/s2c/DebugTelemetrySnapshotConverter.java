@@ -94,6 +94,9 @@ public final class DebugTelemetrySnapshotConverter
             .setMaxFrameMicrosLastTenSeconds(message.timings().maxFrameMicrosLastTenSeconds())
             .setLastGcPauseMs(message.timings().lastGcPauseMs())
             .setMaxGcPauseMsLastTenSeconds(message.timings().maxGcPauseMsLastTenSeconds())
+            .setLastQueueDepth(message.timings().lastQueueDepth())
+            .setMaxQueueDepthLastTenSeconds(message.timings().maxQueueDepthLastTenSeconds())
+            .setLastQueueDrainCount(message.timings().lastQueueDrainCount())
             .setLastUdpFallbackReason(message.udp().lastFallbackReason())
             .setLastUdpDropReason(message.udp().lastDropReason())
             .setLastUdpFailureReason(message.udp().lastFailureReason());
@@ -189,7 +192,10 @@ public final class DebugTelemetrySnapshotConverter
             proto.getLastFrameMicros(),
             proto.getMaxFrameMicrosLastTenSeconds(),
             proto.getLastGcPauseMs(),
-            proto.getMaxGcPauseMsLastTenSeconds()),
+            proto.getMaxGcPauseMsLastTenSeconds(),
+            proto.getLastQueueDepth(),
+            proto.getMaxQueueDepthLastTenSeconds(),
+            proto.getLastQueueDrainCount()),
         clients);
   }
 

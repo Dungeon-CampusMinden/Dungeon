@@ -144,7 +144,10 @@ class NetworkCodecTest {
                 50L,
                 51L,
                 52L,
-                53L),
+                53L,
+                54,
+                55,
+                56),
             List.of(
                 new DebugTelemetrySnapshot.Client(
                     (short) 1,

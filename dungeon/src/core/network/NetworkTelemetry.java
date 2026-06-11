@@ -96,6 +96,7 @@ public final class NetworkTelemetry {
 
   private static final RollingMax tcpDecodeMicrosLastTenSeconds = new RollingMax(10_000L);
   private static final RollingMax queueAgeMicrosLastTenSeconds = new RollingMax(10_000L);
+  private static final RollingMax queueDepthLastTenSeconds = new RollingMax(10_000L);
   private static final RollingMax dispatchMicrosLastTenSeconds = new RollingMax(10_000L);
   private static final RollingMax networkDispatchMicrosLastTenSeconds = new RollingMax(10_000L);
   private static final RollingMax frameMicrosLastTenSeconds = new RollingMax(10_000L);
@@ -145,6 +146,8 @@ public final class NetworkTelemetry {
   private static volatile String lastTcpDecodeType = "n/a";
   private static volatile long lastTcpDecodeMicros = -1L;
   private static volatile long lastQueueAgeMicros = -1L;
+  private static volatile int lastQueueDepth = -1;
+  private static volatile int lastQueueDrainCount = -1;
   private static volatile long lastMessageDispatchMicros = -1L;
   private static volatile long lastNetworkDispatchMicros = -1L;
   private static volatile long lastFrameMicros = -1L;
@@ -230,6 +233,7 @@ public final class NetworkTelemetry {
     fullSnapshotBytesLastThirtySeconds.reset();
     tcpDecodeMicrosLastTenSeconds.reset();
     queueAgeMicrosLastTenSeconds.reset();
+    queueDepthLastTenSeconds.reset();
     dispatchMicrosLastTenSeconds.reset();
     networkDispatchMicrosLastTenSeconds.reset();
     frameMicrosLastTenSeconds.reset();
@@ -271,6 +275,8 @@ public final class NetworkTelemetry {
     lastTcpDecodeType = "n/a";
     lastTcpDecodeMicros = -1L;
     lastQueueAgeMicros = -1L;
+    lastQueueDepth = -1;
+    lastQueueDrainCount = -1;
     lastMessageDispatchMicros = -1L;
     lastNetworkDispatchMicros = -1L;
     lastFrameMicros = -1L;
@@ -530,6 +536,26 @@ public final class NetworkTelemetry {
     String label = messageName(message);
     queueAgeMicrosLastTenSeconds.add(lastQueueAgeMicros, label);
     dispatchMicrosLastTenSeconds.add(lastMessageDispatchMicros, label);
+  }
+
+  /**
+   * Records the inbound queue depth observed at the start of one network poll.
+   *
+   * @param queuedMessages messages waiting before the poll started
+   */
+  public static void recordInboundQueueDepth(int queuedMessages) {
+    int depth = Math.max(0, queuedMessages);
+    lastQueueDepth = depth;
+    queueDepthLastTenSeconds.add(depth, "queue");
+  }
+
+  /**
+   * Records how many inbound messages were drained during the latest network poll.
+   *
+   * @param drainedMessages messages removed from the inbound queue
+   */
+  public static void recordInboundQueueDrain(int drainedMessages) {
+    lastQueueDrainCount = Math.max(0, drainedMessages);
   }
 
   /**
@@ -874,7 +900,10 @@ public final class NetworkTelemetry {
             lastFrameMicros,
             frameMicrosLastTenSeconds.max().value(),
             lastGcPauseMs,
-            gcPauseMsLastTenSeconds.max().value()),
+            gcPauseMsLastTenSeconds.max().value(),
+            lastQueueDepth,
+            (int) queueDepthLastTenSeconds.max().value(),
+            lastQueueDrainCount),
         clients);
   }
 
@@ -965,12 +994,22 @@ public final class NetworkTelemetry {
         .append(formatMicros(lastTcpDecodeMicros))
         .append(" max10(q/d/dec)=")
         .append(formatMicros(queueMax.value()))
+        .append(" ")
+        .append(queueMax.label())
         .append("/")
         .append(formatMicros(dispatchMax.value()))
+        .append(" ")
+        .append(dispatchMax.label())
         .append("/")
         .append(tcpDecodeMax.label())
         .append(" ")
         .append(formatMicros(tcpDecodeMax.value()))
+        .append(" qDepth=")
+        .append(formatCount(lastQueueDepth))
+        .append("/")
+        .append(formatCount((int) queueDepthLastTenSeconds.max().value()))
+        .append(" drain=")
+        .append(formatCount(lastQueueDrainCount))
         .append(" gc=")
         .append(formatMillis(lastGcPauseMs));
     text.append("\nClient transport out: tcp=")
@@ -1118,7 +1157,15 @@ public final class NetworkTelemetry {
         .append(" queue=")
         .append(formatMicros(timings.lastQueueAgeMicros()))
         .append(" max10=")
+        .append(timings.maxQueueAgeTypeLastTenSeconds())
+        .append(" ")
         .append(formatMicros(timings.maxQueueAgeMicrosLastTenSeconds()))
+        .append(" qDepth=")
+        .append(formatCount(timings.lastQueueDepth()))
+        .append("/")
+        .append(formatCount(timings.maxQueueDepthLastTenSeconds()))
+        .append(" drain=")
+        .append(formatCount(timings.lastQueueDrainCount()))
         .append(" tcpDecode=")
         .append(timings.lastTcpDecodeType())
         .append(" ")

@@ -614,7 +614,10 @@ public class S2CConverterTest {
                 50L,
                 51L,
                 52L,
-                53L),
+                53L,
+                54,
+                55,
+                56),
             List.of(
                 new DebugTelemetrySnapshot.Client(
                     (short) 2, true, 101.5f, 500L, 44, 45, 1, 17L, true, 128, 2.13, 3L, 4L, 5L, 6L,
@@ -632,6 +635,9 @@ public class S2CConverterTest {
     assertEquals(31L, proto.getDebugTcpOutboundMessages());
     assertEquals(38L, proto.getDebugUdpInboundBytes());
     assertEquals("PERIODIC_BASELINE", proto.getLastFullSnapshotReason());
+    assertEquals(54, proto.getLastQueueDepth());
+    assertEquals(55, proto.getMaxQueueDepthLastTenSeconds());
+    assertEquals(56, proto.getLastQueueDrainCount());
 
     DebugTelemetrySnapshot roundTrip = DEBUG_TELEMETRY_SNAPSHOT_CONVERTER.fromProto(proto);
     assertEquals(message.requestId(), roundTrip.requestId());
@@ -643,6 +649,12 @@ public class S2CConverterTest {
         message.snapshots().lastDeltaRemovals(), roundTrip.snapshots().lastDeltaRemovals());
     assertEquals(message.udp().lastFallbackReason(), roundTrip.udp().lastFallbackReason());
     assertEquals(message.timings().lastTcpDecodeType(), roundTrip.timings().lastTcpDecodeType());
+    assertEquals(message.timings().lastQueueDepth(), roundTrip.timings().lastQueueDepth());
+    assertEquals(
+        message.timings().maxQueueDepthLastTenSeconds(),
+        roundTrip.timings().maxQueueDepthLastTenSeconds());
+    assertEquals(
+        message.timings().lastQueueDrainCount(), roundTrip.timings().lastQueueDrainCount());
     assertEquals(1, roundTrip.clients().size());
     assertEquals(2, roundTrip.clients().getFirst().clientId());
     assertEquals(101.5f, roundTrip.clients().getFirst().rttEstimateMs(), DELTA);

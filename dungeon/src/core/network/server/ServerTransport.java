@@ -94,6 +94,7 @@ public final class ServerTransport {
   private static final int DEBUG_TELEMETRY_MIN_INTERVAL_MS = 250;
 
   private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
+  private final AtomicInteger inboundQueueDepth = new AtomicInteger();
 
   // Transport/session mappings
   private final ConcurrentHashMap<ChannelId, Session> sessions = new ConcurrentHashMap<>();
@@ -403,7 +404,7 @@ public final class ServerTransport {
         LOGGER.warn("Received TCP message for unknown session on channel {}", ctx.channel());
         return;
       }
-      inboundQueue.offer(new QueuedNetworkMessage(session, msg, receiveNanos));
+      enqueueInbound(session, msg, receiveNanos);
     }
 
     @Override
@@ -495,7 +496,7 @@ public final class ServerTransport {
       }
 
       session.markUdpActivity();
-      inboundQueue.offer(new QueuedNetworkMessage(session, msg, receiveNanos));
+      enqueueInbound(session, msg, receiveNanos);
     }
 
     @Override
@@ -514,7 +515,11 @@ public final class ServerTransport {
    */
   public void pollAndDispatch() {
     QueuedNetworkMessage msg;
+    NetworkTelemetry.recordInboundQueueDepth(inboundQueueDepth.get());
+    int drainedMessages = 0;
     while ((msg = inboundQueue.poll()) != null) {
+      inboundQueueDepth.updateAndGet(depth -> Math.max(0, depth - 1));
+      drainedMessages++;
       long dispatchStartNanos = System.nanoTime();
       try {
         Game.network().messageDispatcher().dispatch(msg.session(), msg.message());
@@ -527,7 +532,13 @@ public final class ServerTransport {
             System.nanoTime() - dispatchStartNanos);
       }
     }
+    NetworkTelemetry.recordInboundQueueDrain(drainedMessages);
     expireStaleUdpSessions(System.currentTimeMillis());
+  }
+
+  private void enqueueInbound(Session session, NetworkMessage message, long receiveNanos) {
+    inboundQueueDepth.incrementAndGet();
+    inboundQueue.offer(new QueuedNetworkMessage(session, message, receiveNanos));
   }
 
   private void setupDispatchers() {

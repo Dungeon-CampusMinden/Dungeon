@@ -213,6 +213,9 @@ public record DebugTelemetrySnapshot(
    * @param maxFrameMicrosLastTenSeconds max frame/tick duration in the last ten seconds
    * @param lastGcPauseMs latest observed GC collection-time delta
    * @param maxGcPauseMsLastTenSeconds max observed GC collection-time delta in the last ten seconds
+   * @param lastQueueDepth inbound messages waiting when the latest network poll started
+   * @param maxQueueDepthLastTenSeconds max inbound queue depth in the last ten seconds
+   * @param lastQueueDrainCount inbound messages drained by the latest network poll
    */
   public record Timings(
       String lastTcpDecodeType,
@@ -230,7 +233,10 @@ public record DebugTelemetrySnapshot(
       long lastFrameMicros,
       long maxFrameMicrosLastTenSeconds,
       long lastGcPauseMs,
-      long maxGcPauseMsLastTenSeconds) {
+      long maxGcPauseMsLastTenSeconds,
+      int lastQueueDepth,
+      int maxQueueDepthLastTenSeconds,
+      int lastQueueDrainCount) {
     /**
      * Creates a timing diagnostics payload.
      *
@@ -256,7 +262,8 @@ public record DebugTelemetrySnapshot(
      */
     public static Timings empty() {
       return new Timings(
-          "n/a", -1L, -1L, "n/a", -1L, -1L, "n/a", -1L, -1L, "n/a", -1L, -1L, -1L, -1L, -1L, -1L);
+          "n/a", -1L, -1L, "n/a", -1L, -1L, "n/a", -1L, -1L, "n/a", -1L, -1L, -1L, -1L, -1L, -1L,
+          -1, -1, -1);
     }
   }
 

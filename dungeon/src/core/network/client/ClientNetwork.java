@@ -62,6 +62,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Netty-backed client transport using a single {@link Session} to mirror server-side semantics.
@@ -85,6 +86,7 @@ public final class ClientNetwork {
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
   private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
+  private final AtomicInteger inboundQueueDepth = new AtomicInteger();
   private final Queue<Runnable> lifecycleEvents = new ConcurrentLinkedQueue<>();
   private final Object snapshotAckLock = new Object();
 
@@ -476,7 +478,11 @@ public final class ClientNetwork {
       }
     }
     QueuedNetworkMessage msg;
+    NetworkTelemetry.recordInboundQueueDepth(inboundQueueDepth.get());
+    int drainedMessages = 0;
     while ((msg = inboundQueue.poll()) != null) {
+      inboundQueueDepth.updateAndGet(depth -> Math.max(0, depth - 1));
+      drainedMessages++;
       if (dropEarlyStaleSnapshot(msg.session(), msg.message(), true, "dispatch")) {
         continue;
       }
@@ -492,6 +498,7 @@ public final class ClientNetwork {
             java.lang.System.nanoTime() - dispatchStartNanos);
       }
     }
+    NetworkTelemetry.recordInboundQueueDrain(drainedMessages);
     updateTelemetryClientState();
     flushPendingSnapshotAckIfDue();
   }
@@ -820,7 +827,7 @@ public final class ClientNetwork {
       if (dropEarlyStaleSnapshot(currentSession, msg, false, "queue")) {
         return;
       }
-      inboundQueue.offer(new QueuedNetworkMessage(currentSession, msg, receiveNanos));
+      enqueueInbound(currentSession, msg, receiveNanos);
     } else {
       LOGGER.debug(
           "Dropping TCP inbound before session init: {} size={}B",
@@ -854,8 +861,7 @@ public final class ClientNetwork {
                   Session currentSession = session;
                   if (currentSession != null) {
                     if (!dropEarlyStaleSnapshot(currentSession, msg, false, "queue")) {
-                      inboundQueue.offer(
-                          new QueuedNetworkMessage(currentSession, msg, receiveNanos));
+                      enqueueInbound(currentSession, msg, receiveNanos);
                     }
                   } else {
                     NetworkTelemetry.recordUdpDrop("client session missing");
@@ -1133,6 +1139,11 @@ public final class ClientNetwork {
       LOGGER.info(message);
     }
     ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
+  }
+
+  private void enqueueInbound(Session currentSession, NetworkMessage msg, long receiveNanos) {
+    inboundQueueDepth.incrementAndGet();
+    inboundQueue.offer(new QueuedNetworkMessage(currentSession, msg, receiveNanos));
   }
 
   private boolean dropEarlyStaleSnapshot(

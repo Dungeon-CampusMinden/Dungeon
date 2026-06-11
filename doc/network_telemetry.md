@@ -1,13 +1,14 @@
 # Network Telemetry Overlay
 
 The network telemetry overlay is a debug view for multiplayer transport, snapshot synchronization,
-and frame/dispatch timing. It is intended to answer four questions:
+and frame/dispatch timing. It is intended to answer five questions:
 
 1. Is UDP healthy?
 2. Are full snapshots expected, or are they fallback/resync traffic?
 3. Are ACK baselines still present in snapshot history?
 4. Is a hitch happening in decode, queueing, dispatch, snapshot apply, reconciliation, ACK send, or
    GC?
+5. Is queue age caused by normal frame/tick scheduling, or by real inbound backlog?
 
 When the network telemetry overlay is open, press `Ctrl+C` to copy the current multiline telemetry
 string to the system clipboard.
@@ -22,22 +23,22 @@ Example shape:
 
 ```text
 Network Telemetry
-Client local: connected id=1 udp=ready mode=keepalive ackAge=822 ms snap=2630 rtt=15.9 ms debug=pong 15.9 ms
-Client snapshots: full=20 delta=338 stale(f/d)=0/0 last=full@2630 e/r=111/0 2.17 ms
-Client snapshot path: staleCheck=0 us fullApply=2.10 ms deltaMat=0 us reconcile=18 us ack=46 us stale=false staleFullBytes=0 B
-Client timing: frame=16.66 ms net=2 us queue=17.00 ms dispatch=2.19 ms tcpDecode=SnapshotMessage 293 us max10(q/d/dec)=17.00 ms/3.66 ms/SnapshotMessage 332 us gc=1 ms
-Client transport out: tcp=1563/5.1 KiB udp=347/8.5 KiB
-Client transport in:  tcp=1241/1222.9 KiB udp=338/97.3 KiB
-Client debug tx/rx: tcp=19/36 udp=0/0
-Server authoritative: clients=1 udp=1/1 capture(c/s)=1830512251700/1830512220300
-Server snapshots: full=19 last=t2270/34.7 KiB/e=111 | delta=335 last=t2590/299 B/d=1/r=0 build=138 us reason=MISSING_BASELINE_HISTORY periodic/fallback=0/19 missingBase=8 staleFullBytes=0 B rate1/5/30=69/196/354
-Server history: tick=2590 size=128/128 cap=2.13 s
-Server transport out: tcp=1239/1188.1 KiB udp=335/96.6 KiB bytes1/5/30=19.6 KiB/91.1 KiB/1284.8 KiB
-Server transport in:  tcp=1559/5.1 KiB udp=346/8.5 KiB
-Server debug tx/rx: tcp=34/18 udp=0/0
+Client local: connected id=1 udp=ready mode=keepalive ackAge=31 ms snap=3337 rtt=16.3 ms debug=pong 16.3 ms
+Client snapshots: full=8 delta=1329 stale(f/d)=0/0 early=0/0 handler=0/0 last=delta@3337 e/r=1/0 201 us
+Client snapshot path: staleCheck=0 us fullApply=92 us deltaMat=43 us reconcile=63 us ackQueue=0 us stale=false staleDrop=n/a:n/a@n/a staleFullBytes=0 B
+Client timing: frame=17.39 ms net=2 us queue=4.84 ms dispatch=3 us tcpDecode=RegisterAck 33 us max10(q/d/dec)=16.69 ms DeltaSnapshotMessage/2.45 ms SnapshotMessage/SnapshotMessage 330 us qDepth=0/2 drain=0 gc=1 ms
+Client transport out: tcp=180/863 B udp=1631/47.9 KiB
+Client transport in:  tcp=45/334.2 KiB udp=1329/384.8 KiB
+Client debug tx/rx: tcp=43/84 udp=0/0
+Server authoritative: clients=1 udp=1/1 capture(c/s)=10192135073700/10192129719500
+Server snapshots: full=8 last=t3151/34.7 KiB/e=111 | delta=1329 last=t3337/305 B/d=1/r=0 build=88 us reason=PERIODIC_BASELINE periodic/fallback=7/1 missingBase=0 staleFullBytes=0 B rate1/5/30=25/97/723
+Server history: tick=3386 size=601/600 cap=10.00 s
+Server transport out: tcp=44/334.2 KiB udp=1329/384.8 KiB bytes1/5/30=7.1 KiB/62.5 KiB/380.6 KiB
+Server transport in:  tcp=180/863 B udp=1630/47.8 KiB
+Server debug tx/rx: tcp=83/43 udp=0/0
 Server UDP: fallback=0 oversized=0 sendFail=0 dropped=0 last(f/drop/fail)=n/a/n/a/n/a
-Server timing: frame=282 us max10=2.23 ms net=4 us max10=81 us queue=8.23 ms max10=17.62 ms tcpDecode=SnapshotAck 9 us max10=SnapshotAck 67 us gc=1 ms/5 ms
-Server client 1: ack=2589 age=1t/17 ms hist=true cap=128t/2.13 s full1/5/30=0/1/19 bytes=0 B/34.7 KiB/660.1 KiB periodic/fallback=0/19 missingBase=8 lastFull=MISSING_BASELINE_HISTORY@2270/34.7 KiB age=5.1 s
+Server timing: frame=248 us max10=2.95 ms net=1 us max10=140 us queue=4.35 ms max10=InputMessage 20.90 ms qDepth=0/4 drain=0 tcpDecode=DebugPing 22 us max10=DebugPing 33 us gc=2 ms/3 ms
+Server client 1: ack=3337 age=49t/817 ms hist=true cap=600t/10.00 s full1/5/30=0/1/5 bytes=0 B/34.7 KiB/173.7 KiB periodic/fallback=7/1 missingBase=0 lastFull=PERIODIC_BASELINE@3151/34.7 KiB age=3.8 s
 ```
 
 ## Client Local
@@ -92,9 +93,18 @@ With the current `60 Hz` server delta rate, local healthy play can approach roug
 minus skipped/no-change frames.
 
 `stale(f/d)`
-: Stale full and delta snapshots dropped before application. Expected: `0/0` or very low. A rising
-full count means reliable full snapshots are arriving too late. A rising delta count can happen when
-newer snapshots already arrived or the local baseline is missing.
+: Total stale full and delta snapshots dropped before application. Expected: `0/0` or very low. A
+rising full count means reliable full snapshots are arriving too late. A rising delta count can
+happen when newer snapshots already arrived or the local baseline is missing.
+
+`early`
+: Stale full and delta snapshots dropped before the snapshot handler ran. This includes queue-time
+or pre-dispatch stale drops. Expected: `0/0` in healthy stable play. If this rises while handler
+stale stays flat, early rejection is protecting the expensive apply/reconciliation path.
+
+`handler`
+: Stale full and delta snapshots dropped by the snapshot handlers themselves. These checks are
+correctness backstops after early rejection. Expected: `0/0` in healthy stable play.
 
 `last=<kind>@<tick>`
 : The kind and server tick of the latest handled snapshot. Expected: tick increases over time.
@@ -128,13 +138,19 @@ High values point to expensive delta reconstruction.
 : Time spent reconciling tracked network entities after snapshot application, including removals.
 Expected: microseconds to low milliseconds. High values point to entity tracking or removal costs.
 
-`ack`
-: Time spent sending the snapshot acknowledgement. Expected: microseconds. High values suggest the
-send path is blocked or allocating heavily.
+`ackQueue`
+: Time spent queueing or sending the snapshot acknowledgement. Full snapshots use an immediate
+reliable ACK because they refresh the delta baseline; deltas usually use coalesced or piggybacked
+ACKs. Expected: microseconds. High values suggest the send path is blocked or allocating heavily.
 
 `stale`
 : Whether the latest snapshot handler path dropped the snapshot as stale. For deltas, `true` can
 also mean the local baseline was missing. Expected: usually `false`.
+
+`staleDrop=<stage>:<kind>@<tick>`
+: The latest stale-drop location, snapshot kind, and server tick. `stage` is usually `early`,
+`handler`, or `n/a`; `kind` is `full`, `delta`, or `n/a`. Use this with `early` and `handler` to see
+whether obsolete snapshots are being rejected before expensive work.
 
 `staleFullBytes`
 : Serialized bytes of stale full snapshots dropped by this client. Expected: `0 B`. If this grows,
@@ -164,9 +180,20 @@ values identify game-thread message handlers as the hitch source.
 full snapshots may take hundreds of microseconds. Multi-millisecond decode is suspicious.
 
 `max10(q/d/dec)`
-: Rolling 10 second maxima for queue age, dispatch duration, and TCP decode duration. The decode
-entry includes the message type. Use this to catch spikes that are gone by the time you read the
-latest values.
+: Rolling 10 second maxima for queue age, dispatch duration, and TCP decode duration. Queue and
+dispatch entries include the message type after the duration; the decode entry includes the message
+type before the duration. Use this to catch spikes that are gone by the time you read the latest
+values.
+
+`qDepth=<current>/<max10>`
+: Inbound messages waiting when the latest network poll started, plus the rolling 10 second maximum
+depth. Expected: usually `0` or very low. Low depth with queue age near one frame usually means
+normal frame/tick scheduling. Growing depth means the game/server thread is not draining messages
+fast enough.
+
+`drain`
+: Inbound messages removed from the queue during the latest network poll. Expected: often `0` or a
+small number. High drain counts together with growing `qDepth` indicate backlog.
 
 `gc`
 : Latest observed JVM GC collection-time delta on this process. Expected: `n/a` or low milliseconds.
@@ -268,12 +295,12 @@ changes are emitted.
 
 `size=<current>/<capacity>`
 : Number of retained baseline snapshots and maximum retained snapshots. Expected after warmup:
-usually full, for example `128/128`.
+usually full, for example `600/600`.
 
 `cap`
-: Approximate time coverage of the snapshot history. With `128` retained snapshots at `60 Hz`, this
-is about `2.13 s`. ACK age should normally stay well below this. If ACK age exceeds this, missing
-baseline fallback becomes likely.
+: Approximate time coverage of the snapshot history. With the current `600` retained snapshots at
+`60 Hz`, this is about `10.00 s`. ACK age should normally stay well below this. If ACK age exceeds
+this, missing baseline fallback becomes likely.
 
 ## Server Transport
 
@@ -330,6 +357,19 @@ session, stale mapping, or missing registration. Expected: `0` or very low.
 : Age of the latest server inbound message when it reached the game-thread dispatcher. Expected
 local: usually under one tick/frame. Sustained high values mean the server is not draining input
 fast enough.
+
+`max10=<type> <time>`
+: Rolling 10 second maximum server inbound queue age and the message type that produced it. A max on
+`InputMessage` is more relevant to gameplay latency than a max on debug telemetry.
+
+`qDepth=<current>/<max10>`
+: Server inbound messages waiting when the latest network poll started, plus the rolling 10 second
+maximum depth. Low depth with queue age near one tick is usually normal scheduling; growing depth
+means real backlog.
+
+`drain`
+: Server inbound messages removed from the queue during the latest network poll. High values are
+only concerning when `qDepth` also grows or frame/tick time rises.
 
 `tcpDecode=<type> <time>`
 : Latest TCP decode type and duration on the server. Expected: tiny for `SnapshotAck`, larger for
@@ -398,9 +438,12 @@ For client and host on the same machine, a healthy stable period usually looks l
 - `missingBase` does not increase after warmup.
 - `full1/5/30` matches the configured periodic cadence; fallback and `missingBase` stay flat after
   warmup.
+- Client `early`, `handler`, and `stale(f/d)` stay `0/0` or nearly zero.
 - Full snapshot apply time stays below a few milliseconds locally.
 - Client `frame` stays around `16.6 ms` for 60 FPS.
 - Client/server `queue`, `dispatch`, `tcpDecode`, and `gc` maxima do not align with visible hitches.
+- Client/server `qDepth` stays low. Queue age near one frame/tick is usually fine when depth stays
+  low.
 
 ## Red Flags
 
@@ -412,6 +455,9 @@ For client and host on the same machine, a healthy stable period usually looks l
 - `periodic/fallback` fallback side growing without reconnect or level change.
 - `full1/5/30` materially above the configured periodic cadence.
 - `staleFullBytes` increasing on the client.
-- Client `queue` or `dispatch` repeatedly above one frame.
+- Client `queue` or `dispatch` repeatedly above one frame, especially when the queue max type is a
+  gameplay message such as `InputMessage` or `SnapshotMessage`.
+- Client/server `qDepth` or `drain` repeatedly high or growing, which means real inbound backlog
+  rather than ordinary frame/tick scheduling.
 - Snapshot apply, materialization, reconciliation, or ACK timings above the frame budget.
 - GC values repeatedly spiking near visible stutters.

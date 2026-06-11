@@ -123,6 +123,9 @@ message DebugTelemetrySnapshot {
   int64 max_frame_micros_last_ten_seconds = 72;
   int64 last_gc_pause_ms = 73;
   int64 max_gc_pause_ms_last_ten_seconds = 74;
+  int32 last_queue_depth = 75;
+  int32 max_queue_depth_last_ten_seconds = 76;
+  int32 last_queue_drain_count = 77;
 }
 
 // Server-to-client: debug pong for real RTT measurement.
