@@ -1,10 +1,13 @@
 package core.game;
 
+import contrib.entities.CharacterClass;
 import core.configuration.Configuration;
 import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -24,9 +27,12 @@ public final class PreRunConfiguration {
   // Multiplayer
   private static boolean MULTIPLAYER_ENABLED = false;
   private static boolean NETWORK_IS_SERVER = true;
-  private static String NETWORK_SERVER_ADDRESS = "127.0.0.1";
+  private static String NETWORK_SERVER_ADDRESS = "";
   private static int NETWORK_PORT = 7777;
   private static String USERNAME = "Player";
+  private static CharacterClass MULTIPLAYER_CHARACTER_CLASS = null;
+  private static List<CharacterClass> MULTIPLAYER_CHARACTER_CLASSES =
+      List.of(CharacterClass.WIZARD);
 
   private static int WINDOW_WIDTH = 1280;
   private static int WINDOW_HEIGHT = 720;
@@ -34,7 +40,6 @@ public final class PreRunConfiguration {
   private static boolean FULL_SCREEN = false;
 
   private static boolean RESIZEABLE = true;
-  private static String WINDOW_TITLE = "PM-Dungeon";
   private static IPath LOGO_PATH = new SimpleIPath("logo/cat_logo_35x35.png");
   private static boolean DISABLE_AUDIO = false;
   private static boolean DRAW_CHECK_PATTERN = true;
@@ -130,24 +135,6 @@ public final class PreRunConfiguration {
    */
   public static void resizeable(boolean resizeable) {
     RESIZEABLE = resizeable;
-  }
-
-  /**
-   * Gets the title of the game window.
-   *
-   * @return The title of the game window.
-   */
-  public static String windowTitle() {
-    return WINDOW_TITLE;
-  }
-
-  /**
-   * Sets the title of the game window.
-   *
-   * @param windowTitle The title of the game window.
-   */
-  public static void windowTitle(String windowTitle) {
-    WINDOW_TITLE = windowTitle;
   }
 
   /**
@@ -299,12 +286,21 @@ public final class PreRunConfiguration {
   }
 
   /**
+   * Checks whether a multiplayer server address was explicitly configured.
+   *
+   * @return True if the server address is not blank, false otherwise.
+   */
+  public static boolean hasNetworkServerAddress() {
+    return !NETWORK_SERVER_ADDRESS.isBlank();
+  }
+
+  /**
    * Sets the server address for multiplayer.
    *
    * @param serverAddress The server address.
    */
   public static void networkServerAddress(String serverAddress) {
-    NETWORK_SERVER_ADDRESS = serverAddress;
+    NETWORK_SERVER_ADDRESS = serverAddress == null ? "" : serverAddress.trim();
   }
 
   /**
@@ -366,5 +362,48 @@ public final class PreRunConfiguration {
     } else {
       throw new IllegalArgumentException("Username must not be empty or contain underscores.");
     }
+  }
+
+  /**
+   * Gets the requested character class for multiplayer connections.
+   *
+   * @return the requested character class, or an empty {@link Optional} to use the server default
+   */
+  public static Optional<CharacterClass> multiplayerCharacterClass() {
+    return Optional.ofNullable(MULTIPLAYER_CHARACTER_CLASS);
+  }
+
+  /**
+   * Sets the requested character class for multiplayer connections.
+   *
+   * @param characterClass the requested character class
+   */
+  public static void multiplayerCharacterClass(CharacterClass characterClass) {
+    MULTIPLAYER_CHARACTER_CLASS = characterClass;
+  }
+
+  /**
+   * Gets the fallback character classes used by multiplayer servers for clients without an explicit
+   * class selection.
+   *
+   * @return the ordered fallback character classes used for round-robin assignment
+   */
+  public static List<CharacterClass> multiplayerCharacterClasses() {
+    return MULTIPLAYER_CHARACTER_CLASSES;
+  }
+
+  /**
+   * Sets the fallback character classes used by multiplayer servers for clients without an explicit
+   * class selection.
+   *
+   * @param characterClasses the ordered fallback character classes used for round-robin assignment
+   * @throws IllegalArgumentException if the list is null or empty
+   */
+  public static void multiplayerCharacterClasses(CharacterClass... characterClasses) {
+    if (characterClasses == null || characterClasses.length == 0) {
+      throw new IllegalArgumentException("characterClasses must not be null or empty.");
+    }
+
+    MULTIPLAYER_CHARACTER_CLASSES = List.of(characterClasses);
   }
 }

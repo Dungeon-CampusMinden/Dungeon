@@ -4,12 +4,17 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.SoundComponent;
+import core.network.messages.c2s.SoundFinishedMessage;
 import core.sound.SoundSpec;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.PlayHandle;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Client-side system for handling positional audio. For each entity with a SoundComponent, plays
@@ -136,7 +141,12 @@ public class SoundSystem extends System {
             soundSpec.looping(),
             soundSpec.pitch(),
             0,
-            () -> Game.audio().notifySoundFinished(soundInstanceId));
+            () -> {
+              if (Game.isMultiplayerClient()) {
+                Game.network().send((short) 0, new SoundFinishedMessage(soundInstanceId), true);
+              }
+              Game.audio().notifySoundFinished(soundInstanceId);
+            });
 
     handleOpt.ifPresentOrElse(
         handle -> entityActiveSounds.put(soundInstanceId, handle),

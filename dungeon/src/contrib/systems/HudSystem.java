@@ -15,7 +15,12 @@ import core.network.server.DialogTracker;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * The basic handling of any UIComponent. Adds them to the Stage, updates the Stage each Frame to
@@ -55,6 +60,22 @@ public final class HudSystem extends System {
   }
 
   /**
+   * Returns whether there is any open pausing UI for a given entity.
+   *
+   * @param entity the entity to check for
+   * @return true if there is an open pausing UI for the entity, false otherwise
+   */
+  public boolean hasOpenPausingUI(Entity entity) {
+    return entityUIComponentMap.values().stream()
+        .anyMatch(
+            component ->
+                component.willPauseGame()
+                    && component.isVisible()
+                    && Arrays.stream(component.targetEntityIds())
+                        .anyMatch(id -> id == entity.id()));
+  }
+
+  /**
    * Once a UIComponent is removed, its Dialog has to be removed from the Stage.
    *
    * @param entity Entity which no longer has a UIComponent.
@@ -63,6 +84,27 @@ public final class HudSystem extends System {
     Group remove = entityGroupMap.remove(entity);
     if (remove != null) {
       remove.remove();
+    }
+    entityUIComponentMap.remove(entity);
+    int[] targets =
+        entity.fetch(UIComponent.class).map(UIComponent::targetEntityIds).orElse(new int[0]);
+
+    if (targets.length == 0) {
+      // if no specific targets, decrease for all players
+      Game.allPlayers()
+          .forEach(
+              playerEntity -> {
+                playerEntity
+                    .fetch(PlayerComponent.class)
+                    .ifPresent(PlayerComponent::decrementOpenDialogs);
+              });
+    } else {
+      for (Integer targetId : targets) {
+        Optional<Entity> target = Game.findEntityById(targetId);
+        target
+            .flatMap(t -> t.fetch(PlayerComponent.class))
+            .ifPresent(PlayerComponent::decrementOpenDialogs);
+      }
     }
   }
 
@@ -103,19 +145,15 @@ public final class HudSystem extends System {
 
     Game.stage()
         .ifPresentOrElse(
-            stage -> {
-              addDialogToStage(dialog, stage);
-              addMapping(entity, dialog, component);
-              DialogTracker.instance().registerDialog(component);
-            },
-            () -> {
-              // Headless mode,
-              if (PreRunConfiguration.multiplayerEnabled()
-                  && PreRunConfiguration.isNetworkServer()) {
-                sendDialogToClients(entity, component, affectedIds);
-                addMapping(entity, dialog, component);
-              }
-            });
+            stage -> addDialogToStage(dialog, stage),
+            () -> sendDialogToClients(entity, component, affectedIds));
+
+    addMapping(entity, dialog, component);
+    // Multiplayer clients only render dialogs. The server keeps callback ownership and
+    // response authorization in DialogTracker.
+    if (!Game.isMultiplayerClient()) {
+      DialogTracker.instance().registerDialog(component);
+    }
   }
 
   /**
@@ -138,8 +176,6 @@ public final class HudSystem extends System {
     if (clientIds.isEmpty()) {
       return; // No clients to send to
     }
-
-    DialogTracker.instance().registerDialog(component);
 
     // Send dialog to all target clients
     DialogShowMessage msg =
@@ -170,11 +206,14 @@ public final class HudSystem extends System {
 
   @Override
   public void execute() {
-    if (filteredEntityStream(UIComponent.class).anyMatch(this::pausesGame)) {
-      if (!ipaused) pauseGame();
-    } else {
-      if (ipaused) unpauseGame();
-    }
+    try {
+      if (filteredEntityStream(UIComponent.class).anyMatch(this::pausesGame)) {
+        if (!ipaused) pauseGame();
+      } else {
+        if (ipaused) unpauseGame();
+      }
+    } catch (Exception ignored) {
+    } // only a hotfix for reconnecting clients
 
     // clean up any entities that no longer have a UIComponent
     entityGroupMap.keySet().removeIf(entity -> !entity.isPresent(UIComponent.class));

@@ -4,8 +4,9 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import core.Component;
-import java.io.Serializable;
-import java.util.*;
+import core.network.messages.c2s.DialogResponseMessage;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -25,9 +26,7 @@ public final class UIComponent implements Component {
   private final DialogContext dialogContext;
 
   /** Server-side callbacks map. Keys match callback keys sent by clients. */
-  private final Map<String, Consumer<Serializable>> callbacks = new HashMap<>();
-
-  private Consumer<UIComponent> onClose = (uiComponent) -> {};
+  private final Map<String, Consumer<DialogResponseMessage.Payload>> callbacks = new HashMap<>();
 
   private Group dialog = null;
 
@@ -83,10 +82,11 @@ public final class UIComponent implements Component {
    * executes it with the provided data.
    *
    * @param key the callback key (e.g., "onConfirm", "craft", "cancel")
-   * @param callback the callback to execute, receives optional custom data
+   * @param callback the callback to execute, receives optional custom payload
    * @return this UIComponent for method chaining
    */
-  public UIComponent registerCallback(String key, Consumer<Serializable> callback) {
+  public UIComponent registerCallback(
+      String key, Consumer<DialogResponseMessage.Payload> callback) {
     if (key == null || callback == null) {
       throw new IllegalArgumentException("key and callback must not be null");
     }
@@ -95,33 +95,11 @@ public final class UIComponent implements Component {
   }
 
   /**
-   * Returns the onClose callback.
-   *
-   * @return the onClose callback
-   */
-  public Consumer<UIComponent> onClose() {
-    return onClose;
-  }
-
-  /**
-   * Sets the onClose callback.
-   *
-   * @param onClose the onClose callback to set
-   * @return this UIComponent for method chaining
-   */
-  public UIComponent onClose(Consumer<UIComponent> onClose) {
-    if (onClose != null) {
-      this.onClose = onClose;
-    }
-    return this;
-  }
-
-  /**
    * Gets all registered callbacks.
    *
    * @return the callbacks map (unmodifiable view)
    */
-  public Map<String, Consumer<Serializable>> callbacks() {
+  public Map<String, Consumer<DialogResponseMessage.Payload>> callbacks() {
     return Map.copyOf(callbacks);
   }
 

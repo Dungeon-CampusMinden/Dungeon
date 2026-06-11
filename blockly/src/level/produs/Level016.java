@@ -40,25 +40,26 @@ public class Level016 extends BlocklyLevel {
     super(layout, designLabel, namedPoints, "Level 16");
     this.blockBlocklyElement(
         // Inventar und Charakter
-        "drop_item",
-        "Items",
         "wait",
         // Bedingung
-        "logic_breadcrumbs_direction",
-        "logic_clover_direction",
         "logic_bossView_direction",
         // Variable
         "get_number",
         "switch_case",
         "case_block",
-        "default_block",
-        // Kategorien
-        "Sonstige");
+        "default_block");
 
-    addWebPopup(new ImagePopup("popups/level015/02_Variable.png"));
-    addWebPopup(new ImagePopup("popups/level015/03_Variable.png"));
-    addWebPopup(new ImagePopup("popups/level015/04_Variable.png"));
-    addWebPopup(new ImagePopup("popups/level015/05_Variable.png"));
+    addWebPopup(new ImagePopup("popups/level016/webpopups/02_Variable.jpg"));
+    addWebPopup(new ImagePopup("popups/level016/webpopups/03_Variable.jpg"));
+    addWebPopup(new ImagePopup("popups/level016/webpopups/04_Variable.jpg"));
+    addWebPopup(new ImagePopup("popups/level016/webpopups/05_Variable.jpg"));
+
+    addCodePopup(new ImagePopup("popups/level016/codepopups/02_Variable.jpg"));
+    addCodePopup(new ImagePopup("popups/level016/codepopups/03_Variable.jpg"));
+    addCodePopup(new ImagePopup("popups/level016/codepopups/04_Variable.jpg"));
+    addCodePopup(new ImagePopup("popups/level016/codepopups/05_Variable.jpg"));
+    addCodePopup(new ImagePopup("popups/level016/codepopups/06_Variable.jpg"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override

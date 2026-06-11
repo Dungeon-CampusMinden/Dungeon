@@ -39,10 +39,14 @@ public class Level002 extends BlocklyLevel {
         "Wahrheitsausdruecke",
         "Variablen",
         "Schleife",
-        "Bedingungen",
-        "Sonstige");
+        "Bedingungen");
 
-    addWebPopup(new ImagePopup("popups/level002/01_intro.png"));
+    addWebPopup(new ImagePopup("popups/level002/webpopups/01_intro.jpg"));
+
+    addCodePopup(new ImagePopup("popups/level002/codepopups/01_datei_erstellen.jpg"));
+    addCodePopup(new ImagePopup("popups/level002/codepopups/02_datei_erstellen.jpg"));
+    addCodePopup(new ImagePopup("popups/level002/codepopups/04_intro.jpg"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override

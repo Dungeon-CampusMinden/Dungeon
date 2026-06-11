@@ -1,10 +1,16 @@
 package contrib.modules.keypad;
 
+import contrib.components.UIComponent;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.Point;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
@@ -54,7 +60,20 @@ public class KeypadFactory {
             () ->
                 new Interaction(
                     (e, who) -> {
-                      kc.isUIOpen(true);
+                      DialogContext context =
+                          DialogContext.builder()
+                              .type(DialogType.DefaultTypes.KEYPAD)
+                              .put(DialogContextKeys.ENTITY, e.id())
+                              .build();
+                      UIComponent uic = DialogFactory.show(context, who.id());
+                      uic.registerCallback(
+                          DialogContextKeys.ON_CONFIRM,
+                          (payload) -> {
+                            if (payload
+                                instanceof DialogResponseMessage.StringValue(String value)) {
+                              KeypadUI.onButtonPress(e, who, value);
+                            }
+                          });
                       LOGGER.info("Interacted with keypad sprite");
                     },
                     DEFAULT_INTERACTION_RADIUS)));

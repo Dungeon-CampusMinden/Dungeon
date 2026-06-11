@@ -1,0 +1,4 @@
+- Quelle: https://opengameart.org/content/window-buttons
+- Author: [Downdate](https://opengameart.org/users/downdate)
+- License: CC-BY 3.0
+- Attribution Instructions: As a courtesy please E-mail the FRPZ team at taurusxyz@yopmail.com or  unirail@yopmail.com. Please write the name of your project and what it will be used for. You don't need your permission but we would like to keep track of use in case of licensing problems and the like. (Done)

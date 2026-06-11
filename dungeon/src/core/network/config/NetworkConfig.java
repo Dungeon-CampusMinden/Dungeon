@@ -18,7 +18,15 @@ public final class NetworkConfig {
    * Translator for converting game state snapshots to/from byte arrays. Used by both client and
    * server.
    */
-  public static final SnapshotTranslator SNAPSHOT_TRANSLATOR = new DefaultSnapshotTranslator();
+  public static SnapshotTranslator SNAPSHOT_TRANSLATOR = new DefaultSnapshotTranslator();
+
+  /**
+   * Strategy for converting entities into spawn messages.
+   *
+   * <p>The default strategy requires {@code PositionComponent} and {@code DrawComponent}.
+   * Subprojects may replace this to support data-only entities.
+   */
+  public static EntitySpawnStrategy ENTITY_SPAWN_STRATEGY = new DefaultEntitySpawnStrategy();
 
   /** Maximum size of serialized payload for TCP communication, in bytes. */
   public static final int MAX_TCP_OBJECT_SIZE = 1 << 20; // 1 MiB
@@ -28,6 +36,9 @@ public final class NetworkConfig {
 
   /** Safe UDP Maximum Transmission Unit (MTU) size to avoid fragmentation, in bytes. */
   public static final int SAFE_UDP_MTU = 1400;
+
+  /** Protocol version used by multiplayer clients and servers during the connection handshake. */
+  public static final short PROTOCOL_VERSION = 2;
 
   /**
    * Number of attempts for UDP client registration.
@@ -43,6 +54,21 @@ public final class NetworkConfig {
    * <p>This defines how often the client will send registration requests to the server over UDP.
    */
   public static final int UDP_REGISTER_INTERVAL_MS = 500;
+
+  /** Initial delay before the next UDP retry attempt, in milliseconds. */
+  public static final int UDP_RETRY_INITIAL_DELAY_MS = 500;
+
+  /** Multiplier applied to the UDP retry delay after each failed retry cycle. */
+  public static final int UDP_RETRY_MULTIPLIER = 2;
+
+  /** Maximum delay between UDP retry attempts, in milliseconds. */
+  public static final int UDP_RETRY_MAX_DELAY_MS = 120_000;
+
+  /** Interval for UDP keepalive re-registration while UDP is healthy, in milliseconds. */
+  public static final int UDP_KEEPALIVE_INTERVAL_MS = 2_000;
+
+  /** Time without a successful UDP acknowledgement after which UDP is considered stale. */
+  public static final int UDP_STALE_AFTER_MS = 4_500;
 
   /** Offset for the length field in TCP frames, in bytes. */
   public static final int TCP_LENGTH_FIELD_OFFSET = 0;
@@ -69,6 +95,9 @@ public final class NetworkConfig {
    */
   public static final int TCP_INITIAL_BYTES_TO_STRIP = 4;
 
+  /** Timeout for TCP connection attempts, in milliseconds. */
+  public static final int TCP_CONNECT_TIMEOUT_MS = 2_500;
+
   /**
    * Server tick rate, in Hertz (Hz).
    *
@@ -77,11 +106,24 @@ public final class NetworkConfig {
   public static final int SERVER_TICK_HZ = 60;
 
   /**
-   * Server snapshot rate, in Hertz (Hz).
+   * Server delta snapshot rate, in Hertz (Hz).
    *
-   * <p>This defines how many times per second the server sends game state snapshots to clients.
+   * <p>Delta snapshots are sent between full baseline snapshots and contain only changed fields.
    */
-  public static final int SERVER_SNAPSHOT_HZ = 60;
+  public static final int SERVER_DELTA_SNAPSHOT_HZ = 60;
+
+  /**
+   * Interval between full baseline snapshots, in server ticks.
+   *
+   * <p>Full snapshots are sent reliably and provide the baseline for delta snapshots.
+   */
+  public static final int FULL_SNAPSHOT_INTERVAL_TICKS = SERVER_TICK_HZ * 6;
+
+  /** Number of full snapshots retained server-side for delta baselines. */
+  public static final int SERVER_DELTA_HISTORY_SIZE = 128;
+
+  /** Number of fully applied snapshots retained client-side for delta materialization. */
+  public static final int CLIENT_DELTA_HISTORY_SIZE = 128;
 
   /**
    * Maximum allowed sequence gap for network packets.

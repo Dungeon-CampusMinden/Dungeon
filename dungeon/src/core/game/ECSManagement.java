@@ -14,11 +14,19 @@ import core.components.PositionComponent;
 import core.level.elements.ILevel;
 import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntitySpawnEvent;
-import core.systems.*;
+import core.systems.DrawSystem;
+import core.systems.LevelSystem;
+import core.systems.SoundSystem;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -44,6 +52,7 @@ public final class ECSManagement {
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
   private static int currentTick = 0;
+  private static System.AuthoritativeSide currentExecutionSide = System.AuthoritativeSide.BOTH;
 
   /**
    * Essential systems that are always added to the game.
@@ -429,6 +438,16 @@ public final class ECSManagement {
   }
 
   /**
+   * Checks whether a system is part of the current execution side selected by the ECS runner.
+   *
+   * @param system the system to check
+   * @return true if the system would be considered for execution in the current ECS tick
+   */
+  public static boolean isAuthoritativeInCurrentTick(System system) {
+    return isAuthoritative(currentExecutionSide, system);
+  }
+
+  /**
    * Returns the current tick number, incremented each time {@link
    * #executeOneTick(System.AuthoritativeSide)} is called.
    *
@@ -455,6 +474,7 @@ public final class ECSManagement {
    *     System.AuthoritativeSide#BOTH for all systems})
    */
   public static void executeOneTick(System.AuthoritativeSide side) {
+    currentExecutionSide = side;
     List<System> authoritativeSystems =
         ECSManagement.systems().values().stream()
             .filter(sys -> isAuthoritative(side, sys))

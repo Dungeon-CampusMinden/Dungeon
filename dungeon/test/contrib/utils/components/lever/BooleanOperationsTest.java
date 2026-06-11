@@ -1,6 +1,7 @@
 package contrib.utils.components.lever;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.components.LeverComponent;
 import contrib.utils.ICommand;

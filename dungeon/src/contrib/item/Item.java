@@ -1,11 +1,20 @@
 package contrib.item;
 
 import contrib.components.InventoryComponent;
-import contrib.crafting.CraftingIngredient;
-import contrib.crafting.CraftingResult;
-import contrib.crafting.CraftingType;
 import contrib.entities.WorldItemBuilder;
-import contrib.item.concreteItem.*;
+import contrib.item.concreteItem.HintItem;
+import contrib.item.concreteItem.ItemBigKey;
+import contrib.item.concreteItem.ItemFairy;
+import contrib.item.concreteItem.ItemHammer;
+import contrib.item.concreteItem.ItemHeart;
+import contrib.item.concreteItem.ItemKey;
+import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.item.concreteItem.ItemPotionWater;
+import contrib.item.concreteItem.ItemResourceBerry;
+import contrib.item.concreteItem.ItemResourceEgg;
+import contrib.item.concreteItem.ItemResourceMushroomRed;
+import contrib.item.concreteItem.ItemWoodenArrow;
+import contrib.item.concreteItem.ItemWoodenBow;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
@@ -13,11 +22,10 @@ import core.level.elements.tile.FloorTile;
 import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
 import core.utils.logging.DungeonLogger;
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Random;
 
 /**
@@ -35,46 +43,45 @@ import java.util.Random;
  * max stack size is 1 and the default stack size is 1. The values can be changed via the {@link
  * #stackSize()} and {@link #maxStackSize()} methods.
  */
-public class Item implements CraftingIngredient, CraftingResult, Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public class Item {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Item.class);
+
+  /**
+   * The maximum stack size for any item.
+   *
+   * <p>Cannot be higher than 255 due to byte storage.
+   */
+  private static final long MAX_STACK_SIZE = 64;
 
   /** Random object used to generate random numbers for item related things. */
   public static final Random RANDOM = new Random();
 
-  /**
-   * Maps identifiers in crafting recipes (e.g. {@link ItemResourceBerry}) to their corresponding
-   * class objects (e.g. ItemResourceBerry.java). This map is used to associate identifiers in
-   * crafting recipes with the actual classes and create an instance of the respective item when the
-   * recipe is crafted.
-   *
-   * <p>The keys in the map are the simple names of the classes (e.g. "ItemBookRed"), and the values
-   * are the corresponding class objects.
-   */
-  private static final Map<String, Class<? extends Item>> REGISTERED_ITEMS = new HashMap<>();
+  protected static final String DATA_KEY_POTION_TYPE = "health_potion_type";
+  protected static final String DATA_KEY_HEAL_AMOUNT = "heal_amount";
+  private static final String DATA_KEY_PARAM_PREFIX = "param";
 
   static {
-    registerItem(ItemDefault.class);
-    registerItem(ItemPotionHealth.class);
-    registerItem(ItemPotionWater.class);
-    registerItem(ItemResourceBerry.class);
-    registerItem(ItemResourceEgg.class);
-    registerItem(ItemResourceMushroomRed.class);
-    registerItem(ItemWoodenArrow.class);
-    registerItem(ItemWoodenBow.class);
-    registerItem(ItemBigKey.class);
-    registerItem(ItemFairy.class);
-    registerItem(ItemHammer.class);
-    registerItem(ItemHeart.class);
-    registerItem(ItemKey.class);
+    ItemRegistry.register(ItemPotionHealth.class, Item::createHealthPotionFromData);
+    ItemRegistry.register(ItemPotionWater.class);
+    ItemRegistry.register(ItemResourceBerry.class);
+    ItemRegistry.register(ItemResourceEgg.class);
+    ItemRegistry.register(ItemResourceMushroomRed.class);
+    ItemRegistry.register(ItemWoodenArrow.class);
+    ItemRegistry.register(ItemWoodenBow.class);
+    ItemRegistry.register(ItemBigKey.class);
+    ItemRegistry.register(ItemFairy.class);
+    ItemRegistry.register(ItemHammer.class);
+    ItemRegistry.register(ItemHeart.class, Item::createHeartFromData);
+    ItemRegistry.register(ItemKey.class);
+    HintItem.ensureRegistration();
   }
 
   private String displayName;
   private String description;
   private Animation inventoryAnimation;
   private Animation worldAnimation;
-  private int stackSize;
-  private int maxStackSize;
+  private byte stackSize;
+  private byte maxStackSize;
 
   /**
    * Determines whether the item uses simple interaction.
@@ -91,8 +98,8 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
    * @param description The description of the item.
    * @param inventoryAnimation The inventory animation of the item.
    * @param worldAnimation The world animation of the item.
-   * @param stackSize The stack size of the item.
-   * @param maxStackSize The max stack size of the item.
+   * @param stackSize The stack size of the item (max 64).
+   * @param maxStackSize The max stack size of the item (max 64).
    */
   public Item(
       final String displayName,
@@ -105,8 +112,12 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
     this.description = description;
     this.inventoryAnimation = inventoryAnimation;
     this.worldAnimation = worldAnimation;
-    this.stackSize = stackSize;
-    this.maxStackSize = maxStackSize;
+    if (stackSize > MAX_STACK_SIZE || maxStackSize > MAX_STACK_SIZE) {
+      throw new IllegalArgumentException(
+          "Stack size and max stack size cannot be higher than " + MAX_STACK_SIZE);
+    }
+    this.stackSize = (byte) stackSize;
+    this.maxStackSize = (byte) maxStackSize;
 
     // Stupidity check
     if (!Item.isRegistered(this.getClass())) {
@@ -150,15 +161,25 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   }
 
   /**
-   * Register an item. This is used to associate the simple name of the class with the class object
-   * in the {@link #REGISTERED_ITEMS} map.
+   * Returns item-specific data for network or persistence serialization.
    *
-   * <p>When a new item is created, it should be registered using this method.
+   * <p>Override this in subclasses that require constructor parameters to be reconstructed.
+   *
+   * @return item data map (empty by default)
+   */
+  public Map<String, String> itemData() {
+    return Map.of();
+  }
+
+  /**
+   * Register an item class using its simple name.
    *
    * @param clazz The class of the item to register.
+   * @deprecated Use {@link ItemRegistry#register(Class)} instead.
    */
+  @Deprecated
   public static void registerItem(final Class<? extends Item> clazz) {
-    REGISTERED_ITEMS.put(clazz.getSimpleName(), clazz);
+    ItemRegistry.register(clazz);
   }
 
   /**
@@ -169,9 +190,11 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
    * corresponding class objects.
    *
    * @return A copy of the registered items.
+   * @deprecated Use {@link ItemRegistry#entries()} instead.
    */
+  @Deprecated
   public static Map<String, Class<? extends Item>> registeredItems() {
-    return new HashMap<>(REGISTERED_ITEMS);
+    return new HashMap<>(ItemRegistry.entries());
   }
 
   /**
@@ -182,13 +205,89 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
    *
    * @param id The identifier of the item.
    * @return The class of the item with the given identifier.
+   * @deprecated Use {@link ItemRegistry#lookup(String)} instead.
    */
+  @Deprecated
   public static Class<? extends Item> getItem(final String id) {
-    return REGISTERED_ITEMS.get(id);
+    return ItemRegistry.lookup(id).orElse(null);
   }
 
   private static boolean isRegistered(final Class<? extends Item> clazz) {
-    return REGISTERED_ITEMS.containsValue(clazz);
+    return ItemRegistry.isRegistered(clazz);
+  }
+
+  static void ensureRegistryInitialized() {
+    // Method intentionally empty; calling it triggers Item class initialization.
+  }
+
+  private static Item createHealthPotionFromData(Map<String, String> data) {
+    Optional<HealthPotionType> type = resolveHealthPotionType(data);
+    if (type.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Missing or invalid item data for " + ItemPotionHealth.class.getSimpleName());
+    }
+    return new ItemPotionHealth(type.get());
+  }
+
+  private static Item createHeartFromData(Map<String, String> data) {
+    OptionalInt healAmount = parseInt(data.get(DATA_KEY_HEAL_AMOUNT));
+    if (healAmount.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Missing or invalid item data for " + ItemHeart.class.getSimpleName());
+    }
+    return new ItemHeart(healAmount.getAsInt());
+  }
+
+  private static Optional<HealthPotionType> resolveHealthPotionType(Map<String, String> data) {
+    String typeName = data.get(DATA_KEY_POTION_TYPE);
+    if (typeName != null && !typeName.isBlank()) {
+      try {
+        return Optional.of(HealthPotionType.valueOf(typeName));
+      } catch (IllegalArgumentException ignored) {
+      }
+    }
+
+    for (Map.Entry<String, String> entry : data.entrySet()) {
+      if (entry.getKey().startsWith(DATA_KEY_PARAM_PREFIX)) {
+        Optional<HealthPotionType> parsed = parseHealthPotionType(entry.getValue());
+        if (parsed.isPresent()) {
+          return parsed;
+        }
+      }
+    }
+
+    OptionalInt healAmount = parseInt(data.get(DATA_KEY_HEAL_AMOUNT));
+    if (healAmount.isPresent()) {
+      return HealthPotionType.fromHealAmount(healAmount.getAsInt());
+    }
+    return Optional.empty();
+  }
+
+  private static Optional<HealthPotionType> parseHealthPotionType(String rawValue) {
+    if (rawValue == null || rawValue.isBlank()) {
+      return Optional.empty();
+    }
+    String value = rawValue.strip();
+    int separator = value.indexOf(':');
+    if (separator >= 0 && separator + 1 < value.length()) {
+      value = value.substring(separator + 1).strip();
+    }
+    try {
+      return Optional.of(HealthPotionType.valueOf(value));
+    } catch (IllegalArgumentException ignored) {
+      return Optional.empty();
+    }
+  }
+
+  private static OptionalInt parseInt(String value) {
+    if (value == null || value.isBlank()) {
+      return OptionalInt.empty();
+    }
+    try {
+      return OptionalInt.of(Integer.parseInt(value));
+    } catch (NumberFormatException e) {
+      return OptionalInt.empty();
+    }
   }
 
   /**
@@ -280,10 +379,15 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   /**
    * Set the stack size of this item.
    *
-   * @param stackSize The new stack size.
+   * @param stackSize The new stack size (max {@link #MAX_STACK_SIZE}; min 0).
    */
   public void stackSize(int stackSize) {
-    this.stackSize = stackSize;
+    if (stackSize > MAX_STACK_SIZE || stackSize < 0) {
+      throw new IllegalArgumentException(
+          "Stack size cannot be higher than " + MAX_STACK_SIZE + " or lower than 0");
+    }
+
+    this.stackSize = (byte) stackSize;
   }
 
   /**
@@ -298,10 +402,14 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   /**
    * Set the max stack size of this item.
    *
-   * @param maxStackSize The new max stack size.
+   * @param maxStackSize The new max stack size (max {@link #MAX_STACK_SIZE}; min 1).
    */
   public void maxStackSize(int maxStackSize) {
-    this.maxStackSize = maxStackSize;
+    if (maxStackSize > MAX_STACK_SIZE || maxStackSize < 1) {
+      throw new IllegalArgumentException(
+          "Max stack size cannot be higher than " + MAX_STACK_SIZE + " or lower than 1");
+    }
+    this.maxStackSize = (byte) maxStackSize;
   }
 
   /**
@@ -359,14 +467,44 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
     user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
   }
 
-  @Override
-  public boolean match(final CraftingIngredient input) {
-    if (this.getClass().isInstance(input)) return ((Item) input).stackSize() <= stackSize;
+  /**
+   * Check if the Item matches the input.
+   *
+   * @param input The input to match.
+   * @return True if the item matches the input, false otherwise.
+   */
+  public boolean match(final Item input) {
+    if (this.getClass().isInstance(input)) return input.stackSize() <= stackSize;
     return false;
   }
 
+  /**
+   * Sets the stacksize.
+   *
+   * @param count The stacksize to set.
+   */
+  public void amount(int count) {
+    this.stackSize(count);
+  }
+
+  /**
+   * Get the stacksize.
+   *
+   * @return The stacksize
+   */
+  public int amount() {
+    return stackSize;
+  }
+
   @Override
-  public CraftingType resultType() {
-    return CraftingType.ITEM;
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    Item other = (Item) obj;
+
+    return displayName.equals(other.displayName)
+        && description.equals(other.description)
+        && stackSize == other.stackSize
+        && maxStackSize == other.maxStackSize;
   }
 }

@@ -9,11 +9,7 @@ import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 
-/**
- * A Water-Potion that restores a small amount of hit point on usage.
- *
- * <p>Can be used for crafting.
- */
+/** A Water-Potion that restores a small amount of hit point on usage. */
 public class ItemPotionWater extends Item {
 
   private static final int HEAL_AMOUNT = 5;

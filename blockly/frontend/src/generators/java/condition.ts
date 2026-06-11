@@ -84,24 +84,6 @@ export function logic_switch_direction(
   return [code, Order.NONE];
 }
 
-export function logic_breadcrumbs_direction(
-  block: Blockly.Block,
-  generator: Blockly.Generator
-) {
-  const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearComponent(BreadcrumbComponent.class, " + dir + ")";
-  return [code, Order.NONE];
-}
-
-export function logic_clover_direction(
-  block: Blockly.Block,
-  generator: Blockly.Generator
-) {
-  const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearComponent(CloverComponent.class, " + dir + ")";
-  return [code, Order.NONE];
-}
-
 export function logic_active_direction(
   block: Blockly.Block,
   generator: Blockly.Generator
@@ -133,7 +115,7 @@ export function controls_if(
 
   do {
     const conditionCode =
-      generator.valueToCode(block, "IF" + n, Order.NONE) || "falsch";
+      generator.valueToCode(block, "IF" + n, Order.NONE) || "missing if condition";
     let branchCode = generator.statementToCode(block, "DO" + n);
     if (generator.STATEMENT_SUFFIX) {
       branchCode =
@@ -167,23 +149,3 @@ export function controls_if(
 }
 
 export const controls_ifelse = controls_if;
-
-export function switch_case(block: Blockly.Block, generator: Blockly.Generator) {
-  const switch_expr = generator.valueToCode(block, "SWITCH", Order.NONE);
-  const cases_code = generator.statementToCode(block, "CASES");
-  const code = "switch (" + switch_expr + ") {\n" + cases_code + "\n}";
-  return code;
-}
-
-export function case_block(block: Blockly.Block, generator: Blockly.Generator) {
-  const case_value = generator.valueToCode(block, "CASE", Order.NONE);
-  let do_code = generator.statementToCode(block, "DO");
-  do_code = generator.prefixLines(do_code, generator.INDENT);
-  return `case ${case_value}:\n${do_code}\nbreak;`;
-}
-
-export function default_block(block: Blockly.Block, generator: Blockly.Generator) {
-  let do_code = generator.statementToCode(block, "DO");
-  do_code = generator.prefixLines(do_code, generator.INDENT);
-  return `default:\n${do_code}`;
-}

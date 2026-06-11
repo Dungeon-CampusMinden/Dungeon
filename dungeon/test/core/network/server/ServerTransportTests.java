@@ -1,13 +1,33 @@
 package core.network.server;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import contrib.entities.CharacterClass;
 import core.Game;
+import core.game.PreRunConfiguration;
 import core.network.messages.NetworkMessage;
+import core.network.messages.c2s.ConnectRequest;
+import core.network.messages.c2s.InputMessage;
+import core.network.messages.c2s.RegisterUdp;
+import core.network.messages.c2s.SnapshotAck;
+import core.utils.Vector2;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,6 +86,7 @@ public class ServerTransportTests {
     ServerTransport transport = new ServerTransport();
     transports.add(transport);
     currentTransport.set(transport);
+    PreRunConfiguration.multiplayerCharacterClasses(CharacterClass.WIZARD);
     MockNetworkHandler.useLocalNetworkHandler();
   }
 
@@ -83,6 +104,7 @@ public class ServerTransportTests {
       transports.remove(transport);
       currentTransport.remove();
     }
+    PreRunConfiguration.multiplayerCharacterClasses(CharacterClass.WIZARD);
   }
 
   /**
@@ -235,5 +257,243 @@ public class ServerTransportTests {
 
     assertFalse(transport1.tcpServerChannel().isActive());
     assertFalse(transport2.tcpServerChannel().isActive());
+  }
+
+  /** Validates that fallback character classes are assigned in round-robin order. */
+  @Test
+  public void test_fallbackCharacterClassesRotate() {
+    ServerTransport transport = currentTransport.get();
+    PreRunConfiguration.multiplayerCharacterClasses(
+        CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03);
+
+    assertEquals(
+        CharacterClass.THE_LAST_HOUR_ROGUE,
+        transport.selectedCharacterClass(new ConnectRequest((short) 1, "player1")));
+    assertEquals(
+        CharacterClass.THE_LAST_HOUR_CHAR03,
+        transport.selectedCharacterClass(new ConnectRequest((short) 1, "player2")));
+    assertEquals(
+        CharacterClass.THE_LAST_HOUR_ROGUE,
+        transport.selectedCharacterClass(new ConnectRequest((short) 1, "player3")));
+  }
+
+  /** Validates that explicit character-class requests do not consume the fallback rotation. */
+  @Test
+  public void test_explicitCharacterClassDoesNotAdvanceFallbackRotation() {
+    ServerTransport transport = currentTransport.get();
+    PreRunConfiguration.multiplayerCharacterClasses(
+        CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03);
+
+    assertEquals(
+        CharacterClass.HUNTER,
+        transport.selectedCharacterClass(
+            new ConnectRequest(
+                (short) 1, "player1", 0, new byte[0], Optional.of(CharacterClass.HUNTER))));
+    assertEquals(
+        CharacterClass.THE_LAST_HOUR_ROGUE,
+        transport.selectedCharacterClass(new ConnectRequest((short) 1, "player2")));
+  }
+
+  /**
+   * Validates that UDP registration marks the session as UDP-ready and stores the sender mapping.
+   */
+  @Test
+  public void test_udpRegisterActivatesSession() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    AtomicInteger tcpCalls = new AtomicInteger();
+    Session session = testSession(tcpCalls);
+    byte[] token = new byte[] {1, 2, 3};
+    short clientId = 4;
+    session.attachClientState(
+        new ClientState(
+            clientId, "player", ServerRuntime.SESSION_ID, token, CharacterClass.WIZARD));
+    clientIdToSessionMap(transport).put(clientId, session);
+    InetSocketAddress sender = new InetSocketAddress("127.0.0.1", 25000);
+
+    invokeUdpRegister(
+        transport, sender, session, new RegisterUdp(ServerRuntime.SESSION_ID, token, clientId));
+
+    assertTrue(session.udpReady());
+    assertEquals(sender, session.udpAddress());
+    assertEquals(clientId, udpToClientIdMap(transport).get(sender));
+    assertEquals(1, tcpCalls.get());
+  }
+
+  /** Validates that stale UDP mappings are removed without closing the TCP session. */
+  @Test
+  public void test_expireStaleUdpSessionsClearsMapping() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    Session session = testSession(new AtomicInteger());
+    short clientId = 5;
+    session.attachClientState(
+        new ClientState(
+            clientId,
+            "player",
+            ServerRuntime.SESSION_ID,
+            new byte[] {4, 5, 6},
+            CharacterClass.WIZARD));
+    session.udpAddress(new InetSocketAddress("127.0.0.1", 25001));
+    session.markUdpActivity();
+    session.udpReady(true);
+    clientIdToSessionMap(transport).put(clientId, session);
+    udpToClientIdMap(transport).put(session.udpAddress(), clientId);
+
+    transport.expireStaleUdpSessions(session.udpLastSeenTimeMs() + 4_501L);
+
+    assertFalse(session.udpReady());
+    assertFalse(udpToClientIdMap(transport).containsKey(session.udpAddress()));
+    assertFalse(session.isClosed());
+  }
+
+  /** Validates that the same client can reactivate UDP after the stale mapping was removed. */
+  @Test
+  public void test_udpCanReregisterAfterStaleExpiry() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    AtomicInteger tcpCalls = new AtomicInteger();
+    Session session = testSession(tcpCalls);
+    byte[] token = new byte[] {7, 8, 9};
+    short clientId = 6;
+    InetSocketAddress originalSender = new InetSocketAddress("127.0.0.1", 25002);
+    InetSocketAddress newSender = new InetSocketAddress("127.0.0.1", 25003);
+    session.attachClientState(
+        new ClientState(
+            clientId, "player", ServerRuntime.SESSION_ID, token, CharacterClass.WIZARD));
+    clientIdToSessionMap(transport).put(clientId, session);
+
+    invokeUdpRegister(
+        transport,
+        originalSender,
+        session,
+        new RegisterUdp(ServerRuntime.SESSION_ID, token, clientId));
+    transport.expireStaleUdpSessions(session.udpLastSeenTimeMs() + 4_501L);
+    invokeUdpRegister(
+        transport, newSender, session, new RegisterUdp(ServerRuntime.SESSION_ID, token, clientId));
+
+    assertTrue(session.udpReady());
+    assertEquals(newSender, session.udpAddress());
+    assertEquals(clientId, udpToClientIdMap(transport).get(newSender));
+    assertEquals(2, tcpCalls.get());
+  }
+
+  /** Verifies explicit snapshot acknowledgements update client snapshot state. */
+  @Test
+  public void snapshotAckUpdatesClientSnapshotSyncState() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    Session session = registeredSession(transport, (short) 7);
+
+    invokeSnapshotAck(transport, session, new SnapshotAck(20));
+
+    assertEquals(20, session.clientState().orElseThrow().snapshotSync().lastAckedSnapshotTick());
+  }
+
+  /** Verifies piggybacked input snapshot acknowledgements update client snapshot state. */
+  @Test
+  public void inputMessageSnapshotAckUpdatesClientSnapshotSyncState() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    Session session = registeredSession(transport, (short) 8);
+
+    invokeInputMessage(
+        transport,
+        session,
+        new InputMessage(
+            ServerRuntime.SESSION_ID,
+            1,
+            (short) 1,
+            Optional.of(30),
+            InputMessage.Action.MOVE,
+            new InputMessage.Move(Vector2.of(1, 0))));
+
+    assertEquals(30, session.clientState().orElseThrow().snapshotSync().lastAckedSnapshotTick());
+  }
+
+  /** Verifies stale snapshot acknowledgements do not move the client backwards. */
+  @Test
+  public void olderSnapshotAckDoesNotMoveBackwards() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    Session session = registeredSession(transport, (short) 9);
+
+    invokeSnapshotAck(transport, session, new SnapshotAck(20));
+    invokeSnapshotAck(transport, session, new SnapshotAck(19));
+
+    assertEquals(20, session.clientState().orElseThrow().snapshotSync().lastAckedSnapshotTick());
+  }
+
+  private Session testSession(AtomicInteger tcpCalls) {
+    ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
+    Channel channel = Mockito.mock(Channel.class);
+    ChannelId channelId = Mockito.mock(ChannelId.class);
+    Mockito.when(ctx.channel()).thenReturn(channel);
+    Mockito.when(channel.isActive()).thenReturn(true);
+    Mockito.when(channel.id()).thenReturn(channelId);
+    return new Session(
+        ctx,
+        (target, msg) -> CompletableFuture.completedFuture(true),
+        (channelCtx, msg) -> {
+          tcpCalls.incrementAndGet();
+          return CompletableFuture.completedFuture(true);
+        });
+  }
+
+  private Session registeredSession(ServerTransport transport, short clientId) throws Exception {
+    Session session = testSession(new AtomicInteger());
+    session.attachClientState(
+        new ClientState(
+            clientId,
+            "player" + clientId,
+            ServerRuntime.SESSION_ID,
+            new byte[] {1, 2, 3},
+            CharacterClass.WIZARD));
+    sessionsMap(transport).put(session.tcpCtx().channel().id(), session);
+    clientIdToSessionMap(transport).put(clientId, session);
+    return session;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<ChannelId, Session> sessionsMap(ServerTransport transport) throws Exception {
+    Field field = ServerTransport.class.getDeclaredField("sessions");
+    field.setAccessible(true);
+    return (Map<ChannelId, Session>) field.get(transport);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<Short, Session> clientIdToSessionMap(ServerTransport transport) throws Exception {
+    Field field = ServerTransport.class.getDeclaredField("clientIdToSession");
+    field.setAccessible(true);
+    return (Map<Short, Session>) field.get(transport);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<InetSocketAddress, Short> udpToClientIdMap(ServerTransport transport)
+      throws Exception {
+    Field field = ServerTransport.class.getDeclaredField("udpToClientId");
+    field.setAccessible(true);
+    return (Map<InetSocketAddress, Short>) field.get(transport);
+  }
+
+  private void invokeUdpRegister(
+      ServerTransport transport, InetSocketAddress sender, Session session, RegisterUdp registerUdp)
+      throws Exception {
+    Method method =
+        ServerTransport.class.getDeclaredMethod(
+            "onUdpRegister", InetSocketAddress.class, Session.class, RegisterUdp.class);
+    method.setAccessible(true);
+    method.invoke(transport, sender, session, registerUdp);
+  }
+
+  private void invokeSnapshotAck(ServerTransport transport, Session session, SnapshotAck ack)
+      throws Exception {
+    Method method =
+        ServerTransport.class.getDeclaredMethod("onSnapshotAck", Session.class, SnapshotAck.class);
+    method.setAccessible(true);
+    method.invoke(transport, session, ack);
+  }
+
+  private void invokeInputMessage(ServerTransport transport, Session session, InputMessage message)
+      throws Exception {
+    Method method =
+        ServerTransport.class.getDeclaredMethod(
+            "onInputMessage", Session.class, InputMessage.class);
+    method.setAccessible(true);
+    method.invoke(transport, session, message);
   }
 }

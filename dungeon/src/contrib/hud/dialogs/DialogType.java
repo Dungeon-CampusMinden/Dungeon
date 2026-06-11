@@ -45,9 +45,6 @@ public interface DialogType {
     /** Dual inventory display for item transfers. */
     DUAL_INVENTORY("DUAL_INVENTORY"),
 
-    /** Crafting interface dialog. */
-    CRAFTING_GUI("CRAFTING_GUI"),
-
     /** Numeric keypad input dialog. */
     KEYPAD("KEYPAD"),
 
@@ -55,7 +52,19 @@ public interface DialogType {
     PROGRESS_BAR("PROGRESS_BAR"),
 
     /** Pause menu dialog. */
-    PAUSE_MENU("PAUSE_MENU");
+    PAUSE_MENU("PAUSE_MENU"),
+
+    /** Multiple choice selection dialog. */
+    MULTIPLE_CHOICE("MULTIPLE_CHOICE"),
+
+    /** Sequenced speaker dialogue (NPC talks). */
+    DIALOG_DIALOG("DIALOG_DIALOG"),
+
+    /** Jigsaw-style puzzle dialog. */
+    PUZZLE("PUZZLE"),
+
+    /** Local multiplayer client connection dialog. */
+    CLIENT_CONNECTION("CLIENT_CONNECTION");
 
     private final String type;
 

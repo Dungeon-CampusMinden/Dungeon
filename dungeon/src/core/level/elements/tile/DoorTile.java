@@ -11,13 +11,9 @@ import core.utils.components.path.SimpleIPath;
  * Represents a Door in the game.
  *
  * <p>A Door connects two room-based levels.
- *
- * <p>You need to configure the door with {@link #otherDoor(DoorTile)} and {@link #doorstep(Tile)}.
  */
 public class DoorTile extends Tile {
 
-  private DoorTile otherDoor;
-  private Tile doorstep;
   private boolean open;
 
   /**
@@ -38,47 +34,12 @@ public class DoorTile extends Tile {
 
   @Override
   public boolean isAccessible() {
-    if (!open || (otherDoor != null && !otherDoor.isOpen())) return false;
-    else return levelElement.value();
+    return isOpen();
   }
 
   @Override
   public boolean canSeeThrough() {
     return this.open;
-  }
-
-  /**
-   * Connects this door with its other side in another room.
-   *
-   * @param otherDoor Door that will be connected to this door
-   */
-  public void otherDoor(DoorTile otherDoor) {
-    this.otherDoor = otherDoor;
-  }
-
-  /**
-   * @return Door that is connected to this door
-   */
-  public DoorTile otherDoor() {
-    return otherDoor;
-  }
-
-  /**
-   * Sets Tile in front of the door.
-   *
-   * @param doorstep Tile in front of the door
-   */
-  public void doorstep(final Tile doorstep) {
-    this.doorstep = doorstep;
-  }
-
-  /**
-   * Get Tile in front ot the door.
-   *
-   * @return Tile in front of the door.
-   */
-  public Tile doorstep() {
-    return doorstep;
   }
 
   /**
@@ -110,7 +71,7 @@ public class DoorTile extends Tile {
 
   @Override
   public IPath texturePath() {
-    if (open && (otherDoor == null || otherDoor.isOpen())) return texturePath;
+    if (open) return texturePath;
     else return closedTexturePath();
   }
 
@@ -118,20 +79,9 @@ public class DoorTile extends Tile {
   public String toString() {
     String tileStr = super.toString();
     tileStr = tileStr.replace("Tile", "DoorTile").replace("}", "");
-    String doorStepStr = this.doorstep == null ? "null" : this.doorstep.coordinate().toString();
-    String otherDoorStr = this.otherDoor == null ? "null" : this.otherDoor.coordinate().toString();
     String closedTexturePathStr =
         closedTexturePath() == null ? "null" : closedTexturePath().pathString();
-    return tileStr
-        + ", closedTexturePath="
-        + closedTexturePathStr
-        + ", open="
-        + this.open
-        + ", Doorstep="
-        + doorStepStr
-        + ", OtherDoor="
-        + otherDoorStr
-        + "}";
+    return tileStr + ", closedTexturePath=" + closedTexturePathStr + ", open=" + this.open + "}";
   }
 
   private IPath closedTexturePath() {

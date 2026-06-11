@@ -2,9 +2,16 @@ package core.network.client;
 
 import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
-import static core.network.config.NetworkConfig.*;
+import static core.network.config.NetworkConfig.MAX_TCP_OBJECT_SIZE;
+import static core.network.config.NetworkConfig.PROTOCOL_VERSION;
+import static core.network.config.NetworkConfig.SAFE_UDP_MTU;
+import static core.network.config.NetworkConfig.TCP_CONNECT_TIMEOUT_MS;
+import static core.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
+import static core.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
+import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_LENGTH;
+import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
 
-import core.Game;
+import contrib.entities.CharacterClass;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.messages.NetworkMessage;
@@ -20,8 +27,16 @@ import core.utils.Tuple;
 import core.utils.logging.DungeonLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.SocketChannel;
@@ -35,10 +50,14 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Netty-backed client transport using a single {@link Session} to mirror server-side semantics.
@@ -58,7 +77,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
-  private static final short CLIENT_PROTOCOL_VERSION = 1;
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
@@ -73,6 +91,7 @@ public final class ClientNetwork {
   private String remoteHost;
   private int port;
   private String username;
+  private Optional<CharacterClass> requestedCharacterClass = Optional.empty();
 
   private EventLoopGroup group;
   private Channel tcp;
@@ -82,9 +101,8 @@ public final class ClientNetwork {
   // assigned after ConnectAck
   private volatile Short clientId;
 
-  // Track scheduled UDP registration retries per clientId to allow cancellation/cleanup
-  private final ConcurrentHashMap<Short, UdpRegistrationTask> udpRegisterTasks =
-      new ConcurrentHashMap<>();
+  private final UdpRecoveryState udpRecoveryState = new UdpRecoveryState();
+  private volatile ScheduledFuture<?> udpMaintenanceFuture;
 
   /**
    * Initialize the client network with connection parameters.
@@ -95,26 +113,41 @@ public final class ClientNetwork {
    * @param host server hostname or IP to connect to
    * @param port server port
    * @param username username used in the TCP ConnectRequest handshake
+   * @param characterClass requested character class for the player, or empty to use the server
+   *     default
    */
-  public void initialize(String host, int port, String username) {
+  public void initialize(
+      String host, int port, String username, Optional<CharacterClass> characterClass) {
+    if (running.get()) {
+      LOGGER.warn("ClientNetwork is already running; ignoring re-initialization request.");
+      return;
+    }
+    closeTransportResources();
+    connected.set(false);
+    session = null;
+    clientId = null;
+    udpRecoveryState.enterRetryMode();
     this.remoteHost = host;
     this.port = port;
     this.username = username;
+    this.requestedCharacterClass = characterClass == null ? Optional.empty() : characterClass;
     this.group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
-    this.udpRemote = new InetSocketAddress(host, port);
+    this.udpRemote = InetSocketAddress.createUnresolved(host, port);
   }
 
   /**
    * Start network IO: connect TCP and bind UDP.
    *
-   * <p>This method is safe to call once. It returns quickly Netty performs IO on its own threads.
-   * After start completes, the client will attempt the handshake over TCP; on TCP connect the
-   * ConnectRequest is sent automatically.
+   * <p>This method is safe to call once. TCP startup waits up to the configured connect timeout;
+   * after TCP connects, Netty performs IO on its own threads and sends the ConnectRequest
+   * automatically.
    */
   public void start() {
     if (!running.compareAndSet(false, true)) return;
-    startTcp();
-    startUdp();
+    if (!startTcp()) {
+      return;
+    }
+    startUdpIfNeeded();
   }
 
   /**
@@ -123,19 +156,12 @@ public final class ClientNetwork {
    * @param reason human-readable reason used for lifecycle callbacks and logging
    */
   public void shutdown(String reason) {
-    if (!running.compareAndSet(true, false)) return;
-    try {
-      cancelAllUdpRegistrations();
-      if (tcp != null) tcp.close().syncUninterruptibly();
-      if (udp != null) udp.close().syncUninterruptibly();
-    } catch (Exception e) {
-      LOGGER.warn("Error closing channels", e);
+    if (!running.compareAndSet(true, false)) {
+      closeTransportResources();
+      connected.set(false);
+      return;
     }
-    try {
-      if (group != null) group.shutdownGracefully();
-    } catch (Exception e) {
-      LOGGER.warn("Error shutting down event loop", e);
-    }
+    closeTransportResources();
     connected.set(false);
     LOGGER.info("ClientNetwork shutdown. Reason: {}", reason);
   }
@@ -175,6 +201,10 @@ public final class ClientNetwork {
     return session;
   }
 
+  UdpRecoveryState udpRecoveryState() {
+    return udpRecoveryState;
+  }
+
   /**
    * Returns the client id assigned by the server, or 0 if not yet assigned.
    *
@@ -190,31 +220,45 @@ public final class ClientNetwork {
   /**
    * Send a reliable {@link NetworkMessage} over TCP to the server.
    *
-   * <p>Performs Java serialization and writes a 4-byte length-prefixed frame. Drops the message if
-   * it exceeds the configured TCP object size.
+   * <p>Encodes the message using protobuf and writes a 4-byte length-prefixed frame. Drops the
+   * message if it exceeds the configured TCP object size.
    *
    * @param msg message to send
    * @return CompletableFuture that completes with true if the message was sent, false if
    *     serialization failed or the message was dropped
    */
   public CompletableFuture<Boolean> sendReliable(NetworkMessage msg) {
+    return send(msg, true);
+  }
+
+  /**
+   * Send a {@link NetworkMessage} to the server honoring the requested reliability.
+   *
+   * @param msg message to send
+   * @param reliable true to force TCP, false to prefer UDP with transparent TCP fallback
+   * @return CompletableFuture indicating whether the message send succeeded
+   */
+  public CompletableFuture<Boolean> send(NetworkMessage msg, boolean reliable) {
     final CompletableFuture<Boolean> result = new CompletableFuture<>();
-    if (!running.get() || !isConnected() || tcp == null || !tcp.isActive()) {
-      LOGGER.warn("TCP not active; cannot send reliable message");
+    if (!running.get() || !isConnected() || tcp == null || !tcp.isActive() || session == null) {
+      LOGGER.warn("TCP not active; cannot send {} message", reliable ? "reliable" : "fallback");
       result.complete(false);
       return result;
     }
 
     try {
       return session
-          .sendMessage(msg, true)
+          .sendMessage(msg, reliable)
           .thenApply(
               success -> {
-                LOGGER.debug("Sending reliable message: {}", msg.getClass().getSimpleName());
+                LOGGER.debug(
+                    "Sending {} message: {}",
+                    reliable ? "reliable" : "transport-selected",
+                    msg.getClass().getSimpleName());
                 return success;
               });
     } catch (Exception e) {
-      LOGGER.warn("Failed to send reliable message via Session", e);
+      LOGGER.warn("Failed to send message via Session", e);
       result.complete(false);
       return result;
     }
@@ -223,30 +267,40 @@ public final class ClientNetwork {
   /**
    * Send an unreliable {@link InputMessage} over UDP to the server.
    *
-   * <p>Performs Java serialization and sends a datagram. If the payload exceeds the safe UDP MTU,
-   * it uses TCP instead.
+   * <p>Encodes the message using protobuf and sends a datagram. If the payload exceeds the safe UDP
+   * MTU, it uses TCP instead.
    *
    * @param input input message to send
    */
   public void sendUnreliableInput(InputMessage input) {
-    if (!running.get() || udp == null || !udp.isActive()) {
-      LOGGER.warn("UDP not active; cannot send input message");
-      return;
-    }
+    InputMessage message = withSnapshotAck(input);
     try {
-      byte[] data = serialize(input);
+      byte[] data = serialize(message);
       if (data.length <= SAFE_UDP_MTU) {
-        session
-            .sendMessage(input, false)
-            .thenAccept(success -> LOGGER.debug("UDP outbound InputMessage size={}B", data.length));
+        send(message, false)
+            .thenAccept(
+                success ->
+                    LOGGER.debug("InputMessage sent using active transport size={}B", data.length));
       } else {
         LOGGER.warn(
             "InputMessage too large ({} bytes); sending via TCP instead of UDP", data.length);
-        sendReliable(input);
+        sendReliable(message);
       }
     } catch (IOException e) {
       LOGGER.warn("Failed to serialize InputMessage", e);
     }
+  }
+
+  private InputMessage withSnapshotAck(InputMessage input) {
+    if (input.lastSnapshotTick().isPresent() || session == null) {
+      return input;
+    }
+    return session
+        .clientState()
+        .map(ClientState::latestAppliedSnapshotTick)
+        .filter(tick -> tick >= 0)
+        .map(input::withLastSnapshotTick)
+        .orElse(input);
   }
 
   /**
@@ -294,10 +348,11 @@ public final class ClientNetwork {
 
   // ---- internals ----
 
-  private void startTcp() {
+  private boolean startTcp() {
     Bootstrap cb = new Bootstrap();
     cb.group(group)
         .channel(NioSocketChannel.class)
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TCP_CONNECT_TIMEOUT_MS)
         .handler(
             new ChannelInitializer<SocketChannel>() {
               @Override
@@ -316,23 +371,22 @@ public final class ClientNetwork {
                       protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame)
                           throws Exception {
                         int size = frame.readableBytes();
-                        Object obj = deserialize(frame);
-                        if (obj
+                        NetworkMessage msg = deserialize(frame);
+                        if (msg
                             instanceof ConnectAck(short id, int sessionId, byte[] sessionToken)) {
                           onConnectAck(id, sessionId, sessionToken);
-                        } else if (obj instanceof ConnectReject(byte reason, Object extraData)) {
-                          onConnectReject(
-                              session, ConnectReject.Reason.fromCode(reason), extraData);
-                        } else if (obj instanceof RegisterAck(boolean ok)) {
+                        } else if (msg instanceof ConnectReject(byte reason)) {
+                          onConnectReject(session, ConnectReject.Reason.fromCode(reason));
+                        } else if (msg instanceof RegisterAck(boolean ok)) {
                           onRegisterAck(ok);
-                        } else if (obj instanceof NetworkMessage msg) {
+                        } else {
                           onNetworkMessage(msg, size);
                         }
                       }
 
                       @Override
                       public void channelActive(ChannelHandlerContext ctx) {
-                        connected.set(true);
+                        updateUdpRemote(ctx.channel());
                         // Create a client-side Session bound to this TCP ctx and using client
                         // senders
                         session =
@@ -343,7 +397,6 @@ public final class ClientNetwork {
                         // Point the session UDP to the server address as our logical peer
                         if (udpRemote != null) session.udpAddress(udpRemote);
 
-                        enqueueLifecycle(ClientNetwork.this::notifyConnected);
                         try {
                           byte[] data;
                           // Attempt to load last session from file
@@ -354,16 +407,10 @@ public final class ClientNetwork {
                             LOGGER.info(
                                 "Loaded last session from file: sessionId={}; Trying to reconnect.",
                                 sessionId);
-                            data =
-                                serialize(
-                                    new ConnectRequest(
-                                        CLIENT_PROTOCOL_VERSION,
-                                        username,
-                                        sessionId,
-                                        sessionToken));
+                            data = serialize(connectRequest(sessionId, sessionToken));
                           } else {
                             LOGGER.info("No valid last session file found; starting new session.");
-                            data = serialize(new ConnectRequest(CLIENT_PROTOCOL_VERSION, username));
+                            data = serialize(connectRequest());
                           }
                           if (data.length <= MAX_TCP_OBJECT_SIZE) {
                             ByteBuf buf = ctx.alloc().buffer(4 + data.length);
@@ -373,43 +420,118 @@ public final class ClientNetwork {
                           } else {
                             LOGGER.error(
                                 "ConnectRequest too large ({} bytes); cannot connect", data.length);
-                            enqueueLifecycle(() -> notifyDisconnected("ConnectRequest too large"));
-                            Game.exit("Unable to connect to server at " + remoteHost + ":" + port);
+                            ctx.close();
                           }
                         } catch (IOException e) {
                           LOGGER.warn("Failed to send ConnectRequest", e);
+                          ctx.close();
                         }
                       }
 
                       @Override
                       public void channelInactive(ChannelHandlerContext ctx) {
                         LOGGER.info("TCP connection closed by server");
-                        connected.set(false);
-                        enqueueLifecycle(() -> notifyDisconnected(null));
+                        handleTransportClosed(null);
                         // invalidateLastSessionFile(); // TODO: decide if we want this
                       }
 
                       @Override
                       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
                         LOGGER.warn("TCP client error", cause);
-                        enqueueLifecycle(() -> notifyDisconnected(cause.getMessage()));
-                        Game.exit("TCP error: " + cause.getMessage());
+                        handleTransportClosed(cause.getMessage());
+                        ctx.close();
                       }
                     });
               }
             });
     try {
-      ChannelFuture f = cb.connect(new InetSocketAddress(remoteHost, port)).syncUninterruptibly();
+      ChannelFuture f = cb.connect(remoteHost, port).syncUninterruptibly();
       tcp = f.channel();
+      updateUdpRemote(tcp);
+      return true;
     } catch (Exception e) {
-      if (e.getCause() instanceof ConnectException) {
+      if (hasCause(e, ConnectException.class)) {
         LOGGER.error(
             "Failed to connect TCP to server at {}:{} - {}", remoteHost, port, e.getMessage());
-        enqueueLifecycle(() -> notifyDisconnected("Connection refused"));
-        Game.exit("Unable to connect to server at " + remoteHost + ":" + port);
+        handleImmediateStartFailure("Connection refused");
       } else {
-        throw e;
+        LOGGER.error("Failed to start TCP client for {}:{} - {}", remoteHost, port, e.getMessage());
+        handleImmediateStartFailure("Network start failed: " + e.getMessage());
       }
+      return false;
+    }
+  }
+
+  private void updateUdpRemote(Channel channel) {
+    if (channel.remoteAddress() instanceof InetSocketAddress remoteAddress
+        && remoteAddress.getAddress() != null) {
+      udpRemote = new InetSocketAddress(remoteAddress.getAddress(), port);
+    }
+  }
+
+  private boolean hasCause(Throwable throwable, Class<? extends Throwable> causeType) {
+    Throwable current = throwable;
+    while (current != null) {
+      if (causeType.isInstance(current)) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
+  private void handleImmediateStartFailure(String reason) {
+    enqueueLifecycle(() -> notifyDisconnected(reason));
+    closeTransportResources();
+    connected.set(false);
+    running.set(false);
+    session = null;
+    clientId = null;
+    udpRecoveryState.enterRetryMode();
+  }
+
+  private void closeTransportResources() {
+    try {
+      cancelUdpMaintenance();
+      if (tcp != null) {
+        tcp.close().syncUninterruptibly();
+        tcp = null;
+      }
+      if (udp != null) {
+        udp.close().syncUninterruptibly();
+        udp = null;
+      }
+    } catch (Exception e) {
+      LOGGER.warn("Error closing channels", e);
+    }
+    try {
+      if (group != null) {
+        group.shutdownGracefully();
+        group = null;
+      }
+    } catch (Exception e) {
+      LOGGER.warn("Error shutting down event loop", e);
+    }
+  }
+
+  private void handleTransportClosed(String reason) {
+    boolean wasActive = running.getAndSet(false) || connected.get();
+    connected.set(false);
+    cancelUdpMaintenance();
+    clientId = null;
+    session = null;
+    tcp = null;
+    if (udp != null) {
+      udp.close();
+      udp = null;
+    }
+    if (group != null) {
+      group.shutdownGracefully();
+      group = null;
+    }
+    udpRecoveryState.enterRetryMode();
+    if (wasActive) {
+      enqueueLifecycle(() -> notifyDisconnected(reason));
     }
   }
 
@@ -425,7 +547,11 @@ public final class ClientNetwork {
     LOGGER.debug("TCP inbound {} size={}B", msg.getClass().getSimpleName(), size);
   }
 
-  private void startUdp() {
+  private void startUdpIfNeeded() {
+    if (udp != null && udp.isActive()) {
+      return;
+    }
+
     Bootstrap ub = new Bootstrap();
     ub.group(group)
         .channel(NioDatagramChannel.class)
@@ -434,15 +560,13 @@ public final class ClientNetwork {
               @Override
               protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
                 try {
-                  Object obj = deserialize(pkt.content());
-                  if (obj instanceof NetworkMessage msg) {
-                    if (session != null) {
-                      inboundQueue.offer(Tuple.of(session, msg));
-                    } else {
-                      LOGGER.debug(
-                          "Dropping UDP inbound before session init: {}",
-                          msg.getClass().getSimpleName());
-                    }
+                  NetworkMessage msg = deserialize(pkt.content());
+                  if (session != null) {
+                    inboundQueue.offer(Tuple.of(session, msg));
+                  } else {
+                    LOGGER.debug(
+                        "Dropping UDP inbound before session init: {}",
+                        msg.getClass().getSimpleName());
                   }
                 } catch (Exception e) {
                   LOGGER.warn("UDP client decode error", e);
@@ -452,52 +576,59 @@ public final class ClientNetwork {
               @Override
               public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
                 LOGGER.warn("UDP client error", cause);
+                onUdpUnavailable("UDP unavailable, using TCP fallback");
               }
             });
-    udp = ub.bind(0).syncUninterruptibly().channel();
-    // Cancel all pending registrations when the channel closes
-    udp.closeFuture().addListener(future -> cancelAllUdpRegistrations());
     try {
-      udp.connect(udpRemote).syncUninterruptibly();
+      udp = ub.bind(0).syncUninterruptibly().channel();
+      udp.closeFuture()
+          .addListener(
+              future -> {
+                udp = null;
+                onUdpUnavailable("UDP unavailable, using TCP fallback");
+              });
     } catch (Exception e) {
-      if (e.getCause() instanceof ConnectException) {
-        LOGGER.error(
-            "Failed to connect UDP to server at {}:{} - {}", remoteHost, port, e.getMessage());
-        enqueueLifecycle(() -> notifyDisconnected("Connection refused"));
-        Game.exit("Unable to connect to server at " + remoteHost + ":" + port);
-      } else {
-        throw e;
-      }
+      LOGGER.warn("Failed to bind UDP channel for {}:{} - {}", remoteHost, port, e.getMessage());
+      udp = null;
+      return;
     }
-    // If TCP session already exists, update its udpAddress to our peer
-    if (session != null) session.udpAddress(udpRemote);
-    LOGGER.info("Client connected to {}:{} (TCP+UDP)", remoteHost, port);
+    if (session != null) {
+      session.udpAddress(udpRemote);
+    }
+    LOGGER.info("Client opened UDP channel for {}:{}", remoteHost, port);
   }
 
   private void onConnectAck(short newClientId, int sessionId, byte[] sessionToken) {
     this.clientId = newClientId;
+    connected.set(true);
     LOGGER.info("Received ConnectAck clientId={}, sessionId={}", newClientId, sessionId);
-    session.attachClientState(new ClientState(newClientId, username, sessionId, sessionToken));
-    scheduleUdpRegistration(newClientId);
+    session.attachClientState(
+        new ClientState(
+            newClientId,
+            username,
+            sessionId,
+            sessionToken,
+            requestedCharacterClass.orElse(CharacterClass.WIZARD)));
+    session.udpReady(false);
+    LOGGER.info("UDP unavailable, using TCP fallback");
+    onUdpUnavailable("UDP unavailable, using TCP fallback");
+    ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
     saveLastSessionToFile(sessionId, sessionToken);
+    enqueueLifecycle(this::notifyConnected);
   }
 
-  private void onConnectReject(Session session, ConnectReject.Reason reason, Object extraData) {
-    String reasonStr =
-        "Connection rejected by server: "
-            + reason
-            + " ("
-            + (extraData != null ? extraData : "no extra data")
-            + ")";
+  private void onConnectReject(Session session, ConnectReject.Reason reason) {
+    String reasonStr = "Connection rejected by server: " + reason;
     LOGGER.warn(reasonStr);
     if (reason == ConnectReject.Reason.NO_SESSION_FOUND
         || reason == ConnectReject.Reason.INVALID_SESSION_TOKEN) {
       // Invalidate last session file upon session-related rejections; Try to connect again without
       // session
       invalidateLastSessionFile();
-      session.sendMessage(new ConnectRequest(CLIENT_PROTOCOL_VERSION, username), true);
+      session.sendMessage(connectRequest(), true);
     } else {
       // Close the connection upon rejection
+      enqueueLifecycle(() -> notifyRejected(reason));
       enqueueLifecycle(() -> notifyDisconnected(reasonStr));
       session.tcpCtx().close();
     }
@@ -564,69 +695,143 @@ public final class ClientNetwork {
     }
   }
 
-  private void onRegisterAck(boolean ok) {
+  void onRegisterAck(boolean ok) {
     // TCP ACK confirms UDP registration
     if (ok) {
-      LOGGER.info("UDP registration acknowledged by server for clientId={}", clientId);
       Short id = clientId;
       if (id != null && id > 0) {
-        cancelUdpRegistration(id);
+        boolean recovered = udpRecoveryState.markRecovered(System.currentTimeMillis());
+        if (session != null) {
+          session.udpReady(true);
+          session.markUdpActivity();
+        }
+        if (recovered) {
+          LOGGER.info("UDP recovered, resuming UDP");
+        }
+        ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
       } else {
         throw new IllegalStateException("Received RegisterAck before ConnectAck");
       }
     } else {
       LOGGER.warn("UDP registration rejected by server for clientId={}", clientId);
+      udpRecoveryState.markRetryAckFailure();
+      if (session != null) {
+        session.udpReady(false);
+      }
+      ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
     }
   }
 
-  private void scheduleUdpRegistration(short clientId) {
-    if (udp == null || !udp.isActive()) {
+  private void ensureUdpMaintenanceScheduled(long delayMs) {
+    if (!running.get() || !connected.get() || group == null) {
+      return;
+    }
+    ScheduledFuture<?> future = udpMaintenanceFuture;
+    if (future != null && !future.isDone()) {
+      future.cancel(false);
+    }
+    udpMaintenanceFuture =
+        group.next().schedule(this::runUdpMaintenance, delayMs, TimeUnit.MILLISECONDS);
+  }
+
+  private void cancelUdpMaintenance() {
+    ScheduledFuture<?> future = udpMaintenanceFuture;
+    if (future != null) {
+      future.cancel(false);
+      udpMaintenanceFuture = null;
+    }
+  }
+
+  private void runUdpMaintenance() {
+    udpMaintenanceFuture = null;
+    if (!running.get()
+        || !connected.get()
+        || session == null
+        || clientId == null
+        || clientId <= 0) {
       return;
     }
 
-    // Avoid duplicate scheduling
-    if (udpRegisterTasks.containsKey(clientId)) {
-      LOGGER.debug("UDP registration already scheduled for clientId={}", clientId);
-      return;
+    long now = System.currentTimeMillis();
+    if (udpRecoveryState.stale(now)) {
+      onUdpUnavailable("UDP stale, reverting to TCP fallback");
+    }
+
+    startUdpIfNeeded();
+    boolean sent = sendRegisterUdp();
+    if (udpRecoveryState.retryMode()) {
+      udpRecoveryState.afterMaintenanceAttempt();
+    }
+    long nextDelay = udpRecoveryState.nextDelayMs();
+    LOGGER.debug(
+        "UDP maintenance cycle mode={} sent={} nextDelayMs={}",
+        udpRecoveryState.retryMode() ? "retry" : "keepalive",
+        sent,
+        nextDelay);
+    ensureUdpMaintenanceScheduled(nextDelay);
+  }
+
+  private boolean sendRegisterUdp() {
+    if (session == null || clientId == null || clientId <= 0) {
+      return false;
+    }
+    if (udp == null || !udp.isActive()) {
+      LOGGER.debug("UDP channel not active; cannot send RegisterUdp");
+      return false;
     }
 
     final byte[] payload;
     try {
-      payload = serialize(new RegisterUdp(session.sessionId(), session().sessionToken(), clientId));
+      payload = serialize(new RegisterUdp(session.sessionId(), session.sessionToken(), clientId));
     } catch (IOException e) {
       LOGGER.warn("Failed to serialize RegisterUdp for clientId={}", clientId, e);
-      return;
+      return false;
     }
 
     if (payload.length > SAFE_UDP_MTU) {
       LOGGER.warn(
           "RegisterUdp too large ({} bytes); skipping clientId={}", payload.length, clientId);
-      return;
+      return false;
     }
 
-    UdpRegistrationTask task = new UdpRegistrationTask(clientId, payload);
-    if (udpRegisterTasks.putIfAbsent(clientId, task) == null) {
-      task.start();
+    try {
+      udp.writeAndFlush(
+              new DatagramPacket(udp.alloc().buffer(payload.length).writeBytes(payload), udpRemote))
+          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+      LOGGER.debug(
+          "Sent RegisterUdp for clientId={} to {} using {} mode",
+          clientId,
+          udpRemote,
+          udpRecoveryState.retryMode() ? "retry" : "keepalive");
+      return true;
+    } catch (Throwable t) {
+      LOGGER.warn("Error while sending RegisterUdp for clientId={}", clientId, t);
+      return false;
     }
   }
 
-  private void cancelUdpRegistration(short clientId) {
-    UdpRegistrationTask task = udpRegisterTasks.remove(clientId);
-    if (task != null) {
-      task.cancel();
+  private void onUdpUnavailable(String message) {
+    boolean changed = udpRecoveryState.enterRetryMode();
+    if (session != null) {
+      session.udpReady(false);
     }
-  }
-
-  private void cancelAllUdpRegistrations() {
-    // Iterate over a copy of the values to avoid ConcurrentModificationException
-    for (UdpRegistrationTask task : List.copyOf(udpRegisterTasks.values())) {
-      task.cancel();
+    if (changed) {
+      LOGGER.info(message);
     }
-    udpRegisterTasks.clear();
+    ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
   }
 
   private void enqueueLifecycle(Runnable r) {
     if (r != null) lifecycleEvents.offer(r);
+  }
+
+  private ConnectRequest connectRequest() {
+    return connectRequest(0, new byte[0]);
+  }
+
+  private ConnectRequest connectRequest(int sessionId, byte[] sessionToken) {
+    return new ConnectRequest(
+        PROTOCOL_VERSION, username, sessionId, sessionToken, requestedCharacterClass);
   }
 
   private void notifyConnected() {
@@ -649,22 +854,32 @@ public final class ClientNetwork {
     }
   }
 
+  private void notifyRejected(ConnectReject.Reason reason) {
+    for (ConnectionListener l : connectionListeners) {
+      try {
+        l.onRejected(reason);
+      } catch (Exception e) {
+        LOGGER.warn("onRejected error", e);
+      }
+    }
+  }
+
   // ---- client-side Session senders ----
 
   /**
    * Client-side UDP sender for {@link Session}. Mirrors server-side send path and size checks.
    *
    * @param target target address
-   * @param obj object to send
-   * @return CompletableFuture indicating success sending the object
+   * @param msg message to send
+   * @return CompletableFuture indicating success sending the message
    */
-  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, Object obj) {
+  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, NetworkMessage msg) {
     if (udp == null || !udp.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
       return CompletableFuture.completedFuture(false);
     }
     try {
-      byte[] data = serialize(obj);
+      byte[] data = serialize(msg);
       if (data.length > SAFE_UDP_MTU) {
         LOGGER.warn("Skip UDP send; payload too large ({} B) to {}", data.length, target);
         return CompletableFuture.completedFuture(false);
@@ -683,15 +898,15 @@ public final class ClientNetwork {
    * Client-side TCP sender for {@link Session}. Mirrors server-side send path and size checks.
    *
    * @param ctx channel context
-   * @param obj object to send
-   * @return CompletableFuture indicating the acknowledgment of the send object by the recipient
+   * @param msg message to send
+   * @return CompletableFuture indicating the acknowledgment of the sent message by the recipient
    */
-  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, Object obj) {
+  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, NetworkMessage msg) {
     if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {
       return CompletableFuture.completedFuture(false);
     }
     try {
-      byte[] data = serialize(obj);
+      byte[] data = serialize(msg);
       if (data.length > MAX_TCP_OBJECT_SIZE) {
         LOGGER.warn("Skip TCP send; payload too large ({} B) to {}", data.length, ctx.channel());
         return CompletableFuture.completedFuture(false);
@@ -704,70 +919,6 @@ public final class ClientNetwork {
     } catch (IOException e) {
       LOGGER.warn("Failed to send TCP object to {}: {}", ctx.channel(), e.getMessage());
       return CompletableFuture.completedFuture(false);
-    }
-  }
-
-  private final class UdpRegistrationTask implements Runnable {
-    private final short clientId;
-    private final byte[] payload;
-    private final AtomicInteger attempts = new AtomicInteger(0);
-    private volatile ScheduledFuture<?> future;
-
-    UdpRegistrationTask(short clientId, byte[] payload) {
-      this.clientId = clientId;
-      this.payload = payload;
-    }
-
-    void start() {
-      if (udp == null || !udp.isActive()) {
-        LOGGER.warn("UDP channel not active, cannot start registration for clientId={}", clientId);
-        return;
-      }
-      // Schedule the first run immediately on the event loop
-      this.future = udp.eventLoop().schedule(this, 0, TimeUnit.MILLISECONDS);
-    }
-
-    void cancel() {
-      if (future != null) {
-        future.cancel(false);
-      }
-      // Remove from the main map
-      udpRegisterTasks.remove(this.clientId);
-      LOGGER.debug("Cancelled UDP registration retries for clientId={}", clientId);
-    }
-
-    @Override
-    public void run() {
-      if (udp == null || !udp.isActive()) {
-        LOGGER.debug(
-            "UDP channel inactive; stopping registration retries for clientId={}", clientId);
-        udpRegisterTasks.remove(this.clientId);
-        return;
-      }
-
-      int attempt = attempts.incrementAndGet();
-      if (attempt > UDP_REGISTER_ATTEMPTS) {
-        LOGGER.warn(
-            "UDP registration failed for clientId={} after {} attempts", clientId, attempt - 1);
-        udpRegisterTasks.remove(this.clientId);
-        return;
-      }
-
-      // Send the datagram
-      try {
-        udp.writeAndFlush(
-                new DatagramPacket(
-                    udp.alloc().buffer(payload.length).writeBytes(payload), udpRemote))
-            .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-        LOGGER.debug("Sent RegisterUdp attempt={} clientId={} to {}", attempt, clientId, udpRemote);
-      } catch (Throwable t) {
-        LOGGER.warn("Error while sending RegisterUdp for clientId={}", clientId, t);
-      }
-
-      // Schedule the next retry if not cancelled
-      if (!future.isCancelled()) {
-        future = udp.eventLoop().schedule(this, UDP_REGISTER_INTERVAL_MS, TimeUnit.MILLISECONDS);
-      }
     }
   }
 }

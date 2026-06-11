@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation project(':dungeon')
+    implementation project(':portal')
 }
 
 sourceSets.main.java.srcDirs = ['src/']
@@ -11,25 +12,13 @@ sourceSets.main.resources.srcDirs = ['assets/']
 
 processResources {
     from new File(project(':dungeon').projectDir, '/assets')
+    from new File(project(':portal').projectDir, '/src/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-
 
 tasks.register('runPortal', JavaExec) {
     group 'starter'
     mainClass = 'starter.PortalStarter'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-tasks.register('runPathfinder', JavaExec) {
-    group 'starter'
-    mainClass = 'aiAdvanced.starter.PathfinderStarter'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-tasks.register('runPathFindingComparison', JavaExec) {
-    group 'starter'
-    mainClass = 'aiAdvanced.starter.ComparePathfindingStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -39,4 +28,3 @@ tasks.named('clean') {
             file("$rootDir/currentPortalLevel.json"),
     )
 }
-

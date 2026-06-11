@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.badlogic.gdx.utils.Disposable;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
@@ -30,19 +32,16 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.network.messages.c2s.InputMessage;
-import core.utils.*;
+import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /** WTF? . */
-public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
+public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Disposable {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryGUI.class);
-  private static final Map<Integer, Boolean> inventoryOpenMap = new HashMap<>();
 
   private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
   private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
@@ -144,34 +143,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   /**
-   * Checks if the given player's inventory is currently open.
-   *
-   * @param player the player entity
-   * @return true if the inventory is open, false otherwise
-   */
-  public static boolean inPlayerInventory(Entity player) {
-    return inventoryOpenMap.getOrDefault(player.id(), false);
-  }
-
-  /**
-   * Retrieves the InventoryGUI associated with the given player's inventory, if it exists.
-   *
-   * @param player the player entity
-   * @return an Optional containing the InventoryGUI if found, or empty if not found
-   */
-  public static Optional<InventoryGUI> getPlayerInventoryGUI(Entity player) {
-    LOGGER.debug("Fetching InventoryGUI for player " + player.id() + ".");
-    return player
-        .fetch(UIComponent.class)
-        .flatMap(
-            uiComp ->
-                UIUtils.getInventoriesFromUI(uiComp)
-                    .filter(invComp -> isPlayersInventory(player, invComp))
-                    .map(InventoryGUI::new)
-                    .findFirst());
-  }
-
-  /**
    * Builds an InventoryDialog from the given DialogContext for a single inventory.
    *
    * @param ctx The dialog context containing the entity with the inventory component.
@@ -212,17 +183,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
         ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(otherEntity.name());
     InventoryGUI otherInventoryGUI = new InventoryGUI(otherTitle, otherInventory);
     return new GUICombination(inventoryGUI, otherInventoryGUI);
-  }
-
-  /**
-   * Sets whether the inventory is open for the given player.
-   *
-   * @param player the player entity
-   * @param open true if the inventory is open, false otherwise
-   */
-  public static void setInventoryOpen(Entity player, boolean open) {
-    LOGGER.debug("Setting inventory open state for player " + player.id() + " to " + open + ".");
-    inventoryOpenMap.put(player.id(), open);
   }
 
   @Override
@@ -281,12 +241,18 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
         }
       }
 
-      batch.draw(
-          this.inventoryComponent.items()[i].inventoryAnimation().update(),
-          x,
-          y,
-          this.slotSize - (4 * BORDER_PADDING),
-          this.slotSize - (4 * BORDER_PADDING));
+      TextureRegion region = this.inventoryComponent.items()[i].inventoryAnimation().update();
+      float maxSize = this.slotSize - (4 * BORDER_PADDING);
+      float regionW = region.getRegionWidth();
+      float regionH = region.getRegionHeight();
+      float fitScale = (regionW <= 0 || regionH <= 0) ? 1f : maxSize / Math.max(regionW, regionH);
+      float drawW = regionW * fitScale;
+      float drawH = regionH * fitScale;
+      // center along the smaller dimension
+      float drawX = x + (maxSize - drawW) / 2f;
+      float drawY = y + (maxSize - drawH) / 2f;
+
+      batch.draw(region, drawX, drawY, drawW, drawH);
     }
   }
 
@@ -347,6 +313,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
     if (this.dragAndDrop().isDragging()) return;
 
     int hoveredSlot = this.getSlotByCoordinates(relMousePos.x(), relMousePos.y());
+    if (hoveredSlot < 0 || hoveredSlot >= this.inventoryComponent.items().length) return;
     Optional<Item> item = InventoryGUI.this.inventoryComponent.get(hoveredSlot);
     if (item.isEmpty()) return;
     Item itemToShow = item.get();
@@ -390,7 +357,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   private DragAndDrop.Source buildDragAndDropSource() {
-    return new DragAndDrop.Source(this.actor()) {
+    return new DragAndDrop.Source(this) {
       @Override
       public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
         int draggedSlot = InventoryGUI.this.getSlotByCoordinates(x, y);
@@ -406,8 +373,17 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
                 InventoryGUI.this.inventoryComponent, isHeroInv, draggedSlot, itemToTransfer));
 
         // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
-        Image image = new Image(new SpriteDrawable(itemToTransfer.inventoryAnimation().update()));
-        image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
+        Sprite dragRegion = itemToTransfer.inventoryAnimation().update();
+        Image image = new Image(new SpriteDrawable(dragRegion));
+        float dragRegionW = dragRegion.getRegionWidth();
+        float dragRegionH = dragRegion.getRegionHeight();
+        float dragFitScale =
+            (dragRegionW <= 0 || dragRegionH <= 0)
+                ? 1f
+                : InventoryGUI.this.slotSize / Math.max(dragRegionW, dragRegionH);
+        float dragW = dragRegionW * dragFitScale;
+        float dragH = dragRegionH * dragFitScale;
+        image.setSize(dragW, dragH);
         payload.setDragActor(image);
         dragAndDrop().setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2);
 
@@ -431,12 +407,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
                 itemDragPayload.inventoryComponent(),
                 itemDragPayload.slot());
           } else {
-            Game.network()
-                .send(
-                    (short) 0,
-                    new InputMessage(
-                        InputMessage.Action.INV_DROP, Vector2.of(itemDragPayload.slot(), 0)),
-                    true);
+            Game.network().send((short) 0, InputMessage.invDrop(itemDragPayload.slot()), true);
           }
         }
       }
@@ -444,7 +415,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   private DragAndDrop.Target buildDragAndDropTarget() {
-    return new DragAndDrop.Target(this.actor()) {
+    return new DragAndDrop.Target(this) {
       @Override
       public boolean drag(
           DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
@@ -470,12 +441,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
           if (Game.network().isServer()) {
             HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
           } else {
-            Game.network()
-                .send(
-                    (short) 0,
-                    new InputMessage(
-                        InputMessage.Action.INV_MOVE, Vector2.of(sourceSlot, targetSlot)),
-                    true);
+            Game.network().send((short) 0, InputMessage.invMove(sourceSlot, targetSlot), true);
           }
         }
       }
@@ -483,101 +449,87 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   private void addInputListener() {
-    Game.stage().orElseThrow().setKeyboardFocus(this.actor());
+    Game.stage().orElseThrow().setKeyboardFocus(this);
 
-    this.actor().setBounds(0, 0, this.width(), this.height());
+    setBounds(0, 0, this.width(), this.height());
 
-    this.actor()
-        .addListener(
-            new InputListener() {
-              @Override
-              public boolean keyDown(InputEvent event, int keycode) {
-                Entity player = Game.player().orElseThrow();
-                if (inPlayerInventory(player)) {
-                  if (KeyboardConfig.USE_ITEM.value() == keycode) {
-                    if (Game.network().isServer()) {
-                      return HeroController.useItem(player, getSlotByMousePosition());
-                    } else {
-                      Game.network()
-                          .send(
-                              (short) 0,
-                              new InputMessage(
-                                  InputMessage.Action.INV_USE,
-                                  Vector2.of(getSlotByMousePosition(), 0)),
-                              true);
-                      return true;
-                    }
-                  }
+    this.addListener(
+        new InputListener() {
+          @Override
+          public boolean keyDown(InputEvent event, int keycode) {
+            Entity player = Game.player().orElseThrow();
+            if (UIUtils.getPlayerInventoryGUI(player).isPresent()) {
+              if (KeyboardConfig.USE_ITEM.value() == keycode) {
+                if (Game.network().isServer()) {
+                  return HeroController.useItem(player, getSlotByMousePosition());
+                } else {
+                  Game.network()
+                      .send((short) 0, InputMessage.invUse(getSlotByMousePosition()), true);
+                  return true;
                 }
-                return false;
               }
+            }
+            return false;
+          }
 
-              @Override
-              public boolean touchDown(
-                  InputEvent event, float x, float y, int pointer, int button) {
-                Entity player = Game.player().orElseThrow();
-                if (inPlayerInventory(player)) {
-                  if (KeyboardConfig.MOUSE_USE_ITEM.value() == button) {
-                    if (Game.network().isServer()) {
-                      return HeroController.useItem(player, getSlotByMousePosition());
-                    } else {
-                      Game.network()
-                          .send(
-                              (short) 0,
-                              new InputMessage(
-                                  InputMessage.Action.INV_USE,
-                                  Vector2.of(getSlotByMousePosition(), 0)),
-                              true);
-                      return true;
-                    }
-                  }
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            Entity player = Game.player().orElseThrow();
+            UIComponent uiComponent = player.fetch(UIComponent.class).orElse(null);
+            InventoryComponent inventoryComponent =
+                player.fetch(InventoryComponent.class).orElse(null);
+            if (uiComponent != null
+                && UIUtils.getInventoriesFromUI(uiComponent)
+                    .allMatch(ic -> ic == inventoryComponent)) {
+              if (KeyboardConfig.MOUSE_USE_ITEM.value() == button) {
+                if (Game.network().isServer()) {
+                  return HeroController.useItem(player, getSlotByMousePosition());
+                } else {
+                  Game.network()
+                      .send((short) 0, InputMessage.invUse(getSlotByMousePosition()), true);
+                  return true;
+                }
+              }
+              return false;
+            }
+
+            if (uiComponent != null && uiComponent.dialog() instanceof GUICombination) {
+              // if two inventories are open, transfer items between them if key is pressed
+              if (KeyboardConfig.TRANSFER_ITEM.value() == button) {
+                int sourceSlot = getSlotByMousePosition();
+                if (isPlayersInventory(
+                    Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
+                  sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory
+                }
+                Optional<InventoryComponent> targetInventory =
+                    UIUtils.getInventoriesFromUI(uiComponent)
+                        .filter(invComp -> invComp != InventoryGUI.this.inventoryComponent)
+                        .findFirst();
+
+                if (targetInventory.isEmpty()) return false;
+
+                int nextBestTargetSlot = targetInventory.get().findNextAvailableSlot();
+                if (nextBestTargetSlot == -1) {
+                  LOGGER.debug("No available slot in target inventory for transfer.");
                   return false;
                 }
-
-                UIComponent uiComponent =
-                    Game.player().flatMap(e -> e.fetch(UIComponent.class)).orElse(null);
-                if (uiComponent != null && uiComponent.dialog() instanceof GUICombination) {
-                  // if two inventories are open, transfer items between them if key is pressed
-                  if (KeyboardConfig.TRANSFER_ITEM.value() == button) {
-                    int sourceSlot = getSlotByMousePosition();
-                    if (isPlayersInventory(
-                        Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
-                      sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory
-                    }
-                    Optional<InventoryComponent> targetInventory =
-                        UIUtils.getInventoriesFromUI(uiComponent)
-                            .filter(invComp -> invComp != InventoryGUI.this.inventoryComponent)
-                            .findFirst();
-
-                    if (targetInventory.isEmpty()) return false;
-
-                    int nextBestTargetSlot = targetInventory.get().findNextAvailableSlot();
-                    if (nextBestTargetSlot == -1) {
-                      LOGGER.debug("No available slot in target inventory for transfer.");
-                      return false;
-                    }
-                    if (isPlayersInventory(Game.player().orElseThrow(), targetInventory.get())) {
-                      nextBestTargetSlot = (-nextBestTargetSlot) - 1; // negative slots for hero
-                    }
-
-                    if (Game.network().isServer()) {
-                      return HeroController.moveItem(
-                          Game.player().orElseThrow(), sourceSlot, nextBestTargetSlot);
-                    } else {
-                      Game.network()
-                          .send(
-                              (short) 0,
-                              new InputMessage(
-                                  InputMessage.Action.INV_MOVE,
-                                  Vector2.of(sourceSlot, nextBestTargetSlot)),
-                              true);
-                      return true;
-                    }
-                  }
+                if (isPlayersInventory(Game.player().orElseThrow(), targetInventory.get())) {
+                  nextBestTargetSlot = (-nextBestTargetSlot) - 1; // negative slots for hero
                 }
-                return false;
+
+                if (Game.network().isServer()) {
+                  return HeroController.moveItem(
+                      Game.player().orElseThrow(), sourceSlot, nextBestTargetSlot);
+                } else {
+                  Game.network()
+                      .send((short) 0, InputMessage.invMove(sourceSlot, nextBestTargetSlot), true);
+                  return true;
+                }
               }
-            });
+            }
+            return false;
+          }
+        });
   }
 
   @Override
@@ -624,5 +576,17 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
    */
   public InventoryComponent inventoryComponent() {
     return this.inventoryComponent;
+  }
+
+  @Override
+  public void dispose() {
+    if (this.textureSlots != null) {
+      this.textureSlots.dispose();
+    }
+
+    // clear drag and drop holding item
+    if (this.dragAndDrop() != null && this.dragAndDrop().isDragging()) {
+      this.dragAndDrop().getDragActor().remove();
+    }
   }
 }

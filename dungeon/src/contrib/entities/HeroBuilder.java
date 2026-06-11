@@ -1,11 +1,21 @@
 package contrib.entities;
 
-import contrib.components.*;
+import contrib.components.CatapultableComponent;
+import contrib.components.CharacterClassComponent;
+import contrib.components.CollideComponent;
+import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
+import contrib.components.ManaComponent;
+import contrib.components.SkillComponent;
+import contrib.components.SpikyComponent;
+import contrib.components.StaminaComponent;
+import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
-import contrib.hud.inventory.InventoryGUI;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.PauseDialog;
 import contrib.systems.HealthSystem;
 import contrib.systems.HudSystem;
 import contrib.systems.PositionSync;
@@ -14,19 +24,26 @@ import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
-import core.components.*;
+import core.components.CameraComponent;
+import core.components.DrawComponent;
+import core.components.InputComponent;
+import core.components.PlayerComponent;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.game.PreRunConfiguration;
 import core.level.elements.ILevel;
 import core.network.messages.c2s.InputMessage;
 import core.sound.SoundSpec;
 import core.systems.VelocitySystem;
-import core.utils.*;
-import core.utils.components.draw.*;
+import core.utils.Direction;
+import core.utils.Vector2;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -209,7 +226,6 @@ public final class HeroBuilder {
     hero.persistent(persistent);
     PlayerComponent pc = new PlayerComponent(isLocal, playerName);
     hero.add(pc);
-    hero.add(new CharacterClassComponent(characterClass));
     CameraComponent cc = new CameraComponent();
     hero.add(new CharacterClassComponent(characterClass));
     if (isLocal) {
@@ -249,12 +265,15 @@ public final class HeroBuilder {
             characterClass.mass(),
             (e) -> {},
             true));
-    hero.add(
-        new ManaComponent(
-            characterClass.mana(), characterClass.mana(), characterClass.manaRestore()));
-    hero.add(
-        new StaminaComponent(
-            characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
+    if (characterClass.mana() > 0)
+      hero.add(
+          new ManaComponent(
+              characterClass.mana(), characterClass.mana(), characterClass.manaRestore()));
+    if (characterClass.stamina() > 0)
+      hero.add(
+          new StaminaComponent(
+              characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
+
     hero.add(new SkillComponent(characterClass.startSkills().toArray(new Skill[0])));
 
     HealthComponent hc =
@@ -278,7 +297,7 @@ public final class HeroBuilder {
             });
     hc.currentHealthpoints(characterClass.hp());
     hero.add(hc);
-    CollideComponent col = new CollideComponent();
+    CollideComponent col = new CollideComponent(characterClass.hitbox());
     col.onHold(
         (you, other, direction) ->
             other
@@ -318,70 +337,67 @@ public final class HeroBuilder {
     // WASD
     inputComp.registerCallback(
         core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-        (caller) ->
-            Game.network().sendInput(new InputMessage(InputMessage.Action.MOVE, Direction.UP)));
+        (caller) -> Game.network().sendInput(InputMessage.move(Direction.UP)));
     inputComp.registerCallback(
         core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-        (caller) ->
-            Game.network().sendInput(new InputMessage(InputMessage.Action.MOVE, Direction.DOWN)));
+        (caller) -> Game.network().sendInput(InputMessage.move(Direction.DOWN)));
     inputComp.registerCallback(
         core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-        (caller) ->
-            Game.network().sendInput(new InputMessage(InputMessage.Action.MOVE, Direction.RIGHT)));
+        (caller) -> Game.network().sendInput(InputMessage.move(Direction.RIGHT)));
     inputComp.registerCallback(
         core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-        (caller) ->
-            Game.network().sendInput(new InputMessage(InputMessage.Action.MOVE, Direction.LEFT)));
+        (caller) -> Game.network().sendInput(InputMessage.move(Direction.LEFT)));
 
     // Skills
     inputComp.registerCallback(
-        KeyboardConfig.USE_SKILL.value(),
+        KeyboardConfig.USE_MAIN_SKILL.value(),
         (caller) ->
             Game.network()
-                .sendInput(
-                    new InputMessage(
-                        InputMessage.Action.CAST_SKILL, SkillTools.cursorPositionAsPoint())));
+                .sendInput(InputMessage.castSkill(SkillTools.cursorPositionAsPoint(), true)));
     inputComp.registerCallback(
-        KeyboardConfig.MOUSE_USE_SKILL.value(),
+        KeyboardConfig.MOUSE_USE_MAIN_SKILL.value(),
         (caller) ->
             Game.network()
-                .sendInput(
-                    new InputMessage(
-                        InputMessage.Action.CAST_SKILL, SkillTools.cursorPositionAsPoint())));
+                .sendInput(InputMessage.castSkill(SkillTools.cursorPositionAsPoint(), true)));
     inputComp.registerCallback(
-        KeyboardConfig.NEXT_SKILL.value(),
-        caller ->
-            Game.network()
-                .sendInput(new InputMessage(InputMessage.Action.NEXT_SKILL, Vector2.ZERO)),
+        KeyboardConfig.NEXT_MAIN_SKILL.value(),
+        caller -> Game.network().sendInput(InputMessage.nextSkill(true)),
         false);
     inputComp.registerCallback(
-        KeyboardConfig.PREV_SKILL.value(),
-        caller ->
+        KeyboardConfig.PREV_MAIN_SKILL.value(),
+        caller -> Game.network().sendInput(InputMessage.prevSkill(true)),
+        false);
+    inputComp.registerCallback(
+        KeyboardConfig.MOUSE_USE_SECOND_SKILL.value(),
+        (caller) ->
             Game.network()
-                .sendInput(new InputMessage(InputMessage.Action.PREV_SKILL, Vector2.ZERO)),
+                .sendInput(InputMessage.castSkill(SkillTools.cursorPositionAsPoint(), false)));
+    inputComp.registerCallback(
+        KeyboardConfig.NEXT_SECOND_SKILL.value(),
+        caller -> Game.network().sendInput(InputMessage.nextSkill(false)),
+        false);
+    inputComp.registerCallback(
+        KeyboardConfig.PREV_SECOND_SKILL.value(),
+        caller -> Game.network().sendInput(InputMessage.prevSkill(false)),
         false);
 
     // Interact
     inputComp.registerCallback(
         KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
         (caller) ->
-            Game.network()
-                .sendInput(
-                    new InputMessage(
-                        InputMessage.Action.INTERACT, SkillTools.cursorPositionAsPoint())),
+            Game.network().sendInput(InputMessage.interact(SkillTools.cursorPositionAsPoint())),
         false);
     inputComp.registerCallback(
         KeyboardConfig.INTERACT_WORLD.value(),
         (caller) ->
-            Game.network()
-                .sendInput(
-                    new InputMessage(
-                        InputMessage.Action.INTERACT, SkillTools.cursorPositionAsPoint())),
+            Game.network().sendInput(InputMessage.interact(SkillTools.cursorPositionAsPoint())),
         false);
 
     // UI controls
     inputComp.registerCallback(
-        KeyboardConfig.INVENTORY_OPEN.value(), HeroController::toggleInventory, false, true);
+        KeyboardConfig.INVENTORY_OPEN.value(),
+        (caller) -> Game.network().sendInput(InputMessage.toggleInventory()),
+        false);
     inputComp.registerCallback(
         KeyboardConfig.CLOSE_UI.value(),
         (caller) ->
@@ -392,26 +408,23 @@ public final class HeroBuilder {
                         .topmostCloseableUI()
                         .ifPresent(
                             firstUI -> {
-                              UIComponent component = firstUI.b();
-                              Entity entity = firstUI.a();
+                              UIComponent uiComp = firstUI.b();
 
-                              // Check if this is the player's inventory
-                              if (InventoryGUI.inPlayerInventory(entity)) {
-                                // Use toggleInventory which properly notifies server via
-                                // InventoryUIMessage
-                                HeroController.toggleInventory(entity);
-                              } else {
-                                // For network dialogs (received from server), send close message
-                                if (component.dialogContext() != null) {
-                                  String dialogId = component.dialogContext().dialogId();
-                                  DialogCallbackResolver.sendDialogClosed(dialogId);
-                                }
-                                // Remove the UI component
-                                UIUtils.closeDialog(component);
+                              String dialogId = uiComp.dialogContext().dialogId();
+                              DialogCallbackResolver.createButtonCallback(
+                                      dialogId, DialogContextKeys.ON_CLOSE)
+                                  .accept(null);
+
+                              // UI is not networked, just close locally
+                              Entity uiEntity = firstUI.a();
+                              if (uiEntity.isLocal()) {
+                                UIUtils.closeDialog(uiComp);
                               }
                             }))),
         false,
         true);
+    inputComp.registerCallback(
+        KeyboardConfig.PAUSE_MENU.value(), PauseDialog::showPauseDialog, false, true);
   }
   // endregion
 }

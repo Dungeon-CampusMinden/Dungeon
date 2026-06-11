@@ -1,7 +1,13 @@
 package core.systems;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import contrib.components.CollideComponent;
 import contrib.systems.CollisionSystem;
@@ -25,6 +31,8 @@ import org.junit.jupiter.api.Test;
 
 /** Unit tests for the {@link MoveSystem}. */
 public class MoveSystemTest {
+
+  private static final float EPSILON = 0.00001f;
 
   private static final Point START_POSITION = new Point(5, 5);
   private static final float MAX_SPEED = 10f;
@@ -169,7 +177,8 @@ public class MoveSystemTest {
 
     system.execute();
 
-    assertEquals(resultingPos, pc.position());
+    assertTrue(Math.abs(resultingPos.x() - pc.position().x()) < EPSILON);
+    assertTrue(Math.abs(resultingPos.y() - pc.position().y()) < EPSILON);
     verify(onWallHit).accept(entity);
   }
 

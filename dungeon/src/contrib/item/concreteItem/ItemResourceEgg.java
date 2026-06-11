@@ -10,11 +10,7 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 
-/**
- * A Egg that spawns a monster on usage.
- *
- * <p>Can be used for crafting.
- */
+/** A Egg that spawns a monster on usage. */
 public class ItemResourceEgg extends Item {
 
   /** Create a new Egg. */

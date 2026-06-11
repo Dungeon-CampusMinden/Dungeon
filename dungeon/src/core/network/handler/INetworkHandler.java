@@ -1,5 +1,6 @@
 package core.network.handler;
 
+import contrib.entities.CharacterClass;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.NetworkException;
@@ -7,6 +8,7 @@ import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.Session;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -25,8 +27,15 @@ public interface INetworkHandler {
    * @param serverAddress The address to connect to (if client). Ignored if server.
    * @param port The port to use for communication.
    * @param username The username for the connection.
+   * @param characterClass The requested player character class for multiplayer clients, or empty to
+   *     use the server default.
    */
-  void initialize(boolean isServer, String serverAddress, int port, String username)
+  void initialize(
+      boolean isServer,
+      String serverAddress,
+      int port,
+      String username,
+      Optional<CharacterClass> characterClass)
       throws NetworkException;
 
   /**

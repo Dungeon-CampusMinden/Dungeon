@@ -1,17 +1,13 @@
 package contrib.utils.systems.levelEditor;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import contrib.components.UIComponent;
-import contrib.hud.UIUtils;
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
-import contrib.hud.dialogs.DialogType;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import core.level.utils.Coordinate;
+import core.network.messages.c2s.DialogResponseMessage;
+import core.systems.input.InputManager;
 import core.utils.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -37,37 +33,35 @@ public class PointMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-
-    if (Gdx.input.isKeyJustPressed(SECONDARY_UP)) {
+    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
       snapMode = snapMode.nextMode();
     }
 
     Point cursorPos = getCursorPosition();
     Point snapPos = snapMode.getPosition(cursorPos);
-    if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+    if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
       if (heldPointName != null) {
         // Place held deco
         getLevel().addNamedPoint(heldPointName, snapPos);
         heldPointName = null;
       } else {
         // Place new point instance
-        UIComponent dialogUI =
-            DialogFactory.show(
-                DialogContext.builder()
-                    .type(DialogType.DefaultTypes.FREE_INPUT)
-                    .put(DialogContextKeys.TITLE, "Add Named Point")
-                    .put(DialogContextKeys.QUESTION, "Name of new point")
-                    .build());
-        dialogUI.registerCallback(
-            DialogContextKeys.INPUT_CALLBACK,
-            data -> {
-              if (data instanceof String string && !string.isBlank()) {
-                getLevel().addNamedPoint(string, snapPos);
+        DialogFactory.showInputDialog(
+            "",
+            "Add Named Point",
+            "",
+            "Name of point",
+            "Add",
+            "Cancel",
+            payload -> {
+              if (payload instanceof DialogResponseMessage.StringValue(String value)
+                  && !value.isBlank()) {
+                getLevel().addNamedPoint(value, snapPos);
               }
-              UIUtils.closeDialog(dialogUI, true);
-            });
+            },
+            () -> {});
       }
-    } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+    } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT)) {
       Optional<String> clickedPoint = getOnPosition(cursorPos);
       clickedPoint.ifPresent(point -> heldPointName = point);
 
@@ -79,7 +73,7 @@ public class PointMode extends LevelEditorMode {
         String newPointName = baseName + (getLevel().getHighestPointNumber(baseName) + 1);
         getLevel().addNamedPoint(newPointName, snapPos);
       }
-    } else if (Gdx.input.isKeyPressed(TERTIARY)) {
+    } else if (InputManager.isKeyPressed(TERTIARY)) {
       // Delete deco on cursor
       getOnPosition(cursorPos).ifPresent(getLevel()::removeNamedPoint);
     }
@@ -92,13 +86,15 @@ public class PointMode extends LevelEditorMode {
 
   @Override
   public String getStatusText() {
-    StringBuilder status = new StringBuilder();
-    status.append("Snap Mode: ").append(snapMode.name());
-    status.append("\nHeld Point: ");
-    status.append(Objects.requireNonNullElse(heldPointName, "<none>"));
-    status.append("\nTotal Points: ").append(getLevel().namedPoints().size());
+    String status =
+        "Snap Mode: "
+            + snapMode.name()
+            + "\nHeld Point: "
+            + Objects.requireNonNullElse(heldPointName, "<none>")
+            + "\nTotal Points: "
+            + getLevel().namedPoints().size();
 
-    return status.toString();
+    return status;
   }
 
   @Override

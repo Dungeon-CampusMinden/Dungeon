@@ -1,26 +1,82 @@
 package client;
 
+import client.hud.StageConfig;
 import coderunner.BlocklyCodeRunner;
+import coderunner.BlocklyCommands;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
-import contrib.systems.*;
+import contrib.components.CollideComponent;
+import contrib.components.SkillComponent;
+import contrib.systems.AISystem;
+import contrib.systems.BlockSystem;
+import contrib.systems.CollisionSystem;
+import contrib.systems.DebugDrawSystem;
+import contrib.systems.EventScheduler;
+import contrib.systems.FallingSystem;
+import contrib.systems.FogSystem;
+import contrib.systems.HealthSystem;
+import contrib.systems.IdleSoundSystem;
+import contrib.systems.LevelEditorSystem;
+import contrib.systems.LevelTickSystem;
+import contrib.systems.LeverSystem;
+import contrib.systems.PathSystem;
+import contrib.systems.PitSystem;
+import contrib.systems.PressurePlateSystem;
+import contrib.systems.ProjectileSystem;
+import contrib.systems.SpikeSystem;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.loader.DungeonLoader;
 import core.network.server.DialogTracker;
 import core.systems.PositionSystem;
+import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
+import java.awt.Desktop;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Properties;
 import java.util.Set;
-import level.produs.*;
+import java.util.function.Supplier;
+import level.produs.Level001;
+import level.produs.Level002;
+import level.produs.Level003;
+import level.produs.Level004;
+import level.produs.Level005;
+import level.produs.Level006;
+import level.produs.Level007;
+import level.produs.Level008;
+import level.produs.Level009;
+import level.produs.Level010;
+import level.produs.Level011;
+import level.produs.Level012;
+import level.produs.Level013;
+import level.produs.Level014;
+import level.produs.Level015;
+import level.produs.Level016;
+import level.produs.Level017;
+import level.produs.Level018;
+import level.produs.Level019;
+import level.produs.Level020;
+import level.produs.Level021;
+import level.produs.Level022;
+import portal.BlocklyEnergyPelletCatcherBehavior;
+import portal.BlocklyPortalCalculations;
+import portal.PortalRegistry;
+import portal.controlls.Hero;
+import portal.portals.PortalColor;
+import portal.portals.PortalSkill;
+import portal.portals.abstraction.PortalConfig;
+import portal.portals.components.PortableComponent;
+import server.FrontendServer;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
 import systems.TintTilesSystem;
@@ -39,7 +95,7 @@ public class Client {
   public static final String WIZARD_NAME = "Algorim";
 
   /** Force to apply for movement of all entities. */
-  public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
+  public static Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
   private static final boolean DEBUG_MODE = false;
   private static final boolean ACTIVATE_TANKE_CONTROLLS = DEBUG_MODE;
@@ -53,6 +109,8 @@ public class Client {
    */
   public static boolean runInWeb = false;
 
+  private static int webserverPort = 8081;
+
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
    * frontend.
@@ -60,11 +118,36 @@ public class Client {
    * @param args CLI arguments
    * @throws IOException if textures can not be loaded.
    */
-  public static void main(String[] args) throws IOException {
-    for (String arg : args) {
-      if (arg.equalsIgnoreCase("web=true")) {
-        runInWeb = true;
+  public static void main(String[] args) throws Exception {
+    try {
+      Properties props = new Properties();
+      // loads the file that sets the web mode (incase jar was created with jardesktop or jarweb)
+      props.load(Client.class.getResourceAsStream("/application.properties"));
+      runInWeb = Boolean.parseBoolean(props.getProperty("web"));
+    } catch (Exception e) {
+      for (String arg : args) {
+        // incase the program is executed from runBlockly or the normal jar
+        if (arg.equalsIgnoreCase("web=true")) {
+          runInWeb = true;
+        }
       }
+    }
+
+    String path =
+        String.valueOf(Client.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+
+    String operatingSystem = java.lang.System.getProperty("os.name");
+
+    // extract the folder for the windows operatin system
+    // prevents the creation of temporary folders
+    if (path.endsWith(".jar") && operatingSystem.contains("Windows")) {
+      java.lang.System.out.println("Extracting folders");
+      FolderExtractor.prepareCompilerResources();
+    }
+
+    if (runInWeb) {
+      FrontendServer.run(webserverPort);
+      openBrowser("http://localhost:" + webserverPort);
     }
 
     StateMachine.setResetFrame(false);
@@ -84,6 +167,8 @@ public class Client {
         httpServer.stop(0);
       }
       BlocklyCodeRunner.instance().stopCode();
+      FrontendServer.stopServer();
+      FolderExtractor.deleteCompilerResources();
     }
   }
 
@@ -120,10 +205,13 @@ public class Client {
 
           createHero();
           createSystems();
+          PortalRegistry.setDebugMode(false);
+          PortalRegistry.registerCalculations(() -> new BlocklyPortalCalculations());
+          PortalRegistry.registerPelletCatcherBehavior(
+              () -> new BlocklyEnergyPelletCatcherBehavior());
 
+          StageConfig.setupStage();
           startServer();
-
-          DungeonLoader.loadLevel(0);
         });
   }
 
@@ -171,6 +259,9 @@ public class Client {
     Game.add(new SpikeSystem());
     Game.add(new IdleSoundSystem());
     Game.add(new PathSystem());
+    // remove LevelTickSystem before adding to force it to run after the VelocitySystem and before
+    // the BlocklyCommandExecuteSystem.
+    Game.remove(LevelTickSystem.class);
     Game.add(new LevelTickSystem());
     Game.add(new LeverSystem());
     Game.add(new BlockSystem());
@@ -218,8 +309,64 @@ public class Client {
   public static void createHero() {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity hero = HeroTankControlledFactory.blocklyHero(ACTIVATE_TANKE_CONTROLLS);
+    Hero portalHero = new Hero(hero);
+    PortalConfig blocklyPortalConfig = createPortalConfig(portalHero);
+    hero.fetch(SkillComponent.class)
+        .ifPresent(
+            sc -> {
+              sc.addSkill(new PortalSkill(PortalColor.GREEN, blocklyPortalConfig));
+              sc.addSkill(new PortalSkill(PortalColor.BLUE, blocklyPortalConfig));
+            });
+    // allow hero teleportation
+    hero.add(new PortableComponent());
     hero.add(new AmmunitionComponent());
     Game.add(hero);
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(750));
+  }
+
+  private static PortalConfig createPortalConfig(Hero portalHero) {
+    return new PortalConfig(portalHero) {
+      @Override
+      public long cooldown() {
+        return 0;
+      }
+
+      @Override
+      public float speed() {
+        return 5f;
+      }
+
+      @Override
+      public float range() {
+        return Integer.MAX_VALUE;
+      }
+
+      @Override
+      public Supplier<core.utils.Point> target() {
+        return () ->
+            portalHero
+                .hero()
+                .fetch(CollideComponent.class)
+                .map(cc -> cc.collider().absoluteCenter())
+                .or(
+                    () ->
+                        portalHero
+                            .hero()
+                            .fetch(PositionComponent.class)
+                            .map(PositionComponent::position))
+                .map(
+                    center -> {
+                      core.utils.Direction dir =
+                          portalHero
+                              .hero()
+                              .fetch(PositionComponent.class)
+                              .map(PositionComponent::viewDirection)
+                              .orElse(core.utils.Direction.DOWN);
+                      return center.translate(dir);
+                    })
+                .orElse(new Point(0, 0));
+      }
+    };
   }
 
   /**
@@ -245,8 +392,21 @@ public class Client {
     Game.system(PositionSystem.class, System::stop);
     Game.system(BlocklyCommandExecuteSystem.class, s -> s.clear());
     createHero();
+    BlocklyCommands.DISABLE_SHOOT_ON_HERO = false;
     DungeonLoader.reloadCurrentLevel();
     Game.system(PositionSystem.class, System::run);
     DialogTracker.instance().clear();
+  }
+
+  private static void openBrowser(String url) {
+    // open the browser on this port
+    if (Desktop.isDesktopSupported()) {
+      Desktop desktop = Desktop.getDesktop();
+      try {
+        desktop.browse(new URI(url));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
 }

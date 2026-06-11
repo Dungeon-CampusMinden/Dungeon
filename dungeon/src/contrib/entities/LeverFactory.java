@@ -1,6 +1,9 @@
 package contrib.entities;
 
-import contrib.components.*;
+import contrib.components.CollideComponent;
+import contrib.components.LeverComponent;
+import contrib.components.PressurePlateComponent;
+import contrib.components.ProjectileComponent;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.EventScheduler;

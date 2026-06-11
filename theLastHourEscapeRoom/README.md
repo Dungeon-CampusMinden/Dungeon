@@ -1,24 +1,35 @@
 # The Last Hour (Escape Room Demo)
 
-**Die Demo befindet sich aktuell in Entwicklung.**
-
-Dieses Subprojekt soll als Demo für ein DEER mit Cybersecurity Theme dienen und setzt dabei die [beschriebenen Rätsel](https://github.com/Dungeon-CampusMinden/Dungeon/discussions/2607) um. 
+A scientist has vanished: You have 20 minutes to find out why. **The Last Hour** is a cybersecurity Digital Educational Escape Room (DEER) for 1-2 players that drops you into a web of interconnected puzzles. Can you investigate, crack the codes, and escape before time runs out?
 
 ![Image](img/example.png)
 
-Es handelt sich um ein etwa 10-minütiges, geführtes Dungeon-Erlebnis für ein bis drei Spielende, das zeigt, wie sich Storytelling, Rätselmechaniken, Zusammenarbeit und Learning Analytics in einem DEER verbinden lassen.
 
-Die Handlung spielt in einer verlassenen unterirdischen Forschungseinrichtung, in der ein Wissenschaftler verschwunden ist. Ziel der Spielenden ist es, gestörte Systeme zu stabilisieren und vertrauliche Forschungsdaten zu sichern. Dabei werden praxisnahe Kompetenzen zur IT-Sicherheits- und Cybersecurity-Awareness trainiert, u. a.:
-* Informationen aus verschiedenen Quellen bewerten,
-* echte von manipulierten digitalen Nachrichten unterscheiden,
-* sichere Datenhandhabung anwenden (z. B. Passwörter, Umgang mit sensiblen Daten),
-* unter Zeitdruck gemeinsam schlussfolgern,
-* Hinweise und Wiederherstellungsoptionen sinnvoll nutzen.
+## Requirements
 
-Die Spielwelt enthält interaktive Objekte wie Terminals mit Authentifizierung, Dokumente mit Teilhinweisen, verschlossene Speicher und simulierte digitale Schnittstellen. Daraus entstehen miteinander verknüpfte Rätsel, die gelöst werden müssen, um voranzukommen.
+The Last Hour runs on Windows, Mac, and Unix systems. Mobile devices are not currently supported.
 
-Hervorgehoben werden drei zentrale Designprinzipien des Toolkits:
+The game requires [Java SE Development Kit 25 LTS](https://jdk.java.net/25/) to be installed.
 
-1. **Narrative Einbettung** der Rätsel in eine zusammenhängende Geschichte,
-2. **Authentische Interaktionen**, die reale Sicherheitspraktiken abbilden,
-3. **Adaptiver Support** durch optionale Hinweise und Fehlerkorrekturen ohne Spielabbruch.
+## How to Play (Singleplayer)
+
+* Download [TheLastHour.jar](https://github.com/Dungeon-CampusMinden/Dungeon/releases)
+* Start the game by double-clicking the downloaded JAR file
+* If the JAR doesn't launch, make sure Java 25 is installed and open a terminal:
+  * Verify your Java installation with `java --version`
+  * Start the game with `java -jar /PATH/TO/JAR/TheLastHour.jar` (replace the path with the actual location of the downloaded JAR)
+
+
+## How to Play (Multiplayer)
+
+*Note: Since this is a work-in-progress project, the multiplayer setup is not yet user-friendly. We recommend non-technical users play the singleplayer mode.*
+
+*Note: Multiplayer does not currently support play over the internet - make sure both devices are on the same local network.*
+
+Multiplayer requires two separate devices; local co-op on a single device is not yet supported.
+
+1. Download the source code (or clone the repository) from GitHub on both devices
+2. On the **host device**, start the game with Gradle:
+   * Run `./gradlew runTheLastHourServer` in one terminal and `./gradlew runTheLastHourClient` in a second terminal
+3. On the **client device**, start the game with `./gradlew runTheLastHourClient`
+4. Enter a player name and the host device's IP address in the connection dialog. You can verify connectivity with a `ping`

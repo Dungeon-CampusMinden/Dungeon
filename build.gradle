@@ -1,12 +1,42 @@
+import com.github.jk1.license.render.*
+
 buildscript {
     apply from: 'dependencies.gradle'
 }
 
-
 plugins {
     id 'com.diffplug.spotless' version "${spotlessVersion}"
+    id 'com.google.protobuf' version "${protobufGradlePluginVersion}" apply false
+    id 'com.github.jk1.dependency-license-report' version "${jk1licenseVersion}"
 }
 
+licenseReport {
+    projects = [project] + project.subprojects
+    allowedLicensesFile = new File("$projectDir/.github/allowed-licenses.json")
+    configurations = ['runtimeClasspath', 'compileClasspath']
+    renderers = [new com.github.jk1.license.render.TextReportRenderer('licenses.txt')]
+    excludeGroups = ['org.junit', 'org.mockito', 'org.junit.platform']
+}
+
+subprojects {
+    tasks.withType(Jar).configureEach {
+        dependsOn ':generateLicenseReport'
+
+        // Third-party license report
+        from(rootProject.fileTree("${rootProject.buildDir}/reports/dependency-license") {
+            include 'licenses.txt'
+        }) {
+            rename { 'THIRD-PARTY-LICENSES.txt' }
+            into 'META-INF'
+        }
+
+        // All root LICENSE files
+        from(rootProject.projectDir) {
+            include("LICENSE*.md")
+            into("META-INF")
+        }
+    }
+}
 
 allprojects {
     apply plugin: 'java'
@@ -14,10 +44,10 @@ allprojects {
 
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+            languageVersion = JavaLanguageVersion.of(25)
         }
-        sourceCompatibility = JavaVersion.toVersion(21)
-        targetCompatibility = JavaVersion.toVersion(21)
+        sourceCompatibility = JavaVersion.toVersion(25)
+        targetCompatibility = JavaVersion.toVersion(25)
     }
 
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -31,6 +61,7 @@ allprojects {
         standardInput = System.in
         ignoreExitValue true
         workingDir = rootProject.projectDir
+        jvmArgs '--enable-native-access=ALL-UNNAMED'
         systemProperty 'BASELOGDIR', project.baseLogDir
         systemProperty 'BASEREFLECTIONDIR', project.baseReflectionDir
     }
@@ -44,9 +75,13 @@ allprojects {
         // Default version vs. current version? The default version is quite old (9.3 from
         // Jan 30, 2022), so let's go with the current version (10.17).
         // However, this needs to be updated manually as Dependabot won't deal with this!
-        toolVersion = '10.26.0'
+        toolVersion = '13.4.0'
         ignoreFailures = false
         maxWarnings = 0
+    }
+
+    tasks.withType(Checkstyle).configureEach {
+        group = 'verification'
     }
 
     // Generate an internal assets list for LibGDX (see https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/)
@@ -78,7 +113,10 @@ allprojects {
                 proj.configurations.each { config ->
                     config.dependencies
                         .findAll { it instanceof ProjectDependency }
-                        .each { collectAssets(it.dependencyProject) }
+                        .each { dep ->
+                            def dependencyProject = project.project(dep.path)
+                            collectAssets(dependencyProject)
+                        }
                 }
             }
 

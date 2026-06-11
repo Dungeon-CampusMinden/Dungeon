@@ -44,14 +44,16 @@ public class Level006 extends BlocklyLevel {
         "wait",
         "pickup",
         "drop_item",
-        "Items",
         // Kategorien
         "Abfragen",
         "Bedingung",
         "Wahrheitsausdruecke",
         "Variablen",
-        "Bedingungen",
-        "Sonstige");
+        "Bedingungen");
+
+    addCodePopup(new ImagePopup("popups/level006/codepopups/01_intro.jpg"));
+    addCodePopup(new ImagePopup("popups/level006/codepopups/02_intro.jpg"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override

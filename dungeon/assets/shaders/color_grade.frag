@@ -24,6 +24,7 @@ uniform float u_hue;
 uniform float u_saturationMult;
 uniform float u_valueMult;
 uniform float u_transitionSize;
+uniform bool u_invert;
 
 // ----- Custom functions -----
 
@@ -31,6 +32,12 @@ uniform float u_transitionSize;
 // ----- Main -----
 void main() {
     vec4 color = unPma(texture2D(u_texture, uv));
+
+    // Color inversion is applied unconditionally to the whole texture, independent of the
+    // hue-remap region. Alpha is preserved so transparent pixels stay transparent.
+    if (u_invert) {
+        color.rgb = vec3(1.0) - color.rgb;
+    }
 
     vec2 dist = u_worldRegion.zw * 0.5;
     vec2 centerPos = u_worldRegion.xy + dist;

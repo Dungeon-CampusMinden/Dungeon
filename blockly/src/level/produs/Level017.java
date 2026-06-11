@@ -10,6 +10,7 @@ import level.LevelManagementUtils;
 
 /** In this level, simple backtracking techniques are used to find the correct path. */
 public class Level017 extends BlocklyLevel {
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -24,8 +25,6 @@ public class Level017 extends BlocklyLevel {
     super(layout, designLabel, namedPoints, "Level 17");
     this.blockBlocklyElement(
         // Inventar und Charakter
-        "drop_item",
-        "Items",
         "wait",
         // Variable
         "get_number",
@@ -33,10 +32,9 @@ public class Level017 extends BlocklyLevel {
         "case_block",
         "default_block",
         // Bedingung
-        "logic_bossView_direction",
-        // Kategorien
-        // Kategorien
-        "Sonstige");
+        "logic_bossView_direction");
+
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override
@@ -46,6 +44,11 @@ public class Level017 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.playerViewDirection(Direction.DOWN);
     LevelManagementUtils.zoomDefault();
+
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
   }
 
   @Override

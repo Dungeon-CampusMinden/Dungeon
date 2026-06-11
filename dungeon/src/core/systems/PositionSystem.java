@@ -4,9 +4,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import java.util.NoSuchElementException;
 
 /**
  * The {@link PositionSystem} checks if an entity has an illegal position and then changes the
@@ -30,7 +28,7 @@ public final class PositionSystem extends System {
 
   @Override
   public void execute() {
-    filteredEntityStream(PositionComponent.class)
+    filteredEntityStream()
         .map(this::buildDataObject)
         .filter(data -> data.pc.position().equals(PositionComponent.ILLEGAL_POSITION))
         .forEach(this::randomPosition);
@@ -43,13 +41,7 @@ public final class PositionSystem extends System {
    * @param data The PSData object containing entity and position component information.
    */
   private void randomPosition(final PSData data) {
-    Point position =
-        Game.freePosition()
-            .orElseThrow(
-                () ->
-                    new NoSuchElementException(
-                        "There is no free tile in the level; the entity can't be placed."));
-    data.pc().position(position);
+    Game.freePosition().ifPresent(newPos -> data.pc().position(newPos));
   }
 
   private PSData buildDataObject(final Entity e) {

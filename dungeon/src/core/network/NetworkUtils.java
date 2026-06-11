@@ -9,6 +9,7 @@ import core.network.server.ServerTransport;
 import core.network.server.Session;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -34,7 +35,9 @@ public final class NetworkUtils {
    */
   public static Set<Short> entityIdsToClientIds(int[] entityIds) {
     if (!Game.network().isServer() || !PreRunConfiguration.multiplayerEnabled()) {
-      return Set.of(Game.network().session().clientId()); // Single-player or client mode
+      return Optional.ofNullable(Game.network().session())
+          .map(session -> Set.of(session.clientId()))
+          .orElseGet(Set::of);
     }
 
     Set<Short> clientIds = new HashSet<>();
@@ -87,5 +90,14 @@ public final class NetworkUtils {
         .map(ServerRuntime::transport)
         .map(ServerTransport::clientIdToSessionMap)
         .orElse(Map.of());
+  }
+
+  /**
+   * Checks if the current instance is a network client that should use network callbacks.
+   *
+   * @return true if we're a client connected to a server
+   */
+  public static boolean isNetworkClient() {
+    return !Game.network().isServer() && Game.network().isConnected();
   }
 }

@@ -2,28 +2,48 @@ package core.network.server;
 
 import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
-import static core.network.config.NetworkConfig.*;
+import static core.network.config.NetworkConfig.MAX_TCP_OBJECT_SIZE;
+import static core.network.config.NetworkConfig.PROTOCOL_VERSION;
+import static core.network.config.NetworkConfig.SAFE_UDP_MTU;
+import static core.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
+import static core.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
+import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_LENGTH;
+import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
+import static core.network.config.NetworkConfig.UDP_STALE_AFTER_MS;
 
-import contrib.components.UIComponent;
+import contrib.entities.CharacterClass;
 import contrib.entities.HeroController;
-import contrib.hud.UIUtils;
-import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
+import core.game.PreRunConfiguration;
 import core.network.MessageDispatcher;
 import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
-import core.network.messages.c2s.*;
-import core.network.messages.s2c.*;
+import core.network.messages.c2s.ConnectRequest;
+import core.network.messages.c2s.DialogResponseMessage;
+import core.network.messages.c2s.InputMessage;
+import core.network.messages.c2s.RegisterUdp;
+import core.network.messages.c2s.RequestEntitySpawn;
+import core.network.messages.c2s.SnapshotAck;
+import core.network.messages.c2s.SoundFinishedMessage;
+import core.network.messages.s2c.ConnectAck;
+import core.network.messages.s2c.ConnectReject;
+import core.network.messages.s2c.LevelChangeEvent;
+import core.network.messages.s2c.RegisterAck;
 import core.utils.Tuple;
 import core.utils.logging.DungeonLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.SocketChannel;
@@ -31,10 +51,16 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -52,7 +78,6 @@ import java.util.function.Consumer;
  */
 public final class ServerTransport {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerTransport.class);
-  private static final short SERVER_PROTOCOL_VERSION = 1;
 
   private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
 
@@ -66,6 +91,7 @@ public final class ServerTransport {
   private final ConcurrentHashMap<Short, String> clientIdToName = new ConcurrentHashMap<>();
 
   private final AtomicInteger nextClientId = new AtomicInteger(1);
+  private int nextFallbackCharacterClassIndex = 0;
 
   // Netty resources
   private EventLoopGroup bossGroup;
@@ -183,13 +209,13 @@ public final class ServerTransport {
     return udpChannel;
   }
 
-  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, Object obj) {
+  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, NetworkMessage msg) {
     if (udpChannel == null || !udpChannel.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
       return CompletableFuture.completedFuture(false);
     }
     try {
-      byte[] data = serialize(obj);
+      byte[] data = serialize(msg);
       if (data.length > SAFE_UDP_MTU) {
         LOGGER.warn("Skip UDP send; payload too large ({} B) to {}", data.length, target);
         return CompletableFuture.completedFuture(false);
@@ -205,12 +231,12 @@ public final class ServerTransport {
     }
   }
 
-  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, Object obj) {
+  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, NetworkMessage msg) {
     if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {
       return CompletableFuture.completedFuture(false);
     }
     try {
-      byte[] data = serialize(obj);
+      byte[] data = serialize(msg);
       if (data.length > MAX_TCP_OBJECT_SIZE) {
         LOGGER.warn("Skip TCP send; payload too large ({} B) to {}", data.length, ctx.channel());
         return CompletableFuture.completedFuture(false);
@@ -302,17 +328,13 @@ public final class ServerTransport {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) throws Exception {
       LOGGER.trace("TCP received {} bytes from {}", frame.readableBytes(), ctx.channel());
-      Object obj = deserialize(frame);
+      NetworkMessage msg = deserialize(frame);
       Session session = sessions.get(ctx.channel().id());
       if (session == null) {
         LOGGER.warn("Received TCP message for unknown session on channel {}", ctx.channel());
         return;
       }
-      if (obj instanceof NetworkMessage msg) {
-        inboundQueue.offer(Tuple.of(session, msg));
-      } else {
-        LOGGER.debug("TCP received unexpected object: {}", obj.getClass().getName());
-      }
+      inboundQueue.offer(Tuple.of(session, msg));
     }
 
     @Override
@@ -331,6 +353,7 @@ public final class ServerTransport {
         if (udpAddr != null) {
           udpToClientId.remove(udpAddr);
         }
+        session.udpReady(false);
 
         // Remove Player Entity on disconnect
         session.clientState().flatMap(ClientState::playerEntity).ifPresent(Game::remove);
@@ -361,9 +384,9 @@ public final class ServerTransport {
         return;
       }
 
-      Object obj;
+      NetworkMessage msg;
       try {
-        obj = deserialize(content);
+        msg = deserialize(content);
       } catch (Exception e) {
         LOGGER.warn("Failed to deserialize UDP from {}", pkt.sender(), e);
         return;
@@ -372,7 +395,7 @@ public final class ServerTransport {
       InetSocketAddress sender = pkt.sender();
       Short mappedClientId = udpToClientId.get(sender);
 
-      if (obj instanceof RegisterUdp reg) {
+      if (msg instanceof RegisterUdp reg) {
         Session tcpSender = clientIdToSession.get(reg.clientId());
         if (tcpSender == null) {
           LOGGER.warn("RegisterUdp for unknown clientId={} from {}", reg.clientId(), sender);
@@ -394,11 +417,8 @@ public final class ServerTransport {
         return;
       }
 
-      if (obj instanceof NetworkMessage msg) {
-        inboundQueue.offer(Tuple.of(session, msg));
-      } else {
-        LOGGER.debug("Unexpected UDP object {} from {}", obj.getClass().getName(), sender);
-      }
+      session.markUdpActivity();
+      inboundQueue.offer(Tuple.of(session, msg));
     }
 
     @Override
@@ -424,6 +444,7 @@ public final class ServerTransport {
         LOGGER.error("Dispatch error", e);
       }
     }
+    expireStaleUdpSessions(System.currentTimeMillis());
   }
 
   private void setupDispatchers() {
@@ -431,38 +452,34 @@ public final class ServerTransport {
     dispatcher.registerHandler(ConnectRequest.class, this::onConnectRequest);
     dispatcher.registerHandler(RequestEntitySpawn.class, this::onRequestEntitySpawn);
     dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
+    dispatcher.registerHandler(SnapshotAck.class, this::onSnapshotAck);
     dispatcher.registerHandler(SoundFinishedMessage.class, this::onSoundFinished);
-    dispatcher.registerHandler(InventoryUIMessage.class, this::onInventoryUIMessage);
     dispatcher.registerHandler(DialogResponseMessage.class, this::onDialogResponse);
   }
 
-  private void onInventoryUIMessage(Session session, InventoryUIMessage msg) {
-    LOGGER.debug(
-        "Received InventoryUIMessage (open={}) from client {}", msg.open(), session.clientId());
-
-    Optional<Entity> sessionEntity = session.clientState().flatMap(ClientState::playerEntity);
-    if (sessionEntity.isEmpty()) {
-      LOGGER.warn("Ignoring InventoryUIMessage from session with no player entity: {}", session);
-      return;
-    }
-
-    Entity player = sessionEntity.get();
-    if (msg.open() == InventoryGUI.inPlayerInventory(player)) { // already correct state
-      LOGGER.debug(
-          "Ignoring redundant InventoryUIMessage (open={}) from client {}",
-          msg.open(),
-          session.clientId());
-      return;
-    }
-    HeroController.toggleInventory(player);
-  }
-
   private void onSoundFinished(Session session, SoundFinishedMessage msg) {
+    short clientId = session.clientState().map(ClientState::clientId).orElse((short) 0);
+    SoundTracker tracker = SoundTracker.instance();
+
+    if (!tracker.isTracked(msg.soundInstanceId())) {
+      LOGGER.debug(
+          "Ignoring SoundFinishedMessage for unknown sound {} from client {}",
+          msg.soundInstanceId(),
+          clientId);
+      return;
+    }
+
+    if (!tracker.canReport(clientId, msg.soundInstanceId())) {
+      LOGGER.warn(
+          "Client {} not authorized to report sound {} finished", clientId, msg.soundInstanceId());
+      return;
+    }
+
     LOGGER.debug(
         "Received SoundFinishedMessage from client {}: instanceId={}",
-        session.clientId(),
+        clientId,
         msg.soundInstanceId());
-    core.Game.audio().notifySoundFinished(msg.soundInstanceId());
+    Game.audio().notifySoundFinished(msg.soundInstanceId());
   }
 
   private void onConnectRequest(Session session, ConnectRequest req) {
@@ -472,15 +489,11 @@ public final class ServerTransport {
         req.playerName(),
         req.sessionId(),
         session);
-    if (req.protocolVersion() != SERVER_PROTOCOL_VERSION) {
-      session.sendMessage(
-          new ConnectReject(
-              ConnectReject.Reason.INCOMPATIBLE_VERSION,
-              "Server=" + SERVER_PROTOCOL_VERSION + ", yours=" + req.protocolVersion()),
-          true);
+    if (req.protocolVersion() != PROTOCOL_VERSION) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.INCOMPATIBLE_VERSION), true);
       LOGGER.info(
           "Rejected ConnectRequest due to incompatible version: server={} client={}",
-          SERVER_PROTOCOL_VERSION,
+          PROTOCOL_VERSION,
           req.protocolVersion());
       return;
     }
@@ -503,7 +516,13 @@ public final class ServerTransport {
     byte[] sessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
     session.attachClientState(
-        new ClientState(newClientId, playerName, ServerRuntime.SESSION_ID, sessionToken));
+        new ClientState(
+            newClientId,
+            playerName,
+            ServerRuntime.SESSION_ID,
+            sessionToken,
+            selectedCharacterClass(req)));
+    session.udpReady(false);
     clientIdToSession.put(newClientId, session);
 
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
@@ -512,6 +531,7 @@ public final class ServerTransport {
 
     // Resync dialogs for the new client
     DialogTracker.instance().resyncDialogsToClient(newClientId);
+    SoundTracker.instance().resyncSoundsToClient(newClientId);
 
     LOGGER.info("Accepted client id={} name='{}' {}", newClientId, playerName, session);
   }
@@ -568,14 +588,19 @@ public final class ServerTransport {
     String playerName = req.playerName();
     byte[] newSessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
-    // reattach old ClientState to new Session
+    // Reuse the previous ClientState so reconnects keep the original character class selection.
     ClientState oldClientState = oldSession.clientState().orElseThrow();
     oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
     session.attachClientState(oldClientState);
+    session.udpReady(false);
     clientIdToSession.put(clientId, session);
 
     // remove old mappings
     clientIdToName.put(clientId, playerName);
+    if (oldSession.udpAddress() != null) {
+      udpToClientId.remove(oldSession.udpAddress());
+    }
+    oldSession.udpReady(false);
     sessions.remove(oldSession.tcpCtx().channel().id());
     try {
       oldSession.close(); // should be already closed, but just in case
@@ -589,6 +614,7 @@ public final class ServerTransport {
 
     // Resync dialogs for the reconnecting client
     DialogTracker.instance().resyncDialogsToClient(clientId);
+    SoundTracker.instance().resyncSoundsToClient(clientId);
 
     LOGGER.info("Restored client id={} name='{}' {}", clientId, playerName, session);
   }
@@ -648,8 +674,27 @@ public final class ServerTransport {
     }
 
     sess.udpAddress(sender);
+    sess.markUdpActivity();
+    sess.udpReady(true);
     udpToClientId.put(sender, reg.clientId());
     tcpSession.sendMessage(new RegisterAck(true), true);
+  }
+
+  void expireStaleUdpSessions(long now) {
+    for (Session session : clientIdToSession.values()) {
+      if (!session.udpReady()) {
+        continue;
+      }
+      if (now - session.udpLastSeenTimeMs() <= UDP_STALE_AFTER_MS) {
+        continue;
+      }
+
+      InetSocketAddress udpAddress = session.udpAddress();
+      if (udpAddress != null) {
+        udpToClientId.remove(udpAddress);
+      }
+      session.udpReady(false);
+    }
   }
 
   /**
@@ -697,16 +742,15 @@ public final class ServerTransport {
       return;
     }
     Entity entity = optEntity.get();
-    PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
-    DrawComponent dc = entity.fetch(DrawComponent.class).orElse(null);
-    if (pc == null || dc == null) {
-      LOGGER.warn(
-          "Entity id='{}' missing components for spawn (entity was: '{}')",
-          entityId,
-          entity.name());
-      return;
-    }
-    session.sendMessage(new EntitySpawnEvent(entity), true);
+    NetworkConfig.ENTITY_SPAWN_STRATEGY
+        .buildSpawnEvent(entity)
+        .ifPresentOrElse(
+            event -> session.sendMessage(event, true),
+            () ->
+                LOGGER.warn(
+                    "Entity id='{}' not eligible for spawn (entity was: '{}')",
+                    entityId,
+                    entity.name()));
   }
 
   private void onInputMessage(Session session, InputMessage msg) {
@@ -736,8 +780,25 @@ public final class ServerTransport {
       return;
     }
 
+    msg.lastSnapshotTick().ifPresent(tick -> acknowledgeSnapshot(session, tick));
+
     // 4. Enqueue
     HeroController.enqueueInput(state, msg);
+  }
+
+  private void onSnapshotAck(Session session, SnapshotAck ack) {
+    if (!isSessionValid(session)) {
+      return;
+    }
+    acknowledgeSnapshot(session, ack.serverTick());
+  }
+
+  private void acknowledgeSnapshot(Session session, int serverTick) {
+    if (serverTick < 0) {
+      return;
+    }
+    ClientState state = session.clientState().orElseThrow();
+    state.snapshotSync().acknowledge(serverTick);
   }
 
   /**
@@ -766,32 +827,19 @@ public final class ServerTransport {
       return;
     }
 
-    // 3. Handle CLOSED response type (user closed dialog without selecting an option)
-    if (msg.responseType() == DialogResponseMessage.ResponseType.CLOSED) {
-      // Remove UIComponent from the dialog entity
-      int entityId = tracker.getEntityId(dialogId);
-      if (entityId >= 0) {
-        Game.findEntityById(entityId)
-            .flatMap(e -> e.fetch(UIComponent.class))
-            .ifPresent(UIUtils::closeDialog);
-      }
-      tracker.closeDialog(dialogId, false);
-      return;
-    }
-
-    // 4. Try to claim (first-responder wins)
+    // 3. Try to claim (first-responder wins)
     if (!tracker.tryClaimDialog(dialogId, clientId)) {
       LOGGER.debug("Dialog {} already claimed by another client, ignoring response", dialogId);
       return;
     }
 
-    // 5. Execute callback by key from DialogTracker
-    Optional<Consumer<Serializable>> callbackOpt =
+    // 4. Execute callback by key from DialogTracker
+    Optional<Consumer<DialogResponseMessage.Payload>> callbackOpt =
         DialogTracker.instance().getCallback(dialogId, msg.callbackKey());
     if (callbackOpt.isPresent()) {
-      Consumer<Serializable> callback = callbackOpt.get();
+      Consumer<DialogResponseMessage.Payload> callback = callbackOpt.get();
       try {
-        callback.accept(msg.data());
+        callback.accept(msg.payload());
       } catch (Exception e) {
         LOGGER.error("Error executing callback for dialog {}", dialogId, e);
       }
@@ -801,6 +849,11 @@ public final class ServerTransport {
   }
 
   private void sendInitialLevel(ChannelHandlerContext ctx, int clientId) {
+    if (Game.currentLevel().isEmpty()) {
+      LOGGER.warn("No current level to send to clientId={}", clientId);
+      return;
+    }
+
     try {
       LevelChangeEvent ev = LevelChangeEvent.currentLevel();
       sendTcpObject(ctx, ev);
@@ -829,5 +882,17 @@ public final class ServerTransport {
       return false;
     }
     return true;
+  }
+
+  CharacterClass selectedCharacterClass(ConnectRequest request) {
+    return request.characterClass().orElseGet(this::nextFallbackCharacterClass);
+  }
+
+  CharacterClass nextFallbackCharacterClass() {
+    List<CharacterClass> characterClasses = PreRunConfiguration.multiplayerCharacterClasses();
+    CharacterClass characterClass =
+        characterClasses.get(nextFallbackCharacterClassIndex % characterClasses.size());
+    nextFallbackCharacterClassIndex++;
+    return characterClass;
   }
 }

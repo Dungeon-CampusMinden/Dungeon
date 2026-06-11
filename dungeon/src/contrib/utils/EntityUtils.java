@@ -3,6 +3,7 @@ package contrib.utils;
 import contrib.components.CollideComponent;
 import contrib.entities.LeverFactory;
 import contrib.entities.SignFactory;
+import contrib.utils.components.collide.Collider;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -11,8 +12,10 @@ import core.level.utils.Coordinate;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 /**
  * EntityUtils is a utility class that provides methods for spawning entities in the game. It
@@ -210,5 +213,77 @@ public class EntityUtils {
    */
   public static double getDistance(Entity entity, Entity who) {
     return EntityUtils.getPosition(entity).distance(EntityUtils.getPosition(who));
+  }
+
+  /**
+   * Fallback radius (in world units) used by {@link #isPointOverEntity(Entity, Point)} for entities
+   * that have neither a {@link CollideComponent} nor a {@link DrawComponent}.
+   */
+  private static final float FALLBACK_HOVER_RADIUS = 0.5f;
+
+  private static final float FALLBACK_HOVER_RADIUS_SQ =
+      FALLBACK_HOVER_RADIUS * FALLBACK_HOVER_RADIUS;
+
+  /**
+   * Tests whether a world-space point is "over" the given entity, using the best available shape:
+   *
+   * <ol>
+   *   <li>If the entity has a {@link CollideComponent}, the collider's {@code collide(Point)} is
+   *       used (exact shape test — hitbox or hitcircle).
+   *   <li>Otherwise, if the entity has a {@link DrawComponent}, the sprite's bounding rectangle
+   *       ({@link PositionComponent#position()} + width/height) is tested.
+   *   <li>As a last resort, a small radius ({@value #FALLBACK_HOVER_RADIUS} world units) around the
+   *       entity's position is used.
+   * </ol>
+   *
+   * <p>This method is the single source of truth for determining whether a cursor (or any point) is
+   * targeting an entity. It is used on both the server (interaction resolution) and the client
+   * (highlight feedback) to guarantee consistent results.
+   *
+   * @param entity the entity to test
+   * @param point the world-space point (typically the cursor position)
+   * @return {@code true} if the point is considered to be over the entity
+   */
+  public static boolean isPointOverEntity(Entity entity, Point point) {
+    // 1. Collider-based check
+    Optional<CollideComponent> cc = entity.fetch(CollideComponent.class);
+    if (cc.isPresent()) {
+      Collider collider = cc.get().collider();
+      return collider.collide(point);
+    }
+
+    // 2. Sprite-bounds check
+    Optional<DrawComponent> dc = entity.fetch(DrawComponent.class);
+    Optional<PositionComponent> pc = entity.fetch(PositionComponent.class);
+    if (dc.isPresent() && pc.isPresent()) {
+      Point pos = pc.get().position();
+      float w = dc.get().getWidth();
+      float h = dc.get().getHeight();
+      return point.x() >= pos.x()
+          && point.x() <= pos.x() + w
+          && point.y() >= pos.y()
+          && point.y() <= pos.y() + h;
+    }
+
+    // 3. Fallback: small radius around position
+    Point ePos = getPosition(entity);
+    return ePos.distanceSquared(point) <= FALLBACK_HOVER_RADIUS_SQ;
+  }
+
+  /**
+   * Finds the entity from the given stream whose bounds contain the specified point. If multiple
+   * entities overlap at the point, the one whose center (as returned by {@link
+   * #getPosition(Entity)}) is closest to the point is returned.
+   *
+   * <p>Uses {@link #isPointOverEntity(Entity, Point)} for the containment check.
+   *
+   * @param point the world-space point to test
+   * @param entities the stream of candidate entities
+   * @return the entity under the point, or {@link Optional#empty()} if none qualifies
+   */
+  public static Optional<Entity> findEntityAtPoint(Point point, Stream<Entity> entities) {
+    return entities
+        .filter(e -> isPointOverEntity(e, point))
+        .min(Comparator.comparingDouble(e -> getPosition(e).distanceSquared(point)));
   }
 }

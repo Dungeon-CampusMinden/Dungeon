@@ -49,12 +49,14 @@ public class DialogContextKeys {
   /** The key for the callback function to execute on cancellation. */
   public static final String ON_CANCEL = "onCancel";
 
-  /**
-   * The key for the callback function to handle input submission.
-   *
-   * <p>For FreeInputDialog, register a callback with this key to receive the user's input text.
-   */
-  public static final String INPUT_CALLBACK = "inputCallback";
+  /** The key for the callback function to execute on closure of the dialog. */
+  public static final String ON_CLOSE = "onClose";
+
+  /** The key for the callback function to execute on a "Resume" response. */
+  public static final String ON_RESUME = "onResume";
+
+  /** The key for the callback function to execute on a "Quit" response. */
+  public static final String ON_QUIT = "onQuit";
 
   /** The key for the placeholder text in an input field. */
   public static final String INPUT_PLACEHOLDER = "inputPlaceholder";
@@ -81,6 +83,26 @@ public class DialogContextKeys {
 
   /** The key for the progress bar component in the dialog. */
   public static final String PROGRESS_BAR = "progressBar";
+
+  /** The key for the description text shown below the main message. */
+  public static final String DESCRIPTION = "description";
+
+  /**
+   * The key for the list of selectable options ({@link ChoiceOptions}) in a multiple choice dialog.
+   */
+  public static final String OPTIONS = "options";
+
+  /** The key for whether a cancel option should be appended (Boolean). */
+  public static final String CAN_CANCEL = "canCancel";
+
+  /** The key for the callback function to execute when an option is selected. */
+  public static final String ON_OPTION_SELECTED = "onOptionSelected";
+
+  /** The key for the dialog script (String) used by {@link DialogDialog}. */
+  public static final String DIALOG = "dialog";
+
+  /** The key for the puzzle complete callback */
+  public static final String ON_COMPLETE = "onComplete";
 
   private DialogContextKeys() {}
 }

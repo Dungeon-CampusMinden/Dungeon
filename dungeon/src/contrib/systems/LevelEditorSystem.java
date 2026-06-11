@@ -6,7 +6,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import contrib.components.HealthComponent;
-import contrib.utils.systems.levelEditor.*;
+import contrib.utils.systems.levelEditor.DecoMode;
+import contrib.utils.systems.levelEditor.LevelBoundsMode;
+import contrib.utils.systems.levelEditor.LevelEditorMode;
+import contrib.utils.systems.levelEditor.PointMode;
+import contrib.utils.systems.levelEditor.SaveMode;
+import contrib.utils.systems.levelEditor.ShiftLevelMode;
+import contrib.utils.systems.levelEditor.StartTilesMode;
+import contrib.utils.systems.levelEditor.TilesMode;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -15,7 +22,9 @@ import core.components.PlayerComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.systems.DrawSystem;
-import core.utils.*;
+import core.systems.input.InputManager;
+import core.utils.FontHelper;
+import core.utils.Point;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.shader.OutlineShader;
 import core.utils.components.draw.shader.PassthroughShader;
@@ -39,6 +48,7 @@ public class LevelEditorSystem extends System {
   private static boolean internalStopped = false;
   private static boolean active = false;
   private static final int TOGGLE_ACTIVE = Input.Keys.F4;
+  private static String pathToLevels = "";
 
   private static final int TOGGLE_DEBUG_SHADER = Input.Keys.SPACE;
   private boolean debugShaderActive = false;
@@ -60,6 +70,21 @@ public class LevelEditorSystem extends System {
   private static final float FEEDBACK_MESSAGE_DURATION = 3.0f; // seconds
 
   private static Map<Integer, InputComponent.InputData> playerClallbacks = null;
+
+  /**
+   * Creates a new LevelEditorSystem.
+   *
+   * @param pathToLevels The folder in which the file is placed this system.
+   */
+  public LevelEditorSystem(String pathToLevels) {
+    super();
+    LevelEditorSystem.pathToLevels = pathToLevels;
+  }
+
+  /** Creates a new LevelEditorSystem. */
+  public LevelEditorSystem() {
+    super();
+  }
 
   /**
    * Gets the active status of the LevelEditorSystem.
@@ -170,7 +195,7 @@ public class LevelEditorSystem extends System {
 
   @Override
   public void execute() {
-    if (Gdx.input.isKeyJustPressed(TOGGLE_ACTIVE)) {
+    if (InputManager.isKeyJustPressed(TOGGLE_ACTIVE)) {
       active(!active);
     }
 
@@ -181,24 +206,24 @@ public class LevelEditorSystem extends System {
       return;
     }
 
-    if (Gdx.input.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
+    if (InputManager.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
       toggleDebugShader();
     }
 
     Mode previousMode = currentMode;
-    if (Gdx.input.isKeyPressed(MODE_1)) {
+    if (InputManager.isKeyPressed(MODE_1)) {
       currentMode = Mode.getMode(0);
-    } else if (Gdx.input.isKeyPressed(MODE_2)) {
+    } else if (InputManager.isKeyPressed(MODE_2)) {
       currentMode = Mode.getMode(1);
-    } else if (Gdx.input.isKeyPressed(MODE_3)) {
+    } else if (InputManager.isKeyPressed(MODE_3)) {
       currentMode = Mode.getMode(2);
-    } else if (Gdx.input.isKeyPressed(MODE_4)) {
+    } else if (InputManager.isKeyPressed(MODE_4)) {
       currentMode = Mode.getMode(3);
-    } else if (Gdx.input.isKeyPressed(MODE_5)) {
+    } else if (InputManager.isKeyPressed(MODE_5)) {
       currentMode = Mode.getMode(4);
-    } else if (Gdx.input.isKeyPressed(MODE_6)) {
+    } else if (InputManager.isKeyPressed(MODE_6)) {
       currentMode = Mode.getMode(5);
-    } else if (Gdx.input.isKeyPressed(MODE_7)) {
+    } else if (InputManager.isKeyPressed(MODE_7)) {
       currentMode = Mode.getMode(6);
     }
 
@@ -287,7 +312,7 @@ public class LevelEditorSystem extends System {
         case LevelBounds -> new LevelBoundsMode();
         case ShiftLevel -> new ShiftLevelMode();
         case StartTiles -> new StartTilesMode();
-        case SaveLevel -> new SaveMode();
+        case SaveLevel -> new SaveMode(pathToLevels);
       };
     }
   }

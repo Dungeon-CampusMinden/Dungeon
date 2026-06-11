@@ -14,6 +14,7 @@ import level.LevelManagementUtils;
  * repeating segments.
  */
 public class Level015 extends BlocklyLevel {
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -28,20 +29,17 @@ public class Level015 extends BlocklyLevel {
     super(layout, designLabel, namedPoints, "Level 15");
     this.blockBlocklyElement(
         // Inventar und Charakter
-        "drop_item",
-        "Items",
         "wait",
         // Bedingung
         "logic_monster_direction",
-        "logic_breadcrumbs_direction",
-        "logic_clover_direction",
         "logic_bossView_direction",
         // Wahrheitsausdruecke
         "logic_operator",
         "usual_condition",
         // Kategorien
-        "Variablen",
-        "Sonstige");
+        "Variablen");
+
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override
@@ -51,6 +49,11 @@ public class Level015 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 8));
     LevelManagementUtils.playerViewDirection(Direction.DOWN);
     LevelManagementUtils.zoomDefault();
+
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
   }
 
   @Override

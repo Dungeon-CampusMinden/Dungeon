@@ -104,6 +104,17 @@ public final class VelocityComponent implements Component {
   }
 
   /**
+   * Create a new VelocityComponent with the given max speed and mass. By default, the entity will
+   * not be able to enter open pit tiles and uses a no-op wall-hit callback.
+   *
+   * @param maxSpeed The speed with which the entity can maximally move.
+   * @param mass The mass of the entity used to calculate acceleration.
+   */
+  public VelocityComponent(float maxSpeed, float mass) {
+    this(maxSpeed, mass, DEFAULT_ON_WALL_HIT, false);
+  }
+
+  /**
    * Create a new VelocityComponent with the given configuration. By default, the entity will not be
    * able to enter open pit tiles and has a mass of 1.
    *

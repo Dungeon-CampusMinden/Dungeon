@@ -2,7 +2,7 @@ package contrib.modules.interaction;
 
 import core.Component;
 import core.Entity;
-import core.systems.InputSystem;
+import core.systems.input.InputSystem;
 import java.util.function.BiConsumer;
 
 /**

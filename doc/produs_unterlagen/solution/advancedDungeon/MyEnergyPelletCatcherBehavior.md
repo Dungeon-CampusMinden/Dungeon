@@ -6,6 +6,7 @@ Diese Funktion beschreibt das Verhalten eines Energiegeschoss-Fängers. Beim Abf
 
 ```java
 public void catchPellet(Entity catcher, Entity pellet) {
-  Tools.getToggleComponent(catcher).toggle();
+  Tools.toggleComponent(catcher);
   Game.remove(pellet);
 }
+```

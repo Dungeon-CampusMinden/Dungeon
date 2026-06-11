@@ -13,11 +13,12 @@ import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.selfSkill.DashSkill;
 import contrib.utils.components.skill.selfSkill.MeleeAttackSkill;
 import contrib.utils.components.skill.selfSkill.SelfHealSkill;
+import core.utils.Rectangle;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.Set;
+import java.util.List;
 
 /** Defines the Classes a Hero can be. */
 public enum CharacterClass {
@@ -32,15 +33,16 @@ public enum CharacterClass {
       Vector2.of(5, 5),
       1.3f,
       15,
-      Set.of(
+      List.of(
           new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 30)),
           new SelfHealSkill(300, 5, new Tuple<>(Resource.MANA, 80))),
-      Set.of(new ItemPotionHealth()),
+      List.of(new ItemPotionHealth()),
       6,
       100,
       10,
       50,
-      5),
+      5,
+      new Rectangle(0.8f, 0.8f, 0.1f, 0.1f)),
 
   /**
    * Hunter character class.
@@ -53,11 +55,11 @@ public enum CharacterClass {
       Vector2.of(4, 4),
       3f,
       35,
-      Set.of(
+      List.of(
           new BowSkill(SkillTools::cursorPositionAsPoint),
           new DashSkill(5, 180, 120, new Tuple<>(Resource.STAMINA, 20)),
           new MeleeAttackSkill(3, DamageType.PHYSICAL, 500, Vector2.ZERO, Vector2.ONE)),
-      Set.of(
+      List.of(
           new ItemWoodenBow(),
           new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),
           new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),
@@ -66,24 +68,64 @@ public enum CharacterClass {
       0,
       0,
       120,
-      5),
+      5,
+      new Rectangle(0.8f, 0.8f, 0.1f, 0.1f)),
 
   /** Wizard character class, specifically made for the MushRoom game. */
   MUSHROOM_WIZARD(
-      "character/wizard", Vector2.of(5, 5), 1.3f, 15, Set.of(), Set.of(), 16, 100, 10, 50, 5),
-  ;
+      "character/wizard",
+      Vector2.of(5, 5),
+      1.3f,
+      15,
+      List.of(),
+      List.of(),
+      16,
+      100,
+      10,
+      50,
+      5,
+      new Rectangle(0.8f, 0.8f, 0.1f, 0.1f)),
+  /** The Last Hour class for the Rogue. */
+  THE_LAST_HOUR_ROGUE(
+      "character/rogue",
+      Vector2.of(5, 5),
+      1.2f,
+      20,
+      List.of(),
+      List.of(),
+      10,
+      0,
+      0,
+      0,
+      0,
+      new Rectangle(0.8f, 0.8f, 0.6f, 0.5f)),
+  /** The Last Hour class for the Char03. */
+  THE_LAST_HOUR_CHAR03(
+      "character/char03",
+      Vector2.of(5, 5),
+      1.2f,
+      20,
+      List.of(),
+      List.of(),
+      10,
+      0,
+      0,
+      0,
+      0,
+      new Rectangle(0.8f, 0.8f, 0.6f, 0.3f));
 
   private final IPath textures;
   private final Vector2 speed;
   private final float mass;
   private final int hp;
-  private final Set<Skill> startSkills;
-  private final Set<Item> startItems;
+  private final List<Skill> startSkills;
+  private final List<Item> startItems;
   private final int inventorySize;
   private final int mana;
   private final float manaRestore;
   private final int stamina;
   private final float staminaRestore;
+  private final Rectangle hitbox;
 
   /**
    * Constructs a new {@code CharacterClass} with the specified attributes.
@@ -95,26 +137,28 @@ public enum CharacterClass {
    * @param speed the base movement speed of the character
    * @param mass the mass of the character, used in physics calculations
    * @param hp the starting health points of the character
-   * @param startSkills the set of skills the character starts with
-   * @param startItems the set of items the character starts with
+   * @param startSkills the list of skills the character starts with
+   * @param startItems the list of items the character starts with
    * @param inventorySize the maximum number of items the character can carry
    * @param mana the starting mana points
    * @param manaRestore the rate at which mana regenerates over time
    * @param energy the starting stamina (or energy) points
    * @param energyRestore the rate at which stamina regenerates over time
+   * @param hitbox the dimensions of the character's hitbox for collision detection
    */
   CharacterClass(
       String textures,
       Vector2 speed,
       float mass,
       int hp,
-      Set<Skill> startSkills,
-      Set<Item> startItems,
+      List<Skill> startSkills,
+      List<Item> startItems,
       int inventorySize,
       int mana,
       float manaRestore,
       int energy,
-      float energyRestore) {
+      float energyRestore,
+      Rectangle hitbox) {
     this.textures = new SimpleIPath(textures);
     this.speed = speed;
     this.mass = mass;
@@ -126,6 +170,7 @@ public enum CharacterClass {
     this.manaRestore = manaRestore;
     this.stamina = energy;
     this.staminaRestore = energyRestore;
+    this.hitbox = hitbox;
   }
 
   /**
@@ -184,20 +229,20 @@ public enum CharacterClass {
   }
 
   /**
-   * Returns the set of skills the character starts with.
+   * Returns the list of skills the character starts with.
    *
-   * @return a {@link Set} of {@link Skill} objects
+   * @return a {@link List} of {@link Skill} objects
    */
-  public Set<Skill> startSkills() {
+  public List<Skill> startSkills() {
     return startSkills;
   }
 
   /**
-   * Returns the set of items the character starts with.
+   * Returns the list of items the character starts with.
    *
-   * @return a {@link Set} of {@link Item} objects
+   * @return a {@link List} of {@link Item} objects
    */
-  public Set<Item> startItems() {
+  public List<Item> startItems() {
     return startItems;
   }
 
@@ -244,5 +289,14 @@ public enum CharacterClass {
    */
   public float staminaRestore() {
     return staminaRestore;
+  }
+
+  /**
+   * Returns the hitbox dimensions for the character class.
+   *
+   * @return a {@link Rectangle} representing the hitbox
+   */
+  public Rectangle hitbox() {
+    return hitbox;
   }
 }

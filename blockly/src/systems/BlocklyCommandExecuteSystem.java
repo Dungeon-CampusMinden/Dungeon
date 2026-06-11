@@ -11,6 +11,7 @@ import components.PushableComponent;
 import contrib.components.AIComponent;
 import contrib.components.BlockComponent;
 import contrib.components.ItemComponent;
+import contrib.components.SkillComponent;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
@@ -22,10 +23,17 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
-import core.utils.*;
+import core.utils.Direction;
+import core.utils.IVoidFunction;
+import core.utils.MissingPlayerException;
+import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import entities.MiscFactory;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
@@ -46,12 +54,6 @@ import java.util.function.Supplier;
  */
 public class BlocklyCommandExecuteSystem extends System {
   private static final String MOVEMENT_FORCE_ID = "Movement";
-
-  /** String identifier for the breadcrumb item. */
-  public static final String BREADCRUMB = "Brotkrumen";
-
-  /** String identifier for the clover item. */
-  public static final String CLOVER = "Kleeblatt";
 
   /** String identifier for the boss entity. */
   public static final String BLOCKLY_BLACK_KNIGHT = "Blockly Black Knight";
@@ -80,9 +82,9 @@ public class BlocklyCommandExecuteSystem extends System {
         case HERO_TURN_RIGHT -> rotate(Direction.RIGHT);
         case HERO_PULL -> movePushable(false);
         case HERO_PUSH -> movePushable(true);
-        case HERO_DROP_BREADCRUMBS -> dropItem(BREADCRUMB);
-        case HERO_DROP_CLOVER -> dropItem(CLOVER);
         case HERO_FIREBALL -> shootFireball();
+        case HERO_SHOOT_GREEN_PORTAL -> shootGreenPortal();
+        case HERO_SHOOT_BLUE_PORTAL -> shootBluePortal();
         case HERO_PICKUP -> pickup();
         case HERO_USE_DOWN -> interact(Direction.DOWN);
         case HERO_USE_HERE -> interact(Direction.NONE);
@@ -225,13 +227,17 @@ public class BlocklyCommandExecuteSystem extends System {
       moveDirection = viewDirection.opposite();
     }
 
-    if (checkTileOpt.isEmpty()
-        || !checkTileOpt.get().isAccessible()
+    // if not accessible or empty, then abort
+    if (!checkTileOpt.map(Tile::isAccessible).orElse(false)
         || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(BlockComponent.class))
-        || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(AIComponent.class))) {
+        // when pushing check that the rock is not pushed into a monster
+        || (push
+            && Game.entityAtTile(checkTileOpt.get())
+                .anyMatch(e -> e.isPresent(AIComponent.class)))) {
       DISABLE_SHOOT_ON_HERO = false;
       return;
     }
+
     ArrayList<Entity> toMove =
         new ArrayList<>(
             Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());
@@ -297,10 +303,32 @@ public class BlocklyCommandExecuteSystem extends System {
             EntityComponents comp = entityComponents.get(i);
             comp.vc.clearForces();
             comp.vc.currentVelocity(Vector2.ZERO);
-            comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale((Client.MOVEMENT_FORCE.x())));
+            Point targetPoint = comp.targetPosition.toPoint();
+
+            // projected distance to the target along the movement axis
+            float remaining = remainingTowardTarget(comp.pc.position(), targetPoint, direction);
+
+            // force from the speed slider
+            float requestedForce = Client.MOVEMENT_FORCE.x();
+
+            // distance traveled in one frame at the current slider force
+            float nextStep =
+                blocklyMoveStepForForce(requestedForce, comp.vc.mass(), Game.frameRate());
+
+            // snap if close enough or one step would overshoot
+            if (remaining <= distanceThreshold || remaining <= nextStep) {
+
+              // snap to tile center to prevent false collisions with adjacent tiles (e.g. PitTile)
+              Game.tileAt(comp.targetPosition().translate(MAGIC_OFFSET))
+                  .ifPresent(comp.pc::position);
+
+              // remaining distance is large enough for a full step —> apply force normally
+            } else {
+              comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale(requestedForce));
+            }
 
             lastDistances[i] = distances[i];
-            distances[i] = comp.pc.position().distance(comp.targetPosition.toPoint());
+            distances[i] = comp.pc.position().distance(targetPoint);
 
             if (comp.vc().maxSpeed() > 0
                 && Game.existInLevel(entities[i])
@@ -311,7 +339,6 @@ public class BlocklyCommandExecuteSystem extends System {
           if (allEntitiesArrived) {
 
             for (EntityComponents ec : entityComponents) {
-              // TODO FIND A WAY TO MAKE THE HERO MOVE FASTER
               ec.vc.currentVelocity(Vector2.ZERO);
               ec.vc.clearForces();
               // check the position-tile via new request in case a new level was loaded
@@ -352,6 +379,42 @@ public class BlocklyCommandExecuteSystem extends System {
    */
   private void shootFireball() {
     FireballScheduler.shoot();
+    rest(10);
+  }
+
+  private void shootGreenPortal() {
+    EventScheduler.scheduleAction(
+        () -> {
+          Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
+          hero.fetch(SkillComponent.class)
+              .flatMap(
+                  sc ->
+                      sc.getSkills().stream()
+                          .filter(s -> "GREEN_PORTAL".equals(s.name()))
+                          .findFirst())
+              .ifPresent(skill -> skill.execute(hero));
+        },
+        0);
+    rest(10);
+  }
+
+  private void shootBluePortal() {
+
+    EventScheduler.scheduleAction(
+        () -> {
+          Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
+          hero.fetch(SkillComponent.class)
+              .flatMap(
+                  sc ->
+                      sc.getSkills().stream()
+                          .filter(s -> "BLUE_PORTAL".equals(s.name()))
+                          .findFirst())
+              .ifPresent(
+                  skill -> {
+                    skill.execute(hero);
+                  });
+        },
+        0);
     rest(10);
   }
 
@@ -413,29 +476,6 @@ public class BlocklyCommandExecuteSystem extends System {
                                             .ifPresent(ic -> ic.triggerInteraction(item, hero)))));
   }
 
-  /**
-   * Drop a Blockly-Item at the heros position.
-   *
-   * <p>If the player is not on the map, nothing will happen.
-   *
-   * @param item Name of the item to drop
-   */
-  private void dropItem(String item) {
-    Point heroPos =
-        Game.player()
-            .flatMap(hero -> hero.fetch(PositionComponent.class))
-            .map(PositionComponent::position)
-            .map(pos -> pos.translate(MAGIC_OFFSET))
-            .orElse(null);
-
-    switch (item) {
-      case BREADCRUMB -> Game.add(MiscFactory.breadcrumb(heroPos));
-      case CLOVER -> Game.add(MiscFactory.clover(heroPos));
-      default ->
-          throw new IllegalArgumentException("Can not convert " + item + " to droppable Item.");
-    }
-  }
-
   /** Let the player do nothing for a short moment. */
   private void rest() {
     rest = true;
@@ -464,6 +504,34 @@ public class BlocklyCommandExecuteSystem extends System {
   public void run() {
     super.run();
     this.disableQueue = false;
+  }
+
+  /**
+   * Distance to target along the movement direction.
+   *
+   * @param pos current entity position.
+   * @param target centre of the destination tile.
+   * @param direction unit direction vector of the current move.
+   * @return projected remaining distance in world units.
+   */
+  private static float remainingTowardTarget(Point pos, Point target, Direction direction) {
+    float dx = target.x() - pos.x();
+    float dy = target.y() - pos.y();
+    return dx * direction.x() + dy * direction.y();
+  }
+
+  /**
+   * Distance an entity travels in one frame.
+   *
+   * <p>Computes acceleration (force / mass) divided by frameRate.
+   *
+   * @param force applied movement force.
+   * @param mass entity mass.
+   * @param frameRate current frames per second.
+   * @return distance per frame in world units.
+   */
+  private static float blocklyMoveStepForForce(float force, float mass, int frameRate) {
+    return force / mass / frameRate;
   }
 
   /**

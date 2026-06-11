@@ -26,6 +26,17 @@ public class EventScheduler extends System {
   private static boolean pausable = true;
 
   /**
+   * Creates a new EventScheduler.
+   *
+   * <p>The EventScheduler is initialized to operate on both the client and server sides.
+   *
+   * @see System
+   */
+  public EventScheduler() {
+    super(AuthoritativeSide.BOTH);
+  }
+
+  /**
    * Schedules a new action to be executed after a specified delay.
    *
    * <p>This method creates a new ScheduledAction with the provided action and execution time, and

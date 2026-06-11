@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package dungeon.c2s;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.c2s";
+option java_outer_classname = "SnapshotAckProto";
+
+message SnapshotAck {
+  int32 server_tick = 1;
+}

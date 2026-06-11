@@ -7,6 +7,7 @@
 The Dungeon is a multifaceted project for the gamification of educational content.
 
 You can find an [interesting report](https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen) on our project in the news section of Bielefeld University of Applied Sciences (04 April 2024, in German), as well as [another press release](https://www.hsbi.de/presse/pressemitteilungen/hsbi-informatiker-entwickeln-ein-tool-mit-dem-die-erstellung-von-escape-rooms-fuer-die-lehre-auch-ohne-programmier-kenntnisse-gelingt) (19 December 2025, in German).
+Additionally, a local school has published an [article](https://www.herder-gymnasium-minden.de/allgemein/projekt-produs/) about the project (March 2026, in German).
 
 For more information about the [PRODUS project], please visit our [project page] on the
 Bielefeld University of Applied Sciences website.
@@ -15,7 +16,7 @@ Bielefeld University of Applied Sciences website.
 
 ## Requirements
 
-[Java SE Development Kit 21 LTS] installed.
+[Java SE Development Kit 25 LTS] installed.
 
 ## Known Limitations
 
@@ -183,7 +184,7 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [PRODUS project]: #programming-dungeon-adventures-at-school-produs
   [project page]: https://www.hsbi.de/minden/produs/home
   [1]: dungeon/doc/img/monster.gif
-  [Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
+  [Java SE Development Kit 25 LTS]: https://jdk.java.net/25/
   [Freiraum 2025]: https://stiftung-hochschullehre.de/foerderung/freiraum/
   [Stiftung Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de/
   [Pakt für Informatik 2.0]: https://www.efre.nrw/einfach-machen/foerderung-finden/pakt-fuer-informatik-20

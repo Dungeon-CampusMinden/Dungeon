@@ -1,6 +1,11 @@
 package contrib.entities;
 
-import contrib.components.*;
+import contrib.components.CatapultableComponent;
+import contrib.components.CollideComponent;
+import contrib.components.FlyComponent;
+import contrib.components.InventoryComponent;
+import contrib.components.ProjectileComponent;
+import contrib.components.UIComponent;
 import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
@@ -8,9 +13,12 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.item.Item;
-import contrib.item.concreteItem.*;
 import contrib.item.concreteItem.ItemBigKey;
+import contrib.item.concreteItem.ItemFairy;
+import contrib.item.concreteItem.ItemHammer;
+import contrib.item.concreteItem.ItemHeart;
 import contrib.item.concreteItem.ItemKey;
+import contrib.item.concreteItem.ItemWoodenArrow;
 import contrib.modules.interaction.DropItemsInteraction;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
@@ -23,10 +31,10 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
 import core.systems.DrawSystem;
-import core.utils.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
@@ -35,9 +43,10 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.*;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -293,11 +302,10 @@ public final class MiscFactory {
                                       oldIC.triggerInteraction(interacted, interactor);
                                       interacted.remove(InteractionComponent.class);
                                       interacted.add(oldIC);
-                                      UIUtils.closeDialog(dialogUI, true);
+                                      UIUtils.closeDialog(dialogUI);
                                     });
                                 dialogUI.registerCallback(
-                                    DialogContextKeys.ON_NO,
-                                    data -> UIUtils.closeDialog(dialogUI, true));
+                                    DialogContextKeys.ON_NO, data -> UIUtils.closeDialog(dialogUI));
                               }));
 
               lockedChest.remove(InteractionComponent.class);
@@ -305,57 +313,6 @@ public final class MiscFactory {
             });
 
     return lockedChest;
-  }
-
-  /**
-   * Get an Entity that can be used as a crafting cauldron.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * @param position position of the crafting cauldron.
-   * @return A new Entity.
-   */
-  public static Entity newCraftingCauldron(Point position) {
-    Entity cauldron = new Entity("cauldron");
-    cauldron.add(new PositionComponent(position));
-    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/cauldron"));
-    dc.depth(DepthLayer.Player.depth());
-    cauldron.add(dc);
-    InventoryComponent invComp = new InventoryComponent();
-    cauldron.add(invComp);
-    cauldron.add(
-        new InteractionComponent(
-            () ->
-                new Interaction(
-                    (entity, who) ->
-                        who.fetch(InventoryComponent.class)
-                            .ifPresent(
-                                ic -> {
-                                  var context =
-                                      DialogContext.builder()
-                                          .type(DialogType.DefaultTypes.CRAFTING_GUI)
-                                          .put(DialogContextKeys.ENTITY, who.id())
-                                          .put(DialogContextKeys.SECONDARY_ENTITY, entity.id())
-                                          .put(DialogContextKeys.OWNER_ENTITY, who.id())
-                                          .build();
-                                  UIComponent ui = new UIComponent(context, true, who.id());
-                                  who.add(ui);
-                                }))));
-    cauldron.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
-    return cauldron;
-  }
-
-  /**
-   * Get an Entity that can be used as a crafting cauldron.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>The Entity is placed at the {@link PositionComponent#ILLEGAL_POSITION}. >.
-   *
-   * @return A new Entity.
-   */
-  public static Entity newCraftingCauldron() {
-    return newCraftingCauldron(PositionComponent.ILLEGAL_POSITION);
   }
 
   /**
@@ -670,13 +627,10 @@ public final class MiscFactory {
                             invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
                             Game.remove(interacted);
                             door.open();
-                            UIUtils.closeDialog(doorUI, true);
+                            UIUtils.closeDialog(doorUI);
                           });
                       doorUI.registerCallback(
-                          DialogContextKeys.ON_NO,
-                          data -> {
-                            UIUtils.closeDialog(doorUI, true);
-                          });
+                          DialogContextKeys.ON_NO, data -> UIUtils.closeDialog(doorUI));
                     },
                     2f)));
     door.close();

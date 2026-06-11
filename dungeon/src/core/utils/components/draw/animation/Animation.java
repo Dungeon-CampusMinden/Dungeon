@@ -9,8 +9,13 @@ import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Represents an animation consisting of one or more {@link Sprite}s.
@@ -30,9 +35,7 @@ import java.util.*;
  * <p>Animation frames are stored internally as {@link Sprite} objects and can be updated
  * frame-by-frame with {@link #update()}.
  */
-public class Animation implements Serializable, Cloneable {
-  @Serial private static final long serialVersionUID = 1L;
-
+public class Animation implements Cloneable {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Animation.class);
 
   /** Path to the missing texture fallback image. */
@@ -219,6 +222,24 @@ public class Animation implements Serializable, Cloneable {
   }
 
   /**
+   * Returns the source path for this animation, if available.
+   *
+   * <p>For spritesheets this returns the sheet path. For single or multi-frame animations this
+   * returns the first frame path.
+   *
+   * @return an Optional containing the source path
+   */
+  public Optional<IPath> sourcePath() {
+    if (sourceType == SourceType.SPRITESHEET) {
+      return Optional.ofNullable(sheetPath);
+    }
+    if (framePaths == null || framePaths.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(framePaths.get(0));
+  }
+
+  /**
    * Get the pixel width of the underlying sprite frame.
    *
    * @return The sprite width in pixels.
@@ -386,7 +407,15 @@ public class Animation implements Serializable, Cloneable {
   }
 
   private static boolean canUseTextures() {
-    return !Game.isHeadless();
+    if (Game.isHeadless()) return false;
+    // GL calls are only legal on the thread that owns the GL context (the libGDX render
+    // thread). Item reconstruction during network message deserialization runs on the
+    // Netty event loop, where touching GL aborts the JVM.
+    try {
+      return GLFW.glfwGetCurrentContext() != 0L;
+    } catch (Throwable t) {
+      return false;
+    }
   }
 
   private void ensureLoaded() {
@@ -507,19 +536,6 @@ public class Animation implements Serializable, Cloneable {
       return dirName + "/" + baseName + ".png";
     }
     return pathString;
-  }
-
-  @Serial
-  private void writeObject(ObjectOutputStream out) throws IOException {
-    out.defaultWriteObject();
-  }
-
-  @Serial
-  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-    in.defaultReadObject();
-    this.sprites = null;
-    this.loaded = false;
-    // width/height will be recomputed on load; keep existing values as hints
   }
 
   @Override

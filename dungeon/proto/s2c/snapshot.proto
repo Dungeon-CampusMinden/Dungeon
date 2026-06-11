@@ -1,0 +1,116 @@
+// World state snapshot messages.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+import "common/common_types.proto";
+import "s2c/entity.proto";
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "SnapshotProto";
+
+// Open/closed state of a single door tile.
+message DoorState {
+  // Tile coordinate in the current level.
+  dungeon.common.Coordinate coordinate = 1;
+
+  // True if the door is open.
+  bool open = 2;
+}
+
+// Additional state payload for the current level.
+message LevelState {
+  // Open/closed state of all door tiles in the current level.
+  repeated DoorState door_states = 1;
+}
+
+// EntityState fields that can be explicitly cleared by a delta.
+enum EntityStateField {
+  // Default enum value.
+  ENTITY_STATE_FIELD_UNSPECIFIED = 0;
+
+  // Entity display name.
+  ENTITY_STATE_FIELD_ENTITY_NAME = 1;
+
+  // Position coordinates.
+  ENTITY_STATE_FIELD_POSITION = 2;
+
+  // View direction.
+  ENTITY_STATE_FIELD_VIEW_DIRECTION = 3;
+
+  // Rotation.
+  ENTITY_STATE_FIELD_ROTATION = 4;
+
+  // Scale.
+  ENTITY_STATE_FIELD_SCALE = 5;
+
+  // Current health points.
+  ENTITY_STATE_FIELD_CURRENT_HEALTH = 6;
+
+  // Maximum health points.
+  ENTITY_STATE_FIELD_MAX_HEALTH = 7;
+
+  // Current mana points.
+  ENTITY_STATE_FIELD_CURRENT_MANA = 8;
+
+  // Maximum mana points.
+  ENTITY_STATE_FIELD_MAX_MANA = 9;
+
+  // Current draw state name.
+  ENTITY_STATE_FIELD_STATE_NAME = 10;
+
+  // Tint color.
+  ENTITY_STATE_FIELD_TINT_COLOR = 11;
+
+  // Inventory contents.
+  ENTITY_STATE_FIELD_INVENTORY = 12;
+
+  // Metadata map.
+  ENTITY_STATE_FIELD_METADATA = 13;
+}
+
+// Per-entity field delta against a full snapshot baseline.
+message EntityDelta {
+  // Required: Entity identifier.
+  int32 entity_id = 1;
+
+  // Changed fields. Only fields with protobuf presence are applied.
+  EntityState changed_state = 2;
+
+  // Fields that were present in the baseline and absent in the current state.
+  repeated EntityStateField cleared_fields = 3;
+}
+
+// Server-to-client: World state snapshot for a game tick.
+// Maps to: core.network.messages.s2c.SnapshotMessage
+message SnapshotMessage {
+  // Server tick number for this snapshot.
+  int32 server_tick = 1;
+
+  // States of all relevant entities.
+  repeated EntityState entities = 2;
+
+  // Additional level-state payload for this snapshot.
+  LevelState level_state = 3;
+}
+
+// Server-to-client: Delta from a full snapshot baseline to a later server tick.
+// Maps to: core.network.messages.s2c.DeltaSnapshotMessage
+message DeltaSnapshotMessage {
+  // Server tick of the full snapshot this delta is based on.
+  int32 base_tick = 1;
+
+  // Server tick represented by this delta.
+  int32 server_tick = 2;
+
+  // Per-entity changes against the baseline snapshot.
+  repeated EntityDelta entity_deltas = 3;
+
+  // Entity IDs that existed in the baseline but no longer exist.
+  repeated int32 removed_entity_ids = 4;
+
+  // Optional level-state delta.
+  LevelState level_state_delta = 5;
+}

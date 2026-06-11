@@ -1,6 +1,7 @@
 package coderunner;
 
-import contrib.components.*;
+import contrib.components.ItemComponent;
+import contrib.components.LeverComponent;
 import contrib.utils.EntityUtils;
 import core.Component;
 import core.Game;
@@ -8,7 +9,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.LevelElement;
-import core.utils.*;
+import core.utils.Vector2;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,31 +61,24 @@ public class BlocklyCommands {
      * Use the object located behind the hero (relative to the hero's current viewing direction).
      */
     HERO_USE_DOWN,
-
     /**
      * If there is a stone in front of the hero, push it forward and move the hero one tile ahead.
      */
     HERO_PUSH,
-
     /**
      * If there is a stone in front of the hero, pull it backward and move the hero one tile back.
      */
     HERO_PULL,
-
-    /** Drop a clover on the hero's current position. */
-    HERO_DROP_CLOVER,
-
-    /** Drop breadcrumbs on the hero's current position. */
-    HERO_DROP_BREADCRUMBS,
-
     /** Pick up an item from the hero's current position. */
     HERO_PICKUP,
-
     /** Shoot a fireball in the hero's current viewing direction. */
     HERO_FIREBALL,
-
     /** Do nothing for a short amount of time (hero rests). */
-    REST
+    REST,
+    /** Shoot a blue portal projectile in the hero's current viewing direction. */
+    HERO_SHOOT_BLUE_PORTAL,
+    /** Shoot a green portal projectile in the hero's current viewing direction. */
+    HERO_SHOOT_GREEN_PORTAL
   }
 
   /**
@@ -169,27 +163,6 @@ public class BlocklyCommands {
     Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_PICKUP));
   }
 
-  /**
-   * Drop a Blockly-Item at the heros position.
-   *
-   * <p>If the hero is not on the map, nothing will happen.
-   *
-   * @param item Name of the item to drop
-   */
-  public static void dropItem(String item) {
-    switch (item) {
-      case BlocklyCommandExecuteSystem.BREADCRUMB ->
-          Game.system(
-              BlocklyCommandExecuteSystem.class,
-              system -> system.add(Commands.HERO_DROP_BREADCRUMBS));
-      case BlocklyCommandExecuteSystem.CLOVER ->
-          Game.system(
-              BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_DROP_CLOVER));
-      default ->
-          throw new IllegalArgumentException("Can not convert " + item + " to droppable Item.");
-    }
-  }
-
   /** Attempts to push entities in front of the hero. */
   public static void push() {
     Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_PUSH));
@@ -237,8 +210,13 @@ public class BlocklyCommands {
       return true;
     }
     // Special case: treat DOOR or EXIT as FLOOR
-    return target == LevelElement.FLOOR
-        && (actual == LevelElement.DOOR || actual == LevelElement.EXIT);
+    if (target == LevelElement.FLOOR
+        && (actual == LevelElement.DOOR || actual == LevelElement.EXIT)) {
+      return true;
+    }
+
+    // Case: treat HOLE or GITTER as WALL
+    return target == LevelElement.WALL && (actual == LevelElement.HOLE);
   }
 
   /**
@@ -382,5 +360,25 @@ public class BlocklyCommands {
           // wait one more time to make sure the last command of the queue has finished executing
           Server.waitDelta();
         });
+  }
+
+  /**
+   * Shoots a blue portal "projectile" in hero view direction.
+   *
+   * <p>Queues the command in the BlocklyCommandExecuteSystem queue to be executed
+   */
+  public static void shootBluePortal() {
+    Game.system(
+        BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_SHOOT_BLUE_PORTAL));
+  }
+
+  /**
+   * Shoots a green portal "projectile" in hero view direction.
+   *
+   * <p>Queues the command in the BlocklyCommandExecuteSystem queue to be executed
+   */
+  public static void shootGreenPortal() {
+    Game.system(
+        BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_SHOOT_GREEN_PORTAL));
   }
 }

@@ -1,6 +1,5 @@
 package contrib.systems;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -10,7 +9,11 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
-import contrib.components.*;
+import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
+import contrib.components.DecoComponent;
+import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
@@ -21,10 +24,12 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.SoundComponent;
 import core.components.VelocityComponent;
+import core.game.ECSManagement;
 import core.game.WindowEventManager;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.systems.CameraSystem;
+import core.systems.input.InputManager;
 import core.utils.FontHelper;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -33,6 +38,7 @@ import core.utils.components.draw.BlendUtils;
 import core.utils.components.draw.ColorUtils;
 import core.utils.components.draw.animation.Animation;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +84,7 @@ public class DebugDrawSystem extends System {
   private static final Map<Entity, String> quickInfoCache = new HashMap<Entity, String>();
 
   private boolean render = false;
+  private boolean renderSystemList = false;
 
   /** Creates a new DebugDrawSystem. */
   public DebugDrawSystem() {
@@ -92,6 +99,10 @@ public class DebugDrawSystem extends System {
 
   @Override
   public void render(float delta) {
+    if (!render && !renderSystemList) return;
+
+    if (renderSystemList) drawSystemList();
+
     if (!render) return;
 
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
@@ -100,6 +111,42 @@ public class DebugDrawSystem extends System {
     if (!LevelEditorSystem.active()) {
       drawNamedPoints();
     }
+  }
+
+  private void drawSystemList() {
+    String text = buildSystemListText();
+    GlyphLayout layout = new GlyphLayout(FONT, text);
+    float padding = 4f;
+    float textX = 10f;
+    float textY = Game.windowHeight() - 10f;
+    float bgX = textX - padding;
+    float bgY = textY - layout.height - padding;
+    float bgW = layout.width + 2f * padding;
+    float bgH = layout.height + 2f * padding;
+
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(DEBUG_CAM.combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
+    SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
+    SHAPE_RENDERER.end();
+
+    drawText(text, new Point(textX, textY));
+  }
+
+  private String buildSystemListText() {
+    List<String> systemNames =
+        Game.systems().values().stream()
+            .filter(System::isRunning)
+            .filter(ECSManagement::isAuthoritativeInCurrentTick)
+            .map(system -> system.getClass().getSimpleName())
+            .sorted(Comparator.naturalOrder())
+            .toList();
+
+    StringBuilder text =
+        new StringBuilder("Running Systems (").append(systemNames.size()).append(")");
+    systemNames.forEach(name -> text.append("\n - ").append(name));
+    return text.toString();
   }
 
   private void drawPosition(Entity entity) {
@@ -175,11 +222,21 @@ public class DebugDrawSystem extends System {
         .forEach(
             (name, point) -> {
               Color color = name.equals(highlightPoint) ? NAMED_POINT_HIGHLIGHT_COLOR : normalColor;
-              // Draw a small purple square at the point location
-              drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
-
-              // Draw the name of the point above it
-              drawTextInWorldCoordsCentered(FONT, name, point.translate(0.5f, 0.5f), color);
+              boolean onTile = isNearInteger(point.x()) && isNearInteger(point.y());
+              BlendUtils.setBlending();
+              SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+              if (onTile) {
+                // Point sits on an exact tile - draw as 1×1 rectangle with centered text
+                drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
+                drawTextInWorldCoordsCentered(FONT, name, point.translate(0.5f, 0.5f), color);
+              } else {
+                // Fractional position - draw a small filled dot with text above
+                SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+                SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+                SHAPE_RENDERER.circle(point.x(), point.y(), 0.08f, CIRCLE_SEGMENTS);
+                SHAPE_RENDERER.end();
+                drawTextInWorldCoordsCentered(FONT, name, point.translate(0f, 0.3f), color);
+              }
             });
   }
 
@@ -391,8 +448,8 @@ public class DebugDrawSystem extends System {
     }
 
     // If holding Shift, show all components; otherwise hint how to show them
-    if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
-        || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
+    if (InputManager.isKeyPressed(Input.Keys.SHIFT_LEFT)
+        || InputManager.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
       info.append(componentNames.size())
           .append(" component")
           .append(componentNames.size() == 1 ? "" : "s")
@@ -463,6 +520,11 @@ public class DebugDrawSystem extends System {
   /** Whether this debug system is currently active and drawing the overlays. */
   public void toggleHUD() {
     this.render = !this.render;
+  }
+
+  /** Toggles the screen-space list of currently running systems. */
+  public void toggleSystemList() {
+    this.renderSystemList = !this.renderSystemList;
   }
 
   @Override
@@ -600,5 +662,11 @@ public class DebugDrawSystem extends System {
     float textX = screen.x - layout.width / 2f;
     float textY = screen.y + layout.height / 2f;
     drawText(font, text, new Point(textX, textY), color);
+  }
+
+  private static final float INTEGER_TOLERANCE = 0.01f;
+
+  private static boolean isNearInteger(float value) {
+    return Math.abs(value - Math.round(value)) < INTEGER_TOLERANCE;
   }
 }

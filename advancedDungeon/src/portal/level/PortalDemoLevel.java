@@ -24,6 +24,7 @@ import portal.physicsobject.PressurePlates;
 import portal.physicsobject.Sphere;
 import portal.tractorBeam.TractorBeamComponent;
 import portal.tractorBeam.TractorBeamFactory;
+import portal.tractorBeam.TractorBeamUtil;
 import portal.util.AdvancedLevel;
 
 /** demo level. */
@@ -60,13 +61,15 @@ public class PortalDemoLevel extends AdvancedLevel {
         @Override
         public void execute() {
           TractorBeamFactory.reverseTractorBeam(
-              tractorBeam1.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+              TractorBeamUtil.getRelevantEntities(
+                  tractorBeam1.fetch(TractorBeamComponent.class).get()));
         }
 
         @Override
         public void undo() {
           TractorBeamFactory.reverseTractorBeam(
-              tractorBeam1.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+              TractorBeamUtil.getRelevantEntities(
+                  tractorBeam1.fetch(TractorBeamComponent.class).get()));
         }
       };
 
@@ -143,6 +146,8 @@ public class PortalDemoLevel extends AdvancedLevel {
     Game.add(catcher1);
     Game.add(sphere1);
     Game.add(cube1);
+    Game.add(tractorBeam1);
+    Game.add(tractorBeam2);
     Game.add(lightBridge1);
     Game.add(lightBridge2);
     Game.add(lightWall1);
@@ -162,14 +167,14 @@ public class PortalDemoLevel extends AdvancedLevel {
   @Override
   protected void onTick() {
 
-    if (plate1.isOn()) tractorBeam1.fetch(TractorBeamComponent.class).get().activate();
-    else tractorBeam1.fetch(TractorBeamComponent.class).get().deactivate();
+    if (plate1.isOn()) TractorBeamUtil.activate(tractorBeam1);
+    else TractorBeamUtil.deactivate(tractorBeam1);
     if (plate2.isOn()) LightBridgeFactory.activate(lightBridge1);
     else LightBridgeFactory.deactivate(lightBridge1);
     if (switch3.isOn()) LightWallFactory.activate(lightWall1);
     else LightWallFactory.deactivate(lightWall1);
-    if (switch4.isOn()) tractorBeam2.fetch(TractorBeamComponent.class).get().activate();
-    else tractorBeam2.fetch(TractorBeamComponent.class).get().deactivate();
+    if (switch4.isOn()) TractorBeamUtil.activate(tractorBeam2);
+    else TractorBeamUtil.deactivate(tractorBeam2);
     if (switch5.isOn()) LightWallFactory.activate(lightWall2);
     else LightWallFactory.deactivate(lightWall2);
     if (switch6.isOn()) LightBridgeFactory.activate(lightBridge2);

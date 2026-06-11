@@ -1,8 +1,13 @@
 package core.components;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.sound.SoundSpec;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link SoundComponent} class. */
@@ -21,7 +26,7 @@ public class SoundComponentTest {
     SoundComponent componentWithSound = new SoundComponent(spec);
     assertNotNull(componentWithSound);
     assertEquals(1, componentWithSound.sounds().size());
-    assertEquals(spec, componentWithSound.sounds().get(0));
+    assertTrue(componentWithSound.sounds().contains(spec));
 
     // Test constructor with null spec
     SoundComponent componentWithNull = new SoundComponent(null);
@@ -40,8 +45,9 @@ public class SoundComponentTest {
     component.add(loopingSpec);
 
     assertEquals(1, component.sounds().size());
-    assertTrue(component.sounds().get(0).looping());
-    assertEquals("ambient_sound", component.sounds().get(0).soundName());
+    SoundSpec stored = component.sounds().stream().findFirst().orElseThrow();
+    assertTrue(stored.looping());
+    assertEquals("ambient_sound", stored.soundName());
   }
 
   @Test
@@ -58,8 +64,8 @@ public class SoundComponentTest {
     component.add(spec2);
     assertEquals(2, component.sounds().size());
 
-    // Try to add null (should be ignored)
-    component.add(null);
+    // Try to add null (should fail)
+    assertThrows(NullPointerException.class, () -> component.add(null));
     assertEquals(2, component.sounds().size());
   }
 
@@ -114,7 +120,7 @@ public class SoundComponentTest {
     SoundSpec newSpec2 = SoundSpec.builder("new_sound2").instanceId(13L).build();
     SoundSpec newSpec3 = SoundSpec.builder("new_sound3").instanceId(14L).build();
 
-    component.replaceAll(java.util.List.of(newSpec1, newSpec2, newSpec3));
+    component.replaceAll(Set.of(newSpec1, newSpec2, newSpec3));
     assertEquals(3, component.sounds().size());
     assertTrue(component.sounds().contains(newSpec1));
     assertTrue(component.sounds().contains(newSpec2));
@@ -126,7 +132,7 @@ public class SoundComponentTest {
 
     // Replace with empty list
     component.add(SoundSpec.builder("temp").instanceId(15L).build());
-    component.replaceAll(java.util.List.of());
+    component.replaceAll(Set.of());
     assertTrue(component.sounds().isEmpty());
   }
 
@@ -149,7 +155,7 @@ public class SoundComponentTest {
     assertThrows(
         UnsupportedOperationException.class,
         () -> {
-          soundList.remove(0);
+          soundList.remove(spec);
         });
 
     assertThrows(UnsupportedOperationException.class, soundList::clear);
@@ -173,7 +179,7 @@ public class SoundComponentTest {
 
     component.add(spec);
 
-    SoundSpec retrieved = component.sounds().get(0);
+    SoundSpec retrieved = component.sounds().stream().findFirst().orElseThrow();
     assertEquals(18L, retrieved.instanceId());
     assertEquals("complex_sound", retrieved.soundName());
     assertEquals(0.8f, retrieved.baseVolume(), 0.001f);

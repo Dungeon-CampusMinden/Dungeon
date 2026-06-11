@@ -1,5 +1,7 @@
 package core.network;
 
+import core.network.messages.s2c.ConnectReject;
+
 /**
  * Listener for connection lifecycle events.
  *
@@ -16,4 +18,11 @@ public interface ConnectionListener {
    * @param reason the reason for disconnection, or null if orderly
    */
   void onDisconnected(String reason);
+
+  /**
+   * Called when the server rejects a connection request before the client becomes connected.
+   *
+   * @param reason the typed server-side rejection reason
+   */
+  default void onRejected(ConnectReject.Reason reason) {}
 }

@@ -8,6 +8,7 @@ import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.function.Supplier;
+import level.LevelManagementUtils;
 import systems.BlocklyCommandExecuteSystem;
 
 /**
@@ -19,16 +20,22 @@ import systems.BlocklyCommandExecuteSystem;
  */
 public class InevitableFireballSkill extends FireballSkill {
 
-  private static final Supplier<Point> TARGET_PLAYER =
-      () ->
-          Game.player()
-              .flatMap(hero -> hero.fetch(PositionComponent.class))
-              .map(PositionComponent::position)
-              // offset for error with fireball path calculation (#2230)
-              .map(point -> point.translate(Vector2.of(0.5f, 0.5f)))
-              .orElse(null);
+  // Vector to center the fireball
+  private static final Vector2 CENTER_FIREBALL = Vector2.of(0.5f, 0.5f);
 
-  /** Create a Fireball that will freez and kill the player. */
+  private static final Supplier<Point> TARGET_PLAYER =
+      () -> {
+        LevelManagementUtils.centerHero();
+        return Game.player()
+            .flatMap(hero -> hero.fetch(PositionComponent.class))
+            .map(PositionComponent::position)
+            // translate the fireball to the center of the monster
+            // by default it is throwing the fireball to the lower left corner
+            .map(point -> point.translate(CENTER_FIREBALL))
+            .orElse(null);
+      };
+
+  /** Create a Fireball that will stop blockly-code execution on spawn. */
   public InevitableFireballSkill() {
     super(TARGET_PLAYER, 500);
     this.damageAmount = 9999;

@@ -6,9 +6,10 @@
 #=============================================================================
 # CONFIGURATION
 #=============================================================================
-JAVA_VERSION="21" # Used for version checking
-# Specific Java download URL for Temurin JDK 21 ARM64
-TEMURIN_JDK_URL="https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.3%2B9/OpenJDK21U-jdk_aarch64_linux_hotspot_21.0.3_9.tar.gz"
+JAVA_VERSION="25" # Used for version checking
+# Latest GA Temurin JDK 25 ARM64 download URL
+TEMURIN_JDK_URL="https://api.adoptium.net/v3/binary/latest/${JAVA_VERSION}/ga/linux/aarch64/jdk/hotspot/normal/eclipse"
+TEMURIN_JDK_ARCHIVE_NAME="temurin-jdk-${JAVA_VERSION}-aarch64.tar.gz"
 
 PROJECT_TAR_URL="<URL HERE>/Workshop.tar.gz" # Will be prompted if empty
 PROJECT_DESKTOP_NAME="Workshop"
@@ -91,11 +92,20 @@ update_system() {
     sudo apt install -y wget curl gpg software-properties-common apt-transport-https file
 }
 
+validate_java_archive() {
+    local archive_path="$1"
+
+    if ! tar -tzf "$archive_path" >/dev/null 2>&1; then
+        rm -f "$archive_path"
+        error_exit "Downloaded Java JDK archive is not a valid gzip tar archive."
+    fi
+}
+
 install_java() {
     log_message "Checking Java OpenJDK $JAVA_VERSION (Temurin) installation..."
 
     local temurin_archive_name
-    temurin_archive_name=$(basename "$TEMURIN_JDK_URL")
+    temurin_archive_name="$TEMURIN_JDK_ARCHIVE_NAME"
     local install_base_dir="/opt"
     local extracted_jdk_dir_name
     local java_home_path
@@ -107,8 +117,9 @@ install_java() {
     if [ $? -ne 0 ]; then
         error_exit "Failed to download Java JDK to determine structure."
     fi
+    validate_java_archive "$TEMP_DIR/$temurin_archive_name"
 
-    extracted_jdk_dir_name=$(tar -tf "$TEMP_DIR/$temurin_archive_name" | head -n 1 | cut -f1 -d"/")
+    extracted_jdk_dir_name=$(tar -tzf "$TEMP_DIR/$temurin_archive_name" | head -n 1 | cut -f1 -d"/")
     if [ -z "$extracted_jdk_dir_name" ]; then
         rm -f "$TEMP_DIR/$temurin_archive_name" # Clean up temp download
         error_exit "Could not determine JDK directory name from archive $temurin_archive_name."
@@ -156,6 +167,7 @@ EOF
     if [ $? -ne 0 ]; then
         error_exit "Failed to download Java JDK."
     fi
+    validate_java_archive "$TEMP_DIR/$temurin_archive_name"
 
     log_message "Creating installation directory $install_base_dir (if it doesn't exist)..."
     sudo mkdir -p "$install_base_dir"

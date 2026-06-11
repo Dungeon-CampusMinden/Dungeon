@@ -5,7 +5,11 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
 
@@ -78,7 +82,39 @@ public final class TextureMap extends HashMap<String, Texture> {
       }
     }
     Texture texture = loadPMA(toUse);
+    toUse.dispose();
     putTexture(path, texture);
+  }
+
+  /**
+   * Creates an independent copy of the texture at the given path by rendering it into a
+   * framebuffer. The returned texture has its own GL handle and can have different filter settings
+   * without affecting the original.
+   *
+   * @param path The path of the texture in this map.
+   * @return A new Texture containing the same image data, wrapped in a Y-corrected TextureRegion.
+   */
+  public TextureRegion cloneTexture(String path) {
+    Texture original = textureAt(new SimpleIPath(path));
+    int w = original.getWidth();
+    int h = original.getHeight();
+
+    FrameBuffer fbo = new FrameBuffer(Pixmap.Format.RGBA8888, w, h, false);
+    SpriteBatch batch = new SpriteBatch();
+
+    try {
+      batch.getProjectionMatrix().setToOrtho2D(0, 0, w, h);
+      fbo.begin();
+      batch.begin();
+      batch.draw(original, 0, 0, w, h);
+      batch.end();
+      TextureRegion region = new TextureRegion(fbo.getColorBufferTexture());
+      region.flip(false, true);
+      return region;
+    } finally {
+      fbo.end();
+      batch.dispose();
+    }
   }
 
   /**

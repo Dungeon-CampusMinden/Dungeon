@@ -1,6 +1,9 @@
 package contrib.entities;
 
-import contrib.components.*;
+import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
+import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import contrib.modules.interaction.DropItemsInteraction;
 import contrib.modules.interaction.InteractionComponent;
@@ -130,18 +133,6 @@ public final class EntityFactory {
    */
   public static Entity newChest(final Set<Item> item, final Point position) throws IOException {
     return MiscFactory.newChest(item, position);
-  }
-
-  /**
-   * Get an Entity that can be used as a crafting cauldron.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
-   */
-  public static Entity newCraftingCauldron() throws IOException {
-    return MiscFactory.newCraftingCauldron();
   }
 
   /**

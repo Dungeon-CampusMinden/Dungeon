@@ -43,11 +43,14 @@ public class Level003 extends BlocklyLevel {
         "Bedingung",
         "Wahrheitsausdruecke",
         "Variablen",
-        "Bedingungen",
-        "Sonstige");
-    addWebPopup(new ImagePopup("popups/level003/01_steine.png"));
-    addWebPopup(new ImagePopup("popups/level003/02_loop.png"));
-    addWebPopup(new ImagePopup("popups/level003/03_loop.png"));
+        "Bedingungen");
+    addWebPopup(new ImagePopup("popups/level003/webpopups/01_steine.jpg"));
+    addWebPopup(new ImagePopup("popups/level003/webpopups/02_loop.jpg"));
+    addWebPopup(new ImagePopup("popups/level003/webpopups/03_loop.jpg"));
+
+    addCodePopup(new ImagePopup("popups/level003/codepopups/01_steine.jpg"));
+    addCodePopup(new ImagePopup("popups/level003/codepopups/02_loop.jpg"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override

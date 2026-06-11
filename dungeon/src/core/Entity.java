@@ -254,4 +254,15 @@ public final class Entity implements Comparable<Entity> {
   public Stream<Component> componentStream() {
     return components.values().stream();
   }
+
+  /**
+   * Checks if this entity is a local-only entity.
+   *
+   * <p>Local entities have negative IDs and are not synchronized over the network.
+   *
+   * @return true if the entity is local (id < 0), false otherwise
+   */
+  public boolean isLocal() {
+    return id < 0;
+  }
 }

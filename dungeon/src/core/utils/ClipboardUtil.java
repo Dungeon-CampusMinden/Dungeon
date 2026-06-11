@@ -1,6 +1,6 @@
 package core.utils;
 
-import java.awt.*;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.logging.Logger;

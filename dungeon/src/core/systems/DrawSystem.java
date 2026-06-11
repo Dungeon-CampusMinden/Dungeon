@@ -1,7 +1,9 @@
 package core.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -25,14 +27,24 @@ import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.*;
+import core.utils.components.draw.BlendUtils;
+import core.utils.components.draw.ColorUtils;
+import core.utils.components.draw.DrawConfig;
+import core.utils.components.draw.FrameBufferPool;
 import core.utils.components.draw.TextureMap;
+import core.utils.components.draw.TileUtils;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.shader.AbstractShader;
 import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.IPath;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
 
 /**
  * This system draws the entities on the screen using a multi-pass rendering pipeline:
@@ -115,6 +127,7 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   private void onEntityChanged(Entity changed, boolean added) {
+    if (changed.fetch(DrawComponent.class).isEmpty()) return;
     DSData data = DSData.build(changed);
     int depth = data.dc.depth();
     List<Entity> entitiesAtDepth = sortedEntities.get(depth);
@@ -292,6 +305,25 @@ public final class DrawSystem extends System implements Disposable {
         stableResizeFrames--;
       }
     }
+  }
+
+  /**
+   * Makes the render pipeline use the current window size without waiting for resize debouncing.
+   *
+   * <p>Fullscreen transitions are discrete mode switches, not interactive resize drags. Deferring
+   * FBO resizing during those transitions can leave stale-sized framebuffers on screen for several
+   * frames on Windows and Linux.
+   */
+  public void useCurrentWindowSizeImmediately() {
+    int currentWidth = Game.windowWidth();
+    int currentHeight = Game.windowHeight();
+    if (currentWidth <= 0 || currentHeight <= 0) return;
+
+    stableWidth = currentWidth;
+    stableHeight = currentHeight;
+    unstableWidth = currentWidth;
+    unstableHeight = currentHeight;
+    stableResizeFrames = 0;
   }
 
   @Override
@@ -667,9 +699,17 @@ public final class DrawSystem extends System implements Disposable {
       // --- Draw FBO Texture (Shader Result) ---
       Texture fboTexture = finalFbo.getColorBufferTexture();
 
+      float worldWidth = dsd.dc.getWidth();
+      float worldHeight = dsd.dc.getHeight();
+
       float padding = dsd.dc.shaders().getTotalPadding();
-      float unitSize = dsd.getUnitSizeInPixels();
-      float paddingWorldUnits = padding / unitSize;
+      float paddingX = padding / dsd.dc.getSpriteWidth();
+      float paddingY = padding / dsd.dc.getSpriteHeight();
+
+      // Final world size includes padding on all sides
+      Vector2 finalWorldSize =
+          Vector2.of(
+              worldWidth + 2 * paddingX * worldWidth, worldHeight + 2 * paddingY * worldHeight);
 
       // Scale is being factored into the transformation everywhere except the position, since it is
       // passed directly to the draw method. Thus, we need to factor it in here to offset the
@@ -678,13 +718,8 @@ public final class DrawSystem extends System implements Disposable {
           dsd.pc
               .position()
               .translate(
-                  -paddingWorldUnits * dsd.pc.scale().x(), -paddingWorldUnits * dsd.pc.scale().y());
-
-      // Final world size includes padding on all sides
-      float worldWidth = dsd.dc.getWidth();
-      float worldHeight = dsd.dc.getHeight();
-      Vector2 finalWorldSize =
-          Vector2.of(worldWidth + 2 * paddingWorldUnits, worldHeight + 2 * paddingWorldUnits);
+                  -paddingX * dsd.pc.scale().x() * worldWidth,
+                  -paddingY * dsd.pc.scale().y() * worldHeight);
 
       DrawConfig conf = makeConfig(dsd, finalWorldSize, dsd.pc.scale());
       draw(offsetPosition, fboTexture, conf);
@@ -963,16 +998,6 @@ public final class DrawSystem extends System implements Disposable {
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
       return new DSData(entity, dc, pc);
-    }
-
-    /**
-     * Returns the size of one world unit that this texture is drawn with, in pixels. The smallest
-     * dimension is assumed to be 1 world unit.
-     *
-     * @return the size of one world unit in pixels
-     */
-    float getUnitSizeInPixels() {
-      return Math.min(dc.getSpriteWidth(), dc.getSpriteHeight());
     }
   }
 }

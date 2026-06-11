@@ -1,6 +1,6 @@
 package observer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import core.Entity;
 import core.Game;

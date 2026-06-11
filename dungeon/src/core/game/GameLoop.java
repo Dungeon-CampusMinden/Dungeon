@@ -5,15 +5,14 @@ import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.backends.headless.HeadlessFiles;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
-import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import contrib.components.UIComponent;
-import contrib.crafting.Crafting;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.deco.DecoFactory;
@@ -28,22 +27,53 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.components.SoundComponent;
 import core.level.loader.DungeonLoader;
 import core.level.loader.LevelParser;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.client.ClientNetwork;
+import core.network.delta.SnapshotDeltaCompressor;
 import core.network.messages.c2s.InputMessage;
-import core.network.messages.s2c.*;
+import core.network.messages.c2s.SnapshotAck;
+import core.network.messages.s2c.DeltaSnapshotMessage;
+import core.network.messages.s2c.DialogCloseMessage;
+import core.network.messages.s2c.DialogShowMessage;
+import core.network.messages.s2c.EntityDespawnEvent;
+import core.network.messages.s2c.EntitySpawnEvent;
+import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.LevelChangeEvent;
+import core.network.messages.s2c.SnapshotMessage;
+import core.network.messages.s2c.SoundPlayMessage;
+import core.network.messages.s2c.SoundStopMessage;
+import core.network.server.ClientState;
+import core.network.server.Session;
+import core.network.server.SoundTracker;
 import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
-import core.systems.*;
+import core.systems.CameraSystem;
+import core.systems.DrawSystem;
+import core.systems.FrictionSystem;
+import core.systems.LevelSystem;
+import core.systems.MoveSystem;
+import core.systems.NetworkPositionSmoothingSystem;
+import core.systems.PositionSystem;
+import core.systems.VelocitySystem;
+import core.systems.input.InputManager;
+import core.systems.input.InputSystem;
+import core.systems.input.JoystickSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.DrawComponentFactory;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * The Dungeon-GameLoop.
@@ -61,6 +91,9 @@ public final class GameLoop extends ScreenAdapter {
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
   private boolean doSetup = true;
+  private int displayModeTransitionFrames = 0;
+  private static final Set<IResizable> resizables = new HashSet<>();
+  private static String windowTitle = "Dungeon";
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -75,10 +108,16 @@ public final class GameLoop extends ScreenAdapter {
    */
   public static final IVoidFunction onLevelLoad =
       () -> {
+        boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
+        if (firstLoad && Game.isCheckPatternEnabled())
+          Game.currentLevel()
+              .ifPresent(level -> CheckPatternPainter.paintCheckerPattern(level.layout()));
+
         if (!PreRunConfiguration.isNetworkServer()) return; // no authority
 
+        SoundTracker.instance().clear();
+
         List<Entity> allPlayers = ECSManagement.allPlayers().toList();
-        boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
         allPlayers.forEach(ECSManagement::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
@@ -108,9 +147,6 @@ public final class GameLoop extends ScreenAdapter {
                         .decorations()
                         .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a()))));
 
-        if (firstLoad && Game.isCheckPatternEnabled())
-          Game.currentLevel()
-              .ifPresent(level -> CheckPatternPainter.paintCheckerPattern(level.layout()));
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
       };
 
@@ -127,24 +163,21 @@ public final class GameLoop extends ScreenAdapter {
    */
   public static void run() {
     Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-    config.setWindowSizeLimits(
-        PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight(), 9999, 9999);
+    config.setWindowSizeLimits(0, 0, 9999, 9999);
     config.setForegroundFPS(PreRunConfiguration.frameRate());
     config.setResizable(PreRunConfiguration.resizeable());
-    config.setTitle(PreRunConfiguration.windowTitle());
+    config.setTitle(Game.windowTitle());
     config.setWindowIcon(PreRunConfiguration.logoPath().pathString());
     config.disableAudio(PreRunConfiguration.disableAudio());
     config.setWindowListener(WindowEventManager.windowListener());
-    if (SharedLibraryLoader.isMac && Gdx.app == null) {
-      org.lwjgl.system.Configuration.GLFW_LIBRARY_NAME.set("glfw_async");
-    }
+    config.useGlfwAsync();
     if (PreRunConfiguration.fullScreen()) {
       config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
     } else {
       config.setWindowedMode(PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
     }
 
-    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+    if (!PreRunConfiguration.multiplayerEnabled() || Game.isMultiplayerClient()) {
       new Lwjgl3Application(
           new com.badlogic.gdx.Game() {
             @Override
@@ -174,14 +207,20 @@ public final class GameLoop extends ScreenAdapter {
   }
 
   private static void setupStage() {
-    stage =
-        new Stage(
-            new ScalingViewport(
-                Scaling.stretch,
-                PreRunConfiguration.windowWidth(),
-                PreRunConfiguration.windowHeight()),
-            new SpriteBatch());
+    int width = currentWindowWidth();
+    int height = currentWindowHeight();
+    stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
     Gdx.input.setInputProcessor(stage);
+  }
+
+  private static int currentWindowWidth() {
+    int width = Game.windowWidth();
+    return width > 0 ? width : PreRunConfiguration.windowWidth();
+  }
+
+  private static int currentWindowHeight() {
+    int height = Game.windowHeight();
+    return height > 0 ? height : PreRunConfiguration.windowHeight();
   }
 
   /**
@@ -223,11 +262,12 @@ public final class GameLoop extends ScreenAdapter {
     clearScreen();
 
     // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
-    final boolean isMultiplayerClient =
-        PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
     ECSManagement.executeOneTick(
-        isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH);
+        Game.isMultiplayerClient()
+            ? System.AuthoritativeSide.CLIENT
+            : System.AuthoritativeSide.BOTH);
 
+    InputManager.update();
     CameraSystem.camera().update();
     // stage logic
     stage().ifPresent(GameLoop::updateStage);
@@ -298,16 +338,65 @@ public final class GameLoop extends ScreenAdapter {
   private void setup() {
     LOGGER.info("Setting up game...");
     doSetup = false;
-    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+    // Only multiplayer servers skip client setup and run headless.
+    if (!PreRunConfiguration.multiplayerEnabled() || Game.isMultiplayerClient()) {
       setupClient();
+    } else {
+      Gdx.files = new HeadlessFiles();
     }
 
     PreRunConfiguration.userOnSetup().execute();
-    Game.network().start();
+    // Clients without a configured address wait for the connection dialog to start networking.
+    if (!Game.isMultiplayerClient()) {
+      Game.network().start();
+    } else if (PreRunConfiguration.hasNetworkServerAddress()) {
+      Game.initializeNetwork();
+      Game.network().start();
+    } else {
+      DialogFactory.showClientConnectionDialog();
+    }
 
-    Crafting.loadRecipes();
+    if (!Game.isHeadless()) InputManager.init();
 
-    Game.system(LevelSystem.class, LevelSystem::execute); // load initial level
+    // Multiplayer clients receive level state from the server instead of loading it locally.
+    if (!Game.isMultiplayerClient()) {
+      if (!DungeonLoader.levelOrder().isEmpty()) {
+        if (Game.currentLevel().isEmpty()) DungeonLoader.loadLevel(0); // load the first level
+      } else {
+        LOGGER.warn("No levels found to load!");
+      }
+    }
+  }
+
+  private static Optional<ClientState> clientState(Session ctx) {
+    return ctx == null ? Optional.empty() : ctx.clientState();
+  }
+
+  private static void trackNetworkEntity(Session ctx, int entityId) {
+    clientState(ctx).ifPresent(state -> state.trackNetworkEntity(entityId));
+  }
+
+  private static void untrackNetworkEntity(Session ctx, int entityId) {
+    clientState(ctx).ifPresent(state -> state.untrackNetworkEntity(entityId));
+  }
+
+  /**
+   * Removes tracked network entities that are no longer present in an authoritative full snapshot.
+   *
+   * @param state the client state that tracks local network entities
+   * @param snapshot the authoritative full snapshot that was just applied
+   */
+  static void reconcileNetworkEntities(ClientState state, SnapshotMessage snapshot) {
+    Set<Integer> snapshotEntityIds = new HashSet<>();
+    snapshot.entities().forEach(entityState -> snapshotEntityIds.add(entityState.entityId()));
+
+    for (Integer entityId : state.networkSyncedEntityIds()) {
+      if (snapshotEntityIds.contains(entityId)) {
+        continue;
+      }
+      Game.findEntityById(entityId).ifPresent(Game::remove);
+      state.untrackNetworkEntity(entityId);
+    }
   }
 
   private void setupMessageHandlers() {
@@ -348,14 +437,20 @@ public final class GameLoop extends ScreenAdapter {
                     .isLocalPlayer(isLocal)
                     .username(pc.playerName())
                     .build());
+            trackNetworkEntity(ctx, event.entityId());
             return;
           }
 
           Entity newEntity = new Entity(event.entityId());
-          newEntity.add(event.positionComponent());
-          newEntity.add(event.drawComponent());
+          if (event.positionComponent() != null) {
+            newEntity.add(event.positionComponent());
+          }
+          if (event.drawInfo() != null) {
+            newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
+          }
           newEntity.persistent(event.isPersistent());
           Game.add(newEntity);
+          trackNetworkEntity(ctx, event.entityId());
         });
 
     dispatcher.registerHandler(
@@ -366,6 +461,7 @@ public final class GameLoop extends ScreenAdapter {
                   + event.entityId()
                   + ", reason: "
                   + event.reason());
+          untrackNetworkEntity(ctx, event.entityId());
           Entity entity =
               Game.allEntities().filter(e -> e.id() == event.entityId()).findFirst().orElse(null);
           if (entity == null) {
@@ -379,6 +475,14 @@ public final class GameLoop extends ScreenAdapter {
         LevelChangeEvent.class,
         (ctx, event) -> {
           LOGGER.info("Received LevelChangeEvent event: {}", event.levelName());
+          if (ctx != null) {
+            ctx.clientState()
+                .ifPresent(
+                    state -> {
+                      state.clearSnapshotBaseline();
+                      state.clearNetworkEntities();
+                    });
+          }
           try {
             Game.currentLevel(LevelParser.parseLevel(event.levelData(), event.levelName()));
             Game.player().ifPresent(GameLoop::placeOnLevelStart);
@@ -397,10 +501,101 @@ public final class GameLoop extends ScreenAdapter {
         SnapshotMessage.class,
         (ctx, event) -> {
           try {
+            Optional<ClientState> clientState = clientState(ctx);
+            if (clientState.isPresent()) {
+              ClientState state = clientState.orElseThrow();
+              if (event.serverTick() <= state.latestAppliedSnapshotTick()) {
+                LOGGER.debug("Skipped stale full snapshot at tick {}.", event.serverTick());
+                return;
+              }
+            }
             Game.network().snapshotTranslator().applySnapshot(event, dispatcher);
-          } catch (Exception ignored) {
-            LOGGER.warn("Error while applying snapshot message: {}", ignored.getMessage(), ignored);
+            clientState.ifPresent(
+                state -> {
+                  state.rememberAppliedSnapshot(event);
+                  reconcileNetworkEntities(state, event);
+                  sendSnapshotAck(event.serverTick());
+                });
+          } catch (Exception e) {
+            LOGGER.warn("Error while applying snapshot message: {}", e.getMessage(), e);
           }
+        });
+    dispatcher.registerHandler(
+        DeltaSnapshotMessage.class,
+        (ctx, event) -> {
+          try {
+            Optional<ClientState> clientState = clientState(ctx);
+            if (clientState.isEmpty()) {
+              LOGGER.debug("Ignoring delta snapshot without client state.");
+              return;
+            }
+            ClientState state = clientState.orElseThrow();
+            if (event.serverTick() <= state.latestAppliedSnapshotTick()) {
+              LOGGER.debug("Ignoring stale delta snapshot at tick {}.", event.serverTick());
+              return;
+            }
+
+            Optional<SnapshotMessage> baseline = state.appliedSnapshot(event.baseTick());
+            if (baseline.isEmpty()) {
+              LOGGER.debug(
+                  "Ignoring delta snapshot for base tick {}; no matching local baseline.",
+                  event.baseTick());
+              return;
+            }
+
+            SnapshotMessage materializedSnapshot =
+                SnapshotDeltaCompressor.materializeSnapshot(baseline.orElseThrow(), event);
+            event
+                .removedEntityIds()
+                .forEach(
+                    entityId -> {
+                      Game.findEntityById(entityId).ifPresent(Game::remove);
+                      state.untrackNetworkEntity(entityId);
+                    });
+            Game.network().snapshotTranslator().applySnapshot(materializedSnapshot, dispatcher);
+            state.rememberAppliedSnapshot(materializedSnapshot);
+            reconcileNetworkEntities(state, materializedSnapshot);
+            sendSnapshotAck(event.serverTick());
+          } catch (Exception e) {
+            LOGGER.warn("Error while applying delta snapshot message: {}", e.getMessage(), e);
+          }
+        });
+
+    dispatcher.registerHandler(
+        SoundPlayMessage.class,
+        (ctx, msg) -> {
+          LOGGER.debug(
+              "Received SoundPlayMessage: {} (instance={})",
+              msg.soundSpec().soundName(),
+              msg.soundSpec().instanceId());
+
+          Optional<Entity> entity = Game.findEntityById(msg.entityId());
+          if (entity.isEmpty() && msg.soundSpec().maxDistance() > 0f) {
+            LOGGER.warn(
+                "Entity {} not found for positional sound {}",
+                msg.entityId(),
+                msg.soundSpec().soundName());
+            return;
+          }
+
+          Entity targetEntity = entity.orElseGet(() -> Game.audio().ensureSoundHub());
+          SoundComponent sc =
+              targetEntity
+                  .fetch(SoundComponent.class)
+                  .orElseGet(
+                      () -> {
+                        SoundComponent newSc = new SoundComponent();
+                        targetEntity.add(newSc);
+                        return newSc;
+                      });
+          sc.add(msg.soundSpec());
+        });
+
+    dispatcher.registerHandler(
+        SoundStopMessage.class,
+        (ctx, msg) -> {
+          LOGGER.debug("Received SoundStopMessage: {}", msg.soundInstanceId());
+          Game.audio().stopInstance(msg.soundInstanceId());
         });
 
     dispatcher.registerHandler(
@@ -408,7 +603,7 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, msg) -> {
           LOGGER.debug("Received DialogShowMessage for dialog: {}", msg.context().dialogId());
 
-          DialogFactory.show(msg.context(), false, msg.canBeClosed(), new int[] {});
+          DialogFactory.show(msg.context(), false, msg.canBeClosed());
         });
 
     dispatcher.registerHandler(
@@ -441,17 +636,33 @@ public final class GameLoop extends ScreenAdapter {
    */
   private void frame(float delta) {
     fullscreenKey();
+    if (displayModeTransitionFrames > 0) {
+      synchronizeWindowSize();
+      displayModeTransitionFrames--;
+    }
     Game.soundPlayer().update(delta);
     PreRunConfiguration.userOnFrame().execute();
   }
 
+  private static void sendSnapshotAck(int serverTick) {
+    Game.network().send((short) 0, new SnapshotAck(serverTick), true);
+  }
+
   private void fullscreenKey() {
-    if (Gdx.input.isKeyJustPressed(core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
+    if (InputManager.isKeyJustPressed(
+        core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
+      boolean modeChanged;
       if (!Gdx.graphics.isFullscreen()) {
-        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        modeChanged = Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
       } else {
-        Gdx.graphics.setWindowedMode(
-            PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
+        modeChanged =
+            Gdx.graphics.setWindowedMode(
+                PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
+      }
+      if (modeChanged) {
+        displayModeTransitionFrames = 8;
+        synchronizeWindowSize();
+        Gdx.graphics.requestRendering();
       }
     }
   }
@@ -485,6 +696,7 @@ public final class GameLoop extends ScreenAdapter {
    * <p>Needs to be called before redraw something.
    */
   private void clearScreen() {
+    Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
     Gdx.gl.glClearColor(0, 0, 0, 1);
     Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
   }
@@ -492,12 +704,69 @@ public final class GameLoop extends ScreenAdapter {
   @Override
   public void resize(int width, int height) {
     super.resize(width, height);
+    if (width <= 0 || height <= 0) return;
+    resizeStageAndListeners(width, height);
+  }
+
+  private static void synchronizeWindowSize() {
+    int width = Game.windowWidth();
+    int height = Game.windowHeight();
+    if (width <= 0 || height <= 0) return;
+    resizeStageAndListeners(width, height);
+    DrawSystem.getInstance().useCurrentWindowSizeImmediately();
+  }
+
+  private static void resizeStageAndListeners(int width, int height) {
     stage()
         .ifPresent(
             x -> {
               x.getViewport().setWorldSize(width, height);
               x.getViewport().update(width, height, true);
             });
+    resizables.forEach(r -> r.onResize(width, height));
+  }
+
+  /**
+   * Register an {@link IResizable} to be notified when the window is resized.
+   *
+   * @param resizable the resizable to register
+   */
+  public static void registerResizable(IResizable resizable) {
+    resizables.add(resizable);
+  }
+
+  /**
+   * Unregister an {@link IResizable} to stop being notified when the window is resized.
+   *
+   * @param resizable the resizable to unregister
+   * @return true if the resizable was registered and removed, false otherwise
+   */
+  public static boolean removeResizable(IResizable resizable) {
+    return resizables.remove(resizable);
+  }
+
+  /**
+   * Sets the configured game window title.
+   *
+   * <p>If a window already exists, the title is updated immediately. Otherwise, the configured
+   * title is applied when the window is initialized.
+   *
+   * @param newTitle the new window title
+   */
+  public static void windowTitle(final String newTitle) {
+    windowTitle = newTitle;
+    if (Gdx.graphics != null) {
+      Gdx.graphics.setTitle(newTitle);
+    }
+  }
+
+  /**
+   * Returns the configured game window title.
+   *
+   * @return the configured window title
+   */
+  public static String windowTitle() {
+    return windowTitle;
   }
 
   /**
@@ -514,11 +783,13 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new PositionSystem());
     ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(onLevelLoad));
     ECSManagement.add(new CameraSystem());
+    ECSManagement.add(new NetworkPositionSmoothingSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
     ECSManagement.add(new InputSystem());
     ECSManagement.add(new DebugDrawSystem());
     ECSManagement.add(new AttributeBarSystem());
+    ECSManagement.add(new JoystickSystem());
   }
 }

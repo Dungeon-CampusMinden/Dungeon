@@ -1,35 +1,42 @@
 package contrib.entities;
 
-import contrib.components.*;
+import contrib.components.CharacterClassComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.SkillComponent;
 import contrib.components.UIComponent;
-import contrib.hud.IInventoryHolder;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
-import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.modules.interaction.InteractionComponent;
+import contrib.systems.HudSystem;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.cursorSkill.CursorSkill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
 import core.Game;
+import core.components.InputComponent;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.utils.LevelUtils;
+import core.configuration.KeyboardConfig;
+import core.network.input.InputCommandRouter;
 import core.network.messages.c2s.InputMessage;
-import core.network.messages.c2s.InventoryUIMessage;
 import core.network.server.ClientState;
-import core.utils.*;
+import core.utils.Direction;
+import core.utils.Point;
+import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Stream;
 
 /**
  * Controller class for handling hero entity actions such as movement, skill usage, and
@@ -50,6 +57,10 @@ public class HeroController {
   /** The ID for the movement force. */
   public static final String MOVEMENT_ID = "Movement";
 
+  static {
+    registerDefaultInputHandlers();
+  }
+
   private HeroController() {}
 
   /**
@@ -61,6 +72,36 @@ public class HeroController {
    */
   public static void moveHero(Entity hero, Direction direction, Vector2 speed) {
     LOGGER.debug("Moving hero {} in direction {}", hero.id(), direction);
+
+    if (hero.fetch(InputComponent.class).map(InputComponent::deactivateControls).orElse(false)) {
+      LOGGER.debug("Hero {} controls are deactivated, cannot move.", hero.id());
+      return;
+    }
+
+    // check if input allows this movement
+    if (hero.isPresent(InputComponent.class)) {
+      InputComponent ic =
+          hero.fetch(InputComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(hero, InputComponent.class));
+      final Map<Integer, Direction> movementBindings =
+          Map.of(
+              KeyboardConfig.MOVEMENT_UP.value(), Direction.UP,
+              KeyboardConfig.MOVEMENT_DOWN.value(), Direction.DOWN,
+              KeyboardConfig.MOVEMENT_LEFT.value(), Direction.LEFT,
+              KeyboardConfig.MOVEMENT_RIGHT.value(), Direction.RIGHT);
+
+      for (Integer key : movementBindings.keySet()) {
+        Direction dir = movementBindings.get(key);
+        if (!ic.callbacks().containsKey(key) && direction == dir) {
+          LOGGER.debug(
+              "Hero {} movement {} is disabled in InputComponent, cannot move {}.",
+              hero.id(),
+              dir,
+              dir);
+          return;
+        }
+      }
+    }
 
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
@@ -85,17 +126,41 @@ public class HeroController {
   }
 
   /**
-   * Uses the hero's active skill targeting the specified point. If the active skill is a
+   * Uses the hero's active main skill targeting the specified point. If the active main skill is a
    * CursorSkill or ProjectileSkill, sets the target position accordingly before executing the
    * skill.
    *
    * @param hero the hero entity using the skill
    * @param target the target point for the skill (can be null if not applicable)
    */
-  public static void useSkill(Entity hero, Point target) {
-    LOGGER.debug("Hero {} using skill at point {}", hero.id(), target);
+  public static void useMainSkill(Entity hero, Point target) {
+    LOGGER.debug("Hero {} using main skill at point {}", hero.id(), target);
     hero.fetch(SkillComponent.class)
-        .flatMap(SkillComponent::activeSkill)
+        .flatMap(SkillComponent::activeMainSkill)
+        .ifPresentOrElse(
+            skill -> {
+              if (skill instanceof CursorSkill cursorSkill) {
+                cursorSkill.cursorPositionSupplier(() -> target);
+              } else if (skill instanceof ProjectileSkill projSkill) {
+                projSkill.endPointSupplier(() -> target);
+              }
+              skill.execute(hero);
+            },
+            () -> LOGGER.debug("Hero {} has no active skill to use.", hero.id()));
+  }
+
+  /**
+   * Uses the hero's active second skill targeting the specified point. If the active second skill
+   * is a CursorSkill or ProjectileSkill, sets the target position accordingly before executing the
+   * skill.
+   *
+   * @param hero the hero entity using the skill
+   * @param target the target point for the skill (can be null if not applicable)
+   */
+  public static void useSecondSkill(Entity hero, Point target) {
+    LOGGER.debug("Hero {} using second skill at point {}", hero.id(), target);
+    hero.fetch(SkillComponent.class)
+        .flatMap(SkillComponent::activeSecondSkill)
         .ifPresent(
             skill -> {
               if (skill instanceof CursorSkill cursorSkill) {
@@ -108,11 +173,10 @@ public class HeroController {
   }
 
   /**
-   * Handles interaction between the hero and an interactable entity. First attempts to find an
-   * interactable entity at the specified point (e.g., mouse cursor position). If no interactable
-   * entity is found or the entity is out of range, it searches within a 1-tile radius around the
-   * hero. If an interactable entity is found and within its interaction radius, the interaction is
-   * triggered.
+   * Handles interaction between the hero and an interactable entity using a cursor-first model. The
+   * entity under the cursor (determined via {@link EntityUtils#isPointOverEntity}) is selected
+   * first, then checked against the hero's interaction range. If the entity under the cursor is out
+   * of range, no interaction occurs — even if other interactable entities are nearby.
    *
    * @param hero the hero entity attempting the interaction
    * @param point the target point where the interaction is attempted (e.g., cursor position)
@@ -126,26 +190,7 @@ public class HeroController {
       return;
     }
 
-    // Try finding interactable at the exact point first
-    Optional<Entity> target =
-        Game.tileAt(point)
-            .map(Game::entityAtTile)
-            .orElse(Stream.empty())
-            .filter(e -> e.fetch(InteractionComponent.class).isPresent())
-            .findFirst();
-
-    // If nothing found at point, search in 1-tile radius around hero
-    if (target.isEmpty()) {
-      LOGGER.trace(
-          "No interactable found at point {}, searching in radius around hero {}",
-          point,
-          hero.id());
-      target =
-          LevelUtils.tilesInRange(EntityUtils.getPosition(hero), 1f).stream()
-              .flatMap(Game::entityAtTile)
-              .filter(e -> e.fetch(InteractionComponent.class).isPresent())
-              .findFirst();
-    }
+    Optional<Entity> target = findInteractable(hero, point);
 
     // Trigger interaction if entity found
     target.ifPresentOrElse(
@@ -158,30 +203,111 @@ public class HeroController {
   }
 
   /**
+   * Finds the interactable entity under the given point using a cursor-first model. Uses {@link
+   * EntityUtils#isPointOverEntity} to determine which entity the point is over, then verifies the
+   * entity is within the hero's interaction range. If the entity under the cursor is out of range,
+   * {@link Optional#empty()} is returned even if other entities are in range.
+   *
+   * @param hero the hero entity attempting the interaction
+   * @param point the target point where the interaction is attempted (e.g., cursor position)
+   * @return an Optional containing the found entity, or Optional.empty() if no interactable entity
+   *     was found under the cursor within range
+   */
+  public static Optional<Entity> findInteractable(Entity hero, Point point) {
+    Point heroPos = EntityUtils.getPosition(hero);
+
+    return EntityUtils.findEntityAtPoint(
+            point, Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)))
+        .filter(
+            e -> {
+              float range =
+                  e.fetch(InteractionComponent.class)
+                      .orElseThrow()
+                      .interactions()
+                      .interact()
+                      .range();
+              return heroPos.distanceSquared(EntityUtils.getPosition(e)) <= range * range;
+            });
+  }
+
+  /**
+   * Finds all interactable entities within the interaction range of the hero.
+   *
+   * @param hero the entity for which to find interactables in range
+   * @return a list of entities in range
+   */
+  public static List<Entity> findInteractablesInRange(Entity hero) {
+    Point heroPos = EntityUtils.getPosition(hero);
+    return Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class))
+        .filter(
+            e ->
+                heroPos.distanceSquared(EntityUtils.getPosition(e))
+                    <= e.fetch(InteractionComponent.class)
+                            .orElseThrow()
+                            .interactions()
+                            .interact()
+                            .range()
+                        * e.fetch(InteractionComponent.class)
+                            .orElseThrow()
+                            .interactions()
+                            .interact()
+                            .range())
+        .toList();
+  }
+
+  /**
+   * Changes the active main skill of the hero entity. If nextSkill is true, switches to the next
+   * skill; otherwise, switches to the previous skill.
+   *
+   * @param hero the hero entity whose skill is to be changed
+   * @param nextSkill if true, switch to the next skill; if false, switch to the previous skill
+   */
+  public static void changeMainSkill(Entity hero, boolean nextSkill) {
+    LOGGER.debug("Hero {} changing main skill, nextSkill={}", hero.id(), nextSkill);
+    hero.fetch(SkillComponent.class)
+        .ifPresent(
+            skillComponent -> {
+              if (nextSkill) skillComponent.nextMainSkill();
+              else skillComponent.prevMainSkill();
+            });
+  }
+
+  /**
    * Changes the active skill of the hero entity. If nextSkill is true, switches to the next skill;
    * otherwise, switches to the previous skill.
    *
    * @param hero the hero entity whose skill is to be changed
    * @param nextSkill if true, switch to the next skill; if false, switch to the previous skill
    */
-  public static void changeSkill(Entity hero, boolean nextSkill) {
-    LOGGER.debug("Hero {} changing skill, nextSkill={}", hero.id(), nextSkill);
+  public static void changeSecondSkill(Entity hero, boolean nextSkill) {
+    LOGGER.debug("Hero {} changing second skill, nextSecondSkill={}", hero.id(), nextSkill);
     hero.fetch(SkillComponent.class)
         .ifPresent(
             skillComponent -> {
-              if (nextSkill) skillComponent.nextSkill();
-              else skillComponent.prevSkill();
+              if (nextSkill) skillComponent.nextSecondSkill();
+              else skillComponent.prevSecondSkill();
             });
   }
 
   /**
-   * Toggles the inventory UI for the hero entity. If the inventory UI is currently open, it will be
-   * closed; if it is closed, it will be opened.
+   * Returns whether the inventory UI is currently open for the given hero entity.
    *
-   * @param hero the hero entity whose inventory UI is to be toggled
+   * @param hero the hero entity to check
+   * @return true if the inventory UI is open, false otherwise
+   * @see UIUtils#getPlayerInventoryGUI(Entity)
    */
-  public static void toggleInventory(Entity hero) {
-    LOGGER.debug("Hero {} toggling inventory UI", hero.id());
+  public static boolean isInventoryOpen(Entity hero) {
+    return UIUtils.getPlayerInventoryGUI(hero).isPresent();
+  }
+
+  /**
+   * Opens the inventory UI for the hero entity. If the inventory UI is already open, it will do
+   * nothing.
+   *
+   * @param hero the hero entity whose inventory UI is to be opened
+   */
+  public static void openInventory(Entity hero) {
+    LOGGER.debug("Hero {} opening inventory UI", hero.id());
     Optional<InventoryComponent> invComp = hero.fetch(InventoryComponent.class);
     Optional<PlayerComponent> playerComp = hero.fetch(PlayerComponent.class);
     if (invComp.isEmpty() || playerComp.isEmpty()) {
@@ -190,32 +316,61 @@ public class HeroController {
     }
     var pc = playerComp.get();
 
-    if (pc.openDialogs() && !InventoryGUI.inPlayerInventory(hero)) {
+    if (pc.openDialogs() && !isInventoryOpen(hero)) {
       LOGGER.debug("Player {} has other dialogs open, cannot toggle inventory.", hero.id());
       return;
     }
 
-    boolean isUIOpen = false;
-    UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
-    if (uiComponent != null) {
-      UIUtils.closeDialog(uiComponent);
-    } else {
-      DialogContext context =
-          DialogContext.builder()
-              .type(DialogType.DefaultTypes.INVENTORY)
-              .put(DialogContextKeys.ENTITY, hero.id())
-              .put(DialogContextKeys.OWNER_ENTITY, hero.id())
-              .build();
-      UIComponent ui = new UIComponent(context, true, new int[] {hero.id()});
-      hero.add(ui);
-      isUIOpen = true;
-    }
-    LOGGER.trace("Inventory UI for hero {} is now {}", hero.id(), isUIOpen ? "open" : "closed");
+    DialogContext context =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.INVENTORY)
+            .put(DialogContextKeys.ENTITY, hero.id())
+            .put(DialogContextKeys.OWNER_ENTITY, hero.id())
+            .build();
 
-    if (!Game.network().isServer()) {
-      Game.network().send((short) 0, new InventoryUIMessage(isUIOpen), true);
+    DialogFactory.show(context, false, true, hero.id());
+  }
+
+  /**
+   * Closes the inventory UI for the hero entity. If the inventory UI is not open, it will do
+   * nothing.
+   *
+   * @param hero the hero entity whose inventory UI is to be closed
+   */
+  public static void closeInventory(Entity hero) {
+    LOGGER.debug("Hero {} closing inventory UI", hero.id());
+    Optional<InventoryComponent> invComp = hero.fetch(InventoryComponent.class);
+    if (invComp.isEmpty()) {
+      LOGGER.error("Trying to close inventory for non-player entity or entity without inventory.");
+      return;
     }
-    InventoryGUI.setInventoryOpen(hero, isUIOpen);
+    Optional<UIComponent> uiComp = hero.fetch(UIComponent.class);
+    if (uiComp.isEmpty()) {
+      LOGGER.debug("Hero {} has no UI component, cannot close inventory.", hero.id());
+      return;
+    }
+
+    UIUtils.getFirstInventoryFromUI(uiComp.get())
+        .ifPresent(
+            inv -> {
+              if (inv == invComp.get()) {
+                UIUtils.closeDialog(uiComp.get());
+              }
+            });
+  }
+
+  /**
+   * Toggles the inventory UI for the hero entity. If the inventory UI is open, it will be closed;
+   * if it is closed, it will be opened.
+   *
+   * @param hero the hero entity whose inventory UI is to be toggled
+   */
+  public static void toggleInventory(Entity hero) {
+    if (isInventoryOpen(hero)) {
+      closeInventory(hero);
+    } else {
+      openInventory(hero);
+    }
   }
 
   /**
@@ -226,6 +381,96 @@ public class HeroController {
    */
   public static void enqueueInput(ClientState clientState, InputMessage msg) {
     inputQueue.add(Tuple.of(clientState, msg));
+  }
+
+  private static void registerDefaultInputHandlers() {
+    registerDefaultHandler(InputMessage.Action.MOVE, false, HeroController::handleMove);
+    registerDefaultHandler(InputMessage.Action.CAST_SKILL, false, HeroController::handleCastSkill);
+    registerDefaultHandler(InputMessage.Action.INTERACT, false, HeroController::handleInteract);
+    registerDefaultHandler(
+        InputMessage.Action.NEXT_SKILL, false, HeroController::handleSkillChange);
+    registerDefaultHandler(
+        InputMessage.Action.PREV_SKILL, false, HeroController::handleSkillChange);
+    registerDefaultHandler(
+        InputMessage.Action.TOGGLE_INVENTORY,
+        false,
+        HeroController::handleToggleInventory); // TODO: cant close inventory if paused
+    registerDefaultHandler(InputMessage.Action.INV_DROP, true, HeroController::handleInventoryDrop);
+    registerDefaultHandler(InputMessage.Action.INV_MOVE, true, HeroController::handleInventoryMove);
+    registerDefaultHandler(InputMessage.Action.INV_USE, true, HeroController::handleInventoryUse);
+  }
+
+  private static void registerDefaultHandler(
+      InputMessage.Action action,
+      boolean ignorePause,
+      InputCommandRouter.InputCommandHandler handler) {
+    InputCommandRouter.register(InputCommandRouter.routeKey(action), ignorePause, handler);
+  }
+
+  private static void handleMove(InputCommandRouter.InputCommandContext context) {
+    CharacterClass heroClass =
+        context.playerEntity().fetch(CharacterClassComponent.class).orElseThrow().characterClass();
+    InputMessage.Move move = context.payloadAs(InputMessage.Move.class);
+    HeroController.moveHero(
+        context.playerEntity(), move.direction().direction(), heroClass.speed());
+  }
+
+  private static void handleCastSkill(InputCommandRouter.InputCommandContext context) {
+    InputMessage.CastSkill castSkill = context.payloadAs(InputMessage.CastSkill.class);
+    boolean mainSkill = castSkill.mainSkill();
+    if (mainSkill) {
+      HeroController.useMainSkill(context.playerEntity(), castSkill.target());
+    } else {
+      HeroController.useSecondSkill(context.playerEntity(), castSkill.target());
+    }
+  }
+
+  private static void handleInteract(InputCommandRouter.InputCommandContext context) {
+    InputMessage.Interact interact = context.payloadAs(InputMessage.Interact.class);
+    HeroController.interact(context.playerEntity(), interact.target());
+  }
+
+  private static void handleSkillChange(InputCommandRouter.InputCommandContext context) {
+    InputMessage.SkillChange change = context.payloadAs(InputMessage.SkillChange.class);
+    boolean mainSkill = change.mainSkill();
+    if (mainSkill) {
+      HeroController.changeMainSkill(context.playerEntity(), change.nextSkill());
+    } else {
+      HeroController.changeSecondSkill(context.playerEntity(), change.nextSkill());
+    }
+  }
+
+  private static void handleToggleInventory(InputCommandRouter.InputCommandContext context) {
+    context.payloadAs(InputMessage.ToggleInventory.class);
+    HeroController.toggleInventory(context.playerEntity());
+  }
+
+  private static void handleInventoryDrop(InputCommandRouter.InputCommandContext context) {
+    Optional<InventoryComponent> playerInv =
+        context
+            .clientState()
+            .playerEntity()
+            .map(e -> e.fetch(UIComponent.class))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .flatMap(UIUtils::getFirstInventoryFromUI);
+    if (playerInv.isEmpty()) {
+      LOGGER.warn(
+          "No inventory component found for entity {} to drop item", context.playerEntity().id());
+      return;
+    }
+    InputMessage.InventoryDrop drop = context.payloadAs(InputMessage.InventoryDrop.class);
+    HeroController.dropItem(context.playerEntity(), playerInv.get(), drop.slotIndex());
+  }
+
+  private static void handleInventoryMove(InputCommandRouter.InputCommandContext context) {
+    InputMessage.InventoryMove move = context.payloadAs(InputMessage.InventoryMove.class);
+    HeroController.moveItem(context.playerEntity(), move.fromSlot(), move.toSlot());
+  }
+
+  private static void handleInventoryUse(InputCommandRouter.InputCommandContext context) {
+    InputMessage.InventoryUse use = context.payloadAs(InputMessage.InventoryUse.class);
+    HeroController.useItem(context.playerEntity(), use.slotIndex());
   }
 
   /**
@@ -291,8 +536,7 @@ public class HeroController {
       return false;
     }
 
-    Optional<InventoryComponent> playerInv =
-        InventoryGUI.getPlayerInventoryGUI(player).map(IInventoryHolder::inventoryComponent);
+    Optional<InventoryComponent> playerInv = UIUtils.getFirstInventoryFromUI(uiComp.get());
     if (playerInv.isEmpty()) {
       LOGGER.debug("No inventory GUI found for entity {}", player.id());
       return false;
@@ -311,6 +555,15 @@ public class HeroController {
     int adjustedFromSlot = fromSlot < 0 ? -(fromSlot + 1) : fromSlot;
     int adjustedToSlot = toSlot < 0 ? -(toSlot + 1) : toSlot;
 
+    if (adjustedFromSlot >= source.items().length || adjustedToSlot >= target.items().length) {
+      LOGGER.debug(
+          "Invalid slot indices for entity {}: fromSlot {}, toSlot {}",
+          player.id(),
+          adjustedFromSlot,
+          adjustedToSlot);
+      return false;
+    }
+
     Optional<Item> itemToMove = source.remove(adjustedFromSlot);
     if (itemToMove.isEmpty()) {
       LOGGER.debug(
@@ -323,8 +576,23 @@ public class HeroController {
         .ifPresentOrElse(
             existingItem -> {
               // Slot occupied, swap items
-              source.set(adjustedFromSlot, existingItem);
-              target.set(adjustedToSlot, itemToMove.get());
+              boolean suc = source.set(adjustedFromSlot, existingItem);
+              if (!suc) {
+                LOGGER.error(
+                    "Failed to swap items between inventories for entity {}: could not set item in source slot {}",
+                    player.id(),
+                    adjustedFromSlot);
+                return;
+              }
+              suc = target.set(adjustedToSlot, itemToMove.get());
+              if (!suc) {
+                LOGGER.error(
+                    "Failed to swap items between inventories for entity {}: could not set item in target slot {}",
+                    player.id(),
+                    adjustedToSlot);
+                source.set(adjustedFromSlot, existingItem); // revert source
+                return;
+              }
               LOGGER.debug(
                   "Swapped items between inventories in slots {} and {} for entity {}",
                   adjustedFromSlot,
@@ -332,13 +600,20 @@ public class HeroController {
                   player.id());
             },
             () -> {
-              target.set(adjustedToSlot, itemToMove.get());
+              boolean suc = target.set(adjustedToSlot, itemToMove.get());
+              if (!suc) {
+                LOGGER.error(
+                    "Failed to move item to target inventory for entity {}: could not set item in slot {}",
+                    player.id(),
+                    adjustedToSlot);
+                source.set(adjustedFromSlot, itemToMove.get()); // revert source
+                return;
+              }
               LOGGER.debug(
                   "Moved item to slot {} of target inventory for entity {}",
                   adjustedToSlot,
                   player.id());
             });
-
     return true;
   }
 
@@ -381,7 +656,10 @@ public class HeroController {
       InventoryComponent inventory, Item item, int itemSlot, Entity entity) {
     try {
       if (inventory.get(itemSlot).isEmpty()) {
-        inventory.set(itemSlot, item);
+        boolean suc = inventory.set(itemSlot, item);
+        if (!suc) {
+          throw new RuntimeException("Failed to return item to original slot");
+        }
       } else if (!inventory.add(item)) {
         throw new RuntimeException("No space to return item to inventory");
       }
@@ -415,51 +693,31 @@ public class HeroController {
         continue;
       }
 
-      // Apply input
-      try {
-        switch (msg.action()) {
-          case MOVE -> {
-            CharacterClass heroClass =
-                playerEntity.fetch(CharacterClassComponent.class).orElseThrow().characterClass();
-            HeroController.moveHero(
-                playerEntity, Vector2.of(msg.point()).direction(), heroClass.speed());
-          }
-          case CAST_SKILL -> HeroController.useSkill(playerEntity, msg.point());
-          case NEXT_SKILL -> HeroController.changeSkill(playerEntity, true);
-          case PREV_SKILL -> HeroController.changeSkill(playerEntity, false);
-          case INTERACT -> HeroController.interact(playerEntity, msg.point());
-          case INV_DROP -> {
-            Optional<InventoryComponent> invComp =
-                clientState
-                    .playerEntity()
-                    .flatMap(InventoryGUI::getPlayerInventoryGUI)
-                    .map(InventoryGUI::inventoryComponent);
-            if (invComp.isEmpty()) {
-              LOGGER.warn(
-                  "No inventory component found for entity {} to drop item", playerEntity.id());
-              break;
-            }
-            int itemIndex = (int) msg.point().x();
-            HeroController.dropItem(playerEntity, invComp.get(), itemIndex);
-          }
-          case INV_MOVE -> {
-            int fromIndex = (int) msg.point().x();
-            int toIndex = (int) msg.point().y();
-            HeroController.moveItem(playerEntity, fromIndex, toIndex);
-          }
-          case INV_USE -> {
-            int itemIndex = (int) msg.point().x();
-            HeroController.useItem(playerEntity, itemIndex);
-          }
-          default -> LOGGER.warn("Unknown action {} for client {}", msg.action(), clientState);
-        }
-        // On success: Update processed seq and activity
-        clientState.updateProcessedSeq(msg.sequence());
+      var hudSys = Game.systems().get(HudSystem.class);
+      boolean paused =
+          hudSys instanceof HudSystem hudSystem && hudSystem.hasOpenPausingUI(playerEntity);
+      if (!clientState.advanceProcessedSeq(msg.sequence())) {
+        LOGGER.debug(
+            "Ignoring stale or duplicate input sequence {} for client {}",
+            msg.sequence(),
+            clientState);
         clientState.updateLastActivity();
-        LOGGER.trace("Applied input for client {} (action: {})", clientState, msg.action());
-      } catch (Exception e) {
-        LOGGER.error("Failed to apply input for client {}: {}", clientState, e.getMessage(), e);
+        continue;
       }
+      try {
+        applyInput(clientState, msg, playerEntity, paused);
+      } catch (Exception e) {
+        LOGGER.warn("Failed to apply input for client {}: {}", clientState, e.getMessage(), e);
+      }
+      clientState.updateLastActivity();
+    }
+  }
+
+  private static void applyInput(
+      ClientState clientState, InputMessage msg, Entity playerEntity, boolean paused) {
+    boolean executed = InputCommandRouter.dispatch(clientState, playerEntity, msg, paused);
+    if (executed) {
+      LOGGER.trace("Applied input for client {} (action: {})", clientState, msg.action());
     }
   }
 }
