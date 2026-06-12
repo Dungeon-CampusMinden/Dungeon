@@ -69,6 +69,8 @@ final class FreeInputDialog {
    * @param question The text shown as the question/prompt.
    * @param skin The skin to be used for the dialog.
    * @param context The dialog context containing additional settings and preferences.
+   * @param okLabel The label for the OK/confirm button.
+   * @param cancelLabel The label for the Cancel button.
    * @return The configured, centered Dialog ready to be displayed.
    */
   private static Group buildDialog(

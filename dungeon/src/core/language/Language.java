@@ -14,10 +14,20 @@ public enum Language {
     this.shortName = shortName;
   }
 
+  /**
+   * Gets the localized name of the language.
+   *
+   * @return The localized name of the language.
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Gets the localized code of the language.
+   *
+   * @return The localized code of the language.
+   */
   public String getShortName() {
     return shortName;
   }

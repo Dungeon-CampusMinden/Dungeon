@@ -108,6 +108,7 @@ final class MultipleChoiceDialog {
    * @param script Dialog script string consumed by {@link DialogScriptView}.
    * @param options The list of selectable options.
    * @param canCancel Whether to append a cancel option.
+   * @param cancelLabel The label for the cancel option (ignored if canCancel is false).
    * @param ctx The dialog context.
    * @return The configured UI wrapped in a BaseContainerUI.
    */
