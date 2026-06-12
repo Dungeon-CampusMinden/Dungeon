@@ -1,61 +1,65 @@
 package core.utils.settings;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import core.language.Translation;
 import java.util.function.Consumer;
 
 /**
- * Abstract base class representing a configurable setting with a name, value, and optional change
- * listener.
+ * Abstract base class representing a configurable setting with a translation key, value, and
+ * optional change listener.
  *
  * @param <T> the type of the setting's value
  */
 public abstract class SettingValue<T> {
 
-  private String name;
+  private static final Translation TRANSLATION = new Translation();
+
+  private String translationKey;
   private T value;
 
   private Consumer<T> onChange;
 
   /**
-   * Creates a new SettingValue with the specified name and default value.
+   * Creates a new SettingValue with the specified translation key and default value.
    *
-   * @param name the name of the setting
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default value of the setting
    */
-  public SettingValue(String name, T defaultValue) {
-    this.name = name;
+  public SettingValue(String translationKey, T defaultValue) {
+    this.translationKey = translationKey;
     this.value = defaultValue;
   }
 
   /**
-   * Creates a new SettingValue with the specified name, default value, and change listener.
+   * Creates a new SettingValue with the specified translation key, default value, and change
+   * listener.
    *
-   * @param name the name of the setting
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default value of the setting
    * @param onChange a Consumer that will be called whenever the setting's value changes, receiving
    *     the new value as an argument
    */
-  public SettingValue(String name, T defaultValue, Consumer<T> onChange) {
-    this(name, defaultValue);
+  public SettingValue(String translationKey, T defaultValue, Consumer<T> onChange) {
+    this(translationKey, defaultValue);
     this.onChange = onChange;
   }
 
   /**
-   * Returns the name of the setting.
+   * Returns the translated display name of the setting in the current language.
    *
-   * @return the name of the setting
+   * @return the translated label of the setting
    */
   public String name() {
-    return name;
+    return TRANSLATION.text(translationKey);
   }
 
   /**
-   * Sets the name of the setting.
+   * Returns the translation key used for this setting label.
    *
-   * @param name the new name of the setting
+   * @return translation key for this setting label
    */
-  public void name(String name) {
-    this.name = name;
+  public String translationKey() {
+    return translationKey;
   }
 
   /**

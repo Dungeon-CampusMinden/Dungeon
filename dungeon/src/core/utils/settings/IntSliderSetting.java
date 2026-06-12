@@ -22,34 +22,34 @@ public class IntSliderSetting extends SettingValue<Integer> {
   private final int step;
 
   /**
-   * Create a new IntSliderSetting with the given name and default value.
+   * Create a new IntSliderSetting with the given translation key and default value.
    *
-   * @param name the name of the setting to display in the UI
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default integer value for this setting
    */
-  public IntSliderSetting(String name, int defaultValue) {
-    this(name, defaultValue, 0, 100, 1, null);
+  public IntSliderSetting(String translationKey, int defaultValue) {
+    this(translationKey, defaultValue, 0, 100, 1, null);
   }
 
   /**
-   * Create a new IntSliderSetting with the given name, default value, minimum, maximum, and step
-   * size.
+   * Create a new IntSliderSetting with the given translation key, default value, minimum, maximum,
+   * and step size.
    *
-   * @param name the name of the setting to display in the UI
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default integer value for this setting
    * @param min the minimum integer value for this setting
    * @param max the maximum integer value for this setting
    * @param step the step size for the slider (e.g. 1 for integers, 10 for tens, etc.)
    */
-  public IntSliderSetting(String name, int defaultValue, int min, int max, int step) {
-    this(name, defaultValue, min, max, step, null);
+  public IntSliderSetting(String translationKey, int defaultValue, int min, int max, int step) {
+    this(translationKey, defaultValue, min, max, step, null);
   }
 
   /**
-   * Create a new IntSliderSetting with the given name, default value, minimum, maximum, step size,
-   * and label formatter.
+   * Create a new IntSliderSetting with the given translation key, default value, minimum, maximum,
+   * step size, and label formatter.
    *
-   * @param name the name of the setting to display in the UI
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default integer value for this setting
    * @param min the minimum integer value for this setting
    * @param max the maximum integer value for this setting
@@ -58,13 +58,13 @@ public class IntSliderSetting extends SettingValue<Integer> {
    *     string for display next to the slider
    */
   public IntSliderSetting(
-      String name,
+      String translationKey,
       int defaultValue,
       int min,
       int max,
       int step,
       Function<Integer, String> labelFormatter) {
-    super(name, defaultValue);
+    super(translationKey, defaultValue);
 
     this.min = min;
     this.max = max;

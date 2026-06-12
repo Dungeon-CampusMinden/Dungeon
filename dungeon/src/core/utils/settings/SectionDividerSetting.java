@@ -13,12 +13,12 @@ import core.utils.Scene2dElementFactory;
 public class SectionDividerSetting extends SettingValue<Boolean> {
 
   /**
-   * Creates a new SectionDividerSetting with the specified name.
+   * Creates a new SectionDividerSetting with the specified translation key.
    *
-   * @param name the name of the section, which will be displayed as a header in the settings menu
+   * @param translationKey translation key of the section title shown in the settings menu
    */
-  public SectionDividerSetting(String name) {
-    super(name, false);
+  public SectionDividerSetting(String translationKey) {
+    super(translationKey, false);
   }
 
   @Override

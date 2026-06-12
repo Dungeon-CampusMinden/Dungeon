@@ -24,25 +24,26 @@ public class ButtonBindingSetting extends SettingValue<Integer> {
   private TextField dummy;
 
   /**
-   * Create a new ButtonBindingSetting with the given name and default key code.
+   * Create a new ButtonBindingSetting with the given translation key and default key code.
    *
-   * @param name the display name of the setting
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default key code to bind, using libGDX's Input.Keys constants
    */
-  public ButtonBindingSetting(String name, int defaultValue) {
-    super(name, defaultValue);
+  public ButtonBindingSetting(String translationKey, int defaultValue) {
+    super(translationKey, defaultValue);
   }
 
   /**
-   * Create a new ButtonBindingSetting with the given name, default key code, and editability.
+   * Create a new ButtonBindingSetting with the given translation key, default key code, and
+   * editability.
    *
-   * @param name the display name of the setting
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default key code to bind, using libGDX's Input.Keys constants
    * @param editable whether the setting can be edited by the user (if false, the button will be
    *     displayed but not interactive)
    */
-  public ButtonBindingSetting(String name, int defaultValue, boolean editable) {
-    super(name, defaultValue);
+  public ButtonBindingSetting(String translationKey, int defaultValue, boolean editable) {
+    super(translationKey, defaultValue);
     this.editable = editable;
   }
 

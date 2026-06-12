@@ -24,7 +24,7 @@
       "resume": "Fortsetzen",
       "settings": "Einstellungen",
       "quit_to_desktop": "Spiel beenden",
-      "back": "Zurueck"
+      "back": "Zurück"
     },
     "client_connection_dialog": {
       "title": "Server verbinden",
@@ -34,14 +34,14 @@
       "port": "Port",
       "start_failed": "Server nicht erreichbar.",
       "invalid_username": "Spielername darf nicht leer sein und keinen Unterstrich enthalten.",
-      "rejected_username": "Spielername ungueltig oder bereits vergeben.",
+      "rejected_username": "Spielername ungültig oder bereits vergeben.",
       "connecting": "Verbindung wird aufgebaut...",
       "fallback_username": "Player",
       "client_version": "Client-Version"
     },
     "keypad_dialog": {
-      "back": "Zurueck",
-      "submit": "Bestaetigen"
+      "back": "Zurück",
+      "submit": "Bestätigen"
     },
     "inventory_dialog": {
       "title": "INVENTAR"
@@ -49,5 +49,11 @@
     "progress_bar_dialog": {
       "title": "Fortschrittsanzeige"
     }
+  },
+  "settings": {
+    "master_volume": "Master-Lautstärke",
+    "effects_volume": "Effekt-Lautstärke",
+    "music_volume": "Musik-Lautstärke",
+    "language": "Sprache"
   }
 }

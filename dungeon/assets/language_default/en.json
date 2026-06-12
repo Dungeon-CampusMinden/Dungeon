@@ -49,6 +49,12 @@
 	"progress_bar_dialog": {
 	  "title": "Progress Bar"
 	}
+  },
+  "settings": {
+	"master_volume": "Master Volume",
+	"effects_volume": "Effects Volume",
+	"music_volume": "Music Volume",
+    "language": "Language"
   }
 }
 
