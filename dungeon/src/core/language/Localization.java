@@ -27,7 +27,7 @@ public class Localization {
   /** Base directory of the core translation files, registered for every language by default. */
   private static final String DEFAULT_TRANSLATION_PATH = "language_default/";
 
-  /** Registered translation files per language, queried in registration order. */
+  /** Registered translation files per language, stored in registration order. */
   private static final Map<Language, List<TranslationFile>> TRANSLATION_FILES =
       new EnumMap<>(Language.class);
 
@@ -85,13 +85,29 @@ public class Localization {
   }
 
   /**
+   * Gets the value behind a JSON node path for the selected language and applies template values.
+   *
+   * <p>Template placeholders use 1-based positional indices in the form {@code $1}, {@code $2},
+   * ... and map to {@code templateValues[0]}, {@code templateValues[1]}, ... . Use {@code $$1} to
+   * render a literal {@code $1} (escaped placeholder).
+   *
+   * @param jsonNodes Nodes of the JSON up to the desired value as single params.
+   * @param templateValues positional template values used for {@code $1}, {@code $2}, ...
+   * @return value behind a JSON node path with templates resolved.
+   * @throws IOException if the language file cannot be read.
+   */
+  public static String text(String jsonNodes, Object... templateValues) throws IOException {
+    return DEFAULT_TRANSLATION.text(jsonNodes, templateValues);
+  }
+
+  /**
    * Registers an additional translation file for the given language.
    *
    * <p>This enables multiple translation sources per language, e.g. one file with the core
    * project's dialogs and another with an implementing project's own texts. When a key is
-   * requested, the registered files are searched in registration order and the first file that
-   * contains the key wins. Files are read and cached lazily the first time a translation is
-   * requested from them.
+   * requested, the registered files are searched with last-registration-wins precedence: files
+   * added later are treated as more specific and can override keys from earlier files. Files are
+   * read and cached lazily the first time a translation is requested from them.
    *
    * @param language Language the translation file provides translations for.
    * @param path Path to the translation JSON file, e.g. "language/en.json".
