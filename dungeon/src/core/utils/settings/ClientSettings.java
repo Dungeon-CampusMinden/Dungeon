@@ -68,7 +68,8 @@ public class ClientSettings {
     registerSetting(effectsVolume);
     registerSetting(musicVolume);
 
-    EnumSetting<Language> language = new EnumSetting<>(KEY_LANGUAGE, Localization.currentLanguage());
+    EnumSetting<Language> language =
+        new EnumSetting<>(KEY_LANGUAGE, Localization.currentLanguage());
     language.onChange(Localization::currentLanguage);
     registerSetting(language);
   }
@@ -101,8 +102,8 @@ public class ClientSettings {
   }
 
   /**
-   * Registers a new setting. The setting's translation key is used as unique key. If a setting
-   * with the same key already exists, it will be overwritten.
+   * Registers a new setting. The setting's translation key is used as unique key. If a setting with
+   * the same key already exists, it will be overwritten.
    *
    * @param setting the SettingValue object representing the setting to be registered
    */

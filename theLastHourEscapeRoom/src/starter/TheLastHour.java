@@ -293,17 +293,15 @@ public class TheLastHour {
     ECSManagement.add(new WorldTimerSystem().onTimerExpired(LastHourLevel::onTimerExpired));
   }
 
-  /**
-   * Proxy to init all client resources which are not available on the server.
-   */
-  public static void setupClient(){
+  /** Proxy to init all client resources which are not available on the server. */
+  public static void setupClient() {
     initLocalization();
     setupMusic();
     staticRenderTextures();
     registerSettings();
   }
 
-  private static void initLocalization(){
+  private static void initLocalization() {
     Localization.registerTranslationFile(Language.DE, "language/de.json");
     Localization.registerTranslationFile(Language.EN, "language/en.json");
     Localization.currentLanguage(Language.EN);
@@ -314,12 +312,9 @@ public class TheLastHour {
   private static final String T_SETTINGS_PAUSE = "settings.pause";
   private static final String T_SETTINGS_INTERACT = "settings.interact";
   private static final String T_SETTINGS_INVENTORY = "settings.inventory";
-  private static final String T_SETTINGS_INVENTORY_DESCRIPTION =
-      "settings.inventory_description";
+  private static final String T_SETTINGS_INVENTORY_DESCRIPTION = "settings.inventory_description";
 
-  /**
-   * Registers additional client settings.
-   */
+  /** Registers additional client settings. */
   private static void registerSettings() {
     ClientSettings.registerSetting(new SectionDividerSetting(T_SETTINGS_CONTROLS_HEADER));
     ClientSettings.registerSetting(

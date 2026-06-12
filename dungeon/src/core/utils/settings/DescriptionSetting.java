@@ -18,6 +18,7 @@ public class DescriptionSetting extends SettingValue<String> {
 
   /** Font size used for the description text. */
   private static final int FONT_SIZE = 14;
+
   private static final Translation TRANSLATION = new Translation();
 
   private final Object[] templateValues;

@@ -17,8 +17,6 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
-import core.language.Language;
-import core.language.Localization;
 import core.level.loader.DungeonLoader;
 import core.network.ConnectionListener;
 import core.network.config.NetworkConfig;

@@ -87,8 +87,8 @@ public class Localization {
   /**
    * Gets the value behind a JSON node path for the selected language and applies template values.
    *
-   * <p>Template placeholders use 1-based positional indices in the form {@code $1}, {@code $2},
-   * ... and map to {@code templateValues[0]}, {@code templateValues[1]}, ... . Use {@code $$1} to
+   * <p>Template placeholders use 1-based positional indices in the form {@code $1}, {@code $2}, ...
+   * and map to {@code templateValues[0]}, {@code templateValues[1]}, ... . Use {@code $$1} to
    * render a literal {@code $1} (escaped placeholder).
    *
    * @param jsonNodes Nodes of the JSON up to the desired value as single params.

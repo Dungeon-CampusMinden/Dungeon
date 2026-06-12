@@ -84,9 +84,9 @@ public class Translation {
   /**
    * Gets the value behind a JSON node path for the selected language and applies template values.
    *
-   * <p>Template placeholders use 1-based positional indices in the form {@code $1}, {@code $2},
-   * ... and map to {@code templateValues[0]}, {@code templateValues[1]}, ... . Values are inserted
-   * via {@link String#valueOf(Object)}.
+   * <p>Template placeholders use 1-based positional indices in the form {@code $1}, {@code $2}, ...
+   * and map to {@code templateValues[0]}, {@code templateValues[1]}, ... . Values are inserted via
+   * {@link String#valueOf(Object)}.
    *
    * <p>Escaping is supported: {@code $$1} renders as literal {@code $1} and is not replaced by the
    * first template value.
@@ -173,7 +173,8 @@ public class Translation {
     Matcher matcher = ESCAPED_PLACEHOLDER_PATTERN.matcher(text);
     StringBuffer sb = new StringBuffer();
     while (matcher.find()) {
-      matcher.appendReplacement(sb, Matcher.quoteReplacement("__TPL_ESC_(" + matcher.group(1) + ")__"));
+      matcher.appendReplacement(
+          sb, Matcher.quoteReplacement("__TPL_ESC_(" + matcher.group(1) + ")__"));
     }
     matcher.appendTail(sb);
     return sb.toString();
