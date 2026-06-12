@@ -17,6 +17,8 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
+import core.language.Language;
+import core.language.Localization;
 import core.level.loader.DungeonLoader;
 import core.network.ConnectionListener;
 import core.network.config.NetworkConfig;
@@ -78,8 +80,8 @@ public final class LastHourClient {
           Game.stage().ifPresent(CursorUtil::initListener);
           Game.remove(AttributeBarSystem.class);
           Game.add(new ComputerStateSyncSystem());
-          TheLastHour.setupMusic();
-          TheLastHour.staticRenderTextures();
+
+          TheLastHour.setupClient();
 
           Game.network()
               .addConnectionListener(

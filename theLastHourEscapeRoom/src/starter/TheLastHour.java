@@ -21,6 +21,8 @@ import core.configuration.KeyboardConfig;
 import core.game.ECSManagement;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
+import core.language.Language;
+import core.language.Localization;
 import core.level.loader.DungeonLoader;
 import core.network.config.NetworkConfig;
 import core.network.messages.s2c.LevelChangeEvent;
@@ -178,10 +180,8 @@ public class TheLastHour {
       hero.fetch(SkillComponent.class).ifPresent(SkillComponent::removeAll);
       Game.add(hero);
       Game.stage().ifPresent(CursorUtil::initListener);
-      setupMusic();
 
-      staticRenderTextures();
-      registerSettings();
+      setupClient();
     }
 
     ECSManagement.add(new CollisionSystem());
@@ -293,25 +293,44 @@ public class TheLastHour {
     ECSManagement.add(new WorldTimerSystem().onTimerExpired(LastHourLevel::onTimerExpired));
   }
 
+  /**
+   * Proxy to init all client resources which are not available on the server.
+   */
+  public static void setupClient(){
+    initLocalization();
+    setupMusic();
+    staticRenderTextures();
+    registerSettings();
+  }
+
+  private static void initLocalization(){
+    Localization.registerTranslationFile(Language.DE, "language/de.json");
+    Localization.registerTranslationFile(Language.EN, "language/en.json");
+    Localization.currentLanguage(Language.EN);
+  }
+
+  private static final String T_SETTINGS_CONTROLS_HEADER = "settings.controls_header";
+  private static final String T_SETTINGS_CONTROLS_DESCRIPTION = "settings.controls_description";
+  private static final String T_SETTINGS_PAUSE = "settings.pause";
+  private static final String T_SETTINGS_INTERACT = "settings.interact";
+  private static final String T_SETTINGS_INVENTORY = "settings.inventory";
+  private static final String T_SETTINGS_INVENTORY_DESCRIPTION =
+      "settings.inventory_description";
+
+  /**
+   * Registers additional client settings.
+   */
   private static void registerSettings() {
-    ClientSettings.registerSetting("controls_header", new SectionDividerSetting("Controls"));
+    ClientSettings.registerSetting(new SectionDividerSetting(T_SETTINGS_CONTROLS_HEADER));
     ClientSettings.registerSetting(
-        "controls_description",
-        new DescriptionSetting(
-            "Use the mouse to find interactables, then press [key code="
-                + Input.Keys.E
-                + "] to interact!"));
-    ClientSettings.registerSetting("pause", new ButtonBindingSetting("Pause", Input.Keys.P, false));
+        new DescriptionSetting(T_SETTINGS_CONTROLS_DESCRIPTION, Input.Keys.E));
+    ClientSettings.registerSetting(new ButtonBindingSetting(T_SETTINGS_PAUSE, Input.Keys.P, false));
     ClientSettings.registerSetting(
-        "interact", new ButtonBindingSetting("Interact", Input.Keys.E, false));
+        new ButtonBindingSetting(T_SETTINGS_INTERACT, Input.Keys.E, false));
     ClientSettings.registerSetting(
-        "inventory", new ButtonBindingSetting("Inventory", Input.Keys.I, false));
+        new ButtonBindingSetting(T_SETTINGS_INVENTORY, Input.Keys.I, false));
     ClientSettings.registerSetting(
-        "inventory_description",
-        new DescriptionSetting(
-            "In the inventory, use [key code="
-                + Input.Buttons.RIGHT
-                + " type=mouse] to use an Item"));
+        new DescriptionSetting(T_SETTINGS_INVENTORY_DESCRIPTION, Input.Buttons.RIGHT));
   }
 
   private static final List<Tuple<String, Color>> USB_TEXTURES =
@@ -321,7 +340,7 @@ public class TheLastHour {
           Tuple.of("items/usb-side-yellow.png", Color.YELLOW));
 
   /** Statically renders the needed textures. */
-  public static void staticRenderTextures() {
+  private static void staticRenderTextures() {
     String basePath = "items/usb-side-red.png";
     float baseHue = 0.0f;
 
@@ -387,7 +406,7 @@ public class TheLastHour {
    * Initializes and starts the background music for the game, and sets up listeners to adjust the
    * volume based on client settings changes.
    */
-  public static void setupMusic() {
+  private static void setupMusic() {
     backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
     backgroundMusic.setLooping(true);
     backgroundMusic.play();
@@ -396,7 +415,8 @@ public class TheLastHour {
 
     ClientSettings.setOnVolumeChange(
         (key, value) -> {
-          if (key.equals(ClientSettings.MUSIC_VOLUME) || key.equals(ClientSettings.MASTER_VOLUME)) {
+          if (key.equals(ClientSettings.KEY_MUSIC_VOLUME)
+              || key.equals(ClientSettings.KEY_MASTER_VOLUME)) {
             backgroundMusic.setVolume(
                 ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
           }
