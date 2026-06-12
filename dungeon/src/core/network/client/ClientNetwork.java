@@ -218,15 +218,15 @@ public final class ClientNetwork {
   }
 
   /**
-   * Returns the current {@link Session} instance if not yet established.
+   * Returns the current {@link Session} instance.
    *
    * <p>The session becomes available after the TCP connection is established and the ConnectAck is
    * received.
    *
-   * @return current Session (or empty if not yet established)
+   * @return current Session, or empty if not yet established or disconnected
    */
-  public Session session() {
-    return session;
+  public Optional<Session> session() {
+    return Optional.ofNullable(session);
   }
 
   UdpRecoveryState udpRecoveryState() {
@@ -268,16 +268,21 @@ public final class ClientNetwork {
    */
   public CompletableFuture<Boolean> send(NetworkMessage msg, boolean reliable) {
     final CompletableFuture<Boolean> result = new CompletableFuture<>();
-    if (!running.get() || !isConnected() || tcp == null || !tcp.isActive() || session == null) {
+    Session currentSession = session;
+    if (!running.get()
+        || !isConnected()
+        || tcp == null
+        || !tcp.isActive()
+        || currentSession == null) {
       LOGGER.warn("TCP not active; cannot send {} message", reliable ? "reliable" : "fallback");
       result.complete(false);
       return result;
     }
 
     try {
-      NetworkMessage message = withSnapshotAck(msg);
+      NetworkMessage message = withCurrentSession(msg, currentSession);
       long snapshotAckGeneration = snapshotAckGeneration();
-      return session
+      return currentSession
           .sendMessageWithTransport(message, reliable)
           .thenApply(
               sendResult -> {
@@ -307,7 +312,13 @@ public final class ClientNetwork {
    * @param input input message to send
    */
   public void sendUnreliableInput(InputMessage input) {
-    InputMessage message = inputWithSnapshotAck(input);
+    Session currentSession = session;
+    if (!running.get() || !isConnected() || currentSession == null) {
+      LOGGER.debug("Dropping InputMessage because the client is not connected.");
+      return;
+    }
+
+    InputMessage message = inputWithCurrentSession(input, currentSession);
     try {
       byte[] data = serialize(message);
       if (data.length <= SAFE_UDP_MTU) {
@@ -456,25 +467,24 @@ public final class ClientNetwork {
     }
   }
 
-  private NetworkMessage withSnapshotAck(NetworkMessage message) {
+  private NetworkMessage withCurrentSession(NetworkMessage message, Session currentSession) {
     if (message instanceof InputMessage input) {
-      return inputWithSnapshotAck(input);
+      return inputWithCurrentSession(input, currentSession);
     }
     return message;
   }
 
-  private InputMessage inputWithSnapshotAck(InputMessage input) {
-    if (session == null) {
-      return input;
-    }
-    int latestTick = session.clientState().map(ClientState::latestAppliedSnapshotTick).orElse(-1);
+  private InputMessage inputWithCurrentSession(InputMessage input, Session currentSession) {
+    int latestTick =
+        currentSession.clientState().map(ClientState::latestAppliedSnapshotTick).orElse(-1);
     synchronized (snapshotAckLock) {
       latestTick = Math.max(latestTick, pendingSnapshotAckTick);
     }
+    InputMessage message = input.withSessionId(currentSession.sessionId());
     if (latestTick < 0 || input.lastSnapshotTick().orElse(-1) >= latestTick) {
-      return input;
+      return message;
     }
-    return input.withLastSnapshotTick(latestTick);
+    return message.withLastSnapshotTick(latestTick);
   }
 
   private void recordPiggybackedSnapshotAck(

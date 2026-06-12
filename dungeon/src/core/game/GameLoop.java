@@ -338,8 +338,12 @@ public final class GameLoop extends ScreenAdapter {
 
                 @Override
                 public void onDisconnected(String reason) {
+                  boolean wasInGameplay = initialWorldClientReady;
                   resetInitialWorldHandshake();
                   InputMessage.resetSequence();
+                  if (Game.isMultiplayerClient() && wasInGameplay) {
+                    Game.exit(multiplayerDisconnectReason(reason));
+                  }
                 }
               });
     }
@@ -753,6 +757,13 @@ public final class GameLoop extends ScreenAdapter {
     initialWorldCompleteReceived = false;
     initialWorldReadySent = false;
     initialWorldClientReady = false;
+  }
+
+  private String multiplayerDisconnectReason(String reason) {
+    if (reason == null || reason.isBlank()) {
+      return "Disconnected from server.";
+    }
+    return "Disconnected from server: " + reason;
   }
 
   private void tryCompleteInitialWorldHandshake() {

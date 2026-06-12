@@ -152,8 +152,8 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public Session session() {
-    return dummySession;
+  public Optional<Session> session() {
+    return Optional.of(dummySession);
   }
 
   private void notifyConnected() {

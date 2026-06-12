@@ -199,12 +199,11 @@ public interface INetworkHandler {
   /**
    * Returns the current {@link Session} if connected (clients only).
    *
-   * <p>For server implementations, this may return null or throw an {@link
-   * UnsupportedOperationException}.
+   * <p>Server implementations and disconnected clients should return {@link Optional#empty()}.
    *
-   * @return the current Session, or null if not connected or not a client
+   * @return the current Session, or empty if not connected or not a client
    */
-  Session session();
+  Optional<Session> session();
 
   /**
    * Drains any queued inbound network messages and dispatches them on the game loop thread.

@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
 /**
  * Client→server: Player input (e.g., movement, skill use, interaction).
  *
- * @param sessionId the session ID of the client sending the input
+ * @param sessionId the session ID of the client sending the input, or 0 until the client transport
+ *     assigns the live session before sending
  * @param clientTick the client tick when the input was generated
  * @param sequence the sequence number of this input message (monotonically increasing per client)
  * @param lastSnapshotTick highest server snapshot tick the client has successfully applied
@@ -32,6 +33,7 @@ public record InputMessage(
     Payload payload)
     implements NetworkMessage {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InputMessage.class);
+  private static final int PENDING_SESSION_ID = 0;
   private static final int DEFAULT_CUSTOM_SCHEMA_VERSION = 1;
   private static final int MAX_CUSTOM_PAYLOAD_BYTES = 8_192;
   private static final Pattern ROUTE_KEY_PATTERN =
@@ -84,7 +86,7 @@ public record InputMessage(
    */
   public InputMessage(Action action, Payload payload) {
     this(
-        Game.network().session().sessionId(),
+        PENDING_SESSION_ID,
         Game.currentTick(),
         incrementAndGetSequence(),
         Optional.empty(),
@@ -101,6 +103,23 @@ public record InputMessage(
   public InputMessage withLastSnapshotTick(int serverTick) {
     return new InputMessage(
         sessionId, clientTick, sequence, Optional.of(serverTick), action, payload);
+  }
+
+  /**
+   * Returns a copy of this input message with the active network session ID.
+   *
+   * <p>Input creation is intentionally decoupled from the connection lifecycle. The client
+   * transport assigns the current session ID immediately before sending so stale UI input after a
+   * disconnect cannot dereference a missing session.
+   *
+   * @param sessionId active network session ID
+   * @return input message addressed to the active session
+   */
+  public InputMessage withSessionId(int sessionId) {
+    if (this.sessionId == sessionId) {
+      return this;
+    }
+    return new InputMessage(sessionId, clientTick, sequence, lastSnapshotTick, action, payload);
   }
 
   /**

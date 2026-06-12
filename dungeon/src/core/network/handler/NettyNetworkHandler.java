@@ -182,9 +182,8 @@ public class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public Session session() {
-    if (serverMode)
-      throw new UnsupportedOperationException("Session not available in server mode.");
+  public Optional<Session> session() {
+    if (serverMode) return Optional.empty();
     return client.session();
   }
 
