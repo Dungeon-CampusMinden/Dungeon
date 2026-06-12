@@ -67,6 +67,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -421,10 +422,7 @@ public final class ServerTransport {
         }
 
         // Clean up UDP mapping
-        InetSocketAddress udpAddr = session.udpAddress();
-        if (udpAddr != null) {
-          udpToClientId.remove(udpAddr);
-        }
+        session.udpAddress().ifPresent(udpToClientId::remove);
         session.udpReady(false);
 
         // Remove Player Entity on disconnect
@@ -788,9 +786,7 @@ public final class ServerTransport {
 
     // remove old mappings
     clientIdToName.put(clientId, playerName);
-    if (oldSession.udpAddress() != null) {
-      udpToClientId.remove(oldSession.udpAddress());
-    }
+    oldSession.udpAddress().ifPresent(udpToClientId::remove);
     oldSession.udpReady(false);
     sessions.remove(oldSession.tcpCtx().channel().id());
     try {
@@ -859,16 +855,19 @@ public final class ServerTransport {
     }
 
     // 5. Handle registration/re-registration
-    InetSocketAddress currentUdpAddress = sess.udpAddress();
-    if (currentUdpAddress != null && !currentUdpAddress.equals(sender)) {
-      // Address has changed, update the mappings
-      LOGGER.info(
-          "Updating UDP address for clientId={}: {} -> {}",
-          reg.clientId(),
-          currentUdpAddress,
-          sender);
-      udpToClientId.remove(currentUdpAddress);
-    } else if (currentUdpAddress == null) {
+    Optional<InetSocketAddress> currentUdpAddress = sess.udpAddress();
+    if (currentUdpAddress.isPresent()) {
+      InetSocketAddress registeredUdpAddress = currentUdpAddress.orElseThrow();
+      if (!registeredUdpAddress.equals(sender)) {
+        // Address has changed, update the mappings
+        LOGGER.info(
+            "Updating UDP address for clientId={}: {} -> {}",
+            reg.clientId(),
+            registeredUdpAddress,
+            sender);
+        udpToClientId.remove(registeredUdpAddress);
+      }
+    } else {
       LOGGER.info("Associated UDP {} -> clientId={}", sender, reg.clientId());
     }
 
@@ -888,10 +887,7 @@ public final class ServerTransport {
         continue;
       }
 
-      InetSocketAddress udpAddress = session.udpAddress();
-      if (udpAddress != null) {
-        udpToClientId.remove(udpAddress);
-      }
+      session.udpAddress().ifPresent(udpToClientId::remove);
       session.udpReady(false);
     }
   }
@@ -941,8 +937,7 @@ public final class ServerTransport {
       return;
     }
     Entity entity = optEntity.get();
-    NetworkConfig.ENTITY_SPAWN_STRATEGY
-        .buildSpawnEvent(entity)
+    buildSpawnEvent(entity)
         .ifPresentOrElse(
             event -> session.sendMessage(event, true),
             () ->
@@ -1103,9 +1098,7 @@ public final class ServerTransport {
 
   private void sendInitialEntitySpawns(Session session, int clientId) {
     List<EntitySpawnEvent> spawnEvents =
-        Game.levelEntities()
-            .flatMap(entity -> NetworkConfig.ENTITY_SPAWN_STRATEGY.buildSpawnEvent(entity).stream())
-            .toList();
+        Game.levelEntities().flatMap(entity -> buildSpawnEvent(entity).stream()).toList();
     if (spawnEvents.isEmpty()) {
       LOGGER.info("No initial entity spawns to send to clientId={}", clientId);
       return;
@@ -1172,6 +1165,12 @@ public final class ServerTransport {
 
   CharacterClass selectedCharacterClass(ConnectRequest request) {
     return request.characterClass().orElseGet(this::nextFallbackCharacterClass);
+  }
+
+  private Optional<EntitySpawnEvent> buildSpawnEvent(Entity entity) {
+    return Objects.requireNonNull(
+        NetworkConfig.ENTITY_SPAWN_STRATEGY.buildSpawnEvent(entity),
+        "EntitySpawnStrategy.buildSpawnEvent(...) must not return null.");
   }
 
   CharacterClass nextFallbackCharacterClass() {

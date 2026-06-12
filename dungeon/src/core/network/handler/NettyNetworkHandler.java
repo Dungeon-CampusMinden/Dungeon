@@ -57,6 +57,7 @@ public class NettyNetworkHandler implements INetworkHandler {
       String username,
       Optional<CharacterClass> characterClass)
       throws NetworkException {
+    Objects.requireNonNull(characterClass, "characterClass");
     this.serverMode = isServer;
     this.port = port;
     if (!serverMode) {
@@ -140,7 +141,10 @@ public class NettyNetworkHandler implements INetworkHandler {
 
   @Override
   public void snapshotTranslator(SnapshotTranslator translator) {
-    this.translator = Objects.requireNonNull(translator, "translator cannot be null");
+    if (translator == null) {
+      throw new IllegalArgumentException("translator cannot be null");
+    }
+    this.translator = translator;
   }
 
   @Override

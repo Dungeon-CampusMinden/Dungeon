@@ -4,6 +4,7 @@ import core.game.PreRunConfiguration;
 import core.network.MessageDispatcher;
 import core.network.messages.NetworkMessage;
 import core.utils.logging.DungeonLogger;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
@@ -142,9 +143,9 @@ public final class ServerRuntime {
   /**
    * Returns the ServerTransport instance.
    *
-   * @return the ServerTransport, or null if not started
+   * @return the ServerTransport, or empty if not started
    */
-  public ServerTransport transport() {
-    return transport;
+  public Optional<ServerTransport> transport() {
+    return Optional.ofNullable(transport);
   }
 }

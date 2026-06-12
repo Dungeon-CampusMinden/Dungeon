@@ -319,7 +319,7 @@ public class ServerTransportTests {
         transport, sender, session, new RegisterUdp(ServerRuntime.SESSION_ID, token, clientId));
 
     assertTrue(session.udpReady());
-    assertEquals(sender, session.udpAddress());
+    assertEquals(Optional.of(sender), session.udpAddress());
     assertEquals(clientId, udpToClientIdMap(transport).get(sender));
     assertEquals(1, tcpCalls.get());
   }
@@ -341,12 +341,13 @@ public class ServerTransportTests {
     session.markUdpActivity();
     session.udpReady(true);
     clientIdToSessionMap(transport).put(clientId, session);
-    udpToClientIdMap(transport).put(session.udpAddress(), clientId);
+    InetSocketAddress udpAddress = session.udpAddress().orElseThrow();
+    udpToClientIdMap(transport).put(udpAddress, clientId);
 
     transport.expireStaleUdpSessions(session.udpLastSeenTimeMs() + 4_501L);
 
     assertFalse(session.udpReady());
-    assertFalse(udpToClientIdMap(transport).containsKey(session.udpAddress()));
+    assertFalse(udpToClientIdMap(transport).containsKey(udpAddress));
     assertFalse(session.isClosed());
   }
 
@@ -375,7 +376,7 @@ public class ServerTransportTests {
         transport, newSender, session, new RegisterUdp(ServerRuntime.SESSION_ID, token, clientId));
 
     assertTrue(session.udpReady());
-    assertEquals(newSender, session.udpAddress());
+    assertEquals(Optional.of(newSender), session.udpAddress());
     assertEquals(clientId, udpToClientIdMap(transport).get(newSender));
     assertEquals(2, tcpCalls.get());
   }

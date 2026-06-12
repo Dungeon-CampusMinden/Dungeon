@@ -54,6 +54,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
@@ -83,6 +84,7 @@ public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
+  private static final String DEFAULT_DISCONNECT_REASON = "Disconnected.";
   private static final long SNAPSHOT_RESYNC_REQUEST_RETRY_NANOS = TimeUnit.SECONDS.toNanos(1L);
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
@@ -155,7 +157,7 @@ public final class ClientNetwork {
     this.remoteHost = host;
     this.port = port;
     this.username = username;
-    this.requestedCharacterClass = characterClass == null ? Optional.empty() : characterClass;
+    this.requestedCharacterClass = Objects.requireNonNull(characterClass, "characterClass");
     this.group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
     this.udpRemote = InetSocketAddress.createUnresolved(host, port);
   }
@@ -240,7 +242,7 @@ public final class ClientNetwork {
    *
    * @return client id, or 0 if not yet assigned
    */
-  public Short clientId() {
+  public short clientId() {
     Short id = clientId;
     return id != null ? id : 0;
   }
@@ -1285,13 +1287,18 @@ public final class ClientNetwork {
   }
 
   private void notifyDisconnected(String cause) {
+    String reason = disconnectReason(cause);
     for (ConnectionListener l : connectionListeners) {
       try {
-        l.onDisconnected(cause);
+        l.onDisconnected(reason);
       } catch (Exception e) {
         LOGGER.warn("onDisconnected error", e);
       }
     }
+  }
+
+  private String disconnectReason(String cause) {
+    return cause == null || cause.isBlank() ? DEFAULT_DISCONNECT_REASON : cause;
   }
 
   private void notifyInitialWorldReady() {

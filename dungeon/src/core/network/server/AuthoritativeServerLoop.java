@@ -25,6 +25,7 @@ import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -172,9 +173,9 @@ public final class AuthoritativeServerLoop {
     clearSnapshotBaselinesOnLevelChange(clients);
 
     long buildStartNanos = System.nanoTime();
-    Game.network()
-        .snapshotTranslator()
-        .translateToSnapshot(serverTick)
+    Objects.requireNonNull(
+            Game.network().snapshotTranslator().translateToSnapshot(serverTick),
+            "SnapshotTranslator.translateToSnapshot(...) must not return null.")
         .ifPresent(
             snapshot -> {
               NetworkTelemetry.recordSnapshotBuild(System.nanoTime() - buildStartNanos);

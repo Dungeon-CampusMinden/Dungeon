@@ -119,24 +119,28 @@ public final class Session {
    * Gets the TCP channel context.
    *
    * @return the TCP ChannelHandlerContext
+   * @throws IllegalStateException if this session has no TCP context
    */
   public ChannelHandlerContext tcpCtx() {
+    if (tcpCtx == null) {
+      throw new IllegalStateException("Session has no TCP context.");
+    }
     return tcpCtx;
   }
 
   /**
    * Gets the UDP address.
    *
-   * @return the UDP InetSocketAddress
+   * @return the UDP InetSocketAddress, or empty if UDP has not been registered
    */
-  public InetSocketAddress udpAddress() {
-    return udpAddress;
+  public Optional<InetSocketAddress> udpAddress() {
+    return Optional.ofNullable(udpAddress);
   }
 
   /**
    * Sets the UDP address.
    *
-   * @param addr the UDP InetSocketAddress to set
+   * @param addr the UDP InetSocketAddress to set, or null to clear it
    */
   public void udpAddress(InetSocketAddress addr) {
     this.udpAddress = addr;
@@ -176,6 +180,9 @@ public final class Session {
 
   /** Closes the TCP channel associated with this session. */
   public void close() {
+    if (tcpCtx == null) {
+      return;
+    }
     try {
       tcpCtx.close();
     } catch (Exception e) {
@@ -189,7 +196,7 @@ public final class Session {
    * @return true if the TCP channel is closed, false otherwise
    */
   public boolean isClosed() {
-    return !tcpCtx.channel().isActive();
+    return tcpCtx == null || tcpCtx.channel() == null || !tcpCtx.channel().isActive();
   }
 
   /**

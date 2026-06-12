@@ -14,8 +14,8 @@ public interface SnapshotTranslator {
    * Server-side translation: build a snapshot for the given tick from authoritative entities.
    *
    * @param serverTick the current server tick
-   * @return an Optional containing the SnapshotMessage if there are updates, or empty if no new
-   *     updates are available
+   * @return a non-null Optional containing the SnapshotMessage if there are updates, or empty if no
+   *     new updates are available
    */
   Optional<SnapshotMessage> translateToSnapshot(int serverTick);
 
@@ -24,8 +24,8 @@ public interface SnapshotTranslator {
    *
    * <p>Must not manipulate game-thread state directly; only dispatch to the provided dispatcher.
    *
-   * @param snapshot the received snapshot message
-   * @param dispatcher the message dispatcher to handle granular updates
+   * @param snapshot the received snapshot message; must not be null
+   * @param dispatcher the message dispatcher to handle granular updates; must not be null
    */
   void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher);
 }

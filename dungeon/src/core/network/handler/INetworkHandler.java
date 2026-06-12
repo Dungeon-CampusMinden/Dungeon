@@ -28,7 +28,7 @@ public interface INetworkHandler {
    * @param port The port to use for communication.
    * @param username The username for the connection.
    * @param characterClass The requested player character class for multiplayer clients, or empty to
-   *     use the server default.
+   *     use the server default. Must not be null.
    */
   void initialize(
       boolean isServer,
@@ -123,7 +123,8 @@ public interface INetworkHandler {
   /**
    * Stops the handler and cleans up resources.
    *
-   * @param reason The reason for shutdown, used for logging or debugging.
+   * @param reason The reason for shutdown, used for logging or debugging. Implementations must
+   *     normalize null or blank reasons before notifying listeners.
    */
   void shutdown(String reason);
 
@@ -175,7 +176,8 @@ public interface INetworkHandler {
   /**
    * Sets the {@link SnapshotTranslator} to use for snapshot build/application.
    *
-   * @param translator instance to use; implementations may ignore null (keeping the current one)
+   * @param translator instance to use; must not be null
+   * @throws IllegalArgumentException if translator is null
    */
   void snapshotTranslator(SnapshotTranslator translator);
 

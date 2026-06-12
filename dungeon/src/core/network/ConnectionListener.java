@@ -15,7 +15,7 @@ public interface ConnectionListener {
   /**
    * Called when the handler disconnects.
    *
-   * @param reason the reason for disconnection, or null if orderly
+   * @param reason the reason for disconnection; never null
    */
   void onDisconnected(String reason);
 

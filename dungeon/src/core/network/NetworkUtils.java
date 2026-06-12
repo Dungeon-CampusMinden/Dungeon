@@ -84,7 +84,7 @@ public final class NetworkUtils {
     }
     return handler
         .serverRuntime()
-        .map(ServerRuntime::transport)
+        .flatMap(ServerRuntime::transport)
         .map(ServerTransport::clientIdToSessionMap)
         .orElse(Map.of());
   }

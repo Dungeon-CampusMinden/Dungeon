@@ -2,6 +2,7 @@ package core.network.messages.c2s;
 
 import contrib.entities.CharacterClass;
 import core.network.messages.NetworkMessage;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -13,7 +14,8 @@ import java.util.Optional;
  * @param playerName desired player name, must be unique on server
  * @param sessionId id of previous session, or 0 if none
  * @param sessionToken token of previous session, or empty array if none
- * @param characterClass requested character class, or empty to use the server default
+ * @param characterClass requested character class, or empty to use the server default; must not be
+ *     null
  */
 public record ConnectRequest(
     short protocolVersion,
@@ -31,11 +33,12 @@ public record ConnectRequest(
    * @param playerName desired player name, must be unique on server
    * @param sessionId id of previous session, or 0 if none
    * @param sessionToken token of previous session, or empty array if none
-   * @param characterClass requested character class, or empty to use the server default
+   * @param characterClass requested character class, or empty to use the server default; must not
+   *     be null
    */
   public ConnectRequest {
     sessionToken = sessionToken == null ? new byte[0] : sessionToken.clone();
-    characterClass = characterClass == null ? Optional.empty() : characterClass;
+    characterClass = Objects.requireNonNull(characterClass, "characterClass");
   }
 
   /**
@@ -55,7 +58,8 @@ public record ConnectRequest(
    * @param protocolVersion The protocol version the client is using. Must match the server's
    *     version.
    * @param playerName desired player name, must be unique on server
-   * @param characterClass requested character class, or empty to use the server default
+   * @param characterClass requested character class, or empty to use the server default; must not
+   *     be null
    */
   public ConnectRequest(
       short protocolVersion, String playerName, Optional<CharacterClass> characterClass) {
