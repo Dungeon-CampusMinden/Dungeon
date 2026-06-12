@@ -10,8 +10,8 @@ and frame/dispatch timing. It is intended to answer five questions:
    GC?
 5. Is queue age caused by normal frame/tick scheduling, or by real inbound backlog?
 
-When the network telemetry overlay is open, press `Ctrl+C` to copy the current multiline telemetry
-string to the system clipboard.
+Hold `F3` and press `N` to toggle the network telemetry overlay. When the overlay is open, press
+`Ctrl+C` to copy the current multiline telemetry string to the system clipboard.
 
 Values marked `n/a` have not been observed yet. Most counters are cumulative since telemetry reset
 or process start. Fields named `1/5/30` are rolling windows over the last 1, 5, and 30 seconds.
@@ -25,7 +25,7 @@ Example shape:
 Network Telemetry
 Client local: connected id=1 udp=ready mode=keepalive ackAge=1.5 s snap=4374 rtt=31.3 ms debug=pong 31.3 ms
 Client snapshots: full=1 delta=2140 stale(f/d)=0/0 early=0/0 handler=0/0 last=delta@4374 e/r=1/0 112 us
-Client snapshot path: staleCheck=0 us fullApply=60 us deltaMat=26 us reconcile=25 us ackQueue=0 us stale=false staleDrop=n/a:n/a@n/a staleFullBytes=0 B
+Client snapshot path: staleCheck=0 us fullApply=60 us deltaMat=26 us reconcile=25 us ackQueue=0 us stale=false staleDrop=n/a:n/a@n/a staleFullBytes=0 B missingLocalBase=0 resyncReq=0 lastMissing=n/a->n/a
 Client timing: frame=16.68 ms net=1 us queue=3.75 ms dispatch=5 us tcpDecode=DebugTelemetrySnapshot 65 us max10(q/d/dec)=17.85 ms DeltaSnapshotMessage/1.05 ms DeltaSnapshotMessage/SoundPlayMessage 1.58 ms qDepth=0/5 drain=0 gc=1 ms
 Client transport out: tcp=285/1.5 KiB udp=3060/90.2 KiB
 Client transport in:  tcp=62/92.1 KiB udp=2140/608.5 KiB
@@ -278,19 +278,18 @@ small bytes and small `d`/`r` during stable play.
 milliseconds. Sustained values above `16.6 ms` would exceed the 60 Hz tick budget.
 
 `reason`
-: Reason for the last full snapshot. Possible values:
+: Reason for the last full snapshot. The current server path normally emits:
 
-- `NO_ACK`: client has not acknowledged a snapshot yet.
 - `INITIAL_SYNC`: first reliable full snapshot baseline after initial world load.
-- `PERIODIC_BASELINE`: optional bounded periodic safety fallback, if that fallback is explicitly
-  enabled.
 - `CLIENT_MISSING_BASELINE`: client reported that it cannot materialize a delta because its local
   `baseTick` is missing.
 - `MISSING_BASELINE_HISTORY`: client ACK references a baseline no longer retained by server history.
 - `LEVEL_CHANGE`: level changed and baselines were invalidated.
 - `RECONNECT`: client reconnected and needs a fresh baseline.
-- `CLIENT_RESYNC_REQUEST`: client explicitly requested a general resync.
 - `SERVER_FORCED_RESYNC`: server forced a resync or no specific reason was attached.
+
+The enum also contains `NO_ACK`, `PERIODIC_BASELINE`, and `CLIENT_RESYNC_REQUEST` for fallback or
+explicit resync paths. Those values are not normally produced by the current stable sync path.
 
 `periodic/recovery`
 : Cumulative full snapshots split into optional periodic safety fallbacks and demand-driven recovery
@@ -453,7 +452,7 @@ demand-driven recovery or baseline reasons. Expected stable play after initial s
 
 `age`
 : Time since the last full snapshot sent to this client. If this stays low and full window counters
-keep growing, the client is in a full snapshot storm.
+keep growing, the client is in a repeated full-snapshot loop.
 
 ## Healthy Local Test Checklist
 
