@@ -40,21 +40,6 @@ public final class NetworkConfig {
   /** Protocol version used by multiplayer clients and servers during the connection handshake. */
   public static final short PROTOCOL_VERSION = 3;
 
-  /**
-   * Number of attempts for UDP client registration.
-   *
-   * <p>This defines how many times the client will attempt to register with the server over UDP
-   * before giving up.
-   */
-  public static final int UDP_REGISTER_ATTEMPTS = 5;
-
-  /**
-   * Interval between UDP client registration attempts, in milliseconds.
-   *
-   * <p>This defines how often the client will send registration requests to the server over UDP.
-   */
-  public static final int UDP_REGISTER_INTERVAL_MS = 500;
-
   /** Initial delay before the next UDP retry attempt, in milliseconds. */
   public static final int UDP_RETRY_INITIAL_DELAY_MS = 500;
 
