@@ -50,7 +50,7 @@ public class ShowImageUI extends Group {
     this.setOrigin(Align.center);
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
-    currentImagePath = component.imagePath();
+    currentImagePath = Game.localization().asset(component.imagePath());
     background = new Image(TextureMap.instance().textureAt(new SimpleIPath(currentImagePath)));
     background.setOrigin(Align.center);
     this.addActor(background);
@@ -93,9 +93,9 @@ public class ShowImageUI extends Group {
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
     if (!currentImagePath.equals(component.imagePath())) {
-      currentImagePath = component.imagePath();
+      currentImagePath = Game.localization().asset(component.imagePath());
       background.setDrawable(
-          new TextureRegionDrawable(new Texture(Gdx.files.internal(currentImagePath))));
+          new TextureRegionDrawable(TextureMap.instance().textureAt(new SimpleIPath(currentImagePath))));
     }
     float imageWidth = background.getImageWidth();
     float imageHeight = background.getImageHeight();
