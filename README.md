@@ -189,7 +189,7 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [Stiftung Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de/
   [Pakt für Informatik 2.0]: https://www.efre.nrw/einfach-machen/foerderung-finden/pakt-fuer-informatik-20
   [EFRE/JTF NRW 2021--27]: https://www.efre.nrw/
-  [2]: blockly/doc/img/examples/blockly_gif.gif
+  [2]: doc/press_kit/blockly/blockly_gif.gif
   [Fellowships für Innovationen in der digitalen Hochschullehre (digi-Fellows)]: https://www.dh.nrw/kooperationen/Digi-Fellows-2
   [`dungeon/assets/`]: dungeon/assets/
   [\@Flamtky]: https://github.com/Flamtky
