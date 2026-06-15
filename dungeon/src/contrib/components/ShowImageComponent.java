@@ -136,26 +136,6 @@ public class ShowImageComponent implements Component {
   }
 
   /**
-   * Gets the overlay entity used to display the image.
-   *
-   * @return the overlay entity
-   */
-  public Entity overlay() {
-    return overlay;
-  }
-
-  /**
-   * Sets the overlay entity used to display the image.
-   *
-   * @param overlay the overlay entity
-   * @return this component for chaining
-   */
-  public ShowImageComponent overlay(Entity overlay) {
-    this.overlay = overlay;
-    return this;
-  }
-
-  /**
    * Gets the factor that defines how much of the screen the image should take up in its biggest
    * axis.
    *

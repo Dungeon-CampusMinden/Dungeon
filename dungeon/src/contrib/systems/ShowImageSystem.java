@@ -10,12 +10,15 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * System that handles showing images in fullscreen when an entity with a ShowImageComponent is
  * interacted with.
  */
 public class ShowImageSystem extends System {
+  private final Map<Entity, Entity> overlays = new HashMap<>();
 
   /**
    * Creates a new ShowImageSystem that processes entities with ShowImageComponent, DrawComponent,
@@ -38,7 +41,7 @@ public class ShowImageSystem extends System {
    * @param d the data object containing the entity and its components
    */
   public void execute(SIData d) {
-    Entity overlay = d.sic.overlay();
+    Entity overlay = overlays.get(d.e);
 
     if (overlay == null && d.sic.isUIOpen()) {
       // Dialog is closed but should be open
@@ -58,14 +61,14 @@ public class ShowImageSystem extends System {
             d.sic.onClose(d.e, newOverlay);
           });
       newOverlay.add(uic);
-      d.sic.overlay(newOverlay);
+      overlays.put(d.e, newOverlay);
       Game.add(newOverlay);
       d.sic.onOpen(d.e, newOverlay);
 
     } else if (overlay != null && !d.sic.isUIOpen()) {
       // Dialog is open but should be closed
       Game.remove(overlay);
-      d.sic.overlay(null);
+      overlays.remove(d.e);
     }
   }
 
