@@ -567,6 +567,16 @@ public final class ServerTransport {
       return;
     }
 
+    if (request.mode() == DebugTelemetryRequest.Mode.STOP_STREAM) {
+      stopDebugTelemetryStream(session.tcpCtx().channel().id());
+      return;
+    }
+
+    if (!NetworkConfig.DEBUG_TELEMETRY_ENABLED) {
+      stopDebugTelemetryStream(session.tcpCtx().channel().id());
+      return;
+    }
+
     switch (request.mode()) {
       case ONCE -> sendDebugTelemetrySnapshot(session, request.requestId());
       case START_STREAM -> startDebugTelemetryStream(session, request);
@@ -576,6 +586,9 @@ public final class ServerTransport {
 
   private void onDebugPing(Session session, DebugPing ping) {
     if (!isSessionValid(session)) {
+      return;
+    }
+    if (!NetworkConfig.DEBUG_TELEMETRY_ENABLED) {
       return;
     }
     long receivedMs = System.currentTimeMillis();
@@ -591,29 +604,51 @@ public final class ServerTransport {
   private void startDebugTelemetryStream(Session session, DebugTelemetryRequest request) {
     ChannelId channelId = session.tcpCtx().channel().id();
     stopDebugTelemetryStream(channelId);
-    sendDebugTelemetrySnapshot(session, request.requestId());
 
     int intervalMs = debugTelemetryIntervalMs(request.intervalMs());
     ScheduledFuture<?> future =
         debugTelemetryExecutor()
             .scheduleWithFixedDelay(
                 () -> {
-                  if (!isSessionValid(session) || session.isClosed()) {
+                  if (!debugTelemetrySendAllowed(session)) {
                     stopDebugTelemetryStream(channelId);
                     return;
                   }
-                  sendDebugTelemetrySnapshot(session, request.requestId());
+                  sendDebugTelemetrySnapshot(session, request.requestId())
+                      .thenAccept(
+                          success -> {
+                            if (!success) {
+                              stopDebugTelemetryStream(channelId);
+                            }
+                          });
                 },
                 intervalMs,
                 intervalMs,
                 TimeUnit.MILLISECONDS);
     debugTelemetryStreams.put(channelId, future);
+    sendDebugTelemetrySnapshot(session, request.requestId())
+        .thenAccept(
+            success -> {
+              if (!success) {
+                stopDebugTelemetryStream(channelId);
+              }
+            });
   }
 
-  private void sendDebugTelemetrySnapshot(Session session, long requestId) {
+  private CompletableFuture<Boolean> sendDebugTelemetrySnapshot(Session session, long requestId) {
+    if (!debugTelemetrySendAllowed(session)) {
+      return CompletableFuture.completedFuture(false);
+    }
     DebugTelemetrySnapshot snapshot =
         NetworkTelemetry.buildServerSnapshot(requestId, sessions.values());
-    session.sendMessage(snapshot, true);
+    return session.sendMessage(snapshot, true);
+  }
+
+  private boolean debugTelemetrySendAllowed(Session session) {
+    return NetworkConfig.DEBUG_TELEMETRY_ENABLED
+        && isSessionValid(session)
+        && !session.isClosed()
+        && session.tcpCtx().channel().isWritable();
   }
 
   int debugTelemetryIntervalMs(int requestedIntervalMs) {

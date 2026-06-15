@@ -40,6 +40,9 @@ public final class NetworkConfig {
   /** Protocol version used by multiplayer clients and servers during the connection handshake. */
   public static final short PROTOCOL_VERSION = 3;
 
+  /** Enables server responses to debug network telemetry requests. */
+  public static boolean DEBUG_TELEMETRY_ENABLED = false;
+
   /** Initial delay before the next UDP retry attempt, in milliseconds. */
   public static final int UDP_RETRY_INITIAL_DELAY_MS = 500;
 
@@ -142,4 +145,5 @@ public final class NetworkConfig {
 
   /** Length of the session token, in bytes. */
   public static final int SESSION_TOKEN_LENGTH_BYTES = 24; // 192 bits
+
 }

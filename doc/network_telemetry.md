@@ -10,8 +10,13 @@ and frame/dispatch timing. It is intended to answer five questions:
    GC?
 5. Is queue age caused by normal frame/tick scheduling, or by real inbound backlog?
 
-Press `N`, or hold `F3` and press `N`, to toggle the network telemetry overlay. When the overlay is
-open, press `Ctrl+C` to copy the current multiline telemetry report to the system clipboard.
+Hold `F3` and press `N` to toggle the network telemetry overlay. Pressing `F3` while `N` is already
+held also toggles it. When the overlay is open, press `Ctrl+C` to copy the current multiline
+telemetry report to the system clipboard.
+
+Server-side telemetry snapshots and debug ping responses are disabled by default. Set
+`NetworkConfig.DEBUG_TELEMETRY_ENABLED = true` in a development launcher or test before requesting
+server telemetry.
 
 Values marked `n/a` have not been observed yet. Most counters are cumulative since telemetry reset
 or process start. Fields named `1/5/30` are rolling windows over the last 1, 5, and 30 seconds.
@@ -65,7 +70,7 @@ payloads, or protocol versions.
 | Server authoritative tick | `> 1_000_000 / NetworkConfig.SERVER_TICK_HZ` | Runtime tick budget |
 | Queue age | `> max(50 ms, 3 ticks)` | Backlog signal; one frame/tick of queue age is normal when depth stays low |
 | Full snapshot apply and total full snapshot handler time | `> tick budget` | Full baseline application is larger than a small per-message slice but should not exceed one frame/tick budget |
-| Dispatch, decode, network batch, stale check, delta materialization, reconcile, and ACK queue slices | `> tick budget / 4` | Strict work-slice diagnostic budget |
+| Dispatch, decode, network batch, snapshot build, stale check, delta materialization, reconcile, and ACK queue slices | `> tick budget / 4` | Strict work-slice diagnostic budget |
 | GC pause | `> tick budget` converted to milliseconds | Runtime tick budget |
 | Delta snapshot bytes | `> NetworkConfig.SAFE_UDP_MTU` | Runtime UDP fragmentation avoidance |
 | Full snapshot bytes | `> 256 KiB` | Soft overlay diagnostic limit |
@@ -243,11 +248,11 @@ full snapshots may take hundreds of microseconds. Multi-millisecond decode is su
 Each timing includes the message type that produced the maximum. This replaces the old packed
 `max10(q/d/dec)` suffix so clipped text cannot look like a standalone unit.
 
-`qDepth=<current>/<max10>`
-: Inbound messages waiting when the latest network poll started, plus the rolling 10 second maximum
-depth. Expected: usually `0` or very low. Low depth with queue age near one frame usually means
-normal frame/tick scheduling. Growing depth means the game/server thread is not draining messages
-fast enough.
+`qDepth=<current>`
+: Inbound messages waiting when the latest network poll started. The rolling 10 second maximum
+appears separately as `qDepth=<max10>` on `Runtime max10`. Expected: usually `0` or very low. Low
+depth with queue age near one frame usually means normal frame/tick scheduling. Growing depth means
+the game/server thread is not draining messages fast enough.
 
 `drain`
 : Inbound messages removed from the queue during the latest network poll. Expected: often `0` or a
@@ -272,9 +277,9 @@ are suspicious.
 
 ## Server Authoritative
 
-`server telemetry stale <age>`
-: Optional prefix shown when the last server telemetry snapshot is older than `2s`. Expected: not
-shown while the stream is healthy.
+`Authoritative: age=<value>`
+: Server telemetry snapshot age. Expected: below `2s` while the stream is healthy. The `age` value
+is highlighted red and receives an expected-range suffix in copied telemetry when it exceeds `2s`.
 
 Server `Authoritative: n/a`
 : No server telemetry snapshot has arrived yet. This is normal before the stream starts or before a
@@ -296,20 +301,21 @@ change, reconnect, client missing-baseline recovery, server missing-baseline-his
 server resync, or an explicitly enabled bounded safety fallback. Stable play should not show
 clock-driven full snapshot growth.
 
-`last=t<tick>/<bytes>/e=<entities>`
+`lastFull=t<tick> bytes=<bytes> entities=<entities>`
 : Tick, serialized size, and entity count of the last full snapshot. In current Last Hour sessions,
 around `30-40 KiB` and roughly `100+` entities can be normal.
 
 `delta`
 : Cumulative delta snapshots sent by the server. Expected: grows steadily during active play.
 
-`last=t<tick>/<bytes>/d=<deltas>/r=<removals>`
+`lastDelta=t<tick> bytes=<bytes> deltas=<deltas> removals=<removals>`
 : Tick, serialized size, entity delta count, and removal count of the last delta snapshot. Expected:
 small bytes and small `d`/`r` during stable play.
 
 `build`
 : Server time to build the authoritative snapshot before sending. Expected: microseconds to low
-milliseconds. Sustained values above `16.6 ms` would exceed the 60 Hz tick budget.
+milliseconds. Red starts above the work-slice budget, which is `tick budget / 4`; at `60 Hz` that is
+about `4.17 ms`. Values above the full `16.67 ms` tick budget are severe.
 
 `reason`
 : Reason for the last full snapshot. The current server path normally emits:
@@ -352,7 +358,7 @@ changes are emitted.
 `tick`
 : Server tick of the latest snapshot-history sample.
 
-`size=<current>/<capacity>`
+`retained=<current>/<capacity>`
 : Number of retained baseline snapshots and maximum unprotected rolling snapshots. Protected
 acknowledged or in-flight client baselines may be retained outside the rolling capacity, so values
 such as `601/600` can be healthy.
@@ -420,10 +426,10 @@ configured backlog threshold or when it lines up with growing queue depth.
 GC. The queue and TCP decode entries include the message type that produced the maximum. A queue max
 on `InputMessage` is more relevant to gameplay latency than a max on debug telemetry.
 
-`qDepth=<current>/<max10>`
-: Server inbound messages waiting when the latest network poll started, plus the rolling 10 second
-maximum depth. Low depth with queue age near one tick is usually normal scheduling; growing depth
-means real backlog.
+`qDepth=<current>`
+: Server inbound messages waiting when the latest network poll started. The rolling 10 second
+maximum appears separately as `qDepth=<max10>` on `Timings max10`. Low depth with queue age near one
+tick is usually normal scheduling; growing depth means real backlog.
 
 `drain`
 : Server inbound messages removed from the queue during the latest network poll. High values are
@@ -433,9 +439,10 @@ only concerning when `qDepth` also grows or frame/tick time rises.
 : Latest TCP decode type and duration on the server. Expected: tiny for `SnapshotAck`, larger for
 big reliable messages.
 
-`gc=<last>/<max10>`
-: Latest and rolling 10 second maximum GC collection-time delta. Expected: `n/a` or low
-milliseconds. Large values near hitches indicate GC involvement.
+`gc=<last>`
+: Latest GC collection-time delta on `Timings`. The rolling 10 second maximum appears separately as
+`gc=<max10>` on `Timings max10`. Expected: `n/a` or low milliseconds. Large values near hitches
+indicate GC involvement.
 
 ## Server Client Lines
 
@@ -475,11 +482,6 @@ or an explicitly enabled safety fallback.
 : Full snapshot bytes sent to this client in the last 1, 5, and 30 seconds. Healthy stable play
 should show `0 B/0 B/0 B` after the initial full snapshot ages out. Full-snapshot bytes during
 stable play should line up with a concrete `lastFull` reason.
-
-`periodic/recovery`
-: Cumulative full snapshots to this client split by optional periodic safety fallbacks and
-demand-driven recovery or baseline reasons. Expected stable play after initial sync: periodic stays
-`0`, and recovery stays flat.
 
 `missingBase`
 : Full snapshots to this client caused by missing baseline history. Expected after warmup: ideally
@@ -533,5 +535,6 @@ For client and host on the same machine, a healthy stable period usually looks l
 - Client `dispatch` repeatedly above the work-slice budget.
 - Client/server `qDepth` or `drain` repeatedly high or growing, which means real inbound backlog
   rather than ordinary frame/tick scheduling.
-- Snapshot apply, materialization, reconciliation, or ACK timings above the frame budget.
+- Client `last` or `fullApply` snapshot timings above the frame/tick budget.
+- `build`, `deltaMat`, `reconcile`, or `ackQueue` timings above the work-slice budget.
 - GC values repeatedly spiking near visible stutters.

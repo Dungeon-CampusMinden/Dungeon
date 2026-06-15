@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import contrib.entities.CharacterClass;
 import core.Game;
 import core.game.PreRunConfiguration;
+import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.DebugPing;
@@ -110,6 +111,7 @@ public class ServerTransportTests {
       currentTransport.remove();
     }
     PreRunConfiguration.multiplayerCharacterClasses(CharacterClass.WIZARD);
+    NetworkConfig.DEBUG_TELEMETRY_ENABLED = false;
   }
 
   /**
@@ -446,7 +448,7 @@ public class ServerTransportTests {
     assertEquals(20, session.clientState().orElseThrow().snapshotSync().lastAckedSnapshotTick());
   }
 
-  /** Verifies one-shot debug telemetry requests send exactly one snapshot response. */
+  /** Verifies one-shot debug telemetry requests require the explicit telemetry opt-in. */
   @Test
   public void debugTelemetryOnceSendsSnapshotResponse() throws Exception {
     ServerTransport transport = currentTransport.get();
@@ -456,6 +458,11 @@ public class ServerTransportTests {
 
     dispatch(session, new DebugTelemetryRequest(55L, DebugTelemetryRequest.Mode.ONCE, 0));
 
+    assertTrue(tcpMessages.isEmpty());
+
+    enableDebugTelemetry();
+    dispatch(session, new DebugTelemetryRequest(55L, DebugTelemetryRequest.Mode.ONCE, 0));
+
     assertEquals(1, tcpMessages.size());
     assertTrue(tcpMessages.getFirst() instanceof DebugTelemetrySnapshot);
     DebugTelemetrySnapshot snapshot = (DebugTelemetrySnapshot) tcpMessages.getFirst();
@@ -463,7 +470,7 @@ public class ServerTransportTests {
     assertEquals(1, snapshot.clients().size());
   }
 
-  /** Verifies debug pings receive pong responses with echoed client timestamps. */
+  /** Verifies debug pings require the explicit telemetry opt-in. */
   @Test
   public void debugPingSendsPongResponse() throws Exception {
     ServerTransport transport = currentTransport.get();
@@ -471,6 +478,11 @@ public class ServerTransportTests {
     List<NetworkMessage> tcpMessages = new CopyOnWriteArrayList<>();
     Session session = registeredSession(transport, (short) 11, tcpMessages);
 
+    dispatch(session, new DebugPing(56L, 123_456L, 13.5f));
+
+    assertTrue(tcpMessages.isEmpty());
+
+    enableDebugTelemetry();
     dispatch(session, new DebugPing(56L, 123_456L, 13.5f));
 
     assertEquals(1, tcpMessages.size());
@@ -495,6 +507,7 @@ public class ServerTransportTests {
   /** Verifies debug telemetry streaming stops on request. */
   @Test
   public void debugTelemetryStreamStopsOnRequest() throws Exception {
+    enableDebugTelemetry();
     ServerTransport transport = currentTransport.get();
     transport.start(uniquePort());
     List<NetworkMessage> tcpMessages = new CopyOnWriteArrayList<>();
@@ -509,12 +522,34 @@ public class ServerTransportTests {
     assertEquals(stoppedCount, tcpMessages.size());
   }
 
+  /** Verifies debug telemetry streaming stops when a reliable snapshot send fails. */
+  @Test
+  public void debugTelemetryStreamStopsOnFailedSend() throws Exception {
+    enableDebugTelemetry();
+    ServerTransport transport = currentTransport.get();
+    transport.start(uniquePort());
+    List<NetworkMessage> tcpMessages = new CopyOnWriteArrayList<>();
+    Session session = registeredSession(transport, (short) 13, tcpMessages, false);
+
+    dispatch(session, new DebugTelemetryRequest(58L, DebugTelemetryRequest.Mode.START_STREAM, 1));
+    int failedSendCount = tcpMessages.size();
+    Thread.sleep(330L);
+
+    assertEquals(1, failedSendCount);
+    assertEquals(failedSendCount, tcpMessages.size());
+  }
+
+  private void enableDebugTelemetry() {
+    NetworkConfig.DEBUG_TELEMETRY_ENABLED = true;
+  }
+
   private Session testSession(AtomicInteger tcpCalls) {
     ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
     Channel channel = Mockito.mock(Channel.class);
     ChannelId channelId = Mockito.mock(ChannelId.class);
     Mockito.when(ctx.channel()).thenReturn(channel);
     Mockito.when(channel.isActive()).thenReturn(true);
+    Mockito.when(channel.isWritable()).thenReturn(true);
     Mockito.when(channel.id()).thenReturn(channelId);
     return new Session(
         ctx,
@@ -526,18 +561,23 @@ public class ServerTransportTests {
   }
 
   private Session testSession(List<NetworkMessage> tcpMessages) {
+    return testSession(tcpMessages, true);
+  }
+
+  private Session testSession(List<NetworkMessage> tcpMessages, boolean tcpSuccess) {
     ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
     Channel channel = Mockito.mock(Channel.class);
     ChannelId channelId = Mockito.mock(ChannelId.class);
     Mockito.when(ctx.channel()).thenReturn(channel);
     Mockito.when(channel.isActive()).thenReturn(true);
+    Mockito.when(channel.isWritable()).thenReturn(true);
     Mockito.when(channel.id()).thenReturn(channelId);
     return new Session(
         ctx,
         (target, msg) -> CompletableFuture.completedFuture(true),
         (channelCtx, msg) -> {
           tcpMessages.add(msg);
-          return CompletableFuture.completedFuture(true);
+          return CompletableFuture.completedFuture(tcpSuccess);
         });
   }
 
@@ -559,7 +599,16 @@ public class ServerTransportTests {
   private Session registeredSession(
       ServerTransport transport, short clientId, List<NetworkMessage> tcpMessages)
       throws Exception {
-    Session session = testSession(tcpMessages);
+    return registeredSession(transport, clientId, tcpMessages, true);
+  }
+
+  private Session registeredSession(
+      ServerTransport transport,
+      short clientId,
+      List<NetworkMessage> tcpMessages,
+      boolean tcpSuccess)
+      throws Exception {
+    Session session = testSession(tcpMessages, tcpSuccess);
     session.attachClientState(
         new ClientState(
             clientId,
