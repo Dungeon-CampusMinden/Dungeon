@@ -967,6 +967,7 @@ public final class Game {
 
   /**
    * Returns the instance of the Localization class. Proxy for Localization.getInstance().
+   *
    * @return The Localization instance.
    */
   public static Localization localization() {

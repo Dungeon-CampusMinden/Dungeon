@@ -139,8 +139,8 @@ public class Localization {
    * <p>The current language suffix is appended to the file name, e.g. {@code images/open-book.png}
    * becomes {@code images/open-book_en.png}. If no asset exists for the current language - neither
    * as an internal file nor as a texture registered in {@link TextureMap} - the fallback language
-   * variant is tried next. If neither localized variant exists, the original unsuffixed
-   * {@code basePath} is returned when available (for language-independent assets).
+   * variant is tried next. If neither localized variant exists, the original unsuffixed {@code
+   * basePath} is returned when available (for language-independent assets).
    *
    * @param basePath Path of the base asset such as 'images/open-book.png'.
    * @return path to the localized asset, or the fallback language variant if it does not exist.

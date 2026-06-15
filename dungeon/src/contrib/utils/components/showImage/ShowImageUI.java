@@ -1,8 +1,6 @@
 package contrib.utils.components.showImage;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -95,7 +93,8 @@ public class ShowImageUI extends Group {
     if (!currentImagePath.equals(component.imagePath())) {
       currentImagePath = Game.localization().asset(component.imagePath());
       background.setDrawable(
-          new TextureRegionDrawable(TextureMap.instance().textureAt(new SimpleIPath(currentImagePath))));
+          new TextureRegionDrawable(
+              TextureMap.instance().textureAt(new SimpleIPath(currentImagePath))));
     }
     float imageWidth = background.getImageWidth();
     float imageHeight = background.getImageHeight();
