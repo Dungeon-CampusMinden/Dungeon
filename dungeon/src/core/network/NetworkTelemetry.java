@@ -1,5 +1,6 @@
 package core.network;
 
+import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.DebugPing;
 import core.network.messages.c2s.DebugTelemetryRequest;
@@ -9,6 +10,11 @@ import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.SnapshotMessage;
 import core.network.server.ClientState;
 import core.network.server.Session;
+import core.network.telemetry.NetworkTelemetryReport;
+import core.network.telemetry.TelemetryLine;
+import core.network.telemetry.TelemetrySection;
+import core.network.telemetry.TelemetrySeverity;
+import core.network.telemetry.TelemetrySpan;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayDeque;
@@ -32,7 +38,6 @@ import java.util.concurrent.atomic.LongAdder;
  */
 public final class NetworkTelemetry {
 
-  private static final long SERVER_SNAPSHOT_STALE_AFTER_MS = 2_000L;
   private static final long NANOS_PER_MICRO = 1_000L;
 
   private static final List<GarbageCollectorMXBean> GC_BEANS =
@@ -166,7 +171,6 @@ public final class NetworkTelemetry {
   private static volatile long clientUdpLastAckAgeMs = -1L;
   private static volatile int clientLatestAppliedSnapshotTick = -1;
   private static volatile float latestDebugRttMs = -1f;
-  private static volatile String debugRequestStatus = "n/a";
 
   private static volatile DebugTelemetrySnapshot latestServerSnapshot;
   private static volatile long latestServerSnapshotReceivedTimeMs = -1L;
@@ -298,7 +302,6 @@ public final class NetworkTelemetry {
     clientUdpLastAckAgeMs = -1L;
     clientLatestAppliedSnapshotTick = -1;
     latestDebugRttMs = -1f;
-    debugRequestStatus = "n/a";
     latestServerSnapshot = null;
     latestServerSnapshotReceivedTimeMs = -1L;
     latestServerSnapshotClientCaptureNanos = -1L;
@@ -632,8 +635,6 @@ public final class NetworkTelemetry {
       long entityReconcileNanos,
       long ackSendNanos,
       boolean stale) {
-    lastAppliedSnapshotKind = delta ? "delta" : "full";
-    lastAppliedSnapshotTick = serverTick;
     lastSnapshotStaleCheckMicros = nanosToMicros(staleCheckNanos);
     lastFullSnapshotApplyMicros = nanosToMicros(fullApplyNanos);
     lastDeltaMaterializeMicros = nanosToMicros(deltaMaterializeNanos);
@@ -801,16 +802,15 @@ public final class NetworkTelemetry {
   public static void recordDebugPong(DebugPong pong) {
     long elapsedNanos = java.lang.System.nanoTime() - pong.clientTimeNanos();
     latestDebugRttMs = Math.max(0f, elapsedNanos / 1_000_000f);
-    debugRequestStatus = "pong " + formatRtt(latestDebugRttMs);
   }
 
   /**
-   * Records the latest debug telemetry request status for the client overlay.
+   * Returns the latest client-measured debug RTT.
    *
-   * @param status short status text
+   * @return latest debug RTT in milliseconds, or negative when unknown
    */
-  public static void recordDebugRequestStatus(String status) {
-    debugRequestStatus = cleanReason(status);
+  public static float latestDebugRttMs() {
+    return latestDebugRttMs;
   }
 
   /**
@@ -953,285 +953,639 @@ public final class NetworkTelemetry {
   }
 
   /**
+   * Builds the current structured debug overlay report.
+   *
+   * @return grouped telemetry report with per-span severity
+   */
+  public static NetworkTelemetryReport debugReport() {
+    refreshGcTelemetry();
+    return new NetworkTelemetryReport(List.of(clientSection(), serverSection()));
+  }
+
+  /**
    * Builds the current debug overlay text.
    *
    * @return multiline telemetry text
    */
   public static String debugText() {
-    refreshGcTelemetry();
-    StringBuilder text = new StringBuilder("Network Telemetry");
-    text.append("\nClient local: ")
-        .append(clientConnected ? "connected" : "disconnected")
-        .append(" id=")
-        .append(clientId)
-        .append(" udp=")
-        .append(clientUdpReady ? "ready" : "fallback")
-        .append(" mode=")
-        .append(clientUdpRetryMode ? "retry" : "keepalive")
-        .append(" ackAge=")
-        .append(formatMillis(clientUdpLastAckAgeMs))
-        .append(" snap=")
-        .append(formatTick(clientLatestAppliedSnapshotTick))
-        .append(" rtt=")
-        .append(formatRtt(latestDebugRttMs))
-        .append(" debug=")
-        .append(debugRequestStatus);
-    text.append("\nClient snapshots: full=")
-        .append(fullSnapshotsApplied.sum())
-        .append(" delta=")
-        .append(deltaSnapshotsApplied.sum())
-        .append(" stale(f/d)=")
-        .append(staleFullSnapshots.sum())
-        .append("/")
-        .append(staleDeltaSnapshots.sum())
-        .append(" early=")
-        .append(earlyStaleFullSnapshots.sum())
-        .append("/")
-        .append(earlyStaleDeltaSnapshots.sum())
-        .append(" handler=")
-        .append(handlerStaleFullSnapshots.sum())
-        .append("/")
-        .append(handlerStaleDeltaSnapshots.sum())
-        .append(" last=")
-        .append(lastAppliedSnapshotKind)
-        .append("@")
-        .append(formatTick(lastAppliedSnapshotTick))
-        .append(" e/r=")
-        .append(formatCount(lastAppliedSnapshotEntities))
-        .append("/")
-        .append(formatCount(lastAppliedSnapshotRemovals))
-        .append(" ")
-        .append(formatMicros(lastAppliedSnapshotMicros));
-    text.append("\nClient snapshot path: staleCheck=")
-        .append(formatMicros(lastSnapshotStaleCheckMicros))
-        .append(" fullApply=")
-        .append(formatMicros(lastFullSnapshotApplyMicros))
-        .append(" deltaMat=")
-        .append(formatMicros(lastDeltaMaterializeMicros))
-        .append(" reconcile=")
-        .append(formatMicros(lastEntityReconcileMicros))
-        .append(" ackQueue=")
-        .append(formatMicros(lastSnapshotAckMicros))
-        .append(" stale=")
-        .append(lastSnapshotHandlerStale)
-        .append(" staleDrop=")
-        .append(lastStaleSnapshotDropStage)
-        .append(":")
-        .append(lastStaleSnapshotDropKind)
-        .append("@")
-        .append(formatTick(lastStaleSnapshotDropTick))
-        .append(" staleFullBytes=")
-        .append(formatBytes(staleFullSnapshotBytes.sum()))
-        .append(" missingLocalBase=")
-        .append(missingLocalDeltaBaselines.sum())
-        .append(" resyncReq=")
-        .append(clientSnapshotResyncRequests.sum())
-        .append(" lastMissing=")
-        .append(formatTick(lastMissingLocalBaseTick))
-        .append("->")
-        .append(formatTick(lastMissingLocalDeltaTick));
+    return debugReport().plainText();
+  }
+
+  private static TelemetrySection clientSection() {
+    List<TelemetryLine> lines = new ArrayList<>();
+    lines.add(clientStateLine());
+    lines.add(clientUdpLine());
+    lines.add(clientRttLine());
+    lines.add(clientSnapshotsLine());
+    lines.add(clientRecoveryLine());
+    lines.add(clientApplyTimingsLine());
+    lines.add(clientRuntimeTimingsLine());
+    lines.add(clientRuntimeMaxTimingsLine());
+    lines.add(clientTransportLine());
+    return new TelemetrySection("Client", lines);
+  }
+
+  private static TelemetryLine clientStateLine() {
+    return line(
+        "State",
+        text(clientConnected ? "connected" : "disconnected"),
+        text(" id=" + clientId),
+        text(" snap=" + formatTick(clientLatestAppliedSnapshotTick)));
+  }
+
+  private static TelemetryLine clientUdpLine() {
+    TelemetrySeverity udpSeverity =
+        NetworkTelemetryThresholds.badIfFalse(clientUdpReady, clientConnected);
+    return line(
+        "UDP",
+        value(clientUdpReady ? "ready" : "fallback", udpSeverity, " (expected ready)"),
+        text(" mode=" + (clientUdpRetryMode ? "retry" : "keepalive")),
+        text(" ackAge="),
+        valueAtMost(
+            formatMillis(clientUdpLastAckAgeMs),
+            clientUdpLastAckAgeMs,
+            NetworkConfig.UDP_STALE_AFTER_MS,
+            formatMillis(NetworkConfig.UDP_STALE_AFTER_MS),
+            clientConnected));
+  }
+
+  private static TelemetryLine clientRttLine() {
+    return line(
+        "RTT",
+        valueAtMost(
+            formatRtt(latestDebugRttMs),
+            latestDebugRttMs,
+            NetworkTelemetryThresholds.DEBUG_RTT_MAX_MS,
+            formatRtt(NetworkTelemetryThresholds.DEBUG_RTT_MAX_MS),
+            true));
+  }
+
+  private static TelemetryLine clientSnapshotsLine() {
+    return line(
+        "Snapshots",
+        text("applied full=" + fullSnapshotsApplied.sum()),
+        text(" delta=" + deltaSnapshotsApplied.sum()),
+        text(" stale="),
+        valueExpectedZero(staleFullSnapshots.sum()),
+        text("/"),
+        valueExpectedZero(staleDeltaSnapshots.sum()),
+        text(" early="),
+        valueExpectedZero(earlyStaleFullSnapshots.sum()),
+        text("/"),
+        valueExpectedZero(earlyStaleDeltaSnapshots.sum()),
+        text(" handler="),
+        valueExpectedZero(handlerStaleFullSnapshots.sum()),
+        text("/"),
+        valueExpectedZero(handlerStaleDeltaSnapshots.sum()),
+        text(" last=" + lastAppliedSnapshotKind + "@" + formatTick(lastAppliedSnapshotTick)),
+        text(" e/r=" + formatCount(lastAppliedSnapshotEntities)),
+        text("/" + formatCount(lastAppliedSnapshotRemovals)));
+  }
+
+  private static TelemetryLine clientRecoveryLine() {
+    return line(
+        "Recovery",
+        text("missingLocalBase="),
+        valueExpectedZero(missingLocalDeltaBaselines.sum()),
+        text(" resyncReq="),
+        valueExpectedZero(clientSnapshotResyncRequests.sum()),
+        text(
+            " lastMissing="
+                + formatTick(lastMissingLocalBaseTick)
+                + "->"
+                + formatTick(lastMissingLocalDeltaTick)),
+        text(" staleFullBytes="),
+        valueExpectedZero(formatBytes(staleFullSnapshotBytes.sum()), staleFullSnapshotBytes.sum()));
+  }
+
+  private static TelemetryLine clientApplyTimingsLine() {
+    long substepMicros = NetworkTelemetryThresholds.substepMicros();
+    long fullApplyMicros = NetworkTelemetryThresholds.fullSnapshotApplyMicros();
+    long lastApplyMicros = "full".equals(lastAppliedSnapshotKind) ? fullApplyMicros : substepMicros;
+    return line(
+        "Apply timings",
+        text("last="),
+        valueAtMost(
+            formatMicros(lastAppliedSnapshotMicros),
+            lastAppliedSnapshotMicros,
+            lastApplyMicros,
+            formatMicros(lastApplyMicros),
+            true),
+        text(" staleCheck="),
+        valueAtMost(
+            formatMicros(lastSnapshotStaleCheckMicros),
+            lastSnapshotStaleCheckMicros,
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" fullApply="),
+        valueAtMost(
+            formatMicros(lastFullSnapshotApplyMicros),
+            lastFullSnapshotApplyMicros,
+            fullApplyMicros,
+            formatMicros(fullApplyMicros),
+            true),
+        text(" deltaMat="),
+        valueAtMost(
+            formatMicros(lastDeltaMaterializeMicros),
+            lastDeltaMaterializeMicros,
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" reconcile="),
+        valueAtMost(
+            formatMicros(lastEntityReconcileMicros),
+            lastEntityReconcileMicros,
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" ackQueue="),
+        valueAtMost(
+            formatMicros(lastSnapshotAckMicros),
+            lastSnapshotAckMicros,
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" stale="),
+        value(
+            Boolean.toString(lastSnapshotHandlerStale),
+            lastSnapshotHandlerStale ? TelemetrySeverity.BAD : TelemetrySeverity.NORMAL,
+            " (expected false)"));
+  }
+
+  private static TelemetryLine clientRuntimeTimingsLine() {
+    long frameMicros = NetworkTelemetryThresholds.clientFrameMicros();
+    long queueBacklogMicros = NetworkTelemetryThresholds.queueBacklogMicros();
+    long substepMicros = NetworkTelemetryThresholds.substepMicros();
+    int maxQueueDepth = NetworkConfig.SERVER_TICK_HZ;
+    return line(
+        "Runtime timings",
+        text("frame="),
+        valueAtMost(
+            formatMicros(lastFrameMicros),
+            lastFrameMicros,
+            frameMicros,
+            formatMicros(frameMicros),
+            true),
+        text(" net="),
+        valueAtMost(
+            formatMicros(lastNetworkDispatchMicros),
+            lastNetworkDispatchMicros,
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" queue="),
+        valueAtMost(
+            formatMicros(lastQueueAgeMicros),
+            lastQueueAgeMicros,
+            queueBacklogMicros,
+            formatMicros(queueBacklogMicros),
+            true),
+        text(" dispatch="),
+        valueAtMost(
+            formatMicros(lastMessageDispatchMicros),
+            lastMessageDispatchMicros,
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" tcpDecode=" + lastTcpDecodeType + " "),
+        valueAtMost(
+            formatMicros(lastTcpDecodeMicros),
+            lastTcpDecodeMicros,
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" qDepth="),
+        valueAtMost(
+            formatCount(lastQueueDepth),
+            lastQueueDepth,
+            maxQueueDepth,
+            formatCount(maxQueueDepth),
+            true),
+        text(" drain=" + formatCount(lastQueueDrainCount)),
+        text(" gc="),
+        valueAtMost(
+            formatMillis(lastGcPauseMs),
+            lastGcPauseMs,
+            NetworkTelemetryThresholds.gcPauseMs(),
+            formatMillis(NetworkTelemetryThresholds.gcPauseMs()),
+            true));
+  }
+
+  private static TelemetryLine clientRuntimeMaxTimingsLine() {
     RollingMax.Sample queueMax = queueAgeMicrosLastTenSeconds.max();
     RollingMax.Sample dispatchMax = dispatchMicrosLastTenSeconds.max();
     RollingMax.Sample tcpDecodeMax = tcpDecodeMicrosLastTenSeconds.max();
-    text.append("\nClient timing: frame=")
-        .append(formatMicros(lastFrameMicros))
-        .append(" net=")
-        .append(formatMicros(lastNetworkDispatchMicros))
-        .append(" queue=")
-        .append(formatMicros(lastQueueAgeMicros))
-        .append(" dispatch=")
-        .append(formatMicros(lastMessageDispatchMicros))
-        .append(" tcpDecode=")
-        .append(lastTcpDecodeType)
-        .append(" ")
-        .append(formatMicros(lastTcpDecodeMicros))
-        .append(" max10(q/d/dec)=")
-        .append(formatMicros(queueMax.value()))
-        .append(" ")
-        .append(queueMax.label())
-        .append("/")
-        .append(formatMicros(dispatchMax.value()))
-        .append(" ")
-        .append(dispatchMax.label())
-        .append("/")
-        .append(tcpDecodeMax.label())
-        .append(" ")
-        .append(formatMicros(tcpDecodeMax.value()))
-        .append(" qDepth=")
-        .append(formatCount(lastQueueDepth))
-        .append("/")
-        .append(formatCount((int) queueDepthLastTenSeconds.max().value()))
-        .append(" drain=")
-        .append(formatCount(lastQueueDrainCount))
-        .append(" gc=")
-        .append(formatMillis(lastGcPauseMs));
-    text.append("\nClient transport out: tcp=")
-        .append(tcpOutboundMessages.sum())
-        .append("/")
-        .append(formatBytes(tcpOutboundBytes.sum()))
-        .append(" udp=")
-        .append(udpOutboundMessages.sum())
-        .append("/")
-        .append(formatBytes(udpOutboundBytes.sum()));
-    text.append("\nClient transport in:  tcp=")
-        .append(tcpInboundMessages.sum())
-        .append("/")
-        .append(formatBytes(tcpInboundBytes.sum()))
-        .append(" udp=")
-        .append(udpInboundMessages.sum())
-        .append("/")
-        .append(formatBytes(udpInboundBytes.sum()));
-    text.append("\nClient debug tx/rx: tcp=")
-        .append(debugTcpOutboundMessages.sum())
-        .append("/")
-        .append(debugTcpInboundMessages.sum())
-        .append(" udp=")
-        .append(debugUdpOutboundMessages.sum())
-        .append("/")
-        .append(debugUdpInboundMessages.sum());
-    appendServerSnapshot(text);
-    return text.toString();
+    long queueBacklogMicros = NetworkTelemetryThresholds.queueBacklogMicros();
+    long substepMicros = NetworkTelemetryThresholds.substepMicros();
+    int maxQueueDepth = NetworkConfig.SERVER_TICK_HZ;
+    return line(
+        "Runtime max10",
+        text("queue=" + queueMax.label() + " "),
+        valueAtMost(
+            formatMicros(queueMax.value()),
+            queueMax.value(),
+            queueBacklogMicros,
+            formatMicros(queueBacklogMicros),
+            true),
+        text(" dispatch=" + dispatchMax.label() + " "),
+        valueAtMost(
+            formatMicros(dispatchMax.value()),
+            dispatchMax.value(),
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" tcpDecode=" + tcpDecodeMax.label() + " "),
+        valueAtMost(
+            formatMicros(tcpDecodeMax.value()),
+            tcpDecodeMax.value(),
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" qDepth="),
+        valueAtMost(
+            formatCount((int) queueDepthLastTenSeconds.max().value()),
+            queueDepthLastTenSeconds.max().value(),
+            maxQueueDepth,
+            formatCount(maxQueueDepth),
+            true));
   }
 
-  private static void appendServerSnapshot(StringBuilder text) {
+  private static TelemetryLine clientTransportLine() {
+    return line(
+        "Transport",
+        text("out tcp=" + tcpOutboundMessages.sum() + "/" + formatBytes(tcpOutboundBytes.sum())),
+        text(" udp=" + udpOutboundMessages.sum() + "/" + formatBytes(udpOutboundBytes.sum())),
+        text(" in tcp=" + tcpInboundMessages.sum() + "/" + formatBytes(tcpInboundBytes.sum())),
+        text(" udp=" + udpInboundMessages.sum() + "/" + formatBytes(udpInboundBytes.sum())));
+  }
+
+  private static TelemetrySection serverSection() {
     DebugTelemetrySnapshot snapshot = latestServerSnapshot;
     long receivedMs = latestServerSnapshotReceivedTimeMs;
     if (snapshot == null || receivedMs < 0L) {
-      text.append("\nServer authoritative: n/a");
-      return;
+      return new TelemetrySection("Server", List.of(line("Authoritative", text("n/a"))));
     }
 
+    List<TelemetryLine> lines = new ArrayList<>();
+    lines.add(serverAuthoritativeLine(snapshot, receivedMs));
+    lines.add(serverSnapshotsLine(snapshot));
+    lines.add(serverRecoveryLine(snapshot));
+    lines.add(serverHistoryLine(snapshot));
+    lines.add(serverTransportLine(snapshot));
+    lines.add(serverUdpLine(snapshot));
+    lines.add(serverTimingsLine(snapshot.timings()));
+    lines.add(serverMaxTimingsLine(snapshot.timings()));
+    snapshot.clients().forEach(client -> lines.add(serverClientLine(client)));
+    return new TelemetrySection("Server", lines);
+  }
+
+  private static TelemetryLine serverAuthoritativeLine(
+      DebugTelemetrySnapshot snapshot, long receivedMs) {
     long age = java.lang.System.currentTimeMillis() - receivedMs;
-    text.append("\nServer authoritative: ");
-    if (age > SERVER_SNAPSHOT_STALE_AFTER_MS) {
-      text.append("server telemetry stale ").append(formatMillis(age)).append(" ");
-    }
-    text.append("clients=")
-        .append(snapshot.clients().size())
-        .append(" udp=")
-        .append(snapshot.clients().stream().filter(DebugTelemetrySnapshot.Client::udpReady).count())
-        .append("/")
-        .append(snapshot.clients().size());
-    text.append(" capture(c/s)=")
-        .append(formatNanos(latestServerSnapshotClientCaptureNanos))
-        .append("/")
-        .append(formatNanos(snapshot.serverTimeNanos()));
-    text.append("\nServer snapshots: full=")
-        .append(snapshot.snapshots().fullSent())
-        .append(" last=")
-        .append(
-            formatSnapshot(
-                snapshot.snapshots().lastFullTick(),
-                snapshot.snapshots().lastFullBytes(),
-                snapshot.snapshots().lastFullEntities()))
-        .append(" | delta=")
-        .append(snapshot.snapshots().deltaSent())
-        .append(" last=")
-        .append(formatDeltaSnapshot(snapshot))
-        .append(" build=")
-        .append(formatMicros(snapshot.snapshots().lastBuildMicros()))
-        .append(" reason=")
-        .append(snapshot.snapshots().lastFullReason())
-        .append(" periodic/recovery=")
-        .append(snapshot.snapshots().periodicFullSent())
-        .append("/")
-        .append(snapshot.snapshots().fallbackFullSent())
-        .append(" missingBase=")
-        .append(snapshot.snapshots().missingBaselineFullFallbacks())
-        .append(" staleFullBytes=")
-        .append(formatBytes(snapshot.snapshots().staleFullBytes()))
-        .append(" rate1/5/30=")
-        .append(snapshot.windows().snapshotsSentLastSecond())
-        .append("/")
-        .append(snapshot.windows().snapshotsSentLastFiveSeconds())
-        .append("/")
-        .append(snapshot.windows().snapshotsSentLastThirtySeconds());
-    text.append("\nServer history: tick=")
-        .append(formatTick(snapshot.snapshots().historyServerTick()))
-        .append(" size=")
-        .append(formatCount(snapshot.snapshots().historySize()))
-        .append("/")
-        .append(formatCount(snapshot.snapshots().historyCapacityTicks()))
-        .append(" cap=")
-        .append(formatSeconds(snapshot.snapshots().historyCapacitySeconds()));
-    text.append("\nServer transport out: tcp=")
-        .append(snapshot.transport().tcpOutboundMessages())
-        .append("/")
-        .append(formatBytes(snapshot.transport().tcpOutboundBytes()))
-        .append(" udp=")
-        .append(snapshot.transport().udpOutboundMessages())
-        .append("/")
-        .append(formatBytes(snapshot.transport().udpOutboundBytes()))
-        .append(" bytes1/5/30=")
-        .append(formatBytes(snapshot.windows().transportOutBytesLastSecond()))
-        .append("/")
-        .append(formatBytes(snapshot.windows().transportOutBytesLastFiveSeconds()))
-        .append("/")
-        .append(formatBytes(snapshot.windows().transportOutBytesLastThirtySeconds()));
-    text.append("\nServer transport in:  tcp=")
-        .append(snapshot.transport().tcpInboundMessages())
-        .append("/")
-        .append(formatBytes(snapshot.transport().tcpInboundBytes()))
-        .append(" udp=")
-        .append(snapshot.transport().udpInboundMessages())
-        .append("/")
-        .append(formatBytes(snapshot.transport().udpInboundBytes()));
-    text.append("\nServer debug tx/rx: tcp=")
-        .append(snapshot.debugTransport().tcpOutboundMessages())
-        .append("/")
-        .append(snapshot.debugTransport().tcpInboundMessages())
-        .append(" udp=")
-        .append(snapshot.debugTransport().udpOutboundMessages())
-        .append("/")
-        .append(snapshot.debugTransport().udpInboundMessages());
-    text.append("\nServer UDP: fallback=")
-        .append(snapshot.udp().fallbacks())
-        .append(" oversized=")
-        .append(snapshot.udp().oversizedPackets())
-        .append(" sendFail=")
-        .append(snapshot.udp().sendFailures())
-        .append(" dropped=")
-        .append(snapshot.udp().droppedPackets())
-        .append(" last(f/drop/fail)=")
-        .append(snapshot.udp().lastFallbackReason())
-        .append("/")
-        .append(snapshot.udp().lastDropReason())
-        .append("/")
-        .append(snapshot.udp().lastFailureReason());
-    DebugTelemetrySnapshot.Timings timings = snapshot.timings();
-    text.append("\nServer timing: frame=")
-        .append(formatMicros(timings.lastFrameMicros()))
-        .append(" max10=")
-        .append(formatMicros(timings.maxFrameMicrosLastTenSeconds()))
-        .append(" net=")
-        .append(formatMicros(timings.lastNetworkDispatchMicros()))
-        .append(" max10=")
-        .append(formatMicros(timings.maxNetworkDispatchMicrosLastTenSeconds()))
-        .append(" queue=")
-        .append(formatMicros(timings.lastQueueAgeMicros()))
-        .append(" max10=")
-        .append(timings.maxQueueAgeTypeLastTenSeconds())
-        .append(" ")
-        .append(formatMicros(timings.maxQueueAgeMicrosLastTenSeconds()))
-        .append(" qDepth=")
-        .append(formatCount(timings.lastQueueDepth()))
-        .append("/")
-        .append(formatCount(timings.maxQueueDepthLastTenSeconds()))
-        .append(" drain=")
-        .append(formatCount(timings.lastQueueDrainCount()))
-        .append(" tcpDecode=")
-        .append(timings.lastTcpDecodeType())
-        .append(" ")
-        .append(formatMicros(timings.lastTcpDecodeMicros()))
-        .append(" max10=")
-        .append(timings.maxTcpDecodeTypeLastTenSeconds())
-        .append(" ")
-        .append(formatMicros(timings.maxTcpDecodeMicrosLastTenSeconds()))
-        .append(" gc=")
-        .append(formatMillis(timings.lastGcPauseMs()))
-        .append("/")
-        .append(formatMillis(timings.maxGcPauseMsLastTenSeconds()));
-    appendServerClientTelemetry(text, snapshot.clients());
+    long readyClients =
+        snapshot.clients().stream().filter(DebugTelemetrySnapshot.Client::udpReady).count();
+    return line(
+        "Authoritative",
+        text("age="),
+        valueAtMost(
+            formatMillis(age),
+            age,
+            NetworkTelemetryThresholds.SERVER_SNAPSHOT_STALE_AFTER_MS,
+            formatMillis(NetworkTelemetryThresholds.SERVER_SNAPSHOT_STALE_AFTER_MS),
+            true),
+        text(" clients=" + snapshot.clients().size()),
+        text(" udp=" + readyClients + "/" + snapshot.clients().size()));
+  }
+
+  private static TelemetryLine serverSnapshotsLine(DebugTelemetrySnapshot snapshot) {
+    DebugTelemetrySnapshot.Snapshots snapshots = snapshot.snapshots();
+    return line(
+        "Snapshots",
+        text("full=" + snapshots.fullSent()),
+        text(" lastFull=" + formatTickLabel(snapshots.lastFullTick()) + " bytes="),
+        valueAtMost(
+            formatBytes(snapshots.lastFullBytes()),
+            snapshots.lastFullBytes(),
+            NetworkTelemetryThresholds.FULL_SNAPSHOT_SOFT_MAX_BYTES,
+            formatBytes(NetworkTelemetryThresholds.FULL_SNAPSHOT_SOFT_MAX_BYTES),
+            true),
+        text(" entities=" + formatCount(snapshots.lastFullEntities())),
+        text(" delta=" + snapshots.deltaSent()),
+        text(" lastDelta=" + formatTickLabel(snapshots.lastDeltaTick()) + " bytes="),
+        valueAtMost(
+            formatBytes(snapshots.lastDeltaBytes()),
+            snapshots.lastDeltaBytes(),
+            NetworkConfig.SAFE_UDP_MTU,
+            formatBytes(NetworkConfig.SAFE_UDP_MTU),
+            true),
+        text(" deltas=" + formatCount(snapshots.lastDeltaEntityDeltas())),
+        text(" removals=" + formatCount(snapshots.lastDeltaRemovals())),
+        text(" build="),
+        valueAtMost(
+            formatMicros(snapshots.lastBuildMicros()),
+            snapshots.lastBuildMicros(),
+            NetworkTelemetryThresholds.substepMicros(),
+            formatMicros(NetworkTelemetryThresholds.substepMicros()),
+            true),
+        text(" reason="),
+        value(
+            snapshots.lastFullReason(),
+            NetworkTelemetryThresholds.badIfReason(snapshots.lastFullReason()),
+            " (expected stable baseline)"),
+        text(
+            " rate1/5/30="
+                + snapshot.windows().snapshotsSentLastSecond()
+                + "/"
+                + snapshot.windows().snapshotsSentLastFiveSeconds()
+                + "/"
+                + snapshot.windows().snapshotsSentLastThirtySeconds()));
+  }
+
+  private static TelemetryLine serverRecoveryLine(DebugTelemetrySnapshot snapshot) {
+    DebugTelemetrySnapshot.Snapshots snapshots = snapshot.snapshots();
+    return line(
+        "Recovery",
+        text(
+            "periodic/recovery="
+                + snapshots.periodicFullSent()
+                + "/"
+                + snapshots.fallbackFullSent()),
+        text(" missingBase="),
+        valueExpectedZero(snapshots.missingBaselineFullFallbacks()),
+        text(" staleFullBytes="),
+        valueExpectedZero(formatBytes(snapshots.staleFullBytes()), snapshots.staleFullBytes()));
+  }
+
+  private static TelemetryLine serverHistoryLine(DebugTelemetrySnapshot snapshot) {
+    DebugTelemetrySnapshot.Snapshots snapshots = snapshot.snapshots();
+    return line(
+        "History",
+        text("tick=" + formatTick(snapshots.historyServerTick())),
+        text(" retained=" + formatCount(snapshots.historySize())),
+        text("/" + formatCount(snapshots.historyCapacityTicks())),
+        text(" cap=" + formatSeconds(snapshots.historyCapacitySeconds())));
+  }
+
+  private static TelemetryLine serverTransportLine(DebugTelemetrySnapshot snapshot) {
+    return line(
+        "Transport",
+        text(
+            "out tcp="
+                + snapshot.transport().tcpOutboundMessages()
+                + "/"
+                + formatBytes(snapshot.transport().tcpOutboundBytes())),
+        text(
+            " udp="
+                + snapshot.transport().udpOutboundMessages()
+                + "/"
+                + formatBytes(snapshot.transport().udpOutboundBytes())),
+        text(
+            " in tcp="
+                + snapshot.transport().tcpInboundMessages()
+                + "/"
+                + formatBytes(snapshot.transport().tcpInboundBytes())),
+        text(
+            " udp="
+                + snapshot.transport().udpInboundMessages()
+                + "/"
+                + formatBytes(snapshot.transport().udpInboundBytes())),
+        text(
+            " bytes1/5/30="
+                + formatBytes(snapshot.windows().transportOutBytesLastSecond())
+                + "/"
+                + formatBytes(snapshot.windows().transportOutBytesLastFiveSeconds())
+                + "/"
+                + formatBytes(snapshot.windows().transportOutBytesLastThirtySeconds())));
+  }
+
+  private static TelemetryLine serverUdpLine(DebugTelemetrySnapshot snapshot) {
+    return line(
+        "UDP",
+        text("fallback="),
+        valueExpectedZero(snapshot.udp().fallbacks()),
+        text(" oversized="),
+        valueExpectedZero(snapshot.udp().oversizedPackets()),
+        text(" sendFail="),
+        valueExpectedZero(snapshot.udp().sendFailures()),
+        text(" dropped="),
+        valueExpectedZero(snapshot.udp().droppedPackets()),
+        text(
+            " last="
+                + snapshot.udp().lastFallbackReason()
+                + "/"
+                + snapshot.udp().lastDropReason()
+                + "/"
+                + snapshot.udp().lastFailureReason()));
+  }
+
+  private static TelemetryLine serverTimingsLine(DebugTelemetrySnapshot.Timings timings) {
+    long tickMicros = NetworkTelemetryThresholds.tickMicros();
+    long queueBacklogMicros = NetworkTelemetryThresholds.queueBacklogMicros();
+    long substepMicros = NetworkTelemetryThresholds.substepMicros();
+    int maxQueueDepth = NetworkConfig.SERVER_TICK_HZ;
+    return line(
+        "Timings",
+        text("frame="),
+        valueAtMost(
+            formatMicros(timings.lastFrameMicros()),
+            timings.lastFrameMicros(),
+            tickMicros,
+            formatMicros(tickMicros),
+            true),
+        text(" net="),
+        valueAtMost(
+            formatMicros(timings.lastNetworkDispatchMicros()),
+            timings.lastNetworkDispatchMicros(),
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" queue="),
+        valueAtMost(
+            formatMicros(timings.lastQueueAgeMicros()),
+            timings.lastQueueAgeMicros(),
+            queueBacklogMicros,
+            formatMicros(queueBacklogMicros),
+            true),
+        text(" qDepth="),
+        valueAtMost(
+            formatCount(timings.lastQueueDepth()),
+            timings.lastQueueDepth(),
+            maxQueueDepth,
+            formatCount(maxQueueDepth),
+            true),
+        text(" drain=" + formatCount(timings.lastQueueDrainCount())),
+        text(" tcpDecode=" + timings.lastTcpDecodeType() + " "),
+        valueAtMost(
+            formatMicros(timings.lastTcpDecodeMicros()),
+            timings.lastTcpDecodeMicros(),
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" gc="),
+        valueAtMost(
+            formatMillis(timings.lastGcPauseMs()),
+            timings.lastGcPauseMs(),
+            NetworkTelemetryThresholds.gcPauseMs(),
+            formatMillis(NetworkTelemetryThresholds.gcPauseMs()),
+            true));
+  }
+
+  private static TelemetryLine serverMaxTimingsLine(DebugTelemetrySnapshot.Timings timings) {
+    long tickMicros = NetworkTelemetryThresholds.tickMicros();
+    long queueBacklogMicros = NetworkTelemetryThresholds.queueBacklogMicros();
+    long substepMicros = NetworkTelemetryThresholds.substepMicros();
+    int maxQueueDepth = NetworkConfig.SERVER_TICK_HZ;
+    return line(
+        "Timings max10",
+        text("frame="),
+        valueAtMost(
+            formatMicros(timings.maxFrameMicrosLastTenSeconds()),
+            timings.maxFrameMicrosLastTenSeconds(),
+            tickMicros,
+            formatMicros(tickMicros),
+            true),
+        text(" net="),
+        valueAtMost(
+            formatMicros(timings.maxNetworkDispatchMicrosLastTenSeconds()),
+            timings.maxNetworkDispatchMicrosLastTenSeconds(),
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" queue=" + timings.maxQueueAgeTypeLastTenSeconds() + " "),
+        valueAtMost(
+            formatMicros(timings.maxQueueAgeMicrosLastTenSeconds()),
+            timings.maxQueueAgeMicrosLastTenSeconds(),
+            queueBacklogMicros,
+            formatMicros(queueBacklogMicros),
+            true),
+        text(" qDepth="),
+        valueAtMost(
+            formatCount(timings.maxQueueDepthLastTenSeconds()),
+            timings.maxQueueDepthLastTenSeconds(),
+            maxQueueDepth,
+            formatCount(maxQueueDepth),
+            true),
+        text(" tcpDecode=" + timings.maxTcpDecodeTypeLastTenSeconds() + " "),
+        valueAtMost(
+            formatMicros(timings.maxTcpDecodeMicrosLastTenSeconds()),
+            timings.maxTcpDecodeMicrosLastTenSeconds(),
+            substepMicros,
+            formatMicros(substepMicros),
+            true),
+        text(" gc="),
+        valueAtMost(
+            formatMillis(timings.maxGcPauseMsLastTenSeconds()),
+            timings.maxGcPauseMsLastTenSeconds(),
+            NetworkTelemetryThresholds.gcPauseMs(),
+            formatMillis(NetworkTelemetryThresholds.gcPauseMs()),
+            true));
+  }
+
+  private static TelemetryLine serverClientLine(DebugTelemetrySnapshot.Client client) {
+    boolean ackKnown = client.latestAckedSnapshotTick() >= 0;
+    return line(
+        "Client " + client.clientId(),
+        text("udp="),
+        value(
+            Boolean.toString(client.udpReady()),
+            NetworkTelemetryThresholds.badIfFalse(client.udpReady(), true),
+            " (expected true)"),
+        text(" rtt="),
+        valueAtMost(
+            formatRtt(client.rttEstimateMs()),
+            client.rttEstimateMs(),
+            NetworkTelemetryThresholds.DEBUG_RTT_MAX_MS,
+            formatRtt(NetworkTelemetryThresholds.DEBUG_RTT_MAX_MS),
+            true),
+        text(" activity=" + formatMillis(client.lastActivityAgeMs())),
+        text(" ack=" + formatTick(client.latestAckedSnapshotTick())),
+        text(" age=" + formatCount(client.ackAgeTicks()) + "t/" + formatMillis(client.ackAgeMs())),
+        text(" hist="),
+        value(
+            Boolean.toString(client.ackBaselineInHistory()),
+            NetworkTelemetryThresholds.badIfFalse(client.ackBaselineInHistory(), ackKnown),
+            " (expected true)"),
+        text(
+            " cap="
+                + formatCount(client.historyCapacityTicks())
+                + "t/"
+                + formatSeconds(client.historyCapacitySeconds())),
+        text(" full1/5/30="),
+        valueAtMost(
+            Long.toString(client.fullSnapshotsLastSecond()),
+            client.fullSnapshotsLastSecond(),
+            1L,
+            "1",
+            true),
+        text(
+            "/"
+                + client.fullSnapshotsLastFiveSeconds()
+                + "/"
+                + client.fullSnapshotsLastThirtySeconds()),
+        text(
+            " bytes="
+                + formatBytes(client.fullSnapshotBytesLastSecond())
+                + "/"
+                + formatBytes(client.fullSnapshotBytesLastFiveSeconds())
+                + "/"
+                + formatBytes(client.fullSnapshotBytesLastThirtySeconds())),
+        text(" missingBase="),
+        valueExpectedZero(client.missingBaselineFullFallbacks()),
+        text(" lastFull="),
+        value(
+            client.lastFullSnapshotReason(),
+            NetworkTelemetryThresholds.badIfReason(client.lastFullSnapshotReason()),
+            " (expected stable baseline)"),
+        text("@" + formatTick(client.lastFullSnapshotTick()) + "/"),
+        valueAtMost(
+            formatBytes(client.lastFullSnapshotBytes()),
+            client.lastFullSnapshotBytes(),
+            NetworkTelemetryThresholds.FULL_SNAPSHOT_SOFT_MAX_BYTES,
+            formatBytes(NetworkTelemetryThresholds.FULL_SNAPSHOT_SOFT_MAX_BYTES),
+            true),
+        text(" age=" + formatMillis(client.lastFullSnapshotAgeMs())));
+  }
+
+  private static TelemetryLine line(String label, TelemetrySpan... spans) {
+    List<TelemetrySpan> lineSpans = new ArrayList<>();
+    lineSpans.add(text(label + ": "));
+    lineSpans.addAll(List.of(spans));
+    return new TelemetryLine(lineSpans);
+  }
+
+  private static TelemetrySpan text(String text) {
+    return new TelemetrySpan(text, TelemetrySeverity.NORMAL);
+  }
+
+  private static TelemetrySpan value(String text, TelemetrySeverity severity, String expected) {
+    String suffix = severity == TelemetrySeverity.BAD ? expected : "";
+    return new TelemetrySpan(text + suffix, severity);
+  }
+
+  private static TelemetrySpan valueExpectedZero(long value) {
+    return valueExpectedZero(Long.toString(value), value);
+  }
+
+  private static TelemetrySpan valueExpectedZero(String text, long value) {
+    return value(
+        text,
+        NetworkTelemetryThresholds.badIfPositive(value),
+        NetworkTelemetryThresholds.expectedZero());
+  }
+
+  private static TelemetrySpan valueAtMost(
+      String text, long value, long max, String formattedMax, boolean meaningful) {
+    TelemetrySeverity severity =
+        meaningful ? NetworkTelemetryThresholds.badIfGreater(value, max) : TelemetrySeverity.NORMAL;
+    return value(text, severity, NetworkTelemetryThresholds.expectedAtMost(formattedMax));
+  }
+
+  private static TelemetrySpan valueAtMost(
+      String text, double value, double max, String formattedMax, boolean meaningful) {
+    TelemetrySeverity severity =
+        meaningful ? NetworkTelemetryThresholds.badIfGreater(value, max) : TelemetrySeverity.NORMAL;
+    return value(text, severity, NetworkTelemetryThresholds.expectedAtMost(formattedMax));
   }
 
   private static void reset(LongAdder adder) {
@@ -1382,57 +1736,11 @@ public final class NetworkTelemetry {
 
   private static float debugRttEstimate(ClientState clientState) {
     float estimate = clientState.rttEstimateMs();
-    return clientState.lastClientTick() > 0L && estimate > 0f ? estimate : -1f;
+    return estimate > 0f ? estimate : -1f;
   }
 
   private static long nanosToMicros(long nanos) {
     return nanos < 0L ? -1L : Math.max(0L, nanos / NANOS_PER_MICRO);
-  }
-
-  private static void appendServerClientTelemetry(
-      StringBuilder text, List<DebugTelemetrySnapshot.Client> clients) {
-    for (DebugTelemetrySnapshot.Client client : clients) {
-      text.append("\nServer client ")
-          .append(client.clientId())
-          .append(": ack=")
-          .append(formatTick(client.latestAckedSnapshotTick()))
-          .append(" age=")
-          .append(formatCount(client.ackAgeTicks()))
-          .append("t/")
-          .append(formatMillis(client.ackAgeMs()))
-          .append(" hist=")
-          .append(client.ackBaselineInHistory())
-          .append(" cap=")
-          .append(formatCount(client.historyCapacityTicks()))
-          .append("t/")
-          .append(formatSeconds(client.historyCapacitySeconds()))
-          .append(" full1/5/30=")
-          .append(client.fullSnapshotsLastSecond())
-          .append("/")
-          .append(client.fullSnapshotsLastFiveSeconds())
-          .append("/")
-          .append(client.fullSnapshotsLastThirtySeconds())
-          .append(" bytes=")
-          .append(formatBytes(client.fullSnapshotBytesLastSecond()))
-          .append("/")
-          .append(formatBytes(client.fullSnapshotBytesLastFiveSeconds()))
-          .append("/")
-          .append(formatBytes(client.fullSnapshotBytesLastThirtySeconds()))
-          .append(" periodic/recovery=")
-          .append(client.periodicFullSnapshots())
-          .append("/")
-          .append(client.fallbackFullSnapshots())
-          .append(" missingBase=")
-          .append(client.missingBaselineFullFallbacks())
-          .append(" lastFull=")
-          .append(client.lastFullSnapshotReason())
-          .append("@")
-          .append(formatTick(client.lastFullSnapshotTick()))
-          .append("/")
-          .append(formatBytes(client.lastFullSnapshotBytes()))
-          .append(" age=")
-          .append(formatMillis(client.lastFullSnapshotAgeMs()));
-    }
   }
 
   private static String formatBytes(long bytes) {
@@ -1452,7 +1760,7 @@ public final class NetworkTelemetry {
     if (millis < 1000L) {
       return millis + " ms";
     }
-    return String.format(Locale.ROOT, "%.1f s", millis / 1000.0);
+    return String.format(Locale.ROOT, "%.1fs", millis / 1000.0);
   }
 
   private static String formatNanos(long nanos) {
@@ -1466,7 +1774,7 @@ public final class NetworkTelemetry {
     if (seconds < 0.0) {
       return "n/a";
     }
-    return String.format(Locale.ROOT, "%.2f s", seconds);
+    return String.format(Locale.ROOT, "%.2fs", seconds);
   }
 
   private static String formatMicros(long micros) {
@@ -1490,30 +1798,12 @@ public final class NetworkTelemetry {
     return tick < 0 ? "n/a" : Integer.toString(tick);
   }
 
+  private static String formatTickLabel(int tick) {
+    return tick < 0 ? "n/a" : "t" + tick;
+  }
+
   private static String formatCount(int count) {
     return count < 0 ? "n/a" : Integer.toString(count);
-  }
-
-  private static String formatSnapshot(int tick, int bytes, int entities) {
-    if (tick < 0 || bytes < 0) {
-      return "n/a";
-    }
-    return "t" + tick + "/" + formatBytes(bytes) + "/e=" + formatCount(entities);
-  }
-
-  private static String formatDeltaSnapshot(DebugTelemetrySnapshot snapshot) {
-    DebugTelemetrySnapshot.Snapshots snapshots = snapshot.snapshots();
-    if (snapshots.lastDeltaTick() < 0 || snapshots.lastDeltaBytes() < 0) {
-      return "n/a";
-    }
-    return "t"
-        + snapshots.lastDeltaTick()
-        + "/"
-        + formatBytes(snapshots.lastDeltaBytes())
-        + "/d="
-        + formatCount(snapshots.lastDeltaEntityDeltas())
-        + "/r="
-        + formatCount(snapshots.lastDeltaRemovals());
   }
 
   private record PendingFullSnapshotKey(short clientId, int serverTick) {}

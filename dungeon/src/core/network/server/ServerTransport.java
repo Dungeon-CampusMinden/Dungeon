@@ -94,6 +94,7 @@ public final class ServerTransport {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerTransport.class);
   private static final int DEBUG_TELEMETRY_DEFAULT_INTERVAL_MS = 1_000;
   private static final int DEBUG_TELEMETRY_MIN_INTERVAL_MS = 250;
+  private static final float DEBUG_RTT_EWMA_ALPHA = 0.2f;
 
   private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
   private final AtomicInteger inboundQueueDepth = new AtomicInteger();
@@ -578,6 +579,9 @@ public final class ServerTransport {
       return;
     }
     long receivedMs = System.currentTimeMillis();
+    session
+        .clientState()
+        .ifPresent(state -> state.recordDebugRttEstimate(ping.latestRttMs(), DEBUG_RTT_EWMA_ALPHA));
     session.sendMessage(
         new DebugPong(
             ping.requestId(), ping.clientTimeNanos(), receivedMs, System.currentTimeMillis()),

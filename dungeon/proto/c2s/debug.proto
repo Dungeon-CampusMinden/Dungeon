@@ -29,4 +29,5 @@ enum DebugTelemetryRequestMode {
 message DebugPing {
   int64 request_id = 1;
   int64 client_time_nanos = 2;
+  float latest_rtt_ms = 3;
 }

@@ -55,17 +55,8 @@ public class ClientState {
    */
   private int expectedSeq = 0;
 
-  /**
-   * The estimated round-trip time (RTT) in milliseconds. Updated based on clientTick vs. server
-   * reception time; used for lag compensation. Initialized to 0 (unknown).
-   */
+  /** The estimated round-trip time (RTT) in milliseconds. Initialized to 0 (unknown). */
   private volatile float rttEstimateMs = 0.0f;
-
-  /**
-   * The last known client tick (from InputMessage.clientTick). Helps in correlating client time
-   * with server ticks for prediction/reconciliation.
-   */
-  private volatile long lastClientTick = 0;
 
   /**
    * The entity of the player (local player).
@@ -163,7 +154,6 @@ public class ClientState {
     this.sessionToken = newSessionToken.clone();
     this.lastProcessedSeq = -1;
     this.expectedSeq = 0;
-    this.lastClientTick = 0;
     this.initialWorldReady = false;
     clearSnapshotBaseline(FullSnapshotSendReason.RECONNECT);
     if (!preserveHero) {
@@ -222,20 +212,21 @@ public class ClientState {
   }
 
   /**
-   * Updates the RTT estimate based on the time difference between clientTick and reception. Uses a
-   * simple EWMA (Exponential Weighted Moving Average) for smoothing.
+   * Records a client-measured debug RTT sample.
    *
-   * @param clientTick The client's tick timestamp (in ms or tick units).
-   * @param alpha The smoothing factor (0.0-1.0; e.g., 0.1 for gradual updates).
+   * <p>Input messages carry game ticks, not synchronized wall-clock timestamps, so authoritative
+   * server telemetry uses debug ping samples for an actual round-trip estimate.
+   *
+   * @param rttMs client-measured round-trip time in milliseconds
+   * @param alpha EWMA smoothing factor between 0 and 1
    */
-  public synchronized void updateRttEstimate(long clientTick, float alpha) {
-    long receptionTime = System.currentTimeMillis();
-    long rawRtt = receptionTime - clientTick;
-    if (rawRtt < 0) rawRtt = 0;
-
-    this.rttEstimateMs = alpha * rawRtt + (1.0f - alpha) * this.rttEstimateMs;
-    this.lastClientTick = clientTick;
-    this.lastActivityTimeMs = receptionTime;
+  public synchronized void recordDebugRttEstimate(float rttMs, float alpha) {
+    if (!Float.isFinite(rttMs) || rttMs <= 0f) {
+      return;
+    }
+    float clampedAlpha = Math.max(0f, Math.min(1f, alpha));
+    rttEstimateMs =
+        rttEstimateMs > 0f ? clampedAlpha * rttMs + (1.0f - clampedAlpha) * rttEstimateMs : rttMs;
   }
 
   /**
@@ -333,15 +324,6 @@ public class ClientState {
    */
   public float rttEstimateMs() {
     return rttEstimateMs;
-  }
-
-  /**
-   * Returns the last known client tick.
-   *
-   * @return The client tick (0 if unknown).
-   */
-  public long lastClientTick() {
-    return lastClientTick;
   }
 
   /**

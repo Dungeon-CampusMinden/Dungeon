@@ -14,12 +14,13 @@ public final class DebugPingConverter
     return core.network.proto.c2s.DebugPing.newBuilder()
         .setRequestId(message.requestId())
         .setClientTimeNanos(message.clientTimeNanos())
+        .setLatestRttMs(message.latestRttMs())
         .build();
   }
 
   @Override
   public DebugPing fromProto(core.network.proto.c2s.DebugPing proto) {
-    return new DebugPing(proto.getRequestId(), proto.getClientTimeNanos());
+    return new DebugPing(proto.getRequestId(), proto.getClientTimeNanos(), proto.getLatestRttMs());
   }
 
   @Override

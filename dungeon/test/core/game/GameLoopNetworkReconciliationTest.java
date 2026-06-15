@@ -138,7 +138,7 @@ public class GameLoopNetworkReconciliationTest {
             List.of(),
             new LevelState(Set.of()));
     DeltaSnapshotMessage staleDeltaSnapshot =
-        new DeltaSnapshotMessage(10, 11, List.of(), List.of(), new LevelState(Set.of()));
+        new DeltaSnapshotMessage(9, 10, List.of(), List.of(), new LevelState(Set.of()));
 
     Game.network().messageDispatcher().dispatch(session, fullSnapshot);
     Game.network().messageDispatcher().dispatch(session, staleFullSnapshot);
@@ -146,8 +146,10 @@ public class GameLoopNetworkReconciliationTest {
     Game.network().messageDispatcher().dispatch(session, staleDeltaSnapshot);
 
     String debugText = NetworkTelemetry.debugText();
-    assertTrue(debugText.contains("Client snapshots: full=1 delta=1 stale(f/d)=1/1"));
+    assertTrue(debugText.contains("Snapshots: applied full=1 delta=1"));
+    assertTrue(debugText.contains("stale=1 (expected 0)/1 (expected 0)"));
     assertTrue(debugText.contains("last=delta@11"));
+    assertTrue(debugText.contains("handler=1 (expected 0)/1 (expected 0)"));
   }
 
   private static void setupGameLoopMessageHandlers() throws Exception {

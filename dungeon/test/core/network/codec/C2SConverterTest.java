@@ -607,15 +607,17 @@ public class C2SConverterTest {
   /** Verifies debug ping conversion. */
   @Test
   public void testDebugPingRoundTrip() {
-    DebugPing message = new DebugPing(78L, 123_456L);
+    DebugPing message = new DebugPing(78L, 123_456L, 13.5f);
 
     core.network.proto.c2s.DebugPing proto = DEBUG_PING_CONVERTER.toProto(message);
     assertEquals(78L, proto.getRequestId());
     assertEquals(123_456L, proto.getClientTimeNanos());
+    assertEquals(13.5f, proto.getLatestRttMs());
 
     DebugPing roundTrip = DEBUG_PING_CONVERTER.fromProto(proto);
     assertEquals(message.requestId(), roundTrip.requestId());
     assertEquals(message.clientTimeNanos(), roundTrip.clientTimeNanos());
+    assertEquals(message.latestRttMs(), roundTrip.latestRttMs());
   }
 
   /** Verifies initial world ready conversion. */

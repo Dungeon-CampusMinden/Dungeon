@@ -471,7 +471,7 @@ public class ServerTransportTests {
     List<NetworkMessage> tcpMessages = new CopyOnWriteArrayList<>();
     Session session = registeredSession(transport, (short) 11, tcpMessages);
 
-    dispatch(session, new DebugPing(56L, 123_456L));
+    dispatch(session, new DebugPing(56L, 123_456L, 13.5f));
 
     assertEquals(1, tcpMessages.size());
     assertTrue(tcpMessages.getFirst() instanceof DebugPong);
@@ -479,6 +479,7 @@ public class ServerTransportTests {
     assertEquals(56L, pong.requestId());
     assertEquals(123_456L, pong.clientTimeNanos());
     assertTrue(pong.serverSendTimeMs() >= pong.serverReceiveTimeMs());
+    assertEquals(13.5f, session.clientState().orElseThrow().rttEstimateMs(), 0.001f);
   }
 
   /** Verifies debug telemetry request intervals are clamped to the production policy. */

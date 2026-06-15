@@ -32,6 +32,11 @@ import core.network.NetworkTelemetry;
 import core.network.NetworkUtils;
 import core.network.messages.c2s.DebugPing;
 import core.network.messages.c2s.DebugTelemetryRequest;
+import core.network.telemetry.NetworkTelemetryReport;
+import core.network.telemetry.TelemetryLine;
+import core.network.telemetry.TelemetrySection;
+import core.network.telemetry.TelemetrySeverity;
+import core.network.telemetry.TelemetrySpan;
 import core.systems.CameraSystem;
 import core.systems.input.InputManager;
 import core.utils.ClipboardUtil;
@@ -42,6 +47,7 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.BlendUtils;
 import core.utils.components.draw.ColorUtils;
 import core.utils.components.draw.animation.Animation;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -86,6 +92,7 @@ public class DebugDrawSystem extends System {
   private static final int CIRCLE_SEGMENTS = 60; // resolution of circles (higher = smoother)
   private static final int DEBUG_TELEMETRY_STREAM_INTERVAL_MS = 1_000;
   private static final int DEBUG_TELEMETRY_PING_INTERVAL_MS = 1_000;
+  private static final int NETWORK_TELEMETRY_NOTICE_MS = 2_000;
   private static final BitmapFont FONT = FontHelper.getDefaultFont();
 
   private static final Map<Entity, String> quickInfoCache = new HashMap<Entity, String>();
@@ -96,6 +103,9 @@ public class DebugDrawSystem extends System {
   private volatile long debugTelemetryStreamRequestId = -1L;
   private volatile long nextDebugTelemetryPingTimeMs = 0L;
   private volatile long nextDebugTelemetryStreamRetryTimeMs = 0L;
+  private volatile String networkTelemetryNotice = "";
+  private volatile TelemetrySeverity networkTelemetryNoticeSeverity = TelemetrySeverity.NORMAL;
+  private volatile long networkTelemetryNoticeUntilMs = -1L;
 
   /** Creates a new DebugDrawSystem. */
   public DebugDrawSystem() {
@@ -115,9 +125,9 @@ public class DebugDrawSystem extends System {
     if (renderSystemList) drawSystemList();
     if (renderNetworkTelemetry) {
       updateNetworkTelemetryRequest();
-      String telemetryText = NetworkTelemetry.debugText();
-      copyNetworkTelemetryIfRequested(telemetryText);
-      drawNetworkTelemetry(telemetryText);
+      NetworkTelemetryReport telemetryReport = NetworkTelemetry.debugReport();
+      copyNetworkTelemetryIfRequested(telemetryReport.plainText());
+      drawNetworkTelemetry(telemetryReport);
     }
 
     if (!render) return;
@@ -135,11 +145,17 @@ public class DebugDrawSystem extends System {
     drawScreenOverlay(text, 10f, Game.windowHeight() - 10f);
   }
 
-  private void drawNetworkTelemetry(String text) {
-    GlyphLayout layout = new GlyphLayout(FONT, text);
+  private void drawNetworkTelemetry(NetworkTelemetryReport report) {
+    List<TelemetryLine> lines = reportLines(report);
+    TelemetryLine noticeLine = activeNetworkTelemetryNoticeLine();
+    if (noticeLine != null) {
+      lines.add(0, noticeLine);
+    }
+    String displayText = plainText(lines);
+    GlyphLayout layout = new GlyphLayout(FONT, displayText);
     float textX = 10f;
     float textY = layout.height + 10f;
-    drawScreenOverlay(text, textX, textY);
+    drawStructuredScreenOverlay(lines, displayText, textX, textY);
   }
 
   private void copyNetworkTelemetryIfRequested(String text) {
@@ -148,9 +164,9 @@ public class DebugDrawSystem extends System {
     }
     try {
       ClipboardUtil.copyToClipboard(text);
-      NetworkTelemetry.recordDebugRequestStatus("telemetry copied");
+      showNetworkTelemetryNotice("Copied network telemetry", TelemetrySeverity.NORMAL);
     } catch (Exception e) {
-      NetworkTelemetry.recordDebugRequestStatus("telemetry copy failed");
+      showNetworkTelemetryNotice("Clipboard copy failed", TelemetrySeverity.BAD);
     }
   }
 
@@ -175,6 +191,86 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.end();
 
     drawText(text, new Point(textX, textY));
+  }
+
+  private void drawStructuredScreenOverlay(
+      List<TelemetryLine> lines, String plainText, float textX, float textY) {
+    GlyphLayout layout = new GlyphLayout(FONT, plainText);
+    float padding = 4f;
+    float bgX = textX - padding;
+    float bgY = textY - layout.height - padding;
+    float bgW = layout.width + 2f * padding;
+    float bgH = layout.height + 2f * padding;
+
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(DEBUG_CAM.combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
+    SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
+    SHAPE_RENDERER.end();
+
+    drawTelemetryLines(lines, textX, textY);
+  }
+
+  private TelemetryLine activeNetworkTelemetryNoticeLine() {
+    if (networkTelemetryNotice.isBlank()
+        || java.lang.System.currentTimeMillis() >= networkTelemetryNoticeUntilMs) {
+      return null;
+    }
+    return new TelemetryLine(
+        List.of(new TelemetrySpan(networkTelemetryNotice, networkTelemetryNoticeSeverity)));
+  }
+
+  private void showNetworkTelemetryNotice(String text, TelemetrySeverity severity) {
+    networkTelemetryNotice = text;
+    networkTelemetryNoticeSeverity = severity;
+    networkTelemetryNoticeUntilMs =
+        java.lang.System.currentTimeMillis() + NETWORK_TELEMETRY_NOTICE_MS;
+  }
+
+  private String plainText(List<TelemetryLine> lines) {
+    StringBuilder text = new StringBuilder();
+    for (TelemetryLine line : lines) {
+      if (!text.isEmpty()) {
+        text.append("\n");
+      }
+      text.append(line.plainText());
+    }
+    return text.toString();
+  }
+
+  private List<TelemetryLine> reportLines(NetworkTelemetryReport report) {
+    List<TelemetryLine> lines = new ArrayList<>();
+    for (TelemetrySection section : report.sections()) {
+      lines.add(
+          new TelemetryLine(List.of(new TelemetrySpan(section.title(), TelemetrySeverity.NORMAL))));
+      for (TelemetryLine line : section.lines()) {
+        List<TelemetrySpan> spans = new ArrayList<>();
+        spans.add(new TelemetrySpan("  ", TelemetrySeverity.NORMAL));
+        spans.addAll(line.spans());
+        lines.add(new TelemetryLine(spans));
+      }
+    }
+    return lines;
+  }
+
+  private void drawTelemetryLines(List<TelemetryLine> lines, float textX, float textY) {
+    GlyphLayout spanLayout = new GlyphLayout();
+    UI_BATCH.setProjectionMatrix(DEBUG_CAM.combined);
+    UI_BATCH.begin();
+    float currentY = textY;
+    for (TelemetryLine line : lines) {
+      float currentX = textX;
+      for (TelemetrySpan span : line.spans()) {
+        Color color = span.severity() == TelemetrySeverity.BAD ? Color.RED : Color.WHITE;
+        FONT.setColor(color);
+        FONT.draw(UI_BATCH, span.text(), currentX, currentY);
+        spanLayout.setText(FONT, span.text());
+        currentX += spanLayout.width;
+      }
+      currentY -= FONT.getLineHeight();
+    }
+    UI_BATCH.end();
   }
 
   private String buildSystemListText() {
@@ -613,13 +709,12 @@ public class DebugDrawSystem extends System {
         .thenAccept(
             success -> {
               if (success) {
-                NetworkTelemetry.recordDebugRequestStatus("stream active");
                 return;
               }
               debugTelemetryStreamRequestId = -1L;
               nextDebugTelemetryStreamRetryTimeMs =
                   java.lang.System.currentTimeMillis() + DEBUG_TELEMETRY_STREAM_INTERVAL_MS;
-              NetworkTelemetry.recordDebugRequestStatus("stream start failed");
+              showNetworkTelemetryNotice("Telemetry stream start failed", TelemetrySeverity.BAD);
             });
   }
 
@@ -637,9 +732,11 @@ public class DebugDrawSystem extends System {
                 DEBUG_TELEMETRY_STREAM_INTERVAL_MS),
             true)
         .thenAccept(
-            success ->
-                NetworkTelemetry.recordDebugRequestStatus(
-                    success ? "stream stopped" : "stop failed"));
+            success -> {
+              if (!success) {
+                showNetworkTelemetryNotice("Telemetry stream stop failed", TelemetrySeverity.BAD);
+              }
+            });
     debugTelemetryStreamRequestId = -1L;
   }
 
@@ -658,12 +755,15 @@ public class DebugDrawSystem extends System {
     Game.network()
         .send(
             (short) 0,
-            new DebugPing(NetworkTelemetry.nextRequestId(), java.lang.System.nanoTime()),
+            new DebugPing(
+                NetworkTelemetry.nextRequestId(),
+                java.lang.System.nanoTime(),
+                NetworkTelemetry.latestDebugRttMs()),
             true)
         .thenAccept(
             success -> {
               if (!success) {
-                NetworkTelemetry.recordDebugRequestStatus("ping failed");
+                showNetworkTelemetryNotice("Telemetry ping failed", TelemetrySeverity.BAD);
               }
             });
   }

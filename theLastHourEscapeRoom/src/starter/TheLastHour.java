@@ -95,7 +95,7 @@ public class TheLastHour {
   private static Music backgroundMusic;
 
   /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private static final CharacterClass[] MULTIPLAYER_CHARACTER_CLASSES = {
     CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03
