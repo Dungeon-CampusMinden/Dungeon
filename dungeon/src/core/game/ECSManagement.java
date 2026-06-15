@@ -256,11 +256,10 @@ public final class ECSManagement {
    * @return a stream of all entities currently in the level
    */
   public static Stream<Entity> levelEntities() {
-    return levelEntities(new HashSet<>());
-    //    Set<Entity> allEntities = new HashSet<>();
-    //          activeEntityStorage.forEach(
-    //            entitySystemMapper -> entitySystemMapper.stream().forEach(allEntities::add));
-    //    return allEntities.stream();
+    Set<Entity> allEntities = new HashSet<>();
+    activeEntityStorage.forEach(
+      entitySystemMapper -> entitySystemMapper.stream().forEach(allEntities::add));
+    return allEntities.stream();
   }
 
   /**
