@@ -43,7 +43,11 @@ public class Localization {
     }
   }
 
-  /** Returns the singleton instance that manages global localization state. */
+  /**
+   * Returns the singleton instance that manages global localization state.
+   *
+   * @return The singleton instance
+   */
   public static Localization getInstance() {
     return INSTANCE;
   }
