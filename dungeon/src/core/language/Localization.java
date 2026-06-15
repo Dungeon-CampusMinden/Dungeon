@@ -21,35 +21,40 @@ import java.util.Map;
  * translations can be retrieved without creating a dedicated {@link Translation} instance.
  */
 public class Localization {
-  private static final Language FALLBACK_LANGUAGE = Language.DE;
-  private static Language CURRENT_LANGUAGE = FALLBACK_LANGUAGE;
+  private static final Localization INSTANCE = new Localization();
+
+  private final Language fallbackLanguage = Language.DE;
+  private Language currentLanguage = fallbackLanguage;
 
   /** Base directory of the core translation files, registered for every language by default. */
   private static final String DEFAULT_TRANSLATION_PATH = "language_default/";
 
   /** Registered translation files per language, stored in registration order. */
-  private static final Map<Language, List<TranslationFile>> TRANSLATION_FILES =
+  private final Map<Language, List<TranslationFile>> translationFiles =
       new EnumMap<>(Language.class);
 
   /** Default translation without a base key, backing the static {@link #text(String)} shortcut. */
-  private static final Translation DEFAULT_TRANSLATION = new Translation();
+  private final Translation defaultTranslation = new Translation();
 
-  static {
+  private Localization() {
     // Register the core translation file (e.g. "language/de.json") for every language by default.
     for (Language language : Language.values()) {
       registerTranslationFile(language, DEFAULT_TRANSLATION_PATH + language + ".json");
     }
   }
 
-  private Localization() {}
+  /** Returns the singleton instance that manages global localization state. */
+  public static Localization getInstance() {
+    return INSTANCE;
+  }
 
   /**
    * Gets the current language.
    *
    * @return current language.
    */
-  public static Language currentLanguage() {
-    return CURRENT_LANGUAGE;
+  public Language currentLanguage() {
+    return currentLanguage;
   }
 
   /**
@@ -57,8 +62,8 @@ public class Localization {
    *
    * @param currentLanguage Language currently in use.
    */
-  public static void currentLanguage(Language currentLanguage) {
-    CURRENT_LANGUAGE = currentLanguage;
+  public void currentLanguage(Language currentLanguage) {
+    this.currentLanguage = currentLanguage;
   }
 
   /**
@@ -66,8 +71,8 @@ public class Localization {
    *
    * @return fallback language.
    */
-  public static Language fallbackLanguage() {
-    return FALLBACK_LANGUAGE;
+  public Language fallbackLanguage() {
+    return fallbackLanguage;
   }
 
   /**
@@ -80,8 +85,8 @@ public class Localization {
    * @return value behind a JSON node path.
    * @throws IOException if the language file cannot be read.
    */
-  public static String text(String jsonNodes) throws IOException {
-    return DEFAULT_TRANSLATION.text(jsonNodes);
+  public String text(String jsonNodes) throws IOException {
+    return defaultTranslation.text(jsonNodes);
   }
 
   /**
@@ -96,8 +101,8 @@ public class Localization {
    * @return value behind a JSON node path with templates resolved.
    * @throws IOException if the language file cannot be read.
    */
-  public static String text(String jsonNodes, Object... templateValues) throws IOException {
-    return DEFAULT_TRANSLATION.text(jsonNodes, templateValues);
+  public String text(String jsonNodes, Object... templateValues) throws IOException {
+    return defaultTranslation.text(jsonNodes, templateValues);
   }
 
   /**
@@ -112,8 +117,8 @@ public class Localization {
    * @param language Language the translation file provides translations for.
    * @param path Path to the translation JSON file, e.g. "language/en.json".
    */
-  public static void registerTranslationFile(Language language, String path) {
-    TRANSLATION_FILES
+  public void registerTranslationFile(Language language, String path) {
+    translationFiles
         .computeIfAbsent(language, key -> new ArrayList<>())
         .add(new TranslationFile(path));
   }
@@ -124,8 +129,8 @@ public class Localization {
    * @param language Language to get the registered translation files for.
    * @return the registered translation files, or an empty list if none are registered.
    */
-  static List<TranslationFile> translationFiles(Language language) {
-    return TRANSLATION_FILES.getOrDefault(language, List.of());
+  List<TranslationFile> translationFiles(Language language) {
+    return translationFiles.getOrDefault(language, List.of());
   }
 
   /**
@@ -134,33 +139,39 @@ public class Localization {
    * <p>The current language suffix is appended to the file name, e.g. {@code images/open-book.png}
    * becomes {@code images/open-book_en.png}. If no asset exists for the current language - neither
    * as an internal file nor as a texture registered in {@link TextureMap} - the fallback language
-   * variant is returned instead.
+   * variant is tried next. If neither localized variant exists, the original unsuffixed
+   * {@code basePath} is returned when available (for language-independent assets).
    *
    * @param basePath Path of the base asset such as 'images/open-book.png'.
    * @return path to the localized asset, or the fallback language variant if it does not exist.
    */
-  public static String asset(String basePath) {
+  public String asset(String basePath) {
     String localizedPath = addSuffix(basePath, false);
 
     if (assetExists(localizedPath)) {
       return localizedPath;
-    } else {
-      return addSuffix(basePath, true);
     }
+
+    String fallbackPath = addSuffix(basePath, true);
+    if (assetExists(fallbackPath)) {
+      return fallbackPath;
+    }
+
+    return basePath; // Return basePath for language-independent assets
   }
 
   /* An asset is available if it exists as an internal file or is registered in the TextureMap. */
-  private static boolean assetExists(String path) {
+  private boolean assetExists(String path) {
     return Gdx.files.internal(path).exists() || TextureMap.instance().containsKey(path);
   }
 
-  private static String addSuffix(String filePath, boolean fallback) {
+  private String addSuffix(String filePath, boolean fallback) {
     int index = filePath.lastIndexOf(".");
     String name = filePath.substring(0, index);
     String fileFormat = filePath.substring(index);
 
     if (fallback) {
-      return name + "_" + FALLBACK_LANGUAGE + fileFormat;
+      return name + "_" + fallbackLanguage + fileFormat;
     } else {
       return name + "_" + currentLanguage().toString() + fileFormat;
     }

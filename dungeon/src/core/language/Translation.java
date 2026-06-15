@@ -99,13 +99,14 @@ public class Translation {
   public String text(String jsonNodes, Object... templateValues) {
     String fullPath = resolveKey(jsonNodes);
     String[] nodes = fullPath.split("\\.");
+    Localization localization = Localization.getInstance();
 
     String text = lookup(activeLanguage(), nodes);
     if (text != null) {
       return applyTemplate(text, templateValues);
     }
 
-    text = lookup(Localization.fallbackLanguage(), nodes);
+    text = lookup(localization.fallbackLanguage(), nodes);
     if (text != null) {
       return applyTemplate(text, templateValues);
     }
@@ -118,7 +119,7 @@ public class Translation {
    * Later registrations are more specific and therefore checked first.
    */
   private String lookup(Language language, String[] nodes) {
-    var files = Localization.translationFiles(language);
+    var files = Localization.getInstance().translationFiles(language);
     for (int i = files.size() - 1; i >= 0; i--) {
       TranslationFile file = files.get(i);
       String value = file.value(nodes);
@@ -131,7 +132,7 @@ public class Translation {
 
   /* The language to query: the explicitly set one, or the current language of Localization. */
   private Language activeLanguage() {
-    return language != null ? language : Localization.currentLanguage();
+    return language != null ? language : Localization.getInstance().currentLanguage();
   }
 
   /* Prepends the base key (if any) to the requested node path. */

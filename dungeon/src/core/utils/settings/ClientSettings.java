@@ -56,6 +56,7 @@ public class ClientSettings {
   }
 
   private void init() {
+    Localization localization = Localization.getInstance();
     IntSliderSetting masterVolume = new IntSliderSetting(KEY_MASTER_VOLUME, 70, 0, 100, 5);
     IntSliderSetting effectsVolume = new IntSliderSetting(KEY_EFFECTS_VOLUME, 70, 0, 100, 5);
     IntSliderSetting musicVolume = new IntSliderSetting(KEY_MUSIC_VOLUME, 5, 0, 100, 5);
@@ -69,8 +70,8 @@ public class ClientSettings {
     registerSetting(musicVolume);
 
     EnumSetting<Language> language =
-        new EnumSetting<>(KEY_LANGUAGE, Localization.currentLanguage());
-    language.onChange(Localization::currentLanguage);
+        new EnumSetting<>(KEY_LANGUAGE, localization.currentLanguage());
+    language.onChange(localization::currentLanguage);
     registerSetting(language);
   }
 

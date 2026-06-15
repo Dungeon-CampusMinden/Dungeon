@@ -55,8 +55,9 @@ public class LanguageTester {
   }
 
   private static void addLanguageSystem() {
-    Localization.registerTranslationFile(Language.DE, "language/de.json");
-    Localization.registerTranslationFile(Language.EN, "language/en.json");
+    Localization localization = Game.localization();
+    localization.registerTranslationFile(Language.DE, "language/de.json");
+    localization.registerTranslationFile(Language.EN, "language/en.json");
 
     Game.add(
         new System() {
@@ -67,7 +68,7 @@ public class LanguageTester {
             if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
               try {
                 DialogUtils.showTextPopup(
-                    Localization.text("text.test.message"), Localization.text("text.test.title"));
+                    localization.text("text.test.message"), localization.text("text.test.title"));
               } catch (IOException e) {
                 throw new RuntimeException(e);
               }
@@ -75,15 +76,15 @@ public class LanguageTester {
 
             // Changes the language between English and German by pressing "N".
             if (Gdx.input.isKeyJustPressed(Input.Keys.N)
-                && Localization.currentLanguage() == Language.DE) {
-              Localization.currentLanguage(Language.EN);
+                && localization.currentLanguage() == Language.DE) {
+              localization.currentLanguage(Language.EN);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.N)
-                && Localization.currentLanguage() == Language.EN) {
-              Localization.currentLanguage(Language.DE);
+                && localization.currentLanguage() == Language.EN) {
+              localization.currentLanguage(Language.DE);
             }
             // Shows an image in the current language.
             if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
-              String path = Localization.asset("images/open-book.png");
+              String path = localization.asset("images/open-book.png");
               DialogUtils.showImagePopUp(path);
             }
           }

@@ -302,9 +302,10 @@ public class TheLastHour {
   }
 
   private static void initLocalization() {
-    Localization.registerTranslationFile(Language.DE, "language/de.json");
-    Localization.registerTranslationFile(Language.EN, "language/en.json");
-    Localization.currentLanguage(Language.EN);
+    Localization localization = Game.localization();
+    localization.registerTranslationFile(Language.DE, "language/de.json");
+    localization.registerTranslationFile(Language.EN, "language/en.json");
+    localization.currentLanguage(Language.EN);
   }
 
   private static final String T_SETTINGS_CONTROLS_HEADER = "settings.controls_header";
