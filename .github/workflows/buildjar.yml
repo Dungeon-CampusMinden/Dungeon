@@ -89,9 +89,9 @@ jobs:
                 # zip the folder
                 run: |
                     if [ "${{ runner.os }}" == "Windows" ]; then
-                      7z a app-windows.zip  ./blockly/build/jpackage/blockly
+                      7z a Blockly-desktop-windows.zip  ./blockly/build/jpackage/blockly
                     else
-                      zip -r app-${{ matrix.os }}.zip blockly/build/jpackage/blockly
+                      zip -r Blockly-desktop-${{ matrix.os }}.zip blockly/build/jpackage/blockly
                     fi
                 shell: bash
 
@@ -103,9 +103,9 @@ jobs:
                 # zip the folder
                 run: |
                     if [ "${{ runner.os }}" == "Windows" ]; then
-                      7z a app-web-windows.zip  ./blockly/build/jpackage/blockly-web
+                      7z a Blockly-web-windows.zip  ./blockly/build/jpackage/blockly-web
                     else
-                      zip -r app-web-${{ matrix.os }}.zip blockly/build/jpackage/blockly-web
+                      zip -r Blockly-web-${{ matrix.os }}.zip blockly/build/jpackage/blockly-web
                     fi
                 shell: bash
 
@@ -125,13 +125,8 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - name: Download the JARs
-              uses: actions/download-artifact@v8
-              with:
-                name: Blockly-JARs
-
             - name: Download all artifacts
-              uses: actions/download-artifact@v4
+              uses: actions/download-artifact@v8
               with:
                   merge-multiple: true
 
