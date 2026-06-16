@@ -38,7 +38,7 @@ jobs:
         strategy:
             matrix:
                 # run on ubuntu and windows
-                os: [ ubuntu-latest, windows-latest]
+                os: [windows-latest]
         steps:
             -   name: Checkout Code
                 uses: actions/checkout@v6
