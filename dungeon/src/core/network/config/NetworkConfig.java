@@ -145,5 +145,4 @@ public final class NetworkConfig {
 
   /** Length of the session token, in bytes. */
   public static final int SESSION_TOKEN_LENGTH_BYTES = 24; // 192 bits
-
 }
