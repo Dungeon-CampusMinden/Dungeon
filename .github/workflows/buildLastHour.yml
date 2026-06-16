@@ -38,7 +38,7 @@ jobs:
         strategy:
             matrix:
                 # run on ubuntu and windows
-                os: [windows-latest]
+                os: [windows-latest, ubuntu-latest]
         steps:
             -   name: Checkout Code
                 uses: actions/checkout@v6
@@ -64,33 +64,32 @@ jobs:
                     fi
                 shell: bash
 
+            -   name: Build Last Hour Server
+                run: ./gradlew jpackageImageTheLastHourServer
 
-#            -   name: Build Last Hour Server
-#                run: ./gradlew jpackageImageTheLastHourServer
-#
-#            -   name: Archive TheLastHourServer
-#                # zip the folder
-#                run: |
-#                    if [ "${{ runner.os }}" == "Windows" ]; then
-#                      7z a Last-Hour-Server-Windows.zip  ./theLastHourEscapeRoom/build/jpackage/TheLastHourServer
-#                    else
-#                      zip -r Last-Hour-Server-${{ matrix.os }}.zip theLastHourEscapeRoom/build/jpackage/TheLastHourServer
-#                    fi
-#                shell: bash
-#
-#
-#            -   name: Build Last Hour Client
-#                run: ./gradlew jpackageImageTheLastHourClient
-#
-#            -   name: Archive TheLastHourClient
-#                # zip the folder
-#                run: |
-#                    if [ "${{ runner.os }}" == "Windows" ]; then
-#                      7z a Last-Hour-Client-Windows.zip  ./theLastHourEscapeRoom/build/jpackage/TheLastHourClient
-#                    else
-#                      zip -r Last-Hour-Client-${{ matrix.os }}.zip theLastHourEscapeRoom/build/jpackage/TheLastHourClient
-#                    fi
-#                shell: bash
+            -   name: Archive TheLastHourServer
+                # zip the folder
+                run: |
+                    if [ "${{ runner.os }}" == "Windows" ]; then
+                      7z a Last-Hour-Server-Windows.zip  ./theLastHourEscapeRoom/build/jpackage/TheLastHourServer
+                    else
+                      zip -r Last-Hour-Server-${{ matrix.os }}.zip theLastHourEscapeRoom/build/jpackage/TheLastHourServer
+                    fi
+                shell: bash
+
+
+            -   name: Build Last Hour Client
+                run: ./gradlew jpackageImageTheLastHourClient
+
+            -   name: Archive TheLastHourClient
+                # zip the folder
+                run: |
+                    if [ "${{ runner.os }}" == "Windows" ]; then
+                      7z a Last-Hour-Client-Windows.zip  ./theLastHourEscapeRoom/build/jpackage/TheLastHourClient
+                    else
+                      zip -r Last-Hour-Client-${{ matrix.os }}.zip theLastHourEscapeRoom/build/jpackage/TheLastHourClient
+                    fi
+                shell: bash
 
             -   name: Upload Artifacts
                 uses: actions/upload-artifact@v7
