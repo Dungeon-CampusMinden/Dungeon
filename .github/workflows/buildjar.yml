@@ -2,8 +2,6 @@ name: Build and Release Blockly JARs
 
 on:
     workflow_dispatch:
-    push:
-
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -61,7 +59,6 @@ jobs:
                   name: vs-code-extension
                   path: doc/produs_unterlagen/blockly-code-runner-1.0.2.vsix
 
-
     buildExecutables:
         runs-on: ${{ matrix.os }}
         strategy:
@@ -77,8 +74,6 @@ jobs:
                 with:
                     java-version: '25'
                     distribution: 'temurin'
-#                    cache: 'gradle'
-
             -   name: Make gradlew executable
                 run: chmod +x gradlew
 
