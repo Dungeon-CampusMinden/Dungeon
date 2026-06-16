@@ -51,6 +51,10 @@
       "title": "Fortschrittsanzeige"
     }
   },
+  "game_loop": {
+    "disconnected_from_server": "Verbindung zum Server getrennt.",
+    "disconnected_from_server_reason": "Verbindung zum Server getrennt: $1"
+  },
   "settings": {
     "master_volume": "Master-Lautstärke",
     "effects_volume": "Effekt-Lautstärke",

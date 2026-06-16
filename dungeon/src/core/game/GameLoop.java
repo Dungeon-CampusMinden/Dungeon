@@ -28,6 +28,7 @@ import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.SoundComponent;
+import core.language.Translation;
 import core.level.loader.DungeonLoader;
 import core.level.loader.LevelParser;
 import core.network.ConnectionListener;
@@ -96,6 +97,9 @@ import java.util.Set;
  */
 public final class GameLoop extends ScreenAdapter {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameLoop.class);
+  private static final String T_DISCONNECTED_FROM_SERVER = "disconnected_from_server";
+  private static final String T_DISCONNECTED_FROM_SERVER_REASON = "disconnected_from_server_reason";
+  private static final Translation trans = new Translation("game_loop");
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
   private boolean doSetup = true;
@@ -761,9 +765,9 @@ public final class GameLoop extends ScreenAdapter {
 
   private String multiplayerDisconnectReason(String reason) {
     if (reason == null || reason.isBlank()) {
-      return "Disconnected from server.";
+      return trans.text(T_DISCONNECTED_FROM_SERVER);
     }
-    return "Disconnected from server: " + reason;
+    return trans.text(T_DISCONNECTED_FROM_SERVER_REASON, reason);
   }
 
   private void tryCompleteInitialWorldHandshake() {
