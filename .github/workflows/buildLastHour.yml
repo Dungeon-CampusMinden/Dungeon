@@ -31,7 +31,7 @@ jobs:
               uses: actions/upload-artifact@v7
               with:
                   name: Blockly-JARs
-                  path: blockly/build/libs/*.jar
+                  path: theLastHourEscapeRoom/build/libs/*.jar
 #
 #    buildExecutables:
 #        runs-on: ${{ matrix.os }}
@@ -103,8 +103,8 @@ jobs:
               run: |
                   TAG="v1.0.${{ github.run_number }}"
                   gh release create "$TAG" *.jar *.vsix *.zip \
-                    --title "Release $TAG" \
-                    --notes-file ".github/workflows/releaseInstructions.md" \
+                    --title "The Last Hour (Cyber Security Escape Room)" \
+                    --notes-file ".github/workflows/releaseInstructionsLastHour.md" \
                     --draft=true \
                     --prerelease=false
               env:
