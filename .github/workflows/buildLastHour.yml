@@ -58,9 +58,9 @@ jobs:
                 # zip the folder
                 run: |
                     if [ "${{ runner.os }}" == "Windows" ]; then
-                      7z a Last-Hour-windows.zip  ./theLastHourEscapeRoom/build/jpackage/theLastHourEscapeRoom
+                      7z a Last-Hour-windows.zip  ./theLastHourEscapeRoom/build/jpackage/theLastHour
                     else
-                      zip -r Last-Hour-${{ matrix.os }}.zip theLastHourEscapeRoom/build/jpackage/theLastHourEscapeRoom
+                      zip -r Last-Hour-${{ matrix.os }}.zip theLastHourEscapeRoom/build/jpackage/theLastHour
                     fi
                 shell: bash
 
