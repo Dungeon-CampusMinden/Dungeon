@@ -26,48 +26,50 @@ public class EnumSetting<E extends Enum<E>> extends SettingValue<E> {
   private final Function<E, String> labelFormatter;
 
   /**
-   * Creates a new EnumSetting with the specified name and default value, using all enum constants
-   * as options.
+   * Creates a new EnumSetting with the specified translation key and default value, using all enum
+   * constants as options.
    *
-   * @param name the name of the setting
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default enum value for the setting, which must be one of the enum
    *     constants
    */
-  public EnumSetting(String name, E defaultValue) {
-    this(name, defaultValue, defaultValue.getDeclaringClass().getEnumConstants(), null);
+  public EnumSetting(String translationKey, E defaultValue) {
+    this(translationKey, defaultValue, defaultValue.getDeclaringClass().getEnumConstants(), null);
   }
 
   /**
-   * Creates a new EnumSetting with the specified name, default value, and subset of enum constants.
+   * Creates a new EnumSetting with the specified translation key, default value, and subset of enum
+   * constants.
    *
-   * @param name the name of the setting
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default enum value for the setting, which must be included in the
    *     subset
    * @param subset an array of enum constants to use as options for this setting, which must include
    *     the default value
    */
-  public EnumSetting(String name, E defaultValue, E[] subset) {
-    this(name, defaultValue, subset, null);
+  public EnumSetting(String translationKey, E defaultValue, E[] subset) {
+    this(translationKey, defaultValue, subset, null);
   }
 
   /**
-   * Creates a new EnumSetting with the specified name, default value, subset of enum constants.
+   * Creates a new EnumSetting with the specified translation key, default value, subset of enum
+   * constants.
    *
-   * @param name the name of the setting
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default enum value for the setting, which must be included in the
    *     subset
    * @param subset a collection of enum constants to use as options for this setting, which must
    *     include the default value
    */
-  public EnumSetting(String name, E defaultValue, Collection<E> subset) {
-    this(name, defaultValue, subset.toArray((E[]) new Enum[0]), null);
+  public EnumSetting(String translationKey, E defaultValue, Collection<E> subset) {
+    this(translationKey, defaultValue, subset.toArray((E[]) new Enum[0]), null);
   }
 
   /**
-   * Creates a new EnumSetting with the specified name, default value, subset of enum constants, and
-   * label formatter.
+   * Creates a new EnumSetting with the specified translation key, default value, subset of enum
+   * constants, and label formatter.
    *
-   * @param name the name of the setting
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default enum value for the setting, which must be included in the
    *     subset
    * @param subset an array of enum constants to use as options for this setting, which must include
@@ -75,8 +77,9 @@ public class EnumSetting<E extends Enum<E>> extends SettingValue<E> {
    * @param labelFormatter a function that converts enum values to display strings in the UI; if
    *     null, the enum's name() method will be used
    */
-  public EnumSetting(String name, E defaultValue, E[] subset, Function<E, String> labelFormatter) {
-    super(name, defaultValue);
+  public EnumSetting(
+      String translationKey, E defaultValue, E[] subset, Function<E, String> labelFormatter) {
+    super(translationKey, defaultValue);
 
     if (subset == null || subset.length == 0) {
       throw new IllegalArgumentException("EnumSetting requires at least one enum value");

@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
 import core.Game;
+import core.language.Translation;
 import core.utils.BaseContainerUI;
 
 /**
@@ -17,7 +18,8 @@ import core.utils.BaseContainerUI;
  * DialogFactory#showOkDialog} instead of accessing this class directly.
  */
 final class OkDialog {
-  static final String DEFAULT_OK_BUTTON = "Ok";
+  static final String T_OK = "ok";
+  static final Translation trans = new Translation("dialog.ok_dialog");
 
   private OkDialog() {}
 
@@ -35,19 +37,20 @@ final class OkDialog {
 
     // On headless server, return a placeholder
     if (Game.isHeadless()) {
-      return new HeadlessDialogGroup(title, text, DEFAULT_OK_BUTTON);
+      return new HeadlessDialogGroup(title, text, trans.text(T_OK));
     }
 
     return create(UIUtils.defaultSkin(), title, text, ctx.dialogId());
   }
 
   private static Group create(Skin skin, String title, String text, String dialogId) {
+    String ok_text = trans.text(T_OK);
     Dialog dialog =
         new HandledDialog(
             title,
             skin,
             (d, id) -> {
-              if (id.equals(DEFAULT_OK_BUTTON)) {
+              if (id.equals(ok_text)) {
                 DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CONFIRM)
                     .accept(null);
               }
@@ -62,10 +65,7 @@ final class OkDialog {
     label.setWrap(true);
     label.setMaxPrefWidth(675);
     content.add(label).padBottom(10).row();
-    dialog.button(
-        DEFAULT_OK_BUTTON,
-        DEFAULT_OK_BUTTON,
-        skin.get("clean-green", TextButton.TextButtonStyle.class));
+    dialog.button(ok_text, ok_text, skin.get("clean-green", TextButton.TextButtonStyle.class));
 
     dialog.pack();
 

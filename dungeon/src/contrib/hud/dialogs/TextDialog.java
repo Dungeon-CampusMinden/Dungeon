@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
 import core.Game;
+import core.language.Translation;
 import core.utils.BaseContainerUI;
 import core.utils.Scene2dElementFactory;
 import java.util.ArrayList;
@@ -19,6 +20,9 @@ import java.util.List;
  * to the OkDialog but for longer texts.
  */
 public class TextDialog {
+
+  private static final String T_CONFIRM = "confirm";
+  private static final Translation trans = new Translation("dialog.text_dialog");
 
   /**
    * Builds a text dialog from the given context.
@@ -32,7 +36,7 @@ public class TextDialog {
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("");
     String button =
-        ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(OkDialog.DEFAULT_OK_BUTTON);
+        ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(trans.text(T_CONFIRM));
 
     // On headless server, return a placeholder
     if (Game.isHeadless()) {

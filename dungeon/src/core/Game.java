@@ -11,6 +11,7 @@ import core.game.ECSManagement;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.game.WindowEventManager;
+import core.language.Localization;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
@@ -72,6 +73,7 @@ public final class Game {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
   private static INetworkHandler networkHandler;
   private static final AudioApi AudioAPI = new AudioApi();
+  private static final Localization localization = Localization.getInstance();
 
   private static final boolean SLOW_NETWORK = false;
 
@@ -961,6 +963,15 @@ public final class Game {
    */
   public static ISoundPlayer soundPlayer() {
     return GameLoop.soundPlayer();
+  }
+
+  /**
+   * Returns the instance of the Localization class. Proxy for Localization.getInstance().
+   *
+   * @return The Localization instance.
+   */
+  public static Localization localization() {
+    return localization;
   }
 
   /**

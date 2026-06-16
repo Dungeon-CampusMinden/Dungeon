@@ -19,6 +19,7 @@ import contrib.hud.dialogs.HeadlessDialogGroup;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.language.Translation;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.sound.SoundSpec;
 import core.utils.logging.DungeonLogger;
@@ -33,6 +34,9 @@ public class KeypadUI extends Group {
 
   private static final float BACKGROUND_SCALE = 1.5f;
   private static final float BACKGROUND_OFFSET_Y = 60;
+  private static final String ACTION_BACK = "Back";
+  private static final String ACTION_SUBMIT = "Submit";
+  private static final Translation trans = new Translation("dialog.keypad_dialog");
 
   private final Entity keypad;
   private final String dialogId;
@@ -75,13 +79,14 @@ public class KeypadUI extends Group {
     Table tableButtons = new Table();
     parentTable.add(tableButtons);
 
-    List<String> buttons =
-        Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "Back", "0", "Submit");
+    List<String> actions =
+        Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", ACTION_BACK, "0", ACTION_SUBMIT);
 
-    for (int i = 0; i < buttons.size(); i++) {
-      String action = buttons.get(i);
-      TextButton btn = new TextButton(action, getSkin(), "keypad");
-      if (!action.equals("Back") && !action.equals("Submit")) {
+    for (int i = 0; i < actions.size(); i++) {
+      String action = actions.get(i);
+      String label = displayLabelForAction(action);
+      TextButton btn = new TextButton(label, getSkin(), "keypad");
+      if (!action.equals(ACTION_BACK) && !action.equals(ACTION_SUBMIT)) {
         btn.getLabel().setFontScale(2f);
       } else {
         btn.getLabel().setFontScale(1.25f);
@@ -140,15 +145,23 @@ public class KeypadUI extends Group {
       keypadComp.addDigit(number);
     } catch (NumberFormatException ex) {
       switch (action) {
-        case "Back" -> keypadComp.backspace();
-        case "Submit" -> onSubmit(keypadComp, drawComp);
+        case ACTION_BACK -> keypadComp.backspace();
+        case ACTION_SUBMIT -> onSubmit(keypadComp, drawComp);
       }
     }
 
-    if (!action.equals("Submit")) {
+    if (!action.equals(ACTION_SUBMIT)) {
       float pitch = 1 + (number - 5) * 0.05f;
       Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch).targets(caller.id()));
     }
+  }
+
+  private String displayLabelForAction(String action) {
+    return switch (action) {
+      case ACTION_BACK -> trans.text("back");
+      case ACTION_SUBMIT -> trans.text("submit");
+      default -> action;
+    };
   }
 
   private static void onSubmit(KeypadComponent keypadComp, DrawComponent drawComp) {

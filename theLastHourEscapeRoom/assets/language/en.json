@@ -1,0 +1,10 @@
+{
+  "settings": {
+	"controls_header": "Controls",
+	"controls_description": "Use the mouse to find interactables, then press [key code=$1] to interact!",
+	"pause": "Pause",
+	"interact": "Interact",
+	"inventory": "Inventory",
+	"inventory_description": "In the inventory, use [key code=$1 type=mouse] to use an Item"
+  }
+}

@@ -22,6 +22,7 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
 import core.Game;
+import core.language.Translation;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.BaseContainerUI;
 import core.utils.FontSpec;
@@ -51,7 +52,8 @@ import java.util.List;
 final class MultipleChoiceDialog {
 
   private static final String TITLE_DEFAULT = "";
-  private static final String CANCEL_LABEL = "Abbrechen";
+  private static final String T_CANCEL = "cancel";
+  private static final Translation trans = new Translation("dialog.multiple_choice_dialog");
   private static final float MAIN_BOX_PAD = 20;
   private static final float OPTION_WIDTH = DialogScriptView.FULL_TEXT_WIDTH + MAIN_BOX_PAD * 2;
   private static final float OPTION_PAD = 16;
@@ -84,18 +86,19 @@ final class MultipleChoiceDialog {
     ChoiceOptions choiceOptions = ctx.require(DialogContextKeys.OPTIONS, ChoiceOptions.class);
     List<ChoiceOption> options = choiceOptions.values();
     boolean canCancel = ctx.find(DialogContextKeys.CAN_CANCEL, Boolean.class).orElse(false);
+    String cancelLabel = trans.text(T_CANCEL);
 
     if (Game.isHeadless()) {
       List<DialogEntry> entries =
           DialogScript.parseNonEmpty(script, () -> "MultipleChoiceDialog script produced no pages");
       List<String> allButtons = new ArrayList<>();
       for (ChoiceOption opt : options) allButtons.add(opt.label());
-      if (canCancel) allButtons.add(CANCEL_LABEL);
+      if (canCancel) allButtons.add(cancelLabel);
       return new HeadlessDialogGroup(
           title, DialogScript.toHeadlessText(entries), allButtons.toArray(new String[0]));
     }
 
-    return buildDialog(title, script, options, canCancel, ctx);
+    return buildDialog(title, script, options, canCancel, cancelLabel, ctx);
   }
 
   /**
@@ -105,6 +108,7 @@ final class MultipleChoiceDialog {
    * @param script Dialog script string consumed by {@link DialogScriptView}.
    * @param options The list of selectable options.
    * @param canCancel Whether to append a cancel option.
+   * @param cancelLabel The label for the cancel option (ignored if canCancel is false).
    * @param ctx The dialog context.
    * @return The configured UI wrapped in a BaseContainerUI.
    */
@@ -113,6 +117,7 @@ final class MultipleChoiceDialog {
       String script,
       List<ChoiceOption> options,
       boolean canCancel,
+      String cancelLabel,
       DialogContext ctx) {
 
     Skin skin = UIUtils.defaultSkin();
@@ -120,7 +125,7 @@ final class MultipleChoiceDialog {
     // Build the full list of entries (options + optional cancel)
     List<ChoiceOption> allEntries = new ArrayList<>(options);
     if (canCancel) {
-      allEntries.add(ChoiceOption.of(CANCEL_LABEL));
+      allEntries.add(ChoiceOption.of(cancelLabel));
     }
     int cancelIndex = canCancel ? allEntries.size() - 1 : -1;
 

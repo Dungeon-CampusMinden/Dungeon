@@ -16,13 +16,13 @@ import core.sound.Sounds;
 public class BoolSetting extends SettingValue<Boolean> {
 
   /**
-   * Creates a new BoolSetting with the specified name and default value.
+   * Creates a new BoolSetting with the specified translation key and default value.
    *
-   * @param name the name of the setting
+   * @param translationKey the translation key of the setting label
    * @param defaultValue the default boolean value for the setting
    */
-  public BoolSetting(String name, boolean defaultValue) {
-    super(name, defaultValue);
+  public BoolSetting(String translationKey, boolean defaultValue) {
+    super(translationKey, defaultValue);
   }
 
   @Override

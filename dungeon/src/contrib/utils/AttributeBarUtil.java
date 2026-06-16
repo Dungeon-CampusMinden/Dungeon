@@ -17,6 +17,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.language.Translation;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
@@ -32,6 +33,7 @@ import java.util.Map;
  */
 public final class AttributeBarUtil {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AttributeBarUtil.class);
+  private static final Translation trans = new Translation("dialog.progress_bar_dialog");
 
   private static final float MIN = 0f;
   private static final float MAX = 1f;
@@ -96,7 +98,7 @@ public final class AttributeBarUtil {
   public static Group buildProgressBar(DialogContext ctx) {
     // On headless server, return placeholder
     if (Game.isHeadless()) {
-      return new HeadlessDialogGroup("ProgressBar", null);
+      return new HeadlessDialogGroup(trans.text("title"), null);
     }
 
     ProgressBarContext barContext =

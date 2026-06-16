@@ -16,6 +16,7 @@ import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
+import core.language.Translation;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.utils.BaseContainerUI;
@@ -31,6 +32,13 @@ import java.util.List;
  * <p>Creates a simple pause dialog.
  */
 public class PauseDialog extends Table {
+
+  private static final String T_PAUSED = "paused";
+  private static final String T_RESUME = "resume";
+  private static final String T_SETTINGS = "settings";
+  private static final String T_QUIT_TO_DESKTOP = "quit_to_desktop";
+  private static final String T_BACK = "back";
+  private static final Translation trans = new Translation("dialog.pause_dialog");
 
   private Skin skin;
   private DialogContext ctx;
@@ -126,12 +134,13 @@ public class PauseDialog extends Table {
   private Table createMainView(DialogContext ctx) {
     Label label =
         Scene2dElementFactory.createLabel(
-            "PAUSED", FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
-    TextButton resumeBtn = Scene2dElementFactory.createButton("Resume", "clean-green", 32);
+            trans.text(T_PAUSED), FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
+    TextButton resumeBtn =
+        Scene2dElementFactory.createButton(trans.text(T_RESUME), "clean-green", 32);
     TextButton settingsBtn =
-        Scene2dElementFactory.createButton("Settings", "clean-blue-outline", 32);
+        Scene2dElementFactory.createButton(trans.text(T_SETTINGS), "clean-blue-outline", 32);
     TextButton quitBtn =
-        Scene2dElementFactory.createButton("Quit to Desktop", "clean-red-outline", 32);
+        Scene2dElementFactory.createButton(trans.text(T_QUIT_TO_DESKTOP), "clean-red-outline", 32);
 
     resumeBtn.addListener(
         new ChangeListener() {
@@ -169,8 +178,8 @@ public class PauseDialog extends Table {
   private Table createSettingsView(DialogContext ctx) {
     Label label =
         Scene2dElementFactory.createLabel(
-            "SETTINGS", FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
-    TextButton backBtn = Scene2dElementFactory.createButton("Back", "clean-green", 32);
+            trans.text(T_SETTINGS), FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
+    TextButton backBtn = Scene2dElementFactory.createButton(trans.text(T_BACK), "clean-green", 32);
     backBtn.addListener(
         new ChangeListener() {
           @Override

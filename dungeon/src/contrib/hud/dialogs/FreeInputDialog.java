@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import contrib.hud.UIUtils;
 import core.Game;
+import core.language.Translation;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.BaseContainerUI;
 import core.utils.Scene2dElementFactory;
@@ -22,10 +23,11 @@ final class FreeInputDialog {
   /** Callback key for the input submission callback. */
   public static final String CALLBACK_INPUT = "input";
 
-  private static final String TITLE_DEFAULT = "Frage";
-  private static final String OK_BUTTON = "OK";
-  private static final String CANCEL_BUTTON = "Abbrechen";
-  private static final String INPUT_PLACEHOLDER_DEFAULT = "Deine Antwort…";
+  private static final String T_TITLE = "title";
+  private static final String T_OK = "ok";
+  private static final String T_CANCEL = "cancel";
+  private static final String T_PLACEHOLDER = "placeholder";
+  private static final Translation trans = new Translation("dialog.free_input_dialog");
 
   private FreeInputDialog() {}
 
@@ -44,16 +46,20 @@ final class FreeInputDialog {
    * @return The created Dialog instance or HeadlessDialogGroup.
    */
   static Group build(DialogContext ctx) {
-    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(TITLE_DEFAULT);
+    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(trans.text(T_TITLE));
     String question = ctx.find(DialogContextKeys.QUESTION, String.class).orElse("");
+    String okLabel =
+        ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(trans.text(T_OK));
+    String cancelLabel =
+        ctx.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(trans.text(T_CANCEL));
 
     // On headless server, return placeholder
     if (Game.isHeadless()) {
-      return new HeadlessDialogGroup(title, question, OK_BUTTON, CANCEL_BUTTON);
+      return new HeadlessDialogGroup(title, question, okLabel, cancelLabel);
     }
 
     Skin skin = UIUtils.defaultSkin();
-    return buildDialog(title, question, skin, ctx);
+    return buildDialog(title, question, skin, ctx, okLabel, cancelLabel);
   }
 
   /**
@@ -63,20 +69,23 @@ final class FreeInputDialog {
    * @param question The text shown as the question/prompt.
    * @param skin The skin to be used for the dialog.
    * @param context The dialog context containing additional settings and preferences.
+   * @param okLabel The label for the OK/confirm button.
+   * @param cancelLabel The label for the Cancel button.
    * @return The configured, centered Dialog ready to be displayed.
    */
   private static Group buildDialog(
-      String title, String question, Skin skin, DialogContext context) {
+      String title,
+      String question,
+      Skin skin,
+      DialogContext context,
+      String okLabel,
+      String cancelLabel) {
     TextField input =
         new TextField(context.find(DialogContextKeys.INPUT_PREFILL, String.class).orElse(""), skin);
     input.setMessageText(
         context
             .find(DialogContextKeys.INPUT_PLACEHOLDER, String.class)
-            .orElse(INPUT_PLACEHOLDER_DEFAULT));
-
-    String okLabel = context.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(OK_BUTTON);
-    String cancelLabel =
-        context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(CANCEL_BUTTON);
+            .orElse(trans.text(T_PLACEHOLDER)));
 
     Dialog dialog =
         new Dialog(title, skin, title.isBlank() ? "default" : "no-title") {

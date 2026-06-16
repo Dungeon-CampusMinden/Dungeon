@@ -271,6 +271,32 @@ public class JsonHandler {
   }
 
   /**
+   * Gets a value from an already parsed JSON map with the JSON node path.
+   *
+   * <p>Use this overload to avoid re-parsing the same JSON string on every lookup by caching the
+   * map returned by {@link #readJson(String)}.
+   *
+   * @param jsonMap The parsed JSON map to get the value from.
+   * @param jsonNodes Nodes of the JSON up to the desired value as single params.
+   * @return The value behind the node path, or {@code null} if the path does not exist.
+   */
+  public static String getValueByPath(Map<String, Object> jsonMap, String... jsonNodes) {
+    Object section = jsonMap;
+
+    for (String node : jsonNodes) {
+      if (!(section instanceof Map)) {
+        return null;
+      }
+      section = ((Map<String, Object>) section).get(node);
+      if (section == null) {
+        return null;
+      }
+    }
+
+    return section.toString();
+  }
+
+  /**
    * Assumes {@code jsonObjectString} starts with '{' and ends with '}'.
    *
    * @param jsonObjectString The string content of a JSON object, including braces.

@@ -78,8 +78,8 @@ public final class LastHourClient {
           Game.stage().ifPresent(CursorUtil::initListener);
           Game.remove(AttributeBarSystem.class);
           Game.add(new ComputerStateSyncSystem());
-          TheLastHour.setupMusic();
-          TheLastHour.staticRenderTextures();
+
+          TheLastHour.setupClient();
 
           Game.network()
               .addConnectionListener(
