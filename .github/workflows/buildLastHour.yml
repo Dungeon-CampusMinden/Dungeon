@@ -96,9 +96,9 @@ jobs:
                 uses: actions/upload-artifact@v7
                 with:
                     name: executable-${{ matrix.os }}
-                    path: Blockly-*.zip
+                    path: Last-Hour-*.zip
     deploy:
-        needs: [build]
+        needs: [build, buildExecutables]
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -116,7 +116,7 @@ jobs:
             - name: Create GitHub Release
               run: |
                   TAG="v1.0.${{ github.run_number }}"
-                  gh release create "$TAG" *.jar\
+                  gh release create "$TAG" *.jar *.zip\
                     --title "The Last Hour (Cyber Security Escape Room)" \
                     --notes-file ".github/workflows/releaseInstructionsLastHour.md" \
                     --draft=true \
