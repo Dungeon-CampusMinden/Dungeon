@@ -36,8 +36,11 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                # run on ubuntu and windows
-                os: [windows-latest, ubuntu-latest]
+                include:
+                    - os: windows-latest
+                      platform_name: windows-x86_64
+                    - os: ubuntu-latest
+                      platform_name: linux-x86_64
         steps:
             -   name: Checkout Code
                 uses: actions/checkout@v6
