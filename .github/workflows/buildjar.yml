@@ -2,6 +2,7 @@ name: Build and Release Blockly JARs
 
 on:
     workflow_dispatch:
+    push:
 
 jobs:
     build:
@@ -91,6 +92,20 @@ jobs:
                       7z a app-windows.zip  ./blockly/build/jpackage/blockly
                     else
                       zip -r app-${{ matrix.os }}.zip blockly/build/jpackage/blockly
+                    fi
+                shell: bash
+
+
+            -   name: Build with JLink 2
+                run: ./gradlew :blockly:jpackageImageWeb
+
+            -   name: Archive Executable
+                # zip the folder
+                run: |
+                    if [ "${{ runner.os }}" == "Windows" ]; then
+                      7z a app-windows.zip  ./blockly/build/jpackage/blockly-web
+                    else
+                      zip -r app-${{ matrix.os }}.zip blockly/build/jpackage/blockly-web
                     fi
                 shell: bash
 
