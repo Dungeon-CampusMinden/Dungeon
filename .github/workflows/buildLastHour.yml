@@ -1,0 +1,11 @@
+name: Build and Release Last Hour
+
+on:
+    workflow_dispatch:
+
+jobs:
+    hello-world-job:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Say Hello
+              run: echo "Hello World"
