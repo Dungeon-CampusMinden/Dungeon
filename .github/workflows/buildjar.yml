@@ -113,7 +113,7 @@ jobs:
                 uses: actions/upload-artifact@v7
                 with:
                     name: executable-${{ matrix.os }}
-                    path: app-*.zip
+                    path: Blockly-*.zip
     deploy:
         needs: [build, upload_extension, buildExecutables]
         runs-on: ubuntu-latest
