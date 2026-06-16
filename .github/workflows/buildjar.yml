@@ -37,17 +37,16 @@ jobs:
             - name: Make gradlew executable
               run: chmod +x gradlew
 
-            # 4. Beide JARs bauen (Desktop und Web)
+            # 4. Jar desktop and web
             - name: Build JARs with Gradle
               run: ./gradlew jarDesktop jarWeb
 
-            # 5. Beide JAR-Artefakte für den nächsten Job speichern
+            # 5. save both jar artefacts
             - name: Upload Build Artifacts
               uses: actions/upload-artifact@v7
               with:
                   name: Blockly-JARs
                   path: blockly/build/libs/*.jar
-
     upload_extension:
         runs-on: ubuntu-latest
         steps:
@@ -60,8 +59,48 @@ jobs:
               with:
                   name: vs-code-extension
                   path: doc/produs_unterlagen/blockly-code-runner-1.0.2.vsix
+
+
+    buildExecutables:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                # run on ubuntu and windows
+                os: [ ubuntu-latest, windows-latest]
+        steps:
+            -   name: Checkout Code
+                uses: actions/checkout@v4
+
+            -   name: Set up JDK
+                uses: actions/setup-java@v4
+                with:
+                    java-version: '21'
+                    distribution: 'temurin'
+                    cache: 'gradle'
+
+            -   name: Make gradlew executable
+                run: chmod +x gradlew
+
+            -   name: Build with JLink
+                run: ./gradlew :blockly:jpackageImage
+
+            -   name: Archive Executable
+                # zip the folder
+                run: |
+                    if [ "${{ runner.os }}" == "Windows" ]; then
+                      7z a app-windows.zip  ./blockly/build/jpackage/blockly
+                    else
+                      zip -r app-${{ matrix.os }}.zip blockly/build/jpackage/blockly
+                    fi
+                shell: bash
+
+            -   name: Upload Artifacts
+                uses: actions/upload-artifact@v4
+                with:
+                    name: executable-${{ matrix.os }}
+                    path: app-*.zip
     deploy:
-        needs: [build, upload_extension]
+        needs: [build, upload_extension, buildExecutables]
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -76,15 +115,15 @@ jobs:
               with:
                 name: Blockly-JARs
 
-            - name: Download VS-Code Extension
-              uses: actions/download-artifact@v8
+            - name: Download all artifacts
+              uses: actions/download-artifact@v4
               with:
-                name: vs-code-extension
+                  merge-multiple: true
 
             - name: Create GitHub Release
               run: |
                 TAG="v1.0.${{ github.run_number }}"
-                gh release create "$TAG" *.jar *.vsix \
+                gh release create "$TAG" *.jar *.vsix *.zip \
                   --title "Release $TAG" \
                   --notes-file ".github/workflows/releaseInstructions.md" \
                   --draft=true \
