@@ -89,7 +89,7 @@ jobs:
                     if [ "${{ runner.os }}" == "Windows" ]; then
                       7z a Blockly-desktop-windows.zip  ./blockly/build/jpackage/blockly
                     else
-                      tar -czf Blockly-desktop-${{ matrix.os }}.tar.gz blockly/build/jpackage/blockly
+                      tar -czf Blockly-desktop-${{ matrix.os }}.tar.gz -C blockly/build/jpackage blockly
                     fi
                 shell: bash
 
@@ -103,7 +103,7 @@ jobs:
                     if [ "${{ runner.os }}" == "Windows" ]; then
                       7z a Blockly-web-windows.zip  ./blockly/build/jpackage/blockly-web
                     else
-                      tar -czf Blockly-web-${{ matrix.os }}.tar.gz blockly/build/jpackage/blockly-web
+                      tar -czf Blockly-web-${{ matrix.os }}.tar.gz -C blockly/build/jpackage blockly-web
                     fi
                 shell: bash
 
