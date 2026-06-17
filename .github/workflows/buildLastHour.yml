@@ -75,7 +75,7 @@ jobs:
                     if [ "${{ runner.os }}" == "Windows" ]; then
                       7z a Last-Hour-Server-${{ matrix.platform_name }}.zip  ./theLastHourEscapeRoom/build/jpackage/TheLastHourServer
                     else
-                      tar -czf Last-Hour-Server-${{ matrix.platform_name }}.zip theLastHourEscapeRoom/build/jpackage/TheLastHourServer
+                      tar -czf Last-Hour-Server-${{ matrix.platform_name }}.tar.gz theLastHourEscapeRoom/build/jpackage/TheLastHourServer
                     fi
                 shell: bash
 
@@ -88,7 +88,7 @@ jobs:
                     if [ "${{ runner.os }}" == "Windows" ]; then
                       7z a Last-Hour-Client-${{ matrix.platform_name }}.zip  ./theLastHourEscapeRoom/build/jpackage/TheLastHourClient
                     else
-                      tar -czf Last-Hour-Client-${{ matrix.platform_name }}.zip theLastHourEscapeRoom/build/jpackage/TheLastHourClient
+                      tar -czf Last-Hour-Client-${{ matrix.platform_name }}.tar.gz theLastHourEscapeRoom/build/jpackage/TheLastHourClient
                     fi
                 shell: bash
 
