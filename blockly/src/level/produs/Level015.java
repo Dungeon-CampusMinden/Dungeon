@@ -30,6 +30,8 @@ public class Level015 extends BlocklyLevel {
     this.blockBlocklyElement(
         // Inventar und Charakter
         "wait",
+        "shoot_green_portal",
+        "shoot_blue_portal",
         // Bedingung
         "logic_monster_direction",
         "logic_bossView_direction",

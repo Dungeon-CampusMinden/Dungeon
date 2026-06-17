@@ -47,6 +47,8 @@ public class Level013 extends BlocklyLevel {
         // Inventar und Charakter
         "drop_item",
         "wait",
+        "shoot_green_portal",
+        "shoot_blue_portal",
         // Bedingung
         "logic_wall_direction",
         "logic_floor_direction",

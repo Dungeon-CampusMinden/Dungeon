@@ -45,6 +45,8 @@ public class Level009 extends BlocklyLevel {
         "fireball",
         "wait",
         "pickup",
+        "shoot_green_portal",
+        "shoot_blue_portal",
         // Kategorien
         "Abfragen",
         "Bedingung",

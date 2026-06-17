@@ -44,6 +44,8 @@ public class Level006 extends BlocklyLevel {
         "wait",
         "pickup",
         "drop_item",
+        "shoot_green_portal",
+        "shoot_blue_portal",
         // Kategorien
         "Abfragen",
         "Bedingung",

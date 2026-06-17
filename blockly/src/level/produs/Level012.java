@@ -44,6 +44,8 @@ public class Level012 extends BlocklyLevel {
         "while_loop",
         // Inventar und Charakter
         "wait",
+        "shoot_green_portal",
+        "shoot_blue_portal",
         // Kategorien
         "Abfragen",
         "Bedingung",

@@ -47,6 +47,8 @@ public class Level021 extends BlocklyLevel {
     this.blockBlocklyElement(
         // Inventar und Charakter
         "drop_item",
+        "shoot_green_portal",
+        "shoot_blue_portal",
         // Variable
         "get_number",
         "switch_case",

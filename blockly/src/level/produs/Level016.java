@@ -41,6 +41,8 @@ public class Level016 extends BlocklyLevel {
     this.blockBlocklyElement(
         // Inventar und Charakter
         "wait",
+        "shoot_green_portal",
+        "shoot_blue_portal",
         // Bedingung
         "logic_bossView_direction",
         // Variable

@@ -83,7 +83,7 @@ public class Level020 extends BlocklyLevel {
   public Level020(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "Level 20");
-    this.blockBlocklyElement();
+    this.blockBlocklyElement("shoot_green_portal", "shoot_blue_portal");
 
     addWebPopup(new ImagePopup("popups/level020/webpopups/01_intro.jpg"));
 
