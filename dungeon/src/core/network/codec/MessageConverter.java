@@ -15,37 +15,37 @@ public interface MessageConverter<D extends NetworkMessage, P extends Message> {
   /**
    * Converts a domain message to its protobuf form.
    *
-   * @param message the domain message
-   * @return the protobuf representation
+   * @param message the domain message; must not be null
+   * @return the protobuf representation; must not be null
    */
   P toProto(D message);
 
   /**
    * Converts a protobuf message to its domain form.
    *
-   * @param proto the protobuf message
-   * @return the domain representation
+   * @param proto the protobuf message; must not be null
+   * @return the domain representation; must not be null
    */
   D fromProto(P proto);
 
   /**
    * Returns the domain message class this converter handles.
    *
-   * @return the supported domain type
+   * @return the supported domain type; must not be null
    */
   Class<D> domainType();
 
   /**
    * Returns the protobuf message class this converter handles.
    *
-   * @return the supported protobuf type
+   * @return the supported protobuf type; must not be null
    */
   Class<P> protoType();
 
   /**
    * Returns the protobuf parser used to deserialize this message type.
    *
-   * @return the protobuf parser
+   * @return the protobuf parser; must not be null
    */
   Parser<P> parser();
 

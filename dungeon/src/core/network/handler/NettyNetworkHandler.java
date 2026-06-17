@@ -57,6 +57,7 @@ public class NettyNetworkHandler implements INetworkHandler {
       String username,
       Optional<CharacterClass> characterClass)
       throws NetworkException {
+    Objects.requireNonNull(characterClass, "characterClass");
     this.serverMode = isServer;
     this.port = port;
     if (!serverMode) {
@@ -140,13 +141,38 @@ public class NettyNetworkHandler implements INetworkHandler {
 
   @Override
   public void snapshotTranslator(SnapshotTranslator translator) {
-    this.translator = Objects.requireNonNull(translator, "translator cannot be null");
+    if (translator == null) {
+      throw new IllegalArgumentException("translator cannot be null");
+    }
+    this.translator = translator;
   }
 
   @Override
   public void sendInput(InputMessage input) {
     if (serverMode) return;
     client.sendUnreliableInput(input);
+  }
+
+  @Override
+  public void acknowledgeSnapshot(int serverTick) {
+    acknowledgeSnapshot(serverTick, false);
+  }
+
+  @Override
+  public void acknowledgeSnapshot(int serverTick, boolean immediateReliable) {
+    if (serverMode) return;
+    client.acknowledgeSnapshot(serverTick, immediateReliable);
+  }
+
+  @Override
+  public void requestSnapshotResync(int missingBaseTick, int deltaTick) {
+    if (serverMode) return;
+    client.requestSnapshotResync(missingBaseTick, deltaTick);
+  }
+
+  @Override
+  public void markInitialWorldReady() {
+    if (!serverMode) client.markInitialWorldReady();
   }
 
   @Override
@@ -160,9 +186,8 @@ public class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public Session session() {
-    if (serverMode)
-      throw new UnsupportedOperationException("Session not available in server mode.");
+  public Optional<Session> session() {
+    if (serverMode) return Optional.empty();
     return client.session();
   }
 

@@ -7,8 +7,9 @@ import java.util.Objects;
 /**
  * Server→client: compact snapshot of world state for a frame/tick.
  *
- * <p>Each snapshot contains the states of all relevant entities at a specific tick. This message is
- * sent periodically from the server to clients to synchronize their game state.
+ * <p>Each snapshot contains the states of all relevant entities at a specific tick. In multiplayer,
+ * the server sends this full snapshot reliably for initial sync, level changes, and recovery
+ * baselines.
  *
  * @param serverTick optional monotonic tick number assigned by server
  * @param entities list of entity states

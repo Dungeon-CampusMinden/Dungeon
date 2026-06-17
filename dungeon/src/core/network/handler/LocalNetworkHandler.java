@@ -15,6 +15,7 @@ import core.network.server.Session;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -27,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class LocalNetworkHandler implements INetworkHandler {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LocalNetworkHandler.class);
+  private static final String DEFAULT_DISCONNECT_REASON = "Disconnected.";
 
   // Message / translation utilities
   private final MessageDispatcher dispatcher = new MessageDispatcher();
@@ -58,6 +60,7 @@ public class LocalNetworkHandler implements INetworkHandler {
       String username,
       Optional<CharacterClass> characterClass)
       throws NetworkException {
+    Objects.requireNonNull(characterClass, "characterClass");
     this.isInitialized = true;
     dummySession.attachClientState(dummyState);
   }
@@ -131,7 +134,10 @@ public class LocalNetworkHandler implements INetworkHandler {
 
   @Override
   public void snapshotTranslator(SnapshotTranslator translator) {
-    if (translator != null) this.translator = translator;
+    if (translator == null) {
+      throw new IllegalArgumentException("translator cannot be null");
+    }
+    this.translator = translator;
   }
 
   @Override
@@ -152,8 +158,8 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public Session session() {
-    return dummySession;
+  public Optional<Session> session() {
+    return Optional.of(dummySession);
   }
 
   private void notifyConnected() {
@@ -171,13 +177,15 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   private void notifyDisconnected(String reason) {
+    String normalizedReason =
+        reason == null || reason.isBlank() ? DEFAULT_DISCONNECT_REASON : reason;
     List<ConnectionListener> snapshot;
     synchronized (this) {
       snapshot = new ArrayList<>(connectionListeners);
     }
     for (ConnectionListener listener : snapshot) {
       try {
-        listener.onDisconnected(reason);
+        listener.onDisconnected(normalizedReason);
       } catch (Exception e) {
         LOGGER.warn("ConnectionListener.onDisconnected threw", e);
       }

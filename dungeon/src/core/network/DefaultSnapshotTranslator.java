@@ -160,14 +160,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   // Client-side
   @Override
   public void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher) {
-    if (!isServerTickValid(snapshot.serverTick())) {
-      LOGGER.debug(
-          "Not the latest server tick, skipping snapshot: {}, latest: {}",
-          snapshot.serverTick(),
-          latestServerTick);
-      return;
-    }
-    latestServerTick = snapshot.serverTick();
     this.applyLevelState(snapshot.levelState());
 
     snapshot

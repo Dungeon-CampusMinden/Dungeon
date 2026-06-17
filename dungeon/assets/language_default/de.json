@@ -36,6 +36,7 @@
       "invalid_username": "Spielername darf nicht leer sein und keinen Unterstrich enthalten.",
       "rejected_username": "Spielername ungültig oder bereits vergeben.",
       "connecting": "Verbindung wird aufgebaut...",
+      "syncing_world": "Spielwelt wird synchronisiert...",
       "fallback_username": "Player",
       "client_version": "Client-Version"
     },
@@ -49,6 +50,10 @@
     "progress_bar_dialog": {
       "title": "Fortschrittsanzeige"
     }
+  },
+  "game_loop": {
+    "disconnected_from_server": "Verbindung zum Server getrennt.",
+    "disconnected_from_server_reason": "Verbindung zum Server getrennt: $1"
   },
   "settings": {
     "master_volume": "Master-Lautstärke",

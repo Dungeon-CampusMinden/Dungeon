@@ -10,11 +10,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import contrib.entities.CharacterClass;
 import core.Game;
 import core.game.PreRunConfiguration;
+import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
+import core.network.messages.c2s.DebugPing;
+import core.network.messages.c2s.DebugTelemetryRequest;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.SnapshotAck;
+import core.network.messages.s2c.DebugPong;
+import core.network.messages.s2c.DebugTelemetrySnapshot;
 import core.utils.Vector2;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -105,6 +111,7 @@ public class ServerTransportTests {
       currentTransport.remove();
     }
     PreRunConfiguration.multiplayerCharacterClasses(CharacterClass.WIZARD);
+    NetworkConfig.DEBUG_TELEMETRY_ENABLED = false;
   }
 
   /**
@@ -314,7 +321,7 @@ public class ServerTransportTests {
         transport, sender, session, new RegisterUdp(ServerRuntime.SESSION_ID, token, clientId));
 
     assertTrue(session.udpReady());
-    assertEquals(sender, session.udpAddress());
+    assertEquals(Optional.of(sender), session.udpAddress());
     assertEquals(clientId, udpToClientIdMap(transport).get(sender));
     assertEquals(1, tcpCalls.get());
   }
@@ -336,12 +343,13 @@ public class ServerTransportTests {
     session.markUdpActivity();
     session.udpReady(true);
     clientIdToSessionMap(transport).put(clientId, session);
-    udpToClientIdMap(transport).put(session.udpAddress(), clientId);
+    InetSocketAddress udpAddress = session.udpAddress().orElseThrow();
+    udpToClientIdMap(transport).put(udpAddress, clientId);
 
     transport.expireStaleUdpSessions(session.udpLastSeenTimeMs() + 4_501L);
 
     assertFalse(session.udpReady());
-    assertFalse(udpToClientIdMap(transport).containsKey(session.udpAddress()));
+    assertFalse(udpToClientIdMap(transport).containsKey(udpAddress));
     assertFalse(session.isClosed());
   }
 
@@ -370,7 +378,7 @@ public class ServerTransportTests {
         transport, newSender, session, new RegisterUdp(ServerRuntime.SESSION_ID, token, clientId));
 
     assertTrue(session.udpReady());
-    assertEquals(newSender, session.udpAddress());
+    assertEquals(Optional.of(newSender), session.udpAddress());
     assertEquals(clientId, udpToClientIdMap(transport).get(newSender));
     assertEquals(2, tcpCalls.get());
   }
@@ -406,6 +414,28 @@ public class ServerTransportTests {
     assertEquals(30, session.clientState().orElseThrow().snapshotSync().lastAckedSnapshotTick());
   }
 
+  /** Verifies piggybacked snapshot acknowledgements survive input sequence rejection. */
+  @Test
+  public void implausibleInputSnapshotAckUpdatesClientSnapshotSyncState() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    Session session = registeredSession(transport, (short) 8);
+    ClientState state = session.clientState().orElseThrow();
+    state.advanceProcessedSeq(5);
+
+    invokeInputMessage(
+        transport,
+        session,
+        new InputMessage(
+            ServerRuntime.SESSION_ID,
+            1,
+            (short) 4,
+            Optional.of(40),
+            InputMessage.Action.MOVE,
+            new InputMessage.Move(Vector2.of(1, 0))));
+
+    assertEquals(40, state.snapshotSync().lastAckedSnapshotTick());
+  }
+
   /** Verifies stale snapshot acknowledgements do not move the client backwards. */
   @Test
   public void olderSnapshotAckDoesNotMoveBackwards() throws Exception {
@@ -418,12 +448,108 @@ public class ServerTransportTests {
     assertEquals(20, session.clientState().orElseThrow().snapshotSync().lastAckedSnapshotTick());
   }
 
+  /** Verifies one-shot debug telemetry requests require the explicit telemetry opt-in. */
+  @Test
+  public void debugTelemetryOnceSendsSnapshotResponse() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    transport.start(uniquePort());
+    List<NetworkMessage> tcpMessages = new CopyOnWriteArrayList<>();
+    Session session = registeredSession(transport, (short) 10, tcpMessages);
+
+    dispatch(session, new DebugTelemetryRequest(55L, DebugTelemetryRequest.Mode.ONCE, 0));
+
+    assertTrue(tcpMessages.isEmpty());
+
+    enableDebugTelemetry();
+    dispatch(session, new DebugTelemetryRequest(55L, DebugTelemetryRequest.Mode.ONCE, 0));
+
+    assertEquals(1, tcpMessages.size());
+    assertTrue(tcpMessages.getFirst() instanceof DebugTelemetrySnapshot);
+    DebugTelemetrySnapshot snapshot = (DebugTelemetrySnapshot) tcpMessages.getFirst();
+    assertEquals(55L, snapshot.requestId());
+    assertEquals(1, snapshot.clients().size());
+  }
+
+  /** Verifies debug pings require the explicit telemetry opt-in. */
+  @Test
+  public void debugPingSendsPongResponse() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    transport.start(uniquePort());
+    List<NetworkMessage> tcpMessages = new CopyOnWriteArrayList<>();
+    Session session = registeredSession(transport, (short) 11, tcpMessages);
+
+    dispatch(session, new DebugPing(56L, 123_456L, 13.5f));
+
+    assertTrue(tcpMessages.isEmpty());
+
+    enableDebugTelemetry();
+    dispatch(session, new DebugPing(56L, 123_456L, 13.5f));
+
+    assertEquals(1, tcpMessages.size());
+    assertTrue(tcpMessages.getFirst() instanceof DebugPong);
+    DebugPong pong = (DebugPong) tcpMessages.getFirst();
+    assertEquals(56L, pong.requestId());
+    assertEquals(123_456L, pong.clientTimeNanos());
+    assertTrue(pong.serverSendTimeMs() >= pong.serverReceiveTimeMs());
+    assertEquals(13.5f, session.clientState().orElseThrow().rttEstimateMs(), 0.001f);
+  }
+
+  /** Verifies debug telemetry request intervals are clamped to the production policy. */
+  @Test
+  public void debugTelemetryStreamIntervalIsClamped() {
+    ServerTransport transport = currentTransport.get();
+
+    assertEquals(1_000, transport.debugTelemetryIntervalMs(0));
+    assertEquals(250, transport.debugTelemetryIntervalMs(1));
+    assertEquals(1_500, transport.debugTelemetryIntervalMs(1_500));
+  }
+
+  /** Verifies debug telemetry streaming stops on request. */
+  @Test
+  public void debugTelemetryStreamStopsOnRequest() throws Exception {
+    enableDebugTelemetry();
+    ServerTransport transport = currentTransport.get();
+    transport.start(uniquePort());
+    List<NetworkMessage> tcpMessages = new CopyOnWriteArrayList<>();
+    Session session = registeredSession(transport, (short) 12, tcpMessages);
+
+    dispatch(session, new DebugTelemetryRequest(57L, DebugTelemetryRequest.Mode.START_STREAM, 1));
+    assertEquals(1, tcpMessages.size());
+    dispatch(session, new DebugTelemetryRequest(57L, DebugTelemetryRequest.Mode.STOP_STREAM, 1));
+    int stoppedCount = tcpMessages.size();
+    Thread.sleep(330L);
+
+    assertEquals(stoppedCount, tcpMessages.size());
+  }
+
+  /** Verifies debug telemetry streaming stops when a reliable snapshot send fails. */
+  @Test
+  public void debugTelemetryStreamStopsOnFailedSend() throws Exception {
+    enableDebugTelemetry();
+    ServerTransport transport = currentTransport.get();
+    transport.start(uniquePort());
+    List<NetworkMessage> tcpMessages = new CopyOnWriteArrayList<>();
+    Session session = registeredSession(transport, (short) 13, tcpMessages, false);
+
+    dispatch(session, new DebugTelemetryRequest(58L, DebugTelemetryRequest.Mode.START_STREAM, 1));
+    int failedSendCount = tcpMessages.size();
+    Thread.sleep(330L);
+
+    assertEquals(1, failedSendCount);
+    assertEquals(failedSendCount, tcpMessages.size());
+  }
+
+  private void enableDebugTelemetry() {
+    NetworkConfig.DEBUG_TELEMETRY_ENABLED = true;
+  }
+
   private Session testSession(AtomicInteger tcpCalls) {
     ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
     Channel channel = Mockito.mock(Channel.class);
     ChannelId channelId = Mockito.mock(ChannelId.class);
     Mockito.when(ctx.channel()).thenReturn(channel);
     Mockito.when(channel.isActive()).thenReturn(true);
+    Mockito.when(channel.isWritable()).thenReturn(true);
     Mockito.when(channel.id()).thenReturn(channelId);
     return new Session(
         ctx,
@@ -431,6 +557,27 @@ public class ServerTransportTests {
         (channelCtx, msg) -> {
           tcpCalls.incrementAndGet();
           return CompletableFuture.completedFuture(true);
+        });
+  }
+
+  private Session testSession(List<NetworkMessage> tcpMessages) {
+    return testSession(tcpMessages, true);
+  }
+
+  private Session testSession(List<NetworkMessage> tcpMessages, boolean tcpSuccess) {
+    ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
+    Channel channel = Mockito.mock(Channel.class);
+    ChannelId channelId = Mockito.mock(ChannelId.class);
+    Mockito.when(ctx.channel()).thenReturn(channel);
+    Mockito.when(channel.isActive()).thenReturn(true);
+    Mockito.when(channel.isWritable()).thenReturn(true);
+    Mockito.when(channel.id()).thenReturn(channelId);
+    return new Session(
+        ctx,
+        (target, msg) -> CompletableFuture.completedFuture(true),
+        (channelCtx, msg) -> {
+          tcpMessages.add(msg);
+          return CompletableFuture.completedFuture(tcpSuccess);
         });
   }
 
@@ -443,6 +590,33 @@ public class ServerTransportTests {
             ServerRuntime.SESSION_ID,
             new byte[] {1, 2, 3},
             CharacterClass.WIZARD));
+    session.clientState().orElseThrow().initialWorldReady(true);
+    sessionsMap(transport).put(session.tcpCtx().channel().id(), session);
+    clientIdToSessionMap(transport).put(clientId, session);
+    return session;
+  }
+
+  private Session registeredSession(
+      ServerTransport transport, short clientId, List<NetworkMessage> tcpMessages)
+      throws Exception {
+    return registeredSession(transport, clientId, tcpMessages, true);
+  }
+
+  private Session registeredSession(
+      ServerTransport transport,
+      short clientId,
+      List<NetworkMessage> tcpMessages,
+      boolean tcpSuccess)
+      throws Exception {
+    Session session = testSession(tcpMessages, tcpSuccess);
+    session.attachClientState(
+        new ClientState(
+            clientId,
+            "player" + clientId,
+            ServerRuntime.SESSION_ID,
+            new byte[] {1, 2, 3},
+            CharacterClass.WIZARD));
+    session.clientState().orElseThrow().initialWorldReady(true);
     sessionsMap(transport).put(session.tcpCtx().channel().id(), session);
     clientIdToSessionMap(transport).put(clientId, session);
     return session;
@@ -495,5 +669,9 @@ public class ServerTransportTests {
             "onInputMessage", Session.class, InputMessage.class);
     method.setAccessible(true);
     method.invoke(transport, session, message);
+  }
+
+  private void dispatch(Session session, NetworkMessage message) {
+    Game.network().messageDispatcher().dispatch(session, message);
   }
 }

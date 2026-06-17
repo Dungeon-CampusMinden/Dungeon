@@ -3,6 +3,7 @@ package core.network.server;
 import contrib.entities.CharacterClass;
 import core.Entity;
 import core.Game;
+import core.network.FullSnapshotSendReason;
 import core.network.config.NetworkConfig;
 import core.network.delta.SnapshotHistory;
 import core.network.messages.c2s.InputMessage;
@@ -54,17 +55,8 @@ public class ClientState {
    */
   private int expectedSeq = 0;
 
-  /**
-   * The estimated round-trip time (RTT) in milliseconds. Updated based on clientTick vs. server
-   * reception time; used for lag compensation. Initialized to 0 (unknown).
-   */
-  private float rttEstimateMs = 0.0f;
-
-  /**
-   * The last known client tick (from InputMessage.clientTick). Helps in correlating client time
-   * with server ticks for prediction/reconciliation.
-   */
-  private long lastClientTick = 0;
+  /** The estimated round-trip time (RTT) in milliseconds. Initialized to 0 (unknown). */
+  private volatile float rttEstimateMs = 0.0f;
 
   /**
    * The entity of the player (local player).
@@ -78,7 +70,10 @@ public class ClientState {
    * Timestamp of the last activity (heartbeat, input, or event) in system millis. Used for
    * disconnect detection (timeout) and reconnect window eligibility.
    */
-  private long lastActivityTimeMs;
+  private volatile long lastActivityTimeMs;
+
+  /** True after the client confirms that its initial world bootstrap was applied. */
+  private volatile boolean initialWorldReady = false;
 
   /** Per-client server-side snapshot acknowledgement state. */
   private final ClientSnapshotSyncState snapshotSync = new ClientSnapshotSyncState();
@@ -159,8 +154,8 @@ public class ClientState {
     this.sessionToken = newSessionToken.clone();
     this.lastProcessedSeq = -1;
     this.expectedSeq = 0;
-    this.lastClientTick = 0;
-    clearSnapshotBaseline();
+    this.initialWorldReady = false;
+    clearSnapshotBaseline(FullSnapshotSendReason.RECONNECT);
     if (!preserveHero) {
       Game.remove(this.playerEntity);
       this.playerEntity = null;
@@ -217,20 +212,21 @@ public class ClientState {
   }
 
   /**
-   * Updates the RTT estimate based on the time difference between clientTick and reception. Uses a
-   * simple EWMA (Exponential Weighted Moving Average) for smoothing.
+   * Records a client-measured debug RTT sample.
    *
-   * @param clientTick The client's tick timestamp (in ms or tick units).
-   * @param alpha The smoothing factor (0.0-1.0; e.g., 0.1 for gradual updates).
+   * <p>Input messages carry game ticks, not synchronized wall-clock timestamps, so authoritative
+   * server telemetry uses debug ping samples for an actual round-trip estimate.
+   *
+   * @param rttMs client-measured round-trip time in milliseconds
+   * @param alpha EWMA smoothing factor between 0 and 1
    */
-  public synchronized void updateRttEstimate(long clientTick, float alpha) {
-    long receptionTime = System.currentTimeMillis();
-    long rawRtt = receptionTime - clientTick;
-    if (rawRtt < 0) rawRtt = 0;
-
-    this.rttEstimateMs = alpha * rawRtt + (1.0f - alpha) * this.rttEstimateMs;
-    this.lastClientTick = clientTick;
-    this.lastActivityTimeMs = receptionTime;
+  public synchronized void recordDebugRttEstimate(float rttMs, float alpha) {
+    if (!Float.isFinite(rttMs) || rttMs <= 0f) {
+      return;
+    }
+    float clampedAlpha = Math.max(0f, Math.min(1f, alpha));
+    rttEstimateMs =
+        rttEstimateMs > 0f ? clampedAlpha * rttMs + (1.0f - clampedAlpha) * rttEstimateMs : rttMs;
   }
 
   /**
@@ -247,6 +243,24 @@ public class ClientState {
   /** Marks the last activity time (e.g., for heartbeat updates). Used for timeout detection. */
   public synchronized void updateLastActivity() {
     this.lastActivityTimeMs = System.currentTimeMillis();
+  }
+
+  /**
+   * Returns whether this client has completed its initial world bootstrap.
+   *
+   * @return true once the client sent {@code InitialWorldReady}
+   */
+  public boolean initialWorldReady() {
+    return initialWorldReady;
+  }
+
+  /**
+   * Updates whether this client has completed its initial world bootstrap.
+   *
+   * @param initialWorldReady true once the client sent {@code InitialWorldReady}
+   */
+  public void initialWorldReady(boolean initialWorldReady) {
+    this.initialWorldReady = initialWorldReady;
   }
 
   /**
@@ -310,15 +324,6 @@ public class ClientState {
    */
   public float rttEstimateMs() {
     return rttEstimateMs;
-  }
-
-  /**
-   * Returns the last known client tick.
-   *
-   * @return The client tick (0 if unknown).
-   */
-  public long lastClientTick() {
-    return lastClientTick;
   }
 
   /**
@@ -400,9 +405,29 @@ public class ClientState {
 
   /** Clears snapshot acknowledgement, applied-history, and delta tracking state. */
   public void clearSnapshotBaseline() {
+    clearSnapshotBaseline(FullSnapshotSendReason.SERVER_FORCED_RESYNC);
+  }
+
+  /**
+   * Clears snapshot acknowledgement, applied-history, and delta tracking state.
+   *
+   * @param reason reason why the next full snapshot should be sent
+   */
+  public void clearSnapshotBaseline(FullSnapshotSendReason reason) {
     this.latestAppliedSnapshotTick = -1;
-    this.snapshotSync.clear();
+    this.snapshotSync.clear(reason);
     this.appliedSnapshotHistory.clear();
+    this.knownSnapshotEntityIds.clear();
+    this.knownSnapshotBaseTick = -1;
+  }
+
+  /**
+   * Requests a recovery full snapshot without clearing full-snapshot retry state.
+   *
+   * @param reason reason why this client needs a fresh full snapshot baseline
+   */
+  public void requestSnapshotResync(FullSnapshotSendReason reason) {
+    this.snapshotSync.requestRecoveryFullSnapshot(reason);
     this.knownSnapshotEntityIds.clear();
     this.knownSnapshotBaseTick = -1;
   }
@@ -504,6 +529,19 @@ public class ClientState {
    */
   public void rememberAppliedSnapshot(SnapshotMessage snapshot) {
     appliedSnapshotHistory.add(snapshot);
+    latestAppliedSnapshotTick(snapshot.serverTick());
+  }
+
+  /**
+   * Stores a fully applied client-side snapshot while retaining active delta baselines.
+   *
+   * @param snapshot applied full/materialized snapshot
+   * @param protectedSnapshotTicks snapshot ticks that must remain available for delta
+   *     materialization
+   */
+  public void rememberAppliedSnapshot(
+      SnapshotMessage snapshot, Collection<Integer> protectedSnapshotTicks) {
+    appliedSnapshotHistory.add(snapshot, protectedSnapshotTicks);
     latestAppliedSnapshotTick(snapshot.serverTick());
   }
 

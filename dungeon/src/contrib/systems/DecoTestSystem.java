@@ -12,6 +12,7 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.systems.input.InputManager;
+import core.utils.ClipboardUtil;
 import core.utils.FontHelper;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -190,7 +191,7 @@ public class DecoTestSystem extends System {
                       cc.collider().height(),
                       cc.collider().offset().x(),
                       cc.collider().offset().y());
-              Gdx.app.getClipboard().setContents(colliderString);
+              ClipboardUtil.copyToClipboard(colliderString);
               LOGGER.info("Copied collider info to clipboard: " + colliderString);
             });
   }

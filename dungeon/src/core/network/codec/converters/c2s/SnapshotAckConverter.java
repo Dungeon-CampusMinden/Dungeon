@@ -11,14 +11,24 @@ public final class SnapshotAckConverter
 
   @Override
   public core.network.proto.c2s.SnapshotAck toProto(SnapshotAck message) {
-    return core.network.proto.c2s.SnapshotAck.newBuilder()
-        .setServerTick(message.serverTick())
-        .build();
+    core.network.proto.c2s.SnapshotAck.Builder builder =
+        core.network.proto.c2s.SnapshotAck.newBuilder().setServerTick(message.serverTick());
+    if (message.resyncRequested()) {
+      builder
+          .setResyncRequested(true)
+          .setMissingBaseTick(message.missingBaseTick())
+          .setDeltaTick(message.deltaTick());
+    }
+    return builder.build();
   }
 
   @Override
   public SnapshotAck fromProto(core.network.proto.c2s.SnapshotAck proto) {
-    return new SnapshotAck(proto.getServerTick());
+    return new SnapshotAck(
+        proto.getServerTick(),
+        proto.getResyncRequested(),
+        proto.getMissingBaseTick(),
+        proto.getDeltaTick());
   }
 
   @Override

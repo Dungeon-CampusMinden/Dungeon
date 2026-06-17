@@ -1,9 +1,16 @@
 package core.network.server;
 
+import core.network.FullSnapshotSendReason;
+import java.util.HashSet;
+import java.util.Set;
+
 /** Tracks per-client snapshot acknowledgement and full-snapshot pacing state. */
 public final class ClientSnapshotSyncState {
   private int lastAckedSnapshotTick = -1;
   private int lastFullSnapshotTick = -1;
+  private int lastFullSnapshotAttemptTick = -1;
+  private int lastDeltaSnapshotTick = -1;
+  private FullSnapshotSendReason pendingFullSnapshotReason = FullSnapshotSendReason.INITIAL_SYNC;
 
   /**
    * Returns the highest snapshot tick acknowledged by the client.
@@ -21,6 +28,24 @@ public final class ClientSnapshotSyncState {
    */
   public synchronized int lastFullSnapshotTick() {
     return lastFullSnapshotTick;
+  }
+
+  /**
+   * Returns the last full snapshot tick scheduled for this client.
+   *
+   * @return full snapshot attempt tick, or -1 when none was scheduled
+   */
+  public synchronized int lastFullSnapshotAttemptTick() {
+    return lastFullSnapshotAttemptTick;
+  }
+
+  /**
+   * Returns the last delta snapshot tick sent to this client.
+   *
+   * @return delta snapshot tick, or -1 when none was sent
+   */
+  public synchronized int lastDeltaSnapshotTick() {
+    return lastDeltaSnapshotTick;
   }
 
   /**
@@ -44,12 +69,50 @@ public final class ClientSnapshotSyncState {
   }
 
   /**
-   * Marks a full snapshot as sent.
+   * Marks a full snapshot as scheduled for sending.
+   *
+   * @param serverTick full snapshot tick
+   */
+  public synchronized void markFullSnapshotScheduled(int serverTick) {
+    if (serverTick > lastFullSnapshotAttemptTick) {
+      lastFullSnapshotAttemptTick = serverTick;
+    }
+  }
+
+  /**
+   * Marks a full snapshot as successfully sent.
    *
    * @param serverTick full snapshot tick
    */
   public synchronized void markFullSnapshotSent(int serverTick) {
-    lastFullSnapshotTick = serverTick;
+    if (serverTick > lastFullSnapshotTick) {
+      lastFullSnapshotTick = serverTick;
+    }
+    if (serverTick > lastFullSnapshotAttemptTick) {
+      lastFullSnapshotAttemptTick = serverTick;
+    }
+  }
+
+  /**
+   * Clears an unsuccessful full-snapshot attempt so the next snapshot pass can retry.
+   *
+   * @param serverTick failed full snapshot tick
+   */
+  public synchronized void markFullSnapshotSendFailed(int serverTick) {
+    if (serverTick == lastFullSnapshotAttemptTick && serverTick > lastFullSnapshotTick) {
+      lastFullSnapshotAttemptTick = lastFullSnapshotTick;
+    }
+  }
+
+  /**
+   * Marks a delta snapshot as sent to this client.
+   *
+   * @param serverTick delta snapshot tick
+   */
+  public synchronized void markDeltaSnapshotSent(int serverTick) {
+    if (serverTick > lastDeltaSnapshotTick) {
+      lastDeltaSnapshotTick = serverTick;
+    }
   }
 
   /**
@@ -60,12 +123,100 @@ public final class ClientSnapshotSyncState {
    * @return true when no full snapshot was sent or the interval elapsed
    */
   public synchronized boolean fullSnapshotDue(int currentTick, int intervalTicks) {
-    return lastFullSnapshotTick < 0 || currentTick - lastFullSnapshotTick >= intervalTicks;
+    int lastFullBaselineTick = Math.max(lastFullSnapshotTick, lastFullSnapshotAttemptTick);
+    return lastFullBaselineTick < 0 || currentTick - lastFullBaselineTick >= intervalTicks;
+  }
+
+  /**
+   * Returns whether recovery full snapshots may be retried.
+   *
+   * <p>A full snapshot newer than the latest acknowledgement is treated as in flight. This prevents
+   * missing-baseline and no-ack recovery from sending one reliable full snapshot every snapshot
+   * tick while the client is still receiving or acknowledging the first one.
+   *
+   * @param currentTick current server tick
+   * @param retryIntervalTicks minimum retry interval in ticks
+   * @return true when no newer full snapshot is in flight or the retry interval elapsed
+   */
+  public synchronized boolean fullSnapshotRecoveryDue(int currentTick, int retryIntervalTicks) {
+    int lastFullBaselineTick = Math.max(lastFullSnapshotTick, lastFullSnapshotAttemptTick);
+    if (lastFullBaselineTick < 0 || lastAckedSnapshotTick >= lastFullBaselineTick) {
+      return true;
+    }
+    return currentTick - lastFullBaselineTick >= retryIntervalTicks;
+  }
+
+  /**
+   * Requests a recovery full snapshot while preserving full-snapshot retry pacing state.
+   *
+   * <p>This invalidates the acknowledged delta baseline so the server stops sending deltas until a
+   * fresh full snapshot is acknowledged. It deliberately keeps the last full-snapshot attempt so
+   * repeated client requests cannot bypass recovery rate limiting while a reliable full snapshot is
+   * still in flight.
+   *
+   * @param reason recovery reason
+   */
+  public synchronized void requestRecoveryFullSnapshot(FullSnapshotSendReason reason) {
+    lastAckedSnapshotTick = -1;
+    lastDeltaSnapshotTick = -1;
+    pendingFullSnapshotReason =
+        reason == null ? FullSnapshotSendReason.SERVER_FORCED_RESYNC : reason;
+  }
+
+  /**
+   * Records the reason that should be attached to the next full snapshot sent to this client.
+   *
+   * @param reason full snapshot reason
+   */
+  public synchronized void pendingFullSnapshotReason(FullSnapshotSendReason reason) {
+    pendingFullSnapshotReason =
+        reason == null ? FullSnapshotSendReason.SERVER_FORCED_RESYNC : reason;
+  }
+
+  /**
+   * Returns the currently pending full-snapshot reason.
+   *
+   * @return pending full snapshot reason
+   */
+  public synchronized FullSnapshotSendReason pendingFullSnapshotReason() {
+    return pendingFullSnapshotReason;
+  }
+
+  /**
+   * Returns snapshot ticks that should remain retained for this client.
+   *
+   * @return protected snapshot ticks for acknowledged and in-flight baselines
+   */
+  public synchronized Set<Integer> protectedSnapshotTicks() {
+    Set<Integer> ticks = new HashSet<>();
+    if (lastAckedSnapshotTick >= 0) {
+      ticks.add(lastAckedSnapshotTick);
+    }
+    if (lastFullSnapshotAttemptTick >= 0 && lastAckedSnapshotTick < lastFullSnapshotAttemptTick) {
+      ticks.add(lastFullSnapshotAttemptTick);
+    }
+    if (lastDeltaSnapshotTick >= 0 && lastAckedSnapshotTick < lastDeltaSnapshotTick) {
+      ticks.add(lastDeltaSnapshotTick);
+    }
+    return Set.copyOf(ticks);
   }
 
   /** Resets all snapshot sync state. */
   public synchronized void clear() {
+    clear(FullSnapshotSendReason.SERVER_FORCED_RESYNC);
+  }
+
+  /**
+   * Resets all snapshot sync state and records why a fresh full snapshot is needed.
+   *
+   * @param reason reason for invalidating the current baseline
+   */
+  public synchronized void clear(FullSnapshotSendReason reason) {
     lastAckedSnapshotTick = -1;
     lastFullSnapshotTick = -1;
+    lastFullSnapshotAttemptTick = -1;
+    lastDeltaSnapshotTick = -1;
+    pendingFullSnapshotReason =
+        reason == null ? FullSnapshotSendReason.SERVER_FORCED_RESYNC : reason;
   }
 }

@@ -8,4 +8,7 @@ option java_outer_classname = "SnapshotAckProto";
 
 message SnapshotAck {
   int32 server_tick = 1;
+  bool resync_requested = 2;
+  int32 missing_base_tick = 3;
+  int32 delta_tick = 4;
 }

@@ -1,5 +1,6 @@
 package contrib.utils.components;
 
+import com.badlogic.gdx.Input;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
@@ -241,8 +242,14 @@ public class Debugger extends System {
         InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SYSTEM_LIST.value());
     boolean toggleSystemListHeld =
         InputManager.isKeyPressed(KeyboardConfig.DEBUG_TOGGLE_SYSTEM_LIST.value());
+    boolean toggleNetworkTelemetryPressed =
+        InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_NETWORK_TELEMETRY.value());
+    boolean toggleNetworkTelemetryHeld =
+        InputManager.isKeyPressed(KeyboardConfig.DEBUG_TOGGLE_NETWORK_TELEMETRY.value());
 
-    if ((toggleHudPressed && toggleSystemListHeld) || toggleSystemListPressed) {
+    if ((toggleHudPressed && toggleNetworkTelemetryHeld) || toggleNetworkTelemetryPressed) {
+      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleNetworkTelemetry);
+    } else if ((toggleHudPressed && toggleSystemListHeld) || toggleSystemListPressed) {
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleSystemList);
     } else if (toggleHudPressed) {
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
@@ -268,8 +275,8 @@ public class Debugger extends System {
       Debugger.TELEPORT_TO_CURSOR();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value())
         && !LevelEditorSystem.active()) Debugger.SPAWN_MONSTER_ON_CURSOR();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value()))
-      Debugger.OPEN_DOORS();
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())
+        && !isControlPressed()) Debugger.OPEN_DOORS();
     if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value()))
       Debugger.PAUSE_GAME();
     if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.ADVANCE_FRAME.value()))
@@ -291,5 +298,10 @@ public class Debugger extends System {
     }
 
     checkFrameAdvance();
+  }
+
+  private static boolean isControlPressed() {
+    return InputManager.isKeyPressed(Input.Keys.CONTROL_LEFT)
+        || InputManager.isKeyPressed(Input.Keys.CONTROL_RIGHT);
   }
 }

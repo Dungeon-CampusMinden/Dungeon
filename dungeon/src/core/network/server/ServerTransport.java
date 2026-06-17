@@ -16,11 +16,16 @@ import contrib.entities.HeroController;
 import core.Entity;
 import core.Game;
 import core.game.PreRunConfiguration;
+import core.network.FullSnapshotSendReason;
 import core.network.MessageDispatcher;
+import core.network.NetworkTelemetry;
 import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
+import core.network.messages.c2s.DebugPing;
+import core.network.messages.c2s.DebugTelemetryRequest;
 import core.network.messages.c2s.DialogResponseMessage;
+import core.network.messages.c2s.InitialWorldReady;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
@@ -28,15 +33,19 @@ import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.c2s.SoundFinishedMessage;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
+import core.network.messages.s2c.DebugPong;
+import core.network.messages.s2c.DebugTelemetrySnapshot;
+import core.network.messages.s2c.EntitySpawnBatch;
+import core.network.messages.s2c.EntitySpawnEvent;
+import core.network.messages.s2c.InitialWorldComplete;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.RegisterAck;
-import core.utils.Tuple;
 import core.utils.logging.DungeonLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelInitializer;
@@ -58,12 +67,17 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -78,8 +92,12 @@ import java.util.function.Consumer;
  */
 public final class ServerTransport {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerTransport.class);
+  private static final int DEBUG_TELEMETRY_DEFAULT_INTERVAL_MS = 1_000;
+  private static final int DEBUG_TELEMETRY_MIN_INTERVAL_MS = 250;
+  private static final float DEBUG_RTT_EWMA_ALPHA = 0.2f;
 
-  private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
+  private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
+  private final AtomicInteger inboundQueueDepth = new AtomicInteger();
 
   // Transport/session mappings
   private final ConcurrentHashMap<ChannelId, Session> sessions = new ConcurrentHashMap<>();
@@ -89,6 +107,8 @@ public final class ServerTransport {
   private final ConcurrentHashMap<InetSocketAddress, Short> udpToClientId =
       new ConcurrentHashMap<>();
   private final ConcurrentHashMap<Short, String> clientIdToName = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<ChannelId, ScheduledFuture<?>> debugTelemetryStreams =
+      new ConcurrentHashMap<>();
 
   private final AtomicInteger nextClientId = new AtomicInteger(1);
   private int nextFallbackCharacterClassIndex = 0;
@@ -98,6 +118,9 @@ public final class ServerTransport {
   private EventLoopGroup workerGroup;
   private Channel tcpServer;
   private Channel udpChannel;
+  private volatile ScheduledExecutorService debugTelemetryExecutor;
+
+  private record QueuedNetworkMessage(Session session, NetworkMessage message, long receiveNanos) {}
 
   /**
    * Starts the server transport on the specified port, initializing TCP and UDP channels.
@@ -128,6 +151,7 @@ public final class ServerTransport {
    */
   public void stop() {
     try {
+      stopAllDebugTelemetryStreams();
       if (tcpServer != null) tcpServer.close().syncUninterruptibly();
       if (udpChannel != null) udpChannel.close().syncUninterruptibly();
     } catch (Exception e) {
@@ -138,6 +162,10 @@ public final class ServerTransport {
         if (workerGroup != null) workerGroup.shutdownGracefully();
       } catch (Exception e) {
         LOGGER.warn("Error shutting down event loops", e);
+      }
+      if (debugTelemetryExecutor != null) {
+        debugTelemetryExecutor.shutdownNow();
+        debugTelemetryExecutor = null;
       }
       bossGroup = null;
       workerGroup = null;
@@ -159,14 +187,31 @@ public final class ServerTransport {
   }
 
   /**
-   * Gets a set of all currently connected clients' states.
+   * Gets a set of currently connected clients that completed the initial world bootstrap.
    *
-   * <p>This method filters out any sessions that are closed and collects the associated ClientState
-   * objects.
+   * <p>This method filters out closed sessions and clients that have not yet sent {@link
+   * InitialWorldReady}. Use {@link #establishedClients()} for bootstrap-only work such as spawning
+   * the player's hero before normal snapshots start.
    *
-   * @return A set of ClientState objects representing connected clients.
+   * @return a set of ClientState objects representing world-ready clients
    */
   public Set<ClientState> connectedClients() {
+    Set<ClientState> clients = new HashSet<>();
+    for (ClientState state : establishedClients()) {
+      if (state.initialWorldReady()) {
+        clients.add(state);
+      }
+    }
+    return clients;
+  }
+
+  /**
+   * Gets all currently established client states, including clients still applying the initial
+   * world bootstrap.
+   *
+   * @return a set of ClientState objects for active, authenticated sessions
+   */
+  public Set<ClientState> establishedClients() {
     Set<ClientState> clients = new HashSet<>();
     for (Session s : sessions.values()) {
       if (s.isClosed()) continue;
@@ -212,20 +257,34 @@ public final class ServerTransport {
   private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, NetworkMessage msg) {
     if (udpChannel == null || !udpChannel.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
+      NetworkTelemetry.recordUdpSendFailure(msg, "server UDP channel inactive");
       return CompletableFuture.completedFuture(false);
     }
     try {
       byte[] data = serialize(msg);
       if (data.length > SAFE_UDP_MTU) {
         LOGGER.warn("Skip UDP send; payload too large ({} B) to {}", data.length, target);
+        NetworkTelemetry.recordUdpOversized(msg, data.length);
         return CompletableFuture.completedFuture(false);
       }
-      udpChannel
-          .writeAndFlush(
-              new DatagramPacket(udpChannel.alloc().buffer(data.length).writeBytes(data), target))
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-      return CompletableFuture.completedFuture(true);
+      CompletableFuture<Boolean> result = new CompletableFuture<>();
+      ChannelFuture writeFuture =
+          udpChannel.writeAndFlush(
+              new DatagramPacket(udpChannel.alloc().buffer(data.length).writeBytes(data), target));
+      writeFuture.addListener(
+          future -> {
+            if (future.isSuccess()) {
+              NetworkTelemetry.recordOutboundUdp(msg, data.length);
+              result.complete(true);
+              return;
+            }
+            NetworkTelemetry.recordUdpSendFailure(msg, "server UDP write failed");
+            LOGGER.warn("Failed to write UDP object to {}", target, future.cause());
+            result.complete(false);
+          });
+      return result;
     } catch (Exception e) {
+      NetworkTelemetry.recordUdpSendFailure(msg, "server UDP send failed");
       LOGGER.warn("Failed to send UDP object to {}", target, e);
       return CompletableFuture.completedFuture(false);
     }
@@ -244,8 +303,19 @@ public final class ServerTransport {
       ByteBuf buf = ctx.alloc().buffer(TCP_LENGTH_FIELD_LENGTH + data.length);
       buf.writeInt(data.length);
       buf.writeBytes(data);
-      ctx.writeAndFlush(buf).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-      return CompletableFuture.completedFuture(true);
+      CompletableFuture<Boolean> result = new CompletableFuture<>();
+      ctx.writeAndFlush(buf)
+          .addListener(
+              future -> {
+                if (future.isSuccess()) {
+                  NetworkTelemetry.recordOutboundTcp(msg, data.length, clientId(ctx));
+                  result.complete(true);
+                  return;
+                }
+                LOGGER.warn("Failed to write TCP object to {}", ctx.channel(), future.cause());
+                result.complete(false);
+              });
+      return result;
     } catch (IOException e) {
       LOGGER.warn(
           "Failed to send TCP object to {}: {} ({})", ctx.channel(), e.getClass(), e.getMessage());
@@ -327,20 +397,24 @@ public final class ServerTransport {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) throws Exception {
-      LOGGER.trace("TCP received {} bytes from {}", frame.readableBytes(), ctx.channel());
+      int size = frame.readableBytes();
+      LOGGER.trace("TCP received {} bytes from {}", size, ctx.channel());
+      long receiveNanos = System.nanoTime();
       NetworkMessage msg = deserialize(frame);
+      NetworkTelemetry.recordInboundTcp(msg, size, System.nanoTime() - receiveNanos);
       Session session = sessions.get(ctx.channel().id());
       if (session == null) {
         LOGGER.warn("Received TCP message for unknown session on channel {}", ctx.channel());
         return;
       }
-      inboundQueue.offer(Tuple.of(session, msg));
+      enqueueInbound(session, msg, receiveNanos);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
       LOGGER.trace("TCP channel inactive: {}", ctx.channel());
       Session session = sessions.get(ctx.channel().id());
+      stopDebugTelemetryStream(ctx.channel().id());
 
       if (session != null) {
         try {
@@ -349,10 +423,7 @@ public final class ServerTransport {
         }
 
         // Clean up UDP mapping
-        InetSocketAddress udpAddr = session.udpAddress();
-        if (udpAddr != null) {
-          udpToClientId.remove(udpAddr);
-        }
+        session.udpAddress().ifPresent(udpToClientId::remove);
         session.udpReady(false);
 
         // Remove Player Entity on disconnect
@@ -380,14 +451,18 @@ public final class ServerTransport {
       ByteBuf content = pkt.content();
       int size = content.readableBytes();
       if (size <= 0 || size > NetworkConfig.MAX_UDP_OBJECT_SIZE) {
+        NetworkTelemetry.recordUdpDrop("server invalid UDP size");
         LOGGER.warn("Ignoring UDP packet with invalid size={} from {}", size, pkt.sender());
         return;
       }
 
       NetworkMessage msg;
+      long receiveNanos = System.nanoTime();
       try {
         msg = deserialize(content);
+        NetworkTelemetry.recordInboundUdp(msg, size);
       } catch (Exception e) {
+        NetworkTelemetry.recordUdpDrop("server UDP decode error");
         LOGGER.warn("Failed to deserialize UDP from {}", pkt.sender(), e);
         return;
       }
@@ -398,6 +473,7 @@ public final class ServerTransport {
       if (msg instanceof RegisterUdp reg) {
         Session tcpSender = clientIdToSession.get(reg.clientId());
         if (tcpSender == null) {
+          NetworkTelemetry.recordUdpDrop("server RegisterUdp unknown client");
           LOGGER.warn("RegisterUdp for unknown clientId={} from {}", reg.clientId(), sender);
           return;
         }
@@ -406,6 +482,7 @@ public final class ServerTransport {
       }
 
       if (mappedClientId == null) {
+        NetworkTelemetry.recordUdpDrop("server unregistered UDP address");
         LOGGER.warn("UDP from unregistered addr {} (no registration)", sender);
         return;
       }
@@ -413,12 +490,13 @@ public final class ServerTransport {
       Session session = clientIdToSession.get(mappedClientId);
       if (session == null) {
         udpToClientId.remove(sender);
+        NetworkTelemetry.recordUdpDrop("server stale UDP mapping");
         LOGGER.warn("Stale UDP mapping for {} removed", sender);
         return;
       }
 
       session.markUdpActivity();
-      inboundQueue.offer(Tuple.of(session, msg));
+      enqueueInbound(session, msg, receiveNanos);
     }
 
     @Override
@@ -436,25 +514,181 @@ public final class ServerTransport {
    * @see MessageDispatcher
    */
   public void pollAndDispatch() {
-    Tuple<Session, NetworkMessage> msg;
+    QueuedNetworkMessage msg;
+    NetworkTelemetry.recordInboundQueueDepth(inboundQueueDepth.get());
+    int drainedMessages = 0;
     while ((msg = inboundQueue.poll()) != null) {
+      inboundQueueDepth.updateAndGet(depth -> Math.max(0, depth - 1));
+      drainedMessages++;
+      long dispatchStartNanos = System.nanoTime();
       try {
-        Game.network().messageDispatcher().dispatch(msg.a(), msg.b());
+        Game.network().messageDispatcher().dispatch(msg.session(), msg.message());
       } catch (Exception e) {
         LOGGER.error("Dispatch error", e);
+      } finally {
+        NetworkTelemetry.recordQueuedMessageDispatch(
+            msg.message(),
+            dispatchStartNanos - msg.receiveNanos(),
+            System.nanoTime() - dispatchStartNanos);
       }
     }
+    NetworkTelemetry.recordInboundQueueDrain(drainedMessages);
     expireStaleUdpSessions(System.currentTimeMillis());
+  }
+
+  private void enqueueInbound(Session session, NetworkMessage message, long receiveNanos) {
+    inboundQueueDepth.incrementAndGet();
+    inboundQueue.offer(new QueuedNetworkMessage(session, message, receiveNanos));
   }
 
   private void setupDispatchers() {
     MessageDispatcher dispatcher = Game.network().messageDispatcher();
     dispatcher.registerHandler(ConnectRequest.class, this::onConnectRequest);
+    dispatcher.registerHandler(InitialWorldReady.class, this::onInitialWorldReady);
     dispatcher.registerHandler(RequestEntitySpawn.class, this::onRequestEntitySpawn);
     dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
     dispatcher.registerHandler(SnapshotAck.class, this::onSnapshotAck);
     dispatcher.registerHandler(SoundFinishedMessage.class, this::onSoundFinished);
     dispatcher.registerHandler(DialogResponseMessage.class, this::onDialogResponse);
+    dispatcher.registerHandler(DebugTelemetryRequest.class, this::onDebugTelemetryRequest);
+    dispatcher.registerHandler(DebugPing.class, this::onDebugPing);
+  }
+
+  private short clientId(ChannelHandlerContext ctx) {
+    if (ctx == null || ctx.channel() == null) {
+      return 0;
+    }
+    Session session = sessions.get(ctx.channel().id());
+    return session == null ? 0 : session.clientId();
+  }
+
+  private void onDebugTelemetryRequest(Session session, DebugTelemetryRequest request) {
+    if (!isSessionValid(session)) {
+      return;
+    }
+
+    if (request.mode() == DebugTelemetryRequest.Mode.STOP_STREAM) {
+      stopDebugTelemetryStream(session.tcpCtx().channel().id());
+      return;
+    }
+
+    if (!NetworkConfig.DEBUG_TELEMETRY_ENABLED) {
+      stopDebugTelemetryStream(session.tcpCtx().channel().id());
+      return;
+    }
+
+    switch (request.mode()) {
+      case ONCE -> sendDebugTelemetrySnapshot(session, request.requestId());
+      case START_STREAM -> startDebugTelemetryStream(session, request);
+      case STOP_STREAM -> stopDebugTelemetryStream(session.tcpCtx().channel().id());
+    }
+  }
+
+  private void onDebugPing(Session session, DebugPing ping) {
+    if (!isSessionValid(session)) {
+      return;
+    }
+    if (!NetworkConfig.DEBUG_TELEMETRY_ENABLED) {
+      return;
+    }
+    long receivedMs = System.currentTimeMillis();
+    session
+        .clientState()
+        .ifPresent(state -> state.recordDebugRttEstimate(ping.latestRttMs(), DEBUG_RTT_EWMA_ALPHA));
+    session.sendMessage(
+        new DebugPong(
+            ping.requestId(), ping.clientTimeNanos(), receivedMs, System.currentTimeMillis()),
+        true);
+  }
+
+  private void startDebugTelemetryStream(Session session, DebugTelemetryRequest request) {
+    ChannelId channelId = session.tcpCtx().channel().id();
+    stopDebugTelemetryStream(channelId);
+
+    int intervalMs = debugTelemetryIntervalMs(request.intervalMs());
+    ScheduledFuture<?> future =
+        debugTelemetryExecutor()
+            .scheduleWithFixedDelay(
+                () -> {
+                  if (!debugTelemetrySendAllowed(session)) {
+                    stopDebugTelemetryStream(channelId);
+                    return;
+                  }
+                  sendDebugTelemetrySnapshot(session, request.requestId())
+                      .thenAccept(
+                          success -> {
+                            if (!success) {
+                              stopDebugTelemetryStream(channelId);
+                            }
+                          });
+                },
+                intervalMs,
+                intervalMs,
+                TimeUnit.MILLISECONDS);
+    debugTelemetryStreams.put(channelId, future);
+    sendDebugTelemetrySnapshot(session, request.requestId())
+        .thenAccept(
+            success -> {
+              if (!success) {
+                stopDebugTelemetryStream(channelId);
+              }
+            });
+  }
+
+  private CompletableFuture<Boolean> sendDebugTelemetrySnapshot(Session session, long requestId) {
+    if (!debugTelemetrySendAllowed(session)) {
+      return CompletableFuture.completedFuture(false);
+    }
+    DebugTelemetrySnapshot snapshot =
+        NetworkTelemetry.buildServerSnapshot(requestId, sessions.values());
+    return session.sendMessage(snapshot, true);
+  }
+
+  private boolean debugTelemetrySendAllowed(Session session) {
+    return NetworkConfig.DEBUG_TELEMETRY_ENABLED
+        && isSessionValid(session)
+        && !session.isClosed()
+        && session.tcpCtx().channel().isWritable();
+  }
+
+  int debugTelemetryIntervalMs(int requestedIntervalMs) {
+    if (requestedIntervalMs <= 0) {
+      return DEBUG_TELEMETRY_DEFAULT_INTERVAL_MS;
+    }
+    return Math.max(DEBUG_TELEMETRY_MIN_INTERVAL_MS, requestedIntervalMs);
+  }
+
+  private ScheduledExecutorService debugTelemetryExecutor() {
+    if (debugTelemetryExecutor != null && !debugTelemetryExecutor.isShutdown()) {
+      return debugTelemetryExecutor;
+    }
+    synchronized (this) {
+      if (debugTelemetryExecutor == null || debugTelemetryExecutor.isShutdown()) {
+        debugTelemetryExecutor =
+            Executors.newSingleThreadScheduledExecutor(
+                r -> {
+                  Thread thread = new Thread(r, "DebugTelemetryStream");
+                  thread.setDaemon(true);
+                  return thread;
+                });
+      }
+      return debugTelemetryExecutor;
+    }
+  }
+
+  private void stopDebugTelemetryStream(ChannelId channelId) {
+    if (channelId == null) {
+      return;
+    }
+    ScheduledFuture<?> future = debugTelemetryStreams.remove(channelId);
+    if (future != null) {
+      future.cancel(false);
+    }
+  }
+
+  private void stopAllDebugTelemetryStreams() {
+    debugTelemetryStreams.values().forEach(future -> future.cancel(false));
+    debugTelemetryStreams.clear();
   }
 
   private void onSoundFinished(Session session, SoundFinishedMessage msg) {
@@ -514,24 +748,22 @@ public final class ServerTransport {
     clientIdToName.put(newClientId, playerName);
 
     byte[] sessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
-
-    session.attachClientState(
+    ClientState clientState =
         new ClientState(
             newClientId,
             playerName,
             ServerRuntime.SESSION_ID,
             sessionToken,
-            selectedCharacterClass(req)));
+            selectedCharacterClass(req));
     session.udpReady(false);
+    session.attachClientState(clientState);
     clientIdToSession.put(newClientId, session);
 
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
 
     sendInitialLevel(session.tcpCtx(), newClientId);
-
-    // Resync dialogs for the new client
-    DialogTracker.instance().resyncDialogsToClient(newClientId);
-    SoundTracker.instance().resyncSoundsToClient(newClientId);
+    sendInitialEntitySpawns(session, newClientId);
+    sendInitialWorldComplete(session, newClientId);
 
     LOGGER.info("Accepted client id={} name='{}' {}", newClientId, playerName, session);
   }
@@ -588,18 +820,12 @@ public final class ServerTransport {
     String playerName = req.playerName();
     byte[] newSessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
-    // Reuse the previous ClientState so reconnects keep the original character class selection.
     ClientState oldClientState = oldSession.clientState().orElseThrow();
-    oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
-    session.attachClientState(oldClientState);
     session.udpReady(false);
-    clientIdToSession.put(clientId, session);
 
     // remove old mappings
     clientIdToName.put(clientId, playerName);
-    if (oldSession.udpAddress() != null) {
-      udpToClientId.remove(oldSession.udpAddress());
-    }
+    oldSession.udpAddress().ifPresent(udpToClientId::remove);
     oldSession.udpReady(false);
     sessions.remove(oldSession.tcpCtx().channel().id());
     try {
@@ -607,14 +833,17 @@ public final class ServerTransport {
     } catch (Exception ignored) {
     }
 
+    // Reuse the previous ClientState so reconnects keep the original character class selection.
+    oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
+    session.attachClientState(oldClientState);
+    clientIdToSession.put(clientId, session);
+
     // 4. Send ConnectAck
     session.sendMessage(new ConnectAck(clientId, ServerRuntime.SESSION_ID, newSessionToken), true);
 
     sendInitialLevel(session.tcpCtx(), clientId);
-
-    // Resync dialogs for the reconnecting client
-    DialogTracker.instance().resyncDialogsToClient(clientId);
-    SoundTracker.instance().resyncSoundsToClient(clientId);
+    sendInitialEntitySpawns(session, clientId);
+    sendInitialWorldComplete(session, clientId);
 
     LOGGER.info("Restored client id={} name='{}' {}", clientId, playerName, session);
   }
@@ -622,6 +851,7 @@ public final class ServerTransport {
   private void onUdpRegister(InetSocketAddress sender, Session tcpSession, RegisterUdp reg) {
     // 1. Validate session ID
     if (reg.sessionId() != ServerRuntime.SESSION_ID) {
+      NetworkTelemetry.recordUdpDrop("server RegisterUdp invalid session");
       LOGGER.warn("RegisterUdp with invalid sessionId={} from {}", reg.sessionId(), sender);
       tcpSession.sendMessage(new RegisterAck(false), true);
       return;
@@ -629,6 +859,7 @@ public final class ServerTransport {
 
     // 2. Validate client ID
     if (reg.clientId() <= 0) {
+      NetworkTelemetry.recordUdpDrop("server RegisterUdp invalid client");
       LOGGER.warn("RegisterUdp with invalid clientId={} from {}", reg.clientId(), sender);
       tcpSession.sendMessage(new RegisterAck(false), true);
       return;
@@ -637,6 +868,7 @@ public final class ServerTransport {
     // 3. Lookup session
     Session sess = clientIdToSession.get(reg.clientId());
     if (sess == null) {
+      NetworkTelemetry.recordUdpDrop("server RegisterUdp missing session");
       LOGGER.warn("RegisterUdp for unknown clientId={} from {}", reg.clientId(), sender);
       tcpSession.sendMessage(new RegisterAck(false), true);
       return;
@@ -644,6 +876,7 @@ public final class ServerTransport {
 
     ClientState state = sess.clientState().orElse(null);
     if (state == null) {
+      NetworkTelemetry.recordUdpDrop("server RegisterUdp missing client state");
       LOGGER.error(
           "Session for clientId={} is missing ClientState. This should not happen.",
           reg.clientId());
@@ -653,6 +886,7 @@ public final class ServerTransport {
 
     // 4. Validate Session Token
     if (!Arrays.equals(state.sessionToken(), reg.sessionToken())) {
+      NetworkTelemetry.recordUdpDrop("server RegisterUdp invalid token");
       LOGGER.warn(
           "RegisterUdp with invalid session token for clientId={} from {}", reg.clientId(), sender);
       tcpSession.sendMessage(new RegisterAck(false), true);
@@ -660,16 +894,19 @@ public final class ServerTransport {
     }
 
     // 5. Handle registration/re-registration
-    InetSocketAddress currentUdpAddress = sess.udpAddress();
-    if (currentUdpAddress != null && !currentUdpAddress.equals(sender)) {
-      // Address has changed, update the mappings
-      LOGGER.info(
-          "Updating UDP address for clientId={}: {} -> {}",
-          reg.clientId(),
-          currentUdpAddress,
-          sender);
-      udpToClientId.remove(currentUdpAddress);
-    } else if (currentUdpAddress == null) {
+    Optional<InetSocketAddress> currentUdpAddress = sess.udpAddress();
+    if (currentUdpAddress.isPresent()) {
+      InetSocketAddress registeredUdpAddress = currentUdpAddress.orElseThrow();
+      if (!registeredUdpAddress.equals(sender)) {
+        // Address has changed, update the mappings
+        LOGGER.info(
+            "Updating UDP address for clientId={}: {} -> {}",
+            reg.clientId(),
+            registeredUdpAddress,
+            sender);
+        udpToClientId.remove(registeredUdpAddress);
+      }
+    } else {
       LOGGER.info("Associated UDP {} -> clientId={}", sender, reg.clientId());
     }
 
@@ -689,10 +926,7 @@ public final class ServerTransport {
         continue;
       }
 
-      InetSocketAddress udpAddress = session.udpAddress();
-      if (udpAddress != null) {
-        udpToClientId.remove(udpAddress);
-      }
+      session.udpAddress().ifPresent(udpToClientId::remove);
       session.udpReady(false);
     }
   }
@@ -742,8 +976,7 @@ public final class ServerTransport {
       return;
     }
     Entity entity = optEntity.get();
-    NetworkConfig.ENTITY_SPAWN_STRATEGY
-        .buildSpawnEvent(entity)
+    buildSpawnEvent(entity)
         .ifPresentOrElse(
             event -> session.sendMessage(event, true),
             () ->
@@ -753,6 +986,24 @@ public final class ServerTransport {
                     entity.name()));
   }
 
+  private void onInitialWorldReady(Session session, InitialWorldReady msg) {
+    if (!isSessionValid(session)) {
+      LOGGER.warn("Ignoring InitialWorldReady from invalid session: {}", session);
+      return;
+    }
+
+    ClientState state = session.clientState().orElseThrow();
+    if (state.initialWorldReady()) {
+      return;
+    }
+
+    state.initialWorldReady(true);
+    state.updateLastActivity();
+    DialogTracker.instance().resyncDialogsToClient(state.clientId());
+    SoundTracker.instance().resyncSoundsToClient(state.clientId());
+    LOGGER.info("Client id={} completed initial world sync", state.clientId());
+  }
+
   private void onInputMessage(Session session, InputMessage msg) {
     // 1. Validate session
     if (!isSessionValid(session)) {
@@ -760,18 +1011,8 @@ public final class ServerTransport {
       return;
     }
 
-    // 2. Validate sequence
+    // 2. Validate Session ID
     ClientState state = session.clientState().orElseThrow();
-    if (!state.isSeqPlausible(msg.sequence())) {
-      LOGGER.debug(
-          "Ignoring InputMessage with implausible sequence={} from clientId={}",
-          msg.sequence(),
-          state.clientId());
-      state.updateLastActivity(); // Still update activity timestamp
-      return;
-    }
-
-    // 3. Validate Session ID
     if (msg.sessionId() != ServerRuntime.SESSION_ID) {
       LOGGER.debug(
           "Ignoring InputMessage with invalid sessionId={} from clientId={}",
@@ -780,7 +1021,24 @@ public final class ServerTransport {
       return;
     }
 
+    if (!state.initialWorldReady()) {
+      LOGGER.debug(
+          "Ignoring InputMessage before initial world sync from clientId={}", state.clientId());
+      state.updateLastActivity();
+      return;
+    }
+
     msg.lastSnapshotTick().ifPresent(tick -> acknowledgeSnapshot(session, tick));
+
+    // 3. Validate sequence
+    if (!state.isSeqPlausible(msg.sequence())) {
+      LOGGER.debug(
+          "Ignoring InputMessage with implausible sequence={} from clientId={}",
+          msg.sequence(),
+          state.clientId());
+      state.updateLastActivity(); // Still update activity timestamp
+      return;
+    }
 
     // 4. Enqueue
     HeroController.enqueueInput(state, msg);
@@ -791,6 +1049,9 @@ public final class ServerTransport {
       return;
     }
     acknowledgeSnapshot(session, ack.serverTick());
+    if (ack.resyncRequested()) {
+      requestSnapshotResync(session, ack);
+    }
   }
 
   private void acknowledgeSnapshot(Session session, int serverTick) {
@@ -799,6 +1060,17 @@ public final class ServerTransport {
     }
     ClientState state = session.clientState().orElseThrow();
     state.snapshotSync().acknowledge(serverTick);
+  }
+
+  private void requestSnapshotResync(Session session, SnapshotAck ack) {
+    ClientState state = session.clientState().orElseThrow();
+    state.requestSnapshotResync(FullSnapshotSendReason.CLIENT_MISSING_BASELINE);
+    LOGGER.debug(
+        "Client {} requested snapshot resync: latestApplied={} missingBase={} delta={}",
+        state.clientId(),
+        ack.serverTick(),
+        ack.missingBaseTick(),
+        ack.deltaTick());
   }
 
   /**
@@ -863,6 +1135,52 @@ public final class ServerTransport {
     }
   }
 
+  private void sendInitialEntitySpawns(Session session, int clientId) {
+    List<EntitySpawnEvent> spawnEvents =
+        Game.levelEntities().flatMap(entity -> buildSpawnEvent(entity).stream()).toList();
+    if (spawnEvents.isEmpty()) {
+      LOGGER.info("No initial entity spawns to send to clientId={}", clientId);
+      return;
+    }
+
+    int batchCount = 0;
+    List<EntitySpawnEvent> batch = new ArrayList<>();
+    for (EntitySpawnEvent spawnEvent : spawnEvents) {
+      if (!batch.isEmpty() && spawnBatchExceedsTcpLimit(batch, spawnEvent)) {
+        session.sendMessage(new EntitySpawnBatch(batch), true);
+        batchCount++;
+        batch = new ArrayList<>();
+      }
+      batch.add(spawnEvent);
+    }
+
+    session.sendMessage(new EntitySpawnBatch(batch), true);
+    batchCount++;
+
+    LOGGER.info(
+        "Sent {} initial entity spawn batches with {} entities to clientId={}",
+        batchCount,
+        spawnEvents.size(),
+        clientId);
+  }
+
+  private void sendInitialWorldComplete(Session session, int clientId) {
+    session.sendMessage(new InitialWorldComplete(), true);
+    LOGGER.info("Sent InitialWorldComplete to clientId={}", clientId);
+  }
+
+  private boolean spawnBatchExceedsTcpLimit(
+      List<EntitySpawnEvent> batch, EntitySpawnEvent nextSpawnEvent) {
+    List<EntitySpawnEvent> candidate = new ArrayList<>(batch);
+    candidate.add(nextSpawnEvent);
+    try {
+      return serialize(new EntitySpawnBatch(candidate)).length > MAX_TCP_OBJECT_SIZE;
+    } catch (IOException e) {
+      LOGGER.warn("Failed to estimate initial entity spawn batch size", e);
+      return false;
+    }
+  }
+
   private boolean isSessionValid(Session session) {
     if (session == null) {
       LOGGER.trace("Session is null");
@@ -886,6 +1204,12 @@ public final class ServerTransport {
 
   CharacterClass selectedCharacterClass(ConnectRequest request) {
     return request.characterClass().orElseGet(this::nextFallbackCharacterClass);
+  }
+
+  private Optional<EntitySpawnEvent> buildSpawnEvent(Entity entity) {
+    return Objects.requireNonNull(
+        NetworkConfig.ENTITY_SPAWN_STRATEGY.buildSpawnEvent(entity),
+        "EntitySpawnStrategy.buildSpawnEvent(...) must not return null.");
   }
 
   CharacterClass nextFallbackCharacterClass() {

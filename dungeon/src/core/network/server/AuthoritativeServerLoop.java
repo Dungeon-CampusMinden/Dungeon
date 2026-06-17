@@ -1,6 +1,6 @@
 package core.network.server;
 
-import static core.network.config.NetworkConfig.FULL_SNAPSHOT_INTERVAL_TICKS;
+import static core.network.config.NetworkConfig.FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS;
 import static core.network.config.NetworkConfig.SERVER_DELTA_HISTORY_SIZE;
 import static core.network.config.NetworkConfig.SERVER_DELTA_SNAPSHOT_HZ;
 import static core.network.config.NetworkConfig.SERVER_TICK_HZ;
@@ -14,13 +14,18 @@ import core.game.ECSManagement;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
+import core.network.FullSnapshotSendReason;
+import core.network.NetworkTelemetry;
 import core.network.delta.SnapshotDeltaCompressor;
 import core.network.delta.SnapshotHistory;
+import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.GameOverEvent;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -58,6 +63,7 @@ public final class AuthoritativeServerLoop {
   private final SnapshotHistory snapshotHistory = new SnapshotHistory(SERVER_DELTA_HISTORY_SIZE);
   private volatile int serverTick = 0;
   private String snapshotLevelName;
+  private Object snapshotLevelIdentity;
 
   /**
    * Creates a new AuthoritativeServerLoop with the given ServerTransport.
@@ -112,9 +118,9 @@ public final class AuthoritativeServerLoop {
     }
 
     LOGGER.info(
-        "ServerLoop started: tickHz={}, fullSnapshotHz={}, deltaSnapshotHz={}",
+        "ServerLoop started: tickHz={}, fullSnapshots={}, deltaSnapshotHz={}",
         SERVER_TICK_HZ,
-        FULL_SNAPSHOT_INTERVAL_TICKS,
+        "demand-driven",
         SERVER_DELTA_SNAPSHOT_HZ);
   }
 
@@ -135,17 +141,22 @@ public final class AuthoritativeServerLoop {
 
   private void tick() {
     try {
+      long tickStartNanos = System.nanoTime();
       //noinspection NonAtomicOperationOnVolatileField only place where serverTick is modified
       serverTick++;
       // Drain any inbound network messages on the game thread before running systems
+      long networkDispatchStartNanos = System.nanoTime();
       try {
         Game.network().pollAndDispatch();
       } catch (Exception e) {
         LOGGER.warn("Error while polling network messages: " + e.getMessage());
+      } finally {
+        NetworkTelemetry.recordNetworkDispatchBatch(System.nanoTime() - networkDispatchStartNanos);
       }
       syncClientsToEntities();
       PreRunConfiguration.userOnFrame().execute();
       ECSManagement.executeOneTick(core.System.AuthoritativeSide.SERVER);
+      NetworkTelemetry.recordFrameTime(System.nanoTime() - tickStartNanos);
     } catch (Exception e) {
       LOGGER.error("Tick error", e);
     } catch (Throwable t) {
@@ -161,29 +172,50 @@ public final class AuthoritativeServerLoop {
     }
     clearSnapshotBaselinesOnLevelChange(clients);
 
-    Game.network()
-        .snapshotTranslator()
-        .translateToSnapshot(serverTick)
+    long buildStartNanos = System.nanoTime();
+    Objects.requireNonNull(
+            Game.network().snapshotTranslator().translateToSnapshot(serverTick),
+            "SnapshotTranslator.translateToSnapshot(...) must not return null.")
         .ifPresent(
             snapshot -> {
-              snapshotHistory.add(snapshot);
+              NetworkTelemetry.recordSnapshotBuild(System.nanoTime() - buildStartNanos);
+              snapshotHistory.add(snapshot, protectedSnapshotTicks(clients));
+              NetworkTelemetry.recordSnapshotHistory(
+                  snapshot.serverTick(),
+                  snapshotHistory.size(),
+                  snapshotHistory.capacity(),
+                  SERVER_TICK_HZ);
               clients.forEach(client -> sendSnapshotToClient(client, snapshot));
             });
   }
 
   private void sendSnapshotToClient(ClientState client, SnapshotMessage currentSnapshot) {
     ClientSnapshotSyncState snapshotSync = client.snapshotSync();
-    if (!snapshotSync.hasAck()
-        || snapshotSync.fullSnapshotDue(
-            currentSnapshot.serverTick(), FULL_SNAPSHOT_INTERVAL_TICKS)) {
-      sendFullSnapshot(client, currentSnapshot);
+    int ackTick = snapshotSync.lastAckedSnapshotTick();
+    boolean hasAck = snapshotSync.hasAck();
+    boolean baselineInHistory = hasAck && snapshotHistory.contains(ackTick);
+    NetworkTelemetry.recordBaselineHealth(
+        client.clientId(),
+        currentSnapshot.serverTick(),
+        ackTick,
+        baselineInHistory,
+        snapshotHistory.capacity(),
+        SERVER_TICK_HZ);
+
+    if (!hasAck) {
+      if (snapshotSync.fullSnapshotRecoveryDue(
+          currentSnapshot.serverTick(), FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS)) {
+        sendFullSnapshot(client, currentSnapshot, snapshotSync.pendingFullSnapshotReason());
+      }
       return;
     }
 
-    int baseTick = snapshotSync.lastAckedSnapshotTick();
-    Optional<SnapshotMessage> baseSnapshot = snapshotHistory.snapshot(baseTick);
+    Optional<SnapshotMessage> baseSnapshot = snapshotHistory.snapshot(ackTick);
     if (baseSnapshot.isEmpty()) {
-      sendFullSnapshot(client, currentSnapshot);
+      if (snapshotSync.fullSnapshotRecoveryDue(
+          currentSnapshot.serverTick(), FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS)) {
+        sendFullSnapshot(client, currentSnapshot, FullSnapshotSendReason.MISSING_BASELINE_HISTORY);
+      }
       return;
     }
 
@@ -196,17 +228,38 @@ public final class AuthoritativeServerLoop {
                   delta.entityDeltas().stream()
                       .map(entityDelta -> entityDelta.entityId())
                       .toList());
-              Game.network().send(client.clientId(), delta, false);
+              sendDeltaSnapshot(client, delta);
             });
   }
 
-  private void sendFullSnapshot(ClientState client, SnapshotMessage currentSnapshot) {
+  private Set<Integer> protectedSnapshotTicks(Set<ClientState> clients) {
+    Set<Integer> protectedTicks = new HashSet<>();
+    clients.forEach(
+        client -> protectedTicks.addAll(client.snapshotSync().protectedSnapshotTicks()));
+    return Set.copyOf(protectedTicks);
+  }
+
+  private void sendDeltaSnapshot(ClientState client, DeltaSnapshotMessage delta) {
+    client.snapshotSync().markDeltaSnapshotSent(delta.serverTick());
+    Game.network().send(client.clientId(), delta, false);
+  }
+
+  private void sendFullSnapshot(
+      ClientState client, SnapshotMessage currentSnapshot, FullSnapshotSendReason reason) {
+    ClientSnapshotSyncState snapshotSync = client.snapshotSync();
+    snapshotSync.markFullSnapshotScheduled(currentSnapshot.serverTick());
+    NetworkTelemetry.recordFullSnapshotScheduled(
+        client.clientId(), currentSnapshot.serverTick(), currentSnapshot.entities().size(), reason);
     Game.network()
         .send(client.clientId(), currentSnapshot, true)
         .thenAccept(
             success -> {
               if (success) {
-                client.snapshotSync().markFullSnapshotSent(currentSnapshot.serverTick());
+                snapshotSync.markFullSnapshotSent(currentSnapshot.serverTick());
+              } else {
+                snapshotSync.markFullSnapshotSendFailed(currentSnapshot.serverTick());
+                NetworkTelemetry.recordFullSnapshotSendFailed(
+                    client.clientId(), currentSnapshot.serverTick());
               }
             });
   }
@@ -217,11 +270,21 @@ public final class AuthoritativeServerLoop {
       return;
     }
     String levelName = currentLevel.orElseThrow();
-    if (!levelName.equals(snapshotLevelName)) {
-      snapshotHistory.clear();
-      clients.forEach(ClientState::clearSnapshotBaseline);
-      snapshotLevelName = levelName;
+    Object levelIdentity = Game.currentLevel().map(level -> (Object) level).orElse(null);
+    if (snapshotLevelName == null && snapshotLevelIdentity == null) {
+      rememberSnapshotLevel(levelName, levelIdentity);
+      return;
     }
+    if (!levelName.equals(snapshotLevelName) || levelIdentity != snapshotLevelIdentity) {
+      snapshotHistory.clear();
+      clients.forEach(client -> client.clearSnapshotBaseline(FullSnapshotSendReason.LEVEL_CHANGE));
+      rememberSnapshotLevel(levelName, levelIdentity);
+    }
+  }
+
+  private void rememberSnapshotLevel(String levelName, Object levelIdentity) {
+    snapshotLevelName = levelName;
+    snapshotLevelIdentity = levelIdentity;
   }
 
   private Optional<String> currentLevelName() {
@@ -234,7 +297,7 @@ public final class AuthoritativeServerLoop {
 
   private void syncClientsToEntities() {
     // Spawn Hero if TCP client exists but no entity is associated
-    for (ClientState state : net.connectedClients()) {
+    for (ClientState state : net.establishedClients()) {
       if (state.playerEntity().isEmpty()) {
         state.playerEntity(spawnHeroForClient(state));
       }

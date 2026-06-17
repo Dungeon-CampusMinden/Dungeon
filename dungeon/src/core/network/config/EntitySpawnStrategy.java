@@ -16,8 +16,8 @@ public interface EntitySpawnStrategy {
   /**
    * Builds an entity spawn event for the given entity.
    *
-   * @param entity the source entity
-   * @return an Optional containing a spawn event if the entity is eligible, otherwise empty
+   * @param entity the source entity; must not be null
+   * @return a non-null Optional containing a spawn event if the entity is eligible, otherwise empty
    */
   Optional<EntitySpawnEvent> buildSpawnEvent(Entity entity);
 }

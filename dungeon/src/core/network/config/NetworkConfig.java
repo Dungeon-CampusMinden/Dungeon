@@ -38,22 +38,10 @@ public final class NetworkConfig {
   public static final int SAFE_UDP_MTU = 1400;
 
   /** Protocol version used by multiplayer clients and servers during the connection handshake. */
-  public static final short PROTOCOL_VERSION = 2;
+  public static final short PROTOCOL_VERSION = 3;
 
-  /**
-   * Number of attempts for UDP client registration.
-   *
-   * <p>This defines how many times the client will attempt to register with the server over UDP
-   * before giving up.
-   */
-  public static final int UDP_REGISTER_ATTEMPTS = 5;
-
-  /**
-   * Interval between UDP client registration attempts, in milliseconds.
-   *
-   * <p>This defines how often the client will send registration requests to the server over UDP.
-   */
-  public static final int UDP_REGISTER_INTERVAL_MS = 500;
+  /** Enables server responses to debug network telemetry requests. */
+  public static boolean DEBUG_TELEMETRY_ENABLED = false;
 
   /** Initial delay before the next UDP retry attempt, in milliseconds. */
   public static final int UDP_RETRY_INITIAL_DELAY_MS = 500;
@@ -108,22 +96,44 @@ public final class NetworkConfig {
   /**
    * Server delta snapshot rate, in Hertz (Hz).
    *
-   * <p>Delta snapshots are sent between full baseline snapshots and contain only changed fields.
+   * <p>Delta snapshots are sent against the latest client-acknowledged baseline and contain only
+   * changed fields.
    */
   public static final int SERVER_DELTA_SNAPSHOT_HZ = 60;
 
   /**
-   * Interval between full baseline snapshots, in server ticks.
+   * Minimum retry interval for recovery full snapshots, in server ticks.
    *
-   * <p>Full snapshots are sent reliably and provide the baseline for delta snapshots.
+   * <p>Reliable full snapshots are used for connect, reconnect, level-change, and missing-baseline
+   * recovery. Retrying faster than this creates avoidable TCP bursts while the previous full
+   * snapshot is still in flight.
    */
-  public static final int FULL_SNAPSHOT_INTERVAL_TICKS = SERVER_TICK_HZ * 6;
+  public static final int FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS = SERVER_TICK_HZ;
 
-  /** Number of full snapshots retained server-side for delta baselines. */
-  public static final int SERVER_DELTA_HISTORY_SIZE = 128;
+  /**
+   * Number of full snapshots retained server-side for delta baselines.
+   *
+   * <p>This must comfortably retain acknowledged delta baselines during stable play, jitter, idle
+   * periods, and client scheduling stalls instead of falling back to repeated full snapshots.
+   */
+  public static final int SERVER_DELTA_HISTORY_SIZE = SERVER_TICK_HZ * 10;
 
-  /** Number of fully applied snapshots retained client-side for delta materialization. */
-  public static final int CLIENT_DELTA_HISTORY_SIZE = 128;
+  /**
+   * Number of fully applied snapshots retained client-side for delta materialization.
+   *
+   * <p>This mirrors the server-side retention so a normal client can keep materializing deltas
+   * across jitter, idle periods, and local scheduling stalls.
+   */
+  public static final int CLIENT_DELTA_HISTORY_SIZE = SERVER_TICK_HZ * 10;
+
+  /**
+   * Delay before sending an explicit reliable snapshot acknowledgement.
+   *
+   * <p>This gives normal client input messages a short window to piggyback the latest applied
+   * snapshot tick via {@code InputMessage.lastSnapshotTick}. When no recent input carries that
+   * acknowledgement, the client still sends a coalesced reliable {@code SnapshotAck}.
+   */
+  public static final int SNAPSHOT_ACK_EXPLICIT_DELAY_MS = 100;
 
   /**
    * Maximum allowed sequence gap for network packets.

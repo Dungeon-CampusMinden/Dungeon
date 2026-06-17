@@ -7,6 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 import core.network.messages.NetworkMessage;
+import core.network.messages.c2s.DebugPing;
+import core.network.messages.c2s.DebugTelemetryRequest;
+import core.network.messages.c2s.InitialWorldReady;
+import core.network.messages.s2c.DebugPong;
+import core.network.messages.s2c.DebugTelemetrySnapshot;
+import core.network.messages.s2c.InitialWorldComplete;
 import core.network.messages.s2c.RegisterAck;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -72,6 +78,28 @@ class ConverterRegistryTest {
     assertEquals(17, Byte.toUnsignedInt(registry.typeId(proto)));
   }
 
+  @Test
+  void globalRegistryUsesDebugWireIds() {
+    ConverterRegistry registry = ConverterRegistry.global();
+
+    assertEquals(
+        23,
+        Byte.toUnsignedInt(
+            registry.typeId(
+                registry.toProto(
+                    new DebugTelemetryRequest(
+                        1L, DebugTelemetryRequest.Mode.START_STREAM, 1_000)))));
+    assertEquals(24, Byte.toUnsignedInt(registry.typeId(registry.toProto(new DebugPing(2L, 3L)))));
+    assertEquals(
+        25, Byte.toUnsignedInt(registry.typeId(registry.toProto(emptyDebugTelemetrySnapshot()))));
+    assertEquals(
+        26, Byte.toUnsignedInt(registry.typeId(registry.toProto(new DebugPong(4L, 5L, 6L, 7L)))));
+    assertEquals(
+        27, Byte.toUnsignedInt(registry.typeId(registry.toProto(new InitialWorldReady()))));
+    assertEquals(
+        28, Byte.toUnsignedInt(registry.typeId(registry.toProto(new InitialWorldComplete()))));
+  }
+
   private static List<Message> protoDefaults() {
     return List.of(
         core.network.proto.c2s.ConnectRequest.getDefaultInstance(),
@@ -80,6 +108,10 @@ class ConverterRegistryTest {
         core.network.proto.c2s.RegisterUdp.getDefaultInstance(),
         core.network.proto.c2s.RequestEntitySpawn.getDefaultInstance(),
         core.network.proto.c2s.SoundFinishedMessage.getDefaultInstance(),
+        core.network.proto.c2s.SnapshotAck.getDefaultInstance(),
+        core.network.proto.c2s.DebugTelemetryRequest.getDefaultInstance(),
+        core.network.proto.c2s.DebugPing.getDefaultInstance(),
+        core.network.proto.c2s.InitialWorldReady.getDefaultInstance(),
         core.network.proto.s2c.ConnectAck.getDefaultInstance(),
         core.network.proto.s2c.ConnectReject.getDefaultInstance(),
         core.network.proto.s2c.DialogShowMessage.getDefaultInstance(),
@@ -92,8 +124,27 @@ class ConverterRegistryTest {
         core.network.proto.s2c.LevelChangeEvent.getDefaultInstance(),
         core.network.proto.s2c.RegisterAck.getDefaultInstance(),
         core.network.proto.s2c.SnapshotMessage.getDefaultInstance(),
+        core.network.proto.s2c.DeltaSnapshotMessage.getDefaultInstance(),
         core.network.proto.s2c.SoundPlayMessage.getDefaultInstance(),
-        core.network.proto.s2c.SoundStopMessage.getDefaultInstance());
+        core.network.proto.s2c.SoundStopMessage.getDefaultInstance(),
+        core.network.proto.s2c.DebugTelemetrySnapshot.getDefaultInstance(),
+        core.network.proto.s2c.DebugPong.getDefaultInstance(),
+        core.network.proto.s2c.InitialWorldComplete.getDefaultInstance());
+  }
+
+  private static DebugTelemetrySnapshot emptyDebugTelemetrySnapshot() {
+    return new DebugTelemetrySnapshot(
+        3L,
+        4L,
+        5L,
+        DebugTelemetrySnapshot.Transport.empty(),
+        DebugTelemetrySnapshot.Transport.empty(),
+        new DebugTelemetrySnapshot.Udp(0L, 0L, 0L, 0L, "n/a", "n/a", "n/a"),
+        new DebugTelemetrySnapshot.Snapshots(
+            0L, 0L, -1, -1, -1, -1, -1, -1, -1, -1L, "n/a", 0L, 0L, 0L, 0L, -1, -1, -1, -1.0),
+        new DebugTelemetrySnapshot.Windows(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L),
+        DebugTelemetrySnapshot.Timings.empty(),
+        List.of());
   }
 
   private record CustomPing(long value) implements NetworkMessage {}

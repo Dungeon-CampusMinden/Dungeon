@@ -5,6 +5,7 @@ import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.MAX_TCP_OBJECT_SIZE;
 import static core.network.config.NetworkConfig.PROTOCOL_VERSION;
 import static core.network.config.NetworkConfig.SAFE_UDP_MTU;
+import static core.network.config.NetworkConfig.SNAPSHOT_ACK_EXPLICIT_DELAY_MS;
 import static core.network.config.NetworkConfig.TCP_CONNECT_TIMEOUT_MS;
 import static core.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
 import static core.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
@@ -14,13 +15,17 @@ import static core.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
 import contrib.entities.CharacterClass;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
+import core.network.NetworkTelemetry;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
+import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
+import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.RegisterAck;
+import core.network.messages.s2c.SnapshotMessage;
 import core.network.server.ClientState;
 import core.network.server.Session;
 import core.utils.Tuple;
@@ -29,7 +34,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -50,6 +54,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
@@ -58,6 +63,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Netty-backed client transport using a single {@link Session} to mirror server-side semantics.
@@ -78,13 +84,18 @@ public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
+  private static final String DEFAULT_DISCONNECT_REASON = "Disconnected.";
+  private static final long SNAPSHOT_RESYNC_REQUEST_RETRY_NANOS = TimeUnit.SECONDS.toNanos(1L);
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
-  private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
+  private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
+  private final AtomicInteger inboundQueueDepth = new AtomicInteger();
   private final Queue<Runnable> lifecycleEvents = new ConcurrentLinkedQueue<>();
+  private final Object snapshotAckLock = new Object();
 
   private final AtomicBoolean running = new AtomicBoolean(false);
   private final AtomicBoolean connected = new AtomicBoolean(false);
+  private final AtomicBoolean initialWorldReady = new AtomicBoolean(false);
 
   private volatile Session session;
 
@@ -103,6 +114,20 @@ public final class ClientNetwork {
 
   private final UdpRecoveryState udpRecoveryState = new UdpRecoveryState();
   private volatile ScheduledFuture<?> udpMaintenanceFuture;
+  private int pendingSnapshotAckTick = -1;
+  private long pendingSnapshotAckDeadlineNanos = 0L;
+  private int inFlightExplicitSnapshotAckTick = -1;
+  private int lastExplicitSnapshotAckTick = -1;
+  private int lastPiggybackedSnapshotAckTick = -1;
+  private long lastPiggybackedSnapshotAckNanos = 0L;
+  private int lastReliablePiggybackedSnapshotAckTick = -1;
+  private int lastSnapshotResyncMissingBaseTick = -1;
+  private long lastSnapshotResyncRequestNanos = 0L;
+  private long snapshotAckGeneration = 0L;
+
+  private record QueuedNetworkMessage(Session session, NetworkMessage message, long receiveNanos) {}
+
+  private record ExplicitSnapshotAck(int serverTick, long generation) {}
 
   /**
    * Initialize the client network with connection parameters.
@@ -123,14 +148,16 @@ public final class ClientNetwork {
       return;
     }
     closeTransportResources();
+    resetSnapshotAckState();
     connected.set(false);
+    initialWorldReady.set(false);
     session = null;
     clientId = null;
     udpRecoveryState.enterRetryMode();
     this.remoteHost = host;
     this.port = port;
     this.username = username;
-    this.requestedCharacterClass = characterClass == null ? Optional.empty() : characterClass;
+    this.requestedCharacterClass = Objects.requireNonNull(characterClass, "characterClass");
     this.group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
     this.udpRemote = InetSocketAddress.createUnresolved(host, port);
   }
@@ -159,10 +186,13 @@ public final class ClientNetwork {
     if (!running.compareAndSet(true, false)) {
       closeTransportResources();
       connected.set(false);
+      initialWorldReady.set(false);
       return;
     }
     closeTransportResources();
     connected.set(false);
+    initialWorldReady.set(false);
+    resetSnapshotAckState();
     LOGGER.info("ClientNetwork shutdown. Reason: {}", reason);
   }
 
@@ -190,15 +220,15 @@ public final class ClientNetwork {
   }
 
   /**
-   * Returns the current {@link Session} instance if not yet established.
+   * Returns the current {@link Session} instance.
    *
    * <p>The session becomes available after the TCP connection is established and the ConnectAck is
    * received.
    *
-   * @return current Session (or empty if not yet established)
+   * @return current Session, or empty if not yet established or disconnected
    */
-  public Session session() {
-    return session;
+  public Optional<Session> session() {
+    return Optional.ofNullable(session);
   }
 
   UdpRecoveryState udpRecoveryState() {
@@ -212,7 +242,7 @@ public final class ClientNetwork {
    *
    * @return client id, or 0 if not yet assigned
    */
-  public Short clientId() {
+  public short clientId() {
     Short id = clientId;
     return id != null ? id : 0;
   }
@@ -240,22 +270,33 @@ public final class ClientNetwork {
    */
   public CompletableFuture<Boolean> send(NetworkMessage msg, boolean reliable) {
     final CompletableFuture<Boolean> result = new CompletableFuture<>();
-    if (!running.get() || !isConnected() || tcp == null || !tcp.isActive() || session == null) {
+    Session currentSession = session;
+    if (!running.get()
+        || !isConnected()
+        || tcp == null
+        || !tcp.isActive()
+        || currentSession == null) {
       LOGGER.warn("TCP not active; cannot send {} message", reliable ? "reliable" : "fallback");
       result.complete(false);
       return result;
     }
 
     try {
-      return session
-          .sendMessage(msg, reliable)
+      NetworkMessage message = withCurrentSession(msg, currentSession);
+      long snapshotAckGeneration = snapshotAckGeneration();
+      return currentSession
+          .sendMessageWithTransport(message, reliable)
           .thenApply(
-              success -> {
+              sendResult -> {
+                if (sendResult.success()) {
+                  recordPiggybackedSnapshotAck(
+                      message, sendResult.reliableTransport(), snapshotAckGeneration);
+                }
                 LOGGER.debug(
                     "Sending {} message: {}",
                     reliable ? "reliable" : "transport-selected",
                     msg.getClass().getSimpleName());
-                return success;
+                return sendResult.success();
               });
     } catch (Exception e) {
       LOGGER.warn("Failed to send message via Session", e);
@@ -273,7 +314,13 @@ public final class ClientNetwork {
    * @param input input message to send
    */
   public void sendUnreliableInput(InputMessage input) {
-    InputMessage message = withSnapshotAck(input);
+    Session currentSession = session;
+    if (!running.get() || !isConnected() || currentSession == null) {
+      LOGGER.debug("Dropping InputMessage because the client is not connected.");
+      return;
+    }
+
+    InputMessage message = inputWithCurrentSession(input, currentSession);
     try {
       byte[] data = serialize(message);
       if (data.length <= SAFE_UDP_MTU) {
@@ -284,6 +331,8 @@ public final class ClientNetwork {
       } else {
         LOGGER.warn(
             "InputMessage too large ({} bytes); sending via TCP instead of UDP", data.length);
+        NetworkTelemetry.recordUdpOversized(message, data.length);
+        NetworkTelemetry.recordUdpFallback("client input oversized");
         sendReliable(message);
       }
     } catch (IOException e) {
@@ -291,16 +340,180 @@ public final class ClientNetwork {
     }
   }
 
-  private InputMessage withSnapshotAck(InputMessage input) {
-    if (input.lastSnapshotTick().isPresent() || session == null) {
-      return input;
+  /**
+   * Records that a snapshot was applied locally and queues the latest tick for acknowledgement.
+   *
+   * <p>Explicit reliable acknowledgements are delayed briefly so outgoing input messages can carry
+   * the newest applied tick first. Newer snapshot ticks supersede older pending ticks.
+   *
+   * @param serverTick applied server snapshot tick
+   */
+  public void acknowledgeSnapshot(int serverTick) {
+    acknowledgeSnapshot(serverTick, false);
+  }
+
+  /**
+   * Records that a snapshot was applied locally and queues or sends its acknowledgement.
+   *
+   * <p>Use immediate reliable acknowledgements for full snapshots because they establish or refresh
+   * delta baselines. Delta snapshots should keep the delayed coalescing path.
+   *
+   * @param serverTick applied server snapshot tick
+   * @param immediateReliable true to send an explicit reliable acknowledgement immediately
+   */
+  public void acknowledgeSnapshot(int serverTick, boolean immediateReliable) {
+    if (serverTick < 0) {
+      return;
     }
-    return session
-        .clientState()
-        .map(ClientState::latestAppliedSnapshotTick)
-        .filter(tick -> tick >= 0)
-        .map(input::withLastSnapshotTick)
-        .orElse(input);
+    if (immediateReliable) {
+      acknowledgeSnapshotImmediately(serverTick);
+      return;
+    }
+    queueSnapshotAck(serverTick);
+  }
+
+  /**
+   * Requests a recovery full snapshot when a delta references a missing local baseline.
+   *
+   * @param missingBaseTick delta baseline tick missing on this client
+   * @param deltaTick delta snapshot tick that referenced the missing baseline
+   */
+  public void requestSnapshotResync(int missingBaseTick, int deltaTick) {
+    Session currentSession = session;
+    int latestAppliedTick =
+        currentSession == null
+            ? -1
+            : currentSession.clientState().map(ClientState::latestAppliedSnapshotTick).orElse(-1);
+    SnapshotAck request = snapshotResyncRequest(latestAppliedTick, missingBaseTick, deltaTick);
+    if (request == null) {
+      return;
+    }
+    sendReliable(request)
+        .thenAccept(success -> completeSnapshotResyncRequest(request.serverTick(), success));
+  }
+
+  /** Marks the initial world bootstrap as locally applied and notifies lifecycle listeners once. */
+  public void markInitialWorldReady() {
+    if (initialWorldReady.compareAndSet(false, true)) {
+      enqueueLifecycle(this::notifyInitialWorldReady);
+    }
+  }
+
+  private void queueSnapshotAck(int serverTick) {
+    long now = java.lang.System.nanoTime();
+    synchronized (snapshotAckLock) {
+      int alreadyReliable = Math.max(lastExplicitSnapshotAckTick, inFlightExplicitSnapshotAckTick);
+      if (serverTick <= alreadyReliable && serverTick <= pendingSnapshotAckTick) {
+        return;
+      }
+      if (serverTick > pendingSnapshotAckTick) {
+        pendingSnapshotAckTick = serverTick;
+      }
+      if (pendingSnapshotAckDeadlineNanos == 0L) {
+        pendingSnapshotAckDeadlineNanos = now + snapshotAckExplicitDelayNanos();
+      }
+    }
+  }
+
+  private void acknowledgeSnapshotImmediately(int serverTick) {
+    ExplicitSnapshotAck ack = immediateSnapshotAck(serverTick);
+    if (ack == null) {
+      return;
+    }
+    sendReliable(new SnapshotAck(ack.serverTick()))
+        .thenAccept(
+            success -> completeExplicitSnapshotAck(ack.serverTick(), ack.generation(), success));
+  }
+
+  private SnapshotAck snapshotResyncRequest(
+      int latestAppliedTick, int missingBaseTick, int deltaTick) {
+    long now = java.lang.System.nanoTime();
+    synchronized (snapshotAckLock) {
+      if (!running.get() || !isConnected()) {
+        return null;
+      }
+      if (missingBaseTick == lastSnapshotResyncMissingBaseTick
+          && now - lastSnapshotResyncRequestNanos < SNAPSHOT_RESYNC_REQUEST_RETRY_NANOS) {
+        return null;
+      }
+      lastSnapshotResyncMissingBaseTick = missingBaseTick;
+      lastSnapshotResyncRequestNanos = now;
+      NetworkTelemetry.recordClientSnapshotResyncRequest(missingBaseTick, deltaTick);
+      return SnapshotAck.requestResync(latestAppliedTick, missingBaseTick, deltaTick);
+    }
+  }
+
+  private ExplicitSnapshotAck immediateSnapshotAck(int serverTick) {
+    synchronized (snapshotAckLock) {
+      if (!running.get() || !isConnected()) {
+        return null;
+      }
+      int reliableAckTick =
+          Math.max(
+              Math.max(lastExplicitSnapshotAckTick, inFlightExplicitSnapshotAckTick),
+              lastReliablePiggybackedSnapshotAckTick);
+      int ackTick = Math.max(serverTick, pendingSnapshotAckTick);
+      if (ackTick <= reliableAckTick) {
+        if (pendingSnapshotAckTick <= reliableAckTick) {
+          pendingSnapshotAckTick = -1;
+          pendingSnapshotAckDeadlineNanos = 0L;
+        }
+        return null;
+      }
+      if (pendingSnapshotAckTick <= ackTick) {
+        pendingSnapshotAckTick = -1;
+        pendingSnapshotAckDeadlineNanos = 0L;
+      }
+      inFlightExplicitSnapshotAckTick = ackTick;
+      return new ExplicitSnapshotAck(ackTick, snapshotAckGeneration);
+    }
+  }
+
+  private NetworkMessage withCurrentSession(NetworkMessage message, Session currentSession) {
+    if (message instanceof InputMessage input) {
+      return inputWithCurrentSession(input, currentSession);
+    }
+    return message;
+  }
+
+  private InputMessage inputWithCurrentSession(InputMessage input, Session currentSession) {
+    int latestTick =
+        currentSession.clientState().map(ClientState::latestAppliedSnapshotTick).orElse(-1);
+    synchronized (snapshotAckLock) {
+      latestTick = Math.max(latestTick, pendingSnapshotAckTick);
+    }
+    InputMessage message = input.withSessionId(currentSession.sessionId());
+    if (latestTick < 0 || input.lastSnapshotTick().orElse(-1) >= latestTick) {
+      return message;
+    }
+    return message.withLastSnapshotTick(latestTick);
+  }
+
+  private void recordPiggybackedSnapshotAck(
+      NetworkMessage message, boolean reliableCarrier, long generation) {
+    if (!(message instanceof InputMessage input)) {
+      return;
+    }
+    input
+        .lastSnapshotTick()
+        .ifPresent(
+            tick -> {
+              if (tick < 0) {
+                return;
+              }
+              synchronized (snapshotAckLock) {
+                if (generation != snapshotAckGeneration) {
+                  return;
+                }
+                if (reliableCarrier && tick >= lastPiggybackedSnapshotAckTick) {
+                  lastPiggybackedSnapshotAckTick = tick;
+                  lastPiggybackedSnapshotAckNanos = java.lang.System.nanoTime();
+                }
+                if (reliableCarrier && tick > lastReliablePiggybackedSnapshotAckTick) {
+                  lastReliablePiggybackedSnapshotAckTick = tick;
+                }
+              }
+            });
   }
 
   /**
@@ -317,13 +530,124 @@ public final class ClientNetwork {
         LOGGER.warn("Lifecycle runnable error", e);
       }
     }
-    Tuple<Session, NetworkMessage> msg;
+    QueuedNetworkMessage msg;
+    NetworkTelemetry.recordInboundQueueDepth(inboundQueueDepth.get());
+    int drainedMessages = 0;
     while ((msg = inboundQueue.poll()) != null) {
+      inboundQueueDepth.updateAndGet(depth -> Math.max(0, depth - 1));
+      drainedMessages++;
+      if (dropEarlyStaleSnapshot(msg.session(), msg.message(), true, "dispatch")) {
+        continue;
+      }
+      long dispatchStartNanos = java.lang.System.nanoTime();
       try {
-        dispatcher.dispatch(msg.a(), msg.b());
+        dispatcher.dispatch(msg.session(), msg.message());
       } catch (Exception e) {
         LOGGER.error("Dispatch error", e);
+      } finally {
+        NetworkTelemetry.recordQueuedMessageDispatch(
+            msg.message(),
+            dispatchStartNanos - msg.receiveNanos(),
+            java.lang.System.nanoTime() - dispatchStartNanos);
       }
+    }
+    NetworkTelemetry.recordInboundQueueDrain(drainedMessages);
+    updateTelemetryClientState();
+    flushPendingSnapshotAckIfDue();
+  }
+
+  private void flushPendingSnapshotAckIfDue() {
+    ExplicitSnapshotAck ack = explicitSnapshotAckDue(java.lang.System.nanoTime());
+    if (ack == null) {
+      return;
+    }
+    sendReliable(new SnapshotAck(ack.serverTick()))
+        .thenAccept(
+            success -> completeExplicitSnapshotAck(ack.serverTick(), ack.generation(), success));
+  }
+
+  private ExplicitSnapshotAck explicitSnapshotAckDue(long now) {
+    synchronized (snapshotAckLock) {
+      if (!running.get() || !isConnected() || pendingSnapshotAckTick < 0) {
+        return null;
+      }
+      int reliableAckTick =
+          Math.max(
+              Math.max(lastExplicitSnapshotAckTick, inFlightExplicitSnapshotAckTick),
+              lastReliablePiggybackedSnapshotAckTick);
+      if (pendingSnapshotAckTick <= reliableAckTick) {
+        pendingSnapshotAckTick = -1;
+        pendingSnapshotAckDeadlineNanos = 0L;
+        return null;
+      }
+      if (pendingSnapshotAckDeadlineNanos > now) {
+        return null;
+      }
+      long explicitDelayNanos = snapshotAckExplicitDelayNanos();
+      if (pendingSnapshotAckTick <= lastPiggybackedSnapshotAckTick
+          && lastPiggybackedSnapshotAckNanos > 0L) {
+        long nextExplicitDeadline = lastPiggybackedSnapshotAckNanos + explicitDelayNanos;
+        if (now < nextExplicitDeadline) {
+          pendingSnapshotAckDeadlineNanos = nextExplicitDeadline;
+          return null;
+        }
+      }
+
+      int ackTick = pendingSnapshotAckTick;
+      pendingSnapshotAckTick = -1;
+      pendingSnapshotAckDeadlineNanos = 0L;
+      inFlightExplicitSnapshotAckTick = ackTick;
+      return new ExplicitSnapshotAck(ackTick, snapshotAckGeneration);
+    }
+  }
+
+  private void completeExplicitSnapshotAck(int serverTick, long generation, boolean success) {
+    long now = java.lang.System.nanoTime();
+    synchronized (snapshotAckLock) {
+      if (generation != snapshotAckGeneration) {
+        return;
+      }
+      if (inFlightExplicitSnapshotAckTick == serverTick) {
+        inFlightExplicitSnapshotAckTick = -1;
+      }
+      if (success) {
+        if (serverTick > lastExplicitSnapshotAckTick) {
+          lastExplicitSnapshotAckTick = serverTick;
+        }
+        return;
+      }
+      if (!running.get() || !isConnected()) {
+        return;
+      }
+      if (serverTick > pendingSnapshotAckTick && serverTick > lastExplicitSnapshotAckTick) {
+        pendingSnapshotAckTick = serverTick;
+        pendingSnapshotAckDeadlineNanos = now + snapshotAckExplicitDelayNanos();
+      }
+    }
+  }
+
+  private void completeSnapshotResyncRequest(int serverTick, boolean success) {
+    if (!success || serverTick < 0) {
+      return;
+    }
+    synchronized (snapshotAckLock) {
+      if (serverTick > lastExplicitSnapshotAckTick) {
+        lastExplicitSnapshotAckTick = serverTick;
+      }
+      if (pendingSnapshotAckTick <= serverTick) {
+        pendingSnapshotAckTick = -1;
+        pendingSnapshotAckDeadlineNanos = 0L;
+      }
+    }
+  }
+
+  private long snapshotAckExplicitDelayNanos() {
+    return TimeUnit.MILLISECONDS.toNanos(SNAPSHOT_ACK_EXPLICIT_DELAY_MS);
+  }
+
+  private long snapshotAckGeneration() {
+    synchronized (snapshotAckLock) {
+      return snapshotAckGeneration;
     }
   }
 
@@ -371,7 +695,10 @@ public final class ClientNetwork {
                       protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame)
                           throws Exception {
                         int size = frame.readableBytes();
+                        long receiveNanos = java.lang.System.nanoTime();
                         NetworkMessage msg = deserialize(frame);
+                        NetworkTelemetry.recordInboundTcp(
+                            msg, size, java.lang.System.nanoTime() - receiveNanos);
                         if (msg
                             instanceof ConnectAck(short id, int sessionId, byte[] sessionToken)) {
                           onConnectAck(id, sessionId, sessionToken);
@@ -380,7 +707,7 @@ public final class ClientNetwork {
                         } else if (msg instanceof RegisterAck(boolean ok)) {
                           onRegisterAck(ok);
                         } else {
-                          onNetworkMessage(msg, size);
+                          onNetworkMessage(msg, size, receiveNanos);
                         }
                       }
 
@@ -398,7 +725,7 @@ public final class ClientNetwork {
                         if (udpRemote != null) session.udpAddress(udpRemote);
 
                         try {
-                          byte[] data;
+                          ConnectRequest request;
                           // Attempt to load last session from file
                           Tuple<Integer, byte[]> lastSession = loadLastSessionFromFile();
                           if (lastSession != null) {
@@ -407,16 +734,26 @@ public final class ClientNetwork {
                             LOGGER.info(
                                 "Loaded last session from file: sessionId={}; Trying to reconnect.",
                                 sessionId);
-                            data = serialize(connectRequest(sessionId, sessionToken));
+                            request = connectRequest(sessionId, sessionToken);
                           } else {
                             LOGGER.info("No valid last session file found; starting new session.");
-                            data = serialize(connectRequest());
+                            request = connectRequest();
                           }
+                          byte[] data = serialize(request);
                           if (data.length <= MAX_TCP_OBJECT_SIZE) {
                             ByteBuf buf = ctx.alloc().buffer(4 + data.length);
                             buf.writeInt(data.length);
                             buf.writeBytes(data);
-                            ctx.writeAndFlush(buf);
+                            ctx.writeAndFlush(buf)
+                                .addListener(
+                                    future -> {
+                                      if (future.isSuccess()) {
+                                        NetworkTelemetry.recordOutboundTcp(request, data.length);
+                                        return;
+                                      }
+                                      LOGGER.warn("Failed to write ConnectRequest", future.cause());
+                                      ctx.close();
+                                    });
                           } else {
                             LOGGER.error(
                                 "ConnectRequest too large ({} bytes); cannot connect", data.length);
@@ -484,10 +821,27 @@ public final class ClientNetwork {
     enqueueLifecycle(() -> notifyDisconnected(reason));
     closeTransportResources();
     connected.set(false);
+    initialWorldReady.set(false);
     running.set(false);
     session = null;
     clientId = null;
     udpRecoveryState.enterRetryMode();
+    resetSnapshotAckState();
+  }
+
+  private void resetSnapshotAckState() {
+    synchronized (snapshotAckLock) {
+      pendingSnapshotAckTick = -1;
+      pendingSnapshotAckDeadlineNanos = 0L;
+      inFlightExplicitSnapshotAckTick = -1;
+      lastExplicitSnapshotAckTick = -1;
+      lastPiggybackedSnapshotAckTick = -1;
+      lastPiggybackedSnapshotAckNanos = 0L;
+      lastReliablePiggybackedSnapshotAckTick = -1;
+      lastSnapshotResyncMissingBaseTick = -1;
+      lastSnapshotResyncRequestNanos = 0L;
+      snapshotAckGeneration++;
+    }
   }
 
   private void closeTransportResources() {
@@ -517,10 +871,12 @@ public final class ClientNetwork {
   private void handleTransportClosed(String reason) {
     boolean wasActive = running.getAndSet(false) || connected.get();
     connected.set(false);
+    initialWorldReady.set(false);
     cancelUdpMaintenance();
     clientId = null;
     session = null;
     tcp = null;
+    resetSnapshotAckState();
     if (udp != null) {
       udp.close();
       udp = null;
@@ -535,9 +891,13 @@ public final class ClientNetwork {
     }
   }
 
-  private void onNetworkMessage(NetworkMessage msg, int size) {
-    if (session != null) {
-      inboundQueue.offer(Tuple.of(session, msg));
+  private void onNetworkMessage(NetworkMessage msg, int size, long receiveNanos) {
+    Session currentSession = session;
+    if (currentSession != null) {
+      if (dropEarlyStaleSnapshot(currentSession, msg, false, "queue")) {
+        return;
+      }
+      enqueueInbound(currentSession, msg, receiveNanos);
     } else {
       LOGGER.debug(
           "Dropping TCP inbound before session init: {} size={}B",
@@ -559,16 +919,28 @@ public final class ClientNetwork {
             new SimpleChannelInboundHandler<DatagramPacket>() {
               @Override
               protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
+                int size = pkt.content().readableBytes();
+                long receiveNanos = java.lang.System.nanoTime();
                 try {
+                  if (size <= 0) {
+                    NetworkTelemetry.recordUdpDrop("client invalid UDP size");
+                    return;
+                  }
                   NetworkMessage msg = deserialize(pkt.content());
-                  if (session != null) {
-                    inboundQueue.offer(Tuple.of(session, msg));
+                  NetworkTelemetry.recordInboundUdp(msg, size);
+                  Session currentSession = session;
+                  if (currentSession != null) {
+                    if (!dropEarlyStaleSnapshot(currentSession, msg, false, "queue")) {
+                      enqueueInbound(currentSession, msg, receiveNanos);
+                    }
                   } else {
+                    NetworkTelemetry.recordUdpDrop("client session missing");
                     LOGGER.debug(
                         "Dropping UDP inbound before session init: {}",
                         msg.getClass().getSimpleName());
                   }
                 } catch (Exception e) {
+                  NetworkTelemetry.recordUdpDrop("client UDP decode error");
                   LOGGER.warn("UDP client decode error", e);
                 }
               }
@@ -601,6 +973,7 @@ public final class ClientNetwork {
   private void onConnectAck(short newClientId, int sessionId, byte[] sessionToken) {
     this.clientId = newClientId;
     connected.set(true);
+    initialWorldReady.set(false);
     LOGGER.info("Received ConnectAck clientId={}, sessionId={}", newClientId, sessionId);
     session.attachClientState(
         new ClientState(
@@ -705,6 +1078,7 @@ public final class ClientNetwork {
           session.udpReady(true);
           session.markUdpActivity();
         }
+        updateTelemetryClientState();
         if (recovered) {
           LOGGER.info("UDP recovered, resuming UDP");
         }
@@ -718,6 +1092,7 @@ public final class ClientNetwork {
       if (session != null) {
         session.udpReady(false);
       }
+      updateTelemetryClientState();
       ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
     }
   }
@@ -780,9 +1155,11 @@ public final class ClientNetwork {
       return false;
     }
 
+    RegisterUdp registerUdp =
+        new RegisterUdp(session.sessionId(), session.sessionToken(), clientId);
     final byte[] payload;
     try {
-      payload = serialize(new RegisterUdp(session.sessionId(), session.sessionToken(), clientId));
+      payload = serialize(registerUdp);
     } catch (IOException e) {
       LOGGER.warn("Failed to serialize RegisterUdp for clientId={}", clientId, e);
       return false;
@@ -791,13 +1168,24 @@ public final class ClientNetwork {
     if (payload.length > SAFE_UDP_MTU) {
       LOGGER.warn(
           "RegisterUdp too large ({} bytes); skipping clientId={}", payload.length, clientId);
+      NetworkTelemetry.recordUdpOversized(registerUdp, payload.length);
       return false;
     }
 
     try {
       udp.writeAndFlush(
               new DatagramPacket(udp.alloc().buffer(payload.length).writeBytes(payload), udpRemote))
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+          .addListener(
+              future -> {
+                if (future.isSuccess()) {
+                  NetworkTelemetry.recordOutboundUdp(registerUdp, payload.length);
+                  return;
+                }
+                NetworkTelemetry.recordUdpSendFailure(
+                    registerUdp, "client RegisterUdp write failed");
+                LOGGER.warn(
+                    "Failed to write RegisterUdp for clientId={}", clientId, future.cause());
+              });
       LOGGER.debug(
           "Sent RegisterUdp for clientId={} to {} using {} mode",
           clientId,
@@ -805,6 +1193,7 @@ public final class ClientNetwork {
           udpRecoveryState.retryMode() ? "retry" : "keepalive");
       return true;
     } catch (Throwable t) {
+      NetworkTelemetry.recordUdpSendFailure(registerUdp, "client RegisterUdp send failed");
       LOGGER.warn("Error while sending RegisterUdp for clientId={}", clientId, t);
       return false;
     }
@@ -815,10 +1204,63 @@ public final class ClientNetwork {
     if (session != null) {
       session.udpReady(false);
     }
+    updateTelemetryClientState();
     if (changed) {
       LOGGER.info(message);
     }
     ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
+  }
+
+  private void enqueueInbound(Session currentSession, NetworkMessage msg, long receiveNanos) {
+    inboundQueueDepth.incrementAndGet();
+    inboundQueue.offer(new QueuedNetworkMessage(currentSession, msg, receiveNanos));
+  }
+
+  private boolean dropEarlyStaleSnapshot(
+      Session currentSession, NetworkMessage msg, boolean checkDeltaBaseline, String stage) {
+    Optional<ClientState> state =
+        currentSession == null ? Optional.empty() : currentSession.clientState();
+    if (state.isEmpty()) {
+      return false;
+    }
+
+    ClientState clientState = state.orElseThrow();
+    if (msg instanceof SnapshotMessage snapshot) {
+      return dropEarlyStaleSnapshot(
+          false, snapshot.serverTick(), clientState.latestAppliedSnapshotTick(), stage);
+    }
+    if (msg instanceof DeltaSnapshotMessage delta) {
+      if (dropEarlyStaleSnapshot(
+          true, delta.serverTick(), clientState.latestAppliedSnapshotTick(), stage)) {
+        return true;
+      }
+      if (checkDeltaBaseline && clientState.appliedSnapshot(delta.baseTick()).isEmpty()) {
+        NetworkTelemetry.recordMissingLocalDeltaBaseline(delta.baseTick(), delta.serverTick());
+        requestSnapshotResync(delta.baseTick(), delta.serverTick());
+        LOGGER.debug(
+            "Dropped delta snapshot at tick {} before {}; missing local baseline {}.",
+            delta.serverTick(),
+            stage,
+            delta.baseTick());
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean dropEarlyStaleSnapshot(
+      boolean delta, int serverTick, int latestAppliedSnapshotTick, String stage) {
+    if (serverTick > latestAppliedSnapshotTick) {
+      return false;
+    }
+    NetworkTelemetry.recordEarlyStaleSnapshot(delta, serverTick);
+    LOGGER.debug(
+        "Dropped stale {} snapshot at tick {} before {}; latest applied tick is {}.",
+        delta ? "delta" : "full",
+        serverTick,
+        stage,
+        latestAppliedSnapshotTick);
+    return true;
   }
 
   private void enqueueLifecycle(Runnable r) {
@@ -845,11 +1287,26 @@ public final class ClientNetwork {
   }
 
   private void notifyDisconnected(String cause) {
+    String reason = disconnectReason(cause);
     for (ConnectionListener l : connectionListeners) {
       try {
-        l.onDisconnected(cause);
+        l.onDisconnected(reason);
       } catch (Exception e) {
         LOGGER.warn("onDisconnected error", e);
+      }
+    }
+  }
+
+  private String disconnectReason(String cause) {
+    return cause == null || cause.isBlank() ? DEFAULT_DISCONNECT_REASON : cause;
+  }
+
+  private void notifyInitialWorldReady() {
+    for (ConnectionListener l : connectionListeners) {
+      try {
+        l.onInitialWorldReady();
+      } catch (Exception e) {
+        LOGGER.warn("onInitialWorldReady error", e);
       }
     }
   }
@@ -864,6 +1321,23 @@ public final class ClientNetwork {
     }
   }
 
+  private void updateTelemetryClientState() {
+    Session currentSession = session;
+    long lastAck = udpRecoveryState.lastRegisterAckTimeMs();
+    long ackAge = lastAck > 0L ? System.currentTimeMillis() - lastAck : -1L;
+    int latestSnapshotTick =
+        currentSession == null
+            ? -1
+            : currentSession.clientState().map(ClientState::latestAppliedSnapshotTick).orElse(-1);
+    NetworkTelemetry.recordClientState(
+        isConnected(),
+        clientId(),
+        currentSession != null && currentSession.udpReady(),
+        udpRecoveryState.retryMode(),
+        ackAge,
+        latestSnapshotTick);
+  }
+
   // ---- client-side Session senders ----
 
   /**
@@ -876,19 +1350,34 @@ public final class ClientNetwork {
   private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, NetworkMessage msg) {
     if (udp == null || !udp.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
+      NetworkTelemetry.recordUdpSendFailure(msg, "client UDP channel inactive");
       return CompletableFuture.completedFuture(false);
     }
     try {
       byte[] data = serialize(msg);
       if (data.length > SAFE_UDP_MTU) {
         LOGGER.warn("Skip UDP send; payload too large ({} B) to {}", data.length, target);
+        NetworkTelemetry.recordUdpOversized(msg, data.length);
         return CompletableFuture.completedFuture(false);
       }
-      udp.writeAndFlush(
-              new DatagramPacket(udp.alloc().buffer(data.length).writeBytes(data), target))
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-      return CompletableFuture.completedFuture(true);
+      CompletableFuture<Boolean> result = new CompletableFuture<>();
+      ChannelFuture writeFuture =
+          udp.writeAndFlush(
+              new DatagramPacket(udp.alloc().buffer(data.length).writeBytes(data), target));
+      writeFuture.addListener(
+          future -> {
+            if (future.isSuccess()) {
+              NetworkTelemetry.recordOutboundUdp(msg, data.length);
+              result.complete(true);
+              return;
+            }
+            NetworkTelemetry.recordUdpSendFailure(msg, "client UDP write failed");
+            LOGGER.warn("Failed to write UDP object to {}", target, future.cause());
+            result.complete(false);
+          });
+      return result;
     } catch (Exception e) {
+      NetworkTelemetry.recordUdpSendFailure(msg, "client UDP send failed");
       LOGGER.warn("Failed to send UDP object to {}", target, e);
       return CompletableFuture.completedFuture(false);
     }
@@ -914,8 +1403,19 @@ public final class ClientNetwork {
       ByteBuf buf = ctx.alloc().buffer(TCP_LENGTH_FIELD_LENGTH + data.length);
       buf.writeInt(data.length);
       buf.writeBytes(data);
-      ctx.writeAndFlush(buf).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-      return CompletableFuture.completedFuture(true);
+      CompletableFuture<Boolean> result = new CompletableFuture<>();
+      ctx.writeAndFlush(buf)
+          .addListener(
+              future -> {
+                if (future.isSuccess()) {
+                  NetworkTelemetry.recordOutboundTcp(msg, data.length);
+                  result.complete(true);
+                  return;
+                }
+                LOGGER.warn("Failed to write TCP object to {}", ctx.channel(), future.cause());
+                result.complete(false);
+              });
+      return result;
     } catch (IOException e) {
       LOGGER.warn("Failed to send TCP object to {}: {}", ctx.channel(), e.getMessage());
       return CompletableFuture.completedFuture(false);

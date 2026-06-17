@@ -28,7 +28,7 @@ public interface INetworkHandler {
    * @param port The port to use for communication.
    * @param username The username for the connection.
    * @param characterClass The requested player character class for multiplayer clients, or empty to
-   *     use the server default.
+   *     use the server default. Must not be null.
    */
   void initialize(
       boolean isServer,
@@ -72,6 +72,46 @@ public interface INetworkHandler {
    */
   void sendInput(InputMessage input);
 
+  /**
+   * Records that a server snapshot was applied locally and should be acknowledged.
+   *
+   * <p>Networked client implementations may coalesce acknowledgements, piggyback them on outgoing
+   * input messages, or send an explicit reliable acknowledgement when no recent input carried one.
+   *
+   * @param serverTick applied server snapshot tick
+   */
+  default void acknowledgeSnapshot(int serverTick) {
+    acknowledgeSnapshot(serverTick, false);
+  }
+
+  /**
+   * Records that a server snapshot was applied locally and should be acknowledged.
+   *
+   * <p>Set {@code immediateReliable} for baseline/control-plane snapshots that should not wait for
+   * a piggyback window, such as full snapshots after connect or level changes. Leave it false for
+   * high-frequency delta snapshots so they can still be coalesced.
+   *
+   * @param serverTick applied server snapshot tick
+   * @param immediateReliable true to send an explicit reliable acknowledgement immediately
+   */
+  default void acknowledgeSnapshot(int serverTick, boolean immediateReliable) {}
+
+  /**
+   * Requests a recovery full snapshot because a delta baseline is missing locally.
+   *
+   * @param missingBaseTick delta baseline tick missing on this client
+   * @param deltaTick delta snapshot tick that referenced the missing baseline
+   */
+  default void requestSnapshotResync(int missingBaseTick, int deltaTick) {}
+
+  /**
+   * Marks the initial multiplayer world bootstrap as locally applied.
+   *
+   * <p>Client implementations should notify registered {@link ConnectionListener}s on the game loop
+   * thread. Server and local implementations may ignore this signal.
+   */
+  default void markInitialWorldReady() {}
+
   /** Starts the handler's processing loop. */
   void start();
 
@@ -83,7 +123,8 @@ public interface INetworkHandler {
   /**
    * Stops the handler and cleans up resources.
    *
-   * @param reason The reason for shutdown, used for logging or debugging.
+   * @param reason The reason for shutdown, used for logging or debugging. Implementations must
+   *     normalize null or blank reasons before notifying listeners.
    */
   void shutdown(String reason);
 
@@ -135,7 +176,8 @@ public interface INetworkHandler {
   /**
    * Sets the {@link SnapshotTranslator} to use for snapshot build/application.
    *
-   * @param translator instance to use; implementations may ignore null (keeping the current one)
+   * @param translator instance to use; must not be null
+   * @throws IllegalArgumentException if translator is null
    */
   void snapshotTranslator(SnapshotTranslator translator);
 
@@ -159,12 +201,11 @@ public interface INetworkHandler {
   /**
    * Returns the current {@link Session} if connected (clients only).
    *
-   * <p>For server implementations, this may return null or throw an {@link
-   * UnsupportedOperationException}.
+   * <p>Server implementations and disconnected clients should return {@link Optional#empty()}.
    *
-   * @return the current Session, or null if not connected or not a client
+   * @return the current Session, or empty if not connected or not a client
    */
-  Session session();
+  Optional<Session> session();
 
   /**
    * Drains any queued inbound network messages and dispatches them on the game loop thread.

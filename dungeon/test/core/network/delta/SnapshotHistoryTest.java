@@ -43,6 +43,40 @@ class SnapshotHistoryTest {
     assertEquals(2, history.size());
   }
 
+  /** Verifies protected snapshots are retained outside the normal rolling capacity. */
+  @Test
+  void retainsProtectedSnapshotsBeyondRollingCapacity() {
+    SnapshotHistory history = new SnapshotHistory(2);
+
+    history.add(snapshot(1));
+    history.add(snapshot(2), Set.of(1));
+    history.add(snapshot(3), Set.of(1));
+    history.add(snapshot(4), Set.of(1));
+
+    assertTrue(history.contains(1));
+    assertFalse(history.contains(2));
+    assertTrue(history.contains(3));
+    assertTrue(history.contains(4));
+    assertEquals(3, history.size());
+  }
+
+  /** Verifies snapshots stop being protected when callers no longer include their tick. */
+  @Test
+  void evictsPreviouslyProtectedSnapshotWhenProtectionIsRemoved() {
+    SnapshotHistory history = new SnapshotHistory(2);
+
+    history.add(snapshot(1));
+    history.add(snapshot(2), Set.of(1));
+    history.add(snapshot(3), Set.of(1));
+    history.add(snapshot(4), Set.of());
+
+    assertFalse(history.contains(1));
+    assertFalse(history.contains(2));
+    assertTrue(history.contains(3));
+    assertTrue(history.contains(4));
+    assertEquals(2, history.size());
+  }
+
   /** Verifies clear removes every retained snapshot. */
   @Test
   void clearRemovesAllSnapshots() {

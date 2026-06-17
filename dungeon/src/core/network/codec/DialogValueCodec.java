@@ -21,7 +21,7 @@ public interface DialogValueCodec<T extends Serializable> {
    *
    * <p>Must be stable across versions; changing it breaks wire compatibility.
    *
-   * @return the type identifier
+   * @return the type identifier; must not be null or blank
    */
   String typeId();
 
@@ -30,23 +30,23 @@ public interface DialogValueCodec<T extends Serializable> {
    *
    * <p>Used for encode-side dispatch with exact-class matching.
    *
-   * @return the handled class
+   * @return the handled class; must not be null
    */
   Class<T> type();
 
   /**
    * Encodes a value to a byte array for protobuf transport.
    *
-   * @param value the value to encode
-   * @return the encoded bytes
+   * @param value the value to encode; must not be null
+   * @return the encoded bytes; must not be null
    */
   byte[] encode(T value);
 
   /**
    * Decodes a value from a byte array received over protobuf.
    *
-   * @param data the encoded bytes
-   * @return the decoded value
+   * @param data the encoded bytes; must not be null
+   * @return the decoded value; must not be null
    */
   T decode(byte[] data);
 }

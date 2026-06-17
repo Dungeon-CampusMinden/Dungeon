@@ -6,7 +6,10 @@ import com.google.protobuf.Message;
 import contrib.entities.CharacterClass;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
+import core.network.messages.c2s.DebugPing;
+import core.network.messages.c2s.DebugTelemetryRequest;
 import core.network.messages.c2s.DialogResponseMessage;
+import core.network.messages.c2s.InitialWorldReady;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
@@ -14,6 +17,8 @@ import core.network.messages.c2s.SnapshotAck;
 import core.network.messages.c2s.SoundFinishedMessage;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
+import core.network.messages.s2c.DebugPong;
+import core.network.messages.s2c.DebugTelemetrySnapshot;
 import core.network.messages.s2c.DeltaSnapshotMessage;
 import core.network.messages.s2c.DialogCloseMessage;
 import core.network.messages.s2c.EntityDelta;
@@ -21,6 +26,7 @@ import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.EntityStateField;
 import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.InitialWorldComplete;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.RegisterAck;
 import core.network.messages.s2c.SoundPlayMessage;
@@ -73,6 +79,9 @@ class NetworkCodecTest {
         new RequestEntitySpawn(99),
         new SoundFinishedMessage(123L),
         new SnapshotAck(123),
+        new DebugTelemetryRequest(1L, DebugTelemetryRequest.Mode.ONCE, 1_000),
+        new DebugPing(2L, 123_456L),
+        new InitialWorldReady(),
         new ConnectAck((short) 5, 42, new byte[] {4, 5, 6}),
         new ConnectReject(ConnectReject.Reason.INVALID_NAME),
         new DialogCloseMessage("dialog-2"),
@@ -90,6 +99,83 @@ class NetworkCodecTest {
         new GameOverEvent("Game over"),
         new LevelChangeEvent("level-1", "data"),
         new RegisterAck(true),
+        new DebugTelemetrySnapshot(
+            3L,
+            1_000L,
+            2_000L,
+            new DebugTelemetrySnapshot.Transport(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L),
+            new DebugTelemetrySnapshot.Transport(31L, 32L, 33L, 34L, 35L, 36L, 37L, 38L),
+            new DebugTelemetrySnapshot.Udp(9L, 10L, 11L, 12L, "fallback", "drop", "failure"),
+            new DebugTelemetrySnapshot.Snapshots(
+                13L,
+                14L,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22L,
+                "MISSING_BASELINE_HISTORY",
+                23L,
+                24L,
+                25L,
+                26L,
+                27,
+                28,
+                29,
+                0.48),
+            new DebugTelemetrySnapshot.Windows(
+                30L, 31L, 32L, 33L, 34L, 35L, 36L, 37L, 38L, 39L, 40L, 41L),
+            new DebugTelemetrySnapshot.Timings(
+                "SnapshotMessage",
+                42L,
+                43L,
+                "SnapshotMessage",
+                44L,
+                45L,
+                "DeltaSnapshotMessage",
+                46L,
+                47L,
+                "SnapshotAck",
+                48L,
+                49L,
+                50L,
+                51L,
+                52L,
+                53L,
+                54,
+                55,
+                56),
+            List.of(
+                new DebugTelemetrySnapshot.Client(
+                    (short) 1,
+                    true,
+                    100.0f,
+                    50L,
+                    44,
+                    45,
+                    1,
+                    17L,
+                    true,
+                    128,
+                    2.13,
+                    3L,
+                    4L,
+                    5L,
+                    6L,
+                    7L,
+                    8L,
+                    9L,
+                    10L,
+                    11L,
+                    "PERIODIC_BASELINE",
+                    12L,
+                    46,
+                    47))),
+        new DebugPong(4L, 5L, 6L, 7L),
+        new InitialWorldComplete(),
         new SoundPlayMessage(
             2,
             SoundSpec.builder("sound")
