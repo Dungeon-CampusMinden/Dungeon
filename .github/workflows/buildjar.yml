@@ -63,8 +63,11 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                # run on ubuntu and windows
-                os: [ ubuntu-latest, windows-latest]
+                include:
+                    - os: windows-latest
+                      platform_name: windows-x86_64
+                    - os: ubuntu-latest
+                      platform_name: linux-x86_64
         steps:
             -   name: Checkout Code
                 uses: actions/checkout@v6
@@ -86,7 +89,7 @@ jobs:
                     if [ "${{ runner.os }}" == "Windows" ]; then
                       7z a Blockly-desktop-windows.zip  ./blockly/build/jpackage/blockly
                     else
-                      zip -r Blockly-desktop-${{ matrix.os }}.zip blockly/build/jpackage/blockly
+                      tar -czf Blockly-desktop-${{ matrix.os }}.tar.gz blockly/build/jpackage/blockly
                     fi
                 shell: bash
 
@@ -100,7 +103,7 @@ jobs:
                     if [ "${{ runner.os }}" == "Windows" ]; then
                       7z a Blockly-web-windows.zip  ./blockly/build/jpackage/blockly-web
                     else
-                      zip -r Blockly-web-${{ matrix.os }}.zip blockly/build/jpackage/blockly-web
+                      tar -czf Blockly-web-${{ matrix.os }}.tar.gz blockly/build/jpackage/blockly-web
                     fi
                 shell: bash
 
@@ -108,7 +111,7 @@ jobs:
                 uses: actions/upload-artifact@v7
                 with:
                     name: executable-${{ matrix.os }}
-                    path: Blockly-*.zip
+                    path: Blockly-*
     deploy:
         needs: [build, upload_extension, buildExecutables]
         runs-on: ubuntu-latest
@@ -128,7 +131,7 @@ jobs:
             - name: Create GitHub Release
               run: |
                 TAG="v1.0.${{ github.run_number }}"
-                gh release create "$TAG" *.jar *.vsix *.zip \
+                gh release create "$TAG" *.jar *.vsix *.zip *.tar.gz \
                   --title "Release $TAG" \
                   --notes-file ".github/workflows/releaseInstructions.md" \
                   --draft=true \
