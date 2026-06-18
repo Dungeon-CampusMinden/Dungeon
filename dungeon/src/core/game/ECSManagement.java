@@ -19,8 +19,12 @@ import core.systems.SoundSystem;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
 import core.utils.logging.DungeonLogger;
-
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -140,7 +144,7 @@ public final class ECSManagement {
    * @return removed entity for chaining
    */
   public static Entity remove(Entity entity) {
-    if(allEntities.remove(entity.id(),entity)) {
+    if (allEntities.remove(entity.id(), entity)) {
       entityFilters.forEach(f -> f.remove(entity));
       EntityIdProvider.unregister(entity.id());
       LOGGER.info(entity + " will be removed from the Game.");
@@ -203,7 +207,7 @@ public final class ECSManagement {
     SYSTEMS.put(system.getClass(), system);
     // add to existing filter or create new filter if no matching exists
     Optional<EntitySystemMapper> filter =
-          entityFilters.stream().filter(f -> f.equals(system.filterRules())).findFirst();
+        entityFilters.stream().filter(f -> f.equals(system.filterRules())).findFirst();
     filter.ifPresentOrElse(
         f -> f.add(system), () -> createNewEntitySystemMapper(system.filterRules()).add(system));
     LOGGER.info("A new {} was added to the game", system.getClass().getName());
@@ -337,7 +341,7 @@ public final class ECSManagement {
    * Finds the entity that contains the given component instance.
    *
    * <p>This searches across all entities in the game, not just those in the current level.
-
+   *
    * @param component the component instance whose owning entity should be located
    * @return an {@link Optional} containing the found entity, or an empty {@code Optional} if none
    *     is found

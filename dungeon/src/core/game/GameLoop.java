@@ -79,7 +79,6 @@ import core.utils.components.draw.DrawComponentFactory;
 import core.utils.logging.DungeonLogger;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -136,18 +135,6 @@ public final class GameLoop extends ScreenAdapter {
         if (serverAuthority) {
           allPlayers.forEach(ECSManagement::remove);
         }
-        // Remove the systems so that each triggerOnRemove(entity) will be called (basically
-        // cleanup).
-        Map<Class<? extends System>, System> s = ECSManagement.systems();
-        ECSManagement.removeAllSystems();
-
-        // readd the systems so that each triggerOnAdd(entity) will be called (basically
-        // setup). This will also create new EntitySystemMapper if needed.
-        s.values().forEach(ECSManagement::add);
-        ECSManagement.allEntities()
-            .filter(Entity::isPersistent)
-            .map(ECSManagement::remove)
-            .forEach(ECSManagement::add);
 
         if (!serverAuthority) return; // no authority
 
