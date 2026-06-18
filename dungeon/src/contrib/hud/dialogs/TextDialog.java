@@ -90,7 +90,7 @@ public class TextDialog {
     content.add(pane).maxWidth(675).maxHeight(350).padBottom(10).row();
 
     dialog.button(
-        confirmButton, confirmButton, skin.get("clean-green", TextButton.TextButtonStyle.class));
+        confirmButton, confirmButton, skin.get("green", TextButton.TextButtonStyle.class));
 
     dialog.pack();
     return new BaseContainerUI(dialog);

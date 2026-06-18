@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -20,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.CustomSelectBox;
+import contrib.hud.elements.FixedProgressBar;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.utils.logging.DungeonLogger;
@@ -81,13 +83,12 @@ public class Scene2dElementFactory {
   }
 
   /**
-   * Creates a specialized Button for exiting, pre-configured with the "exit-button" style and
-   * cursor.
+   * Creates a specialized Button for exiting, pre-configured with the "exit" style and cursor.
    *
    * @return a new exit Button instance
    */
   public static Button createExitButton() {
-    Button element = new Button(DEFAULT_SKIN, "exit-button");
+    Button element = new Button(DEFAULT_SKIN, "exit");
     Texture tex = ((TextureRegionDrawable) element.getStyle().up).getRegion().getTexture();
     tex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     element.setUserObject(Cursors.CROSS);
@@ -297,6 +298,22 @@ public class Scene2dElementFactory {
    */
   public static <T> SelectBox<T> createSelectBox() {
     return createSelectBox(null);
+  }
+
+  /**
+   * Creates a FixedProgressBar.
+   *
+   * @param min the minimum value
+   * @param max the maximum value
+   * @param stepSize the step size
+   * @param vertical whether the bar is vertical
+   * @return a FixedProgressBar instance
+   */
+  public static ProgressBar createProgressBar(
+      float min, float max, float stepSize, boolean vertical) {
+    ProgressBar progressBar = new FixedProgressBar(min, max, stepSize, vertical, DEFAULT_SKIN);
+    progressBar.setAnimateDuration(0.25f);
+    return progressBar;
   }
 
   private static void addHoverSound(Actor actor) {

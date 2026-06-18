@@ -65,7 +65,7 @@ final class OkDialog {
     label.setWrap(true);
     label.setMaxPrefWidth(675);
     content.add(label).padBottom(10).row();
-    dialog.button(ok_text, ok_text, skin.get("clean-green", TextButton.TextButtonStyle.class));
+    dialog.button(ok_text, ok_text, skin.get("green", TextButton.TextButtonStyle.class));
 
     dialog.pack();
 

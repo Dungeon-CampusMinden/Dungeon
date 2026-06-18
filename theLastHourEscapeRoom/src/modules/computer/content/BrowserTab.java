@@ -30,9 +30,13 @@ import util.Lore;
 /** A tab representing a web browser within the computer dialog. */
 public class BrowserTab extends ComputerTab {
 
-  private static BrowserTab Instance;
+  /** Header drawable. */
+  public static final String SG_4_DRAWABLE = "sg4-header";
 
   private static final String PLACEHOLDER = "Enter URL...";
+
+  private static BrowserTab Instance;
+
   private String url = "";
   private TextField urlField;
   private Table contentTable;
@@ -140,7 +144,7 @@ public class BrowserTab extends ComputerTab {
           }
         });
 
-    Button goButton = Scene2dElementFactory.createButton("Go", "clean-green");
+    Button goButton = Scene2dElementFactory.createButton("Go", "green");
     goButton.addListener(
         new ClickListener(Input.Buttons.LEFT) {
           @Override
@@ -217,7 +221,7 @@ public class BrowserTab extends ComputerTab {
     table.pad(20);
 
     // Header banner
-    Image header = new Image(skin, "sg4-header");
+    Image header = new Image(skin, SG_4_DRAWABLE);
     table.add(header).width(600).height(200).center().colspan(1).row();
 
     table
@@ -350,7 +354,7 @@ public class BrowserTab extends ComputerTab {
           }
         });
 
-    Button submitButton = Scene2dElementFactory.createButton("Verify", "clean-green", 20);
+    Button submitButton = Scene2dElementFactory.createButton("Verify", "green", 20);
     submitButton.addListener(
         new ChangeListener() {
           @Override
@@ -412,8 +416,7 @@ public class BrowserTab extends ComputerTab {
     downloadInfo.setAlignment(Align.center);
     table.add(downloadInfo).center().padBottom(20).row();
 
-    TextButton downloadButton =
-        Scene2dElementFactory.createButton("Open PDF", "clean-blue-outline", 18);
+    TextButton downloadButton = Scene2dElementFactory.createButton("Open PDF", "blue-outline", 18);
     downloadButton.padLeft(downloadButton.getPadLeft() + 10);
     downloadButton.padRight(downloadButton.getPadRight() + 10);
     downloadButton.addListener(

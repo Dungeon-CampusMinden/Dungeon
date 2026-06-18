@@ -32,6 +32,12 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0.7490196
 		a: 1
 	}
+	cornflower_blue: {
+		r: 0.36078432
+		g: 0.63529414
+		b: 0.8784314
+		a: 1
+	}
 	experience_green: {
 		r: 0.16078432
 		g: 1
@@ -100,48 +106,12 @@ com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable: {
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
-	round-dark-gray: {
-		name: round-white
-		color: {
-			r: 0.22
-			g: 0.22
-			b: 0.22
-			a: 1
-		}
-	}
 	round-light-gray: {
 		name: round-white
 		color: {
 			r: 0.86333334
 			g: 0.86333334
 			b: 0.86333334
-			a: 1
-		}
-	}
-	round-gray-small: {
-		name: round-white-small
-		color: {
-			r: 0.4633333
-			g: 0.4633333
-			b: 0.4633333
-			a: 1
-		}
-	}
-	round-black-small: {
-		name: round-white-small
-		color: {
-			r: 0
-			g: 0
-			b: 0
-			a: 1
-		}
-	}
-	gray: {
-		name: white
-		color: {
-			r: 0.59
-			g: 0.59
-			b: 0.59
 			a: 1
 		}
 	}
@@ -180,22 +150,19 @@ com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
 	default: {
-		up: up_button_blue
-		down: down_button_blue
-		over: over_button_blue
+		up: check_square_grey
+		over: check_square_grey_square
+		checked: check_square_grey_square
 	}
-	toggle: {
-		up: round-gray
-		down: round-dark-gray
-		over: round-light-gray
-		checked: round-dark-gray
-		checkedOver: round-light-gray
-	}
-	exit-button: {
+	exit: {
 		up: exit_clear
 		down: exit_clear_hovered
 		over: exit_clear_hovered
 		disabled: exit_clear
+	}
+	radio: {
+		up: check_round_grey
+		checked: check_round_grey_circle
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
@@ -206,52 +173,31 @@ com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
 		fontColor: black
 	}
 	radio: {
-		checkboxOn: radio-on
-		checkboxOff: radio
+		checkboxOn: check_round_grey_circle
+		checkboxOff: check_round_grey
 		font: myFont
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 	default: {
-		up: up_button_blue
-		down: down_button_blue
-		over: over_button_blue
-	}
-	toggle: {
-		up: round-gray
-		down: round-dark-gray
-		over: round-light-gray
-		checked: round-dark-gray
-		checkedOver: round-light-gray
+		imageUp: generic-area
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton$ImageTextButtonStyle: {
 	default: {
 		font: myFont
-		up: up_button_blue
-		down: down_button_blue
-		over: over_button_blue
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: {
-		font: myFont
-		background: white
+		font: roboto-semibold-32
+		fontColor: black
 	}
 	keypad: {
 		font: roboto-semibold-64
 	}
-	blank-black: {
-		font: roboto-semibold-32
-		fontColor: black
-	}
-	blank-white: {
-		font: roboto-semibold-32
-		fontColor: white
-	}
 	timer: {
 		font: roboto-semibold-32
-		background: timer-box
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
@@ -264,12 +210,12 @@ com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 	default-horizontal: {
-		background: progress-bar
-		knobBefore: progress-bar-fill
+		background: progress_transparent_small
+		knobBefore: progress_blue_small
 	}
 	default-vertical: {
-		background: progress-bar
-		knobBefore: progress-bar-fill-vert
+		background: progress_transparent_small
+		knobBefore: progress_blue_small
 	}
 	healthbar: {
 		background: progress-bar-smaller
@@ -317,17 +263,15 @@ com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
 	default-horizontal: {
-		background: slider-horizontal
-		knob: slider-knob
-	}
-	default-vertical: {
-		background: slider-vertical
-		knob: slider-knob
-	}
-	clean-horizontal: {
 		knobOver: icon_circle
 		knobDown: icon_circle
 		background: slide_horizontal_grey
+		knob: icon_outline_circle
+	}
+	default-vertical: {
+		knobOver: icon_circle
+		knobDown: icon_circle
+		background: slide_vertical_grey
 		knob: icon_outline_circle
 	}
 }
@@ -341,10 +285,13 @@ com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 	default: {
-		font: myFont
-		up: TB_op
-		down: TB_down
-		over: TB_over
+		font: roboto-semibold-32
+		fontColor: black
+		up: grey_square_depth_flat
+		down: grey_square_gloss
+		over: grey_square_depth_gloss
+		disabled: grey_square_depth_flat
+		pressedOffsetY: -2
 	}
 	keypad: {
 		font: myFont
@@ -352,7 +299,7 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		down: round-gray
 		over: round-light-gray
 	}
-	clean-green: {
+	green: {
 		font: roboto-semibold-32
 		fontColor: white
 		up: green_square_depth_flat
@@ -361,22 +308,24 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		disabled: generic-area-depth
 		pressedOffsetY: -2
 	}
-	clean-blue-outline: {
+	blue-outline: {
 		font: roboto-semibold-32
 		fontColor: black
 		downFontColor: white
 		overFontColor: white
+		disabledFontColor: black
 		up: blue_square_depth_border
 		down: blue_square_flat
 		over: blue_square_depth_flat
 		disabled: generic-area-depth
 		pressedOffsetY: -2
 	}
-	clean-red-outline: {
+	red-outline: {
 		font: roboto-semibold-32
 		fontColor: black
 		downFontColor: white
 		overFontColor: white
+		disabledFontColor: black
 		up: red_square_depth_border
 		down: red_square_flat
 		over: red_square_depth_flat
@@ -388,9 +337,8 @@ com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 	default: {
 		font: myFont
 		fontColor: black
-		background: textfield
-		focusedBackground: textfield-active
-		disabledBackground: textfield-disabled
+		background: input_outline_square
+		focusedBackground: input_square
 		cursor: cursor
 		selection: selection
 		messageFont: myFont
@@ -398,7 +346,7 @@ com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
 	default: {
-		label: blank-black
+		label: default
 		background: window_background_big
 	}
 }

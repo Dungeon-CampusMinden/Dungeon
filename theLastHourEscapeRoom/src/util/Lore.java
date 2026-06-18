@@ -33,9 +33,6 @@ public class Lore {
   /** Email of the scientist. */
   public static final String ScientistEmail = "dr.mertens@ciphera-labs.com";
 
-  /** Short name of the scientist. */
-  public static final String ScientistPortraitDrawable = "scientist_portrait";
-
   /** Email and password for the computer login. */
   public static final String LoginEmail = ScientistEmail;
 

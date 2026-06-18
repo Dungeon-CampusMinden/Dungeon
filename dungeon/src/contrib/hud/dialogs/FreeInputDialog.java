@@ -117,9 +117,9 @@ final class FreeInputDialog {
 
     content.add(input).width(400).padBottom(10).row();
 
-    dialog.button(okLabel, okLabel, skin.get("clean-green", TextButton.TextButtonStyle.class));
+    dialog.button(okLabel, okLabel, skin.get("green", TextButton.TextButtonStyle.class));
     dialog.button(
-        cancelLabel, cancelLabel, skin.get("clean-red-outline", TextButton.TextButtonStyle.class));
+        cancelLabel, cancelLabel, skin.get("red-outline", TextButton.TextButtonStyle.class));
 
     dialog.pack();
 

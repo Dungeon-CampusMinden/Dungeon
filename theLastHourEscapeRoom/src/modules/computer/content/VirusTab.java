@@ -81,7 +81,7 @@ public class VirusTab extends ComputerTab {
         });
     this.add(codeField).width(400).center().padTop(20).row();
 
-    Button submitButton = Scene2dElementFactory.createButton("Submit", "clean-green", 24);
+    Button submitButton = Scene2dElementFactory.createButton("Submit", "green", 24);
     submitButton.addListener(
         new ChangeListener() {
           @Override
