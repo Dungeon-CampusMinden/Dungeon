@@ -156,7 +156,7 @@ public final class GameLoop extends ScreenAdapter {
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
         }
-        ECSManagement.levelEntities()
+        ECSManagement.allEntities()
             .filter(Entity::isPersistent)
             .map(ECSManagement::remove)
             .forEach(ECSManagement::add);

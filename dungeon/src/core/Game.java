@@ -419,7 +419,7 @@ public final class Game {
    * @return a stream of all entities currently in the level
    */
   public static Stream<Entity> levelEntities() {
-    return ECSManagement.levelEntities();
+    return ECSManagement.allEntities();
   }
 
   /**
@@ -431,7 +431,7 @@ public final class Game {
    *     system.
    */
   public static Stream<Entity> levelEntities(final System system) {
-    return ECSManagement.levelEntities(system);
+    return ECSManagement.allEntities(system);
   }
 
   /**
@@ -441,7 +441,7 @@ public final class Game {
    * @return a stream of all entities currently in the game that contains the given components.
    */
   public static Stream<Entity> levelEntities(final Set<Class<? extends Component>> filter) {
-    return ECSManagement.levelEntities(filter);
+    return ECSManagement.allEntities(filter);
   }
 
   /**
@@ -506,19 +506,6 @@ public final class Game {
   }
 
   /**
-   * Finds the entity that contains the given component instance.
-   *
-   * <p>This searches across all entities in the current level.
-   *
-   * @param component the component instance whose owning entity should be located
-   * @return an {@link Optional} containing the found entity, or an empty {@code Optional} if none
-   *     is found
-   */
-  public static Optional<Entity> findInLevel(final Component component) {
-    return ECSManagement.findInLevel(component);
-  }
-
-  /**
    * Tries to find the given entity in the game.
    *
    * <p>This searches in the current level.
@@ -526,8 +513,8 @@ public final class Game {
    * @param entity the entity to search for
    * @return {@code true} if the entity is found, {@code false} otherwise
    */
-  public static boolean existInLevel(Entity entity) {
-    return ECSManagement.existInLevel(entity);
+  public static boolean existInGame(Entity entity) {
+    return ECSManagement.exist(entity);
   }
 
   /**
@@ -659,7 +646,7 @@ public final class Game {
     return Game.tileAt(check.position())
         .map(
             target ->
-                ECSManagement.levelEntities()
+                ECSManagement.allEntities()
                     .filter(e -> e.isPresent(PositionComponent.class))
                     .filter(
                         e ->
