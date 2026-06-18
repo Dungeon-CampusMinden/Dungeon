@@ -83,7 +83,7 @@ public class Scene2dElementFactory {
   }
 
   /**
-   * Creates a specialized Button for exiting, pre-configured with the "exit-button" style and
+   * Creates a specialized Button for exiting, pre-configured with the "exit" style and
    * cursor.
    *
    * @return a new exit Button instance
