@@ -110,7 +110,7 @@ public final class ECSManagement {
    */
   public static Entity add(Entity entity) {
     // Prevent duplicate IDs for different entity instances
-    boolean duplicateIdExists = allEntities().anyMatch(e -> e != entity && e.id() == entity.id());
+    boolean duplicateIdExists = allEntities.containsKey(entity.id());
     if (duplicateIdExists)
       throw new IllegalArgumentException(
           "An Entity with id " + entity.id() + " already exists in the game.");
