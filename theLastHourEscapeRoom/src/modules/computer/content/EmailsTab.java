@@ -229,7 +229,7 @@ public class EmailsTab extends ComputerTab {
 
       Table attachmentsTable = new Table();
       for (String attachment : selectedEmail.attachments()) {
-        TextButton tb = Scene2dElementFactory.createButton(attachment, "clean-blue-outline", 18);
+        TextButton tb = Scene2dElementFactory.createButton(attachment, "blue-outline", 18);
         tb.padLeft(tb.getPadLeft() + 10);
         tb.padRight(tb.getPadRight() + 10);
         tb.addListener(

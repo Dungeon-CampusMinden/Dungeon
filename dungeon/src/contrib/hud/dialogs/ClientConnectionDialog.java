@@ -105,7 +105,7 @@ final class ClientConnectionDialog {
     dialog.getContentTable().add(fields).padBottom(8).row();
     dialog.getContentTable().add(errorLabel).left().minHeight(24).padBottom(8).row();
     dialog.button(
-        connectButton, connectButton, skin.get("clean-green", TextButton.TextButtonStyle.class));
+        connectButton, connectButton, skin.get("green", TextButton.TextButtonStyle.class));
     dialog.pack();
 
     return new BaseContainerUI(dialog);

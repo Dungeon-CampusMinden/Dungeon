@@ -84,7 +84,7 @@ public class JournalUI extends Group {
     addActor(rightPageContent);
 
     // Initialize Page Counter
-    pageCounterLabel = new Label("0 / 0", skin, "blank-black");
+    pageCounterLabel = new Label("0 / 0", skin);
     pageCounterLabel.setAlignment(Align.center);
 
     this.setSize(Game.windowWidth(), Game.windowHeight());
@@ -200,7 +200,7 @@ public class JournalUI extends Group {
     rightPageContent.add(icon).size(200).maxSize(250).padBottom(10);
     rightPageContent.row();
 
-    Label text = new Label(entry.text, skin, "blank-black");
+    Label text = new Label(entry.text, skin);
     text.setFontScale(0.5f);
     text.setWrap(true);
     text.setAlignment(Align.center);

@@ -131,7 +131,7 @@ public class FileTab extends ComputerTab {
     ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(table, false, true);
 
     // Header banner
-    Image header = new Image(skin, "sg4-header");
+    Image header = new Image(skin, BrowserTab.SG_4_DRAWABLE);
     table.add(header).width(600).height(200).center().colspan(1).row();
 
     table

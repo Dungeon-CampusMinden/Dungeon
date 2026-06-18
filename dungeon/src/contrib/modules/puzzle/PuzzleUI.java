@@ -230,7 +230,7 @@ public class PuzzleUI extends Group {
       playfield.addActor(actor);
     }
 
-    TextButton close = new TextButton("Close", skin, "clean-green");
+    TextButton close = new TextButton("Close", skin, "green");
     close.addListener(
         new ClickListener() {
           @Override

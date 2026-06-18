@@ -109,7 +109,7 @@ public class LoginTab extends ComputerTab {
           }
         });
 
-    loginButton = Scene2dElementFactory.createButton("Login", "clean-green");
+    loginButton = Scene2dElementFactory.createButton("Login", "green");
     loginButton.addListener(
         new ChangeListener() {
           @Override

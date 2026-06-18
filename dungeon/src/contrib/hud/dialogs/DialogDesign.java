@@ -74,7 +74,7 @@ public class DialogDesign {
    */
   public static Group createTextDialog(final Skin skin, String outputMsg) {
     Label.LabelStyle labelStyle =
-        new Label.LabelStyle(skin.get("blank-black", Label.LabelStyle.class));
+        new Label.LabelStyle(skin.get(Label.LabelStyle.class));
     labelStyle.font = FontHelper.getFont(FontHelper.DEFAULT_FONT_PATH, 17, Color.BLACK, 0);
     labelStyle.fontColor = Color.BLACK;
     Label label = new Label(outputMsg, labelStyle);

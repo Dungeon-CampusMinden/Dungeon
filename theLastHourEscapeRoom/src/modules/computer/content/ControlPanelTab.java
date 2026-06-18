@@ -72,8 +72,8 @@ public class ControlPanelTab extends ComputerTab {
   private static final int SMALL_BUTTON_FONT_SIZE = 18;
 
   private static final String CARD_BACKGROUND = "generic-area";
-  private static final String GREEN_BUTTON_STYLE = "clean-green";
-  private static final String BLUE_BUTTON_STYLE = "clean-blue-outline";
+  private static final String GREEN_BUTTON_STYLE = "green";
+  private static final String BLUE_BUTTON_STYLE = "blue-outline";
 
   private static final Color HEADER_COLOR = new Color(0.10f, 0.10f, 0.45f, 1f);
   private static final Color HEADER_SUB_COLOR = Color.GRAY;

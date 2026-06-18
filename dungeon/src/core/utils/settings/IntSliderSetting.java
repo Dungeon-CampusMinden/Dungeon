@@ -84,7 +84,7 @@ public class IntSliderSetting extends SettingValue<Integer> {
     RichLabel valueLabel = new RichLabel(labelFormatter.apply(value()), 24, Color.BLACK);
     valueLabel.setAlignment(Align.center);
     valueLabel.setWrap(false);
-    Slider slider = new Slider(min, max, step, false, UIUtils.defaultSkin(), "clean-horizontal");
+    Slider slider = new Slider(min, max, step, false, UIUtils.defaultSkin());
     slider.setValue(value());
     slider.addListener(
         new ChangeListener() {
