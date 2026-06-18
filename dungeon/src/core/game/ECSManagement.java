@@ -43,7 +43,7 @@ public final class ECSManagement {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ECSManagement.class);
   private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
   private static final Map<Integer, Entity> allEntities = new LinkedHashMap<>();
-  private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
+  private static final Set<EntitySystemMapper> entityFilters = new HashSet<>();
 
   private static int currentTick = 0;
   private static System.AuthoritativeSide currentExecutionSide = System.AuthoritativeSide.BOTH;
@@ -69,7 +69,7 @@ public final class ECSManagement {
   private static boolean newLevelLoadedThisTick = false;
 
   static {
-    activeEntityStorage.add(new EntitySystemMapper());
+    entityFilters.add(new EntitySystemMapper());
     for (System system : ESSENTIAL_SYSTEMS) {
       ECSManagement.add(system);
     }
@@ -85,7 +85,7 @@ public final class ECSManagement {
    */
   public static void informAboutChanges(Entity entity) {
     if (allEntities().anyMatch(entity1 -> entity1.equals(entity))) {
-      activeEntityStorage.forEach(f -> f.update(entity));
+      entityFilters.forEach(f -> f.update(entity));
       LOGGER.info(entity + " informed the Game about component changes.");
     }
   }
@@ -114,7 +114,7 @@ public final class ECSManagement {
     // Ensure the provider knows about this id (idempotent).
     EntityIdProvider.ensureRegistered(entity.id());
     allEntities.put(entity.id(), entity);
-    activeEntityStorage.forEach(f -> f.add(entity));
+    entityFilters.forEach(f -> f.add(entity));
     LOGGER.info(entity + " will be added to the Game.");
 
     try {
@@ -141,7 +141,7 @@ public final class ECSManagement {
    */
   public static Entity remove(Entity entity) {
     if(allEntities.remove(entity.id(),entity)) {
-      activeEntityStorage.forEach(f -> f.remove(entity));
+      entityFilters.forEach(f -> f.remove(entity));
       EntityIdProvider.unregister(entity.id());
       LOGGER.info(entity + " will be removed from the Game.");
     }
@@ -162,7 +162,7 @@ public final class ECSManagement {
   /**
    * Create a new {@link EntitySystemMapper} with the given filter rules.
    *
-   * <p>The {@link EntitySystemMapper} will be added to {@link #activeEntityStorage}.
+   * <p>The {@link EntitySystemMapper} will be added to {@link #entityFilters}.
    *
    * <p>All entities in the empty filter (basically every entity in the game) will be tried to add
    * with {@link EntitySystemMapper#add(Entity)}.
@@ -177,7 +177,7 @@ public final class ECSManagement {
   private static EntitySystemMapper createNewEntitySystemMapper(
       Set<Class<? extends Component>> filter) {
     EntitySystemMapper mapper = new EntitySystemMapper(filter);
-    activeEntityStorage.add(mapper);
+    entityFilters.add(mapper);
     allEntities().forEach(mapper::add);
     return mapper;
   }
@@ -203,21 +203,11 @@ public final class ECSManagement {
     SYSTEMS.put(system.getClass(), system);
     // add to existing filter or create new filter if no matching exists
     Optional<EntitySystemMapper> filter =
-        activeEntityStorage.stream().filter(f -> f.equals(system.filterRules())).findFirst();
+          entityFilters.stream().filter(f -> f.equals(system.filterRules())).findFirst();
     filter.ifPresentOrElse(
         f -> f.add(system), () -> createNewEntitySystemMapper(system.filterRules()).add(system));
     LOGGER.info("A new {} was added to the game", system.getClass().getName());
     return Optional.ofNullable(currentSystem);
-  }
-
-  @Deprecated
-  /**
-   * Set the current active {@link EntitySystemMapper}.
-   *
-   * @param entityStorage The new active {@link EntitySystemMapper}
-   */
-  public static void activeEntityStorage(final Set<EntitySystemMapper> entityStorage) {
-    activeEntityStorage = entityStorage;
   }
 
   /**
@@ -256,7 +246,7 @@ public final class ECSManagement {
    * @return a stream of all entities currently in the level
    */
   public static Stream<Entity> allEntities() {
-    return new ArrayList<>(allEntities.values()).stream();
+    return allEntities(new HashSet<>());
   }
 
   /**
@@ -281,7 +271,7 @@ public final class ECSManagement {
   public static Stream<Entity> allEntities(Set<Class<? extends Component>> filter) {
     Stream<Entity> returnStream;
     Optional<EntitySystemMapper> rf =
-        activeEntityStorage.stream().filter(f -> f.equals(filter)).findFirst();
+        entityFilters.stream().filter(f -> f.equals(filter)).findFirst();
 
     if (rf.isEmpty()) {
       EntitySystemMapper newMapper = createNewEntitySystemMapper(filter);
@@ -329,7 +319,7 @@ public final class ECSManagement {
    */
   public static void remove(final Class<? extends System> system) {
     System systemInstance = SYSTEMS.remove(system);
-    if (systemInstance != null) activeEntityStorage.forEach(f -> f.remove(systemInstance));
+    if (systemInstance != null) entityFilters.forEach(f -> f.remove(systemInstance));
   }
 
   /**
@@ -339,7 +329,7 @@ public final class ECSManagement {
    */
   public static void removeAllEntities() {
     allEntities().forEach(ECSManagement::remove);
-    allEntities.clear();
+
     LOGGER.info("All entities will be removed from the game.");
   }
 
@@ -367,7 +357,7 @@ public final class ECSManagement {
    * @return {@code true} if the entity is found, {@code false} otherwise
    */
   public static boolean exist(Entity entity) {
-    return allEntities.get(entity.id())!=null;
+    return allEntities.containsKey(entity.id());
   }
 
   private static boolean isAuthoritative(System.AuthoritativeSide side, System system) {
@@ -453,6 +443,6 @@ public final class ECSManagement {
    *     entity with the given ID exists.
    */
   public static Optional<Entity> findEntityById(int entityId) {
-    return Optional.of(allEntities.get(entityId));
+    return Optional.ofNullable(allEntities.get(entityId));
   }
 }

@@ -144,7 +144,7 @@ public final class GameLoop extends ScreenAdapter {
         // cleanup).
         Map<Class<? extends System>, System> s = ECSManagement.systems();
         ECSManagement.removeAllSystems();
-        ECSManagement.activeEntityStorage(new HashSet<>());
+
         // readd the systems so that each triggerOnAdd(entity) will be called (basically
         // setup). This will also create new EntitySystemMapper if needed.
         s.values().forEach(ECSManagement::add);
@@ -160,10 +160,6 @@ public final class GameLoop extends ScreenAdapter {
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
         }
-        ECSManagement.allEntities()
-            .filter(Entity::isPersistent)
-            .map(ECSManagement::remove)
-            .forEach(ECSManagement::add);
 
         Game.currentLevel()
             .ifPresent(
