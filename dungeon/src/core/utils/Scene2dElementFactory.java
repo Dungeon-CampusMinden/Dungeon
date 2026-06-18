@@ -303,13 +303,15 @@ public class Scene2dElementFactory {
 
   /**
    * Creates a FixedProgressBar.
+   *
    * @param min the minimum value
    * @param max the maximum value
    * @param stepSize the step size
    * @param vertical whether the bar is vertical
    * @return a FixedProgressBar instance
    */
-  public static ProgressBar createProgressBar(float min, float max, float stepSize, boolean vertical) {
+  public static ProgressBar createProgressBar(
+      float min, float max, float stepSize, boolean vertical) {
     ProgressBar progressBar = new FixedProgressBar(min, max, stepSize, vertical, DEFAULT_SKIN);
     progressBar.setAnimateDuration(0.25f);
     return progressBar;

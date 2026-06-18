@@ -5,12 +5,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 /**
- * A fixed version of LibGDX's ProgressBar, which omits rendering the knobBefore when no knob is present.
+ * A fixed version of LibGDX's ProgressBar, which omits rendering the knobBefore when no knob is
+ * present.
  */
 public class FixedProgressBar extends ProgressBar {
 
   /**
    * Creates a FixedProgressBar.
+   *
    * @param min the minimum value
    * @param max the maximum value
    * @param stepSize the step size

@@ -135,8 +135,7 @@ public class PauseDialog extends Table {
     Label label =
         Scene2dElementFactory.createLabel(
             trans.text(T_PAUSED), FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
-    TextButton resumeBtn =
-        Scene2dElementFactory.createButton(trans.text(T_RESUME), "green", 32);
+    TextButton resumeBtn = Scene2dElementFactory.createButton(trans.text(T_RESUME), "green", 32);
     TextButton settingsBtn =
         Scene2dElementFactory.createButton(trans.text(T_SETTINGS), "blue-outline", 32);
     TextButton quitBtn =

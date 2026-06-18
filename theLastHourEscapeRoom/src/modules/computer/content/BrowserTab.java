@@ -32,6 +32,7 @@ public class BrowserTab extends ComputerTab {
 
   /** Header drawable. */
   public static final String SG_4_DRAWABLE = "sg4-header";
+
   private static final String PLACEHOLDER = "Enter URL...";
 
   private static BrowserTab Instance;
@@ -415,8 +416,7 @@ public class BrowserTab extends ComputerTab {
     downloadInfo.setAlignment(Align.center);
     table.add(downloadInfo).center().padBottom(20).row();
 
-    TextButton downloadButton =
-        Scene2dElementFactory.createButton("Open PDF", "blue-outline", 18);
+    TextButton downloadButton = Scene2dElementFactory.createButton("Open PDF", "blue-outline", 18);
     downloadButton.padLeft(downloadButton.getPadLeft() + 10);
     downloadButton.padRight(downloadButton.getPadRight() + 10);
     downloadButton.addListener(
