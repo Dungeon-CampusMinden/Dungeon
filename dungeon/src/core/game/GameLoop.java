@@ -3,6 +3,7 @@ package core.game;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.headless.HeadlessFiles;
@@ -83,6 +84,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * The Dungeon-GameLoop.
@@ -109,6 +111,8 @@ public final class GameLoop extends ScreenAdapter {
   private volatile boolean initialWorldClientReady = false;
   private static final Set<IResizable> resizables = new HashSet<>();
   private static String windowTitle = "Dungeon";
+  private static Supplier<? extends Screen> initialScreenSupplier;
+  private static com.badlogic.gdx.Game application;
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -197,17 +201,49 @@ public final class GameLoop extends ScreenAdapter {
     }
 
     if (!PreRunConfiguration.multiplayerEnabled() || Game.isMultiplayerClient()) {
-      new Lwjgl3Application(
+      application =
           new com.badlogic.gdx.Game() {
             @Override
             public void create() {
-              setScreen(new GameLoop());
+              setScreen(
+                  initialScreenSupplier != null ? initialScreenSupplier.get() : new GameLoop());
             }
-          },
-          config);
+          };
+      new Lwjgl3Application(application, config);
     } else {
       // Server mode does not create a window.
       new GameLoop().setup();
+    }
+  }
+
+  /**
+   * Sets the supplier for the initial {@link Screen} shown when the application starts.
+   *
+   * <p>By default the application starts directly in the {@link GameLoop}. Setting a supplier (for
+   * example a {@link MainMenuScreen}) shows that screen first; use {@link #startGame()} to
+   * transition to the actual game later. Has no effect in headless server mode.
+   *
+   * <p>The supplier is invoked after the libGDX application (and therefore the GL context) has been
+   * created.
+   *
+   * @param supplier factory for the initial screen, or {@code null} to start in the game loop
+   */
+  public static void initialScreen(final Supplier<? extends Screen> supplier) {
+    initialScreenSupplier = supplier;
+  }
+
+  /**
+   * Switches the active screen to a fresh {@link GameLoop}, starting the core game.
+   *
+   * <p>Intended to be called from the initial screen (e.g. the {@link MainMenuScreen}) to leave the
+   * menu and enter the game. The game-specific setup configured via {@link
+   * PreRunConfiguration#userOnSetup(IVoidFunction)} runs on the first frame of the new game loop.
+   */
+  public static void startGame() {
+    if (application != null) {
+      application.setScreen(new GameLoop());
+    } else {
+      LOGGER.warn("Cannot start the game screen: no active libGDX application.");
     }
   }
 

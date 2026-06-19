@@ -46,9 +46,19 @@ public final class LastHourClient {
    * Main method to start the dev client.
    *
    * @param args command line arguments
-   * @throws IOException if an I/O error occurs
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
+    configureClient();
+    Game.run();
+  }
+
+  /**
+   * Configures the multiplayer client without starting the game loop.
+   *
+   * <p>Used both by {@link #main(String[])} (the standalone dev client) and by the {@link
+   * LastHourStarter} that boots this client from the main menu.
+   */
+  public static void configureClient() {
     // PreRun configuration for multiplayer client
     PreRunConfiguration.multiplayerEnabled(true);
     PreRunConfiguration.isNetworkServer(false);
@@ -62,7 +72,11 @@ public final class LastHourClient {
     DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevelClient.class));
 
     // Game Settings
-    Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
+    try {
+      Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     Game.disableAudio(false);
     Game.frameRate(60);
     NetworkConfig.SNAPSHOT_TRANSLATOR = new LastHourSnapshotTranslator();
@@ -93,9 +107,6 @@ public final class LastHourClient {
                     public void onDisconnected(String reason) {}
                   });
         });
-
-    // Start the game
-    Game.run();
   }
 
   private static void registerCustomDialogs() {

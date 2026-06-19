@@ -20,7 +20,9 @@ import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.ECSManagement;
 import core.game.GameLoop;
+import core.game.MainMenu;
 import core.game.PreRunConfiguration;
+import core.game.ServerProcess;
 import core.language.Language;
 import core.language.Localization;
 import core.level.loader.DungeonLoader;
@@ -32,6 +34,7 @@ import core.systems.MoveSystem;
 import core.systems.PositionSystem;
 import core.systems.VelocitySystem;
 import core.utils.CursorUtil;
+import core.utils.NetworkUtils;
 import core.utils.Tuple;
 import core.utils.components.draw.TextureGenerator;
 import core.utils.components.draw.TextureMap;
@@ -50,14 +53,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -107,20 +103,33 @@ public class TheLastHour {
    * @param args command-line arguments (not used in this starter)
    */
   public static void main(String[] args) {
-    boolean runMpServer = shouldRunMpServer(args);
-
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)
         .enableConsole(true)
         .enableFile(false)
         .build();
 
-    if (runMpServer) {
-      Game.userOnFrame(TheLastHour::onFrame);
-      PreRunConfiguration.multiplayerEnabled(true);
-      PreRunConfiguration.isNetworkServer(true);
-      PreRunConfiguration.multiplayerCharacterClasses(MULTIPLAYER_CHARACTER_CLASSES);
+    if (shouldRunMpServer(args)) {
+      startServer();
+    } else {
+      // The engine is multiplayer-only: the main menu lets the player host or join a server.
+      MainMenu.run(new LastHourStarter());
     }
+  }
+
+  /**
+   * Configures and starts the dedicated multiplayer server, then runs the headless game loop.
+   *
+   * <p>This is the entry point used by the main menu's "Host Game" option, which launches this
+   * class in a child process with the {@code --server} argument (see {@link ServerProcess}).
+   */
+  private static void startServer() {
+    Game.userOnFrame(TheLastHour::onFrame);
+    PreRunConfiguration.multiplayerEnabled(true);
+    PreRunConfiguration.isNetworkServer(true);
+    PreRunConfiguration.multiplayerCharacterClasses(MULTIPLAYER_CHARACTER_CLASSES);
+    PreRunConfiguration.networkPort(
+        Integer.getInteger(ServerProcess.PORT_PROPERTY, PreRunConfiguration.networkPort()));
 
     DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevel.class));
     UsbStickItem.ensureRegistration();
@@ -130,7 +139,7 @@ public class TheLastHour {
       throw new RuntimeException(e);
     }
     Game.disableAudio(false);
-    Game.userOnSetup(() -> onUserSetup(runMpServer));
+    Game.userOnSetup(() -> onUserSetup(true));
     Game.frameRate(60);
     Game.windowTitle("The Last Hour");
     NetworkConfig.SNAPSHOT_TRANSLATOR = new LastHourSnapshotTranslator();
@@ -200,6 +209,12 @@ public class TheLastHour {
   }
 
   private static void showServerStatusWindow() {
+    // Servers hosted via the main menu's "Host Game" option run as a managed child process; their
+    // status is shown inside the game (pause menu) instead of a separate window.
+    if (Boolean.getBoolean(ServerProcess.MANAGED_PROPERTY)) {
+      return;
+    }
+
     String serverInfo = serverInfoText();
     if (GraphicsEnvironment.isHeadless()) {
       System.out.println(serverInfo);
@@ -249,41 +264,11 @@ public class TheLastHour {
     StringBuilder info = new StringBuilder();
     info.append("Port: ").append(PreRunConfiguration.networkPort()).append(System.lineSeparator());
     info.append("IP addresses:").append(System.lineSeparator());
-    localIpAddresses().forEach(ip -> info.append("  ").append(ip).append(System.lineSeparator()));
+    NetworkUtils.localIpAddresses()
+        .forEach(ip -> info.append("  ").append(ip).append(System.lineSeparator()));
     return info.toString();
   }
 
-  private static List<String> localIpAddresses() {
-    List<String> addresses = new ArrayList<>();
-
-    try {
-      for (NetworkInterface networkInterface :
-          Collections.list(NetworkInterface.getNetworkInterfaces())) {
-        if (!networkInterface.isUp()
-            || networkInterface.isLoopback()
-            || networkInterface.isVirtual()) {
-          continue;
-        }
-
-        Collections.list(networkInterface.getInetAddresses()).stream()
-            .filter(Inet4Address.class::isInstance)
-            .map(InetAddress::getHostAddress)
-            .forEach(addresses::add);
-      }
-    } catch (SocketException e) {
-      // Fall back below.
-    }
-
-    if (addresses.isEmpty()) {
-      try {
-        addresses.add(InetAddress.getLocalHost().getHostAddress());
-      } catch (UnknownHostException e) {
-        addresses.add("127.0.0.1");
-      }
-    }
-
-    return addresses;
-  }
 
   /** Registers the local world timer render/callback system on non-headless clients. */
   public static void registerLocalWorldTimerSystem() {
