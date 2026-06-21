@@ -1,7 +1,6 @@
 package contrib.modules.keypad;
 
 import core.Component;
-import core.Entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +15,6 @@ public class KeypadComponent implements Component {
   private boolean isUnlocked = false;
   private boolean showDigitCount;
   private Runnable action;
-  private Entity overlay;
 
   /**
    * Creates a KeypadComponent.
@@ -213,23 +211,5 @@ public class KeypadComponent implements Component {
    */
   public void action(Runnable action) {
     this.action = action;
-  }
-
-  /**
-   * Gets the entity associated with the keypad overlay.
-   *
-   * @return The overlay entity.
-   */
-  public Entity overlay() {
-    return overlay;
-  }
-
-  /**
-   * Sets the entity associated with the keypad overlay.
-   *
-   * @param overlay The new overlay entity.
-   */
-  public void overlay(Entity overlay) {
-    this.overlay = overlay;
   }
 }

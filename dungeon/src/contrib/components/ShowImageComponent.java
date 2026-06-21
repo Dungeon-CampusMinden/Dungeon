@@ -15,7 +15,6 @@ public class ShowImageComponent implements Component {
   private TransitionSpeed transitionSpeed = TransitionSpeed.MEDIUM;
   private BiConsumer<Entity, Entity> onOpenAction;
   private BiConsumer<Entity, Entity> onCloseAction;
-  private Entity overlay;
 
   /** Defines the maximum size the image should occupy on the screen, in its biggest axis. */
   private float maxSize = 0.85f;

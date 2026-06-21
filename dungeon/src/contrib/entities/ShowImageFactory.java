@@ -1,9 +1,10 @@
 package contrib.entities;
 
-import contrib.components.ShowImageComponent;
+import contrib.hud.DialogUtils;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.showImage.ShowImageText;
+import contrib.utils.components.showImage.TransitionSpeed;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -46,14 +47,20 @@ public class ShowImageFactory {
     DrawComponent dc = new DrawComponent(new SimpleIPath(spriteImage));
     entity.add(dc);
 
-    ShowImageComponent sic = new ShowImageComponent(imagePath);
-    sic.onCloseAction(onClose);
-    sic.maxSize(maxSize);
-    sic.textConfig(text);
-    entity.add(sic);
-
     entity.add(
-        new InteractionComponent(() -> new Interaction((e, who) -> sic.isUIOpen(true), radius)));
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (e, who) ->
+                        DialogUtils.showImagePopUp(
+                            imagePath,
+                            TransitionSpeed.MEDIUM,
+                            () -> {
+                              if (onClose != null) {
+                                onClose.accept(e, who);
+                              }
+                            }),
+                    radius)));
     return entity;
   }
 
