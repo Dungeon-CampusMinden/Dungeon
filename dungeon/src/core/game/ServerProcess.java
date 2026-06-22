@@ -36,8 +36,8 @@ public final class ServerProcess {
 
   /**
    * System property set on server child processes started by a hosting client (the main menu's
-   * "Host Game" option). Standalone server launches do not set it, so a server starter can use it to
-   * hide UI that is only useful for standalone servers (e.g. a status window).
+   * "Host Game" option). Standalone server launches do not set it, so a server starter can use it
+   * to hide UI that is only useful for standalone servers (e.g. a status window).
    */
   public static final String MANAGED_PROPERTY = "dungeon.server.managed";
 

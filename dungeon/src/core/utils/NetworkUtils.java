@@ -19,8 +19,8 @@ public final class NetworkUtils {
   /**
    * Collects the non-loopback IPv4 addresses of this machine.
    *
-   * <p>These are the addresses other clients on the same network can use to reach a server hosted on
-   * this machine. Falls back to the local host address (or {@code 127.0.0.1}) when no suitable
+   * <p>These are the addresses other clients on the same network can use to reach a server hosted
+   * on this machine. Falls back to the local host address (or {@code 127.0.0.1}) when no suitable
    * interface address can be determined.
    *
    * @return the list of local IPv4 addresses, never empty
@@ -57,4 +57,3 @@ public final class NetworkUtils {
     return addresses;
   }
 }
-

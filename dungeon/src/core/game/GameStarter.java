@@ -1,90 +1,158 @@
 package core.game;
 
 import com.badlogic.gdx.graphics.Color;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Describes how a concrete game integrates with the reusable {@link MainMenu}.
+ * Immutable menu/hosting integration config for wiring an explicit game into the reusable {@link
+ * MainMenu}.
  *
- * <p>An explicit project provides a single {@link GameStarter} implementation and hands it to
- * {@link MainMenu#run(GameStarter)}. The main menu starts the application, shows itself as the
- * first view, and uses the starter to:
+ * <p>It describes how the game presents itself in the menu (title, background, accent color) and
+ * how the "Host Game" option launches a dedicated server child process (server main class,
+ * arguments, port). The actual client and server configuration lives in {@link ClientStarter} and
+ * {@link ServerStarter}.
  *
- * <ul>
- *   <li>{@link #configureClient() configure} the multiplayer client once before the window opens,
- *   <li>launch a dedicated server child process for the "Host Game" option (see {@link
- *       #serverMainClass()} and {@link #serverArguments()}),
- *   <li>transition into the client view for both "Host Game" and "Join Game".
- * </ul>
+ * <p>Create instances via {@link #builder(String, Class)}. Required parameters are the game title
+ * and the dedicated server main class; the remaining properties are optional.
  */
-public interface GameStarter {
+public final class GameStarter {
 
-  /**
-   * Human-readable title of the game.
-   *
-   * <p>Used for the game window title and the heading shown in the main menu.
-   *
-   * @return the game title
-   */
-  String title();
+  private final String title;
+  private final Class<?> serverMainClass;
+  private final String backgroundImage;
+  private final Color accentColor;
+  private final String[] serverArguments;
+  private final int localServerPort;
 
-  /**
-   * An optional background image shown in the main menu, scaled to cover the whole screen.
-   *
-   * @return the internal path string to the background image, or an empty {@link Optional} for no
-   *     background
-   */
-  default Optional<String> backgroundImage() {
-    return Optional.empty();
+  private GameStarter(Builder builder) {
+    this.title = builder.title;
+    this.serverMainClass = builder.serverMainClass;
+    this.backgroundImage = builder.backgroundImage;
+    this.accentColor = builder.accentColor.cpy();
+    this.serverArguments = builder.serverArguments.clone();
+    this.localServerPort = builder.localServerPort;
   }
 
   /**
-   * Accent color used by the main menu for the big game title.
+   * Creates a builder with the required menu/hosting integration fields.
    *
-   * @return title accent color
+   * @param title game title used in window and menu
+   * @param serverMainClass dedicated server main class launched by "Host Game"
+   * @return builder initialized with required values
    */
-  default Color accentColor() {
-    return Color.WHITE;
+  public static Builder builder(String title, Class<?> serverMainClass) {
+    return new Builder(title, serverMainClass);
   }
 
   /**
-   * Configures the multiplayer client before the window opens.
-   *
-   * <p>This is where an explicit project performs the same pre-run configuration it would otherwise
-   * do in its {@code main} method (register levels, load the keyboard config, set the snapshot
-   * translator/entity spawn strategy, register a {@link
-   * PreRunConfiguration#userOnSetup(core.utils.IVoidFunction) setup callback}, etc.). It is invoked
-   * exactly once, before the main menu is shown.
+   * @return human-readable game title
    */
-  void configureClient();
-
-  /**
-   * The main class to launch for the dedicated server child process when the player chooses "Host
-   * Game".
-   *
-   * <p>The class is started in a separate JVM with {@link #serverArguments()} appended. Reusing the
-   * project's existing {@code --server} entry point is the recommended approach.
-   *
-   * @return the server main class
-   */
-  Class<?> serverMainClass();
-
-  /**
-   * Arguments passed to the {@link #serverMainClass() server main class} when hosting.
-   *
-   * @return the server process arguments (defaults to {@code --server})
-   */
-  default String[] serverArguments() {
-    return new String[] {ServerProcess.SERVER_ARGUMENT};
+  public String title() {
+    return title;
   }
 
   /**
-   * The port the hosted server should listen on and the client should connect to.
-   *
-   * @return the local server port (defaults to the configured {@link
-   *     PreRunConfiguration#networkPort()})
+   * @return dedicated server main class
    */
-  default int localServerPort() {
-    return PreRunConfiguration.networkPort();
+  public Class<?> serverMainClass() {
+    return serverMainClass;
+  }
+
+  /**
+   * @return optional internal background-image path for the main menu
+   */
+  public Optional<String> backgroundImage() {
+    return Optional.ofNullable(backgroundImage);
+  }
+
+  /**
+   * @return accent color used for the main-menu title
+   */
+  public Color accentColor() {
+    return accentColor;
+  }
+
+  /**
+   * @return server-process arguments used when hosting
+   */
+  public String[] serverArguments() {
+    return serverArguments.clone();
+  }
+
+  /**
+   * @return local server port used for hosting and localhost connection
+   */
+  public int localServerPort() {
+    return localServerPort;
+  }
+
+  /** Builder for {@link GameStarter}. */
+  public static final class Builder {
+    private final String title;
+    private final Class<?> serverMainClass;
+
+    private String backgroundImage;
+    private Color accentColor = Color.WHITE;
+    private String[] serverArguments = new String[] {ServerProcess.SERVER_ARGUMENT};
+    private int localServerPort = PreRunConfiguration.networkPort();
+
+    private Builder(String title, Class<?> serverMainClass) {
+      this.title = validateTitle(title);
+      this.serverMainClass = Objects.requireNonNull(serverMainClass, "serverMainClass");
+    }
+
+    /** Sets an optional background image path for the main menu. */
+    public Builder backgroundImage(String backgroundImage) {
+      this.backgroundImage = normalizeBackgroundImage(backgroundImage);
+      return this;
+    }
+
+    /** Sets the main-menu title accent color. */
+    public Builder accentColor(Color accentColor) {
+      this.accentColor = Objects.requireNonNull(accentColor, "accentColor");
+      return this;
+    }
+
+    /** Overrides server-process arguments for hosting. */
+    public Builder serverArguments(String... serverArguments) {
+      Objects.requireNonNull(serverArguments, "serverArguments");
+      if (serverArguments.length == 0) {
+        throw new IllegalArgumentException("serverArguments must not be empty");
+      }
+      this.serverArguments =
+          Arrays.stream(serverArguments).map(String::trim).toArray(String[]::new);
+      return this;
+    }
+
+    /** Overrides the local hosted server port. */
+    public Builder localServerPort(int localServerPort) {
+      if (localServerPort <= 0 || localServerPort > 65535) {
+        throw new IllegalArgumentException("localServerPort must be in range 1..65535");
+      }
+      this.localServerPort = localServerPort;
+      return this;
+    }
+
+    /** Builds an immutable {@link GameStarter} config. */
+    public GameStarter build() {
+      return new GameStarter(this);
+    }
+
+    private static String validateTitle(String title) {
+      if (title == null || title.isBlank()) {
+        throw new IllegalArgumentException("title must not be blank");
+      }
+      return title;
+    }
+
+    private static String normalizeBackgroundImage(String backgroundImage) {
+      if (backgroundImage == null) {
+        return null;
+      }
+      String trimmed = backgroundImage.trim();
+      return trimmed.isEmpty() ? null : trimmed;
+    }
   }
 }

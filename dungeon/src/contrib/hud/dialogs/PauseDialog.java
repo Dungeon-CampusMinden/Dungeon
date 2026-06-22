@@ -202,7 +202,11 @@ public class PauseDialog extends Table {
     if (HostSession.isHosting()) {
       String serverStatus = HostSession.isServerRunning() ? "Running" : "Stopped";
       section.add(statusLabel("Server status: " + serverStatus)).left().padTop(0).row();
-      section.add(statusLabel("Players can connect via (port: "+port+"):")).left().padTop(0).row();
+      section
+          .add(statusLabel("Players can connect via (port: " + port + "):"))
+          .left()
+          .padTop(0)
+          .row();
       for (String ip : NetworkUtils.localIpAddresses()) {
         section.add(statusLabel(ip)).left().row();
       }
@@ -212,7 +216,7 @@ public class PauseDialog extends Table {
   }
 
   private RichLabel statusLabel(String text) {
-    return new RichLabel("[color=#555555][size=18]"+text);
+    return new RichLabel("[color=#555555][size=18]" + text);
   }
 
   private Table createSettingsView(DialogContext ctx) {

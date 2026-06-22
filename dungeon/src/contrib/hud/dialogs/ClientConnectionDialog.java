@@ -268,6 +268,7 @@ public final class ClientConnectionDialog {
 
   /**
    * Get the default username of the system.
+   *
    * @return The normalized logged-in user's account name, or Player if it cannot be determined.
    */
   public static String defaultUsername() {

@@ -4,8 +4,8 @@ package core.game;
  * Tracks whether this client is hosting a local dedicated server (started via the main menu's "Host
  * Game" option) and exposes its live status.
  *
- * <p>Only the hosting client sets this; joiners never do. Used by the in-game pause menu to show the
- * server status and the addresses other players can use to connect.
+ * <p>Only the hosting client sets this; joiners never do. Used by the in-game pause menu to show
+ * the server status and the addresses other players can use to connect.
  */
 public final class HostSession {
 
@@ -40,4 +40,3 @@ public final class HostSession {
     return serverProcess != null && serverProcess.isAlive();
   }
 }
-
