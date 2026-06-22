@@ -13,8 +13,8 @@ import java.util.Optional;
  *
  * <p>It describes how the game presents itself in the menu (title, background, accent color,
  * language) and how the "Host Game" option launches a dedicated server child process (server main
- * class, arguments, port). The actual client and server configuration lives in {@link ClientStarter}
- * and {@link ServerStarter}.
+ * class, arguments, port). The actual client and server configuration lives in {@link
+ * ClientStarter} and {@link ServerStarter}.
  *
  * <p>The configured {@link #language() language} is applied by the {@link MainMenu} on startup, so
  * the menu (and the game it launches) is already shown in the desired language.

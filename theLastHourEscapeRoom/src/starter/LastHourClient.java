@@ -35,15 +35,13 @@ import core.utils.components.draw.shader.ColorGradeShader;
 import core.utils.components.draw.shader.HueRemapShader;
 import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import core.utils.settings.ButtonBindingSetting;
 import core.utils.settings.ClientSettings;
 import core.utils.settings.DescriptionSetting;
 import core.utils.settings.SectionDividerSetting;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import level.LastHourLevel;
 import level.LastHourLevelClient;
 import modules.computer.ComputerFactory;
@@ -289,21 +287,21 @@ public final class LastHourClient {
   private static void registerSettings() {
     ClientSettings.registerSetting(new SectionDividerSetting(T_SETTINGS_CONTROLS_HEADER));
     ClientSettings.registerSetting(
-      new DescriptionSetting(T_SETTINGS_CONTROLS_DESCRIPTION, Input.Keys.E));
+        new DescriptionSetting(T_SETTINGS_CONTROLS_DESCRIPTION, Input.Keys.E));
     ClientSettings.registerSetting(new ButtonBindingSetting(T_SETTINGS_PAUSE, Input.Keys.P, false));
     ClientSettings.registerSetting(
-      new ButtonBindingSetting(T_SETTINGS_INTERACT, Input.Keys.E, false));
+        new ButtonBindingSetting(T_SETTINGS_INTERACT, Input.Keys.E, false));
     ClientSettings.registerSetting(
-      new ButtonBindingSetting(T_SETTINGS_INVENTORY, Input.Keys.I, false));
+        new ButtonBindingSetting(T_SETTINGS_INVENTORY, Input.Keys.I, false));
     ClientSettings.registerSetting(
-      new DescriptionSetting(T_SETTINGS_INVENTORY_DESCRIPTION, Input.Buttons.RIGHT));
+        new DescriptionSetting(T_SETTINGS_INVENTORY_DESCRIPTION, Input.Buttons.RIGHT));
   }
 
   private static final List<Tuple<String, Color>> USB_TEXTURES =
-    List.of(
-      Tuple.of("items/usb-side-green.png", Color.GREEN),
-      Tuple.of("items/usb-side-blue.png", Color.BLUE),
-      Tuple.of("items/usb-side-yellow.png", Color.YELLOW));
+      List.of(
+          Tuple.of("items/usb-side-green.png", Color.GREEN),
+          Tuple.of("items/usb-side-blue.png", Color.BLUE),
+          Tuple.of("items/usb-side-yellow.png", Color.YELLOW));
 
   /** Statically renders the needed textures. */
   private static void staticRenderTextures() {
@@ -327,7 +325,7 @@ public final class LastHourClient {
     ShaderList invertShaders = new ShaderList();
     invertShaders.add("invert", new ColorGradeShader().invert(true));
     TextureGenerator.registerRenderShaderTexture(
-      keyboardPromptPath, keyboardPromptPath, invertShaders);
+        keyboardPromptPath, keyboardPromptPath, invertShaders);
 
     // Put the first frame of the idle animation of the rogue and the char03 characters into a
     // special texture in "@gen/char03.png" and "@gen/rogue.png", so they can be used for Dialogs
@@ -360,12 +358,12 @@ public final class LastHourClient {
       sheetPath = sheetPath + "/" + sheetPath.substring(sheetPath.lastIndexOf('/') + 1) + ".png";
     }
     TextureGenerator.registerSpritesheetRegionTexture(
-      sheetPath,
-      CHARACTER_FRAME_PADDING,
-      CHARACTER_FRAME_PADDING,
-      CHARACTER_FRAME_SIZE - CHARACTER_FRAME_PADDING * 2,
-      CHARACTER_FRAME_SIZE - CHARACTER_FRAME_PADDING * 2,
-      outPath);
+        sheetPath,
+        CHARACTER_FRAME_PADDING,
+        CHARACTER_FRAME_PADDING,
+        CHARACTER_FRAME_SIZE - CHARACTER_FRAME_PADDING * 2,
+        CHARACTER_FRAME_SIZE - CHARACTER_FRAME_PADDING * 2,
+        outPath);
   }
 
   /**
@@ -377,15 +375,15 @@ public final class LastHourClient {
     backgroundMusic.setLooping(true);
     backgroundMusic.play();
     backgroundMusic.setVolume(
-      ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
+        ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
 
     ClientSettings.setOnVolumeChange(
-      (key, value) -> {
-        if (key.equals(ClientSettings.KEY_MUSIC_VOLUME)
-          || key.equals(ClientSettings.KEY_MASTER_VOLUME)) {
-          backgroundMusic.setVolume(
-            ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
-        }
-      });
+        (key, value) -> {
+          if (key.equals(ClientSettings.KEY_MUSIC_VOLUME)
+              || key.equals(ClientSettings.KEY_MASTER_VOLUME)) {
+            backgroundMusic.setVolume(
+                ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
+          }
+        });
   }
 }
