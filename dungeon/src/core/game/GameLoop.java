@@ -462,13 +462,22 @@ public final class GameLoop extends ScreenAdapter {
               }
             }
 
-            Game.add(
+            Entity hero =
                 HeroBuilder.builder()
                     .id(event.entityId())
                     .characterClass(CharacterClass.fromByteId(event.characterClassId()))
                     .isLocalPlayer(isLocal)
                     .username(pc.playerName())
-                    .build());
+                    .build();
+            if (event.positionComponent() != null) {
+              hero.fetch(PositionComponent.class)
+                  .ifPresent(
+                      position -> {
+                        position.position(event.positionComponent().position());
+                        position.viewDirection(event.positionComponent().viewDirection());
+                      });
+            }
+            Game.add(hero);
             trackNetworkEntity(ctx, event.entityId());
             return;
           }
@@ -853,7 +862,6 @@ public final class GameLoop extends ScreenAdapter {
    * @param entity entity to set on the start of the level, normally this is the player.
    */
   private static void placeOnLevelStart(final Entity entity) {
-    ECSManagement.add(entity);
     entity
         .fetch(PositionComponent.class)
         .ifPresent(
@@ -863,6 +871,7 @@ public final class GameLoop extends ScreenAdapter {
                       pc::position, () -> LOGGER.warn("No start tile found for the current level"));
               pc.viewDirection(Direction.DOWN); // look down by default
             });
+    ECSManagement.add(entity);
 
     // reset animations
     entity.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
