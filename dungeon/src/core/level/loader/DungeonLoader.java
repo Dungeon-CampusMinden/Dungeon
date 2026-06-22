@@ -294,6 +294,7 @@ public class DungeonLoader {
    * <p>This method is useful for resetting the level state without changing the level itself.
    */
   public static void reloadCurrentLevel() {
+    System.out.println("reloading current level");
     if (currentLevel < 0 || currentLevel >= levelOrder.size()) {
       throw new IndexOutOfBoundsException("Current level index is out of bounds: " + currentLevel);
     }

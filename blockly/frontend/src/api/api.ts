@@ -188,3 +188,12 @@ export const call_code_status_route = async (): Promise<"running" | "completed" 
   console.warn("Unerwartete Antwort vom Server:", status);
   return "error";
 }
+
+export const call_language_route = async ( language : string) =>  {
+  console.log("calling language route");
+  const status_response = await api.post("language2", language);
+
+  const response = await handleResponse(status_response);
+
+  console.log(response);
+}

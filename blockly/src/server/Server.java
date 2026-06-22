@@ -92,8 +92,25 @@ public class Server {
     languageContext.setHandler(this::handleLanguageRequest);
     HttpContext statusContext = server.createContext("/status");
     statusContext.setHandler(this::handleStatusRequest);
+
+    HttpContext language2context = server.createContext("/language2");
+    language2context.setHandler(this::handleLanguageRequest2);
+
     server.start();
     return server;
+  }
+
+  private void handleLanguageRequest2(HttpExchange exchange) throws IOException {
+    InputStream inStream = exchange.getRequestBody();
+    String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
+
+    System.out.println(text);
+
+    // DungeonLoader
+
+    BlocklyLevel level = DungeonLoader.levelHandler(DungeonLoader.currentLevel());
+
+    sendHeroPosition(exchange);
   }
 
   /**
@@ -216,6 +233,7 @@ public class Server {
   private void handleCodeRequest(HttpExchange exchange) throws IOException {
     // Check if this is a stop request
     String query = exchange.getRequestURI().getQuery();
+    System.out.println(query);
     boolean isStopRequest = query != null && query.contains("stop=1");
     int sleepAfterEachLine = -1;
     if (query != null && query.contains("sleep=")) {
