@@ -24,6 +24,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.ClientConnectionDialog;
 import contrib.hud.elements.RichLabel;
 import core.Game;
+import core.language.Translation;
 import core.utils.FontSpec;
 import core.utils.Scene2dElementFactory;
 import core.utils.logging.DungeonLogger;
@@ -58,13 +59,18 @@ public class MainMenuScreen extends ScreenAdapter {
   // Darkens the background image so the title and panel stay readable on any image.
   private static final Color BACKGROUND_TINT = new Color(0.5f, 0.5f, 0.5f, 1f);
 
-  private static final String HOST_LABEL = "Host Game";
-  private static final String JOIN_LABEL = "Join Game";
-  private static final String SETTINGS_LABEL = "Settings";
-  private static final String EXIT_LABEL = "Exit";
-  private static final String BACK_LABEL = "Back";
-  private static final String CONFIRM_LABEL = "Confirm";
-  private static final String PLAYER_NAME_LABEL = "Player name";
+  private static final String T_HOST = "host";
+  private static final String T_JOIN = "join";
+  private static final String T_SETTINGS = "settings";
+  private static final String T_EXIT = "exit";
+  private static final String T_BACK = "back";
+  private static final String T_CONFIRM = "confirm";
+  private static final String T_PLAYER_NAME = "player_name";
+  private static final String T_INVALID_NAME = "invalid_name";
+  private static final String T_STARTING_SERVER = "starting_server";
+  private static final String T_SERVER_START_FAILED = "server_start_failed";
+  private static final String T_SERVER_TIMEOUT = "server_timeout";
+  private static final Translation trans = new Translation("main_menu");
 
   private final GameStarter starter;
 
@@ -154,11 +160,12 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private Table buildMainView() {
-    TextButton hostButton = menuButton(HOST_LABEL, "green", this::showHostNameView);
-    TextButton joinButton = menuButton(JOIN_LABEL, "blue-outline", this::joinGame);
-    TextButton settingsButton = menuButton(SETTINGS_LABEL, "blue-outline", this::showSettingsView);
+    TextButton hostButton = menuButton(trans.text(T_HOST), "green", this::showHostNameView);
+    TextButton joinButton = menuButton(trans.text(T_JOIN), "blue-outline", this::joinGame);
+    TextButton settingsButton =
+        menuButton(trans.text(T_SETTINGS), "blue-outline", this::showSettingsView);
     TextButton exitButton =
-        menuButton(EXIT_LABEL, "red-outline", () -> Game.exit("Exit from main menu"));
+        menuButton(trans.text(T_EXIT), "red-outline", () -> Game.exit("Exit from main menu"));
 
     Table menu = new Table();
     menu.add(hostButton).width(BUTTON_WIDTH).padBottom(12).row();
@@ -169,12 +176,12 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private Table buildHostNameView() {
-    Label title = label(HOST_LABEL, 36, PANEL_TEXT_COLOR);
-    Label nameLabel = label(PLAYER_NAME_LABEL, 22, PANEL_TEXT_COLOR);
+    Label title = label(trans.text(T_HOST), 36, PANEL_TEXT_COLOR);
+    Label nameLabel = label(trans.text(T_PLAYER_NAME), 22, PANEL_TEXT_COLOR);
     hostNameField = Scene2dElementFactory.createTextField(ClientConnectionDialog.defaultUsername());
     hostStatusLabel = label("", 18, ERROR_COLOR);
-    hostConfirmButton = menuButton(CONFIRM_LABEL, "green", this::confirmHostName);
-    hostBackButton = menuButton(BACK_LABEL, "red-outline", this::showMainView);
+    hostConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::confirmHostName);
+    hostBackButton = menuButton(trans.text(T_BACK), "red-outline", this::showMainView);
 
     Table buttons = new Table();
     buttons.add(hostBackButton).width(175).padRight(10);
@@ -190,8 +197,8 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private Table buildSettingsView() {
-    Label title = label(SETTINGS_LABEL, 48, PANEL_TEXT_COLOR);
-    TextButton backButton = menuButton(BACK_LABEL, "green", this::showMainView);
+    Label title = label(trans.text(T_SETTINGS), 48, PANEL_TEXT_COLOR);
+    TextButton backButton = menuButton(trans.text(T_BACK), "green", this::showMainView);
 
     Table settingsTable = new Table();
     ClientSettings.getSettings()
@@ -256,7 +263,7 @@ public class MainMenuScreen extends ScreenAdapter {
     try {
       PreRunConfiguration.username(username);
     } catch (IllegalArgumentException e) {
-      hostStatusLabel.setText("Invalid name (must not be empty or contain '_').");
+      hostStatusLabel.setText(trans.text(T_INVALID_NAME));
       return;
     }
     startHosting();
@@ -269,7 +276,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private void startHosting() {
     launching = true;
     setHostControlsDisabled(true);
-    hostStatusLabel.setText("Starting server...");
+    hostStatusLabel.setText(trans.text(T_STARTING_SERVER));
 
     int port = starter.localServerPort();
     Thread launcher = new Thread(() -> launchHostedServer(port), "hosted-server-launcher");
@@ -283,13 +290,13 @@ public class MainMenuScreen extends ScreenAdapter {
       server = ServerProcess.start(starter.serverMainClass(), port, starter.serverArguments());
     } catch (IOException e) {
       LOGGER.error("Failed to start server process.", e);
-      Gdx.app.postRunnable(() -> onHostFailed("Could not start server: " + e.getMessage()));
+      Gdx.app.postRunnable(() -> onHostFailed(trans.text(T_SERVER_START_FAILED, e.getMessage())));
       return;
     }
 
     if (!server.awaitReady(port, SERVER_START_TIMEOUT)) {
       server.stop();
-      Gdx.app.postRunnable(() -> onHostFailed("Server did not start in time."));
+      Gdx.app.postRunnable(() -> onHostFailed(trans.text(T_SERVER_TIMEOUT)));
       return;
     }
 

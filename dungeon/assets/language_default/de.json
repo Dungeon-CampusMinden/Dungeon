@@ -60,5 +60,18 @@
     "effects_volume": "Effekt-Lautstärke",
     "music_volume": "Musik-Lautstärke",
     "language": "Sprache"
+  },
+  "main_menu": {
+    "host": "Spiel hosten",
+    "join": "Spiel beitreten",
+    "settings": "Einstellungen",
+    "exit": "Beenden",
+    "back": "Zurück",
+    "confirm": "Bestätigen",
+    "player_name": "Spielername",
+    "invalid_name": "Ungültiger Name (darf nicht leer sein oder '_' enthalten).",
+    "starting_server": "Server wird gestartet...",
+    "server_start_failed": "Server konnte nicht gestartet werden: $1",
+    "server_timeout": "Server wurde nicht rechtzeitig gestartet."
   }
 }
