@@ -137,11 +137,19 @@ public final class CameraSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream(CameraComponent.class, PositionComponent.class)
+        .filter(CameraSystem::hasLegalPosition)
         .findAny()
         .ifPresentOrElse(this::focus, this::focus);
 
     approachFocusPoint();
     CAMERA.update();
+  }
+
+  private static boolean hasLegalPosition(Entity entity) {
+    return entity
+        .fetch(PositionComponent.class)
+        .map(position -> !position.position().equals(PositionComponent.ILLEGAL_POSITION))
+        .orElse(false);
   }
 
   @Override
