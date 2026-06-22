@@ -2,7 +2,6 @@ name: Build and Release Blockly JARs
 
 on:
     workflow_dispatch:
-
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -37,17 +36,16 @@ jobs:
             - name: Make gradlew executable
               run: chmod +x gradlew
 
-            # 4. Beide JARs bauen (Desktop und Web)
+            # 4. Jar desktop and web
             - name: Build JARs with Gradle
               run: ./gradlew jarDesktop jarWeb
 
-            # 5. Beide JAR-Artefakte für den nächsten Job speichern
+            # 5. save both jar artefacts
             - name: Upload Build Artifacts
               uses: actions/upload-artifact@v7
               with:
                   name: Blockly-JARs
                   path: blockly/build/libs/*.jar
-
     upload_extension:
         runs-on: ubuntu-latest
         steps:
@@ -60,8 +58,62 @@ jobs:
               with:
                   name: vs-code-extension
                   path: doc/produs_unterlagen/blockly-code-runner-1.0.2.vsix
+
+    buildExecutables:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                include:
+                    - os: windows-latest
+                      platform_name: windows-x86_64
+                    - os: ubuntu-latest
+                      platform_name: linux-x86_64
+        steps:
+            -   name: Checkout Code
+                uses: actions/checkout@v6
+
+            -   name: Set up JDK
+                uses: actions/setup-java@v5
+                with:
+                    java-version: '25'
+                    distribution: 'temurin'
+            -   name: Make gradlew executable
+                run: chmod +x gradlew
+
+            -   name: Build with JLink
+                run: ./gradlew :blockly:jpackageImage
+
+            -   name: Archive Executable
+                # zip the folder
+                run: |
+                    if [ "${{ runner.os }}" == "Windows" ]; then
+                      7z a Blockly-desktop-${{ matrix.platform_name }}.zip  ./blockly/build/jpackage/blockly
+                    else
+                      tar -czf Blockly-desktop-${{ matrix.platform_name }}.tar.gz -C blockly/build/jpackage blockly
+                    fi
+                shell: bash
+
+
+            -   name: Build with JLink 2
+                run: ./gradlew :blockly:jpackageImageWeb
+
+            -   name: Archive Executable
+                # zip the folder
+                run: |
+                    if [ "${{ runner.os }}" == "Windows" ]; then
+                      7z a Blockly-web-${{ matrix.platform_name }}.zip  ./blockly/build/jpackage/blockly-web
+                    else
+                      tar -czf Blockly-web-${{ matrix.platform_name }}.tar.gz -C blockly/build/jpackage blockly-web
+                    fi
+                shell: bash
+
+            -   name: Upload Artifacts
+                uses: actions/upload-artifact@v7
+                with:
+                    name: executable-${{ matrix.os }}
+                    path: Blockly-*
     deploy:
-        needs: [build, upload_extension]
+        needs: [build, upload_extension, buildExecutables]
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -71,21 +123,16 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - name: Download the JARs
+            - name: Download all artifacts
               uses: actions/download-artifact@v8
               with:
-                name: Blockly-JARs
-
-            - name: Download VS-Code Extension
-              uses: actions/download-artifact@v8
-              with:
-                name: vs-code-extension
+                  merge-multiple: true
 
             - name: Create GitHub Release
               run: |
                 TAG="v1.0.${{ github.run_number }}"
-                gh release create "$TAG" *.jar *.vsix \
-                  --title "Release $TAG" \
+                gh release create "$TAG" *.jar *.vsix *.zip *.tar.gz \
+                  --title "Dungeon Games" \
                   --notes-file ".github/workflows/releaseInstructions.md" \
                   --draft=true \
                   --prerelease=false
