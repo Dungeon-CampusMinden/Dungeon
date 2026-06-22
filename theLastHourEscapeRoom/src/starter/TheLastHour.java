@@ -4,9 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
-import contrib.components.SkillComponent;
 import contrib.entities.CharacterClass;
-import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
 import contrib.modules.emote.EmoteSystem;
 import contrib.modules.worldTimer.WorldTimerSystem;
@@ -15,25 +13,23 @@ import contrib.systems.CollisionSystem;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.Debugger;
-import core.Entity;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.ECSManagement;
 import core.game.GameLoop;
+import core.game.GameStarter;
 import core.game.MainMenu;
 import core.game.PreRunConfiguration;
 import core.game.ServerProcess;
+import core.game.ServerStarter;
 import core.language.Language;
 import core.language.Localization;
-import core.level.loader.DungeonLoader;
-import core.network.config.NetworkConfig;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.FrictionSystem;
 import core.systems.LevelSystem;
 import core.systems.MoveSystem;
 import core.systems.PositionSystem;
 import core.systems.VelocitySystem;
-import core.utils.CursorUtil;
 import core.utils.NetworkUtils;
 import core.utils.Tuple;
 import core.utils.components.draw.TextureGenerator;
@@ -51,11 +47,7 @@ import java.awt.BorderLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -82,10 +74,9 @@ import network.LastHourSnapshotTranslator;
  */
 public class TheLastHour {
 
-  private static final String APPLICATION_PROPERTIES = "/application.properties";
-  private static final String SERVER_ARGUMENT = "--server";
-  private static final String SERVER_PROPERTY = "server";
   private static final String SERVER_STOP_REASON = "Server stopped from status window";
+  private static final String MENU_BACKGROUND_IMAGE = "images/lasthour.png";
+  private static final Color MENU_ACCENT_COLOR = new Color(0.56f, 0.87f, 1f, 1f);
 
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static Music backgroundMusic;
@@ -98,9 +89,13 @@ public class TheLastHour {
   };
 
   /**
-   * Main entry point to launch the basic dungeon game.
+   * Main entry point for "The Last Hour".
    *
-   * @param args command-line arguments (not used in this starter)
+   * <p>Sets up logging and hands the menu/hosting, client, and server configuration to the {@link
+   * MainMenu}, which decides (based on {@code args}) whether to run as a dedicated server or to
+   * show the main menu and run as a client.
+   *
+   * @param args command-line arguments (a {@code --server} flag starts the dedicated server)
    */
   public static void main(String[] args) {
     DungeonLoggerConfig.builder()
@@ -109,89 +104,46 @@ public class TheLastHour {
         .enableFile(false)
         .build();
 
-    if (shouldRunMpServer(args)) {
-      startServer();
-    } else {
-      // The engine is multiplayer-only: the main menu lets the player host or join a server.
-      MainMenu.run(new LastHourStarter());
-    }
+    GameStarter game =
+        GameStarter.builder("The Last Hour", TheLastHour.class)
+            .backgroundImage(MENU_BACKGROUND_IMAGE)
+            .accentColor(MENU_ACCENT_COLOR)
+            .build();
+
+    ServerStarter server =
+        ServerStarter.builder(TheLastHour::serverSetup)
+            .characterClasses(MULTIPLAYER_CHARACTER_CLASSES)
+            .levels(Tuple.of("lasthour", LastHourLevel.class))
+            .onConfigure(UsbStickItem::ensureRegistration)
+            .config(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class)
+            .snapshotTranslator(new LastHourSnapshotTranslator())
+            .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
+            .onFrame(TheLastHour::onFrame)
+            .build();
+
+    MainMenu.run(args, game, LastHourClient.starter(), server);
   }
 
   /**
-   * Configures and starts the dedicated multiplayer server, then runs the headless game loop.
-   *
-   * <p>This is the entry point used by the main menu's "Host Game" option, which launches this
-   * class in a child process with the {@code --server} argument (see {@link ServerProcess}).
+   * Server-side {@link Game#userOnSetup} callback: installs the authoritative systems, level-load
+   * broadcast, and the standalone server status window.
    */
-  private static void startServer() {
-    Game.userOnFrame(TheLastHour::onFrame);
-    PreRunConfiguration.multiplayerEnabled(true);
-    PreRunConfiguration.isNetworkServer(true);
-    PreRunConfiguration.multiplayerCharacterClasses(MULTIPLAYER_CHARACTER_CLASSES);
-    PreRunConfiguration.networkPort(
-        Integer.getInteger(ServerProcess.PORT_PROPERTY, PreRunConfiguration.networkPort()));
+  private static void serverSetup() {
+    ECSManagement.add(new PositionSystem());
+    ECSManagement.add(new VelocitySystem());
+    ECSManagement.add(new FrictionSystem());
+    ECSManagement.add(new MoveSystem());
+    ECSManagement.remove(AttributeBarSystem.class);
 
-    DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevel.class));
-    UsbStickItem.ensureRegistration();
-    try {
-      Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    Game.disableAudio(false);
-    Game.userOnSetup(() -> onUserSetup(true));
-    Game.frameRate(60);
-    Game.windowTitle("The Last Hour");
-    NetworkConfig.SNAPSHOT_TRANSLATOR = new LastHourSnapshotTranslator();
-    NetworkConfig.ENTITY_SPAWN_STRATEGY = new LastHourEntitySpawnStrategy();
-    Game.run();
-  }
-
-  private static boolean shouldRunMpServer(String[] args) {
-    if (args != null && Arrays.asList(args).contains(SERVER_ARGUMENT)) {
-      return true;
-    }
-
-    try (InputStream propertiesStream =
-        TheLastHour.class.getResourceAsStream(APPLICATION_PROPERTIES)) {
-      if (propertiesStream == null) {
-        return false;
-      }
-
-      Properties properties = new Properties();
-      properties.load(propertiesStream);
-      return properties.containsKey(SERVER_PROPERTY);
-    } catch (IOException e) {
-      return false;
-    }
-  }
-
-  private static void onUserSetup(boolean runMpServer) {
-    if (runMpServer) {
-      ECSManagement.add(new PositionSystem());
-      ECSManagement.add(new VelocitySystem());
-      ECSManagement.add(new FrictionSystem());
-      ECSManagement.add(new MoveSystem());
-      ECSManagement.remove(AttributeBarSystem.class);
-
-      ECSManagement.system(
-          LevelSystem.class,
-          levelSystem ->
-              levelSystem.onLevelLoad(
-                  () -> {
-                    GameLoop.onLevelLoad.execute();
-                    Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
-                  }));
-      showServerStatusWindow();
-    } else {
-      Entity hero =
-          HeroBuilder.builder().characterClass(CharacterClass.THE_LAST_HOUR_CHAR03).build();
-      hero.fetch(SkillComponent.class).ifPresent(SkillComponent::removeAll);
-      Game.add(hero);
-      Game.stage().ifPresent(CursorUtil::initListener);
-
-      setupClient();
-    }
+    ECSManagement.system(
+        LevelSystem.class,
+        levelSystem ->
+            levelSystem.onLevelLoad(
+                () -> {
+                  GameLoop.onLevelLoad.execute();
+                  Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
+                }));
+    showServerStatusWindow();
 
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
@@ -268,7 +220,6 @@ public class TheLastHour {
         .forEach(ip -> info.append("  ").append(ip).append(System.lineSeparator()));
     return info.toString();
   }
-
 
   /** Registers the local world timer render/callback system on non-headless clients. */
   public static void registerLocalWorldTimerSystem() {

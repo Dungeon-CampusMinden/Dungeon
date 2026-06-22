@@ -16,16 +16,14 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.configuration.KeyboardConfig;
+import core.game.ClientStarter;
 import core.game.PreRunConfiguration;
-import core.level.loader.DungeonLoader;
 import core.network.ConnectionListener;
-import core.network.config.NetworkConfig;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.utils.CursorUtil;
 import core.utils.Tuple;
 import core.utils.components.draw.DrawComponentFactory;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import level.LastHourLevel;
@@ -43,70 +41,65 @@ import util.ui.BlackFadeCutscene;
 public final class LastHourClient {
 
   /**
-   * Main method to start the dev client.
+   * Main method to start the standalone dev client (bypasses the main menu).
    *
    * @param args command line arguments
    */
   public static void main(String[] args) {
-    configureClient();
+    starter().apply();
     Game.run();
   }
 
   /**
-   * Configures the multiplayer client without starting the game loop.
+   * Builds the multiplayer client configuration for The Last Hour.
    *
-   * <p>Used both by {@link #main(String[])} (the standalone dev client) and by the {@link
-   * LastHourStarter} that boots this client from the main menu.
+   * <p>Used by the {@link core.game.MainMenu} (via {@link TheLastHour#main(String[])}) and by the
+   * standalone dev client {@link #main(String[])}.
+   *
+   * @return the configured {@link ClientStarter}
    */
-  public static void configureClient() {
-    // PreRun configuration for multiplayer client
-    PreRunConfiguration.multiplayerEnabled(true);
-    PreRunConfiguration.isNetworkServer(false);
-    PreRunConfiguration.networkPort(7777);
-    PreRunConfiguration.multiplayerCharacterClass(null); // server decides
+  public static ClientStarter starter() {
+    return ClientStarter.builder(LastHourClient::clientSetup)
+        .levels(Tuple.of("lasthour", LastHourLevelClient.class))
+        .onConfigure(LastHourClient::registerClientContent)
+        .config(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class)
+        .snapshotTranslator(new LastHourSnapshotTranslator())
+        .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
+        .build();
+  }
 
+  /** Pre-run registrations for the client (custom dialogs and items). */
+  private static void registerClientContent() {
     registerCustomDialogs();
     UsbStickItem.ensureRegistration();
     PuzzlePieceItem.ensureRegistration();
+  }
 
-    DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevelClient.class));
-
-    // Game Settings
-    try {
-      Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+  /** In-loop client setup (entity spawn handler, systems, connection listener). */
+  private static void clientSetup() {
+    registerEntitySpawnHandler();
+    LastHourLevel.ensureClientPuzzles();
+    if (TheLastHour.DEBUG_MODE) {
+      Game.add(new Debugger());
     }
-    Game.disableAudio(false);
-    Game.frameRate(60);
-    NetworkConfig.SNAPSHOT_TRANSLATOR = new LastHourSnapshotTranslator();
-    NetworkConfig.ENTITY_SPAWN_STRATEGY = new LastHourEntitySpawnStrategy();
-    Game.userOnSetup(
-        () -> {
-          registerEntitySpawnHandler();
-          LastHourLevel.ensureClientPuzzles();
-          if (TheLastHour.DEBUG_MODE) {
-            Game.add(new Debugger());
-          }
-          TheLastHour.registerLocalWorldTimerSystem();
-          Game.stage().ifPresent(CursorUtil::initListener);
-          Game.remove(AttributeBarSystem.class);
-          Game.add(new ComputerStateSyncSystem());
+    TheLastHour.registerLocalWorldTimerSystem();
+    Game.stage().ifPresent(CursorUtil::initListener);
+    Game.remove(AttributeBarSystem.class);
+    Game.add(new ComputerStateSyncSystem());
 
-          TheLastHour.setupClient();
+    TheLastHour.setupClient();
 
-          Game.network()
-              .addConnectionListener(
-                  new ConnectionListener() {
-                    @Override
-                    public void onConnected() {
-                      Game.windowTitle("TheLastHour Client - " + PreRunConfiguration.username());
-                    }
+    Game.network()
+        .addConnectionListener(
+            new ConnectionListener() {
+              @Override
+              public void onConnected() {
+                Game.windowTitle("TheLastHour Client - " + PreRunConfiguration.username());
+              }
 
-                    @Override
-                    public void onDisconnected(String reason) {}
-                  });
-        });
+              @Override
+              public void onDisconnected(String reason) {}
+            });
   }
 
   private static void registerCustomDialogs() {
