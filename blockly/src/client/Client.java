@@ -171,7 +171,7 @@ public class Client {
         FrontendServer.stopServer();
         BlocklyCodeRunner.instance().stopCode();
         FolderExtractor.deleteCompilerResources();
-      } catch( Exception e) {
+      } catch (Exception e) {
         java.lang.System.out.println("Error stopping server");
       }
     }
