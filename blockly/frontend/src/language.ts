@@ -1,6 +1,7 @@
 import * as Blockly from "blockly";
 import * as En from "blockly/msg/en";
 import * as De from "blockly/msg/de";
+import {call_language_route} from "./api/api.ts";
 
 export const setupLanguageToggle = (workspace) => {
   document.querySelector(".flag")?.addEventListener("click", event => {
@@ -14,11 +15,13 @@ export const setupLanguageToggle = (workspace) => {
       imgElement.dataset.lang="de"
       imgElement.src="german-flag.png"
       imgElement.alt = "German language"
+      call_language_route("de");
     } else {
       changeToGermanLanguage(workspace);
       imgElement.dataset.lang="en"
       imgElement.src="english-flag.png"
       imgElement.alt = "English language"
+      call_language_route("de");
     }
   })
 }

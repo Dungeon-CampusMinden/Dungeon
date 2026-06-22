@@ -27,6 +27,8 @@ public abstract class BlocklyLevel extends DungeonLevel {
   private final Set<String> blockedBlocklyElements = new HashSet<>();
   private final DesignLabel designLabel;
 
+  private String language = "";
+
   /**
    * List of Popups to display with {@link #showPopups()} if the game is controlled via the Blockly
    * Web UI.
@@ -185,6 +187,9 @@ public abstract class BlocklyLevel extends DungeonLevel {
      * @return the popup content
      */
     public String content() {
+
+//      BlocklyLevel.this.language
+
       return this.content;
     }
   }
@@ -225,5 +230,9 @@ public abstract class BlocklyLevel extends DungeonLevel {
     public ImagePopup(String content) {
       super(content);
     }
+  }
+
+  public void setLanguage(String language) {
+    this.language = language;
   }
 }
