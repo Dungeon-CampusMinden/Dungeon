@@ -78,9 +78,6 @@ public class TheLastHour {
   private static final String MENU_BACKGROUND_IMAGE = "images/lasthour.png";
   private static final Color MENU_ACCENT_COLOR = new Color(0.56f, 0.87f, 1f, 1f);
 
-  private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
-  private static Music backgroundMusic;
-
   /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
   public static final boolean DEBUG_MODE = false;
 
@@ -108,6 +105,7 @@ public class TheLastHour {
         GameStarter.builder("The Last Hour", TheLastHour.class)
             .backgroundImage(MENU_BACKGROUND_IMAGE)
             .accentColor(MENU_ACCENT_COLOR)
+            .language(Language.EN)
             .build();
 
     ServerStarter server =
@@ -227,132 +225,6 @@ public class TheLastHour {
       return;
     }
     ECSManagement.add(new WorldTimerSystem().onTimerExpired(LastHourLevel::onTimerExpired));
-  }
-
-  /** Proxy to init all client resources which are not available on the server. */
-  public static void setupClient() {
-    initLocalization();
-    setupMusic();
-    staticRenderTextures();
-    registerSettings();
-  }
-
-  private static void initLocalization() {
-    Localization localization = Game.localization();
-    localization.registerTranslationFile(Language.DE, "language/de.json");
-    localization.registerTranslationFile(Language.EN, "language/en.json");
-    localization.currentLanguage(Language.EN);
-  }
-
-  private static final String T_SETTINGS_CONTROLS_HEADER = "settings.controls_header";
-  private static final String T_SETTINGS_CONTROLS_DESCRIPTION = "settings.controls_description";
-  private static final String T_SETTINGS_PAUSE = "settings.pause";
-  private static final String T_SETTINGS_INTERACT = "settings.interact";
-  private static final String T_SETTINGS_INVENTORY = "settings.inventory";
-  private static final String T_SETTINGS_INVENTORY_DESCRIPTION = "settings.inventory_description";
-
-  /** Registers additional client settings. */
-  private static void registerSettings() {
-    ClientSettings.registerSetting(new SectionDividerSetting(T_SETTINGS_CONTROLS_HEADER));
-    ClientSettings.registerSetting(
-        new DescriptionSetting(T_SETTINGS_CONTROLS_DESCRIPTION, Input.Keys.E));
-    ClientSettings.registerSetting(new ButtonBindingSetting(T_SETTINGS_PAUSE, Input.Keys.P, false));
-    ClientSettings.registerSetting(
-        new ButtonBindingSetting(T_SETTINGS_INTERACT, Input.Keys.E, false));
-    ClientSettings.registerSetting(
-        new ButtonBindingSetting(T_SETTINGS_INVENTORY, Input.Keys.I, false));
-    ClientSettings.registerSetting(
-        new DescriptionSetting(T_SETTINGS_INVENTORY_DESCRIPTION, Input.Buttons.RIGHT));
-  }
-
-  private static final List<Tuple<String, Color>> USB_TEXTURES =
-      List.of(
-          Tuple.of("items/usb-side-green.png", Color.GREEN),
-          Tuple.of("items/usb-side-blue.png", Color.BLUE),
-          Tuple.of("items/usb-side-yellow.png", Color.YELLOW));
-
-  /** Statically renders the needed textures. */
-  private static void staticRenderTextures() {
-    String basePath = "items/usb-side-red.png";
-    float baseHue = 0.0f;
-
-    for (Tuple<String, Color> usbTexture : USB_TEXTURES) {
-      ShaderList shaderList = new ShaderList();
-
-      String outTexturePath = usbTexture.a();
-      Color color = usbTexture.b();
-      float[] hsv = new float[3];
-      shaderList.add("hueRemap", new HueRemapShader(baseHue, color.toHsv(hsv)[0] / 360f));
-
-      TextureGenerator.registerRenderShaderTexture(basePath, outTexturePath, shaderList);
-    }
-
-    // Invert the keyboard / mouse input-prompt spritesheet so the white-on-transparent icons
-    // read clearly against the dark HUD text used in this game.
-    String keyboardPromptPath = "hud/input/keyboard_mouse.png";
-    ShaderList invertShaders = new ShaderList();
-    invertShaders.add("invert", new ColorGradeShader().invert(true));
-    TextureGenerator.registerRenderShaderTexture(
-        keyboardPromptPath, keyboardPromptPath, invertShaders);
-
-    // Put the first frame of the idle animation of the rogue and the char03 characters into a
-    // special texture in "@gen/char03.png" and "@gen/rogue.png", so they can be used for Dialogs
-    // without needing to parse the spritesheet again.
-    registerCharacterPortrait(CharacterClass.THE_LAST_HOUR_ROGUE, ROGUE_PORTRAIT_PATH);
-    registerCharacterPortrait(CharacterClass.THE_LAST_HOUR_CHAR03, CHAR03_PORTRAIT_PATH);
-  }
-
-  /** Path of the generated portrait texture for the Rogue character. */
-  public static final String ROGUE_PORTRAIT_PATH = "@gen/rogue.png";
-
-  /** Path of the generated portrait texture for the Char03 character. */
-  public static final String CHAR03_PORTRAIT_PATH = "@gen/char03.png";
-
-  /** Width / height in pixels of a single frame in the character spritesheets. */
-  private static final int CHARACTER_FRAME_SIZE = 32;
-
-  private static final int CHARACTER_FRAME_PADDING = 8;
-
-  /**
-   * Extracts the first frame from the given character's spritesheet and registers it as a
-   * standalone texture in the {@link TextureMap} under {@code outPath}.
-   *
-   * @param characterClass character whose sprite sheet should be sampled
-   * @param outPath virtual texture-map output path for the generated portrait
-   */
-  private static void registerCharacterPortrait(CharacterClass characterClass, String outPath) {
-    String sheetPath = characterClass.textures().pathString();
-    if (!sheetPath.endsWith(".png")) {
-      sheetPath = sheetPath + "/" + sheetPath.substring(sheetPath.lastIndexOf('/') + 1) + ".png";
-    }
-    TextureGenerator.registerSpritesheetRegionTexture(
-        sheetPath,
-        CHARACTER_FRAME_PADDING,
-        CHARACTER_FRAME_PADDING,
-        CHARACTER_FRAME_SIZE - CHARACTER_FRAME_PADDING * 2,
-        CHARACTER_FRAME_SIZE - CHARACTER_FRAME_PADDING * 2,
-        outPath);
-  }
-
-  /**
-   * Initializes and starts the background music for the game, and sets up listeners to adjust the
-   * volume based on client settings changes.
-   */
-  private static void setupMusic() {
-    backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
-    backgroundMusic.setLooping(true);
-    backgroundMusic.play();
-    backgroundMusic.setVolume(
-        ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
-
-    ClientSettings.setOnVolumeChange(
-        (key, value) -> {
-          if (key.equals(ClientSettings.KEY_MUSIC_VOLUME)
-              || key.equals(ClientSettings.KEY_MASTER_VOLUME)) {
-            backgroundMusic.setVolume(
-                ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
-          }
-        });
   }
 
   private static void onFrame() {

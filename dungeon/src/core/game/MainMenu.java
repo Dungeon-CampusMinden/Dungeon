@@ -43,6 +43,9 @@ public final class MainMenu {
    * Boots the project: runs as a dedicated server if {@link #shouldRunMpServer(String[])},
    * otherwise configures the client and shows the main menu.
    *
+   * <p>The {@link GameStarter#language() configured language} is applied first, so the menu and the
+   * launched game are already shown in the desired language.
+   *
    * @param args the program arguments (checked for the server flag)
    * @param game the menu/hosting integration
    * @param client the multiplayer client configuration
@@ -51,6 +54,7 @@ public final class MainMenu {
   public static void run(
       String[] args, GameStarter game, ClientStarter client, ServerStarter server) {
     Game.windowTitle(game.title());
+    Game.localization().currentLanguage(game.language());
 
     if (shouldRunMpServer(args)) {
       server.apply();

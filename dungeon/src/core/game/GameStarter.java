@@ -1,6 +1,8 @@
 package core.game;
 
 import com.badlogic.gdx.graphics.Color;
+import core.language.Language;
+import core.language.Localization;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -9,10 +11,13 @@ import java.util.Optional;
  * Immutable menu/hosting integration config for wiring an explicit game into the reusable {@link
  * MainMenu}.
  *
- * <p>It describes how the game presents itself in the menu (title, background, accent color) and
- * how the "Host Game" option launches a dedicated server child process (server main class,
- * arguments, port). The actual client and server configuration lives in {@link ClientStarter} and
- * {@link ServerStarter}.
+ * <p>It describes how the game presents itself in the menu (title, background, accent color,
+ * language) and how the "Host Game" option launches a dedicated server child process (server main
+ * class, arguments, port). The actual client and server configuration lives in {@link ClientStarter}
+ * and {@link ServerStarter}.
+ *
+ * <p>The configured {@link #language() language} is applied by the {@link MainMenu} on startup, so
+ * the menu (and the game it launches) is already shown in the desired language.
  *
  * <p>Create instances via {@link #builder(String, Class)}. Required parameters are the game title
  * and the dedicated server main class; the remaining properties are optional.
@@ -25,6 +30,7 @@ public final class GameStarter {
   private final Color accentColor;
   private final String[] serverArguments;
   private final int localServerPort;
+  private final Language language;
 
   private GameStarter(Builder builder) {
     this.title = builder.title;
@@ -33,6 +39,7 @@ public final class GameStarter {
     this.accentColor = builder.accentColor.cpy();
     this.serverArguments = builder.serverArguments.clone();
     this.localServerPort = builder.localServerPort;
+    this.language = builder.language;
   }
 
   /**
@@ -88,6 +95,13 @@ public final class GameStarter {
     return localServerPort;
   }
 
+  /**
+   * @return language applied on startup for the menu and the launched game
+   */
+  public Language language() {
+    return language;
+  }
+
   /** Builder for {@link GameStarter}. */
   public static final class Builder {
     private final String title;
@@ -97,6 +111,7 @@ public final class GameStarter {
     private Color accentColor = Color.WHITE;
     private String[] serverArguments = new String[] {ServerProcess.SERVER_ARGUMENT};
     private int localServerPort = PreRunConfiguration.networkPort();
+    private Language language = Localization.getInstance().currentLanguage();
 
     private Builder(String title, Class<?> serverMainClass) {
       this.title = validateTitle(title);
@@ -132,6 +147,15 @@ public final class GameStarter {
         throw new IllegalArgumentException("localServerPort must be in range 1..65535");
       }
       this.localServerPort = localServerPort;
+      return this;
+    }
+
+    /**
+     * Sets the language used for the main menu and the launched game (default: the engine's current
+     * language). It is applied by the {@link MainMenu} on startup.
+     */
+    public Builder language(Language language) {
+      this.language = Objects.requireNonNull(language, "language");
       return this;
     }
 
