@@ -66,7 +66,7 @@ jobs:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Checkout PR Branch
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
               with:
                   ref: ${{ github.event.pull_request.head.ref }}
                   token: ${{ secrets.GITHUB_TOKEN }}
