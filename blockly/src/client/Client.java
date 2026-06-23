@@ -166,9 +166,14 @@ public class Client {
       if (httpServer != null) {
         httpServer.stop(0);
       }
-      BlocklyCodeRunner.instance().stopCode();
-      FrontendServer.stopServer();
-      FolderExtractor.deleteCompilerResources();
+
+      try {
+        FrontendServer.stopServer();
+        BlocklyCodeRunner.instance().stopCode();
+        FolderExtractor.deleteCompilerResources();
+      } catch (Exception e) {
+        java.lang.System.out.println("Error stopping server");
+      }
     }
   }
 
