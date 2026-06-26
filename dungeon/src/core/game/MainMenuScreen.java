@@ -24,6 +24,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.ClientConnectionDialog;
 import contrib.hud.elements.RichLabel;
 import core.Game;
+import core.language.Language;
 import core.language.Translation;
 import core.utils.FontSpec;
 import core.utils.Scene2dElementFactory;
@@ -32,6 +33,7 @@ import core.utils.settings.ClientSettings;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * The main menu shown before the core {@link GameLoop} starts.
@@ -74,6 +76,13 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private final GameStarter starter;
 
+  /** Identifies which sub-view is currently shown, so it can be re-shown after a rebuild. */
+  private enum View {
+    MAIN,
+    SETTINGS,
+    HOST_NAME
+  }
+
   private Stage stage;
   private Skin skin;
   private Texture backgroundTexture;
@@ -81,6 +90,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private Table mainView;
   private Table settingsView;
   private Table hostNameView;
+  private View activeView = View.MAIN;
 
   private TextField hostNameField;
   private Label hostStatusLabel;
@@ -88,6 +98,13 @@ public class MainMenuScreen extends ScreenAdapter {
   private TextButton hostBackButton;
 
   private volatile boolean launching = false;
+
+  /**
+   * Rebuilds the localized views on the next frame whenever the language changes. Deferring via
+   * {@link Gdx#app} keeps the rebuild out of the settings dropdown's event dispatch.
+   */
+  private final Consumer<Language> languageChangeListener =
+      language -> Gdx.app.postRunnable(this::rebuildViews);
 
   /**
    * Creates the main menu screen for the given starter.
@@ -122,6 +139,8 @@ public class MainMenuScreen extends ScreenAdapter {
     root.add(foreground);
 
     stage.addActor(root);
+
+    Game.localization().registerLanguageChangeListener(languageChangeListener);
 
     showMainView();
   }
@@ -233,18 +252,41 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private void showMainView() {
+    activeView = View.MAIN;
     swapContent(mainView);
   }
 
   private void showSettingsView() {
+    activeView = View.SETTINGS;
     swapContent(settingsView);
   }
 
   private void showHostNameView() {
+    activeView = View.HOST_NAME;
     hostStatusLabel.setText("");
     setHostControlsDisabled(false);
     swapContent(hostNameView);
     stage.setKeyboardFocus(hostNameField);
+  }
+
+  /**
+   * Rebuilds the localized views and re-shows the active one. Triggered when the language changes
+   * so the already-rendered labels and buttons reflect the newly selected language.
+   */
+  private void rebuildViews() {
+    if (stage == null) {
+      return;
+    }
+    mainView = buildMainView();
+    settingsView = buildSettingsView();
+    hostNameView = buildHostNameView();
+    if (activeView == View.SETTINGS) {
+      showSettingsView();
+    } else if (activeView == View.HOST_NAME) {
+      showHostNameView();
+    } else {
+      showMainView();
+    }
   }
 
   private void swapContent(Table view) {
@@ -357,6 +399,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
   @Override
   public void dispose() {
+    Game.localization().removeLanguageChangeListener(languageChangeListener);
     if (stage != null) {
       stage.dispose();
       stage = null;
