@@ -1,6 +1,5 @@
 package client;
 
-import client.hud.StageConfig;
 import coderunner.BlocklyCodeRunner;
 import coderunner.BlocklyCommands;
 import com.sun.net.httpserver.HttpServer;
@@ -215,7 +214,9 @@ public class Client {
           PortalRegistry.registerPelletCatcherBehavior(
               () -> new BlocklyEnergyPelletCatcherBehavior());
 
-          StageConfig.setupStage();
+          // Disbaled beacuse of bugs: see
+          // https://github.com/Dungeon-CampusMinden/Dungeon/issues/3070
+          // StageConfig.setupStage();
           startServer();
         });
   }
