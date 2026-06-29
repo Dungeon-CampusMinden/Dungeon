@@ -163,7 +163,11 @@ public class MainMenuScreen extends ScreenAdapter {
     }
   }
 
-  /** Builds the big game-name banner using the configured starter accent color. */
+  /**
+   * Builds the big game-name banner using the configured starter accent color.
+   *
+   * @return title actor rendered above the menu panel
+   */
   private Actor buildTitleBanner() {
     String richTitle = RichLabel.toRichText(starter.title());
     RichLabel title =

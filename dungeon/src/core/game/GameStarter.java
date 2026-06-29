@@ -118,19 +118,34 @@ public final class GameStarter {
       this.serverMainClass = Objects.requireNonNull(serverMainClass, "serverMainClass");
     }
 
-    /** Sets an optional background image path for the main menu. */
+    /**
+     * Sets an optional background image path for the main menu.
+     *
+     * @param backgroundImage internal asset path, or {@code null}/blank to disable the image
+     * @return this builder instance
+     */
     public Builder backgroundImage(String backgroundImage) {
       this.backgroundImage = normalizeBackgroundImage(backgroundImage);
       return this;
     }
 
-    /** Sets the main-menu title accent color. */
+    /**
+     * Sets the main-menu title accent color.
+     *
+     * @param accentColor color used when rendering the game title in the menu
+     * @return this builder instance
+     */
     public Builder accentColor(Color accentColor) {
       this.accentColor = Objects.requireNonNull(accentColor, "accentColor");
       return this;
     }
 
-    /** Overrides server-process arguments for hosting. */
+    /**
+     * Overrides server-process arguments for hosting.
+     *
+     * @param serverArguments command-line arguments for the dedicated server process
+     * @return this builder instance
+     */
     public Builder serverArguments(String... serverArguments) {
       Objects.requireNonNull(serverArguments, "serverArguments");
       if (serverArguments.length == 0) {
@@ -141,7 +156,12 @@ public final class GameStarter {
       return this;
     }
 
-    /** Overrides the local hosted server port. */
+    /**
+     * Overrides the local hosted server port.
+     *
+     * @param localServerPort local TCP port used for hosting and localhost connection
+     * @return this builder instance
+     */
     public Builder localServerPort(int localServerPort) {
       if (localServerPort <= 0 || localServerPort > 65535) {
         throw new IllegalArgumentException("localServerPort must be in range 1..65535");
@@ -153,13 +173,20 @@ public final class GameStarter {
     /**
      * Sets the language used for the main menu and the launched game (default: the engine's current
      * language). It is applied by the {@link MainMenu} on startup.
+     *
+     * @param language language to apply before the menu is shown
+     * @return this builder instance
      */
     public Builder language(Language language) {
       this.language = Objects.requireNonNull(language, "language");
       return this;
     }
 
-    /** Builds an immutable {@link GameStarter} config. */
+    /**
+     * Builds an immutable {@link GameStarter} config.
+     *
+     * @return immutable starter configuration
+     */
     public GameStarter build() {
       return new GameStarter(this);
     }
