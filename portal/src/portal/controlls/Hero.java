@@ -47,21 +47,13 @@ public record Hero(Entity hero) {
    */
   public Hero(Entity hero) {
     this.hero = hero;
-    if (!PortalRegistry.isDebugMode()) {
-      // Entfernt alle bisherigen Tastenzuweisungen (außer der zum Schließen der UI)
-      hero.fetch(InputComponent.class)
-          .ifPresent(
-              inputComponent ->
-                  inputComponent.removeCallbacksIf(
-                      (entry -> !Objects.equals(entry.getKey(), KeyboardConfig.CLOSE_UI.value()))));
-    }
   }
 
   /**
    * Setzt den Controller für die Spielfigur.
    *
-   * <p>Registriert Tasgittendrücke und übergibt sie an den übergebenen {@link PlayerController},
-   * der die Verarbeitung übernimmt.
+   * <p>Registriert Tastendrücke und übergibt sie an den übergebenen {@link PlayerController}, der
+   * die Verarbeitung übernimmt.
    *
    * @param controller Ein {@link PlayerController}-Objekt, das die Eingaben verarbeitet. Wenn
    *     {@code null}, wird keine Aktion durchgeführt.
@@ -72,7 +64,15 @@ public record Hero(Entity hero) {
     hero.fetch(InputComponent.class)
         .ifPresent(
             ic -> {
+              if (!PortalRegistry.isDebugMode()) {
+                // Controller mode owns gameplay input, but UI close remains an engine callback.
+                ic.removeCallbacksIf(
+                    entry -> !Objects.equals(entry.getKey(), KeyboardConfig.CLOSE_UI.value()));
+              }
               for (int key = 0; key <= Input.Keys.MAX_KEYCODE; key++) {
+                if (Objects.equals(key, KeyboardConfig.CLOSE_UI.value())) {
+                  continue;
+                }
                 int finalKey = key;
                 ic.registerCallback(
                     key,
