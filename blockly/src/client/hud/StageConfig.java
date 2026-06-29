@@ -19,6 +19,9 @@ import core.utils.Vector2;
  */
 public class StageConfig {
 
+  private static final float MEDIUM_SPEED = 2f;
+  private static final float HIGH_SPEED = 4f;
+
   /**
    * Configures the stage layout.
    *
@@ -34,11 +37,13 @@ public class StageConfig {
               Table rootTable = new Table();
               rootTable.setFillParent(true);
 
-              TextButton btn1x = new TextButton("1x", UIUtils.defaultSkin());
-              TextButton btn4x = new TextButton("4x", UIUtils.defaultSkin());
-              TextButton btn8x = new TextButton("8x", UIUtils.defaultSkin());
-
-              ButtonGroup<TextButton> group = new ButtonGroup<>(btn1x, btn4x, btn8x);
+              TextButton btnBaseSpeed = new TextButton("1x", UIUtils.defaultSkin());
+              TextButton btnMediumSpeed =
+                  new TextButton((int) MEDIUM_SPEED + "x", UIUtils.defaultSkin());
+              TextButton btnHighSpeed =
+                  new TextButton((int) HIGH_SPEED + "x", UIUtils.defaultSkin());
+              ButtonGroup<TextButton> group =
+                  new ButtonGroup<>(btnBaseSpeed, btnMediumSpeed, btnHighSpeed);
               Vector2 baseForce = Client.MOVEMENT_FORCE;
 
               // max. 1 velocity button at the same
@@ -47,35 +52,37 @@ public class StageConfig {
               group.setUncheckLast(true);
 
               // each button gives a different MOVEMENT_FORCE value
-              btn1x.addListener(
+              btnBaseSpeed.addListener(
                   new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                      if (btn1x.isChecked())
+                      if (btnBaseSpeed.isChecked())
                         Client.MOVEMENT_FORCE = Vector2.of(baseForce.x(), baseForce.y());
                     }
                   });
-              btn4x.addListener(
+              btnMediumSpeed.addListener(
                   new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                      if (btn4x.isChecked())
-                        Client.MOVEMENT_FORCE = Vector2.of(baseForce.x() * 4f, baseForce.y() * 4f);
+                      if (btnMediumSpeed.isChecked())
+                        Client.MOVEMENT_FORCE =
+                            Vector2.of(baseForce.x() * MEDIUM_SPEED, baseForce.y() * MEDIUM_SPEED);
                     }
                   });
-              btn8x.addListener(
+              btnHighSpeed.addListener(
                   new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                      if (btn8x.isChecked())
-                        Client.MOVEMENT_FORCE = Vector2.of(baseForce.x() * 8f, baseForce.y() * 8f);
+                      if (btnHighSpeed.isChecked())
+                        Client.MOVEMENT_FORCE =
+                            Vector2.of(baseForce.x() * HIGH_SPEED, baseForce.y() * HIGH_SPEED);
                     }
                   });
 
               Table bottomCenter = new Table();
-              bottomCenter.add(btn1x).width(55);
-              bottomCenter.add(btn4x).width(55);
-              bottomCenter.add(btn8x).width(55);
+              bottomCenter.add(btnBaseSpeed).width(55);
+              bottomCenter.add(btnMediumSpeed).width(55);
+              bottomCenter.add(btnHighSpeed).width(55);
 
               // buttons positioned at bottom center
               rootTable.add(bottomCenter).expand().center().bottom();
