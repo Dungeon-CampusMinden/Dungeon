@@ -19,8 +19,6 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.configuration.KeyboardConfig;
-import core.game.ClientStarter;
 import core.game.PreRunConfiguration;
 import core.language.Language;
 import core.language.Localization;
@@ -43,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import level.LastHourLevel;
-import level.LastHourLevelClient;
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerStateSyncSystem;
 import modules.computer.LastHourDialogTypes;
@@ -59,44 +56,15 @@ public final class LastHourClient {
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static Music backgroundMusic;
 
-  /**
-   * Main method to start the standalone dev client (bypasses the main menu).
-   *
-   * @param args command line arguments
-   */
-  public static void main(String[] args) {
-    Game.localization().currentLanguage(Language.EN);
-    starter().apply();
-    Game.run();
-  }
-
-  /**
-   * Builds the multiplayer client configuration for The Last Hour.
-   *
-   * <p>Used by the {@link core.game.MainMenu} (via {@link TheLastHour#main(String[])}) and by the
-   * standalone dev client {@link #main(String[])}.
-   *
-   * @return the configured {@link ClientStarter}
-   */
-  public static ClientStarter starter() {
-    return ClientStarter.builder(LastHourClient::clientSetup)
-        .levels(Tuple.of("lasthour", LastHourLevelClient.class))
-        .onConfigure(LastHourClient::registerClientContent)
-        .config(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class)
-        .snapshotTranslator(new LastHourSnapshotTranslator())
-        .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
-        .build();
-  }
-
   /** Pre-run registrations for the client (custom dialogs and items). */
-  private static void registerClientContent() {
+  public static void registerClientContent() {
     registerCustomDialogs();
     UsbStickItem.ensureRegistration();
     PuzzlePieceItem.ensureRegistration();
   }
 
   /** In-loop client setup (entity spawn handler, systems, connection listener). */
-  private static void clientSetup() {
+  public static void clientSetup() {
     registerEntitySpawnHandler();
     LastHourLevel.ensureClientPuzzles();
     if (TheLastHour.DEBUG_MODE) {

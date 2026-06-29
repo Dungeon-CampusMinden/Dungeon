@@ -13,6 +13,7 @@ import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
+import core.game.ClientStarter;
 import core.game.ECSManagement;
 import core.game.GameLoop;
 import core.game.GameStarter;
@@ -45,6 +46,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import level.LastHourLevel;
+import level.LastHourLevelClient;
 import modules.computer.ComputerStateSyncSystem;
 import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
@@ -106,7 +108,16 @@ public class TheLastHour {
             .onFrame(TheLastHour::onFrame)
             .build();
 
-    MainMenu.run(args, game, LastHourClient.starter(), server);
+    ClientStarter client =
+        ClientStarter.builder(LastHourClient::clientSetup)
+            .levels(Tuple.of("lasthour", LastHourLevelClient.class))
+            .onConfigure(LastHourClient::registerClientContent)
+            .config(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class)
+            .snapshotTranslator(new LastHourSnapshotTranslator())
+            .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
+            .build();
+
+    MainMenu.run(args, game, client, server);
   }
 
   /**
