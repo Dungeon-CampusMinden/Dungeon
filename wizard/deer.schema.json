@@ -1,0 +1,820 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dungeon.local/schemas/deer.schema.json",
+  "title": "DEER Authoring Configuration",
+  "description": "First draft schema for the editable wizard authoring file. Semantic cross-reference checks remain part of the generator validator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "formatVersion",
+    "metadata",
+    "session",
+    "scenario",
+    "riddleGraph",
+    "riddles",
+    "assets",
+    "generation"
+  ],
+  "properties": {
+    "formatVersion": {
+      "const": "0.4.0-draft"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "session": {
+      "$ref": "#/$defs/session"
+    },
+    "scenario": {
+      "$ref": "#/$defs/scenario"
+    },
+    "riddleGraph": {
+      "$ref": "#/$defs/riddleGraph"
+    },
+    "riddles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/riddle"
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/asset"
+      }
+    },
+    "generation": {
+      "$ref": "#/$defs/generation"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "token": {
+      "type": "string",
+      "pattern": "^token_[a-z0-9_]+$"
+    },
+    "tokenArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/token"
+      },
+      "uniqueItems": true
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "locale"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locale": {
+          "type": "string",
+          "minLength": 2
+        },
+        "description": {
+          "type": "string"
+        },
+        "author": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "organization": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetAudience",
+        "priorKnowledge",
+        "playerCount",
+        "durationMinutes",
+        "timeLimitMinutes",
+        "collaborationMode"
+      ],
+      "properties": {
+        "targetAudience": {
+          "type": "string",
+          "minLength": 1
+        },
+        "priorKnowledge": {
+          "type": "string"
+        },
+        "playerCount": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "min",
+            "max",
+            "recommended"
+          ],
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "recommended": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "durationMinutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "timeLimitMinutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "collaborationMode": {
+          "enum": [
+            "single_player",
+            "cooperative"
+          ]
+        }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "themeId",
+        "playerRole",
+        "premise",
+        "mission",
+        "introText",
+        "successText",
+        "failureText"
+      ],
+      "properties": {
+        "themeId": {
+          "const": "default"
+        },
+        "playerRole": {
+          "type": "string",
+          "minLength": 1
+        },
+        "premise": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mission": {
+          "type": "string",
+          "minLength": 1
+        },
+        "introText": {
+          "type": "string",
+          "minLength": 1
+        },
+        "successText": {
+          "type": "string",
+          "minLength": 1
+        },
+        "failureText": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "riddleGraph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "startNodeId",
+        "endNodeIds",
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "startNodeId": {
+          "$ref": "#/$defs/id"
+        },
+        "endNodeIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/graphNode"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/graphEdge"
+          }
+        }
+      }
+    },
+    "graphNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "title"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "start",
+            "riddle",
+            "event",
+            "end"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "riddleId": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "graphEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "from",
+        "to",
+        "condition"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "from": {
+          "$ref": "#/$defs/id"
+        },
+        "to": {
+          "$ref": "#/$defs/id"
+        },
+        "condition": {
+          "$ref": "#/$defs/edgeCondition"
+        }
+      }
+    },
+    "edgeCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "always",
+            "all_of_tokens",
+            "any_of_tokens"
+          ]
+        },
+        "tokens": {
+          "$ref": "#/$defs/tokenArray"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "always"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "tokens"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "all_of_tokens",
+                  "any_of_tokens"
+                ]
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "tokens"
+            ],
+            "properties": {
+              "tokens": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "riddle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "title",
+        "designRole",
+        "difficulty",
+        "estimatedMinutes",
+        "playerFacingTask",
+        "requiresTokens",
+        "producesTokens",
+        "assetIds",
+        "resources",
+        "hints",
+        "parameters"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": [
+            "collection",
+            "input",
+            "choice",
+            "item_use",
+            "assembly",
+            "state_change",
+            "control_panel"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "designRole": {
+          "enum": [
+            "progression",
+            "clue",
+            "story",
+            "decoy",
+            "support"
+          ]
+        },
+        "difficulty": {
+          "enum": [
+            "easy",
+            "medium",
+            "hard"
+          ]
+        },
+        "estimatedMinutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "playerFacingTask": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requiresTokens": {
+          "$ref": "#/$defs/tokenArray"
+        },
+        "producesTokens": {
+          "$ref": "#/$defs/tokenArray"
+        },
+        "assetIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/resource"
+          }
+        },
+        "hints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hint"
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "input"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "parameters": {
+                "required": [
+                  "inputMode"
+                ],
+                "properties": {
+                  "inputMode": {
+                    "enum": [
+                      "numeric",
+                      "text",
+                      "credentials",
+                      "decoded_text"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "choice"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "parameters": {
+                "required": [
+                  "selectionMode",
+                  "options"
+                ],
+                "properties": {
+                  "selectionMode": {
+                    "enum": [
+                      "single_correct",
+                      "multiple_correct",
+                      "classification"
+                    ]
+                  },
+                  "options": {
+                    "type": "array",
+                    "minItems": 2
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "control_panel"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "parameters": {
+                "required": [
+                  "controls",
+                  "completionState"
+                ],
+                "properties": {
+                  "controls": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/$defs/control"
+                    }
+                  },
+                  "completionState": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "title",
+        "availability",
+        "purpose"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "inline_text",
+            "asset",
+            "world_object",
+            "computer_file"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assetId": {
+          "$ref": "#/$defs/id"
+        },
+        "text": {
+          "type": "string"
+        },
+        "availability": {
+          "enum": [
+            "visible_in_level",
+            "inside_container",
+            "after_token",
+            "generated_by_riddle"
+          ]
+        },
+        "requiredToken": {
+          "$ref": "#/$defs/token"
+        },
+        "purpose": {
+          "enum": [
+            "clue",
+            "context",
+            "instruction",
+            "decoy"
+          ]
+        }
+      },
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "producesToken"
+            ]
+          },
+          {
+            "required": [
+              "producesTokens"
+            ]
+          }
+        ]
+      }
+    },
+    "hint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "text",
+        "level",
+        "trigger"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "trigger": {
+          "enum": [
+            "manual_request",
+            "after_failed_attempts",
+            "after_time"
+          ]
+        }
+      }
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "id",
+        "kind"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "button",
+            "toggle",
+            "text_input",
+            "password_input"
+          ]
+        },
+        "requiresStates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "setsState": {
+          "type": "string"
+        }
+      },
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "producesToken"
+            ]
+          },
+          {
+            "required": [
+              "producesTokens"
+            ]
+          }
+        ]
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "mediaType",
+        "purpose",
+        "linkedTo",
+        "required",
+        "source"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^(?![A-Za-z]:)(?!/)(?!.*\\.\\.).+"
+        },
+        "mediaType": {
+          "enum": [
+            "image/png",
+            "image/jpeg",
+            "audio/wav",
+            "audio/mp3",
+            "audio/ogg",
+            "text/plain"
+          ]
+        },
+        "purpose": {
+          "enum": [
+            "riddle_evidence",
+            "lore",
+            "feedback",
+            "decorative",
+            "audio_cue"
+          ]
+        },
+        "linkedTo": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "type",
+            "license"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "license": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seed",
+        "levelCount",
+        "layoutProfile",
+        "targetRuntime",
+        "constraints"
+      ],
+      "properties": {
+        "seed": {
+          "type": "integer"
+        },
+        "levelCount": {
+          "const": 1
+        },
+        "layoutProfile": {
+          "$ref": "#/$defs/id"
+        },
+        "targetRuntime": {
+          "const": "dungeon_escape_room"
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "allowBranches",
+            "allowOptionalRiddles",
+            "maxRiddles",
+            "usePredefinedThemeOnly"
+          ],
+          "properties": {
+            "allowBranches": {
+              "type": "boolean"
+            },
+            "allowOptionalRiddles": {
+              "const": false
+            },
+            "maxRiddles": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "usePredefinedThemeOnly": {
+              "const": true
+            }
+          }
+        }
+      }
+    }
+  }
+}
