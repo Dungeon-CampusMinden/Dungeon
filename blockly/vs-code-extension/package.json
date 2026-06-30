@@ -12,7 +12,7 @@
   },
   "publisher": "Flamtky",
   "icon": "images/logo.png",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "engines": {
     "vscode": "^1.97.0"
   },
@@ -50,7 +50,7 @@
         },
         "blocklyServer.sleepAfterEachLine": {
           "type": "integer",
-          "default": 500,
+          "default": 0,
           "description": "Zeit in Millisekunden, die nach jeder Zeile gewartet wird, um die Ausführung zu verlangsamen. Setze auf 0, um keine Verzögerung zu haben.",
           "minimum": 0,
           "maximum": 10000
