@@ -1,0 +1,143 @@
+name: DesigniteJava code quality
+
+on:
+  workflow_call:
+    # Alle Grenzen sind optional. -1 (Default) = wird nicht geprueft.
+    inputs:
+      max_smells:
+        description: "Grenze fuer die Gesamtzahl aller Smells."
+        type: number
+        default: -1
+        required: false
+      max_architecture:
+        description: "Grenze fuer Architecture Smells."
+        type: number
+        default: -1
+        required: false
+      max_design:
+        description: "Grenze fuer Design Smells."
+        type: number
+        default: -1
+        required: false
+      max_implementation:
+        description: "Grenze fuer Implementation Smells."
+        type: number
+        default: -1
+        required: false
+      max_testability:
+        description: "Grenze fuer Testability Smells."
+        type: number
+        default: -1
+        required: false
+      max_test:
+        description: "Grenze fuer Test Smells."
+        type: number
+        default: -1
+        required: false
+    secrets:
+      D_PROJECT_ID:
+        required: false
+      API_KEY:
+        required: false
+      D_KEY:
+        required: false
+
+
+jobs:
+  DesigniteJava:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    # Da die DesigniteJava Action fehlerhaft ist, wird diese die Jar manuell heruntergeladen und ausgefuehrt.
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+      - name: Download DesigniteJava
+        run: wget -q "https://www.designite-tools.com/assets/DesigniteJava.jar"
+
+      # Da ein API-Key nur einmal registriert werden kann, muss die Lizenzdatei fuer DesigniteJava manuell angelegt werden 
+      # Vor dem ersten Gebrauch des API Keys muss dieser lokal einmal registriert werden. 
+      - name: Create Designite license config
+        env:
+          D_KEY: ${{ secrets.D_KEY }}
+        run: printf 'LIC_KEY:%s\n' "$D_KEY" > .config
+
+      # Speichern des Reports
+      - name: Analyze full source with DesigniteJava
+        run: java -jar DesigniteJava.jar -i "$GITHUB_WORKSPACE" -o build/reports/designite-report
+
+      # Rendern des Reports für den Browser
+      - name: Report & Local Quality Gate
+        if: always()
+        env:
+          MAX_SMELLS: ${{ inputs.max_smells }}
+          MAX_ARCHITECTURE: ${{ inputs.max_architecture }}
+          MAX_DESIGN: ${{ inputs.max_design }}
+          MAX_IMPLEMENTATION: ${{ inputs.max_implementation }}
+          MAX_TESTABILITY: ${{ inputs.max_testability }}
+          MAX_TEST: ${{ inputs.max_test }}
+        run: python3 .github/scripts/designite_report.py build/reports/designite-report
+      - name: Upload Designite Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: designite-report
+          path: build/reports/designite-report
+          retention-days: 7
+
+      - name: Store analysis results on DCode platform, if configured. Also, check whether the code passes the configured quality gate
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.API_KEY }}" ]; then
+            echo "DCode API key is configured. Uploading the analysis results on DCode..."
+            # Build -F arguments with numbered keys file1, file2, ...
+            form_args=()
+            counter=1
+            for file in build/reports/designite-report/*; do
+              if [ -f "$file" ]; then
+                form_args+=(-F "file${counter}=@${file}")
+                counter=$((counter + 1))
+              fi
+            done
+            if [ ${#form_args[@]} -eq 0 ]; then
+              echo "No files found in folder designite-output."
+              exit 1
+            fi
+            # Build curl command (array to handle spaces safely)
+            curl_cmd=("curl" "-f" "-s" "-o" "/tmp/curl_output" "-w" "%{http_code}" "-X" "POST" "-H" "X-API-Key: ${{ secrets.API_KEY }}" "-H" "X-Commit-ID: ${{ github.sha }}" "-H" "X-Tool: designiteJava" "${form_args[@]}" "https://dcodehub.com/api/projects/${{ secrets.D_PROJECT_ID }}/upload/")
+            safe_cmd=("${curl_cmd[@]}")
+            echo "Executing: ${safe_cmd[*]}"
+            http_status=$("${curl_cmd[@]}")
+            echo "HTTP status code: $http_status"
+
+            echo "API response:"
+            cat /tmp/curl_output
+            echo
+          
+            # Check if quality gate is active
+            is_active=$(jq -r '.quality_gate.is_active // false' /tmp/curl_output)
+          
+            if [[ "$is_active" != "true" ]]; then
+              echo "::notice::Quality Gate is not active" 
+              exit 0
+            fi
+
+            # Extract fields
+            result=$(jq -r '.quality_gate.result // "PASSED"' /tmp/curl_output)
+            profile=$(jq -r '.quality_gate.profile_name // "Unknown"' /tmp/curl_output)
+            echo "$result"
+          
+            if [[ "$result" != "PASSED" ]]; then
+              echo "::error::Quality gate failed. Profile=$profile"
+              exit 1
+            fi
+            echo "::notice::Quality gate passed. Profile=$profile"
+          else
+            echo "DCode API key not set. Skipping uploading analysis results to DCode."
+          fi

@@ -1,0 +1,21 @@
+name: Typos
+
+on:
+  workflow_call:
+
+jobs:
+  Typos:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+      - name: typos-action
+        uses: crate-ci/typos@v1.47.2
+        continue-on-error: true
