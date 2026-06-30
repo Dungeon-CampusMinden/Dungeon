@@ -41,6 +41,8 @@ subprojects {
 allprojects {
     apply plugin: 'java'
     apply plugin: 'checkstyle'
+    apply plugin: 'jacoco'
+    apply plugin: 'pmd'
 
     java {
         toolchain {
@@ -82,6 +84,31 @@ allprojects {
 
     tasks.withType(Checkstyle).configureEach {
         group = 'verification'
+    }
+
+    test {
+        useJUnitPlatform()
+        finalizedBy jacocoTestReport
+    }
+
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            xml.required = true
+            csv.required = false
+            html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+        }
+    }
+
+    pmd {
+        consoleOutput = true
+        toolVersion = "7.16.0"
+        rulesMinimumPriority = 5
+        ruleSets = ["category/java/errorprone.xml", "category/java/bestpractices.xml"]
+        threads = 4
+
+        // Wenn die Github Action auf pmd reagieren soll z.b. failen dann auf false setzen
+        ignoreFailures = true
     }
 
     // Generate an internal assets list for LibGDX (see https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/)
