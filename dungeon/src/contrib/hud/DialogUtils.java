@@ -8,7 +8,6 @@ import contrib.hud.dialogs.DialogType;
 import contrib.utils.components.showImage.ShowImageUI;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Entity;
-import core.Game;
 import core.utils.IVoidFunction;
 
 /**
@@ -61,20 +60,15 @@ public class DialogUtils {
    */
   public static void showImagePopUp(
       String imagePath, TransitionSpeed speed, IVoidFunction onClose, int... targetIds) {
-    Entity dialogEntity = new Entity();
     DialogContext context =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.IMAGE)
             .put(DialogContextKeys.IMAGE, imagePath)
             .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, speed)
-            .put(DialogContextKeys.OWNER_ENTITY, dialogEntity.id())
             .build();
-    UIComponent ui = new UIComponent(context, true, true, targetIds);
+    UIComponent ui = DialogFactory.show(context, true, true, targetIds);
 
     ui.registerCallback(DialogContextKeys.ON_CLOSE, (data) -> onClose.execute());
-
-    dialogEntity.add(ui);
-    Game.add(dialogEntity);
   }
 
   /**

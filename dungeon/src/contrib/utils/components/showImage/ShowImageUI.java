@@ -18,7 +18,7 @@ import core.Game;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.SimpleIPath;
 
-/** UI element that displays an image with optional text, used through the ShowImageSystem. */
+/** UI element that displays an image with optional text, used through the dialog API. */
 public class ShowImageUI extends Group {
 
   private static final float SCALE = 1f;
