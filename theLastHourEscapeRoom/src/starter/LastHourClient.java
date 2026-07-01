@@ -75,10 +75,8 @@ public final class LastHourClient {
     Game.remove(AttributeBarSystem.class);
     Game.add(new ComputerStateSyncSystem());
 
-    initLocalization();
     setupMusic();
     staticRenderTextures();
-    registerSettings();
 
     Game.network()
         .addConnectionListener(
@@ -238,7 +236,8 @@ public final class LastHourClient {
     }
   }
 
-  private static void initLocalization() {
+  /** Registers the translation files for the supported languages. */
+  static void initLocalization() {
     Localization localization = Game.localization();
     localization.registerTranslationFile(Language.DE, "language/de.json");
     localization.registerTranslationFile(Language.EN, "language/en.json");
@@ -252,7 +251,7 @@ public final class LastHourClient {
   private static final String T_SETTINGS_INVENTORY_DESCRIPTION = "settings.inventory_description";
 
   /** Registers additional client settings. */
-  private static void registerSettings() {
+  static void registerSettings() {
     ClientSettings.registerSetting(new SectionDividerSetting(T_SETTINGS_CONTROLS_HEADER));
     ClientSettings.registerSetting(
         new DescriptionSetting(T_SETTINGS_CONTROLS_DESCRIPTION, Input.Keys.E));

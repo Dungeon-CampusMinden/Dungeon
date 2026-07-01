@@ -234,7 +234,7 @@ public class PauseDialog extends Table {
         });
     List<Actor> settingsActors = new ArrayList<>();
 
-    ClientSettings.getSettings()
+    ClientSettings.getSettings(true)
         .forEach(
             (s, setting) -> {
               settingsActors.add(setting.toUIActor());

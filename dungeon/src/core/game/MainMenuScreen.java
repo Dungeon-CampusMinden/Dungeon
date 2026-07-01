@@ -224,7 +224,7 @@ public class MainMenuScreen extends ScreenAdapter {
     TextButton backButton = menuButton(trans.text(T_BACK), "green", this::showMainView);
 
     Table settingsTable = new Table();
-    ClientSettings.getSettings()
+    ClientSettings.getSettings(false)
         .forEach(
             (key, setting) ->
                 settingsTable.add(setting.toUIActor()).width(500).pad(0, 10, 20, 10).row());

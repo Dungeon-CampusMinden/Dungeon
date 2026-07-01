@@ -112,6 +112,8 @@ public class TheLastHour {
         ClientStarter.builder(LastHourClient::clientSetup)
             .levels(Tuple.of("lasthour", LastHourLevelClient.class))
             .onConfigure(LastHourClient::registerClientContent)
+            .initLocalization(LastHourClient::initLocalization)
+            .registerSettings(LastHourClient::registerSettings)
             .config(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class)
             .snapshotTranslator(new LastHourSnapshotTranslator())
             .entitySpawnStrategy(new LastHourEntitySpawnStrategy())

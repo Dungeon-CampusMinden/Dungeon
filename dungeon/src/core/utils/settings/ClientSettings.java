@@ -24,10 +24,12 @@ public class ClientSettings {
 
   private static ClientSettings instance = null;
   private final HashMap<String, SettingValue<?>> settings;
+  private final HashMap<String, Boolean> onlyIngame;
   private BiConsumer<String, Integer> onVolumeChange = (key, value) -> {};
 
   private ClientSettings() {
     settings = new LinkedHashMap<>();
+    onlyIngame = new HashMap<>();
   }
 
   /**
@@ -114,6 +116,31 @@ public class ClientSettings {
   }
 
   /**
+   * Marks whether a setting should only be shown while in-game and hidden in the main menu.
+   *
+   * <p>By default every setting is visible in both the main menu and the in-game settings. Calling
+   * this with {@code ingame == true} restricts the setting to the in-game settings only.
+   *
+   * @param key the translation key identifying the setting
+   * @param ingame {@code true} if the setting should only be shown in-game (hidden in the main
+   *     menu); {@code false} to show it in both places
+   */
+  public static void setOnlyIngame(String key, boolean ingame) {
+    Objects.requireNonNull(key, "key");
+    getInstance().onlyIngame.put(key, ingame);
+  }
+
+  /**
+   * Returns whether the setting with the given key is restricted to the in-game settings.
+   *
+   * @param key the translation key identifying the setting
+   * @return {@code true} if the setting should only be shown in-game
+   */
+  public static boolean isOnlyIngame(String key) {
+    return getInstance().onlyIngame.getOrDefault(key, false);
+  }
+
+  /**
    * Retrieves the setting associated with the given key. Returns null if no setting is found for
    * the key.
    *
@@ -153,6 +180,30 @@ public class ClientSettings {
    */
   public static HashMap<String, SettingValue<?>> getSettings() {
     return getInstance().settings;
+  }
+
+  /**
+   * Returns the settings that should be shown for the given context, preserving insertion order.
+   *
+   * <p>When {@code ingame} is {@code false} (main menu), settings marked via {@link
+   * #setOnlyIngame(String, boolean)} are omitted. When {@code ingame} is {@code true}, all settings
+   * are returned.
+   *
+   * @param ingame {@code true} if the settings are built for the in-game menu, {@code false} for
+   *     the main menu
+   * @return an ordered map of the settings visible in the requested context
+   */
+  public static LinkedHashMap<String, SettingValue<?>> getSettings(boolean ingame) {
+    LinkedHashMap<String, SettingValue<?>> visible = new LinkedHashMap<>();
+    getInstance()
+        .settings
+        .forEach(
+            (key, setting) -> {
+              if (ingame || !isOnlyIngame(key)) {
+                visible.put(key, setting);
+              }
+            });
+    return visible;
   }
 
   /**
