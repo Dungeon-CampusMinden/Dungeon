@@ -307,7 +307,7 @@ public class BlocklyCommandExecuteSystem extends System {
             distances[i] = comp.pc.position().distance(comp.targetPosition.toPoint());
 
             if (comp.vc().maxSpeed() > 0
-                && Game.existInLevel(entities[i])
+                && Game.existInGame(entities[i])
                 && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
               allEntitiesArrived = false;
             }

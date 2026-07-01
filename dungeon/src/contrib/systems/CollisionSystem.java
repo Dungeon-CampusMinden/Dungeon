@@ -73,7 +73,7 @@ public final class CollisionSystem extends System {
 
     // iterate over ALL entities, so collisions will be resolved if a new level was loaded
     Entity other =
-        Game.allEntities().filter(entity -> entity.id() == otherId).findFirst().orElse(null);
+        Game.levelEntities().filter(entity -> entity.id() == otherId).findFirst().orElse(null);
 
     if (other == null) return;
     // Trigger onLeave for both entities

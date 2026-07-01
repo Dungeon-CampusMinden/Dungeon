@@ -74,7 +74,7 @@ public class EnergyPelletLevel_1 extends AdvancedLevel {
 
   @Override
   protected void onTick() {
-    if (!Game.existInLevel(cube)) {
+    if (!Game.existInGame(cube)) {
       cube = Cube.portalCube(namedPoints.get("cube"));
       Game.add(cube);
     }

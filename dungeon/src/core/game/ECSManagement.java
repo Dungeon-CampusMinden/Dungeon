@@ -11,7 +11,6 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.level.elements.ILevel;
 import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.systems.DrawSystem;
@@ -20,7 +19,6 @@ import core.systems.SoundSystem;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
 import core.utils.logging.DungeonLogger;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,15 +39,15 @@ import java.util.stream.Stream;
  * <p>For System management use: {@link #add(System)}, {@link #remove(Class)} or {@link
  * #removeAllSystems()}
  *
- * <p>Get access via: {@link #levelEntities()}, {@link #systems()}
+ * <p>Get access via: {@link #allEntities()}, {@link #systems()}
  *
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
 public final class ECSManagement {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ECSManagement.class);
   private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
-  private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
-  private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
+  private static final Map<Integer, Entity> allEntities = new LinkedHashMap<>();
+  private static final Set<EntitySystemMapper> entityFilters = new HashSet<>();
 
   private static int currentTick = 0;
   private static System.AuthoritativeSide currentExecutionSide = System.AuthoritativeSide.BOTH;
@@ -75,8 +73,7 @@ public final class ECSManagement {
   private static boolean newLevelLoadedThisTick = false;
 
   static {
-    LEVEL_STORAGE_MAP.put(null, activeEntityStorage);
-    activeEntityStorage.add(new EntitySystemMapper());
+    entityFilters.add(new EntitySystemMapper());
     for (System system : ESSENTIAL_SYSTEMS) {
       ECSManagement.add(system);
     }
@@ -91,8 +88,8 @@ public final class ECSManagement {
    * @param entity the entity that has changes in its Component Collection.
    */
   public static void informAboutChanges(Entity entity) {
-    if (levelEntities().anyMatch(entity1 -> entity1.equals(entity))) {
-      activeEntityStorage.forEach(f -> f.update(entity));
+    if (allEntities().anyMatch(entity1 -> entity1.equals(entity))) {
+      entityFilters.forEach(f -> f.update(entity));
       LOGGER.info(entity + " informed the Game about component changes.");
     }
   }
@@ -120,8 +117,8 @@ public final class ECSManagement {
 
     // Ensure the provider knows about this id (idempotent).
     EntityIdProvider.ensureRegistered(entity.id());
-
-    activeEntityStorage.forEach(f -> f.add(entity));
+    allEntities.put(entity.id(), entity);
+    entityFilters.forEach(f -> f.add(entity));
     LOGGER.info(entity + " will be added to the Game.");
 
     try {
@@ -147,9 +144,11 @@ public final class ECSManagement {
    * @return removed entity for chaining
    */
   public static Entity remove(Entity entity) {
-    activeEntityStorage.forEach(f -> f.remove(entity));
-    EntityIdProvider.unregister(entity.id());
-    LOGGER.info(entity + " will be removed from the Game.");
+    if (allEntities.remove(entity.id(), entity)) {
+      entityFilters.forEach(f -> f.remove(entity));
+      EntityIdProvider.unregister(entity.id());
+      LOGGER.info(entity + " will be removed from the Game.");
+    }
 
     try {
       if (Game.network().isServer()) {
@@ -167,7 +166,7 @@ public final class ECSManagement {
   /**
    * Create a new {@link EntitySystemMapper} with the given filter rules.
    *
-   * <p>The {@link EntitySystemMapper} will be added to {@link #activeEntityStorage}.
+   * <p>The {@link EntitySystemMapper} will be added to {@link #entityFilters}.
    *
    * <p>All entities in the empty filter (basically every entity in the game) will be tried to add
    * with {@link EntitySystemMapper#add(Entity)}.
@@ -182,8 +181,8 @@ public final class ECSManagement {
   private static EntitySystemMapper createNewEntitySystemMapper(
       Set<Class<? extends Component>> filter) {
     EntitySystemMapper mapper = new EntitySystemMapper(filter);
-    activeEntityStorage.add(mapper);
-    levelEntities().forEach(mapper::add);
+    entityFilters.add(mapper);
+    allEntities().forEach(mapper::add);
     return mapper;
   }
 
@@ -208,29 +207,11 @@ public final class ECSManagement {
     SYSTEMS.put(system.getClass(), system);
     // add to existing filter or create new filter if no matching exists
     Optional<EntitySystemMapper> filter =
-        activeEntityStorage.stream().filter(f -> f.equals(system.filterRules())).findFirst();
+        entityFilters.stream().filter(f -> f.equals(system.filterRules())).findFirst();
     filter.ifPresentOrElse(
         f -> f.add(system), () -> createNewEntitySystemMapper(system.filterRules()).add(system));
     LOGGER.info("A new {} was added to the game", system.getClass().getName());
     return Optional.ofNullable(currentSystem);
-  }
-
-  /**
-   * Get the current active {@link EntitySystemMapper}.
-   *
-   * @return The currently active {@link EntitySystemMapper}
-   */
-  public static Map<ILevel, Set<EntitySystemMapper>> levelStorageMap() {
-    return LEVEL_STORAGE_MAP;
-  }
-
-  /**
-   * Set the current active {@link EntitySystemMapper}.
-   *
-   * @param entityStorage The new active {@link EntitySystemMapper}
-   */
-  public static void activeEntityStorage(final Set<EntitySystemMapper> entityStorage) {
-    activeEntityStorage = entityStorage;
   }
 
   /**
@@ -264,12 +245,12 @@ public final class ECSManagement {
   }
 
   /**
-   * Use this stream if you want to iterate over all entities in the current level.
+   * Use this stream if you want to iterate over all entities.
    *
    * @return a stream of all entities currently in the level
    */
-  public static Stream<Entity> levelEntities() {
-    return levelEntities(new HashSet<>());
+  public static Stream<Entity> allEntities() {
+    return allEntities(new HashSet<>());
   }
 
   /**
@@ -280,8 +261,8 @@ public final class ECSManagement {
    * @return a stream of all entities currently in the game that should be processed by the given
    *     system.
    */
-  public static Stream<Entity> levelEntities(final System system) {
-    return levelEntities(system.filterRules());
+  public static Stream<Entity> allEntities(final System system) {
+    return allEntities(system.filterRules());
   }
 
   /**
@@ -289,12 +270,12 @@ public final class ECSManagement {
    * given components.
    *
    * @param filter Set of Component classes that define the filter rules.
-   * @return a stream of all entities currently in the level, that contains the given components.
+   * @return a stream of all entities currently in the game, that contains the given components.
    */
-  public static Stream<Entity> levelEntities(Set<Class<? extends Component>> filter) {
+  public static Stream<Entity> allEntities(Set<Class<? extends Component>> filter) {
     Stream<Entity> returnStream;
     Optional<EntitySystemMapper> rf =
-        activeEntityStorage.stream().filter(f -> f.equals(filter)).findFirst();
+        entityFilters.stream().filter(f -> f.equals(filter)).findFirst();
 
     if (rf.isEmpty()) {
       EntitySystemMapper newMapper = createNewEntitySystemMapper(filter);
@@ -330,7 +311,7 @@ public final class ECSManagement {
    * @see PlayerComponent
    */
   public static Stream<Entity> allPlayers() {
-    return levelEntities().filter(e -> e.isPresent(PlayerComponent.class));
+    return allEntities().filter(e -> e.isPresent(PlayerComponent.class));
   }
 
   /**
@@ -342,7 +323,7 @@ public final class ECSManagement {
    */
   public static void remove(final Class<? extends System> system) {
     System systemInstance = SYSTEMS.remove(system);
-    if (systemInstance != null) activeEntityStorage.forEach(f -> f.remove(systemInstance));
+    if (systemInstance != null) entityFilters.forEach(f -> f.remove(systemInstance));
   }
 
   /**
@@ -352,28 +333,8 @@ public final class ECSManagement {
    */
   public static void removeAllEntities() {
     allEntities().forEach(ECSManagement::remove);
+
     LOGGER.info("All entities will be removed from the game.");
-  }
-
-  /**
-   * Use this stream if you want to iterate over all entities in the game.
-   *
-   * <p>This will return <strong>all</strong> entities, not just those in the current level.
-   *
-   * <p>Use {@link #levelEntities()} instead if you only want the entities of the current level.
-   *
-   * @return a stream of all entities currently in the game
-   */
-  public static Stream<Entity> allEntities() {
-    Set<Entity> allEntities = new HashSet<>();
-    LEVEL_STORAGE_MAP
-        .values()
-        .forEach(
-            entitySystemMappers ->
-                entitySystemMappers.forEach(
-                    entitySystemMapper -> entitySystemMapper.stream().forEach(allEntities::add)));
-
-    return allEntities.stream();
   }
 
   /**
@@ -392,33 +353,6 @@ public final class ECSManagement {
   }
 
   /**
-   * Finds the entity that contains the given component instance.
-   *
-   * <p>This searches across all entities in the current level.
-   *
-   * @param component the component instance whose owning entity should be located
-   * @return an {@link Optional} containing the found entity, or an empty {@code Optional} if none
-   *     is found
-   */
-  public static Optional<Entity> findInLevel(final Component component) {
-    return levelEntities()
-        .filter(entity -> entity.fetch(component.getClass()).map(component::equals).orElse(false))
-        .findFirst();
-  }
-
-  /**
-   * Tries to find the given entity in the game.
-   *
-   * <p>This searches across all entities in the game, not just those in the current level.
-   *
-   * @param entity the entity to search for
-   * @return {@code true} if the entity is found, {@code false} otherwise
-   */
-  public static boolean existInAll(Entity entity) {
-    return allEntities().anyMatch(entity1 -> entity1.equals(entity));
-  }
-
-  /**
    * Tries to find the given entity in the game.
    *
    * <p>This searches in the current level.
@@ -426,8 +360,8 @@ public final class ECSManagement {
    * @param entity the entity to search for
    * @return {@code true} if the entity is found, {@code false} otherwise
    */
-  public static boolean existInLevel(Entity entity) {
-    return levelEntities().anyMatch(entity1 -> entity1.equals(entity));
+  public static boolean exist(Entity entity) {
+    return allEntities.containsKey(entity.id());
   }
 
   private static boolean isAuthoritative(System.AuthoritativeSide side, System system) {
@@ -513,6 +447,6 @@ public final class ECSManagement {
    *     entity with the given ID exists.
    */
   public static Optional<Entity> findEntityById(int entityId) {
-    return ECSManagement.allEntities().filter(e -> e.id() == entityId).findFirst();
+    return Optional.ofNullable(allEntities.get(entityId));
   }
 }

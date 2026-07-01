@@ -331,7 +331,7 @@ public class BlocklyCommands {
    */
   public static boolean checkBossViewDirection(Direction direction) {
     waitForEmptyQueue();
-    return Game.allEntities()
+    return Game.levelEntities()
         .filter(entity -> entity.name().equals(BlocklyCommandExecuteSystem.BLOCKLY_BLACK_KNIGHT))
         .findFirst()
         .flatMap(boss -> boss.fetch(PositionComponent.class))
