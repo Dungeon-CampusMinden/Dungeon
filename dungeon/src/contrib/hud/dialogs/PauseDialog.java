@@ -206,7 +206,9 @@ public class PauseDialog extends Table {
 
     if (HostSession.isHosting()) {
       String serverStatus =
-          HostSession.isServerRunning() ? trans.text(T_SERVER_RUNNING) : trans.text(T_SERVER_STOPPED);
+          HostSession.isServerRunning()
+              ? trans.text(T_SERVER_RUNNING)
+              : trans.text(T_SERVER_STOPPED);
       section.add(statusLabel(trans.text(T_SERVER_STATUS, serverStatus))).left().padTop(0).row();
       section.add(statusLabel(trans.text(T_PLAYERS_CAN_CONNECT_VIA, port))).left().padTop(0).row();
       for (String ip : NetworkUtils.localIpAddresses()) {
