@@ -2,37 +2,37 @@ name: DesigniteJava code quality
 
 on:
   workflow_call:
-    # Alle Grenzen sind optional. -1 (Default) = wird nicht geprueft.
+    # -1 (Default) = wird nicht geprueft.
     inputs:
       max_smells:
         description: "Grenze fuer die Gesamtzahl aller Smells."
-        type: number
-        default: -1
+        type: string
+        default: "-1"
         required: false
       max_architecture:
         description: "Grenze fuer Architecture Smells."
-        type: number
-        default: -1
+        type: string
+        default: "-1"
         required: false
       max_design:
         description: "Grenze fuer Design Smells."
-        type: number
-        default: -1
+        type: string
+        default: "-1"
         required: false
       max_implementation:
         description: "Grenze fuer Implementation Smells."
-        type: number
-        default: -1
+        type: string
+        default: "-1"
         required: false
       max_testability:
         description: "Grenze fuer Testability Smells."
-        type: number
-        default: -1
+        type: string
+        default: "-1"
         required: false
       max_test:
         description: "Grenze fuer Test Smells."
-        type: number
-        default: -1
+        type: string
+        default: "-1"
         required: false
     secrets:
       D_PROJECT_ID:

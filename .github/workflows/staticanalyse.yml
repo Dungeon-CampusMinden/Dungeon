@@ -18,8 +18,16 @@ jobs:
     permissions:
       contents: read
     secrets: inherit
+    # Grenzwerte extern ueber Repository Variables setzen
+    # (Settings -> Secrets and variables -> Actions -> Variables).
+    # Ist eine Variable nicht gesetzt, greift der Fallback (-1 = wird nicht geprueft).
     with:
-     max_test: 10
+      max_smells:         ${{ vars.MAX_SMELLS         || -1 }}
+      max_architecture:   ${{ vars.MAX_ARCHITECTURE   || -1 }}
+      max_design:         ${{ vars.MAX_DESIGN         || -1 }}
+      max_implementation: ${{ vars.MAX_IMPLEMENTATION || -1 }}
+      max_testability:    ${{ vars.MAX_TESTABILITY    || -1 }}
+      max_test:           ${{ vars.MAX_TEST           || -1 }}
   check_spell:
     uses: ./.github/workflows/reusable_typos.yml
     permissions:
