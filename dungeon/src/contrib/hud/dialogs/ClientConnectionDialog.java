@@ -27,8 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** Package-private builder for the local multiplayer client connection dialog. */
-final class ClientConnectionDialog {
+/** Builder for the local multiplayer client connection dialog. */
+public final class ClientConnectionDialog {
 
   private static final String T_TITLE = "title";
   private static final String T_CONNECT = "connect";
@@ -266,7 +266,12 @@ final class ClientConnectionDialog {
     return username.isEmpty() ? form.defaultUsername() : username;
   }
 
-  private static String defaultUsername() {
+  /**
+   * Get the default username of the system.
+   *
+   * @return The normalized logged-in user's account name, or Player if it cannot be determined.
+   */
+  public static String defaultUsername() {
     return normalizeUsername(System.getProperty("user.name"));
   }
 

@@ -68,7 +68,7 @@ import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameFactory;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
-import starter.TheLastHour;
+import starter.LastHourClient;
 import util.InteractionHelper;
 import util.LastHourSounds;
 import util.Lore;
@@ -714,10 +714,6 @@ public class LastHourLevel extends DungeonLevel {
   /**
    * Returns the path of the pre-rendered character portrait texture for the given hero entity.
    *
-   * <p>The portrait textures are generated at startup by {@link
-   * starter.TheLastHour#staticRenderTextures()} and registered in the {@link
-   * core.utils.components.draw.TextureMap} under the {@code @gen/} virtual paths.
-   *
    * @param who The hero entity that interacted with the phone.
    * @return The (virtual) texture path of the portrait, or the default speaker image if the
    *     character class is unknown / has no portrait.
@@ -729,8 +725,8 @@ public class LastHourLevel extends DungeonLevel {
             .orElse(null);
     if (cc == null) return "other/unknown.png";
     return switch (cc) {
-      case THE_LAST_HOUR_ROGUE -> TheLastHour.ROGUE_PORTRAIT_PATH;
-      case THE_LAST_HOUR_CHAR03 -> TheLastHour.CHAR03_PORTRAIT_PATH;
+      case THE_LAST_HOUR_ROGUE -> LastHourClient.ROGUE_PORTRAIT_PATH;
+      case THE_LAST_HOUR_CHAR03 -> LastHourClient.CHAR03_PORTRAIT_PATH;
       default -> "other/unknown.png";
     };
   }

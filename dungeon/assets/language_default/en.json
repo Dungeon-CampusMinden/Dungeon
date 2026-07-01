@@ -24,7 +24,12 @@
 	  "resume": "Resume",
 	  "settings": "Settings",
 	  "quit_to_desktop": "Quit to Desktop",
-	  "back": "Back"
+	  "back": "Back",
+	  "you": "Your name: $1",
+	  "server_status": "Server status: $1",
+	  "server_running": "Running",
+	  "server_stopped": "Stopped",
+	  "players_can_connect_via": "Players can connect via (port: $1):"
 	},
 	"client_connection_dialog": {
 	  "title": "Connect to Server",
@@ -60,5 +65,21 @@
 	"effects_volume": "Effects Volume",
 	"music_volume": "Music Volume",
     "language": "Language"
+  },
+  "main_menu": {
+	"host": "Host Game",
+	"join": "Join Game",
+	"settings": "Settings",
+	"exit": "Exit",
+	"back": "Back",
+	"confirm": "Confirm",
+	"player_name": "Player name",
+	"server_address": "Server address",
+	"port": "Port",
+	"invalid_name": "Invalid name (must not be empty or contain '_').",
+	"invalid_connection": "Invalid server address or port.",
+	"starting_server": "Starting server...",
+	"server_start_failed": "Could not start server: $1",
+	"server_timeout": "Server did not start in time."
   }
 }

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Manages the global language state used for localization.
@@ -32,6 +34,9 @@ public class Localization {
   /** Registered translation files per language, stored in registration order. */
   private final Map<Language, List<TranslationFile>> translationFiles =
       new EnumMap<>(Language.class);
+
+  /** Listeners notified whenever {@link #currentLanguage(Language)} changes the language. */
+  private final List<Consumer<Language>> languageChangeListeners = new ArrayList<>();
 
   /** Default translation without a base key, backing the static {@link #text(String)} shortcut. */
   private final Translation defaultTranslation = new Translation();
@@ -64,10 +69,45 @@ public class Localization {
   /**
    * Sets the current language.
    *
+   * <p>If the language actually changes, all {@linkplain #registerLanguageChangeListener(Consumer)
+   * registered listeners} are notified with the new language. This allows already-rendered UI (such
+   * as the main menu) to refresh its localized texts.
+   *
    * @param currentLanguage Language currently in use.
    */
   public void currentLanguage(Language currentLanguage) {
+    if (this.currentLanguage == currentLanguage) {
+      return;
+    }
     this.currentLanguage = currentLanguage;
+    // Iterate over a copy so listeners may safely unregister themselves while being notified.
+    for (Consumer<Language> listener : new ArrayList<>(languageChangeListeners)) {
+      listener.accept(currentLanguage);
+    }
+  }
+
+  /**
+   * Registers a listener that is notified whenever the {@linkplain #currentLanguage() current
+   * language} changes.
+   *
+   * <p>Listeners are typically used to refresh already-built UI texts. Remember to {@linkplain
+   * #removeLanguageChangeListener(Consumer) remove} the listener again once the owning UI is
+   * disposed to avoid stale references.
+   *
+   * @param listener listener invoked with the new language whenever it changes.
+   */
+  public void registerLanguageChangeListener(Consumer<Language> listener) {
+    languageChangeListeners.add(Objects.requireNonNull(listener, "listener"));
+  }
+
+  /**
+   * Removes a previously {@linkplain #registerLanguageChangeListener(Consumer) registered} language
+   * change listener.
+   *
+   * @param listener listener to remove; no-op if it was not registered.
+   */
+  public void removeLanguageChangeListener(Consumer<Language> listener) {
+    languageChangeListeners.remove(listener);
   }
 
   /**
