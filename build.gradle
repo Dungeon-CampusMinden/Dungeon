@@ -86,19 +86,27 @@ allprojects {
         group = 'verification'
     }
 
-    test {
-        useJUnitPlatform()
-        finalizedBy jacocoTestReport
+
+    jacoco {
+        toolVersion = rootProject.ext.jacocoVersion
+        reportsDirectory = layout.buildDirectory.dir(rootProject.ext.jacocoDirectory)
     }
 
-    jacocoTestReport {
-        dependsOn test
+    tasks.named('test') {
+        useJUnitPlatform()
+        finalizedBy tasks.named('jacocoTestReport')
+    }
+
+    tasks.named('jacocoTestReport') {
+        dependsOn tasks.named('test')
+
         reports {
             xml.required = true
             csv.required = false
-            html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+            html.required = true
         }
     }
+
 
     pmd {
         consoleOutput = true
