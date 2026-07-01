@@ -57,7 +57,7 @@ jobs:
               uses: actions/upload-artifact@v7
               with:
                   name: vs-code-extension
-                  path: doc/produs_unterlagen/blockly-code-runner-1.0.2.vsix
+                  path: doc/produs_unterlagen/blockly-code-runner-*.vsix
 
     buildExecutables:
         runs-on: ${{ matrix.os }}
