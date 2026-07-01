@@ -24,7 +24,12 @@
       "resume": "Fortsetzen",
       "settings": "Einstellungen",
       "quit_to_desktop": "Spiel beenden",
-      "back": "Zurück"
+      "back": "Zurück",
+      "you": "Dein Name: $1",
+      "server_status": "Serverstatus: $1",
+      "server_running": "Läuft",
+      "server_stopped": "Gestoppt",
+      "players_can_connect_via": "Spieler können sich[n]verbinden über (Port: $1):"
     },
     "client_connection_dialog": {
       "title": "Server verbinden",

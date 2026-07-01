@@ -24,7 +24,12 @@
 	  "resume": "Resume",
 	  "settings": "Settings",
 	  "quit_to_desktop": "Quit to Desktop",
-	  "back": "Back"
+	  "back": "Back",
+	  "you": "Your name: $1",
+	  "server_status": "Server status: $1",
+	  "server_running": "Running",
+	  "server_stopped": "Stopped",
+	  "players_can_connect_via": "Players can connect via (port: $1):"
 	},
 	"client_connection_dialog": {
 	  "title": "Connect to Server",

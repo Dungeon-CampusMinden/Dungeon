@@ -42,6 +42,11 @@ public class PauseDialog extends Table {
   private static final String T_SETTINGS = "settings";
   private static final String T_QUIT_TO_DESKTOP = "quit_to_desktop";
   private static final String T_BACK = "back";
+  private static final String T_YOU = "you";
+  private static final String T_SERVER_STATUS = "server_status";
+  private static final String T_SERVER_RUNNING = "server_running";
+  private static final String T_SERVER_STOPPED = "server_stopped";
+  private static final String T_PLAYERS_CAN_CONNECT_VIA = "players_can_connect_via";
   private static final Translation trans = new Translation("dialog.pause_dialog");
 
   private Skin skin;
@@ -197,16 +202,13 @@ public class PauseDialog extends Table {
     String player = PreRunConfiguration.username();
     int port = PreRunConfiguration.networkPort();
 
-    section.add(statusLabel("You: " + player)).left().row();
+    section.add(statusLabel(trans.text(T_YOU, player))).left().row();
 
     if (HostSession.isHosting()) {
-      String serverStatus = HostSession.isServerRunning() ? "Running" : "Stopped";
-      section.add(statusLabel("Server status: " + serverStatus)).left().padTop(0).row();
-      section
-          .add(statusLabel("Players can connect via (port: " + port + "):"))
-          .left()
-          .padTop(0)
-          .row();
+      String serverStatus =
+          HostSession.isServerRunning() ? trans.text(T_SERVER_RUNNING) : trans.text(T_SERVER_STOPPED);
+      section.add(statusLabel(trans.text(T_SERVER_STATUS, serverStatus))).left().padTop(0).row();
+      section.add(statusLabel(trans.text(T_PLAYERS_CAN_CONNECT_VIA, port))).left().padTop(0).row();
       for (String ip : NetworkUtils.localIpAddresses()) {
         section.add(statusLabel(ip)).left().row();
       }
