@@ -26,6 +26,7 @@ import contrib.hud.elements.RichLabel;
 import core.Game;
 import core.language.Language;
 import core.language.Translation;
+import core.network.client.ClientConnectionConfig;
 import core.utils.FontSpec;
 import core.utils.Scene2dElementFactory;
 import core.utils.logging.DungeonLogger;
@@ -68,7 +69,10 @@ public class MainMenuScreen extends ScreenAdapter {
   private static final String T_BACK = "back";
   private static final String T_CONFIRM = "confirm";
   private static final String T_PLAYER_NAME = "player_name";
+  private static final String T_SERVER_ADDRESS = "server_address";
+  private static final String T_PORT = "port";
   private static final String T_INVALID_NAME = "invalid_name";
+  private static final String T_INVALID_CONNECTION = "invalid_connection";
   private static final String T_STARTING_SERVER = "starting_server";
   private static final String T_SERVER_START_FAILED = "server_start_failed";
   private static final String T_SERVER_TIMEOUT = "server_timeout";
@@ -80,7 +84,8 @@ public class MainMenuScreen extends ScreenAdapter {
   private enum View {
     MAIN,
     SETTINGS,
-    HOST_NAME
+    HOST_NAME,
+    JOIN
   }
 
   private Stage stage;
@@ -90,12 +95,20 @@ public class MainMenuScreen extends ScreenAdapter {
   private Table mainView;
   private Table settingsView;
   private Table hostNameView;
+  private Table joinView;
   private View activeView = View.MAIN;
 
   private TextField hostNameField;
   private Label hostStatusLabel;
   private TextButton hostConfirmButton;
   private TextButton hostBackButton;
+
+  private TextField joinNameField;
+  private TextField joinHostField;
+  private TextField joinPortField;
+  private Label joinStatusLabel;
+  private TextButton joinConfirmButton;
+  private TextButton joinBackButton;
 
   private volatile boolean launching = false;
 
@@ -128,6 +141,7 @@ public class MainMenuScreen extends ScreenAdapter {
     mainView = buildMainView();
     settingsView = buildSettingsView();
     hostNameView = buildHostNameView();
+    joinView = buildJoinView();
 
     Stack root = new Stack();
     root.setFillParent(true);
@@ -219,6 +233,37 @@ public class MainMenuScreen extends ScreenAdapter {
     return menu;
   }
 
+  private Table buildJoinView() {
+    Label title = label(trans.text(T_JOIN), 36, PANEL_TEXT_COLOR);
+    Label nameLabel = label(trans.text(T_PLAYER_NAME), 22, PANEL_TEXT_COLOR);
+    Label hostLabel = label(trans.text(T_SERVER_ADDRESS), 22, PANEL_TEXT_COLOR);
+    Label portLabel = label(trans.text(T_PORT), 22, PANEL_TEXT_COLOR);
+
+    joinNameField = Scene2dElementFactory.createTextField(ClientConnectionDialog.defaultUsername());
+    joinHostField = Scene2dElementFactory.createTextField(ClientConnectionConfig.DEFAULT_HOST);
+    joinPortField =
+        Scene2dElementFactory.createTextField(Integer.toString(PreRunConfiguration.networkPort()));
+    joinStatusLabel = label("", 18, ERROR_COLOR);
+    joinConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::confirmJoin);
+    joinBackButton = menuButton(trans.text(T_BACK), "red-outline", this::showMainView);
+
+    Table buttons = new Table();
+    buttons.add(joinBackButton).width(175).padRight(10);
+    buttons.add(joinConfirmButton).width(175);
+
+    Table menu = new Table();
+    menu.add(title).padBottom(20).align(Align.center).row();
+    menu.add(nameLabel).align(Align.left).padBottom(5).row();
+    menu.add(joinNameField).width(BUTTON_WIDTH).padBottom(8).row();
+    menu.add(hostLabel).align(Align.left).padBottom(5).row();
+    menu.add(joinHostField).width(BUTTON_WIDTH).padBottom(8).row();
+    menu.add(portLabel).align(Align.left).padBottom(5).row();
+    menu.add(joinPortField).width(BUTTON_WIDTH).padBottom(8).row();
+    menu.add(joinStatusLabel).width(BUTTON_WIDTH).minHeight(24).padBottom(8).row();
+    menu.add(buttons).align(Align.center).row();
+    return menu;
+  }
+
   private Table buildSettingsView() {
     Label title = label(trans.text(T_SETTINGS), 48, PANEL_TEXT_COLOR);
     TextButton backButton = menuButton(trans.text(T_BACK), "green", this::showMainView);
@@ -273,6 +318,13 @@ public class MainMenuScreen extends ScreenAdapter {
     stage.setKeyboardFocus(hostNameField);
   }
 
+  private void showJoinView() {
+    activeView = View.JOIN;
+    joinStatusLabel.setText("");
+    swapContent(joinView);
+    stage.setKeyboardFocus(joinNameField);
+  }
+
   /**
    * Rebuilds the localized views and re-shows the active one. Triggered when the language changes
    * so the already-rendered labels and buttons reflect the newly selected language.
@@ -284,10 +336,13 @@ public class MainMenuScreen extends ScreenAdapter {
     mainView = buildMainView();
     settingsView = buildSettingsView();
     hostNameView = buildHostNameView();
+    joinView = buildJoinView();
     if (activeView == View.SETTINGS) {
       showSettingsView();
     } else if (activeView == View.HOST_NAME) {
       showHostNameView();
+    } else if (activeView == View.JOIN) {
+      showJoinView();
     } else {
       showMainView();
     }
@@ -363,14 +418,50 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   /**
-   * Enters the client view without a preconfigured server address, so the client's connection
-   * dialog asks for the server IP/port and player name.
+   * Shows the Join Game form that gathers the server address, port and player name, so the client
+   * can connect directly without bringing up the built-in connection dialog.
    */
   private void joinGame() {
     if (launching) {
       return;
     }
-    GameLoop.startGame();
+    showJoinView();
+  }
+
+  /**
+   * Validates the Join Game form, stores the connection data in {@link PreRunConfiguration} and
+   * starts the client. Because the server address is now configured, the client connects directly
+   * and skips the built-in connection dialog.
+   */
+  private void confirmJoin() {
+    if (launching) {
+      return;
+    }
+    joinStatusLabel.setText("");
+
+    String nameInput = joinNameField.getText().trim();
+    String username = nameInput.isEmpty() ? ClientConnectionDialog.defaultUsername() : nameInput;
+    try {
+      PreRunConfiguration.username(username);
+    } catch (IllegalArgumentException e) {
+      joinStatusLabel.setText(trans.text(T_INVALID_NAME));
+      return;
+    }
+
+    ClientConnectionConfig config;
+    try {
+      config =
+          ClientConnectionConfig.fromFields(
+              joinHostField.getText(),
+              joinPortField.getText(),
+              ClientConnectionConfig.DEFAULT_HOST,
+              PreRunConfiguration.networkPort());
+    } catch (IllegalArgumentException e) {
+      joinStatusLabel.setText(trans.text(T_INVALID_CONNECTION));
+      return;
+    }
+
+    enterClient(config.host(), config.port());
   }
 
   private void setHostControlsDisabled(boolean disabled) {

@@ -69,7 +69,10 @@
     "back": "Zurück",
     "confirm": "Bestätigen",
     "player_name": "Spielername",
+    "server_address": "Serveradresse",
+    "port": "Port",
     "invalid_name": "Ungültiger Name (darf nicht leer sein oder '_' enthalten).",
+    "invalid_connection": "Ungültige Serveradresse oder ungültiger Port.",
     "starting_server": "Server wird gestartet...",
     "server_start_failed": "Server konnte nicht gestartet werden: $1",
     "server_timeout": "Server wurde nicht rechtzeitig gestartet."
