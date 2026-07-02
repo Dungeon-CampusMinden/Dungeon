@@ -160,6 +160,10 @@ export const myCustomMessages = {
     BLOCK_FIREBALL_MSG: "Fireball",
     BLOCK_FIREBALL_TOOLTIP: "Shoot a fireball in the direction you are facing",
 
+    // Pickup
+    BLOCK_PICKUP_MSG: "pick up",
+    BLOCK_PICKUP_TOOLTIP: "Pick up the object beneath you.",
+
     // Wait
     BLOCK_WAIT_MSG: "wait",
     BLOCK_WAIT_TOOLTIP: "Wait for a short moment.",
@@ -288,6 +292,10 @@ export const myCustomMessages = {
     // Fireball
     BLOCK_FIREBALL_MSG: "Feuerball",
     BLOCK_FIREBALL_TOOLTIP: "Feuerball in Richtung schießen",
+
+    // Pickup
+    BLOCK_PICKUP_MSG: "aufheben",
+    BLOCK_PICKUP_TOOLTIP: "Sammel den Gegenstand unter dir auf.",
 
     // Wait
     BLOCK_WAIT_MSG: "warte",

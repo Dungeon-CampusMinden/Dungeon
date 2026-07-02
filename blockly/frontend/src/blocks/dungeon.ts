@@ -500,11 +500,11 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "pickup",
-    message0: "aufheben",
+    message0: "%{BKY_BLOCK_PICKUP_MSG}",
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "Sammel den Gegenstand unter dir auf.",
+    tooltip:  "%{BKY_BLOCK_PICKUP_TOOLTIP}",
   },
   {
     type: "wait",
