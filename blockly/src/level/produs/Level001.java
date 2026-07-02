@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
@@ -42,15 +43,15 @@ public class Level001 extends BlocklyLevel {
         "Bedingungen",
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/level001/webpopups/01_start_block.jpg"));
-    addWebPopup(new ImagePopup("popups/level001/webpopups/02_skills.jpg"));
-    addWebPopup(new ImagePopup("popups/level001/webpopups/03_commands.jpg"));
-    addWebPopup(new ImagePopup("popups/level001/webpopups/04_start_game.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level001/webpopups/01_start_block.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level001/webpopups/02_skills.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level001/webpopups/03_commands.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level001/webpopups/04_start_game.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level001/codepopups/01_start_block.jpg"));
-    addCodePopup(new ImagePopup("popups/level001/codepopups/02_skills.jpg"));
-    addCodePopup(new ImagePopup("popups/level001/codepopups/03_commands.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level001/codepopups/01_start_block.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level001/codepopups/02_skills.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level001/codepopups/03_commands.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

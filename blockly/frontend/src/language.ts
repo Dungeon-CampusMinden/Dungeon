@@ -3,7 +3,7 @@ import * as En from "blockly/msg/en";
 import * as De from "blockly/msg/de";
 import {call_language_route} from "./api/api.ts";
 
-export const setupLanguageToggle = (workspace) => {
+export const setupLanguageToggle = (workspace: Blockly.WorkspaceSvg) => {
   document.querySelector(".flag")?.addEventListener("click", event => {
     const imgElement = event.currentTarget as HTMLImageElement;
     if (imgElement == null) return;
@@ -21,17 +21,17 @@ export const setupLanguageToggle = (workspace) => {
       imgElement.dataset.lang="en"
       imgElement.src="english-flag.png"
       imgElement.alt = "English language"
-      call_language_route("de");
+      call_language_route("en");
     }
   })
 }
 
-const changeToEnglishLanguage = (workspace) => {
+const changeToEnglishLanguage = (workspace: Blockly.WorkspaceSvg) => {
   console.log("changing language to english");
 
   Object.assign(Blockly.Msg, myCustomMessages.en);
 
-  Blockly.setLocale(En as any);
+  Blockly.setLocale(En as unknown as Record<string, string>);
 
 
 
@@ -43,12 +43,11 @@ const changeToEnglishLanguage = (workspace) => {
 }
 
 
-const changeToGermanLanguage = (workspace) => {
-  console.log("changing language to english");
+const changeToGermanLanguage = (workspace: Blockly.WorkspaceSvg) => {
+  console.log("changing language to german");
   Object.assign(Blockly.Msg, myCustomMessages.de);
 
-  Blockly.setLocale(De as any);
-
+  Blockly.setLocale(De as unknown as Record<string, string>);
 
 
   const state = Blockly.serialization.workspaces.save(workspace);

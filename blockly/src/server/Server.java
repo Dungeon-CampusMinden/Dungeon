@@ -104,13 +104,9 @@ public class Server {
     InputStream inStream = exchange.getRequestBody();
     String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
 
-    System.out.println(text);
-
-    // DungeonLoader
-
-    BlocklyLevel level = DungeonLoader.levelHandler(DungeonLoader.currentLevel());
-
-    sendHeroPosition(exchange);
+    Client.setBlocklyLanguage(text);
+    Client.writeBlocklyLanguage();
+    //sendHeroPosition(exchange);
   }
 
   /**

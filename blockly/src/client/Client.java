@@ -107,6 +107,8 @@ public class Client {
 
   /** Force to apply for movement of all entities. */
   public static Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
+  public static final String BLOCKLY_LANGUAGE_FILENAME = "currentBlocklyLanguage.json";
+  private static String blocklyLanguage;
 
   private static final boolean DEBUG_MODE = false;
   private static final boolean ACTIVATE_TANKE_CONTROLLS = DEBUG_MODE;
@@ -471,5 +473,13 @@ public class Client {
       }
     } catch (Exception ignored) {
     }
+  }
+
+  public static String getBlocklyLanguage() {
+    return blocklyLanguage;
+  }
+
+  public static void setBlocklyLanguage(String blocklyLanguage) {
+    Client.blocklyLanguage = blocklyLanguage;
   }
 }
