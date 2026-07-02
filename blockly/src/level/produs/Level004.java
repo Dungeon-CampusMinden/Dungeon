@@ -2,6 +2,7 @@ package level.produs;
 
 import static level.LevelManagementUtils.cameraFocusOn;
 
+import client.Client;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import core.Entity;
@@ -57,12 +58,12 @@ public class Level004 extends BlocklyLevel {
         "Variablen",
         "Bedingungen");
 
-    addWebPopup(new ImagePopup("popups/level004/webpopups/01_inventory_character.jpg"));
-    addWebPopup(new ImagePopup("popups/level004/webpopups/02_inventory_character2.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level004/webpopups/01_inventory_character.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level004/webpopups/02_inventory_character2.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level004/codepopups/01_inventory_character.jpg"));
-    addCodePopup(new ImagePopup("popups/level004/codepopups/02_inventory_character2.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level004/codepopups/01_inventory_character.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level004/codepopups/02_inventory_character2.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

@@ -43,6 +43,7 @@ public class Level001 extends BlocklyLevel {
         "Bedingungen",
         "Sonstige");
 
+
     addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level001/webpopups/01_start_block.jpg"));
     addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level001/webpopups/02_skills.jpg"));
     addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level001/webpopups/03_commands.jpg"));

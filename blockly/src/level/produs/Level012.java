@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
@@ -53,8 +54,8 @@ public class Level012 extends BlocklyLevel {
         "Variablen",
         "Bedingungen");
 
-    addPopup(new ImagePopup("popups/level012/01_schaltplan.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level012/01_schaltplan.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

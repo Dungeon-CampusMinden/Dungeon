@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import components.AmmunitionComponent;
 import contrib.components.AIComponent;
 import core.Game;
@@ -51,17 +52,17 @@ public class Level016 extends BlocklyLevel {
         "case_block",
         "default_block");
 
-    addWebPopup(new ImagePopup("popups/level016/webpopups/02_Variable.jpg"));
-    addWebPopup(new ImagePopup("popups/level016/webpopups/03_Variable.jpg"));
-    addWebPopup(new ImagePopup("popups/level016/webpopups/04_Variable.jpg"));
-    addWebPopup(new ImagePopup("popups/level016/webpopups/05_Variable.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level016/webpopups/02_Variable.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level016/webpopups/03_Variable.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level016/webpopups/04_Variable.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level016/webpopups/05_Variable.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level016/codepopups/02_Variable.jpg"));
-    addCodePopup(new ImagePopup("popups/level016/codepopups/03_Variable.jpg"));
-    addCodePopup(new ImagePopup("popups/level016/codepopups/04_Variable.jpg"));
-    addCodePopup(new ImagePopup("popups/level016/codepopups/05_Variable.jpg"));
-    addCodePopup(new ImagePopup("popups/level016/codepopups/06_Variable.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level016/codepopups/02_Variable.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level016/codepopups/03_Variable.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level016/codepopups/04_Variable.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level016/codepopups/05_Variable.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level016/codepopups/06_Variable.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

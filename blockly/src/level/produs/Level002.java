@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
@@ -41,12 +42,12 @@ public class Level002 extends BlocklyLevel {
         "Schleife",
         "Bedingungen");
 
-    addWebPopup(new ImagePopup("popups/level002/webpopups/01_intro.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level002/webpopups/01_intro.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level002/codepopups/01_datei_erstellen.jpg"));
-    addCodePopup(new ImagePopup("popups/level002/codepopups/02_datei_erstellen.jpg"));
-    addCodePopup(new ImagePopup("popups/level002/codepopups/04_intro.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level002/codepopups/01_datei_erstellen.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level002/codepopups/02_datei_erstellen.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level002/codepopups/04_intro.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

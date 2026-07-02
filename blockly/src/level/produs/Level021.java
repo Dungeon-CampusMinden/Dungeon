@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
@@ -59,8 +60,8 @@ public class Level021 extends BlocklyLevel {
         // Kategorien
         "Sonstige");
 
-    addPopup(new ImagePopup("popups/level021/01_intro.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level021/01_intro.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

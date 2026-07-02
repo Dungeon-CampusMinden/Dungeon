@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -41,12 +42,12 @@ public class Level014 extends BlocklyLevel {
         // Kategorien
         "Variablen");
 
-    addWebPopup(new ImagePopup("popups/level014/webpopups/01_Wand.jpg"));
-    addWebPopup(new ImagePopup("popups/level014/webpopups/02_Schleife.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level014/webpopups/01_Wand.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level014/webpopups/02_Schleife.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level014/codepopups/01_Wand.jpg"));
-    addCodePopup(new ImagePopup("popups/level014/codepopups/02_Schleife.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level014/codepopups/01_Wand.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level014/codepopups/02_Schleife.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

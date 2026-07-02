@@ -38,7 +38,7 @@ public class Level018 extends BlocklyLevel {
         // Bedingung
         "logic_bossView_direction");
 
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

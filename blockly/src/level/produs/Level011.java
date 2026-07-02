@@ -43,7 +43,7 @@ public class Level011 extends BlocklyLevel {
         "Wahrheitsausdruecke",
         "Variablen",
         "Bedingungen");
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

@@ -11,13 +11,13 @@ export const setupLanguageToggle = (workspace: Blockly.WorkspaceSvg) => {
     const currentLang = imgElement.dataset.lang;
 
     if (currentLang == "en") {
-      changeToEnglishLanguage(workspace);
+      changeToGermanLanguage(workspace);
       imgElement.dataset.lang="de"
       imgElement.src="german-flag.png"
       imgElement.alt = "German language"
       call_language_route("de");
     } else {
-      changeToGermanLanguage(workspace);
+      changeToEnglishLanguage(workspace);
       imgElement.dataset.lang="en"
       imgElement.src="english-flag.png"
       imgElement.alt = "English language"
@@ -27,13 +27,9 @@ export const setupLanguageToggle = (workspace: Blockly.WorkspaceSvg) => {
 }
 
 const changeToEnglishLanguage = (workspace: Blockly.WorkspaceSvg) => {
-  console.log("changing language to english");
-
   Object.assign(Blockly.Msg, myCustomMessages.en);
 
   Blockly.setLocale(En as unknown as Record<string, string>);
-
-
 
   const state = Blockly.serialization.workspaces.save(workspace);
 
@@ -44,11 +40,9 @@ const changeToEnglishLanguage = (workspace: Blockly.WorkspaceSvg) => {
 
 
 const changeToGermanLanguage = (workspace: Blockly.WorkspaceSvg) => {
-  console.log("changing language to german");
   Object.assign(Blockly.Msg, myCustomMessages.de);
 
   Blockly.setLocale(De as unknown as Record<string, string>);
-
 
   const state = Blockly.serialization.workspaces.save(workspace);
 

@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import core.Entity;
@@ -53,9 +54,9 @@ public class Level008 extends BlocklyLevel {
         "Variablen",
         "Bedingungen");
 
-    addPopup(new ImagePopup("popups/level008/01_schaltplan.jpg"));
+    addPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level008/01_schaltplan.jpg"));
 
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

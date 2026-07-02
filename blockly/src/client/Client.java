@@ -120,7 +120,7 @@ public class Client {
    * If true, the Web interface Blockly is used for interaction with the Dungeon. Otherwise, the
    * Code API is used.
    */
-  public static boolean runInWeb = false;
+  public static boolean runInWeb = true;
 
   private static int webserverPort = 8081;
 

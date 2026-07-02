@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import components.AmmunitionComponent;
 import core.Game;
 import core.level.utils.DesignLabel;
@@ -43,8 +44,8 @@ public class Level019 extends BlocklyLevel {
         // Bedingung
         "logic_bossView_direction");
 
-    addPopup(new ImagePopup("popups/level019/01_intro.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level019/01_intro.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import contrib.components.BlockComponent;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
@@ -61,16 +62,16 @@ public class Level013 extends BlocklyLevel {
         // Kategorien
         "Variablen");
 
-    addWebPopup(new ImagePopup("popups/level013/webpopups/01_Abfrage.jpg"));
-    addWebPopup(new ImagePopup("popups/level013/webpopups/02_Abfrage.jpg"));
-    addWebPopup(new ImagePopup("popups/level013/webpopups/03_Abfrage.jpg"));
-    addWebPopup(new ImagePopup("popups/level013/webpopups/04_Abfrage.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level013/webpopups/01_Abfrage.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level013/webpopups/02_Abfrage.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level013/webpopups/03_Abfrage.jpg"));
+    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level013/webpopups/04_Abfrage.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level013/codepopups/01_Abfrage.jpg"));
-    addCodePopup(new ImagePopup("popups/level013/codepopups/02_Abfrage.jpg"));
-    addCodePopup(new ImagePopup("popups/level013/codepopups/03_Abfrage.jpg"));
-    addCodePopup(new ImagePopup("popups/level013/codepopups/04_Abfrage.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level013/codepopups/01_Abfrage.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level013/codepopups/02_Abfrage.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level013/codepopups/03_Abfrage.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level013/codepopups/04_Abfrage.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override
