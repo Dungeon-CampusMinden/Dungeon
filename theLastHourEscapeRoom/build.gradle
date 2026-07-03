@@ -116,40 +116,6 @@ tasks.register('buildTheLastHourServerJar', Jar) {
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
 
-tasks.register('buildTheLastHourClientJar', Jar) {
-    group = 'jar'
-    archiveBaseName.set('TheLastHourClient')
-    archiveFileName.set('TheLastHourClient.jar')
-    dependsOn configurations.runtimeClasspath
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    // include compiled classes
-    from sourceSets.main.output
-    from project(':dungeon').sourceSets.main.output
-    from project(':theLastHourEscapeRoom').sourceSets.main.output
-    // include dependencies
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    // include assets
-    into('assets') {
-        from new File(project(':dungeon').projectDir, '/assets')
-        from new File(project(':theLastHourEscapeRoom').projectDir, '/assets')
-    }
-
-    // manifest
-    manifest {
-        attributes(
-            'Main-Class': 'starter.LastHourClient'
-        )
-    }
-
-    // exclude signature files
-    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
-}
-
 tasks.register('installTheLastHourDist', Sync) {
     group = 'build'
     dependsOn tasks.named('buildTheLastHourJar')
@@ -169,17 +135,6 @@ tasks.register('installTheLastHourServerDist', Sync) {
     into layout.buildDirectory.dir('installTheLastHourServer/theLastHourServer/lib')
 
     from(tasks.named('buildTheLastHourServerJar'))
-    from(configurations.runtimeClasspath)
-}
-
-tasks.register('installTheLastHourClientDist', Sync) {
-    group = 'build'
-    dependsOn tasks.named('buildTheLastHourClientJar')
-    dependsOn configurations.runtimeClasspath
-
-    into layout.buildDirectory.dir('installTheLastHourClient/theLastHourClient/lib')
-
-    from(tasks.named('buildTheLastHourClientJar'))
     from(configurations.runtimeClasspath)
 }
 
@@ -238,22 +193,10 @@ tasks.register('jpackageImageTheLastHourServer', Exec) {
     )
 }
 
-tasks.register('jpackageImageTheLastHourClient', Exec) {
-    configureTheLastHourJpackageImage(
-        it,
-        tasks.named('installTheLastHourClientDist'),
-        'installTheLastHourClient/theLastHourClient/lib',
-        'TheLastHourClient',
-        'TheLastHourClient.jar',
-        'starter.LastHourClient'
-    )
-}
-
 tasks.register('jpackageImageTheLastHourAll') {
     group = 'build'
     dependsOn tasks.named('jpackageImageTheLastHour')
     dependsOn tasks.named('jpackageImageTheLastHourServer')
-    dependsOn tasks.named('jpackageImageTheLastHourClient')
 }
 
 tasks.named('jpackageImage') {
