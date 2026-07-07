@@ -14,7 +14,7 @@ Festgelegt sind:
 - fachliche Daten, die erfasst werden,
 - Daten, die die UI automatisch ableitet,
 - blockierende Fehler,
-- Bedingungen für den Paket-erstellen-Button,
+- Bedingungen für den Bundle-erstellen-Button,
 - Bausteine, die im aktuellen Generator-Slice generierbar sind,
 - technische Interna, die nicht zur Hauptsprache der UI werden.
 
@@ -35,9 +35,9 @@ Eine Lehrkraft erstellt einen kleinen Escape Room:
 7. Sie ergänzt Texte, Bilder, Audio und optionale Hinweise.
 8. Die UI prüft den Raum auf blockierende Fehler.
 9. Wenn keine blockierenden Fehler existieren, erstellt und lädt sie ein
-   `deer.zip` herunter.
-10. Danach kann dieses Paket geteilt oder manuell an den Generator übergeben
-    werden.
+   DEER-Authoring-Bundle `deer.zip` herunter.
+10. Danach kann dieses Bundle geteilt oder manuell an den Generator übergeben
+    werden. Der Generator erzeugt daraus erst das spielbare Room-Paket.
 
 ## Workflow-Schritte
 
@@ -86,7 +86,7 @@ Validierung:
 - Zeitmodus ist `hard` oder `soft`.
 - Sprache ist für V0 `de-DE`.
 
-Blockiert Paket-Erstellung, wenn:
+Blockiert Bundle-Erstellung, wenn:
 
 - ein Pflichtfeld fehlt,
 - ein Zahlenbereich ungültig ist.
@@ -121,7 +121,7 @@ Validierung:
 - Pflichttexte dürfen nicht leer sein.
 - Mission enthält ein klares Spielziel.
 
-Blockiert Paket-Erstellung, wenn:
+Blockiert Bundle-Erstellung, wenn:
 
 - ein Pflichttext fehlt.
 
@@ -174,7 +174,7 @@ Validierung:
 - Die UI bietet nur Oberflächen an, die zum Baustein passen.
 - Wiederverwendete Oberflächen, z. B. Computer, werden eindeutig referenziert.
 
-Blockiert Paket-Erstellung, wenn:
+Blockiert Bundle-Erstellung, wenn:
 
 - ein Baustein keine benötigte Oberfläche hat,
 - eine inkompatible Baustein-/Oberflächen-Kombination entsteht,
@@ -224,7 +224,7 @@ Validierung:
 - Kein Progressionsrätsel kann übersprungen werden.
 - Der Endzustand ist erreichbar.
 
-Blockiert Paket-Erstellung, wenn:
+Blockiert Bundle-Erstellung, wenn:
 
 - ein Softlock möglich ist,
 - ein Rätsel unerreichbar ist,
@@ -269,7 +269,7 @@ Validierung:
   beendet.
 - Erfolg/Freischaltung erzeugt keinen unlösbaren Ablauf.
 
-Blockiert Paket-Erstellung, wenn:
+Blockiert Bundle-Erstellung, wenn:
 
 - Pflichtparameter fehlen,
 - eine Lösung nicht zum Eingabetyp passt,
@@ -298,7 +298,7 @@ Validierung:
 - Hint-Freischaltungen verweisen auf existierende Rätsel, Ressourcen oder
   Oberflächen.
 
-Blockiert Paket-Erstellung, wenn:
+Blockiert Bundle-Erstellung, wenn:
 
 - ein required Asset fehlt,
 - ein Asset nicht unterstützt wird,
@@ -322,7 +322,8 @@ Hint-Freischaltungen:
 
 ### 8. Prüfen Und Paket Erstellen
 
-Zweck: Letzte nicht-technische Prüfung vor dem Erstellen des `deer.zip`.
+Zweck: Letzte nicht-technische Prüfung vor dem Erstellen des
+DEER-Authoring-Bundles `deer.zip`.
 
 Anzeigen:
 
@@ -346,7 +347,7 @@ Validierung:
 - Asset-Referenzen,
 - Ablauf/Softlock-Prüfung.
 
-Paket-Erstellung ist nur erlaubt, wenn:
+Bundle-Erstellung ist nur erlaubt, wenn:
 
 - keine blockierenden Fehler existieren.
 
@@ -360,7 +361,7 @@ Warnungen blockieren nicht.
 | Beim Verlassen eines Schritts | Schrittstatus setzen | Szenario unvollständig |
 | Nach Bausteinänderung | abgeleitete Oberflächen prüfen | Keypad braucht Keypad-Oberfläche |
 | Nach Ablaufänderung | Softlocks und Skips verhindern | Rätsel wird unerreichbar |
-| Vor Paket-Erstellung | finaler Preflight | Schema, Assets, Graph, Pflichtparameter |
+| Vor Bundle-Erstellung | finaler Preflight | Schema, Assets, Graph, Pflichtparameter |
 
 ## Fehlerstufen
 
@@ -416,7 +417,7 @@ Frei wählbar:
 
 Fest:
 
-- Paket-Erstellung ist nur bei gültigem Preflight aktiv.
+- Bundle-Erstellung ist nur bei gültigem Preflight aktiv.
 - Technische Interna werden nicht zur Hauptsprache der UI.
 - Der Ablauf muss in eine valide `deer.json` übersetzbar sein.
 - V0 erzeugt keine optionalen Progressionsrätsel oder alternative Enden.

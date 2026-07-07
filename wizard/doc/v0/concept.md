@@ -7,17 +7,19 @@ Stand: 06.07.2026
 
 Der Wizard ist eine separate Authoring-Web-App für nicht-technische Lehrende.
 Er führt durch die Erstellung eines einfachen Educational Escape Rooms und
-erzeugt nach erfolgreicher Validierung ein teilbares `deer.zip`.
+erzeugt nach erfolgreicher Validierung ein teilbares DEER-Authoring-Bundle
+`deer.zip`.
 
 Die `deer.json` ist das interne Authoring-Modell und die Eingabe für den
-Generator:
+Generator. Das `deer.zip` ist nur der V0-Transportcontainer für diese
+Konfiguration und die referenzierten Custom Assets:
 
 ```text
-Wizard UI -> interne deer.json -> deer.zip -> manueller Java-Generator -> Room-Paket
+Wizard UI -> interne deer.json + Assets -> deer.zip -> manueller Java-Generator -> Room-Paket
 ```
 
-Das `deer.zip` enthält die validierte `deer.json` und alle referenzierten
-Assets.
+Der Wizard erzeugt damit noch kein spielbares Room-Paket. Dieses entsteht erst
+im Java-Generator.
 
 ## V0-Scope
 
@@ -31,12 +33,12 @@ V0 umfasst:
 - Inhalte: Texte direkt im Wizard, Bilder und Audio als Upload.
 - Validierung: Pflichtdaten, Asset-Referenzen, unterstützte Bausteine,
   Ablauf, Softlocks, unerreichbare Rätsel und ungewollte Skips.
-- Export: `deer.zip` als Download nach erfolgreicher Validierung.
+- Export: `deer.zip` als DEER-Authoring-Bundle nach erfolgreicher Validierung.
 
 Nicht Teil von V0 sind spielbare Vorschau, Neu-Generieren, automatischer
 Generator-Start, Evaluation/Telemetrie/Debriefing, Lernzielverwaltung, mehrere
-Themes, ein Zwischeneditor nach dem Generator und Packaging jenseits von
-`deer.zip`.
+Themes, ein Zwischeneditor nach dem Generator und Paketierung jenseits von
+`deer.zip` als DEER-Authoring-Bundle.
 
 ## Authoring-Modell
 
@@ -80,15 +82,16 @@ Blockierend sind Game-Breaking-Probleme:
 - ein Baustein wird mit einer inkompatiblen Oberfläche kombiniert,
 - ein verwendeter Baustein ist im aktuellen Generator-Slice nicht generierbar.
 
-Warnungen unterstützen die Qualität, blockieren aber nicht die Paket-Erstellung.
+Warnungen unterstützen die Qualität, blockieren aber nicht die Bundle-Erstellung.
 
 ## V0-Umsetzungsziel
 
 Der UI-Prototyp macht die Schritte aus `wizard-ui-flow-v0.md` bedienbar,
 erzeugt daraus eine schema-valide interne `deer.json` und packt ein
-validiertes `deer.zip`. Der Generator wird in V0 manuell mit diesem Paket oder
-Projektordner gestartet.
+validiertes `deer.zip` als Authoring-Bundle. Der Generator wird in V0 manuell
+mit diesem Bundle oder dem entpackten Projektordner gestartet und erzeugt erst
+danach das Room-Paket.
 
 Für die Umsetzung bleibt `./wizard` der Projekt-Workspace. Die
 Konzeptdokumente liegen unter `./wizard/doc/v0`, damit der Root für Web-App,
-Paket-Output und Generator-Anbindung frei bleibt.
+Bundle-Output und Generator-Anbindung frei bleibt.

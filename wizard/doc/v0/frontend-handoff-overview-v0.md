@@ -7,13 +7,14 @@ Schema, Parameter-Tabelle oder Workflow-Dokumente.
 
 Der Wizard ist eine Authoring-Web-App für Lehrende. Lehrende erfassen einen
 Escape-Room-Entwurf über fachliche Eingaben; die UI erzeugt daraus intern eine
-valide `deer.json` und exportiert ein `deer.zip` mit `deer.json` und Assets.
+valide `deer.json`. Weil V0 weiterhin Custom Assets erlaubt, packt die UI
+`deer.json` und referenzierte Assets als DEER-Authoring-Bundle `deer.zip`.
 
 ```text
 Wizard-Web-App
 -> fachliche Eingaben
--> interne deer.json
--> validiertes deer.zip
+-> interne deer.json + referenzierte Assets
+-> validiertes DEER-Authoring-Bundle deer.zip
 -> manueller Java-Generator
 -> Room-Paket
 ```
@@ -52,10 +53,10 @@ Die UI ist kein JSON-Editor. Sie verantwortet:
 - Asset-Upload und relative Asset-Referenzen,
 - Client-Validierung vor dem Export,
 - deaktivierte Zustände für nicht generierbare Bausteine,
-- Export von `deer.zip`.
+- Export von `deer.zip` als Authoring-Bundle.
 
 Lehrende bearbeiten keine Tokens, Petri-Netze, Slot-IDs oder JSON-Dateien
-direkt.
+direkt. Die UI erzeugt kein spielbares Room-Paket; das ist Generator-Scope.
 
 ## Erster UI-Slice
 
@@ -67,7 +68,7 @@ Rahmen
 -> Fund
 -> Keypad
 -> Tür öffnen
--> deer.zip erstellen
+-> deer.zip als Authoring-Bundle erstellen
 ```
 
 Benötigte Bausteine:

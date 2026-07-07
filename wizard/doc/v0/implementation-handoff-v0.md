@@ -4,11 +4,12 @@
 
 V0 ist eine schlichte Wizard-Web-App für nicht technische Lehrende. Die App
 erfasst einen einfachen Escape-Room-Entwurf, erzeugt daraus eine validierte
-`deer.json` und packt diese mit referenzierten Assets als `deer.zip`.
+`deer.json` und packt diese mit referenzierten Custom Assets als
+DEER-Authoring-Bundle `deer.zip`.
 
-`deer.json` ist der Contract zwischen UI und Generator. `deer.zip` ist das
-teilbare Authoring-Paket für den manuellen Generatorlauf, nicht der
-Generator-Output.
+`deer.json` ist der eigentliche Contract zwischen UI und Generator.
+`deer.zip` ist der teilbare Transportcontainer für den manuellen
+Generatorlauf, nicht das spielbare Room-Paket und nicht der Generator-Output.
 
 ## V0-Produktfluss
 
@@ -17,7 +18,7 @@ Lehrender öffnet Wizard-Web-App
 -> erfasst Rahmen, Szenario, Rätsel, Inhalte, Assets und Hinweise
 -> Wizard erzeugt `deer.json`
 -> Wizard validiert Schema, Referenzen und blockierende Fachregeln
--> Wizard erstellt ein `deer.zip` mit `deer.json` und Assets
+-> Wizard erstellt ein `deer.zip` mit `deer.json` und Custom Assets
 -> Lehrender gibt `deer.zip` an den Java-Generator weiter
 -> Generator wird manuell gestartet, validiert erneut und erzeugt das Room-Paket
 ```
@@ -52,7 +53,7 @@ Rahmen
 -> Fund
 -> Keypad
 -> Tür öffnen
--> deer.zip erstellen
+-> deer.zip als Authoring-Bundle erstellen
 ```
 
 Unterstützte Bausteine:
@@ -64,7 +65,7 @@ Unterstützte Bausteine:
 - optionale Hinweise ohne komplexe Unlock-Bedingungen
 
 Der Slice prüft den vollständigen Pfad von Eingabe über Assets, Rätselgraph,
-Validierung und Packaging bis zum manuellen Generatorlauf.
+Validierung und Bundle-Export bis zum manuellen Generatorlauf.
 
 ## UI-Aufgaben
 
@@ -77,10 +78,10 @@ Die UI verantwortet:
   ableiten,
 - `deer.json` nach Contract erzeugen,
 - Assets annehmen und im Paket referenzieren,
-- Schema- und Fachvalidierung vor dem Packaging ausführen,
+- Schema- und Fachvalidierung vor dem Bundle-Export ausführen,
 - blockierende Fehler sichtbar machen und `deer.zip` verhindern,
-- Warnungen sichtbar machen, ohne Packaging zu blockieren,
-- `deer.zip` mit `deer.json` und Assets als Download bereitstellen,
+- Warnungen sichtbar machen, ohne den Bundle-Export zu blockieren,
+- `deer.zip` mit `deer.json` und Custom Assets als Download bereitstellen,
 - den manuellen nächsten Schritt für den Generator anzeigen.
 
 Nicht generatorfähige Bausteine bleiben deaktiviert oder klar als noch nicht
@@ -105,8 +106,9 @@ Generator-Laufparameter wie Seed oder Layout-Profil gehören nicht in
 
 ## Validierungsmodell
 
-UI und Generator nutzen dieselben Issue-Klassen. Die UI blockiert das Packaging
-bei `error`; der Generator bleibt die autoritative zweite Validierungsstufe.
+UI und Generator nutzen dieselben Issue-Klassen. Die UI blockiert den
+Bundle-Export bei `error`; der Generator bleibt die autoritative zweite
+Validierungsstufe.
 
 Gemeinsames Issue-Format:
 

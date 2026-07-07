@@ -18,7 +18,7 @@ Grundregel:
   fachlich benannt.
 - Der manuell gestartete Generator wählt konkrete Positionen, Slot-Instanzen und
   technische Runtime-Details.
-- Der Client validiert vor der Paket-Erstellung; der Java-Generator validiert
+- Der Client validiert vor der Bundle-Erstellung; der Java-Generator validiert
   erneut als Sicherheitsnetz.
 
 ## Gemeinsame Riddle-Felder

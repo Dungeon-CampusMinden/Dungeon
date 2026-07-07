@@ -12,10 +12,11 @@ Der Generator darf daraus Runtime-Dateien ableiten, aber `deer.json` bleibt das
 Authoring-Modell.
 
 Für Lehrende ist `deer.json` in V0 nicht das sichtbare Endprodukt. Die
-sichtbare Abschlussaktion ist der `deer.zip`-Export; danach wird ein Paket mit
-`deer.json` und referenzierten Assets heruntergeladen. Der Java-Generator wird
-in V0 noch manuell mit diesem Paket oder dem entpackten Projektordner
-gestartet.
+sichtbare Abschlussaktion ist der `deer.zip`-Export. Dieses ZIP ist ein
+DEER-Authoring-Bundle: Es enthält `deer.json` und referenzierte Custom Assets
+in einer Datei. Der Java-Generator wird in V0 noch manuell mit diesem Bundle
+oder dem entpackten Projektordner gestartet und erzeugt erst daraus das
+spielbare Room-Paket.
 
 V0 beschreibt:
 
@@ -443,25 +444,29 @@ Validierung:
 
 ## 12. V0-Export Und Generator-Handoff
 
-`deer.json` beschreibt, was der Escape Room sein soll. Die Web-App erzeugt eine
-valide Datei und packt sie mit den referenzierten Assets in ein
-herunterladbares `deer.zip`.
+`deer.json` beschreibt, was der Escape Room sein soll. Die Web-App erzeugt
+eine valide Datei und packt sie mit den referenzierten Custom Assets in ein
+herunterladbares DEER-Authoring-Bundle `deer.zip`.
 
-Der Java-Generator wird in V0 manuell mit diesem Paket oder dem entpackten
+Der Java-Generator wird in V0 manuell mit diesem Bundle oder dem entpackten
 Projektordner gestartet. Das Einlesen bestehender `deer.zip`-Pakete in den
 Wizard ist nicht Teil von V0.
+
+`deer.zip` ist kein Runtime-Paket. Runtime-Dateien und das spielbare
+Room-Paket entstehen erst im Generator.
 
 Technische Angaben für einen konkreten Generatorlauf gehören nicht in
 `deer.json`, weil sie nicht zum Authoring-Modell des Raums gehören.
 
 ## 13. Harte Validierungen
 
-Der Wizard darf kein `deer.zip` erstellen, wenn dadurch ein game-breaking Raum
-beschrieben würde. Der Generator muss dieselben harten Regeln beim manuellen
-Start erneut prüfen. Blockierend sind besonders Softlocks, unerreichbare
-Progression, ungewollte Skips und fehlende Pflichtdaten.
+Der Wizard darf kein `deer.zip`-Bundle erstellen, wenn dadurch ein
+game-breaking Raum beschrieben würde. Der Generator muss dieselben harten
+Regeln beim manuellen Start erneut prüfen. Blockierend sind besonders
+Softlocks, unerreichbare Progression, ungewollte Skips und fehlende
+Pflichtdaten.
 
-Die Paket-Erstellung wird blockiert, wenn:
+Die Bundle-Erstellung wird blockiert, wenn:
 
 - `formatVersion` unbekannt ist,
 - Pflichtfelder fehlen,
@@ -492,7 +497,7 @@ Die Paket-Erstellung wird blockiert, wenn:
 - `scenario.themeId` nicht `default` ist.
 
 Der Wizard sollte diese Fehler schon im Client verhindern. Der Generator muss
-sie trotzdem erneut prüfen, weil `deer.json` aus dem Paket entnommen und
+sie trotzdem erneut prüfen, weil `deer.json` aus dem Bundle entnommen und
 manuell verändert werden kann und weil Client-Fehler nicht zu kaputten Escape
 Rooms führen dürfen.
 
@@ -510,8 +515,8 @@ V0-Validierung läuft in drei Stufen:
    wird.
 2. **Live-Graph-Validierung:** Der Rätselgraph prüft laufend Erreichbarkeit,
    Token-Referenzen, optionale Pfade und offensichtliche Softlocks.
-3. **Paket-Preflight:** Der Paket-erstellen-Button ist nur aktiv, wenn Schema,
-   Graph, Pflichtparameter und Asset-Referenzen gültig sind.
+3. **Bundle-Preflight:** Der Bundle-erstellen-Button ist nur aktiv, wenn
+   Schema, Graph, Pflichtparameter und Asset-Referenzen gültig sind.
 
 Der Java-Generator führt dieselben harten Validierungen erneut aus. Das ist
 kein Ersatz für Client-Validierung, sondern ein Sicherheitsnetz für manuell

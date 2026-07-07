@@ -5,7 +5,7 @@ Status: öffentliche V0-Dokumentation für Konzept, UI-Contract und Quellen.
 ## Struktur
 
 - `v0/`: aktuelle V0-Arbeitsgrundlage für Wizard-UI, `deer.json`,
-  Validierung, Packaging und Generator-Übergabe.
+  Validierung, DEER-Authoring-Bundle und Generator-Übergabe.
 - `research/`: wissenschaftliche Quellen und Literaturhinweise. Diese Dateien
   sind Kontext, aber kein UI-Pflichtumfang für V0.
 
@@ -33,6 +33,6 @@ Nützlicher Kontext:
 - `v0/concept.md`: Scope und Produktgedanke.
 - `v0/the-last-hour-interaction-catalog.md`: verfügbare Bausteine aus The Last
   Hour.
-- `v0/room-package-format.md`: Paketformat für `deer.zip` und
-  Generator-Übergabe.
+- `v0/room-package-format.md`: Format des DEER-Authoring-Bundles `deer.zip`
+  und Generator-Übergabe.
 - `research/`: kompakte wissenschaftliche Quellen- und Literaturnotizen.

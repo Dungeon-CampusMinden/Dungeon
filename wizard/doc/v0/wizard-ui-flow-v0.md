@@ -7,7 +7,8 @@ Status: UI-Contract für Schritte, Eingaben, Validierung und Export
 
 Dieses Dokument beschreibt den sichtbaren Authoring-Flow für Lehrende. Es legt
 Schritte, Eingaben, Validierungszeitpunkte, deaktivierte Zustände und den
-Export von `deer.zip` fest. Es ist keine Layout-Vorgabe.
+Export von `deer.zip` als DEER-Authoring-Bundle fest. Es ist keine
+Layout-Vorgabe.
 
 Der detaillierte Lehrenden-Workflow steht in
 [`teacher-workflow-v0.md`](teacher-workflow-v0.md). Dieses Dokument bleibt die
@@ -19,7 +20,7 @@ Rahmen festlegen
 -> Bausteine wählen und Oberflächen ableiten
 -> Rätselablauf konfigurieren
 -> Rätsel, Inhalte, Assets und Hinweise ergänzen
--> Validieren und deer.zip herunterladen
+-> Validieren und deer.zip als Authoring-Bundle herunterladen
 ```
 
 ## UI-Grundsätze
@@ -30,7 +31,7 @@ Rahmen festlegen
   nicht als zentrale UI-Begriffe.
 - Jeder Schritt hat einen Status: `leer`, `unvollständig`, `gültig`,
   `Warnung` oder `Fehler`.
-- Die Paket-Erstellung ist deaktiviert, bis der Client-Preflight gültig ist.
+- Die Bundle-Erstellung ist deaktiviert, bis der Client-Preflight gültig ist.
 - Fehler erscheinen am betroffenen Schritt, Rätsel oder Feld.
 - Warnungen bleiben sichtbar und blockieren nicht.
 - V0 startet ohne vorausgewählte Raumstruktur.
@@ -69,7 +70,8 @@ Aktionen:
 
 - zum nächsten offenen Schritt wechseln
 - Entwurf speichern
-- `deer.zip` erstellen und herunterladen, wenn der Preflight gültig ist
+- `deer.zip` als Authoring-Bundle erstellen und herunterladen, wenn der
+  Preflight gültig ist
 
 ## 2. Rahmen
 
@@ -385,8 +387,8 @@ Eingaben dieses V0-Flows.
 
 ## 8. Prüfen & Paket Erstellen
 
-Zweck: Lehrende sehen vor dem Erstellen des `deer.zip` eine klare,
-nicht-technische Checkliste.
+Zweck: Lehrende sehen vor dem Erstellen des DEER-Authoring-Bundles `deer.zip`
+eine klare, nicht-technische Checkliste.
 
 Blockierende Fehler:
 
