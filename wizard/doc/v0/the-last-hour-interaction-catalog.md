@@ -50,10 +50,11 @@ Der Foundation-Slice ist absichtlich klein. Er soll beweisen, dass
 UI-Eingabe, `deer.json`, Asset-Referenzen, Graphvalidierung und Generatorlauf
 wirklich zusammenpassen.
 
-## Post-V0-Bausteinkatalog
+## Baustein-Ideensammlung
 
-Diese Bausteine bleiben Produktperspektive und sollen später aus The Last Hour
-abgeleitet werden. Sie sind nicht Teil des aktiven Foundation-Schemas.
+Diese Bausteine sind mögliche Erweiterungen aus The Last Hour. Sie werden erst
+Contract-Teil, wenn UI, Validierung und Generator sie im selben Slice
+unterstützen.
 
 | Schritt | Originalelement | Spieleraktion | Geplanter Baustein | Bemerkung |
 |---|---|---|---|---|
@@ -68,16 +69,16 @@ abgeleitet werden. Sie sind nicht Teil des aktiven Foundation-Schemas.
 | 9 | Bildfragmente aus Vent | Fragmente zusammensetzen | `assembly.image_fragments` | braucht Fragment-Spawn und Assembly-UI |
 | 10 | Finale Tür | Passwort eingeben und öffnen | `control_panel` oder `input.numeric` | Foundation kann nur einfache Numeric-Variante |
 
-## Nicht Als V0-Rätsel
+## Einordnung Vorhandener Elemente
 
-| Element | Grund |
+| Element | Einordnung |
 |---|---|
 | Intro/Outro | Szenario-Text, kein Rätsel. |
 | Timer | Session-/Scenario-Konfiguration. |
-| Telefonanrufe | Story-Event/Ressource; zu speziell für den ersten Wizard-Baustein. |
-| Allgemeines Virus-/Falschaktion-System | Zu breit für V0. |
-| Licht, Heizung, Kamera im Control Panel | Gute UI-Demonstration, aber für den Foundation-Slice nicht notwendig. |
-| Decoy-Vents, leere Container, Fake-Dateien | Erstmal keine eigenständigen Red-Herrings in V0. |
+| Telefonanrufe | Story-Event oder Ressource. |
+| Allgemeines Virus-/Falschaktion-System | Runtime-Fehler- und Feedbackmodell. |
+| Licht, Heizung, Kamera im Control Panel | Teil eines späteren Control-Panel-Bausteins. |
+| Decoy-Vents, leere Container, Fake-Dateien | Optionale Ressourcen- oder Decoy-Inhalte. |
 
 ## Computer-Strategie
 
@@ -90,7 +91,7 @@ Empfehlung:
 
 1. **Zielbild:** ein zentraler Computer pro Raum oder Szenario, der mehrere vom
    Generator konfigurierte Tabs aufnehmen kann.
-2. **Post-V0-Umsetzung:** vorhandene Computer-Codebasis wiederverwenden, aber
+2. **Spätere Umsetzung:** vorhandene Computer-Codebasis wiederverwenden, aber
    nur eine kleine Menge generischer Tab-/Dialogmuster parametrisieren:
    `login`, `choice`, `file/resource`, `usb_drive`, `control_panel`.
 3. **Fallback:** Wenn die Generalisierung des Computers zu groß wird, darf ein
@@ -131,13 +132,15 @@ zusammengesetztes Bild, das danach als Ressource den finalen Code liefert.
 ## Parameter-Grenze
 
 Die verbindliche Foundation-Tabelle steht in
-[`parameter-table-v0.md`](parameter-table-v0.md). Dieses Katalogdokument darf
-Post-V0-Ideen nennen, definiert aber keine zusätzlichen Pflichtfelder für den
-aktuellen Contract.
+[`parameter-table-v0.md`](parameter-table-v0.md). Dieses Katalogdokument ist
+Ideensammlung und definiert keine zusätzlichen Pflichtfelder für den aktuellen
+Contract.
 
-Progression liegt im `riddleGraph` über Kantenbedingungen mit
-`completedRiddles`. Runtime-Tokens, Petri-Netze, konkrete Slots und
-Spielzustände leitet der Generator ab.
+Progression liegt im `riddleGraph` über reine Kanten-Topologie. Eine Kante von
+einem Rätsel bedeutet, dass das Ziel nach Abschluss dieses Rätsels verfügbar
+wird; mehrere eingehende Rätselkanten bedeuten, dass alle Vorgänger erfüllt
+sein müssen. Runtime-Tokens, Petri-Netze, konkrete Slots und Spielzustände
+leitet der Generator ab.
 
 ## Nächste Klärung
 

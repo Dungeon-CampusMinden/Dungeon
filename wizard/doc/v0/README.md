@@ -29,8 +29,7 @@ frei für Web-App-Code, Entwurfsdaten und spätere Generator-Anbindung.
 - `the-last-hour-interaction-catalog.md`: Mapping vorhandener The-Last-Hour-
   Interaktionen auf spätere Wizard-Bausteine.
 - `generator-input-format.md`: Projektordner- und Generator-Handoff.
-- `implementation-handoff-v0.md`: kompakte Übergabe für UI- und
-  Generator-Start.
+- `implementation-handoff-v0.md`: kompakte Übergabe für UI und Generator.
 
 ## V0-Kernvertrag
 
@@ -44,6 +43,8 @@ frei für Web-App-Code, Entwurfsdaten und spätere Generator-Anbindung.
   erzeugt daraus das Room-Paket.
 - The Last Hour liefert verfügbare Bausteine und Assets, aber keine
   vorausgewählte Vorlage.
+- Ein Raum hat genau einen Endzustand; spätere verzweigte Wege laufen auf
+  dasselbe Ende zu.
 - V0 aktiv sind nur die Bausteine, die der Foundation-Slice wirklich
   spielbar erzeugen kann.
 - Der Abschluss ist nur aktiv, wenn Client-Preflight, Schema,

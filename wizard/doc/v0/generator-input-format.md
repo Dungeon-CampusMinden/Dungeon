@@ -57,15 +57,6 @@ Custom Assets sind von Lehrenden hochgeladene oder vom Wizard ausgewählte
 Inhaltsmedien. In V0 sind das nur Runtime-fähige Dateien wie Bilder, Audio und
 einfache Textdateien.
 
-Nicht Teil von V0:
-
-- Custom Tilesets,
-- Custom Player Sprites,
-- Custom Enemy Sprites,
-- Custom UI-Skins,
-- Theme-Ersetzungen,
-- beliebige Dokumentformate, die die Runtime nicht direkt laden kann.
-
 Textinhalte sollen bevorzugt im Wizard eingegeben und in `deer.json`
 gespeichert werden. Wenn ein Inhalt als Datei gebraucht wird, muss er als
 unterstütztes Asset im Projektordner liegen.

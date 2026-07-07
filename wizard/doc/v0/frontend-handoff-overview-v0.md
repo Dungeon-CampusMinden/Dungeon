@@ -48,8 +48,8 @@ Die UI ist kein JSON-Editor. Sie verantwortet:
 
 - sichtbare Wizard-Schritte und Schrittstatus,
 - Erfassung fachlicher Inhalte,
-- Ableitung stabiler IDs, Oberflächen und kontrollierter `successEffect`-
-  Werte,
+- Ableitung stabiler IDs, Oberflächen, Ablaufkanten und kontrollierter
+  `successEffect`-Werte, wo ein Baustein eine Weltänderung braucht,
 - Asset-Upload und relative Asset-Referenzen,
 - Client-Validierung vor der Finalisierung,
 - deaktivierte Zustände für nicht generierbare Bausteine,
@@ -77,7 +77,8 @@ Benötigte Bausteine:
   `parameters.rewardMode=find_resource`
 - `input.numeric` als UI-Label für `riddle.type=input` mit
   `parameters.inputMode=numeric`
-- kontrollierter `successEffect`, z. B. Tür öffnen
+- kontrollierter `successEffect` für Welt- oder Oberflächenänderungen, z. B.
+  Tür öffnen
 - einfache Textressourcen
 - optionale Bildassets
 - optionale Hinweise ohne komplexe Freischaltbedingungen
@@ -98,6 +99,7 @@ Blockierend:
 - Rätsel ist nicht erreichbar,
 - Progression kann nicht abgeschlossen werden,
 - Progressionsrätsel kann übersprungen werden,
+- mehr als ein Endzustand entsteht,
 - Softlock oder zyklische Abhängigkeit,
 - Baustein passt nicht zur abgeleiteten Oberfläche.
 

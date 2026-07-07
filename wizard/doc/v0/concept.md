@@ -44,11 +44,8 @@ V0 umfasst:
   Ablauf, unerreichbare Rätsel, ungewollte Skips und Softlock-Risiken.
 - Abschluss: `deer.json` finalisieren und Projektordner für den manuellen
   Generatorlauf bereitstellen.
-
-Nicht Teil von V0 sind spielbare Vorschau, Neu-Generieren, automatischer
-Generator-Start, UI-seitige ZIP-Erzeugung, Evaluation/Telemetrie/Debriefing,
-Lernzielverwaltung, mehrere Themes, ein Zwischeneditor nach dem Generator und
-Paketierung jenseits des Generator-Outputs.
+- Produktentscheidung: Ein Raum hat genau einen Endzustand. Auch spätere
+  Versionen können verzweigte Wege haben, führen aber auf dieses eine Ende.
 
 ## Authoring-Modell
 
@@ -78,20 +75,17 @@ Die Punktnotation ist eine UI-/Bausteinbezeichnung. In `deer.json` bleiben die
 Rätseltypen bewusst grob: `riddle.type` ist `collection` oder `input`; der
 konkrete Modus steht in `parameters.rewardMode` bzw. `parameters.inputMode`.
 
-Geplant nach V0, aber nicht Teil des Foundation-Schemas:
-
-- `state_change`: einfache Weltaktion, z. B. Stromschalter.
-- `input.credentials` und `input.decoded_text`: Login- und Decoding-Aufgaben.
-- `choice`: richtige Option auswählen, z. B. E-Mail oder URL.
-- `item_use`: bestimmtes Item an einem Ziel verwenden, z. B. USB am PC.
-- `assembly`: Fragmente zusammensetzen.
-- `control_panel`: wiederverwendbare UI mit mehreren Controls.
+Weitere Bausteine werden erst in das Schema aufgenommen, wenn sie im selben
+Slice von UI, Validierung und Generator unterstützt werden. Der
+The-Last-Hour-Katalog bleibt dafür Ideensammlung, nicht V0-Vertrag.
 
 ## Ablauf Und Validierung
 
-Die UI bildet den Rätselablauf als einfache Reihenfolge ab. Intern entsteht
-daraus ein Graph mit Start, Rätselknoten, Endknoten und Kantenbedingungen wie
-`always` oder `all_of_completed`.
+Die UI bildet den Rätselablauf als einfache Reihenfolge mit optionalen
+Parallelgruppen ab. Intern entsteht daraus ein Graph mit Start, Rätselknoten,
+genau einem Endknoten und reinen Kanten. Die Kanten-Topologie ist die
+Abhängigkeitsquelle: Eine Kante von einem Rätsel bedeutet, dass das Ziel nach
+Abschluss dieses Rätsels verfügbar wird.
 
 Blockierend sind Game-Breaking-Probleme:
 

@@ -70,7 +70,8 @@ Unterstützte Bausteine:
   `parameters.rewardMode=find_resource`
 - `input.numeric` als UI-Label für `riddle.type=input` mit
   `parameters.inputMode=numeric`
-- kontrollierter `successEffect`, z. B. Tür öffnen
+- kontrollierter `successEffect` für Welt- oder Oberflächenänderungen, z. B.
+  Tür öffnen
 - einfache Text- oder Bildassets
 - optionale Hinweise ohne komplexe Unlock-Bedingungen
 
@@ -106,6 +107,7 @@ Der Generator verantwortet:
 - ID-, `surfaceId`-, Rätsel-, Hint- und Ressourcenreferenzen prüfen,
 - Baustein-Parameter und Oberflächen-Kompatibilität prüfen,
 - Graph-Erreichbarkeit, Endzustand und Softlock-Risiken prüfen,
+- genau einen Endzustand erzwingen,
 - runtime-interne Tokens, Petri-Netze, Trigger oder States ableiten,
 - den Foundation-Slice spielbar erzeugen,
 - ein Room-Paket auf Disk schreiben,
@@ -154,21 +156,15 @@ Endzustände, unlösbare Abhängigkeiten und ungültige Hint-Unlocks.
 Warnungen betreffen Qualität und Redaktionsrisiken, z. B. lange Texte, fehlende
 Hinweise, ungenutzte Assets oder schwache Story-Einbettung.
 
-## Bewusst Nicht V0
+## Contract-Grenzen
 
-V0 umfasst nicht:
-
-- spielbare Preview,
-- Regenerate- oder Neu-Generieren-Flow,
-- automatischer UI-Aufruf des Java-Generators,
-- UI-seitige ZIP- oder Room-Paket-Erzeugung,
-- Token-Modell in `deer.json`,
-- lokaler Backend-Service oder offizieller CLI-Wrapper,
-- Import bestehender Generator-Pakete,
-- mehrere Themes oder Custom-Themes,
-- frei editierbarer technischer Graph für Lehrende,
-- Lernziel-, Evaluations-, Debriefing- oder Telemetrie-Funktionen,
-- The Last Hour als kopierte Raumvorlage.
+- Die UI finalisiert einen Projektordner mit `deer.json` und referenzierten
+  Assets; spielbare Runtime-Artefakte erzeugt der Java-Generator.
+- `deer.json` bleibt Authoring-Modell. Runtime-Tokens, Petri-Netze,
+  Generatorparameter und Paketierung gehören nicht in dieses Format.
+- Ein Raum hat genau einen Endzustand.
+- Weitere Bausteine werden erst contract-relevant, wenn UI, Validierung und
+  Generator sie im selben Slice unterstützen.
 
 ## Implementierungsstart
 

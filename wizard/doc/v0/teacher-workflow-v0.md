@@ -77,10 +77,9 @@ Blockiert Finalisierung, wenn:
 - ein Pflichtfeld fehlt,
 - ein Zahlenbereich ungültig ist.
 
-Nicht als Eingabe sichtbar:
+Fest gesetzt:
 
-- separate Empfehlung zur Spielerzahl,
-- Kooperationsmodus; V0 ist immer kooperativ.
+- Kooperationsmodus: kooperativ.
 
 ### 3. Szenario
 
@@ -121,8 +120,7 @@ Abgeleitete aktive Oberflächen:
 - Keypad,
 - Tür.
 
-Post-V0-Bausteine wie Computer-Login, E-Mail-Auswahl, USB, Control Panel und
-Bildfragmente bleiben deaktiviert, bis der Generator sie unterstützt.
+Weitere Bausteine bleiben deaktiviert, bis der Generator sie unterstützt.
 
 UI-Regeln:
 
@@ -155,12 +153,11 @@ Die Darstellung ist frei: Liste, Timeline, Board, Kartenansicht oder Canvas
 sind möglich, solange daraus eindeutig eine gültige Reihenfolge mit optionalen
 Parallelgruppen abgeleitet werden kann.
 
-V0 erzeugt hier nicht:
+Feste Ablaufregeln:
 
-- frei gezogene beliebige Graphkanten,
-- optionale Rätselpfade,
-- alternative Enden,
-- mehrere Level.
+- Der Editor erzeugt aus Gruppen und Reihenfolge einen eindeutigen Graph.
+- Alle Progressionsrätsel müssen erreichbar und notwendig bleiben.
+- Der Raum hat genau einen Endzustand.
 
 Blockiert Finalisierung, wenn:
 
@@ -179,7 +176,8 @@ Gemeinsame Pflichtangaben pro Rätsel:
 - sichtbarer Name,
 - Bausteintyp,
 - Aufgabe für Spielende,
-- Erfolg/Freischaltung aus kontrollierter Auswahl,
+- Erfolg/Freischaltung aus kontrollierter Auswahl, wenn der Baustein eine
+  Welt- oder Oberflächenänderung braucht,
 - benötigte Inhalte oder Assets.
 
 Typ-spezifische Pflichtangaben:
@@ -214,8 +212,7 @@ V0-Eingaben:
 - Audio als Upload,
 - optionale Hinweise pro Rätsel.
 
-Theme-, Tileset-, Sprite-, UI-Skin- und Office/PDF-Uploads sind keine
-Runtime-Assets dieses V0-Flows.
+Uploads müssen in V0 direkt runtime-fähige Medien sein.
 
 Blockiert Finalisierung, wenn:
 
@@ -309,8 +306,9 @@ Die UI erzeugt technische Daten automatisch:
 
 - stabile IDs,
 - `surfaces` aus den gewählten Bausteinen,
-- `riddleGraph`-Kanten mit `completedRiddles`,
-- kontrollierte `successEffect`-Werte,
+- `riddleGraph`-Kanten aus Ablauf und Parallelgruppen,
+- kontrollierte `successEffect`-Werte für Bausteine mit echter Welt- oder
+  Oberflächenänderung,
 - Slot-Typen,
 - leere Arrays für `resources`, `hints` und `assetIds`,
 - Standardwerte für Theme und Levelanzahl.
@@ -334,4 +332,5 @@ Fest:
 - Finalisierung ist nur bei gültigem Preflight aktiv.
 - Technische Interna werden nicht zur Hauptsprache der UI.
 - Der Ablauf muss in eine valide `deer.json` übersetzbar sein.
-- V0 erzeugt keine optionalen Progressionsrätsel oder alternative Enden.
+- Alle Progressionsrätsel bleiben notwendig; das Format bleibt auch nach V0
+  auf genau einen Endzustand ausgelegt.

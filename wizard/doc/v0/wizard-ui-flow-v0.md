@@ -131,8 +131,7 @@ Aktive Foundation-Oberflächen:
 | `keypad` | Keypad | Zahlencode eingeben |
 | `door` | Tür | Ziel öffnen |
 
-Post-V0-Oberflächen wie Computer, Inventarziel, Control Panel oder
-Fragmentbereich bleiben deaktiviert, bis der Generator sie unterstützt.
+Weitere Oberflächen bleiben deaktiviert, bis der Generator sie unterstützt.
 
 Pflichtangaben entstehen aus den gewählten Rätseln:
 
@@ -154,6 +153,7 @@ Fachliches Modell:
 - einfache Ablauf-Liste mit optionalen Parallelgruppen
 - jede Rätselinstanz als einzelnes bearbeitbares Element
 - Abhängigkeiten als "nach Rätsel X verfügbar"
+- intern reine Graphkanten statt zusätzlicher Kantenbedingungen
 - keine sichtbaren Token-Namen für Lehrende
 - freie Darstellung, solange ein eindeutiger Graph ableitbar bleibt
 
@@ -164,13 +164,14 @@ Pflichtangaben pro Knoten:
 | Rätselname | `riddle.title` | eindeutig genug |
 | Baustein-Typ | `riddle.type` plus Modusparameter | `collection` + `rewardMode=find_resource` oder `input` + `inputMode=numeric` |
 | Kurzaufgabe | `playerFacingTask` | nicht leer |
-| Vorgänger | `riddleGraph.edges[].condition.completedRiddles` | existierendes Rätsel |
-| Ergebnis/Freischaltung | `parameters.successEffect` | kontrollierte Auswahl |
+| Vorgänger | `riddleGraph.edges[].from`/`to` | existierendes Rätsel oder Start |
+| Ergebnis/Freischaltung | typabhängig, z. B. `parameters.successEffect` | kontrollierte Auswahl, wenn der Baustein einen Effekt braucht |
 
 V0-Regeln:
 
 - Alle Progressionsrätsel liegen auf einem durchspielbaren Pfad.
-- V0 erzeugt keine optionalen Rätselpfade.
+- Alle Progressionsrätsel bleiben notwendig.
+- V0 und spätere Versionen erzeugen genau einen Endzustand.
 - Parallelgruppen drücken Parallelität aus, ohne Progressionsrätsel zu
   überspringen.
 - Der Editor markiert Zyklen, unerreichbare Knoten und Abhängigkeiten, die erst
@@ -193,7 +194,6 @@ Pflichtfelder:
 - Fundort/Oberfläche
 - Fundtyp: Container oder Weltobjekt
 - Hinweis oder Ressource
-- Freischaltung aus kontrollierter Auswahl
 
 Optional:
 
@@ -217,22 +217,6 @@ Optionale Felder:
 - Feedback bei falscher Eingabe
 - Ziffernanzahl anzeigen ja/nein
 - Hinweis nach Fehlversuchen oder Zeit
-
-### 6.3 Post-V0-Bausteine
-
-Diese Bausteine dürfen als deaktivierte Produktperspektive sichtbar sein, sind
-aber nicht Teil des aktiven Foundation-Schemas:
-
-- Stromschalter / `state_change.confirm`
-- Computer-Login / `input.credentials`
-- E-Mail-Auswahl / `choice.email_list`
-- Decoding-Eingabe / `input.decoded_text`
-- USB Verwenden / `item_use`
-- Control Panel / `control_panel`
-- Bildfragmente / `assembly.image_fragments`
-
-Die UI soll deaktivierte Optionen begründen, z. B. "im aktuellen Generator noch
-nicht verfügbar".
 
 ## 7. Inhalte & Assets
 
@@ -260,8 +244,7 @@ V0-Eingaben:
 - Bilder als Upload
 - Audio als Upload
 
-Theme-, Tileset-, Sprite-, UI-Skin- und Office/PDF-Uploads sind keine Eingaben
-dieses V0-Flows.
+Uploads müssen in V0 direkt runtime-fähige Medien sein.
 
 ## 8. Prüfen & Entwurf Finalisieren
 
@@ -292,14 +275,12 @@ Hauptaktion:
 
 - `Entwurf finalisieren`
 
-Der Button ist deaktiviert, solange blockierende Fehler existieren. V0 enthält
-in diesem Schritt keine Live-Preview, keinen Neu-Generieren-Button, keinen
-Import bestehender Generator-Pakete und keinen Generator-Start.
+Der Button ist deaktiviert, solange blockierende Fehler existieren.
 
 ## Bausteinkatalog Aus The Last Hour
 
-Diese Liste beschreibt The-Last-Hour-nahe Bausteine als Ausblick. Sie ist keine
-vorausgewählte Raumstruktur und kein aktiver V0-Contract.
+Diese Liste beschreibt The-Last-Hour-nahe Bausteine als Ideensammlung. Sie ist
+keine vorausgewählte Raumstruktur und kein aktiver V0-Contract.
 
 1. Strom einschalten
 2. Login-Hinweise finden

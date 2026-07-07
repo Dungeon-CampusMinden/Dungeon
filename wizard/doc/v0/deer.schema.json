@@ -224,7 +224,7 @@
       "additionalProperties": false,
       "required": [
         "startNodeId",
-        "endNodeIds",
+        "endNodeId",
         "nodes",
         "edges"
       ],
@@ -232,21 +232,47 @@
         "startNodeId": {
           "$ref": "#/$defs/id"
         },
-        "endNodeIds": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 1,
-          "items": {
-            "$ref": "#/$defs/id"
-          },
-          "uniqueItems": true
+        "endNodeId": {
+          "$ref": "#/$defs/id"
         },
         "nodes": {
           "type": "array",
           "minItems": 2,
           "items": {
             "$ref": "#/$defs/graphNode"
-          }
+          },
+          "allOf": [
+            {
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "start"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "end"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              "minContains": 1,
+              "maxContains": 1
+            }
+          ]
         },
         "edges": {
           "type": "array",
@@ -300,6 +326,27 @@
               "riddleId"
             ]
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "not": {
+                  "const": "riddle"
+                }
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "riddleId"
+              ]
+            }
+          }
         }
       ]
     },
@@ -309,8 +356,7 @@
       "required": [
         "id",
         "from",
-        "to",
-        "condition"
+        "to"
       ],
       "properties": {
         "id": {
@@ -321,72 +367,8 @@
         },
         "to": {
           "$ref": "#/$defs/id"
-        },
-        "condition": {
-          "$ref": "#/$defs/edgeCondition"
         }
       }
-    },
-    "edgeCondition": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "enum": [
-            "always",
-            "all_of_completed"
-          ]
-        },
-        "completedRiddles": {
-          "$ref": "#/$defs/idArray"
-        }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "always"
-              }
-            },
-            "required": [
-              "type"
-            ]
-          },
-          "then": {
-            "not": {
-              "required": [
-                "completedRiddles"
-              ]
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "all_of_completed"
-              }
-            },
-            "required": [
-              "type"
-            ]
-          },
-          "then": {
-            "required": [
-              "completedRiddles"
-            ],
-            "properties": {
-              "completedRiddles": {
-                "minItems": 1
-              }
-            }
-          }
-        }
-      ]
     },
     "riddle": {
       "type": "object",
@@ -446,20 +428,7 @@
           }
         },
         "parameters": {
-          "type": "object",
-          "additionalProperties": true,
-          "properties": {
-            "surfaceId": {
-              "$ref": "#/$defs/id"
-            },
-            "slotType": {
-              "type": "string",
-              "minLength": 1
-            },
-            "successEffect": {
-              "$ref": "#/$defs/successEffect"
-            }
-          }
+          "type": "object"
         }
       },
       "allOf": [
@@ -477,6 +446,8 @@
           "then": {
             "properties": {
               "parameters": {
+                "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "surfaceId",
                   "slotType",
@@ -486,6 +457,13 @@
                   "successEffect"
                 ],
                 "properties": {
+                  "surfaceId": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "slotType": {
+                    "type": "string",
+                    "minLength": 1
+                  },
                   "inputMode": {
                     "const": "numeric"
                   },
@@ -506,6 +484,20 @@
                   },
                   "acceptedCharacters": {
                     "const": "digits"
+                  },
+                  "successEffect": {
+                    "$ref": "#/$defs/successEffect"
+                  },
+                  "successFeedback": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "wrongFeedback": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "retryPolicy": {
+                    "const": "infinite_retry"
                   }
                 }
               }
@@ -526,15 +518,23 @@
           "then": {
             "properties": {
               "parameters": {
+                "type": "object",
+                "additionalProperties": false,
                 "required": [
                   "surfaceId",
                   "slotType",
                   "sourceKind",
                   "rewardMode",
-                  "resourceIds",
-                  "successEffect"
+                  "resourceIds"
                 ],
                 "properties": {
+                  "surfaceId": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "slotType": {
+                    "type": "string",
+                    "minLength": 1
+                  },
                   "sourceKind": {
                     "enum": [
                       "container",
@@ -545,18 +545,32 @@
                     "const": "find_resource"
                   },
                   "resourceIds": {
-                    "$ref": "#/$defs/idArray"
+                    "$ref": "#/$defs/idArray",
+                    "minItems": 1
                   },
                   "consumeOnCollect": {
                     "type": "boolean"
                   },
                   "repeatable": {
                     "type": "boolean"
+                  },
+                  "successFeedback": {
+                    "type": "string",
+                    "minLength": 1
                   }
                 },
                 "not": {
-                  "required": [
-                    "rewards"
+                  "anyOf": [
+                    {
+                      "required": [
+                        "rewards"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "successEffect"
+                      ]
+                    }
                   ]
                 }
               }
@@ -789,21 +803,12 @@
         "type": {
           "enum": [
             "set_state",
-            "grant_resources",
             "unlock_surface",
             "open_surface"
           ]
         },
         "stateId": {
           "$ref": "#/$defs/id"
-        },
-        "resourceIds": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/id"
-          },
-          "uniqueItems": true
         },
         "surfaceId": {
           "$ref": "#/$defs/id"
@@ -824,23 +829,6 @@
           "then": {
             "required": [
               "stateId"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "grant_resources"
-              }
-            },
-            "required": [
-              "type"
-            ]
-          },
-          "then": {
-            "required": [
-              "resourceIds"
             ]
           }
         },

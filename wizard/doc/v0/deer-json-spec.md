@@ -33,17 +33,14 @@ Die typ-spezifischen Pflichtparameter stehen in
 [`parameter-table-v0.md`](parameter-table-v0.md). Der Projektordner für den
 Generator steht in [`generator-input-format.md`](generator-input-format.md).
 
-Explizit nicht V0:
+Contract-Grenzen:
 
-- Lernziele im Format,
-- mehrere Themes,
-- Custom-Themes, Tilesets, Sprites oder UI-Skins,
-- binäre Assets direkt in JSON,
-- automatisch gestarteter Generator,
-- UI-seitige ZIP- oder Room-Paket-Erzeugung,
-- technische Runtime-Tokens in `deer.json`,
-- Einlesen bestehender Generator-Pakete in den Wizard,
-- generierte `.level`-Dateien.
+- `deer.json` beschreibt den Raum als Authoring-Modell, nicht als Runtime-
+  oder Generator-Output.
+- Assets werden referenziert, nicht binär in JSON eingebettet.
+- Runtime-Tokens, Petri-Netze, Generatorparameter und Paketierung entstehen
+  außerhalb von `deer.json`.
+- Ein Raum hat genau einen Endzustand.
 
 ## 2. Top-Level Struktur
 
@@ -213,7 +210,7 @@ Petri-Net-Strukturen, Trigger oder Runtime-States ableiten.
 ```json
 {
   "startNodeId": "n_start",
-  "endNodeIds": ["n_exit_open"],
+  "endNodeId": "n_exit_open",
   "nodes": [
     {
       "id": "n_start",
@@ -231,10 +228,7 @@ Petri-Net-Strukturen, Trigger oder Runtime-States ableiten.
     {
       "id": "e_start_to_keypad",
       "from": "n_start",
-      "to": "n_storage_keypad",
-      "condition": {
-        "type": "always"
-      }
+      "to": "n_storage_keypad"
     }
   ]
 }
@@ -246,27 +240,32 @@ Node-Arten für V0:
 - `riddle`
 - `end`
 
-Edge-Conditions für V0:
+Edge-Semantik:
 
-- `always`
-- `all_of_completed`
-
-Bei `all_of_completed` referenziert `completedRiddles` eine Liste von
-`riddles[].id`.
+- Eine Kante vom Startknoten macht das Ziel zu Beginn verfügbar.
+- Eine Kante von einem Rätselknoten macht das Ziel verfügbar, nachdem das
+  Quellrätsel abgeschlossen wurde.
+- Hat ein Ziel mehrere eingehende Kanten von Rätselknoten, müssen alle diese
+  Vorgänger abgeschlossen sein.
+- Bedingungen werden nicht zusätzlich auf der Kante kodiert. Die Topologie ist
+  die einzige öffentliche Quelle für Reihenfolge und Abhängigkeiten.
 
 Validierung:
 
 - Genau ein `startNodeId`.
 - Genau ein `endNodeId`.
+- Genau ein Graphknoten mit `kind=end`; er muss `endNodeId` entsprechen.
 - Alle Rätsel-Nodes referenzieren ein existierendes `riddleId`.
-- Jeder Endknoten muss vom Start erreichbar sein.
-- Jede `completedRiddles`-Referenz muss auf ein existierendes Rätsel zeigen.
+- Der Endknoten muss vom Start erreichbar sein.
 - Standard ist ein azyklischer Graph. Retry-Verhalten gehört in das jeweilige
   Rätsel, nicht als Graphzyklus.
-- V0 erzeugt keine optionalen Rätsel: Jeder Rätselknoten muss erreichbar sein
-  und auf einem durchspielbaren Pfad zum Ende liegen.
+- Jeder Rätselknoten muss erreichbar sein und auf einem durchspielbaren Pfad
+  zum Ende liegen.
 - Branches dürfen nur Reihenfolge oder Parallelität ausdrücken, aber keine
   optionalen Alternativpfade, die Rätsel auslassen.
+- Auch nach V0 bleibt das Authoring-Modell auf genau ein Ende ausgelegt.
+  Alternative Pfade dürfen später auf denselben Endzustand zulaufen, aber nicht
+  mehrere Enden erzeugen.
 
 ## 9. riddles
 
@@ -325,13 +324,17 @@ Die detaillierten Pflicht- und Optionalparameter stehen in
 den gemeinsamen Authoring-Contract fest:
 
 - Alle Rätsel enthalten ein `parameters`-Objekt.
+- Das `parameters`-Objekt ist pro aktivem Rätseltyp geschlossen. Typfremde
+  Felder werden vom Schema abgelehnt.
 - Alle Rätsel enthalten ein `resources`-Array. Wenn es keine Ressourcen gibt,
   ist es leer.
 - `resources` beschreiben normale Hinweise, Kontext, Anleitungen oder Decoys
   im Raum. Sie erzeugen keine Progression.
 - Hints sind optionale Zusatzhilfen und stehen immer in einem `hints`-Array.
 - `successEffect` ist ein kontrollierter Effekt nach erfolgreicher Lösung,
-  kein Freitext.
+  wenn der konkrete Rätseltyp eine Weltänderung braucht. Bei
+  `collection.single` ist `parameters.resourceIds` bereits das Ergebnis; dafür
+  wird kein zusätzlicher Resource-Grant-Effekt kodiert.
 
 ## 10. resources
 
@@ -457,9 +460,8 @@ Die Finalisierung wird blockiert, wenn:
 - ein `input` nicht `inputMode=numeric` nutzt,
 - ein Graphknoten nicht erreichbar ist,
 - ein Rätselknoten nicht auf einem durchspielbaren Pfad zum Ende liegt,
-- ein Endknoten nicht erreichbar ist,
+- der Endknoten nicht erreichbar ist,
 - ein Branch ein Progressionsrätsel optional oder überspringbar macht,
-- eine Edge ein nicht existierendes Rätsel in `completedRiddles` verlangt,
 - eine Abhängigkeit zyklisch oder in der aktuellen Graphstruktur unerfüllbar
   ist,
 - ein required Asset fehlt,

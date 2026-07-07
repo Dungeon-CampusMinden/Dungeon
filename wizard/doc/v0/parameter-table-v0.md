@@ -9,6 +9,9 @@ Diese Tabelle beschreibt die typ-spezifischen Parameter, die der Wizard im
 ersten lauffähigen Slice erzeugt. Sie ergänzt
 [`deer-json-spec.md`](deer-json-spec.md). Das JSON Schema prüft die Struktur;
 UI und Generator prüfen zusätzlich fachliche Referenzen und Spielbarkeit.
+Die aktiven V0-Parameterobjekte sind typ-spezifisch geschlossen: Ein
+`input.numeric` darf keine Fundparameter tragen und ein `collection.single`
+keine Eingabeparameter.
 
 Grundregel:
 
@@ -17,6 +20,8 @@ Grundregel:
   fachlich benannt.
 - Der Rätselgraph ist die Quelle für Progression; `deer.json` enthält keine
   öffentlichen Tokens.
+- Die Graph-Topologie ist die Abhängigkeitsquelle. Kanten tragen keine zweite
+  Bedingungsliste.
 - Der manuell gestartete Generator wählt konkrete Positionen, Slot-Instanzen,
   Runtime-States und technische Details.
 - Der Client validiert vor der Finalisierung; der Java-Generator validiert
@@ -42,28 +47,29 @@ Jedes Rätsel braucht außerhalb von `parameters`:
 Progression liegt ausschließlich in `riddleGraph.edges`. Ein Rätsel sollte
 keine Felder wie `requiresTokens` oder `producesTokens` enthalten.
 
-## Gemeinsame Parameter
+## Wiederkehrende Parameter
 
-Diese Felder können für alle aktiven Typen sinnvoll sein:
+Diese Felder können je nach aktivem Typ sinnvoll sein:
 
 | Feld | Pflicht | Bedeutung |
 |---|---:|---|
 | `surfaceId` | ja | Referenz auf `surfaces[].id`, z. B. `s_storage_keypad`. |
 | `slotType` | ja | Gewünschter Slot-Typ, z. B. `container_slot`, `keypad_slot`. |
-| `successEffect` | ja | Kontrollierter Effekt nach Erfolg, z. B. `open_surface` auf eine Tür-Surface. |
+| `successEffect` | typabhängig | Kontrollierter Effekt nach Erfolg, z. B. `open_surface` auf eine Tür-Surface. |
 | `successFeedback` | nein | Kurzer sichtbarer Erfolgstext. |
 | `wrongFeedback` | nein | Kurzer Fehlertext bei falscher Eingabe. |
 | `retryPolicy` | nein | Standard `infinite_retry`; V0 sollte Progression nicht dauerhaft blockieren. |
 
 `successEffect` ist keine freie Nutzereingabe. Lehrende wählen fachlich, z. B.
 "Tür öffnen"; die UI schreibt intern ein kontrolliertes Objekt.
+Fund-Rätsel nutzen keinen `successEffect`, um gefundene Ressourcen zu vergeben;
+bei `collection.single` ist `resourceIds` selbst das Ergebnis des Fundes.
 
 V0-Effektmodell:
 
 | Kategorie | Bedeutung | Beispiel |
 |---|---|---|
 | `set_state` | Welt- oder Runtime-Zustand setzen | `{ "type": "set_state", "stateId": "power_on" }` |
-| `grant_resources` | Informationen/Ressourcen verfügbar machen | `{ "type": "grant_resources", "resourceIds": ["res_note"] }` |
 | `unlock_surface` | Interaktionsoberfläche freischalten | `{ "type": "unlock_surface", "surfaceId": "s_keypad" }` |
 | `open_surface` | Tür oder Bereich öffnen | `{ "type": "open_surface", "surfaceId": "s_exit_door" }` |
 
@@ -85,7 +91,6 @@ Pflicht in `parameters`:
 | `sourceKind` | `container` oder `world_object`. |
 | `rewardMode` | `find_resource`. |
 | `resourceIds` | Eine oder mehrere verfügbare Ressourcen. |
-| `successEffect` | Effekt nach erfolgreichem Fund. |
 
 Optional:
 
@@ -98,11 +103,7 @@ Optional:
   "slotType": "container_slot",
   "sourceKind": "container",
   "rewardMode": "find_resource",
-  "resourceIds": ["res_keypad_note"],
-  "successEffect": {
-    "type": "grant_resources",
-    "resourceIds": ["res_keypad_note"]
-  }
+  "resourceIds": ["res_keypad_note"]
 }
 ```
 
@@ -225,8 +226,9 @@ des aktiven Foundation-Schemas:
 
 1. `surfaceId` bleibt dort relevant, wo mehrere Oberflächen möglich sind oder
    ein wiederverwendbares Objekt adressiert wird.
-2. `successEffect` ist eine kontrollierte Wizard-Auswahl und wird in JSON als
-   strukturierter Effekt gespeichert.
+2. `successEffect` ist eine kontrollierte Wizard-Auswahl für Bausteine, die
+   eine Welt- oder Oberflächenänderung auslösen; Fund-Ressourcen werden über
+   `resourceIds` modelliert.
 3. V0 bleibt klein: vollständige Spezifikation nur für tatsächlich
    generierbare Foundation-Bausteine.
 4. Laufzeit-Tokens, Petri-Netze und konkrete Slots werden aus `deer.json`

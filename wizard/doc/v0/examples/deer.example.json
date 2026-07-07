@@ -52,9 +52,7 @@
   ],
   "riddleGraph": {
     "startNodeId": "n_start",
-    "endNodeIds": [
-      "n_exit_open"
-    ],
+    "endNodeId": "n_exit_open",
     "nodes": [
       {
         "id": "n_start",
@@ -83,32 +81,17 @@
       {
         "id": "e_start_to_note",
         "from": "n_start",
-        "to": "n_find_keypad_note",
-        "condition": {
-          "type": "always"
-        }
+        "to": "n_find_keypad_note"
       },
       {
         "id": "e_note_to_keypad",
         "from": "n_find_keypad_note",
-        "to": "n_open_exit_keypad",
-        "condition": {
-          "type": "all_of_completed",
-          "completedRiddles": [
-            "r_find_keypad_note"
-          ]
-        }
+        "to": "n_open_exit_keypad"
       },
       {
         "id": "e_keypad_to_end",
         "from": "n_open_exit_keypad",
-        "to": "n_exit_open",
-        "condition": {
-          "type": "all_of_completed",
-          "completedRiddles": [
-            "r_open_exit_keypad"
-          ]
-        }
+        "to": "n_exit_open"
       }
     ]
   },
@@ -146,13 +129,7 @@
         "rewardMode": "find_resource",
         "resourceIds": [
           "res_keypad_note"
-        ],
-        "successEffect": {
-          "type": "grant_resources",
-          "resourceIds": [
-            "res_keypad_note"
-          ]
-        }
+        ]
       }
     },
     {
