@@ -40,11 +40,11 @@ Zweck: Wizard-nahe Zerlegung der wiederverwendbaren Spiel-Elemente aus
 
 Aktiv für den ersten UI- und Generator-Slice:
 
-| Schritt | Originalelement | Spieleraktion | Wizard-Baustein | V0-Entscheidung |
+| Schritt | Originalelement | Spieleraktion | Wizard-Element | V0-Entscheidung |
 |---|---|---|---|---|
-| 1 | Login-Notiz oder Code-Hinweis | Hinweis finden/einsammeln | `collection.single` | UI-Label; JSON nutzt `riddle.type=collection` und `rewardMode=find_resource` |
-| 2 | Storage-Keypad oder Tür-Keypad | Zahlencode eingeben | `input.numeric` | UI-Label; JSON nutzt `riddle.type=input` und `inputMode=numeric` |
-| 3 | Tür/Bereich öffnen | Erfolg nach korrekter Eingabe | `successEffect.open_surface` | kontrollierter Effekt, Generator erzeugt Runtime-State |
+| 1 | Login-Notiz oder Code-Hinweis | Hinweis finden/einsammeln | `collection.single` | Internes Mapping; JSON nutzt `riddle.type=collection` und `rewardMode=find_resource` |
+| 2 | Storage-Keypad oder Tür-Keypad | Zahlencode eingeben | `input.numeric` | Internes Mapping; JSON nutzt `riddle.type=input` und `inputMode=numeric` |
+| 3 | Tür/Bereich öffnen | Erfolg nach korrekter Eingabe | kein eigener Baustein; `parameters.successEffect.type=open_surface` | kontrollierter Effekt, Generator erzeugt Runtime-State |
 
 Der Foundation-Slice ist absichtlich klein. Er soll beweisen, dass
 UI-Eingabe, `deer.json`, Asset-Referenzen, Graphvalidierung und Generatorlauf

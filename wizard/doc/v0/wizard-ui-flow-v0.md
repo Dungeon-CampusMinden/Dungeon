@@ -43,7 +43,7 @@ Rahmen festlegen
 5. **Rätselablauf**
 6. **Rätsel bearbeiten**
 7. **Inhalte & Assets**
-8. **Prüfen & Entwurf Finalisieren**
+8. **Prüfen & Entwurf finalisieren**
 
 ## 1. Übersicht
 
@@ -142,7 +142,7 @@ Pflichtangaben entstehen aus den gewählten Rätseln:
 | mindestens eine Tür oder Zieloberfläche | für `open_surface` | vorhanden, wenn ein Rätsel eine Tür öffnet |
 
 Intern schreibt die UI die abgeleiteten Oberflächen in `surfaces`. Lehrende
-sehen fachliche Namen, nicht technische IDs.
+sehen fachliche Namen, keine technischen IDs.
 
 ## 5. Rätselablauf
 
@@ -193,7 +193,7 @@ Pflichtfelder:
 - Aufgabe für Spielende
 - Fundort/Oberfläche
 - Fundtyp: Container oder Weltobjekt
-- Hinweis oder Ressource
+- mindestens eine Ressource, die in `parameters.resourceIds` geschrieben wird
 
 Optional:
 
@@ -226,7 +226,7 @@ Pflichtbereiche:
 
 | Bereich | Pflicht, wenn... |
 |---|---|
-| Texte | ein Rätsel Text, Lore oder Ressource nutzt |
+| Texte | Text, Lore oder Ressourcen verwendet werden |
 | Bilder | eine Ressource oder Story ein Bild nutzt |
 | Audio | Audio in Szenario oder Feedback aktiviert ist |
 | Hinweise | optional, aber pro Rätsel als leeres Array vorhanden |
@@ -260,6 +260,8 @@ Blockierende Fehler:
 - Rätsel im Ablauf nicht erreichbar
 - Progression kann nicht abgeschlossen werden
 - Progressionsrätsel kann übersprungen werden
+- mehr als ein Endzustand entsteht
+- Endknoten nicht erreichbar
 - Softlock oder zyklische Abhängigkeit
 - Aktion passt nicht zur gewählten Oberfläche
 - verwendeter Baustein ist im aktuellen Generator-Slice nicht generierbar
@@ -277,24 +279,5 @@ Hauptaktion:
 
 Der Button ist deaktiviert, solange blockierende Fehler existieren.
 
-## Bausteinkatalog Aus The Last Hour
-
-Diese Liste beschreibt The-Last-Hour-nahe Bausteine als Ideensammlung. Sie ist
-keine vorausgewählte Raumstruktur und kein aktiver V0-Contract.
-
-1. Strom einschalten
-2. Login-Hinweise finden
-3. Computer-Login
-4. richtige E-Mail erkennen
-5. Recovery-Code decodieren
-6. Storage-Code aus Dokument entschlüsseln
-7. Storage-Keypad öffnen
-8. richtigen USB-Stick finden
-9. USB am PC verwenden
-10. Vent-Seriennummer im Control Panel eintragen
-11. AC einschalten
-12. Bildfragmente zusammensetzen
-13. finale Tür öffnen
-
-Lehrende bauen den Raum selbst aus aktiv unterstützten Bausteinen zusammen. Die
-UI darf spätere Bausteine zeigen, aber nur deaktiviert und mit klarem Grund.
+Weitere Bausteinideen stehen im
+[`the-last-hour-interaction-catalog.md`](the-last-hour-interaction-catalog.md).

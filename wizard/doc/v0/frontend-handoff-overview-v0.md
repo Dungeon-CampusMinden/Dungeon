@@ -56,7 +56,7 @@ Die UI ist kein JSON-Editor. Sie verantwortet:
 - Ausgabe einer validierten `deer.json`.
 
 Lehrende bearbeiten keine Tokens, Petri-Netze, Slot-IDs oder JSON-Dateien
-direkt. Die UI erzeugt kein spielbares Room-Paket und kein Generator-ZIP.
+direkt. Die UI erzeugt keine spielbaren Runtime-Artefakte.
 
 ## Erster UI-Slice
 
@@ -73,10 +73,10 @@ Rahmen
 
 Benötigte Bausteine:
 
-- `collection.single` als UI-Label für `riddle.type=collection` mit
-  `parameters.rewardMode=find_resource`
-- `input.numeric` als UI-Label für `riddle.type=input` mit
-  `parameters.inputMode=numeric`
+- sichtbarer Baustein **Fund**, intern `collection.single` und
+  `riddle.type=collection` mit `parameters.rewardMode=find_resource`
+- sichtbarer Baustein **Zahlencode**, intern `input.numeric` und
+  `riddle.type=input` mit `parameters.inputMode=numeric`
 - kontrollierter `successEffect` für Welt- oder Oberflächenänderungen, z. B.
   Tür öffnen
 - einfache Textressourcen

@@ -2,12 +2,12 @@
 
 ## Ziel
 
-V0 ist eine schlichte Wizard-Web-App für nicht technische Lehrende. Die App
+V0 ist eine schlichte Wizard-Web-App für nicht-technische Lehrende. Die App
 erfasst einen einfachen Escape-Room-Entwurf, erzeugt daraus eine validierte
 `deer.json` und verwaltet die referenzierten Assets in einem Projektordner.
 
 `deer.json` ist der Contract zwischen UI und Generator. Das spielbare
-Room-Paket und ein optionales Transport-ZIP entstehen erst im Java-Generator.
+Room-Paket entsteht erst im Java-Generator.
 
 ## Glossar
 
@@ -17,8 +17,6 @@ Room-Paket und ein optionales Transport-ZIP entstehen erst im Java-Generator.
 - **Projektordner**: `deer.json` plus referenzierte Assets; manuelle Eingabe
   für den Generator.
 - **Room-Paket**: vom Java-Generator erzeugtes spielbares Runtime-Artefakt.
-- **Generator-ZIP**: optionaler Generator-Output oder Transportcontainer, nicht
-  Aufgabe der Wizard-UI.
 
 ## V0-Produktfluss
 
@@ -66,9 +64,11 @@ Rahmen
 
 Unterstützte Bausteine:
 
-- `collection.single` als UI-Label für `riddle.type=collection` mit
+- sichtbarer Baustein **Fund**, intern `collection.single` und
+  `riddle.type=collection` mit
   `parameters.rewardMode=find_resource`
-- `input.numeric` als UI-Label für `riddle.type=input` mit
+- sichtbarer Baustein **Zahlencode**, intern `input.numeric` und
+  `riddle.type=input` mit
   `parameters.inputMode=numeric`
 - kontrollierter `successEffect` für Welt- oder Oberflächenänderungen, z. B.
   Tür öffnen

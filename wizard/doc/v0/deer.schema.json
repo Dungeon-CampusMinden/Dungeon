@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://dungeon.local/schemas/deer.schema.json",
+  "$id": "urn:dungeon:wizard:deer-schema:0.1-draft",
   "title": "DEER Authoring Configuration",
   "description": "Schema for the editable wizard authoring file. Semantic cross-reference checks remain part of the Wizard and generator validators.",
   "type": "object",
@@ -461,15 +461,14 @@
                     "$ref": "#/$defs/id"
                   },
                   "slotType": {
-                    "type": "string",
-                    "minLength": 1
+                    "const": "keypad_slot"
                   },
                   "inputMode": {
                     "const": "numeric"
                   },
                   "answer": {
                     "type": "string",
-                    "minLength": 1
+                    "pattern": "^[0-9]+$"
                   },
                   "maxLength": {
                     "type": "integer",
@@ -532,8 +531,10 @@
                     "$ref": "#/$defs/id"
                   },
                   "slotType": {
-                    "type": "string",
-                    "minLength": 1
+                    "enum": [
+                      "container_slot",
+                      "world_object_slot"
+                    ]
                   },
                   "sourceKind": {
                     "enum": [
@@ -558,20 +559,6 @@
                     "type": "string",
                     "minLength": 1
                   }
-                },
-                "not": {
-                  "anyOf": [
-                    {
-                      "required": [
-                        "rewards"
-                      ]
-                    },
-                    {
-                      "required": [
-                        "successEffect"
-                      ]
-                    }
-                  ]
                 }
               }
             }
@@ -653,6 +640,23 @@
           "if": {
             "properties": {
               "kind": {
+                "const": "inline_text"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "text"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
                 "const": "asset"
               }
             },
@@ -722,134 +726,111 @@
       }
     },
     "hintUnlockCondition": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "enum": [
-            "elapsed_time",
-            "failed_attempts",
-            "riddle_completed"
-          ]
-        },
-        "seconds": {
-          "type": "integer",
-          "minimum": 1
-        },
-        "count": {
-          "type": "integer",
-          "minimum": 1
-        },
-        "riddleId": {
-          "$ref": "#/$defs/id"
-        }
-      },
-      "allOf": [
+      "oneOf": [
         {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "elapsed_time"
-              }
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "seconds"
+          ],
+          "properties": {
+            "type": {
+              "const": "elapsed_time"
+            },
+            "seconds": {
+              "type": "integer",
+              "minimum": 1
             }
-          },
-          "then": {
-            "required": [
-              "seconds"
-            ]
           }
         },
         {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "failed_attempts"
-              }
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "riddleId",
+            "count"
+          ],
+          "properties": {
+            "type": {
+              "const": "failed_attempts"
+            },
+            "riddleId": {
+              "$ref": "#/$defs/id"
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1
             }
-          },
-          "then": {
-            "required": [
-              "riddleId",
-              "count"
-            ]
           }
         },
         {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "riddle_completed"
-              }
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "riddleId"
+          ],
+          "properties": {
+            "type": {
+              "const": "riddle_completed"
+            },
+            "riddleId": {
+              "$ref": "#/$defs/id"
             }
-          },
-          "then": {
-            "required": [
-              "riddleId"
-            ]
           }
         }
       ]
     },
     "successEffect": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "enum": [
-            "set_state",
-            "unlock_surface",
-            "open_surface"
-          ]
-        },
-        "stateId": {
-          "$ref": "#/$defs/id"
-        },
-        "surfaceId": {
-          "$ref": "#/$defs/id"
-        }
-      },
-      "allOf": [
+      "oneOf": [
         {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "set_state"
-              }
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "stateId"
+          ],
+          "properties": {
+            "type": {
+              "const": "set_state"
             },
-            "required": [
-              "type"
-            ]
-          },
-          "then": {
-            "required": [
-              "stateId"
-            ]
+            "stateId": {
+              "$ref": "#/$defs/id"
+            }
           }
         },
         {
-          "if": {
-            "properties": {
-              "type": {
-                "enum": [
-                  "unlock_surface",
-                  "open_surface"
-                ]
-              }
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "surfaceId"
+          ],
+          "properties": {
+            "type": {
+              "const": "unlock_surface"
             },
-            "required": [
-              "type"
-            ]
-          },
-          "then": {
-            "required": [
-              "surfaceId"
-            ]
+            "surfaceId": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "surfaceId"
+          ],
+          "properties": {
+            "type": {
+              "const": "open_surface"
+            },
+            "surfaceId": {
+              "$ref": "#/$defs/id"
+            }
           }
         }
       ]

@@ -21,7 +21,7 @@ Festgelegt sind:
 Gestaltung, Komponenten, Navigation, Icons, Microcopy und Interaktionsdetails
 bleiben frei.
 
-## Beispiel-Workflow Aus Lehrenden-Sicht
+## Beispiel-Workflow aus Lehrenden-Sicht
 
 Eine Lehrkraft erstellt einen kleinen Escape Room:
 
@@ -101,7 +101,7 @@ Warnungen:
 - Mission wirkt unklar,
 - Text beschreibt nur Fachinhalt ohne Spielsituation.
 
-### 4. Bausteine Und Oberflächen
+### 4. Bausteine und Oberflächen
 
 Zweck: Lehrende wählen fachliche Spielbausteine. Die UI leitet daraus
 benötigte Oberflächen ab.
@@ -147,7 +147,7 @@ Fachliches Modell:
 - Eine Gruppe kann ein oder mehrere Rätsel enthalten.
 - Mehrere Rätsel in derselben Gruppe gelten als parallel lösbar.
 - Die nächste Gruppe wird erst relevant, wenn alle Progressionsrätsel der
-  vorherigen Gruppe abgeschlossen werden können.
+  vorherigen Gruppe abgeschlossen sind.
 
 Die Darstellung ist frei: Liste, Timeline, Board, Kartenansicht oder Canvas
 sind möglich, solange daraus eindeutig eine gültige Reihenfolge mit optionalen
@@ -184,7 +184,7 @@ Typ-spezifische Pflichtangaben:
 
 | Baustein | Pflichtangaben |
 |---|---|
-| Fund | Fundtyp, Fundort, Hinweis oder Ressource |
+| Fund | Fundtyp, Fundort, mindestens eine Ressource für `parameters.resourceIds` |
 | Keypad | Zahlencode, maximale Länge, Erfolg |
 
 Optional:
@@ -201,7 +201,7 @@ Blockiert Finalisierung, wenn:
 - eine Lösung nicht zum Eingabetyp passt,
 - Erfolg/Freischaltung mit dem Ablauf unvereinbar ist.
 
-### 7. Inhalte, Assets Und Hinweise
+### 7. Inhalte, Assets und Hinweise
 
 Zweck: Texte, Bilder, Audio und optionale Hilfen zentral verwalten.
 
@@ -234,7 +234,7 @@ Hint-Freischaltungen:
 - nach Fehlversuchen,
 - nach gelöstem Rätsel.
 
-### 8. Prüfen Und Entwurf Finalisieren
+### 8. Prüfen und Entwurf finalisieren
 
 Zweck: Letzte nicht-technische Prüfung vor dem manuellen Generator-Handoff.
 
@@ -316,7 +316,7 @@ Die UI erzeugt technische Daten automatisch:
 Lehrende bearbeiten diese Werte nicht direkt. Runtime-Tokens, Petri-Netze,
 Trigger und konkrete Slots entstehen erst im Generator.
 
-## Gestaltungsspielraum Für Die UI
+## Gestaltungsspielraum für die UI
 
 Frei wählbar:
 

@@ -4,7 +4,7 @@ Status: 0.1-draft V0-Contract
 Stand: 07.07.2026
 Scope: Foundation-Slice, ein spielbarer Escape-Room-Level, ein Standard-Theme
 
-## 1. Rolle Von deer.json
+## 1. Rolle von deer.json
 
 `deer.json` ist die interne editierbare Quelle des Wizards und der Contract zum
 manuell gestarteten Java-Generator. Der Wizard liest und schreibt diese Datei.
@@ -333,8 +333,8 @@ den gemeinsamen Authoring-Contract fest:
 - Hints sind optionale Zusatzhilfen und stehen immer in einem `hints`-Array.
 - `successEffect` ist ein kontrollierter Effekt nach erfolgreicher Lösung,
   wenn der konkrete Rätseltyp eine Weltänderung braucht. Bei
-  `collection.single` ist `parameters.resourceIds` bereits das Ergebnis; dafür
-  wird kein zusätzlicher Resource-Grant-Effekt kodiert.
+  `collection.single` ist `parameters.resourceIds` das Ergebnis; dafür wird
+  kein zusätzlicher `successEffect` kodiert.
 
 ## 10. resources
 
@@ -429,6 +429,18 @@ Validierung:
 - Required Assets müssen im Projektordner existieren.
 - PDFs und Office-Dateien sind in V0 nicht direkt runtime-fähig.
 
+Pflicht pro Asset:
+
+| Feld | Bedeutung |
+|---|---|
+| `id` | Stabile Asset-ID. |
+| `path` | Relativer Pfad im Projektordner. |
+| `mediaType` | Unterstützter Medientyp. |
+| `purpose` | Fachlicher Einsatzzweck. |
+| `linkedTo` | Verknüpfte Rätsel-, Resource- oder Story-IDs, sonst `[]`. |
+| `required` | Ob der Generator ohne diese Datei blockieren muss. |
+| `source` | Herkunfts- und Lizenzhinweis. |
+
 ## 13. V0-Generator-Handoff
 
 `deer.json` beschreibt, was der Escape Room sein soll. Die Web-App erzeugt
@@ -443,7 +455,7 @@ Technische Angaben für einen konkreten Generatorlauf gehören nicht in
 ## 14. Harte Validierungen
 
 Der Wizard darf den Entwurf nicht finalisieren, wenn dadurch ein
-game-breaking Raum beschrieben würde. Der Generator muss dieselben harten
+spielblockierender Raum beschrieben würde. Der Generator muss dieselben harten
 Regeln beim manuellen Start erneut prüfen. Blockierend sind besonders
 Softlocks, unerreichbare Progression, ungewollte Skips und fehlende
 Pflichtdaten.
@@ -458,9 +470,13 @@ Die Finalisierung wird blockiert, wenn:
 - ein Rätsel einen unbekannten Typ nutzt,
 - ein Rätsel kein `resources`-Array hat,
 - ein `input` nicht `inputMode=numeric` nutzt,
+- ein `input.numeric.answer` andere Zeichen als Ziffern enthält,
+- `minLength`, `maxLength` und Antwortlänge unvereinbar sind,
+- ein `slotType` nicht zum aktiven Rätseltyp passt,
 - ein Graphknoten nicht erreichbar ist,
 - ein Rätselknoten nicht auf einem durchspielbaren Pfad zum Ende liegt,
 - der Endknoten nicht erreichbar ist,
+- `endNodeId` nicht auf den einzigen Graphknoten mit `kind=end` zeigt,
 - ein Branch ein Progressionsrätsel optional oder überspringbar macht,
 - eine Abhängigkeit zyklisch oder in der aktuellen Graphstruktur unerfüllbar
   ist,
@@ -472,9 +488,8 @@ Die Finalisierung wird blockiert, wenn:
 
 ### 14.1 Validierungszeitpunkte
 
-Die normale Nutzererfahrung soll nicht sein, dass Lehrende erst in einem
-späteren Generatorlauf von einem Fehler erfahren. Der Client ist deshalb die
-primäre Validierungsoberfläche.
+Lehrende sollen Fehler nicht erst im späteren Generatorlauf sehen. Deshalb ist
+der Client die primäre Validierungsoberfläche.
 
 V0-Validierung läuft in drei Stufen:
 

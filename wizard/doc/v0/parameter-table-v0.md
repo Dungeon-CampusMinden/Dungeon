@@ -44,8 +44,7 @@ Jedes Rätsel braucht außerhalb von `parameters`:
 | `difficulty` | nein | Redaktionsmetadatum für Warnungen. |
 | `estimatedMinutes` | nein | Zeitannahme für Balance und Warnungen. |
 
-Progression liegt ausschließlich in `riddleGraph.edges`. Ein Rätsel sollte
-keine Felder wie `requiresTokens` oder `producesTokens` enthalten.
+Progression liegt ausschließlich in `riddleGraph.edges`.
 
 ## Wiederkehrende Parameter
 
@@ -77,7 +76,7 @@ V0-Effektmodell:
 
 ### `collection.single`
 
-Use Case: Notiz, Hinweis oder Ressource an einem Fundort finden.
+Anwendungsfall: Notiz, Hinweis oder Ressource an einem Fundort finden.
 
 Interner JSON-Contract: `riddle.type=collection`,
 `parameters.rewardMode=find_resource`.
@@ -90,7 +89,7 @@ Pflicht in `parameters`:
 | `slotType` | `container_slot` oder `world_object_slot`. |
 | `sourceKind` | `container` oder `world_object`. |
 | `rewardMode` | `find_resource`. |
-| `resourceIds` | Eine oder mehrere verfügbare Ressourcen. |
+| `resourceIds` | Eine oder mehrere Ressourcen, die durch den Fund verfügbar werden. |
 
 Optional:
 
@@ -109,7 +108,7 @@ Optional:
 
 ### `input.numeric`
 
-Use Case: Keypad, Zahlen-Code oder einfache numerische Antwort.
+Anwendungsfall: Keypad, Zahlen-Code oder einfache numerische Antwort.
 
 Interner JSON-Contract: `riddle.type=input`, `parameters.inputMode=numeric`.
 
@@ -118,9 +117,9 @@ Pflicht in `parameters`:
 | Feld | Bedeutung |
 |---|---|
 | `surfaceId` | Eingabeoberfläche, z. B. Keypad. |
-| `slotType` | `keypad_slot` oder vergleichbarer Eingabeslot. |
+| `slotType` | `keypad_slot`. |
 | `inputMode` | `numeric`. |
-| `answer` | Erwarteter Zahlencode. |
+| `answer` | Erwarteter Zahlencode; nur Ziffern. |
 | `maxLength` | Maximale Eingabelänge. |
 | `successEffect` | Effekt nach korrekter Eingabe. |
 
@@ -163,7 +162,7 @@ Zusätzlich:
 
 - Bei `kind=asset`: `assetId`
 - Bei `availability=after_riddle`: `requiredRiddleId`
-- Bei Inline-Text: `text`
+- Bei `kind=inline_text`: `text`
 
 ## Hints
 
@@ -206,21 +205,10 @@ V0-Bedingungen:
 | `failed_attempts` | `riddleId`, `count` | nach Fehlversuchen in einem Rätsel |
 | `riddle_completed` | `riddleId` | nachdem ein Rätsel gelöst wurde |
 
-## Nach V0 Geplante Typen
-
-Diese Bausteine bleiben sichtbar als Produktperspektive, sind aber nicht Teil
-des aktiven Foundation-Schemas:
-
-| Baustein | Grund für später |
-|---|---|
-| `state_change.confirm` | braucht Runtime-Zustandsaktionen jenseits des Keypad-Slices |
-| `collection.trash_minigame` | braucht Minispiel- und Spawn-Logik |
-| `input.credentials` | braucht Computer-/Login-Oberfläche |
-| `input.decoded_text` | braucht Ressourcenketten und Decoder-Schritte |
-| `choice.email_list` | braucht konfigurierbaren Computer-Tab |
-| `item_use.unknown_device_shutdown_retry` | braucht Inventar und Fehlerzustände |
-| `assembly.image_fragments` | braucht Fragment-Spawn und Assembly-UI |
-| `control_panel` | braucht mehrstufige Control-States |
+Weitere Bausteinideen stehen im
+[`the-last-hour-interaction-catalog.md`](the-last-hour-interaction-catalog.md).
+Sie werden erst in diese Tabelle aufgenommen, wenn UI, Validierung und
+Generator sie im selben Slice unterstützen.
 
 ## Entscheidungen
 

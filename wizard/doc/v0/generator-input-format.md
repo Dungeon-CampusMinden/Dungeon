@@ -6,7 +6,7 @@ Scope: manuelle Übergabe vom Web-Wizard an den Java-Generator
 ## V0-Entscheidungen
 
 - Der Web-Wizard finalisiert eine validierte `deer.json`.
-- Die UI erzeugt kein spielbares Room-Paket und kein Generator-ZIP.
+- Die UI erzeugt keine spielbaren Runtime-Artefakte.
 - Der Java-Generator liest in V0 manuell einen Projektordner.
 - Runtime-Dateien werden erst vom Generator abgeleitet.
 - Custom Assets ergänzen Inhalte, ersetzen aber nicht das Standard-Theme.
@@ -29,7 +29,7 @@ Regeln:
 - Pfade dürfen nicht aus dem Projektordner herauszeigen.
 - Nicht referenzierte Dateien sind für V0 nicht erforderlich.
 
-## File Roles
+## Dateirollen
 
 ### `deer.json`
 
@@ -61,7 +61,7 @@ Textinhalte sollen bevorzugt im Wizard eingegeben und in `deer.json`
 gespeichert werden. Wenn ein Inhalt als Datei gebraucht wird, muss er als
 unterstütztes Asset im Projektordner liegen.
 
-## Validierung Und Handoff
+## Validierung und Handoff
 
 Der Wizard darf den Entwurf nur finalisieren, wenn Schema, Graph,
 Pflichtparameter und Asset-Referenzen valide sind. Blockierende Fehler werden

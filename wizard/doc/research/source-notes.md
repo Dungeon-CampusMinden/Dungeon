@@ -3,8 +3,8 @@
 These notes summarize why each source matters for the Dungeon Wizard. Full
 citation metadata lives in [`sources.bib`](sources.bib).
 
-The file is deliberately organized by public research theme. It does not track
-private/local source-list origin, local paths, or full PDFs.
+The file is deliberately organized by public research theme. It lists public
+citation metadata and project relevance, not local source-management details.
 
 ## Educational Escape-Room Design and Learning Context
 
@@ -34,6 +34,7 @@ later debriefing/evaluation without making all of that mandatory for V0.
 | `kuo2022digitalphysical` | secondary | Digital/physical escape-room study. Useful as a comparison point, not a Wizard core source. |
 | `gordillo2024rct` | core | Controlled study comparing educational escape rooms with traditional lectures. Stronger evidence source for learning-effect claims. |
 | `kim2024meta` | core/secondary | Meta-analysis on knowledge gain and attitude change. Complements `lopezpernas2024meta`. |
+| `keller2025cybersecurity` | core/secondary | Empirical cybersecurity DEER study. Useful for domain fit, learner perceptions, usefulness, and usability framing. |
 | `grepperud2025framework` | core/future | Framework synthesis for primary and secondary education. Useful if the Wizard scope expands beyond higher education. |
 | `rawlinson2024failure` | secondary | Theoretical framing for failure, retry, hints, and reflection as learning opportunities. |
 
@@ -87,8 +88,8 @@ artifacts alongside playable rooms.
 
 ## Reusable Evaluation Pattern
 
-The repo should not depend on private/local documents for its public research
-notes. The reusable public pattern is:
+Research notes should stay reproducible from public sources. The reusable
+pattern is:
 
 ```text
 learning goal

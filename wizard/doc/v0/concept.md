@@ -11,8 +11,7 @@ erzeugt nach erfolgreicher Validierung eine `deer.json` mit referenzierten
 Assets.
 
 `deer.json` ist das interne DEER-Konfigurationsmodell und die Eingabe für den
-Java-Generator. Die UI erzeugt kein spielbares Room-Paket und kein
-Generator-ZIP.
+Java-Generator. Die UI erzeugt keine spielbaren Runtime-Artefakte.
 
 ```text
 Wizard UI -> deer.json + assets/ -> manueller Java-Generator -> Room-Paket
@@ -26,8 +25,6 @@ Wizard UI -> deer.json + assets/ -> manueller Java-Generator -> Room-Paket
 - **Projektordner**: `deer.json` plus referenzierte Assets; dieser Ordner ist
   die manuelle Generator-Eingabe.
 - **Room-Paket**: das vom Java-Generator erzeugte spielbare Runtime-Artefakt.
-- **Generator-ZIP**: optionaler Transport-/Output-Container des Generators,
-  nicht Aufgabe der Wizard-UI.
 
 ## V0-Scope
 
@@ -79,7 +76,7 @@ Weitere Bausteine werden erst in das Schema aufgenommen, wenn sie im selben
 Slice von UI, Validierung und Generator unterstützt werden. Der
 The-Last-Hour-Katalog bleibt dafür Ideensammlung, nicht V0-Vertrag.
 
-## Ablauf Und Validierung
+## Ablauf und Validierung
 
 Die UI bildet den Rätselablauf als einfache Reihenfolge mit optionalen
 Parallelgruppen ab. Intern entsteht daraus ein Graph mit Start, Rätselknoten,
@@ -87,7 +84,7 @@ genau einem Endknoten und reinen Kanten. Die Kanten-Topologie ist die
 Abhängigkeitsquelle: Eine Kante von einem Rätsel bedeutet, dass das Ziel nach
 Abschluss dieses Rätsels verfügbar wird.
 
-Blockierend sind Game-Breaking-Probleme:
+Blockierend sind spielblockierende Probleme:
 
 - ein Rätsel ist nicht erreichbar,
 - ein Progressionsrätsel kann übersprungen werden,

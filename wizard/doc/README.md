@@ -9,7 +9,7 @@ Status: öffentliche V0-Dokumentation für Konzept, UI-Contract und Quellen.
 - `research/`: wissenschaftliche Quellen und Literaturhinweise. Diese Dateien
   sind Kontext, aber kein UI-Pflichtumfang für V0.
 
-## Startpunkte Für Die UI-Umsetzung
+## Startpunkte für die UI-Umsetzung
 
 Für den ersten UI-Slice sind relevant:
 
@@ -23,8 +23,8 @@ Für den ersten UI-Slice sind relevant:
    UI-Layout-Vorgabe.
 5. `v0/deer.schema.json`: maschinenlesbarer Contract für die erzeugte
    `deer.json`.
-6. `v0/examples/deer.example.json`: gültiges Beispiel für den erwarteten
-   Export.
+6. `v0/examples/deer.example.json`: gültiges Beispiel für die erzeugte
+   `deer.json`.
 7. `v0/parameter-table-v0.md`: Pflichtparameter des V0-Foundation-Slices.
 
 Nützlicher Kontext:
