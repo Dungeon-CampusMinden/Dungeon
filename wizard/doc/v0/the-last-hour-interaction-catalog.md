@@ -1,6 +1,6 @@
 # The Last Hour Interaction Catalog V0
 
-Stand: 29.06.2026  
+Stand: 07.07.2026
 Zweck: Wizard-nahe Zerlegung der wiederverwendbaren Spiel-Elemente aus
 `theLastHourEscapeRoom`.
 
@@ -9,21 +9,17 @@ Zweck: Wizard-nahe Zerlegung der wiederverwendbaren Spiel-Elemente aus
 - Code und Assets aus The Last Hour sollen wiederverwendet werden.
 - Das bestehende Level wird nicht übernommen. Der Raum wird vom Generator neu
   aufgebaut.
-- Ziel ist kein exakter Nachbau, sondern eine Wizard-Version der relevanten
+- Ziel ist kein exakter Nachbau, sondern eine Wizard-Version relevanter
   Interaktionen.
-- Der Wizard startet ohne vorausgewählte The-Last-Hour-Vorlage. The Last Hour
-  liefert in V0 nur den verfügbaren Baustein-Katalog.
-- V0 modelliert keine eigenständigen Red-Herring-Rätsel. Falsche Optionen
-  dürfen aber innerhalb eines konkreten Auswahl- oder Item-Use-Rätsels
-  existieren, wenn die Mechanik das braucht.
+- Der Wizard startet ohne vorausgewählte The-Last-Hour-Vorlage.
+- The Last Hour liefert einen Produkt- und Baustein-Katalog, aber nicht den
+  aktiven Foundation-Scope.
 - Hinweise bleiben optional. Ein Rätsel hat immer ein `hints`-Array, aber es
   darf leer sein.
-- Telefon-Dialoge sind für V0 eher Story-Events oder Ressourcen, keine eigenen
+- Telefon-Dialoge sind eher Story-Events oder Ressourcen, keine eigenen
   Wizard-Rätsel.
 - Der Computer soll langfristig als zentrale wiederverwendbare Schnittstelle
-  erhalten bleiben. V0 darf aber einzelne Computer-Aufgaben als vereinfachte,
-  konfigurierte Tabs oder Dialoge abbilden, statt direkt den kompletten
-  The-Last-Hour-Computer zu generalisieren.
+  erhalten bleiben. Er ist aber nicht Teil des Foundation-Slices.
 
 ## Gelesene Referenzstellen
 
@@ -40,24 +36,37 @@ Zweck: Wizard-nahe Zerlegung der wiederverwendbaren Spiel-Elemente aus
 - `theLastHourEscapeRoom/src/modules/trash/TrashMinigameFactory.java`
 - `theLastHourEscapeRoom/src/modules/usbstick/UsbStickItem.java`
 
-## Wizard-Nahe Progression
+## Foundation-Slice
+
+Aktiv für den ersten UI- und Generator-Slice:
 
 | Schritt | Originalelement | Spieleraktion | Wizard-Baustein | V0-Entscheidung |
 |---|---|---|---|---|
-| 1 | Stromschalter unter Papier | Schalter finden und bestätigen | `state_change` | Beibehalten als einfache Weltinteraktion. |
-| 2 | Login-Notizen auf Schreibtisch und im Papierkorb | Hinweise finden/einsammeln | `collection` + `resources` | Beibehalten, aber generisch als Fund-/Resource-Mechanik. |
-| 3 | Computer-Login | E-Mail und Passwort eingeben | `input` mit `inputMode=credentials` | Beibehalten. |
-| 4 | E-Mail-Postfach und Recovery-Link | richtige Mail/URL erkennen | `choice` | Als zentrale Computer-Aufgabe behalten. V0 sollte sie in den Computer integrieren, aber nur als konfigurierten Choice-/Mail-Tab statt direkt als komplett generalisierten Mail-Client. |
-| 5 | Recovery-Webseite mit Binary/ASCII-Code | kodierten Wert entschlüsseln und eingeben | `input` mit `inputMode=decoded_text` | Beibehalten; Decoder-Tabellen sind Ressourcen. |
-| 6 | Download-Dokument mit Morse-Code | Morse-Code in Zahlencode übersetzen | `input` mit `inputMode=numeric` | Beibehalten; Dokument und Morse-Tabelle sind Ressourcen. |
-| 7 | Storage-Keypad | Zahlencode eingeben | `input` mit `inputMode=numeric` | Beibehalten, konkretes Runtime-Mapping auf Keypad. |
-| 8 | USB-Stick-Hinweis und blauer Stick | richtigen USB finden | `collection` | Mehrere USB-Sticks bleiben erhalten; der richtige Stick ist Progression, falsche Sticks sind Optionen innerhalb derselben Aufgabe. |
-| 9 | USB am PC verwenden | richtigen Gegenstand an Ziel benutzen | `item_use` | Beibehalten; falscher USB erzeugt den The-Last-Hour-Unknown-Device-Security-Zustand, fährt den PC nach kurzer Zeit auf Login zurück und erlaubt danach Retry. |
-| 10 | USB-Datei `control-panel.key` | Control Panel freischalten | `collection` oder `item_use`-Folge | Für V0 als Folge des richtigen USB-Gates modellieren. |
-| 11 | Vent-Seriennummer | Seriennummer lesen und im Panel eingeben | `control_panel` mit `text_input` | Beibehalten; Vent-Dialog ist Resource. |
-| 12 | AC einschalten | Toggle nach erfolgreicher Verbindung | `control_panel` mit `toggle` | Beibehalten; setzt Spawn/Reveal der finalen Ressource aus. |
-| 13 | Bildfragmente aus Vent | Fragmente sammeln/zusammensetzen | `assembly` | Beibehalten als Assembly: mehrere Schnipsel müssen zu einem Bild zusammengesetzt werden, das danach eine Ressource/Information offenlegt. |
-| 14 | Finale Tür | Passwort eingeben und Tür öffnen | `control_panel` | Beibehalten. |
+| 1 | Login-Notiz oder Code-Hinweis | Hinweis finden/einsammeln | `collection.single` | UI-Label; JSON nutzt `riddle.type=collection` und `rewardMode=find_resource` |
+| 2 | Storage-Keypad oder Tür-Keypad | Zahlencode eingeben | `input.numeric` | UI-Label; JSON nutzt `riddle.type=input` und `inputMode=numeric` |
+| 3 | Tür/Bereich öffnen | Erfolg nach korrekter Eingabe | `successEffect.open_surface` | kontrollierter Effekt, Generator erzeugt Runtime-State |
+
+Der Foundation-Slice ist absichtlich klein. Er soll beweisen, dass
+UI-Eingabe, `deer.json`, Asset-Referenzen, Graphvalidierung und Generatorlauf
+wirklich zusammenpassen.
+
+## Post-V0-Bausteinkatalog
+
+Diese Bausteine bleiben Produktperspektive und sollen später aus The Last Hour
+abgeleitet werden. Sie sind nicht Teil des aktiven Foundation-Schemas.
+
+| Schritt | Originalelement | Spieleraktion | Geplanter Baustein | Bemerkung |
+|---|---|---|---|---|
+| 1 | Stromschalter unter Papier | Schalter finden und bestätigen | `state_change.confirm` | braucht Runtime-Zustandsaktionen |
+| 2 | Papierkorb-Minispiel | Hinweise finden/einsammeln | `collection.trash_minigame` | braucht Minispiel- und Spawn-Logik |
+| 3 | Computer-Login | E-Mail und Passwort eingeben | `input.credentials` | braucht Computer-/Login-Oberfläche |
+| 4 | E-Mail-Postfach und Recovery-Link | richtige Mail/URL erkennen | `choice.email_list` | sollte langfristig in Computer-Tab laufen |
+| 5 | Recovery-Webseite mit Binary/ASCII-Code | kodierten Wert entschlüsseln | `input.decoded_text` | braucht Ressourcenketten und Decoder-Schritte |
+| 6 | USB-Stick-Hinweis und blauer Stick | richtigen USB finden | `collection.item` | braucht Inventar- und Item-Modell |
+| 7 | USB am PC verwenden | richtigen Gegenstand an Ziel benutzen | `item_use` | falsche USBs müssen retry-fähig bleiben |
+| 8 | Vent-Seriennummer und AC | Controls ausfüllen/schalten | `control_panel` | braucht mehrstufige Control-States |
+| 9 | Bildfragmente aus Vent | Fragmente zusammensetzen | `assembly.image_fragments` | braucht Fragment-Spawn und Assembly-UI |
+| 10 | Finale Tür | Passwort eingeben und öffnen | `control_panel` oder `input.numeric` | Foundation kann nur einfache Numeric-Variante |
 
 ## Nicht Als V0-Rätsel
 
@@ -66,8 +75,8 @@ Zweck: Wizard-nahe Zerlegung der wiederverwendbaren Spiel-Elemente aus
 | Intro/Outro | Szenario-Text, kein Rätsel. |
 | Timer | Session-/Scenario-Konfiguration. |
 | Telefonanrufe | Story-Event/Ressource; zu speziell für den ersten Wizard-Baustein. |
-| Allgemeines Virus-/Falschaktion-System | Zu breit für V0. Die konkrete USB-Unknown-Device-Reaktion wird aber als Teil von `item_use` übernommen. |
-| Licht, Heizung, Kamera im Control Panel | Gute UI-Demonstration, aber für Progression nicht notwendig. |
+| Allgemeines Virus-/Falschaktion-System | Zu breit für V0. |
+| Licht, Heizung, Kamera im Control Panel | Gute UI-Demonstration, aber für den Foundation-Slice nicht notwendig. |
 | Decoy-Vents, leere Container, Fake-Dateien | Erstmal keine eigenständigen Red-Herrings in V0. |
 
 ## Computer-Strategie
@@ -81,21 +90,17 @@ Empfehlung:
 
 1. **Zielbild:** ein zentraler Computer pro Raum oder Szenario, der mehrere vom
    Generator konfigurierte Tabs aufnehmen kann.
-2. **V0-Umsetzung:** vorhandene Computer-Codebasis wiederverwenden, aber nur
-   eine kleine Menge generischer Tab-/Dialogmuster parametrisieren:
+2. **Post-V0-Umsetzung:** vorhandene Computer-Codebasis wiederverwenden, aber
+   nur eine kleine Menge generischer Tab-/Dialogmuster parametrisieren:
    `login`, `choice`, `file/resource`, `usb_drive`, `control_panel`.
 3. **Fallback:** Wenn die Generalisierung des Computers zu groß wird, darf ein
    einzelnes Rätsel weiterhin über einen normalen Dialog laufen. Das sollte
    aber als technische Vereinfachung gelten, nicht als langfristiges
-   Autorierungsmodell.
+   Authoring-Modell.
 
-Damit bleibt der Computer als zentrale Schnittstelle sichtbar, ohne dass V0
-sofort den kompletten The-Last-Hour-Computer als frei konfigurierbare Plattform
-implementieren muss.
-
-Für `choice.email_list` sollte der Computer bevorzugt werden. Ein einfacher
-Dialog ist nur Fallback, falls die technische Generalisierung des Tabs für den
-ersten Prototyp zu groß wird.
+Damit bleibt der Computer als zentrale Schnittstelle sichtbar, ohne dass der
+Foundation-Slice den kompletten The-Last-Hour-Computer als frei
+konfigurierbare Plattform implementieren muss.
 
 ## Collection vs. Assembly
 
@@ -123,179 +128,28 @@ Das finale Papierfragment-Rätsel aus The Last Hour ist deshalb `assembly`, nich
 `collection`: Das Ergebnis ist nicht nur ein gefundener Gegenstand, sondern ein
 zusammengesetztes Bild, das danach als Ressource den finalen Code liefert.
 
-## Erste Pflichtparameter Pro Baustein
+## Parameter-Grenze
 
-### Gemeinsame Pflichtfelder
+Die verbindliche Foundation-Tabelle steht in
+[`parameter-table-v0.md`](parameter-table-v0.md). Dieses Katalogdokument darf
+Post-V0-Ideen nennen, definiert aber keine zusätzlichen Pflichtfelder für den
+aktuellen Contract.
 
-Jeder Baustein braucht:
-
-- `id`
-- `type`
-- `title`
-- `playerFacingTask`
-- `requiresTokens`
-- `producesTokens`
-- `resources`
-- `hints`
-- `parameters`
-
-`hints` ist immer vorhanden, aber optional leer.
-
-### `state_change`
-
-Pflicht:
-
-- `interactionKind`: z. B. `confirm`
-- `target`: logischer Zielname, z. B. `power_switch`
-- `successFeedback`
-- `successEffect`
-
-Optional:
-
-- `promptText`
-- `cancelText`
-- Sound-/Feedback-Referenz
-
-### `collection`
-
-Pflicht:
-
-- `rewardMode`: `single`, `collect_all` oder `find_resource`
-- `sourceKind`: z. B. `container`, `world_object`, `trash_minigame`,
-  `computer_file`
-- `rewards` oder `resourceIds`
-
-Optional:
-
-- `paperCount` für Trash-Minispiel
-- `consumeOnCollect`
-- `repeatable`
-
-### `input`
-
-Pflicht:
-
-- `inputMode`
-- Lösungsdefinition, abhängig vom Modus:
-  - `numeric`: `answer`, `maxLength`
-  - `text`: `answer`
-  - `credentials`: `fields`
-  - `decoded_text`: `encodedValue`, `answer`, `decoderSteps`
-- `successEffect`
-
-Optional:
-
-- `caseSensitive`
-- `attemptLimit`
-- `wrongAnswerFeedback`
-
-### `choice`
-
-Pflicht:
-
-- `selectionMode`
-- `options`
-- `correctOptionId` oder `correctOptionIds`
-- `successEffect`
-
-Optional:
-
-- `presentation`: z. B. `email_list`, `url_list`, `item_list`
-- `wrongChoiceFeedback`
-- `wrongChoiceConsequence`
-
-Falsche Optionen sind erlaubt, wenn sie zur Aufgabe gehören. Sie sollten in V0
-aber nicht als eigene Red-Herring-Knoten im Rätselgraph stehen.
-
-### `item_use`
-
-Pflicht:
-
-- `requiredItemId`
-- `target`
-- `successEffect`
-
-Optional:
-
-- `consumeItem`
-- `wrongItemFeedback`
-- `wrongItemPolicy`: z. B. `feedback_retry`, `unknown_device_shutdown_retry`
-
-V0-Empfehlung für USB: `wrongItemPolicy=unknown_device_shutdown_retry`. Ein
-falscher USB-Stick erzeugt den bekannten Unknown-Device-/Security-Zustand, setzt
-den Computer nach kurzer Zeit auf einen retry-fähigen Zustand zurück und
-verbraucht keinen Fortschritt. Wichtig ist nicht die exakte Animation, sondern
-die Regel: falscher USB darf keinen Softlock erzeugen und muss endlos erneut
-versuchbar bleiben.
-
-### `control_panel`
-
-Pflicht:
-
-- `controls`
-- `completionState`
-
-Jedes progression-relevante Control braucht:
-
-- `id`
-- `kind`
-- `setsState` oder eine klare Weltaktion
-
-Optional:
-
-- `requiresStates`
-- `answer`
-- `label`
-- `feedback`
-
-Controls erzeugen keine Graph-Tokens. Tokens entstehen nur auf Rätsel-Ebene.
-
-### `assembly`
-
-Pflicht:
-
-- `assemblyMode`
-- `assetId` oder `fragmentAssetIds`
-- `pieceCount`
-- `successEffect`
-
-Optional:
-
-- `revealedAnswer`
-
-Das finale Bildfragment-Rätsel aus The Last Hour sollte als `assembly`
-modelliert werden. Nach erfolgreicher Assembly entsteht eine Ressource, z. B. ein
-Bild oder Text, aus der die finale Lösung gelesen werden kann.
-
-## Slot-Anforderungen
-
-| Baustein | Benötigte Slot-Typen |
-|---|---|
-| `state_change` | `world_interaction_slot` |
-| `collection` | `container_slot`, `world_object_slot`, `trash_slot`, `computer_file_slot` |
-| `input` numeric/keypad | `keypad_slot` oder `computer_input_slot` |
-| `input` credentials | `computer_login_slot` |
-| `choice` email/url | `computer_choice_slot` |
-| `item_use` | `item_target_slot` plus Item-Quelle |
-| `control_panel` | `computer_panel_slot` |
-| `assembly` | `fragment_spawn_slot` plus Ergebnis-/Anzeige-Slot |
-
-Generator-Regel: Eine Ressource, die zum Lösen eines Rätsels notwendig ist,
-muss in einem Slot liegen, der spätestens mit den `requiresTokens` dieses
-Rätsels erreichbar ist.
+Progression liegt im `riddleGraph` über Kantenbedingungen mit
+`completedRiddles`. Runtime-Tokens, Petri-Netze, konkrete Slots und
+Spielzustände leitet der Generator ab.
 
 ## Nächste Klärung
 
-Aus diesem Katalog sollte als nächstes eine verbindliche Parameter-Tabelle für
-die erste Implementierung entstehen. Besonders offen ist noch, wie weit die
-Computer-Generalisierung in V0 gehen soll:
+Nach dem Foundation-Slice muss entschieden werden, welcher Baustein als nächstes
+wirklich generatorfähig wird:
 
 - zentraler Computer mit mehreren generierten Tabs,
-- nur wiederverwendete Spezial-Tabs aus The Last Hour,
-- oder normale Dialoge als technischer Fallback für einzelne Rätsel.
+- einfache `state_change`-Weltaktionen,
+- `choice.email_list`,
+- `item_use` mit retry-fähigem Fehlerzustand,
+- oder `assembly.image_fragments`.
 
-Die Parameter-Tabelle steht in
-[`parameter-table-v0.md`](parameter-table-v0.md).
-
-Der Wizard-Ablauf aus Lehrenden-Sicht steht in
-[`wizard-ui-flow-v0.md`](wizard-ui-flow-v0.md).
+Neue Bausteine sollten erst in `deer.schema.json` und
+`parameter-table-v0.md` aufgenommen werden, wenn der Generator sie im gleichen
+Slice umsetzen kann.

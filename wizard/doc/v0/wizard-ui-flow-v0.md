@@ -1,26 +1,21 @@
 # Wizard UI Flow V0
 
-Stand: 06.07.2026
-Status: UI-Contract für Schritte, Eingaben, Validierung und Export
+Stand: 07.07.2026
+Status: UI-Contract für Schritte, Eingaben, Validierung und Abschluss
 
 ## Ziel
 
 Dieses Dokument beschreibt den sichtbaren Authoring-Flow für Lehrende. Es legt
-Schritte, Eingaben, Validierungszeitpunkte, deaktivierte Zustände und den
-Export von `deer.zip` als DEER-Authoring-Bundle fest. Es ist keine
-Layout-Vorgabe.
-
-Der detaillierte Lehrenden-Workflow steht in
-[`teacher-workflow-v0.md`](teacher-workflow-v0.md). Dieses Dokument bleibt die
-kompakte Schrittübersicht.
+Schritte, Eingaben, Validierungszeitpunkte, deaktivierte Zustände und die
+Abschlussaktion fest. Es ist keine Layout-Vorgabe.
 
 ```text
 Rahmen festlegen
 -> Szenario beschreiben
--> Bausteine wählen und Oberflächen ableiten
+-> Foundation-Bausteine wählen
 -> Rätselablauf konfigurieren
 -> Rätsel, Inhalte, Assets und Hinweise ergänzen
--> Validieren und deer.zip als Authoring-Bundle herunterladen
+-> Prüfen und Entwurf finalisieren
 ```
 
 ## UI-Grundsätze
@@ -31,11 +26,11 @@ Rahmen festlegen
   nicht als zentrale UI-Begriffe.
 - Jeder Schritt hat einen Status: `leer`, `unvollständig`, `gültig`,
   `Warnung` oder `Fehler`.
-- Die Bundle-Erstellung ist deaktiviert, bis der Client-Preflight gültig ist.
+- Die Finalisierung ist deaktiviert, bis der Client-Preflight gültig ist.
 - Fehler erscheinen am betroffenen Schritt, Rätsel oder Feld.
 - Warnungen bleiben sichtbar und blockieren nicht.
 - V0 startet ohne vorausgewählte Raumstruktur.
-- The Last Hour liefert verfügbare Bausteine und Assets, aber keine Vorlage.
+- The Last Hour liefert mögliche Bausteine und Assets, aber keine Vorlage.
 - Bausteine oder Optionen, die im aktuellen Generator-Slice nicht generierbar
   sind, erscheinen deaktiviert mit sichtbarem Grund.
 
@@ -48,13 +43,11 @@ Rahmen festlegen
 5. **Rätselablauf**
 6. **Rätsel bearbeiten**
 7. **Inhalte & Assets**
-8. **Prüfen & Paket Erstellen**
+8. **Prüfen & Entwurf Finalisieren**
 
 ## 1. Übersicht
 
 Zweck: Projektstatus sichtbar machen und die nächsten offenen Aufgaben zeigen.
-
-Pflichtangaben: keine.
 
 Anzeigen:
 
@@ -70,8 +63,7 @@ Aktionen:
 
 - zum nächsten offenen Schritt wechseln
 - Entwurf speichern
-- `deer.zip` als Authoring-Bundle erstellen und herunterladen, wenn der
-  Preflight gültig ist
+- `Entwurf finalisieren`, wenn der Preflight gültig ist
 
 ## 2. Rahmen
 
@@ -95,12 +87,6 @@ Fest für V0:
 - Levelanzahl: ein Level.
 - Kooperationsmodus: kooperativ.
 
-Zeitmodus:
-
-- `hard`: Nach Ablauf endet der Raum.
-- `soft`: Nach Ablauf bleibt der Raum spielbar; Hinweise oder Unterstützung
-  können stärker werden.
-
 ## 3. Szenario
 
 Zweck: Story-Rahmen für den Raum erfassen.
@@ -122,7 +108,7 @@ Optionale Felder:
 - Lore-Bild
 - Intro-/Ambient-Audio
 
-Client-Warnungen:
+Warnungen:
 
 - Text sehr lang
 - Mission unklar
@@ -134,41 +120,30 @@ Zweck: Sichtbar machen, welche Interaktionsorte aus den gewählten Bausteinen
 entstehen.
 
 V0 startet nicht mit vorausgewählten Oberflächen. Oberflächen werden aus den
-gewählten Rätselbausteinen abgeleitet. Wenn Lehrende z. B. ein
-Computer-Login-Rätsel anlegen, erzeugt die UI daraus einen benötigten Computer
-oder bietet einen vorhandenen kompatiblen Computer zur Auswahl an.
+gewählten Rätselbausteinen abgeleitet.
 
-Mögliche abgeleitete Oberflächen:
+Aktive Foundation-Oberflächen:
 
 | Oberfläche | Sichtbarer Name | Zweck |
 |---|---|---|
-| `computer_main` | Labor-PC | Login, E-Mails, Browser, Dateien, USB, Control Panel |
-| `keypad_storage` | Storage-Keypad | Zahlencode für Storage |
-| `door_storage` | Storage-Tür | durch Keypad oder Control Panel öffnen |
-| `door_exit` | Ausgangstür | final öffnen |
-| `vent_main` | Lüftung | Seriennummer und Papierfragmente |
-| `trash_slots` | Papierkörbe | Funde und Trash-Minispiel |
-| `container_slots` | Container/Schreibtische/Regale | Hinweise und Items |
-| `assembly_area` | Fragmentbereich | Bildfragmente zusammensetzen |
+| `world` | Raum | allgemeiner Kontext |
+| `container` | Fundort | Hinweis oder Ressource finden |
+| `keypad` | Keypad | Zahlencode eingeben |
+| `door` | Tür | Ziel öffnen |
+
+Post-V0-Oberflächen wie Computer, Inventarziel, Control Panel oder
+Fragmentbereich bleiben deaktiviert, bis der Generator sie unterstützt.
 
 Pflichtangaben entstehen aus den gewählten Rätseln:
 
 | UI-Feld | Bedeutung | Validierung |
 |---|---|---|
-| mindestens ein Computer | für computernahe Rätsel | vorhanden, wenn Computer-Rätsel genutzt werden |
-| mindestens ein Keypad-Slot | für Keypad-Rätsel | vorhanden, wenn `input.numeric` als Keypad genutzt wird |
-| mindestens ein Container/Fundort | für `collection` | vorhanden, wenn Fund-Rätsel genutzt werden |
-| mindestens ein Assembly-Bereich | für Fragmente | vorhanden, wenn `assembly.image_fragments` genutzt wird |
+| mindestens ein Fundort | für `collection.single` | vorhanden, wenn Fund-Rätsel genutzt werden |
+| mindestens ein Keypad | für `input.numeric` | vorhanden, wenn Zahlencode genutzt wird |
+| mindestens eine Tür oder Zieloberfläche | für `open_surface` | vorhanden, wenn ein Rätsel eine Tür öffnet |
 
-Lehrende wählen primär Bausteine wie "Computer-Login", "Keypad" oder
-"Control Panel". Die UI leitet daraus die benötigten Oberflächen ab und zeigt
-sie zur Kontrolle an. Werte wie Passwort oder Code können vorgeschlagen oder
-manuell festgelegt werden.
-
-Intern schreibt die UI die abgeleiteten Oberflächen in `surfaces`. Die
-fachliche Auswahl "Labor-PC" wird im JSON z. B. zu einer `surfaceId` wie
-`s_main_computer`. Lehrende sehen diese IDs nur, wenn die UI dafür einen
-technischen Diagnosebereich anbietet.
+Intern schreibt die UI die abgeleiteten Oberflächen in `surfaces`. Lehrende
+sehen fachliche Namen, nicht technische IDs.
 
 ## 5. Rätselablauf
 
@@ -176,22 +151,21 @@ Zweck: Festlegen, welche Rätsel in welcher Reihenfolge gelöst werden müssen.
 
 Fachliches Modell:
 
-- strukturierte Ablauf-Liste mit optionalen Parallelgruppen
+- einfache Ablauf-Liste mit optionalen Parallelgruppen
 - jede Rätselinstanz als einzelnes bearbeitbares Element
-- Abhängigkeiten als fachliche Freischaltungen
+- Abhängigkeiten als "nach Rätsel X verfügbar"
 - keine sichtbaren Token-Namen für Lehrende
-- freie Darstellung, solange eine eindeutige Reihenfolge mit Parallelgruppen
-  ableitbar bleibt
+- freie Darstellung, solange ein eindeutiger Graph ableitbar bleibt
 
 Pflichtangaben pro Knoten:
 
 | UI-Feld | Interne Bedeutung | Validierung |
 |---|---|---|
 | Rätselname | `riddle.title` | eindeutig genug |
-| Baustein-Typ | `riddle.type` | V0-Typ |
+| Baustein-Typ | `riddle.type` plus Modusparameter | `collection` + `rewardMode=find_resource` oder `input` + `inputMode=numeric` |
 | Kurzaufgabe | `playerFacingTask` | nicht leer |
-| Vorgänger | `requiresTokens` indirekt | kein Zyklus |
-| Ergebnis/Freischaltung | `producesTokens` indirekt | passt zu späterem Schritt |
+| Vorgänger | `riddleGraph.edges[].condition.completedRiddles` | existierendes Rätsel |
+| Ergebnis/Freischaltung | `parameters.successEffect` | kontrollierte Auswahl |
 
 V0-Regeln:
 
@@ -207,82 +181,29 @@ V0-Regeln:
 Zweck: Die konkreten Eingaben für jedes Rätsel erfassen. Die UI zeigt nur die
 Felder, die zum gewählten Baustein passen.
 
-### 6.1 Stromschalter / `state_change.confirm`
+### 6.1 Fund / `collection.single`
+
+Interner JSON-Contract: `riddle.type=collection`,
+`parameters.rewardMode=find_resource`.
 
 Pflichtfelder:
 
 - sichtbarer Name
 - Aufgabe für Spielende
-- Oberfläche/Fundort, meist `world`
-- Zielobjekt, z. B. Schalter
-- Bestätigungsfrage
-- Erfolgstext
-- Freischaltung aus kontrollierter Auswahl, z. B. "Computer einschalten"
-
-Optionale Felder:
-
-- Abbrechen-Text
-- Sound
-
-### 6.2 Fund / `collection`
-
-Pflichtfelder:
-
-- sichtbarer Name
-- Aufgabe für Spielende
-- Fundtyp: Container, Weltobjekt, Papierkorb-Minispiel, Computer-Datei
 - Fundort/Oberfläche
-- Reward oder Ressource
+- Fundtyp: Container oder Weltobjekt
+- Hinweis oder Ressource
 - Freischaltung aus kontrollierter Auswahl
 
-Zusätzlich bei Papierkorb-Minispiel:
+Optional:
 
-- Anzahl Papierobjekte
-- Asset für gefundenes Objekt
+- Hinweistext
+- Bildasset
+- kurzer Erfolgstext
 
-### 6.3 Computer-Login / `input.credentials`
+### 6.2 Keypad / `input.numeric`
 
-Pflichtfelder:
-
-- Computer-Oberfläche
-- Feldliste
-- je Feld: Label, erwarteter Wert, geheim ja/nein
-- Erfolg: Computer-Tabs freischalten
-
-The-Last-Hour-nahe Vorgabe:
-
-- Feld 1: E-Mail
-- Feld 2: Passwort
-
-### 6.4 E-Mail-Auswahl / `choice.email_list`
-
-Pflichtfelder:
-
-- Computer-Oberfläche
-- Liste von E-Mails
-- mindestens zwei Optionen
-- genau eine korrekte Option
-- pro E-Mail: Absender, Absenderadresse, Betreff, Inhalt
-- bei Link-Aufgaben: Linktext und URL
-- Erfolg: Recovery-/Browser-Seite freischalten
-
-V0-Entscheidung:
-
-- bevorzugt als Computer-Tab
-- einfacher Dialog als technischer Fallback
-
-### 6.5 Decoding-Eingabe / `input.decoded_text`
-
-Pflichtfelder:
-
-- Oberfläche, meist Computer
-- kodierter Wert
-- erwartete Antwort
-- Decoding-Schritte, z. B. Binary -> Hex -> ASCII
-- Ressourcen, die die Decoding-Schritte erklären
-- Erfolg: Dokument oder nächstes Rätsel freischalten
-
-### 6.6 Keypad / `input.numeric`
+Interner JSON-Contract: `riddle.type=input`, `parameters.inputMode=numeric`.
 
 Pflichtfelder:
 
@@ -295,61 +216,23 @@ Optionale Felder:
 
 - Feedback bei falscher Eingabe
 - Ziffernanzahl anzeigen ja/nein
+- Hinweis nach Fehlversuchen oder Zeit
 
-### 6.7 USB Verwenden / `item_use`
+### 6.3 Post-V0-Bausteine
 
-Pflichtfelder:
+Diese Bausteine dürfen als deaktivierte Produktperspektive sichtbar sein, sind
+aber nicht Teil des aktiven Foundation-Schemas:
 
-- Computer-Oberfläche
-- Zielobjekt, meist PC
-- Liste verfügbarer USB-Sticks
-- korrekter Stick
-- Verhalten bei falschem Stick
-- Erfolg: USB-Laufwerk oder Control-Panel-Zugang freischalten
+- Stromschalter / `state_change.confirm`
+- Computer-Login / `input.credentials`
+- E-Mail-Auswahl / `choice.email_list`
+- Decoding-Eingabe / `input.decoded_text`
+- USB Verwenden / `item_use`
+- Control Panel / `control_panel`
+- Bildfragmente / `assembly.image_fragments`
 
-The-Last-Hour-nahe Vorgabe:
-
-- mehrere farbige USB-Sticks
-- blauer USB ist korrekt
-- falscher USB erzeugt `Unknown Device`
-- nach kurzer Zeit Reset auf eingeschalteten, ausgeloggten PC
-- erneuter Versuch bleibt möglich
-
-### 6.8 Control Panel / `control_panel`
-
-Pflichtfelder:
-
-- Computer-/Panel-Oberfläche
-- Liste der Controls
-- Abschlusszustand
-- Freischaltung bei Abschluss
-
-Pflicht pro Control:
-
-- Label
-- Typ: Button, Toggle, Textfeld, Passwortfeld
-- erwarteter Wert, falls Eingabefeld
-- gesetzter interner Zustand
-- benötigte vorherige Panel-Zustände, falls vorhanden
-
-The-Last-Hour-nahe Controls:
-
-- Vent-Seriennummer eingeben
-- AC einschalten
-- finale Tür mit Passwort entsperren
-- finale Tür öffnen
-
-### 6.9 Bildfragmente / `assembly.image_fragments`
-
-Pflichtfelder:
-
-- Ausgangsbild
-- Anzahl Fragmente
-- Spawn-/Startauslöser, z. B. AC eingeschaltet
-- Ergebnis-Ressource, z. B. finales Code-Bild
-- Erfolg: finale Information verfügbar machen
-
-V0 nutzt das vorhandene Puzzle-/Item-System.
+Die UI soll deaktivierte Optionen begründen, z. B. "im aktuellen Generator noch
+nicht verfügbar".
 
 ## 7. Inhalte & Assets
 
@@ -360,7 +243,7 @@ Pflichtbereiche:
 | Bereich | Pflicht, wenn... |
 |---|---|
 | Texte | ein Rätsel Text, Lore oder Ressource nutzt |
-| Bilder | eine Ressource oder Assembly ein Bild nutzt |
+| Bilder | eine Ressource oder Story ein Bild nutzt |
 | Audio | Audio in Szenario oder Feedback aktiviert ist |
 | Hinweise | optional, aber pro Rätsel als leeres Array vorhanden |
 
@@ -369,12 +252,7 @@ Hint-Freischaltung:
 - sofort verfügbar
 - nach Zeit
 - nach Fehlversuchen
-- nachdem eine Information gelesen wurde
-- nachdem eine Oberfläche/ein Ort besucht wurde
 - nachdem ein Rätsel gelöst wurde
-
-Die UI benennt diese Bedingungen fachlich. Petri-Net-Tokens bleiben interne
-Generator-/Runtime-Details.
 
 V0-Eingaben:
 
@@ -382,13 +260,13 @@ V0-Eingaben:
 - Bilder als Upload
 - Audio als Upload
 
-Theme-, Tileset-, Sprite-, UI-Skin- und Office/PDF-Uploads sind keine
-Eingaben dieses V0-Flows.
+Theme-, Tileset-, Sprite-, UI-Skin- und Office/PDF-Uploads sind keine Eingaben
+dieses V0-Flows.
 
-## 8. Prüfen & Paket Erstellen
+## 8. Prüfen & Entwurf Finalisieren
 
-Zweck: Lehrende sehen vor dem Erstellen des DEER-Authoring-Bundles `deer.zip`
-eine klare, nicht-technische Checkliste.
+Zweck: Lehrende sehen vor dem Abschluss eine klare, nicht-technische
+Checkliste.
 
 Blockierende Fehler:
 
@@ -401,8 +279,6 @@ Blockierende Fehler:
 - Progressionsrätsel kann übersprungen werden
 - Softlock oder zyklische Abhängigkeit
 - Aktion passt nicht zur gewählten Oberfläche
-- Computer-Rätsel ohne Computer
-- Keypad-Rätsel ohne Keypad
 - verwendeter Baustein ist im aktuellen Generator-Slice nicht generierbar
 
 Warnungen:
@@ -414,16 +290,16 @@ Warnungen:
 
 Hauptaktion:
 
-- `Paket erstellen` / `deer.zip herunterladen`
+- `Entwurf finalisieren`
 
 Der Button ist deaktiviert, solange blockierende Fehler existieren. V0 enthält
 in diesem Schritt keine Live-Preview, keinen Neu-Generieren-Button, keinen
-Import bestehender `deer.zip`-Pakete und keinen Generator-Start.
+Import bestehender Generator-Pakete und keinen Generator-Start.
 
 ## Bausteinkatalog Aus The Last Hour
 
-Diese Liste beschreibt die The-Last-Hour-nahen Bausteine, die in V0 verfügbar
-sein können. Sie ist keine vorausgewählte Raumstruktur.
+Diese Liste beschreibt The-Last-Hour-nahe Bausteine als Ausblick. Sie ist keine
+vorausgewählte Raumstruktur und kein aktiver V0-Contract.
 
 1. Strom einschalten
 2. Login-Hinweise finden
@@ -439,6 +315,5 @@ sein können. Sie ist keine vorausgewählte Raumstruktur.
 12. Bildfragmente zusammensetzen
 13. finale Tür öffnen
 
-Lehrende bauen den Raum selbst aus diesen Bausteinen zusammen. Die UI kann
-Beispiele oder leere Baustein-Instanzen anbieten, ohne eine fertige
-Raumstruktur vorauszuwählen.
+Lehrende bauen den Raum selbst aus aktiv unterstützten Bausteinen zusammen. Die
+UI darf spätere Bausteine zeigen, aber nur deaktiviert und mit klarem Grund.

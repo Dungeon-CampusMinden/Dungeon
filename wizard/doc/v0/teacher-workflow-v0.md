@@ -1,12 +1,12 @@
 # Teacher Workflow V0
 
 Status: funktionaler UI-Contract für den Wizard-Prototyp
-Stand: 06.07.2026
+Stand: 07.07.2026
 
 ## Zweck
 
-Dieses Dokument beschreibt nicht das visuelle Design. Es legt fest, wann,
-wo und welche Informationen Lehrende im Wizard angeben können und welche
+Dieses Dokument beschreibt nicht das visuelle Design. Es legt fest, wann, wo
+und welche Informationen Lehrende im Wizard angeben können und welche
 Validierungen greifen.
 
 Festgelegt sind:
@@ -14,7 +14,7 @@ Festgelegt sind:
 - fachliche Daten, die erfasst werden,
 - Daten, die die UI automatisch ableitet,
 - blockierende Fehler,
-- Bedingungen für den Bundle-erstellen-Button,
+- Bedingungen für den Finalisieren-Button,
 - Bausteine, die im aktuellen Generator-Slice generierbar sind,
 - technische Interna, die nicht zur Hauptsprache der UI werden.
 
@@ -27,27 +27,21 @@ Eine Lehrkraft erstellt einen kleinen Escape Room:
 
 1. Sie legt Titel, Sprache, Zielgruppe, Spielerzahl und Zeitlimit fest.
 2. Sie beschreibt Spielrolle, Ausgangslage und Mission.
-3. Sie fügt Rätselbausteine hinzu, z. B. Computer-Login, E-Mail-Auswahl,
-   Keypad und finale Tür.
-4. Die UI zeigt daraus entstehende Oberflächen wie Computer, Keypad und Tür.
+3. Sie fügt einen Fund-Baustein und ein Keypad-Rätsel hinzu.
+4. Die UI zeigt daraus entstehende Oberflächen wie Fundort, Keypad und Tür.
 5. Sie ordnet die Rätsel in einer strukturierten Ablaufansicht an.
 6. Sie füllt pro Baustein die benötigten Inhalte aus.
 7. Sie ergänzt Texte, Bilder, Audio und optionale Hinweise.
 8. Die UI prüft den Raum auf blockierende Fehler.
-9. Wenn keine blockierenden Fehler existieren, erstellt und lädt sie ein
-   DEER-Authoring-Bundle `deer.zip` herunter.
-10. Danach kann dieses Bundle geteilt oder manuell an den Generator übergeben
-    werden. Der Generator erzeugt daraus erst das spielbare Room-Paket.
+9. Wenn keine blockierenden Fehler existieren, finalisiert sie den Entwurf.
+10. Danach kann der Projektordner manuell an den Generator übergeben werden.
+    Der Generator erzeugt daraus das spielbare Room-Paket.
 
 ## Workflow-Schritte
 
 ### 1. Übersicht
 
 Zweck: Status und nächste offene Aufgaben sichtbar machen.
-
-Eingaben:
-
-- keine Pflichtangaben.
 
 Anzeigen:
 
@@ -57,7 +51,7 @@ Anzeigen:
 - offene Pflichtfelder,
 - blockierende Fehler,
 - Warnungen,
-- Paket-Status.
+- Preflight-Status.
 
 Validierung:
 
@@ -78,15 +72,7 @@ Pflichtangaben:
 - Zeitlimit,
 - Zeitmodus: hartes oder weiches Limit.
 
-Validierung:
-
-- Textpflichtfelder dürfen nicht leer sein.
-- Spielerzahl: `1 <= min <= max`.
-- Zeitlimit muss eine positive Zahl sein.
-- Zeitmodus ist `hard` oder `soft`.
-- Sprache ist für V0 `de-DE`.
-
-Blockiert Bundle-Erstellung, wenn:
+Blockiert Finalisierung, wenn:
 
 - ein Pflichtfeld fehlt,
 - ein Zahlenbereich ungültig ist.
@@ -110,21 +96,6 @@ Pflichtangaben:
 - Erfolgstext,
 - Fehlschlagtext.
 
-Optionale Angaben:
-
-- Lore-Texte,
-- Lore-Bild,
-- Intro- oder Ambient-Audio.
-
-Validierung:
-
-- Pflichttexte dürfen nicht leer sein.
-- Mission enthält ein klares Spielziel.
-
-Blockiert Bundle-Erstellung, wenn:
-
-- ein Pflichttext fehlt.
-
 Warnungen:
 
 - sehr lange Texte,
@@ -136,27 +107,22 @@ Warnungen:
 Zweck: Lehrende wählen fachliche Spielbausteine. Die UI leitet daraus
 benötigte Oberflächen ab.
 
-Auswählbare V0-Bausteine:
+Aktive V0-Bausteine:
 
-- Stromschalter / `state_change.confirm`,
-- Fund / `collection`,
-- Computer-Login / `input.credentials`,
-- E-Mail- oder Optionsauswahl / `choice.email_list`,
-- Decoding-Eingabe / `input.decoded_text`,
-- Keypad / `input.numeric`,
-- USB verwenden / `item_use`,
-- Control Panel / `control_panel`,
-- Bildfragmente / `assembly.image_fragments`.
+- Fund / `collection.single`, intern `riddle.type=collection` mit
+  `parameters.rewardMode=find_resource`,
+- Keypad / `input.numeric`, intern `riddle.type=input` mit
+  `parameters.inputMode=numeric`.
 
-Abgeleitete Oberflächen:
+Abgeleitete aktive Oberflächen:
 
-- Computer,
+- Raum,
+- Fundort,
 - Keypad,
-- Tür,
-- Weltobjekt oder Fundort,
-- Inventarziel,
-- Fragmentbereich,
-- Control Panel.
+- Tür.
+
+Post-V0-Bausteine wie Computer-Login, E-Mail-Auswahl, USB, Control Panel und
+Bildfragmente bleiben deaktiviert, bis der Generator sie unterstützt.
 
 UI-Regeln:
 
@@ -165,16 +131,8 @@ UI-Regeln:
   oder bietet eine passende vorhandene Oberfläche zur Auswahl an.
 - Intern schreibt die UI diese Oberflächen in das `surfaces`-Array der
   `deer.json`; Rätselparameter referenzieren sie über `surfaceId`.
-- Wenn mehrere Oberflächen desselben Typs existieren, erlaubt die UI eine
-  eindeutige Auswahl oder Benennung.
 
-Validierung:
-
-- Jeder Baustein hat eine kompatible Oberfläche.
-- Die UI bietet nur Oberflächen an, die zum Baustein passen.
-- Wiederverwendete Oberflächen, z. B. Computer, werden eindeutig referenziert.
-
-Blockiert Bundle-Erstellung, wenn:
+Blockiert Finalisierung, wenn:
 
 - ein Baustein keine benötigte Oberfläche hat,
 - eine inkompatible Baustein-/Oberflächen-Kombination entsteht,
@@ -191,21 +149,11 @@ Fachliches Modell:
 - Eine Gruppe kann ein oder mehrere Rätsel enthalten.
 - Mehrere Rätsel in derselben Gruppe gelten als parallel lösbar.
 - Die nächste Gruppe wird erst relevant, wenn alle Progressionsrätsel der
-  vorherigen Gruppe lösbar abgeschlossen werden können.
+  vorherigen Gruppe abgeschlossen werden können.
 
 Die Darstellung ist frei: Liste, Timeline, Board, Kartenansicht oder Canvas
 sind möglich, solange daraus eindeutig eine gültige Reihenfolge mit optionalen
 Parallelgruppen abgeleitet werden kann.
-
-Mindestoperationen:
-
-- Rätsel hinzufügen,
-- Rätsel entfernen,
-- Rätsel umbenennen,
-- Rätsel in eine andere Gruppe verschieben,
-- Reihenfolge von Gruppen ändern,
-- Parallelgruppe erstellen,
-- Parallelgruppe wieder auflösen.
 
 V0 erzeugt hier nicht:
 
@@ -214,17 +162,7 @@ V0 erzeugt hier nicht:
 - alternative Enden,
 - mehrere Level.
 
-Validierung:
-
-- Es gibt mindestens ein Progressionsrätsel.
-- Jedes Progressionsrätsel liegt in genau einer Ablaufgruppe.
-- Es gibt keine leeren Gruppen.
-- Es gibt keine Zyklen.
-- Kein Progressionsrätsel ist unerreichbar.
-- Kein Progressionsrätsel kann übersprungen werden.
-- Der Endzustand ist erreichbar.
-
-Blockiert Bundle-Erstellung, wenn:
+Blockiert Finalisierung, wenn:
 
 - ein Softlock möglich ist,
 - ein Rätsel unerreichbar ist,
@@ -241,8 +179,6 @@ Gemeinsame Pflichtangaben pro Rätsel:
 - sichtbarer Name,
 - Bausteintyp,
 - Aufgabe für Spielende,
-- Schwierigkeit,
-- geschätzte Dauer,
 - Erfolg/Freischaltung aus kontrollierter Auswahl,
 - benötigte Inhalte oder Assets.
 
@@ -250,26 +186,18 @@ Typ-spezifische Pflichtangaben:
 
 | Baustein | Pflichtangaben |
 |---|---|
-| Stromschalter | Zielobjekt, Bestätigungstext, Erfolgstext |
-| Fund | Fundtyp, Fundort, Reward oder Ressource |
-| Computer-Login | Felder, Labels, erwartete Werte |
-| E-Mail-Auswahl | Optionen, Inhalte, genau eine richtige Option |
-| Decoding-Eingabe | kodierter Wert, erwartete Antwort, Decoding-Schritte |
+| Fund | Fundtyp, Fundort, Hinweis oder Ressource |
 | Keypad | Zahlencode, maximale Länge, Erfolg |
-| USB verwenden | Kandidaten-Items, korrektes Item, Fehlerverhalten |
-| Control Panel | Controls, Zielzustand, Freischaltung |
-| Bildfragmente | Ausgangsbild, Fragmentanzahl, Ergebnisressource |
 
-Validierung:
+Optional:
 
-- Typ-spezifische Pflichtfelder sind vorhanden.
-- Kontrollierte Auswahlfelder enthalten nur valide Optionen.
-- Lösungsfelder passen zum Eingabetyp, z. B. nur Ziffern beim Keypad.
-- Retry bleibt möglich, wenn eine falsche Eingabe oder Auswahl nicht sofort
-  beendet.
-- Erfolg/Freischaltung erzeugt keinen unlösbaren Ablauf.
+- Schwierigkeit,
+- geschätzte Dauer,
+- Hinweise,
+- Erfolgstext,
+- Fehlertext.
 
-Blockiert Bundle-Erstellung, wenn:
+Blockiert Finalisierung, wenn:
 
 - Pflichtparameter fehlen,
 - eine Lösung nicht zum Eingabetyp passt,
@@ -289,21 +217,12 @@ V0-Eingaben:
 Theme-, Tileset-, Sprite-, UI-Skin- und Office/PDF-Uploads sind keine
 Runtime-Assets dieses V0-Flows.
 
-Validierung:
-
-- Referenzierte Assets existieren.
-- Asset-Typen werden unterstützt.
-- Required Assets sind vorhanden.
-- Hinweise sind optional, aber als leeres Array modellierbar.
-- Hint-Freischaltungen verweisen auf existierende Rätsel, Ressourcen oder
-  Oberflächen.
-
-Blockiert Bundle-Erstellung, wenn:
+Blockiert Finalisierung, wenn:
 
 - ein required Asset fehlt,
 - ein Asset nicht unterstützt wird,
 - ein Rätsel auf eine nicht vorhandene Ressource verweist,
-- ein Hint auf eine nicht vorhandene Freischaltbedingung verweist.
+- ein Hint auf ein nicht vorhandenes Rätsel verweist.
 
 Warnungen:
 
@@ -316,14 +235,11 @@ Hint-Freischaltungen:
 - ohne Bedingung: sofort verfügbar,
 - nach Zeit,
 - nach Fehlversuchen,
-- nach gelesener Ressource,
-- nach besuchter Oberfläche,
 - nach gelöstem Rätsel.
 
-### 8. Prüfen Und Paket Erstellen
+### 8. Prüfen Und Entwurf Finalisieren
 
-Zweck: Letzte nicht-technische Prüfung vor dem Erstellen des
-DEER-Authoring-Bundles `deer.zip`.
+Zweck: Letzte nicht-technische Prüfung vor dem manuellen Generator-Handoff.
 
 Anzeigen:
 
@@ -336,7 +252,7 @@ Anzeigen:
 
 Hauptaktion:
 
-- `Paket erstellen` / `deer.zip herunterladen`.
+- `Entwurf finalisieren`.
 
 Validierung:
 
@@ -347,10 +263,7 @@ Validierung:
 - Asset-Referenzen,
 - Ablauf/Softlock-Prüfung.
 
-Bundle-Erstellung ist nur erlaubt, wenn:
-
-- keine blockierenden Fehler existieren.
-
+Finalisierung ist nur erlaubt, wenn keine blockierenden Fehler existieren.
 Warnungen blockieren nicht.
 
 ## Validierungszeitpunkte
@@ -361,7 +274,7 @@ Warnungen blockieren nicht.
 | Beim Verlassen eines Schritts | Schrittstatus setzen | Szenario unvollständig |
 | Nach Bausteinänderung | abgeleitete Oberflächen prüfen | Keypad braucht Keypad-Oberfläche |
 | Nach Ablaufänderung | Softlocks und Skips verhindern | Rätsel wird unerreichbar |
-| Vor Bundle-Erstellung | finaler Preflight | Schema, Assets, Graph, Pflichtparameter |
+| Vor Finalisierung | finaler Preflight | Schema, Assets, Graph, Pflichtparameter |
 
 ## Fehlerstufen
 
@@ -396,13 +309,14 @@ Die UI erzeugt technische Daten automatisch:
 
 - stabile IDs,
 - `surfaces` aus den gewählten Bausteinen,
-- interne Tokens,
-- technische `successEffect`-Werte,
+- `riddleGraph`-Kanten mit `completedRiddles`,
+- kontrollierte `successEffect`-Werte,
 - Slot-Typen,
 - leere Arrays für `resources`, `hints` und `assetIds`,
 - Standardwerte für Theme und Levelanzahl.
 
-Lehrende bearbeiten diese Werte nicht direkt.
+Lehrende bearbeiten diese Werte nicht direkt. Runtime-Tokens, Petri-Netze,
+Trigger und konkrete Slots entstehen erst im Generator.
 
 ## Gestaltungsspielraum Für Die UI
 
@@ -417,7 +331,7 @@ Frei wählbar:
 
 Fest:
 
-- Bundle-Erstellung ist nur bei gültigem Preflight aktiv.
+- Finalisierung ist nur bei gültigem Preflight aktiv.
 - Technische Interna werden nicht zur Hauptsprache der UI.
 - Der Ablauf muss in eine valide `deer.json` übersetzbar sein.
 - V0 erzeugt keine optionalen Progressionsrätsel oder alternative Enden.

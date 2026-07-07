@@ -4,12 +4,21 @@
 
 V0 ist eine schlichte Wizard-Web-App für nicht technische Lehrende. Die App
 erfasst einen einfachen Escape-Room-Entwurf, erzeugt daraus eine validierte
-`deer.json` und packt diese mit referenzierten Custom Assets als
-DEER-Authoring-Bundle `deer.zip`.
+`deer.json` und verwaltet die referenzierten Assets in einem Projektordner.
 
-`deer.json` ist der eigentliche Contract zwischen UI und Generator.
-`deer.zip` ist der teilbare Transportcontainer für den manuellen
-Generatorlauf, nicht das spielbare Room-Paket und nicht der Generator-Output.
+`deer.json` ist der Contract zwischen UI und Generator. Das spielbare
+Room-Paket und ein optionales Transport-ZIP entstehen erst im Java-Generator.
+
+## Glossar
+
+- **DEER**: das Authoring-Format für einen erzeugbaren Escape-Room-Entwurf.
+- **`deer.json`**: validierte Authoring-Datei und einziges UI-Contract-
+  Artefakt.
+- **Projektordner**: `deer.json` plus referenzierte Assets; manuelle Eingabe
+  für den Generator.
+- **Room-Paket**: vom Java-Generator erzeugtes spielbares Runtime-Artefakt.
+- **Generator-ZIP**: optionaler Generator-Output oder Transportcontainer, nicht
+  Aufgabe der Wizard-UI.
 
 ## V0-Produktfluss
 
@@ -18,9 +27,8 @@ Lehrender öffnet Wizard-Web-App
 -> erfasst Rahmen, Szenario, Rätsel, Inhalte, Assets und Hinweise
 -> Wizard erzeugt `deer.json`
 -> Wizard validiert Schema, Referenzen und blockierende Fachregeln
--> Wizard erstellt ein `deer.zip` mit `deer.json` und Custom Assets
--> Lehrender gibt `deer.zip` an den Java-Generator weiter
--> Generator wird manuell gestartet, validiert erneut und erzeugt das Room-Paket
+-> Wizard finalisiert den Entwurf im Projektordner
+-> Java-Generator liest Projektordner, validiert erneut und erzeugt Room-Paket
 ```
 
 ## Contract-Dateien
@@ -31,7 +39,7 @@ Dieses Handoff wiederholt keine Feldlisten. Maßgeblich sind:
 - `wizard/doc/v0/deer-json-spec.md`
 - `wizard/doc/v0/parameter-table-v0.md`
 - `wizard/doc/v0/examples/deer.example.json`
-- `wizard/doc/v0/room-package-format.md`
+- `wizard/doc/v0/generator-input-format.md`
 
 Ergänzende Arbeitsreferenzen:
 
@@ -53,19 +61,21 @@ Rahmen
 -> Fund
 -> Keypad
 -> Tür öffnen
--> deer.zip als Authoring-Bundle erstellen
+-> deer.json finalisieren
 ```
 
 Unterstützte Bausteine:
 
-- `collection.single`
-- `input.numeric`
+- `collection.single` als UI-Label für `riddle.type=collection` mit
+  `parameters.rewardMode=find_resource`
+- `input.numeric` als UI-Label für `riddle.type=input` mit
+  `parameters.inputMode=numeric`
 - kontrollierter `successEffect`, z. B. Tür öffnen
 - einfache Text- oder Bildassets
 - optionale Hinweise ohne komplexe Unlock-Bedingungen
 
 Der Slice prüft den vollständigen Pfad von Eingabe über Assets, Rätselgraph,
-Validierung und Bundle-Export bis zum manuellen Generatorlauf.
+Validierung und manuellen Generatorlauf.
 
 ## UI-Aufgaben
 
@@ -77,26 +87,26 @@ Die UI verantwortet:
 - technische Strukturen wie `surfaces`, Referenzen und kontrollierte Effekte
   ableiten,
 - `deer.json` nach Contract erzeugen,
-- Assets annehmen und im Paket referenzieren,
-- Schema- und Fachvalidierung vor dem Bundle-Export ausführen,
-- blockierende Fehler sichtbar machen und `deer.zip` verhindern,
-- Warnungen sichtbar machen, ohne den Bundle-Export zu blockieren,
-- `deer.zip` mit `deer.json` und Custom Assets als Download bereitstellen,
+- Assets annehmen und relativ referenzieren,
+- Schema- und Fachvalidierung vor der Finalisierung ausführen,
+- blockierende Fehler sichtbar machen und Finalisierung verhindern,
+- Warnungen sichtbar machen, ohne Finalisierung zu blockieren,
 - den manuellen nächsten Schritt für den Generator anzeigen.
 
 Nicht generatorfähige Bausteine bleiben deaktiviert oder klar als noch nicht
-paketierbar markiert.
+verfügbar markiert.
 
 ## Generator-Aufgaben
 
 Der Generator verantwortet:
 
-- `deer.zip` oder einen entpackten Projektordner lesen,
+- Projektordner mit `deer.json` und `assets/` lesen,
 - `deer.json` gegen Schema und Fachregeln validieren,
 - Asset-Existenz und Assettypen prüfen,
 - ID-, `surfaceId`-, Rätsel-, Hint- und Ressourcenreferenzen prüfen,
 - Baustein-Parameter und Oberflächen-Kompatibilität prüfen,
 - Graph-Erreichbarkeit, Endzustand und Softlock-Risiken prüfen,
+- runtime-interne Tokens, Petri-Netze, Trigger oder States ableiten,
 - den Foundation-Slice spielbar erzeugen,
 - ein Room-Paket auf Disk schreiben,
 - einen strukturierten Validierungsbericht ausgeben.
@@ -106,8 +116,8 @@ Generator-Laufparameter wie Seed oder Layout-Profil gehören nicht in
 
 ## Validierungsmodell
 
-UI und Generator nutzen dieselben Issue-Klassen. Die UI blockiert den
-Bundle-Export bei `error`; der Generator bleibt die autoritative zweite
+UI und Generator nutzen dieselben Issue-Klassen. Die UI blockiert die
+Finalisierung bei `error`; der Generator bleibt die autoritative zweite
 Validierungsstufe.
 
 Gemeinsames Issue-Format:
@@ -123,7 +133,7 @@ Gemeinsames Issue-Format:
     "kind": "riddle",
     "id": "r_storage_keypad"
   },
-  "relatedPaths": ["/riddles/5/requiresTokens"],
+  "relatedPaths": ["/riddleGraph/edges/3"],
   "blocking": true
 }
 ```
@@ -151,8 +161,10 @@ V0 umfasst nicht:
 - spielbare Preview,
 - Regenerate- oder Neu-Generieren-Flow,
 - automatischer UI-Aufruf des Java-Generators,
+- UI-seitige ZIP- oder Room-Paket-Erzeugung,
+- Token-Modell in `deer.json`,
 - lokaler Backend-Service oder offizieller CLI-Wrapper,
-- Import bestehender `deer.zip`-Pakete,
+- Import bestehender Generator-Pakete,
 - mehrere Themes oder Custom-Themes,
 - frei editierbarer technischer Graph für Lehrende,
 - Lernziel-, Evaluations-, Debriefing- oder Telemetrie-Funktionen,

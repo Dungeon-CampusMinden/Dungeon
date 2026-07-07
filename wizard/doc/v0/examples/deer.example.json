@@ -1,30 +1,30 @@
 {
   "formatVersion": "0.1-draft",
   "metadata": {
-    "id": "wizard_example_v0",
-    "title": "Wizard Beispielraum V0",
+    "id": "wizard_foundation_v0",
+    "title": "Foundation Beispielraum V0",
     "locale": "de-DE",
-    "description": "Eine Beispielkonfiguration mit den aktuell verfügbaren V0-Bausteinen.",
+    "description": "Kleiner Foundation-Slice mit Fund, Keypad und Tür.",
     "author": "Beispiel Lehrkraft"
   },
   "session": {
     "targetAudience": "Lernende im Bereich IT-Sicherheit",
-    "priorKnowledge": "Grundlagen zu E-Mail, Webseiten und einfachen Codierungen.",
+    "priorKnowledge": "Grundlagen zu einfachen Codes und Hinweisen.",
     "playerCount": {
       "min": 1,
       "max": 4
     },
     "time": {
-      "limitMinutes": 60,
+      "limitMinutes": 30,
       "limitMode": "hard"
     }
   },
   "scenario": {
     "themeId": "default",
     "playerRole": "Untersuchungsteam",
-    "premise": "Ein Forschungslabor ist verriegelt. Die Gruppe muss Hinweise rekonstruieren und den Ausgang freischalten.",
-    "mission": "Findet den finalen Zugangscode und öffnet die Ausgangstür.",
-    "introText": "Der Alarm ist aktiv. Auf dem Wandtimer laufen 60 Minuten herunter.",
+    "premise": "Ein kleiner Lagerraum ist verriegelt.",
+    "mission": "Findet den Zugangscode und öffnet die Ausgangstür.",
+    "introText": "Die Tür ist verschlossen. Im Raum muss ein Hinweis versteckt sein.",
     "successText": "Die Ausgangstür öffnet sich.",
     "failureText": "Die Zeit ist abgelaufen."
   },
@@ -32,42 +32,17 @@
     {
       "id": "s_world",
       "kind": "world",
-      "title": "Laborraum"
+      "title": "Lagerraum"
     },
     {
-      "id": "s_main_computer",
-      "kind": "computer",
-      "title": "Labor-PC"
+      "id": "s_desk",
+      "kind": "container",
+      "title": "Schreibtisch"
     },
     {
-      "id": "s_storage_keypad",
+      "id": "s_exit_keypad",
       "kind": "keypad",
-      "title": "Storage-Keypad"
-    },
-    {
-      "id": "s_storage_door",
-      "kind": "door",
-      "title": "Storage-Tür"
-    },
-    {
-      "id": "s_storage_area",
-      "kind": "container",
-      "title": "Storage-Bereich"
-    },
-    {
-      "id": "s_trash_area",
-      "kind": "container",
-      "title": "Papierkorb-Bereich"
-    },
-    {
-      "id": "s_vent",
-      "kind": "world_object",
-      "title": "Lüftung"
-    },
-    {
-      "id": "s_assembly_area",
-      "kind": "assembly_area",
-      "title": "Fragmentbereich"
+      "title": "Tür-Keypad"
     },
     {
       "id": "s_exit_door",
@@ -87,70 +62,16 @@
         "title": "Start"
       },
       {
-        "id": "n_power_switch",
+        "id": "n_find_keypad_note",
         "kind": "riddle",
-        "title": "Strom einschalten",
-        "riddleId": "r_power_switch"
+        "title": "Code-Hinweis finden",
+        "riddleId": "r_find_keypad_note"
       },
       {
-        "id": "n_find_login_credentials",
+        "id": "n_open_exit_keypad",
         "kind": "riddle",
-        "title": "Login-Hinweise finden",
-        "riddleId": "r_find_login_credentials"
-      },
-      {
-        "id": "n_pc_login",
-        "kind": "riddle",
-        "title": "Labor-PC Login",
-        "riddleId": "r_pc_login"
-      },
-      {
-        "id": "n_email_trust",
-        "kind": "riddle",
-        "title": "Richtige Support-Mail erkennen",
-        "riddleId": "r_email_trust"
-      },
-      {
-        "id": "n_recovery_decode",
-        "kind": "riddle",
-        "title": "Recovery-Code decodieren",
-        "riddleId": "r_recovery_decode"
-      },
-      {
-        "id": "n_storage_keypad",
-        "kind": "riddle",
-        "title": "Storage-Keypad",
-        "riddleId": "r_storage_keypad"
-      },
-      {
-        "id": "n_find_blue_usb",
-        "kind": "riddle",
-        "title": "Blauen USB-Stick finden",
-        "riddleId": "r_find_blue_usb"
-      },
-      {
-        "id": "n_usb_gate",
-        "kind": "riddle",
-        "title": "USB-Stick einsetzen",
-        "riddleId": "r_usb_gate"
-      },
-      {
-        "id": "n_connect_vent",
-        "kind": "riddle",
-        "title": "Lüftung verbinden",
-        "riddleId": "r_connect_vent"
-      },
-      {
-        "id": "n_final_image",
-        "kind": "riddle",
-        "title": "Finales Bild rekonstruieren",
-        "riddleId": "r_final_image"
-      },
-      {
-        "id": "n_exit_panel",
-        "kind": "riddle",
-        "title": "Ausgang öffnen",
-        "riddleId": "r_exit_panel"
+        "title": "Tür-Keypad öffnen",
+        "riddleId": "r_open_exit_keypad"
       },
       {
         "id": "n_exit_open",
@@ -160,131 +81,32 @@
     ],
     "edges": [
       {
-        "id": "e_start_to_power",
+        "id": "e_start_to_note",
         "from": "n_start",
-        "to": "n_power_switch",
+        "to": "n_find_keypad_note",
         "condition": {
           "type": "always"
         }
       },
       {
-        "id": "e_power_to_credentials",
-        "from": "n_power_switch",
-        "to": "n_find_login_credentials",
+        "id": "e_note_to_keypad",
+        "from": "n_find_keypad_note",
+        "to": "n_open_exit_keypad",
         "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_power_on"
+          "type": "all_of_completed",
+          "completedRiddles": [
+            "r_find_keypad_note"
           ]
         }
       },
       {
-        "id": "e_credentials_to_login",
-        "from": "n_find_login_credentials",
-        "to": "n_pc_login",
-        "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_login_credentials_found"
-          ]
-        }
-      },
-      {
-        "id": "e_login_to_email",
-        "from": "n_pc_login",
-        "to": "n_email_trust",
-        "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_pc_logged_in"
-          ]
-        }
-      },
-      {
-        "id": "e_email_to_decode",
-        "from": "n_email_trust",
-        "to": "n_recovery_decode",
-        "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_recovery_url_identified"
-          ]
-        }
-      },
-      {
-        "id": "e_decode_to_keypad",
-        "from": "n_recovery_decode",
-        "to": "n_storage_keypad",
-        "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_storage_code_recovered"
-          ]
-        }
-      },
-      {
-        "id": "e_keypad_to_usb",
-        "from": "n_storage_keypad",
-        "to": "n_find_blue_usb",
-        "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_storage_open"
-          ]
-        }
-      },
-      {
-        "id": "e_usb_to_gate",
-        "from": "n_find_blue_usb",
-        "to": "n_usb_gate",
-        "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_blue_usb_found"
-          ]
-        }
-      },
-      {
-        "id": "e_gate_to_vent",
-        "from": "n_usb_gate",
-        "to": "n_connect_vent",
-        "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_control_panel_available"
-          ]
-        }
-      },
-      {
-        "id": "e_vent_to_final_image",
-        "from": "n_connect_vent",
-        "to": "n_final_image",
-        "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_ac_started"
-          ]
-        }
-      },
-      {
-        "id": "e_final_image_to_exit",
-        "from": "n_final_image",
-        "to": "n_exit_panel",
-        "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_exit_password_revealed"
-          ]
-        }
-      },
-      {
-        "id": "e_exit_to_end",
-        "from": "n_exit_panel",
+        "id": "e_keypad_to_end",
+        "from": "n_open_exit_keypad",
         "to": "n_exit_open",
         "condition": {
-          "type": "all_of_tokens",
-          "tokens": [
-            "token_exit_open"
+          "type": "all_of_completed",
+          "completedRiddles": [
+            "r_open_exit_keypad"
           ]
         }
       }
@@ -292,190 +114,68 @@
   },
   "riddles": [
     {
-      "id": "r_power_switch",
-      "type": "state_change",
-      "title": "Strom einschalten",
-      "designRole": "progression",
+      "id": "r_find_keypad_note",
+      "type": "collection",
+      "title": "Code-Hinweis finden",
       "difficulty": "easy",
-      "estimatedMinutes": 3,
-      "playerFacingTask": "Findet den versteckten Schalter unter den Papieren.",
-      "requiresTokens": [],
-      "producesTokens": [
-        "token_power_on"
-      ],
+      "estimatedMinutes": 5,
+      "playerFacingTask": "Durchsucht den Schreibtisch nach einem Hinweis.",
       "assetIds": [],
       "resources": [
         {
-          "id": "res_power_switch_papers",
-          "kind": "world_object",
-          "title": "Papierstapel mit verstecktem Schalter",
-          "availability": "visible_in_level",
-          "purpose": "clue"
-        }
-      ],
-      "hints": [],
-      "parameters": {
-        "surfaceId": "s_world",
-        "slotType": "world_interaction_slot",
-        "interactionKind": "confirm",
-        "target": "power_switch",
-        "successEffect": {
-          "type": "set_state",
-          "stateId": "power_on"
-        },
-        "successFeedback": "Die Stromversorgung springt an."
-      }
-    },
-    {
-      "id": "r_find_login_credentials",
-      "type": "collection",
-      "title": "Login-Hinweise finden",
-      "designRole": "progression",
-      "difficulty": "easy",
-      "estimatedMinutes": 6,
-      "playerFacingTask": "Durchsucht Schreibtisch und Papierkörbe nach Login-Hinweisen.",
-      "requiresTokens": [
-        "token_power_on"
-      ],
-      "producesTokens": [
-        "token_login_credentials_found"
-      ],
-      "assetIds": [
-        "asset_note_password_1",
-        "asset_note_password_2"
-      ],
-      "resources": [
-        {
-          "id": "res_password_note_1",
-          "kind": "asset",
-          "title": "Passwort-Notiz 1",
-          "assetId": "asset_note_password_1",
-          "availability": "inside_container",
-          "purpose": "clue"
-        },
-        {
-          "id": "res_password_note_2",
-          "kind": "asset",
-          "title": "Passwort-Notiz 2",
-          "assetId": "asset_note_password_2",
+          "id": "res_keypad_note",
+          "kind": "inline_text",
+          "title": "Notiz mit Zahlencode",
+          "text": "Die markierten Zahlen ergeben 3758.",
           "availability": "inside_container",
           "purpose": "clue"
         }
       ],
       "hints": [
         {
-          "id": "h_login_credentials_1",
-          "title": "Nicht alles liegt offen",
-          "text": "Ein Teil der Zugangsdaten liegt in einem Container oder Papierkorb.",
+          "id": "h_find_note_1",
+          "title": "Schreibtisch prüfen",
+          "text": "Der Hinweis liegt nicht offen im Raum.",
           "severity": 1
         }
       ],
       "parameters": {
-        "surfaceId": "s_trash_area",
-        "slotType": "trash_slot",
-        "sourceKind": "trash_minigame",
-        "rewardMode": "collect_all",
-        "rewards": [
-          "asset_note_password_1",
-          "asset_note_password_2"
+        "surfaceId": "s_desk",
+        "slotType": "container_slot",
+        "sourceKind": "container",
+        "rewardMode": "find_resource",
+        "resourceIds": [
+          "res_keypad_note"
         ],
-        "paperCount": 30,
         "successEffect": {
           "type": "grant_resources",
           "resourceIds": [
-            "res_password_note_1",
-            "res_password_note_2"
+            "res_keypad_note"
           ]
         }
       }
     },
     {
-      "id": "r_pc_login",
+      "id": "r_open_exit_keypad",
       "type": "input",
-      "title": "Labor-PC Login",
-      "designRole": "progression",
+      "title": "Tür-Keypad öffnen",
       "difficulty": "easy",
       "estimatedMinutes": 5,
-      "playerFacingTask": "Loggt euch am Labor-PC ein.",
-      "requiresTokens": [
-        "token_power_on",
-        "token_login_credentials_found"
-      ],
-      "producesTokens": [
-        "token_pc_logged_in"
-      ],
+      "playerFacingTask": "Gebt den gefundenen Code am Tür-Keypad ein.",
       "assetIds": [],
-      "resources": [
-        {
-          "id": "res_login_notes",
-          "kind": "asset",
-          "title": "Gefundene Login-Notizen",
-          "assetId": "asset_note_password_1",
-          "availability": "after_token",
-          "requiredToken": "token_login_credentials_found",
-          "purpose": "clue"
-        }
-      ],
-      "hints": [],
-      "parameters": {
-        "surfaceId": "s_main_computer",
-        "slotType": "computer_login_slot",
-        "inputMode": "credentials",
-        "fields": [
-          {
-            "id": "username",
-            "label": "E-Mail",
-            "answer": "dr.mertens@ciphera-labs.com"
-          },
-          {
-            "id": "password",
-            "label": "Passwort",
-            "answer": "a12b34xy"
-          }
-        ],
-        "successEffect": {
-          "type": "unlock_surface",
-          "surfaceId": "s_main_computer"
-        }
-      }
-    },
-    {
-      "id": "r_email_trust",
-      "type": "choice",
-      "title": "Richtige Support-Mail erkennen",
-      "designRole": "progression",
-      "difficulty": "medium",
-      "estimatedMinutes": 10,
-      "playerFacingTask": "Prüft die E-Mails und wählt die vertrauenswürdige Recovery-Seite.",
-      "requiresTokens": [
-        "token_pc_logged_in"
-      ],
-      "producesTokens": [
-        "token_recovery_url_identified"
-      ],
-      "assetIds": [],
-      "resources": [
-        {
-          "id": "res_email_inbox",
-          "kind": "computer_file",
-          "title": "E-Mail-Postfach",
-          "availability": "after_token",
-          "requiredToken": "token_pc_logged_in",
-          "purpose": "clue"
-        }
-      ],
+      "resources": [],
       "hints": [
         {
-          "id": "h_email_trust_1",
-          "title": "Absender und Linkziel",
-          "text": "Vergleicht Absender, Tonfall und vollständige URL.",
+          "id": "h_keypad_1",
+          "title": "Zahlencode",
+          "text": "Der Code besteht aus vier Ziffern.",
           "severity": 1,
           "unlock": {
             "operator": "any_of",
             "conditions": [
               {
                 "type": "failed_attempts",
-                "riddleId": "r_email_trust",
+                "riddleId": "r_open_exit_keypad",
                 "count": 1
               },
               {
@@ -487,391 +187,12 @@
         }
       ],
       "parameters": {
-        "surfaceId": "s_main_computer",
-        "slotType": "computer_choice_slot",
-        "presentation": "email_list",
-        "selectionMode": "single_correct",
-        "correctOptionId": "mail_real_support",
-        "wrongChoicePolicy": "feedback_retry",
-        "wrongChoiceFeedback": "Diese Nachricht wirkt nicht vertrauenswürdig. Prüft Absender und Linkziel erneut.",
-        "options": [
-          {
-            "id": "mail_real_support",
-            "sender": "Andreas Keller",
-            "senderMail": "andreas.keller@secugate.com",
-            "subject": "Re: SG-4 Access Code - Controlled Reconstruction",
-            "url": "https://support.secugate.com/sg4/recovery-sequence"
-          },
-          {
-            "id": "mail_fake_urgent",
-            "sender": "SecuGate Support",
-            "senderMail": "support@secugate-reset247.com",
-            "subject": "URGENT! Your Access Has Been Disabled",
-            "url": "http://secure-sg4-reset-now.com/verify"
-          }
-        ],
-        "successEffect": {
-          "type": "set_state",
-          "stateId": "recovery_page_available"
-        }
-      }
-    },
-    {
-      "id": "r_recovery_decode",
-      "type": "input",
-      "title": "Recovery-Code decodieren",
-      "designRole": "progression",
-      "difficulty": "medium",
-      "estimatedMinutes": 10,
-      "playerFacingTask": "Decodiert den Recovery-Block und ladet das Code-Dokument herunter.",
-      "requiresTokens": [
-        "token_recovery_url_identified"
-      ],
-      "producesTokens": [
-        "token_storage_code_recovered"
-      ],
-      "assetIds": [
-        "asset_binary_hex",
-        "asset_hex_ascii",
-        "asset_morse_manual"
-      ],
-      "resources": [
-        {
-          "id": "res_binary_hex_table",
-          "kind": "asset",
-          "title": "Binary-Hex-Tabelle",
-          "assetId": "asset_binary_hex",
-          "availability": "visible_in_level",
-          "purpose": "instruction"
-        },
-        {
-          "id": "res_hex_ascii_table",
-          "kind": "asset",
-          "title": "Hex-ASCII-Tabelle",
-          "assetId": "asset_hex_ascii",
-          "availability": "visible_in_level",
-          "purpose": "instruction"
-        }
-      ],
-      "hints": [],
-      "parameters": {
-        "surfaceId": "s_main_computer",
-        "slotType": "computer_input_slot",
-        "inputMode": "decoded_text",
-        "encodedValue": "00110110001101010011010000111000",
-        "answer": "6548",
-        "decoderSteps": [
-          "binary_to_ascii"
-        ],
-        "successEffect": {
-          "type": "reveal_resource",
-          "resourceId": "res_unlock_code_document"
-        }
-      }
-    },
-    {
-      "id": "r_storage_keypad",
-      "type": "input",
-      "title": "Storage-Keypad",
-      "designRole": "progression",
-      "difficulty": "medium",
-      "estimatedMinutes": 8,
-      "playerFacingTask": "Decodiert den Morse-Code aus dem Dokument und öffnet die Storage-Tür.",
-      "requiresTokens": [
-        "token_storage_code_recovered"
-      ],
-      "producesTokens": [
-        "token_storage_open"
-      ],
-      "assetIds": [
-        "asset_unlock_code_document",
-        "asset_morse_manual"
-      ],
-      "resources": [
-        {
-          "id": "res_unlock_code_document",
-          "kind": "computer_file",
-          "title": "Unlock-Code-Dokument",
-          "assetId": "asset_unlock_code_document",
-          "availability": "generated_by_riddle",
-          "purpose": "clue"
-        },
-        {
-          "id": "res_morse_manual",
-          "kind": "asset",
-          "title": "Morse-Tabelle",
-          "assetId": "asset_morse_manual",
-          "availability": "visible_in_level",
-          "purpose": "instruction"
-        }
-      ],
-      "hints": [],
-      "parameters": {
-        "surfaceId": "s_storage_keypad",
+        "surfaceId": "s_exit_keypad",
         "slotType": "keypad_slot",
         "inputMode": "numeric",
         "answer": "3758",
         "maxLength": 4,
-        "successEffect": {
-          "type": "open_surface",
-          "surfaceId": "s_storage_door"
-        }
-      }
-    },
-    {
-      "id": "r_find_blue_usb",
-      "type": "collection",
-      "title": "Blauen USB-Stick finden",
-      "designRole": "progression",
-      "difficulty": "medium",
-      "estimatedMinutes": 8,
-      "playerFacingTask": "Findet den richtigen USB-Stick.",
-      "requiresTokens": [
-        "token_storage_open"
-      ],
-      "producesTokens": [
-        "token_blue_usb_found"
-      ],
-      "assetIds": [],
-      "resources": [
-        {
-          "id": "res_usb_acrostic_note",
-          "kind": "inline_text",
-          "title": "Kollegen-Notiz mit Akrostichon",
-          "text": "Brought it back... Lightning quick... Useful... Expect...",
-          "availability": "visible_in_level",
-          "purpose": "clue"
-        }
-      ],
-      "hints": [
-        {
-          "id": "h_blue_usb_1",
-          "title": "Akrostichon",
-          "text": "Die Anfangsbuchstaben der Notiz können wichtiger sein als der eigentliche Text.",
-          "severity": 1,
-          "unlock": {
-            "operator": "all_of",
-            "conditions": [
-              {
-                "type": "resource_viewed",
-                "resourceId": "res_usb_acrostic_note"
-              }
-            ]
-          }
-        }
-      ],
-      "parameters": {
-        "surfaceId": "s_storage_area",
-        "slotType": "container_slot",
-        "sourceKind": "container",
-        "rewardMode": "single",
-        "rewards": [
-          "item_usb_blue"
-        ],
-        "decoyItemIds": [
-          "item_usb_red",
-          "item_usb_green",
-          "item_usb_yellow"
-        ],
-        "successEffect": {
-          "type": "grant_items",
-          "itemIds": [
-            "item_usb_blue"
-          ]
-        }
-      }
-    },
-    {
-      "id": "r_usb_gate",
-      "type": "item_use",
-      "title": "USB-Stick einsetzen",
-      "designRole": "progression",
-      "difficulty": "easy",
-      "estimatedMinutes": 4,
-      "playerFacingTask": "Steckt den richtigen USB-Stick in den PC.",
-      "requiresTokens": [
-        "token_blue_usb_found",
-        "token_pc_logged_in"
-      ],
-      "producesTokens": [
-        "token_control_panel_available"
-      ],
-      "assetIds": [],
-      "resources": [],
-      "hints": [],
-      "parameters": {
-        "surfaceId": "s_main_computer",
-        "slotType": "computer_usb_slot",
-        "target": "pc_main",
-        "requiredItemId": "item_usb_blue",
-        "candidateItemIds": [
-          "item_usb_red",
-          "item_usb_green",
-          "item_usb_yellow",
-          "item_usb_blue"
-        ],
-        "wrongItemPolicy": "unknown_device_shutdown_retry",
-        "wrongItemFeedback": "Der PC meldet: Unbekanntes USB-Gerät.",
-        "shutdownDelayMs": 10000,
-        "resetState": "computer_on_logged_out",
-        "successEffect": {
-          "type": "mount_item",
-          "itemId": "item_usb_blue",
-          "targetSurfaceId": "s_main_computer"
-        }
-      }
-    },
-    {
-      "id": "r_connect_vent",
-      "type": "control_panel",
-      "title": "Lüftung verbinden",
-      "designRole": "progression",
-      "difficulty": "medium",
-      "estimatedMinutes": 8,
-      "playerFacingTask": "Findet die Seriennummer der Lüftung und verbindet sie im Control Panel.",
-      "requiresTokens": [
-        "token_control_panel_available"
-      ],
-      "producesTokens": [
-        "token_ac_started"
-      ],
-      "assetIds": [],
-      "resources": [
-        {
-          "id": "res_vent_serial",
-          "kind": "world_object",
-          "title": "Seriennummer an der Lüftung",
-          "text": "sv00049221",
-          "availability": "visible_in_level",
-          "purpose": "clue"
-        },
-        {
-          "id": "res_decoy_vent_serial_1",
-          "kind": "world_object",
-          "title": "Beschädigte Seriennummer",
-          "text": "sv00057---",
-          "availability": "visible_in_level",
-          "purpose": "decoy"
-        }
-      ],
-      "hints": [],
-      "parameters": {
-        "surfaceId": "s_main_computer",
-        "slotType": "computer_panel_slot",
-        "controls": [
-          {
-            "id": "connect_ac",
-            "kind": "text_input",
-            "answer": "49221",
-            "setsState": "ac_vent_connected"
-          },
-          {
-            "id": "turn_ac_on",
-            "kind": "toggle",
-            "requiresStates": [
-              "ac_vent_connected"
-            ],
-            "setsState": "ac_started"
-          }
-        ],
-        "completionState": "ac_started",
-        "successEffect": {
-          "type": "spawn_content",
-          "surfaceId": "s_assembly_area",
-          "resourceId": "res_final_code_fragments"
-        }
-      }
-    },
-    {
-      "id": "r_final_image",
-      "type": "assembly",
-      "title": "Finales Bild rekonstruieren",
-      "designRole": "progression",
-      "difficulty": "medium",
-      "estimatedMinutes": 8,
-      "playerFacingTask": "Sammelt die herausgewehten Bildfragmente und rekonstruiert den finalen Code.",
-      "requiresTokens": [
-        "token_ac_started"
-      ],
-      "producesTokens": [
-        "token_exit_password_revealed"
-      ],
-      "assetIds": [
-        "asset_final_code"
-      ],
-      "resources": [
-        {
-          "id": "res_final_code_fragments",
-          "kind": "asset",
-          "title": "Final-Code-Bildfragmente",
-          "assetId": "asset_final_code",
-          "availability": "after_token",
-          "requiredToken": "token_ac_started",
-          "purpose": "clue"
-        }
-      ],
-      "hints": [],
-      "parameters": {
-        "surfaceId": "s_assembly_area",
-        "slotType": "assembly_slot",
-        "assemblyMode": "image_fragments",
-        "sourceAssetId": "asset_final_code",
-        "pieceCount": 4,
-        "resultResourceId": "res_final_code_fragments",
-        "revealedAnswer": "214795541",
-        "successEffect": {
-          "type": "reveal_resource",
-          "resourceId": "res_exit_password"
-        }
-      }
-    },
-    {
-      "id": "r_exit_panel",
-      "type": "control_panel",
-      "title": "Ausgang öffnen",
-      "designRole": "progression",
-      "difficulty": "easy",
-      "estimatedMinutes": 3,
-      "playerFacingTask": "Gebt das finale Passwort im Control Panel ein und öffnet die Ausgangstür.",
-      "requiresTokens": [
-        "token_exit_password_revealed"
-      ],
-      "producesTokens": [
-        "token_exit_open"
-      ],
-      "assetIds": [],
-      "resources": [
-        {
-          "id": "res_exit_password",
-          "kind": "inline_text",
-          "title": "Rekonstruierter Exit-Code",
-          "text": "214795541",
-          "availability": "after_token",
-          "requiredToken": "token_exit_password_revealed",
-          "purpose": "clue"
-        }
-      ],
-      "hints": [],
-      "parameters": {
-        "surfaceId": "s_main_computer",
-        "slotType": "computer_panel_slot",
-        "controls": [
-          {
-            "id": "unlock_exit",
-            "kind": "password_input",
-            "answer": "214795541",
-            "setsState": "exit_unlocked"
-          },
-          {
-            "id": "open_exit",
-            "kind": "button",
-            "requiresStates": [
-              "exit_unlocked"
-            ],
-            "setsState": "exit_open"
-          }
-        ],
-        "completionState": "exit_open",
+        "showDigitCount": true,
         "successEffect": {
           "type": "open_surface",
           "surfaceId": "s_exit_door"
@@ -879,104 +200,5 @@
       }
     }
   ],
-  "assets": [
-    {
-      "id": "asset_note_password_1",
-      "path": "assets/custom/note-password-1.png",
-      "mediaType": "image/png",
-      "purpose": "riddle_evidence",
-      "linkedTo": [
-        "r_find_login_credentials"
-      ],
-      "required": true,
-      "source": {
-        "type": "educator_upload",
-        "license": "own_material"
-      }
-    },
-    {
-      "id": "asset_note_password_2",
-      "path": "assets/custom/note-password-2.png",
-      "mediaType": "image/png",
-      "purpose": "riddle_evidence",
-      "linkedTo": [
-        "r_find_login_credentials"
-      ],
-      "required": true,
-      "source": {
-        "type": "educator_upload",
-        "license": "own_material"
-      }
-    },
-    {
-      "id": "asset_binary_hex",
-      "path": "assets/custom/binary_hex.jpg",
-      "mediaType": "image/jpeg",
-      "purpose": "riddle_evidence",
-      "linkedTo": [
-        "r_recovery_decode"
-      ],
-      "required": true,
-      "source": {
-        "type": "predefined_theme_asset",
-        "license": "project_asset"
-      }
-    },
-    {
-      "id": "asset_hex_ascii",
-      "path": "assets/custom/hex_ascii.png",
-      "mediaType": "image/png",
-      "purpose": "riddle_evidence",
-      "linkedTo": [
-        "r_recovery_decode"
-      ],
-      "required": true,
-      "source": {
-        "type": "predefined_theme_asset",
-        "license": "project_asset"
-      }
-    },
-    {
-      "id": "asset_morse_manual",
-      "path": "assets/custom/morse.png",
-      "mediaType": "image/png",
-      "purpose": "riddle_evidence",
-      "linkedTo": [
-        "r_storage_keypad"
-      ],
-      "required": true,
-      "source": {
-        "type": "predefined_theme_asset",
-        "license": "project_asset"
-      }
-    },
-    {
-      "id": "asset_unlock_code_document",
-      "path": "assets/custom/unlock-code.txt",
-      "mediaType": "text/plain",
-      "purpose": "riddle_evidence",
-      "linkedTo": [
-        "r_storage_keypad"
-      ],
-      "required": false,
-      "source": {
-        "type": "generated_from_riddle",
-        "license": "project_generated"
-      }
-    },
-    {
-      "id": "asset_final_code",
-      "path": "assets/custom/final-code.png",
-      "mediaType": "image/png",
-      "purpose": "riddle_evidence",
-      "linkedTo": [
-        "r_final_image"
-      ],
-      "required": true,
-      "source": {
-        "type": "predefined_theme_asset",
-        "license": "project_asset"
-      }
-    }
-  ]
+  "assets": []
 }

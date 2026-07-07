@@ -56,10 +56,10 @@ tool that produces stable artifacts for generation and runtime preview.
 | `torres2025moirai` | future evaluation | Usability follow-up for Moirai. Useful if the Wizard UI itself is evaluated. |
 | `mehm2016authoring` | secondary | Serious-game authoring processes and tools. Supports the Wizard as a structured process, not just a UI. |
 | `mehm2013education` | secondary | Education-focused serious-game authoring. Useful comparison for abstraction over concrete code. |
-| `alonsofernandez2017lifecycle` | core/secondary | Lifecycle architecture connecting authoring, runtime, and analytics. Relevant to `deer.zip` and later traceability. |
+| `alonsofernandez2017lifecycle` | core/secondary | Lifecycle architecture connecting authoring, runtime, and analytics. Relevant to the DEER project folder, generator output, and later traceability. |
 | `sousa2022adaptability` | generator/future | Connects educational escape rooms with adaptability, accessibility, level design, narrative, and PCG. |
 | `lopezpernas2021escapp` | platform comparison | Web platform for running educational escape rooms. Comparison point for preview/runtime, monitoring, hints, and multi-team sessions. |
-| `queiros2023lms` | future integration | LMS integration source. Relevant after a stable `deer.zip` and runtime contract exist. |
+| `queiros2023lms` | future integration | LMS integration source. Relevant after stable generator input and runtime contracts exist. |
 | `queiros2024gerf` | future integration | Virtual escape-room framework with LTI/xAPI/analytics/adaptive learning paths. Relevant outside V0. |
 | `bonnat2022digital` | monitoring/future | Digital companion for monitoring, Game Master support, and debriefing. Useful warning that dashboards must match teaching practice. |
 | `lopezpernas2024dashboard` | monitoring/future | Sequence-analysis-inspired dashboard for educational escape-room progress. Context for later monitoring views. |
