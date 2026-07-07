@@ -35,4 +35,4 @@ Nützlicher Kontext:
   Hour.
 - `v0/room-package-format.md`: Paketformat für `deer.zip` und
   Generator-Übergabe.
-- `research/sources/ordered/`: wissenschaftliche Quellen.
+- `research/`: kompakte wissenschaftliche Quellen- und Literaturnotizen.
