@@ -1,55 +1,52 @@
-# Wizard V0 Documentation
-
-Status: V0-Konzept und UI-first Authoring-Contract.
+# Wizard V0.2 Documentation
 
 ## Zweck
 
-Diese Dateien beschreiben den öffentlichen V0-Stand des Dungeon Wizards. V0
-ist eine Web-App für nicht-technische Lehrende und erzeugt eine validierte
-`deer.json` mit referenzierten Assets. Der Java-Generator liest diese
-Projektdateien manuell und erzeugt daraus das spielbare Room-Paket.
+V0.2 beschreibt einen kleinen, echten End-to-End-Slice:
 
-## Aktive Dateien
+```text
+Wizard-Entwurf
+-> deer.json + assets/
+-> Java-Generator
+-> generiertes Escape-Room-Modul als ZIP
+-> Integration und Build
+```
 
-Diese V0-Dokumente liegen unter `./wizard/doc/v0`. Der Root `./wizard` bleibt
-frei für Web-App-Code, Entwurfsdaten und spätere Generator-Anbindung.
+Die UI erzeugt kein ZIP und keine Runtime-Dateien. Der Foundation-Slice wird
+noch von einer technischen Betreuung generiert und gebaut; die Lehrenden-UI
+bleibt davon getrennt.
 
-- `concept.md`: aktuelle Projektdefinition und Scope-Grenze für V0.
-- `frontend-handoff-overview-v0.md`: kompakter Einstieg für die
-  Frontend-/UI-Person.
-- `wizard-ui-flow-v0.md`: Wizard-Schritte, sichtbare Eingaben,
-  Validierungsstellen und Abschlussaktion.
-- `teacher-workflow-v0.md`: funktionaler UI-Contract für den Lehrenden-
-  Workflow.
-- `deer-json-spec.md`: menschenlesbare Spezifikation der internen
-  `deer.json`, die der Generator konsumiert.
-- `deer.schema.json`: maschinenlesbares JSON Schema für `deer.json`.
-- `examples/deer.example.json`: valides Beispiel für den Foundation-Slice.
-- `parameter-table-v0.md`: Pflichtparameter des V0-Foundation-Slices.
-- `the-last-hour-interaction-catalog.md`: Mapping vorhandener The-Last-Hour-
-  Interaktionen auf spätere Wizard-Bausteine.
-- `generator-input-format.md`: Projektordner- und Generator-Handoff.
-- `implementation-handoff-v0.md`: kompakte Übergabe für UI und Generator.
+## Maßgebliche Dateien
 
-## V0-Kernvertrag
+| Thema | Datei |
+|---|---|
+| Produktziel und Scope | [`concept.md`](concept.md) |
+| Sichtbarer UI-Flow | [`wizard-ui-flow-v0.md`](wizard-ui-flow-v0.md) |
+| Persona und Akzeptanzszenarien | [`teacher-workflow-v0.md`](teacher-workflow-v0.md) |
+| Frontend-Einstieg | [`frontend-handoff-overview-v0.md`](frontend-handoff-overview-v0.md) |
+| Gemeinsame Implementierungsübergabe | [`implementation-handoff-v0.md`](implementation-handoff-v0.md) |
+| DEER-Semantik | [`deer-json-spec.md`](deer-json-spec.md) |
+| Maschinenlesbarer Contract | [`deer.schema.json`](deer.schema.json) |
+| Foundation-Beispiel | [`examples/deer.example.json`](examples/deer.example.json) |
+| Typ-Parameter | [`parameter-table-v0.md`](parameter-table-v0.md) |
+| Generator-Eingabe | [`generator-input-format.md`](generator-input-format.md) |
+| Generator-Ausgabe | [`generator-output-format.md`](generator-output-format.md) |
+| Spätere Bausteine | [`the-last-hour-interaction-catalog.md`](the-last-hour-interaction-catalog.md) |
 
-- `deer.json` ist der Contract zwischen Wizard-UI und Java-Generator.
-- Die sichtbare Endaktion ist `Entwurf finalisieren`.
-- Die UI erzeugt keine spielbaren Runtime-Dateien und kein Generator-Paket.
-- Die Generator-Eingabe ist ein Projektordner mit `deer.json` und
-  referenzierten Assets.
-- Lehrende bearbeiten keine JSON-Datei direkt.
-- Der Java-Generator wird in V0 manuell mit dem Projektordner gestartet und
-  erzeugt daraus das Room-Paket.
-- The Last Hour liefert verfügbare Bausteine und Assets, aber keine
-  vorausgewählte Vorlage.
-- Ein Raum hat genau einen Endzustand; spätere verzweigte Wege laufen auf
-  dasselbe Ende zu.
-- V0 aktiv sind nur die Bausteine, die der Foundation-Slice wirklich
-  spielbar erzeugen kann.
-- Der Abschluss ist nur aktiv, wenn Client-Preflight, Schema,
-  Asset-Referenzen, Ablauf und verwendete Bausteine gültig sind.
-- Nicht generierbare Bausteine oder Optionen erscheinen deaktiviert mit
-  sichtbarem Grund.
-- Blockierend sind Fehler, die Pflichtdaten, Assets, Progression oder
-  Spielbarkeit beschädigen. Warnungen blockieren nicht.
+## V0.2-Kernentscheidungen
+
+- Unvollständige Entwürfe sind UI-private Daten; nur der Abschluss erzeugt eine
+  `deer.json`.
+- Mindestens ein Lernziel ist Pflicht; jedes Rätsel wird einem Lernziel
+  zugeordnet.
+- Der sichtbare Ablauf besteht aus geordneten Abschnitten mit optionaler
+  Parallelität. Der Graph wird daraus abgeleitet.
+- Alle Rätsel sind Pflichträtsel und führen zu einem gemeinsamen Erfolgsziel.
+- V0.2 aktiviert nur **Fund** und **Zahlencode**.
+- Technische Orte, IDs und Graphkanten werden von der UI abgeleitet.
+- Statische Prüfung belegt Struktur und Generatorfähigkeit, nicht menschliche
+  Lösbarkeit oder Lernerfolg.
+- Der Java-Generator validiert erneut und erzeugt deterministisch ein
+  generiertes Modul-ZIP.
+- Runtime-Progression, Timer und Ende sind serverautoritativ und müssen im
+  Multiplayer synchronisiert werden.

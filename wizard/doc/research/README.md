@@ -3,19 +3,25 @@
 This folder contains the public, repo-safe research source set for the Dungeon
 Wizard concept.
 
-The notes are organized by topic rather than by discovery order or local draft
-origin. They intentionally store metadata, synthesis notes, DOI links via
-BibTeX, and project relevance instead of document dumps or reading-list
-bookkeeping.
+The notes are organized by topic and store citation metadata, concise synthesis,
+and project relevance instead of document dumps.
+
+This is a curated design-literature set, not a systematic review. It does not
+claim an exhaustive search, formal inclusion/exclusion process, or quality
+assessment.
 
 ## Files
 
-- `source-notes.md`: compact thematic notes for the sources that shape the
-  Wizard concept and later research/evaluation work.
+- `source-notes.md`: thematic synthesis for the sources that shape the concept
+  and later evaluation work.
 - `sources.bib`: BibTeX metadata for the cited source set.
 
-Scope note: this is a research library, not the V0 requirements list. The
-current Wizard V0 focuses on a standalone authoring web app, `deer.json`
-finalization, project-folder validation, and generator handoff. Learning-goal
-mapping, evaluation, debriefing, telemetry, traceability artifacts, LMS
-integration, and dashboards remain useful context for later project phases.
+## Relationship to V0.2
+
+The research library is not a second requirements document. V0.2 adopts only a
+small pedagogical baseline from it: an explicit learning objective, mapping
+each riddle to an objective, a review prompt, and an explicit playtest loop.
+
+Full learning-evidence traceability, generated debriefing material, telemetry,
+formal evaluation, LMS integration, and dashboards remain later project
+phases.

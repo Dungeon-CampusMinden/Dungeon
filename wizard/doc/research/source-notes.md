@@ -10,11 +10,12 @@ citation metadata and project relevance, not local source-management details.
 
 These sources support the argument that the Wizard should guide authors through
 participants, objectives, theme, puzzle structure, constraints, briefing, and
-later debriefing/evaluation without making all of that mandatory for V0.
+later debriefing/evaluation. V0.2 adopts a minimal objective-to-riddle mapping;
+the full learning-evidence chain remains future work.
 
 | BibTeX key | Priority | Wizard relevance |
 | --- | --- | --- |
-| `biggs1996constructive` | background | Didactic basis for aligning objectives, activities, and assessment evidence. Useful for future learning-goal mapping. |
+| `biggs1996constructive` | background | Didactic basis for aligning objectives, activities, and assessment evidence. Supports the minimal V0.2 objective-to-riddle mapping. |
 | `clarke2017escaped` | core | Direct framework for creating educational escape rooms and interactive games. Supports structured authoring steps. |
 | `veldkamp2020escape` | core | Systematic review of educational escape rooms. Useful for puzzle structure, group size, playtime, technology role, and pedagogical alignment. |
 | `veldkamp2021beyond` | core/secondary | Teacher-perspective source on adoption barriers, teamwork, and motivation. Supports the Wizard as teacher-facing support. |
@@ -46,7 +47,7 @@ tool that produces stable artifacts for generation and runtime preview.
 | BibTeX key | Priority | Wizard relevance |
 | --- | --- | --- |
 | `laurent2022authoring` | core | Serious-game authoring principles. Direct support for the power/usability tradeoff and abstraction layers for non-programmers. |
-| `ahmad2020instructional` | core | Review of instructional-design support in serious-game authoring tools. Future-facing without forcing learning outcomes into V0. |
+| `ahmad2020instructional` | core | Review of instructional-design support in serious-game authoring tools. Supports a small V0.2 learning-purpose layer without requiring full assessment authoring. |
 | `roungas2016model` | core | Model-driven educational game design. Strong support for a schema/config-first artifact. |
 | `shaker2016pcg` | core | Foundational procedural-content-generation reference. Supports seed/config-based generation, constraints, and reproducibility. |
 | `liapis2016mixed` | core | Mixed-initiative creation. Frames the generator as collaborator while the author controls meaning. |

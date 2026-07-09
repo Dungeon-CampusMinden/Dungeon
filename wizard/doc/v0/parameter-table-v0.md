@@ -1,223 +1,189 @@
-# DEER Parameter Table V0
+# DEER Parameter Table V0.2
 
-Stand: 07.07.2026
-Status: Detailtabelle für den V0-Foundation-Slice
+Status: Foundation-Contract für `formatVersion=0.2-draft`
 
-## Ziel
+## Grundregeln
 
-Diese Tabelle beschreibt die typ-spezifischen Parameter, die der Wizard im
-ersten lauffähigen Slice erzeugt. Sie ergänzt
-[`deer-json-spec.md`](deer-json-spec.md). Das JSON Schema prüft die Struktur;
-UI und Generator prüfen zusätzlich fachliche Referenzen und Spielbarkeit.
-Die aktiven V0-Parameterobjekte sind typ-spezifisch geschlossen: Ein
-`input.numeric` darf keine Fundparameter tragen und ein `collection.single`
-keine Eingabeparameter.
+- Der Wizard fragt fachliche Entscheidungen ab.
+- Die UI leitet IDs, Surfaces und Graphkanten ab.
+- Der Generator leitet Positionen, Slots, Petri-Netze, Netzwerkzustand und
+  Java-Adapter ab.
+- Parameterobjekte sind typ-spezifisch geschlossen.
+- Nur Werte mit UI-, Validator-, Generator- und Runtime-Unterstützung gehören
+  in diese Formatversion.
 
-Grundregel:
+## Gemeinsame Rätsel-Felder
 
-- Der Wizard fragt fachliche Inhalte und notwendige Entscheidungen ab.
-- Oberflächen entstehen aus den gewählten Bausteinen und werden in der UI
-  fachlich benannt.
-- Der Rätselgraph ist die Quelle für Progression; `deer.json` enthält keine
-  öffentlichen Tokens.
-- Die Graph-Topologie ist die Abhängigkeitsquelle. Kanten tragen keine zweite
-  Bedingungsliste.
-- Der manuell gestartete Generator wählt konkrete Positionen, Slot-Instanzen,
-  Runtime-States und technische Details.
-- Der Client validiert vor der Finalisierung; der Java-Generator validiert
-  erneut als Sicherheitsnetz.
-
-## Gemeinsame Riddle-Felder
-
-Jedes Rätsel braucht außerhalb von `parameters`:
-
-| Feld | Pflicht | Bedeutung |
+| Feld | Pflicht | Regel |
 |---|---:|---|
-| `id` | ja | Stabile technische ID. |
-| `type` | ja | Einer der aktiven V0-Typen: `collection` oder `input`. |
-| `title` | ja | Interner und optional sichtbarer Titel. |
-| `playerFacingTask` | ja | Aufgabenformulierung für Wizard/UI. |
-| `assetIds` | ja | Direkt benötigte Asset-Referenzen, sonst `[]`. |
-| `resources` | ja | Normale Hinweise/Informationen im Raum, sonst `[]`. |
-| `hints` | ja | Optionale Hilfen, sonst `[]`. |
-| `parameters` | ja | Typ-spezifische Parameter. |
-| `difficulty` | nein | Redaktionsmetadatum für Warnungen. |
-| `estimatedMinutes` | nein | Zeitannahme für Balance und Warnungen. |
+| `id` | ja | global eindeutige, stabile ID |
+| `type` | ja | `collection` oder `input` |
+| `title` | ja | nicht leer |
+| `learningObjectiveIds` | ja | mindestens ein existierendes Lernziel |
+| `playerFacingTask` | ja | nicht leer; wird im Spiel gezeigt |
+| `resources` | ja | bei Fund mindestens ein Inline-Text, optional Bilder; bei Zahlencode `[]` |
+| `hints` | ja | geordnete Hilfen; sonst `[]` |
+| `parameters` | ja | exakt eine aktive Typvariante |
+| `difficulty` | nein | `easy`, `medium`, `hard` |
+| `estimatedMinutes` | ja | positive Ganzzahl |
 
-Progression liegt ausschließlich in `riddleGraph.edges`.
+Progression steht ausschließlich in `riddleGraph`.
 
-## Wiederkehrende Parameter
-
-Diese Felder können je nach aktivem Typ sinnvoll sein:
-
-| Feld | Pflicht | Bedeutung |
-|---|---:|---|
-| `surfaceId` | ja | Referenz auf `surfaces[].id`, z. B. `s_storage_keypad`. |
-| `slotType` | ja | Gewünschter Slot-Typ, z. B. `container_slot`, `keypad_slot`. |
-| `successEffect` | typabhängig | Kontrollierter Effekt nach Erfolg, z. B. `open_surface` auf eine Tür-Surface. |
-| `successFeedback` | nein | Kurzer sichtbarer Erfolgstext. |
-| `wrongFeedback` | nein | Kurzer Fehlertext bei falscher Eingabe. |
-| `retryPolicy` | nein | Standard `infinite_retry`; V0 sollte Progression nicht dauerhaft blockieren. |
-
-`successEffect` ist keine freie Nutzereingabe. Lehrende wählen fachlich, z. B.
-"Tür öffnen"; die UI schreibt intern ein kontrolliertes Objekt.
-Fund-Rätsel nutzen keinen `successEffect`, um gefundene Ressourcen zu vergeben;
-bei `collection.single` ist `resourceIds` selbst das Ergebnis des Fundes.
-
-V0-Effektmodell:
-
-| Kategorie | Bedeutung | Beispiel |
-|---|---|---|
-| `set_state` | Welt- oder Runtime-Zustand setzen | `{ "type": "set_state", "stateId": "power_on" }` |
-| `unlock_surface` | Interaktionsoberfläche freischalten | `{ "type": "unlock_surface", "surfaceId": "s_keypad" }` |
-| `open_surface` | Tür oder Bereich öffnen | `{ "type": "open_surface", "surfaceId": "s_exit_door" }` |
-
-## Aktive V0-Typen
-
-### `collection.single`
-
-Anwendungsfall: Notiz, Hinweis oder Ressource an einem Fundort finden.
-
-Interner JSON-Contract: `riddle.type=collection`,
-`parameters.rewardMode=find_resource`.
-
-Pflicht in `parameters`:
-
-| Feld | Bedeutung |
-|---|---|
-| `surfaceId` | Fundort oder Container-Surface. |
-| `slotType` | `container_slot` oder `world_object_slot`. |
-| `sourceKind` | `container` oder `world_object`. |
-| `rewardMode` | `find_resource`. |
-| `resourceIds` | Eine oder mehrere Ressourcen, die durch den Fund verfügbar werden. |
-
-Optional:
-
-- `consumeOnCollect`
-- `repeatable`
+## Fund / collection.single
 
 ```json
 {
   "surfaceId": "s_desk",
-  "slotType": "container_slot",
   "sourceKind": "container",
   "rewardMode": "find_resource",
-  "resourceIds": ["res_keypad_note"]
-}
-```
-
-### `input.numeric`
-
-Anwendungsfall: Keypad, Zahlen-Code oder einfache numerische Antwort.
-
-Interner JSON-Contract: `riddle.type=input`, `parameters.inputMode=numeric`.
-
-Pflicht in `parameters`:
-
-| Feld | Bedeutung |
-|---|---|
-| `surfaceId` | Eingabeoberfläche, z. B. Keypad. |
-| `slotType` | `keypad_slot`. |
-| `inputMode` | `numeric`. |
-| `answer` | Erwarteter Zahlencode; nur Ziffern. |
-| `maxLength` | Maximale Eingabelänge. |
-| `successEffect` | Effekt nach korrekter Eingabe. |
-
-Optional:
-
-- `minLength`
-- `showDigitCount`
-- `acceptedCharacters`, Standard `digits`
-
-```json
-{
-  "surfaceId": "s_storage_keypad",
-  "slotType": "keypad_slot",
-  "inputMode": "numeric",
-  "answer": "3758",
-  "maxLength": 4,
-  "successEffect": {
-    "type": "open_surface",
-    "surfaceId": "s_storage_door"
-  }
-}
-```
-
-## Resources
-
-Resources sind normale Informationen im Raum oder Computer. Sie sind keine
-Hints und erzeugen keine Progression.
-
-Pflicht pro Resource:
-
-| Feld | Bedeutung |
-|---|---|
-| `id` | Resource-ID. |
-| `kind` | `inline_text`, `asset`, `world_object`, `computer_file`. |
-| `title` | Sichtbarer Name. |
-| `availability` | `visible_in_level`, `inside_container`, `after_riddle`, `generated_by_riddle`. |
-| `purpose` | `clue`, `context`, `instruction`, `decoy`. |
-
-Zusätzlich:
-
-- Bei `kind=asset`: `assetId`
-- Bei `availability=after_riddle`: `requiredRiddleId`
-- Bei `kind=inline_text`: `text`
-
-## Hints
-
-Hints bleiben optional, aber das Array existiert immer.
-
-Pflicht pro Hint:
-
-| Feld | Bedeutung |
-|---|---|
-| `id` | Hint-ID. |
-| `title` | Kurztitel. |
-| `text` | Hilfetext. |
-| `severity` | Eskalationsstufe, beginnend bei `1`. |
-
-Optional pro Hint:
-
-| Feld | Bedeutung |
-|---|---|
-| `unlock` | Freischaltbedingung. Ohne `unlock` ist der Hint sofort verfügbar. |
-
-`unlock` ist kein flaches Condition-Objekt, sondern ein Envelope:
-
-```json
-{
-  "operator": "any_of",
-  "conditions": [
-    {
-      "type": "elapsed_time",
-      "seconds": 300
-    }
+  "resourceIds": [
+    "res_keypad_code"
   ]
 }
 ```
 
-V0-Bedingungen:
+| Feld | Pflicht | Regel |
+|---|---:|---|
+| `surfaceId` | ja | Container bei `container`, World bei `world_object` |
+| `sourceKind` | ja | `container` oder `world_object` |
+| `rewardMode` | ja | fest `find_resource` |
+| `resourceIds` | ja | nicht leere Liste eigener Resources |
 
-| Bedingung | Pflichtfelder | Bedeutung |
+Abschluss: alle `resourceIds` wurden teamweit als gefunden registriert.
+
+Alle Resources verwenden bei `container` die Availability
+`inside_container`, bei `world_object` die Availability
+`visible_in_level`.
+
+Jeder Fund enthält mindestens eine Inline-Text-Resource. Mindestens eine
+`resourceIds`-Referenz zeigt auf einen eigenen Inline-Text mit `purpose=clue`
+oder `purpose=instruction`. Bilder können diesen notwendigen Inhalt ergänzen,
+aber nicht ersetzen; die Referenzbindung wird semantisch geprüft.
+
+Nicht in DEER:
+
+- `slotType`;
+- `consumeOnCollect`;
+- `repeatable`;
+- freier `successEffect`;
+- konfigurierbares Erfolgsfeedback.
+
+## Zahlencode / input.numeric
+
+```json
+{
+  "surfaceId": "s_exit_keypad",
+  "inputMode": "numeric",
+  "answer": "3758",
+  "showDigitCount": true
+}
+```
+
+| Feld | Pflicht | Regel |
+|---|---:|---|
+| `surfaceId` | ja | Keypad-Surface |
+| `inputMode` | ja | fest `numeric` |
+| `answer` | ja | 1 bis 8 Ziffern |
+| `showDigitCount` | ja | explizites Boolean |
+
+Abschluss: das serverautoritative Keypad bestätigt den exakten Code.
+`resources` ist bei diesem Typ immer `[]`.
+
+Nicht in DEER:
+
+- `slotType`;
+- `minLength` oder `maxLength`;
+- `acceptedCharacters`;
+- `retryPolicy`;
+- `wrongFeedback` oder `successFeedback`;
+- freier `successEffect`.
+
+## Resources
+
+### Inline-Text
+
+Pflicht:
+
+- `id`;
+- `kind=inline_text`;
+- `title`;
+- nicht leerer `text`;
+- `availability`;
+- `purpose`.
+
+### Bild
+
+Pflicht:
+
+- `id`;
+- `kind=asset`;
+- `title`;
+- existierende `assetId`;
+- `availability`;
+- `purpose`.
+
+`availability`:
+
+- `visible_in_level`;
+- `inside_container`.
+
+`purpose`:
+
+- `clue`;
+- `context`;
+- `instruction`;
+- `decoy`.
+
+## Hilfen
+
+Pflicht pro Hilfe:
+
+| Feld | Regel |
+|---|---|
+| `id` | global eindeutig |
+| `title` | nicht leer |
+| `text` | nicht leer |
+| `severity` | lückenlos und eindeutig `1..n` pro Rätsel |
+
+Ab Aktivierung des Rätsels kann die erste Hilfe angefordert werden. Jede
+weitere Anforderung zeigt die nächste. Die Arrayreihenfolge ist maßgeblich; die
+UI leitet daraus `severity=1..n` ab.
+
+## Assets
+
+| Feld | Pflicht | Regel |
+|---|---:|---|
+| `id` | ja | global eindeutig |
+| `path` | ja | sicherer Pfad unter `assets/custom/` |
+| `mediaType` | ja | `image/png` oder `image/jpeg` |
+| `purpose` | ja | `riddle_evidence` oder `decorative`; muss zu `accessibility.decorative` passen |
+| `source` | ja | Herkunft und Lizenz |
+| `accessibility` | ja | dekorativ oder nicht-spoilernde Beschreibung |
+
+Ein Asset wird ausschließlich durch eine Asset-Resource referenziert.
+Ein als `riddle_evidence` verwendetes Bild braucht im selben Rätsel zusätzlich
+einen Inline-Text mit `purpose=clue` oder `instruction`.
+
+V0.2 enthält genau eine World- und eine Door-Surface. Jede Container- oder
+Keypad-Surface gehört genau einem Rätsel; nur die World-Surface darf von
+mehreren Weltobjekt-Funden geteilt werden.
+
+## Kompatibilitätsmatrix
+
+| Rätsel | Parameter | Surface |
 |---|---|---|
-| `elapsed_time` | `seconds` | nach Zeitablauf freischalten |
-| `failed_attempts` | `riddleId`, `count` | nach Fehlversuchen in einem Rätsel |
-| `riddle_completed` | `riddleId` | nachdem ein Rätsel gelöst wurde |
+| Fund | `sourceKind=container` | `container` |
+| Fund | `sourceKind=world_object` | `world` |
+| Zahlencode | `inputMode=numeric` | `keypad` |
+| Endknoten | `surfaceId` | `door` |
 
-Weitere Bausteinideen stehen im
-[`the-last-hour-interaction-catalog.md`](the-last-hour-interaction-catalog.md).
-Sie werden erst in diese Tabelle aufgenommen, wenn UI, Validierung und
-Generator sie im selben Slice unterstützen.
+Graphaktivierung ist die autoritative Interaktionsfreigabe. Die Generator-
+Runtime entscheidet, wie inaktive Geräte dargestellt werden.
 
-## Entscheidungen
+## Bewusst entfernte V0.1-Felder
 
-1. `surfaceId` bleibt dort relevant, wo mehrere Oberflächen möglich sind oder
-   ein wiederverwendbares Objekt adressiert wird.
-2. `successEffect` ist eine kontrollierte Wizard-Auswahl für Bausteine, die
-   eine Welt- oder Oberflächenänderung auslösen; Fund-Ressourcen werden über
-   `resourceIds` modelliert.
-3. V0 bleibt klein: vollständige Spezifikation nur für tatsächlich
-   generierbare Foundation-Bausteine.
-4. Laufzeit-Tokens, Petri-Netze und konkrete Slots werden aus `deer.json`
-   abgeleitet und gehören in den Generator-Scope.
+`slotType`, freie `successEffect`-Objekte, Hint-Unlock-Envelopes,
+`computer_file`, `after_riddle`, `generated_by_riddle`, Audio-Medientypen und
+`asset.linkedTo` sind in `0.2-draft` nicht erlaubt. Sie waren dem realen
+Foundation-Generator und der Runtime voraus und können in einer späteren
+Formatversion gezielt zurückkehren.

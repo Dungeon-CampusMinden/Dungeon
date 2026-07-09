@@ -1,53 +1,42 @@
-# deer.json Spezifikation
+# deer.json Specification V0.2
 
-Status: 0.1-draft V0-Contract
-Stand: 07.07.2026
-Scope: Foundation-Slice, ein spielbarer Escape-Room-Level, ein Standard-Theme
+Status: `0.2-draft` Foundation-Contract
+Stand: 09.07.2026
 
-## 1. Rolle von deer.json
+## 1. Rolle und Lebenszyklus
 
-`deer.json` ist die interne editierbare Quelle des Wizards und der Contract zum
-manuell gestarteten Java-Generator. Der Wizard liest und schreibt diese Datei.
-Der Generator darf daraus Runtime-Dateien, Petri-Netze, technische Tokens und
-das spielbare Room-Paket ableiten, aber `deer.json` bleibt das
-Authoring-Modell.
-
-Für Lehrende ist `deer.json` nicht direkt sichtbar. Die sichtbare
-Abschlussaktion ist `Entwurf finalisieren`. Danach liegt ein Projektordner mit
-`deer.json` und referenzierten Assets vor, den der Java-Generator manuell
-verarbeitet.
-
-V0 beschreibt:
+`deer.json` ist die vollständige Authoring-Konfiguration zwischen Wizard-UI und
+Java-Generator. Sie ist **nicht** das Speicherformat eines unvollständigen
+Wizard-Entwurfs.
 
 ```text
-Raum-Metadaten
--> Spielsitzung
--> Standard-Szenario
--> Oberflächen
--> Rätselgraph
--> Foundation-Rätsel mit Parametern
--> Asset-Referenzen
+unvollständiger UI-Draft
+-> DEER-Projektion
+-> Schema- und Fachvalidierung
+-> deer.json + assets/custom/
+-> Java-Generator
+-> generiertes Modul-ZIP
 ```
 
-Die typ-spezifischen Pflichtparameter stehen in
-[`parameter-table-v0.md`](parameter-table-v0.md). Der Projektordner für den
-Generator steht in [`generator-input-format.md`](generator-input-format.md).
+Die UI schreibt `deer.json` erst bei erfolgreicher Finalisierung. Der Generator
+liest die Datei unverändert, validiert erneut und leitet daraus Geometrie,
+Java-Konfiguration, Runtime-Zustände und das Modul-ZIP ab.
 
-Contract-Grenzen:
+Nicht Teil von `deer.json`:
 
-- `deer.json` beschreibt den Raum als Authoring-Modell, nicht als Runtime-
-  oder Generator-Output.
-- Assets werden referenziert, nicht binär in JSON eingebettet.
-- Runtime-Tokens, Petri-Netze, Generatorparameter und Paketierung entstehen
-  außerhalb von `deer.json`.
-- Ein Raum hat genau einen Endzustand.
+- UI-Layout, geöffnete Panels oder Draft-Status;
+- konkrete Raumkoordinaten und Slot-Instanzen;
+- Petri-Netze, Netzwerktokens oder Runtime-Snapshots;
+- Generatorversion, Layoutprofil oder Seed;
+- ZIP- und Build-Metadaten.
 
-## 2. Top-Level Struktur
+## 2. Top-Level
 
 ```json
 {
-  "formatVersion": "0.1-draft",
+  "formatVersion": "0.2-draft",
   "metadata": {},
+  "learningDesign": {},
   "session": {},
   "scenario": {},
   "surfaces": [],
@@ -57,470 +46,492 @@ Contract-Grenzen:
 }
 ```
 
-Pflichtfelder:
-
 | Feld | Zweck |
 |---|---|
-| `formatVersion` | Version des Authoring-Formats. |
-| `metadata` | Titel, ID, Sprache, Autor, Kurzbeschreibung. |
-| `session` | Zielgruppe, Spieleranzahl und Zeitlimit. |
-| `scenario` | Standard-Theme, Story-Rahmen und Intro/Outro. |
-| `surfaces` | Vom Wizard abgeleitete Interaktionsorte. |
-| `riddleGraph` | Progression und Abhängigkeiten. |
-| `riddles` | Konkrete Rätseldefinitionen. |
-| `assets` | Referenzen auf Projektordner-Assets. |
+| `formatVersion` | Unveränderliche Capability- und Contract-Version. |
+| `metadata` | ID, Titel, Inhaltssprache und redaktionelle Angaben. |
+| `learningDesign` | Lernziele und optionale Reflexionsfragen. |
+| `session` | Zielgruppe, Vorwissen, Spielerzahl und Zeit. |
+| `scenario` | Standard-Theme und Storytexte. |
+| `surfaces` | Von der UI abgeleitete Orte und Geräte. |
+| `riddleGraph` | Abgeleitete Progression und gemeinsames Erfolgsziel. |
+| `riddles` | Foundation-Rätsel, Inhalte und Hilfen. |
+| `assets` | Referenzierte PNG-/JPEG-Dateien. |
 
-## 3. ID-Konventionen
+## 3. IDs und Referenzen
 
-Alle IDs sollen stabil und menschenlesbar sein.
-
-Empfehlung:
+IDs verwenden:
 
 ```text
 lower_snake_case
 ```
 
-Beispiele:
+Alle Entity-IDs sind dokumentweit global eindeutig:
 
-- `r_find_keypad_note`
-- `n_storage_keypad`
-- `asset_password_note_1`
-- `s_storage_door`
+- Lernziele;
+- Surfaces;
+- Graphknoten und -kanten;
+- Rätsel;
+- Resources;
+- Hilfen;
+- Assets.
 
-Validierung:
+Die UI erzeugt eine ID einmal und verändert sie bei Umbenennung nicht.
+Referenzen sind immer vorwärts gerichtet; es gibt keine redundante
+`asset.linkedTo`-Rückreferenz.
 
-- IDs müssen innerhalb ihres Bereichs eindeutig sein.
-- Referenzen müssen auf existierende IDs zeigen.
-- IDs sollten nicht automatisch aus Titeln neu erzeugt werden, sobald andere
-  Elemente darauf verweisen.
+`collection.parameters.resourceIds` verweist ausschließlich auf Resources
+desselben Rätselobjekts. Alle anderen ID-Referenzen werden dokumentweit
+aufgelöst.
 
 ## 4. metadata
 
-Beschreibt das Authoring-Artefakt.
-
 ```json
 {
-  "id": "wizard_example_v0",
-  "title": "Wizard Beispielraum V0",
+  "id": "wizard_foundation_v0_2",
+  "title": "Foundation Beispielraum V0.2",
   "locale": "de-DE",
-  "description": "Beispielkonfiguration für den Foundation-Slice.",
+  "description": "Kleiner Foundation-Slice.",
   "author": "Beispiel Lehrkraft"
 }
 ```
 
-Pflicht in V0:
+Pflicht:
 
-- `id`
-- `title`
-- `locale`
+- `id`;
+- `title`;
+- `locale`, in V0.2 fest `de-DE`.
 
-Optional in V0:
+`description` und `author` sind optional. Strings mit ausschließlich
+Whitespace sind ungültig.
 
-- `description`
-- `author` als einfacher String
+`metadata.locale` beschreibt die Sprache des erzeugten Inhalts, nicht die
+Sprache der Wizard-Oberfläche.
 
-## 5. session
+## 5. learningDesign
 
-Beschreibt Unterrichts- und Spielsitzung, aber ohne Lernzielmodell.
+```json
+{
+  "objectives": [
+    {
+      "id": "lo_extract_numeric_clue",
+      "description": "Die Lernenden können eine relevante Zahleninformation aus einem Hinweis entnehmen und anwenden."
+    }
+  ],
+  "debriefPrompts": [
+    "Welche Information war für die Lösung relevant?"
+  ]
+}
+```
+
+Regeln:
+
+- Mindestens ein Lernziel ist Pflicht.
+- Jedes Rätsel referenziert mindestens ein existierendes Lernziel.
+- `debriefPrompts` ist immer vorhanden, darf aber leer sein.
+- Lernziele sind Authoring-Metadaten und keine Behauptung über gemessene
+  Kompetenz.
+- Die Generatorausgabe darf Lernziele und Reflexionsfragen in
+  Betreuungsmaterial übernehmen; sie steuern keine Runtime-Progression.
+
+## 6. session
 
 ```json
 {
   "targetAudience": "Lernende im Bereich IT-Sicherheit",
-  "priorKnowledge": "Grundlagen zu E-Mail, Webseiten und einfachen Codierungen.",
+  "priorKnowledge": "Grundlagen zu einfachen Codes und Hinweisen.",
   "playerCount": {
     "min": 1,
     "max": 4
   },
   "time": {
-    "limitMinutes": 60,
+    "limitMinutes": 30,
     "limitMode": "hard"
   }
 }
 ```
 
-V0-Regeln:
+Regeln:
 
-- `playerCount` beschreibt nur den erlaubten Bereich.
-- Der Raum ist immer kooperativ. Deshalb gibt es kein `collaborationMode`.
-- `time.limitMode=hard`: Nach Ablauf endet der Raum.
-- `time.limitMode=soft`: Nach Ablauf läuft der Raum weiter, aber Hinweise oder
-  Unterstützung dürfen stärker werden.
+- `1 <= min <= max <= 4`.
+- Der Raum ist kooperativ; es gibt keinen editierbaren Wettbewerbsmodus.
+- `hard` beendet die gemeinsame Session nach Ablauf serverautoritativ als
+  fehlgeschlagen.
+- `soft` lässt die Session weiterlaufen und markiert Überzeit; V0.2 schaltet
+  dadurch keine Hilfen automatisch frei.
 
-## 6. scenario
-
-V0 nutzt genau ein Standard-Theme. Das Feld `themeId` bleibt im JSON, damit
-spätere Versionen erweiterbar sind.
+## 7. scenario
 
 ```json
 {
   "themeId": "default",
   "playerRole": "Untersuchungsteam",
-  "premise": "Ein Labor ist verriegelt. Die Gruppe muss Hinweise rekonstruieren und einen Ausgang freischalten.",
-  "mission": "Findet den Zugangscode und öffnet die Ausgangstür.",
-  "introText": "Der Alarm ist aktiv. Auf dem Wandtimer laufen 30 Minuten herunter.",
-  "successText": "Die Ausgangstür öffnet sich.",
+  "premise": "Ein Lagerraum ist verriegelt.",
+  "mission": "Findet den Zugangscode und verlasst gemeinsam den Raum.",
+  "introText": "Die Ausgangstür ist verschlossen.",
+  "successText": "Die Gruppe hat den Ausgang erreicht.",
   "failureText": "Die Zeit ist abgelaufen."
 }
 ```
 
-V0-Regeln:
+V0.2 nutzt ausschließlich `themeId=default` und Storytexte. Lore-Bilder,
+Audio und Theme-Auswahl sind nicht Teil dieser Formatversion.
 
-- `themeId` ist vorerst immer `default`.
-- The Last Hour liefert Bausteine, aber keine vorausgewählte Raumstruktur.
-- Custom Assets dürfen Inhalte ergänzen, aber das Theme nicht ersetzen.
-- Storytexte sollten kurz bleiben.
+`successText` gehört zum gemeinsamen Ausgangserfolg. `failureText` ist nur
+bei `session.time.limitMode=hard` Pflicht und wird beim harten Zeitablauf
+verwendet; dieser Fehlschlag ist kein zweiter Graph-Endknoten.
 
-## 7. surfaces
+## 8. surfaces
 
-`surfaces` ist ein internes Register der Interaktionsorte im Raum. Lehrende
-sollen diese Liste nicht technisch pflegen. Die UI leitet sie aus den gewählten
-Bausteinen ab und erlaubt fachliche Benennung.
+Surfaces sind interne Orte oder Geräte. Die UI erzeugt sie aus fachlichen
+Rätseleingaben und zeigt keine technische Registry.
+
+Aktive Arten:
+
+| `kind` | Sichtbare Bedeutung |
+|---|---|
+| `world` | allgemeiner Raum / sichtbares Weltobjekt |
+| `container` | durchsuchbarer Fundort |
+| `keypad` | numerisches Eingabegerät |
+| `door` | gemeinsamer Ausgang |
 
 ```json
 [
   {
-    "id": "s_storage_keypad",
-    "kind": "keypad",
-    "title": "Storage-Keypad"
+    "id": "s_desk",
+    "kind": "container",
+    "title": "Schreibtisch"
   },
   {
-    "id": "s_storage_door",
+    "id": "s_exit_keypad",
+    "kind": "keypad",
+    "title": "Tür-Keypad"
+  },
+  {
+    "id": "s_exit_door",
     "kind": "door",
-    "title": "Storage-Tür"
+    "title": "Ausgangstür"
   }
 ]
 ```
 
-Aktive V0-Werte für `kind`:
+Konkrete Koordinaten und Runtime-Slots gehören in den Generator.
 
-- `world`
-- `container`
-- `keypad`
-- `door`
+V0.2 enthält genau eine World-Surface und genau eine Door-Surface. Jede
+Container- oder Keypad-Surface wird von genau einem Rätsel referenziert und
+darf nicht ungenutzt bleiben. Die World-Surface darf von mehreren sichtbaren
+Weltobjekt-Funden verwendet werden; die Door-Surface gehört ausschließlich zum
+Endknoten.
 
-Spätere Werte wie `computer`, `control_panel` oder `assembly_area` werden erst
-Schema-Teil, wenn der Generator die dazugehörigen Bausteine unterstützt.
+## 9. riddleGraph
 
-## 8. riddleGraph
+Der Graph beschreibt Progression, nicht Raumgeometrie. V0.2 akzeptiert nur das
+aus geordneten Abschnitten ableitbare AND-Profil.
 
-Der Rätselgraph beschreibt Progression, nicht Raumgeometrie. Er ist die einzige
-öffentliche Quelle für Abhängigkeiten. Der Generator kann daraus später
-Petri-Net-Strukturen, Trigger oder Runtime-States ableiten.
+Ableitung:
+
+1. Start hat Kanten zu allen Rätseln des ersten Abschnitts.
+2. Jedes Rätsel eines Abschnitts hat Kanten zu jedem Rätsel des nächsten
+   Abschnitts.
+3. Mehrere eingehende Kanten bedeuten: **alle Vorgänger abgeschlossen**.
+4. Alle Rätsel des letzten Abschnitts haben Kanten zum Endknoten.
+
+Damit sind Rätsel innerhalb eines Abschnitts parallel, alle Rätsel bleiben aber
+notwendig. OR-Verzweigungen und optionale Pfade sind nicht darstellbar.
+
+Knotenarten:
+
+- `start`: genau einmal, ohne eingehende Kante;
+- `riddle`: genau einmal pro Rätsel, mit `riddleId`;
+- `end`: genau einmal, ohne ausgehende Kante und mit `surfaceId` auf eine
+  Door-Surface.
 
 ```json
 {
   "startNodeId": "n_start",
-  "endNodeId": "n_exit_open",
+  "endNodeId": "n_exit",
   "nodes": [
     {
       "id": "n_start",
-      "kind": "start",
-      "title": "Start"
+      "kind": "start"
     },
     {
-      "id": "n_storage_keypad",
+      "id": "n_enter_code",
       "kind": "riddle",
-      "title": "Storage-Keypad",
-      "riddleId": "r_storage_keypad"
+      "riddleId": "r_enter_code"
+    },
+    {
+      "id": "n_exit",
+      "kind": "end",
+      "surfaceId": "s_exit_door"
     }
   ],
   "edges": [
     {
-      "id": "e_start_to_keypad",
+      "id": "e_start_to_code",
       "from": "n_start",
-      "to": "n_storage_keypad"
-    }
-  ]
-}
-```
-
-Node-Arten für V0:
-
-- `start`
-- `riddle`
-- `end`
-
-Edge-Semantik:
-
-- Eine Kante vom Startknoten macht das Ziel zu Beginn verfügbar.
-- Eine Kante von einem Rätselknoten macht das Ziel verfügbar, nachdem das
-  Quellrätsel abgeschlossen wurde.
-- Hat ein Ziel mehrere eingehende Kanten von Rätselknoten, müssen alle diese
-  Vorgänger abgeschlossen sein.
-- Bedingungen werden nicht zusätzlich auf der Kante kodiert. Die Topologie ist
-  die einzige öffentliche Quelle für Reihenfolge und Abhängigkeiten.
-
-Validierung:
-
-- Genau ein `startNodeId`.
-- Genau ein `endNodeId`.
-- Genau ein Graphknoten mit `kind=end`; er muss `endNodeId` entsprechen.
-- Alle Rätsel-Nodes referenzieren ein existierendes `riddleId`.
-- Der Endknoten muss vom Start erreichbar sein.
-- Standard ist ein azyklischer Graph. Retry-Verhalten gehört in das jeweilige
-  Rätsel, nicht als Graphzyklus.
-- Jeder Rätselknoten muss erreichbar sein und auf einem durchspielbaren Pfad
-  zum Ende liegen.
-- Branches dürfen nur Reihenfolge oder Parallelität ausdrücken, aber keine
-  optionalen Alternativpfade, die Rätsel auslassen.
-- Auch nach V0 bleibt das Authoring-Modell auf genau ein Ende ausgelegt.
-  Alternative Pfade dürfen später auf denselben Endzustand zulaufen, aber nicht
-  mehrere Enden erzeugen.
-
-## 9. riddles
-
-Ein Rätsel beschreibt Aufgabe, Parameter, optionale Ressourcen, optionale
-Hinweise und optionale Assets. Es beschreibt keine Progression; diese liegt im
-Graph.
-
-```json
-{
-  "id": "r_storage_keypad",
-  "type": "input",
-  "title": "Storage-Keypad",
-  "difficulty": "easy",
-  "estimatedMinutes": 5,
-  "playerFacingTask": "Gebt den gefundenen Code am Keypad ein.",
-  "assetIds": [],
-  "resources": [],
-  "hints": [],
-  "parameters": {
-    "surfaceId": "s_storage_keypad",
-    "slotType": "keypad_slot",
-    "inputMode": "numeric",
-    "answer": "3758",
-    "maxLength": 4,
-    "successEffect": {
-      "type": "open_surface",
-      "surfaceId": "s_storage_door"
-    }
-  }
-}
-```
-
-Aktive V0-Typen:
-
-| Typ | Bedeutung |
-|---|---|
-| `collection` | Hinweis oder Ressource in Welt oder Container finden. |
-| `input` | Eine numerische Eingabe gegen eine definierte Lösung prüfen. |
-
-UI-Bausteinnamen wie `collection.single` und `input.numeric` sind keine Werte
-von `riddle.type`. Die Suffixe beschreiben den Modus in `parameters`, z. B.
-`rewardMode=find_resource` oder `inputMode=numeric`.
-
-Optionale Redaktionsmetadaten:
-
-- `difficulty`: `easy`, `medium`, `hard`
-- `estimatedMinutes`: positive Zahl
-
-Diese Felder dürfen Warnungen unterstützen, sind aber kein harter
-Generator-Contract.
-
-### 9.1 Typ-Spezifische Parameter
-
-Die detaillierten Pflicht- und Optionalparameter stehen in
-[`parameter-table-v0.md`](parameter-table-v0.md). Diese Spezifikation hält nur
-den gemeinsamen Authoring-Contract fest:
-
-- Alle Rätsel enthalten ein `parameters`-Objekt.
-- Das `parameters`-Objekt ist pro aktivem Rätseltyp geschlossen. Typfremde
-  Felder werden vom Schema abgelehnt.
-- Alle Rätsel enthalten ein `resources`-Array. Wenn es keine Ressourcen gibt,
-  ist es leer.
-- `resources` beschreiben normale Hinweise, Kontext, Anleitungen oder Decoys
-  im Raum. Sie erzeugen keine Progression.
-- Hints sind optionale Zusatzhilfen und stehen immer in einem `hints`-Array.
-- `successEffect` ist ein kontrollierter Effekt nach erfolgreicher Lösung,
-  wenn der konkrete Rätseltyp eine Weltänderung braucht. Bei
-  `collection.single` ist `parameters.resourceIds` das Ergebnis; dafür wird
-  kein zusätzlicher `successEffect` kodiert.
-
-## 10. resources
-
-Resources werden im Raum oder in UI-Oberflächen sichtbar. Sie sind Teil des
-Authoring-Modells, aber keine Hints.
-
-V0-Werte für `kind`:
-
-- `inline_text`
-- `asset`
-- `world_object`
-- `computer_file`
-
-V0-Werte für `availability`:
-
-- `visible_in_level`
-- `inside_container`
-- `after_riddle`
-- `generated_by_riddle`
-
-Bei `availability=after_riddle` muss `requiredRiddleId` gesetzt sein.
-
-## 11. hints
-
-Hints bleiben optional. Ohne `unlock` sind sie sofort verfügbar.
-
-Wenn ein Hint nicht sofort verfügbar sein soll, nutzt `unlock` immer diesen
-Envelope:
-
-```json
-{
-  "operator": "any_of",
-  "conditions": [
+      "to": "n_enter_code"
+    },
     {
-      "type": "elapsed_time",
-      "seconds": 300
+      "id": "e_code_to_exit",
+      "from": "n_enter_code",
+      "to": "n_exit"
     }
   ]
 }
 ```
 
-V0-Freischaltungen:
+Semantische Pflichtregeln:
 
-- `elapsed_time`
-- `failed_attempts`
-- `riddle_completed`
+- `startNodeId` und `endNodeId` zeigen auf die jeweiligen eindeutigen Knoten.
+- Keine Self-Edges oder doppelten `from/to`-Paare.
+- Der Graph ist azyklisch.
+- Jeder Knoten ist vom Start erreichbar und kann das Ende erreichen.
+- `riddles[]` und Riddle-Knoten bilden eine Bijektion.
+- Die Kanten entsprechen vollständig dem Abschnitts-/AND-Profil.
+- Der Endknoten referenziert eine existierende Door-Surface.
 
-Komplexere Freischaltungen wie besuchte Oberflächen oder gesehene Ressourcen
-folgen erst, wenn die Runtime diese Signale zuverlässig liefert.
+Wenn alle Vorgänger des Endknotens abgeschlossen sind, öffnet der
+serverautoritative Runtime-Layer die Ausgangstür. Erfolg tritt ein, wenn alle
+aktiven Spielenden den offenen Ausgang gemäß Runtime-Regel erreicht haben.
 
-## 12. assets
+## 10. riddles
 
-Assets werden nicht binär in `deer.json` gespeichert. `deer.json` referenziert
-Dateien innerhalb des Projektordners.
-
-```json
-{
-  "id": "asset_note_password_1",
-  "path": "assets/custom/note-password-1.png",
-  "mediaType": "image/png",
-  "purpose": "riddle_evidence",
-  "linkedTo": ["r_find_keypad_note"],
-  "required": true,
-  "source": {
-    "type": "educator_upload",
-    "license": "own_material"
-  }
-}
-```
-
-V0-Werte für `purpose`:
-
-- `riddle_evidence`
-- `lore`
-- `feedback`
-- `decorative`
-- `audio_cue`
-
-V0-Medien:
-
-- `image/png`
-- `image/jpeg`
-- `audio/wav`
-- `audio/mp3`
-- `audio/ogg`
-- `text/plain`
-
-Validierung:
-
-- `path` muss relativ zum Projektordner sein.
-- Pfade dürfen nicht aus dem Projektordner herauszeigen.
-- Required Assets müssen im Projektordner existieren.
-- PDFs und Office-Dateien sind in V0 nicht direkt runtime-fähig.
-
-Pflicht pro Asset:
+Gemeinsame Pflichtfelder:
 
 | Feld | Bedeutung |
 |---|---|
-| `id` | Stabile Asset-ID. |
-| `path` | Relativer Pfad im Projektordner. |
-| `mediaType` | Unterstützter Medientyp. |
-| `purpose` | Fachlicher Einsatzzweck. |
-| `linkedTo` | Verknüpfte Rätsel-, Resource- oder Story-IDs, sonst `[]`. |
-| `required` | Ob der Generator ohne diese Datei blockieren muss. |
-| `source` | Herkunfts- und Lizenzhinweis. |
+| `id` | stabile Rätsel-ID |
+| `type` | `collection` oder `input` |
+| `title` | redaktioneller Name |
+| `learningObjectiveIds` | mindestens ein Lernziel |
+| `playerFacingTask` | im Spiel sichtbare Aufgabe |
+| `resources` | bei Fund mindestens ein Inline-Text und optionale Bilder; bei `input` leer |
+| `hints` | optionale Hilfen; sonst leer |
+| `parameters` | geschlossener typ-spezifischer Contract |
 
-## 13. V0-Generator-Handoff
+`estimatedMinutes` ist für jedes Rätsel Pflicht; `difficulty` bleibt
+optional. Geschätzte Gesamtdauer wird über den kritischen Graphpfad berechnet.
 
-`deer.json` beschreibt, was der Escape Room sein soll. Die Web-App erzeugt
-eine valide Datei und referenziert Custom Assets im Projektordner.
+### 10.1 Fund / collection.single
 
-Der Java-Generator wird in V0 manuell mit diesem Projektordner gestartet. Das
-Einlesen bestehender Generator-Pakete in den Wizard ist nicht Teil von V0.
+Interner Typ:
 
-Technische Angaben für einen konkreten Generatorlauf gehören nicht in
-`deer.json`, weil sie nicht zum Authoring-Modell des Raums gehören.
+```text
+riddle.type = collection
+parameters.rewardMode = find_resource
+```
 
-## 14. Harte Validierungen
+Parameter:
 
-Der Wizard darf den Entwurf nicht finalisieren, wenn dadurch ein
-spielblockierender Raum beschrieben würde. Der Generator muss dieselben harten
-Regeln beim manuellen Start erneut prüfen. Blockierend sind besonders
-Softlocks, unerreichbare Progression, ungewollte Skips und fehlende
-Pflichtdaten.
+| Feld | Regel |
+|---|---|
+| `surfaceId` | Container-Surface bei `sourceKind=container`, World-Surface bei `world_object` |
+| `sourceKind` | `container` oder `world_object` |
+| `rewardMode` | fest `find_resource` |
+| `resourceIds` | nicht leere Liste eigener Resources |
 
-Die Finalisierung wird blockiert, wenn:
+Das Rätsel ist abgeschlossen, sobald der serverautoritative Foundation-Layer
+alle referenzierten Resources als gefunden registriert hat. Konkrete
+`slotType`-Werte leitet der Generator ab und speichert sie nicht in DEER.
 
-- `formatVersion` unbekannt ist,
-- Pflichtfelder fehlen,
-- IDs doppelt sind,
-- Referenzen ins Leere zeigen,
-- `surfaceId` auf keine existierende Surface zeigt,
-- ein Rätsel einen unbekannten Typ nutzt,
-- ein Rätsel kein `resources`-Array hat,
-- ein `input` nicht `inputMode=numeric` nutzt,
-- ein `input.numeric.answer` andere Zeichen als Ziffern enthält,
-- `minLength`, `maxLength` und Antwortlänge unvereinbar sind,
-- ein `slotType` nicht zum aktiven Rätseltyp passt,
-- ein Graphknoten nicht erreichbar ist,
-- ein Rätselknoten nicht auf einem durchspielbaren Pfad zum Ende liegt,
-- der Endknoten nicht erreichbar ist,
-- `endNodeId` nicht auf den einzigen Graphknoten mit `kind=end` zeigt,
-- ein Branch ein Progressionsrätsel optional oder überspringbar macht,
-- eine Abhängigkeit zyklisch oder in der aktuellen Graphstruktur unerfüllbar
-  ist,
-- ein required Asset fehlt,
-- ein Assettyp nicht unterstützt wird,
-- eine `resource` ein nicht existierendes Asset referenziert,
-- eine Hint-Freischaltung ein nicht existierendes Rätsel referenziert,
-- `scenario.themeId` nicht `default` ist.
+Bei `sourceKind=container` haben alle Resources
+`availability=inside_container`. Bei `sourceKind=world_object` haben sie
+`availability=visible_in_level`.
 
-### 14.1 Validierungszeitpunkte
+Jedes Fund-Rätsel enthält mindestens eine `inline_text`-Resource. Mindestens
+eine `resourceIds`-Referenz zeigt auf einen eigenen Inline-Text mit
+`purpose=clue` oder `purpose=instruction`. PNG-/JPEG-Bilder können diesen Text
+ergänzen, ihn im Foundation-Slice aber nicht ersetzen. Diese Referenzbindung
+ist eine semantische, schemaübergreifende Regel.
 
-Lehrende sollen Fehler nicht erst im späteren Generatorlauf sehen. Deshalb ist
-der Client die primäre Validierungsoberfläche.
+### 10.2 Zahlencode / input.numeric
 
-V0-Validierung läuft in drei Stufen:
+Interner Typ:
 
-1. **Step-Validierung:** Jeder Wizard-Schritt verhindert fehlende Pflichtfelder
-   und ungültige lokale Eingaben.
-2. **Live-Graph-Validierung:** Der Rätselgraph prüft laufend Erreichbarkeit,
-   Referenzen, optionale Pfade und offensichtliche Softlocks.
-3. **Finalisierungs-Preflight:** Der Abschluss ist nur aktiv, wenn Schema,
-   Graph, Pflichtparameter und Asset-Referenzen gültig sind.
+```text
+riddle.type = input
+parameters.inputMode = numeric
+```
 
-Der Java-Generator führt dieselben harten Validierungen erneut aus. Das ist
-kein Ersatz für Client-Validierung, sondern ein Sicherheitsnetz für manuell
-veränderte Projektdateien und Fehler im Wizard-Client.
+Parameter:
 
-## 15. Warnungen
+| Feld | Regel |
+|---|---|
+| `surfaceId` | existierende Keypad-Surface |
+| `inputMode` | fest `numeric` |
+| `answer` | 1 bis 8 Ziffern |
+| `showDigitCount` | explizites Boolean |
 
-Der Wizard sollte warnen, aber nicht zwingend blockieren, wenn:
+Die Antwortlänge ist die effektive Eingabelänge. Es gibt kein separates
+`minLength` oder `maxLength`. Falsche Versuche bleiben unbegrenzt möglich; V0.2
+hat kein konfigurierbares Fehlerfeedback und keinen Attempt-Counter-Contract.
 
-- sehr lange Texte als Lore oder Rätseltext genutzt werden,
-- ein schwieriges Rätsel keine Hints hat,
-- ein Rätsel nur dekorative Assets nutzt,
-- ein Asset nicht mit einem Rätsel oder Story-Element verknüpft ist,
-- die geschätzte Dauer stark vom Zeitlimit abweicht,
-- sehr viele Rätsel in einer strikt linearen Kette liegen.
+Das Keypad meldet erfolgreichen Abschluss an den gemeinsamen Progressionslayer.
+Es öffnet nicht über einen frei konfigurierbaren `successEffect` direkt eine
+Tür.
 
-## 16. Nachgelagerte Technische Fragen
+`resources` ist bei `input.numeric` in V0.2 immer `[]`. Zusätzliche
+Aufgaben- oder Lösungshinweise gehören in vorherige Fund-Rätsel oder in
+`playerFacingTask`.
 
-Diese Punkte müssen nicht vor dem Foundation-Slice entschieden werden:
+## 11. resources
 
-1. Wie stark `control_panel` in der Runtime frei konfigurierbar wird.
-2. Welche Computer-, Login-, Choice- und Item-Use-Bausteine zuerst spielbar
-   werden.
-3. Wie `choice`, `item_use`, `assembly` und `state_change` intern in Dungeon-
-   Systeme übersetzt werden.
+Resources sind notwendige oder redaktionelle Inhalte, keine optionalen Hilfen.
+Sie sind unter ihrem besitzenden Rätsel gespeichert.
+
+Aktive Varianten:
+
+- `inline_text` mit nicht leerem `text`;
+- `asset` mit `assetId`.
+
+Beide Varianten enthalten `id`, `title`, `availability` und `purpose`.
+Varianten sind geschlossen: Ein Inline-Text trägt kein `assetId`, eine
+Asset-Resource keinen `text`.
+
+Aktive `availability`-Werte:
+
+- `visible_in_level`;
+- `inside_container`.
+
+Aktive `purpose`-Werte:
+
+- `clue`;
+- `context`;
+- `instruction`;
+- `decoy`.
+
+`after_riddle`, `generated_by_riddle`, `world_object` als Resource-Typ und
+`computer_file` sind nicht Teil von V0.2.
+
+## 12. hints
+
+Hilfen stehen im `hints`-Array des Rätsels. Pflicht pro Hilfe:
+
+- `id`;
+- `title`;
+- `text`;
+- `severity`.
+
+Arrayreihenfolge ist die sichtbare Reihenfolge. Die UI leitet `severity`
+lückenlos als `1..n` aus dieser Reihenfolge ab.
+
+Sobald das besitzende Rätsel verfügbar ist, kann die erste Hilfe angefordert
+werden. Jede weitere Anforderung zeigt die nächste Hilfe. `elapsed_time`,
+`failed_attempts`, `riddle_completed` und kombinierte Unlock-Envelopes sind
+nicht Teil dieser Formatversion.
+
+## 13. assets
+
+V0.2 unterstützt:
+
+- `image/png`;
+- `image/jpeg`.
+
+Jedes Asset enthält:
+
+- global eindeutige `id`;
+- normalisierten Pfad unter `assets/custom/`;
+- `mediaType`;
+- `purpose`: `riddle_evidence` oder `decorative`;
+- `source` mit Herkunft, Lizenz und optionaler Attribution;
+- `accessibility`.
+
+`purpose=riddle_evidence` verlangt `decorative=false` und eine nicht leere,
+nicht-spoilernde `description`. `purpose=decorative` verlangt
+`decorative=true`.
+
+Die Beschreibung bleibt in der Generatorausgabe erhalten. Die WCAG-2.2-AA-
+Zusage des Foundation-Konzepts bezieht sich auf die Authoring-UI, nicht
+automatisch auf die LibGDX-Runtime. Notwendige Information darf daher nicht
+ausschließlich in einem Bild stecken. Ein Asset mit
+`purpose=riddle_evidence` benötigt im selben Rätsel mindestens eine
+begleitende `inline_text`-Resource mit `purpose=clue` oder
+`purpose=instruction`; die Zweckbindung bleibt eine semantische,
+schemaübergreifende Regel.
+
+Use-Site-Referenzen sind autoritativ: Eine Asset-Resource trägt `assetId`.
+Das Asset selbst enthält keine `linkedTo`-Liste.
+
+Pfadsicherheit:
+
+- ausschließlich Forward-Slashes;
+- Präfix `assets/custom/`;
+- keine absoluten, Drive-, UNC- oder URL-Pfade;
+- keine Backslashes, leeren, `.`- oder `..`-Segmente;
+- keine Symlink-Auflösung aus dem Projektroot;
+- Java prüft normalisierten Realpfad, Dateiinhalt und deklarierten Medientyp.
+- Assets liegen flach unter `assets/custom/`; der Dateiname beginnt mit den
+  ersten zwölf lowercase Hex-Zeichen seines SHA-256-Inhaltshashes und `-`.
+- Assetpfade sind nach Slash-, Unicode- und Case-Normalisierung eindeutig.
+
+## 14. Generatorgrenze
+
+Generator-Eingabe:
+
+```text
+wizard-project/
+  deer.json
+  assets/custom/...
+```
+
+Generator-Ausgabe:
+
+```text
+<room-id>-module.zip
+  <generated module>/
+```
+
+Details stehen in
+[`generator-input-format.md`](generator-input-format.md) und
+[`generator-output-format.md`](generator-output-format.md). Seed,
+Generatorversion und Layoutprofil stehen im Generator-Manifest, nicht in
+`deer.json`.
+
+## 15. Validierung
+
+JSON Schema prüft Form, geschlossene Varianten, Pflichtfelder, Enums und lokale
+Werte. TypeScript und Java prüfen zusätzlich die semantischen Regeln.
+
+Phasen:
+
+1. **Feldprüfung:** lokale Eingaben und Draft-Vollständigkeit.
+2. **DEER-Projektion:** Schema auf dem vollständigen Kandidaten.
+3. **Referenzen:** globale IDs, typisierte Ziele und Resource-Besitz.
+4. **Graphprofil:** Bijektion, DAG, Reichweite und Abschnittsform.
+5. **Capabilities:** Typ-/Surface-Kompatibilität und Formatversion.
+6. **Assets:** Pfad, Existenz, Inhalt, Lizenz- und Accessibility-Metadaten.
+7. **Generatorprüfung:** dieselben Regeln plus Layout-/Runtime-Machbarkeit.
+
+Das gemeinsame Issue-Format und die Mindestcodes stehen in
+[`implementation-handoff-v0.md`](implementation-handoff-v0.md). Beide
+Implementierungen werden gegen dieselben sprachunabhängigen
+Conformance-Fixtures geprüft.
+
+## 16. Warnungen und Playtesting
+
+Deterministische Warnungen betreffen unter anderem:
+
+- schwieriges Rätsel ohne Hilfe;
+- Lernziel ohne Rätselreferenz;
+- sehr lange Texte;
+- ungenutztes Asset;
+- geschätzter kritischer Pfad und Zeitlimit passen schlecht;
+- kein Playtest im lokalen Draft protokolliert.
+
+Die statische Prüfung kann nicht feststellen, ob Menschen einen Hinweis
+verstehen, die Lösung tatsächlich herleiten oder das Lernziel erreichen. Ein
+Playtest bleibt vor dem Einsatz mit Lernenden erforderlich. Fragen nach
+Ableitbarkeit, Lernzielbeitrag, Sprache und Schwierigkeit erscheinen als
+redaktionelle Selbstprüfung, nicht als automatisch erkannte Issues.
+
+## 17. Spätere Formatversionen
+
+Erst mit passender UI-, Validator-, Generator- und Runtime-Unterstützung:
+
+- Audio, Lore-Medien und Themes;
+- zeit-/versuchsabhängige Hilfen;
+- Computer, E-Mail, USB, Item-Use, Assembly und Control Panel;
+- deklarierte Zustandsaktionen und Zwischentüren;
+- OR-Verzweigungen und optionale Pfade;
+- Lernziel-Evidenz, Evaluation, Telemetrie und LMS-Anbindung.

@@ -1,77 +1,77 @@
-# Generator Input Format
+# Generator Input Format V0.2
 
-Status: V0-Contract
-Scope: manuelle Übergabe vom Web-Wizard an den Java-Generator
+Status: V0.2-Contract
+Scope: finalisierte Übergabe von der Wizard-UI an den Java-Generator
 
-## V0-Entscheidungen
+## Grenze
 
-- Der Web-Wizard finalisiert eine validierte `deer.json`.
-- Die UI erzeugt keine spielbaren Runtime-Artefakte.
-- Der Java-Generator liest in V0 manuell einen Projektordner.
-- Runtime-Dateien werden erst vom Generator abgeleitet.
-- Custom Assets ergänzen Inhalte, ersetzen aber nicht das Standard-Theme.
-- V0 unterstützt nur Medien, die die LibGDX-Runtime direkt verarbeiten kann.
-
-## Projektordner
+Die UI schreibt einen Projektordner. Der Java-Generator liest ihn und erzeugt
+das Modul-ZIP. Die UI erzeugt selbst kein ZIP.
 
 ```text
 wizard-project/
   deer.json
   assets/
     custom/
+      3b50ea522803-foundation-note.png
 ```
 
-Regeln:
+`deer.json` liegt im Wurzelverzeichnis. Alle Assetpfade verwenden
+Forward-Slashes und beginnen mit `assets/custom/`.
 
-- `deer.json` liegt im Wurzelverzeichnis des Projektordners.
-- Asset-Pfade in `deer.json` sind relativ zum Projektordner.
-- Referenzierte Assets müssen im Projektordner existieren.
-- Pfade dürfen nicht aus dem Projektordner herauszeigen.
-- Nicht referenzierte Dateien sind für V0 nicht erforderlich.
+## Draft und Finalisierung
 
-## Dateirollen
+- Ein UI-Entwurf darf unvollständig sein und bleibt außerhalb dieses Formats.
+- Die Finalisierung projiziert den Draft auf Formatversion `0.2-draft`.
+- Die UI prüft Schema, Fachregeln und Assetpfade vor dem Schreiben.
+- Der native Storage-Adapter muss `deer.json` über eine temporäre Datei
+  sicher ersetzen können.
+- Ein fehlgeschlagener Schreibvorgang lässt die letzte gültige Ausgabe
+  unverändert.
+- Finalisierung sperrt den UI-Entwurf nicht.
 
-### `deer.json`
+V0.2 nutzt einen Standalone-Host mit nativem Storage-Adapter. Ein
+browser-only Export ist nicht Teil des Foundation-Slices.
 
-Die einzige editierbare Authoring-Quelle. Der Wizard schreibt diese Datei; der
-Generator liest sie und leitet daraus Runtime-Dateien ab.
+## Assetregeln
 
-Sie enthält:
+- Zulässig sind im Foundation-Slice PNG und JPEG.
+- Assets liegen in V0.2 flach unter `assets/custom/`.
+- Dateinamen werden von der UI portabel normalisiert und beginnen mit den
+  ersten zwölf lowercase Hex-Zeichen des SHA-256-Inhaltshashes, gefolgt von
+  `-`, z. B. `3b50ea522803-foundation-note.png`.
+- Referenzierte Dateien müssen existieren; ein „optionales fehlendes Asset“
+  gibt es nicht.
+- MIME-Deklaration, Dateiendung und Dateiinhalt müssen zusammenpassen.
+- `.`-, `..`-, leere Pfadsegmente, Backslashes, absolute Pfade, Drive-Pfade,
+  UNC-Pfade und URLs sind unzulässig.
+- Symlinks werden nicht verfolgt.
+- Pfade werden in Java gegen den realen Projektroot aufgelöst und müssen nach
+  Normalisierung weiterhin darunter liegen.
+- Nicht referenzierte Dateien werden ignoriert und als Warnung gemeldet.
+- Der Generator berechnet den Datei-Hash erneut und lehnt einen falschen
+  Präfix ab.
 
-- Raum-Metadaten,
-- Session-Parameter,
-- Standard-Theme und Storytexte,
-- Oberflächen,
-- Rätselgraph,
-- Rätselparameter,
-- Asset-Referenzen.
+Die UI schreibt neue, inhaltsadressierte Assets zuerst und ersetzt
+`deer.json` über eine temporäre Datei zuletzt. Inhaltsadressierte Dateien
+werden nie mit anderem Inhalt überschrieben. Ein Fehler vor diesem letzten
+Schritt lässt die vorherige gültige Konfiguration nutzbar; zusätzliche
+unreferenzierte Dateien sind nur Warnungen.
 
-Die detaillierte Spezifikation steht in
-[`deer-json-spec.md`](deer-json-spec.md). Das maschinenlesbare Schema steht in
-[`deer.schema.json`](deer.schema.json). Ein gültiges Beispiel steht in
-[`examples/deer.example.json`](examples/deer.example.json).
+Berechtigungs-, Speicherplatz- und Schreibfehler werden mit „Erneut versuchen“
+und „Anderen Ordner wählen“ beantwortet. Fremde und alte unreferenzierte
+Dateien werden weder überschrieben noch automatisch gelöscht.
 
-### `assets/custom/`
+## Generatorverhalten
 
-Custom Assets sind von Lehrenden hochgeladene oder vom Wizard ausgewählte
-Inhaltsmedien. In V0 sind das nur Runtime-fähige Dateien wie Bilder, Audio und
-einfache Textdateien.
+Der Generator:
 
-Textinhalte sollen bevorzugt im Wizard eingegeben und in `deer.json`
-gespeichert werden. Wenn ein Inhalt als Datei gebraucht wird, muss er als
-unterstütztes Asset im Projektordner liegen.
+- öffnet den Projektordner read-only;
+- lehnt unbekannte `formatVersion`-Werte ab;
+- validiert mit demselben Schema und denselben Rule-Codes wie die UI;
+- berechnet Hashes aus kanonischer `deer.json` und allen referenzierten Assets;
+- verändert oder löscht keine Eingabedatei;
+- schreibt Ausgaben ausschließlich in ein getrenntes Ziel.
 
-## Validierung und Handoff
-
-Der Wizard darf den Entwurf nur finalisieren, wenn Schema, Graph,
-Pflichtparameter und Asset-Referenzen valide sind. Blockierende Fehler werden
-vor der Finalisierung im Client angezeigt.
-
-Der manuell gestartete Java-Generator validiert dieselben harten Regeln erneut,
-bevor er Runtime-Dateien ableitet. Diese zweite Prüfung ersetzt nicht die
-Client-Validierung; sie schützt vor manuell veränderten Projektdateien und
-Implementierungsfehlern.
-
-Für V0 endet die Wizard-Verantwortung mit validierter `deer.json`, gültigen
-Asset-Referenzen und einem klaren manuellen Generator-Handoff. Alles, was
-danach erzeugt wird, gehört zum Generator- und Runtime-Scope.
+Das Ausgabeformat steht in
+[`generator-output-format.md`](generator-output-format.md).

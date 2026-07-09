@@ -1,13 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:dungeon:wizard:deer-schema:0.1-draft",
-  "title": "DEER Authoring Configuration",
-  "description": "Schema for the editable wizard authoring file. Semantic cross-reference checks remain part of the Wizard and generator validators.",
+  "$id": "urn:dungeon:wizard:deer-schema:0.2-draft",
+  "title": "DEER Authoring Configuration V0.2",
+  "description": "Finalized Wizard-to-generator contract. Incomplete UI drafts use a separate private model. Cross-reference, graph-profile, path-content and runtime-capability checks are semantic validations.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "formatVersion",
     "metadata",
+    "learningDesign",
     "session",
     "scenario",
     "surfaces",
@@ -17,10 +18,13 @@
   ],
   "properties": {
     "formatVersion": {
-      "const": "0.1-draft"
+      "const": "0.2-draft"
     },
     "metadata": {
       "$ref": "#/$defs/metadata"
+    },
+    "learningDesign": {
+      "$ref": "#/$defs/learningDesign"
     },
     "session": {
       "$ref": "#/$defs/session"
@@ -33,7 +37,39 @@
       "minItems": 1,
       "items": {
         "$ref": "#/$defs/surface"
-      }
+      },
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "door"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
     },
     "riddleGraph": {
       "$ref": "#/$defs/riddleGraph"
@@ -52,10 +88,55 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "session": {
+            "type": "object",
+            "properties": {
+              "time": {
+                "type": "object",
+                "properties": {
+                  "limitMode": {
+                    "const": "hard"
+                  }
+                },
+                "required": [
+                  "limitMode"
+                ]
+              }
+            },
+            "required": [
+              "time"
+            ]
+          }
+        },
+        "required": [
+          "session"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scenario": {
+            "required": [
+              "failureText"
+            ]
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "id": {
       "type": "string",
+      "maxLength": 64,
       "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "nonBlankString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
     },
     "idArray": {
       "type": "array",
@@ -77,19 +158,56 @@
           "$ref": "#/$defs/id"
         },
         "title": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "locale": {
-          "type": "string",
-          "minLength": 2
+          "const": "de-DE"
         },
         "description": {
-          "type": "string"
+          "$ref": "#/$defs/nonBlankString"
         },
         "author": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
+        }
+      }
+    },
+    "learningDesign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "objectives",
+        "debriefPrompts"
+      ],
+      "properties": {
+        "objectives": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/learningObjective"
+          }
+        },
+        "debriefPrompts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonBlankString"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "learningObjective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "$ref": "#/$defs/nonBlankString"
         }
       }
     },
@@ -104,12 +222,10 @@
       ],
       "properties": {
         "targetAudience": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "priorKnowledge": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "playerCount": {
           "type": "object",
@@ -121,11 +237,13 @@
           "properties": {
             "min": {
               "type": "integer",
-              "minimum": 1
+              "minimum": 1,
+              "maximum": 4
             },
             "max": {
               "type": "integer",
-              "minimum": 1
+              "minimum": 1,
+              "maximum": 4
             }
           }
         },
@@ -139,7 +257,8 @@
           "properties": {
             "limitMinutes": {
               "type": "integer",
-              "minimum": 1
+              "minimum": 1,
+              "maximum": 240
             },
             "limitMode": {
               "enum": [
@@ -160,36 +279,29 @@
         "premise",
         "mission",
         "introText",
-        "successText",
-        "failureText"
+        "successText"
       ],
       "properties": {
         "themeId": {
           "const": "default"
         },
         "playerRole": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "premise": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "mission": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "introText": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "successText": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "failureText": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         }
       }
     },
@@ -214,8 +326,7 @@
           ]
         },
         "title": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         }
       }
     },
@@ -237,37 +348,21 @@
         },
         "nodes": {
           "type": "array",
-          "minItems": 2,
+          "minItems": 3,
           "items": {
             "$ref": "#/$defs/graphNode"
           },
           "allOf": [
             {
               "contains": {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "const": "start"
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
+                "$ref": "#/$defs/startNode"
               },
               "minContains": 1,
               "maxContains": 1
             },
             {
               "contains": {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "const": "end"
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
+                "$ref": "#/$defs/endNode"
               },
               "minContains": 1,
               "maxContains": 1
@@ -276,6 +371,7 @@
         },
         "edges": {
           "type": "array",
+          "minItems": 2,
           "items": {
             "$ref": "#/$defs/graphEdge"
           }
@@ -283,72 +379,73 @@
       }
     },
     "graphNode": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/startNode"
+        },
+        {
+          "$ref": "#/$defs/riddleNode"
+        },
+        {
+          "$ref": "#/$defs/endNode"
+        }
+      ]
+    },
+    "startNode": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "id",
-        "kind",
-        "title"
+        "kind"
       ],
       "properties": {
         "id": {
           "$ref": "#/$defs/id"
         },
         "kind": {
-          "enum": [
-            "start",
-            "riddle",
-            "end"
-          ]
+          "const": "start"
+        }
+      }
+    },
+    "riddleNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "riddleId"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
         },
-        "title": {
-          "type": "string",
-          "minLength": 1
+        "kind": {
+          "const": "riddle"
         },
         "riddleId": {
           "$ref": "#/$defs/id"
         }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "riddle"
-              }
-            },
-            "required": [
-              "kind"
-            ]
-          },
-          "then": {
-            "required": [
-              "riddleId"
-            ]
-          }
+      }
+    },
+    "endNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "surfaceId"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
         },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "not": {
-                  "const": "riddle"
-                }
-              }
-            },
-            "required": [
-              "kind"
-            ]
-          },
-          "then": {
-            "not": {
-              "required": [
-                "riddleId"
-              ]
-            }
-          }
+        "kind": {
+          "const": "end"
+        },
+        "surfaceId": {
+          "$ref": "#/$defs/id"
         }
-      ]
+      }
     },
     "graphEdge": {
       "type": "object",
@@ -371,14 +468,25 @@
       }
     },
     "riddle": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/collectionRiddle"
+        },
+        {
+          "$ref": "#/$defs/inputRiddle"
+        }
+      ]
+    },
+    "collectionRiddle": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "id",
         "type",
         "title",
+        "learningObjectiveIds",
         "playerFacingTask",
-        "assetIds",
+        "estimatedMinutes",
         "resources",
         "hints",
         "parameters"
@@ -388,14 +496,10 @@
           "$ref": "#/$defs/id"
         },
         "type": {
-          "enum": [
-            "collection",
-            "input"
-          ]
+          "const": "collection"
         },
         "title": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "difficulty": {
           "enum": [
@@ -408,15 +512,144 @@
           "type": "integer",
           "minimum": 1
         },
-        "playerFacingTask": {
-          "type": "string",
-          "minLength": 1
+        "learningObjectiveIds": {
+          "$ref": "#/$defs/nonEmptyIdArray"
         },
-        "assetIds": {
-          "$ref": "#/$defs/idArray"
+        "playerFacingTask": {
+          "$ref": "#/$defs/nonBlankString"
         },
         "resources": {
           "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/resource"
+          },
+          "contains": {
+            "$ref": "#/$defs/inlineTextResource"
+          },
+          "minContains": 1
+        },
+        "hints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hint"
+          }
+        },
+        "parameters": {
+          "$ref": "#/$defs/collectionParameters"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "parameters": {
+                "properties": {
+                  "sourceKind": {
+                    "const": "container"
+                  }
+                },
+                "required": [
+                  "sourceKind"
+                ]
+              }
+            },
+            "required": [
+              "parameters"
+            ]
+          },
+          "then": {
+            "properties": {
+              "resources": {
+                "items": {
+                  "properties": {
+                    "availability": {
+                      "const": "inside_container"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "parameters": {
+                "properties": {
+                  "sourceKind": {
+                    "const": "world_object"
+                  }
+                },
+                "required": [
+                  "sourceKind"
+                ]
+              }
+            },
+            "required": [
+              "parameters"
+            ]
+          },
+          "then": {
+            "properties": {
+              "resources": {
+                "items": {
+                  "properties": {
+                    "availability": {
+                      "const": "visible_in_level"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "inputRiddle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "title",
+        "learningObjectiveIds",
+        "playerFacingTask",
+        "estimatedMinutes",
+        "resources",
+        "hints",
+        "parameters"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "const": "input"
+        },
+        "title": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "difficulty": {
+          "enum": [
+            "easy",
+            "medium",
+            "hard"
+          ]
+        },
+        "estimatedMinutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "learningObjectiveIds": {
+          "$ref": "#/$defs/nonEmptyIdArray"
+        },
+        "playerFacingTask": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "resources": {
+          "type": "array",
+          "maxItems": 0,
           "items": {
             "$ref": "#/$defs/resource"
           }
@@ -428,151 +661,88 @@
           }
         },
         "parameters": {
-          "type": "object"
+          "$ref": "#/$defs/numericInputParameters"
         }
+      }
+    },
+    "nonEmptyIdArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/id"
       },
-      "allOf": [
+      "uniqueItems": true
+    },
+    "collectionParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surfaceId",
+        "sourceKind",
+        "rewardMode",
+        "resourceIds"
+      ],
+      "properties": {
+        "surfaceId": {
+          "$ref": "#/$defs/id"
+        },
+        "sourceKind": {
+          "enum": [
+            "container",
+            "world_object"
+          ]
+        },
+        "rewardMode": {
+          "const": "find_resource"
+        },
+        "resourceIds": {
+          "$ref": "#/$defs/nonEmptyIdArray"
+        }
+      }
+    },
+    "numericInputParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surfaceId",
+        "inputMode",
+        "answer",
+        "showDigitCount"
+      ],
+      "properties": {
+        "surfaceId": {
+          "$ref": "#/$defs/id"
+        },
+        "inputMode": {
+          "const": "numeric"
+        },
+        "answer": {
+          "type": "string",
+          "pattern": "^[0-9]{1,8}$"
+        },
+        "showDigitCount": {
+          "type": "boolean"
+        }
+      }
+    },
+    "resource": {
+      "oneOf": [
         {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "input"
-              }
-            },
-            "required": [
-              "type"
-            ]
-          },
-          "then": {
-            "properties": {
-              "parameters": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "surfaceId",
-                  "slotType",
-                  "inputMode",
-                  "answer",
-                  "maxLength",
-                  "successEffect"
-                ],
-                "properties": {
-                  "surfaceId": {
-                    "$ref": "#/$defs/id"
-                  },
-                  "slotType": {
-                    "const": "keypad_slot"
-                  },
-                  "inputMode": {
-                    "const": "numeric"
-                  },
-                  "answer": {
-                    "type": "string",
-                    "pattern": "^[0-9]+$"
-                  },
-                  "maxLength": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "minLength": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "showDigitCount": {
-                    "type": "boolean"
-                  },
-                  "acceptedCharacters": {
-                    "const": "digits"
-                  },
-                  "successEffect": {
-                    "$ref": "#/$defs/successEffect"
-                  },
-                  "successFeedback": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "wrongFeedback": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "retryPolicy": {
-                    "const": "infinite_retry"
-                  }
-                }
-              }
-            }
-          }
+          "$ref": "#/$defs/inlineTextResource"
         },
         {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "collection"
-              }
-            },
-            "required": [
-              "type"
-            ]
-          },
-          "then": {
-            "properties": {
-              "parameters": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "surfaceId",
-                  "slotType",
-                  "sourceKind",
-                  "rewardMode",
-                  "resourceIds"
-                ],
-                "properties": {
-                  "surfaceId": {
-                    "$ref": "#/$defs/id"
-                  },
-                  "slotType": {
-                    "enum": [
-                      "container_slot",
-                      "world_object_slot"
-                    ]
-                  },
-                  "sourceKind": {
-                    "enum": [
-                      "container",
-                      "world_object"
-                    ]
-                  },
-                  "rewardMode": {
-                    "const": "find_resource"
-                  },
-                  "resourceIds": {
-                    "$ref": "#/$defs/idArray",
-                    "minItems": 1
-                  },
-                  "consumeOnCollect": {
-                    "type": "boolean"
-                  },
-                  "repeatable": {
-                    "type": "boolean"
-                  },
-                  "successFeedback": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                }
-              }
-            }
-          }
+          "$ref": "#/$defs/assetResource"
         }
       ]
     },
-    "resource": {
+    "inlineTextResource": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "id",
         "kind",
         "title",
+        "text",
         "availability",
         "purpose"
       ],
@@ -581,95 +751,66 @@
           "$ref": "#/$defs/id"
         },
         "kind": {
-          "enum": [
-            "inline_text",
-            "asset",
-            "world_object",
-            "computer_file"
-          ]
+          "const": "inline_text"
         },
         "title": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "text": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "availability": {
+          "$ref": "#/$defs/resourceAvailability"
+        },
+        "purpose": {
+          "$ref": "#/$defs/resourcePurpose"
+        }
+      }
+    },
+    "assetResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "title",
+        "assetId",
+        "availability",
+        "purpose"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "const": "asset"
+        },
+        "title": {
+          "$ref": "#/$defs/nonBlankString"
         },
         "assetId": {
           "$ref": "#/$defs/id"
         },
-        "text": {
-          "type": "string"
-        },
         "availability": {
-          "enum": [
-            "visible_in_level",
-            "inside_container",
-            "after_riddle",
-            "generated_by_riddle"
-          ]
-        },
-        "requiredRiddleId": {
-          "$ref": "#/$defs/id"
+          "$ref": "#/$defs/resourceAvailability"
         },
         "purpose": {
-          "enum": [
-            "clue",
-            "context",
-            "instruction",
-            "decoy"
-          ]
+          "$ref": "#/$defs/resourcePurpose"
         }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "availability": {
-                "const": "after_riddle"
-              }
-            },
-            "required": [
-              "availability"
-            ]
-          },
-          "then": {
-            "required": [
-              "requiredRiddleId"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "inline_text"
-              }
-            },
-            "required": [
-              "kind"
-            ]
-          },
-          "then": {
-            "required": [
-              "text"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "kind": {
-                "const": "asset"
-              }
-            },
-            "required": [
-              "kind"
-            ]
-          },
-          "then": {
-            "required": [
-              "assetId"
-            ]
-          }
-        }
+      }
+    },
+    "resourceAvailability": {
+      "enum": [
+        "visible_in_level",
+        "inside_container"
+      ]
+    },
+    "resourcePurpose": {
+      "enum": [
+        "clue",
+        "context",
+        "instruction",
+        "decoy"
       ]
     },
     "hint": {
@@ -686,154 +827,16 @@
           "$ref": "#/$defs/id"
         },
         "title": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "text": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/nonBlankString"
         },
         "severity": {
           "type": "integer",
           "minimum": 1
-        },
-        "unlock": {
-          "$ref": "#/$defs/hintUnlock"
         }
       }
-    },
-    "hintUnlock": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "operator",
-        "conditions"
-      ],
-      "properties": {
-        "operator": {
-          "enum": [
-            "all_of",
-            "any_of"
-          ]
-        },
-        "conditions": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/hintUnlockCondition"
-          }
-        }
-      }
-    },
-    "hintUnlockCondition": {
-      "oneOf": [
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "type",
-            "seconds"
-          ],
-          "properties": {
-            "type": {
-              "const": "elapsed_time"
-            },
-            "seconds": {
-              "type": "integer",
-              "minimum": 1
-            }
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "type",
-            "riddleId",
-            "count"
-          ],
-          "properties": {
-            "type": {
-              "const": "failed_attempts"
-            },
-            "riddleId": {
-              "$ref": "#/$defs/id"
-            },
-            "count": {
-              "type": "integer",
-              "minimum": 1
-            }
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "type",
-            "riddleId"
-          ],
-          "properties": {
-            "type": {
-              "const": "riddle_completed"
-            },
-            "riddleId": {
-              "$ref": "#/$defs/id"
-            }
-          }
-        }
-      ]
-    },
-    "successEffect": {
-      "oneOf": [
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "type",
-            "stateId"
-          ],
-          "properties": {
-            "type": {
-              "const": "set_state"
-            },
-            "stateId": {
-              "$ref": "#/$defs/id"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "type",
-            "surfaceId"
-          ],
-          "properties": {
-            "type": {
-              "const": "unlock_surface"
-            },
-            "surfaceId": {
-              "$ref": "#/$defs/id"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "type",
-            "surfaceId"
-          ],
-          "properties": {
-            "type": {
-              "const": "open_surface"
-            },
-            "surfaceId": {
-              "$ref": "#/$defs/id"
-            }
-          }
-        }
-      ]
     },
     "asset": {
       "type": "object",
@@ -843,9 +846,8 @@
         "path",
         "mediaType",
         "purpose",
-        "linkedTo",
-        "required",
-        "source"
+        "source",
+        "accessibility"
       ],
       "properties": {
         "id": {
@@ -853,56 +855,131 @@
         },
         "path": {
           "type": "string",
-          "pattern": "^(?![A-Za-z]:)(?!/)(?!.*\\.\\.).+"
+          "pattern": "^assets/custom/[0-9a-f]{12}-[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$"
         },
         "mediaType": {
           "enum": [
             "image/png",
-            "image/jpeg",
-            "audio/wav",
-            "audio/mp3",
-            "audio/ogg",
-            "text/plain"
+            "image/jpeg"
           ]
         },
         "purpose": {
           "enum": [
             "riddle_evidence",
-            "lore",
-            "feedback",
-            "decorative",
-            "audio_cue"
+            "decorative"
           ]
         },
-        "linkedTo": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/id"
-          },
-          "uniqueItems": true
-        },
-        "required": {
-          "type": "boolean"
-        },
         "source": {
-          "type": "object",
-          "additionalProperties": true,
-          "required": [
-            "type",
-            "license"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "minLength": 1
+          "$ref": "#/$defs/assetSource"
+        },
+        "accessibility": {
+          "$ref": "#/$defs/assetAccessibility"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "purpose": {
+                "const": "riddle_evidence"
+              }
             },
-            "license": {
-              "type": "string",
-              "minLength": 1
+            "required": [
+              "purpose"
+            ]
+          },
+          "then": {
+            "properties": {
+              "accessibility": {
+                "properties": {
+                  "decorative": {
+                    "const": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "purpose": {
+                "const": "decorative"
+              }
+            },
+            "required": [
+              "purpose"
+            ]
+          },
+          "then": {
+            "properties": {
+              "accessibility": {
+                "properties": {
+                  "decorative": {
+                    "const": true
+                  }
+                }
+              }
             }
           }
         }
+      ]
+    },
+    "assetSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "license"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "educator_upload",
+            "bundled_asset"
+          ]
+        },
+        "license": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "attribution": {
+          "$ref": "#/$defs/nonBlankString"
+        }
       }
+    },
+    "assetAccessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decorative"
+      ],
+      "properties": {
+        "decorative": {
+          "type": "boolean"
+        },
+        "description": {
+          "$ref": "#/$defs/nonBlankString"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decorative": {
+                "const": false
+              }
+            },
+            "required": [
+              "decorative"
+            ]
+          },
+          "then": {
+            "required": [
+              "description"
+            ]
+          }
+        }
+      ]
     }
   }
 }

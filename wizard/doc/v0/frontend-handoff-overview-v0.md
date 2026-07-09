@@ -1,120 +1,165 @@
-# Frontend Handoff V0
+# Frontend Handoff V0.2
 
-## Zweck
+## Auftrag
 
-Dieses Dokument ist der kurze Einstieg für die UI-Umsetzung. Es ersetzt nicht
-Schema, Parameter-Tabelle oder Workflow-Dokumente.
+Die Frontend-Umsetzung baut eine Web-Oberfläche in einem lokalen
+Standalone-Host für nicht-technische Lehrende. Sie verwaltet einen
+unvollständigen Entwurf, projiziert ihn bei erfolgreicher Prüfung auf
+`deer.json` und schreibt `deer.json` plus referenzierte Assets über einen
+nativen Storage-Adapter in einen ausgewählten Projektordner.
 
-Der Wizard ist eine Authoring-Web-App für Lehrende. Lehrende erfassen einen
-Escape-Room-Entwurf über fachliche Eingaben; die UI erzeugt daraus intern eine
-valide `deer.json` und verwaltet referenzierte Assets im Projektordner.
+Die UI startet keinen Java-Generator und erzeugt kein ZIP.
 
-```text
-Wizard-Web-App
--> fachliche Eingaben
--> interne deer.json
--> Projektordner mit assets/
--> manueller Java-Generator
--> Room-Paket
-```
+## Lesereihenfolge
 
-Sichtbare V0-Abschlussaktion:
+1. [`concept.md`](concept.md)
+2. [`wizard-ui-flow-v0.md`](wizard-ui-flow-v0.md)
+3. [`deer.schema.json`](deer.schema.json)
+4. [`examples/deer.example.json`](examples/deer.example.json)
+5. [`implementation-handoff-v0.md`](implementation-handoff-v0.md)
 
-```text
-Entwurf finalisieren
-```
+[`teacher-workflow-v0.md`](teacher-workflow-v0.md) enthält ergänzende
+Akzeptanzszenarien. Feldsemantik steht in
+[`deer-json-spec.md`](deer-json-spec.md) und
+[`parameter-table-v0.md`](parameter-table-v0.md).
 
-## Relevante Dateien
-
-Für den ersten UI-Slice reicht diese Lesereihenfolge:
-
-1. `implementation-handoff-v0.md`
-2. `wizard-ui-flow-v0.md`
-3. `teacher-workflow-v0.md`
-4. `deer.schema.json`
-5. `examples/deer.example.json`
-6. `parameter-table-v0.md`
-
-Kontextdateien:
-
-- `concept.md`
-- `deer-json-spec.md`
-- `generator-input-format.md`
-- `the-last-hour-interaction-catalog.md`
-
-## UI-Verantwortung
-
-Die UI ist kein JSON-Editor. Sie verantwortet:
-
-- sichtbare Wizard-Schritte und Schrittstatus,
-- Erfassung fachlicher Inhalte,
-- Ableitung stabiler IDs, Oberflächen, Ablaufkanten und kontrollierter
-  `successEffect`-Werte, wo ein Baustein eine Weltänderung braucht,
-- Asset-Upload und relative Asset-Referenzen,
-- Client-Validierung vor der Finalisierung,
-- deaktivierte Zustände für nicht generierbare Bausteine,
-- Ausgabe einer validierten `deer.json`.
-
-Lehrende bearbeiten keine Tokens, Petri-Netze, Slot-IDs oder JSON-Dateien
-direkt. Die UI erzeugt keine spielbaren Runtime-Artefakte.
-
-## Erster UI-Slice
-
-Der erste Slice soll den End-to-End-Pfad klein, aber echt abbilden:
+## Sichtbarer Flow
 
 ```text
-Rahmen
--> Szenario
--> Fund
--> Keypad
--> Tür öffnen
--> deer.json finalisieren
+Starten oder fortsetzen
+-> Eckdaten & Lernziel
+-> Geschichte
+-> Spielablauf
+-> Rätsel, Inhalte & Hilfen
+-> Prüfen, Vorschau & finalisieren
 ```
 
-Benötigte Bausteine:
+Die Übersicht bleibt als Navigation und Statusfläche sichtbar. „Orte und
+Geräte“ werden innerhalb eines Rätsels benannt; es gibt keinen separaten
+technischen Surface-Schritt.
 
-- sichtbarer Baustein **Fund**, intern `collection.single` und
-  `riddle.type=collection` mit `parameters.rewardMode=find_resource`
-- sichtbarer Baustein **Zahlencode**, intern `input.numeric` und
-  `riddle.type=input` mit `parameters.inputMode=numeric`
-- kontrollierter `successEffect` für Welt- oder Oberflächenänderungen, z. B.
-  Tür öffnen
-- einfache Textressourcen
-- optionale Bildassets
-- optionale Hinweise ohne komplexe Freischaltbedingungen
+## Daten- und Speichergrenze
 
-Komplexere Bausteine wie Computer, E-Mail, USB, Control Panel und Assembly
-werden erst aktiviert, wenn der Generator sie im jeweiligen Slice unterstützt.
+- Der **Wizard-Entwurf** darf unvollständig sein und bleibt UI-intern.
+- Der Entwurf wird automatisch lokal gespeichert und nach einem Neustart
+  wieder angeboten.
+- IDs entstehen einmal und bleiben bei Umbenennung stabil.
+- `deer.json` wird erst aus einem vollständigen, fehlerfreien Entwurf erzeugt.
+- Finalisierung ist wiederholbar und sperrt den Entwurf nicht.
+- Änderungen nach einer Finalisierung markieren die letzte Ausgabe als
+  veraltet.
+- Assets bleiben mit dem Entwurf verknüpft und werden bei Finalisierung in
+  `assets/custom/` geschrieben.
+- Ein optionales Playtest-Protokoll mit Datum, Testgruppe, Ergebnis und Notizen
+  bleibt im lokalen Draft und wird nicht in `deer.json` exportiert.
 
-## Validierung
+Für V0.2 ist der Standalone-Host verbindlich. Der Frontend-Code kapselt
+Draft-Speicher und Projektordnerzugriff hinter einem Storage-Port, damit später
+ein Browser-Adapter ergänzt werden kann. Ein beliebiger Browser ohne
+persistente Dateiablage ist kein unterstützter Foundation-Host.
 
-Der Button `Entwurf finalisieren` ist nur aktiv, wenn keine blockierenden
-Fehler existieren.
+## Foundation-Slice
 
-Blockierend:
+Aktiv:
 
-- Pflichtfeld fehlt,
-- required Asset fehlt,
-- Baustein ist im aktuellen Generator-Slice nicht verfügbar,
-- Rätsel ist nicht erreichbar,
-- Progression kann nicht abgeschlossen werden,
-- Progressionsrätsel kann übersprungen werden,
-- mehr als ein Endzustand entsteht,
-- Softlock oder zyklische Abhängigkeit,
-- Baustein passt nicht zur abgeleiteten Oberfläche.
+- ein oder mehrere Lernziele;
+- **Fund** mit mindestens einem notwendigen Hinweis-/Aufgabentext und
+  optionalem PNG-/JPEG-Bild;
+- **Zahlencode** mit 1 bis 8 Ziffern;
+- geordnete Abschnitte mit optional parallelen Pflichträtseln;
+- ab Rätselaktivierung nacheinander anforderbare Hilfen;
+- gemeinsamer Ausgang als Erfolgsziel;
+- Textvorschau, Ablaufzusammenfassung und Entwurfsprüfung.
 
-Warnungen blockieren nicht, bleiben aber sichtbar:
+Nicht im aktiven Picker:
 
-- sehr lange Texte,
-- schwierige Rätsel ohne Hinweise,
-- ungenutzte Assets,
-- schwache Story-Einbettung,
-- geschätzte Dauer passt schlecht zum Zeitlimit.
+- Computer, E-Mail, USB, Assembly, Control Panel;
+- freie Zustandsaktionen;
+- Audio und Themes;
+- zeit- oder versuchsabhängige Hint-Regeln;
+- freie Graphkanten.
 
-## Gestaltungsspielraum
+Geplante Typen werden in einer kurzen Vorschau „Weitere Rätselarten sind
+geplant“ erklärt, nicht als große Menge deaktivierter Hauptaktionen angezeigt.
 
-Das visuelle Design ist frei. Liste, Timeline, Board oder Canvas sind möglich,
-solange daraus ein eindeutiger Ablauf und eine valide `deer.json` entstehen.
+## UX-Richtung
 
-Die UI soll deaktivierte Optionen begründen, z. B. "im aktuellen Generator noch
-nicht verfügbar".
+**Visuelle These:** eine ruhige Werkstatt für Unterrichtsentwürfe – klare
+Typografie, helle Arbeitsfläche, ein Akzent für Aktionen und eine
+blueprintartige Ablaufspur statt Dashboard-Kartenraster.
+
+**Arbeitsfläche:** schmale Navigation mit Schrittstatus, zentrale
+Abschnitts-/Rätselliste und ein kontextbezogener Editor. Prüfhinweise erscheinen
+am betroffenen Element und zusätzlich in einer kompakten Zusammenfassung.
+
+**Interaktion:**
+
+- Abschnitt oder Rätsel einfügen und verschieben mit kurzer Layout-Transition;
+- ein Prüfhinweis fokussiert und hebt das betroffene Feld/Rätsel hervor;
+- Änderungen an Ablauf oder Inhalt aktualisieren Vorschau und Status sichtbar,
+  aber ohne dauernde Modals.
+
+Drag-and-drop ist optional. Jede Aktion braucht eine Tastatur- und
+Button-Alternative. Animation respektiert `prefers-reduced-motion`.
+
+## Sprache der UI
+
+| Intern | Sichtbar |
+|---|---|
+| Surface | Ort oder Gerät |
+| Asset | Bild oder Datei |
+| Resource | Inhalt oder Material |
+| Hint | Hilfe |
+| Preflight | Entwurfsprüfung |
+| Riddle graph | Spielablauf |
+| End state | gemeinsames Erfolgsziel |
+| Generator capability | in dieser Version verfügbar |
+
+„Hinweis“ bezeichnet fachlichen Rätselinhalt; „Hilfe“ bezeichnet optionale
+Unterstützung. Technische IDs, JSON Pointer und Issue-Codes bleiben verborgen.
+
+## Prüfung und Fehlerbehebung
+
+`Entwurf prüfen` ist immer verfügbar. `Entwurf finalisieren` ist nur ohne
+blockierende Fehler verfügbar; ein Hilfetext erklärt die Übergabe an die
+technische Betreuung.
+
+Jedes Problem zeigt:
+
+- was fehlt oder widersprüchlich ist,
+- warum es relevant ist,
+- eine konkrete Korrekturaktion,
+- einen Sprung zum betroffenen Feld oder Rätsel.
+
+Eingaben bleiben bei Fehlern erhalten. Löschen und Verschieben bieten Undo.
+Warnungen blockieren nicht. Die UI spricht bei Graphprüfungen von
+„strukturell vollständig“, nicht von „garantiert lösbar“.
+
+## Barrierefreiheit
+
+Die Foundation-Authoring-UI zielt auf WCAG 2.2 AA:
+
+- vollständige Tastaturbedienung und sichtbarer Fokus;
+- keine ausschließlich farbliche Statuskommunikation;
+- programmatisch verknüpfte Labels, Beschreibungen und Fehlermeldungen;
+- Fokus auf die Fehlerzusammenfassung nach einer Prüfung;
+- Zoom, Reflow und Reduced Motion;
+- zugängliche Datei-Auswahl;
+- nicht-spoilernde Alternativbeschreibung für informative Bilder.
+
+Diese Zusage gilt nicht automatisch für die LibGDX-Spielruntime. Informative
+Bilder dürfen im Foundation-Raum nicht der einzige Träger notwendiger
+Information sein; ihre Beschreibung bleibt in der Generatorausgabe erhalten.
+
+## Frontend-Definition-of-Done
+
+Der erste UI-Slice ist fertig, wenn der Beispielraum:
+
+1. als unvollständiger Entwurf automatisch gespeichert und wieder geöffnet
+   werden kann,
+2. ohne technische Begriffe erstellt und per Tastatur bedient werden kann,
+3. verständliche Fehler mit direkten Korrekturwegen zeigt,
+4. als nicht-spielbare Zusammenfassung geprüft werden kann,
+5. ein Bild inhaltsadressiert schreibt und danach eine schema- und fachlich
+   gültige `deer.json` sicher ersetzt,
+6. nach Änderungen erneut finalisiert werden kann.

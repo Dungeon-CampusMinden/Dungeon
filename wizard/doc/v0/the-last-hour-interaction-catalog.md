@@ -1,6 +1,6 @@
-# The Last Hour Interaction Catalog V0
+# The Last Hour Interaction Catalog V0.2
 
-Stand: 07.07.2026
+Stand: 09.07.2026
 Zweck: Wizard-nahe Zerlegung der wiederverwendbaren Spiel-Elemente aus
 `theLastHourEscapeRoom`.
 
@@ -14,8 +14,9 @@ Zweck: Wizard-nahe Zerlegung der wiederverwendbaren Spiel-Elemente aus
 - Der Wizard startet ohne vorausgewählte The-Last-Hour-Vorlage.
 - The Last Hour liefert einen Produkt- und Baustein-Katalog, aber nicht den
   aktiven Foundation-Scope.
-- Hinweise bleiben optional. Ein Rätsel hat immer ein `hints`-Array, aber es
-  darf leer sein.
+- Hilfen bleiben optional. Ein Rätsel hat immer ein `hints`-Array, aber es
+  darf leer sein. Im Foundation-Slice können sie ab Aktivierung des Rätsels
+  nacheinander angefordert werden.
 - Telefon-Dialoge sind eher Story-Events oder Ressourcen, keine eigenen
   Wizard-Rätsel.
 - Der Computer soll langfristig als zentrale wiederverwendbare Schnittstelle
@@ -44,7 +45,7 @@ Aktiv für den ersten UI- und Generator-Slice:
 |---|---|---|---|---|
 | 1 | Login-Notiz oder Code-Hinweis | Hinweis finden/einsammeln | `collection.single` | Internes Mapping; JSON nutzt `riddle.type=collection` und `rewardMode=find_resource` |
 | 2 | Storage-Keypad oder Tür-Keypad | Zahlencode eingeben | `input.numeric` | Internes Mapping; JSON nutzt `riddle.type=input` und `inputMode=numeric` |
-| 3 | Tür/Bereich öffnen | Erfolg nach korrekter Eingabe | kein eigener Baustein; `parameters.successEffect.type=open_surface` | kontrollierter Effekt, Generator erzeugt Runtime-State |
+| 3 | Ausgang freigeben und gemeinsam erreichen | Erfolg nach Abschluss aller Pflichträtsel | Endknoten mit `surfaceId` auf eine Tür | Generator bindet den gemeinsamen Endknoten an Ausgang und Runtime-State |
 
 Der Foundation-Slice ist absichtlich klein. Er soll beweisen, dass
 UI-Eingabe, `deer.json`, Asset-Referenzen, Graphvalidierung und Generatorlauf
@@ -76,7 +77,7 @@ unterstützen.
 | Intro/Outro | Szenario-Text, kein Rätsel. |
 | Timer | Session-/Scenario-Konfiguration. |
 | Telefonanrufe | Story-Event oder Ressource. |
-| Allgemeines Virus-/Falschaktion-System | Runtime-Fehler- und Feedbackmodell. |
+| Allgemeines Virus-/Falschaktion-System | Späteres Runtime-Fehler- und Feedbackmodell. |
 | Licht, Heizung, Kamera im Control Panel | Teil eines späteren Control-Panel-Bausteins. |
 | Decoy-Vents, leere Container, Fake-Dateien | Optionale Ressourcen- oder Decoy-Inhalte. |
 
@@ -136,10 +137,10 @@ Die verbindliche Foundation-Tabelle steht in
 Ideensammlung und definiert keine zusätzlichen Pflichtfelder für den aktuellen
 Contract.
 
-Progression liegt im `riddleGraph` über reine Kanten-Topologie. Eine Kante von
-einem Rätsel bedeutet, dass das Ziel nach Abschluss dieses Rätsels verfügbar
-wird; mehrere eingehende Rätselkanten bedeuten, dass alle Vorgänger erfüllt
-sein müssen. Runtime-Tokens, Petri-Netze, konkrete Slots und Spielzustände
+Progression liegt im `riddleGraph` über reine Kanten-Topologie. V0.2 erlaubt
+nur geordnete Abschnitte: mehrere eingehende Rätselkanten bedeuten, dass alle
+Vorgänger erfüllt sein müssen. Der Endknoten referenziert genau eine
+Ausgangstür. Runtime-Tokens, Petri-Netze, konkrete Slots und Spielzustände
 leitet der Generator ab.
 
 ## Nächste Klärung
@@ -153,6 +154,7 @@ wirklich generatorfähig wird:
 - `item_use` mit retry-fähigem Fehlerzustand,
 - oder `assembly.image_fragments`.
 
-Neue Bausteine sollten erst in `deer.schema.json` und
-`parameter-table-v0.md` aufgenommen werden, wenn der Generator sie im gleichen
-Slice umsetzen kann.
+Neue Bausteine kommen erst mit einer neuen `formatVersion` in
+`deer.schema.json` und `parameter-table-v0.md`, wenn UI, TypeScript- und
+Java-Validierung, Generator, Runtime und Multiplayer-Synchronisation sie im
+gleichen Slice unterstützen.

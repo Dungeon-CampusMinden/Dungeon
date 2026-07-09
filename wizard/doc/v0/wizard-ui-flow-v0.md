@@ -1,283 +1,337 @@
-# Wizard UI Flow V0
+# Wizard UI Flow V0.2
 
-Stand: 07.07.2026
-Status: UI-Contract für Schritte, Eingaben, Validierung und Abschluss
+Status: kanonischer UI-Contract
+Stand: 09.07.2026
 
 ## Ziel
 
-Dieses Dokument beschreibt den sichtbaren Authoring-Flow für Lehrende. Es legt
-Schritte, Eingaben, Validierungszeitpunkte, deaktivierte Zustände und die
-Abschlussaktion fest. Es ist keine Layout-Vorgabe.
+Dieses Dokument definiert den sichtbaren Authoring-Flow. Feldsemantik und
+Generatorregeln stehen in den verlinkten Contract-Dateien; sie werden hier
+nicht vollständig wiederholt.
 
 ```text
-Rahmen festlegen
--> Szenario beschreiben
--> Foundation-Bausteine wählen
--> Rätselablauf konfigurieren
--> Rätsel, Inhalte, Assets und Hinweise ergänzen
--> Prüfen und Entwurf finalisieren
+Starten oder fortsetzen
+-> Eckdaten & Lernziel
+-> Geschichte
+-> Spielablauf
+-> Rätsel, Inhalte & Hilfen
+-> Prüfen, Vorschau & finalisieren
 ```
 
-## UI-Grundsätze
+## Grundsätze
 
-- Der Wizard ist eine separate Browser-/Standalone-Oberfläche.
-- Lehrende bearbeiten keine JSON-Datei direkt.
-- Technische Begriffe wie Token, Petri-Netz oder Generator-Action erscheinen
-  nicht als zentrale UI-Begriffe.
-- Jeder Schritt hat einen Status: `leer`, `unvollständig`, `gültig`,
-  `Warnung` oder `Fehler`.
-- Die Finalisierung ist deaktiviert, bis der Client-Preflight gültig ist.
-- Fehler erscheinen am betroffenen Schritt, Rätsel oder Feld.
-- Warnungen bleiben sichtbar und blockieren nicht.
-- V0 startet ohne vorausgewählte Raumstruktur.
-- The Last Hour liefert mögliche Bausteine und Assets, aber keine Vorlage.
-- Bausteine oder Optionen, die im aktuellen Generator-Slice nicht generierbar
-  sind, erscheinen deaktiviert mit sichtbarem Grund.
+- Lehrende bearbeiten keine JSON-Datei und keine technischen IDs.
+- Der unvollständige Entwurf ist nicht `deer.json`.
+- Eine ständig erreichbare Übersicht zeigt Navigation, Abschlussgrad,
+  blockierende Probleme und Warnungen.
+- Technische Orte, Graphknoten und Kanten werden aus fachlichen Eingaben
+  abgeleitet.
+- Der sichtbare Ablauf ist eine geordnete Abschnittsliste, kein freier Graph.
+- `Entwurf prüfen` ist immer aktiv; `Entwurf finalisieren` erst nach einer
+  erfolgreichen Prüfung.
+- Warnungen blockieren nicht.
+- Eine Prüfung garantiert Struktur und Generatorfähigkeit, nicht menschliche
+  Lösbarkeit oder Lernerfolg.
 
-## Schritte
+## Entwurfslebenszyklus
 
-1. **Übersicht**
-2. **Rahmen**
-3. **Szenario**
-4. **Raum & Oberflächen**
-5. **Rätselablauf**
-6. **Rätsel bearbeiten**
-7. **Inhalte & Assets**
-8. **Prüfen & Entwurf finalisieren**
+1. Ein neuer oder wieder geöffneter UI-Entwurf darf unvollständig sein.
+2. Änderungen werden lokal automatisch gespeichert.
+3. Stabile IDs werden bei der ersten Anlage erzeugt und bei Umbenennung
+   beibehalten.
+4. Die UI projiziert den Entwurf für jede vollständige Prüfung auf ein
+   `deer.json`-Kandidatenobjekt.
+5. Nur ein fehlerfreier Kandidat wird finalisiert. Neue inhaltsadressierte
+   Dateien werden zuerst geschrieben; `deer.json` wird zuletzt sicher ersetzt.
+6. Der Entwurf bleibt danach bearbeitbar. Eine Änderung markiert die letzte
+   Finalisierung als veraltet.
 
-## 1. Übersicht
+V0.2 unterstützt die Wiederaufnahme eigener lokaler Entwürfe. Der Import
+beliebiger Generator-ZIPs oder manuell veränderter Projektordner ist nicht Teil
+des Foundation-Slices.
 
-Zweck: Projektstatus sichtbar machen und die nächsten offenen Aufgaben zeigen.
+Der Foundation-Host ist eine Standalone-App mit Web-Oberfläche und nativem
+Storage-Adapter. Ein browser-only Host folgt erst nach einem eigenen
+Speicher-/Export-Slice.
 
-Anzeigen:
+## Dauerhafte Übersicht
 
-- Raumtitel
-- Fortschritt der Wizard-Schritte
-- Anzahl Rätsel
-- offene Pflichtfelder
-- blockierende Fehler
-- Warnungen
-- letzter gültiger Preflight-Status
+Die Übersicht ist Navigation, kein Arbeitsschritt. Sie zeigt:
+
+- Projekttitel;
+- Schritte mit getrenntem Abschlussstatus und Fehler-/Warnungszähler;
+- Anzahl Abschnitte und Rätsel;
+- Zeitpunkt der letzten lokalen Speicherung;
+- Zeitpunkt und Zustand der letzten Finalisierung;
+- nächsten sinnvollen Arbeitsschritt.
+
+Abschlussstatus:
+
+- `nicht begonnen`;
+- `in Bearbeitung`;
+- `vollständig`.
+
+Fehler und Warnungen werden separat gezählt. Status wird nie ausschließlich
+durch Farbe vermittelt.
+
+## 1. Starten oder fortsetzen
 
 Aktionen:
 
-- zum nächsten offenen Schritt wechseln
-- Entwurf speichern
-- `Entwurf finalisieren`, wenn der Preflight gültig ist
+- neuen Entwurf anlegen;
+- letzten lokalen Entwurf fortsetzen;
+- einen anderen eigenen lokalen Entwurf öffnen;
+- einen kleinen geführten Beispielentwurf kopieren.
 
-## 2. Rahmen
+Der Beispielentwurf ist entfernbar und keine vorausgewählte The-Last-Hour-
+Raumstruktur. Er erklärt lediglich „Fund -> Zahlencode -> Ausgang“.
 
-Zweck: Allgemeine Sitzungsdaten erfassen.
+Beim Anlegen wird ein Projektname abgefragt. Der Projektordner kann spätestens
+vor der ersten Bildauswahl festgelegt werden.
 
-Pflichtfelder:
+## 2. Eckdaten & Lernziel
 
-| UI-Feld | Interne Bedeutung | Validierung |
-|---|---|---|
-| Raumtitel | `metadata.title` | nicht leer |
-| Sprache | `metadata.locale` | V0-Standard: `de-DE` |
-| Zielgruppe | `session.targetAudience` | nicht leer |
-| Vorwissen | `session.priorKnowledge` | nicht leer |
-| Spielerzahl min/max | `session.playerCount` | `1 <= min <= max` |
-| Zeitlimit | `session.time.limitMinutes` | positive Zahl |
-| Zeitmodus | `session.time.limitMode` | `hard` oder `soft` |
+Pflichtangaben:
 
-Fest für V0:
-
-- Theme: Standard-Theme.
-- Levelanzahl: ein Level.
-- Kooperationsmodus: kooperativ.
-
-## 3. Szenario
-
-Zweck: Story-Rahmen für den Raum erfassen.
-
-Pflichtfelder:
-
-| UI-Feld | Interne Bedeutung | Validierung |
-|---|---|---|
-| Rolle der Spielenden | `scenario.playerRole` | nicht leer |
-| Ausgangslage | `scenario.premise` | kurzer Fließtext |
-| Mission | `scenario.mission` | klares Spielziel |
-| Intro-Text | `scenario.introText` | nicht leer |
-| Erfolgstext | `scenario.successText` | nicht leer |
-| Fehlschlagtext | `scenario.failureText` | nicht leer |
-
-Optionale Felder:
-
-- ein bis drei Lore-Texte
-- Lore-Bild
-- Intro-/Ambient-Audio
-
-Warnungen:
-
-- Text sehr lang
-- Mission unklar
-- Intro beschreibt Fachinhalt ohne Spielsituation
-
-## 4. Raum & Oberflächen
-
-Zweck: Sichtbar machen, welche Interaktionsorte aus den gewählten Bausteinen
-entstehen.
-
-V0 startet nicht mit vorausgewählten Oberflächen. Oberflächen werden aus den
-gewählten Rätselbausteinen abgeleitet.
-
-Aktive Foundation-Oberflächen:
-
-| Oberfläche | Sichtbarer Name | Zweck |
-|---|---|---|
-| `world` | Raum | allgemeiner Kontext |
-| `container` | Fundort | Hinweis oder Ressource finden |
-| `keypad` | Keypad | Zahlencode eingeben |
-| `door` | Tür | Ziel öffnen |
-
-Weitere Oberflächen bleiben deaktiviert, bis der Generator sie unterstützt.
-
-Pflichtangaben entstehen aus den gewählten Rätseln:
-
-| UI-Feld | Bedeutung | Validierung |
-|---|---|---|
-| mindestens ein Fundort | für `collection.single` | vorhanden, wenn Fund-Rätsel genutzt werden |
-| mindestens ein Keypad | für `input.numeric` | vorhanden, wenn Zahlencode genutzt wird |
-| mindestens eine Tür oder Zieloberfläche | für `open_surface` | vorhanden, wenn ein Rätsel eine Tür öffnet |
-
-Intern schreibt die UI die abgeleiteten Oberflächen in `surfaces`. Lehrende
-sehen fachliche Namen, keine technischen IDs.
-
-## 5. Rätselablauf
-
-Zweck: Festlegen, welche Rätsel in welcher Reihenfolge gelöst werden müssen.
-
-Fachliches Modell:
-
-- einfache Ablauf-Liste mit optionalen Parallelgruppen
-- jede Rätselinstanz als einzelnes bearbeitbares Element
-- Abhängigkeiten als "nach Rätsel X verfügbar"
-- intern reine Graphkanten statt zusätzlicher Kantenbedingungen
-- keine sichtbaren Token-Namen für Lehrende
-- freie Darstellung, solange ein eindeutiger Graph ableitbar bleibt
-
-Pflichtangaben pro Knoten:
-
-| UI-Feld | Interne Bedeutung | Validierung |
-|---|---|---|
-| Rätselname | `riddle.title` | eindeutig genug |
-| Baustein-Typ | `riddle.type` plus Modusparameter | `collection` + `rewardMode=find_resource` oder `input` + `inputMode=numeric` |
-| Kurzaufgabe | `playerFacingTask` | nicht leer |
-| Vorgänger | `riddleGraph.edges[].from`/`to` | existierendes Rätsel oder Start |
-| Ergebnis/Freischaltung | typabhängig, z. B. `parameters.successEffect` | kontrollierte Auswahl, wenn der Baustein einen Effekt braucht |
-
-V0-Regeln:
-
-- Alle Progressionsrätsel liegen auf einem durchspielbaren Pfad.
-- Alle Progressionsrätsel bleiben notwendig.
-- V0 und spätere Versionen erzeugen genau einen Endzustand.
-- Parallelgruppen drücken Parallelität aus, ohne Progressionsrätsel zu
-  überspringen.
-- Der Editor markiert Zyklen, unerreichbare Knoten und Abhängigkeiten, die erst
-  nach dem benötigten Rätsel verfügbar werden.
-
-## 6. Rätsel Bearbeiten
-
-Zweck: Die konkreten Eingaben für jedes Rätsel erfassen. Die UI zeigt nur die
-Felder, die zum gewählten Baustein passen.
-
-### 6.1 Fund / `collection.single`
-
-Interner JSON-Contract: `riddle.type=collection`,
-`parameters.rewardMode=find_resource`.
-
-Pflichtfelder:
-
-- sichtbarer Name
-- Aufgabe für Spielende
-- Fundort/Oberfläche
-- Fundtyp: Container oder Weltobjekt
-- mindestens eine Ressource, die in `parameters.resourceIds` geschrieben wird
+| Sichtbares Feld | DEER-Ziel |
+|---|---|
+| Raumtitel | `metadata.title` |
+| Inhaltssprache | `metadata.locale` |
+| Zielgruppe | `session.targetAudience` |
+| Vorwissen | `session.priorKnowledge` |
+| Spielerzahl von/bis | `session.playerCount` |
+| Zeitlimit und Modus | `session.time` |
+| Was sollen Spielende wissen oder können? | `learningDesign.objectives[]` |
 
 Optional:
 
-- Hinweistext
-- Bildasset
-- kurzer Erfolgstext
+- Kurzbeschreibung und Autor;
+- weitere Lernziele;
+- eine oder mehrere Reflexionsfragen für die Nachbesprechung.
 
-### 6.2 Keypad / `input.numeric`
+V0.2 zeigt `de-DE` als einzige unterstützte Inhaltssprache und nicht als
+scheinbar freie Sprachauswahl. Die Sprache der Wizard-Oberfläche ist eine
+separate UI-Einstellung.
 
-Interner JSON-Contract: `riddle.type=input`, `parameters.inputMode=numeric`.
+Blockierend:
 
-Pflichtfelder:
+- leeres Pflichtfeld;
+- keine Lernziele;
+- Spielerzahl außerhalb `1..4` oder `min > max`;
+- Zeitlimit außerhalb `1..240` Minuten.
 
-- Keypad-Oberfläche
-- erwarteter Zahlencode
-- maximale Länge
-- Erfolg: Tür öffnen oder Bereich freischalten
+Hinweis:
 
-Optionale Felder:
+- Die Lernzielangabe ist fachliche Orientierung, keine automatische
+  Kompetenzmessung.
 
-- Feedback bei falscher Eingabe
-- Ziffernanzahl anzeigen ja/nein
-- Hinweis nach Fehlversuchen oder Zeit
+## 3. Geschichte
 
-## 7. Inhalte & Assets
+Pflichtangaben:
 
-Zweck: Texte, Bilder und Audio-Dateien an einer Stelle verwalten.
-
-Pflichtbereiche:
-
-| Bereich | Pflicht, wenn... |
+| Sichtbares Feld | DEER-Ziel |
 |---|---|
-| Texte | Text, Lore oder Ressourcen verwendet werden |
-| Bilder | eine Ressource oder Story ein Bild nutzt |
-| Audio | Audio in Szenario oder Feedback aktiviert ist |
-| Hinweise | optional, aber pro Rätsel als leeres Array vorhanden |
+| Rolle der Spielenden | `scenario.playerRole` |
+| Ausgangslage | `scenario.premise` |
+| Mission | `scenario.mission` |
+| Intro | `scenario.introText` |
+| Erfolg | `scenario.successText` |
+| Fehlschlag bei hartem Zeitlimit | `scenario.failureText`, nur bei `hard` |
 
-Hint-Freischaltung:
-
-- sofort verfügbar
-- nach Zeit
-- nach Fehlversuchen
-- nachdem ein Rätsel gelöst wurde
-
-V0-Eingaben:
-
-- Text direkt im Wizard
-- Bilder als Upload
-- Audio als Upload
-
-Uploads müssen in V0 direkt runtime-fähige Medien sein.
-
-## 8. Prüfen & Entwurf Finalisieren
-
-Zweck: Lehrende sehen vor dem Abschluss eine klare, nicht-technische
-Checkliste.
-
-Blockierende Fehler:
-
-- Pflichtfeld fehlt
-- Rätsel ohne Fundort/Oberfläche
-- benötigte Ressource fehlt
-- Asset fehlt
-- Rätsel im Ablauf nicht erreichbar
-- Progression kann nicht abgeschlossen werden
-- Progressionsrätsel kann übersprungen werden
-- mehr als ein Endzustand entsteht
-- Endknoten nicht erreichbar
-- Softlock oder zyklische Abhängigkeit
-- Aktion passt nicht zur gewählten Oberfläche
-- verwendeter Baustein ist im aktuellen Generator-Slice nicht generierbar
+V0.2 nutzt ein festes Standard-Theme und reine Storytexte. Lore-Bilder,
+Intro-/Ambient-Audio und Theme-Auswahl folgen erst in einer späteren Version,
+der diese Inhalte tatsächlich abbildet.
 
 Warnungen:
 
-- sehr lange Texte
-- Rätsel ohne Hinweise
-- viele Rätsel ohne klare Story-Einbettung
-- erwartete Dauer deutlich höher als Zeitlimit
+- sehr langer Text;
+- Mission ohne erkennbare Spielsituation;
+- Erfolgstext widerspricht dem gemeinsamen Ausgang.
 
-Hauptaktion:
+## 4. Spielablauf
 
-- `Entwurf finalisieren`
+Die UI zeigt geordnete **Abschnitte**:
 
-Der Button ist deaktiviert, solange blockierende Fehler existieren.
+- Abschnitte werden nacheinander relevant.
+- Ein Abschnitt enthält ein oder mehrere Rätsel.
+- Mehrere Rätsel im selben Abschnitt sind parallel verfügbar.
+- Alle Rätsel sind Pflichträtsel.
+- Der nächste Abschnitt wird erst verfügbar, wenn alle Rätsel des vorherigen
+  Abschnitts abgeschlossen sind.
 
-Weitere Bausteinideen stehen im
-[`the-last-hour-interaction-catalog.md`](the-last-hour-interaction-catalog.md).
+Aktionen:
+
+- Abschnitt hinzufügen, umbenennen, verschieben oder löschen;
+- Rätsel **Fund** oder **Zahlencode** hinzufügen;
+- Rätsel per Buttons nach oben/unten oder in einen anderen Abschnitt bewegen;
+- optionales Drag-and-drop als zusätzliche Bedienung;
+- Löschen und Verschieben rückgängig machen.
+
+Die UI erzeugt intern:
+
+- genau einen Startknoten;
+- genau einen Rätselknoten pro Rätsel;
+- reine AND-Kanten zwischen aufeinanderfolgenden Abschnitten;
+- genau einen Endknoten mit Ausgangsreferenz.
+
+Nicht darstellbar in V0.2:
+
+- OR-Verzweigung;
+- optionales Pflichträtsel;
+- Zyklus;
+- manuelle Start-/Endknoten;
+- freie Kantenbedingungen.
+
+## 5. Rätsel, Inhalte & Hilfen
+
+Gemeinsam pro Rätsel:
+
+- Name;
+- kurze Aufgabe für Spielende;
+- mindestens ein zugeordnetes Lernziel;
+- geschätzte Dauer in Minuten;
+- Schwierigkeit optional;
+- null oder mehr geordnete Hilfen.
+
+### Fund
+
+Pflicht:
+
+- fachlicher Ort, z. B. „Schreibtisch“ oder „Raum“;
+- Fundart: Behälter oder sichtbares Weltobjekt;
+- mindestens ein notwendiger Hinweis- oder Aufgabentext direkt im Wizard;
+- optional zusätzlich eine PNG-/JPEG-Datei.
+
+Die UI leitet technische IDs und Ort-/Gerät-Art ab. Ein Bild benötigt eine
+nicht-spoilernde Alternativbeschreibung oder die explizite Kennzeichnung
+„rein dekorativ“. Herkunft und Lizenz werden beim Upload erfasst.
+
+### Zahlencode
+
+Pflicht:
+
+- fachliches Gerät, z. B. „Tür-Keypad“;
+- erwarteter Code mit 1 bis 8 Ziffern.
+
+Optional:
+
+- Ziffernanzahl im Spiel anzeigen.
+
+Die Codelänge wird aus dem Code abgeleitet. Es gibt kein separates
+`maxLength`-Feld. Falsche Eingaben bleiben im Foundation-Slice unbegrenzt
+wiederholbar und nutzen das vorhandene Runtime-Feedback.
+
+### Hilfen
+
+Hilfen können in V0.2 sofort angefordert werden, sobald das zugehörige Rätsel
+verfügbar ist. Die Runtime zeigt auf Anfrage nur die nächste Hilfe; die UI-
+Reihenfolge wird intern als `severity=1..n` materialisiert. Zeit-,
+Fehlversuchs- und Rätselabschlussbedingungen sind noch nicht aktiv.
+
+„Hinweis“ bezeichnet notwendigen Rätselinhalt; „Hilfe“ bezeichnet optionale
+Unterstützung.
+
+### Ausgang
+
+Die UI fragt genau eine Ausgangstür ab. Sie liegt am
+gemeinsamen Endknoten. Wenn alle letzten Pflichträtsel abgeschlossen sind, wird
+die Tür serverautoritativ geöffnet. Erfolg tritt ein, wenn die Runtime den
+Ausgang für alle aktiven Spielenden als erreicht meldet.
+
+## 6. Prüfen, Vorschau & finalisieren
+
+Die Vorschau zeigt ohne Runtime:
+
+- Eckdaten und Lernziele;
+- Intro, Mission, Erfolg und bei hartem Zeitlimit Fehlschlag;
+- Abschnitte, Parallelität und erwartete Reihenfolge;
+- Aufgaben, Materialien und Hilfen;
+- geschätzte Dauer als kritischen Pfad, nicht als bloße Summe paralleler
+  Rätsel;
+- verwendete Bilder und deren Alternativbeschreibungen;
+- Reflexionsfragen in einem Abschnitt „Nachbesprechung“.
+
+`Entwurf prüfen`:
+
+- ist immer verfügbar;
+- zeigt eine Zusammenfassung nach Fehlern und Warnungen;
+- fokussiert auf Wunsch das betroffene Element;
+- verändert oder verwirft keine Eingaben.
+
+Jedes Problem enthält sichtbar:
+
+1. Problem;
+2. Auswirkung;
+3. konkrete Korrektur;
+4. Aktion „Zum Feld“ oder „Zum Rätsel“.
+
+Beispiel:
+
+> „Zahlencode“ hat noch kein Lernziel. Ordne mindestens ein Lernziel zu.
+> **Zum Rätsel**
+
+`Entwurf finalisieren`:
+
+- ist nur ohne blockierende Fehler aktiv;
+- schreibt neue, inhaltsadressierte Dateien zuerst und ersetzt `deer.json`
+  zuletzt;
+- zeigt den Zielordner und den nächsten Schritt für die technische Betreuung;
+- startet den Generator nicht.
+
+Bei Berechtigungs-, Speicherplatz- oder Schreibfehlern bleibt die vorherige
+`deer.json` unverändert. Die UI bietet „Erneut versuchen“ und „Anderen Ordner
+wählen“. Unbekannte oder alte unreferenzierte Dateien werden nicht gelöscht.
+
+## Blockierende Prüfungen
+
+- fehlende Pflichtangabe oder Lernzielzuordnung;
+- doppelte ID oder unbekannte Referenz;
+- ungültiges Abschnitts-/Graphprofil;
+- nicht erreichbares Rätsel oder Erfolgsziel;
+- nicht unterstützter Rätsel-, Inhalts-, Bild-/Datei- oder Ort-/Gerät-Typ;
+- inkompatibler Ort/Gerät-Typ;
+- fehlendes oder unsicheres Bild / fehlende oder unsichere Datei;
+- Bild ohne Alternativbeschreibung oder Dekorativ-Kennzeichnung;
+- notwendiger Bildinhalt ohne begleitenden Textinhalt;
+- unbekannte Formatversion.
+
+## Deterministische Warnungen
+
+- schwieriges Rätsel ohne Hilfe;
+- Lernziel wird von keinem Rätsel referenziert;
+- geschätzter kritischer Pfad passt schlecht zum Zeitlimit;
+- sehr lange Texte;
+- Bild ist nicht verwendet;
+- Entwurf wurde seit der letzten Finalisierung verändert;
+- kein Playtest im lokalen Draft protokolliert.
+
+## Redaktionelle Selbstprüfung
+
+Diese Fragen werden als Checkliste gestellt, nicht als automatisch erkannte
+Probleme:
+
+- Lässt sich die Lösung aus Aufgabe und Material wirklich ableiten?
+- Trägt jedes Rätsel sinnvoll zu seinem Lernziel bei?
+- Sind Schwierigkeit und Sprache für die Zielgruppe passend?
+- Ist die Reflexionsfrage für die Nachbesprechung brauchbar?
+
+Der UI-Draft kann lokal ein Playtest-Protokoll mit Datum, Testgruppe,
+Ergebnis und Notizen speichern. Dieses Protokoll gehört nicht in `deer.json`.
+
+## Barrierefreiheits-Baseline
+
+- WCAG 2.2 AA als Ziel für die Authoring-UI;
+- alle Funktionen per Tastatur;
+- Button-Alternative zu Drag-and-drop;
+- sichtbarer Fokus und logische Fokusreihenfolge;
+- Labels und Fehler programmatisch verknüpft;
+- Status nicht nur durch Farbe;
+- Fokus auf Fehlerzusammenfassung nach Prüfung;
+- Zoom/Reflow und Reduced Motion;
+- verständliche Dateiauswahl und Bildbeschreibung.
+
+Diese Zusage gilt nicht automatisch für die LibGDX-Spielruntime. Informative
+Bilder dürfen im Foundation-Raum deshalb nicht der einzige Träger einer
+notwendigen Information sein; die Beschreibung bleibt in der Generatorausgabe
+erhalten und wird vom Foundation-Renderer als Textalternative angeboten, wo
+die Runtime dies unterstützt.

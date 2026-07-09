@@ -1,173 +1,231 @@
-# Implementation Handoff V0
+# Implementation Handoff V0.2
 
 ## Ziel
 
-V0 ist eine schlichte Wizard-Web-App für nicht-technische Lehrende. Die App
-erfasst einen einfachen Escape-Room-Entwurf, erzeugt daraus eine validierte
-`deer.json` und verwaltet die referenzierten Assets in einem Projektordner.
-
-`deer.json` ist der Contract zwischen UI und Generator. Das spielbare
-Room-Paket entsteht erst im Java-Generator.
-
-## Glossar
-
-- **DEER**: das Authoring-Format für einen erzeugbaren Escape-Room-Entwurf.
-- **`deer.json`**: validierte Authoring-Datei und einziges UI-Contract-
-  Artefakt.
-- **Projektordner**: `deer.json` plus referenzierte Assets; manuelle Eingabe
-  für den Generator.
-- **Room-Paket**: vom Java-Generator erzeugtes spielbares Runtime-Artefakt.
-
-## V0-Produktfluss
+Der Foundation-Slice beweist einen echten, reproduzierbaren Pfad:
 
 ```text
-Lehrender öffnet Wizard-Web-App
--> erfasst Rahmen, Szenario, Rätsel, Inhalte, Assets und Hinweise
--> Wizard erzeugt `deer.json`
--> Wizard validiert Schema, Referenzen und blockierende Fachregeln
--> Wizard finalisiert den Entwurf im Projektordner
--> Java-Generator liest Projektordner, validiert erneut und erzeugt Room-Paket
+UI-Entwurf
+-> valide deer.json + Bildasset
+-> Java-Generator
+-> generiertes Modul-ZIP
+-> Integration in Dungeon
+-> Gradle-Build
+-> Fund -> Zahlencode -> Ausgang
 ```
 
-## Contract-Dateien
+Die UI, der Java-Generator und die Runtime implementieren denselben
+sprachunabhängigen Contract, aber nicht „dieselben Klassen“.
 
-Dieses Handoff wiederholt keine Feldlisten. Maßgeblich sind:
+## Contract-Reihenfolge
 
-- `wizard/doc/v0/deer.schema.json`
-- `wizard/doc/v0/deer-json-spec.md`
-- `wizard/doc/v0/parameter-table-v0.md`
-- `wizard/doc/v0/examples/deer.example.json`
-- `wizard/doc/v0/generator-input-format.md`
+1. [`deer.schema.json`](deer.schema.json)
+2. [`deer-json-spec.md`](deer-json-spec.md)
+3. [`parameter-table-v0.md`](parameter-table-v0.md)
+4. [`examples/deer.example.json`](examples/deer.example.json)
+5. [`generator-input-format.md`](generator-input-format.md)
+6. [`generator-output-format.md`](generator-output-format.md)
 
-Ergänzende Arbeitsreferenzen:
+Der sichtbare Flow steht in
+[`wizard-ui-flow-v0.md`](wizard-ui-flow-v0.md).
 
-- `wizard/doc/v0/teacher-workflow-v0.md`
-- `wizard/doc/v0/wizard-ui-flow-v0.md`
-- `wizard/doc/v0/the-last-hour-interaction-catalog.md`
+## Foundation-Fähigkeiten
 
-The Last Hour liefert verfügbare Bausteine und Assets. Es ist keine Vorlage für
-den V0-Wizard-Flow.
+- `collection` mit `rewardMode=find_resource`;
+- `input` mit `inputMode=numeric` und 1 bis 8 Ziffern;
+- mindestens ein Inline-Text und optional PNG/JPEG als Fundinhalt;
+- ab Rätselaktivierung nacheinander anforderbare Hilfen;
+- geordnete Abschnitte mit AND-Parallelität;
+- ein gemeinsamer Ausgang;
+- hartes oder weiches Zeitlimit;
+- ein bis vier Spielende, serverautoritativ.
 
-## Erster Foundation-Slice
+Werte außerhalb dieser Liste gehören nicht in Schema oder Picker der
+Formatversion `0.2-draft`.
 
-Der erste Slice verbindet UI und Generator end-to-end mit dem kleinsten
-nützlichen Raum:
+## Architekturgrenzen
 
-```text
-Rahmen
--> Szenario
--> Fund
--> Keypad
--> Tür öffnen
--> deer.json finalisieren
-```
+### UI
 
-Unterstützte Bausteine:
+Die UI:
 
-- sichtbarer Baustein **Fund**, intern `collection.single` und
-  `riddle.type=collection` mit
-  `parameters.rewardMode=find_resource`
-- sichtbarer Baustein **Zahlencode**, intern `input.numeric` und
-  `riddle.type=input` mit
-  `parameters.inputMode=numeric`
-- kontrollierter `successEffect` für Welt- oder Oberflächenänderungen, z. B.
-  Tür öffnen
-- einfache Text- oder Bildassets
-- optionale Hinweise ohne komplexe Unlock-Bedingungen
+- hält unvollständige Entwürfe in einem privaten Draft-Modell;
+- speichert und öffnet lokale Drafts;
+- erzeugt stabile IDs und die DEER-Projektion;
+- leitet Surfaces und den V0.2-Graphen aus fachlichen Eingaben ab;
+- validiert Schema und Fachregeln;
+- schreibt inhaltsadressierte Assets zuerst und ersetzt `deer.json` zuletzt;
+- startet weder Generator noch Build und erzeugt kein ZIP.
 
-Der Slice prüft den vollständigen Pfad von Eingabe über Assets, Rätselgraph,
-Validierung und manuellen Generatorlauf.
+### Java-Generator
 
-## UI-Aufgaben
+Der Generator:
 
-Die UI verantwortet:
+- behandelt den Projektordner als read-only;
+- validiert Schema, Semantik, Pfade und Assetinhalt erneut;
+- berechnet deterministische Generierungsparameter;
+- erzeugt Layout, benannte Punkte, Startpositionen und Runtime-Adapter;
+- schreibt Java-Quellcode, `.level`, Assets, Build-Datei, Manifest und Report;
+- erstellt erst nach Erfolg das finale Modul-ZIP;
+- mutiert weder Eingabe noch Dungeon-Checkout.
 
-- Workflow aus `teacher-workflow-v0.md` und `wizard-ui-flow-v0.md` abbilden,
-- fachliche Eingaben erfassen,
-- stabile IDs erzeugen,
-- technische Strukturen wie `surfaces`, Referenzen und kontrollierte Effekte
-  ableiten,
-- `deer.json` nach Contract erzeugen,
-- Assets annehmen und relativ referenzieren,
-- Schema- und Fachvalidierung vor der Finalisierung ausführen,
-- blockierende Fehler sichtbar machen und Finalisierung verhindern,
-- Warnungen sichtbar machen, ohne Finalisierung zu blockieren,
-- den manuellen nächsten Schritt für den Generator anzeigen.
+### Runtime
 
-Nicht generatorfähige Bausteine bleiben deaktiviert oder klar als noch nicht
-verfügbar markiert.
+Die Runtime braucht einen wiederverwendbaren Foundation-Layer für:
 
-## Generator-Aufgaben
+- stabile Rätsel-IDs und serverautoritative Abschlussereignisse;
+- Aktivierung nach AND-Vorgängern;
+- teamweiten Fundabschluss;
+- Keypadabschluss und gemeinsamen Zustand;
+- Öffnen des Ausgangs nach dem letzten Abschnitt;
+- autoritativen Timer und Erfolgs-/Fehlschlagzustand;
+- Snapshot/Spawn-Synchronisation für Reconnect und Multiplayer.
 
-Der Generator verantwortet:
+Generierter Code konfiguriert diesen Layer. Er soll nicht für jede Graphkante
+individuelle Callback-Ketten erzeugen.
 
-- Projektordner mit `deer.json` und `assets/` lesen,
-- `deer.json` gegen Schema und Fachregeln validieren,
-- Asset-Existenz und Assettypen prüfen,
-- ID-, `surfaceId`-, Rätsel-, Hint- und Ressourcenreferenzen prüfen,
-- Baustein-Parameter und Oberflächen-Kompatibilität prüfen,
-- Graph-Erreichbarkeit, Endzustand und Softlock-Risiken prüfen,
-- genau einen Endzustand erzwingen,
-- runtime-interne Tokens, Petri-Netze, Trigger oder States ableiten,
-- den Foundation-Slice spielbar erzeugen,
-- ein Room-Paket auf Disk schreiben,
-- einen strukturierten Validierungsbericht ausgeben.
+## Reale Engine-Lücken
 
-Generator-Laufparameter wie Seed oder Layout-Profil gehören nicht in
-`deer.json`. Sie bleiben Code-/Konfigurations- oder Aufrufparameter.
+| Bereich | Ist-Zustand | Foundation-Aufgabe |
+|---|---|---|
+| Level | `.level` enthält Geometrie und benannte Punkte, aber keine vollständige Rätsellogik | Layoutprofil und generierte `DungeonLevel`-Unterklasse |
+| Fund | normale Itemaufnahme liefert kein generisches Rätselabschlussereignis | Resource-/Fund-Adapter mit teamweitem Abschluss |
+| Keypad | Factory kennt Code, Callback und Ziffernanzeige | Adapter meldet Abschluss an die gemeinsame Progression |
+| Graph | kein generischer Riddle-Graph-Executor | Foundation-Progressionssystem |
+| Ende | Türöffnung und `LevelSystem`-Levelerfolg sind getrennte Mechaniken | Ausgangsbindung, neutralisierter Default-Endcallback und eindeutige Completion-Semantik |
+| Timer | vorhandene Ablaufreaktion ist nicht allgemein serverautoritativ | gemeinsamer Session-Timer |
+| Netzwerk | Custom-State benötigt aktuell szenariospezifische Übersetzung | generischer Foundation-Snapshot/Spawn-Layer |
 
-## Validierungsmodell
+Die relevanten Ausgangspunkte liegen unter
+`dungeon/src/core/level/loader`,
+`dungeon/src/contrib/modules/keypad`,
+`escapeRoom/src/petriNet`,
+`escapeRoom/src/hint` und
+`theLastHourEscapeRoom/src/level/LastHourLevel.java`.
 
-UI und Generator nutzen dieselben Issue-Klassen. Die UI blockiert die
-Finalisierung bei `error`; der Generator bleibt die autoritative zweite
-Validierungsstufe.
+## Validierungsvertrag
 
-Gemeinsames Issue-Format:
+TypeScript und Java teilen:
+
+- JSON Schema und Formatversion;
+- stabile Rule-Codes;
+- Severity- und Phase-Werte;
+- gültige und ungültige Conformance-Fixtures;
+- erwartete Pfade und Entity-IDs;
+- deterministische Issue-Sortierung.
+
+Sie teilen keine sprachspezifischen Validator-Klassen.
+
+Normatives Issue-Objekt:
 
 ```json
 {
   "severity": "error",
   "phase": "graph",
-  "code": "GRAPH_UNREACHABLE_RIDDLE",
-  "message": "Das Rätsel ist vom Start aus nicht erreichbar.",
-  "path": "/riddleGraph/nodes/4",
+  "code": "GRAPH_RIDDLE_UNREACHABLE",
+  "messageKey": "validation.graph.riddle_unreachable",
+  "arguments": {
+    "title": "Tür-Keypad"
+  },
+  "path": "/riddleGraph/nodes/2",
   "entity": {
     "kind": "riddle",
-    "id": "r_storage_keypad"
+    "id": "r_open_exit"
   },
-  "relatedPaths": ["/riddleGraph/edges/3"],
-  "blocking": true
+  "relatedPaths": [
+    "/riddleGraph/edges/1"
+  ]
 }
 ```
 
 Regeln:
 
-- `path` ist ein JSON Pointer.
-- `code` ist stabil und maschinenlesbar.
-- `message` ist nutzerlesbar.
-- `entity` erleichtert UI-Markierung.
-- Warnungen haben `severity=warning` und `blocking=false`.
+- `severity=error` blockiert; `warning` blockiert nicht.
+- Ein zusätzliches `blocking`-Feld existiert nicht.
+- `code` und `messageKey` sind stabil; sichtbare Texte werden lokalisiert.
+- `path` ist ein JSON Pointer auf die DEER-Projektion.
+- `entity` verbindet das Issue mit dem UI-Draft.
+- Sortierung: Severity, Phase, Pfad, Code.
 
-Blockierend sind insbesondere fehlende Pflichtfelder, unbekannte Referenzen,
-fehlende oder ungültige Assets, nicht unterstützte Bausteine, inkompatible
-Oberflächen, unerreichbare Rätsel, überspringbare Progression, nicht erreichbare
-Endzustände, unlösbare Abhängigkeiten und ungültige Hint-Unlocks.
+Mindestcodes:
 
-Warnungen betreffen Qualität und Redaktionsrisiken, z. B. lange Texte, fehlende
-Hinweise, ungenutzte Assets oder schwache Story-Einbettung.
+| Code | Phase |
+|---|---|
+| `SCHEMA_INVALID` | schema |
+| `ID_DUPLICATE` | references |
+| `REFERENCE_UNKNOWN` | references |
+| `LEARNING_OBJECTIVE_UNKNOWN` | learning |
+| `GRAPH_PROFILE_INVALID` | graph |
+| `GRAPH_RIDDLE_UNREACHABLE` | graph |
+| `RIDDLE_TYPE_UNSUPPORTED` | capability |
+| `SURFACE_INCOMPATIBLE` | capability |
+| `SURFACE_CARDINALITY_INVALID` | capability |
+| `SURFACE_OWNERSHIP_INVALID` | capability |
+| `COLLECTION_REQUIRED_TEXT_MISSING` | capability |
+| `RESOURCE_AVAILABILITY_INVALID` | capability |
+| `INPUT_RESOURCES_UNSUPPORTED` | capability |
+| `HINT_ORDER_INVALID` | capability |
+| `ASSET_PATH_UNSAFE` | assets |
+| `ASSET_PATH_DUPLICATE` | assets |
+| `ASSET_HASH_MISMATCH` | assets |
+| `ASSET_MISSING` | assets |
+| `ASSET_CONTENT_MISMATCH` | assets |
+| `ASSET_EVIDENCE_TEXT_MISSING` | assets |
 
-## Contract-Grenzen
+## Semantische Pflichtprüfungen
 
-- Die UI finalisiert einen Projektordner mit `deer.json` und referenzierten
-  Assets; spielbare Runtime-Artefakte erzeugt der Java-Generator.
-- `deer.json` bleibt Authoring-Modell. Runtime-Tokens, Petri-Netze,
-  Generatorparameter und Paketierung gehören nicht in dieses Format.
-- Ein Raum hat genau einen Endzustand.
-- Weitere Bausteine werden erst contract-relevant, wenn UI, Validierung und
-  Generator sie im selben Slice unterstützen.
+- `playerCount.min <= playerCount.max`;
+- alle IDs global eindeutig;
+- jede Referenz existent und typkorrekt;
+- genau ein Graphknoten pro Rätsel und genau ein Rätsel pro Riddle-Knoten;
+- Start hat keine Eingänge, Ende keine Ausgänge;
+- keine Self-Edges oder doppelten Kanten;
+- azyklisch, alle Knoten vom Start erreichbar und zum Ende führend;
+- Graph entspricht der geordneten Abschnitts-/AND-Form;
+- jedes Rätsel hat mindestens ein existierendes Lernziel;
+- jedes Rätsel hat eine positive `estimatedMinutes`-Angabe;
+- `collection/container` nutzt eine Container-Surface;
+- `collection/world_object` nutzt die World-Surface;
+- jedes `collection`-Rätsel enthält mindestens eine Inline-Text-Resource;
+- mindestens eine `resourceIds`-Referenz jedes `collection`-Rätsels zeigt auf
+  eine eigene Inline-Text-Resource mit `purpose=clue` oder `instruction`;
+- Container-Funde nutzen ausschließlich `inside_container`; Weltobjekt-Funde
+  ausschließlich `visible_in_level`;
+- `input.numeric` nutzt eine Keypad-Surface;
+- `input.resources` ist in V0.2 immer leer;
+- Endknoten verweist auf genau eine Door-Surface;
+- genau eine World- und eine Door-Surface existieren;
+- jede Container-/Keypad-Surface gehört genau einem Rätsel und keine bleibt
+  ungenutzt;
+- Assetpfade sind sicher, vorhanden und inhaltlich vom deklarierten Typ;
+- Assetpfade sind nach portabler Normalisierung eindeutig;
+- der zwölfstellige Dateipräfix entspricht dem SHA-256-Inhaltshash;
+- Asset-`purpose` und `accessibility.decorative` sind konsistent;
+- jedes `riddle_evidence`-Bild besitzt im selben Rätsel einen begleitenden
+  Inline-Text mit `purpose=clue` oder `instruction`;
+- `failureText` ist bei hartem Zeitlimit vorhanden;
+- Hint-`severity` entspricht der lückenlosen Listenreihenfolge;
+- nur Fähigkeiten der Formatversion `0.2-draft`.
 
-## Implementierungsstart
+## Umsetzungsreihenfolge
 
-UI und Generator starten mit demselben Schema, demselben Issue-Format und dem
-Foundation-Slice. Weitere Bausteine folgen erst nach expliziter
-Generator-Unterstützung.
+1. Schema, Beispiel und semantische Regeln stabilisieren.
+2. Gemeinsame Conformance-Fixtures und Issue-Codes definieren.
+3. UI-Draft, Projektion, Autosave und Finalisierung implementieren.
+4. Foundation-Progressions- und Multiplayer-Layer in `escapeRoom` ergänzen.
+5. Deterministischen Layout-/Modulgenerator implementieren.
+6. Generator-ZIP in einem temporären Integrations-Checkout bauen.
+7. Foundation-Beispiel lokal und mit mehreren Clients durchspielen.
+
+## Definition of Done
+
+- Beispiel und alle Fixtures bestehen in TypeScript und Java.
+- Kein ungültiger oder unvollständiger Entwurf wird finalisiert.
+- Generatorausgabe ist bei gleichem Input und gleicher Generatorversion
+  reproduzierbar.
+- Fehler erzeugen weder Teil-ZIP noch Checkout-Mutationen.
+- Generiertes Modul baut mit Java 25 und dem realen Root-Gradle-Setup.
+- Fund, Keypad, Timer, Ausgang und Progression sind serverautoritativ.
+- Reconnect/Snapshot stellt denselben gemeinsamen Zustand wieder her.
+- Ein im lokalen UI-Draft protokollierter Playtest bestätigt die menschliche
+  Durchspielbarkeit des Foundation-Beispiels.

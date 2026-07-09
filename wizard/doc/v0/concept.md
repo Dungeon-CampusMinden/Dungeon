@@ -1,109 +1,186 @@
-# Wizard Concept V0
+# Wizard Concept V0.2
 
-Status: öffentliches V0-Konzept
-Stand: 07.07.2026
+Status: öffentliches Foundation-Konzept
+Stand: 09.07.2026
 
-## Ziel
+## Produktziel
 
-Der Wizard ist eine separate Authoring-Web-App für nicht-technische Lehrende.
-Er führt durch die Erstellung eines einfachen Educational Escape Rooms und
-erzeugt nach erfolgreicher Validierung eine `deer.json` mit referenzierten
-Assets.
+Der Dungeon Wizard ist eine separate, lokal nutzbare Authoring-App für
+nicht-technische Lehrende. Die Foundation-Referenz nutzt eine Web-Oberfläche in
+einem Standalone-Host mit nativer Projektordner-Schnittstelle. Sie führt von
+einer didaktischen Idee zu einer vollständigen, validierten DEER-Konfiguration,
+ohne JSON, Petri-Netze, Runtime-Tokens oder Java-Code als Bedienkonzepte zu
+zeigen.
 
-`deer.json` ist das interne DEER-Konfigurationsmodell und die Eingabe für den
-Java-Generator. Die UI erzeugt keine spielbaren Runtime-Artefakte.
+Der Produktfluss trennt Authoring und Generierung:
 
 ```text
-Wizard UI -> deer.json + assets/ -> manueller Java-Generator -> Room-Paket
+privater Wizard-Entwurf
+-> validierte deer.json + referenzierte Assets
+-> Java-Generator
+-> generiertes Escape-Room-Modul als ZIP
+-> Integration/Build
+-> spielbarer Raum
 ```
 
-## Glossar
+Die UI erzeugt kein ZIP, keine `.level`-Datei und keinen Java-Code. Der
+Java-Generator erzeugt das Modul-ZIP. Diese Grenze ist verbindlich.
 
-- **DEER**: das Authoring-Format für einen erzeugbaren Escape-Room-Entwurf.
-- **`deer.json`**: die validierte Authoring-Datei und das einzige UI-
-  Contract-Artefakt.
-- **Projektordner**: `deer.json` plus referenzierte Assets; dieser Ordner ist
-  die manuelle Generator-Eingabe.
-- **Room-Paket**: das vom Java-Generator erzeugte spielbare Runtime-Artefakt.
+## Rollen und Reifegrad
 
-## V0-Scope
+- **Lehrende Person:** erstellt, prüft und überarbeitet den Entwurf. Sie
+  bearbeitet weder JSON noch Generatorparameter.
+- **Technische Betreuung:** startet im Foundation-Slice den Java-Generator,
+  integriert das generierte Modul und führt den Build aus.
+- **Spielende:** nutzen ausschließlich das gebaute Escape Room-Ergebnis.
 
-V0 umfasst:
+V0.2 ist damit ein **durchgängiger Contract- und Generator-Prototyp**, aber noch
+kein vollständig lehrendenfertiges Endprodukt. Ein lehrendenfertiger Meilenstein
+ist erst erreicht, wenn Generierung, Build und Start ohne Terminal- oder
+Repositorywissen ausgelöst werden können.
 
-- Rahmenbedingungen: Titel, Sprache, Zielgruppe, Vorwissen, Spielerzahl,
-  Zeitlimit und Zeitmodus.
+## Begriffe und Artefakte
+
+- **DEER:** Digital Educational Escape Room; hier zugleich das fachliche
+  Authoring-Modell.
+- **Wizard-Entwurf:** unvollständiger, UI-interner Arbeitsstand. Er wird lokal
+  automatisch gespeichert und ist kein Generator-Contract.
+- **`deer.json`:** vollständige, schema- und fachlich validierte
+  Authoring-Konfiguration.
+- **Projektordner:** `deer.json` plus referenzierte Dateien unter
+  `assets/custom/`; dies ist die Generator-Eingabe.
+- **Generator-ZIP:** vom Java-Generator erzeugtes Escape-Room-Modul mit
+  Quellcode, Assets, Build-Datei, Manifest und Validierungsbericht.
+- **Spielbares Ergebnis:** das nach Integration und Build gestartete Modul.
+
+## Wissenschaftliche Leitplanken
+
+Das Konzept nutzt die lokale
+[Quellenübersicht](../research/source-notes.md). Für V0.2 sind drei
+Konsequenzen wichtig:
+
+1. Zielgruppe, Lernziel, Aktivität und erwartetes Lernergebnis müssen
+   miteinander verbunden sein
+   (`biggs1996constructive`, `clarke2017escaped`, `botturi2020star`).
+2. Ein geführter Authoring-Prozess soll die Komplexität der Engine vor
+   nicht-technischen Autorinnen und Autoren verbergen
+   (`laurent2022authoring`, `roungas2016model`).
+3. Statische Validierung ersetzt weder Playtesting noch didaktische Reflexion
+   (`fotaris2022room2educ8`, `sanchez2019debriefing`).
+
+Die vollständige Lernziel-Evidenz-Kette, Evaluation, Telemetrie und
+LMS-Anbindung bleiben spätere Ausbaustufen. Ein explizites Lernziel ist jedoch
+bereits Pflicht, damit der Foundation-Slice tatsächlich einen Educational
+Escape Room beschreibt.
+
+## V0.2-Scope
+
+V0.2 umfasst:
+
+- Projekt- und Sitzungsdaten: Titel, Inhaltssprache, Zielgruppe, Vorwissen,
+  Spielerzahl und Zeitlimit.
+- Lernkontext: mindestens ein Lernziel; jedes Rätsel verweist auf mindestens
+  ein Lernziel; optionale Reflexionsfragen für die Nachbesprechung.
 - Szenario: Rolle, Ausgangslage, Mission, Intro, Erfolg und Fehlschlag.
-- Einfacher Rätselablauf: lineare Reihenfolge mit klarer Start- und
-  Endbedingung.
-- Foundation-Bausteine: `collection.single` und `input.numeric`.
-- Inhalte: Texte direkt im Wizard, Bilder und Audio als referenzierte Assets.
-- Validierung: Pflichtdaten, Asset-Referenzen, unterstützte Bausteine,
-  Ablauf, unerreichbare Rätsel, ungewollte Skips und Softlock-Risiken.
-- Abschluss: `deer.json` finalisieren und Projektordner für den manuellen
-  Generatorlauf bereitstellen.
-- Produktentscheidung: Ein Raum hat genau einen Endzustand. Auch spätere
-  Versionen können verzweigte Wege haben, führen aber auf dieses eine Ende.
+- Ablauf: geordnete Abschnitte; mehrere Rätsel in einem Abschnitt sind
+  parallel, aber alle Pflichträtsel bleiben notwendig.
+- Foundation-Bausteine:
+  - **Fund:** Text- oder Bildinhalt an einem Ort finden.
+  - **Zahlencode:** einen Code an einem Keypad eingeben.
+- Inhalte: Inline-Text, optionale PNG-/JPEG-Dateien und auf Anfrage
+  nacheinander angezeigte Hilfen.
+- Entwurfsprüfung: Schema, Referenzen, unterstützte Bausteine, Graphstruktur,
+  Pfadsicherheit und Generatorfähigkeit.
+- Vorschau: nicht-spielbare Zusammenfassung von Story, Ablauf, Aufgaben,
+  Materialien und Hilfen.
+- Finalisierung: sicheres Schreiben im Projektordner; neue
+  inhaltsadressierte Assets werden zuerst geschrieben, `deer.json` zuletzt
+  ersetzt.
 
-## Authoring-Modell
+Nicht Teil des Foundation-Slices sind:
 
-Lehrende bauen den Escape Room von Grund auf neu. The Last Hour liefert
-verfügbare Spielbausteine und wiederverwendbare Assets, aber keine
-vorausgewählte Raumstruktur.
+- freie Graphbearbeitung oder optionale Alternativpfade,
+- Themes, Musik, Audio, Computer, E-Mail, USB, Assembly oder Control Panel,
+- zeit- oder versuchsabhängige Hint-Freischaltung,
+- integrierte 3D-Vorschau,
+- browser-only Deployment ohne nativen Projektordner-Adapter,
+- automatischer UI-Aufruf des Java-Generators,
+- Ein-Klick-Spielerpaket, Installer oder Launcher,
+- formale Lernstandsdiagnostik, Telemetrie oder LMS-Integration.
 
-Die UI benennt fachliche Oberflächen wie Fundort, Keypad oder Tür und schreibt
-intern ein `surfaces`-Register. Rätsel referenzieren konkrete Oberflächen über
-`surfaceId`, damit UI und Generator validierbare Verweise verwenden.
+## Sichtbarer Authoring-Flow
 
-Der Rätselgraph ist die einzige öffentliche Quelle für Reihenfolge und
-Progression. Die UI soll keine technischen Tokens, Petri-Netze oder
-Runtime-Actions in `deer.json` modellieren. Solche Details leitet der Generator
-aus Graph, Rätseln und kontrollierten Effekten ab.
+```text
+Starten oder fortsetzen
+-> Eckdaten & Lernziel
+-> Geschichte
+-> Spielablauf
+-> Rätsel, Inhalte & Hilfen
+-> Prüfen, Vorschau & finalisieren
+```
 
-## V0-Bausteine
+Eine Übersicht mit Fortschritt und Problemen bleibt ständig erreichbar; sie ist
+kein zusätzlicher Arbeitsschritt. Technische Oberflächen werden beim Bearbeiten
+eines Rätsels als „Ort oder Gerät“ abgefragt und intern abgeleitet.
 
-Aktiv im Foundation-Slice:
+Der sichtbare Ablauf ist eine Liste geordneter Abschnitte. Der Wizard erzeugt
+daraus einen azyklischen Graphen mit Start, genau einem Knoten pro Rätsel und
+einem gemeinsamen Erfolgsziel. Mehrere eingehende Kanten bedeuten **alle
+Vorgänger erforderlich**. V0.2 kennt keine OR-Verzweigungen.
 
-- `collection.single`: ein Hinweis oder eine Ressource wird an einem
-  Fundort gefunden.
-- `input.numeric`: ein Zahlen-Code wird an einem Keypad oder einer ähnlichen
-  Eingabeoberfläche geprüft.
+## Erfolg und Fehlschlag
 
-Die Punktnotation ist eine UI-/Bausteinbezeichnung. In `deer.json` bleiben die
-Rätseltypen bewusst grob: `riddle.type` ist `collection` oder `input`; der
-konkrete Modus steht in `parameters.rewardMode` bzw. `parameters.inputMode`.
+Der Rätselgraph besitzt genau ein gemeinsames **Erfolgsziel**. Im
+Foundation-Slice wird es erreicht, wenn alle Pflichträtsel abgeschlossen sind,
+die Ausgangstür freigegeben wurde und alle aktiven Spielenden den Ausgang
+erreicht haben.
 
-Weitere Bausteine werden erst in das Schema aufgenommen, wenn sie im selben
-Slice von UI, Validierung und Generator unterstützt werden. Der
-The-Last-Hour-Katalog bleibt dafür Ideensammlung, nicht V0-Vertrag.
+Ein hartes Zeitlimit kann die Sitzung getrennt davon als fehlgeschlagen
+beenden. Dies ist kein zweites Graphende. Ein weiches Zeitlimit beendet den
+Raum nicht.
 
-## Ablauf und Validierung
+## Validierung und Qualitätsgrenze
 
-Die UI bildet den Rätselablauf als einfache Reihenfolge mit optionalen
-Parallelgruppen ab. Intern entsteht daraus ein Graph mit Start, Rätselknoten,
-genau einem Endknoten und reinen Kanten. Die Kanten-Topologie ist die
-Abhängigkeitsquelle: Eine Kante von einem Rätsel bedeutet, dass das Ziel nach
-Abschluss dieses Rätsels verfügbar wird.
+Blockierende Prüfungen garantieren nur:
 
-Blockierend sind spielblockierende Probleme:
+- syntaktisch gültige und vollständige Konfiguration,
+- eindeutige IDs und gültige Referenzen,
+- einen azyklischen, erreichbaren Ablauf innerhalb des V0.2-Graphprofils,
+- passende Rätsel-, Ort-/Gerät- und Assetkombinationen,
+- ausschließlich vom aktuellen Generator unterstützte Werte,
+- sichere, vorhandene Projektpfade.
 
-- ein Rätsel ist nicht erreichbar,
-- ein Progressionsrätsel kann übersprungen werden,
-- ein benötigtes Ergebnis wird nie erzeugt,
-- eine Abhängigkeit ist zyklisch oder unlösbar,
-- ein Endzustand ist nicht erreichbar,
-- Pflichtparameter oder Pflichtassets fehlen,
-- ein Baustein wird mit einer inkompatiblen Oberfläche kombiniert,
-- ein verwendeter Baustein ist im aktuellen Generator-Slice nicht generierbar.
+Sie können nicht beweisen, dass ein Hinweis verständlich, eine Lösung aus dem
+Material ableitbar, die Schwierigkeit passend oder das Lernziel erreicht ist.
+Diese Punkte erscheinen als redaktionelle Prüffragen und müssen durch
+Playtesting bewertet werden.
 
-Warnungen unterstützen die Qualität, blockieren aber nicht die Finalisierung.
+## Generator-Leitplanken
 
-## V0-Umsetzungsziel
+Der Generator:
 
-Der UI-Prototyp macht die Schritte aus `wizard-ui-flow-v0.md` bedienbar,
-erzeugt daraus eine schema-valide interne `deer.json` und stellt zusammen mit
-den referenzierten Assets einen Projektordner für den manuellen Generatorlauf
-bereit.
+- behandelt `deer.json` und Assets als unveränderliche Eingabe,
+- validiert Schema und Fachregeln erneut,
+- erzeugt standardmäßig deterministisch aus kanonischem Input und Asset-Hashes,
+- dokumentiert Generatorversion, Input-Hash, Seed und Layoutprofil im Manifest,
+- erzeugt Geometrie, Slots, Runtime-Zustände und Java-Adapter,
+- schreibt das Modul-ZIP erst nach erfolgreicher Validierung vollständig,
+- erzeugt gemeinsame Progression serverautoritativ und multiplayer-sicher.
 
-Für die Umsetzung bleibt `./wizard` der Projekt-Workspace. Die
-Konzeptdokumente liegen unter `./wizard/doc/v0`, damit der Root für Web-App,
-Entwurfsdaten und Generator-Anbindung frei bleibt.
+Der Foundation-Generator braucht insbesondere generische Adapter für
+Fundabschluss, Keypadabschluss, Graphaktivierung, Ausgang und Timer. Diese
+Abstraktionen existieren im aktuellen Runtime-Code noch nicht als
+durchgängiger Generator-Layer und sind Teil des Foundation-Slices.
+
+## Definition des Foundation-Erfolgs
+
+Der Slice gilt erst als abgeschlossen, wenn ein Entwurf:
+
+1. im Wizard erstellt, gespeichert, wieder geöffnet und finalisiert werden kann,
+2. als `deer.json` das Schema und alle Fachregeln erfüllt,
+3. vom Java-Generator reproduzierbar in ein Modul-ZIP übersetzt wird,
+4. als generiertes Modul mit dem realen Gradle-Setup baut,
+5. lokal und im Multiplayer denselben gemeinsamen Fortschritt zeigt,
+6. im Beispiel „Fund -> Zahlencode -> Ausgang“ vollständig spielbar ist,
+7. nach einem Playtest im ursprünglichen Wizard-Entwurf überarbeitet und erneut
+   generiert werden kann.

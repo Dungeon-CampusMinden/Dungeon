@@ -1,11 +1,22 @@
 {
-  "formatVersion": "0.1-draft",
+  "formatVersion": "0.2-draft",
   "metadata": {
-    "id": "wizard_foundation_v0",
-    "title": "Foundation Beispielraum V0",
+    "id": "wizard_foundation_v0_2",
+    "title": "Foundation Beispielraum V0.2",
     "locale": "de-DE",
-    "description": "Kleiner Foundation-Slice mit Fund, Keypad und Tür.",
+    "description": "Kleiner Foundation-Slice mit Fund, Zahlencode und Ausgang.",
     "author": "Beispiel Lehrkraft"
+  },
+  "learningDesign": {
+    "objectives": [
+      {
+        "id": "lo_extract_numeric_clue",
+        "description": "Die Lernenden können eine relevante Zahleninformation aus einem Hinweis entnehmen und zielgerichtet anwenden."
+      }
+    ],
+    "debriefPrompts": [
+      "Woran habt ihr erkannt, welche Information aus der Notiz für den Zahlencode relevant war?"
+    ]
   },
   "session": {
     "targetAudience": "Lernende im Bereich IT-Sicherheit",
@@ -23,9 +34,9 @@
     "themeId": "default",
     "playerRole": "Untersuchungsteam",
     "premise": "Ein kleiner Lagerraum ist verriegelt.",
-    "mission": "Findet den Zugangscode und öffnet die Ausgangstür.",
-    "introText": "Die Tür ist verschlossen. Im Raum muss ein Hinweis versteckt sein.",
-    "successText": "Die Ausgangstür öffnet sich.",
+    "mission": "Findet den Zugangscode und verlasst gemeinsam den Raum.",
+    "introText": "Die Ausgangstür ist verschlossen. Im Raum muss ein verwertbarer Hinweis versteckt sein.",
+    "successText": "Die Gruppe hat den Ausgang erreicht.",
     "failureText": "Die Zeit ist abgelaufen."
   },
   "surfaces": [
@@ -52,66 +63,73 @@
   ],
   "riddleGraph": {
     "startNodeId": "n_start",
-    "endNodeId": "n_exit_open",
+    "endNodeId": "n_exit",
     "nodes": [
       {
         "id": "n_start",
-        "kind": "start",
-        "title": "Start"
+        "kind": "start"
       },
       {
-        "id": "n_find_keypad_note",
+        "id": "n_find_note",
         "kind": "riddle",
-        "title": "Code-Hinweis finden",
-        "riddleId": "r_find_keypad_note"
+        "riddleId": "r_find_note"
       },
       {
-        "id": "n_open_exit_keypad",
+        "id": "n_enter_code",
         "kind": "riddle",
-        "title": "Tür-Keypad öffnen",
-        "riddleId": "r_open_exit_keypad"
+        "riddleId": "r_enter_code"
       },
       {
-        "id": "n_exit_open",
+        "id": "n_exit",
         "kind": "end",
-        "title": "Ausgang offen"
+        "surfaceId": "s_exit_door"
       }
     ],
     "edges": [
       {
         "id": "e_start_to_note",
         "from": "n_start",
-        "to": "n_find_keypad_note"
+        "to": "n_find_note"
       },
       {
-        "id": "e_note_to_keypad",
-        "from": "n_find_keypad_note",
-        "to": "n_open_exit_keypad"
+        "id": "e_note_to_code",
+        "from": "n_find_note",
+        "to": "n_enter_code"
       },
       {
-        "id": "e_keypad_to_end",
-        "from": "n_open_exit_keypad",
-        "to": "n_exit_open"
+        "id": "e_code_to_exit",
+        "from": "n_enter_code",
+        "to": "n_exit"
       }
     ]
   },
   "riddles": [
     {
-      "id": "r_find_keypad_note",
+      "id": "r_find_note",
       "type": "collection",
       "title": "Code-Hinweis finden",
       "difficulty": "easy",
       "estimatedMinutes": 5,
-      "playerFacingTask": "Durchsucht den Schreibtisch nach einem Hinweis.",
-      "assetIds": [],
+      "learningObjectiveIds": [
+        "lo_extract_numeric_clue"
+      ],
+      "playerFacingTask": "Durchsucht den Schreibtisch nach einem verwertbaren Hinweis.",
       "resources": [
         {
-          "id": "res_keypad_note",
+          "id": "res_keypad_code",
           "kind": "inline_text",
           "title": "Notiz mit Zahlencode",
           "text": "Die markierten Zahlen ergeben 3758.",
           "availability": "inside_container",
           "purpose": "clue"
+        },
+        {
+          "id": "res_note_image",
+          "kind": "asset",
+          "title": "Papiernotiz",
+          "assetId": "asset_foundation_note",
+          "availability": "inside_container",
+          "purpose": "context"
         }
       ],
       "hints": [
@@ -124,58 +142,55 @@
       ],
       "parameters": {
         "surfaceId": "s_desk",
-        "slotType": "container_slot",
         "sourceKind": "container",
         "rewardMode": "find_resource",
         "resourceIds": [
-          "res_keypad_note"
+          "res_keypad_code",
+          "res_note_image"
         ]
       }
     },
     {
-      "id": "r_open_exit_keypad",
+      "id": "r_enter_code",
       "type": "input",
-      "title": "Tür-Keypad öffnen",
+      "title": "Zahlencode eingeben",
       "difficulty": "easy",
       "estimatedMinutes": 5,
+      "learningObjectiveIds": [
+        "lo_extract_numeric_clue"
+      ],
       "playerFacingTask": "Gebt den gefundenen Code am Tür-Keypad ein.",
-      "assetIds": [],
       "resources": [],
       "hints": [
         {
-          "id": "h_keypad_1",
+          "id": "h_enter_code_1",
           "title": "Zahlencode",
           "text": "Der Code besteht aus vier Ziffern.",
-          "severity": 1,
-          "unlock": {
-            "operator": "any_of",
-            "conditions": [
-              {
-                "type": "failed_attempts",
-                "riddleId": "r_open_exit_keypad",
-                "count": 1
-              },
-              {
-                "type": "elapsed_time",
-                "seconds": 300
-              }
-            ]
-          }
+          "severity": 1
         }
       ],
       "parameters": {
         "surfaceId": "s_exit_keypad",
-        "slotType": "keypad_slot",
         "inputMode": "numeric",
         "answer": "3758",
-        "maxLength": 4,
-        "showDigitCount": true,
-        "successEffect": {
-          "type": "open_surface",
-          "surfaceId": "s_exit_door"
-        }
+        "showDigitCount": true
       }
     }
   ],
-  "assets": []
+  "assets": [
+    {
+      "id": "asset_foundation_note",
+      "path": "assets/custom/3b50ea522803-foundation-note.png",
+      "mediaType": "image/png",
+      "purpose": "decorative",
+      "source": {
+        "type": "bundled_asset",
+        "license": "Dungeon project asset",
+        "attribution": "Dungeon contributors"
+      },
+      "accessibility": {
+        "decorative": true
+      }
+    }
+  ]
 }
