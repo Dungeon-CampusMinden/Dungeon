@@ -37,7 +37,7 @@ export const changeToEnglishLanguage = (workspace: Blockly.WorkspaceSvg) => {
   const flag = document.querySelector(".flag");
   if (flag) {
     flag.setAttribute("data-lang","en")
-    flag.setAttribute("src","english-flag.png")
+    flag.setAttribute("src","english-flag.webp")
     flag.setAttribute("alt","English language")
   }
 }
@@ -59,7 +59,7 @@ export const changeToGermanLanguage = (workspace: Blockly.WorkspaceSvg) => {
   const flag = document.querySelector(".flag");
   if (flag) {
     flag.setAttribute("data-lang","de")
-    flag.setAttribute("src","german-flag.png")
+    flag.setAttribute("src","german-flag.webp")
     flag.setAttribute("alt","Deutsche Sprache")
   }
 }

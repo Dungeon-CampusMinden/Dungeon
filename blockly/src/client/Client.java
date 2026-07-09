@@ -121,7 +121,7 @@ public class Client {
    * If true, the Web interface Blockly is used for interaction with the Dungeon. Otherwise, the
    * Code API is used.
    */
-  public static boolean runInWeb = true;
+  public static boolean runInWeb = false;
 
   private static int webserverPort = 8081;
 
@@ -476,10 +476,20 @@ public class Client {
     }
   }
 
+  /**
+   * Gets the current language for the Blockly popups.
+   *
+   * @return current language as 2 letter (de or en)
+   */
   public static String getBlocklyLanguage() {
     return blocklyLanguage;
   }
 
+  /**
+   * Sets the language for the Blockly popups.
+   *
+   * @param blocklyLanguage new language, either "de" or "en"
+   */
   public static void setBlocklyLanguage(String blocklyLanguage) {
     Client.blocklyLanguage = blocklyLanguage;
   }
