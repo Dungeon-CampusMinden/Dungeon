@@ -42,7 +42,9 @@ public class Level002 extends BlocklyLevel {
         "Schleife",
         "Bedingungen");
 
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level002/webpopups/01_intro.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level002/webpopups/01_intro.jpg"));
 
     addCodePopup(new ImagePopup("popups/de/level002/codepopups/01_datei_erstellen.jpg"));
     addCodePopup(new ImagePopup("popups/de/level002/codepopups/02_datei_erstellen.jpg"));

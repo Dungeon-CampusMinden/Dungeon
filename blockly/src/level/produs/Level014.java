@@ -42,8 +42,12 @@ public class Level014 extends BlocklyLevel {
         // Kategorien
         "Variablen");
 
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level014/webpopups/01_Wand.jpg"));
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level014/webpopups/02_Schleife.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level014/webpopups/01_Wand.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level014/webpopups/02_Schleife.jpg"));
 
     addCodePopup(new ImagePopup("popups/de/level014/codepopups/01_Wand.jpg"));
     addCodePopup(new ImagePopup("popups/de/level014/codepopups/02_Schleife.jpg"));

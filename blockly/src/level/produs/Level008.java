@@ -54,7 +54,8 @@ public class Level008 extends BlocklyLevel {
         "Variablen",
         "Bedingungen");
 
-    addPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level008/01_schaltplan.jpg"));
+    addPopup(
+        new ImagePopup("popups/" + Client.getBlocklyLanguage() + "/level008/01_schaltplan.jpg"));
 
     addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }

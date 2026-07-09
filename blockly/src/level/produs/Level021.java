@@ -60,7 +60,7 @@ public class Level021 extends BlocklyLevel {
         // Kategorien
         "Sonstige");
 
-    addPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level021/01_intro.jpg"));
+    addPopup(new ImagePopup("popups/" + Client.getBlocklyLanguage() + "/level021/01_intro.jpg"));
     addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 

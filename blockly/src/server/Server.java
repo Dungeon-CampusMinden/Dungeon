@@ -92,21 +92,24 @@ public class Server {
     languageContext.setHandler(this::handleLanguageRequest);
     HttpContext statusContext = server.createContext("/status");
     statusContext.setHandler(this::handleStatusRequest);
-
-    HttpContext language2context = server.createContext("/language2");
-    language2context.setHandler(this::handleLanguageRequest2);
+    HttpContext handleUserLanguageContext = server.createContext("/userLanguage");
+    handleUserLanguageContext.setHandler(this::handleUserLanguageRequest);
 
     server.start();
     return server;
   }
 
-  private void handleLanguageRequest2(HttpExchange exchange) throws IOException {
+  private void handleUserLanguageRequest(HttpExchange exchange) throws IOException {
     InputStream inStream = exchange.getRequestBody();
     String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
 
     Client.setBlocklyLanguage(text);
-    Client.writeBlocklyLanguage();
-    //sendHeroPosition(exchange);
+    Gdx.app.postRunnable(
+        () -> {
+          DungeonLoader.loadLevel(DungeonLoader.currentLevel());
+          Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
+        });
+    // sendHeroPosition(exchange);
   }
 
   /**

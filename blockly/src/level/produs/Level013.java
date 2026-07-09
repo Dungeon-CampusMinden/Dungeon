@@ -62,10 +62,18 @@ public class Level013 extends BlocklyLevel {
         // Kategorien
         "Variablen");
 
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level013/webpopups/01_Abfrage.jpg"));
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level013/webpopups/02_Abfrage.jpg"));
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level013/webpopups/03_Abfrage.jpg"));
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level013/webpopups/04_Abfrage.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level013/webpopups/01_Abfrage.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level013/webpopups/02_Abfrage.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level013/webpopups/03_Abfrage.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level013/webpopups/04_Abfrage.jpg"));
 
     addCodePopup(new ImagePopup("popups/de/level013/codepopups/01_Abfrage.jpg"));
     addCodePopup(new ImagePopup("popups/de/level013/codepopups/02_Abfrage.jpg"));

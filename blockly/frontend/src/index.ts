@@ -15,7 +15,7 @@ import {
 } from "./utils/workspace.ts";
 import {getCurrentLevel, LevelChangedEvent, setupLevelSelector, updateLevelList} from "./utils/level.ts";
 import {addListenerToFlyOut, updateElementAlignment} from "./utils/popup.ts";
-import {setupLanguageToggle} from "./language.ts";
+import {changeToEnglishLanguage, setupLanguageToggle} from "./language.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -49,6 +49,13 @@ setupButtons(workspace);
 
 // Disable all blocks that aren't connected to the start block.
 workspace.addChangeListener(Blockly.Events.disableOrphans);
+
+const storedLanguage = localStorage.getItem("language");
+
+if (storedLanguage == "en") {
+  changeToEnglishLanguage(workspace);
+}
+
 
 setupLanguageToggle(workspace);
 

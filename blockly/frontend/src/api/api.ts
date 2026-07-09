@@ -191,7 +191,7 @@ export const call_code_status_route = async (): Promise<"running" | "completed" 
 
 export const call_language_route = async ( language : string) =>  {
   console.log("calling language route");
-  const status_response = await api.post("language2", language);
+  const status_response = await api.post("userLanguage", language);
 
   const response = await handleResponse(status_response);
 

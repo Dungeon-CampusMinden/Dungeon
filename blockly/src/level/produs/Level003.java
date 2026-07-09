@@ -45,9 +45,15 @@ public class Level003 extends BlocklyLevel {
         "Wahrheitsausdruecke",
         "Variablen",
         "Bedingungen");
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level003/webpopups/01_steine.jpg"));
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level003/webpopups/02_loop.jpg"));
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level003/webpopups/03_loop.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level003/webpopups/01_steine.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level003/webpopups/02_loop.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level003/webpopups/03_loop.jpg"));
 
     addCodePopup(new ImagePopup("popups/de/level003/codepopups/01_steine.jpg"));
     addCodePopup(new ImagePopup("popups/de/level003/codepopups/02_loop.jpg"));

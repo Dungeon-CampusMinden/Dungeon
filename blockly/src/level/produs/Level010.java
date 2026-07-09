@@ -41,8 +41,12 @@ public class Level010 extends BlocklyLevel {
         "Variablen",
         "Bedingungen");
 
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level010/webpopups/01_Feuerball.jpg"));
-    addWebPopup(new ImagePopup("popups/"+ Client.getBlocklyLanguage()+"/level010/webpopups/02_Feuerball2.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level010/webpopups/01_Feuerball.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level010/webpopups/02_Feuerball2.jpg"));
 
     addCodePopup(new ImagePopup("popups/de/level010/codepopups/01_Feuerball.jpg"));
     addCodePopup(new ImagePopup("popups/de/level010/codepopups/02_Feuerball2.jpg"));

@@ -8,25 +8,20 @@ export const setupLanguageToggle = (workspace: Blockly.WorkspaceSvg) => {
     const imgElement = event.currentTarget as HTMLImageElement;
     if (imgElement == null) return;
 
-    const currentLang = imgElement.dataset.lang;
+    let currentLang = localStorage.getItem("language")
+    if (!currentLang) {
+      currentLang = "de"
+    }
 
     if (currentLang == "en") {
       changeToGermanLanguage(workspace);
-      imgElement.dataset.lang="de"
-      imgElement.src="german-flag.png"
-      imgElement.alt = "German language"
-      call_language_route("de");
     } else {
       changeToEnglishLanguage(workspace);
-      imgElement.dataset.lang="en"
-      imgElement.src="english-flag.png"
-      imgElement.alt = "English language"
-      call_language_route("en");
     }
   })
 }
 
-const changeToEnglishLanguage = (workspace: Blockly.WorkspaceSvg) => {
+export const changeToEnglishLanguage = (workspace: Blockly.WorkspaceSvg) => {
   Object.assign(Blockly.Msg, myCustomMessages.en);
 
   Blockly.setLocale(En as unknown as Record<string, string>);
@@ -36,10 +31,19 @@ const changeToEnglishLanguage = (workspace: Blockly.WorkspaceSvg) => {
   workspace.clear();
 
   Blockly.serialization.workspaces.load(state, workspace);
+
+  localStorage.setItem("language", "en")
+  call_language_route("en");
+  const flag = document.querySelector(".flag");
+  if (flag) {
+    flag.setAttribute("data-lang","en")
+    flag.setAttribute("src","english-flag.png")
+    flag.setAttribute("alt","English language")
+  }
 }
 
 
-const changeToGermanLanguage = (workspace: Blockly.WorkspaceSvg) => {
+export const changeToGermanLanguage = (workspace: Blockly.WorkspaceSvg) => {
   Object.assign(Blockly.Msg, myCustomMessages.de);
 
   Blockly.setLocale(De as unknown as Record<string, string>);
@@ -49,6 +53,15 @@ const changeToGermanLanguage = (workspace: Blockly.WorkspaceSvg) => {
   workspace.clear();
 
   Blockly.serialization.workspaces.load(state, workspace);
+
+  localStorage.setItem("language", "de")
+  call_language_route("de");
+  const flag = document.querySelector(".flag");
+  if (flag) {
+    flag.setAttribute("data-lang","de")
+    flag.setAttribute("src","german-flag.png")
+    flag.setAttribute("alt","Deutsche Sprache")
+  }
 }
 
 export const myCustomMessages = {
