@@ -40,15 +40,6 @@ import core.utils.Vector2;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
-import java.awt.Desktop;
-import java.io.*;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.function.Supplier;
 import level.produs.Level001;
 import level.produs.Level002;
 import level.produs.Level003;
@@ -83,6 +74,21 @@ import server.FrontendServer;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
 import systems.TintTilesSystem;
+
+import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
