@@ -66,12 +66,8 @@ public class LanguageTester {
             // Shows a text popup by pressing "M". ("text", "test", "fail") Shows the fallback case
             // in English.
             if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-              try {
-                DialogUtils.showTextPopup(
-                    localization.text("text.test.message"), localization.text("text.test.title"));
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
+              DialogUtils.showTextPopup(
+                  localization.text("text.test.message"), localization.text("text.test.title"));
             }
 
             // Changes the language between English and German by pressing "N".
