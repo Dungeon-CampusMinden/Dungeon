@@ -20,8 +20,6 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.PreRunConfiguration;
-import core.language.Language;
-import core.language.Localization;
 import core.network.ConnectionListener;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.utils.CursorUtil;
@@ -234,13 +232,6 @@ public final class LastHourClient {
       // Best-effort: if anything goes wrong, fall through to the default texture loading
       // and let it fail loudly (the resulting visible error is clearer than a partial spawn).
     }
-  }
-
-  /** Registers the translation files for the supported languages. */
-  static void initLocalization() {
-    Localization localization = Game.localization();
-    localization.registerTranslationFile(Language.DE, "language/de.json");
-    localization.registerTranslationFile(Language.EN, "language/en.json");
   }
 
   private static final String T_SETTINGS_CONTROLS_HEADER = "settings.controls_header";
