@@ -33,6 +33,7 @@ import core.components.VelocityComponent;
 import core.level.loader.DungeonLoader;
 import core.network.server.DialogTracker;
 import core.systems.PositionSystem;
+import core.utils.JsonHandler;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -40,8 +41,11 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.awt.Desktop;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -89,6 +93,9 @@ import systems.TintTilesSystem;
  * <p>For the Web-Ui you have to start the frontend yourself.
  */
 public class Client {
+
+  private static final String SAVE_LEVEL_KEY = "LEVEL";
+  private static final String SAVE_FILE = "currentBlocklyLevel.json";
 
   /** The name of the blockly player. */
   public static final String WIZARD_NAME = "Algorim";
@@ -214,6 +221,8 @@ public class Client {
           PortalRegistry.registerPelletCatcherBehavior(
               () -> new BlocklyEnergyPelletCatcherBehavior());
 
+          DungeonLoader.loadLevel(loadLevelIndex());
+
           // Disbaled beacuse of bugs: see
           // https://github.com/Dungeon-CampusMinden/Dungeon/issues/3070
           // StageConfig.setupStage();
@@ -224,6 +233,7 @@ public class Client {
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
         (firstLoad) -> {
+          writeLevelIndex(DungeonLoader.currentLevelIndex());
           BlocklyCodeRunner.instance().stopCode();
           Game.system(
               BlocklyCommandExecuteSystem.class,
@@ -413,6 +423,46 @@ public class Client {
       } catch (Exception e) {
         e.printStackTrace();
       }
+    }
+  }
+
+  private static int loadLevelIndex() {
+    File file = new File(SAVE_FILE);
+
+    if (!file.exists()) {
+      return 0;
+    }
+    try {
+      String json = readFileContent(file);
+      Map<String, Object> map = JsonHandler.readJson(json);
+      return ((Long) map.getOrDefault(SAVE_LEVEL_KEY, 0)).intValue();
+    } catch (IOException e) {
+      return 0;
+    }
+  }
+
+  private static String readFileContent(File file) throws IOException {
+    try (InputStream fis = new FileInputStream(file)) {
+      return new String(fis.readAllBytes(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new IOException("Failed to read game configuration file: " + file.getPath(), e);
+    }
+  }
+
+  private static void writeLevelIndex(int index) {
+    if (loadLevelIndex() >= index) return;
+
+    HashMap<String, Object> map = new HashMap<>();
+    map.put(SAVE_LEVEL_KEY, index);
+    String content = JsonHandler.writeJson(map, true);
+    try {
+      File file = new File(SAVE_FILE);
+      // Ensure parent directory exists
+      try (OutputStreamWriter osw =
+          new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
+        osw.write(content);
+      }
+    } catch (Exception ignored) {
     }
   }
 }
