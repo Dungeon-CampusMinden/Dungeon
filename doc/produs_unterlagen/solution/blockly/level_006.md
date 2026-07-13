@@ -5,24 +5,16 @@ title: "Blockly Lösung: Level 6"
 ## Code
 ```java
 hero.rotate(Direction.LEFT);
-for(int i = 1; i <= 3; i++){
-    hero.push();
-}
-for(int i = 1; i <= 3; i++){
+for (int j = 0; j < 5; j++) {
+    for (int i = 0; i < 2; i++) {
+        hero.push();
+        hero.move();
+    }
     hero.rotate(Direction.RIGHT);
-    hero.move();
-    hero.move();
 }
-for(int i = 1; i <= 3; i++){
-    hero.push();
-}
-hero.rotate(Direction.RIGHT);
-hero.move();
-hero.move();
-hero.rotate(Direction.RIGHT);
-for(int i = 1; i <= 4; i++){
-    for(int x = 1; x <= 9; x++){
-    hero.move();
+for (int j = 0; j < 3; j++) {
+    for (int i = 0; i < 10; i++) {
+        hero.amove();
     }
     hero.rotate(Direction.RIGHT);
 }
