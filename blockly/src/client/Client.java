@@ -226,10 +226,8 @@ public class Client {
           PortalRegistry.registerPelletCatcherBehavior(
               () -> new BlocklyEnergyPelletCatcherBehavior());
 
-          int index = loadLevelIndex();
-          if (index < 0 || index >= DungeonLoader.levelCount()) index = 0;
-
-          DungeonLoader.loadLevel(loadLevelIndex());
+          int index = Math.clamp(loadLevelIndex(), 0, DungeonLoader.levelCount() - 1);
+          DungeonLoader.loadLevel(index);
 
           // Disbaled beacuse of bugs: see
           // https://github.com/Dungeon-CampusMinden/Dungeon/issues/3070
