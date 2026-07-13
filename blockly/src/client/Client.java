@@ -40,6 +40,20 @@ import core.utils.Vector2;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
+import java.awt.Desktop;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.Supplier;
 import level.produs.Level001;
 import level.produs.Level002;
 import level.produs.Level003;
@@ -74,21 +88,6 @@ import server.FrontendServer;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
 import systems.TintTilesSystem;
-
-import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
@@ -226,6 +225,9 @@ public class Client {
           PortalRegistry.registerCalculations(() -> new BlocklyPortalCalculations());
           PortalRegistry.registerPelletCatcherBehavior(
               () -> new BlocklyEnergyPelletCatcherBehavior());
+
+          int index = loadLevelIndex();
+          if (index < 0 || index >= DungeonLoader.levelCount()) index = 0;
 
           DungeonLoader.loadLevel(loadLevelIndex());
 
@@ -441,7 +443,8 @@ public class Client {
     try {
       String json = readFileContent(file);
       Map<String, Object> map = JsonHandler.readJson(json);
-      return ((Long) map.getOrDefault(SAVE_LEVEL_KEY, 0)).intValue();
+      Object value = map.get(SAVE_LEVEL_KEY);
+      return value instanceof Number number ? number.intValue() : 0;
     } catch (IOException e) {
       return 0;
     }
