@@ -32,18 +32,16 @@ Single-player can be played on one device. Multiplayer requires two separate dev
 
 #### If you have [Java 25 or newer](https://www.oracle.com/java/technologies/downloads/#java25) installed
 
-* Download `TheLastHourServer.jar` below.
-* Download `TheLastHourClient.jar` below.
 * Make sure both player devices are connected to the same local network.
-* On the host device, start `TheLastHourServer.jar`.
-* On client devices, start `TheLastHourClient.jar`.
-* Enter the IP address and port shown in the host server window.
+* Both players have to start the `TheLastHour.jar`
+* One player clicks on "Host Game" to create the session
+* The other player clicks on "Join Game" and enters the IP address displayed on the host's screen
 
 #### If you do not have Java installed
 
 * On Windows, download `TheLastHour-win-x86_64.zip` and extract it locally.
 * On Linux, download `TheLastHour-linux-x86_64.tar.gz` and extract it locally.
 * Make sure both player devices are connected to the same local network.
-* On the host device, start `TheLastHourServer/TheLastHourServer.exe` on Windows or `TheLastHourServer/bin/TheLastHourServer` on Linux from inside the extracted release folder.
-* On client devices, start `TheLastHourClient/TheLastHourClient.exe` on Windows or `TheLastHourClient/bin/TheLastHourClient` on Linux from inside the extracted release folder.
-* Enter the IP address and port shown in the host server window.
+* Both players have to start the `TheLastHour/TheLastHour.exe` on Windows or `TheLastHour/TheLastHour` from inside the extracted release folder.
+* One player clicks on `Host Game` to create the session
+* The other player clicks on `Join Game` and enters the IP address displayed on the host's screen
