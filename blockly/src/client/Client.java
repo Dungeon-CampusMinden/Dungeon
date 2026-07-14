@@ -443,7 +443,7 @@ public class Client {
       Map<String, Object> map = JsonHandler.readJson(json);
       Object value = map.get(SAVE_LEVEL_KEY);
       return value instanceof Number number ? number.intValue() : 0;
-    } catch (IOException e) {
+    } catch (IOException | IllegalArgumentException e) {
       return 0;
     }
   }
