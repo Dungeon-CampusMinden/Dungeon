@@ -23,7 +23,7 @@ jobs:
 
             # 4. Jar desktop and web
             - name: Build JARs with Gradle
-              run: ./gradlew buildTheLastHourJar buildTheLastHourServerJar buildTheLastHourClientJar
+              run: ./gradlew buildTheLastHourJar
 
             # 5. save both jar artefacts
             - name: Upload Build Artifacts
@@ -63,32 +63,6 @@ jobs:
                       7z a Last-Hour-${{ matrix.platform_name }}.zip  ./theLastHourEscapeRoom/build/jpackage/TheLastHour
                     else
                       tar -czf Last-Hour-${{ matrix.platform_name }}.tar.gz -C theLastHourEscapeRoom/build/jpackage TheLastHour
-                    fi
-                shell: bash
-
-            -   name: Build Last Hour Server
-                run: ./gradlew jpackageImageTheLastHourServer
-
-            -   name: Archive TheLastHourServer
-                # zip the folder
-                run: |
-                    if [ "${{ runner.os }}" == "Windows" ]; then
-                      7z a Last-Hour-Server-${{ matrix.platform_name }}.zip  ./theLastHourEscapeRoom/build/jpackage/TheLastHourServer
-                    else
-                      tar -czf Last-Hour-Server-${{ matrix.platform_name }}.tar.gz -C theLastHourEscapeRoom/build/jpackage TheLastHourServer
-                    fi
-                shell: bash
-
-            -   name: Build Last Hour Client
-                run: ./gradlew jpackageImageTheLastHourClient
-
-            -   name: Archive TheLastHourClient
-                # zip the folder
-                run: |
-                    if [ "${{ runner.os }}" == "Windows" ]; then
-                      7z a Last-Hour-Client-${{ matrix.platform_name }}.zip  ./theLastHourEscapeRoom/build/jpackage/TheLastHourClient
-                    else
-                      tar -czf Last-Hour-Client-${{ matrix.platform_name }}.tar.gz -C theLastHourEscapeRoom/build/jpackage TheLastHourClient
                     fi
                 shell: bash
 
