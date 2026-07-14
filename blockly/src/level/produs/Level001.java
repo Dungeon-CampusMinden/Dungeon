@@ -34,14 +34,13 @@ public class Level001 extends BlocklyLevel {
         "direction_down",
         "direction_here",
         // Kategorien
-        "Inventar & Charakter",
-        "Abfragen",
-        "Bedingung",
-        "Wahrheitsausdruecke",
-        "Variablen",
-        "Schleife",
-        "Bedingungen",
-        "Sonstige");
+      "%{BKY_CAT_INVENTORY}",
+      "%{BKY_CAT_QUERIES}",
+      "%{BKY_CAT_CONDITIONS}",
+      "%{BKY_CAT_BOOLEAN}",
+      "%{BKY_CAT_VARIABLES}",
+      "%{BKY_CAT_LOOPS}"
+    );
 
     addWebPopup(
         new ImagePopup(

@@ -40,7 +40,7 @@ public class Level014 extends BlocklyLevel {
         "logic_operator",
         "usual_condition",
         // Kategorien
-        "Variablen");
+      "%{BKY_CAT_VARIABLES}");
 
     addWebPopup(
         new ImagePopup(
