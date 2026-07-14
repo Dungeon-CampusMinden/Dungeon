@@ -109,7 +109,9 @@ public class Server {
           DungeonLoader.loadLevel(DungeonLoader.currentLevel());
           Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
         });
-    // sendHeroPosition(exchange);
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(204, -1);
+    exchange.close();
   }
 
   /**
