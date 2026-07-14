@@ -319,6 +319,15 @@ public class DungeonLoader {
   }
 
   /**
+   * Get the number of registered levels.
+   *
+   * @return Number of registered levels.
+   */
+  public static int levelCount() {
+    return levelOrder.size();
+  }
+
+  /**
    * Loads a DungeonLevel from the given path.
    *
    * @param path The path to the level file.
