@@ -2,7 +2,6 @@ package core.language;
 
 import com.badlogic.gdx.Gdx;
 import core.utils.components.draw.TextureMap;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -127,9 +126,8 @@ public class Localization {
    *
    * @param jsonNodes Nodes of the JSON up to the desired value as single params.
    * @return value behind a JSON node path.
-   * @throws IOException if the language file cannot be read.
    */
-  public String text(String jsonNodes) throws IOException {
+  public String text(String jsonNodes) {
     return defaultTranslation.text(jsonNodes);
   }
 
@@ -143,9 +141,8 @@ public class Localization {
    * @param jsonNodes Nodes of the JSON up to the desired value as single params.
    * @param templateValues positional template values used for {@code $1}, {@code $2}, ...
    * @return value behind a JSON node path with templates resolved.
-   * @throws IOException if the language file cannot be read.
    */
-  public String text(String jsonNodes, Object... templateValues) throws IOException {
+  public String text(String jsonNodes, Object... templateValues) {
     return defaultTranslation.text(jsonNodes, templateValues);
   }
 

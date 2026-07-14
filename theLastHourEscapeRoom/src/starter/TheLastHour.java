@@ -22,6 +22,7 @@ import core.game.PreRunConfiguration;
 import core.game.ServerProcess;
 import core.game.ServerStarter;
 import core.language.Language;
+import core.language.Localization;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.FrictionSystem;
 import core.systems.LevelSystem;
@@ -101,7 +102,11 @@ public class TheLastHour {
         ServerStarter.builder(TheLastHour::serverSetup)
             .characterClasses(MULTIPLAYER_CHARACTER_CLASSES)
             .levels(Tuple.of("lasthour", LastHourLevel.class))
-            .onConfigure(UsbStickItem::ensureRegistration)
+            .onConfigure(
+                () -> {
+                  UsbStickItem.ensureRegistration();
+                  initLocalization();
+                })
             .config(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class)
             .snapshotTranslator(new LastHourSnapshotTranslator())
             .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
@@ -112,7 +117,7 @@ public class TheLastHour {
         ClientStarter.builder(LastHourClient::clientSetup)
             .levels(Tuple.of("lasthour", LastHourLevelClient.class))
             .onConfigure(LastHourClient::registerClientContent)
-            .initLocalization(LastHourClient::initLocalization)
+            .initLocalization(TheLastHour::initLocalization)
             .registerSettings(LastHourClient::registerSettings)
             .config(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class)
             .snapshotTranslator(new LastHourSnapshotTranslator())
@@ -120,6 +125,13 @@ public class TheLastHour {
             .build();
 
     MainMenu.run(args, game, client, server);
+  }
+
+  /** Registers the translation files for the supported languages. */
+  static void initLocalization() {
+    Localization localization = Game.localization();
+    localization.registerTranslationFile(Language.DE, "language/de.json");
+    localization.registerTranslationFile(Language.EN, "language/en.json");
   }
 
   /**
