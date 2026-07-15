@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.Disposable;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogCreationException;
@@ -12,9 +11,6 @@ import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import core.Game;
-import core.components.PlayerComponent;
-import core.game.PreRunConfiguration;
-import core.network.server.DialogTracker;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
@@ -261,9 +257,8 @@ public final class UIUtils {
    * Closes the dialog associated with the given UIComponent and optionally deletes its owner.
    *
    * <p>This method removes the UIComponent from its owner entity and removes the owner entity from
-   * the game if the owner has no more Components after the UIComponent is removed. If the owner of
-   * the UIComponent has a PlayerComponent, the number of open dialogs is decremented. All target
-   * entities are notified of the dialog closure.
+   * the game if the owner has no more Components after the UIComponent is removed. The HUD system
+   * observes the component removal and handles visual cleanup and network notification.
    *
    * @param uiComponent the UIComponent whose dialog is to be closed
    */
@@ -287,26 +282,16 @@ public final class UIUtils {
 
     try {
       Entity ownerEntity = uiComponent.dialogContext().ownerEntity();
-      ownerEntity.remove(UIComponent.class);
-      // decrease open dialog count for all target entities
-      for (Integer targetId : uiComponent.targetEntityIds()) {
-        Optional<Entity> target = Game.findEntityById(targetId);
-        target
-            .flatMap(t -> t.fetch(PlayerComponent.class))
-            .ifPresent(PlayerComponent::decrementOpenDialogs);
+      Optional<UIComponent> currentComponent = ownerEntity.fetch(UIComponent.class);
+      if (currentComponent.isEmpty() || currentComponent.get() != uiComponent) {
+        LOGGER.debug("Ignored close request for stale dialog on entity {}", ownerEntity.id());
+        return;
       }
+      ownerEntity.remove(UIComponent.class);
       LOGGER.debug("Closed dialog on entity {}", ownerEntity.id());
 
       if (ownerEntity.componentStream().toList().isEmpty()) {
         Game.remove(ownerEntity);
-      }
-
-      if (PreRunConfiguration.isNetworkServer()) {
-        DialogTracker.instance().closeDialog(uiComponent.dialogContext().dialogId(), true);
-      }
-
-      if (uiComponent.dialog() instanceof Disposable disposable) {
-        disposable.dispose();
       }
     } catch (DialogCreationException e) {
       LOGGER.warn("Could not close dialog: {}", e.getMessage());

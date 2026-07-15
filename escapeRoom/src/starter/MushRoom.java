@@ -9,7 +9,6 @@ import contrib.entities.EntityFactory;
 import contrib.modules.levelHide.LevelHideSystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.HealthSystem;
-import contrib.systems.HudSystem;
 import contrib.systems.IdleSoundSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.systems.LevelTickSystem;
@@ -118,7 +117,6 @@ public class MushRoom {
     Game.add(new CollisionSystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthSystem());
-    Game.add(new HudSystem());
     Game.add(new LevelTickSystem());
     Game.add(new LeverSystem());
     Game.add(new PressurePlateSystem());

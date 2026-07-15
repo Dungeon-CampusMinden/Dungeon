@@ -15,7 +15,6 @@ import contrib.systems.CollisionSystem;
 import contrib.systems.EventScheduler;
 import contrib.systems.FallingSystem;
 import contrib.systems.HealthSystem;
-import contrib.systems.HudSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.systems.LevelTickSystem;
 import contrib.systems.LeverSystem;
@@ -379,7 +378,6 @@ public class PortalStarter {
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthSystem());
-    Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     Game.add(new LevelTickSystem());
     Game.add(new PitSystem());

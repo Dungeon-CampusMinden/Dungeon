@@ -11,7 +11,6 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.item.Item;
 import contrib.modules.interaction.InteractionComponent;
-import contrib.systems.HudSystem;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.cursorSkill.CursorSkill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
@@ -314,9 +313,8 @@ public class HeroController {
       LOGGER.error("Trying to open inventory for non-player entity or entity without inventory.");
       return;
     }
-    var pc = playerComp.get();
-
-    if (pc.openDialogs() && !isInventoryOpen(hero)) {
+    boolean hasOpenUi = Game.hud().hasOpenUI(hero);
+    if (hasOpenUi && !isInventoryOpen(hero)) {
       LOGGER.debug("Player {} has other dialogs open, cannot toggle inventory.", hero.id());
       return;
     }
@@ -693,9 +691,7 @@ public class HeroController {
         continue;
       }
 
-      var hudSys = Game.systems().get(HudSystem.class);
-      boolean paused =
-          hudSys instanceof HudSystem hudSystem && hudSystem.hasOpenPausingUI(playerEntity);
+      boolean paused = Game.hud().hasOpenPausingUI(playerEntity);
       if (!clientState.advanceProcessedSeq(msg.sequence())) {
         LOGGER.debug(
             "Ignoring stale or duplicate input sequence {} for client {}",
