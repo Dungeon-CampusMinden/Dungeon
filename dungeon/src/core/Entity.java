@@ -143,9 +143,18 @@ public final class Entity implements Comparable<Entity> {
    * @param component The component to add
    */
   public void add(final Component component) {
-    components.put(component.getClass(), component);
+    Class<? extends Component> componentClass = component.getClass();
+    Component previousComponent = components.get(componentClass);
+    if (previousComponent != null && previousComponent != component) {
+      components.remove(componentClass);
+      // Replacing a component must run the old component's removal lifecycle first. Otherwise the
+      // entity still matches the same systems and their on-remove/on-add listeners never observe
+      // the new component instance.
+      ECSManagement.informAboutChanges(this);
+    }
+    components.put(componentClass, component);
     ECSManagement.informAboutChanges(this);
-    LOGGER.debug(component.getClass().getName() + " Components from " + this + " was added.");
+    LOGGER.debug(componentClass.getName() + " Components from " + this + " was added.");
   }
 
   /**

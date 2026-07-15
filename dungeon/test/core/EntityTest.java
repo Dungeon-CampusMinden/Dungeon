@@ -3,6 +3,7 @@ package core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,27 @@ public class EntityTest {
     Component newComponent = Mockito.mock(Component.class);
     entity.add(newComponent);
     assertEquals(newComponent, entity.fetch(testComponent.getClass()).get());
+  }
+
+  /** Replacing a component must run system removal and addition lifecycle callbacks. */
+  @Test
+  public void replaceComponentNotifiesSystems() {
+    Entity trackedEntity = new Entity();
+    trackedEntity.add(new TestComponent());
+    Game.add(trackedEntity);
+    TrackingSystem system = new TrackingSystem();
+    Game.add(system);
+
+    TestComponent replacement = new TestComponent();
+    trackedEntity.add(replacement);
+
+    assertEquals(2, system.addCount.get());
+    assertEquals(1, system.removeCount.get());
+
+    trackedEntity.add(replacement);
+
+    assertEquals(2, system.addCount.get());
+    assertEquals(1, system.removeCount.get());
   }
 
   /** WTF? . */
@@ -72,5 +94,22 @@ public class EntityTest {
   @AfterEach
   public void tearDown() {
     Game.removeAllEntities();
+    Game.removeAllSystems();
+  }
+
+  private static final class TestComponent implements Component {}
+
+  private static final class TrackingSystem extends System {
+    private final AtomicInteger addCount = new AtomicInteger();
+    private final AtomicInteger removeCount = new AtomicInteger();
+
+    private TrackingSystem() {
+      super(TestComponent.class);
+      onEntityAdd = ignored -> addCount.incrementAndGet();
+      onEntityRemove = ignored -> removeCount.incrementAndGet();
+    }
+
+    @Override
+    public void execute() {}
   }
 }
