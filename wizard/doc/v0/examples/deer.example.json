@@ -1,0 +1,196 @@
+{
+  "formatVersion": "0.2-draft",
+  "metadata": {
+    "id": "wizard_foundation_v0_2",
+    "title": "Foundation Beispielraum V0.2",
+    "locale": "de-DE",
+    "description": "Kleiner Foundation-Slice mit Fund, Zahlencode und Ausgang.",
+    "author": "Beispiel Lehrkraft"
+  },
+  "learningDesign": {
+    "objectives": [
+      {
+        "id": "lo_extract_numeric_clue",
+        "description": "Die Lernenden können eine relevante Zahleninformation aus einem Hinweis entnehmen und zielgerichtet anwenden."
+      }
+    ],
+    "debriefPrompts": [
+      "Woran habt ihr erkannt, welche Information aus der Notiz für den Zahlencode relevant war?"
+    ]
+  },
+  "session": {
+    "targetAudience": "Lernende im Bereich IT-Sicherheit",
+    "priorKnowledge": "Grundlagen zu einfachen Codes und Hinweisen.",
+    "playerCount": {
+      "min": 1,
+      "max": 4
+    },
+    "time": {
+      "limitMinutes": 30,
+      "limitMode": "hard"
+    }
+  },
+  "scenario": {
+    "themeId": "default",
+    "playerRole": "Untersuchungsteam",
+    "premise": "Ein kleiner Lagerraum ist verriegelt.",
+    "mission": "Findet den Zugangscode und verlasst gemeinsam den Raum.",
+    "introText": "Die Ausgangstür ist verschlossen. Im Raum muss ein verwertbarer Hinweis versteckt sein.",
+    "successText": "Die Gruppe hat den Ausgang erreicht.",
+    "failureText": "Die Zeit ist abgelaufen."
+  },
+  "surfaces": [
+    {
+      "id": "s_world",
+      "kind": "world",
+      "title": "Lagerraum"
+    },
+    {
+      "id": "s_desk",
+      "kind": "container",
+      "title": "Schreibtisch"
+    },
+    {
+      "id": "s_exit_keypad",
+      "kind": "keypad",
+      "title": "Tür-Keypad"
+    },
+    {
+      "id": "s_exit_door",
+      "kind": "door",
+      "title": "Ausgangstür"
+    }
+  ],
+  "riddleGraph": {
+    "startNodeId": "n_start",
+    "endNodeId": "n_exit",
+    "nodes": [
+      {
+        "id": "n_start",
+        "kind": "start"
+      },
+      {
+        "id": "n_find_note",
+        "kind": "riddle",
+        "riddleId": "r_find_note"
+      },
+      {
+        "id": "n_enter_code",
+        "kind": "riddle",
+        "riddleId": "r_enter_code"
+      },
+      {
+        "id": "n_exit",
+        "kind": "end",
+        "surfaceId": "s_exit_door"
+      }
+    ],
+    "edges": [
+      {
+        "id": "e_start_to_note",
+        "from": "n_start",
+        "to": "n_find_note"
+      },
+      {
+        "id": "e_note_to_code",
+        "from": "n_find_note",
+        "to": "n_enter_code"
+      },
+      {
+        "id": "e_code_to_exit",
+        "from": "n_enter_code",
+        "to": "n_exit"
+      }
+    ]
+  },
+  "riddles": [
+    {
+      "id": "r_find_note",
+      "type": "collection",
+      "title": "Code-Hinweis finden",
+      "difficulty": "easy",
+      "estimatedMinutes": 5,
+      "learningObjectiveIds": [
+        "lo_extract_numeric_clue"
+      ],
+      "playerFacingTask": "Durchsucht den Schreibtisch nach einem verwertbaren Hinweis.",
+      "resources": [
+        {
+          "id": "res_keypad_code",
+          "kind": "inline_text",
+          "title": "Notiz mit Zahlencode",
+          "text": "Die markierten Zahlen ergeben 3758.",
+          "availability": "inside_container",
+          "purpose": "clue"
+        },
+        {
+          "id": "res_note_image",
+          "kind": "asset",
+          "title": "Papiernotiz",
+          "assetId": "asset_foundation_note",
+          "availability": "inside_container",
+          "purpose": "context"
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_find_note_1",
+          "title": "Schreibtisch prüfen",
+          "text": "Der Hinweis liegt nicht offen im Raum.",
+          "severity": 1
+        }
+      ],
+      "parameters": {
+        "surfaceId": "s_desk",
+        "sourceKind": "container",
+        "rewardMode": "find_resource",
+        "resourceIds": [
+          "res_keypad_code",
+          "res_note_image"
+        ]
+      }
+    },
+    {
+      "id": "r_enter_code",
+      "type": "input",
+      "title": "Zahlencode eingeben",
+      "difficulty": "easy",
+      "estimatedMinutes": 5,
+      "learningObjectiveIds": [
+        "lo_extract_numeric_clue"
+      ],
+      "playerFacingTask": "Gebt den gefundenen Code am Tür-Keypad ein.",
+      "resources": [],
+      "hints": [
+        {
+          "id": "h_enter_code_1",
+          "title": "Zahlencode",
+          "text": "Der Code besteht aus vier Ziffern.",
+          "severity": 1
+        }
+      ],
+      "parameters": {
+        "surfaceId": "s_exit_keypad",
+        "inputMode": "numeric",
+        "answer": "3758",
+        "showDigitCount": true
+      }
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset_foundation_note",
+      "path": "assets/custom/3b50ea522803-foundation-note.png",
+      "mediaType": "image/png",
+      "purpose": "decorative",
+      "source": {
+        "type": "bundled_asset",
+        "license": "Dungeon project asset",
+        "attribution": "Dungeon contributors"
+      },
+      "accessibility": {
+        "decorative": true
+      }
+    }
+  ]
+}
