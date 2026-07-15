@@ -1,5 +1,6 @@
 package contrib.hud.elements;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -102,6 +103,8 @@ public final class GUICombination extends Group implements Disposable {
 
   @Override
   public void draw(final Batch batch, float parentAlpha) {
+    Color color = getColor();
+    batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
     this.combinableGuis.forEach(combinableGUI -> combinableGUI.draw(batch));
     this.combinableGuis.forEach(combinableGUI -> combinableGUI.drawTopLayer(batch));
   }
