@@ -38,11 +38,10 @@ public class Level011 extends BlocklyLevel {
         "shoot_green_portal",
         "shoot_blue_portal",
         // Kategorien
-      "%{BKY_CAT_QUERIES}",
-      "%{BKY_CAT_CONDITIONS}",
-      "%{BKY_CAT_BOOLEAN}",
-      "%{BKY_CAT_VARIABLES}"
-    );
+        "%{BKY_CAT_QUERIES}",
+        "%{BKY_CAT_CONDITIONS}",
+        "%{BKY_CAT_BOOLEAN}",
+        "%{BKY_CAT_VARIABLES}");
     addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 

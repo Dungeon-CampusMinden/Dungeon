@@ -39,12 +39,11 @@ public class Level003 extends BlocklyLevel {
         // Schleifen
         "while_loop",
         // Kategorien
-      "%{BKY_CAT_INVENTORY}",
-      "%{BKY_CAT_QUERIES}",
-      "%{BKY_CAT_BOOLEAN}",
-      "%{BKY_CAT_VARIABLES}",
-      "%{BKY_CAT_CONDITIONS}"
-    );
+        "%{BKY_CAT_INVENTORY}",
+        "%{BKY_CAT_QUERIES}",
+        "%{BKY_CAT_BOOLEAN}",
+        "%{BKY_CAT_VARIABLES}",
+        "%{BKY_CAT_CONDITIONS}");
     addWebPopup(
         new ImagePopup(
             "popups/" + Client.getBlocklyLanguage() + "/level003/webpopups/01_steine.jpg"));
