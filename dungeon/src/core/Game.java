@@ -427,8 +427,19 @@ public final class Game {
    * Use this stream if you want to iterate over all entities in the current level.
    *
    * @return a stream of all entities currently in the level
+   * @deprecated Use {@link #entities()} instead.
    */
+  @Deprecated
   public static Stream<Entity> levelEntities() {
+    return ECSManagement.entities();
+  }
+
+  /**
+   * Use this stream if you want to iterate over all entities in the current level.
+   *
+   * @return a stream of all entities currently in the level
+   */
+  public static Stream<Entity> entities() {
     return ECSManagement.entities();
   }
 
@@ -439,8 +450,22 @@ public final class Game {
    * @param system the system to check.
    * @return a stream of all entities currently in the game that should be processed by the given
    *     system.
+   * @deprecated Use {@link #entities(System)} instead.
    */
+  @Deprecated
   public static Stream<Entity> levelEntities(final System system) {
+    return ECSManagement.entities(system);
+  }
+
+  /**
+   * Use this stream if you want to iterate over all entities that contain the necessary Components
+   * to be processed by the given system.
+   *
+   * @param system the system to check.
+   * @return a stream of all entities currently in the game that should be processed by the given
+   *     system.
+   */
+  public static Stream<Entity> entities(final System system) {
     return ECSManagement.entities(system);
   }
 
@@ -449,8 +474,20 @@ public final class Game {
    *
    * @param filter the components to check.
    * @return a stream of all entities currently in the game that contains the given components.
+   * @deprecated Use {@link #entities(Set)} instead.
    */
+  @Deprecated
   public static Stream<Entity> levelEntities(final Set<Class<? extends Component>> filter) {
+    return ECSManagement.entities(filter);
+  }
+
+  /**
+   * Use this stream if you want to iterate over all entities that contain the given components.
+   *
+   * @param filter the components to check.
+   * @return a stream of all entities currently in the game that contains the given components.
+   */
+  public static Stream<Entity> entities(final Set<Class<? extends Component>> filter) {
     return ECSManagement.entities(filter);
   }
 

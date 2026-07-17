@@ -333,7 +333,6 @@ public final class ECSManagement {
    */
   public static void removeAllEntities() {
     entities().forEach(ECSManagement::remove);
-    allEntities.clear();
     LOGGER.info("All entities will be removed from the game.");
   }
 
