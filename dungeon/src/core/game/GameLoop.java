@@ -143,6 +143,7 @@ public final class GameLoop extends ScreenAdapter {
         if (!serverAuthority) return; // no authority
 
         try {
+          Game.entities().filter(entity -> !allPlayers.contains(entity)).forEach(Game::remove);
           allPlayers.forEach(GameLoop::placeOnLevelStart);
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
