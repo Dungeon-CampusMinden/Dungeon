@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  * <p>For System management use: {@link #add(System)}, {@link #remove(Class)} or {@link
  * #removeAllSystems()}
  *
- * <p>Get access via: {@link #allEntities()}, {@link #systems()}
+ * <p>Get access via: {@link #entities()}, {@link #systems()}
  *
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
@@ -88,7 +88,7 @@ public final class ECSManagement {
    * @param entity the entity that has changes in its Component Collection.
    */
   public static void informAboutChanges(Entity entity) {
-    if (allEntities().anyMatch(entity1 -> entity1.equals(entity))) {
+    if (entities().anyMatch(entity1 -> entity1.equals(entity))) {
       entityFilters.forEach(f -> f.update(entity));
       LOGGER.info(entity + " informed the Game about component changes.");
     }
@@ -182,7 +182,7 @@ public final class ECSManagement {
       Set<Class<? extends Component>> filter) {
     EntitySystemMapper mapper = new EntitySystemMapper(filter);
     entityFilters.add(mapper);
-    allEntities().forEach(mapper::add);
+    entities().forEach(mapper::add);
     return mapper;
   }
 
@@ -249,8 +249,8 @@ public final class ECSManagement {
    *
    * @return a stream of all entities currently in the level
    */
-  public static Stream<Entity> allEntities() {
-    return allEntities(new HashSet<>());
+  public static Stream<Entity> entities() {
+    return entities(new HashSet<>());
   }
 
   /**
@@ -261,8 +261,8 @@ public final class ECSManagement {
    * @return a stream of all entities currently in the game that should be processed by the given
    *     system.
    */
-  public static Stream<Entity> allEntities(final System system) {
-    return allEntities(system.filterRules());
+  public static Stream<Entity> entities(final System system) {
+    return entities(system.filterRules());
   }
 
   /**
@@ -272,7 +272,7 @@ public final class ECSManagement {
    * @param filter Set of Component classes that define the filter rules.
    * @return a stream of all entities currently in the game, that contains the given components.
    */
-  public static Stream<Entity> allEntities(Set<Class<? extends Component>> filter) {
+  public static Stream<Entity> entities(Set<Class<? extends Component>> filter) {
     Stream<Entity> returnStream;
     Optional<EntitySystemMapper> rf =
         entityFilters.stream().filter(f -> f.equals(filter)).findFirst();
@@ -311,7 +311,7 @@ public final class ECSManagement {
    * @see PlayerComponent
    */
   public static Stream<Entity> allPlayers() {
-    return allEntities().filter(e -> e.isPresent(PlayerComponent.class));
+    return entities().filter(e -> e.isPresent(PlayerComponent.class));
   }
 
   /**
@@ -332,8 +332,8 @@ public final class ECSManagement {
    * <p>This will also remove all entities from each system.
    */
   public static void removeAllEntities() {
-    allEntities().forEach(ECSManagement::remove);
-
+    entities().forEach(ECSManagement::remove);
+    allEntities.clear();
     LOGGER.info("All entities will be removed from the game.");
   }
 
@@ -347,7 +347,7 @@ public final class ECSManagement {
    *     is found
    */
   public static Optional<Entity> findInAll(final Component component) {
-    return allEntities()
+    return entities()
         .filter(entity -> entity.fetch(component.getClass()).map(component::equals).orElse(false))
         .findFirst();
   }

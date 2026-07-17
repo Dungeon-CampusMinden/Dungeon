@@ -429,7 +429,7 @@ public final class Game {
    * @return a stream of all entities currently in the level
    */
   public static Stream<Entity> levelEntities() {
-    return ECSManagement.allEntities();
+    return ECSManagement.entities();
   }
 
   /**
@@ -441,7 +441,7 @@ public final class Game {
    *     system.
    */
   public static Stream<Entity> levelEntities(final System system) {
-    return ECSManagement.allEntities(system);
+    return ECSManagement.entities(system);
   }
 
   /**
@@ -451,7 +451,7 @@ public final class Game {
    * @return a stream of all entities currently in the game that contains the given components.
    */
   public static Stream<Entity> levelEntities(final Set<Class<? extends Component>> filter) {
-    return ECSManagement.allEntities(filter);
+    return ECSManagement.entities(filter);
   }
 
   /**
@@ -656,7 +656,7 @@ public final class Game {
     return Game.tileAt(check.position())
         .map(
             target ->
-                ECSManagement.allEntities()
+                ECSManagement.entities()
                     .filter(e -> e.isPresent(PositionComponent.class))
                     .filter(
                         e ->
