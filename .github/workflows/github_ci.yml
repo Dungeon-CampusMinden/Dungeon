@@ -151,7 +151,7 @@ jobs:
           sparse-checkout: blockly/frontend
           sparse-checkout-cone-mode: true
       - name: Node.js setup
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: 'npm'
