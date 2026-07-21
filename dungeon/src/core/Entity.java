@@ -39,7 +39,6 @@ public final class Entity implements Comparable<Entity> {
   private final HashMap<Class<? extends Component>, Component> components;
   private String name;
 
-
   /**
    * Create a new Entity with a generated id.
    *
@@ -222,7 +221,6 @@ public final class Entity implements Comparable<Entity> {
   public String name() {
     return name;
   }
-
 
   @Override
   public String toString() {

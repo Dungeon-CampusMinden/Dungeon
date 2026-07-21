@@ -71,13 +71,7 @@ public final class EntitySpawnEvent implements NetworkMessage {
       DrawInfoData drawInfo,
       PlayerComponent playerComponent,
       byte characterClassId) {
-    this(
-        entityId,
-        positionComponent,
-        drawInfo,
-        playerComponent,
-        characterClassId,
-        Map.of());
+    this(entityId, positionComponent, drawInfo, playerComponent, characterClassId, Map.of());
   }
 
   /**
@@ -187,12 +181,7 @@ public final class EntitySpawnEvent implements NetworkMessage {
   @Override
   public int hashCode() {
     return Objects.hash(
-        entityId,
-        positionComponent,
-        drawInfo,
-        playerComponent,
-        characterClassId,
-        metadata);
+        entityId, positionComponent, drawInfo, playerComponent, characterClassId, metadata);
   }
 
   @Override
@@ -297,12 +286,7 @@ public final class EntitySpawnEvent implements NetworkMessage {
      */
     public EntitySpawnEvent build() {
       return new EntitySpawnEvent(
-          entityId,
-          positionComponent,
-          drawInfo,
-          playerComponent,
-          characterClassId,
-          metadata);
+          entityId, positionComponent, drawInfo, playerComponent, characterClassId, metadata);
     }
   }
 }

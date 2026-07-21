@@ -146,19 +146,17 @@ public final class GameLoop extends ScreenAdapter {
         }
 
         if (!serverAuthority) { // no authority
-          Game.entities()
-            .filter(Entity::isLocal)
-            .toList()
-            .forEach(Game::remove);
+          Game.entities().filter(Entity::isLocal).toList().forEach(Game::remove);
           return;
         }
 
         try {
           Game.entities().filter(entity -> !allPlayers.contains(entity)).forEach(Game::remove);
-          allPlayers.forEach(entity -> {
-            placeOnLevelStart(entity);
-            ECSManagement.add(entity);
-          });
+          allPlayers.forEach(
+              entity -> {
+                placeOnLevelStart(entity);
+                ECSManagement.add(entity);
+              });
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
         }
@@ -906,7 +904,6 @@ public final class GameLoop extends ScreenAdapter {
                       pc::position, () -> LOGGER.warn("No start tile found for the current level"));
               pc.viewDirection(Direction.DOWN); // look down by default
             });
-
 
     // reset animations
     entity.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);

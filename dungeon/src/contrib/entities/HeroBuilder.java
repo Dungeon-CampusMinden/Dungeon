@@ -186,8 +186,7 @@ public final class HeroBuilder {
    * @return A new Hero Entity.
    */
   public Entity build() {
-    return buildHero(
-        entityId, characterClass, deathCallback, isLocalPlayer, playerName);
+    return buildHero(entityId, characterClass, deathCallback, isLocalPlayer, playerName);
   }
 
   /**
