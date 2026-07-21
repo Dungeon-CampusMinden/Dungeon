@@ -273,7 +273,7 @@ public final class AudioApi {
    * Ensures a SoundHub entity exists.
    *
    * <p>If the SoundHub already exists (tracked by {@link #currentSoundHubId}), it is returned.
-   * Otherwise, a new SoundHub entity is created, marked persistent, and returned.
+   * Otherwise, a new SoundHub entity is created and returned.
    *
    * @return the SoundHub entity
    */
@@ -289,7 +289,6 @@ public final class AudioApi {
         PreRunConfiguration.isNetworkServer()
             ? new Entity("SoundHub")
             : Entity.createLocalEntity("SoundHub");
-    hub.persistent(true);
     hub.add(new SoundComponent());
     Game.add(hub);
     currentSoundHubId = hub.id();

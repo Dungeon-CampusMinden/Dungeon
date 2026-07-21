@@ -31,7 +31,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
   private final int entityId;
   private final PositionComponent positionComponent;
   private final DrawInfoData drawInfo;
-  private final boolean isPersistent;
   private final PlayerComponent playerComponent;
   private final byte characterClassId;
   private final Map<String, String> metadata;
@@ -49,7 +48,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
         entity.id(),
         entity.fetch(PositionComponent.class).orElseThrow(),
         DrawComponentFactory.toDrawInfo(entity.fetch(DrawComponent.class).orElseThrow()),
-        entity.isPersistent(),
         entity.fetch(PlayerComponent.class).orElse(null),
         entity
             .fetch(CharacterClassComponent.class)
@@ -64,7 +62,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
    * @param entityId the entity id
    * @param positionComponent the entity position component, may be null for data-only entities
    * @param drawInfo the draw info, may be null for data-only entities
-   * @param isPersistent whether the entity is persistent
    * @param playerComponent the player component, may be null
    * @param characterClassId the character class id
    */
@@ -72,14 +69,12 @@ public final class EntitySpawnEvent implements NetworkMessage {
       int entityId,
       PositionComponent positionComponent,
       DrawInfoData drawInfo,
-      boolean isPersistent,
       PlayerComponent playerComponent,
       byte characterClassId) {
     this(
         entityId,
         positionComponent,
         drawInfo,
-        isPersistent,
         playerComponent,
         characterClassId,
         Map.of());
@@ -91,7 +86,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
    * @param entityId the entity id
    * @param positionComponent the entity position component, may be null for data-only entities
    * @param drawInfo the draw info, may be null for data-only entities
-   * @param isPersistent whether the entity is persistent
    * @param playerComponent the player component, may be null
    * @param characterClassId the character class id
    * @param metadata metadata for subproject-specific state
@@ -100,14 +94,12 @@ public final class EntitySpawnEvent implements NetworkMessage {
       int entityId,
       PositionComponent positionComponent,
       DrawInfoData drawInfo,
-      boolean isPersistent,
       PlayerComponent playerComponent,
       byte characterClassId,
       Map<String, String> metadata) {
     this.entityId = entityId;
     this.positionComponent = positionComponent;
     this.drawInfo = drawInfo;
-    this.isPersistent = isPersistent;
     this.playerComponent = playerComponent;
     this.characterClassId = characterClassId;
     this.metadata = metadata == null ? Map.of() : Map.copyOf(metadata);
@@ -150,15 +142,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
   }
 
   /**
-   * Returns if the entity is persistent.
-   *
-   * @return true if persistent
-   */
-  public boolean isPersistent() {
-    return isPersistent;
-  }
-
-  /**
    * Gets player component info for hero entities.
    *
    * @return the player component, or null if not a player entity
@@ -194,7 +177,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
       return false;
     }
     return entityId == other.entityId
-        && isPersistent == other.isPersistent
         && characterClassId == other.characterClassId
         && Objects.equals(positionComponent, other.positionComponent)
         && Objects.equals(drawInfo, other.drawInfo)
@@ -208,7 +190,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
         entityId,
         positionComponent,
         drawInfo,
-        isPersistent,
         playerComponent,
         characterClassId,
         metadata);
@@ -223,8 +204,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
         + positionComponent
         + ", drawInfo="
         + drawInfo
-        + ", isPersistent="
-        + isPersistent
         + ", playerComponent="
         + playerComponent
         + ", characterClassId="
@@ -239,7 +218,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
     private int entityId;
     private PositionComponent positionComponent;
     private DrawInfoData drawInfo;
-    private boolean isPersistent;
     private PlayerComponent playerComponent;
     private byte characterClassId;
     private Map<String, String> metadata = Map.of();
@@ -276,17 +254,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
      */
     public Builder drawInfo(DrawInfoData drawInfo) {
       this.drawInfo = drawInfo;
-      return this;
-    }
-
-    /**
-     * Sets persistence.
-     *
-     * @param isPersistent persistence flag
-     * @return this builder
-     */
-    public Builder isPersistent(boolean isPersistent) {
-      this.isPersistent = isPersistent;
       return this;
     }
 
@@ -333,7 +300,6 @@ public final class EntitySpawnEvent implements NetworkMessage {
           entityId,
           positionComponent,
           drawInfo,
-          isPersistent,
           playerComponent,
           characterClassId,
           metadata);

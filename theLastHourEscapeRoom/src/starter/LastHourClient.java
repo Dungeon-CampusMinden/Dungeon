@@ -134,7 +134,6 @@ public final class LastHourClient {
               LastHourSnapshotTranslator.worldTimerStateFromMetadata(event.metadata())
                   .ifPresent(newEntity::add);
               applyCollideMetadata(newEntity, event.metadata());
-              newEntity.persistent(event.isPersistent());
               Game.add(newEntity);
               if (ctx != null) {
                 ctx.clientState().ifPresent(state -> state.trackNetworkEntity(event.entityId()));
@@ -158,7 +157,6 @@ public final class LastHourClient {
         HeroBuilder.builder()
             .id(event.entityId())
             .characterClass(CharacterClass.fromByteId(event.characterClassId()))
-            .persistent(event.isPersistent())
             .isLocalPlayer(isLocal)
             .username(playerComponent.playerName())
             .build();

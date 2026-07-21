@@ -39,7 +39,6 @@ public final class Entity implements Comparable<Entity> {
   private final HashMap<Class<? extends Component>, Component> components;
   private String name;
 
-  private boolean persistent = false;
 
   /**
    * Create a new Entity with a generated id.
@@ -224,26 +223,6 @@ public final class Entity implements Comparable<Entity> {
     return name;
   }
 
-  /**
-   * Sets whether this entity is persistent across level loads.
-   *
-   * <p>If an entity is persistent, it will be carried over to the next level when the current level
-   * is loaded.
-   *
-   * @param persistent true to make the entity persistent across levels, false otherwise
-   */
-  public void persistent(boolean persistent) {
-    this.persistent = persistent;
-  }
-
-  /**
-   * Checks whether this entity is persistent across level loads.
-   *
-   * @return true if the entity is persistent and will move to the next level, false otherwise
-   */
-  public boolean isPersistent() {
-    return this.persistent;
-  }
 
   @Override
   public String toString() {

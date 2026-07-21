@@ -525,7 +525,6 @@ public final class GameLoop extends ScreenAdapter {
           if (event.drawInfo() != null) {
             newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
           }
-          newEntity.persistent(event.isPersistent());
           Game.add(newEntity);
           trackNetworkEntity(ctx, event.entityId());
         });

@@ -111,7 +111,6 @@ public final class HeroBuilder {
   private int entityId = -1;
   private CharacterClass characterClass = DEFAULT_HERO_CLASS;
   private Consumer<Entity> deathCallback = DEFAULT_DEATH;
-  private boolean persistent = true;
   private boolean isLocalPlayer = true;
   private String playerName = PreRunConfiguration.username();
 
@@ -160,17 +159,6 @@ public final class HeroBuilder {
   }
 
   /**
-   * Sets whether the hero entity is persistent.
-   *
-   * @param persistent True to make the hero persistent, false otherwise.
-   * @return This builder instance.
-   */
-  public HeroBuilder persistent(boolean persistent) {
-    this.persistent = persistent;
-    return this;
-  }
-
-  /**
    * Sets whether the hero is controlled by the local player.
    *
    * @param isLocalPlayer True if the hero is controlled by the local player, false otherwise.
@@ -199,7 +187,7 @@ public final class HeroBuilder {
    */
   public Entity build() {
     return buildHero(
-        entityId, characterClass, deathCallback, persistent, isLocalPlayer, playerName);
+        entityId, characterClass, deathCallback, isLocalPlayer, playerName);
   }
 
   /**
@@ -208,7 +196,6 @@ public final class HeroBuilder {
    * @param id The entity ID.
    * @param characterClass The character class.
    * @param deathCallback The death callback.
-   * @param persistent Whether the entity is persistent.
    * @param isLocal if the hero is the local player
    * @param playerName name of the player (used for multiplayer)
    * @return The configured hero entity.
@@ -217,12 +204,10 @@ public final class HeroBuilder {
       int id,
       CharacterClass characterClass,
       Consumer<Entity> deathCallback,
-      boolean persistent,
       boolean isLocal,
       String playerName) {
     Entity hero =
         id == -1 ? new Entity("hero_" + playerName) : new Entity(id, "hero_" + playerName);
-    hero.persistent(persistent);
     PlayerComponent pc = new PlayerComponent(isLocal, playerName);
     hero.add(pc);
     CameraComponent cc = new CameraComponent();
