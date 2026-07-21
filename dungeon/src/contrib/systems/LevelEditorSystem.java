@@ -18,7 +18,6 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.InputComponent;
-import core.components.PlayerComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.systems.DrawSystem;
@@ -30,7 +29,6 @@ import core.utils.components.draw.shader.OutlineShader;
 import core.utils.components.draw.shader.PassthroughShader;
 import core.utils.logging.DungeonLogger;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
@@ -201,8 +199,7 @@ public class LevelEditorSystem extends System {
 
     if (!active) return;
 
-    Optional<PlayerComponent> pc = Game.player().flatMap(e -> e.fetch(PlayerComponent.class));
-    if (pc.isPresent() && pc.get().openDialogs()) {
+    if (Game.player().map(Game.hud()::hasOpenUI).orElse(false)) {
       return;
     }
 

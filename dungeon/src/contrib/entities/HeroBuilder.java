@@ -17,7 +17,6 @@ import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.PauseDialog;
 import contrib.systems.HealthSystem;
-import contrib.systems.HudSystem;
 import contrib.systems.PositionSync;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.skill.Skill;
@@ -401,26 +400,23 @@ public final class HeroBuilder {
     inputComp.registerCallback(
         KeyboardConfig.CLOSE_UI.value(),
         (caller) ->
-            Game.system(
-                HudSystem.class,
-                (hudSystem ->
-                    hudSystem
-                        .topmostCloseableUI()
-                        .ifPresent(
-                            firstUI -> {
-                              UIComponent uiComp = firstUI.b();
+            Game.hud()
+                .topmostCloseableUI()
+                .ifPresent(
+                    firstUI -> {
+                      UIComponent uiComp = firstUI.b();
 
-                              String dialogId = uiComp.dialogContext().dialogId();
-                              DialogCallbackResolver.createButtonCallback(
-                                      dialogId, DialogContextKeys.ON_CLOSE)
-                                  .accept(null);
+                      String dialogId = uiComp.dialogContext().dialogId();
+                      DialogCallbackResolver.createButtonCallback(
+                              dialogId, DialogContextKeys.ON_CLOSE)
+                          .accept(null);
 
-                              // UI is not networked, just close locally
-                              Entity uiEntity = firstUI.a();
-                              if (uiEntity.isLocal()) {
-                                UIUtils.closeDialog(uiComp);
-                              }
-                            }))),
+                      // UI is not networked, just close locally
+                      Entity uiEntity = firstUI.a();
+                      if (uiEntity.isLocal()) {
+                        UIUtils.closeDialog(uiComp);
+                      }
+                    }),
         false,
         true);
     inputComp.registerCallback(

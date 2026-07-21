@@ -2,12 +2,11 @@ package contrib.systems;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Disposable;
 import contrib.components.UIComponent;
-import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
 import core.System;
-import core.components.PlayerComponent;
 import core.game.PreRunConfiguration;
 import core.network.NetworkUtils;
 import core.network.messages.s2c.DialogShowMessage;
@@ -30,18 +29,23 @@ import java.util.Set;
  */
 public final class HudSystem extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(HudSystem.class);
+  private static final HudSystem INSTANCE = new HudSystem();
   private boolean ipaused = false;
 
-  /**
-   * The removeListener only gets the Entity after its Component is removed. Which means no longer
-   * any access to the Group. This is why we need the last group an entity had as a mapping.
-   */
-  private final Map<Entity, Group> entityGroupMap = new HashMap<>();
-
+  /** Stores the component because it is no longer available on the entity during removal. */
   private final Map<Entity, UIComponent> entityUIComponentMap = new HashMap<>();
 
-  /** Create a new HudSystem. */
-  public HudSystem() {
+  /**
+   * Returns the singleton HUD system.
+   *
+   * @return the HUD system instance
+   */
+  public static HudSystem getInstance() {
+    return INSTANCE;
+  }
+
+  /** Create the singleton HudSystem. */
+  private HudSystem() {
     super(AuthoritativeSide.BOTH, UIComponent.class);
     onEntityAdd = this::addListener;
     onEntityRemove = this::removeListener;
@@ -67,12 +71,24 @@ public final class HudSystem extends System {
    */
   public boolean hasOpenPausingUI(Entity entity) {
     return entityUIComponentMap.values().stream()
-        .anyMatch(
-            component ->
-                component.willPauseGame()
-                    && component.isVisible()
-                    && Arrays.stream(component.targetEntityIds())
-                        .anyMatch(id -> id == entity.id()));
+        .anyMatch(component -> component.willPauseGame() && isVisibleFor(component, entity));
+  }
+
+  /**
+   * Returns whether the entity is affected by any visible UI.
+   *
+   * @param entity the entity to check
+   * @return true if a visible UI targets the entity or all entities
+   */
+  public boolean hasOpenUI(Entity entity) {
+    return entityUIComponentMap.values().stream()
+        .anyMatch(component -> isVisibleFor(component, entity));
+  }
+
+  private boolean isVisibleFor(UIComponent component, Entity entity) {
+    int[] targets = component.targetEntityIds();
+    return component.isVisible()
+        && (targets.length == 0 || Arrays.stream(targets).anyMatch(id -> id == entity.id()));
   }
 
   /**
@@ -81,30 +97,23 @@ public final class HudSystem extends System {
    * @param entity Entity which no longer has a UIComponent.
    */
   private void removeListener(final Entity entity) {
-    Group remove = entityGroupMap.remove(entity);
-    if (remove != null) {
-      remove.remove();
+    UIComponent removedComponent = entityUIComponentMap.remove(entity);
+    if (removedComponent == null) {
+      return;
     }
-    entityUIComponentMap.remove(entity);
-    int[] targets =
-        entity.fetch(UIComponent.class).map(UIComponent::targetEntityIds).orElse(new int[0]);
+    removedComponent.dialog().remove();
+    boolean terminalRemoval =
+        !entity.isPresent(UIComponent.class) || Game.systems().get(HudSystem.class) == this;
+    if (PreRunConfiguration.isNetworkServer()) {
+      DialogTracker.instance()
+          .closeDialog(removedComponent.dialogContext().dialogId(), terminalRemoval);
+    }
 
-    if (targets.length == 0) {
-      // if no specific targets, decrease for all players
-      Game.allPlayers()
-          .forEach(
-              playerEntity -> {
-                playerEntity
-                    .fetch(PlayerComponent.class)
-                    .ifPresent(PlayerComponent::decrementOpenDialogs);
-              });
-    } else {
-      for (Integer targetId : targets) {
-        Optional<Entity> target = Game.findEntityById(targetId);
-        target
-            .flatMap(t -> t.fetch(PlayerComponent.class))
-            .ifPresent(PlayerComponent::decrementOpenDialogs);
-      }
+    // Removing a system temporarily detaches its entities too. Only dispose the dialog when the
+    // component or its entity was removed; otherwise the same component is re-added with the
+    // system.
+    if (terminalRemoval && removedComponent.dialog() instanceof Disposable disposable) {
+      disposable.dispose();
     }
   }
 
@@ -120,8 +129,6 @@ public final class HudSystem extends System {
             .fetch(UIComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
 
-    Group dialog = component.dialog();
-
     // check if we should draw it
     int[] myIds = Game.allPlayers().mapToInt(Entity::id).toArray();
     int[] targetIds = component.targetEntityIds();
@@ -135,20 +142,14 @@ public final class HudSystem extends System {
       return;
     }
 
-    // increase open dialog count for all target entities
-    for (Integer targetId : targetIds) {
-      Optional<Entity> target = Game.findEntityById(targetId);
-      target
-          .flatMap(t -> t.fetch(PlayerComponent.class))
-          .ifPresent(PlayerComponent::incrementOpenDialogs);
-    }
+    Group dialog = component.dialog();
 
     Game.stage()
         .ifPresentOrElse(
             stage -> addDialogToStage(dialog, stage),
             () -> sendDialogToClients(entity, component, affectedIds));
 
-    addMapping(entity, dialog, component);
+    entityUIComponentMap.put(entity, component);
     // Multiplayer clients only render dialogs. The server keeps callback ownership and
     // response authorization in DialogTracker.
     if (!Game.isMultiplayerClient()) {
@@ -185,17 +186,6 @@ public final class HudSystem extends System {
     }
   }
 
-  private void addMapping(final Entity entity, final Group dialog, final UIComponent component) {
-    Group previous = entityGroupMap.put(entity, dialog);
-    if (previous != null) {
-      previous.remove();
-    }
-    UIComponent previousUiComponent = entityUIComponentMap.put(entity, component);
-    if (previousUiComponent != null) {
-      UIUtils.closeDialog(previousUiComponent);
-    }
-  }
-
   private void addDialogToStage(final Group group, final Stage stage) {
     if (!stage.getActors().contains(group, true)) {
       stage.addActor(group);
@@ -216,7 +206,6 @@ public final class HudSystem extends System {
     } // only a hotfix for reconnecting clients
 
     // clean up any entities that no longer have a UIComponent
-    entityGroupMap.keySet().removeIf(entity -> !entity.isPresent(UIComponent.class));
     entityUIComponentMap.keySet().removeIf(entity -> !entity.isPresent(UIComponent.class));
   }
 

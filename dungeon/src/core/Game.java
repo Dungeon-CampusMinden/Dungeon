@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import contrib.systems.HudSystem;
 import contrib.utils.EntityUtils;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
@@ -391,6 +392,15 @@ public final class Game {
    */
   public static Map<Class<? extends System>, System> systems() {
     return ECSManagement.systems();
+  }
+
+  /**
+   * Returns the singleton HUD system, which is registered as an essential ECS system.
+   *
+   * @return the HUD system
+   */
+  public static HudSystem hud() {
+    return HudSystem.getInstance();
   }
 
   /**

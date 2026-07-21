@@ -65,7 +65,7 @@ public final class ECSManagement {
     DrawSystem.getInstance(),
     new EventScheduler(),
     new LevelTickSystem(),
-    new HudSystem()
+    HudSystem.getInstance()
   };
 
   /**
