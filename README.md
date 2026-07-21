@@ -54,6 +54,8 @@ makes the concept accessible and adaptable for a wide range of teaching contexts
 
 12/2024 - 08/2026, EFRE-20300105, [Pakt für Informatik 2.0], [EFRE/JTF NRW 2021--27]
 
+The documentation, project files, and results related to the Produs project have been moved to a dedicated [produs repository].
+
 The project aims to promote interest in STEM subjects - especially computer science - among
 school students in the surrounding region. The primary goal is to inspire young learners to
 consider a future path in computer science by engaging them in hands-on, game-based learning
@@ -189,6 +191,7 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [Stiftung Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de/
   [Pakt für Informatik 2.0]: https://www.efre.nrw/einfach-machen/foerderung-finden/pakt-fuer-informatik-20
   [EFRE/JTF NRW 2021--27]: https://www.efre.nrw/
+  [produs repository]: https://github.com/Dungeon-CampusMinden/PRODUS
   [2]: doc/press_kit/blockly/blockly_gif.gif
   [Fellowships für Innovationen in der digitalen Hochschullehre (digi-Fellows)]: https://www.dh.nrw/kooperationen/Digi-Fellows-2
   [`dungeon/assets/`]: dungeon/assets/

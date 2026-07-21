@@ -25,11 +25,11 @@ jobs:
             - name: Build JARs with Gradle
               run: ./gradlew buildTheLastHourJar
 
-            # 5. save both jar artefacts
+            # 5. save jar artefact
             - name: Upload Build Artifacts
               uses: actions/upload-artifact@v7
               with:
-                  name: Blockly-JARs
+                  name: TheLastHour-JAR
                   path: theLastHourEscapeRoom/build/libs/*.jar
 
     buildExecutables:

@@ -35,8 +35,6 @@ logs/
 # Game Generated Files #
 ########################
 dungeon_config.json
-currentPortalLevel.json
-currentBlocklyLevel.json
 last_session.dat
 
 
