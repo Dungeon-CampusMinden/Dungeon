@@ -22,7 +22,6 @@ Zur besseren Zusammenarbeit im Team gelten folgende Konventionen für Issues und
 * **Sprache**: Titel sind englisch; Beschreibungen sind auf deutsch.
 * Ersteller:in **setzt sich selbst als Assignee**.
 * Der **PR-Titel** beschreibt präzise den Inhalt des PRs.
-* Verwende im Titel das **Subprojekt als Präfix**, z. B. `Blockly: add wuppi fluppi`.
 * **Labels oder Projekte** müssen *nicht* manuell gesetzt werden.
 
 ### Drafts & Reviews
