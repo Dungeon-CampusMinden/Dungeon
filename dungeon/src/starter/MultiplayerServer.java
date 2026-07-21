@@ -16,7 +16,6 @@ import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
-import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.FrictionSystem;
 import core.systems.LevelSystem;
 import core.systems.MoveSystem;
@@ -49,15 +48,6 @@ public class MultiplayerServer {
   }
 
   private static void onSetup() {
-    ECSManagement.system(
-        LevelSystem.class,
-        levelSystem ->
-            levelSystem.onLevelLoad(
-                () -> {
-                  GameLoop.onLevelLoad.execute();
-                  Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
-                }));
-
     ECSManagement.add(new PositionSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());

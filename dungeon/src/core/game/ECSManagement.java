@@ -204,6 +204,8 @@ public final class ECSManagement {
    */
   public static Optional<System> add(final System system) {
     System currentSystem = SYSTEMS.get(system.getClass());
+    if (currentSystem == system) return Optional.of(currentSystem);
+    if (currentSystem != null) remove(currentSystem.getClass());
     SYSTEMS.put(system.getClass(), system);
     // add to existing filter or create new filter if no matching exists
     Optional<EntitySystemMapper> filter =
