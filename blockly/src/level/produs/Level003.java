@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import core.Game;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
@@ -38,19 +39,24 @@ public class Level003 extends BlocklyLevel {
         // Schleifen
         "while_loop",
         // Kategorien
-        "Inventar & Charakter",
-        "Abfragen",
-        "Bedingung",
-        "Wahrheitsausdruecke",
-        "Variablen",
-        "Bedingungen");
-    addWebPopup(new ImagePopup("popups/level003/webpopups/01_steine.jpg"));
-    addWebPopup(new ImagePopup("popups/level003/webpopups/02_loop.jpg"));
-    addWebPopup(new ImagePopup("popups/level003/webpopups/03_loop.jpg"));
+        "%{BKY_CAT_INVENTORY}",
+        "%{BKY_CAT_QUERIES}",
+        "%{BKY_CAT_BOOLEAN}",
+        "%{BKY_CAT_VARIABLES}",
+        "%{BKY_CAT_CONDITIONS}");
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level003/webpopups/01_steine.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level003/webpopups/02_loop.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level003/webpopups/03_loop.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level003/codepopups/01_steine.jpg"));
-    addCodePopup(new ImagePopup("popups/level003/codepopups/02_loop.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level003/codepopups/01_steine.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level003/codepopups/02_loop.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

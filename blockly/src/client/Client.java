@@ -108,6 +108,9 @@ public class Client {
   /** Force to apply for movement of all entities. */
   public static Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
+  public static final String BLOCKLY_LANGUAGE_FILENAME = "currentBlocklyLanguage.json";
+  private static String blocklyLanguage = "de";
+
   private static final boolean DEBUG_MODE = false;
   private static final boolean ACTIVATE_TANKE_CONTROLLS = DEBUG_MODE;
   private static volatile boolean scheduleRestart = false;
@@ -471,5 +474,23 @@ public class Client {
       }
     } catch (Exception ignored) {
     }
+  }
+
+  /**
+   * Gets the current language for the Blockly popups.
+   *
+   * @return current language as 2 letter (de or en)
+   */
+  public static String getBlocklyLanguage() {
+    return blocklyLanguage;
+  }
+
+  /**
+   * Sets the language for the Blockly popups.
+   *
+   * @param blocklyLanguage new language, either "de" or "en"
+   */
+  public static void setBlocklyLanguage(String blocklyLanguage) {
+    Client.blocklyLanguage = blocklyLanguage;
   }
 }

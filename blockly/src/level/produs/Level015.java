@@ -39,9 +39,9 @@ public class Level015 extends BlocklyLevel {
         "logic_operator",
         "usual_condition",
         // Kategorien
-        "Variablen");
+        "%{BKY_CAT_VARIABLES}");
 
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

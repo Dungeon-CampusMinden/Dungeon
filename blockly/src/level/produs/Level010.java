@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import core.Game;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -34,18 +35,21 @@ public class Level010 extends BlocklyLevel {
         "shoot_green_portal",
         "shoot_blue_portal",
         // Kategorien
-        "Abfragen",
-        "Bedingung",
-        "Wahrheitsausdruecke",
-        "Variablen",
-        "Bedingungen");
+        "%{BKY_CAT_QUERIES}",
+        "%{BKY_CAT_CONDITIONS}",
+        "%{BKY_CAT_BOOLEAN}",
+        "%{BKY_CAT_VARIABLES}");
 
-    addWebPopup(new ImagePopup("popups/level010/webpopups/01_Feuerball.jpg"));
-    addWebPopup(new ImagePopup("popups/level010/webpopups/02_Feuerball2.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level010/webpopups/01_Feuerball.jpg"));
+    addWebPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level010/webpopups/02_Feuerball2.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level010/codepopups/01_Feuerball.jpg"));
-    addCodePopup(new ImagePopup("popups/level010/codepopups/02_Feuerball2.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level010/codepopups/01_Feuerball.jpg"));
+    addCodePopup(new ImagePopup("popups/de/level010/codepopups/02_Feuerball2.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

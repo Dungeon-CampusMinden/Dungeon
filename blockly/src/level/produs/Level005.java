@@ -2,6 +2,7 @@ package level.produs;
 
 import static level.LevelManagementUtils.cameraFocusOn;
 
+import client.Client;
 import core.Game;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -44,14 +45,13 @@ public class Level005 extends BlocklyLevel {
         "shoot_green_portal",
         "shoot_blue_portal",
         // Kategorien
-        "Abfragen",
-        "Bedingung",
-        "Wahrheitsausdruecke",
-        "Variablen",
-        "Bedingungen");
+        "%{BKY_CAT_QUERIES}",
+        "%{BKY_CAT_BOOLEAN}",
+        "%{BKY_CAT_VARIABLES}",
+        "%{BKY_CAT_CONDITIONS}");
 
-    addPopup(new ImagePopup("popups/level005/01_intro.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addPopup(new ImagePopup("popups/" + Client.getBlocklyLanguage() + "/level005/01_intro.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

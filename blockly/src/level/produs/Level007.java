@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import core.Entity;
@@ -46,14 +47,15 @@ public class Level007 extends BlocklyLevel {
         "shoot_green_portal",
         "shoot_blue_portal",
         // Kategorien
-        "Abfragen",
-        "Bedingung",
-        "Wahrheitsausdruecke",
-        "Variablen",
-        "Bedingungen");
+        "%{BKY_CAT_QUERIES}",
+        "%{BKY_CAT_CONDITIONS}",
+        "%{BKY_CAT_BOOLEAN}",
+        "%{BKY_CAT_VARIABLES}");
 
-    addPopup(new ImagePopup("popups/level007/01_hebel_schaltplan.jpg"));
-    addCodePopup(new ImagePopup("popups/overview1.jpg"));
+    addPopup(
+        new ImagePopup(
+            "popups/" + Client.getBlocklyLanguage() + "/level007/01_hebel_schaltplan.jpg"));
+    addCodePopup(new ImagePopup("popups/de/overview1.jpg"));
   }
 
   @Override

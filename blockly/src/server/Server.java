@@ -92,8 +92,26 @@ public class Server {
     languageContext.setHandler(this::handleLanguageRequest);
     HttpContext statusContext = server.createContext("/status");
     statusContext.setHandler(this::handleStatusRequest);
+    HttpContext handleUserLanguageContext = server.createContext("/userLanguage");
+    handleUserLanguageContext.setHandler(this::handleUserLanguageRequest);
+
     server.start();
     return server;
+  }
+
+  private void handleUserLanguageRequest(HttpExchange exchange) throws IOException {
+    InputStream inStream = exchange.getRequestBody();
+    String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
+
+    Client.setBlocklyLanguage(text);
+    Gdx.app.postRunnable(
+        () -> {
+          DungeonLoader.loadLevel(DungeonLoader.currentLevel());
+          Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
+        });
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(204, -1);
+    exchange.close();
   }
 
   /**
