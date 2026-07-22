@@ -201,7 +201,7 @@ public class S2CConverterTest {
     DrawInfoData drawInfo = createDrawInfo();
     PlayerComponent playerComponent = new PlayerComponent(true, "Hero");
     EntitySpawnEvent message =
-        new EntitySpawnEvent(42, position, drawInfo, true, playerComponent, (byte) 1);
+        new EntitySpawnEvent(42, position, drawInfo, playerComponent, (byte) 1);
 
     core.network.proto.s2c.EntitySpawnEvent proto = ENTITY_SPAWN_EVENT_CONVERTER.toProto(message);
     assertEquals(42, proto.getEntityId());
@@ -256,18 +256,12 @@ public class S2CConverterTest {
   public void testEntitySpawnBatchRoundTrip() {
     EntitySpawnEvent first =
         new EntitySpawnEvent(
-            1,
-            new PositionComponent(new Point(1.0f, 1.0f)),
-            createDrawInfo(),
-            false,
-            null,
-            (byte) 0);
+            1, new PositionComponent(new Point(1.0f, 1.0f)), createDrawInfo(), null, (byte) 0);
     EntitySpawnEvent second =
         new EntitySpawnEvent(
             2,
             new PositionComponent(new Point(2.0f, 2.0f)),
             createDrawInfo(),
-            true,
             new PlayerComponent(false, "Other"),
             (byte) 2);
 
