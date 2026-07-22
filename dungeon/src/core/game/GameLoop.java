@@ -411,6 +411,7 @@ public final class GameLoop extends ScreenAdapter {
       Gdx.files = new HeadlessFiles();
     }
 
+    ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(onLevelLoad));
     PreRunConfiguration.userOnSetup().execute();
     // Clients without a configured address wait for the connection dialog to start networking.
     if (!Game.isMultiplayerClient()) {
@@ -1000,7 +1001,6 @@ public final class GameLoop extends ScreenAdapter {
   /** Create the systems. */
   private void createSystems() {
     ECSManagement.add(new PositionSystem());
-    ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(onLevelLoad));
     ECSManagement.add(new CameraSystem());
     ECSManagement.add(new NetworkPositionSmoothingSystem());
     ECSManagement.add(new VelocitySystem());
