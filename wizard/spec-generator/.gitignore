@@ -2,3 +2,4 @@ src/data/deer.example.json
 src/data/deer.schema.json
 
 node_modules
+dist

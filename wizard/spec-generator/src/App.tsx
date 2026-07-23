@@ -1,5 +1,6 @@
 import { Toaster } from "sonner";
 import "./App.css";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 function App() {
   return (
@@ -31,12 +32,12 @@ function App() {
 
 function Layout() {
   return (
-    <>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <main className="typeset typeset-docs">
         <App />
       </main>
       <Toaster position="bottom-right" richColors />
-    </>
+    </ThemeProvider>
   );
 }
 

@@ -122,6 +122,12 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
 .typeset-docs {
   --typeset-font-body: var(--font-geist);
   --typeset-font-heading: var(--font-geist);
