@@ -47,9 +47,9 @@ export interface Scenario {
   playerRole: string;
   premise: string;
   mission: string;
-  introTexts: string[];
-  successTexts: string[];
-  failureTexts: string[];
+  introText: string;
+  successText: string;
+  failureText: string;
 }
 
 export interface Surface {
@@ -133,7 +133,7 @@ export interface Riddle {
   type: "collection" | "input";
   title: string;
   learningObjectiveIds: string[];
-  playerFacingTasks: string[];
+  playerFacingTask: string;
   estimatedMinutes: number;
   resources: AnyResource[];
   hints: RiddleHint[];

@@ -24,25 +24,22 @@
     0 12px 20px rgb(0 0 0 / 0.22);
 }
 
-h1 {
-  margin: 0 0 16px 0;
-}
-
-h2 {
-  margin: 0 0 8px 0;
-}
-
-h3 {
-  margin: 0 0 4px 0;
-}
-
+h1,
+h2,
+h3,
 p {
   margin: 0;
 }
 
 .panel {
   padding: 16px;
-  border: 1px solid var(--foreground);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-1);
+}
+
+code {
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+  padding: 16px;
+  border-radius: var(--radius-sm);
 }

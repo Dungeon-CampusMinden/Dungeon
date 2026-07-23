@@ -1,38 +1,62 @@
 import { Toaster } from "sonner";
 import "./App.css";
 import { ThemeProvider } from "./components/ThemeProvider";
+import schema from "./data/deer.example.json";
+import type { DeerSchema } from "./data/DeerSchema";
+import { Button } from "./components/ui/button";
+import { useLocalStorage } from "@uidotdev/usehooks";
+import { ErrorDetector } from "./components/ErrorDetector";
+import { SidebarNavigation } from "./components/SidebarNavigation";
+import { MetadataTab } from "./components/MetadataTab";
 
 function App() {
+  const [deerSchema, setDeerSchema] = useLocalStorage<DeerSchema>("schema", schema as DeerSchema);
+  const [tab, setTab] = useLocalStorage<string>("tab", "metadata");
+
+  const updateDeerSchema = (updatedSchema: DeerSchema) => {
+    setDeerSchema(JSON.parse(JSON.stringify(updatedSchema)));
+  };
+
+  const testAction = () => {
+    deerSchema.metadata.title = "Updated Title";
+    updateDeerSchema(deerSchema);
+  };
+
   return (
-    <div className={`grid grid-cols-[1fr] lg:grid-cols-[300px_1fr] gap-4 p-4 w-[1200px] max-w-full mx-auto`}>
-      <div className="panel">
-        <h2>Sidebar</h2>
-        <p className="">
-          The sidebar will hold the outline/overview and links to each step for quick navigation.
-        </p>
+    <div className={`grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 p-4 w-[1200px] max-w-full mx-auto`}>
+      <div className="lg:sticky lg:top-4 flex flex-col gap-4">
+        <SidebarNavigation
+          deerSchema={deerSchema}
+          updateDeerSchema={updateDeerSchema}
+          tab={tab}
+          setTab={setTab}
+        />
+        <ErrorDetector
+          deerSchema={deerSchema}
+          updateDeerSchema={updateDeerSchema}
+          className="lg:block hidden"
+        />
       </div>
       <div className="row-span-2 panel">
-        <h1>Wizard Spec Generator</h1>
-        <p className="">There will be the main content here</p>
-        <ul className="">
-          <li>Each form shows its respective fields</li>
-          <li>Continue/Back buttons</li>
-        </ul>
+        {tab === "metadata" && <MetadataTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
+        {tab === "review" && (
+          <>
+            <h1>Wizard Spec Generator</h1>
+            <Button onClick={testAction}>Test</Button>
+            <code className="block mb-4 p-2 bg-slate-100 rounded-sm text-sm">
+              <pre>{JSON.stringify(deerSchema, null, 2)}</pre>
+            </code>
+          </>
+        )}
       </div>
-      <div className="panel rounded-sm">
-        <h2>Error Detector</h2>
-        <p className="">
-          This will show any errors in the form and provide links to jump to the specific step that needs to
-          be fixed.
-        </p>
-      </div>
+      <ErrorDetector deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} className="lg:hidden" />
     </div>
   );
 }
 
 function Layout() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
       <main className="typeset typeset-docs">
         <App />
       </main>
