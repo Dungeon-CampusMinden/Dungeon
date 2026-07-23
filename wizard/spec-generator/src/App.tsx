@@ -1,10 +1,7 @@
 import { Toaster } from "sonner";
-import { useMediaQuery } from "./hooks/useMediaQuery";
 import "./App.css";
 
 function App() {
-  const isMobile = useMediaQuery("(max-width: 900px)");
-
   return (
     <div className={`grid grid-cols-[1fr] lg:grid-cols-[300px_1fr] gap-4 p-4 w-[1200px] max-w-full mx-auto`}>
       <div className="panel">
