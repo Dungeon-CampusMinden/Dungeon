@@ -68,7 +68,3 @@ replay_pid*
 # Executable binaries
 *.exe
 *.bin
-
-# NODE #
-########
-**/node_modules/
