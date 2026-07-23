@@ -15,7 +15,6 @@ import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.ClientStarter;
 import core.game.ECSManagement;
-import core.game.GameLoop;
 import core.game.GameStarter;
 import core.game.MainMenu;
 import core.game.PreRunConfiguration;
@@ -23,9 +22,7 @@ import core.game.ServerProcess;
 import core.game.ServerStarter;
 import core.language.Language;
 import core.language.Localization;
-import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.FrictionSystem;
-import core.systems.LevelSystem;
 import core.systems.MoveSystem;
 import core.systems.PositionSystem;
 import core.systems.VelocitySystem;
@@ -144,15 +141,6 @@ public class TheLastHour {
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
     ECSManagement.remove(AttributeBarSystem.class);
-
-    ECSManagement.system(
-        LevelSystem.class,
-        levelSystem ->
-            levelSystem.onLevelLoad(
-                () -> {
-                  GameLoop.onLevelLoad.execute();
-                  Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
-                }));
     showServerStatusWindow();
 
     ECSManagement.add(new CollisionSystem());

@@ -16,9 +16,7 @@ public final class EntitySpawnEventConverter
   @Override
   public core.network.proto.s2c.EntitySpawnEvent toProto(EntitySpawnEvent message) {
     core.network.proto.s2c.EntitySpawnEvent.Builder builder =
-        core.network.proto.s2c.EntitySpawnEvent.newBuilder()
-            .setEntityId(message.entityId())
-            .setIsPersistent(message.isPersistent());
+        core.network.proto.s2c.EntitySpawnEvent.newBuilder().setEntityId(message.entityId());
 
     if (message.positionComponent() != null) {
       builder.setPosition(CommonProtoConverters.toProto(message.positionComponent()));
@@ -61,7 +59,6 @@ public final class EntitySpawnEventConverter
         proto.getEntityId(),
         position,
         drawInfo,
-        proto.getIsPersistent(),
         playerComponent,
         characterClassId,
         proto.getMetadataMap());

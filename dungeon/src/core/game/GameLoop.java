@@ -80,7 +80,6 @@ import core.utils.components.draw.DrawComponentFactory;
 import core.utils.logging.DungeonLogger;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -127,12 +126,16 @@ public final class GameLoop extends ScreenAdapter {
    */
   public static final IVoidFunction onLevelLoad =
       () -> {
-        boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
-        if (firstLoad && Game.isCheckPatternEnabled())
+        if (Game.isCheckPatternEnabled())
           Game.currentLevel()
               .ifPresent(level -> CheckPatternPainter.paintCheckerPattern(level.layout()));
 
         boolean serverAuthority = PreRunConfiguration.isNetworkServer();
+
+        if (PreRunConfiguration.multiplayerEnabled() && serverAuthority) {
+          Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
+        }
+
         if (serverAuthority) {
           SoundTracker.instance().clear();
         }
@@ -141,28 +144,23 @@ public final class GameLoop extends ScreenAdapter {
         if (serverAuthority) {
           allPlayers.forEach(ECSManagement::remove);
         }
-        // Remove the systems so that each triggerOnRemove(entity) will be called (basically
-        // cleanup).
-        Map<Class<? extends System>, System> s = ECSManagement.systems();
-        ECSManagement.removeAllSystems();
-        ECSManagement.activeEntityStorage(
-            ECSManagement.levelStorageMap()
-                .computeIfAbsent(Game.currentLevel().orElse(null), k -> new HashSet<>()));
-        // readd the systems so that each triggerOnAdd(entity) will be called (basically
-        // setup). This will also create new EntitySystemMapper if needed.
-        s.values().forEach(ECSManagement::add);
-        ECSManagement.allEntities()
-            .filter(Entity::isPersistent)
-            .map(ECSManagement::remove)
-            .forEach(ECSManagement::add);
 
-        if (!serverAuthority) return; // no authority
+        if (!serverAuthority) { // no authority
+          Game.entities().filter(Entity::isLocal).toList().forEach(Game::remove);
+          return;
+        }
 
         try {
-          allPlayers.forEach(GameLoop::placeOnLevelStart);
+          Game.entities().filter(entity -> !allPlayers.contains(entity)).forEach(Game::remove);
+          allPlayers.forEach(
+              entity -> {
+                placeOnLevelStart(entity);
+                ECSManagement.add(entity);
+              });
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
         }
+
         Game.currentLevel()
             .ifPresent(
                 level ->
@@ -170,7 +168,7 @@ public final class GameLoop extends ScreenAdapter {
                         .decorations()
                         .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a()))));
 
-        PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
+        PreRunConfiguration.userOnLevelLoad().accept(true);
       };
 
   // for singleton
@@ -413,6 +411,7 @@ public final class GameLoop extends ScreenAdapter {
       Gdx.files = new HeadlessFiles();
     }
 
+    ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(onLevelLoad));
     PreRunConfiguration.userOnSetup().execute();
     // Clients without a configured address wait for the connection dialog to start networking.
     if (!Game.isMultiplayerClient()) {
@@ -476,7 +475,7 @@ public final class GameLoop extends ScreenAdapter {
           LOGGER.info("Received EntitySpawnEvent event: " + event.entityId());
 
           // check if the entity already exists
-          if (Game.allEntities().anyMatch(e -> e.id() == event.entityId())) {
+          if (Game.levelEntities().anyMatch(e -> e.id() == event.entityId())) {
             LOGGER.warn(
                 "Received spawn event for already existing entity with ID: " + event.entityId());
             return;
@@ -525,7 +524,6 @@ public final class GameLoop extends ScreenAdapter {
           if (event.drawInfo() != null) {
             newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
           }
-          newEntity.persistent(event.isPersistent());
           Game.add(newEntity);
           trackNetworkEntity(ctx, event.entityId());
         });
@@ -551,7 +549,7 @@ public final class GameLoop extends ScreenAdapter {
                   + event.reason());
           untrackNetworkEntity(ctx, event.entityId());
           Entity entity =
-              Game.allEntities().filter(e -> e.id() == event.entityId()).findFirst().orElse(null);
+              Game.levelEntities().filter(e -> e.id() == event.entityId()).findFirst().orElse(null);
           if (entity == null) {
             LOGGER.warn("Received despawn event for unknown entity with ID: " + event.entityId());
             return;
@@ -786,7 +784,7 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, msg) -> {
           LOGGER.debug("Received DialogCloseMessage for dialog: {}", msg.dialogId());
           // Find and remove the UiComponent with the given dialogId
-          Game.allEntities()
+          Game.levelEntities()
               .filter(
                   e ->
                       e.fetch(UIComponent.class)
@@ -907,7 +905,6 @@ public final class GameLoop extends ScreenAdapter {
                       pc::position, () -> LOGGER.warn("No start tile found for the current level"));
               pc.viewDirection(Direction.DOWN); // look down by default
             });
-    ECSManagement.add(entity);
 
     // reset animations
     entity.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
@@ -1004,7 +1001,6 @@ public final class GameLoop extends ScreenAdapter {
   /** Create the systems. */
   private void createSystems() {
     ECSManagement.add(new PositionSystem());
-    ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(onLevelLoad));
     ECSManagement.add(new CameraSystem());
     ECSManagement.add(new NetworkPositionSmoothingSystem());
     ECSManagement.add(new VelocitySystem());

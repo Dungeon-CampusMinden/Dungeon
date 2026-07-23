@@ -437,7 +437,7 @@ public record ComputerStateComponent(
    *     or an empty Optional if it does not
    */
   private static Optional<Entity> getStateEntity() {
-    return ECSManagement.levelEntities(Set.of(ComputerStateComponent.class)).findFirst();
+    return ECSManagement.entities(Set.of(ComputerStateComponent.class)).findFirst();
   }
 
   /**

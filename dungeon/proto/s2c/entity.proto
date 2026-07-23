@@ -22,9 +22,6 @@ message EntitySpawnEvent {
   // Visual representation info.
   DrawInfo draw_info = 3;
 
-  // Whether entity persists across level reloads.
-  bool is_persistent = 4;
-
   // Player-specific info (only for player entities).
   optional PlayerInfo player_info = 5;
 

@@ -149,7 +149,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
               .entityId(base.entityId())
               .positionComponent(base.positionComponent())
               .drawInfo(base.drawInfo())
-              .isPersistent(base.isPersistent())
               .playerComponent(base.playerComponent())
               .characterClassId(base.characterClassId())
               .metadata(metadata)
@@ -168,7 +167,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
         EntitySpawnEvent.builder()
             .entityId(entity.id())
             .positionComponent(entity.fetch(PositionComponent.class).orElse(null))
-            .isPersistent(entity.isPersistent())
             .metadata(metadata)
             .build());
   }
