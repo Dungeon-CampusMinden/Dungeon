@@ -47,9 +47,9 @@ export interface Scenario {
   playerRole: string;
   premise: string;
   mission: string;
-  introText: string;
-  successText: string;
-  failureText: string;
+  introTexts: string[];
+  successTexts: string[];
+  failureTexts: string[];
 }
 
 export interface Surface {
@@ -95,7 +95,7 @@ export interface Resource {
   id: string;
   kind: "inline_text" | "asset";
   title: string;
-  availability: "visible_in_level";
+  availability: "visible_in_level" | "inside_container";
   purpose: "clue" | "context" | "instruction" | "decoy";
 }
 export interface ResourceText extends Resource {

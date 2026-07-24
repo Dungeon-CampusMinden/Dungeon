@@ -8,6 +8,8 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 import { ErrorDetector } from "./components/ErrorDetector";
 import { SidebarNavigation } from "./components/SidebarNavigation";
 import { MetadataTab } from "./components/MetadataTab";
+import { ScenarioTab } from "./components/ScenarioTab";
+import { SessionTab } from "./components/SessionTab";
 
 function App() {
   const [deerSchema, setDeerSchema] = useLocalStorage<DeerSchema>("schema", schema as DeerSchema);
@@ -39,6 +41,8 @@ function App() {
       </div>
       <div className="row-span-2 panel">
         {tab === "metadata" && <MetadataTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
+        {tab === "scenario" && <ScenarioTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
+        {tab === "session" && <SessionTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
         {tab === "review" && (
           <>
             <h1>Wizard Spec Generator</h1>
