@@ -121,12 +121,20 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --border-color: rgb(153, 153, 153);
+  --border-color: rgb(112, 112, 112);
 }
 
 @layer base {
   body {
     @apply bg-background text-foreground;
+    background-color: var(--background);
+    background-image:
+      linear-gradient(rgb(10 10 10 / 0.02), rgb(10 10 10 / 0.02)),
+      url("/background.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
   }
 }
 

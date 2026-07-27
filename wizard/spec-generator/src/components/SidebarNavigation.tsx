@@ -32,6 +32,10 @@ export function SidebarNavigation({
             <CircleAlertIcon className="text-yellow-500" />
             Spielablauf
           </TabsTrigger>
+          <TabsTrigger value="surfaces">
+            <CircleCheckIcon className="text-green-500" />
+            Orte
+          </TabsTrigger>
           <TabsTrigger value="riddles">
             <CircleXIcon className="text-red-500" />
             Rätsel, Inhalte & Hilfen

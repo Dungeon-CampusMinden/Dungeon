@@ -10,6 +10,7 @@ import { SidebarNavigation } from "./components/SidebarNavigation";
 import { MetadataTab } from "./components/MetadataTab";
 import { ScenarioTab } from "./components/ScenarioTab";
 import { SessionTab } from "./components/SessionTab";
+import { SurfacesTab } from "./components/SurfacesTab";
 
 function App() {
   const [deerSchema, setDeerSchema] = useLocalStorage<DeerSchema>("schema", schema as DeerSchema);
@@ -25,35 +26,39 @@ function App() {
   };
 
   return (
-    <div className={`grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 p-4 w-[1200px] max-w-full mx-auto`}>
-      <div className="lg:sticky lg:top-4 flex flex-col gap-4">
-        <SidebarNavigation
-          deerSchema={deerSchema}
-          updateDeerSchema={updateDeerSchema}
-          tab={tab}
-          setTab={setTab}
-        />
-        <ErrorDetector
-          deerSchema={deerSchema}
-          updateDeerSchema={updateDeerSchema}
-          className="lg:block hidden"
-        />
+    <div className="h-screen overflow-scroll max-w-7xl mx-auto bg-background p-4">
+      <h1 className="text-3xl font-bold mb-4 text-center">Dungeon Spec Generator</h1>
+      <div className={`grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 max-w-full`}>
+        <div className="lg:sticky lg:top-0 flex flex-col gap-4">
+          <SidebarNavigation
+            deerSchema={deerSchema}
+            updateDeerSchema={updateDeerSchema}
+            tab={tab}
+            setTab={setTab}
+          />
+          <ErrorDetector
+            deerSchema={deerSchema}
+            updateDeerSchema={updateDeerSchema}
+            className="lg:block hidden"
+          />
+        </div>
+        <div className="row-span-2 panel">
+          {tab === "metadata" && <MetadataTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
+          {tab === "scenario" && <ScenarioTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
+          {tab === "session" && <SessionTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
+          {tab === "surfaces" && <SurfacesTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
+          {tab === "review" && (
+            <>
+              <h1>Wizard Spec Generator</h1>
+              <Button onClick={testAction}>Test</Button>
+              <code className="block mb-4 p-2 bg-slate-100 rounded-sm text-sm">
+                <pre>{JSON.stringify(deerSchema, null, 2)}</pre>
+              </code>
+            </>
+          )}
+        </div>
+        <ErrorDetector deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} className="lg:hidden" />
       </div>
-      <div className="row-span-2 panel">
-        {tab === "metadata" && <MetadataTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-        {tab === "scenario" && <ScenarioTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-        {tab === "session" && <SessionTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-        {tab === "review" && (
-          <>
-            <h1>Wizard Spec Generator</h1>
-            <Button onClick={testAction}>Test</Button>
-            <code className="block mb-4 p-2 bg-slate-100 rounded-sm text-sm">
-              <pre>{JSON.stringify(deerSchema, null, 2)}</pre>
-            </code>
-          </>
-        )}
-      </div>
-      <ErrorDetector deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} className="lg:hidden" />
     </div>
   );
 }
