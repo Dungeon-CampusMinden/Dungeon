@@ -34,8 +34,7 @@
     },
     "questlog": {
       "title": "Questlog",
-      "empty": "Questlog ist leer.",
-      "not_initialized": "Questlog wurde nicht initialisiert."
+      "empty": "Questlog ist leer."
     },
     "client_connection_dialog": {
       "title": "Server verbinden",

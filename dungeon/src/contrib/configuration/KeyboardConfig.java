@@ -20,7 +20,7 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> PAUSE_MENU =
       new ConfigKey<>(new String[] {"ui", "open_pause_menu"}, new ConfigIntValue(Input.Keys.P));
 
-  /** Opens the proof-of-concept quest log UI. */
+  /** Opens the quest log UI. */
   public static final ConfigKey<Integer> QUESTLOG_OPEN =
       new ConfigKey<>(new String[] {"questlog", "open"}, new ConfigIntValue(Input.Keys.B));
 
