@@ -24,9 +24,6 @@ public class QuestLogComponent implements Component {
 
   private final Map<String, List<QuestLogEntry>> questlog = new HashMap<>();
 
-  /** Creates an empty quest log. */
-  public QuestLogComponent() {}
-
   /**
    * Adds a quest log entry to the end of the given tab.
    *
