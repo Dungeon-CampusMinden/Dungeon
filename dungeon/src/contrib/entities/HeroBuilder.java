@@ -43,9 +43,8 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import java.util.Arrays;
 import java.util.Map;
-import questlog.QuestLogConfig;
-import questlog.QuestLogUI;
 import java.util.function.Consumer;
+import questlog.QuestLogUI;
 
 /**
  * A utility class for building the player entity in the game world.
@@ -408,7 +407,7 @@ public final class HeroBuilder {
     inputComp.registerCallback(
         KeyboardConfig.PAUSE_MENU.value(), PauseDialog::showPauseDialog, false, true);
     inputComp.registerCallback(
-        QuestLogConfig.OPEN_QUESTLOG.value(),
+        KeyboardConfig.QUESTLOG_OPEN.value(),
         QuestLogUI::requestQuestLog,
         false,
         true);

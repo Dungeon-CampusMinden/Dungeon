@@ -58,6 +58,19 @@ public final class QuestLogUtil {
   }
 
   /**
+   * Returns whether the shared quest log is ready to be used.
+   *
+   * <p>The quest log is considered initialized only after {@link #initQuestLog()} created the
+   * backing entity and that entity still contains a {@link QuestLogComponent}. UI code can use this
+   * check to hide quest log controls until the current game or level actually provides a quest log.
+   *
+   * @return {@code true} if quest log entries can be read and written, {@code false} otherwise
+   */
+  public static boolean isInitialized() {
+    return getQuestLogComponent().isPresent();
+  }
+
+  /**
    * Adds an existing quest log entry to the given tab.
    *
    * <p>Use this overload when the caller already created a {@link QuestLogEntry}, for example when

@@ -4,8 +4,8 @@ import contrib.hud.dialogs.DialogFactory;
 import core.Entity;
 import core.Game;
 import core.language.Translation;
-import core.network.input.InputCommandRouter;
 import core.network.messages.c2s.InputMessage;
+import core.utils.logging.DungeonLogger;
 
 /**
  * Proof-of-concept UI helpers for displaying or printing the shared quest log.
@@ -26,23 +26,10 @@ public final class QuestLogUI {
 
   private static final String T_TITLE = "title";
   private static final String T_EMPTY_QUESTLOG = "empty";
-  private static final String T_QUESTLOG_NOT_INITIALIZED = "not_initialized";
   private static final Translation trans = new Translation("dialog.questlog");
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(QuestLogUI.class);
 
   private QuestLogUI() {}
-
-  /**
-   * Registers the server-side input handler for client quest log requests.
-   *
-   * <p>This method must be called during authoritative input setup before clients can use {@link
-   * #COMMAND_SHOW_QUESTLOG}. Re-registering replaces the previous handler for the same route.
-   */
-  public static void registerInputHandler() {
-    InputCommandRouter.register(
-        COMMAND_SHOW_QUESTLOG,
-        true,
-        context -> QuestLogUI.printQuestLogForClients(context.playerEntity().id()));
-  }
 
   /**
    * Requests that the quest log is shown for the given player.
@@ -68,10 +55,10 @@ public final class QuestLogUI {
    * #requestQuestLog(Entity)}.
    */
   public static void printQuestLog() {
-    System.out.println(
-        QuestLogUtil.getQuestLogComponent()
-            .map(QuestLogUI::formatQuestLog)
-            .orElse(trans.text(T_QUESTLOG_NOT_INITIALIZED)));
+    QuestLogUtil.getQuestLogComponent()
+        .ifPresentOrElse(
+            questLog -> System.out.println(formatQuestLog(questLog)),
+            QuestLogUI::logMissingQuestLog);
   }
 
   /**
@@ -94,8 +81,8 @@ public final class QuestLogUI {
    * dialog to the selected clients. If no target entity IDs are provided, all connected clients
    * receive it.
    *
-   * <p>If the quest log was not initialized, this method still opens a translated error dialog for
-   * the target clients and returns {@code false}.
+   * <p>If the quest log was not initialized, this method does not show anything to players. It logs
+   * the missing setup in the background and returns {@code false}.
    *
    * @param targetEntityIds optional player entity IDs that should receive the quest log
    * @return {@code true} if a quest log was available and the display request was created, {@code
@@ -111,11 +98,7 @@ public final class QuestLogUI {
             })
         .orElseGet(
             () -> {
-              DialogFactory.showOkDialog(
-                  trans.text(T_QUESTLOG_NOT_INITIALIZED),
-                  trans.text(T_TITLE),
-                  () -> {},
-                  targetEntityIds);
+              logMissingQuestLog();
               return false;
             });
   }
@@ -161,5 +144,9 @@ public final class QuestLogUI {
           .append(entry.timestamp())
           .append(")");
     }
+  }
+
+  private static void logMissingQuestLog() {
+    LOGGER.warn("Quest log was requested, but no QuestLogComponent is initialized.");
   }
 }

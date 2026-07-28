@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.CollideComponent;
+import contrib.configuration.KeyboardConfig;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.hud.dialogs.DialogFactory;
@@ -46,7 +47,6 @@ import modules.trash.TrashMinigameUI;
 import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
-import questlog.QuestLogConfig;
 import util.ui.BlackFadeCutscene;
 
 /** The main class for the Multiplayer Client for development and testing purposes. */
@@ -252,7 +252,7 @@ public final class LastHourClient {
     ClientSettings.registerSetting(
         new ButtonBindingSetting(T_SETTINGS_INVENTORY, Input.Keys.I, false));
     ClientSettings.registerSetting(
-        new ButtonBindingSetting(T_SETTINGS_QUESTLOG, QuestLogConfig.OPEN_QUESTLOG.value(), false));
+        new ButtonBindingSetting(T_SETTINGS_QUESTLOG, KeyboardConfig.QUESTLOG_OPEN.value(), false));
     ClientSettings.registerSetting(
         new DescriptionSetting(T_SETTINGS_INVENTORY_DESCRIPTION, Input.Buttons.RIGHT));
   }
