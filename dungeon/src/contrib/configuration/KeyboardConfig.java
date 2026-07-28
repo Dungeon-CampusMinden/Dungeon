@@ -22,7 +22,7 @@ public class KeyboardConfig {
 
   /** Opens the quest log UI. */
   public static final ConfigKey<Integer> QUESTLOG_OPEN =
-      new ConfigKey<>(new String[] {"questlog", "open"}, new ConfigIntValue(Input.Keys.B));
+      new ConfigKey<>(new String[] {"contrib/questlog", "open"}, new ConfigIntValue(Input.Keys.B));
 
   /** WTF? . */
   public static final ConfigKey<Integer> INTERACT_WORLD =

@@ -36,7 +36,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import questlog.QuestLogUI;
+import contrib.questlog.QuestLogUI;
 
 /**
  * Controller class for handling hero entity actions such as movement, skill usage, and

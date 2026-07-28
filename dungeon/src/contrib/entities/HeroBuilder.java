@@ -44,7 +44,7 @@ import core.utils.components.draw.state.StateMachine;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Consumer;
-import questlog.QuestLogUI;
+import contrib.questlog.QuestLogUI;
 
 /**
  * A utility class for building the player entity in the game world.

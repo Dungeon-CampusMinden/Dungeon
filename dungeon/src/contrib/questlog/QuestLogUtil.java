@@ -1,4 +1,4 @@
-package questlog;
+package contrib.questlog;
 
 import core.Entity;
 import java.util.Optional;

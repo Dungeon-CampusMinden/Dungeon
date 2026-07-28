@@ -69,7 +69,7 @@ import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameFactory;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
-import questlog.QuestLogUtil;
+import contrib.questlog.QuestLogUtil;
 import starter.LastHourClient;
 import util.InteractionHelper;
 import util.LastHourSounds;
@@ -80,7 +80,7 @@ import util.ui.BlackFadeCutscene;
 /** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
-  private static final Translation QUESTLOG_TRANSLATION = new Translation("questlog");
+  private static final Translation QUESTLOG_TRANSLATION = new Translation("contrib/questlog");
   private static final String T_MAIN_QUEST_TAB = "main_quest_tab";
   private static final String T_FIND_EXIT_ENTRY = "find_exit_entry";
   private static LastHourLevel Instance = null;

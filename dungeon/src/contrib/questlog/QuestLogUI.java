@@ -1,4 +1,4 @@
-package questlog;
+package contrib.questlog;
 
 import contrib.hud.dialogs.DialogFactory;
 import core.Entity;

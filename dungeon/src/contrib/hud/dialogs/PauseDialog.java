@@ -29,8 +29,8 @@ import core.utils.Scene2dElementFactory;
 import core.utils.settings.ClientSettings;
 import java.util.ArrayList;
 import java.util.List;
-import questlog.QuestLogUtil;
-import questlog.QuestLogUI;
+import contrib.questlog.QuestLogUtil;
+import contrib.questlog.QuestLogUI;
 
 /**
  * Package-private builder for the pause menu.
@@ -41,7 +41,7 @@ public class PauseDialog extends Table {
 
   private static final String T_PAUSED = "paused";
   private static final String T_RESUME = "resume";
-  private static final String T_QUESTLOG = "questlog";
+  private static final String T_QUESTLOG = "contrib/questlog";
   private static final String T_SETTINGS = "settings";
   private static final String T_QUIT_TO_DESKTOP = "quit_to_desktop";
   private static final String T_BACK = "back";
