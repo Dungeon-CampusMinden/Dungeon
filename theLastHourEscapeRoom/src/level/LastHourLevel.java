@@ -29,6 +29,7 @@ import contrib.systems.EventScheduler;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
+import contrib.utils.translation.TranslationKey;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -626,7 +627,7 @@ public class LastHourLevel extends DungeonLevel {
             () ->
                 new Interaction(
                     (e, who) -> {
-                      DialogFactory.showOkDialog(Lore.R2DeskNoteText, "", () -> {}, who.id());
+                      DialogFactory.showOkDialog(TranslationKey.R2DeskNoteText, "", () -> {}, who.id());
                       LastHourQuestLogUtil.addUsbColorHintQuestLogEntry();
                     })));
     Game.add(desk);

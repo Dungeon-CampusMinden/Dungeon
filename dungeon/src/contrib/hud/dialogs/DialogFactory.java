@@ -9,6 +9,8 @@ import contrib.hud.inventory.InventoryGUI;
 import contrib.modules.keypad.KeypadUI;
 import contrib.modules.puzzle.PuzzleDialog;
 import contrib.utils.AttributeBarUtil;
+import contrib.utils.translation.TranslationKey;
+import contrib.utils.translation.Translator;
 import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
@@ -16,12 +18,8 @@ import core.game.PreRunConfiguration;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -162,7 +160,20 @@ public class DialogFactory {
     // Store owner entity ID in context for network sync
     context.owner(ownerEntity.id());
 
-    UIComponent ui = new UIComponent(context, willPause, canBeClosed, targetEntityIds);
+    DialogContext translatedContext = context;
+    if(Game.isMultiplayerClient()) {
+      // Try-catch block to ensure Game doesnt crash when the DialogContextKeys.MESSAGE is not a String.
+      try {
+        Optional<String> key = context.find(DialogContextKeys.MESSAGE, String.class);
+        if(key.isPresent() && Translator.isKey(key.get())) {
+          Map<String, Object> attributes = context.attributes();
+          attributes.put(DialogContextKeys.MESSAGE, Translator.translate(key.get(),Game.localization().currentLanguage()));
+          translatedContext = new DialogContext(context.dialogType(),context.center(),attributes, context.dialogId());
+        }
+      } catch (DialogCreationException e) {}
+    }
+
+    UIComponent ui = new UIComponent(translatedContext, willPause, canBeClosed, targetEntityIds);
     ownerEntity.add(ui);
 
     return ui;
