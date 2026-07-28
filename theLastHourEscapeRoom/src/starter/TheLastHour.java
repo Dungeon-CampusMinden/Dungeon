@@ -49,6 +49,7 @@ import modules.computer.ComputerStateSyncSystem;
 import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
+import questlog.QuestLogConfig;
 
 /**
  * Entry point for running a minimal dungeon game instance.
@@ -104,7 +105,8 @@ public class TheLastHour {
                   UsbStickItem.ensureRegistration();
                   initLocalization();
                 })
-            .config(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class)
+            .config(
+                new SimpleIPath("dungeon_config.json"), KeyboardConfig.class, QuestLogConfig.class)
             .snapshotTranslator(new LastHourSnapshotTranslator())
             .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
             .onFrame(TheLastHour::onFrame)
@@ -116,7 +118,8 @@ public class TheLastHour {
             .onConfigure(LastHourClient::registerClientContent)
             .initLocalization(TheLastHour::initLocalization)
             .registerSettings(LastHourClient::registerSettings)
-            .config(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class)
+            .config(
+                new SimpleIPath("dungeon_config.json"), KeyboardConfig.class, QuestLogConfig.class)
             .snapshotTranslator(new LastHourSnapshotTranslator())
             .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
             .build();

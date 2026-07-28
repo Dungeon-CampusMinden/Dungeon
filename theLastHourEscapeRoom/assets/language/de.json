@@ -1,10 +1,15 @@
 {
+  "questlog": {
+	"main_quest_tab": "Hauptquest",
+	"find_exit_entry": "Finde den Ausgang"
+  },
   "settings": {
 	"controls_header": "Steuerung",
 	"controls_description": "Nutze die Maus, um Interaktionen zu finden.[n]Drücke dann [key code=$1], um zu interagieren!",
 	"pause": "Pause",
 	"interact": "Interagieren",
 	"inventory": "Inventar",
+	"questlog": "Questlog",
 	"inventory_description": "Im Inventar kannst du mit [key code=$1 type=mouse] ein Item benutzen"
   }
 }

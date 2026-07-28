@@ -46,6 +46,7 @@ import modules.trash.TrashMinigameUI;
 import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
+import questlog.QuestLogConfig;
 import util.ui.BlackFadeCutscene;
 
 /** The main class for the Multiplayer Client for development and testing purposes. */
@@ -237,6 +238,7 @@ public final class LastHourClient {
   private static final String T_SETTINGS_PAUSE = "settings.pause";
   private static final String T_SETTINGS_INTERACT = "settings.interact";
   private static final String T_SETTINGS_INVENTORY = "settings.inventory";
+  private static final String T_SETTINGS_QUESTLOG = "settings.questlog";
   private static final String T_SETTINGS_INVENTORY_DESCRIPTION = "settings.inventory_description";
 
   /** Registers additional client settings. */
@@ -249,6 +251,8 @@ public final class LastHourClient {
         new ButtonBindingSetting(T_SETTINGS_INTERACT, Input.Keys.E, false));
     ClientSettings.registerSetting(
         new ButtonBindingSetting(T_SETTINGS_INVENTORY, Input.Keys.I, false));
+    ClientSettings.registerSetting(
+        new ButtonBindingSetting(T_SETTINGS_QUESTLOG, QuestLogConfig.OPEN_QUESTLOG.value(), false));
     ClientSettings.registerSetting(
         new DescriptionSetting(T_SETTINGS_INVENTORY_DESCRIPTION, Input.Buttons.RIGHT));
   }

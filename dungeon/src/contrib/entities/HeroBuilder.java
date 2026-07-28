@@ -43,6 +43,8 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import java.util.Arrays;
 import java.util.Map;
+import questlog.QuestLogConfig;
+import questlog.QuestLogUI;
 import java.util.function.Consumer;
 
 /**
@@ -405,6 +407,11 @@ public final class HeroBuilder {
         true);
     inputComp.registerCallback(
         KeyboardConfig.PAUSE_MENU.value(), PauseDialog::showPauseDialog, false, true);
+    inputComp.registerCallback(
+        QuestLogConfig.OPEN_QUESTLOG.value(),
+        QuestLogUI::requestQuestLog,
+        false,
+        true);
   }
   // endregion
 }

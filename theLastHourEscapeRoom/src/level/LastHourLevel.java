@@ -39,6 +39,7 @@ import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.language.Translation;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.systems.DrawSystem;
@@ -68,6 +69,7 @@ import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameFactory;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
+import questlog.QuestLogUtil;
 import starter.LastHourClient;
 import util.InteractionHelper;
 import util.LastHourSounds;
@@ -78,6 +80,9 @@ import util.ui.BlackFadeCutscene;
 /** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
+  private static final Translation QUESTLOG_TRANSLATION = new Translation("questlog");
+  private static final String T_MAIN_QUEST_TAB = "main_quest_tab";
+  private static final String T_FIND_EXIT_ENTRY = "find_exit_entry";
   private static LastHourLevel Instance = null;
 
   private DoorTile storageDoor;
@@ -136,6 +141,11 @@ public class LastHourLevel extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     timerExpired = false;
+    Game.add(QuestLogUtil.initQuestLog());
+    QuestLogUtil.add(
+        QUESTLOG_TRANSLATION.text(T_MAIN_QUEST_TAB),
+        QUESTLOG_TRANSLATION.text(T_FIND_EXIT_ENTRY));
+
     storageDoor = (DoorTile) tileAt(getPoint("door-storage")).orElseThrow();
     storageDoor.close();
 

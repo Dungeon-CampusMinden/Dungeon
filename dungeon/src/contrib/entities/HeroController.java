@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import questlog.QuestLogUI;
 
 /**
  * Controller class for handling hero entity actions such as movement, skill usage, and
@@ -396,6 +397,7 @@ public class HeroController {
     registerDefaultHandler(InputMessage.Action.INV_DROP, true, HeroController::handleInventoryDrop);
     registerDefaultHandler(InputMessage.Action.INV_MOVE, true, HeroController::handleInventoryMove);
     registerDefaultHandler(InputMessage.Action.INV_USE, true, HeroController::handleInventoryUse);
+    QuestLogUI.registerInputHandler();
   }
 
   private static void registerDefaultHandler(

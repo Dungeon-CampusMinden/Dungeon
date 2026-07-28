@@ -1,10 +1,15 @@
 {
+  "questlog": {
+	"main_quest_tab": "MainQuest",
+	"find_exit_entry": "Find the exit"
+  },
   "settings": {
 	"controls_header": "Controls",
 	"controls_description": "Use the mouse to find interactables, then press [key code=$1] to interact!",
 	"pause": "Pause",
 	"interact": "Interact",
 	"inventory": "Inventory",
+	"questlog": "Questlog",
 	"inventory_description": "In the inventory, use [key code=$1 type=mouse] to use an Item"
   }
 }
