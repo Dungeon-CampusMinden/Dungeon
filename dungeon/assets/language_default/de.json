@@ -32,10 +32,6 @@
       "server_stopped": "Gestoppt",
       "players_can_connect_via": "Spieler können sich[n]verbinden über (Port: $1):"
     },
-    "questlog": {
-      "title": "Questlog",
-      "empty": "Questlog ist leer."
-    },
     "client_connection_dialog": {
       "title": "Server verbinden",
       "connect": "Verbinden",
