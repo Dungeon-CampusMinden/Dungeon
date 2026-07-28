@@ -11,6 +11,7 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.item.Item;
 import contrib.modules.interaction.InteractionComponent;
+import contrib.questlog.QuestLogUI;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.cursorSkill.CursorSkill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
@@ -36,7 +37,6 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import contrib.questlog.QuestLogUI;
 
 /**
  * Controller class for handling hero entity actions such as movement, skill usage, and

@@ -104,10 +104,7 @@ public class TheLastHour {
                   UsbStickItem.ensureRegistration();
                   initLocalization();
                 })
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                contrib.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
+            .config(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class)
             .snapshotTranslator(new LastHourSnapshotTranslator())
             .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
             .onFrame(TheLastHour::onFrame)
@@ -120,9 +117,7 @@ public class TheLastHour {
             .initLocalization(TheLastHour::initLocalization)
             .registerSettings(LastHourClient::registerSettings)
             .config(
-                new SimpleIPath("dungeon_config.json"),
-                contrib.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
+                new SimpleIPath("dungeon_config.json"), contrib.configuration.KeyboardConfig.class)
             .snapshotTranslator(new LastHourSnapshotTranslator())
             .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
             .build();

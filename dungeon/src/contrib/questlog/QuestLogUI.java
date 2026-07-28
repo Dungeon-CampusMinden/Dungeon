@@ -10,14 +10,15 @@ import core.utils.logging.DungeonLogger;
 /**
  * Proof-of-concept UI helpers for displaying or printing the shared quest log.
  *
- * <p>This class intentionally uses a simple OK dialog and plain text formatting so the quest log can
- * be tested through the existing multiplayer UI pipeline. It is not intended to be the final player
- * experience. A real quest log UI should replace this proof of concept with a dedicated dialog that
- * can show tabs, entry metadata, filtering, and per-player visibility in a proper layout.
+ * <p>This class intentionally uses a simple OK dialog and plain text formatting so the quest log
+ * can be tested through the existing multiplayer UI pipeline. It is not intended to be the final
+ * player experience. A real quest log UI should replace this proof of concept with a dedicated
+ * dialog that can show tabs, entry metadata, filtering, and per-player visibility in a proper
+ * layout.
  *
  * <p>The multiplayer path mirrors other high-level client/server helpers: clients request the quest
- * log with a custom input command, the server reads the authoritative {@link QuestLogComponent}, and
- * the server sends a dialog containing the formatted quest log back to the requesting client.
+ * log with a custom input command, the server reads the authoritative {@link QuestLogComponent},
+ * and the server sends a dialog containing the formatted quest log back to the requesting client.
  */
 public final class QuestLogUI {
 

@@ -12,8 +12,8 @@ import java.util.Optional;
  *
  * <p>The add methods are convenience wrappers around {@link QuestLogComponent#add(String,
  * QuestLogEntry)}. String-based overloads create a {@link QuestLogEntry} internally; the entry sets
- * its timestamp to the current game tick. These methods return {@code false} if the shared quest log
- * has not been initialized.
+ * its timestamp to the current game tick. These methods return {@code false} if the shared quest
+ * log has not been initialized.
  */
 public final class QuestLogUtil {
 
@@ -127,5 +127,4 @@ public final class QuestLogUtil {
   public static boolean add(String tab, String text, String owner, boolean onlyForCreator) {
     return add(tab, new QuestLogEntry(text, owner, onlyForCreator));
   }
-
 }

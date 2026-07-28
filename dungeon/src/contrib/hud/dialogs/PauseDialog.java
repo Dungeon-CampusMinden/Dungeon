@@ -15,6 +15,8 @@ import com.badlogic.gdx.utils.Align;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
+import contrib.questlog.QuestLogUI;
+import contrib.questlog.QuestLogUtil;
 import core.Entity;
 import core.Game;
 import core.game.HostSession;
@@ -29,8 +31,6 @@ import core.utils.Scene2dElementFactory;
 import core.utils.settings.ClientSettings;
 import java.util.ArrayList;
 import java.util.List;
-import contrib.questlog.QuestLogUtil;
-import contrib.questlog.QuestLogUI;
 
 /**
  * Package-private builder for the pause menu.

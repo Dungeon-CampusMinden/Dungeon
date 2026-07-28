@@ -68,8 +68,8 @@ public class QuestLogComponent implements Component {
   /**
    * Returns all quest log entries grouped by tab.
    *
-   * <p>The returned map and all contained lists are copies and can be modified without changing this
-   * component.
+   * <p>The returned map and all contained lists are copies and can be modified without changing
+   * this component.
    *
    * @return a copy of all tabs and their entries
    */
@@ -82,9 +82,9 @@ public class QuestLogComponent implements Component {
   /**
    * Returns all available tab names.
    *
-   * <p>The returned list is a copy and can be modified without changing this component. The order is
-   * the iteration order of the internal map; use {@link #getTabsOrderedByLastEntry()} when the tabs
-   * should be ordered by recency.
+   * <p>The returned list is a copy and can be modified without changing this component. The order
+   * is the iteration order of the internal map; use {@link #getTabsOrderedByLastEntry()} when the
+   * tabs should be ordered by recency.
    *
    * @return a copy of all tab names
    */

@@ -25,6 +25,7 @@ import contrib.modules.keypad.KeypadFactory;
 import contrib.modules.puzzle.Puzzle;
 import contrib.modules.puzzle.PuzzleMaker;
 import contrib.modules.worldTimer.WorldTimerFactory;
+import contrib.questlog.QuestLogUtil;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.EntityUtils;
@@ -35,11 +36,11 @@ import core.components.DrawComponent;
 import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.language.Translation;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.language.Translation;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.systems.DrawSystem;
@@ -69,7 +70,6 @@ import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameFactory;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
-import contrib.questlog.QuestLogUtil;
 import starter.LastHourClient;
 import util.InteractionHelper;
 import util.LastHourSounds;
@@ -143,8 +143,7 @@ public class LastHourLevel extends DungeonLevel {
     timerExpired = false;
     Game.add(QuestLogUtil.initQuestLog());
     QuestLogUtil.add(
-        QUESTLOG_TRANSLATION.text(T_MAIN_QUEST_TAB),
-        QUESTLOG_TRANSLATION.text(T_FIND_EXIT_ENTRY));
+        QUESTLOG_TRANSLATION.text(T_MAIN_QUEST_TAB), QUESTLOG_TRANSLATION.text(T_FIND_EXIT_ENTRY));
 
     storageDoor = (DoorTile) tileAt(getPoint("door-storage")).orElseThrow();
     storageDoor.close();

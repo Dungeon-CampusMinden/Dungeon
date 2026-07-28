@@ -16,6 +16,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.PauseDialog;
+import contrib.questlog.QuestLogUI;
 import contrib.systems.HealthSystem;
 import contrib.systems.PositionSync;
 import contrib.utils.components.health.Damage;
@@ -44,7 +45,6 @@ import core.utils.components.draw.state.StateMachine;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Consumer;
-import contrib.questlog.QuestLogUI;
 
 /**
  * A utility class for building the player entity in the game world.
@@ -407,10 +407,7 @@ public final class HeroBuilder {
     inputComp.registerCallback(
         KeyboardConfig.PAUSE_MENU.value(), PauseDialog::showPauseDialog, false, true);
     inputComp.registerCallback(
-        KeyboardConfig.QUESTLOG_OPEN.value(),
-        QuestLogUI::requestQuestLog,
-        false,
-        true);
+        KeyboardConfig.QUESTLOG_OPEN.value(), QuestLogUI::requestQuestLog, false, true);
   }
   // endregion
 }
