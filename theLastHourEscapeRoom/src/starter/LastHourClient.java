@@ -13,6 +13,7 @@ import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.puzzle.PuzzleMaker;
 import contrib.modules.puzzle.PuzzlePieceItem;
 import contrib.modules.puzzle.PuzzleTextureGenerator;
+import contrib.questlog.QuestLogUtil;
 import contrib.systems.AttributeBarSystem;
 import contrib.systems.PositionSync;
 import contrib.utils.components.Debugger;
@@ -134,6 +135,12 @@ public final class LastHourClient {
                   .ifPresent(newEntity::add);
               LastHourSnapshotTranslator.worldTimerStateFromMetadata(event.metadata())
                   .ifPresent(newEntity::add);
+              LastHourSnapshotTranslator.questLogFromMetadata(event.metadata())
+                  .ifPresent(
+                      questLog -> {
+                        newEntity.add(questLog);
+                        QuestLogUtil.setQuestLog(newEntity);
+                      });
               applyCollideMetadata(newEntity, event.metadata());
               Game.add(newEntity);
               if (ctx != null) {

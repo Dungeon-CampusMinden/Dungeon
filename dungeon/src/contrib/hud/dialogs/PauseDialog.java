@@ -15,8 +15,6 @@ import com.badlogic.gdx.utils.Align;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
-import contrib.questlog.QuestLogUI;
-import contrib.questlog.QuestLogUtil;
 import core.Entity;
 import core.Game;
 import core.game.HostSession;
@@ -41,7 +39,6 @@ public class PauseDialog extends Table {
 
   private static final String T_PAUSED = "paused";
   private static final String T_RESUME = "resume";
-  private static final String T_QUESTLOG = "questlog";
   private static final String T_SETTINGS = "settings";
   private static final String T_QUIT_TO_DESKTOP = "quit_to_desktop";
   private static final String T_BACK = "back";
@@ -50,8 +47,6 @@ public class PauseDialog extends Table {
   private static final String T_SERVER_RUNNING = "server_running";
   private static final String T_SERVER_STOPPED = "server_stopped";
   private static final String T_PLAYERS_CAN_CONNECT_VIA = "players_can_connect_via";
-  private static final String T_SETTINGS_QUESTLOG = "settings.questlog";
-  private static final String ATTR_SHOW_QUESTLOG = "show_questlog";
   private static final Translation trans = new Translation("dialog.pause_dialog");
 
   private Skin skin;
@@ -108,11 +103,7 @@ public class PauseDialog extends Table {
 
     if (hasClosed) return null;
 
-    DialogContext ctx =
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.PAUSE_MENU)
-            .put(ATTR_SHOW_QUESTLOG, QuestLogUtil.isInitialized())
-            .build();
+    DialogContext ctx = DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).build();
     ctx.owner(caller.id());
 
     UIComponent ui = DialogFactory.show(ctx, caller.id());
@@ -153,10 +144,6 @@ public class PauseDialog extends Table {
         Scene2dElementFactory.createLabel(
             trans.text(T_PAUSED), FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
     TextButton resumeBtn = Scene2dElementFactory.createButton(trans.text(T_RESUME), "green", 32);
-    TextButton questlogBtn =
-        shouldShowQuestLog(ctx)
-            ? Scene2dElementFactory.createButton(trans.text(T_QUESTLOG), "blue-outline", 32)
-            : null;
     TextButton settingsBtn =
         Scene2dElementFactory.createButton(trans.text(T_SETTINGS), "blue-outline", 32);
     TextButton quitBtn =
@@ -170,16 +157,6 @@ public class PauseDialog extends Table {
             Sounds.play(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
-    if (questlogBtn != null) {
-      questlogBtn.addListener(
-          new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-              QuestLogUI.requestQuestLog(Game.player().orElseThrow());
-              Sounds.play(CoreSounds.INTERFACE_BUTTON_CLICKED);
-            }
-          });
-    }
     settingsBtn.addListener(
         new ChangeListener() {
           @Override
@@ -200,9 +177,6 @@ public class PauseDialog extends Table {
     Table menu = new Table();
     menu.add(label).padBottom(30).align(Align.center).row();
     menu.add(resumeBtn).width(300).align(Align.center).padBottom(10).row();
-    if (questlogBtn != null) {
-      menu.add(questlogBtn).width(300).align(Align.center).padBottom(10).row();
-    }
     menu.add(settingsBtn).width(300).align(Align.center).padBottom(70).row();
     menu.add(quitBtn).width(300).align(Align.center).padBottom(15).row();
 
@@ -266,9 +240,6 @@ public class PauseDialog extends Table {
     ClientSettings.getSettings(true)
         .forEach(
             (s, setting) -> {
-              if (isQuestLogSetting(s) && !shouldShowQuestLog(ctx)) {
-                return;
-              }
               settingsActors.add(setting.toUIActor());
             });
 
@@ -318,13 +289,5 @@ public class PauseDialog extends Table {
     contentTable.add(settingsMenu);
     contentTable.pack();
     this.pack();
-  }
-
-  private static boolean shouldShowQuestLog(DialogContext ctx) {
-    return ctx.find(ATTR_SHOW_QUESTLOG, Boolean.class).orElseGet(QuestLogUtil::isInitialized);
-  }
-
-  private static boolean isQuestLogSetting(String settingKey) {
-    return T_SETTINGS_QUESTLOG.equals(settingKey);
   }
 }

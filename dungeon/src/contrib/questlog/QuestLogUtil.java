@@ -48,6 +48,23 @@ public final class QuestLogUtil {
   }
 
   /**
+   * Stores an existing entity as the shared quest log.
+   *
+   * <p>This is used by network synchronization when a client receives the server-owned quest log
+   * entity. The entity must already contain a {@link QuestLogComponent}; otherwise it cannot be used
+   * as the shared quest log.
+   *
+   * @param entity the synchronized quest log entity
+   * @throws IllegalArgumentException if the entity has no {@link QuestLogComponent}
+   */
+  public static void setQuestLog(Entity entity) {
+    if (entity == null || entity.fetch(QuestLogComponent.class).isEmpty()) {
+      throw new IllegalArgumentException("Quest log entity must contain a QuestLogComponent.");
+    }
+    questlog = entity;
+  }
+
+  /**
    * Returns the component that stores the quest log entries on the shared quest log entity.
    *
    * @return an {@link Optional} containing the quest log component, or {@link Optional#empty()} if

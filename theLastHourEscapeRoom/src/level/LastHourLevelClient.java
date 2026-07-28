@@ -5,7 +5,6 @@ import static level.LastHourLevel.setupLightingShader;
 import static level.LastHourLevel.updateLightingShader;
 
 import contrib.utils.EntityUtils;
-import contrib.questlog.QuestLogUtil;
 import core.Entity;
 import core.Game;
 import core.level.DungeonLevel;
@@ -36,7 +35,6 @@ public class LastHourLevelClient extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.add(QuestLogUtil.initQuestLog());
     setupLightingShader();
   }
 
