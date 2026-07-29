@@ -81,8 +81,34 @@ import util.ui.BlackFadeCutscene;
 public class LastHourLevel extends DungeonLevel {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
   private static final Translation QUESTLOG_ENTRIES = new Translation("questlog");
-  private static final String T_MAIN_QUEST_TAB = "main_quest_tab";
-  private static final String T_FIND_EXIT_ENTRY = "find_exit_entry";
+  private static final String T_MAIN_TAB = "main.tab";
+  private static final String T_MAIN_LOCKED_IN = "main.entries.locked_in";
+  private static final String T_MAIN_RESTORE_POWER = "main.entries.restore_power";
+  private static final String T_MAIN_INVESTIGATE_PC = "main.entries.investigate_pc";
+  private static final String T_INVESTIGATION_TAB = "investigation.tab";
+  private static final String T_INVESTIGATION_MERTENS_MISSING =
+      "investigation.entries.mertens_missing";
+  private static final String T_INVESTIGATION_OFFICE_RANSACKED =
+      "investigation.entries.office_ransacked";
+  private static final String T_INVESTIGATION_TRUST_CAREFULLY =
+      "investigation.entries.trust_carefully";
+  private static final String T_COMPUTER_TAB = "computer.tab";
+  private static final String T_COMPUTER_POWER_SWITCH = "computer.entries.power_switch";
+  private static final String T_COMPUTER_LOGIN_NEEDED = "computer.entries.login_needed";
+  private static final String T_COMPUTER_MAIL_REVIEW = "computer.entries.mail_review";
+  private static final String T_COMPUTER_VIRUS_WARNING = "computer.entries.virus_warning";
+  private static final String T_COMPUTER_CONTROL_PANEL = "computer.entries.control_panel";
+  private static final String T_CLUES_TAB = "clues.tab";
+  private static final String T_CLUES_DOOR_CODE = "clues.entries.door_code";
+  private static final String T_CLUES_TRASH_NOTE = "clues.entries.trash_note";
+  private static final String T_CLUES_DECODER_SHELVES = "clues.entries.decoder_shelves";
+  private static final String T_CLUES_PROFILE_PAPER = "clues.entries.profile_paper";
+  private static final String T_CLUES_FINAL_CODE = "clues.entries.final_code";
+  private static final String T_USB_TAB = "usb.tab";
+  private static final String T_USB_SEARCH = "usb.entries.search";
+  private static final String T_USB_COLOR_HINT = "usb.entries.color_hint";
+  private static final String T_USB_USE_ON_PC = "usb.entries.use_on_pc";
+  private static final String T_USB_RECOVER_DATA = "usb.entries.recover_data";
   private static LastHourLevel Instance = null;
 
   private DoorTile storageDoor;
@@ -114,6 +140,7 @@ public class LastHourLevel extends DungeonLevel {
   private static Puzzle puzzle;
 
   private static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
+  private static final Set<String> QUESTLOG_ENTRY_KEYS_ADDED = new HashSet<>();
   private static boolean timerExpired = false;
 
   /**
@@ -141,12 +168,9 @@ public class LastHourLevel extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     timerExpired = false;
+    QUESTLOG_ENTRY_KEYS_ADDED.clear();
     Game.add(QuestLogUtil.initServerQuestLog());
-
-    // This is an example on how to use the questlog. Should be replaced with detailed questlog
-    // entries over the game
-    QuestLogUtil.add(
-        QUESTLOG_ENTRIES.text(T_MAIN_QUEST_TAB), QUESTLOG_ENTRIES.text(T_FIND_EXIT_ENTRY));
+    addQuestLogEntryOnce(T_MAIN_TAB, T_MAIN_LOCKED_IN);
 
     storageDoor = (DoorTile) tileAt(getPoint("door-storage")).orElseThrow();
     storageDoor.close();
@@ -161,6 +185,7 @@ public class LastHourLevel extends DungeonLevel {
             Lore.DoorCode,
             () -> {
               storageDoor.open();
+              addQuestLogEntryOnce(T_CLUES_TAB, T_CLUES_DOOR_CODE);
               EventScheduler.scheduleAction(this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
             },
             true);
@@ -182,7 +207,62 @@ public class LastHourLevel extends DungeonLevel {
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
 
+  /** Adds the power restoration hint after players notice that the PC has no power. */
+  public static void addRestorePowerQuestLogEntry() {
+    addQuestLogEntryOnce(T_MAIN_TAB, T_MAIN_RESTORE_POWER);
+  }
+
+  /** Adds the PC investigation entry after power has been restored. */
+  public static void addInvestigatePcQuestLogEntry() {
+    addQuestLogEntryOnce(T_MAIN_TAB, T_MAIN_INVESTIGATE_PC);
+  }
+
+  /** Adds the hidden-switch observation after the switch has been used. */
+  public static void addPowerSwitchQuestLogEntry() {
+    addQuestLogEntryOnce(T_COMPUTER_TAB, T_COMPUTER_POWER_SWITCH);
+  }
+
+  /** Adds the login-needed observation after the powered PC is opened while still locked. */
+  public static void addLoginNeededQuestLogEntry() {
+    addQuestLogEntryOnce(T_COMPUTER_TAB, T_COMPUTER_LOGIN_NEEDED);
+  }
+
+  /** Adds the computer communication observation after a successful login. */
+  public static void addMailReviewQuestLogEntry() {
+    addQuestLogEntryOnce(T_COMPUTER_TAB, T_COMPUTER_MAIL_REVIEW);
+  }
+
+  /** Adds the suspicious-file observation after the PC is infected. */
+  public static void addVirusWarningQuestLogEntry() {
+    addQuestLogEntryOnce(T_COMPUTER_TAB, T_COMPUTER_VIRUS_WARNING);
+    addQuestLogEntryOnce(T_INVESTIGATION_TAB, T_INVESTIGATION_TRUST_CAREFULLY);
+  }
+
+  /** Adds the USB mounted observation after a stick is inserted into the PC. */
+  public static void addUsbUsedQuestLogEntry() {
+    addQuestLogEntryOnce(T_USB_TAB, T_USB_USE_ON_PC);
+  }
+
+  /** Adds the recovered-data observation after the correct USB stick is mounted. */
+  public static void addUsbRecoveredDataQuestLogEntry() {
+    addQuestLogEntryOnce(T_USB_TAB, T_USB_RECOVER_DATA);
+    addQuestLogEntryOnce(T_COMPUTER_TAB, T_COMPUTER_CONTROL_PANEL);
+  }
+
+  private static void addQuestLogEntryOnce(String tabKey, String entryKey) {
+    String id = tabKey + "." + entryKey;
+    if (QUESTLOG_ENTRY_KEYS_ADDED.contains(id)) {
+      return;
+    }
+
+    if (QuestLogUtil.add(QUESTLOG_ENTRIES.text(tabKey), QUESTLOG_ENTRIES.text(entryKey))) {
+      QUESTLOG_ENTRY_KEYS_ADDED.add(id);
+    }
+  }
+
   private void showIntro(int targetId) {
+    addQuestLogEntryOnce(T_INVESTIGATION_TAB, T_INVESTIGATION_MERTENS_MISSING);
+    addQuestLogEntryOnce(T_INVESTIGATION_TAB, T_INVESTIGATION_OFFICE_RANSACKED);
     BlackFadeCutscene.show(
         Lore.IntroTexts,
         false,
@@ -325,6 +405,8 @@ public class LastHourLevel extends DungeonLevel {
                           new Interaction(
                               (e, who) -> {
                                 if (index == 2) {
+                                  addQuestLogEntryOnce(
+                                      T_INVESTIGATION_TAB, T_INVESTIGATION_TRUST_CAREFULLY);
                                   DialogFactory.showOkDialog(
                                       "You open the locker. Lots of white coats are hanging inside,\nbut one of them has a piece of paper in the pocket.\n\nYou unfold the paper to take a look at it.",
                                       "",
@@ -413,6 +495,8 @@ public class LastHourLevel extends DungeonLevel {
                                 "",
                                 () -> {
                                   ComputerStateComponent.setState(ComputerProgress.ON);
+                                  addPowerSwitchQuestLogEntry();
+                                  addInvestigatePcQuestLogEntry();
                                   Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
                                 },
                                 who.id());
@@ -438,6 +522,7 @@ public class LastHourLevel extends DungeonLevel {
             () ->
                 new Interaction(
                     (e, who) -> {
+                      addQuestLogEntryOnce(T_CLUES_TAB, T_CLUES_PROFILE_PAPER);
                       DialogUtils.showImagePopUp("images/scientist_profile.png", who.id());
                     })));
     Game.add(profilePaper);
@@ -478,6 +563,7 @@ public class LastHourLevel extends DungeonLevel {
                                     () -> {
                                       if (awarded[0]) return;
                                       awarded[0] = true;
+                                      addQuestLogEntryOnce(T_CLUES_TAB, T_CLUES_TRASH_NOTE);
                                     });
                               })));
               Game.add(trashcan);
@@ -508,6 +594,7 @@ public class LastHourLevel extends DungeonLevel {
                               (e, who) -> {
                                 DialogContext.Builder builder =
                                     DialogContext.builder().type(DialogType.DefaultTypes.IMAGE);
+                                addQuestLogEntryOnce(T_CLUES_TAB, T_CLUES_DECODER_SHELVES);
                                 builder.put(
                                     DialogContextKeys.IMAGE,
                                     decoderTablePaths.get(index % decoderTablePaths.size()));
@@ -543,7 +630,20 @@ public class LastHourLevel extends DungeonLevel {
    */
   public void r2SpawnPapers() {
     puzzle =
-        PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+        PuzzleMaker.makePuzzle(
+            R2_PUZZLE_IMAGE,
+            R2_PUZZLE_PIECE_COUNT,
+            (solvedPuzzle, solver) -> {
+              addQuestLogEntryOnce(T_CLUES_TAB, T_CLUES_FINAL_CODE);
+              solvedPuzzle.removeItems(solver);
+              if (solver != null) {
+                solver
+                    .fetch(InventoryComponent.class)
+                    .ifPresent(inv -> inv.add(new HintItem(solvedPuzzle.imagePath())));
+              }
+            },
+            R2_PUZZLE_SEED,
+            false);
 
     Point ventPos = getPoint("r2-vent");
     float s = R2_PAPER_SPEED;
@@ -594,6 +694,7 @@ public class LastHourLevel extends DungeonLevel {
                 new Interaction(
                     (e, who) -> {
                       DialogFactory.showOkDialog(Lore.R2DeskNoteText, "", () -> {}, who.id());
+                      addQuestLogEntryOnce(T_USB_TAB, T_USB_COLOR_HINT);
                     })));
     Game.add(desk);
 
@@ -785,6 +886,7 @@ public class LastHourLevel extends DungeonLevel {
                           () -> {
                             if (awarded[0]) return;
                             awarded[0] = true;
+                            addQuestLogEntryOnce(T_USB_TAB, T_USB_SEARCH);
                           });
                     })));
     Game.add(blueTrash);

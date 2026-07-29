@@ -17,6 +17,8 @@ public enum CoreSounds implements ISound {
   INTERFACE_DIALOG_CLOSED("kenney_ui_minimize_008", 1.0f),
   /** A sound effect. */
   INTERFACE_TEXTFIELD_TYPED("kenney_ui_bong_001", 0.7f),
+  /** A sound effect. */
+  INTERFACE_QUESTLOG_ENTRY_CREATED("uisp_African2", 0.5f),
 
   /** A sound effect. */
   SETTINGS_TOGGLE_CLICK("kenney_ui_switch_001", 0.4f),

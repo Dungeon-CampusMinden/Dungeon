@@ -520,13 +520,18 @@ public final class QuestLogUI {
       builder
           .append(System.lineSeparator())
           .append("- ")
-          .append(entry.text())
-          .append(" (")
-          .append(entry.owner())
-          .append(", tick ")
-          .append(entry.timestamp())
-          .append(")");
+          .append(entry.text());
+
+      metadataFor(entry.owner())
+          .ifPresent(metadata -> builder.append(" (").append(metadata).append(")"));
     }
+  }
+
+  private static Optional<String> metadataFor(String owner) {
+    if (owner == null || owner.isBlank() || QuestLogEntry.DEFAULT_OWNER.equalsIgnoreCase(owner)) {
+      return Optional.empty();
+    }
+    return Optional.of(owner);
   }
 
   private static void logMissingQuestLog() {
@@ -749,10 +754,7 @@ public final class QuestLogUI {
             .padBottom(18f)
             .row();
       } else {
-        addObjective(detail, entries.getFirst());
-        if (entries.size() > 1) {
-          addEntryList(detail, entries.subList(1, entries.size()));
-        }
+        addEntryList(detail, entries);
       }
 
       detail.add().growY().row();
@@ -760,44 +762,25 @@ public final class QuestLogUI {
       return detail;
     }
 
-    private void addObjective(Table detail, QuestLogEntryView entry) {
-      addSectionTitle(detail, "ZIEL");
-      detail
-          .add(label(entry.text(), FONT_BODY, true))
-          .width(CONTENT_WIDTH)
-          .left()
-          .top()
-          .padBottom(10f)
-          .row();
-      detail
-          .add(label(metadataFor(entry), FONT_MUTED, false))
-          .width(CONTENT_WIDTH)
-          .left()
-          .padBottom(22f)
-          .row();
-    }
-
     private void addEntryList(Table detail, List<QuestLogEntryView> entries) {
-      addSectionTitle(detail, "EINTRAEGE");
-
-      Table list = new Table();
-      list.top().left();
-      list.setBackground(skin.newDrawable("generic-area", new Color(0.09f, 0.09f, 0.08f, 0.84f)));
-      list.pad(16f);
-
       for (QuestLogEntryView entry : entries) {
-        RichLabel text = label(entry.text(), FONT_BODY, true);
-        list.add(text).width(CONTENT_WIDTH - 48f).left().top().row();
-        list.add(label(metadataFor(entry), FONT_MUTED, false))
-            .width(CONTENT_WIDTH - 48f)
+        detail
+            .add(label(entry.text(), FONT_BODY, true))
+            .width(CONTENT_WIDTH)
             .left()
-            .padBottom(14f)
+            .top()
+            .padBottom(10f)
             .row();
+        Optional<String> metadata = metadataFor(entry.owner());
+        if (metadata.isPresent()) {
+          detail
+              .add(label(metadata.get(), FONT_MUTED, false))
+              .width(CONTENT_WIDTH)
+              .left()
+              .padBottom(22f)
+              .row();
+        }
       }
-
-      ScrollPane pane = Scene2dElementFactory.createScrollPane(list, false, true);
-      pane.setOverscroll(false, false);
-      detail.add(pane).width(CONTENT_WIDTH).height(260f).left().top().padBottom(18f).row();
     }
 
     private Table buildFooter() {
@@ -818,10 +801,6 @@ public final class QuestLogUI {
       return footer;
     }
 
-    private void addSectionTitle(Table detail, String title) {
-      detail.add(label(title, FONT_SECTION, false)).width(CONTENT_WIDTH).left().padBottom(8f).row();
-    }
-
     private RichLabel label(String text, FontSpec font, boolean wrap) {
       RichLabel label = new RichLabel(RichLabel.toRichText(text), font, false);
       label.setWrap(wrap);
@@ -835,8 +814,5 @@ public final class QuestLogUI {
       return viewData.tabs().stream().findFirst().orElse("");
     }
 
-    private static String metadataFor(QuestLogEntryView entry) {
-      return entry.owner() + " - tick " + entry.timestamp();
-    }
   }
 }

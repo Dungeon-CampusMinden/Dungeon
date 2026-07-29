@@ -2,6 +2,8 @@ package contrib.questlog;
 
 import core.Entity;
 import core.components.PlayerComponent;
+import core.sound.CoreSounds;
+import core.sound.Sounds;
 import java.util.Optional;
 
 /**
@@ -205,7 +207,11 @@ public final class QuestLogUtil {
    * @return {@code true} if the entry was added, {@code false} if the quest log was not initialized
    */
   public static boolean add(String tab, QuestLogEntry entry) {
-    return getQuestLogComponent().map(component -> component.add(tab, entry)).orElse(false);
+    boolean added = getQuestLogComponent().map(component -> component.add(tab, entry)).orElse(false);
+    if (added) {
+      Sounds.play(CoreSounds.INTERFACE_QUESTLOG_ENTRY_CREATED);
+    }
+    return added;
   }
 
   /**

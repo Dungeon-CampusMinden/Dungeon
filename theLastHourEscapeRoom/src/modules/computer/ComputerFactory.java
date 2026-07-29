@@ -70,6 +70,7 @@ public class ComputerFactory {
                     (eInteract, who) -> {
                       DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
                       if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
+                        LastHourLevel.addRestorePowerQuestLogEntry();
                         DialogFactory.showOkDialog(
                             "This seems to be "
                                 + Lore.ScientistNameShort
@@ -89,6 +90,9 @@ public class ComputerFactory {
                       boolean isLoggedIn =
                           state != null && state.state().hasReached(ComputerProgress.LOGGED_IN);
                       boolean usbAlreadyInserted = state != null && state.usbInserted();
+                      if (!isLoggedIn) {
+                        LastHourLevel.addLoginNeededQuestLogEntry();
+                      }
                       if (!usbAlreadyInserted
                           && !isInfected
                           && isLoggedIn
@@ -182,6 +186,8 @@ public class ComputerFactory {
       UsbStickItem.BaseUsbStick stick, Entity pcEntity, Entity who) {
     if (stick.color() == UsbStickColor.Blue) {
       LOGGER.info("Correct USB stick inserted: " + stick.color().displayName());
+      LastHourLevel.addUsbUsedQuestLogEntry();
+      LastHourLevel.addUsbRecoveredDataQuestLogEntry();
       // Remove the stick from inventory and mark as inserted
       who.fetch(InventoryComponent.class).ifPresent(inv -> inv.removeOne(stick));
       ComputerStateComponent.setUsbInserted(true);
@@ -189,6 +195,8 @@ public class ComputerFactory {
     } else {
       LOGGER.info(
           "Wrong USB stick inserted: " + stick.color().displayName() + " - triggering virus");
+      LastHourLevel.addUsbUsedQuestLogEntry();
+      LastHourLevel.addVirusWarningQuestLogEntry();
       ComputerStateComponent.setInfection(true);
       ComputerStateComponent.setVirusType(Lore.UnknownDeviceVirusType);
       openComputerDialog(pcEntity, who);
@@ -273,11 +281,16 @@ public class ComputerFactory {
                 }
 
                 if (newState.isInfected() && !wasInfected) {
+                  LastHourLevel.addVirusWarningQuestLogEntry();
                   Game.add(
                       EmoteFactory.createEmote(
                           LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
                           Emote.FACE_ANGRY,
                           3000));
+                }
+                if (!previousState.state().hasReached(ComputerProgress.LOGGED_IN)
+                    && newState.state().hasReached(ComputerProgress.LOGGED_IN)) {
+                  LastHourLevel.addMailReviewQuestLogEntry();
                 }
               });
         });
