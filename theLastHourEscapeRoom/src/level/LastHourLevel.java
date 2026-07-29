@@ -80,7 +80,7 @@ import util.ui.BlackFadeCutscene;
 /** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
-  private static final Translation QUESTLOG_TRANSLATION = new Translation("questlog");
+  private static final Translation QUESTLOG_ENTRIES = new Translation("questlog");
   private static final String T_MAIN_QUEST_TAB = "main_quest_tab";
   private static final String T_FIND_EXIT_ENTRY = "find_exit_entry";
   private static LastHourLevel Instance = null;
@@ -142,8 +142,11 @@ public class LastHourLevel extends DungeonLevel {
   protected void onFirstTick() {
     timerExpired = false;
     Game.add(QuestLogUtil.initQuestLog());
+
+    // This is an example on how to use the questlog. Should be replaced with detailed questlog
+    // entries over the game
     QuestLogUtil.add(
-        QUESTLOG_TRANSLATION.text(T_MAIN_QUEST_TAB), QUESTLOG_TRANSLATION.text(T_FIND_EXIT_ENTRY));
+        QUESTLOG_ENTRIES.text(T_MAIN_QUEST_TAB), QUESTLOG_ENTRIES.text(T_FIND_EXIT_ENTRY));
 
     storageDoor = (DoorTile) tileAt(getPoint("door-storage")).orElseThrow();
     storageDoor.close();

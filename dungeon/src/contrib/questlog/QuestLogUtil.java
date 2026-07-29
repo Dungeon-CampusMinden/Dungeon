@@ -51,8 +51,8 @@ public final class QuestLogUtil {
    * Stores an existing entity as the shared quest log.
    *
    * <p>This is used by network synchronization when a client receives the server-owned quest log
-   * entity. The entity must already contain a {@link QuestLogComponent}; otherwise it cannot be used
-   * as the shared quest log.
+   * entity. The entity must already contain a {@link QuestLogComponent}; otherwise it cannot be
+   * used as the shared quest log.
    *
    * @param entity the synchronized quest log entity
    * @throws IllegalArgumentException if the entity has no {@link QuestLogComponent}

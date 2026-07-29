@@ -516,8 +516,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     return questLog.getEntries().entrySet().stream()
         .flatMap(
             tab ->
-                tab.getValue().stream()
-                    .map(entry -> serializeQuestLogEntry(tab.getKey(), entry)))
+                tab.getValue().stream().map(entry -> serializeQuestLogEntry(tab.getKey(), entry)))
         .collect(Collectors.joining(";"));
   }
 
