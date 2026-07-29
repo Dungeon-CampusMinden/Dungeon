@@ -517,10 +517,7 @@ public final class QuestLogUI {
 
     builder.append("[").append(tab).append("]");
     for (QuestLogEntry entry : entries) {
-      builder
-          .append(System.lineSeparator())
-          .append("- ")
-          .append(entry.text());
+      builder.append(System.lineSeparator()).append("- ").append(entry.text());
 
       metadataFor(entry.owner())
           .ifPresent(metadata -> builder.append(" (").append(metadata).append(")"));
@@ -813,6 +810,5 @@ public final class QuestLogUI {
       }
       return viewData.tabs().stream().findFirst().orElse("");
     }
-
   }
 }

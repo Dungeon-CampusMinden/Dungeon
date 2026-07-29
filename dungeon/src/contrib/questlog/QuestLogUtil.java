@@ -207,7 +207,8 @@ public final class QuestLogUtil {
    * @return {@code true} if the entry was added, {@code false} if the quest log was not initialized
    */
   public static boolean add(String tab, QuestLogEntry entry) {
-    boolean added = getQuestLogComponent().map(component -> component.add(tab, entry)).orElse(false);
+    boolean added =
+        getQuestLogComponent().map(component -> component.add(tab, entry)).orElse(false);
     if (added) {
       Sounds.play(CoreSounds.INTERFACE_QUESTLOG_ENTRY_CREATED);
     }
