@@ -480,7 +480,7 @@ public class HeroController {
   }
 
   private static void handleShowQuestLog(InputCommandRouter.InputCommandContext context) {
-    QuestLogUI.printQuestLogForClients(context.playerEntity().id());
+    QuestLogUI.showQuestLogForPlayers(context.playerEntity().id());
   }
 
   /**
