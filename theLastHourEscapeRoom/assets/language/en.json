@@ -6,7 +6,7 @@
         "locked_in": "The office door locked behind us. The timer on the wall is running.",
         "restore_power": "Most of the office is dark. Some devices are not responding.",
         "investigate_pc": "Dr. Mertens' PC is reachable again. It may contain traces of his final work.",
-        "storage_room": "The door to the adjacent room is secured by a keypad.",
+        "storage_room": "The door to the adjacent room is open. Another part of the office lies beyond the keypad.",
         "escape": "We have gathered enough clues to reconstruct Mertens' final steps. Now only the way out remains."
       }
     },

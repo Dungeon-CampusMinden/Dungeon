@@ -14,13 +14,18 @@ public final class LastHourQuestLogUtil {
   private static final String T_MAIN_LOCKED_IN = "main.entries.locked_in";
   private static final String T_MAIN_RESTORE_POWER = "main.entries.restore_power";
   private static final String T_MAIN_INVESTIGATE_PC = "main.entries.investigate_pc";
+  private static final String T_MAIN_STORAGE_ROOM = "main.entries.storage_room";
+  private static final String T_MAIN_ESCAPE = "main.entries.escape";
   private static final String T_INVESTIGATION_TAB = "investigation.tab";
   private static final String T_INVESTIGATION_MERTENS_MISSING =
       "investigation.entries.mertens_missing";
+  private static final String T_INVESTIGATION_SUSPICIOUS_CONTACTS =
+      "investigation.entries.suspicious_contacts";
   private static final String T_INVESTIGATION_OFFICE_RANSACKED =
       "investigation.entries.office_ransacked";
   private static final String T_INVESTIGATION_TRUST_CAREFULLY =
       "investigation.entries.trust_carefully";
+  private static final String T_INVESTIGATION_MYTHOS = "investigation.entries.mythos";
   private static final String T_COMPUTER_TAB = "computer.tab";
   private static final String T_COMPUTER_POWER_SWITCH = "computer.entries.power_switch";
   private static final String T_COMPUTER_LOGIN_NEEDED = "computer.entries.login_needed";
@@ -55,6 +60,11 @@ public final class LastHourQuestLogUtil {
     addQuestLogEntryOnce(T_CLUES_TAB, T_CLUES_DOOR_CODE);
   }
 
+  /** Adds the storage room observation after the adjacent room has been opened. */
+  public static void addStorageRoomQuestLogEntry() {
+    addQuestLogEntryOnce(T_MAIN_TAB, T_MAIN_STORAGE_ROOM);
+  }
+
   /** Adds the intro investigation observations after the intro starts. */
   public static void addIntroInvestigationQuestLogEntries() {
     addQuestLogEntryOnce(T_INVESTIGATION_TAB, T_INVESTIGATION_MERTENS_MISSING);
@@ -84,6 +94,7 @@ public final class LastHourQuestLogUtil {
   /** Adds the computer communication observation after a successful login. */
   public static void addMailReviewQuestLogEntry() {
     addQuestLogEntryOnce(T_COMPUTER_TAB, T_COMPUTER_MAIL_REVIEW);
+    addQuestLogEntryOnce(T_INVESTIGATION_TAB, T_INVESTIGATION_SUSPICIOUS_CONTACTS);
   }
 
   /** Adds the suspicious-file observation after the PC is infected. */
@@ -131,6 +142,12 @@ public final class LastHourQuestLogUtil {
   public static void addUsbRecoveredDataQuestLogEntry() {
     addQuestLogEntryOnce(T_USB_TAB, T_USB_RECOVER_DATA);
     addQuestLogEntryOnce(T_COMPUTER_TAB, T_COMPUTER_CONTROL_PANEL);
+  }
+
+  /** Adds the final escape observations when the escape sequence starts. */
+  public static void addEscapeQuestLogEntries() {
+    addQuestLogEntryOnce(T_MAIN_TAB, T_MAIN_ESCAPE);
+    addQuestLogEntryOnce(T_INVESTIGATION_TAB, T_INVESTIGATION_MYTHOS);
   }
 
   /** Adds the USB search observation after the blue USB stick has been found. */

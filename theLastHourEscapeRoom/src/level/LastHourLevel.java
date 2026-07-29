@@ -152,6 +152,7 @@ public class LastHourLevel extends DungeonLevel {
             Lore.DoorCode,
             () -> {
               storageDoor.open();
+              LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
               LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
               EventScheduler.scheduleAction(this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
             },
@@ -204,6 +205,7 @@ public class LastHourLevel extends DungeonLevel {
                       .fetch(InputComponent.class)
                       .ifPresent(
                           pc -> {
+                            LastHourQuestLogUtil.addEscapeQuestLogEntries();
                             BlackFadeCutscene.show(
                                 endingLoreTexts(), true, false, () -> Game.exit("Win"));
                           });
