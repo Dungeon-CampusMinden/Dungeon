@@ -139,7 +139,7 @@ public final class LastHourClient {
                   .ifPresent(
                       questLog -> {
                         newEntity.add(questLog);
-                        QuestLogUtil.setQuestLog(newEntity);
+                        QuestLogUtil.setClientQuestLog(newEntity);
                       });
               applyCollideMetadata(newEntity, event.metadata());
               Game.add(newEntity);

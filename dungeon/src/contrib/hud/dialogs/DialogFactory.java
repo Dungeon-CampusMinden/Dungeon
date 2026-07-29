@@ -348,6 +348,7 @@ public class DialogFactory {
             .type(DialogType.DefaultTypes.FREE_INPUT)
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.MESSAGE, text)
+            .put(DialogContextKeys.QUESTION, text)
             .put(DialogContextKeys.INPUT_PREFILL, inputPrefill)
             .put(DialogContextKeys.INPUT_PLACEHOLDER, inputPlaceholder)
             .put(DialogContextKeys.CONFIRM_LABEL, confirmLabel)

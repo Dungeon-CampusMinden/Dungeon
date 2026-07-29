@@ -141,7 +141,7 @@ public class LastHourLevel extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     timerExpired = false;
-    Game.add(QuestLogUtil.initQuestLog());
+    Game.add(QuestLogUtil.initServerQuestLog());
 
     // This is an example on how to use the questlog. Should be replaced with detailed questlog
     // entries over the game

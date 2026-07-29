@@ -10,9 +10,7 @@ import core.Game;
  *
  * <p>Normal game code should use {@link #QuestLogEntry(String, boolean)} or {@link
  * #QuestLogEntry(String, String, boolean)}. These constructors set {@link #timestamp()} to {@link
- * Game#currentTick()} automatically, so callers do not need to provide the timestamp manually. The
- * full record constructor still exists because Java records always expose a canonical constructor
- * for all record components.
+ * Game#currentTick()} automatically, so callers do not need to provide the timestamp manually.
  *
  * @param text the text shown for this quest log entry
  * @param timestamp the game tick at which this entry was created or recorded; normally assigned by

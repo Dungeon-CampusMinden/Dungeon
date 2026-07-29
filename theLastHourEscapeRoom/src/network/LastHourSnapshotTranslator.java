@@ -482,7 +482,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
   private void applyQuestLogState(Entity entity, QuestLogComponent questLog) {
     entity.remove(QuestLogComponent.class);
     entity.add(questLog);
-    QuestLogUtil.setQuestLog(entity);
+    QuestLogUtil.setClientQuestLog(entity);
   }
 
   /**

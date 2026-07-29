@@ -34,7 +34,11 @@
     },
     "questlog": {
       "title": "Questlog",
-      "empty": "Questlog ist leer."
+      "empty": "Questlog ist leer.",
+      "create": "Erstellen",
+      "cancel": "Abbrechen",
+      "note_prompt": "Schreibe eine Notiz fuer das Questlog.",
+      "note_placeholder": "Deine Notiz..."
     },
     "client_connection_dialog": {
       "title": "Server verbinden",

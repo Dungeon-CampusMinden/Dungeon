@@ -52,7 +52,7 @@ public class QuestLogComponent implements Component {
   /**
    * Returns the entries stored in the given tab.
    *
-   * <p>The returned list is a copy and can be modified without changing this component.
+   * <p>The returned list is a shallow-copy.
    *
    * @param tab the name of the tab
    * @return a copy of the entries in the tab, or an empty list if the tab does not exist
@@ -65,8 +65,7 @@ public class QuestLogComponent implements Component {
   /**
    * Returns all quest log entries grouped by tab.
    *
-   * <p>The returned map and all contained lists are copies and can be modified without changing
-   * this component.
+   * <p>The returned map and all contained lists are shallow-copy.
    *
    * @return a copy of all tabs and their entries
    */
@@ -79,11 +78,10 @@ public class QuestLogComponent implements Component {
   /**
    * Returns all available tab names.
    *
-   * <p>The returned list is a copy and can be modified without changing this component. The order
-   * is the iteration order of the internal map; use {@link #getTabsOrderedByLastEntry()} when the
-   * tabs should be ordered by recency.
+   * <p>The order is the iteration order of the internal map; use {@link
+   * #getTabsOrderedByLastEntry()} when the tabs should be ordered by recency.
    *
-   * @return a copy of all tab names
+   * @return a list of all tab names
    */
   public List<String> getQuestlogTabs() {
     return new ArrayList<>(questlog.keySet());
