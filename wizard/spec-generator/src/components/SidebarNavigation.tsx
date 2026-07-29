@@ -40,6 +40,10 @@ export function SidebarNavigation({
             <CircleXIcon className="text-red-500" />
             Rätsel, Inhalte & Hilfen
           </TabsTrigger>
+          <TabsTrigger value="assets">
+            <CircleAlertIcon className="text-yellow-500" />
+            Eigene Bilder & Dateien
+          </TabsTrigger>
           <TabsTrigger value="review">
             <CircleIcon />
             Prüfen & Vorschau

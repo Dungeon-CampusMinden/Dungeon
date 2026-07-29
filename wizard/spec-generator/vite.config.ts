@@ -3,10 +3,17 @@ import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import { assetManifest } from "./plugins/assetManifest.js";
 
-// https://vite.dev/config/
+const engineAssets = path.resolve(__dirname, "../../dungeon/assets");
+
 export default defineConfig({
-  plugins: [react(), babel({ presets: [reactCompilerPreset()] }), tailwindcss()],
+  plugins: [
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
+    tailwindcss(),
+    assetManifest(engineAssets, path.resolve(__dirname, "public")),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

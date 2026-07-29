@@ -11,6 +11,8 @@ import { MetadataTab } from "./components/MetadataTab";
 import { ScenarioTab } from "./components/ScenarioTab";
 import { SessionTab } from "./components/SessionTab";
 import { SurfacesTab } from "./components/SurfacesTab";
+import { CustomIcon } from "./components/CustomIcon";
+import { AssetsTab } from "./components/AssetsTab";
 
 function App() {
   const [deerSchema, setDeerSchema] = useLocalStorage<DeerSchema>("schema", schema as DeerSchema);
@@ -26,7 +28,7 @@ function App() {
   };
 
   return (
-    <div className="h-screen overflow-scroll max-w-7xl mx-auto bg-background p-4">
+    <div className="h-screen overflow-scroll max-w-7xl mx-auto bg-background p-4 lg:border-x border-[var(--border-color)]">
       <h1 className="text-3xl font-bold mb-4 text-center">Dungeon Spec Generator</h1>
       <div className={`grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 max-w-full`}>
         <div className="lg:sticky lg:top-0 flex flex-col gap-4">
@@ -47,9 +49,10 @@ function App() {
           {tab === "scenario" && <ScenarioTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "session" && <SessionTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "surfaces" && <SurfacesTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
+          {tab === "assets" && <AssetsTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "review" && (
             <>
-              <h1>Wizard Spec Generator</h1>
+              <CustomIcon src="/bundled-assets/items/puzzle-piece.png" alt="Puzzle Piece" />
               <Button onClick={testAction}>Test</Button>
               <code className="block mb-4 p-2 bg-slate-100 rounded-sm text-sm">
                 <pre>{JSON.stringify(deerSchema, null, 2)}</pre>

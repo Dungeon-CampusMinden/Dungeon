@@ -27,7 +27,7 @@ export function SurfacesTab({
 
   const addSurface = () => {
     const newSurface: Surface = {
-      id: Util.generateUniqueId("su"),
+      id: Util.generateUniqueId("s"),
       title: "Neuer Ort",
       kind: "world",
     };
@@ -43,7 +43,10 @@ export function SurfacesTab({
   return (
     <div className="flex flex-col gap-0">
       <h1>Orte & Geräte</h1>
-      <Button onClick={addSurface} className="mb-2 max-w-40">
+      <p className="text-sm text-muted-foreground">
+        Hier kannst du die Orte und Geräte definieren, die in deinem Abenteuer vorkommen.
+      </p>
+      <Button onClick={addSurface} className="my-2 max-w-40">
         <PlusIcon />
         Hinzufügen
       </Button>
