@@ -173,7 +173,7 @@
   "assets": [
     {
       "id": "asset_foundation_note",
-      "path": "assets/custom/3b50ea522803-foundation-note.png",
+      "path": "/assets/custom/3b50ea522803-foundation-note.png",
       "mediaType": "image/png",
       "purpose": "decorative",
       "source": {
