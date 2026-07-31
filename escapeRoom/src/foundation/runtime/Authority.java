@@ -1,0 +1,550 @@
+package foundation.runtime;
+
+import foundation.definition.CollectionInputDefinition;
+import foundation.definition.ComposedRiddleDefinition;
+import foundation.definition.HintDefinition;
+import foundation.definition.InformationSourceDefinition;
+import foundation.definition.InputDefinition;
+import foundation.definition.NumericInputDefinition;
+import foundation.definition.RiddleDefinition;
+import foundation.definition.RoomDefinition;
+import foundation.definition.RosterSlotDefinition;
+import foundation.definition.SectionDefinition;
+import foundation.definition.TimerMode;
+import foundation.runtime.Projection.InputView;
+import foundation.runtime.Projection.ProgressStatus;
+import foundation.runtime.Projection.RiddleView;
+import foundation.runtime.Projection.SectionView;
+import foundation.runtime.Projection.TimerState;
+import foundation.runtime.Projection.TimerView;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+/**
+ * Thread-safe deterministic authority for one server-hosted room session.
+ *
+ * <p>All time enters through {@link #advance(Duration)}. The authority owns answers and authored
+ * unreleased hints; neither is exposed by {@link #projection()}.
+ */
+public final class Authority {
+  private static final Duration MAX_DURATION = Duration.ofSeconds(Long.MAX_VALUE, 999_999_999);
+
+  private final RoomDefinition definition;
+  private final Map<String, SlotState> slots = new LinkedHashMap<>();
+  private final Map<String, RiddleState> riddles = new LinkedHashMap<>();
+  private final Map<String, Integer> sectionIndexes = new LinkedHashMap<>();
+  private final Duration limit;
+  private boolean started;
+  private Duration elapsed = Duration.ZERO;
+  private boolean overtime;
+  private boolean doorOpen;
+  private TerminalResult terminal;
+
+  /**
+   * Creates a fresh authority with all riddles locked until session and section activation.
+   *
+   * @param definition immutable Foundation room definition
+   */
+  public Authority(final RoomDefinition definition) {
+    this.definition = Objects.requireNonNull(definition, "definition");
+    limit = Duration.ofMinutes(definition.timer().limitMinutes());
+    for (RosterSlotDefinition slot : definition.roster().slots()) {
+      slots.put(slot.id(), new SlotState());
+    }
+    for (int sectionIndex = 0; sectionIndex < definition.sections().size(); sectionIndex++) {
+      SectionDefinition section = definition.sections().get(sectionIndex);
+      for (RiddleDefinition riddle : section.riddles()) {
+        riddles.put(riddle.id(), new RiddleState((ComposedRiddleDefinition) riddle));
+        sectionIndexes.put(riddle.id(), sectionIndex);
+      }
+    }
+  }
+
+  /**
+   * Connects one player slot.
+   *
+   * @param slotId stable slot identifier
+   * @return explicit command result
+   */
+  public synchronized OperationResult connect(final String slotId) {
+    SlotState slot = slots.get(slotId);
+    if (slot == null) {
+      return OperationResult.rejected(OperationReason.UNKNOWN_SLOT);
+    }
+    if (terminal != null) {
+      return OperationResult.idempotent(OperationReason.SESSION_TERMINAL);
+    }
+    if (slot.connected) {
+      return OperationResult.idempotent(OperationReason.ALREADY_CONNECTED);
+    }
+    slot.connected = true;
+    startWhenReady();
+    evaluateSuccess();
+    return OperationResult.applied();
+  }
+
+  /**
+   * Disconnects one slot without stopping an already started session.
+   *
+   * @param slotId stable slot identifier
+   * @return explicit command result
+   */
+  public synchronized OperationResult disconnect(final String slotId) {
+    SlotState slot = slots.get(slotId);
+    if (slot == null) {
+      return OperationResult.rejected(OperationReason.UNKNOWN_SLOT);
+    }
+    if (terminal != null) {
+      return OperationResult.idempotent(OperationReason.SESSION_TERMINAL);
+    }
+    if (!slot.connected) {
+      return OperationResult.idempotent(OperationReason.ALREADY_DISCONNECTED);
+    }
+    slot.connected = false;
+    slot.inExit = false;
+    evaluateSuccess();
+    return OperationResult.applied();
+  }
+
+  /**
+   * Retains explicit spawn readiness for a connected slot.
+   *
+   * @param slotId stable slot identifier
+   * @return explicit command result
+   */
+  public synchronized OperationResult markSpawned(final String slotId) {
+    SlotState slot = slots.get(slotId);
+    if (slot == null) {
+      return OperationResult.rejected(OperationReason.UNKNOWN_SLOT);
+    }
+    if (terminal != null) {
+      return OperationResult.idempotent(OperationReason.SESSION_TERMINAL);
+    }
+    if (!slot.connected) {
+      return OperationResult.rejected(OperationReason.SLOT_DISCONNECTED);
+    }
+    if (slot.spawned) {
+      return OperationResult.idempotent(OperationReason.ALREADY_SPAWNED);
+    }
+    slot.spawned = true;
+    startWhenReady();
+    return OperationResult.applied();
+  }
+
+  /**
+   * Applies one interaction with a readable information source.
+   *
+   * @param riddleId owning riddle identifier
+   * @param informationSourceId stable information source identifier
+   * @return explicit command result
+   */
+  public synchronized OperationResult interactSource(
+      final String riddleId, final String informationSourceId) {
+    OperationResult gate = gameplayGate();
+    if (gate != null) {
+      return gate;
+    }
+    RiddleState state = riddles.get(riddleId);
+    if (state == null) {
+      return OperationResult.rejected(OperationReason.UNKNOWN_RIDDLE);
+    }
+    if (state.status == ProgressStatus.SOLVED) {
+      return OperationResult.idempotent(OperationReason.RIDDLE_ALREADY_COMPLETED);
+    }
+    if (state.definition.informationSources().stream()
+        .map(InformationSourceDefinition::id)
+        .noneMatch(informationSourceId::equals)) {
+      return OperationResult.rejected(OperationReason.UNKNOWN_INFORMATION_SOURCE);
+    }
+    if (state.status == ProgressStatus.LOCKED) {
+      return OperationResult.idempotent(OperationReason.RIDDLE_LOCKED);
+    }
+    List<CollectionInputDefinition> matching =
+        state.definition.inputs().stream()
+            .filter(CollectionInputDefinition.class::isInstance)
+            .map(CollectionInputDefinition.class::cast)
+            .filter(input -> input.informationSourceId().equals(informationSourceId))
+            .toList();
+    if (matching.isEmpty()) {
+      return OperationResult.idempotent(OperationReason.INFORMATION_SOURCE_ONLY);
+    }
+    boolean changed = false;
+    for (CollectionInputDefinition input : matching) {
+      changed |= state.satisfied.add(input.id());
+    }
+    if (!changed) {
+      return OperationResult.idempotent(OperationReason.INPUT_ALREADY_SATISFIED);
+    }
+    completeIfSatisfied(state);
+    return OperationResult.applied();
+  }
+
+  /**
+   * Evaluates one numeric attempt exactly inside authority without retaining attempt counts.
+   *
+   * @param riddleId owning riddle identifier
+   * @param inputId stable numeric input identifier
+   * @param attempt caller-supplied value evaluated by exact equality
+   * @return explicit command and non-secret correctness result
+   */
+  public synchronized CodeAttemptResult attemptCode(
+      final String riddleId, final String inputId, final String attempt) {
+    OperationResult gate = gameplayGate();
+    if (gate != null) {
+      return code(gate, CodeOutcome.NOT_EVALUATED);
+    }
+    RiddleState state = riddles.get(riddleId);
+    if (state == null) {
+      return code(
+          OperationResult.rejected(OperationReason.UNKNOWN_RIDDLE), CodeOutcome.NOT_EVALUATED);
+    }
+    if (state.status == ProgressStatus.SOLVED) {
+      return code(
+          OperationResult.idempotent(OperationReason.RIDDLE_ALREADY_COMPLETED),
+          CodeOutcome.NOT_EVALUATED);
+    }
+    if (state.status == ProgressStatus.LOCKED) {
+      return code(
+          OperationResult.idempotent(OperationReason.RIDDLE_LOCKED), CodeOutcome.NOT_EVALUATED);
+    }
+    Optional<NumericInputDefinition> numeric =
+        state.definition.inputs().stream()
+            .filter(input -> input.id().equals(inputId))
+            .filter(NumericInputDefinition.class::isInstance)
+            .map(NumericInputDefinition.class::cast)
+            .findFirst();
+    if (numeric.isEmpty()) {
+      return code(
+          OperationResult.rejected(OperationReason.UNKNOWN_INPUT), CodeOutcome.NOT_EVALUATED);
+    }
+    if (state.satisfied.contains(inputId)) {
+      return code(
+          OperationResult.idempotent(OperationReason.INPUT_ALREADY_SATISFIED),
+          CodeOutcome.NOT_EVALUATED);
+    }
+    if (!numeric.orElseThrow().answer().equals(attempt)) {
+      return code(OperationResult.applied(), CodeOutcome.INCORRECT);
+    }
+    state.satisfied.add(inputId);
+    completeIfSatisfied(state);
+    return code(OperationResult.applied(), CodeOutcome.CORRECT);
+  }
+
+  /**
+   * Releases exactly the next authored hint of one incomplete riddle.
+   *
+   * @param riddleId stable riddle identifier
+   * @return command result and newly released hint when applied
+   */
+  public synchronized HintRevealResult revealHint(final String riddleId) {
+    OperationResult gate = gameplayGate();
+    if (gate != null) {
+      return hint(gate, Optional.empty());
+    }
+    RiddleState state = riddles.get(riddleId);
+    if (state == null) {
+      return hint(OperationResult.rejected(OperationReason.UNKNOWN_RIDDLE), Optional.empty());
+    }
+    if (state.status == ProgressStatus.SOLVED) {
+      return hint(
+          OperationResult.idempotent(OperationReason.RIDDLE_ALREADY_COMPLETED), Optional.empty());
+    }
+    if (state.status == ProgressStatus.LOCKED) {
+      return hint(OperationResult.idempotent(OperationReason.RIDDLE_LOCKED), Optional.empty());
+    }
+    List<HintDefinition> authored = state.definition.hints();
+    if (state.releasedHints == authored.size()) {
+      return hint(OperationResult.idempotent(OperationReason.HINTS_EXHAUSTED), Optional.empty());
+    }
+    HintDefinition revealed = authored.get(state.releasedHints++);
+    return hint(OperationResult.applied(), Optional.of(released(revealed)));
+  }
+
+  /**
+   * Places one connected roster slot at the common exit when its door is open.
+   *
+   * @param slotId stable slot identifier
+   * @return explicit command result
+   */
+  public synchronized OperationResult enterExit(final String slotId) {
+    OperationResult gate = gameplayGate();
+    if (gate != null) {
+      return gate;
+    }
+    SlotState slot = slots.get(slotId);
+    if (slot == null) {
+      return OperationResult.rejected(OperationReason.UNKNOWN_SLOT);
+    }
+    if (!slot.connected) {
+      return OperationResult.rejected(OperationReason.SLOT_DISCONNECTED);
+    }
+    if (!doorOpen) {
+      return OperationResult.rejected(OperationReason.DOOR_CLOSED);
+    }
+    if (slot.inExit) {
+      return OperationResult.idempotent(OperationReason.ALREADY_IN_EXIT);
+    }
+    slot.inExit = true;
+    evaluateSuccess();
+    return OperationResult.applied();
+  }
+
+  /**
+   * Removes one connected roster slot from the common exit before terminal success.
+   *
+   * @param slotId stable slot identifier
+   * @return explicit command result
+   */
+  public synchronized OperationResult leaveExit(final String slotId) {
+    OperationResult gate = gameplayGate();
+    if (gate != null) {
+      return gate;
+    }
+    SlotState slot = slots.get(slotId);
+    if (slot == null) {
+      return OperationResult.rejected(OperationReason.UNKNOWN_SLOT);
+    }
+    if (!slot.connected) {
+      return OperationResult.rejected(OperationReason.SLOT_DISCONNECTED);
+    }
+    if (!slot.inExit) {
+      return OperationResult.idempotent(OperationReason.NOT_IN_EXIT);
+    }
+    slot.inExit = false;
+    return OperationResult.applied();
+  }
+
+  /**
+   * Advances explicit authoritative time after the session has started.
+   *
+   * @param duration nonnegative elapsed duration supplied by the local/server adapter
+   * @return explicit command result
+   */
+  public synchronized OperationResult advance(final Duration duration) {
+    Objects.requireNonNull(duration, "duration");
+    if (duration.isNegative()) {
+      return OperationResult.rejected(OperationReason.NEGATIVE_DURATION);
+    }
+    if (terminal != null) {
+      return OperationResult.idempotent(OperationReason.SESSION_TERMINAL);
+    }
+    if (!started) {
+      return OperationResult.rejected(OperationReason.SESSION_NOT_RUNNING);
+    }
+    if (duration.isZero()) {
+      return OperationResult.idempotent(OperationReason.ZERO_DURATION);
+    }
+    Duration remaining = nonnegative(limit.minus(elapsed));
+    if (definition.timer().mode() == TimerMode.HARD && duration.compareTo(remaining) >= 0) {
+      elapsed = limit;
+      terminal = TerminalResult.HARD_TIMEOUT;
+      return OperationResult.applied();
+    }
+    elapsed = safeAdd(elapsed, duration);
+    if (definition.timer().mode() == TimerMode.SOFT && elapsed.compareTo(limit) >= 0) {
+      overtime = true;
+    }
+    return OperationResult.applied();
+  }
+
+  /**
+   * Aborts a nonterminal session with an immutable terminal result.
+   *
+   * @return explicit command result
+   */
+  public synchronized OperationResult abort() {
+    if (terminal != null) {
+      return OperationResult.idempotent(OperationReason.SESSION_TERMINAL);
+    }
+    terminal = TerminalResult.ABORTED;
+    return OperationResult.applied();
+  }
+
+  /**
+   * Builds a detached immutable player-visible projection in definition order.
+   *
+   * @return coherent public authority state
+   */
+  public synchronized Projection projection() {
+    List<SectionView> sections = new ArrayList<>();
+    for (int index = 0; index < definition.sections().size(); index++) {
+      SectionDefinition section = definition.sections().get(index);
+      List<RiddleView> views = new ArrayList<>();
+      for (RiddleDefinition riddle : section.riddles()) {
+        RiddleState state = riddles.get(riddle.id());
+        views.add(
+            new RiddleView(riddle.id(), state.status(), inputViews(state), releasedHints(state)));
+      }
+      sections.add(new SectionView(section.id(), sectionStatus(index), views));
+    }
+    Duration publicElapsed = wholeSeconds(elapsed);
+    return new Projection(
+        sections,
+        new TimerView(
+            started,
+            timerState(),
+            publicElapsed,
+            nonnegative(limit.minus(publicElapsed)),
+            overtime),
+        doorOpen,
+        Optional.ofNullable(terminal));
+  }
+
+  private void startWhenReady() {
+    long ready = slots.values().stream().filter(slot -> slot.connected && slot.spawned).count();
+    if (!started && ready >= definition.minimumPlayers()) {
+      started = true;
+      activateSection(0);
+    }
+  }
+
+  private static Duration wholeSeconds(final Duration duration) {
+    return Duration.ofSeconds(duration.getSeconds());
+  }
+
+  private OperationResult gameplayGate() {
+    if (terminal != null) {
+      return OperationResult.rejected(OperationReason.SESSION_TERMINAL);
+    }
+    if (!started) {
+      return OperationResult.rejected(OperationReason.SESSION_NOT_RUNNING);
+    }
+    return null;
+  }
+
+  private TimerState timerState() {
+    if (terminal != null) {
+      return TimerState.TERMINAL;
+    }
+    if (!started) {
+      return TimerState.WAITING_FOR_READY;
+    }
+    return TimerState.RUNNING;
+  }
+
+  private void completeIfSatisfied(final RiddleState state) {
+    if (state.definition.inputs().stream()
+        .map(InputDefinition::id)
+        .allMatch(state.satisfied::contains)) {
+      state.status = ProgressStatus.SOLVED;
+      int sectionIndex = sectionIndexes.get(state.definition.id());
+      if (sectionSolved(sectionIndex)) {
+        if (sectionIndex + 1 < definition.sections().size()) {
+          activateSection(sectionIndex + 1);
+        } else {
+          doorOpen = true;
+        }
+      }
+    }
+  }
+
+  private void evaluateSuccess() {
+    if (terminal == null
+        && started
+        && doorOpen
+        && slots.values().stream()
+            .filter(slot -> slot.connected && slot.spawned)
+            .allMatch(slot -> slot.inExit)
+        && slots.values().stream().anyMatch(slot -> slot.connected && slot.spawned)) {
+      terminal = TerminalResult.SUCCESS;
+    }
+  }
+
+  private ProgressStatus sectionStatus(final int sectionIndex) {
+    SectionDefinition section = definition.sections().get(sectionIndex);
+    if (section.riddles().stream()
+        .allMatch(riddle -> riddles.get(riddle.id()).status == ProgressStatus.SOLVED)) {
+      return ProgressStatus.SOLVED;
+    }
+    return section.riddles().stream()
+            .anyMatch(riddle -> riddles.get(riddle.id()).status == ProgressStatus.ACTIVE)
+        ? ProgressStatus.ACTIVE
+        : ProgressStatus.LOCKED;
+  }
+
+  private boolean sectionSolved(final int sectionIndex) {
+    return definition.sections().get(sectionIndex).riddles().stream()
+        .allMatch(riddle -> riddles.get(riddle.id()).status == ProgressStatus.SOLVED);
+  }
+
+  private void activateSection(final int sectionIndex) {
+    definition.sections().get(sectionIndex).riddles().stream()
+        .map(riddle -> riddles.get(riddle.id()))
+        .filter(state -> state.status == ProgressStatus.LOCKED)
+        .forEach(state -> state.status = ProgressStatus.ACTIVE);
+  }
+
+  private static List<InputView> inputViews(final RiddleState state) {
+    return state.definition.inputs().stream()
+        .map(
+            input ->
+                new InputView(
+                    input.id(),
+                    state.satisfied.contains(input.id()),
+                    input instanceof NumericInputDefinition numeric && numeric.showDigitCount()
+                        ? Optional.of(numeric.answer().length())
+                        : Optional.empty()))
+        .toList();
+  }
+
+  private static List<ReleasedHint> releasedHints(final RiddleState state) {
+    return state.definition.hints().stream()
+        .limit(state.releasedHints)
+        .map(Authority::released)
+        .toList();
+  }
+
+  private static ReleasedHint released(final HintDefinition hint) {
+    return new ReleasedHint(hint.id(), hint.title(), hint.text(), hint.severity());
+  }
+
+  private static CodeAttemptResult code(
+      final OperationResult operation, final CodeOutcome outcome) {
+    return new CodeAttemptResult(operation, outcome);
+  }
+
+  private static HintRevealResult hint(
+      final OperationResult operation, final Optional<ReleasedHint> revealed) {
+    return new HintRevealResult(operation, revealed);
+  }
+
+  private static Duration safeAdd(final Duration left, final Duration right) {
+    try {
+      return left.plus(right);
+    } catch (ArithmeticException exception) {
+      return MAX_DURATION;
+    }
+  }
+
+  private static Duration nonnegative(final Duration duration) {
+    return duration.isNegative() ? Duration.ZERO : duration;
+  }
+
+  private static final class SlotState {
+    private boolean connected;
+    private boolean spawned;
+    private boolean inExit;
+  }
+
+  private static final class RiddleState {
+    private final ComposedRiddleDefinition definition;
+    private final Set<String> satisfied = new LinkedHashSet<>();
+    private int releasedHints;
+    private ProgressStatus status = ProgressStatus.LOCKED;
+
+    private RiddleState(final ComposedRiddleDefinition definition) {
+      this.definition = definition;
+    }
+
+    private ProgressStatus status() {
+      return status;
+    }
+  }
+}
