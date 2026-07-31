@@ -1,5 +1,5 @@
 import React from "react";
-import assets from "../../../public/assets-manifest.json";
+import assets from "@/data/assets-manifest.json";
 import {
   Dialog,
   DialogClose,

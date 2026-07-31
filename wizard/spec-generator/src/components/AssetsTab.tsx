@@ -6,15 +6,16 @@ import { Util } from "@/data/Util";
 import { AssetStorage } from "@/data/AssetStorage";
 import { AssetCard } from "./assets/AssetCard";
 import { AssetCreateDialog } from "./assets/AssetCreateDialog";
+import { useAssetPreviews } from "./assets/useAssetPreviews";
 import {
   ALLOWED_EXTENSIONS,
   CUSTOM_PATH_PREFIX,
-  getBundledAssetUrl,
   getMediaTypeForPath,
   isBundledAssetPath,
-  type AssetPreview,
   type AssetSelection,
 } from "./assets/assetPaths";
+import { Separator } from "./ui/separator";
+import { AssetSelector } from "./assets/AssetSelector";
 
 export function AssetsTab({
   deerSchema,
@@ -25,54 +26,9 @@ export function AssetsTab({
 }) {
   const assetList = deerSchema.assets;
   const [addOpen, setAddOpen] = React.useState(false);
-  const [previews, setPreviews] = React.useState<Record<string, AssetPreview>>({});
-  // Bumped whenever a file was written to the IndexedDB, to force a reload of the previews.
   const [storageRevision, setStorageRevision] = React.useState(0);
-
-  const previewKey = assetList.map((asset) => `${asset.id}:${asset.path}`).join("|");
-
-  React.useEffect(() => {
-    let cancelled = false;
-    const createdUrls: string[] = [];
-
-    (async () => {
-      const nextPreviews: Record<string, AssetPreview> = {};
-      for (const asset of assetList) {
-        // Bundled assets are served by the webserver and never stored in the IndexedDB.
-        if (isBundledAssetPath(asset.path)) {
-          const isImage = asset.mediaType.startsWith("image/");
-          nextPreviews[asset.id] = {
-            previewUrl: isImage ? getBundledAssetUrl(asset.path) : null,
-            missing: false,
-          };
-          continue;
-        }
-
-        const storedFile = await AssetStorage.getAssetFile(asset.id);
-        if (!storedFile) {
-          nextPreviews[asset.id] = { previewUrl: null, missing: true };
-          continue;
-        }
-        const objectUrl = storedFile.blob.type.startsWith("image/")
-          ? URL.createObjectURL(storedFile.blob)
-          : null;
-        if (objectUrl) createdUrls.push(objectUrl);
-        nextPreviews[asset.id] = { previewUrl: objectUrl, missing: false };
-      }
-
-      if (cancelled) {
-        createdUrls.forEach((url) => URL.revokeObjectURL(url));
-        return;
-      }
-      setPreviews(nextPreviews);
-    })();
-
-    return () => {
-      cancelled = true;
-      createdUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [previewKey, storageRevision]);
+  const [selectedAssetId, setSelectedAssetId] = React.useState<string>("");
+  const previews = useAssetPreviews(assetList, storageRevision);
 
   /** Writes the selected content to the given asset id and returns the resulting path/mediaType. */
   const applySelection = async (id: string, selection: AssetSelection) => {
@@ -182,6 +138,10 @@ export function AssetsTab({
           ))}
         </div>
       )}
+
+      <Separator className="my-4" />
+      <p className="mb-2">Testauswahl</p>
+      <AssetSelector items={assetList} value={selectedAssetId} onChange={setSelectedAssetId} allowEmpty />
     </div>
   );
 }
