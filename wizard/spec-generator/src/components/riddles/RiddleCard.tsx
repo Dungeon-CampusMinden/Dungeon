@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { ResourceCarousel } from "./ResourceCarousel";
 import { RiddleParametersView } from "./RiddleParametersView";
 import { getRiddleDifficulty, getRiddleType, RiddleTypeIcon } from "./riddleTypes";
 
@@ -51,7 +52,9 @@ export function RiddleCard({
 
         <Separator />
 
-        <RiddleSection title="Material">{/* TODO: Karussell mit Resource-Karten */}</RiddleSection>
+        <RiddleSection title="Material">
+          <ResourceCarousel resources={riddle.resources} assets={deerSchema.assets} />
+        </RiddleSection>
 
         <Separator />
 
