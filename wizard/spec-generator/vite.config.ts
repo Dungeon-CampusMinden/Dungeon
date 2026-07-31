@@ -12,7 +12,7 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
-    assetManifest(engineAssets, path.resolve(__dirname, "public")),
+    assetManifest(engineAssets, path.resolve(__dirname, "src/data")),
   ],
   resolve: {
     alias: {
