@@ -1,12 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:dungeon:wizard:deer-schema:0.2-draft",
-  "title": "DEER Authoring Configuration V0.2",
-  "description": "Finalized Wizard-to-generator contract. Incomplete UI drafts use a separate private model. Cross-reference, graph-profile, path-content and runtime-capability checks are semantic validations.",
+  "$id": "urn:dungeon:wizard:deer-schema:0.3",
+  "title": "DEER Authoring Configuration V0.3",
+  "description": "Finalized Wizard-to-runner authoring contract. Incomplete UI drafts use a private model. Cross-reference, graph-profile, path-content and runtime-capability checks are semantic validations.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "formatVersion",
+    "seed",
     "metadata",
     "learningDesign",
     "session",
@@ -18,7 +19,12 @@
   ],
   "properties": {
     "formatVersion": {
-      "const": "0.2-draft"
+      "const": "0.3"
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
     },
     "metadata": {
       "$ref": "#/$defs/metadata"
@@ -131,19 +137,12 @@
     "id": {
       "type": "string",
       "maxLength": 64,
-      "pattern": "^[a-z][a-z0-9_]*$"
+      "pattern": "^[a-z][a-z0-9_-]*$"
     },
     "nonBlankString": {
       "type": "string",
       "minLength": 1,
       "pattern": "\\S"
-    },
-    "idArray": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/id"
-      },
-      "uniqueItems": true
     },
     "metadata": {
       "type": "object",
@@ -275,8 +274,6 @@
       "additionalProperties": false,
       "required": [
         "themeId",
-        "playerRole",
-        "premise",
         "mission",
         "introText",
         "successText"
@@ -285,23 +282,29 @@
         "themeId": {
           "const": "default"
         },
-        "playerRole": {
-          "$ref": "#/$defs/nonBlankString"
-        },
-        "premise": {
-          "$ref": "#/$defs/nonBlankString"
-        },
         "mission": {
           "$ref": "#/$defs/nonBlankString"
         },
         "introText": {
-          "$ref": "#/$defs/nonBlankString"
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonBlankString"
+          }
         },
         "successText": {
-          "$ref": "#/$defs/nonBlankString"
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonBlankString"
+          }
         },
         "failureText": {
-          "$ref": "#/$defs/nonBlankString"
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonBlankString"
+          }
         }
       }
     },
@@ -334,18 +337,10 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "startNodeId",
-        "endNodeId",
         "nodes",
         "edges"
       ],
       "properties": {
-        "startNodeId": {
-          "$ref": "#/$defs/id"
-        },
-        "endNodeId": {
-          "$ref": "#/$defs/id"
-        },
         "nodes": {
           "type": "array",
           "minItems": 3,
@@ -451,14 +446,10 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "id",
         "from",
         "to"
       ],
       "properties": {
-        "id": {
-          "$ref": "#/$defs/id"
-        },
         "from": {
           "$ref": "#/$defs/id"
         },
@@ -468,35 +459,20 @@
       }
     },
     "riddle": {
-      "oneOf": [
-        {
-          "$ref": "#/$defs/collectionRiddle"
-        },
-        {
-          "$ref": "#/$defs/inputRiddle"
-        }
-      ]
-    },
-    "collectionRiddle": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "id",
-        "type",
         "title",
         "learningObjectiveIds",
-        "playerFacingTask",
         "estimatedMinutes",
-        "resources",
-        "hints",
-        "parameters"
+        "informationSources",
+        "inputs",
+        "hints"
       ],
       "properties": {
         "id": {
           "$ref": "#/$defs/id"
-        },
-        "type": {
-          "const": "collection"
         },
         "title": {
           "$ref": "#/$defs/nonBlankString"
@@ -515,143 +491,17 @@
         "learningObjectiveIds": {
           "$ref": "#/$defs/nonEmptyIdArray"
         },
-        "playerFacingTask": {
-          "$ref": "#/$defs/nonBlankString"
+        "informationSources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/informationSource"
+          }
         },
-        "resources": {
+        "inputs": {
           "type": "array",
           "minItems": 1,
           "items": {
-            "$ref": "#/$defs/resource"
-          },
-          "contains": {
-            "$ref": "#/$defs/inlineTextResource"
-          },
-          "minContains": 1
-        },
-        "hints": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/hint"
-          }
-        },
-        "parameters": {
-          "$ref": "#/$defs/collectionParameters"
-        }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "parameters": {
-                "properties": {
-                  "sourceKind": {
-                    "const": "container"
-                  }
-                },
-                "required": [
-                  "sourceKind"
-                ]
-              }
-            },
-            "required": [
-              "parameters"
-            ]
-          },
-          "then": {
-            "properties": {
-              "resources": {
-                "items": {
-                  "properties": {
-                    "availability": {
-                      "const": "inside_container"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "parameters": {
-                "properties": {
-                  "sourceKind": {
-                    "const": "world_object"
-                  }
-                },
-                "required": [
-                  "sourceKind"
-                ]
-              }
-            },
-            "required": [
-              "parameters"
-            ]
-          },
-          "then": {
-            "properties": {
-              "resources": {
-                "items": {
-                  "properties": {
-                    "availability": {
-                      "const": "visible_in_level"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      ]
-    },
-    "inputRiddle": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "type",
-        "title",
-        "learningObjectiveIds",
-        "playerFacingTask",
-        "estimatedMinutes",
-        "resources",
-        "hints",
-        "parameters"
-      ],
-      "properties": {
-        "id": {
-          "$ref": "#/$defs/id"
-        },
-        "type": {
-          "const": "input"
-        },
-        "title": {
-          "$ref": "#/$defs/nonBlankString"
-        },
-        "difficulty": {
-          "enum": [
-            "easy",
-            "medium",
-            "hard"
-          ]
-        },
-        "estimatedMinutes": {
-          "type": "integer",
-          "minimum": 1
-        },
-        "learningObjectiveIds": {
-          "$ref": "#/$defs/nonEmptyIdArray"
-        },
-        "playerFacingTask": {
-          "$ref": "#/$defs/nonBlankString"
-        },
-        "resources": {
-          "type": "array",
-          "maxItems": 0,
-          "items": {
-            "$ref": "#/$defs/resource"
+            "$ref": "#/$defs/input"
           }
         },
         "hints": {
@@ -659,9 +509,6 @@
           "items": {
             "$ref": "#/$defs/hint"
           }
-        },
-        "parameters": {
-          "$ref": "#/$defs/numericInputParameters"
         }
       }
     },
@@ -673,48 +520,79 @@
       },
       "uniqueItems": true
     },
-    "collectionParameters": {
+    "informationSource": {
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "id",
         "surfaceId",
-        "sourceKind",
-        "rewardMode",
-        "resourceIds"
+        "resources"
       ],
       "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
         "surfaceId": {
           "$ref": "#/$defs/id"
         },
-        "sourceKind": {
-          "enum": [
-            "container",
-            "world_object"
-          ]
-        },
-        "rewardMode": {
-          "const": "find_resource"
-        },
-        "resourceIds": {
-          "$ref": "#/$defs/nonEmptyIdArray"
+        "resources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/resource"
+          }
         }
       }
     },
-    "numericInputParameters": {
+    "input": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/collectionInput"
+        },
+        {
+          "$ref": "#/$defs/numericInput"
+        }
+      ]
+    },
+    "collectionInput": {
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "id",
+        "type",
+        "informationSourceId"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "const": "collection"
+        },
+        "informationSourceId": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "numericInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
         "surfaceId",
-        "inputMode",
         "answer",
         "showDigitCount"
       ],
       "properties": {
-        "surfaceId": {
+        "id": {
           "$ref": "#/$defs/id"
         },
-        "inputMode": {
+        "type": {
           "const": "numeric"
+        },
+        "surfaceId": {
+          "$ref": "#/$defs/id"
         },
         "answer": {
           "type": "string",
@@ -742,9 +620,7 @@
         "id",
         "kind",
         "title",
-        "text",
-        "availability",
-        "purpose"
+        "text"
       ],
       "properties": {
         "id": {
@@ -758,12 +634,6 @@
         },
         "text": {
           "$ref": "#/$defs/nonBlankString"
-        },
-        "availability": {
-          "$ref": "#/$defs/resourceAvailability"
-        },
-        "purpose": {
-          "$ref": "#/$defs/resourcePurpose"
         }
       }
     },
@@ -774,9 +644,7 @@
         "id",
         "kind",
         "title",
-        "assetId",
-        "availability",
-        "purpose"
+        "assetId"
       ],
       "properties": {
         "id": {
@@ -790,28 +658,8 @@
         },
         "assetId": {
           "$ref": "#/$defs/id"
-        },
-        "availability": {
-          "$ref": "#/$defs/resourceAvailability"
-        },
-        "purpose": {
-          "$ref": "#/$defs/resourcePurpose"
         }
       }
-    },
-    "resourceAvailability": {
-      "enum": [
-        "visible_in_level",
-        "inside_container"
-      ]
-    },
-    "resourcePurpose": {
-      "enum": [
-        "clue",
-        "context",
-        "instruction",
-        "decoy"
-      ]
     },
     "hint": {
       "type": "object",
@@ -819,8 +667,7 @@
       "required": [
         "id",
         "title",
-        "text",
-        "severity"
+        "text"
       ],
       "properties": {
         "id": {
@@ -831,10 +678,6 @@
         },
         "text": {
           "$ref": "#/$defs/nonBlankString"
-        },
-        "severity": {
-          "type": "integer",
-          "minimum": 1
         }
       }
     },
@@ -845,17 +688,14 @@
         "id",
         "path",
         "mediaType",
-        "purpose",
-        "source",
-        "accessibility"
+        "source"
       ],
       "properties": {
         "id": {
           "$ref": "#/$defs/id"
         },
         "path": {
-          "type": "string",
-          "pattern": "^assets/custom/[0-9a-f]{12}-[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$"
+          "$ref": "#/$defs/nonBlankString"
         },
         "mediaType": {
           "enum": [
@@ -863,82 +703,18 @@
             "image/jpeg"
           ]
         },
-        "purpose": {
-          "enum": [
-            "riddle_evidence",
-            "decorative"
-          ]
-        },
         "source": {
           "$ref": "#/$defs/assetSource"
-        },
-        "accessibility": {
-          "$ref": "#/$defs/assetAccessibility"
         }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "purpose": {
-                "const": "riddle_evidence"
-              }
-            },
-            "required": [
-              "purpose"
-            ]
-          },
-          "then": {
-            "properties": {
-              "accessibility": {
-                "properties": {
-                  "decorative": {
-                    "const": false
-                  }
-                }
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "purpose": {
-                "const": "decorative"
-              }
-            },
-            "required": [
-              "purpose"
-            ]
-          },
-          "then": {
-            "properties": {
-              "accessibility": {
-                "properties": {
-                  "decorative": {
-                    "const": true
-                  }
-                }
-              }
-            }
-          }
-        }
-      ]
+      }
     },
     "assetSource": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "type",
         "license"
       ],
       "properties": {
-        "type": {
-          "enum": [
-            "educator_upload",
-            "bundled_asset"
-          ]
-        },
         "license": {
           "$ref": "#/$defs/nonBlankString"
         },
@@ -946,40 +722,6 @@
           "$ref": "#/$defs/nonBlankString"
         }
       }
-    },
-    "assetAccessibility": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "decorative"
-      ],
-      "properties": {
-        "decorative": {
-          "type": "boolean"
-        },
-        "description": {
-          "$ref": "#/$defs/nonBlankString"
-        }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "decorative": {
-                "const": false
-              }
-            },
-            "required": [
-              "decorative"
-            ]
-          },
-          "then": {
-            "required": [
-              "description"
-            ]
-          }
-        }
-      ]
     }
   }
 }
