@@ -13,6 +13,7 @@ import { SessionTab } from "./components/SessionTab";
 import { SurfacesTab } from "./components/SurfacesTab";
 import { CustomIcon } from "./components/CustomIcon";
 import { AssetsTab } from "./components/AssetsTab";
+import { RiddlesTab } from "./components/RiddlesTab";
 
 function App() {
   const [deerSchema, setDeerSchema] = useLocalStorage<DeerSchema>("schema", schema as DeerSchema);
@@ -50,6 +51,7 @@ function App() {
           {tab === "session" && <SessionTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "surfaces" && <SurfacesTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "assets" && <AssetsTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
+          {tab === "riddles" && <RiddlesTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "review" && (
             <>
               <CustomIcon src="/bundled-assets/items/puzzle-piece.png" alt="Puzzle Piece" />

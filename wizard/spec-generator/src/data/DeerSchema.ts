@@ -123,15 +123,18 @@ export interface CollectionRiddleParameters {
 }
 export interface InputRiddleParameters {
   surfaceId: string;
-  inputMode: number;
+  inputMode: "numeric";
   answer: string;
   showDigitCount: boolean;
 }
+
+export type RiddleDifficulty = "easy" | "medium" | "hard";
 
 export interface Riddle {
   id: string;
   type: "collection" | "input";
   title: string;
+  difficulty: RiddleDifficulty;
   learningObjectiveIds: string[];
   playerFacingTask: string;
   estimatedMinutes: number;
