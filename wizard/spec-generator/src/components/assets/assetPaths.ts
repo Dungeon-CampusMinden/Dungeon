@@ -12,10 +12,11 @@ const MEDIA_TYPE_BY_EXTENSION: Record<string, AssetMediaType> = {
   ttf: "font/ttf",
 };
 
-/** Prefix of asset paths whose content lives in the IndexedDB. */
-export const CUSTOM_PATH_PREFIX = "/assets/custom";
-/** Prefix of asset paths whose content is served by the webserver under /bundled-assets. */
-export const BUNDLED_PATH_PREFIX = "/assets/bundled";
+/**
+ * Prefix of asset paths whose content lives in the IndexedDB. Every asset path that does not
+ * start with this prefix refers to a bundled asset served by the webserver.
+ */
+export const CUSTOM_PATH_PREFIX = "assets/custom";
 
 export type AssetEntry =
   | { path: string; type: "directory"; entries: AssetEntry[] }
@@ -27,7 +28,11 @@ export type AssetSelection = { kind: "custom"; file: File } | { kind: "bundled";
 /** Preview state of an asset, resolved either from the IndexedDB or from the bundled assets. */
 export type AssetPreview = { previewUrl: string | null; missing: boolean };
 
-export const normalizeAssetPath = (assetPath: string) => `/${assetPath.replace(/^\/+/, "")}`;
+/** Asset paths of the schema have no leading slash, manifest paths always have one. */
+export const stripLeadingSlash = (assetPath: string) => assetPath.replace(/^\/+/, "");
+
+/** Normalizes a manifest path (the paths inside the bundled assets manifest). */
+export const normalizeAssetPath = (assetPath: string) => `/${stripLeadingSlash(assetPath)}`;
 
 export const getParentPath = (assetPath: string) => {
   const segments = normalizeAssetPath(assetPath).split("/").filter(Boolean);
@@ -41,14 +46,17 @@ export const getFileExtension = (filePath: string) => filePath.split(".").pop()?
 export const getMediaTypeForPath = (filePath: string): AssetMediaType =>
   MEDIA_TYPE_BY_EXTENSION[getFileExtension(filePath)] ?? "text/plain";
 
-export const isBundledAssetPath = (assetPath: string) => assetPath.startsWith(`${BUNDLED_PATH_PREFIX}/`);
+export const isCustomAssetPath = (assetPath: string) =>
+  stripLeadingSlash(assetPath).startsWith(`${CUSTOM_PATH_PREFIX}/`);
+
+/** Everything that is not a custom asset is a bundled asset shipped with the application. */
+export const isBundledAssetPath = (assetPath: string) => !isCustomAssetPath(assetPath);
 
 /** Converts a manifest path (e.g. /character/knight.png) into an asset path. */
-export const toBundledAssetPath = (manifestPath: string) =>
-  `${BUNDLED_PATH_PREFIX}${normalizeAssetPath(manifestPath)}`;
+export const toBundledAssetPath = (manifestPath: string) => stripLeadingSlash(manifestPath);
 
 /** Converts a bundled asset path back into the manifest path it originated from. */
-export const toManifestPath = (assetPath: string) => assetPath.slice(BUNDLED_PATH_PREFIX.length) || "/";
+export const toManifestPath = (assetPath: string) => normalizeAssetPath(assetPath);
 
 /** URL under which the webserver serves the content of a bundled asset. */
-export const getBundledAssetUrl = (assetPath: string) => `/bundled-assets${toManifestPath(assetPath)}`;
+export const getBundledAssetUrl = (assetPath: string) => `/bundled-assets/${stripLeadingSlash(assetPath)}`;

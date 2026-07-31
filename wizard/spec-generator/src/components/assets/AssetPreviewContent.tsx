@@ -33,7 +33,7 @@ export function AssetPreviewContent({ asset, preview }: { asset: Asset; preview:
           const img = e.currentTarget;
           setPixelated(img.naturalWidth < USE_NN_BELOW || img.naturalHeight < USE_NN_BELOW);
         }}
-        className={`mt-0 max-h-full max-w-full object-contain ${
+        className={`mt-0 max-h-full max-w-full min-h-12 min-w-12 object-contain ${
           pixelated ? "[image-rendering:pixelated]" : ""
         }`}
       />
