@@ -37,6 +37,7 @@ import core.utils.settings.ButtonBindingSetting;
 import core.utils.settings.ClientSettings;
 import core.utils.settings.DescriptionSetting;
 import core.utils.settings.SectionDividerSetting;
+import foundation.ui.BlackFadeCutscene;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +50,6 @@ import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
 import util.LastHourAchievements;
-import util.ui.BlackFadeCutscene;
 
 /** The main class for the Multiplayer Client for development and testing purposes. */
 public final class LastHourClient {
@@ -96,7 +96,7 @@ public final class LastHourClient {
   private static void registerCustomDialogs() {
     ComputerFactory.ensureRegistration();
     DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
-    DialogFactory.register(LastHourDialogTypes.TEXT_CUTSCENE, BlackFadeCutscene::build);
+    BlackFadeCutscene.register();
   }
 
   /**

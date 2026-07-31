@@ -230,6 +230,30 @@ public class DungeonLoader {
   }
 
   /**
+   * Loads an already constructed level under a registered logical level name.
+   *
+   * <p>This overload performs no resource lookup, variant selection, parsing, or event dispatch.
+   * Both arguments and the registered level name are validated before the current logical level is
+   * changed.
+   *
+   * @param levelName The already registered logical name of the level.
+   * @param level The exact in-memory level instance to install.
+   * @throws NullPointerException If {@code levelName} or {@code level} is {@code null}.
+   * @throws MissingLevelException If {@code levelName} is not registered.
+   */
+  public static void loadLevel(String levelName, DungeonLevel level) {
+    String requiredName = Objects.requireNonNull(levelName, "levelName");
+    DungeonLevel requiredLevel = Objects.requireNonNull(level, "level");
+    int registeredIndex = registeredLevelIndex(requiredName);
+    if (registeredIndex < 0) {
+      throw new MissingLevelException(requiredName);
+    }
+
+    currentLevel = registeredIndex;
+    Game.currentLevel(requiredLevel);
+  }
+
+  /**
    * Loads a specific level (with a random variant).
    *
    * @param levelIndex The index of the level.
@@ -286,6 +310,15 @@ public class DungeonLoader {
     if (currentLevel == -1) {
       throw new MissingLevelException(levelName);
     }
+  }
+
+  private static int registeredLevelIndex(String levelName) {
+    for (int i = 0; i < levelOrder.size(); i++) {
+      if (levelOrder.get(i).a().equals(levelName)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   /**

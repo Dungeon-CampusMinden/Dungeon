@@ -147,11 +147,11 @@ public class S2CConverterTest {
   /** Verifies connect reject conversion roundtrip. */
   @Test
   public void testConnectRejectRoundTrip() {
-    ConnectReject message = new ConnectReject(ConnectReject.Reason.INCOMPATIBLE_VERSION);
+    ConnectReject message = new ConnectReject(ConnectReject.Reason.SERVER_FULL);
 
     core.network.proto.s2c.ConnectReject proto = CONNECT_REJECT_CONVERTER.toProto(message);
     assertEquals(
-        core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_INCOMPATIBLE_VERSION,
+        core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_SERVER_FULL,
         proto.getReason());
 
     ConnectReject roundTrip = CONNECT_REJECT_CONVERTER.fromProto(proto);

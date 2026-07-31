@@ -747,6 +747,12 @@ public final class ServerTransport {
       return;
     }
 
+    if (clientIdToSession.size() >= NetworkConfig.MAX_MULTIPLAYER_PLAYERS) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.SERVER_FULL), true);
+      LOGGER.info("Rejected fresh ConnectRequest for name='{}': server is full", playerName);
+      return;
+    }
+
     short newClientId = (short) nextClientId.getAndIncrement();
     byte[] sessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
     ClientState clientState =

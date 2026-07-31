@@ -29,7 +29,9 @@ public record ConnectReject(byte reason) implements NetworkMessage {
     /** The given session token was invalid. */
     INVALID_SESSION_TOKEN,
     /** Unspecified connection rejection reason. */
-    OTHER;
+    OTHER,
+    /** The server has reached its configured player capacity. */
+    SERVER_FULL;
 
     /**
      * Get the code corresponding to this Reason.
@@ -68,6 +70,7 @@ public record ConnectReject(byte reason) implements NetworkMessage {
         case NO_SESSION_FOUND -> "No Session Found";
         case INVALID_SESSION_TOKEN -> "Invalid Session Token";
         case OTHER -> "Other";
+        case SERVER_FULL -> "Server Full";
       };
     }
   }

@@ -1,9 +1,7 @@
-package util.ui;
+package foundation.ui;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -11,7 +9,6 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
@@ -19,6 +16,7 @@ import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import contrib.hud.dialogs.HeadlessDialogGroup;
 import core.Game;
 import core.utils.BaseContainerUI;
@@ -28,17 +26,14 @@ import core.utils.Scene2dElementFactory;
 import core.utils.Tuple;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
-import modules.computer.LastHourDialogTypes;
 
 /**
  * A UI component that displays a black background with text messages in sequence. Messages advance
  * on click and can fade in/out on show and hide.
  */
-public class BlackFadeCutscene extends Table {
+public final class BlackFadeCutscene extends Table {
 
   private static final String FONT_SIZES_KEY = "font_sizes";
-  private static final String MESSAGE_SPLIT_TOKEN = "/somerandomtoken/";
   private static final String FADE_IN_KEY = "fadeIn";
   private static final String FADE_OUT_KEY = "fadeOut";
 
@@ -46,8 +41,8 @@ public class BlackFadeCutscene extends Table {
   private static final float TEXT_FADE_DURATION = 0.7f;
   private static final int FONT_SIZE = 32;
 
-  private final List<String> messages;
-  private final List<Integer> fontSizes;
+  private final String[] messages;
+  private final int[] fontSizes;
   private final boolean fadeIn;
   private final boolean fadeOut;
 
@@ -57,8 +52,9 @@ public class BlackFadeCutscene extends Table {
 
   private DialogContext ctx;
 
-  static {
-    DialogFactory.register(LastHourDialogTypes.TEXT_CUTSCENE, BlackFadeCutscene::build);
+  /** Registers the reusable black-fade cutscene renderer. */
+  public static void register() {
+    DialogFactory.register(CutsceneDialogType.TEXT_CUTSCENE, BlackFadeCutscene::build);
   }
 
   /**
@@ -71,11 +67,7 @@ public class BlackFadeCutscene extends Table {
    * @param ctx The dialog context containing configuration for the cutscene
    */
   private BlackFadeCutscene(
-      List<String> messages,
-      List<Integer> fontSizes,
-      boolean fadeIn,
-      boolean fadeOut,
-      DialogContext ctx) {
+      String[] messages, int[] fontSizes, boolean fadeIn, boolean fadeOut, DialogContext ctx) {
     this.messages = messages;
     this.fontSizes = fontSizes;
     this.fadeIn = fadeIn;
@@ -102,31 +94,26 @@ public class BlackFadeCutscene extends Table {
       Runnable onComplete,
       int... targetIds) {
     Objects.requireNonNull(onComplete, "onComplete callback cannot be null");
-    List<String> messagesList = messages.stream().map(Tuple::a).toList();
-    List<Integer> fontSizes = messages.stream().map(Tuple::b).toList();
-    String joinedMessages = String.join(MESSAGE_SPLIT_TOKEN, messagesList);
-    String joinedFontSizes =
-        String.join(MESSAGE_SPLIT_TOKEN, fontSizes.stream().map(String::valueOf).toList());
+    String[] messageTexts = messages.stream().map(Tuple::a).toArray(String[]::new);
+    int[] fontSizes = messages.stream().mapToInt(message -> message.b()).toArray();
 
     DialogContext ctx =
         DialogContext.builder()
-            .type(LastHourDialogTypes.TEXT_CUTSCENE)
-            .put(DialogContextKeys.MESSAGE, joinedMessages)
-            .put(FONT_SIZES_KEY, joinedFontSizes)
+            .type(CutsceneDialogType.TEXT_CUTSCENE)
+            .put(DialogContextKeys.MESSAGE, messageTexts)
+            .put(FONT_SIZES_KEY, fontSizes)
             .put(FADE_IN_KEY, fadeIn)
             .put(FADE_OUT_KEY, fadeOut)
             .build();
 
-    UIComponent ui = DialogFactory.show(ctx, targetIds);
+    UIComponent ui = DialogFactory.show(ctx, true, false, targetIds);
 
-    // Register callback
     ui.registerCallback(
         DialogContextKeys.ON_RESUME,
         data -> {
+          UIUtils.closeDialog(ui, true);
           onComplete.run();
-          UIUtils.closeDialog(ui);
         });
-    ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onComplete.run());
 
     return ui;
   }
@@ -153,13 +140,8 @@ public class BlackFadeCutscene extends Table {
    * @return A fully configured pause menu or HeadlessDialogGroup
    */
   public static Group build(DialogContext ctx) {
-    String messages = ctx.require(DialogContextKeys.MESSAGE, String.class);
-    // Split by special token into individual messages
-    List<String> messageList = List.of(messages.split(MESSAGE_SPLIT_TOKEN));
-    List<Integer> fontSizes =
-        Stream.of(ctx.require(FONT_SIZES_KEY, String.class).split(MESSAGE_SPLIT_TOKEN))
-            .map(Integer::valueOf)
-            .toList();
+    String[] messages = ctx.require(DialogContextKeys.MESSAGE, String[].class);
+    int[] fontSizes = ctx.require(FONT_SIZES_KEY, int[].class);
     boolean fadeIn = ctx.find(FADE_IN_KEY, Boolean.class).orElse(true);
     boolean fadeOut = ctx.find(FADE_OUT_KEY, Boolean.class).orElse(true);
 
@@ -169,17 +151,11 @@ public class BlackFadeCutscene extends Table {
     }
 
     return new BaseContainerUI(
-        new BlackFadeCutscene(messageList, fontSizes, fadeIn, fadeOut, ctx), true, false);
+        new BlackFadeCutscene(messages, fontSizes, fadeIn, fadeOut, ctx), true, false);
   }
 
   private void createActors() {
-    // Create black background texture
-    Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-    pixmap.setColor(Color.BLACK);
-    pixmap.fill();
-    Texture blackTexture = new Texture(pixmap);
-    pixmap.dispose();
-    setBackground(new TextureRegionDrawable(blackTexture));
+    setBackground(UIUtils.defaultSkin().newDrawable("white", Color.BLACK));
 
     this.setTouchable(Touchable.enabled);
 
@@ -213,10 +189,10 @@ public class BlackFadeCutscene extends Table {
   }
 
   private void showCurrentMessage() {
-    if (currentMessageIndex < messages.size()) {
+    if (currentMessageIndex < messages.length) {
       isAnimating = true;
-      String text = messages.get(currentMessageIndex);
-      Integer fontSize = fontSizes.get(currentMessageIndex);
+      String text = messages[currentMessageIndex];
+      int fontSize = fontSizes[currentMessageIndex];
       Label.LabelStyle style = messageLabel.getStyle();
       style.font = FontHelper.getFont(FontSpec.of(fontSize));
       messageLabel.setStyle(style);
@@ -230,7 +206,7 @@ public class BlackFadeCutscene extends Table {
   private void advanceMessage() {
     currentMessageIndex++;
 
-    if (currentMessageIndex < messages.size()) {
+    if (currentMessageIndex < messages.length) {
       // Fade out current message, then show next
       isAnimating = true;
       messageLabel.addAction(
@@ -269,6 +245,21 @@ public class BlackFadeCutscene extends Table {
     // Update label width on resize
     if (this.getCell(messageLabel) != null) {
       this.getCell(messageLabel).width(Game.windowWidth() * 0.5f);
+    }
+  }
+
+  private enum CutsceneDialogType implements DialogType {
+    TEXT_CUTSCENE("text_cutscene");
+
+    private final String type;
+
+    CutsceneDialogType(final String type) {
+      this.type = type;
+    }
+
+    @Override
+    public String type() {
+      return type;
     }
   }
 }

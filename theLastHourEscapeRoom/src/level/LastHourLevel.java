@@ -55,6 +55,7 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
+import foundation.ui.BlackFadeCutscene;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +78,6 @@ import util.LastHourSounds;
 import util.Lore;
 import util.shaders.LightingShader;
 import util.translation.TranslationKey;
-import util.ui.BlackFadeCutscene;
 
 /** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
