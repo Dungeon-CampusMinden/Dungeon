@@ -34,22 +34,21 @@ Serverartefakt oder ein benutzersichtbarer CLI-Serverstarter ist nicht nötig.
 Die Befehle `validate`, `host` und `join` bleiben als sekundäre
 Entwicklungs- und Authoring-Schnittstelle bestehen.
 
-Diese Dokumentation legt den verbindlichen DEER-0.3-, Runner- und
-Foundation-Zielvertrag fest. Runner, Runtime und lokale
-Standalone-Autorenoberfläche folgen in getrennten Implementierungsschritten.
+Der Java-Runner und der Foundation-Runtime-Slice sind umgesetzt. Die lokale
+Standalone-Autorenoberfläche ist in den folgenden Dokumenten verbindlich
+spezifiziert, aber noch nicht Bestandteil dieser Implementierung.
 
 `scenario.introText`, `scenario.successText` und das bei harten Zeitlimits
 verwendete `scenario.failureText` sind geordnete Seitenfolgen. Jeder
 Array-Eintrag wird als eigene weiterklickbare Black-Fade-Seite angezeigt.
 
-## Vertragsstatus
+## Implementierungsstatus
 
 | Bereich | Status |
 |---|---|
-| DEER-Schema `0.3` und kanonische Beispiele | verbindlicher Vertragsstand |
-| Projektvalidierung, Runner-Reports und Foundation-Ableitung | Zielvertrag; Implementierung folgt separat |
-| Spieler-JAR, Main-Menü, `validate`, `host`, `join` und Foundation-Runtime | Zielvertrag; Implementierung folgt separat |
-| Lokale Authoring-UI, privater Draft und nativer Storage-Adapter | Zielvertrag; Implementierung folgt separat |
+| DEER-Schema `0.3`, Projektvalidierung und Runner-Reports | umgesetzt |
+| Spieler-JAR, Main-Menü, `validate`, `host`, `join` und Foundation-Runtime | umgesetzt |
+| Lokale Authoring-UI, privater Draft und nativer Storage-Adapter | Soll-Contract, noch nicht umgesetzt |
 | Aufruf des JAR-Packagers aus der Authoring-UI | spätere dünne Integration |
 | Inhalte unter `research/` | nicht-normative Begründung, kein zweiter Vertrag |
 
@@ -69,7 +68,7 @@ Array-Eintrag wird als eigene weiterklickbare Black-Fade-Seite angezeigt.
 5. [`v0/runner-runtime-contract.md`](v0/runner-runtime-contract.md) definiert
    CLI, Host-/Join-Grenze, Bootstrap und Spielruntime.
 6. [`../examples/foundation-v0.3/`](../examples/foundation-v0.3/) ist das
-   kleine kanonische Projektbeispiel.
+   kleine kanonische und direkt ausführbare Beispielprojekt.
 7. [`../examples/the-last-hour-v0.3/`](../examples/the-last-hour-v0.3/) ist
    das größere Demonstrations- und Regressionsexemplar für einen
    umfangreicheren Rätselablauf.

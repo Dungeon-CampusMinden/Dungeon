@@ -1,6 +1,6 @@
 # Wizard Runner Runtime and Bootstrap Contract V0.3
 
-Status: kanonischer Runner-/Runtime-Zielvertrag
+Status: kanonischer implementierter Runner-/Runtime-Contract
 
 Scope: deterministische In-Memory-Ableitung und Multiplayer-Ausführung des
 generischen Runners

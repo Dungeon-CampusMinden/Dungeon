@@ -1,6 +1,7 @@
 # Wizard Runner Project Format V0.3
 
-Status: kanonischer V0.3-Runner- und Packaging-Zielvertrag
+Status: umgesetzter V0.3-Runner- und Packaging-Contract; UI-Finalisierung noch
+nicht umgesetzt
 
 Scope: finalisierte Übergabe von der Wizard-UI an Validierung, Packaging und
 Room-first-Host
@@ -28,7 +29,7 @@ wizard-project/
 
 Das Repository enthält unter
 [`../../examples/foundation-v0.3/`](../../examples/foundation-v0.3/) ein
-kanonisches Projektbeispiel. Es ist die einzige kanonische Quelle für die
+direkt ausführbares Projekt. Es ist die einzige kanonische Quelle für die
 Beispiel-`deer.json` einschließlich Seed und das Custom-Asset.
 
 `deer.json` liegt im Wurzelverzeichnis. Alle Assetpfade sind relative portable

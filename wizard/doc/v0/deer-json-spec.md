@@ -1,6 +1,6 @@
 # deer.json Specification V0.3
 
-Status: kanonischer Contract für `formatVersion=0.3`
+Status: kanonischer implementierter Contract für `formatVersion=0.3`
 
 ## 1. Rolle und Lebenszyklus
 

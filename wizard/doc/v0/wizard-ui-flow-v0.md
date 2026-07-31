@@ -1,6 +1,6 @@
 # Wizard UI Flow V0.3
 
-Status: verbindlicher V0.3-Zielvertrag; Implementierung folgt separat
+Status: Runtime-Vertrag implementiert; Authoring-Frontend noch nicht umgesetzt
 Stand: 27.07.2026
 
 ## Ziel

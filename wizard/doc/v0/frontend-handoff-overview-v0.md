@@ -1,6 +1,6 @@
 # Frontend Handoff V0.3
 
-Status: verbindlicher V0.3-Handoff; Implementierung folgt separat
+Status: Runtime-Vertrag implementiert; Frontend noch nicht implementiert
 
 ## Auftrag
 
@@ -21,10 +21,10 @@ Projekt erzeugt der separate Gradle-Packager eine projektspezifische
 ausführbare `WizardRoom.jar`; seine Anbindung an die Authoring-UI bleibt eine
 spätere dünne Integration.
 
-Der festgelegte Foundation-Slice bildet **Informationsquellen**,
+Der implementierte Foundation-Slice bildet **Informationsquellen**,
 **Zahlencode**, verpflichtendes Entdecken und den gemeinsamen Ausgang ab.
-Das Schema definiert diesen Rätselvertrag; Runner und Frontend müssen ihn
-gemeinsam erfüllen. Der Frontend-Anteil ist fertig, sobald die
+Schema und Runner setzen diesen Rätselvertrag bereits um. Der Frontend-Anteil
+ist fertig, sobald die
 Definition-of-Done am Ende dieses Dokuments erfüllt ist. Die Authoring-UI
 selbst ist noch kein
 Ein-Klick-Produkt: Eine technische Betreuung ruft den Packager auf und verteilt
@@ -53,7 +53,7 @@ ein separates Serverartefakt ist nicht erforderlich.
 4. [`runner-project-format.md`](runner-project-format.md) definiert
    Finalisierung, Assets und das Validierungsinterface.
 5. [`../../examples/foundation-v0.3/`](../../examples/foundation-v0.3/) ist
-   das kanonische Projektbeispiel.
+   das kanonische ausführbare Beispiel.
 
 Multiplayer und Spielruntime sind kein Frontend-Auftrag. Ihre Grenze steht in
 [`runner-runtime-contract.md`](runner-runtime-contract.md).
