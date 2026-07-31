@@ -151,13 +151,8 @@ export type AnyRiddle = CollectionRiddle | InputRiddle;
 
 //#region Asset
 export interface AssetSource {
-  type: "educator_upload" | "bundled_asset";
   license: string;
   attribution?: string;
-}
-export interface AssetAccessibility {
-  decorative: boolean;
-  description?: string;
 }
 
 export type AssetMediaType = "image/png" | "image/jpeg" | "text/plain" | "audio/wav" | "font/ttf";
@@ -166,8 +161,6 @@ export interface Asset {
   id: string;
   path: string;
   mediaType: AssetMediaType;
-  purpose: "riddle_evidence" | "decorative";
   source: AssetSource;
-  accessibility: AssetAccessibility;
 }
 //#endregion

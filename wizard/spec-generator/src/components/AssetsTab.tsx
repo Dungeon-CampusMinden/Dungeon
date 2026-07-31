@@ -42,7 +42,6 @@ export function AssetsTab({
       return {
         path: `${CUSTOM_PATH_PREFIX}/${fileNameWithId}`,
         mediaType: getMediaTypeForPath(selection.file.name),
-        sourceType: "educator_upload" as const,
       };
     }
 
@@ -57,20 +56,15 @@ export function AssetsTab({
 
   const handleAddAsset = async (selection: AssetSelection) => {
     const id = Util.generateUniqueId("a");
-    const { path, mediaType, sourceType } = await applySelection(id, selection);
+    const { path, mediaType } = await applySelection(id, selection);
 
     const newAsset: Asset = {
       id,
       path,
       mediaType,
-      purpose: "decorative",
       source: {
-        type: sourceType,
         license: "",
         attribution: "",
-      },
-      accessibility: {
-        decorative: true,
       },
     };
     assetList.push(newAsset);
@@ -80,10 +74,9 @@ export function AssetsTab({
 
   const handleReplaceContent = async (asset: Asset, selection: AssetSelection) => {
     // The id stays the same so that all references to this asset keep working.
-    const { path, mediaType, sourceType } = await applySelection(asset.id, selection);
+    const { path, mediaType } = await applySelection(asset.id, selection);
     asset.path = path;
     asset.mediaType = mediaType;
-    asset.source.type = sourceType;
     updateDeerSchema(deerSchema);
     setStorageRevision((revision) => revision + 1);
   };

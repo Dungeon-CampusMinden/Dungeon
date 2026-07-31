@@ -172,17 +172,12 @@
   ],
   "assets": [
     {
-      "id": "asset_foundation_note",
-      "path": "/assets/custom/3b50ea522803-foundation-note.png",
+      "id": "a_someid",
+      "path": "assets/custom/foundation-note-a_someid.png",
       "mediaType": "image/png",
-      "purpose": "decorative",
       "source": {
-        "type": "bundled_asset",
         "license": "Dungeon project asset",
         "attribution": "Dungeon contributors"
-      },
-      "accessibility": {
-        "decorative": true
       }
     }
   ]
