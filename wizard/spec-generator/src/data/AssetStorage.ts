@@ -57,4 +57,10 @@ export class AssetStorage {
   static async deleteAssetFile(id: string): Promise<void> {
     await runTransaction("readwrite", (store) => store.delete(id));
   }
+
+  /** Returns the ids of all assets whose content is currently stored in the IndexedDB. */
+  static async listAssetIds(): Promise<string[]> {
+    const keys = await runTransaction<IDBValidKey[]>("readonly", (store) => store.getAllKeys());
+    return keys.map((key) => String(key));
+  }
 }
