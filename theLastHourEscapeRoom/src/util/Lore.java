@@ -2,6 +2,7 @@ package util;
 
 import com.badlogic.gdx.Input;
 import contrib.configuration.KeyboardConfig;
+import contrib.utils.translation.TranslationKey;
 import core.utils.Tuple;
 import java.util.Collections;
 import java.util.List;
@@ -43,23 +44,14 @@ public class Lore {
   public static final List<Tuple<String, Integer>> IntroTexts =
       List.of(
           Tuple.of(
-              """
-        Dr. Elias Mertens, lead security researcher at Ciphera Labs, had been working on a highly
-        confidential project over the past several weeks.
-
-        His research was considered a technological breakthrough in digital security.""",
+            TranslationKey.IntroText_1,
               32),
           Tuple.of(
-              "Shortly before his disappearance, he reported unusual access attempts to his systems and suspicious contact requests from unknown sources online.",
-              32),
-          Tuple.of("72 hours ago, all communication with him suddenly stopped.", 32),
-          Tuple.of(
-              "His office was found ransacked...\n\nHis project may have attracted more attention than he realized.",
-              32),
-          Tuple.of(
-              "Your intrusion to his office triggered an alarm and locked the door behind you.\n\nA timer on the wall shows: You have 60 minutes until something happens...",
-              32),
-          Tuple.of("The Last Hour", 120));
+            TranslationKey.IntroText_2,32),
+          Tuple.of(TranslationKey.IntroText_3, 32),
+          Tuple.of(TranslationKey.IntroText_4, 32),
+          Tuple.of(TranslationKey.IntroText_5,32),
+          Tuple.of(TranslationKey.IntroText_6, 120));
 
   private static final String MertensColor = "#aa00aa";
 

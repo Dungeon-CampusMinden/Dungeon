@@ -7,17 +7,29 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Translator {
 
   public record TranslatedText(String en, String de) {}
 
-  public static String translate(String key, Language language) {
-    return language == Language.DE ? allTexts.get(key).de() : allTexts.get(key).en();
+  public static String translate(String text, Language language) {
+    Set<String> keysToBeReplaced = allKeys.stream().filter(text::contains).collect(Collectors.toSet());
+    String translatedText = text;
+    if (language == Language.DE) {
+      for (String s : keysToBeReplaced) {
+        translatedText = translatedText.replace(s, allTexts.get(s).de);
+      }
+    } else {
+      for (String s : keysToBeReplaced) {
+        translatedText = translatedText.replace(s, allTexts.get(s).en);
+      }
+    }
+    return translatedText;
   }
 
-  public static boolean isKey(String key) {
-    return allKeys.contains(key);
+  public static boolean hasKey(String text) {
+    return allKeys.stream().anyMatch(text::contains);
   }
 
   private static final Map<String, TranslatedText> allTexts = new HashMap<>();
@@ -57,6 +69,32 @@ public class Translator {
         + "[pause=0.3][tr speed=2.0]Wie auch immer, pass auf dich auf und bleib nicht wieder zu lange weg. Bis"
         + " morgen!");
 
+    add(TranslationKey.IntroText_1, """
+       Dr. Elias Mertens, lead security researcher at Ciphera Labs, had been working on a highly
+              confidential project over the past several weeks.
+
+              His research was considered a technological breakthrough in digital security.""",
+      """
+         Dr. Elias Mertens, leitender Sicherheitsforscher bei Ciphera Labs, hatte in den vergangenen Wochen an einem streng
+                vertraulichen Projekt gearbeitet.
+
+                Seine Forschungsarbeit galt als technologischer Durchbruch im Bereich der digitalen Sicherheit.
+        """);
+    add(TranslationKey.IntroText_2,
+      "Shortly before his disappearance, he reported unusual access attempts to his systems and suspicious contact requests from unknown sources online.",
+      "Kurz vor seinem Verschwinden meldete er ungewöhnliche Zugriffsversuche auf seine Systeme und verdächtige Kontaktanfragen von unbekannten Quellen im Internet.");
+    add(TranslationKey.IntroText_3,
+      "72 hours ago, all communication with him suddenly stopped.",
+      "Vor 72 Stunden brach der Kontakt zu ihm plötzlich ab.");
+    add(TranslationKey.IntroText_4,
+      "His office was found ransacked...\n\nHis project may have attracted more attention than he realized.",
+      "Sein Büro wurde durchwühlt aufgefunden...\n\nSein Projekt hat möglicherweise mehr Aufmerksamkeit auf sich gezogen, als ihm bewusst war.");
+    add(TranslationKey.IntroText_5,
+      "Your intrusion to his office triggered an alarm and locked the door behind you.\n\nA timer on the wall shows: You have 60 minutes until something happens...",
+      "Dein Eindringen in sein Büro hat einen Alarm ausgelöst und die Tür hinter dir verriegelt.\n\nEine Uhr an der Wand zeigt an: Du hast 60 Minuten Zeit, bis etwas passiert...");
+    add(TranslationKey.IntroText_6,
+      "The Last Hour",
+      "The Last Hour");
   }
 
   public static void add(String key, String en, String de) {

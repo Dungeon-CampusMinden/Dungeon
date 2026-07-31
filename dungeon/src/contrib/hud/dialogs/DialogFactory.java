@@ -164,10 +164,10 @@ public class DialogFactory {
     if(Game.isMultiplayerClient()) {
       // Try-catch block to ensure Game doesnt crash when the DialogContextKeys.MESSAGE is not a String.
       try {
-        Optional<String> key = context.find(DialogContextKeys.MESSAGE, String.class);
-        if(key.isPresent() && Translator.isKey(key.get())) {
+        Optional<String> text = context.find(DialogContextKeys.MESSAGE, String.class);
+        if(text.isPresent() && Translator.hasKey(text.get())) {
           Map<String, Object> attributes = context.attributes();
-          attributes.put(DialogContextKeys.MESSAGE, Translator.translate(key.get(),Game.localization().currentLanguage()));
+          attributes.put(DialogContextKeys.MESSAGE, Translator.translate(text.get(),Game.localization().currentLanguage()));
           translatedContext = new DialogContext(context.dialogType(),context.center(),attributes, context.dialogId());
         }
       } catch (DialogCreationException e) {}
