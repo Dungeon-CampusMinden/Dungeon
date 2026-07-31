@@ -14,7 +14,7 @@ import { Input } from "../ui/input";
 import { Field, FieldLabel } from "../ui/field";
 import { Separator } from "../ui/separator";
 import { UploadIcon } from "lucide-react";
-import { AssetSelectorDialog } from "./AssetSelectorDialog";
+import { AssetCreateDialog } from "./AssetCreateDialog";
 import type { AssetSelection } from "./assetPaths";
 
 export function AssetEditDialog({
@@ -88,7 +88,7 @@ export function AssetEditDialog({
             )}
           </Field>
 
-          <AssetSelectorDialog
+          <AssetCreateDialog
             open={selectorOpen}
             setOpen={setSelectorOpen}
             currentPath={asset.path}

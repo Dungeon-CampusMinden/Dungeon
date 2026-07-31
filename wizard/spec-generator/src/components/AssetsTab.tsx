@@ -5,7 +5,7 @@ import { PlusIcon } from "lucide-react";
 import { Util } from "@/data/Util";
 import { AssetStorage } from "@/data/AssetStorage";
 import { AssetCard } from "./assets/AssetCard";
-import { AssetSelectorDialog } from "./assets/AssetSelectorDialog";
+import { AssetCreateDialog } from "./assets/AssetCreateDialog";
 import {
   ALLOWED_EXTENSIONS,
   CUSTOM_PATH_PREFIX,
@@ -159,7 +159,7 @@ export function AssetsTab({
         Hinzufügen
       </Button>
 
-      <AssetSelectorDialog
+      <AssetCreateDialog
         open={addOpen}
         setOpen={setAddOpen}
         onSelect={(selection) => void handleAddAsset(selection)}
