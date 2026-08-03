@@ -11,6 +11,7 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.item.Item;
 import contrib.modules.interaction.InteractionComponent;
+import contrib.questlog.QuestLogUI;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.cursorSkill.CursorSkill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
@@ -396,6 +397,8 @@ public class HeroController {
     registerDefaultHandler(InputMessage.Action.INV_DROP, true, HeroController::handleInventoryDrop);
     registerDefaultHandler(InputMessage.Action.INV_MOVE, true, HeroController::handleInventoryMove);
     registerDefaultHandler(InputMessage.Action.INV_USE, true, HeroController::handleInventoryUse);
+    registerDefaultHandler(
+        QuestLogUI.COMMAND_SHOW_QUESTLOG, true, HeroController::handleShowQuestLog);
   }
 
   private static void registerDefaultHandler(
@@ -403,6 +406,11 @@ public class HeroController {
       boolean ignorePause,
       InputCommandRouter.InputCommandHandler handler) {
     InputCommandRouter.register(InputCommandRouter.routeKey(action), ignorePause, handler);
+  }
+
+  private static void registerDefaultHandler(
+      String route, boolean ignorePause, InputCommandRouter.InputCommandHandler handler) {
+    InputCommandRouter.register(route, ignorePause, handler);
   }
 
   private static void handleMove(InputCommandRouter.InputCommandContext context) {
@@ -469,6 +477,10 @@ public class HeroController {
   private static void handleInventoryUse(InputCommandRouter.InputCommandContext context) {
     InputMessage.InventoryUse use = context.payloadAs(InputMessage.InventoryUse.class);
     HeroController.useItem(context.playerEntity(), use.slotIndex());
+  }
+
+  private static void handleShowQuestLog(InputCommandRouter.InputCommandContext context) {
+    QuestLogUI.showQuestLogForPlayers(context.playerEntity().id());
   }
 
   /**

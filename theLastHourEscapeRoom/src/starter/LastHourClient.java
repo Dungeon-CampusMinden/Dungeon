@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.CollideComponent;
+import contrib.configuration.KeyboardConfig;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.hud.dialogs.DialogFactory;
@@ -12,6 +13,7 @@ import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.puzzle.PuzzleMaker;
 import contrib.modules.puzzle.PuzzlePieceItem;
 import contrib.modules.puzzle.PuzzleTextureGenerator;
+import contrib.questlog.QuestLogUtil;
 import contrib.systems.AttributeBarSystem;
 import contrib.systems.PositionSync;
 import contrib.utils.components.Debugger;
@@ -133,6 +135,12 @@ public final class LastHourClient {
                   .ifPresent(newEntity::add);
               LastHourSnapshotTranslator.worldTimerStateFromMetadata(event.metadata())
                   .ifPresent(newEntity::add);
+              LastHourSnapshotTranslator.questLogFromMetadata(event.metadata())
+                  .ifPresent(
+                      questLog -> {
+                        newEntity.add(questLog);
+                        QuestLogUtil.setClientQuestLog(newEntity);
+                      });
               applyCollideMetadata(newEntity, event.metadata());
               Game.add(newEntity);
               if (ctx != null) {
@@ -237,6 +245,7 @@ public final class LastHourClient {
   private static final String T_SETTINGS_PAUSE = "settings.pause";
   private static final String T_SETTINGS_INTERACT = "settings.interact";
   private static final String T_SETTINGS_INVENTORY = "settings.inventory";
+  private static final String T_SETTINGS_QUESTLOG = "settings.questlog";
   private static final String T_SETTINGS_INVENTORY_DESCRIPTION = "settings.inventory_description";
 
   /** Registers additional client settings. */
@@ -249,6 +258,8 @@ public final class LastHourClient {
         new ButtonBindingSetting(T_SETTINGS_INTERACT, Input.Keys.E, false));
     ClientSettings.registerSetting(
         new ButtonBindingSetting(T_SETTINGS_INVENTORY, Input.Keys.I, false));
+    ClientSettings.registerSetting(
+        new ButtonBindingSetting(T_SETTINGS_QUESTLOG, KeyboardConfig.QUESTLOG_OPEN.value(), false));
     ClientSettings.registerSetting(
         new DescriptionSetting(T_SETTINGS_INVENTORY_DESCRIPTION, Input.Buttons.RIGHT));
   }

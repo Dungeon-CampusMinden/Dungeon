@@ -22,6 +22,7 @@
     "pause_dialog": {
       "paused": "PAUSIERT",
       "resume": "Fortsetzen",
+      "questlog": "Questlog",
       "settings": "Einstellungen",
       "quit_to_desktop": "Spiel beenden",
       "back": "Zurück",
@@ -30,6 +31,15 @@
       "server_running": "Läuft",
       "server_stopped": "Gestoppt",
       "players_can_connect_via": "Spieler können sich[n]verbinden über (Port: $1):"
+    },
+    "questlog": {
+      "title": "Questlog",
+      "empty": "Questlog ist leer.",
+      "create": "Erstellen",
+      "create_personal": "Persönliche Notiz",
+      "cancel": "Abbrechen",
+      "note_prompt": "Schreibe eine Notiz fuer das Questlog.",
+      "note_placeholder": "Deine Notiz..."
     },
     "client_connection_dialog": {
       "title": "Server verbinden",

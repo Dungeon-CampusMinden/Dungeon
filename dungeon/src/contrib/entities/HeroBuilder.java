@@ -16,6 +16,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.PauseDialog;
+import contrib.questlog.QuestLogUI;
 import contrib.systems.HealthSystem;
 import contrib.systems.PositionSync;
 import contrib.utils.components.health.Damage;
@@ -405,6 +406,8 @@ public final class HeroBuilder {
         true);
     inputComp.registerCallback(
         KeyboardConfig.PAUSE_MENU.value(), PauseDialog::showPauseDialog, false, true);
+    inputComp.registerCallback(
+        KeyboardConfig.QUESTLOG_OPEN.value(), QuestLogUI::requestQuestLog, false, true);
   }
   // endregion
 }

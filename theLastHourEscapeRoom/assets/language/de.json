@@ -1,10 +1,68 @@
 {
+  "questlog": {
+    "main": {
+      "tab": "Hauptquest",
+      "entries": {
+        "locked_in": "Die Bürotür ist hinter uns verriegelt. Der Timer an der Wand läuft.",
+        "restore_power": "Das Büro liegt weitgehend im Dunkeln. Einige Geräte reagieren nicht.",
+        "investigate_pc": "Der PC von Dr. Mertens ist wieder erreichbar. Auf ihm könnten Spuren seiner letzten Arbeit liegen.",
+        "storage_room": "Die Tür zum Nebenraum ist geöffnet. Hinter dem Zahlenschloss liegt ein weiterer Teil des Büros.",
+        "escape": "Wir haben genug Hinweise gesammelt, um Mertens' letzte Schritte nachzuvollziehen. Jetzt bleibt nur noch der Weg nach draußen."
+      }
+    },
+    "investigation": {
+      "tab": "Ermittlung",
+      "entries": {
+        "mertens_missing": "Dr. Elias Mertens ist seit 72 Stunden verschwunden. Seine Forschung bei Ciphera Labs galt als streng vertraulich.",
+        "suspicious_contacts": "Vor seinem Verschwinden berichtete Mertens von ungewöhnlichen Zugriffen und verdächtigen Kontaktaufnahmen.",
+        "office_ransacked": "Das Büro wurde durchsucht. Jemand war offenbar auf der Suche nach Mertens' Projektdateien.",
+        "trust_carefully": "Einige Nachrichten wirken auffällig drängend oder manipulativ. Nicht jede Quelle scheint vertrauenswürdig zu sein.",
+        "mythos": "Der Name \"Mythos\" ist im Zusammenhang mit Mertens' Forschung aufgetaucht. Die Bedeutung ist noch unklar."
+      }
+    },
+    "computer": {
+      "tab": "Computer",
+      "entries": {
+        "power_switch": "Unter einem Papierstapel war ein versteckter Schalter. Er hat den PC und Teile der Beleuchtung aktiviert.",
+        "login_needed": "Der PC ist eingeschaltet, aber gesperrt.",
+        "mail_review": "Mertens' E-Mails und Blogeinträge geben einen Einblick in die Kontakte kurz vor seinem Verschwinden.",
+        "virus_warning": "Der PC wurde durch eine verdächtige Datei infiziert. Unbekannte Downloads sind offenbar riskant.",
+        "control_panel": "Auf dem USB-Stick ist eine Datei aufgetaucht, die zum Control Panel gehört."
+      }
+    },
+    "clues": {
+      "tab": "Hinweise",
+      "entries": {
+        "door_code": "Eine entschlüsselte Mail enthielt den Code für den Nebenraum.",
+        "trash_note": "In einem der Papierkörbe lag ein Zettel mit einem Teil der Zugangsdaten für den PC.",
+        "decoder_shelves": "Die Bücherregale enthalten Umrechnungstabellen und Decoder für verschiedene Notationen.",
+        "profile_paper": "Ein Profilblatt über Dr. Mertens liefert Kontext zu seiner Arbeit und Identität.",
+        "final_code": "Der zerrissene Hinweis ist wieder zusammengesetzt. Darauf steht der letzte Code."
+      }
+    },
+    "usb": {
+      "tab": "USB-Stick",
+      "entries": {
+        "search": "Im Büro gibt es mehrere USB-Sticks. Einer davon scheint zu Mertens' Arbeit zu gehören.",
+        "color_hint": "Eine Notiz erwähnt den relevanten USB-Stick auffällig indirekt über eine Farbe.",
+        "use_on_pc": "Der gefundene USB-Stick wurde am PC überprüft.",
+        "recover_data": "Auf dem USB-Stick oder dem PC befinden sich Spuren von Mertens' versteckten Daten."
+      }
+    },
+    "notes": {
+      "tab": "Notizen",
+      "entries": {
+        "free_notes": "Spielernotizen werden im aktuell ausgewählten QuestLog-Tab gespeichert."
+      }
+    }
+  },
   "settings": {
 	"controls_header": "Steuerung",
 	"controls_description": "Nutze die Maus, um Interaktionen zu finden.[n]Drücke dann [key code=$1], um zu interagieren!",
 	"pause": "Pause",
 	"interact": "Interagieren",
 	"inventory": "Inventar",
+	"questlog": "Questlog",
 	"inventory_description": "Im Inventar kannst du mit [key code=$1 type=mouse] ein Item benutzen"
   }
 }

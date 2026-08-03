@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Align;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
+import contrib.questlog.QuestLogUI;
 import core.Entity;
 import core.Game;
 import core.game.HostSession;
@@ -39,6 +40,7 @@ public class PauseDialog extends Table {
 
   private static final String T_PAUSED = "paused";
   private static final String T_RESUME = "resume";
+  private static final String T_QUESTLOG = "questlog";
   private static final String T_SETTINGS = "settings";
   private static final String T_QUIT_TO_DESKTOP = "quit_to_desktop";
   private static final String T_BACK = "back";
@@ -119,7 +121,6 @@ public class PauseDialog extends Table {
         data -> {
           Game.exit("Quit from pause menu");
         });
-
     return ui;
   }
 
@@ -145,6 +146,8 @@ public class PauseDialog extends Table {
         Scene2dElementFactory.createLabel(
             trans.text(T_PAUSED), FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
     TextButton resumeBtn = Scene2dElementFactory.createButton(trans.text(T_RESUME), "green", 32);
+    TextButton questlogBtn =
+        Scene2dElementFactory.createButton(trans.text(T_QUESTLOG), "blue-outline", 32);
     TextButton settingsBtn =
         Scene2dElementFactory.createButton(trans.text(T_SETTINGS), "blue-outline", 32);
     TextButton quitBtn =
@@ -156,6 +159,16 @@ public class PauseDialog extends Table {
           public void changed(ChangeEvent event, Actor actor) {
             Game.player().orElseThrow().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             Sounds.play(CoreSounds.INTERFACE_DIALOG_CLOSED);
+          }
+        });
+    questlogBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            Entity player = Game.player().orElseThrow();
+            player.fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
+            QuestLogUI.requestQuestLog(player);
+            Sounds.play(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     settingsBtn.addListener(
@@ -178,6 +191,7 @@ public class PauseDialog extends Table {
     Table menu = new Table();
     menu.add(label).padBottom(30).align(Align.center).row();
     menu.add(resumeBtn).width(300).align(Align.center).padBottom(10).row();
+    menu.add(questlogBtn).width(300).align(Align.center).padBottom(10).row();
     menu.add(settingsBtn).width(300).align(Align.center).padBottom(70).row();
     menu.add(quitBtn).width(300).align(Align.center).padBottom(15).row();
 

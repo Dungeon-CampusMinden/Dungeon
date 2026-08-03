@@ -28,6 +28,7 @@ import java.util.Set;
 import level.LastHourLevel;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
+import util.LastHourQuestLogUtil;
 import util.LastHourSounds;
 import util.Lore;
 
@@ -70,6 +71,7 @@ public class ComputerFactory {
                     (eInteract, who) -> {
                       DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
                       if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
+                        LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
                         DialogFactory.showOkDialog(
                             "This seems to be "
                                 + Lore.ScientistNameShort
@@ -89,6 +91,9 @@ public class ComputerFactory {
                       boolean isLoggedIn =
                           state != null && state.state().hasReached(ComputerProgress.LOGGED_IN);
                       boolean usbAlreadyInserted = state != null && state.usbInserted();
+                      if (!isLoggedIn) {
+                        LastHourQuestLogUtil.addLoginNeededQuestLogEntry();
+                      }
                       if (!usbAlreadyInserted
                           && !isInfected
                           && isLoggedIn
@@ -182,6 +187,8 @@ public class ComputerFactory {
       UsbStickItem.BaseUsbStick stick, Entity pcEntity, Entity who) {
     if (stick.color() == UsbStickColor.Blue) {
       LOGGER.info("Correct USB stick inserted: " + stick.color().displayName());
+      LastHourQuestLogUtil.addUsbUsedQuestLogEntry();
+      LastHourQuestLogUtil.addUsbRecoveredDataQuestLogEntry();
       // Remove the stick from inventory and mark as inserted
       who.fetch(InventoryComponent.class).ifPresent(inv -> inv.removeOne(stick));
       ComputerStateComponent.setUsbInserted(true);
@@ -189,6 +196,8 @@ public class ComputerFactory {
     } else {
       LOGGER.info(
           "Wrong USB stick inserted: " + stick.color().displayName() + " - triggering virus");
+      LastHourQuestLogUtil.addUsbUsedQuestLogEntry();
+      LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
       ComputerStateComponent.setInfection(true);
       ComputerStateComponent.setVirusType(Lore.UnknownDeviceVirusType);
       openComputerDialog(pcEntity, who);
@@ -273,11 +282,16 @@ public class ComputerFactory {
                 }
 
                 if (newState.isInfected() && !wasInfected) {
+                  LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
                   Game.add(
                       EmoteFactory.createEmote(
                           LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
                           Emote.FACE_ANGRY,
                           3000));
+                }
+                if (!previousState.state().hasReached(ComputerProgress.LOGGED_IN)
+                    && newState.state().hasReached(ComputerProgress.LOGGED_IN)) {
+                  LastHourQuestLogUtil.addMailReviewQuestLogEntry();
                 }
               });
         });

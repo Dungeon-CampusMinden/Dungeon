@@ -70,6 +70,7 @@ import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
 import starter.LastHourClient;
 import util.InteractionHelper;
+import util.LastHourQuestLogUtil;
 import util.LastHourSounds;
 import util.Lore;
 import util.shaders.LightingShader;
@@ -136,6 +137,8 @@ public class LastHourLevel extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     timerExpired = false;
+    LastHourQuestLogUtil.initializeQuestLog();
+
     storageDoor = (DoorTile) tileAt(getPoint("door-storage")).orElseThrow();
     storageDoor.close();
 
@@ -149,6 +152,8 @@ public class LastHourLevel extends DungeonLevel {
             Lore.DoorCode,
             () -> {
               storageDoor.open();
+              LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
+              LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
               EventScheduler.scheduleAction(this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
             },
             true);
@@ -171,6 +176,7 @@ public class LastHourLevel extends DungeonLevel {
   }
 
   private void showIntro(int targetId) {
+    LastHourQuestLogUtil.addIntroInvestigationQuestLogEntries();
     BlackFadeCutscene.show(
         Lore.IntroTexts,
         false,
@@ -199,6 +205,7 @@ public class LastHourLevel extends DungeonLevel {
                       .fetch(InputComponent.class)
                       .ifPresent(
                           pc -> {
+                            LastHourQuestLogUtil.addEscapeQuestLogEntries();
                             BlackFadeCutscene.show(
                                 endingLoreTexts(), true, false, () -> Game.exit("Win"));
                           });
@@ -313,6 +320,7 @@ public class LastHourLevel extends DungeonLevel {
                           new Interaction(
                               (e, who) -> {
                                 if (index == 2) {
+                                  LastHourQuestLogUtil.addTrustCarefullyQuestLogEntry();
                                   DialogFactory.showOkDialog(
                                       "You open the locker. Lots of white coats are hanging inside,\nbut one of them has a piece of paper in the pocket.\n\nYou unfold the paper to take a look at it.",
                                       "",
@@ -401,6 +409,8 @@ public class LastHourLevel extends DungeonLevel {
                                 "",
                                 () -> {
                                   ComputerStateComponent.setState(ComputerProgress.ON);
+                                  LastHourQuestLogUtil.addPowerSwitchQuestLogEntry();
+                                  LastHourQuestLogUtil.addInvestigatePcQuestLogEntry();
                                   Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
                                 },
                                 who.id());
@@ -426,6 +436,7 @@ public class LastHourLevel extends DungeonLevel {
             () ->
                 new Interaction(
                     (e, who) -> {
+                      LastHourQuestLogUtil.addProfilePaperQuestLogEntry();
                       DialogUtils.showImagePopUp("images/scientist_profile.png", who.id());
                     })));
     Game.add(profilePaper);
@@ -466,6 +477,7 @@ public class LastHourLevel extends DungeonLevel {
                                     () -> {
                                       if (awarded[0]) return;
                                       awarded[0] = true;
+                                      LastHourQuestLogUtil.addTrashNoteQuestLogEntry();
                                     });
                               })));
               Game.add(trashcan);
@@ -496,6 +508,7 @@ public class LastHourLevel extends DungeonLevel {
                               (e, who) -> {
                                 DialogContext.Builder builder =
                                     DialogContext.builder().type(DialogType.DefaultTypes.IMAGE);
+                                LastHourQuestLogUtil.addDecoderShelvesQuestLogEntry();
                                 builder.put(
                                     DialogContextKeys.IMAGE,
                                     decoderTablePaths.get(index % decoderTablePaths.size()));
@@ -531,7 +544,20 @@ public class LastHourLevel extends DungeonLevel {
    */
   public void r2SpawnPapers() {
     puzzle =
-        PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+        PuzzleMaker.makePuzzle(
+            R2_PUZZLE_IMAGE,
+            R2_PUZZLE_PIECE_COUNT,
+            (solvedPuzzle, solver) -> {
+              LastHourQuestLogUtil.addFinalCodeQuestLogEntry();
+              solvedPuzzle.removeItems(solver);
+              if (solver != null) {
+                solver
+                    .fetch(InventoryComponent.class)
+                    .ifPresent(inv -> inv.add(new HintItem(solvedPuzzle.imagePath())));
+              }
+            },
+            R2_PUZZLE_SEED,
+            false);
 
     Point ventPos = getPoint("r2-vent");
     float s = R2_PAPER_SPEED;
@@ -582,6 +608,7 @@ public class LastHourLevel extends DungeonLevel {
                 new Interaction(
                     (e, who) -> {
                       DialogFactory.showOkDialog(Lore.R2DeskNoteText, "", () -> {}, who.id());
+                      LastHourQuestLogUtil.addUsbColorHintQuestLogEntry();
                     })));
     Game.add(desk);
 
@@ -773,6 +800,7 @@ public class LastHourLevel extends DungeonLevel {
                           () -> {
                             if (awarded[0]) return;
                             awarded[0] = true;
+                            LastHourQuestLogUtil.addUsbSearchQuestLogEntry();
                           });
                     })));
     Game.add(blueTrash);

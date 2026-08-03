@@ -1,10 +1,68 @@
 {
+  "questlog": {
+    "main": {
+      "tab": "Main Quest",
+      "entries": {
+        "locked_in": "The office door locked behind us. The timer on the wall is running.",
+        "restore_power": "Most of the office is dark. Some devices are not responding.",
+        "investigate_pc": "Dr. Mertens' PC is reachable again. It may contain traces of his final work.",
+        "storage_room": "The door to the adjacent room is open. Another part of the office lies beyond the keypad.",
+        "escape": "We have gathered enough clues to reconstruct Mertens' final steps. Now only the way out remains."
+      }
+    },
+    "investigation": {
+      "tab": "Investigation",
+      "entries": {
+        "mertens_missing": "Dr. Elias Mertens has been missing for 72 hours. His research at Ciphera Labs was considered highly confidential.",
+        "suspicious_contacts": "Before his disappearance, Mertens reported unusual access attempts and suspicious contact requests.",
+        "office_ransacked": "The office was ransacked. Someone was apparently searching for Mertens' project files.",
+        "trust_carefully": "Some messages feel unusually urgent or manipulative. Not every source seems trustworthy.",
+        "mythos": "The name \"Mythos\" appeared in connection with Mertens' research. Its meaning is still unclear."
+      }
+    },
+    "computer": {
+      "tab": "Computer",
+      "entries": {
+        "power_switch": "There was a hidden switch beneath a stack of papers. It activated the PC and parts of the lighting.",
+        "login_needed": "The PC is powered on, but locked.",
+        "mail_review": "Mertens' emails and blog posts give insight into the contacts shortly before his disappearance.",
+        "virus_warning": "The PC was infected by a suspicious file. Unknown downloads are apparently risky.",
+        "control_panel": "A file connected to the control panel appeared on the USB drive."
+      }
+    },
+    "clues": {
+      "tab": "Clues",
+      "entries": {
+        "door_code": "A decrypted email contained the code for the adjacent room.",
+        "trash_note": "A note in one of the trash cans contained part of the PC login credentials.",
+        "decoder_shelves": "The bookshelves contain conversion tables and decoders for different notations.",
+        "profile_paper": "A profile sheet about Dr. Mertens gives context about his work and identity.",
+        "final_code": "The torn clue has been reassembled. It contains the final code."
+      }
+    },
+    "usb": {
+      "tab": "USB Drive",
+      "entries": {
+        "search": "There are several USB drives in the office. One of them seems connected to Mertens' work.",
+        "color_hint": "A note refers to the relevant USB drive indirectly through a color.",
+        "use_on_pc": "The recovered USB drive was checked on the PC.",
+        "recover_data": "The USB drive or the PC contains traces of Mertens' hidden data."
+      }
+    },
+    "notes": {
+      "tab": "Notes",
+      "entries": {
+        "free_notes": "Player notes are stored in the currently selected QuestLog tab."
+      }
+    }
+  },
   "settings": {
 	"controls_header": "Controls",
 	"controls_description": "Use the mouse to find interactables, then press [key code=$1] to interact!",
 	"pause": "Pause",
 	"interact": "Interact",
 	"inventory": "Inventory",
+	"questlog": "Questlog",
 	"inventory_description": "In the inventory, use [key code=$1 type=mouse] to use an Item"
   }
 }
