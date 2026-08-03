@@ -1,6 +1,7 @@
 package contrib.questlog;
 
 import core.Entity;
+import core.Game;
 import core.components.PlayerComponent;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
@@ -299,7 +300,8 @@ public final class QuestLogUtil {
             .map(PlayerComponent::playerName)
             .orElse(QuestLogEntry.DEFAULT_OWNER);
 
-    return add(tab, trimmedText, creator, onlyForCreator);
+    return add(
+        tab, new QuestLogEntry(trimmedText, Game.currentTick(), true, creator, onlyForCreator));
   }
 
   /**

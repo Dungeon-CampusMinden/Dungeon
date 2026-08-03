@@ -15,11 +15,14 @@ import core.Game;
  * @param text the text shown for this quest log entry
  * @param timestamp the game tick at which this entry was created or recorded; normally assigned by
  *     the timestamp-free constructors
+ * @param userCreated true if this entry was created by a player's direct note action, false if it
+ *     was created by game logic
  * @param owner the identifier of the owner or creator of this entry
  * @param onlyForCreator true if this entry should only be visible to its creator, false if it may
  *     be visible to others
  */
-public record QuestLogEntry(String text, int timestamp, String owner, boolean onlyForCreator) {
+public record QuestLogEntry(
+    String text, int timestamp, boolean userCreated, String owner, boolean onlyForCreator) {
 
   /** Default owner used for quest log entries created by the system. */
   public static final String DEFAULT_OWNER = "System";
@@ -44,6 +47,6 @@ public record QuestLogEntry(String text, int timestamp, String owner, boolean on
    *     be visible to others
    */
   public QuestLogEntry(String text, String owner, boolean onlyForCreator) {
-    this(text, Game.currentTick(), owner, onlyForCreator);
+    this(text, Game.currentTick(), false, owner, onlyForCreator);
   }
 }

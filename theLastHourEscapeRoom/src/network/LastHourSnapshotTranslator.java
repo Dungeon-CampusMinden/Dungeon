@@ -440,7 +440,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
 
     for (String serializedEntry : serialized.split(";")) {
       String[] fields = serializedEntry.split(",", -1);
-      if (fields.length != 5) {
+      if (fields.length != 5 && fields.length != 6) {
         LOGGER.warn("Invalid quest log entry metadata '{}'", serializedEntry);
         continue;
       }
@@ -448,9 +448,10 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         String tab = decode(fields[0]);
         String text = decode(fields[1]);
         int timestamp = Integer.parseInt(fields[2]);
-        String owner = decode(fields[3]);
-        boolean onlyForCreator = Boolean.parseBoolean(fields[4]);
-        questLog.add(tab, new QuestLogEntry(text, timestamp, owner, onlyForCreator));
+        boolean userCreated = fields.length == 6 && Boolean.parseBoolean(fields[3]);
+        String owner = decode(fields[fields.length - 2]);
+        boolean onlyForCreator = Boolean.parseBoolean(fields[fields.length - 1]);
+        questLog.add(tab, new QuestLogEntry(text, timestamp, userCreated, owner, onlyForCreator));
       } catch (IllegalArgumentException ex) {
         LOGGER.warn("Invalid quest log entry metadata '{}'", serializedEntry);
       }
@@ -526,6 +527,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         encode(tab),
         encode(entry.text()),
         String.valueOf(entry.timestamp()),
+        String.valueOf(entry.userCreated()),
         encode(entry.owner()),
         String.valueOf(entry.onlyForCreator()));
   }
