@@ -136,12 +136,20 @@
         {
           "id": "h_exit_code_1",
           "title": "Schreibtisch prüfen",
-          "text": "Der Hinweis liegt nicht offen im Raum."
+          "text": "Der Hinweis liegt nicht offen im Raum.",
+          "severity": "orientation"
         },
         {
           "id": "h_exit_code_2",
           "title": "Zahlencode",
-          "text": "Der Code besteht aus vier Ziffern."
+          "text": "Der Code besteht aus vier Ziffern.",
+          "severity": "approach"
+        },
+        {
+          "id": "h_exit_code_3",
+          "title": "Lösung",
+          "text": "Der Zahlencode lautet 3758.",
+          "severity": "solution"
         }
       ]
     }

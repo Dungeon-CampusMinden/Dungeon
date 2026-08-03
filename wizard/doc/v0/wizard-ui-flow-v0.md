@@ -202,7 +202,7 @@ Gemeinsam pro Rätsel:
 - optional Schwierigkeit;
 - null oder mehr Informationsquellen;
 - mindestens eine Eingabe;
-- null oder mehr geordnete optionale Hinweise.
+- null oder mehr geordnete optionale Hinweise mit einer Offenlegungsstufe.
 
 Alle Eingaben eines Rätsels müssen erfüllt sein. Die UI bietet dafür keine
 OR-Regel oder frei formulierbare Bedingung an.
@@ -264,12 +264,26 @@ Output- oder Effektfeld ab.
 
 ### Hinweise
 
-Optionale Hinweise können in V0.3 angefordert werden, sobald das zugehörige
-Rätsel verfügbar ist. Die Runtime zeigt auf Anfrage nur den nächsten Hinweis.
-Bereits freigegebene Hinweise bleiben lesbar. Die Arrayreihenfolge ist
-maßgeblich. Der
-Runner leitet die interne Foundation-Stufe als Arrayindex plus eins ab. Zeit-
-und Fehlversuchsbedingungen sind nicht Teil des aktuellen Vertrags.
+Für jeden optionalen Hinweis wählt die Lehrkraft genau eine verständliche
+Offenlegungsstufe:
+
+- **Was ist die Aufgabe? Wo kannst du anfangen?**;
+- **Wie kannst du die Aufgabe lösen?**;
+- **Was ist die Lösung?**
+
+Die UI speichert dafür intern `severity=orientation`, `approach` oder
+`solution`; der technische Feldname und die Enum-Werte bleiben verborgen.
+`severity` ist keine frei vergebene Schwierigkeit oder Reihenfolgenummer.
+
+Hinweise können in V0.3 angefordert werden, sobald das zugehörige Rätsel
+verfügbar ist. Die Runtime kündigt vor jeder Freigabe die Stufe des nächsten
+Hinweises an und verlangt eine ausdrückliche Bestätigung. Das gilt für alle
+drei Stufen, damit auch eine Fehlinteraktion keinen Hinweis freigibt. Abbrechen
+verändert weder den Freigabestatus noch die Position in der Reihenfolge. Nach
+der Bestätigung zeigt die Runtime nur den nächsten Hinweis. Bereits
+freigegebene Hinweise bleiben lesbar. Die Arrayreihenfolge ist unabhängig von
+`severity` maßgeblich. Zeit- und Fehlversuchsbedingungen sind nicht Teil des
+aktuellen Vertrags.
 
 ### Ausgang
 

@@ -348,16 +348,29 @@ Informationsquelle ist davon unabhängig.
 
 ### 8.2 hints
 
-Ein optionaler Hinweis enthält `id`, `title` und `text`. Die sichtbare
-Arrayreihenfolge ist zugleich die Freigabereihenfolge. Der Runner übernimmt
-Titel und Text und leitet die interne Foundation-Stufe aus dem Arrayindex plus
-eins ab.
+Ein optionaler Hinweis enthält `id`, `title`, `text` und `severity`.
+`severity` beschreibt nicht die Schwierigkeit als freie Zahl, sondern die Art
+der vorweg angekündigten Offenlegung:
 
-Ein neuer Hinweis kann nur für ein `ACTIVE`-Rätsel angefordert werden. Jede
-weitere Anforderung zeigt den nächsten. Bereits freigegebene Hinweise bleiben
-auch nach dem Rätselabschluss lesbar. Hinweistexte und -titel liegen in der
-vollständigen lokalen Definition. Ihre Anzeige und Freigabereihenfolge bleiben
-hostautoritativ.
+| Wert | Spielerfreundliche Bedeutung |
+|---|---|
+| `orientation` | Was ist die Aufgabe und wo kann ich anfangen? |
+| `approach` | Wie kann ich die Aufgabe lösen? |
+| `solution` | Was ist die Lösung? |
+
+Die technischen Enum-Werte bleiben in der UI verborgen. Vor jeder
+Hinweisfreigabe zeigt die Runtime die spielerfreundliche Bedeutung der nächsten
+`severity` und verlangt eine ausdrückliche Bestätigung. Das gilt auch für
+`orientation` und `approach`, damit eine Fehlinteraktion keinen Hinweis
+freigibt. Abbrechen verändert keinen Zustand und rückt nicht zum nächsten
+Hinweis vor.
+
+Ein neuer Hinweis kann nur für ein `ACTIVE`-Rätsel angefordert werden. Nach der
+Bestätigung zeigt jede weitere Anforderung den nächsten Hinweis. Die sichtbare
+Arrayreihenfolge ist die Freigabereihenfolge und unabhängig von `severity`.
+Bereits freigegebene Hinweise bleiben auch nach dem Rätselabschluss lesbar.
+Hinweistexte und -titel liegen in der vollständigen lokalen Definition. Ihre
+Anzeige und Freigabereihenfolge bleiben hostautoritativ.
 
 ### 8.3 assets
 

@@ -178,10 +178,15 @@ Graphnachfolger.
 
 Informationsquellen mit Informationen oder Aufgabeninhalten bleiben unabhängig
 davon lesbar und dürfen deshalb schon vor der Rätselaktivierung erreichbar
-sein. Neue Hinweise werden nur für aktive Rätsel freigegeben; bereits
-freigegebene Hinweise bleiben lesbar. Der gemeinsame Zustand ist monoton und
-fällt weder bei Rätseln noch bei Inputs, Resources oder Hinweisen in einen
-früheren Zustand zurück.
+sein. Neue Hinweise werden nur für aktive Rätsel freigegeben. Vor jeder
+Freigabe zeigt die Runtime die spielerfreundliche Bedeutung der `severity` des
+nächsten Hinweises und verlangt eine ausdrückliche Bestätigung. Das gilt für
+`orientation`, `approach` und `solution`. Ein Abbruch verändert keinen
+Authority-Zustand und rückt nicht zum nächsten Hinweis vor. Erst nach der
+Bestätigung gibt der Host den nächsten Hinweis frei. Bereits freigegebene
+Hinweise bleiben lesbar. Der gemeinsame Zustand ist monoton und fällt weder bei
+Rätseln noch bei Inputs, Resources oder Hinweisen in einen früheren Zustand
+zurück.
 
 Der Endknoten besitzt allein seine Door-Surface. Sobald alle direkten
 Vorgängerrätsel gelöst sind, wird das Ende erreicht und genau diese Tür

@@ -75,8 +75,11 @@ Runner-Validierung für exakt den Kandidaten, der geschrieben werden soll.
 Die UI erfasst dabei den vollständigen Authoring-Vertrag: optionale
 Beschreibung/Autor, Zielgruppe, Vorwissen, mindestens ein Lernziel,
 Nachbesprechungsfragen, Schwierigkeit und Zeitschätzung je Rätsel, geordnete
-Informationsquellen, mindestens eine Eingabe, geordnete optionale Hinweise sowie
-Bildherkunft. Diese Angaben bleiben verbindlicher Teil von `deer.json` und des
+Informationsquellen, mindestens eine Eingabe, geordnete optionale Hinweise mit
+je einer verständlich benannten Offenlegungsstufe sowie Bildherkunft. Die UI
+speichert die Auswahl intern als `severity=orientation`, `approach` oder
+`solution`, zeigt aber weder Feldname noch Enum-Wert. Diese Angaben bleiben
+verbindlicher Teil von `deer.json` und des
 vollständigen Host-Input-Hash, unabhängig davon, welche Teile der aktuelle
 Java-Runner in sein Laufzeitmodell übernimmt.
 
@@ -167,9 +170,9 @@ Der Foundation-Frontend-Slice ist fertig, wenn das kanonische Beispiel:
 2. ohne technische Begriffe und vollständig per Tastatur erstellt werden kann;
 3. verständliche Fehler und Warnungen mit direktem Sprung zum betroffenen
    Element zeigt;
-4. Story, Ablauf, Parallelität, Inhalte, Hinweise und Bilder ohne Runtime
-   voranzeigt und Lernziele, Nachbesprechung sowie die fachlichen Orte/Geräte
-   vollständig erhält;
+4. Story, Ablauf, Parallelität, Inhalte, Hinweise einschließlich ihrer
+   Offenlegungsstufen und Bilder ohne Runtime voranzeigt und Lernziele,
+   Nachbesprechung sowie die fachlichen Orte/Geräte vollständig erhält;
 5. über die Produktionsvalidierung geprüft und mit seinem vorhandenen
    inhaltsadressierten Custom-Asset sowie stabil erzeugtem Seed sicher
    finalisiert wird;

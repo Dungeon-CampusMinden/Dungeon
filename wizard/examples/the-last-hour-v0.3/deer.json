@@ -232,22 +232,26 @@
         {
           "id": "h_incident_notes_1",
           "title": "Domain vergleichen",
-          "text": "Die legitime Nachricht stammt von Andreas Keller und führt direkt zu secugate.com."
+          "text": "Die legitime Nachricht stammt von Andreas Keller und führt direkt zu secugate.com.",
+          "severity": "orientation"
         },
         {
           "id": "h_incident_notes_2",
           "title": "Binärfolge",
-          "text": "Bearbeitet die vier Bytes von links nach rechts."
+          "text": "Bearbeitet die vier Bytes von links nach rechts.",
+          "severity": "orientation"
         },
         {
           "id": "h_recovery_1",
           "title": "Vierergruppen",
-          "text": "Teilt jedes Byte in zwei Vierergruppen und übersetzt diese zunächst nach Hexadezimal."
+          "text": "Teilt jedes Byte in zwei Vierergruppen und übersetzt diese zunächst nach Hexadezimal.",
+          "severity": "approach"
         },
         {
           "id": "h_recovery_2",
           "title": "ASCII",
-          "text": "Je zwei Hexadezimalzeichen ergeben ein ASCII-Zeichen."
+          "text": "Je zwei Hexadezimalzeichen ergeben ein ASCII-Zeichen.",
+          "severity": "approach"
         }
       ]
     },
@@ -287,7 +291,8 @@
         {
           "id": "h_morse_1",
           "title": "Vier Gruppen",
-          "text": "Jede durch ein Leerzeichen getrennte Punkt-Strich-Gruppe steht für genau eine Ziffer."
+          "text": "Jede durch ein Leerzeichen getrennte Punkt-Strich-Gruppe steht für genau eine Ziffer.",
+          "severity": "approach"
         }
       ]
     },
@@ -331,12 +336,14 @@
         {
           "id": "h_vent_serial_1",
           "title": "Vollständige Nummer",
-          "text": "Gesucht sind die fünf Ziffern am Ende der Produktseriennummer."
+          "text": "Gesucht sind die fünf Ziffern am Ende der Produktseriennummer.",
+          "severity": "orientation"
         },
         {
           "id": "h_vent_1",
           "title": "Seriennummer",
-          "text": "Lasst die vorangestellten Buchstaben und Nullen weg."
+          "text": "Lasst die vorangestellten Buchstaben und Nullen weg.",
+          "severity": "approach"
         }
       ]
     },
@@ -394,17 +401,20 @@
         {
           "id": "h_final_code_1",
           "title": "Bildkanten",
-          "text": "Vergleicht Linien und Übergänge an den Kanten der vier Fragmente."
+          "text": "Vergleicht Linien und Übergänge an den Kanten der vier Fragmente.",
+          "severity": "orientation"
         },
         {
           "id": "h_exit_left_1",
           "title": "Erster Block",
-          "text": "Verwendet die Ziffern eins bis vier des neunstelligen Codes."
+          "text": "Verwendet die Ziffern eins bis vier des neunstelligen Codes.",
+          "severity": "approach"
         },
         {
           "id": "h_exit_right_1",
           "title": "Zweiter Block",
-          "text": "Verwendet die Ziffern fünf bis neun des neunstelligen Codes."
+          "text": "Verwendet die Ziffern fünf bis neun des neunstelligen Codes.",
+          "severity": "approach"
         }
       ]
     }

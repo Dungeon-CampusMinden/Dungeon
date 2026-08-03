@@ -667,7 +667,8 @@
       "required": [
         "id",
         "title",
-        "text"
+        "text",
+        "severity"
       ],
       "properties": {
         "id": {
@@ -678,6 +679,14 @@
         },
         "text": {
           "$ref": "#/$defs/nonBlankString"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "orientation",
+            "approach",
+            "solution"
+          ]
         }
       }
     },
