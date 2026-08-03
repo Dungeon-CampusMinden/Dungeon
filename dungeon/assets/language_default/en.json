@@ -36,6 +36,7 @@
 	  "title": "Questlog",
 	  "empty": "Questlog is empty.",
 	  "create": "Create",
+	  "create_personal": "Personal Note",
 	  "cancel": "Cancel",
 	  "note_prompt": "Write a note for the questlog.",
 	  "note_placeholder": "Your note..."

@@ -22,6 +22,7 @@ import contrib.hud.dialogs.HeadlessDialogGroup;
 import contrib.hud.elements.RichLabel;
 import core.Entity;
 import core.Game;
+import core.components.PlayerComponent;
 import core.language.Translation;
 import core.network.NetworkUtils;
 import core.network.messages.c2s.DialogResponseMessage;
@@ -71,10 +72,10 @@ public final class QuestLogUI {
   private static final String T_TITLE = "title";
   private static final String T_EMPTY_QUESTLOG = "empty";
   private static final String T_CREATE = "create";
+  private static final String T_CREATE_PERSONAL = "create_personal";
   private static final String T_NOTE_PROMPT = "note_prompt";
   private static final String T_NOTE_PLACEHOLDER = "note_placeholder";
   private static final String T_CANCEL = "cancel";
-  private static final boolean USER_NOTE_ONLY_FOR_CREATOR = false;
   private static final float UI_WIDTH = 980f;
   private static final float UI_HEIGHT = 650f;
   private static final float SIDEBAR_WIDTH = 290f;
@@ -170,16 +171,33 @@ public final class QuestLogUI {
 
   private static void showFormattedQuestLogDialog(
       QuestLogComponent questLog, String selectedTab, int... targetEntityIds) {
+    int[] dialogTargetIds = resolveDialogTargetIds(targetEntityIds);
+    if (dialogTargetIds.length > 1) {
+      for (int targetEntityId : dialogTargetIds) {
+        showFormattedQuestLogDialog(questLog, selectedTab, targetEntityId);
+      }
+      return;
+    }
+
+    Entity viewer =
+        dialogTargetIds.length == 1 ? Game.findEntityById(dialogTargetIds[0]).orElse(null) : null;
     UIComponent ui =
-        DialogFactory.show(createDialogContext(questLog, selectedTab), targetEntityIds);
+        DialogFactory.show(createDialogContext(questLog, selectedTab, viewer), dialogTargetIds);
 
     ui.registerCallback(
         DialogContextKeys.ON_CONFIRM,
         data -> {
-          openCreateNoteDialog(selectedTabFrom(data), targetEntityIds);
+          openCreateNoteDialog(selectedTabFrom(data), onlyForCreatorFrom(data), dialogTargetIds);
           UIUtils.closeDialog(ui);
         });
     ui.registerCallback(DialogContextKeys.ON_CANCEL, data -> UIUtils.closeDialog(ui));
+  }
+
+  private static int[] resolveDialogTargetIds(int... targetEntityIds) {
+    if (targetEntityIds.length != 0) {
+      return targetEntityIds;
+    }
+    return Game.allPlayers().mapToInt(Entity::id).toArray();
   }
 
   /**
@@ -200,8 +218,9 @@ public final class QuestLogUI {
     return new BaseContainerUI(new QuestLogDialog(ctx.dialogId(), viewData), false, true);
   }
 
-  private static DialogContext createDialogContext(QuestLogComponent questLog, String selectedTab) {
-    QuestLogViewData viewData = viewDataFrom(questLog, selectedTab);
+  private static DialogContext createDialogContext(
+      QuestLogComponent questLog, String selectedTab, Entity viewer) {
+    QuestLogViewData viewData = viewDataFrom(questLog, selectedTab, viewer);
     return DialogContext.builder()
         .type(DIALOG_TYPE)
         .put(DialogContextKeys.TITLE, trans.text(T_TITLE))
@@ -224,15 +243,17 @@ public final class QuestLogUI {
         ctx.find(CTX_ENTRY_TIMESTAMPS, int[].class).orElse(new int[0]));
   }
 
-  private static QuestLogViewData viewDataFrom(QuestLogComponent questLog, String requestedTab) {
-    QuestLogSelection selection = selectionFor(questLog, requestedTab);
+  private static QuestLogViewData viewDataFrom(
+      QuestLogComponent questLog, String requestedTab, Entity viewer) {
+    QuestLogSelection selection = selectionFor(questLog, requestedTab, viewer);
+    String viewerName = playerName(viewer).orElse(null);
     List<String> entryTabs = new ArrayList<>();
     List<String> entryTexts = new ArrayList<>();
     List<String> entryOwners = new ArrayList<>();
     List<Integer> entryTimestamps = new ArrayList<>();
 
     for (String tab : selection.tabs()) {
-      for (QuestLogEntry entry : questLog.get(tab)) {
+      for (QuestLogEntry entry : visibleEntriesFor(questLog, tab, viewerName)) {
         entryTabs.add(tab);
         entryTexts.add(entryText(entry));
         entryOwners.add(entry.owner());
@@ -249,7 +270,8 @@ public final class QuestLogUI {
         entryTimestamps.stream().mapToInt(Integer::intValue).toArray());
   }
 
-  private static void openCreateNoteDialog(String selectedTab, int... targetEntityIds) {
+  private static void openCreateNoteDialog(
+      String selectedTab, boolean onlyForCreator, int... targetEntityIds) {
     if (selectedTab == null || selectedTab.isBlank()) {
       LOGGER.warn("Cannot create quest log entry without a selected tab.");
       return;
@@ -269,7 +291,7 @@ public final class QuestLogUI {
         trans.text(T_NOTE_PLACEHOLDER),
         trans.text(T_CREATE),
         trans.text(T_CANCEL),
-        payload -> handleSubmittedNote(targetPlayerId, selectedTab, payload),
+        payload -> handleSubmittedNote(targetPlayerId, selectedTab, onlyForCreator, payload),
         () -> {},
         targetPlayerId);
   }
@@ -285,7 +307,10 @@ public final class QuestLogUI {
   }
 
   private static void handleSubmittedNote(
-      int playerEntityId, String selectedTab, DialogResponseMessage.Payload payload) {
+      int playerEntityId,
+      String selectedTab,
+      boolean onlyForCreator,
+      DialogResponseMessage.Payload payload) {
     Optional<String> note = noteTextFrom(payload);
     if (note.isEmpty()) {
       LOGGER.warn("Ignoring quest log note with unsupported payload '{}'.", payload);
@@ -294,9 +319,7 @@ public final class QuestLogUI {
 
     Game.findEntityById(playerEntityId)
         .filter(
-            player ->
-                QuestLogUtil.addPlayerNote(
-                    player, selectedTab, note.get(), USER_NOTE_ONLY_FOR_CREATOR))
+            player -> QuestLogUtil.addPlayerNote(player, selectedTab, note.get(), onlyForCreator))
         .ifPresent(player -> showQuestLogForPlayers(selectedTab, playerEntityId));
   }
 
@@ -304,8 +327,18 @@ public final class QuestLogUI {
     if (payload instanceof DialogResponseMessage.StringValue(String selectedTab)) {
       return selectedTab;
     }
+    if (payload instanceof DialogResponseMessage.StringList(String[] values) && values.length > 0) {
+      return values[0];
+    }
     LOGGER.warn("Quest log create action did not provide a selected tab payload '{}'.", payload);
     return "";
+  }
+
+  private static boolean onlyForCreatorFrom(DialogResponseMessage.Payload payload) {
+    if (payload instanceof DialogResponseMessage.StringList(String[] values) && values.length > 1) {
+      return Boolean.parseBoolean(values[1]);
+    }
+    return false;
   }
 
   private static Optional<String> noteTextFrom(DialogResponseMessage.Payload payload) {
@@ -350,13 +383,50 @@ public final class QuestLogUI {
    * @return immutable selection state for sidebar/detail rendering
    */
   public static QuestLogSelection selectionFor(QuestLogComponent questLog, String requestedTab) {
+    return selectionFor(questLog, requestedTab, null);
+  }
+
+  /**
+   * Builds the selection state for a quest log UI visible to the given viewer.
+   *
+   * <p>Entries marked {@link QuestLogEntry#onlyForCreator()} are included only when the viewer's
+   * player name matches the entry owner.
+   *
+   * @param questLog quest log to read
+   * @param requestedTab preferred selected tab; may be {@code null}
+   * @param viewer player entity that should receive the view; may be {@code null}
+   * @return immutable selection state for sidebar/detail rendering
+   */
+  public static QuestLogSelection selectionFor(
+      QuestLogComponent questLog, String requestedTab, Entity viewer) {
     Objects.requireNonNull(questLog, "questLog");
 
-    List<String> tabs = questLog.getTabsOrderedByLastEntry();
+    String viewerName = playerName(viewer).orElse(null);
+    List<String> tabs =
+        questLog.getTabsOrderedByLastEntry().stream()
+            .filter(tab -> !visibleEntriesFor(questLog, tab, viewerName).isEmpty())
+            .toList();
     Optional<String> selectedTab = selectTab(tabs, requestedTab);
-    List<QuestLogEntry> selectedEntries = selectedTab.map(questLog::get).orElseGet(List::of);
+    List<QuestLogEntry> selectedEntries =
+        selectedTab.map(tab -> visibleEntriesFor(questLog, tab, viewerName)).orElseGet(List::of);
 
     return new QuestLogSelection(tabs, selectedTab, selectedEntries);
+  }
+
+  private static List<QuestLogEntry> visibleEntriesFor(
+      QuestLogComponent questLog, String tab, String viewerName) {
+    return questLog.get(tab).stream().filter(entry -> isVisibleTo(entry, viewerName)).toList();
+  }
+
+  private static boolean isVisibleTo(QuestLogEntry entry, String viewerName) {
+    return !entry.onlyForCreator()
+        || (viewerName != null && viewerName.equalsIgnoreCase(entry.owner()));
+  }
+
+  private static Optional<String> playerName(Entity viewer) {
+    return Optional.ofNullable(viewer)
+        .flatMap(entity -> entity.fetch(PlayerComponent.class))
+        .map(PlayerComponent::playerName);
   }
 
   /**
@@ -791,11 +861,30 @@ public final class QuestLogUI {
             @Override
             public void clicked(InputEvent event, float x, float y) {
               DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CONFIRM)
-                  .accept(new DialogResponseMessage.StringValue(selectedTab));
+                  .accept(noteActionPayload(false));
             }
           });
-      footer.add(addNote).height(42f).width(190f).left();
+
+      TextButton addPersonalNote =
+          new TextButton("+  " + trans.text(T_CREATE_PERSONAL), skin, "blue-outline");
+      addPersonalNote.getLabel().setFontScale(0.55f);
+      addPersonalNote.addListener(
+          new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CONFIRM)
+                  .accept(noteActionPayload(true));
+            }
+          });
+
+      footer.add(addNote).height(42f).width(190f).left().padRight(10f);
+      footer.add(addPersonalNote).height(42f).width(220f).left();
       return footer;
+    }
+
+    private DialogResponseMessage.Payload noteActionPayload(boolean onlyForCreator) {
+      return new DialogResponseMessage.StringList(
+          new String[] {selectedTab, String.valueOf(onlyForCreator)});
     }
 
     private RichLabel label(String text, FontSpec font, boolean wrap) {
