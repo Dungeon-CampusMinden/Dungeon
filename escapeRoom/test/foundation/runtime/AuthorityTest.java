@@ -9,6 +9,7 @@ import foundation.definition.ComposedRiddleDefinition;
 import foundation.definition.DoorDefinition;
 import foundation.definition.ExitDefinition;
 import foundation.definition.HintDefinition;
+import foundation.definition.HintSeverity;
 import foundation.definition.InformationSourceDefinition;
 import foundation.definition.NumericInputDefinition;
 import foundation.definition.RoomDefinition;
@@ -115,20 +116,26 @@ final class AuthorityTest {
   @Test
   void hintsReleaseInAuthoredOrderOnlyWhileActiveAndRemainProjected() {
     Authority authority = authority(TimerMode.HARD);
-    assertEquals(
-        OperationReason.SESSION_NOT_RUNNING,
-        authority.revealHint("fund_and_code").operation().reason());
+    assertTrue(authority.previewHint("fund_and_code").isEmpty());
     ready(authority);
 
-    HintRevealResult first = authority.revealHint("fund_and_code");
-    HintRevealResult second = authority.revealHint("fund_and_code");
-    HintRevealResult exhausted = authority.revealHint("fund_and_code");
+    HintPreview firstPreview = authority.previewHint("fund_and_code").orElseThrow();
+    assertEquals(HintSeverity.ORIENTATION, firstPreview.severity());
+    assertTrue(riddle(authority, "fund_and_code").releasedHints().isEmpty());
+    HintRevealResult first = authority.revealHint("fund_and_code", firstPreview.id());
+    HintPreview secondPreview = authority.previewHint("fund_and_code").orElseThrow();
+    assertEquals(HintSeverity.APPROACH, secondPreview.severity());
+    HintRevealResult stale = authority.revealHint("fund_and_code", firstPreview.id());
+    HintRevealResult second = authority.revealHint("fund_and_code", secondPreview.id());
+    HintRevealResult exhausted = authority.revealHint("fund_and_code", secondPreview.id());
 
     assertEquals("hint_one", first.hint().orElseThrow().id());
+    assertEquals(OperationReason.HINT_PREVIEW_STALE, stale.operation().reason());
     assertEquals("hint_two", second.hint().orElseThrow().id());
     assertEquals(OperationReason.HINTS_EXHAUSTED, exhausted.operation().reason());
     assertEquals(
-        OperationReason.RIDDLE_LOCKED, authority.revealHint("final_code").operation().reason());
+        OperationReason.RIDDLE_LOCKED,
+        authority.revealHint("final_code", "final_hint").operation().reason());
     authority.interactSource("fund_and_code", "source");
     authority.attemptCode("fund_and_code", "fund_code", "3758");
     assertEquals(
@@ -205,7 +212,8 @@ final class AuthorityTest {
   void projectionContainsPersistentInputStateButNoAnswers() {
     Authority authority = authority(TimerMode.HARD);
     ready(authority);
-    authority.revealHint("fund_and_code");
+    HintPreview preview = authority.previewHint("fund_and_code").orElseThrow();
+    authority.revealHint("fund_and_code", preview.id());
     authority.interactSource("fund_and_code", "source");
 
     assertEquals(
@@ -233,8 +241,8 @@ final class AuthorityTest {
                 new CollectionInputDefinition("collect", "source"),
                 new NumericInputDefinition("fund_code", "surface_fund_code", "3758", true)),
             List.of(
-                new HintDefinition("hint_one", "One", "released one", 1),
-                new HintDefinition("hint_two", "Two", "released two", 2)));
+                new HintDefinition("hint_one", "One", "released one", HintSeverity.ORIENTATION),
+                new HintDefinition("hint_two", "Two", "released two", HintSeverity.APPROACH)));
     ComposedRiddleDefinition parallelCode =
         new ComposedRiddleDefinition(
             "parallel_code",
@@ -250,7 +258,8 @@ final class AuthorityTest {
             List.of(
                 new CollectionInputDefinition("later_collect", "later_source"),
                 new NumericInputDefinition("final_input", "surface_final", "9", false)),
-            List.of(new HintDefinition("final_hint", "Final", "final hint", 1)));
+            List.of(
+                new HintDefinition("final_hint", "Final", "final hint", HintSeverity.SOLUTION)));
     return new RoomDefinition(
         "room",
         1,

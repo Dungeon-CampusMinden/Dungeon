@@ -30,6 +30,7 @@ import core.utils.Scene2dElementFactory;
 import core.utils.Tuple;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.SimpleIPath;
+import foundation.definition.HintSeverity;
 import foundation.presentation.GamePresentation;
 import foundation.presentation.GamePresentation.ResourcePresentation;
 import foundation.runtime.ReleasedHint;
@@ -135,6 +136,26 @@ public final class FoundationDialogs {
     Objects.requireNonNull(afterClose, "afterClose");
     DialogFactory.showTextDialog(
         hint.text(), hint.title(), afterClose::run, "Verstanden", targetEntityId);
+  }
+
+  static void showHintConfirmation(
+      final HintSeverity severity, final int targetEntityId, final Runnable onConfirm) {
+    Objects.requireNonNull(severity, "severity");
+    Objects.requireNonNull(onConfirm, "onConfirm");
+    String category =
+        switch (severity) {
+          case ORIENTATION -> "Was ist die Aufgabe? Wo kannst du anfangen?";
+          case APPROACH -> "Wie kannst du die Aufgabe lösen?";
+          case SOLUTION -> "Was ist die Lösung?";
+        };
+    DialogFactory.showYesNoDialog(
+        "Der nächste Hinweis beantwortet:\n\n"
+            + category
+            + "\n\nMöchtest du diesen Hinweis anzeigen?",
+        "Hinweis anzeigen?",
+        onConfirm::run,
+        () -> {},
+        targetEntityId);
   }
 
   static void showTerminal(

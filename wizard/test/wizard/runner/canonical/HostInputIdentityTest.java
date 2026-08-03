@@ -18,7 +18,7 @@ final class HostInputIdentityTest {
     Path project = Path.of("examples", "foundation-v0.3").toAbsolutePath().normalize();
 
     assertEquals(
-        "27109ab04e13738c3a282d6c503fcac82ceb75ec50be92471552d7790e21c686",
+        "dae5bb87ac99829db98f0c15be6c515ce5836dd35a89dce0af5c3b0dc62fd47b",
         HostInputIdentity.sha256(MAPPER.readTree(project.resolve("deer.json").toFile())));
   }
 

@@ -6,6 +6,7 @@ import foundation.multiplayer.session.MultiplayerSession;
 import foundation.multiplayer.session.MultiplayerSession.ClientObservation;
 import foundation.multiplayer.session.MultiplayerSession.SourceInspection;
 import foundation.runtime.CodeAttemptResult;
+import foundation.runtime.HintPreview;
 import foundation.runtime.Projection;
 import foundation.runtime.ReleasedHint;
 import java.time.Duration;
@@ -117,15 +118,29 @@ public final class ServerBinding {
   }
 
   /**
-   * Releases the next hint for a ready server player.
+   * Previews the next hint category without releasing its content.
    *
    * @param playerEntity authenticated server player
    * @param riddleId riddle identifier
-   * @return newly released hint
+   * @return next non-content hint preview
    */
-  public synchronized Optional<ReleasedHint> requestNextHint(
+  public synchronized Optional<HintPreview> previewNextHint(
       final Entity playerEntity, final String riddleId) {
-    return clientId(playerEntity).flatMap(clientId -> session.requestNextHint(clientId, riddleId));
+    return clientId(playerEntity).flatMap(clientId -> session.previewNextHint(clientId, riddleId));
+  }
+
+  /**
+   * Releases the previously previewed hint after server-side confirmation.
+   *
+   * @param playerEntity authenticated server player
+   * @param riddleId riddle identifier
+   * @param expectedHintId identity captured by the preview
+   * @return newly released hint while the player and preview remain current
+   */
+  public synchronized Optional<ReleasedHint> confirmNextHint(
+      final Entity playerEntity, final String riddleId, final String expectedHintId) {
+    return clientId(playerEntity)
+        .flatMap(clientId -> session.confirmNextHint(clientId, riddleId, expectedHintId));
   }
 
   /**

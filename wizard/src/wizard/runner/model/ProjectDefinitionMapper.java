@@ -1,6 +1,7 @@
 package wizard.runner.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import foundation.definition.HintSeverity;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -121,7 +122,11 @@ public final class ProjectDefinitionMapper {
   }
 
   private Hint hint(final JsonNode node) {
-    return new Hint(text(node, "id"), text(node, "title"), text(node, "text"));
+    return new Hint(
+        text(node, "id"),
+        text(node, "title"),
+        text(node, "text"),
+        enumValue(HintSeverity.class, text(node, "severity")));
   }
 
   private Asset asset(final JsonNode node) {

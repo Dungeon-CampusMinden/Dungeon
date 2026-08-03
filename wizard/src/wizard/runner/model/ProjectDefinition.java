@@ -1,5 +1,6 @@
 package wizard.runner.model;
 
+import foundation.definition.HintSeverity;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -334,13 +335,15 @@ public record ProjectDefinition(
    * @param id stable hint identifier
    * @param title authored title
    * @param text authored hint text
+   * @param severity disclosure category announced before release
    */
-  public record Hint(String id, String title, String text) {
+  public record Hint(String id, String title, String text, HintSeverity severity) {
     /** Creates a hint. */
     public Hint {
       id = requireText(id, "hint.id");
       title = requireText(title, "hint.title");
       text = requireText(text, "hint.text");
+      Objects.requireNonNull(severity, "hint.severity");
     }
   }
 

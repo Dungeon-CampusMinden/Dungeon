@@ -11,6 +11,7 @@ import foundation.presentation.GamePresentation.InformationSourcePresentation;
 import foundation.presentation.GamePresentation.ResourcePresentation;
 import foundation.runtime.Authority;
 import foundation.runtime.CodeAttemptResult;
+import foundation.runtime.HintPreview;
 import foundation.runtime.HintRevealResult;
 import foundation.runtime.OperationResult;
 import foundation.runtime.OperationStatus;
@@ -168,18 +169,31 @@ public final class MultiplayerSession {
   }
 
   /**
-   * Routes one hint request for a ready player.
+   * Previews the next hint category for a ready player without releasing content.
    *
    * @param clientId stable Dungeon client identifier
    * @param riddleId riddle identifier
-   * @return newly released hint, or empty when the player is not ready or no hint was released
+   * @return next non-content preview while the player and riddle are ready
    */
-  public synchronized Optional<ReleasedHint> requestNextHint(
+  public synchronized Optional<HintPreview> previewNextHint(
       final short clientId, final String riddleId) {
+    return ready(clientId) ? authority.previewHint(riddleId) : Optional.empty();
+  }
+
+  /**
+   * Releases a previously previewed hint after the ready player confirms it.
+   *
+   * @param clientId stable Dungeon client identifier
+   * @param riddleId riddle identifier
+   * @param expectedHintId identity captured by the preview
+   * @return newly released hint, or empty when readiness or preview changed
+   */
+  public synchronized Optional<ReleasedHint> confirmNextHint(
+      final short clientId, final String riddleId, final String expectedHintId) {
     if (!ready(clientId)) {
       return Optional.empty();
     }
-    HintRevealResult result = authority.revealHint(riddleId);
+    HintRevealResult result = authority.revealHint(riddleId, expectedHintId);
     return result.hint();
   }
 

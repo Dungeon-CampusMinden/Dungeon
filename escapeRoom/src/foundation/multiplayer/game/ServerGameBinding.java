@@ -23,6 +23,7 @@ import foundation.presentation.GamePresentation.ComposedPresentation;
 import foundation.presentation.GamePresentation.InformationSourcePresentation;
 import foundation.presentation.GamePresentation.NumericInputPresentation;
 import foundation.runtime.CodeOutcome;
+import foundation.runtime.HintPreview;
 import foundation.runtime.ReleasedHint;
 import foundation.runtime.TerminalResult;
 import java.time.Duration;
@@ -280,9 +281,11 @@ public final class ServerGameBinding {
   }
 
   private void requestHint(final String riddleId, final Entity player) {
-    Optional<ReleasedHint> hint = serverBinding.requestNextHint(player, riddleId);
-    if (hint.isPresent()) {
-      FoundationDialogs.showHint(hint.orElseThrow(), player.id(), () -> {});
+    Optional<HintPreview> preview = serverBinding.previewNextHint(player, riddleId);
+    if (preview.isPresent()) {
+      HintPreview next = preview.orElseThrow();
+      FoundationDialogs.showHintConfirmation(
+          next.severity(), player.id(), () -> confirmHint(riddleId, next, player));
       return;
     }
     if (serverBinding.gameplayReady(player)) {
@@ -295,6 +298,14 @@ public final class ServerGameBinding {
               .orElse(List.of());
       showHints(released, 0, player.id());
     }
+  }
+
+  private void confirmHint(final String riddleId, final HintPreview preview, final Entity player) {
+    serverBinding
+        .confirmNextHint(player, riddleId, preview.id())
+        .ifPresentOrElse(
+            hint -> FoundationDialogs.showHint(hint, player.id(), () -> {}),
+            () -> requestHint(riddleId, player));
   }
 
   private static void showHints(

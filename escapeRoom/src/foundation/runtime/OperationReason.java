@@ -34,6 +34,8 @@ public enum OperationReason {
   RIDDLE_ALREADY_COMPLETED,
   /** Every authored hint has already been released. */
   HINTS_EXHAUSTED,
+  /** The confirmed hint preview is no longer the next authored hint. */
+  HINT_PREVIEW_STALE,
   /** The common exit door is still closed. */
   DOOR_CLOSED,
   /** The roster slot is already present at the common exit. */

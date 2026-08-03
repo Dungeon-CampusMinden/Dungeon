@@ -1,5 +1,6 @@
 package foundation.runtime;
 
+import foundation.definition.HintSeverity;
 import java.util.Objects;
 
 /**
@@ -8,16 +9,14 @@ import java.util.Objects;
  * @param id stable hint identifier
  * @param title player-facing title
  * @param text player-facing text
- * @param severity one-based authored release order
+ * @param severity disclosure category announced before release
  */
-public record ReleasedHint(String id, String title, String text, int severity) {
+public record ReleasedHint(String id, String title, String text, HintSeverity severity) {
   /** Creates a released immutable hint. */
   public ReleasedHint {
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(title, "title");
     Objects.requireNonNull(text, "text");
-    if (severity < 1) {
-      throw new IllegalArgumentException("severity must be positive");
-    }
+    Objects.requireNonNull(severity, "severity");
   }
 }

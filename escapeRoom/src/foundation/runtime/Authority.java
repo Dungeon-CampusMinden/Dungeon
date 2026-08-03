@@ -238,12 +238,39 @@ public final class Authority {
   }
 
   /**
-   * Releases exactly the next authored hint of one incomplete riddle.
+   * Returns only the identity and disclosure category of the next releasable hint.
+   *
+   * <p>Reading a preview never changes authoritative state or exposes the hint title or text.
    *
    * @param riddleId stable riddle identifier
+   * @return next hint preview while the riddle is active and has an unreleased hint
+   */
+  public synchronized Optional<HintPreview> previewHint(final String riddleId) {
+    if (gameplayGate() != null) {
+      return Optional.empty();
+    }
+    RiddleState state = riddles.get(riddleId);
+    if (state == null || state.status != ProgressStatus.ACTIVE) {
+      return Optional.empty();
+    }
+    List<HintDefinition> authored = state.definition.hints();
+    if (state.releasedHints == authored.size()) {
+      return Optional.empty();
+    }
+    HintDefinition next = authored.get(state.releasedHints);
+    return Optional.of(new HintPreview(next.id(), next.severity()));
+  }
+
+  /**
+   * Releases exactly the previously previewed hint when it is still next.
+   *
+   * @param riddleId stable riddle identifier
+   * @param expectedHintId identity captured by {@link #previewHint(String)}
    * @return command result and newly released hint when applied
    */
-  public synchronized HintRevealResult revealHint(final String riddleId) {
+  public synchronized HintRevealResult revealHint(
+      final String riddleId, final String expectedHintId) {
+    Objects.requireNonNull(expectedHintId, "expectedHintId");
     OperationResult gate = gameplayGate();
     if (gate != null) {
       return hint(gate, Optional.empty());
@@ -263,7 +290,11 @@ public final class Authority {
     if (state.releasedHints == authored.size()) {
       return hint(OperationResult.idempotent(OperationReason.HINTS_EXHAUSTED), Optional.empty());
     }
-    HintDefinition revealed = authored.get(state.releasedHints++);
+    HintDefinition revealed = authored.get(state.releasedHints);
+    if (!revealed.id().equals(expectedHintId)) {
+      return hint(OperationResult.idempotent(OperationReason.HINT_PREVIEW_STALE), Optional.empty());
+    }
+    state.releasedHints++;
     return hint(OperationResult.applied(), Optional.of(released(revealed)));
   }
 

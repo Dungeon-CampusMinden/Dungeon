@@ -49,11 +49,8 @@ final class DefinitionChecks {
       final List<HintDefinition> values, final String label) {
     List<HintDefinition> result = List.copyOf(Objects.requireNonNull(values, label));
     Set<String> ids = new HashSet<>();
-    for (int index = 0; index < result.size(); index++) {
-      HintDefinition hint = result.get(index);
-      if (hint.severity() != index + 1) {
-        throw new IllegalArgumentException(label + " severity must match authored order");
-      }
+    for (HintDefinition hint : result) {
+      Objects.requireNonNull(hint, label + " entry");
       if (!ids.add(hint.id())) {
         throw new IllegalArgumentException(label + " must contain unique identifiers");
       }

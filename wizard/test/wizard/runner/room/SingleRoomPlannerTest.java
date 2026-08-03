@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import foundation.definition.HintSeverity;
 import foundation.room.model.RiddlePlacement;
 import foundation.room.model.RoomPoint;
 import java.util.ArrayList;
@@ -167,7 +168,12 @@ final class SingleRoomPlannerTest {
                         riddle.informationSources(),
                         riddle.inputs(),
                         riddleIds.contains(riddle.id())
-                            ? List.of(new Hint("hint_" + riddle.id(), "Hint", "Try this."))
+                            ? List.of(
+                                new Hint(
+                                    "hint_" + riddle.id(),
+                                    "Hint",
+                                    "Try this.",
+                                    HintSeverity.ORIENTATION))
                             : List.of()))
             .toList();
     return new ProjectDefinition(

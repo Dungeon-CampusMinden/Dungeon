@@ -10,6 +10,7 @@ import foundation.definition.ComposedRiddleDefinition;
 import foundation.definition.DoorDefinition;
 import foundation.definition.ExitDefinition;
 import foundation.definition.HintDefinition;
+import foundation.definition.HintSeverity;
 import foundation.definition.InformationSourceDefinition;
 import foundation.definition.NumericInputDefinition;
 import foundation.definition.RoomDefinition;
@@ -26,6 +27,7 @@ import foundation.presentation.GamePresentation.NumericInputPresentation;
 import foundation.presentation.GamePresentation.ResourcePresentation;
 import foundation.runtime.CodeOutcome;
 import foundation.runtime.Projection.TimerState;
+import foundation.runtime.ReleasedHint;
 import foundation.runtime.TerminalResult;
 import java.time.Duration;
 import java.util.List;
@@ -116,7 +118,12 @@ final class MultiplayerSessionTest {
     var reopened = session.inspectSource((short) 1, "first", "source").orElseThrow();
     assertFalse(reopened.newlySatisfied());
     assertEquals(List.of("resource_a", "resource_b"), ids(reopened.resources()));
-    assertEquals("released text", session.requestNextHint((short) 1, "first").orElseThrow().text());
+    var preview = session.previewNextHint((short) 1, "first").orElseThrow();
+    assertEquals(HintSeverity.APPROACH, preview.severity());
+    assertTrue(riddleReleasedHints(session, "first").isEmpty());
+    assertEquals(
+        "released text",
+        session.confirmNextHint((short) 1, "first", preview.id()).orElseThrow().text());
 
     session.enterNumericCode((short) 1, "first", "first_code", "12");
     assertFalse(inputSatisfied(session, "second", "later_collect"));
@@ -192,7 +199,7 @@ final class MultiplayerSessionTest {
             List.of(
                 new CollectionInputDefinition("collect", "source"),
                 new NumericInputDefinition("first_code", "surface_first_code", "12", true)),
-            List.of(new HintDefinition("hint", "Hint", "released text", 1)));
+            List.of(new HintDefinition("hint", "Hint", "released text", HintSeverity.APPROACH)));
     ComposedRiddleDefinition second =
         new ComposedRiddleDefinition(
             "second",
@@ -271,5 +278,15 @@ final class MultiplayerSessionTest {
         .findFirst()
         .orElseThrow()
         .satisfied();
+  }
+
+  private static List<ReleasedHint> riddleReleasedHints(
+      final MultiplayerSession session, final String riddleId) {
+    return session.projection().sections().stream()
+        .flatMap(section -> section.riddles().stream())
+        .filter(riddle -> riddle.id().equals(riddleId))
+        .findFirst()
+        .orElseThrow()
+        .releasedHints();
   }
 }

@@ -29,7 +29,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import wizard.runner.model.ProjectDefinition;
 import wizard.runner.model.ProjectDefinition.Asset;
 import wizard.runner.model.ProjectDefinition.CollectionInput;
@@ -114,12 +113,8 @@ public final class RoomDeriver {
 
   private static RiddleDefinition definition(final Riddle riddle) {
     List<HintDefinition> hints =
-        IntStream.range(0, riddle.hints().size())
-            .mapToObj(
-                index -> {
-                  ProjectDefinition.Hint hint = riddle.hints().get(index);
-                  return new HintDefinition(hint.id(), hint.title(), hint.text(), index + 1);
-                })
+        riddle.hints().stream()
+            .map(hint -> new HintDefinition(hint.id(), hint.title(), hint.text(), hint.severity()))
             .toList();
     List<InformationSourceDefinition> sources =
         riddle.informationSources().stream()
