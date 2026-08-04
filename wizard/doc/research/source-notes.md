@@ -10,12 +10,14 @@ citation metadata and project relevance, not local source-management details.
 
 These sources support the argument that the Wizard should guide authors through
 participants, objectives, theme, puzzle structure, constraints, briefing, and
-later debriefing/evaluation. V0.2 adopts a minimal objective-to-riddle mapping;
-the full learning-evidence chain remains future work.
+debriefing or evaluation. Target-group, prior-knowledge, learning-goal, and
+debriefing fields are required by the executable V0.3 DEER contract, validated
+by the runner, and included in the host-input identity. The current Foundation
+runtime does not interpret them for room generation or gameplay.
 
 | BibTeX key | Priority | Wizard relevance |
 | --- | --- | --- |
-| `biggs1996constructive` | background | Didactic basis for aligning objectives, activities, and assessment evidence. Supports the minimal V0.2 objective-to-riddle mapping. |
+| `biggs1996constructive` | background | Didactic basis for aligning objectives, activities, and assessment evidence outside the executable DEER contract. |
 | `clarke2017escaped` | core | Direct framework for creating educational escape rooms and interactive games. Supports structured authoring steps. |
 | `veldkamp2020escape` | core | Systematic review of educational escape rooms. Useful for puzzle structure, group size, playtime, technology role, and pedagogical alignment. |
 | `veldkamp2021beyond` | core/secondary | Teacher-perspective source on adoption barriers, teamwork, and motivation. Supports the Wizard as teacher-facing support. |
@@ -42,12 +44,13 @@ the full learning-evidence chain remains future work.
 ## Authoring, Generation, and Platform Lifecycle
 
 These sources support the Wizard as a config-first, teacher-facing authoring
-tool that produces stable artifacts for generation and runtime preview.
+tool that produces a stable DEER project for deterministic in-memory runtime
+derivation.
 
 | BibTeX key | Priority | Wizard relevance |
 | --- | --- | --- |
 | `laurent2022authoring` | core | Serious-game authoring principles. Direct support for the power/usability tradeoff and abstraction layers for non-programmers. |
-| `ahmad2020instructional` | core | Review of instructional-design support in serious-game authoring tools. Supports a small V0.2 learning-purpose layer without requiring full assessment authoring. |
+| `ahmad2020instructional` | core | Review of instructional-design support in serious-game authoring tools. Relevant to the authoring flow without requiring pedagogical metadata in the runtime contract. |
 | `roungas2016model` | core | Model-driven educational game design. Strong support for a schema/config-first artifact. |
 | `shaker2016pcg` | core | Foundational procedural-content-generation reference. Supports seed/config-based generation, constraints, and reproducibility. |
 | `liapis2016mixed` | core | Mixed-initiative creation. Frames the generator as collaborator while the author controls meaning. |
@@ -58,8 +61,8 @@ tool that produces stable artifacts for generation and runtime preview.
 | `torres2025moirai` | future evaluation | Usability follow-up for Moirai. Useful if the Wizard UI itself is evaluated. |
 | `mehm2016authoring` | secondary | Serious-game authoring processes and tools. Supports the Wizard as a structured process, not just a UI. |
 | `mehm2013education` | secondary | Education-focused serious-game authoring. Useful comparison for abstraction over concrete code. |
-| `alonsofernandez2017lifecycle` | core/secondary | Lifecycle architecture connecting authoring, runtime, and analytics. Relevant to the DEER project folder, generator output, and later traceability. |
-| `sousa2022adaptability` | generator/future | Connects educational escape rooms with adaptability, accessibility, level design, narrative, and PCG. |
+| `alonsofernandez2017lifecycle` | core/secondary | Lifecycle architecture connecting authoring, runtime, and analytics. Relevant to the DEER project boundary and in-memory runtime handoff. |
+| `sousa2022adaptability` | generator/future | Connects educational escape rooms with adaptability, level design, narrative, and PCG. |
 | `lopezpernas2021escapp` | platform comparison | Web platform for running educational escape rooms. Comparison point for preview/runtime, monitoring, hints, and multi-team sessions. |
 | `queiros2023lms` | future integration | LMS integration source. Relevant after stable generator input and runtime contracts exist. |
 | `queiros2024gerf` | future integration | Virtual escape-room framework with LTI/xAPI/analytics/adaptive learning paths. Relevant outside V0. |
@@ -70,9 +73,8 @@ tool that produces stable artifacts for generation and runtime preview.
 
 ## Evaluation, Analytics, and Research Methodology
 
-These sources are not V0 requirements. They are kept because the Wizard can
-later generate traceability, telemetry, debriefing, validation, or study
-artifacts alongside playable rooms.
+These sources are not Wizard requirements. They are retained as background for
+separate evaluation or research work.
 
 | BibTeX key | Priority | Wizard relevance |
 | --- | --- | --- |
@@ -102,7 +104,7 @@ learning goal
 -> success/quality criterion
 ```
 
-Important constraints for later versions:
+Interpretation cautions:
 
 - Telemetry should not be treated as direct proof of competence. It records
   behavior that needs interpretation.
@@ -114,7 +116,7 @@ Important constraints for later versions:
 - Debriefing should not be decorative. It is where players and educators turn
   observed play into interpreted learning.
 
-Candidate future artifact categories:
+Common research artifact categories:
 
 - traceability overview
 - telemetry profile

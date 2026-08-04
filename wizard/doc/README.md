@@ -1,34 +1,80 @@
 # Wizard Documentation
 
-Status: öffentliche Foundation-Dokumentation für Konzept, UI-Contract,
-`deer.json` und Generatorgrenzen.
+Das Zielbild des Wizards führt nicht-technische Autorinnen und Autoren von
+einem privaten, unvollständigen Entwurf zu einem ausführbaren DEER-Projekt:
 
-## Einstieg
+```text
+Wizard-Entwurf
+-> deer.json + optionale Dateien unter assets/custom/
+-> projektspezifische WizardRoom.jar
+-> Main-Menü für Host oder Join
+-> deterministisch abgeleiteter Foundation-Raum im Speicher
+-> gewöhnlicher Dungeon-Multiplayer
+```
 
-1. [`v0/concept.md`](v0/concept.md): Produktziel, Rollen, V0.2-Scope und Erfolgskriterien.
-2. [`v0/frontend-handoff-overview-v0.md`](v0/frontend-handoff-overview-v0.md): kompakter Einstieg für die
-   Frontend-/UI-Umsetzung.
-3. [`v0/implementation-handoff-v0.md`](v0/implementation-handoff-v0.md): gemeinsame Übergabe für UI, Generator und
-   Runtime.
-4. [`v0/deer.schema.json`](v0/deer.schema.json) und
-   [`v0/examples/deer.example.json`](v0/examples/deer.example.json):
-   maschinenlesbarer Contract und gültiges Foundation-Beispiel.
+Der Wizard erzeugt weder Java-Code noch ein Raummodul, Buildskripte oder ein
+Room-ZIP. Der Packager bettet das finalisierte Projekt zusammen mit Runner,
+Engine, Basisassets und Runtime-Abhängigkeiten in eine ausführbare
+`WizardRoom.jar` ein. Dieselbe JAR wird an Host und alle weiteren Spielenden
+verteilt. Sie enthält daher auch `deer.json`, Seed, Lösungen und noch nicht
+freigegebene Inhalte in auslesbarer Form. Jeder Teilnehmer leitet daraus
+denselben vollständigen Foundation-Raum ab; das Netzwerk prüft nur den
+Hash der vollständigen kanonisierten `deer.json`.
 
-## Struktur
+Eigene Bilder liegen inhaltsadressiert unter `assets/custom/`. Bereits mit dem
+Spiel ausgelieferte Bilder werden dagegen ohne Kopie über ihren internen Pfad,
+zum Beispiel `items/puzzle-piece.png`, referenziert. Assetpfade besitzen keinen
+führenden Slash; ein Projekt ohne eigenes Bild kann nur aus `deer.json`
+bestehen.
 
-- `v0/`: aktuelle V0.2-Arbeitsgrundlage für Authoring, Validierung,
-  Generator-Eingabe und Generator-Ausgabe.
-- `research/`: wissenschaftliche Quellen und Synthesen. Sie begründen
-  Leitplanken, sind aber keine zweite Anforderungsspezifikation.
+Mit Java 25 öffnet `java -jar WizardRoom.jar` das bestehende Host-/Join-Menü.
+Der Host-Knopf startet dieselbe JAR intern als verwalteten headless
+Serverprozess und verbindet anschließend den Host-Client. Ein separates
+Serverartefakt oder ein benutzersichtbarer CLI-Serverstarter ist nicht nötig.
+Die Befehle `validate`, `host` und `join` bleiben als sekundäre
+Entwicklungs- und Authoring-Schnittstelle bestehen.
 
-## Vertiefung
+Diese Dokumentation legt den verbindlichen DEER-0.3-, Runner- und
+Foundation-Zielvertrag fest. Runner, Runtime und lokale
+Standalone-Autorenoberfläche folgen in getrennten Implementierungsschritten.
 
-- [`v0/wizard-ui-flow-v0.md`](v0/wizard-ui-flow-v0.md): kanonischer sichtbarer UI-Flow.
-- [`v0/teacher-workflow-v0.md`](v0/teacher-workflow-v0.md): kurze Persona-Reise und Akzeptanzszenarien.
-- [`v0/deer-json-spec.md`](v0/deer-json-spec.md): menschenlesbare Semantik der `deer.json`.
-- [`v0/parameter-table-v0.md`](v0/parameter-table-v0.md): Foundation-Parameter und Kompatibilitäten.
-- [`v0/generator-input-format.md`](v0/generator-input-format.md): finalisierter Projektordner.
-- [`v0/generator-output-format.md`](v0/generator-output-format.md): Generator-ZIP, Manifest und
-  Reproduzierbarkeit.
-- [`v0/the-last-hour-interaction-catalog.md`](v0/the-last-hour-interaction-catalog.md):
-  priorisierte spätere Bausteine.
+`scenario.introText`, `scenario.successText` und das bei harten Zeitlimits
+verwendete `scenario.failureText` sind geordnete Seitenfolgen. Jeder
+Array-Eintrag wird als eigene weiterklickbare Black-Fade-Seite angezeigt.
+
+## Vertragsstatus
+
+| Bereich | Status |
+|---|---|
+| DEER-Schema `0.3` und kanonische Beispiele | verbindlicher Vertragsstand |
+| Projektvalidierung, Runner-Reports und Foundation-Ableitung | Zielvertrag; Implementierung folgt separat |
+| Spieler-JAR, Main-Menü, `validate`, `host`, `join` und Foundation-Runtime | Zielvertrag; Implementierung folgt separat |
+| Lokale Authoring-UI, privater Draft und nativer Storage-Adapter | Zielvertrag; Implementierung folgt separat |
+| Aufruf des JAR-Packagers aus der Authoring-UI | spätere dünne Integration |
+| Inhalte unter `research/` | nicht-normative Begründung, kein zweiter Vertrag |
+
+## Maßgebliche Dokumente
+
+1. [`v0/frontend-handoff-overview-v0.md`](v0/frontend-handoff-overview-v0.md)
+   ist der kurze Einstieg für die Frontend-Umsetzung und trennt UI,
+   Storage-Adapter und Java-Runner.
+2. [`v0/wizard-ui-flow-v0.md`](v0/wizard-ui-flow-v0.md) beschreibt den
+   sichtbaren Autorenfluss und den privaten Entwurf.
+3. [`v0/deer.schema.json`](v0/deer.schema.json) ist der maschinenlesbare
+   Vertrag; [`v0/deer-json-spec.md`](v0/deer-json-spec.md) erklärt seine
+   Semantik.
+4. [`v0/runner-project-format.md`](v0/runner-project-format.md) definiert
+   Projektordner, Finalisierung, Assets, deterministische Identität und das
+   maschinenlesbare Validierungsergebnis.
+5. [`v0/runner-runtime-contract.md`](v0/runner-runtime-contract.md) definiert
+   CLI, Host-/Join-Grenze, Bootstrap und Spielruntime.
+6. [`../examples/foundation-v0.3/`](../examples/foundation-v0.3/) ist das
+   kleine kanonische Projektbeispiel.
+7. [`../examples/the-last-hour-v0.3/`](../examples/the-last-hour-v0.3/) ist
+   das größere Demonstrations- und Regressionsexemplar für einen
+   umfangreicheren Rätselablauf.
+
+[`v0/the-last-hour-interaction-catalog.md`](v0/the-last-hour-interaction-catalog.md)
+inventarisiert vorhandene Interaktionen als nicht-normative Grundlage für
+spätere Entscheidungen. [`research/`](research/) enthält die wissenschaftlichen
+Quellen; diese begründen Leitplanken, sind aber keine zweite Spezifikation.
