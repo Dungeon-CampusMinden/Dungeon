@@ -28,6 +28,8 @@ import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLoggerConfig;
 import gameOfGames.level.GameOfGamesClientLevel;
 import gameOfGames.level.GameOfGamesLevel;
+import gameOfGames.network.GameOfGamesEntitySpawnStrategy;
+import gameOfGames.network.GameOfGamesSnapshotTranslator;
 import java.util.logging.Level;
 
 /** Entry point for the Game of Games escape room. */
@@ -71,17 +73,21 @@ public final class GameOfGames {
                 new SimpleIPath("dungeon_config.json"),
                 contrib.configuration.KeyboardConfig.class,
                 KeyboardConfig.class)
+            .snapshotTranslator(new GameOfGamesSnapshotTranslator())
+            .entitySpawnStrategy(new GameOfGamesEntitySpawnStrategy())
             .onFrame(GameOfGames::onFrame)
             .build();
 
     ClientStarter client =
-        ClientStarter.builder(GameOfGames::clientSetup)
+        ClientStarter.builder(GameOfGamesClient::clientSetup)
             .levels(Tuple.of(LEVEL_KEY, GameOfGamesClientLevel.class))
             .initLocalization(GameOfGames::initLocalization)
             .config(
                 new SimpleIPath("dungeon_config.json"),
                 contrib.configuration.KeyboardConfig.class,
                 KeyboardConfig.class)
+            .snapshotTranslator(new GameOfGamesSnapshotTranslator())
+            .entitySpawnStrategy(new GameOfGamesEntitySpawnStrategy())
             .build();
 
     MainMenu.run(args, game, client, server);
@@ -104,17 +110,6 @@ public final class GameOfGames {
     ECSManagement.add(new EmoteSystem());
 
     if (DEBUG_MODE && !Game.isHeadless()) {
-      ECSManagement.add(new Debugger());
-      KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
-      ECSManagement.add(new DebugDrawSystem());
-      ECSManagement.add(new LevelEditorSystem());
-    }
-  }
-
-  private static void clientSetup() {
-    ECSManagement.remove(AttributeBarSystem.class);
-
-    if (DEBUG_MODE) {
       ECSManagement.add(new Debugger());
       KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
       ECSManagement.add(new DebugDrawSystem());

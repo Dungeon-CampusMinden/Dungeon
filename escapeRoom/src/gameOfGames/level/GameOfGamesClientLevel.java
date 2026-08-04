@@ -6,6 +6,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
+import gameOfGames.util.InteractionFeedback;
 import java.util.List;
 import java.util.Map;
 
@@ -40,5 +41,10 @@ public class GameOfGamesClientLevel extends DungeonLevel {
   public GameOfGamesClientLevel(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, LEVEL_NAME);
+  }
+
+  @Override
+  protected void onTick() {
+    InteractionFeedback.update();
   }
 }
