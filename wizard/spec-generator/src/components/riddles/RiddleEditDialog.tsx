@@ -69,119 +69,123 @@ export function RiddleEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl lg:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Rätsel '{draft.title}' bearbeiten</DialogTitle>
         </DialogHeader>
 
-        <div className="flex max-h-[65vh] flex-col gap-4 overflow-y-auto pr-1">
-          <Field>
-            <FieldLabel>Titel</FieldLabel>
-            <Input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
-          </Field>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid max-h-[65vh] grid-cols-1 items-start gap-4 overflow-y-auto pr-1 lg:grid-cols-2 lg:gap-6">
+          <div className="flex flex-col gap-4 lg:sticky lg:top-0 lg:self-start">
             <Field>
-              <FieldLabel>Art des Rätsels</FieldLabel>
-              <SimpleSelect
-                options={RIDDLE_TYPES.map((type) => ({ value: type.value, label: type.label }))}
-                value={draft.type}
-                onChange={(newValue) => setDraft(convertRiddleType(draft, newValue as AnyRiddle["type"]))}
+              <FieldLabel>Titel</FieldLabel>
+              <Input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
+            </Field>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field>
+                <FieldLabel>Art des Rätsels</FieldLabel>
+                <SimpleSelect
+                  options={RIDDLE_TYPES.map((type) => ({ value: type.value, label: type.label }))}
+                  value={draft.type}
+                  onChange={(newValue) => setDraft(convertRiddleType(draft, newValue as AnyRiddle["type"]))}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>Schwierigkeit</FieldLabel>
+                <SimpleSelect
+                  options={RIDDLE_DIFFICULTIES.map((item) => ({ value: item.value, label: item.label }))}
+                  value={draft.difficulty}
+                  onChange={(newValue) =>
+                    setDraft({ ...draft, difficulty: newValue as AnyRiddle["difficulty"] })
+                  }
+                />
+              </Field>
+            </div>
+
+            <Field>
+              <FieldLabel>Geschätzte Dauer: {draft.estimatedMinutes} Minuten</FieldLabel>
+              <Slider
+                value={draft.estimatedMinutes}
+                onValueChange={(value) => setDraft({ ...draft, estimatedMinutes: value as number })}
+                min={1}
+                max={60}
+                step={1}
               />
             </Field>
+
             <Field>
-              <FieldLabel>Schwierigkeit</FieldLabel>
-              <SimpleSelect
-                options={RIDDLE_DIFFICULTIES.map((item) => ({ value: item.value, label: item.label }))}
-                value={draft.difficulty}
-                onChange={(newValue) =>
-                  setDraft({ ...draft, difficulty: newValue as AnyRiddle["difficulty"] })
-                }
+              <FieldLabel>Aufgabe für die Spieler</FieldLabel>
+              <Textarea
+                value={draft.playerFacingTask}
+                onChange={(e) => setDraft({ ...draft, playerFacingTask: e.target.value })}
               />
+            </Field>
+
+            <Field>
+              <FieldLabel>
+                Lernziele <span className="text-xs text-muted-foreground">(Mehrfachauswahl)</span>
+              </FieldLabel>
+              {objectives.length === 0 ? (
+                <span className="text-sm text-muted-foreground">Es sind noch keine Lernziele definiert.</span>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button variant="outline" className="w-full justify-between font-normal">
+                        <span className="truncate">{selectedObjectivesLabel}</span>
+                        <ChevronDownIcon />
+                      </Button>
+                    }
+                  />
+                  <DropdownMenuContent align="start" className="max-w-[min(32rem,var(--available-width))]">
+                    {objectives.map((objective) => (
+                      <DropdownMenuCheckboxItem
+                        key={objective.id}
+                        checked={draft.learningObjectiveIds.includes(objective.id)}
+                        onCheckedChange={() => toggleObjective(objective.id)}
+                        closeOnClick={false}
+                      >
+                        <span className="whitespace-normal">{objective.description || objective.id}</span>
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </Field>
           </div>
 
-          <Field>
-            <FieldLabel>Geschätzte Dauer: {draft.estimatedMinutes} Minuten</FieldLabel>
-            <Slider
-              value={draft.estimatedMinutes}
-              onValueChange={(value) => setDraft({ ...draft, estimatedMinutes: value as number })}
-              min={1}
-              max={60}
-              step={1}
-            />
-          </Field>
+          <div className="flex flex-col gap-4">
+            <Separator className="lg:hidden" />
 
-          <Field>
-            <FieldLabel>Aufgabe für die Spieler</FieldLabel>
-            <Textarea
-              value={draft.playerFacingTask}
-              onChange={(e) => setDraft({ ...draft, playerFacingTask: e.target.value })}
-            />
-          </Field>
+            <Field>
+              <FieldLabel>Rätsel-Spezifische Einstellungen</FieldLabel>
+              <RiddleParametersEditor riddle={draft} setRiddle={setDraft} deerSchema={deerSchema} />
+            </Field>
 
-          <Field>
-            <FieldLabel>
-              Lernziele <span className="text-xs text-muted-foreground">(Mehrfachauswahl)</span>
-            </FieldLabel>
-            {objectives.length === 0 ? (
-              <span className="text-sm text-muted-foreground">Es sind noch keine Lernziele definiert.</span>
-            ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button variant="outline" className="w-full justify-between font-normal">
-                      <span className="truncate">{selectedObjectivesLabel}</span>
-                      <ChevronDownIcon />
-                    </Button>
-                  }
-                />
-                <DropdownMenuContent align="start" className="max-w-[min(32rem,var(--available-width))]">
-                  {objectives.map((objective) => (
-                    <DropdownMenuCheckboxItem
-                      key={objective.id}
-                      checked={draft.learningObjectiveIds.includes(objective.id)}
-                      onCheckedChange={() => toggleObjective(objective.id)}
-                      closeOnClick={false}
-                    >
-                      <span className="whitespace-normal">{objective.description || objective.id}</span>
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+            {/* <Separator /> */}
+
+            {draft.type === "collection" && (
+              <>
+                <Field>
+                  <FieldLabel>Material</FieldLabel>
+                  <ResourceListEditor
+                    resources={draft.resources}
+                    assets={deerSchema.assets}
+                    onChange={(updated) => setDraft({ ...draft, resources: updated })}
+                  />
+                </Field>
+                {/* <Separator /> */}
+              </>
             )}
-          </Field>
 
-          <Separator />
-
-          {draft.type === "collection" && (
-            <>
-              <Field>
-                <FieldLabel>Material</FieldLabel>
-                <ResourceListEditor
-                  resources={draft.resources}
-                  assets={deerSchema.assets}
-                  onChange={(updated) => setDraft({ ...draft, resources: updated })}
-                />
-              </Field>
-              <Separator />
-            </>
-          )}
-
-          <Field>
-            <FieldLabel>Hilfe</FieldLabel>
-            <HintListEditor
-              hints={draft.hints}
-              onChange={(updated) => setDraft({ ...draft, hints: updated })}
-            />
-          </Field>
-
-          <Separator />
-
-          <Field>
-            <FieldLabel>Einstellungen</FieldLabel>
-            <RiddleParametersEditor riddle={draft} setRiddle={setDraft} deerSchema={deerSchema} />
-          </Field>
+            <Field>
+              <FieldLabel>Hilfe</FieldLabel>
+              <HintListEditor
+                hints={draft.hints}
+                onChange={(updated) => setDraft({ ...draft, hints: updated })}
+              />
+            </Field>
+          </div>
         </div>
 
         <DialogFooter className="sm:justify-between">
