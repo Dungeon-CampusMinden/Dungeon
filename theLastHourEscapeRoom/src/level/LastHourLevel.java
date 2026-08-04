@@ -70,6 +70,7 @@ import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
 import starter.LastHourClient;
 import util.InteractionHelper;
+import util.LastHourAchievements;
 import util.LastHourQuestLogUtil;
 import util.LastHourSounds;
 import util.Lore;
@@ -157,6 +158,15 @@ public class LastHourLevel extends DungeonLevel {
               EventScheduler.scheduleAction(this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
             },
             true);
+    keypad
+        .fetch(KeypadComponent.class)
+        .ifPresent(
+            component -> {
+              component.onCorrectCode(
+                  () -> LastHourAchievements.popForAll(LastHourAchievements.KEYPAD_CODE));
+              component.onWrongCode(
+                  () -> LastHourAchievements.checkBruteforce(component.wrongCodeAttempts()));
+            });
     Game.add(keypad);
 
     setupPC();
@@ -206,6 +216,10 @@ public class LastHourLevel extends DungeonLevel {
                       .ifPresent(
                           pc -> {
                             LastHourQuestLogUtil.addEscapeQuestLogEntries();
+                            LastHourAchievements.popForAll(
+                                timerExpired
+                                    ? LastHourAchievements.ESCAPED_TOO_LATE
+                                    : LastHourAchievements.ESCAPED_IN_TIME);
                             BlackFadeCutscene.show(
                                 endingLoreTexts(), true, false, () -> Game.exit("Win"));
                           });
@@ -409,6 +423,7 @@ public class LastHourLevel extends DungeonLevel {
                                 "",
                                 () -> {
                                   ComputerStateComponent.setState(ComputerProgress.ON);
+                                  LastHourAchievements.popForAll(LastHourAchievements.LIGHTS_ON);
                                   LastHourQuestLogUtil.addPowerSwitchQuestLogEntry();
                                   LastHourQuestLogUtil.addInvestigatePcQuestLogEntry();
                                   Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
@@ -810,6 +825,7 @@ public class LastHourLevel extends DungeonLevel {
   protected void onTick() {
     checkPCStateUpdate();
     Game.allPlayers().filter(p -> !INTRO_SHOWN_TO.contains(p.id())).forEach(p -> showIntro(p.id()));
+    LastHourAchievements.checkAllUsbSticks();
     if (!Game.isHeadless()) {
       checkInteractFeedback();
       updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);

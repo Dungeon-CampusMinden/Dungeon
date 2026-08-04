@@ -12,6 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import contrib.achivements.AchievementMenuView;
+import contrib.achivements.AchievementSystem;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
@@ -57,6 +59,7 @@ public class PauseDialog extends Table {
   private Table contentTable;
   private Table mainMenu;
   private Table settingsMenu;
+  private Table achievementsMenu;
 
   private PauseDialog(Skin skin, DialogContext ctx) {
     this.skin = skin;
@@ -70,6 +73,7 @@ public class PauseDialog extends Table {
 
     mainMenu = createMainView(ctx);
     settingsMenu = createSettingsView(ctx);
+    achievementsMenu = createAchievementsView();
 
     contentTable.add(mainMenu);
     contentTable.pack();
@@ -148,6 +152,8 @@ public class PauseDialog extends Table {
     TextButton resumeBtn = Scene2dElementFactory.createButton(trans.text(T_RESUME), "green", 32);
     TextButton questlogBtn =
         Scene2dElementFactory.createButton(trans.text(T_QUESTLOG), "blue-outline", 32);
+    TextButton achievementsBtn =
+        Scene2dElementFactory.createButton("Achievements", "blue-outline", 32);
     TextButton settingsBtn =
         Scene2dElementFactory.createButton(trans.text(T_SETTINGS), "blue-outline", 32);
     TextButton quitBtn =
@@ -168,6 +174,14 @@ public class PauseDialog extends Table {
             Entity player = Game.player().orElseThrow();
             player.fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             QuestLogUI.requestQuestLog(player);
+            Sounds.play(CoreSounds.INTERFACE_BUTTON_CLICKED);
+          }
+        });
+    achievementsBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            showAchievements();
             Sounds.play(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
@@ -192,6 +206,9 @@ public class PauseDialog extends Table {
     menu.add(label).padBottom(30).align(Align.center).row();
     menu.add(resumeBtn).width(300).align(Align.center).padBottom(10).row();
     menu.add(questlogBtn).width(300).align(Align.center).padBottom(10).row();
+    if (AchievementSystem.isAvailable()) {
+      menu.add(achievementsBtn).width(300).align(Align.center).padBottom(10).row();
+    }
     menu.add(settingsBtn).width(300).align(Align.center).padBottom(70).row();
     menu.add(quitBtn).width(300).align(Align.center).padBottom(15).row();
 
@@ -201,6 +218,19 @@ public class PauseDialog extends Table {
     }
 
     return menu;
+  }
+
+  private Table createAchievementsView() {
+    TextButton backBtn = Scene2dElementFactory.createButton(trans.text(T_BACK), "green", 32);
+    backBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            showMainView();
+            Sounds.play(CoreSounds.INTERFACE_BUTTON_CLICKED);
+          }
+        });
+    return AchievementMenuView.build(backBtn);
   }
 
   /**
@@ -302,6 +332,14 @@ public class PauseDialog extends Table {
   private void showSettings() {
     contentTable.clearChildren();
     contentTable.add(settingsMenu);
+    contentTable.pack();
+    this.pack();
+  }
+
+  private void showAchievements() {
+    achievementsMenu = createAchievementsView();
+    contentTable.clearChildren();
+    contentTable.add(achievementsMenu);
     contentTable.pack();
     this.pack();
   }

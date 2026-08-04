@@ -9,10 +9,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.elements.RichLabel;
+import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.Cursors;
 import core.utils.Scene2dElementFactory;
 import modules.computer.ComputerDialog;
+import modules.computer.ComputerFactory;
 import modules.computer.ComputerStateComponent;
 
 /**
@@ -236,6 +239,9 @@ public class UsbDriveTab extends ComputerTab {
                     dialog, "file-" + HINT_FILE, () -> new FileTab(sharedState(), HINT_FILE));
               } else if (CONTROL_PANEL_KEY_FILE.equals(fileName)) {
                 localState().controlPanelOpen(true);
+                DialogCallbackResolver.createButtonCallback(
+                        context().dialogId(), ComputerFactory.CONTROL_PANEL_OPENED_KEY)
+                    .accept(new DialogResponseMessage.StringValue(CONTROL_PANEL_KEY_FILE));
                 openOrFocus(dialog, ControlPanelTab.KEY, () -> new ControlPanelTab(sharedState()));
               }
               // Other entries are bogus and silently do nothing.

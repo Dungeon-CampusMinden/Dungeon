@@ -28,6 +28,7 @@ import java.util.Set;
 import level.LastHourLevel;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
+import util.LastHourAchievements;
 import util.LastHourQuestLogUtil;
 import util.LastHourSounds;
 import util.Lore;
@@ -41,6 +42,9 @@ public class ComputerFactory {
 
   /** Key for updating the computer state from the dialog callbacks. */
   public static final String UPDATE_STATE_KEY = "update_state";
+
+  /** Callback key fired when a player opens the control panel tab. */
+  public static final String CONTROL_PANEL_OPENED_KEY = "control_panel_opened";
 
   /** Delay in milliseconds between triggering the unknown-device virus and the forced shutdown. */
   public static final long UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS = 10_000L;
@@ -198,6 +202,7 @@ public class ComputerFactory {
           "Wrong USB stick inserted: " + stick.color().displayName() + " - triggering virus");
       LastHourQuestLogUtil.addUsbUsedQuestLogEntry();
       LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
+      LastHourAchievements.popForAll(LastHourAchievements.VIRUS);
       ComputerStateComponent.setInfection(true);
       ComputerStateComponent.setVirusType(Lore.UnknownDeviceVirusType);
       openComputerDialog(pcEntity, who);
@@ -283,6 +288,7 @@ public class ComputerFactory {
 
                 if (newState.isInfected() && !wasInfected) {
                   LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
+                  LastHourAchievements.popForAll(LastHourAchievements.VIRUS);
                   Game.add(
                       EmoteFactory.createEmote(
                           LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
@@ -292,8 +298,12 @@ public class ComputerFactory {
                 if (!previousState.state().hasReached(ComputerProgress.LOGGED_IN)
                     && newState.state().hasReached(ComputerProgress.LOGGED_IN)) {
                   LastHourQuestLogUtil.addMailReviewQuestLogEntry();
+                  LastHourAchievements.popForAll(LastHourAchievements.PC_UNLOCKED);
                 }
               });
+          computerDialogInstance.registerCallback(
+              CONTROL_PANEL_OPENED_KEY,
+              data -> LastHourAchievements.popForAll(LastHourAchievements.CONTROL_PANEL));
         });
   }
 

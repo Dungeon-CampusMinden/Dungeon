@@ -2,6 +2,7 @@ package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import contrib.achivements.AchievementPopup;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.inventory.InventoryGUI;
@@ -60,6 +61,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.KEYPAD, KeypadUI::build);
     register(DialogType.DefaultTypes.PROGRESS_BAR, AttributeBarUtil::buildProgressBar);
     register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);
+    register(DialogType.DefaultTypes.ACHIEVEMENT_POPUP, AchievementPopup::build);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);
     register(DialogType.DefaultTypes.DIALOG_DIALOG, DialogDialog::build);
     register(DialogType.DefaultTypes.PUZZLE, PuzzleDialog::build);

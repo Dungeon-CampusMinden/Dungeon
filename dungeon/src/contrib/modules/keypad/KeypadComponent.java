@@ -16,6 +16,9 @@ public class KeypadComponent implements Component {
   private boolean isUnlocked = false;
   private boolean showDigitCount;
   private Runnable action;
+  private Runnable onCorrectCode = () -> {};
+  private Runnable onWrongCode = () -> {};
+  private int wrongCodeAttempts = 0;
   private Entity overlay;
 
   /**
@@ -107,21 +110,24 @@ public class KeypadComponent implements Component {
 
   /** Checks if the entered digits match the correct digits and unlocks if they do. */
   public void checkUnlock() {
-    boolean isCorrect = true;
-    if (enteredDigits.size() == correctDigits.size()) {
+    boolean completeCodeEntered = enteredDigits.size() == correctDigits.size();
+    boolean isCorrect = completeCodeEntered;
+    if (completeCodeEntered) {
       for (int i = 0; i < enteredDigits.size(); i++) {
         if (!Objects.equals(enteredDigits.get(i), correctDigits.get(i))) {
           isCorrect = false;
           break;
         }
       }
-    } else {
-      isCorrect = false;
     }
 
     if (isCorrect) {
       isUnlocked = true;
-      action.run();
+      if (action != null) action.run();
+      onCorrectCode.run();
+    } else if (completeCodeEntered) {
+      wrongCodeAttempts++;
+      onWrongCode.run();
     }
   }
 
@@ -213,6 +219,33 @@ public class KeypadComponent implements Component {
    */
   public void action(Runnable action) {
     this.action = action;
+  }
+
+  /**
+   * Registers a callback executed after the keypad is unlocked with the correct code.
+   *
+   * @param onCorrectCode callback to run
+   */
+  public void onCorrectCode(Runnable onCorrectCode) {
+    this.onCorrectCode = onCorrectCode == null ? () -> {} : onCorrectCode;
+  }
+
+  /**
+   * Registers a callback executed after each failed submit.
+   *
+   * @param onWrongCode callback to run
+   */
+  public void onWrongCode(Runnable onWrongCode) {
+    this.onWrongCode = onWrongCode == null ? () -> {} : onWrongCode;
+  }
+
+  /**
+   * Returns the number of failed submit attempts.
+   *
+   * @return failed submit count
+   */
+  public int wrongCodeAttempts() {
+    return wrongCodeAttempts;
   }
 
   /**

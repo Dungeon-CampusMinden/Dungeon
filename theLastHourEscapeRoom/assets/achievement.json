@@ -1,0 +1,74 @@
+{
+  "achievements": [
+    {
+      "imagePath": "hud/kenney/flag_square.png",
+      "name": "Lights On",
+      "beschreibung": "Flip the hidden switch below the stacks of paper.",
+      "hidden": false,
+      "unlocked": false
+    },
+    {
+      "imagePath": "images/crumbled-paper.png",
+      "name": "Trash Diver",
+      "beschreibung": "Search through a trashcan.",
+      "hidden": false,
+      "unlocked": false
+    },
+    {
+      "imagePath": "images/company_logo.png",
+      "name": "PC Unlocked",
+      "beschreibung": "Log in to the office computer.",
+      "hidden": false,
+      "unlocked": false
+    },
+    {
+      "imagePath": "images/virus-phrases.png",
+      "name": "Virus",
+      "beschreibung": "Trigger a virus on the office computer.",
+      "hidden": false,
+      "unlocked": false
+    },
+    {
+      "imagePath": "hud/kenney/chess_king.png",
+      "name": "Keypad Code",
+      "beschreibung": "Enter the correct code on the keypad.",
+      "hidden": false,
+      "unlocked": false
+    },
+    {
+      "imagePath": "hud/kenney/skull.png",
+      "name": "Bruteforce",
+      "beschreibung": "Enter ten wrong codes on the keypad.",
+      "hidden": false,
+      "unlocked": false
+    },
+    {
+      "imagePath": "items/usb-side-blue.png",
+      "name": "USB Collector",
+      "beschreibung": "Collect all four USB sticks.",
+      "hidden": false,
+      "unlocked": false
+    },
+    {
+      "imagePath": "images/decoder_74155.png",
+      "name": "Control Panel",
+      "beschreibung": "Open the control panel tab on the computer.",
+      "hidden": false,
+      "unlocked": false
+    },
+    {
+      "imagePath": "images/final-code.png",
+      "name": "Escaped In Time",
+      "beschreibung": "Finish the game before the timer runs out.",
+      "hidden": false,
+      "unlocked": false
+    },
+    {
+      "imagePath": "images/random_nothing.png",
+      "name": "Escaped Too Late",
+      "beschreibung": "Finish the game after the timer has run out.",
+      "hidden": false,
+      "unlocked": false
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 package modules.trash;
 
+import contrib.achivements.AchievementSystem;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
@@ -33,6 +34,7 @@ import modules.computer.LastHourDialogTypes;
 public final class TrashMinigameFactory {
 
   private static final String FALLBACK_TEXTURE_PATH = "items/rpg/item_paper.png";
+  private static final String ACHIEVEMENT_TRASH_DIVER = "Trash Diver";
 
   private static boolean registered = false;
 
@@ -51,6 +53,7 @@ public final class TrashMinigameFactory {
   public static void show(Entity who, Item reward, int paperCount, Runnable afterAward) {
     Objects.requireNonNull(who, "who");
     ensureRegistered();
+    AchievementSystem.instance().popFor(who, ACHIEVEMENT_TRASH_DIVER);
 
     DialogContext.Builder builder =
         DialogContext.builder()
