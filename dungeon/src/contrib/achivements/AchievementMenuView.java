@@ -9,25 +9,40 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
+import core.language.Translation;
 import core.utils.FontSpec;
 import core.utils.Scene2dElementFactory;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.SimpleIPath;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /** Scene2D factory for the achievements page in the main menu. */
-public final class AchievementMenuView {
+public final class AchievementMenuView extends Table {
 
   private static final String TITLE_FONT = "fonts/Roboto-Bold.ttf";
   private static final String BODY_FONT = "fonts/Roboto-Regular.ttf";
-  private static final String HIDDEN_NAME = "Hidden Achievement";
-  private static final String HIDDEN_DESCRIPTION = "Unlock this achievement to reveal it.";
+  private static final String T_TITLE = "title";
+  private static final String T_HIDDEN_NAME = "hidden_name";
+  private static final String T_HIDDEN_DESCRIPTION = "hidden_description";
+  private static final String T_PROGRESS = "progress";
   private static final Color TEXT = Color.BLACK;
   private static final Color LOCKED_TEXT = new Color(0.38f, 0.38f, 0.38f, 1f);
   private static final Color LOCKED_ICON = new Color(0.35f, 0.35f, 0.35f, 1f);
   private static final String FALLBACK_IMAGE = "animation/missing_texture.png";
+  private static final float REFRESH_INTERVAL_SECONDS = 0.25f;
+  private static final Translation TRANS = new Translation("achievement.menu");
 
-  private AchievementMenuView() {}
+  private final Table achievementList = new Table();
+  private final Label progressLabel =
+      Scene2dElementFactory.createLabel("", FontSpec.of(BODY_FONT, 22, Color.DARK_GRAY));
+  private float refreshTimer;
+  private String lastSnapshot = "";
+
+  private AchievementMenuView(TextButton backButton) {
+    buildLayout(backButton);
+    refreshIfChanged();
+  }
 
   /**
    * Builds the achievements page.
@@ -36,32 +51,71 @@ public final class AchievementMenuView {
    * @return achievements page
    */
   public static Table build(TextButton backButton) {
-    Label title =
-        Scene2dElementFactory.createLabel("Achievements", FontSpec.of(TITLE_FONT, 48, Color.BLACK));
+    return new AchievementMenuView(backButton);
+  }
 
-    Table achievementList = new Table();
-    achievementList.defaults().growX().padBottom(10f);
-    List<Achievement> achievements = AchievementSystem.menuAchievements();
-    for (Achievement achievement : achievements) {
-      achievementList.add(row(achievement)).row();
+  @Override
+  public void act(float delta) {
+    super.act(delta);
+    refreshTimer += delta;
+    if (refreshTimer >= REFRESH_INTERVAL_SECONDS) {
+      refreshTimer = 0f;
+      refreshIfChanged();
     }
+  }
+
+  private void buildLayout(TextButton backButton) {
+    Label title =
+        Scene2dElementFactory.createLabel(
+            TRANS.text(T_TITLE), FontSpec.of(TITLE_FONT, 48, Color.BLACK));
+
+    achievementList.defaults().growX().padBottom(10f);
 
     ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(achievementList, false, true);
 
-    Table menu = new Table();
-    menu.add(title).padBottom(15).align(Align.center).row();
-    menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padBottom(5).row();
-    menu.add(scrollPane).width(650).height(420).row();
-    menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(5).row();
-    menu.add(backButton).width(300).padTop(15).padBottom(15).row();
-    return menu;
+    add(title).padBottom(15).align(Align.center).row();
+    add(progressLabel).padBottom(10).align(Align.center).row();
+    add(Scene2dElementFactory.createHorizontalDivider()).growX().padBottom(5).row();
+    add(scrollPane).width(650).height(420).row();
+    add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(5).row();
+    add(backButton).width(300).padTop(15).padBottom(15).row();
+  }
+
+  private void refreshIfChanged() {
+    List<Achievement> achievements = AchievementSystem.menuAchievements();
+    String snapshot = snapshot(achievements);
+    if (snapshot.equals(lastSnapshot)) {
+      return;
+    }
+    lastSnapshot = snapshot;
+    long unlockedCount = achievements.stream().filter(Achievement::unlocked).count();
+    progressLabel.setText(TRANS.text(T_PROGRESS, unlockedCount, achievements.size()));
+    achievementList.clearChildren();
+    for (Achievement achievement : achievements) {
+      achievementList.add(row(achievement)).row();
+    }
+  }
+
+  private String snapshot(List<Achievement> achievements) {
+    return achievements.stream()
+        .map(
+            achievement ->
+                achievement.name()
+                    + ":"
+                    + achievement.unlocked()
+                    + ":"
+                    + achievement.displayName()
+                    + ":"
+                    + achievement.displayDescription())
+        .collect(Collectors.joining("|"));
   }
 
   private static Table row(Achievement achievement) {
     boolean unlocked = achievement.unlocked();
     boolean hidden = achievement.hidden() && !unlocked;
-    String name = hidden ? HIDDEN_NAME : achievement.name();
-    String description = hidden ? HIDDEN_DESCRIPTION : achievement.neschreibung();
+    String name = hidden ? TRANS.text(T_HIDDEN_NAME) : achievement.displayName();
+    String description =
+        hidden ? TRANS.text(T_HIDDEN_DESCRIPTION) : achievement.displayDescription();
     Color textColor = unlocked ? TEXT : LOCKED_TEXT;
 
     Image icon = new Image(texture(achievement.imagePath()));

@@ -163,9 +163,10 @@ public class LastHourLevel extends DungeonLevel {
         .ifPresent(
             component -> {
               component.onCorrectCode(
-                  () -> LastHourAchievements.popForAll(LastHourAchievements.KEYPAD_CODE));
+                  player -> LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE));
               component.onWrongCode(
-                  () -> LastHourAchievements.checkBruteforce(component.wrongCodeAttempts()));
+                  player ->
+                      LastHourAchievements.checkBruteforce(player, component.wrongCodeAttempts()));
             });
     Game.add(keypad);
 
@@ -216,7 +217,8 @@ public class LastHourLevel extends DungeonLevel {
                       .ifPresent(
                           pc -> {
                             LastHourQuestLogUtil.addEscapeQuestLogEntries();
-                            LastHourAchievements.popForAll(
+                            LastHourAchievements.trigger(
+                                other,
                                 timerExpired
                                     ? LastHourAchievements.ESCAPED_TOO_LATE
                                     : LastHourAchievements.ESCAPED_IN_TIME);
@@ -423,7 +425,7 @@ public class LastHourLevel extends DungeonLevel {
                                 "",
                                 () -> {
                                   ComputerStateComponent.setState(ComputerProgress.ON);
-                                  LastHourAchievements.popForAll(LastHourAchievements.LIGHTS_ON);
+                                  LastHourAchievements.trigger(who, LastHourAchievements.LIGHTS_ON);
                                   LastHourQuestLogUtil.addPowerSwitchQuestLogEntry();
                                   LastHourQuestLogUtil.addInvestigatePcQuestLogEntry();
                                   Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);

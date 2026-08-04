@@ -2,7 +2,9 @@ package contrib.achivements;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import core.Game;
 import core.components.PlayerComponent;
+import core.game.PreRunConfiguration;
 import core.utils.JsonHandler;
 import core.utils.logging.DungeonLogger;
 import java.io.IOException;
@@ -29,8 +31,14 @@ final class AchievementStore {
   private static final String KEY_DESCRIPTION = "description";
   private static final String KEY_BESCHREIBUNG = "beschreibung";
   private static final String KEY_NESCHREIBUNG = "neschreibung";
+  private static final String KEY_NAME_KEY = "nameKey";
+  private static final String KEY_DESCRIPTION_KEY = "descriptionKey";
   private static final String KEY_HIDDEN = "hidden";
   private static final String KEY_UNLOCKED = "unlocked";
+  private static final String KEY_UNLOCK_FOR_ALL = "unlockForAll";
+  private static final String KEY_UNLOCK_SCOPE = "unlockScope";
+  private static final String KEY_SCOPE = "scope";
+  private static final String KEY_PLATINUM = "platinum";
   private static final String KEY_GLOBAL = "global";
   private static final String KEY_PLAYERS = "players";
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AchievementStore.class);
@@ -62,8 +70,9 @@ final class AchievementStore {
 
   List<Achievement> achievementsForMenu() {
     ensureLoaded();
+    PlayerComponent viewer = localPlayerComponent().orElse(null);
     return definitions.values().stream()
-        .map(achievement -> achievement.withUnlocked(isUnlockedAnywhere(achievement.name())))
+        .map(achievement -> achievement.withUnlocked(isUnlockedFor(viewer, achievement.name())))
         .toList();
   }
 
@@ -97,9 +106,21 @@ final class AchievementStore {
     return true;
   }
 
-  private boolean isUnlockedAnywhere(String name) {
-    return isGloballyUnlocked(name)
-        || playerUnlocks.values().stream().anyMatch(unlocks -> unlocks.contains(name));
+  Optional<Achievement> platinumAchievement() {
+    ensureLoaded();
+    return definitions.values().stream().filter(Achievement::platinum).findFirst();
+  }
+
+  boolean allNonPlatinumAchievementsUnlocked(PlayerComponent player) {
+    ensureLoaded();
+    return definitions.values().stream()
+        .filter(achievement -> !achievement.platinum())
+        .allMatch(achievement -> isUnlockedFor(player, achievement.name()));
+  }
+
+  boolean isUnlockedFor(PlayerComponent player, String name) {
+    ensureLoaded();
+    return isGloballyUnlocked(name) || playerUnlocksFor(player).contains(name);
   }
 
   private boolean isGloballyUnlocked(String name) {
@@ -107,11 +128,24 @@ final class AchievementStore {
     return globalUnlocks.contains(name) || (definition != null && definition.unlocked());
   }
 
+  private Set<String> playerUnlocksFor(PlayerComponent player) {
+    return playerUnlocks.getOrDefault(playerName(player), Set.of());
+  }
+
   private String playerName(PlayerComponent player) {
     if (player == null || player.playerName() == null || player.playerName().isBlank()) {
-      return "Player";
+      return fallbackPlayerName();
     }
     return player.playerName();
+  }
+
+  private String fallbackPlayerName() {
+    String username = PreRunConfiguration.username();
+    return username == null || username.isBlank() ? "Player" : username;
+  }
+
+  private Optional<PlayerComponent> localPlayerComponent() {
+    return Game.player().flatMap(player -> player.fetch(PlayerComponent.class));
   }
 
   private void ensureLoaded() {
@@ -171,9 +205,25 @@ final class AchievementStore {
             .or(() -> optionalStringValue(map, KEY_BESCHREIBUNG))
             .or(() -> optionalStringValue(map, KEY_NESCHREIBUNG))
             .orElse("");
+    String nameKey = optionalStringValue(map, KEY_NAME_KEY).orElse("");
+    String descriptionKey = optionalStringValue(map, KEY_DESCRIPTION_KEY).orElse("");
     boolean hidden = booleanValue(map, KEY_HIDDEN, false);
     boolean unlocked = booleanValue(map, KEY_UNLOCKED, false);
-    return new Achievement(imagePath, name, description, hidden, unlocked);
+    Object scope =
+        map.containsKey(KEY_UNLOCK_SCOPE) ? map.get(KEY_UNLOCK_SCOPE) : map.get(KEY_SCOPE);
+    AchievementUnlockScope unlockScope =
+        AchievementUnlockScope.fromJson(map.get(KEY_UNLOCK_FOR_ALL), scope);
+    boolean platinum = booleanValue(map, KEY_PLATINUM, false);
+    return new Achievement(
+        imagePath,
+        name,
+        description,
+        nameKey,
+        descriptionKey,
+        hidden,
+        unlocked,
+        unlockScope,
+        platinum);
   }
 
   private Map<String, Object> asStringObjectMap(Map<?, ?> rawMap) {

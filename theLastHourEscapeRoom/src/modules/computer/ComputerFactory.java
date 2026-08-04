@@ -202,7 +202,7 @@ public class ComputerFactory {
           "Wrong USB stick inserted: " + stick.color().displayName() + " - triggering virus");
       LastHourQuestLogUtil.addUsbUsedQuestLogEntry();
       LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
-      LastHourAchievements.popForAll(LastHourAchievements.VIRUS);
+      LastHourAchievements.trigger(who, LastHourAchievements.VIRUS);
       ComputerStateComponent.setInfection(true);
       ComputerStateComponent.setVirusType(Lore.UnknownDeviceVirusType);
       openComputerDialog(pcEntity, who);
@@ -288,7 +288,7 @@ public class ComputerFactory {
 
                 if (newState.isInfected() && !wasInfected) {
                   LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
-                  LastHourAchievements.popForAll(LastHourAchievements.VIRUS);
+                  LastHourAchievements.trigger(who, LastHourAchievements.VIRUS);
                   Game.add(
                       EmoteFactory.createEmote(
                           LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
@@ -298,12 +298,12 @@ public class ComputerFactory {
                 if (!previousState.state().hasReached(ComputerProgress.LOGGED_IN)
                     && newState.state().hasReached(ComputerProgress.LOGGED_IN)) {
                   LastHourQuestLogUtil.addMailReviewQuestLogEntry();
-                  LastHourAchievements.popForAll(LastHourAchievements.PC_UNLOCKED);
+                  LastHourAchievements.trigger(who, LastHourAchievements.PC_UNLOCKED);
                 }
               });
           computerDialogInstance.registerCallback(
               CONTROL_PANEL_OPENED_KEY,
-              data -> LastHourAchievements.popForAll(LastHourAchievements.CONTROL_PANEL));
+              data -> LastHourAchievements.trigger(who, LastHourAchievements.CONTROL_PANEL));
         });
   }
 

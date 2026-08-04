@@ -29,22 +29,33 @@ public final class LastHourAchievements {
   private LastHourAchievements() {}
 
   /**
-   * Unlocks a global achievement for every player.
+   * Triggers an achievement that does not have a specific acting player.
    *
    * @param name achievement id/name
    */
-  public static void popForAll(String name) {
+  public static void trigger(String name) {
     AchievementSystem.instance().pop(name);
+  }
+
+  /**
+   * Triggers an achievement for an acting player.
+   *
+   * @param player player who caused the achievement trigger
+   * @param name achievement id/name
+   */
+  public static void trigger(Entity player, String name) {
+    AchievementSystem.instance().popFor(player, name);
   }
 
   /**
    * Unlocks Bruteforce after enough wrong keypad submissions.
    *
+   * @param player player who submitted the wrong code
    * @param wrongCodeAttempts wrong submit count
    */
-  public static void checkBruteforce(int wrongCodeAttempts) {
+  public static void checkBruteforce(Entity player, int wrongCodeAttempts) {
     if (wrongCodeAttempts >= BRUTEFORCE_ATTEMPTS) {
-      popForAll(BRUTEFORCE);
+      trigger(player, BRUTEFORCE);
     }
   }
 
@@ -58,27 +69,7 @@ public final class LastHourAchievements {
                     .fetch(InventoryComponent.class)
                     .ifPresent(inventory -> addUsbStickColors(inventory, colors)));
     if (colors.size() == UsbStickColor.values().length) {
-      popForAll(USB_COLLECTOR);
-    }
-  }
-
-  /**
-   * Checks whether the given player carries all four USB stick colors.
-   *
-   * @param player player to inspect
-   */
-  public static void checkAllUsbSticks(Entity player) {
-    if (player == null) {
-      return;
-    }
-    player.fetch(InventoryComponent.class).ifPresent(LastHourAchievements::checkAllUsbSticks);
-  }
-
-  private static void checkAllUsbSticks(InventoryComponent inventory) {
-    Set<UsbStickColor> colors = EnumSet.noneOf(UsbStickColor.class);
-    addUsbStickColors(inventory, colors);
-    if (colors.size() == UsbStickColor.values().length) {
-      popForAll(USB_COLLECTOR);
+      trigger(USB_COLLECTOR);
     }
   }
 

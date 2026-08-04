@@ -1,10 +1,10 @@
 package contrib.questlog;
 
+import contrib.utils.UISoundUtils;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.sound.CoreSounds;
-import core.sound.Sounds;
 import java.util.Optional;
 
 /**
@@ -211,7 +211,7 @@ public final class QuestLogUtil {
     boolean added =
         getQuestLogComponent().map(component -> component.add(tab, entry)).orElse(false);
     if (added) {
-      Sounds.play(CoreSounds.INTERFACE_QUESTLOG_ENTRY_CREATED);
+      UISoundUtils.play(CoreSounds.INTERFACE_QUESTLOG_ENTRY_CREATED);
     }
     return added;
   }

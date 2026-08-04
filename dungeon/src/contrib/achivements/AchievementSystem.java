@@ -6,6 +6,7 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogType;
 import contrib.systems.EventScheduler;
 import core.Entity;
+import core.Game;
 import core.System;
 import core.components.PlayerComponent;
 import core.utils.logging.DungeonLogger;
@@ -61,62 +62,129 @@ public class AchievementSystem extends System {
   /**
    * Returns the menu view of all achievements.
    *
-   * @return achievements with current aggregate unlock state
+   * @return achievements with current local player unlock state
    */
   public static List<Achievement> menuAchievements() {
     return instance().store.achievementsForMenu();
   }
 
   /**
-   * Unlocks an achievement globally for all current players.
+   * Unlocks an achievement according to its configured unlock scope.
    *
    * @param name achievement id/name
    */
   public void pop(String name) {
-    popForAll(name);
+    popFor(null, name);
   }
 
   /**
-   * Unlocks an achievement globally for all current players.
-   *
-   * @param name achievement id/name
-   */
-  public void popForAll(String name) {
-    Optional<Achievement> achievement = store.definition(name);
-    if (achievement.isEmpty()) {
-      LOGGER.warn("Achievement '{}' is not defined.", name);
-      return;
-    }
-    if (!store.unlockGlobally(name)) {
-      return;
-    }
-    showPopup(achievement.get());
-  }
-
-  /**
-   * Unlocks an achievement only for the player who triggered the action.
+   * Unlocks an achievement according to its configured unlock scope.
    *
    * @param player player entity
    * @param name achievement id/name
    */
   public void popFor(Entity player, String name) {
-    if (player == null) {
-      popForAll(name);
-      return;
-    }
     Optional<Achievement> achievement = store.definition(name);
     if (achievement.isEmpty()) {
       LOGGER.warn("Achievement '{}' is not defined.", name);
       return;
     }
-    PlayerComponent playerComponent = player.fetch(PlayerComponent.class).orElse(null);
-    if (!store.unlockForPlayer(playerComponent, name)) {
-      return;
+    if (achievement.get().unlocksForAll()) {
+      unlockForAll(achievement.get(), player);
+    } else {
+      unlockForPlayer(player, achievement.get());
     }
-    showPopup(achievement.get(), player.id());
   }
 
-  private void showPopup(Achievement achievement, int... targetEntityIds) {
+  private void unlockForAll(Achievement achievement, Entity triggeringPlayer) {
+    if (!store.unlockGlobally(achievement.name())) {
+      return;
+    }
+    showPopup(achievement, true);
+    unlockPlatinumIfComplete(achievement, triggeringPlayer);
+  }
+
+  private void unlockForPlayer(Entity player, Achievement achievement) {
+    if (player == null) {
+      LOGGER.warn(
+          "Achievement '{}' needs a triggering player but was triggered without one.",
+          achievement.name());
+      return;
+    }
+    PlayerComponent playerComponent = player.fetch(PlayerComponent.class).orElse(null);
+    if (!store.unlockForPlayer(playerComponent, achievement.name())) {
+      return;
+    }
+    showPopup(achievement, false, player.id());
+    unlockPlatinumIfComplete(achievement, player);
+  }
+
+  /**
+   * Records an unlock received through an achievement popup on this local client.
+   *
+   * @param name achievement id/name
+   * @param global whether the unlock applies globally
+   */
+  public static void markUnlockedFromPopup(String name, boolean global) {
+    instance().recordPopupUnlock(name, global);
+  }
+
+  private void recordPopupUnlock(String name, boolean global) {
+    if (store.definition(name).isEmpty()) {
+      return;
+    }
+    if (global) {
+      store.unlockGlobally(name);
+      return;
+    }
+    PlayerComponent playerComponent =
+        Game.player().flatMap(player -> player.fetch(PlayerComponent.class)).orElse(null);
+    store.unlockForPlayer(playerComponent, name);
+  }
+
+  private void unlockPlatinumIfComplete(Achievement unlockedAchievement, Entity triggeringPlayer) {
+    if (unlockedAchievement.platinum()) {
+      return;
+    }
+    Optional<Achievement> platinumAchievement = store.platinumAchievement();
+    if (platinumAchievement.isEmpty()) {
+      return;
+    }
+    Achievement platinum = platinumAchievement.get();
+    if (platinum.unlocksForAll()) {
+      PlayerComponent playerComponent = playerComponent(triggeringPlayer).orElse(null);
+      if (store.allNonPlatinumAchievementsUnlocked(playerComponent)
+          && store.unlockGlobally(platinum.name())) {
+        showPopup(platinum, true);
+      }
+      return;
+    }
+    if (unlockedAchievement.unlocksForAll()) {
+      Game.allPlayers().forEach(player -> unlockPlatinumForPlayer(player, platinum));
+    } else {
+      unlockPlatinumForPlayer(triggeringPlayer, platinum);
+    }
+  }
+
+  private void unlockPlatinumForPlayer(Entity player, Achievement platinum) {
+    if (player == null) {
+      return;
+    }
+    PlayerComponent playerComponent = playerComponent(player).orElse(null);
+    if (store.allNonPlatinumAchievementsUnlocked(playerComponent)
+        && store.unlockForPlayer(playerComponent, platinum.name())) {
+      showPopup(platinum, false, player.id());
+    }
+  }
+
+  private Optional<PlayerComponent> playerComponent(Entity player) {
+    if (player == null) {
+      return Optional.empty();
+    }
+    return player.fetch(PlayerComponent.class);
+  }
+
+  private void showPopup(Achievement achievement, boolean global, int... targetEntityIds) {
     DialogContext context =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.ACHIEVEMENT_POPUP)
@@ -124,6 +192,9 @@ public class AchievementSystem extends System {
             .put(AchievementPopup.KEY_IMAGE_PATH, achievement.imagePath())
             .put(AchievementPopup.KEY_NAME, achievement.name())
             .put(AchievementPopup.KEY_DESCRIPTION, achievement.neschreibung())
+            .put(AchievementPopup.KEY_NAME_KEY, achievement.nameKey())
+            .put(AchievementPopup.KEY_DESCRIPTION_KEY, achievement.descriptionKey())
+            .put(AchievementPopup.KEY_GLOBAL, global)
             .build();
 
     UIComponent ui = contrib.hud.dialogs.DialogFactory.show(context, false, false, targetEntityIds);

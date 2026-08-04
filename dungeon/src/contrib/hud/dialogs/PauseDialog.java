@@ -43,6 +43,7 @@ public class PauseDialog extends Table {
   private static final String T_PAUSED = "paused";
   private static final String T_RESUME = "resume";
   private static final String T_QUESTLOG = "questlog";
+  private static final String T_ACHIEVEMENTS = "achievements";
   private static final String T_SETTINGS = "settings";
   private static final String T_QUIT_TO_DESKTOP = "quit_to_desktop";
   private static final String T_BACK = "back";
@@ -153,7 +154,7 @@ public class PauseDialog extends Table {
     TextButton questlogBtn =
         Scene2dElementFactory.createButton(trans.text(T_QUESTLOG), "blue-outline", 32);
     TextButton achievementsBtn =
-        Scene2dElementFactory.createButton("Achievements", "blue-outline", 32);
+        Scene2dElementFactory.createButton(trans.text(T_ACHIEVEMENTS), "blue-outline", 32);
     TextButton settingsBtn =
         Scene2dElementFactory.createButton(trans.text(T_SETTINGS), "blue-outline", 32);
     TextButton quitBtn =

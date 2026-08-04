@@ -5,6 +5,7 @@ import core.Entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /** Component that represents a keypad with a code that can be entered. */
@@ -16,8 +17,8 @@ public class KeypadComponent implements Component {
   private boolean isUnlocked = false;
   private boolean showDigitCount;
   private Runnable action;
-  private Runnable onCorrectCode = () -> {};
-  private Runnable onWrongCode = () -> {};
+  private Consumer<Entity> onCorrectCode = caller -> {};
+  private Consumer<Entity> onWrongCode = caller -> {};
   private int wrongCodeAttempts = 0;
   private Entity overlay;
 
@@ -110,6 +111,15 @@ public class KeypadComponent implements Component {
 
   /** Checks if the entered digits match the correct digits and unlocks if they do. */
   public void checkUnlock() {
+    checkUnlock(null);
+  }
+
+  /**
+   * Checks if the entered digits match the correct digits and unlocks if they do.
+   *
+   * @param caller entity that submitted the code
+   */
+  public void checkUnlock(Entity caller) {
     boolean completeCodeEntered = enteredDigits.size() == correctDigits.size();
     boolean isCorrect = completeCodeEntered;
     if (completeCodeEntered) {
@@ -124,10 +134,10 @@ public class KeypadComponent implements Component {
     if (isCorrect) {
       isUnlocked = true;
       if (action != null) action.run();
-      onCorrectCode.run();
+      onCorrectCode.accept(caller);
     } else if (completeCodeEntered) {
       wrongCodeAttempts++;
-      onWrongCode.run();
+      onWrongCode.accept(caller);
     }
   }
 
@@ -227,7 +237,16 @@ public class KeypadComponent implements Component {
    * @param onCorrectCode callback to run
    */
   public void onCorrectCode(Runnable onCorrectCode) {
-    this.onCorrectCode = onCorrectCode == null ? () -> {} : onCorrectCode;
+    this.onCorrectCode = onCorrectCode == null ? caller -> {} : caller -> onCorrectCode.run();
+  }
+
+  /**
+   * Registers a callback executed after the keypad is unlocked with the correct code.
+   *
+   * @param onCorrectCode callback receiving the submitting entity
+   */
+  public void onCorrectCode(Consumer<Entity> onCorrectCode) {
+    this.onCorrectCode = onCorrectCode == null ? caller -> {} : onCorrectCode;
   }
 
   /**
@@ -236,7 +255,16 @@ public class KeypadComponent implements Component {
    * @param onWrongCode callback to run
    */
   public void onWrongCode(Runnable onWrongCode) {
-    this.onWrongCode = onWrongCode == null ? () -> {} : onWrongCode;
+    this.onWrongCode = onWrongCode == null ? caller -> {} : caller -> onWrongCode.run();
+  }
+
+  /**
+   * Registers a callback executed after each complete failed submit.
+   *
+   * @param onWrongCode callback receiving the submitting entity
+   */
+  public void onWrongCode(Consumer<Entity> onWrongCode) {
+    this.onWrongCode = onWrongCode == null ? caller -> {} : onWrongCode;
   }
 
   /**

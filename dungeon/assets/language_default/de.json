@@ -23,6 +23,7 @@
       "paused": "PAUSIERT",
       "resume": "Fortsetzen",
       "questlog": "Questlog",
+      "achievements": "Achievements",
       "settings": "Einstellungen",
       "quit_to_desktop": "Spiel beenden",
       "back": "Zurück",
@@ -66,6 +67,17 @@
       "title": "Fortschrittsanzeige"
     }
   },
+  "achievement": {
+    "menu": {
+      "title": "Achievements",
+      "hidden_name": "Verstecktes Achievement",
+      "hidden_description": "Schalte dieses Achievement frei, um es aufzudecken.",
+      "progress": "$1 / $2 freigeschaltet"
+    },
+    "popup": {
+      "unlocked": "Achievement freigeschaltet"
+    }
+  },
   "game_loop": {
     "disconnected_from_server": "Verbindung zum Server getrennt.",
     "disconnected_from_server_reason": "Verbindung zum Server getrennt: $1"
@@ -79,6 +91,7 @@
   "main_menu": {
     "host": "Spiel hosten",
     "join": "Spiel beitreten",
+    "achievements": "Achievements",
     "settings": "Einstellungen",
     "exit": "Beenden",
     "back": "Zurück",

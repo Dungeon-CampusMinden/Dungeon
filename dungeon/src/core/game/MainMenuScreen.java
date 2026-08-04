@@ -66,6 +66,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private static final String T_HOST = "host";
   private static final String T_JOIN = "join";
+  private static final String T_ACHIEVEMENTS = "achievements";
   private static final String T_SETTINGS = "settings";
   private static final String T_EXIT = "exit";
   private static final String T_BACK = "back";
@@ -207,7 +208,7 @@ public class MainMenuScreen extends ScreenAdapter {
     TextButton settingsButton =
         menuButton(trans.text(T_SETTINGS), "blue-outline", this::showSettingsView);
     TextButton achievementsButton =
-        menuButton("Achievements", "blue-outline", this::showAchievementsView);
+        menuButton(trans.text(T_ACHIEVEMENTS), "blue-outline", this::showAchievementsView);
     TextButton exitButton =
         menuButton(trans.text(T_EXIT), "red-outline", () -> Game.exit("Exit from main menu"));
 
