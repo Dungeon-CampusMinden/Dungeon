@@ -12,8 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import contrib.achivements.AchievementManager;
 import contrib.achivements.AchievementMenuView;
-import contrib.achivements.AchievementSystem;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.RichLabel;
@@ -207,7 +207,7 @@ public class PauseDialog extends Table {
     menu.add(label).padBottom(30).align(Align.center).row();
     menu.add(resumeBtn).width(300).align(Align.center).padBottom(10).row();
     menu.add(questlogBtn).width(300).align(Align.center).padBottom(10).row();
-    if (AchievementSystem.isAvailable()) {
+    if (AchievementManager.isAvailable()) {
       menu.add(achievementsBtn).width(300).align(Align.center).padBottom(10).row();
     }
     menu.add(settingsBtn).width(300).align(Align.center).padBottom(70).row();

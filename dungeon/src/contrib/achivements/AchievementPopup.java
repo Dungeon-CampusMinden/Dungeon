@@ -53,7 +53,7 @@ public final class AchievementPopup {
             ctx.find(KEY_DESCRIPTION_KEY, String.class).orElse(""),
             ctx.require(KEY_DESCRIPTION, String.class));
     boolean global = ctx.find(KEY_GLOBAL, Boolean.class).orElse(true);
-    AchievementSystem.markUnlockedFromPopup(achievementId, global);
+    AchievementManager.markUnlockedFromPopup(achievementId, global);
 
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup("Achievement unlocked", name + "\n" + description);

@@ -2,7 +2,6 @@ package starter;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import contrib.achivements.AchievementSystem;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroController;
 import contrib.modules.emote.EmoteSystem;
@@ -153,7 +152,6 @@ public class TheLastHour {
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
     ECSManagement.add(new ComputerStateSyncSystem());
-    ECSManagement.add(AchievementSystem.instance());
 
     registerLocalWorldTimerSystem();
 

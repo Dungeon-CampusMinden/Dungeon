@@ -82,7 +82,7 @@ public final class AchievementMenuView extends Table {
   }
 
   private void refreshIfChanged() {
-    List<Achievement> achievements = AchievementSystem.menuAchievements();
+    List<Achievement> achievements = AchievementManager.menuAchievements();
     String snapshot = snapshot(achievements);
     if (snapshot.equals(lastSnapshot)) {
       return;

@@ -1,6 +1,6 @@
 package util;
 
-import contrib.achivements.AchievementSystem;
+import contrib.achivements.AchievementManager;
 import contrib.components.InventoryComponent;
 import core.Entity;
 import core.Game;
@@ -34,7 +34,7 @@ public final class LastHourAchievements {
    * @param name achievement id/name
    */
   public static void trigger(String name) {
-    AchievementSystem.instance().pop(name);
+    AchievementManager.instance().pop(name);
   }
 
   /**
@@ -44,7 +44,7 @@ public final class LastHourAchievements {
    * @param name achievement id/name
    */
   public static void trigger(Entity player, String name) {
-    AchievementSystem.instance().popFor(player, name);
+    AchievementManager.instance().popFor(player, name);
   }
 
   /**

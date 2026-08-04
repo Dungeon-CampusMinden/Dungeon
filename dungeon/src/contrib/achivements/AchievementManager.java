@@ -7,7 +7,6 @@ import contrib.hud.dialogs.DialogType;
 import contrib.systems.EventScheduler;
 import core.Entity;
 import core.Game;
-import core.System;
 import core.components.PlayerComponent;
 import core.utils.logging.DungeonLogger;
 import java.util.List;
@@ -19,33 +18,32 @@ import java.util.Optional;
  * <p>Use {@link #pop(String)} or {@link #popFor(Entity, String)} from game logic. The achievement
  * name is the id.
  */
-public class AchievementSystem extends System {
+public class AchievementManager {
 
   private static final long POPUP_DURATION_MS = 4500L;
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AchievementSystem.class);
-  private static AchievementSystem instance;
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AchievementManager.class);
+  private static AchievementManager instance;
 
   private final AchievementStore store;
 
-  /** Creates the achievement system using the default asset and status paths. */
-  public AchievementSystem() {
+  /** Creates the achievement manager using the default asset and status paths. */
+  public AchievementManager() {
     this(new AchievementStore());
   }
 
-  AchievementSystem(AchievementStore store) {
-    super(AuthoritativeSide.SERVER);
+  AchievementManager(AchievementStore store) {
     this.store = store;
     instance = this;
   }
 
   /**
-   * Returns the process-wide achievement system instance.
+   * Returns the process-wide achievement manager instance.
    *
-   * @return achievement system
+   * @return achievement manager
    */
-  public static AchievementSystem instance() {
+  public static AchievementManager instance() {
     if (instance == null) {
-      instance = new AchievementSystem();
+      instance = new AchievementManager();
     }
     return instance;
   }
@@ -199,10 +197,5 @@ public class AchievementSystem extends System {
 
     UIComponent ui = contrib.hud.dialogs.DialogFactory.show(context, false, false, targetEntityIds);
     EventScheduler.scheduleAction(() -> UIUtils.closeDialog(ui, true), POPUP_DURATION_MS);
-  }
-
-  @Override
-  public void execute() {
-    // Unlocking is event-driven through the public API.
   }
 }

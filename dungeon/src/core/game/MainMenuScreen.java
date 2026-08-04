@@ -20,8 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.achivements.AchievementManager;
 import contrib.achivements.AchievementMenuView;
-import contrib.achivements.AchievementSystem;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.ClientConnectionDialog;
 import contrib.hud.elements.RichLabel;
@@ -215,7 +215,7 @@ public class MainMenuScreen extends ScreenAdapter {
     Table menu = new Table();
     menu.add(hostButton).width(BUTTON_WIDTH).padBottom(12).row();
     menu.add(joinButton).width(BUTTON_WIDTH).padBottom(12).row();
-    if (AchievementSystem.isAvailable()) {
+    if (AchievementManager.isAvailable()) {
       menu.add(achievementsButton).width(BUTTON_WIDTH).padBottom(12).row();
     }
     menu.add(settingsButton).width(BUTTON_WIDTH).padBottom(12).row();
