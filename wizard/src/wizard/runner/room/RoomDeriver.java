@@ -89,6 +89,7 @@ public final class RoomDeriver {
         hostInputSha256,
         project.session().playerCount().min(),
         project.session().playerCount().max(),
+        WizardThemeCatalog.playableCharacterClasses(project.scenario().themeId()),
         sections,
         timer,
         door,

@@ -146,7 +146,11 @@ Pflichtangaben:
 | Erfolgsseiten | `scenario.successText` |
 | Fehlschlagseiten bei hartem Zeitlimit | `scenario.failureText`, nur bei `hard` |
 
-V0.3 nutzt das feste Theme `default` und reine Storytexte. Die `themeId` bleibt
+V0.3 nutzt das feste Theme `default` und reine Storytexte. Es gibt keine
+Theme- oder Skin-Auswahl in der UI. Die feste `themeId` bestimmt automatisch den
+geordneten Pool der spielbaren Skins: zuerst `THE_LAST_HOUR_ROGUE`, dann
+`THE_LAST_HOUR_CHAR03`. Die offiziellen Wizard-Clients wählen daraus keinen
+Skin; die Zuweisung erfolgt beim Beitritt durch den Server. Die `themeId` bleibt
 als Erweiterungspunkt für zukünftige Themes erhalten. Die drei Seitenfolgen
 werden als geordnete, nicht leere Listen bearbeitet; jeder Eintrag entspricht
 einer weiterklickbaren Black-Fade-Seite. Nach den Intro-Seiten erscheint die

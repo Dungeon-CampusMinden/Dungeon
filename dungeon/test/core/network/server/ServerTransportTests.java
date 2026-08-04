@@ -357,6 +357,8 @@ public class ServerTransportTests {
               reconnectToken));
 
       assertSame(retainedState, reconnectSession.clientState().orElseThrow());
+      assertEquals(
+          CharacterClass.WIZARD, reconnectSession.clientState().orElseThrow().characterClass());
       assertSame(reconnectSession, clientIdToSessionMap(transport).get(retainedClientId));
       assertTrue(reconnectMessages.stream().anyMatch(ConnectAck.class::isInstance));
       assertTrue(reconnectMessages.stream().noneMatch(ConnectReject.class::isInstance));

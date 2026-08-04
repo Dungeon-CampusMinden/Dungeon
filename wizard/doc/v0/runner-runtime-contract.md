@@ -123,6 +123,15 @@ mindestens einmal vergeben wurden, kann nur derselbe Client seine vorhandene
 Identität im normalen Dungeon-Best-Effort-Reconnect wieder aufnehmen; ein neuer
 Ersatzclient wird abgewiesen.
 
+`scenario.themeId` bestimmt den geordneten Pool spielbarer
+`CharacterClass`-Skins. Für `default` lautet er `THE_LAST_HOUR_ROGUE`, danach
+`THE_LAST_HOUR_CHAR03`. Offizielle Wizard-Clients fordern keine Klasse an; der
+Server weist sie in Pool-Reihenfolge zyklisch zu. Damit erhalten die ersten
+beiden Identitäten verschiedene Skins, und erst nach Erschöpfung des Pools wird
+ein Skin erneut vergeben. Ein Reconnect verwendet denselben `ClientState` und
+dieselbe `CharacterClass`. Auch während einer vorübergehenden Trennung bleibt
+der Skin einer reconnect-fähigen reservierten Identität zugeordnet.
+
 `session.playerCount.min` ist ausschließlich die technische Startschwelle.
 Sobald mindestens so viele angenommene Clients ihre normale initiale Welt
 bestätigt haben, sehen alle aktuell technisch spielbereiten Clients zuerst die

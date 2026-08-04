@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import contrib.entities.CharacterClass;
 import foundation.definition.ComposedRiddleDefinition;
 import foundation.definition.HintSeverity;
 import foundation.definition.NumericInputDefinition;
@@ -84,6 +85,9 @@ class RoomDeriverTest {
 
     assertEquals(1, room.minimumPlayers());
     assertEquals(4, room.maximumPlayers());
+    assertEquals(
+        List.of(CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03),
+        room.playableCharacterClasses());
     assertEquals(1, room.createDefinition().minimumPlayers());
     assertEquals(
         List.of(1, 2, 3, 4),

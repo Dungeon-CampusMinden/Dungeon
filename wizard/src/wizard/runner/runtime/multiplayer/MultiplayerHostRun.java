@@ -1,10 +1,10 @@
 package wizard.runner.runtime.multiplayer;
 
+import contrib.entities.CharacterClass;
 import contrib.entities.HeroController;
 import core.Entity;
 import core.Game;
 import core.game.ECSManagement;
-import core.game.GameLoop;
 import core.game.ServerProcess;
 import core.game.ServerStarter;
 import core.level.Tile;
@@ -89,6 +89,7 @@ public final class MultiplayerHostRun {
       var starter =
           ServerStarter.builder(this::install)
               .levels(Tuple.of(GENERIC_LEVEL_NAME, RoomLevel.class))
+              .characterClasses(room.playableCharacterClasses().toArray(CharacterClass[]::new))
               .onConfigure(
                   () -> {
                     int maximumPlayers = definition.roster().slots().size();
@@ -157,8 +158,7 @@ public final class MultiplayerHostRun {
   }
 
   private void prepareLevel() {
-    LevelSystem levelSystem = requiredLevelSystem();
-    levelSystem.onLevelLoad(GameLoop.onLevelLoad);
+    requiredLevelSystem();
     DungeonLoader.loadLevel(GENERIC_LEVEL_NAME, level);
   }
 

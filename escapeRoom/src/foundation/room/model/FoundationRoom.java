@@ -1,5 +1,6 @@
 package foundation.room.model;
 
+import contrib.entities.CharacterClass;
 import foundation.definition.ComposedRiddleDefinition;
 import foundation.definition.DoorDefinition;
 import foundation.definition.ExitDefinition;
@@ -15,6 +16,7 @@ import foundation.presentation.GamePresentation.ComposedPresentation;
 import foundation.presentation.GamePresentation.ResourcePresentation;
 import foundation.presentation.GamePresentation.RiddlePresentation;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +33,7 @@ public final class FoundationRoom {
   private final String inputSha256;
   private final int minimumPlayers;
   private final int maximumPlayers;
+  private final List<CharacterClass> playableCharacterClasses;
   private final List<SectionDefinition> sections;
   private final TimerDefinition timer;
   private final DoorDefinition door;
@@ -48,6 +51,7 @@ public final class FoundationRoom {
    * @param inputSha256 canonical complete project identity
    * @param minimumPlayers minimum ready players
    * @param maximumPlayers maximum admitted players
+   * @param playableCharacterClasses ordered pool of server-assigned player classes
    * @param sections canonical Foundation sections
    * @param timer room timer definition
    * @param door common-door definition
@@ -63,6 +67,7 @@ public final class FoundationRoom {
       final String inputSha256,
       final int minimumPlayers,
       final int maximumPlayers,
+      final List<CharacterClass> playableCharacterClasses,
       final List<SectionDefinition> sections,
       final TimerDefinition timer,
       final DoorDefinition door,
@@ -82,6 +87,18 @@ public final class FoundationRoom {
     }
     this.minimumPlayers = minimumPlayers;
     this.maximumPlayers = maximumPlayers;
+    List<CharacterClass> characterClasses =
+        Objects.requireNonNull(playableCharacterClasses, "playableCharacterClasses");
+    if (characterClasses.isEmpty()) {
+      throw new IllegalArgumentException("playable character classes must not be empty");
+    }
+    if (characterClasses.stream().anyMatch(Objects::isNull)) {
+      throw new IllegalArgumentException("playable character classes must not contain null");
+    }
+    if (new HashSet<>(characterClasses).size() != characterClasses.size()) {
+      throw new IllegalArgumentException("playable character classes must be unique");
+    }
+    this.playableCharacterClasses = List.copyOf(characterClasses);
     this.sections = List.copyOf(Objects.requireNonNull(sections, "sections"));
     if (this.sections.isEmpty()) {
       throw new IllegalArgumentException("room must contain Foundation sections");
@@ -150,6 +167,15 @@ public final class FoundationRoom {
    */
   public int maximumPlayers() {
     return maximumPlayers;
+  }
+
+  /**
+   * Returns the ordered pool of server-assigned player classes.
+   *
+   * @return immutable playable character class order
+   */
+  public List<CharacterClass> playableCharacterClasses() {
+    return playableCharacterClasses;
   }
 
   /**

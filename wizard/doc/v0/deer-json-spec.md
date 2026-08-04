@@ -160,12 +160,17 @@ Zeitlimit die Sitzung erfolglos und `scenario.failureText` ist Pflicht. Bei
 }
 ```
 
-`themeId` ist im aktuellen Vertrag fest `default`, bleibt aber als
-Erweiterungspunkt für zukünftige Themes erhalten. `mission`, `introText` und
-`successText` sind Pflicht. Die drei Text-Arrays müssen mindestens eine
-nicht-leere Seite enthalten; jeder Eintrag wird in Array-Reihenfolge als eigene
-weiterklickbare Black-Fade-Seite angezeigt. `failureText` ist nur bei hartem
-Zeitlimit verpflichtend.
+`themeId` bestimmt neben dem visuellen Theme den geordneten Pool spielbarer
+`CharacterClass`-Skins. Im aktuellen Vertrag ist die ID fest `default`; ihr Pool
+besteht in dieser Reihenfolge aus `THE_LAST_HOUR_ROGUE` und
+`THE_LAST_HOUR_CHAR03`. Offizielle Wizard-Clients wählen keinen Skin aus. Der
+Server weist die Pool-Einträge zyklisch zu, sodass die ersten beiden Spieler
+verschiedene Skins erhalten und ein Skin erst nach Erschöpfung des Pools erneut
+verwendet wird. Die ID bleibt als Erweiterungspunkt für zukünftige Themes
+erhalten. `mission`, `introText` und `successText` sind Pflicht. Die drei
+Text-Arrays müssen mindestens eine nicht-leere Seite enthalten; jeder Eintrag
+wird in Array-Reihenfolge als eigene weiterklickbare Black-Fade-Seite angezeigt.
+`failureText` ist nur bei hartem Zeitlimit verpflichtend.
 
 ## 5. surfaces
 
