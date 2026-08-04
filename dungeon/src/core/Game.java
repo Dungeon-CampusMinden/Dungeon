@@ -5,7 +5,6 @@ import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import contrib.systems.HudSystem;
-import contrib.utils.EntityUtils;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagement;
@@ -695,11 +694,7 @@ public final class Game {
             target ->
                 ECSManagement.entities()
                     .filter(e -> e.isPresent(PositionComponent.class))
-                    .filter(
-                        e ->
-                            Game.tileAt(EntityUtils.getPosition(e))
-                                .map(target::equals)
-                                .orElse(false)))
+                    .filter(e -> Game.tileAtEntity(e).map(target::equals).orElse(false)))
         .orElseGet(Stream::empty);
   }
 
