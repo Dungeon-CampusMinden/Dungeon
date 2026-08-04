@@ -6,7 +6,7 @@ export interface DeerSchema {
   scenario: Scenario;
   surfaces: Surface[];
   riddleGraph: RiddleGraph;
-  riddles: AnyRiddle[];
+  riddles: Riddle[];
   assets: Asset[];
 }
 
@@ -31,9 +31,10 @@ export interface PlayerCount {
   min: number;
   max: number;
 }
+export type TimeLimitMode = "hard" | "soft";
 export interface Time {
   limitMinutes: number;
-  limitMode: "hard";
+  limitMode: TimeLimitMode;
 }
 export interface Session {
   targetAudience: string;
@@ -44,12 +45,10 @@ export interface Session {
 
 export interface Scenario {
   themeId: string;
-  playerRole: string;
-  premise: string;
   mission: string;
-  introTexts: string[];
-  successTexts: string[];
-  failureTexts: string[];
+  introText: string[];
+  successText: string[];
+  failureText: string[];
 }
 
 export interface Surface {
@@ -77,14 +76,11 @@ export interface RiddleNode extends GraphNode {
 export type AnyGraphNode = StartNode | EndNode | RiddleNode;
 
 export interface GraphEdge {
-  id: string;
   from: string;
   to: string;
 }
 
 export interface RiddleGraph {
-  startNodeId: string;
-  endNodeId: string;
   nodes: AnyGraphNode[];
   edges: GraphEdge[];
 }
@@ -95,8 +91,6 @@ export interface Resource {
   id: string;
   kind: "inline_text" | "asset";
   title: string;
-  availability: "visible_in_level" | "inside_container";
-  purpose: "clue" | "context" | "instruction" | "decoy";
 }
 export interface ResourceText extends Resource {
   kind: "inline_text";
@@ -108,48 +102,49 @@ export interface ResourceAsset extends Resource {
 }
 export type AnyResource = ResourceText | ResourceAsset;
 
+export type HintSeverity = "orientation" | "approach" | "solution";
+
 export interface RiddleHint {
   id: string;
   title: string;
   text: string;
-  severity: number;
+  severity: HintSeverity;
 }
 
-export interface CollectionRiddleParameters {
+export interface InformationSource {
+  id: string;
   surfaceId: string;
-  sourceKind: "container" | "world_object";
-  rewardMode: "find_resource";
-  resourceIds: string[];
+  resources: AnyResource[];
 }
-export interface InputRiddleParameters {
+
+export interface RiddleInput {
+  id: string;
+  type: "collection" | "numeric";
+}
+export interface CollectionInput extends RiddleInput {
+  type: "collection";
+  informationSourceId: string;
+}
+export interface NumericInput extends RiddleInput {
+  type: "numeric";
   surfaceId: string;
-  inputMode: "numeric";
   answer: string;
   showDigitCount: boolean;
 }
+export type AnyRiddleInput = CollectionInput | NumericInput;
 
 export type RiddleDifficulty = "easy" | "medium" | "hard";
 
 export interface Riddle {
   id: string;
-  type: "collection" | "input";
   title: string;
   difficulty: RiddleDifficulty;
   learningObjectiveIds: string[];
-  playerFacingTask: string;
   estimatedMinutes: number;
-  resources: AnyResource[];
+  informationSources: InformationSource[];
+  inputs: AnyRiddleInput[];
   hints: RiddleHint[];
 }
-export interface CollectionRiddle extends Riddle {
-  type: "collection";
-  parameters: CollectionRiddleParameters;
-}
-export interface InputRiddle extends Riddle {
-  type: "input";
-  parameters: InputRiddleParameters;
-}
-export type AnyRiddle = CollectionRiddle | InputRiddle;
 //#endregion
 
 //#region Asset
@@ -158,7 +153,7 @@ export interface AssetSource {
   attribution?: string;
 }
 
-export type AssetMediaType = "image/png" | "image/jpeg" | "text/plain" | "audio/wav" | "font/ttf";
+export type AssetMediaType = "image/png" | "image/jpeg";
 
 export interface Asset {
   id: string;
