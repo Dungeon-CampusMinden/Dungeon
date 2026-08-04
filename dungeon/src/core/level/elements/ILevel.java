@@ -7,6 +7,7 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
 import contrib.entities.deco.Deco;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
@@ -316,7 +317,8 @@ public interface ILevel extends IndexedGraph<Tile> {
    * Retrieves the tile on which the given entity is standing.
    *
    * <p>The method fetches the position component of the entity using {@link Entity#fetch(Class)}
-   * and looks up the tile at that position. If the entity has no {@link PositionComponent} or the
+   * and looks up the tile at the entity's center position as determined by {@link
+   * EntityUtils#getPosition(Entity)}. If the entity has no {@link PositionComponent} or the center
    * position is out of bounds / has no tile, an empty {@link Optional} is returned.
    *
    * @param entity The entity for which to retrieve the tile.
@@ -324,10 +326,10 @@ public interface ILevel extends IndexedGraph<Tile> {
    *     unavailable.
    */
   default Optional<Tile> tileAtEntity(final Entity entity) {
-    return entity
-        .fetch(PositionComponent.class)
-        .map(PositionComponent::position)
-        .flatMap(this::tileAt);
+    if (!entity.isPresent(PositionComponent.class)) {
+      return Optional.empty();
+    }
+    return tileAt(EntityUtils.getPosition(entity));
   }
 
   /**

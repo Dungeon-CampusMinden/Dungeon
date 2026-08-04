@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
+import contrib.components.CollideComponent;
+import contrib.systems.PositionSync;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -118,18 +120,24 @@ public class LevelSystemTest {
     api.loadLevel(level);
     api.onEndTile(() -> api.loadLevel(level));
     Entity hero = new Entity();
-    hero.add(new PositionComponent());
+    hero.add(new PositionComponent(new Point(2.6f, 3)));
+    hero.add(new CollideComponent());
     hero.add(new PlayerComponent());
+    PositionSync.syncPosition(hero);
     Game.add(hero);
 
     ExitTile end = Mockito.mock(ExitTile.class);
     Point p = new Point(3, 3);
     when(end.position()).thenReturn(p);
     when(end.isOpen()).thenReturn(true);
-    when(level.tileAt((Point) any())).thenReturn(Optional.of(end));
+    when(level.tileAtEntity(hero)).thenCallRealMethod();
+    when(level.tileAt((Point) any()))
+        .thenAnswer(
+            invocation ->
+                invocation.<Point>getArgument(0).toCoordinate().equals(p.toCoordinate())
+                    ? Optional.of(end)
+                    : Optional.empty());
     Mockito.when(level.endTile()).thenReturn(Optional.of(end));
-
-    hero.fetch(PositionComponent.class).get().position(end);
 
     Tile[][] layout = new Tile[0][0];
     when(level.layout()).thenReturn(layout);
