@@ -2675,6 +2675,11 @@
         "license": "/sounds/retro_event_wrong.license.md"
       },
       {
+        "path": "/sounds/uisp_African2.wav",
+        "type": "file",
+        "license": "/sounds/uisp_.license.md"
+      },
+      {
         "path": "/sounds/virix_MENU_B_Back.wav",
         "type": "file",
         "license": "/sounds/virix_.license.md"
