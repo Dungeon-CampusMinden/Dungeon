@@ -1,16 +1,13 @@
 import type { AssetMediaType } from "@/data/DeerSchema";
 import assetsManifest from "@/data/assets-manifest.json";
 
-export const ALLOWED_EXTENSIONS = ["png", "txt", "wav", "ttf"];
+export const ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg"];
 export const USE_NN_BELOW = 128;
 
 const MEDIA_TYPE_BY_EXTENSION: Record<string, AssetMediaType> = {
   png: "image/png",
   jpg: "image/jpeg",
   jpeg: "image/jpeg",
-  txt: "text/plain",
-  wav: "audio/wav",
-  ttf: "font/ttf",
 };
 
 /**
@@ -45,7 +42,7 @@ export const getAssetName = (assetPath: string) => assetPath.split("/").filter(B
 export const getFileExtension = (filePath: string) => filePath.split(".").pop()?.toLowerCase() ?? "";
 
 export const getMediaTypeForPath = (filePath: string): AssetMediaType =>
-  MEDIA_TYPE_BY_EXTENSION[getFileExtension(filePath)] ?? "text/plain";
+  MEDIA_TYPE_BY_EXTENSION[getFileExtension(filePath)] ?? "image/png";
 
 export const isCustomAssetPath = (assetPath: string) =>
   stripLeadingSlash(assetPath).startsWith(`${CUSTOM_PATH_PREFIX}/`);

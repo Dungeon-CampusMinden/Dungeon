@@ -1,7 +1,7 @@
 import { Toaster } from "sonner";
 import "./App.css";
 import { ThemeProvider } from "./components/ThemeProvider";
-import schema from "./data/deer.example.json";
+import schema from "./data/new-deer.json";
 import type { DeerSchema } from "./data/DeerSchema";
 import { Button } from "./components/ui/button";
 import { useLocalStorage } from "@uidotdev/usehooks";

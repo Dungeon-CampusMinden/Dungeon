@@ -1,4 +1,4 @@
-import type { AnyRiddle, DeerSchema } from "@/data/DeerSchema";
+import type { DeerSchema, Riddle } from "@/data/DeerSchema";
 import React from "react";
 import { PlusIcon } from "lucide-react";
 import { RiddleCard } from "./riddles/RiddleCard";
@@ -20,13 +20,13 @@ export function RiddlesTab({
   const editingRiddle = editingIndex >= 0 ? riddles[editingIndex] : null;
 
   const addRiddle = () => {
-    const newRiddle = createRiddle("collection");
+    const newRiddle = createRiddle();
     riddles.push(newRiddle);
     updateDeerSchema(deerSchema);
     setEditingId(newRiddle.id);
   };
 
-  const saveRiddle = (index: number, updated: AnyRiddle) => {
+  const saveRiddle = (index: number, updated: Riddle) => {
     riddles[index] = updated;
     updateDeerSchema(deerSchema);
   };

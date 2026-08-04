@@ -1,4 +1,4 @@
-import type { AnyRiddle, DeerSchema } from "@/data/DeerSchema";
+import type { DeerSchema, Riddle } from "@/data/DeerSchema";
 import React from "react";
 import { ChevronDownIcon, TrashIcon } from "lucide-react";
 import { Button } from "../ui/button";
@@ -13,10 +13,9 @@ import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
 import { Slider } from "../ui/slider";
-import { Textarea } from "../ui/textarea";
-import { RiddleParametersEditor } from "./RiddleParametersEditor";
-import { HintListEditor, ResourceListEditor } from "./RiddleSubEditors";
-import { convertRiddleType, RIDDLE_DIFFICULTIES, RIDDLE_TYPES } from "./riddleTypes";
+import { RiddleInputsEditor } from "./RiddleInputsEditor";
+import { HintListEditor, InformationSourceListEditor } from "./RiddleSubEditors";
+import { RIDDLE_DIFFICULTIES } from "./riddleTypes";
 import { SimpleSelect } from "./SimpleSelect";
 
 export function RiddleEditDialog({
@@ -27,18 +26,18 @@ export function RiddleEditDialog({
   onSave,
   onDelete,
 }: {
-  riddle: AnyRiddle;
+  riddle: Riddle;
   deerSchema: DeerSchema;
   open: boolean;
   setOpen: (open: boolean) => void;
-  onSave: (updated: AnyRiddle) => void;
+  onSave: (updated: Riddle) => void;
   onDelete: () => void;
 }) {
-  const [draft, setDraft] = React.useState<AnyRiddle>(riddle);
+  const [draft, setDraft] = React.useState<Riddle>(riddle);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
-      setDraft(JSON.parse(JSON.stringify(riddle)) as AnyRiddle);
+      setDraft(JSON.parse(JSON.stringify(riddle)) as Riddle);
     }
     setOpen(nextOpen);
   };
@@ -81,26 +80,14 @@ export function RiddleEditDialog({
               <Input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
             </Field>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field>
-                <FieldLabel>Art des Rätsels</FieldLabel>
-                <SimpleSelect
-                  options={RIDDLE_TYPES.map((type) => ({ value: type.value, label: type.label }))}
-                  value={draft.type}
-                  onChange={(newValue) => setDraft(convertRiddleType(draft, newValue as AnyRiddle["type"]))}
-                />
-              </Field>
-              <Field>
-                <FieldLabel>Schwierigkeit</FieldLabel>
-                <SimpleSelect
-                  options={RIDDLE_DIFFICULTIES.map((item) => ({ value: item.value, label: item.label }))}
-                  value={draft.difficulty}
-                  onChange={(newValue) =>
-                    setDraft({ ...draft, difficulty: newValue as AnyRiddle["difficulty"] })
-                  }
-                />
-              </Field>
-            </div>
+            <Field>
+              <FieldLabel>Schwierigkeit</FieldLabel>
+              <SimpleSelect
+                options={RIDDLE_DIFFICULTIES.map((item) => ({ value: item.value, label: item.label }))}
+                value={draft.difficulty}
+                onChange={(newValue) => setDraft({ ...draft, difficulty: newValue as Riddle["difficulty"] })}
+              />
+            </Field>
 
             <Field>
               <FieldLabel>Geschätzte Dauer: {draft.estimatedMinutes} Minuten</FieldLabel>
@@ -110,14 +97,6 @@ export function RiddleEditDialog({
                 min={1}
                 max={60}
                 step={1}
-              />
-            </Field>
-
-            <Field>
-              <FieldLabel>Aufgabe für die Spieler</FieldLabel>
-              <Textarea
-                value={draft.playerFacingTask}
-                onChange={(e) => setDraft({ ...draft, playerFacingTask: e.target.value })}
               />
             </Field>
 
@@ -158,25 +137,18 @@ export function RiddleEditDialog({
             <Separator className="lg:hidden" />
 
             <Field>
-              <FieldLabel>Rätsel-Spezifische Einstellungen</FieldLabel>
-              <RiddleParametersEditor riddle={draft} setRiddle={setDraft} deerSchema={deerSchema} />
+              <FieldLabel>Informationsquellen</FieldLabel>
+              <InformationSourceListEditor
+                informationSources={draft.informationSources}
+                deerSchema={deerSchema}
+                onChange={(updated) => setDraft({ ...draft, informationSources: updated })}
+              />
             </Field>
 
-            {/* <Separator /> */}
-
-            {draft.type === "collection" && (
-              <>
-                <Field>
-                  <FieldLabel>Material</FieldLabel>
-                  <ResourceListEditor
-                    resources={draft.resources}
-                    assets={deerSchema.assets}
-                    onChange={(updated) => setDraft({ ...draft, resources: updated })}
-                  />
-                </Field>
-                {/* <Separator /> */}
-              </>
-            )}
+            <Field>
+              <FieldLabel>Eingaben</FieldLabel>
+              <RiddleInputsEditor riddle={draft} setRiddle={setDraft} deerSchema={deerSchema} />
+            </Field>
 
             <Field>
               <FieldLabel>Hilfe</FieldLabel>

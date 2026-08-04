@@ -1,4 +1,4 @@
-import type { AnyRiddle, Asset, AssetMediaType, DeerSchema, RiddleGraph, Surface } from "./DeerSchema";
+import type { Asset, AssetMediaType, DeerSchema, Riddle, RiddleGraph, Surface } from "./DeerSchema";
 import { getBundledAssetPaths, isBundledAssetPath } from "@/components/assets/assetPaths";
 
 export type IssueSeverity = "info" | "warning" | "error";
@@ -31,19 +31,12 @@ export interface ErrorCheckerContext {
 
 const THEME_IDS = ["default"];
 const SURFACE_KINDS: Surface["kind"][] = ["world", "container", "keypad", "door"];
-const RIDDLE_TYPES: AnyRiddle["type"][] = ["collection", "input"];
 const RIDDLE_DIFFICULTIES = ["easy", "medium", "hard"];
 const RESOURCE_KINDS = ["inline_text", "asset"];
-const RESOURCE_AVAILABILITIES = ["visible_in_level", "inside_container"];
-const RESOURCE_PURPOSES = ["clue", "context", "instruction", "decoy"];
-const COLLECTION_SOURCE_KINDS = ["container", "world_object"];
-const ASSET_MEDIA_TYPES: AssetMediaType[] = [
-  "image/png",
-  "image/jpeg",
-  "text/plain",
-  "audio/wav",
-  "font/ttf",
-];
+const HINT_SEVERITIES = ["orientation", "approach", "solution"];
+const INPUT_TYPES = ["collection", "numeric"];
+const TIME_LIMIT_MODES = ["hard", "soft"];
+const ASSET_MEDIA_TYPES: AssetMediaType[] = ["image/png", "image/jpeg"];
 
 const SEVERITY_ORDER: Record<IssueSeverity, number> = { info: 0, warning: 1, error: 2 };
 
@@ -212,31 +205,32 @@ export class ErrorChecker {
       THEME_IDS,
       "Es muss ein gültiges Thema ausgewählt werden.",
     );
-    this.requireText("scenario", "playerRole", scenario.playerRole, "Die Spielerrolle darf nicht leer sein.");
-    this.requireText("scenario", "premise", scenario.premise, "Die Prämisse darf nicht leer sein.");
     this.requireText("scenario", "mission", scenario.mission, "Die Mission darf nicht leer sein.");
 
     this.requireTexts(
       "scenario",
-      "introTexts",
-      scenario.introTexts,
+      "introText",
+      scenario.introText,
       "Es muss mindestens einen Intro-Text geben.",
       "Intro-Texte dürfen nicht leer sein.",
     );
     this.requireTexts(
       "scenario",
-      "successTexts",
-      scenario.successTexts,
+      "successText",
+      scenario.successText,
       "Es muss mindestens einen Text für den erfolgreichen Abschluss geben.",
       "Texte für den erfolgreichen Abschluss dürfen nicht leer sein.",
     );
-    this.requireTexts(
-      "scenario",
-      "failureTexts",
-      scenario.failureTexts,
-      "Es muss mindestens einen Text für den Misserfolg geben.",
-      "Texte für den Misserfolg dürfen nicht leer sein.",
-    );
+    // Only a hard time limit can actually lead to a failure.
+    if (deerSchema.session.time.limitMode === "hard") {
+      this.requireTexts(
+        "scenario",
+        "failureText",
+        scenario.failureText,
+        "Es muss mindestens einen Text für den Misserfolg geben.",
+        "Texte für den Misserfolg dürfen nicht leer sein.",
+      );
+    }
   }
   //#endregion
 
@@ -278,7 +272,13 @@ export class ErrorChecker {
     if (session.time.limitMinutes <= 0) {
       this.error("session", "time", "Das Zeitlimit muss größer als 0 Minuten sein.");
     }
-    this.requireOption("session", "time", session.time.limitMode, ["hard"], "Ungültiger Zeitlimit-Modus.");
+    this.requireOption(
+      "session",
+      "time",
+      session.time.limitMode,
+      TIME_LIMIT_MODES,
+      "Ungültiger Zeitlimit-Modus.",
+    );
   }
   //#endregion
 
@@ -392,7 +392,7 @@ export class ErrorChecker {
   }
 
   private checkRiddle(
-    riddle: AnyRiddle,
+    riddle: Riddle,
     surfaceIds: Set<string>,
     assetIds: Set<string>,
     objectiveIds: Set<string>,
@@ -404,22 +404,9 @@ export class ErrorChecker {
     this.requireOption(
       "riddles",
       field,
-      riddle.type,
-      RIDDLE_TYPES,
-      `Das Rätsel "${name}" hat keine gültige Art.`,
-    );
-    this.requireOption(
-      "riddles",
-      field,
       riddle.difficulty,
       RIDDLE_DIFFICULTIES,
       `Das Rätsel "${name}" hat keinen gültigen Schwierigkeitsgrad.`,
-    );
-    this.requireText(
-      "riddles",
-      field,
-      riddle.playerFacingTask,
-      `Die Aufgabenstellung von "${name}" darf nicht leer sein.`,
     );
 
     if (riddle.estimatedMinutes <= 0) {
@@ -450,108 +437,140 @@ export class ErrorChecker {
     for (const hint of riddle.hints) {
       this.requireText("riddles", field, hint.title, `Ein Hinweis von "${name}" hat keinen Titel.`);
       this.requireText("riddles", field, hint.text, `Ein Hinweis von "${name}" hat keinen Text.`);
+      this.requireOption(
+        "riddles",
+        field,
+        hint.severity,
+        HINT_SEVERITIES,
+        `Ein Hinweis von "${name}" hat keine gültige Stufe.`,
+      );
     }
 
-    for (const resource of riddle.resources) {
-      this.requireText("riddles", field, resource.title, `Ein Material von "${name}" hat keinen Titel.`);
-      this.requireOption(
-        "riddles",
-        field,
-        resource.kind,
-        RESOURCE_KINDS,
-        `Ein Material von "${name}" hat keine gültige Art.`,
-      );
-      this.requireOption(
-        "riddles",
-        field,
-        resource.availability,
-        RESOURCE_AVAILABILITIES,
-        `Ein Material von "${name}" hat keine gültige Verfügbarkeit.`,
-      );
-      this.requireOption(
-        "riddles",
-        field,
-        resource.purpose,
-        RESOURCE_PURPOSES,
-        `Ein Material von "${name}" hat keinen gültigen Zweck.`,
-      );
+    this.checkInformationSources(riddle, field, name, surfaceIds, assetIds);
+    this.checkInputs(riddle, field, name, surfaceIds);
+  }
 
-      if (resource.kind === "inline_text") {
-        this.requireText(
+  private checkInformationSources(
+    riddle: Riddle,
+    field: string,
+    name: string,
+    surfaceIds: Set<string>,
+    assetIds: Set<string>,
+  ) {
+    const duplicates = ErrorChecker.findDuplicates(riddle.informationSources.map((source) => source.id));
+    if (duplicates.length > 0) {
+      this.error(
+        "riddles",
+        field,
+        `Das Rätsel "${name}" hat Informationsquellen mit doppelten Ids.`,
+        duplicates.join(", "),
+      );
+    }
+
+    for (const source of riddle.informationSources) {
+      this.checkSurfaceReference("riddles", field, source.surfaceId, surfaceIds, name);
+
+      if (source.resources.length === 0) {
+        this.error(
           "riddles",
           field,
-          resource.text,
-          `Das Material "${resource.title || resource.id}" hat keinen Text.`,
+          `Eine Informationsquelle von "${name}" enthält kein Material.`,
+          "Jede Informationsquelle braucht mindestens ein Material.",
         );
-      } else if (resource.kind === "asset") {
-        if (isBlank(resource.assetId)) {
-          this.error(
+      }
+
+      for (const resource of source.resources) {
+        this.requireText("riddles", field, resource.title, `Ein Material von "${name}" hat keinen Titel.`);
+        this.requireOption(
+          "riddles",
+          field,
+          resource.kind,
+          RESOURCE_KINDS,
+          `Ein Material von "${name}" hat keine gültige Art.`,
+        );
+
+        if (resource.kind === "inline_text") {
+          this.requireText(
             "riddles",
             field,
-            `Für das Material "${resource.title || resource.id}" ist keine Datei ausgewählt.`,
+            resource.text,
+            `Das Material "${resource.title || resource.id}" hat keinen Text.`,
           );
-        } else if (!assetIds.has(resource.assetId)) {
-          this.error(
-            "riddles",
-            field,
-            `Das Material "${resource.title || resource.id}" verweist auf eine unbekannte Datei.`,
-            `Unbekannte Datei-Id: "${resource.assetId}".`,
-          );
+        } else if (resource.kind === "asset") {
+          if (isBlank(resource.assetId)) {
+            this.error(
+              "riddles",
+              field,
+              `Für das Material "${resource.title || resource.id}" ist keine Datei ausgewählt.`,
+            );
+          } else if (!assetIds.has(resource.assetId)) {
+            this.error(
+              "riddles",
+              field,
+              `Das Material "${resource.title || resource.id}" verweist auf eine unbekannte Datei.`,
+              `Unbekannte Datei-Id: "${resource.assetId}".`,
+            );
+          }
         }
       }
     }
+  }
 
-    if (riddle.type === "collection") {
-      const { parameters } = riddle;
-      this.checkSurfaceReference("riddles", field, parameters.surfaceId, surfaceIds, name);
+  private checkInputs(riddle: Riddle, field: string, name: string, surfaceIds: Set<string>) {
+    if (riddle.inputs.length === 0) {
+      this.error("riddles", field, `Das Rätsel "${name}" hat keine Eingabe.`);
+      return;
+    }
+
+    const duplicates = ErrorChecker.findDuplicates(riddle.inputs.map((input) => input.id));
+    if (duplicates.length > 0) {
+      this.error(
+        "riddles",
+        field,
+        `Das Rätsel "${name}" hat Eingaben mit doppelten Ids.`,
+        duplicates.join(", "),
+      );
+    }
+
+    const sourceIds = new Set(riddle.informationSources.map((source) => source.id));
+
+    for (const input of riddle.inputs) {
       this.requireOption(
         "riddles",
         field,
-        parameters.sourceKind,
-        COLLECTION_SOURCE_KINDS,
-        `Das Rätsel "${name}" hat keine gültige Fundquelle.`,
-      );
-      this.requireOption(
-        "riddles",
-        field,
-        parameters.rewardMode,
-        ["find_resource"],
-        `Das Rätsel "${name}" hat keine gültige Belohnungsart.`,
+        input.type,
+        INPUT_TYPES,
+        `Eine Eingabe von "${name}" hat keine gültige Art.`,
       );
 
-      if (parameters.resourceIds.length === 0) {
-        this.error("riddles", field, `Das Rätsel "${name}" muss mindestens ein Material zum Finden haben.`);
-      }
-      const resourceIds = new Set(riddle.resources.map((resource) => resource.id));
-      const unknownResources = parameters.resourceIds.filter((id) => !resourceIds.has(id));
-      if (unknownResources.length > 0) {
-        this.error(
-          "riddles",
-          field,
-          `Das Rätsel "${name}" verweist auf unbekannte Materialien.`,
-          unknownResources.join(", "),
-        );
-      }
-    } else if (riddle.type === "input") {
-      const { parameters } = riddle;
-      this.checkSurfaceReference("riddles", field, parameters.surfaceId, surfaceIds, name);
-      this.requireOption(
-        "riddles",
-        field,
-        parameters.inputMode,
-        ["numeric"],
-        `Das Rätsel "${name}" hat keine gültige Eingabeart.`,
-      );
+      if (input.type === "collection") {
+        if (isBlank(input.informationSourceId)) {
+          this.error(
+            "riddles",
+            field,
+            `Für eine Eingabe von "${name}" ist keine Informationsquelle gewählt.`,
+          );
+        } else if (!sourceIds.has(input.informationSourceId)) {
+          this.error(
+            "riddles",
+            field,
+            `Eine Eingabe von "${name}" verweist auf eine unbekannte Informationsquelle.`,
+            `Unbekannte Id: "${input.informationSourceId}".`,
+          );
+        }
+      } else if (input.type === "numeric") {
+        this.checkSurfaceReference("riddles", field, input.surfaceId, surfaceIds, name);
 
-      if (isBlank(parameters.answer)) {
-        this.error("riddles", field, `Für das Rätsel "${name}" ist keine Lösung hinterlegt.`);
-      } else if (parameters.inputMode === "numeric" && !/^\d+$/.test(parameters.answer)) {
-        this.error(
-          "riddles",
-          field,
-          `Die Lösung von "${name}" darf nur Ziffern enthalten.`,
-          `Aktuelle Lösung: "${parameters.answer}".`,
-        );
+        if (isBlank(input.answer)) {
+          this.error("riddles", field, `Für das Rätsel "${name}" ist keine Lösung hinterlegt.`);
+        } else if (!/^\d{1,8}$/.test(input.answer)) {
+          this.error(
+            "riddles",
+            field,
+            `Die Lösung von "${name}" muss aus 1 bis 8 Ziffern bestehen.`,
+            `Aktuelle Lösung: "${input.answer}".`,
+          );
+        }
       }
     }
   }
@@ -588,11 +607,23 @@ export class ErrorChecker {
       this.error("riddle_graph", "nodes", "Es gibt Schritte mit doppelten Ids.", duplicates.join(", "));
     }
 
-    if (!nodeIds.has(graph.startNodeId)) {
-      this.error("riddle_graph", "startNodeId", "Der Startpunkt des Spielablaufs fehlt.");
+    const startNodes = graph.nodes.filter((node) => node.kind === "start");
+    const endNodes = graph.nodes.filter((node) => node.kind === "end");
+    if (startNodes.length !== 1) {
+      this.error(
+        "riddle_graph",
+        "nodes",
+        "Es muss genau einen Startpunkt im Spielablauf geben.",
+        `Gefunden: ${startNodes.length}.`,
+      );
     }
-    if (!nodeIds.has(graph.endNodeId)) {
-      this.error("riddle_graph", "endNodeId", "Der Endpunkt des Spielablaufs fehlt.");
+    if (endNodes.length !== 1) {
+      this.error(
+        "riddle_graph",
+        "nodes",
+        "Es muss genau einen Endpunkt im Spielablauf geben.",
+        `Gefunden: ${endNodes.length}.`,
+      );
     }
 
     for (const node of graph.nodes) {
@@ -644,7 +675,9 @@ export class ErrorChecker {
   }
 
   private checkGraphReachability(graph: RiddleGraph, nodeIds: Set<string>) {
-    if (!nodeIds.has(graph.startNodeId)) return;
+    const startNodeId = graph.nodes.find((node) => node.kind === "start")?.id;
+    const endNodeId = graph.nodes.find((node) => node.kind === "end")?.id;
+    if (startNodeId === undefined) return;
 
     const outgoing = new Map<string, string[]>();
     for (const edge of graph.edges) {
@@ -653,7 +686,7 @@ export class ErrorChecker {
     }
 
     const reachable = new Set<string>();
-    const queue = [graph.startNodeId];
+    const queue = [startNodeId];
     while (queue.length > 0) {
       const current = queue.shift() as string;
       if (reachable.has(current)) continue;
@@ -661,7 +694,7 @@ export class ErrorChecker {
       queue.push(...(outgoing.get(current) ?? []));
     }
 
-    if (nodeIds.has(graph.endNodeId) && !reachable.has(graph.endNodeId)) {
+    if (endNodeId !== undefined && !reachable.has(endNodeId)) {
       this.error(
         "riddle_graph",
         "edges",
@@ -670,7 +703,7 @@ export class ErrorChecker {
       );
     }
 
-    const unreachable = [...nodeIds].filter((id) => !reachable.has(id) && id !== graph.endNodeId);
+    const unreachable = [...nodeIds].filter((id) => !reachable.has(id) && id !== endNodeId);
     if (unreachable.length > 0) {
       this.warning(
         "riddle_graph",

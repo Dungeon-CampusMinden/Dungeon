@@ -1,9 +1,7 @@
 import type { AnyResource, Asset } from "@/data/DeerSchema";
-import { Badge } from "../ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
 import { AssetPreviewContent } from "../assets/AssetPreviewContent";
 import { useAssetPreviews } from "../assets/useAssetPreviews";
-import { RESOURCE_AVAILABILITIES, RESOURCE_PURPOSES } from "./riddleTypes";
 
 /** Horizontally scrollable preview of all resources of a riddle. */
 export function ResourceCarousel({ resources, assets }: { resources: AnyResource[]; assets: Asset[] }) {
@@ -40,8 +38,6 @@ function ResourceCard({
   assets: Asset[];
   previews: ReturnType<typeof useAssetPreviews>;
 }) {
-  const availability = RESOURCE_AVAILABILITIES.find((item) => item.value === resource.availability);
-  const purpose = RESOURCE_PURPOSES.find((item) => item.value === resource.purpose);
   const asset = resource.kind === "asset" ? assets.find((item) => item.id === resource.assetId) : undefined;
 
   return (
@@ -59,10 +55,6 @@ function ResourceCard({
         ) : (
           <span className="text-center text-xs text-destructive">Keine Datei ausgewählt</span>
         )}
-      </div>
-      <div className="flex flex-wrap gap-1">
-        <Badge variant="outline">{availability?.label ?? resource.availability}</Badge>
-        <Badge variant="secondary">{purpose?.label ?? resource.purpose}</Badge>
       </div>
     </div>
   );

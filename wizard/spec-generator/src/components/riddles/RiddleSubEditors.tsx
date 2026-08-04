@@ -1,14 +1,84 @@
-import type { AnyResource, Asset, RiddleHint } from "@/data/DeerSchema";
+import type {
+  AnyResource,
+  Asset,
+  DeerSchema,
+  HintSeverity,
+  InformationSource,
+  RiddleHint,
+} from "@/data/DeerSchema";
 import { Util } from "@/data/Util";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import { AssetSelector } from "../assets/AssetSelector";
+import { SurfaceSelector } from "../SurfacesTab";
 import { Button } from "../ui/button";
-import { Field, FieldLabel } from "../ui/field";
+import { Field, FieldDescription, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { Slider } from "../ui/slider";
 import { Textarea } from "../ui/textarea";
-import { RESOURCE_AVAILABILITIES, RESOURCE_KINDS, RESOURCE_PURPOSES } from "./riddleTypes";
+import { createInformationSource, HINT_SEVERITIES, RESOURCE_KINDS } from "./riddleTypes";
 import { SimpleSelect } from "./SimpleSelect";
+
+export function InformationSourceListEditor({
+  informationSources,
+  onChange,
+  deerSchema,
+}: {
+  informationSources: InformationSource[];
+  onChange: (updated: InformationSource[]) => void;
+  deerSchema: DeerSchema;
+}) {
+  const updateSource = (index: number, updated: InformationSource) => {
+    const next = [...informationSources];
+    next[index] = updated;
+    onChange(next);
+  };
+
+  const removeSource = (index: number) => {
+    const next = [...informationSources];
+    next.splice(index, 1);
+    onChange(next);
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <Button
+        onClick={() => onChange([...informationSources, createInformationSource()])}
+        className="lg:max-w-40"
+      >
+        <PlusIcon />
+        Informationsquelle
+      </Button>
+      {informationSources.length === 0 && (
+        <span className="text-sm text-muted-foreground">Noch keine Informationsquelle hinterlegt.</span>
+      )}
+      {informationSources.map((source, index) => (
+        <div
+          key={source.id}
+          className="flex flex-col gap-3 rounded-md border border-[var(--border-color)] p-3"
+        >
+          <div className="grid grid-cols-[1fr_auto] items-end gap-2">
+            <Field>
+              <FieldLabel>Ort</FieldLabel>
+              <FieldDescription>Wo finden die Spieler dieses Material?</FieldDescription>
+              <SurfaceSelector
+                items={deerSchema.surfaces}
+                value={source.surfaceId}
+                onChange={(newValue) => updateSource(index, { ...source, surfaceId: newValue })}
+              />
+            </Field>
+            <Button variant="destructive" size="icon" onClick={() => removeSource(index)}>
+              <TrashIcon />
+            </Button>
+          </div>
+          <ResourceListEditor
+            resources={source.resources}
+            assets={deerSchema.assets}
+            onChange={(updated) => updateSource(index, { ...source, resources: updated })}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function ResourceListEditor({
   resources,
@@ -31,8 +101,6 @@ export function ResourceListEditor({
       kind: "inline_text",
       title: "Neues Material",
       text: "",
-      availability: "inside_container",
-      purpose: "clue",
     };
     onChange([...resources, newResource]);
   };
@@ -51,8 +119,6 @@ export function ResourceListEditor({
         id: resource.id,
         kind: "asset",
         title: resource.title,
-        availability: resource.availability,
-        purpose: resource.purpose,
         assetId: "",
       });
     } else {
@@ -60,8 +126,6 @@ export function ResourceListEditor({
         id: resource.id,
         kind: "inline_text",
         title: resource.title,
-        availability: resource.availability,
-        purpose: resource.purpose,
         text: "",
       });
     }
@@ -93,39 +157,14 @@ export function ResourceListEditor({
               <TrashIcon />
             </Button>
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <Field>
-              <FieldLabel>Art</FieldLabel>
-              <SimpleSelect
-                options={RESOURCE_KINDS}
-                value={resource.kind}
-                onChange={(newValue) => changeKind(index, newValue)}
-              />
-            </Field>
-            <Field>
-              <FieldLabel>Verfügbarkeit</FieldLabel>
-              <SimpleSelect
-                options={RESOURCE_AVAILABILITIES}
-                value={resource.availability}
-                onChange={(newValue) =>
-                  updateResource(index, {
-                    ...resource,
-                    availability: newValue as AnyResource["availability"],
-                  })
-                }
-              />
-            </Field>
-            <Field>
-              <FieldLabel>Zweck</FieldLabel>
-              <SimpleSelect
-                options={RESOURCE_PURPOSES}
-                value={resource.purpose}
-                onChange={(newValue) =>
-                  updateResource(index, { ...resource, purpose: newValue as AnyResource["purpose"] })
-                }
-              />
-            </Field>
-          </div>
+          <Field>
+            <FieldLabel>Art</FieldLabel>
+            <SimpleSelect
+              options={RESOURCE_KINDS}
+              value={resource.kind}
+              onChange={(newValue) => changeKind(index, newValue)}
+            />
+          </Field>
           {resource.kind === "inline_text" ? (
             <Field>
               <FieldLabel>Text</FieldLabel>
@@ -164,7 +203,10 @@ export function HintListEditor({
   };
 
   const addHint = () => {
-    onChange([...hints, { id: Util.generateUniqueId("h"), title: "Neue Hilfe", text: "", severity: 1 }]);
+    onChange([
+      ...hints,
+      { id: Util.generateUniqueId("h"), title: "Neue Hilfe", text: "", severity: "orientation" },
+    ]);
   };
 
   const removeHint = (index: number) => {
@@ -204,13 +246,11 @@ export function HintListEditor({
             />
           </Field>
           <Field>
-            <FieldLabel>Stufe: {hint.severity}</FieldLabel>
-            <Slider
+            <FieldLabel>Stufe</FieldLabel>
+            <SimpleSelect
+              options={HINT_SEVERITIES}
               value={hint.severity}
-              onValueChange={(value) => updateHint(index, { ...hint, severity: value as number })}
-              min={1}
-              max={5}
-              step={1}
+              onChange={(newValue) => updateHint(index, { ...hint, severity: newValue as HintSeverity })}
             />
           </Field>
         </div>

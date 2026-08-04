@@ -13,8 +13,6 @@ export function ScenarioTab({
   deerSchema: DeerSchema;
   updateDeerSchema: (updatedSchema: DeerSchema) => void;
 }) {
-  const emptyPlayerRole = deerSchema.scenario.playerRole === "";
-  const emptyPremise = deerSchema.scenario.premise === "";
   const emptyMission = deerSchema.scenario.mission === "";
 
   const selectedTheme = THEMES.find((theme) => theme.value === deerSchema.scenario.themeId);
@@ -52,30 +50,6 @@ export function ScenarioTab({
             )}
           </Field>
           <Field>
-            <FieldLabel>Spielerrolle</FieldLabel>
-            <Input
-              value={deerSchema.scenario.playerRole}
-              onChange={(e) => {
-                deerSchema.scenario.playerRole = e.target.value;
-                updateDeerSchema(deerSchema);
-              }}
-              aria-invalid={emptyPlayerRole}
-            />
-            {emptyPlayerRole && <FieldError>Die Spielerrolle darf nicht leer sein.</FieldError>}
-          </Field>
-          <Field>
-            <FieldLabel>Premisse</FieldLabel>
-            <Input
-              value={deerSchema.scenario.premise}
-              onChange={(e) => {
-                deerSchema.scenario.premise = e.target.value;
-                updateDeerSchema(deerSchema);
-              }}
-              aria-invalid={emptyPremise}
-            />
-            {emptyPremise && <FieldError>Die Premisse darf nicht leer sein.</FieldError>}
-          </Field>
-          <Field>
             <FieldLabel>Mission</FieldLabel>
             <Input
               value={deerSchema.scenario.mission}
@@ -93,9 +67,9 @@ export function ScenarioTab({
           <Field>
             <FieldLabel>Intro Texte</FieldLabel>
             <StringListEditor
-              value={deerSchema.scenario.introTexts}
+              value={deerSchema.scenario.introText}
               onChange={(newValue) => {
-                deerSchema.scenario.introTexts = newValue;
+                deerSchema.scenario.introText = newValue;
                 updateDeerSchema(deerSchema);
               }}
               useTextarea
@@ -105,9 +79,9 @@ export function ScenarioTab({
           <Field>
             <FieldLabel>Texte bei erfolgreichem Abschluss</FieldLabel>
             <StringListEditor
-              value={deerSchema.scenario.successTexts}
+              value={deerSchema.scenario.successText}
               onChange={(newValue) => {
-                deerSchema.scenario.successTexts = newValue;
+                deerSchema.scenario.successText = newValue;
                 updateDeerSchema(deerSchema);
               }}
               useTextarea
@@ -117,9 +91,9 @@ export function ScenarioTab({
           <Field>
             <FieldLabel>Texte bei Misserfolg</FieldLabel>
             <StringListEditor
-              value={deerSchema.scenario.failureTexts}
+              value={deerSchema.scenario.failureText}
               onChange={(newValue) => {
-                deerSchema.scenario.failureTexts = newValue;
+                deerSchema.scenario.failureText = newValue;
                 updateDeerSchema(deerSchema);
               }}
               useTextarea

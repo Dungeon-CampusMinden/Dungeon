@@ -1,4 +1,4 @@
-import type { AnyRiddle, DeerSchema, RiddleHint } from "@/data/DeerSchema";
+import type { DeerSchema, Riddle, RiddleHint } from "@/data/DeerSchema";
 import { ClockIcon, InfoIcon, PencilIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -6,20 +6,20 @@ import { Card, CardContent } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ResourceCarousel } from "./ResourceCarousel";
-import { RiddleParametersView } from "./RiddleParametersView";
-import { getRiddleDifficulty, getRiddleType, RiddleTypeIcon } from "./riddleTypes";
+import { RiddleInputsView } from "./RiddleInputsView";
+import { getHintSeverity, getHintSeverityOrder, getRiddleDifficulty } from "./riddleTypes";
 
 export function RiddleCard({
   riddle,
   deerSchema,
   onEdit,
 }: {
-  riddle: AnyRiddle;
+  riddle: Riddle;
   deerSchema: DeerSchema;
   onEdit: () => void;
 }) {
-  const riddleType = getRiddleType(riddle.type);
   const difficulty = getRiddleDifficulty(riddle.difficulty);
+  const resources = riddle.informationSources.flatMap((source) => source.resources);
 
   return (
     <Card size="sm" className="h-full">
@@ -37,11 +37,6 @@ export function RiddleCard({
           </Button>
         </div>
 
-        <div className="flex items-center justify-center gap-2 text-muted-foreground">
-          <RiddleTypeIcon type={riddle.type} size={22} />
-          <span className="text-sm">{riddleType?.label ?? riddle.type}</span>
-        </div>
-
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Badge className={difficulty?.className}>{difficulty?.label ?? riddle.difficulty}</Badge>
           <Badge variant="outline">
@@ -53,7 +48,7 @@ export function RiddleCard({
         <Separator />
 
         <RiddleSection title="Material">
-          <ResourceCarousel resources={riddle.resources} assets={deerSchema.assets} />
+          <ResourceCarousel resources={resources} assets={deerSchema.assets} />
         </RiddleSection>
 
         <Separator />
@@ -64,8 +59,8 @@ export function RiddleCard({
 
         <Separator />
 
-        <RiddleSection title="Einstellungen">
-          <RiddleParametersView riddle={riddle} deerSchema={deerSchema} />
+        <RiddleSection title="Eingaben">
+          <RiddleInputsView riddle={riddle} deerSchema={deerSchema} />
         </RiddleSection>
       </CardContent>
     </Card>
@@ -88,11 +83,11 @@ function HintList({ hints }: { hints: RiddleHint[] }) {
   return (
     <ul className="m-0 flex list-none flex-col gap-0 p-0">
       {[...hints]
-        .sort((a, b) => a.severity - b.severity)
+        .sort((a, b) => getHintSeverityOrder(a.severity) - getHintSeverityOrder(b.severity))
         .map((hint) => (
           <li key={hint.id} className="flex items-center gap-2 text-sm">
             <Badge variant="outline" title="Stufe">
-              {hint.severity}
+              {getHintSeverity(hint.severity)?.label ?? hint.severity}
             </Badge>
             <span className="truncate">{hint.title}</span>
             <Tooltip>
