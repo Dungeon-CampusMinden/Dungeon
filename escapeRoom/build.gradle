@@ -34,6 +34,12 @@ tasks.register('runMushRoom', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('runGameOfGames', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.GameOfGames'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 tasks.register('buildDemoRoom', Jar) {
     group = 'jar'
     archiveBaseName.set('EscaperoomDemo')
@@ -77,7 +83,8 @@ tasks.register('generateLauncherProperties') {
             [name: 'CoopDungeon', mainClass: 'starter.CoopDungeon'],
             [name: 'DemoRoom', mainClass: 'starter.DemoRoom'],
             [name: 'SpriteTestRoom', mainClass: 'starter.SpriteTestRoom'],
-            [name: 'MushRoom', mainClass: 'starter.MushRoom']
+            [name: 'MushRoom', mainClass: 'starter.MushRoom'],
+            [name: 'GameOfGames', mainClass: 'starter.GameOfGames']
         ]
 
         // generate properties files
@@ -141,7 +148,8 @@ runtime {
             "--input", inputDir.absolutePath,
             "--add-launcher", "CoopDungeon=${launchersDir.absolutePath}/CoopDungeon.properties",
             "--add-launcher", "DemoRoom=${launchersDir.absolutePath}/DemoRoom.properties",
-            "--add-launcher", "SpriteTestRoom=${launchersDir.absolutePath}/SpriteTestRoom.properties"
+            "--add-launcher", "SpriteTestRoom=${launchersDir.absolutePath}/SpriteTestRoom.properties",
+            "--add-launcher", "GameOfGames=${launchersDir.absolutePath}/GameOfGames.properties"
 
 
         ]
