@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerProgress;
@@ -95,6 +96,7 @@ public class LastHourLevel extends DungeonLevel {
   private ComputerStateComponent cscLastTick;
   private Entity keypad;
   private int lastKnownVisibleCommentCount = 0;
+  private final Set<Integer> usbCollectorWatchedPlayers = new HashSet<>();
 
   /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";
@@ -832,11 +834,35 @@ public class LastHourLevel extends DungeonLevel {
   protected void onTick() {
     checkPCStateUpdate();
     Game.allPlayers().filter(p -> !INTRO_SHOWN_TO.contains(p.id())).forEach(p -> showIntro(p.id()));
-    LastHourAchievements.checkAllUsbSticks();
+    registerUsbCollectorHooks();
     if (!Game.isHeadless()) {
       checkInteractFeedback();
       updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
     }
+  }
+
+  private void registerUsbCollectorHooks() {
+    Game.allPlayers()
+        .filter(player -> !usbCollectorWatchedPlayers.contains(player.id()))
+        .forEach(this::registerUsbCollectorHook);
+  }
+
+  private void registerUsbCollectorHook(Entity player) {
+    player
+        .fetch(InventoryComponent.class)
+        .ifPresent(
+            inventory -> {
+              Consumer<Item> previousOnItemAdded = inventory.onItemAdded();
+              inventory.onItemAdded(
+                  item -> {
+                    previousOnItemAdded.accept(item);
+                    if (item instanceof UsbStickItem.BaseUsbStick) {
+                      LastHourAchievements.checkAllUsbSticks();
+                    }
+                  });
+              usbCollectorWatchedPlayers.add(player.id());
+              LastHourAchievements.checkAllUsbSticks();
+            });
   }
 
   static void updateLightingShader(Point pcPos, Point timerPos, Entity keypad) {
