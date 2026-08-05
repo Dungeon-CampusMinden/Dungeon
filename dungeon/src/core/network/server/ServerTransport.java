@@ -324,7 +324,7 @@ public final class ServerTransport {
   }
 
   /**
-   * Broadcasts a {@link NetworkMessage} to all connected clients.
+   * Broadcasts a {@link NetworkMessage} to all established clients.
    *
    * @param msg The message to broadcast.
    * @param reliable True to send via a reliable channel (TCP), false for unreliable (UDP).
@@ -333,7 +333,10 @@ public final class ServerTransport {
    *     with true. For any errors during sending, the Future completes with false.
    */
   public CompletableFuture<Boolean> broadcast(NetworkMessage msg, boolean reliable) {
-    List<Session> activeSessions = sessions.values().stream().filter(s -> !s.isClosed()).toList();
+    List<Session> activeSessions =
+        sessions.values().stream()
+            .filter(session -> !session.isClosed() && session.clientState().isPresent())
+            .toList();
     if (activeSessions.isEmpty()) {
       return CompletableFuture.completedFuture(true);
     }
@@ -745,8 +748,6 @@ public final class ServerTransport {
     }
 
     short newClientId = (short) nextClientId.getAndIncrement();
-    clientIdToName.put(newClientId, playerName);
-
     byte[] sessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
     ClientState clientState =
         new ClientState(
@@ -756,10 +757,12 @@ public final class ServerTransport {
             sessionToken,
             selectedCharacterClass(req));
     session.udpReady(false);
-    session.attachClientState(clientState);
-    clientIdToSession.put(newClientId, session);
 
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
+
+    session.attachClientState(clientState);
+    clientIdToSession.put(newClientId, session);
+    clientIdToName.put(newClientId, playerName);
 
     sendInitialLevel(session.tcpCtx(), newClientId);
     sendInitialEntitySpawns(session, newClientId);
@@ -824,10 +827,11 @@ public final class ServerTransport {
     session.udpReady(false);
 
     // remove old mappings
-    clientIdToName.put(clientId, playerName);
     oldSession.udpAddress().ifPresent(udpToClientId::remove);
     oldSession.udpReady(false);
     sessions.remove(oldSession.tcpCtx().channel().id());
+    clientIdToSession.remove(clientId, oldSession);
+    clientIdToName.remove(clientId);
     try {
       oldSession.close(); // should be already closed, but just in case
     } catch (Exception ignored) {
@@ -835,11 +839,13 @@ public final class ServerTransport {
 
     // Reuse the previous ClientState so reconnects keep the original character class selection.
     oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
-    session.attachClientState(oldClientState);
-    clientIdToSession.put(clientId, session);
 
     // 4. Send ConnectAck
     session.sendMessage(new ConnectAck(clientId, ServerRuntime.SESSION_ID, newSessionToken), true);
+
+    session.attachClientState(oldClientState);
+    clientIdToSession.put(clientId, session);
+    clientIdToName.put(clientId, playerName);
 
     sendInitialLevel(session.tcpCtx(), clientId);
     sendInitialEntitySpawns(session, clientId);
