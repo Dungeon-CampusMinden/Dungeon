@@ -16,8 +16,8 @@ import java.util.Optional;
  *
  * <p>Use {@link #pop(String)} or {@link #popFor(Entity, String)} from game logic. The achievement
  * name is the id. The JSON definition is authoritative for the unlock recipients: game code may
- * pass the acting player with {@code popFor}, but {@code unlockForAll}/{@code scope} decides whether
- * the achievement is sent to all players or only to that player.
+ * pass the acting player with {@code popFor}, but {@code unlockForAll}/{@code scope} decides
+ * whether the achievement is sent to all players or only to that player.
  */
 public class AchievementManager {
 
