@@ -1,6 +1,6 @@
 package util;
 
-import contrib.achivements.AchievementManager;
+import contrib.achievements.AchievementManager;
 import contrib.components.InventoryComponent;
 import core.Entity;
 import core.Game;

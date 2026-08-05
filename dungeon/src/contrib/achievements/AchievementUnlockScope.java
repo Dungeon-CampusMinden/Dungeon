@@ -1,4 +1,4 @@
-package contrib.achivements;
+package contrib.achievements;
 
 import java.util.Locale;
 

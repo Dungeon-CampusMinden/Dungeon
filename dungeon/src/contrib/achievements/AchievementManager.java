@@ -1,4 +1,4 @@
-package contrib.achivements;
+package contrib.achievements;
 
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;

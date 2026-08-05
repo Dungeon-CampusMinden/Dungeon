@@ -2,7 +2,7 @@ package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import contrib.achivements.AchievementPopup;
+import contrib.achievements.AchievementPopup;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.inventory.InventoryGUI;
