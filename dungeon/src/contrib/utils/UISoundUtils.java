@@ -1,9 +1,7 @@
 package contrib.utils;
 
 import core.Game;
-import core.game.PreRunConfiguration;
 import core.sound.ISound;
-import core.sound.SoundSpec;
 import core.utils.settings.ClientSettings;
 import java.util.Optional;
 
@@ -26,7 +24,10 @@ public final class UISoundUtils {
   }
 
   /**
-   * Plays a UI sound directly on the local client, or sends it from a multiplayer server.
+   * Plays a UI sound directly on the local client.
+   *
+   * <p>UI sounds are intentionally not broadcast from multiplayer servers. They should be emitted
+   * by the client that renders the related UI.
    *
    * @param soundName sound asset id
    * @param volume base volume
@@ -34,12 +35,11 @@ public final class UISoundUtils {
    * @return sound instance id, or -1 if playback failed
    */
   public static long play(String soundName, float volume, float pitch) {
+    if (Game.isHeadless()) {
+      return -1;
+    }
     float effectiveVolume =
         (ClientSettings.masterVolume() / 100f) * (ClientSettings.effectsVolume() / 100f) * volume;
-    if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
-      return Game.audio()
-          .playGlobal(new SoundSpec.Builder(soundName).volume(effectiveVolume).pitch(pitch));
-    }
     long instanceId = Game.audio().newInstanceId();
     Optional<?> handle =
         Game.soundPlayer()
