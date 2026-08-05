@@ -35,7 +35,7 @@ final class AchievementStore {
   private static final String KEY_PLATINUM = "platinum";
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AchievementStore.class);
 
-  private final String definitionPath;
+  private String definitionPath;
   private final Path statusPath;
   private final Map<String, Achievement> definitions = new LinkedHashMap<>();
   private final Set<String> unlockedAchievements = new LinkedHashSet<>();
@@ -46,8 +46,19 @@ final class AchievementStore {
   }
 
   AchievementStore(String definitionPath, Path statusPath) {
-    this.definitionPath = definitionPath;
+    this.definitionPath = normalizeDefinitionPath(definitionPath);
     this.statusPath = statusPath;
+  }
+
+  void registerDefinitions(String definitionPath) {
+    String normalizedPath = normalizeDefinitionPath(definitionPath);
+    if (this.definitionPath.equals(normalizedPath) && !loaded) {
+      return;
+    }
+    this.definitionPath = normalizedPath;
+    loaded = false;
+    definitions.clear();
+    unlockedAchievements.clear();
   }
 
   boolean hasDefinitions() {
@@ -104,6 +115,13 @@ final class AchievementStore {
     loaded = true;
     loadDefinitions();
     loadStatus();
+  }
+
+  private String normalizeDefinitionPath(String definitionPath) {
+    if (definitionPath == null || definitionPath.isBlank()) {
+      throw new IllegalArgumentException("achievement definition path must not be blank");
+    }
+    return definitionPath.trim();
   }
 
   private void loadDefinitions() {

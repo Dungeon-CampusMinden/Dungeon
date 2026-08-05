@@ -49,6 +49,7 @@ import modules.computer.ComputerStateSyncSystem;
 import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
+import util.LastHourAchievements;
 
 /**
  * Entry point for running a minimal dungeon game instance.
@@ -101,6 +102,7 @@ public class TheLastHour {
             .levels(Tuple.of("lasthour", LastHourLevel.class))
             .onConfigure(
                 () -> {
+                  LastHourAchievements.registerDefinitions();
                   UsbStickItem.ensureRegistration();
                   initLocalization();
                 })

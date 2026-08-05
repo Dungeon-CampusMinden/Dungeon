@@ -47,9 +47,20 @@ public class AchievementManager {
   }
 
   /**
+   * Registers the internal JSON asset that defines the achievements for this game.
+   *
+   * <p>The path is resolved with {@code Gdx.files.internal(path)} when achievements are first used.
+   *
+   * @param definitionPath internal asset path to the achievement definition JSON
+   */
+  public static void registerAchievements(String definitionPath) {
+    instance().store.registerDefinitions(definitionPath);
+  }
+
+  /**
    * Checks if an achievement definition file is available.
    *
-   * @return true if achievement.json exists and contains definitions
+   * @return true if the registered achievement definition file exists and contains definitions
    */
   public static boolean isAvailable() {
     return instance().store.hasDefinitions();

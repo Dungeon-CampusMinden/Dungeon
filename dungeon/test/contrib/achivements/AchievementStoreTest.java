@@ -2,6 +2,7 @@ package contrib.achivements;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import core.utils.JsonHandler;
 import java.lang.reflect.Field;
@@ -22,6 +23,36 @@ class AchievementStoreTest {
     AchievementStore store = new AchievementStore();
 
     assertEquals(Path.of("achievement-unlocks.json"), statusPath(store));
+  }
+
+  @Test
+  void registerDefinitionsChangesDefinitionPath() throws Exception {
+    AchievementStore store = new AchievementStore();
+
+    store.registerDefinitions(" custom/achievements.json ");
+
+    assertEquals("custom/achievements.json", definitionPath(store));
+  }
+
+  @Test
+  void registerDefinitionsClearsLoadedState() throws Exception {
+    Path statusPath = Files.createTempFile("achievement-unlocks", ".json");
+    Files.deleteIfExists(statusPath);
+    AchievementStore store = new AchievementStore("old.json", statusPath);
+    addDefinition(store, achievement("Lights On"));
+    store.unlock("Lights On");
+
+    store.registerDefinitions("new.json");
+
+    assertFalse(store.isUnlocked("Lights On"));
+    assertEquals(List.of(), store.achievementsForMenu());
+  }
+
+  @Test
+  void registerDefinitionsRejectsBlankPath() {
+    AchievementStore store = new AchievementStore();
+
+    assertThrows(IllegalArgumentException.class, () -> store.registerDefinitions(" "));
   }
 
   @Test
@@ -68,6 +99,12 @@ class AchievementStoreTest {
     Field field = AchievementStore.class.getDeclaredField("statusPath");
     field.setAccessible(true);
     return (Path) field.get(store);
+  }
+
+  private static String definitionPath(AchievementStore store) throws Exception {
+    Field field = AchievementStore.class.getDeclaredField("definitionPath");
+    field.setAccessible(true);
+    return (String) field.get(store);
   }
 
   private static Achievement parseAchievement(

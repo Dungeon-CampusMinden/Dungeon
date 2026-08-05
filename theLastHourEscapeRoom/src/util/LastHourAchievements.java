@@ -13,6 +13,8 @@ import modules.usbstick.UsbStickItem;
 /** Achievement IDs and trigger helpers for The Last Hour. */
 public final class LastHourAchievements {
 
+  public static final String DEFINITION_PATH = "achievement.json";
+
   public static final String LIGHTS_ON = "Lights On";
   public static final String TRASH_DIVER = "Trash Diver";
   public static final String PC_UNLOCKED = "PC Unlocked";
@@ -27,6 +29,11 @@ public final class LastHourAchievements {
   private static final int BRUTEFORCE_ATTEMPTS = 10;
 
   private LastHourAchievements() {}
+
+  /** Registers The Last Hour achievement definitions. */
+  public static void registerDefinitions() {
+    AchievementManager.registerAchievements(DEFINITION_PATH);
+  }
 
   /**
    * Triggers an achievement that does not have a specific acting player.
