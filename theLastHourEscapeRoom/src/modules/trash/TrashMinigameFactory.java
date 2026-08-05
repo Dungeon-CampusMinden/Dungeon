@@ -10,7 +10,6 @@ import contrib.item.concreteItem.HintItem;
 import core.Entity;
 import java.util.Objects;
 import modules.computer.LastHourDialogTypes;
-import util.LastHourAchievements;
 
 /**
  * Public, single-method API for opening the trashcan minigame.
@@ -52,7 +51,6 @@ public final class TrashMinigameFactory {
   public static void show(Entity who, Item reward, int paperCount, Runnable afterAward) {
     Objects.requireNonNull(who, "who");
     ensureRegistered();
-    LastHourAchievements.trigger(who, LastHourAchievements.TRASH_DIVER);
 
     DialogContext.Builder builder =
         DialogContext.builder()

@@ -483,11 +483,11 @@ public class LastHourLevel extends DungeonLevel {
                           new Interaction(
                               (eInteract, who) -> {
                                 if (!hasReward || awarded[0]) {
-                                  TrashMinigameFactory.show(who, null, paperCount, null);
+                                  showTrashMinigame(who, null, paperCount, null);
                                   return;
                                 }
                                 Item reward = new HintItem(new SimpleIPath(trashNote));
-                                TrashMinigameFactory.show(
+                                showTrashMinigame(
                                     who,
                                     reward,
                                     paperCount,
@@ -806,11 +806,11 @@ public class LastHourLevel extends DungeonLevel {
                 new Interaction(
                     (eInteract, who) -> {
                       if (awarded[0]) {
-                        TrashMinigameFactory.show(who, null, 30, null);
+                        showTrashMinigame(who, null, 30, null);
                         return;
                       }
                       Item reward = UsbStickItem.createUsbStickItem(UsbStickColor.Blue);
-                      TrashMinigameFactory.show(
+                      showTrashMinigame(
                           who,
                           reward,
                           30,
@@ -821,6 +821,11 @@ public class LastHourLevel extends DungeonLevel {
                           });
                     })));
     Game.add(blueTrash);
+  }
+
+  private void showTrashMinigame(Entity who, Item reward, int paperCount, Runnable afterAward) {
+    LastHourAchievements.triggerTrashDiver(who);
+    TrashMinigameFactory.show(who, reward, paperCount, afterAward);
   }
 
   @Override

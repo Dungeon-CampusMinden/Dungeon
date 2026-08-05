@@ -7,6 +7,7 @@ import core.Game;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
+import modules.computer.ComputerFactory;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
 
@@ -30,9 +31,22 @@ public final class LastHourAchievements {
 
   private LastHourAchievements() {}
 
+  /** Registers The Last Hour achievement definitions and event hooks. */
+  public static void register() {
+    registerDefinitions();
+    registerComputerHooks();
+  }
+
   /** Registers The Last Hour achievement definitions. */
   public static void registerDefinitions() {
     AchievementManager.registerAchievements(DEFINITION_PATH);
+  }
+
+  /** Registers achievement hooks for Last Hour computer interactions. */
+  public static void registerComputerHooks() {
+    ComputerFactory.onVirusTriggered(LastHourAchievements::triggerVirus);
+    ComputerFactory.onPcUnlocked(LastHourAchievements::triggerPcUnlocked);
+    ComputerFactory.onControlPanelOpened(LastHourAchievements::triggerControlPanel);
   }
 
   /**
@@ -52,6 +66,42 @@ public final class LastHourAchievements {
    */
   public static void trigger(Entity player, String name) {
     AchievementManager.instance().popFor(player, name);
+  }
+
+  /**
+   * Unlocks the trashcan-search achievement for the acting player.
+   *
+   * @param player player who opened a Last Hour trashcan
+   */
+  public static void triggerTrashDiver(Entity player) {
+    trigger(player, TRASH_DIVER);
+  }
+
+  /**
+   * Unlocks the virus achievement for the acting player.
+   *
+   * @param player player who caused the virus
+   */
+  public static void triggerVirus(Entity player) {
+    trigger(player, VIRUS);
+  }
+
+  /**
+   * Unlocks the PC achievement for the acting player.
+   *
+   * @param player player who logged in
+   */
+  public static void triggerPcUnlocked(Entity player) {
+    trigger(player, PC_UNLOCKED);
+  }
+
+  /**
+   * Unlocks the control-panel achievement for the acting player.
+   *
+   * @param player player who opened the control panel
+   */
+  public static void triggerControlPanel(Entity player) {
+    trigger(player, CONTROL_PANEL);
   }
 
   /**

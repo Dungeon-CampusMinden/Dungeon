@@ -102,7 +102,7 @@ public class TheLastHour {
             .levels(Tuple.of("lasthour", LastHourLevel.class))
             .onConfigure(
                 () -> {
-                  LastHourAchievements.registerDefinitions();
+                  LastHourAchievements.register();
                   UsbStickItem.ensureRegistration();
                   initLocalization();
                 })

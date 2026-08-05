@@ -59,7 +59,7 @@ public final class LastHourClient {
 
   /** Pre-run registrations for the client (custom dialogs and items). */
   public static void registerClientContent() {
-    LastHourAchievements.registerDefinitions();
+    LastHourAchievements.register();
     registerCustomDialogs();
     UsbStickItem.ensureRegistration();
     PuzzlePieceItem.ensureRegistration();
