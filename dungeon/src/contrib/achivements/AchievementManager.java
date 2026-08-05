@@ -3,6 +3,7 @@ package contrib.achivements;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.systems.EventScheduler;
 import core.Entity;
@@ -82,7 +83,7 @@ public class AchievementManager {
    * @return true if unlocked for the local menu viewer
    */
   public static boolean isUnlockedInMenu(String name) {
-    return instance().store.isUnlockedForLocalPlayer(name);
+    return instance().store.isUnlocked(name);
   }
 
   /**
@@ -106,25 +107,18 @@ public class AchievementManager {
       LOGGER.warn("Achievement '{}' is not defined.", name);
       return;
     }
-    if (achievement.get().unlocksForAll()) {
-      unlockForAll(achievement.get());
-    } else {
-      unlockForPlayer(player, achievement.get());
+    Achievement definition = achievement.get();
+    if (definition.unlocksForAll()) {
+      showPopup(definition);
+      return;
     }
-  }
-
-  private void unlockForAll(Achievement achievement) {
-    showPopup(achievement);
-  }
-
-  private void unlockForPlayer(Entity player, Achievement achievement) {
     if (player == null) {
       LOGGER.warn(
           "Achievement '{}' needs a triggering player but was triggered without one.",
-          achievement.name());
+          definition.name());
       return;
     }
-    showPopup(achievement, player.id());
+    showPopup(definition, player.id());
   }
 
   /**
@@ -175,7 +169,7 @@ public class AchievementManager {
             .put(AchievementPopup.KEY_DESCRIPTION_KEY, achievement.descriptionKey())
             .build();
 
-    UIComponent ui = contrib.hud.dialogs.DialogFactory.show(context, false, false, targetEntityIds);
+    UIComponent ui = DialogFactory.show(context, false, false, targetEntityIds);
     EventScheduler.scheduleAction(() -> UIUtils.closeDialog(ui, true), POPUP_DURATION_MS);
   }
 }

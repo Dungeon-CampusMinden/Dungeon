@@ -26,7 +26,6 @@ public enum AchievementUnlockScope {
     }
     if (scope instanceof String text && !text.isBlank()) {
       return switch (text.trim().toLowerCase(Locale.ROOT)) {
-        case "all", "all_players", "allplayers", "global" -> ALL_PLAYERS;
         case "player", "triggering_player", "triggeringplayer", "local" -> TRIGGERING_PLAYER;
         default -> ALL_PLAYERS;
       };

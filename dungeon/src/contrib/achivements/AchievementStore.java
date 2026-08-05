@@ -71,11 +71,6 @@ final class AchievementStore {
     return definitions.values().stream().toList();
   }
 
-  boolean isUnlockedForLocalPlayer(String name) {
-    ensureLoaded();
-    return isUnlocked(name);
-  }
-
   Optional<Achievement> definition(String name) {
     ensureLoaded();
     return Optional.ofNullable(definitions.get(name));
@@ -100,7 +95,7 @@ final class AchievementStore {
     ensureLoaded();
     return definitions.values().stream()
         .filter(achievement -> !achievement.platinum())
-        .allMatch(achievement -> isUnlocked(achievement.name()));
+        .allMatch(achievement -> unlockedAchievements.contains(achievement.name()));
   }
 
   boolean isUnlocked(String name) {
@@ -132,7 +127,7 @@ final class AchievementStore {
               Object achievementsNode = root.get(KEY_ACHIEVEMENTS);
               if (!(achievementsNode instanceof List<?> achievements)) {
                 throw new IllegalArgumentException(
-                    "achievement.json must contain an 'achievements' array");
+                    definitionPath + " must contain an 'achievements' array");
               }
               for (Object node : achievements) {
                 Achievement achievement = parseAchievement(node);
@@ -170,12 +165,12 @@ final class AchievementStore {
     String description = optionalStringValue(map, KEY_DESCRIPTION).orElse("");
     String nameKey = optionalStringValue(map, KEY_NAME_KEY).orElse("");
     String descriptionKey = optionalStringValue(map, KEY_DESCRIPTION_KEY).orElse("");
-    boolean hidden = booleanValue(map, KEY_HIDDEN, false);
+    boolean hidden = booleanValue(map, KEY_HIDDEN);
     Object scope =
         map.containsKey(KEY_UNLOCK_SCOPE) ? map.get(KEY_UNLOCK_SCOPE) : map.get(KEY_SCOPE);
     AchievementUnlockScope unlockScope =
         AchievementUnlockScope.fromJson(map.get(KEY_UNLOCK_FOR_ALL), scope);
-    boolean platinum = booleanValue(map, KEY_PLATINUM, false);
+    boolean platinum = booleanValue(map, KEY_PLATINUM);
     return new Achievement(
         imagePath, name, description, nameKey, descriptionKey, hidden, unlockScope, platinum);
   }
@@ -200,7 +195,7 @@ final class AchievementStore {
     return text.isEmpty() ? Optional.empty() : Optional.of(text);
   }
 
-  private boolean booleanValue(Map<String, Object> map, String key, boolean fallback) {
+  private boolean booleanValue(Map<String, Object> map, String key) {
     Object value = map.get(key);
     if (value instanceof Boolean bool) {
       return bool;
@@ -208,7 +203,7 @@ final class AchievementStore {
     if (value instanceof String text) {
       return Boolean.parseBoolean(text);
     }
-    return fallback;
+    return false;
   }
 
   private void loadStatus() {
@@ -250,11 +245,5 @@ final class AchievementStore {
 
   private List<Object> sortedList(Set<String> values) {
     return values.stream().sorted().map(Object.class::cast).toList();
-  }
-
-  void resetForTests() {
-    loaded = false;
-    definitions.clear();
-    unlockedAchievements.clear();
   }
 }

@@ -29,6 +29,9 @@ public final class AchievementPopup {
   public static final String KEY_NAME_KEY = "achievement.nameKey";
   public static final String KEY_DESCRIPTION_KEY = "achievement.descriptionKey";
   private static final float CORNER_MARGIN = 40f;
+  private static final String TITLE_FONT = "fonts/Roboto-Bold.ttf";
+  private static final String BODY_FONT = "fonts/Roboto-Regular.ttf";
+  private static final String T_UNLOCKED = "unlocked";
   private static final String UNLOCK_SOUND = "kenney_ui_confirmation_004";
   private static final float UNLOCK_SOUND_VOLUME = 1f;
   private static final String FALLBACK_IMAGE = "animation/missing_texture.png";
@@ -68,13 +71,11 @@ public final class AchievementPopup {
     icon.setScaling(com.badlogic.gdx.utils.Scaling.fit);
     Label header =
         Scene2dElementFactory.createLabel(
-            TRANS.text("unlocked"), FontSpec.of("fonts/Roboto-Bold.ttf", 18, Color.DARK_GRAY));
+            TRANS.text(T_UNLOCKED), FontSpec.of(TITLE_FONT, 18, Color.DARK_GRAY));
     Label nameLabel =
-        Scene2dElementFactory.createLabel(
-            name, FontSpec.of("fonts/Roboto-Bold.ttf", 24, Color.BLACK));
+        Scene2dElementFactory.createLabel(name, FontSpec.of(TITLE_FONT, 24, Color.BLACK));
     Label descriptionLabel =
-        Scene2dElementFactory.createLabel(
-            description, FontSpec.of("fonts/Roboto-Regular.ttf", 16, Color.BLACK));
+        Scene2dElementFactory.createLabel(description, FontSpec.of(BODY_FONT, 16, Color.BLACK));
     descriptionLabel.setWrap(true);
 
     Table text = new Table();
