@@ -7,8 +7,7 @@
       "nameKey": "achievements.lights_on.name",
       "descriptionKey": "achievements.lights_on.description",
       "unlockForAll": true,
-      "hidden": true,
-      "unlocked": false
+      "hidden": true
     },
     {
       "imagePath": "images/crumbled-paper.png",
@@ -17,8 +16,7 @@
       "nameKey": "achievements.trash_diver.name",
       "descriptionKey": "achievements.trash_diver.description",
       "unlockForAll": false,
-      "hidden": true,
-      "unlocked": false
+      "hidden": true
     },
     {
       "imagePath": "images/company_logo.png",
@@ -27,8 +25,7 @@
       "nameKey": "achievements.pc_unlocked.name",
       "descriptionKey": "achievements.pc_unlocked.description",
       "unlockForAll": true,
-      "hidden": true,
-      "unlocked": false
+      "hidden": true
     },
     {
       "imagePath": "images/virus-phrases.png",
@@ -37,8 +34,7 @@
       "nameKey": "achievements.virus.name",
       "descriptionKey": "achievements.virus.description",
       "unlockForAll": true,
-      "hidden": true,
-      "unlocked": false
+      "hidden": true
     },
     {
       "imagePath": "hud/kenney/chess_king.png",
@@ -47,8 +43,7 @@
       "nameKey": "achievements.keypad_code.name",
       "descriptionKey": "achievements.keypad_code.description",
       "unlockForAll": true,
-      "hidden": true,
-      "unlocked": false
+      "hidden": true
     },
     {
       "imagePath": "hud/kenney/skull.png",
@@ -57,8 +52,7 @@
       "nameKey": "achievements.bruteforce.name",
       "descriptionKey": "achievements.bruteforce.description",
       "unlockForAll": true,
-      "hidden": true,
-      "unlocked": false
+      "hidden": true
     },
     {
       "imagePath": "items/usb-side-red.png",
@@ -67,8 +61,7 @@
       "nameKey": "achievements.usb_collector.name",
       "descriptionKey": "achievements.usb_collector.description",
       "unlockForAll": true,
-      "hidden": true,
-      "unlocked": false
+      "hidden": true
     },
     {
       "imagePath": "images/decoder_74155.png",
@@ -77,8 +70,7 @@
       "nameKey": "achievements.control_panel.name",
       "descriptionKey": "achievements.control_panel.description",
       "unlockForAll": true,
-      "hidden": true,
-      "unlocked": false
+      "hidden": true
     },
     {
       "imagePath": "images/final-code.png",
@@ -87,8 +79,7 @@
       "nameKey": "achievements.escaped_in_time.name",
       "descriptionKey": "achievements.escaped_in_time.description",
       "unlockForAll": true,
-      "hidden": true,
-      "unlocked": false
+      "hidden": true
     },
     {
       "imagePath": "images/random_nothing.png",
@@ -97,8 +88,7 @@
       "nameKey": "achievements.escaped_too_late.name",
       "descriptionKey": "achievements.escaped_too_late.description",
       "unlockForAll": true,
-      "hidden": true,
-      "unlocked": false
+      "hidden": true
     },
     {
       "imagePath": "items/rpg/item_gem_diamond_smooth.png",
@@ -108,8 +98,7 @@
       "descriptionKey": "achievements.platinum.description",
       "unlockForAll": false,
       "platinum": true,
-      "hidden": false,
-      "unlocked": false
+      "hidden": false
     }
   ]
 }

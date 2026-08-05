@@ -6,8 +6,6 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogType;
 import contrib.systems.EventScheduler;
 import core.Entity;
-import core.Game;
-import core.components.PlayerComponent;
 import core.utils.logging.DungeonLogger;
 import java.util.List;
 import java.util.Optional;
@@ -58,12 +56,22 @@ public class AchievementManager {
   }
 
   /**
-   * Returns the menu view of all achievements.
+   * Returns all achievement definitions for the menu.
    *
-   * @return achievements with current local player unlock state
+   * @return achievement definitions
    */
   public static List<Achievement> menuAchievements() {
     return instance().store.achievementsForMenu();
+  }
+
+  /**
+   * Checks whether an achievement is unlocked for the current local menu viewer.
+   *
+   * @param name achievement id/name
+   * @return true if unlocked for the local menu viewer
+   */
+  public static boolean isUnlockedInMenu(String name) {
+    return instance().store.isUnlockedForLocalPlayer(name);
   }
 
   /**
@@ -88,18 +96,14 @@ public class AchievementManager {
       return;
     }
     if (achievement.get().unlocksForAll()) {
-      unlockForAll(achievement.get(), player);
+      unlockForAll(achievement.get());
     } else {
       unlockForPlayer(player, achievement.get());
     }
   }
 
-  private void unlockForAll(Achievement achievement, Entity triggeringPlayer) {
-    if (!store.unlockGlobally(achievement.name())) {
-      return;
-    }
-    showPopup(achievement, true);
-    unlockPlatinumIfComplete(achievement, triggeringPlayer);
+  private void unlockForAll(Achievement achievement) {
+    showPopup(achievement);
   }
 
   private void unlockForPlayer(Entity player, Achievement achievement) {
@@ -109,38 +113,32 @@ public class AchievementManager {
           achievement.name());
       return;
     }
-    PlayerComponent playerComponent = player.fetch(PlayerComponent.class).orElse(null);
-    if (!store.unlockForPlayer(playerComponent, achievement.name())) {
-      return;
-    }
-    showPopup(achievement, false, player.id());
-    unlockPlatinumIfComplete(achievement, player);
+    showPopup(achievement, player.id());
   }
 
   /**
    * Records an unlock received through an achievement popup on this local client.
    *
    * @param name achievement id/name
-   * @param global whether the unlock applies globally
+   * @return true if this client recorded the achievement as newly unlocked
    */
-  public static void markUnlockedFromPopup(String name, boolean global) {
-    instance().recordPopupUnlock(name, global);
+  public static boolean markUnlockedFromPopup(String name) {
+    return instance().recordPopupUnlock(name);
   }
 
-  private void recordPopupUnlock(String name, boolean global) {
-    if (store.definition(name).isEmpty()) {
-      return;
+  private boolean recordPopupUnlock(String name) {
+    Optional<Achievement> achievement = store.definition(name);
+    if (achievement.isEmpty()) {
+      return false;
     }
-    if (global) {
-      store.unlockGlobally(name);
-      return;
+    boolean newlyUnlocked = store.unlock(name);
+    if (newlyUnlocked) {
+      unlockPlatinumIfComplete(achievement.get());
     }
-    PlayerComponent playerComponent =
-        Game.player().flatMap(player -> player.fetch(PlayerComponent.class)).orElse(null);
-    store.unlockForPlayer(playerComponent, name);
+    return newlyUnlocked;
   }
 
-  private void unlockPlatinumIfComplete(Achievement unlockedAchievement, Entity triggeringPlayer) {
+  private void unlockPlatinumIfComplete(Achievement unlockedAchievement) {
     if (unlockedAchievement.platinum()) {
       return;
     }
@@ -149,50 +147,21 @@ public class AchievementManager {
       return;
     }
     Achievement platinum = platinumAchievement.get();
-    if (platinum.unlocksForAll()) {
-      PlayerComponent playerComponent = playerComponent(triggeringPlayer).orElse(null);
-      if (store.allNonPlatinumAchievementsUnlocked(playerComponent)
-          && store.unlockGlobally(platinum.name())) {
-        showPopup(platinum, true);
-      }
-      return;
-    }
-    if (unlockedAchievement.unlocksForAll()) {
-      Game.allPlayers().forEach(player -> unlockPlatinumForPlayer(player, platinum));
-    } else {
-      unlockPlatinumForPlayer(triggeringPlayer, platinum);
+    if (store.allNonPlatinumAchievementsUnlocked() && !store.isUnlocked(platinum.name())) {
+      showPopup(platinum);
     }
   }
 
-  private void unlockPlatinumForPlayer(Entity player, Achievement platinum) {
-    if (player == null) {
-      return;
-    }
-    PlayerComponent playerComponent = playerComponent(player).orElse(null);
-    if (store.allNonPlatinumAchievementsUnlocked(playerComponent)
-        && store.unlockForPlayer(playerComponent, platinum.name())) {
-      showPopup(platinum, false, player.id());
-    }
-  }
-
-  private Optional<PlayerComponent> playerComponent(Entity player) {
-    if (player == null) {
-      return Optional.empty();
-    }
-    return player.fetch(PlayerComponent.class);
-  }
-
-  private void showPopup(Achievement achievement, boolean global, int... targetEntityIds) {
+  private void showPopup(Achievement achievement, int... targetEntityIds) {
     DialogContext context =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.ACHIEVEMENT_POPUP)
             .center(false)
             .put(AchievementPopup.KEY_IMAGE_PATH, achievement.imagePath())
             .put(AchievementPopup.KEY_NAME, achievement.name())
-            .put(AchievementPopup.KEY_DESCRIPTION, achievement.neschreibung())
+            .put(AchievementPopup.KEY_DESCRIPTION, achievement.description())
             .put(AchievementPopup.KEY_NAME_KEY, achievement.nameKey())
             .put(AchievementPopup.KEY_DESCRIPTION_KEY, achievement.descriptionKey())
-            .put(AchievementPopup.KEY_GLOBAL, global)
             .build();
 
     UIComponent ui = contrib.hud.dialogs.DialogFactory.show(context, false, false, targetEntityIds);

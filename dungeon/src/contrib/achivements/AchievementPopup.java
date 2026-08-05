@@ -28,7 +28,6 @@ public final class AchievementPopup {
   public static final String KEY_DESCRIPTION = "achievement.description";
   public static final String KEY_NAME_KEY = "achievement.nameKey";
   public static final String KEY_DESCRIPTION_KEY = "achievement.descriptionKey";
-  public static final String KEY_GLOBAL = "achievement.global";
   private static final float CORNER_MARGIN = 40f;
   private static final String UNLOCK_SOUND = "kenney_ui_confirmation_004";
   private static final float UNLOCK_SOUND_VOLUME = 1f;
@@ -52,8 +51,10 @@ public final class AchievementPopup {
         localized(
             ctx.find(KEY_DESCRIPTION_KEY, String.class).orElse(""),
             ctx.require(KEY_DESCRIPTION, String.class));
-    boolean global = ctx.find(KEY_GLOBAL, Boolean.class).orElse(true);
-    AchievementManager.markUnlockedFromPopup(achievementId, global);
+    boolean newlyUnlocked = AchievementManager.markUnlockedFromPopup(achievementId);
+    if (!newlyUnlocked) {
+      return new HeadlessDialogGroup();
+    }
 
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup("Achievement unlocked", name + "\n" + description);
