@@ -11,14 +11,15 @@ import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.HeadlessDialogGroup;
-import contrib.utils.UISoundUtils;
 import core.Game;
 import core.language.Translation;
+import core.sound.SoundSpec;
 import core.utils.BaseContainerUI;
 import core.utils.FontSpec;
 import core.utils.Scene2dElementFactory;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.SimpleIPath;
+import core.utils.settings.ClientSettings;
 
 /** Achievement unlock popup. */
 public final class AchievementPopup {
@@ -96,7 +97,14 @@ public final class AchievementPopup {
   private static void playUnlockSound() {
     // This build method runs on the client that renders the popup. In multiplayer, the server sends
     // only the dialog context; the receiving client builds the popup and plays this sound locally.
-    UISoundUtils.play(UNLOCK_SOUND, UNLOCK_SOUND_VOLUME, 1f);
+    Game.audio()
+        .playGlobal(
+            new SoundSpec.Builder(UNLOCK_SOUND)
+                .volume(effectiveEffectsVolume() * UNLOCK_SOUND_VOLUME));
+  }
+
+  private static float effectiveEffectsVolume() {
+    return (ClientSettings.masterVolume() / 100f) * (ClientSettings.effectsVolume() / 100f);
   }
 
   private static String localized(String key, String fallback) {

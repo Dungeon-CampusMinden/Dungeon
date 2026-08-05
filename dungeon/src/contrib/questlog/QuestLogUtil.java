@@ -1,10 +1,11 @@
 package contrib.questlog;
 
-import contrib.utils.UISoundUtils;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.sound.CoreSounds;
+import core.sound.SoundSpec;
+import core.utils.settings.ClientSettings;
 import java.util.Optional;
 
 /**
@@ -211,9 +212,18 @@ public final class QuestLogUtil {
     boolean added =
         getQuestLogComponent().map(component -> component.add(tab, entry)).orElse(false);
     if (added) {
-      UISoundUtils.play(CoreSounds.INTERFACE_QUESTLOG_ENTRY_CREATED);
+      playQuestLogEntryCreatedSound();
     }
     return added;
+  }
+
+  private static void playQuestLogEntryCreatedSound() {
+    CoreSounds sound = CoreSounds.INTERFACE_QUESTLOG_ENTRY_CREATED;
+    float effectiveVolume =
+        (ClientSettings.masterVolume() / 100f)
+            * (ClientSettings.effectsVolume() / 100f)
+            * sound.volume();
+    Game.audio().playGlobal(new SoundSpec.Builder(sound.soundName()).volume(effectiveVolume));
   }
 
   /**
