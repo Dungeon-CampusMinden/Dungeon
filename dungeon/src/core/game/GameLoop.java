@@ -432,6 +432,9 @@ public final class GameLoop extends ScreenAdapter {
       } else {
         LOGGER.warn("No levels found to load!");
       }
+      if (PreRunConfiguration.isNetworkServer()) {
+        Game.network().completeServerBootstrap();
+      }
     }
   }
 

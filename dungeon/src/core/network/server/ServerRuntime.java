@@ -80,6 +80,14 @@ public final class ServerRuntime {
     if (transport != null) transport.stop();
   }
 
+  /** Signals that the initial authoritative world has been fully constructed. */
+  public void completeBootstrap() {
+    if (loop == null) {
+      throw new IllegalStateException("Server is not running. Call `start()` first.");
+    }
+    loop.completeBootstrap();
+  }
+
   /**
    * Broadcasts a message to all connected clients.
    *

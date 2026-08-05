@@ -176,6 +176,11 @@ public class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
+  public void completeServerBootstrap() {
+    if (serverMode && server != null) server.completeBootstrap();
+  }
+
+  @Override
   public void addConnectionListener(ConnectionListener listener) {
     if (!serverMode) client.addConnectionListener(listener);
   }

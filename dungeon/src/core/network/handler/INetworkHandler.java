@@ -112,6 +112,14 @@ public interface INetworkHandler {
    */
   default void markInitialWorldReady() {}
 
+  /**
+   * Signals that the authoritative server finished constructing its initial world.
+   *
+   * <p>Server implementations may use this boundary to delay game ticks and connection bootstrap
+   * until the initial level is fully loaded. Client and local implementations may ignore it.
+   */
+  default void completeServerBootstrap() {}
+
   /** Starts the handler's processing loop. */
   void start();
 

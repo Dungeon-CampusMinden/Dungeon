@@ -62,6 +62,8 @@ public final class AuthoritativeServerLoop {
   private final ScheduledExecutorService executor;
   private final SnapshotHistory snapshotHistory = new SnapshotHistory(SERVER_DELTA_HISTORY_SIZE);
   private volatile int serverTick = 0;
+  private volatile boolean bootstrapComplete;
+  private boolean worldInitialized;
   private String snapshotLevelName;
   private Object snapshotLevelIdentity;
 
@@ -139,11 +141,26 @@ public final class AuthoritativeServerLoop {
     return !executor.isShutdown();
   }
 
+  /** Allows the server loop to initialize and start ticking the fully constructed initial world. */
+  public void completeBootstrap() {
+    bootstrapComplete = true;
+  }
+
   private void tick() {
+    if (!bootstrapComplete) {
+      return;
+    }
+
     try {
       long tickStartNanos = System.nanoTime();
       //noinspection NonAtomicOperationOnVolatileField only place where serverTick is modified
       serverTick++;
+      if (!worldInitialized) {
+        executeGameTick();
+        worldInitialized = true;
+        NetworkTelemetry.recordFrameTime(System.nanoTime() - tickStartNanos);
+        return;
+      }
       // Drain any inbound network messages on the game thread before running systems
       long networkDispatchStartNanos = System.nanoTime();
       try {
@@ -154,8 +171,7 @@ public final class AuthoritativeServerLoop {
         NetworkTelemetry.recordNetworkDispatchBatch(System.nanoTime() - networkDispatchStartNanos);
       }
       syncClientsToEntities();
-      PreRunConfiguration.userOnFrame().execute();
-      ECSManagement.executeOneTick(core.System.AuthoritativeSide.SERVER);
+      executeGameTick();
       NetworkTelemetry.recordFrameTime(System.nanoTime() - tickStartNanos);
     } catch (Exception e) {
       LOGGER.error("Tick error", e);
@@ -163,6 +179,11 @@ public final class AuthoritativeServerLoop {
       LOGGER.fatal("Unexpected error in server loop", t);
       stop();
     }
+  }
+
+  private void executeGameTick() {
+    PreRunConfiguration.userOnFrame().execute();
+    ECSManagement.executeOneTick(core.System.AuthoritativeSide.SERVER);
   }
 
   private void sendSnapshot() {
