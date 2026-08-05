@@ -61,6 +61,9 @@ public final class LastHourAchievements {
   /**
    * Triggers an achievement for an acting player.
    *
+   * <p>The achievement JSON decides whether this unlock is sent to all players or only to the
+   * acting player.
+   *
    * @param player player who caused the achievement trigger
    * @param name achievement id/name
    */

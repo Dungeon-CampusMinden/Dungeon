@@ -15,7 +15,9 @@ import java.util.Optional;
  * Central API for unlocking achievements.
  *
  * <p>Use {@link #pop(String)} or {@link #popFor(Entity, String)} from game logic. The achievement
- * name is the id.
+ * name is the id. The JSON definition is authoritative for the unlock recipients: game code may
+ * pass the acting player with {@code popFor}, but {@code unlockForAll}/{@code scope} decides whether
+ * the achievement is sent to all players or only to that player.
  */
 public class AchievementManager {
 
@@ -89,6 +91,10 @@ public class AchievementManager {
   /**
    * Unlocks an achievement according to its configured unlock scope.
    *
+   * <p>Use this only for achievements that do not have a meaningful acting player. If the JSON
+   * definition is changed to a player-scoped achievement, this call cannot infer the missing player
+   * and will log a warning instead of unlocking it.
+   *
    * @param name achievement id/name
    */
   public void pop(String name) {
@@ -97,6 +103,10 @@ public class AchievementManager {
 
   /**
    * Unlocks an achievement according to its configured unlock scope.
+   *
+   * <p>The given player is the actor, not a hard-coded recipient. The JSON definition remains the
+   * source of truth: globally scoped achievements are still unlocked for all players, and
+   * player-scoped achievements are unlocked for this player.
    *
    * @param player player entity
    * @param name achievement id/name
