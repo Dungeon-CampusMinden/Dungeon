@@ -138,44 +138,34 @@ public class Lore {
   public static final List<Tuple<String, Integer>> OutroTexts =
       List.of(
           Tuple.of(
-              "The exit door of Dr. Mertens' office finally clicks open - but his last message still echoes in your mind:",
+              TranslationKey.OutroText_1, 32),
+          Tuple.of(
+              TranslationKey.OutroText_2,
               32),
           Tuple.of(
-              "\"The project files are hidden in a locker on the 6th floor.\"\n\n"
-                  + "You step out into the silent hallway, the timer behind you finally still.",
+            TranslationKey.OutroText_3,
               32),
           Tuple.of(
-              "With the evidence secured and the truth about Dr. Mertens' disappearance"
-                  + " in your hands, you make your way up to recover the project files.",
+            TranslationKey.OutroText_4,
               32),
           Tuple.of(
-              "As you reach the locker and open it, you find a final note from Dr. Mertens:\n\n"
-                  + "\"If you're reading this, it means you made it out. The project is safe with you now.\"\n\n",
-              32),
-          Tuple.of(
-              "A sense of relief washes over you, but also a lingering question: What exactly is \"Mythos\", and why did it attract such dangerous attention?\n\nYou should google it...",
-              32),
-          Tuple.of("Congratulations!\n\nYou escaped! :D", 120));
+            TranslationKey.OutroText_5,32),
+          Tuple.of(TranslationKey.OutroText_6, 120));
 
   /** List of outro texts shown when the timer expires before escape. */
   public static final List<Tuple<String, Integer>> BadOutroTexts =
       List.of(
           Tuple.of(
-              "The office door finally unlocks, but the speakers are silent now - Dr. Mertens' automated warning already said everything:",
-              32),
+              TranslationKey.BadOutroText_1,32),
           Tuple.of(
-              "\"If you are hearing this, the time has run out.\"\n\nYou step into the hallway with empty hands, knowing the destruction protocol has already erased his data.",
-              32),
+            TranslationKey.BadOutroText_2,32),
           Tuple.of(
-              "You made it out alive, but the evidence is gone. Whatever Dr. Mertens discovered about \"Mythos\" died with his files.",
-              32),
+            TranslationKey.BadOutroText_3,32),
           Tuple.of(
-              "At the locker on the 6th floor, you find only scorched fragments and a final line in his handwriting:\n\n\"If this reaches you too late, protect the people - not the project.\"\n\n",
-              32),
+            TranslationKey.BadOutroText_4,32),
           Tuple.of(
-              "No breakthrough to recover. No proof to hand over. Only unanswered questions, and the certainty that someone wanted this truth buried.",
-              32),
-          Tuple.of("You escaped...", 120));
+            TranslationKey.BadOutroText_5,32),
+          Tuple.of(TranslationKey.BadOutroText_6, 120));
 
   /** List of blog entries, each with a title, content and a list of comments. */
   public static final List<BlogTab.BlogEntry> BlogEntries =

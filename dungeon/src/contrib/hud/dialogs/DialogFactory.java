@@ -15,6 +15,7 @@ import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
 import core.game.PreRunConfiguration;
+import core.language.Translation;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
@@ -162,15 +163,10 @@ public class DialogFactory {
 
     DialogContext translatedContext = context;
     if(Game.isMultiplayerClient()) {
-      // Try-catch block to ensure Game doesnt crash when the DialogContextKeys.MESSAGE is not a String.
-      try {
-        Optional<String> text = context.find(DialogContextKeys.MESSAGE, String.class);
-        if(text.isPresent() && Translator.hasKey(text.get())) {
-          Map<String, Object> attributes = context.attributes();
-          attributes.put(DialogContextKeys.MESSAGE, Translator.translate(text.get(),Game.localization().currentLanguage()));
-          translatedContext = new DialogContext(context.dialogType(),context.center(),attributes, context.dialogId());
-        }
-      } catch (DialogCreationException e) {}
+      if (context.attributes().containsKey(DialogContextKeys.MESSAGE))
+        translatedContext = translateText(DialogContextKeys.MESSAGE, context);
+      if (context.attributes().containsKey(DialogContextKeys.DIALOG))
+        translatedContext = translateText(DialogContextKeys.DIALOG, context);
     }
 
     UIComponent ui = new UIComponent(translatedContext, willPause, canBeClosed, targetEntityIds);
@@ -508,5 +504,19 @@ public class DialogFactory {
     DialogContext ctx =
         DialogContext.builder().type(DialogType.DefaultTypes.CLIENT_CONNECTION).build();
     return show(ctx, false, false);
+  }
+
+  private static DialogContext translateText(String type, DialogContext context) {
+    DialogContext translatedContext = context;
+    try {
+      // Try-catch block to ensure Game doesnt crash when the text is not a String.
+      Optional<String> text = context.find(type, String.class);
+      if(text.isPresent() && Translator.hasKey(text.get())) {
+        Map<String, Object> attributes = context.attributes();
+        attributes.put(type, Translator.translate(text.get()));
+        return translatedContext = new DialogContext(context.dialogType(),context.center(),attributes, context.dialogId());
+      }
+    } catch (DialogCreationException e) {}
+    return translatedContext;
   }
 }

@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
+import contrib.utils.translation.TranslationKey;
 import core.utils.Scene2dElementFactory;
 import core.utils.Tuple;
 import java.util.HashMap;
@@ -116,7 +117,7 @@ public class FileTab extends ComputerTab {
   private static Actor createHintPage() {
     Table table = new Table();
     table.center();
-    Label label = Scene2dElementFactory.createLabel(Lore.HintFilePoem, 28, Color.BLACK);
+    Label label = Scene2dElementFactory.createLabel(TranslationKey.HintFilePoem, 28, Color.BLACK);
     label.setAlignment(Align.center);
     table.add(label).expand().center();
     return table;

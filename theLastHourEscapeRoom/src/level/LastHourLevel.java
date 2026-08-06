@@ -36,6 +36,7 @@ import core.components.DrawComponent;
 import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.language.Language;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
@@ -198,9 +199,9 @@ public class LastHourLevel extends DungeonLevel {
         () ->
             DialogFactory.showDialogDialog(
                 "[speaker img=logo/cat_logo_64x64.png name=\"[color=#aaaaaa][size=25]...\"]"
-                    + Lore.PostIntroDialogText1
+                    + TranslationKey.PostIntroDialogText1
                     + "[p]"
-                    + Lore.PostIntroDialogText2,
+                    + TranslationKey.PostIntroDialogText2,
                 () -> {},
                 targetId),
         targetId);
@@ -266,7 +267,7 @@ public class LastHourLevel extends DungeonLevel {
     Game.player()
         .ifPresent(
             player ->
-                DialogFactory.showDialogDialog(Lore.TimerExpiredRecording, () -> {}, player.id()));
+                DialogFactory.showDialogDialog(TranslationKey.TimerExpiredRecording, () -> {}, player.id()));
   }
 
   private static List<Tuple<String, Integer>> endingLoreTexts() {
@@ -616,7 +617,7 @@ public class LastHourLevel extends DungeonLevel {
             () ->
                 new Interaction(
                     (e, who) -> {
-                      DialogFactory.showOkDialog(Lore.VentDialog, "", () -> {}, who.id());
+                      DialogFactory.showOkDialog(TranslationKey.VentDialog, "", () -> {}, who.id());
                     })));
     Game.add(vent);
 
@@ -642,20 +643,27 @@ public class LastHourLevel extends DungeonLevel {
    */
   private void setupR1Vents() {
     String[] points = {"r1-vent0", "r1-vent1"};
-    for (int i = 0; i < points.length; i++) {
-      String serial = Lore.DecoyVentSerialNumbers.get(i % Lore.DecoyVentSerialNumbers.size());
-      Entity decoyVent = DecoFactory.createDeco(getPoint(points[i]), Deco.FloorBarsSmall);
-      decoyVent.remove(DecoComponent.class);
-      decoyVent.add(
-          new InteractionComponent(
-              () ->
-                  new Interaction(
-                      (e, who) -> {
-                        String dialog = Lore.DecoyVentDialog.replace("{serial}", serial);
-                        DialogFactory.showOkDialog(dialog, "", () -> {}, who.id());
-                      })));
-      Game.add(decoyVent);
-    }
+    Entity decoyVent1 = DecoFactory.createDeco(getPoint(points[0]), Deco.FloorBarsSmall);
+    decoyVent1.remove(DecoComponent.class);
+    decoyVent1.add(
+      new InteractionComponent(
+        () ->
+          new Interaction(
+            (e, who) -> {
+              DialogFactory.showOkDialog(TranslationKey.DecoyVentDialog1, "", () -> {}, who.id());
+            })));
+    Game.add(decoyVent1);
+
+    Entity decoyVent2 = DecoFactory.createDeco(getPoint(points[1]), Deco.FloorBarsSmall);
+    decoyVent2.remove(DecoComponent.class);
+    decoyVent2.add(
+      new InteractionComponent(
+        () ->
+          new Interaction(
+            (e, who) -> {
+              DialogFactory.showOkDialog(TranslationKey.DecoyVentDialog2, "", () -> {}, who.id());
+            })));
+    Game.add(decoyVent2);
   }
 
   /**
@@ -685,13 +693,13 @@ public class LastHourLevel extends DungeonLevel {
   private void triggerFirstPhoneCall() {
     if (firstPhoneCallTriggered) return;
     firstPhoneCallTriggered = true;
-    ringPhone(Lore.Ringing1, this::scheduleSecondPhoneCall);
+    ringPhone(TranslationKey.Ringing1, this::scheduleSecondPhoneCall);
   }
 
   private void scheduleSecondPhoneCall() {
     if (secondPhoneCallScheduled) return;
     secondPhoneCallScheduled = true;
-    EventScheduler.scheduleAction(() -> ringPhone(Lore.Ringing2), SECOND_PHONE_RING_DELAY_MS);
+    EventScheduler.scheduleAction(() -> ringPhone(TranslationKey.Ringing2), SECOND_PHONE_RING_DELAY_MS);
   }
 
   /**
