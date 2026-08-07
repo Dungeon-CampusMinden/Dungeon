@@ -1,4 +1,4 @@
-import type { DeerSchema, Riddle, RiddleHint } from "@/data/DeerSchema";
+import type { DeerSchema, InformationSource, Riddle, RiddleHint } from "@/data/DeerSchema";
 import { ClockIcon, InfoIcon, PencilIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -6,7 +6,7 @@ import { Card, CardContent } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ResourceCarousel } from "./ResourceCarousel";
-import { RiddleInputsView } from "./RiddleInputsView";
+import { RiddleInputsView, SurfaceValue } from "./RiddleInputsView";
 import { getHintSeverity, getHintSeverityOrder, getRiddleDifficulty } from "./riddleTypes";
 
 export function RiddleCard({
@@ -19,7 +19,10 @@ export function RiddleCard({
   onEdit: () => void;
 }) {
   const difficulty = getRiddleDifficulty(riddle.difficulty);
-  const resources = riddle.informationSources.flatMap((source) => source.resources);
+  const assignedSourceIds = new Set(
+    riddle.inputs.filter((input) => input.type === "collection").map((input) => input.informationSourceId),
+  );
+  const unassignedSources = riddle.informationSources.filter((source) => !assignedSourceIds.has(source.id));
 
   return (
     <Card size="sm" className="h-full">
@@ -47,23 +50,48 @@ export function RiddleCard({
 
         <Separator />
 
-        <RiddleSection title="Material">
-          <ResourceCarousel resources={resources} assets={deerSchema.assets} />
+        <RiddleSection title="Eingaben">
+          <RiddleInputsView riddle={riddle} deerSchema={deerSchema} />
         </RiddleSection>
+
+        {unassignedSources.length > 0 && (
+          <>
+            <Separator />
+
+            <RiddleSection title="Weiteres Material">
+              <UnassignedSourceList sources={unassignedSources} deerSchema={deerSchema} />
+            </RiddleSection>
+          </>
+        )}
 
         <Separator />
 
         <RiddleSection title="Hilfe">
           <HintList hints={riddle.hints} />
         </RiddleSection>
-
-        <Separator />
-
-        <RiddleSection title="Eingaben">
-          <RiddleInputsView riddle={riddle} deerSchema={deerSchema} />
-        </RiddleSection>
       </CardContent>
     </Card>
+  );
+}
+
+function UnassignedSourceList({
+  sources,
+  deerSchema,
+}: {
+  sources: InformationSource[];
+  deerSchema: DeerSchema;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      {sources.map((source) => (
+        <div key={source.id} className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-sm">
+            <SurfaceValue deerSchema={deerSchema} surfaceId={source.surfaceId} />
+          </div>
+          <ResourceCarousel resources={source.resources} assets={deerSchema.assets} />
+        </div>
+      ))}
+    </div>
   );
 }
 

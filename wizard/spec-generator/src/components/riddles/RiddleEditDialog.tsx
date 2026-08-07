@@ -73,8 +73,8 @@ export function RiddleEditDialog({
           <DialogTitle>Rätsel '{draft.title}' bearbeiten</DialogTitle>
         </DialogHeader>
 
-        <div className="grid max-h-[65vh] grid-cols-1 items-start gap-4 overflow-y-auto pr-1 lg:grid-cols-2 lg:gap-6">
-          <div className="flex flex-col gap-4 lg:sticky lg:top-0 lg:self-start">
+        <div className="flex max-h-[65vh] flex-col gap-4 overflow-y-auto pr-1">
+          <div className="flex flex-col gap-4">
             <Field>
               <FieldLabel>Titel</FieldLabel>
               <Input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
@@ -134,7 +134,7 @@ export function RiddleEditDialog({
           </div>
 
           <div className="flex flex-col gap-4">
-            <Separator className="lg:hidden" />
+            <Separator />
 
             <Field>
               <FieldLabel>Informationsquellen</FieldLabel>
