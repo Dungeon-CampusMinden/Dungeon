@@ -3,7 +3,6 @@ import "./App.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import schema from "./data/new-deer.json";
 import type { DeerSchema } from "./data/DeerSchema";
-import { Button } from "./components/ui/button";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { ErrorDetector } from "./components/ErrorDetector";
 import { SidebarNavigation } from "./components/SidebarNavigation";
@@ -11,9 +10,9 @@ import { MetadataTab } from "./components/MetadataTab";
 import { ScenarioTab } from "./components/ScenarioTab";
 import { SessionTab } from "./components/SessionTab";
 import { SurfacesTab } from "./components/SurfacesTab";
-import { CustomIcon } from "./components/CustomIcon";
 import { AssetsTab } from "./components/AssetsTab";
 import { RiddlesTab } from "./components/RiddlesTab";
+import { ReviewTab } from "./components/ReviewTab";
 import { useErrorCheck } from "./hooks/useErrorCheck";
 import {
   createUntouchedTabs,
@@ -42,10 +41,7 @@ function App() {
     setDeerSchema(JSON.parse(JSON.stringify(updatedSchema)));
   };
 
-  const testAction = () => {
-    deerSchema.metadata.title = "Updated Title";
-    updateDeerSchema(deerSchema);
-  };
+  const hasTouchedAllTabs = Object.values(touchedTabs).every((touched) => touched);
 
   return (
     <div className="h-screen overflow-scroll max-w-7xl mx-auto bg-background p-4 lg:border-x border-[var(--border-color)]">
@@ -56,6 +52,8 @@ function App() {
           <ErrorDetector
             deerSchema={deerSchema}
             updateDeerSchema={updateDeerSchema}
+            issueReport={issueReport}
+            touchedAll={hasTouchedAllTabs}
             className="lg:block hidden"
           />
         </div>
@@ -66,17 +64,15 @@ function App() {
           {tab === "surfaces" && <SurfacesTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "assets" && <AssetsTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "riddles" && <RiddlesTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-          {tab === "review" && (
-            <>
-              <CustomIcon src="/bundled-assets/items/puzzle-piece.png" alt="Puzzle Piece" />
-              <Button onClick={testAction}>Test</Button>
-              <code className="block mb-4 p-2 bg-slate-100 rounded-sm text-sm">
-                <pre>{JSON.stringify(deerSchema, null, 2)}</pre>
-              </code>
-            </>
-          )}
+          {tab === "review" && <ReviewTab deerSchema={deerSchema} issueReport={issueReport} />}
         </div>
-        <ErrorDetector deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} className="lg:hidden" />
+        <ErrorDetector
+          deerSchema={deerSchema}
+          updateDeerSchema={updateDeerSchema}
+          issueReport={issueReport}
+          touchedAll={hasTouchedAllTabs}
+          className="lg:hidden"
+        />
       </div>
     </div>
   );

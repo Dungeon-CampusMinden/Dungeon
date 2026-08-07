@@ -11,7 +11,7 @@ const TABS = [
   { value: "assets", label: "Eigene Bilder & Dateien" },
   { value: "riddles", label: "Rätsel" },
   { value: "riddle_graph", label: "Spielablauf" },
-  { value: "review", label: "Prüfen & Vorschau" },
+  { value: "review", label: "Prüfen & Generieren" },
 ];
 
 /** Tabs that only present content and are therefore never validated. */

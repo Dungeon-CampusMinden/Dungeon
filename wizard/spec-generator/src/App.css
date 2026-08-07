@@ -40,6 +40,5 @@ p {
 code {
   background-color: var(--muted);
   color: var(--muted-foreground);
-  padding: 16px;
   border-radius: var(--radius-sm);
 }

@@ -38,7 +38,7 @@ const INPUT_TYPES = ["collection", "numeric"];
 const TIME_LIMIT_MODES = ["hard", "soft"];
 const ASSET_MEDIA_TYPES: AssetMediaType[] = ["image/png", "image/jpeg"];
 
-const SEVERITY_ORDER: Record<IssueSeverity, number> = { info: 0, warning: 1, error: 2 };
+export const SEVERITY_ORDER: Record<IssueSeverity, number> = { info: 0, warning: 1, error: 2 };
 
 const isBlank = (value: unknown) => typeof value !== "string" || value.trim() === "";
 
@@ -78,6 +78,13 @@ export class ErrorChecker {
 
   static getIssues(tabIssues: TabIssues | undefined): Issue[] {
     return Object.values(tabIssues ?? {}).flat();
+  }
+
+  /** All issues of every tab, most severe first. */
+  static getSortedIssues(report: IssueReport): Issue[] {
+    return Object.values(report)
+      .flatMap((tabIssues) => ErrorChecker.getIssues(tabIssues))
+      .sort((a, b) => SEVERITY_ORDER[b.severity] - SEVERITY_ORDER[a.severity]);
   }
 
   //#region Helpers
