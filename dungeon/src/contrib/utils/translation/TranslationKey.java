@@ -2,8 +2,8 @@ package contrib.utils.translation;
 
 public class TranslationKey {
 
-  public static final String DecoyVentDialog1 = "DecoyVentDialogKey1";
-  public static final String DecoyVentDialog2 = "DecoyVentDialogKey2";
+  public static final String DecoyVentDialog1 = "DecoyVentDialog1";
+  public static final String DecoyVentDialog2 = "DecoyVentDialog2";
   public static final String VentDialog = "VentDialog";
   public static final String R2DeskNoteText = "R2DeskNoteText";
   public static final String IntroText_1 = "IntroText_1";

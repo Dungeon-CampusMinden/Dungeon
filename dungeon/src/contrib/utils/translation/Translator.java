@@ -33,9 +33,9 @@ public class Translator {
         case TranslationKey.Ringing1 -> translatedText = translatedText.replace(s, translation.text(s, MertensColor));
         case TranslationKey.Ringing2 -> translatedText = translatedText.replace(s, translation.text(s, MertensColor));
         case TranslationKey.TimerExpiredRecording -> translatedText = translatedText.replace(s, translation.text(s, MertensColor));
-        case TranslationKey.DecoyVentDialog1 -> translatedText = translatedText.replace(s, DecoyVentSerialNumbers.get(0));
-        case TranslationKey.DecoyVentDialog2 -> translatedText = translatedText.replace(s, DecoyVentSerialNumbers.get(1));
-        case TranslationKey.VentDialog -> translatedText = translatedText.replace(s, VentSerialNumber);
+        case TranslationKey.DecoyVentDialog1 -> translatedText = translatedText.replace(s, translation.text(s, DecoyVentSerialNumbers.get(0)));
+        case TranslationKey.DecoyVentDialog2 -> translatedText = translatedText.replace(s, translation.text(s, DecoyVentSerialNumbers.get(1)));
+        case TranslationKey.VentDialog -> translatedText = translatedText.replace(s,  translation.text(s, VentSerialNumber));
         default -> translatedText = translatedText.replace(s, translation.text(s));
       }
     }
@@ -55,6 +55,8 @@ public class Translator {
   public static void init() {
     allKeys.add(TranslationKey.DecoyVentDialog1);
     allKeys.add(TranslationKey.DecoyVentDialog2);
+    allKeys.add(TranslationKey.VentDialog);
+    allKeys.add(TranslationKey.R2DeskNoteText);
     allKeys.add(TranslationKey.IntroText_1);
     allKeys.add(TranslationKey.IntroText_2);
     allKeys.add(TranslationKey.IntroText_3);
