@@ -39,6 +39,37 @@ public class TranslationKey {
   public static final String LightSwitch_1 = "LightSwitch_1";
   public static final String LightSwitch_2 = "LightSwitch_2";
   public static final String PhoneInteraction = "PhoneInteraction";
+  public static final String BlogEntryTitle_1 = "BlogEntryTitle_1";
+  public static final String BlogEntry_1 = "BlogEntry_1";
+  public static final String BlogEntryTitle_2 = "BlogEntryTitle_2";
+  public static final String BlogEntry_2 = "BlogEntry_2";
+  public static final String BlogEntryTitle_3 = "BlogEntryTitle_3";
+  public static final String BlogEntry_3 = "BlogEntry_3";
+  public static final String BlogComment_1 = "BlogComment_1";
+  public static final String BlogComment_2 = "BlogComment_2";
+  public static final String BlogComment_3 = "BlogComment_3";
+  public static final String BlogComment_4 = "BlogComment_4";
+  public static final String BlogComment_5 = "BlogComment_5";
+  public static final String BlogComment_6 = "BlogComment_6";
+  public static final String Email_1_Subject = "Email_1_Subject";
+  public static final String Email_1_Content = "Email_1_Content";
+  public static final String Email_2_Subject = "Email_2_Subject";
+  public static final String Email_2_Content = "Email_2_Content";
+  public static final String Email_3_Subject = "Email_3_Subject";
+  public static final String Email_3_Content = "Email_3_Content";
+  public static final String Email_4_Subject = "Email_4_Subject";
+  public static final String Email_4_Content = "Email_4_Content";
+  public static final String Email_5_Subject = "Email_5_Subject";
+  public static final String Email_5_Content = "Email_5_Content";
+  public static final String Email_6_Subject = "Email_6_Subject";
+  public static final String Email_6_Content = "Email_6_Content";
+  public static final String Email_7_Subject = "Email_7_Subject";
+  public static final String Email_7_Content = "Email_7_Content";
+  public static final String Email_8_Subject = "Email_8_Subject";
+  public static final String Email_8_Content = "Email_8_Content";
+  public static final String Email_9_Subject = "Email_9_Subject";
+  public static final String Email_9_Content = "Email_9_Content";
+
 
 
 

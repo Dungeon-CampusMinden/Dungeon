@@ -16,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.utils.translation.TranslationKey;
+import contrib.utils.translation.Translator;
 import core.sound.Sounds;
 import core.utils.Cursors;
 import core.utils.Scene2dElementFactory;
@@ -108,8 +110,7 @@ public class EmailsTab extends ComputerTab {
     container.pad(10, 20, 10, 10);
 
     Label subjectLabel =
-        Scene2dElementFactory.createLabel(
-            email.subject(), 18, isSelected ? Color.WHITE : Color.BLACK);
+        Scene2dElementFactory.createLabel(Translator.translate(email.subject), 18, isSelected ? Color.WHITE : Color.BLACK);
     subjectLabel.setWrap(true);
     container.add(subjectLabel).width(330);
 
@@ -164,7 +165,7 @@ public class EmailsTab extends ComputerTab {
     container.add(senderMailLabel).left().padBottom(20).row();
 
     Label subjectLabel =
-        Scene2dElementFactory.createLabel("Subject: " + selectedEmail.subject(), 22, Color.BLACK);
+        Scene2dElementFactory.createLabel("Subject: " + Translator.translate(selectedEmail.subject()), 22, Color.BLACK);
     container.add(subjectLabel).left().padBottom(10).row();
 
     VerticalGroup contentTable = new VerticalGroup();
@@ -299,7 +300,7 @@ public class EmailsTab extends ComputerTab {
      * @return a list of content lines to be displayed in the email details view
      */
     public List<String> parsedContentLines() {
-      return Arrays.asList(content.split(PARAGRAPH_SPLIT));
+      return Arrays.asList(Translator.translate(content).split(PARAGRAPH_SPLIT));
     }
   }
 

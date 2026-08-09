@@ -92,85 +92,40 @@ public class Lore {
   public static final List<BlogTab.BlogEntry> BlogEntries =
       List.of(
           new BlogTab.BlogEntry(
-              "Unexpected Issue with the Access System",
-              """
-            Amid all the work, something rather frustrating happened today:
-            I forgot the access code to the adjacent room.
-
-            The door system is manufactured by SecuGate Systems, model SG-4. I usually secure access credentials in multiple ways, but apparently I've been too focused on the project lately.
-
-            I would prefer not to fully reset or reconfigure the entire system.
-            Is there a way to recover the existing code or reconstruct it in a controlled manner?
-
-            If anyone has experience with this system or knows a secure approach, I would appreciate your advice.""",
+              TranslationKey.BlogEntryTitle_1,
+              TranslationKey.BlogEntry_1,
               List.of()),
           new BlogTab.BlogEntry(
-              "Many Responses - Mixed Impressions",
-              """
-              Thank you for the numerous replies to my previous post.
-              I received significantly more emails than I expected.
-
-              In some cases, I am not entirely sure whether the intention is truly to help - or something else.
-
-              I will carefully review the incoming messages before opening or executing anything.""",
+              TranslationKey.BlogEntryTitle_2,
+              TranslationKey.BlogEntry_2,
               List.of(
                   new BlogTab.BlogComment(
                       "TechAnalyst",
-                      """
-                In situations like this, I would focus less on the promised outcome and more on how the message is written.
-                Professional technical support is usually neutral in tone and avoids dramatic language or unnecessary pressure.""",
+                      TranslationKey.BlogComment_1,
                       60),
                   new BlogTab.BlogComment(
                       "SecureMind",
-                      """
-                If a message redirects you to external websites, I would examine them closely.
-                Official manufacturers typically use consistent domains and avoid unusual or slightly altered web addresses.
-                Checking the full URL can be very revealing.""",
+                      TranslationKey.BlogComment_2,
                       120),
                   new BlogTab.BlogComment(
                       "CyberLab",
-                      """
-                Messages that create urgency, demand immediate action, or come from generic sender addresses are almost always problematic.
-                The actual manufacturer will usually contact you professionally and through their official domain - not through improvised support addresses or private email accounts.""",
+                      TranslationKey.BlogComment_3,
                       180))),
           new BlogTab.BlogEntry(
-              "Some Kind of Decoding",
-              """
-          Ok I did manage to contact the support, but they instructed me to use some kind of decoding process on a sequence of numbers they provided, which is supposed to lead me to the access code.
-
-          The kicker: I forgot where I placed the manual that explains the decoding steps.
-
-          Does anyone happen to know how to continue with this?""",
+              TranslationKey.BlogEntryTitle_3,
+              TranslationKey.BlogEntry_3,
               List.of(
                   new BlogTab.BlogComment(
                       "BinaryCoffee",
-                      """
-              I remember we briefly talked about that sequence in the canteen the other day.
-              At the time I couldn't make sense of it either.
-
-              Thinking about it again now, one detail came back to me: the numbers were grouped in blocks of eight, and you mentioned that they were all ones and zeros, akin to binary.
-
-              Not quite sure how to go on, but I am fairly sure the grouping itself was important for the next step.""",
+                      TranslationKey.BlogComment_4,
                       240),
                   new BlogTab.BlogComment(
                       "BinaryCoffee",
-                      """
-              It just clicked while reviewing some old documentation.
-
-              If those values are indeed binary and arranged in groups of four bits, the usual interpretation would be to convert each group into its hexadecimal equivalent.
-
-              In other words: every 4-bit binary block directly maps to a single hexadecimal digit.""",
+                      TranslationKey.BlogComment_5,
                       300),
                   new BlogTab.BlogComment(
                       "BinaryCoffee",
-                      """
-              I checked my notes again and this should be the full chain you mentioned back then.
-
-              First interpret the sequence as binary and group it into blocks of four bits.
-              Convert each 4-bit block into its hexadecimal representation.
-
-              After that, take the resulting hexadecimal values and interpret them as ASCII codes.
-              That final ASCII conversion should reveal the numeric code you were trying to recover.""",
+                      TranslationKey.BlogComment_6,
                       360))));
 
   /** The real access URL. */
@@ -190,65 +145,57 @@ public class Lore {
           new EmailsTab.Email(
               "Prince Adewale Foundation",
               "royaloffice.transferdesk@poqwmavnakld.gl",
-              "Confidential Assistance Required",
-              "Greetings,\\pMy name is Prince Adewale. Due to a sensitive financial situation, I require assistance transferring 2.14 million USD from a restricted account.\\pIn return for your trustworthy support, you will receive a generous percentage.\\p\\aProvide secure contact details;https://royal-transferdesk.org/secure",
+              TranslationKey.Email_1_Subject,
+              TranslationKey.Email_1_Content,
               List.of("Sign_This_To_Receive_Funds.pdf")),
           new EmailsTab.Email(
               "SecuGate Support",
               "support@secugate-reset247.com",
-              "URGENT! Your Access Has Been Disabled",
-              "Your SG-4 system has been temporarily locked for security reasons.\\pTo avoid permanent deactivation, immediate action is required.\\p\\aSecuGate Access Recovery Portal;"
-                  + EmailCodeUrls.get(1)
-                  + "\\pFollow the instructions on the portal to restore access.\\pThis is an automated message, please do not reply.",
+            TranslationKey.Email_2_Subject,
+            TranslationKey.Email_2_Content,
               List.of()),
           new EmailsTab.Email(
               "Music Downloader",
               "noreply@illegal-music-downloader.com",
-              "Your File Is Ready",
-              "Hello,\\pYour requested file is now ready.\\pCheck the attachments or click the link below to download your file:\\p\\aDownload your file;https://illegal-music-downloader.com/download/12345\\pPlease note that this is a one-time download link and will expire in 24 hours.",
+            TranslationKey.Email_3_Subject,
+            TranslationKey.Email_3_Content,
               List.of("Linkin_Park_-_In_The_End.mp3.exe")),
           new EmailsTab.Email(
               "Andreas Keller",
               "andreas.keller@secugate.com",
-              "Re: SG-4 Access Code - Controlled Reconstruction",
-              "Dear Dr. Mertens,\\pRegarding your inquiry about the SG-4 access system, I may be able to assist. The SG-4 model includes a recoverable access interface. I have prepared a test environment through which the code can be reconstructed in a controlled simulation.\\pPlease first access the following page:\\p\\aSecuGate Support - Access Recovery;"
-                  + EmailCodeUrls.get(0)
-                  + "\\pThere you will receive the final access code.\\pKind regards,\nAndreas Keller\nTechnical Support\nSecuGate Systems",
+            TranslationKey.Email_4_Subject,
+            TranslationKey.Email_4_Content,
               List.of()),
           new EmailsTab.Email(
               "Marc",
               "marc.unlockhelp@gmail.com",
-              "About your door issue",
-              "Hey Elias,\\pThe SG-4 thing is easy. Just check this out:\\p\\aSG-4 Diagnostic Access Tool;"
-                  + EmailCodeUrls.get(2)
-                  + "\\pKind regards,\nMarc\nFreelance IT Specialist",
+            TranslationKey.Email_5_Subject,
+            TranslationKey.Email_5_Content,
               List.of()),
           new EmailsTab.Email(
               "Telekom",
               "contact@local-connections-now.net",
-              ">> Hot Single Moms in Your Area <<",
-              "Hello,\\pOur system indicates that several friendly people in your area are interested in getting to know you.\\pCreate a profile now to see who is nearby.\\p\\aView nearby connections;https://local-connections-now.net/start\\pMembership is free for a limited time. Don't miss out!",
-              List.of()),
+            TranslationKey.Email_6_Subject,
+            TranslationKey.Email_6_Content,
+            List.of()),
           new EmailsTab.Email(
               "SG4 Recovery System",
               "system@secugate.com",
-              "Automatic Code Extraction - SG-4",
-              "Dear Dr. Mertens,\\pFollowing your inquiry regarding the SG-4 access control system, an automated extraction routine can be used to recover the stored access parameters.\\p"
-                  + "Please initiate the diagnostic process through the following interface:\\p\\aSG-4 Diagnostic Interface;"
-                  + EmailCodeUrls.get(3),
-              List.of()),
+            TranslationKey.Email_7_Subject,
+            TranslationKey.Email_7_Content,
+            List.of()),
           new EmailsTab.Email(
               "Global Parcel Logistics",
               "tracking@parcel-hold-center.info",
-              "Package Delivery Failed - Immediate Confirmation Required",
-              "Dear Customer,\\pA shipment addressed to you could not be delivered due to missing confirmation.\\pFailure to respond within 24 hours may result in return or storage fees.\\p\\aConfirm delivery details;https://adq.mmcaok.com/pl10fonmxdm1asmokxx0",
-              List.of("Tracking Details.pdf")),
+            TranslationKey.Email_8_Subject,
+            TranslationKey.Email_8_Content,
+            List.of("Tracking Details.pdf")),
           new EmailsTab.Email(
               "CryptoGrowth Alerts",
               "alerts@cryptogrowth-daily.biz",
-              "Your account qualified for guaranteed returns",
-              "Investor Notice,\\pOur automated trading platform has identified you as eligible for a limited high-yield investment opportunity with guaranteed daily profit.\\pSpaces are extremely limited.\\p\\aActivate investment account;https://cryptogrowth-daily.biz/start?si=1ujg0h1ju8mnc980mumsdnuz0",
-              List.of()));
+            TranslationKey.Email_9_Subject,
+            TranslationKey.Email_9_Content,
+            List.of()));
 
   /** List of attachment file names that lead to viruses. */
   public static final List<String> VirusAttachmentNames =

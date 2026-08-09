@@ -36,6 +36,10 @@ public class Translator {
         case TranslationKey.DecoyVentDialog1 -> translatedText = translatedText.replace(s, translation.text(s, DecoyVentSerialNumbers.get(0)));
         case TranslationKey.DecoyVentDialog2 -> translatedText = translatedText.replace(s, translation.text(s, DecoyVentSerialNumbers.get(1)));
         case TranslationKey.VentDialog -> translatedText = translatedText.replace(s,  translation.text(s, VentSerialNumber));
+        case TranslationKey.Email_2_Content -> translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(1)));
+        case TranslationKey.Email_4_Content -> translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(0)));
+        case TranslationKey.Email_5_Content -> translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(2)));
+        case TranslationKey.Email_7_Content -> translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(3)));
         default -> translatedText = translatedText.replace(s, translation.text(s));
       }
     }
@@ -52,6 +56,15 @@ public class Translator {
   public static final String VentSerialNumber = "49221";
   private static final String cabinetImagePath = "images/virus-phrases.png";
   private static final String cabinetImagePathDe = "images/virus-phrases-de.png";
+
+  /** List of URLs mentioned in the emails, which may or may not be trustworthy. */
+  public static final List<String> EmailCodeUrls =
+    List.of(
+      "https://support.secugate.com/sg4/recovery-sequence",
+      "http://secure-sg4-reset-now.com/verify",
+      "http://quick-unlock-sg4.net/code",
+      "https://support.seecugate.com/extract");
+
   public static void init() {
     allKeys.add(TranslationKey.DecoyVentDialog1);
     allKeys.add(TranslationKey.DecoyVentDialog2);
@@ -89,5 +102,37 @@ public class Translator {
     allKeys.add(TranslationKey.LightSwitch_1);
     allKeys.add(TranslationKey.LightSwitch_2);
     allKeys.add(TranslationKey.PhoneInteraction);
+    allKeys.add(TranslationKey.BlogEntryTitle_1);
+    allKeys.add(TranslationKey.BlogEntry_1);
+    allKeys.add(TranslationKey.BlogEntryTitle_2);
+    allKeys.add(TranslationKey.BlogEntry_2);
+    allKeys.add(TranslationKey.BlogEntryTitle_3);
+    allKeys.add(TranslationKey.BlogEntry_3);
+    allKeys.add(TranslationKey.BlogComment_1);
+    allKeys.add(TranslationKey.BlogComment_2);
+    allKeys.add(TranslationKey.BlogComment_3);
+    allKeys.add(TranslationKey.BlogComment_4);
+    allKeys.add(TranslationKey.BlogComment_5);
+    allKeys.add(TranslationKey.BlogComment_6);
+    allKeys.add(TranslationKey.Email_1_Subject);
+    allKeys.add(TranslationKey.Email_1_Content);
+    allKeys.add(TranslationKey.Email_2_Subject);
+    allKeys.add(TranslationKey.Email_2_Content);
+    allKeys.add(TranslationKey.Email_3_Subject);
+    allKeys.add(TranslationKey.Email_3_Content);
+    allKeys.add(TranslationKey.Email_4_Subject);
+    allKeys.add(TranslationKey.Email_4_Content);
+    allKeys.add(TranslationKey.Email_5_Subject);
+    allKeys.add(TranslationKey.Email_5_Content);
+    allKeys.add(TranslationKey.Email_6_Subject);
+    allKeys.add(TranslationKey.Email_6_Content);
+    allKeys.add(TranslationKey.Email_7_Subject);
+    allKeys.add(TranslationKey.Email_7_Content);
+    allKeys.add(TranslationKey.Email_8_Subject);
+    allKeys.add(TranslationKey.Email_8_Content);
+    allKeys.add(TranslationKey.Email_9_Subject);
+    allKeys.add(TranslationKey.Email_9_Content);
+
+
   }
 }
