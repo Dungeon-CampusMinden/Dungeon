@@ -1,8 +1,6 @@
 package util;
 
-import com.badlogic.gdx.Input;
-import contrib.configuration.KeyboardConfig;
-import contrib.utils.translation.TranslationKey;
+import util.translation.TranslationKey;
 import core.utils.Tuple;
 import java.util.Collections;
 import java.util.List;
@@ -244,17 +242,6 @@ public class Lore {
   /** Password required to unlock door 2 in the control panel. */
   public static final String ControlPanelDoor2Password = "214795541";
 
-  /** Poem shown inside the hint.md file on the USB drive. */
-  public static final String HintFilePoem =
-      "Behind the grate\n"
-          + "where dust has grown,\n"
-          + "small scraps lie trapped,\n"
-          + "forgotten, blown.\n\n"
-          + "No hand can reach,\n"
-          + "no tool can pry,\n"
-          + "but wake the sleeping wind,\n"
-          + "and watch them fly.";
-
   /** File name of the access code document downloaded from the recovery portal. */
   public static final String AccessCodeDownloadFileName = "unlock_code.pdf";
 
@@ -266,56 +253,5 @@ public class Lore {
   /** The actual numeric door code as a list of individual digits. */
   public static final List<Integer> DoorCode = List.of(3, 7, 5, 8);
 
-  public static final String Ringing1 =
-      "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] Hello? Can you hear me?"
-          + "[p]My name is Daniel Krell. I'm the CEO of Ciphera Labs."
-          + "[p][speaker name=\"Daniel Krell?\"]How are you guys doing?[pause=0.5] You are still inside, right?"
-          + "[p][speaker img={path}]Yes, we are trying to understand what happened here, recover the system and rescue the project data."
-          + "[p][speaker name=\"Daniel Krell?\"]Oh, that's great to hear![pause=0.5] Listen, I know this is a tough situation, but I want you to know that we're doing everything we can to help you out."
-          + "[p]In fact, [color="
-          + MertensColor
-          + "]Dr. Mertens[/color] left me a note instructing me to use the green USB Stick to do[tr speed=0.3]... [tr speed=1]something, in case he vanishes."
-          + "[p]It doesn't say what needs to be done, but I'm sure you can figure it out."
-          + "[p]I need to go now, good luck![n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]";
-
-  public static final String Ringing2 =
-      "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] ...Hello? Do you copy?"
-          + "[p]It's Adrian Voss."
-          + "[p][speaker name=\"Adrian Voss?\"]I've been trying to reach you.[pause=0.5] Heard you got trapped in a crime scene."
-          + "[p][speaker img={path}]Another call?"
-          + "[p][speaker name=\"Adrian Voss?\"]Did someone else try to contact you before?"
-          + "[p][speaker img={path}]Yes, someone called Daniel Krell who claimed to be the CEO of Ciphera Labs."
-          + "[p][speaker name=\"Adrian Voss?\"]I've never heard of that person, but they lied to you."
-          + "[p][speaker img={path}]Well the door locked shut behind us. We're trying to understand what happened and get out."
-          + "[p][speaker name=\"Adrian Voss?\"]Stay focused.[pause=0.5] Navigate [color="
-          + MertensColor
-          + "]Mertens'[/color] lab with caution."
-          + "[p]Before he went missing, [color="
-          + MertensColor
-          + "]Mertens[/color] tried to pass something to me, but he never actually did."
-          + "[p]He kept saying [shake strength=0.3 speed=0.5][color="
-          + MertensColor
-          + "]\"you'd like the looks, it's your favorite\"[/color][/shake] to me, but I'm not sure what he meant."
-          + "[p]Maybe you'll have better luck connecting that to something inside the lab."
-          + "[p]Whatever you do, be careful. Voss out.[n][n][pause=0.5][shake strength=0.3 speed=0.3][color=#333333]*click*[/color][/shake]";
-
   public static final String VentSerialNumber = "49221";
-  public static final String VentDialog =
-      "Just an ordinary air conditioner.[n][n]You see a text engraved on the steel rim of the gutter:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: sv000"
-          + VentSerialNumber
-          + "[n]";
-
-  /**
-   * Partial serial numbers shown on the two decoy vents in room 1. Each ends in three dashes
-   * because the remaining digits are scratched off and unreadable.
-   */
-  public static final List<String> DecoyVentSerialNumbers = List.of("sv00057---", "sv00031---");
-
-  /**
-   * Dialog shown when interacting with a decoy vent in room 1. The {@code {serial}} placeholder is
-   * replaced with the partial, scratched-off serial number of the respective vent.
-   */
-  public static final String DecoyVentDialog =
-      "Just an ordinary air conditioner.[n][n]You see a text engraved on the steel rim of the gutter,"
-          + " but most of it has been scratched off and is no longer readable:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: {serial}[n]";
 }

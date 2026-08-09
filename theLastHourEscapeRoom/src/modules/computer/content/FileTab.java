@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
-import contrib.utils.translation.TranslationKey;
+import util.translation.TranslationKey;
 import core.utils.Scene2dElementFactory;
 import core.utils.Tuple;
 import java.util.HashMap;

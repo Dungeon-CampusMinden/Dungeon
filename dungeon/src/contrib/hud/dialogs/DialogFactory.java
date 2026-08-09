@@ -9,13 +9,12 @@ import contrib.hud.inventory.InventoryGUI;
 import contrib.modules.keypad.KeypadUI;
 import contrib.modules.puzzle.PuzzleDialog;
 import contrib.utils.AttributeBarUtil;
-import contrib.utils.translation.TranslationKey;
-import contrib.utils.translation.Translator;
+import contrib.utils.Translator;
 import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
 import core.game.PreRunConfiguration;
-import core.language.Translation;
+import core.language.Localization;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
@@ -513,7 +512,7 @@ public class DialogFactory {
       Optional<String> text = context.find(type, String.class);
       if(text.isPresent() && Translator.hasKey(text.get())) {
         Map<String, Object> attributes = context.attributes();
-        attributes.put(type, Translator.translate(text.get()));
+        attributes.put(type, Localization.getInstance().getCurrentTranslator().translate(text.get()));
         return translatedContext = new DialogContext(context.dialogType(),context.center(),attributes, context.dialogId());
       }
     } catch (DialogCreationException e) {}

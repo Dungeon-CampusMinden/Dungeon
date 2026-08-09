@@ -11,7 +11,7 @@ import contrib.systems.CollisionSystem;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.Debugger;
-import contrib.utils.translation.Translator;
+import util.translation.LastHourTranslator;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.ClientStarter;
@@ -138,7 +138,7 @@ public class TheLastHour {
     Localization localization = Game.localization();
     localization.registerTranslationFile(Language.DE, "language/de.json");
     localization.registerTranslationFile(Language.EN, "language/en.json");
-    Translator.init();
+    localization.setCurrentTranslator(new LastHourTranslator());
   }
 
   /**

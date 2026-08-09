@@ -1,4 +1,4 @@
-package contrib.utils.translation;
+package util.translation;
 
 public class TranslationKey {
 
