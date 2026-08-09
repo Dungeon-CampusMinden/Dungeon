@@ -79,6 +79,13 @@ public class Translator {
     allKeys.add(TranslationKey.HintFilePoem);
     allKeys.add(TranslationKey.Ringing1);
     allKeys.add(TranslationKey.Ringing2);
-
+    allKeys.add(TranslationKey.DeskNothing_1);
+    allKeys.add(TranslationKey.DeskNothing_2);
+    allKeys.add(TranslationKey.Printer);
+    allKeys.add(TranslationKey.LockerFind);
+    allKeys.add(TranslationKey.LockerEmpty);
+    allKeys.add(TranslationKey.LightSwitch_1);
+    allKeys.add(TranslationKey.LightSwitch_2);
+    allKeys.add(TranslationKey.PhoneInteraction);
   }
 }

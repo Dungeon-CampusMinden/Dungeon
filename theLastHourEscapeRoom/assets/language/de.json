@@ -1,116 +1,116 @@
 {
-  "questlog": {
-    "main": {
-      "tab": "Hauptquest",
-      "entries": {
-        "locked_in": "Die Bürotür ist hinter uns verriegelt. Der Timer an der Wand läuft.",
-        "restore_power": "Das Büro liegt weitgehend im Dunkeln. Einige Geräte reagieren nicht.",
-        "investigate_pc": "Der PC von Dr. Mertens ist wieder erreichbar. Auf ihm könnten Spuren seiner letzten Arbeit liegen.",
-        "storage_room": "Die Tür zum Nebenraum ist geöffnet. Hinter dem Zahlenschloss liegt ein weiterer Teil des Büros.",
-        "escape": "Wir haben genug Hinweise gesammelt, um Mertens' letzte Schritte nachzuvollziehen. Jetzt bleibt nur noch der Weg nach draußen."
-      }
+    "questlog": {
+        "main": {
+            "tab": "Hauptquest",
+            "entries": {
+                "locked_in": "Die Bürotür ist hinter uns verriegelt. Der Timer an der Wand läuft.",
+                "restore_power": "Das Büro liegt weitgehend im Dunkeln. Einige Geräte reagieren nicht.",
+                "investigate_pc": "Der PC von Dr. Mertens ist wieder erreichbar. Auf ihm könnten Spuren seiner letzten Arbeit liegen.",
+                "storage_room": "Die Tür zum Nebenraum ist geöffnet. Hinter dem Zahlenschloss liegt ein weiterer Teil des Büros.",
+                "escape": "Wir haben genug Hinweise gesammelt, um Mertens' letzte Schritte nachzuvollziehen. Jetzt bleibt nur noch der Weg nach draußen."
+            }
+        },
+        "investigation": {
+            "tab": "Ermittlung",
+            "entries": {
+                "mertens_missing": "Dr. Elias Mertens ist seit 72 Stunden verschwunden. Seine Forschung bei Ciphera Labs galt als streng vertraulich.",
+                "suspicious_contacts": "Vor seinem Verschwinden berichtete Mertens von ungewöhnlichen Zugriffen und verdächtigen Kontaktaufnahmen.",
+                "office_ransacked": "Das Büro wurde durchsucht. Jemand war offenbar auf der Suche nach Mertens' Projektdateien.",
+                "trust_carefully": "Einige Nachrichten wirken auffällig drängend oder manipulativ. Nicht jede Quelle scheint vertrauenswürdig zu sein.",
+                "mythos": "Der Name \"Mythos\" ist im Zusammenhang mit Mertens' Forschung aufgetaucht. Die Bedeutung ist noch unklar."
+            }
+        },
+        "computer": {
+            "tab": "Computer",
+            "entries": {
+                "power_switch": "Unter einem Papierstapel war ein versteckter Schalter. Er hat den PC und Teile der Beleuchtung aktiviert.",
+                "login_needed": "Der PC ist eingeschaltet, aber gesperrt.",
+                "mail_review": "Mertens' E-Mails und Blogeinträge geben einen Einblick in die Kontakte kurz vor seinem Verschwinden.",
+                "virus_warning": "Der PC wurde durch eine verdächtige Datei infiziert. Unbekannte Downloads sind offenbar riskant.",
+                "control_panel": "Auf dem USB-Stick ist eine Datei aufgetaucht, die zum Control Panel gehört."
+            }
+        },
+        "clues": {
+            "tab": "Hinweise",
+            "entries": {
+                "door_code": "Eine entschlüsselte Mail enthielt den Code für den Nebenraum.",
+                "trash_note": "In einem der Papierkörbe lag ein Zettel mit einem Teil der Zugangsdaten für den PC.",
+                "decoder_shelves": "Die Bücherregale enthalten Umrechnungstabellen und Decoder für verschiedene Notationen.",
+                "profile_paper": "Ein Profilblatt über Dr. Mertens liefert Kontext zu seiner Arbeit und Identität.",
+                "final_code": "Der zerrissene Hinweis ist wieder zusammengesetzt. Darauf steht der letzte Code."
+            }
+        },
+        "usb": {
+            "tab": "USB-Stick",
+            "entries": {
+                "search": "Im Büro gibt es mehrere USB-Sticks. Einer davon scheint zu Mertens' Arbeit zu gehören.",
+                "color_hint": "Eine Notiz erwähnt den relevanten USB-Stick auffällig indirekt über eine Farbe.",
+                "use_on_pc": "Der gefundene USB-Stick wurde am PC überprüft.",
+                "recover_data": "Auf dem USB-Stick oder dem PC befinden sich Spuren von Mertens' versteckten Daten."
+            }
+        },
+        "notes": {
+            "tab": "Notizen",
+            "entries": {
+                "free_notes": "Spielernotizen werden im aktuell ausgewählten QuestLog-Tab gespeichert."
+            }
+        }
     },
-    "investigation": {
-      "tab": "Ermittlung",
-      "entries": {
-        "mertens_missing": "Dr. Elias Mertens ist seit 72 Stunden verschwunden. Seine Forschung bei Ciphera Labs galt als streng vertraulich.",
-        "suspicious_contacts": "Vor seinem Verschwinden berichtete Mertens von ungewöhnlichen Zugriffen und verdächtigen Kontaktaufnahmen.",
-        "office_ransacked": "Das Büro wurde durchsucht. Jemand war offenbar auf der Suche nach Mertens' Projektdateien.",
-        "trust_carefully": "Einige Nachrichten wirken auffällig drängend oder manipulativ. Nicht jede Quelle scheint vertrauenswürdig zu sein.",
-        "mythos": "Der Name \"Mythos\" ist im Zusammenhang mit Mertens' Forschung aufgetaucht. Die Bedeutung ist noch unklar."
-      }
+    "settings": {
+        "controls_header": "Steuerung",
+        "controls_description": "Nutze die Maus, um Interaktionen zu finden.[n]Drücke dann [key code=$1], um zu interagieren!",
+        "pause": "Pause",
+        "interact": "Interagieren",
+        "inventory": "Inventar",
+        "questlog": "Questlog",
+        "inventory_description": "Im Inventar kannst du mit [key code=$1 type=mouse] ein Item benutzen"
     },
-    "computer": {
-      "tab": "Computer",
-      "entries": {
-        "power_switch": "Unter einem Papierstapel war ein versteckter Schalter. Er hat den PC und Teile der Beleuchtung aktiviert.",
-        "login_needed": "Der PC ist eingeschaltet, aber gesperrt.",
-        "mail_review": "Mertens' E-Mails und Blogeinträge geben einen Einblick in die Kontakte kurz vor seinem Verschwinden.",
-        "virus_warning": "Der PC wurde durch eine verdächtige Datei infiziert. Unbekannte Downloads sind offenbar riskant.",
-        "control_panel": "Auf dem USB-Stick ist eine Datei aufgetaucht, die zum Control Panel gehört."
-      }
+    "achievements": {
+        "lights_on": {
+            "name": "Licht an",
+            "description": "Lege den versteckten Schalter unter dem Papierstapel um."
+        },
+        "trash_diver": {
+            "name": "Mülltaucher",
+            "description": "Durchsuche einen Papierkorb."
+        },
+        "pc_unlocked": {
+            "name": "PC entsperrt",
+            "description": "Melde dich am Bürocomputer an."
+        },
+        "virus": {
+            "name": "Virus",
+            "description": "Löse einen Virus auf dem Bürocomputer aus."
+        },
+        "keypad_code": {
+            "name": "Keypad-Code",
+            "description": "Gib den richtigen Code am Keypad ein."
+        },
+        "bruteforce": {
+            "name": "Bruteforce",
+            "description": "Gib zehn falsche Codes am Keypad ein."
+        },
+        "usb_collector": {
+            "name": "USB-Sammler",
+            "description": "Sammle alle vier USB-Sticks."
+        },
+        "control_panel": {
+            "name": "Control Panel",
+            "description": "Öffne den Control-Panel-Tab am Computer."
+        },
+        "escaped_in_time": {
+            "name": "Rechtzeitig entkommen",
+            "description": "Beende das Spiel, bevor der Timer abläuft."
+        },
+        "escaped_too_late": {
+            "name": "Zu spät entkommen",
+            "description": "Beende das Spiel, nachdem der Timer abgelaufen ist."
+        },
+        "platinum": {
+            "name": "Platinum Achievement",
+            "description": "Schalte alle anderen Achievements frei."
+        }
     },
-    "clues": {
-      "tab": "Hinweise",
-      "entries": {
-        "door_code": "Eine entschlüsselte Mail enthielt den Code für den Nebenraum.",
-        "trash_note": "In einem der Papierkörbe lag ein Zettel mit einem Teil der Zugangsdaten für den PC.",
-        "decoder_shelves": "Die Bücherregale enthalten Umrechnungstabellen und Decoder für verschiedene Notationen.",
-        "profile_paper": "Ein Profilblatt über Dr. Mertens liefert Kontext zu seiner Arbeit und Identität.",
-        "final_code": "Der zerrissene Hinweis ist wieder zusammengesetzt. Darauf steht der letzte Code."
-      }
-    },
-    "usb": {
-      "tab": "USB-Stick",
-      "entries": {
-        "search": "Im Büro gibt es mehrere USB-Sticks. Einer davon scheint zu Mertens' Arbeit zu gehören.",
-        "color_hint": "Eine Notiz erwähnt den relevanten USB-Stick auffällig indirekt über eine Farbe.",
-        "use_on_pc": "Der gefundene USB-Stick wurde am PC überprüft.",
-        "recover_data": "Auf dem USB-Stick oder dem PC befinden sich Spuren von Mertens' versteckten Daten."
-      }
-    },
-    "notes": {
-      "tab": "Notizen",
-      "entries": {
-        "free_notes": "Spielernotizen werden im aktuell ausgewählten QuestLog-Tab gespeichert."
-      }
-    }
-  },
-  "achievements": {
-    "lights_on": {
-      "name": "Licht an",
-      "description": "Lege den versteckten Schalter unter dem Papierstapel um."
-    },
-    "trash_diver": {
-      "name": "Mülltaucher",
-      "description": "Durchsuche einen Papierkorb."
-    },
-    "pc_unlocked": {
-      "name": "PC entsperrt",
-      "description": "Melde dich am Bürocomputer an."
-    },
-    "virus": {
-      "name": "Virus",
-      "description": "Löse einen Virus auf dem Bürocomputer aus."
-    },
-    "keypad_code": {
-      "name": "Keypad-Code",
-      "description": "Gib den richtigen Code am Keypad ein."
-    },
-    "bruteforce": {
-      "name": "Bruteforce",
-      "description": "Gib zehn falsche Codes am Keypad ein."
-    },
-    "usb_collector": {
-      "name": "USB-Sammler",
-      "description": "Sammle alle vier USB-Sticks."
-    },
-    "control_panel": {
-      "name": "Control Panel",
-      "description": "Öffne den Control-Panel-Tab am Computer."
-    },
-    "escaped_in_time": {
-      "name": "Rechtzeitig entkommen",
-      "description": "Beende das Spiel, bevor der Timer abläuft."
-    },
-    "escaped_too_late": {
-      "name": "Zu spät entkommen",
-      "description": "Beende das Spiel, nachdem der Timer abgelaufen ist."
-    },
-    "platinum": {
-      "name": "Platinum Achievement",
-      "description": "Schalte alle anderen Achievements frei."
-    }
-  },
-  "settings": {
-	"controls_header": "Steuerung",
-	"controls_description": "Nutze die Maus, um Interaktionen zu finden.[n]Drücke dann [key code=$1], um zu interagieren!",
-	"pause": "Pause",
-	"interact": "Interagieren",
-	"inventory": "Inventar",
-	"questlog": "Questlog",
-	"inventory_description": "Im Inventar kannst du mit [key code=$1 type=mouse] ein Item benutzen"
-  },
     "translation": {
         "IntroText_1": "Dr. Elias Mertens, leitender Sicherheitsforscher bei Ciphera Labs, hatte in den vergangenen Wochen an einem streng\nvertraulichen Projekt gearbeitet.\n\nSeine Forschungsarbeit galt als technologischer Durchbruch im Bereich der digitalen Sicherheit.\n",
         "IntroText_2": "Kurz vor seinem Verschwinden meldete er ungewöhnliche Zugriffsversuche auf seine Systeme und verdächtige Kontaktanfragen von unbekannten Quellen im Internet.",
@@ -139,6 +139,14 @@
         "Ringing2": "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] ... Hallo? Hörst du mich?[p]Hier ist Adrian Voss.[p][speaker name=\"Adrian Voss?\"]Ich habe schon länger versucht, dich zu erreichen.[pause=0.5]Habe gehört, du bist an einem Tatort festgesessen.[p][speaker img={path}]Noch ein Anruf?[p][speaker name=\"Adrian Voss?\"]Hat schon jemand anderes versucht, dich zu kontaktieren?[p][speaker img={path}]Ja, jemand namens Daniel Krell, der behauptete, der CEO von Ciphera Labs zu sein.[p][speaker name=\"Adrian Voss?\"]Von dieser Person habe ich noch nie gehört, aber sie hat dich belogen.[p][speaker img={path}]Nun, die Tür hat sich hinter uns verschlossen. Wir versuchen herauszufinden, was passiert ist, und hier wieder herauszukommen.[p][speaker name=\"Adrian Voss?\"]Bleib konzentriert.[pause=0.5] Bewege dich vorsichtig durch  [color=$1]Mertens'[/color] Labor-[p]Bevor er verschwand, [color=$1]Mertens[/color]versuchte, mir etwas zu übergeben, aber er hat es nie wirklich getan.[p]Er sagte immer wieder [shake strength=0.3 speed=0.5][color=$1]\"Das würde dir gefallen, es ist dein Favorit\"[/color][/shake] zu mir, aber ich bin mir nicht sicher, was er damit meinte.[p]Vielleicht hast du mehr Glück, wenn du das mit etwas im Labor in Verbindung bringst.[p]Was auch immer du tust, sei vorsichtig. Voss aus.[n][n][pause=0.5][shake strength=0.3 speed=0.3][color=#333333]*Klick*[/color][/shake]",
         "DecoyVentDialog1": "Einfach nur eine ganz normale Klimaanlage.[n][n]Man sieht eine Inschrift, die in den Stahlrand des Gitters eingraviert ist, aber das meiste davon wurde weggekratzt und ist nicht mehr lesbar:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: $1[n]",
         "DecoyVentDialog2": "Einfach nur eine ganz normale Klimaanlage.[n][n]Man sieht eine Inschrift, die in den Stahlrand des Gitters eingraviert ist, aber das meiste davon wurde weggekratzt und ist nicht mehr lesbar:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: $1[n]",
-        "VentDialog": "Nur eine ganz normale Klimaanlage.[n][n]Auf dem Stahlrand der Regenrinne ist folgende Aufschrift eingraviert:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Seriennummer: sv000$1[n]"
-  }
+        "VentDialog": "Nur eine ganz normale Klimaanlage.[n][n]Auf dem Stahlrand der Regenrinne ist folgende Aufschrift eingraviert:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Seriennummer: sv000$1[n]",
+        "DeskNothing_1": "Weitere Artikel über seltsame wissenschaftliche Experimente.\nMan versucht, irgendetwas davon zu verstehen, aber es ergibt für einen einfach keinen Sinn.",
+        "DeskNothing_2": "Auf dem Schreibtisch liegen überall ein Haufen Papiere herum.\nDu blätterst sie durch, bis dir eine seltsam aussehende Notiz ins Auge fällt",
+        "Printer": "Jemand hat vergessen, den Drucker auszuschalten, sodass er immer mehr Dokumente ausgespuckt hat, bis ihn vermutlich der Stromausfall gestoppt hat.",
+        "LockerFind": "Du öffnest den Spind. Darin hängen viele weiße Kittel,\naber in der Tasche eines davon steckt ein Zettel.\n\nDu faltest den Zettel auseinander, um ihn dir anzusehen.",
+        "LockerEmpty": "Du öffnest den Spind, aber bis auf ein paar weiße Kittel ist er leer.\nEs sieht so aus, als hätte ihn schon jemand durchwühlt...",
+        "LightSwitch_1":"Unter diesen Papierstapeln verbirgt sich ein Schalter.\n\nMöchtest du ihn umlegen?",
+        "LightSwitch_2": "Du hast den Schalter umgelegt.\n\nMan hört, wie es im ganzen Raum vor Strom brummt,\nwährend sich ein paar teilweise kaputte Lampen einschalten.",
+        "PhoneInteraction": "Das Telefon scheint zu funktionieren, aber du weißt nicht, wie man einen Anruf tätigt..."
+    }
 }

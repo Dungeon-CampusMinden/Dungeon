@@ -289,7 +289,7 @@ public class LastHourLevel extends DungeonLevel {
                 new Interaction(
                     (e, who) -> {
                       DialogFactory.showOkDialog(
-                          "More papers documenting weird science experiments.\nYou try to understand any of it, but it just doesn't make sense to you.",
+                          TranslationKey.DeskNothing_1,
                           "",
                           () -> {},
                           who.id());
@@ -307,7 +307,7 @@ public class LastHourLevel extends DungeonLevel {
                 new Interaction(
                     (e, who) -> {
                       DialogFactory.showOkDialog(
-                          "A bunch of papers laying all over the place on the desk.\nYou weed through them, until a weird looking note catches your eye",
+                          TranslationKey.DeskNothing_2,
                           "",
                           () -> openDualInventory(e, who),
                           who.id());
@@ -321,7 +321,7 @@ public class LastHourLevel extends DungeonLevel {
                 new Interaction(
                     (e, who) -> {
                       DialogFactory.showOkDialog(
-                          "Someone forgot to turn of the printer, so it's been spewing\nout more and more documents, until presumably the power outage\nstopped it.",
+                        TranslationKey.Printer,
                           "",
                           () -> {},
                           who.id());
@@ -342,7 +342,7 @@ public class LastHourLevel extends DungeonLevel {
                                 if (index == 2) {
                                   LastHourQuestLogUtil.addTrustCarefullyQuestLogEntry();
                                   DialogFactory.showOkDialog(
-                                      "You open the locker. Lots of white coats are hanging inside,\nbut one of them has a piece of paper in the pocket.\n\nYou unfold the paper to take a look at it.",
+                                      TranslationKey.LockerFind,
                                       "",
                                       () -> {
                                         DialogUtils.showImagePopUp(cabinetImagePath, who.id());
@@ -351,7 +351,7 @@ public class LastHourLevel extends DungeonLevel {
                                   return;
                                 }
                                 DialogFactory.showOkDialog(
-                                    "You open the locker, but it's empty except for some white coats.\nSeems like someone already went through it...",
+                                    TranslationKey.LockerEmpty,
                                     "",
                                     () -> {},
                                     who.id());
@@ -420,12 +420,12 @@ public class LastHourLevel extends DungeonLevel {
                     (e, who) -> {
                       if (!dc.currentStateName().equals(PC_STATE_OFF)) return;
                       DialogFactory.showYesNoDialog(
-                          "There is a switch hidden below these stacks of paper.\n\nDo you want to flip it?",
+                          TranslationKey.LightSwitch_1,
                           "",
                           () -> {
                             Sounds.play(CoreSounds.SETTINGS_TOGGLE_CLICK, 1, 1.5f);
                             DialogFactory.showOkDialog(
-                                "You flipped the switch.\n\nYou can hear electricity buzzing throughout the room,\nas a few partly broken lights turn on.",
+                                TranslationKey.LightSwitch_2,
                                 "",
                                 () -> {
                                   ComputerStateComponent.setState(ComputerProgress.ON);
@@ -759,7 +759,7 @@ public class LastHourLevel extends DungeonLevel {
                       }
 
                       DialogFactory.showOkDialog(
-                          "The phone seems to be working, but you don't know how to dial out...",
+                          TranslationKey.PhoneInteraction,
                           "",
                           () -> {},
                           who.id());

@@ -31,6 +31,14 @@ public class TranslationKey {
   public static final String Ringing1 = "Ringing1";
   public static final String Ringing2 = "Ringing2";
   public static final String cabinetImage = "cabinetImage";
+  public static final String DeskNothing_1 = "DeskNothing_1";
+  public static final String DeskNothing_2 = "DeskNothing_2";
+  public static final String Printer = "Printer";
+  public static final String LockerFind = "LockerFind";
+  public static final String LockerEmpty = "LockerEmpty";
+  public static final String LightSwitch_1 = "LightSwitch_1";
+  public static final String LightSwitch_2 = "LightSwitch_2";
+  public static final String PhoneInteraction = "PhoneInteraction";
 
 
 
