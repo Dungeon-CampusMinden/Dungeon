@@ -2,8 +2,8 @@ package contrib.achievements;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.utils.JsonHandler;
 import java.lang.reflect.Field;
@@ -64,6 +64,17 @@ class AchievementStoreTest {
   }
 
   @Test
+  void parseAchievementIgnoresDeveloperNoteFromDefinitionJson() throws Exception {
+    AchievementStore store = new AchievementStore("unused.json", Path.of("unused-status.json"));
+
+    parseAchievement(store, validDefinition());
+
+    assertFalse(
+        Arrays.stream(Achievement.class.getRecordComponents())
+            .anyMatch(component -> component.getName().equals("developerNote")));
+  }
+
+  @Test
   void parseAchievementDefaultsMissingUnlockForAllToAllPlayers() throws Exception {
     AchievementStore store = new AchievementStore("unused.json", Path.of("unused-status.json"));
 
@@ -97,22 +108,22 @@ class AchievementStoreTest {
     Path statusPath = Files.createTempFile("achievement-unlock", ".json");
     Files.deleteIfExists(statusPath);
     AchievementStore store = new AchievementStore("unused.json", statusPath);
-    addDefinition(store, achievement("Lights On"));
+    addDefinition(store, achievement("lights_on"));
 
-    store.unlock("Lights On");
+    store.unlock("lights_on");
 
     Map<String, Object> saved = JsonHandler.readJson(Files.readString(statusPath));
-    assertEquals(List.of("Lights On"), saved.get("unlocked"));
+    assertEquals(List.of("lights_on"), saved.get("unlocked"));
   }
 
   @Test
   void corruptedStatusFileIsIgnored() throws Exception {
     Path statusPath = Files.createTempFile("achievement-unlock", ".json");
-    Files.writeString(statusPath, "{ \"unlocked\": [\"Lights On\", }");
+    Files.writeString(statusPath, "{ \"unlocked\": [\"lights_on\", }");
     AchievementStore store = new AchievementStore("unused.json", statusPath);
-    addDefinition(store, achievement("Lights On"));
+    addDefinition(store, achievement("lights_on"));
 
-    assertFalse(store.isUnlocked("Lights On"));
+    assertFalse(store.isUnlocked("lights_on"));
   }
 
   private static Path statusPath(AchievementStore store) throws Exception {
@@ -140,18 +151,18 @@ class AchievementStoreTest {
     Field field = AchievementStore.class.getDeclaredField("definitions");
     field.setAccessible(true);
     Map<String, Achievement> definitions = (Map<String, Achievement>) field.get(store);
-    definitions.put(achievement.name(), achievement);
+    definitions.put(achievement.id(), achievement);
   }
 
-  private static Achievement achievement(String name) {
-    return new Achievement("icon.png", name, "Description", "", "", false, true, false);
+  private static Achievement achievement(String id) {
+    return new Achievement("icon.png", id, false, true, false);
   }
 
   private static Map<String, Object> validDefinition() {
     Map<String, Object> definition = new LinkedHashMap<>();
     definition.put("imagePath", "icon.png");
-    definition.put("name", "Test Achievement");
-    definition.put("description", "Static definition");
+    definition.put("id", "test_achievement");
+    definition.put("developerNote", "Static definition");
     definition.put("hidden", true);
     return definition;
   }

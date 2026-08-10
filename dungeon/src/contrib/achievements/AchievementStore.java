@@ -21,10 +21,7 @@ final class AchievementStore {
 
   private static final String KEY_ACHIEVEMENTS = "achievements";
   private static final String KEY_IMAGE_PATH = "imagePath";
-  private static final String KEY_NAME = "name";
-  private static final String KEY_DESCRIPTION = "description";
-  private static final String KEY_NAME_KEY = "nameKey";
-  private static final String KEY_DESCRIPTION_KEY = "descriptionKey";
+  private static final String KEY_ID = "id";
   private static final String KEY_HIDDEN = "hidden";
   private static final String KEY_UNLOCKED = "unlocked";
   private static final String KEY_UNLOCK_FOR_ALL = "unlockForAll";
@@ -52,17 +49,17 @@ final class AchievementStore {
     return definitions.values().stream().toList();
   }
 
-  Optional<Achievement> definition(String name) {
+  Optional<Achievement> definition(String id) {
     ensureLoaded();
-    return Optional.ofNullable(definitions.get(name));
+    return Optional.ofNullable(definitions.get(id));
   }
 
-  boolean unlock(String name) {
+  boolean unlock(String id) {
     ensureLoaded();
-    if (!definitions.containsKey(name) || unlockedAchievements.contains(name)) {
+    if (!definitions.containsKey(id) || unlockedAchievements.contains(id)) {
       return false;
     }
-    unlockedAchievements.add(name);
+    unlockedAchievements.add(id);
     saveStatus();
     return true;
   }
@@ -76,12 +73,12 @@ final class AchievementStore {
     ensureLoaded();
     return definitions.values().stream()
         .filter(achievement -> !achievement.platinum())
-        .allMatch(achievement -> unlockedAchievements.contains(achievement.name()));
+        .allMatch(achievement -> unlockedAchievements.contains(achievement.id()));
   }
 
-  boolean isUnlocked(String name) {
+  boolean isUnlocked(String id) {
     ensureLoaded();
-    return unlockedAchievements.contains(name);
+    return unlockedAchievements.contains(id);
   }
 
   private void ensureLoaded() {
@@ -119,7 +116,7 @@ final class AchievementStore {
               }
               for (Object node : achievements) {
                 Achievement achievement = parseAchievement(node);
-                definitions.put(achievement.name(), achievement);
+                definitions.put(achievement.id(), achievement);
               }
             });
   }
@@ -149,15 +146,11 @@ final class AchievementStore {
     }
     Map<String, Object> map = asStringObjectMap(rawMap);
     String imagePath = stringValue(map, KEY_IMAGE_PATH);
-    String name = stringValue(map, KEY_NAME);
-    String description = optionalStringValue(map, KEY_DESCRIPTION).orElse("");
-    String nameKey = optionalStringValue(map, KEY_NAME_KEY).orElse("");
-    String descriptionKey = optionalStringValue(map, KEY_DESCRIPTION_KEY).orElse("");
+    String id = stringValue(map, KEY_ID);
     boolean hidden = booleanValue(map, KEY_HIDDEN);
     boolean forAll = unlockForAll(map.get(KEY_UNLOCK_FOR_ALL));
     boolean platinum = booleanValue(map, KEY_PLATINUM);
-    return new Achievement(
-        imagePath, name, description, nameKey, descriptionKey, hidden, forAll, platinum);
+    return new Achievement(imagePath, id, hidden, forAll, platinum);
   }
 
   private boolean unlockForAll(Object value) {

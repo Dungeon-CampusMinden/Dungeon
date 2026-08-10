@@ -26,10 +26,7 @@ import core.utils.settings.ClientSettings;
 public final class AchievementPopup {
 
   public static final String KEY_IMAGE_PATH = "achievement.imagePath";
-  public static final String KEY_NAME = "achievement.name";
-  public static final String KEY_DESCRIPTION = "achievement.description";
-  public static final String KEY_NAME_KEY = "achievement.nameKey";
-  public static final String KEY_DESCRIPTION_KEY = "achievement.descriptionKey";
+  public static final String KEY_ID = "achievement.id";
   private static final float CORNER_MARGIN = 40f;
   private static final String TITLE_FONT = "fonts/Roboto-Bold.ttf";
   private static final String BODY_FONT = "fonts/Roboto-Regular.ttf";
@@ -39,6 +36,7 @@ public final class AchievementPopup {
   private static final String FALLBACK_IMAGE = "animation/missing_texture.png";
   private static final Translation TRANS = new Translation("achievement.popup");
   private static final Translation TEXT_TRANS = new Translation();
+  private static final String ACHIEVEMENT_TRANSLATION_PREFIX = "achievements.";
 
   private AchievementPopup() {}
 
@@ -50,12 +48,9 @@ public final class AchievementPopup {
    */
   public static Group build(DialogContext ctx) {
     String imagePath = ctx.require(KEY_IMAGE_PATH, String.class);
-    String achievementId = ctx.require(KEY_NAME, String.class);
-    String name = localized(ctx.find(KEY_NAME_KEY, String.class).orElse(""), achievementId);
-    String description =
-        localized(
-            ctx.find(KEY_DESCRIPTION_KEY, String.class).orElse(""),
-            ctx.require(KEY_DESCRIPTION, String.class));
+    String achievementId = ctx.require(KEY_ID, String.class);
+    String name = localized(translationKey(achievementId, "name"), achievementId);
+    String description = localized(translationKey(achievementId, "description"), "");
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup("Achievement unlocked", name + "\n" + description);
     }
@@ -114,6 +109,10 @@ public final class AchievementPopup {
     }
     String translated = TEXT_TRANS.text(key);
     return translated.equals("{" + key + "}") ? fallback : translated;
+  }
+
+  private static String translationKey(String id, String field) {
+    return ACHIEVEMENT_TRANSLATION_PREFIX + id + "." + field;
   }
 
   private static Texture texture(String path) {

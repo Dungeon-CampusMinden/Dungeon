@@ -94,7 +94,7 @@ public final class AchievementMenuView extends Table {
     lastSnapshot = snapshot;
     long unlockedCount =
         achievements.stream()
-            .filter(achievement -> AchievementManager.isUnlockedInMenu(achievement.name()))
+            .filter(achievement -> AchievementManager.isUnlockedInMenu(achievement.id()))
             .count();
     progressLabel.setText(TRANS.text(T_PROGRESS, unlockedCount, achievements.size()));
     achievementList.clearChildren();
@@ -107,9 +107,9 @@ public final class AchievementMenuView extends Table {
     return achievements.stream()
         .map(
             achievement ->
-                achievement.name()
+                achievement.id()
                     + ":"
-                    + AchievementManager.isUnlockedInMenu(achievement.name())
+                    + AchievementManager.isUnlockedInMenu(achievement.id())
                     + ":"
                     + achievement.displayName()
                     + ":"
@@ -118,7 +118,7 @@ public final class AchievementMenuView extends Table {
   }
 
   private static Table row(Achievement achievement) {
-    boolean unlocked = AchievementManager.isUnlockedInMenu(achievement.name());
+    boolean unlocked = AchievementManager.isUnlockedInMenu(achievement.id());
     boolean hidden = achievement.hidden() && !unlocked;
     String name = hidden ? TRANS.text(T_HIDDEN_NAME) : achievement.displayName();
     String description =

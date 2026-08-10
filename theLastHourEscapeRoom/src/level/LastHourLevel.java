@@ -826,7 +826,7 @@ public class LastHourLevel extends DungeonLevel {
   }
 
   private void showTrashMinigame(Entity who, Item reward, int paperCount, Runnable afterAward) {
-    LastHourAchievements.triggerTrashDiver(who);
+    LastHourAchievements.trigger(who, LastHourAchievements.TRASH_DIVER);
     TrashMinigameFactory.show(who, reward, paperCount, afterAward);
   }
 

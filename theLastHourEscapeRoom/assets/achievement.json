@@ -2,100 +2,78 @@
   "achievements": [
     {
       "imagePath": "hud/kenney/flag_square.png",
-      "name": "Lights On",
-      "description": "Flip the hidden switch below the stacks of paper.",
-      "nameKey": "achievements.lights_on.name",
-      "descriptionKey": "achievements.lights_on.description",
+      "id": "lights_on",
+      "developerNote": "Flip the hidden switch below the stacks of paper.",
       "unlockForAll": true,
       "hidden": true
     },
     {
       "imagePath": "images/crumbled-paper.png",
-      "name": "Trash Diver",
-      "description": "Search through a trashcan.",
-      "nameKey": "achievements.trash_diver.name",
-      "descriptionKey": "achievements.trash_diver.description",
+      "id": "trash_diver",
+      "developerNote": "Search through a trashcan.",
       "unlockForAll": false,
       "hidden": true
     },
     {
       "imagePath": "images/company_logo.png",
-      "name": "PC Unlocked",
-      "description": "Log in to the office computer.",
-      "nameKey": "achievements.pc_unlocked.name",
-      "descriptionKey": "achievements.pc_unlocked.description",
+      "id": "pc_unlocked",
+      "developerNote": "Log in to the office computer.",
       "unlockForAll": true,
       "hidden": true
     },
     {
       "imagePath": "images/virus-phrases.png",
-      "name": "Virus",
-      "description": "Trigger a virus on the office computer.",
-      "nameKey": "achievements.virus.name",
-      "descriptionKey": "achievements.virus.description",
+      "id": "virus",
+      "developerNote": "Trigger a virus on the office computer.",
       "unlockForAll": true,
       "hidden": true
     },
     {
       "imagePath": "hud/kenney/chess_king.png",
-      "name": "Keypad Code",
-      "description": "Enter the correct code on the keypad.",
-      "nameKey": "achievements.keypad_code.name",
-      "descriptionKey": "achievements.keypad_code.description",
+      "id": "keypad_code",
+      "developerNote": "Enter the correct code on the keypad.",
       "unlockForAll": true,
       "hidden": true
     },
     {
       "imagePath": "hud/kenney/skull.png",
-      "name": "Bruteforce",
-      "description": "Enter ten wrong codes on the keypad.",
-      "nameKey": "achievements.bruteforce.name",
-      "descriptionKey": "achievements.bruteforce.description",
+      "id": "bruteforce",
+      "developerNote": "Enter ten wrong codes on the keypad.",
       "unlockForAll": true,
       "hidden": true
     },
     {
       "imagePath": "items/usb-side-red.png",
-      "name": "USB Collector",
-      "description": "Collect all four USB sticks.",
-      "nameKey": "achievements.usb_collector.name",
-      "descriptionKey": "achievements.usb_collector.description",
+      "id": "usb_collector",
+      "developerNote": "Collect all four USB sticks.",
       "unlockForAll": true,
       "hidden": true
     },
     {
       "imagePath": "images/decoder_74155.png",
-      "name": "Control Panel",
-      "description": "Open the control panel tab on the computer.",
-      "nameKey": "achievements.control_panel.name",
-      "descriptionKey": "achievements.control_panel.description",
+      "id": "control_panel",
+      "developerNote": "Open the control panel tab on the computer.",
       "unlockForAll": true,
       "hidden": true
     },
     {
       "imagePath": "images/final-code.png",
-      "name": "Escaped In Time",
-      "description": "Finish the game before the timer runs out.",
-      "nameKey": "achievements.escaped_in_time.name",
-      "descriptionKey": "achievements.escaped_in_time.description",
+      "id": "escaped_in_time",
+      "developerNote": "Finish the game before the timer runs out.",
       "unlockForAll": true,
       "hidden": true
     },
     {
       "imagePath": "images/random_nothing.png",
-      "name": "Escaped Too Late",
-      "description": "Finish the game after the timer has run out.",
-      "nameKey": "achievements.escaped_too_late.name",
-      "descriptionKey": "achievements.escaped_too_late.description",
+      "id": "escaped_too_late",
+      "developerNote": "Finish the game after the timer has run out.",
       "unlockForAll": true,
       "hidden": true
     },
     {
       "imagePath": "items/rpg/item_gem_diamond_smooth.png",
-      "name": "Platinum Achievement",
-      "description": "Unlock all other achievements.",
-      "nameKey": "achievements.platinum.name",
-      "descriptionKey": "achievements.platinum.description",
+      "id": "platinum",
+      "developerNote": "Unlock all other achievements.",
       "unlockForAll": false,
       "platinum": true,
       "hidden": false

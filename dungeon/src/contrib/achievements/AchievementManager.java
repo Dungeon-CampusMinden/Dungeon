@@ -17,8 +17,8 @@ import java.util.Optional;
  * Central API for unlocking achievements.
  *
  * <p>Use {@link #pop(String)} or {@link #popFor(Entity, String)} from game logic. The achievement
- * name is the id. The JSON definition is authoritative for the unlock recipients: game code may
- * pass the acting player with {@code popFor}, but {@code unlockForAll} decides whether the
+ * id is the stable unlock key. The JSON definition is authoritative for the unlock recipients: game
+ * code may pass the acting player with {@code popFor}, but {@code unlockForAll} decides whether the
  * achievement is sent to all players or only to that player.
  */
 public class AchievementManager {
@@ -120,46 +120,46 @@ public class AchievementManager {
   /**
    * Checks whether an achievement is unlocked for the current local menu viewer.
    *
-   * @param name achievement id/name
+   * @param id achievement id
    * @return true if unlocked for the local menu viewer
    */
-  public static boolean isUnlockedInMenu(String name) {
+  public static boolean isUnlockedInMenu(String id) {
     AchievementStore store = instance().store;
-    return store != null && store.isUnlocked(name);
+    return store != null && store.isUnlocked(id);
   }
 
   /**
-   * Unlocks an achievement according to its configured unlock scope.
+   * Unlocks an achievement according to its configured recipient.
    *
    * <p>Use this only for achievements that do not have a meaningful acting player. If the JSON
    * definition is changed to a player-scoped achievement, this call cannot infer the missing player
    * and will log a warning instead of unlocking it.
    *
-   * @param name achievement id/name
+   * @param id achievement id
    */
-  public void pop(String name) {
-    popFor(null, name);
+  public void pop(String id) {
+    popFor(null, id);
   }
 
   /**
-   * Unlocks an achievement according to its configured unlock scope.
+   * Unlocks an achievement according to its configured recipient.
    *
    * <p>The given player is the actor, not a hard-coded recipient. The JSON definition remains the
    * source of truth: globally scoped achievements are still unlocked for all players, and
    * player-scoped achievements are unlocked for this player.
    *
    * @param player player entity
-   * @param name achievement id/name
+   * @param id achievement id
    */
-  public void popFor(Entity player, String name) {
+  public void popFor(Entity player, String id) {
     if (store == null) {
       LOGGER.warn(
-          "Achievement '{}' cannot be triggered because achievements are not configured.", name);
+          "Achievement '{}' cannot be triggered because achievements are not configured.", id);
       return;
     }
-    Optional<Achievement> achievement = store.definition(name);
+    Optional<Achievement> achievement = store.definition(id);
     if (achievement.isEmpty()) {
-      LOGGER.warn("Achievement '{}' is not defined.", name);
+      LOGGER.warn("Achievement '{}' is not defined.", id);
       return;
     }
     Achievement definition = achievement.get();
@@ -170,7 +170,7 @@ public class AchievementManager {
     if (player == null) {
       LOGGER.warn(
           "Achievement '{}' needs a triggering player but was triggered without one.",
-          definition.name());
+          definition.id());
       return;
     }
     showPopup(definition, player.id());
@@ -179,22 +179,22 @@ public class AchievementManager {
   /**
    * Records an unlock received through an achievement popup on this local client.
    *
-   * @param name achievement id/name
+   * @param id achievement id
    * @return true if this client recorded the achievement as newly unlocked
    */
-  public static boolean markUnlockedFromPopup(String name) {
-    return instance().recordPopupUnlock(name);
+  public static boolean markUnlockedFromPopup(String id) {
+    return instance().recordPopupUnlock(id);
   }
 
-  private boolean recordPopupUnlock(String name) {
+  private boolean recordPopupUnlock(String id) {
     if (store == null) {
       return false;
     }
-    Optional<Achievement> achievement = store.definition(name);
+    Optional<Achievement> achievement = store.definition(id);
     if (achievement.isEmpty()) {
       return false;
     }
-    boolean newlyUnlocked = store.unlock(name);
+    boolean newlyUnlocked = store.unlock(id);
     if (newlyUnlocked) {
       unlockPlatinumIfComplete(achievement.get());
     }
@@ -210,7 +210,7 @@ public class AchievementManager {
       return;
     }
     Achievement platinum = platinumAchievement.get();
-    if (store.allNonPlatinumAchievementsUnlocked() && !store.isUnlocked(platinum.name())) {
+    if (store.allNonPlatinumAchievementsUnlocked() && !store.isUnlocked(platinum.id())) {
       showPopup(platinum);
     }
   }
@@ -221,10 +221,7 @@ public class AchievementManager {
             .type(DialogType.DefaultTypes.ACHIEVEMENT_POPUP)
             .center(false)
             .put(AchievementPopup.KEY_IMAGE_PATH, achievement.imagePath())
-            .put(AchievementPopup.KEY_NAME, achievement.name())
-            .put(AchievementPopup.KEY_DESCRIPTION, achievement.description())
-            .put(AchievementPopup.KEY_NAME_KEY, achievement.nameKey())
-            .put(AchievementPopup.KEY_DESCRIPTION_KEY, achievement.descriptionKey())
+            .put(AchievementPopup.KEY_ID, achievement.id())
             .build();
 
     UIComponent ui = DialogFactory.show(context, false, false, targetEntityIds);

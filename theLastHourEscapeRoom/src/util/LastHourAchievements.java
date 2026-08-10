@@ -17,16 +17,16 @@ public final class LastHourAchievements {
   public static final String DEFINITION_PATH = "achievement.json";
   private static final String STATUS_PATH = "the-last-hour-achievement-unlock.json";
 
-  public static final String LIGHTS_ON = "Lights On";
-  public static final String TRASH_DIVER = "Trash Diver";
-  public static final String PC_UNLOCKED = "PC Unlocked";
-  public static final String VIRUS = "Virus";
-  public static final String KEYPAD_CODE = "Keypad Code";
-  public static final String BRUTEFORCE = "Bruteforce";
-  public static final String USB_COLLECTOR = "USB Collector";
-  public static final String CONTROL_PANEL = "Control Panel";
-  public static final String ESCAPED_IN_TIME = "Escaped In Time";
-  public static final String ESCAPED_TOO_LATE = "Escaped Too Late";
+  public static final String LIGHTS_ON = "lights_on";
+  public static final String TRASH_DIVER = "trash_diver";
+  public static final String PC_UNLOCKED = "pc_unlocked";
+  public static final String VIRUS = "virus";
+  public static final String KEYPAD_CODE = "keypad_code";
+  public static final String BRUTEFORCE = "bruteforce";
+  public static final String USB_COLLECTOR = "usb_collector";
+  public static final String CONTROL_PANEL = "control_panel";
+  public static final String ESCAPED_IN_TIME = "escaped_in_time";
+  public static final String ESCAPED_TOO_LATE = "escaped_too_late";
 
   private static final int BRUTEFORCE_ATTEMPTS = 10;
 
@@ -40,18 +40,18 @@ public final class LastHourAchievements {
 
   /** Registers achievement hooks for Last Hour computer interactions. */
   public static void registerComputerHooks() {
-    ComputerFactory.onVirusTriggered(LastHourAchievements::triggerVirus);
-    ComputerFactory.onPcUnlocked(LastHourAchievements::triggerPcUnlocked);
-    ComputerFactory.onControlPanelOpened(LastHourAchievements::triggerControlPanel);
+    ComputerFactory.onVirusTriggered(player -> trigger(player, VIRUS));
+    ComputerFactory.onPcUnlocked(player -> trigger(player, PC_UNLOCKED));
+    ComputerFactory.onControlPanelOpened(player -> trigger(player, CONTROL_PANEL));
   }
 
   /**
    * Triggers an achievement that does not have a specific acting player.
    *
-   * @param name achievement id/name
+   * @param id achievement id
    */
-  public static void trigger(String name) {
-    AchievementManager.instance().pop(name);
+  public static void trigger(String id) {
+    AchievementManager.instance().pop(id);
   }
 
   /**
@@ -61,46 +61,10 @@ public final class LastHourAchievements {
    * acting player.
    *
    * @param player player who caused the achievement trigger
-   * @param name achievement id/name
+   * @param id achievement id
    */
-  public static void trigger(Entity player, String name) {
-    AchievementManager.instance().popFor(player, name);
-  }
-
-  /**
-   * Unlocks the trashcan-search achievement for the acting player.
-   *
-   * @param player player who opened a Last Hour trashcan
-   */
-  public static void triggerTrashDiver(Entity player) {
-    trigger(player, TRASH_DIVER);
-  }
-
-  /**
-   * Unlocks the virus achievement for the acting player.
-   *
-   * @param player player who caused the virus
-   */
-  public static void triggerVirus(Entity player) {
-    trigger(player, VIRUS);
-  }
-
-  /**
-   * Unlocks the PC achievement for the acting player.
-   *
-   * @param player player who logged in
-   */
-  public static void triggerPcUnlocked(Entity player) {
-    trigger(player, PC_UNLOCKED);
-  }
-
-  /**
-   * Unlocks the control-panel achievement for the acting player.
-   *
-   * @param player player who opened the control panel
-   */
-  public static void triggerControlPanel(Entity player) {
-    trigger(player, CONTROL_PANEL);
+  public static void trigger(Entity player, String id) {
+    AchievementManager.instance().popFor(player, id);
   }
 
   /**
