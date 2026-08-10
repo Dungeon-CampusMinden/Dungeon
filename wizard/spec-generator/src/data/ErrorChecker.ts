@@ -687,19 +687,14 @@ export class ErrorChecker {
     if (startNodeId === undefined) return;
 
     const outgoing = new Map<string, string[]>();
+    const incoming = new Map<string, string[]>();
     for (const edge of graph.edges) {
       if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) continue;
       outgoing.set(edge.from, [...(outgoing.get(edge.from) ?? []), edge.to]);
+      incoming.set(edge.to, [...(incoming.get(edge.to) ?? []), edge.from]);
     }
 
-    const reachable = new Set<string>();
-    const queue = [startNodeId];
-    while (queue.length > 0) {
-      const current = queue.shift() as string;
-      if (reachable.has(current)) continue;
-      reachable.add(current);
-      queue.push(...(outgoing.get(current) ?? []));
-    }
+    const reachable = ErrorChecker.collectReachable(startNodeId, outgoing);
 
     if (endNodeId !== undefined && !reachable.has(endNodeId)) {
       this.error(
@@ -712,13 +707,40 @@ export class ErrorChecker {
 
     const unreachable = [...nodeIds].filter((id) => !reachable.has(id) && id !== endNodeId);
     if (unreachable.length > 0) {
-      this.warning(
+      this.error(
         "riddle_graph",
         "nodes",
         "Es gibt Schritte, die vom Start aus nicht erreichbar sind.",
         unreachable.join(", "),
       );
     }
+
+    if (endNodeId === undefined) return;
+
+    // Steps that no longer lead to the exit leave the adventure in a dead end.
+    const leadingToEnd = ErrorChecker.collectReachable(endNodeId, incoming);
+    const deadEnds = [...nodeIds].filter((id) => reachable.has(id) && !leadingToEnd.has(id));
+    if (deadEnds.length > 0) {
+      this.error(
+        "riddle_graph",
+        "edges",
+        "Es gibt Schritte, von denen aus der Endpunkt nicht erreichbar ist.",
+        deadEnds.join(", "),
+      );
+    }
+  }
+
+  /** Breadth-first traversal of the given adjacency map, starting at `startId`. */
+  private static collectReachable(startId: string, adjacency: Map<string, string[]>) {
+    const reached = new Set<string>();
+    const queue = [startId];
+    while (queue.length > 0) {
+      const current = queue.shift() as string;
+      if (reached.has(current)) continue;
+      reached.add(current);
+      queue.push(...(adjacency.get(current) ?? []));
+    }
+    return reached;
   }
   //#endregion
 }

@@ -12,6 +12,7 @@ import { SessionTab } from "./components/SessionTab";
 import { SurfacesTab } from "./components/SurfacesTab";
 import { AssetsTab } from "./components/AssetsTab";
 import { RiddlesTab } from "./components/RiddlesTab";
+import { RiddleGraphTab } from "./components/RiddleGraphTab";
 import { ReviewTab } from "./components/ReviewTab";
 import { useErrorCheck } from "./hooks/useErrorCheck";
 import {
@@ -64,7 +65,16 @@ function App() {
           {tab === "surfaces" && <SurfacesTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "assets" && <AssetsTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "riddles" && <RiddlesTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-          {tab === "review" && <ReviewTab deerSchema={deerSchema} issueReport={issueReport} />}
+          {tab === "riddle_graph" && (
+            <RiddleGraphTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />
+          )}
+          {tab === "review" && (
+            <ReviewTab
+              deerSchema={deerSchema}
+              updateDeerSchema={updateDeerSchema}
+              issueReport={issueReport}
+            />
+          )}
         </div>
         <ErrorDetector
           deerSchema={deerSchema}

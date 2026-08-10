@@ -1,5 +1,6 @@
 export interface DeerSchema {
   formatVersion: string;
+  seed: number;
   metadata: Metadata;
   learningDesign: LearningDesign;
   session: Session;
