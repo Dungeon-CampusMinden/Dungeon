@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * Immutable active-profile DEER definition consumed by Foundation runtime planning.
  *
- * @param seed stable deterministic layout seed
+ * @param seed stable deterministic layout seed from 0 through 9007199254740991
  * @param metadata project metadata
  * @param session session contract
  * @param scenario scenario text
@@ -28,8 +28,8 @@ public record ProjectDefinition(
     List<Asset> assets) {
   /** Creates a deeply immutable project definition. */
   public ProjectDefinition {
-    if (seed < 0) {
-      throw new IllegalArgumentException("seed must be nonnegative");
+    if (seed < 0 || seed > 9_007_199_254_740_991L) {
+      throw new IllegalArgumentException("seed must be a nonnegative IEEE-754 safe integer");
     }
     Objects.requireNonNull(metadata, "metadata");
     Objects.requireNonNull(session, "session");

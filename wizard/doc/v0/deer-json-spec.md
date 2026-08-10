@@ -46,7 +46,7 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 | Feld | Zweck |
 |---|---|
 | `formatVersion` | Exakt `0.3`. |
-| `seed` | Stabiler Layout-Seed als Ganzzahl von `0` bis `9223372036854775807`. |
+| `seed` | Stabiler Layout-Seed als Ganzzahl von `0` bis `9007199254740991`. |
 | `metadata` | Stabile Projekt-ID, Titel, Inhaltssprache und optionale redaktionelle Angaben. |
 | `learningDesign` | Lernziele und Fragen zur Nachbesprechung. |
 | `session` | Zielgruppe, Vorwissen, Spielergrenzen und Zeitlimit. |
@@ -57,9 +57,9 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 | `assets` | Referenzierte PNG-/JPEG-Dateien. |
 
 Die UI erzeugt `seed` bei der ersten erfolgreichen Finalisierung genau einmal
-und erhält ihn bei späteren Finalisierungen. Der Runner übernimmt den gesamten
-schema-erlaubten nicht-negativen Java-`long`-Bereich. Weitere Schreib- und
-Identitätsregeln stehen in
+und erhält ihn bei späteren Finalisierungen. Der Bereich ist der lückenlos exakt
+darstellbare nicht-negative Safe-Integer-Bereich der RFC-8785-Zahlendarstellung.
+Weitere Schreib- und Identitätsregeln stehen in
 [`runner-project-format.md`](runner-project-format.md).
 
 ## 3. IDs und Referenzen

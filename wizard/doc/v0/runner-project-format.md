@@ -108,13 +108,14 @@ nicht Teil des Foundation-Slices.
 ## Seed in deer.json
 
 `seed` ist ein verpflichtender ganzzahliger Top-Level-Wert in `deer.json`. Der
-Wert liegt im Bereich `0..9223372036854775807`. Strings, Fließkommazahlen,
+Wert liegt im Bereich `0..9007199254740991`. Strings, Fließkommazahlen,
 negative Werte und größere Ganzzahlen sind unzulässig. Der Seed ist damit Teil
 derselben schema-validierten und atomar ersetzten Konfiguration wie alle
 anderen Authoring-Daten.
 
-Der Runner liest den gesamten schema-erlaubten nicht-negativen Java-`long`-
-Bereich verlustfrei.
+Der Bereich ist der nicht-negative IEEE-754-Safe-Integer-Bereich der von RFC
+8785 verwendeten Zahlendarstellung. Dadurch bleibt jeder zulässige Seed in der
+kanonischen Projektidentität eindeutig.
 
 ## Assetregeln
 

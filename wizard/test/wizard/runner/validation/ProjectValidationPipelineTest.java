@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +18,7 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import wizard.runner.contract.IssueCode;
+import wizard.runner.model.ProjectDefinition;
 import wizard.runner.room.RoomDeriver;
 
 /** Production-path integration tests for strict Wizard project validation. */
@@ -184,7 +186,7 @@ final class ProjectValidationPipelineTest {
   }
 
   @Test
-  void enforcesSupportedValuesAndTheLongSeedBoundary() throws IOException {
+  void enforcesSupportedValuesAndTheSafeIntegerSeedBoundary() throws IOException {
     Path unknownTypeProject = materializeCanonicalProject("unknown-type");
     ObjectNode unknownType =
         (ObjectNode) MAPPER.readTree(unknownTypeProject.resolve("deer.json").toFile());
@@ -206,14 +208,14 @@ final class ProjectValidationPipelineTest {
     Path maximumSeedProject = materializeCanonicalProject("maximum-seed");
     ObjectNode maximumSeed =
         (ObjectNode) MAPPER.readTree(maximumSeedProject.resolve("deer.json").toFile());
-    maximumSeed.put("seed", Long.MAX_VALUE);
+    maximumSeed.put("seed", 9_007_199_254_740_991L);
     Files.write(maximumSeedProject.resolve("deer.json"), MAPPER.writeValueAsBytes(maximumSeed));
 
-    Path inexactSeedProject = materializeCanonicalProject("inexact-seed");
-    ObjectNode inexactSeed =
-        (ObjectNode) MAPPER.readTree(inexactSeedProject.resolve("deer.json").toFile());
-    inexactSeed.put("seed", new java.math.BigInteger("9223372036854775808"));
-    Files.write(inexactSeedProject.resolve("deer.json"), MAPPER.writeValueAsBytes(inexactSeed));
+    Path excessiveSeedProject = materializeCanonicalProject("excessive-seed");
+    ObjectNode excessiveSeed =
+        (ObjectNode) MAPPER.readTree(excessiveSeedProject.resolve("deer.json").toFile());
+    excessiveSeed.put("seed", 9_007_199_254_740_992L);
+    Files.write(excessiveSeedProject.resolve("deer.json"), MAPPER.writeValueAsBytes(excessiveSeed));
 
     Path textualSeedProject = materializeCanonicalProject("textual-seed");
     ObjectNode textualSeed =
@@ -227,8 +229,21 @@ final class ProjectValidationPipelineTest {
     ValidationResult maximumSeedResult =
         new ProjectValidationPipeline().validate(maximumSeedProject);
     assertTrue(maximumSeedResult.valid(), maximumSeedResult.issues().toString());
-    assertEquals(Long.MAX_VALUE, maximumSeedResult.model().orElseThrow().seed());
-    assertOnlySchemaIssues(new ProjectValidationPipeline().validate(inexactSeedProject));
+    ProjectDefinition maximumSeedModel = maximumSeedResult.model().orElseThrow();
+    assertEquals(9_007_199_254_740_991L, maximumSeedModel.seed());
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ProjectDefinition(
+                9_007_199_254_740_992L,
+                maximumSeedModel.metadata(),
+                maximumSeedModel.session(),
+                maximumSeedModel.scenario(),
+                maximumSeedModel.surfaces(),
+                maximumSeedModel.riddleGraph(),
+                maximumSeedModel.riddles(),
+                maximumSeedModel.assets()));
+    assertOnlySchemaIssues(new ProjectValidationPipeline().validate(excessiveSeedProject));
     assertOnlySchemaIssues(new ProjectValidationPipeline().validate(textualSeedProject));
   }
 
