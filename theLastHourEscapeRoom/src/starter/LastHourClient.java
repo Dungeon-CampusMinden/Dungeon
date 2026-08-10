@@ -48,6 +48,7 @@ import modules.trash.TrashMinigameUI;
 import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
+import util.LastHourAchievements;
 import util.ui.BlackFadeCutscene;
 
 /** The main class for the Multiplayer Client for development and testing purposes. */
@@ -58,6 +59,7 @@ public final class LastHourClient {
 
   /** Pre-run registrations for the client (custom dialogs and items). */
   public static void registerClientContent() {
+    LastHourAchievements.register();
     registerCustomDialogs();
     UsbStickItem.ensureRegistration();
     PuzzlePieceItem.ensureRegistration();

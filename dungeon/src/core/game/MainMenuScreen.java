@@ -20,6 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.achievements.AchievementManager;
+import contrib.achievements.AchievementMenuView;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.ClientConnectionDialog;
 import contrib.hud.elements.RichLabel;
@@ -64,6 +66,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private static final String T_HOST = "host";
   private static final String T_JOIN = "join";
+  private static final String T_ACHIEVEMENTS = "achievements";
   private static final String T_SETTINGS = "settings";
   private static final String T_EXIT = "exit";
   private static final String T_BACK = "back";
@@ -84,6 +87,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private enum View {
     MAIN,
     SETTINGS,
+    ACHIEVEMENTS,
     HOST_NAME,
     JOIN
   }
@@ -94,6 +98,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private Table content;
   private Table mainView;
   private Table settingsView;
+  private Table achievementsView;
   private Table hostNameView;
   private Table joinView;
   private View activeView = View.MAIN;
@@ -140,6 +145,7 @@ public class MainMenuScreen extends ScreenAdapter {
     content.setBackground("window_background_big");
     mainView = buildMainView();
     settingsView = buildSettingsView();
+    achievementsView = buildAchievementsView();
     hostNameView = buildHostNameView();
     joinView = buildJoinView();
 
@@ -201,12 +207,17 @@ public class MainMenuScreen extends ScreenAdapter {
     TextButton joinButton = menuButton(trans.text(T_JOIN), "blue-outline", this::joinGame);
     TextButton settingsButton =
         menuButton(trans.text(T_SETTINGS), "blue-outline", this::showSettingsView);
+    TextButton achievementsButton =
+        menuButton(trans.text(T_ACHIEVEMENTS), "blue-outline", this::showAchievementsView);
     TextButton exitButton =
         menuButton(trans.text(T_EXIT), "red-outline", () -> Game.exit("Exit from main menu"));
 
     Table menu = new Table();
     menu.add(hostButton).width(BUTTON_WIDTH).padBottom(12).row();
     menu.add(joinButton).width(BUTTON_WIDTH).padBottom(12).row();
+    if (AchievementManager.isAvailable()) {
+      menu.add(achievementsButton).width(BUTTON_WIDTH).padBottom(12).row();
+    }
     menu.add(settingsButton).width(BUTTON_WIDTH).padBottom(12).row();
     menu.add(exitButton).width(BUTTON_WIDTH).row();
     return menu;
@@ -231,6 +242,11 @@ public class MainMenuScreen extends ScreenAdapter {
     menu.add(hostStatusLabel).width(BUTTON_WIDTH).minHeight(24).padBottom(8).row();
     menu.add(buttons).align(Align.center).row();
     return menu;
+  }
+
+  private Table buildAchievementsView() {
+    TextButton backButton = menuButton(trans.text(T_BACK), "green", this::showMainView);
+    return AchievementMenuView.build(backButton);
   }
 
   private Table buildJoinView() {
@@ -310,6 +326,12 @@ public class MainMenuScreen extends ScreenAdapter {
     swapContent(settingsView);
   }
 
+  private void showAchievementsView() {
+    activeView = View.ACHIEVEMENTS;
+    achievementsView = buildAchievementsView();
+    swapContent(achievementsView);
+  }
+
   private void showHostNameView() {
     activeView = View.HOST_NAME;
     hostStatusLabel.setText("");
@@ -335,10 +357,13 @@ public class MainMenuScreen extends ScreenAdapter {
     }
     mainView = buildMainView();
     settingsView = buildSettingsView();
+    achievementsView = buildAchievementsView();
     hostNameView = buildHostNameView();
     joinView = buildJoinView();
     if (activeView == View.SETTINGS) {
       showSettingsView();
+    } else if (activeView == View.ACHIEVEMENTS) {
+      showAchievementsView();
     } else if (activeView == View.HOST_NAME) {
       showHostNameView();
     } else if (activeView == View.JOIN) {

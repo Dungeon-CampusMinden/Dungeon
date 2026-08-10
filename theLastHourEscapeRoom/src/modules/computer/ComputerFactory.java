@@ -23,8 +23,10 @@ import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import level.LastHourLevel;
 import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
@@ -42,8 +44,15 @@ public class ComputerFactory {
   /** Key for updating the computer state from the dialog callbacks. */
   public static final String UPDATE_STATE_KEY = "update_state";
 
+  /** Callback key fired when a player opens the control panel tab. */
+  public static final String CONTROL_PANEL_OPENED_KEY = "control_panel_opened";
+
   /** Delay in milliseconds between triggering the unknown-device virus and the forced shutdown. */
   public static final long UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS = 10_000L;
+
+  private static Consumer<Entity> onVirusTriggered = who -> {};
+  private static Consumer<Entity> onPcUnlocked = who -> {};
+  private static Consumer<Entity> onControlPanelOpened = who -> {};
 
   static {
     ensureRegistration();
@@ -56,6 +65,33 @@ public class ComputerFactory {
     if (registry.byType(ComputerStateComponent.class).isEmpty()) {
       registry.register(new ComputerStateComponentCodec());
     }
+  }
+
+  /**
+   * Sets the action fired when the computer enters a newly infected state.
+   *
+   * @param callback callback receiving the acting player
+   */
+  public static void onVirusTriggered(Consumer<Entity> callback) {
+    onVirusTriggered = Objects.requireNonNull(callback, "callback");
+  }
+
+  /**
+   * Sets the action fired when the computer reaches the logged-in state.
+   *
+   * @param callback callback receiving the acting player
+   */
+  public static void onPcUnlocked(Consumer<Entity> callback) {
+    onPcUnlocked = Objects.requireNonNull(callback, "callback");
+  }
+
+  /**
+   * Sets the action fired when a player opens the control panel tab.
+   *
+   * @param callback callback receiving the acting player
+   */
+  public static void onControlPanelOpened(Consumer<Entity> callback) {
+    onControlPanelOpened = Objects.requireNonNull(callback, "callback");
   }
 
   /**
@@ -198,6 +234,7 @@ public class ComputerFactory {
           "Wrong USB stick inserted: " + stick.color().displayName() + " - triggering virus");
       LastHourQuestLogUtil.addUsbUsedQuestLogEntry();
       LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
+      onVirusTriggered.accept(who);
       ComputerStateComponent.setInfection(true);
       ComputerStateComponent.setVirusType(Lore.UnknownDeviceVirusType);
       openComputerDialog(pcEntity, who);
@@ -283,6 +320,7 @@ public class ComputerFactory {
 
                 if (newState.isInfected() && !wasInfected) {
                   LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
+                  onVirusTriggered.accept(who);
                   Game.add(
                       EmoteFactory.createEmote(
                           LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
@@ -292,8 +330,11 @@ public class ComputerFactory {
                 if (!previousState.state().hasReached(ComputerProgress.LOGGED_IN)
                     && newState.state().hasReached(ComputerProgress.LOGGED_IN)) {
                   LastHourQuestLogUtil.addMailReviewQuestLogEntry();
+                  onPcUnlocked.accept(who);
                 }
               });
+          computerDialogInstance.registerCallback(
+              CONTROL_PANEL_OPENED_KEY, data -> onControlPanelOpened.accept(who));
         });
   }
 

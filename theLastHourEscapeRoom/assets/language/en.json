@@ -56,6 +56,52 @@
       }
     }
   },
+  "achievements": {
+    "lights_on": {
+      "name": "Lights On",
+      "description": "Flip the hidden switch below the stacks of paper."
+    },
+    "trash_diver": {
+      "name": "Trash Diver",
+      "description": "Search through a trashcan."
+    },
+    "pc_unlocked": {
+      "name": "PC Unlocked",
+      "description": "Log in to the office computer."
+    },
+    "virus": {
+      "name": "Virus",
+      "description": "Trigger a virus on the office computer."
+    },
+    "keypad_code": {
+      "name": "Keypad Code",
+      "description": "Enter the correct code on the keypad."
+    },
+    "bruteforce": {
+      "name": "Bruteforce",
+      "description": "Enter ten wrong codes on the keypad."
+    },
+    "usb_collector": {
+      "name": "USB Collector",
+      "description": "Collect all four USB sticks."
+    },
+    "control_panel": {
+      "name": "Control Panel",
+      "description": "Open the control panel tab on the computer."
+    },
+    "escaped_in_time": {
+      "name": "Escaped In Time",
+      "description": "Finish the game before the timer runs out."
+    },
+    "escaped_too_late": {
+      "name": "Escaped Too Late",
+      "description": "Finish the game after the timer has run out."
+    },
+    "platinum": {
+      "name": "Platinum Achievement",
+      "description": "Unlock all other achievements."
+    }
+  },
   "settings": {
 	"controls_header": "Controls",
 	"controls_description": "Use the mouse to find interactables, then press [key code=$1] to interact!",

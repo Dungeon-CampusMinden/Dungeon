@@ -56,6 +56,52 @@
       }
     }
   },
+  "achievements": {
+    "lights_on": {
+      "name": "Licht an",
+      "description": "Lege den versteckten Schalter unter dem Papierstapel um."
+    },
+    "trash_diver": {
+      "name": "Mülltaucher",
+      "description": "Durchsuche einen Papierkorb."
+    },
+    "pc_unlocked": {
+      "name": "PC entsperrt",
+      "description": "Melde dich am Bürocomputer an."
+    },
+    "virus": {
+      "name": "Virus",
+      "description": "Löse einen Virus auf dem Bürocomputer aus."
+    },
+    "keypad_code": {
+      "name": "Keypad-Code",
+      "description": "Gib den richtigen Code am Keypad ein."
+    },
+    "bruteforce": {
+      "name": "Bruteforce",
+      "description": "Gib zehn falsche Codes am Keypad ein."
+    },
+    "usb_collector": {
+      "name": "USB-Sammler",
+      "description": "Sammle alle vier USB-Sticks."
+    },
+    "control_panel": {
+      "name": "Control Panel",
+      "description": "Öffne den Control-Panel-Tab am Computer."
+    },
+    "escaped_in_time": {
+      "name": "Rechtzeitig entkommen",
+      "description": "Beende das Spiel, bevor der Timer abläuft."
+    },
+    "escaped_too_late": {
+      "name": "Zu spät entkommen",
+      "description": "Beende das Spiel, nachdem der Timer abgelaufen ist."
+    },
+    "platinum": {
+      "name": "Platinum Achievement",
+      "description": "Schalte alle anderen Achievements frei."
+    }
+  },
   "settings": {
 	"controls_header": "Steuerung",
 	"controls_description": "Nutze die Maus, um Interaktionen zu finden.[n]Drücke dann [key code=$1], um zu interagieren!",

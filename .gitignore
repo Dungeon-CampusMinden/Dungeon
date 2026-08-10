@@ -36,6 +36,7 @@ logs/
 ########################
 dungeon_config.json
 last_session.dat
+*achievement-unlock.json
 
 
 # JAVA, Scala #

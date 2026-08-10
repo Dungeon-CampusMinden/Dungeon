@@ -146,7 +146,7 @@ public class KeypadUI extends Group {
     } catch (NumberFormatException ex) {
       switch (action) {
         case ACTION_BACK -> keypadComp.backspace();
-        case ACTION_SUBMIT -> onSubmit(keypadComp, drawComp);
+        case ACTION_SUBMIT -> onSubmit(keypadComp, drawComp, caller);
       }
     }
 
@@ -164,9 +164,9 @@ public class KeypadUI extends Group {
     };
   }
 
-  private static void onSubmit(KeypadComponent keypadComp, DrawComponent drawComp) {
+  private static void onSubmit(KeypadComponent keypadComp, DrawComponent drawComp, Entity caller) {
     if (keypadComp.isUnlocked()) return;
-    keypadComp.checkUnlock();
+    keypadComp.checkUnlock(caller);
     if (keypadComp.isUnlocked()) {
       drawComp.sendSignal("open");
       Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));

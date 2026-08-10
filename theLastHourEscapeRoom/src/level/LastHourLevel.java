@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerProgress;
@@ -70,6 +71,7 @@ import modules.usbstick.UsbStickColor;
 import modules.usbstick.UsbStickItem;
 import starter.LastHourClient;
 import util.InteractionHelper;
+import util.LastHourAchievements;
 import util.LastHourQuestLogUtil;
 import util.LastHourSounds;
 import util.Lore;
@@ -94,6 +96,7 @@ public class LastHourLevel extends DungeonLevel {
   private ComputerStateComponent cscLastTick;
   private Entity keypad;
   private int lastKnownVisibleCommentCount = 0;
+  private final Set<Integer> usbCollectorWatchedPlayers = new HashSet<>();
 
   /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";
@@ -157,6 +160,16 @@ public class LastHourLevel extends DungeonLevel {
               EventScheduler.scheduleAction(this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
             },
             true);
+    keypad
+        .fetch(KeypadComponent.class)
+        .ifPresent(
+            component -> {
+              component.onCorrectCode(
+                  player -> LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE));
+              component.onWrongCode(
+                  player ->
+                      LastHourAchievements.checkBruteforce(player, component.wrongCodeAttempts()));
+            });
     Game.add(keypad);
 
     setupPC();
@@ -206,6 +219,11 @@ public class LastHourLevel extends DungeonLevel {
                       .ifPresent(
                           pc -> {
                             LastHourQuestLogUtil.addEscapeQuestLogEntries();
+                            LastHourAchievements.trigger(
+                                other,
+                                timerExpired
+                                    ? LastHourAchievements.ESCAPED_TOO_LATE
+                                    : LastHourAchievements.ESCAPED_IN_TIME);
                             BlackFadeCutscene.show(
                                 endingLoreTexts(), true, false, () -> Game.exit("Win"));
                           });
@@ -409,6 +427,7 @@ public class LastHourLevel extends DungeonLevel {
                                 "",
                                 () -> {
                                   ComputerStateComponent.setState(ComputerProgress.ON);
+                                  LastHourAchievements.trigger(who, LastHourAchievements.LIGHTS_ON);
                                   LastHourQuestLogUtil.addPowerSwitchQuestLogEntry();
                                   LastHourQuestLogUtil.addInvestigatePcQuestLogEntry();
                                   Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
@@ -466,11 +485,11 @@ public class LastHourLevel extends DungeonLevel {
                           new Interaction(
                               (eInteract, who) -> {
                                 if (!hasReward || awarded[0]) {
-                                  TrashMinigameFactory.show(who, null, paperCount, null);
+                                  showTrashMinigame(who, null, paperCount, null);
                                   return;
                                 }
                                 Item reward = new HintItem(new SimpleIPath(trashNote));
-                                TrashMinigameFactory.show(
+                                showTrashMinigame(
                                     who,
                                     reward,
                                     paperCount,
@@ -789,11 +808,11 @@ public class LastHourLevel extends DungeonLevel {
                 new Interaction(
                     (eInteract, who) -> {
                       if (awarded[0]) {
-                        TrashMinigameFactory.show(who, null, 30, null);
+                        showTrashMinigame(who, null, 30, null);
                         return;
                       }
                       Item reward = UsbStickItem.createUsbStickItem(UsbStickColor.Blue);
-                      TrashMinigameFactory.show(
+                      showTrashMinigame(
                           who,
                           reward,
                           30,
@@ -806,14 +825,44 @@ public class LastHourLevel extends DungeonLevel {
     Game.add(blueTrash);
   }
 
+  private void showTrashMinigame(Entity who, Item reward, int paperCount, Runnable afterAward) {
+    LastHourAchievements.trigger(who, LastHourAchievements.TRASH_DIVER);
+    TrashMinigameFactory.show(who, reward, paperCount, afterAward);
+  }
+
   @Override
   protected void onTick() {
     checkPCStateUpdate();
     Game.allPlayers().filter(p -> !INTRO_SHOWN_TO.contains(p.id())).forEach(p -> showIntro(p.id()));
+    registerUsbCollectorHooks();
     if (!Game.isHeadless()) {
       checkInteractFeedback();
       updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
     }
+  }
+
+  private void registerUsbCollectorHooks() {
+    Game.allPlayers()
+        .filter(player -> !usbCollectorWatchedPlayers.contains(player.id()))
+        .forEach(this::registerUsbCollectorHook);
+  }
+
+  private void registerUsbCollectorHook(Entity player) {
+    player
+        .fetch(InventoryComponent.class)
+        .ifPresent(
+            inventory -> {
+              Consumer<Item> previousOnItemAdded = inventory.onItemAdded();
+              inventory.onItemAdded(
+                  item -> {
+                    previousOnItemAdded.accept(item);
+                    if (item instanceof UsbStickItem.BaseUsbStick) {
+                      LastHourAchievements.checkAllUsbSticks();
+                    }
+                  });
+              usbCollectorWatchedPlayers.add(player.id());
+              LastHourAchievements.checkAllUsbSticks();
+            });
   }
 
   static void updateLightingShader(Point pcPos, Point timerPos, Entity keypad) {

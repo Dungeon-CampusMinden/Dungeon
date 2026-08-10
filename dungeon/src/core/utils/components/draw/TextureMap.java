@@ -41,7 +41,10 @@ public final class TextureMap extends HashMap<String, Texture> {
    */
   public Texture textureAt(final IPath path) {
     if (!containsKey(path.pathString())) {
-      put(path.pathString(), loadPMA(path.pathString()));
+      Texture loadedTexture = loadPMA(path.pathString());
+      if (loadedTexture != null) {
+        put(path.pathString(), loadedTexture);
+      }
     }
 
     return get(path.pathString());
@@ -57,7 +60,9 @@ public final class TextureMap extends HashMap<String, Texture> {
   public void putTexture(final IPath path, final Texture texture) {
     if (containsKey(path.pathString())) {
       Texture oldTexture = get(path.pathString());
-      oldTexture.dispose();
+      if (oldTexture != null) {
+        oldTexture.dispose();
+      }
     }
     put(path.pathString(), texture);
   }

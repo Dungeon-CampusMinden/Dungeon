@@ -1,0 +1,82 @@
+{
+  "achievements": [
+    {
+      "imagePath": "hud/kenney/flag_square.png",
+      "id": "lights_on",
+      "developerNote": "Flip the hidden switch below the stacks of paper.",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "imagePath": "images/crumbled-paper.png",
+      "id": "trash_diver",
+      "developerNote": "Search through a trashcan.",
+      "unlockForAll": false,
+      "hidden": true
+    },
+    {
+      "imagePath": "images/company_logo.png",
+      "id": "pc_unlocked",
+      "developerNote": "Log in to the office computer.",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "imagePath": "images/virus-phrases.png",
+      "id": "virus",
+      "developerNote": "Trigger a virus on the office computer.",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "imagePath": "hud/kenney/chess_king.png",
+      "id": "keypad_code",
+      "developerNote": "Enter the correct code on the keypad.",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "imagePath": "hud/kenney/skull.png",
+      "id": "bruteforce",
+      "developerNote": "Enter ten wrong codes on the keypad.",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "imagePath": "items/usb-side-red.png",
+      "id": "usb_collector",
+      "developerNote": "Collect all four USB sticks.",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "imagePath": "images/decoder_74155.png",
+      "id": "control_panel",
+      "developerNote": "Open the control panel tab on the computer.",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "imagePath": "images/final-code.png",
+      "id": "escaped_in_time",
+      "developerNote": "Finish the game before the timer runs out.",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "imagePath": "images/random_nothing.png",
+      "id": "escaped_too_late",
+      "developerNote": "Finish the game after the timer has run out.",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "imagePath": "items/rpg/item_gem_diamond_smooth.png",
+      "id": "platinum",
+      "developerNote": "Unlock all other achievements.",
+      "unlockForAll": false,
+      "platinum": true,
+      "hidden": false
+    }
+  ]
+}

@@ -54,6 +54,9 @@ public interface DialogType {
     /** Pause menu dialog. */
     PAUSE_MENU("PAUSE_MENU"),
 
+    /** Non-blocking achievement unlock popup. */
+    ACHIEVEMENT_POPUP("ACHIEVEMENT_POPUP"),
+
     /** Multiple choice selection dialog. */
     MULTIPLE_CHOICE("MULTIPLE_CHOICE"),
 

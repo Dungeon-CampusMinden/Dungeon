@@ -5,6 +5,7 @@ import core.Entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /** Component that represents a keypad with a code that can be entered. */
@@ -16,6 +17,9 @@ public class KeypadComponent implements Component {
   private boolean isUnlocked = false;
   private boolean showDigitCount;
   private Runnable action;
+  private Consumer<Entity> onCorrectCode = caller -> {};
+  private Consumer<Entity> onWrongCode = caller -> {};
+  private int wrongCodeAttempts = 0;
   private Entity overlay;
 
   /**
@@ -105,23 +109,32 @@ public class KeypadComponent implements Component {
     enteredDigits.add(digit);
   }
 
-  /** Checks if the entered digits match the correct digits and unlocks if they do. */
-  public void checkUnlock() {
-    boolean isCorrect = true;
-    if (enteredDigits.size() == correctDigits.size()) {
+  /**
+   * Checks if the entered digits match the correct digits and unlocks if they do.
+   *
+   * @param caller entity that submitted the code
+   * @throws NullPointerException if caller is null
+   */
+  public void checkUnlock(Entity caller) {
+    Objects.requireNonNull(caller, "caller");
+    boolean completeCodeEntered = enteredDigits.size() == correctDigits.size();
+    boolean isCorrect = completeCodeEntered;
+    if (completeCodeEntered) {
       for (int i = 0; i < enteredDigits.size(); i++) {
         if (!Objects.equals(enteredDigits.get(i), correctDigits.get(i))) {
           isCorrect = false;
           break;
         }
       }
-    } else {
-      isCorrect = false;
     }
 
     if (isCorrect) {
       isUnlocked = true;
-      action.run();
+      if (action != null) action.run();
+      onCorrectCode.accept(caller);
+    } else if (completeCodeEntered) {
+      wrongCodeAttempts++;
+      onWrongCode.accept(caller);
     }
   }
 
@@ -213,6 +226,57 @@ public class KeypadComponent implements Component {
    */
   public void action(Runnable action) {
     this.action = action;
+  }
+
+  /**
+   * Registers a callback executed after the keypad is unlocked with the correct code.
+   *
+   * @param onCorrectCode callback to run
+   * @throws NullPointerException if the callback is null
+   */
+  public void onCorrectCode(Runnable onCorrectCode) {
+    Objects.requireNonNull(onCorrectCode, "onCorrectCode");
+    this.onCorrectCode = caller -> onCorrectCode.run();
+  }
+
+  /**
+   * Registers a callback executed after the keypad is unlocked with the correct code.
+   *
+   * @param onCorrectCode callback receiving the submitting entity
+   * @throws NullPointerException if the callback is null
+   */
+  public void onCorrectCode(Consumer<Entity> onCorrectCode) {
+    this.onCorrectCode = Objects.requireNonNull(onCorrectCode, "onCorrectCode");
+  }
+
+  /**
+   * Registers a callback executed after each failed submit.
+   *
+   * @param onWrongCode callback to run
+   * @throws NullPointerException if the callback is null
+   */
+  public void onWrongCode(Runnable onWrongCode) {
+    Objects.requireNonNull(onWrongCode, "onWrongCode");
+    this.onWrongCode = caller -> onWrongCode.run();
+  }
+
+  /**
+   * Registers a callback executed after each complete failed submit.
+   *
+   * @param onWrongCode callback receiving the submitting entity
+   * @throws NullPointerException if the callback is null
+   */
+  public void onWrongCode(Consumer<Entity> onWrongCode) {
+    this.onWrongCode = Objects.requireNonNull(onWrongCode, "onWrongCode");
+  }
+
+  /**
+   * Returns the number of failed submit attempts.
+   *
+   * @return failed submit count
+   */
+  public int wrongCodeAttempts() {
+    return wrongCodeAttempts;
   }
 
   /**
