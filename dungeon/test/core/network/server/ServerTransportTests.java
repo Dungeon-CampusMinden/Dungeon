@@ -96,7 +96,6 @@ public class ServerTransportTests {
     transports.add(transport);
     currentTransport.set(transport);
     PreRunConfiguration.multiplayerCharacterClasses(CharacterClass.WIZARD);
-    NetworkConfig.MAX_MULTIPLAYER_PLAYERS = Integer.MAX_VALUE;
     MockNetworkHandler.useLocalNetworkHandler();
   }
 
@@ -116,7 +115,6 @@ public class ServerTransportTests {
     }
     PreRunConfiguration.multiplayerCharacterClasses(CharacterClass.WIZARD);
     NetworkConfig.DEBUG_TELEMETRY_ENABLED = false;
-    NetworkConfig.MAX_MULTIPLAYER_PLAYERS = Integer.MAX_VALUE;
   }
 
   /**
@@ -310,7 +308,11 @@ public class ServerTransportTests {
   @Test
   public void playerCapRejectsFreshIdentityButAllowsRetainedReconnect() throws Exception {
     ServerTransport transport = currentTransport.get();
-    NetworkConfig.MAX_MULTIPLAYER_PLAYERS = 1;
+    transport.stop();
+    transports.remove(transport);
+    transport = new ServerTransport(1);
+    transports.add(transport);
+    currentTransport.set(transport);
     short retainedClientId = 7;
     byte[] reconnectToken = new byte[] {1, 2, 3};
     Entity retainedPlayer = new Entity();

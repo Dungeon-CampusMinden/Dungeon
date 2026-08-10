@@ -28,13 +28,6 @@ public final class NetworkConfig {
    */
   public static EntitySpawnStrategy ENTITY_SPAWN_STRATEGY = new DefaultEntitySpawnStrategy();
 
-  /**
-   * Maximum number of retained multiplayer player identities.
-   *
-   * <p>Reconnecting clients retain their identity and do not consume another slot.
-   */
-  public static int MAX_MULTIPLAYER_PLAYERS = Integer.MAX_VALUE;
-
   /** Maximum size of serialized payload for TCP communication, in bytes. */
   public static final int MAX_TCP_OBJECT_SIZE = 1 << 20; // 1 MiB
 

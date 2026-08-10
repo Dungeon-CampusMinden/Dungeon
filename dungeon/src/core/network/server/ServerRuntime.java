@@ -39,6 +39,7 @@ public final class ServerRuntime {
   public static final int SESSION_ID = RANDOM.nextInt();
 
   private final int port;
+  private final int maximumPlayers;
 
   private ServerTransport transport;
   private AuthoritativeServerLoop loop;
@@ -49,7 +50,22 @@ public final class ServerRuntime {
    * @param port The port number on which the server will listen for incoming connections.
    */
   public ServerRuntime(int port) {
+    this(port, Integer.MAX_VALUE);
+  }
+
+  /**
+   * Creates a new ServerRuntime instance with a fixed player limit.
+   *
+   * @param port The port number on which the server will listen for incoming connections.
+   * @param maximumPlayers The positive maximum number of multiplayer player identities.
+   * @throws IllegalArgumentException if {@code maximumPlayers} is not positive
+   */
+  public ServerRuntime(int port, int maximumPlayers) {
+    if (maximumPlayers < 1) {
+      throw new IllegalArgumentException("maximumPlayers must be positive");
+    }
     this.port = port;
+    this.maximumPlayers = maximumPlayers;
   }
 
   /**
@@ -64,7 +80,7 @@ public final class ServerRuntime {
     }
 
     LOGGER.info("Starting server on port {}", PreRunConfiguration.networkPort());
-    this.transport = new ServerTransport();
+    this.transport = new ServerTransport(maximumPlayers);
     this.transport.start(port);
     this.loop = new AuthoritativeServerLoop(transport);
     this.loop.start();

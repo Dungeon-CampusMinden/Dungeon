@@ -12,7 +12,6 @@ import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.loader.DungeonLoader;
 import core.network.config.DefaultEntitySpawnStrategy;
-import core.network.config.NetworkConfig;
 import core.network.handler.NettyNetworkHandler;
 import core.network.server.ClientState;
 import core.network.server.ServerTransport;
@@ -92,11 +91,7 @@ public final class MultiplayerHostRun {
           ServerStarter.builder(this::install)
               .levels(Tuple.of(GENERIC_LEVEL_NAME, RoomLevel.class))
               .characterClasses(room.playableCharacterClasses().toArray(CharacterClass[]::new))
-              .onConfigure(
-                  () -> {
-                    int maximumPlayers = definition.roster().slots().size();
-                    NetworkConfig.MAX_MULTIPLAYER_PLAYERS = maximumPlayers;
-                  })
+              .maximumPlayers(definition.roster().slots().size())
               .entitySpawnStrategy(spawnStrategy)
               .snapshotTranslator(snapshotTranslator)
               .onFrame(

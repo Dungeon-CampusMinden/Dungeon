@@ -17,11 +17,13 @@ import java.util.Objects;
 public final class ServerStarter extends AbstractStarter {
 
   private final CharacterClass[] characterClasses;
+  private final int maximumPlayers;
   private final IVoidFunction onFrame;
 
   private ServerStarter(Builder builder) {
     super(builder);
     this.characterClasses = builder.characterClasses.clone();
+    this.maximumPlayers = builder.maximumPlayers;
     this.onFrame = builder.onFrame;
   }
 
@@ -40,6 +42,7 @@ public final class ServerStarter extends AbstractStarter {
     PreRunConfiguration.multiplayerEnabled(true);
     PreRunConfiguration.isNetworkServer(true);
     PreRunConfiguration.networkPort(Integer.getInteger(ServerProcess.PORT_PROPERTY, port));
+    PreRunConfiguration.networkServerMaximumPlayers(maximumPlayers);
     if (characterClasses.length > 0) {
       PreRunConfiguration.multiplayerCharacterClasses(characterClasses);
     }
@@ -51,6 +54,7 @@ public final class ServerStarter extends AbstractStarter {
   public static final class Builder extends AbstractStarter.Builder<Builder> {
 
     private CharacterClass[] characterClasses = new CharacterClass[0];
+    private int maximumPlayers = Integer.MAX_VALUE;
     private IVoidFunction onFrame = () -> {};
 
     private Builder(IVoidFunction onSetup) {
@@ -70,6 +74,21 @@ public final class ServerStarter extends AbstractStarter {
      */
     public Builder characterClasses(CharacterClass... characterClasses) {
       this.characterClasses = Objects.requireNonNull(characterClasses, "characterClasses").clone();
+      return this;
+    }
+
+    /**
+     * Sets the maximum number of multiplayer player identities accepted by the server.
+     *
+     * @param maximumPlayers the positive maximum number of players
+     * @return this builder
+     * @throws IllegalArgumentException if {@code maximumPlayers} is not positive
+     */
+    public Builder maximumPlayers(int maximumPlayers) {
+      if (maximumPlayers < 1) {
+        throw new IllegalArgumentException("maximumPlayers must be positive");
+      }
+      this.maximumPlayers = maximumPlayers;
       return this;
     }
 

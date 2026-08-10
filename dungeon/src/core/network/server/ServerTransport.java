@@ -91,6 +91,26 @@ import java.util.function.Consumer;
  * @see ServerRuntime The main server runtime managing the transport and game loop.
  */
 public final class ServerTransport {
+  private final int maximumPlayers;
+
+  /** Creates an unlimited server transport. */
+  public ServerTransport() {
+    this(Integer.MAX_VALUE);
+  }
+
+  /**
+   * Creates a server transport with a fixed player limit.
+   *
+   * @param maximumPlayers the positive maximum number of retained player identities
+   * @throws IllegalArgumentException if {@code maximumPlayers} is not positive
+   */
+  public ServerTransport(int maximumPlayers) {
+    if (maximumPlayers < 1) {
+      throw new IllegalArgumentException("maximumPlayers must be positive");
+    }
+    this.maximumPlayers = maximumPlayers;
+  }
+
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerTransport.class);
   private static final int DEBUG_TELEMETRY_DEFAULT_INTERVAL_MS = 1_000;
   private static final int DEBUG_TELEMETRY_MIN_INTERVAL_MS = 250;
@@ -747,7 +767,7 @@ public final class ServerTransport {
       return;
     }
 
-    if (clientIdToSession.size() >= NetworkConfig.MAX_MULTIPLAYER_PLAYERS) {
+    if (clientIdToSession.size() >= maximumPlayers) {
       session.sendMessage(new ConnectReject(ConnectReject.Reason.SERVER_FULL), true);
       LOGGER.info("Rejected fresh ConnectRequest for name='{}': server is full", playerName);
       return;

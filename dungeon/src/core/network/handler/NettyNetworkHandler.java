@@ -1,6 +1,7 @@
 package core.network.handler;
 
 import contrib.entities.CharacterClass;
+import core.game.PreRunConfiguration;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.NetworkException;
@@ -86,7 +87,7 @@ public class NettyNetworkHandler implements INetworkHandler {
   @Override
   public void start() {
     if (serverMode) {
-      server = new ServerRuntime(port);
+      server = new ServerRuntime(port, PreRunConfiguration.networkServerMaximumPlayers());
       server.start();
     } else {
       client.start();
