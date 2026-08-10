@@ -62,16 +62,16 @@
       "description": "Lege den versteckten Schalter unter dem Papierstapel um."
     },
     "trash_diver": {
-      "name": "Muelltaucher",
+      "name": "Mülltaucher",
       "description": "Durchsuche einen Papierkorb."
     },
     "pc_unlocked": {
       "name": "PC entsperrt",
-      "description": "Melde dich am Buerocomputer an."
+      "description": "Melde dich am Bürocomputer an."
     },
     "virus": {
       "name": "Virus",
-      "description": "Loese einen Virus auf dem Buerocomputer aus."
+      "description": "Löse einen Virus auf dem Bürocomputer aus."
     },
     "keypad_code": {
       "name": "Keypad-Code",
@@ -83,19 +83,19 @@
     },
     "usb_collector": {
       "name": "USB-Sammler",
-      "description": "Sammelt alle vier USB-Sticks."
+      "description": "Sammle alle vier USB-Sticks."
     },
     "control_panel": {
       "name": "Control Panel",
-      "description": "Oeffne den Control-Panel-Tab am Computer."
+      "description": "Öffne den Control-Panel-Tab am Computer."
     },
     "escaped_in_time": {
       "name": "Rechtzeitig entkommen",
-      "description": "Beendet das Spiel, bevor der Timer ablaeuft."
+      "description": "Beende das Spiel, bevor der Timer abläuft."
     },
     "escaped_too_late": {
-      "name": "Zu spaet entkommen",
-      "description": "Beendet das Spiel, nachdem der Timer abgelaufen ist."
+      "name": "Zu spät entkommen",
+      "description": "Beende das Spiel, nachdem der Timer abgelaufen ist."
     },
     "platinum": {
       "name": "Platinum Achievement",
