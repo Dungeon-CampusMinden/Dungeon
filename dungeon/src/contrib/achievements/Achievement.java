@@ -11,7 +11,7 @@ import core.language.Translation;
  * @param nameKey optional translation key for the displayed name
  * @param descriptionKey optional translation key for the displayed description
  * @param hidden whether locked menu entries should hide name and description
- * @param unlockScope who receives the achievement when triggered
+ * @param forAll whether all players receive the achievement when it is triggered
  * @param platinum whether this achievement unlocks after all other achievements
  */
 public record Achievement(
@@ -21,7 +21,7 @@ public record Achievement(
     String nameKey,
     String descriptionKey,
     boolean hidden,
-    AchievementUnlockScope unlockScope,
+    boolean forAll,
     boolean platinum) {
 
   private static final Translation TRANSLATION = new Translation();
@@ -32,7 +32,7 @@ public record Achievement(
    * @return true if all players should receive it
    */
   public boolean unlocksForAll() {
-    return unlockScope.unlocksForAll();
+    return forAll;
   }
 
   /**

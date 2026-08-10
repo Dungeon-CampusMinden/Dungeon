@@ -28,8 +28,6 @@ final class AchievementStore {
   private static final String KEY_HIDDEN = "hidden";
   private static final String KEY_UNLOCKED = "unlocked";
   private static final String KEY_UNLOCK_FOR_ALL = "unlockForAll";
-  private static final String KEY_UNLOCK_SCOPE = "unlockScope";
-  private static final String KEY_SCOPE = "scope";
   private static final String KEY_PLATINUM = "platinum";
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AchievementStore.class);
 
@@ -156,13 +154,20 @@ final class AchievementStore {
     String nameKey = optionalStringValue(map, KEY_NAME_KEY).orElse("");
     String descriptionKey = optionalStringValue(map, KEY_DESCRIPTION_KEY).orElse("");
     boolean hidden = booleanValue(map, KEY_HIDDEN);
-    Object scope =
-        map.containsKey(KEY_UNLOCK_SCOPE) ? map.get(KEY_UNLOCK_SCOPE) : map.get(KEY_SCOPE);
-    AchievementUnlockScope unlockScope =
-        AchievementUnlockScope.fromJson(map.get(KEY_UNLOCK_FOR_ALL), scope);
+    boolean forAll = unlockForAll(map.get(KEY_UNLOCK_FOR_ALL));
     boolean platinum = booleanValue(map, KEY_PLATINUM);
     return new Achievement(
-        imagePath, name, description, nameKey, descriptionKey, hidden, unlockScope, platinum);
+        imagePath, name, description, nameKey, descriptionKey, hidden, forAll, platinum);
+  }
+
+  private boolean unlockForAll(Object value) {
+    if (value == null) {
+      return true;
+    }
+    if (value instanceof Boolean bool) {
+      return bool;
+    }
+    throw new IllegalArgumentException("achievement field 'unlockForAll' must be a boolean");
   }
 
   private Map<String, Object> asStringObjectMap(Map<?, ?> rawMap) {

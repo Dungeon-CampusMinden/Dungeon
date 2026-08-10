@@ -2,6 +2,7 @@ package contrib.achievements;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import core.utils.JsonHandler;
@@ -52,11 +53,7 @@ class AchievementStoreTest {
   @Test
   void parseAchievementIgnoresUnlockedFromDefinitionJson() throws Exception {
     AchievementStore store = new AchievementStore("unused.json", Path.of("unused-status.json"));
-    Map<String, Object> definition = new LinkedHashMap<>();
-    definition.put("imagePath", "icon.png");
-    definition.put("name", "Test Achievement");
-    definition.put("description", "Static definition");
-    definition.put("hidden", true);
+    Map<String, Object> definition = validDefinition();
     definition.put("unlocked", true);
 
     parseAchievement(store, definition);
@@ -64,6 +61,35 @@ class AchievementStoreTest {
     assertFalse(
         Arrays.stream(Achievement.class.getRecordComponents())
             .anyMatch(component -> component.getName().equals("unlocked")));
+  }
+
+  @Test
+  void parseAchievementDefaultsMissingUnlockForAllToAllPlayers() throws Exception {
+    AchievementStore store = new AchievementStore("unused.json", Path.of("unused-status.json"));
+
+    Achievement achievement = parseAchievement(store, validDefinition());
+
+    assertTrue(achievement.forAll());
+  }
+
+  @Test
+  void parseAchievementReadsFalseUnlockForAllBoolean() throws Exception {
+    AchievementStore store = new AchievementStore("unused.json", Path.of("unused-status.json"));
+    Map<String, Object> definition = validDefinition();
+    definition.put("unlockForAll", false);
+
+    Achievement achievement = parseAchievement(store, definition);
+
+    assertFalse(achievement.forAll());
+  }
+
+  @Test
+  void parseAchievementRejectsNonBooleanUnlockForAll() {
+    AchievementStore store = new AchievementStore("unused.json", Path.of("unused-status.json"));
+    Map<String, Object> definition = validDefinition();
+    definition.put("unlockForAll", "false");
+
+    assertThrows(IllegalArgumentException.class, () -> parseAchievement(store, definition));
   }
 
   @Test
@@ -118,8 +144,16 @@ class AchievementStoreTest {
   }
 
   private static Achievement achievement(String name) {
-    return new Achievement(
-        "icon.png", name, "Description", "", "", false, AchievementUnlockScope.ALL_PLAYERS, false);
+    return new Achievement("icon.png", name, "Description", "", "", false, true, false);
+  }
+
+  private static Map<String, Object> validDefinition() {
+    Map<String, Object> definition = new LinkedHashMap<>();
+    definition.put("imagePath", "icon.png");
+    definition.put("name", "Test Achievement");
+    definition.put("description", "Static definition");
+    definition.put("hidden", true);
+    return definition;
   }
 
   private static Object invoke(Method method, Object target, Object... args) throws Exception {
