@@ -15,6 +15,7 @@ import foundation.presentation.GamePresentation;
 import foundation.presentation.GamePresentation.ComposedPresentation;
 import foundation.room.model.FoundationRoom;
 import foundation.room.model.RoomPoint;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -177,8 +178,8 @@ class RoomDeriverTest {
     Files.createDirectories(custom);
     Files.copy(examples.resolve("deer.json"), project.resolve("deer.json"));
     Files.copy(
-        examples.resolve(CUSTOM_ASSET.replace('/', java.io.File.separatorChar)),
-        project.resolve(CUSTOM_ASSET.replace('/', java.io.File.separatorChar)));
+        examples.resolve(CUSTOM_ASSET.replace('/', File.separatorChar)),
+        project.resolve(CUSTOM_ASSET.replace('/', File.separatorChar)));
     return project;
   }
 

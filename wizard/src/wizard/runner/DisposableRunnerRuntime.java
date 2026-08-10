@@ -1,5 +1,6 @@
 package wizard.runner;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,12 +17,10 @@ final class DisposableRunnerRuntime {
 
   static <T> T run(final Function<Path, T> operation) {
     Path runtime = create();
-    String previousLogDirectory = java.lang.System.getProperty(LOG_DIRECTORY_PROPERTY);
-    String previousReflectionDirectory =
-        java.lang.System.getProperty(REFLECTION_DIRECTORY_PROPERTY);
-    java.lang.System.setProperty(LOG_DIRECTORY_PROPERTY, runtime + java.io.File.separator);
-    java.lang.System.setProperty(
-        REFLECTION_DIRECTORY_PROPERTY, runtime.resolve("reflection").toString());
+    String previousLogDirectory = System.getProperty(LOG_DIRECTORY_PROPERTY);
+    String previousReflectionDirectory = System.getProperty(REFLECTION_DIRECTORY_PROPERTY);
+    System.setProperty(LOG_DIRECTORY_PROPERTY, runtime + File.separator);
+    System.setProperty(REFLECTION_DIRECTORY_PROPERTY, runtime.resolve("reflection").toString());
     try {
       return operation.apply(runtime);
     } finally {
@@ -33,9 +32,9 @@ final class DisposableRunnerRuntime {
 
   private static void restoreProperty(final String name, final String value) {
     if (value == null) {
-      java.lang.System.clearProperty(name);
+      System.clearProperty(name);
     } else {
-      java.lang.System.setProperty(name, value);
+      System.setProperty(name, value);
     }
   }
 

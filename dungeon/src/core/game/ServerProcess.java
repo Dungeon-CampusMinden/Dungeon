@@ -65,13 +65,12 @@ public final class ServerProcess {
 
   private static List<String> buildCommand(
       final Class<?> mainClass, final int port, final String... args) {
-    String javaHome = java.lang.System.getProperty("java.home");
-    boolean windows =
-        java.lang.System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
+    String javaHome = System.getProperty("java.home");
+    boolean windows = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
     List<String> command = new ArrayList<>();
     command.add(javaExecutable(javaHome, windows));
     command.add("-cp");
-    command.add(java.lang.System.getProperty("java.class.path"));
+    command.add(System.getProperty("java.class.path"));
     command.add("-D" + PORT_PROPERTY + "=" + port);
     command.add("-D" + MANAGED_PROPERTY + "=true");
     command.add(mainClass.getName());
@@ -106,8 +105,8 @@ public final class ServerProcess {
    * @return {@code true} if the server became reachable and the process is still alive
    */
   public boolean awaitReady(final int port, final Duration timeout) {
-    long deadline = java.lang.System.nanoTime() + timeout.toNanos();
-    while (java.lang.System.nanoTime() < deadline) {
+    long deadline = System.nanoTime() + timeout.toNanos();
+    while (System.nanoTime() < deadline) {
       if (!process.isAlive()) {
         LOGGER.warn("Server process exited before becoming reachable.");
         return false;

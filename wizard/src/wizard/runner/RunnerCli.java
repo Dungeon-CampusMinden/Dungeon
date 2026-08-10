@@ -41,9 +41,9 @@ public final class RunnerCli {
    * @param arguments case-sensitive command-line tokens
    */
   public static void main(final String[] arguments) {
-    int exitCode = run(arguments, java.lang.System.out, java.lang.System.err);
+    int exitCode = run(arguments, System.out, System.err);
     if (exitCode != SUCCESS) {
-      java.lang.System.exit(exitCode);
+      System.exit(exitCode);
     }
   }
 

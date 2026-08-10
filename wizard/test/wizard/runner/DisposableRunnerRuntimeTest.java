@@ -16,30 +16,27 @@ final class DisposableRunnerRuntimeTest {
   @Test
   void scopesPropertiesAndDeletesTheRuntime() {
     Path workingDirectory = Path.of("").toAbsolutePath().normalize();
-    String previousLogDirectory = java.lang.System.getProperty("BASELOGDIR");
-    String previousReflectionDirectory = java.lang.System.getProperty("BASEREFLECTIONDIR");
-    String previousTempDirectory = java.lang.System.getProperty("java.io.tmpdir");
+    String previousLogDirectory = System.getProperty("BASELOGDIR");
+    String previousReflectionDirectory = System.getProperty("BASEREFLECTIONDIR");
+    String previousTempDirectory = System.getProperty("java.io.tmpdir");
     AtomicReference<Path> runtime = new AtomicReference<>();
 
     DisposableRunnerRuntime.run(
         directory -> {
           runtime.set(directory);
           assertEquals(
-              directory,
-              Path.of(java.lang.System.getProperty("BASELOGDIR")).toAbsolutePath().normalize());
+              directory, Path.of(System.getProperty("BASELOGDIR")).toAbsolutePath().normalize());
           assertEquals(
               directory.resolve("reflection"),
-              Path.of(java.lang.System.getProperty("BASEREFLECTIONDIR"))
-                  .toAbsolutePath()
-                  .normalize());
-          assertEquals(previousTempDirectory, java.lang.System.getProperty("java.io.tmpdir"));
+              Path.of(System.getProperty("BASEREFLECTIONDIR")).toAbsolutePath().normalize());
+          assertEquals(previousTempDirectory, System.getProperty("java.io.tmpdir"));
           assertEquals(workingDirectory, Path.of("").toAbsolutePath().normalize());
           return null;
         });
 
-    assertEquals(previousLogDirectory, java.lang.System.getProperty("BASELOGDIR"));
-    assertEquals(previousReflectionDirectory, java.lang.System.getProperty("BASEREFLECTIONDIR"));
-    assertEquals(previousTempDirectory, java.lang.System.getProperty("java.io.tmpdir"));
+    assertEquals(previousLogDirectory, System.getProperty("BASELOGDIR"));
+    assertEquals(previousReflectionDirectory, System.getProperty("BASEREFLECTIONDIR"));
+    assertEquals(previousTempDirectory, System.getProperty("java.io.tmpdir"));
     assertFalse(Files.exists(runtime.get()));
   }
 }

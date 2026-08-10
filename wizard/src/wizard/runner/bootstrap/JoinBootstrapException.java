@@ -1,7 +1,7 @@
 package wizard.runner.bootstrap;
 
 /** Bounded failure raised before a Foundation join may create players or signal readiness. */
-public final class JoinBootstrapException extends IllegalArgumentException {
+public final class JoinBootstrapException extends IllegalStateException {
   private static final int MAXIMUM_MESSAGE_LENGTH = 512;
 
   /**

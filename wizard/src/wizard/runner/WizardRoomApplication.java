@@ -34,9 +34,9 @@ public final class WizardRoomApplication {
    * @param arguments no arguments for the menu, or exactly {@code --server}
    */
   public static void main(final String[] arguments) {
-    int exitCode = run(arguments, java.lang.System.err);
+    int exitCode = run(arguments, System.err);
     if (exitCode != SUCCESS) {
-      java.lang.System.exit(exitCode);
+      System.exit(exitCode);
     }
   }
 

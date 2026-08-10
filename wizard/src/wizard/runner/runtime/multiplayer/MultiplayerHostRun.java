@@ -135,7 +135,7 @@ public final class MultiplayerHostRun {
         .start(
             () -> {
               try {
-                java.lang.System.in.read();
+                System.in.read();
               } catch (IOException exception) {
                 // A broken management pipe has the same lifecycle meaning as EOF.
               }
@@ -178,7 +178,7 @@ public final class MultiplayerHostRun {
         requiredLevelSystem(),
         componentStations(),
         hintStations(),
-        java.lang.System::nanoTime,
+        System::nanoTime,
         onTerminalComplete);
   }
 

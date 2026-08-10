@@ -59,7 +59,7 @@ final class MultiplayerJoinGameSetup {
   void failJoin(final String reason) {
     String bounded = reason == null || reason.isBlank() ? "Foundation bootstrap failed" : reason;
     if (failure.compareAndSet(null, bounded)) {
-      java.lang.System.err.println(bounded);
+      System.err.println(bounded);
       Game.exit(bounded);
     }
   }
