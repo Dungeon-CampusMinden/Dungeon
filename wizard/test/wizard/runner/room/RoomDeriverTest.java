@@ -1,6 +1,7 @@
 package wizard.runner.room;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +11,7 @@ import foundation.definition.ComposedRiddleDefinition;
 import foundation.definition.HintSeverity;
 import foundation.definition.NumericInputDefinition;
 import foundation.definition.TimerMode;
+import foundation.presentation.GamePresentation;
 import foundation.presentation.GamePresentation.ComposedPresentation;
 import foundation.room.model.FoundationRoom;
 import foundation.room.model.RoomPoint;
@@ -22,6 +24,7 @@ import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import wizard.runner.validation.ProjectValidationPipeline;
@@ -43,9 +46,9 @@ class RoomDeriverTest {
     FoundationRoom room = new RoomDeriver().derive(validation);
 
     assertTrue(validation.valid());
-    assertEquals(1, room.sections().size());
+    assertEquals(1, room.definition().sections().size());
     ComposedRiddleDefinition riddle =
-        (ComposedRiddleDefinition) room.sections().getFirst().riddles().getFirst();
+        (ComposedRiddleDefinition) room.definition().sections().getFirst().riddles().getFirst();
     NumericInputDefinition numeric = (NumericInputDefinition) riddle.inputs().getFirst();
     assertEquals(
         List.of("res_keypad_code", "res_note_image"),
@@ -59,11 +62,11 @@ class RoomDeriverTest {
     assertEquals("Der Code besteht aus vier Ziffern.", riddle.hints().get(1).text());
     assertEquals(HintSeverity.APPROACH, riddle.hints().get(1).severity());
     assertEquals(HintSeverity.SOLUTION, riddle.hints().get(2).severity());
-    assertEquals(30, room.timer().limitMinutes());
-    assertEquals(TimerMode.HARD, room.timer().mode());
-    assertEquals("s_exit_door", room.door().id());
-    assertEquals("n_exit", room.exit().id());
-    assertEquals("s_exit_door", room.exit().doorId());
+    assertEquals(30, room.definition().timer().limitMinutes());
+    assertEquals(TimerMode.HARD, room.definition().timer().mode());
+    assertEquals("s_exit_door", room.definition().door().id());
+    assertEquals("n_exit", room.definition().exit().id());
+    assertEquals("s_exit_door", room.definition().exit().doorId());
 
     ComposedPresentation composed = (ComposedPresentation) room.presentation().riddles().getFirst();
     var source = composed.informationSources().getFirst();
@@ -83,15 +86,14 @@ class RoomDeriverTest {
     assertEquals(CUSTOM_ASSET, room.assets().getFirst().logicalPath());
     assertEquals("image/png", room.assets().getFirst().mediaType());
 
-    assertEquals(1, room.minimumPlayers());
-    assertEquals(4, room.maximumPlayers());
+    assertEquals(1, room.definition().minimumPlayers());
+    assertEquals(4, room.definition().roster().slots().size());
     assertEquals(
         List.of(CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03),
         room.playableCharacterClasses());
-    assertEquals(1, room.createDefinition().minimumPlayers());
     assertEquals(
         List.of(1, 2, 3, 4),
-        room.createDefinition().roster().slots().stream().map(slot -> slot.number()).toList());
+        room.definition().roster().slots().stream().map(slot -> slot.number()).toList());
     assertEquals(new RoomPoint(1, 1), room.layout().startPoint());
     assertEquals(
         List.of("r_exit_code"),
@@ -101,6 +103,25 @@ class RoomDeriverTest {
         room.layout().riddlePlacements().getFirst().components().stream()
             .map(component -> component.surfaceId())
             .toList());
+    GamePresentation missingFailure =
+        new GamePresentation(
+            room.presentation().riddles(),
+            room.presentation().introText(),
+            room.presentation().mission(),
+            room.presentation().successText(),
+            Optional.empty());
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new FoundationRoom(
+                room.title(),
+                room.seed(),
+                room.inputSha256(),
+                room.playableCharacterClasses(),
+                room.definition(),
+                missingFailure,
+                room.layout(),
+                room.assets()));
     assertEquals(before, snapshot(project));
   }
 
@@ -116,7 +137,7 @@ class RoomDeriverTest {
 
     assertEquals(first.inputSha256(), repeated.inputSha256());
     assertEquals(first.layout(), repeated.layout());
-    assertEquals(first.sections(), repeated.sections());
+    assertEquals(first.definition(), repeated.definition());
     assertEquals(before, snapshot(project));
     assertEquals(List.of("assets", "deer.json"), children(project));
   }

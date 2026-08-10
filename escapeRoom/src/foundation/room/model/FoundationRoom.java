@@ -2,15 +2,10 @@ package foundation.room.model;
 
 import contrib.entities.CharacterClass;
 import foundation.definition.ComposedRiddleDefinition;
-import foundation.definition.DoorDefinition;
-import foundation.definition.ExitDefinition;
 import foundation.definition.NumericInputDefinition;
 import foundation.definition.RiddleDefinition;
 import foundation.definition.RoomDefinition;
-import foundation.definition.RosterDefinition;
-import foundation.definition.RosterSlotDefinition;
-import foundation.definition.SectionDefinition;
-import foundation.definition.TimerDefinition;
+import foundation.definition.TimerMode;
 import foundation.presentation.GamePresentation;
 import foundation.presentation.GamePresentation.ComposedPresentation;
 import foundation.presentation.GamePresentation.ResourcePresentation;
@@ -22,22 +17,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /** Complete immutable room input shared by every participant running the same DEER project. */
 public final class FoundationRoom {
-  private final String id;
   private final String title;
   private final long seed;
   private final String inputSha256;
-  private final int minimumPlayers;
-  private final int maximumPlayers;
   private final List<CharacterClass> playableCharacterClasses;
-  private final List<SectionDefinition> sections;
-  private final TimerDefinition timer;
-  private final DoorDefinition door;
-  private final ExitDefinition exit;
+  private final RoomDefinition definition;
   private final GamePresentation presentation;
   private final RoomLayout layout;
   private final List<VerifiedAsset> assets;
@@ -45,48 +33,30 @@ public final class FoundationRoom {
   /**
    * Creates and validates one complete deterministic Foundation room.
    *
-   * @param id stable room identifier
    * @param title player-facing room title
    * @param seed deterministic project seed
    * @param inputSha256 canonical complete project identity
-   * @param minimumPlayers minimum ready players
-   * @param maximumPlayers maximum admitted players
    * @param playableCharacterClasses ordered pool of server-assigned player classes
-   * @param sections canonical Foundation sections
-   * @param timer room timer definition
-   * @param door common-door definition
-   * @param exit common-exit definition
+   * @param definition complete validated authority definition
    * @param presentation complete room presentation
    * @param layout deterministic room layout
    * @param assets exact verified custom assets
    */
   public FoundationRoom(
-      final String id,
       final String title,
       final long seed,
       final String inputSha256,
-      final int minimumPlayers,
-      final int maximumPlayers,
       final List<CharacterClass> playableCharacterClasses,
-      final List<SectionDefinition> sections,
-      final TimerDefinition timer,
-      final DoorDefinition door,
-      final ExitDefinition exit,
+      final RoomDefinition definition,
       final GamePresentation presentation,
       final RoomLayout layout,
       final List<VerifiedAsset> assets) {
-    this.id = RoomModelChecks.requireId(id, "room id");
     this.title = RoomModelChecks.requireText(title, "room title");
     if (seed < 0) {
       throw new IllegalArgumentException("room seed must be nonnegative");
     }
     this.seed = seed;
     this.inputSha256 = RoomModelChecks.requireSha256(inputSha256, "room input SHA-256");
-    if (minimumPlayers < 1 || maximumPlayers > 4 || minimumPlayers > maximumPlayers) {
-      throw new IllegalArgumentException("player bounds must satisfy 1 <= min <= max <= 4");
-    }
-    this.minimumPlayers = minimumPlayers;
-    this.maximumPlayers = maximumPlayers;
     List<CharacterClass> characterClasses =
         Objects.requireNonNull(playableCharacterClasses, "playableCharacterClasses");
     if (characterClasses.isEmpty()) {
@@ -99,13 +69,7 @@ public final class FoundationRoom {
       throw new IllegalArgumentException("playable character classes must be unique");
     }
     this.playableCharacterClasses = List.copyOf(characterClasses);
-    this.sections = List.copyOf(Objects.requireNonNull(sections, "sections"));
-    if (this.sections.isEmpty()) {
-      throw new IllegalArgumentException("room must contain Foundation sections");
-    }
-    this.timer = Objects.requireNonNull(timer, "timer");
-    this.door = Objects.requireNonNull(door, "door");
-    this.exit = Objects.requireNonNull(exit, "exit");
+    this.definition = Objects.requireNonNull(definition, "definition");
     this.presentation = Objects.requireNonNull(presentation, "presentation");
     this.layout = Objects.requireNonNull(layout, "layout");
     this.assets =
@@ -113,15 +77,6 @@ public final class FoundationRoom {
             .sorted(Comparator.comparing(VerifiedAsset::logicalPath))
             .toList();
     validate();
-  }
-
-  /**
-   * Returns the stable room identifier.
-   *
-   * @return room identifier
-   */
-  public String id() {
-    return id;
   }
 
   /**
@@ -152,24 +107,6 @@ public final class FoundationRoom {
   }
 
   /**
-   * Returns the minimum ready player count.
-   *
-   * @return minimum player count
-   */
-  public int minimumPlayers() {
-    return minimumPlayers;
-  }
-
-  /**
-   * Returns the maximum admitted player count.
-   *
-   * @return maximum player count
-   */
-  public int maximumPlayers() {
-    return maximumPlayers;
-  }
-
-  /**
    * Returns the ordered pool of server-assigned player classes.
    *
    * @return immutable playable character class order
@@ -179,39 +116,12 @@ public final class FoundationRoom {
   }
 
   /**
-   * Returns the canonical Foundation sections.
+   * Returns the complete validated authority definition.
    *
-   * @return immutable authored section order
+   * @return room definition
    */
-  public List<SectionDefinition> sections() {
-    return sections;
-  }
-
-  /**
-   * Returns the room timer definition.
-   *
-   * @return timer definition
-   */
-  public TimerDefinition timer() {
-    return timer;
-  }
-
-  /**
-   * Returns the common-door definition.
-   *
-   * @return door definition
-   */
-  public DoorDefinition door() {
-    return door;
-  }
-
-  /**
-   * Returns the common-exit definition.
-   *
-   * @return exit definition
-   */
-  public ExitDefinition exit() {
-    return exit;
+  public RoomDefinition definition() {
+    return definition;
   }
 
   /**
@@ -241,23 +151,12 @@ public final class FoundationRoom {
     return assets;
   }
 
-  /**
-   * Creates the reusable authority definition for the complete room capacity.
-   *
-   * @return complete room definition
-   */
-  public RoomDefinition createDefinition() {
-    List<RosterSlotDefinition> slots =
-        IntStream.rangeClosed(1, maximumPlayers)
-            .mapToObj(number -> new RosterSlotDefinition("slot_" + number, number))
-            .toList();
-    return new RoomDefinition(
-        id, minimumPlayers, new RosterDefinition(slots), sections, timer, door, exit);
-  }
-
   private void validate() {
+    if (definition.timer().mode() == TimerMode.HARD && presentation.failureText().isEmpty()) {
+      throw new IllegalArgumentException("hard timer requires presentation failure text");
+    }
     List<RiddleDefinition> definitions =
-        sections.stream().flatMap(section -> section.riddles().stream()).toList();
+        definition.sections().stream().flatMap(section -> section.riddles().stream()).toList();
     List<RiddlePresentation> presentations = presentation.riddles();
     List<RiddlePlacement> placements = layout.riddlePlacements();
     if (definitions.size() != presentations.size() || definitions.size() != placements.size()) {

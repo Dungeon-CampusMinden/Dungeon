@@ -9,6 +9,9 @@ import foundation.definition.InformationSourceDefinition;
 import foundation.definition.InputDefinition;
 import foundation.definition.NumericInputDefinition;
 import foundation.definition.RiddleDefinition;
+import foundation.definition.RoomDefinition;
+import foundation.definition.RosterDefinition;
+import foundation.definition.RosterSlotDefinition;
 import foundation.definition.SectionDefinition;
 import foundation.definition.TimerDefinition;
 import foundation.definition.TimerMode;
@@ -29,6 +32,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import wizard.runner.model.ProjectDefinition;
 import wizard.runner.model.ProjectDefinition.Asset;
 import wizard.runner.model.ProjectDefinition.CollectionInput;
@@ -80,20 +84,27 @@ public final class RoomDeriver {
     String doorId = endSurfaceId(project);
     DoorDefinition door = new DoorDefinition(doorId);
     ExitDefinition exit = new ExitDefinition(endNodeId(project), doorId);
+    List<RosterSlotDefinition> slots =
+        IntStream.rangeClosed(1, project.session().playerCount().max())
+            .mapToObj(number -> new RosterSlotDefinition("slot_" + number, number))
+            .toList();
+    RoomDefinition definition =
+        new RoomDefinition(
+            project.metadata().id(),
+            project.session().playerCount().min(),
+            new RosterDefinition(slots),
+            sections,
+            timer,
+            door,
+            exit);
     GamePresentation presentation = presentation(project, plan, riddles, assets);
     RoomLayout layout = plan.layout();
     return new FoundationRoom(
-        project.metadata().id(),
         project.metadata().title(),
         project.seed(),
         hostInputSha256,
-        project.session().playerCount().min(),
-        project.session().playerCount().max(),
         WizardThemeCatalog.playableCharacterClasses(project.scenario().themeId()),
-        sections,
-        timer,
-        door,
-        exit,
+        definition,
         presentation,
         layout,
         verifiedAssets);

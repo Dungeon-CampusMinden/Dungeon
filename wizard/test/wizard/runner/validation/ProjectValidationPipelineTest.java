@@ -123,7 +123,7 @@ final class ProjectValidationPipelineTest {
 
     assertTrue(result.valid(), result.issues().toString());
     assertEquals(customPath, result.assets().getFirst().logicalPath());
-    assertEquals("wizard-foundation-v0-3", new RoomDeriver().derive(result).id());
+    assertEquals("wizard-foundation-v0-3", new RoomDeriver().derive(result).definition().id());
   }
 
   @Test

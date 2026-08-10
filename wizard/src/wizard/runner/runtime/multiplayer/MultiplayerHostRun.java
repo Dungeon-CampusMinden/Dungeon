@@ -58,7 +58,7 @@ public final class MultiplayerHostRun {
 
   private MultiplayerHostRun(final FoundationRoom room) {
     this.room = Objects.requireNonNull(room, "room");
-    definition = room.createDefinition();
+    definition = room.definition();
     level = RoomLevel.fromLayout(room.layout());
     MultiplayerSession session = new MultiplayerSession(definition, room.presentation());
     serverBinding = new ServerBinding(session, MultiplayerHostRun::readyClients);
@@ -198,7 +198,7 @@ public final class MultiplayerHostRun {
 
   private Map<String, Point> hintStations() {
     Map<String, Point> stations = new LinkedHashMap<>();
-    room.sections().stream()
+    room.definition().sections().stream()
         .flatMap(section -> section.riddles().stream())
         .filter(riddle -> !riddle.hints().isEmpty())
         .forEach(riddle -> stations.put(riddle.id(), requiredPoint("hint_" + riddle.id())));
