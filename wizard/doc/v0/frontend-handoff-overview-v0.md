@@ -133,7 +133,9 @@ berechnet er SHA-256, schreibt die Datei unter
 `assets/custom/<12-hashzeichen>-<normalisierter-name>` und ersetzt erst danach
 `deer.json` atomar. Die private Draftrepräsentation darf beide Varianten als
 Union unterscheiden. Diese technische Unterscheidung wird nicht als Feld in
-`source` exportiert.
+`source` exportiert. Eine leere oder ausschließlich aus Leerraumzeichen
+bestehende Attribution behandelt der Adapter wie eine fehlende Attribution und
+lässt das Feld bei der Finalisierung weg.
 
 Der Adapter bindet die Produktionsvalidierung direkt als Java-Bibliothek an.
 Ausschließlich das in

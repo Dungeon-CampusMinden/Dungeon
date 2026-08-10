@@ -210,7 +210,32 @@ final class ProjectValidationPipelineTest {
   }
 
   @Test
-  void rejectsInvalidAssetAuthoringShape() throws IOException {
+  void validatesAssetAuthoringShape() throws IOException {
+    Path emptyAttributionProject = materializeCanonicalProject("empty-attribution");
+    ObjectNode emptyAttribution =
+        (ObjectNode) MAPPER.readTree(emptyAttributionProject.resolve("deer.json").toFile());
+    ((ObjectNode) emptyAttribution.required("assets").required(0).required("source"))
+        .put("attribution", "");
+    Files.write(
+        emptyAttributionProject.resolve("deer.json"), MAPPER.writeValueAsBytes(emptyAttribution));
+
+    Path missingAttributionProject = materializeCanonicalProject("missing-attribution");
+    ObjectNode missingAttribution =
+        (ObjectNode) MAPPER.readTree(missingAttributionProject.resolve("deer.json").toFile());
+    ((ObjectNode) missingAttribution.required("assets").required(0).required("source"))
+        .remove("attribution");
+    Files.write(
+        missingAttributionProject.resolve("deer.json"),
+        MAPPER.writeValueAsBytes(missingAttribution));
+
+    Path blankAttributionProject = materializeCanonicalProject("blank-attribution");
+    ObjectNode blankAttribution =
+        (ObjectNode) MAPPER.readTree(blankAttributionProject.resolve("deer.json").toFile());
+    ((ObjectNode) blankAttribution.required("assets").required(0).required("source"))
+        .put("attribution", " ");
+    Files.write(
+        blankAttributionProject.resolve("deer.json"), MAPPER.writeValueAsBytes(blankAttribution));
+
     Path sourceTypeProject = materializeCanonicalProject("source-type");
     ObjectNode sourceType =
         (ObjectNode) MAPPER.readTree(sourceTypeProject.resolve("deer.json").toFile());
@@ -233,6 +258,18 @@ final class ProjectValidationPipelineTest {
         .put("license", " ");
     Files.write(emptyLicenseProject.resolve("deer.json"), MAPPER.writeValueAsBytes(emptyLicense));
 
+    ValidationResult emptyAttributionResult =
+        new ProjectValidationPipeline().validate(emptyAttributionProject);
+    ValidationResult missingAttributionResult =
+        new ProjectValidationPipeline().validate(missingAttributionProject);
+    ValidationResult blankAttributionResult =
+        new ProjectValidationPipeline().validate(blankAttributionProject);
+
+    assertTrue(emptyAttributionResult.valid(), emptyAttributionResult.issues().toString());
+    assertTrue(missingAttributionResult.valid(), missingAttributionResult.issues().toString());
+    assertTrue(blankAttributionResult.valid(), blankAttributionResult.issues().toString());
+    assertEquals(emptyAttributionResult.model(), missingAttributionResult.model());
+    assertEquals(blankAttributionResult.model(), missingAttributionResult.model());
     assertOnlySchemaIssues(new ProjectValidationPipeline().validate(sourceTypeProject));
     assertOnlySchemaIssues(new ProjectValidationPipeline().validate(missingLicenseProject));
     assertOnlySchemaIssues(new ProjectValidationPipeline().validate(emptyLicenseProject));

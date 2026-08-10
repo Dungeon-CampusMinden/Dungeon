@@ -728,7 +728,7 @@
           "$ref": "#/$defs/nonBlankString"
         },
         "attribution": {
-          "$ref": "#/$defs/nonBlankString"
+          "type": "string"
         }
       }
     }

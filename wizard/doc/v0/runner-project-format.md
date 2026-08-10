@@ -38,9 +38,8 @@ Pfade mit Forward-Slashes und ohne führenden Slash. Eigene Bilder beginnen mit
 interne Pfade wie `items/puzzle-piece.png` referenziert.
 
 Die Java-Validierungsbibliothek liest diesen vollständigen Projektordner
-read-only. Die Authoring-Integration bindet sie direkt an; es gibt keine
-separate Runner-CLI oder Runner-Distribution. Der Spielerfluss verwendet die
-projektspezifische JAR. Der Room-first-Lebenszyklus steht im
+read-only. Die Authoring-Integration bindet sie direkt an. Der Spielerfluss
+verwendet die projektspezifische JAR. Der Room-first-Lebenszyklus steht im
 [`runner-runtime-contract.md`](runner-runtime-contract.md).
 
 ## Projektspezifische Spieler-JAR

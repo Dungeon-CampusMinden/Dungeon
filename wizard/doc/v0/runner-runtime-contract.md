@@ -51,12 +51,10 @@ werden mit einem klaren Startfehler abgelehnt.
 ## Produktionsvalidierung und Packaging
 
 Die Authoring-Integration bindet `ProjectValidationPipeline` und
-`ProjectValidationReport` direkt als Java-Bibliothek an. Es gibt keine
-öffentliche Runner-CLI oder Runner-Distribution. Der Gradle-Packager verwendet
-einen kleinen internen Prozesseinstieg, der ausschließlich den übergebenen
-Projektordner validiert, seine Ableitbarkeit mit `RoomDeriver` prüft und den
-kanonischen Validierungsreport ausgibt. Er bietet keine Subcommands und startet
-keine Multiplayer-Runtime.
+`ProjectValidationReport` direkt als Java-Bibliothek an. Der Gradle-Packager
+verwendet einen kleinen internen Prozesseinstieg, der ausschließlich den
+übergebenen Projektordner validiert, seine Ableitbarkeit mit `RoomDeriver`
+prüft, den kanonischen Validierungsreport ausgibt und anschließend endet.
 
 Auch `max=1` verwendet im Spielerfluss einen echten Hostprozess und einen
 getrennten Join-Client.

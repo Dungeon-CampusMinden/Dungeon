@@ -29,10 +29,8 @@ bestehen.
 
 Mit Java 25 öffnet `java -jar WizardRoom.jar` das bestehende Host-/Join-Menü.
 Der Host-Knopf startet dieselbe JAR intern als verwalteten headless
-Serverprozess und verbindet anschließend den Host-Client. Ein separates
-Serverartefakt oder ein benutzersichtbarer CLI-Serverstarter ist nicht nötig.
-Die Authoring-Integration verwendet die Java-Validierungsbibliothek direkt;
-eine separate Runner-CLI oder Runner-Distribution existiert nicht.
+Serverprozess und verbindet anschließend den Host-Client. Die
+Authoring-Integration verwendet die Java-Validierungsbibliothek direkt.
 
 Der Java-Runner und der Foundation-Runtime-Slice sind umgesetzt. Die lokale
 Standalone-Autorenoberfläche ist in den folgenden Dokumenten verbindlich

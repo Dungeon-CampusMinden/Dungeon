@@ -380,13 +380,14 @@ Ein Asset enthält:
 - eine global eindeutige `id`;
 - einen nicht leeren `path`;
 - `mediaType` mit `image/png` oder `image/jpeg`;
-- `source` mit nicht leerer `license` und optionaler, nicht leerer
-  `attribution`.
+- `source` mit nicht leerer `license` und optionaler `attribution`.
 
 `source` enthält ausschließlich diese Authoring-Metadaten. Zusätzliche Felder
-sind ungültig. Der Runner interpretiert Lizenz und Attribution nicht
-semantisch; als Teil der vollständigen `deer.json` beeinflussen Änderungen
-dennoch `hostInputSha256`.
+sind ungültig. Eine fehlende, leere oder ausschließlich aus Leerraumzeichen
+bestehende Attribution bedeutet fachlich, dass keine Attribution vorliegt. Der
+Runner interpretiert Lizenz und Attribution nicht semantisch; als strukturell
+unterschiedliche Teile der vollständigen `deer.json` beeinflussen sie dennoch
+`hostInputSha256`.
 
 Beide Assetvarianten stehen im selben `assets`-Array:
 
