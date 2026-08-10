@@ -50,6 +50,7 @@ public final class MultiplayerHostRun {
   private final FoundationRoom room;
   private final RoomDefinition definition;
   private final RoomLevel level;
+  private final FoundationSnapshotTranslator snapshotTranslator;
   private final Entity bootstrapMarker;
   private final ServerBinding serverBinding;
   private final AtomicBoolean started = new AtomicBoolean();
@@ -60,6 +61,7 @@ public final class MultiplayerHostRun {
     this.room = Objects.requireNonNull(room, "room");
     definition = room.definition();
     level = RoomLevel.fromLayout(room.layout());
+    snapshotTranslator = new FoundationSnapshotTranslator(room);
     MultiplayerSession session = new MultiplayerSession(definition, room.presentation());
     serverBinding = new ServerBinding(session, MultiplayerHostRun::readyClients);
     bootstrapMarker = new Entity("foundation-bootstrap-marker");
@@ -96,7 +98,7 @@ public final class MultiplayerHostRun {
                     NetworkConfig.MAX_MULTIPLAYER_PLAYERS = maximumPlayers;
                   })
               .entitySpawnStrategy(spawnStrategy)
-              .snapshotTranslator(new FoundationSnapshotTranslator(room))
+              .snapshotTranslator(snapshotTranslator)
               .onFrame(
                   () -> {
                     ServerGameBinding binding = gameBinding;
@@ -175,6 +177,7 @@ public final class MultiplayerHostRun {
         serverBinding,
         definition,
         room.presentation(),
+        snapshotTranslator,
         requiredTile(RoomLevel.DOOR_POINT_NAME, DoorTile.class),
         requiredTile(RoomLevel.EXIT_POINT_NAME, ExitTile.class),
         requiredLevelSystem(),

@@ -9,7 +9,6 @@ import core.network.SnapshotTranslator;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.logging.DungeonLogger;
-import foundation.definition.ComposedRiddleDefinition;
 import foundation.definition.NumericInputDefinition;
 import foundation.room.model.FoundationRoom;
 import java.util.ArrayList;
@@ -23,16 +22,19 @@ import java.util.stream.Collectors;
  * Adds the changing Foundation keypad state to Dungeon's ordinary world snapshots.
  *
  * <p>Every participant creates the static keypad configuration from its local complete DEER room.
- * Snapshots therefore synchronize only entered digits and the authoritative unlocked state.
+ * Snapshots therefore synchronize the technical input identity, entered digits, and authoritative
+ * unlocked state while the entity name remains player-facing.
  */
 public final class FoundationSnapshotTranslator implements SnapshotTranslator {
   private static final DungeonLogger LOGGER =
       DungeonLogger.getLogger(FoundationSnapshotTranslator.class);
   private static final String ENTERED_DIGITS = "foundation.keypad.enteredDigits";
+  private static final String INPUT_ID = "foundation.keypad.inputId";
   private static final String UNLOCKED = "foundation.keypad.unlocked";
 
   private final SnapshotTranslator delegate = new DefaultSnapshotTranslator();
   private final Map<String, NumericInputDefinition> numericDefinitions;
+  private final Map<Integer, String> numericEntityInputs = new HashMap<>();
 
   /**
    * Creates a translator backed by the participant-local complete room definition.
@@ -43,13 +45,21 @@ public final class FoundationSnapshotTranslator implements SnapshotTranslator {
     numericDefinitions =
         room.definition().sections().stream()
             .flatMap(section -> section.riddles().stream())
-            .map(ComposedRiddleDefinition.class::cast)
             .flatMap(riddle -> riddle.inputs().stream())
             .filter(NumericInputDefinition.class::isInstance)
             .map(NumericInputDefinition.class::cast)
             .collect(
-                Collectors.toUnmodifiableMap(
-                    definition -> "foundation_" + definition.id(), definition -> definition));
+                Collectors.toUnmodifiableMap(NumericInputDefinition::id, definition -> definition));
+  }
+
+  void registerKeypad(final int entityId, final String inputId) {
+    if (!numericDefinitions.containsKey(inputId)) {
+      throw new IllegalArgumentException("unknown numeric input definition: " + inputId);
+    }
+    String previous = numericEntityInputs.putIfAbsent(entityId, inputId);
+    if (previous != null && !previous.equals(inputId)) {
+      throw new IllegalArgumentException("keypad entity is already registered for another input");
+    }
   }
 
   @Override
@@ -81,7 +91,12 @@ public final class FoundationSnapshotTranslator implements SnapshotTranslator {
     KeypadComponent component = keypad.orElseThrow();
     Map<String, String> metadata = new HashMap<>();
     state.metadata().ifPresent(metadata::putAll);
+    String inputId = numericEntityInputs.get(state.entityId());
+    if (inputId == null) {
+      throw new IllegalStateException("Foundation keypad entity has no registered input identity");
+    }
     metadata.put(ENTERED_DIGITS, digits(component.enteredDigits()));
+    metadata.put(INPUT_ID, inputId);
     metadata.put(UNLOCKED, String.valueOf(component.isUnlocked()));
 
     EntityState.Builder builder = EntityState.builder().entityId(state.entityId());
@@ -113,11 +128,8 @@ public final class FoundationSnapshotTranslator implements SnapshotTranslator {
     try {
       List<Integer> enteredDigits = parseDigits(metadata.getOrDefault(ENTERED_DIGITS, ""));
       boolean unlocked = Boolean.parseBoolean(metadata.getOrDefault(UNLOCKED, "false"));
-      String entityName = entity.name();
-      if (entityName == null || entityName.isBlank()) {
-        throw new IllegalArgumentException("keypad entity has no name");
-      }
-      NumericInputDefinition definition = numericDefinitions.get(entityName);
+      String inputId = metadata.getOrDefault(INPUT_ID, "");
+      NumericInputDefinition definition = numericDefinitions.get(inputId);
       if (definition == null) {
         throw new IllegalArgumentException(
             "keypad entity has no matching local numeric input definition");

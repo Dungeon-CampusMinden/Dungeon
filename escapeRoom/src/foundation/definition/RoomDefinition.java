@@ -58,18 +58,17 @@ public record RoomDefinition(
       final ExitDefinition exit) {
     Map<String, String> owners = new LinkedHashMap<>();
     for (SectionDefinition section : sections) {
-      for (RiddleDefinition riddle : section.riddles()) {
+      for (ComposedRiddleDefinition riddle : section.riddles()) {
         register(owners, riddle.id(), "riddle");
         riddle.hints().forEach(hint -> register(owners, hint.id(), "hint"));
-        ComposedRiddleDefinition composed = (ComposedRiddleDefinition) riddle;
-        composed
+        riddle
             .informationSources()
             .forEach(
                 source -> {
                   register(owners, source.id(), "information source");
                   source.resourceIds().forEach(resource -> register(owners, resource, "resource"));
                 });
-        composed.inputs().forEach(input -> register(owners, input.id(), "input"));
+        riddle.inputs().forEach(input -> register(owners, input.id(), "input"));
       }
     }
     register(owners, door.id(), "door");

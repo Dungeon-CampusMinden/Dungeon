@@ -47,8 +47,7 @@ class RoomDeriverTest {
 
     assertTrue(validation.valid());
     assertEquals(1, room.definition().sections().size());
-    ComposedRiddleDefinition riddle =
-        (ComposedRiddleDefinition) room.definition().sections().getFirst().riddles().getFirst();
+    ComposedRiddleDefinition riddle = room.definition().sections().getFirst().riddles().getFirst();
     NumericInputDefinition numeric = (NumericInputDefinition) riddle.inputs().getFirst();
     assertEquals(
         List.of("res_keypad_code", "res_note_image"),
@@ -71,7 +70,9 @@ class RoomDeriverTest {
     ComposedPresentation composed = (ComposedPresentation) room.presentation().riddles().getFirst();
     var source = composed.informationSources().getFirst();
     assertEquals("s_desk", source.surfaceId());
+    assertEquals("Schreibtisch", source.title());
     assertEquals("s_exit_keypad", composed.inputs().getFirst().surfaceId());
+    assertEquals("Tür-Keypad", composed.inputs().getFirst().title());
     assertEquals(BUILT_IN_CHEST, source.runtimeAssetPath());
     assertTrue(source.resources().getFirst().runtimeAssetPath().isEmpty());
     assertEquals(CUSTOM_ASSET, source.resources().get(1).runtimeAssetPath().orElseThrow());

@@ -2,7 +2,6 @@ package foundation.multiplayer.session;
 
 import foundation.definition.ComposedRiddleDefinition;
 import foundation.definition.NumericInputDefinition;
-import foundation.definition.RiddleDefinition;
 import foundation.definition.RoomDefinition;
 import foundation.definition.RosterSlotDefinition;
 import foundation.presentation.GamePresentation;
@@ -60,7 +59,6 @@ public final class MultiplayerSession {
     minimumPlayers = definition.minimumPlayers();
     Map<String, InformationSourcePresentation> sources = new LinkedHashMap<>();
     presentation.riddles().stream()
-        .map(ComposedPresentation.class::cast)
         .flatMap(riddle -> riddle.informationSources().stream())
         .forEach(source -> sources.put(source.id(), source));
     informationSources = Map.copyOf(sources);
@@ -341,43 +339,41 @@ public final class MultiplayerSession {
   private static void validatePresentation(
       final RoomDefinition definition, final GamePresentation presentation) {
     Objects.requireNonNull(presentation, "presentation");
-    List<RiddleDefinition> definitions =
+    List<ComposedRiddleDefinition> definitions =
         definition.sections().stream().flatMap(section -> section.riddles().stream()).toList();
     if (definitions.size() != presentation.riddles().size()) {
       throw new IllegalArgumentException(
           "presentation riddle count must match Foundation definition");
     }
     for (int index = 0; index < definitions.size(); index++) {
-      RiddleDefinition definitionRiddle = definitions.get(index);
-      GamePresentation.RiddlePresentation presented = presentation.riddles().get(index);
+      ComposedRiddleDefinition definitionRiddle = definitions.get(index);
+      ComposedPresentation presented = presentation.riddles().get(index);
       if (!definitionRiddle.id().equals(presented.id())) {
         throw new IllegalArgumentException("presentation riddles must match definition order");
       }
-      ComposedRiddleDefinition composed = (ComposedRiddleDefinition) definitionRiddle;
-      if (!(presented instanceof ComposedPresentation composedPresentation)
-          || !composed.informationSources().stream()
+      if (!definitionRiddle.informationSources().stream()
               .map(source -> source.id() + "\u0000" + source.surfaceId())
               .toList()
               .equals(
-                  composedPresentation.informationSources().stream()
+                  presented.informationSources().stream()
                       .map(source -> source.id() + "\u0000" + source.surfaceId())
                       .toList())
-          || !composed.informationSources().stream()
+          || !definitionRiddle.informationSources().stream()
               .map(source -> source.resourceIds())
               .toList()
               .equals(
-                  composedPresentation.informationSources().stream()
+                  presented.informationSources().stream()
                       .map(
                           source ->
                               source.resources().stream().map(ResourcePresentation::id).toList())
                       .toList())
-          || !composed.inputs().stream()
+          || !definitionRiddle.inputs().stream()
               .filter(NumericInputDefinition.class::isInstance)
               .map(NumericInputDefinition.class::cast)
               .map(input -> input.id() + "\u0000" + input.surfaceId())
               .toList()
               .equals(
-                  composedPresentation.inputs().stream()
+                  presented.inputs().stream()
                       .map(input -> input.id() + "\u0000" + input.surfaceId())
                       .toList())) {
         throw new IllegalArgumentException(

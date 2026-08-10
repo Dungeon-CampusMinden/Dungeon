@@ -8,7 +8,6 @@ import foundation.definition.HintDefinition;
 import foundation.definition.InformationSourceDefinition;
 import foundation.definition.InputDefinition;
 import foundation.definition.NumericInputDefinition;
-import foundation.definition.RiddleDefinition;
 import foundation.definition.RoomDefinition;
 import foundation.definition.RosterDefinition;
 import foundation.definition.RosterSlotDefinition;
@@ -18,10 +17,8 @@ import foundation.definition.TimerMode;
 import foundation.presentation.GamePresentation;
 import foundation.presentation.GamePresentation.ComposedPresentation;
 import foundation.presentation.GamePresentation.InformationSourcePresentation;
-import foundation.presentation.GamePresentation.InputPresentation;
 import foundation.presentation.GamePresentation.NumericInputPresentation;
 import foundation.presentation.GamePresentation.ResourcePresentation;
-import foundation.presentation.GamePresentation.RiddlePresentation;
 import foundation.room.model.FoundationRoom;
 import foundation.room.model.RoomLayout;
 import foundation.room.model.VerifiedAsset;
@@ -42,12 +39,12 @@ import wizard.runner.model.ProjectDefinition.LimitMode;
 import wizard.runner.model.ProjectDefinition.NumericInput;
 import wizard.runner.model.ProjectDefinition.Resource;
 import wizard.runner.model.ProjectDefinition.Riddle;
+import wizard.runner.model.ProjectDefinition.Surface;
 import wizard.runner.validation.ValidationResult;
 
 /** One-way mapper from validated Wizard project input to an in-memory Foundation room. */
 public final class RoomDeriver {
   private static final String FUND_ASSET = "objects/treasurechest/treasurechest.png";
-  private static final String NUMERIC_ASSET = "objects/keypad/on.png";
 
   /**
    * Derives one complete room shared by host and clients without filesystem output.
@@ -79,6 +76,7 @@ public final class RoomDeriver {
       final List<VerifiedAsset> verifiedAssets) {
     Map<String, Riddle> riddles = index(project.riddles(), Riddle::id);
     Map<String, Asset> assets = index(project.assets(), Asset::id);
+    Map<String, Surface> surfaces = index(project.surfaces(), Surface::id);
     List<SectionDefinition> sections = sections(plan, riddles);
     TimerDefinition timer = timer(project);
     String doorId = endSurfaceId(project);
@@ -97,7 +95,7 @@ public final class RoomDeriver {
             timer,
             door,
             exit);
-    GamePresentation presentation = presentation(project, plan, riddles, assets);
+    GamePresentation presentation = presentation(project, plan, riddles, assets, surfaces);
     RoomLayout layout = plan.layout();
     return new FoundationRoom(
         project.metadata().title(),
@@ -114,7 +112,7 @@ public final class RoomDeriver {
       final SingleRoomPlanner.Plan plan, final Map<String, Riddle> riddles) {
     List<SectionDefinition> result = new ArrayList<>();
     for (SingleRoomPlanner.Section plannedSection : plan.sections()) {
-      List<RiddleDefinition> sectionRiddles =
+      List<ComposedRiddleDefinition> sectionRiddles =
           plannedSection.riddleIds().stream()
               .map(riddleId -> definition(requireRiddle(riddles, riddleId)))
               .toList();
@@ -123,7 +121,7 @@ public final class RoomDeriver {
     return List.copyOf(result);
   }
 
-  private static RiddleDefinition definition(final Riddle riddle) {
+  private static ComposedRiddleDefinition definition(final Riddle riddle) {
     List<HintDefinition> hints =
         riddle.hints().stream()
             .map(hint -> new HintDefinition(hint.id(), hint.title(), hint.text(), hint.severity()))
@@ -181,11 +179,12 @@ public final class RoomDeriver {
       final ProjectDefinition project,
       final SingleRoomPlanner.Plan plan,
       final Map<String, Riddle> riddles,
-      final Map<String, Asset> assets) {
-    List<RiddlePresentation> presentations =
+      final Map<String, Asset> assets,
+      final Map<String, Surface> surfaces) {
+    List<ComposedPresentation> presentations =
         plan.sections().stream()
             .flatMap(section -> section.riddleIds().stream())
-            .map(riddleId -> presentation(requireRiddle(riddles, riddleId), assets))
+            .map(riddleId -> presentation(requireRiddle(riddles, riddleId), assets, surfaces))
             .toList();
     return new GamePresentation(
         presentations,
@@ -195,8 +194,8 @@ public final class RoomDeriver {
         project.scenario().failureText());
   }
 
-  private static RiddlePresentation presentation(
-      final Riddle riddle, final Map<String, Asset> assets) {
+  private static ComposedPresentation presentation(
+      final Riddle riddle, final Map<String, Asset> assets, final Map<String, Surface> surfaces) {
     List<InformationSourcePresentation> sources =
         riddle.informationSources().stream()
             .map(
@@ -204,19 +203,22 @@ public final class RoomDeriver {
                     new InformationSourcePresentation(
                         source.id(),
                         source.surfaceId(),
+                        requireSurface(surfaces, source.surfaceId()).title(),
                         FUND_ASSET,
                         source.resources().stream()
                             .map(resource -> resourcePresentation(resource, assets))
                             .toList()))
             .toList();
-    List<InputPresentation> inputs =
+    List<NumericInputPresentation> inputs =
         riddle.inputs().stream()
             .filter(NumericInput.class::isInstance)
             .map(NumericInput.class::cast)
             .map(
                 input ->
-                    (InputPresentation)
-                        new NumericInputPresentation(input.id(), input.surfaceId(), NUMERIC_ASSET))
+                    new NumericInputPresentation(
+                        input.id(),
+                        input.surfaceId(),
+                        requireSurface(surfaces, input.surfaceId()).title()))
             .toList();
     return new ComposedPresentation(riddle.id(), sources, inputs);
   }
@@ -234,6 +236,16 @@ public final class RoomDeriver {
       throw new IllegalArgumentException("planned riddle is missing from the project: " + riddleId);
     }
     return riddle;
+  }
+
+  private static Surface requireSurface(
+      final Map<String, Surface> surfaces, final String surfaceId) {
+    Surface surface = surfaces.get(surfaceId);
+    if (surface == null) {
+      throw new IllegalArgumentException(
+          "presented surface is missing from the project: " + surfaceId);
+    }
+    return surface;
   }
 
   private static <T> Map<String, T> index(

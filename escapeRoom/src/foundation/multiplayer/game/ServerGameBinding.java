@@ -14,7 +14,6 @@ import core.sound.SoundSpec;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
-import foundation.definition.ComposedRiddleDefinition;
 import foundation.definition.NumericInputDefinition;
 import foundation.definition.RoomDefinition;
 import foundation.multiplayer.binding.ServerBinding;
@@ -46,12 +45,13 @@ public final class ServerGameBinding {
   private static final float KEYPAD_INTERACTION_RADIUS = 1.5f;
 
   private final ServerBinding serverBinding;
+  private final FoundationSnapshotTranslator snapshotTranslator;
   private final GamePresentation presentation;
   private final DoorTile doorTile;
   private final ExitTile exitTile;
   private final LongSupplier monotonicNanos;
   private final Runnable onTerminalComplete;
-  private final Map<String, GamePresentation.RiddlePresentation> riddles;
+  private final Map<String, ComposedPresentation> riddles;
   private final Map<String, NumericInputDefinition> numericDefinitions;
   private final Map<String, Integer> shownIntros = new LinkedHashMap<>();
   private final Set<String> terminalPresentedSlots = new LinkedHashSet<>();
@@ -63,6 +63,7 @@ public final class ServerGameBinding {
    * @param serverBinding Foundation server binding
    * @param definition complete host-owned room definition
    * @param presentation complete player-facing room presentation
+   * @param snapshotTranslator Foundation keypad snapshot translator
    * @param doorTile authoritative common-exit door
    * @param exitTile authoritative common-exit tile
    * @param levelSystem level system whose default exit callback is disabled
@@ -75,6 +76,7 @@ public final class ServerGameBinding {
       final ServerBinding serverBinding,
       final RoomDefinition definition,
       final GamePresentation presentation,
+      final FoundationSnapshotTranslator snapshotTranslator,
       final DoorTile doorTile,
       final ExitTile exitTile,
       final LevelSystem levelSystem,
@@ -85,6 +87,7 @@ public final class ServerGameBinding {
     this.serverBinding = Objects.requireNonNull(serverBinding, "serverBinding");
     numericDefinitions = indexNumericDefinitions(Objects.requireNonNull(definition, "definition"));
     this.presentation = Objects.requireNonNull(presentation, "presentation");
+    this.snapshotTranslator = Objects.requireNonNull(snapshotTranslator, "snapshotTranslator");
     FoundationDialogs.register();
     this.doorTile = Objects.requireNonNull(doorTile, "doorTile");
     this.exitTile = Objects.requireNonNull(exitTile, "exitTile");
@@ -148,7 +151,6 @@ public final class ServerGameBinding {
       final Map<String, Point> componentStations, final Map<String, Point> hintStations) {
     Map<String, Point> stations = Objects.requireNonNull(componentStations, "componentStations");
     riddles.values().stream()
-        .map(ComposedPresentation.class::cast)
         .forEach(
             riddle -> {
               riddle
@@ -157,13 +159,12 @@ public final class ServerGameBinding {
                       source ->
                           Game.add(
                               station(
-                                  source.id(),
+                                  source.title(),
                                   source.runtimeAssetPath(),
                                   requireStation(stations, source.id()),
                                   (ignored, player) ->
                                       inspectSource(riddle.id(), source, player))));
               riddle.inputs().stream()
-                  .map(NumericInputPresentation.class::cast)
                   .forEach(
                       input ->
                           Game.add(
@@ -178,7 +179,7 @@ public final class ServerGameBinding {
             (riddleId, position) ->
                 Game.add(
                     station(
-                        riddleId + "_hint",
+                        "foundation_" + riddleId + "_hint",
                         HINT_ASSET,
                         position,
                         (ignored, player) -> requestHint(riddleId, player))));
@@ -202,7 +203,8 @@ public final class ServerGameBinding {
             digits(definition.answer()),
             () -> {},
             definition.showDigitCount());
-    keypad.name("foundation_" + presentation.id());
+    keypad.name(presentation.title());
+    snapshotTranslator.registerKeypad(keypad.id(), presentation.id());
     keypad.add(
         new InteractionComponent(
             () ->
@@ -360,9 +362,8 @@ public final class ServerGameBinding {
     return definition;
   }
 
-  private static Map<String, GamePresentation.RiddlePresentation> index(
-      final List<GamePresentation.RiddlePresentation> riddles) {
-    Map<String, GamePresentation.RiddlePresentation> indexed = new LinkedHashMap<>();
+  private static Map<String, ComposedPresentation> index(final List<ComposedPresentation> riddles) {
+    Map<String, ComposedPresentation> indexed = new LinkedHashMap<>();
     riddles.forEach(riddle -> indexed.put(riddle.id(), riddle));
     return Map.copyOf(indexed);
   }
@@ -372,7 +373,6 @@ public final class ServerGameBinding {
     Map<String, NumericInputDefinition> indexed = new LinkedHashMap<>();
     definition.sections().stream()
         .flatMap(section -> section.riddles().stream())
-        .map(ComposedRiddleDefinition.class::cast)
         .flatMap(riddle -> riddle.inputs().stream())
         .filter(NumericInputDefinition.class::isInstance)
         .map(NumericInputDefinition.class::cast)
@@ -393,11 +393,11 @@ public final class ServerGameBinding {
   }
 
   private static Entity station(
-      final String name,
+      final String entityName,
       final String asset,
       final Point position,
       final BiConsumer<Entity, Entity> interaction) {
-    Entity station = new Entity("foundation_" + name);
+    Entity station = new Entity(entityName);
     station.add(new PositionComponent(new Point(Objects.requireNonNull(position, "position"))));
     station.add(new DrawComponent(new SimpleIPath(Objects.requireNonNull(asset, "asset"))));
     station.add(new InteractionComponent(() -> new Interaction(interaction)));

@@ -17,8 +17,7 @@ public record ComposedRiddleDefinition(
     String id,
     List<InformationSourceDefinition> informationSources,
     List<InputDefinition> inputs,
-    List<HintDefinition> hints)
-    implements RiddleDefinition {
+    List<HintDefinition> hints) {
   /** Creates an immutable composed riddle. */
   public ComposedRiddleDefinition {
     id = DefinitionChecks.requireId(id, "riddle id");

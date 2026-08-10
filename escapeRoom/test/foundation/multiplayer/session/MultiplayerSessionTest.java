@@ -74,7 +74,11 @@ final class MultiplayerSessionTest {
 
   @Test
   void lateJoinerIsTechnicalOnlyUntilIntroAndCannotAffectAnyInput() {
-    MultiplayerSession session = session(1, 2);
+    GamePresentation presentation = presentation();
+    assertEquals(
+        "Source title", presentation.riddles().getFirst().informationSources().getFirst().title());
+    assertEquals("First code title", presentation.riddles().getFirst().inputs().getFirst().title());
+    MultiplayerSession session = new MultiplayerSession(definition(1, 2), presentation);
     session.reconcileClients(List.of(observation(1)));
     session.completeIntro((short) 1);
     session.reconcileClients(List.of(observation(1), observation(2)));
@@ -245,21 +249,26 @@ final class MultiplayerSessionTest {
                 "first",
                 List.of(
                     new InformationSourcePresentation(
-                        "source", sourceSurfaceId, "images/open-book.png", sourceResources)),
+                        "source",
+                        sourceSurfaceId,
+                        "Source title",
+                        "images/open-book.png",
+                        sourceResources)),
                 List.of(
                     new NumericInputPresentation(
-                        "first_code", "surface_first_code", "images/open-book.png"))),
+                        "first_code", "surface_first_code", "First code title"))),
             new ComposedPresentation(
                 "second",
                 List.of(
                     new InformationSourcePresentation(
                         "later_source",
                         "surface_later",
+                        "Later source title",
                         "images/open-book.png",
                         List.of(resource("later_resource")))),
                 List.of(
                     new NumericInputPresentation(
-                        "final_code", "surface_final_code", "images/open-book.png")))),
+                        "final_code", "surface_final_code", "Final code title")))),
         List.of("Intro"),
         "Mission",
         List.of("Success"),

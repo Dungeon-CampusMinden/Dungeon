@@ -6,7 +6,6 @@ import foundation.definition.HintDefinition;
 import foundation.definition.InformationSourceDefinition;
 import foundation.definition.InputDefinition;
 import foundation.definition.NumericInputDefinition;
-import foundation.definition.RiddleDefinition;
 import foundation.definition.RoomDefinition;
 import foundation.definition.RosterSlotDefinition;
 import foundation.definition.SectionDefinition;
@@ -60,8 +59,8 @@ public final class Authority {
     }
     for (int sectionIndex = 0; sectionIndex < definition.sections().size(); sectionIndex++) {
       SectionDefinition section = definition.sections().get(sectionIndex);
-      for (RiddleDefinition riddle : section.riddles()) {
-        riddles.put(riddle.id(), new RiddleState((ComposedRiddleDefinition) riddle));
+      for (ComposedRiddleDefinition riddle : section.riddles()) {
+        riddles.put(riddle.id(), new RiddleState(riddle));
         sectionIndexes.put(riddle.id(), sectionIndex);
       }
     }
@@ -408,7 +407,7 @@ public final class Authority {
     for (int index = 0; index < definition.sections().size(); index++) {
       SectionDefinition section = definition.sections().get(index);
       List<RiddleView> views = new ArrayList<>();
-      for (RiddleDefinition riddle : section.riddles()) {
+      for (ComposedRiddleDefinition riddle : section.riddles()) {
         RiddleState state = riddles.get(riddle.id());
         views.add(
             new RiddleView(riddle.id(), state.status(), inputViews(state), releasedHints(state)));

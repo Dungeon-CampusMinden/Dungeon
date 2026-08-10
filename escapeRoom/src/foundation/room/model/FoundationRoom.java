@@ -3,13 +3,11 @@ package foundation.room.model;
 import contrib.entities.CharacterClass;
 import foundation.definition.ComposedRiddleDefinition;
 import foundation.definition.NumericInputDefinition;
-import foundation.definition.RiddleDefinition;
 import foundation.definition.RoomDefinition;
 import foundation.definition.TimerMode;
 import foundation.presentation.GamePresentation;
 import foundation.presentation.GamePresentation.ComposedPresentation;
 import foundation.presentation.GamePresentation.ResourcePresentation;
-import foundation.presentation.GamePresentation.RiddlePresentation;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -155,9 +153,9 @@ public final class FoundationRoom {
     if (definition.timer().mode() == TimerMode.HARD && presentation.failureText().isEmpty()) {
       throw new IllegalArgumentException("hard timer requires presentation failure text");
     }
-    List<RiddleDefinition> definitions =
+    List<ComposedRiddleDefinition> definitions =
         definition.sections().stream().flatMap(section -> section.riddles().stream()).toList();
-    List<RiddlePresentation> presentations = presentation.riddles();
+    List<ComposedPresentation> presentations = presentation.riddles();
     List<RiddlePlacement> placements = layout.riddlePlacements();
     if (definitions.size() != presentations.size() || definitions.size() != placements.size()) {
       throw new IllegalArgumentException(
@@ -173,7 +171,6 @@ public final class FoundationRoom {
     Map<String, VerifiedAsset> available =
         assets.stream().collect(Collectors.toMap(VerifiedAsset::logicalPath, asset -> asset));
     presentation.riddles().stream()
-        .map(ComposedPresentation.class::cast)
         .flatMap(composed -> composed.informationSources().stream())
         .flatMap(source -> source.resources().stream())
         .map(ResourcePresentation::runtimeAssetPath)
@@ -189,8 +186,8 @@ public final class FoundationRoom {
   }
 
   private static void validateRiddle(
-      final RiddleDefinition definition,
-      final RiddlePresentation presentation,
+      final ComposedRiddleDefinition definition,
+      final ComposedPresentation presentation,
       final RiddlePlacement placement) {
     if (!definition.id().equals(presentation.id())
         || !definition.id().equals(placement.riddleId())) {
@@ -200,34 +197,30 @@ public final class FoundationRoom {
     if (!definition.hints().isEmpty() != placement.hintPoint().isPresent()) {
       throw new IllegalArgumentException("hint placement must match the riddle definition");
     }
-    ComposedRiddleDefinition composed = (ComposedRiddleDefinition) definition;
-    if (!(presentation instanceof ComposedPresentation composedPresentation)) {
-      throw new IllegalArgumentException("composed definition requires composed presentation");
-    }
     List<String> sourceKeys =
-        composedPresentation.informationSources().stream()
+        presentation.informationSources().stream()
             .map(source -> componentKey(source.id(), source.surfaceId()))
             .toList();
-    if (!composed.informationSources().stream()
+    if (!definition.informationSources().stream()
             .map(source -> componentKey(source.id(), source.surfaceId()))
             .toList()
             .equals(sourceKeys)
-        || !composed.informationSources().stream()
+        || !definition.informationSources().stream()
             .map(source -> source.resourceIds())
             .toList()
             .equals(
-                composedPresentation.informationSources().stream()
+                presentation.informationSources().stream()
                     .map(
                         source ->
                             source.resources().stream().map(ResourcePresentation::id).toList())
                     .toList())
-        || !composed.inputs().stream()
+        || !definition.inputs().stream()
             .filter(NumericInputDefinition.class::isInstance)
             .map(NumericInputDefinition.class::cast)
             .map(input -> componentKey(input.id(), input.surfaceId()))
             .toList()
             .equals(
-                composedPresentation.inputs().stream()
+                presentation.inputs().stream()
                     .map(input -> componentKey(input.id(), input.surfaceId()))
                     .toList())) {
       throw new IllegalArgumentException(
@@ -239,9 +232,9 @@ public final class FoundationRoom {
             .toList();
     List<String> expectedComponents =
         Stream.concat(
-                composed.informationSources().stream()
+                definition.informationSources().stream()
                     .map(source -> componentKey(source.id(), source.surfaceId())),
-                composed.inputs().stream()
+                definition.inputs().stream()
                     .filter(NumericInputDefinition.class::isInstance)
                     .map(NumericInputDefinition.class::cast)
                     .map(input -> componentKey(input.id(), input.surfaceId())))

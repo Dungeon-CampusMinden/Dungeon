@@ -17,7 +17,7 @@ import java.util.Optional;
  * @param failureText optional ordered authored hard-timeout pages
  */
 public record GamePresentation(
-    List<RiddlePresentation> riddles,
+    List<ComposedPresentation> riddles,
     List<String> introText,
     String mission,
     List<String> successText,
@@ -35,18 +35,16 @@ public record GamePresentation(
       throw new IllegalArgumentException("presentation must contain at least one riddle");
     }
     Map<String, String> identifiers = new LinkedHashMap<>();
-    for (RiddlePresentation riddle : riddles) {
+    for (ComposedPresentation riddle : riddles) {
       register(identifiers, riddle.id(), "riddle");
-      if (riddle instanceof ComposedPresentation composed) {
-        for (InformationSourcePresentation source : composed.informationSources()) {
-          register(identifiers, source.id(), "information source");
-          for (ResourcePresentation resource : source.resources()) {
-            register(identifiers, resource.id(), "information source resource");
-          }
+      for (InformationSourcePresentation source : riddle.informationSources()) {
+        register(identifiers, source.id(), "information source");
+        for (ResourcePresentation resource : source.resources()) {
+          register(identifiers, resource.id(), "information source resource");
         }
-        for (InputPresentation input : composed.inputs()) {
-          register(identifiers, input.id(), "input");
-        }
+      }
+      for (NumericInputPresentation input : riddle.inputs()) {
+        register(identifiers, input.id(), "input");
       }
     }
   }
@@ -68,17 +66,6 @@ public record GamePresentation(
     };
   }
 
-  /** Player-facing content common to every supported riddle. */
-  public sealed interface RiddlePresentation permits ComposedPresentation {
-
-    /**
-     * Returns the stable authority riddle identifier.
-     *
-     * @return stable riddle identifier
-     */
-    String id();
-  }
-
   /**
    * Player-facing presentation of one composed riddle.
    *
@@ -89,8 +76,7 @@ public record GamePresentation(
   public record ComposedPresentation(
       String id,
       List<InformationSourcePresentation> informationSources,
-      List<InputPresentation> inputs)
-      implements RiddlePresentation {
+      List<NumericInputPresentation> inputs) {
     /** Creates immutable composed presentation content. */
     public ComposedPresentation {
       id = required(id, "composed presentation id");
@@ -105,15 +91,21 @@ public record GamePresentation(
    *
    * @param id stable source identifier
    * @param surfaceId authored container surface identifier
+   * @param title player-facing container title
    * @param runtimeAssetPath marker asset path
    * @param resources ordered source contents
    */
   public record InformationSourcePresentation(
-      String id, String surfaceId, String runtimeAssetPath, List<ResourcePresentation> resources) {
+      String id,
+      String surfaceId,
+      String title,
+      String runtimeAssetPath,
+      List<ResourcePresentation> resources) {
     /** Creates immutable information-source content. */
     public InformationSourcePresentation {
       id = required(id, "information source presentation id");
       surfaceId = required(surfaceId, "information source presentation surface id");
+      title = required(title, "information source presentation title");
       runtimeAssetPath = required(runtimeAssetPath, "information source runtime asset path");
       resources = List.copyOf(Objects.requireNonNull(resources, "resources"));
       if (resources.isEmpty()) {
@@ -122,37 +114,19 @@ public record GamePresentation(
     }
   }
 
-  /** Marker interface for input-device presentation. */
-  public sealed interface InputPresentation permits NumericInputPresentation {
-    /**
-     * Returns the stable input identifier.
-     *
-     * @return stable input identifier
-     */
-    String id();
-
-    /**
-     * Returns the authored interaction surface identifier.
-     *
-     * @return authored surface identifier
-     */
-    String surfaceId();
-  }
-
   /**
    * Presentation for one numeric keypad without its answer.
    *
    * @param id stable input identifier
    * @param surfaceId authored keypad surface identifier
-   * @param runtimeAssetPath keypad marker asset path
+   * @param title player-facing keypad title
    */
-  public record NumericInputPresentation(String id, String surfaceId, String runtimeAssetPath)
-      implements InputPresentation {
+  public record NumericInputPresentation(String id, String surfaceId, String title) {
     /** Creates immutable numeric input presentation. */
     public NumericInputPresentation {
       id = required(id, "numeric input presentation id");
       surfaceId = required(surfaceId, "numeric input presentation surface id");
-      runtimeAssetPath = required(runtimeAssetPath, "numeric input runtime asset path");
+      title = required(title, "numeric input presentation title");
     }
   }
 
