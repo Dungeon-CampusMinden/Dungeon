@@ -1,11 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:dungeon:wizard:runner-report:0.4",
-  "title": "Wizard Runner Report V0.4",
+  "$id": "urn:dungeon:wizard:project-validation-report:0.4",
+  "title": "Wizard Project Validation Report V0.4",
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "command",
     "valid",
     "runnerVersion",
     "rawDeerSha256",
@@ -13,18 +12,12 @@
     "issues"
   ],
   "properties": {
-    "command": {
-      "enum": [
-        "validate",
-        "host",
-        "join"
-      ]
-    },
     "valid": {
       "type": "boolean"
     },
     "runnerVersion": {
-      "$ref": "#/$defs/optionalText"
+      "type": "string",
+      "minLength": 1
     },
     "rawDeerSha256": {
       "$ref": "#/$defs/optionalSha256"
@@ -40,17 +33,6 @@
     }
   },
   "$defs": {
-    "optionalText": {
-      "oneOf": [
-        {
-          "type": "string",
-          "minLength": 1
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
     "optionalSha256": {
       "oneOf": [
         {
@@ -102,7 +84,6 @@
             "ASSET_MISSING",
             "ASSET_PATH_DUPLICATE",
             "ASSET_PATH_UNSAFE",
-            "CLIENT_BOOTSTRAP_FAILED",
             "FORMAT_VERSION_UNSUPPORTED",
             "GRAPH_CYCLE",
             "GRAPH_EDGE_INVALID",
@@ -124,7 +105,6 @@
             "PLAYER_COUNT_INVALID",
             "REFERENCE_UNKNOWN",
             "RUNNER_CAPACITY_EXCEEDED",
-            "RUNNER_START_FAILED",
             "SCHEMA_INVALID",
             "SURFACE_CARDINALITY_INVALID",
             "SURFACE_INCOMPATIBLE",

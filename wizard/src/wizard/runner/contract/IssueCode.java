@@ -1,6 +1,6 @@
 package wizard.runner.contract;
 
-/** Stable issue-code coverage for the language-neutral Runner contract. */
+/** Stable issue-code coverage for the language-neutral project-validation contract. */
 public enum IssueCode {
   /** Asset bytes do not match their declared media type. */
   ASSET_CONTENT_MISMATCH,
@@ -16,8 +16,6 @@ public enum IssueCode {
   ASSET_PATH_DUPLICATE,
   /** An asset path is unsafe. */
   ASSET_PATH_UNSAFE,
-  /** Client bootstrap failed before the normal initial world was accepted. */
-  CLIENT_BOOTSTRAP_FAILED,
   /** The DEER format version is unsupported. */
   FORMAT_VERSION_UNSUPPORTED,
   /** The riddle graph contains a cycle. */
@@ -60,8 +58,6 @@ public enum IssueCode {
   REFERENCE_UNKNOWN,
   /** Input exceeds a Runner validation or runtime capacity. */
   RUNNER_CAPACITY_EXCEEDED,
-  /** A validated room could not be started. */
-  RUNNER_START_FAILED,
   /** The DEER document violates its schema. */
   SCHEMA_INVALID,
   /** Surface cardinality is invalid. */

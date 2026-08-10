@@ -28,8 +28,7 @@ public final class WizardRoomApplication {
    * Opens the room's client main menu or runs its managed authoritative server.
    *
    * <p>No arguments start the client menu. Exactly {@code --server} starts the headless host used
-   * by that menu. The authoring and diagnostic CLI remains available separately through {@link
-   * RunnerCli}.
+   * by that menu.
    *
    * @param arguments no arguments for the menu, or exactly {@code --server}
    */

@@ -133,7 +133,7 @@ Blockierend:
 Hostkapazität und Anzahl der für den Hostprozess reservierbaren
 Dungeon-Identitäten und logischen Authority-Slots. Alle Spieler verwenden den
 gemeinsamen Startpunkt. Ein neuer Client ersetzt keine bereits vergebene
-Identität. Es gibt keinen separaten CLI-Wert für die Spielerzahl und keinen
+Identität. Es gibt keinen separaten technischen Spielerzahlwert und keinen
 Startknopf.
 
 ## 3. Geschichte
@@ -341,9 +341,9 @@ Beispiel:
   `deer.json` zuletzt;
 - erhält einen bereits vorhandenen projektgebundenen Seedwert bei jeder
   weiteren Finalisierung unverändert;
-- zeigt den Zielordner und die nächsten Runner-Schritte für die technische
+- zeigt den Zielordner und die nächsten Packaging-Schritte für die technische
   Betreuung;
-- startet den Runner nicht.
+- startet die Spieler-JAR nicht.
 
 Reine private Entwurfsnotizen werden nicht finalisiert. Lernziele und
 Nachbesprechungsfragen sind dagegen verbindlicher Bestandteil von `deer.json`.
@@ -352,9 +352,8 @@ Die Handoff-Hilfe nennt die Produktionsvalidierung und den noch extern
 aufzurufenden Packager
 `:wizard:buildWizardRoomJar -PwizardProject=<projektordner>`. Sie erklärt, dass
 dieselbe vollständige JAR an alle Spielenden verteilt und mit Java 25 über ihr
-Host-/Join-Menü gestartet wird. Die optionale Entwicklungs-CLI mit `validate`,
-`host` und `join` bleibt dokumentiert. Die UI beschreibt keine
-Multiplayerdetails; der vollständige Start- und Multiplayer-Ablauf steht im
+Host-/Join-Menü gestartet wird. Die UI beschreibt keine Multiplayerdetails;
+der vollständige Start- und Multiplayer-Ablauf steht im
 [`Runner-Runtime-Contract`](runner-runtime-contract.md).
 
 Bei Berechtigungs-, Speicherplatz- oder Schreibfehlern bleibt die vorherige

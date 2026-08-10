@@ -4,16 +4,10 @@ import java.util.zip.ZipFile
 
 plugins {
     id 'java-library'
-    id 'application'
 }
 
 group = 'de.fhbielefeld.dungeon.wizard'
 version = '0.4'
-
-application {
-    mainClass = 'wizard.runner.RunnerCli'
-    applicationName = 'wizard-runner'
-}
 
 dependencies {
     implementation project(':escapeRoom')
@@ -116,13 +110,13 @@ tasks.register('validateWizardRoomProject', JavaExec) {
     group = 'verification'
     description = 'Validates the DEER project before packaging a Wizard room.'
     dependsOn tasks.named('classes')
-    mainClass = application.mainClass
+    mainClass = 'wizard.runner.PackagingProjectValidator'
     classpath = sourceSets.main.runtimeClasspath
     ignoreExitValue = false
     inputs.property('wizardProject', wizardProjectProperty.orElse(''))
 
     doFirst {
-        setArgs(['validate', '--project', resolveWizardProject().toString()])
+        setArgs([resolveWizardProject().toString()])
     }
 }
 
@@ -249,6 +243,7 @@ tasks.register('buildWizardRoomJar', Jar) {
     }
 
     exclude(
+        'wizard/runner/PackagingProjectValidator.class',
         'META-INF/*.SF',
         'META-INF/*.DSA',
         'META-INF/*.RSA',
@@ -258,17 +253,4 @@ tasks.register('buildWizardRoomJar', Jar) {
         'module-info.class',
         'META-INF/versions/*/module-info.class'
     )
-}
-
-tasks.named('startScripts') {
-    doLast {
-        windowsScript.text = windowsScript.getText('UTF-8').replaceFirst(
-            '(?m)^set CLASSPATH=.*$',
-            java.util.regex.Matcher.quoteReplacement('set CLASSPATH=%APP_HOME%\\lib\\*')
-        )
-        unixScript.text = unixScript.getText('UTF-8').replaceFirst(
-            '(?m)^CLASSPATH=.*$',
-            java.util.regex.Matcher.quoteReplacement('CLASSPATH=$APP_HOME/lib/*')
-        )
-    }
 }

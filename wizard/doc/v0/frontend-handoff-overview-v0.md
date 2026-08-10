@@ -64,7 +64,7 @@ Multiplayer und Spielruntime sind kein Frontend-Auftrag. Ihre Grenze steht in
 |---|---|---|
 | Web-UI | sichtbaren Flow, privaten Draft, unmittelbare Feldhinweise, Vorschau | Projektdateisystem, Runner-Runtime, Multiplayer |
 | Nativer Host-Adapter | Draft-Persistenz, Uploadbytes, Auswahl aus der internen Assetliste, Produktionsvalidierung, atomare Finalisierung | fachliche UI-Navigation, Foundation-Spielzustand |
-| Java-Runner | normative Projektvalidierung, Ableitung und Host-/Join-Runtime | privaten Draft, UI-Zustand, Projektbearbeitung |
+| Java-Validierung und Runtime | normative Projektvalidierung, Ableitung und Host-/Join-Runtime | privaten Draft, UI-Zustand, Projektbearbeitung |
 | Gradle-Packager | validiertes Projekt als projektspezifische ausführbare JAR | privaten Draft, UI-Navigation, neue DEER-Semantik |
 
 Der Frontend-Code darf lokale Feldhinweise für schnelle Rückmeldung berechnen.
@@ -119,7 +119,7 @@ bereit; konkrete Methodennamen dürfen dem verwendeten Stack folgen:
 | Drafts auflisten, anlegen, laden und speichern | vollständiger privater Snapshot | vorhandener Snapshot bleibt unverändert |
 | Projektordner wählen | explizit vom Nutzer bestätigter nativer Ordner | Abbruch verändert keinen Draft |
 | Spielbibliothek-Asset auswählen oder eigenes PNG/JPEG hochladen | interne Referenz oder geprüfte Uploadbytes, jeweils mit Anzeigename und Lizenzmetadaten | keine Teilübernahme |
-| vollständigen Kandidaten prüfen | [`RunnerReport`](runner-report.schema.json) der Produktionsvalidierung | Zielprojekt bleibt unverändert |
+| vollständigen Kandidaten prüfen | [`ProjectValidationReport`](project-validation-report.schema.json) der Produktionsvalidierung | Zielprojekt bleibt unverändert |
 | Kandidaten finalisieren | neue Custom-Dateien zuerst, `deer.json` zuletzt atomar ersetzt | letzte gültige Finalisierung bleibt verwendbar |
 
 Für eine Prüfung vor der ersten Finalisierung darf der Adapter im privaten
@@ -135,11 +135,11 @@ berechnet er SHA-256, schreibt die Datei unter
 Union unterscheiden. Diese technische Unterscheidung wird nicht als Feld in
 `source` exportiert.
 
-Der Adapter darf die Produktionsvalidierung direkt als Java-Bibliothek oder
-über `wizard-runner validate` anbinden. In beiden Fällen ist ausschließlich
-das in [`runner-report.schema.json`](runner-report.schema.json) definierte
-Ergebnis die Brücke zur Web-UI. Temporäre Prüfdateien liegen außerhalb des
-Zielprojekts und werden nach der Prüfung entfernt.
+Der Adapter bindet die Produktionsvalidierung direkt als Java-Bibliothek an.
+Ausschließlich das in
+[`project-validation-report.schema.json`](project-validation-report.schema.json)
+definierte Ergebnis ist die Brücke zur Web-UI. Temporäre Prüfdateien liegen
+außerhalb des Zielprojekts und werden nach der Prüfung entfernt.
 
 Bis zur späteren UI-Anbindung erzeugt die technische Betreuung das
 Spielerartefakt nach erfolgreicher Finalisierung mit:

@@ -48,23 +48,18 @@ Assetreferenzen des eingebetteten Projekts. `--server` ist ausschließlich ein
 interner Startmodus der Spieler-JAR. Andere Argumente an deren Main-Class
 werden mit einem klaren Startfehler abgelehnt.
 
-## Sekundäre Entwicklungs-CLI
+## Produktionsvalidierung und Packaging
 
-```text
-wizard-runner validate --project <folder>
-wizard-runner host     --project <folder>
-wizard-runner join     --project <folder>
-```
+Die Authoring-Integration bindet `ProjectValidationPipeline` und
+`ProjectValidationReport` direkt als Java-Bibliothek an. Es gibt keine
+öffentliche Runner-CLI oder Runner-Distribution. Der Gradle-Packager verwendet
+einen kleinen internen Prozesseinstieg, der ausschließlich den übergebenen
+Projektordner validiert, seine Ableitbarkeit mit `RoomDeriver` prüft und den
+kanonischen Validierungsreport ausgibt. Er bietet keine Subcommands und startet
+keine Multiplayer-Runtime.
 
-Diese CLI bleibt für Authoring, Entwicklung und Diagnose erhalten, ist aber
-nicht der reguläre Spielerstart. Andere Subcommands sind nicht öffentlich;
-insbesondere existieren weder `run` noch `--players`. Auch `max=1` verwendet
-einen echten Hostprozess und einen getrennten Join-Client.
-
-Alle drei Befehle führen dieselbe Projektvalidierung und deterministische
-Ableitung genau einmal aus. `validate` erzeugt danach keine Multiplayer-Runtime.
-`host` und `join` starten ihre jeweilige Runtime direkt im aktuellen Prozess;
-die Entwicklungs-CLI erzeugt dafür keine zusätzlichen Kindprozesse.
+Auch `max=1` verwendet im Spielerfluss einen echten Hostprozess und einen
+getrennten Join-Client.
 
 ## Deterministische Ableitung
 
@@ -223,9 +218,11 @@ geprüft.
 
 ## Fehler und Abnahme
 
-Validierungs-, Ableitungs- und Bootstrapfehler verwenden in der sekundären CLI
-den gemeinsamen Runner-Reportpfad. Vor erfolgreicher Validierung startet weder
-Authority noch Server. Ein Fehler erzeugt keine Teilausgabe.
+Validierungs- und Ableitungsfehler verwenden im Authoring-Adapter und internen
+Packaging-Schritt den gemeinsamen `ProjectValidationReport`. Bootstrapfehler
+der Spieler-JAR werden als klare Startfehler ausgegeben. Vor erfolgreicher
+Validierung startet weder Authority noch Server. Ein Fehler erzeugt keine
+Teilausgabe.
 
 Die Abnahme schützt insbesondere:
 

@@ -37,13 +37,10 @@ Pfade mit Forward-Slashes und ohne führenden Slash. Eigene Bilder beginnen mit
 `assets/custom/`; bereits in der Spiel-JAR enthaltene Bilder werden direkt über
 interne Pfade wie `items/puzzle-piece.png` referenziert.
 
-`wizard-runner validate --project <folder>`,
-`wizard-runner host --project <folder>` und
-`wizard-runner join --project <folder>` lesen denselben vollständigen
-Projektordner. Diese drei CLI-Befehle sind eine sekundäre Entwicklungs- und
-Authoring-Schnittstelle. Der Spielerfluss verwendet stattdessen die
-projektspezifische JAR. Öffentliche Befehle, abgelehnte Optionen und der
-Room-first-Lebenszyklus stehen im
+Die Java-Validierungsbibliothek liest diesen vollständigen Projektordner
+read-only. Die Authoring-Integration bindet sie direkt an; es gibt keine
+separate Runner-CLI oder Runner-Distribution. Der Spielerfluss verwendet die
+projektspezifische JAR. Der Room-first-Lebenszyklus steht im
 [`runner-runtime-contract.md`](runner-runtime-contract.md).
 
 ## Projektspezifische Spieler-JAR
@@ -71,8 +68,9 @@ wizard/embedded-project/
 `assets/custom/` auf. Gebündelte Assetpfade werden dort nicht als
 projektspezifische Dateien aufgeführt; die Bilder sind bereits über die
 Dungeon-/EscapeRoom-Runtimeabhängigkeiten in der JAR enthalten. Vor dem
-Packaging durchläuft das Projekt dieselbe Produktionsvalidierung wie bei
-`validate`; ungültige Projekte werden nicht verpackt.
+Packaging durchläuft das Projekt dieselbe Produktionsvalidierung und
+Room-Ableitung wie die Runtime; ungültige oder nicht ableitbare Projekte werden
+nicht verpackt.
 
 Die JAR ist projektspezifisch. Exakt dieselbe vollständige `WizardRoom.jar`
 wird an Host und alle weiteren Spielenden verteilt; ein separater
@@ -166,10 +164,9 @@ binären Assetdaten; jeder Client materialisiert die bereits eingebetteten
 Custom-Assets für seine Laufzeit. Gebündelte Bilder lädt er direkt über den
 normalen Dungeon-Assetloader.
 
-Alle Teilnehmer validieren dasselbe vollständige lokale Projekt. Auch die
-sekundäre CLI verwendet für `join --project <folder>` denselben
-Projektvertrag. Ein ausschließlich gebündelte Assets verwendendes Projekt
-benötigt kein Verzeichnis `assets/custom/`.
+Alle Teilnehmer validieren dasselbe vollständige lokale Projekt. Ein
+ausschließlich gebündelte Assets verwendendes Projekt benötigt kein
+Verzeichnis `assets/custom/`.
 
 ## Validierung und deterministische Identität
 
@@ -219,17 +216,17 @@ Ausschließlich der Host wertet Antworten aus und entscheidet über korrekten
 Spielfortschritt. Das Netzwerkformat steht in
 [`runner-runtime-contract.md`](runner-runtime-contract.md).
 
-## Fehler und Reports der sekundären CLI
+## Fehler und Validierungsreports
 
-Dieser Abschnitt beschreibt ausschließlich die sekundäre Entwicklungs- und
-Authoring-CLI mit `validate`, `host` und `join`. Ihre Validierungsfehler werden
-als kanonischer JSON-Report ausgegeben und führen zu einem Exit-Code ungleich
-null. Bei ungültigem Input startet kein Host.
+Die Produktionsvalidierung liefert einen deterministischen
+`ProjectValidationReport`. Die Authoring-Integration ruft die Java-Bibliothek
+direkt auf. Der interne Gradle-Packaging-Schritt gibt denselben Report als
+kanonisches JSON aus und schlägt bei ungültigem oder nicht ableitbarem Input
+fehl; dann wird kein Spielerartefakt erzeugt.
 
-[`runner-report.schema.json`](runner-report.schema.json) ist der
-maschinenlesbare Vertrag des Reports. Jeder Report enthält:
+[`project-validation-report.schema.json`](project-validation-report.schema.json)
+ist der maschinenlesbare Vertrag des Reports. Jeder Report enthält:
 
-- `command`: `validate`, `host` oder `join`;
 - `valid`: genau dann `true`, wenn kein Issue mit `severity=error` vorliegt;
 - `runnerVersion`;
 - `rawDeerSha256` und `hostInputSha256`, sobald die jeweilige Phase erfolgreich
@@ -246,7 +243,6 @@ Beispiel:
 
 ```json
 {
-  "command": "validate",
   "valid": false,
   "runnerVersion": "0.4",
   "rawDeerSha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
@@ -266,14 +262,13 @@ Beispiel:
 }
 ```
 
-Die Prozesscodes sind bewusst binär: `0` bedeutet Erfolg, `1` Fehler. Die
-Authoring-UI verwendet für die Produktionsprüfung ausschließlich `validate`
-und wertet bei einem Fehler den kanonischen Report aus. Ungültige
-CLI-Verwendung liefert stattdessen den Hilfetext auf stderr. Ein fehlender oder
-schemawidriger Report ist ein technischer Adapterfehler.
+Ein fehlender oder schemawidriger Report ist ein technischer Adapterfehler.
+Der interne Gradle-Packaging-Schritt verwendet binäre Prozesscodes: `0`
+bedeutet Erfolg, `1` Fehler. Diese Prozessgrenze ist keine öffentliche
+Authoring-Schnittstelle.
 
 Reports enthalten genau zwei Hashfelder: `rawDeerSha256` für die exakten
 Dateibytes und `hostInputSha256` für die vollständige kanonische `deer.json`.
-Im Netzwerk wird nur `hostInputSha256` als Kompatibilitätsmarker verwendet. Ein
-Validierungs- oder Startversuch mutiert weder Projektordner noch
+Im Netzwerk wird nur `hostInputSha256` als Kompatibilitätsmarker verwendet.
+Validierung und Packaging-Prüfung mutieren weder Projektordner noch
 Dungeon-Checkout.
