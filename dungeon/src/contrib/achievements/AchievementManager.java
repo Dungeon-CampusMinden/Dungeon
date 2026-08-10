@@ -75,10 +75,23 @@ public class AchievementManager {
   }
 
   private void configure(String definitionPath, String statusPath) {
+    store =
+        new AchievementStore(
+            normalizeDefinitionPath(definitionPath), Path.of(normalizeStatusPath(statusPath)));
+  }
+
+  private String normalizeDefinitionPath(String definitionPath) {
+    if (definitionPath == null || definitionPath.isBlank()) {
+      throw new IllegalArgumentException("achievement definition path must not be blank");
+    }
+    return definitionPath.trim();
+  }
+
+  private String normalizeStatusPath(String statusPath) {
     if (statusPath == null || statusPath.isBlank()) {
       throw new IllegalArgumentException("achievement status path must not be blank");
     }
-    store = new AchievementStore(definitionPath, Path.of(statusPath.trim()));
+    return statusPath.trim();
   }
 
   /**

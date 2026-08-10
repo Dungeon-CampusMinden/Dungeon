@@ -15,6 +15,7 @@ import modules.usbstick.UsbStickItem;
 public final class LastHourAchievements {
 
   public static final String DEFINITION_PATH = "achievement.json";
+  private static final String STATUS_PATH = "the-last-hour-achievement-unlock.json";
 
   public static final String LIGHTS_ON = "Lights On";
   public static final String TRASH_DIVER = "Trash Diver";
@@ -31,23 +32,15 @@ public final class LastHourAchievements {
 
   private LastHourAchievements() {}
 
-  /**
-   * Registers The Last Hour achievement definitions and event hooks.
-   *
-   * @param statusPath runtime JSON file used to persist unlocked achievements
-   */
-  public static void register(String statusPath) {
-    registerDefinitions(statusPath);
+  /** Registers The Last Hour achievement definitions and event hooks. */
+  public static void register() {
+    registerDefinitions();
     registerComputerHooks();
   }
 
-  /**
-   * Registers The Last Hour achievement definitions.
-   *
-   * @param statusPath runtime JSON file used to persist unlocked achievements
-   */
-  public static void registerDefinitions(String statusPath) {
-    AchievementManager.registerAchievements(DEFINITION_PATH, statusPath);
+  /** Registers The Last Hour achievement definitions. */
+  public static void registerDefinitions() {
+    AchievementManager.registerAchievements(DEFINITION_PATH, STATUS_PATH);
   }
 
   /** Registers achievement hooks for Last Hour computer interactions. */
