@@ -109,17 +109,14 @@ public class KeypadComponent implements Component {
     enteredDigits.add(digit);
   }
 
-  /** Checks if the entered digits match the correct digits and unlocks if they do. */
-  public void checkUnlock() {
-    checkUnlock(null);
-  }
-
   /**
    * Checks if the entered digits match the correct digits and unlocks if they do.
    *
    * @param caller entity that submitted the code
+   * @throws NullPointerException if caller is null
    */
   public void checkUnlock(Entity caller) {
+    Objects.requireNonNull(caller, "caller");
     boolean completeCodeEntered = enteredDigits.size() == correctDigits.size();
     boolean isCorrect = completeCodeEntered;
     if (completeCodeEntered) {
@@ -235,36 +232,42 @@ public class KeypadComponent implements Component {
    * Registers a callback executed after the keypad is unlocked with the correct code.
    *
    * @param onCorrectCode callback to run
+   * @throws NullPointerException if the callback is null
    */
   public void onCorrectCode(Runnable onCorrectCode) {
-    this.onCorrectCode = onCorrectCode == null ? caller -> {} : caller -> onCorrectCode.run();
+    Objects.requireNonNull(onCorrectCode, "onCorrectCode");
+    this.onCorrectCode = caller -> onCorrectCode.run();
   }
 
   /**
    * Registers a callback executed after the keypad is unlocked with the correct code.
    *
    * @param onCorrectCode callback receiving the submitting entity
+   * @throws NullPointerException if the callback is null
    */
   public void onCorrectCode(Consumer<Entity> onCorrectCode) {
-    this.onCorrectCode = onCorrectCode == null ? caller -> {} : onCorrectCode;
+    this.onCorrectCode = Objects.requireNonNull(onCorrectCode, "onCorrectCode");
   }
 
   /**
    * Registers a callback executed after each failed submit.
    *
    * @param onWrongCode callback to run
+   * @throws NullPointerException if the callback is null
    */
   public void onWrongCode(Runnable onWrongCode) {
-    this.onWrongCode = onWrongCode == null ? caller -> {} : caller -> onWrongCode.run();
+    Objects.requireNonNull(onWrongCode, "onWrongCode");
+    this.onWrongCode = caller -> onWrongCode.run();
   }
 
   /**
    * Registers a callback executed after each complete failed submit.
    *
    * @param onWrongCode callback receiving the submitting entity
+   * @throws NullPointerException if the callback is null
    */
   public void onWrongCode(Consumer<Entity> onWrongCode) {
-    this.onWrongCode = onWrongCode == null ? caller -> {} : onWrongCode;
+    this.onWrongCode = Objects.requireNonNull(onWrongCode, "onWrongCode");
   }
 
   /**
