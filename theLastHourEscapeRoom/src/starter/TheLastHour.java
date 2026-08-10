@@ -64,6 +64,7 @@ public class TheLastHour {
 
   private static final String SERVER_STOP_REASON = "Server stopped from status window";
   private static final String MENU_BACKGROUND_IMAGE = "images/lasthour.png";
+  private static final String ACHIEVEMENT_STATUS_PATH = "the-last-hour-achievement-unlock.json";
   private static final Color MENU_ACCENT_COLOR = new Color(0.56f, 0.87f, 1f, 1f);
 
   /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
@@ -102,7 +103,7 @@ public class TheLastHour {
             .levels(Tuple.of("lasthour", LastHourLevel.class))
             .onConfigure(
                 () -> {
-                  LastHourAchievements.register();
+                  LastHourAchievements.register(ACHIEVEMENT_STATUS_PATH);
                   UsbStickItem.ensureRegistration();
                   initLocalization();
                 })
@@ -118,7 +119,7 @@ public class TheLastHour {
     ClientStarter client =
         ClientStarter.builder(LastHourClient::clientSetup)
             .levels(Tuple.of("lasthour", LastHourLevelClient.class))
-            .onConfigure(LastHourClient::registerClientContent)
+            .onConfigure(() -> LastHourClient.registerClientContent(ACHIEVEMENT_STATUS_PATH))
             .initLocalization(TheLastHour::initLocalization)
             .registerSettings(LastHourClient::registerSettings)
             .config(

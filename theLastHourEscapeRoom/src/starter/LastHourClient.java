@@ -57,9 +57,13 @@ public final class LastHourClient {
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static Music backgroundMusic;
 
-  /** Pre-run registrations for the client (custom dialogs and items). */
-  public static void registerClientContent() {
-    LastHourAchievements.register();
+  /**
+   * Pre-run registrations for the client (custom dialogs and items).
+   *
+   * @param achievementStatusPath runtime JSON file used to persist unlocked achievements
+   */
+  public static void registerClientContent(String achievementStatusPath) {
+    LastHourAchievements.register(achievementStatusPath);
     registerCustomDialogs();
     UsbStickItem.ensureRegistration();
     PuzzlePieceItem.ensureRegistration();

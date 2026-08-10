@@ -157,7 +157,9 @@ allprojects {
 tasks.named('clean') {
     delete(
             file("$rootDir/dungeon_config.json"),
-            file("$rootDir/achievement-unlocks.json")
+            fileTree(rootDir) {
+                include '**/*achievement-unlock.json'
+            }
     )
 }
 

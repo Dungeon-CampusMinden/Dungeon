@@ -31,15 +31,23 @@ public final class LastHourAchievements {
 
   private LastHourAchievements() {}
 
-  /** Registers The Last Hour achievement definitions and event hooks. */
-  public static void register() {
-    registerDefinitions();
+  /**
+   * Registers The Last Hour achievement definitions and event hooks.
+   *
+   * @param statusPath runtime JSON file used to persist unlocked achievements
+   */
+  public static void register(String statusPath) {
+    registerDefinitions(statusPath);
     registerComputerHooks();
   }
 
-  /** Registers The Last Hour achievement definitions. */
-  public static void registerDefinitions() {
-    AchievementManager.registerAchievements(DEFINITION_PATH);
+  /**
+   * Registers The Last Hour achievement definitions.
+   *
+   * @param statusPath runtime JSON file used to persist unlocked achievements
+   */
+  public static void registerDefinitions(String statusPath) {
+    AchievementManager.registerAchievements(DEFINITION_PATH, statusPath);
   }
 
   /** Registers achievement hooks for Last Hour computer interactions. */

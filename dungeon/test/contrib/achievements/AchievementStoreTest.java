@@ -19,40 +19,34 @@ import org.junit.jupiter.api.Test;
 class AchievementStoreTest {
 
   @Test
-  void defaultStatusPathUsesLocalUnlockFile() throws Exception {
-    AchievementStore store = new AchievementStore();
-
-    assertEquals(Path.of("achievement-unlocks.json"), statusPath(store));
-  }
-
-  @Test
-  void registerDefinitionsChangesDefinitionPath() throws Exception {
-    AchievementStore store = new AchievementStore();
-
-    store.registerDefinitions(" custom/achievements.json ");
+  void constructorStoresDefinitionPath() throws Exception {
+    AchievementStore store =
+        new AchievementStore(
+            " custom/achievements.json ", Path.of("custom-achievement-unlock.json"));
 
     assertEquals("custom/achievements.json", definitionPath(store));
   }
 
   @Test
-  void registerDefinitionsClearsLoadedState() throws Exception {
-    Path statusPath = Files.createTempFile("achievement-unlocks", ".json");
-    Files.deleteIfExists(statusPath);
-    AchievementStore store = new AchievementStore("old.json", statusPath);
-    addDefinition(store, achievement("Lights On"));
-    store.unlock("Lights On");
+  void constructorStoresStatusPath() throws Exception {
+    AchievementStore store =
+        new AchievementStore("custom/achievements.json", Path.of("custom-achievement-unlock.json"));
 
-    store.registerDefinitions("new.json");
-
-    assertFalse(store.isUnlocked("Lights On"));
-    assertEquals(List.of(), store.achievementsForMenu());
+    assertEquals(Path.of("custom-achievement-unlock.json"), statusPath(store));
   }
 
   @Test
-  void registerDefinitionsRejectsBlankPath() {
-    AchievementStore store = new AchievementStore();
+  void constructorRejectsBlankDefinitionPath() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new AchievementStore(" ", Path.of("custom-achievement-unlock.json")));
+  }
 
-    assertThrows(IllegalArgumentException.class, () -> store.registerDefinitions(" "));
+  @Test
+  void constructorRejectsBlankStatusPath() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new AchievementStore("achievement.json", Path.of("")));
   }
 
   @Test
@@ -74,7 +68,7 @@ class AchievementStoreTest {
 
   @Test
   void saveStatusWritesFlatUnlockedList() throws Exception {
-    Path statusPath = Files.createTempFile("achievement-unlocks", ".json");
+    Path statusPath = Files.createTempFile("achievement-unlock", ".json");
     Files.deleteIfExists(statusPath);
     AchievementStore store = new AchievementStore("unused.json", statusPath);
     addDefinition(store, achievement("Lights On"));
@@ -87,7 +81,7 @@ class AchievementStoreTest {
 
   @Test
   void corruptedStatusFileIsIgnored() throws Exception {
-    Path statusPath = Files.createTempFile("achievement-unlocks", ".json");
+    Path statusPath = Files.createTempFile("achievement-unlock", ".json");
     Files.writeString(statusPath, "{ \"unlocked\": [\"Lights On\", }");
     AchievementStore store = new AchievementStore("unused.json", statusPath);
     addDefinition(store, achievement("Lights On"));

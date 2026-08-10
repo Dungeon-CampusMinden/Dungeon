@@ -19,8 +19,6 @@ import java.util.Set;
 /** Loads achievement definitions and persists unlock state in a separate runtime JSON file. */
 final class AchievementStore {
 
-  static final String DEFAULT_DEFINITION_PATH = "achievement.json";
-  private static final String DEFAULT_STATUS_PATH = "achievement-unlocks.json";
   private static final String KEY_ACHIEVEMENTS = "achievements";
   private static final String KEY_IMAGE_PATH = "imagePath";
   private static final String KEY_NAME = "name";
@@ -35,30 +33,15 @@ final class AchievementStore {
   private static final String KEY_PLATINUM = "platinum";
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AchievementStore.class);
 
-  private String definitionPath;
+  private final String definitionPath;
   private final Path statusPath;
   private final Map<String, Achievement> definitions = new LinkedHashMap<>();
   private final Set<String> unlockedAchievements = new LinkedHashSet<>();
   private boolean loaded;
 
-  AchievementStore() {
-    this(DEFAULT_DEFINITION_PATH, Path.of(DEFAULT_STATUS_PATH));
-  }
-
   AchievementStore(String definitionPath, Path statusPath) {
     this.definitionPath = normalizeDefinitionPath(definitionPath);
-    this.statusPath = statusPath;
-  }
-
-  void registerDefinitions(String definitionPath) {
-    String normalizedPath = normalizeDefinitionPath(definitionPath);
-    if (this.definitionPath.equals(normalizedPath) && !loaded) {
-      return;
-    }
-    this.definitionPath = normalizedPath;
-    loaded = false;
-    definitions.clear();
-    unlockedAchievements.clear();
+    this.statusPath = normalizeStatusPath(statusPath);
   }
 
   boolean hasDefinitions() {
@@ -117,6 +100,13 @@ final class AchievementStore {
       throw new IllegalArgumentException("achievement definition path must not be blank");
     }
     return definitionPath.trim();
+  }
+
+  private Path normalizeStatusPath(Path statusPath) {
+    if (statusPath == null || statusPath.toString().isBlank()) {
+      throw new IllegalArgumentException("achievement status path must not be blank");
+    }
+    return statusPath;
   }
 
   private void loadDefinitions() {

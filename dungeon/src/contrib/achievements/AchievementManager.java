@@ -8,6 +8,8 @@ import contrib.hud.dialogs.DialogType;
 import contrib.systems.EventScheduler;
 import core.Entity;
 import core.utils.logging.DungeonLogger;
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,11 +27,19 @@ public class AchievementManager {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AchievementManager.class);
   private static AchievementManager instance;
 
-  private final AchievementStore store;
+  private AchievementStore store;
 
-  /** Creates the achievement manager using the default asset and status paths. */
-  public AchievementManager() {
-    this(new AchievementStore());
+  private AchievementManager() {}
+
+  /**
+   * Creates the achievement manager using explicit asset and status paths.
+   *
+   * @param definitionPath internal asset path to the achievement definition JSON
+   * @param statusPath runtime JSON file used to persist unlocked achievements
+   */
+  public AchievementManager(String definitionPath, String statusPath) {
+    configure(definitionPath, statusPath);
+    instance = this;
   }
 
   AchievementManager(AchievementStore store) {
@@ -50,14 +60,25 @@ public class AchievementManager {
   }
 
   /**
-   * Registers the internal JSON asset that defines the achievements for this game.
+   * Registers the internal JSON asset that defines the achievements and the runtime status file for
+   * this game.
    *
-   * <p>The path is resolved with {@code Gdx.files.internal(path)} when achievements are first used.
+   * <p>The definition path is resolved with {@code Gdx.files.internal(path)} when achievements are
+   * first used. The status path is resolved relative to the current working directory when it is a
+   * relative path.
    *
    * @param definitionPath internal asset path to the achievement definition JSON
+   * @param statusPath runtime JSON file used to persist unlocked achievements
    */
-  public static void registerAchievements(String definitionPath) {
-    instance().store.registerDefinitions(definitionPath);
+  public static void registerAchievements(String definitionPath, String statusPath) {
+    instance().configure(definitionPath, statusPath);
+  }
+
+  private void configure(String definitionPath, String statusPath) {
+    if (statusPath == null || statusPath.isBlank()) {
+      throw new IllegalArgumentException("achievement status path must not be blank");
+    }
+    store = new AchievementStore(definitionPath, Path.of(statusPath.trim()));
   }
 
   /**
@@ -66,7 +87,8 @@ public class AchievementManager {
    * @return true if the registered achievement definition file exists and contains definitions
    */
   public static boolean isAvailable() {
-    return instance().store.hasDefinitions();
+    AchievementStore store = instance().store;
+    return store != null && store.hasDefinitions();
   }
 
   /**
@@ -75,7 +97,11 @@ public class AchievementManager {
    * @return achievement definitions
    */
   public static List<Achievement> menuAchievements() {
-    return instance().store.achievementsForMenu();
+    AchievementStore store = instance().store;
+    if (store == null) {
+      return Collections.emptyList();
+    }
+    return store.achievementsForMenu();
   }
 
   /**
@@ -85,7 +111,8 @@ public class AchievementManager {
    * @return true if unlocked for the local menu viewer
    */
   public static boolean isUnlockedInMenu(String name) {
-    return instance().store.isUnlocked(name);
+    AchievementStore store = instance().store;
+    return store != null && store.isUnlocked(name);
   }
 
   /**
@@ -112,6 +139,11 @@ public class AchievementManager {
    * @param name achievement id/name
    */
   public void popFor(Entity player, String name) {
+    if (store == null) {
+      LOGGER.warn(
+          "Achievement '{}' cannot be triggered because achievements are not configured.", name);
+      return;
+    }
     Optional<Achievement> achievement = store.definition(name);
     if (achievement.isEmpty()) {
       LOGGER.warn("Achievement '{}' is not defined.", name);
@@ -142,6 +174,9 @@ public class AchievementManager {
   }
 
   private boolean recordPopupUnlock(String name) {
+    if (store == null) {
+      return false;
+    }
     Optional<Achievement> achievement = store.definition(name);
     if (achievement.isEmpty()) {
       return false;
