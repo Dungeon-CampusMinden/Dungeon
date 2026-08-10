@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import contrib.entities.CharacterClass;
 import foundation.definition.ComposedRiddleDefinition;
@@ -15,6 +16,8 @@ import foundation.presentation.GamePresentation;
 import foundation.presentation.GamePresentation.ComposedPresentation;
 import foundation.room.model.FoundationRoom;
 import foundation.room.model.RoomPoint;
+import foundation.runtime.Authority;
+import foundation.runtime.Projection.ProgressStatus;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,6 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import wizard.runner.validation.ProjectValidationPipeline;
@@ -47,8 +52,9 @@ class RoomDeriverTest {
     FoundationRoom room = new RoomDeriver().derive(validation);
 
     assertTrue(validation.valid());
-    assertEquals(1, room.definition().sections().size());
-    ComposedRiddleDefinition riddle = room.definition().sections().getFirst().riddles().getFirst();
+    assertEquals(1, room.definition().progression().riddleNodes().size());
+    ComposedRiddleDefinition riddle =
+        room.definition().progression().riddleNodes().getFirst().riddle();
     NumericInputDefinition numeric = (NumericInputDefinition) riddle.inputs().getFirst();
     assertEquals(
         List.of("res_keypad_code", "res_note_image"),
@@ -145,6 +151,75 @@ class RoomDeriverTest {
   }
 
   @Test
+  void preservesExactStaggeredDagAndAlignsAllRiddleOrders() {
+    Path project = Path.of("examples", "the-last-hour-v0.4").toAbsolutePath().normalize();
+    ValidationResult validation = new ProjectValidationPipeline().validate(project);
+
+    FoundationRoom room = new RoomDeriver().derive(validation);
+    List<String> expectedOrder =
+        List.of("r_connect_vent", "r_recover_access", "r_open_storage", "r_unlock_exit");
+
+    assertTrue(validation.valid(), validation.issues().toString());
+    assertEquals(
+        expectedOrder,
+        room.definition().progression().riddleNodes().stream()
+            .map(node -> node.riddle().id())
+            .toList());
+    assertEquals(
+        Set.of(
+            "n_start->n_recover_access",
+            "n_start->n_connect_vent",
+            "n_recover_access->n_open_storage",
+            "n_open_storage->n_unlock_exit",
+            "n_connect_vent->n_unlock_exit",
+            "n_unlock_exit->n_exit"),
+        room.definition().progression().edges().stream()
+            .map(edge -> edge.from() + "->" + edge.to())
+            .collect(Collectors.toSet()));
+    assertEquals(
+        expectedOrder, room.presentation().riddles().stream().map(riddle -> riddle.id()).toList());
+    assertEquals(
+        expectedOrder,
+        room.layout().riddlePlacements().stream().map(placement -> placement.riddleId()).toList());
+  }
+
+  @Test
+  void normalizesPermutedProjectArraysIntoTheSameDefinitionAndInitialProjection()
+      throws IOException {
+    Path originalProject = materializeTheLastHour("original-dag");
+    Path permutedProject = materializeTheLastHour("permuted-dag");
+    ObjectNode permuted =
+        (ObjectNode) MAPPER.readTree(permutedProject.resolve("deer.json").toFile());
+    ObjectNode graph = (ObjectNode) permuted.required("riddleGraph");
+    reverse((ArrayNode) graph.required("nodes"));
+    reverse((ArrayNode) graph.required("edges"));
+    reverse((ArrayNode) permuted.required("riddles"));
+    Files.write(permutedProject.resolve("deer.json"), MAPPER.writeValueAsBytes(permuted));
+
+    RoomDeriver deriver = new RoomDeriver();
+    ProjectValidationPipeline pipeline = new ProjectValidationPipeline();
+    FoundationRoom original = deriver.derive(pipeline.validate(originalProject));
+    FoundationRoom reordered = deriver.derive(pipeline.validate(permutedProject));
+    Authority originalAuthority = new Authority(original.definition());
+    Authority reorderedAuthority = new Authority(reordered.definition());
+    originalAuthority.connect("slot_1");
+    originalAuthority.markSpawned("slot_1");
+    reorderedAuthority.connect("slot_1");
+    reorderedAuthority.markSpawned("slot_1");
+
+    assertEquals(original.definition(), reordered.definition());
+    assertEquals(original.layout(), reordered.layout());
+    assertEquals(originalAuthority.projection(), reorderedAuthority.projection());
+    assertEquals(
+        List.of(
+            ProgressStatus.ACTIVE,
+            ProgressStatus.ACTIVE,
+            ProgressStatus.LOCKED,
+            ProgressStatus.LOCKED),
+        originalAuthority.projection().riddles().stream().map(riddle -> riddle.status()).toList());
+  }
+
+  @Test
   void derivesBundledRuntimePathWithoutBoundCustomBytes() throws IOException {
     Path project = materializeExample();
     ObjectNode deer = (ObjectNode) MAPPER.readTree(project.resolve("deer.json").toFile());
@@ -172,7 +247,7 @@ class RoomDeriverTest {
   }
 
   private Path materializeExample() throws IOException {
-    Path examples = Path.of("examples", "foundation-v0.3").toAbsolutePath().normalize();
+    Path examples = Path.of("examples", "foundation-v0.4").toAbsolutePath().normalize();
     Path project = temporaryDirectory.resolve("project");
     Path custom = project.resolve("assets").resolve("custom");
     Files.createDirectories(custom);
@@ -181,6 +256,22 @@ class RoomDeriverTest {
         examples.resolve(CUSTOM_ASSET.replace('/', File.separatorChar)),
         project.resolve(CUSTOM_ASSET.replace('/', File.separatorChar)));
     return project;
+  }
+
+  private Path materializeTheLastHour(final String directoryName) throws IOException {
+    Path examples = Path.of("examples", "the-last-hour-v0.4").toAbsolutePath().normalize();
+    Path project = Files.createDirectory(temporaryDirectory.resolve(directoryName));
+    Files.copy(examples.resolve("deer.json"), project.resolve("deer.json"));
+    return project;
+  }
+
+  private static void reverse(final ArrayNode array) {
+    ArrayNode reversed = MAPPER.createArrayNode();
+    for (int index = array.size() - 1; index >= 0; index--) {
+      reversed.add(array.get(index));
+    }
+    array.removeAll();
+    array.addAll(reversed);
   }
 
   private static Map<String, String> snapshot(final Path root) throws IOException {

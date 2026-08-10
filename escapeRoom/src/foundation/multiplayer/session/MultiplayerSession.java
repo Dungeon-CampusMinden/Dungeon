@@ -340,7 +340,7 @@ public final class MultiplayerSession {
       final RoomDefinition definition, final GamePresentation presentation) {
     Objects.requireNonNull(presentation, "presentation");
     List<ComposedRiddleDefinition> definitions =
-        definition.sections().stream().flatMap(section -> section.riddles().stream()).toList();
+        definition.progression().riddleNodes().stream().map(node -> node.riddle()).toList();
     if (definitions.size() != presentation.riddles().size()) {
       throw new IllegalArgumentException(
           "presentation riddle count must match Foundation definition");

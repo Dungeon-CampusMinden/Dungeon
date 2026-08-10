@@ -2,6 +2,7 @@ package foundation.runtime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import foundation.definition.CollectionInputDefinition;
@@ -12,22 +13,25 @@ import foundation.definition.HintDefinition;
 import foundation.definition.HintSeverity;
 import foundation.definition.InformationSourceDefinition;
 import foundation.definition.NumericInputDefinition;
+import foundation.definition.ProgressionDefinition;
+import foundation.definition.ProgressionDefinition.Edge;
+import foundation.definition.ProgressionDefinition.RiddleNode;
 import foundation.definition.RoomDefinition;
 import foundation.definition.RosterDefinition;
 import foundation.definition.RosterSlotDefinition;
-import foundation.definition.SectionDefinition;
 import foundation.definition.TimerDefinition;
 import foundation.definition.TimerMode;
 import foundation.runtime.Projection.ProgressStatus;
 import foundation.runtime.Projection.TimerState;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Production-semantics tests for deterministic composed Foundation authority. */
 final class AuthorityTest {
   @Test
-  void startsStickyWhenMinimumPlayersAreReadyAndActivatesOnlyFirstSection() {
+  void startsStickyWhenMinimumPlayersAreReadyAndActivatesInitialRiddles() {
     Authority authority = authority(TimerMode.HARD);
 
     assertEquals(ProgressStatus.LOCKED, riddle(authority, "fund_and_code").status());
@@ -42,8 +46,9 @@ final class AuthorityTest {
 
     assertTrue(authority.projection().timer().started());
     assertEquals(TimerState.RUNNING, authority.projection().timer().state());
-    assertEquals(ProgressStatus.ACTIVE, section(authority, "section_one").status());
-    assertEquals(ProgressStatus.LOCKED, section(authority, "section_two").status());
+    assertEquals(ProgressStatus.ACTIVE, riddle(authority, "fund_and_code").status());
+    assertEquals(ProgressStatus.ACTIVE, riddle(authority, "parallel_code").status());
+    assertEquals(ProgressStatus.LOCKED, riddle(authority, "final_code").status());
   }
 
   @Test
@@ -67,16 +72,16 @@ final class AuthorityTest {
         CodeOutcome.NOT_EVALUATED,
         authority.attemptCode("fund_and_code", "fund_code", "3758").outcome());
 
-    assertEquals(ProgressStatus.ACTIVE, section(authority, "section_one").status());
+    assertEquals(ProgressStatus.ACTIVE, riddle(authority, "parallel_code").status());
     assertEquals(
         CodeOutcome.CORRECT,
         authority.attemptCode("parallel_code", "parallel_input", "24").outcome());
-    assertEquals(ProgressStatus.SOLVED, section(authority, "section_one").status());
-    assertEquals(ProgressStatus.ACTIVE, section(authority, "section_two").status());
+    assertEquals(ProgressStatus.SOLVED, riddle(authority, "parallel_code").status());
+    assertEquals(ProgressStatus.ACTIVE, riddle(authority, "final_code").status());
   }
 
   @Test
-  void lockedInputsNeverPrebufferAndActivateOnlyAfterWholePreviousSection() {
+  void lockedInputsNeverPrebufferAndActivateOnlyAfterAllPredecessors() {
     Authority authority = authority(TimerMode.HARD);
     ready(authority);
 
@@ -94,6 +99,116 @@ final class AuthorityTest {
     assertEquals(ProgressStatus.ACTIVE, riddle(authority, "final_code").status());
     assertFalse(input(authority, "final_code", "later_collect").satisfied());
     assertFalse(input(authority, "final_code", "final_input").satisfied());
+  }
+
+  @Test
+  void executesExactStaggeredAndDagDependencies() {
+    Authority authority = new Authority(staggeredDefinition());
+    authority.connect("slot_1");
+    authority.markSpawned("slot_1");
+
+    assertEquals(
+        List.of("recover", "ventilation", "storage", "unlock"),
+        authority.projection().riddles().stream().map(Projection.RiddleView::id).toList());
+    assertEquals(ProgressStatus.ACTIVE, riddle(authority, "recover").status());
+    assertEquals(ProgressStatus.ACTIVE, riddle(authority, "ventilation").status());
+    assertEquals(ProgressStatus.LOCKED, riddle(authority, "storage").status());
+    assertEquals(ProgressStatus.LOCKED, riddle(authority, "unlock").status());
+
+    authority.attemptCode("recover", "input_recover", "1");
+    assertEquals(ProgressStatus.ACTIVE, riddle(authority, "storage").status());
+    assertEquals(ProgressStatus.LOCKED, riddle(authority, "unlock").status());
+    authority.attemptCode("storage", "input_storage", "1");
+    assertEquals(ProgressStatus.LOCKED, riddle(authority, "unlock").status());
+    assertFalse(authority.projection().doorOpen());
+
+    authority.attemptCode("ventilation", "input_ventilation", "1");
+    assertEquals(ProgressStatus.ACTIVE, riddle(authority, "unlock").status());
+    assertFalse(authority.projection().doorOpen());
+    authority.attemptCode("unlock", "input_unlock", "1");
+    assertTrue(authority.projection().doorOpen());
+  }
+
+  @Test
+  void endWaitsForEveryDirectRiddlePredecessor() {
+    Authority authority = new Authority(directEndPredecessorsDefinition());
+    authority.connect("slot_1");
+    authority.markSpawned("slot_1");
+
+    authority.attemptCode("left", "input_left", "1");
+    assertFalse(authority.projection().doorOpen());
+
+    authority.attemptCode("right", "input_right", "1");
+    assertTrue(authority.projection().doorOpen());
+  }
+
+  @Test
+  void progressionRejectsInvalidTopologyAndDefensivelyCopiesLists() {
+    RiddleNode only = new RiddleNode("n_only", simpleRiddle("only"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ProgressionDefinition(
+                "start", "exit", List.of(only), List.of(new Edge("start", "unknown"))));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ProgressionDefinition(
+                "start",
+                "exit",
+                List.of(only),
+                List.of(
+                    new Edge("start", "n_only"),
+                    new Edge("n_only", "n_only"),
+                    new Edge("n_only", "exit"))));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ProgressionDefinition(
+                "start",
+                "exit",
+                List.of(only),
+                List.of(
+                    new Edge("start", "n_only"),
+                    new Edge("start", "n_only"),
+                    new Edge("n_only", "exit"))));
+
+    RiddleNode first = new RiddleNode("n_first", simpleRiddle("first"));
+    RiddleNode second = new RiddleNode("n_second", simpleRiddle("second"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ProgressionDefinition(
+                "start",
+                "exit",
+                List.of(first, second),
+                List.of(
+                    new Edge("start", "n_first"),
+                    new Edge("n_first", "n_second"),
+                    new Edge("n_second", "n_first"),
+                    new Edge("n_second", "exit"))));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ProgressionDefinition(
+                "start",
+                "exit",
+                List.of(first, second),
+                List.of(
+                    new Edge("start", "n_first"),
+                    new Edge("n_first", "exit"),
+                    new Edge("n_second", "exit"))));
+
+    List<RiddleNode> nodes = new ArrayList<>(List.of(only));
+    List<Edge> edges =
+        new ArrayList<>(List.of(new Edge("start", "n_only"), new Edge("n_only", "exit")));
+    ProgressionDefinition progression = new ProgressionDefinition("start", "exit", nodes, edges);
+    nodes.clear();
+    edges.clear();
+
+    assertEquals(List.of(only), progression.riddleNodes());
+    assertEquals(
+        List.of(new Edge("start", "n_only"), new Edge("n_only", "exit")), progression.edges());
   }
 
   @Test
@@ -265,12 +380,80 @@ final class AuthorityTest {
         1,
         new RosterDefinition(
             List.of(new RosterSlotDefinition("slot_1", 1), new RosterSlotDefinition("slot_2", 2))),
-        List.of(
-            new SectionDefinition("section_one", List.of(fundAndCode, parallelCode)),
-            new SectionDefinition("section_two", List.of(finalCode))),
+        new ProgressionDefinition(
+            "start",
+            "exit",
+            List.of(
+                new RiddleNode("n_fund", fundAndCode),
+                new RiddleNode("n_parallel", parallelCode),
+                new RiddleNode("n_final", finalCode)),
+            List.of(
+                new Edge("start", "n_fund"),
+                new Edge("start", "n_parallel"),
+                new Edge("n_fund", "n_final"),
+                new Edge("n_parallel", "n_final"),
+                new Edge("n_final", "exit"))),
         new TimerDefinition(1, mode),
         new DoorDefinition("door"),
         new ExitDefinition("exit", "door"));
+  }
+
+  private static RoomDefinition staggeredDefinition() {
+    ComposedRiddleDefinition recover = simpleRiddle("recover");
+    ComposedRiddleDefinition ventilation = simpleRiddle("ventilation");
+    ComposedRiddleDefinition storage = simpleRiddle("storage");
+    ComposedRiddleDefinition unlock = simpleRiddle("unlock");
+    return new RoomDefinition(
+        "staggered_room",
+        1,
+        new RosterDefinition(List.of(new RosterSlotDefinition("slot_1", 1))),
+        new ProgressionDefinition(
+            "start",
+            "exit",
+            List.of(
+                new RiddleNode("n_recover", recover),
+                new RiddleNode("n_ventilation", ventilation),
+                new RiddleNode("n_storage", storage),
+                new RiddleNode("n_unlock", unlock)),
+            List.of(
+                new Edge("start", "n_recover"),
+                new Edge("start", "n_ventilation"),
+                new Edge("n_recover", "n_storage"),
+                new Edge("n_storage", "n_unlock"),
+                new Edge("n_ventilation", "n_unlock"),
+                new Edge("n_unlock", "exit"))),
+        new TimerDefinition(10, TimerMode.HARD),
+        new DoorDefinition("door"),
+        new ExitDefinition("exit", "door"));
+  }
+
+  private static RoomDefinition directEndPredecessorsDefinition() {
+    ComposedRiddleDefinition left = simpleRiddle("left");
+    ComposedRiddleDefinition right = simpleRiddle("right");
+    return new RoomDefinition(
+        "direct_end_room",
+        1,
+        new RosterDefinition(List.of(new RosterSlotDefinition("slot_1", 1))),
+        new ProgressionDefinition(
+            "start",
+            "exit",
+            List.of(new RiddleNode("n_left", left), new RiddleNode("n_right", right)),
+            List.of(
+                new Edge("start", "n_left"),
+                new Edge("start", "n_right"),
+                new Edge("n_left", "exit"),
+                new Edge("n_right", "exit"))),
+        new TimerDefinition(10, TimerMode.HARD),
+        new DoorDefinition("door"),
+        new ExitDefinition("exit", "door"));
+  }
+
+  private static ComposedRiddleDefinition simpleRiddle(final String id) {
+    return new ComposedRiddleDefinition(
+        id,
+        List.of(),
+        List.of(new NumericInputDefinition("input_" + id, "surface_" + id, "1", false)),
+        List.of());
   }
 
   private static void ready(final Authority authority) {
@@ -288,16 +471,8 @@ final class AuthorityTest {
     authority.attemptCode("final_code", "final_input", "9");
   }
 
-  private static Projection.SectionView section(final Authority authority, final String id) {
-    return authority.projection().sections().stream()
-        .filter(section -> section.id().equals(id))
-        .findFirst()
-        .orElseThrow();
-  }
-
   private static Projection.RiddleView riddle(final Authority authority, final String id) {
-    return authority.projection().sections().stream()
-        .flatMap(section -> section.riddles().stream())
+    return authority.projection().riddles().stream()
         .filter(riddle -> riddle.id().equals(id))
         .findFirst()
         .orElseThrow();

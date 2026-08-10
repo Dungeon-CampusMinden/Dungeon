@@ -1,4 +1,4 @@
-# Wizard Runner Runtime and Bootstrap Contract V0.3
+# Wizard Runner Runtime and Bootstrap Contract V0.4
 
 Status: kanonischer implementierter Runner-/Runtime-Contract
 
@@ -111,7 +111,7 @@ Der Identitätsmarker wird genau einmal im initialen Entity-Stream übertragen.
 Der Client puffert gewöhnliche initiale Spawns bis zur erfolgreichen Prüfung
 und Assetbindung und gibt sie danach in ursprünglicher Reihenfolge frei. Bei
 einem Reconnect muss dieselbe Projektidentität verwendet werden. Binäre Assets
-werden nicht übertragen; V0.3 bietet keinen Assetdownload.
+werden nicht übertragen; V0.4 bietet keinen Assetdownload.
 
 ## Multiplayer-Lebenszyklus
 
@@ -176,10 +176,13 @@ vorhandenen Dungeon-Dialogvertrag angezeigt und beantwortet. Rätselzustand,
 Inputfortschritt, Hinweisfreigabe, Timer, Tür und terminales Ergebnis bleiben
 serverautoritativ.
 
-Die Authority setzt den `riddleGraph` unmittelbar als
+Die Authority setzt den `riddleGraph` unmittelbar als mandatory AND-DAG und
 Interaktionsfreigabe um. Vor dem Sessionstart sind alle Rätsel `LOCKED`; danach
 werden nur direkte Startnachfolger `ACTIVE`. Ein späteres Rätsel wird aktiv,
-wenn alle Vorgängerrätsel `SOLVED` sind. Nur Inputs aktiver Rätsel werden
+wenn alle direkten Vorgängerrätsel `SOLVED` sind. Mehrere gleichzeitig
+berechtigte Rätsel werden stabil nach ihrer authorierten Rätsel-ID behandelt.
+Der Runner rekonstruiert keine Progressionsabschnitte und ergänzt keine
+Abhängigkeiten. Nur Inputs aktiver Rätsel werden
 angenommen. Vorzeitige oder wiederholte Aktionen erzeugen keinen
 Teilfortschritt. Sind alle Inputs eines Rätsels erfüllt, wechselt es atomar und
 genau einmal zu `SOLVED`; dieser implizite Abschluss aktiviert gegebenenfalls

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:dungeon:wizard:deer-schema:0.3",
-  "title": "DEER Authoring Configuration V0.3",
+  "$id": "urn:dungeon:wizard:deer-schema:0.4",
+  "title": "DEER Authoring Configuration V0.4",
   "description": "Finalized Wizard-to-runner authoring contract. Incomplete UI drafts use a private model. Cross-reference, graph-profile, path-content and runtime-capability checks are semantic validations.",
   "type": "object",
   "additionalProperties": false,
@@ -19,7 +19,7 @@
   ],
   "properties": {
     "formatVersion": {
-      "const": "0.3"
+      "const": "0.4"
     },
     "seed": {
       "type": "integer",

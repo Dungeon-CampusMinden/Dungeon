@@ -196,8 +196,8 @@ public final class MultiplayerHostRun {
 
   private Map<String, Point> hintStations() {
     Map<String, Point> stations = new LinkedHashMap<>();
-    room.definition().sections().stream()
-        .flatMap(section -> section.riddles().stream())
+    room.definition().progression().riddleNodes().stream()
+        .map(node -> node.riddle())
         .filter(riddle -> !riddle.hints().isEmpty())
         .forEach(riddle -> stations.put(riddle.id(), requiredPoint("hint_" + riddle.id())));
     return Map.copyOf(stations);

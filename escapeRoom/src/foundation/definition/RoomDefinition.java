@@ -1,7 +1,6 @@
 package foundation.definition;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -11,7 +10,7 @@ import java.util.Objects;
  * @param id stable room identifier
  * @param minimumPlayers technically ready players required to start
  * @param roster ordered player capacity
- * @param sections nonempty ordered mandatory sections
+ * @param progression exact mandatory AND-DAG progression
  * @param timer shared timer behavior
  * @param door the one controlled common-exit door
  * @param exit the one common exit
@@ -20,7 +19,7 @@ public record RoomDefinition(
     String id,
     int minimumPlayers,
     RosterDefinition roster,
-    List<SectionDefinition> sections,
+    ProgressionDefinition progression,
     TimerDefinition timer,
     DoorDefinition door,
     ExitDefinition exit) {
@@ -31,45 +30,36 @@ public record RoomDefinition(
     if (minimumPlayers < 1 || minimumPlayers > roster.slots().size()) {
       throw new IllegalArgumentException("minimum players must be within the roster capacity");
     }
-    sections = List.copyOf(Objects.requireNonNull(sections, "sections"));
-    if (sections.isEmpty()) {
-      throw new IllegalArgumentException("room must contain at least one section");
-    }
+    Objects.requireNonNull(progression, "progression");
     Objects.requireNonNull(timer, "timer");
     Objects.requireNonNull(door, "door");
     Objects.requireNonNull(exit, "exit");
     if (!exit.doorId().equals(door.id())) {
       throw new IllegalArgumentException("common exit must reference the room door");
     }
-    validateSectionIds(sections);
-    validateEntityIds(sections, door, exit);
-  }
-
-  private static void validateSectionIds(final List<SectionDefinition> sections) {
-    Map<String, String> owners = new LinkedHashMap<>();
-    for (SectionDefinition section : sections) {
-      register(owners, section.id(), "section");
+    if (!exit.id().equals(progression.endNodeId())) {
+      throw new IllegalArgumentException("common exit id must equal the progression end node id");
     }
+    validateEntityIds(progression, door, exit);
   }
 
   private static void validateEntityIds(
-      final List<SectionDefinition> sections,
+      final ProgressionDefinition progression,
       final DoorDefinition door,
       final ExitDefinition exit) {
     Map<String, String> owners = new LinkedHashMap<>();
-    for (SectionDefinition section : sections) {
-      for (ComposedRiddleDefinition riddle : section.riddles()) {
-        register(owners, riddle.id(), "riddle");
-        riddle.hints().forEach(hint -> register(owners, hint.id(), "hint"));
-        riddle
-            .informationSources()
-            .forEach(
-                source -> {
-                  register(owners, source.id(), "information source");
-                  source.resourceIds().forEach(resource -> register(owners, resource, "resource"));
-                });
-        riddle.inputs().forEach(input -> register(owners, input.id(), "input"));
-      }
+    for (ProgressionDefinition.RiddleNode node : progression.riddleNodes()) {
+      ComposedRiddleDefinition riddle = node.riddle();
+      register(owners, riddle.id(), "riddle");
+      riddle.hints().forEach(hint -> register(owners, hint.id(), "hint"));
+      riddle
+          .informationSources()
+          .forEach(
+              source -> {
+                register(owners, source.id(), "information source");
+                source.resourceIds().forEach(resource -> register(owners, resource, "resource"));
+              });
+      riddle.inputs().forEach(input -> register(owners, input.id(), "input"));
     }
     register(owners, door.id(), "door");
     register(owners, exit.id(), "exit");

@@ -109,8 +109,7 @@ public final class ServerBinding {
     if (!gameplayReady(playerEntity)) {
       return false;
     }
-    return projection().sections().stream()
-        .flatMap(section -> section.riddles().stream())
+    return projection().riddles().stream()
         .filter(riddle -> riddle.id().equals(riddleId))
         .filter(riddle -> riddle.status() == Projection.ProgressStatus.ACTIVE)
         .flatMap(riddle -> riddle.inputs().stream())

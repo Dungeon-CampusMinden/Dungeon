@@ -2,7 +2,6 @@ package wizard.runner.room;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import foundation.definition.HintSeverity;
 import foundation.room.model.RiddlePlacement;
@@ -34,28 +33,43 @@ import wizard.runner.room.SingleRoomPlanner.Plan;
 /** Deterministic planning proofs for the one supported Foundation room profile. */
 final class SingleRoomPlannerTest {
   @Test
-  void reconstructsCompleteAndLayersInCanonicalRiddleOrder() {
+  void ordersCompleteAndGraphByLongestDistanceThenRiddleId() {
     ProjectDefinition project =
         project(
             "and_room", 3, List.of(List.of("r_zulu", "r_alpha"), List.of("r_charlie", "r_bravo")));
 
     Plan plan = plan(project, 0);
 
-    assertEquals(List.of("r_alpha", "r_zulu"), plan.sections().get(0).riddleIds());
-    assertEquals(List.of("r_bravo", "r_charlie"), plan.sections().get(1).riddleIds());
-    assertTrue(
-        plan.sections().stream().allMatch(section -> section.id().matches("section_[0-9a-f]{56}")));
+    assertEquals(List.of("r_alpha", "r_zulu", "r_bravo", "r_charlie"), plan.riddleIds());
     assertEquals(new RoomPoint(1, 1), plan.layout().startPoint());
     assertEquals(plan, plan(project, 0));
-    assertNotEquals(
-        plan(project("collision_single", 1, List.of(List.of("a_and_b"))), 0)
-            .sections()
-            .getFirst()
-            .id(),
-        plan(project("collision_pair", 1, List.of(List.of("a", "b"))), 0)
-            .sections()
-            .getFirst()
-            .id());
+    assertEquals(plan, plan(reversedTopology(project), 0));
+  }
+
+  @Test
+  void staggeredDagUsesLongestDistanceAndIgnoresInputArrayOrderForLayout() {
+    ProjectDefinition base =
+        project(
+            "staggered_room",
+            2,
+            List.of(List.of("r_zulu", "r_alpha"), List.of("r_bravo", "r_charlie")));
+    ProjectDefinition staggered =
+        withEdges(
+            base,
+            List.of(
+                new GraphEdge("n_start", nodeId("r_alpha")),
+                new GraphEdge("n_start", nodeId("r_zulu")),
+                new GraphEdge(nodeId("r_alpha"), nodeId("r_bravo")),
+                new GraphEdge(nodeId("r_bravo"), nodeId("r_charlie")),
+                new GraphEdge(nodeId("r_zulu"), nodeId("r_charlie")),
+                new GraphEdge(nodeId("r_charlie"), "n_end")));
+
+    Plan plan = SingleRoomPlanner.planRoom(staggered);
+    Plan reordered = SingleRoomPlanner.planRoom(reversedTopology(staggered));
+
+    assertEquals(List.of("r_alpha", "r_zulu", "r_bravo", "r_charlie"), plan.riddleIds());
+    assertEquals(plan.riddleIds(), reordered.riddleIds());
+    assertEquals(plan.layout(), reordered.layout());
   }
 
   @Test
@@ -196,6 +210,32 @@ final class SingleRoomPlannerTest {
         source.surfaces(),
         source.riddleGraph(),
         source.riddles(),
+        source.assets());
+  }
+
+  private static ProjectDefinition withEdges(
+      final ProjectDefinition source, final List<GraphEdge> edges) {
+    return new ProjectDefinition(
+        source.seed(),
+        source.metadata(),
+        source.session(),
+        source.scenario(),
+        source.surfaces(),
+        new RiddleGraph(source.riddleGraph().nodes(), edges),
+        source.riddles(),
+        source.assets());
+  }
+
+  private static ProjectDefinition reversedTopology(final ProjectDefinition source) {
+    return new ProjectDefinition(
+        source.seed(),
+        source.metadata(),
+        source.session(),
+        source.scenario(),
+        source.surfaces(),
+        new RiddleGraph(
+            source.riddleGraph().nodes().reversed(), source.riddleGraph().edges().reversed()),
+        source.riddles().reversed(),
         source.assets());
   }
 

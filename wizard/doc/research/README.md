@@ -16,11 +16,11 @@ assessment.
   and later evaluation work.
 - `sources.bib`: BibTeX metadata for the cited source set.
 
-## Relationship to V0.3
+## Relationship to V0.4
 
 The research library is not a second requirements document. It informs the
 teacher-facing authoring flow. Target group, prior knowledge, learning goals,
-and debriefing prompts are required fields in the executable V0.3 DEER contract.
+and debriefing prompts are required fields in the executable V0.4 DEER contract.
 The runner validates them and includes them in the complete host-input identity,
 but the current Foundation runtime does not interpret them for room generation
 or gameplay. Entries marked as future or comparison material are research

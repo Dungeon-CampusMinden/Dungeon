@@ -154,7 +154,7 @@ public final class FoundationRoom {
       throw new IllegalArgumentException("hard timer requires presentation failure text");
     }
     List<ComposedRiddleDefinition> definitions =
-        definition.sections().stream().flatMap(section -> section.riddles().stream()).toList();
+        definition.progression().riddleNodes().stream().map(node -> node.riddle()).toList();
     List<ComposedPresentation> presentations = presentation.riddles();
     List<RiddlePlacement> placements = layout.riddlePlacements();
     if (definitions.size() != presentations.size() || definitions.size() != placements.size()) {

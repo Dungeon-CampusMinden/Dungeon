@@ -6,18 +6,19 @@ import foundation.definition.HintDefinition;
 import foundation.definition.InformationSourceDefinition;
 import foundation.definition.InputDefinition;
 import foundation.definition.NumericInputDefinition;
+import foundation.definition.ProgressionDefinition;
+import foundation.definition.ProgressionDefinition.RiddleNode;
 import foundation.definition.RoomDefinition;
 import foundation.definition.RosterSlotDefinition;
-import foundation.definition.SectionDefinition;
 import foundation.definition.TimerMode;
 import foundation.runtime.Projection.InputView;
 import foundation.runtime.Projection.ProgressStatus;
 import foundation.runtime.Projection.RiddleView;
-import foundation.runtime.Projection.SectionView;
 import foundation.runtime.Projection.TimerState;
 import foundation.runtime.Projection.TimerView;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,7 +39,10 @@ public final class Authority {
   private final RoomDefinition definition;
   private final Map<String, SlotState> slots = new LinkedHashMap<>();
   private final Map<String, RiddleState> riddles = new LinkedHashMap<>();
-  private final Map<String, Integer> sectionIndexes = new LinkedHashMap<>();
+  private final Map<String, String> riddleNodeIds = new LinkedHashMap<>();
+  private final Map<String, RiddleNode> riddleNodes = new LinkedHashMap<>();
+  private final Map<String, List<String>> predecessors = new LinkedHashMap<>();
+  private final Map<String, List<String>> successors = new LinkedHashMap<>();
   private final Duration limit;
   private boolean started;
   private Duration elapsed = Duration.ZERO;
@@ -47,7 +51,7 @@ public final class Authority {
   private TerminalResult terminal;
 
   /**
-   * Creates a fresh authority with all riddles locked until session and section activation.
+   * Creates a fresh authority with all riddles locked until session and dependency activation.
    *
    * @param definition immutable Foundation room definition
    */
@@ -57,13 +61,23 @@ public final class Authority {
     for (RosterSlotDefinition slot : definition.roster().slots()) {
       slots.put(slot.id(), new SlotState());
     }
-    for (int sectionIndex = 0; sectionIndex < definition.sections().size(); sectionIndex++) {
-      SectionDefinition section = definition.sections().get(sectionIndex);
-      for (ComposedRiddleDefinition riddle : section.riddles()) {
-        riddles.put(riddle.id(), new RiddleState(riddle));
-        sectionIndexes.put(riddle.id(), sectionIndex);
-      }
+    ProgressionDefinition progression = definition.progression();
+    predecessors.put(progression.startNodeId(), new ArrayList<>());
+    predecessors.put(progression.endNodeId(), new ArrayList<>());
+    successors.put(progression.startNodeId(), new ArrayList<>());
+    successors.put(progression.endNodeId(), new ArrayList<>());
+    for (RiddleNode node : progression.riddleNodes()) {
+      riddleNodes.put(node.id(), node);
+      riddleNodeIds.put(node.riddle().id(), node.id());
+      riddles.put(node.riddle().id(), new RiddleState(node.riddle()));
+      predecessors.put(node.id(), new ArrayList<>());
+      successors.put(node.id(), new ArrayList<>());
     }
+    for (ProgressionDefinition.Edge edge : progression.edges()) {
+      predecessors.get(edge.to()).add(edge.from());
+      successors.get(edge.from()).add(edge.to());
+    }
+    successors.values().forEach(values -> values.sort(successorOrder()));
   }
 
   /**
@@ -403,20 +417,19 @@ public final class Authority {
    * @return coherent public authority state
    */
   public synchronized Projection projection() {
-    List<SectionView> sections = new ArrayList<>();
-    for (int index = 0; index < definition.sections().size(); index++) {
-      SectionDefinition section = definition.sections().get(index);
-      List<RiddleView> views = new ArrayList<>();
-      for (ComposedRiddleDefinition riddle : section.riddles()) {
-        RiddleState state = riddles.get(riddle.id());
-        views.add(
-            new RiddleView(riddle.id(), state.status(), inputViews(state), releasedHints(state)));
-      }
-      sections.add(new SectionView(section.id(), sectionStatus(index), views));
-    }
+    List<RiddleView> views =
+        definition.progression().riddleNodes().stream()
+            .map(RiddleNode::riddle)
+            .map(
+                riddle -> {
+                  RiddleState state = riddles.get(riddle.id());
+                  return new RiddleView(
+                      riddle.id(), state.status(), inputViews(state), releasedHints(state));
+                })
+            .toList();
     Duration publicElapsed = wholeSeconds(elapsed);
     return new Projection(
-        sections,
+        views,
         new TimerView(
             started,
             timerState(),
@@ -431,7 +444,7 @@ public final class Authority {
     long ready = slots.values().stream().filter(slot -> slot.connected && slot.spawned).count();
     if (!started && ready >= definition.minimumPlayers()) {
       started = true;
-      activateSection(0);
+      evaluateSuccessors(definition.progression().startNodeId());
     }
   }
 
@@ -464,14 +477,7 @@ public final class Authority {
         .map(InputDefinition::id)
         .allMatch(state.satisfied::contains)) {
       state.status = ProgressStatus.SOLVED;
-      int sectionIndex = sectionIndexes.get(state.definition.id());
-      if (sectionSolved(sectionIndex)) {
-        if (sectionIndex + 1 < definition.sections().size()) {
-          activateSection(sectionIndex + 1);
-        } else {
-          doorOpen = true;
-        }
-      }
+      evaluateSuccessors(riddleNodeIds.get(state.definition.id()));
     }
   }
 
@@ -487,28 +493,37 @@ public final class Authority {
     }
   }
 
-  private ProgressStatus sectionStatus(final int sectionIndex) {
-    SectionDefinition section = definition.sections().get(sectionIndex);
-    if (section.riddles().stream()
-        .allMatch(riddle -> riddles.get(riddle.id()).status == ProgressStatus.SOLVED)) {
-      return ProgressStatus.SOLVED;
+  private void evaluateSuccessors(final String completedNodeId) {
+    for (String successor : successors.get(completedNodeId)) {
+      if (!predecessors.get(successor).stream().allMatch(this::fulfilled)) {
+        continue;
+      }
+      if (successor.equals(definition.progression().endNodeId())) {
+        doorOpen = true;
+      } else {
+        RiddleState state = riddles.get(riddleNodes.get(successor).riddle().id());
+        if (state.status == ProgressStatus.LOCKED) {
+          state.status = ProgressStatus.ACTIVE;
+        }
+      }
     }
-    return section.riddles().stream()
-            .anyMatch(riddle -> riddles.get(riddle.id()).status == ProgressStatus.ACTIVE)
-        ? ProgressStatus.ACTIVE
-        : ProgressStatus.LOCKED;
   }
 
-  private boolean sectionSolved(final int sectionIndex) {
-    return definition.sections().get(sectionIndex).riddles().stream()
-        .allMatch(riddle -> riddles.get(riddle.id()).status == ProgressStatus.SOLVED);
+  private boolean fulfilled(final String nodeId) {
+    if (nodeId.equals(definition.progression().startNodeId())) {
+      return started;
+    }
+    RiddleNode node = riddleNodes.get(nodeId);
+    return node != null && riddles.get(node.riddle().id()).status == ProgressStatus.SOLVED;
   }
 
-  private void activateSection(final int sectionIndex) {
-    definition.sections().get(sectionIndex).riddles().stream()
-        .map(riddle -> riddles.get(riddle.id()))
-        .filter(state -> state.status == ProgressStatus.LOCKED)
-        .forEach(state -> state.status = ProgressStatus.ACTIVE);
+  private Comparator<String> successorOrder() {
+    return Comparator.comparing(
+            (String nodeId) -> {
+              RiddleNode node = riddleNodes.get(nodeId);
+              return node == null ? "\uffff" : node.riddle().id();
+            })
+        .thenComparing(Comparator.naturalOrder());
   }
 
   private static List<InputView> inputViews(final RiddleState state) {

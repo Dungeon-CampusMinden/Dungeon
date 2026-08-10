@@ -13,10 +13,12 @@ import foundation.definition.HintDefinition;
 import foundation.definition.HintSeverity;
 import foundation.definition.InformationSourceDefinition;
 import foundation.definition.NumericInputDefinition;
+import foundation.definition.ProgressionDefinition;
+import foundation.definition.ProgressionDefinition.Edge;
+import foundation.definition.ProgressionDefinition.RiddleNode;
 import foundation.definition.RoomDefinition;
 import foundation.definition.RosterDefinition;
 import foundation.definition.RosterSlotDefinition;
-import foundation.definition.SectionDefinition;
 import foundation.definition.TimerDefinition;
 import foundation.definition.TimerMode;
 import foundation.multiplayer.session.MultiplayerSession.ClientObservation;
@@ -225,9 +227,14 @@ final class MultiplayerSessionTest {
         "room",
         minimum,
         new RosterDefinition(slots),
-        List.of(
-            new SectionDefinition("first_section", List.of(first)),
-            new SectionDefinition("second_section", List.of(second))),
+        new ProgressionDefinition(
+            "start",
+            "exit",
+            List.of(new RiddleNode("n_first", first), new RiddleNode("n_second", second)),
+            List.of(
+                new Edge("start", "n_first"),
+                new Edge("n_first", "n_second"),
+                new Edge("n_second", "exit"))),
         new TimerDefinition(10, TimerMode.HARD),
         new DoorDefinition("door"),
         new ExitDefinition("exit", "door"));
@@ -286,8 +293,7 @@ final class MultiplayerSessionTest {
 
   private static boolean inputSatisfied(
       final MultiplayerSession session, final String riddleId, final String inputId) {
-    return session.projection().sections().stream()
-        .flatMap(section -> section.riddles().stream())
+    return session.projection().riddles().stream()
         .filter(riddle -> riddle.id().equals(riddleId))
         .flatMap(riddle -> riddle.inputs().stream())
         .filter(input -> input.id().equals(inputId))
@@ -298,8 +304,7 @@ final class MultiplayerSessionTest {
 
   private static List<ReleasedHint> riddleReleasedHints(
       final MultiplayerSession session, final String riddleId) {
-    return session.projection().sections().stream()
-        .flatMap(section -> section.riddles().stream())
+    return session.projection().riddles().stream()
         .filter(riddle -> riddle.id().equals(riddleId))
         .findFirst()
         .orElseThrow()

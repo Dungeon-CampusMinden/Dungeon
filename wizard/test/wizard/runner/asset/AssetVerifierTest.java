@@ -142,7 +142,7 @@ final class AssetVerifierTest {
   }
 
   private Fixture fixture(final String name) throws IOException {
-    Path examples = Path.of("examples", "foundation-v0.3").toAbsolutePath().normalize();
+    Path examples = Path.of("examples", "foundation-v0.4").toAbsolutePath().normalize();
     Path root = Files.createDirectory(temporaryDirectory.resolve(name));
     Path custom = Files.createDirectories(root.resolve("assets/custom"));
     Files.copy(examples.resolve("deer.json"), root.resolve("deer.json"));

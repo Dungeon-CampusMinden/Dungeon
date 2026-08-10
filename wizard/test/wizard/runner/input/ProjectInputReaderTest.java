@@ -24,7 +24,7 @@ final class ProjectInputReaderTest {
 
   @Test
   void readsExactBytesWithoutMutatingTheProject() throws IOException {
-    byte[] deer = "{\"formatVersion\":\"0.3\",\"seed\":42}\n".getBytes(StandardCharsets.UTF_8);
+    byte[] deer = "{\"formatVersion\":\"0.4\",\"seed\":42}\n".getBytes(StandardCharsets.UTF_8);
     Path project = createProject(deer);
     byte[] before = Files.readAllBytes(project.resolve("deer.json"));
 
@@ -53,7 +53,7 @@ final class ProjectInputReaderTest {
   @Test
   void rejectsDuplicateMembers() throws IOException {
     byte[] deer =
-        "{\"formatVersion\":\"0.3\",\"formatVersion\":\"0.3\"}".getBytes(StandardCharsets.UTF_8);
+        "{\"formatVersion\":\"0.4\",\"formatVersion\":\"0.4\"}".getBytes(StandardCharsets.UTF_8);
 
     InputSnapshot snapshot = new ProjectInputReader().read(createProject(deer));
 

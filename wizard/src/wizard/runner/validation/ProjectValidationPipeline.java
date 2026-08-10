@@ -27,7 +27,7 @@ public final class ProjectValidationPipeline {
   private final SemanticValidator semanticValidator;
   private final AssetVerifier assetVerifier;
 
-  /** Creates a pipeline using the compiled V0.3 capabilities and packaged schema. */
+  /** Creates a pipeline using the compiled V0.4 capabilities and packaged schema. */
   public ProjectValidationPipeline() {
     inputReader = new ProjectInputReader();
     schemaValidator = new DeerSchemaValidator();

@@ -1,4 +1,4 @@
-# Wizard UI Flow V0.3
+# Wizard UI Flow V0.4
 
 Status: Runtime-Vertrag implementiert; Authoring-Frontend noch nicht umgesetzt
 Stand: 27.07.2026
@@ -27,7 +27,8 @@ Starten oder fortsetzen
 - Eine ständig erreichbare Übersicht zeigt Navigation, Abschlussgrad,
   blockierende Probleme und Warnungen.
 - Graphknoten und Kanten werden aus fachlichen Eingaben abgeleitet.
-- Der sichtbare Ablauf ist eine geordnete Abschnittsliste, kein freier Graph.
+- Der sichtbare einfache Stage-Modus ist eine geordnete Abschnittsliste, kein
+  freier Graph. Er bildet einen gültigen Teil des mandatory AND-DAG-Vertrags.
 - `Entwurf prüfen` ist immer aktiv; `Entwurf finalisieren` erst nach einer
   erfolgreichen Prüfung.
 - Warnungen blockieren nicht.
@@ -50,11 +51,11 @@ Starten oder fortsetzen
    Finalisierung als veraltet. Weitere Finalisierungen erhalten den bestehenden
    Seedwert unverändert.
 
-V0.3 unterstützt die Wiederaufnahme eigener lokaler Entwürfe. Der Import
+V0.4 unterstützt die Wiederaufnahme eigener lokaler Entwürfe. Der Import
 beliebiger Room-ZIPs oder manuell veränderter Projektordner ist nicht Teil des
 Foundation-Slices. Der Produktfluss erzeugt selbst keine Room-ZIPs.
 
-Der spezifizierte V0.3-Authoring-Host ist eine noch nicht umgesetzte
+Der spezifizierte V0.4-Authoring-Host ist eine noch nicht umgesetzte
 Standalone-App mit Web-Oberfläche und nativem Storage-Adapter. Ein browser-only
 Host folgt erst nach einem eigenen Speicher-/Export-Slice.
 
@@ -117,7 +118,7 @@ werden nach `deer.json` projiziert und beeinflussen den Host-Input-Hash. Sie
 steuern die Runtime nicht und werden vom aktuellen Runner nicht semantisch
 bewertet.
 
-V0.3 zeigt `de-DE` als einzige unterstützte Inhaltssprache und nicht als
+V0.4 zeigt `de-DE` als einzige unterstützte Inhaltssprache und nicht als
 scheinbar freie Sprachauswahl. Die Sprache der Wizard-Oberfläche ist eine
 separate UI-Einstellung.
 
@@ -146,7 +147,7 @@ Pflichtangaben:
 | Erfolgsseiten | `scenario.successText` |
 | Fehlschlagseiten bei hartem Zeitlimit | `scenario.failureText`, nur bei `hard` |
 
-V0.3 nutzt das feste Theme `default` und reine Storytexte. Es gibt keine
+V0.4 nutzt das feste Theme `default` und reine Storytexte. Es gibt keine
 Theme- oder Skin-Auswahl in der UI. Die feste `themeId` bestimmt automatisch den
 geordneten Pool der spielbaren Skins: zuerst `THE_LAST_HOUR_ROGUE`, dann
 `THE_LAST_HOUR_CHAR03`. Die offiziellen Wizard-Clients wählen daraus keinen
@@ -188,7 +189,12 @@ Die UI erzeugt intern:
 - reine AND-Kanten zwischen aufeinanderfolgenden Abschnitten;
 - genau einen Endknoten.
 
-Nicht darstellbar in V0.3:
+Wenn eine spätere UI-Ausbaustufe explizite Abhängigkeiten anbietet, lautet die
+fachliche Formulierung beispielsweise „Diese Aufgabe wird verfügbar nach …“.
+Mehrere ausgewählte Aufgaben sind dabei ausnahmslos alle erforderlich; die UI
+darf daraus weder OR- noch optionale Semantik ableiten.
+
+Nicht darstellbar im einfachen Stage-Modus von V0.4:
 
 - OR-Verzweigung;
 - optionales Pflichträtsel;
@@ -241,7 +247,7 @@ beschreibt ausschließlich den gemeinsamen Raum und ist keine Fundstation.
 
 ### Eingaben
 
-Mindestens eine Eingabe ist Pflicht. V0.3 bietet geschlossen:
+Mindestens eine Eingabe ist Pflicht. V0.4 bietet geschlossen:
 
 - **Zahlencode**;
 - **Information entdecken**, wenn eine Informationsquelle zwingend gefunden
@@ -279,7 +285,7 @@ Die UI speichert dafür intern `severity=orientation`, `approach` oder
 `solution`; der technische Feldname und die Enum-Werte bleiben verborgen.
 `severity` ist keine frei vergebene Schwierigkeit oder Reihenfolgenummer.
 
-Hinweise können in V0.3 angefordert werden, sobald das zugehörige Rätsel
+Hinweise können in V0.4 angefordert werden, sobald das zugehörige Rätsel
 verfügbar ist. Die Runtime kündigt vor jeder Freigabe die Stufe des nächsten
 Hinweises an und verlangt eine ausdrückliche Bestätigung. Das gilt für alle
 drei Stufen, damit auch eine Fehlinteraktion keinen Hinweis freigibt. Abbrechen

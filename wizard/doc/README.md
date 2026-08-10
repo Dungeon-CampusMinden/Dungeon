@@ -46,7 +46,7 @@ Array-Eintrag wird als eigene weiterklickbare Black-Fade-Seite angezeigt.
 
 | Bereich | Status |
 |---|---|
-| DEER-Schema `0.3`, Projektvalidierung und Runner-Reports | umgesetzt |
+| DEER-Schema `0.4`, Projektvalidierung und Runner-Reports | umgesetzt |
 | Spieler-JAR, Main-Menü, `validate`, `host`, `join` und Foundation-Runtime | umgesetzt |
 | Lokale Authoring-UI, privater Draft und nativer Storage-Adapter | Soll-Contract, noch nicht umgesetzt |
 | Aufruf des JAR-Packagers aus der Authoring-UI | spätere dünne Integration |
@@ -67,11 +67,11 @@ Array-Eintrag wird als eigene weiterklickbare Black-Fade-Seite angezeigt.
    maschinenlesbare Validierungsergebnis.
 5. [`v0/runner-runtime-contract.md`](v0/runner-runtime-contract.md) definiert
    CLI, Host-/Join-Grenze, Bootstrap und Spielruntime.
-6. [`../examples/foundation-v0.3/`](../examples/foundation-v0.3/) ist das
+6. [`../examples/foundation-v0.4/`](../examples/foundation-v0.4/) ist das
    kleine kanonische und direkt ausführbare Beispielprojekt.
-7. [`../examples/the-last-hour-v0.3/`](../examples/the-last-hour-v0.3/) ist
+7. [`../examples/the-last-hour-v0.4/`](../examples/the-last-hour-v0.4/) ist
    das größere Demonstrations- und Regressionsexemplar für einen
-   umfangreicheren Rätselablauf.
+   staggered mandatory AND-DAG-Rätselablauf.
 
 [`v0/the-last-hour-interaction-catalog.md`](v0/the-last-hour-interaction-catalog.md)
 inventarisiert vorhandene Interaktionen als nicht-normative Grundlage für

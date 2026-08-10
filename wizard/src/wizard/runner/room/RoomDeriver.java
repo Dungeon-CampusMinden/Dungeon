@@ -8,10 +8,12 @@ import foundation.definition.HintDefinition;
 import foundation.definition.InformationSourceDefinition;
 import foundation.definition.InputDefinition;
 import foundation.definition.NumericInputDefinition;
+import foundation.definition.ProgressionDefinition;
+import foundation.definition.ProgressionDefinition.Edge;
+import foundation.definition.ProgressionDefinition.RiddleNode;
 import foundation.definition.RoomDefinition;
 import foundation.definition.RosterDefinition;
 import foundation.definition.RosterSlotDefinition;
-import foundation.definition.SectionDefinition;
 import foundation.definition.TimerDefinition;
 import foundation.definition.TimerMode;
 import foundation.presentation.GamePresentation;
@@ -22,7 +24,7 @@ import foundation.presentation.GamePresentation.ResourcePresentation;
 import foundation.room.model.FoundationRoom;
 import foundation.room.model.RoomLayout;
 import foundation.room.model.VerifiedAsset;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -77,11 +79,11 @@ public final class RoomDeriver {
     Map<String, Riddle> riddles = index(project.riddles(), Riddle::id);
     Map<String, Asset> assets = index(project.assets(), Asset::id);
     Map<String, Surface> surfaces = index(project.surfaces(), Surface::id);
-    List<SectionDefinition> sections = sections(plan, riddles);
+    ProgressionDefinition progression = progression(project, plan, riddles);
     TimerDefinition timer = timer(project);
     String doorId = endSurfaceId(project);
     DoorDefinition door = new DoorDefinition(doorId);
-    ExitDefinition exit = new ExitDefinition(endNodeId(project), doorId);
+    ExitDefinition exit = new ExitDefinition(nodeId(project, GraphNodeKind.END), doorId);
     List<RosterSlotDefinition> slots =
         IntStream.rangeClosed(1, project.session().playerCount().max())
             .mapToObj(number -> new RosterSlotDefinition("slot_" + number, number))
@@ -91,7 +93,7 @@ public final class RoomDeriver {
             project.metadata().id(),
             project.session().playerCount().min(),
             new RosterDefinition(slots),
-            sections,
+            progression,
             timer,
             door,
             exit);
@@ -108,17 +110,29 @@ public final class RoomDeriver {
         verifiedAssets);
   }
 
-  private static List<SectionDefinition> sections(
-      final SingleRoomPlanner.Plan plan, final Map<String, Riddle> riddles) {
-    List<SectionDefinition> result = new ArrayList<>();
-    for (SingleRoomPlanner.Section plannedSection : plan.sections()) {
-      List<ComposedRiddleDefinition> sectionRiddles =
-          plannedSection.riddleIds().stream()
-              .map(riddleId -> definition(requireRiddle(riddles, riddleId)))
-              .toList();
-      result.add(new SectionDefinition(plannedSection.id(), sectionRiddles));
-    }
-    return List.copyOf(result);
+  private static ProgressionDefinition progression(
+      final ProjectDefinition project,
+      final SingleRoomPlanner.Plan plan,
+      final Map<String, Riddle> riddles) {
+    Map<String, GraphNode> nodesByRiddle =
+        project.riddleGraph().nodes().stream()
+            .filter(node -> node.kind() == GraphNodeKind.RIDDLE)
+            .collect(Collectors.toMap(node -> node.riddleId().orElseThrow(), Function.identity()));
+    List<RiddleNode> nodes =
+        plan.riddleIds().stream()
+            .map(
+                riddleId ->
+                    new RiddleNode(
+                        nodesByRiddle.get(riddleId).id(),
+                        definition(requireRiddle(riddles, riddleId))))
+            .toList();
+    List<Edge> edges =
+        project.riddleGraph().edges().stream()
+            .map(edge -> new Edge(edge.from(), edge.to()))
+            .sorted(Comparator.comparing(Edge::from).thenComparing(Edge::to))
+            .toList();
+    return new ProgressionDefinition(
+        nodeId(project, GraphNodeKind.START), nodeId(project, GraphNodeKind.END), nodes, edges);
   }
 
   private static ComposedRiddleDefinition definition(final Riddle riddle) {
@@ -167,9 +181,9 @@ public final class RoomDeriver {
         .orElseThrow(() -> new IllegalArgumentException("validated project has no exit surface"));
   }
 
-  private static String endNodeId(final ProjectDefinition project) {
+  private static String nodeId(final ProjectDefinition project, final GraphNodeKind kind) {
     return project.riddleGraph().nodes().stream()
-        .filter(node -> node.kind() == GraphNodeKind.END)
+        .filter(node -> node.kind() == kind)
         .map(GraphNode::id)
         .findFirst()
         .orElseThrow();
@@ -182,8 +196,7 @@ public final class RoomDeriver {
       final Map<String, Asset> assets,
       final Map<String, Surface> surfaces) {
     List<ComposedPresentation> presentations =
-        plan.sections().stream()
-            .flatMap(section -> section.riddleIds().stream())
+        plan.riddleIds().stream()
             .map(riddleId -> presentation(requireRiddle(riddles, riddleId), assets, surfaces))
             .toList();
     return new GamePresentation(

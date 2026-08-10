@@ -2,16 +2,19 @@ package wizard.runner.contract;
 
 import java.util.Set;
 
-/** Immutable V0.3 Runner formats, capabilities, and operational limits. */
+/** Immutable V0.4 Runner formats, capabilities, and operational limits. */
 public final class ContractCapabilities {
   /** Supported DEER input versions. */
-  public static final Set<String> DEER_FORMAT_VERSIONS = Set.of("0.3");
+  public static final Set<String> DEER_FORMAT_VERSIONS = Set.of("0.4");
 
   /** Maximum DEER file size. */
   public static final int MAX_DEER_BYTES = 1_048_576;
 
   /** Maximum number of riddles. */
   public static final int MAX_RIDDLES = 64;
+
+  /** Maximum number of authored graph edges. */
+  public static final int MAX_GRAPH_EDGES = 4_096;
 
   /** Maximum number of resources. */
   public static final int MAX_RESOURCES = 512;

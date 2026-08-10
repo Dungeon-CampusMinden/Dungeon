@@ -1,6 +1,6 @@
-# Wizard Runner Project Format V0.3
+# Wizard Runner Project Format V0.4
 
-Status: umgesetzter V0.3-Runner- und Packaging-Contract; UI-Finalisierung noch
+Status: umgesetzter V0.4-Runner- und Packaging-Contract; UI-Finalisierung noch
 nicht umgesetzt
 
 Scope: finalisierte Übergabe von der Wizard-UI an Validierung, Packaging und
@@ -28,7 +28,7 @@ wizard-project/
 ```
 
 Das Repository enthält unter
-[`../../examples/foundation-v0.3/`](../../examples/foundation-v0.3/) ein
+[`../../examples/foundation-v0.4/`](../../examples/foundation-v0.4/) ein
 direkt ausführbares Projekt. Es ist die einzige kanonische Quelle für die
 Beispiel-`deer.json` einschließlich Seed und das Custom-Asset.
 
@@ -78,13 +78,15 @@ Die JAR ist projektspezifisch. Exakt dieselbe vollständige `WizardRoom.jar`
 wird an Host und alle weiteren Spielenden verteilt; ein separater
 Assets-only-Ordner wird nicht manuell verteilt. `java -jar WizardRoom.jar`
 benötigt Java 25 und öffnet das Host-/Join-Menü. Die Authoring-UI ruft diesen
-Packager in V0.3 noch nicht selbst auf; diese Anbindung bleibt eine spätere
+Packager in V0.4 noch nicht selbst auf; diese Anbindung bleibt eine spätere
 dünne Integration.
 
 ## Draft und Finalisierung
 
 - Ein UI-Entwurf darf unvollständig sein und bleibt außerhalb dieses Formats.
-- Die Finalisierung projiziert den Draft auf Formatversion `0.3`.
+- Die Finalisierung projiziert den Draft auf Formatversion `0.4`.
+- Sie bewahrt jede authorierte direkte Pflichtabhängigkeit und erfindet oder
+  vervollständigt keine Progressionskanten.
 - Die UI prüft Schema, Fachregeln, Spielergrenzen und Assetpfade vor dem
   Schreiben.
 - Bei der ersten Finalisierung erzeugt die UI den Top-Level-Wert `seed` in
@@ -101,7 +103,7 @@ dünne Integration.
 - Ein fehlgeschlagener Schreibvorgang lässt die letzte gültige Ausgabe
   verwendbar. Finalisierung sperrt den UI-Entwurf nicht.
 
-V0.3 spezifiziert einen Standalone-Host mit nativem Storage-Adapter. Dieser
+V0.4 spezifiziert einen Standalone-Host mit nativem Storage-Adapter. Dieser
 UI- und Storage-Anteil ist noch nicht umgesetzt. Ein browser-only Export ist
 nicht Teil des Foundation-Slices.
 
@@ -246,7 +248,7 @@ Beispiel:
 {
   "command": "validate",
   "valid": false,
-  "runnerVersion": "0.3",
+  "runnerVersion": "0.4",
   "rawDeerSha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
   "hostInputSha256": null,
   "issues": [

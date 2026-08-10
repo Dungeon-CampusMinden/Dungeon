@@ -1,9 +1,9 @@
 {
-  "formatVersion": "0.3",
+  "formatVersion": "0.4",
   "seed": 123456789,
   "metadata": {
-    "id": "wizard_foundation_v0_3",
-    "title": "Foundation Beispielraum V0.3",
+    "id": "wizard_foundation_v0_4",
+    "title": "Foundation Beispielraum V0.4",
     "locale": "de-DE",
     "description": "Kleiner Foundation-Slice mit Informationsquelle, Zahlencode und Ausgang.",
     "author": "Beispiel Lehrkraft"

@@ -43,8 +43,8 @@ public final class FoundationSnapshotTranslator implements SnapshotTranslator {
    */
   public FoundationSnapshotTranslator(final FoundationRoom room) {
     numericDefinitions =
-        room.definition().sections().stream()
-            .flatMap(section -> section.riddles().stream())
+        room.definition().progression().riddleNodes().stream()
+            .map(node -> node.riddle())
             .flatMap(riddle -> riddle.inputs().stream())
             .filter(NumericInputDefinition.class::isInstance)
             .map(NumericInputDefinition.class::cast)

@@ -51,7 +51,7 @@ final class ProjectValidationPipelineTest {
 
     assertTrue(result.valid());
     assertTrue(result.issues().isEmpty());
-    assertEquals("wizard_foundation_v0_3", result.model().orElseThrow().metadata().id());
+    assertEquals("wizard_foundation_v0_4", result.model().orElseThrow().metadata().id());
     assertEquals(1, result.assets().size());
     assertEquals(123456789L, result.model().orElseThrow().seed());
     assertEquals(result.hostInputSha256(), repeated.hostInputSha256());
@@ -108,6 +108,51 @@ final class ProjectValidationPipelineTest {
   }
 
   @Test
+  void acceptsTheStaggeredMandatoryAndDagExample() {
+    Path project = Path.of("examples", "the-last-hour-v0.4").toAbsolutePath().normalize();
+
+    ValidationResult result = new ProjectValidationPipeline().validate(project);
+
+    assertTrue(result.valid(), result.issues().toString());
+    assertEquals(6, result.model().orElseThrow().riddleGraph().edges().size());
+  }
+
+  @Test
+  void rejectsThePreviousFormatVersionWithoutCompatibilityFallback() throws IOException {
+    Path project = materializeCanonicalProject("old-format");
+    ObjectNode deer = (ObjectNode) MAPPER.readTree(project.resolve("deer.json").toFile());
+    deer.put("formatVersion", "0.3");
+    Files.write(project.resolve("deer.json"), MAPPER.writeValueAsBytes(deer));
+
+    ValidationResult result = new ProjectValidationPipeline().validate(project);
+
+    assertIssue(result, IssueCode.FORMAT_VERSION_UNSUPPORTED);
+  }
+
+  @Test
+  void reportsGraphEdgeCapacityThroughFeasibilityValidation() throws IOException {
+    Path project = materializeCanonicalProject("edge-capacity");
+    ObjectNode deer = (ObjectNode) MAPPER.readTree(project.resolve("deer.json").toFile());
+    ArrayNode edges = (ArrayNode) deer.required("riddleGraph").required("edges");
+    while (edges.size() <= 4_096) {
+      ObjectNode edge = edges.addObject();
+      edge.put("from", "n_start");
+      edge.put("to", "n_exit");
+    }
+    Files.write(project.resolve("deer.json"), MAPPER.writeValueAsBytes(deer));
+
+    ValidationResult result = new ProjectValidationPipeline().validate(project);
+
+    assertTrue(
+        result.issues().stream()
+            .anyMatch(
+                issue ->
+                    issue.code() == IssueCode.RUNNER_CAPACITY_EXCEEDED
+                        && issue.path().equals("/riddleGraph/edges")
+                        && issue.arguments().get("kind").equals("graph_edges")));
+  }
+
+  @Test
   void acceptsHyphenatedIdentifiersAndPortableCustomFilenames() throws IOException {
     Path project = materializeCanonicalProject("relaxed-authoring-names");
     String customPath = "assets/custom/3b50ea522803-Foundation Note (1) + Copy.PNG";
@@ -115,7 +160,7 @@ final class ProjectValidationPipelineTest {
         project.resolve("assets/custom/3b50ea522803-foundation-note.png"),
         project.resolve(customPath));
     ObjectNode document = (ObjectNode) MAPPER.readTree(project.resolve("deer.json").toFile());
-    ((ObjectNode) document.required("metadata")).put("id", "wizard-foundation-v0-3");
+    ((ObjectNode) document.required("metadata")).put("id", "wizard-foundation-v0-4");
     ((ObjectNode) document.required("assets").required(0)).put("path", customPath);
     Files.write(project.resolve("deer.json"), MAPPER.writeValueAsBytes(document));
 
@@ -123,7 +168,7 @@ final class ProjectValidationPipelineTest {
 
     assertTrue(result.valid(), result.issues().toString());
     assertEquals(customPath, result.assets().getFirst().logicalPath());
-    assertEquals("wizard-foundation-v0-3", new RoomDeriver().derive(result).definition().id());
+    assertEquals("wizard-foundation-v0-4", new RoomDeriver().derive(result).definition().id());
   }
 
   @Test
@@ -288,7 +333,7 @@ final class ProjectValidationPipelineTest {
   }
 
   @Test
-  void rejectsInvalidGraphEdgesAndNonAdjacentAndConnections() throws IOException {
+  void rejectsInvalidGraphEdges() throws IOException {
     List<GraphMutation> mutations =
         List.of(
             new GraphMutation(
@@ -311,14 +356,24 @@ final class ProjectValidationPipelineTest {
                 IssueCode.GRAPH_EDGE_INVALID,
                 "/riddleGraph/edges/1/to"),
             new GraphMutation(
-                "non-adjacent-and-edge",
+                "unreachable-node",
+                edges -> ((ObjectNode) edges.required(0)).put("to", "n_exit"),
+                IssueCode.GRAPH_NODE_UNREACHABLE,
+                "/riddleGraph/nodes/1"),
+            new GraphMutation(
+                "no-path-to-end",
+                edges -> ((ObjectNode) edges.required(1)).put("from", "n_start"),
+                IssueCode.GRAPH_NODE_NO_PATH_TO_END,
+                "/riddleGraph/nodes/1"),
+            new GraphMutation(
+                "cycle",
                 edges -> {
                   ObjectNode edge = edges.addObject();
-                  edge.put("from", "n_start");
-                  edge.put("to", "n_exit");
+                  edge.put("from", "n_exit");
+                  edge.put("to", "n_exit_code");
                 },
-                IssueCode.GRAPH_PROFILE_INVALID,
-                "/riddleGraph/edges"));
+                IssueCode.GRAPH_CYCLE,
+                "/riddleGraph"));
 
     for (GraphMutation mutation : mutations) {
       Path project = materializeCanonicalProject(mutation.directoryName());
@@ -329,13 +384,69 @@ final class ProjectValidationPipelineTest {
 
       ValidationResult result = new ProjectValidationPipeline().validate(project);
 
-      assertFalse(result.valid());
+      assertFalse(result.valid(), mutation.directoryName() + ": " + result.issues());
       assertTrue(
           result.issues().stream()
               .anyMatch(
-                  issue ->
-                      issue.code() == mutation.code() && issue.path().equals(mutation.path())));
+                  issue -> issue.code() == mutation.code() && issue.path().equals(mutation.path())),
+          mutation.directoryName() + ": " + result.issues());
     }
+  }
+
+  @Test
+  void rejectsIncomingStartAndOutgoingEndWithStableProfileReasons() throws IOException {
+    Path incomingProject = materializeCanonicalProject("start-incoming");
+    ObjectNode incoming =
+        (ObjectNode) MAPPER.readTree(incomingProject.resolve("deer.json").toFile());
+    ArrayNode incomingEdges = (ArrayNode) incoming.required("riddleGraph").required("edges");
+    ObjectNode incomingEdge = incomingEdges.addObject();
+    incomingEdge.put("from", "n_exit_code");
+    incomingEdge.put("to", "n_start");
+    Files.write(incomingProject.resolve("deer.json"), MAPPER.writeValueAsBytes(incoming));
+
+    Path outgoingProject = materializeCanonicalProject("end-outgoing");
+    ObjectNode outgoing =
+        (ObjectNode) MAPPER.readTree(outgoingProject.resolve("deer.json").toFile());
+    ArrayNode outgoingEdges = (ArrayNode) outgoing.required("riddleGraph").required("edges");
+    ObjectNode outgoingEdge = outgoingEdges.addObject();
+    outgoingEdge.put("from", "n_exit");
+    outgoingEdge.put("to", "n_exit_code");
+    Files.write(outgoingProject.resolve("deer.json"), MAPPER.writeValueAsBytes(outgoing));
+
+    assertGraphProfile(
+        new ProjectValidationPipeline().validate(incomingProject), "start_has_incoming");
+    assertGraphProfile(
+        new ProjectValidationPipeline().validate(outgoingProject), "end_has_outgoing");
+  }
+
+  @Test
+  void rejectsDuplicateRiddleNodeBinding() throws IOException {
+    Path project = materializeCanonicalProject("duplicate-riddle-binding");
+    ObjectNode deer = (ObjectNode) MAPPER.readTree(project.resolve("deer.json").toFile());
+    ObjectNode graph = (ObjectNode) deer.required("riddleGraph");
+    ArrayNode nodes = (ArrayNode) graph.required("nodes");
+    ObjectNode duplicateNode = nodes.addObject();
+    duplicateNode.put("id", "n_exit_code_duplicate");
+    duplicateNode.put("kind", "riddle");
+    duplicateNode.put("riddleId", "r_exit_code");
+    ArrayNode edges = (ArrayNode) graph.required("edges");
+    ObjectNode startEdge = edges.addObject();
+    startEdge.put("from", "n_start");
+    startEdge.put("to", "n_exit_code_duplicate");
+    ObjectNode endEdge = edges.addObject();
+    endEdge.put("from", "n_exit_code_duplicate");
+    endEdge.put("to", "n_exit");
+    Files.write(project.resolve("deer.json"), MAPPER.writeValueAsBytes(deer));
+
+    ValidationResult result = new ProjectValidationPipeline().validate(project);
+
+    assertTrue(
+        result.issues().stream()
+            .anyMatch(
+                issue ->
+                    issue.code() == IssueCode.GRAPH_RIDDLE_UNREACHABLE
+                        && issue.path().equals("/riddles/0")
+                        && issue.arguments().get("count").equals(2)));
   }
 
   @Test
@@ -394,7 +505,7 @@ final class ProjectValidationPipelineTest {
   }
 
   private Path materializeCanonicalProject(final String directoryName) throws IOException {
-    Path examples = Path.of("examples", "foundation-v0.3").toAbsolutePath().normalize();
+    Path examples = Path.of("examples", "foundation-v0.4").toAbsolutePath().normalize();
     Path project = Files.createDirectory(temporaryDirectory.resolve(directoryName));
     Path assetDirectory = Files.createDirectories(project.resolve("assets/custom"));
     Files.copy(examples.resolve("deer.json"), project.resolve("deer.json"));
@@ -426,6 +537,18 @@ final class ProjectValidationPipelineTest {
   private static void assertIssue(final ValidationResult result, final IssueCode code) {
     assertFalse(result.valid());
     assertTrue(result.issues().stream().anyMatch(issue -> issue.code() == code));
+  }
+
+  private static void assertGraphProfile(final ValidationResult result, final String reason) {
+    assertFalse(result.valid());
+    assertTrue(
+        result.issues().stream()
+            .anyMatch(
+                issue ->
+                    issue.code() == IssueCode.GRAPH_PROFILE_INVALID
+                        && issue.path().equals("/riddleGraph/nodes")
+                        && issue.arguments().get("reason").equals(reason)),
+        result.issues().toString());
   }
 
   private record GraphMutation(

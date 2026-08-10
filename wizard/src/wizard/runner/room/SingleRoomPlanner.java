@@ -4,20 +4,17 @@ import foundation.room.model.ComponentPlacement;
 import foundation.room.model.RiddlePlacement;
 import foundation.room.model.RoomLayout;
 import foundation.room.model.RoomPoint;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HexFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import wizard.runner.canonical.CanonicalJson;
 import wizard.runner.model.ProjectDefinition;
 import wizard.runner.model.ProjectDefinition.GraphNode;
 import wizard.runner.model.ProjectDefinition.GraphNodeKind;
@@ -37,34 +34,42 @@ final class SingleRoomPlanner {
 
   static Plan planRoom(final ProjectDefinition project) {
     Objects.requireNonNull(project, "project");
-    List<Section> sections = reconstructSections(project);
-    return new Plan(sections, layout(project, sections));
+    List<String> riddleIds = stableRiddleOrder(project);
+    return new Plan(riddleIds, layout(project, riddleIds));
   }
 
-  private static List<Section> reconstructSections(final ProjectDefinition project) {
+  private static List<String> stableRiddleOrder(final ProjectDefinition project) {
     Map<String, GraphNode> nodes = indexNodes(project);
     Map<String, Set<String>> outgoing = outgoing(project);
-    String endNodeId = nodeId(nodes, GraphNodeKind.END);
-    List<String> current = List.of(nodeId(nodes, GraphNodeKind.START));
-    List<Section> sections = new ArrayList<>();
-    while (!current.equals(List.of(endNodeId))) {
-      Set<String> nextIds = new TreeSet<>();
-      current.forEach(nodeId -> nextIds.addAll(outgoing.getOrDefault(nodeId, Set.of())));
-      if (nextIds.isEmpty()) {
-        throw new IllegalStateException("validated graph has no complete path to its end");
+    Map<String, Integer> indegrees = new HashMap<>();
+    Map<String, Integer> distances = new HashMap<>();
+    nodes.keySet().forEach(id -> indegrees.put(id, 0));
+    project.riddleGraph().edges().forEach(edge -> indegrees.merge(edge.to(), 1, Integer::sum));
+    PriorityQueue<String> ready = new PriorityQueue<>(nodeOrder(nodes));
+    indegrees.forEach(
+        (id, count) -> {
+          if (count == 0) {
+            ready.add(id);
+          }
+        });
+    distances.put(nodeId(nodes, GraphNodeKind.START), 0);
+    while (!ready.isEmpty()) {
+      String current = ready.remove();
+      for (String successor : outgoing.getOrDefault(current, Set.of())) {
+        distances.merge(successor, distances.get(current) + 1, Math::max);
+        if (indegrees.merge(successor, -1, Integer::sum) == 0) {
+          ready.add(successor);
+        }
       }
-      List<String> next = canonicalNodeOrder(nextIds, nodes);
-      if (!next.equals(List.of(endNodeId))) {
-        List<String> riddleIds =
-            next.stream()
-                .map(nodeId -> nodes.get(nodeId).riddleId().orElseThrow())
-                .sorted()
-                .toList();
-        sections.add(new Section(sectionId(riddleIds), riddleIds));
-      }
-      current = next;
     }
-    return List.copyOf(sections);
+    return nodes.values().stream()
+        .filter(node -> node.kind() == GraphNodeKind.RIDDLE)
+        .sorted(
+            Comparator.comparingInt((GraphNode node) -> distances.get(node.id()))
+                .thenComparing(node -> node.riddleId().orElseThrow())
+                .thenComparing(GraphNode::id))
+        .map(node -> node.riddleId().orElseThrow())
+        .toList();
   }
 
   private static String nodeId(
@@ -93,22 +98,12 @@ final class SingleRoomPlanner {
     return outgoing;
   }
 
-  private static List<String> canonicalNodeOrder(
-      final Set<String> nodeIds, final Map<String, GraphNode> nodes) {
-    return nodeIds.stream()
-        .sorted(
-            Comparator.comparing((String id) -> nodes.get(id).riddleId().orElse("\uffff"))
-                .thenComparing(Comparator.naturalOrder()))
-        .toList();
+  private static Comparator<String> nodeOrder(final Map<String, GraphNode> nodes) {
+    return Comparator.comparing((String id) -> nodes.get(id).riddleId().orElse(""))
+        .thenComparing(Comparator.naturalOrder());
   }
 
-  private static String sectionId(final List<String> riddleIds) {
-    return "section_" + sha256(CanonicalJson.encode(riddleIds)).substring(0, 56);
-  }
-
-  private static RoomLayout layout(final ProjectDefinition project, final List<Section> sections) {
-    List<String> riddleIds =
-        sections.stream().flatMap(section -> section.riddleIds().stream()).toList();
+  private static RoomLayout layout(final ProjectDefinition project, final List<String> riddleIds) {
     Map<String, Riddle> riddles = indexRiddles(project);
     int placementCount =
         riddleIds.stream()
@@ -174,21 +169,7 @@ final class SingleRoomPlanner {
     return riddles;
   }
 
-  private static String sha256(final String source) {
-    return HexFormat.of().formatHex(digest(source.getBytes(StandardCharsets.UTF_8)));
-  }
-
-  private static byte[] digest(final byte[] source) {
-    try {
-      return MessageDigest.getInstance("SHA-256").digest(source);
-    } catch (NoSuchAlgorithmException exception) {
-      throw new IllegalStateException("SHA-256 is unavailable", exception);
-    }
-  }
-
-  record Plan(List<Section> sections, RoomLayout layout) {}
-
-  record Section(String id, List<String> riddleIds) {}
+  record Plan(List<String> riddleIds, RoomLayout layout) {}
 
   private record ComponentSpec(String componentId, String surfaceId) {}
 }

@@ -1,4 +1,4 @@
-# Frontend Handoff V0.3
+# Frontend Handoff V0.4
 
 Status: Runtime-Vertrag implementiert; Frontend noch nicht implementiert
 
@@ -52,7 +52,7 @@ ein separates Serverartefakt ist nicht erforderlich.
    Semantik.
 4. [`runner-project-format.md`](runner-project-format.md) definiert
    Finalisierung, Assets und das Validierungsinterface.
-5. [`../../examples/foundation-v0.3/`](../../examples/foundation-v0.3/) ist
+5. [`../../examples/foundation-v0.4/`](../../examples/foundation-v0.4/) ist
    das kanonische ausführbare Beispiel.
 
 Multiplayer und Spielruntime sind kein Frontend-Auftrag. Ihre Grenze steht in
@@ -89,7 +89,10 @@ abgefragt. Die UI leitet daraus stabile Surfaces der geschlossenen Arten
 Bindungen ab. Der technische Begriff „Surface“ und die IDs bleiben verborgen.
 Ein Computer ist noch keine Surface-Art des aktiven Profils. Die UI bietet
 weder ein Output-/Effektfeld noch OR-Regeln an; Progression und Ausgang gehören
-allein dem abgeleiteten Rätselgraphen.
+allein dem abgeleiteten mandatory AND-Rätselgraphen. Der einfache sichtbare
+Stage-Modus bleibt ein Authoring-Teilprofil. Falls die UI später explizite
+Abhängigkeiten anbietet, bedeutet „verfügbar nach ...“ bei mehreren
+ausgewählten Aufgaben, dass alle ausgewählten Aufgaben erforderlich sind.
 
 ## Draft- und Storage-Port
 
@@ -106,7 +109,7 @@ muss aber eine eigene Versionskennung besitzen und mindestens erhalten:
 - Zeitpunkt und Zustand der letzten Speicherung und Finalisierung.
 
 Ein unbekanntes Draftformat wird verständlich abgelehnt und nicht teilweise
-geladen. V0.3 benötigt keine Migration zwischen Draftversionen.
+geladen. V0.4 benötigt keine Migration zwischen Draftversionen.
 
 Der native Host-Adapter stellt der Web-UI genau diese logischen Operationen
 bereit; konkrete Methodennamen dürfen dem verwendeten Stack folgen:

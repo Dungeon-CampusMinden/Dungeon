@@ -1,6 +1,6 @@
-# deer.json Specification V0.3
+# deer.json Specification V0.4
 
-Status: kanonischer implementierter Contract für `formatVersion=0.3`
+Status: kanonischer implementierter Contract für `formatVersion=0.4`
 
 ## 1. Rolle und Lebenszyklus
 
@@ -30,7 +30,7 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 
 ```json
 {
-  "formatVersion": "0.3",
+  "formatVersion": "0.4",
   "seed": 123456789,
   "metadata": {},
   "learningDesign": {},
@@ -45,7 +45,7 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 
 | Feld | Zweck |
 |---|---|
-| `formatVersion` | Exakt `0.3`. |
+| `formatVersion` | Exakt `0.4`. |
 | `seed` | Stabiler Layout-Seed als Ganzzahl von `0` bis `9007199254740991`. |
 | `metadata` | Stabile Projekt-ID, Titel, Inhaltssprache und optionale redaktionelle Angaben. |
 | `learningDesign` | Lernziele und Fragen zur Nachbesprechung. |
@@ -88,8 +88,8 @@ interpretiert der aktuelle Foundation-Runner bewusst nicht.
 
 ```json
 {
-  "id": "wizard_foundation_v0_3",
-  "title": "Foundation Beispielraum V0.3",
+  "id": "wizard_foundation_v0_4",
+  "title": "Foundation Beispielraum V0.4",
   "locale": "de-DE",
   "description": "Kleiner Foundation-Slice.",
   "author": "Beispiel Lehrkraft"
@@ -201,18 +201,14 @@ einem früheren Raum liegen als der zugehörige Input, ohne das Rätselmodell zu
 
 ## 6. riddleGraph
 
-Der Graph beschreibt die strukturelle Progression. Der aktuelle Vertrag
-akzeptiert das aus geordneten Abschnitten ableitbare AND-Profil:
-
-1. Start hat Kanten zu allen Rätseln des ersten Abschnitts.
-2. Jedes Rätsel eines Abschnitts hat Kanten zu jedem Rätsel des nächsten
-   Abschnitts.
-3. Mehrere eingehende Kanten markieren die gemeinsame Abhängigkeit von allen
-   Vorgängern.
-4. Alle Rätsel des letzten Abschnitts haben Kanten zum Ende.
-
-Rätsel innerhalb eines Abschnitts sind parallel, bleiben aber Pflichträtsel.
-OR-Verzweigungen und optionale Pfade sind nicht darstellbar.
+Der Graph beschreibt die strukturelle Progression als beliebigen endlichen
+azyklischen Graphen verpflichtender AND-Abhängigkeiten. Jede direkte Kante
+`A -> B` bedeutet, dass `A` eine notwendige Voraussetzung von `B` ist. Bei
+mehreren eingehenden Kanten müssen alle direkten Vorgänger erfüllt sein.
+Jeder Knoten muss den einzigen Endknoten erreichen; deshalb bleiben sämtliche
+Rätsel verpflichtend. Vollständige geordnete Abschnittsgraphen sind ein
+gültiger einfacher Teilfall. OR-Verzweigungen, optionale oder bedingte Pfade,
+mehrere Ausgänge und mehrere Räume sind nicht darstellbar.
 
 Der Graph ist die einzige Progressionsquelle. Jedes Rätsel durchläuft
 serverautoritativ und monoton `LOCKED -> ACTIVE -> SOLVED`. Vor dem
@@ -239,7 +235,7 @@ Semantische Pflichtregeln:
 - jeder Knoten ist vom Start erreichbar und kann das Ende erreichen;
 - der Graph ist azyklisch;
 - `riddles[]` und Riddle-Knoten bilden eine Bijektion;
-- die Kanten entsprechen vollständig dem geordneten Abschnittsprofil;
+- die Zahl der Kanten überschreitet die Runner-Kapazität von 4096 nicht;
 - die `surfaceId` des Endknotens verweist auf die Door-Surface.
 
 Der Endknoten besitzt allein die durch `surfaceId` referenzierte Ausgangstür.
@@ -458,9 +454,17 @@ Reihenfolge, Platzierungen und Runtime-Interaktionen. Er erzeugt generische
 Informationsquellen-, Collection- und Code-Interaktionen und übernimmt die
 End-Surface-Identität authentisch in Tür und Ausgang.
 
+Für die Präsentations- und Single-Room-Platzierungsreihenfolge sortiert der
+Runner Rätsel zuerst nach der längsten Vorgängerdistanz vom Start, dann nach
+der stabilen authorierten Rätsel-ID und zuletzt nach der Knoten-ID. Diese
+abgeleitete Ordnung ist reine Layoutmetadaten: Sie ergänzt, entfernt oder
+verkürzt keine Progressionskante. Gleiche validierte Topologie und gleicher
+Seed ergeben unabhängig von Node-, Edge- oder Riddle-Array-Reihenfolge dasselbe
+Layout.
+
 Host und Clients verwenden die vollständige DEER-Konfiguration mit Seed,
 Lösungen, Texten und Assetreferenzen sowie die verifizierten Custom-Assets als
-lokale Ableitungseingabe. V0.3 verspricht daher keine lokale
+lokale Ableitungseingabe. V0.4 verspricht daher keine lokale
 Antwortgeheimhaltung.
 
 Der Host bleibt alleinige Autorität für Rätselzustände, akzeptierten
@@ -497,8 +501,8 @@ Die semantische Prüfung ist auf dokumentübergreifende Regeln begrenzt:
   Informationsquellen und Inputs sowie existierende Referenzen auf Surfaces,
   Graphknoten, Rätsel und Assets;
 - `session.playerCount.min <= session.playerCount.max`;
-- Graphreichweite, Azyklizität, Rätsel-Bijektion und vollständiges
-  Abschnittsprofil;
+- Graphreichweite, Azyklizität, Rätsel-Bijektion und die mandatory
+  AND-Abhängigkeiten;
 - unbekannte oder inkompatible Surface-Referenzen;
 - genau eine World- und Door-Surface;
 - genau eine Informationsquelle je Container-Surface und genau ein Input je

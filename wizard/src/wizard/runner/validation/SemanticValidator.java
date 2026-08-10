@@ -5,14 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import wizard.runner.contract.ContractCapabilities;
 import wizard.runner.contract.IssueCode;
 import wizard.runner.contract.IssueCollector;
@@ -50,6 +48,12 @@ final class SemanticValidator {
   private void validateCapacities(final ProjectDefinition project, final IssueCollector issues) {
     capacity(
         "riddles", project.riddles().size(), ContractCapabilities.MAX_RIDDLES, "/riddles", issues);
+    capacity(
+        "graph_edges",
+        project.riddleGraph().edges().size(),
+        ContractCapabilities.MAX_GRAPH_EDGES,
+        "/riddleGraph/edges",
+        issues);
     int resources =
         project.riddles().stream()
             .flatMap(riddle -> riddle.informationSources().stream())
@@ -266,9 +270,6 @@ final class SemanticValidator {
               "/riddleGraph"));
       return;
     }
-    if (reachable.size() == nodes.size() && toEnd.size() == nodes.size()) {
-      validateAndProfile(start.id(), end.id(), nodes, edges, incoming, issues);
-    }
   }
 
   private static void validateSurfaces(
@@ -423,59 +424,6 @@ final class SemanticValidator {
               "/riddleGraph/nodes/" + endIndex + "/surfaceId",
               "graph_node",
               end.id()));
-    }
-  }
-
-  private static void validateAndProfile(
-      final String startId,
-      final String endId,
-      final List<GraphNode> nodes,
-      final List<GraphEdge> edges,
-      final Map<String, List<String>> incoming,
-      final IssueCollector issues) {
-    Map<String, Integer> depths = new HashMap<>();
-    depths.put(startId, 0);
-    boolean changed = true;
-    while (changed) {
-      changed = false;
-      for (GraphNode node : nodes) {
-        if (depths.containsKey(node.id())) {
-          continue;
-        }
-        List<String> predecessors = incoming.getOrDefault(node.id(), List.of());
-        if (!predecessors.isEmpty() && predecessors.stream().allMatch(depths::containsKey)) {
-          int depth = predecessors.stream().mapToInt(depths::get).max().orElseThrow() + 1;
-          depths.put(node.id(), depth);
-          changed = true;
-        }
-      }
-    }
-    if (depths.size() != nodes.size()) {
-      graphProfile("not_layered", "/riddleGraph", issues);
-      return;
-    }
-    int endDepth = depths.get(endId);
-    Map<Integer, Set<String>> layers = new HashMap<>();
-    depths.forEach(
-        (id, depth) -> layers.computeIfAbsent(depth, ignored -> new LinkedHashSet<>()).add(id));
-    if (layers.size() != endDepth + 1
-        || !layers.getOrDefault(0, Set.of()).equals(Set.of(startId))
-        || !layers.getOrDefault(endDepth, Set.of()).equals(Set.of(endId))) {
-      graphProfile("boundary_layers", "/riddleGraph", issues);
-      return;
-    }
-    Set<String> actual =
-        edges.stream().map(edge -> edge.from() + "\u0000" + edge.to()).collect(Collectors.toSet());
-    Set<String> expected = new HashSet<>();
-    for (int depth = 0; depth < endDepth; depth++) {
-      for (String from : layers.getOrDefault(depth, Set.of())) {
-        for (String to : layers.getOrDefault(depth + 1, Set.of())) {
-          expected.add(from + "\u0000" + to);
-        }
-      }
-    }
-    if (!actual.equals(expected)) {
-      graphProfile("not_complete_ordered_sections", "/riddleGraph/edges", issues);
     }
   }
 

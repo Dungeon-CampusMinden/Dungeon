@@ -292,8 +292,7 @@ public final class ServerGameBinding {
     }
     if (serverBinding.gameplayReady(player)) {
       List<ReleasedHint> released =
-          serverBinding.projection().sections().stream()
-              .flatMap(section -> section.riddles().stream())
+          serverBinding.projection().riddles().stream()
               .filter(riddle -> riddle.id().equals(riddleId))
               .findFirst()
               .map(riddle -> riddle.releasedHints())
@@ -371,8 +370,8 @@ public final class ServerGameBinding {
   private static Map<String, NumericInputDefinition> indexNumericDefinitions(
       final RoomDefinition definition) {
     Map<String, NumericInputDefinition> indexed = new LinkedHashMap<>();
-    definition.sections().stream()
-        .flatMap(section -> section.riddles().stream())
+    definition.progression().riddleNodes().stream()
+        .map(node -> node.riddle())
         .flatMap(riddle -> riddle.inputs().stream())
         .filter(NumericInputDefinition.class::isInstance)
         .map(NumericInputDefinition.class::cast)

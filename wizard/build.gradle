@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'de.fhbielefeld.dungeon.wizard'
-version = '0.3'
+version = '0.4'
 
 application {
     mainClass = 'wizard.runner.RunnerCli'
@@ -69,7 +69,7 @@ def embeddedTestProjectResources =
     layout.buildDirectory.dir('generated-test-resources/embedded-project')
 def mergedServiceResources =
     layout.buildDirectory.dir('generated-resources/wizard-room-services')
-def canonicalTestProject = layout.projectDirectory.dir('examples/foundation-v0.3')
+def canonicalTestProject = layout.projectDirectory.dir('examples/foundation-v0.4')
 
 def resolveWizardProject = {
     if (!wizardProjectProperty.isPresent()) {

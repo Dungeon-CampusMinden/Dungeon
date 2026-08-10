@@ -8,37 +8,21 @@ import java.util.Optional;
 /**
  * Detached player-visible projection of coherent Foundation authority state.
  *
- * @param sections sections and riddles in definition order
+ * @param riddles riddles in deterministic definition order
  * @param timer authoritative timer state
  * @param doorOpen whether the common exit door is open
  * @param terminal immutable terminal result when present
  */
 public record Projection(
-    List<SectionView> sections,
+    List<RiddleView> riddles,
     TimerView timer,
     boolean doorOpen,
     Optional<TerminalResult> terminal) {
   /** Creates a deeply immutable projection. */
   public Projection {
-    sections = List.copyOf(Objects.requireNonNull(sections, "sections"));
+    riddles = List.copyOf(Objects.requireNonNull(riddles, "riddles"));
     Objects.requireNonNull(timer, "timer");
     terminal = Objects.requireNonNull(terminal, "terminal");
-  }
-
-  /**
-   * Public status for one ordered mandatory section.
-   *
-   * @param id stable section identifier
-   * @param status active or completed status
-   * @param riddles ordered riddle projections
-   */
-  public record SectionView(String id, ProgressStatus status, List<RiddleView> riddles) {
-    /** Creates an immutable section view. */
-    public SectionView {
-      Objects.requireNonNull(id, "id");
-      Objects.requireNonNull(status, "status");
-      riddles = List.copyOf(Objects.requireNonNull(riddles, "riddles"));
-    }
   }
 
   /**
@@ -119,13 +103,13 @@ public record Projection(
     TERMINAL
   }
 
-  /** Ordered-section or riddle progression state. */
+  /** Riddle progression state. */
   public enum ProgressStatus {
-    /** The section or riddle cannot yet accept progress. */
+    /** The riddle cannot yet accept progress. */
     LOCKED,
-    /** The mandatory section or riddle accepts progress. */
+    /** The mandatory riddle accepts progress. */
     ACTIVE,
-    /** The section or riddle has completed all inputs. */
+    /** The riddle has completed all inputs. */
     SOLVED
   }
 }

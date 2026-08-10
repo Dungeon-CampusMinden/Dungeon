@@ -23,7 +23,7 @@ final class RunnerExampleSmokeTest {
 
   @Test
   void embeddedCommittedExampleReachesJoinBootstrap() {
-    Path committedProject = Path.of("examples", "foundation-v0.3").toAbsolutePath().normalize();
+    Path committedProject = Path.of("examples", "foundation-v0.4").toAbsolutePath().normalize();
     DisposableRunnerRuntime.run(
         runtime -> {
           Path embeddedProject = EmbeddedProjectMaterializer.materialize(runtime);

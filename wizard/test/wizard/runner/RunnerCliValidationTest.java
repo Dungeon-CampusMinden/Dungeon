@@ -40,7 +40,7 @@ final class RunnerCliValidationTest {
     assertEquals("", result.standardError());
     JsonNode report = MAPPER.readTree(result.standardOutput());
     assertEquals("validate", report.required("command").textValue());
-    assertEquals("0.3", report.required("runnerVersion").textValue());
+    assertEquals("0.4", report.required("runnerVersion").textValue());
     assertTrue(report.required("valid").booleanValue());
     assertTrue(report.required("issues").isEmpty());
     assertEquals(64, report.required("hostInputSha256").textValue().length());
@@ -136,7 +136,7 @@ final class RunnerCliValidationTest {
   }
 
   private Path materializeCanonicalProject(final String name) throws IOException {
-    Path examples = Path.of("examples", "foundation-v0.3").toAbsolutePath().normalize();
+    Path examples = Path.of("examples", "foundation-v0.4").toAbsolutePath().normalize();
     Path project = Files.createDirectory(temporaryDirectory.resolve(name));
     Path assetDirectory = Files.createDirectories(project.resolve("assets/custom"));
     Files.copy(examples.resolve("deer.json"), project.resolve("deer.json"));
