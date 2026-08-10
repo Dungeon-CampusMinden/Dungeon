@@ -33,14 +33,22 @@ public record ValidationResult(
     model = Objects.requireNonNull(model, "model");
     assets = List.copyOf(Objects.requireNonNull(assets, "assets"));
     issues = List.copyOf(Objects.requireNonNull(issues, "issues"));
-    if (valid != (model.isPresent() && hostInputSha256.isPresent())) {
-      throw new IllegalArgumentException("valid must match model and host hash presence");
+    if (valid != model.isPresent()) {
+      throw new IllegalArgumentException("model must be present exactly when valid");
+    }
+    if (valid != hostInputSha256.isPresent()) {
+      throw new IllegalArgumentException("host input hash must be present exactly when valid");
     }
     if (!valid && !assets.isEmpty()) {
       throw new IllegalArgumentException("invalid results must not expose verified assets");
     }
-    if (valid && issues.stream().anyMatch(issue -> issue.severity() == ValidationSeverity.ERROR)) {
+    boolean hasErrors =
+        issues.stream().anyMatch(issue -> issue.severity() == ValidationSeverity.ERROR);
+    if (valid && hasErrors) {
       throw new IllegalArgumentException("valid results must not contain error issues");
+    }
+    if (!valid && !hasErrors) {
+      throw new IllegalArgumentException("invalid results must contain at least one error issue");
     }
   }
 }

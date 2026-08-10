@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -28,7 +29,7 @@ final class ProjectValidationPipelineTest {
   @TempDir Path temporaryDirectory;
 
   @Test
-  void validatesTheCanonicalPublicProject() throws IOException {
+  void validatesTheCanonicalPublicProjectAndResultContract() throws IOException {
     Path project = materializeCanonicalProject();
 
     ValidationResult result = new ProjectValidationPipeline().validate(project);
@@ -65,6 +66,45 @@ final class ProjectValidationPipelineTest {
     assertArrayEquals(
         Files.readAllBytes(project.resolve(result.assets().get(0).logicalPath())),
         result.assets().get(0).bytes());
+    Path invalidProject = materializeCanonicalProject("invalid-result");
+    ObjectNode invalidDocument =
+        (ObjectNode) MAPPER.readTree(invalidProject.resolve("deer.json").toFile());
+    invalidDocument.remove("seed");
+    Files.write(invalidProject.resolve("deer.json"), MAPPER.writeValueAsBytes(invalidDocument));
+    ValidationResult invalid = new ProjectValidationPipeline().validate(invalidProject);
+
+    assertFalse(invalid.valid());
+    assertTrue(invalid.rawDeerSha256().isPresent());
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ValidationResult(
+                false,
+                invalid.rawDeerSha256(),
+                Optional.empty(),
+                result.model(),
+                List.of(),
+                invalid.issues()));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ValidationResult(
+                false,
+                invalid.rawDeerSha256(),
+                result.hostInputSha256(),
+                Optional.empty(),
+                List.of(),
+                invalid.issues()));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ValidationResult(
+                false,
+                invalid.rawDeerSha256(),
+                Optional.empty(),
+                Optional.empty(),
+                List.of(),
+                List.of()));
   }
 
   @Test
