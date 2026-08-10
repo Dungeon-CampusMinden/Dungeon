@@ -2,11 +2,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.zip.ZipFile
 
-plugins {
-    id 'java-library'
-}
-
-group = 'de.fhbielefeld.dungeon.wizard'
 version = '0.4'
 
 dependencies {
