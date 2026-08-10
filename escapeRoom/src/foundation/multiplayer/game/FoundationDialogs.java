@@ -227,6 +227,7 @@ public final class FoundationDialogs {
     RichLabel label =
         new RichLabel(RichLabel.toRichText(text), DialogDesign.DIALOG_FONT_SPEC_NORMAL);
     label.setWrap(true);
+    label.setMaxPrefWidth(CONTENT_WIDTH);
     Table labelTable = new Table();
     labelTable.top().left();
     labelTable.add(label).growX();
