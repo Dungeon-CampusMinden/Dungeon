@@ -34,13 +34,8 @@ public final class LastHourAchievements {
 
   /** Registers The Last Hour achievement definitions and event hooks. */
   public static void register() {
-    registerDefinitions();
-    registerComputerHooks();
-  }
-
-  /** Registers The Last Hour achievement definitions. */
-  public static void registerDefinitions() {
     AchievementManager.registerAchievements(DEFINITION_PATH, STATUS_PATH);
+    registerComputerHooks();
   }
 
   /** Registers achievement hooks for Last Hour computer interactions. */
