@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.HeadlessDialogGroup;
@@ -69,7 +70,7 @@ public final class AchievementPopup {
     card.pad(14f);
 
     Image icon = new Image(texture(imagePath));
-    icon.setScaling(com.badlogic.gdx.utils.Scaling.fit);
+    icon.setScaling(Scaling.fit);
     Label header =
         Scene2dElementFactory.createLabel(
             TRANS.text(T_UNLOCKED), FontSpec.of(TITLE_FONT, 18, Color.DARK_GRAY));

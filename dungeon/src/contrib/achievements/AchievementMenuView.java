@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import contrib.hud.UIUtils;
 import core.language.Translation;
 import core.utils.FontSpec;
@@ -125,7 +126,7 @@ public final class AchievementMenuView extends Table {
     Color textColor = unlocked ? TEXT : LOCKED_TEXT;
 
     Image icon = new Image(iconDrawable(achievement.imagePath(), unlocked));
-    icon.setScaling(com.badlogic.gdx.utils.Scaling.fit);
+    icon.setScaling(Scaling.fit);
 
     Label nameLabel =
         Scene2dElementFactory.createLabel(name, FontSpec.of(TITLE_FONT, 24, textColor));
