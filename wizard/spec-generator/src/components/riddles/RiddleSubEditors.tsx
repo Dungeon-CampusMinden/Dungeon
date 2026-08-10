@@ -140,7 +140,7 @@ export function ResourceListEditor({
       {resources.length === 0 && (
         <span className="text-sm text-muted-foreground">Noch kein Material hinterlegt.</span>
       )}
-      <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 lg:grid-cols-2">
         {resources.map((resource, index) => (
           <div
             key={resource.id}
