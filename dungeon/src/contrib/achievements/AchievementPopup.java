@@ -55,13 +55,13 @@ public final class AchievementPopup {
         localized(
             ctx.find(KEY_DESCRIPTION_KEY, String.class).orElse(""),
             ctx.require(KEY_DESCRIPTION, String.class));
+    if (Game.isHeadless()) {
+      return new HeadlessDialogGroup("Achievement unlocked", name + "\n" + description);
+    }
+
     boolean newlyUnlocked = AchievementManager.markUnlockedFromPopup(achievementId);
     if (!newlyUnlocked) {
       return new HeadlessDialogGroup();
-    }
-
-    if (Game.isHeadless()) {
-      return new HeadlessDialogGroup("Achievement unlocked", name + "\n" + description);
     }
 
     Table card = new Table(UIUtils.defaultSkin());
