@@ -41,6 +41,13 @@ import org.junit.jupiter.api.Test;
 final class MultiplayerSessionTest {
   @Test
   void startsAtMinimumAndDoesNotPauseAcrossDisconnectOrLateJoin() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new RosterDefinition(
+                List.of(
+                    new RosterSlotDefinition("slot_1", 1), new RosterSlotDefinition("slot_3", 3))));
+
     MultiplayerSession session = session(2, 3);
     session.reconcileClients(List.of(observation(1)));
     assertTrue(session.introEligiblePlayerEntities().isEmpty());

@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * Ordered player capacity used by one Foundation session.
  *
- * @param slots one to four stable slots in strictly ascending one-based slot order
+ * @param slots one to four stable slots numbered consecutively from one in list order
  */
 public record RosterDefinition(List<RosterSlotDefinition> slots) {
   /** Creates an ordered player-capacity definition. */
@@ -20,12 +20,11 @@ public record RosterDefinition(List<RosterSlotDefinition> slots) {
         != slots.size()) {
       throw new IllegalArgumentException("roster slot identifiers must be unique");
     }
-    int previousNumber = 0;
-    for (RosterSlotDefinition slot : slots) {
-      if (slot.number() <= previousNumber) {
-        throw new IllegalArgumentException("roster slots must be ordered by unique slot number");
+    for (int index = 0; index < slots.size(); index++) {
+      if (slots.get(index).number() != index + 1) {
+        throw new IllegalArgumentException(
+            "roster slots must be consecutively numbered from 1 in list order");
       }
-      previousNumber = slot.number();
     }
   }
 }
