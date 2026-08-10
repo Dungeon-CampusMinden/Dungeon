@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -54,7 +55,7 @@ public class DungeonLoader {
   private static final List<Tuple<String, Class<? extends DungeonLevel>>> levelOrder =
       new ArrayList<>();
   private static int currentLevel = -1;
-  private static int currentVariant = 0;
+  private static OptionalInt currentVariant = OptionalInt.empty();
   private static IVoidFunction afterAllLevels =
       () -> {
         System.out.println("Game Over!");
@@ -182,8 +183,9 @@ public class DungeonLoader {
     }
 
     // Random Level Variant Path
-    currentVariant = RANDOM.nextInt(levelVariants.size());
-    IPath levelPath = new SimpleIPath(levelVariants.get(currentVariant));
+    int variant = RANDOM.nextInt(levelVariants.size());
+    currentVariant = OptionalInt.of(variant);
+    IPath levelPath = new SimpleIPath(levelVariants.get(variant));
 
     return DungeonLoader.loadFromPath(levelPath);
   }
@@ -232,16 +234,17 @@ public class DungeonLoader {
   /**
    * Loads an already constructed level under a registered logical level name.
    *
-   * <p>This overload performs no resource lookup, variant selection, parsing, or event dispatch.
-   * Both arguments and the registered level name are validated before the current logical level is
-   * changed.
+   * <p>This method performs no resource lookup, variant selection, or parsing. It installs the
+   * supplied instance through {@link Game#currentLevel(ILevel)}, which triggers the normal
+   * level-load callback of an installed LevelSystem. Both arguments and the registered level name
+   * are validated before the current logical level is changed.
    *
    * @param levelName The already registered logical name of the level.
    * @param level The exact in-memory level instance to install.
    * @throws NullPointerException If {@code levelName} or {@code level} is {@code null}.
    * @throws MissingLevelException If {@code levelName} is not registered.
    */
-  public static void loadLevel(String levelName, DungeonLevel level) {
+  public static void loadInMemoryLevel(String levelName, DungeonLevel level) {
     String requiredName = Objects.requireNonNull(levelName, "levelName");
     DungeonLevel requiredLevel = Objects.requireNonNull(level, "level");
     int registeredIndex = registeredLevelIndex(requiredName);
@@ -250,6 +253,7 @@ public class DungeonLoader {
     }
 
     currentLevel = registeredIndex;
+    currentVariant = OptionalInt.empty();
     Game.currentLevel(requiredLevel);
   }
 
@@ -280,7 +284,7 @@ public class DungeonLoader {
       throw new MissingLevelException(levelName);
     }
 
-    currentVariant = variant;
+    currentVariant = OptionalInt.of(variant);
     IPath levelPath = new SimpleIPath(levelVariants.get(variant));
     Game.currentLevel(DungeonLoader.loadFromPath(levelPath));
 
@@ -322,15 +326,22 @@ public class DungeonLoader {
   }
 
   /**
-   * Reloads the current level with the current variant.
+   * Reloads the current resource-backed level with the current variant.
    *
-   * <p>This method is useful for resetting the level state without changing the level itself.
+   * <p>In-memory levels have no resource variant to reconstruct and therefore cannot be reloaded.
+   *
+   * @throws IllegalStateException If the current level was installed in memory.
    */
   public static void reloadCurrentLevel() {
     if (currentLevel < 0 || currentLevel >= levelOrder.size()) {
       throw new IndexOutOfBoundsException("Current level index is out of bounds: " + currentLevel);
     }
-    loadLevel(levelOrder.get(currentLevel).a(), currentVariant);
+    int variant =
+        currentVariant.orElseThrow(
+            () ->
+                new IllegalStateException(
+                    "Cannot reload an in-memory level without a resource variant"));
+    loadLevel(levelOrder.get(currentLevel).a(), variant);
   }
 
   /**
@@ -343,11 +354,11 @@ public class DungeonLoader {
   }
 
   /**
-   * Returns the current variant index of the level.
+   * Returns the resource variant index of the current level, if one exists.
    *
-   * @return The current variant index of the level.
+   * @return The resource variant index, or empty for an in-memory or cleared level.
    */
-  public static int currentVariantIndex() {
+  public static OptionalInt currentVariantIndex() {
     return currentVariant;
   }
 
@@ -396,12 +407,12 @@ public class DungeonLoader {
   /**
    * Clears all levels from the DungeonLoader.
    *
-   * <p>This method resets the level order, current level index, and current variant index.
+   * <p>This method resets the level order, current level index, and current variant presence.
    */
   public static void clearLevels() {
     LEVELS.clear();
     levelOrder.clear();
     currentLevel = -1;
-    currentVariant = 0;
+    currentVariant = OptionalInt.empty();
   }
 }

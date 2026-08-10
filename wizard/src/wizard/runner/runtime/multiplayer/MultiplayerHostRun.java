@@ -161,7 +161,7 @@ public final class MultiplayerHostRun {
 
   private void prepareLevel() {
     requiredLevelSystem();
-    DungeonLoader.loadLevel(GENERIC_LEVEL_NAME, level);
+    DungeonLoader.loadInMemoryLevel(GENERIC_LEVEL_NAME, level);
   }
 
   private void install() {

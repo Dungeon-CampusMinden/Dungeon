@@ -1,6 +1,7 @@
 package core.systems;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
@@ -22,6 +23,7 @@ import core.level.elements.tile.ExitTile;
 import core.level.loader.DungeonLoader;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.components.draw.TextureMap;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -85,6 +87,7 @@ public class LevelSystemTest {
   @AfterEach
   public void cleanup() {
     Game.currentLevel(null);
+    DungeonLoader.clearLevels();
     Game.removeAllEntities();
     Game.removeAllSystems();
     textureMockedConstruction.close();
@@ -147,15 +150,21 @@ public class LevelSystemTest {
   }
 
   /**
-   * Tests that setting a level via loadLevel correctly sets the current level and triggers the
-   * onLevelLoader callback.
+   * Tests that setting a registered in-memory level correctly sets the current level, triggers the
+   * onLevelLoader callback, and models the absent resource variant.
    */
   @Test
   public void test_setLevel() {
-    api.loadLevel(level);
+    DungeonLoader.addLevel(new Tuple<>("in-memory", DungeonLevel.class));
+    DungeonLoader.loadInMemoryLevel("in-memory", (DungeonLevel) level);
     api.onEndTile(() -> api.loadLevel(level));
     verify(onLevelLoader).execute();
     Mockito.verifyNoMoreInteractions(onLevelLoader);
     assertEquals(level, LevelSystem.level().get());
+    assertTrue(DungeonLoader.currentVariantIndex().isEmpty());
+    IllegalStateException exception =
+        assertThrows(IllegalStateException.class, DungeonLoader::reloadCurrentLevel);
+    assertEquals(
+        "Cannot reload an in-memory level without a resource variant", exception.getMessage());
   }
 }
