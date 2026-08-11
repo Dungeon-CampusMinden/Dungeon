@@ -308,7 +308,7 @@ final class ProjectValidationPipelineTest {
   }
 
   @Test
-  void enforcesSupportedValuesAndTheSafeIntegerSeedBoundary() throws IOException {
+  void enforcesSupportedValuesAndSafeIntegerBoundaries() throws IOException {
     Path unknownTypeProject = materializeCanonicalProject("unknown-type");
     ObjectNode unknownType =
         (ObjectNode) MAPPER.readTree(unknownTypeProject.resolve("deer.json").toFile());
@@ -339,6 +339,26 @@ final class ProjectValidationPipelineTest {
     excessiveSeed.put("seed", 9_007_199_254_740_992L);
     Files.write(excessiveSeedProject.resolve("deer.json"), MAPPER.writeValueAsBytes(excessiveSeed));
 
+    Path maximumEstimatedMinutesProject = materializeCanonicalProject("maximum-estimated-minutes");
+    ObjectNode maximumEstimatedMinutes =
+        (ObjectNode) MAPPER.readTree(maximumEstimatedMinutesProject.resolve("deer.json").toFile());
+    ((ObjectNode) maximumEstimatedMinutes.required("riddles").required(0))
+        .put("estimatedMinutes", 9_007_199_254_740_991L);
+    Files.write(
+        maximumEstimatedMinutesProject.resolve("deer.json"),
+        MAPPER.writeValueAsBytes(maximumEstimatedMinutes));
+
+    Path excessiveEstimatedMinutesProject =
+        materializeCanonicalProject("excessive-estimated-minutes");
+    ObjectNode excessiveEstimatedMinutes =
+        (ObjectNode)
+            MAPPER.readTree(excessiveEstimatedMinutesProject.resolve("deer.json").toFile());
+    ((ObjectNode) excessiveEstimatedMinutes.required("riddles").required(0))
+        .put("estimatedMinutes", 9_007_199_254_740_992L);
+    Files.write(
+        excessiveEstimatedMinutesProject.resolve("deer.json"),
+        MAPPER.writeValueAsBytes(excessiveEstimatedMinutes));
+
     Path textualSeedProject = materializeCanonicalProject("textual-seed");
     ObjectNode textualSeed =
         (ObjectNode) MAPPER.readTree(textualSeedProject.resolve("deer.json").toFile());
@@ -366,6 +386,12 @@ final class ProjectValidationPipelineTest {
                 maximumSeedModel.riddles(),
                 maximumSeedModel.assets()));
     assertOnlySchemaIssues(new ProjectValidationPipeline().validate(excessiveSeedProject));
+    ValidationResult maximumEstimatedMinutesResult =
+        new ProjectValidationPipeline().validate(maximumEstimatedMinutesProject);
+    assertTrue(
+        maximumEstimatedMinutesResult.valid(), maximumEstimatedMinutesResult.issues().toString());
+    assertOnlySchemaIssues(
+        new ProjectValidationPipeline().validate(excessiveEstimatedMinutesProject));
     assertOnlySchemaIssues(new ProjectValidationPipeline().validate(textualSeedProject));
   }
 

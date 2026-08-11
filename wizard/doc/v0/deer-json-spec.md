@@ -252,7 +252,7 @@ Gemeinsame Pflichtfelder:
 | `id` | stabile Rätsel-ID und Anker der deterministischen Runtime-Ableitung |
 | `title` | Authoring-Label; bleibt im DEER-Projekt, wird aktuell nicht angezeigt |
 | `learningObjectiveIds` | mindestens eine Authoring-Referenz auf ein Lernziel |
-| `estimatedMinutes` | verpflichtende redaktionelle Zeitschätzung |
+| `estimatedMinutes` | verpflichtende redaktionelle Zeitschätzung als Ganzzahl von `1` bis `9007199254740991` |
 | `difficulty` | optionale redaktionelle Schwierigkeit |
 | `informationSources` | null oder mehr Informationsquellen |
 | `inputs` | mindestens ein Input; alle Inputs sind mit AND verknüpft |

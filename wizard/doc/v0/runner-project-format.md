@@ -221,7 +221,7 @@ Die Produktionsvalidierung liefert einen deterministischen
 `ProjectValidationReport`. Die Authoring-Integration ruft die Java-Bibliothek
 direkt auf. Der interne Gradle-Packaging-Schritt gibt denselben Report als
 kanonisches JSON aus und schlägt bei ungültigem oder nicht ableitbarem Input
-fehl; dann wird kein Spielerartefakt erzeugt.
+fehl; dann wird kein neues Spielerartefakt erzeugt.
 
 [`project-validation-report.schema.json`](project-validation-report.schema.json)
 ist der maschinenlesbare Vertrag des Reports. Jeder Report enthält:
