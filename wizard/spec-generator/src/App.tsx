@@ -24,6 +24,8 @@ import {
   type TouchedTabs,
 } from "./data/TabTouchState";
 import React from "react";
+import { ButtonGroup } from "./components/ui/button-group";
+import { Button } from "./components/ui/button";
 
 function App() {
   const [deerSchema, setDeerSchema] = useLocalStorage<DeerSchema>("schema", schema as DeerSchema);
@@ -44,11 +46,33 @@ function App() {
     setDeerSchema(JSON.parse(JSON.stringify(updatedSchema)));
   };
 
+  const importSchema = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      importSchemaFromFile(file, setDeerSchema);
+    };
+    input.click();
+  };
+
   const hasTouchedAllTabs = Object.values(touchedTabs).every((touched) => touched);
 
   return (
     <div className="h-screen overflow-scroll max-w-7xl mx-auto bg-background p-4 lg:border-x border-[var(--border-color)]">
-      <h1 className="text-3xl font-bold mb-4 text-center">Dungeon Spec Generator</h1>
+      <div className="grid grid-cols-[1fr_auto] mb-4">
+        <h1 className="text-3xl font-bold text-center">Dungeon Spec Generator</h1>
+        <ButtonGroup className="mt-0">
+          <Button variant="outline" onClick={importSchema}>
+            Import
+          </Button>
+          <Button variant="outline" onClick={() => exportSchema(deerSchema)}>
+            Export
+          </Button>
+        </ButtonGroup>
+      </div>
       <div className={`grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 max-w-full`}>
         <div className="lg:sticky lg:top-0 flex flex-col gap-4">
           <SidebarNavigation issueReport={issueReport} touchedTabs={touchedTabs} tab={tab} setTab={setTab} />
@@ -104,3 +128,27 @@ function Layout() {
 }
 
 export default Layout;
+
+function exportSchema(schema: DeerSchema) {
+  const dataStr = JSON.stringify(schema, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "deer-schema.json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function importSchemaFromFile(file: File, setDeerSchema: (schema: DeerSchema) => void) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const importedSchema = JSON.parse(e.target?.result as string);
+      setDeerSchema(importedSchema);
+    } catch (error) {
+      console.error("Fehler beim Importieren des Schemas:", error);
+    }
+  };
+  reader.readAsText(file);
+}
