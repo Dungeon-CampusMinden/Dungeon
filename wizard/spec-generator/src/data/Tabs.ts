@@ -6,5 +6,6 @@ export const TABS = [
   { value: "assets", label: "Eigene Bilder & Dateien" },
   { value: "riddles", label: "Rätsel" },
   { value: "riddle_graph", label: "Spielablauf" },
+  { value: "game_end", label: "Spiel-Ende" },
   { value: "review", label: "Prüfen & Generieren" },
 ] as const;

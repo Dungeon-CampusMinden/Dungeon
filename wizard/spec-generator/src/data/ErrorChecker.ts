@@ -21,6 +21,7 @@ export const VALIDATED_TAB_IDS = [
   "assets",
   "riddles",
   "riddle_graph",
+  "game_end",
 ] as const;
 
 export type ValidatedTabId = (typeof VALIDATED_TAB_IDS)[number];
@@ -192,7 +193,7 @@ export class ErrorChecker {
     }
 
     this.requireTexts(
-      "metadata",
+      "game_end",
       "debriefPrompts",
       learningDesign.debriefPrompts,
       "Es muss mindestens eine Debrief-Frage geben.",
@@ -222,7 +223,7 @@ export class ErrorChecker {
       "Intro-Texte dürfen nicht leer sein.",
     );
     this.requireTexts(
-      "scenario",
+      "game_end",
       "successText",
       scenario.successText,
       "Es muss mindestens einen Text für den erfolgreichen Abschluss geben.",
@@ -231,7 +232,7 @@ export class ErrorChecker {
     // Only a hard time limit can actually lead to a failure.
     if (deerSchema.session.time.limitMode === "hard") {
       this.requireTexts(
-        "scenario",
+        "game_end",
         "failureText",
         scenario.failureText,
         "Es muss mindestens einen Text für den Misserfolg geben.",

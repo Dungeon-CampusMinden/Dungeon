@@ -12,7 +12,7 @@ import {
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Util } from "@/data/Util";
-import { ObjectListStringEditor, StringListEditor } from "./StringListEditor";
+import { ObjectListStringEditor } from "./StringListEditor";
 
 export function MetadataTab({
   deerSchema,
@@ -85,17 +85,6 @@ export function MetadataTab({
               }}
               produceItem={() => ({ id: Util.generateUniqueId(), description: "" })}
               useTextarea
-              preventEmpty
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Debrief Prompts</FieldLabel>
-            <StringListEditor
-              value={deerSchema.learningDesign.debriefPrompts}
-              onChange={(newValue) => {
-                deerSchema.learningDesign.debriefPrompts = newValue;
-                updateDeerSchema(deerSchema);
-              }}
               preventEmpty
             />
           </Field>

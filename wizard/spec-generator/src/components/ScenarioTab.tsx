@@ -76,30 +76,6 @@ export function ScenarioTab({
               preventEmpty
             />
           </Field>
-          <Field>
-            <FieldLabel>Texte bei erfolgreichem Abschluss</FieldLabel>
-            <StringListEditor
-              value={deerSchema.scenario.successText}
-              onChange={(newValue) => {
-                deerSchema.scenario.successText = newValue;
-                updateDeerSchema(deerSchema);
-              }}
-              useTextarea
-              preventEmpty
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Texte bei Misserfolg</FieldLabel>
-            <StringListEditor
-              value={deerSchema.scenario.failureText}
-              onChange={(newValue) => {
-                deerSchema.scenario.failureText = newValue;
-                updateDeerSchema(deerSchema);
-              }}
-              useTextarea
-              preventEmpty
-            />
-          </Field>
         </FieldGroup>
       </FieldSet>
     </div>

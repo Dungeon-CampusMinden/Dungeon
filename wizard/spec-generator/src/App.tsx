@@ -13,6 +13,7 @@ import { SurfacesTab } from "./components/SurfacesTab";
 import { AssetsTab } from "./components/AssetsTab";
 import { RiddlesTab } from "./components/RiddlesTab";
 import { RiddleGraphTab } from "./components/RiddleGraphTab";
+import { GameEndTab } from "./components/GameEndTab";
 import { ReviewTab } from "./components/ReviewTab";
 import { InPageNavigation } from "./components/InPageNavigation";
 import { useErrorCheck } from "./hooks/useErrorCheck";
@@ -69,6 +70,7 @@ function App() {
           {tab === "riddle_graph" && (
             <RiddleGraphTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />
           )}
+          {tab === "game_end" && <GameEndTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
           {tab === "review" && (
             <ReviewTab
               deerSchema={deerSchema}
