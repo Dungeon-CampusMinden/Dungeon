@@ -14,8 +14,6 @@ import {
   isBundledAssetPath,
   type AssetSelection,
 } from "./assets/assetPaths";
-import { Separator } from "./ui/separator";
-import { AssetSelector } from "./assets/AssetSelector";
 
 export function AssetsTab({
   deerSchema,
@@ -27,7 +25,6 @@ export function AssetsTab({
   const assetList = deerSchema.assets;
   const [addOpen, setAddOpen] = React.useState(false);
   const [storageRevision, setStorageRevision] = React.useState(0);
-  const [selectedAssetId, setSelectedAssetId] = React.useState<string>("");
   const previews = useAssetPreviews(assetList, storageRevision);
 
   /** Writes the selected content to the given asset id and returns the resulting path/mediaType. */
@@ -131,10 +128,6 @@ export function AssetsTab({
           ))}
         </div>
       )}
-
-      <Separator className="my-4" />
-      <p className="mb-2">Testauswahl</p>
-      <AssetSelector items={assetList} value={selectedAssetId} onChange={setSelectedAssetId} allowEmpty />
     </div>
   );
 }

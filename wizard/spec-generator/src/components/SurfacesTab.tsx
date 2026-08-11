@@ -5,8 +5,6 @@ import { CircleQuestionMarkIcon, PlusIcon, SquareDashedIcon, TrashIcon } from "l
 import { CustomIcon } from "./CustomIcon";
 import { Button } from "./ui/button";
 import { Util } from "@/data/Util";
-import React from "react";
-import { Separator } from "./ui/separator";
 
 const SURFACE_TYPES = [
   { value: "world", icon: <SquareDashedIcon />, description: "Ein Raum in der Welt", label: "Raum" },
@@ -23,7 +21,6 @@ export function SurfacesTab({
   updateDeerSchema: (updatedSchema: DeerSchema) => void;
 }) {
   const surfaces = deerSchema.surfaces;
-  const [testSelectedId, setTestSelectedId] = React.useState<string | null>(null);
 
   const addSurface = () => {
     const newSurface: Surface = {
@@ -63,15 +60,6 @@ export function SurfacesTab({
           />
         ))}
       </div>
-      <Separator className="my-4" />
-      <h3>Testauswahl</h3>
-      <SurfaceSelector
-        items={surfaces}
-        value={testSelectedId ?? ""}
-        onChange={(newValue) => {
-          setTestSelectedId(newValue);
-        }}
-      />
     </div>
   );
 }
