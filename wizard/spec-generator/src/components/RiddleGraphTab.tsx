@@ -287,16 +287,38 @@ function useGraphRiddleSync(
   updateRef: React.RefObject<(updatedSchema: DeerSchema) => void>,
 ) {
   React.useEffect(() => {
+    // Reconcile against the latest mutable schema so repeated mount effects remain idempotent.
+    const schema = schemaRef.current;
+    const currentNodes = schema.riddleGraph.nodes;
     const riddleIds = new Set(riddles.map((riddle) => riddle.id));
-    const mappedRiddleIds = new Set(
-      graph.nodes.filter((node) => node.kind === "riddle").map((node) => node.riddleId),
-    );
-    const staleNodes = graph.nodes.filter((node) => node.kind === "riddle" && !riddleIds.has(node.riddleId));
-    const missingRiddles = riddles.filter((riddle) => !mappedRiddleIds.has(riddle.id));
-    const hasStartNode = graph.nodes.some((node) => node.kind === "start");
-    if (staleNodes.length === 0 && missingRiddles.length === 0 && hasStartNode) return;
+    const canonicalNodeIds = new Map<string, string>();
+    const staleNodeIds = new Set<string>();
+    const duplicateNodeIds = new Map<string, string>();
+    const retainedNodes = currentNodes.filter((node) => {
+      if (node.kind !== "riddle") return true;
+      if (!riddleIds.has(node.riddleId)) {
+        staleNodeIds.add(node.id);
+        return false;
+      }
+      const canonicalNodeId = canonicalNodeIds.get(node.riddleId);
+      if (canonicalNodeId !== undefined) {
+        duplicateNodeIds.set(node.id, canonicalNodeId);
+        return false;
+      }
+      canonicalNodeIds.set(node.riddleId, node.id);
+      return true;
+    });
+    const missingRiddles = riddles.filter((riddle) => !canonicalNodeIds.has(riddle.id));
+    const hasStartNode = currentNodes.some((node) => node.kind === "start");
+    if (
+      staleNodeIds.size === 0 &&
+      duplicateNodeIds.size === 0 &&
+      missingRiddles.length === 0 &&
+      hasStartNode
+    ) {
+      return;
+    }
 
-    const staleNodeIds = new Set(staleNodes.map((node) => node.id));
     const newNodes: AnyGraphNode[] = missingRiddles.map((riddle) => ({
       id: Util.generateUniqueId("n"),
       kind: "riddle",
@@ -306,14 +328,24 @@ function useGraphRiddleSync(
       newNodes.unshift({ id: Util.generateUniqueId("n"), kind: "start" });
     }
 
-    const schema = schemaRef.current;
     schema.riddleGraph.nodes = [
-      ...schema.riddleGraph.nodes.filter((node) => !staleNodeIds.has(node.id)),
+      ...retainedNodes,
       ...newNodes,
     ];
-    schema.riddleGraph.edges = schema.riddleGraph.edges.filter(
-      (edge) => !staleNodeIds.has(edge.from) && !staleNodeIds.has(edge.to),
-    );
+    const edgeKeys = new Set<string>();
+    schema.riddleGraph.edges = schema.riddleGraph.edges
+      .filter((edge) => !staleNodeIds.has(edge.from) && !staleNodeIds.has(edge.to))
+      .map((edge) => ({
+        from: duplicateNodeIds.get(edge.from) ?? edge.from,
+        to: duplicateNodeIds.get(edge.to) ?? edge.to,
+      }))
+      .filter((edge) => edge.from !== edge.to)
+      .filter((edge) => {
+        const key = `${edge.from}->${edge.to}`;
+        if (edgeKeys.has(key)) return false;
+        edgeKeys.add(key);
+        return true;
+      });
     updateRef.current(schema);
   }, [graph, riddles, schemaRef, updateRef]);
 }
