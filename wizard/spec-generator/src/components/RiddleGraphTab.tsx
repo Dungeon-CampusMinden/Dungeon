@@ -88,9 +88,21 @@ function RiddleGraphEditor({
     if (positions !== storedLayout) setLayout(positions);
   }, [positions, storedLayout, setLayout]);
 
+  const onEndSurfaceChange = React.useCallback((nodeId: string, surfaceId: string) => {
+    const schema = schemaRef.current;
+    const node = schema.riddleGraph.nodes.find((candidate) => candidate.id === nodeId && candidate.kind === "end");
+    if (!node || node.kind !== "end") return;
+
+    node.surfaceId = surfaceId;
+    updateRef.current(schema);
+  }, []);
+
   const flowNodes = React.useMemo<GraphFlowNode[]>(
-    () => graph.nodes.map((node) => toFlowNode(node, positions, riddles, surfaces, setEditingRiddleId)),
-    [graph, positions, riddles, surfaces],
+    () =>
+      graph.nodes.map((node) =>
+        toFlowNode(node, positions, riddles, surfaces, setEditingRiddleId, onEndSurfaceChange),
+      ),
+    [graph, positions, riddles, surfaces, onEndSurfaceChange],
   );
 
   React.useEffect(() => setNodes(flowNodes), [flowNodes, setNodes]);
@@ -234,6 +246,7 @@ function toFlowNode(
   riddles: Riddle[],
   surfaces: Surface[],
   onEditRiddle: (riddleId: string) => void,
+  onEndSurfaceChange: (nodeId: string, surfaceId: string) => void,
 ): GraphFlowNode {
   const position = positions[node.id] ?? { x: 0, y: 0 };
   switch (node.kind) {
@@ -247,7 +260,8 @@ function toFlowNode(
         deletable: false,
         data: {
           surfaceId: node.surfaceId,
-          surface: surfaces.find((surface) => surface.id === node.surfaceId),
+          surfaces,
+          onSurfaceChange: (surfaceId) => onEndSurfaceChange(node.id, surfaceId),
         },
       };
     case "riddle":

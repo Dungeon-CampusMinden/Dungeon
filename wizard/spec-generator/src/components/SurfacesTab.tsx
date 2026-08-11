@@ -187,18 +187,22 @@ export function SurfaceSelector({
         onChange(newValue ?? "");
       }}
     >
-      <SelectTrigger className="">
+      <SelectTrigger className="w-full min-w-0 max-w-full">
         <SelectValue
           placeholder="Wähle einen Ort"
           render={(props, selectValue) => {
             const surface = items.find((item) => item.id === selectValue.value);
             if (!surface) {
-              return <span {...props}>Unbekannter Ort</span>;
+              return (
+                <span {...props} className="min-w-0 flex-1 truncate">
+                  Unbekannter Ort
+                </span>
+              );
             }
             return (
-              <div className="flex items-center gap-2" {...props}>
+              <div {...props} className="flex min-w-0 flex-1 items-center gap-2">
                 <SurfaceIcon kind={surface.kind} size={20} />
-                <span>{surface.title}</span>
+                <span className="min-w-0 flex-1 truncate">{surface.title}</span>
               </div>
             );
           }}

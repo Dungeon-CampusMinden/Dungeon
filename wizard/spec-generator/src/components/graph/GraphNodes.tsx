@@ -3,7 +3,6 @@ import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import {
   CircleQuestionMarkIcon,
   ClockIcon,
-  DoorOpenIcon,
   FlagIcon,
   PencilIcon,
   PlayIcon,
@@ -11,9 +10,14 @@ import {
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { getRiddleDifficulty } from "../riddles/riddleTypes";
+import { SurfaceSelector } from "../SurfacesTab";
 
 export type StartNodeData = { label?: string };
-export type EndNodeData = { surfaceId: string; surface: Surface | undefined };
+export type EndNodeData = {
+  surfaceId: string;
+  surfaces: Surface[];
+  onSurfaceChange: (surfaceId: string) => void;
+};
 export type RiddleNodeData = { riddleId: string; riddle: Riddle | undefined; onEdit: () => void };
 
 export type GraphFlowNode =
@@ -45,9 +49,12 @@ export function EndFlowNode({ data, selected }: NodeProps<Node<EndNodeData, "end
         <FlagIcon size={16} className="text-blue-500" />
         <span className="text-sm font-medium">Ende</span>
       </div>
-      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-        <DoorOpenIcon size={12} />
-        <span className="truncate">{data.surface?.title ?? `Unbekannter Ort: ${data.surfaceId}`}</span>
+      <div className="nodrag nopan mt-1 w-full min-w-0 max-w-full">
+        <SurfaceSelector
+          items={data.surfaces}
+          value={data.surfaceId}
+          onChange={data.onSurfaceChange}
+        />
       </div>
       <Handle type="target" position={Position.Top} className={HANDLE_CLASS} />
     </div>
