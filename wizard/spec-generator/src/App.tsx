@@ -14,6 +14,7 @@ import { AssetsTab } from "./components/AssetsTab";
 import { RiddlesTab } from "./components/RiddlesTab";
 import { RiddleGraphTab } from "./components/RiddleGraphTab";
 import { ReviewTab } from "./components/ReviewTab";
+import { InPageNavigation } from "./components/InPageNavigation";
 import { useErrorCheck } from "./hooks/useErrorCheck";
 import {
   createUntouchedTabs,
@@ -75,6 +76,7 @@ function App() {
               issueReport={issueReport}
             />
           )}
+          <InPageNavigation tab={tab} setTab={setTab} />
         </div>
         <ErrorDetector
           deerSchema={deerSchema}

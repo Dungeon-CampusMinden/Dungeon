@@ -2,17 +2,7 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { CircleAlertIcon, CircleCheckIcon, CircleIcon, CircleXIcon, InfoIcon } from "lucide-react";
 import { ErrorChecker, type IssueReport, type IssueSeverity } from "@/data/ErrorChecker";
 import { isTabTouched, type TouchedTabs } from "@/data/TabTouchState";
-
-const TABS = [
-  { value: "metadata", label: "Eckdaten & Lernziel" },
-  { value: "scenario", label: "Geschichte" },
-  { value: "session", label: "Spieleinstellungen" },
-  { value: "surfaces", label: "Orte" },
-  { value: "assets", label: "Eigene Bilder & Dateien" },
-  { value: "riddles", label: "Rätsel" },
-  { value: "riddle_graph", label: "Spielablauf" },
-  { value: "review", label: "Prüfen & Generieren" },
-];
+import { TABS } from "@/data/Tabs";
 
 /** Tabs that only present content and are therefore never validated. */
 const UNVALIDATED_TABS = ["review"];
