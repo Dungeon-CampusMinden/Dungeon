@@ -10,8 +10,8 @@ export type GraphLayout = Record<string, NodePosition>;
 
 export const GRAPH_LAYOUT_STORAGE_KEY = "riddleGraphLayout";
 
-const COLUMN_WIDTH = 280;
-const ROW_HEIGHT = 160;
+const COLUMN_WIDTH = 260;
+const ROW_HEIGHT = 120;
 
 const buildOutgoing = (edges: GraphEdge[]) => {
   const outgoing = new Map<string, string[]>();
