@@ -1,13 +1,5 @@
 package wizard.runner.input;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.StreamReadFeature;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -29,6 +21,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import wizard.runner.contract.ContractCapabilities;
 import wizard.runner.contract.IssueCode;
 import wizard.runner.contract.IssueCollector;
@@ -244,8 +244,8 @@ public final class ProjectInputReader {
     JsonNode root;
     try {
       root = MAPPER.readTree(json);
-    } catch (JsonParseException exception) {
-      boolean duplicate = exception.getOriginalMessage().startsWith("Duplicate field ");
+    } catch (StreamReadException exception) {
+      boolean duplicate = exception.getOriginalMessage().startsWith("Duplicate Object property ");
       issues.add(
           issue(
               duplicate ? IssueCode.JSON_DUPLICATE_KEY : IssueCode.JSON_PARSE_INVALID,
@@ -255,7 +255,7 @@ public final class ProjectInputReader {
               Map.of(),
               ""));
       return Optional.empty();
-    } catch (IOException exception) {
+    } catch (JacksonException exception) {
       issues.add(
           issue(IssueCode.JSON_PARSE_INVALID, "validation.input.json_parse_invalid", Map.of(), ""));
       return Optional.empty();
@@ -286,14 +286,14 @@ public final class ProjectInputReader {
   private void validateFormat(final JsonNode root, final IssueCollector issues) {
     JsonNode format = root.get("formatVersion");
     Set<String> supported = ContractCapabilities.DEER_FORMAT_VERSIONS;
-    if (format == null || !format.isTextual() || !supported.contains(format.textValue())) {
+    if (format == null || !format.isString() || !supported.contains(format.stringValue())) {
       String actual =
           format == null
               ? "missing"
-              : format.isTextual()
-                  ? hasUnpairedSurrogate(format.textValue())
+              : format.isString()
+                  ? hasUnpairedSurrogate(format.stringValue())
                       ? "invalid_unicode"
-                      : format.textValue()
+                      : format.stringValue()
                   : format.getNodeType().name().toLowerCase();
       issues.add(
           issue(
@@ -310,8 +310,8 @@ public final class ProjectInputReader {
 
   private void validateUnicode(
       final JsonNode node, final String pointer, final IssueCollector issues) {
-    if (node.isTextual()) {
-      if (hasUnpairedSurrogate(node.textValue())) {
+    if (node.isString()) {
+      if (hasUnpairedSurrogate(node.stringValue())) {
         issues.add(
             issue(
                 IssueCode.JSON_UNICODE_INVALID,
@@ -384,7 +384,6 @@ public final class ProjectInputReader {
     JsonFactory factory =
         JsonFactory.builder().enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
     return JsonMapper.builder(factory)
-        .nodeFactory(new JsonNodeFactory(true))
         .enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)
         .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
         .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)

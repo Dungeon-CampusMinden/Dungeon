@@ -5,9 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,6 +12,9 @@ import java.nio.file.Path;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import wizard.runner.report.ProjectValidationReport;
 import wizard.runner.room.RoomDeriver;
 import wizard.runner.validation.ProjectValidationPipeline;
@@ -37,9 +37,9 @@ final class ProjectValidationReportTest {
     JsonNode report = report(validation);
 
     assertTrue(report.required("valid").booleanValue());
-    assertEquals("0.4", report.required("runnerVersion").textValue());
-    assertEquals(64, report.required("rawDeerSha256").textValue().length());
-    assertEquals(64, report.required("hostInputSha256").textValue().length());
+    assertEquals("0.4", report.required("runnerVersion").stringValue());
+    assertEquals(64, report.required("rawDeerSha256").stringValue().length());
+    assertEquals(64, report.required("hostInputSha256").stringValue().length());
     assertTrue(report.required("issues").isEmpty());
     assertFalse(report.has("command"));
     assertFalse(report.has("generatorVersion"));
@@ -67,7 +67,7 @@ final class ProjectValidationReportTest {
 
     assertFalse(report.required("valid").booleanValue());
     assertTrue(hasIssue(report, "SCHEMA_INVALID"));
-    assertTrue(report.required("rawDeerSha256").isTextual());
+    assertTrue(report.required("rawDeerSha256").isString());
     assertTrue(report.required("hostInputSha256").isNull());
     assertEquals(firstReport, secondReport);
     assertArrayEquals(deerBefore, Files.readAllBytes(project.resolve("deer.json")));
@@ -135,7 +135,7 @@ final class ProjectValidationReportTest {
 
   private static Optional<JsonNode> findIssue(final JsonNode report, final String code) {
     for (JsonNode issue : report.required("issues")) {
-      if (code.equals(issue.required("code").textValue())) {
+      if (code.equals(issue.required("code").stringValue())) {
         return Optional.of(issue);
       }
     }

@@ -1,6 +1,5 @@
 package wizard.runner.validation;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
@@ -9,6 +8,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 import wizard.runner.contract.IssueCode;
 import wizard.runner.contract.IssueCollector;
 import wizard.runner.contract.ValidationIssue;

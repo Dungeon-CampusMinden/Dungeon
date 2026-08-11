@@ -14,8 +14,8 @@ ext {
     jk1licenseVersion = '3.1.4'
     gdxControllersVersion = '2.2.4'
     beryxRuntimeVersion = '2.0.1'
-    jacksonVersion = '2.21.3'
-    jsonSchemaValidatorVersion = '2.0.1'
+    jacksonVersion = '3.1.4'
+    jsonSchemaValidatorVersion = '3.0.6'
     jsonCanonicalizationVersion = '1.1'
 
 
@@ -40,7 +40,7 @@ ext {
         mockito_core              : "org.mockito:mockito-core:$mockitoVersion",
 
         // JSON validation and canonicalization
-        jackson_databind          : "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+        jackson_databind          : "tools.jackson.core:jackson-databind:$jacksonVersion",
         json_schema_validator     : "com.networknt:json-schema-validator:$jsonSchemaValidatorVersion",
         json_canonicalization     : "io.github.erdtman:java-json-canonicalization:$jsonCanonicalizationVersion",
 

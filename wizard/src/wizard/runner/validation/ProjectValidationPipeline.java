@@ -1,12 +1,12 @@
 package wizard.runner.validation;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import foundation.room.model.VerifiedAsset;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 import wizard.runner.asset.AssetVerifier;
 import wizard.runner.canonical.HostInputIdentity;
 import wizard.runner.contract.IssueCode;

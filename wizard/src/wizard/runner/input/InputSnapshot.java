@@ -1,10 +1,10 @@
 package wizard.runner.input;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 import wizard.runner.contract.ValidationIssue;
 
 /** Immutable result of resolving and strictly reading one Wizard project input. */

@@ -1,11 +1,11 @@
 package wizard.runner.canonical;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.Objects;
+import tools.jackson.databind.JsonNode;
 
 /** Computes the deterministic identity of a complete validated DEER document. */
 public final class HostInputIdentity {

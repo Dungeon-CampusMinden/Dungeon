@@ -1,12 +1,12 @@
 package wizard.runner.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import foundation.definition.HintSeverity;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import tools.jackson.databind.JsonNode;
 import wizard.runner.model.ProjectDefinition.Asset;
 import wizard.runner.model.ProjectDefinition.CollectionInput;
 import wizard.runner.model.ProjectDefinition.GraphEdge;
@@ -135,7 +135,7 @@ public final class ProjectDefinitionMapper {
 
   private static List<String> textArray(final JsonNode array) {
     return IntStream.range(0, array.size())
-        .mapToObj(index -> array.get(index).textValue())
+        .mapToObj(index -> array.get(index).stringValue())
         .toList();
   }
 
@@ -146,12 +146,12 @@ public final class ProjectDefinitionMapper {
   }
 
   private static String text(final JsonNode node, final String key) {
-    return node.get(key).textValue();
+    return node.get(key).stringValue();
   }
 
   private static Optional<String> optionalText(final JsonNode node, final String key) {
     JsonNode value = node.get(key);
-    return value == null ? Optional.empty() : Optional.of(value.textValue());
+    return value == null ? Optional.empty() : Optional.of(value.stringValue());
   }
 
   private static Optional<List<String>> optionalTextArray(final JsonNode node, final String key) {
