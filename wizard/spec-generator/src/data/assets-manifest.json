@@ -1,0 +1,2694 @@
+[
+  {
+    "path": "/character",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/character/blue_knight",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/character/blue_knight/blue_knight.png",
+            "type": "file",
+            "license": "/character/blue_knight/blue_knight.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/character/char03",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/character/char03/char03.png",
+            "type": "file",
+            "license": "/character/char03/char03.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/character/knight",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/character/knight/knight.png",
+            "type": "file",
+            "license": "/character/knight/knight.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/character/monster",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/character/monster/big_daemon",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/big_daemon/big_daemon.png",
+                "type": "file",
+                "license": "/character/monster/big_daemon/big_daemon.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/big_zombie",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/big_zombie/big_zombie.png",
+                "type": "file",
+                "license": "/character/monster/big_zombie/big_zombie.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/chort",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/chort/chort.png",
+                "type": "file",
+                "license": "/character/monster/chort/chort.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/doc",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/doc/doc.png",
+                "type": "file",
+                "license": "/character/monster/doc/doc.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/elemental_goo",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/elemental_goo/elemental_goo.png",
+                "type": "file",
+                "license": "/character/monster/elemental_goo/elemental_goo.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/elemental_goo_small",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/elemental_goo_small/elemental_goo_small.png",
+                "type": "file",
+                "license": "/character/monster/elemental_goo_small/elemental_goo_small.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/goblin",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/goblin/goblin.png",
+                "type": "file",
+                "license": "/character/monster/goblin/goblin.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/ice_zombie",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/ice_zombie/ice_zombie.png",
+                "type": "file",
+                "license": "/character/monster/ice_zombie/ice_zombie.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/imp",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/imp/imp.png",
+                "type": "file",
+                "license": "/character/monster/imp/imp.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/necromancer",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/necromancer/necromancer.png",
+                "type": "file",
+                "license": "/character/monster/necromancer/necromancer.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/ogre",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/ogre/ogre.png",
+                "type": "file",
+                "license": "/character/monster/ogre/ogre.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/orc_shaman",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/orc_shaman/orc_shaman.png",
+                "type": "file",
+                "license": "/character/monster/orc_shaman/orc_shaman.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/orc_warrior",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/orc_warrior/orc_warrior.png",
+                "type": "file",
+                "license": "/character/monster/orc_warrior/orc_warrior.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/pumpkin_dude",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/pumpkin_dude/pumpkin_dude.png",
+                "type": "file",
+                "license": "/character/monster/pumpkin_dude/pumpkin_dude.license.md"
+              }
+            ]
+          },
+          {
+            "path": "/character/monster/zombie",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/character/monster/zombie/zombie.png",
+                "type": "file",
+                "license": "/character/monster/zombie/zombie.license.md"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "/character/rogue",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/character/rogue/rogue.png",
+            "type": "file",
+            "license": "/character/rogue/rogue.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/character/wizard",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/character/wizard/wizard.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "path": "/cursors",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/cursors/bracket_a_vertical.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/cursors/cross_small.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/cursors/cursor_alias.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/cursors/cursor_disabled.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/cursors/pointer_a.png",
+        "type": "file",
+        "license": "/cursors/pointer_a.license.md"
+      },
+      {
+        "path": "/cursors/pointer_l.png",
+        "type": "file",
+        "license": null
+      }
+    ]
+  },
+  {
+    "path": "/emotes",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/emotes/emote_alert.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_anger.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_bars.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_blank.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_cash.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_circle.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_cloud.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_cross.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_dots1.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_dots2.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_dots3.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_drop.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_drops.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_exclamation.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_exclamations.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_faceAngry.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_faceHappy.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_faceSad.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_heart.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_heartBroken.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_hearts.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_idea.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_laugh.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_music.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_question.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_sleep.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_sleeps.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_star.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_stars.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      },
+      {
+        "path": "/emotes/emote_swirl.png",
+        "type": "file",
+        "license": "/emotes/emote_.license.md"
+      }
+    ]
+  },
+  {
+    "path": "/fonts",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/fonts/Doto_Rounded-ExtraBold.ttf",
+        "type": "file",
+        "license": "/fonts/Doto_Rounded-ExtraBold.license.md"
+      },
+      {
+        "path": "/fonts/Lexend-Bold.ttf",
+        "type": "file",
+        "license": "/fonts/Lexend.license.md"
+      },
+      {
+        "path": "/fonts/Lexend-Regular.ttf",
+        "type": "file",
+        "license": "/fonts/Lexend.license.md"
+      },
+      {
+        "path": "/fonts/Roboto-Bold.ttf",
+        "type": "file",
+        "license": "/fonts/Roboto.license.md"
+      },
+      {
+        "path": "/fonts/Roboto-Regular.ttf",
+        "type": "file",
+        "license": "/fonts/Roboto.license.md"
+      },
+      {
+        "path": "/fonts/Roboto-SemiBold.ttf",
+        "type": "file",
+        "license": "/fonts/Roboto.license.md"
+      }
+    ]
+  },
+  {
+    "path": "/hud",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/hud/button",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/hud/button/button_hover.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/hud/button/button_idle.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/hud/button/button_press.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/hud/check.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/hud/cross.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/hud/empty.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/hud/exit_clear_hovered.png",
+        "type": "file",
+        "license": "/hud/exit_clear.license.md"
+      },
+      {
+        "path": "/hud/exit_clear.png",
+        "type": "file",
+        "license": "/hud/exit_clear.license.md"
+      },
+      {
+        "path": "/hud/input",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/hud/input/flairs.png",
+            "type": "file",
+            "license": "/hud/input/flairs.license.md"
+          },
+          {
+            "path": "/hud/input/keyboard_mouse.png",
+            "type": "file",
+            "license": "/hud/input/keyboard_mouse.license.md"
+          },
+          {
+            "path": "/hud/input/playstation.png",
+            "type": "file",
+            "license": "/hud/input/playstation.license.md"
+          },
+          {
+            "path": "/hud/input/touch.png",
+            "type": "file",
+            "license": "/hud/input/touch.license.md"
+          },
+          {
+            "path": "/hud/input/xbox.png",
+            "type": "file",
+            "license": "/hud/input/xbox.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/hud/kenney",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/hud/kenney/chess_king.png",
+            "type": "file",
+            "license": "/hud/kenney/chess_king.license.md"
+          },
+          {
+            "path": "/hud/kenney/flag_square.png",
+            "type": "file",
+            "license": "/hud/kenney/flag_square.license.md"
+          },
+          {
+            "path": "/hud/kenney/skull.png",
+            "type": "file",
+            "license": "/hud/kenney/skull.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/hud/ui_heart_empty.png",
+        "type": "file",
+        "license": "/hud/ui_heart_empty.license.md"
+      },
+      {
+        "path": "/hud/ui_heart_full.png",
+        "type": "file",
+        "license": "/hud/ui_heart_full.license.md"
+      },
+      {
+        "path": "/hud/ui_heart_half.png",
+        "type": "file",
+        "license": "/hud/ui_heart_half.license.md"
+      },
+      {
+        "path": "/hud/white.png",
+        "type": "file",
+        "license": null
+      }
+    ]
+  },
+  {
+    "path": "/items",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/items/armor",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/armor/body",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/items/armor/body/bear_armor.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/body/chainmail_armor.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/body/chicken_armor.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/body/pink_armor.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/body/plate_armor.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/body/undead_armor.png",
+                "type": "file",
+                "license": null
+              }
+            ]
+          },
+          {
+            "path": "/items/armor/helmet",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/items/armor/helmet/bear_helmet.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/helmet/chainmail_helmet.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/helmet/chicken_helmet.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/helmet/pink_helmet.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/helmet/plate_helmet.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/helmet/undead_helmet.png",
+                "type": "file",
+                "license": null
+              }
+            ]
+          },
+          {
+            "path": "/items/armor/pants",
+            "type": "directory",
+            "entries": [
+              {
+                "path": "/items/armor/pants/bear_pants.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/pants/chainmail_pants.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/pants/chicken_pants.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/pants/pink_pants.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/pants/plate_pants.png",
+                "type": "file",
+                "license": null
+              },
+              {
+                "path": "/items/armor/pants/undead_pants.png",
+                "type": "file",
+                "license": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "/items/book",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/book/letter.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/book/magic_scroll.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/book/red_book.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/book/spell_book.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/book/wisdom_scroll.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/items/gloves",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/gloves/fire_gloves.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/gloves/steel_gloves.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/items/key",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/key/big_key.png",
+            "type": "file",
+            "license": "/items/key/big_key.license.md"
+          },
+          {
+            "path": "/items/key/blue_key.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/key/gold_key.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/key/red_key.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/key/small_key.png",
+            "type": "file",
+            "license": "/items/key/small_key.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/items/necklace",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/necklace/golden_necklace.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/necklace/magic_necklace.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/items/pickups",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/pickups/fairy_pickup.png",
+            "type": "file",
+            "license": "/items/pickups/fairy_pickup.license.md"
+          },
+          {
+            "path": "/items/pickups/heart_pickup.png",
+            "type": "file",
+            "license": "/items/pickups/heart_pickup.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/items/potion",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/potion/antidote_potion.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/potion/health_potion.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/potion/mana_potion.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/potion/water_bottle.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/items/puzzle-piece.png",
+        "type": "file",
+        "license": "/items/puzzle-piece.license.md"
+      },
+      {
+        "path": "/items/resource",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/resource/basalt.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/beer.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/berry.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/blobs.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/bone.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/cheese.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/cloverleaf.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/coffee.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/donut.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/dragon_tooth.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/dragon_wing.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/egg.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/emerald.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/flower_red.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/iron_ore.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/leaf.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/leather.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/meat.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/mushroom_brown.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/mushroom_red.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/opal.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/pretzel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/saphire.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/skull.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/stick.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/stone.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/sulphur.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/tentacle.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/toadstool.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/topas.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/resource/wood.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/items/ring",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/ring/beholder_ring.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/ring/heart_ring.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/items/rpg",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/rpg/armor_boots_crusty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_boots_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_boots_iron.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_boots_platinum.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_boots_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_boots_steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_chest_crusty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_chest_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_chest_iron.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_chest_platinum.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_chest_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_chest_steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_crusty_horns.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_crusty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_gold_horns.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_iron_horns.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_iron.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_platinum_horns.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_platinum.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_silver_horns.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_steel_horns.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_helmet_steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_pants_crusty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_pants_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_pants_iron.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_pants_platinum.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_pants_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/armor_pants_steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/axe_crusty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/axe_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/axe_iron.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/axe_platinum.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/axe_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/axe_steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/bow.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_apple.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_bananas.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_beet.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_bread.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_cake.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_carrot.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_cheese.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_cookie.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_corn.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_drumstick_cooked.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_drumstick_raw.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_eggplant.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_meat_cooked.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_meat_raw.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_strawberry.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_turnip.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/food_watermelon.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_arrow.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bone.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_black_lines.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_black_square.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_black.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_blue_lines.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_blue_square.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_blue.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_brown_lines.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_brown_square.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_brown.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_purple_lines.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_purple_square.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_purple.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_red_lines.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_red_square.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_red.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_teal_lines.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_teal_square.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_book_teal.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bucket_narrow_empty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bucket_narrow_lava.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bucket_narrow_milk.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bucket_narrow_slime.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bucket_narrow_water.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bucket_wide_empty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bucket_wide_lava.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bucket_wide_milk.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bucket_wide_slime.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_bucket_wide_water.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_compass.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_envelope.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_feather_peacock.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_feather.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_fish.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_flower_daisy.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_flower_tulip.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_flower.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_frond.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_gem_amber.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_gem_amethyst.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_gem_diamond_rough.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_gem_diamond_smooth.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_gem_emerald.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_gem_peridot.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_gem_quartz.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_gem_ruby.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_gem_sapphire.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_goblet_empty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_leaf.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_magnifying_glass.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_mirror.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_mushroom1.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_mushroom2.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_mushroom3.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_orb.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_paper_map.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_paper.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_pearl_necklace.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_pearl.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_ring_bronze.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_ring_gold_gem_blue.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_ring_gold_gem_green.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_ring_gold_gem_red.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_ring_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_ring_silver_gem_blue.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_ring_silver_gem_green.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_ring_silver_gem_red.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_ring_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_root.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_sack.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_scroll.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_slime.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_stick_wizardly.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_stick.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/item_torch.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/key1.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/key2.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/key3.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/key4.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/lance_crusty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/lance_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/lance_iron.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/lance_platinum.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/lance_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/lance_steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/pickaxe_crusty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/pickaxe_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/pickaxe_iron.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/pickaxe_platinum.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/pickaxe_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/pickaxe_steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_darkblue.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_darkgreen.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_empty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_fiery.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_grey.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_lightblue.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_lightgreen.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_murkygreen.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_purple.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_red.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/potion_teal.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/scissors.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/scythe_crusty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/scythe_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/scythe_iron.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/scythe_platinum.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/scythe_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/scythe_steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/shield_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/shield_metal.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/shield_wood.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/shovel_crusty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/shovel_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/shovel_iron.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/shovel_platinum.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/shovel_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/shovel_steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/stave1.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/stave2.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/sword_crusty.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/sword_fancy1.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/sword_fancy2.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/sword_fancy3.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/sword_gold.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/sword_iron.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/sword_platinum.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/sword_silver.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/sword_steel.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/telescope1.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/rpg/telescope2.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/items/shield",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/shield/knight_shield.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/shield/viking_shield.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/items/tools",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/tools/hammer.png",
+            "type": "file",
+            "license": "/items/tools/hammer.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/items/weapon",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/items/weapon/fire_sword.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/weapon/ice_sword.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/weapon/legendary_sword.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/weapon/lightning_sword.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/weapon/rainbow_sword.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/weapon/snake_sword.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/items/weapon/wooden_arrow.png",
+            "type": "file",
+            "license": "/items/weapon/wooden_arrow.license.md"
+          },
+          {
+            "path": "/items/weapon/wooden_bow.png",
+            "type": "file",
+            "license": "/items/weapon/wooden_bow.license.md"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "path": "/objects",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/objects/cauldron",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/cauldron/cauldron.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/objects/crate",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/crate/basic.png",
+            "type": "file",
+            "license": "/objects/crate/basic.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/objects/desk_with_pc",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/desk_with_pc/desk_with_pc.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/objects/keypad",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/keypad/off.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/objects/keypad/on.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/objects/lever",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/lever/lever.png",
+            "type": "file",
+            "license": "/objects/lever/lever.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/objects/magic_kettle",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/magic_kettle/magic_kettle.png",
+            "type": "file",
+            "license": "/objects/magic_kettle/magic_kettle.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/objects/mailbox",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/mailbox/mailbox_1.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/objects/mailbox/mailbox_2.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/objects/nature",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/nature/big_log.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/objects/nature/big_tree_tile.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/objects/nature/big_trees_sheet.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/objects/nature/bushes_sheet.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/objects/nature/medium_log.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/objects/nature/medium_tree.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/objects/nature/reeds.png",
+            "type": "file",
+            "license": null
+          },
+          {
+            "path": "/objects/nature/small_arbust.png",
+            "type": "file",
+            "license": "/objects/nature/all.license.md"
+          },
+          {
+            "path": "/objects/nature/stump.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/objects/pressureplate",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/pressureplate/pressureplate.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/objects/sentrys",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/sentrys/sentrys.png",
+            "type": "file",
+            "license": "/objects/sentrys/sentrys.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/objects/stone",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/stone/stone.png",
+            "type": "file",
+            "license": "/objects/stone/stone.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/objects/torch",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/torch/torch.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/objects/treasurechest",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/treasurechest/treasurechest.png",
+            "type": "file",
+            "license": "/objects/treasurechest/treasurechest.license.md"
+          }
+        ]
+      },
+      {
+        "path": "/objects/vase",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/objects/vase/vase.png",
+            "type": "file",
+            "license": "/objects/vase/vase.license.md"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "path": "/office",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/office/boss.png",
+        "type": "file",
+        "license": "/office/boss.license.md"
+      },
+      {
+        "path": "/office/cabinet.png",
+        "type": "file",
+        "license": "/office/cabinet.license.md"
+      },
+      {
+        "path": "/office/Chair.png",
+        "type": "file",
+        "license": "/office/Chair.license.md"
+      },
+      {
+        "path": "/office/coffee-maker.png",
+        "type": "file",
+        "license": "/office/coffee-maker.license.md"
+      },
+      {
+        "path": "/office/desk-with-pc.png",
+        "type": "file",
+        "license": "/office/desk-with-pc.license.md"
+      },
+      {
+        "path": "/office/desk.png",
+        "type": "file",
+        "license": "/office/desk.license.md"
+      },
+      {
+        "path": "/office/office-partitions-1.png",
+        "type": "file",
+        "license": "/office/office-partitions-1.license.md"
+      },
+      {
+        "path": "/office/office-partitions-2.png",
+        "type": "file",
+        "license": "/office/office-partitions-2.license.md"
+      },
+      {
+        "path": "/office/PC1.png",
+        "type": "file",
+        "license": "/office/PC1.license.md"
+      },
+      {
+        "path": "/office/PC2.png",
+        "type": "file",
+        "license": "/office/PC2.license.md"
+      },
+      {
+        "path": "/office/phone.png",
+        "type": "file",
+        "license": "/office/phone.license.md"
+      },
+      {
+        "path": "/office/plant.png",
+        "type": "file",
+        "license": "/office/plant.license.md"
+      },
+      {
+        "path": "/office/printer.png",
+        "type": "file",
+        "license": "/office/printer.license.md"
+      },
+      {
+        "path": "/office/sink.png",
+        "type": "file",
+        "license": "/office/sink.license.md"
+      },
+      {
+        "path": "/office/stamping-table.png",
+        "type": "file",
+        "license": "/office/stamping-table.license.md"
+      },
+      {
+        "path": "/office/Trash.png",
+        "type": "file",
+        "license": "/office/Trash.license.md"
+      },
+      {
+        "path": "/office/water-cooler.png",
+        "type": "file",
+        "license": "/office/water-cooler.license.md"
+      },
+      {
+        "path": "/office/worker1.png",
+        "type": "file",
+        "license": "/office/worker1.license.md"
+      },
+      {
+        "path": "/office/worker2.png",
+        "type": "file",
+        "license": "/office/worker2.license.md"
+      },
+      {
+        "path": "/office/worker4.png",
+        "type": "file",
+        "license": "/office/worker4.license.md"
+      },
+      {
+        "path": "/office/writing-table.png",
+        "type": "file",
+        "license": "/office/writing-table.license.md"
+      }
+    ]
+  },
+  {
+    "path": "/other",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/other/blue_dot.png",
+        "type": "file",
+        "license": "/other/blue_dot.license.md"
+      },
+      {
+        "path": "/other/chain_lock.png",
+        "type": "file",
+        "license": "/other/chain_lock.license.md"
+      },
+      {
+        "path": "/other/red_dot.png",
+        "type": "file",
+        "license": "/other/red_dot.license.md"
+      },
+      {
+        "path": "/other/unknown.png",
+        "type": "file",
+        "license": "/other/unknown.license.md"
+      }
+    ]
+  },
+  {
+    "path": "/skills",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/skills/fireball",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/skills/fireball/fireball.png",
+            "type": "file",
+            "license": null
+          }
+        ]
+      },
+      {
+        "path": "/skills/melee",
+        "type": "directory",
+        "entries": [
+          {
+            "path": "/skills/melee/melee.png",
+            "type": "file",
+            "license": "/skills/melee/melee.license.md"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "path": "/sounds",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/sounds/background.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/death.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/die_01.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/die_02.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/die_03.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/die_04.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/enterDoor.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/fireball.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/kenney_ui_back_001.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_back_002.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_bong_001.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_confirmation_001.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_confirmation_002.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_confirmation_003.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_confirmation_004.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_drop_001.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_drop_002.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_drop_003.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_drop_004.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_error_001.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_error_002.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_error_003.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_error_004.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_glass_005.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_glass_006.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_maximize_001.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_maximize_006.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_maximize_007.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_maximize_008.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_maximize_009.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_minimize_001.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_minimize_006.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_minimize_007.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_minimize_008.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_minimize_009.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_question_001.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_question_002.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_question_003.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_question_004.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_select_001.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_select_002.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/kenney_ui_switch_001.wav",
+        "type": "file",
+        "license": "/sounds/kenney_ui.license.md"
+      },
+      {
+        "path": "/sounds/monster1.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/monster2.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/monster3.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/monster4.wav",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/sounds/qubodup_DoorClose.wav",
+        "type": "file",
+        "license": "/sounds/qubodup_Door.license.md"
+      },
+      {
+        "path": "/sounds/qubodup_DoorOpen.wav",
+        "type": "file",
+        "license": "/sounds/qubodup_Door.license.md"
+      },
+      {
+        "path": "/sounds/retro_beep_01.wav",
+        "type": "file",
+        "license": "/sounds/retro_beep_01.license.md"
+      },
+      {
+        "path": "/sounds/retro_event_correct.wav",
+        "type": "file",
+        "license": "/sounds/retro_event_correct.license.md"
+      },
+      {
+        "path": "/sounds/retro_event_wrong.wav",
+        "type": "file",
+        "license": "/sounds/retro_event_wrong.license.md"
+      },
+      {
+        "path": "/sounds/uisp_African2.wav",
+        "type": "file",
+        "license": "/sounds/uisp_.license.md"
+      },
+      {
+        "path": "/sounds/virix_MENU_B_Back.wav",
+        "type": "file",
+        "license": "/sounds/virix_.license.md"
+      },
+      {
+        "path": "/sounds/virix_MENU_B_Select.wav",
+        "type": "file",
+        "license": "/sounds/virix_.license.md"
+      }
+    ]
+  }
+]

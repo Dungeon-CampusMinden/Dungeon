@@ -1,0 +1,44 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --shadow-1:
+    0 1px 1px rgb(0 0 0 / 0.20),
+    0 2px 3px rgb(0 0 0 / 0.15);
+
+  --shadow-2:
+    0 2px 2px rgb(0 0 0 / 0.22),
+    0 4px 6px rgb(0 0 0 / 0.16);
+
+  --shadow-3:
+    0 3px 3px rgb(0 0 0 / 0.24),
+    0 6px 10px rgb(0 0 0 / 0.18);
+
+  --shadow-4:
+    0 4px 4px rgb(0 0 0 / 0.26),
+    0 8px 14px rgb(0 0 0 / 0.20);
+
+  --shadow-5:
+    0 5px 5px rgb(0 0 0 / 0.28),
+    0 12px 20px rgb(0 0 0 / 0.22);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+.panel {
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+code {
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+  border-radius: var(--radius-sm);
+}

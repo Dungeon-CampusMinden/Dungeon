@@ -1,0 +1,5 @@
+.github
+src/data/deer.schema.json
+
+node_modules
+dist
