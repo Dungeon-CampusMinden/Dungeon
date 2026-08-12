@@ -41,11 +41,16 @@ async function runTransaction<T>(
 }
 
 export class AssetStorage {
-  /** Stores (or overwrites) the binary content of an asset under the given asset id. */
-  static async putAssetFile(id: string, file: File): Promise<void> {
-    const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+  /** Stores (or overwrites) the binary content of an asset under its content hash id. */
+  static async putAssetFile(file: File): Promise<string> {
+    const contents = await file.arrayBuffer();
+    const digest = await crypto.subtle.digest("SHA-256", contents);
+    const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    const id = hash.slice(0, 12);
+    const blob = new Blob([contents], { type: file.type });
     const entry: StoredAssetFile = { id, name: file.name, mediaType: file.type, blob };
     await runTransaction("readwrite", (store) => store.put(entry));
+    return id;
   }
 
   /** Returns the stored file for an asset id, or null if it is not available. */

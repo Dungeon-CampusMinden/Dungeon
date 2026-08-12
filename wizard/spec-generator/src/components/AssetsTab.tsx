@@ -27,33 +27,38 @@ export function AssetsTab({
   const [storageRevision, setStorageRevision] = React.useState(0);
   const previews = useAssetPreviews(assetList, storageRevision);
 
-  /** Writes the selected content to the given asset id and returns the resulting path/mediaType. */
-  const applySelection = async (id: string, selection: AssetSelection) => {
+  /** Writes the selected content and returns its id, path, and media type. */
+  const applySelection = async (asset: Asset | null, selection: AssetSelection) => {
+    const previousId = asset?.id ?? Util.generateUniqueId("a");
+
     if (selection.kind === "custom") {
-      await AssetStorage.putAssetFile(id, selection.file);
+      const id = await AssetStorage.putAssetFile(selection.file);
+      if (asset && !isBundledAssetPath(asset.path) && asset.id !== id) {
+        await AssetStorage.deleteAssetFile(asset.id);
+      }
       const extensionIndex = selection.file.name.lastIndexOf(".");
       const fileNameWithId =
         extensionIndex > 0
           ? `${selection.file.name.slice(0, extensionIndex)}-${id}${selection.file.name.slice(extensionIndex)}`
           : `${selection.file.name}-${id}`;
       return {
+        id,
         path: `${CUSTOM_PATH_PREFIX}/${fileNameWithId}`,
         mediaType: getMediaTypeForPath(selection.file.name),
       };
     }
 
     // Bundled assets have no IndexedDB entry, so a previously stored file is removed.
-    await AssetStorage.deleteAssetFile(id);
+    await AssetStorage.deleteAssetFile(previousId);
     return {
+      id: previousId,
       path: selection.path,
       mediaType: getMediaTypeForPath(selection.path),
       sourceType: "bundled_asset" as const,
     };
   };
-
   const handleAddAsset = async (selection: AssetSelection) => {
-    const id = Util.generateUniqueId("a");
-    const { path, mediaType } = await applySelection(id, selection);
+    const { id, path, mediaType } = await applySelection(null, selection);
 
     const newAsset: Asset = {
       id,
@@ -70,8 +75,12 @@ export function AssetsTab({
   };
 
   const handleReplaceContent = async (asset: Asset, selection: AssetSelection) => {
-    // The id stays the same so that all references to this asset keep working.
-    const { path, mediaType } = await applySelection(asset.id, selection);
+    const previousId = asset.id;
+    const { id, path, mediaType } = await applySelection(asset, selection);
+    if (previousId !== id) {
+      replaceAssetReferences(deerSchema, previousId, id);
+      asset.id = id;
+    }
     asset.path = path;
     asset.mediaType = mediaType;
     updateDeerSchema(deerSchema);
@@ -130,4 +139,16 @@ export function AssetsTab({
       )}
     </div>
   );
+}
+
+function replaceAssetReferences(deerSchema: DeerSchema, previousId: string, nextId: string) {
+  for (const riddle of deerSchema.riddles) {
+    for (const informationSource of riddle.informationSources) {
+      for (const resource of informationSource.resources) {
+        if (resource.kind === "asset" && resource.assetId === previousId) {
+          resource.assetId = nextId;
+        }
+      }
+    }
+  }
 }
