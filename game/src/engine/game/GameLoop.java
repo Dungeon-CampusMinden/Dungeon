@@ -798,7 +798,7 @@ public final class GameLoop extends ScreenAdapter {
                           .orElse(false))
               .findFirst()
               .flatMap(e -> e.fetch(UIComponent.class))
-              .ifPresent(UIUtils::closeDialog);
+              .ifPresent(component -> UIUtils.closeDialog(component, true));
         });
   }
 
