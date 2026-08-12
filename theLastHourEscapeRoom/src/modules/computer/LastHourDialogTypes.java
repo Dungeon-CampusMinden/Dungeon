@@ -10,9 +10,6 @@ public enum LastHourDialogTypes implements DialogType {
 
   /** The trashcan minigame. */
   TRASHCAN("trashcan"),
-
-  /** The black-fade cutscene dialog. */
-  TEXT_CUTSCENE("text_cutscene"),
   ;
 
   private final String typeName;

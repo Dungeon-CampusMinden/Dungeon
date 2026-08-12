@@ -1,6 +1,6 @@
-# Frontend Handoff V0.3
+# Frontend Handoff V0.4
 
-Status: verbindlicher V0.3-Handoff; Implementierung folgt separat
+Status: Runtime-Vertrag implementiert; Frontend noch nicht implementiert
 
 ## Auftrag
 
@@ -21,10 +21,10 @@ Projekt erzeugt der separate Gradle-Packager eine projektspezifische
 ausführbare `WizardRoom.jar`; seine Anbindung an die Authoring-UI bleibt eine
 spätere dünne Integration.
 
-Der festgelegte Foundation-Slice bildet **Informationsquellen**,
+Der implementierte Foundation-Slice bildet **Informationsquellen**,
 **Zahlencode**, verpflichtendes Entdecken und den gemeinsamen Ausgang ab.
-Das Schema definiert diesen Rätselvertrag; Runner und Frontend müssen ihn
-gemeinsam erfüllen. Der Frontend-Anteil ist fertig, sobald die
+Schema und Runner setzen diesen Rätselvertrag bereits um. Der Frontend-Anteil
+ist fertig, sobald die
 Definition-of-Done am Ende dieses Dokuments erfüllt ist. Die Authoring-UI
 selbst ist noch kein
 Ein-Klick-Produkt: Eine technische Betreuung ruft den Packager auf und verteilt
@@ -52,8 +52,8 @@ ein separates Serverartefakt ist nicht erforderlich.
    Semantik.
 4. [`runner-project-format.md`](runner-project-format.md) definiert
    Finalisierung, Assets und das Validierungsinterface.
-5. [`../../examples/foundation-v0.3/`](../../examples/foundation-v0.3/) ist
-   das kanonische Projektbeispiel.
+5. [`../../examples/foundation-v0.4/`](../../examples/foundation-v0.4/) ist
+   das kanonische ausführbare Beispiel.
 
 Multiplayer und Spielruntime sind kein Frontend-Auftrag. Ihre Grenze steht in
 [`runner-runtime-contract.md`](runner-runtime-contract.md).
@@ -64,7 +64,7 @@ Multiplayer und Spielruntime sind kein Frontend-Auftrag. Ihre Grenze steht in
 |---|---|---|
 | Web-UI | sichtbaren Flow, privaten Draft, unmittelbare Feldhinweise, Vorschau | Projektdateisystem, Runner-Runtime, Multiplayer |
 | Nativer Host-Adapter | Draft-Persistenz, Uploadbytes, Auswahl aus der internen Assetliste, Produktionsvalidierung, atomare Finalisierung | fachliche UI-Navigation, Foundation-Spielzustand |
-| Java-Runner | normative Projektvalidierung, Ableitung und Host-/Join-Runtime | privaten Draft, UI-Zustand, Projektbearbeitung |
+| Java-Validierung und Runtime | normative Projektvalidierung, Ableitung und Host-/Join-Runtime | privaten Draft, UI-Zustand, Projektbearbeitung |
 | Gradle-Packager | validiertes Projekt als projektspezifische ausführbare JAR | privaten Draft, UI-Navigation, neue DEER-Semantik |
 
 Der Frontend-Code darf lokale Feldhinweise für schnelle Rückmeldung berechnen.
@@ -89,7 +89,10 @@ abgefragt. Die UI leitet daraus stabile Surfaces der geschlossenen Arten
 Bindungen ab. Der technische Begriff „Surface“ und die IDs bleiben verborgen.
 Ein Computer ist noch keine Surface-Art des aktiven Profils. Die UI bietet
 weder ein Output-/Effektfeld noch OR-Regeln an; Progression und Ausgang gehören
-allein dem abgeleiteten Rätselgraphen.
+allein dem abgeleiteten mandatory AND-Rätselgraphen. Der einfache sichtbare
+Stage-Modus bleibt ein Authoring-Teilprofil. Falls die UI später explizite
+Abhängigkeiten anbietet, bedeutet „verfügbar nach ...“ bei mehreren
+ausgewählten Aufgaben, dass alle ausgewählten Aufgaben erforderlich sind.
 
 ## Draft- und Storage-Port
 
@@ -106,7 +109,7 @@ muss aber eine eigene Versionskennung besitzen und mindestens erhalten:
 - Zeitpunkt und Zustand der letzten Speicherung und Finalisierung.
 
 Ein unbekanntes Draftformat wird verständlich abgelehnt und nicht teilweise
-geladen. V0.3 benötigt keine Migration zwischen Draftversionen.
+geladen. V0.4 benötigt keine Migration zwischen Draftversionen.
 
 Der native Host-Adapter stellt der Web-UI genau diese logischen Operationen
 bereit; konkrete Methodennamen dürfen dem verwendeten Stack folgen:
@@ -116,7 +119,7 @@ bereit; konkrete Methodennamen dürfen dem verwendeten Stack folgen:
 | Drafts auflisten, anlegen, laden und speichern | vollständiger privater Snapshot | vorhandener Snapshot bleibt unverändert |
 | Projektordner wählen | explizit vom Nutzer bestätigter nativer Ordner | Abbruch verändert keinen Draft |
 | Spielbibliothek-Asset auswählen oder eigenes PNG/JPEG hochladen | interne Referenz oder geprüfte Uploadbytes, jeweils mit Anzeigename und Lizenzmetadaten | keine Teilübernahme |
-| vollständigen Kandidaten prüfen | [`RunnerReport`](runner-report.schema.json) der Produktionsvalidierung | Zielprojekt bleibt unverändert |
+| vollständigen Kandidaten prüfen | [`ProjectValidationReport`](project-validation-report.schema.json) der Produktionsvalidierung | Zielprojekt bleibt unverändert |
 | Kandidaten finalisieren | neue Custom-Dateien zuerst, `deer.json` zuletzt atomar ersetzt | letzte gültige Finalisierung bleibt verwendbar |
 
 Für eine Prüfung vor der ersten Finalisierung darf der Adapter im privaten
@@ -127,16 +130,18 @@ Kandidaten erneut und schreibt nur dieses erfolgreich geprüfte Ergebnis.
 Für ein Spielbild schreibt der Adapter nur den internen Pfad und die
 Lizenzmetadaten in `deer.json`; das Bild wird nicht kopiert. Für einen Upload
 berechnet er SHA-256, schreibt die Datei unter
-`assets/custom/<12-hashzeichen>-<normalisierter-name>` und ersetzt erst danach
+`assets/custom/<normalisierter-stamm>-<12-hashzeichen>.<ext>` und ersetzt erst danach
 `deer.json` atomar. Die private Draftrepräsentation darf beide Varianten als
 Union unterscheiden. Diese technische Unterscheidung wird nicht als Feld in
-`source` exportiert.
+`source` exportiert. Eine leere oder ausschließlich aus Leerraumzeichen
+bestehende Attribution behandelt der Adapter wie eine fehlende Attribution und
+lässt das Feld bei der Finalisierung weg.
 
-Der Adapter darf die Produktionsvalidierung direkt als Java-Bibliothek oder
-über `wizard-runner validate` anbinden. In beiden Fällen ist ausschließlich
-das in [`runner-report.schema.json`](runner-report.schema.json) definierte
-Ergebnis die Brücke zur Web-UI. Temporäre Prüfdateien liegen außerhalb des
-Zielprojekts und werden nach der Prüfung entfernt.
+Der Adapter bindet die Produktionsvalidierung direkt als Java-Bibliothek an.
+Ausschließlich das in
+[`project-validation-report.schema.json`](project-validation-report.schema.json)
+definierte Ergebnis ist die Brücke zur Web-UI. Temporäre Prüfdateien liegen
+außerhalb des Zielprojekts und werden nach der Prüfung entfernt.
 
 Bis zur späteren UI-Anbindung erzeugt die technische Betreuung das
 Spielerartefakt nach erfolgreicher Finalisierung mit:

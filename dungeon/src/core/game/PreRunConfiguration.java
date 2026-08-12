@@ -29,6 +29,7 @@ public final class PreRunConfiguration {
   private static boolean NETWORK_IS_SERVER = true;
   private static String NETWORK_SERVER_ADDRESS = "";
   private static int NETWORK_PORT = 7777;
+  private static int NETWORK_SERVER_MAXIMUM_PLAYERS = Integer.MAX_VALUE;
   private static String USERNAME = "Player";
   private static CharacterClass MULTIPLAYER_CHARACTER_CLASS = null;
   private static List<CharacterClass> MULTIPLAYER_CHARACTER_CLASSES =
@@ -319,6 +320,28 @@ public final class PreRunConfiguration {
    */
   public static void networkPort(int port) {
     NETWORK_PORT = port;
+  }
+
+  /**
+   * Gets the maximum number of multiplayer player identities accepted by the server.
+   *
+   * @return The maximum number of players.
+   */
+  public static int networkServerMaximumPlayers() {
+    return NETWORK_SERVER_MAXIMUM_PLAYERS;
+  }
+
+  /**
+   * Sets the maximum number of multiplayer player identities accepted by the server.
+   *
+   * @param maximumPlayers The positive maximum number of players.
+   * @throws IllegalArgumentException if {@code maximumPlayers} is not positive
+   */
+  public static void networkServerMaximumPlayers(int maximumPlayers) {
+    if (maximumPlayers < 1) {
+      throw new IllegalArgumentException("maximumPlayers must be positive");
+    }
+    NETWORK_SERVER_MAXIMUM_PLAYERS = maximumPlayers;
   }
 
   /**

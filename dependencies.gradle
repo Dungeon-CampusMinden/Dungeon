@@ -14,6 +14,9 @@ ext {
     jk1licenseVersion = '3.1.4'
     gdxControllersVersion = '2.2.4'
     beryxRuntimeVersion = '2.0.1'
+    jacksonVersion = '3.1.4'
+    jsonSchemaValidatorVersion = '3.0.6'
+    jsonCanonicalizationVersion = '1.1'
 
 
     // -- NETWORK / SERVER
@@ -35,6 +38,11 @@ ext {
         junit                     : "org.junit.jupiter:junit-jupiter:$junitVersion",
         junitLauncher             : "org.junit.platform:junit-platform-launcher:$junitLauncherVersion",
         mockito_core              : "org.mockito:mockito-core:$mockitoVersion",
+
+        // JSON validation and canonicalization
+        jackson_databind          : "tools.jackson.core:jackson-databind:$jacksonVersion",
+        json_schema_validator     : "com.networknt:json-schema-validator:$jsonSchemaValidatorVersion",
+        json_canonicalization     : "io.github.erdtman:java-json-canonicalization:$jsonCanonicalizationVersion",
 
         // Protobuf for network serialization
         protobuf_java             : "com.google.protobuf:protobuf-java:$protobufVersion",

@@ -1,6 +1,7 @@
-# Wizard Runner Project Format V0.3
+# Wizard Runner Project Format V0.4
 
-Status: kanonischer V0.3-Runner- und Packaging-Zielvertrag
+Status: umgesetzter V0.4-Runner- und Packaging-Contract; UI-Finalisierung noch
+nicht umgesetzt
 
 Scope: finalisierte Übergabe von der Wizard-UI an Validierung, Packaging und
 Room-first-Host
@@ -23,12 +24,12 @@ wizard-project/
   deer.json
   assets/
     custom/
-      3b50ea522803-foundation-note.png
+      foundation-note-3b50ea522803.png
 ```
 
 Das Repository enthält unter
-[`../../examples/foundation-v0.3/`](../../examples/foundation-v0.3/) ein
-kanonisches Projektbeispiel. Es ist die einzige kanonische Quelle für die
+[`../../examples/foundation-v0.4/`](../../examples/foundation-v0.4/) ein
+direkt ausführbares Projekt. Es ist die einzige kanonische Quelle für die
 Beispiel-`deer.json` einschließlich Seed und das Custom-Asset.
 
 `deer.json` liegt im Wurzelverzeichnis. Alle Assetpfade sind relative portable
@@ -36,13 +37,9 @@ Pfade mit Forward-Slashes und ohne führenden Slash. Eigene Bilder beginnen mit
 `assets/custom/`; bereits in der Spiel-JAR enthaltene Bilder werden direkt über
 interne Pfade wie `items/puzzle-piece.png` referenziert.
 
-`wizard-runner validate --project <folder>`,
-`wizard-runner host --project <folder>` und
-`wizard-runner join --project <folder>` lesen denselben vollständigen
-Projektordner. Diese drei CLI-Befehle sind eine sekundäre Entwicklungs- und
-Authoring-Schnittstelle. Der Spielerfluss verwendet stattdessen die
-projektspezifische JAR. Öffentliche Befehle, abgelehnte Optionen und der
-Room-first-Lebenszyklus stehen im
+Die Java-Validierungsbibliothek liest diesen vollständigen Projektordner
+read-only. Die Authoring-Integration bindet sie direkt an. Der Spielerfluss
+verwendet die projektspezifische JAR. Der Room-first-Lebenszyklus steht im
 [`runner-runtime-contract.md`](runner-runtime-contract.md).
 
 ## Projektspezifische Spieler-JAR
@@ -70,20 +67,23 @@ wizard/embedded-project/
 `assets/custom/` auf. Gebündelte Assetpfade werden dort nicht als
 projektspezifische Dateien aufgeführt; die Bilder sind bereits über die
 Dungeon-/EscapeRoom-Runtimeabhängigkeiten in der JAR enthalten. Vor dem
-Packaging durchläuft das Projekt dieselbe Produktionsvalidierung wie bei
-`validate`; ungültige Projekte werden nicht verpackt.
+Packaging durchläuft das Projekt dieselbe Produktionsvalidierung und
+Room-Ableitung wie die Runtime; ungültige oder nicht ableitbare Projekte werden
+nicht verpackt.
 
 Die JAR ist projektspezifisch. Exakt dieselbe vollständige `WizardRoom.jar`
 wird an Host und alle weiteren Spielenden verteilt; ein separater
 Assets-only-Ordner wird nicht manuell verteilt. `java -jar WizardRoom.jar`
 benötigt Java 25 und öffnet das Host-/Join-Menü. Die Authoring-UI ruft diesen
-Packager in V0.3 noch nicht selbst auf; diese Anbindung bleibt eine spätere
+Packager in V0.4 noch nicht selbst auf; diese Anbindung bleibt eine spätere
 dünne Integration.
 
 ## Draft und Finalisierung
 
 - Ein UI-Entwurf darf unvollständig sein und bleibt außerhalb dieses Formats.
-- Die Finalisierung projiziert den Draft auf Formatversion `0.3`.
+- Die Finalisierung projiziert den Draft auf Formatversion `0.4`.
+- Sie bewahrt jede authorierte direkte Pflichtabhängigkeit und erfindet oder
+  vervollständigt keine Progressionskanten.
 - Die UI prüft Schema, Fachregeln, Spielergrenzen und Assetpfade vor dem
   Schreiben.
 - Bei der ersten Finalisierung erzeugt die UI den Top-Level-Wert `seed` in
@@ -100,20 +100,21 @@ dünne Integration.
 - Ein fehlgeschlagener Schreibvorgang lässt die letzte gültige Ausgabe
   verwendbar. Finalisierung sperrt den UI-Entwurf nicht.
 
-V0.3 spezifiziert einen Standalone-Host mit nativem Storage-Adapter. Dieser
+V0.4 spezifiziert einen Standalone-Host mit nativem Storage-Adapter. Dieser
 UI- und Storage-Anteil ist noch nicht umgesetzt. Ein browser-only Export ist
 nicht Teil des Foundation-Slices.
 
 ## Seed in deer.json
 
 `seed` ist ein verpflichtender ganzzahliger Top-Level-Wert in `deer.json`. Der
-Wert liegt im Bereich `0..9223372036854775807`. Strings, Fließkommazahlen,
+Wert liegt im Bereich `0..9007199254740991`. Strings, Fließkommazahlen,
 negative Werte und größere Ganzzahlen sind unzulässig. Der Seed ist damit Teil
 derselben schema-validierten und atomar ersetzten Konfiguration wie alle
 anderen Authoring-Daten.
 
-Der Runner liest den gesamten schema-erlaubten nicht-negativen Java-`long`-
-Bereich verlustfrei.
+Der Bereich ist der nicht-negative IEEE-754-Safe-Integer-Bereich der von RFC
+8785 verwendeten Zahlendarstellung. Dadurch bleibt jeder zulässige Seed in der
+kanonischen Projektidentität eindeutig.
 
 ## Assetregeln
 
@@ -127,9 +128,9 @@ Bereich verlustfrei.
 Für Custom-Assets gilt:
 
 - Sie liegen als flache Dateien unter `assets/custom/`.
-- Dateinamen werden von der UI portabel normalisiert und beginnen mit den
-  ersten zwölf lowercase Hex-Zeichen des SHA-256-Inhaltshashes, gefolgt von
-  `-`, zum Beispiel `3b50ea522803-foundation-note.png`.
+- Dateinamen werden von der UI portabel normalisiert. Ihr Dateistamm endet mit
+  `-` und den ersten zwölf lowercase Hex-Zeichen des SHA-256-Inhaltshashes, zum
+  Beispiel `foundation-note-3b50ea522803.png`.
 - Sie sind relative, normalisierte Pfade ohne Backslashes, Unterverzeichnisse,
   `.`- oder `..`-Segmente.
 - Referenzierte Dateien müssen existieren; ein „optionales fehlendes Asset“
@@ -139,8 +140,8 @@ Für Custom-Assets gilt:
 - Symlinks werden nicht verfolgt. Pfade werden gegen den realen Projektroot
   aufgelöst und müssen nach Normalisierung weiterhin darunter liegen.
 - Nicht referenzierte Dateien werden ignoriert und als Warnung gemeldet.
-- Der Runner berechnet jeden Datei-Hash erneut und lehnt einen falschen
-  Dateinamenpräfix ab.
+- Der Runner berechnet jeden Datei-Hash erneut und lehnt ein falsches
+  Dateinamensuffix ab.
 
 Für gebündelte Assets gilt stattdessen:
 
@@ -162,10 +163,9 @@ binären Assetdaten; jeder Client materialisiert die bereits eingebetteten
 Custom-Assets für seine Laufzeit. Gebündelte Bilder lädt er direkt über den
 normalen Dungeon-Assetloader.
 
-Alle Teilnehmer validieren dasselbe vollständige lokale Projekt. Auch die
-sekundäre CLI verwendet für `join --project <folder>` denselben
-Projektvertrag. Ein ausschließlich gebündelte Assets verwendendes Projekt
-benötigt kein Verzeichnis `assets/custom/`.
+Alle Teilnehmer validieren dasselbe vollständige lokale Projekt. Ein
+ausschließlich gebündelte Assets verwendendes Projekt benötigt kein
+Verzeichnis `assets/custom/`.
 
 ## Validierung und deterministische Identität
 
@@ -190,7 +190,7 @@ Whitespace, Einrückung und Property-Reihenfolge verändern diesen Hash nicht.
 Jede inhaltliche Änderung in `deer.json` verändert ihn dagegen, darunter
 Seed, Rätsel, Antworten, Assetpfade, Medientyp, Lizenz und Attribution.
 Custom-Inhalte sind über das zuvor vollständig geprüfte zwölfstellige
-SHA-256-Präfix ihres Pfads an die JSON gebunden. Gebündelte Inhalte stammen aus
+SHA-256-Suffix ihres Pfads an die JSON gebunden. Gebündelte Inhalte stammen aus
 derselben verteilten `WizardRoom.jar`. Die Assetvalidierung bleibt deshalb
 zwingend vor der Hashbildung.
 
@@ -215,17 +215,17 @@ Ausschließlich der Host wertet Antworten aus und entscheidet über korrekten
 Spielfortschritt. Das Netzwerkformat steht in
 [`runner-runtime-contract.md`](runner-runtime-contract.md).
 
-## Fehler und Reports der sekundären CLI
+## Fehler und Validierungsreports
 
-Dieser Abschnitt beschreibt ausschließlich die sekundäre Entwicklungs- und
-Authoring-CLI mit `validate`, `host` und `join`. Ihre Validierungsfehler werden
-als kanonischer JSON-Report ausgegeben und führen zu einem Exit-Code ungleich
-null. Bei ungültigem Input startet kein Host.
+Die Produktionsvalidierung liefert einen deterministischen
+`ProjectValidationReport`. Die Authoring-Integration ruft die Java-Bibliothek
+direkt auf. Der interne Gradle-Packaging-Schritt gibt denselben Report als
+kanonisches JSON aus und schlägt bei ungültigem oder nicht ableitbarem Input
+fehl; dann wird kein neues Spielerartefakt erzeugt.
 
-[`runner-report.schema.json`](runner-report.schema.json) ist der
-maschinenlesbare Vertrag des Reports. Jeder Report enthält:
+[`project-validation-report.schema.json`](project-validation-report.schema.json)
+ist der maschinenlesbare Vertrag des Reports. Jeder Report enthält:
 
-- `command`: `validate`, `host` oder `join`;
 - `valid`: genau dann `true`, wenn kein Issue mit `severity=error` vorliegt;
 - `runnerVersion`;
 - `rawDeerSha256` und `hostInputSha256`, sobald die jeweilige Phase erfolgreich
@@ -242,9 +242,8 @@ Beispiel:
 
 ```json
 {
-  "command": "validate",
   "valid": false,
-  "runnerVersion": "0.3",
+  "runnerVersion": "0.4",
   "rawDeerSha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
   "hostInputSha256": null,
   "issues": [
@@ -262,14 +261,13 @@ Beispiel:
 }
 ```
 
-Die Prozesscodes sind bewusst binär: `0` bedeutet Erfolg, `1` Fehler. Die
-Authoring-UI verwendet für die Produktionsprüfung ausschließlich `validate`
-und wertet bei einem Fehler den kanonischen Report aus. Ungültige
-CLI-Verwendung liefert stattdessen den Hilfetext auf stderr. Ein fehlender oder
-schemawidriger Report ist ein technischer Adapterfehler.
+Ein fehlender oder schemawidriger Report ist ein technischer Adapterfehler.
+Der interne Gradle-Packaging-Schritt verwendet binäre Prozesscodes: `0`
+bedeutet Erfolg, `1` Fehler. Diese Prozessgrenze ist keine öffentliche
+Authoring-Schnittstelle.
 
 Reports enthalten genau zwei Hashfelder: `rawDeerSha256` für die exakten
 Dateibytes und `hostInputSha256` für die vollständige kanonische `deer.json`.
-Im Netzwerk wird nur `hostInputSha256` als Kompatibilitätsmarker verwendet. Ein
-Validierungs- oder Startversuch mutiert weder Projektordner noch
+Im Netzwerk wird nur `hostInputSha256` als Kompatibilitätsmarker verwendet.
+Validierung und Packaging-Prüfung mutieren weder Projektordner noch
 Dungeon-Checkout.

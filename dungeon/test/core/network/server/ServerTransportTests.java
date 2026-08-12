@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.entities.CharacterClass;
+import core.Entity;
 import core.Game;
 import core.game.PreRunConfiguration;
 import core.network.config.NetworkConfig;
@@ -18,6 +19,8 @@ import core.network.messages.c2s.DebugTelemetryRequest;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.SnapshotAck;
+import core.network.messages.s2c.ConnectAck;
+import core.network.messages.s2c.ConnectReject;
 import core.network.messages.s2c.DebugPong;
 import core.network.messages.s2c.DebugTelemetrySnapshot;
 import core.utils.Vector2;
@@ -299,6 +302,71 @@ public class ServerTransportTests {
     assertEquals(
         CharacterClass.THE_LAST_HOUR_ROGUE,
         transport.selectedCharacterClass(new ConnectRequest((short) 1, "player2")));
+  }
+
+  /** Verifies the player cap rejects fresh identities without blocking retained reconnects. */
+  @Test
+  public void playerCapRejectsFreshIdentityButAllowsRetainedReconnect() throws Exception {
+    ServerTransport transport = currentTransport.get();
+    transport.stop();
+    transports.remove(transport);
+    transport = new ServerTransport(1);
+    transports.add(transport);
+    currentTransport.set(transport);
+    short retainedClientId = 7;
+    byte[] reconnectToken = new byte[] {1, 2, 3};
+    Entity retainedPlayer = new Entity();
+    ClientState retainedState =
+        new ClientState(
+            retainedClientId,
+            "retained-player",
+            ServerRuntime.SESSION_ID,
+            reconnectToken,
+            CharacterClass.WIZARD);
+    retainedState.playerEntity(retainedPlayer);
+    Session retainedSession = testSession(new ArrayList<>());
+    Mockito.when(retainedSession.tcpCtx().channel().isActive()).thenReturn(false);
+    retainedSession.attachClientState(retainedState);
+    sessionsMap(transport).put(retainedSession.tcpCtx().channel().id(), retainedSession);
+    clientIdToSessionMap(transport).put(retainedClientId, retainedSession);
+    clientIdToNameMap(transport).put(retainedClientId, retainedState.username());
+
+    try {
+      List<NetworkMessage> freshMessages = new ArrayList<>();
+      Session freshSession = testSession(freshMessages);
+      invokeConnectRequest(
+          transport,
+          freshSession,
+          new ConnectRequest(NetworkConfig.PROTOCOL_VERSION, "fresh-player"));
+
+      assertTrue(freshSession.clientState().isEmpty());
+      assertEquals(1, clientIdToSessionMap(transport).size());
+      assertEquals(1, nextClientId(transport).get());
+      assertEquals(1, freshMessages.size());
+      ConnectReject rejection = (ConnectReject) freshMessages.getFirst();
+      assertEquals(
+          ConnectReject.Reason.SERVER_FULL, ConnectReject.Reason.fromCode(rejection.reason()));
+
+      List<NetworkMessage> reconnectMessages = new ArrayList<>();
+      Session reconnectSession = testSession(reconnectMessages);
+      invokeConnectRequest(
+          transport,
+          reconnectSession,
+          new ConnectRequest(
+              NetworkConfig.PROTOCOL_VERSION,
+              retainedState.username(),
+              ServerRuntime.SESSION_ID,
+              reconnectToken));
+
+      assertSame(retainedState, reconnectSession.clientState().orElseThrow());
+      assertEquals(
+          CharacterClass.WIZARD, reconnectSession.clientState().orElseThrow().characterClass());
+      assertSame(reconnectSession, clientIdToSessionMap(transport).get(retainedClientId));
+      assertTrue(reconnectMessages.stream().anyMatch(ConnectAck.class::isInstance));
+      assertTrue(reconnectMessages.stream().noneMatch(ConnectReject.class::isInstance));
+    } finally {
+      Game.remove(retainedPlayer);
+    }
   }
 
   /**
@@ -637,6 +705,19 @@ public class ServerTransportTests {
   }
 
   @SuppressWarnings("unchecked")
+  private Map<Short, String> clientIdToNameMap(ServerTransport transport) throws Exception {
+    Field field = ServerTransport.class.getDeclaredField("clientIdToName");
+    field.setAccessible(true);
+    return (Map<Short, String>) field.get(transport);
+  }
+
+  private AtomicInteger nextClientId(ServerTransport transport) throws Exception {
+    Field field = ServerTransport.class.getDeclaredField("nextClientId");
+    field.setAccessible(true);
+    return (AtomicInteger) field.get(transport);
+  }
+
+  @SuppressWarnings("unchecked")
   private Map<InetSocketAddress, Short> udpToClientIdMap(ServerTransport transport)
       throws Exception {
     Field field = ServerTransport.class.getDeclaredField("udpToClientId");
@@ -669,6 +750,15 @@ public class ServerTransportTests {
             "onInputMessage", Session.class, InputMessage.class);
     method.setAccessible(true);
     method.invoke(transport, session, message);
+  }
+
+  private void invokeConnectRequest(
+      ServerTransport transport, Session session, ConnectRequest request) throws Exception {
+    Method method =
+        ServerTransport.class.getDeclaredMethod(
+            "onConnectRequest", Session.class, ConnectRequest.class);
+    method.setAccessible(true);
+    method.invoke(transport, session, request);
   }
 
   private void dispatch(Session session, NetworkMessage message) {

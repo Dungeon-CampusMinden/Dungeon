@@ -1,6 +1,6 @@
 # The Last Hour Interaction Catalog
 
-Status: nicht-normatives Inventar; beschriebener Foundation-Zielslice festgelegt
+Status: nicht-normatives Inventar; beschriebener Foundation-Slice implementiert
 
 Dieses Dokument beschreibt relevante Elemente aus `theLastHourEscapeRoom`. Es
 erweitert weder den DEER-Vertrag noch die vom Runner ausführbaren Mechaniken.
@@ -31,9 +31,9 @@ Maßgeblich bleiben [`deer.schema.json`](deer.schema.json) und
 - `theLastHourEscapeRoom/src/modules/trash/TrashMinigameFactory.java`
 - `theLastHourEscapeRoom/src/modules/usbstick/UsbStickItem.java`
 
-## Foundation-Zielslice
+## Implementierter Foundation-Slice
 
-Nur diese Zuordnungen gehören zum festgelegten Vertrag in Schema und Runner:
+Nur diese Zuordnungen gehören zum implementierten Vertrag in Schema und Runner:
 
 | Originalelement | Spieleraktion | DEER-Abbildung |
 |---|---|---|
@@ -41,7 +41,7 @@ Nur diese Zuordnungen gehören zum festgelegten Vertrag in Schema und Runner:
 | Storage-Keypad oder Tür-Keypad | Zahlencode eingeben | Numeric-Input mit Keypad-`surfaceId`, `answer` und `showDigitCount` |
 | Ausgang | nach den direkten Vorgängerrätseln gemeinsam verlassen | Endknoten mit Door-`surfaceId`; dieselbe ID bleibt Door-/Exit-Identität |
 
-Der Foundation-Zielslice deckt damit die Kette von UI-Eingabe über
+Der implementierte Foundation-Slice deckt damit die Kette von UI-Eingabe über
 `deer.json`, Assetreferenzen und Graphvalidierung bis zur deterministischen
 In-Memory-Ableitung ab. Die vollständige Parametersemantik steht
 ausschließlich in der DEER-Spezifikation. Der Soll-Slice erhält eine geteilte

@@ -1,0 +1,168 @@
+{
+  "formatVersion": "0.4",
+  "seed": 123456789,
+  "metadata": {
+    "id": "wizard_foundation_v0_4",
+    "title": "Foundation Beispielraum V0.4",
+    "locale": "de-DE",
+    "description": "Kleiner Foundation-Slice mit Informationsquelle, Zahlencode und Ausgang.",
+    "author": "Beispiel Lehrkraft"
+  },
+  "learningDesign": {
+    "objectives": [
+      {
+        "id": "lo_extract_numeric_clue",
+        "description": "Die Lernenden können eine relevante Zahleninformation aus einem Hinweis entnehmen und zielgerichtet anwenden."
+      }
+    ],
+    "debriefPrompts": [
+      "Woran habt ihr erkannt, welche Information aus der Notiz für den Zahlencode relevant war?"
+    ]
+  },
+  "session": {
+    "targetAudience": "Lernende im Bereich IT-Sicherheit",
+    "priorKnowledge": "Grundlagen zu einfachen Codes und Hinweisen.",
+    "playerCount": {
+      "min": 1,
+      "max": 4
+    },
+    "time": {
+      "limitMinutes": 30,
+      "limitMode": "hard"
+    }
+  },
+  "scenario": {
+    "themeId": "default",
+    "mission": "Findet den Zugangscode und verlasst gemeinsam den Raum.",
+    "introText": [
+      "Die Ausgangstür ist verschlossen. Im Raum muss ein verwertbarer Hinweis versteckt sein."
+    ],
+    "successText": [
+      "Die Gruppe hat den Ausgang erreicht."
+    ],
+    "failureText": [
+      "Die Zeit ist abgelaufen."
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "s_world",
+      "kind": "world",
+      "title": "Lagerraum"
+    },
+    {
+      "id": "s_desk",
+      "kind": "container",
+      "title": "Schreibtisch"
+    },
+    {
+      "id": "s_exit_keypad",
+      "kind": "keypad",
+      "title": "Tür-Keypad"
+    },
+    {
+      "id": "s_exit_door",
+      "kind": "door",
+      "title": "Ausgangstür"
+    }
+  ],
+  "riddleGraph": {
+    "nodes": [
+      {
+        "id": "n_start",
+        "kind": "start"
+      },
+      {
+        "id": "n_exit_code",
+        "kind": "riddle",
+        "riddleId": "r_exit_code"
+      },
+      {
+        "id": "n_exit",
+        "kind": "end",
+        "surfaceId": "s_exit_door"
+      }
+    ],
+    "edges": [
+      {
+        "from": "n_start",
+        "to": "n_exit_code"
+      },
+      {
+        "from": "n_exit_code",
+        "to": "n_exit"
+      }
+    ]
+  },
+  "riddles": [
+    {
+      "id": "r_exit_code",
+      "title": "Türcode entschlüsseln",
+      "difficulty": "easy",
+      "estimatedMinutes": 5,
+      "learningObjectiveIds": [
+        "lo_extract_numeric_clue"
+      ],
+      "informationSources": [
+        {
+          "id": "source_code_note",
+          "surfaceId": "s_desk",
+          "resources": [
+            {
+              "id": "res_keypad_code",
+              "kind": "inline_text",
+              "title": "Notiz mit Zahlencode",
+              "text": "Die markierten Zahlen ergeben 3758."
+            },
+            {
+              "id": "res_note_image",
+              "kind": "asset",
+              "title": "Papiernotiz",
+              "assetId": "asset_foundation_note"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "input_exit_code",
+          "type": "numeric",
+          "surfaceId": "s_exit_keypad",
+          "answer": "3758",
+          "showDigitCount": true
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_exit_code_1",
+          "title": "Schreibtisch prüfen",
+          "text": "Der Hinweis liegt nicht offen im Raum.",
+          "severity": "orientation"
+        },
+        {
+          "id": "h_exit_code_2",
+          "title": "Zahlencode",
+          "text": "Der Code besteht aus vier Ziffern.",
+          "severity": "approach"
+        },
+        {
+          "id": "h_exit_code_3",
+          "title": "Lösung",
+          "text": "Der Zahlencode lautet 3758.",
+          "severity": "solution"
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset_foundation_note",
+      "path": "assets/custom/foundation-note-3b50ea522803.png",
+      "mediaType": "image/png",
+      "source": {
+        "license": "Dungeon project asset",
+        "attribution": "Dungeon contributors"
+      }
+    }
+  ]
+}

@@ -2,6 +2,7 @@ package core.game;
 
 import core.utils.logging.DungeonLogger;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.file.Path;
@@ -10,79 +11,64 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Launches and supervises a dedicated server in a separate JVM.
  *
- * <p>Used by the {@link MainMenu} "Host Game" flow: a child process is started from the current
- * JVM's classpath, the menu waits until the server's network port becomes reachable, and only then
- * does the client transition into the game and connect to {@code 127.0.0.1}.
- *
- * <p>The spawned process is bound to the lifetime of the hosting client: a JVM shutdown hook
- * destroys it when the client exits, so closing the game also stops the hosted server.
+ * <p>The main menu waits until the child exposes its network port before connecting to it.
  */
 public final class ServerProcess {
 
   /** Default argument used to put an explicit project's entry point into server mode. */
   public static final String SERVER_ARGUMENT = "--server";
 
-  /**
-   * System property the host passes to the server child process to communicate the port to bind.
-   *
-   * <p>An explicit project's server entry point can read it via {@link Integer#getInteger(String,
-   * Integer)} to honor a non-default port.
-   */
+  /** System property used to communicate the server port to the child process. */
   public static final String PORT_PROPERTY = "dungeon.server.port";
 
-  /**
-   * System property set on server child processes started by a hosting client (the main menu's
-   * "Host Game" option). Standalone server launches do not set it, so a server starter can use it
-   * to hide UI that is only useful for standalone servers (e.g. a status window).
-   */
+  /** System property identifying a server process managed by a hosting client. */
   public static final String MANAGED_PROPERTY = "dungeon.server.managed";
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerProcess.class);
   private static final String LOCALHOST = "127.0.0.1";
   private static final int CONNECT_PROBE_TIMEOUT_MS = 500;
   private static final long POLL_INTERVAL_MS = 200;
+  private static final long TERMINATION_TIMEOUT_SECONDS = 5;
 
   private final Process process;
 
-  private ServerProcess(Process process) {
+  private ServerProcess(final Process process) {
     this.process = process;
   }
 
   /**
-   * Starts the given main class in a new JVM, reusing the current process' {@code java} executable
-   * and classpath.
-   *
-   * <p>The configured {@code port} is forwarded both as the {@link #PORT_PROPERTY} system property
-   * and is the port {@link #awaitReady(int, Duration)} probes for readiness.
+   * Starts the given main class in a direct child JVM.
    *
    * @param mainClass the server main class to launch
    * @param port the port the server is expected to listen on
-   * @param args extra program arguments (e.g. {@code --server})
+   * @param args extra program arguments such as {@code --server}
    * @return a handle to the started server process
    * @throws IOException if the child process could not be started
    */
-  public static ServerProcess start(Class<?> mainClass, int port, String... args)
+  public static ServerProcess start(final Class<?> mainClass, final int port, final String... args)
       throws IOException {
-    List<String> command = buildCommand(mainClass, port, args);
-    LOGGER.info("Starting server process: {}", String.join(" ", command));
-    Process process = new ProcessBuilder(command).inheritIO().start();
+    Process process =
+        new ProcessBuilder(buildCommand(mainClass, port, args))
+            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+            .redirectError(ProcessBuilder.Redirect.INHERIT)
+            .start();
     ServerProcess server = new ServerProcess(process);
     Runtime.getRuntime()
         .addShutdownHook(new Thread(server::stop, "server-process-shutdown-" + process.pid()));
     return server;
   }
 
-  private static List<String> buildCommand(Class<?> mainClass, int port, String... args) {
+  private static List<String> buildCommand(
+      final Class<?> mainClass, final int port, final String... args) {
     String javaHome = System.getProperty("java.home");
     boolean windows = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
-    String javaBin = Path.of(javaHome, "bin", windows ? "java.exe" : "java").toString();
-
     List<String> command = new ArrayList<>();
-    command.add(javaBin);
+    command.add(javaExecutable(javaHome, windows));
     command.add("-cp");
     command.add(System.getProperty("java.class.path"));
     command.add("-D" + PORT_PROPERTY + "=" + port);
@@ -91,7 +77,24 @@ public final class ServerProcess {
     if (args != null) {
       Collections.addAll(command, args);
     }
-    return command;
+    return List.copyOf(command);
+  }
+
+  private static String javaExecutable(final String javaHome, final boolean windows) {
+    if (!windows) {
+      return Path.of(javaHome, "bin", "java").toString();
+    }
+    String executableName =
+        ProcessHandle.current()
+            .info()
+            .command()
+            .map(Path::of)
+            .map(Path::getFileName)
+            .map(Path::toString)
+            .filter(name -> name.equalsIgnoreCase("javaw") || name.equalsIgnoreCase("javaw.exe"))
+            .map(ignored -> "javaw.exe")
+            .orElse("java.exe");
+    return Path.of(javaHome, "bin", executableName).toString();
   }
 
   /**
@@ -101,9 +104,9 @@ public final class ServerProcess {
    * @param timeout the maximum time to wait
    * @return {@code true} if the server became reachable and the process is still alive
    */
-  public boolean awaitReady(int port, Duration timeout) {
-    long deadlineNanos = System.nanoTime() + timeout.toNanos();
-    while (System.nanoTime() < deadlineNanos) {
+  public boolean awaitReady(final int port, final Duration timeout) {
+    long deadline = System.nanoTime() + timeout.toNanos();
+    while (System.nanoTime() < deadline) {
       if (!process.isAlive()) {
         LOGGER.warn("Server process exited before becoming reachable.");
         return false;
@@ -113,7 +116,7 @@ public final class ServerProcess {
       }
       try {
         Thread.sleep(POLL_INTERVAL_MS);
-      } catch (InterruptedException e) {
+      } catch (InterruptedException exception) {
         Thread.currentThread().interrupt();
         return false;
       }
@@ -121,7 +124,7 @@ public final class ServerProcess {
     return false;
   }
 
-  private boolean isReachable(int port) {
+  private static boolean isReachable(final int port) {
     try (Socket socket = new Socket()) {
       socket.connect(new InetSocketAddress(LOCALHOST, port), CONNECT_PROBE_TIMEOUT_MS);
       return true;
@@ -131,19 +134,37 @@ public final class ServerProcess {
   }
 
   /**
-   * Returns whether the underlying process is still running.
+   * Returns whether the direct server child is still running.
    *
-   * @return {@code true} if the process is alive
+   * @return {@code true} while the server child is alive
    */
   public boolean isAlive() {
     return process.isAlive();
   }
 
-  /** Stops the server process if it is still running. */
-  public void stop() {
-    if (process.isAlive()) {
-      LOGGER.info("Stopping server process (pid={}).", process.pid());
+  /** Requests a normal managed stop and waits briefly for the child to exit. */
+  public synchronized void stop() {
+    try {
+      if (process.isAlive()) {
+        LOGGER.info("Stopping server process (pid={}).", process.pid());
+        requestGracefulStop();
+        if (!process.waitFor(TERMINATION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+          process.destroy();
+          process.waitFor(TERMINATION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        }
+      }
+    } catch (InterruptedException exception) {
+      Thread.currentThread().interrupt();
       process.destroy();
+    }
+  }
+
+  private void requestGracefulStop() {
+    try (OutputStream childInput = process.getOutputStream()) {
+      childInput.write(0);
+      childInput.flush();
+    } catch (IOException exception) {
+      LOGGER.warn("Cannot request graceful hosted-server stop.");
     }
   }
 }

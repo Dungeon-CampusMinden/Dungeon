@@ -53,15 +53,26 @@ public final class MainMenu {
    */
   public static void run(
       String[] args, GameStarter game, ClientStarter client, ServerStarter server) {
-    Game.windowTitle(game.title());
-    Game.localization().currentLanguage(game.language());
-
     if (shouldRunMpServer(args)) {
+      Game.windowTitle(game.title());
+      Game.localization().currentLanguage(game.language());
       server.apply();
       Game.run();
       return;
     }
 
+    run(game, client);
+  }
+
+  /**
+   * Configures the client and shows the menu for an application that handles server mode itself.
+   *
+   * @param game the menu/hosting integration
+   * @param client the multiplayer client configuration
+   */
+  public static void run(GameStarter game, ClientStarter client) {
+    Game.windowTitle(game.title());
+    Game.localization().currentLanguage(game.language());
     client.apply();
     GameLoop.initialScreen(() -> new MainMenuScreen(game));
     Game.run();

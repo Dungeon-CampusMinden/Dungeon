@@ -1,6 +1,6 @@
-# deer.json Specification V0.3
+# deer.json Specification V0.4
 
-Status: kanonischer Contract für `formatVersion=0.3`
+Status: kanonischer implementierter Contract für `formatVersion=0.4`
 
 ## 1. Rolle und Lebenszyklus
 
@@ -30,7 +30,7 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 
 ```json
 {
-  "formatVersion": "0.3",
+  "formatVersion": "0.4",
   "seed": 123456789,
   "metadata": {},
   "learningDesign": {},
@@ -45,8 +45,8 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 
 | Feld | Zweck |
 |---|---|
-| `formatVersion` | Exakt `0.3`. |
-| `seed` | Stabiler Layout-Seed als Ganzzahl von `0` bis `9223372036854775807`. |
+| `formatVersion` | Exakt `0.4`. |
+| `seed` | Stabiler Layout-Seed als Ganzzahl von `0` bis `9007199254740991`. |
 | `metadata` | Stabile Projekt-ID, Titel, Inhaltssprache und optionale redaktionelle Angaben. |
 | `learningDesign` | Lernziele und Fragen zur Nachbesprechung. |
 | `session` | Zielgruppe, Vorwissen, Spielergrenzen und Zeitlimit. |
@@ -57,9 +57,9 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 | `assets` | Referenzierte PNG-/JPEG-Dateien. |
 
 Die UI erzeugt `seed` bei der ersten erfolgreichen Finalisierung genau einmal
-und erhält ihn bei späteren Finalisierungen. Der Runner übernimmt den gesamten
-schema-erlaubten nicht-negativen Java-`long`-Bereich. Weitere Schreib- und
-Identitätsregeln stehen in
+und erhält ihn bei späteren Finalisierungen. Der Bereich ist der lückenlos exakt
+darstellbare nicht-negative Safe-Integer-Bereich der RFC-8785-Zahlendarstellung.
+Weitere Schreib- und Identitätsregeln stehen in
 [`runner-project-format.md`](runner-project-format.md).
 
 ## 3. IDs und Referenzen
@@ -88,8 +88,8 @@ interpretiert der aktuelle Foundation-Runner bewusst nicht.
 
 ```json
 {
-  "id": "wizard_foundation_v0_3",
-  "title": "Foundation Beispielraum V0.3",
+  "id": "wizard_foundation_v0_4",
+  "title": "Foundation Beispielraum V0.4",
   "locale": "de-DE",
   "description": "Kleiner Foundation-Slice.",
   "author": "Beispiel Lehrkraft"
@@ -160,12 +160,17 @@ Zeitlimit die Sitzung erfolglos und `scenario.failureText` ist Pflicht. Bei
 }
 ```
 
-`themeId` ist im aktuellen Vertrag fest `default`, bleibt aber als
-Erweiterungspunkt für zukünftige Themes erhalten. `mission`, `introText` und
-`successText` sind Pflicht. Die drei Text-Arrays müssen mindestens eine
-nicht-leere Seite enthalten; jeder Eintrag wird in Array-Reihenfolge als eigene
-weiterklickbare Black-Fade-Seite angezeigt. `failureText` ist nur bei hartem
-Zeitlimit verpflichtend.
+`themeId` bestimmt neben dem visuellen Theme den geordneten Pool spielbarer
+`CharacterClass`-Skins. Im aktuellen Vertrag ist die ID fest `default`; ihr Pool
+besteht in dieser Reihenfolge aus `THE_LAST_HOUR_ROGUE` und
+`THE_LAST_HOUR_CHAR03`. Offizielle Wizard-Clients wählen keinen Skin aus. Der
+Server weist die Pool-Einträge zyklisch zu, sodass die ersten beiden Spieler
+verschiedene Skins erhalten und ein Skin erst nach Erschöpfung des Pools erneut
+verwendet wird. Die ID bleibt als Erweiterungspunkt für zukünftige Themes
+erhalten. `mission`, `introText` und `successText` sind Pflicht. Die drei
+Text-Arrays müssen mindestens eine nicht-leere Seite enthalten; jeder Eintrag
+wird in Array-Reihenfolge als eigene weiterklickbare Black-Fade-Seite angezeigt.
+`failureText` ist nur bei hartem Zeitlimit verpflichtend.
 
 ## 5. surfaces
 
@@ -196,18 +201,14 @@ einem früheren Raum liegen als der zugehörige Input, ohne das Rätselmodell zu
 
 ## 6. riddleGraph
 
-Der Graph beschreibt die strukturelle Progression. Der aktuelle Vertrag
-akzeptiert das aus geordneten Abschnitten ableitbare AND-Profil:
-
-1. Start hat Kanten zu allen Rätseln des ersten Abschnitts.
-2. Jedes Rätsel eines Abschnitts hat Kanten zu jedem Rätsel des nächsten
-   Abschnitts.
-3. Mehrere eingehende Kanten markieren die gemeinsame Abhängigkeit von allen
-   Vorgängern.
-4. Alle Rätsel des letzten Abschnitts haben Kanten zum Ende.
-
-Rätsel innerhalb eines Abschnitts sind parallel, bleiben aber Pflichträtsel.
-OR-Verzweigungen und optionale Pfade sind nicht darstellbar.
+Der Graph beschreibt die strukturelle Progression als beliebigen endlichen
+azyklischen Graphen verpflichtender AND-Abhängigkeiten. Jede direkte Kante
+`A -> B` bedeutet, dass `A` eine notwendige Voraussetzung von `B` ist. Bei
+mehreren eingehenden Kanten müssen alle direkten Vorgänger erfüllt sein.
+Jeder Knoten muss den einzigen Endknoten erreichen; deshalb bleiben sämtliche
+Rätsel verpflichtend. Vollständige geordnete Abschnittsgraphen sind ein
+gültiger einfacher Teilfall. OR-Verzweigungen, optionale oder bedingte Pfade,
+mehrere Ausgänge und mehrere Räume sind nicht darstellbar.
 
 Der Graph ist die einzige Progressionsquelle. Jedes Rätsel durchläuft
 serverautoritativ und monoton `LOCKED -> ACTIVE -> SOLVED`. Vor dem
@@ -234,7 +235,7 @@ Semantische Pflichtregeln:
 - jeder Knoten ist vom Start erreichbar und kann das Ende erreichen;
 - der Graph ist azyklisch;
 - `riddles[]` und Riddle-Knoten bilden eine Bijektion;
-- die Kanten entsprechen vollständig dem geordneten Abschnittsprofil;
+- die Zahl der Kanten überschreitet die Runner-Kapazität von 4096 nicht;
 - die `surfaceId` des Endknotens verweist auf die Door-Surface.
 
 Der Endknoten besitzt allein die durch `surfaceId` referenzierte Ausgangstür.
@@ -251,7 +252,7 @@ Gemeinsame Pflichtfelder:
 | `id` | stabile Rätsel-ID und Anker der deterministischen Runtime-Ableitung |
 | `title` | Authoring-Label; bleibt im DEER-Projekt, wird aktuell nicht angezeigt |
 | `learningObjectiveIds` | mindestens eine Authoring-Referenz auf ein Lernziel |
-| `estimatedMinutes` | verpflichtende redaktionelle Zeitschätzung |
+| `estimatedMinutes` | verpflichtende redaktionelle Zeitschätzung als Ganzzahl von `1` bis `9007199254740991` |
 | `difficulty` | optionale redaktionelle Schwierigkeit |
 | `informationSources` | null oder mehr Informationsquellen |
 | `inputs` | mindestens ein Input; alle Inputs sind mit AND verknüpft |
@@ -379,13 +380,14 @@ Ein Asset enthält:
 - eine global eindeutige `id`;
 - einen nicht leeren `path`;
 - `mediaType` mit `image/png` oder `image/jpeg`;
-- `source` mit nicht leerer `license` und optionaler, nicht leerer
-  `attribution`.
+- `source` mit nicht leerer `license` und optionaler `attribution`.
 
 `source` enthält ausschließlich diese Authoring-Metadaten. Zusätzliche Felder
-sind ungültig. Der Runner interpretiert Lizenz und Attribution nicht
-semantisch; als Teil der vollständigen `deer.json` beeinflussen Änderungen
-dennoch `hostInputSha256`.
+sind ungültig. Eine fehlende, leere oder ausschließlich aus Leerraumzeichen
+bestehende Attribution bedeutet fachlich, dass keine Attribution vorliegt. Der
+Runner interpretiert Lizenz und Attribution nicht semantisch; als strukturell
+unterschiedliche Teile der vollständigen `deer.json` beeinflussen sie dennoch
+`hostInputSha256`.
 
 Beide Assetvarianten stehen im selben `assets`-Array:
 
@@ -394,7 +396,7 @@ Beide Assetvarianten stehen im selben `assets`-Array:
   "assets": [
     {
       "id": "asset_foundation_note",
-      "path": "assets/custom/3b50ea522803-foundation-note.png",
+      "path": "assets/custom/foundation-note-3b50ea522803.png",
       "mediaType": "image/png",
       "source": {
         "license": "Dungeon project asset",
@@ -415,7 +417,7 @@ Beide Assetvarianten stehen im selben `assets`-Array:
 ```
 
 Der Pfad bestimmt die Variante allein durch sein Präfix.
-`assets/custom/<hashpraefix>-<name>.<ext>` bezeichnet eine Datei im
+`assets/custom/<name>-<hashsuffix>.<ext>` bezeichnet eine Datei im
 DEER-Projekt. Jeder andere Pfad, zum Beispiel `emotes/emote_cloud.png`, wird als
 Referenz auf ein bereits in der Spiel-JAR enthaltenes Asset behandelt. Dafür
 wird weder eine Projektdatei noch ein künstliches `assets/bundled/`-Verzeichnis
@@ -430,9 +432,9 @@ Für Custom-Assets gelten die Datei- und Sicherheitsregeln:
 - keine Backslashes, leeren, `.`- oder `..`-Segmente;
 - nur Forward-Slashes und kein führender Slash;
 - nur PNG oder JPEG und eine zur Dateiendung passende `mediaType`;
-- sie liegen als genau eine flache Datei unter `assets/custom/`, sind
-  keine Symlinks und beginnen im Dateinamen mit den ersten zwölf lowercase
-  Hex-Zeichen ihres SHA-256-Inhaltshashes und `-`.
+- sie liegen als genau eine flache Datei unter `assets/custom/`, sind keine
+  Symlinks und enden im Dateistamm mit `-` und den ersten zwölf lowercase
+  Hex-Zeichen ihres SHA-256-Inhaltshashes.
 
 Für einen gebündelten Pfad gilt stattdessen nur, dass er exakt und
 case-sensitive in der gemergten `internal_assets.txt` der Spiel-JAR vorkommen
@@ -453,9 +455,17 @@ Reihenfolge, Platzierungen und Runtime-Interaktionen. Er erzeugt generische
 Informationsquellen-, Collection- und Code-Interaktionen und übernimmt die
 End-Surface-Identität authentisch in Tür und Ausgang.
 
+Für die Präsentations- und Single-Room-Platzierungsreihenfolge sortiert der
+Runner Rätsel zuerst nach der längsten Vorgängerdistanz vom Start, dann nach
+der stabilen authorierten Rätsel-ID und zuletzt nach der Knoten-ID. Diese
+abgeleitete Ordnung ist reine Layoutmetadaten: Sie ergänzt, entfernt oder
+verkürzt keine Progressionskante. Gleiche validierte Topologie und gleicher
+Seed ergeben unabhängig von Node-, Edge- oder Riddle-Array-Reihenfolge dasselbe
+Layout.
+
 Host und Clients verwenden die vollständige DEER-Konfiguration mit Seed,
 Lösungen, Texten und Assetreferenzen sowie die verifizierten Custom-Assets als
-lokale Ableitungseingabe. V0.3 verspricht daher keine lokale
+lokale Ableitungseingabe. V0.4 verspricht daher keine lokale
 Antwortgeheimhaltung.
 
 Der Host bleibt alleinige Autorität für Rätselzustände, akzeptierten
@@ -492,8 +502,8 @@ Die semantische Prüfung ist auf dokumentübergreifende Regeln begrenzt:
   Informationsquellen und Inputs sowie existierende Referenzen auf Surfaces,
   Graphknoten, Rätsel und Assets;
 - `session.playerCount.min <= session.playerCount.max`;
-- Graphreichweite, Azyklizität, Rätsel-Bijektion und vollständiges
-  Abschnittsprofil;
+- Graphreichweite, Azyklizität, Rätsel-Bijektion und die mandatory
+  AND-Abhängigkeiten;
 - unbekannte oder inkompatible Surface-Referenzen;
 - genau eine World- und Door-Surface;
 - genau eine Informationsquelle je Container-Surface und genau ein Input je
@@ -516,7 +526,7 @@ vollständig Bestandteil der kanonischen DEER-Daten und beeinflussen deshalb
 
 Die Assetprüfung kontrolliert davon getrennt die portablen Pfade und
 Medientypen. Bei Custom-Assets prüft sie zusätzlich Symlinks, Dateiexistenz,
-Inhalt und SHA-256-Dateinamenpräfix; bei gebündelten Assets die exakte
+Inhalt und SHA-256-Dateinamensuffix; bei gebündelten Assets die exakte
 Mitgliedschaft in der internen Assetliste. Sie läuft zwingend vor der Bildung
 von `hostInputSha256`. Die Machbarkeitsprüfung begrenzt Rätsel, Resources und
 Hinweise.

@@ -1,0 +1,427 @@
+{
+  "formatVersion": "0.4",
+  "seed": 1524626702965152,
+  "metadata": {
+    "id": "the_last_hour",
+    "title": "The Last Hour",
+    "locale": "de-DE",
+    "description": "Runner-kompatible V0.4-Adaption der zentralen Hinweis- und Codekette von The Last Hour.",
+    "author": "Dungeon contributors"
+  },
+  "learningDesign": {
+    "objectives": [
+      {
+        "id": "lo_recognize_phishing",
+        "description": "Die Lernenden können eine legitime Support-Nachricht und Webadresse von Phishing-Nachrichten unterscheiden."
+      },
+      {
+        "id": "lo_decode_representations",
+        "description": "Die Lernenden können Informationen zwischen Binär-, Hexadezimal-, ASCII- und Morse-Darstellungen übertragen."
+      },
+      {
+        "id": "lo_follow_incident_clues",
+        "description": "Die Lernenden können verteilte digitale und physische Hinweise zu einer nachvollziehbaren Lösungskette verbinden."
+      },
+      {
+        "id": "lo_coordinate_team",
+        "description": "Die Lernenden können Fundstücke und Zwischenergebnisse im Team zusammenführen."
+      }
+    ],
+    "debriefPrompts": [
+      "Woran habt ihr die echte Support-Nachricht und die echte URL erkannt?",
+      "Welche Darstellungsschritte waren nötig, um aus dem Recovery-Code eine lesbare Zahl zu erhalten?",
+      "Welche Hinweise waren nur Ablenkung, und wie habt ihr das erkannt?",
+      "Wie habt ihr eure Funde und Zwischenergebnisse im Team organisiert?"
+    ]
+  },
+  "session": {
+    "targetAudience": "Lernende im Bereich IT-Sicherheit",
+    "priorKnowledge": "Grundlagen zu Phishing, Binär- und Hexadezimalzahlen sowie einfachen Codierungen sind hilfreich, aber nicht zwingend erforderlich.",
+    "playerCount": {
+      "min": 1,
+      "max": 2
+    },
+    "time": {
+      "limitMinutes": 60,
+      "limitMode": "hard"
+    }
+  },
+  "scenario": {
+    "themeId": "default",
+    "mission": "Rekonstruiert Mertens' letzte Schritte, stellt den Zugriff auf seine Systeme wieder her und öffnet den Ausgang, bevor die Zeit abläuft.",
+    "introText": [
+      "Die Tür fällt hinter euch ins Schloss. Auf dem Schreibtisch liegen zurückgelassene Notizen, und Mertens' Systeme warten auf die richtigen Wiederherstellungscodes."
+    ],
+    "successText": [
+      "Der letzte Code ist korrekt. Der Ausgang öffnet sich und das gesamte Team verlässt rechtzeitig den Raum."
+    ],
+    "failureText": [
+      "Die letzte Stunde ist verstrichen, bevor der Ausgang geöffnet werden konnte."
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "s_office",
+      "kind": "world",
+      "title": "Büro von Dr. Mertens"
+    },
+    {
+      "id": "s_desk",
+      "kind": "container",
+      "title": "Schreibtisch mit Incident-Unterlagen"
+    },
+    {
+      "id": "s_recovery_keypad",
+      "kind": "keypad",
+      "title": "SecuGate-Recovery-Eingabe"
+    },
+    {
+      "id": "s_storage_morse_note",
+      "kind": "container",
+      "title": "Morse-Hinweis am Lagerraum"
+    },
+    {
+      "id": "s_storage_keypad",
+      "kind": "keypad",
+      "title": "Keypad des Lagerraums"
+    },
+    {
+      "id": "s_vent_plate",
+      "kind": "container",
+      "title": "Lüftungsgitter mit Seriennummer"
+    },
+    {
+      "id": "s_vent_keypad",
+      "kind": "keypad",
+      "title": "Gebäudesteuerung für die Lüftung"
+    },
+    {
+      "id": "s_fragment_cache",
+      "kind": "container",
+      "title": "Aus der Lüftung gewehte Bildfragmente"
+    },
+    {
+      "id": "s_exit_keypad_left",
+      "kind": "keypad",
+      "title": "Ausgangscode, erster Block"
+    },
+    {
+      "id": "s_exit_keypad_right",
+      "kind": "keypad",
+      "title": "Ausgangscode, zweiter Block"
+    },
+    {
+      "id": "s_exit_door",
+      "kind": "door",
+      "title": "Verriegelter Ausgang"
+    }
+  ],
+  "riddleGraph": {
+    "nodes": [
+      {
+        "id": "n_start",
+        "kind": "start"
+      },
+      {
+        "id": "n_recover_access",
+        "kind": "riddle",
+        "riddleId": "r_recover_access"
+      },
+      {
+        "id": "n_open_storage",
+        "kind": "riddle",
+        "riddleId": "r_open_storage"
+      },
+      {
+        "id": "n_connect_vent",
+        "kind": "riddle",
+        "riddleId": "r_connect_vent"
+      },
+      {
+        "id": "n_unlock_exit",
+        "kind": "riddle",
+        "riddleId": "r_unlock_exit"
+      },
+      {
+        "id": "n_exit",
+        "kind": "end",
+        "surfaceId": "s_exit_door"
+      }
+    ],
+    "edges": [
+      {
+        "from": "n_start",
+        "to": "n_recover_access"
+      },
+      {
+        "from": "n_start",
+        "to": "n_connect_vent"
+      },
+      {
+        "from": "n_recover_access",
+        "to": "n_open_storage"
+      },
+      {
+        "from": "n_open_storage",
+        "to": "n_unlock_exit"
+      },
+      {
+        "from": "n_connect_vent",
+        "to": "n_unlock_exit"
+      },
+      {
+        "from": "n_unlock_exit",
+        "to": "n_exit"
+      }
+    ]
+  },
+  "riddles": [
+    {
+      "id": "r_recover_access",
+      "title": "Mertens' Zugang rekonstruieren",
+      "difficulty": "medium",
+      "estimatedMinutes": 8,
+      "learningObjectiveIds": [
+        "lo_recognize_phishing",
+        "lo_follow_incident_clues",
+        "lo_coordinate_team"
+      ],
+      "informationSources": [
+        {
+          "id": "source_incident_notes",
+          "surfaceId": "s_desk",
+          "resources": [
+            {
+              "id": "res_login_fragments",
+              "kind": "inline_text",
+              "title": "Zwei Teile der Zugangsdaten",
+              "text": "Die beiden Notizen enthalten die Fragmente A12B und B34xy. Zusammengesetzt ergeben sie Mertens' Zugangshinweis."
+            },
+            {
+              "id": "res_support_message",
+              "kind": "inline_text",
+              "title": "Legitime SecuGate-Nachricht",
+              "text": "Andreas Keller <andreas.keller@secugate.com>: Re: SG-4 Access Code - Controlled Reconstruction. Ziel: https://support.secugate.com/sg4/recovery-sequence"
+            },
+            {
+              "id": "res_recovery_sequence",
+              "kind": "inline_text",
+              "title": "SG-4-Recovery-Sequenz",
+              "text": "00110110 00110101 00110100 00111000"
+            },
+            {
+              "id": "res_conversion_path",
+              "kind": "inline_text",
+              "title": "Umwandlungsweg",
+              "text": "Teilt die Binärfolge in Vierergruppen, überführt sie in Hexadezimalzeichen und interpretiert anschließend jeweils zwei Hexadezimalzeichen als ASCII."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "input_collect_incident_notes",
+          "type": "collection",
+          "informationSourceId": "source_incident_notes"
+        },
+        {
+          "id": "input_recovery_sequence",
+          "type": "numeric",
+          "surfaceId": "s_recovery_keypad",
+          "answer": "6548",
+          "showDigitCount": true
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_incident_notes_1",
+          "title": "Domain vergleichen",
+          "text": "Die legitime Nachricht stammt von Andreas Keller und führt direkt zu secugate.com.",
+          "severity": "orientation"
+        },
+        {
+          "id": "h_incident_notes_2",
+          "title": "Binärfolge",
+          "text": "Bearbeitet die vier Bytes von links nach rechts.",
+          "severity": "orientation"
+        },
+        {
+          "id": "h_recovery_1",
+          "title": "Vierergruppen",
+          "text": "Teilt jedes Byte in zwei Vierergruppen und übersetzt diese zunächst nach Hexadezimal.",
+          "severity": "approach"
+        },
+        {
+          "id": "h_recovery_2",
+          "title": "ASCII",
+          "text": "Je zwei Hexadezimalzeichen ergeben ein ASCII-Zeichen.",
+          "severity": "approach"
+        }
+      ]
+    },
+    {
+      "id": "r_open_storage",
+      "title": "Morse-Code entschlüsseln und Lagerraum öffnen",
+      "difficulty": "medium",
+      "estimatedMinutes": 5,
+      "learningObjectiveIds": [
+        "lo_decode_representations",
+        "lo_follow_incident_clues"
+      ],
+      "informationSources": [
+        {
+          "id": "source_storage_morse",
+          "surfaceId": "s_storage_morse_note",
+          "resources": [
+            {
+              "id": "res_storage_morse",
+              "kind": "inline_text",
+              "title": "Morse-Code am Lagerraum",
+              "text": "...-- --... ..... ---.."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "input_storage_code",
+          "type": "numeric",
+          "surfaceId": "s_storage_keypad",
+          "answer": "3758",
+          "showDigitCount": true
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_morse_1",
+          "title": "Vier Gruppen",
+          "text": "Jede durch ein Leerzeichen getrennte Punkt-Strich-Gruppe steht für genau eine Ziffer.",
+          "severity": "approach"
+        }
+      ]
+    },
+    {
+      "id": "r_connect_vent",
+      "title": "Lüftung mit der Steuerung verbinden",
+      "difficulty": "medium",
+      "estimatedMinutes": 4,
+      "learningObjectiveIds": [
+        "lo_follow_incident_clues"
+      ],
+      "informationSources": [
+        {
+          "id": "source_vent_serial",
+          "surfaceId": "s_vent_plate",
+          "resources": [
+            {
+              "id": "res_vent_serial_plate",
+              "kind": "inline_text",
+              "title": "Gravur am Lüftungsgitter",
+              "text": "Smart Vents Inc. - SV.IO.5 / Product Serial: sv00049221"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "input_collect_vent_serial",
+          "type": "collection",
+          "informationSourceId": "source_vent_serial"
+        },
+        {
+          "id": "input_vent_serial",
+          "type": "numeric",
+          "surfaceId": "s_vent_keypad",
+          "answer": "49221",
+          "showDigitCount": true
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_vent_serial_1",
+          "title": "Vollständige Nummer",
+          "text": "Gesucht sind die fünf Ziffern am Ende der Produktseriennummer.",
+          "severity": "orientation"
+        },
+        {
+          "id": "h_vent_1",
+          "title": "Seriennummer",
+          "text": "Lasst die vorangestellten Buchstaben und Nullen weg.",
+          "severity": "approach"
+        }
+      ]
+    },
+    {
+      "id": "r_unlock_exit",
+      "title": "Bildfragmente zusammensetzen und Ausgang entsperren",
+      "difficulty": "hard",
+      "estimatedMinutes": 7,
+      "learningObjectiveIds": [
+        "lo_follow_incident_clues",
+        "lo_coordinate_team"
+      ],
+      "informationSources": [
+        {
+          "id": "source_final_code_fragments",
+          "surfaceId": "s_fragment_cache",
+          "resources": [
+            {
+              "id": "res_final_code_fragments",
+              "kind": "inline_text",
+              "title": "Zusammengesetzter Endcode",
+              "text": "Die vier korrekt angeordneten Fragmente ergeben den Code 214795541."
+            },
+            {
+              "id": "res_final_code_instruction",
+              "kind": "inline_text",
+              "title": "Geteilte Ausgangseingabe",
+              "text": "Das Ausgangsterminal nimmt zuerst die ersten vier und anschließend die letzten fünf Ziffern an."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "input_collect_final_fragments",
+          "type": "collection",
+          "informationSourceId": "source_final_code_fragments"
+        },
+        {
+          "id": "input_exit_left",
+          "type": "numeric",
+          "surfaceId": "s_exit_keypad_left",
+          "answer": "2147",
+          "showDigitCount": true
+        },
+        {
+          "id": "input_exit_right",
+          "type": "numeric",
+          "surfaceId": "s_exit_keypad_right",
+          "answer": "95541",
+          "showDigitCount": true
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_final_code_1",
+          "title": "Bildkanten",
+          "text": "Vergleicht Linien und Übergänge an den Kanten der vier Fragmente.",
+          "severity": "orientation"
+        },
+        {
+          "id": "h_exit_left_1",
+          "title": "Erster Block",
+          "text": "Verwendet die Ziffern eins bis vier des neunstelligen Codes.",
+          "severity": "approach"
+        },
+        {
+          "id": "h_exit_right_1",
+          "title": "Zweiter Block",
+          "text": "Verwendet die Ziffern fünf bis neun des neunstelligen Codes.",
+          "severity": "approach"
+        }
+      ]
+    }
+  ],
+  "assets": []
+}

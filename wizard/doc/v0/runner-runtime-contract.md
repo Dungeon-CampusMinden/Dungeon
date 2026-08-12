@@ -1,6 +1,6 @@
-# Wizard Runner Runtime and Bootstrap Contract V0.3
+# Wizard Runner Runtime and Bootstrap Contract V0.4
 
-Status: kanonischer Runner-/Runtime-Zielvertrag
+Status: kanonischer implementierter Runner-/Runtime-Contract
 
 Scope: deterministische In-Memory-Ableitung und Multiplayer-Ausführung des
 generischen Runners
@@ -48,23 +48,16 @@ Assetreferenzen des eingebetteten Projekts. `--server` ist ausschließlich ein
 interner Startmodus der Spieler-JAR. Andere Argumente an deren Main-Class
 werden mit einem klaren Startfehler abgelehnt.
 
-## Sekundäre Entwicklungs-CLI
+## Produktionsvalidierung und Packaging
 
-```text
-wizard-runner validate --project <folder>
-wizard-runner host     --project <folder>
-wizard-runner join     --project <folder>
-```
+Die Authoring-Integration bindet `ProjectValidationPipeline` und
+`ProjectValidationReport` direkt als Java-Bibliothek an. Der Gradle-Packager
+verwendet einen kleinen internen Prozesseinstieg, der ausschließlich den
+übergebenen Projektordner validiert, seine Ableitbarkeit mit `RoomDeriver`
+prüft, den kanonischen Validierungsreport ausgibt und anschließend endet.
 
-Diese CLI bleibt für Authoring, Entwicklung und Diagnose erhalten, ist aber
-nicht der reguläre Spielerstart. Andere Subcommands sind nicht öffentlich;
-insbesondere existieren weder `run` noch `--players`. Auch `max=1` verwendet
-einen echten Hostprozess und einen getrennten Join-Client.
-
-Alle drei Befehle führen dieselbe Projektvalidierung und deterministische
-Ableitung genau einmal aus. `validate` erzeugt danach keine Multiplayer-Runtime.
-`host` und `join` starten ihre jeweilige Runtime direkt im aktuellen Prozess;
-die Entwicklungs-CLI erzeugt dafür keine zusätzlichen Kindprozesse.
+Auch `max=1` verwendet im Spielerfluss einen echten Hostprozess und einen
+getrennten Join-Client.
 
 ## Deterministische Ableitung
 
@@ -111,7 +104,7 @@ Der Identitätsmarker wird genau einmal im initialen Entity-Stream übertragen.
 Der Client puffert gewöhnliche initiale Spawns bis zur erfolgreichen Prüfung
 und Assetbindung und gibt sie danach in ursprünglicher Reihenfolge frei. Bei
 einem Reconnect muss dieselbe Projektidentität verwendet werden. Binäre Assets
-werden nicht übertragen; V0.3 bietet keinen Assetdownload.
+werden nicht übertragen; V0.4 bietet keinen Assetdownload.
 
 ## Multiplayer-Lebenszyklus
 
@@ -122,6 +115,15 @@ bleibt bis zum Ende des Hostprozesses reserviert. Nachdem alle Identitäten
 mindestens einmal vergeben wurden, kann nur derselbe Client seine vorhandene
 Identität im normalen Dungeon-Best-Effort-Reconnect wieder aufnehmen; ein neuer
 Ersatzclient wird abgewiesen.
+
+`scenario.themeId` bestimmt den geordneten Pool spielbarer
+`CharacterClass`-Skins. Für `default` lautet er `THE_LAST_HOUR_ROGUE`, danach
+`THE_LAST_HOUR_CHAR03`. Offizielle Wizard-Clients fordern keine Klasse an; der
+Server weist sie in Pool-Reihenfolge zyklisch zu. Damit erhalten die ersten
+beiden Identitäten verschiedene Skins, und erst nach Erschöpfung des Pools wird
+ein Skin erneut vergeben. Ein Reconnect verwendet denselben `ClientState` und
+dieselbe `CharacterClass`. Auch während einer vorübergehenden Trennung bleibt
+der Skin einer reconnect-fähigen reservierten Identität zugeordnet.
 
 `session.playerCount.min` ist ausschließlich die technische Startschwelle.
 Sobald mindestens so viele angenommene Clients ihre normale initiale Welt
@@ -167,10 +169,13 @@ vorhandenen Dungeon-Dialogvertrag angezeigt und beantwortet. Rätselzustand,
 Inputfortschritt, Hinweisfreigabe, Timer, Tür und terminales Ergebnis bleiben
 serverautoritativ.
 
-Die Authority setzt den `riddleGraph` unmittelbar als
+Die Authority setzt den `riddleGraph` unmittelbar als mandatory AND-DAG und
 Interaktionsfreigabe um. Vor dem Sessionstart sind alle Rätsel `LOCKED`; danach
 werden nur direkte Startnachfolger `ACTIVE`. Ein späteres Rätsel wird aktiv,
-wenn alle Vorgängerrätsel `SOLVED` sind. Nur Inputs aktiver Rätsel werden
+wenn alle direkten Vorgängerrätsel `SOLVED` sind. Mehrere gleichzeitig
+berechtigte Rätsel werden stabil nach ihrer authorierten Rätsel-ID behandelt.
+Der Runner rekonstruiert keine Progressionsabschnitte und ergänzt keine
+Abhängigkeiten. Nur Inputs aktiver Rätsel werden
 angenommen. Vorzeitige oder wiederholte Aktionen erzeugen keinen
 Teilfortschritt. Sind alle Inputs eines Rätsels erfüllt, wechselt es atomar und
 genau einmal zu `SOLVED`; dieser implizite Abschluss aktiviert gegebenenfalls
@@ -211,9 +216,11 @@ geprüft.
 
 ## Fehler und Abnahme
 
-Validierungs-, Ableitungs- und Bootstrapfehler verwenden in der sekundären CLI
-den gemeinsamen Runner-Reportpfad. Vor erfolgreicher Validierung startet weder
-Authority noch Server. Ein Fehler erzeugt keine Teilausgabe.
+Validierungs- und Ableitungsfehler verwenden im Authoring-Adapter und internen
+Packaging-Schritt den gemeinsamen `ProjectValidationReport`. Bootstrapfehler
+der Spieler-JAR werden als klare Startfehler ausgegeben. Vor erfolgreicher
+Validierung startet weder Authority noch Server. Ein Fehler erzeugt keine
+Teilausgabe.
 
 Die Abnahme schützt insbesondere:
 

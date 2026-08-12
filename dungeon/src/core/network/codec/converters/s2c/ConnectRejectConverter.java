@@ -52,6 +52,8 @@ public final class ConnectRejectConverter
       case INVALID_SESSION_TOKEN ->
           core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_INVALID_SESSION_TOKEN;
       case OTHER -> core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_OTHER;
+      case SERVER_FULL ->
+          core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_SERVER_FULL;
     };
   }
 
@@ -62,6 +64,7 @@ public final class ConnectRejectConverter
       case REJECT_REASON_INCOMPATIBLE_VERSION -> ConnectReject.Reason.INCOMPATIBLE_VERSION;
       case REJECT_REASON_NO_SESSION_FOUND -> ConnectReject.Reason.NO_SESSION_FOUND;
       case REJECT_REASON_INVALID_SESSION_TOKEN -> ConnectReject.Reason.INVALID_SESSION_TOKEN;
+      case REJECT_REASON_SERVER_FULL -> ConnectReject.Reason.SERVER_FULL;
       case REJECT_REASON_OTHER, REJECT_REASON_UNSPECIFIED, UNRECOGNIZED ->
           ConnectReject.Reason.OTHER;
     };

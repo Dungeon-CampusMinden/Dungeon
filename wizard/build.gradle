@@ -1,0 +1,251 @@
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.util.zip.ZipFile
+
+version = '0.4'
+
+dependencies {
+    implementation project(':escapeRoom')
+    implementation supportDependencies.jackson_databind
+    implementation supportDependencies.json_schema_validator
+    implementation supportDependencies.json_canonicalization
+
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
+}
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['resources/']
+sourceSets.test.java.srcDirs = ['test/']
+
+def generatedVersionResources = layout.buildDirectory.dir('generated-resources/version')
+def schemaSource = layout.projectDirectory.file('doc/v0/deer.schema.json')
+
+tasks.register('generateRunnerVersionResource') {
+    inputs.property('runnerVersion', project.version.toString())
+    outputs.file(generatedVersionResources.map {
+        it.file('wizard/runner-version.properties')
+    })
+
+    doFirst {
+        delete generatedVersionResources
+    }
+    doLast {
+        def output = generatedVersionResources.get()
+            .file('wizard/runner-version.properties').asFile
+        output.parentFile.mkdirs()
+        output.setText("runnerVersion=${project.version}\n", 'UTF-8')
+    }
+}
+
+tasks.named('processResources') {
+    dependsOn tasks.named('generateRunnerVersionResource')
+
+    from(generatedVersionResources)
+    from(schemaSource) {
+        into 'wizard/contract'
+    }
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
+def wizardProjectProperty = providers.gradleProperty('wizardProject')
+def embeddedProjectResources =
+    layout.buildDirectory.dir('generated-resources/wizard-room-project')
+def embeddedTestProjectResources =
+    layout.buildDirectory.dir('generated-test-resources/embedded-project')
+def mergedServiceResources =
+    layout.buildDirectory.dir('generated-resources/wizard-room-services')
+def canonicalTestProject = layout.projectDirectory.dir('examples/foundation-v0.4')
+
+def resolveWizardProject = {
+    if (!wizardProjectProperty.isPresent()) {
+        throw new GradleException(
+            'Missing required property: -PwizardProject=<project-folder>'
+        )
+    }
+    rootProject.file(wizardProjectProperty.get()).toPath().toAbsolutePath().normalize()
+}
+
+def stageEmbeddedProject = { projectPath, outputPath ->
+    def deerFile = projectPath.resolve('deer.json')
+    def customAssets = projectPath.resolve('assets/custom')
+    def embeddedRoot = outputPath.resolve('wizard/embedded-project')
+
+    delete(outputPath)
+    Files.createDirectories(embeddedRoot.resolve('assets/custom'))
+    Files.copy(deerFile, embeddedRoot.resolve('deer.json'))
+
+    def indexedPaths = ['deer.json']
+    fileTree(customAssets.toFile()).files
+        .findAll { it.isFile() }
+        .sort { left, right ->
+            customAssets.relativize(left.toPath()).toString().replace('\\', '/') <=>
+                customAssets.relativize(right.toPath()).toString().replace('\\', '/')
+        }
+        .each { source ->
+            def relative = customAssets.relativize(source.toPath())
+            def entry = "assets/custom/${relative.toString().replace('\\', '/')}"
+            def target = embeddedRoot.resolve('assets/custom').resolve(relative)
+            Files.createDirectories(target.parent)
+            Files.copy(source.toPath(), target)
+            indexedPaths << entry
+        }
+
+    Files.writeString(
+        embeddedRoot.resolve('files.list'),
+        indexedPaths.sort().join('\n') + '\n',
+        StandardCharsets.UTF_8
+    )
+}
+
+tasks.register('validateWizardRoomProject', JavaExec) {
+    group = 'verification'
+    description = 'Validates the DEER project before packaging a Wizard room.'
+    dependsOn tasks.named('classes')
+    mainClass = 'wizard.runner.PackagingProjectValidator'
+    classpath = sourceSets.main.runtimeClasspath
+    ignoreExitValue = false
+    inputs.property('wizardProject', wizardProjectProperty.orElse(''))
+
+    doFirst {
+        setArgs([resolveWizardProject().toString()])
+    }
+}
+
+tasks.register('stageWizardRoomProject') {
+    group = 'build'
+    description = 'Stages the validated DEER project as JAR resources.'
+    dependsOn tasks.named('validateWizardRoomProject')
+    inputs.property('wizardProject', wizardProjectProperty.orElse(''))
+    outputs.dir(embeddedProjectResources)
+    outputs.upToDateWhen { false }
+
+    doLast {
+        stageEmbeddedProject(
+            resolveWizardProject(),
+            embeddedProjectResources.get().asFile.toPath()
+        )
+    }
+}
+
+tasks.register('stageWizardRoomTestProject') {
+    group = 'verification'
+    description = 'Stages the canonical DEER example as embedded test resources.'
+    inputs.dir(canonicalTestProject)
+    outputs.dir(embeddedTestProjectResources)
+
+    doLast {
+        stageEmbeddedProject(
+            canonicalTestProject.asFile.toPath(),
+            embeddedTestProjectResources.get().asFile.toPath()
+        )
+    }
+}
+
+tasks.named('processTestResources') {
+    dependsOn tasks.named('stageWizardRoomTestProject')
+    from embeddedTestProjectResources
+}
+
+tasks.register('mergeWizardRoomServices') {
+    group = 'build'
+    description = 'Merges runtime service descriptors for the Wizard room JAR.'
+    dependsOn tasks.named('classes')
+    inputs.files(configurations.runtimeClasspath)
+    inputs.files(sourceSets.main.output)
+    outputs.dir(mergedServiceResources)
+
+    doLast {
+        def providersByService = new TreeMap<String, Set<String>>()
+        def collectDescriptor = { servicePath, input ->
+            def providers = providersByService.computeIfAbsent(
+                servicePath.toString(),
+                ignored -> new TreeSet<String>()
+            )
+            input.getText('UTF-8').lines().forEach { line ->
+                def provider = line.replaceFirst(/#.*/, '').trim()
+                if (!provider.isEmpty()) {
+                    providers.add(provider.toString())
+                }
+            }
+        }
+
+        (configurations.runtimeClasspath.files + sourceSets.main.output.files).each { source ->
+            if (source.isDirectory()) {
+                fileTree(source) {
+                    include 'META-INF/services/**'
+                }.files.each { descriptor ->
+                    descriptor.withInputStream { input ->
+                        collectDescriptor(
+                            source.toPath().relativize(descriptor.toPath())
+                                .toString().replace('\\', '/'),
+                            input
+                        )
+                    }
+                }
+            } else {
+                new ZipFile(source).withCloseable { archive ->
+                    archive.entries().toList()
+                        .findAll {
+                            !it.directory && it.name.startsWith('META-INF/services/')
+                        }
+                        .each { descriptor ->
+                            archive.getInputStream(descriptor).withCloseable { input ->
+                                collectDescriptor(descriptor.name, input)
+                            }
+                        }
+                }
+            }
+        }
+
+        def outputRoot = mergedServiceResources.get().asFile.toPath()
+        delete(outputRoot)
+        providersByService.each { servicePath, providers ->
+            def output = outputRoot.resolve(servicePath)
+            Files.createDirectories(output.parent)
+            Files.writeString(
+                output,
+                providers.join('\n') + '\n',
+                StandardCharsets.UTF_8
+            )
+        }
+    }
+}
+
+tasks.register('buildWizardRoomJar', Jar) {
+    group = 'build'
+    description = 'Builds WizardRoom.jar from -PwizardProject.'
+    dependsOn tasks.named('stageWizardRoomProject')
+    dependsOn tasks.named('mergeWizardRoomServices')
+    archiveFileName.set('WizardRoom.jar')
+    destinationDirectory.set(layout.buildDirectory.dir('libs'))
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from(mergedServiceResources)
+    from(embeddedProjectResources)
+    from(sourceSets.main.output)
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    manifest {
+        attributes('Main-Class': 'wizard.runner.WizardRoomApplication')
+    }
+
+    exclude(
+        'wizard/runner/PackagingProjectValidator.class',
+        'META-INF/*.SF',
+        'META-INF/*.DSA',
+        'META-INF/*.RSA',
+        'META-INF/*.EC',
+        'META-INF/SIG-*',
+        'META-INF/INDEX.LIST',
+        'module-info.class',
+        'META-INF/versions/*/module-info.class'
+    )
+}
