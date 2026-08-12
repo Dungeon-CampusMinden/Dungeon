@@ -17,6 +17,7 @@ import java.util.Map;
 import modules.computer.ComputerStateComponent;
 import modules.computer.ComputerStateLocal;
 import util.Lore;
+import util.translation.TranslationKey;
 
 /** Tab for displaying the contents of files in the computer UI. */
 public class FileTab extends ComputerTab {
@@ -116,7 +117,7 @@ public class FileTab extends ComputerTab {
   private static Actor createHintPage() {
     Table table = new Table();
     table.center();
-    Label label = Scene2dElementFactory.createLabel(Lore.HintFilePoem, 28, Color.BLACK);
+    Label label = Scene2dElementFactory.createLabel(TranslationKey.HintFilePoem, 28, Color.BLACK);
     label.setAlignment(Align.center);
     table.add(label).expand().center();
     return table;

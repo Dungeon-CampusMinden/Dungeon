@@ -1,114 +1,182 @@
 {
-  "questlog": {
-    "main": {
-      "tab": "Hauptquest",
-      "entries": {
-        "locked_in": "Die Bürotür ist hinter uns verriegelt. Der Timer an der Wand läuft.",
-        "restore_power": "Das Büro liegt weitgehend im Dunkeln. Einige Geräte reagieren nicht.",
-        "investigate_pc": "Der PC von Dr. Mertens ist wieder erreichbar. Auf ihm könnten Spuren seiner letzten Arbeit liegen.",
-        "storage_room": "Die Tür zum Nebenraum ist geöffnet. Hinter dem Zahlenschloss liegt ein weiterer Teil des Büros.",
-        "escape": "Wir haben genug Hinweise gesammelt, um Mertens' letzte Schritte nachzuvollziehen. Jetzt bleibt nur noch der Weg nach draußen."
-      }
+    "questlog": {
+        "main": {
+            "tab": "Hauptquest",
+            "entries": {
+                "locked_in": "Die Bürotür ist hinter uns verriegelt. Der Timer an der Wand läuft.",
+                "restore_power": "Das Büro liegt weitgehend im Dunkeln. Einige Geräte reagieren nicht.",
+                "investigate_pc": "Der PC von Dr. Mertens ist wieder erreichbar. Auf ihm könnten Spuren seiner letzten Arbeit liegen.",
+                "storage_room": "Die Tür zum Nebenraum ist geöffnet. Hinter dem Zahlenschloss liegt ein weiterer Teil des Büros.",
+                "escape": "Wir haben genug Hinweise gesammelt, um Mertens' letzte Schritte nachzuvollziehen. Jetzt bleibt nur noch der Weg nach draußen."
+            }
+        },
+        "investigation": {
+            "tab": "Ermittlung",
+            "entries": {
+                "mertens_missing": "Dr. Elias Mertens ist seit 72 Stunden verschwunden. Seine Forschung bei Ciphera Labs galt als streng vertraulich.",
+                "suspicious_contacts": "Vor seinem Verschwinden berichtete Mertens von ungewöhnlichen Zugriffen und verdächtigen Kontaktaufnahmen.",
+                "office_ransacked": "Das Büro wurde durchsucht. Jemand war offenbar auf der Suche nach Mertens' Projektdateien.",
+                "trust_carefully": "Einige Nachrichten wirken auffällig drängend oder manipulativ. Nicht jede Quelle scheint vertrauenswürdig zu sein.",
+                "mythos": "Der Name \"Mythos\" ist im Zusammenhang mit Mertens' Forschung aufgetaucht. Die Bedeutung ist noch unklar."
+            }
+        },
+        "computer": {
+            "tab": "Computer",
+            "entries": {
+                "power_switch": "Unter einem Papierstapel war ein versteckter Schalter. Er hat den PC und Teile der Beleuchtung aktiviert.",
+                "login_needed": "Der PC ist eingeschaltet, aber gesperrt.",
+                "mail_review": "Mertens' E-Mails und Blogeinträge geben einen Einblick in die Kontakte kurz vor seinem Verschwinden.",
+                "virus_warning": "Der PC wurde durch eine verdächtige Datei infiziert. Unbekannte Downloads sind offenbar riskant.",
+                "control_panel": "Auf dem USB-Stick ist eine Datei aufgetaucht, die zum Control Panel gehört."
+            }
+        },
+        "clues": {
+            "tab": "Hinweise",
+            "entries": {
+                "door_code": "Eine entschlüsselte Mail enthielt den Code für den Nebenraum.",
+                "trash_note": "In einem der Papierkörbe lag ein Zettel mit einem Teil der Zugangsdaten für den PC.",
+                "decoder_shelves": "Die Bücherregale enthalten Umrechnungstabellen und Decoder für verschiedene Notationen.",
+                "profile_paper": "Ein Profilblatt über Dr. Mertens liefert Kontext zu seiner Arbeit und Identität.",
+                "final_code": "Der zerrissene Hinweis ist wieder zusammengesetzt. Darauf steht der letzte Code."
+            }
+        },
+        "usb": {
+            "tab": "USB-Stick",
+            "entries": {
+                "search": "Im Büro gibt es mehrere USB-Sticks. Einer davon scheint zu Mertens' Arbeit zu gehören.",
+                "color_hint": "Eine Notiz erwähnt den relevanten USB-Stick auffällig indirekt über eine Farbe.",
+                "use_on_pc": "Der gefundene USB-Stick wurde am PC überprüft.",
+                "recover_data": "Auf dem USB-Stick oder dem PC befinden sich Spuren von Mertens' versteckten Daten."
+            }
+        },
+        "notes": {
+            "tab": "Notizen",
+            "entries": {
+                "free_notes": "Spielernotizen werden im aktuell ausgewählten QuestLog-Tab gespeichert."
+            }
+        }
     },
-    "investigation": {
-      "tab": "Ermittlung",
-      "entries": {
-        "mertens_missing": "Dr. Elias Mertens ist seit 72 Stunden verschwunden. Seine Forschung bei Ciphera Labs galt als streng vertraulich.",
-        "suspicious_contacts": "Vor seinem Verschwinden berichtete Mertens von ungewöhnlichen Zugriffen und verdächtigen Kontaktaufnahmen.",
-        "office_ransacked": "Das Büro wurde durchsucht. Jemand war offenbar auf der Suche nach Mertens' Projektdateien.",
-        "trust_carefully": "Einige Nachrichten wirken auffällig drängend oder manipulativ. Nicht jede Quelle scheint vertrauenswürdig zu sein.",
-        "mythos": "Der Name \"Mythos\" ist im Zusammenhang mit Mertens' Forschung aufgetaucht. Die Bedeutung ist noch unklar."
-      }
+    "settings": {
+        "controls_header": "Steuerung",
+        "controls_description": "Nutze die Maus, um Interaktionen zu finden.[n]Drücke dann [key code=$1], um zu interagieren!",
+        "pause": "Pause",
+        "interact": "Interagieren",
+        "inventory": "Inventar",
+        "questlog": "Questlog",
+        "inventory_description": "Im Inventar kannst du mit [key code=$1 type=mouse] ein Item benutzen"
     },
-    "computer": {
-      "tab": "Computer",
-      "entries": {
-        "power_switch": "Unter einem Papierstapel war ein versteckter Schalter. Er hat den PC und Teile der Beleuchtung aktiviert.",
-        "login_needed": "Der PC ist eingeschaltet, aber gesperrt.",
-        "mail_review": "Mertens' E-Mails und Blogeinträge geben einen Einblick in die Kontakte kurz vor seinem Verschwinden.",
-        "virus_warning": "Der PC wurde durch eine verdächtige Datei infiziert. Unbekannte Downloads sind offenbar riskant.",
-        "control_panel": "Auf dem USB-Stick ist eine Datei aufgetaucht, die zum Control Panel gehört."
-      }
+    "achievements": {
+        "lights_on": {
+            "name": "Licht an",
+            "description": "Lege den versteckten Schalter unter dem Papierstapel um."
+        },
+        "trash_diver": {
+            "name": "Mülltaucher",
+            "description": "Durchsuche einen Papierkorb."
+        },
+        "pc_unlocked": {
+            "name": "PC entsperrt",
+            "description": "Melde dich am Bürocomputer an."
+        },
+        "virus": {
+            "name": "Virus",
+            "description": "Löse einen Virus auf dem Bürocomputer aus."
+        },
+        "keypad_code": {
+            "name": "Keypad-Code",
+            "description": "Gib den richtigen Code am Keypad ein."
+        },
+        "bruteforce": {
+            "name": "Bruteforce",
+            "description": "Gib zehn falsche Codes am Keypad ein."
+        },
+        "usb_collector": {
+            "name": "USB-Sammler",
+            "description": "Sammle alle vier USB-Sticks."
+        },
+        "control_panel": {
+            "name": "Control Panel",
+            "description": "Öffne den Control-Panel-Tab am Computer."
+        },
+        "escaped_in_time": {
+            "name": "Rechtzeitig entkommen",
+            "description": "Beende das Spiel, bevor der Timer abläuft."
+        },
+        "escaped_too_late": {
+            "name": "Zu spät entkommen",
+            "description": "Beende das Spiel, nachdem der Timer abgelaufen ist."
+        },
+        "platinum": {
+            "name": "Platinum Achievement",
+            "description": "Schalte alle anderen Achievements frei."
+        }
     },
-    "clues": {
-      "tab": "Hinweise",
-      "entries": {
-        "door_code": "Eine entschlüsselte Mail enthielt den Code für den Nebenraum.",
-        "trash_note": "In einem der Papierkörbe lag ein Zettel mit einem Teil der Zugangsdaten für den PC.",
-        "decoder_shelves": "Die Bücherregale enthalten Umrechnungstabellen und Decoder für verschiedene Notationen.",
-        "profile_paper": "Ein Profilblatt über Dr. Mertens liefert Kontext zu seiner Arbeit und Identität.",
-        "final_code": "Der zerrissene Hinweis ist wieder zusammengesetzt. Darauf steht der letzte Code."
-      }
-    },
-    "usb": {
-      "tab": "USB-Stick",
-      "entries": {
-        "search": "Im Büro gibt es mehrere USB-Sticks. Einer davon scheint zu Mertens' Arbeit zu gehören.",
-        "color_hint": "Eine Notiz erwähnt den relevanten USB-Stick auffällig indirekt über eine Farbe.",
-        "use_on_pc": "Der gefundene USB-Stick wurde am PC überprüft.",
-        "recover_data": "Auf dem USB-Stick oder dem PC befinden sich Spuren von Mertens' versteckten Daten."
-      }
-    },
-    "notes": {
-      "tab": "Notizen",
-      "entries": {
-        "free_notes": "Spielernotizen werden im aktuell ausgewählten QuestLog-Tab gespeichert."
-      }
+    "translation": {
+        "IntroText_1": "Dr. Elias Mertens, leitender Sicherheitsforscher bei Ciphera Labs, hatte in den vergangenen Wochen an einem streng\nvertraulichen Projekt gearbeitet.\n\nSeine Forschungsarbeit galt als technologischer Durchbruch im Bereich der digitalen Sicherheit.\n",
+        "IntroText_2": "Kurz vor seinem Verschwinden meldete er ungewöhnliche Zugriffsversuche auf seine Systeme und verdächtige Kontaktanfragen von unbekannten Quellen im Internet.",
+        "IntroText_3": "Vor 72 Stunden brach der Kontakt zu ihm plötzlich ab.",
+        "IntroText_4": "Sein Büro wurde durchwühlt aufgefunden...\n\nSein Projekt hat möglicherweise mehr Aufmerksamkeit auf sich gezogen, als ihm bewusst war.",
+        "IntroText_5": "Dein Eindringen in sein Büro hat einen Alarm ausgelöst und die Tür hinter dir verriegelt.\n\nEine Uhr an der Wand zeigt an: Du hast 60 Minuten Zeit, bis etwas passiert...",
+        "IntroText_6": "The Last Hour",
+        "PostIntroDialogText1": "Deine Aufgabe ist es, die letzten Schritte von [color=#aa00aa]Dr. Mertens[/color] nachzuvollziehen.[n][pause=0.5]Verschaffe dir Zugang zu seinem PC, untersuche seine Kommunikation und decke die Hinweise auf, die er hinterlassen hat.[p]Aber sei vorsichtig: Nicht jeder Information kann man trauen.[n][pause=0.5]Unter den hilfreichen Nachrichten könnten sich auch gezielte [color=#aa0000]Manipulationsversuche[/color] befinden.[p]Wenn du herausfindest, woran er gearbeitet hat, kommst du vielleicht der Antwort näher, warum er[tr speed=0.1]...[pause=0.5][tr speed=0.3][shake strength=0.4 speed=0.5][color=#880000] verschwunden ist[/color][/shake].",
+        "PostIntroDialogText2": "[size=24]Steuerung:\n\nBewegen -> [key code=$1][key code=$2][key code=$3][key code=$4]\nInteragieren -> [key code=$5] / [key code=$6 type=mouse]\nInventar -> [key code=$7]\nDialog schließen -> [key code=$8]\nEinstellungen -> [key code=$9]\n[size=18][color=#888888]Die Steuerelemente kannst du in den Einstellungen finden.[/color]\n\n[size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
+        "R2DeskNoteText": "[tr speed=0]Eine Nachricht von einem Kollegen:[n][n][tr speed=2.4]Hey, ich hoffe, es geht dir gut! In letzter Zeit war es hier ziemlich hektisch, deshalb dachte ich mir, ich hinterlasse dir kurz eine Nachricht anstatt zu versuchen, dich zwischen zwei Besprechungen zu erwischen.[n][n][pause=0.3]Ach ja, und was deinen USB-Stick angeht, den ich mir ausgeliehen habe, hier ist eine kurze Zusammenfassung:[n][n][tr speed=1.0]- [color=#444477]H[/color]abe ihn zurückgebracht und bei der Schalttafel abgelegt.[n]- [color=#444477]Ü[/color]brigens blitzschnell – der beste Stick, den ich je benutzt habe.[n]- [color=#444477]E[/color]in nützliches kleines Ding, hat mir diese Woche wirklich geholfen.[n]- [color=#444477]I[/color]ch werde wohl bald wieder fragen, ob ich ihn mir ausleihen kann![n][n][pause=0.3][tr speed=2.0]Wie auch immer, pass auf dich auf und bleib nicht wieder zu lange weg. Bis morgen!",
+        "OutroText_1": "Die Ausgangstür von Dr. Mertens’ Büro öffnet sich endlich mit einem Klicken – doch seine letzte Botschaft hallt noch immer in deinem Kopf nach:",
+        "OutroText_2": "\"Die Projektunterlagen sind in einem Schließfach im 6. Stock verstaut.\"\n\nDu trittst hinaus in den stillen Flur, der Timer hinter dir ist endlich zum Stillstand gekommen.",
+        "OutroText_3": "Nachdem du die Beweise gesichert hast und die Wahrheit über das Verschwinden von Dr. Mertens in deinen Händen hältst, machst du dich auf den Weg nach oben, um die Projektdateien zu holen.",
+        "OutroText_4": "Als du das Schließfach erreichst und es öffnest, findest du eine letzte Nachricht von Dr. Mertens:\n\n\"Wenn du das hier liest, bedeutet das, dass du es geschafft hast. Das Projekt ist jetzt bei dir in sicheren Händen.\"\n\n",
+        "OutroText_5": "Ein Gefühl der Erleichterung überkommt einen, aber auch eine Frage, die einem nicht aus dem Kopf geht: Was genau ist \"Mythos\", und warum hat es so gefährliche Aufmerksamkeit auf sich gezogen?\n\nDu solltest mal danach googeln...",
+        "OutroText_6": "Herzlichen Glückwunsch!\n\nDu bist enkommen! :D",
+        "BadOutroText_1": "Die Bürotür wird endlich aufgeschlossen, doch aus den Lautsprechern ist nun kein Ton mehr zu hören – Dr. Mertens’ automatische Warnung hatte bereits alles gesagt:",
+        "BadOutroText_2": "\"Wenn du das hier hörst, ist die Zeit abgelaufen.\"\n\nDu trittst mit leeren Händen auf den Flur hinaus, wohl wissend, dass das Löschprotokoll seine Daten bereits gelöscht hat.",
+        "BadOutroText_3": "Du hast es lebend herausgeschafft, aber die Beweise sind verschwunden. Was auch immer Dr. Mertens über \"Mythos\" herausgefunden hat, ist mit seinen Akten untergegangen.",
+        "BadOutroText_4": "Im Spind im 6. Stock findest du nur verkohlte Fragmente und einen letzten Satz in seiner Handschrift:\n\n\"Falls dies zu spät bei dir ankommt: Beschütze die Menschen – nicht das Projekt.\"\n\n",
+        "BadOutroText_5": "Kein Durchbruch, der zur Aufklärung führen könnte. Keine Beweise, die man vorlegen könnte. Nur unbeantwortete Fragen und die Gewissheit, dass jemand diese Wahrheit verschleiern wollte.",
+        "BadOutroText_6": "Du bist entkommen...",
+        "HintFilePoem": "Hinter dem Gitter\nwo sich Staub angesammelt hat,\nliegen kleine Fetzen gefangen,\nvergessen, herangeweht.\n\nKeine Hand kann sie erreichen,\nkein Werkzeug kann sie heraushebeln,\naußer den schlafenden Wind zu wecken,\nund zuzusehen, wie sie davonfliegen.",
+        "TimerExpiredRecording": "[speaker img=images/scientist_portrait.png name=\"[color=$1]Dr. Mertens (Aufzeichnung)\"][tr speed=1.0]Dies ist eine automatische Nachricht vom Sicherheitssystem von [color=$1]Dr. Elias Mertens[/color].[p][tr speed=1.0]Wenn Sie dies hören, ist die Zeit abgelaufen.[n][pause=0.5]Als letzte Sicherheitsmaßnahme werden gerade alle meine Daten [color=#aa0000][shake strength=0.4 speed=0.5]automatisch vernichtet[/shake][/color].[p]Was auch immer Sie nicht wiederherstellen konnten[tr speed=0.1]...[tr speed=0.4] ist nun für immer verloren",
+        "Ringing1": "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] Hallo? Kannst du mich hören?[p]Mein Name ist Daniel Krell. Ich bin Geschäftsführer von Ciphera Labs.[p][speaker name=\"Daniel Krell?\"]Wie geht es euch denn so?[pause=0,5] Ihr seid doch noch drinnen, oder?[p][speaker img={path}]Ja, wir versuchen gerade, herauszufinden, was hier passiert ist, das System wiederherzustellen und die Projektdaten zu retten.[p][speaker name=\"Daniel Krell?\"]Oh, das freut mich sehr zu hören![pause=0,5] Hör mal, ich weiß, dass das eine schwierige Situation ist, aber ich möchte, dass du weißt, dass wir alles tun, was wir können, um dir zu helfen.[p]Tatsächlich hat mir, [color=$1]Dr. Mertens[/color] eine Notiz hinterlassen, in der er mir auftrug, den grünen USB-Stick zu benutzen, um[tr speed=0.3]... [tr speed=1]etwas zu tun, falls er verschwinden sollte.[p]Es steht nicht drin, was zu tun ist, aber ich bin mir sicher, dass du das schon herausfinden wirst.[p]Ich muss jetzt los, viel Glück![n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]",
+        "Ringing2": "[speaker name=\"???\"][shake][color=#333333][size=25]*kkrz*[/size][/color][/shake][n][n] ... Hallo? Hörst du mich?[p]Hier ist Adrian Voss.[p][speaker name=\"Adrian Voss?\"]Ich habe schon länger versucht, dich zu erreichen.[pause=0.5]Habe gehört, du bist an einem Tatort festgesessen.[p][speaker img={path}]Noch ein Anruf?[p][speaker name=\"Adrian Voss?\"]Hat schon jemand anderes versucht, dich zu kontaktieren?[p][speaker img={path}]Ja, jemand namens Daniel Krell, der behauptete, der CEO von Ciphera Labs zu sein.[p][speaker name=\"Adrian Voss?\"]Von dieser Person habe ich noch nie gehört, aber sie hat dich belogen.[p][speaker img={path}]Nun, die Tür hat sich hinter uns verschlossen. Wir versuchen herauszufinden, was passiert ist, und hier wieder herauszukommen.[p][speaker name=\"Adrian Voss?\"]Bleib konzentriert.[pause=0.5] Bewege dich vorsichtig durch  [color=$1]Mertens'[/color] Labor-[p]Bevor er verschwand, [color=$1]Mertens[/color]versuchte, mir etwas zu übergeben, aber er hat es nie wirklich getan.[p]Er sagte immer wieder [shake strength=0.3 speed=0.5][color=$1]\"Das würde dir gefallen, es ist dein Favorit\"[/color][/shake] zu mir, aber ich bin mir nicht sicher, was er damit meinte.[p]Vielleicht hast du mehr Glück, wenn du das mit etwas im Labor in Verbindung bringst.[p]Was auch immer du tust, sei vorsichtig. Voss aus.[n][n][pause=0.5][shake strength=0.3 speed=0.3][color=#333333]*Klick*[/color][/shake]",
+        "DecoyVentDialog1": "Einfach nur eine ganz normale Klimaanlage.[n][n]Man sieht eine Inschrift, die in den Stahlrand des Gitters eingraviert ist, aber das meiste davon wurde weggekratzt und ist nicht mehr lesbar:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: $1[n]",
+        "DecoyVentDialog2": "Einfach nur eine ganz normale Klimaanlage.[n][n]Man sieht eine Inschrift, die in den Stahlrand des Gitters eingraviert ist, aber das meiste davon wurde weggekratzt und ist nicht mehr lesbar:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Product Serial: $1[n]",
+        "VentDialog": "Nur eine ganz normale Klimaanlage.[n][n]Auf dem Stahlrand der Regenrinne ist folgende Aufschrift eingraviert:[n][n][n][font=fonts/Doto_Rounded-ExtraBold][align=center][color=#777777]Smart Vents Inc. - SV.IO.5[n]Seriennummer: sv000$1[n]",
+        "DeskNothing_1": "Weitere Artikel über seltsame wissenschaftliche Experimente.\nMan versucht, irgendetwas davon zu verstehen, aber es ergibt für einen einfach keinen Sinn.",
+        "DeskNothing_2": "Auf dem Schreibtisch liegen überall ein Haufen Papiere herum.\nDu blätterst sie durch, bis dir eine seltsam aussehende Notiz ins Auge fällt",
+        "Printer": "Jemand hat vergessen, den Drucker auszuschalten, sodass er immer mehr Dokumente ausgespuckt hat, bis ihn vermutlich der Stromausfall gestoppt hat.",
+        "LockerFind": "Du öffnest den Spind. Darin hängen viele weiße Kittel,\naber in der Tasche eines davon steckt ein Zettel.\n\nDu faltest den Zettel auseinander, um ihn dir anzusehen.",
+        "LockerEmpty": "Du öffnest den Spind, aber bis auf ein paar weiße Kittel ist er leer.\nEs sieht so aus, als hätte ihn schon jemand durchwühlt...",
+        "LightSwitch_1": "Unter diesen Papierstapeln verbirgt sich ein Schalter.\n\nMöchtest du ihn umlegen?",
+        "LightSwitch_2": "Du hast den Schalter umgelegt.\n\nMan hört, wie es im ganzen Raum vor Strom brummt,\nwährend sich ein paar teilweise kaputte Lampen einschalten.",
+        "PhoneInteraction": "Das Telefon scheint zu funktionieren, aber du weißt nicht, wie man einen Anruf tätigt...",
+        "BlogEntryTitle_1": "Unerwartetes Problem mit dem Zugangssystem",
+        "BlogEntry_1": "Inmitten all der Arbeit ist heute etwas ziemlich Frustrierendes passiert:\nIch habe den Zugangscode für den Nebenraum vergessen.\n\nDas Türsystem stammt von SecuGate Systems, Modell SG-4. Normalerweise sichere ich Zugangsdaten auf verschiedene Weise, aber anscheinend war ich in letzter Zeit zu sehr auf das Projekt konzentriert.\n\nIch möchte das gesamte System möglichst nicht komplett zurücksetzen oder neu konfigurieren.\nGibt es eine Möglichkeit, den bestehenden Code wiederherzustellen oder ihn auf kontrollierte Weise neu zu generieren?\n\nFalls jemand Erfahrung mit diesem System hat oder eine sichere Vorgehensweise kennt, wäre ich für einen Rat sehr dankbar.",
+        "BlogEntryTitle_2": "Zahlreiche Reaktionen - gemischte Eindrücke",
+        "BlogEntry_2": "Vielen Dank für die zahlreichen Antworten auf meinen letzten Beitrag.\nIch habe deutlich mehr E-Mails erhalten, als ich erwartet hatte.\n\nIn einigen Fällen bin ich mir nicht ganz sicher, ob die Absicht wirklich darin besteht, mir zu helfen – oder ob etwas anderes dahintersteckt.\n\nIch werde die eingehenden Nachrichten sorgfältig prüfen, bevor ich irgendetwas öffne oder ausführe.",
+        "BlogEntryTitle_3": "Eine Art der Entschlüsselung",
+        "BlogEntry_3": "Ok, ich habe es zwar geschafft, den Support zu kontaktieren, aber dort wurde mir gesagt, ich solle eine Art Entschlüsselungsverfahren auf eine von ihnen angegebene Zahlenfolge anwenden, was mich dann zum Zugangscode führen soll.\n\nDer Haken daran: Ich habe vergessen, wo ich die Anleitung hingelegt habe, in der die Entschlüsselungsschritte erklärt werden.\n\nWeiß vielleicht jemand, wie es jetzt weitergeht?",
+        "BlogComment_1": "In solchen Situationen würde ich mich weniger auf das versprochene Ergebnis konzentrieren, sondern vielmehr darauf, wie die Nachricht formuliert ist.\nEin professioneller technischer Support ist in der Regel neutral im Ton und vermeidet dramatische Formulierungen oder unnötigen Druck.",
+        "BlogComment_2": "Wenn Sie eine Nachricht auf externe Websites weiterleitet, würde ich diese genau unter die Lupe nehmen.\nOffizielle Hersteller verwenden in der Regel einheitliche Domains und vermeiden ungewöhnliche oder leicht abgewandelte Webadressen.\nDie Überprüfung der vollständigen URL kann sehr aufschlussreich sein.",
+        "BlogComment_3": "Nachrichten, die ein Gefühl der Dringlichkeit vermitteln, sofortiges Handeln verlangen oder von allgemeinen Absenderadressen stammen, sind fast immer problematisch.\nDer tatsächliche Hersteller wird sich in der Regel professionell und über seine offizielle Domain an Sie wenden - nicht über provisorische Support-Adressen oder private E-Mail-Konten.",
+        "BlogComment_4": "Ich erinnere mich, dass wir neulich in der Kantine kurz über diese Zahlenfolge gesprochen haben.\nDamals konnte ich mir auch keinen Reim darauf machen.\n\nAls ich jetzt noch einmal darüber nachdachte, fiel mir ein Detail wieder ein: Die Zahlen waren in Achtergruppen angeordnet, und du hattest erwähnt, dass es sich ausschließlich um Einsen und Nullen handelte, ähnlich wie im Binärsystem.\n\nIch bin mir nicht ganz sicher, wie es weitergeht, aber ich bin mir ziemlich sicher, dass die Gruppierung selbst für den nächsten Schritt wichtig war.",
+        "BlogComment_5": "Beim Durchsehen einiger alter Unterlagen ist mir plötzlich der Gedanke gekommen.\n\nWenn diese Werte tatsächlich binär sind und in Vierergruppen angeordnet sind, wäre die übliche Interpretation, jede Gruppe in ihren hexadezimalen Gegenwert umzuwandeln.\n\nMit anderen Worten: Jeder 4-Bit-Binärblock entspricht direkt einer einzelnen hexadezimalen Ziffer.",
+        "BlogComment_6": "Ich habe meine Notizen noch einmal überprüft, und das sollte die vollständige Zeichenfolge sein, die du damals erwähnt hast.\n\nInterpretiere die Zeichenfolge zunächst als Binärcode und gruppiere sie in Blöcke zu je vier Bits.\nWandle jeden 4-Bit-Block in seine hexadezimale Darstellung um.\n\nNimm anschließend die resultierenden Hexadezimalwerte und interpretiere sie als ASCII-Codes.\nDiese abschließende ASCII-Konvertierung sollte den numerischen Code ergeben, den du wiederherstellen wolltest.",
+        "Email_1_Subject": "Vertrauliche Unterstützung erforderlich",
+        "Email_1_Content": "Guten Tag,\\pMein Name ist Prince Adewale. Aufgrund einer heiklen finanziellen Situation benötige ich Unterstützung bei der Überweisung von 2,14 Millionen US-Dollar von einem gesperrten Konto.\\pAls Gegenleistung für Ihre vertrauenswürdige Unterstützung erhalten Sie einen großzügigen Prozentsatz.\\p\\aBitte geben Sie sichere Kontaktdaten an;https://royal-transferdesk.org/secure",
+        "Email_2_Subject":"DRINGEND! Ihr Zugriff wurde gesperrt",
+        "Email_2_Content":"Ihr SG-4-System wurde aus Sicherheitsgründen vorübergehend gesperrt.\\pUm eine dauerhafte Deaktivierung zu vermeiden, sind sofortige Maßnahmen erforderlich.\\p\\aSecuGate-Portal zur Wiederherstellung des Zugriffs;$1\\pBefolgen Sie die Anweisungen auf dem Portal, um den Zugriff wiederherzustellen.\\pDies ist eine automatisierte Nachricht. Bitte antworten Sie nicht darauf.",
+        "Email_3_Subject":"Ihre Datei ist fertig",
+        "Email_3_Content":"Hallo,\\pDie von Ihnen angeforderte Datei steht nun bereit.\\pSehen Sie sich die Anhänge an oder klicken Sie auf den unten stehenden Link, um Ihre Datei herunterzuladen:\\p\\aDatei herunterladen;https://illegal-music-downloader.com/download/12345\\pBitte beachten Sie, dass es sich hierbei um einen einmalig gültigen Download-Link handelt, der nach 24 Stunden abläuft.",
+        "Email_4_Subject":"Betreff: SG-4-Zugangscode - Kontrollierter Wiederaufbau",
+        "Email_4_Content":"Sehr geehrter Herr Dr. Mertens,\\pbezüglich Ihrer Anfrage zum SG-4-Zugangssystem kann ich Ihnen möglicherweise weiterhelfen. Das Modell SG-4 verfügt über eine wiederherstellbare Zugangsschnittstelle. Ich habe eine Testumgebung eingerichtet, in der der Code in einer kontrollierten Simulation rekonstruiert werden kann.\\pBitte rufen Sie zunächst die folgende Seite auf:\\p\\aSecuGate-Support – Zugangswiederherstellung;$1\\pDort erhalten Sie den endgültigen Zugangscode.\\pMit freundlichen Grüßen,\nAndreas Keller\nTechnischer Support\nSecuGate Systems",
+        "Email_5_Subject":"Zu Ihrem Problem mit der Tür",
+        "Email_5_Content":"Hallo Elias,\\pDie Sache mit SG-4 ist ganz einfach. Schau dir das hier einfach mal an:\\p\\aSG-4 Diagnostic Access Tool;$1\\pViele Grüße,\nMarc\nFreiberuflicher IT-Spezialist",
+        "Email_6_Subject":">> Heiße alleinerziehende Mütter in deiner Nähe <<",
+        "Email_6_Content":"Hallo,\\pUnser System zeigt an, dass mehrere nette Menschen in deiner Umgebung daran interessiert sind, dich kennenzulernen.\\pErstelle jetzt ein Profil, um zu sehen, wer in deiner Nähe ist.\\p\\aKontakte in der Nähe anzeigen;https://local-connections-now.net/start\\pDie Mitgliedschaft ist für begrenzte Zeit kostenlos. Lass dir diese Gelegenheit nicht entgehen!",
+        "Email_7_Subject":"Automatische Code-Extraktion - SG-4",
+        "Email_7_Content":"Sehr geehrter Herr Dr. Mertens,\\pBezugnehmend auf Ihre Anfrage zum Zugangskontrollsystem SG-4 können die gespeicherten Zugangsparameter mithilfe einer automatisierten Extraktionsroutine wiederhergestellt werden.\\pBitte starten Sie den Diagnosevorgang über die folgende Schnittstelle:\\p\\aSG-4-Diagnoseschnittstelle;$1",
+        "Email_8_Subject":"Paketzustellung fehlgeschlagen - sofortige Bestätigung erforderlich",
+        "Email_8_Content":"Sehr geehrter Kunde,\\pEine an Sie adressierte Sendung konnte aufgrund einer fehlenden Bestätigung nicht zugestellt werden.\\pSollten Sie nicht innerhalb von 24 Stunden reagieren, können Rücksende- oder Lagergebühren anfallen.\\p\\aBestätigen Sie die Zustelldetails:https://adq.mmcaok.com/pl10fonmxdm1asmokxx0",
+        "Email_9_Subject":"Ihr Konto erfüllt die Voraussetzungen für garantierte Renditen",
+        "Email_9_Content":"Hinweis für Anleger,\\pUnsere automatisierte Handelsplattform hat festgestellt, dass Sie für eine begrenzte, hochrentable Anlagemöglichkeit mit garantiertem Tagesgewinn in Frage kommen.\\pDie Plätze sind äußerst begrenzt.\\p\\aAktivieren Sie Ihr Anlagekonto:https://cryptogrowth-daily.biz/start?si=1ujg0h1ju8mnc980mumsdnuz0"
     }
-  },
-  "achievements": {
-    "lights_on": {
-      "name": "Licht an",
-      "description": "Lege den versteckten Schalter unter dem Papierstapel um."
-    },
-    "trash_diver": {
-      "name": "Mülltaucher",
-      "description": "Durchsuche einen Papierkorb."
-    },
-    "pc_unlocked": {
-      "name": "PC entsperrt",
-      "description": "Melde dich am Bürocomputer an."
-    },
-    "virus": {
-      "name": "Virus",
-      "description": "Löse einen Virus auf dem Bürocomputer aus."
-    },
-    "keypad_code": {
-      "name": "Keypad-Code",
-      "description": "Gib den richtigen Code am Keypad ein."
-    },
-    "bruteforce": {
-      "name": "Bruteforce",
-      "description": "Gib zehn falsche Codes am Keypad ein."
-    },
-    "usb_collector": {
-      "name": "USB-Sammler",
-      "description": "Sammle alle vier USB-Sticks."
-    },
-    "control_panel": {
-      "name": "Control Panel",
-      "description": "Öffne den Control-Panel-Tab am Computer."
-    },
-    "escaped_in_time": {
-      "name": "Rechtzeitig entkommen",
-      "description": "Beende das Spiel, bevor der Timer abläuft."
-    },
-    "escaped_too_late": {
-      "name": "Zu spät entkommen",
-      "description": "Beende das Spiel, nachdem der Timer abgelaufen ist."
-    },
-    "platinum": {
-      "name": "Platinum Achievement",
-      "description": "Schalte alle anderen Achievements frei."
-    }
-  },
-  "settings": {
-	"controls_header": "Steuerung",
-	"controls_description": "Nutze die Maus, um Interaktionen zu finden.[n]Drücke dann [key code=$1], um zu interagieren!",
-	"pause": "Pause",
-	"interact": "Interagieren",
-	"inventory": "Inventar",
-	"questlog": "Questlog",
-	"inventory_description": "Im Inventar kannst du mit [key code=$1 type=mouse] ein Item benutzen"
-  }
 }

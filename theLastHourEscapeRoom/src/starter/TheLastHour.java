@@ -50,6 +50,7 @@ import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
 import util.LastHourAchievements;
+import util.translation.LastHourTranslator;
 
 /**
  * Entry point for running a minimal dungeon game instance.
@@ -137,6 +138,7 @@ public class TheLastHour {
     Localization localization = Game.localization();
     localization.registerTranslationFile(Language.DE, "language/de.json");
     localization.registerTranslationFile(Language.EN, "language/en.json");
+    localization.setCurrentTranslator(new LastHourTranslator());
   }
 
   /**

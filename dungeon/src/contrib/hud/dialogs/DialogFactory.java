@@ -9,10 +9,12 @@ import contrib.hud.inventory.InventoryGUI;
 import contrib.modules.keypad.KeypadUI;
 import contrib.modules.puzzle.PuzzleDialog;
 import contrib.utils.AttributeBarUtil;
+import contrib.utils.Translator;
 import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
 import core.game.PreRunConfiguration;
+import core.language.Localization;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -162,7 +165,15 @@ public class DialogFactory {
     // Store owner entity ID in context for network sync
     context.owner(ownerEntity.id());
 
-    UIComponent ui = new UIComponent(context, willPause, canBeClosed, targetEntityIds);
+    DialogContext translatedContext = context;
+    if (Game.isMultiplayerClient()) {
+      if (context.attributes().containsKey(DialogContextKeys.MESSAGE))
+        translatedContext = translateText(DialogContextKeys.MESSAGE, context);
+      if (context.attributes().containsKey(DialogContextKeys.DIALOG))
+        translatedContext = translateText(DialogContextKeys.DIALOG, context);
+    }
+
+    UIComponent ui = new UIComponent(translatedContext, willPause, canBeClosed, targetEntityIds);
     ownerEntity.add(ui);
 
     return ui;
@@ -497,5 +508,23 @@ public class DialogFactory {
     DialogContext ctx =
         DialogContext.builder().type(DialogType.DefaultTypes.CLIENT_CONNECTION).build();
     return show(ctx, false, false);
+  }
+
+  private static DialogContext translateText(String type, DialogContext context) {
+    DialogContext translatedContext = context;
+    try {
+      // Try-catch block to ensure Game doesnt crash when the text is not a String.
+      Optional<String> text = context.find(type, String.class);
+      if (text.isPresent() && Translator.hasKey(text.get())) {
+        Map<String, Object> attributes = context.attributes();
+        attributes.put(
+            type, Localization.getInstance().getCurrentTranslator().translate(text.get()));
+        return translatedContext =
+            new DialogContext(
+                context.dialogType(), context.center(), attributes, context.dialogId());
+      }
+    } catch (DialogCreationException e) {
+    }
+    return translatedContext;
   }
 }
