@@ -24,8 +24,8 @@ Folgende Zwecke des Projekts werden im Antrag aufgeführt, die für die Auswertu
 # Verwandtes Material
 
 Die beiden recherchierten wissenschaftlichen Escape-Room-Plattformen aus der Lehre haben jeweils eigene Sektionen zur Auswertung von Durchläufen - mit Ausrichtung auf den Lernerfolg.
-[EscapeIF](scapeif) sieht für den Lernerfolg am Ende des Durchlaufs eine Reflektionsphase vor. Die Teilnehmer sollen selber erzählen, welchen Nutzen sie in der Erfahrung sehen.
-[EscapED](scaped) knüpft eine formelle Überprüfung der Lerninhalte an die kontinuierliche Verbesserung des Escape-Rooms.
+[EscapeIF](design.md#escapeif) sieht für den Lernerfolg am Ende des Durchlaufs eine Reflektionsphase vor. Die Teilnehmer sollen selber erzählen, welchen Nutzen sie in der Erfahrung sehen.
+[EscapED](design.md#escaped) knüpft eine formelle Überprüfung der Lerninhalte an die kontinuierliche Verbesserung des Escape-Rooms.
 
 ## Zum Design von Erhebungen
 

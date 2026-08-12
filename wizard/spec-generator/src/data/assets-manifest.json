@@ -584,6 +584,107 @@
     ]
   },
   {
+    "path": "/images",
+    "type": "directory",
+    "entries": [
+      {
+        "path": "/images/braille.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/images/company_logo.png",
+        "type": "file",
+        "license": "/images/company_logo.license.md"
+      },
+      {
+        "path": "/images/crumbled-paper.png",
+        "type": "file",
+        "license": "/images/crumbled-paper.license.md"
+      },
+      {
+        "path": "/images/decoder_74155.png",
+        "type": "file",
+        "license": "/images/decoder_74155.license.md"
+      },
+      {
+        "path": "/images/final-code_de.png",
+        "type": "file",
+        "license": "/images/final-code.license.md"
+      },
+      {
+        "path": "/images/final-code.png",
+        "type": "file",
+        "license": "/images/final-code.license.md"
+      },
+      {
+        "path": "/images/hex_ascii.png",
+        "type": "file",
+        "license": "/images/hex_ascii.license.md"
+      },
+      {
+        "path": "/images/lasthour.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/images/magnifying_glass.png",
+        "type": "file",
+        "license": "/images/magnifying_glass.license.md"
+      },
+      {
+        "path": "/images/morse.png",
+        "type": "file",
+        "license": "/images/morse.license.md"
+      },
+      {
+        "path": "/images/note-password-1.png",
+        "type": "file",
+        "license": "/images/note-password-1.license.md"
+      },
+      {
+        "path": "/images/note-password-2.png",
+        "type": "file",
+        "license": "/images/note-password-2.license.md"
+      },
+      {
+        "path": "/images/open-book.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/images/random_nothing.png",
+        "type": "file",
+        "license": "/images/random_nothing.license.md"
+      },
+      {
+        "path": "/images/scientist_portrait.png",
+        "type": "file",
+        "license": null
+      },
+      {
+        "path": "/images/scientist_profile_de.png",
+        "type": "file",
+        "license": "/images/scientist_profile.license.md"
+      },
+      {
+        "path": "/images/scientist_profile.png",
+        "type": "file",
+        "license": "/images/scientist_profile.license.md"
+      },
+      {
+        "path": "/images/virus-phrases_de.png",
+        "type": "file",
+        "license": "/images/virus-phrases.license.md"
+      },
+      {
+        "path": "/images/virus-phrases.png",
+        "type": "file",
+        "license": "/images/virus-phrases.license.md"
+      }
+    ]
+  },
+  {
     "path": "/items",
     "type": "directory",
     "entries": [
@@ -1993,6 +2094,11 @@
         ]
       },
       {
+        "path": "/items/usb-side-red.png",
+        "type": "file",
+        "license": "/items/usb-side-red.license.md"
+      },
+      {
         "path": "/items/weapon",
         "type": "directory",
         "entries": [
@@ -2132,6 +2238,11 @@
         ]
       },
       {
+        "path": "/objects/mushroom.png",
+        "type": "file",
+        "license": null
+      },
+      {
         "path": "/objects/nature",
         "type": "directory",
         "entries": [
@@ -2192,6 +2303,11 @@
             "license": null
           }
         ]
+      },
+      {
+        "path": "/objects/push-stone.png",
+        "type": "file",
+        "license": null
       },
       {
         "path": "/objects/sentrys",
@@ -2420,6 +2536,36 @@
     "type": "directory",
     "entries": [
       {
+        "path": "/sounds/ad_cloth_heavy.wav",
+        "type": "file",
+        "license": "/sounds/ad_.license.md"
+      },
+      {
+        "path": "/sounds/ad_giant1.wav",
+        "type": "file",
+        "license": "/sounds/ad_.license.md"
+      },
+      {
+        "path": "/sounds/ad_giant2.wav",
+        "type": "file",
+        "license": "/sounds/ad_.license.md"
+      },
+      {
+        "path": "/sounds/ad_giant3.wav",
+        "type": "file",
+        "license": "/sounds/ad_.license.md"
+      },
+      {
+        "path": "/sounds/ad_spell.wav",
+        "type": "file",
+        "license": "/sounds/ad_.license.md"
+      },
+      {
+        "path": "/sounds/animal_noise.wav",
+        "type": "file",
+        "license": "/sounds/animal_noise.license.md"
+      },
+      {
         "path": "/sounds/background.wav",
         "type": "file",
         "license": null
@@ -2458,6 +2604,21 @@
         "path": "/sounds/fireball.wav",
         "type": "file",
         "license": null
+      },
+      {
+        "path": "/sounds/flipping_through_book.wav",
+        "type": "file",
+        "license": "/sounds/flipping_through_book.license.md"
+      },
+      {
+        "path": "/sounds/forest_ambient.wav",
+        "type": "file",
+        "license": "/sounds/forest_ambient.license.md"
+      },
+      {
+        "path": "/sounds/forest_bgm.wav",
+        "type": "file",
+        "license": "/sounds/forest_bgm.license.md"
       },
       {
         "path": "/sounds/kenney_ui_back_001.wav",
@@ -2650,6 +2811,16 @@
         "license": null
       },
       {
+        "path": "/sounds/multiple_cracks_2.wav",
+        "type": "file",
+        "license": "/sounds/multiple_cracks_2.license.md"
+      },
+      {
+        "path": "/sounds/phone-ringing.wav",
+        "type": "file",
+        "license": "/sounds/phone-ringing.license.md"
+      },
+      {
         "path": "/sounds/qubodup_DoorClose.wav",
         "type": "file",
         "license": "/sounds/qubodup_Door.license.md"
@@ -2658,6 +2829,16 @@
         "path": "/sounds/qubodup_DoorOpen.wav",
         "type": "file",
         "license": "/sounds/qubodup_Door.license.md"
+      },
+      {
+        "path": "/sounds/qubodup_rustle05.wav",
+        "type": "file",
+        "license": "/sounds/qubodup_rustle.license.md"
+      },
+      {
+        "path": "/sounds/qubodup_rustle07.wav",
+        "type": "file",
+        "license": "/sounds/qubodup_rustle.license.md"
       },
       {
         "path": "/sounds/retro_beep_01.wav",
@@ -2675,7 +2856,47 @@
         "license": "/sounds/retro_event_wrong.license.md"
       },
       {
+        "path": "/sounds/tree_creak.wav",
+        "type": "file",
+        "license": "/sounds/tree_creak.license.md"
+      },
+      {
+        "path": "/sounds/uisp_Abstract1.wav",
+        "type": "file",
+        "license": "/sounds/uisp_.license.md"
+      },
+      {
+        "path": "/sounds/uisp_Abstract2.wav",
+        "type": "file",
+        "license": "/sounds/uisp_.license.md"
+      },
+      {
         "path": "/sounds/uisp_African2.wav",
+        "type": "file",
+        "license": "/sounds/uisp_.license.md"
+      },
+      {
+        "path": "/sounds/uisp_African3.wav",
+        "type": "file",
+        "license": "/sounds/uisp_.license.md"
+      },
+      {
+        "path": "/sounds/uisp_African4.wav",
+        "type": "file",
+        "license": "/sounds/uisp_.license.md"
+      },
+      {
+        "path": "/sounds/uisp_Coffee1.wav",
+        "type": "file",
+        "license": "/sounds/uisp_.license.md"
+      },
+      {
+        "path": "/sounds/uisp_WoodBlock2.wav",
+        "type": "file",
+        "license": "/sounds/uisp_.license.md"
+      },
+      {
+        "path": "/sounds/uisp_WoodBlock3.wav",
         "type": "file",
         "license": "/sounds/uisp_.license.md"
       },
@@ -2688,6 +2909,21 @@
         "path": "/sounds/virix_MENU_B_Select.wav",
         "type": "file",
         "license": "/sounds/virix_.license.md"
+      },
+      {
+        "path": "/sounds/wind_1.wav",
+        "type": "file",
+        "license": "/sounds/wind_.license.md"
+      },
+      {
+        "path": "/sounds/wind_2.wav",
+        "type": "file",
+        "license": "/sounds/wind_.license.md"
+      },
+      {
+        "path": "/sounds/wind_3.wav",
+        "type": "file",
+        "license": "/sounds/wind_.license.md"
       }
     ]
   }

@@ -2,7 +2,7 @@
 
 A scientist has vanished: You have 20 minutes to find out why. **The Last Hour** is a cybersecurity Digital Educational Escape Room (DEER) for 1-2 players that drops you into a web of interconnected puzzles. Can you investigate, crack the codes, and escape before time runs out?
 
-![Image](img/example.png)
+![Image](img/the-last-hour.png)
 
 
 ## Requirements
