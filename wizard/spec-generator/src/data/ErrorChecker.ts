@@ -102,6 +102,10 @@ export class ErrorChecker {
     this.add(tabId, field, { description, details, severity: "warning" });
   }
 
+  private info(tabId: ValidatedTabId, field: string, description: string, details?: string) {
+    this.add(tabId, field, { description, details, severity: "info" });
+  }
+
   /** Reports an error when the given text is empty or only whitespace. */
   private requireText(
     tabId: ValidatedTabId,
@@ -366,7 +370,7 @@ export class ErrorChecker {
 
     // bundled assets bring their own license, only uploaded files need one from the user.
     if (!isBundledAssetPath(asset.path) && isBlank(asset.source?.license)) {
-      this.warning(
+      this.info(
         "assets",
         field,
         `Für die Datei "${name}" ist keine Lizenz angegeben.`,
