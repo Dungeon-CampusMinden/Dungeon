@@ -1,5 +1,6 @@
 package util.translation;
 
+/** Translation keys used by The Last Hour escape room content. */
 public class TranslationKey {
 
   public static final String DecoyVentDialog1 = "DecoyVentDialog1";
@@ -69,8 +70,4 @@ public class TranslationKey {
   public static final String Email_8_Content = "Email_8_Content";
   public static final String Email_9_Subject = "Email_9_Subject";
   public static final String Email_9_Content = "Email_9_Content";
-
-
-
-
 }

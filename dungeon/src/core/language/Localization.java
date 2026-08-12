@@ -28,6 +28,7 @@ public class Localization {
   private final Language fallbackLanguage = Language.DE;
   private Language currentLanguage = fallbackLanguage;
   private Translator currentTranslator = new Translator();
+
   /** Base directory of the core translation files, registered for every language by default. */
   private static final String DEFAULT_TRANSLATION_PATH = "language_default/";
 
@@ -219,10 +220,20 @@ public class Localization {
     }
   }
 
+  /**
+   * Gets the translator currently used for project-specific key replacement.
+   *
+   * @return current translator.
+   */
   public Translator getCurrentTranslator() {
     return currentTranslator;
   }
 
+  /**
+   * Sets the translator used for project-specific key replacement.
+   *
+   * @param currentTranslator translator to use for future key replacement.
+   */
   public void setCurrentTranslator(Translator currentTranslator) {
     this.currentTranslator = currentTranslator;
   }

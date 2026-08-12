@@ -18,8 +18,13 @@ import core.language.Localization;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -161,7 +166,7 @@ public class DialogFactory {
     context.owner(ownerEntity.id());
 
     DialogContext translatedContext = context;
-    if(Game.isMultiplayerClient()) {
+    if (Game.isMultiplayerClient()) {
       if (context.attributes().containsKey(DialogContextKeys.MESSAGE))
         translatedContext = translateText(DialogContextKeys.MESSAGE, context);
       if (context.attributes().containsKey(DialogContextKeys.DIALOG))
@@ -510,12 +515,16 @@ public class DialogFactory {
     try {
       // Try-catch block to ensure Game doesnt crash when the text is not a String.
       Optional<String> text = context.find(type, String.class);
-      if(text.isPresent() && Translator.hasKey(text.get())) {
+      if (text.isPresent() && Translator.hasKey(text.get())) {
         Map<String, Object> attributes = context.attributes();
-        attributes.put(type, Localization.getInstance().getCurrentTranslator().translate(text.get()));
-        return translatedContext = new DialogContext(context.dialogType(),context.center(),attributes, context.dialogId());
+        attributes.put(
+            type, Localization.getInstance().getCurrentTranslator().translate(text.get()));
+        return translatedContext =
+            new DialogContext(
+                context.dialogType(), context.center(), attributes, context.dialogId());
       }
-    } catch (DialogCreationException e) {}
+    } catch (DialogCreationException e) {
+    }
     return translatedContext;
   }
 }

@@ -11,7 +11,6 @@ import contrib.systems.CollisionSystem;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.Debugger;
-import util.translation.LastHourTranslator;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.ClientStarter;
@@ -51,6 +50,7 @@ import modules.usbstick.UsbStickItem;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
 import util.LastHourAchievements;
+import util.translation.LastHourTranslator;
 
 /**
  * Entry point for running a minimal dungeon game instance.

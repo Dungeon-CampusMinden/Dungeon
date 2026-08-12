@@ -4,10 +4,11 @@ import com.badlogic.gdx.Input;
 import contrib.configuration.KeyboardConfig;
 import contrib.utils.Translator;
 import core.language.Translation;
-
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+/** Translator for The Last Hour escape room-specific text keys and template values. */
 public class LastHourTranslator extends Translator {
 
   public final List<String> DecoyVentSerialNumbers = List.of("sv00057---", "sv00031---");
@@ -18,51 +19,75 @@ public class LastHourTranslator extends Translator {
 
   /** List of URLs mentioned in the emails, which may or may not be trustworthy. */
   public final List<String> EmailCodeUrls =
-    List.of(
-      "https://support.secugate.com/sg4/recovery-sequence",
-      "http://secure-sg4-reset-now.com/verify",
-      "http://quick-unlock-sg4.net/code",
-      "https://support.seecugate.com/extract");
+      List.of(
+          "https://support.secugate.com/sg4/recovery-sequence",
+          "http://secure-sg4-reset-now.com/verify",
+          "http://quick-unlock-sg4.net/code",
+          "https://support.seecugate.com/extract");
 
   public Translation translation = new Translation("translation");
 
+  /** Creates a translator and registers all The Last Hour translation keys. */
   public LastHourTranslator() {
     addAllKeys();
   }
 
+  /**
+   * Replaces known translation keys in the given text with localized content.
+   *
+   * @param text text that may contain translation keys.
+   * @return text with all known keys replaced by their localized values.
+   */
   public String translate(String text) {
-    Set<String> keysToBeReplaced = allKeys.stream().filter(text::contains).collect(Collectors.toSet());
+    Set<String> keysToBeReplaced =
+        allKeys.stream().filter(text::contains).collect(Collectors.toSet());
     String translatedText = text;
     for (String s : keysToBeReplaced) {
-      switch  (s) {
-        case TranslationKey.PostIntroDialogText2 -> translatedText = translatedText.replace(s,
-          translation.text(s,
-            core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-            core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-            core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-            core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-            KeyboardConfig.INTERACT_WORLD.value(),
-            Input.Buttons.LEFT,
-            KeyboardConfig.INVENTORY_OPEN.value(),
-            KeyboardConfig.CLOSE_UI.value(),
-            KeyboardConfig.PAUSE_MENU.value()
-          ));
-        case TranslationKey.Ringing1 -> translatedText = translatedText.replace(s, translation.text(s, MertensColor));
-        case TranslationKey.Ringing2 -> translatedText = translatedText.replace(s, translation.text(s, MertensColor));
-        case TranslationKey.TimerExpiredRecording -> translatedText = translatedText.replace(s, translation.text(s, MertensColor));
-        case TranslationKey.DecoyVentDialog1 -> translatedText = translatedText.replace(s, translation.text(s, DecoyVentSerialNumbers.get(0)));
-        case TranslationKey.DecoyVentDialog2 -> translatedText = translatedText.replace(s, translation.text(s, DecoyVentSerialNumbers.get(1)));
-        case TranslationKey.VentDialog -> translatedText = translatedText.replace(s,  translation.text(s, VentSerialNumber));
-        case TranslationKey.Email_2_Content -> translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(1)));
-        case TranslationKey.Email_4_Content -> translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(0)));
-        case TranslationKey.Email_5_Content -> translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(2)));
-        case TranslationKey.Email_7_Content -> translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(3)));
+      switch (s) {
+        case TranslationKey.PostIntroDialogText2 ->
+            translatedText =
+                translatedText.replace(
+                    s,
+                    translation.text(
+                        s,
+                        core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
+                        core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
+                        core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
+                        core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
+                        KeyboardConfig.INTERACT_WORLD.value(),
+                        Input.Buttons.LEFT,
+                        KeyboardConfig.INVENTORY_OPEN.value(),
+                        KeyboardConfig.CLOSE_UI.value(),
+                        KeyboardConfig.PAUSE_MENU.value()));
+        case TranslationKey.Ringing1 ->
+            translatedText = translatedText.replace(s, translation.text(s, MertensColor));
+        case TranslationKey.Ringing2 ->
+            translatedText = translatedText.replace(s, translation.text(s, MertensColor));
+        case TranslationKey.TimerExpiredRecording ->
+            translatedText = translatedText.replace(s, translation.text(s, MertensColor));
+        case TranslationKey.DecoyVentDialog1 ->
+            translatedText =
+                translatedText.replace(s, translation.text(s, DecoyVentSerialNumbers.get(0)));
+        case TranslationKey.DecoyVentDialog2 ->
+            translatedText =
+                translatedText.replace(s, translation.text(s, DecoyVentSerialNumbers.get(1)));
+        case TranslationKey.VentDialog ->
+            translatedText = translatedText.replace(s, translation.text(s, VentSerialNumber));
+        case TranslationKey.Email_2_Content ->
+            translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(1)));
+        case TranslationKey.Email_4_Content ->
+            translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(0)));
+        case TranslationKey.Email_5_Content ->
+            translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(2)));
+        case TranslationKey.Email_7_Content ->
+            translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(3)));
         default -> translatedText = translatedText.replace(s, translation.text(s));
       }
     }
     return translatedText;
   }
 
+  /** Registers all translation keys used by The Last Hour. */
   public static void addAllKeys() {
     registerKey(TranslationKey.DecoyVentDialog1);
     registerKey(TranslationKey.DecoyVentDialog2);

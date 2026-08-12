@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import core.language.Localization;
-import util.translation.LastHourTranslator;
 import core.utils.Scene2dElementFactory;
 import java.util.List;
 import modules.computer.ComputerStateComponent;
@@ -124,8 +123,16 @@ public class BlogTab extends ComputerTab {
   }
 
   private Table createBlogEntryTable(BlogEntry entry) {
-    Label title = Scene2dElementFactory.createLabel(Localization.getInstance().getCurrentTranslator().translate(entry.title), 28, Color.BLACK);
-    Label content = Scene2dElementFactory.createLabel(Localization.getInstance().getCurrentTranslator().translate(entry.content), 18, Color.BLACK);
+    Label title =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance().getCurrentTranslator().translate(entry.title),
+            28,
+            Color.BLACK);
+    Label content =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance().getCurrentTranslator().translate(entry.content),
+            18,
+            Color.BLACK);
     content.setWrap(true);
 
     Table table = new Table(skin);
@@ -172,7 +179,11 @@ public class BlogTab extends ComputerTab {
   private Table createCommentTable(BlogComment comment, boolean isFirst) {
     Label user =
         Scene2dElementFactory.createLabel("\"" + comment.user + "\" says:", 16, Color.BLACK);
-    Label content = Scene2dElementFactory.createLabel(Localization.getInstance().getCurrentTranslator().translate(comment.content), 18, Color.BLACK);
+    Label content =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance().getCurrentTranslator().translate(comment.content),
+            18,
+            Color.BLACK);
     content.setWrap(true);
 
     Table table = new Table();

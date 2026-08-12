@@ -29,7 +29,6 @@ import contrib.systems.EventScheduler;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
-import util.translation.TranslationKey;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -77,6 +76,7 @@ import util.LastHourQuestLogUtil;
 import util.LastHourSounds;
 import util.Lore;
 import util.shaders.LightingShader;
+import util.translation.TranslationKey;
 import util.ui.BlackFadeCutscene;
 
 /** The Last Hour Room. */
@@ -266,7 +266,8 @@ public class LastHourLevel extends DungeonLevel {
     Game.player()
         .ifPresent(
             player ->
-                DialogFactory.showDialogDialog(TranslationKey.TimerExpiredRecording, () -> {}, player.id()));
+                DialogFactory.showDialogDialog(
+                    TranslationKey.TimerExpiredRecording, () -> {}, player.id()));
   }
 
   private static List<Tuple<String, Integer>> endingLoreTexts() {
@@ -288,10 +289,7 @@ public class LastHourLevel extends DungeonLevel {
                 new Interaction(
                     (e, who) -> {
                       DialogFactory.showOkDialog(
-                          TranslationKey.DeskNothing_1,
-                          "",
-                          () -> {},
-                          who.id());
+                          TranslationKey.DeskNothing_1, "", () -> {}, who.id());
                     })));
 
     Entity desk1 = DecoFactory.createDeco(getPoint("desk-nothing1"), Deco.WritingTable);
@@ -319,11 +317,7 @@ public class LastHourLevel extends DungeonLevel {
             () ->
                 new Interaction(
                     (e, who) -> {
-                      DialogFactory.showOkDialog(
-                        TranslationKey.Printer,
-                          "",
-                          () -> {},
-                          who.id());
+                      DialogFactory.showOkDialog(TranslationKey.Printer, "", () -> {}, who.id());
                     })));
 
     listPointsIndexed("locker")
@@ -350,10 +344,7 @@ public class LastHourLevel extends DungeonLevel {
                                   return;
                                 }
                                 DialogFactory.showOkDialog(
-                                    TranslationKey.LockerEmpty,
-                                    "",
-                                    () -> {},
-                                    who.id());
+                                    TranslationKey.LockerEmpty, "", () -> {}, who.id());
                               })));
               Game.add(locker);
             });
@@ -627,7 +618,8 @@ public class LastHourLevel extends DungeonLevel {
             () ->
                 new Interaction(
                     (e, who) -> {
-                      DialogFactory.showOkDialog(TranslationKey.R2DeskNoteText, "", () -> {}, who.id());
+                      DialogFactory.showOkDialog(
+                          TranslationKey.R2DeskNoteText, "", () -> {}, who.id());
                       LastHourQuestLogUtil.addUsbColorHintQuestLogEntry();
                     })));
     Game.add(desk);
@@ -645,23 +637,25 @@ public class LastHourLevel extends DungeonLevel {
     Entity decoyVent1 = DecoFactory.createDeco(getPoint(points[0]), Deco.FloorBarsSmall);
     decoyVent1.remove(DecoComponent.class);
     decoyVent1.add(
-      new InteractionComponent(
-        () ->
-          new Interaction(
-            (e, who) -> {
-              DialogFactory.showOkDialog(TranslationKey.DecoyVentDialog1, "", () -> {}, who.id());
-            })));
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (e, who) -> {
+                      DialogFactory.showOkDialog(
+                          TranslationKey.DecoyVentDialog1, "", () -> {}, who.id());
+                    })));
     Game.add(decoyVent1);
 
     Entity decoyVent2 = DecoFactory.createDeco(getPoint(points[1]), Deco.FloorBarsSmall);
     decoyVent2.remove(DecoComponent.class);
     decoyVent2.add(
-      new InteractionComponent(
-        () ->
-          new Interaction(
-            (e, who) -> {
-              DialogFactory.showOkDialog(TranslationKey.DecoyVentDialog2, "", () -> {}, who.id());
-            })));
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (e, who) -> {
+                      DialogFactory.showOkDialog(
+                          TranslationKey.DecoyVentDialog2, "", () -> {}, who.id());
+                    })));
     Game.add(decoyVent2);
   }
 
@@ -698,7 +692,8 @@ public class LastHourLevel extends DungeonLevel {
   private void scheduleSecondPhoneCall() {
     if (secondPhoneCallScheduled) return;
     secondPhoneCallScheduled = true;
-    EventScheduler.scheduleAction(() -> ringPhone(TranslationKey.Ringing2), SECOND_PHONE_RING_DELAY_MS);
+    EventScheduler.scheduleAction(
+        () -> ringPhone(TranslationKey.Ringing2), SECOND_PHONE_RING_DELAY_MS);
   }
 
   /**
@@ -758,10 +753,7 @@ public class LastHourLevel extends DungeonLevel {
                       }
 
                       DialogFactory.showOkDialog(
-                          TranslationKey.PhoneInteraction,
-                          "",
-                          () -> {},
-                          who.id());
+                          TranslationKey.PhoneInteraction, "", () -> {}, who.id());
                     })));
   }
 

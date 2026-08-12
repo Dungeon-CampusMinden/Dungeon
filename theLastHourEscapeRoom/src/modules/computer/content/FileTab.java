@@ -9,7 +9,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
-import util.translation.TranslationKey;
 import core.utils.Scene2dElementFactory;
 import core.utils.Tuple;
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import java.util.Map;
 import modules.computer.ComputerStateComponent;
 import modules.computer.ComputerStateLocal;
 import util.Lore;
+import util.translation.TranslationKey;
 
 /** Tab for displaying the contents of files in the computer UI. */
 public class FileTab extends ComputerTab {
