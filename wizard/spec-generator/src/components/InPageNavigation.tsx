@@ -18,20 +18,7 @@ export function InPageNavigation({ tab, setTab }: { tab: string; setTab: (tab: s
 
   return (
     <nav aria-label="Seitennavigation" className="mt-8 border-t border-border pt-6">
-      <Progress
-        value={(currentStep / TABS.length) * 100}
-        aria-label="Fortschritt"
-        getAriaValueText={() => `Schritt ${currentStep} von ${TABS.length}`}
-        className="w-full gap-2"
-      >
-        <div className="flex w-full justify-between text-sm">
-          <span>Fortschritt</span>
-          <span className="text-muted-foreground">
-            Schritt {currentStep} von {TABS.length}
-          </span>
-        </div>
-      </Progress>
-      <div className="mt-4 grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <Button type="button" variant="outline" onClick={() => changeTab(-1)} disabled={isFirstTab}>
           Zurück
         </Button>
@@ -39,6 +26,12 @@ export function InPageNavigation({ tab, setTab }: { tab: string; setTab: (tab: s
           Weiter
         </Button>
       </div>
+      <Progress
+        value={(currentStep / TABS.length) * 100}
+        aria-label="Fortschritt"
+        getAriaValueText={() => `Schritt ${currentStep} von ${TABS.length}`}
+        className="mt-4 w-full"
+      />
     </nav>
   );
 }
