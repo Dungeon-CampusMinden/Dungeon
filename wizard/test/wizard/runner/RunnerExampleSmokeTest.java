@@ -18,7 +18,7 @@ import wizard.runner.validation.ProjectValidationPipeline;
 
 /** Linear validation-to-client-bootstrap smoke test for the committed example. */
 final class RunnerExampleSmokeTest {
-  private static final String ASSET_NAME = "3b50ea522803-foundation-note.png";
+  private static final String ASSET_NAME = "foundation-note-3b50ea522803.png";
   private static final String ASSET_PATH = "assets/custom/" + ASSET_NAME;
 
   @Test

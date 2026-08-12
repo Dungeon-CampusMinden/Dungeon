@@ -24,7 +24,7 @@ wizard-project/
   deer.json
   assets/
     custom/
-      3b50ea522803-foundation-note.png
+      foundation-note-3b50ea522803.png
 ```
 
 Das Repository enthält unter
@@ -128,9 +128,9 @@ kanonischen Projektidentität eindeutig.
 Für Custom-Assets gilt:
 
 - Sie liegen als flache Dateien unter `assets/custom/`.
-- Dateinamen werden von der UI portabel normalisiert und beginnen mit den
-  ersten zwölf lowercase Hex-Zeichen des SHA-256-Inhaltshashes, gefolgt von
-  `-`, zum Beispiel `3b50ea522803-foundation-note.png`.
+- Dateinamen werden von der UI portabel normalisiert. Ihr Dateistamm endet mit
+  `-` und den ersten zwölf lowercase Hex-Zeichen des SHA-256-Inhaltshashes, zum
+  Beispiel `foundation-note-3b50ea522803.png`.
 - Sie sind relative, normalisierte Pfade ohne Backslashes, Unterverzeichnisse,
   `.`- oder `..`-Segmente.
 - Referenzierte Dateien müssen existieren; ein „optionales fehlendes Asset“
@@ -140,8 +140,8 @@ Für Custom-Assets gilt:
 - Symlinks werden nicht verfolgt. Pfade werden gegen den realen Projektroot
   aufgelöst und müssen nach Normalisierung weiterhin darunter liegen.
 - Nicht referenzierte Dateien werden ignoriert und als Warnung gemeldet.
-- Der Runner berechnet jeden Datei-Hash erneut und lehnt einen falschen
-  Dateinamenpräfix ab.
+- Der Runner berechnet jeden Datei-Hash erneut und lehnt ein falsches
+  Dateinamensuffix ab.
 
 Für gebündelte Assets gilt stattdessen:
 
@@ -190,7 +190,7 @@ Whitespace, Einrückung und Property-Reihenfolge verändern diesen Hash nicht.
 Jede inhaltliche Änderung in `deer.json` verändert ihn dagegen, darunter
 Seed, Rätsel, Antworten, Assetpfade, Medientyp, Lizenz und Attribution.
 Custom-Inhalte sind über das zuvor vollständig geprüfte zwölfstellige
-SHA-256-Präfix ihres Pfads an die JSON gebunden. Gebündelte Inhalte stammen aus
+SHA-256-Suffix ihres Pfads an die JSON gebunden. Gebündelte Inhalte stammen aus
 derselben verteilten `WizardRoom.jar`. Die Assetvalidierung bleibt deshalb
 zwingend vor der Hashbildung.
 

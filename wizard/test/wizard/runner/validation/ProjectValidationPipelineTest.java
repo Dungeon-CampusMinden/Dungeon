@@ -155,9 +155,9 @@ final class ProjectValidationPipelineTest {
   @Test
   void acceptsHyphenatedIdentifiersAndPortableCustomFilenames() throws IOException {
     Path project = materializeCanonicalProject("relaxed-authoring-names");
-    String customPath = "assets/custom/3b50ea522803-Foundation Note (1) + Copy.PNG";
+    String customPath = "assets/custom/Foundation Note (1) + Copy-3b50ea522803.PNG";
     Files.move(
-        project.resolve("assets/custom/3b50ea522803-foundation-note.png"),
+        project.resolve("assets/custom/foundation-note-3b50ea522803.png"),
         project.resolve(customPath));
     ObjectNode document = (ObjectNode) MAPPER.readTree(project.resolve("deer.json").toFile());
     ((ObjectNode) document.required("metadata")).put("id", "wizard-foundation-v0-4");
@@ -573,8 +573,8 @@ final class ProjectValidationPipelineTest {
     Path assetDirectory = Files.createDirectories(project.resolve("assets/custom"));
     Files.copy(examples.resolve("deer.json"), project.resolve("deer.json"));
     Files.copy(
-        examples.resolve("assets/custom/3b50ea522803-foundation-note.png"),
-        assetDirectory.resolve("3b50ea522803-foundation-note.png"));
+        examples.resolve("assets/custom/foundation-note-3b50ea522803.png"),
+        assetDirectory.resolve("foundation-note-3b50ea522803.png"));
     return project;
   }
 
@@ -584,7 +584,7 @@ final class ProjectValidationPipelineTest {
     ObjectNode document = (ObjectNode) MAPPER.readTree(project.resolve("deer.json").toFile());
     ((ObjectNode) document.required("assets").required(0)).put("path", path);
     Files.write(project.resolve("deer.json"), MAPPER.writeValueAsBytes(document));
-    Files.delete(project.resolve("assets/custom/3b50ea522803-foundation-note.png"));
+    Files.delete(project.resolve("assets/custom/foundation-note-3b50ea522803.png"));
     Files.delete(project.resolve("assets/custom"));
     Files.delete(project.resolve("assets"));
     return project;

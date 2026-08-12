@@ -120,13 +120,13 @@ final class ProjectValidationReportTest {
     Path assetDirectory = Files.createDirectories(project.resolve("assets/custom"));
     Files.copy(examples.resolve("deer.json"), project.resolve("deer.json"));
     Files.copy(
-        examples.resolve("assets/custom/3b50ea522803-foundation-note.png"),
-        assetDirectory.resolve("3b50ea522803-foundation-note.png"));
+        examples.resolve("assets/custom/foundation-note-3b50ea522803.png"),
+        assetDirectory.resolve("foundation-note-3b50ea522803.png"));
     return project;
   }
 
   private static Path canonicalAsset(final Path project) {
-    return project.resolve("assets/custom/3b50ea522803-foundation-note.png");
+    return project.resolve("assets/custom/foundation-note-3b50ea522803.png");
   }
 
   private static boolean hasIssue(final JsonNode report, final String code) {

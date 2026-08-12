@@ -114,7 +114,10 @@ public final class AssetVerifier {
                 asset.mediaType(),
                 Math.min(ContractCapabilities.MAX_ASSET_BYTES, remainingAggregateBytes));
         String filename = VerifiedImageReader.filename(asset.path());
-        if (!filename.startsWith(verified.sha256().substring(0, 12) + "-")) {
+        int extensionIndex = filename.lastIndexOf('.');
+        String expectedHashSuffix = "-" + verified.sha256().substring(0, 12);
+        if (extensionIndex < expectedHashSuffix.length()
+            || !filename.substring(0, extensionIndex).endsWith(expectedHashSuffix)) {
           assetIssue(
               asset,
               IssueCode.ASSET_HASH_MISMATCH,

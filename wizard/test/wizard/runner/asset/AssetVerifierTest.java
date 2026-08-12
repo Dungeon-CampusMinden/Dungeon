@@ -28,7 +28,7 @@ import wizard.runner.validation.ProjectValidationPipeline;
 
 /** Focused production-path tests for bounded, hostile-file asset verification. */
 final class AssetVerifierTest {
-  private static final String ORIGINAL_ASSET = "3b50ea522803-foundation-note.png";
+  private static final String ORIGINAL_ASSET = "foundation-note-3b50ea522803.png";
 
   @TempDir Path temporaryDirectory;
 
@@ -36,7 +36,7 @@ final class AssetVerifierTest {
   void rejectsAFileAboveThePerAssetCeilingWithoutReadingItsContent() throws IOException {
     Fixture fixture = fixture("per-file");
     int limit = ContractCapabilities.MAX_ASSET_BYTES;
-    Path oversized = fixture.customDirectory().resolve("000000000000-oversized.png");
+    Path oversized = fixture.customDirectory().resolve("oversized-000000000000.png");
     try (RandomAccessFile file = new RandomAccessFile(oversized.toFile(), "rw")) {
       file.setLength((long) limit + 1);
     }

@@ -130,7 +130,7 @@ Kandidaten erneut und schreibt nur dieses erfolgreich geprüfte Ergebnis.
 Für ein Spielbild schreibt der Adapter nur den internen Pfad und die
 Lizenzmetadaten in `deer.json`; das Bild wird nicht kopiert. Für einen Upload
 berechnet er SHA-256, schreibt die Datei unter
-`assets/custom/<12-hashzeichen>-<normalisierter-name>` und ersetzt erst danach
+`assets/custom/<normalisierter-stamm>-<12-hashzeichen>.<ext>` und ersetzt erst danach
 `deer.json` atomar. Die private Draftrepräsentation darf beide Varianten als
 Union unterscheiden. Diese technische Unterscheidung wird nicht als Feld in
 `source` exportiert. Eine leere oder ausschließlich aus Leerraumzeichen

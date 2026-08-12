@@ -38,7 +38,7 @@ import wizard.runner.validation.ValidationResult;
 
 class RoomDeriverTest {
   private static final ObjectMapper MAPPER = new ObjectMapper();
-  private static final String CUSTOM_ASSET = "assets/custom/3b50ea522803-foundation-note.png";
+  private static final String CUSTOM_ASSET = "assets/custom/foundation-note-3b50ea522803.png";
   private static final String BUILT_IN_CHEST = "objects/treasurechest/treasurechest.png";
 
   @TempDir Path temporaryDirectory;

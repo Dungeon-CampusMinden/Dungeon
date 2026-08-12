@@ -232,7 +232,7 @@ private Draft die Auswahl und ihre Lizenzmetadaten; beim Finalisieren wird nur
 der DEER-Eintrag mit dem internen Pfad geschrieben. Es wird keine Bilddatei
 kopiert. Für einen eigenen Upload behält der private Draft die Bildbytes. Beim
 Finalisieren berechnet der native Adapter SHA-256, schreibt die Datei unter
-`assets/custom/<12-hashzeichen>-<normalisierter-name>` und ersetzt erst danach
+`assets/custom/<normalisierter-stamm>-<12-hashzeichen>.<ext>` und ersetzt erst danach
 `deer.json` atomar. Die Auswahlvariante erscheint nicht als zusätzliches Feld
 in den öffentlichen `source`-Metadaten.
 

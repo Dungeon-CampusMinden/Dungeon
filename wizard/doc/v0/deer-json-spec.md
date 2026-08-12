@@ -396,7 +396,7 @@ Beide Assetvarianten stehen im selben `assets`-Array:
   "assets": [
     {
       "id": "asset_foundation_note",
-      "path": "assets/custom/3b50ea522803-foundation-note.png",
+      "path": "assets/custom/foundation-note-3b50ea522803.png",
       "mediaType": "image/png",
       "source": {
         "license": "Dungeon project asset",
@@ -417,7 +417,7 @@ Beide Assetvarianten stehen im selben `assets`-Array:
 ```
 
 Der Pfad bestimmt die Variante allein durch sein Präfix.
-`assets/custom/<hashpraefix>-<name>.<ext>` bezeichnet eine Datei im
+`assets/custom/<name>-<hashsuffix>.<ext>` bezeichnet eine Datei im
 DEER-Projekt. Jeder andere Pfad, zum Beispiel `emotes/emote_cloud.png`, wird als
 Referenz auf ein bereits in der Spiel-JAR enthaltenes Asset behandelt. Dafür
 wird weder eine Projektdatei noch ein künstliches `assets/bundled/`-Verzeichnis
@@ -432,9 +432,9 @@ Für Custom-Assets gelten die Datei- und Sicherheitsregeln:
 - keine Backslashes, leeren, `.`- oder `..`-Segmente;
 - nur Forward-Slashes und kein führender Slash;
 - nur PNG oder JPEG und eine zur Dateiendung passende `mediaType`;
-- sie liegen als genau eine flache Datei unter `assets/custom/`, sind
-  keine Symlinks und beginnen im Dateinamen mit den ersten zwölf lowercase
-  Hex-Zeichen ihres SHA-256-Inhaltshashes und `-`.
+- sie liegen als genau eine flache Datei unter `assets/custom/`, sind keine
+  Symlinks und enden im Dateistamm mit `-` und den ersten zwölf lowercase
+  Hex-Zeichen ihres SHA-256-Inhaltshashes.
 
 Für einen gebündelten Pfad gilt stattdessen nur, dass er exakt und
 case-sensitive in der gemergten `internal_assets.txt` der Spiel-JAR vorkommen
@@ -526,7 +526,7 @@ vollständig Bestandteil der kanonischen DEER-Daten und beeinflussen deshalb
 
 Die Assetprüfung kontrolliert davon getrennt die portablen Pfade und
 Medientypen. Bei Custom-Assets prüft sie zusätzlich Symlinks, Dateiexistenz,
-Inhalt und SHA-256-Dateinamenpräfix; bei gebündelten Assets die exakte
+Inhalt und SHA-256-Dateinamensuffix; bei gebündelten Assets die exakte
 Mitgliedschaft in der internen Assetliste. Sie läuft zwingend vor der Bildung
 von `hostInputSha256`. Die Machbarkeitsprüfung begrenzt Rätsel, Resources und
 Hinweise.
