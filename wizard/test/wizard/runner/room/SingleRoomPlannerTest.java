@@ -3,9 +3,9 @@ package wizard.runner.room;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import foundation.definition.HintSeverity;
-import foundation.room.model.RiddlePlacement;
-import foundation.room.model.RoomPoint;
+import escaperoom.foundation.definition.HintSeverity;
+import escaperoom.foundation.room.model.RiddlePlacement;
+import escaperoom.foundation.room.model.RoomPoint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

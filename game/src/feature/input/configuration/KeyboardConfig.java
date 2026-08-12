@@ -1,0 +1,161 @@
+package feature.input.configuration;
+
+import com.badlogic.gdx.Input;
+import engine.configuration.ConfigKey;
+import engine.configuration.ConfigMap;
+import engine.configuration.values.ConfigIntValue;
+
+/** WTF? . */
+@ConfigMap(path = {"keyboard"})
+public class KeyboardConfig {
+  /** WTF? . */
+  public static final ConfigKey<Integer> INVENTORY_OPEN =
+      new ConfigKey<>(new String[] {"inventory", "open"}, new ConfigIntValue(Input.Keys.I));
+
+  /** WTF? . */
+  public static final ConfigKey<Integer> CLOSE_UI =
+      new ConfigKey<>(new String[] {"ui", "close"}, new ConfigIntValue(Input.Keys.ESCAPE));
+
+  /** WTF? . */
+  public static final ConfigKey<Integer> PAUSE_MENU =
+      new ConfigKey<>(new String[] {"ui", "open_pause_menu"}, new ConfigIntValue(Input.Keys.P));
+
+  /** Opens the quest log UI. */
+  public static final ConfigKey<Integer> QUESTLOG_OPEN =
+      new ConfigKey<>(new String[] {"contrib/questlog", "open"}, new ConfigIntValue(Input.Keys.B));
+
+  /** WTF? . */
+  public static final ConfigKey<Integer> INTERACT_WORLD =
+      new ConfigKey<>(new String[] {"interact", "world"}, new ConfigIntValue(Input.Keys.E));
+
+  /** This key is used to interact with the world. */
+  public static final ConfigKey<Integer> MOUSE_INTERACT_WORLD =
+      new ConfigKey<>(new String[] {"interact", "mouse"}, new ConfigIntValue(Input.Buttons.MIDDLE));
+
+  /** WTF? . */
+  public static final ConfigKey<Integer> USE_ITEM =
+      new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Input.Keys.E));
+
+  /**
+   * This key is used to use an item. Only works if in Hero's inventory.
+   *
+   * @see feature.inventory.ui.InventoryGUI#inPlayerInventory
+   */
+  public static final ConfigKey<Integer> MOUSE_USE_ITEM =
+      new ConfigKey<>(new String[] {"item", "mouse"}, new ConfigIntValue(Input.Buttons.RIGHT));
+
+  /** Quickly transfers an item from one inventory to another. E.g. chest to player. */
+  public static final ConfigKey<Integer> TRANSFER_ITEM =
+      new ConfigKey<>(
+          new String[] {"inventory", "transfer"}, new ConfigIntValue(Input.Buttons.RIGHT));
+
+  /** This key is used to use the active skill. */
+  public static final ConfigKey<Integer> USE_MAIN_SKILL =
+      new ConfigKey<>(new String[] {"skill", "fireball"}, new ConfigIntValue(Input.Keys.Q));
+
+  /**
+   * Select the next skill as active main Skill in the {@link feature.components.SkillComponent}.
+   */
+  public static final ConfigKey<Integer> NEXT_MAIN_SKILL =
+      new ConfigKey<>(
+          new String[] {"skill", "select next main skill"}, new ConfigIntValue(Input.Keys.RIGHT));
+
+  /**
+   * Select the previous skill as active main Skill in the {@link
+   * feature.components.SkillComponent}.
+   */
+  public static final ConfigKey<Integer> PREV_MAIN_SKILL =
+      new ConfigKey<>(
+          new String[] {"skill", "select prev main skill"}, new ConfigIntValue(Input.Keys.LEFT));
+
+  /**
+   * Select the next skill as active second Skill in the {@link feature.components.SkillComponent}.
+   */
+  public static final ConfigKey<Integer> NEXT_SECOND_SKILL =
+      new ConfigKey<>(
+          new String[] {"skill", "select next second skill"}, new ConfigIntValue(Input.Keys.UP));
+
+  /**
+   * Select the previous skill as active second Skill in the {@link
+   * feature.components.SkillComponent}.
+   */
+  public static final ConfigKey<Integer> PREV_SECOND_SKILL =
+      new ConfigKey<>(
+          new String[] {"skill", "select prev second skill"}, new ConfigIntValue(Input.Keys.DOWN));
+
+  /** This key is used shoot the active skill. */
+  public static final ConfigKey<Integer> MOUSE_USE_MAIN_SKILL =
+      new ConfigKey<>(
+          new String[] {"skill", "mouse_left_skill"}, new ConfigIntValue(Input.Buttons.LEFT));
+
+  /** This key is used shoot the active skill. */
+  public static final ConfigKey<Integer> MOUSE_USE_SECOND_SKILL =
+      new ConfigKey<>(
+          new String[] {"skill", "mouse_right_skill"}, new ConfigIntValue(Input.Buttons.RIGHT));
+
+  /** Keybinding to zoom in ,if the {@link feature.components.Debugger} is active. */
+  public static final ConfigKey<Integer> DEBUG_ZOOM_IN =
+      new ConfigKey<>(new String[] {"debug", "zoom_in"}, new ConfigIntValue(Input.Keys.K));
+
+  /** Keybinding to zoom out ,if the {@link feature.components.Debugger} is active. */
+  public static final ConfigKey<Integer> DEBUG_ZOOM_OUT =
+      new ConfigKey<>(new String[] {"debug", "zoom_out"}, new ConfigIntValue(Input.Keys.L));
+
+  /**
+   * Keybinding to spawn a monster on courser location, if the {@link feature.components.Debugger}
+   * is active.
+   */
+  public static final ConfigKey<Integer> DEBUG_SPAWN_MONSTER =
+      new ConfigKey<>(new String[] {"debug", "spawn_monster"}, new ConfigIntValue(Input.Keys.X));
+
+  /**
+   * Keybinding to teleport the player to the cursor mouse location, if the {@link
+   * feature.components.Debugger} is active.
+   */
+  public static final ConfigKey<Integer> DEBUG_TELEPORT_TO_CURSOR =
+      new ConfigKey<>(new String[] {"debug", "teleport_cursor"}, new ConfigIntValue(Input.Keys.O));
+
+  /** Keybinding to open all doors, if the {@link feature.components.Debugger} is active. */
+  public static final ConfigKey<Integer> DEBUG_OPEN_DOORS =
+      new ConfigKey<>(new String[] {"open", "open_doors"}, new ConfigIntValue(Input.Keys.C));
+
+  /**
+   * Keybinding to toggle the {@link feature.systems.DebugDrawSystem Debug-HUD}, if the {@link
+   * feature.components.Debugger} and {@link feature.systems.DebugDrawSystem} are active.
+   */
+  public static final ConfigKey<Integer> DEBUG_TOGGLE_HUD =
+      new ConfigKey<>(new String[] {"debug", "toggle_hud"}, new ConfigIntValue(Input.Keys.F3));
+
+  /**
+   * Keybinding to toggle the {@link feature.systems.DebugDrawSystem Debug-HUD}'s system list while
+   * holding {@link #DEBUG_TOGGLE_HUD}.
+   */
+  public static final ConfigKey<Integer> DEBUG_TOGGLE_SYSTEM_LIST =
+      new ConfigKey<>(
+          new String[] {"debug", "toggle_system_list"}, new ConfigIntValue(Input.Keys.A));
+
+  /**
+   * Keybinding to toggle the {@link feature.systems.DebugDrawSystem Debug-HUD}'s network telemetry
+   * while holding {@link #DEBUG_TOGGLE_HUD}.
+   */
+  public static final ConfigKey<Integer> DEBUG_TOGGLE_NETWORK_TELEMETRY =
+      new ConfigKey<>(
+          new String[] {"debug", "toggle_network_telemetry"}, new ConfigIntValue(Input.Keys.N));
+
+  /** Keybinding to toggle the {@link feature.components.Debugger}'s Scene2D debug mode. */
+  public static final ConfigKey<Integer> DEBUG_TOGGLE_SCENE_HUD =
+      new ConfigKey<>(
+          new String[] {"debug", "toggle_scene_hud"}, new ConfigIntValue(Input.Keys.F5));
+
+  /** Keybinding to increase the {@link feature.components.Debugger}'s multipurpose debug value. */
+  public static final ConfigKey<Integer> DEBUG_VALUE_UP =
+      new ConfigKey<>(new String[] {"debug", "value_up"}, new ConfigIntValue(Input.Keys.UP));
+
+  /** Keybinding to decrease the {@link feature.components.Debugger}'s multipurpose debug value. */
+  public static final ConfigKey<Integer> DEBUG_VALUE_DOWN =
+      new ConfigKey<>(new String[] {"debug", "value_down"}, new ConfigIntValue(Input.Keys.DOWN));
+
+  /** Keybinding to execute all registered debug actions. */
+  public static final ConfigKey<Integer> DEBUG_ACTION =
+      new ConfigKey<>(new String[] {"debug", "action"}, new ConfigIntValue(Input.Keys.NUMPAD_1));
+}

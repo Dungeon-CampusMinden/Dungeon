@@ -1,11 +1,11 @@
 package wizard.runner.runtime.multiplayer;
 
-import core.Game;
-import core.network.ConnectionListener;
-import foundation.multiplayer.bootstrap.ClientBootstrapCoordinator;
-import foundation.multiplayer.game.FoundationDialogs;
-import foundation.room.asset.RuntimeAssetBinder;
-import foundation.room.model.FoundationRoom;
+import engine.Game;
+import engine.network.ConnectionListener;
+import escaperoom.foundation.multiplayer.bootstrap.ClientBootstrapCoordinator;
+import escaperoom.foundation.multiplayer.game.FoundationDialogs;
+import escaperoom.foundation.room.asset.RuntimeAssetBinder;
+import escaperoom.foundation.room.model.FoundationRoom;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;

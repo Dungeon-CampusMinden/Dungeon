@@ -1,0 +1,302 @@
+package feature.entities;
+
+import engine.input.CursorUtils;
+import engine.utils.Rectangle;
+import engine.utils.Tuple;
+import engine.utils.Vector2;
+import engine.utils.components.path.IPath;
+import engine.utils.components.path.SimpleIPath;
+import feature.health.DamageType;
+import feature.inventory.Item;
+import feature.inventory.items.ItemPotionHealth;
+import feature.inventory.items.ItemWoodenArrow;
+import feature.inventory.items.ItemWoodenBow;
+import feature.skills.Resource;
+import feature.skills.Skill;
+import feature.skills.projectile.BowSkill;
+import feature.skills.projectile.FireballSkill;
+import feature.skills.self.DashSkill;
+import feature.skills.self.MeleeAttackSkill;
+import feature.skills.self.SelfHealSkill;
+import java.util.List;
+
+/** Defines the Classes a Hero can be. */
+public enum CharacterClass {
+  /**
+   * Wizard character class.
+   *
+   * <p>A magic-focused class specializing in ranged spell attacks and self-healing. Ideal for
+   * players who prefer high damage from a distance and utility spells.
+   */
+  WIZARD(
+      "character/wizard",
+      Vector2.of(5, 5),
+      1.3f,
+      15,
+      List.of(
+          new FireballSkill(CursorUtils::positionInWorld, new Tuple<>(Resource.MANA, 30)),
+          new SelfHealSkill(300, 5, new Tuple<>(Resource.MANA, 80))),
+      List.of(new ItemPotionHealth()),
+      6,
+      100,
+      10,
+      50,
+      5,
+      new Rectangle(0.8f, 0.8f, 0.1f, 0.1f)),
+
+  /**
+   * Hunter character class.
+   *
+   * <p>A bow-focused class with high durability and stamina, starts with bow and arrows and can do
+   * a short bursts of speed.
+   */
+  HUNTER(
+      "character/knight",
+      Vector2.of(4, 4),
+      3f,
+      35,
+      List.of(
+          new BowSkill(CursorUtils::positionInWorld),
+          new DashSkill(5, 180, 120, new Tuple<>(Resource.STAMINA, 20)),
+          new MeleeAttackSkill(3, DamageType.PHYSICAL, 500, Vector2.ZERO, Vector2.ONE)),
+      List.of(
+          new ItemWoodenBow(),
+          new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),
+          new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),
+          new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE)),
+      10,
+      0,
+      0,
+      120,
+      5,
+      new Rectangle(0.8f, 0.8f, 0.1f, 0.1f)),
+
+  /** Wizard character class, specifically made for the MushRoom game. */
+  MUSHROOM_WIZARD(
+      "character/wizard",
+      Vector2.of(5, 5),
+      1.3f,
+      15,
+      List.of(),
+      List.of(),
+      16,
+      100,
+      10,
+      50,
+      5,
+      new Rectangle(0.8f, 0.8f, 0.1f, 0.1f)),
+  /** The Last Hour class for the Rogue. */
+  THE_LAST_HOUR_ROGUE(
+      "character/rogue",
+      Vector2.of(5, 5),
+      1.2f,
+      20,
+      List.of(),
+      List.of(),
+      10,
+      0,
+      0,
+      0,
+      0,
+      new Rectangle(0.8f, 0.8f, 0.6f, 0.5f)),
+  /** The Last Hour class for the Char03. */
+  THE_LAST_HOUR_CHAR03(
+      "character/char03",
+      Vector2.of(5, 5),
+      1.2f,
+      20,
+      List.of(),
+      List.of(),
+      10,
+      0,
+      0,
+      0,
+      0,
+      new Rectangle(0.8f, 0.8f, 0.6f, 0.3f));
+
+  private final IPath textures;
+  private final Vector2 speed;
+  private final float mass;
+  private final int hp;
+  private final List<Skill> startSkills;
+  private final List<Item> startItems;
+  private final int inventorySize;
+  private final int mana;
+  private final float manaRestore;
+  private final int stamina;
+  private final float staminaRestore;
+  private final Rectangle hitbox;
+
+  /**
+   * Constructs a new {@code CharacterClass} with the specified attributes.
+   *
+   * <p>This constructor initializes all engine properties of a character class, including movement,
+   * health, skills, items, and resource pools.
+   *
+   * @param textures the path to the character's texture or sprite
+   * @param speed the base movement speed of the character
+   * @param mass the mass of the character, used in physics calculations
+   * @param hp the starting health points of the character
+   * @param startSkills the list of skills the character starts with
+   * @param startItems the list of items the character starts with
+   * @param inventorySize the maximum number of items the character can carry
+   * @param mana the starting mana points
+   * @param manaRestore the rate at which mana regenerates over time
+   * @param energy the starting stamina (or energy) points
+   * @param energyRestore the rate at which stamina regenerates over time
+   * @param hitbox the dimensions of the character's hitbox for collision detection
+   */
+  CharacterClass(
+      String textures,
+      Vector2 speed,
+      float mass,
+      int hp,
+      List<Skill> startSkills,
+      List<Item> startItems,
+      int inventorySize,
+      int mana,
+      float manaRestore,
+      int energy,
+      float energyRestore,
+      Rectangle hitbox) {
+    this.textures = new SimpleIPath(textures);
+    this.speed = speed;
+    this.mass = mass;
+    this.hp = hp;
+    this.startSkills = startSkills;
+    this.startItems = startItems;
+    this.inventorySize = inventorySize;
+    this.mana = mana;
+    this.manaRestore = manaRestore;
+    this.stamina = energy;
+    this.staminaRestore = energyRestore;
+    this.hitbox = hitbox;
+  }
+
+  /**
+   * Returns the CharacterClass corresponding to the given byte ordinal.
+   *
+   * @param ordinal the byte ordinal of the CharacterClass
+   * @return the CharacterClass associated with the ordinal
+   * @throws IllegalArgumentException if the ordinal is out of range
+   * @throws IllegalStateException if there are too many CharacterClasses to be represented by a
+   *     byte
+   */
+  public static CharacterClass fromByteId(byte ordinal) {
+    if (CharacterClass.values().length > Byte.MAX_VALUE) {
+      throw new IllegalStateException("Too many CharacterClasses to be represented by a byte.");
+    }
+    if (ordinal < 0 || ordinal >= CharacterClass.values().length) {
+      throw new IllegalArgumentException("Invalid ordinal for CharacterClass: " + ordinal);
+    }
+    return CharacterClass.values()[ordinal];
+  }
+
+  /**
+   * Returns the texture path or sprite representation for this character class.
+   *
+   * @return the {@link IPath} representing the character's textures
+   */
+  public IPath textures() {
+    return textures;
+  }
+
+  /**
+   * Returns the base movement speed of the character class.
+   *
+   * @return the {@link Vector2} representing the speed
+   */
+  public Vector2 speed() {
+    return speed;
+  }
+
+  /**
+   * Returns the mass of the character class, used for physics calculations.
+   *
+   * @return the mass as a float
+   */
+  public float mass() {
+    return mass;
+  }
+
+  /**
+   * Returns the starting health points of the character class.
+   *
+   * @return the initial HP
+   */
+  public int hp() {
+    return hp;
+  }
+
+  /**
+   * Returns the list of skills the character starts with.
+   *
+   * @return a {@link List} of {@link Skill} objects
+   */
+  public List<Skill> startSkills() {
+    return startSkills;
+  }
+
+  /**
+   * Returns the list of items the character starts with.
+   *
+   * @return a {@link List} of {@link Item} objects
+   */
+  public List<Item> startItems() {
+    return startItems;
+  }
+
+  /**
+   * Returns the maximum number of items the character can carry.
+   *
+   * @return the inventory size
+   */
+  public int inventorySize() {
+    return inventorySize;
+  }
+
+  /**
+   * Returns the starting mana points of the character class.
+   *
+   * @return the initial mana
+   */
+  public int mana() {
+    return mana;
+  }
+
+  /**
+   * Returns the mana regeneration rate for the character class.
+   *
+   * @return the mana restore value per tick or unit of time
+   */
+  public float manaRestore() {
+    return manaRestore;
+  }
+
+  /**
+   * Returns the starting stamina points of the character class.
+   *
+   * @return the initial energy
+   */
+  public int stamina() {
+    return stamina;
+  }
+
+  /**
+   * Returns the stamina regeneration rate for the character class.
+   *
+   * @return the stamina restore value per tick or unit of time
+   */
+  public float staminaRestore() {
+    return staminaRestore;
+  }
+
+  /**
+   * Returns the hitbox dimensions for the character class.
+   *
+   * @return a {@link Rectangle} representing the hitbox
+   */
+  public Rectangle hitbox() {
+    return hitbox;
+  }
+}

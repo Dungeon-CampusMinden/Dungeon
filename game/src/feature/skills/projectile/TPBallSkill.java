@@ -1,0 +1,176 @@
+package feature.skills.projectile;
+
+import com.badlogic.gdx.math.MathUtils;
+import engine.Entity;
+import engine.Game;
+import engine.sound.SoundSpec;
+import engine.utils.Direction;
+import engine.utils.Point;
+import engine.utils.Tuple;
+import engine.utils.components.path.IPath;
+import engine.utils.components.path.SimpleIPath;
+import feature.health.DamageType;
+import feature.skills.Resource;
+import feature.utils.EntityUtils;
+import java.util.function.Supplier;
+
+/**
+ * A teleporting projectile skill that deals minor damage and teleports hit entities.
+ *
+ * <p>The TPBallSkill class extends {@link DamageProjectileSkill} to implement a skill where the
+ * projectile flies toward a target, damages the first hit entity, and teleports it to a specified
+ * point. The projectile is removed if it hits a wall or reaches its maximum range.
+ */
+public class TPBallSkill extends DamageProjectileSkill {
+  private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
+  private static final String PROJECTILE_SOUND = "fireball";
+  private static final float PROJECTILE_SPEED = 6.0f;
+  private static final int DAMAGE_AMOUNT = 1;
+  private static final DamageType DAMAGE_TYPE = DamageType.MAGIC;
+  private static final float PROJECTILE_RANGE = 7f;
+  private static final long COOLDOWN = 2000;
+  private static final boolean IS_PIERCING = false;
+  private static final boolean IGNORE_FIRST_WALL = false;
+
+  /** Name of the Skill. */
+  public static final String SKILL_NAME = "TPBall";
+
+  private final Supplier<Point> tpTarget;
+
+  /**
+   * Creates a TPBallSkill with full custom parameters.
+   *
+   * @param target Supplier providing the projectile's target point.
+   * @param tpTarget Supplier providing the teleportation destination point.
+   * @param cooldown Skill cooldown in milliseconds.
+   * @param speed Projectile travel speed.
+   * @param range Maximum projectile range.
+   * @param damageAmount Damage dealt on impact.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
+   * @param resourceCost Resources required to cast the skill.
+   */
+  @SafeVarargs
+  public TPBallSkill(
+      Supplier<Point> target,
+      Supplier<Point> tpTarget,
+      long cooldown,
+      float speed,
+      float range,
+      int damageAmount,
+      boolean ignoreFirstWall,
+      Tuple<Resource, Integer>... resourceCost) {
+    super(
+        SKILL_NAME,
+        cooldown,
+        TEXTURE,
+        target,
+        speed,
+        range,
+        IS_PIERCING,
+        damageAmount,
+        DAMAGE_TYPE,
+        ignoreFirstWall,
+        resourceCost);
+    this.tpTarget = tpTarget;
+    tintColor(0xFF00FFFF);
+  }
+
+  /**
+   * Creates a TPBallSkill using all default values for cooldown, speed, range, and damage.
+   *
+   * @param target Supplier providing the projectile's target point.
+   * @param tpTarget Supplier providing the teleportation destination point.
+   * @param resourceCost Resources required to cast the skill.
+   */
+  @SafeVarargs
+  public TPBallSkill(
+      Supplier<Point> target, Supplier<Point> tpTarget, Tuple<Resource, Integer>... resourceCost) {
+    this(
+        target,
+        tpTarget,
+        COOLDOWN,
+        PROJECTILE_RANGE,
+        PROJECTILE_SPEED,
+        DAMAGE_AMOUNT,
+        IGNORE_FIRST_WALL,
+        resourceCost);
+  }
+
+  /**
+   * Creates a TPBallSkill with custom cooldown and default speed, range, and damage.
+   *
+   * @param target Supplier providing the projectile's target point.
+   * @param tpTarget Supplier providing the teleportation destination point.
+   * @param cooldown Skill cooldown in milliseconds.
+   * @param resourceCost Resources required to cast the skill.
+   */
+  @SafeVarargs
+  public TPBallSkill(
+      Supplier<Point> target,
+      Supplier<Point> tpTarget,
+      long cooldown,
+      Tuple<Resource, Integer>... resourceCost) {
+    this(
+        target,
+        tpTarget,
+        cooldown,
+        PROJECTILE_RANGE,
+        PROJECTILE_SPEED,
+        DAMAGE_AMOUNT,
+        IGNORE_FIRST_WALL,
+        resourceCost);
+  }
+
+  /**
+   * Creates a TPBallSkill with custom cooldown, range, and speed, but default damage.
+   *
+   * @param target Supplier providing the projectile's target point.
+   * @param tpTarget Supplier providing the teleportation destination point.
+   * @param cooldown Skill cooldown in milliseconds.
+   * @param range Maximum projectile range.
+   * @param speed Projectile travel speed.
+   * @param resourceCost Resources required to cast the skill.
+   */
+  @SafeVarargs
+  public TPBallSkill(
+      final Supplier<Point> target,
+      Supplier<Point> tpTarget,
+      long cooldown,
+      float range,
+      float speed,
+      Tuple<Resource, Integer>... resourceCost) {
+    this(target, tpTarget, cooldown, range, speed, DAMAGE_AMOUNT, IGNORE_FIRST_WALL, resourceCost);
+  }
+
+  @Override
+  protected void additionalEffectAfterDamage(
+      Entity caster, Entity projectile, Entity target, Direction direction) {
+    EntityUtils.teleportEntityTo(caster, tpTarget.get());
+  }
+
+  /**
+   * Called when the projectile spawns in the game world.
+   *
+   * <p>Plays the teleport ball sound effect with a random pitch for variation.
+   *
+   * @param caster The entity casting the projectile.
+   * @param projectile The projectile entity spawned.
+   * @see engine.systems.SoundSystem
+   */
+  @Override
+  protected void onSpawn(Entity caster, Entity projectile) {
+    float volume = 0.15f;
+    float maxDistance = 20f;
+    float attenuationFactor = 0.1f;
+    float minPitch = 2f;
+    float maxPitch = 3f;
+    Game.audio()
+        .playOnEntity(
+            projectile,
+            SoundSpec.builder(PROJECTILE_SOUND)
+                .volume(volume)
+                .pitch(MathUtils.random(minPitch, maxPitch))
+                .maxDistance(maxDistance)
+                .attenuation(attenuationFactor));
+  }
+}

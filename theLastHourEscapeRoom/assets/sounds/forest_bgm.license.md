@@ -1,3 +1,0 @@
-- Source: https://opengameart.org/content/dark-forest-theme
-- Author: The Cynic Project / cynicmusic.com / pixelsphere.org
-- License: CC0

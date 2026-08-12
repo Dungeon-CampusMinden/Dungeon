@@ -1,6 +1,6 @@
 package wizard.runner.validation;
 
-import foundation.room.model.VerifiedAsset;
+import escaperoom.foundation.room.model.VerifiedAsset;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;

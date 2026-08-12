@@ -1,0 +1,34 @@
+package feature.systems;
+
+import engine.Entity;
+import engine.System;
+import engine.utils.components.MissingComponentException;
+import feature.components.AIComponent;
+
+/**
+ * Controls the AI.
+ *
+ * <p>Entities with the {@link AIComponent} will be processed by this system.
+ */
+public final class AISystem extends System {
+
+  /** Create a new AISystem. */
+  public AISystem() {
+    super(AIComponent.class);
+  }
+
+  @Override
+  public void execute() {
+    filteredEntityStream(AIComponent.class).forEach(this::executeAI);
+  }
+
+  private void executeAI(Entity entity) {
+    AIComponent ai =
+        entity
+            .fetch(AIComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, AIComponent.class));
+
+    if (ai.shouldFight().apply(entity)) ai.fightBehavior().accept(entity);
+    else ai.idleBehavior().accept(entity);
+  }
+}

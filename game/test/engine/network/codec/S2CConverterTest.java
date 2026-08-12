@@ -1,0 +1,687 @@
+package engine.network.codec;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import engine.components.PlayerComponent;
+import engine.components.PositionComponent;
+import engine.level.utils.Coordinate;
+import engine.network.codec.converters.s2c.ConnectAckConverter;
+import engine.network.codec.converters.s2c.ConnectRejectConverter;
+import engine.network.codec.converters.s2c.DebugPongConverter;
+import engine.network.codec.converters.s2c.DebugTelemetrySnapshotConverter;
+import engine.network.codec.converters.s2c.DeltaSnapshotConverter;
+import engine.network.codec.converters.s2c.DialogCloseConverter;
+import engine.network.codec.converters.s2c.DialogShowConverter;
+import engine.network.codec.converters.s2c.EntityDespawnConverter;
+import engine.network.codec.converters.s2c.EntitySpawnBatchConverter;
+import engine.network.codec.converters.s2c.EntitySpawnEventConverter;
+import engine.network.codec.converters.s2c.EntityStateConverter;
+import engine.network.codec.converters.s2c.GameOverConverter;
+import engine.network.codec.converters.s2c.InitialWorldCompleteConverter;
+import engine.network.codec.converters.s2c.LevelChangeConverter;
+import engine.network.codec.converters.s2c.RegisterAckConverter;
+import engine.network.codec.converters.s2c.SnapshotConverter;
+import engine.network.codec.converters.s2c.SoundPlayConverter;
+import engine.network.codec.converters.s2c.SoundStopConverter;
+import engine.network.messages.s2c.ConnectAck;
+import engine.network.messages.s2c.ConnectReject;
+import engine.network.messages.s2c.DebugPong;
+import engine.network.messages.s2c.DebugTelemetrySnapshot;
+import engine.network.messages.s2c.DeltaSnapshotMessage;
+import engine.network.messages.s2c.DialogCloseMessage;
+import engine.network.messages.s2c.DialogShowMessage;
+import engine.network.messages.s2c.DoorTileState;
+import engine.network.messages.s2c.EntityDelta;
+import engine.network.messages.s2c.EntityDespawnEvent;
+import engine.network.messages.s2c.EntitySpawnBatch;
+import engine.network.messages.s2c.EntitySpawnEvent;
+import engine.network.messages.s2c.EntityState;
+import engine.network.messages.s2c.EntityStateField;
+import engine.network.messages.s2c.GameOverEvent;
+import engine.network.messages.s2c.InitialWorldComplete;
+import engine.network.messages.s2c.InventorySlotState;
+import engine.network.messages.s2c.ItemState;
+import engine.network.messages.s2c.LevelChangeEvent;
+import engine.network.messages.s2c.LevelState;
+import engine.network.messages.s2c.RegisterAck;
+import engine.network.messages.s2c.SnapshotMessage;
+import engine.network.messages.s2c.SoundPlayMessage;
+import engine.network.messages.s2c.SoundStopMessage;
+import engine.sound.SoundSpec;
+import engine.utils.Direction;
+import engine.utils.Point;
+import engine.utils.Vector2;
+import engine.utils.components.draw.DrawInfoData;
+import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
+import feature.hud.dialogs.DialogType;
+import feature.inventory.HealthPotionType;
+import feature.inventory.Item;
+import feature.inventory.items.ItemKey;
+import feature.inventory.items.ItemPotionHealth;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
+
+/** Tests for s2c message converters. */
+public class S2CConverterTest {
+
+  private static final float DELTA = 1e-6f;
+
+  private static final ConnectAckConverter CONNECT_ACK_CONVERTER = new ConnectAckConverter();
+  private static final ConnectRejectConverter CONNECT_REJECT_CONVERTER =
+      new ConnectRejectConverter();
+  private static final DialogShowConverter DIALOG_SHOW_CONVERTER = new DialogShowConverter();
+  private static final DialogCloseConverter DIALOG_CLOSE_CONVERTER = new DialogCloseConverter();
+  private static final EntitySpawnEventConverter ENTITY_SPAWN_EVENT_CONVERTER =
+      new EntitySpawnEventConverter();
+  private static final EntitySpawnBatchConverter ENTITY_SPAWN_BATCH_CONVERTER =
+      new EntitySpawnBatchConverter();
+  private static final EntityDespawnConverter ENTITY_DESPAWN_CONVERTER =
+      new EntityDespawnConverter();
+  private static final EntityStateConverter ENTITY_STATE_CONVERTER = new EntityStateConverter();
+  private static final SnapshotConverter SNAPSHOT_CONVERTER = new SnapshotConverter();
+  private static final DeltaSnapshotConverter DELTA_SNAPSHOT_CONVERTER =
+      new DeltaSnapshotConverter();
+  private static final GameOverConverter GAME_OVER_CONVERTER = new GameOverConverter();
+  private static final LevelChangeConverter LEVEL_CHANGE_CONVERTER = new LevelChangeConverter();
+  private static final RegisterAckConverter REGISTER_ACK_CONVERTER = new RegisterAckConverter();
+  private static final SoundPlayConverter SOUND_PLAY_CONVERTER = new SoundPlayConverter();
+  private static final SoundStopConverter SOUND_STOP_CONVERTER = new SoundStopConverter();
+  private static final DebugTelemetrySnapshotConverter DEBUG_TELEMETRY_SNAPSHOT_CONVERTER =
+      new DebugTelemetrySnapshotConverter();
+  private static final DebugPongConverter DEBUG_PONG_CONVERTER = new DebugPongConverter();
+  private static final InitialWorldCompleteConverter INITIAL_WORLD_COMPLETE_CONVERTER =
+      new InitialWorldCompleteConverter();
+
+  private static DrawInfoData createDrawInfo() {
+    DrawInfoData.AnimationConfigData animationConfig =
+        new DrawInfoData.AnimationConfigData(4, true, false, true);
+    DrawInfoData.SpritesheetConfigData spritesheetConfig =
+        new DrawInfoData.SpritesheetConfigData(16, 24, 2, 3, 4, 5);
+    DrawInfoData.StateAnimationData idleAnimation =
+        new DrawInfoData.StateAnimationData(
+            "character/hero.png", 2.0f, 3.0f, animationConfig, spritesheetConfig);
+    return new DrawInfoData(
+        "character/hero.png",
+        2.0f,
+        3.0f,
+        "idle",
+        20,
+        512,
+        animationConfig,
+        spritesheetConfig,
+        List.of(
+            new DrawInfoData.StateData(
+                "idle",
+                DrawInfoData.StateType.SIMPLE_DIRECTIONAL,
+                idleAnimation,
+                null,
+                null,
+                null)));
+  }
+
+  /** Verifies connect ack conversion roundtrip. */
+  @Test
+  public void testConnectAckRoundTrip() {
+    byte[] token = new byte[] {4, 5, 6};
+    ConnectAck message = new ConnectAck((short) 7, 42, token);
+
+    engine.network.proto.s2c.ConnectAck proto = CONNECT_ACK_CONVERTER.toProto(message);
+    assertEquals(7, proto.getClientId());
+    assertEquals(42, proto.getSessionId());
+    assertArrayEquals(token, proto.getSessionToken().toByteArray());
+
+    ConnectAck roundTrip = CONNECT_ACK_CONVERTER.fromProto(proto);
+    assertEquals(message.clientId(), roundTrip.clientId());
+    assertEquals(message.sessionId(), roundTrip.sessionId());
+    assertArrayEquals(message.sessionToken(), roundTrip.sessionToken());
+  }
+
+  /** Verifies connect reject conversion roundtrip. */
+  @Test
+  public void testConnectRejectRoundTrip() {
+    ConnectReject message = new ConnectReject(ConnectReject.Reason.SERVER_FULL);
+
+    engine.network.proto.s2c.ConnectReject proto = CONNECT_REJECT_CONVERTER.toProto(message);
+    assertEquals(
+        engine.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_SERVER_FULL,
+        proto.getReason());
+
+    ConnectReject roundTrip = CONNECT_REJECT_CONVERTER.fromProto(proto);
+    assertEquals(message.reason(), roundTrip.reason());
+  }
+
+  /** Verifies dialog show message conversion roundtrip. */
+  @Test
+  public void testDialogShowRoundTrip() {
+    DialogContext context =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.OK)
+            .dialogId("dialog-100")
+            .put(DialogContextKeys.TITLE, "Title")
+            .put(DialogContextKeys.MESSAGE, "Message")
+            .build();
+    DialogShowMessage message = new DialogShowMessage(context, false);
+
+    engine.network.proto.s2c.DialogShowMessage proto = DIALOG_SHOW_CONVERTER.toProto(message);
+    assertEquals("dialog-100", proto.getDialogId());
+    assertFalse(proto.getCanBeClosed());
+
+    DialogShowMessage roundTrip = DIALOG_SHOW_CONVERTER.fromProto(proto);
+    assertEquals("dialog-100", roundTrip.context().dialogId());
+    assertFalse(roundTrip.canBeClosed());
+    assertEquals("Title", roundTrip.context().require(DialogContextKeys.TITLE, String.class));
+  }
+
+  /** Verifies dialog close message conversion roundtrip. */
+  @Test
+  public void testDialogCloseRoundTrip() {
+    DialogCloseMessage message = new DialogCloseMessage("dialog-200");
+
+    engine.network.proto.s2c.DialogCloseMessage proto = DIALOG_CLOSE_CONVERTER.toProto(message);
+    assertEquals("dialog-200", proto.getDialogId());
+
+    DialogCloseMessage roundTrip = DIALOG_CLOSE_CONVERTER.fromProto(proto);
+    assertEquals("dialog-200", roundTrip.dialogId());
+  }
+
+  /** Verifies entity spawn event conversion roundtrip. */
+  @Test
+  public void testEntitySpawnRoundTrip() {
+    PositionComponent position = new PositionComponent(new Point(4.0f, 5.0f), Direction.UP);
+    position.rotation(45.0f);
+    position.scale(Vector2.of(1.5f, 0.75f));
+    DrawInfoData drawInfo = createDrawInfo();
+    PlayerComponent playerComponent = new PlayerComponent(true, "Hero");
+    EntitySpawnEvent message =
+        new EntitySpawnEvent(42, position, drawInfo, playerComponent, (byte) 1);
+
+    engine.network.proto.s2c.EntitySpawnEvent proto = ENTITY_SPAWN_EVENT_CONVERTER.toProto(message);
+    assertEquals(42, proto.getEntityId());
+    assertEquals(4.0f, proto.getPosition().getPosition().getX(), DELTA);
+    assertEquals(5.0f, proto.getPosition().getPosition().getY(), DELTA);
+    assertEquals(
+        engine.network.proto.common.Direction.DIRECTION_UP, proto.getPosition().getViewDirection());
+    assertEquals(45.0f, proto.getPosition().getRotation(), DELTA);
+    assertEquals(1.5f, proto.getPosition().getScale().getX(), DELTA);
+    assertEquals(0.75f, proto.getPosition().getScale().getY(), DELTA);
+    assertTrue(proto.hasPlayerInfo());
+    assertEquals("Hero", proto.getPlayerInfo().getPlayerName());
+    assertTrue(proto.getPlayerInfo().getIsLocalPlayer());
+    assertEquals(1, proto.getCharacterClassId());
+
+    EntitySpawnEvent roundTrip = ENTITY_SPAWN_EVENT_CONVERTER.fromProto(proto);
+    assertEquals(42, roundTrip.entityId());
+    assertEquals(4.0f, roundTrip.positionComponent().position().x(), DELTA);
+    assertEquals(5.0f, roundTrip.positionComponent().position().y(), DELTA);
+    assertEquals(Direction.UP, roundTrip.positionComponent().viewDirection());
+    assertEquals(45.0f, roundTrip.positionComponent().rotation(), DELTA);
+    assertEquals(1.5f, roundTrip.positionComponent().scale().x(), DELTA);
+    assertEquals(0.75f, roundTrip.positionComponent().scale().y(), DELTA);
+    assertNotNull(roundTrip.playerComponent());
+    assertEquals("Hero", roundTrip.playerComponent().playerName());
+    assertTrue(roundTrip.playerComponent().isLocal());
+    assertEquals(1, roundTrip.characterClassId());
+    assertEquals("character/hero.png", roundTrip.drawInfo().texturePath());
+    assertEquals(2.0f, roundTrip.drawInfo().scaleX(), DELTA);
+    assertEquals(3.0f, roundTrip.drawInfo().scaleY(), DELTA);
+    assertEquals("idle", roundTrip.drawInfo().animationName());
+    assertEquals(20, roundTrip.drawInfo().currentFrame());
+    assertEquals(4, roundTrip.drawInfo().animationConfig().framesPerSprite());
+    assertTrue(roundTrip.drawInfo().animationConfig().looping());
+    assertFalse(roundTrip.drawInfo().animationConfig().centered());
+    assertTrue(roundTrip.drawInfo().animationConfig().mirrored());
+    assertNotNull(roundTrip.drawInfo().spritesheetConfig());
+    assertEquals(16, roundTrip.drawInfo().spritesheetConfig().spriteWidth());
+    assertEquals(24, roundTrip.drawInfo().spritesheetConfig().spriteHeight());
+    assertEquals(2, roundTrip.drawInfo().spritesheetConfig().offsetX());
+    assertEquals(3, roundTrip.drawInfo().spritesheetConfig().offsetY());
+    assertEquals(4, roundTrip.drawInfo().spritesheetConfig().rows());
+    assertEquals(5, roundTrip.drawInfo().spritesheetConfig().columns());
+    assertNotNull(roundTrip.drawInfo().states());
+    assertEquals(1, roundTrip.drawInfo().states().size());
+    assertEquals("idle", roundTrip.drawInfo().states().getFirst().stateName());
+    assertEquals(512, roundTrip.drawInfo().depth());
+  }
+
+  /** Verifies entity spawn batch conversion roundtrip. */
+  @Test
+  public void testEntitySpawnBatchRoundTrip() {
+    EntitySpawnEvent first =
+        new EntitySpawnEvent(
+            1, new PositionComponent(new Point(1.0f, 1.0f)), createDrawInfo(), null, (byte) 0);
+    EntitySpawnEvent second =
+        new EntitySpawnEvent(
+            2,
+            new PositionComponent(new Point(2.0f, 2.0f)),
+            createDrawInfo(),
+            new PlayerComponent(false, "Other"),
+            (byte) 2);
+
+    EntitySpawnBatch message = new EntitySpawnBatch(List.of(first, second));
+    engine.network.proto.s2c.EntitySpawnBatch proto = ENTITY_SPAWN_BATCH_CONVERTER.toProto(message);
+    assertEquals(2, proto.getEntitiesCount());
+
+    EntitySpawnBatch roundTrip = ENTITY_SPAWN_BATCH_CONVERTER.fromProto(proto);
+    assertEquals(2, roundTrip.entities().size());
+    assertEquals(1, roundTrip.entities().get(0).entityId());
+    assertEquals(2, roundTrip.entities().get(1).entityId());
+  }
+
+  /** Verifies entity despawn event conversion roundtrip. */
+  @Test
+  public void testEntityDespawnRoundTrip() {
+    EntityDespawnEvent message = new EntityDespawnEvent(99, "destroyed");
+
+    engine.network.proto.s2c.EntityDespawnEvent proto = ENTITY_DESPAWN_CONVERTER.toProto(message);
+    assertEquals(99, proto.getEntityId());
+    assertEquals("destroyed", proto.getReason());
+
+    EntityDespawnEvent roundTrip = ENTITY_DESPAWN_CONVERTER.fromProto(proto);
+    assertEquals(99, roundTrip.entityId());
+    assertEquals("destroyed", roundTrip.reason());
+  }
+
+  /** Verifies entity state conversion roundtrip. */
+  @Test
+  public void testEntityStateRoundTrip() {
+    ItemPotionHealth item = new ItemPotionHealth(HealthPotionType.GREATER);
+    EntityState message =
+        EntityState.builder()
+            .entityId(7)
+            .entityName("Goblin")
+            .position(new Point(1.5f, 2.5f))
+            .viewDirection(Direction.LEFT)
+            .rotation(90.0f)
+            .scale(Vector2.of(1.25f, 0.75f))
+            .currentHealth(5)
+            .maxHealth(10)
+            .currentMana(2.5f)
+            .maxMana(5.0f)
+            .stateName("idle")
+            .tintColor(0x11223344)
+            .inventory(new Item[] {null, item, null})
+            .build();
+
+    engine.network.proto.s2c.EntityState proto = ENTITY_STATE_CONVERTER.toProto(message);
+    assertEquals(7, proto.getEntityId());
+    assertTrue(proto.hasEntityName());
+    assertEquals("Goblin", proto.getEntityName());
+
+    engine.network.proto.s2c.ItemSlot slot = proto.getInventory(1);
+    assertEquals(1, slot.getSlotIndex());
+    assertTrue(slot.hasItem());
+    assertEquals(
+        HealthPotionType.GREATER.name(), slot.getItem().getItemDataMap().get("health_potion_type"));
+    assertEquals(
+        Integer.toString(item.healAmount()), slot.getItem().getItemDataMap().get("heal_amount"));
+
+    EntityState roundTrip = ENTITY_STATE_CONVERTER.fromProto(proto);
+    assertEquals(7, roundTrip.entityId());
+    assertEquals("Goblin", roundTrip.entityName().orElseThrow());
+    assertEquals("LEFT", roundTrip.viewDirection().orElseThrow());
+    assertEquals(90.0f, roundTrip.rotation().orElseThrow(), DELTA);
+    assertEquals(5, roundTrip.currentHealth().orElseThrow());
+    assertEquals(10, roundTrip.maxHealth().orElseThrow());
+    assertEquals(2.5f, roundTrip.currentMana().orElseThrow(), DELTA);
+    assertEquals(5.0f, roundTrip.maxMana().orElseThrow(), DELTA);
+    assertEquals("idle", roundTrip.stateName().orElseThrow());
+    assertEquals(0x11223344, roundTrip.tintColor().orElseThrow());
+    assertEquals(1.25f, roundTrip.scale().orElseThrow().x(), DELTA);
+    assertEquals(0.75f, roundTrip.scale().orElseThrow().y(), DELTA);
+    List<InventorySlotState> inventory = roundTrip.inventory().orElseThrow();
+    assertEquals(3, inventory.size());
+    assertEquals(0, inventory.get(0).slotIndex());
+    assertTrue(inventory.get(0).item() == null);
+    assertEquals(1, inventory.get(1).slotIndex());
+    assertEquals("ItemPotionHealth", inventory.get(1).item().itemType());
+    assertEquals(item.stackSize(), inventory.get(1).item().stackSize());
+    assertEquals(item.maxStackSize(), inventory.get(1).item().maxStackSize());
+    assertEquals(item.itemData(), inventory.get(1).item().itemData());
+    assertTrue(inventory.get(2).item() == null);
+    assertEquals(ItemPotionHealth.class, inventory.get(1).item().toItem().getClass());
+    ItemPotionHealth roundTripItem = (ItemPotionHealth) inventory.get(1).item().toItem();
+    assertEquals(HealthPotionType.GREATER, roundTripItem.type());
+    assertEquals(item.healAmount(), roundTripItem.healAmount());
+  }
+
+  /** Verifies empty inventory slots survive entity state conversion. */
+  @Test
+  public void testEntityStateEmptyInventoryRoundTrip() {
+    EntityState message =
+        EntityState.builder().entityId(7).inventory(new Item[] {null, null}).build();
+
+    engine.network.proto.s2c.EntityState proto = ENTITY_STATE_CONVERTER.toProto(message);
+    assertEquals(2, proto.getInventoryCount());
+    assertFalse(proto.getInventory(0).hasItem());
+    assertFalse(proto.getInventory(1).hasItem());
+
+    EntityState roundTrip = ENTITY_STATE_CONVERTER.fromProto(proto);
+    List<InventorySlotState> inventory = roundTrip.inventory().orElseThrow();
+    assertEquals(2, inventory.size());
+    assertEquals(0, inventory.get(0).slotIndex());
+    assertTrue(inventory.get(0).item() == null);
+    assertEquals(1, inventory.get(1).slotIndex());
+    assertTrue(inventory.get(1).item() == null);
+  }
+
+  /** Verifies empty metadata maps are normalized to absent metadata. */
+  @Test
+  public void testEntityStateEmptyMetadataIsAbsent() {
+    EntityState message = EntityState.builder().entityId(7).metadata(Map.of()).build();
+
+    assertTrue(message.metadata().isEmpty());
+  }
+
+  /** Verifies item data without a registered factory fails instead of being ignored. */
+  @Test
+  public void testItemStateDataWithoutFactoryFails() {
+    ItemState itemState = new ItemState("ItemKey", 1, 1, Map.of("custom", "value"));
+
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class, itemState::toItem);
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains("Item data provided but no factory registered for item type: ItemKey"));
+    assertEquals(ItemKey.class.getSimpleName(), itemState.itemType());
+  }
+
+  /** Verifies entity state conversion supports partial position-component updates. */
+  @Test
+  public void testEntityStatePartialPositionInfoRoundTrip() {
+    EntityState message =
+        EntityState.builder()
+            .entityId(7)
+            .viewDirection(Direction.RIGHT)
+            .rotation(45.0f)
+            .scale(Vector2.of(2.0f, 3.0f))
+            .build();
+
+    engine.network.proto.s2c.EntityState proto = ENTITY_STATE_CONVERTER.toProto(message);
+    assertTrue(proto.hasPosition());
+    assertFalse(proto.getPosition().hasPosition());
+    assertTrue(proto.getPosition().hasViewDirection());
+    assertTrue(proto.getPosition().hasRotation());
+    assertTrue(proto.getPosition().hasScale());
+
+    EntityState roundTrip = ENTITY_STATE_CONVERTER.fromProto(proto);
+    assertTrue(roundTrip.position().isEmpty());
+    assertEquals("RIGHT", roundTrip.viewDirection().orElseThrow());
+    assertEquals(45.0f, roundTrip.rotation().orElseThrow(), DELTA);
+    assertEquals(2.0f, roundTrip.scale().orElseThrow().x(), DELTA);
+    assertEquals(3.0f, roundTrip.scale().orElseThrow().y(), DELTA);
+  }
+
+  /** Verifies snapshot message conversion roundtrip. */
+  @Test
+  public void testSnapshotRoundTrip() {
+    EntityState state = EntityState.builder().entityId(5).build();
+    LevelState levelState = new LevelState(Set.of(new DoorTileState(new Coordinate(4, 7), false)));
+    SnapshotMessage message = new SnapshotMessage(123, List.of(state), levelState);
+
+    engine.network.proto.s2c.SnapshotMessage proto = SNAPSHOT_CONVERTER.toProto(message);
+    assertEquals(123, proto.getServerTick());
+    assertEquals(1, proto.getEntitiesCount());
+    assertTrue(proto.hasLevelState());
+    assertEquals(1, proto.getLevelState().getDoorStatesCount());
+    assertTrue(proto.getLevelState().getDoorStates(0).hasCoordinate());
+    assertEquals(4, proto.getLevelState().getDoorStates(0).getCoordinate().getX());
+    assertEquals(7, proto.getLevelState().getDoorStates(0).getCoordinate().getY());
+    assertFalse(proto.getLevelState().getDoorStates(0).getOpen());
+
+    SnapshotMessage roundTrip = SNAPSHOT_CONVERTER.fromProto(proto);
+    assertEquals(123, roundTrip.serverTick());
+    assertEquals(1, roundTrip.entities().size());
+    DoorTileState doorTileState = roundTrip.levelState().doorStates().iterator().next();
+    assertEquals(new Coordinate(4, 7), doorTileState.coordinate());
+    assertFalse(doorTileState.open());
+  }
+
+  /** Verifies delta snapshot message conversion roundtrip. */
+  @Test
+  public void testDeltaSnapshotRoundTrip() {
+    EntityState changedState =
+        EntityState.builder()
+            .entityId(5)
+            .rotation(90.0f)
+            .metadata(Map.of("sync:type", "keypad"))
+            .build();
+    EntityDelta entityDelta =
+        new EntityDelta(
+            5, changedState, Set.of(EntityStateField.POSITION, EntityStateField.INVENTORY));
+    LevelState levelState = new LevelState(Set.of(new DoorTileState(new Coordinate(4, 7), true)));
+    DeltaSnapshotMessage message =
+        new DeltaSnapshotMessage(100, 103, List.of(entityDelta), List.of(9), levelState);
+
+    engine.network.proto.s2c.DeltaSnapshotMessage proto = DELTA_SNAPSHOT_CONVERTER.toProto(message);
+    assertEquals(100, proto.getBaseTick());
+    assertEquals(103, proto.getServerTick());
+    assertEquals(1, proto.getEntityDeltasCount());
+    assertEquals(9, proto.getRemovedEntityIds(0));
+    assertTrue(proto.hasLevelStateDelta());
+
+    DeltaSnapshotMessage roundTrip = DELTA_SNAPSHOT_CONVERTER.fromProto(proto);
+    assertEquals(100, roundTrip.baseTick());
+    assertEquals(103, roundTrip.serverTick());
+    assertEquals(1, roundTrip.entityDeltas().size());
+    assertEquals(5, roundTrip.entityDeltas().getFirst().entityId());
+    assertEquals(
+        90.0f, roundTrip.entityDeltas().getFirst().changedState().rotation().orElseThrow());
+    assertTrue(
+        roundTrip.entityDeltas().getFirst().clearedFields().contains(EntityStateField.POSITION));
+    assertEquals(List.of(9), roundTrip.removedEntityIds());
+    assertTrue(roundTrip.levelStateDeltaOptional().isPresent());
+  }
+
+  /** Verifies game over conversion roundtrip. */
+  @Test
+  public void testGameOverRoundTrip() {
+    GameOverEvent message = new GameOverEvent("all_levels_completed");
+
+    engine.network.proto.s2c.GameOverEvent proto = GAME_OVER_CONVERTER.toProto(message);
+    assertEquals("all_levels_completed", proto.getReason());
+
+    GameOverEvent roundTrip = GAME_OVER_CONVERTER.fromProto(proto);
+    assertEquals("all_levels_completed", roundTrip.reason());
+  }
+
+  /** Verifies level change conversion roundtrip. */
+  @Test
+  public void testLevelChangeRoundTrip() {
+    LevelChangeEvent message = new LevelChangeEvent("level-1", "data");
+
+    engine.network.proto.s2c.LevelChangeEvent proto = LEVEL_CHANGE_CONVERTER.toProto(message);
+    assertEquals("level-1", proto.getLevelName());
+    assertEquals("data", proto.getLevelData());
+
+    LevelChangeEvent roundTrip = LEVEL_CHANGE_CONVERTER.fromProto(proto);
+    assertEquals("level-1", roundTrip.levelName());
+    assertEquals("data", roundTrip.levelData());
+  }
+
+  /** Verifies register ack conversion roundtrip. */
+  @Test
+  public void testRegisterAckRoundTrip() {
+    RegisterAck message = new RegisterAck(true);
+
+    engine.network.proto.s2c.RegisterAck proto = REGISTER_ACK_CONVERTER.toProto(message);
+    assertTrue(proto.getOk());
+
+    RegisterAck roundTrip = REGISTER_ACK_CONVERTER.fromProto(proto);
+    assertTrue(roundTrip.ok());
+  }
+
+  /** Verifies sound play conversion roundtrip. */
+  @Test
+  public void testSoundPlayRoundTrip() {
+    SoundSpec soundSpec =
+        SoundSpec.builder("torch")
+            .instanceId(11L)
+            .volume(0.5f)
+            .pitch(1.1f)
+            .pan(-0.2f)
+            .looping(true)
+            .maxDistance(10.0f)
+            .attenuation(0.9f)
+            .build();
+    SoundPlayMessage message = new SoundPlayMessage(2, soundSpec);
+
+    engine.network.proto.s2c.SoundPlayMessage proto = SOUND_PLAY_CONVERTER.toProto(message);
+    assertEquals(2, proto.getEntityId());
+    assertEquals(11L, proto.getSpec().getInstanceId());
+    assertEquals("torch", proto.getSpec().getSoundName());
+
+    SoundPlayMessage roundTrip = SOUND_PLAY_CONVERTER.fromProto(proto);
+    assertEquals(2, roundTrip.entityId());
+    assertEquals(11L, roundTrip.soundSpec().instanceId());
+    assertEquals("torch", roundTrip.soundSpec().soundName());
+    assertEquals(0.5f, roundTrip.soundSpec().baseVolume(), DELTA);
+  }
+
+  /** Verifies sound stop conversion roundtrip. */
+  @Test
+  public void testSoundStopRoundTrip() {
+    SoundStopMessage message = new SoundStopMessage(55L);
+
+    engine.network.proto.s2c.SoundStopMessage proto = SOUND_STOP_CONVERTER.toProto(message);
+    assertEquals(55L, proto.getSoundInstanceId());
+
+    SoundStopMessage roundTrip = SOUND_STOP_CONVERTER.fromProto(proto);
+    assertEquals(55L, roundTrip.soundInstanceId());
+  }
+
+  /** Verifies debug telemetry snapshot conversion roundtrip. */
+  @Test
+  public void testDebugTelemetrySnapshotRoundTrip() {
+    DebugTelemetrySnapshot message =
+        new DebugTelemetrySnapshot(
+            12L,
+            1_000L,
+            2_000L,
+            new DebugTelemetrySnapshot.Transport(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L),
+            new DebugTelemetrySnapshot.Transport(31L, 32L, 33L, 34L, 35L, 36L, 37L, 38L),
+            new DebugTelemetrySnapshot.Udp(9L, 10L, 11L, 12L, "fallback", "drop", "failure"),
+            new DebugTelemetrySnapshot.Snapshots(
+                13L,
+                14L,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22L,
+                "PERIODIC_BASELINE",
+                23L,
+                24L,
+                25L,
+                26L,
+                27,
+                28,
+                29,
+                0.48),
+            new DebugTelemetrySnapshot.Windows(
+                30L, 31L, 32L, 33L, 34L, 35L, 36L, 37L, 38L, 39L, 40L, 41L),
+            new DebugTelemetrySnapshot.Timings(
+                "SnapshotMessage",
+                42L,
+                43L,
+                "SnapshotMessage",
+                44L,
+                45L,
+                "DeltaSnapshotMessage",
+                46L,
+                47L,
+                "SnapshotAck",
+                48L,
+                49L,
+                50L,
+                51L,
+                52L,
+                53L,
+                54,
+                55,
+                56),
+            List.of(
+                new DebugTelemetrySnapshot.Client(
+                    (short) 2, true, 101.5f, 500L, 44, 45, 1, 17L, true, 128, 2.13, 3L, 4L, 5L, 6L,
+                    7L, 8L, 9L, 10L, 11L, "NO_ACK", 12L, 46, 47)));
+
+    engine.network.proto.s2c.DebugTelemetrySnapshot proto =
+        DEBUG_TELEMETRY_SNAPSHOT_CONVERTER.toProto(message);
+    assertEquals(12L, proto.getRequestId());
+    assertEquals(1_000L, proto.getServerTimeMs());
+    assertEquals(2_000L, proto.getServerTimeNanos());
+    assertEquals(1, proto.getClientsCount());
+    assertEquals(2, proto.getClients(0).getClientId());
+    assertTrue(proto.getClients(0).getUdpReady());
+    assertEquals("NO_ACK", proto.getClients(0).getLastFullSnapshotReason());
+    assertEquals(31L, proto.getDebugTcpOutboundMessages());
+    assertEquals(38L, proto.getDebugUdpInboundBytes());
+    assertEquals("PERIODIC_BASELINE", proto.getLastFullSnapshotReason());
+    assertEquals(54, proto.getLastQueueDepth());
+    assertEquals(55, proto.getMaxQueueDepthLastTenSeconds());
+    assertEquals(56, proto.getLastQueueDrainCount());
+
+    DebugTelemetrySnapshot roundTrip = DEBUG_TELEMETRY_SNAPSHOT_CONVERTER.fromProto(proto);
+    assertEquals(message.requestId(), roundTrip.requestId());
+    assertEquals(message.serverTimeNanos(), roundTrip.serverTimeNanos());
+    assertEquals(message.transport().tcpOutboundBytes(), roundTrip.transport().tcpOutboundBytes());
+    assertEquals(
+        message.debugTransport().udpInboundBytes(), roundTrip.debugTransport().udpInboundBytes());
+    assertEquals(
+        message.snapshots().lastDeltaRemovals(), roundTrip.snapshots().lastDeltaRemovals());
+    assertEquals(message.udp().lastFallbackReason(), roundTrip.udp().lastFallbackReason());
+    assertEquals(message.timings().lastTcpDecodeType(), roundTrip.timings().lastTcpDecodeType());
+    assertEquals(message.timings().lastQueueDepth(), roundTrip.timings().lastQueueDepth());
+    assertEquals(
+        message.timings().maxQueueDepthLastTenSeconds(),
+        roundTrip.timings().maxQueueDepthLastTenSeconds());
+    assertEquals(
+        message.timings().lastQueueDrainCount(), roundTrip.timings().lastQueueDrainCount());
+    assertEquals(1, roundTrip.clients().size());
+    assertEquals(2, roundTrip.clients().getFirst().clientId());
+    assertEquals(101.5f, roundTrip.clients().getFirst().rttEstimateMs(), DELTA);
+    assertEquals("NO_ACK", roundTrip.clients().getFirst().lastFullSnapshotReason());
+  }
+
+  /** Verifies debug pong conversion roundtrip. */
+  @Test
+  public void testDebugPongRoundTrip() {
+    DebugPong message = new DebugPong(5L, 10L, 20L, 30L);
+
+    engine.network.proto.s2c.DebugPong proto = DEBUG_PONG_CONVERTER.toProto(message);
+    assertEquals(5L, proto.getRequestId());
+    assertEquals(10L, proto.getClientTimeNanos());
+    assertEquals(20L, proto.getServerReceiveTimeMs());
+    assertEquals(30L, proto.getServerSendTimeMs());
+
+    DebugPong roundTrip = DEBUG_PONG_CONVERTER.fromProto(proto);
+    assertEquals(message.requestId(), roundTrip.requestId());
+    assertEquals(message.clientTimeNanos(), roundTrip.clientTimeNanos());
+    assertEquals(message.serverReceiveTimeMs(), roundTrip.serverReceiveTimeMs());
+    assertEquals(message.serverSendTimeMs(), roundTrip.serverSendTimeMs());
+  }
+
+  /** Verifies initial world complete conversion. */
+  @Test
+  public void testInitialWorldCompleteRoundTrip() {
+    InitialWorldComplete message = new InitialWorldComplete();
+
+    engine.network.proto.s2c.InitialWorldComplete proto =
+        INITIAL_WORLD_COMPLETE_CONVERTER.toProto(message);
+    InitialWorldComplete roundTrip = INITIAL_WORLD_COMPLETE_CONVERTER.fromProto(proto);
+
+    assertEquals(message, roundTrip);
+  }
+}

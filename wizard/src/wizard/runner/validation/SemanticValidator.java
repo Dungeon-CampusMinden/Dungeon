@@ -124,7 +124,7 @@ final class SemanticValidator {
       for (int hintIndex = 0; hintIndex < riddle.hints().size(); hintIndex++) {
         addId(
             riddle.hints().get(hintIndex).id(),
-            "hint",
+            "escapeRoom/hint",
             riddlePath + "/hints/" + hintIndex,
             seen,
             issues);
@@ -593,7 +593,7 @@ final class SemanticValidator {
             riddle.hints().get(hintIndex).text(),
             ContractCapabilities.MAX_HINT_TEXT_WARNING_CODE_POINTS,
             "/riddles/" + index + "/hints/" + hintIndex + "/text",
-            "hint",
+            "escapeRoom/hint",
             issues);
       }
     }

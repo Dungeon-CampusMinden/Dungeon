@@ -1,13 +1,13 @@
 package wizard.runner.runtime.multiplayer;
 
-import core.Game;
-import core.game.ClientStarter;
-import core.game.GameStarter;
-import core.game.MainMenu;
-import core.utils.Tuple;
-import foundation.multiplayer.game.FoundationSnapshotTranslator;
-import foundation.room.level.RoomLevel;
-import foundation.room.model.FoundationRoom;
+import engine.Game;
+import engine.game.ClientStarter;
+import engine.game.GameStarter;
+import engine.game.MainMenu;
+import engine.utils.Tuple;
+import escaperoom.foundation.multiplayer.game.FoundationSnapshotTranslator;
+import escaperoom.foundation.room.level.RoomLevel;
+import escaperoom.foundation.room.model.FoundationRoom;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import wizard.runner.bootstrap.JoinBootstrapException;

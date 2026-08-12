@@ -1,0 +1,135 @@
+package feature.presentation;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
+import engine.Game;
+import engine.utils.components.draw.TextureMap;
+import engine.utils.components.path.SimpleIPath;
+import feature.components.ShowImageComponent;
+import feature.hud.UIUtils;
+import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
+import feature.hud.dialogs.HeadlessDialogGroup;
+
+/** UI element that displays an image with optional text, used through the ShowImageSystem. */
+public class ShowImageUI extends Group {
+
+  private static final float SCALE = 1f;
+  private static final int ANIMATION_OFFSET_X = -5;
+  private static final int ANIMATION_OFFSET_Y = -50;
+
+  private final ShowImageComponent component;
+
+  private Image background;
+  private String currentImagePath = null;
+  private float animation;
+
+  /**
+   * Creates a new ShowImageUI for the given entity.
+   *
+   * @param sic the ShowImageComponent containing the image and text configuration
+   */
+  public ShowImageUI(ShowImageComponent sic) {
+    this.component = sic;
+    createActors();
+    animation = 0;
+    if (sic.transitionSpeed() == TransitionSpeed.DISABLED) animation = 1;
+  }
+
+  private void createActors() {
+    this.setScale(SCALE);
+    this.setOrigin(Align.center);
+    this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
+
+    currentImagePath = Game.localization().asset(component.imagePath());
+    background = new Image(TextureMap.instance().textureAt(new SimpleIPath(currentImagePath)));
+    background.setOrigin(Align.center);
+    this.addActor(background);
+
+    if (component.textConfig() != null) {
+      Table table = new Table();
+      table.setFillParent(true);
+      Label label = new Label(component.textConfig().text(), UIUtils.defaultSkin());
+      label.setFontScale(component.textConfig().scale());
+      label.setColor(component.textConfig().color());
+      table.add(label);
+      this.addActor(table);
+    }
+  }
+
+  /**
+   * Builds a ShowImageUI from the given DialogContext.
+   *
+   * @param ctx the DialogContext containing the necessary attributes
+   * @return a new ShowImageUI instance
+   */
+  public static Group build(DialogContext ctx) {
+    String img_path = ctx.require(DialogContextKeys.IMAGE, String.class);
+
+    if (Game.isHeadless()) {
+      return new HeadlessDialogGroup();
+    }
+
+    ShowImageUI showImageUI = new ShowImageUI(new ShowImageComponent(img_path));
+    ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
+        .ifPresent(showImageUI.component::transitionSpeed);
+
+    return showImageUI;
+  }
+
+  @Override
+  public void draw(Batch batch, float parentAlpha) {
+    this.setScale(SCALE);
+    this.setOrigin(Align.center);
+    this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
+
+    if (!currentImagePath.equals(component.imagePath())) {
+      currentImagePath = Game.localization().asset(component.imagePath());
+      background.setDrawable(
+          new TextureRegionDrawable(
+              TextureMap.instance().textureAt(new SimpleIPath(currentImagePath))));
+    }
+    float imageWidth = background.getImageWidth();
+    float imageHeight = background.getImageHeight();
+    float maxWidth = Game.windowWidth() * component.maxSize();
+    float maxHeight = Game.windowHeight() * component.maxSize();
+
+    float scaleX = maxWidth / imageWidth;
+    float scaleY = maxHeight / imageHeight;
+
+    float minScale = Math.min(scaleX, scaleY);
+    background.setScale(minScale);
+    background.setPosition(getX(Align.center), getY(Align.center), Align.center);
+
+    this.setPosition(animationOffsetX(), animationOffsetY());
+    this.setColor(1, 1, 1, animation);
+    if (animation < 1) {
+      animation = Math.min(1, animation + (1f / component.transitionSpeed().framesToComplete));
+    }
+
+    Color prev = batch.getColor();
+    float pr = prev.r;
+    float pg = prev.g;
+    float pb = prev.b;
+    float pa = prev.a;
+
+    super.draw(batch, parentAlpha);
+
+    batch.setColor(pr, pg, pb, pa);
+  }
+
+  private float animationOffsetX() {
+    return Interpolation.smooth.apply(ANIMATION_OFFSET_X, 0, animation);
+  }
+
+  private float animationOffsetY() {
+    return Interpolation.smooth.apply(ANIMATION_OFFSET_Y, 0, animation);
+  }
+}

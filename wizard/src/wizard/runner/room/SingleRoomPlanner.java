@@ -1,9 +1,9 @@
 package wizard.runner.room;
 
-import foundation.room.model.ComponentPlacement;
-import foundation.room.model.RiddlePlacement;
-import foundation.room.model.RoomLayout;
-import foundation.room.model.RoomPoint;
+import escaperoom.foundation.room.model.ComponentPlacement;
+import escaperoom.foundation.room.model.RiddlePlacement;
+import escaperoom.foundation.room.model.RoomLayout;
+import escaperoom.foundation.room.model.RoomPoint;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;

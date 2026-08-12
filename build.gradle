@@ -103,10 +103,13 @@ allprojects {
                 if (proj in visitedProjects) return
                 visitedProjects << proj
 
-                // Add current project's assets dir
+                // Add asset directories using their configured resource-root semantics.
                 def projAssetsDir = new File(proj.projectDir, 'assets')
                 if (projAssetsDir.exists()) {
-                    assetDirs << projAssetsDir
+                    def configuredAssetDirs = proj.sourceSets.main.resources.srcDirs.findAll { dir ->
+                        dir.toPath().normalize().startsWith(projAssetsDir.toPath().normalize())
+                    }
+                    assetDirs.addAll(configuredAssetDirs ?: [projAssetsDir])
                 }
 
                 // Recursively collect from project dependencies
