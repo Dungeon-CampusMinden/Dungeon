@@ -37,6 +37,8 @@ import java.util.List;
  */
 final class DialogDialog {
 
+  private static final String SPEAKER_IMAGE_PLACEHOLDER = "{path}";
+
   /** Distance in pixels from the top edge of the stage to the top of the dialog. */
   private static final float TOP_OFFSET = 100;
 
@@ -53,7 +55,13 @@ final class DialogDialog {
    * @return A fully configured DialogDialog or HeadlessDialogGroup.
    */
   static Group build(DialogContext ctx) {
-    String script = ctx.require(DialogContextKeys.DIALOG, String.class);
+    String sourceScript = ctx.require(DialogContextKeys.DIALOG, String.class);
+    String script =
+        ctx.find(DialogContextKeys.SPEAKER_IMAGE, String.class)
+            .map(
+                speakerImagePath ->
+                    sourceScript.replace(SPEAKER_IMAGE_PLACEHOLDER, speakerImagePath))
+            .orElse(sourceScript);
     if (script.isBlank()) {
       throw new DialogCreationException("DialogDialog requires a non-blank dialog script");
     }

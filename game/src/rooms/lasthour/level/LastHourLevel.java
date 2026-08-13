@@ -746,10 +746,11 @@ public class LastHourLevel extends DungeonLevel {
                 new Interaction(
                     (e, who) -> {
                       if (isPhoneRinging) {
-                        String genTexturePath = portraitPathFor(who);
-                        String callDialog = ringingPhoneDialog.replace("{path}", genTexturePath);
                         DialogFactory.showDialogDialog(
-                            callDialog, this::stopPhoneRinging, who.id());
+                            ringingPhoneDialog,
+                            portraitPathFor(who),
+                            this::stopPhoneRinging,
+                            who.id());
                         return;
                       }
 

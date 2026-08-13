@@ -469,19 +469,52 @@ public class DialogFactory {
    */
   public static UIComponent showDialogDialog(
       String dialog, IVoidFunction onFinished, int... targetEntityIds) {
+    return showDialogDialog(dialogDialogContext(dialog).build(), onFinished, targetEntityIds);
+  }
+
+  /**
+   * Shows a sequenced speaker dialogue with a dynamic speaker image.
+   *
+   * <p>The image path replaces {@code {path}} in the dialog script after client-side translation.
+   * This keeps localized scripts client-specific while allowing the server to provide dynamic
+   * speaker portraits.
+   *
+   * @param dialog The non-empty dialog script.
+   * @param speakerImagePath The image path to substitute for {@code {path}} in the translated
+   *     script.
+   * @param onFinished Callback executed after the last page has been confirmed.
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed.
+   * @return The {@link UIComponent} containing the dialog.
+   */
+  public static UIComponent showDialogDialog(
+      String dialog, String speakerImagePath, IVoidFunction onFinished, int... targetEntityIds) {
+    Objects.requireNonNull(speakerImagePath, "speaker image path cannot be null");
+    if (speakerImagePath.isBlank()) {
+      throw new IllegalArgumentException("speaker image path cannot be blank");
+    }
+
+    return showDialogDialog(
+        dialogDialogContext(dialog).put(DialogContextKeys.SPEAKER_IMAGE, speakerImagePath).build(),
+        onFinished,
+        targetEntityIds);
+  }
+
+  private static DialogContext.Builder dialogDialogContext(String dialog) {
     Objects.requireNonNull(dialog, "dialog string cannot be null");
     if (dialog.isBlank()) {
       throw new IllegalArgumentException("dialog string cannot be blank");
     }
+
+    return DialogContext.builder()
+        .type(DialogType.DefaultTypes.DIALOG_DIALOG)
+        .put(DialogContextKeys.DIALOG, dialog);
+  }
+
+  private static UIComponent showDialogDialog(
+      DialogContext context, IVoidFunction onFinished, int... targetEntityIds) {
     Objects.requireNonNull(onFinished, "onFinished callback cannot be null");
 
-    DialogContext ctx =
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.DIALOG_DIALOG)
-            .put(DialogContextKeys.DIALOG, dialog)
-            .build();
-
-    UIComponent ui = show(ctx, targetEntityIds);
+    UIComponent ui = show(context, targetEntityIds);
 
     ui.registerCallback(
         DialogContextKeys.ON_CONFIRM,

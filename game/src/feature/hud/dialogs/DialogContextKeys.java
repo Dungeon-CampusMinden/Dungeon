@@ -101,6 +101,9 @@ public class DialogContextKeys {
   /** The key for the dialog script (String) used by {@link DialogDialog}. */
   public static final String DIALOG = "dialog";
 
+  /** The image path substituted for {@code {path}} in a translated dialog script. */
+  public static final String SPEAKER_IMAGE = "speakerImage";
+
   /** The key for the puzzle complete callback */
   public static final String ON_COMPLETE = "onComplete";
 
