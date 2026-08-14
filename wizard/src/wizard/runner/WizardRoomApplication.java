@@ -1,10 +1,10 @@
 package wizard.runner;
 
-import core.game.GameStarter;
-import core.game.ServerProcess;
-import core.language.Language;
-import core.utils.logging.DungeonLoggerConfig;
-import foundation.room.model.FoundationRoom;
+import engine.game.GameStarter;
+import engine.game.ServerProcess;
+import engine.language.Language;
+import engine.utils.logging.DungeonLoggerConfig;
+import escaperoom.foundation.room.model.FoundationRoom;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Arrays;

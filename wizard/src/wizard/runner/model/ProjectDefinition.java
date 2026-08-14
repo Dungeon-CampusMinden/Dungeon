@@ -1,6 +1,6 @@
 package wizard.runner.model;
 
-import foundation.definition.HintSeverity;
+import escaperoom.foundation.definition.HintSeverity;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;

@@ -1,0 +1,187 @@
+package engine.network.codec;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.google.protobuf.Message;
+import com.google.protobuf.Parser;
+import engine.network.messages.NetworkMessage;
+import engine.network.messages.c2s.DebugPing;
+import engine.network.messages.c2s.DebugTelemetryRequest;
+import engine.network.messages.c2s.InitialWorldReady;
+import engine.network.messages.s2c.DebugPong;
+import engine.network.messages.s2c.DebugTelemetrySnapshot;
+import engine.network.messages.s2c.InitialWorldComplete;
+import engine.network.messages.s2c.RegisterAck;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+
+class ConverterRegistryTest {
+
+  @Test
+  void registryParsesKnownTypes() throws Exception {
+    ConverterRegistry registry = ConverterRegistry.global();
+    for (Message message : protoDefaults()) {
+      byte typeId = registry.typeId(message);
+      assertTrue(typeId != 0);
+      Message parsed = registry.parse(typeId, message.toByteArray());
+      assertEquals(message, parsed);
+    }
+  }
+
+  @Test
+  void duplicateRegistrationThrows() {
+    ConverterRegistry registry = new ConverterRegistry();
+    CustomPingConverter converter = new CustomPingConverter();
+
+    registry.register(converter);
+    assertThrows(IllegalStateException.class, () -> registry.register(converter));
+  }
+
+  @Test
+  void unknownTypesThrow() {
+    ConverterRegistry registry = new ConverterRegistry();
+
+    assertThrows(IllegalArgumentException.class, () -> registry.toProto(new RegisterAck(true)));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> registry.fromProto(engine.network.proto.s2c.RegisterAck.getDefaultInstance()));
+    assertThrows(IllegalArgumentException.class, () -> registry.parse((byte) 1, new byte[0]));
+  }
+
+  @Test
+  void customConverterRoundTripWorks() throws Exception {
+    ConverterRegistry registry = new ConverterRegistry();
+    registry.register(new CustomPingConverter());
+
+    CustomPing message = new CustomPing(123L);
+    Message proto = registry.toProto(message);
+    byte typeId = registry.typeId(proto);
+    Message parsedProto = registry.parse(typeId, proto.toByteArray());
+    CustomPing roundTrip = (CustomPing) registry.fromProto(parsedProto);
+
+    assertEquals(message.value(), roundTrip.value());
+    assertEquals(64, Byte.toUnsignedInt(typeId));
+  }
+
+  @Test
+  void globalRegistryDispatchesCoreConverters() {
+    ConverterRegistry registry = ConverterRegistry.global();
+
+    RegisterAck message = new RegisterAck(true);
+    Message proto = registry.toProto(message);
+    NetworkMessage decoded = registry.fromProto(proto);
+
+    assertTrue(decoded instanceof RegisterAck);
+    assertTrue(((RegisterAck) decoded).ok());
+    assertEquals(17, Byte.toUnsignedInt(registry.typeId(proto)));
+  }
+
+  @Test
+  void globalRegistryUsesDebugWireIds() {
+    ConverterRegistry registry = ConverterRegistry.global();
+
+    assertEquals(
+        23,
+        Byte.toUnsignedInt(
+            registry.typeId(
+                registry.toProto(
+                    new DebugTelemetryRequest(
+                        1L, DebugTelemetryRequest.Mode.START_STREAM, 1_000)))));
+    assertEquals(24, Byte.toUnsignedInt(registry.typeId(registry.toProto(new DebugPing(2L, 3L)))));
+    assertEquals(
+        25, Byte.toUnsignedInt(registry.typeId(registry.toProto(emptyDebugTelemetrySnapshot()))));
+    assertEquals(
+        26, Byte.toUnsignedInt(registry.typeId(registry.toProto(new DebugPong(4L, 5L, 6L, 7L)))));
+    assertEquals(
+        27, Byte.toUnsignedInt(registry.typeId(registry.toProto(new InitialWorldReady()))));
+    assertEquals(
+        28, Byte.toUnsignedInt(registry.typeId(registry.toProto(new InitialWorldComplete()))));
+  }
+
+  private static List<Message> protoDefaults() {
+    return List.of(
+        engine.network.proto.c2s.ConnectRequest.getDefaultInstance(),
+        engine.network.proto.c2s.InputMessage.getDefaultInstance(),
+        engine.network.proto.c2s.DialogResponseMessage.getDefaultInstance(),
+        engine.network.proto.c2s.RegisterUdp.getDefaultInstance(),
+        engine.network.proto.c2s.RequestEntitySpawn.getDefaultInstance(),
+        engine.network.proto.c2s.SoundFinishedMessage.getDefaultInstance(),
+        engine.network.proto.c2s.SnapshotAck.getDefaultInstance(),
+        engine.network.proto.c2s.DebugTelemetryRequest.getDefaultInstance(),
+        engine.network.proto.c2s.DebugPing.getDefaultInstance(),
+        engine.network.proto.c2s.InitialWorldReady.getDefaultInstance(),
+        engine.network.proto.s2c.ConnectAck.getDefaultInstance(),
+        engine.network.proto.s2c.ConnectReject.getDefaultInstance(),
+        engine.network.proto.s2c.DialogShowMessage.getDefaultInstance(),
+        engine.network.proto.s2c.DialogCloseMessage.getDefaultInstance(),
+        engine.network.proto.s2c.EntitySpawnEvent.getDefaultInstance(),
+        engine.network.proto.s2c.EntitySpawnBatch.getDefaultInstance(),
+        engine.network.proto.s2c.EntityDespawnEvent.getDefaultInstance(),
+        engine.network.proto.s2c.EntityState.getDefaultInstance(),
+        engine.network.proto.s2c.GameOverEvent.getDefaultInstance(),
+        engine.network.proto.s2c.LevelChangeEvent.getDefaultInstance(),
+        engine.network.proto.s2c.RegisterAck.getDefaultInstance(),
+        engine.network.proto.s2c.SnapshotMessage.getDefaultInstance(),
+        engine.network.proto.s2c.DeltaSnapshotMessage.getDefaultInstance(),
+        engine.network.proto.s2c.SoundPlayMessage.getDefaultInstance(),
+        engine.network.proto.s2c.SoundStopMessage.getDefaultInstance(),
+        engine.network.proto.s2c.DebugTelemetrySnapshot.getDefaultInstance(),
+        engine.network.proto.s2c.DebugPong.getDefaultInstance(),
+        engine.network.proto.s2c.InitialWorldComplete.getDefaultInstance());
+  }
+
+  private static DebugTelemetrySnapshot emptyDebugTelemetrySnapshot() {
+    return new DebugTelemetrySnapshot(
+        3L,
+        4L,
+        5L,
+        DebugTelemetrySnapshot.Transport.empty(),
+        DebugTelemetrySnapshot.Transport.empty(),
+        new DebugTelemetrySnapshot.Udp(0L, 0L, 0L, 0L, "n/a", "n/a", "n/a"),
+        new DebugTelemetrySnapshot.Snapshots(
+            0L, 0L, -1, -1, -1, -1, -1, -1, -1, -1L, "n/a", 0L, 0L, 0L, 0L, -1, -1, -1, -1.0),
+        new DebugTelemetrySnapshot.Windows(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L),
+        DebugTelemetrySnapshot.Timings.empty(),
+        List.of());
+  }
+
+  private record CustomPing(long value) implements NetworkMessage {}
+
+  private static final class CustomPingConverter
+      implements MessageConverter<CustomPing, engine.network.proto.common.SoundSpec> {
+
+    @Override
+    public engine.network.proto.common.SoundSpec toProto(CustomPing message) {
+      return engine.network.proto.common.SoundSpec.newBuilder()
+          .setInstanceId(message.value())
+          .build();
+    }
+
+    @Override
+    public CustomPing fromProto(engine.network.proto.common.SoundSpec proto) {
+      return new CustomPing(proto.getInstanceId());
+    }
+
+    @Override
+    public Class<CustomPing> domainType() {
+      return CustomPing.class;
+    }
+
+    @Override
+    public Class<engine.network.proto.common.SoundSpec> protoType() {
+      return engine.network.proto.common.SoundSpec.class;
+    }
+
+    @Override
+    public Parser<engine.network.proto.common.SoundSpec> parser() {
+      return engine.network.proto.common.SoundSpec.parser();
+    }
+
+    @Override
+    public byte wireTypeId() {
+      return 64;
+    }
+  }
+}

@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { assetManifest } from "./plugins/assetManifest.js";
 
-const engineAssets = path.resolve(__dirname, "../../dungeon/assets");
+const engineAssets = path.resolve(__dirname, "../../game/assets");
 
 export default defineConfig({
   plugins: [

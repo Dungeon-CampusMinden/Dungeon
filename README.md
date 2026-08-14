@@ -156,7 +156,7 @@ reinforcing the idea of autonomous, feedback-driven learning.
 
 ## Credits
 
-The assets in [`dungeon/assets/`] are a mix from free and self
+The assets in [`game/assets/`] are a mix from free and self
 modified resources:
 
 -   Textures and animations:
@@ -169,11 +169,11 @@ modified resources:
     -   https://opengameart.org/content/80-cc0-creture-sfx-2 (CC0 1.0)
     -   https://freesound.org/s/578488/ (CC0 1.0)
 -   Adapted and modified by [\@Flamtky][]:
-    -   Files (except [Health Potion]) in [`dungeon/assets/items/potion/`] (originating from
+    -   Files (except [Health Potion]) in [`game/assets/items/potion/`] (originating from
         [\@dkirshner])
-    -   Files in [`dungeon/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating
+    -   Files in [`game/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating
         from [\@dkirshner])
-    -   [`dungeon/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
+    -   [`game/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
 
 ## Licenses
 
@@ -185,7 +185,7 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
 
   [PRODUS project]: #programming-dungeon-adventures-at-school-produs
   [project page]: https://www.hsbi.de/minden/produs/home
-  [1]: dungeon/doc/img/monster.gif
+  [1]: game/doc/img/monster.gif
   [Java SE Development Kit 25 LTS]: https://jdk.java.net/25/
   [Freiraum 2025]: https://stiftung-hochschullehre.de/foerderung/freiraum/
   [Stiftung Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de/
@@ -194,13 +194,13 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [produs repository]: https://github.com/Dungeon-CampusMinden/PRODUS
   [2]: doc/press_kit/blockly/blockly_gif.gif
   [Fellowships für Innovationen in der digitalen Hochschullehre (digi-Fellows)]: https://www.dh.nrw/kooperationen/Digi-Fellows-2
-  [`dungeon/assets/`]: dungeon/assets/
+  [`game/assets/`]: game/assets/
   [\@Flamtky]: https://github.com/Flamtky
-  [Health Potion]: dungeon/assets/items/potion/health_potion.png
-  [`dungeon/assets/items/potion/`]: dungeon/assets/items/potion/
+  [Health Potion]: game/assets/items/potion/health_potion.png
+  [`game/assets/items/potion/`]: game/assets/items/potion/
   [\@dkirshner]: https://github.com/dkirshner
-  [`dungeon/assets/dungeon/*/floor`]: dungeon/assets/dungeon/
-  [`dungeon/assets/dungeon/fire/floor/floor_1.png`]: dungeon/assets/dungeon/fire/floor/floor_1.png
+  [`game/assets/dungeon/*/floor`]: game/assets/dungeon/
+  [`game/assets/dungeon/fire/floor/floor_1.png`]: game/assets/dungeon/fire/floor/floor_1.png
   [work]: https://github.com/Dungeon-CampusMinden/Dungeon
   [contributors]: https://github.com/Dungeon-CampusMinden/Dungeon/graphs/contributors
   [MIT]: LICENSE.md

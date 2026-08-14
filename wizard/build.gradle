@@ -5,7 +5,7 @@ import java.util.zip.ZipFile
 version = '0.4'
 
 dependencies {
-    implementation project(':escapeRoom')
+    implementation project(':game')
     implementation supportDependencies.jackson_databind
     implementation supportDependencies.json_schema_validator
     implementation supportDependencies.json_canonicalization

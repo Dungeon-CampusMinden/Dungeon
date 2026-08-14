@@ -1,0 +1,168 @@
+package feature.skills.projectile;
+
+import com.badlogic.gdx.math.MathUtils;
+import engine.Entity;
+import engine.Game;
+import engine.sound.SoundSpec;
+import engine.utils.Point;
+import engine.utils.Tuple;
+import engine.utils.components.path.IPath;
+import engine.utils.components.path.SimpleIPath;
+import feature.health.DamageType;
+import feature.skills.Resource;
+import java.util.function.Supplier;
+
+/**
+ * A fireball projectile skill that deals fire damage on impact.
+ *
+ * <p>This class extends {@link DamageProjectileSkill} to implement a fireball-specific skill. The
+ * projectile will travel toward a target point, deal fire damage on collision with an entity, and
+ * be removed if it hits a wall or reaches its maximum range.
+ */
+public class FireballSkill extends DamageProjectileSkill {
+
+  /** Name of the Skill. */
+  public static final String SKILL_NAME = "FIREBALL";
+
+  private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
+  private static final String PROJECTILE_SOUND = "fireball";
+  private static final float SPEED = 13f;
+  private static final int DAMAGE = 2;
+  private static final float RANGE = 7f;
+  private static final long COOLDOWN = 500;
+  private static final boolean IS_PIERCING = false;
+  private static final boolean IGNORE_FIRST_WALL = false;
+
+  private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
+
+  /**
+   * Creates a fully customized fireball skill with a custom name.
+   *
+   * <p>This constructor allows for subclassing and customization of the fireball skill, including
+   * its name, target selection, cooldown, speed, range, damage amount, and resource costs.
+   *
+   * @param name Name of the skill.
+   * @param target Function providing the target point.
+   * @param cooldown Cooldown in ms.
+   * @param speed Travel speed of the projectile.
+   * @param range Maximum travel range.
+   * @param damageAmount Base damage dealt.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
+   * @param resourceCost Resource costs for casting.
+   */
+  @SafeVarargs
+  protected FireballSkill(
+      String name,
+      Supplier<Point> target,
+      long cooldown,
+      float speed,
+      float range,
+      int damageAmount,
+      boolean ignoreFirstWall,
+      Tuple<Resource, Integer>... resourceCost) {
+    super(
+        name,
+        cooldown,
+        TEXTURE,
+        target,
+        speed,
+        range,
+        IS_PIERCING,
+        damageAmount,
+        DAMAGE_TYPE,
+        ignoreFirstWall,
+        resourceCost);
+  }
+
+  /**
+   * Creates a fully customized fireball skill.
+   *
+   * @param target Function providing the target point.
+   * @param cooldown Cooldown in ms.
+   * @param speed Travel speed of the projectile.
+   * @param range Maximum travel range.
+   * @param damageAmount Base damage dealt.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
+   * @param resourceCost Resource costs for casting.
+   */
+  @SafeVarargs
+  public FireballSkill(
+      Supplier<Point> target,
+      long cooldown,
+      float speed,
+      float range,
+      int damageAmount,
+      boolean ignoreFirstWall,
+      Tuple<Resource, Integer>... resourceCost) {
+    this(SKILL_NAME, target, cooldown, speed, range, damageAmount, ignoreFirstWall, resourceCost);
+  }
+
+  /**
+   * Creates a fireball skill with default values and custom cooldown.
+   *
+   * @param targetSelection Function providing the target point where the fireball should fly.
+   * @param cooldown Cooldown time (in ms) before the skill can be used again.
+   * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
+   */
+  @SafeVarargs
+  public FireballSkill(
+      Supplier<Point> targetSelection, long cooldown, Tuple<Resource, Integer>... resourceCost) {
+    this(targetSelection, cooldown, SPEED, RANGE, DAMAGE, IGNORE_FIRST_WALL, resourceCost);
+  }
+
+  /**
+   * Creates a fireball skill with default values and custom cooldown.
+   *
+   * @param targetSelection Function providing the target point where the fireball should fly.
+   * @param cooldown Cooldown time (in ms) before the skill can be used again.
+   * @param range Maximum travel range.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
+   * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
+   */
+  @SafeVarargs
+  public FireballSkill(
+      Supplier<Point> targetSelection,
+      long cooldown,
+      float range,
+      boolean ignoreFirstWall,
+      Tuple<Resource, Integer>... resourceCost) {
+    this(targetSelection, cooldown, SPEED, range, DAMAGE, ignoreFirstWall, resourceCost);
+  }
+
+  /**
+   * Creates a fireball skill with default values.
+   *
+   * @param targetSelection Function providing the target point where the fireball should fly.
+   * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
+   */
+  @SafeVarargs
+  public FireballSkill(Supplier<Point> targetSelection, Tuple<Resource, Integer>... resourceCost) {
+    this(targetSelection, COOLDOWN, resourceCost);
+  }
+
+  /**
+   * Called when the fireball projectile spawns in the game world.
+   *
+   * <p>Plays a fireball sound effect with a random pitch for variation.
+   *
+   * @param caster The entity casting the fireball.
+   * @param projectile The projectile entity spawned.
+   * @see engine.systems.SoundSystem
+   */
+  @Override
+  protected void onSpawn(Entity caster, Entity projectile) {
+    float volume = 0.15f;
+    float maxDistance = 20f;
+    float attenuationFactor = 0.1f;
+    float minPitch = 2f;
+    float maxPitch = 3f;
+    Game.audio()
+        .playOnEntity(
+            projectile,
+            SoundSpec.builder(PROJECTILE_SOUND)
+                .volume(volume)
+                .pitch(MathUtils.random(minPitch, maxPitch))
+                .maxDistance(maxDistance)
+                .attenuation(attenuationFactor));
+  }
+}

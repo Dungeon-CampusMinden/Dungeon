@@ -21,16 +21,15 @@ jobs:
             - name: Make gradlew executable
               run: chmod +x gradlew
 
-            # 4. Jar desktop and web
             - name: Build JARs with Gradle
-              run: ./gradlew buildTheLastHourJar
+              run: ./gradlew :game:buildTheLastHourJar
 
-            # 5. save jar artefact
             - name: Upload Build Artifacts
               uses: actions/upload-artifact@v7
               with:
                   name: TheLastHour-JAR
-                  path: theLastHourEscapeRoom/build/libs/*.jar
+                  path: game/build/libs/TheLastHour.jar
+                  if-no-files-found: error
 
     buildExecutables:
         runs-on: ${{ matrix.os }}
@@ -38,7 +37,7 @@ jobs:
             matrix:
                 include:
                     - os: windows-latest
-                      platform_name: windows-x86_64
+                      platform_name: win-x86_64
                     - os: ubuntu-latest
                       platform_name: linux-x86_64
         steps:
@@ -50,31 +49,33 @@ jobs:
                 with:
                     java-version: '25'
                     distribution: 'temurin'
+                    cache: 'gradle'
             -   name: Make gradlew executable
                 run: chmod +x gradlew
 
             -   name: Build last hour
-                run: ./gradlew jpackageImageTheLastHour
+                run: ./gradlew :game:jpackageImageTheLastHour
 
-            -   name: Archive theLastHourEscapeRoom
-                # zip the folder
+            -   name: Archive The Last Hour
                 run: |
                     if [ "${{ runner.os }}" == "Windows" ]; then
-                      7z a Last-Hour-${{ matrix.platform_name }}.zip  ./theLastHourEscapeRoom/build/jpackage/TheLastHour
+                      7z a TheLastHour-${{ matrix.platform_name }}.zip ./game/build/jpackage/TheLastHour
                     else
-                      tar -czf Last-Hour-${{ matrix.platform_name }}.tar.gz -C theLastHourEscapeRoom/build/jpackage TheLastHour
+                      tar -czf TheLastHour-${{ matrix.platform_name }}.tar.gz -C game/build/jpackage TheLastHour
                     fi
                 shell: bash
 
             -   name: Upload Artifacts
                 uses: actions/upload-artifact@v7
                 with:
-                    name: executable-${{ matrix.os }}
-                    path: Last-Hour-*
+                    name: TheLastHour-${{ matrix.platform_name }}
+                    path: TheLastHour-*
+                    if-no-files-found: error
     deploy:
         needs: [build, buildExecutables]
         runs-on: ubuntu-latest
         permissions:
+            actions: read
             contents: write
         steps:
             - name: Checkout repository
@@ -90,10 +91,10 @@ jobs:
             - name: Create GitHub Release
               run: |
                   TAG="v1.0.${{ github.run_number }}"
-                  gh release create "$TAG" *.jar *.zip *.tar.gz\
+                  gh release create "$TAG" *.jar *.zip *.tar.gz \
                     --title "The Last Hour (Cyber Security Escape Room)" \
                     --notes-file ".github/workflows/releaseInstructionsLastHour.md" \
                     --draft=true \
                     --prerelease=false
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

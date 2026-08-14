@@ -1,0 +1,166 @@
+package engine.systems;
+
+import engine.Entity;
+import engine.Game;
+import engine.System;
+import engine.components.PlayerComponent;
+import engine.components.PositionComponent;
+import engine.level.Tile;
+import engine.level.elements.ILevel;
+import engine.level.elements.tile.ExitTile;
+import engine.level.elements.tile.PitTile;
+import engine.level.loader.DungeonLoader;
+import engine.utils.IVoidFunction;
+import engine.utils.Tuple;
+import engine.utils.logging.DungeonLogger;
+import java.util.Optional;
+
+/**
+ * Manages the dungeon game world.
+ *
+ * <p>The system will store the currently active level.
+ *
+ * <p>The system will check if one of the entities managed by this system is positioned on the end
+ * tile of the level. If so, the next level will be loaded.
+ *
+ * <p>The system uses the {@link DungeonLoader} to load levels. Use {@link
+ * DungeonLoader#addLevel(Tuple[])} to add a level to the DungeonLoader.
+ *
+ * <p>If a new level is loaded, the system will trigger the onLevelLoad callback given in the
+ * constructor of this system.
+ *
+ * <p>An entity needs a {@link PositionComponent} and a {@link PlayerComponent} to be managed by
+ * this system.
+ *
+ * <p>Use {@link #level()} to get the currently active level. Use {@link #loadLevel(ILevel)}, to
+ * trigger a level load manually. These methods will also trigger the onLevelLoad callback.
+ */
+public final class LevelSystem extends System {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LevelSystem.class);
+
+  private static final String SOUND_EFFECT = "enterDoor";
+
+  private static ILevel currentLevel;
+  private IVoidFunction onLevelLoad = () -> {};
+  private IVoidFunction onEndTile;
+
+  /**
+   * Create a new {@link LevelSystem}.
+   *
+   * <p>The system will not load a new level at creation. Use {@link #loadLevel(ILevel)} if you want
+   * to trigger the load of a level manually; otherwise, the first level will be loaded if this
+   * system's {@link #execute()} is executed.
+   */
+  public LevelSystem() {
+    super(AuthoritativeSide.BOTH, PlayerComponent.class, PositionComponent.class);
+    this.onEndTile = DungeonLoader::loadNextLevel;
+  }
+
+  /**
+   * Get the currently loaded level.
+   *
+   * @return The currently loaded level or an empty Optional if there is no level.
+   */
+  public static Optional<ILevel> level() {
+    return Optional.ofNullable(currentLevel);
+  }
+
+  /**
+   * Set the current level to the given level.
+   *
+   * <p>Will trigger the onLevelLoad callback.
+   *
+   * @param level The level to be set.
+   */
+  public void loadLevel(final ILevel level) {
+    currentLevel = level;
+    onLevelLoad.execute();
+    LOGGER.info("A new level was loaded.");
+  }
+
+  /**
+   * Set the function to be executed when a new level is loaded.
+   *
+   * @param onLevelLoad The function to be executed when a new level is loaded.
+   */
+  public void onLevelLoad(final IVoidFunction onLevelLoad) {
+    this.onLevelLoad = onLevelLoad;
+  }
+
+  /**
+   * Check if the given entity is on the end tile.
+   *
+   * @param entity The entity for which the position is checked.
+   * @return True if the entity is on the end tile, else false.
+   */
+  private boolean isOnOpenEndTile(final Entity entity) {
+    Tile currentTile = Game.tileAtEntity(entity).orElse(null);
+    if (currentTile == null) {
+      return false;
+    }
+
+    return currentTile instanceof ExitTile endTile && endTile.isOpen();
+  }
+
+  /**
+   * Execute the system logic.
+   *
+   * <p>If no level exists yet, the system will do nothing. If all players are on the end tile, the
+   * onEndTile callback will be executed. If all players are on the same open door, the level behind
+   * that door will be loaded. Otherwise, the system will check if any pits should be opened.
+   */
+  @Override
+  public void execute() {
+    if (currentLevel == null) {
+      return;
+    }
+
+    if (Game.allPlayers().findAny().isEmpty()) return;
+
+    // Load next level if all heroes are on the end tile
+    if (Game.allPlayers().allMatch(this::isOnOpenEndTile)) {
+      onEndTile.execute();
+      return;
+    }
+    openPits();
+  }
+
+  private void openPits() {
+    level()
+        .ifPresent(
+            level -> {
+              Tile[][] layout = level.layout();
+              for (int y = layout.length - 1; y >= 0; y--) {
+                for (int x = 0; x < layout[0].length; x++) {
+                  if (layout[y][x] instanceof PitTile pit) {
+                    if (pit.timeToOpen() <= 0) pit.open();
+                  }
+                }
+              }
+            });
+  }
+
+  /** LevelSystem can't be paused. If it is paused, the level will not be shown anymore. */
+  @Override
+  public void stop() {
+    run = true;
+  }
+
+  /**
+   * Sets the function to be executed when an entity reaches the end tile.
+   *
+   * @param onEndTile The function to be executed when an entity reaches the end tile.
+   */
+  public void onEndTile(IVoidFunction onEndTile) {
+    this.onEndTile = onEndTile;
+  }
+
+  /**
+   * Gets the function that is executed when an entity reaches the end tile.
+   *
+   * @return The function that is executed when an entity reaches the end tile.
+   */
+  public IVoidFunction onEndTile() {
+    return onEndTile;
+  }
+}

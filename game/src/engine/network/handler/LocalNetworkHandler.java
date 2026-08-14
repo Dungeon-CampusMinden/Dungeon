@@ -1,0 +1,194 @@
+package engine.network.handler;
+
+import engine.Game;
+import engine.game.PreRunConfiguration;
+import engine.network.ConnectionListener;
+import engine.network.MessageDispatcher;
+import engine.network.NetworkException;
+import engine.network.SnapshotTranslator;
+import engine.network.messages.NetworkMessage;
+import engine.network.messages.c2s.InputMessage;
+import engine.network.server.ClientState;
+import engine.network.server.Session;
+import engine.utils.logging.DungeonLogger;
+import feature.entities.CharacterClass;
+import feature.entities.HeroController;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
+/**
+ * A mock network handler for single-player/local or test mode that simulates network behavior
+ * without actual network communication.
+ *
+ * <p>This handler processes game logic locally without real network communication, acting as both
+ * client and server to keep architecture consistent between modes.
+ */
+public class LocalNetworkHandler implements INetworkHandler {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LocalNetworkHandler.class);
+  private static final String DEFAULT_DISCONNECT_REASON = "Disconnected.";
+
+  // Message / translation utilities
+  private final MessageDispatcher dispatcher = new MessageDispatcher();
+  private volatile SnapshotTranslator translator;
+
+  // Dummy session and client state
+  private final byte[] dummySessionToken = new byte[] {0, 1, 2, 3, 4, 5, 6, 7};
+  private final ClientState dummyState =
+      new ClientState(
+          (short) 0, PreRunConfiguration.username(), 0, dummySessionToken, CharacterClass.WIZARD);
+  private final Session dummySession =
+      new Session(
+          null,
+          (addr, msg) -> send((short) 0, null, true),
+          (ctx, msg) -> send((short) 0, null, true));
+
+  // Connection listeners
+  private final List<ConnectionListener> connectionListeners = new ArrayList<>();
+
+  // Lifecycle flags
+  private boolean isRunning = false;
+  private boolean isInitialized = false;
+
+  @Override
+  public void initialize(
+      boolean isServer,
+      String serverAddress,
+      int port,
+      String username,
+      Optional<CharacterClass> characterClass)
+      throws NetworkException {
+    Objects.requireNonNull(characterClass, "characterClass");
+    this.isInitialized = true;
+    dummySession.attachClientState(dummyState);
+  }
+
+  @Override
+  public CompletableFuture<Boolean> send(short clientId, NetworkMessage message, boolean reliable) {
+    return CompletableFuture.completedFuture(true);
+  }
+
+  @Override
+  public CompletableFuture<Boolean> broadcast(NetworkMessage message, boolean reliable) {
+    // No op
+    return CompletableFuture.completedFuture(true);
+  }
+
+  @Override
+  public void sendInput(InputMessage input) {
+    Game.player()
+        .ifPresent(
+            hero -> {
+              HeroController.enqueueInput(dummyState, input);
+              HeroController.drainAndApplyInputs(); // Apply immediately in local mode
+            });
+  }
+
+  @Override
+  public void start() {
+    if (!isInitialized) {
+      LOGGER.error("LocalNetworkHandler cannot start because it is not initialized.");
+      return;
+    }
+    this.isRunning = true;
+    Game.player().ifPresent(dummyState::playerEntity);
+    LOGGER.info("LocalNetworkHandler started.");
+    notifyConnected();
+  }
+
+  @Override
+  public void shutdown(String reason) {
+    this.isRunning = false;
+    this.isInitialized = false;
+    notifyDisconnected(reason);
+    LOGGER.info("LocalNetworkHandler shutdown complete. Reason: {}", reason);
+  }
+
+  @Override
+  public boolean isConnected() {
+    return isRunning && isInitialized;
+  }
+
+  @Override
+  public boolean isServer() {
+    return true;
+  }
+
+  @Override
+  public MessageDispatcher messageDispatcher() {
+    return dispatcher;
+  }
+
+  @Override
+  public SnapshotTranslator snapshotTranslator() {
+    if (translator == null) {
+      throw new IllegalStateException(
+          "SnapshotTranslator not set on INetworkHandler. Set via "
+              + "snapshotTranslator(...) before starting network or provide translator in "
+              + "starter.");
+    }
+    return translator;
+  }
+
+  @Override
+  public void snapshotTranslator(SnapshotTranslator translator) {
+    if (translator == null) {
+      throw new IllegalArgumentException("translator cannot be null");
+    }
+    this.translator = translator;
+  }
+
+  @Override
+  public void pollAndDispatch() {
+    // No op
+  }
+
+  @Override
+  public synchronized void addConnectionListener(ConnectionListener listener) {
+    if (listener == null) return;
+    connectionListeners.add(listener);
+  }
+
+  @Override
+  public synchronized void removeConnectionListener(ConnectionListener listener) {
+    if (listener == null) return;
+    connectionListeners.remove(listener);
+  }
+
+  @Override
+  public Optional<Session> session() {
+    return Optional.of(dummySession);
+  }
+
+  private void notifyConnected() {
+    List<ConnectionListener> snapshot;
+    synchronized (this) {
+      snapshot = new ArrayList<>(connectionListeners);
+    }
+    for (ConnectionListener listener : snapshot) {
+      try {
+        listener.onConnected();
+      } catch (Exception e) {
+        LOGGER.warn("ConnectionListener.onConnected threw", e);
+      }
+    }
+  }
+
+  private void notifyDisconnected(String reason) {
+    String normalizedReason =
+        reason == null || reason.isBlank() ? DEFAULT_DISCONNECT_REASON : reason;
+    List<ConnectionListener> snapshot;
+    synchronized (this) {
+      snapshot = new ArrayList<>(connectionListeners);
+    }
+    for (ConnectionListener listener : snapshot) {
+      try {
+        listener.onDisconnected(normalizedReason);
+      } catch (Exception e) {
+        LOGGER.warn("ConnectionListener.onDisconnected threw", e);
+      }
+    }
+  }
+}

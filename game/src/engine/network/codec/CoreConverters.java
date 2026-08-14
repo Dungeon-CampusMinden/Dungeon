@@ -1,0 +1,72 @@
+package engine.network.codec;
+
+import engine.network.codec.converters.c2s.ConnectRequestConverter;
+import engine.network.codec.converters.c2s.DebugPingConverter;
+import engine.network.codec.converters.c2s.DebugTelemetryRequestConverter;
+import engine.network.codec.converters.c2s.DialogResponseConverter;
+import engine.network.codec.converters.c2s.InitialWorldReadyConverter;
+import engine.network.codec.converters.c2s.InputMessageConverter;
+import engine.network.codec.converters.c2s.RegisterUdpConverter;
+import engine.network.codec.converters.c2s.RequestEntitySpawnConverter;
+import engine.network.codec.converters.c2s.SnapshotAckConverter;
+import engine.network.codec.converters.c2s.SoundFinishedConverter;
+import engine.network.codec.converters.s2c.ConnectAckConverter;
+import engine.network.codec.converters.s2c.ConnectRejectConverter;
+import engine.network.codec.converters.s2c.DebugPongConverter;
+import engine.network.codec.converters.s2c.DebugTelemetrySnapshotConverter;
+import engine.network.codec.converters.s2c.DeltaSnapshotConverter;
+import engine.network.codec.converters.s2c.DialogCloseConverter;
+import engine.network.codec.converters.s2c.DialogShowConverter;
+import engine.network.codec.converters.s2c.EntityDespawnConverter;
+import engine.network.codec.converters.s2c.EntitySpawnBatchConverter;
+import engine.network.codec.converters.s2c.EntitySpawnEventConverter;
+import engine.network.codec.converters.s2c.EntityStateConverter;
+import engine.network.codec.converters.s2c.GameOverConverter;
+import engine.network.codec.converters.s2c.InitialWorldCompleteConverter;
+import engine.network.codec.converters.s2c.LevelChangeConverter;
+import engine.network.codec.converters.s2c.RegisterAckConverter;
+import engine.network.codec.converters.s2c.SnapshotConverter;
+import engine.network.codec.converters.s2c.SoundPlayConverter;
+import engine.network.codec.converters.s2c.SoundStopConverter;
+
+/** Registers all built-in dungeon network message converters. */
+public final class CoreConverters {
+
+  private CoreConverters() {}
+
+  /**
+   * Registers all engine dungeon converters in the provided registry.
+   *
+   * @param registry the target registry
+   */
+  public static void registerAll(ConverterRegistry registry) {
+    registry.register(new ConnectRequestConverter());
+    registry.register(new InputMessageConverter());
+    registry.register(new DialogResponseConverter());
+    registry.register(new RegisterUdpConverter());
+    registry.register(new RequestEntitySpawnConverter());
+    registry.register(new SoundFinishedConverter());
+    registry.register(new SnapshotAckConverter());
+    registry.register(new DebugTelemetryRequestConverter());
+    registry.register(new DebugPingConverter());
+    registry.register(new InitialWorldReadyConverter());
+    registry.register(new ConnectAckConverter());
+    registry.register(new ConnectRejectConverter());
+    registry.register(new DialogShowConverter());
+    registry.register(new DialogCloseConverter());
+    registry.register(new EntitySpawnEventConverter());
+    registry.register(new EntitySpawnBatchConverter());
+    registry.register(new EntityDespawnConverter());
+    registry.register(new EntityStateConverter());
+    registry.register(new GameOverConverter());
+    registry.register(new LevelChangeConverter());
+    registry.register(new RegisterAckConverter());
+    registry.register(new SnapshotConverter());
+    registry.register(new DeltaSnapshotConverter());
+    registry.register(new SoundPlayConverter());
+    registry.register(new SoundStopConverter());
+    registry.register(new DebugTelemetrySnapshotConverter());
+    registry.register(new DebugPongConverter());
+    registry.register(new InitialWorldCompleteConverter());
+  }
+}

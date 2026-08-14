@@ -1,0 +1,899 @@
+package feature.systems;
+
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector3;
+import engine.Entity;
+import engine.Game;
+import engine.System;
+import engine.components.DrawComponent;
+import engine.components.PlayerComponent;
+import engine.components.PositionComponent;
+import engine.components.SoundComponent;
+import engine.components.VelocityComponent;
+import engine.game.ECSManagement;
+import engine.game.WindowEventManager;
+import engine.level.DungeonLevel;
+import engine.level.elements.ILevel;
+import engine.network.NetworkTelemetry;
+import engine.network.NetworkUtils;
+import engine.network.messages.c2s.DebugPing;
+import engine.network.messages.c2s.DebugTelemetryRequest;
+import engine.network.telemetry.NetworkTelemetryReport;
+import engine.network.telemetry.TelemetryLine;
+import engine.network.telemetry.TelemetrySection;
+import engine.network.telemetry.TelemetrySeverity;
+import engine.network.telemetry.TelemetrySpan;
+import engine.systems.CameraSystem;
+import engine.systems.input.InputManager;
+import engine.utils.ClipboardUtil;
+import engine.utils.FontHelper;
+import engine.utils.Point;
+import engine.utils.Vector2;
+import engine.utils.components.MissingComponentException;
+import engine.utils.components.draw.BlendUtils;
+import engine.utils.components.draw.ColorUtils;
+import engine.utils.components.draw.animation.Animation;
+import feature.components.AIComponent;
+import feature.components.CollideComponent;
+import feature.components.DecoComponent;
+import feature.components.HealthComponent;
+import feature.components.InventoryComponent;
+import feature.interaction.InteractionComponent;
+import feature.utils.EntityUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+/**
+ * A debug system that visually overlays entity information on top of the game world.
+ *
+ * <p>This system draws the following for all entities with a {@link PositionComponent}:
+ *
+ * <ul>
+ *   <li>A filled dot at the entity's position.
+ *   <li>An arrow indicating the entity's view direction.
+ *   <li>A green rectangle around the entity's sprite/texture if it has a {@link DrawComponent}.
+ *   <li>A red rectangle around the entity's collider hitbox if it has a {@link CollideComponent}.
+ * </ul>
+ *
+ * <p>The system uses a {@link com.badlogic.gdx.graphics.glutils.ShapeRenderer} to draw shapes. Make
+ * sure the {@link ShapeRenderer} projection matrix matches the camera used in the main rendering
+ * system to ensure alignment with sprites.
+ *
+ * <p>This system is intended for debugging purposes only and can help visualize positions, sprite
+ * boundaries, collider bounds, and view directions of entities.
+ */
+public class DebugDrawSystem extends System {
+
+  private static final Batch UI_BATCH = new SpriteBatch();
+  private static final OrthographicCamera DEBUG_CAM = new OrthographicCamera();
+  private static final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
+  private static final Color BACKGROUND_COLOR =
+      new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
+  private static final Color NAMED_POINT_COLOR =
+      withAlpha(Color.GREEN, 0.4f); // semi-transparent purple for named points
+  private static final Color POINT_MODE_COLOR =
+      withAlpha(Color.GREEN, 0.7f); // semi-transparent purple for named points
+  private static final Color NAMED_POINT_HIGHLIGHT_COLOR =
+      withAlpha(Color.YELLOW, 0.7f); // more opaque yellow for highlighted named points
+
+  private static final int CIRCLE_SEGMENTS = 60; // resolution of circles (higher = smoother)
+  private static final int DEBUG_TELEMETRY_STREAM_INTERVAL_MS = 1_000;
+  private static final int DEBUG_TELEMETRY_PING_INTERVAL_MS = 1_000;
+  private static final int NETWORK_TELEMETRY_NOTICE_MS = 2_000;
+  private static final BitmapFont FONT = FontHelper.getDefaultFont();
+
+  private static final Map<Entity, String> quickInfoCache = new HashMap<Entity, String>();
+
+  private boolean render = false;
+  private boolean renderSystemList = false;
+  private boolean renderNetworkTelemetry = false;
+  private volatile long debugTelemetryStreamRequestId = -1L;
+  private volatile long nextDebugTelemetryPingTimeMs = 0L;
+  private volatile long nextDebugTelemetryStreamRetryTimeMs = 0L;
+  private volatile String networkTelemetryNotice = "";
+  private volatile TelemetrySeverity networkTelemetryNoticeSeverity = TelemetrySeverity.NORMAL;
+  private volatile long networkTelemetryNoticeUntilMs = -1L;
+
+  /** Creates a new DebugDrawSystem. */
+  public DebugDrawSystem() {
+    super(AuthoritativeSide.CLIENT, PositionComponent.class);
+    DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight());
+    WindowEventManager.registerWindowRefreshListener(
+        () -> DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight()));
+  }
+
+  @Override
+  public void execute() {}
+
+  @Override
+  public void render(float delta) {
+    if (!render && !renderSystemList && !renderNetworkTelemetry) return;
+
+    if (renderSystemList) drawSystemList();
+    if (renderNetworkTelemetry) {
+      updateNetworkTelemetryRequest();
+      NetworkTelemetryReport telemetryReport = NetworkTelemetry.debugReport();
+      copyNetworkTelemetryIfRequested(telemetryReport.plainText());
+      drawNetworkTelemetry(telemetryReport);
+    }
+
+    if (!render) return;
+
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
+
+    if (!LevelEditorSystem.active()) {
+      drawNamedPoints();
+    }
+  }
+
+  private void drawSystemList() {
+    String text = buildSystemListText();
+    drawScreenOverlay(text, 10f, Game.windowHeight() - 10f);
+  }
+
+  private void drawNetworkTelemetry(NetworkTelemetryReport report) {
+    List<TelemetryLine> lines = reportLines(report);
+    TelemetryLine noticeLine = activeNetworkTelemetryNoticeLine();
+    if (noticeLine != null) {
+      lines.add(0, noticeLine);
+    }
+    String displayText = plainText(lines);
+    GlyphLayout layout = new GlyphLayout(FONT, displayText);
+    float textX = 10f;
+    float textY = layout.height + 10f;
+    drawStructuredScreenOverlay(lines, displayText, textX, textY);
+  }
+
+  private void copyNetworkTelemetryIfRequested(String text) {
+    if (!InputManager.isKeyJustPressed(Input.Keys.C) || !isControlPressed()) {
+      return;
+    }
+    try {
+      ClipboardUtil.copyToClipboard(text);
+      showNetworkTelemetryNotice("Copied network telemetry", TelemetrySeverity.NORMAL);
+    } catch (Exception e) {
+      showNetworkTelemetryNotice("Clipboard copy failed", TelemetrySeverity.BAD);
+    }
+  }
+
+  private boolean isControlPressed() {
+    return InputManager.isKeyPressed(Input.Keys.CONTROL_LEFT)
+        || InputManager.isKeyPressed(Input.Keys.CONTROL_RIGHT);
+  }
+
+  private void drawScreenOverlay(String text, float textX, float textY) {
+    GlyphLayout layout = new GlyphLayout(FONT, text);
+    float padding = 4f;
+    float bgX = textX - padding;
+    float bgY = textY - layout.height - padding;
+    float bgW = layout.width + 2f * padding;
+    float bgH = layout.height + 2f * padding;
+
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(DEBUG_CAM.combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
+    SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
+    SHAPE_RENDERER.end();
+
+    drawText(text, new Point(textX, textY));
+  }
+
+  private void drawStructuredScreenOverlay(
+      List<TelemetryLine> lines, String plainText, float textX, float textY) {
+    GlyphLayout layout = new GlyphLayout(FONT, plainText);
+    float padding = 4f;
+    float bgX = textX - padding;
+    float bgY = textY - layout.height - padding;
+    float bgW = layout.width + 2f * padding;
+    float bgH = layout.height + 2f * padding;
+
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(DEBUG_CAM.combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
+    SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
+    SHAPE_RENDERER.end();
+
+    drawTelemetryLines(lines, textX, textY);
+  }
+
+  private TelemetryLine activeNetworkTelemetryNoticeLine() {
+    if (networkTelemetryNotice.isBlank()
+        || java.lang.System.currentTimeMillis() >= networkTelemetryNoticeUntilMs) {
+      return null;
+    }
+    return new TelemetryLine(
+        List.of(new TelemetrySpan(networkTelemetryNotice, networkTelemetryNoticeSeverity)));
+  }
+
+  private void showNetworkTelemetryNotice(String text, TelemetrySeverity severity) {
+    networkTelemetryNotice = text;
+    networkTelemetryNoticeSeverity = severity;
+    networkTelemetryNoticeUntilMs =
+        java.lang.System.currentTimeMillis() + NETWORK_TELEMETRY_NOTICE_MS;
+  }
+
+  private String plainText(List<TelemetryLine> lines) {
+    StringBuilder text = new StringBuilder();
+    for (TelemetryLine line : lines) {
+      if (!text.isEmpty()) {
+        text.append("\n");
+      }
+      text.append(line.plainText());
+    }
+    return text.toString();
+  }
+
+  private List<TelemetryLine> reportLines(NetworkTelemetryReport report) {
+    List<TelemetryLine> lines = new ArrayList<>();
+    for (TelemetrySection section : report.sections()) {
+      lines.add(
+          new TelemetryLine(List.of(new TelemetrySpan(section.title(), TelemetrySeverity.NORMAL))));
+      for (TelemetryLine line : section.lines()) {
+        List<TelemetrySpan> spans = new ArrayList<>();
+        spans.add(new TelemetrySpan("  ", TelemetrySeverity.NORMAL));
+        spans.addAll(line.spans());
+        lines.add(new TelemetryLine(spans));
+      }
+    }
+    return lines;
+  }
+
+  private void drawTelemetryLines(List<TelemetryLine> lines, float textX, float textY) {
+    GlyphLayout spanLayout = new GlyphLayout();
+    UI_BATCH.setProjectionMatrix(DEBUG_CAM.combined);
+    UI_BATCH.begin();
+    float currentY = textY;
+    for (TelemetryLine line : lines) {
+      float currentX = textX;
+      for (TelemetrySpan span : line.spans()) {
+        Color color = span.severity() == TelemetrySeverity.BAD ? Color.RED : Color.WHITE;
+        FONT.setColor(color);
+        FONT.draw(UI_BATCH, span.text(), currentX, currentY);
+        spanLayout.setText(FONT, span.text());
+        currentX += spanLayout.width;
+      }
+      currentY -= FONT.getLineHeight();
+    }
+    UI_BATCH.end();
+  }
+
+  private String buildSystemListText() {
+    List<String> systemNames =
+        Game.systems().values().stream()
+            .filter(System::isRunning)
+            .filter(ECSManagement::isAuthoritativeInCurrentTick)
+            .map(system -> system.getClass().getSimpleName())
+            .sorted(Comparator.naturalOrder())
+            .toList();
+
+    StringBuilder text =
+        new StringBuilder("Running Systems (").append(systemNames.size()).append(")");
+    systemNames.forEach(name -> text.append("\n - ").append(name));
+    return text.toString();
+  }
+
+  private void drawPosition(Entity entity) {
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    Optional<DecoComponent> decoComponent = entity.fetch(DecoComponent.class);
+    Point position = pc.position();
+    Vector2 view = pc.viewDirection(); // normalized
+    Point centerPos = EntityUtils.getPosition(entity);
+
+    float alpha = decoComponent.isEmpty() ? 1.0f : 0.4f;
+
+    // --- filled dot for position ---
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    SHAPE_RENDERER.setColor(withAlpha(Color.ORANGE, alpha));
+    SHAPE_RENDERER.circle(position.x(), position.y(), 0.05f, CIRCLE_SEGMENTS);
+    SHAPE_RENDERER.end();
+
+    if (centerPos != position) {
+      // --- filled dot for center position ---
+      SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+      SHAPE_RENDERER.setColor(withAlpha(Color.BLUE, alpha));
+      SHAPE_RENDERER.circle(centerPos.x(), centerPos.y(), 0.05f, CIRCLE_SEGMENTS);
+      SHAPE_RENDERER.end();
+    }
+
+    // Dont do this for deco entities
+    if (decoComponent.isEmpty()) {
+      // --- arrow for view direction ---
+      float arrowLength = 0.5f; // tune this to your tile size
+      float endX = position.x() + view.x() * arrowLength;
+      float endY = position.y() + view.y() * arrowLength;
+
+      SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+      SHAPE_RENDERER.setColor(Color.YELLOW);
+      SHAPE_RENDERER.line(position.x(), position.y(), endX, endY);
+
+      // optional: tiny "arrowhead"
+      float headSize = 0.1f;
+      SHAPE_RENDERER.line(endX, endY, endX - view.y() * headSize, endY + view.x() * headSize);
+      SHAPE_RENDERER.line(endX, endY, endX + view.y() * headSize, endY - view.x() * headSize);
+      SHAPE_RENDERER.end();
+    }
+
+    if (entity.isPresent(DrawComponent.class)) drawTextureSize(entity, pc, alpha);
+    if (entity.isPresent(CollideComponent.class)) drawCollideHitbox(entity, alpha);
+    if (entity.isPresent(InteractionComponent.class))
+      drawInteractionRange(entity, EntityUtils.getPosition(entity), alpha);
+    if (CameraSystem.isEntityHovered(entity) && decoComponent.isEmpty()) drawEntityInfo(entity, pc);
+  }
+
+  /** Draws named points from the current level. */
+  public static void drawNamedPoints() {
+    drawNamedPoints(null, false);
+  }
+
+  /**
+   * Draws named points from the current level.
+   *
+   * @param highlightPoint The name of the point to highlight, or null for none.
+   * @param pointModeActive Whether point mode is active, affecting the color used.
+   */
+  public static void drawNamedPoints(String highlightPoint, boolean pointModeActive) {
+    ILevel l = Game.currentLevel().orElse(null);
+    if (l == null) return;
+    Color normalColor = pointModeActive ? POINT_MODE_COLOR : NAMED_POINT_COLOR;
+    DungeonLevel level = (DungeonLevel) l;
+    level
+        .namedPoints()
+        .forEach(
+            (name, point) -> {
+              Color color = name.equals(highlightPoint) ? NAMED_POINT_HIGHLIGHT_COLOR : normalColor;
+              boolean onTile = isNearInteger(point.x()) && isNearInteger(point.y());
+              BlendUtils.setBlending();
+              SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+              if (onTile) {
+                // Point sits on an exact tile - draw as 1×1 rectangle with centered text
+                drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
+                drawTextInWorldCoordsCentered(FONT, name, point.translate(0.5f, 0.5f), color);
+              } else {
+                // Fractional position - draw a small filled dot with text above
+                SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+                SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+                SHAPE_RENDERER.circle(point.x(), point.y(), 0.08f, CIRCLE_SEGMENTS);
+                SHAPE_RENDERER.end();
+                drawTextInWorldCoordsCentered(FONT, name, point.translate(0f, 0.3f), color);
+              }
+            });
+  }
+
+  /**
+   * Draw a red rectangle around the hitbox of the entity.
+   *
+   * @param entity Entity to draw the rectangle for.
+   * @param alpha Alpha transparency value.
+   */
+  private void drawCollideHitbox(Entity entity, float alpha) {
+    CollideComponent cc =
+        entity
+            .fetch(CollideComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, CollideComponent.class));
+
+    Point bottomLeft = cc.collider().absoluteBottomLeft();
+    Point topRight = cc.collider().absoluteTopRight();
+
+    float width = topRight.x() - bottomLeft.x();
+    float height = topRight.y() - bottomLeft.y();
+
+    Color color = cc.isSolid() ? Color.RED : Color.WHITE;
+
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    SHAPE_RENDERER.setColor(withAlpha(color, alpha));
+    SHAPE_RENDERER.rect(bottomLeft.x(), bottomLeft.y(), width, height);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Draw a blue circle around the interaction range of the entity.
+   *
+   * @param entity Entity to draw the interaction range for.
+   * @param pos the position of the entity.
+   * @param alpha Alpha transparency value.
+   */
+  private void drawInteractionRange(Entity entity, Point pos, float alpha) {
+    InteractionComponent ic =
+        entity
+            .fetch(InteractionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, InteractionComponent.class));
+
+    // Since interactions can have different ranges we use the interact-interaction range.
+    float radius = ic.interactions().interact().range();
+
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    SHAPE_RENDERER.setColor(withAlpha(Color.CYAN, alpha));
+    SHAPE_RENDERER.circle(pos.x(), pos.y(), radius, CIRCLE_SEGMENTS);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Draw a green rectangle around the texture of the entity.
+   *
+   * @param entity Entity to draw the rectangle for.
+   * @param pc PositionComponent of the entity.
+   * @param alpha Alpha transparency value.
+   */
+  private void drawTextureSize(Entity entity, PositionComponent pc, float alpha) {
+    DrawComponent dc =
+        entity
+            .fetch(DrawComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+    Animation a = dc.currentAnimation();
+    Point position = pc.position();
+
+    float width = a.getWidth() * pc.scale().x();
+    float height = a.getHeight() * pc.scale().y();
+
+    float x = position.x();
+    float y = position.y();
+
+    if (a.getConfig().centered()) {
+      x -= width / 2f;
+      y -= height / 2f;
+    }
+
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    SHAPE_RENDERER.setColor(withAlpha(Color.GREEN, alpha));
+    SHAPE_RENDERER.rect(x, y, width, height);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Draw on entity hover relevant entity infos.
+   *
+   * <pre>
+   *   * Entity ID
+   *   * Position; View Direction
+   *   * Current Velocity (if VelocityComponent is present)
+   *   * curHealth/maxHealth (if HealthComponent is present)
+   *   * Current Animation state (if DrawComponent is present)
+   *   * List of all components attached to the entity
+   * </pre>
+   *
+   * @param entity The entity to draw info for.
+   * @param pc The PositionComponent of the entity.
+   */
+  private void drawEntityInfo(Entity entity, PositionComponent pc) {
+    // Compute layout and render a semi-transparent background + white text near the entity
+    drawInfoOverlay(buildInfoText(entity, pc), pc.position());
+  }
+
+  /**
+   * Builds the multiline info text shown near a hovered entity.
+   *
+   * <p>Includes:
+   *
+   * <ul>
+   *   <li>Entity name and ID
+   *   <li>Position and view direction
+   *   <li>Velocity (if present)
+   *   <li>Health (if present)
+   *   <li>Animation state (if present)
+   *   <li>List of all components when holding Shift
+   * </ul>
+   *
+   * @param entity The entity to build info for.
+   * @param pc The PositionComponent of the entity.
+   * @return The formatted info text.
+   */
+  private String buildInfoText(Entity entity, PositionComponent pc) {
+    Point position = pc.position();
+
+    // TODO: we should use a interface for components that want to add debug info lines e.g.
+    // "implements DebugInfoProvider { String debugInfoLine(); }"
+    StringBuilder info = new StringBuilder();
+    info.append(entity.name()).append(" (").append(entity.id()).append(")\n");
+    info.append("Position: (")
+        .append(String.format("%.2f", position.x()))
+        .append(", ")
+        .append(String.format("%.2f", position.y()))
+        .append("); ")
+        .append(pc.viewDirection())
+        .append("\n");
+
+    entity
+        .fetch(VelocityComponent.class)
+        .ifPresent(
+            vc -> {
+              String velStr =
+                  String.format("(%.2f, %.2f)", vc.currentVelocity().x(), vc.currentVelocity().y());
+              info.append("Velocity: ").append(velStr).append("\n");
+            });
+
+    entity
+        .fetch(HealthComponent.class)
+        .ifPresent(
+            hc ->
+                info.append("Health: ")
+                    .append(hc.currentHealthpoints())
+                    .append("/")
+                    .append(hc.maximalHealthpoints())
+                    .append(hc.isDead() ? " (DEAD)" : "")
+                    .append(hc.godMode() ? " (GOD)" : "")
+                    .append("\n"));
+
+    entity
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            dc ->
+                info.append("Animation State: ")
+                    .append(dc.currentStateName())
+                    .append(" (")
+                    .append(dc.currentState().getData())
+                    .append(")\n"));
+
+    entity
+        .fetch(SoundComponent.class)
+        .ifPresent(sc -> info.append("Sound Instances: ").append(sc.sounds().size()).append("\n"));
+
+    entity
+        .fetch(InventoryComponent.class)
+        .ifPresent(
+            ic ->
+                info.append("Inventory: ")
+                    .append(Arrays.stream(ic.items()).filter(Objects::nonNull).count())
+                    .append("/")
+                    .append(ic.items().length)
+                    .append(" items\n"));
+
+    // We should try to render the path for the current ai; this probably needs a PathAI to check
+    // the instance here
+    entity
+        .fetch(AIComponent.class)
+        .ifPresent(
+            ai ->
+                info.append("AI State: ").append(ai.active() ? "Active" : "Inactive").append("\n"));
+
+    entity
+        .fetch(PlayerComponent.class)
+        .ifPresent(
+            pcComp ->
+                info.append("Player: ")
+                    .append(pcComp.playerName())
+                    .append(pcComp.isLocal() ? " (LOCAL)" : " (REMOTE)")
+                    .append("\n"));
+
+    List<String> componentNames =
+        entity
+            .componentStream()
+            .map(comp -> comp.getClass().getSimpleName())
+            .sorted(String::compareToIgnoreCase)
+            .toList();
+
+    // Quick info from cache
+    if (quickInfoCache.containsKey(entity)) {
+      info.append(quickInfoCache.get(entity)).append("\n");
+    }
+
+    // If holding Shift, show all components; otherwise hint how to show them
+    if (InputManager.isKeyPressed(Input.Keys.SHIFT_LEFT)
+        || InputManager.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
+      info.append(componentNames.size())
+          .append(" component")
+          .append(componentNames.size() == 1 ? "" : "s")
+          .append("\n");
+      componentNames.forEach(name -> info.append(" - ").append(name).append("\n"));
+    } else {
+      info.append("(Hold Shift to show all ")
+          .append(componentNames.size())
+          .append(" component")
+          .append(componentNames.size() == 1 ? "" : "s")
+          .append(")\n");
+    }
+
+    // remove last newline for a cleaner box bottom
+    info.setLength(info.length() - 1);
+    return info.toString();
+  }
+
+  /**
+   * Renders the info overlay near the given world position.
+   *
+   * <p>Text is drawn in world space using DrawSystem's batch, but the font is scaled so that it
+   * appears at a consistent pixel size regardless of camera zoom. A semi-transparent black
+   * background is drawn behind the text using ShapeRenderer.
+   *
+   * @param text The multiline text to render.
+   * @param worldPos The world position near which to render the text.
+   */
+  private void drawInfoOverlay(String text, Point worldPos) {
+    Vector3 screenPos = CameraSystem.camera().project(new Vector3(worldPos.x(), worldPos.y(), 0));
+
+    GlyphLayout layout = new GlyphLayout(FONT, text);
+
+    // Positioning and padding
+    float padding = 4f; // ~4px padding (using X as baseline for a uniform box)
+    float offsetX = 8f; // ~8px to the right of the entity
+    float offsetY = -12f; // ~12px above the entity
+
+    float textX = screenPos.x + offsetX;
+    float textY = screenPos.y + offsetY;
+    float bgX = textX - padding;
+    float bgY = textY - layout.height - padding; // background below baseline
+    float bgW = layout.width + 2f * padding;
+    float bgH = layout.height + 2f * padding;
+
+    // semi-transparent black box
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(DEBUG_CAM.combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
+    SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
+    SHAPE_RENDERER.end();
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+
+    drawText(text, new Point(textX, textY));
+  }
+
+  /**
+   * Sets quick info text for the given entity to be displayed in the debug overlay.
+   *
+   * @param entity The entity to set quick info for.
+   * @param info The quick info text.
+   */
+  public static void setEntityQuickInfo(Entity entity, String info) {
+    quickInfoCache.put(entity, info);
+  }
+
+  /** Whether this debug system is currently active and drawing the overlays. */
+  public void toggleHUD() {
+    this.render = !this.render;
+  }
+
+  /** Toggles the screen-space list of currently running systems. */
+  public void toggleSystemList() {
+    this.renderSystemList = !this.renderSystemList;
+  }
+
+  /** Toggles the screen-space multiplayer network telemetry overlay. */
+  public void toggleNetworkTelemetry() {
+    this.renderNetworkTelemetry = !this.renderNetworkTelemetry;
+    if (renderNetworkTelemetry) {
+      startNetworkTelemetryStream();
+    } else {
+      stopNetworkTelemetryStream();
+    }
+  }
+
+  @Override
+  public void stop() {
+    this.run = true; // This system can not be stopped.
+  }
+
+  @Override
+  public void run() {
+    this.run = true;
+  }
+
+  private static Color withAlpha(Color color, float alpha) {
+    return ColorUtils.pmaColor(new Color(color.r, color.g, color.b, alpha));
+  }
+
+  private void startNetworkTelemetryStream() {
+    if (!NetworkUtils.isNetworkClient()) {
+      return;
+    }
+    nextDebugTelemetryStreamRetryTimeMs =
+        java.lang.System.currentTimeMillis() + DEBUG_TELEMETRY_STREAM_INTERVAL_MS;
+    debugTelemetryStreamRequestId = NetworkTelemetry.nextRequestId();
+    nextDebugTelemetryPingTimeMs = 0L;
+    Game.network()
+        .send(
+            (short) 0,
+            new DebugTelemetryRequest(
+                debugTelemetryStreamRequestId,
+                DebugTelemetryRequest.Mode.START_STREAM,
+                DEBUG_TELEMETRY_STREAM_INTERVAL_MS),
+            true)
+        .thenAccept(
+            success -> {
+              if (success) {
+                return;
+              }
+              debugTelemetryStreamRequestId = -1L;
+              nextDebugTelemetryStreamRetryTimeMs =
+                  java.lang.System.currentTimeMillis() + DEBUG_TELEMETRY_STREAM_INTERVAL_MS;
+              showNetworkTelemetryNotice("Telemetry stream start failed", TelemetrySeverity.BAD);
+            });
+  }
+
+  private void stopNetworkTelemetryStream() {
+    if (!NetworkUtils.isNetworkClient() || debugTelemetryStreamRequestId < 0L) {
+      debugTelemetryStreamRequestId = -1L;
+      return;
+    }
+    Game.network()
+        .send(
+            (short) 0,
+            new DebugTelemetryRequest(
+                debugTelemetryStreamRequestId,
+                DebugTelemetryRequest.Mode.STOP_STREAM,
+                DEBUG_TELEMETRY_STREAM_INTERVAL_MS),
+            true)
+        .thenAccept(
+            success -> {
+              if (!success) {
+                showNetworkTelemetryNotice("Telemetry stream stop failed", TelemetrySeverity.BAD);
+              }
+            });
+    debugTelemetryStreamRequestId = -1L;
+  }
+
+  private void updateNetworkTelemetryRequest() {
+    if (!NetworkUtils.isNetworkClient()) {
+      return;
+    }
+    long now = java.lang.System.currentTimeMillis();
+    if (debugTelemetryStreamRequestId < 0L && now >= nextDebugTelemetryStreamRetryTimeMs) {
+      startNetworkTelemetryStream();
+    }
+    if (now < nextDebugTelemetryPingTimeMs) {
+      return;
+    }
+    nextDebugTelemetryPingTimeMs = now + DEBUG_TELEMETRY_PING_INTERVAL_MS;
+    Game.network()
+        .send(
+            (short) 0,
+            new DebugPing(
+                NetworkTelemetry.nextRequestId(),
+                java.lang.System.nanoTime(),
+                NetworkTelemetry.latestDebugRttMs()),
+            true)
+        .thenAccept(
+            success -> {
+              if (!success) {
+                showNetworkTelemetryNotice("Telemetry ping failed", TelemetrySeverity.BAD);
+              }
+            });
+  }
+
+  /**
+   * Draws the outline of a rectangle at the specified position with the given width, height, and
+   * color.
+   *
+   * @param x the x-coordinate of the bottom-left corner of the rectangle
+   * @param y the y-coordinate of the bottom-left corner of the rectangle
+   * @param width the width of the rectangle
+   * @param height the height of the rectangle
+   * @param color the color of the rectangle outline
+   */
+  public static void drawRectangleOutline(
+      float x, float y, float width, float height, Color color) {
+    // Enable blending for transparency
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+    SHAPE_RENDERER.rect(x, y, width, height);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Draws text on the screen at the specified screen coordinates with the given font and color.
+   *
+   * @param font the {@link BitmapFont} to use for rendering the text
+   * @param text the text string to draw
+   * @param screen the screen coordinates where the text should be drawn
+   * @param color the color of the text
+   */
+  public static void drawText(BitmapFont font, String text, Point screen, Color color) {
+    UI_BATCH.setProjectionMatrix(DEBUG_CAM.combined);
+    UI_BATCH.begin();
+    font.setColor(color);
+    font.draw(UI_BATCH, text, screen.x(), screen.y());
+    UI_BATCH.end();
+  }
+
+  /**
+   * Draws text on the screen at the specified screen coordinates with the given font in white
+   * color.
+   *
+   * @param font the {@link BitmapFont} to use for rendering the text
+   * @param text the text string to draw
+   * @param screen the screen coordinates where the text should be drawn
+   */
+  public static void drawText(BitmapFont font, String text, Point screen) {
+    drawText(font, text, screen, Color.WHITE);
+  }
+
+  /**
+   * Draws text on the screen at the specified screen coordinates with the default font and given
+   * color.
+   *
+   * @param text the text string to draw
+   * @param screen the screen coordinates where the text should be drawn
+   * @param color the color of the text
+   */
+  public static void drawText(String text, Point screen, Color color) {
+    drawText(FONT, text, screen, color);
+  }
+
+  /**
+   * Draws text on the screen at the specified screen coordinates with the default font in white
+   * color.
+   *
+   * @param text the text string to draw
+   * @param screen the screen coordinates where the text should be drawn
+   */
+  public static void drawText(String text, Point screen) {
+    drawText(FONT, text, screen, Color.WHITE);
+  }
+
+  /**
+   * Draws text in world coordinates using the specified font and color.
+   *
+   * @param font the {@link BitmapFont} to use for rendering the text
+   * @param text the text string to draw
+   * @param world the world coordinates where the text should be drawn
+   * @param color the color of the text
+   */
+  public static void drawTextInWorldCoords(BitmapFont font, String text, Point world, Color color) {
+    Vector3 screen = CameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
+    drawText(font, text, new Point(screen.x, screen.y), color);
+  }
+
+  /**
+   * Draws text in world coordinates using the specified font in white color.
+   *
+   * @param text the text string to draw
+   * @param world the world coordinates where the text should be drawn
+   * @param color the color of the text
+   */
+  public static void drawTextInWorldCoords(String text, Point world, Color color) {
+    drawTextInWorldCoords(FONT, text, world, color);
+  }
+
+  /**
+   * Draws text in world coordinates using the default font in white color.
+   *
+   * @param text the text string to draw
+   * @param world the world coordinates where the text should be drawn
+   */
+  public static void drawTextInWorldCoords(String text, Point world) {
+    drawTextInWorldCoords(FONT, text, world, Color.WHITE);
+  }
+
+  /**
+   * Draws text in world coordinates using the specified font and color.
+   *
+   * @param font the {@link BitmapFont} to use for rendering the text
+   * @param text the text string to draw
+   * @param world the world coordinates where the text should be drawn
+   * @param color the color of the text
+   */
+  public static void drawTextInWorldCoordsCentered(
+      BitmapFont font, String text, Point world, Color color) {
+    Vector3 screen = CameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
+    GlyphLayout layout = new GlyphLayout(font, text);
+    float textX = screen.x - layout.width / 2f;
+    float textY = screen.y + layout.height / 2f;
+    drawText(font, text, new Point(textX, textY), color);
+  }
+
+  private static final float INTEGER_TOLERANCE = 0.01f;
+
+  private static boolean isNearInteger(float value) {
+    return Math.abs(value - Math.round(value)) < INTEGER_TOLERANCE;
+  }
+}

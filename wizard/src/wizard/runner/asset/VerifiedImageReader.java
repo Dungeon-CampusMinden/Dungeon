@@ -1,6 +1,6 @@
 package wizard.runner.asset;
 
-import foundation.room.model.VerifiedAsset;
+import escaperoom.foundation.room.model.VerifiedAsset;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
