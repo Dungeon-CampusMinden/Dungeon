@@ -1,12 +1,15 @@
 package engine.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -66,6 +69,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private static final String T_HOST = "host";
   private static final String T_JOIN = "join";
+  private static final String T_LEVEL_EDITOR = "level_editor";
   private static final String T_ACHIEVEMENTS = "achievements";
   private static final String T_SETTINGS = "settings";
   private static final String T_EXIT = "exit";
@@ -102,6 +106,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private Table hostNameView;
   private Table joinView;
   private View activeView = View.MAIN;
+  private boolean showLevelEditorOption;
 
   private TextField hostNameField;
   private Label hostStatusLabel;
@@ -138,6 +143,19 @@ public class MainMenuScreen extends ScreenAdapter {
     int width = Game.windowWidth() > 0 ? Game.windowWidth() : PreRunConfiguration.windowWidth();
     int height = Game.windowHeight() > 0 ? Game.windowHeight() : PreRunConfiguration.windowHeight();
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
+    stage
+        .getRoot()
+        .addListener(
+            new InputListener() {
+              @Override
+              public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.F4 && activeView == View.MAIN) {
+                  toggleLevelEditorOption();
+                  return true;
+                }
+                return false;
+              }
+            });
     Gdx.input.setInputProcessor(stage);
     skin = UIUtils.defaultSkin();
 
@@ -205,6 +223,8 @@ public class MainMenuScreen extends ScreenAdapter {
   private Table buildMainView() {
     TextButton hostButton = menuButton(trans.text(T_HOST), "green", this::showHostNameView);
     TextButton joinButton = menuButton(trans.text(T_JOIN), "blue-outline", this::joinGame);
+    TextButton levelEditorButton =
+        menuButton(trans.text(T_LEVEL_EDITOR), "blue-outline", this::startLevelEditor);
     TextButton settingsButton =
         menuButton(trans.text(T_SETTINGS), "blue-outline", this::showSettingsView);
     TextButton achievementsButton =
@@ -215,6 +235,9 @@ public class MainMenuScreen extends ScreenAdapter {
     Table menu = new Table();
     menu.add(hostButton).width(BUTTON_WIDTH).padBottom(12).row();
     menu.add(joinButton).width(BUTTON_WIDTH).padBottom(12).row();
+    if (showLevelEditorOption && starter.singleplayer().isPresent()) {
+      menu.add(levelEditorButton).width(BUTTON_WIDTH).padBottom(12).row();
+    }
     if (AchievementManager.isAvailable()) {
       menu.add(achievementsButton).width(BUTTON_WIDTH).padBottom(12).row();
     }
@@ -319,6 +342,29 @@ public class MainMenuScreen extends ScreenAdapter {
   private void showMainView() {
     activeView = View.MAIN;
     swapContent(mainView);
+  }
+
+  private void toggleLevelEditorOption() {
+    if (starter.singleplayer().isEmpty()) {
+      return;
+    }
+    showLevelEditorOption = !showLevelEditorOption;
+    mainView = buildMainView();
+    showMainView();
+  }
+
+  private void startLevelEditor() {
+    if (launching) {
+      return;
+    }
+    starter
+        .singleplayer()
+        .ifPresent(
+            singleplayer -> {
+              launching = true;
+              singleplayer.applyLevelEditor();
+              GameLoop.startGame();
+            });
   }
 
   private void showSettingsView() {

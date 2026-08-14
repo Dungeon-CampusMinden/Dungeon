@@ -97,18 +97,7 @@ public final class Game {
       DungeonLoggerConfig.initDefault();
     }
 
-    if (PreRunConfiguration.multiplayerEnabled()) {
-      networkHandler = SLOW_NETWORK ? new SlowNettyNetworkHandler() : new NettyNetworkHandler();
-    } else {
-      networkHandler = new LocalNetworkHandler();
-    }
-
-    // Explicitly inject a SnapshotTranslator before initialization.
-    networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
-    // Multiplayer clients may need the connection dialog before host and port are known.
-    if (!isMultiplayerClient()) {
-      initializeNetwork();
-    }
+    configureNetworkHandler();
 
     WindowEventManager.registerCloseRequestListener(
         () -> {
@@ -130,6 +119,53 @@ public final class Game {
    */
   public static boolean isMultiplayerClient() {
     return PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
+  }
+
+  /**
+   * Checks whether this instance is running as a true singleplayer game.
+   *
+   * <p>Singleplayer uses the local network handler while keeping server authority in the same
+   * process, so gameplay systems and the level editor can operate on the local world directly.
+   *
+   * @return {@code true} when multiplayer is disabled and this process has local authority
+   */
+  public static boolean isSingleplayer() {
+    return !PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer();
+  }
+
+  /**
+   * Reconfigures the network handler for the current run mode.
+   *
+   * <p>This is needed when a menu switches from a multiplayer client to true singleplayer after
+   * {@link #run()} has already created the client network handler.
+   */
+  public static void reconfigureNetworkHandler() {
+    configureNetworkHandler();
+  }
+
+  private static void configureNetworkHandler() {
+    if (networkHandler == null || !networkHandlerMatchesConfiguration()) {
+      if (networkHandler != null) {
+        networkHandler.shutdown("Network mode changed");
+      }
+      networkHandler =
+          PreRunConfiguration.multiplayerEnabled()
+              ? (SLOW_NETWORK ? new SlowNettyNetworkHandler() : new NettyNetworkHandler())
+              : new LocalNetworkHandler();
+    }
+
+    // Explicitly inject a SnapshotTranslator before initialization.
+    networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
+    // Multiplayer clients may need the connection dialog before host and port are known.
+    if (!isMultiplayerClient()) {
+      initializeNetwork();
+    }
+  }
+
+  private static boolean networkHandlerMatchesConfiguration() {
+    boolean expectedLocal = !PreRunConfiguration.multiplayerEnabled();
+    return (networkHandler instanceof LocalNetworkHandler) == expectedLocal
+        && networkHandler.isServer() == PreRunConfiguration.isNetworkServer();
   }
 
   /**

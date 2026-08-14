@@ -11,6 +11,7 @@ import engine.game.MainMenu;
 import engine.game.PreRunConfiguration;
 import engine.game.ServerProcess;
 import engine.game.ServerStarter;
+import engine.game.SingleplayerStarter;
 import engine.language.Language;
 import engine.language.Localization;
 import engine.systems.FrictionSystem;
@@ -91,13 +92,6 @@ public class TheLastHour {
         .enableFile(false)
         .build();
 
-    GameStarter game =
-        GameStarter.builder("The Last Hour", TheLastHour.class)
-            .backgroundImage(MENU_BACKGROUND_IMAGE)
-            .accentColor(MENU_ACCENT_COLOR)
-            .language(Language.EN)
-            .build();
-
     ServerStarter server =
         ServerStarter.builder(TheLastHour::serverSetup)
             .characterClasses(MULTIPLAYER_CHARACTER_CLASSES)
@@ -132,6 +126,36 @@ public class TheLastHour {
             .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
             .build();
 
+    SingleplayerStarter singleplayer =
+        SingleplayerStarter.builder(TheLastHour::serverSetup, LastHourClient::clientSetup)
+            .characterClass(MULTIPLAYER_CHARACTER_CLASSES[0])
+            .levels(Tuple.of("lasthour", LastHourLevel.class))
+            .onConfigure(
+                () -> {
+                  LastHourAchievements.register();
+                  BlackFadeCutscene.register();
+                  UsbStickItem.ensureRegistration();
+                  LastHourClient.registerClientContent();
+                  initLocalization();
+                })
+            .config(
+                new SimpleIPath("dungeon_config.json"),
+                feature.input.configuration.KeyboardConfig.class,
+                KeyboardConfig.class)
+            .snapshotTranslator(new LastHourSnapshotTranslator())
+            .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
+            .onFrame(TheLastHour::onFrame)
+            .levelEditor("levels/lastHour")
+            .build();
+
+    GameStarter game =
+        GameStarter.builder("The Last Hour", TheLastHour.class)
+            .backgroundImage(MENU_BACKGROUND_IMAGE)
+            .accentColor(MENU_ACCENT_COLOR)
+            .language(Language.EN)
+            .singleplayer(singleplayer)
+            .build();
+
     MainMenu.run(args, game, client, server);
   }
 
@@ -153,7 +177,9 @@ public class TheLastHour {
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
     ECSManagement.remove(AttributeBarSystem.class);
-    showServerStatusWindow();
+    if (!Game.isSingleplayer()) {
+      showServerStatusWindow();
+    }
 
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());

@@ -405,14 +405,25 @@ public class DungeonLoader {
   }
 
   /**
-   * Clears all levels from the DungeonLoader.
+   * Clears the registered level order while preserving discovered level assets.
    *
-   * <p>This method resets the level order, current level index, and current variant presence.
+   * <p>This is useful when switching between client and authoritative level handlers before the
+   * game has started.
    */
-  public static void clearLevels() {
-    LEVELS.clear();
+  public static void clearLevelOrder() {
     levelOrder.clear();
     currentLevel = -1;
     currentVariant = OptionalInt.empty();
+  }
+
+  /**
+   * Clears all levels from the DungeonLoader.
+   *
+   * <p>This method resets the discovered assets, level order, current level index, and current
+   * variant presence.
+   */
+  public static void clearLevels() {
+    LEVELS.clear();
+    clearLevelOrder();
   }
 }

@@ -1,108 +1,109 @@
 {
-  "dialog": {
-	"ok_dialog": {
-	  "ok": "OK"
-	},
-	"yes_no_dialog": {
-	  "yes": "Yes",
-	  "no": "No"
-	},
-	"text_dialog": {
-	  "confirm": "OK"
-	},
-	"free_input_dialog": {
-	  "title": "Question",
-	  "ok": "OK",
-	  "cancel": "Cancel",
-	  "placeholder": "Your answer..."
-	},
-	"multiple_choice_dialog": {
-	  "cancel": "Cancel"
-	},
-	"pause_dialog": {
-	  "paused": "PAUSED",
-	  "resume": "Resume",
-	  "questlog": "Questlog",
-	  "achievements": "Achievements",
-	  "settings": "Settings",
-	  "quit_to_desktop": "Quit to Desktop",
-	  "back": "Back",
-	  "you": "Your name: $1",
-	  "server_status": "Server status: $1",
-	  "server_running": "Running",
-	  "server_stopped": "Stopped",
-	  "players_can_connect_via": "Players can connect via (port: $1):"
-	},
-	"questlog": {
-	  "title": "Questlog",
-	  "empty": "Questlog is empty.",
-	  "create": "Create",
-	  "create_personal": "Personal Note",
-	  "cancel": "Cancel",
-	  "note_prompt": "Write a note for the questlog.",
-	  "note_placeholder": "Your note..."
-	},
-	"client_connection_dialog": {
-	  "title": "Connect to Server",
-	  "connect": "Connect",
-	  "username": "Player Name",
-	  "host": "IP / Host",
-	  "port": "Port",
-	  "start_failed": "Server not reachable.",
-	  "invalid_username": "Player name must not be empty and must not contain an underscore.",
-	  "rejected_username": "Player name is invalid or already taken.",
-	  "connecting": "Establishing connection...",
-	  "syncing_world": "Synchronizing world...",
-	  "fallback_username": "Player",
-	  "client_version": "Client Version"
-	},
-	"keypad_dialog": {
-	  "back": "Back",
-	  "submit": "Submit"
-	},
-	"inventory_dialog": {
-	  "title": "INVENTORY"
-	},
-	"progress_bar_dialog": {
-	  "title": "Progress Bar"
-	}
-  },
-  "achievement": {
-	"menu": {
-	  "title": "Achievements",
-	  "hidden_name": "Hidden Achievement",
-	  "hidden_description": "Unlock this achievement to reveal it.",
-	  "progress": "$1 / $2 unlocked"
-	},
-	"popup": {
-	  "unlocked": "Achievement Unlocked"
-	}
-  },
-  "game_loop": {
-	"disconnected_from_server": "Disconnected from server.",
-	"disconnected_from_server_reason": "Disconnected from server: $1"
-  },
-  "settings": {
-	"master_volume": "Master Volume",
-	"effects_volume": "Effects Volume",
-	"music_volume": "Music Volume",
-    "language": "Language"
-  },
-  "main_menu": {
-	"host": "Host Game",
-	"join": "Join Game",
-	"achievements": "Achievements",
-	"settings": "Settings",
-	"exit": "Exit",
-	"back": "Back",
-	"confirm": "Confirm",
-	"player_name": "Player name",
-	"server_address": "Server address",
-	"port": "Port",
-	"invalid_name": "Invalid name (must not be empty or contain '_').",
-	"invalid_connection": "Invalid server address or port.",
-	"starting_server": "Starting server...",
-	"server_start_failed": "Could not start server: $1",
-	"server_timeout": "Server did not start in time."
-  }
+    "dialog": {
+        "ok_dialog": {
+            "ok": "OK"
+        },
+        "yes_no_dialog": {
+            "yes": "Yes",
+            "no": "No"
+        },
+        "text_dialog": {
+            "confirm": "OK"
+        },
+        "free_input_dialog": {
+            "title": "Question",
+            "ok": "OK",
+            "cancel": "Cancel",
+            "placeholder": "Your answer..."
+        },
+        "multiple_choice_dialog": {
+            "cancel": "Cancel"
+        },
+        "pause_dialog": {
+            "paused": "PAUSED",
+            "resume": "Resume",
+            "questlog": "Questlog",
+            "achievements": "Achievements",
+            "settings": "Settings",
+            "quit_to_desktop": "Quit to Desktop",
+            "back": "Back",
+            "you": "Your name: $1",
+            "server_status": "Server status: $1",
+            "server_running": "Running",
+            "server_stopped": "Stopped",
+            "players_can_connect_via": "Players can connect via (port: $1):"
+        },
+        "questlog": {
+            "title": "Questlog",
+            "empty": "Questlog is empty.",
+            "create": "Create",
+            "create_personal": "Personal Note",
+            "cancel": "Cancel",
+            "note_prompt": "Write a note for the questlog.",
+            "note_placeholder": "Your note..."
+        },
+        "client_connection_dialog": {
+            "title": "Connect to Server",
+            "connect": "Connect",
+            "username": "Player Name",
+            "host": "IP / Host",
+            "port": "Port",
+            "start_failed": "Server not reachable.",
+            "invalid_username": "Player name must not be empty and must not contain an underscore.",
+            "rejected_username": "Player name is invalid or already taken.",
+            "connecting": "Establishing connection...",
+            "syncing_world": "Synchronizing world...",
+            "fallback_username": "Player",
+            "client_version": "Client Version"
+        },
+        "keypad_dialog": {
+            "back": "Back",
+            "submit": "Submit"
+        },
+        "inventory_dialog": {
+            "title": "INVENTORY"
+        },
+        "progress_bar_dialog": {
+            "title": "Progress Bar"
+        }
+    },
+    "achievement": {
+        "menu": {
+            "title": "Achievements",
+            "hidden_name": "Hidden Achievement",
+            "hidden_description": "Unlock this achievement to reveal it.",
+            "progress": "$1 / $2 unlocked"
+        },
+        "popup": {
+            "unlocked": "Achievement Unlocked"
+        }
+    },
+    "game_loop": {
+        "disconnected_from_server": "Disconnected from server.",
+        "disconnected_from_server_reason": "Disconnected from server: $1"
+    },
+    "settings": {
+        "master_volume": "Master Volume",
+        "effects_volume": "Effects Volume",
+        "music_volume": "Music Volume",
+        "language": "Language"
+    },
+    "main_menu": {
+        "host": "Host Game",
+        "join": "Join Game",
+        "level_editor": "Level Editor",
+        "achievements": "Achievements",
+        "settings": "Settings",
+        "exit": "Exit",
+        "back": "Back",
+        "confirm": "Confirm",
+        "player_name": "Player name",
+        "server_address": "Server address",
+        "port": "Port",
+        "invalid_name": "Invalid name (must not be empty or contain '_').",
+        "invalid_connection": "Invalid server address or port.",
+        "starting_server": "Starting server...",
+        "server_start_failed": "Could not start server: $1",
+        "server_timeout": "Server did not start in time."
+    }
 }

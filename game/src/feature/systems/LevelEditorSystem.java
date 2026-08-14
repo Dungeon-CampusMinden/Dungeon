@@ -45,6 +45,7 @@ public class LevelEditorSystem extends System {
 
   private static boolean internalStopped = false;
   private static boolean active = false;
+  private static boolean activateOnStart = false;
   private static final int TOGGLE_ACTIVE = Input.Keys.F4;
   private static String pathToLevels = "";
 
@@ -147,6 +148,11 @@ public class LevelEditorSystem extends System {
     }
   }
 
+  /** Activates the editor on the first game tick after a local player has been created. */
+  public static void activateOnStart() {
+    activateOnStart = true;
+  }
+
   @Override
   public void render(float delta) {
     if (!active) return;
@@ -193,6 +199,11 @@ public class LevelEditorSystem extends System {
 
   @Override
   public void execute() {
+    if (activateOnStart && Game.player().isPresent()) {
+      activateOnStart = false;
+      active(true);
+    }
+
     if (InputManager.isKeyJustPressed(TOGGLE_ACTIVE)) {
       active(!active);
     }

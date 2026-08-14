@@ -14,8 +14,9 @@ import java.util.Properties;
  * ClientStarter, ServerStarter)}. {@code MainMenu} then decides whether this process is a dedicated
  * server or a client, applies the appropriate configuration, and starts the application.
  *
- * <p>The engine is multiplayer-only: a client always runs behind the menu, and the "Host Game"
- * option launches a dedicated server in a separate process.
+ * <p>The normal client runs behind the menu, and the "Host Game" option launches a dedicated server
+ * in a separate process. Projects can also provide a true-singleplayer starter for the hidden
+ * level-editor menu entry or the {@code --leveleditor} launch flag.
  *
  * <p>Example:
  *
@@ -37,16 +38,19 @@ public final class MainMenu {
   /** Property key in {@link #APPLICATION_PROPERTIES} that marks a server distribution. */
   private static final String SERVER_PROPERTY = "server";
 
+  private static final String LEVEL_EDITOR_ARGUMENT = "--leveleditor";
+
   private MainMenu() {}
 
   /**
-   * Boots the project: runs as a dedicated server if {@link #shouldRunMpServer(String[])},
-   * otherwise configures the client and shows the main menu.
+   * Boots the project: runs as a dedicated server if {@link #shouldRunMpServer(String[])}, starts
+   * the level editor in true-singleplayer for {@code --leveleditor}, otherwise configures the
+   * client and shows the main menu.
    *
    * <p>The {@link GameStarter#language() configured language} is applied first, so the menu and the
    * launched game are already shown in the desired language.
    *
-   * @param args the program arguments (checked for the server flag)
+   * @param args the program arguments (checked for server and level-editor mode flags)
    * @param game the menu/hosting integration
    * @param client the multiplayer client configuration
    * @param server the dedicated server configuration
@@ -57,6 +61,21 @@ public final class MainMenu {
       Game.windowTitle(game.title());
       Game.localization().currentLanguage(game.language());
       server.apply();
+      Game.run();
+      return;
+    }
+
+    if (containsArgument(args, LEVEL_EDITOR_ARGUMENT)) {
+      SingleplayerStarter singleplayer =
+          game.singleplayer()
+              .orElseThrow(
+                  () ->
+                      new IllegalStateException(
+                          "Singleplayer launch requested, but no singleplayer starter is configured."));
+      Game.windowTitle(game.title());
+      Game.localization().currentLanguage(game.language());
+      client.apply();
+      singleplayer.applyLevelEditor();
       Game.run();
       return;
     }
@@ -98,6 +117,18 @@ public final class MainMenu {
       }
     }
     return serverPropertyPresent();
+  }
+
+  private static boolean containsArgument(String[] args, String expected) {
+    if (args == null) {
+      return false;
+    }
+    for (String arg : args) {
+      if (expected.equals(arg)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static boolean serverPropertyPresent() {

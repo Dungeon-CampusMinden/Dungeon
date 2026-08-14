@@ -109,6 +109,12 @@ public abstract class LevelEditorMode {
   public abstract Map<Integer, String> getControls();
 
   protected DungeonLevel getLevel() {
+    if (level == null) {
+      Game.currentLevel()
+          .filter(DungeonLevel.class::isInstance)
+          .map(DungeonLevel.class::cast)
+          .ifPresent(currentLevel -> level = currentLevel);
+    }
     return level;
   }
 

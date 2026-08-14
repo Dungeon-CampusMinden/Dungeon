@@ -31,6 +31,7 @@ public final class GameStarter {
   private final String[] serverArguments;
   private final int localServerPort;
   private final Language language;
+  private final SingleplayerStarter singleplayer;
 
   private GameStarter(Builder builder) {
     this.title = builder.title;
@@ -40,6 +41,7 @@ public final class GameStarter {
     this.serverArguments = builder.serverArguments.clone();
     this.localServerPort = builder.localServerPort;
     this.language = builder.language;
+    this.singleplayer = builder.singleplayer;
   }
 
   /**
@@ -102,6 +104,13 @@ public final class GameStarter {
     return language;
   }
 
+  /**
+   * @return optional true-singleplayer configuration exposed by the hidden level-editor menu entry
+   */
+  public Optional<SingleplayerStarter> singleplayer() {
+    return Optional.ofNullable(singleplayer);
+  }
+
   /** Builder for {@link GameStarter}. */
   public static final class Builder {
     private final String title;
@@ -112,6 +121,7 @@ public final class GameStarter {
     private String[] serverArguments = new String[] {ServerProcess.SERVER_ARGUMENT};
     private int localServerPort = PreRunConfiguration.networkPort();
     private Language language = Localization.getInstance().currentLanguage();
+    private SingleplayerStarter singleplayer;
 
     private Builder(String title, Class<?> serverMainClass) {
       this.title = validateTitle(title);
@@ -179,6 +189,17 @@ public final class GameStarter {
      */
     public Builder language(Language language) {
       this.language = Objects.requireNonNull(language, "language");
+      return this;
+    }
+
+    /**
+     * Adds a true-singleplayer configuration for the hidden level-editor menu entry.
+     *
+     * @param singleplayer singleplayer starter
+     * @return this builder
+     */
+    public Builder singleplayer(SingleplayerStarter singleplayer) {
+      this.singleplayer = Objects.requireNonNull(singleplayer, "singleplayer");
       return this;
     }
 
