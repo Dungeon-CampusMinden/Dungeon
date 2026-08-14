@@ -195,6 +195,7 @@ public class LastHourLevel extends DungeonLevel {
         Lore.IntroTexts,
         false,
         true,
+        true,
         () ->
             DialogFactory.showDialogDialog(
                 "[speaker img=logo/cat_logo_64x64.png name=\"[color=#aaaaaa][size=25]...\"]"
@@ -226,7 +227,7 @@ public class LastHourLevel extends DungeonLevel {
                                     ? LastHourAchievements.ESCAPED_TOO_LATE
                                     : LastHourAchievements.ESCAPED_IN_TIME);
                             BlackFadeCutscene.show(
-                                endingLoreTexts(), true, false, () -> Game.exit("Win"));
+                                endingLoreTexts(), true, false, true, () -> Game.exit("Win"));
                           });
                 },
                 null)
@@ -745,10 +746,11 @@ public class LastHourLevel extends DungeonLevel {
                 new Interaction(
                     (e, who) -> {
                       if (isPhoneRinging) {
-                        String genTexturePath = portraitPathFor(who);
-                        String callDialog = ringingPhoneDialog.replace("{path}", genTexturePath);
                         DialogFactory.showDialogDialog(
-                            callDialog, this::stopPhoneRinging, who.id());
+                            ringingPhoneDialog,
+                            portraitPathFor(who),
+                            this::stopPhoneRinging,
+                            who.id());
                         return;
                       }
 

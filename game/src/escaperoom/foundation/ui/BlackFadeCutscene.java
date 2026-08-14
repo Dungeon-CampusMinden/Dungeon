@@ -93,6 +93,28 @@ public final class BlackFadeCutscene extends Table {
       boolean fadeOut,
       Runnable onComplete,
       int... targetIds) {
+    return show(messages, fadeIn, fadeOut, false, onComplete, targetIds);
+  }
+
+  /**
+   * Shows the BlackFadeCutscene with explicit control over whether the user may close it.
+   *
+   * @param messages The list of text messages to display
+   * @param fadeIn Whether to fade in when showing
+   * @param fadeOut Whether to fade out when hiding
+   * @param canBeClosed Whether the user may close the cutscene with the configured close key
+   * @param onComplete Callback to run when all messages have been shown or the cutscene is closed
+   * @param targetIds The target entity ids this UI should be shown for
+   * @return The created UIComponent
+   * @throws NullPointerException if onComplete is null
+   */
+  public static UIComponent show(
+      List<Tuple<String, Integer>> messages,
+      boolean fadeIn,
+      boolean fadeOut,
+      boolean canBeClosed,
+      Runnable onComplete,
+      int... targetIds) {
     Objects.requireNonNull(onComplete, "onComplete callback cannot be null");
     String[] messageTexts = messages.stream().map(Tuple::a).toArray(String[]::new);
     int[] fontSizes = messages.stream().mapToInt(message -> message.b()).toArray();
@@ -106,7 +128,7 @@ public final class BlackFadeCutscene extends Table {
             .put(FADE_OUT_KEY, fadeOut)
             .build();
 
-    UIComponent ui = DialogFactory.show(ctx, true, false, targetIds);
+    UIComponent ui = DialogFactory.show(ctx, true, canBeClosed, targetIds);
 
     ui.registerCallback(
         DialogContextKeys.ON_RESUME,
@@ -114,6 +136,9 @@ public final class BlackFadeCutscene extends Table {
           UIUtils.closeDialog(ui, true);
           onComplete.run();
         });
+    if (canBeClosed) {
+      ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onComplete.run());
+    }
 
     return ui;
   }

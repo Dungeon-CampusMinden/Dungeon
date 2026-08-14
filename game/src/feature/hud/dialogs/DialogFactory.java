@@ -18,12 +18,12 @@ import feature.presentation.ShowImageUI;
 import feature.puzzle.PuzzleDialog;
 import feature.utils.AttributeBarUtil;
 import feature.utils.Translator;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -167,10 +167,8 @@ public class DialogFactory {
 
     DialogContext translatedContext = context;
     if (Game.isMultiplayerClient()) {
-      if (context.attributes().containsKey(DialogContextKeys.MESSAGE))
-        translatedContext = translateText(DialogContextKeys.MESSAGE, context);
-      if (context.attributes().containsKey(DialogContextKeys.DIALOG))
-        translatedContext = translateText(DialogContextKeys.DIALOG, context);
+      translatedContext = translateText(DialogContextKeys.MESSAGE, translatedContext);
+      translatedContext = translateText(DialogContextKeys.DIALOG, translatedContext);
     }
 
     UIComponent ui = new UIComponent(translatedContext, willPause, canBeClosed, targetEntityIds);
@@ -471,19 +469,52 @@ public class DialogFactory {
    */
   public static UIComponent showDialogDialog(
       String dialog, IVoidFunction onFinished, int... targetEntityIds) {
+    return showDialogDialog(dialogDialogContext(dialog).build(), onFinished, targetEntityIds);
+  }
+
+  /**
+   * Shows a sequenced speaker dialogue with a dynamic speaker image.
+   *
+   * <p>The image path replaces {@code {path}} in the dialog script after client-side translation.
+   * This keeps localized scripts client-specific while allowing the server to provide dynamic
+   * speaker portraits.
+   *
+   * @param dialog The non-empty dialog script.
+   * @param speakerImagePath The image path to substitute for {@code {path}} in the translated
+   *     script.
+   * @param onFinished Callback executed after the last page has been confirmed.
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed.
+   * @return The {@link UIComponent} containing the dialog.
+   */
+  public static UIComponent showDialogDialog(
+      String dialog, String speakerImagePath, IVoidFunction onFinished, int... targetEntityIds) {
+    Objects.requireNonNull(speakerImagePath, "speaker image path cannot be null");
+    if (speakerImagePath.isBlank()) {
+      throw new IllegalArgumentException("speaker image path cannot be blank");
+    }
+
+    return showDialogDialog(
+        dialogDialogContext(dialog).put(DialogContextKeys.SPEAKER_IMAGE, speakerImagePath).build(),
+        onFinished,
+        targetEntityIds);
+  }
+
+  private static DialogContext.Builder dialogDialogContext(String dialog) {
     Objects.requireNonNull(dialog, "dialog string cannot be null");
     if (dialog.isBlank()) {
       throw new IllegalArgumentException("dialog string cannot be blank");
     }
+
+    return DialogContext.builder()
+        .type(DialogType.DefaultTypes.DIALOG_DIALOG)
+        .put(DialogContextKeys.DIALOG, dialog);
+  }
+
+  private static UIComponent showDialogDialog(
+      DialogContext context, IVoidFunction onFinished, int... targetEntityIds) {
     Objects.requireNonNull(onFinished, "onFinished callback cannot be null");
 
-    DialogContext ctx =
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.DIALOG_DIALOG)
-            .put(DialogContextKeys.DIALOG, dialog)
-            .build();
-
-    UIComponent ui = show(ctx, targetEntityIds);
+    UIComponent ui = show(context, targetEntityIds);
 
     ui.registerCallback(
         DialogContextKeys.ON_CONFIRM,
@@ -511,20 +542,23 @@ public class DialogFactory {
   }
 
   private static DialogContext translateText(String type, DialogContext context) {
-    DialogContext translatedContext = context;
-    try {
-      // Try-catch block to ensure Game doesnt crash when the text is not a String.
-      Optional<String> text = context.find(type, String.class);
-      if (text.isPresent() && Translator.hasKey(text.get())) {
-        Map<String, Object> attributes = context.attributes();
-        attributes.put(
-            type, Localization.getInstance().getCurrentTranslator().translate(text.get()));
-        return translatedContext =
-            new DialogContext(
-                context.dialogType(), context.center(), attributes, context.dialogId());
-      }
-    } catch (DialogCreationException e) {
+    Object value = context.attributes().get(type);
+    if (value instanceof String text && Translator.hasKey(text)) {
+      return new DialogContext.Builder(context)
+          .put(type, Localization.getInstance().getCurrentTranslator().translate(text))
+          .build();
     }
-    return translatedContext;
+    if (value instanceof String[] texts) {
+      String[] translatedTexts =
+          Arrays.stream(texts)
+              .map(
+                  text ->
+                      Translator.hasKey(text)
+                          ? Localization.getInstance().getCurrentTranslator().translate(text)
+                          : text)
+              .toArray(String[]::new);
+      return new DialogContext.Builder(context).put(type, translatedTexts).build();
+    }
+    return context;
   }
 }
