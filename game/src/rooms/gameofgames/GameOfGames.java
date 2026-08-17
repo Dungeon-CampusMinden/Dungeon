@@ -9,7 +9,6 @@ import engine.game.ECSManagement;
 import engine.game.GameStarter;
 import engine.game.MainMenu;
 import engine.game.ServerStarter;
-import engine.game.SingleplayerStarter;
 import engine.language.Language;
 import engine.language.Localization;
 import engine.systems.FrictionSystem;
@@ -74,37 +73,16 @@ public final class GameOfGames {
             .build();
 
     ClientStarter client =
-        ClientStarter.builder(GameOfGamesClient::clientSetup)
+        ClientStarter.builder(server, GameOfGamesClient::clientSetup)
             .levels(Tuple.of(LEVEL_KEY, GameOfGamesClientLevel.class))
             .initLocalization(GameOfGames::initLocalization)
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
-            .snapshotTranslator(new GameOfGamesSnapshotTranslator())
-            .entitySpawnStrategy(new GameOfGamesEntitySpawnStrategy())
-            .build();
-
-    SingleplayerStarter singleplayer =
-        SingleplayerStarter.builder(GameOfGames::serverSetup, GameOfGamesClient::clientSetup)
-            .characterClass(MULTIPLAYER_CHARACTER_CLASSES[0])
-            .levels(Tuple.of(LEVEL_KEY, GameOfGamesLevel.class))
-            .onConfigure(GameOfGames::initLocalization)
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
-            .snapshotTranslator(new GameOfGamesSnapshotTranslator())
-            .entitySpawnStrategy(new GameOfGamesEntitySpawnStrategy())
-            .onFrame(GameOfGames::onFrame)
-            .levelEditor("levels/gameOfGames")
             .build();
 
     GameStarter game =
         GameStarter.builder("Game of Games", GameOfGames.class)
             .accentColor(MENU_ACCENT_COLOR)
             .language(Language.EN)
-            .singleplayer(singleplayer)
+            .levelEditor("levels/gameOfGames")
             .build();
 
     MainMenu.run(args, game, client, server);

@@ -1,6 +1,13 @@
 package engine.game;
 
+import com.badlogic.gdx.Input;
 import engine.Game;
+import engine.configuration.KeyboardConfig;
+import engine.level.loader.DungeonLoader;
+import feature.components.Debugger;
+import feature.entities.HeroBuilder;
+import feature.systems.DebugDrawSystem;
+import feature.systems.LevelEditorSystem;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -15,8 +22,9 @@ import java.util.Properties;
  * server or a client, applies the appropriate configuration, and starts the application.
  *
  * <p>The normal client runs behind the menu, and the "Host Game" option launches a dedicated server
- * in a separate process. Projects can also provide a true-singleplayer starter for the hidden
- * level-editor menu entry or the {@code --leveleditor} launch flag.
+ * in a separate process. If the {@link GameStarter} configures a {@link
+ * GameStarter.Builder#levelEditor(String) level-editor path}, the hidden level-editor menu entry
+ * and the {@code --leveleditor} launch flag run the server and client role in a single process.
  *
  * <p>Example:
  *
@@ -24,8 +32,8 @@ import java.util.Properties;
  * public static void main(String[] args) {
  *   setupLogging();
  *   GameStarter game = GameStarter.builder("My Game", MyGame.class).build();
- *   ClientStarter client = ClientStarter.builder(MyGame::clientSetup).build();
  *   ServerStarter server = ServerStarter.builder(MyGame::serverSetup).build();
+ *   ClientStarter client = ClientStarter.builder(server, MyGame::clientSetup).build();
  *   MainMenu.run(args, game, client, server);
  * }
  * }</pre>
@@ -44,8 +52,8 @@ public final class MainMenu {
 
   /**
    * Boots the project: runs as a dedicated server if {@link #shouldRunMpServer(String[])}, starts
-   * the level editor in true-singleplayer for {@code --leveleditor}, otherwise configures the
-   * client and shows the main menu.
+   * the level editor in a single process for {@code --leveleditor}, otherwise configures the client
+   * and shows the main menu.
    *
    * <p>The {@link GameStarter#language() configured language} is applied first, so the menu and the
    * launched game are already shown in the desired language.
@@ -66,21 +74,21 @@ public final class MainMenu {
     }
 
     if (containsArgument(args, LEVEL_EDITOR_ARGUMENT)) {
-      SingleplayerStarter singleplayer =
-          game.singleplayer()
+      String pathToLevels =
+          game.levelEditorLevelPath()
               .orElseThrow(
                   () ->
                       new IllegalStateException(
-                          "Singleplayer launch requested, but no singleplayer starter is configured."));
+                          "Level editor launch requested, but no level-editor path is configured."));
       Game.windowTitle(game.title());
       Game.localization().currentLanguage(game.language());
       client.apply();
-      singleplayer.applyLevelEditor();
+      applyLevelEditor(client, server, pathToLevels);
       Game.run();
       return;
     }
 
-    run(game, client);
+    run(game, client, server);
   }
 
   /**
@@ -90,11 +98,63 @@ public final class MainMenu {
    * @param client the multiplayer client configuration
    */
   public static void run(GameStarter game, ClientStarter client) {
+    run(game, client, null);
+  }
+
+  private static void run(GameStarter game, ClientStarter client, ServerStarter server) {
     Game.windowTitle(game.title());
     Game.localization().currentLanguage(game.language());
     client.apply();
-    GameLoop.initialScreen(() -> new MainMenuScreen(game));
+    Runnable levelEditorLauncher =
+        server == null
+            ? null
+            : game.levelEditorLevelPath()
+                .<Runnable>map(path -> () -> applyLevelEditor(client, server, path))
+                .orElse(null);
+    GameLoop.initialScreen(() -> new MainMenuScreen(game, levelEditorLauncher));
     Game.run();
+  }
+
+  /**
+   * Runs the server and the client role in a single process and enables the level editor.
+   *
+   * <p>Everything is taken from the two multiplayer starters: the authoritative configuration
+   * (levels, registrations, per-frame callback, character class) from the {@link ServerStarter} and
+   * the client systems from the already applied {@link ClientStarter}. Only the level output path
+   * is specific to the level editor.
+   *
+   * @param client the client configuration, already applied
+   * @param server the server configuration
+   * @param pathToLevels the path the level editor saves levels to
+   */
+  private static void applyLevelEditor(
+      ClientStarter client, ServerStarter server, String pathToLevels) {
+    PreRunConfiguration.multiplayerEnabled(false);
+    PreRunConfiguration.isNetworkServer(true);
+    PreRunConfiguration.networkPort(server.port);
+    PreRunConfiguration.multiplayerCharacterClass(server.primaryCharacterClass());
+
+    // The menu has already registered client-side handlers. Replace them with authoritative ones.
+    DungeonLoader.clearLevelOrder();
+    server.applyShared();
+    Game.reconfigureNetworkHandler();
+    Game.userOnFrame(server.onFrame());
+    Game.userOnSetup(
+        () -> {
+          server.onSetup().execute();
+          client.onSetup().execute();
+          Game.add(
+              HeroBuilder.builder()
+                  .characterClass(server.primaryCharacterClass())
+                  .isLocalPlayer(true)
+                  .username(PreRunConfiguration.username())
+                  .build());
+          Game.add(new Debugger());
+          KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
+          Game.add(new DebugDrawSystem());
+          Game.add(new LevelEditorSystem(pathToLevels));
+          LevelEditorSystem.activateOnStart();
+        });
   }
 
   /**

@@ -31,7 +31,7 @@ public final class GameStarter {
   private final String[] serverArguments;
   private final int localServerPort;
   private final Language language;
-  private final SingleplayerStarter singleplayer;
+  private final String levelEditorLevelPath;
 
   private GameStarter(Builder builder) {
     this.title = builder.title;
@@ -41,7 +41,7 @@ public final class GameStarter {
     this.serverArguments = builder.serverArguments.clone();
     this.localServerPort = builder.localServerPort;
     this.language = builder.language;
-    this.singleplayer = builder.singleplayer;
+    this.levelEditorLevelPath = builder.levelEditorLevelPath;
   }
 
   /**
@@ -105,10 +105,16 @@ public final class GameStarter {
   }
 
   /**
-   * @return optional true-singleplayer configuration exposed by the hidden level-editor menu entry
+   * Returns the path the level editor saves levels to.
+   *
+   * <p>The level-editor entry (hidden main-menu entry and {@code --leveleditor} launch flag) is
+   * only available if this path is configured; everything else the level editor needs is taken from
+   * the {@link ServerStarter} and {@link ClientStarter} of the project.
+   *
+   * @return the optional level output path used by the level editor
    */
-  public Optional<SingleplayerStarter> singleplayer() {
-    return Optional.ofNullable(singleplayer);
+  public Optional<String> levelEditorLevelPath() {
+    return Optional.ofNullable(levelEditorLevelPath);
   }
 
   /** Builder for {@link GameStarter}. */
@@ -121,7 +127,7 @@ public final class GameStarter {
     private String[] serverArguments = new String[] {ServerProcess.SERVER_ARGUMENT};
     private int localServerPort = PreRunConfiguration.networkPort();
     private Language language = Localization.getInstance().currentLanguage();
-    private SingleplayerStarter singleplayer;
+    private String levelEditorLevelPath;
 
     private Builder(String title, Class<?> serverMainClass) {
       this.title = validateTitle(title);
@@ -193,13 +199,17 @@ public final class GameStarter {
     }
 
     /**
-     * Adds a true-singleplayer configuration for the hidden level-editor menu entry.
+     * Enables the level editor (hidden main-menu entry and {@code --leveleditor} launch flag) and
+     * configures the path used when saving a level.
      *
-     * @param singleplayer singleplayer starter
+     * <p>The level editor runs the server and client role in a single process; all remaining
+     * configuration is taken from the project's {@link ServerStarter} and {@link ClientStarter}.
+     *
+     * @param pathToLevels level output path
      * @return this builder
      */
-    public Builder singleplayer(SingleplayerStarter singleplayer) {
-      this.singleplayer = Objects.requireNonNull(singleplayer, "singleplayer");
+    public Builder levelEditor(String pathToLevels) {
+      this.levelEditorLevelPath = Objects.requireNonNull(pathToLevels, "pathToLevels");
       return this;
     }
 

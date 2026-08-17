@@ -23,7 +23,26 @@ public final class ClientStarter extends AbstractStarter {
   }
 
   /**
-   * Creates a client starter builder with the required in-loop setup callback.
+   * Creates a client starter builder that inherits the project-wide configuration (config file,
+   * snapshot translator and entity spawn strategy) from the already created {@link ServerStarter}.
+   *
+   * <p>This is the preferred way to create the client of a project: the server is configured first
+   * and the client only adds what actually differs (client levels, localization, settings, ...).
+   * The inherited values can still be overridden afterwards.
+   *
+   * @param server the server starter to inherit the shared configuration from
+   * @param onSetup the client setup callback (registered via {@link engine.Game#userOnSetup})
+   * @return a new builder
+   */
+  public static Builder builder(ServerStarter server, IVoidFunction onSetup) {
+    return new Builder(onSetup).inheritSharedFrom(server);
+  }
+
+  /**
+   * Creates a standalone client starter builder with the required in-loop setup callback.
+   *
+   * <p>Use {@link #builder(ServerStarter, IVoidFunction)} whenever the project also defines a
+   * server starter.
    *
    * @param onSetup the client setup callback (registered via {@link engine.Game#userOnSetup})
    * @return a new builder

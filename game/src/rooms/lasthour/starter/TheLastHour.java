@@ -11,7 +11,6 @@ import engine.game.MainMenu;
 import engine.game.PreRunConfiguration;
 import engine.game.ServerProcess;
 import engine.game.ServerStarter;
-import engine.game.SingleplayerStarter;
 import engine.language.Language;
 import engine.language.Localization;
 import engine.systems.FrictionSystem;
@@ -113,39 +112,11 @@ public class TheLastHour {
             .build();
 
     ClientStarter client =
-        ClientStarter.builder(LastHourClient::clientSetup)
+        ClientStarter.builder(server, LastHourClient::clientSetup)
             .levels(Tuple.of("lasthour", LastHourLevelClient.class))
             .onConfigure(LastHourClient::registerClientContent)
             .initLocalization(TheLastHour::initLocalization)
             .registerSettings(LastHourClient::registerSettings)
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
-            .snapshotTranslator(new LastHourSnapshotTranslator())
-            .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
-            .build();
-
-    SingleplayerStarter singleplayer =
-        SingleplayerStarter.builder(TheLastHour::serverSetup, LastHourClient::clientSetup)
-            .characterClass(MULTIPLAYER_CHARACTER_CLASSES[0])
-            .levels(Tuple.of("lasthour", LastHourLevel.class))
-            .onConfigure(
-                () -> {
-                  LastHourAchievements.register();
-                  BlackFadeCutscene.register();
-                  UsbStickItem.ensureRegistration();
-                  LastHourClient.registerClientContent();
-                  initLocalization();
-                })
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
-            .snapshotTranslator(new LastHourSnapshotTranslator())
-            .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
-            .onFrame(TheLastHour::onFrame)
-            .levelEditor("levels/lastHour")
             .build();
 
     GameStarter game =
@@ -153,7 +124,7 @@ public class TheLastHour {
             .backgroundImage(MENU_BACKGROUND_IMAGE)
             .accentColor(MENU_ACCENT_COLOR)
             .language(Language.EN)
-            .singleplayer(singleplayer)
+            .levelEditor("levels/lastHour")
             .build();
 
     MainMenu.run(args, game, client, server);

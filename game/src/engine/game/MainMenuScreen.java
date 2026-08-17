@@ -86,6 +86,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private static final Translation trans = new Translation("main_menu");
 
   private final GameStarter starter;
+  private final Runnable levelEditorLauncher;
 
   /** Identifies which sub-view is currently shown, so it can be re-shown after a rebuild. */
   private enum View {
@@ -133,9 +134,12 @@ public class MainMenuScreen extends ScreenAdapter {
    * Creates the main menu screen for the given starter.
    *
    * @param starter the game integration used to configure and launch the game
+   * @param levelEditorLauncher applies the level-editor configuration, or {@code null} if the level
+   *     editor is not available
    */
-  public MainMenuScreen(GameStarter starter) {
+  public MainMenuScreen(GameStarter starter, Runnable levelEditorLauncher) {
     this.starter = starter;
+    this.levelEditorLauncher = levelEditorLauncher;
   }
 
   @Override
@@ -235,7 +239,7 @@ public class MainMenuScreen extends ScreenAdapter {
     Table menu = new Table();
     menu.add(hostButton).width(BUTTON_WIDTH).padBottom(12).row();
     menu.add(joinButton).width(BUTTON_WIDTH).padBottom(12).row();
-    if (showLevelEditorOption && starter.singleplayer().isPresent()) {
+    if (showLevelEditorOption && levelEditorLauncher != null) {
       menu.add(levelEditorButton).width(BUTTON_WIDTH).padBottom(12).row();
     }
     if (AchievementManager.isAvailable()) {
@@ -345,7 +349,7 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private void toggleLevelEditorOption() {
-    if (starter.singleplayer().isEmpty()) {
+    if (levelEditorLauncher == null) {
       return;
     }
     showLevelEditorOption = !showLevelEditorOption;
@@ -354,17 +358,12 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private void startLevelEditor() {
-    if (launching) {
+    if (launching || levelEditorLauncher == null) {
       return;
     }
-    starter
-        .singleplayer()
-        .ifPresent(
-            singleplayer -> {
-              launching = true;
-              singleplayer.applyLevelEditor();
-              GameLoop.startGame();
-            });
+    launching = true;
+    levelEditorLauncher.run();
+    GameLoop.startGame();
   }
 
   private void showSettingsView() {
