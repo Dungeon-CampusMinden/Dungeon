@@ -166,7 +166,7 @@ public class DialogFactory {
     context.owner(ownerEntity.id());
 
     DialogContext translatedContext = context;
-    if (Game.isMultiplayerClient()) {
+    if (Game.isMultiplayerClient() || Game.isSingleplayer()) {
       translatedContext = translateText(DialogContextKeys.MESSAGE, translatedContext);
       translatedContext = translateText(DialogContextKeys.DIALOG, translatedContext);
     }
