@@ -66,7 +66,6 @@ export function AssetsTab({
       mediaType,
       source: {
         license: "",
-        attribution: "",
       },
     };
     assetList.push(newAsset);

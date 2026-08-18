@@ -22,8 +22,6 @@ export function MetadataTab({
   updateDeerSchema: (updatedSchema: DeerSchema) => void;
 }) {
   const emptyTitle = deerSchema.metadata.title === "";
-  const emptyDescription = deerSchema.metadata.description === "";
-  const emptyAuthor = deerSchema.metadata.author === "";
 
   return (
     <div className="flex flex-col gap-0">
@@ -46,26 +44,22 @@ export function MetadataTab({
           <Field>
             <FieldLabel>Beschreibung</FieldLabel>
             <Textarea
-              value={deerSchema.metadata.description}
+              value={deerSchema.metadata.description ?? ""}
               onChange={(e) => {
                 deerSchema.metadata.description = e.target.value;
                 updateDeerSchema(deerSchema);
               }}
-              aria-invalid={emptyDescription}
             />
-            {emptyDescription && <FieldError>Die Beschreibung darf nicht leer sein.</FieldError>}
           </Field>
           <Field>
             <FieldLabel>Autor</FieldLabel>
             <Input
-              value={deerSchema.metadata.author}
+              value={deerSchema.metadata.author ?? ""}
               onChange={(e) => {
                 deerSchema.metadata.author = e.target.value;
                 updateDeerSchema(deerSchema);
               }}
-              aria-invalid={emptyAuthor}
             />
-            {emptyAuthor && <FieldError>Der Autor darf nicht leer sein.</FieldError>}
           </Field>
         </FieldGroup>
         <FieldSeparator />

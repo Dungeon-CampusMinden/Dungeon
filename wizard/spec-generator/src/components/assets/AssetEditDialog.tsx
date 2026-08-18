@@ -47,7 +47,11 @@ export function AssetEditDialog({
   const handleSave = () => {
     onUpdate({
       ...asset,
-      source: { ...asset.source, license, attribution },
+      source: {
+        ...asset.source,
+        license,
+        attribution: attribution.trim() === "" ? undefined : attribution,
+      },
     });
     setOpen(false);
   };

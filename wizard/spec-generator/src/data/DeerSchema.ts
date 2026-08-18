@@ -1,5 +1,5 @@
 export interface DeerSchema {
-  formatVersion: string;
+  formatVersion: "0.4";
   seed: number;
   metadata: Metadata;
   learningDesign: LearningDesign;
@@ -15,8 +15,8 @@ export interface Metadata {
   id: string;
   title: string;
   locale: string;
-  description: string;
-  author: string;
+  description?: string;
+  author?: string;
 }
 
 export interface Objective {
@@ -49,7 +49,7 @@ export interface Scenario {
   mission: string;
   introText: string[];
   successText: string[];
-  failureText: string[];
+  failureText?: string[];
 }
 
 export interface Surface {

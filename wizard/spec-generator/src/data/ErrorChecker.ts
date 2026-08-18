@@ -61,6 +61,7 @@ export class ErrorChecker {
     this.checkAssets(deerSchema);
     this.checkRiddles(deerSchema);
     this.checkRiddleGraph(deerSchema);
+    this.checkSurfaceProfile(deerSchema);
 
     return this.report;
   }
@@ -166,14 +167,6 @@ export class ErrorChecker {
     this.requireText("metadata", "id", metadata.id, "Das Abenteuer hat keine Id.");
     this.requireText("metadata", "title", metadata.title, "Der Titel darf nicht leer sein.");
     this.requireText("metadata", "locale", metadata.locale, "Es ist keine Sprache gesetzt.");
-    this.requireText(
-      "metadata",
-      "description",
-      metadata.description,
-      "Die Beschreibung darf nicht leer sein.",
-    );
-    this.requireText("metadata", "author", metadata.author, "Der Autor darf nicht leer sein.");
-
     if (learningDesign.objectives.length === 0) {
       this.error("metadata", "objectives", "Es muss mindestens ein Lernziel geben.");
     } else {
@@ -196,13 +189,24 @@ export class ErrorChecker {
       }
     }
 
-    this.requireTexts(
-      "game_end",
-      "debriefPrompts",
-      learningDesign.debriefPrompts,
-      "Es muss mindestens eine Debrief-Frage geben.",
-      "Debrief-Fragen dürfen nicht leer sein.",
-    );
+    const blankDebriefPrompts = learningDesign.debriefPrompts.filter(isBlank).length;
+    if (blankDebriefPrompts > 0) {
+      this.error(
+        "game_end",
+        "debriefPrompts",
+        "Debrief-Fragen dürfen nicht leer sein.",
+        `${blankDebriefPrompts} leere(r) Eintrag/Einträge.`,
+      );
+    }
+    const duplicateDebriefPrompts = ErrorChecker.findDuplicates(learningDesign.debriefPrompts);
+    if (duplicateDebriefPrompts.length > 0) {
+      this.error(
+        "game_end",
+        "debriefPrompts",
+        "Debrief-Fragen dürfen nicht doppelt vorkommen.",
+        duplicateDebriefPrompts.join(", "),
+      );
+    }
   }
   //#endregion
 
@@ -233,12 +237,12 @@ export class ErrorChecker {
       "Es muss mindestens einen Text für den erfolgreichen Abschluss geben.",
       "Texte für den erfolgreichen Abschluss dürfen nicht leer sein.",
     );
-    // Only a hard time limit can actually lead to a failure.
-    if (deerSchema.session.time.limitMode === "hard") {
+    // A hard limit requires failure text; for a soft limit the whole field may be absent.
+    if (deerSchema.session.time.limitMode === "hard" || scenario.failureText !== undefined) {
       this.requireTexts(
         "game_end",
         "failureText",
-        scenario.failureText,
+        scenario.failureText ?? [],
         "Es muss mindestens einen Text für den Misserfolg geben.",
         "Texte für den Misserfolg dürfen nicht leer sein.",
       );
@@ -308,6 +312,25 @@ export class ErrorChecker {
       this.error("surfaces", "surfaces", "Es gibt Orte mit doppelten Ids.", duplicates.join(", "));
     }
 
+    const worldCount = surfaces.filter((surface) => surface.kind === "world").length;
+    if (worldCount !== 1) {
+      this.error(
+        "surfaces",
+        "surfaces",
+        "Es muss genau einen Raum vom Typ Welt geben.",
+        `Gefunden: ${worldCount}.`,
+      );
+    }
+    const doorCount = surfaces.filter((surface) => surface.kind === "door").length;
+    if (doorCount !== 1) {
+      this.error(
+        "surfaces",
+        "surfaces",
+        "Es muss genau eine Ausgangstür geben.",
+        `Gefunden: ${doorCount}.`,
+      );
+    }
+
     for (const surface of surfaces) {
       const field = `surface:${surface.id}`;
       this.requireText("surfaces", field, surface.title, "Der Name des Ortes darf nicht leer sein.");
@@ -368,14 +391,81 @@ export class ErrorChecker {
       `Die Datei "${name}" hat kein unterstütztes Format.`,
     );
 
-    // bundled assets bring their own license, only uploaded files need one from the user.
-    if (!isBundledAssetPath(asset.path) && isBlank(asset.source?.license)) {
-      this.info(
+    if (isBlank(asset.source?.license)) {
+      this.error(
         "assets",
         field,
         `Für die Datei "${name}" ist keine Lizenz angegeben.`,
-        "Eigene Dateien sollten eine Lizenz besitzen.",
       );
+    }
+  }
+  //#endregion
+
+  //#region Surface profile
+  private checkSurfaceProfile(deerSchema: DeerSchema) {
+    const surfacesById = new Map(deerSchema.surfaces.map((surface) => [surface.id, surface]));
+    const containerUses = new Map<string, number>();
+    const keypadUses = new Map<string, number>();
+    const count = (uses: Map<string, number>, id: string) => uses.set(id, (uses.get(id) ?? 0) + 1);
+
+    for (const riddle of deerSchema.riddles) {
+      const field = `riddle:${riddle.id}`;
+      const name = riddle.title || riddle.id;
+      for (const source of riddle.informationSources) {
+        count(containerUses, source.surfaceId);
+        const surface = surfacesById.get(source.surfaceId);
+        if (surface && surface.kind !== "container") {
+          this.error(
+            "riddles",
+            field,
+            `Eine Informationsquelle von "${name}" muss einem Container zugeordnet sein.`,
+            `Aktueller Ort: "${surface.title || surface.id}" (${surface.kind}).`,
+          );
+        }
+      }
+      for (const input of riddle.inputs) {
+        if (input.type !== "numeric") continue;
+        count(keypadUses, input.surfaceId);
+        const surface = surfacesById.get(input.surfaceId);
+        if (surface && surface.kind !== "keypad") {
+          this.error(
+            "riddles",
+            field,
+            `Eine Zahleneingabe von "${name}" muss einem Keypad zugeordnet sein.`,
+            `Aktueller Ort: "${surface.title || surface.id}" (${surface.kind}).`,
+          );
+        }
+      }
+    }
+
+    for (const node of deerSchema.riddleGraph.nodes) {
+      if (node.kind !== "end") continue;
+      const surface = surfacesById.get(node.surfaceId);
+      if (surface && surface.kind !== "door") {
+        this.error(
+          "riddle_graph",
+          "nodes",
+          "Der Endpunkt muss auf eine Tür verweisen.",
+          `Aktueller Ort: "${surface.title || surface.id}" (${surface.kind}).`,
+        );
+      }
+    }
+
+    for (const surface of deerSchema.surfaces) {
+      const uses =
+        surface.kind === "container"
+          ? containerUses.get(surface.id)
+          : surface.kind === "keypad"
+            ? keypadUses.get(surface.id)
+            : undefined;
+      if ((surface.kind === "container" || surface.kind === "keypad") && uses !== 1) {
+        this.error(
+          "surfaces",
+          `surface:${surface.id}`,
+          `"${surface.title || surface.id}" muss genau einmal passend verwendet werden.`,
+          `Gefundene Verwendungen: ${uses ?? 0}.`,
+        );
+      }
     }
   }
   //#endregion
@@ -435,7 +525,7 @@ export class ErrorChecker {
       );
     }
     if (riddle.learningObjectiveIds.length === 0) {
-      this.warning("riddles", field, `Das Rätsel "${name}" ist keinem Lernziel zugeordnet.`);
+      this.error("riddles", field, `Das Rätsel "${name}" ist keinem Lernziel zugeordnet.`);
     }
 
     if (riddle.hints.length === 0) {
@@ -662,7 +752,7 @@ export class ErrorChecker {
     );
     const unusedRiddles = [...riddleIds].filter((id) => !usedRiddleIds.has(id));
     if (unusedRiddles.length > 0) {
-      this.warning(
+      this.error(
         "riddle_graph",
         "nodes",
         "Es gibt Rätsel, die im Spielablauf nicht vorkommen.",

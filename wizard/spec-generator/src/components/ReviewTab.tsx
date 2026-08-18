@@ -9,6 +9,7 @@ import { Button } from "./ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./ui/field";
 import { IssueList } from "./IssueList";
 import { Input } from "./ui/input";
+import { Util } from "@/data/Util";
 
 const MAX_SEED = BigInt(Number.MAX_SAFE_INTEGER);
 
@@ -19,10 +20,6 @@ function parseSeed(value: string): number | null {
   if (parsed > MAX_SEED) return null;
 
   return Number(parsed);
-}
-
-function generateRandomSeed(): number {
-  return Math.floor(Math.random() * (Number.MAX_SAFE_INTEGER + 1));
 }
 
 export function ReviewTab({
@@ -38,9 +35,8 @@ export function ReviewTab({
   const [seedInput, setSeedInput] = React.useState(String(deerSchema.seed ?? ""));
 
   const issues = ErrorChecker.getSortedIssues(issueReport);
-  const blockingIssues = issues.filter((issue) => issue.severity !== "info");
-  const errorCount = blockingIssues.filter((issue) => issue.severity === "error").length;
-  const warningCount = blockingIssues.length - errorCount;
+  const errorCount = issues.filter((issue) => issue.severity === "error").length;
+  const warningCount = issues.filter((issue) => issue.severity === "warning").length;
   const seed = parseSeed(seedInput);
   const seedError =
     seed === null
@@ -60,7 +56,7 @@ export function ReviewTab({
   };
 
   const randomizeSeed = () => {
-    const newSeed = generateRandomSeed();
+    const newSeed = Util.generateSafeInteger();
     setSeedInput(String(newSeed));
     updateDeerSchema({ ...deerSchema, seed: newSeed });
   };
@@ -84,17 +80,27 @@ export function ReviewTab({
     <div className="flex flex-col gap-3">
       <h1>Prüfen & Generieren</h1>
 
-      {blockingIssues.length > 0 ? (
+      {errorCount > 0 && (
         <Alert variant="destructive" className="mt-0">
           <AlertTitle>Das Abenteuer ist noch nicht vollständig.</AlertTitle>
           <AlertDescription>
-            {errorCount} Fehler und {warningCount} Warnung(en) müssen behoben werden, bevor generiert werden
-            kann.
+            {errorCount} {errorCount === 1 ? "Fehler muss" : "Fehler müssen"} behoben werden, bevor
+            generiert werden kann.
           </AlertDescription>
         </Alert>
-      ) : (
+      )}
+      {warningCount > 0 && (
+        <Alert className="mt-0 border-yellow-500/40 text-yellow-500">
+          <AlertTitle>
+            {warningCount} {warningCount === 1 ? "Warnung" : "Warnungen"}
+          </AlertTitle>
+          <AlertDescription>Warnungen verhindern die Generierung nicht.</AlertDescription>
+        </Alert>
+      )}
+      {errorCount === 0 && warningCount === 0 && (
         <IssueList className="mt-0" issues={[]} emptyMessage="Das Abenteuer ist bereit zum Generieren." />
       )}
+      {issues.length > 0 && <IssueList className="mt-0" issues={issues} />}
 
       <Field>
         <FieldLabel htmlFor="seed">Seed</FieldLabel>
@@ -129,7 +135,7 @@ export function ReviewTab({
         className="self-stretch"
         size="lg"
         onClick={generate}
-        disabled={blockingIssues.length > 0 || seedError !== undefined || generating}
+        disabled={errorCount > 0 || seedError !== undefined || generating}
       >
         <DownloadIcon />
         {generating ? "Wird generiert…" : "Generieren"}

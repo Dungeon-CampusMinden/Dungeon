@@ -6,6 +6,10 @@ export class Util {
     return `${prefix}_${randomString}`;
   }
 
+  static generateSafeInteger(): number {
+    return Math.floor(Math.random() * (Number.MAX_SAFE_INTEGER + 1));
+  }
+
   static getLearningObjective(deerSchema: DeerSchema, objectiveId: string): Objective | undefined {
     return deerSchema.learningDesign.objectives.find((objective) => objective.id === objectiveId);
   }
