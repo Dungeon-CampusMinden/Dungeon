@@ -73,9 +73,7 @@ public class LevelElementGrid extends Table {
     Label.LabelStyle markerStyle =
         new Label.LabelStyle(
             FontHelper.getFont(
-                Scene2dElementFactory.FONT_PATH_BOLD,
-                MARKER_FONT_SIZE,
-                Color.BLACK, 0),
+                Scene2dElementFactory.FONT_PATH_BOLD, MARKER_FONT_SIZE, Color.BLACK, 0),
             Color.BLACK.cpy());
 
     LevelElement[] elements = LevelElement.values();

@@ -1,7 +1,9 @@
 package feature.leveleditor.ui;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
@@ -11,40 +13,40 @@ import feature.systems.LevelEditorSystem.Mode;
 import java.util.Map;
 
 /**
- * Panel at the left side of the screen, vertically centered, holding the controls and displays of
- * the currently selected {@link Mode}.
+ * Panel at the left side of the screen, holding the controls and displays of the currently selected
+ * {@link Mode}.
  *
  * <p>The panel is built from the following sections, in order:
  *
  * <ol>
  *   <li>a header showing {@link LevelEditorMode#getHeader()}
  *   <li>the mode specific content built by {@link LevelEditorMode#buildDetailsUI(Table)}
- *   <li>a separator and the controls of the mode, if it specifies any
+ *   <li>a separator and the controls of the mode as a key/description grid, if it specifies any
  *   <li>a separator and {@link LevelEditorMode#additionalInformation()}, if it is not blank
  * </ol>
  */
 public class ModeDetailsPanel extends Table {
 
-  private static final Color BACKGROUND_COLOR = new Color(0.086f, 0.086f, 0.086f, 1f);
-  private static final Color TEXT_COLOR = new Color(0.85f, 0.85f, 0.85f, 1f);
+  /** Font color used for all text rendered directly on the panel background. */
+  public static final Color TEXT_COLOR = Color.BLACK.cpy();
+
   private static final int HEADER_FONT_SIZE = 24;
   private static final int TEXT_FONT_SIZE = 16;
 
   private final Table modeContent = new Table();
-  private final RichLabel header = new RichLabel("", HEADER_FONT_SIZE, Color.WHITE.cpy());
-  private final RichLabel controlsLabel = new RichLabel("", TEXT_FONT_SIZE, TEXT_COLOR.cpy());
-  private final RichLabel informationLabel = new RichLabel("", TEXT_FONT_SIZE, TEXT_COLOR.cpy());
+  private final Table controlsContent = new Table();
+  private final RichLabel header = new RichLabel("", HEADER_FONT_SIZE, TEXT_COLOR, false);
+  private final RichLabel informationLabel = new RichLabel("", TEXT_FONT_SIZE, TEXT_COLOR, false);
 
   private LevelEditorMode mode = null;
   private String informationText = null;
 
   /** Creates an empty details panel. */
   public ModeDetailsPanel() {
-    setBackground(UIUtils.defaultSkin().newDrawable("white", BACKGROUND_COLOR));
+    setBackground(UIUtils.defaultSkin().getDrawable("generic-area"));
     pad(12f);
     top();
-    header.setAlignment(com.badlogic.gdx.utils.Align.center);
-    controlsLabel.setWrap(true);
+    header.setAlignment(Align.center);
     informationLabel.setWrap(true);
   }
 
@@ -65,6 +67,7 @@ public class ModeDetailsPanel extends Table {
   public void mode(LevelEditorMode mode) {
     this.mode = mode;
     buildModeContent();
+    buildControlsContent();
     rebuild();
   }
 
@@ -74,6 +77,21 @@ public class ModeDetailsPanel extends Table {
     if (mode != null) {
       mode.buildDetailsUI(modeContent);
     }
+  }
+
+  /** Clears and rebuilds the controls grid of this panel. */
+  private void buildControlsContent() {
+    controlsContent.clearChildren();
+    if (mode == null) return;
+    Map<Integer, String> modeControls = mode.controls();
+    if (modeControls == null || modeControls.isEmpty()) return;
+
+    controlsContent.add(text("Controls:")).colspan(2).left().padBottom(4f).row();
+    modeControls.forEach(
+        (key, action) -> {
+          controlsContent.add(text(keyTag(key))).left().padRight(10f).padBottom(2f);
+          controlsContent.add(text(action)).left().growX().padBottom(2f).row();
+        });
   }
 
   /** Rebuilds the section layout of this panel from the current mode. */
@@ -87,11 +105,9 @@ public class ModeDetailsPanel extends Table {
 
     add(modeContent).growX().row();
 
-    Map<Integer, String> modeControls = mode.controls();
-    if (modeControls != null && !modeControls.isEmpty()) {
+    if (controlsContent.hasChildren()) {
       addSeparator();
-      controlsLabel.setText(RichLabel.toRichText(formatControls(modeControls)));
-      add(controlsLabel).growX().row();
+      add(controlsContent).growX().row();
     }
 
     String information = mode.additionalInformation();
@@ -120,7 +136,6 @@ public class ModeDetailsPanel extends Table {
     float available = getWidth() - getPadLeft() - getPadRight();
     if (available <= 0) return;
     header.setMaxPrefWidth(available);
-    controlsLabel.setMaxPrefWidth(available);
     informationLabel.setMaxPrefWidth(available);
   }
 
@@ -146,11 +161,33 @@ public class ModeDetailsPanel extends Table {
     add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(8f).padBottom(8f).row();
   }
 
-  private static String formatControls(Map<Integer, String> modeControls) {
-    StringBuilder text = new StringBuilder("Controls:");
-    modeControls.forEach(
-        (key, action) ->
-            text.append("\n").append(LevelEditorMode.keyName(key)).append(" - ").append(action));
-    return text.toString();
+  private static RichLabel text(String content) {
+    return new RichLabel(RichLabel.toRichText(content), TEXT_FONT_SIZE, TEXT_COLOR, false);
+  }
+
+  /**
+   * Builds the {@code [key]} markup that renders the input prompt graphic for the given key or
+   * mouse button.
+   *
+   * @param key the key or mouse button code.
+   * @return the rich text markup rendering the input prompt graphic.
+   */
+  private static String keyTag(int key) {
+    if (key == Input.Buttons.LEFT || key == Input.Buttons.RIGHT) {
+      return "[key code=" + key + " type=mouse]";
+    }
+    return "[key code=" + swapForLayout(key) + "]";
+  }
+
+  /**
+   * Quick and dirty fix for the german keyboard layout where Y and Z are swapped.
+   *
+   * @param key the key code.
+   * @return the key code to render an icon for.
+   */
+  private static int swapForLayout(int key) {
+    if (key == Input.Keys.Y) return Input.Keys.Z;
+    if (key == Input.Keys.Z) return Input.Keys.Y;
+    return key;
   }
 }

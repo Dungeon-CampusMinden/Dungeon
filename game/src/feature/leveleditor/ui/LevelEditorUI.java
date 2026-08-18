@@ -1,5 +1,8 @@
 package feature.leveleditor.ui;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -24,6 +27,7 @@ public class LevelEditorUI extends Group {
 
   private static final float SCREEN_PADDING = 12f;
   private static final float DETAILS_PANEL_WIDTH = 320f;
+  private static final float DETAILS_PANEL_TOP_GAP = 200f;
 
   private final ModePanel modePanel = new ModePanel();
   private final ModeDetailsPanel detailsPanel = new ModeDetailsPanel();
@@ -64,6 +68,24 @@ public class LevelEditorUI extends Group {
     super.act(delta);
   }
 
+  /**
+   * Checks whether the mouse cursor currently hovers one of the level editor panels.
+   *
+   * @return true if the cursor is over a panel of this UI, false otherwise.
+   */
+  public boolean isCursorOverUI() {
+    Stage stage = getStage();
+    if (stage == null || !isVisible()) return false;
+    Vector2 stagePosition =
+        stage.screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    Actor hit = stage.hit(stagePosition.x, stagePosition.y, true);
+    while (hit != null) {
+      if (hit == this) return true;
+      hit = hit.getParent();
+    }
+    return false;
+  }
+
   /** Keeps the group and its panels aligned with the current stage size. */
   private void layoutPanels() {
     Stage stage = getStage();
@@ -79,11 +101,12 @@ public class LevelEditorUI extends Group {
         (stageWidth - modePanel.getWidth()) / 2f,
         stageHeight - modePanel.getHeight() - SCREEN_PADDING);
 
-    float detailsWidth = DETAILS_PANEL_WIDTH;
-    detailsPanel.setWidth(detailsWidth);
+    detailsPanel.setWidth(DETAILS_PANEL_WIDTH);
     detailsPanel.validate();
-    float detailsHeight = Math.min(detailsPanel.getPrefHeight(), stageHeight - 2f * SCREEN_PADDING);
+    float detailsHeight =
+        Math.min(
+            detailsPanel.getPrefHeight(), stageHeight - DETAILS_PANEL_TOP_GAP - SCREEN_PADDING);
     detailsPanel.setHeight(detailsHeight);
-    detailsPanel.setPosition(SCREEN_PADDING, (stageHeight - detailsHeight) / 2f);
+    detailsPanel.setPosition(SCREEN_PADDING, stageHeight - DETAILS_PANEL_TOP_GAP - detailsHeight);
   }
 }

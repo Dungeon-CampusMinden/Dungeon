@@ -1,6 +1,5 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -10,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import engine.utils.FontHelper;
 import feature.hud.UIUtils;
+import feature.hud.dialogs.DialogDesign;
 import feature.systems.LevelEditorSystem;
 import feature.systems.LevelEditorSystem.Mode;
 import java.util.EnumMap;
@@ -23,7 +23,6 @@ import java.util.Map;
  */
 public class ModePanel extends Table {
 
-  private static final Color BACKGROUND_COLOR = new Color(0.086f, 0.086f, 0.086f, 1f);
   private static final String STYLE_SELECTED = "blue-outline";
   private static final String STYLE_UNSELECTED = "default";
   private static final float BUTTON_SIZE = 48f;
@@ -34,12 +33,12 @@ public class ModePanel extends Table {
 
   /** Creates the mode selection panel with one button per {@link Mode}. */
   public ModePanel() {
-    setBackground(skin.newDrawable("white", BACKGROUND_COLOR));
+    setBackground(skin.getDrawable("generic-area"));
     pad(8f);
     defaults().pad(4f);
 
     Label.LabelStyle numberStyle =
-        new Label.LabelStyle(FontHelper.getDefaultFont(18), Color.WHITE.cpy());
+        new Label.LabelStyle(FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(18)), ModeDetailsPanel.TEXT_COLOR.cpy());
 
     for (Mode mode : Mode.values()) {
       TextButton button = new TextButton(String.valueOf(mode.letter()), skin, STYLE_UNSELECTED);

@@ -1,6 +1,5 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -12,7 +11,6 @@ import engine.utils.Scene2dElementFactory;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogDesign;
 import feature.hud.elements.RichLabel;
-
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
@@ -54,7 +52,8 @@ public class NumberSetting extends Table {
 
     Label name =
         Scene2dElementFactory.createLabel(
-            label, FontSpec.of(Scene2dElementFactory.FONT_PATH, FONT_SIZE, Color.WHITE));
+            label,
+            FontSpec.of(Scene2dElementFactory.FONT_PATH, FONT_SIZE, ModeDetailsPanel.TEXT_COLOR));
 
     TextButton minus = Scene2dElementFactory.createButton("-", "default", FONT_SIZE + 4);
     minus.addListener(

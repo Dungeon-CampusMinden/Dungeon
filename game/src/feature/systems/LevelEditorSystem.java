@@ -73,6 +73,7 @@ public class LevelEditorSystem extends System {
   private static Map<Integer, InputComponent.InputData> playerClallbacks = null;
 
   private static LevelEditorUI ui = null;
+  private static boolean cursorCapturedByUI = false;
 
   /**
    * Creates a new LevelEditorSystem.
@@ -291,8 +292,30 @@ public class LevelEditorSystem extends System {
     }
 
     if (!internalStopped || previousMode != currentMode) {
-      currentModeInstance.doExecute();
+      if (!uiCapturesCursor()) {
+        currentModeInstance.doExecute();
+      }
     }
+  }
+
+  /**
+   * Checks whether the level editor UI currently owns the mouse cursor, so the active mode must not
+   * act on mouse input.
+   *
+   * <p>Once a mouse button was pressed over a panel, the UI keeps the cursor until all buttons are
+   * released again. This stops a drag that started on a panel from acting on the level.
+   *
+   * @return true if the active mode must not act on the cursor, false otherwise.
+   */
+  private static boolean uiCapturesCursor() {
+    boolean buttonDown =
+        InputManager.isButtonPressed(Input.Buttons.LEFT)
+            || InputManager.isButtonPressed(Input.Buttons.RIGHT)
+            || InputManager.isButtonPressed(Input.Buttons.MIDDLE);
+    if (!buttonDown) {
+      cursorCapturedByUI = ui != null && ui.isCursorOverUI();
+    }
+    return cursorCapturedByUI;
   }
 
   private void toggleDebugShader() {
