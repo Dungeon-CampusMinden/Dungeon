@@ -1,4 +1,4 @@
-import type { DeerSchema, InformationSource, Riddle, RiddleHint } from "@/data/DeerSchema";
+import type { DeerProject, InformationSource, Riddle, RiddleHint } from "@/data/DeerSchema";
 import { ClockIcon, InfoIcon, PencilIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -15,7 +15,7 @@ export function RiddleCard({
   onEdit,
 }: {
   riddle: Riddle;
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
   onEdit: () => void;
 }) {
   const difficulty = getRiddleDifficulty(riddle.difficulty);
@@ -79,7 +79,7 @@ function UnassignedSourceList({
   deerSchema,
 }: {
   sources: InformationSource[];
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
 }) {
   return (
     <div className="flex flex-col gap-2">

@@ -1,4 +1,5 @@
-import type { AssetMediaType } from "@/data/DeerSchema";
+import type { Asset, AssetMediaType } from "@/data/DeerSchema";
+import type { UploadReference } from "@/data/WizardDraft";
 import assetsManifest from "@/data/assets-manifest.json";
 
 export const ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg"];
@@ -24,7 +25,11 @@ export type AssetEntry =
 export type AssetSelection = { kind: "custom"; file: File } | { kind: "bundled"; path: string };
 
 /** Preview state of an asset, resolved either from the IndexedDB or from the bundled assets. */
-export type AssetPreview = { previewUrl: string | null; missing: boolean };
+export type AssetPreview = {
+  previewUrl: string | null;
+  missing: boolean;
+  technicalError: boolean;
+};
 
 /** Asset paths of the schema have no leading slash, manifest paths always have one. */
 export const stripLeadingSlash = (assetPath: string) => assetPath.replace(/^\/+/, "");
@@ -41,8 +46,55 @@ export const getAssetName = (assetPath: string) => assetPath.split("/").filter(B
 
 export const getFileExtension = (filePath: string) => filePath.split(".").pop()?.toLowerCase() ?? "";
 
-export const getMediaTypeForPath = (filePath: string): AssetMediaType =>
-  MEDIA_TYPE_BY_EXTENSION[getFileExtension(filePath)] ?? "image/png";
+export const getMediaTypeForPath = (filePath: string): AssetMediaType => {
+  const mediaType = MEDIA_TYPE_BY_EXTENSION[getFileExtension(filePath)];
+  if (!mediaType) throw new Error("Es werden nur PNG- und JPEG-Dateien unterstützt.");
+  return mediaType;
+};
+
+export function validateCustomAssetFile(file: File): AssetMediaType {
+  const extension = getFileExtension(file.name);
+  const mediaType = MEDIA_TYPE_BY_EXTENSION[extension];
+  if (!mediaType) {
+    throw new Error("Wähle eine Datei mit der Endung .png, .jpg oder .jpeg aus.");
+  }
+  if (file.type !== mediaType) {
+    throw new Error(
+      `Dateiendung und Dateityp passen nicht zusammen. Erwartet wird ${mediaType}.`,
+    );
+  }
+  return mediaType;
+}
+
+const WINDOWS_RESERVED_STEM = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i;
+const MAX_CUSTOM_STEM_LENGTH = 48;
+
+export function createCustomAssetPath(originalName: string, storageKey: string): string {
+  if (!/^[0-9a-f]{12}$/.test(storageKey)) {
+    throw new Error("Der Dateiinhalt konnte nicht sicher adressiert werden.");
+  }
+  const extension = getFileExtension(originalName);
+  if (!MEDIA_TYPE_BY_EXTENSION[extension]) {
+    throw new Error("Wähle eine Datei mit der Endung .png, .jpg oder .jpeg aus.");
+  }
+  const extensionStart = originalName.lastIndexOf(".");
+  let stem = originalName
+    .slice(0, extensionStart)
+    .normalize("NFKC")
+    .replace(/[^A-Za-z0-9_-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^[-_.]+|[-_.]+$/g, "")
+    .slice(0, MAX_CUSTOM_STEM_LENGTH)
+    .replace(/[-_.]+$/g, "");
+  if (!stem) stem = "datei";
+  if (WINDOWS_RESERVED_STEM.test(stem)) stem = `datei-${stem}`;
+  return `${CUSTOM_PATH_PREFIX}/${stem}-${storageKey}.${extension}`;
+}
+
+export function getAssetDisplayName(asset: Asset, upload?: UploadReference): string {
+  if (upload?.originalName) return upload.originalName;
+  return isCustomAssetPath(asset.path) ? "Eigene Datei" : getAssetName(asset.path);
+}
 
 export const isCustomAssetPath = (assetPath: string) =>
   stripLeadingSlash(assetPath).startsWith(`${CUSTOM_PATH_PREFIX}/`);

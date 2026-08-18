@@ -1,4 +1,6 @@
-import type { DeerSchema, Riddle } from "@/data/DeerSchema";
+import type { Riddle } from "@/data/DeerSchema";
+import type { UpdateDraft, WizardDraft } from "@/data/WizardDraft";
+import { addRiddle as addRiddleToProject, removeRiddle } from "@/data/RiddleGraphActions";
 import React from "react";
 import { PlusIcon } from "lucide-react";
 import { RiddleCard } from "./riddles/RiddleCard";
@@ -7,12 +9,13 @@ import { createRiddle } from "./riddles/riddleTypes";
 import { Button } from "./ui/button";
 
 export function RiddlesTab({
-  deerSchema,
-  updateDeerSchema,
+  draft,
+  updateDraft,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  draft: WizardDraft;
+  updateDraft: UpdateDraft;
 }) {
+  const deerSchema = draft.project;
   const riddles = deerSchema.riddles;
   const [editingId, setEditingId] = React.useState<string | null>(null);
 
@@ -21,19 +24,23 @@ export function RiddlesTab({
 
   const addRiddle = () => {
     const newRiddle = createRiddle();
-    riddles.push(newRiddle);
-    updateDeerSchema(deerSchema);
+    updateDraft((current) => addRiddleToProject(current.project, newRiddle));
     setEditingId(newRiddle.id);
   };
 
-  const saveRiddle = (index: number, updated: Riddle) => {
-    riddles[index] = updated;
-    updateDeerSchema(deerSchema);
+  const saveRiddle = (updated: Riddle) => {
+    updateDraft((current) => {
+      const index = current.project.riddles.findIndex((riddle) => riddle.id === updated.id);
+      if (index === -1) return false;
+      current.project.riddles[index] = structuredClone(updated);
+    });
   };
 
-  const deleteRiddle = (index: number) => {
-    riddles.splice(index, 1);
-    updateDeerSchema(deerSchema);
+  const deleteRiddle = (riddleId: string) => {
+    updateDraft((current) => {
+      const removedNodeIds = removeRiddle(current.project, riddleId);
+      for (const nodeId of removedNodeIds) delete current.graphLayout[nodeId];
+    });
   };
 
   return (
@@ -70,8 +77,8 @@ export function RiddlesTab({
           setOpen={(open) => {
             if (!open) setEditingId(null);
           }}
-          onSave={(updated) => saveRiddle(editingIndex, updated)}
-          onDelete={() => deleteRiddle(editingIndex)}
+          onSave={saveRiddle}
+          onDelete={() => deleteRiddle(editingRiddle.id)}
         />
       )}
     </div>

@@ -1,10 +1,10 @@
-import type { AnyRiddleInput, DeerSchema, InformationSource, Riddle } from "@/data/DeerSchema";
+import type { AnyRiddleInput, DeerProject, InformationSource, Riddle } from "@/data/DeerSchema";
 import { Util } from "@/data/Util";
 import { SurfaceIcon } from "../SurfacesTab";
 import { ResourceCarousel } from "./ResourceCarousel";
 import { getInputType, InputTypeIcon } from "./riddleTypes";
 
-export function RiddleInputsView({ riddle, deerSchema }: { riddle: Riddle; deerSchema: DeerSchema }) {
+export function RiddleInputsView({ riddle, deerSchema }: { riddle: Riddle; deerSchema: DeerProject }) {
   if (riddle.inputs.length === 0) {
     return <span className="text-sm text-muted-foreground">Keine Eingabe hinterlegt.</span>;
   }
@@ -26,7 +26,7 @@ function ParameterRow({ label, children }: { label: string; children: React.Reac
   );
 }
 
-export function SurfaceValue({ deerSchema, surfaceId }: { deerSchema: DeerSchema; surfaceId: string }) {
+export function SurfaceValue({ deerSchema, surfaceId }: { deerSchema: DeerProject; surfaceId: string }) {
   const surface = Util.getSurface(deerSchema, surfaceId);
   if (!surface) {
     return <span className="text-destructive">Kein Ort ausgewählt</span>;
@@ -46,7 +46,7 @@ function InputView({
 }: {
   input: AnyRiddleInput;
   riddle: Riddle;
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
 }) {
   const inputType = getInputType(input.type);
 
@@ -85,7 +85,7 @@ function CollectionInputView({
   deerSchema,
 }: {
   informationSource: InformationSource | undefined;
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
 }) {
   if (!informationSource) {
     return (

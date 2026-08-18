@@ -15,6 +15,15 @@ export function AssetPreviewContent({ asset, preview }: { asset: Asset; preview:
     return <span className="text-xs text-muted-foreground">Lädt…</span>;
   }
 
+  if (preview.technicalError) {
+    return (
+      <div className="flex flex-col items-center gap-1 text-yellow-500">
+        <AlertTriangle className="size-8" />
+        <span className="text-center text-xs">Lokaler Speicher nicht verfügbar</span>
+      </div>
+    );
+  }
+
   if (preview.missing) {
     return (
       <div className="flex flex-col items-center gap-1 text-destructive">

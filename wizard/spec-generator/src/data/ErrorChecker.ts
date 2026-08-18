@@ -1,5 +1,6 @@
-import type { Asset, AssetMediaType, DeerSchema, Riddle, RiddleGraph, Surface } from "./DeerSchema";
+import type { Asset, AssetMediaType, DeerProject, Riddle, RiddleGraph, Surface } from "./DeerSchema";
 import { getBundledAssetPaths, isBundledAssetPath } from "@/components/assets/assetPaths";
+import { VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 
 export type IssueSeverity = "info" | "warning" | "error";
 
@@ -13,21 +14,9 @@ export type TabIssues = Record<string, Issue[]>;
 
 export type IssueReport = Record<string, TabIssues>;
 
-export const VALIDATED_TAB_IDS = [
-  "metadata",
-  "scenario",
-  "session",
-  "surfaces",
-  "assets",
-  "riddles",
-  "riddle_graph",
-  "game_end",
-] as const;
-
-export type ValidatedTabId = (typeof VALIDATED_TAB_IDS)[number];
-
 export interface ErrorCheckerContext {
-  storedAssetIds: Set<string>;
+  storedAssetIds: Set<string> | null;
+  assetDisplayNames: ReadonlyMap<string, string>;
 }
 
 const THEME_IDS = ["default"];
@@ -47,11 +36,14 @@ export class ErrorChecker {
   private readonly context: ErrorCheckerContext;
   private report: IssueReport = {};
 
-  constructor(context: ErrorCheckerContext = { storedAssetIds: new Set() }) {
+  constructor(context: ErrorCheckerContext = {
+    storedAssetIds: new Set(),
+    assetDisplayNames: new Map(),
+  }) {
     this.context = context;
   }
 
-  check(deerSchema: DeerSchema): IssueReport {
+  check(deerSchema: DeerProject): IssueReport {
     this.report = Object.fromEntries(VALIDATED_TAB_IDS.map((tabId) => [tabId, {}])) as IssueReport;
 
     this.checkMetadata(deerSchema);
@@ -161,7 +153,7 @@ export class ErrorChecker {
   //#endregion
 
   //#region Metadata & learning design
-  private checkMetadata(deerSchema: DeerSchema) {
+  private checkMetadata(deerSchema: DeerProject) {
     const { metadata, learningDesign } = deerSchema;
 
     this.requireText("metadata", "id", metadata.id, "Das Abenteuer hat keine Id.");
@@ -211,7 +203,7 @@ export class ErrorChecker {
   //#endregion
 
   //#region Scenario
-  private checkScenario(deerSchema: DeerSchema) {
+  private checkScenario(deerSchema: DeerProject) {
     const { scenario } = deerSchema;
 
     this.requireOption(
@@ -251,7 +243,7 @@ export class ErrorChecker {
   //#endregion
 
   //#region Session
-  private checkSession(deerSchema: DeerSchema) {
+  private checkSession(deerSchema: DeerProject) {
     const { session } = deerSchema;
 
     this.requireText(
@@ -299,7 +291,7 @@ export class ErrorChecker {
   //#endregion
 
   //#region Surfaces
-  private checkSurfaces(deerSchema: DeerSchema) {
+  private checkSurfaces(deerSchema: DeerProject) {
     const { surfaces } = deerSchema;
 
     if (surfaces.length === 0) {
@@ -346,35 +338,53 @@ export class ErrorChecker {
   //#endregion
 
   //#region Assets
-  private checkAssets(deerSchema: DeerSchema) {
+  private checkAssets(deerSchema: DeerProject) {
     const { assets } = deerSchema;
 
     const duplicates = ErrorChecker.findDuplicates(assets.map((asset) => asset.id));
     if (duplicates.length > 0) {
-      this.error("assets", "assets", "Es gibt Dateien mit doppelten Ids.", duplicates.join(", "));
+      this.error("assets", "assets", "Es gibt Dateien mit doppelten IDs.");
     }
 
+    const customPaths = new Map<string, Asset>();
     for (const asset of assets) {
       this.checkAsset(asset);
+      if (!isBlank(asset.path) && !isBundledAssetPath(asset.path)) {
+        const normalizedPath = asset.path.normalize("NFKC").toLowerCase();
+        const previous = customPaths.get(normalizedPath);
+        if (previous) {
+          this.error(
+            "assets",
+            `asset:${asset.id}`,
+            `Die eigenen Dateien "${this.assetName(previous)}" und "${this.assetName(asset)}" verwenden denselben internen Dateinamen.`,
+          );
+        } else {
+          customPaths.set(normalizedPath, asset);
+        }
+      }
     }
+  }
+
+  private assetName(asset: Asset): string {
+    return this.context.assetDisplayNames.get(asset.id) ?? "Datei";
   }
 
   private checkAsset(asset: Asset) {
     const field = `asset:${asset.id}`;
-    const name = asset.path || asset.id;
+    const name = this.assetName(asset);
 
     if (isBlank(asset.path)) {
-      this.error("assets", field, `Die Datei "${asset.id}" hat keinen Pfad.`);
+      this.error("assets", field, `Die Datei "${name}" hat keinen gültigen Speicherort.`);
     } else if (isBundledAssetPath(asset.path)) {
       if (!getBundledAssetPaths().has(asset.path)) {
         this.error(
           "assets",
           field,
           `Die mitgelieferte Datei "${name}" existiert nicht.`,
-          `Unbekannter Pfad: "${asset.path}".`,
+          "Die Datei ist nicht mehr in der mitgelieferten Auswahl verfügbar.",
         );
       }
-    } else if (!this.context.storedAssetIds.has(asset.id)) {
+    } else if (this.context.storedAssetIds !== null && !this.context.storedAssetIds.has(asset.id)) {
       this.error(
         "assets",
         field,
@@ -402,7 +412,7 @@ export class ErrorChecker {
   //#endregion
 
   //#region Surface profile
-  private checkSurfaceProfile(deerSchema: DeerSchema) {
+  private checkSurfaceProfile(deerSchema: DeerProject) {
     const surfacesById = new Map(deerSchema.surfaces.map((surface) => [surface.id, surface]));
     const containerUses = new Map<string, number>();
     const keypadUses = new Map<string, number>();
@@ -446,7 +456,7 @@ export class ErrorChecker {
           "riddle_graph",
           "nodes",
           "Der Endpunkt muss auf eine Tür verweisen.",
-          `Aktueller Ort: "${surface.title || surface.id}" (${surface.kind}).`,
+          `Aktueller Ort: "${surface.title.trim() || "Unbenannter Ort"}".`,
         );
       }
     }
@@ -471,7 +481,7 @@ export class ErrorChecker {
   //#endregion
 
   //#region Riddles
-  private checkRiddles(deerSchema: DeerSchema) {
+  private checkRiddles(deerSchema: DeerProject) {
     const { riddles } = deerSchema;
 
     if (riddles.length === 0) {
@@ -698,15 +708,36 @@ export class ErrorChecker {
   //#endregion
 
   //#region Riddle graph
-  private checkRiddleGraph(deerSchema: DeerSchema) {
+  private checkRiddleGraph(deerSchema: DeerProject) {
     const graph = deerSchema.riddleGraph;
     const nodeIds = new Set(graph.nodes.map((node) => node.id));
     const riddleIds = new Set(deerSchema.riddles.map((riddle) => riddle.id));
     const surfaceIds = new Set(deerSchema.surfaces.map((surface) => surface.id));
+    const riddleNames = new Map(deerSchema.riddles.map((riddle) => [
+      riddle.id,
+      riddle.title.trim() || "Unbenanntes Rätsel",
+    ]));
+    const nodeNames = new Map(graph.nodes.map((node) => [
+      node.id,
+      node.kind === "start"
+        ? "Start"
+        : node.kind === "end"
+          ? "Ende"
+          : (riddleNames.get(node.riddleId) ?? "Schritt"),
+    ]));
+    const displayNodes = (ids: string[]) =>
+      ids.map((id) => nodeNames.get(id) ?? "Unbekannter Schritt").join(", ");
+    const displayEdge = (from: string, to: string) =>
+      `${nodeNames.get(from) ?? "Unbekannter Schritt"} → ${nodeNames.get(to) ?? "Unbekannter Schritt"}`;
 
     const duplicates = ErrorChecker.findDuplicates(graph.nodes.map((node) => node.id));
     if (duplicates.length > 0) {
-      this.error("riddle_graph", "nodes", "Es gibt Schritte mit doppelten Ids.", duplicates.join(", "));
+      this.error(
+        "riddle_graph",
+        "nodes",
+        "Es gibt mehrfach angelegte Schritte.",
+        displayNodes(duplicates),
+      );
     }
 
     const startNodes = graph.nodes.filter((node) => node.kind === "start");
@@ -734,7 +765,6 @@ export class ErrorChecker {
           "riddle_graph",
           "nodes",
           "Ein Schritt verweist auf ein unbekanntes Rätsel.",
-          `Unbekannte Rätsel-Id: "${node.riddleId}".`,
         );
       }
       if (node.kind === "end" && !surfaceIds.has(node.surfaceId)) {
@@ -742,7 +772,6 @@ export class ErrorChecker {
           "riddle_graph",
           "nodes",
           "Der Endpunkt verweist auf einen unbekannten Ort.",
-          `Unbekannte Ort-Id: "${node.surfaceId}".`,
         );
       }
     }
@@ -750,13 +779,24 @@ export class ErrorChecker {
     const usedRiddleIds = new Set(
       graph.nodes.filter((node) => node.kind === "riddle").map((node) => node.riddleId),
     );
+    const duplicateRiddleNodes = ErrorChecker.findDuplicates(
+      graph.nodes.filter((node) => node.kind === "riddle").map((node) => node.riddleId),
+    );
+    if (duplicateRiddleNodes.length > 0) {
+      this.error(
+        "riddle_graph",
+        "nodes",
+        "Jedes Rätsel darf genau einmal im Spielablauf vorkommen.",
+        duplicateRiddleNodes.map((id) => riddleNames.get(id) ?? "Unbenanntes Rätsel").join(", "),
+      );
+    }
     const unusedRiddles = [...riddleIds].filter((id) => !usedRiddleIds.has(id));
     if (unusedRiddles.length > 0) {
       this.error(
         "riddle_graph",
         "nodes",
         "Es gibt Rätsel, die im Spielablauf nicht vorkommen.",
-        unusedRiddles.join(", "),
+        unusedRiddles.map((id) => riddleNames.get(id) ?? "Unbenanntes Rätsel").join(", "),
       );
     }
 
@@ -766,17 +806,49 @@ export class ErrorChecker {
           "riddle_graph",
           "edges",
           "Eine Verbindung verweist auf einen unbekannten Schritt.",
-          `${edge.from} → ${edge.to}`,
+          displayEdge(edge.from, edge.to),
         );
       } else if (edge.from === edge.to) {
-        this.error("riddle_graph", "edges", "Eine Verbindung zeigt auf sich selbst.", edge.from);
+        this.error(
+          "riddle_graph",
+          "edges",
+          "Eine Verbindung zeigt auf sich selbst.",
+          nodeNames.get(edge.from) ?? "Schritt",
+        );
       }
     }
 
-    this.checkGraphReachability(graph, nodeIds);
+    const duplicateEdges = ErrorChecker.findDuplicates(
+      graph.edges.map((edge) => `${edge.from}->${edge.to}`),
+    );
+    if (duplicateEdges.length > 0) {
+      this.error(
+        "riddle_graph",
+        "edges",
+        "Eine Verbindung darf nicht doppelt vorkommen.",
+        duplicateEdges.map((key) => {
+          const edge = graph.edges.find((candidate) => `${candidate.from}->${candidate.to}` === key);
+          return edge ? displayEdge(edge.from, edge.to) : "Verbindung";
+        }).join(", "),
+      );
+    }
+    if (ErrorChecker.hasDirectedCycle(graph, nodeIds)) {
+      this.error(
+        "riddle_graph",
+        "edges",
+        "Der Spielablauf enthält einen Kreis.",
+        "Entferne mindestens eine Verbindung aus dem Kreis.",
+      );
+    }
+
+    this.checkGraphReachability(graph, nodeIds, nodeNames);
   }
 
-  private checkGraphReachability(graph: RiddleGraph, nodeIds: Set<string>) {
+  private checkGraphReachability(
+    graph: RiddleGraph,
+    nodeIds: Set<string>,
+    nodeNames: ReadonlyMap<string, string>,
+  ) {
     const startNodeId = graph.nodes.find((node) => node.kind === "start")?.id;
     const endNodeId = graph.nodes.find((node) => node.kind === "end")?.id;
     if (startNodeId === undefined) return;
@@ -806,7 +878,7 @@ export class ErrorChecker {
         "riddle_graph",
         "nodes",
         "Es gibt Schritte, die vom Start aus nicht erreichbar sind.",
-        unreachable.join(", "),
+        unreachable.map((id) => nodeNames.get(id) ?? "Unbekannter Schritt").join(", "),
       );
     }
 
@@ -820,9 +892,31 @@ export class ErrorChecker {
         "riddle_graph",
         "edges",
         "Es gibt Schritte, von denen aus der Endpunkt nicht erreichbar ist.",
-        deadEnds.join(", "),
+        deadEnds.map((id) => nodeNames.get(id) ?? "Unbekannter Schritt").join(", "),
       );
     }
+  }
+
+  private static hasDirectedCycle(graph: RiddleGraph, nodeIds: Set<string>): boolean {
+    const incomingCount = new Map([...nodeIds].map((id) => [id, 0]));
+    const outgoing = new Map<string, string[]>();
+    for (const edge of graph.edges) {
+      if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) continue;
+      outgoing.set(edge.from, [...(outgoing.get(edge.from) ?? []), edge.to]);
+      incomingCount.set(edge.to, (incomingCount.get(edge.to) ?? 0) + 1);
+    }
+    const queue = [...nodeIds].filter((id) => incomingCount.get(id) === 0);
+    let visited = 0;
+    while (queue.length > 0) {
+      const current = queue.shift() as string;
+      visited += 1;
+      for (const next of outgoing.get(current) ?? []) {
+        const remaining = (incomingCount.get(next) ?? 0) - 1;
+        incomingCount.set(next, remaining);
+        if (remaining === 0) queue.push(next);
+      }
+    }
+    return visited !== nodeIds.size;
   }
 
   /** Breadth-first traversal of the given adjacency map, starting at `startId`. */

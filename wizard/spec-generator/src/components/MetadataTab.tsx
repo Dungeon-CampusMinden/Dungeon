@@ -1,4 +1,4 @@
-import type { DeerSchema } from "@/data/DeerSchema";
+import type { DeerProject } from "@/data/DeerSchema";
 import {
   Field,
   FieldDescription,
@@ -18,8 +18,8 @@ export function MetadataTab({
   deerSchema,
   updateDeerSchema,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  deerSchema: DeerProject;
+  updateDeerSchema: (updatedSchema: DeerProject) => void;
 }) {
   const emptyTitle = deerSchema.metadata.title === "";
 

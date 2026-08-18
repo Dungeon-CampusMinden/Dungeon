@@ -19,6 +19,7 @@ import type { AssetSelection } from "./assetPaths";
 
 export function AssetEditDialog({
   asset,
+  displayName,
   missing,
   open,
   setOpen,
@@ -26,6 +27,7 @@ export function AssetEditDialog({
   onReplaceContent,
 }: {
   asset: Asset;
+  displayName: string;
   missing: boolean;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -77,9 +79,9 @@ export function AssetEditDialog({
           <Separator />
 
           <Field>
-            <FieldLabel>Dateipfad</FieldLabel>
+            <FieldLabel>Dateiname</FieldLabel>
             <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-              <Input value={asset.path} readOnly aria-invalid={missing} />
+              <Input value={displayName} readOnly aria-invalid={missing} />
               <Button variant="outline" onClick={() => setSelectorOpen(true)}>
                 <UploadIcon />
                 Ersetzen
@@ -96,7 +98,7 @@ export function AssetEditDialog({
             open={selectorOpen}
             setOpen={setSelectorOpen}
             currentPath={asset.path}
-            onSelect={(selection) => void onReplaceContent(asset, selection)}
+            onSelect={(selection) => onReplaceContent(asset, selection)}
             title="Datei ersetzen"
           />
         </div>

@@ -1,6 +1,6 @@
 # Wizard UI Flow V0.4
 
-Status: Runtime-Vertrag implementiert; Authoring-Frontend noch nicht umgesetzt
+Status: Runtime-Vertrag und M1-Browser-Draft implementiert; nativer Host noch offen
 Stand: 27.07.2026
 
 ## Ziel
@@ -26,9 +26,10 @@ Starten oder fortsetzen
 - Der unvollständige Entwurf ist nicht `deer.json`.
 - Eine ständig erreichbare Übersicht zeigt Navigation, Abschlussgrad,
   blockierende Probleme und Warnungen.
-- Graphknoten und Kanten werden aus fachlichen Eingaben abgeleitet.
-- Der sichtbare einfache Stage-Modus ist eine geordnete Abschnittsliste, kein
-  freier Graph. Er bildet einen gültigen Teil des mandatory AND-DAG-Vertrags.
+- Der Spielablauf ist ein frei bearbeiteter mandatory AND-DAG mit genau einem
+  Knoten je Rätsel sowie genau einem geschützten Start- und Endknoten.
+- Knoten und Kanten werden exakt gespeichert; die UI leitet keine zusätzlichen
+  Abhängigkeiten ab und repariert den Graphen nicht bei der Finalisierung.
 - `Entwurf prüfen` ist immer aktiv; `Entwurf finalisieren` erst nach einer
   erfolgreichen Prüfung.
 - Warnungen blockieren nicht.
@@ -43,21 +44,27 @@ Starten oder fortsetzen
    beibehalten.
 4. Die UI projiziert den Entwurf für jede vollständige Prüfung auf ein
    `deer.json`-Kandidatenobjekt.
-5. Nur ein fehlerfreier Kandidat wird finalisiert. Bei der ersten erfolgreichen
-   Finalisierung des Projekts erzeugt die UI genau einmal den verpflichtenden
-   `seed` im `deer.json`-Kandidaten. Neue inhaltsadressierte Dateien werden
-   zuerst geschrieben; `deer.json` wird zuletzt sicher ersetzt.
+5. Nur ein fehlerfreier Kandidat wird finalisiert. Bei der ersten
+   Finalisierung erzeugt der native M2-Vorgang den verpflichtenden `seed`
+   zunächst nur flüchtig, baut und validiert exakt diesen Kandidaten, schreibt
+   neue inhaltsadressierte Dateien zuerst und `deer.json` zuletzt atomar. Erst
+   nach vollständig erfolgreichem Abschluss gibt er den Seed zur
+   Draft-Persistenz zurück; vorher erzeugt oder speichert die UI keinen echten
+   Projektseed.
 6. Der Entwurf bleibt danach bearbeitbar. Eine Änderung markiert die letzte
-   Finalisierung als veraltet. Weitere Finalisierungen erhalten den bestehenden
-   Seedwert unverändert.
+   Finalisierung als veraltet. Weitere Finalisierungen verwenden den danach im
+   Draft vorhandenen Seedwert unverändert.
 
 V0.4 unterstützt die Wiederaufnahme eigener lokaler Entwürfe. Der Import
 beliebiger Room-ZIPs oder manuell veränderter Projektordner ist nicht Teil des
 Foundation-Slices. Der Produktfluss erzeugt selbst keine Room-ZIPs.
 
-Der spezifizierte V0.4-Authoring-Host ist eine noch nicht umgesetzte
-Standalone-App mit Web-Oberfläche und nativem Storage-Adapter. Ein browser-only
-Host folgt erst nach einem eigenen Speicher-/Export-Slice.
+M1 speichert Draft-Snapshots über den mehrprojektfähigen Port in LocalStorage
+und Uploadbytes in IndexedDB. Dieser Browser-Zwischenstand bietet nur lokale
+Hinweise und keine echte Finalisierung. In M2 wird der Adapter hinter demselben
+Port auf den nativen Java-Host umgestellt; er übernimmt dann Draft-Persistenz,
+Produktionsvalidierung, Seedvergabe und atomare Finalisierung in den gewählten
+Projektordner.
 
 ## Dauerhafte Übersicht
 
@@ -65,7 +72,7 @@ Die Übersicht ist Navigation, kein Arbeitsschritt. Sie zeigt:
 
 - Projekttitel;
 - Schritte mit getrenntem Abschlussstatus und Fehler-/Warnungszähler;
-- Anzahl Abschnitte und Rätsel;
+- Anzahl Rätsel und Verbindungen im Spielablauf;
 - Zeitpunkt der letzten lokalen Speicherung;
 - Zeitpunkt und Zustand der letzten Finalisierung;
 - nächsten sinnvollen Arbeitsschritt.
@@ -165,36 +172,38 @@ Warnungen:
 
 ## 4. Spielablauf
 
-Die UI zeigt geordnete **Abschnitte**:
+Die UI zeigt einen frei bearbeitbaren **mandatory AND-DAG**:
 
-- Abschnitte werden nacheinander relevant.
-- Ein Abschnitt enthält ein oder mehrere Rätsel.
-- Mehrere Rätsel im selben Abschnitt sind parallel verfügbar.
-- Alle Rätsel sind Pflichträtsel.
-- Der nächste Abschnitt wird erst verfügbar, wenn alle Rätsel des vorherigen
-  Abschnitts abgeschlossen sind.
+- genau einen geschützten Startknoten;
+- genau einen geschützten Endknoten;
+- genau einen Knoten je Rätsel;
+- frei gesetzte gerichtete Kanten ohne zusätzliche Bedingungen;
+- eine Kante bedeutet: Der folgende Knoten wird nach seinem Vorgänger
+  verfügbar;
+- mehrere eingehende Kanten bedeuten immer, dass alle Vorgänger gelöst sein
+  müssen.
 
 Aktionen:
 
-- Abschnitt hinzufügen, umbenennen, verschieben oder löschen;
-- Rätsel hinzufügen;
-- Rätsel per Buttons nach oben/unten oder in einen anderen Abschnitt bewegen;
-- optionales Drag-and-drop als zusätzliche Bedienung;
-- Löschen und Verschieben rückgängig machen.
+- Verbindungen zwischen Knoten hinzufügen und entfernen;
+- Knoten frei verschieben oder automatisch anordnen;
+- ein Rätsel über seinen Knoten öffnen und bearbeiten;
+- Rätsel hinzufügen oder löschen; dieselbe fachliche Aktion fügt den genau
+  einen zugehörigen Knoten hinzu beziehungsweise entfernt ihn samt Kanten.
 
-Die UI erzeugt intern:
+Die UI verhindert beim Bearbeiten:
 
-- genau einen Startknoten;
-- genau einen Rätselknoten pro Rätsel;
-- reine AND-Kanten zwischen aufeinanderfolgenden Abschnitten;
-- genau einen Endknoten.
+- doppelte Kanten;
+- Kanten eines Knotens auf sich selbst;
+- Zyklen.
 
-Wenn eine spätere UI-Ausbaustufe explizite Abhängigkeiten anbietet, lautet die
-fachliche Formulierung beispielsweise „Diese Aufgabe wird verfügbar nach …“.
-Mehrere ausgewählte Aufgaben sind dabei ausnahmslos alle erforderlich; die UI
-darf daraus weder OR- noch optionale Semantik ableiten.
+Der private Draft darf dennoch unverbunden oder fachlich unvollständig sein.
+Solche Zustände bleiben speicherbar, werden aber als lokale Probleme angezeigt
+und blockieren eine spätere Finalisierung. Der DEER-Kandidat übernimmt
+`riddleGraph.nodes` und `riddleGraph.edges` exakt und in ihrer gespeicherten
+Reihenfolge. Er ergänzt, sortiert oder repariert nichts.
 
-Nicht darstellbar im einfachen Stage-Modus von V0.4:
+Nicht darstellbar in V0.4:
 
 - OR-Verzweigung;
 - optionales Pflichträtsel;
@@ -310,7 +319,7 @@ Die Vorschau zeigt ohne Runtime:
 - Eckdaten;
 - Intro-Seiten, Mission, Erfolgsseiten und bei hartem Zeitlimit
   Fehlschlagseiten;
-- Abschnitte, Parallelität und erwartete Reihenfolge;
+- Verbindungen, Parallelität und erwartete Reihenfolge;
 - Aufgaben, Materialien und Hinweise;
 - verwendete Bilder.
 
@@ -336,11 +345,14 @@ Beispiel:
 `Entwurf finalisieren`:
 
 - ist nur ohne blockierende Fehler aktiv;
-- schreibt neue, inhaltsadressierte Dateien zuerst, erzeugt beim ersten
-  erfolgreichen Abschluss genau einmal das `seed`-Feld und ersetzt
-  `deer.json` zuletzt;
-- erhält einen bereits vorhandenen projektgebundenen Seedwert bei jeder
-  weiteren Finalisierung unverändert;
+- lässt den nativen M2-Vorgang beim ersten Finalisieren einen Seed nur flüchtig
+  erzeugen, exakt diesen Kandidaten bauen und produktiv validieren;
+- schreibt neue, inhaltsadressierte Dateien zuerst und `deer.json` zuletzt
+  atomar; erst nach vollständig erfolgreichem Abschluss wird der Seed zur
+  Draft-Persistenz zurückgegeben;
+- lässt den nativen Vorgang einen bereits im Draft vorhandenen
+  projektgebundenen Seedwert bei jeder weiteren Finalisierung unverändert
+  verwenden;
 - zeigt den Zielordner und die nächsten Packaging-Schritte für die technische
   Betreuung;
 - startet die Spieler-JAR nicht.
@@ -364,7 +376,7 @@ wählen“. Unbekannte oder alte unreferenzierte Dateien werden nicht gelöscht.
 
 - fehlende Pflichtangabe;
 - doppelte ID oder unbekannte Referenz;
-- ungültiges Abschnitts-/Graphprofil;
+- ungültiges Graphprofil, doppelte Kante oder Zyklus;
 - nicht erreichbares Rätsel oder Erfolgsziel;
 - nicht unterstützter Rätsel-, Inhalts- oder Bild-/Dateityp;
 - fehlendes oder unsicheres Bild / fehlende oder unsichere Datei;

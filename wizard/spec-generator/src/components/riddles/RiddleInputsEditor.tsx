@@ -1,4 +1,4 @@
-import type { AnyRiddleInput, CollectionInput, DeerSchema, NumericInput, Riddle } from "@/data/DeerSchema";
+import type { AnyRiddleInput, CollectionInput, DeerProject, NumericInput, Riddle } from "@/data/DeerSchema";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import { SurfaceSelector } from "../SurfacesTab";
 import { Button } from "../ui/button";
@@ -19,7 +19,7 @@ export function RiddleInputsEditor({
 }: {
   riddle: Riddle;
   setRiddle: (updated: Riddle) => void;
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
 }) {
   const inputs = riddle.inputs;
 
@@ -124,7 +124,7 @@ function NumericInputFields({
   onChange,
 }: {
   input: NumericInput;
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
   onChange: (updated: NumericInput) => void;
 }) {
   return (

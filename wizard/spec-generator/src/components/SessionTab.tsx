@@ -1,4 +1,4 @@
-import type { DeerSchema, TimeLimitMode } from "@/data/DeerSchema";
+import type { DeerProject, TimeLimitMode } from "@/data/DeerSchema";
 import {
   Field,
   FieldDescription,
@@ -21,8 +21,8 @@ export function SessionTab({
   deerSchema,
   updateDeerSchema,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  deerSchema: DeerProject;
+  updateDeerSchema: (updatedSchema: DeerProject) => void;
 }) {
   const emptyTargetAudience = deerSchema.session.targetAudience === "";
   const emptyPriorKnowledge = deerSchema.session.priorKnowledge === "";
