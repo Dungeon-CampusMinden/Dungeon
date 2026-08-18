@@ -193,12 +193,19 @@ public class TilesMode extends LevelEditorMode {
   @Override
   public String additionalInformation() {
     StringBuilder status = new StringBuilder();
+    LevelElement[] elements = LevelElement.values();
+    status
+        .append("Selected [L]: ")
+        .append(elements[Math.floorMod(selectedTileIndexL, elements.length)].name())
+        .append("\nSelected [R]: ")
+        .append(elements[Math.floorMod(selectedTileIndexR, elements.length)].name());
     Point cursorPos = getCursorPosition();
-    if (getLevel() == null) return "";
+    if (getLevel() == null) return status.toString();
     getLevel()
         .tileAt(cursorPos)
         .ifPresent(
             tile -> {
+              status.append("\n");
               Coordinate c = cursorPos.toCoordinate();
               status
                   .append("Tile under cursor (")
