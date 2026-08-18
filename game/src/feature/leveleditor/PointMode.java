@@ -85,7 +85,7 @@ public class PointMode extends LevelEditorMode {
   }
 
   @Override
-  public String getStatusText() {
+  public String additionalInformation() {
     String status =
         "Snap Mode: "
             + snapMode.name()

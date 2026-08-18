@@ -71,7 +71,7 @@ public class StartTilesMode extends LevelEditorMode {
   public void onExit() {}
 
   @Override
-  public String getStatusText() {
+  public String additionalInformation() {
     DungeonLevel level = getLevel();
     StringBuilder status = new StringBuilder();
     // List all start tiles with index + position. Add an entry for "New" at the end.

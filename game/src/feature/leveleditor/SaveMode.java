@@ -37,7 +37,7 @@ public class SaveMode extends LevelEditorMode {
   public void onExit() {}
 
   @Override
-  public String getStatusText() {
+  public String additionalInformation() {
     return "";
   }
 

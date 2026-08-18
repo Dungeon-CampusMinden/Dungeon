@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import engine.Entity;
 import engine.Game;
 import engine.System;
@@ -28,6 +29,7 @@ import feature.leveleditor.SaveMode;
 import feature.leveleditor.ShiftLevelMode;
 import feature.leveleditor.StartTilesMode;
 import feature.leveleditor.TilesMode;
+import feature.leveleditor.ui.LevelEditorUI;
 import java.util.Map;
 
 /**
@@ -69,6 +71,8 @@ public class LevelEditorSystem extends System {
   private static final float FEEDBACK_MESSAGE_DURATION = 3.0f; // seconds
 
   private static Map<Integer, InputComponent.InputData> playerClallbacks = null;
+
+  private static LevelEditorUI ui = null;
 
   /**
    * Creates a new LevelEditorSystem.
@@ -146,6 +150,65 @@ public class LevelEditorSystem extends System {
       }
       currentModeInstance.onExit();
     }
+    updateUI();
+  }
+
+  /**
+   * Gets the currently selected editor mode.
+   *
+   * @return the current mode.
+   */
+  public static Mode currentMode() {
+    return currentMode;
+  }
+
+  /**
+   * Switches to the given editor mode.
+   *
+   * <p>Exits the previous mode, creates a new instance of the given mode and enters it. Also
+   * updates the mode selection panel of the {@link LevelEditorUI}.
+   *
+   * @param mode the mode to switch to.
+   */
+  public static void currentMode(Mode mode) {
+    if (mode == null || mode == currentMode) return;
+    currentMode = mode;
+    currentModeInstance.onExit();
+    currentModeInstance = mode.getModeInstance();
+    currentModeInstance.onEnter();
+    if (ui != null) {
+      ui.modePanel().selected(mode);
+      ui.detailsPanel().mode(currentModeInstance);
+    }
+  }
+
+  /**
+   * Called by the {@link LevelEditorUI} once it removed itself from the stage, so a new group is
+   * created if the system is added to the game again.
+   */
+  public static void uiDetached() {
+    ui = null;
+  }
+
+  /**
+   * Makes sure the {@link LevelEditorUI} group is part of the stage and only visible while the
+   * editor is active.
+   */
+  private static void updateUI() {
+    if (ui == null) {
+      Game.stage()
+          .ifPresent(
+              stage -> {
+                ui = new LevelEditorUI();
+                ui.setSize(stage.getWidth(), stage.getHeight());
+                stage.addActor(ui);
+                ui.detailsPanel().mode(currentModeInstance);
+              });
+    }
+    if (ui != null) {
+      ui.setVisible(active);
+      ui.modePanel().selected(currentMode);
+    }
   }
 
   /** Activates the editor on the first game tick after a local player has been created. */
@@ -157,25 +220,10 @@ public class LevelEditorSystem extends System {
   public void render(float delta) {
     if (!active) return;
 
-    String status = currentModeInstance.getFullStatusText();
-    StringBuilder modeSelection = new StringBuilder("Level Editor v2 | Modes: ");
-    for (int i = 0; i < Mode.values().length; i++) {
-      if (i > 0) {
-        modeSelection.append(" | ");
-      }
-      if (i == currentMode.ordinal()) {
-        modeSelection.append("[").append(i + 1).append("]");
-      } else {
-        modeSelection.append(i + 1);
-      }
-    }
-    modeSelection
-        .append("\n ( SPACE to toggle layer debug shader [")
-        .append(DrawSystem.shadersActiveLastFrame())
-        .append("] )");
-    modeSelection.append("\n\n");
-    status = modeSelection + status;
-    DebugDrawSystem.drawText(FONT, status, new Point(10.0f, Game.windowHeight() - 10.0f));
+    DebugDrawSystem.drawText(
+        FONT,
+        "( SPACE to toggle layer debug shader [" + DrawSystem.shadersActiveLastFrame() + "] )",
+        new Point(10.0f, Game.windowHeight() - 10.0f));
 
     // Draw feedback message if timer > 0
     if (feedbackMessageTimer > 0.0f && !feedbackMessage.isEmpty()) {
@@ -208,9 +256,16 @@ public class LevelEditorSystem extends System {
       active(!active);
     }
 
+    updateUI();
+
     if (!active) return;
 
     if (Game.player().map(Game.hud()::hasOpenUI).orElse(false)) {
+      return;
+    }
+
+    // Do not react to editor keys while the user types into a text field of the editor UI
+    if (Game.stage().map(stage -> stage.getKeyboardFocus() instanceof TextField).orElse(false)) {
       return;
     }
 
@@ -220,27 +275,22 @@ public class LevelEditorSystem extends System {
 
     Mode previousMode = currentMode;
     if (InputManager.isKeyPressed(MODE_1)) {
-      currentMode = Mode.getMode(0);
+      currentMode(Mode.getMode(0));
     } else if (InputManager.isKeyPressed(MODE_2)) {
-      currentMode = Mode.getMode(1);
+      currentMode(Mode.getMode(1));
     } else if (InputManager.isKeyPressed(MODE_3)) {
-      currentMode = Mode.getMode(2);
+      currentMode(Mode.getMode(2));
     } else if (InputManager.isKeyPressed(MODE_4)) {
-      currentMode = Mode.getMode(3);
+      currentMode(Mode.getMode(3));
     } else if (InputManager.isKeyPressed(MODE_5)) {
-      currentMode = Mode.getMode(4);
+      currentMode(Mode.getMode(4));
     } else if (InputManager.isKeyPressed(MODE_6)) {
-      currentMode = Mode.getMode(5);
+      currentMode(Mode.getMode(5));
     } else if (InputManager.isKeyPressed(MODE_7)) {
-      currentMode = Mode.getMode(6);
+      currentMode(Mode.getMode(6));
     }
 
     if (!internalStopped || previousMode != currentMode) {
-      if (previousMode != currentMode) {
-        currentModeInstance.onExit();
-        currentModeInstance = currentMode.getModeInstance();
-        currentModeInstance.onEnter();
-      }
       currentModeInstance.doExecute();
     }
   }
@@ -296,15 +346,44 @@ public class LevelEditorSystem extends System {
     internalStopped = false;
   }
 
-  private enum Mode {
-    Tiles,
-    Decos,
-    Points,
-    LevelBounds,
-    ShiftLevel,
-    StartTiles,
-    SaveLevel;
+  /** The available modes of the level editor. */
+  public enum Mode {
+    /** Mode to place and remove level tiles. */
+    Tiles('T'),
+    /** Mode to place and remove decorations. */
+    Decos('D'),
+    /** Mode to place and remove named points. */
+    Points('P'),
+    /** Mode to change the boundaries of the level. */
+    LevelBounds('B'),
+    /** Mode to shift the whole level layout. */
+    ShiftLevel('M'),
+    /** Mode to define the start (spawn) tiles. */
+    StartTiles('A'),
+    /** Mode to save the current level. */
+    SaveLevel('S');
 
+    private final char letter;
+
+    Mode(char letter) {
+      this.letter = letter;
+    }
+
+    /**
+     * Gets the single letter representing this mode in the mode selection panel.
+     *
+     * @return the letter of this mode.
+     */
+    public char letter() {
+      return letter;
+    }
+
+    /**
+     * Gets the mode with the given index.
+     *
+     * @param number the index of the mode.
+     * @return the mode with the given index.
+     */
     public static Mode getMode(int number) {
       if (number < 0 || number >= values().length) {
         throw new IllegalArgumentException("Invalid mode number: " + number);
@@ -312,6 +391,11 @@ public class LevelEditorSystem extends System {
       return values()[number];
     }
 
+    /**
+     * Creates a new instance of the {@link LevelEditorMode} belonging to this mode.
+     *
+     * @return a new mode instance.
+     */
     public LevelEditorMode getModeInstance() {
       return switch (this) {
         case Tiles -> new TilesMode();

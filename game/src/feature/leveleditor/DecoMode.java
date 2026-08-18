@@ -158,7 +158,7 @@ public class DecoMode extends LevelEditorMode {
   }
 
   @Override
-  public String getStatusText() {
+  public String additionalInformation() {
     StringBuilder status = new StringBuilder();
     int entityCount = (int) Game.levelEntities(Set.of(DecoComponent.class)).count();
     status.append("Entities: ").append(entityCount);

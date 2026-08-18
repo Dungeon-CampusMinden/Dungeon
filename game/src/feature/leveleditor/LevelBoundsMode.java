@@ -39,7 +39,7 @@ public class LevelBoundsMode extends LevelEditorMode {
   public void onExit() {}
 
   @Override
-  public String getStatusText() {
+  public String additionalInformation() {
     return "";
   }
 

@@ -2,11 +2,14 @@ package feature.leveleditor;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.level.utils.Coordinate;
 import engine.level.utils.LevelElement;
 import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Vector2;
+import feature.leveleditor.ui.LevelElementGrid;
+import feature.leveleditor.ui.NumberSetting;
 import feature.systems.DebugDrawSystem;
 import feature.utils.CheckPatternPainter;
 import java.util.LinkedHashMap;
@@ -20,10 +23,71 @@ public class TilesMode extends LevelEditorMode {
   private static int selectedTileIndexR = 2;
   private static int brushSize = 1;
   private static final int MAX_BRUSH_SIZE = 7;
+  private static final int GRID_COLUMNS = 4;
+
+  /** Texture used for level elements that have no dedicated preview texture. */
+  public static final String FALLBACK_TEXTURE = "dungeon/default/floor/floor_1.png";
+
+  /** Preview textures shown on the tile buttons of the details panel. */
+  private static final Map<LevelElement, String> TILE_TEXTURES =
+      Map.of(
+          LevelElement.SKIP, "dungeon/default/floor/empty.png",
+          LevelElement.FLOOR, "dungeon/default/floor/floor_1.png",
+          LevelElement.WALL, "dungeon/default/wall/top.png",
+          LevelElement.HOLE, "dungeon/default/floor/floor_hole.png",
+          LevelElement.EXIT, "dungeon/default/floor/floor_ladder.png",
+          LevelElement.PIT, "dungeon/default/floor/pit_open.png",
+          LevelElement.DOOR, "dungeon/default/door/top.png",
+          LevelElement.PORTAL, "dungeon/default/portal/portal_block.png",
+          LevelElement.GLASSWALL, "dungeon/default/portal/glasswall/glasswall_horizontal.png",
+          LevelElement.GITTER, "dungeon/default/portal/gutter/gutter_horizontal.png");
+
+  private LevelElementGrid grid = null;
+  private NumberSetting brushSizeSetting = null;
+
+  /**
+   * Gets the path of the preview texture used for the given level element.
+   *
+   * @param element the level element.
+   * @return the texture path, or {@link #FALLBACK_TEXTURE} if the element has no dedicated texture.
+   */
+  public static String texturePath(LevelElement element) {
+    return TILE_TEXTURES.getOrDefault(element, FALLBACK_TEXTURE);
+  }
 
   /** Constructs a new TilesMode. */
   public TilesMode() {
     super("Tiles Mode");
+  }
+
+  @Override
+  public String getHeader() {
+    return "Level Tiles";
+  }
+
+  @Override
+  public void buildDetailsUI(Table content) {
+    content.clearChildren();
+    grid =
+        new LevelElementGrid(
+            GRID_COLUMNS,
+            TilesMode::texturePath,
+            () -> selectedTileIndexL,
+            () -> selectedTileIndexR,
+            ordinal -> selectedTileIndexL = ordinal,
+            ordinal -> selectedTileIndexR = ordinal);
+    brushSizeSetting =
+        new NumberSetting(
+            "Brush Size", 1, MAX_BRUSH_SIZE, () -> brushSize, size -> brushSize = size);
+
+    content.add(grid).growX().row();
+    content.add(brushSizeSetting).growX().padTop(10f).row();
+  }
+
+  @Override
+  public void updateDetailsUI() {
+    if (grid != null) grid.refresh();
+    if (brushSizeSetting != null) brushSizeSetting.refresh();
   }
 
   @Override
@@ -127,40 +191,33 @@ public class TilesMode extends LevelEditorMode {
   public void onExit() {}
 
   @Override
-  public String getStatusText() {
+  public String additionalInformation() {
     StringBuilder status = new StringBuilder();
-    status.append("\n[L] Brush Size: ").append(brushSize);
-    for (int i = 0; i < LevelElement.values().length; i++) {
-      LevelElement element = LevelElement.values()[i];
-      boolean hasL = (i == Math.floorMod(selectedTileIndexL, LevelElement.values().length));
-      boolean hasR = (i == Math.floorMod(selectedTileIndexR, LevelElement.values().length));
-      status.append("\n").append(element.name());
-      if (hasL) {
-        status.append(" [L]");
-      }
-      if (hasR) {
-        status.append(" [R]");
-      }
-    }
-
-    // Get tile under cursor
     Point cursorPos = getCursorPosition();
+    if (getLevel() == null) return "";
     getLevel()
         .tileAt(cursorPos)
         .ifPresent(
             tile -> {
               Coordinate c = cursorPos.toCoordinate();
-              status.append("\n\nCursor Tile:");
-              status.append("\n- (").append(c.x()).append(", ").append(c.y()).append(")");
-              status.append("\n- LevelElement: ").append(tile.levelElement().name());
-              status.append("\n- Texture: ").append(tile.texturePath().pathString());
+              status
+                  .append("Tile under cursor (")
+                  .append(c.x())
+                  .append(",")
+                  .append(c.y())
+                  .append("):");
+              status
+                  .append("\n")
+                  .append(tile.levelElement().name())
+                  .append("  |  ")
+                  .append(tile.texturePath().pathString());
               if (tile.tintColor() == -1) {
-                status.append("\n- TintColor RGBA: (---)");
+                status.append("\nTint: (---)");
               } else {
-                Color tintColor = new Color(tile.tintColor() == -1 ? 0xFFFFFFFF : tile.tintColor());
+                Color tintColor = new Color(tile.tintColor());
                 status.append(
                     String.format(
-                        "\n- TintColor RGBA: (%.2f, %.2f, %.2f, %.2f)",
+                        "\nTint: (%.1f, %.1f, %.1f, %.1f)",
                         tintColor.r, tintColor.g, tintColor.b, tintColor.a));
               }
             });
@@ -171,14 +228,10 @@ public class TilesMode extends LevelEditorMode {
   @Override
   public Map<Integer, String> getControls() {
     Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(PRIMARY_UP, "Next Tile");
-    controls.put(PRIMARY_DOWN, "Prev Tile");
-    controls.put(SECONDARY_UP, "Brush Size [L] +1");
-    controls.put(SECONDARY_DOWN, "Brush Size [L] -1");
-    controls.put(TERTIARY, "Place SKIP Tile");
-    controls.put(QUARTERNARY, "Pick from cursor");
     controls.put(Input.Buttons.LEFT, "Place Tile [L]");
     controls.put(Input.Buttons.RIGHT, "Place Tile [R]");
+    controls.put(TERTIARY, "Place SKIP Tile");
+    controls.put(QUARTERNARY, "Pick tile from cursor");
     return controls;
   }
 }
