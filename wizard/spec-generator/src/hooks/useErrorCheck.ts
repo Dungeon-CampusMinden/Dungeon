@@ -22,6 +22,7 @@ const NO_STORED_ASSETS = new Set<string>();
 
 /** Validates project data and reports whether custom-asset storage could be checked completely. */
 export function useErrorCheck(
+  draftId: string,
   deerSchema: DeerProject,
   uploads: WizardDraft["uploads"],
 ): ErrorCheckResult {
@@ -44,7 +45,7 @@ export function useErrorCheck(
 
     let cancelled = false;
     setStorageCheck({ checkedKey: customAssetKey, status: "checking", storedAssetIds: null });
-    storage.assets.listAssetIds()
+    storage.assets.listAssetIds(draftId)
       .then((ids) => {
         if (cancelled) return;
         const storageKeys = new Set(ids);
@@ -68,7 +69,7 @@ export function useErrorCheck(
     return () => {
       cancelled = true;
     };
-  }, [customAssetKey, storage]);
+  }, [customAssetKey, draftId, storage]);
 
   const hasCustomAssets = customAssets.length > 0;
   const matchesCurrentProject = storageCheck.checkedKey === customAssetKey;

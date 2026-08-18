@@ -18,6 +18,7 @@ export function AssetSelector({
   onChange,
   allowEmpty = true,
   className = "",
+  accessibleLabel = "Datei auswählen",
 }: {
   items: Asset[];
   value: string;
@@ -25,6 +26,7 @@ export function AssetSelector({
   /** When true, the dialog offers an entry to clear the selection. */
   allowEmpty?: boolean;
   className?: string;
+  accessibleLabel?: string;
 }) {
   const uploads = useUploadReferences();
   const previews = useAssetPreviews(items);
@@ -36,6 +38,7 @@ export function AssetSelector({
     <div className={`flex items-center gap-2 ${className}`}>
       <button
         type="button"
+        aria-label={accessibleLabel}
         className="w-32 cursor-pointer rounded-lg p-0 text-left"
         onClick={() => setDialogOpen(true)}
       >
@@ -45,7 +48,7 @@ export function AssetSelector({
           <EmptyAssetCard />
         )}
       </button>
-      <Button variant="outline" onClick={() => setDialogOpen(true)}>
+      <Button aria-label={accessibleLabel} variant="outline" onClick={() => setDialogOpen(true)}>
         <ImageIcon />
         Datei wählen
       </Button>

@@ -1,8 +1,13 @@
-import { WIZARD_DRAFT_VERSION, type WizardDraft } from "./WizardDraft";
+import {
+  draftRevision,
+  WIZARD_DRAFT_VERSION,
+  type WizardDraft,
+} from "./WizardDraft";
 import { isTabId, VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 
-const STORE_VERSION = "1" as const;
-const DRAFT_STORE_KEY = "wizardDraftStore";
+const STORE_VERSION = "2" as const;
+const DRAFT_STORE_KEY = "wizardDraftStore-v3";
+const DRAFT_SAVE_LOCK = "dungeon-wizard-draft-store-v3-save";
 
 interface DraftStoreEnvelope {
   storeVersion: typeof STORE_VERSION;
@@ -17,9 +22,28 @@ export interface DraftSummary {
 }
 
 export interface DraftStoragePort {
-  list(): DraftSummary[];
-  load(draftId: string): WizardDraft | null;
-  save(draft: WizardDraft): WizardDraft;
+  list(): Promise<DraftSummary[]>;
+  load(draftId: string): Promise<WizardDraft | null>;
+  save(draft: WizardDraft): Promise<WizardDraft>;
+}
+
+export type DraftReloadReason = "revision-conflict" | "finalization-recovered";
+
+export class DraftReloadRequiredError extends Error {
+  readonly reason: DraftReloadReason;
+  readonly title: string;
+
+  constructor(reason: DraftReloadReason) {
+    const recovered = reason === "finalization-recovered";
+    super(recovered
+      ? "Der lokale Wizard hat einen unterbrochenen Speichervorgang sicher wiederhergestellt. Dein geöffneter Stand kann deshalb veraltet sein und bleibt hier erhalten."
+      : "Dieser Entwurf wurde inzwischen an anderer Stelle geändert. Dein vollständig geöffneter Stand bleibt hier erhalten.");
+    this.name = "DraftReloadRequiredError";
+    this.reason = reason;
+    this.title = recovered
+      ? "Ein Speichervorgang wurde wiederhergestellt"
+      : "Der gespeicherte Entwurf wurde an anderer Stelle geändert";
+  }
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -136,7 +160,7 @@ function isGraphLayout(value: unknown): boolean {
 
 function isUploads(value: unknown): boolean {
   return isRecord(value) && Object.values(value).every((upload) =>
-    isRecord(upload) && isString(upload.storageKey) && /^[0-9a-f]{12}$/.test(upload.storageKey)
+    isRecord(upload) && isString(upload.storageKey) && /^[0-9a-f]{64}$/.test(upload.storageKey)
     && isString(upload.originalName));
 }
 
@@ -151,10 +175,20 @@ function isUiState(value: unknown): boolean {
 function isFinalization(value: unknown): boolean {
   return isRecord(value) && Number.isSafeInteger(value.seed) && (value.seed as number) >= 0
     && isString(value.projectDirectory)
-    && isString(value.finalizedAt);
+    && isString(value.finalizedAt)
+    && (value.candidateHash === undefined
+      || (isString(value.candidateHash) && /^[0-9a-f]{64}$/.test(value.candidateHash)))
+    && isString(value.deerSha256) && /^[0-9a-f]{64}$/.test(value.deerSha256)
+    && (value.finalizedProjectSha256 === undefined
+      || (isString(value.finalizedProjectSha256)
+        && /^[0-9a-f]{64}$/.test(value.finalizedProjectSha256)))
+    && isOptionalString(value.jarPath)
+    && (value.jarSha256 === undefined
+      || (isString(value.jarSha256) && /^[0-9a-f]{64}$/.test(value.jarSha256)))
+    && ((value.jarPath === undefined) === (value.jarSha256 === undefined));
 }
 
-function assertWizardDraft(value: unknown): asserts value is WizardDraft {
+export function assertWizardDraft(value: unknown): asserts value is WizardDraft {
   if (!isRecord(value)) throw new Error("Der gespeicherte Entwurf ist beschädigt.");
   if (value.draftVersion !== WIZARD_DRAFT_VERSION) {
     throw new Error(
@@ -167,8 +201,12 @@ function assertWizardDraft(value: unknown): asserts value is WizardDraft {
     );
   }
   if (
-    !isString(value.draftId) || value.draftId.length === 0 || !isDeerProject(value.project)
+    !isString(value.draftId) || value.draftId.length === 0
+    || !Number.isSafeInteger(value.revision) || (value.revision as number) < 0
+    || !isDeerProject(value.project)
     || !isGraphLayout(value.graphLayout) || !isUploads(value.uploads) || !isUiState(value.ui)
+    || (value.projectDirectory !== undefined
+      && (!isString(value.projectDirectory) || value.projectDirectory.length === 0))
     || (value.savedAt !== undefined && !isString(value.savedAt))
     || (value.saveStatus !== "unsaved" && value.saveStatus !== "saved")
     || (value.finalization !== undefined && !isFinalization(value.finalization))
@@ -222,7 +260,7 @@ function readStore(): DraftStoreEnvelope {
     const draft = drafts[draftId];
     assertWizardDraft(draft);
     if (draft.draftId !== draftId) {
-      throw new Error(`Der gespeicherte Entwurf ${draftId} hat eine widersprüchliche ID.`);
+      throw new Error("Ein gespeicherter Entwurf ist widersprüchlich.");
     }
   }
 
@@ -230,43 +268,63 @@ function readStore(): DraftStoreEnvelope {
 }
 
 export class BrowserDraftStorage implements DraftStoragePort {
-  list(): DraftSummary[] {
+  async list(): Promise<DraftSummary[]> {
     const store = readStore();
     return store.draftOrder.map((draftId) => {
       const draft = store.drafts[draftId];
-      if (!draft) throw new Error(`Der Entwurf ${draftId} konnte nicht geladen werden.`);
+      if (!draft) throw new Error("Ein gespeicherter Entwurf konnte nicht geladen werden.");
       assertWizardDraft(draft);
       return { draftId, title: draft.project.metadata.title, savedAt: draft.savedAt };
     });
   }
 
-  load(draftId: string): WizardDraft | null {
+  async load(draftId: string): Promise<WizardDraft | null> {
     const draft = readStore().drafts[draftId];
     if (!draft) return null;
     assertWizardDraft(draft);
     return structuredClone(draft);
   }
 
-  save(draft: WizardDraft): WizardDraft {
+  async save(draft: WizardDraft): Promise<WizardDraft> {
     if (draft.draftVersion !== WIZARD_DRAFT_VERSION) {
       throw new Error(`Entwurfsversion ${draft.draftVersion} wird nicht unterstützt.`);
     }
-    const stored: WizardDraft = {
-      ...structuredClone(draft),
-      savedAt: new Date().toISOString(),
-      saveStatus: "saved",
-    };
-    const previous = readStore();
-    const next: DraftStoreEnvelope = {
-      storeVersion: STORE_VERSION,
-      draftOrder: previous.draftOrder.includes(stored.draftId)
-        ? previous.draftOrder
-        : [...previous.draftOrder, stored.draftId],
-      drafts: { ...previous.drafts, [stored.draftId]: stored },
-    };
+    assertWizardDraft(draft);
+    if (!("locks" in navigator) || navigator.locks === undefined) {
+      throw new Error(
+        "Dein Browser kann Entwürfe nicht sicher speichern, weil die benötigte Sperrfunktion fehlt. Verwende die lokale Wizard-Anwendung oder einen aktuellen Browser.",
+      );
+    }
+    return navigator.locks.request(DRAFT_SAVE_LOCK, { mode: "exclusive" }, () => {
+      const previous = readStore();
+      const current = previous.drafts[draft.draftId];
+      if (current === undefined) {
+        if (draft.revision !== 0) {
+          throw new DraftReloadRequiredError("revision-conflict");
+        }
+      } else if (current.revision !== draft.revision) {
+        throw new DraftReloadRequiredError("revision-conflict");
+      }
+      if (draft.revision === Number.MAX_SAFE_INTEGER) {
+        throw new Error("Der Entwurf kann nicht weiter gespeichert werden.");
+      }
+      const stored: WizardDraft = {
+        ...structuredClone(draft),
+        revision: draftRevision(draft.revision + 1),
+        savedAt: new Date().toISOString(),
+        saveStatus: "saved",
+      };
+      const next: DraftStoreEnvelope = {
+        storeVersion: STORE_VERSION,
+        draftOrder: previous.draftOrder.includes(stored.draftId)
+          ? previous.draftOrder
+          : [...previous.draftOrder, stored.draftId],
+        drafts: { ...previous.drafts, [stored.draftId]: stored },
+      };
 
-    // One write commits index and draft together. If it throws, the previous envelope is untouched.
-    localStorage.setItem(DRAFT_STORE_KEY, JSON.stringify(next));
-    return stored;
+      // The exclusive cross-tab lock makes compare-and-write one CAS operation.
+      localStorage.setItem(DRAFT_STORE_KEY, JSON.stringify(next));
+      return stored;
+    });
   }
 }

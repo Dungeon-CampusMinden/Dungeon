@@ -19,6 +19,25 @@ function SeverityIcon({ severity }: { severity: IssueSeverity }) {
   }
 }
 
+function teacherDescription(description: string): string {
+  if (description.includes("internen Dateinamen")) {
+    return "Zwei eigene Dateien stehen miteinander in Konflikt.";
+  }
+  return description
+    .replace("Das Abenteuer hat keine Id.", "Das Abenteuer ist unvollständig.")
+    .replace("Lernziele haben doppelte Ids.", "Ein Lernziel ist mehrfach angelegt.")
+    .replace("Es gibt Rätsel mit doppelten Ids.", "Ein Rätsel ist mehrfach angelegt.")
+    .replace("Informationsquellen mit doppelten Ids", "mehrfach angelegte Informationsquellen");
+}
+
+function teacherDetails(details: string | undefined): string | undefined {
+  if (!details) return undefined;
+  if (/\b(ids?|json|java|deer|hash|enum)\b/i.test(details)
+    || /\([^)]*(world|container|keypad|door)[^)]*\)/i.test(details)
+    || /(?:^|\s)\/(?:[^\s/]+\/)+/.test(details)) return undefined;
+  return details;
+}
+
 /** Vertical list of all validation notices, most severe first. */
 export function IssueList({
   issues,
@@ -46,8 +65,8 @@ export function IssueList({
           className={SEVERITY_STYLES[issue.severity]}
         >
           <SeverityIcon severity={issue.severity} />
-          <AlertTitle className="text-foreground text-wrap">{issue.description}</AlertTitle>
-          {issue.details && <AlertDescription>{issue.details}</AlertDescription>}
+          <AlertTitle className="text-foreground text-wrap">{teacherDescription(issue.description)}</AlertTitle>
+          {teacherDetails(issue.details) && <AlertDescription>{teacherDetails(issue.details)}</AlertDescription>}
         </Alert>
       ))}
     </div>

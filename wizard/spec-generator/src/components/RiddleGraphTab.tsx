@@ -1,4 +1,4 @@
-import type { AnyGraphNode, Riddle, Surface } from "@/data/DeerSchema";
+import type { AnyGraphNode, DeerProject, Riddle } from "@/data/DeerSchema";
 import type { GraphLayout, UpdateDraft, WizardDraft } from "@/data/WizardDraft";
 import { removeRiddle } from "@/data/RiddleGraphActions";
 import {
@@ -21,8 +21,10 @@ import React from "react";
 import { toast } from "sonner";
 import { RiddleEditDialog } from "./riddles/RiddleEditDialog";
 import { Button } from "./ui/button";
-import { GRAPH_EDGE_TYPES } from "./graph/DeletableEdge";
+import { Field, FieldLabel } from "./ui/field";
+import { GRAPH_EDGE_TYPES, type DeletableGraphEdge } from "./graph/DeletableEdge";
 import { GRAPH_NODE_TYPES, type GraphFlowNode } from "./graph/GraphNodes";
+import { SimpleSelect } from "./riddles/SimpleSelect";
 import {
   computeAutoLayout,
   hasEdge,
@@ -55,12 +57,21 @@ function RiddleGraphEditor({
 }) {
   const { resolvedTheme } = useTheme();
   const [editingRiddleId, setEditingRiddleId] = React.useState<string | null>(null);
+  const [connectionFrom, setConnectionFrom] = React.useState("");
+  const [connectionTo, setConnectionTo] = React.useState("");
   const [nodes, setNodes, onNodesChange] = useNodesState<GraphFlowNode>([]);
 
   const project = draft.project;
   const graph = useStableValue(project.riddleGraph);
   const riddles = useStableValue(project.riddles);
-  const surfaces = useStableValue(project.surfaces);
+  const riddleLabels = React.useMemo(
+    () => new Map(riddles.map((riddle, index) => [riddle.id, riddleGraphLabel(riddle, index)])),
+    [riddles],
+  );
+  const nodeLabels = React.useMemo(
+    () => new Map(graph.nodes.map((node) => [node.id, graphNodeLabel(node, riddleLabels)])),
+    [graph, riddleLabels],
+  );
   const storedLayout = useStableValue(draft.graphLayout);
   const positions = React.useMemo(() => withMissingPositions(graph, storedLayout), [graph, storedLayout]);
 
@@ -74,40 +85,37 @@ function RiddleGraphEditor({
     if (positions !== storedLayout) persistLayout(positions);
   }, [positions, storedLayout, persistLayout]);
 
-  const onEndSurfaceChange = React.useCallback((nodeId: string, surfaceId: string) => {
-    updateDraft((current) => {
-      const node = current.project.riddleGraph.nodes.find(
-        (candidate) => candidate.id === nodeId && candidate.kind === "end",
-      );
-      if (!node || node.kind !== "end") return false;
-      node.surfaceId = surfaceId;
-    });
-  }, [updateDraft]);
-
   const flowNodes = React.useMemo<GraphFlowNode[]>(
-    () => graph.nodes.map((node) =>
-      toFlowNode(node, positions, riddles, surfaces, setEditingRiddleId, onEndSurfaceChange),
-    ),
-    [graph, positions, riddles, surfaces, onEndSurfaceChange],
+    () => graph.nodes.map((node) => toFlowNode(node, positions, riddles, riddleLabels, setEditingRiddleId)),
+    [graph, positions, riddles, riddleLabels],
   );
   React.useEffect(() => setNodes(flowNodes), [flowNodes, setNodes]);
 
-  const flowEdges = React.useMemo<Edge[]>(
+  const flowEdges = React.useMemo<DeletableGraphEdge[]>(
     () => graph.edges.map((edge) => ({
       id: `${edge.from}->${edge.to}`,
       source: edge.from,
       target: edge.to,
       type: "deletable",
+      data: {
+        sourceLabel: nodeLabels.get(edge.from) ?? "Nicht mehr vorhandener Schritt",
+        targetLabel: nodeLabels.get(edge.to) ?? "Nicht mehr vorhandener Schritt",
+      },
       markerEnd: { type: MarkerType.ArrowClosed },
     })),
-    [graph],
+    [graph, nodeLabels],
   );
 
-  const onConnect = React.useCallback<OnConnect>((connection: Connection) => {
-    const { source, target } = connection;
-    if (!source || !target) return;
+  const connectNodes = React.useCallback((source: string, target: string) => {
     updateDraft((current) => {
+      const nodes = current.project.riddleGraph.nodes;
       const edges = current.project.riddleGraph.edges;
+      const sourceNode = nodes.find((node) => node.id === source);
+      const targetNode = nodes.find((node) => node.id === target);
+      if (!sourceNode || !targetNode || sourceNode.kind === "end" || targetNode.kind === "start") {
+        toast.error("Diese Schritte können nicht in dieser Richtung verbunden werden.");
+        return false;
+      }
       if (source === target) {
         toast.error("Ein Schritt kann nicht mit sich selbst verbunden werden.");
         return false;
@@ -123,6 +131,37 @@ function RiddleGraphEditor({
       current.project.riddleGraph.edges.push({ from: source, to: target });
     });
   }, [updateDraft]);
+
+  const onConnect = React.useCallback<OnConnect>((connection: Connection) => {
+    const { source, target } = connection;
+    if (source && target) connectNodes(source, target);
+  }, [connectNodes]);
+
+  const connectionOptions = React.useMemo(
+    () => graph.nodes.map((node) => ({
+      value: node.id,
+      label: nodeLabels.get(node.id) ?? "Nicht mehr vorhandener Schritt",
+      kind: node.kind,
+    })),
+    [graph, nodeLabels],
+  );
+  const fromOptions = React.useMemo(
+    () => connectionOptions.filter((option) => option.kind !== "end"),
+    [connectionOptions],
+  );
+  const toOptions = React.useMemo(
+    () => connectionOptions.filter((option) => option.kind !== "start"),
+    [connectionOptions],
+  );
+
+  React.useEffect(() => {
+    if (!fromOptions.some((option) => option.value === connectionFrom)) {
+      setConnectionFrom(fromOptions[0]?.value ?? "");
+    }
+    if (!toOptions.some((option) => option.value === connectionTo)) {
+      setConnectionTo(toOptions[0]?.value ?? "");
+    }
+  }, [connectionFrom, connectionTo, fromOptions, toOptions]);
 
   const onEdgesDelete = React.useCallback((deleted: Edge[]) => {
     const deletedIds = new Set(deleted.map((edge) => edge.id));
@@ -146,11 +185,14 @@ function RiddleGraphEditor({
   const editingIndex = project.riddles.findIndex((riddle) => riddle.id === editingRiddleId);
   const editingRiddle = editingIndex >= 0 ? project.riddles[editingIndex] : null;
 
-  const saveRiddle = (updated: Riddle) => {
+  const updateRiddle = (updated: DeerProject) => {
     updateDraft((current) => {
-      const index = current.project.riddles.findIndex((riddle) => riddle.id === updated.id);
+      const edited = updated.riddles.find((riddle) => riddle.id === editingRiddleId);
+      if (!edited) return false;
+      const index = current.project.riddles.findIndex((riddle) => riddle.id === edited.id);
       if (index === -1) return false;
-      current.project.riddles[index] = structuredClone(updated);
+      current.project.riddles[index] = structuredClone(edited);
+      current.project.surfaces = structuredClone(updated.surfaces);
     });
   };
 
@@ -183,6 +225,34 @@ function RiddleGraphEditor({
         Automatisch anordnen
       </Button>
 
+      <div className="mb-3 grid items-end gap-2 rounded-lg border border-border p-3 sm:grid-cols-[1fr_1fr_auto]">
+        <Field>
+          <FieldLabel>Von</FieldLabel>
+          <SimpleSelect
+            accessibleLabel="Ausgangspunkt der neuen Verbindung"
+            options={fromOptions}
+            value={connectionFrom}
+            onChange={setConnectionFrom}
+          />
+        </Field>
+        <Field>
+          <FieldLabel>Nach</FieldLabel>
+          <SimpleSelect
+            accessibleLabel="Zielpunkt der neuen Verbindung"
+            options={toOptions}
+            value={connectionTo}
+            onChange={setConnectionTo}
+          />
+        </Field>
+        <Button
+          type="button"
+          disabled={!connectionFrom || !connectionTo}
+          onClick={() => connectNodes(connectionFrom, connectionTo)}
+        >
+          Verbinden
+        </Button>
+      </div>
+
       <div className="h-[65vh] w-full overflow-hidden rounded-lg border border-border">
         <ReactFlow<GraphFlowNode>
           nodes={nodes}
@@ -212,7 +282,7 @@ function RiddleGraphEditor({
           deerSchema={project}
           open={editingRiddleId !== null}
           setOpen={(open) => { if (!open) setEditingRiddleId(null); }}
-          onSave={saveRiddle}
+          onChange={updateRiddle}
           onDelete={deleteRiddle}
         />
       )}
@@ -224,9 +294,8 @@ function toFlowNode(
   node: AnyGraphNode,
   positions: GraphLayout,
   riddles: Riddle[],
-  surfaces: Surface[],
+  riddleLabels: ReadonlyMap<string, string>,
   onEditRiddle: (riddleId: string) => void,
-  onEndSurfaceChange: (nodeId: string, surfaceId: string) => void,
 ): GraphFlowNode {
   const position = positions[node.id] ?? { x: 0, y: 0 };
   switch (node.kind) {
@@ -238,11 +307,7 @@ function toFlowNode(
         type: "end",
         position,
         deletable: false,
-        data: {
-          surfaceId: node.surfaceId,
-          surfaces,
-          onSurfaceChange: (surfaceId) => onEndSurfaceChange(node.id, surfaceId),
-        },
+        data: {},
       };
     case "riddle":
       return {
@@ -253,8 +318,19 @@ function toFlowNode(
         data: {
           riddleId: node.riddleId,
           riddle: riddles.find((riddle) => riddle.id === node.riddleId),
+          label: riddleLabels.get(node.riddleId) ?? "Nicht mehr vorhandenes Rätsel",
           onEdit: () => onEditRiddle(node.riddleId),
         },
       };
   }
+}
+
+function riddleGraphLabel(riddle: Riddle, index: number): string {
+  return `Rätsel ${index + 1}: ${riddle.title.trim() || "Unbenannt"}`;
+}
+
+function graphNodeLabel(node: AnyGraphNode, riddleLabels: ReadonlyMap<string, string>): string {
+  if (node.kind === "start") return "Start";
+  if (node.kind === "end") return "Ende";
+  return riddleLabels.get(node.riddleId) ?? "Nicht mehr vorhandenes Rätsel";
 }

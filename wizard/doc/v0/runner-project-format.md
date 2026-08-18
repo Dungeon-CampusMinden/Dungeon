@@ -1,24 +1,25 @@
 # Wizard Runner Project Format V0.4
 
-Status: umgesetzter V0.4-Runner- und Packaging-Contract; M1-Browser-Draft
-vorhanden, native M2-Finalisierung noch nicht umgesetzt
+Status: umgesetzter V0.4-Runner-, M2-Finalisierungs- und Packaging-Contract
 
 Scope: finalisierte Übergabe von der Wizard-UI an Validierung, Packaging und
 Room-first-Host
 
 ## Projektgrenze
 
-In M1 speichert die UI private Entwürfe browserbasiert über denselben
-Storage-Port in LocalStorage und IndexedDB; sie schreibt noch keinen
-Authoring-Projektordner. In M2 ersetzt ein nativer Java-Adapter diese
-Browserimplementierung, schreibt den Authoring-Projektordner atomar und führt
-Produktionsvalidierung und Finalisierung aus. Der generische Wizard Runner
+M1 und M2 sind Implementierungsmeilensteine; das öffentliche Projektformat
+bleibt DEER `0.4`. Im produktiven Pfad speichert der loopback-only Java-Host
+private Drafts v1 und Uploads unter `%LOCALAPPDATA%\Dungeon Wizard`, schreibt
+den Authoring-Projektordner atomar und führt Produktionsvalidierung,
+Finalisierung und Packaging aus. LocalStorage und IndexedDB sind nur der
+Vite-Entwicklungsfallback. Der generische Wizard Runner
 liest den finalisierten Ordner unverändert und leitet den Raum ausschließlich
 im Speicher ab. Es entsteht weder Java-Code noch ein Room-ZIP.
 
 ```text
 wizard-project/
   deer.json
+  WizardRoom.jar  # nach erfolgreichem Packaging
 ```
 
 Ein Projekt mit eigenen Bildern ergänzt optional:
@@ -26,6 +27,7 @@ Ein Projekt mit eigenen Bildern ergänzt optional:
 ```text
 wizard-project/
   deer.json
+  WizardRoom.jar
   assets/
     custom/
       foundation-note-3b50ea522803.png
@@ -41,6 +43,10 @@ Pfade mit Forward-Slashes und ohne führenden Slash. Eigene Bilder beginnen mit
 `assets/custom/`; bereits in der Spiel-JAR enthaltene Bilder werden direkt über
 interne Pfade wie `items/puzzle-piece.png` referenziert.
 
+Der Runner liest als Projekteingaben ausschließlich `deer.json` und die darin
+referenzierten Dateien unter `assets/custom/`. Eine daneben erzeugte
+`WizardRoom.jar` ist Ausgabe und keine erneute Projekteingabe.
+
 Die Java-Validierungsbibliothek liest diesen vollständigen Projektordner
 read-only. Die Authoring-Integration bindet sie direkt an. Der Spielerfluss
 verwendet die projektspezifische JAR. Der Room-first-Lebenszyklus steht im
@@ -48,8 +54,15 @@ verwendet die projektspezifische JAR. Der Room-first-Lebenszyklus steht im
 
 ## Projektspezifische Spieler-JAR
 
-Nach erfolgreicher Finalisierung erzeugt der Gradle-Packager aus dem
-Authoring-Projekt genau ein verteilbares Spielerartefakt:
+Nach erfolgreicher Finalisierung erzeugt die UI mit dem gemeinsamen
+`WizardRoomPackager` und einer generischen `WizardRoomTemplate.jar` genau ein
+verteilbares Spielerartefakt unter `<project>/WizardRoom.jar`. Der Packager
+validiert das Projekt erneut über dieselbe `ProjectValidationService` und
+`RoomDeriver`-Kette. Ein Packaging-Fehler verändert das finalisierte Projekt
+nicht und ist unabhängig wiederholbar. Zur Hostlaufzeit sind weder Gradle noch
+Node erforderlich.
+
+Der äquivalente Entwickler-/CI-Pfad lautet:
 
 ```text
 gradlew.bat :wizard:buildWizardRoomJar -PwizardProject=<projektordner>
@@ -78,41 +91,46 @@ nicht verpackt.
 Die JAR ist projektspezifisch. Exakt dieselbe vollständige `WizardRoom.jar`
 wird an Host und alle weiteren Spielenden verteilt; ein separater
 Assets-only-Ordner wird nicht manuell verteilt. `java -jar WizardRoom.jar`
-benötigt Java 25 und öffnet das Host-/Join-Menü. Die Authoring-UI ruft diesen
-Packager in V0.4 noch nicht selbst auf; diese Anbindung bleibt eine spätere
-dünne Integration.
+benötigt Java 25 und öffnet das Host-/Join-Menü.
 
 ## Draft und Finalisierung
 
 - Ein UI-Entwurf darf unvollständig sein und bleibt außerhalb dieses Formats.
-- In M1 liegen Entwurf und Uploadbytes hinter dem gemeinsamen Storage-Port in
-  LocalStorage beziehungsweise IndexedDB.
-- In M2 ersetzt der native Java-Adapter die Browserimplementierung und
-  finalisiert in einen Projektordner.
-- Die M2-Finalisierung projiziert den Draft auf Formatversion `0.4`.
+- Draft v1 und Uploadbytes liegen produktiv hinter dem gemeinsamen Storage-Port
+  unter `%LOCALAPPDATA%\Dungeon Wizard`; eine Browsermigration ist nicht
+  vorgesehen.
+- Die native Finalisierung projiziert den Draft auf Formatversion `0.4`.
 - Sie bewahrt jede authorierte direkte Pflichtabhängigkeit und erfindet oder
   vervollständigt keine Progressionskanten.
 - Der native Adapter prüft Schema, Fachregeln, Spielergrenzen und Assetpfade vor
   dem Schreiben.
-- Bei der ersten Finalisierung erzeugt der native M2-Vorgang den Seed zunächst
+- Bei der ersten Finalisierung erzeugt der native Host den Seed zunächst
   nur flüchtig und baut sowie validiert exakt den damit versehenen Kandidaten.
   Die UI erzeugt oder speichert vorher keinen echten Projektseed.
 - Neue Custom-Dateien werden zuerst und `deer.json` zuletzt atomar geschrieben.
   Erst nach vollständig erfolgreichem Abschluss gibt der native Vorgang den
   Seed zur Draft-Persistenz zurück.
+- Vor dem Schreiben legt der Host einen Recovery-Receipt an. Beim nächsten
+  Start gleicht er ihn mit der geschriebenen `deer.json` und der gemeinsamen
+  Produktionsvalidierung ab, übernimmt eine vollständig erfolgreiche
+  Finalisierung in den Draft oder behält einen nicht auflösbaren Receipt zur
+  sicheren Diagnose bei.
 - Bei jeder späteren Finalisierung verwendet der native Vorgang den im Draft
   vorhandenen Seedwert unverändert; der Runner verändert ihn nie.
 - Bei einem Spielbibliothek-Asset schreibt die UI ausschließlich dessen
   internen Pfad und Metadaten in den DEER-Eintrag; es wird keine Bilddatei
   kopiert.
-- Bei einem eigenen Upload berechnet der native Storage-Adapter SHA-256 und
-  schreibt das Bild inhaltsadressiert unter `assets/custom/`.
+- Bei einem eigenen Upload hasht und verifiziert der native Host die Bytes
+  bereits beim Speichern. Der Draft leitet aus dem zurückgegebenen Storage-Key
+  den inhaltsadressierten Pfad ab; die Finalisierung prüft Bindung und Bytes
+  erneut und schreibt das Bild unter `assets/custom/`.
 - Ein fehlgeschlagener Schreibvorgang lässt die letzte gültige Ausgabe
   verwendbar. Finalisierung sperrt den UI-Entwurf nicht.
 
-V0.4 spezifiziert für M2 einen Standalone-Host mit nativem Storage-Adapter.
-Dieser Anteil ist noch nicht umgesetzt. Ein browser-only Export ist nicht Teil
-des Foundation-Slices.
+Ein browser-only Export, beliebiger `deer.json`-Import und Room-ZIP sind nicht
+Teil des Produktflusses. `wizard/start_wizard_dev.cmd` ist nur ein
+Entwicklungslauncher. Eine Zielgruppen-`.exe` mit gebündelter Runtime bleibt
+ein späterer Distributionsmeilenstein; M2 erzeugt keine `.exe`.
 
 ## Seed in deer.json
 
@@ -247,6 +265,9 @@ skalare `arguments`, den RFC-6901-Pointer `path`, optional `entity` sowie
 `relatedPaths`. Die Frontend-Integration lokalisiert `messageKey` mit
 `arguments` und verwendet Pfade und Entity-Identität für „Zum Feld“ oder „Zum
 Rätsel“. Technische Codes und Pointer werden Lehrenden nicht roh angezeigt.
+Sie prüft den Reportvertrag strikt und bildet bekannte Issues auf verständliche
+Texte sowie die besitzenden Rätsel-, Spiel-Ende- oder Review-Kontexte ab; ein
+unbekannter Report bleibt ein technischer Fehler.
 
 Beispiel:
 

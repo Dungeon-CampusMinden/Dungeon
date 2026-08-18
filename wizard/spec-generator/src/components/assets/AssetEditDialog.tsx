@@ -35,18 +35,7 @@ export function AssetEditDialog({
   onReplaceContent: (asset: Asset, selection: AssetSelection) => Promise<void>;
 }) {
   const [selectorOpen, setSelectorOpen] = React.useState(false);
-  const [license, setLicense] = React.useState(asset.source.license);
-  const [attribution, setAttribution] = React.useState(asset.source.attribution ?? "");
-
-  const handleOpenChange = (nextOpen: boolean) => {
-    if (nextOpen) {
-      setLicense(asset.source.license);
-      setAttribution(asset.source.attribution ?? "");
-    }
-    setOpen(nextOpen);
-  };
-
-  const handleSave = () => {
+  const updateSource = (license: string, attribution: string) => {
     onUpdate({
       ...asset,
       source: {
@@ -55,11 +44,10 @@ export function AssetEditDialog({
         attribution: attribution.trim() === "" ? undefined : attribution,
       },
     });
-    setOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Datei bearbeiten</DialogTitle>
@@ -69,11 +57,19 @@ export function AssetEditDialog({
         <div className="flex flex-col gap-4">
           <Field>
             <FieldLabel>Lizenz</FieldLabel>
-            <Input value={license} onChange={(e) => setLicense(e.target.value)} />
+            <Input
+              aria-label="Lizenz der Datei"
+              value={asset.source.license}
+              onChange={(e) => updateSource(e.target.value, asset.source.attribution ?? "")}
+            />
           </Field>
           <Field>
             <FieldLabel>Urheber</FieldLabel>
-            <Input value={attribution} onChange={(e) => setAttribution(e.target.value)} />
+            <Input
+              aria-label="Urheber der Datei"
+              value={asset.source.attribution ?? ""}
+              onChange={(e) => updateSource(asset.source.license, e.target.value)}
+            />
           </Field>
 
           <Separator />
@@ -81,7 +77,7 @@ export function AssetEditDialog({
           <Field>
             <FieldLabel>Dateiname</FieldLabel>
             <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-              <Input value={displayName} readOnly aria-invalid={missing} />
+              <Input aria-label="Dateiname" value={displayName} readOnly aria-invalid={missing} />
               <Button variant="outline" onClick={() => setSelectorOpen(true)}>
                 <UploadIcon />
                 Ersetzen
@@ -104,8 +100,7 @@ export function AssetEditDialog({
         </div>
 
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>Abbrechen</DialogClose>
-          <Button onClick={handleSave}>Speichern</Button>
+          <DialogClose render={<Button />}>Fertig</DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

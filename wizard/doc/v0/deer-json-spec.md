@@ -14,13 +14,16 @@ Die Authoring-App schreibt genau ein DEER-Projekt:
 wizard-project/
   deer.json
   assets/custom/...  # nur bei eigenen Bildern
+  WizardRoom.jar     # nach erfolgreichem Packaging
 ```
 
 Sie erzeugt weder Java-Code noch ein Raummodul, Buildskripte oder ein Room-ZIP.
-Der Runner liest und validiert das Projekt und leitet daraus deterministisch
-einen Foundation-Raum im Speicher ab. Der Gradle-Packager kann das finalisierte
-Projekt anschließend vollständig in eine projektspezifische ausführbare
-`WizardRoom.jar` einbetten.
+Der Runner liest als Eingaben nur `deer.json` und referenzierte Custom-Assets
+und leitet daraus deterministisch einen Foundation-Raum im Speicher ab. Die UI
+bettet das finalisierte Projekt anschließend mit dem gemeinsamen Java-Packager
+und einer generischen `WizardRoomTemplate.jar` in eine projektspezifische
+ausführbare `WizardRoom.jar` ein. Diese JAR ist Ausgabe, keine Runner-
+Projekteingabe.
 
 Dieselbe JAR wird an Host und alle weiteren Spielenden verteilt. Damit besitzen
 alle JAR-Empfänger lokal auch `deer.json`, Seed, Lösungen und unveröffentlichte
@@ -56,7 +59,9 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 | `riddles` | Ausführbare Rätsel, Inhalte und optionale Hinweise. |
 | `assets` | Referenzierte PNG-/JPEG-Dateien. |
 
-Bei der ersten Finalisierung erzeugt der native M2-Vorgang `seed` zunächst nur
+M1 und M2 sind Implementierungsmeilensteine und ändern weder `formatVersion`
+noch die Semantik dieses Dokuments. Bei der ersten Finalisierung erzeugt der
+native Host `seed` zunächst nur
 flüchtig und gibt ihn erst nach vollständig erfolgreichem Abschluss zur
 Draft-Persistenz zurück. Bei späteren Finalisierungen verwendet er diesen im
 Draft vorhandenen Wert unverändert. Die UI erzeugt oder speichert vorher keinen
@@ -191,6 +196,15 @@ Informationsquelle und jede `keypad`-Surface genau einem Input. Die
 `world`-Surface beschreibt den gemeinsamen Raum und ist keine Fundstation. Der
 Endknoten referenziert die `door`-Surface. Diese Surface-IDs bleiben vom
 DEER-Projekt über Layoutplatzierung bis zur Foundation-Runtime identisch.
+
+Diese technischen Datensätze sind in der Authoring-UI verborgen. Lehrende
+benennen den Fundort direkt an der Informationsquelle, das Gerät direkt an der
+Zahleneingabe und den Ausgang unter „Spiel-Ende“. Die UI verwaltet genau eine
+World- und Door-Surface sowie je eine private Container-Surface pro Quelle und
+Keypad-Surface pro Numeric-Input. Collection-Inputs verwenden die Surface der
+gewählten Quelle und besitzen keine eigene. Erzeugen, Löschen und Typwechsel
+ändern Surfacebestand und Besitzer atomar; Umbenennen oder Umordnen ändert
+keine stabile ID. Eine separate Orte-/Surface-Ansicht existiert nicht.
 
 Ein Computer- oder allgemeiner Device-Typ ist nicht Teil dieses Vertrags. Eine
 spätere Computer-Surface oder mehrere Bindungen an dieselbe Surface benötigen

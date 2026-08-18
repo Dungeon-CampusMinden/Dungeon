@@ -12,17 +12,19 @@ export function SidebarNavigation({
   touchedTabs,
   tab,
   setTab,
+  disabled = false,
   className,
 }: {
   issueReport: IssueReport;
   touchedTabs: TouchedTabs;
   tab: TabId;
   setTab: (tab: TabId) => void;
+  disabled?: boolean;
   className?: string;
 }) {
   return (
     <div className={`panel ${className ?? ""} flex flex-col gap-0`}>
-      <h2>Outline</h2>
+      <h2>Übersicht</h2>
       <Tabs
         value={tab}
         onValueChange={(value) => {
@@ -33,7 +35,7 @@ export function SidebarNavigation({
       >
         <TabsList className="bg-transparent">
           {TABS.map((entry) => (
-            <TabsTrigger key={entry.value} value={entry.value}>
+            <TabsTrigger key={entry.value} value={entry.value} disabled={disabled}>
               <TabStatusIcon severity={getTabSeverity(entry.value, issueReport, touchedTabs)} />
               {entry.label}
             </TabsTrigger>

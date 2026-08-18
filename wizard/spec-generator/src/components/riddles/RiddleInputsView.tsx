@@ -1,6 +1,5 @@
 import type { AnyRiddleInput, DeerProject, InformationSource, Riddle } from "@/data/DeerSchema";
 import { Util } from "@/data/Util";
-import { SurfaceIcon } from "../SurfacesTab";
 import { ResourceCarousel } from "./ResourceCarousel";
 import { getInputType, InputTypeIcon } from "./riddleTypes";
 
@@ -29,11 +28,10 @@ function ParameterRow({ label, children }: { label: string; children: React.Reac
 export function SurfaceValue({ deerSchema, surfaceId }: { deerSchema: DeerProject; surfaceId: string }) {
   const surface = Util.getSurface(deerSchema, surfaceId);
   if (!surface) {
-    return <span className="text-destructive">Kein Ort ausgewählt</span>;
+    return <span className="text-destructive">Nicht vollständig eingerichtet</span>;
   }
   return (
     <>
-      <SurfaceIcon kind={surface.kind} size={18} />
       <span>{surface.title}</span>
     </>
   );

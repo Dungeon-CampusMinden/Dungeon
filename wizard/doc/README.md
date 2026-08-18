@@ -32,28 +32,37 @@ Der Host-Knopf startet dieselbe JAR intern als verwalteten headless
 Serverprozess und verbindet anschließend den Host-Client. Die
 Authoring-Integration verwendet die Java-Validierungsbibliothek direkt.
 
-Der Java-Runner und der Foundation-Runtime-Slice sind umgesetzt. Die lokale
-Standalone-Autorenoberfläche ist in den folgenden Dokumenten verbindlich
-spezifiziert, aber noch nicht Bestandteil dieser Implementierung.
+Der Java-Runner, der Foundation-Runtime-Slice und die M2-Authoring-Architektur
+sind umgesetzt. Die produktive Autorenoberfläche läuft als React-UI unter
+einem loopback-only Java-Host. Er speichert private Entwürfe und Uploads unter
+`%LOCALAPPDATA%\Dungeon Wizard`, validiert und finalisiert Projekte und erzeugt
+anschließend `<project>/WizardRoom.jar`. LocalStorage und IndexedDB dienen nur
+als Fallback beim direkten Vite-Entwicklungsstart.
 
-## Temporärer Build-Helfer für v0.4
+M1 und M2 sind Implementierungsmeilensteine, keine Formatversionen. Das
+öffentliche DEER-Format bleibt `0.4`, das private Draftformat `1`; für den
+privaten Prototyp ist keine Browsermigration vorgesehen.
 
-Entwicklerinnen, Entwickler und Testende können ein finalisiertes
-Wizard-v0.4-Projekt mit dem kleinen grafischen Helfer paketieren:
+## Start und Packaging
+
+`wizard/start_wizard_dev.cmd` baut und startet den aktuellen
+Authoring-Host ausschließlich für Entwicklung. Die spätere
+Zielgruppen-Distribution als `.exe` mit gebündelter Runtime ist noch nicht
+umgesetzt; M2 erzeugt weder eine `.exe` noch ein Room-ZIP. Für den aktuellen
+Entwicklungs- und Spieler-JAR-Fluss ist Java 25 erforderlich.
+
+Die UI paketiert ein erfolgreich finalisiertes Projekt mit demselben
+Java-Packager, der auch dem Gradle-Entwickler-/CI-Pfad zugrunde liegt. Als
+Eingabe dient die generische `WizardRoomTemplate.jar`; am Ziel entsteht
+`<project>/WizardRoom.jar`. Im nativen Host sind dafür weder Gradle
+noch Node erforderlich. Der weiterhin unterstützte Entwickler-/CI-Aufruf ist:
 
 ```text
-python wizard/build_wizard_room.py
+gradlew.bat :wizard:buildWizardRoomJar -PwizardProject=<projektordner>
 ```
 
-Vorausgesetzt werden Python 3 mit Tkinter sowie Java 25; gebaut wird mit dem
-Gradle-Wrapper des Repositorys. Nach dem Start öffnet sich sofort die
-Dateiauswahl für die Datei mit dem exakten Namen `deer.json`; Abbrechen beendet
-den Helfer. Der übergeordnete Ordner wird als Projektordner verwendet. Die
-vollständige Gradle-Ausgabe und technische Details bleiben im Terminal
-sichtbar. Erfolg oder Fehler werden jeweils in einem kurzen Dialog gemeldet;
-nach einem Fehler öffnet sich die Dateiauswahl erneut im zuletzt gewählten
-Projektordner. Bei Erfolg liegt das Ergebnis unter
-`wizard/build/libs/WizardRoom.jar`.
+Ein Packaging-Fehler verändert das bereits finalisierte Projekt nicht und kann
+in der UI erneut versucht werden.
 
 `scenario.introText`, `scenario.successText` und das bei harten Zeitlimits
 verwendete `scenario.failureText` sind geordnete Seitenfolgen. Jeder
@@ -65,9 +74,10 @@ Array-Eintrag wird als eigene weiterklickbare Black-Fade-Seite angezeigt.
 |---|---|
 | DEER-Schema `0.4`, Projektvalidierung und Validierungsreports | umgesetzt |
 | Spieler-JAR, Host-/Join-Menü und Foundation-Runtime | umgesetzt |
-| Temporärer v0.4-Build-Helfer für Entwicklung und Tests | umgesetzt |
-| Lokale Authoring-UI, privater Draft und nativer Storage-Adapter | Soll-Contract, noch nicht umgesetzt |
-| Aufruf des JAR-Packagers aus der Authoring-UI | spätere dünne Integration |
+| Gradle-Entwickler-/CI-Packaging | umgesetzt |
+| Lokale Authoring-UI, privater Draft und nativer Storage-Adapter | in M2 umgesetzt |
+| Produktionsvalidierung, atomare Finalisierung und UI-Packaging | in M2 umgesetzt |
+| Zielgruppen-`.exe` mit gebündelter Java-Runtime | späterer Distributionsmeilenstein |
 | Inhalte unter `research/` | nicht-normative Begründung, kein zweiter Vertrag |
 
 ## Maßgebliche Dokumente

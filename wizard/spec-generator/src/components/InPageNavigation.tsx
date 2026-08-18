@@ -2,7 +2,11 @@ import { TABS, type TabId } from "@/data/Tabs";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 
-export function InPageNavigation({ tab, setTab }: { tab: TabId; setTab: (tab: TabId) => void }) {
+export function InPageNavigation({ tab, setTab, disabled = false }: {
+  tab: TabId;
+  setTab: (tab: TabId) => void;
+  disabled?: boolean;
+}) {
   const currentIndex = TABS.findIndex((entry) => entry.value === tab);
 
   if (currentIndex === -1) return null;
@@ -19,10 +23,10 @@ export function InPageNavigation({ tab, setTab }: { tab: TabId; setTab: (tab: Ta
   return (
     <nav aria-label="Seitennavigation" className="mt-8 border-t border-border pt-6">
       <div className="grid grid-cols-2 gap-2">
-        <Button type="button" variant="outline" onClick={() => changeTab(-1)} disabled={isFirstTab}>
+        <Button type="button" variant="outline" onClick={() => changeTab(-1)} disabled={disabled || isFirstTab}>
           Zurück
         </Button>
-        <Button type="button" onClick={() => changeTab(1)} disabled={isLastTab}>
+        <Button type="button" onClick={() => changeTab(1)} disabled={disabled || isLastTab}>
           Weiter
         </Button>
       </div>

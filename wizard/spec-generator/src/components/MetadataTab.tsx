@@ -1,7 +1,6 @@
 import type { DeerProject } from "@/data/DeerSchema";
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -32,6 +31,7 @@ export function MetadataTab({
           <Field>
             <FieldLabel>Titel</FieldLabel>
             <Input
+              aria-label="Titel des Spiels"
               value={deerSchema.metadata.title}
               onChange={(e) => {
                 deerSchema.metadata.title = e.target.value;
@@ -44,6 +44,7 @@ export function MetadataTab({
           <Field>
             <FieldLabel>Beschreibung</FieldLabel>
             <Textarea
+              aria-label="Beschreibung des Spiels"
               value={deerSchema.metadata.description ?? ""}
               onChange={(e) => {
                 deerSchema.metadata.description = e.target.value;
@@ -54,6 +55,7 @@ export function MetadataTab({
           <Field>
             <FieldLabel>Autor</FieldLabel>
             <Input
+              aria-label="Autor des Spiels"
               value={deerSchema.metadata.author ?? ""}
               onChange={(e) => {
                 deerSchema.metadata.author = e.target.value;
@@ -67,6 +69,7 @@ export function MetadataTab({
           <Field>
             <FieldLabel>Lernziele</FieldLabel>
             <ObjectListStringEditor
+              itemNoun="Lernziel"
               value={deerSchema.learningDesign.objectives}
               onChange={(newValue) => {
                 deerSchema.learningDesign.objectives = newValue;

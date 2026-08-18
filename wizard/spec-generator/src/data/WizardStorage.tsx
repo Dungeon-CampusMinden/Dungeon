@@ -1,10 +1,12 @@
 import React from "react";
 import type { AssetStoragePort } from "./AssetStorage";
 import type { DraftStoragePort } from "./DraftStorage";
+import type { WizardHostPort } from "./NativeWizardHost";
 
 export interface WizardStoragePort {
   drafts: DraftStoragePort;
   assets: AssetStoragePort;
+  host: WizardHostPort;
 }
 
 const WizardStorageContext = React.createContext<WizardStoragePort | null>(null);

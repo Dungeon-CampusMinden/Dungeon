@@ -1,9 +1,11 @@
 const DB_NAME = "spec-generator";
-const DB_VERSION = 1;
-const STORE_NAME = "assets";
+const DB_VERSION = 2;
+const STORE_NAME = "draft-assets-v2";
 
 export interface StoredAssetFile {
   id: string;
+  draftId: string;
+  storageKey: string;
   name: string;
   mediaType: string;
   blob: Blob;
@@ -52,33 +54,34 @@ async function runTransaction<T>(
 }
 
 export interface AssetStoragePort {
-  putAssetFile(file: File): Promise<string>;
-  getAssetFile(id: string): Promise<StoredAssetFile | null>;
-  listAssetIds(): Promise<string[]>;
+  putAssetFile(draftId: string, file: File): Promise<string>;
+  getAssetFile(draftId: string, storageKey: string): Promise<StoredAssetFile | null>;
+  listAssetIds(draftId: string): Promise<string[]>;
 }
 
 export class BrowserAssetStorage implements AssetStoragePort {
   /** Stores binary content by content hash and returns that private storage key. */
-  async putAssetFile(file: File): Promise<string> {
+  async putAssetFile(draftId: string, file: File): Promise<string> {
     const contents = await file.arrayBuffer();
     const digest = await crypto.subtle.digest("SHA-256", contents);
     const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-    const id = hash.slice(0, 12);
+    const id = `${draftId}:${hash}`;
     const blob = new Blob([contents], { type: file.type });
-    const entry: StoredAssetFile = { id, name: file.name, mediaType: file.type, blob };
+    const entry: StoredAssetFile = { id, draftId, storageKey: hash, name: file.name, mediaType: file.type, blob };
     await runTransaction("readwrite", (store) => store.put(entry));
-    return id;
+    return hash;
   }
 
   /** Returns the stored file for an asset id, or null if it is not available. */
-  async getAssetFile(id: string): Promise<StoredAssetFile | null> {
-    const entry = await runTransaction<StoredAssetFile | undefined>("readonly", (store) => store.get(id));
+  async getAssetFile(draftId: string, storageKey: string): Promise<StoredAssetFile | null> {
+    const entry = await runTransaction<StoredAssetFile | undefined>("readonly", (store) =>
+      store.get(`${draftId}:${storageKey}`));
     return entry ?? null;
   }
 
   /** Returns the ids of all assets whose content is currently stored in the IndexedDB. */
-  async listAssetIds(): Promise<string[]> {
-    const keys = await runTransaction<IDBValidKey[]>("readonly", (store) => store.getAllKeys());
-    return keys.map((key) => String(key));
+  async listAssetIds(draftId: string): Promise<string[]> {
+    const entries = await runTransaction<StoredAssetFile[]>("readonly", (store) => store.getAll());
+    return entries.filter((entry) => entry.draftId === draftId).map((entry) => entry.storageKey);
   }
 }

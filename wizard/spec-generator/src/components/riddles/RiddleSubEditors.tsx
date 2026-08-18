@@ -4,44 +4,60 @@ import type {
   DeerProject,
   HintSeverity,
   InformationSource,
+  Riddle,
   RiddleHint,
 } from "@/data/DeerSchema";
 import { Util } from "@/data/Util";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import { AssetSelector } from "../assets/AssetSelector";
-import { SurfaceSelector } from "../SurfacesTab";
+import { addInformationSource, removeInformationSource } from "@/data/RiddleGraphActions";
 import { Button } from "../ui/button";
 import { Field, FieldDescription, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import { createInformationSource, HINT_SEVERITIES, RESOURCE_KINDS } from "./riddleTypes";
+import { HINT_SEVERITIES, RESOURCE_KINDS } from "./riddleTypes";
 import { SimpleSelect } from "./SimpleSelect";
 
 export function InformationSourceListEditor({
-  informationSources,
+  project,
+  riddle,
   onChange,
-  deerSchema,
 }: {
-  informationSources: InformationSource[];
-  onChange: (updated: InformationSource[]) => void;
-  deerSchema: DeerProject;
+  project: DeerProject;
+  riddle: Riddle;
+  onChange: (updated: DeerProject) => void;
 }) {
-  const updateSource = (index: number, updated: InformationSource) => {
-    const next = [...informationSources];
-    next[index] = updated;
+  const informationSources = riddle.informationSources;
+  const updateProject = (transform: (next: DeerProject, nextRiddle: Riddle) => void) => {
+    const next = structuredClone(project);
+    const nextRiddle = next.riddles.find((candidate) => candidate.id === riddle.id);
+    if (!nextRiddle) return;
+    transform(next, nextRiddle);
     onChange(next);
   };
 
+  const updateSource = (index: number, updated: InformationSource) => {
+    updateProject((_next, nextRiddle) => {
+      nextRiddle.informationSources[index] = updated;
+    });
+  };
+
   const removeSource = (index: number) => {
-    const next = [...informationSources];
-    next.splice(index, 1);
-    onChange(next);
+    const sourceId = informationSources[index]?.id;
+    if (sourceId) updateProject((next, nextRiddle) => removeInformationSource(next, nextRiddle, sourceId));
+  };
+
+  const updateSurfaceTitle = (source: InformationSource, title: string) => {
+    updateProject((next) => {
+      const surface = next.surfaces.find((candidate) => candidate.id === source.surfaceId);
+      if (surface) surface.title = title;
+    });
   };
 
   return (
     <div className="flex flex-col gap-3">
       <Button
-        onClick={() => onChange([...informationSources, createInformationSource()])}
+        onClick={() => updateProject((next, nextRiddle) => addInformationSource(next, nextRiddle))}
         className="lg:max-w-40"
       >
         <PlusIcon />
@@ -57,21 +73,21 @@ export function InformationSourceListEditor({
         >
           <div className="grid grid-cols-[1fr_auto] items-end gap-2">
             <Field>
-              <FieldLabel>Ort</FieldLabel>
+              <FieldLabel>Fundort</FieldLabel>
               <FieldDescription>Wo finden die Spieler dieses Material?</FieldDescription>
-              <SurfaceSelector
-                items={deerSchema.surfaces}
-                value={source.surfaceId}
-                onChange={(newValue) => updateSource(index, { ...source, surfaceId: newValue })}
+              <Input
+                aria-label={`Fundort der Informationsquelle ${index + 1}`}
+                value={project.surfaces.find((surface) => surface.id === source.surfaceId)?.title ?? ""}
+                onChange={(event) => updateSurfaceTitle(source, event.target.value)}
               />
             </Field>
-            <Button variant="destructive" size="icon" onClick={() => removeSource(index)}>
+            <Button aria-label={`Informationsquelle ${index + 1} löschen`} variant="destructive" size="icon" onClick={() => removeSource(index)}>
               <TrashIcon />
             </Button>
           </div>
           <ResourceListEditor
             resources={source.resources}
-            assets={deerSchema.assets}
+            assets={project.assets}
             onChange={(updated) => updateSource(index, { ...source, resources: updated })}
           />
         </div>
@@ -150,17 +166,19 @@ export function ResourceListEditor({
               <Field>
                 <FieldLabel>Titel</FieldLabel>
                 <Input
+                  aria-label={`Titel von Material ${index + 1}`}
                   value={resource.title}
                   onChange={(e) => updateResource(index, { ...resource, title: e.target.value })}
                 />
               </Field>
-              <Button variant="destructive" size="icon" onClick={() => removeResource(index)}>
+              <Button aria-label={`Material ${index + 1} löschen`} variant="destructive" size="icon" onClick={() => removeResource(index)}>
                 <TrashIcon />
               </Button>
             </div>
             <Field>
               <FieldLabel>Art</FieldLabel>
               <SimpleSelect
+                accessibleLabel={`Art von Material ${index + 1}`}
                 options={RESOURCE_KINDS}
                 value={resource.kind}
                 onChange={(newValue) => changeKind(index, newValue)}
@@ -170,6 +188,7 @@ export function ResourceListEditor({
               <Field>
                 <FieldLabel>Text</FieldLabel>
                 <Textarea
+                  aria-label={`Text von Material ${index + 1}`}
                   value={resource.text}
                   onChange={(e) => updateResource(index, { ...resource, text: e.target.value })}
                 />
@@ -178,6 +197,7 @@ export function ResourceListEditor({
               <Field>
                 <FieldLabel>Datei</FieldLabel>
                 <AssetSelector
+                  accessibleLabel={`Datei für Material ${index + 1}`}
                   items={assets}
                   value={resource.assetId}
                   onChange={(newValue) => updateResource(index, { ...resource, assetId: newValue })}
@@ -236,17 +256,19 @@ export function HintListEditor({
               <Field>
                 <FieldLabel>Titel</FieldLabel>
                 <Input
+                  aria-label={`Titel von Hilfe ${index + 1}`}
                   value={hint.title}
                   onChange={(e) => updateHint(index, { ...hint, title: e.target.value })}
                 />
               </Field>
-              <Button variant="destructive" size="icon" onClick={() => removeHint(index)}>
+              <Button aria-label={`Hilfe ${index + 1} löschen`} variant="destructive" size="icon" onClick={() => removeHint(index)}>
                 <TrashIcon />
               </Button>
             </div>
             <Field>
               <FieldLabel>Text</FieldLabel>
               <Textarea
+                aria-label={`Text von Hilfe ${index + 1}`}
                 value={hint.text}
                 onChange={(e) => updateHint(index, { ...hint, text: e.target.value })}
               />
@@ -254,6 +276,7 @@ export function HintListEditor({
             <Field>
               <FieldLabel>Stufe</FieldLabel>
               <SimpleSelect
+                accessibleLabel={`Stufe von Hilfe ${index + 1}`}
                 options={HINT_SEVERITIES}
                 value={hint.severity}
                 onChange={(newValue) => updateHint(index, { ...hint, severity: newValue as HintSeverity })}
