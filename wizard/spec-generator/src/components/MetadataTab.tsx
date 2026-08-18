@@ -37,7 +37,6 @@ export function MetadataTab({
               value={deerSchema.metadata.title}
               onChange={(e) => {
                 deerSchema.metadata.title = e.target.value;
-                deerSchema.metadata.id = Util.generateUniqueId();
                 updateDeerSchema(deerSchema);
               }}
               aria-invalid={emptyTitle}

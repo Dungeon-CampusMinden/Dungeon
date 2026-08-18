@@ -10,7 +10,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "./ui/field";
 import { IssueList } from "./IssueList";
 import { Input } from "./ui/input";
 
-const MAX_SEED = 9223372036854775807n;
+const MAX_SEED = BigInt(Number.MAX_SAFE_INTEGER);
 
 function parseSeed(value: string): number | null {
   if (!/^\d+$/.test(value)) return null;
@@ -22,7 +22,7 @@ function parseSeed(value: string): number | null {
 }
 
 function generateRandomSeed(): number {
-  return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+  return Math.floor(Math.random() * (Number.MAX_SAFE_INTEGER + 1));
 }
 
 export function ReviewTab({
@@ -43,7 +43,9 @@ export function ReviewTab({
   const warningCount = blockingIssues.length - errorCount;
   const seed = parseSeed(seedInput);
   const seedError =
-    seed === null ? "Der Seed muss eine nicht-negative Ganzzahl bis 9223372036854775807 sein." : undefined;
+    seed === null
+      ? `Der Seed muss eine Ganzzahl zwischen 0 und ${Number.MAX_SAFE_INTEGER} sein.`
+      : undefined;
 
   React.useEffect(() => {
     setSeedInput(String(deerSchema.seed ?? ""));
