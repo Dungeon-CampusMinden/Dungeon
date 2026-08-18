@@ -69,6 +69,15 @@ public final class ProjectValidationReport {
   }
 
   /**
+   * Returns whether validation completed without a blocking issue.
+   *
+   * @return true when no error issue exists
+   */
+  public boolean valid() {
+    return valid;
+  }
+
+  /**
    * Returns the canonical UTF-8 report content as text without surrounding whitespace.
    *
    * @return deterministic canonical JSON report text

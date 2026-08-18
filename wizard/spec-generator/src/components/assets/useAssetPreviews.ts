@@ -1,7 +1,7 @@
 import type { Asset } from "@/data/DeerSchema";
 import React from "react";
 import { useWizardStorage } from "@/data/WizardStorage";
-import { useUploadReferences } from "./UploadReferencesContext";
+import { usePreviewDraftId, useUploadReferences } from "./UploadReferencesContext";
 import { getBundledAssetUrl, isBundledAssetPath, type AssetPreview } from "./assetPaths";
 
 /**
@@ -13,6 +13,7 @@ export function useAssetPreviews(
   storageRevision = 0,
 ) {
   const uploads = useUploadReferences();
+  const draftId = usePreviewDraftId();
   const storage = useWizardStorage();
   const [previews, setPreviews] = React.useState<Record<string, AssetPreview>>({});
 
@@ -39,7 +40,7 @@ export function useAssetPreviews(
         const storageKey = uploads[asset.id]?.storageKey;
         let storedFile;
         try {
-          storedFile = storageKey ? await storage.assets.getAssetFile(storageKey) : null;
+          storedFile = storageKey ? await storage.assets.getAssetFile(draftId, storageKey) : null;
         } catch {
           nextPreviews[asset.id] = {
             previewUrl: null,
@@ -71,7 +72,7 @@ export function useAssetPreviews(
       createdUrls.forEach((url) => URL.revokeObjectURL(url));
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [previewKey, uploads, storage, storageRevision]);
+  }, [draftId, previewKey, uploads, storage, storageRevision]);
 
   return previews;
 }

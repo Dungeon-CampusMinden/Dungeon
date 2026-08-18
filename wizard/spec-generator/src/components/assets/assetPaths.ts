@@ -70,7 +70,7 @@ const WINDOWS_RESERVED_STEM = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i;
 const MAX_CUSTOM_STEM_LENGTH = 48;
 
 export function createCustomAssetPath(originalName: string, storageKey: string): string {
-  if (!/^[0-9a-f]{12}$/.test(storageKey)) {
+  if (!/^[0-9a-f]{64}$/.test(storageKey)) {
     throw new Error("Der Dateiinhalt konnte nicht sicher adressiert werden.");
   }
   const extension = getFileExtension(originalName);
@@ -88,7 +88,7 @@ export function createCustomAssetPath(originalName: string, storageKey: string):
     .replace(/[-_.]+$/g, "");
   if (!stem) stem = "datei";
   if (WINDOWS_RESERVED_STEM.test(stem)) stem = `datei-${stem}`;
-  return `${CUSTOM_PATH_PREFIX}/${stem}-${storageKey}.${extension}`;
+  return `${CUSTOM_PATH_PREFIX}/${stem}-${storageKey.slice(0, 12)}.${extension}`;
 }
 
 export function getAssetDisplayName(asset: Asset, upload?: UploadReference): string {

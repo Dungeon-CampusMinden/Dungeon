@@ -40,6 +40,7 @@ export function SessionTab({
           <Field>
             <FieldLabel>Zielgruppe</FieldLabel>
             <Input
+              aria-label="Zielgruppe"
               value={deerSchema.session.targetAudience}
               onChange={(e) => {
                 deerSchema.session.targetAudience = e.target.value;
@@ -52,6 +53,7 @@ export function SessionTab({
           <Field>
             <FieldLabel>Vorkenntnisse</FieldLabel>
             <Input
+              aria-label="Vorkenntnisse"
               value={deerSchema.session.priorKnowledge}
               onChange={(e) => {
                 deerSchema.session.priorKnowledge = e.target.value;
@@ -72,6 +74,7 @@ export function SessionTab({
                 <span>Maximal: {maxPlayer} Spieler</span>
               </div>
               <Slider
+                thumbLabels={["Minimale Spieleranzahl", "Maximale Spieleranzahl"]}
                 value={[minPlayer, maxPlayer]}
                 onValueChange={(value) => {
                   const [min, max] = value as [number, number];
@@ -90,6 +93,7 @@ export function SessionTab({
             <div className="grid grid-cols-[150px_1fr] items-center gap-2 text-sm text-muted-foreground">
               <span className="text-end">{timeLimit} Minuten</span>
               <Slider
+                thumbLabels={["Zeitlimit in Minuten"]}
                 value={timeLimit}
                 onValueChange={(value) => {
                   deerSchema.session.time.limitMinutes = value as number;
@@ -111,7 +115,7 @@ export function SessionTab({
                 updateDeerSchema(deerSchema);
               }}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger aria-label="Umgang mit dem Zeitlimit" className="w-[180px]">
                 <SelectValue placeholder="Wähle einen Modus" />
               </SelectTrigger>
               <SelectContent alignItemWithTrigger={false}>

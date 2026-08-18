@@ -1,10 +1,14 @@
 import type { AnyRiddleInput, CollectionInput, DeerProject, NumericInput, Riddle } from "@/data/DeerSchema";
 import { PlusIcon, TrashIcon } from "lucide-react";
-import { SurfaceSelector } from "../SurfacesTab";
+import {
+  addRiddleInput,
+  convertRiddleInput,
+  removeRiddleInput,
+} from "@/data/RiddleGraphActions";
 import { Button } from "../ui/button";
 import { Field, FieldDescription, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { convertRiddleInput, createRiddleInput, INPUT_TYPES } from "./riddleTypes";
+import { INPUT_TYPES } from "./riddleTypes";
 import { SimpleSelect } from "./SimpleSelect";
 
 const YES_NO = [
@@ -14,29 +18,36 @@ const YES_NO = [
 
 export function RiddleInputsEditor({
   riddle,
-  setRiddle,
-  deerSchema,
+  project,
+  onChange,
 }: {
+  project: DeerProject;
   riddle: Riddle;
-  setRiddle: (updated: Riddle) => void;
-  deerSchema: DeerProject;
+  onChange: (updated: DeerProject) => void;
 }) {
   const inputs = riddle.inputs;
 
+  const updateProject = (transform: (next: DeerProject, nextRiddle: Riddle) => void) => {
+    const next = structuredClone(project);
+    const nextRiddle = next.riddles.find((candidate) => candidate.id === riddle.id);
+    if (!nextRiddle) return;
+    transform(next, nextRiddle);
+    onChange(next);
+  };
+
   const updateInput = (index: number, updated: AnyRiddleInput) => {
-    const next = [...inputs];
-    next[index] = updated;
-    setRiddle({ ...riddle, inputs: next });
+    updateProject((_next, nextRiddle) => {
+      nextRiddle.inputs[index] = updated;
+    });
   };
 
   const addInput = () => {
-    setRiddle({ ...riddle, inputs: [...inputs, createRiddleInput("numeric")] });
+    updateProject((next, nextRiddle) => addRiddleInput(next, nextRiddle));
   };
 
   const removeInput = (index: number) => {
-    const next = [...inputs];
-    next.splice(index, 1);
-    setRiddle({ ...riddle, inputs: next });
+    const inputId = inputs[index]?.id;
+    if (inputId) updateProject((next, nextRiddle) => removeRiddleInput(next, nextRiddle, inputId));
   };
 
   return (
@@ -57,28 +68,37 @@ export function RiddleInputsEditor({
             <Field>
               <FieldLabel>Art der Eingabe</FieldLabel>
               <SimpleSelect
+                accessibleLabel={`Art der Eingabe ${index + 1}`}
                 options={INPUT_TYPES.map((type) => ({ value: type.value, label: type.label }))}
                 value={input.type}
                 onChange={(newValue) =>
-                  updateInput(index, convertRiddleInput(input, newValue as AnyRiddleInput["type"]))
+                  updateProject((next, nextRiddle) =>
+                    convertRiddleInput(next, nextRiddle, input.id, newValue as AnyRiddleInput["type"]),
+                  )
                 }
               />
             </Field>
-            <Button variant="destructive" size="icon" onClick={() => removeInput(index)}>
+            <Button aria-label={`Eingabe ${index + 1} löschen`} variant="destructive" size="icon" onClick={() => removeInput(index)}>
               <TrashIcon />
             </Button>
           </div>
           {input.type === "collection" ? (
             <CollectionInputFields
               input={input}
+              inputIndex={index}
               riddle={riddle}
               onChange={(updated) => updateInput(index, updated)}
             />
           ) : (
             <NumericInputFields
               input={input}
-              deerSchema={deerSchema}
+              inputIndex={index}
+              project={project}
               onChange={(updated) => updateInput(index, updated)}
+              onSurfaceTitleChange={(title) => updateProject((next) => {
+                const surface = next.surfaces.find((candidate) => candidate.id === input.surfaceId);
+                if (surface) surface.title = title;
+              })}
             />
           )}
         </div>
@@ -89,10 +109,12 @@ export function RiddleInputsEditor({
 
 function CollectionInputFields({
   input,
+  inputIndex,
   riddle,
   onChange,
 }: {
   input: CollectionInput;
+  inputIndex: number;
   riddle: Riddle;
   onChange: (updated: CollectionInput) => void;
 }) {
@@ -109,6 +131,7 @@ function CollectionInputFields({
         <span className="text-sm text-muted-foreground">Lege zuerst eine Informationsquelle an.</span>
       ) : (
         <SimpleSelect
+          accessibleLabel={`Informationsquelle für Eingabe ${inputIndex + 1}`}
           options={options}
           value={input.informationSourceId}
           onChange={(newValue) => onChange({ ...input, informationSourceId: newValue })}
@@ -120,27 +143,32 @@ function CollectionInputFields({
 
 function NumericInputFields({
   input,
-  deerSchema,
+  inputIndex,
+  project,
   onChange,
+  onSurfaceTitleChange,
 }: {
   input: NumericInput;
-  deerSchema: DeerProject;
+  inputIndex: number;
+  project: DeerProject;
   onChange: (updated: NumericInput) => void;
+  onSurfaceTitleChange: (title: string) => void;
 }) {
   return (
     <>
       <Field>
         <FieldLabel>Gerät</FieldLabel>
-        <SurfaceSelector
-          items={deerSchema.surfaces}
-          value={input.surfaceId}
-          onChange={(newValue) => onChange({ ...input, surfaceId: newValue })}
+        <Input
+          aria-label={`Gerät für Eingabe ${inputIndex + 1}`}
+          value={project.surfaces.find((surface) => surface.id === input.surfaceId)?.title ?? ""}
+          onChange={(event) => onSurfaceTitleChange(event.target.value)}
         />
       </Field>
       <Field>
         <FieldLabel>Lösung</FieldLabel>
         <FieldDescription>Eine Zahl mit bis zu 8 Ziffern.</FieldDescription>
         <Input
+          aria-label={`Lösung für Eingabe ${inputIndex + 1}`}
           value={input.answer}
           inputMode="numeric"
           onChange={(e) => onChange({ ...input, answer: e.target.value.replace(/[^0-9]/g, "").slice(0, 8) })}
@@ -149,6 +177,7 @@ function NumericInputFields({
       <Field>
         <FieldLabel>Stellenanzahl anzeigen</FieldLabel>
         <SimpleSelect
+          accessibleLabel={`Stellenanzahl für Eingabe ${inputIndex + 1} anzeigen`}
           options={YES_NO}
           value={input.showDigitCount ? "true" : "false"}
           onChange={(newValue) => onChange({ ...input, showDigitCount: newValue === "true" })}

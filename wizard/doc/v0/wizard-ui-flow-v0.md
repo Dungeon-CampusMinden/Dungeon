@@ -1,6 +1,6 @@
 # Wizard UI Flow V0.4
 
-Status: Runtime-Vertrag und M1-Browser-Draft implementiert; nativer Host noch offen
+Status: M2-Authoring-Flow mit nativem Host und Packaging umgesetzt
 Stand: 27.07.2026
 
 ## Ziel
@@ -10,14 +10,19 @@ Runnerregeln stehen in den verlinkten Contract-Dateien; sie werden hier
 nicht vollständig wiederholt. Auftrag, Schichtgrenzen, Storage-Port und
 Frontend-Abnahme stehen im
 [`Frontend-Handoff`](frontend-handoff-overview-v0.md).
+Die späteren Fachabschnitte erläutern Semantik und wiederholen nicht die
+Navigationsreihenfolge.
 
 ```text
 Starten oder fortsetzen
 -> Eckdaten
 -> Geschichte
+-> Spieleinstellungen
+-> Eigene Bilder & Dateien
+-> Rätsel
 -> Spielablauf
--> Rätsel, Inhalte & Hinweise
--> Prüfen, Vorschau & finalisieren
+-> Spiel-Ende
+-> Entwurf prüfen und Spiel erstellen
 ```
 
 ## Grundsätze
@@ -30,7 +35,7 @@ Starten oder fortsetzen
   Knoten je Rätsel sowie genau einem geschützten Start- und Endknoten.
 - Knoten und Kanten werden exakt gespeichert; die UI leitet keine zusätzlichen
   Abhängigkeiten ab und repariert den Graphen nicht bei der Finalisierung.
-- `Entwurf prüfen` ist immer aktiv; `Entwurf finalisieren` erst nach einer
+- `Entwurf prüfen` ist immer aktiv; `Spiel erstellen` erst nach einer
   erfolgreichen Prüfung.
 - Warnungen blockieren nicht.
 - Eine Prüfung garantiert Struktur und Runnerfähigkeit, nicht menschliche
@@ -40,12 +45,18 @@ Starten oder fortsetzen
 
 1. Ein neuer oder wieder geöffneter UI-Entwurf darf unvollständig sein.
 2. Änderungen werden lokal automatisch gespeichert.
+   Gleichzeitige Speicherstände werden über eine fortlaufende Draftrevision
+   erkannt. Bei einem Konflikt bleiben die geöffneten Änderungen sichtbar und
+   werden nicht durch den fremden Stand ersetzt.
+   Erfolgreiche Finalisierung und Packaging zählen ebenfalls als bestätigte
+   Hoständerungen; ihre neue Revision übernimmt die UI vor dem nächsten
+   Autosave.
 3. Stabile IDs werden bei der ersten Anlage erzeugt und bei Umbenennung
    beibehalten.
 4. Die UI projiziert den Entwurf für jede vollständige Prüfung auf ein
    `deer.json`-Kandidatenobjekt.
 5. Nur ein fehlerfreier Kandidat wird finalisiert. Bei der ersten
-   Finalisierung erzeugt der native M2-Vorgang den verpflichtenden `seed`
+   Finalisierung erzeugt der native Host den verpflichtenden `seed`
    zunächst nur flüchtig, baut und validiert exakt diesen Kandidaten, schreibt
    neue inhaltsadressierte Dateien zuerst und `deer.json` zuletzt atomar. Erst
    nach vollständig erfolgreichem Abschluss gibt er den Seed zur
@@ -59,50 +70,44 @@ V0.4 unterstützt die Wiederaufnahme eigener lokaler Entwürfe. Der Import
 beliebiger Room-ZIPs oder manuell veränderter Projektordner ist nicht Teil des
 Foundation-Slices. Der Produktfluss erzeugt selbst keine Room-ZIPs.
 
-M1 speichert Draft-Snapshots über den mehrprojektfähigen Port in LocalStorage
-und Uploadbytes in IndexedDB. Dieser Browser-Zwischenstand bietet nur lokale
-Hinweise und keine echte Finalisierung. In M2 wird der Adapter hinter demselben
-Port auf den nativen Java-Host umgestellt; er übernimmt dann Draft-Persistenz,
-Produktionsvalidierung, Seedvergabe und atomare Finalisierung in den gewählten
-Projektordner.
+Der produktive Pfad läuft über den loopback-only Java-Host und die von ihm
+same-origin ausgelieferte React-UI. Er speichert Draft v1 und Uploadbytes unter
+`%LOCALAPPDATA%\Dungeon Wizard`. LocalStorage und IndexedDB werden nur beim
+direkten Vite-Entwicklungsstart verwendet. Dessen LocalStorage-CAS serialisiert
+Lesen, Revisionsvergleich und Schreiben über einen exklusiven Web Lock zwischen
+Tabs; Browser ohne diese API können nicht still unsicher speichern. M1 und M2 sind
+Implementierungsmeilensteine; DEER bleibt Format `0.4`. Für private
+Browser-Prototypdaten gibt es keine Migration.
 
 ## Dauerhafte Übersicht
 
-Die Übersicht ist Navigation, kein Arbeitsschritt. Sie zeigt:
+Die Navigation zeigt:
 
 - Projekttitel;
-- Schritte mit getrenntem Abschlussstatus und Fehler-/Warnungszähler;
-- Anzahl Rätsel und Verbindungen im Spielablauf;
-- Zeitpunkt der letzten lokalen Speicherung;
-- Zeitpunkt und Zustand der letzten Finalisierung;
-- nächsten sinnvollen Arbeitsschritt.
+- alle Authoring-Bereiche;
+- den höchsten Fehler- oder Warnstatus je bereits besuchtem Bereich;
+- den aktuellen Autosave-Status.
 
-Abschlussstatus:
+Die Review-Ansicht zeigt Zielordner, vollständige und lokale Prüfergebnisse
+sowie Zustand und Zeitpunkt der letzten Finalisierung beziehungsweise JAR-
+Erzeugung. Nach dem Öffnen bestätigt der native Host diesen Zustand erneut;
+lokale Metadaten allein führen nie zur Anzeige „Das Spiel ist bereit“.
 
-- `nicht begonnen`;
-- `in Bearbeitung`;
-- `vollständig`.
-
-Fehler und Warnungen werden separat gezählt. Status wird nie ausschließlich
-durch Farbe vermittelt.
-
-## 1. Starten oder fortsetzen
+## Starten oder fortsetzen
 
 Aktionen:
 
 - neuen Entwurf anlegen;
 - letzten lokalen Entwurf fortsetzen;
 - einen anderen eigenen lokalen Entwurf öffnen;
-- einen kleinen geführten Beispielentwurf kopieren.
 
-Der Beispielentwurf ist entfernbar und keine vorausgewählte The-Last-Hour-
-Raumstruktur. Er erklärt lediglich „Information finden -> Zahlencode lösen ->
-Ausgang“.
+Die Startansicht lädt Entwürfe asynchron. Änderungen im geöffneten Entwurf
+werden automatisch gespeichert; beim Zurückkehren zur Startansicht wird eine
+ausstehende Speicherung zuerst abgeschlossen. Der Zielordner wird im
+Prüf-/Erstellen-Schritt gewählt. Beliebiger `deer.json`-Import und Browser-ZIP-
+Export sind nicht vorgesehen.
 
-Beim Anlegen wird ein Projektname abgefragt. Der Projektordner kann spätestens
-vor der ersten Bildauswahl festgelegt werden.
-
-## 2. Eckdaten & Lernziel
+## Eckdaten, Lernziel und Spieleinstellungen
 
 Pflichtangaben:
 
@@ -143,7 +148,7 @@ gemeinsamen Startpunkt. Ein neuer Client ersetzt keine bereits vergebene
 Identität. Es gibt keinen separaten technischen Spielerzahlwert und keinen
 Startknopf.
 
-## 3. Geschichte
+## Geschichte
 
 Pflichtangaben:
 
@@ -170,7 +175,7 @@ Warnungen:
 - Mission ohne erkennbare Spielsituation;
 - Erfolgstext widerspricht dem gemeinsamen Ausgang.
 
-## 4. Spielablauf
+## Spielablauf
 
 Die UI zeigt einen frei bearbeitbaren **mandatory AND-DAG**:
 
@@ -211,7 +216,7 @@ Nicht darstellbar in V0.4:
 - manuelle Start-/Endknoten;
 - freie Kantenbedingungen.
 
-## 5. Rätsel, Inhalte & Hinweise
+## Rätsel, Inhalte, Hinweise und eigene Dateien
 
 Gemeinsam pro Rätsel:
 
@@ -239,20 +244,26 @@ Wege **Aus Spielbibliothek auswählen** und **Eigenes Bild hochladen**. Interne
 Pfade, Hashes und Asset-IDs bleiben verborgen. Für ein Spielbild merkt sich der
 private Draft die Auswahl und ihre Lizenzmetadaten; beim Finalisieren wird nur
 der DEER-Eintrag mit dem internen Pfad geschrieben. Es wird keine Bilddatei
-kopiert. Für einen eigenen Upload behält der private Draft die Bildbytes. Beim
-Finalisieren berechnet der native Adapter SHA-256, schreibt die Datei unter
-`assets/custom/<normalisierter-stamm>-<12-hashzeichen>.<ext>` und ersetzt erst danach
-`deer.json` atomar. Die Auswahlvariante erscheint nicht als zusätzliches Feld
-in den öffentlichen `source`-Metadaten.
+kopiert. Einen eigenen Upload hasht und verifiziert der native Host bereits
+beim Speichern und liefert den privaten Storage-Key zurück. Der Draft leitet
+daraus den inhaltsadressierten Pfad
+`assets/custom/<normalisierter-stamm>-<12-hashzeichen>.<ext>` ab. Bei der
+Finalisierung prüft der Host Bindung und Bytes erneut, schreibt das Asset
+zuerst und ersetzt `deer.json` zuletzt atomar. Die Auswahlvariante erscheint
+nicht als zusätzliches Feld in den öffentlichen `source`-Metadaten.
 
-Die UI leitet aus dem fachlichen Behälter eine stabile Container-Surface und die
-`surfaceId` der Informationsquelle ab. Informationsquellen dürfen unabhängig
+Die Lehrkraft benennt den **Fundort** direkt an der Informationsquelle. Die UI
+legt dazu einmalig eine private Container-Surface an und hält deren technische
+ID verborgen. Umbenennen oder Umordnen ändert diese ID nicht. Beim Löschen der
+Quelle entfernt die UI auch deren Surface und leert betroffene Collection-
+Referenzen. Informationsquellen dürfen unabhängig
 vom Status des zugehörigen Rätsels gelesen werden. Soll das Entdecken selbst
 verpflichtend sein, fügt die UI dafür eine Collection-Eingabe hinzu. Diese
 verwendet dieselbe Surface und wird erst durch eine Interaktion bei verfügbarem
 Rätsel erfüllt; früheres Lesen wird nicht angerechnet. Andernfalls liefert die
-Quelle nur Information oder Aufgabeninhalt. Die einmalige World-Surface
-beschreibt ausschließlich den gemeinsamen Raum und ist keine Fundstation.
+Quelle nur Information oder Aufgabeninhalt. Die einmalige World-Surface wird
+vollständig automatisch verwaltet und ist keine Fundstation. Eine separate
+Orte- oder Surface-Ansicht existiert nicht.
 
 ### Eingaben
 
@@ -264,7 +275,7 @@ Mindestens eine Eingabe ist Pflicht. V0.4 bietet geschlossen:
 
 Für einen Zahlencode sind Pflicht:
 
-- ein fachliches Keypad;
+- der sichtbare Name des Geräts;
 - erwarteter Code mit 1 bis 8 Ziffern.
 
 Optional:
@@ -273,8 +284,11 @@ Optional:
 
 Die Codelänge wird aus dem Code abgeleitet. Es gibt kein separates
 `maxLength`-Feld. Falsche Eingaben bleiben im Foundation-Slice unbegrenzt
-wiederholbar und nutzen das vorhandene Runtime-Feedback. Die UI leitet eine
-stabile Keypad-Surface und die `surfaceId` der Eingabe ab.
+wiederholbar und nutzen das vorhandene Runtime-Feedback. Die UI erzeugt das
+private Keypad beim Anlegen der Zahleneingabe. Ein Wechsel zu „Information
+entdecken“ entfernt es, ein Wechsel zurück erzeugt ein neues; die Input-ID
+bleibt erhalten. Collection-Eingaben wählen eine Informationsquelle und
+besitzen keine eigene Surface.
 
 Eingaben reagieren im Spiel erst, wenn ihr Rätsel verfügbar ist. Mehrere
 Eingaben eines Rätsels sind fest mit AND verknüpft. Sind alle erfüllt, erzeugt
@@ -304,48 +318,53 @@ freigegebene Hinweise bleiben lesbar. Die Arrayreihenfolge ist unabhängig von
 `severity` maßgeblich. Zeit- und Fehlversuchsbedingungen sind nicht Teil des
 aktuellen Vertrags.
 
-### Ausgang
+## Spiel-Ende
 
-Die UI fragt genau eine fachliche Ausgangstür ab und leitet daraus die stabile
-Door-Surface sowie `end.surfaceId` ab. Der Endknoten besitzt diese Tür allein.
+Unter „Spiel-Ende“ benennt die Lehrkraft genau einen **Ausgang**. World,
+Door-Surface und `end.surfaceId` werden automatisch verwaltet. Der geschützte
+Endknoten zeigt nur den Endzustand und keinen technischen Auswahlwert.
 Wenn alle direkten Vorgängerrätsel des Endknotens abgeschlossen sind, wird das
 Ende erreicht und die Tür serverautoritativ geöffnet. Erfolg tritt ein, wenn
 die Runtime den Ausgang für alle aktiven Spielenden als erreicht meldet.
 
-## 6. Prüfen, Vorschau & finalisieren
+## Prüfen, Vorschau und Spiel erstellen
 
-Die Vorschau zeigt ohne Runtime:
-
-- Eckdaten;
-- Intro-Seiten, Mission, Erfolgsseiten und bei hartem Zeitlimit
-  Fehlschlagseiten;
-- Verbindungen, Parallelität und erwartete Reihenfolge;
-- Aufgaben, Materialien und Hinweise;
-- verwendete Bilder.
+Rätselkarten, Asset-Vorschauen und Graphansicht zeigen den jeweils bearbeiteten
+Inhalt ohne gestartete Spielruntime. Die Review-Ansicht konzentriert sich auf
+Zielordner, Prüfung, Finalisierung und Packaging.
 
 `Entwurf prüfen`:
 
 - ist immer verfügbar;
 - zeigt eine Zusammenfassung nach Fehlern und Warnungen;
-- fokussiert auf Wunsch das betroffene Element;
 - verändert oder verwirft keine Eingaben.
 
-Jedes Problem enthält sichtbar:
+Prüfung und Finalisierung verwenden jeweils exakt den zuletzt vollständig
+gespeicherten Draft-Snapshot. Änderungen, Kandidat und eigene Dateien können
+daher nicht versehentlich aus verschiedenen UI-Zeitpunkten stammen.
+Packaging verwendet ebenfalls die exakte Revision seines vollständig
+gespeicherten Snapshots zusammen mit der vollständigen
+Finalisierungsidentität. Eine erfolgreiche Hostantwort erhöht diese Revision
+genau einmal und wird direkt übernommen; ein veralteter oder doppelter Request
+bleibt ein verständlicher Konflikt, ohne den geöffneten Draft zu verwerfen.
 
-1. Problem;
-2. Auswirkung;
-3. konkrete Korrektur;
-4. Aktion „Zum Feld“ oder „Zum Rätsel“.
+Produktionsreports werden strikt geprüft und auf verständliche Meldungen ohne
+technische Codes, Pointer oder IDs abgebildet.
 
-Beispiel:
+Der Host hält `finalizedProjectSha256` privat im Draft: Die UI erhält ihn beim
+Laden und Speichern typesicher, zeigt ihn nicht an und setzt ihn nie als
+Autorität. Der Hash bindet domänensepariert die kanonische DEER-Identität und,
+nach logischem Pfad sortiert, den längenpräfigierten Pfad sowie den vollständigen
+Inhalts-SHA-256 jedes verifizierten Custom-Assets. Der öffentliche Runner- und
+Netzwerkwert `hostInputSha256` bleibt dagegen ausschließlich der Hash der
+kanonischen `deer.json` für die DEER-Kompatibilität. Der UI-Kandidatenhash dient
+nur dazu, den aktuell sichtbaren Authoring-Stand zuzuordnen; `deerSha256`
+gehört zu den exakten, mit dem stabilen Seed finalisierten Dateibytes.
 
-> „Zahlencode“ hat noch keinen Code. Gib 1 bis 8 Ziffern ein.
-> **Zum Rätsel**
-
-`Entwurf finalisieren`:
+`Spiel erstellen`:
 
 - ist nur ohne blockierende Fehler aktiv;
-- lässt den nativen M2-Vorgang beim ersten Finalisieren einen Seed nur flüchtig
+- lässt den nativen Host beim ersten Finalisieren einen Seed nur flüchtig
   erzeugen, exakt diesen Kandidaten bauen und produktiv validieren;
 - schreibt neue, inhaltsadressierte Dateien zuerst und `deer.json` zuletzt
   atomar; erst nach vollständig erfolgreichem Abschluss wird der Seed zur
@@ -353,24 +372,42 @@ Beispiel:
 - lässt den nativen Vorgang einen bereits im Draft vorhandenen
   projektgebundenen Seedwert bei jeder weiteren Finalisierung unverändert
   verwenden;
-- zeigt den Zielordner und die nächsten Packaging-Schritte für die technische
-  Betreuung;
+- paketiert das finalisierte Projekt anschließend mit dem gemeinsamen
+  Java-Packager und der generischen `WizardRoomTemplate.jar` als
+  `<project>/WizardRoom.jar`;
+- lässt bei einem Packaging-Fehler das finalisierte Projekt gültig und bietet
+  „Spieldatei erneut erstellen“ an;
+- lässt den Host die gespeicherte Finalisierungsidentität und die erzeugte JAR
+  bestätigen, bevor die UI das Spiel als bereit anzeigt;
 - startet die Spieler-JAR nicht.
 
 Reine private Entwurfsnotizen werden nicht finalisiert. Lernziele und
 Nachbesprechungsfragen sind dagegen verbindlicher Bestandteil von `deer.json`.
 
-Die Handoff-Hilfe nennt die Produktionsvalidierung und den noch extern
-aufzurufenden Packager
-`:wizard:buildWizardRoomJar -PwizardProject=<projektordner>`. Sie erklärt, dass
+Der Gradle-Aufruf
+`:wizard:buildWizardRoomJar -PwizardProject=<projektordner>` bleibt der
+Entwickler-/CI-Pfad; der native Host benötigt für das Packaging weder Gradle
+noch Node. Die UI erklärt, dass
 dieselbe vollständige JAR an alle Spielenden verteilt und mit Java 25 über ihr
 Host-/Join-Menü gestartet wird. Die UI beschreibt keine Multiplayerdetails;
 der vollständige Start- und Multiplayer-Ablauf steht im
 [`Runner-Runtime-Contract`](runner-runtime-contract.md).
 
+`wizard/start_wizard_dev.cmd` ist ausschließlich ein
+Entwicklungslauncher. Die Zielgruppen-`.exe` mit gebündelter Runtime bleibt ein
+späterer Distributionsmeilenstein. M2 erzeugt keine `.exe` und kein Room-ZIP;
+der aktuelle Entwicklungs- und Spieler-JAR-Fluss setzt Java 25 voraus.
+
 Bei Berechtigungs-, Speicherplatz- oder Schreibfehlern bleibt die vorherige
 `deer.json` unverändert. Die UI bietet „Erneut versuchen“ und „Anderen Ordner
-wählen“. Unbekannte oder alte unreferenzierte Dateien werden nicht gelöscht.
+wählen“. Ein vollständig geschriebenes, exakt zum Recovery-Beleg passendes
+Projekt wird beim nächsten Versuch zuerst wiederhergestellt und nicht
+verworfen. Ist das frühere Ziel dagegen unvollständig oder ungültig, darf ein
+anderer Ordner mit demselben bereits vergebenen Seed finalisiert werden; erst
+nach erfolgreicher Validierung und Besitzprüfung ersetzt der Host den
+Recovery-Beleg atomar, bevor er das neue Ziel schreibt. Das frühere Ziel und
+eine zuletzt gültige gespeicherte Finalisierung bleiben dabei unverändert.
+Unbekannte oder alte unreferenzierte Dateien werden nicht gelöscht.
 
 ## Blockierende Prüfungen
 

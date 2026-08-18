@@ -13,6 +13,7 @@ Der Wizard erstellt genau ein DEER-Projekt:
 <project>/
   deer.json
   assets/custom/...  # nur bei eigenen Bildern
+  WizardRoom.jar     # Authoring-Ausgabe, keine Runner-Projekteingabe
 ```
 
 Der Runner validiert dieses Projekt und leitet daraus vor dem Serverstart einen
@@ -20,7 +21,8 @@ vollständigen Foundation-Raum im Speicher ab. Er erzeugt keinen Java-Code, kein
 projektspezifisches Modul, keine `.level`-Datei, kein Buildskript und kein
 Room-ZIP. Projektordner und Checkout bleiben unverändert.
 
-Der Gradle-Packager erzeugt eine projektspezifische `WizardRoom.jar`, die
+Der gemeinsame Java-Packager erzeugt aus der generischen
+`WizardRoomTemplate.jar` eine projektspezifische `WizardRoom.jar`, die
 `deer.json`, vorhandene Dateien unter `assets/custom/`, Runner, Engine und
 benötigte Runtime-Ressourcen enthält. Referenzierte Spielbibliothek-Bilder sind
 bereits als Basisassets in derselben JAR vorhanden und werden nicht kopiert.
@@ -50,11 +52,20 @@ werden mit einem klaren Startfehler abgelehnt.
 
 ## Produktionsvalidierung und Packaging
 
-Die Authoring-Integration bindet `ProjectValidationPipeline` und
-`ProjectValidationReport` direkt als Java-Bibliothek an. Der Gradle-Packager
-verwendet einen kleinen internen Prozesseinstieg, der ausschließlich den
-übergebenen Projektordner validiert, seine Ableitbarkeit mit `RoomDeriver`
-prüft, den kanonischen Validierungsreport ausgibt und anschließend endet.
+Die Authoring-Integration bindet `ProjectValidationService`,
+`ProjectValidationReport` und `RoomDeriver` direkt als Java-Bibliothek an.
+Prüfungen laufen in einem temporären Projekt und sind read-only. Die
+Finalisierung validiert exakt den Kandidaten, der anschließend geschrieben
+wird. Danach paketiert die UI das Projekt mit derselben
+`WizardRoomPackager`-Implementierung wie der Gradle-Entwickler-/CI-Pfad. Auf
+dem Hostsystem werden dafür weder Gradle noch Node benötigt. Ein
+Packaging-Fehler macht die erfolgreiche Finalisierung nicht ungültig und kann
+separat wiederholt werden.
+
+`wizard/start_wizard_dev.cmd` baut und startet den Host nur für die
+Entwicklung. Eine Zielgruppen-`.exe` mit gebündelter Java-Runtime ist ein
+späterer Distributionsmeilenstein. M2 erzeugt weder `.exe` noch Room-ZIP; der
+aktuelle Entwickler- und Spieler-JAR-Fluss benötigt Java 25.
 
 Auch `max=1` verwendet im Spielerfluss einen echten Hostprozess und einen
 getrennten Join-Client.

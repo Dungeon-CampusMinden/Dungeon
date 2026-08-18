@@ -1,4 +1,4 @@
-import type { Riddle } from "@/data/DeerSchema";
+import type { DeerProject } from "@/data/DeerSchema";
 import type { UpdateDraft, WizardDraft } from "@/data/WizardDraft";
 import { addRiddle as addRiddleToProject, removeRiddle } from "@/data/RiddleGraphActions";
 import React from "react";
@@ -28,11 +28,14 @@ export function RiddlesTab({
     setEditingId(newRiddle.id);
   };
 
-  const saveRiddle = (updated: Riddle) => {
+  const updateRiddle = (updated: DeerProject) => {
     updateDraft((current) => {
-      const index = current.project.riddles.findIndex((riddle) => riddle.id === updated.id);
+      const edited = updated.riddles.find((riddle) => riddle.id === editingId);
+      if (!edited) return false;
+      const index = current.project.riddles.findIndex((riddle) => riddle.id === edited.id);
       if (index === -1) return false;
-      current.project.riddles[index] = structuredClone(updated);
+      current.project.riddles[index] = structuredClone(edited);
+      current.project.surfaces = structuredClone(updated.surfaces);
     });
   };
 
@@ -77,7 +80,7 @@ export function RiddlesTab({
           setOpen={(open) => {
             if (!open) setEditingId(null);
           }}
-          onSave={saveRiddle}
+          onChange={updateRiddle}
           onDelete={() => deleteRiddle(editingRiddle.id)}
         />
       )}

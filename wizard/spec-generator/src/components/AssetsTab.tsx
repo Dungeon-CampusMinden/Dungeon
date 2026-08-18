@@ -16,10 +16,13 @@ import {
   validateCustomAssetFile,
   type AssetSelection,
 } from "./assets/assetPaths";
+import type { WizardWork } from "@/data/WizardWork";
 
-export function AssetsTab({ draft, updateDraft }: {
+export function AssetsTab({ draft, updateDraft, beginWork, finishWork }: {
   draft: WizardDraft;
   updateDraft: UpdateDraft;
+  beginWork: (work: Extract<WizardWork, "uploading">) => boolean;
+  finishWork: (work: Extract<WizardWork, "uploading">) => void;
 }) {
   const storage = useWizardStorage();
   const project = draft.project;
@@ -33,7 +36,7 @@ export function AssetsTab({ draft, updateDraft }: {
   ): Promise<{ path: string; mediaType: Asset["mediaType"]; upload?: UploadReference }> => {
     if (selection.kind === "custom") {
       const mediaType = validateCustomAssetFile(selection.file);
-      const storageKey = await storage.assets.putAssetFile(selection.file);
+      const storageKey = await storage.assets.putAssetFile(draft.draftId, selection.file);
       return {
         path: createCustomAssetPath(selection.file.name, storageKey),
         mediaType,
@@ -44,6 +47,7 @@ export function AssetsTab({ draft, updateDraft }: {
   };
 
   const handleAddAsset = async (selection: AssetSelection) => {
+    if (!beginWork("uploading")) throw new Error("Ein anderer Speichervorgang läuft bereits.");
     const id = Util.generateUniqueId("a");
     try {
       const { path, mediaType, upload } = await applySelection(selection);
@@ -57,10 +61,13 @@ export function AssetsTab({ draft, updateDraft }: {
         description: error instanceof Error ? error.message : undefined,
       });
       throw error;
+    } finally {
+      finishWork("uploading");
     }
   };
 
   const handleReplaceContent = async (asset: Asset, selection: AssetSelection) => {
+    if (!beginWork("uploading")) throw new Error("Ein anderer Speichervorgang läuft bereits.");
     const assetId = asset.id;
     try {
       const { path, mediaType, upload } = await applySelection(selection);
@@ -78,6 +85,8 @@ export function AssetsTab({ draft, updateDraft }: {
         description: error instanceof Error ? error.message : undefined,
       });
       throw error;
+    } finally {
+      finishWork("uploading");
     }
   };
 

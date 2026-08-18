@@ -119,7 +119,7 @@ export class ErrorChecker {
     description: string,
   ) {
     if (!allowed.includes(value)) {
-      this.error(tabId, field, description, `Ungültiger Wert: "${value}".`);
+      this.error(tabId, field, description);
     }
   }
 
@@ -156,7 +156,7 @@ export class ErrorChecker {
   private checkMetadata(deerSchema: DeerProject) {
     const { metadata, learningDesign } = deerSchema;
 
-    this.requireText("metadata", "id", metadata.id, "Das Abenteuer hat keine Id.");
+    this.requireText("metadata", "id", metadata.id, "Das Abenteuer konnte nicht vollständig eingerichtet werden.");
     this.requireText("metadata", "title", metadata.title, "Der Titel darf nicht leer sein.");
     this.requireText("metadata", "locale", metadata.locale, "Es ist keine Sprache gesetzt.");
     if (learningDesign.objectives.length === 0) {
@@ -177,7 +177,7 @@ export class ErrorChecker {
         learningDesign.objectives.map((objective) => objective.id),
       );
       if (duplicates.length > 0) {
-        this.error("metadata", "objectives", "Lernziele haben doppelte Ids.", duplicates.join(", "));
+        this.error("metadata", "objectives", "Einige Lernziele sind doppelt angelegt.");
       }
     }
 
@@ -295,43 +295,53 @@ export class ErrorChecker {
     const { surfaces } = deerSchema;
 
     if (surfaces.length === 0) {
-      this.error("surfaces", "surfaces", "Es muss mindestens einen Ort geben.");
+      this.error("game_end", "exit", "Das Abenteuer konnte nicht vollständig eingerichtet werden.");
       return;
     }
 
     const duplicates = ErrorChecker.findDuplicates(surfaces.map((surface) => surface.id));
     if (duplicates.length > 0) {
-      this.error("surfaces", "surfaces", "Es gibt Orte mit doppelten Ids.", duplicates.join(", "));
+      this.error("riddles", "riddles", "Einige Fundorte oder Geräte sind nicht eindeutig zugeordnet.");
     }
 
     const worldCount = surfaces.filter((surface) => surface.kind === "world").length;
     if (worldCount !== 1) {
       this.error(
-        "surfaces",
-        "surfaces",
-        "Es muss genau einen Raum vom Typ Welt geben.",
+        "game_end",
+        "exit",
+        "Das Abenteuer konnte nicht vollständig eingerichtet werden.",
         `Gefunden: ${worldCount}.`,
       );
     }
     const doorCount = surfaces.filter((surface) => surface.kind === "door").length;
     if (doorCount !== 1) {
       this.error(
-        "surfaces",
-        "surfaces",
-        "Es muss genau eine Ausgangstür geben.",
+        "game_end",
+        "exit",
+        "Es muss genau einen Ausgang geben.",
         `Gefunden: ${doorCount}.`,
       );
     }
 
     for (const surface of surfaces) {
-      const field = `surface:${surface.id}`;
-      this.requireText("surfaces", field, surface.title, "Der Name des Ortes darf nicht leer sein.");
+      const tabId: ValidatedTabId = surface.kind === "door" || surface.kind === "world"
+        ? "game_end"
+        : "riddles";
+      const field = surface.kind === "door" ? "exit" : "riddles";
+      const description = surface.kind === "door"
+        ? "Der Name des Ausgangs darf nicht leer sein."
+        : surface.kind === "container"
+          ? "Der Fundort einer Informationsquelle darf nicht leer sein."
+          : surface.kind === "keypad"
+            ? "Der Name eines Zahlengeräts darf nicht leer sein."
+            : "Das Abenteuer konnte nicht vollständig eingerichtet werden.";
+      this.requireText(tabId, field, surface.title, description);
       this.requireOption(
-        "surfaces",
+        tabId,
         field,
         surface.kind,
         SURFACE_KINDS,
-        `Der Ort "${surface.title}" hat keine gültige Art.`,
+        "Ein Bestandteil des Abenteuers ist ungültig eingerichtet.",
       );
     }
   }
@@ -343,7 +353,7 @@ export class ErrorChecker {
 
     const duplicates = ErrorChecker.findDuplicates(assets.map((asset) => asset.id));
     if (duplicates.length > 0) {
-      this.error("assets", "assets", "Es gibt Dateien mit doppelten IDs.");
+      this.error("assets", "assets", "Einige Dateien sind doppelt angelegt.");
     }
 
     const customPaths = new Map<string, Asset>();
@@ -389,7 +399,7 @@ export class ErrorChecker {
         "assets",
         field,
         `Der Inhalt der Datei "${name}" wurde nicht gefunden.`,
-        "Die hochgeladene Datei ist nicht mehr im Browser-Speicher vorhanden.",
+        "Die hochgeladene Datei ist nicht mehr im lokalen Speicher vorhanden.",
       );
     }
 
@@ -420,7 +430,7 @@ export class ErrorChecker {
 
     for (const riddle of deerSchema.riddles) {
       const field = `riddle:${riddle.id}`;
-      const name = riddle.title || riddle.id;
+      const name = riddle.title.trim() || "Unbenanntes Rätsel";
       for (const source of riddle.informationSources) {
         count(containerUses, source.surfaceId);
         const surface = surfacesById.get(source.surfaceId);
@@ -428,8 +438,7 @@ export class ErrorChecker {
           this.error(
             "riddles",
             field,
-            `Eine Informationsquelle von "${name}" muss einem Container zugeordnet sein.`,
-            `Aktueller Ort: "${surface.title || surface.id}" (${surface.kind}).`,
+            `Der Fundort einer Informationsquelle von "${name}" ist ungültig eingerichtet.`,
           );
         }
       }
@@ -441,8 +450,7 @@ export class ErrorChecker {
           this.error(
             "riddles",
             field,
-            `Eine Zahleneingabe von "${name}" muss einem Keypad zugeordnet sein.`,
-            `Aktueller Ort: "${surface.title || surface.id}" (${surface.kind}).`,
+            `Das Zahlengerät von "${name}" ist ungültig eingerichtet.`,
           );
         }
       }
@@ -453,10 +461,9 @@ export class ErrorChecker {
       const surface = surfacesById.get(node.surfaceId);
       if (surface && surface.kind !== "door") {
         this.error(
-          "riddle_graph",
-          "nodes",
-          "Der Endpunkt muss auf eine Tür verweisen.",
-          `Aktueller Ort: "${surface.title.trim() || "Unbenannter Ort"}".`,
+          "game_end",
+          "exit",
+          "Der Ausgang ist ungültig eingerichtet.",
         );
       }
     }
@@ -470,9 +477,11 @@ export class ErrorChecker {
             : undefined;
       if ((surface.kind === "container" || surface.kind === "keypad") && uses !== 1) {
         this.error(
-          "surfaces",
-          `surface:${surface.id}`,
-          `"${surface.title || surface.id}" muss genau einmal passend verwendet werden.`,
+          "riddles",
+          "riddles",
+          surface.kind === "container"
+            ? `Der Fundort "${surface.title.trim() || "Unbenannter Fundort"}" muss genau einer Informationsquelle gehören.`
+            : `Das Gerät "${surface.title.trim() || "Unbenanntes Gerät"}" muss genau einer Zahleneingabe gehören.`,
           `Gefundene Verwendungen: ${uses ?? 0}.`,
         );
       }
@@ -491,7 +500,7 @@ export class ErrorChecker {
 
     const duplicates = ErrorChecker.findDuplicates(riddles.map((riddle) => riddle.id));
     if (duplicates.length > 0) {
-      this.error("riddles", "riddles", "Es gibt Rätsel mit doppelten Ids.", duplicates.join(", "));
+      this.error("riddles", "riddles", "Einige Rätsel sind doppelt angelegt.");
     }
 
     const surfaceIds = new Set(deerSchema.surfaces.map((surface) => surface.id));
@@ -510,7 +519,7 @@ export class ErrorChecker {
     objectiveIds: Set<string>,
   ) {
     const field = `riddle:${riddle.id}`;
-    const name = riddle.title || riddle.id;
+    const name = riddle.title.trim() || "Unbenanntes Rätsel";
 
     this.requireText("riddles", field, riddle.title, "Der Titel des Rätsels darf nicht leer sein.");
     this.requireOption(
@@ -531,7 +540,6 @@ export class ErrorChecker {
         "riddles",
         field,
         `Das Rätsel "${name}" verweist auf unbekannte Lernziele.`,
-        unknownObjectives.join(", "),
       );
     }
     if (riddle.learningObjectiveIds.length === 0) {
@@ -574,8 +582,7 @@ export class ErrorChecker {
       this.error(
         "riddles",
         field,
-        `Das Rätsel "${name}" hat Informationsquellen mit doppelten Ids.`,
-        duplicates.join(", "),
+        `Das Rätsel "${name}" hat doppelt angelegte Informationsquellen.`,
       );
     }
 
@@ -606,21 +613,20 @@ export class ErrorChecker {
             "riddles",
             field,
             resource.text,
-            `Das Material "${resource.title || resource.id}" hat keinen Text.`,
+            `Das Material "${resource.title || "Unbenanntes Material"}" hat keinen Text.`,
           );
         } else if (resource.kind === "asset") {
           if (isBlank(resource.assetId)) {
             this.error(
               "riddles",
               field,
-              `Für das Material "${resource.title || resource.id}" ist keine Datei ausgewählt.`,
+              `Für das Material "${resource.title || "Unbenanntes Material"}" ist keine Datei ausgewählt.`,
             );
           } else if (!assetIds.has(resource.assetId)) {
             this.error(
               "riddles",
               field,
-              `Das Material "${resource.title || resource.id}" verweist auf eine unbekannte Datei.`,
-              `Unbekannte Datei-Id: "${resource.assetId}".`,
+              `Die Datei für das Material "${resource.title || "Unbenanntes Material"}" ist nicht mehr vorhanden.`,
             );
           }
         }
@@ -639,8 +645,7 @@ export class ErrorChecker {
       this.error(
         "riddles",
         field,
-        `Das Rätsel "${name}" hat Eingaben mit doppelten Ids.`,
-        duplicates.join(", "),
+        `Das Rätsel "${name}" hat doppelt angelegte Eingaben.`,
       );
     }
 
@@ -666,8 +671,7 @@ export class ErrorChecker {
           this.error(
             "riddles",
             field,
-            `Eine Eingabe von "${name}" verweist auf eine unbekannte Informationsquelle.`,
-            `Unbekannte Id: "${input.informationSourceId}".`,
+            `Die gewählte Informationsquelle für "${name}" ist nicht mehr vorhanden.`,
           );
         }
       } else if (input.type === "numeric") {
@@ -695,13 +699,12 @@ export class ErrorChecker {
     riddleName: string,
   ) {
     if (isBlank(surfaceId)) {
-      this.error(tabId, field, `Für das Rätsel "${riddleName}" ist kein Ort ausgewählt.`);
+      this.error(tabId, field, `Für das Rätsel "${riddleName}" fehlt ein Fundort oder Gerät.`);
     } else if (!surfaceIds.has(surfaceId)) {
       this.error(
         tabId,
         field,
-        `Das Rätsel "${riddleName}" verweist auf einen unbekannten Ort.`,
-        `Unbekannte Ort-Id: "${surfaceId}".`,
+        `Ein Fundort oder Gerät von "${riddleName}" ist nicht mehr vorhanden.`,
       );
     }
   }
@@ -769,9 +772,9 @@ export class ErrorChecker {
       }
       if (node.kind === "end" && !surfaceIds.has(node.surfaceId)) {
         this.error(
-          "riddle_graph",
-          "nodes",
-          "Der Endpunkt verweist auf einen unbekannten Ort.",
+          "game_end",
+          "exit",
+          "Der Ausgang ist nicht mehr vorhanden.",
         );
       }
     }

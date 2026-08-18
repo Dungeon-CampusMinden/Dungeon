@@ -52,12 +52,12 @@ tasks.named('test', Test) {
 }
 
 def wizardProjectProperty = providers.gradleProperty('wizardProject')
-def embeddedProjectResources =
-    layout.buildDirectory.dir('generated-resources/wizard-room-project')
 def embeddedTestProjectResources =
     layout.buildDirectory.dir('generated-test-resources/embedded-project')
 def mergedServiceResources =
     layout.buildDirectory.dir('generated-resources/wizard-room-services')
+def authoringUiResources =
+    layout.buildDirectory.dir('generated-resources/wizard-authoring-ui')
 def canonicalTestProject = layout.projectDirectory.dir('examples/foundation-v0.4')
 
 def resolveWizardProject = {
@@ -112,22 +112,6 @@ tasks.register('validateWizardRoomProject', JavaExec) {
 
     doFirst {
         setArgs([resolveWizardProject().toString()])
-    }
-}
-
-tasks.register('stageWizardRoomProject') {
-    group = 'build'
-    description = 'Stages the validated DEER project as JAR resources.'
-    dependsOn tasks.named('validateWizardRoomProject')
-    inputs.property('wizardProject', wizardProjectProperty.orElse(''))
-    outputs.dir(embeddedProjectResources)
-    outputs.upToDateWhen { false }
-
-    doLast {
-        stageEmbeddedProject(
-            resolveWizardProject(),
-            embeddedProjectResources.get().asFile.toPath()
-        )
     }
 }
 
@@ -215,17 +199,16 @@ tasks.register('mergeWizardRoomServices') {
     }
 }
 
-tasks.register('buildWizardRoomJar', Jar) {
+tasks.register('buildWizardRoomTemplateJar', Jar) {
     group = 'build'
-    description = 'Builds WizardRoom.jar from -PwizardProject.'
-    dependsOn tasks.named('stageWizardRoomProject')
+    description = 'Builds the generic project-free Wizard room player template.'
+    dependsOn tasks.named('classes')
     dependsOn tasks.named('mergeWizardRoomServices')
-    archiveFileName.set('WizardRoom.jar')
+    archiveFileName.set('WizardRoomTemplate.jar')
     destinationDirectory.set(layout.buildDirectory.dir('libs'))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     from(mergedServiceResources)
-    from(embeddedProjectResources)
     from(sourceSets.main.output)
     from {
         configurations.runtimeClasspath.collect {
@@ -238,7 +221,114 @@ tasks.register('buildWizardRoomJar', Jar) {
     }
 
     exclude(
+        'wizard/authoring/**',
         'wizard/runner/PackagingProjectValidator.class',
+        'wizard/runner/WizardRoomPackager.class',
+        'META-INF/*.SF',
+        'META-INF/*.DSA',
+        'META-INF/*.RSA',
+        'META-INF/*.EC',
+        'META-INF/SIG-*',
+        'META-INF/INDEX.LIST',
+        'module-info.class',
+        'META-INF/versions/*/module-info.class'
+    )
+}
+
+tasks.register('buildWizardRoomJar', JavaExec) {
+    group = 'build'
+    description = 'Builds WizardRoom.jar from -PwizardProject using the generic template.'
+    dependsOn tasks.named('classes')
+    dependsOn tasks.named('buildWizardRoomTemplateJar')
+    mainClass = 'wizard.runner.WizardRoomPackager'
+    classpath = sourceSets.main.runtimeClasspath
+    ignoreExitValue = false
+    inputs.property('wizardProject', wizardProjectProperty.orElse(''))
+    inputs.dir(wizardProjectProperty.map { rootProject.file(it) })
+    inputs.file(tasks.named('buildWizardRoomTemplateJar').flatMap { it.archiveFile })
+    outputs.file(layout.buildDirectory.file('libs/WizardRoom.jar'))
+    outputs.upToDateWhen { false }
+
+    doFirst {
+        setArgs([
+            tasks.named('buildWizardRoomTemplateJar').get().archiveFile.get().asFile.absolutePath,
+            resolveWizardProject().toString(),
+            layout.buildDirectory.file('libs/WizardRoom.jar').get().asFile.absolutePath
+        ])
+    }
+}
+
+tasks.register('installWizardAuthoringUi', Exec) {
+    group = 'build setup'
+    description = 'Installs the pinned Wizard authoring UI dependencies.'
+    workingDir layout.projectDirectory.dir('spec-generator')
+    commandLine System.getProperty('os.name').toLowerCase().contains('windows') ?
+        ['npm.cmd', 'ci'] : ['npm', 'ci']
+    inputs.files(
+        layout.projectDirectory.file('spec-generator/package.json'),
+        layout.projectDirectory.file('spec-generator/package-lock.json')
+    )
+    outputs.dir(layout.projectDirectory.dir('spec-generator/node_modules'))
+}
+
+tasks.register('buildWizardAuthoringUi', Exec) {
+    group = 'build'
+    description = 'Builds the browser UI bundled into DungeonWizard.jar.'
+    dependsOn tasks.named('installWizardAuthoringUi')
+    workingDir layout.projectDirectory.dir('spec-generator')
+    commandLine System.getProperty('os.name').toLowerCase().contains('windows') ?
+        ['npm.cmd', 'run', 'build'] : ['npm', 'run', 'build']
+    inputs.dir(layout.projectDirectory.dir('spec-generator/src'))
+    inputs.dir(layout.projectDirectory.dir('spec-generator/public'))
+    inputs.files(
+        layout.projectDirectory.file('spec-generator/index.html'),
+        layout.projectDirectory.file('spec-generator/package.json'),
+        layout.projectDirectory.file('spec-generator/package-lock.json'),
+        layout.projectDirectory.file('spec-generator/tsconfig.app.json'),
+        layout.projectDirectory.file('spec-generator/tsconfig.json'),
+        layout.projectDirectory.file('spec-generator/tsconfig.node.json'),
+        layout.projectDirectory.file('spec-generator/vite.config.ts')
+    )
+    outputs.dir(layout.projectDirectory.dir('spec-generator/dist'))
+}
+
+tasks.register('stageWizardAuthoringResources', Sync) {
+    dependsOn tasks.named('buildWizardAuthoringUi')
+    dependsOn tasks.named('buildWizardRoomTemplateJar')
+    into authoringUiResources
+    from(layout.projectDirectory.dir('spec-generator/dist')) {
+        into 'wizard/authoring-ui'
+        exclude 'bundled-assets/**'
+    }
+    from(tasks.named('buildWizardRoomTemplateJar').flatMap { it.archiveFile }) {
+        into 'wizard/template'
+    }
+}
+
+tasks.register('buildWizardAuthoringJar', Jar) {
+    group = 'build'
+    description = 'Builds the standalone local DungeonWizard.jar authoring host.'
+    dependsOn tasks.named('classes')
+    dependsOn tasks.named('mergeWizardRoomServices')
+    dependsOn tasks.named('stageWizardAuthoringResources')
+    archiveFileName.set('DungeonWizard.jar')
+    destinationDirectory.set(layout.buildDirectory.dir('libs'))
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from(mergedServiceResources)
+    from(authoringUiResources)
+    from(sourceSets.main.output)
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    manifest {
+        attributes('Main-Class': 'wizard.authoring.WizardAuthoringApplication')
+    }
+
+    exclude(
         'META-INF/*.SF',
         'META-INF/*.DSA',
         'META-INF/*.RSA',

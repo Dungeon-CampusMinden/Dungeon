@@ -164,7 +164,7 @@ export function AssetCreateDialog({
             </TabsTrigger>
             <TabsTrigger value="bundled">
               <PackageIcon />
-              Dungeon Assets
+              Spielbibliothek
             </TabsTrigger>
           </TabsList>
 
@@ -249,6 +249,7 @@ export function AssetCreateDialog({
         <Field>
           <FieldLabel>Ausgewählte Datei</FieldLabel>
           <Input
+            aria-label="Ausgewählte Datei"
             value={
               mode === "custom"
                 ? (uploadedFile?.name ?? "")

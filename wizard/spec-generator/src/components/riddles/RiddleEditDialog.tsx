@@ -1,5 +1,4 @@
 import type { DeerProject, Riddle } from "@/data/DeerSchema";
-import React from "react";
 import { ChevronDownIcon, TrashIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
@@ -23,33 +22,28 @@ export function RiddleEditDialog({
   deerSchema,
   open,
   setOpen,
-  onSave,
+  onChange,
   onDelete,
 }: {
   riddle: Riddle;
   deerSchema: DeerProject;
   open: boolean;
   setOpen: (open: boolean) => void;
-  onSave: (updated: Riddle) => void;
+  onChange: (updated: DeerProject) => void;
   onDelete: () => void;
 }) {
-  const [draft, setDraft] = React.useState<Riddle>(riddle);
+  const draft = deerSchema.riddles.find((candidate) => candidate.id === riddle.id) ?? riddle;
 
-  const handleOpenChange = (nextOpen: boolean) => {
-    if (nextOpen) {
-      setDraft(JSON.parse(JSON.stringify(riddle)) as Riddle);
-    }
-    setOpen(nextOpen);
-  };
-
-  const handleSave = () => {
-    onSave(draft);
-    setOpen(false);
+  const updateRiddle = (updated: Riddle) => {
+    const next = structuredClone(deerSchema);
+    const index = next.riddles.findIndex((candidate) => candidate.id === updated.id);
+    if (index !== -1) next.riddles[index] = updated;
+    onChange(next);
   };
 
   const toggleObjective = (objectiveId: string) => {
     const selected = draft.learningObjectiveIds.includes(objectiveId);
-    setDraft({
+    updateRiddle({
       ...draft,
       learningObjectiveIds: selected
         ? draft.learningObjectiveIds.filter((id) => id !== objectiveId)
@@ -64,36 +58,38 @@ export function RiddleEditDialog({
   const selectedObjectivesLabel =
     selectedObjectives.length === 0
       ? "Keine Lernziele ausgewählt"
-      : selectedObjectives.map((objective) => objective.description || objective.id).join(", ");
+      : selectedObjectives.map((objective) => objective.description.trim() || "Unbenanntes Lernziel").join(", ");
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-2xl lg:max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Rätsel '{draft.title}' bearbeiten</DialogTitle>
+          <DialogTitle>Rätsel „{draft.title.trim() || "Unbenanntes Rätsel"}“ bearbeiten</DialogTitle>
         </DialogHeader>
 
         <div className="flex max-h-[65vh] flex-col gap-4 overflow-y-auto pr-1">
           <div className="flex flex-col gap-4">
             <Field>
               <FieldLabel>Titel</FieldLabel>
-              <Input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
+              <Input aria-label="Titel des Rätsels" value={draft.title} onChange={(e) => updateRiddle({ ...draft, title: e.target.value })} />
             </Field>
 
             <Field>
               <FieldLabel>Schwierigkeit</FieldLabel>
               <SimpleSelect
+                accessibleLabel="Schwierigkeit des Rätsels"
                 options={RIDDLE_DIFFICULTIES.map((item) => ({ value: item.value, label: item.label }))}
                 value={draft.difficulty}
-                onChange={(newValue) => setDraft({ ...draft, difficulty: newValue as Riddle["difficulty"] })}
+                onChange={(newValue) => updateRiddle({ ...draft, difficulty: newValue as Riddle["difficulty"] })}
               />
             </Field>
 
             <Field>
               <FieldLabel>Geschätzte Dauer: {draft.estimatedMinutes} Minuten</FieldLabel>
               <Slider
+                aria-label="Geschätzte Dauer des Rätsels in Minuten"
                 value={draft.estimatedMinutes}
-                onValueChange={(value) => setDraft({ ...draft, estimatedMinutes: value as number })}
+                onValueChange={(value) => updateRiddle({ ...draft, estimatedMinutes: value as number })}
                 min={1}
                 max={60}
                 step={1}
@@ -110,7 +106,7 @@ export function RiddleEditDialog({
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
-                      <Button variant="outline" className="w-full justify-between font-normal">
+                      <Button aria-label="Lernziele des Rätsels auswählen" variant="outline" className="w-full justify-between font-normal">
                         <span className="truncate">{selectedObjectivesLabel}</span>
                         <ChevronDownIcon />
                       </Button>
@@ -124,7 +120,9 @@ export function RiddleEditDialog({
                         onCheckedChange={() => toggleObjective(objective.id)}
                         closeOnClick={false}
                       >
-                        <span className="whitespace-normal">{objective.description || objective.id}</span>
+                        <span className="whitespace-normal">
+                          {objective.description.trim() || "Unbenanntes Lernziel"}
+                        </span>
                       </DropdownMenuCheckboxItem>
                     ))}
                   </DropdownMenuContent>
@@ -139,22 +137,22 @@ export function RiddleEditDialog({
             <Field>
               <FieldLabel>Informationsquellen</FieldLabel>
               <InformationSourceListEditor
-                informationSources={draft.informationSources}
-                deerSchema={deerSchema}
-                onChange={(updated) => setDraft({ ...draft, informationSources: updated })}
+                project={deerSchema}
+                riddle={draft}
+                onChange={onChange}
               />
             </Field>
 
             <Field>
               <FieldLabel>Eingaben</FieldLabel>
-              <RiddleInputsEditor riddle={draft} setRiddle={setDraft} deerSchema={deerSchema} />
+              <RiddleInputsEditor project={deerSchema} riddle={draft} onChange={onChange} />
             </Field>
 
             <Field>
               <FieldLabel>Hilfe</FieldLabel>
               <HintListEditor
                 hints={draft.hints}
-                onChange={(updated) => setDraft({ ...draft, hints: updated })}
+                onChange={(updated) => updateRiddle({ ...draft, hints: updated })}
               />
             </Field>
           </div>
@@ -171,10 +169,7 @@ export function RiddleEditDialog({
             <TrashIcon />
             Löschen
           </Button>
-          <div className="flex gap-2">
-            <DialogClose render={<Button variant="outline" />}>Abbrechen</DialogClose>
-            <Button onClick={handleSave}>Speichern</Button>
-          </div>
+          <DialogClose render={<Button />}>Fertig</DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

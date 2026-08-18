@@ -6,12 +6,14 @@ export function SimpleSelect({
   onChange,
   placeholder,
   className,
+  accessibleLabel,
 }: {
   options: readonly { value: string; label: string }[];
   value: string;
   onChange: (newValue: string) => void;
   placeholder?: string;
   className?: string;
+  accessibleLabel: string;
 }) {
   return (
     <Select
@@ -19,7 +21,7 @@ export function SimpleSelect({
       value={value}
       onValueChange={(newValue) => onChange((newValue as string) ?? "")}
     >
-      <SelectTrigger className={className ?? "w-full"}>
+      <SelectTrigger aria-label={accessibleLabel} className={className ?? "w-full"}>
         <SelectValue placeholder={placeholder ?? "Bitte wählen"} />
       </SelectTrigger>
       <SelectContent alignItemWithTrigger={false} className="min-w-[max-content]">

@@ -15,8 +15,6 @@ export function ScenarioTab({
 }) {
   const emptyMission = deerSchema.scenario.mission === "";
 
-  const selectedTheme = THEMES.find((theme) => theme.value === deerSchema.scenario.themeId);
-
   return (
     <div className="flex flex-col gap-0">
       <h1>Geschichte</h1>
@@ -32,7 +30,7 @@ export function ScenarioTab({
                 updateDeerSchema(deerSchema);
               }}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger aria-label="Thema der Geschichte" className="w-[180px]">
                 <SelectValue placeholder="Wähle ein Thema" />
               </SelectTrigger>
               <SelectContent alignItemWithTrigger={false}>
@@ -52,6 +50,7 @@ export function ScenarioTab({
           <Field>
             <FieldLabel>Mission</FieldLabel>
             <Input
+              aria-label="Mission der Geschichte"
               value={deerSchema.scenario.mission}
               onChange={(e) => {
                 deerSchema.scenario.mission = e.target.value;
@@ -67,6 +66,7 @@ export function ScenarioTab({
           <Field>
             <FieldLabel>Intro Texte</FieldLabel>
             <StringListEditor
+              itemNoun="Introtext"
               value={deerSchema.scenario.introText}
               onChange={(newValue) => {
                 deerSchema.scenario.introText = newValue;
