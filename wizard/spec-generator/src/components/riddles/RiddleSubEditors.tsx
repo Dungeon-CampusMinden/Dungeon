@@ -1,7 +1,7 @@
 import type {
   AnyResource,
   Asset,
-  DeerSchema,
+  DeerProject,
   HintSeverity,
   InformationSource,
   RiddleHint,
@@ -24,7 +24,7 @@ export function InformationSourceListEditor({
 }: {
   informationSources: InformationSource[];
   onChange: (updated: InformationSource[]) => void;
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
 }) {
   const updateSource = (index: number, updated: InformationSource) => {
     const next = [...informationSources];

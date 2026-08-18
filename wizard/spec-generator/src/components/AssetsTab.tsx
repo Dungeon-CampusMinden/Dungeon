@@ -1,104 +1,102 @@
-import type { Asset, DeerSchema } from "@/data/DeerSchema";
+import type { Asset } from "@/data/DeerSchema";
 import React from "react";
 import { Button } from "./ui/button";
 import { PlusIcon } from "lucide-react";
+import { toast } from "sonner";
 import { Util } from "@/data/Util";
-import { AssetStorage } from "@/data/AssetStorage";
+import { useWizardStorage } from "@/data/WizardStorage";
+import type { UpdateDraft, UploadReference, WizardDraft } from "@/data/WizardDraft";
 import { AssetCard } from "./assets/AssetCard";
 import { AssetCreateDialog } from "./assets/AssetCreateDialog";
 import { useAssetPreviews } from "./assets/useAssetPreviews";
 import {
   ALLOWED_EXTENSIONS,
-  CUSTOM_PATH_PREFIX,
+  createCustomAssetPath,
   getMediaTypeForPath,
-  isBundledAssetPath,
+  validateCustomAssetFile,
   type AssetSelection,
 } from "./assets/assetPaths";
 
-export function AssetsTab({
-  deerSchema,
-  updateDeerSchema,
-}: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+export function AssetsTab({ draft, updateDraft }: {
+  draft: WizardDraft;
+  updateDraft: UpdateDraft;
 }) {
-  const assetList = deerSchema.assets;
+  const storage = useWizardStorage();
+  const project = draft.project;
+  const assetList = project.assets;
   const [addOpen, setAddOpen] = React.useState(false);
   const [storageRevision, setStorageRevision] = React.useState(0);
   const previews = useAssetPreviews(assetList, storageRevision);
 
-  /** Writes the selected content and returns its id, path, and media type. */
-  const applySelection = async (asset: Asset | null, selection: AssetSelection) => {
-    const previousId = asset?.id ?? Util.generateUniqueId("a");
-
+  const applySelection = async (
+    selection: AssetSelection,
+  ): Promise<{ path: string; mediaType: Asset["mediaType"]; upload?: UploadReference }> => {
     if (selection.kind === "custom") {
-      const id = await AssetStorage.putAssetFile(selection.file);
-      if (asset && !isBundledAssetPath(asset.path) && asset.id !== id) {
-        await AssetStorage.deleteAssetFile(asset.id);
-      }
-      const extensionIndex = selection.file.name.lastIndexOf(".");
-      const fileNameWithId =
-        extensionIndex > 0
-          ? `${selection.file.name.slice(0, extensionIndex)}-${id}${selection.file.name.slice(extensionIndex)}`
-          : `${selection.file.name}-${id}`;
+      const mediaType = validateCustomAssetFile(selection.file);
+      const storageKey = await storage.assets.putAssetFile(selection.file);
       return {
-        id,
-        path: `${CUSTOM_PATH_PREFIX}/${fileNameWithId}`,
-        mediaType: getMediaTypeForPath(selection.file.name),
+        path: createCustomAssetPath(selection.file.name, storageKey),
+        mediaType,
+        upload: { storageKey, originalName: selection.file.name },
       };
     }
-
-    // Bundled assets have no IndexedDB entry, so a previously stored file is removed.
-    await AssetStorage.deleteAssetFile(previousId);
-    return {
-      id: previousId,
-      path: selection.path,
-      mediaType: getMediaTypeForPath(selection.path),
-      sourceType: "bundled_asset" as const,
-    };
+    return { path: selection.path, mediaType: getMediaTypeForPath(selection.path) };
   };
-  const handleAddAsset = async (selection: AssetSelection) => {
-    const { id, path, mediaType } = await applySelection(null, selection);
 
-    const newAsset: Asset = {
-      id,
-      path,
-      mediaType,
-      source: {
-        license: "",
-      },
-    };
-    assetList.push(newAsset);
-    updateDeerSchema(deerSchema);
-    setStorageRevision((revision) => revision + 1);
+  const handleAddAsset = async (selection: AssetSelection) => {
+    const id = Util.generateUniqueId("a");
+    try {
+      const { path, mediaType, upload } = await applySelection(selection);
+      updateDraft((current) => {
+        current.project.assets.push({ id, path, mediaType, source: { license: "" } });
+        if (upload) current.uploads[id] = upload;
+      });
+      setStorageRevision((revision) => revision + 1);
+    } catch (error) {
+      toast.error("Die Datei konnte nicht gespeichert werden.", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+      throw error;
+    }
   };
 
   const handleReplaceContent = async (asset: Asset, selection: AssetSelection) => {
-    const previousId = asset.id;
-    const { id, path, mediaType } = await applySelection(asset, selection);
-    if (previousId !== id) {
-      replaceAssetReferences(deerSchema, previousId, id);
-      asset.id = id;
+    const assetId = asset.id;
+    try {
+      const { path, mediaType, upload } = await applySelection(selection);
+      updateDraft((current) => {
+        const currentAsset = current.project.assets.find((entry) => entry.id === assetId);
+        if (!currentAsset) throw new Error("Die Datei wurde zwischenzeitlich gelöscht.");
+        currentAsset.path = path;
+        currentAsset.mediaType = mediaType;
+        if (upload) current.uploads[assetId] = upload;
+        else delete current.uploads[assetId];
+      });
+      setStorageRevision((revision) => revision + 1);
+    } catch (error) {
+      toast.error("Der neue Dateiinhalt konnte nicht gespeichert werden.", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+      throw error;
     }
-    asset.path = path;
-    asset.mediaType = mediaType;
-    updateDeerSchema(deerSchema);
-    setStorageRevision((revision) => revision + 1);
   };
 
   const handleUpdateAsset = (updatedAsset: Asset) => {
-    const index = assetList.findIndex((asset) => asset.id === updatedAsset.id);
-    if (index === -1) return;
-    assetList[index] = updatedAsset;
-    updateDeerSchema(deerSchema);
+    updateDraft((current) => {
+      const index = current.project.assets.findIndex((asset) => asset.id === updatedAsset.id);
+      if (index === -1) return false;
+      current.project.assets[index] = structuredClone(updatedAsset);
+    });
   };
 
-  const handleDeleteAsset = async (asset: Asset) => {
-    const index = assetList.findIndex((entry) => entry.id === asset.id);
-    if (index === -1) return;
-    assetList.splice(index, 1);
-    updateDeerSchema(deerSchema);
-    if (!isBundledAssetPath(asset.path)) await AssetStorage.deleteAssetFile(asset.id);
+  const handleDeleteAsset = (asset: Asset) => {
+    updateDraft((current) => {
+      const index = current.project.assets.findIndex((entry) => entry.id === asset.id);
+      if (index === -1) return false;
+      current.project.assets.splice(index, 1);
+      // Blob content may be shared by another draft. A later GC can remove unreferenced data.
+      delete current.uploads[asset.id];
+    });
   };
 
   return (
@@ -107,19 +105,16 @@ export function AssetsTab({
       <p className="text-sm text-muted-foreground">
         Eigene oder mitgelieferte Dateien für den Raum. Erlaubte Formate: {ALLOWED_EXTENSIONS.join(", ")}.
       </p>
-
       <Button onClick={() => setAddOpen(true)} className="my-2 max-w-40">
         <PlusIcon />
         Hinzufügen
       </Button>
-
       <AssetCreateDialog
         open={addOpen}
         setOpen={setAddOpen}
-        onSelect={(selection) => void handleAddAsset(selection)}
+        onSelect={handleAddAsset}
         title="Datei hinzufügen"
       />
-
       {assetList.length === 0 ? (
         <p className="py-8 text-center text-muted-foreground">Noch keine Dateien hinzugefügt.</p>
       ) : (
@@ -138,16 +133,4 @@ export function AssetsTab({
       )}
     </div>
   );
-}
-
-function replaceAssetReferences(deerSchema: DeerSchema, previousId: string, nextId: string) {
-  for (const riddle of deerSchema.riddles) {
-    for (const informationSource of riddle.informationSources) {
-      for (const resource of informationSource.resources) {
-        if (resource.kind === "asset" && resource.assetId === previousId) {
-          resource.assetId = nextId;
-        }
-      }
-    }
-  }
 }

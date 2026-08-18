@@ -1,4 +1,4 @@
-import type { DeerSchema, Riddle } from "@/data/DeerSchema";
+import type { DeerProject, Riddle } from "@/data/DeerSchema";
 import React from "react";
 import { ChevronDownIcon, TrashIcon } from "lucide-react";
 import { Button } from "../ui/button";
@@ -27,7 +27,7 @@ export function RiddleEditDialog({
   onDelete,
 }: {
   riddle: Riddle;
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
   open: boolean;
   setOpen: (open: boolean) => void;
   onSave: (updated: Riddle) => void;

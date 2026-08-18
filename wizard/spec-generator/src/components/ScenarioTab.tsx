@@ -1,4 +1,4 @@
-import type { DeerSchema } from "@/data/DeerSchema";
+import type { DeerProject } from "@/data/DeerSchema";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSeparator, FieldSet } from "./ui/field";
 import { Input } from "./ui/input";
 import { StringListEditor } from "./StringListEditor";
@@ -10,8 +10,8 @@ export function ScenarioTab({
   deerSchema,
   updateDeerSchema,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  deerSchema: DeerProject;
+  updateDeerSchema: (updatedSchema: DeerProject) => void;
 }) {
   const emptyMission = deerSchema.scenario.mission === "";
 

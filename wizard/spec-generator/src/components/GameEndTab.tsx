@@ -1,4 +1,4 @@
-import type { DeerSchema } from "@/data/DeerSchema";
+import type { DeerProject } from "@/data/DeerSchema";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "./ui/field";
 import { StringListEditor } from "./StringListEditor";
 
@@ -6,8 +6,8 @@ export function GameEndTab({
   deerSchema,
   updateDeerSchema,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  deerSchema: DeerProject;
+  updateDeerSchema: (updatedSchema: DeerProject) => void;
 }) {
   return (
     <div className="flex flex-col gap-0">

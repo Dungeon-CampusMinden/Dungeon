@@ -20,6 +20,7 @@ function openDatabase(): Promise<IDBDatabase> {
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
+    request.onblocked = () => reject(new Error("Die lokale Dateidatenbank ist blockiert."));
   });
 }
 
@@ -31,18 +32,34 @@ async function runTransaction<T>(
   try {
     return await new Promise<T>((resolve, reject) => {
       const transaction = db.transaction(STORE_NAME, mode);
-      const request = action(transaction.objectStore(STORE_NAME));
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+      let result: T;
+      transaction.oncomplete = () => resolve(result);
+      transaction.onerror = () => reject(transaction.error ?? new Error("Dateizugriff fehlgeschlagen."));
+      transaction.onabort = () => reject(transaction.error ?? new Error("Dateizugriff abgebrochen."));
+      try {
+        const request = action(transaction.objectStore(STORE_NAME));
+        request.onsuccess = () => {
+          result = request.result;
+        };
+      } catch (error) {
+        transaction.abort();
+        reject(error);
+      }
     });
   } finally {
     db.close();
   }
 }
 
-export class AssetStorage {
-  /** Stores (or overwrites) the binary content of an asset under its content hash id. */
-  static async putAssetFile(file: File): Promise<string> {
+export interface AssetStoragePort {
+  putAssetFile(file: File): Promise<string>;
+  getAssetFile(id: string): Promise<StoredAssetFile | null>;
+  listAssetIds(): Promise<string[]>;
+}
+
+export class BrowserAssetStorage implements AssetStoragePort {
+  /** Stores binary content by content hash and returns that private storage key. */
+  async putAssetFile(file: File): Promise<string> {
     const contents = await file.arrayBuffer();
     const digest = await crypto.subtle.digest("SHA-256", contents);
     const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
@@ -54,17 +71,13 @@ export class AssetStorage {
   }
 
   /** Returns the stored file for an asset id, or null if it is not available. */
-  static async getAssetFile(id: string): Promise<StoredAssetFile | null> {
+  async getAssetFile(id: string): Promise<StoredAssetFile | null> {
     const entry = await runTransaction<StoredAssetFile | undefined>("readonly", (store) => store.get(id));
     return entry ?? null;
   }
 
-  static async deleteAssetFile(id: string): Promise<void> {
-    await runTransaction("readwrite", (store) => store.delete(id));
-  }
-
   /** Returns the ids of all assets whose content is currently stored in the IndexedDB. */
-  static async listAssetIds(): Promise<string[]> {
+  async listAssetIds(): Promise<string[]> {
     const keys = await runTransaction<IDBValidKey[]>("readonly", (store) => store.getAllKeys());
     return keys.map((key) => String(key));
   }

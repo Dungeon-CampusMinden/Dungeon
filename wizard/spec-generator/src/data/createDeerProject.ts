@@ -1,16 +1,13 @@
-import type { DeerSchema } from "./DeerSchema";
+import type { DeerProject } from "./DeerSchema";
 import { Util } from "./Util";
 
-export const DEER_SCHEMA_STORAGE_KEY = "deerSchema:0.4";
-
-/** Creates the private starting state for a new DEER 0.4 adventure. */
-export function createDeerSchema(): DeerSchema {
+/** Creates structurally editable project data for a new private draft. */
+export function createDeerProject(): DeerProject {
   const worldSurfaceId = Util.generateUniqueId("s");
   const doorSurfaceId = Util.generateUniqueId("s");
 
   return {
     formatVersion: "0.4",
-    seed: Util.generateSafeInteger(),
     metadata: {
       id: Util.generateUniqueId("adventure"),
       title: "",

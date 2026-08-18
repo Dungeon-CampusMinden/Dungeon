@@ -1,4 +1,4 @@
-import type { DeerSchema, Surface } from "@/data/DeerSchema";
+import type { DeerProject, Surface } from "@/data/DeerSchema";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { CircleQuestionMarkIcon, PlusIcon, SquareDashedIcon, TrashIcon } from "lucide-react";
@@ -17,8 +17,8 @@ export function SurfacesTab({
   deerSchema,
   updateDeerSchema,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  deerSchema: DeerProject;
+  updateDeerSchema: (updatedSchema: DeerProject) => void;
 }) {
   const surfaces = deerSchema.surfaces;
 

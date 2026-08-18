@@ -1,9 +1,8 @@
+import React from "react";
 import { toast, Toaster } from "sonner";
 import "./App.css";
 import { ThemeProvider } from "./components/ThemeProvider";
-import type { DeerSchema } from "./data/DeerSchema";
-import { createDeerSchema, DEER_SCHEMA_STORAGE_KEY } from "./data/createDeerSchema";
-import { useLocalStorage } from "@uidotdev/usehooks";
+import type { DeerProject } from "./data/DeerSchema";
 import { ErrorDetector } from "./components/ErrorDetector";
 import { SidebarNavigation } from "./components/SidebarNavigation";
 import { MetadataTab } from "./components/MetadataTab";
@@ -17,117 +16,150 @@ import { GameEndTab } from "./components/GameEndTab";
 import { ReviewTab } from "./components/ReviewTab";
 import { InPageNavigation } from "./components/InPageNavigation";
 import { useErrorCheck } from "./hooks/useErrorCheck";
+import { withTouchedTab } from "./data/TabTouchState";
+import { BrowserDraftStorage } from "./data/DraftStorage";
+import { BrowserAssetStorage } from "./data/AssetStorage";
+import { useWizardStorage, WizardStorageProvider, type WizardStoragePort } from "./data/WizardStorage";
 import {
-  createUntouchedTabs,
-  TOUCHED_TABS_STORAGE_KEY,
-  withTouchedTab,
-  type TouchedTabs,
-} from "./data/TabTouchState";
-import React from "react";
-import { ButtonGroup } from "./components/ui/button-group";
-import { Button } from "./components/ui/button";
-import { assertSupportedDeerDocument } from "./data/AdventurePackage";
+  cloneDraft,
+  createWizardDraft,
+  type DraftTransform,
+  type UpdateDraft,
+  type WizardDraft,
+} from "./data/WizardDraft";
+import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert";
+import { UploadReferencesProvider } from "./components/assets/UploadReferencesContext";
+import type { TabId } from "./data/Tabs";
 
-const initialDeerSchema = createDeerSchema();
-const initialTouchedTabs = createUntouchedTabs();
+const browserStorage: WizardStoragePort = {
+  drafts: new BrowserDraftStorage(),
+  assets: new BrowserAssetStorage(),
+};
+
+function loadInitialDraft(): { draft: WizardDraft | null; error: string | null } {
+  try {
+    const first = browserStorage.drafts.list()[0];
+    if (first) return { draft: browserStorage.drafts.load(first.draftId), error: null };
+    return { draft: browserStorage.drafts.save(createWizardDraft()), error: null };
+  } catch (error) {
+    return {
+      draft: null,
+      error: error instanceof Error ? error.message : "Der Entwurf konnte nicht geladen werden.",
+    };
+  }
+}
 
 function App() {
-  const [deerSchema, setDeerSchema] = useLocalStorage<DeerSchema>(
-    DEER_SCHEMA_STORAGE_KEY,
-    initialDeerSchema,
+  const [initial] = React.useState(loadInitialDraft);
+  if (!initial.draft) {
+    return (
+      <div className="mx-auto max-w-3xl p-8">
+        <Alert variant="destructive">
+          <AlertTitle>Entwurf kann nicht geöffnet werden</AlertTitle>
+          <AlertDescription>{initial.error}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  return (
+    <WizardStorageProvider value={browserStorage}>
+      <DraftEditor initialDraft={initial.draft} />
+    </WizardStorageProvider>
   );
-  const [tab, setTab] = useLocalStorage<string>("tab", "metadata");
-  const [touchedTabs, setTouchedTabs] = useLocalStorage<TouchedTabs>(
-    TOUCHED_TABS_STORAGE_KEY,
-    initialTouchedTabs,
-  );
+}
 
-  const issueReport = useErrorCheck(deerSchema);
-
-  // Opening a tab counts as touching it, so its status is shown from then on.
-  React.useEffect(() => {
-    const updatedTouchedTabs = withTouchedTab(touchedTabs, tab);
-    if (updatedTouchedTabs !== touchedTabs) setTouchedTabs(updatedTouchedTabs);
-  }, [tab, touchedTabs, setTouchedTabs]);
-
-  const updateDeerSchema = (updatedSchema: DeerSchema) => {
-    const storedSchema = JSON.parse(JSON.stringify(updatedSchema)) as DeerSchema;
-    if (storedSchema.metadata.description?.trim() === "") delete storedSchema.metadata.description;
-    if (storedSchema.metadata.author?.trim() === "") delete storedSchema.metadata.author;
-    if (storedSchema.scenario.failureText?.length === 0) delete storedSchema.scenario.failureText;
-    for (const asset of storedSchema.assets) {
-      if (asset.source.attribution?.trim() === "") delete asset.source.attribution;
+function DraftEditor({ initialDraft }: { initialDraft: WizardDraft }) {
+  const storage = useWizardStorage();
+  const [draft, setDraft] = React.useState(initialDraft);
+  const latestDraftRef = React.useRef(initialDraft);
+  const updateDraft = React.useCallback<UpdateDraft>((transform: DraftTransform) => {
+    const snapshot = cloneDraft(latestDraftRef.current);
+    if (transform(snapshot) === false) return;
+    snapshot.saveStatus = "unsaved";
+    latestDraftRef.current = snapshot;
+    try {
+      const saved = storage.drafts.save(snapshot);
+      latestDraftRef.current = saved;
+      setDraft(saved);
+    } catch (error) {
+      latestDraftRef.current = snapshot;
+      setDraft(snapshot);
+      toast.error("Der Entwurf konnte nicht gespeichert werden.", {
+        description: error instanceof Error ? error.message : undefined,
+      });
     }
-    setDeerSchema(storedSchema);
-  };
+  }, [storage]);
 
-  const importSchema = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
-    input.onchange = (event) => {
-      const file = (event.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-      importSchemaFromFile(file, updateDeerSchema);
-    };
-    input.click();
+  React.useEffect(() => {
+    const touchedTabs = withTouchedTab(draft.ui.touchedTabs, draft.ui.activeTab);
+    if (touchedTabs !== draft.ui.touchedTabs) {
+      updateDraft((current) => {
+        const latestTouchedTabs = withTouchedTab(current.ui.touchedTabs, current.ui.activeTab);
+        if (latestTouchedTabs === current.ui.touchedTabs) return false;
+        current.ui.touchedTabs = latestTouchedTabs;
+      });
+    }
+  }, [draft, updateDraft]);
+
+  const project = draft.project;
+  const tab = draft.ui.activeTab;
+  const touchedTabs = draft.ui.touchedTabs;
+  const { issueReport, assetStorageStatus } = useErrorCheck(project, draft.uploads);
+
+  const updateProject = (updatedProject: DeerProject) => {
+    updateDraft((current) => {
+      current.project = structuredClone(updatedProject);
+    });
+  };
+  const setTab = (activeTab: TabId) => {
+    updateDraft((current) => {
+      current.ui.activeTab = activeTab;
+      current.ui.touchedTabs = withTouchedTab(current.ui.touchedTabs, activeTab);
+    });
   };
 
   const hasTouchedAllTabs = Object.values(touchedTabs).every((touched) => touched);
 
   return (
+    <UploadReferencesProvider value={draft.uploads}>
     <div className="h-screen overflow-scroll max-w-7xl mx-auto bg-background p-4 lg:border-x border-[var(--border-color)]">
-      <div className="grid grid-cols-[1fr_auto] mb-4">
-        <h1 className="text-3xl font-bold text-center">Dungeon Spec Generator</h1>
-        <ButtonGroup className="mt-0">
-          <Button variant="outline" onClick={importSchema}>
-            Import
-          </Button>
-          <Button variant="outline" onClick={() => exportSchema(deerSchema)}>
-            Export
-          </Button>
-        </ButtonGroup>
-      </div>
-      <div className={`grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 max-w-full`}>
+      <h1 className="mb-4 text-center text-3xl font-bold">Dungeon Spec Generator</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 max-w-full">
         <div className="lg:sticky lg:top-0 flex flex-col gap-4">
           <SidebarNavigation issueReport={issueReport} touchedTabs={touchedTabs} tab={tab} setTab={setTab} />
           <ErrorDetector
-            deerSchema={deerSchema}
-            updateDeerSchema={updateDeerSchema}
             issueReport={issueReport}
+            assetStorageStatus={assetStorageStatus}
             touchedAll={hasTouchedAllTabs}
             className="lg:block hidden"
           />
         </div>
         <div className="row-span-2 panel">
-          {tab === "metadata" && <MetadataTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-          {tab === "scenario" && <ScenarioTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-          {tab === "session" && <SessionTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-          {tab === "surfaces" && <SurfacesTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-          {tab === "assets" && <AssetsTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-          {tab === "riddles" && <RiddlesTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
+          {tab === "metadata" && <MetadataTab deerSchema={project} updateDeerSchema={updateProject} />}
+          {tab === "scenario" && <ScenarioTab deerSchema={project} updateDeerSchema={updateProject} />}
+          {tab === "session" && <SessionTab deerSchema={project} updateDeerSchema={updateProject} />}
+          {tab === "surfaces" && <SurfacesTab deerSchema={project} updateDeerSchema={updateProject} />}
+          {tab === "assets" && (
+            <AssetsTab draft={draft} updateDraft={updateDraft} />
+          )}
+          {tab === "riddles" && <RiddlesTab draft={draft} updateDraft={updateDraft} />}
           {tab === "riddle_graph" && (
-            <RiddleGraphTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />
+            <RiddleGraphTab draft={draft} updateDraft={updateDraft} />
           )}
-          {tab === "game_end" && <GameEndTab deerSchema={deerSchema} updateDeerSchema={updateDeerSchema} />}
-          {tab === "review" && (
-            <ReviewTab
-              deerSchema={deerSchema}
-              updateDeerSchema={updateDeerSchema}
-              issueReport={issueReport}
-            />
-          )}
+          {tab === "game_end" && <GameEndTab deerSchema={project} updateDeerSchema={updateProject} />}
+          {tab === "review" && <ReviewTab draft={draft} />}
           <InPageNavigation tab={tab} setTab={setTab} />
         </div>
         <ErrorDetector
-          deerSchema={deerSchema}
-          updateDeerSchema={updateDeerSchema}
           issueReport={issueReport}
+          assetStorageStatus={assetStorageStatus}
           touchedAll={hasTouchedAllTabs}
           className="lg:hidden"
         />
       </div>
     </div>
+    </UploadReferencesProvider>
   );
 }
 
@@ -143,31 +175,3 @@ function Layout() {
 }
 
 export default Layout;
-
-function exportSchema(schema: DeerSchema) {
-  const dataStr = JSON.stringify(schema, null, 2);
-  const blob = new Blob([dataStr], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "deer.json";
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function importSchemaFromFile(file: File, setDeerSchema: (schema: DeerSchema) => void) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const importedSchema: unknown = JSON.parse(e.target?.result as string);
-      assertSupportedDeerDocument(importedSchema);
-      setDeerSchema(importedSchema);
-    } catch (error) {
-      console.error("Fehler beim Importieren des Schemas:", error);
-      toast.error("Die Datei konnte nicht importiert werden.", {
-        description: error instanceof Error ? error.message : undefined,
-      });
-    }
-  };
-  reader.readAsText(file);
-}

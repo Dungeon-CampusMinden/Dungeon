@@ -2,7 +2,8 @@ import type { Asset } from "@/data/DeerSchema";
 import React from "react";
 import { AssetCard } from "./AssetCard";
 import { useAssetPreviews } from "./useAssetPreviews";
-import { getAssetName } from "./assetPaths";
+import { getAssetDisplayName } from "./assetPaths";
+import { useUploadReferences } from "./UploadReferencesContext";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { ImageIcon } from "lucide-react";
@@ -25,6 +26,7 @@ export function AssetSelector({
   allowEmpty?: boolean;
   className?: string;
 }) {
+  const uploads = useUploadReferences();
   const previews = useAssetPreviews(items);
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
@@ -55,6 +57,7 @@ export function AssetSelector({
         allowEmpty={allowEmpty}
         open={dialogOpen}
         setOpen={setDialogOpen}
+        uploads={uploads}
       />
     </div>
   );
@@ -68,6 +71,7 @@ function AssetSelectDialog({
   allowEmpty,
   open,
   setOpen,
+  uploads,
 }: {
   items: Asset[];
   value: string;
@@ -75,11 +79,14 @@ function AssetSelectDialog({
   allowEmpty: boolean;
   open: boolean;
   setOpen: (open: boolean) => void;
+  uploads: ReturnType<typeof useUploadReferences>;
 }) {
   const previews = useAssetPreviews(items);
   const [hoveredId, setHoveredId] = React.useState<string | null>(null);
 
-  const itemsSorted = [...items].sort((a, b) => getAssetName(a.path).localeCompare(getAssetName(b.path)));
+  const itemsSorted = [...items].sort((a, b) =>
+    getAssetDisplayName(a, uploads[a.id]).localeCompare(getAssetDisplayName(b, uploads[b.id])),
+  );
 
   const select = (newValue: string) => {
     onChange(newValue);

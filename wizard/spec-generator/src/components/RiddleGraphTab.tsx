@@ -1,18 +1,16 @@
-import type { AnyGraphNode, DeerSchema, Riddle, RiddleGraph, Surface } from "@/data/DeerSchema";
-import { Util } from "@/data/Util";
-import { useLocalStorage } from "@uidotdev/usehooks";
+import type { AnyGraphNode, Riddle, Surface } from "@/data/DeerSchema";
+import type { GraphLayout, UpdateDraft, WizardDraft } from "@/data/WizardDraft";
+import { removeRiddle } from "@/data/RiddleGraphActions";
 import {
   Background,
   ConnectionMode,
   Controls,
   MarkerType,
-  MiniMap,
   ReactFlow,
   ReactFlowProvider,
   useNodesState,
   type Connection,
   type Edge,
-  type IsValidConnection,
   type OnConnect,
   type OnNodeDrag,
 } from "@xyflow/react";
@@ -27,16 +25,14 @@ import { GRAPH_EDGE_TYPES } from "./graph/DeletableEdge";
 import { GRAPH_NODE_TYPES, type GraphFlowNode } from "./graph/GraphNodes";
 import {
   computeAutoLayout,
-  GRAPH_LAYOUT_STORAGE_KEY,
   hasEdge,
   withMissingPositions,
   wouldCreateCycle,
-  type GraphLayout,
 } from "./graph/graphLayout";
 
 export function RiddleGraphTab(props: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  draft: WizardDraft;
+  updateDraft: UpdateDraft;
 }) {
   return (
     <ReactFlowProvider>
@@ -45,155 +41,143 @@ export function RiddleGraphTab(props: {
   );
 }
 
-/**
- * `useLocalStorage` re-parses its JSON on every render, so both the schema and the layout arrive
- * with a fresh object identity each time. Everything React Flow receives is therefore derived from
- * serialized keys, otherwise the flow store would be updated in an endless loop.
- */
 function useStableValue<T>(value: T): T {
   const key = JSON.stringify(value);
   return React.useMemo(() => JSON.parse(key) as T, [key]);
 }
 
 function RiddleGraphEditor({
-  deerSchema,
-  updateDeerSchema,
+  draft,
+  updateDraft,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  draft: WizardDraft;
+  updateDraft: UpdateDraft;
 }) {
   const { resolvedTheme } = useTheme();
-  const [layout, setLayout] = useLocalStorage<GraphLayout>(GRAPH_LAYOUT_STORAGE_KEY, {});
   const [editingRiddleId, setEditingRiddleId] = React.useState<string | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<GraphFlowNode>([]);
 
-  // Event handlers always write to the schema of the latest render, not to a captured copy.
-  const schemaRef = React.useRef(deerSchema);
-  const updateRef = React.useRef(updateDeerSchema);
-  React.useEffect(() => {
-    schemaRef.current = deerSchema;
-    updateRef.current = updateDeerSchema;
-  });
-
-  const graph = useStableValue(deerSchema.riddleGraph);
-  const riddles = useStableValue(deerSchema.riddles);
-  const surfaces = useStableValue(deerSchema.surfaces);
-  const storedLayout = useStableValue(layout);
-
-  useGraphRiddleSync(graph, riddles, schemaRef, updateRef);
-
+  const project = draft.project;
+  const graph = useStableValue(project.riddleGraph);
+  const riddles = useStableValue(project.riddles);
+  const surfaces = useStableValue(project.surfaces);
+  const storedLayout = useStableValue(draft.graphLayout);
   const positions = React.useMemo(() => withMissingPositions(graph, storedLayout), [graph, storedLayout]);
 
+  const persistLayout = React.useCallback((graphLayout: GraphLayout) => {
+    updateDraft((current) => {
+      current.graphLayout = structuredClone(graphLayout);
+    });
+  }, [updateDraft]);
+
   React.useEffect(() => {
-    if (positions !== storedLayout) setLayout(positions);
-  }, [positions, storedLayout, setLayout]);
+    if (positions !== storedLayout) persistLayout(positions);
+  }, [positions, storedLayout, persistLayout]);
 
   const onEndSurfaceChange = React.useCallback((nodeId: string, surfaceId: string) => {
-    const schema = schemaRef.current;
-    const node = schema.riddleGraph.nodes.find((candidate) => candidate.id === nodeId && candidate.kind === "end");
-    if (!node || node.kind !== "end") return;
-
-    node.surfaceId = surfaceId;
-    updateRef.current(schema);
-  }, []);
+    updateDraft((current) => {
+      const node = current.project.riddleGraph.nodes.find(
+        (candidate) => candidate.id === nodeId && candidate.kind === "end",
+      );
+      if (!node || node.kind !== "end") return false;
+      node.surfaceId = surfaceId;
+    });
+  }, [updateDraft]);
 
   const flowNodes = React.useMemo<GraphFlowNode[]>(
-    () =>
-      graph.nodes.map((node) =>
-        toFlowNode(node, positions, riddles, surfaces, setEditingRiddleId, onEndSurfaceChange),
-      ),
+    () => graph.nodes.map((node) =>
+      toFlowNode(node, positions, riddles, surfaces, setEditingRiddleId, onEndSurfaceChange),
+    ),
     [graph, positions, riddles, surfaces, onEndSurfaceChange],
   );
-
   React.useEffect(() => setNodes(flowNodes), [flowNodes, setNodes]);
 
   const flowEdges = React.useMemo<Edge[]>(
-    () =>
-      graph.edges.map((edge) => ({
-        id: `${edge.from}->${edge.to}`,
-        source: edge.from,
-        target: edge.to,
-        type: "deletable",
-        markerEnd: { type: MarkerType.ArrowClosed },
-      })),
-    [graph],
-  );
-
-  const isValidConnection = React.useCallback<IsValidConnection>(
-    (connection) => {
-      const { source, target } = connection;
-      if (!source || !target || source === target) return false;
-      if (hasEdge(graph.edges, source, target)) return false;
-      return !wouldCreateCycle(graph.edges, source, target);
-    },
+    () => graph.edges.map((edge) => ({
+      id: `${edge.from}->${edge.to}`,
+      source: edge.from,
+      target: edge.to,
+      type: "deletable",
+      markerEnd: { type: MarkerType.ArrowClosed },
+    })),
     [graph],
   );
 
   const onConnect = React.useCallback<OnConnect>((connection: Connection) => {
     const { source, target } = connection;
     if (!source || !target) return;
-
-    const schema = schemaRef.current;
-    const edges = schema.riddleGraph.edges;
-    if (source === target) {
-      toast.error("Ein Schritt kann nicht mit sich selbst verbunden werden.");
-      return;
-    }
-    if (hasEdge(edges, source, target)) {
-      toast.error("Diese Verbindung gibt es bereits.");
-      return;
-    }
-    if (wouldCreateCycle(edges, source, target)) {
-      toast.error("Diese Verbindung würde einen Kreis erzeugen und ist deshalb nicht erlaubt.");
-      return;
-    }
-
-    schema.riddleGraph.edges = [...edges, { from: source, to: target }];
-    updateRef.current(schema);
-  }, []);
+    updateDraft((current) => {
+      const edges = current.project.riddleGraph.edges;
+      if (source === target) {
+        toast.error("Ein Schritt kann nicht mit sich selbst verbunden werden.");
+        return false;
+      }
+      if (hasEdge(edges, source, target)) {
+        toast.error("Diese Verbindung gibt es bereits.");
+        return false;
+      }
+      if (wouldCreateCycle(edges, source, target)) {
+        toast.error("Diese Verbindung würde einen Kreis erzeugen und ist deshalb nicht erlaubt.");
+        return false;
+      }
+      current.project.riddleGraph.edges.push({ from: source, to: target });
+    });
+  }, [updateDraft]);
 
   const onEdgesDelete = React.useCallback((deleted: Edge[]) => {
     const deletedIds = new Set(deleted.map((edge) => edge.id));
-    const schema = schemaRef.current;
-    schema.riddleGraph.edges = schema.riddleGraph.edges.filter(
-      (edge) => !deletedIds.has(`${edge.from}->${edge.to}`),
-    );
-    updateRef.current(schema);
-  }, []);
+    updateDraft((current) => {
+      current.project.riddleGraph.edges = current.project.riddleGraph.edges.filter(
+        (edge) => !deletedIds.has(`${edge.from}->${edge.to}`),
+      );
+    });
+  }, [updateDraft]);
 
   const onNodeDragStop = React.useCallback<OnNodeDrag<GraphFlowNode>>(
     (_event, _node, draggedNodes) => {
       const moved = Object.fromEntries(draggedNodes.map((node) => [node.id, node.position]));
-      setLayout({ ...positions, ...moved });
+      updateDraft((current) => {
+        Object.assign(current.graphLayout, moved);
+      });
     },
-    [positions, setLayout],
+    [updateDraft],
   );
 
-  const editingIndex = deerSchema.riddles.findIndex((riddle) => riddle.id === editingRiddleId);
-  const editingRiddle = editingIndex >= 0 ? deerSchema.riddles[editingIndex] : null;
+  const editingIndex = project.riddles.findIndex((riddle) => riddle.id === editingRiddleId);
+  const editingRiddle = editingIndex >= 0 ? project.riddles[editingIndex] : null;
 
   const saveRiddle = (updated: Riddle) => {
-    deerSchema.riddles[editingIndex] = updated;
-    updateDeerSchema(deerSchema);
+    updateDraft((current) => {
+      const index = current.project.riddles.findIndex((riddle) => riddle.id === updated.id);
+      if (index === -1) return false;
+      current.project.riddles[index] = structuredClone(updated);
+    });
   };
 
   const deleteRiddle = () => {
-    deerSchema.riddles.splice(editingIndex, 1);
-    updateDeerSchema(deerSchema);
+    if (!editingRiddle) return;
+    const riddleId = editingRiddle.id;
+    updateDraft((current) => {
+      const removedNodeIds = removeRiddle(current.project, riddleId);
+      for (const nodeId of removedNodeIds) delete current.graphLayout[nodeId];
+    });
+    setEditingRiddleId(null);
   };
 
   return (
     <div className="flex flex-col gap-0">
       <h1>Spielablauf</h1>
       <p className="text-sm text-muted-foreground">
-        Hier legst du fest, in welcher Reihenfolge die Rätsel gelöst werden. Ziehe eine Verbindung von einem
-        Punkt am unteren Rand eines Rätsels zum oberen Rand eines darauf folgenden Rätsels. Eine Verbindung
-        entfernst du über das X in ihrer Mitte oder mit der ENTF-Taste.
+        Eine Verbindung bedeutet: Der folgende Schritt wird nach seinem Vorgänger verfügbar. Hat ein
+        Schritt mehrere Vorgänger, müssen alle davon gelöst sein. Kreise und doppelte Verbindungen sind
+        nicht erlaubt. Verbindungen entfernst du über das X in ihrer Mitte oder mit der ENTF-Taste.
       </p>
       <Button
         variant="outline"
         className="my-2 max-w-52"
-        onClick={() => setLayout(computeAutoLayout(schemaRef.current.riddleGraph))}
+        onClick={() => updateDraft((current) => {
+          current.graphLayout = computeAutoLayout(current.project.riddleGraph);
+        })}
       >
         <LayoutGridIcon />
         Automatisch anordnen
@@ -209,7 +193,6 @@ function RiddleGraphEditor({
           onNodeDragStop={onNodeDragStop}
           onConnect={onConnect}
           onEdgesDelete={onEdgesDelete}
-          isValidConnection={isValidConnection}
           connectionMode={ConnectionMode.Strict}
           colorMode={resolvedTheme === "light" ? "light" : "dark"}
           nodesConnectable
@@ -219,7 +202,6 @@ function RiddleGraphEditor({
         >
           <Background />
           <Controls showInteractive={false} />
-          {/* <MiniMap pannable zoomable /> */}
         </ReactFlow>
       </div>
 
@@ -227,11 +209,9 @@ function RiddleGraphEditor({
         <RiddleEditDialog
           key={editingRiddle.id}
           riddle={editingRiddle}
-          deerSchema={deerSchema}
+          deerSchema={project}
           open={editingRiddleId !== null}
-          setOpen={(open) => {
-            if (!open) setEditingRiddleId(null);
-          }}
+          setOpen={(open) => { if (!open) setEditingRiddleId(null); }}
           onSave={saveRiddle}
           onDelete={deleteRiddle}
         />
@@ -277,75 +257,4 @@ function toFlowNode(
         },
       };
   }
-}
-
-/** Every riddle gets exactly one node, so the graph never drifts away from the riddle list. */
-function useGraphRiddleSync(
-  graph: RiddleGraph,
-  riddles: Riddle[],
-  schemaRef: React.RefObject<DeerSchema>,
-  updateRef: React.RefObject<(updatedSchema: DeerSchema) => void>,
-) {
-  React.useEffect(() => {
-    // Reconcile against the latest mutable schema so repeated mount effects remain idempotent.
-    const schema = schemaRef.current;
-    const currentNodes = schema.riddleGraph.nodes;
-    const riddleIds = new Set(riddles.map((riddle) => riddle.id));
-    const canonicalNodeIds = new Map<string, string>();
-    const staleNodeIds = new Set<string>();
-    const duplicateNodeIds = new Map<string, string>();
-    const retainedNodes = currentNodes.filter((node) => {
-      if (node.kind !== "riddle") return true;
-      if (!riddleIds.has(node.riddleId)) {
-        staleNodeIds.add(node.id);
-        return false;
-      }
-      const canonicalNodeId = canonicalNodeIds.get(node.riddleId);
-      if (canonicalNodeId !== undefined) {
-        duplicateNodeIds.set(node.id, canonicalNodeId);
-        return false;
-      }
-      canonicalNodeIds.set(node.riddleId, node.id);
-      return true;
-    });
-    const missingRiddles = riddles.filter((riddle) => !canonicalNodeIds.has(riddle.id));
-    const hasStartNode = currentNodes.some((node) => node.kind === "start");
-    if (
-      staleNodeIds.size === 0 &&
-      duplicateNodeIds.size === 0 &&
-      missingRiddles.length === 0 &&
-      hasStartNode
-    ) {
-      return;
-    }
-
-    const newNodes: AnyGraphNode[] = missingRiddles.map((riddle) => ({
-      id: Util.generateUniqueId("n"),
-      kind: "riddle",
-      riddleId: riddle.id,
-    }));
-    if (!hasStartNode) {
-      newNodes.unshift({ id: Util.generateUniqueId("n"), kind: "start" });
-    }
-
-    schema.riddleGraph.nodes = [
-      ...retainedNodes,
-      ...newNodes,
-    ];
-    const edgeKeys = new Set<string>();
-    schema.riddleGraph.edges = schema.riddleGraph.edges
-      .filter((edge) => !staleNodeIds.has(edge.from) && !staleNodeIds.has(edge.to))
-      .map((edge) => ({
-        from: duplicateNodeIds.get(edge.from) ?? edge.from,
-        to: duplicateNodeIds.get(edge.to) ?? edge.to,
-      }))
-      .filter((edge) => edge.from !== edge.to)
-      .filter((edge) => {
-        const key = `${edge.from}->${edge.to}`;
-        if (edgeKeys.has(key)) return false;
-        edgeKeys.add(key);
-        return true;
-      });
-    updateRef.current(schema);
-  }, [graph, riddles, schemaRef, updateRef]);
 }

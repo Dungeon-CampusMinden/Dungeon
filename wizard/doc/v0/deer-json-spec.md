@@ -56,10 +56,13 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 | `riddles` | Ausführbare Rätsel, Inhalte und optionale Hinweise. |
 | `assets` | Referenzierte PNG-/JPEG-Dateien. |
 
-Die UI erzeugt `seed` bei der ersten erfolgreichen Finalisierung genau einmal
-und erhält ihn bei späteren Finalisierungen. Der Bereich ist der lückenlos exakt
-darstellbare nicht-negative Safe-Integer-Bereich der RFC-8785-Zahlendarstellung.
-Weitere Schreib- und Identitätsregeln stehen in
+Bei der ersten Finalisierung erzeugt der native M2-Vorgang `seed` zunächst nur
+flüchtig und gibt ihn erst nach vollständig erfolgreichem Abschluss zur
+Draft-Persistenz zurück. Bei späteren Finalisierungen verwendet er diesen im
+Draft vorhandenen Wert unverändert. Die UI erzeugt oder speichert vorher keinen
+echten Projektseed. Der Bereich ist der lückenlos exakt darstellbare
+nicht-negative Safe-Integer-Bereich der RFC-8785-Zahlendarstellung. Weitere
+Schreib- und Identitätsregeln stehen in
 [`runner-project-format.md`](runner-project-format.md).
 
 ## 3. IDs und Referenzen

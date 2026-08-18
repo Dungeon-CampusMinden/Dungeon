@@ -11,6 +11,9 @@ export interface DeerSchema {
   assets: Asset[];
 }
 
+/** The DEER-shaped project data kept in a private draft before a seed exists. */
+export type DeerProject = Omit<DeerSchema, "seed">;
+
 export interface Metadata {
   id: string;
   title: string;

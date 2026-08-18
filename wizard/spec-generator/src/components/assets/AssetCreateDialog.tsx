@@ -44,7 +44,7 @@ export function AssetCreateDialog({
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  onSelect: (selection: AssetSelection) => void;
+  onSelect: (selection: AssetSelection) => Promise<void> | void;
   currentPath?: string | null;
   extensions?: string[] | null;
   title?: string;
@@ -54,6 +54,7 @@ export function AssetCreateDialog({
   const [uploadedFile, setUploadedFile] = React.useState<File | null>(null);
   const [selectedFolder, setSelectedFolder] = React.useState("/");
   const [selectedManifestPath, setSelectedManifestPath] = React.useState<string | null>(null);
+  const [pending, setPending] = React.useState(false);
 
   React.useEffect(() => {
     if (open) return;
@@ -104,6 +105,7 @@ export function AssetCreateDialog({
   const showBackOneLevel = selectedFolder !== "/";
 
   const handleOpenChange = (nextOpen: boolean) => {
+    if (pending) return;
     if (nextOpen) {
       const isBundled = currentPath !== null && isBundledAssetPath(currentPath);
       const manifestPath = isBundled ? toManifestPath(currentPath) : null;
@@ -117,15 +119,24 @@ export function AssetCreateDialog({
 
   const canConfirm = mode === "custom" ? uploadedFile !== null : selectedManifestPath !== null;
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    let selection: AssetSelection;
     if (mode === "custom") {
       if (!uploadedFile) return;
-      onSelect({ kind: "custom", file: uploadedFile });
+      selection = { kind: "custom", file: uploadedFile };
     } else {
       if (!selectedManifestPath) return;
-      onSelect({ kind: "bundled", path: toBundledAssetPath(selectedManifestPath) });
+      selection = { kind: "bundled", path: toBundledAssetPath(selectedManifestPath) };
     }
-    setOpen(false);
+    setPending(true);
+    try {
+      await onSelect(selection);
+      setOpen(false);
+    } catch {
+      // The caller reports the technical error. Keep the selection open for a retry.
+    } finally {
+      setPending(false);
+    }
   };
 
   const allowedExtensions = extensions ?? ALLOWED_EXTENSIONS;
@@ -144,7 +155,7 @@ export function AssetCreateDialog({
         <Tabs
           value={mode}
           onValueChange={(value) => setMode(value as "custom" | "bundled")}
-          className="min-h-0"
+          className={`min-h-0 ${pending ? "pointer-events-none opacity-70" : ""}`}
         >
           <TabsList>
             <TabsTrigger value="custom">
@@ -166,7 +177,12 @@ export function AssetCreateDialog({
                   Noch keine Datei ausgewählt. Erlaubte Formate: {allowedExtensions.join(", ")}.
                 </p>
               )}
-              <Button variant="outline" className="shrink-0" onClick={() => fileInputRef.current?.click()}>
+              <Button
+                variant="outline"
+                className="shrink-0"
+                disabled={pending}
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <UploadIcon />
                 Datei auswählen
               </Button>
@@ -175,6 +191,7 @@ export function AssetCreateDialog({
                 type="file"
                 className="hidden"
                 accept={acceptAttribute}
+                disabled={pending}
                 onChange={(e) => {
                   const file = e.target.files?.[0] ?? null;
                   e.target.value = "";
@@ -236,7 +253,7 @@ export function AssetCreateDialog({
               mode === "custom"
                 ? (uploadedFile?.name ?? "")
                 : selectedManifestPath
-                  ? toBundledAssetPath(selectedManifestPath)
+                  ? getAssetName(selectedManifestPath)
                   : ""
             }
             readOnly
@@ -244,9 +261,9 @@ export function AssetCreateDialog({
         </Field>
 
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>Abbrechen</DialogClose>
-          <Button onClick={handleConfirm} disabled={!canConfirm}>
-            Auswählen
+          <DialogClose render={<Button variant="outline" disabled={pending} />}>Abbrechen</DialogClose>
+          <Button onClick={() => void handleConfirm()} disabled={!canConfirm || pending}>
+            {pending ? "Wird gespeichert…" : "Auswählen"}
           </Button>
         </DialogFooter>
       </DialogContent>

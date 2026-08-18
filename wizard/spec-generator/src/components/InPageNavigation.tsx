@@ -1,8 +1,8 @@
-import { TABS } from "@/data/Tabs";
+import { TABS, type TabId } from "@/data/Tabs";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 
-export function InPageNavigation({ tab, setTab }: { tab: string; setTab: (tab: string) => void }) {
+export function InPageNavigation({ tab, setTab }: { tab: TabId; setTab: (tab: TabId) => void }) {
   const currentIndex = TABS.findIndex((entry) => entry.value === tab);
 
   if (currentIndex === -1) return null;

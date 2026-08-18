@@ -2,7 +2,7 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { CircleAlertIcon, CircleCheckIcon, CircleIcon, CircleXIcon, InfoIcon } from "lucide-react";
 import { ErrorChecker, type IssueReport, type IssueSeverity } from "@/data/ErrorChecker";
 import { isTabTouched, type TouchedTabs } from "@/data/TabTouchState";
-import { TABS } from "@/data/Tabs";
+import { isTabId, TABS, type TabId } from "@/data/Tabs";
 
 /** Tabs that only present content and are therefore never validated. */
 const UNVALIDATED_TABS = ["review"];
@@ -16,14 +16,21 @@ export function SidebarNavigation({
 }: {
   issueReport: IssueReport;
   touchedTabs: TouchedTabs;
-  tab: string;
-  setTab: (tab: string) => void;
+  tab: TabId;
+  setTab: (tab: TabId) => void;
   className?: string;
 }) {
   return (
     <div className={`panel ${className ?? ""} flex flex-col gap-0`}>
       <h2>Outline</h2>
-      <Tabs value={tab} onValueChange={(value) => setTab(value)} orientation="vertical" className="mt-0">
+      <Tabs
+        value={tab}
+        onValueChange={(value) => {
+          if (isTabId(value)) setTab(value);
+        }}
+        orientation="vertical"
+        className="mt-0"
+      >
         <TabsList className="bg-transparent">
           {TABS.map((entry) => (
             <TabsTrigger key={entry.value} value={entry.value}>
@@ -39,7 +46,7 @@ export function SidebarNavigation({
 
 /** Feedback is only shown once the user has actually worked on a tab. */
 function getTabSeverity(
-  tabId: string,
+  tabId: TabId,
   issueReport: IssueReport,
   touchedTabs: TouchedTabs,
 ): IssueSeverity | "none" | null {

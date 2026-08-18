@@ -1,16 +1,20 @@
 # Wizard Runner Project Format V0.4
 
-Status: umgesetzter V0.4-Runner- und Packaging-Contract; UI-Finalisierung noch
-nicht umgesetzt
+Status: umgesetzter V0.4-Runner- und Packaging-Contract; M1-Browser-Draft
+vorhanden, native M2-Finalisierung noch nicht umgesetzt
 
 Scope: finalisierte Übergabe von der Wizard-UI an Validierung, Packaging und
 Room-first-Host
 
 ## Projektgrenze
 
-Die UI schreibt einen Authoring-Projektordner. Der generische Wizard Runner
-liest ihn unverändert und leitet den Raum ausschließlich im Speicher ab. Es
-entsteht weder Java-Code noch ein Room-ZIP.
+In M1 speichert die UI private Entwürfe browserbasiert über denselben
+Storage-Port in LocalStorage und IndexedDB; sie schreibt noch keinen
+Authoring-Projektordner. In M2 ersetzt ein nativer Java-Adapter diese
+Browserimplementierung, schreibt den Authoring-Projektordner atomar und führt
+Produktionsvalidierung und Finalisierung aus. Der generische Wizard Runner
+liest den finalisierten Ordner unverändert und leitet den Raum ausschließlich
+im Speicher ab. Es entsteht weder Java-Code noch ein Room-ZIP.
 
 ```text
 wizard-project/
@@ -81,28 +85,34 @@ dünne Integration.
 ## Draft und Finalisierung
 
 - Ein UI-Entwurf darf unvollständig sein und bleibt außerhalb dieses Formats.
-- Die Finalisierung projiziert den Draft auf Formatversion `0.4`.
+- In M1 liegen Entwurf und Uploadbytes hinter dem gemeinsamen Storage-Port in
+  LocalStorage beziehungsweise IndexedDB.
+- In M2 ersetzt der native Java-Adapter die Browserimplementierung und
+  finalisiert in einen Projektordner.
+- Die M2-Finalisierung projiziert den Draft auf Formatversion `0.4`.
 - Sie bewahrt jede authorierte direkte Pflichtabhängigkeit und erfindet oder
   vervollständigt keine Progressionskanten.
-- Die UI prüft Schema, Fachregeln, Spielergrenzen und Assetpfade vor dem
-  Schreiben.
-- Bei der ersten Finalisierung erzeugt die UI den Top-Level-Wert `seed` in
-  `deer.json` genau einmal.
-- Bei jeder späteren Finalisierung bleibt der vorhandene Seedwert erhalten. Die
-  UI erzeugt ihn nicht erneut und der Runner verändert ihn nie.
+- Der native Adapter prüft Schema, Fachregeln, Spielergrenzen und Assetpfade vor
+  dem Schreiben.
+- Bei der ersten Finalisierung erzeugt der native M2-Vorgang den Seed zunächst
+  nur flüchtig und baut sowie validiert exakt den damit versehenen Kandidaten.
+  Die UI erzeugt oder speichert vorher keinen echten Projektseed.
+- Neue Custom-Dateien werden zuerst und `deer.json` zuletzt atomar geschrieben.
+  Erst nach vollständig erfolgreichem Abschluss gibt der native Vorgang den
+  Seed zur Draft-Persistenz zurück.
+- Bei jeder späteren Finalisierung verwendet der native Vorgang den im Draft
+  vorhandenen Seedwert unverändert; der Runner verändert ihn nie.
 - Bei einem Spielbibliothek-Asset schreibt die UI ausschließlich dessen
   internen Pfad und Metadaten in den DEER-Eintrag; es wird keine Bilddatei
   kopiert.
 - Bei einem eigenen Upload berechnet der native Storage-Adapter SHA-256 und
   schreibt das Bild inhaltsadressiert unter `assets/custom/`.
-- Neue Custom-Dateien werden zuerst geschrieben. `deer.json` einschließlich
-  Seed wird über eine temporäre Datei zuletzt sicher ersetzt.
 - Ein fehlgeschlagener Schreibvorgang lässt die letzte gültige Ausgabe
   verwendbar. Finalisierung sperrt den UI-Entwurf nicht.
 
-V0.4 spezifiziert einen Standalone-Host mit nativem Storage-Adapter. Dieser
-UI- und Storage-Anteil ist noch nicht umgesetzt. Ein browser-only Export ist
-nicht Teil des Foundation-Slices.
+V0.4 spezifiziert für M2 einen Standalone-Host mit nativem Storage-Adapter.
+Dieser Anteil ist noch nicht umgesetzt. Ein browser-only Export ist nicht Teil
+des Foundation-Slices.
 
 ## Seed in deer.json
 

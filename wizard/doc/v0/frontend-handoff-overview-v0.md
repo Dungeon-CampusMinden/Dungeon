@@ -1,6 +1,6 @@
 # Frontend Handoff V0.4
 
-Status: Runtime-Vertrag implementiert; Frontend noch nicht implementiert
+Status: Runtime-Vertrag und M1-Browser-Draft implementiert; nativer Host noch offen
 
 ## Auftrag
 
@@ -60,6 +60,13 @@ Multiplayer und Spielruntime sind kein Frontend-Auftrag. Ihre Grenze steht in
 
 ## Verantwortungsgrenze
 
+Die Tabelle beschreibt die Zielgrenze ab M2. Im M1-Zwischenstand nutzt die
+Web-UI bereits denselben mehrprojektfähigen Storage-Port, implementiert ihn
+aber lokal mit LocalStorage für Draft-Snapshots und IndexedDB für Uploadbytes.
+Produktionsvalidierung, Seedvergabe, Projektordner und Finalisierung sind in M1
+nicht verfügbar. M2 ersetzt den Browser-Adapter hinter dem Port durch den
+nativen Java-Host, der dann auch diese produktiven Operationen übernimmt.
+
 | Schicht | Besitzt | Besitzt ausdrücklich nicht |
 |---|---|---|
 | Web-UI | sichtbaren Flow, privaten Draft, unmittelbare Feldhinweise, Vorschau | Projektdateisystem, Runner-Runtime, Multiplayer |
@@ -89,10 +96,15 @@ abgefragt. Die UI leitet daraus stabile Surfaces der geschlossenen Arten
 Bindungen ab. Der technische Begriff „Surface“ und die IDs bleiben verborgen.
 Ein Computer ist noch keine Surface-Art des aktiven Profils. Die UI bietet
 weder ein Output-/Effektfeld noch OR-Regeln an; Progression und Ausgang gehören
-allein dem abgeleiteten mandatory AND-Rätselgraphen. Der einfache sichtbare
-Stage-Modus bleibt ein Authoring-Teilprofil. Falls die UI später explizite
-Abhängigkeiten anbietet, bedeutet „verfügbar nach ...“ bei mehreren
-ausgewählten Aufgaben, dass alle ausgewählten Aufgaben erforderlich sind.
+allein dem frei bearbeiteten mandatory AND-Rätselgraphen. Die UI zeigt genau
+einen geschützten Start- und Endknoten sowie genau einen Knoten je Rätsel. Eine
+Kante bedeutet „wird nach dem Vorgänger verfügbar“; bei mehreren eingehenden
+Kanten müssen ausnahmslos alle Vorgänger gelöst sein. Die UI verhindert
+doppelte Kanten und Zyklen, bietet aber weder OR-, Bedingungs- noch
+Optionalitätsregeln an. Unverbundene oder noch unvollständige Graphen dürfen im
+privaten Draft gespeichert werden und werden vor der Finalisierung als lokale
+Probleme angezeigt. Knoten und Kanten werden exakt in ihrer gespeicherten
+Reihenfolge in den DEER-Kandidaten übernommen, nicht abgeleitet oder repariert.
 
 ## Draft- und Storage-Port
 
@@ -111,8 +123,8 @@ muss aber eine eigene Versionskennung besitzen und mindestens erhalten:
 Ein unbekanntes Draftformat wird verständlich abgelehnt und nicht teilweise
 geladen. V0.4 benötigt keine Migration zwischen Draftversionen.
 
-Der native Host-Adapter stellt der Web-UI genau diese logischen Operationen
-bereit; konkrete Methodennamen dürfen dem verwendeten Stack folgen:
+Der Storage-/Host-Port stellt der Web-UI schrittweise diese logischen
+Operationen bereit; konkrete Methodennamen dürfen dem verwendeten Stack folgen:
 
 | Operation | Erfolg | Fehlergarantie |
 |---|---|---|
@@ -122,11 +134,18 @@ bereit; konkrete Methodennamen dürfen dem verwendeten Stack folgen:
 | vollständigen Kandidaten prüfen | [`ProjectValidationReport`](project-validation-report.schema.json) der Produktionsvalidierung | Zielprojekt bleibt unverändert |
 | Kandidaten finalisieren | neue Custom-Dateien zuerst, `deer.json` zuletzt atomar ersetzt | letzte gültige Finalisierung bleibt verwendbar |
 
-Für eine Prüfung vor der ersten Finalisierung darf der Adapter im privaten
-Prüfbereich einen temporären gültigen Seed einsetzen. Dieser Wert wird weder
-als Projektseed gespeichert noch als endgültige Projektidentität angezeigt.
-Bei der ersten Finalisierung erzeugt die UI den echten Seed, prüft den exakten
-Kandidaten erneut und schreibt nur dieses erfolgreich geprüfte Ergebnis.
+M1 implementiert daraus nur Drafts auflisten/laden/speichern und lokale
+Uploadbytes im Browser. Ab M2 stellt der native Java-Host Persistenz,
+Produktionsvalidierung und atomare Finalisierung hinter demselben Port bereit.
+
+Für eine lokale Prüfung vor der ersten Finalisierung darf intern ein flüchtiger
+gültiger Prüfseed eingesetzt werden. Dieser Wert ist kein Projektseed und wird
+weder im Draft gespeichert noch als endgültige Projektidentität angezeigt. Bei
+der ersten Finalisierung erzeugt erst der native M2-Vorgang den echten Seed
+flüchtig, baut und validiert exakt diesen Kandidaten, schreibt neue
+Custom-Dateien zuerst und `deer.json` zuletzt atomar und gibt den Seed erst nach
+vollständig erfolgreichem Abschluss zur Draft-Persistenz zurück. Bei späteren
+Finalisierungen verwendet er den bereits im Draft vorhandenen Seed unverändert.
 Für ein Spielbild schreibt der Adapter nur den internen Pfad und die
 Lizenzmetadaten in `deer.json`; das Bild wird nicht kopiert. Für einen Upload
 berechnet er SHA-256, schreibt die Datei unter

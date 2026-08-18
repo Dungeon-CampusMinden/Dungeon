@@ -10,7 +10,8 @@ import { Button } from "../ui/button";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 import { AssetPreviewContent } from "./AssetPreviewContent";
 import { AssetEditDialog } from "./AssetEditDialog";
-import { getAssetName, type AssetPreview, type AssetSelection } from "./assetPaths";
+import { getAssetDisplayName, type AssetPreview, type AssetSelection } from "./assetPaths";
+import { useUploadReferences } from "./UploadReferencesContext";
 
 export function AssetCard({
   asset,
@@ -31,11 +32,15 @@ export function AssetCard({
   onReplaceContent?: (asset: Asset, selection: AssetSelection) => Promise<void>;
   onDelete?: (asset: Asset) => void;
 }) {
+  const uploads = useUploadReferences();
   const [editOpen, setEditOpen] = React.useState(false);
   const missing = preview?.missing ?? false;
-  const fileName = getAssetName(asset.path);
+  const technicalError = preview?.technicalError ?? false;
+  const fileName = getAssetDisplayName(asset, uploads[asset.id]);
 
-  const stateClasses = missing
+  const stateClasses = technicalError
+    ? "border-yellow-500/60 bg-yellow-500/5"
+    : missing
     ? "border-destructive bg-destructive/5"
     : highlighted
       ? "border-primary bg-primary/5 ring-2 ring-primary"
@@ -44,7 +49,7 @@ export function AssetCard({
   return (
     <div className="flex min-w-0 flex-col gap-1">
       <div
-        title={missing ? "Datei fehlt" : fileName}
+        title={technicalError ? "Lokaler Speicher nicht verfügbar" : missing ? "Datei fehlt" : fileName}
         className={`flex aspect-square items-center justify-center rounded-lg border p-2 transition-colors ${stateClasses}`}
       >
         <AssetPreviewContent asset={asset} preview={preview} />
@@ -76,6 +81,7 @@ export function AssetCard({
       {editable && (
         <AssetEditDialog
           asset={asset}
+          displayName={fileName}
           missing={missing}
           open={editOpen}
           setOpen={setEditOpen}
