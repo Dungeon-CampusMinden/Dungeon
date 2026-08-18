@@ -61,11 +61,11 @@ export function ReviewTab({
     updateDeerSchema({ ...deerSchema, seed: newSeed });
   };
 
-  const generate = async () => {
+  const generateAdventure = async () => {
     setGenerating(true);
     try {
       const blob = await createSchemaZip(deerSchema);
-      downloadBlob(blob, `${deerSchema.metadata.id || "deer"}.zip`);
+      downloadBlob(blob, adventureFileName(deerSchema.metadata.title));
       toast.success("Das Abenteuer wurde generiert.");
     } catch (error) {
       toast.error("Das Abenteuer konnte nicht generiert werden.", {
@@ -85,7 +85,7 @@ export function ReviewTab({
           <AlertTitle>Das Abenteuer ist noch nicht vollständig.</AlertTitle>
           <AlertDescription>
             {errorCount} {errorCount === 1 ? "Fehler muss" : "Fehler müssen"} behoben werden, bevor
-            generiert werden kann.
+            das Abenteuer generiert werden kann.
           </AlertDescription>
         </Alert>
       )}
@@ -94,11 +94,11 @@ export function ReviewTab({
           <AlertTitle>
             {warningCount} {warningCount === 1 ? "Warnung" : "Warnungen"}
           </AlertTitle>
-          <AlertDescription>Warnungen verhindern die Generierung nicht.</AlertDescription>
+          <AlertDescription>Warnungen verhindern die Generierung des Abenteuers nicht.</AlertDescription>
         </Alert>
       )}
       {errorCount === 0 && warningCount === 0 && (
-        <IssueList className="mt-0" issues={[]} emptyMessage="Das Abenteuer ist bereit zum Generieren." />
+        <IssueList className="mt-0" issues={[]} emptyMessage="Das Abenteuer kann generiert werden." />
       )}
       {issues.length > 0 && <IssueList className="mt-0" issues={issues} />}
 
@@ -134,12 +134,30 @@ export function ReviewTab({
       <Button
         className="self-stretch"
         size="lg"
-        onClick={generate}
+        onClick={generateAdventure}
         disabled={errorCount > 0 || seedError !== undefined || generating}
       >
         <DownloadIcon />
-        {generating ? "Wird generiert…" : "Generieren"}
+        {generating ? "Abenteuer wird generiert…" : "Abenteuer generieren"}
       </Button>
     </div>
   );
+}
+
+function adventureFileName(title: string): string {
+  const safeTitle = title
+    .trim()
+    .toLowerCase()
+    .replaceAll("ß", "ss")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80)
+    .replace(/-+$/g, "");
+  const stem = safeTitle || "abenteuer";
+  const safeStem = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/.test(stem)
+    ? `abenteuer-${stem}`
+    : stem;
+  return `${safeStem}.zip`;
 }

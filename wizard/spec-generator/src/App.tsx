@@ -1,4 +1,4 @@
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 import "./App.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import type { DeerSchema } from "./data/DeerSchema";
@@ -26,6 +26,7 @@ import {
 import React from "react";
 import { ButtonGroup } from "./components/ui/button-group";
 import { Button } from "./components/ui/button";
+import { assertSupportedDeerDocument } from "./data/AdventurePackage";
 
 const initialDeerSchema = createDeerSchema();
 const initialTouchedTabs = createUntouchedTabs();
@@ -149,7 +150,7 @@ function exportSchema(schema: DeerSchema) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "deer-schema.json";
+  link.download = "deer.json";
   link.click();
   URL.revokeObjectURL(url);
 }
@@ -158,10 +159,14 @@ function importSchemaFromFile(file: File, setDeerSchema: (schema: DeerSchema) =>
   const reader = new FileReader();
   reader.onload = (e) => {
     try {
-      const importedSchema = JSON.parse(e.target?.result as string);
+      const importedSchema: unknown = JSON.parse(e.target?.result as string);
+      assertSupportedDeerDocument(importedSchema);
       setDeerSchema(importedSchema);
     } catch (error) {
       console.error("Fehler beim Importieren des Schemas:", error);
+      toast.error("Die Datei konnte nicht importiert werden.", {
+        description: error instanceof Error ? error.message : undefined,
+      });
     }
   };
   reader.readAsText(file);
