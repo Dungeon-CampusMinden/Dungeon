@@ -1,6 +1,7 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -33,6 +34,7 @@ public class ModePanel extends Table {
 
   /** Creates the mode selection panel with one button per {@link Mode}. */
   public ModePanel() {
+    setTouchable(Touchable.enabled);
     setBackground(skin.getDrawable("generic-area"));
     pad(8f);
     defaults().pad(4f);

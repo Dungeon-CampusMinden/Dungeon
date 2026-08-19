@@ -312,6 +312,7 @@ public class DecoMode extends LevelEditorMode {
 
   private void recordPlacedDeco(Deco deco) {
     if (deco == decoHistory.peekFirst()) return;
+    decoHistory.remove(deco);
     decoHistory.addFirst(deco);
     while (decoHistory.size() > DECO_HISTORY_SIZE) decoHistory.removeLast();
   }

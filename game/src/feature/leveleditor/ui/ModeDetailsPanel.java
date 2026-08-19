@@ -2,6 +2,7 @@ package feature.leveleditor.ui;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import engine.utils.Scene2dElementFactory;
@@ -43,6 +44,7 @@ public class ModeDetailsPanel extends Table {
 
   /** Creates an empty details panel. */
   public ModeDetailsPanel() {
+    setTouchable(Touchable.enabled);
     setBackground(UIUtils.defaultSkin().getDrawable("generic-area"));
     pad(12f);
     top();

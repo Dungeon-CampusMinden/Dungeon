@@ -43,7 +43,7 @@ public class SelectSetting<T> extends Table {
         });
 
     add(Scene2dElementFactory.createLabel(label, 16, Color.BLACK)).growX().left();
-    add(selectBox).width(250f).right();
+    add(selectBox).width(200f).right();
   }
 
   /** Synchronizes the displayed value with the current setting. */
