@@ -1,6 +1,8 @@
 package rooms.lasthour.util.translation;
 
 import com.badlogic.gdx.Input;
+import engine.Game;
+import engine.language.Language;
 import engine.language.Translation;
 import feature.input.configuration.KeyboardConfig;
 import feature.utils.Translator;
@@ -14,8 +16,8 @@ public class LastHourTranslator extends Translator {
   public final List<String> DecoyVentSerialNumbers = List.of("sv00057---", "sv00031---");
   private final String MertensColor = "#aa00aa";
   public final String VentSerialNumber = "49221";
-  private final String cabinetImagePath = "images/virus-phrases.png";
-  private final String cabinetImagePathDe = "images/virus-phrases_de.png";
+  private final String cabinetImagePathEN = "images/virus-phrases.png";
+  private final String cabinetImagePathDE = "images/virus-phrases-de.png";
 
   /** List of URLs mentioned in the emails, which may or may not be trustworthy. */
   public final List<String> EmailCodeUrls =
@@ -81,6 +83,8 @@ public class LastHourTranslator extends Translator {
             translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(2)));
         case TranslationKey.Email_7_Content ->
             translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(3)));
+        case TranslationKey.cabinetImage ->
+            translatedText = translatedText.replace(s, Game.localization().currentLanguage().equals(Language.DE) ? cabinetImagePathDE : cabinetImagePathEN);
         default -> translatedText = translatedText.replace(s, translation.text(s));
       }
     }
@@ -155,5 +159,6 @@ public class LastHourTranslator extends Translator {
     registerKey(TranslationKey.Email_8_Content);
     registerKey(TranslationKey.Email_9_Subject);
     registerKey(TranslationKey.Email_9_Content);
+    registerKey(TranslationKey.cabinetImage);
   }
 }

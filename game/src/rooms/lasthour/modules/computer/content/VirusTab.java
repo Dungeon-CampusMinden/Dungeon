@@ -7,6 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.language.Language;
+import engine.language.Localization;
 import engine.sound.Sounds;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
@@ -15,6 +17,8 @@ import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
+
+import java.util.Map;
 
 /** Tab content for when the computer is infected with a virus. */
 public class VirusTab extends ComputerTab {
@@ -115,14 +119,10 @@ public class VirusTab extends ComputerTab {
   }
 
   private void trySubmitCode(TextField codeField, RichLabel virusLabel) {
-    String rawCode = codeField.getText();
-    DialogCallbackResolver.createButtonCallback(
-            context().dialogId(), ComputerCallbacks.VIRUS_CODE_ATTEMPT_KEY)
-        .accept(new DialogResponseMessage.StringValue(rawCode));
-
-    String inputCode = rawCode.replaceAll("\\s+", "");
-    String expected = Lore.VirusTypeToCode.get(virusType);
-    if (expected != null && inputCode.equalsIgnoreCase(expected.replaceAll("\\s+", ""))) {
+    String inputCode = codeField.getText().replaceAll("\\s+", "");
+    Map<Language, String> expected = Lore.VirusTypeToCode.getOrDefault(virusType, null);
+    String expectedString = expected.get(Localization.getInstance().currentLanguage()).replaceAll("\\s+", "");
+    if (virusType == null || inputCode.equalsIgnoreCase(expectedString)) {
       virusLabel.setText("[color=#00cc00]Virus Neutralized!");
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     } else {
