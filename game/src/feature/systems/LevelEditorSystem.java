@@ -382,9 +382,9 @@ public class LevelEditorSystem extends System {
     /** Mode to shift the whole level layout. */
     ShiftLevel('M'),
     /** Mode to define the start (spawn) tiles. */
-    StartTiles('A'),
+    StartTiles('S'),
     /** Mode to save the current level. */
-    SaveLevel('S');
+    SaveLevel('L');
 
     private final char letter;
 

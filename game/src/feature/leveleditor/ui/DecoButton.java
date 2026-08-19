@@ -2,10 +2,12 @@ package feature.leveleditor.ui;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Scaling;
 import engine.components.DrawComponent;
 import feature.entities.deco.Deco;
 import feature.hud.UIUtils;
@@ -31,7 +33,7 @@ public class DecoButton extends ImageButton {
     this.deco = deco;
     this.selectedStyle = STYLE_SELECTED;
     getImageCell().size(size * 0.68f);
-    getImage().setScaling(com.badlogic.gdx.utils.Scaling.fit);
+    getImage().setScaling(Scaling.fit);
     setSize(size, size);
   }
 
@@ -55,7 +57,7 @@ public class DecoButton extends ImageButton {
         new ClickListener(Input.Buttons.LEFT) {
           @Override
           public void clicked(
-              com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
+            InputEvent event, float x, float y) {
             callback.run();
           }
         });
