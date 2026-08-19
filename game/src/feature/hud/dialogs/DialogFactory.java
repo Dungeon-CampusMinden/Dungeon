@@ -169,6 +169,7 @@ public class DialogFactory {
     if (Game.isMultiplayerClient()) {
       translatedContext = translateText(DialogContextKeys.MESSAGE, translatedContext);
       translatedContext = translateText(DialogContextKeys.DIALOG, translatedContext);
+      translatedContext = translateText(DialogContextKeys.IMAGE, translatedContext);
     }
 
     UIComponent ui = new UIComponent(translatedContext, willPause, canBeClosed, targetEntityIds);

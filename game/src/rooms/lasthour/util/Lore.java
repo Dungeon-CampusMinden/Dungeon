@@ -1,5 +1,6 @@
 package rooms.lasthour.util;
 
+import engine.language.Language;
 import engine.utils.Tuple;
 import java.util.Collections;
 import java.util.List;
@@ -190,17 +191,17 @@ public class Lore {
       List.of("Trojan", "Ransomware", "Adware");
 
   /** Mapping from virus type name to the code required to neutralize it in the virus tab. */
-  public static final Map<String, String> VirusTypeToCode =
+  public static final Map<String, Map<Language,String>> VirusTypeToCode =
       Map.of(
-          "Trojan", "verify before trust",
-          "Ransomware", "backup your data",
-          "Adware", "read before click");
+          "Trojan", Map.of(Language.EN,"verify before trust", Language.DE, "ERST ÜBERPRÜFEN, DANN VERTRAUEN"),
+          "Ransomware",  Map.of(Language.EN,"backup your data", Language.DE, "SICHERN SIE IHRE DATEN"),
+          "Adware", Map.of(Language.EN,"read before click", Language.DE, "VOR DEM KLICKEN LESEN"));
 
-  /**
-   * Special virus type triggered exclusively by plugging a wrong USB stick into the PC. This type
-   * is never produced by emails or browser sites and cannot be neutralized via the standard virus
-   * tab pass phrase flow. Instead the system shuts itself down after a short delay.
-   */
+        /**
+         * Special virus type triggered exclusively by plugging a wrong USB stick into the PC. This type
+         * is never produced by emails or browser sites and cannot be neutralized via the standard virus
+         * tab pass phrase flow. Instead the system shuts itself down after a short delay.
+         */
   public static final String UnknownDeviceVirusType = "Unknown Device";
 
   /** Password required to unlock door 2 in the control panel. */
