@@ -4,7 +4,7 @@ ext {
     protobufGradlePluginVersion = '0.10.0'
 
     // -- DEPENDENCIES
-    gdxVersion = '1.14.1'
+    gdxVersion = '1.14.2'
     aiVersion = '1.8.2'
     junitVersion = '6.0.3'
     junitLauncherVersion = '6.0.3'
