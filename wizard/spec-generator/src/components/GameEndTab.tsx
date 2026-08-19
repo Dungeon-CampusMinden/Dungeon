@@ -22,7 +22,6 @@ export function GameEndTab({
                 deerSchema.learningDesign.debriefPrompts = newValue;
                 updateDeerSchema(deerSchema);
               }}
-              preventEmpty
             />
           </Field>
           <Field>
@@ -40,13 +39,16 @@ export function GameEndTab({
           <Field>
             <FieldLabel>Texte bei Misserfolg</FieldLabel>
             <StringListEditor
-              value={deerSchema.scenario.failureText}
+              value={deerSchema.scenario.failureText ?? []}
               onChange={(newValue) => {
-                deerSchema.scenario.failureText = newValue;
+                if (newValue.length === 0) {
+                  delete deerSchema.scenario.failureText;
+                } else {
+                  deerSchema.scenario.failureText = newValue;
+                }
                 updateDeerSchema(deerSchema);
               }}
               useTextarea
-              preventEmpty
             />
           </Field>
         </FieldGroup>

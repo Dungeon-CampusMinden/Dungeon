@@ -9,8 +9,9 @@ import { Button } from "./ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./ui/field";
 import { IssueList } from "./IssueList";
 import { Input } from "./ui/input";
+import { Util } from "@/data/Util";
 
-const MAX_SEED = 9223372036854775807n;
+const MAX_SEED = BigInt(Number.MAX_SAFE_INTEGER);
 
 function parseSeed(value: string): number | null {
   if (!/^\d+$/.test(value)) return null;
@@ -19,10 +20,6 @@ function parseSeed(value: string): number | null {
   if (parsed > MAX_SEED) return null;
 
   return Number(parsed);
-}
-
-function generateRandomSeed(): number {
-  return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
 }
 
 export function ReviewTab({
@@ -38,12 +35,13 @@ export function ReviewTab({
   const [seedInput, setSeedInput] = React.useState(String(deerSchema.seed ?? ""));
 
   const issues = ErrorChecker.getSortedIssues(issueReport);
-  const blockingIssues = issues.filter((issue) => issue.severity !== "info");
-  const errorCount = blockingIssues.filter((issue) => issue.severity === "error").length;
-  const warningCount = blockingIssues.length - errorCount;
+  const errorCount = issues.filter((issue) => issue.severity === "error").length;
+  const warningCount = issues.filter((issue) => issue.severity === "warning").length;
   const seed = parseSeed(seedInput);
   const seedError =
-    seed === null ? "Der Seed muss eine nicht-negative Ganzzahl bis 9223372036854775807 sein." : undefined;
+    seed === null
+      ? `Der Seed muss eine Ganzzahl zwischen 0 und ${Number.MAX_SAFE_INTEGER} sein.`
+      : undefined;
 
   React.useEffect(() => {
     setSeedInput(String(deerSchema.seed ?? ""));
@@ -58,16 +56,16 @@ export function ReviewTab({
   };
 
   const randomizeSeed = () => {
-    const newSeed = generateRandomSeed();
+    const newSeed = Util.generateSafeInteger();
     setSeedInput(String(newSeed));
     updateDeerSchema({ ...deerSchema, seed: newSeed });
   };
 
-  const generate = async () => {
+  const generateAdventure = async () => {
     setGenerating(true);
     try {
       const blob = await createSchemaZip(deerSchema);
-      downloadBlob(blob, `${deerSchema.metadata.id || "deer"}.zip`);
+      downloadBlob(blob, adventureFileName(deerSchema.metadata.title));
       toast.success("Das Abenteuer wurde generiert.");
     } catch (error) {
       toast.error("Das Abenteuer konnte nicht generiert werden.", {
@@ -82,17 +80,27 @@ export function ReviewTab({
     <div className="flex flex-col gap-3">
       <h1>Prüfen & Generieren</h1>
 
-      {blockingIssues.length > 0 ? (
+      {errorCount > 0 && (
         <Alert variant="destructive" className="mt-0">
           <AlertTitle>Das Abenteuer ist noch nicht vollständig.</AlertTitle>
           <AlertDescription>
-            {errorCount} Fehler und {warningCount} Warnung(en) müssen behoben werden, bevor generiert werden
-            kann.
+            {errorCount} {errorCount === 1 ? "Fehler muss" : "Fehler müssen"} behoben werden, bevor
+            das Abenteuer generiert werden kann.
           </AlertDescription>
         </Alert>
-      ) : (
-        <IssueList className="mt-0" issues={[]} emptyMessage="Das Abenteuer ist bereit zum Generieren." />
       )}
+      {warningCount > 0 && (
+        <Alert className="mt-0 border-yellow-500/40 text-yellow-500">
+          <AlertTitle>
+            {warningCount} {warningCount === 1 ? "Warnung" : "Warnungen"}
+          </AlertTitle>
+          <AlertDescription>Warnungen verhindern die Generierung des Abenteuers nicht.</AlertDescription>
+        </Alert>
+      )}
+      {errorCount === 0 && warningCount === 0 && (
+        <IssueList className="mt-0" issues={[]} emptyMessage="Das Abenteuer kann generiert werden." />
+      )}
+      {issues.length > 0 && <IssueList className="mt-0" issues={issues} />}
 
       <Field>
         <FieldLabel htmlFor="seed">Seed</FieldLabel>
@@ -126,12 +134,30 @@ export function ReviewTab({
       <Button
         className="self-stretch"
         size="lg"
-        onClick={generate}
-        disabled={blockingIssues.length > 0 || seedError !== undefined || generating}
+        onClick={generateAdventure}
+        disabled={errorCount > 0 || seedError !== undefined || generating}
       >
         <DownloadIcon />
-        {generating ? "Wird generiert…" : "Generieren"}
+        {generating ? "Abenteuer wird generiert…" : "Abenteuer generieren"}
       </Button>
     </div>
   );
+}
+
+function adventureFileName(title: string): string {
+  const safeTitle = title
+    .trim()
+    .toLowerCase()
+    .replaceAll("ß", "ss")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80)
+    .replace(/-+$/g, "");
+  const stem = safeTitle || "abenteuer";
+  const safeStem = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/.test(stem)
+    ? `abenteuer-${stem}`
+    : stem;
+  return `${safeStem}.zip`;
 }

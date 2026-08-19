@@ -1,8 +1,8 @@
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 import "./App.css";
 import { ThemeProvider } from "./components/ThemeProvider";
-import schema from "./data/new-deer.json";
 import type { DeerSchema } from "./data/DeerSchema";
+import { createDeerSchema, DEER_SCHEMA_STORAGE_KEY } from "./data/createDeerSchema";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { ErrorDetector } from "./components/ErrorDetector";
 import { SidebarNavigation } from "./components/SidebarNavigation";
@@ -26,24 +26,39 @@ import {
 import React from "react";
 import { ButtonGroup } from "./components/ui/button-group";
 import { Button } from "./components/ui/button";
+import { assertSupportedDeerDocument } from "./data/AdventurePackage";
+
+const initialDeerSchema = createDeerSchema();
+const initialTouchedTabs = createUntouchedTabs();
 
 function App() {
-  const [deerSchema, setDeerSchema] = useLocalStorage<DeerSchema>("schema", schema as DeerSchema);
+  const [deerSchema, setDeerSchema] = useLocalStorage<DeerSchema>(
+    DEER_SCHEMA_STORAGE_KEY,
+    initialDeerSchema,
+  );
   const [tab, setTab] = useLocalStorage<string>("tab", "metadata");
   const [touchedTabs, setTouchedTabs] = useLocalStorage<TouchedTabs>(
     TOUCHED_TABS_STORAGE_KEY,
-    createUntouchedTabs(),
+    initialTouchedTabs,
   );
 
   const issueReport = useErrorCheck(deerSchema);
 
   // Opening a tab counts as touching it, so its status is shown from then on.
   React.useEffect(() => {
-    setTouchedTabs((current) => withTouchedTab(current, tab));
-  }, [tab, setTouchedTabs]);
+    const updatedTouchedTabs = withTouchedTab(touchedTabs, tab);
+    if (updatedTouchedTabs !== touchedTabs) setTouchedTabs(updatedTouchedTabs);
+  }, [tab, touchedTabs, setTouchedTabs]);
 
   const updateDeerSchema = (updatedSchema: DeerSchema) => {
-    setDeerSchema(JSON.parse(JSON.stringify(updatedSchema)));
+    const storedSchema = JSON.parse(JSON.stringify(updatedSchema)) as DeerSchema;
+    if (storedSchema.metadata.description?.trim() === "") delete storedSchema.metadata.description;
+    if (storedSchema.metadata.author?.trim() === "") delete storedSchema.metadata.author;
+    if (storedSchema.scenario.failureText?.length === 0) delete storedSchema.scenario.failureText;
+    for (const asset of storedSchema.assets) {
+      if (asset.source.attribution?.trim() === "") delete asset.source.attribution;
+    }
+    setDeerSchema(storedSchema);
   };
 
   const importSchema = () => {
@@ -53,7 +68,7 @@ function App() {
     input.onchange = (event) => {
       const file = (event.target as HTMLInputElement).files?.[0];
       if (!file) return;
-      importSchemaFromFile(file, setDeerSchema);
+      importSchemaFromFile(file, updateDeerSchema);
     };
     input.click();
   };
@@ -135,7 +150,7 @@ function exportSchema(schema: DeerSchema) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "deer-schema.json";
+  link.download = "deer.json";
   link.click();
   URL.revokeObjectURL(url);
 }
@@ -144,10 +159,14 @@ function importSchemaFromFile(file: File, setDeerSchema: (schema: DeerSchema) =>
   const reader = new FileReader();
   reader.onload = (e) => {
     try {
-      const importedSchema = JSON.parse(e.target?.result as string);
+      const importedSchema: unknown = JSON.parse(e.target?.result as string);
+      assertSupportedDeerDocument(importedSchema);
       setDeerSchema(importedSchema);
     } catch (error) {
       console.error("Fehler beim Importieren des Schemas:", error);
+      toast.error("Die Datei konnte nicht importiert werden.", {
+        description: error instanceof Error ? error.message : undefined,
+      });
     }
   };
   reader.readAsText(file);
