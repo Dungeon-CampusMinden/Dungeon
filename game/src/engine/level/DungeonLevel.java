@@ -339,6 +339,7 @@ public class DungeonLevel implements ILevel, ITickable {
   public void setLayout(LevelElement[][] layout) {
     DesignLabel design = designLabel().orElseThrow();
     this.layout = convertLevelElementToTile(layout, design);
+    nodeCount = 0;
     floorTiles.clear();
     wallTiles.clear();
     holeTiles.clear();
@@ -346,6 +347,9 @@ public class DungeonLevel implements ILevel, ITickable {
     exitTiles.clear();
     skipTiles.clear();
     pitTiles.clear();
+    portalTiles.clear();
+    gitterTiles.clear();
+    glassWallTiles.clear();
     putTilesInLists();
   }
 

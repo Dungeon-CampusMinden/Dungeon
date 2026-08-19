@@ -98,7 +98,7 @@ public class ModePanel extends Table {
           case Points ->
               Scene2dElementFactory.createImageButton(
                   "hud/kenney/flag_square.png", STYLE_UNSELECTED);
-          case SaveLevel ->
+          case Settings ->
               Scene2dElementFactory.createImageButton("hud/settings.png", STYLE_UNSELECTED);
           default -> null;
         };

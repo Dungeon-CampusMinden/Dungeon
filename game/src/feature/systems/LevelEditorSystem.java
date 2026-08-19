@@ -22,11 +22,9 @@ import engine.utils.components.draw.shader.PassthroughShader;
 import engine.utils.logging.DungeonLogger;
 import feature.components.HealthComponent;
 import feature.leveleditor.DecoMode;
-import feature.leveleditor.LevelBoundsMode;
 import feature.leveleditor.LevelEditorMode;
 import feature.leveleditor.PointMode;
-import feature.leveleditor.SaveMode;
-import feature.leveleditor.ShiftLevelMode;
+import feature.leveleditor.SettingsMode;
 import feature.leveleditor.StartTilesMode;
 import feature.leveleditor.TilesMode;
 import feature.leveleditor.ui.LevelEditorUI;
@@ -62,8 +60,6 @@ public class LevelEditorSystem extends System {
   private static final int MODE_3 = Input.Keys.NUM_3;
   private static final int MODE_4 = Input.Keys.NUM_4;
   private static final int MODE_5 = Input.Keys.NUM_5;
-  private static final int MODE_6 = Input.Keys.NUM_6;
-  private static final int MODE_7 = Input.Keys.NUM_7;
 
   private static String feedbackMessage = "";
   private static Color feedbackMessageColor = Color.WHITE;
@@ -82,7 +78,7 @@ public class LevelEditorSystem extends System {
    */
   public LevelEditorSystem(String pathToLevels) {
     super();
-    LevelEditorSystem.pathToLevels = pathToLevels;
+    LevelEditorSystem.pathToLevels(pathToLevels);
   }
 
   /** Creates a new LevelEditorSystem. */
@@ -161,6 +157,24 @@ public class LevelEditorSystem extends System {
    */
   public static Mode currentMode() {
     return currentMode;
+  }
+
+  /**
+   * Gets the folder used when saving levels from the level editor.
+   *
+   * @return the configured level output folder.
+   */
+  public static String pathToLevels() {
+    return pathToLevels;
+  }
+
+  /**
+   * Sets the folder used when saving levels from the level editor.
+   *
+   * @param pathToLevels the level output folder.
+   */
+  public static void pathToLevels(String pathToLevels) {
+    LevelEditorSystem.pathToLevels = pathToLevels == null ? "" : pathToLevels;
   }
 
   /**
@@ -285,10 +299,6 @@ public class LevelEditorSystem extends System {
       currentMode(Mode.getMode(3));
     } else if (InputManager.isKeyPressed(MODE_5)) {
       currentMode(Mode.getMode(4));
-    } else if (InputManager.isKeyPressed(MODE_6)) {
-      currentMode(Mode.getMode(5));
-    } else if (InputManager.isKeyPressed(MODE_7)) {
-      currentMode(Mode.getMode(6));
     }
 
     if (!internalStopped || previousMode != currentMode) {
@@ -377,14 +387,10 @@ public class LevelEditorSystem extends System {
     Decos('D'),
     /** Mode to place and remove named points. */
     Points('P'),
-    /** Mode to change the boundaries of the level. */
-    LevelBounds('B'),
-    /** Mode to shift the whole level layout. */
-    ShiftLevel('M'),
     /** Mode to define the start (spawn) tiles. */
     StartTiles('S'),
-    /** Mode to save the current level. */
-    SaveLevel('L');
+    /** Mode to resize, shift, and save the current level. */
+    Settings('L');
 
     private final char letter;
 
@@ -424,10 +430,8 @@ public class LevelEditorSystem extends System {
         case Tiles -> new TilesMode();
         case Decos -> new DecoMode();
         case Points -> new PointMode();
-        case LevelBounds -> new LevelBoundsMode();
-        case ShiftLevel -> new ShiftLevelMode();
         case StartTiles -> new StartTilesMode();
-        case SaveLevel -> new SaveMode(pathToLevels);
+        case Settings -> new SettingsMode();
       };
     }
   }
