@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import engine.Game;
+import engine.language.Language;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Tuple;
 import feature.hud.UIUtils;
@@ -26,6 +28,7 @@ public class FileTab extends ComputerTab {
 
   private String fileName;
   private Table content;
+  private static Label hintlabel;
 
   /**
    * Constructs a new FileTab for the specified file name.
@@ -117,9 +120,10 @@ public class FileTab extends ComputerTab {
   private static Actor createHintPage() {
     Table table = new Table();
     table.center();
-    Label label = Scene2dElementFactory.createLabel(TranslationKey.HintFilePoem, 28, Color.BLACK);
-    label.setAlignment(Align.center);
-    table.add(label).expand().center();
+    hintlabel = Scene2dElementFactory.createLabel(Game.localization().getCurrentTranslator().translate(TranslationKey.HintFilePoem), 28, Color.BLACK);
+    Game.localization().registerLanguageChangeListener(FileTab::languageChangeListener);
+    hintlabel.setAlignment(Align.center);
+    table.add(hintlabel).expand().center();
     return table;
   }
 
@@ -253,11 +257,16 @@ public class FileTab extends ComputerTab {
     return scrollPane;
   }
 
+  private static void languageChangeListener(Language language) {
+    hintlabel.setText(Game.localization().getCurrentTranslator().translate(TranslationKey.HintFilePoem));
+  }
+
   @Override
   protected void updateState(ComputerStateComponent newStateComp) {}
 
   @Override
   public void onRemove() {
     ComputerStateLocal.getInstance().openFiles().remove(fileName);
+    Game.localization().removeLanguageChangeListener(FileTab::languageChangeListener);
   }
 }
