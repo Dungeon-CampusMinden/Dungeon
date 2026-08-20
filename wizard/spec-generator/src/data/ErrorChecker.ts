@@ -10,6 +10,11 @@ export interface Issue {
   severity: IssueSeverity;
 }
 
+export interface LocatedIssue {
+  tabId: string;
+  issue: Issue;
+}
+
 export type TabIssues = Record<string, Issue[]>;
 
 export type IssueReport = Record<string, TabIssues>;
@@ -76,9 +81,15 @@ export class ErrorChecker {
 
   /** All issues of every tab, most severe first. */
   static getSortedIssues(report: IssueReport): Issue[] {
-    return Object.values(report)
-      .flatMap((tabIssues) => ErrorChecker.getIssues(tabIssues))
-      .sort((a, b) => SEVERITY_ORDER[b.severity] - SEVERITY_ORDER[a.severity]);
+    return ErrorChecker.getSortedLocatedIssues(report).map(({ issue }) => issue);
+  }
+
+  /** All issues with their target tab, most severe first. */
+  static getSortedLocatedIssues(report: IssueReport): LocatedIssue[] {
+    return Object.entries(report)
+      .flatMap(([tabId, tabIssues]) =>
+        ErrorChecker.getIssues(tabIssues).map((issue) => ({ tabId, issue })))
+      .sort((a, b) => SEVERITY_ORDER[b.issue.severity] - SEVERITY_ORDER[a.issue.severity]);
   }
 
   //#region Helpers

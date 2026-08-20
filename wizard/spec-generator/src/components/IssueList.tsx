@@ -1,6 +1,13 @@
-import { CircleAlertIcon, CircleCheckIcon, CircleXIcon, InfoIcon } from "lucide-react";
+import {
+  ChevronRightIcon,
+  CircleAlertIcon,
+  CircleCheckIcon,
+  CircleXIcon,
+  InfoIcon,
+} from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import type { Issue, IssueSeverity } from "@/data/ErrorChecker";
+import type { IssueSeverity, LocatedIssue } from "@/data/ErrorChecker";
+import { TABS } from "@/data/Tabs";
 
 const SEVERITY_STYLES: Record<IssueSeverity, string> = {
   error: "border-destructive/30 bg-destructive/10 text-destructive",
@@ -42,10 +49,14 @@ function teacherDetails(details: string | undefined): string | undefined {
 export function IssueList({
   issues,
   emptyMessage = "Alles in Ordnung.",
+  onIssueSelect,
+  navigationDisabled = false,
   className,
 }: {
-  issues: Issue[];
+  issues: LocatedIssue[];
   emptyMessage?: string;
+  onIssueSelect?: (tabId: string) => void;
+  navigationDisabled?: boolean;
   className?: string;
 }) {
   if (issues.length === 0) {
@@ -59,22 +70,39 @@ export function IssueList({
 
   return (
     <div className={`flex flex-col gap-2 ${className ?? ""}`}>
-      {issues.map((issue, index) => (
-        <Alert
-          key={`${issue.severity}-${index}-${issue.description}`}
-          className={`py-2 px-3 text-sm ${SEVERITY_STYLES[issue.severity]}`}
-        >
-          <SeverityIcon severity={issue.severity} />
-          <AlertTitle className="text-sm font-medium text-foreground text-wrap leading-snug">
-            {teacherDescription(issue.description)}
-          </AlertTitle>
-          {teacherDetails(issue.details) && (
-            <AlertDescription className="text-xs text-muted-foreground mt-0.5">
-              {teacherDetails(issue.details)}
-            </AlertDescription>
-          )}
-        </Alert>
-      ))}
+      {issues.map(({ issue, tabId }, index) => {
+        const targetLabel = TABS.find((tab) => tab.value === tabId)?.label ?? "Spiel erstellen";
+        const description = teacherDescription(issue.description);
+        return (
+          <button
+            key={`${tabId}-${issue.severity}-${index}-${issue.description}`}
+            type="button"
+            disabled={navigationDisabled || onIssueSelect === undefined}
+            onClick={() => onIssueSelect?.(tabId)}
+            aria-label={`${description} Bereich ${targetLabel} öffnen`}
+            className="group/issue relative w-full rounded-lg text-left outline-none transition-transform enabled:cursor-pointer enabled:hover:-translate-y-px focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-default"
+          >
+            <Alert
+              role="presentation"
+              className={`py-2 pl-3 pr-8 text-sm transition-colors group-enabled/issue:group-hover/issue:border-current/50 ${SEVERITY_STYLES[issue.severity]}`}
+            >
+              <SeverityIcon severity={issue.severity} />
+              <AlertTitle className="text-sm font-medium text-foreground text-wrap leading-snug">
+                {description}
+              </AlertTitle>
+              {teacherDetails(issue.details) && (
+                <AlertDescription className="text-xs text-muted-foreground mt-0.5">
+                  {teacherDetails(issue.details)}
+                </AlertDescription>
+              )}
+            </Alert>
+            <ChevronRightIcon
+              aria-hidden="true"
+              className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-transform group-enabled/issue:group-hover/issue:translate-x-0.5"
+            />
+          </button>
+        );
+      })}
     </div>
   );
 }

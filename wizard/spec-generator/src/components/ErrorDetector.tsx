@@ -1,6 +1,7 @@
 import { IssueList } from "./IssueList";
 import { ErrorChecker, type IssueReport } from "@/data/ErrorChecker";
 import type { AssetStorageCheckStatus } from "@/hooks/useErrorCheck";
+import { isTabId, type TabId } from "@/data/Tabs";
 
 export function ErrorDetector({
   issueReport,
@@ -8,6 +9,8 @@ export function ErrorDetector({
   touchedAll,
   productionReady,
   technicalError,
+  onIssueSelect,
+  issueNavigationDisabled = false,
   className,
 }: {
   issueReport: IssueReport;
@@ -15,9 +18,11 @@ export function ErrorDetector({
   touchedAll: boolean;
   productionReady: boolean;
   technicalError: "validating" | "packaging" | null;
+  onIssueSelect: (tabId: TabId) => void;
+  issueNavigationDisabled?: boolean;
   className?: string;
 }) {
-  const issues = ErrorChecker.getSortedIssues(issueReport);
+  const issues = ErrorChecker.getSortedLocatedIssues(issueReport);
 
   return (
     <div className={`panel ${className ?? ""}`}>
@@ -52,7 +57,14 @@ export function ErrorDetector({
             : "Die Spieldatei konnte nicht erstellt oder heruntergeladen werden. Deine Eingaben bleiben gespeichert. Versuche es erneut."}
         </p>
       )}
-      {touchedAll && issues.length > 0 && <IssueList issues={issues} className="mt-2" />}
+      {touchedAll && issues.length > 0 && (
+        <IssueList
+          issues={issues}
+          onIssueSelect={(tabId) => onIssueSelect(isTabId(tabId) ? tabId : "review")}
+          navigationDisabled={issueNavigationDisabled}
+          className="mt-2"
+        />
+      )}
       {touchedAll && assetStorageStatus === "ready" && productionReady
         && technicalError === null && issues.length === 0 && (
         <IssueList issues={[]} className="mt-2" />
