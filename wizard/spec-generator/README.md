@@ -1,20 +1,23 @@
-# Wizard Spec Generator
+# Wizard spec generator
 
-The Spec Generator is the first half of the pipeline towards generating an Escape Room through a simple configuration file and schema.
+The Spec Generator is the browser UI for authoring a private Wizard draft and
+turning it into a DEER project through the local Java host.
 
-## Install
+## Install and run
 
-- Clone the repo
-- Run `npm install`
+- Run `npm install`.
+- Run `npm run dev` for the UI-only Vite development server.
+- Open the URL printed by Vite, usually `http://localhost:5173/`.
 
-## Run
+For the complete host flow, run `wizard/start_wizard_dev.cmd` from the
+repository root instead. It starts the Java host and its UI.
 
-- `npm run dev` starts the Vite server
-- Hit `o + Enter` in Vite or go to `http://localhost:5173/` by default
+Draft v1 and uploaded bytes are stored together in a new IndexedDB. Existing
+LocalStorage, IndexedDB, or AppData drafts are not migrated. V0 does not
+support multiple tabs editing the Wizard at the same time.
 
-The direct Vite start is a browser-only development fallback. It stores draft
-metadata in LocalStorage and uploaded bytes in IndexedDB; production
-validation, finalization, and packaging require the local Java host. Draft
-saves use the browser Web Locks API to serialize the LocalStorage CAS across
-tabs. If Web Locks are unavailable, saving fails explicitly instead of writing
-without cross-tab protection.
+Production uses the Java host at `127.0.0.1:27777` for the native directory
+dialog, validation, finalization, and direct `WizardRoom.jar` packaging. During
+finalization, it atomically replaces each custom asset file and replaces
+`deer.json` last. The project directory as a whole is not transactional. The
+host does not store drafts or uploads.

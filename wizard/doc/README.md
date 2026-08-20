@@ -1,107 +1,90 @@
-# Wizard Documentation
+# Wizard documentation
 
-Das Zielbild des Wizards führt nicht-technische Autorinnen und Autoren von
-einem privaten, unvollständigen Entwurf zu einem ausführbaren DEER-Projekt:
+Der Wizard führt nicht-technische Lehrende von einem privaten Entwurf zu einem
+ausführbaren DEER-Projekt:
 
 ```text
-Wizard-Entwurf
+privater Wizard-Entwurf
 -> deer.json + optionale Dateien unter assets/custom/
 -> projektspezifische WizardRoom.jar
--> Main-Menü für Host oder Join
+-> Host-/Join-Menü
 -> deterministisch abgeleiteter Foundation-Raum im Speicher
--> gewöhnlicher Dungeon-Multiplayer
+-> Dungeon-Multiplayer
 ```
 
 Der Wizard erzeugt weder Java-Code noch ein Raummodul, Buildskripte oder ein
-Room-ZIP. Der Packager bettet das finalisierte Projekt zusammen mit Runner,
-Engine, Basisassets und Runtime-Abhängigkeiten in eine ausführbare
-`WizardRoom.jar` ein. Dieselbe JAR wird an Host und alle weiteren Spielenden
-verteilt. Sie enthält daher auch `deer.json`, Seed, Lösungen und noch nicht
-freigegebene Inhalte in auslesbarer Form. Jeder Teilnehmer leitet daraus
-denselben vollständigen Foundation-Raum ab; das Netzwerk prüft nur den
-Hash der vollständigen kanonisierten `deer.json`.
+Room-ZIP. Der Packager bettet das finalisierte Projekt mit Runner, Engine,
+Basisassets und Runtime-Abhängigkeiten in eine `WizardRoom.jar` ein. Host und
+alle weiteren Spielenden erhalten dieselbe JAR. Seed, Lösungen und noch nicht
+freigegebene Inhalte sind deshalb für jeden Empfänger lokal lesbar.
+
+## Authoring in V0
+
+Die React-UI läuft im Browser. Sie speichert den privaten `WizardDraft` v1 und
+alle Uploadbytes ausschließlich in einer neuen IndexedDB. Alte Browser- oder
+AppData-Entwürfe werden nicht migriert. Mehrere gleichzeitig geöffnete Tabs
+sind in V0 nicht unterstützt.
+
+Der Java-Host bindet fest an `127.0.0.1:27777`. Er ist zustandslos bezüglich
+Entwürfen und Uploads und übernimmt nur:
+
+- Auslieferung der UI;
+- nativen Ordnerdialog;
+- Produktionsvalidierung;
+- Finalisierung mit dateiweise atomarem Ersetzen;
+- direktes Packaging als `<project>/WizardRoom.jar`.
+
+Der Host bietet keine Draft- oder Upload-Persistenz. Es gibt keine Revisionen,
+Recovery-Belege, Ownership-Marker oder persistierten Ready-Status. Ist Port
+`27777` belegt, scheitert der Start mit einer klaren Meldung.
+
+Beim ersten vollständigen Prüfen oder Erstellen erzeugt die UI einmal einen
+zufälligen Seed im Bereich `0..9007199254740991`. Sie speichert ihn vor dem
+Hostaufruf im Draft. Danach bleibt er stabil. Vor diesem Zeitpunkt besitzt der
+Entwurf keinen echten Seed; Java erzeugt keinen Seed.
+
+`Spiel erstellen` finalisiert zuerst das Projekt und paketiert es danach. Nur
+ein erfolgreicher Package-Aufruf der aktuellen UI-Sitzung zeigt das Spiel als
+bereit. Ein Reload stellt diesen Zustand nicht wieder her. Nach einem
+Packaging-Fehler wiederholt die UI den vollständigen Finalize-und-Package-
+Ablauf. Beim Finalisieren ersetzt der Host jede Custom-Datei einzeln atomar und
+`deer.json` zuletzt. Der Projektordner als Ganzes ist keine Transaktion.
+
+## Projekt und Runtime
 
 Eigene Bilder liegen inhaltsadressiert unter `assets/custom/`. Bereits mit dem
-Spiel ausgelieferte Bilder werden dagegen ohne Kopie über ihren internen Pfad,
-zum Beispiel `items/puzzle-piece.png`, referenziert. Assetpfade besitzen keinen
-führenden Slash; ein Projekt ohne eigenes Bild kann nur aus `deer.json`
-bestehen.
+Spiel ausgelieferte Bilder werden ohne Kopie über ihren internen Pfad
+referenziert. Ein Projekt ohne eigene Bilder kann nur aus `deer.json` bestehen.
 
-Mit Java 25 öffnet `java -jar WizardRoom.jar` das bestehende Host-/Join-Menü.
-Der Host-Knopf startet dieselbe JAR intern als verwalteten headless
-Serverprozess und verbindet anschließend den Host-Client. Die
-Authoring-Integration verwendet die Java-Validierungsbibliothek direkt.
+Mit Java 25 öffnet `java -jar WizardRoom.jar` das Host-/Join-Menü. Der
+Foundation-Vertrag bleibt DEER `0.4` mit mandatory AND-DAG. Runner-Identität,
+Multiplayer-Vertrag und `PROTOCOL_VERSION` ändern sich durch den
+Authoring-Refactor nicht.
 
-Der Java-Runner, der Foundation-Runtime-Slice und die M2-Authoring-Architektur
-sind umgesetzt. Die produktive Autorenoberfläche läuft als React-UI unter
-einem loopback-only Java-Host. Er speichert private Entwürfe und Uploads unter
-`%LOCALAPPDATA%\Dungeon Wizard`, validiert und finalisiert Projekte und erzeugt
-anschließend `<project>/WizardRoom.jar`. LocalStorage und IndexedDB dienen nur
-als Fallback beim direkten Vite-Entwicklungsstart.
-
-M1 und M2 sind Implementierungsmeilensteine, keine Formatversionen. Das
-öffentliche DEER-Format bleibt `0.4`, das private Draftformat `1`; für den
-privaten Prototyp ist keine Browsermigration vorgesehen.
-
-## Start und Packaging
-
-`wizard/start_wizard_dev.cmd` baut und startet den aktuellen
-Authoring-Host ausschließlich für Entwicklung. Die spätere
-Zielgruppen-Distribution als `.exe` mit gebündelter Runtime ist noch nicht
-umgesetzt; M2 erzeugt weder eine `.exe` noch ein Room-ZIP. Für den aktuellen
-Entwicklungs- und Spieler-JAR-Fluss ist Java 25 erforderlich.
-
-Die UI paketiert ein erfolgreich finalisiertes Projekt mit demselben
-Java-Packager, der auch dem Gradle-Entwickler-/CI-Pfad zugrunde liegt. Als
-Eingabe dient die generische `WizardRoomTemplate.jar`; am Ziel entsteht
-`<project>/WizardRoom.jar`. Im nativen Host sind dafür weder Gradle
-noch Node erforderlich. Der weiterhin unterstützte Entwickler-/CI-Aufruf ist:
+`wizard/start_wizard_dev.cmd` ist ein Entwicklungslauncher. Eine
+Zielgruppen-EXE oder ein Installer mit gebündelter Runtime bleibt ein späterer
+Meilenstein. Der Entwickler- und CI-Pfad bleibt:
 
 ```text
 gradlew.bat :wizard:buildWizardRoomJar -PwizardProject=<projektordner>
 ```
 
-Ein Packaging-Fehler verändert das bereits finalisierte Projekt nicht und kann
-in der UI erneut versucht werden.
-
-`scenario.introText`, `scenario.successText` und das bei harten Zeitlimits
-verwendete `scenario.failureText` sind geordnete Seitenfolgen. Jeder
-Array-Eintrag wird als eigene weiterklickbare Black-Fade-Seite angezeigt.
-
-## Implementierungsstatus
-
-| Bereich | Status |
-|---|---|
-| DEER-Schema `0.4`, Projektvalidierung und Validierungsreports | umgesetzt |
-| Spieler-JAR, Host-/Join-Menü und Foundation-Runtime | umgesetzt |
-| Gradle-Entwickler-/CI-Packaging | umgesetzt |
-| Lokale Authoring-UI, privater Draft und nativer Storage-Adapter | in M2 umgesetzt |
-| Produktionsvalidierung, atomare Finalisierung und UI-Packaging | in M2 umgesetzt |
-| Zielgruppen-`.exe` mit gebündelter Java-Runtime | späterer Distributionsmeilenstein |
-| Inhalte unter `research/` | nicht-normative Begründung, kein zweiter Vertrag |
-
 ## Maßgebliche Dokumente
 
 1. [`v0/frontend-handoff-overview-v0.md`](v0/frontend-handoff-overview-v0.md)
-   ist der kurze Einstieg für die Frontend-Umsetzung und trennt UI,
-   Storage-Adapter und Java-Runner.
+   beschreibt die Frontend-/Host-Grenze und die minimale Host-API.
 2. [`v0/wizard-ui-flow-v0.md`](v0/wizard-ui-flow-v0.md) beschreibt den
-   sichtbaren Autorenfluss und den privaten Entwurf.
+   sichtbaren Autorenfluss.
 3. [`v0/deer.schema.json`](v0/deer.schema.json) ist der maschinenlesbare
    Vertrag; [`v0/deer-json-spec.md`](v0/deer-json-spec.md) erklärt seine
    Semantik.
 4. [`v0/runner-project-format.md`](v0/runner-project-format.md) definiert
-   Projektordner, Finalisierung, Assets, deterministische Identität und das
-   maschinenlesbare Validierungsergebnis.
+   Projektordner, Finalisierung, Assets und Validierungsreports.
 5. [`v0/runner-runtime-contract.md`](v0/runner-runtime-contract.md) definiert
-   Packaging-Prüfung, Host-/Join-Grenze, Bootstrap und Spielruntime.
-6. [`../examples/foundation-v0.4/`](../examples/foundation-v0.4/) ist das
-   kleine kanonische und direkt ausführbare Beispielprojekt.
-7. [`../examples/the-last-hour-v0.4/`](../examples/the-last-hour-v0.4/) ist
-   das größere Demonstrations- und Regressionsexemplar für einen
-   staggered mandatory AND-DAG-Rätselablauf.
+   Packaging, Host-/Join-Grenze und Spielruntime.
+6. [`../examples/foundation-v0.4/`](../examples/foundation-v0.4/) und
+   [`../examples/the-last-hour-v0.4/`](../examples/the-last-hour-v0.4/) sind
+   ausführbare Beispiele.
 
 [`v0/the-last-hour-interaction-catalog.md`](v0/the-last-hour-interaction-catalog.md)
-inventarisiert vorhandene Interaktionen als nicht-normative Grundlage für
-spätere Entscheidungen. [`research/`](research/) enthält die wissenschaftlichen
-Quellen; diese begründen Leitplanken, sind aber keine zweite Spezifikation.
+und [`research/`](research/) sind nicht normativ.
