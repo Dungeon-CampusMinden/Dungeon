@@ -3,6 +3,8 @@ import { toast, Toaster } from "sonner";
 import {
   ArrowLeftIcon,
   CheckIcon,
+  CircleAlertIcon,
+  CircleCheckIcon,
   ClockIcon,
   FolderOpenIcon,
   InfoIcon,
@@ -54,6 +56,7 @@ import {
   DialogTitle,
 } from "./components/ui/dialog";
 import { UploadReferencesProvider } from "./components/assets/UploadReferencesContext";
+import { getAssetDisplayName, isBundledAssetPath } from "./components/assets/assetPaths";
 import { TABS, VALIDATED_TAB_IDS, type TabId } from "./data/Tabs";
 import type { WizardWork } from "./data/WizardWork";
 
@@ -62,6 +65,10 @@ type SaveState = "unsaved" | "saving" | "saved" | "error";
 interface ProductionValidationState {
   report: ProjectValidationReport;
   snapshot: WizardDraft;
+}
+
+interface DraftListEntry extends DraftSummary {
+  problemCount: number | null;
 }
 
 const productionContentKey = (draft: WizardDraft) => JSON.stringify([
@@ -102,6 +109,40 @@ async function createStorage(): Promise<WizardStoragePort> {
   };
 }
 
+/** Uses the local editor rules and stored uploads without invoking Java. */
+async function createDraftListEntry(
+  storage: WizardStoragePort,
+  summary: DraftSummary,
+): Promise<DraftListEntry> {
+  try {
+    const draft = await storage.drafts.load(summary.draftId);
+    if (draft === null) return { ...summary, problemCount: null };
+
+    const customAssets = draft.project.assets.filter((asset) => !isBundledAssetPath(asset.path));
+    const storedUploadKeys = customAssets.length === 0
+      ? new Set<string>()
+      : new Set(await storage.assets.listAssetIds(summary.draftId));
+    const storedAssetIds = new Set(
+      customAssets
+        .filter((asset) => {
+          const storageKey = draft.uploads[asset.id]?.storageKey;
+          return storageKey !== undefined && storedUploadKeys.has(storageKey);
+        })
+        .map((asset) => asset.id),
+    );
+    const assetDisplayNames = new Map(draft.project.assets.map((asset) => [
+      asset.id,
+      getAssetDisplayName(asset, draft.uploads[asset.id]),
+    ]));
+    const report = new ErrorChecker({ storedAssetIds, assetDisplayNames }).check(draft.project);
+    const problemCount = ErrorChecker.getSortedIssues(report)
+      .filter((issue) => issue.severity === "error").length;
+    return { ...summary, problemCount };
+  } catch {
+    return { ...summary, problemCount: null };
+  }
+}
+
 function App() {
   const [storage, setStorage] = React.useState<WizardStoragePort | null>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -129,7 +170,7 @@ function FatalError({ message }: { message: string }) {
 
 function WizardWorkspace() {
   const storage = useWizardStorage();
-  const [drafts, setDrafts] = React.useState<DraftSummary[] | null>(null);
+  const [drafts, setDrafts] = React.useState<DraftListEntry[] | null>(null);
   const [draft, setDraft] = React.useState<WizardDraft | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
@@ -138,7 +179,11 @@ function WizardWorkspace() {
   const [deleting, setDeleting] = React.useState(false);
 
   const refresh = React.useCallback(async () => {
-    try { setDrafts(await storage.drafts.list()); setError(null); }
+    try {
+      const summaries = await storage.drafts.list();
+      setDrafts(await Promise.all(summaries.map((summary) => createDraftListEntry(storage, summary))));
+      setError(null);
+    }
     catch (cause) { setError(cause instanceof Error ? cause.message : "Die Entwürfe konnten nicht geladen werden."); }
   }, [storage]);
   React.useEffect(() => { void refresh(); }, [refresh]);
@@ -173,7 +218,9 @@ function WizardWorkspace() {
     } catch (cause) {
       try {
         const currentDrafts = await storage.drafts.list();
-        setDrafts(currentDrafts);
+        setDrafts(await Promise.all(
+          currentDrafts.map((summary) => createDraftListEntry(storage, summary)),
+        ));
         const current = currentDrafts.find((draftSummary) => draftSummary.draftId === selected.draftId);
         if (current === undefined) {
           setDeleteDraft(null);
@@ -280,11 +327,14 @@ function WizardWorkspace() {
                   <span className="block truncate text-base font-semibold text-foreground transition-colors group-hover:text-primary">
                     {summary.title.trim() || "Unbenanntes Spiel"}
                   </span>
-                  <span className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <ClockIcon className="size-3.5 shrink-0 opacity-70" />
-                    {summary.savedAt
-                      ? `Zuletzt gespeichert: ${new Date(summary.savedAt).toLocaleString("de-DE")}`
-                      : "Noch nicht gespeichert"}
+                  <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                      <ClockIcon className="size-3.5 shrink-0 opacity-70" />
+                      {summary.savedAt
+                        ? `Zuletzt gespeichert: ${new Date(summary.savedAt).toLocaleString("de-DE")}`
+                        : "Noch nicht gespeichert"}
+                    </span>
+                    <DraftReadinessIndicator problemCount={summary.problemCount} />
                   </span>
                 </span>
                 <span className="hidden shrink-0 items-center gap-2 text-sm font-medium text-muted-foreground transition-colors group-hover:text-primary sm:flex">
@@ -346,6 +396,31 @@ function WizardWorkspace() {
         </Dialog>
       </div>
     </div>
+  );
+}
+
+function DraftReadinessIndicator({ problemCount }: { problemCount: number | null }) {
+  if (problemCount === null) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-amber-400">
+        <InfoIcon className="size-3.5 shrink-0" />
+        Prüfung nicht möglich
+      </span>
+    );
+  }
+  if (problemCount === 0) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-emerald-400">
+        <CircleCheckIcon className="size-3.5 shrink-0" />
+        Bereit
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 text-destructive">
+      <CircleAlertIcon className="size-3.5 shrink-0" />
+      {problemCount} {problemCount === 1 ? "Problem" : "Probleme"}
+    </span>
   );
 }
 

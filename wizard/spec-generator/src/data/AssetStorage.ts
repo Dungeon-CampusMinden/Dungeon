@@ -68,11 +68,16 @@ export class BrowserAssetStorage implements AssetStoragePort {
     const db = await openWizardDatabase();
     try {
       const transaction = db.transaction(UPLOAD_STORE, "readonly");
-      const entries = await requestResult(
-        transaction.objectStore(UPLOAD_STORE).index(UPLOAD_BY_DRAFT).getAll(draftId),
-      ) as StoredAssetFile[];
+      const keys = await requestResult(
+        transaction.objectStore(UPLOAD_STORE).index(UPLOAD_BY_DRAFT).getAllKeys(draftId),
+      );
       await transactionDone(transaction);
-      return entries.map((entry) => entry.storageKey);
+      return keys.map((key) => {
+        if (!Array.isArray(key) || typeof key[1] !== "string") {
+          throw new Error("Der lokale Dateispeicher enthält einen ungültigen Schlüssel.");
+        }
+        return key[1];
+      });
     } finally { db.close(); }
   }
 }

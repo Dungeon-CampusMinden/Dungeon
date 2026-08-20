@@ -73,6 +73,8 @@ Die Startansicht bietet:
 - neuen Entwurf anlegen;
 - letzten lokalen Entwurf fortsetzen;
 - anderen lokalen Entwurf öffnen;
+- pro Entwurf anzeigen, ob er lokal bereit ist oder wie viele blockierende
+  Probleme noch bestehen;
 - Entwurf samt privaten Uploads nach Bestätigung löschen.
 
 Beliebiger `deer.json`-Import, Projektordner und Browser-ZIP-Export sind nicht
