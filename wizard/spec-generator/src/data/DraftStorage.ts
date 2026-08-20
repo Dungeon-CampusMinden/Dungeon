@@ -1,5 +1,6 @@
 import {
   draftRevision,
+  type DraftRevision,
   WIZARD_DRAFT_VERSION,
   type WizardDraft,
 } from "./WizardDraft";
@@ -8,6 +9,17 @@ import { isTabId, VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 const STORE_VERSION = "2" as const;
 const DRAFT_STORE_KEY = "wizardDraftStore-v3";
 const DRAFT_SAVE_LOCK = "dungeon-wizard-draft-store-v3-save";
+
+export function browserDraftExists(draftId: string): boolean {
+  return readStore().drafts[draftId] !== undefined;
+}
+
+export function withBrowserDraftStoreLock<T>(action: () => Promise<T>): Promise<T> {
+  if (!("locks" in navigator) || navigator.locks === undefined) {
+    return Promise.reject(new Error("Die benötigte Browsersperre ist nicht verfügbar."));
+  }
+  return navigator.locks.request(DRAFT_SAVE_LOCK, { mode: "exclusive" }, action);
+}
 
 interface DraftStoreEnvelope {
   storeVersion: typeof STORE_VERSION;
@@ -18,6 +30,7 @@ interface DraftStoreEnvelope {
 export interface DraftSummary {
   draftId: string;
   title: string;
+  revision: DraftRevision;
   savedAt?: string;
 }
 
@@ -25,6 +38,7 @@ export interface DraftStoragePort {
   list(): Promise<DraftSummary[]>;
   load(draftId: string): Promise<WizardDraft | null>;
   save(draft: WizardDraft): Promise<WizardDraft>;
+  delete(draftId: string, revision: DraftRevision): Promise<void>;
 }
 
 export type DraftReloadReason = "revision-conflict" | "finalization-recovered";
@@ -268,13 +282,24 @@ function readStore(): DraftStoreEnvelope {
 }
 
 export class BrowserDraftStorage implements DraftStoragePort {
+  private readonly deleteAssetFiles: (draftId: string) => Promise<void>;
+
+  constructor(deleteAssetFiles: (draftId: string) => Promise<void>) {
+    this.deleteAssetFiles = deleteAssetFiles;
+  }
+
   async list(): Promise<DraftSummary[]> {
     const store = readStore();
     return store.draftOrder.map((draftId) => {
       const draft = store.drafts[draftId];
       if (!draft) throw new Error("Ein gespeicherter Entwurf konnte nicht geladen werden.");
       assertWizardDraft(draft);
-      return { draftId, title: draft.project.metadata.title, savedAt: draft.savedAt };
+      return {
+        draftId,
+        title: draft.project.metadata.title,
+        revision: draft.revision,
+        savedAt: draft.savedAt,
+      };
     });
   }
 
@@ -295,7 +320,7 @@ export class BrowserDraftStorage implements DraftStoragePort {
         "Dein Browser kann Entwürfe nicht sicher speichern, weil die benötigte Sperrfunktion fehlt. Verwende die lokale Wizard-Anwendung oder einen aktuellen Browser.",
       );
     }
-    return navigator.locks.request(DRAFT_SAVE_LOCK, { mode: "exclusive" }, () => {
+    return withBrowserDraftStoreLock(async () => {
       const previous = readStore();
       const current = previous.drafts[draft.draftId];
       if (current === undefined) {
@@ -326,5 +351,47 @@ export class BrowserDraftStorage implements DraftStoragePort {
       localStorage.setItem(DRAFT_STORE_KEY, JSON.stringify(next));
       return stored;
     });
+  }
+
+  async delete(draftId: string, revision: DraftRevision): Promise<void> {
+    if (!("locks" in navigator) || navigator.locks === undefined) {
+      throw new Error(
+        "Dein Browser kann Entwürfe nicht sicher löschen, weil die benötigte Sperrfunktion fehlt. Verwende die lokale Wizard-Anwendung oder einen aktuellen Browser.",
+      );
+    }
+    try {
+      await withBrowserDraftStoreLock(async () => {
+        const previous = readStore();
+        const current = previous.drafts[draftId];
+        if (current === undefined) {
+          await this.deleteAssetFiles(draftId);
+          return;
+        }
+        if (current.revision !== revision) {
+          throw new DraftReloadRequiredError("revision-conflict");
+        }
+
+        const { [draftId]: removed, ...remainingDrafts } = previous.drafts;
+        if (removed === undefined) return;
+        const next: DraftStoreEnvelope = {
+          storeVersion: STORE_VERSION,
+          draftOrder: previous.draftOrder.filter((id) => id !== draftId),
+          drafts: remainingDrafts,
+        };
+        localStorage.setItem(DRAFT_STORE_KEY, JSON.stringify(next));
+        try {
+          await this.deleteAssetFiles(draftId);
+        } catch (cause) {
+          // The upload transaction is atomic. Restore the still-complete visible draft on failure.
+          localStorage.setItem(DRAFT_STORE_KEY, JSON.stringify(previous));
+          throw cause;
+        }
+      });
+    } catch (cause) {
+      if (cause instanceof DraftReloadRequiredError) throw cause;
+      throw new Error(
+        "Der Entwurf konnte nicht vollständig gelöscht werden. Er bleibt gespeichert. Versuche es erneut.",
+      );
+    }
   }
 }

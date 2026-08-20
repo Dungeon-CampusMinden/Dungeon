@@ -1,12 +1,18 @@
 package wizard.authoring;
 
+import engine.utils.logging.DungeonLogger;
 import escaperoom.foundation.room.model.VerifiedAsset;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -18,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -26,9 +33,14 @@ import wizard.runner.contract.ContractCapabilities;
 
 /** Private native draft and upload persistence rooted below one application-owned directory. */
 final class DraftStore {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DraftStore.class);
   static final String DATA_ROOT_PROPERTY = "dungeon.wizard.dataRoot";
   private static final Pattern DRAFT_ID = Pattern.compile("[A-Za-z0-9][A-Za-z0-9_-]{0,63}");
   private static final Pattern STORAGE_KEY = Pattern.compile("[0-9a-f]{64}");
+  private static final Pattern TOMBSTONE =
+      Pattern.compile("\\.deleted-[A-Za-z0-9_-]{1,64}-[0-9a-f]{32}");
+  private static final int WINDOWS_REPARSE_POINT = 0x400;
+  private static final boolean WINDOWS = File.separatorChar == '\\';
   static final long MAX_SAFE_INTEGER = 9_007_199_254_740_991L;
   private static final int MAX_DRAFT_BYTES = ContractCapabilities.MAX_DEER_BYTES * 4;
   private final Path draftsRoot;
@@ -37,6 +49,10 @@ final class DraftStore {
     draftsRoot = dataRoot.toAbsolutePath().normalize().resolve("drafts");
     try {
       Files.createDirectories(draftsRoot);
+      if (!isOrdinaryDirectory(draftsRoot)) {
+        throw new IllegalStateException("Draft storage root must be an ordinary directory");
+      }
+      cleanupTombstones();
     } catch (IOException exception) {
       throw new IllegalStateException("Draft storage cannot be created", exception);
     }
@@ -58,14 +74,16 @@ final class DraftStore {
     List<Map<String, Object>> result = new ArrayList<>();
     try (var entries = Files.newDirectoryStream(draftsRoot)) {
       for (Path entry : entries) {
-        if (!Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS)
-            || !DRAFT_ID.matcher(entry.getFileName().toString()).matches()) {
+        if (!DRAFT_ID.matcher(entry.getFileName().toString()).matches()) {
           continue;
         }
         Optional<JsonNode> draft;
         try {
+          if (!isOrdinaryDirectory(entry)) {
+            continue;
+          }
           draft = loadOptional(entry.getFileName().toString());
-        } catch (RuntimeException exception) {
+        } catch (IOException | RuntimeException exception) {
           continue;
         }
         if (draft.isEmpty()) {
@@ -77,6 +95,7 @@ final class DraftStore {
         JsonNode title = value.path("project").path("metadata").get("title");
         item.put("title", title != null && title.isString() ? title.stringValue() : "");
         JsonNode savedAt = value.get("savedAt");
+        item.put("revision", revision(value));
         if (savedAt != null && savedAt.isString()) {
           item.put("savedAt", savedAt.stringValue());
         }
@@ -90,7 +109,18 @@ final class DraftStore {
   }
 
   synchronized Optional<JsonNode> loadOptional(final String draftId) {
-    Path file = draftDirectory(draftId).resolve("draft.json");
+    Path directory = draftDirectory(draftId);
+    if (Files.exists(directory, LinkOption.NOFOLLOW_LINKS)) {
+      try {
+        if (!isOrdinaryDirectory(directory)) {
+          throw new IllegalStateException("Stored draft directory is not an ordinary directory");
+        }
+      } catch (IOException exception) {
+        throw new IllegalStateException(
+            "Stored draft directory cannot be inspected safely", exception);
+      }
+    }
+    Path file = directory.resolve("draft.json");
     if (!Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)) {
       return Optional.empty();
     }
@@ -162,8 +192,51 @@ final class DraftStore {
     }
   }
 
-  Upload putUpload(
+  synchronized void delete(final String draftId, final JsonNode request) {
+    Path directory = draftDirectory(draftId).toAbsolutePath().normalize();
+    long actual = requireRevision(request.get("revision"), "Request revision is invalid");
+    if (!directory.getParent().equals(draftsRoot) || !directory.startsWith(draftsRoot)) {
+      throw new IllegalStateException("Draft deletion path escaped its storage root");
+    }
+    if (!Files.exists(directory, LinkOption.NOFOLLOW_LINKS)) {
+      return;
+    }
+    try {
+      if (!isOrdinaryDirectory(directory)) {
+        throw new IllegalStateException("Draft deletion target is not an ordinary directory");
+      }
+    } catch (IOException exception) {
+      throw new IllegalStateException(
+          "Draft deletion target cannot be inspected safely", exception);
+    }
+    JsonNode stored =
+        loadOptional(draftId)
+            .orElseThrow(() -> new IllegalStateException("Stored draft snapshot is missing"));
+    long expected = revision(stored);
+    if (actual != expected) {
+      throw new RevisionConflictException(expected, actual);
+    }
+
+    Path tombstone =
+        draftsRoot.resolve(
+            ".deleted-" + draftId + "-" + UUID.randomUUID().toString().replace("-", ""));
+    try {
+      Files.move(directory, tombstone, StandardCopyOption.ATOMIC_MOVE);
+    } catch (IOException exception) {
+      throw new IllegalStateException("Draft deletion cannot be committed", exception);
+    }
+    try {
+      deleteTree(tombstone);
+    } catch (IOException exception) {
+      LOGGER.warn("Deferred cleanup of deleted Wizard draft {}", tombstone, exception);
+    }
+  }
+
+  synchronized Upload putUpload(
       final String draftId, final String originalName, final String mediaType, final byte[] bytes) {
+    if (loadOptional(draftId).isEmpty()) {
+      throw new CandidateProjectService.MissingDraftException(draftId);
+    }
     if (bytes.length == 0 || bytes.length > ContractCapabilities.MAX_ASSET_BYTES) {
       throw new IllegalArgumentException("Upload size is invalid");
     }
@@ -195,6 +268,101 @@ final class DraftStore {
       throw new IllegalArgumentException(
           "Upload is not a valid " + mediaType + " image", exception);
     }
+  }
+
+  private void cleanupTombstones() {
+    try (var entries = Files.newDirectoryStream(draftsRoot)) {
+      for (Path entry : entries) {
+        if (!TOMBSTONE.matcher(entry.getFileName().toString()).matches()) {
+          continue;
+        }
+        boolean ordinary;
+        try {
+          ordinary = isOrdinaryDirectory(entry);
+        } catch (IOException exception) {
+          LOGGER.warn("Could not inspect Wizard draft tombstone {} safely", entry, exception);
+          continue;
+        }
+        if (!ordinary) {
+          LOGGER.warn("Skipped unsafe Wizard draft tombstone {}", entry);
+          continue;
+        }
+        try {
+          deleteTree(entry);
+        } catch (IOException exception) {
+          LOGGER.warn("Deferred cleanup of deleted Wizard draft {}", entry, exception);
+        }
+      }
+    } catch (IOException exception) {
+      LOGGER.warn("Could not scan Wizard draft tombstones below {}", draftsRoot, exception);
+    }
+  }
+
+  private static void deleteTree(final Path root) throws IOException {
+    Files.walkFileTree(
+        root,
+        new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult preVisitDirectory(
+              final Path directory, final BasicFileAttributes attributes) throws IOException {
+            if (!isOrdinaryDirectory(directory)) {
+              throw new IOException("Refusing to traverse a linked or reparse-point directory");
+            }
+            return FileVisitResult.CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult visitFile(final Path file, final BasicFileAttributes attributes)
+              throws IOException {
+            if (isLinkedOrReparsePoint(file)) {
+              throw new IOException("Refusing to delete a linked or reparse-point entry");
+            }
+            Files.delete(file);
+            return FileVisitResult.CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult postVisitDirectory(final Path directory, final IOException failure)
+              throws IOException {
+            if (failure != null) {
+              throw failure;
+            }
+            Files.delete(directory);
+            return FileVisitResult.CONTINUE;
+          }
+        });
+  }
+
+  private static boolean isOrdinaryDirectory(final Path path) throws IOException {
+    BasicFileAttributes attributes =
+        Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+    return attributes.isDirectory() && !isLinkedOrReparsePoint(path, attributes);
+  }
+
+  private static boolean isLinkedOrReparsePoint(final Path path) throws IOException {
+    BasicFileAttributes attributes =
+        Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+    return isLinkedOrReparsePoint(path, attributes);
+  }
+
+  private static boolean isLinkedOrReparsePoint(
+      final Path path, final BasicFileAttributes attributes) throws IOException {
+    if (attributes.isSymbolicLink() || attributes.isOther()) {
+      return true;
+    }
+    if (!WINDOWS) {
+      return false;
+    }
+    Object rawAttributes;
+    try {
+      rawAttributes = Files.getAttribute(path, "dos:attributes", LinkOption.NOFOLLOW_LINKS);
+    } catch (IllegalArgumentException | UnsupportedOperationException exception) {
+      throw new IOException("Windows reparse-point status is unavailable", exception);
+    }
+    if (!(rawAttributes instanceof Number value)) {
+      throw new IOException("Windows reparse-point status is invalid");
+    }
+    return (value.intValue() & WINDOWS_REPARSE_POINT) != 0;
   }
 
   List<String> uploadKeys(final String draftId) {
@@ -266,8 +434,18 @@ final class DraftStore {
     try (var entries = Files.newDirectoryStream(draftsRoot)) {
       for (Path entry : entries) {
         String owner = entry.getFileName().toString();
-        if (!Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS)
-            || !DRAFT_ID.matcher(owner).matches()) {
+        if (!DRAFT_ID.matcher(owner).matches()) {
+          continue;
+        }
+        try {
+          if (!isOrdinaryDirectory(entry)) {
+            continue;
+          }
+        } catch (IOException exception) {
+          throw new ProjectOwnershipUnavailableException(
+              "Project ownership registry entry cannot be inspected safely", exception);
+        }
+        if (!Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS)) {
           continue;
         }
         addOwner(owners, owner, entry.resolve("draft.json"), "finalization", target);

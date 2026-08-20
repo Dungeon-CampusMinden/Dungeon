@@ -189,6 +189,12 @@ public final class WizardAuthoringApplication {
       sendJson(exchange, 200, drafts.save(draftId, readBody(exchange, MAX_REQUEST_BYTES)));
       return;
     }
+    if (segments.size() == 2 && method.equals("DELETE")) {
+      requireMutation(exchange, origin, "application/json");
+      drafts.delete(draftId, AuthoringJson.parse(readBody(exchange, MAX_REQUEST_BYTES)));
+      exchange.sendResponseHeaders(204, -1);
+      return;
+    }
     if (segments.size() == 3
         && segments.get(2).equals("finalization-status")
         && method.equals("GET")) {
