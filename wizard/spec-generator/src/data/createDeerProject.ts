@@ -14,7 +14,7 @@ export function createDeerProject(): DeerProject {
       locale: "de-DE",
     },
     learningDesign: {
-      objectives: [],
+      objectives: [{ id: Util.generateUniqueId(), description: "" }],
       debriefPrompts: [],
     },
     session: {
@@ -26,8 +26,8 @@ export function createDeerProject(): DeerProject {
     scenario: {
       themeId: "default",
       mission: "",
-      introText: [],
-      successText: [],
+      introText: [""],
+      successText: [""],
     },
     surfaces: [
       { id: worldSurfaceId, kind: "world", title: "Raum" },
