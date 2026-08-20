@@ -1,4 +1,6 @@
 import type { WizardDraft } from "./WizardDraft";
+import type { Issue, IssueReport } from "./ErrorChecker";
+import { VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 
 export type ProductionIssueSeverity = "error" | "warning";
 
@@ -58,7 +60,7 @@ const MESSAGES = {
   "validation.schema.root_object": "Der gespeicherte Entwurf ist unvollständig.",
   "validation.schema.invalid": "Eine Angabe im Entwurf ist ungültig oder fehlt.",
   "validation.derivation.failed": "Das Spiel konnte aus dem Entwurf nicht aufgebaut werden.",
-  "validation.internal_error": "Die vollständige Prüfung ist technisch fehlgeschlagen.",
+  "validation.internal_error": "Die Spielprüfung konnte nicht abgeschlossen werden.",
   "validation.assets.declared_unused": "Eine eingetragene Datei wird im Spiel nicht verwendet.",
   "validation.capability.exit_surface_incompatible": "Der Ausgang ist nicht passend eingerichtet.",
   "validation.capability.player_count_invalid": "Die gewählte Anzahl Spielender wird nicht unterstützt.",
@@ -139,31 +141,72 @@ export function parseProjectValidationReport(value: unknown): ProjectValidationR
   return { valid: value.valid, issues };
 }
 
-export interface LocalizedProductionIssue {
-  severity: ProductionIssueSeverity;
-  description: string;
-  details?: string;
-}
-
-function issueArea(issue: ProductionValidationIssue, draft: WizardDraft): string | undefined {
+function issueTab(issue: ProductionValidationIssue, draft: WizardDraft): ValidatedTabId | "review" {
   const id = issue.entity?.id;
-  const riddle = id ? draft.project.riddles.find((entry) => entry.id === id) : undefined;
-  if (riddle) return `Rätsel „${riddle.title.trim() || "Unbenannt"}“`;
-  const asset = id ? draft.project.assets.find((entry) => entry.id === id) : undefined;
-  if (asset) return "Eigene Bilder und Dateien";
   const path = [issue.path, ...issue.relatedPaths].join("/");
-  if (path.includes("riddleGraph")) return "Spielablauf";
-  if (path.includes("riddles")) return "Rätsel";
-  if (path.includes("assets")) return "Eigene Bilder und Dateien";
-  if (path.includes("scenario")) return "Geschichte";
-  if (path.includes("session")) return "Spieleinstellungen";
-  if (path.includes("learningDesign") || path.includes("metadata")) return "Eckdaten und Lernziele";
-  return undefined;
+  if (issue.messageKey === "validation.graph.riddle_binding_invalid") return "riddle_graph";
+  if (issue.messageKey === "validation.capability.exit_surface_incompatible") return "game_end";
+  if (issue.messageKey === "validation.references.surface_unknown"
+    && issue.entity?.kind === "graph_node"
+    && path.includes("riddleGraph")
+    && path.includes("surfaceId")) return "game_end";
+  if (path.includes("riddleGraph")) return "riddle_graph";
+  if (path.includes("successText") || path.includes("failureText") || path.includes("debriefPrompts")) {
+    return "game_end";
+  }
+  const riddle = id ? draft.project.riddles.find((entry) => entry.id === id) : undefined;
+  if (riddle) return "riddles";
+  const asset = id ? draft.project.assets.find((entry) => entry.id === id) : undefined;
+  if (asset) return "assets";
+  if (id) {
+    const isExitSurface = draft.project.riddleGraph.nodes.some(
+      (node) => node.kind === "end" && node.surfaceId === id,
+    );
+    if (isExitSurface) return "game_end";
+    const isRiddleSurface = draft.project.riddles.some((entry) =>
+      entry.informationSources.some((source) => source.surfaceId === id)
+      || entry.inputs.some((input) => input.type === "numeric" && input.surfaceId === id),
+    );
+    if (isRiddleSurface) return "riddles";
+  }
+  if (path.includes("riddles")) return "riddles";
+  if (path.includes("assets")) return "assets";
+  if (path.includes("scenario")) return "scenario";
+  if (path.includes("session")) return "session";
+  if (path.includes("learningDesign") || path.includes("metadata")) return "metadata";
+  return "review";
 }
 
-export function localizeProductionIssues(report: ProjectValidationReport, draft: WizardDraft) {
-  return report.issues.map((issue): LocalizedProductionIssue => {
-    const area = issueArea(issue, draft);
-    return { severity: issue.severity, description: MESSAGES[issue.messageKey], ...(area ? { details: `Bereich: ${area}` } : {}) };
+function issueArea(tabId: ValidatedTabId | "review", issue: ProductionValidationIssue, draft: WizardDraft) {
+  const riddle = issue.entity?.id
+    ? draft.project.riddles.find((entry) => entry.id === issue.entity?.id)
+    : undefined;
+  if (riddle) return `Rätsel „${riddle.title.trim() || "Unbenannt"}“`;
+  return {
+    metadata: "Eckdaten und Lernziele",
+    scenario: "Geschichte",
+    session: "Spieleinstellungen",
+    assets: "Eigene Bilder und Dateien",
+    riddles: "Rätsel",
+    riddle_graph: "Spielablauf",
+    game_end: "Spiel-Ende",
+    review: undefined,
+  }[tabId];
+}
+
+export function productionIssueReport(report: ProjectValidationReport, draft: WizardDraft): IssueReport {
+  const result: IssueReport = Object.fromEntries(
+    [...VALIDATED_TAB_IDS, "review"].map((tabId) => [tabId, {}]),
+  );
+  report.issues.forEach((issue, index) => {
+    const tabId = issueTab(issue, draft);
+    const area = issueArea(tabId, issue, draft);
+    const localized: Issue = {
+      severity: issue.severity,
+      description: MESSAGES[issue.messageKey],
+      ...(area ? { details: `Bereich: ${area}` } : {}),
+    };
+    result[tabId][`production:${index}`] = [localized];
   });
+  return result;
 }

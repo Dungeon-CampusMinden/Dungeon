@@ -61,11 +61,11 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 
 Der Authoring-Refactor ändert weder `formatVersion` noch die Semantik dieses
 Dokuments. Ein unvollständiger Draft besitzt keinen echten Seed. Beim ersten
-vollständigen Prüfen oder Erstellen erzeugt die UI genau einmal einen Wert im
-Bereich `0..9007199254740991` und speichert ihn vor dem Hostaufruf im
-Browserdraft. Danach bleibt er stabil. Der Java-Host erzeugt und ersetzt keinen
-Seed. Der Bereich ist der lückenlos exakt darstellbare nicht-negative
-Safe-Integer-Bereich der RFC-8785-Zahlendarstellung. Weitere Schreibregeln
+Betreten der Abschlussseite erzeugt die UI genau einmal einen Wert im Bereich
+`0..9007199254740991` und speichert ihn vor dem
+Hostaufruf im Browserdraft. Danach bleibt er stabil. Der Java-Host erzeugt und
+ersetzt keinen Seed. Der Bereich ist der lückenlos exakt darstellbare
+nicht-negative Safe-Integer-Bereich der RFC-8785-Zahlendarstellung. Weitere Schreibregeln
 stehen in
 [`runner-project-format.md`](runner-project-format.md).
 

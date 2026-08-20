@@ -17,6 +17,7 @@ export function AssetCard({
   asset,
   preview,
   editable = true,
+  disabled = false,
   highlighted = false,
   onUpdate,
   onReplaceContent,
@@ -26,6 +27,8 @@ export function AssetCard({
   preview: AssetPreview | undefined;
   /** When false the edit menu is hidden and the card is a pure preview. */
   editable?: boolean;
+  /** Disables the edit trigger while another exclusive Wizard operation is running. */
+  disabled?: boolean;
   /** Highlights the card, e.g. while it is hovered or selected from the outside. */
   highlighted?: boolean;
   onUpdate?: (updatedAsset: Asset) => void;
@@ -60,16 +63,16 @@ export function AssetCard({
         </span>
         {editable && (
           <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="outline" size="icon-sm" />}>
+            <DropdownMenuTrigger render={<Button variant="outline" size="icon-sm" disabled={disabled} />}>
               <PencilIcon />
               <span className="sr-only">Datei bearbeiten</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setEditOpen(true)}>
+              <DropdownMenuItem disabled={disabled} onClick={() => setEditOpen(true)}>
                 <PencilIcon />
                 Bearbeiten
               </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => onDelete?.(asset)}>
+              <DropdownMenuItem disabled={disabled} variant="destructive" onClick={() => onDelete?.(asset)}>
                 <Trash2Icon />
                 Löschen
               </DropdownMenuItem>
@@ -83,6 +86,7 @@ export function AssetCard({
           asset={asset}
           displayName={fileName}
           missing={missing}
+          disabled={disabled}
           open={editOpen}
           setOpen={setEditOpen}
           onUpdate={(updatedAsset) => onUpdate?.(updatedAsset)}

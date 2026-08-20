@@ -21,6 +21,7 @@ export function AssetEditDialog({
   asset,
   displayName,
   missing,
+  disabled,
   open,
   setOpen,
   onUpdate,
@@ -29,6 +30,7 @@ export function AssetEditDialog({
   asset: Asset;
   displayName: string;
   missing: boolean;
+  disabled: boolean;
   open: boolean;
   setOpen: (open: boolean) => void;
   onUpdate: (updatedAsset: Asset) => void;
@@ -59,6 +61,7 @@ export function AssetEditDialog({
             <FieldLabel>Lizenz</FieldLabel>
             <Input
               aria-label="Lizenz der Datei"
+              disabled={disabled}
               value={asset.source.license}
               onChange={(e) => updateSource(e.target.value, asset.source.attribution ?? "")}
             />
@@ -67,6 +70,7 @@ export function AssetEditDialog({
             <FieldLabel>Urheber</FieldLabel>
             <Input
               aria-label="Urheber der Datei"
+              disabled={disabled}
               value={asset.source.attribution ?? ""}
               onChange={(e) => updateSource(asset.source.license, e.target.value)}
             />
@@ -78,7 +82,7 @@ export function AssetEditDialog({
             <FieldLabel>Dateiname</FieldLabel>
             <div className="grid grid-cols-[1fr_auto] items-center gap-2">
               <Input aria-label="Dateiname" value={displayName} readOnly aria-invalid={missing} />
-              <Button variant="outline" onClick={() => setSelectorOpen(true)}>
+              <Button variant="outline" disabled={disabled} onClick={() => setSelectorOpen(true)}>
                 <UploadIcon />
                 Ersetzen
               </Button>

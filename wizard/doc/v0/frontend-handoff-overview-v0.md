@@ -45,8 +45,8 @@ JAR oder Ready-Zustand.
 ## Seed
 
 Ein neuer unvollständiger Draft besitzt keinen echten Projektseed. Beim ersten
-vollständigen `Entwurf prüfen` oder `Spiel erstellen` erzeugt die UI genau
-einmal einen zufälligen ganzzahligen Wert im Bereich
+Betreten von `Spiel erstellen` erzeugt die UI genau einmal einen zufälligen
+ganzzahligen Wert im Bereich
 `0..9007199254740991`. Sie speichert ihn im Draft, bevor sie den Kandidaten an
 den Host sendet. Jeder spätere Kandidat desselben Drafts verwendet diesen Wert
 unverändert. Java erzeugt und ersetzt keinen Seed.
@@ -64,10 +64,19 @@ Die same-origin API umfasst nur diese Operationen:
 `project` ist der vollständige DEER-Kandidat. Die Teacher-UI zeigt weder
 `projectId` noch andere interne IDs.
 
-Lokale Feldhinweise sind erlaubt, aber nicht normativ. `Spiel erstellen und
-herunterladen` verwendet immer die Produktionsvalidierung für exakt den
-Kandidaten und die Uploadbytes, die verpackt werden sollen. Technische Codes,
+Lokale Feldhinweise prüfen den aktuellen Schritt bei jeder Vorwärtsnavigation.
+Sie blockieren nur bei Fehlern, nicht bei Warnungen. Beim Betreten von `Spiel
+erstellen` startet die UI automatisch eine Produktionsvalidierung, sobald der
+gesamte Draft lokal keine blockierenden Fehler hat und der Assetcheck bereit
+ist. Sie sendet den exakt gespeicherten Kandidaten und seine Uploadbytes.
+`Spiel erstellen und herunterladen` liest den aktuellen gespeicherten Stand
+erneut; der Host validiert ihn beim Packaging nochmals. Technische Codes,
 JSON-Pointer und IDs werden auf verständliche Felder oder Rätsel abgebildet.
+
+Lokale und produktive Probleme erscheinen in einer gemeinsamen Fehlerübersicht.
+Ändert sich der Draft oder ein Upload, verwirft die UI den alten
+Produktionsreport. Parallele oder veraltete Antworten dürfen den aktuellen
+Zustand nicht ersetzen.
 
 ## Packaging und Download
 

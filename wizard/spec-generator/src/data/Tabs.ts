@@ -6,7 +6,7 @@ export const TABS = [
   { value: "riddles", label: "Rätsel" },
   { value: "riddle_graph", label: "Spielablauf" },
   { value: "game_end", label: "Spiel-Ende" },
-  { value: "review", label: "Entwurf prüfen" },
+  { value: "review", label: "Spiel erstellen" },
 ] as const;
 
 export type TabId = (typeof TABS)[number]["value"];
