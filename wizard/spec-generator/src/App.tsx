@@ -1,6 +1,6 @@
 import React from "react";
 import { toast, Toaster } from "sonner";
-import { ArrowLeftIcon, FolderOpenIcon, PlusIcon } from "lucide-react";
+import { ArrowLeftIcon, FolderOpenIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import "./App.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import type { DeerProject } from "./data/DeerSchema";
@@ -28,6 +28,14 @@ import { BrowserWizardHost, detectNativeHost, NativeAssetStorage, NativeDraftSto
 import { cloneDraft, createWizardDraft, type DraftRevision, type DraftTransform, type UpdateDraft, type WizardDraft } from "./data/WizardDraft";
 import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert";
 import { Button } from "./components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./components/ui/dialog";
 import { UploadReferencesProvider } from "./components/assets/UploadReferencesContext";
 import type { TabId } from "./data/Tabs";
 import type { WizardWork } from "./data/WizardWork";
@@ -38,7 +46,12 @@ async function createStorage(): Promise<WizardStoragePort> {
   if (await detectNativeHost()) {
     return { drafts: new NativeDraftStorage(), assets: new NativeAssetStorage(), host: new NativeWizardHost() };
   }
-  return { drafts: new BrowserDraftStorage(), assets: new BrowserAssetStorage(), host: new BrowserWizardHost() };
+  const assets = new BrowserAssetStorage();
+  return {
+    drafts: new BrowserDraftStorage((draftId) => assets.deleteDraftFiles(draftId)),
+    assets,
+    host: new BrowserWizardHost(),
+  };
 }
 
 function App() {
@@ -72,6 +85,9 @@ function WizardWorkspace() {
   const [draft, setDraft] = React.useState<WizardDraft | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const [deleteDraft, setDeleteDraft] = React.useState<DraftSummary | null>(null);
+  const [deleteError, setDeleteError] = React.useState<string | null>(null);
+  const [deleting, setDeleting] = React.useState(false);
 
   const refresh = React.useCallback(async () => {
     try { setDrafts(await storage.drafts.list()); setError(null); }
@@ -96,6 +112,43 @@ function WizardWorkspace() {
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Der Entwurf konnte nicht angelegt werden."); }
     finally { setBusy(false); }
   };
+  const deleteSelectedDraft = async () => {
+    const selected = deleteDraft;
+    if (selected === null || deleting) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await storage.drafts.delete(selected.draftId, selected.revision);
+      setDrafts((current) => current?.filter((summary) => summary.draftId !== selected.draftId) ?? current);
+      setDeleteDraft(null);
+      await refresh();
+    } catch (cause) {
+      try {
+        const currentDrafts = await storage.drafts.list();
+        setDrafts(currentDrafts);
+        const current = currentDrafts.find((draftSummary) => draftSummary.draftId === selected.draftId);
+        if (current === undefined) {
+          setDeleteDraft(null);
+          setDeleteError(null);
+          setError(null);
+          return;
+        }
+        setDeleteDraft(current);
+        setError(null);
+      } catch {
+        // Keep the original card and dialog if the uncertain state cannot be refreshed.
+      }
+      if (cause instanceof DraftReloadRequiredError) {
+        setDeleteError("Der Entwurf wurde inzwischen geändert. Prüfe den Namen noch einmal und versuche es erneut.");
+      } else {
+        setDeleteError(cause instanceof Error
+          ? cause.message
+          : "Der Entwurf konnte nicht gelöscht werden. Er bleibt gespeichert. Versuche es erneut.");
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   if (draft) {
     return <DraftEditor key={draft.draftId} initialDraft={draft} onClose={async () => { setDraft(null); await refresh(); }} />;
@@ -104,18 +157,58 @@ function WizardWorkspace() {
     <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 p-6 md:p-10">
       <div><p className="mb-1 text-sm text-muted-foreground">Dungeon Wizard</p><h1 className="mb-2 text-3xl font-semibold">Welches Spiel möchtest du bearbeiten?</h1><p className="text-muted-foreground">Öffne einen vorhandenen Entwurf oder beginne ein neues Spiel.</p></div>
       {error && <Alert variant="destructive"><AlertTitle>Entwürfe nicht verfügbar</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
-      <Button className="w-fit" onClick={() => void createDraft()} disabled={busy}><PlusIcon />Neues Spiel</Button>
+      <Button className="w-fit" onClick={() => void createDraft()} disabled={busy || deleting}><PlusIcon />Neues Spiel</Button>
       <div className="grid gap-3">
         {drafts === null && <p className="text-muted-foreground">Entwürfe werden geladen…</p>}
         {drafts?.length === 0 && <div className="panel text-muted-foreground">Noch keine Entwürfe vorhanden.</div>}
         {drafts?.map((summary) => (
-          <button key={summary.draftId} type="button" disabled={busy} onClick={() => void openDraft(summary.draftId)} className="panel flex items-center justify-between gap-4 bg-background text-left transition-colors hover:bg-muted disabled:opacity-50">
-            <span><span className="block font-medium">{summary.title.trim() || "Unbenanntes Spiel"}</span><span className="text-sm text-muted-foreground">{summary.savedAt ? `Zuletzt gespeichert: ${new Date(summary.savedAt).toLocaleString("de-DE")}` : "Noch nicht gespeichert"}</span></span>
-            <FolderOpenIcon className="size-5 shrink-0" />
-          </button>
+          <div key={summary.draftId} className="panel flex items-stretch gap-2 bg-background p-0">
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={busy || deleting}
+              onClick={() => void openDraft(summary.draftId)}
+              className="h-auto min-w-0 flex-1 justify-between rounded-[var(--radius-sm)] px-4 py-4 text-left whitespace-normal"
+            >
+              <span className="min-w-0"><span className="block font-medium">{summary.title.trim() || "Unbenanntes Spiel"}</span><span className="block text-sm font-normal text-muted-foreground">{summary.savedAt ? `Zuletzt gespeichert: ${new Date(summary.savedAt).toLocaleString("de-DE")}` : "Noch nicht gespeichert"}</span></span>
+              <FolderOpenIcon className="size-5 shrink-0" />
+            </Button>
+            <div className="flex items-center border-l border-[var(--border-color)] px-2">
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                disabled={busy || deleting}
+                aria-label={`Entwurf ${summary.title.trim() || "Unbenanntes Spiel"} endgültig löschen`}
+                onClick={() => { setDeleteDraft(summary); setDeleteError(null); }}
+              >
+                <Trash2Icon />
+              </Button>
+            </div>
+          </div>
         ))}
       </div>
       {!storage.host.native && <Alert><AlertTitle>Separater Entwicklungs- und UI-Testmodus</AlertTitle><AlertDescription>Diese Entwürfe bleiben ausschließlich in diesem Browser. Sie können nicht in die lokale Wizard-Anwendung übertragen, vollständig geprüft oder als Spiel verpackt werden.</AlertDescription></Alert>}
+      <Dialog
+        open={deleteDraft !== null}
+        onOpenChange={(open) => { if (!open && !deleting) { setDeleteDraft(null); setDeleteError(null); } }}
+      >
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Entwurf endgültig löschen?</DialogTitle>
+            <DialogDescription>
+              Der Entwurf „{deleteDraft?.title.trim() || "Unbenanntes Spiel"}“ und alle im Wizard gespeicherten Uploads werden dauerhaft gelöscht. Bereits erstellte Spieldateien im gewählten Projektordner bleiben erhalten. Diese Aktion kann nicht rückgängig gemacht werden.
+            </DialogDescription>
+          </DialogHeader>
+          {deleteError && <Alert variant="destructive"><AlertTitle>Löschen nicht möglich</AlertTitle><AlertDescription>{deleteError}</AlertDescription></Alert>}
+          <DialogFooter>
+            <Button type="button" variant="outline" disabled={deleting} onClick={() => { setDeleteDraft(null); setDeleteError(null); }}>Abbrechen</Button>
+            <Button type="button" variant="destructive" disabled={deleting} onClick={() => void deleteSelectedDraft()}>
+              {deleting ? "Wird gelöscht…" : "Endgültig löschen"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

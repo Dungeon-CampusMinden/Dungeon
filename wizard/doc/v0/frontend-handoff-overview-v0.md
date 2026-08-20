@@ -135,6 +135,18 @@ denselben Vertrag innerhalb seines versionierten LocalStorage-Envelopes nach.
 Sein Lesen, Vergleichen und Schreiben läuft als eine exklusive, tabübergreifende
 Web-Lock-Operation. Fehlt die Web-Lock-API, lehnt der Entwicklungsadapter das
 Speichern verständlich ab, statt einen unsicheren Fallback auszuführen.
+Die endgültige Löschung ist ebenfalls revisionsgebunden und läuft unter
+demselben Lock. Sie entfernt den Draft aus Map und Reihenfolge sowie alle
+zugehörigen IndexedDB-Dateien, ohne bei einem Cleanupfehler einen sichtbaren
+Draft mit bereits entfernten Uploads zu hinterlassen.
+Auch ein Browser-Upload prüft unter diesem Lock unmittelbar vor seinem
+IndexedDB-Commit, dass der Draft noch vorhanden ist. Der native Host
+serialisiert denselben Upload-/Delete-Entscheid in seinem Draftspeicher.
+Der native Host macht die Entfernung innerhalb seines privaten Draftspeichers
+zuerst atomar sichtbar. Erst danach räumt er die privaten Dateien auf; ein dabei
+gesperrter Rest wird bei einem späteren Hoststart erneut entfernt. Externe
+Projektordner sind nie Teil dieses Cleanups. Der Host folgt dabei weder
+symbolischen Links noch Windows-Reparse-Points wie Junctions.
 Auch erfolgreiche Hostmutationen bei Finalisierung und Packaging erhöhen die
 Revision. Die UI übernimmt diese bestätigte Revision samt Hostmetadaten direkt,
 ohne dafür einen zweiten, inhaltlich unveränderten Autosave auszulösen. Nur
@@ -146,6 +158,7 @@ konkrete Methodennamen dürfen dem verwendeten Stack folgen:
 | Operation | Erfolg | Fehlergarantie |
 |---|---|---|
 | Drafts auflisten, anlegen, laden und speichern | vollständiger privater Snapshot | vorhandener Snapshot bleibt unverändert |
+| Draft samt privaten Uploads endgültig löschen | revisionsgebundene Entfernung nur aus dem Wizard-Speicher | Fehler vor dem atomaren Commit lassen den Draft unverändert; späterer Cleanup bleibt privat und der Projektordner unverändert |
 | Projektordner wählen | explizit vom Nutzer bestätigter nativer Ordner | Abbruch verändert keinen Draft |
 | Spielbibliothek-Asset auswählen oder eigenes PNG/JPEG hochladen | interne Referenz oder geprüfte Uploadbytes, jeweils mit Anzeigename und Lizenzmetadaten | keine Teilübernahme |
 | vollständigen Kandidaten prüfen | [`ProjectValidationReport`](project-validation-report.schema.json) der Produktionsvalidierung | Zielprojekt bleibt unverändert |

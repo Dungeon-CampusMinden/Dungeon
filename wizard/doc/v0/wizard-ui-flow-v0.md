@@ -65,6 +65,10 @@ Starten oder fortsetzen
 6. Der Entwurf bleibt danach bearbeitbar. Eine Änderung markiert die letzte
    Finalisierung als veraltet. Weitere Finalisierungen verwenden den danach im
    Draft vorhandenen Seedwert unverändert.
+7. Ein Entwurf kann auf der Startansicht nach einer ausdrücklichen Bestätigung
+   endgültig gelöscht werden. Dabei werden nur der private Draft und seine im
+   Wizard gespeicherten Uploads entfernt. Bereits erstellte Dateien im gewählten
+   Projektordner bleiben erhalten.
 
 V0.4 unterstützt die Wiederaufnahme eigener lokaler Entwürfe. Der Import
 beliebiger Room-ZIPs oder manuell veränderter Projektordner ist nicht Teil des
@@ -100,12 +104,21 @@ Aktionen:
 - neuen Entwurf anlegen;
 - letzten lokalen Entwurf fortsetzen;
 - einen anderen eigenen lokalen Entwurf öffnen;
+- einen lokalen Entwurf samt Wizard-Uploads nach Bestätigung endgültig löschen.
 
 Die Startansicht lädt Entwürfe asynchron. Änderungen im geöffneten Entwurf
 werden automatisch gespeichert; beim Zurückkehren zur Startansicht wird eine
 ausstehende Speicherung zuerst abgeschlossen. Der Zielordner wird im
 Prüf-/Erstellen-Schritt gewählt. Beliebiger `deer.json`-Import und Browser-ZIP-
 Export sind nicht vorgesehen.
+
+Die Löschbestätigung nennt den betroffenen Anzeigenamen, die dauerhaft
+gelöschten privaten Daten und den Erhalt bereits erstellter Spieldateien. Sie
+kann während der laufenden Löschung nicht geschlossen werden. Ein technischer
+Fehler vor der sicheren Entfernung lässt Entwurf und Bestätigung sichtbar und
+wird verständlich angezeigt. Bereits sicher entfernte Entwürfe bleiben auch dann
+aus der Liste verschwunden, wenn private Restdaten erst beim nächsten Start
+aufgeräumt werden können.
 
 ## Eckdaten, Lernziel und Spieleinstellungen
 

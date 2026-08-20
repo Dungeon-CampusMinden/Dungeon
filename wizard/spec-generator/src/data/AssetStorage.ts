@@ -1,3 +1,5 @@
+import { browserDraftExists, withBrowserDraftStoreLock } from "./DraftStorage";
+
 const DB_NAME = "spec-generator";
 const DB_VERSION = 2;
 const STORE_NAME = "draft-assets-v2";
@@ -59,6 +61,32 @@ export interface AssetStoragePort {
   listAssetIds(draftId: string): Promise<string[]>;
 }
 
+/** Removes every private browser upload belonging to one draft in one transaction. */
+export async function deleteDraftAssetFiles(draftId: string): Promise<void> {
+  const db = await openDatabase();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(STORE_NAME, "readwrite");
+      const request = transaction.objectStore(STORE_NAME).openCursor();
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error ?? new Error("Dateien konnten nicht gelöscht werden."));
+      transaction.onabort = () => reject(transaction.error ?? new Error("Dateilöschung wurde abgebrochen."));
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (cursor === null) return;
+        const entry = cursor.value as StoredAssetFile;
+        const ownedKey = typeof cursor.primaryKey === "string"
+          && cursor.primaryKey.startsWith(`${draftId}:`);
+        if (entry.draftId === draftId || ownedKey) cursor.delete();
+        cursor.continue();
+      };
+      request.onerror = () => transaction.abort();
+    });
+  } finally {
+    db.close();
+  }
+}
+
 export class BrowserAssetStorage implements AssetStoragePort {
   /** Stores binary content by content hash and returns that private storage key. */
   async putAssetFile(draftId: string, file: File): Promise<string> {
@@ -68,8 +96,24 @@ export class BrowserAssetStorage implements AssetStoragePort {
     const id = `${draftId}:${hash}`;
     const blob = new Blob([contents], { type: file.type });
     const entry: StoredAssetFile = { id, draftId, storageKey: hash, name: file.name, mediaType: file.type, blob };
-    await runTransaction("readwrite", (store) => store.put(entry));
-    return hash;
+    try {
+      return await withBrowserDraftStoreLock(async () => {
+        if (!browserDraftExists(draftId)) {
+          throw new Error("Der Entwurf ist nicht mehr vorhanden.");
+        }
+        await runTransaction("readwrite", (store) => store.put(entry));
+        return hash;
+      });
+    } catch (cause) {
+      if (cause instanceof Error && cause.message === "Der Entwurf ist nicht mehr vorhanden.") {
+        throw cause;
+      }
+      throw new Error("Die Datei konnte nicht sicher im Entwurf gespeichert werden.");
+    }
+  }
+
+  deleteDraftFiles(draftId: string): Promise<void> {
+    return deleteDraftAssetFiles(draftId);
   }
 
   /** Returns the stored file for an asset id, or null if it is not available. */

@@ -126,10 +126,16 @@ export class NativeDraftStorage implements DraftStoragePort {
     if (!Array.isArray(value)) throw new Error("Die Entwurfsliste ist ungültig.");
     return value.map((entry) => {
       if (!isRecord(entry) || typeof entry.draftId !== "string" || typeof entry.title !== "string"
+        || !Number.isSafeInteger(entry.revision) || (entry.revision as number) < 0
         || (entry.savedAt !== undefined && typeof entry.savedAt !== "string")) {
         throw new Error("Die Entwurfsliste enthält einen ungültigen Eintrag.");
       }
-      return { draftId: entry.draftId, title: entry.title, ...(entry.savedAt ? { savedAt: entry.savedAt } : {}) };
+      return {
+        draftId: entry.draftId,
+        title: entry.title,
+        revision: draftRevision(entry.revision as number),
+        ...(entry.savedAt ? { savedAt: entry.savedAt } : {}),
+      };
     });
   }
 
@@ -147,6 +153,31 @@ export class NativeDraftStorage implements DraftStoragePort {
     }, "Das Speichern des Entwurfs");
     assertWizardDraft(value);
     return structuredClone(value);
+  }
+
+  async delete(draftId: string, revision: DraftRevision): Promise<void> {
+    let response: Response;
+    try {
+      response = await fetch(`/api/v1/drafts/${encodeURIComponent(draftId)}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ revision }),
+      });
+    } catch {
+      throw new Error(
+        "Der Wizard konnte nicht bestätigen, ob der Entwurf gelöscht wurde. Starte die Anwendung neu und prüfe die Liste.",
+      );
+    }
+    if (response.status === 204) return;
+    try {
+      await responseJson(response, "Das endgültige Löschen");
+    } catch (cause) {
+      if (cause instanceof DraftReloadRequiredError) throw cause;
+      throw new Error(
+        "Der Entwurf konnte nicht gelöscht werden. Er bleibt gespeichert. Versuche es erneut.",
+      );
+    }
+    throw new Error("Der Entwurf konnte nicht gelöscht werden. Er bleibt gespeichert.");
   }
 }
 
