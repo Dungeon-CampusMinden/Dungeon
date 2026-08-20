@@ -199,13 +199,13 @@ public class DecoMode extends LevelEditorMode {
   @Override
   public Map<Integer, String> getControls() {
     Map<Integer, String> controls = new LinkedHashMap<>();
+    controls.put(Input.Buttons.LEFT, "Place Deco");
+    controls.put(Input.Buttons.RIGHT, "Pickup Deco");
     controls.put(PRIMARY_UP, "Next Deco");
     controls.put(PRIMARY_DOWN, "Prev Deco");
     controls.put(SECONDARY_UP, "Change Grid Snap");
     controls.put(TERTIARY, "Delete on Cursor");
     controls.put(QUARTERNARY, "Pick from Cursor");
-    controls.put(Input.Buttons.LEFT, "Place Deco");
-    controls.put(Input.Buttons.RIGHT, "Pickup Deco");
     return controls;
   }
 

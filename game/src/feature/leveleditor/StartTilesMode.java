@@ -113,10 +113,10 @@ public class StartTilesMode extends LevelEditorMode {
   @Override
   public Map<Integer, String> getControls() {
     Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(PRIMARY_UP, "Next Start Tile Index");
-    controls.put(PRIMARY_DOWN, "Prev Start Tile Index");
     controls.put(Input.Buttons.LEFT, "Place Start Tile");
     controls.put(Input.Buttons.RIGHT, "Delete Start Tile on Cursor");
+    controls.put(PRIMARY_UP, "Next Start Tile Index");
+    controls.put(PRIMARY_DOWN, "Prev Start Tile Index");
     return controls;
   }
 
