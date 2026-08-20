@@ -1,6 +1,16 @@
 import React from "react";
 import { toast, Toaster } from "sonner";
-import { ArrowLeftIcon, FolderOpenIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  CheckIcon,
+  ClockIcon,
+  FolderOpenIcon,
+  InfoIcon,
+  LoaderCircleIcon,
+  PlusIcon,
+  Trash2Icon,
+  XCircleIcon,
+} from "lucide-react";
 import "./App.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import type { DeerProject } from "./data/DeerSchema";
@@ -143,63 +153,188 @@ function WizardWorkspace() {
     return <DraftEditor key={draft.draftId} initialDraft={draft} onClose={async () => { setDraft(null); await refresh(); }} />;
   }
   return (
-    <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 p-6 md:p-10">
-      <div><p className="mb-1 text-sm text-muted-foreground">Dungeon Wizard</p><h1 className="mb-2 text-3xl font-semibold">Welches Spiel möchtest du bearbeiten?</h1><p className="text-muted-foreground">Öffne einen vorhandenen Entwurf oder beginne ein neues Spiel.</p></div>
-      {error && <Alert variant="destructive"><AlertTitle>Entwürfe nicht verfügbar</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
-      <Button className="w-fit" onClick={() => void createDraft()} disabled={busy || deleting}><PlusIcon />Neues Spiel</Button>
-      <div className="grid gap-3">
-        {drafts === null && <p className="text-muted-foreground">Entwürfe werden geladen…</p>}
-        {drafts?.length === 0 && <div className="panel text-muted-foreground">Noch keine Entwürfe vorhanden.</div>}
-        {drafts?.map((summary) => (
-          <div key={summary.draftId} className="panel flex items-stretch gap-2 bg-background p-0">
+    <div className="wizard-launcher min-h-screen bg-background text-foreground">
+      <section className="wizard-launcher-hero" aria-labelledby="wizard-launcher-title">
+        <div className="wizard-launcher-image" aria-hidden="true" />
+        <div className="wizard-launcher-hero-shade" aria-hidden="true" />
+        <div className="wizard-launcher-hero-inner">
+          <div className="wizard-launcher-copy">
+            <p className="wizard-launcher-brand">
+              <span className="wizard-launcher-brand-mark" aria-hidden="true" />
+              Dungeon Wizard
+            </p>
+            <h1 id="wizard-launcher-title" className="wizard-launcher-title">
+              Welches Spiel möchtest du bearbeiten?
+            </h1>
+            <p className="wizard-launcher-intro">
+              Öffne einen vorhandenen Entwurf oder beginne ein neues Spiel.
+            </p>
             <Button
-              type="button"
-              variant="ghost"
+              size="lg"
+              className="wizard-launcher-action gap-2 font-semibold"
+              onClick={() => void createDraft()}
               disabled={busy || deleting}
-              onClick={() => void openDraft(summary.draftId)}
-              className="h-auto min-w-0 flex-1 justify-between rounded-[var(--radius-sm)] px-4 py-4 text-left whitespace-normal"
             >
-              <span className="min-w-0"><span className="block font-medium">{summary.title.trim() || "Unbenanntes Spiel"}</span><span className="block text-sm font-normal text-muted-foreground">{summary.savedAt ? `Zuletzt gespeichert: ${new Date(summary.savedAt).toLocaleString("de-DE")}` : "Noch nicht gespeichert"}</span></span>
-              <FolderOpenIcon className="size-5 shrink-0" />
+              {busy ? <LoaderCircleIcon className="size-4 animate-spin" /> : <PlusIcon className="size-4" />}
+              {busy ? "Spiel wird angelegt…" : "Neues Spiel"}
             </Button>
-            <div className="flex items-center border-l border-[var(--border-color)] px-2">
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                disabled={busy || deleting}
-                aria-label={`Entwurf ${summary.title.trim() || "Unbenanntes Spiel"} endgültig löschen`}
-                onClick={() => { setDeleteDraft(summary); setDeleteError(null); }}
-              >
-                <Trash2Icon />
-              </Button>
-            </div>
           </div>
-        ))}
+        </div>
+      </section>
+
+      <div className="wizard-library mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10 sm:px-6 md:py-14">
+        <div className="flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">Weitermachen</p>
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">Meine Spiele</h2>
+          </div>
+          {drafts && drafts.length > 0 && (
+            <span className="pb-1 text-sm text-muted-foreground">
+              {drafts.length} {drafts.length === 1 ? "Spiel" : "Spiele"}
+            </span>
+          )}
+        </div>
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertTitle>Entwürfe nicht verfügbar</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <div className="flex flex-col gap-3">
+          {drafts === null && (
+            <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+              <LoaderCircleIcon className="size-5 animate-spin mr-2" />
+              Entwürfe werden geladen…
+            </div>
+          )}
+          {drafts?.length === 0 && (
+            <div className="wizard-empty-library flex flex-col items-center justify-center py-14 text-center">
+              <div className="mb-4 flex size-11 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground">
+                <FolderOpenIcon className="size-6" />
+              </div>
+              <h3 className="text-base font-semibold text-foreground">Noch keine Spiele angelegt</h3>
+              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                Mit "Neues Spiel" beginnst du deinen ersten Entwurf.
+              </p>
+            </div>
+          )}
+          {drafts?.map((summary) => (
+            <div
+              key={summary.draftId}
+              className="wizard-draft-row group relative flex items-stretch rounded-xl border border-border bg-card transition-colors focus-within:ring-2 focus-within:ring-ring"
+            >
+              <button
+                type="button"
+                disabled={busy || deleting}
+                onClick={() => void openDraft(summary.draftId)}
+                className="flex min-w-0 flex-1 items-center justify-between gap-4 p-4 text-left outline-none cursor-pointer sm:px-5"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-base font-semibold text-foreground transition-colors group-hover:text-primary">
+                    {summary.title.trim() || "Unbenanntes Spiel"}
+                  </span>
+                  <span className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <ClockIcon className="size-3.5 shrink-0 opacity-70" />
+                    {summary.savedAt
+                      ? `Zuletzt gespeichert: ${new Date(summary.savedAt).toLocaleString("de-DE")}`
+                      : "Noch nicht gespeichert"}
+                  </span>
+                </span>
+                <span className="hidden shrink-0 items-center gap-2 text-sm font-medium text-muted-foreground transition-colors group-hover:text-primary sm:flex">
+                  Öffnen
+                  <FolderOpenIcon className="size-4" />
+                </span>
+              </button>
+              <div className="flex items-center border-l border-border px-2 sm:px-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-muted-foreground hover:bg-destructive/15 hover:text-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20"
+                  disabled={busy || deleting}
+                  aria-label={`Entwurf ${summary.title.trim() || "Unbenanntes Spiel"} endgültig löschen`}
+                  onClick={() => { setDeleteDraft(summary); setDeleteError(null); }}
+                >
+                  <Trash2Icon className="size-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {!storage.host.native && (
+          <Alert className="mt-4 border-border/80 bg-card/60">
+            <InfoIcon className="size-4 text-muted-foreground" />
+            <AlertTitle className="text-sm font-medium">Separater Entwicklungs- und UI-Testmodus</AlertTitle>
+            <AlertDescription className="text-xs text-muted-foreground">
+              Diese Entwürfe bleiben ausschließlich in diesem Browser. Sie können nicht in die lokale Wizard-Anwendung übertragen, vollständig geprüft oder als Spiel verpackt werden.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <Dialog
+          open={deleteDraft !== null}
+          onOpenChange={(open) => { if (!open && !deleting) { setDeleteDraft(null); setDeleteError(null); } }}
+        >
+          <DialogContent showCloseButton={false}>
+            <DialogHeader>
+              <DialogTitle>Entwurf endgültig löschen?</DialogTitle>
+              <DialogDescription>
+                Der Entwurf „{deleteDraft?.title.trim() || "Unbenanntes Spiel"}“ und alle im Wizard gespeicherten Uploads werden dauerhaft gelöscht. Bereits heruntergeladene Spieldateien bleiben erhalten. Diese Aktion kann nicht rückgängig gemacht werden.
+              </DialogDescription>
+            </DialogHeader>
+            {deleteError && (
+              <Alert variant="destructive">
+                <AlertTitle>Löschen nicht möglich</AlertTitle>
+                <AlertDescription>{deleteError}</AlertDescription>
+              </Alert>
+            )}
+            <DialogFooter>
+              <Button type="button" variant="outline" disabled={deleting} onClick={() => { setDeleteDraft(null); setDeleteError(null); }}>Abbrechen</Button>
+              <Button type="button" variant="destructive" disabled={deleting} onClick={() => void deleteSelectedDraft()}>
+                {deleting ? "Wird gelöscht…" : "Endgültig löschen"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-      {!storage.host.native && <Alert><AlertTitle>Separater Entwicklungs- und UI-Testmodus</AlertTitle><AlertDescription>Diese Entwürfe bleiben ausschließlich in diesem Browser. Sie können nicht in die lokale Wizard-Anwendung übertragen, vollständig geprüft oder als Spiel verpackt werden.</AlertDescription></Alert>}
-      <Dialog
-        open={deleteDraft !== null}
-        onOpenChange={(open) => { if (!open && !deleting) { setDeleteDraft(null); setDeleteError(null); } }}
-      >
-        <DialogContent showCloseButton={false}>
-          <DialogHeader>
-            <DialogTitle>Entwurf endgültig löschen?</DialogTitle>
-            <DialogDescription>
-              Der Entwurf „{deleteDraft?.title.trim() || "Unbenanntes Spiel"}“ und alle im Wizard gespeicherten Uploads werden dauerhaft gelöscht. Bereits heruntergeladene Spieldateien bleiben erhalten. Diese Aktion kann nicht rückgängig gemacht werden.
-            </DialogDescription>
-          </DialogHeader>
-          {deleteError && <Alert variant="destructive"><AlertTitle>Löschen nicht möglich</AlertTitle><AlertDescription>{deleteError}</AlertDescription></Alert>}
-          <DialogFooter>
-            <Button type="button" variant="outline" disabled={deleting} onClick={() => { setDeleteDraft(null); setDeleteError(null); }}>Abbrechen</Button>
-            <Button type="button" variant="destructive" disabled={deleting} onClick={() => void deleteSelectedDraft()}>
-              {deleting ? "Wird gelöscht…" : "Endgültig löschen"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
+}
+
+function SaveStatusIndicator({ state }: { state: SaveState }) {
+  switch (state) {
+    case "saving":
+      return (
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/80 px-2.5 py-1 text-xs font-medium text-muted-foreground">
+          <LoaderCircleIcon className="size-3.5 animate-spin" />
+          <span className="hidden sm:inline">Wird gespeichert…</span>
+        </span>
+      );
+    case "saved":
+      return (
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-400">
+          <CheckIcon className="size-3.5" />
+          <span>Gespeichert</span>
+        </span>
+      );
+    case "unsaved":
+      return (
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-400">
+          <span className="size-1.5 rounded-full bg-amber-400 animate-pulse" />
+          <span className="hidden sm:inline">Ungespeichert</span>
+        </span>
+      );
+    case "error":
+      return (
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-xs font-medium text-destructive">
+          <XCircleIcon className="size-3.5" />
+          <span>Speichern fehlgeschlagen</span>
+        </span>
+      );
+  }
 }
 
 function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onClose: () => Promise<void> }) {
@@ -310,33 +445,73 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
     updateDraft((current) => { current.ui.activeTab = activeTab; current.ui.touchedTabs = withTouchedTab(current.ui.touchedTabs, activeTab); });
   };
   const hasTouchedAllTabs = Object.values(touchedTabs).every((touched) => touched);
-  const saveText = { unsaved: "Änderungen noch nicht gespeichert", saving: "Wird gespeichert…", saved: "Gespeichert", error: "Speichern fehlgeschlagen – Änderungen bleiben geöffnet" }[saveState];
 
   return (
     <UploadReferencesProvider draftId={draft.draftId} value={draft.uploads}>
-      <div className="min-h-screen max-w-7xl mx-auto bg-background p-4 lg:border-x border-[var(--border-color)]">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <Button variant="ghost" disabled={wizardWork !== null} onClick={() => {
-            if (wizardWorkRef.current !== null) return;
-            void flush().then(onClose).catch((cause) => toast.error("Bitte speichere den Entwurf, bevor du zurückgehst.", { description: cause instanceof Error ? cause.message : undefined }));
-          }}><ArrowLeftIcon />Meine Spiele</Button>
-          <div className={`text-sm ${saveState === "error" ? "text-destructive" : "text-muted-foreground"}`}>{saveText}</div>
-        </div>
-        <h1 className="mb-4 text-center text-3xl font-bold">{project.metadata.title.trim() || "Neues Spiel"}</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 max-w-full">
-          <div className="lg:sticky lg:top-0 flex flex-col gap-4"><SidebarNavigation issueReport={issueReport} touchedTabs={touchedTabs} tab={tab} setTab={setTab} disabled={wizardWork !== null} /><ErrorDetector issueReport={issueReport} assetStorageStatus={assetStorageStatus} touchedAll={hasTouchedAllTabs} className="lg:block hidden" /></div>
-          <div className="row-span-2 panel">
-            {tab === "metadata" && <MetadataTab deerSchema={project} updateDeerSchema={updateProject} />}
-            {tab === "scenario" && <ScenarioTab deerSchema={project} updateDeerSchema={updateProject} />}
-            {tab === "session" && <SessionTab deerSchema={project} updateDeerSchema={updateProject} />}
-            {tab === "assets" && <AssetsTab draft={draft} updateDraft={updateDraft} beginWork={beginWizardWork} finishWork={finishWizardWork} />}
-            {tab === "riddles" && <RiddlesTab draft={draft} updateDraft={updateDraft} />}
-            {tab === "riddle_graph" && <RiddleGraphTab draft={draft} updateDraft={updateDraft} />}
-            {tab === "game_end" && <GameEndTab deerSchema={project} updateDeerSchema={updateProject} />}
-            {tab === "review" && <ReviewTab draft={draft} updateDraft={updateDraft} flush={flush} work={wizardWork} beginWork={beginWizardWork} finishWork={finishWizardWork} />}
-            <InPageNavigation tab={tab} setTab={setTab} disabled={wizardWork !== null} />
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-sm">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={wizardWork !== null}
+              onClick={() => {
+                if (wizardWorkRef.current !== null) return;
+                void flush().then(onClose).catch((cause) => toast.error("Bitte speichere den Entwurf, bevor du zurückgehst.", { description: cause instanceof Error ? cause.message : undefined }));
+              }}
+              className="gap-1.5 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeftIcon className="size-4" />
+              <span>Meine Spiele</span>
+            </Button>
+
+            <h1 className="truncate text-base sm:text-lg font-semibold text-foreground text-center max-w-[200px] sm:max-w-md">
+              {project.metadata.title.trim() || "Neues Spiel"}
+            </h1>
+
+            <div className="flex items-center">
+              <SaveStatusIndicator state={saveState} />
+            </div>
           </div>
-          <ErrorDetector issueReport={issueReport} assetStorageStatus={assetStorageStatus} touchedAll={hasTouchedAllTabs} className="lg:hidden" />
+        </header>
+
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 items-start">
+            <div className="lg:sticky lg:top-18 flex flex-col gap-4">
+              <SidebarNavigation
+                issueReport={issueReport}
+                touchedTabs={touchedTabs}
+                tab={tab}
+                setTab={setTab}
+                disabled={wizardWork !== null}
+              />
+              <ErrorDetector
+                issueReport={issueReport}
+                assetStorageStatus={assetStorageStatus}
+                touchedAll={hasTouchedAllTabs}
+                className="hidden lg:block"
+              />
+            </div>
+
+            <div className="panel min-w-0">
+              {tab === "metadata" && <MetadataTab deerSchema={project} updateDeerSchema={updateProject} />}
+              {tab === "scenario" && <ScenarioTab deerSchema={project} updateDeerSchema={updateProject} />}
+              {tab === "session" && <SessionTab deerSchema={project} updateDeerSchema={updateProject} />}
+              {tab === "assets" && <AssetsTab draft={draft} updateDraft={updateDraft} beginWork={beginWizardWork} finishWork={finishWizardWork} />}
+              {tab === "riddles" && <RiddlesTab draft={draft} updateDraft={updateDraft} />}
+              {tab === "riddle_graph" && <RiddleGraphTab draft={draft} updateDraft={updateDraft} />}
+              {tab === "game_end" && <GameEndTab deerSchema={project} updateDeerSchema={updateProject} />}
+              {tab === "review" && <ReviewTab draft={draft} updateDraft={updateDraft} flush={flush} work={wizardWork} beginWork={beginWizardWork} finishWork={finishWizardWork} />}
+              <InPageNavigation tab={tab} setTab={setTab} disabled={wizardWork !== null} />
+            </div>
+
+            <ErrorDetector
+              issueReport={issueReport}
+              assetStorageStatus={assetStorageStatus}
+              touchedAll={hasTouchedAllTabs}
+              className="lg:hidden"
+            />
+          </div>
         </div>
       </div>
     </UploadReferencesProvider>
@@ -344,7 +519,14 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
 }
 
 function Layout() {
-  return <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange><main className="typeset typeset-docs"><App /></main><Toaster position="bottom-right" richColors /></ThemeProvider>;
+  return (
+    <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
+      <main className="typeset typeset-docs min-h-screen bg-background">
+        <App />
+      </main>
+      <Toaster position="bottom-right" richColors />
+    </ThemeProvider>
+  );
 }
 
 export default Layout;

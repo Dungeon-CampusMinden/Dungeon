@@ -1,6 +1,7 @@
 import { TABS, type TabId } from "@/data/Tabs";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 
 export function InPageNavigation({ tab, setTab, disabled = false }: {
   tab: TabId;
@@ -22,20 +23,39 @@ export function InPageNavigation({ tab, setTab, disabled = false }: {
 
   return (
     <nav aria-label="Seitennavigation" className="mt-8 border-t border-border pt-6">
-      <div className="grid grid-cols-2 gap-2">
-        <Button type="button" variant="outline" onClick={() => changeTab(-1)} disabled={disabled || isFirstTab}>
+      <div className="grid grid-cols-2 gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => changeTab(-1)}
+          disabled={disabled || isFirstTab}
+          className="gap-2"
+        >
+          <ArrowLeftIcon className="size-4" />
           Zurück
         </Button>
-        <Button type="button" onClick={() => changeTab(1)} disabled={disabled || isLastTab}>
+        <Button
+          type="button"
+          onClick={() => changeTab(1)}
+          disabled={disabled || isLastTab}
+          className="gap-2"
+        >
           Weiter
+          <ArrowRightIcon className="size-4" />
         </Button>
       </div>
-      <Progress
-        value={(currentStep / TABS.length) * 100}
-        aria-label="Fortschritt"
-        getAriaValueText={() => `Schritt ${currentStep} von ${TABS.length}`}
-        className="mt-4 w-full"
-      />
+      <div className="mt-4 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Fortschritt</span>
+          <span>Schritt {currentStep} von {TABS.length}</span>
+        </div>
+        <Progress
+          value={(currentStep / TABS.length) * 100}
+          aria-label="Fortschritt"
+          getAriaValueText={() => `Schritt ${currentStep} von ${TABS.length}`}
+          className="w-full"
+        />
+      </div>
     </nav>
   );
 }

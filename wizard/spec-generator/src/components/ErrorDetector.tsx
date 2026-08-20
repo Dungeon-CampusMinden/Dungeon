@@ -16,18 +16,27 @@ export function ErrorDetector({
   const issues = ErrorChecker.getSortedIssues(issueReport);
 
   return (
-    <div className={`panel rounded-sm ${className ?? ""}`}>
-      <h2>Fehlerübersicht</h2>
+    <div className={`panel ${className ?? ""}`}>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1 mb-0">
+          Fehlerübersicht
+        </h2>
+        {touchedAll && issues.length > 0 && (
+          <span className="inline-flex items-center rounded-full bg-destructive/15 px-2 py-0.5 text-[11px] font-medium text-destructive">
+            {issues.length} {issues.length === 1 ? "Problem" : "Probleme"}
+          </span>
+        )}
+      </div>
       {!touchedAll && (
-        <p className="text-muted-foreground">
-          Sobald alle Felder ausgefüllt sind, wird hier eine Übersicht aller gefundenen Fehler angezeigt.
+        <p className="text-xs text-muted-foreground leading-relaxed px-1">
+          Sobald alle Bereiche bearbeitet wurden, wird hier eine Übersicht aller offenen Punkte angezeigt.
         </p>
       )}
       {assetStorageStatus === "checking" && (
-        <p className="text-muted-foreground">Die lokalen Dateien werden noch geprüft.</p>
+        <p className="text-xs text-muted-foreground px-1">Die lokalen Dateien werden noch geprüft…</p>
       )}
       {assetStorageStatus === "error" && (
-        <p className="text-destructive">
+        <p className="text-xs text-destructive px-1">
           Die lokalen Dateien konnten technisch nicht vollständig geprüft werden. Stelle den lokalen
           Speicher wieder bereit und lade den Entwurf erneut.
         </p>

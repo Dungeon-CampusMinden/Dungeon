@@ -69,7 +69,7 @@ export function InformationSourceListEditor({
       {informationSources.map((source, index) => (
         <div
           key={source.id}
-          className="flex flex-col gap-3 rounded-md border border-[var(--border-color)] p-3"
+          className="flex flex-col gap-3 rounded-md border border-border p-3"
         >
           <div className="grid grid-cols-[1fr_auto] items-end gap-2">
             <Field>
@@ -160,7 +160,7 @@ export function ResourceListEditor({
         {resources.map((resource, index) => (
           <div
             key={resource.id}
-            className="flex flex-col gap-3 rounded-md border border-[var(--border-color)] p-3"
+            className="flex flex-col gap-3 rounded-md border border-border p-3"
           >
             <div className="grid grid-cols-[1fr_auto] items-end gap-2">
               <Field>
@@ -250,7 +250,7 @@ export function HintListEditor({
         {hints.map((hint, index) => (
           <div
             key={hint.id}
-            className="flex flex-col gap-3 rounded-md border border-[var(--border-color)] p-3"
+            className="flex flex-col gap-3 rounded-md border border-border p-3"
           >
             <div className="grid grid-cols-[1fr_auto] items-end gap-2">
               <Field>
