@@ -154,7 +154,8 @@ Browserdraft auf einen vollständigen DEER-Kandidaten und sendet ihn mit allen
 benötigten Uploadbytes automatisch an die Produktionsvalidierung. Die UI
 ignoriert veraltete Antworten. Lokale und produktive Probleme erscheinen in
 derselben Fehlerübersicht und werden möglichst dem betroffenen Schritt
-zugeordnet. Technische Codes, JSON-Pointer und IDs bleiben verborgen.
+zugeordnet. Ein Klick auf eine Meldung öffnet diesen Schritt. Technische Codes,
+JSON-Pointer und IDs bleiben verborgen.
 
 `Spiel erstellen und herunterladen`:
 

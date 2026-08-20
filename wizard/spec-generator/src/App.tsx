@@ -517,11 +517,11 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
     .filter((issue) => issue.severity === "error").length;
   const localReady = assetStorageStatus === "ready" && localErrorCount === 0;
   const updateProject = (updatedProject: DeerProject) => updateDraft((current) => { current.project = structuredClone(updatedProject); });
-  const setTab = (activeTab: TabId) => {
+  const navigateToTab = (activeTab: TabId, validateCurrentTab: boolean) => {
     if (wizardWorkRef.current === "uploading") return;
     const currentIndex = TABS.findIndex((entry) => entry.value === tab);
     const targetIndex = TABS.findIndex((entry) => entry.value === activeTab);
-    if (targetIndex > currentIndex) {
+    if (validateCurrentTab && targetIndex > currentIndex) {
       const currentErrors = ErrorChecker.getIssues(localIssueReport[tab])
         .filter((issue) => issue.severity === "error");
       if (currentErrors.length > 0) {
@@ -542,6 +542,8 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
         : withTouchedTab(current.ui.touchedTabs, activeTab);
     });
   };
+  const setTab = (activeTab: TabId) => navigateToTab(activeTab, true);
+  const selectIssueTab = (activeTab: TabId) => navigateToTab(activeTab, false);
   const hasTouchedAllTabs = Object.values(touchedTabs).every((touched) => touched);
   React.useEffect(() => {
     if (tab !== "review" || (draft.seed !== undefined && hasTouchedAllTabs)) return;
@@ -645,6 +647,8 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
                 touchedAll={hasTouchedAllTabs}
                 productionReady={currentProduction?.report.valid === true}
                 technicalError={currentTechnicalError}
+                onIssueSelect={selectIssueTab}
+                issueNavigationDisabled={wizardWork === "uploading"}
                 className="hidden lg:block"
               />
             </div>
@@ -694,6 +698,8 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
               touchedAll={hasTouchedAllTabs}
               productionReady={currentProduction?.report.valid === true}
               technicalError={currentTechnicalError}
+              onIssueSelect={selectIssueTab}
+              issueNavigationDisabled={wizardWork === "uploading"}
               className="lg:hidden"
             />
           </div>
