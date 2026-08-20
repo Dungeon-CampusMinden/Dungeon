@@ -36,9 +36,7 @@ public class BooleanSetting extends Table {
         });
 
     setTouchable(Touchable.enabled);
-    add(Scene2dElementFactory.createLabel(label, 16, ModeDetailsPanel.TEXT_COLOR))
-        .growX()
-        .left();
+    add(Scene2dElementFactory.createLabel(label, 16, ModeDetailsPanel.TEXT_COLOR)).growX().left();
     add(checkBox).right();
   }
 

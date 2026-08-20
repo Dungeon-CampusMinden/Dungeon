@@ -82,7 +82,7 @@ public class StartTilesMode extends LevelEditorMode {
     for (int i = 0; i < level.startTiles().size(); i++) {
       Tile tile = level.startTiles().get(i);
       Point position = tile.position();
-      if(i != 0) {
+      if (i != 0) {
         status.append("\n");
       }
       status

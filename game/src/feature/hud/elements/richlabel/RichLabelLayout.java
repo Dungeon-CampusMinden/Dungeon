@@ -212,12 +212,7 @@ public class RichLabelLayout {
           placed.set(
               i,
               new PlacedRun(
-                  pr.run(),
-                  pr.x() + off,
-                  pr.line(),
-                  pr.width(),
-                  pr.height(),
-                  pr.textFragment()));
+                  pr.run(), pr.x() + off, pr.line(), pr.width(), pr.height(), pr.textFragment()));
         }
       }
     }
@@ -550,12 +545,7 @@ public class RichLabelLayout {
             if (placedOut != null) {
               placedOut.add(
                   new PlacedRun(
-                      run,
-                      x,
-                      lines.size() - 1,
-                      fragmentWidth,
-                      runFont.getLineHeight(),
-                      fragment));
+                      run, x, lines.size() - 1, fragmentWidth, runFont.getLineHeight(), fragment));
             }
             x += fragmentWidth;
             offset = fragmentEnd;

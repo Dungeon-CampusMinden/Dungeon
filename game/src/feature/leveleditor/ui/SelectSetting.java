@@ -41,8 +41,7 @@ public class SelectSetting<T> extends Table {
       Function<T, String> formatter) {
     this.getter = getter;
     selectBox = Scene2dElementFactory.createSelectBox(formatter);
-    BitmapFont font =
-        FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
+    BitmapFont font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
     selectBox.getStyle().font = font;
     selectBox.getList().getStyle().font = font;
     selectBox.setItems(values);

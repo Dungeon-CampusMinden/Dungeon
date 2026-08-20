@@ -243,9 +243,7 @@ public class DecoMode extends LevelEditorMode {
         button.onClick(this::showDecoSelector);
       } else {
         button.onClick(
-            () ->
-                selectDeco(
-                    decos[Math.floorMod(selectedDecoIndex + offset, decos.length)]));
+            () -> selectDeco(decos[Math.floorMod(selectedDecoIndex + offset, decos.length)]));
       }
       neighboringButtons[i] = button;
       neighboringButtonTable.add(button).size(PRIMARY_BUTTON_SIZE).pad(3f);
@@ -253,7 +251,8 @@ public class DecoMode extends LevelEditorMode {
     neighboringButtonTable.add(new RichLabel(">", 16, ModeDetailsPanel.TEXT_COLOR, false)).pad(3f);
     content.add(neighboringButtonTable).growX().row();
 
-    content.add(new RichLabel("Deco History", 20, ModeDetailsPanel.TEXT_COLOR, false))
+    content
+        .add(new RichLabel("Deco History", 20, ModeDetailsPanel.TEXT_COLOR, false))
         .left()
         .padTop(8f)
         .row();
@@ -331,35 +330,32 @@ public class DecoMode extends LevelEditorMode {
     Game.stage()
         .ifPresent(
             stage -> {
-                Dialog dialog = new Dialog("", UIUtils.defaultSkin(), "no-title");
+              Dialog dialog = new Dialog("", UIUtils.defaultSkin(), "no-title");
               Table grid = new Table();
               Deco[] decos = Deco.values();
               for (int i = 0; i < decos.length; i++) {
                 Deco deco = decos[i];
-                  DecoButton button =
-                      new DecoButton(deco, SELECTOR_BUTTON_SIZE, i == selectedDecoIndex);
-                  button.onClick(
-                      () -> {
-                        selectDeco(deco);
-                        dialog.getParent().remove();
-                      });
-                  grid
-                      .add(button)
-                      .size(SELECTOR_BUTTON_SIZE)
-                      .pad(SELECTOR_BUTTON_PADDING);
-                  if ((i + 1) % SELECTOR_COLUMNS == 0) grid.row();
-                }
-                ScrollPane pane = Scene2dElementFactory.createScrollPane(grid, false, true);
-                pane.setFadeScrollBars(false);
-                dialog.getContentTable().add(pane).width(560f).height(360f);
-                dialog.pack();
-                pane.layout();
-                int selectedRow = selectedDecoIndex / SELECTOR_COLUMNS;
-                float rowHeight = SELECTOR_BUTTON_SIZE + SELECTOR_BUTTON_PADDING * 2;
-                float scrollY = pane.getMaxY() - selectedRow * rowHeight;
-                Scene2dElementFactory.scrollPaneScrollTo(pane, 0, scrollY);
+                DecoButton button =
+                    new DecoButton(deco, SELECTOR_BUTTON_SIZE, i == selectedDecoIndex);
+                button.onClick(
+                    () -> {
+                      selectDeco(deco);
+                      dialog.getParent().remove();
+                    });
+                grid.add(button).size(SELECTOR_BUTTON_SIZE).pad(SELECTOR_BUTTON_PADDING);
+                if ((i + 1) % SELECTOR_COLUMNS == 0) grid.row();
+              }
+              ScrollPane pane = Scene2dElementFactory.createScrollPane(grid, false, true);
+              pane.setFadeScrollBars(false);
+              dialog.getContentTable().add(pane).width(560f).height(360f);
+              dialog.pack();
+              pane.layout();
+              int selectedRow = selectedDecoIndex / SELECTOR_COLUMNS;
+              float rowHeight = SELECTOR_BUTTON_SIZE + SELECTOR_BUTTON_PADDING * 2;
+              float scrollY = pane.getMaxY() - selectedRow * rowHeight;
+              Scene2dElementFactory.scrollPaneScrollTo(pane, 0, scrollY);
 
-                BaseContainerUI overlay = new BaseContainerUI(dialog, false, false);
+              BaseContainerUI overlay = new BaseContainerUI(dialog, false, false);
               overlay.setTouchable(Touchable.enabled);
               overlay.addListener(
                   new InputListener() {

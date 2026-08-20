@@ -200,8 +200,8 @@ public class Scene2dElementFactory {
    * @return a new ImageButton instance
    */
   public static ImageButton createImageButton(TextureRegion textureRegion, String styleName) {
-     TextButton.TextButtonStyle baseStyle =
-         DEFAULT_SKIN.get(styleName, TextButton.TextButtonStyle.class);
+    TextButton.TextButtonStyle baseStyle =
+        DEFAULT_SKIN.get(styleName, TextButton.TextButtonStyle.class);
     ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
     style.up = baseStyle.up;
     style.down = baseStyle.down;

@@ -333,9 +333,7 @@ public final class AuthoritativeServerLoop {
             .build();
     EntityUtils.setPosition(
         hero,
-        Game.startTile()
-            .map(tile -> tile.position().toCenteredPoint())
-            .orElse(new Point(0, 0)));
+        Game.startTile().map(tile -> tile.position().toCenteredPoint()).orElse(new Point(0, 0)));
     // Add the hero to the game, after the client knows the id.
     Game.network()
         .send(state.clientId(), new EntitySpawnEvent(hero), true)

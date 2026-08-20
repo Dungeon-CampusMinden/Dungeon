@@ -299,8 +299,7 @@ public class DungeonLoader {
     Optional<Tile> startTile = Game.currentLevel().orElseThrow().startTile();
     startTile.ifPresentOrElse(
         tile -> {
-          EntityUtils.setPosition(
-              Game.player().orElseThrow(), tile.position().toCenteredPoint());
+          EntityUtils.setPosition(Game.player().orElseThrow(), tile.position().toCenteredPoint());
         },
         () -> {
           LOGGER.warn("No start tile found for the current level");

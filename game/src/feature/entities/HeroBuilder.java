@@ -64,8 +64,7 @@ public final class HeroBuilder {
               () -> {
                 // Just respawn at Start Tile instead of reloading the level
                 EntityUtils.setPosition(
-                    hero,
-                    Game.startTile().orElseThrow().position().toCenteredPoint());
+                    hero, Game.startTile().orElseThrow().position().toCenteredPoint());
                 hero.fetch(PositionComponent.class)
                     .ifPresent(pc -> pc.viewDirection(Direction.DOWN));
 

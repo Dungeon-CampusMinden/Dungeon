@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogDesign;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;

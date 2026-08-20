@@ -56,8 +56,7 @@ public class DecoButton extends ImageButton {
     addListener(
         new ClickListener(Input.Buttons.LEFT) {
           @Override
-          public void clicked(
-            InputEvent event, float x, float y) {
+          public void clicked(InputEvent event, float x, float y) {
             callback.run();
           }
         });

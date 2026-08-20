@@ -46,7 +46,9 @@ public class ModePanel extends Table {
     defaults().pad(4f);
 
     Label.LabelStyle numberStyle =
-        new Label.LabelStyle(FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(18)), ModeDetailsPanel.TEXT_COLOR.cpy());
+        new Label.LabelStyle(
+            FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(18)),
+            ModeDetailsPanel.TEXT_COLOR.cpy());
 
     for (Mode mode : Mode.values()) {
       Button button = createButton(mode);
@@ -81,8 +83,7 @@ public class ModePanel extends Table {
     selectedMode = mode;
     buttons.forEach(
         (buttonMode, button) ->
-            applyBackground(
-                button, buttonMode == mode ? STYLE_SELECTED : STYLE_UNSELECTED));
+            applyBackground(button, buttonMode == mode ? STYLE_SELECTED : STYLE_UNSELECTED));
   }
 
   private Button createButton(Mode mode) {

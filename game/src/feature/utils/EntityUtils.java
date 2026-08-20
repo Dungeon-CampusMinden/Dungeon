@@ -203,7 +203,7 @@ public class EntityUtils {
     }
   }
 
-  public static Vector2 getCenterPositionOffset(Entity entity){
+  public static Vector2 getCenterPositionOffset(Entity entity) {
     PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
     Optional<CollideComponent> cco = entity.fetch(CollideComponent.class);
     Optional<DrawComponent> dco = entity.fetch(DrawComponent.class);

@@ -31,8 +31,7 @@ public class SettingsMode extends LevelEditorMode {
 
   private static final int MIN_LEVEL_SIZE = 1;
   private static final int MAX_LEVEL_SIZE = 1000;
-  private static final String EXISTING_FILE_WARNING =
-      "File already exists, will be overwritten";
+  private static final String EXISTING_FILE_WARNING = "File already exists, will be overwritten";
 
   private NumberSetting heightSetting;
   private NumberSetting widthSetting;
@@ -70,9 +69,7 @@ public class SettingsMode extends LevelEditorMode {
             width -> resizeLevel(width, getLevel().layout().length));
     savePathSetting =
         new StringSetting(
-            "Save Level To",
-            LevelEditorSystem::pathToLevels,
-            LevelEditorSystem::pathToLevels);
+            "Save Level To", LevelEditorSystem::pathToLevels, LevelEditorSystem::pathToLevels);
     savePathStatusLabel = new RichLabel("", 12, Color.RED, false);
     savePathStatusLabel.setWrap(false);
     savePathStatusLabel.setVisible(false);
@@ -87,9 +84,8 @@ public class SettingsMode extends LevelEditorMode {
 
     content.add(heightSetting).growX().row();
     content.add(widthSetting).growX().padTop(4f).row();
-    content.add(
-            Scene2dElementFactory.createLabel(
-                "Shift Level", 16, ModeDetailsPanel.TEXT_COLOR))
+    content
+        .add(Scene2dElementFactory.createLabel("Shift Level", 16, ModeDetailsPanel.TEXT_COLOR))
         .growX()
         .left()
         .padTop(8f)
@@ -109,7 +105,8 @@ public class SettingsMode extends LevelEditorMode {
     shiftGrid.add();
     content.add(shiftGrid).growX().row();
 
-    content.add(Scene2dElementFactory.createHorizontalDivider())
+    content
+        .add(Scene2dElementFactory.createHorizontalDivider())
         .growX()
         .padTop(8f)
         .padBottom(8f)
@@ -185,7 +182,8 @@ public class SettingsMode extends LevelEditorMode {
     Tile[][] layout = level.layout();
     String directionName = x == 1 ? "RIGHT" : x == -1 ? "LEFT" : y == 1 ? "UP" : "DOWN";
     if (!canShift(layout, x, y)) {
-      LevelEditorSystem.showFeedback("Cannot shift level " + directionName + ": overwriting non-SKIP tiles!", Color.RED);
+      LevelEditorSystem.showFeedback(
+          "Cannot shift level " + directionName + ": overwriting non-SKIP tiles!", Color.RED);
       return;
     }
 
@@ -197,10 +195,7 @@ public class SettingsMode extends LevelEditorMode {
         int oldRow = row - y;
         int oldColumn = column - x;
         newLayout[row][column] =
-            oldRow >= 0
-                    && oldRow < layout.length
-                    && oldColumn >= 0
-                    && oldColumn < layout[0].length
+            oldRow >= 0 && oldRow < layout.length && oldColumn >= 0 && oldColumn < layout[0].length
                 ? layout[oldRow][oldColumn].levelElement()
                 : LevelElement.SKIP;
       }
@@ -214,10 +209,9 @@ public class SettingsMode extends LevelEditorMode {
         .forEach(level.startTiles()::add);
 
     level.namedPoints().replaceAll((name, point) -> point.translate(x, y));
-    level.decorations()
-        .replaceAll(
-            decoration ->
-                new Tuple<>(decoration.a(), decoration.b().translate(x, y)));
+    level
+        .decorations()
+        .replaceAll(decoration -> new Tuple<>(decoration.a(), decoration.b().translate(x, y)));
     Game.levelEntities(Set.of(PositionComponent.class))
         .forEach(
             entity -> {
@@ -263,8 +257,7 @@ public class SettingsMode extends LevelEditorMode {
         savePath == null || savePath.isBlank()
             ? null
             : Gdx.files.local(DungeonSaver.normalizeLevelFilePath(savePath));
-    boolean fileExists =
-        saveFile != null && saveFile.exists() && !saveFile.isDirectory();
+    boolean fileExists = saveFile != null && saveFile.exists() && !saveFile.isDirectory();
     savePathStatusLabel.setVisible(fileExists);
     savePathStatusLabel.setText(fileExists ? EXISTING_FILE_WARNING : "");
   }
