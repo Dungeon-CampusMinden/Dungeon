@@ -1,24 +1,22 @@
 # Wizard Runner Project Format V0.4
 
-Status: V0.4-Runner-, Finalisierungs- und Packaging-Contract
+Status: V0.4-Runner- und Packaging-Contract
 
-Scope: finalisierte Übergabe von der Wizard-UI an Validierung, Packaging und
-Room-first-Host
+Scope: validierte Übergabe von der Wizard-UI an Packaging und Room-first-Host
 
 ## Projektgrenze
 
 Das öffentliche Projektformat bleibt DEER `0.4`. Die Browser-UI speichert
 private Drafts v1 und Uploadbytes ausschließlich in einer neuen IndexedDB. Der
 Java-Host bindet an `127.0.0.1:27777`, bleibt bezüglich dieser Daten zustandslos
-und führt Produktionsvalidierung, Finalisierung und Packaging aus. Der
-generische Wizard Runner liest den finalisierten Ordner unverändert und leitet
+und führt Produktionsvalidierung sowie temporäres Packaging aus. Der
+generische Wizard Runner liest ein vollständiges Projekt unverändert und leitet
 den Raum ausschließlich im Speicher ab. Es entsteht weder Java-Code noch ein
 Room-ZIP.
 
 ```text
 wizard-project/
   deer.json
-  WizardRoom.jar  # nach erfolgreichem Packaging
 ```
 
 Ein Projekt mit eigenen Bildern ergänzt optional:
@@ -26,7 +24,6 @@ Ein Projekt mit eigenen Bildern ergänzt optional:
 ```text
 wizard-project/
   deer.json
-  WizardRoom.jar
   assets/
     custom/
       foundation-note-3b50ea522803.png
@@ -43,8 +40,10 @@ Pfade mit Forward-Slashes und ohne führenden Slash. Eigene Bilder beginnen mit
 interne Pfade wie `items/puzzle-piece.png` referenziert.
 
 Der Runner liest als Projekteingaben ausschließlich `deer.json` und die darin
-referenzierten Dateien unter `assets/custom/`. Eine daneben erzeugte
-`WizardRoom.jar` ist Ausgabe und keine erneute Projekteingabe.
+referenzierten Dateien unter `assets/custom/`. Im Authoring-Flow existiert
+dieser Ordner nur temporär; Beispiele und der Gradle-/CI-Pfad verwenden ihn als
+explizite Eingabe. `WizardRoom.jar` ist Ausgabe und keine erneute
+Projekteingabe.
 
 Die Java-Validierungsbibliothek liest diesen vollständigen Projektordner
 read-only. Die Authoring-Integration bindet sie direkt an. Der Spielerfluss
@@ -53,13 +52,13 @@ verwendet die projektspezifische JAR. Der Room-first-Lebenszyklus steht im
 
 ## Projektspezifische Spieler-JAR
 
-Nach erfolgreicher Finalisierung erzeugt die UI mit dem gemeinsamen
-`WizardRoomPackager` und einer generischen `WizardRoomTemplate.jar` genau ein
-verteilbares Spielerartefakt unter `<project>/WizardRoom.jar`. Der Packager
-validiert das Projekt erneut über dieselbe `ProjectValidationService` und
-`RoomDeriver`-Kette. Nach einem Packaging-Fehler wiederholt die UI den gesamten
-Finalize-und-Package-Ablauf. Zur Hostlaufzeit sind weder Gradle noch Node
-erforderlich.
+Die UI erzeugt mit dem gemeinsamen `WizardRoomPackager` und einer generischen
+`WizardRoomTemplate.jar` genau ein verteilbares Spielerartefakt. Der Host
+materialisiert den Browserkandidaten temporär, validiert ihn über dieselbe
+`ProjectValidationService`- und `RoomDeriver`-Kette und liefert die fertige
+`WizardRoom.jar` binär an den Browser. Nach einem Packaging-Fehler wiederholt
+die UI diesen Ablauf mit dem aktuellen Draft. Zur Hostlaufzeit sind weder
+Gradle noch Node erforderlich.
 
 Der äquivalente Entwickler-/CI-Pfad lautet:
 
@@ -92,7 +91,7 @@ wird an Host und alle weiteren Spielenden verteilt; ein separater
 Assets-only-Ordner wird nicht manuell verteilt. `java -jar WizardRoom.jar`
 benötigt Java 25 und öffnet das Host-/Join-Menü.
 
-## Draft und Finalisierung
+## Draft und Packaging
 
 - Ein UI-Entwurf darf unvollständig sein und bleibt außerhalb dieses Formats.
 - Draft v1 und Uploadbytes liegen ausschließlich in einer neuen IndexedDB. Alte
@@ -104,39 +103,32 @@ benötigt Java 25 und öffnet das Host-/Join-Menü.
 - Die UI projiziert den Draft auf Formatversion `0.4`.
 - Sie bewahrt jede authorierte direkte Pflichtabhängigkeit und erfindet oder
   vervollständigt keine Progressionskanten.
-- Der Host prüft Schema, Fachregeln, Spielergrenzen und Assetpfade vor
-  dem Schreiben.
-- Neue Custom-Dateien werden zuerst und `deer.json` zuletzt geschrieben. Jede
-  Datei wird einzeln atomar ersetzt; der Projektordner als Ganzes ist keine
-  Transaktion.
-- Als Ziel ist ein leerer normaler Ordner oder ein produktiv gültiges Projekt
-  mit derselben `metadata.id` erlaubt. Ein fremder, ungültiger oder anderweitig
-  nicht leerer Ordner wird abgelehnt.
-- Fremde und alte nicht referenzierte Dateien werden nicht gelöscht. V0 gibt
-  kein Recoveryversprechen.
-- Bei jeder späteren Finalisierung verwendet die UI den im Draft vorhandenen
+- Der Host prüft Schema, Fachregeln, Spielergrenzen und Assetpfade vor dem
+  Packaging. Bei einem ungültigen Report entsteht keine JAR.
+- Kandidat, Custom-Assets und die serverseitige Ausgabe liegen nur in einem
+  temporären Verzeichnis und werden nach der Antwort entfernt.
+- Bei jedem späteren Packaging verwendet die UI den im Draft vorhandenen
   Seedwert unverändert; der Runner verändert ihn nie.
 - Bei einem Spielbibliothek-Asset schreibt die UI ausschließlich dessen
   internen Pfad und Metadaten in den DEER-Eintrag; es wird keine Bilddatei
   kopiert.
 - Bei einem eigenen Upload erzeugt die UI den inhaltsadressierten Pfad. Der Host
-  prüft Pfad und Bytes beim Validieren und Finalisieren erneut und schreibt das
-  Bild unter `assets/custom/`.
-- Der Host speichert weder Draft-/Uploaddaten noch Recovery-, Ownership-,
-  Finalisierungs- oder Ready-Metadaten.
+  prüft Pfad und Bytes beim Validieren und Packaging erneut und bettet das Bild
+  unter `assets/custom/` in die Spieler-JAR ein.
+- Der Host speichert weder Draft-/Uploaddaten noch Ready-Metadaten.
 
 Ein browser-only Export, beliebiger `deer.json`-Import und Room-ZIP sind nicht
 Teil des Produktflusses. `wizard/start_wizard_dev.cmd` ist nur ein
-Entwicklungslauncher. Eine Zielgruppen-`.exe` und ein Installer mit gebündelter
-Runtime bleiben ein späterer Distributionsmeilenstein.
+Entwicklungslauncher. Die aktuelle Spieler-JAR benötigt Java 25. Eine
+Zielgruppen-`.exe`, beispielsweise über `jpackage`, und ein Installer mit
+gebündelter Runtime bleiben spätere Distributionsmeilensteine.
 
 ## Seed in deer.json
 
 `seed` ist ein verpflichtender ganzzahliger Top-Level-Wert in `deer.json`. Der
 Wert liegt im Bereich `0..9007199254740991`. Strings, Fließkommazahlen,
 negative Werte und größere Ganzzahlen sind unzulässig. Der Seed ist damit Teil
-derselben schema-validierten und atomar ersetzten Konfiguration wie alle
-anderen Authoring-Daten.
+derselben schema-validierten Konfiguration wie alle anderen Authoring-Daten.
 
 Der Bereich ist der nicht-negative IEEE-754-Safe-Integer-Bereich der von RFC
 8785 verwendeten Zahlendarstellung. Dadurch bleibt jeder zulässige Seed in der

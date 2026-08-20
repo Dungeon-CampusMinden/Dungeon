@@ -55,23 +55,22 @@ werden mit einem klaren Startfehler abgelehnt.
 Die Authoring-Integration bindet `ProjectValidationService`,
 `ProjectValidationReport` und `RoomDeriver` direkt als Java-Bibliothek an.
 Prüfungen laufen in einem temporären Projekt und sind read-only. Die
-Finalisierung validiert exakt den Kandidaten, der anschließend geschrieben
-wird. Danach paketiert die UI das Projekt mit derselben
-`WizardRoomPackager`-Implementierung wie der Gradle-Entwickler-/CI-Pfad. Auf
-dem Hostsystem werden dafür weder Gradle noch Node benötigt. Bei einem
-Packaging-Fehler wiederholt die UI den vollständigen Finalize-und-Package-
-Ablauf.
+Authoring-Integration paketiert exakt diesen validierten Kandidaten mit
+derselben `WizardRoomPackager`-Implementierung wie der Gradle-Entwickler-/CI-
+Pfad und liefert die JAR als Browserdownload aus. Auf dem Hostsystem werden
+dafür weder Gradle noch Node benötigt. Bei einem Packaging-Fehler wiederholt
+die UI den Package-Aufruf mit dem aktuellen Draft.
 
-Der Authoring-Host bindet fest an `127.0.0.1:27777`. Er speichert keine Drafts,
-Uploads, Finalisierungsidentitäten oder Ready-Zustände. Seine API beschränkt
-sich auf Status, nativen Ordnerdialog, Validierung, Finalisierung und Packaging.
-Nur ein erfolgreicher Package-Aufruf in der aktuellen UI-Sitzung markiert das
-Spiel als bereit; ein Reload stellt diesen Zustand nicht wieder her.
+Der Authoring-Host bindet fest an `127.0.0.1:27777`. Er bewahrt keine Drafts,
+Uploads, JARs oder Ready-Zustände dauerhaft auf. Seine API beschränkt
+sich auf Status, Validierung und Packaging. Nur ein erfolgreicher JAR-Download
+in der aktuellen UI-Sitzung markiert das Spiel als bereit; ein Reload stellt
+diesen Zustand nicht wieder her.
 
 `wizard/start_wizard_dev.cmd` baut und startet den Host nur für die
-Entwicklung. Eine Zielgruppen-`.exe` mit gebündelter Java-Runtime ist ein
-späterer Distributionsmeilenstein. Dasselbe gilt für einen Installer. Der
-aktuelle Entwickler- und Spieler-JAR-Fluss benötigt Java 25.
+Entwicklung. Der aktuelle Entwickler- und Spieler-JAR-Fluss benötigt Java 25.
+Eine Zielgruppen-`.exe`, beispielsweise über `jpackage`, mit gebündelter
+Java-Runtime sowie ein Installer sind spätere Distributionsmeilensteine.
 
 Auch `max=1` verwendet im Spielerfluss einen echten Hostprozess und einen
 getrennten Join-Client.

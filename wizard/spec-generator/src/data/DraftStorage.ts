@@ -131,8 +131,6 @@ export function assertWizardDraft(value: unknown): asserts value is WizardDraft 
     || !isRecord(value.uploads) || !Object.values(value.uploads).every((upload) =>
       isRecord(upload) && isString(upload.storageKey) && /^[0-9a-f]{64}$/.test(upload.storageKey)
       && isString(upload.originalName))
-    || (value.projectDirectory !== undefined
-      && (!isString(value.projectDirectory) || value.projectDirectory.length === 0))
     || (value.savedAt !== undefined && !isString(value.savedAt))) {
     throw new Error("Der gespeicherte Entwurf ist unvollständig oder beschädigt.");
   }

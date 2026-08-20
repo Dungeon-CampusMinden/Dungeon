@@ -186,7 +186,7 @@ function WizardWorkspace() {
           <DialogHeader>
             <DialogTitle>Entwurf endgültig löschen?</DialogTitle>
             <DialogDescription>
-              Der Entwurf „{deleteDraft?.title.trim() || "Unbenanntes Spiel"}“ und alle im Wizard gespeicherten Uploads werden dauerhaft gelöscht. Bereits erstellte Spieldateien im gewählten Projektordner bleiben erhalten. Diese Aktion kann nicht rückgängig gemacht werden.
+              Der Entwurf „{deleteDraft?.title.trim() || "Unbenanntes Spiel"}“ und alle im Wizard gespeicherten Uploads werden dauerhaft gelöscht. Bereits heruntergeladene Spieldateien bleiben erhalten. Diese Aktion kann nicht rückgängig gemacht werden.
             </DialogDescription>
           </DialogHeader>
           {deleteError && <Alert variant="destructive"><AlertTitle>Löschen nicht möglich</AlertTitle><AlertDescription>{deleteError}</AlertDescription></Alert>}
@@ -268,12 +268,6 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
     setWizardWork(work);
     return true;
   }, []);
-  const transitionWizardWork = React.useCallback((from: Exclude<WizardWork, null>, to: Exclude<WizardWork, null>) => {
-    if (wizardWorkRef.current !== from) return false;
-    wizardWorkRef.current = to;
-    setWizardWork(to);
-    return true;
-  }, []);
   const finishWizardWork = React.useCallback((work: Exclude<WizardWork, null>) => {
     if (wizardWorkRef.current !== work) return;
     wizardWorkRef.current = null;
@@ -339,7 +333,7 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
             {tab === "riddles" && <RiddlesTab draft={draft} updateDraft={updateDraft} />}
             {tab === "riddle_graph" && <RiddleGraphTab draft={draft} updateDraft={updateDraft} />}
             {tab === "game_end" && <GameEndTab deerSchema={project} updateDeerSchema={updateProject} />}
-            {tab === "review" && <ReviewTab draft={draft} updateDraft={updateDraft} flush={flush} work={wizardWork} beginWork={beginWizardWork} transitionWork={transitionWizardWork} finishWork={finishWizardWork} />}
+            {tab === "review" && <ReviewTab draft={draft} updateDraft={updateDraft} flush={flush} work={wizardWork} beginWork={beginWizardWork} finishWork={finishWizardWork} />}
             <InPageNavigation tab={tab} setTab={setTab} disabled={wizardWork !== null} />
           </div>
           <ErrorDetector issueReport={issueReport} assetStorageStatus={assetStorageStatus} touchedAll={hasTouchedAllTabs} className="lg:hidden" />

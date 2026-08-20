@@ -9,7 +9,7 @@ import { isCustomAssetPath } from "./assets/assetPaths";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
 import { IssueList } from "./IssueList";
-import { CheckCircle2Icon, FolderIcon, LoaderCircleIcon, PlayIcon } from "lucide-react";
+import { CheckCircle2Icon, DownloadIcon, LoaderCircleIcon } from "lucide-react";
 import type { WizardWork } from "@/data/WizardWork";
 import type { ProductionRequest } from "@/data/NativeWizardHost";
 
@@ -24,13 +24,23 @@ function bytesBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
+function downloadJar(jar: Blob) {
+  const url = URL.createObjectURL(jar);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "WizardRoom.jar";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export function ReviewTab({
   draft,
   updateDraft,
   flush,
   work,
   beginWork,
-  transitionWork,
   finishWork,
 }: {
   draft: WizardDraft;
@@ -38,10 +48,6 @@ export function ReviewTab({
   flush: () => Promise<WizardDraft>;
   work: WizardWork;
   beginWork: (work: Exclude<ReviewWork, null>) => boolean;
-  transitionWork: (
-    from: Exclude<ReviewWork, null>,
-    to: Exclude<ReviewWork, null>,
-  ) => boolean;
   finishWork: (work: Exclude<ReviewWork, null>) => void;
 }) {
   const storage = useWizardStorage();
@@ -52,15 +58,14 @@ export function ReviewTab({
   );
   const localIssues = ErrorChecker.getSortedIssues(issueReport);
   const localErrorCount = localIssues.filter((issue) => issue.severity === "error").length;
-  const [projectDirectory, setProjectDirectory] = React.useState(draft.projectDirectory ?? "");
   const [report, setReport] = React.useState<{
     value: ProjectValidationReport;
     snapshot: WizardDraft;
   } | null>(null);
   const [technicalError, setTechnicalError] = React.useState<string | null>(null);
-  const [readyJarPath, setReadyJarPath] = React.useState<string | null>(null);
+  const [downloaded, setDownloaded] = React.useState(false);
 
-  React.useEffect(() => { setReadyJarPath(null); }, [draft.project, draft.uploads, projectDirectory]);
+  React.useEffect(() => { setDownloaded(false); }, [draft.project, draft.uploads]);
 
   const productionIssues = React.useMemo(
     () => report ? localizeProductionIssues(report.value, report.snapshot) : [],
@@ -107,14 +112,6 @@ export function ReviewTab({
     return { request: { project, customAssets }, snapshot };
   };
 
-  const chooseDirectory = () => run("choosing", async () => {
-    const selected = await storage.host.chooseProjectDirectory();
-    if (selected === null) return;
-    setProjectDirectory(selected);
-    updateDraft((current) => { current.projectDirectory = selected; });
-    await flush();
-  });
-
   const validate = () => run("validating", async () => {
     setReport(null);
     const { request, snapshot } = await prepareRequest();
@@ -122,30 +119,21 @@ export function ReviewTab({
     setReport({ value: result, snapshot });
   });
 
-  const finalize = () => run("finalizing", async () => {
+  const packageGame = () => run("packaging", async () => {
     setReport(null);
-    setReadyJarPath(null);
-    if (!projectDirectory) throw new Error("Wähle zuerst einen Zielordner aus.");
-    if (draft.projectDirectory !== projectDirectory) {
-      updateDraft((current) => { current.projectDirectory = projectDirectory; });
-    }
+    setDownloaded(false);
     const { request, snapshot } = await prepareRequest();
-    const finalized = await storage.host.finalize({ ...request, projectDirectory });
-    setReport({ value: finalized, snapshot });
-    if (!finalized.valid) return;
-    if (!transitionWork("finalizing", "packaging")) {
-      throw new Error("Die Erstellung konnte nicht fortgesetzt werden.");
-    }
-    try {
-      const packaged = await storage.host.package(projectDirectory, request.project.metadata.id);
+    const packaged = await storage.host.package(request);
+    if (packaged.kind === "invalid") {
       setReport({ value: packaged.report, snapshot });
-      if (!packaged.report.valid || packaged.jarPath === null) return;
-      setReadyJarPath(packaged.jarPath);
-    } finally { finishWork("packaging"); }
+      return;
+    }
+    downloadJar(packaged.jar);
+    setDownloaded(true);
   });
 
   const nativeOperationBlocked = assetStorageStatus !== "ready" || work !== null;
-  const finalizeBlocked = localErrorCount > 0 || nativeOperationBlocked;
+  const packageBlocked = localErrorCount > 0 || nativeOperationBlocked;
 
   return (
     <div className="flex flex-col gap-4" aria-busy={work !== null}>
@@ -156,30 +144,22 @@ export function ReviewTab({
       )}
 
       <section className="panel flex flex-col gap-3">
-        <div><h2 className="mb-1">1. Zielordner</h2><p className="text-sm text-muted-foreground">Hier werden das fertige Projekt und die Spieldatei abgelegt.</p></div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button variant="outline" onClick={() => void chooseDirectory()} disabled={!storage.host.native || work !== null}><FolderIcon />Ordner wählen</Button>
-          <span className="min-w-0 text-sm text-muted-foreground">{projectDirectory || "Noch kein Ordner gewählt"}</span>
-        </div>
-      </section>
-
-      <section className="panel flex flex-col gap-3">
-        <div><h2 className="mb-1">2. Prüfen und erstellen</h2><p className="text-sm text-muted-foreground">Die schnelle Vorprüfung läuft während der Bearbeitung. Die vollständige Prüfung verwendet dieselben Regeln wie das fertige Spiel.</p></div>
+        <div><h2 className="mb-1">Prüfen und herunterladen</h2><p className="text-sm text-muted-foreground">Die schnelle Vorprüfung läuft während der Bearbeitung. Beim Erstellen wird das Spiel vollständig geprüft und anschließend als WizardRoom.jar heruntergeladen.</p></div>
         {localErrorCount > 0 && <Alert variant="destructive"><AlertTitle>Der Entwurf ist noch nicht vollständig</AlertTitle><AlertDescription>{localErrorCount} {localErrorCount === 1 ? "Fehler muss" : "Fehler müssen"} vor dem Erstellen behoben werden.</AlertDescription></Alert>}
         {assetStorageStatus === "checking" && <p className="text-sm text-muted-foreground">Eigene Dateien werden geprüft…</p>}
         {assetStorageStatus === "error" && <Alert variant="destructive"><AlertTitle>Eigene Dateien konnten nicht geprüft werden</AlertTitle><AlertDescription>Deine Eingaben bleiben erhalten. Versuche es erneut.</AlertDescription></Alert>}
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => void validate()} disabled={!storage.host.native || nativeOperationBlocked}><CheckCircle2Icon />Entwurf vollständig prüfen</Button>
-          <Button onClick={() => void finalize()} disabled={!storage.host.native || !projectDirectory || finalizeBlocked}><PlayIcon />Spiel erstellen</Button>
+          <Button onClick={() => void packageGame()} disabled={!storage.host.native || packageBlocked}><DownloadIcon />Spiel erstellen und herunterladen</Button>
         </div>
       </section>
 
-      {work && <p className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircleIcon className="animate-spin" />{work === "uploading" ? "Datei wird gespeichert…" : work === "choosing" ? "Ordnerauswahl wird geöffnet…" : work === "validating" ? "Entwurf wird vollständig geprüft…" : work === "finalizing" ? "Projekt wird gespeichert…" : "Spieldatei wird erstellt…"}</p>}
+      {work && <p className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircleIcon className="animate-spin" />{work === "uploading" ? "Datei wird gespeichert…" : work === "validating" ? "Entwurf wird vollständig geprüft…" : "Spieldatei wird erstellt…"}</p>}
 
       {technicalError && <Alert variant="destructive"><AlertTitle>Vorgang nicht abgeschlossen</AlertTitle><AlertDescription>{technicalError} Versuche den Vorgang erneut.</AlertDescription></Alert>}
 
-      {readyJarPath && (
-        <Alert className="border-green-500/40 text-green-500"><CheckCircle2Icon /><AlertTitle>Das Spiel ist bereit</AlertTitle><AlertDescription>Verteile die erzeugte WizardRoom.jar an alle Teilnehmenden. Speicherort: {readyJarPath}</AlertDescription></Alert>
+      {downloaded && (
+        <Alert className="border-green-500/40 text-green-500"><CheckCircle2Icon /><AlertTitle>Das Spiel ist bereit</AlertTitle><AlertDescription>WizardRoom.jar wurde heruntergeladen und kann an alle Teilnehmenden verteilt werden.</AlertDescription></Alert>
       )}
       {report && (
         <section className="flex flex-col gap-2"><h2 className="mb-0">Ergebnis der vollständigen Prüfung</h2><IssueList issues={productionIssues} emptyMessage="Die vollständige Prüfung hat keine Probleme gefunden." /></section>

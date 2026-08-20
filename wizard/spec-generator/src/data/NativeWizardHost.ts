@@ -3,28 +3,21 @@ import { parseProjectValidationReport, type ProjectValidationReport } from "./Pr
 
 export interface CustomAssetPayload { path: string; bytesBase64: string; }
 export interface ProductionRequest { project: DeerSchema; customAssets: CustomAssetPayload[]; }
-export interface FinalizeRequest extends ProductionRequest { projectDirectory: string; }
-export interface PackageResult { report: ProjectValidationReport; jarPath: string | null; }
+export type PackageResult =
+  | { kind: "invalid"; report: ProjectValidationReport }
+  | { kind: "ready"; jar: Blob };
 
 export interface WizardHostPort {
   readonly native: boolean;
-  chooseProjectDirectory(): Promise<string | null>;
   validate(request: ProductionRequest): Promise<ProjectValidationReport>;
-  finalize(request: FinalizeRequest): Promise<ProjectValidationReport>;
-  package(projectDirectory: string, projectId: string): Promise<PackageResult>;
+  package(request: ProductionRequest): Promise<PackageResult>;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
 function errorMessage(status: number, value: unknown, action: string): string {
-  const code = isRecord(value) && typeof value.code === "string" ? value.code : null;
-  if (status === 409 && code === "PROJECT_DIRECTORY_CONFLICT") {
-    return "Dieser Zielordner gehört bereits zu einem anderen Spiel. Wähle bitte einen anderen Ordner.";
-  }
-  if (status === 409) {
-    return "Der Zielordner kann für dieses Spiel nicht verwendet werden. Deine Eingaben bleiben erhalten.";
-  }
+  void value;
   return `${action} ist fehlgeschlagen (${status}).`;
 }
 
@@ -58,16 +51,6 @@ export async function detectNativeHost(): Promise<boolean> {
 export class NativeWizardHost implements WizardHostPort {
   readonly native = true;
 
-  async chooseProjectDirectory(): Promise<string | null> {
-    const response = await fetch("/api/v1/choose-project-directory", { method: "POST" });
-    if (response.status === 204) return null;
-    const value = await responseJson(response, "Die Ordnerauswahl");
-    if (!isRecord(value) || typeof value.projectDirectory !== "string" || !value.projectDirectory) {
-      throw new Error("Der gewählte Ordner wurde nicht bestätigt.");
-    }
-    return value.projectDirectory;
-  }
-
   async validate(request: ProductionRequest): Promise<ProjectValidationReport> {
     const value = await apiJson("/validate", request, "Die vollständige Prüfung");
     if (!isRecord(value) || !("report" in value)) {
@@ -76,21 +59,24 @@ export class NativeWizardHost implements WizardHostPort {
     return parseProjectValidationReport(value.report);
   }
 
-  async finalize(request: FinalizeRequest): Promise<ProjectValidationReport> {
-    const value = await apiJson("/finalize", request, "Das Erstellen des Spiels");
+  async package(request: ProductionRequest): Promise<PackageResult> {
+    const response = await fetch("/api/v1/package", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/java-archive, application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+    if (response.ok && contentType.includes("application/java-archive")) {
+      return { kind: "ready", jar: await response.blob() };
+    }
+    const value = await responseJson(response, "Das Erstellen der Spieldatei");
     if (!isRecord(value) || !("report" in value)) {
-      throw new Error("Das Erstellen des Spiels hat eine ungültige Antwort geliefert.");
+      throw new Error("Das Erstellen der Spieldatei hat eine ungültige Antwort geliefert.");
     }
-    return parseProjectValidationReport(value.report);
-  }
-
-  async package(projectDirectory: string, projectId: string): Promise<PackageResult> {
-    const value = await apiJson("/package", { projectDirectory, projectId }, "Das Erstellen der Spieldatei");
-    if (!isRecord(value) || !("report" in value)
-      || (value.jarPath !== null && typeof value.jarPath !== "string")) {
-      throw new Error("Die Spieldatei wurde nicht bestätigt.");
-    }
-    return { report: parseProjectValidationReport(value.report), jarPath: value.jarPath as string | null };
+    return { kind: "invalid", report: parseProjectValidationReport(value.report) };
   }
 }
 
@@ -99,8 +85,6 @@ export class BrowserWizardHost implements WizardHostPort {
   private unavailable(): never {
     throw new Error("Diese Funktion ist nur in der lokal gestarteten Wizard-Anwendung verfügbar.");
   }
-  async chooseProjectDirectory(): Promise<string | null> { return this.unavailable(); }
   async validate(): Promise<ProjectValidationReport> { return this.unavailable(); }
-  async finalize(): Promise<ProjectValidationReport> { return this.unavailable(); }
   async package(): Promise<PackageResult> { return this.unavailable(); }
 }

@@ -22,7 +22,6 @@ export interface WizardDraft {
   graphLayout: GraphLayout;
   ui: { activeTab: TabId; touchedTabs: TouchedTabs };
   uploads: Record<string, UploadReference>;
-  projectDirectory?: string;
   savedAt?: string;
 }
 

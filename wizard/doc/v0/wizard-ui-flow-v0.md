@@ -46,8 +46,8 @@ unterstützt; es gibt keine tabübergreifende Konfliktauflösung.
 Ein Draft darf unvollständig und im Rätselgraphen unverbunden sein. Stabile
 Authoring-IDs entstehen beim Anlegen und bleiben bei Umbenennungen erhalten.
 Ein Draft kann nach ausdrücklicher Bestätigung mit seinen privaten Uploads
-gelöscht werden. Bereits finalisierte Dateien im Projektordner bleiben dabei
-unverändert.
+gelöscht werden. Bereits heruntergeladene Spieler-JARs bleiben davon
+unberührt.
 
 Ein neuer unvollständiger Draft hat keinen echten Seed. Beim ersten
 vollständigen Prüfen oder Erstellen erzeugt die UI einmal einen sicheren
@@ -69,9 +69,9 @@ Die Startansicht bietet:
 - anderen lokalen Entwurf öffnen;
 - Entwurf samt privaten Uploads nach Bestätigung löschen.
 
-Der Projektordner wird erst im Prüf-/Erstellen-Schritt über den nativen
-Ordnerdialog gewählt. Beliebiger `deer.json`-Import und Browser-ZIP-Export sind
-nicht Teil von V0.
+Beliebiger `deer.json`-Import, Projektordner und Browser-ZIP-Export sind nicht
+Teil des sichtbaren V0-Produktflusses. Das fertige Artefakt wird direkt als
+`WizardRoom.jar` heruntergeladen.
 
 ## Eckdaten und Spieleinstellungen
 
@@ -147,29 +147,22 @@ DEER-Kandidaten und sendet ihn mit allen benötigten Uploadbytes an die
 Produktionsvalidierung. Reports werden auf verständliche Felder und Rätsel
 abgebildet. Technische Codes, JSON-Pointer und IDs bleiben verborgen.
 
-`Spiel erstellen`:
+`Spiel erstellen und herunterladen`:
 
-1. wählt bei Bedarf über den nativen Dialog einen Projektordner;
-2. validiert exakt den gespeicherten Kandidaten und seine Uploadbytes;
-3. ersetzt Custom-Assets zuerst und `deer.json` zuletzt, jede Datei einzeln
-   atomar;
-4. paketiert das Projekt direkt als `<project>/WizardRoom.jar`.
+1. validiert exakt den gespeicherten Kandidaten und seine Uploadbytes;
+2. materialisiert sie nur temporär im Java-Host;
+3. paketiert das validierte Projekt als `WizardRoom.jar`;
+4. liefert die JAR direkt als Browserdownload aus.
 
-Als Ziel ist entweder ein leerer normaler Ordner oder ein produktiv gültiges
-Wizard-Projekt mit derselben Projekt-ID erlaubt. Ein fremder, ungültiger oder
-anderweitig nicht leerer Ordner wird abgelehnt. Die Finalisierung löscht keine
-fremden oder alten, nicht mehr referenzierten Dateien. V0 verspricht keine
-Wiederherstellung nach einem abgebrochenen Schreibvorgang und keine
-transaktionale Aktualisierung des gesamten Projektordners.
-
-Nur ein erfolgreicher Package-Aufruf in der aktuellen UI-Sitzung zeigt `Das
-Spiel ist bereit`. Nach einem Reload ist dieser Zustand weg. Ein
-Packaging-Fehler bietet `Erneut versuchen`; der Versuch wiederholt den
-vollständigen Finalize-und-Package-Ablauf.
+Nur ein erfolgreicher Download in der aktuellen UI-Sitzung zeigt `Das Spiel
+ist bereit`. Nach einem Reload ist dieser Zustand weg. Ein Packaging-Fehler
+bietet `Erneut versuchen`; der Versuch erzeugt die JAR erneut aus dem aktuellen
+gespeicherten Draft.
 
 Die UI startet die Spieler-JAR nicht. Sie erklärt, dass dieselbe vollständige
-JAR an Host und alle weiteren Spielenden verteilt wird und mit Java 25 das
-Host-/Join-Menü öffnet.
+JAR an Host und alle weiteren Spielenden verteilt wird. Aktuell benötigt sie
+Java 25 und öffnet dann das Host-/Join-Menü. Eine spätere `jpackage`-Ausgabe
+kann die Runtime mitliefern, ohne den Authoring-Vertrag zu ändern.
 
 ## Blockierende Prüfungen
 
