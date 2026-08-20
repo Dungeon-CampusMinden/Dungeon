@@ -11,6 +11,7 @@ import {
   useNodesState,
   type Connection,
   type Edge,
+  type IsValidConnection,
   type OnConnect,
   type OnNodeDrag,
 } from "@xyflow/react";
@@ -21,10 +22,8 @@ import React from "react";
 import { toast } from "sonner";
 import { RiddleEditDialog } from "./riddles/RiddleEditDialog";
 import { Button } from "./ui/button";
-import { Field, FieldLabel } from "./ui/field";
 import { GRAPH_EDGE_TYPES, type DeletableGraphEdge } from "./graph/DeletableEdge";
 import { GRAPH_NODE_TYPES, type GraphFlowNode } from "./graph/GraphNodes";
-import { SimpleSelect } from "./riddles/SimpleSelect";
 import {
   computeAutoLayout,
   hasEdge,
@@ -57,8 +56,6 @@ function RiddleGraphEditor({
 }) {
   const { resolvedTheme } = useTheme();
   const [editingRiddleId, setEditingRiddleId] = React.useState<string | null>(null);
-  const [connectionFrom, setConnectionFrom] = React.useState("");
-  const [connectionTo, setConnectionTo] = React.useState("");
   const [nodes, setNodes, onNodesChange] = useNodesState<GraphFlowNode>([]);
 
   const project = draft.project;
@@ -137,31 +134,16 @@ function RiddleGraphEditor({
     if (source && target) connectNodes(source, target);
   }, [connectNodes]);
 
-  const connectionOptions = React.useMemo(
-    () => graph.nodes.map((node) => ({
-      value: node.id,
-      label: nodeLabels.get(node.id) ?? "Nicht mehr vorhandener Schritt",
-      kind: node.kind,
-    })),
-    [graph, nodeLabels],
-  );
-  const fromOptions = React.useMemo(
-    () => connectionOptions.filter((option) => option.kind !== "end"),
-    [connectionOptions],
-  );
-  const toOptions = React.useMemo(
-    () => connectionOptions.filter((option) => option.kind !== "start"),
-    [connectionOptions],
-  );
-
-  React.useEffect(() => {
-    if (!fromOptions.some((option) => option.value === connectionFrom)) {
-      setConnectionFrom(fromOptions[0]?.value ?? "");
+  const isValidConnection = React.useCallback<IsValidConnection>((connection) => {
+    const { source, target } = connection;
+    if (!source || !target || source === target) return false;
+    const sourceNode = graph.nodes.find((node) => node.id === source);
+    const targetNode = graph.nodes.find((node) => node.id === target);
+    if (!sourceNode || !targetNode || sourceNode.kind === "end" || targetNode.kind === "start") {
+      return false;
     }
-    if (!toOptions.some((option) => option.value === connectionTo)) {
-      setConnectionTo(toOptions[0]?.value ?? "");
-    }
-  }, [connectionFrom, connectionTo, fromOptions, toOptions]);
+    return !hasEdge(graph.edges, source, target) && !wouldCreateCycle(graph.edges, source, target);
+  }, [graph]);
 
   const onEdgesDelete = React.useCallback((deleted: Edge[]) => {
     const deletedIds = new Set(deleted.map((edge) => edge.id));
@@ -210,9 +192,9 @@ function RiddleGraphEditor({
     <div className="flex flex-col gap-0">
       <h1>Spielablauf</h1>
       <p className="text-sm text-muted-foreground">
-        Eine Verbindung bedeutet: Der folgende Schritt wird nach seinem Vorgänger verfügbar. Hat ein
-        Schritt mehrere Vorgänger, müssen alle davon gelöst sein. Kreise und doppelte Verbindungen sind
-        nicht erlaubt. Verbindungen entfernst du über das X in ihrer Mitte oder mit der ENTF-Taste.
+        Ziehe vom blauen Verbindungspunkt eines Schritts zum nächsten. Der folgende Schritt wird nach
+        seinem Vorgänger verfügbar. Hat er mehrere Vorgänger, müssen alle davon gelöst sein. Verbindungen
+        entfernst du über das X in ihrer Mitte oder mit der ENTF-Taste.
       </p>
       <Button
         variant="outline"
@@ -225,34 +207,6 @@ function RiddleGraphEditor({
         Automatisch anordnen
       </Button>
 
-      <div className="mb-3 grid items-end gap-2 rounded-lg border border-border p-3 sm:grid-cols-[1fr_1fr_auto]">
-        <Field>
-          <FieldLabel>Von</FieldLabel>
-          <SimpleSelect
-            accessibleLabel="Ausgangspunkt der neuen Verbindung"
-            options={fromOptions}
-            value={connectionFrom}
-            onChange={setConnectionFrom}
-          />
-        </Field>
-        <Field>
-          <FieldLabel>Nach</FieldLabel>
-          <SimpleSelect
-            accessibleLabel="Zielpunkt der neuen Verbindung"
-            options={toOptions}
-            value={connectionTo}
-            onChange={setConnectionTo}
-          />
-        </Field>
-        <Button
-          type="button"
-          disabled={!connectionFrom || !connectionTo}
-          onClick={() => connectNodes(connectionFrom, connectionTo)}
-        >
-          Verbinden
-        </Button>
-      </div>
-
       <div className="h-[65vh] w-full overflow-hidden rounded-lg border border-border">
         <ReactFlow<GraphFlowNode>
           nodes={nodes}
@@ -262,8 +216,10 @@ function RiddleGraphEditor({
           onNodesChange={onNodesChange}
           onNodeDragStop={onNodeDragStop}
           onConnect={onConnect}
+          isValidConnection={isValidConnection}
           onEdgesDelete={onEdgesDelete}
           connectionMode={ConnectionMode.Strict}
+          connectionRadius={28}
           colorMode={resolvedTheme === "light" ? "light" : "dark"}
           nodesConnectable
           nodesDraggable
