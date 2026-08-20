@@ -10,6 +10,7 @@ import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.level.MissingLevelException;
+import feature.utils.EntityUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -298,10 +299,8 @@ public class DungeonLoader {
     Optional<Tile> startTile = Game.currentLevel().orElseThrow().startTile();
     startTile.ifPresentOrElse(
         tile -> {
-          Game.player()
-              .orElseThrow()
-              .fetch(engine.components.PositionComponent.class)
-              .ifPresent(pc -> pc.position(tile.position()));
+          EntityUtils.setPosition(
+              Game.player().orElseThrow(), tile.position().toCenteredPoint());
         },
         () -> {
           LOGGER.warn("No start tile found for the current level");

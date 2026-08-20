@@ -78,6 +78,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.utils.CheckPatternPainter;
+import feature.utils.EntityUtils;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -905,7 +906,8 @@ public final class GameLoop extends ScreenAdapter {
             pc -> {
               Game.startTile()
                   .ifPresentOrElse(
-                      pc::position, () -> LOGGER.warn("No start tile found for the current level"));
+                      tile -> EntityUtils.setPosition(entity, tile.position().toCenteredPoint()),
+                      () -> LOGGER.warn("No start tile found for the current level"));
               pc.viewDirection(Direction.DOWN); // look down by default
             });
 
