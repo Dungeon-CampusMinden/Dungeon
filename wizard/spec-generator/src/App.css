@@ -236,3 +236,43 @@ code {
     animation: none;
   }
 }
+
+.wizard-graph-handle {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  cursor: crosshair;
+}
+
+.wizard-graph-handle::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.75rem;
+  height: 0.75rem;
+  content: "";
+  background: var(--primary);
+  border: 2px solid var(--background);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 45%, transparent);
+  transform: translate(-50%, -50%);
+  transition: box-shadow 120ms ease, transform 120ms ease, background-color 120ms ease;
+}
+
+.wizard-graph-handle:hover::after,
+.wizard-graph-handle.connecting::after {
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--primary) 24%, transparent);
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.wizard-graph-handle.valid::after {
+  background: oklch(0.72 0.19 150);
+  box-shadow: 0 0 0 6px oklch(0.72 0.19 150 / 0.25);
+  transform: translate(-50%, -50%) scale(1.25);
+}
+
+.react-flow__node:has(.wizard-graph-handle.valid) > div {
+  border-color: oklch(0.72 0.19 150);
+  box-shadow: 0 0 0 3px oklch(0.72 0.19 150 / 0.18);
+}

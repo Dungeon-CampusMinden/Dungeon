@@ -27,7 +27,7 @@ export type GraphFlowNode =
 
 const NODE_CLASS =
   "w-56 rounded-lg border border-border bg-card px-3 py-2 text-card-foreground shadow-sm transition-shadow";
-const HANDLE_CLASS = "!h-3 !w-3 !border-2 !border-background !bg-primary";
+const HANDLE_CLASS = "wizard-graph-handle";
 
 export function StartFlowNode({ selected }: NodeProps<Node<StartNodeData, "start">>) {
   return (
