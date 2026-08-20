@@ -16,6 +16,7 @@ import engine.components.InputComponent;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.loader.DungeonLoader;
+import engine.level.loader.DungeonSaver;
 import engine.systems.DrawSystem;
 import engine.systems.input.InputManager;
 import engine.utils.FontHelper;
@@ -65,7 +66,8 @@ public class LevelEditorSystem extends System {
   private static final String DEBUG_SHADER_KEY = "LevelEditorSystem_debug";
 
   private static Mode currentMode = Mode.Tiles;
-  private static LevelEditorMode currentModeInstance = currentMode.getModeInstance();
+  private static LevelEditorMode currentModeInstance =
+      currentMode.getModeInstance(LevelEditorSystem::levelChanged);
   private static final int MODE_1 = Input.Keys.NUM_1;
   private static final int MODE_2 = Input.Keys.NUM_2;
   private static final int MODE_3 = Input.Keys.NUM_3;
@@ -278,6 +280,16 @@ public class LevelEditorSystem extends System {
     }
   }
 
+  /** Saves the current level to the configured level editor path. */
+  public static void saveLevel() {
+    DungeonSaver.saveCurrentDungeon(pathToLevels);
+  }
+
+  /** Saves the current level when auto-save is enabled. */
+  public static void levelChanged() {
+    if (autoSave) saveLevel();
+  }
+
   /**
    * Switches to the given editor mode.
    *
@@ -290,7 +302,7 @@ public class LevelEditorSystem extends System {
     if (mode == null || mode == currentMode) return;
     currentMode = mode;
     currentModeInstance.onExit();
-    currentModeInstance = mode.getModeInstance();
+    currentModeInstance = mode.getModeInstance(LevelEditorSystem::levelChanged);
     currentModeInstance.onEnter();
     if (ui != null) {
       ui.modePanel().selected(mode);
@@ -527,15 +539,16 @@ public class LevelEditorSystem extends System {
     /**
      * Creates a new instance of the {@link LevelEditorMode} belonging to this mode.
      *
+     * @param onLevelChanged invoked after the mode changes the level.
      * @return a new mode instance.
      */
-    public LevelEditorMode getModeInstance() {
+    public LevelEditorMode getModeInstance(Runnable onLevelChanged) {
       return switch (this) {
-        case Tiles -> new TilesMode();
-        case Decos -> new DecoMode();
-        case Points -> new PointMode();
-        case StartTiles -> new StartTilesMode();
-        case Settings -> new SettingsMode();
+        case Tiles -> new TilesMode(onLevelChanged);
+        case Decos -> new DecoMode(onLevelChanged);
+        case Points -> new PointMode(onLevelChanged);
+        case StartTiles -> new StartTilesMode(onLevelChanged);
+        case Settings -> new SettingsMode(onLevelChanged);
       };
     }
   }

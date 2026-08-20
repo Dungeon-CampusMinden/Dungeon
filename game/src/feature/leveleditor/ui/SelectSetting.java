@@ -1,16 +1,25 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
+import feature.hud.dialogs.DialogDesign;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/** A labeled select box setting backed by a getter and setter. */
+/**
+ * A labeled select box setting backed by a getter and setter.
+ *
+ * @param <T> the type of value in the select box.
+ */
 public class SelectSetting<T> extends Table {
+
+  private static final int FONT_SIZE = 16;
 
   private final Supplier<T> getter;
   private final SelectBox<T> selectBox;
@@ -32,6 +41,10 @@ public class SelectSetting<T> extends Table {
       Function<T, String> formatter) {
     this.getter = getter;
     selectBox = Scene2dElementFactory.createSelectBox(formatter);
+    BitmapFont font =
+        FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
+    selectBox.getStyle().font = font;
+    selectBox.getList().getStyle().font = font;
     selectBox.setItems(values);
     selectBox.setSelected(getter.get());
     selectBox.addListener(

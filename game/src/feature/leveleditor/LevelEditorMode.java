@@ -15,6 +15,7 @@ import feature.systems.LevelEditorSystem;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /** Abstract base class for different modes in the Level Editor. */
 public abstract class LevelEditorMode {
@@ -40,15 +41,18 @@ public abstract class LevelEditorMode {
   public static final int QUARTERNARY = Input.Keys.V;
 
   private final String name;
+  private final Runnable levelChangedCallback;
   private final Map<Integer, String> controls = new LinkedHashMap<>();
 
   /**
    * Constructs a new LevelEditorMode with the given name.
    *
    * @param name The name of this mode.
+   * @param levelChangedCallback invoked after the mode changes the level.
    */
-  public LevelEditorMode(String name) {
+  public LevelEditorMode(String name, Runnable levelChangedCallback) {
     this.name = name;
+    this.levelChangedCallback = Objects.requireNonNull(levelChangedCallback);
     Map<Integer, String> controls = getControls();
     if (controls != null) {
       this.controls.putAll(controls);
@@ -143,6 +147,11 @@ public abstract class LevelEditorMode {
     return Collections.unmodifiableMap(controls);
   }
 
+  /** Notifies the level editor system that this mode changed the level. */
+  protected final void levelChanged() {
+    levelChangedCallback.run();
+  }
+
   /**
    * Converts a key or mouse button code into a displayable name.
    *
@@ -188,24 +197,25 @@ public abstract class LevelEditorMode {
     return CursorUtils.positionInWorld();
   }
 
-  protected void setTile(Point position, LevelElement element) {
-    Tile tile = LevelSystem.level().orElse(null).tileAt(position).orElse(null);
-    if (tile == null) {
-      return;
-    }
-    LevelSystem.level().orElse(null).changeTileElementType(tile, element);
+  protected boolean setTile(Point position, LevelElement element) {
+    var level = LevelSystem.level().orElse(null);
+    if (level == null) return false;
+
+    Tile tile = level.tileAt(position).orElse(null);
+    if (tile == null) return false;
+    boolean changed = tile.levelElement() != element;
+    level.changeTileElementType(tile, element);
     // Also set the tiles around the position, to update their sprites for the new neighboring tile
     for (int dx = -1; dx <= 1; dx++) {
       for (int dy = -1; dy <= 1; dy++) {
         Point neighborPos = position.translate(Vector2.of(dx, dy));
-        Tile neighborTile = LevelSystem.level().orElse(null).tileAt(neighborPos).orElse(null);
+        Tile neighborTile = level.tileAt(neighborPos).orElse(null);
         if (neighborTile != null) {
-          LevelSystem.level()
-              .orElse(null)
-              .changeTileElementType(neighborTile, neighborTile.levelElement());
+          level.changeTileElementType(neighborTile, neighborTile.levelElement());
         }
       }
     }
+    return changed;
   }
 
   protected enum SnapMode {

@@ -20,9 +20,13 @@ public class PointMode extends LevelEditorMode {
   private static SnapMode snapMode = SnapMode.OnGrid;
   private static String heldPointName = null;
 
-  /** Constructs a new PointMode. */
-  public PointMode() {
-    super("Point Mode");
+  /**
+   * Constructs a new PointMode.
+   *
+   * @param levelChangedCallback invoked after named points are changed.
+   */
+  public PointMode(Runnable levelChangedCallback) {
+    super("Point Mode", levelChangedCallback);
   }
 
   @Override
@@ -44,6 +48,7 @@ public class PointMode extends LevelEditorMode {
         // Place held deco
         getLevel().addNamedPoint(heldPointName, snapPos);
         heldPointName = null;
+        levelChanged();
       } else {
         // Place new point instance
         DialogFactory.showInputDialog(
@@ -57,6 +62,7 @@ public class PointMode extends LevelEditorMode {
               if (payload instanceof DialogResponseMessage.StringValue(String value)
                   && !value.isBlank()) {
                 getLevel().addNamedPoint(value, snapPos);
+                levelChanged();
               }
             },
             () -> {});
@@ -72,10 +78,16 @@ public class PointMode extends LevelEditorMode {
         String baseName = heldPointName.replaceAll("\\d+$", "");
         String newPointName = baseName + (getLevel().getHighestPointNumber(baseName) + 1);
         getLevel().addNamedPoint(newPointName, snapPos);
+        levelChanged();
       }
     } else if (InputManager.isKeyPressed(TERTIARY)) {
       // Delete deco on cursor
-      getOnPosition(cursorPos).ifPresent(getLevel()::removeNamedPoint);
+      getOnPosition(cursorPos)
+          .ifPresent(
+              point -> {
+                getLevel().removeNamedPoint(point);
+                levelChanged();
+              });
     }
   }
 

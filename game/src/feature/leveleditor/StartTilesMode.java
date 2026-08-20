@@ -37,9 +37,13 @@ public class StartTilesMode extends LevelEditorMode {
 
   private static int currentStartTileIndex = 0;
 
-  /** Constructs a new StartTilesMode. */
-  public StartTilesMode() {
-    super("Start Tiles Mode");
+  /**
+   * Constructs a new StartTilesMode.
+   *
+   * @param levelChangedCallback invoked after start tiles are changed.
+   */
+  public StartTilesMode(Runnable levelChangedCallback) {
+    super("Start Tiles Mode", levelChangedCallback);
   }
 
   @Override
@@ -78,8 +82,10 @@ public class StartTilesMode extends LevelEditorMode {
     for (int i = 0; i < level.startTiles().size(); i++) {
       Tile tile = level.startTiles().get(i);
       Point position = tile.position();
+      if(i != 0) {
+        status.append("\n");
+      }
       status
-          .append("\n")
           .append(i + 1)
           .append(": (")
           .append(position.x())
@@ -131,8 +137,12 @@ public class StartTilesMode extends LevelEditorMode {
     }
     if (currentStartTileIndex == level.startTiles().size()) {
       level.startTiles().add(tile);
+      levelChanged();
     } else {
-      level.startTiles().set(currentStartTileIndex, tile);
+      if (level.startTiles().get(currentStartTileIndex) != tile) {
+        level.startTiles().set(currentStartTileIndex, tile);
+        levelChanged();
+      }
     }
   }
 
@@ -149,9 +159,10 @@ public class StartTilesMode extends LevelEditorMode {
       LevelEditorSystem.showFeedback("No start tile found under cursor.", Color.YELLOW);
       return;
     }
-    level.startTiles().remove(tile);
+    if (!level.startTiles().remove(tile)) return;
     if (currentStartTileIndex == maxIndex) {
       currentStartTileIndex = Math.max(0, maxIndex - 1);
     }
+    levelChanged();
   }
 }

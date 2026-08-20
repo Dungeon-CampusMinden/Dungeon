@@ -31,9 +31,9 @@ public class TilesMode extends LevelEditorMode {
   /** Preview textures shown on the tile buttons of the details panel. */
   private static final Map<LevelElement, String> TILE_TEXTURES =
       Map.of(
-          LevelElement.SKIP, "dungeon/default/floor/empty.png",
+          LevelElement.SKIP, "hud/cross.png",
           LevelElement.FLOOR, "dungeon/default/floor/floor_1.png",
-          LevelElement.WALL, "dungeon/default/wall/top.png",
+          LevelElement.WALL, "dungeon/default/wall/t_inner_top_empty.png",
           LevelElement.HOLE, "dungeon/default/floor/floor_hole.png",
           LevelElement.EXIT, "dungeon/default/floor/floor_ladder.png",
           LevelElement.PIT, "dungeon/default/floor/pit_open.png",
@@ -55,9 +55,13 @@ public class TilesMode extends LevelEditorMode {
     return TILE_TEXTURES.getOrDefault(element, FALLBACK_TEXTURE);
   }
 
-  /** Constructs a new TilesMode. */
-  public TilesMode() {
-    super("Tiles Mode");
+  /**
+   * Constructs a new TilesMode.
+   *
+   * @param levelChangedCallback invoked after tiles are changed.
+   */
+  public TilesMode(Runnable levelChangedCallback) {
+    super("Tiles Mode", levelChangedCallback);
   }
 
   @Override
@@ -170,6 +174,7 @@ public class TilesMode extends LevelEditorMode {
           // tiles in x and
           // y independently (not a square), etc.
           Point cursorPos = getCursorPosition();
+          boolean changed = false;
           for (int dx = -targetBrushSize + 1; dx < targetBrushSize; dx++) {
             for (int dy = -targetBrushSize + 1; dy < targetBrushSize; dy++) {
               // Ignore corners
@@ -177,10 +182,11 @@ public class TilesMode extends LevelEditorMode {
                 continue;
               }
               Point targetPos = cursorPos.translate(Vector2.of(dx, dy));
-              setTile(targetPos, element);
+              changed |= setTile(targetPos, element);
             }
           }
           CheckPatternPainter.paintCheckerPattern(getLevel().layout());
+          if (changed) levelChanged();
         });
   }
 

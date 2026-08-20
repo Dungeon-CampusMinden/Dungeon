@@ -39,15 +39,21 @@ public class SettingsMode extends LevelEditorMode {
   private StringSetting savePathSetting;
   private RichLabel savePathStatusLabel;
   private BooleanSetting autoSaveSetting;
+  private Table detailsContent;
 
-  /** Constructs a new settings mode. */
-  public SettingsMode() {
-    super("Settings");
+  /**
+   * Constructs a new settings mode.
+   *
+   * @param levelChangedCallback invoked after the level is changed.
+   */
+  public SettingsMode(Runnable levelChangedCallback) {
+    super("Settings", levelChangedCallback);
   }
 
   @Override
   public void buildDetailsUI(Table content) {
     content.clearChildren();
+    detailsContent = content;
     heightSetting =
         new NumberSetting(
             "Level Height",
@@ -72,7 +78,12 @@ public class SettingsMode extends LevelEditorMode {
     savePathStatusLabel.setVisible(false);
     autoSaveSetting =
         new BooleanSetting(
-            "Auto-Save", LevelEditorSystem::autoSave, LevelEditorSystem::autoSave);
+            "Auto-Save",
+            LevelEditorSystem::autoSave,
+            value -> {
+              LevelEditorSystem.autoSave(value);
+              buildDetailsUI(detailsContent);
+            });
 
     content.add(heightSetting).growX().row();
     content.add(widthSetting).growX().padTop(4f).row();
@@ -106,10 +117,13 @@ public class SettingsMode extends LevelEditorMode {
     content.add(savePathSetting).growX().row();
     content.add(savePathStatusLabel).growX().left().padTop(2f).row();
     content.add(autoSaveSetting).growX().padTop(8f).row();
-    content.add(new ActionSetting("Save Level", this::saveLevel))
-        .growX()
-        .padTop(8f)
-        .row();
+    if (!LevelEditorSystem.autoSave()) {
+      content
+          .add(new ActionSetting("Save Level", LevelEditorSystem::saveLevel))
+          .growX()
+          .padTop(8f)
+          .row();
+    }
     updateSavePathStatus();
   }
 
@@ -163,7 +177,7 @@ public class SettingsMode extends LevelEditorMode {
         .map(level::tileAt)
         .flatMap(Optional::stream)
         .forEach(level.startTiles()::add);
-    saveIfEnabled();
+    levelChanged();
   }
 
   private void shiftLevel(int x, int y) {
@@ -214,7 +228,7 @@ public class SettingsMode extends LevelEditorMode {
             });
 
     LevelEditorSystem.showFeedback("Shifted level " + directionName, Color.WHITE);
-    saveIfEnabled();
+    levelChanged();
   }
 
   private boolean canShift(Tile[][] layout, int x, int y) {
@@ -239,14 +253,6 @@ public class SettingsMode extends LevelEditorMode {
       }
     }
     return true;
-  }
-
-  private void saveLevel() {
-    DungeonSaver.saveCurrentDungeon(LevelEditorSystem.pathToLevels());
-  }
-
-  private void saveIfEnabled() {
-    if (LevelEditorSystem.autoSave()) saveLevel();
   }
 
   private void updateSavePathStatus() {

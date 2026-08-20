@@ -59,9 +59,13 @@ public class DecoMode extends LevelEditorMode {
   private DecoButton[] historyButtons;
   private Table neighboringButtonTable;
 
-  /** Constructs the Deco Mode. */
-  public DecoMode() {
-    super("Deco Mode");
+  /**
+   * Constructs the Deco Mode.
+   *
+   * @param levelChangedCallback invoked after decorations are changed.
+   */
+  public DecoMode(Runnable levelChangedCallback) {
+    super("Deco Mode", levelChangedCallback);
   }
 
   @Override
@@ -94,6 +98,8 @@ public class DecoMode extends LevelEditorMode {
         setPosition(decoHeldEntity.entity, snapPos);
         decoHeldEntity = null;
         setupPreviewEntity(snapPos);
+        syncPlacedDecos();
+        levelChanged();
         rapidFireActive = false;
       }
     } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT) && decoHeldEntity == null) {
@@ -107,8 +113,13 @@ public class DecoMode extends LevelEditorMode {
     } else if (InputManager.isKeyPressed(TERTIARY)) {
       rapidFireActive = false;
       // Delete deco on cursor
-      getDecoOnPosition(cursorPos).map(DecoEntityData::entity).ifPresent(Game::remove);
-      syncPlacedDecos();
+      getDecoOnPosition(cursorPos)
+          .ifPresent(
+              deco -> {
+                Game.remove(deco.entity);
+                syncPlacedDecos();
+                levelChanged();
+              });
     } else if (InputManager.isKeyJustPressed(QUARTERNARY)) {
       rapidFireActive = false;
       // Pipette tool to pick deco type on cursor
@@ -165,6 +176,7 @@ public class DecoMode extends LevelEditorMode {
     Game.add(newDeco);
     recordPlacedDeco(decoType);
     syncPlacedDecos();
+    levelChanged();
   }
 
   @Override
@@ -215,6 +227,7 @@ public class DecoMode extends LevelEditorMode {
     Deco[] decos = Deco.values();
     neighboringButtons = new DecoButton[3];
     neighboringButtonTable = new Table();
+    neighboringButtonTable.add(new RichLabel("<", 16, ModeDetailsPanel.TEXT_COLOR, false)).pad(3f);
     for (int i = 0; i < neighboringButtons.length; i++) {
       final int offset = i - 1;
       DecoButton button =
@@ -233,6 +246,7 @@ public class DecoMode extends LevelEditorMode {
       neighboringButtons[i] = button;
       neighboringButtonTable.add(button).size(PRIMARY_BUTTON_SIZE).pad(3f);
     }
+    neighboringButtonTable.add(new RichLabel(">", 16, ModeDetailsPanel.TEXT_COLOR, false)).pad(3f);
     content.add(neighboringButtonTable).growX().row();
 
     content.add(new RichLabel("Deco History", 20, ModeDetailsPanel.TEXT_COLOR, false))
@@ -276,6 +290,7 @@ public class DecoMode extends LevelEditorMode {
     if (neighboringButtons == null) return;
     Deco[] decos = Deco.values();
     neighboringButtonTable.clearChildren();
+    neighboringButtonTable.add(new RichLabel("<", 16, ModeDetailsPanel.TEXT_COLOR, false)).pad(3f);
     for (int i = 0; i < neighboringButtons.length; i++) {
       int offset = i - 1;
       Deco deco = decos[Math.floorMod(selectedDecoIndex + offset, decos.length)];
@@ -289,6 +304,7 @@ public class DecoMode extends LevelEditorMode {
       neighboringButtons[i] = replacement;
       neighboringButtonTable.add(replacement).size(58f).pad(3f);
     }
+    neighboringButtonTable.add(new RichLabel(">", 16, ModeDetailsPanel.TEXT_COLOR, false)).pad(3f);
 
     ArrayDeque<Deco> history = new ArrayDeque<>(decoHistory);
     java.util.List<Deco> historyValues = history.stream().toList();
