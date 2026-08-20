@@ -125,7 +125,7 @@ public final class MainMenu {
    *
    * @param client the client configuration, already applied
    * @param server the server configuration
-   * @param pathToLevels the path the level editor saves levels to
+   * @param pathToLevels the default folder used to construct the initial level save file path
    */
   private static void applyLevelEditor(
       ClientStarter client, ServerStarter server, String pathToLevels) {

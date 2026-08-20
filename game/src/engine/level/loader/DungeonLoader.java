@@ -56,6 +56,7 @@ public class DungeonLoader {
       new ArrayList<>();
   private static int currentLevel = -1;
   private static OptionalInt currentVariant = OptionalInt.empty();
+  private static String currentLevelAssetPath;
   private static IVoidFunction afterAllLevels =
       () -> {
         System.out.println("Game Over!");
@@ -185,7 +186,9 @@ public class DungeonLoader {
     // Random Level Variant Path
     int variant = RANDOM.nextInt(levelVariants.size());
     currentVariant = OptionalInt.of(variant);
-    IPath levelPath = new SimpleIPath(levelVariants.get(variant));
+    String levelAssetPath = levelVariants.get(variant);
+    currentLevelAssetPath = levelAssetPath;
+    IPath levelPath = new SimpleIPath(levelAssetPath);
 
     return DungeonLoader.loadFromPath(levelPath);
   }
@@ -254,6 +257,7 @@ public class DungeonLoader {
 
     currentLevel = registeredIndex;
     currentVariant = OptionalInt.empty();
+    currentLevelAssetPath = null;
     Game.currentLevel(requiredLevel);
   }
 
@@ -285,7 +289,9 @@ public class DungeonLoader {
     }
 
     currentVariant = OptionalInt.of(variant);
-    IPath levelPath = new SimpleIPath(levelVariants.get(variant));
+    String levelAssetPath = levelVariants.get(variant);
+    currentLevelAssetPath = levelAssetPath;
+    IPath levelPath = new SimpleIPath(levelAssetPath);
     Game.currentLevel(DungeonLoader.loadFromPath(levelPath));
 
     // Set player on start tile
@@ -363,6 +369,15 @@ public class DungeonLoader {
   }
 
   /**
+   * Returns the path of the currently loaded level asset, if it was loaded from a resource file.
+   *
+   * @return the current level asset path, or empty for an in-memory level.
+   */
+  public static Optional<String> currentLevelAssetPath() {
+    return Optional.ofNullable(currentLevelAssetPath);
+  }
+
+  /**
    * Get the number of registered levels.
    *
    * @return Number of registered levels.
@@ -414,6 +429,7 @@ public class DungeonLoader {
     levelOrder.clear();
     currentLevel = -1;
     currentVariant = OptionalInt.empty();
+    currentLevelAssetPath = null;
   }
 
   /**

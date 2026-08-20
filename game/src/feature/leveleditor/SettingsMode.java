@@ -1,5 +1,7 @@
 package feature.leveleditor;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
@@ -11,8 +13,10 @@ import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Tuple;
+import feature.hud.elements.RichLabel;
 import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
+import feature.leveleditor.ui.ModeDetailsPanel;
 import feature.leveleditor.ui.NumberSetting;
 import feature.leveleditor.ui.StringSetting;
 import feature.systems.LevelEditorSystem;
@@ -27,12 +31,13 @@ public class SettingsMode extends LevelEditorMode {
 
   private static final int MIN_LEVEL_SIZE = 1;
   private static final int MAX_LEVEL_SIZE = 1000;
-
-  private static boolean autoSave = true;
+  private static final String EXISTING_FILE_WARNING =
+      "File already exists, will be overwritten";
 
   private NumberSetting heightSetting;
   private NumberSetting widthSetting;
   private StringSetting savePathSetting;
+  private RichLabel savePathStatusLabel;
   private BooleanSetting autoSaveSetting;
 
   /** Constructs a new settings mode. */
@@ -62,37 +67,50 @@ public class SettingsMode extends LevelEditorMode {
             "Save Level To",
             LevelEditorSystem::pathToLevels,
             LevelEditorSystem::pathToLevels);
-    autoSaveSetting = new BooleanSetting("Auto-Save", () -> autoSave, value -> autoSave = value);
+    savePathStatusLabel = new RichLabel("", 12, Color.RED, false);
+    savePathStatusLabel.setWrap(false);
+    savePathStatusLabel.setVisible(false);
+    autoSaveSetting =
+        new BooleanSetting(
+            "Auto-Save", LevelEditorSystem::autoSave, LevelEditorSystem::autoSave);
 
     content.add(heightSetting).growX().row();
     content.add(widthSetting).growX().padTop(4f).row();
-    content.add(new ActionSetting("Shift Level Up", () -> shiftLevel(0, 1)))
+    content.add(
+            Scene2dElementFactory.createLabel(
+                "Shift Level", 16, ModeDetailsPanel.TEXT_COLOR))
         .growX()
+        .left()
         .padTop(8f)
         .row();
-    content.add(new ActionSetting("Shift Level Down", () -> shiftLevel(0, -1)))
-        .growX()
-        .padTop(4f)
-        .row();
-    content.add(new ActionSetting("Shift Level Right", () -> shiftLevel(1, 0)))
-        .growX()
-        .padTop(4f)
-        .row();
-    content.add(new ActionSetting("Shift Level Left", () -> shiftLevel(-1, 0)))
-        .growX()
-        .padTop(4f)
-        .row();
+
+    Table shiftGrid = new Table();
+    shiftGrid.top();
+    shiftGrid.defaults().growX().uniformX().height(40f).pad(2f);
+    shiftGrid.add();
+    shiftGrid.add(new ActionSetting("Up", () -> shiftLevel(0, 1)));
+    shiftGrid.add().row();
+    shiftGrid.add(new ActionSetting("Left", () -> shiftLevel(-1, 0)));
+    shiftGrid.add();
+    shiftGrid.add(new ActionSetting("Right", () -> shiftLevel(1, 0))).row();
+    shiftGrid.add();
+    shiftGrid.add(new ActionSetting("Down", () -> shiftLevel(0, -1)));
+    shiftGrid.add();
+    content.add(shiftGrid).growX().row();
+
     content.add(Scene2dElementFactory.createHorizontalDivider())
         .growX()
         .padTop(8f)
         .padBottom(8f)
         .row();
     content.add(savePathSetting).growX().row();
+    content.add(savePathStatusLabel).growX().left().padTop(2f).row();
     content.add(autoSaveSetting).growX().padTop(8f).row();
     content.add(new ActionSetting("Save Level", this::saveLevel))
         .growX()
         .padTop(8f)
         .row();
+    updateSavePathStatus();
   }
 
   @Override
@@ -100,6 +118,7 @@ public class SettingsMode extends LevelEditorMode {
     if (heightSetting != null) heightSetting.refresh();
     if (widthSetting != null) widthSetting.refresh();
     if (savePathSetting != null) savePathSetting.refresh();
+    updateSavePathStatus();
     if (autoSaveSetting != null) autoSaveSetting.refresh();
   }
 
@@ -144,16 +163,15 @@ public class SettingsMode extends LevelEditorMode {
         .map(level::tileAt)
         .flatMap(Optional::stream)
         .forEach(level.startTiles()::add);
-    LevelEditorSystem.showFeedback(
-        "Resized level to: (" + width + ", " + height + ")", Color.WHITE);
     saveIfEnabled();
   }
 
   private void shiftLevel(int x, int y) {
     DungeonLevel level = getLevel();
     Tile[][] layout = level.layout();
+    String directionName = x == 1 ? "RIGHT" : x == -1 ? "LEFT" : y == 1 ? "UP" : "DOWN";
     if (!canShift(layout, x, y)) {
-      LevelEditorSystem.showFeedback("Cannot shift level: overwriting non-SKIP tiles!", Color.RED);
+      LevelEditorSystem.showFeedback("Cannot shift level " + directionName + ": overwriting non-SKIP tiles!", Color.RED);
       return;
     }
 
@@ -195,7 +213,6 @@ public class SettingsMode extends LevelEditorMode {
               PositionSync.syncPosition(entity);
             });
 
-    String directionName = x == 1 ? "RIGHT" : x == -1 ? "LEFT" : y == 1 ? "UP" : "DOWN";
     LevelEditorSystem.showFeedback("Shifted level " + directionName, Color.WHITE);
     saveIfEnabled();
   }
@@ -226,10 +243,23 @@ public class SettingsMode extends LevelEditorMode {
 
   private void saveLevel() {
     DungeonSaver.saveCurrentDungeon(LevelEditorSystem.pathToLevels());
-    LevelEditorSystem.showFeedback("Exported level to clipboard!", Color.GREEN);
   }
 
   private void saveIfEnabled() {
-    if (autoSave) saveLevel();
+    if (LevelEditorSystem.autoSave()) saveLevel();
+  }
+
+  private void updateSavePathStatus() {
+    if (savePathStatusLabel == null) return;
+
+    String savePath = LevelEditorSystem.pathToLevels();
+    FileHandle saveFile =
+        savePath == null || savePath.isBlank()
+            ? null
+            : Gdx.files.local(DungeonSaver.normalizeLevelFilePath(savePath));
+    boolean fileExists =
+        saveFile != null && saveFile.exists() && !saveFile.isDirectory();
+    savePathStatusLabel.setVisible(fileExists);
+    savePathStatusLabel.setText(fileExists ? EXISTING_FILE_WARNING : "");
   }
 }

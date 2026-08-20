@@ -18,9 +18,9 @@ public class DungeonSaver {
    * Saves the current dungeon by printing it to the console. The output is also copied to the
    * system clipboard for easy pasting into a .level file.
    *
-   * @param pathToLevels the path to the folder where the level file is stored
+   * @param filePath the path of the file where the level is stored
    */
-  public static void saveCurrentDungeon(String pathToLevels) {
+  public static void saveCurrentDungeon(String filePath) {
     ILevel currentLevel = Game.currentLevel().orElse(null);
     if (currentLevel == null) {
       System.out.println("No level to save.");
@@ -34,12 +34,8 @@ public class DungeonSaver {
     String output = LevelParser.serializeLevel(dunLevel);
     System.out.println(output);
     ClipboardUtil.copyToClipboard(output);
-    if (pathToLevels != null && !pathToLevels.isEmpty()) {
-      String currentLevelFile = DungeonLoader.currentLevel();
-
-      // Sauberes Zusammenfügen des Pfads
-      FileHandle folder = Gdx.files.local(pathToLevels);
-      FileHandle file = folder.child(currentLevelFile + "_1.level");
+    if (filePath != null && !filePath.isEmpty()) {
+      FileHandle file = Gdx.files.local(normalizeLevelFilePath(filePath));
 
       try {
         file.writeString(output, false); // false = überschreibt die Datei
@@ -48,5 +44,26 @@ public class DungeonSaver {
         e.printStackTrace();
       }
     }
+  }
+
+  /**
+   * Converts a user-provided path into the level file path used by the saver.
+   *
+   * <p>The existing filename extension is replaced with {@code .level}. If the filename does not
+   * already contain an underscore suffix, {@code _1} is added before the extension.
+   *
+   * @param filePath the user-provided file path
+   * @return the normalized level file path
+   */
+  public static String normalizeLevelFilePath(String filePath) {
+    int lastSeparator = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
+    int extensionStart = filePath.lastIndexOf('.');
+    String pathWithoutExtension =
+        extensionStart > lastSeparator ? filePath.substring(0, extensionStart) : filePath;
+    int lastUnderscore = pathWithoutExtension.lastIndexOf('_');
+    if (lastUnderscore <= lastSeparator) {
+      pathWithoutExtension += "_1";
+    }
+    return pathWithoutExtension + ".level";
   }
 }

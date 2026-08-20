@@ -205,7 +205,7 @@ public final class GameStarter {
      * <p>The level editor runs the server and client role in a single process; all remaining
      * configuration is taken from the project's {@link ServerStarter} and {@link ClientStarter}.
      *
-     * @param pathToLevels level output path
+     * @param pathToLevels default folder used to construct the initial level save file path
      * @return this builder
      */
     public Builder levelEditor(String pathToLevels) {

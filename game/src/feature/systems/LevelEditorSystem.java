@@ -5,6 +5,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import engine.Entity;
 import engine.Game;
@@ -12,6 +15,7 @@ import engine.System;
 import engine.components.InputComponent;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
+import engine.level.loader.DungeonLoader;
 import engine.systems.DrawSystem;
 import engine.systems.input.InputManager;
 import engine.utils.FontHelper;
@@ -23,12 +27,15 @@ import engine.utils.logging.DungeonLogger;
 import feature.components.HealthComponent;
 import feature.leveleditor.DecoMode;
 import feature.leveleditor.LevelEditorMode;
+import feature.leveleditor.LevelEditorSettings;
 import feature.leveleditor.PointMode;
 import feature.leveleditor.SettingsMode;
 import feature.leveleditor.StartTilesMode;
 import feature.leveleditor.TilesMode;
 import feature.leveleditor.ui.LevelEditorUI;
+import java.io.File;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
@@ -48,6 +55,10 @@ public class LevelEditorSystem extends System {
   private static boolean activateOnStart = false;
   private static final int TOGGLE_ACTIVE = Input.Keys.F4;
   private static String pathToLevels = "";
+  private static String defaultSaveFolder = "";
+  private static boolean autoSave = true;
+  private static boolean defaultAutoSave = true;
+  private static String settingsLevelPath;
 
   private static final int TOGGLE_DEBUG_SHADER = Input.Keys.SPACE;
   private boolean debugShaderActive = false;
@@ -74,16 +85,80 @@ public class LevelEditorSystem extends System {
   /**
    * Creates a new LevelEditorSystem.
    *
-   * @param pathToLevels The folder in which the file is placed this system.
+   * @param pathToLevels the default folder used to construct the initial save file path.
    */
   public LevelEditorSystem(String pathToLevels) {
     super();
-    LevelEditorSystem.pathToLevels(pathToLevels);
+    settingsLevelPath = null;
+    defaultSaveFolder = normalizePath(pathToLevels);
+    LevelEditorSystem.pathToLevels = defaultSaveFolder;
+    autoSave = defaultAutoSave = true;
   }
 
   /** Creates a new LevelEditorSystem. */
   public LevelEditorSystem() {
     super();
+  }
+
+  private static void clearTextFieldFocusOnOutsideClick() {
+    Stage stage = Game.stage().orElse(null);
+    if (stage == null || !(stage.getKeyboardFocus() instanceof TextField focusedTextField)) {
+      return;
+    }
+    if (!isAnyMouseButtonJustPressed()) return;
+
+    Vector2 stagePosition =
+        stage.screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    Actor hit = stage.hit(stagePosition.x, stagePosition.y, true);
+    if (!isActorOrDescendant(hit, focusedTextField)) {
+      stage.setKeyboardFocus(null);
+    }
+  }
+
+  private static boolean isAnyMouseButtonJustPressed() {
+    return Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
+        || Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)
+        || Gdx.input.isButtonJustPressed(Input.Buttons.MIDDLE);
+  }
+
+  private static boolean isActorOrDescendant(Actor actor, Actor ancestor) {
+    while (actor != null) {
+      if (actor == ancestor) return true;
+      actor = actor.getParent();
+    }
+    return false;
+  }
+
+  private static void loadSettingsForCurrentLevel() {
+    String currentLevelPath = DungeonLoader.currentLevelAssetPath().orElse(null);
+    if (Objects.equals(settingsLevelPath, currentLevelPath)) return;
+
+    settingsLevelPath = currentLevelPath;
+    LevelEditorSettings.Values settings =
+        LevelEditorSettings.load(
+            currentLevelPath, defaultSavePathForCurrentLevel(), defaultAutoSave);
+    pathToLevels = settings.savePath();
+    autoSave = settings.autoSave();
+  }
+
+  private static void persistSettings() {
+    if (settingsLevelPath == null || settingsLevelPath.isBlank()) return;
+    LevelEditorSettings.save(
+        settingsLevelPath, new LevelEditorSettings.Values(pathToLevels, autoSave));
+  }
+
+  private static String normalizePath(String path) {
+    return path == null ? "" : path;
+  }
+
+  private static String defaultSavePathForCurrentLevel() {
+    String levelFileName =
+        DungeonLoader.currentLevelAssetPath()
+            .map(File::new)
+            .map(File::getName)
+            .orElseGet(() -> DungeonLoader.currentLevel() + "_1.level");
+    if (defaultSaveFolder.isBlank()) return levelFileName;
+    return new File(defaultSaveFolder, levelFileName).getPath();
   }
 
   /**
@@ -104,6 +179,7 @@ public class LevelEditorSystem extends System {
     LevelEditorSystem.active = active;
     Entity player = Game.player().orElseThrow();
     if (active) {
+      loadSettingsForCurrentLevel();
       player
           .fetch(InputComponent.class)
           .ifPresent(
@@ -160,21 +236,46 @@ public class LevelEditorSystem extends System {
   }
 
   /**
-   * Gets the folder used when saving levels from the level editor.
+   * Gets the file path used when saving levels from the level editor.
    *
-   * @return the configured level output folder.
+   * @return the configured level output file path.
    */
   public static String pathToLevels() {
     return pathToLevels;
   }
 
   /**
-   * Sets the folder used when saving levels from the level editor.
+   * Sets the file path used when saving levels from the level editor.
    *
-   * @param pathToLevels the level output folder.
+   * @param pathToLevels the level output file path.
    */
   public static void pathToLevels(String pathToLevels) {
-    LevelEditorSystem.pathToLevels = pathToLevels == null ? "" : pathToLevels;
+    String normalizedPath = normalizePath(pathToLevels);
+    LevelEditorSystem.pathToLevels = normalizedPath;
+    if (settingsLevelPath != null) persistSettings();
+  }
+
+  /**
+   * Gets whether the level editor should save after modifying the level.
+   *
+   * @return true if auto-save is enabled.
+   */
+  public static boolean autoSave() {
+    return autoSave;
+  }
+
+  /**
+   * Sets whether the level editor should save after modifying the level.
+   *
+   * @param autoSave true to enable auto-save.
+   */
+  public static void autoSave(boolean autoSave) {
+    LevelEditorSystem.autoSave = autoSave;
+    if (settingsLevelPath == null) {
+      defaultAutoSave = autoSave;
+    } else {
+      persistSettings();
+    }
   }
 
   /**
@@ -271,9 +372,12 @@ public class LevelEditorSystem extends System {
       active(!active);
     }
 
+    if (active) loadSettingsForCurrentLevel();
     updateUI();
 
     if (!active) return;
+
+    clearTextFieldFocusOnOutsideClick();
 
     if (Game.player().map(Game.hud()::hasOpenUI).orElse(false)) {
       return;
