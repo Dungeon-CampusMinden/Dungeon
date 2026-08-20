@@ -16,15 +16,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
-import javax.swing.JFileChooser;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import tools.jackson.databind.JsonNode;
-import wizard.authoring.CandidateProjectService.ProjectDirectoryConflictException;
 
 /** Local standalone browser host for private Wizard authoring. */
 public final class WizardAuthoringApplication {
@@ -89,11 +84,6 @@ public final class WizardAuthoringApplication {
       } else {
         serveStatic(exchange);
       }
-    } catch (ProjectDirectoryConflictException exception) {
-      sendJson(
-          exchange,
-          409,
-          Map.of("error", exception.getMessage(), "code", "PROJECT_DIRECTORY_CONFLICT"));
     } catch (IllegalArgumentException exception) {
       sendError(exchange, 400, concise(exception));
     } catch (Exception exception) {
@@ -112,52 +102,37 @@ public final class WizardAuthoringApplication {
       sendJson(exchange, 200, Map.of("apiVersion", "1", "mode", "native"));
       return;
     }
-    if (method.equals("POST") && path.equals(API_PREFIX + "/choose-project-directory")) {
-      requireMutation(exchange, false);
-      requireEmptyBody(exchange);
-      Optional<Path> chosen = chooseDirectory();
-      if (chosen.isEmpty()) {
-        exchange.sendResponseHeaders(204, -1);
-      } else {
-        sendJson(exchange, 200, Map.of("projectDirectory", chosen.orElseThrow().toString()));
-      }
-      return;
-    }
     if (method.equals("POST") && path.equals(API_PREFIX + "/validate")) {
-      requireMutation(exchange, true);
+      requireMutation(exchange);
       sendJson(exchange, 200, projects.validate(readJsonBody(exchange)).json());
       return;
     }
-    if (method.equals("POST") && path.equals(API_PREFIX + "/finalize")) {
-      requireMutation(exchange, true);
-      sendJson(exchange, 200, projects.finalizeProject(readJsonBody(exchange)).json());
-      return;
-    }
     if (method.equals("POST") && path.equals(API_PREFIX + "/package")) {
-      requireMutation(exchange, true);
-      sendJson(exchange, 200, projects.packageProject(readJsonBody(exchange), template).json());
+      requireMutation(exchange);
+      CandidateProjectService.PackageResponse result =
+          projects.packageProject(readJsonBody(exchange), template);
+      byte[] jar = result.jarBytes();
+      if (jar == null) {
+        sendJson(exchange, 200, result.json());
+      } else {
+        sendJar(exchange, jar);
+      }
       return;
     }
     sendError(exchange, 404, "API route does not exist");
   }
 
-  private static void requireMutation(final HttpExchange exchange, final boolean json) {
+  private static void requireMutation(final HttpExchange exchange) {
     if (!ORIGIN.equals(exchange.getRequestHeaders().getFirst("Origin"))) {
       throw new IllegalArgumentException("Mutation request origin is not the local Wizard host");
     }
-    if (json && !"application/json".equals(exchange.getRequestHeaders().getFirst("Content-Type"))) {
+    if (!"application/json".equals(exchange.getRequestHeaders().getFirst("Content-Type"))) {
       throw new IllegalArgumentException("Request Content-Type must be application/json");
     }
   }
 
   private static JsonNode readJsonBody(final HttpExchange exchange) throws IOException {
     return AuthoringJson.parse(readBody(exchange, MAX_REQUEST_BYTES));
-  }
-
-  private static void requireEmptyBody(final HttpExchange exchange) throws IOException {
-    if (readBody(exchange, 1).length != 0) {
-      throw new IllegalArgumentException("Request body must be empty");
-    }
   }
 
   private static byte[] readBody(final HttpExchange exchange, final int limit) throws IOException {
@@ -288,37 +263,6 @@ public final class WizardAuthoringApplication {
     }
   }
 
-  private static Optional<Path> chooseDirectory() {
-    final Path[] result = new Path[1];
-    final RuntimeException[] failure = new RuntimeException[1];
-    try {
-      SwingUtilities.invokeAndWait(
-          () -> {
-            try {
-              UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-              JFileChooser chooser = new JFileChooser();
-              chooser.setDialogTitle("Wizard-Projektordner wählen");
-              chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-              chooser.setAcceptAllFileFilterUsed(false);
-              if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                result[0] = chooser.getSelectedFile().toPath().toAbsolutePath().normalize();
-              }
-            } catch (Exception exception) {
-              failure[0] = new IllegalStateException("Project directory chooser failed", exception);
-            }
-          });
-    } catch (InterruptedException exception) {
-      Thread.currentThread().interrupt();
-      throw new IllegalStateException("Project directory chooser was interrupted", exception);
-    } catch (java.lang.reflect.InvocationTargetException exception) {
-      throw new IllegalStateException("Project directory chooser failed", exception);
-    }
-    if (failure[0] != null) {
-      throw failure[0];
-    }
-    return Optional.ofNullable(result[0]);
-  }
-
   private static void openBrowser(final URI uri) {
     try {
       if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
@@ -346,6 +290,13 @@ public final class WizardAuthoringApplication {
 
   private static void sendJson(final HttpExchange exchange, final int status, final Object value) {
     send(exchange, status, "application/json; charset=utf-8", AuthoringJson.encode(value), false);
+  }
+
+  private static void sendJar(final HttpExchange exchange, final byte[] jar) {
+    exchange
+        .getResponseHeaders()
+        .set("Content-Disposition", "attachment; filename=\"WizardRoom.jar\"");
+    send(exchange, 200, "application/java-archive", jar, false);
   }
 
   private static void sendError(

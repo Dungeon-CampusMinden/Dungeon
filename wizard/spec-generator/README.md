@@ -16,8 +16,8 @@ Draft v1 and uploaded bytes are stored together in a new IndexedDB. Existing
 LocalStorage, IndexedDB, or AppData drafts are not migrated. V0 does not
 support multiple tabs editing the Wizard at the same time.
 
-Production uses the Java host at `127.0.0.1:27777` for the native directory
-dialog, validation, finalization, and direct `WizardRoom.jar` packaging. During
-finalization, it atomically replaces each custom asset file and replaces
-`deer.json` last. The project directory as a whole is not transactional. The
-host does not store drafts or uploads.
+Production uses the Java host at `127.0.0.1:27777` for validation and temporary
+`WizardRoom.jar` packaging. A successful package response is downloaded by the
+browser; no authoring project directory is written. The host does not store
+drafts or uploads. The current JAR requires Java 25; a runtime-bundled
+`jpackage` distribution remains a later milestone.
