@@ -15,7 +15,7 @@ Starten oder fortsetzen
 -> Rätsel
 -> Spielablauf
 -> Spiel-Ende
--> Entwurf prüfen und Spiel erstellen
+-> Spiel erstellen
 ```
 
 Feldsemantik und Runnerregeln stehen in den verlinkten Contract-Dateien. Die
@@ -26,12 +26,18 @@ Frontend-/Host-Grenze steht im
 
 - Lehrende bearbeiten keine JSON-Datei und sehen keine technischen IDs.
 - Der unvollständige private Entwurf ist nicht `deer.json`.
-- Die Navigation zeigt Abschlussgrad, blockierende Probleme, Warnungen und den
-  lokalen Speicherstatus.
+- Vorwärtsnavigation prüft den aktuellen Schritt. Blockierende lokale Fehler
+  halten die Lehrkraft dort; Warnungen und Rückwärtsnavigation werden dadurch
+  nicht blockiert. Nur eine laufende Dateiübertragung sperrt die
+  Schrittnavigation kurz; während Prüfung und Spielerstellung bleibt sie offen.
+- Die Navigation zeigt Abschlussgrad, Probleme, Warnungen und den lokalen
+  Speicherstatus.
 - Der Spielablauf ist ein mandatory AND-DAG mit genau einem geschützten Start-
   und Endknoten und einem Knoten je Rätsel.
-- `Entwurf prüfen` ist immer aktiv. `Spiel erstellen` setzt eine erfolgreiche
-  Produktionsprüfung voraus.
+- Beim Betreten von `Spiel erstellen` startet die Produktionsprüfung
+  automatisch, sobald lokale Prüfung und eigene Dateien bereit sind.
+- `Spiel erstellen und herunterladen` setzt einen gültigen aktuellen
+  Produktionsreport voraus.
 - Warnungen blockieren nicht.
 - Eine Prüfung garantiert Struktur und Runnerfähigkeit, nicht menschliche
   Lösbarkeit oder Lernerfolg.
@@ -49,8 +55,8 @@ Ein Draft kann nach ausdrücklicher Bestätigung mit seinen privaten Uploads
 gelöscht werden. Bereits heruntergeladene Spieler-JARs bleiben davon
 unberührt.
 
-Ein neuer unvollständiger Draft hat keinen echten Seed. Beim ersten
-vollständigen Prüfen oder Erstellen erzeugt die UI einmal einen sicheren
+Ein neuer unvollständiger Draft hat keinen echten Seed. Beim ersten Betreten
+von `Spiel erstellen` erzeugt die UI einmal einen sicheren
 53-Bit-Seed im Bereich `0..9007199254740991`. Sie speichert ihn vor dem
 Hostaufruf in IndexedDB. Danach bleibt er für diesen Draft stabil. Der
 Java-Host erzeugt keinen Seed.
@@ -140,24 +146,28 @@ Die Lehrkraft benennt genau einen Ausgang. Die UI verwaltet World- und
 Door-Surface intern. Sobald alle direkten Vorgänger des Endknotens gelöst
 sind, öffnet der Host die Tür serverautoritativ.
 
-## Prüfen und Spiel erstellen
+## Spiel erstellen
 
-`Entwurf prüfen` projiziert den aktuellen Browserdraft auf einen vollständigen
-DEER-Kandidaten und sendet ihn mit allen benötigten Uploadbytes an die
-Produktionsvalidierung. Reports werden auf verständliche Felder und Rätsel
-abgebildet. Technische Codes, JSON-Pointer und IDs bleiben verborgen.
+Die lokale Prüfung läuft während der Bearbeitung und bildet das Seitengate.
+Beim Betreten der letzten Seite projiziert die UI den exakt gespeicherten
+Browserdraft auf einen vollständigen DEER-Kandidaten und sendet ihn mit allen
+benötigten Uploadbytes automatisch an die Produktionsvalidierung. Die UI
+ignoriert veraltete Antworten. Lokale und produktive Probleme erscheinen in
+derselben Fehlerübersicht und werden möglichst dem betroffenen Schritt
+zugeordnet. Technische Codes, JSON-Pointer und IDs bleiben verborgen.
 
 `Spiel erstellen und herunterladen`:
 
-1. validiert exakt den gespeicherten Kandidaten und seine Uploadbytes;
+1. liest den aktuellen gespeicherten Kandidaten und seine Uploadbytes;
 2. materialisiert sie nur temporär im Java-Host;
-3. paketiert das validierte Projekt als `WizardRoom.jar`;
+3. validiert den Kandidaten erneut und paketiert nur ein gültiges Projekt als
+   `WizardRoom.jar`;
 4. liefert die JAR direkt als Browserdownload aus.
 
 Nur ein erfolgreicher Download in der aktuellen UI-Sitzung zeigt `Das Spiel
 ist bereit`. Nach einem Reload ist dieser Zustand weg. Ein Packaging-Fehler
-bietet `Erneut versuchen`; der Versuch erzeugt die JAR erneut aus dem aktuellen
-gespeicherten Draft.
+aktualisiert die gemeinsame Fehlerübersicht. Ein neuer Versuch erzeugt die JAR
+erneut aus dem aktuellen gespeicherten Draft.
 
 Die UI startet die Spieler-JAR nicht. Sie erklärt, dass dieselbe vollständige
 JAR an Host und alle weiteren Spielenden verteilt wird. Aktuell benötigt sie

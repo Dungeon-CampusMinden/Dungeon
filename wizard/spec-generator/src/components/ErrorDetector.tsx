@@ -6,11 +6,15 @@ export function ErrorDetector({
   issueReport,
   assetStorageStatus,
   touchedAll,
+  productionReady,
+  technicalError,
   className,
 }: {
   issueReport: IssueReport;
   assetStorageStatus: AssetStorageCheckStatus;
   touchedAll: boolean;
+  productionReady: boolean;
+  technicalError: "validating" | "packaging" | null;
   className?: string;
 }) {
   const issues = ErrorChecker.getSortedIssues(issueReport);
@@ -41,8 +45,16 @@ export function ErrorDetector({
           Speicher wieder bereit und lade den Entwurf erneut.
         </p>
       )}
+      {technicalError && (
+        <p role="alert" className="text-xs text-destructive px-1">
+          {technicalError === "validating"
+            ? "Das Spiel konnte nicht geprüft werden. Deine Eingaben bleiben gespeichert. Verlasse diese Seite und öffne sie erneut."
+            : "Die Spieldatei konnte nicht erstellt oder heruntergeladen werden. Deine Eingaben bleiben gespeichert. Versuche es erneut."}
+        </p>
+      )}
       {touchedAll && issues.length > 0 && <IssueList issues={issues} className="mt-2" />}
-      {touchedAll && assetStorageStatus === "ready" && issues.length === 0 && (
+      {touchedAll && assetStorageStatus === "ready" && productionReady
+        && technicalError === null && issues.length === 0 && (
         <IssueList issues={[]} className="mt-2" />
       )}
     </div>

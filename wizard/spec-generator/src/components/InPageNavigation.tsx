@@ -10,11 +10,10 @@ export function InPageNavigation({ tab, setTab, disabled = false }: {
 }) {
   const currentIndex = TABS.findIndex((entry) => entry.value === tab);
 
-  if (currentIndex === -1) return null;
+  if (currentIndex === -1 || currentIndex === TABS.length - 1) return null;
 
   const currentStep = currentIndex + 1;
   const isFirstTab = currentIndex === 0;
-  const isLastTab = currentIndex === TABS.length - 1;
 
   const changeTab = (offset: number) => {
     const nextTab = TABS[currentIndex + offset];
@@ -37,7 +36,7 @@ export function InPageNavigation({ tab, setTab, disabled = false }: {
         <Button
           type="button"
           onClick={() => changeTab(1)}
-          disabled={disabled || isLastTab}
+          disabled={disabled}
           className="gap-2"
         >
           Weiter

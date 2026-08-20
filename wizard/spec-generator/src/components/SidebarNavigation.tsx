@@ -4,7 +4,7 @@ import { ErrorChecker, type IssueReport, type IssueSeverity } from "@/data/Error
 import { isTabTouched, type TouchedTabs } from "@/data/TabTouchState";
 import { isTabId, TABS, type TabId } from "@/data/Tabs";
 
-/** Tabs that only present content and are therefore never validated. */
+/** Review has no authored or locally validated input fields, so it has no tab status of its own. */
 const UNVALIDATED_TABS = ["review"];
 
 export function SidebarNavigation({

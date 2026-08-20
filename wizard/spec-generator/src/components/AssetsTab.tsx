@@ -18,9 +18,10 @@ import {
 } from "./assets/assetPaths";
 import type { WizardWork } from "@/data/WizardWork";
 
-export function AssetsTab({ draft, updateDraft, beginWork, finishWork }: {
+export function AssetsTab({ draft, updateDraft, work, beginWork, finishWork }: {
   draft: WizardDraft;
   updateDraft: UpdateDraft;
+  work: WizardWork;
   beginWork: (work: Extract<WizardWork, "uploading">) => boolean;
   finishWork: (work: Extract<WizardWork, "uploading">) => void;
 }) {
@@ -30,6 +31,14 @@ export function AssetsTab({ draft, updateDraft, beginWork, finishWork }: {
   const [addOpen, setAddOpen] = React.useState(false);
   const [storageRevision, setStorageRevision] = React.useState(0);
   const previews = useAssetPreviews(assetList, storageRevision);
+  const editingDisabled = work !== null;
+
+  const rejectBlockedUpload = () => {
+    toast.error("Dateien können gerade nicht geändert werden.", {
+      description: "Warte, bis die laufende Prüfung, Spielerstellung oder Dateiübertragung abgeschlossen ist.",
+    });
+    return new Error("Eine andere Wizard-Arbeit läuft bereits.");
+  };
 
   const applySelection = async (
     selection: AssetSelection,
@@ -47,7 +56,7 @@ export function AssetsTab({ draft, updateDraft, beginWork, finishWork }: {
   };
 
   const handleAddAsset = async (selection: AssetSelection) => {
-    if (!beginWork("uploading")) throw new Error("Ein anderer Speichervorgang läuft bereits.");
+    if (!beginWork("uploading")) throw rejectBlockedUpload();
     const id = Util.generateUniqueId("a");
     try {
       const { path, mediaType, upload } = await applySelection(selection);
@@ -67,7 +76,7 @@ export function AssetsTab({ draft, updateDraft, beginWork, finishWork }: {
   };
 
   const handleReplaceContent = async (asset: Asset, selection: AssetSelection) => {
-    if (!beginWork("uploading")) throw new Error("Ein anderer Speichervorgang läuft bereits.");
+    if (!beginWork("uploading")) throw rejectBlockedUpload();
     const assetId = asset.id;
     try {
       const { path, mediaType, upload } = await applySelection(selection);
@@ -114,7 +123,17 @@ export function AssetsTab({ draft, updateDraft, beginWork, finishWork }: {
       <p className="text-sm text-muted-foreground">
         Eigene oder mitgelieferte Dateien für den Raum. Erlaubte Formate: {ALLOWED_EXTENSIONS.join(", ")}.
       </p>
-      <Button onClick={() => setAddOpen(true)} className="my-2 max-w-40">
+      {work === "validating" && (
+        <p className="mt-2 text-sm text-muted-foreground">
+          Nach Abschluss der Prüfung kannst du die Dateien wieder bearbeiten.
+        </p>
+      )}
+      {work === "packaging" && (
+        <p className="mt-2 text-sm text-muted-foreground">
+          Nach Abschluss der Spielerstellung kannst du die Dateien wieder bearbeiten.
+        </p>
+      )}
+      <Button disabled={editingDisabled} onClick={() => setAddOpen(true)} className="my-2 max-w-40">
         <PlusIcon />
         Hinzufügen
       </Button>
@@ -133,6 +152,7 @@ export function AssetsTab({ draft, updateDraft, beginWork, finishWork }: {
               key={asset.id}
               asset={asset}
               preview={previews[asset.id]}
+              disabled={editingDisabled}
               onUpdate={handleUpdateAsset}
               onReplaceContent={handleReplaceContent}
               onDelete={handleDeleteAsset}

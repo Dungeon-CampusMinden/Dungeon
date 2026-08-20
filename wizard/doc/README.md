@@ -37,16 +37,17 @@ Der Host bietet keine Draft- oder Upload-Persistenz und speichert keinen
 Ready-Status. Ist Port `27777` belegt, scheitert der Start mit einer klaren
 Meldung.
 
-Beim ersten vollständigen Prüfen oder Erstellen erzeugt die UI einmal einen
-zufälligen Seed im Bereich `0..9007199254740991`. Sie speichert ihn vor dem
-Hostaufruf im Draft. Danach bleibt er stabil. Vor diesem Zeitpunkt besitzt der
-Entwurf keinen echten Seed; Java erzeugt keinen Seed.
+Beim ersten Betreten von `Spiel erstellen` erzeugt die UI einmal einen
+zufälligen Seed im Bereich `0..9007199254740991`. Sie
+speichert ihn vor dem Hostaufruf im Draft. Danach bleibt er stabil. Vor diesem
+Zeitpunkt besitzt der Entwurf keinen echten Seed; Java erzeugt keinen Seed.
 
-`Spiel erstellen und herunterladen` validiert den gespeicherten Kandidaten,
-paketiert ihn in einem temporären Projekt und liefert die fertige JAR direkt
-an den Browser. Nur ein erfolgreicher Download der aktuellen UI-Sitzung zeigt
-das Spiel als bereit. Ein Reload stellt diesen Zustand nicht wieder her. Nach
-einem Fehler wiederholt die UI den vollständigen Package-Aufruf.
+Beim Betreten von `Spiel erstellen` validiert der Java-Host automatisch den
+exakt gespeicherten Kandidaten samt Uploadbytes, sobald die lokale Prüfung
+keine blockierenden Fehler findet und der Assetcheck bereit ist. `Spiel
+erstellen und herunterladen` paketiert denselben aktuellen Stand und validiert
+ihn dabei erneut. Nur ein erfolgreicher Download der aktuellen UI-Sitzung
+zeigt das Spiel als bereit. Ein Reload stellt diesen Zustand nicht wieder her.
 
 ## Projekt und Runtime
 
