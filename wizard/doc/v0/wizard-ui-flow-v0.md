@@ -51,6 +51,9 @@ unterstützt; es gibt keine tabübergreifende Konfliktauflösung.
 
 Ein Draft darf unvollständig und im Rätselgraphen unverbunden sein. Stabile
 Authoring-IDs entstehen beim Anlegen und bleiben bei Umbenennungen erhalten.
+Neue Drafts enthalten bereits je einen leeren, nicht löschbaren Eintrag für
+Lernziel, Intro-Text und erfolgreichen Abschluss. Beim harten Zeitlimit gilt
+dasselbe für den Misserfolgstext.
 Ein Draft kann nach ausdrücklicher Bestätigung mit seinen privaten Uploads
 gelöscht werden. Bereits heruntergeladene Spieler-JARs bleiben davon
 unberührt.

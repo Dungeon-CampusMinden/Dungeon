@@ -14,6 +14,10 @@ export function GameEndTab({
   const exit = endNode?.kind === "end"
     ? deerSchema.surfaces.find((surface) => surface.id === endNode.surfaceId)
     : undefined;
+  const failureTextRequired = deerSchema.session.time.limitMode === "hard";
+  const failureText = deerSchema.scenario.failureText?.length
+    ? deerSchema.scenario.failureText
+    : failureTextRequired ? [""] : [];
 
   return (
     <div className="flex flex-col gap-0">
@@ -60,7 +64,7 @@ export function GameEndTab({
             <FieldLabel>Texte bei Misserfolg</FieldLabel>
             <StringListEditor
               itemNoun="Misserfolgstext"
-              value={deerSchema.scenario.failureText ?? []}
+              value={failureText}
               onChange={(newValue) => {
                 if (newValue.length === 0) {
                   delete deerSchema.scenario.failureText;
@@ -70,6 +74,7 @@ export function GameEndTab({
                 updateDeerSchema(deerSchema);
               }}
               useTextarea
+              preventEmpty={failureTextRequired}
             />
           </Field>
         </FieldGroup>
