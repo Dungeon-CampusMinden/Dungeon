@@ -3,19 +3,19 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import type { Issue, IssueSeverity } from "@/data/ErrorChecker";
 
 const SEVERITY_STYLES: Record<IssueSeverity, string> = {
-  error: "border-red-500/40 text-red-500",
-  warning: "border-yellow-500/40 text-yellow-500",
-  info: "border-blue-500/40 text-blue-500",
+  error: "border-destructive/30 bg-destructive/10 text-destructive",
+  warning: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+  info: "border-blue-500/30 bg-blue-500/10 text-blue-400",
 };
 
 function SeverityIcon({ severity }: { severity: IssueSeverity }) {
   switch (severity) {
     case "error":
-      return <CircleXIcon />;
+      return <CircleXIcon className="size-4 shrink-0 text-destructive" />;
     case "warning":
-      return <CircleAlertIcon />;
+      return <CircleAlertIcon className="size-4 shrink-0 text-amber-400" />;
     default:
-      return <InfoIcon />;
+      return <InfoIcon className="size-4 shrink-0 text-blue-400" />;
   }
 }
 
@@ -50,9 +50,9 @@ export function IssueList({
 }) {
   if (issues.length === 0) {
     return (
-      <Alert className={`border-green-500/40 text-green-500 ${className ?? ""}`}>
-        <CircleCheckIcon />
-        <AlertTitle>{emptyMessage}</AlertTitle>
+      <Alert className={`border-emerald-500/30 bg-emerald-500/10 text-emerald-400 ${className ?? ""}`}>
+        <CircleCheckIcon className="size-4 shrink-0 text-emerald-400" />
+        <AlertTitle className="text-sm font-medium text-foreground">{emptyMessage}</AlertTitle>
       </Alert>
     );
   }
@@ -62,11 +62,17 @@ export function IssueList({
       {issues.map((issue, index) => (
         <Alert
           key={`${issue.severity}-${index}-${issue.description}`}
-          className={SEVERITY_STYLES[issue.severity]}
+          className={`py-2 px-3 text-sm ${SEVERITY_STYLES[issue.severity]}`}
         >
           <SeverityIcon severity={issue.severity} />
-          <AlertTitle className="text-foreground text-wrap">{teacherDescription(issue.description)}</AlertTitle>
-          {teacherDetails(issue.details) && <AlertDescription>{teacherDetails(issue.details)}</AlertDescription>}
+          <AlertTitle className="text-sm font-medium text-foreground text-wrap leading-snug">
+            {teacherDescription(issue.description)}
+          </AlertTitle>
+          {teacherDetails(issue.details) && (
+            <AlertDescription className="text-xs text-muted-foreground mt-0.5">
+              {teacherDetails(issue.details)}
+            </AlertDescription>
+          )}
         </Alert>
       ))}
     </div>

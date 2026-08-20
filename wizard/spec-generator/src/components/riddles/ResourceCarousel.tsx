@@ -64,7 +64,7 @@ function ResourceCard({
       type="button"
       onClick={onClick}
       aria-label={`Material '${resource.title}' anzeigen`}
-      className="flex h-full w-full min-w-0 cursor-pointer flex-col gap-1 rounded-lg border border-[var(--border-color)] bg-transparent p-1.5 text-left transition-colors hover:bg-muted/40"
+      className="flex h-full w-full min-w-0 cursor-pointer flex-col gap-1 rounded-lg border border-border bg-transparent p-1.5 text-left transition-colors hover:bg-muted/40"
     >
       <span className="w-full truncate text-xs font-medium" title={resource.title}>
         {resource.title}

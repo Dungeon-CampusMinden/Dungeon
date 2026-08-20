@@ -62,7 +62,7 @@ export function RiddleInputsEditor({
       {inputs.map((input, index) => (
         <div
           key={input.id}
-          className="flex flex-col gap-3 rounded-md border border-[var(--border-color)] p-3"
+          className="flex flex-col gap-3 rounded-md border border-border p-3"
         >
           <div className="grid grid-cols-[1fr_auto] items-end gap-2">
             <Field>

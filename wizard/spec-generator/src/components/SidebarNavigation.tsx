@@ -23,21 +23,28 @@ export function SidebarNavigation({
   className?: string;
 }) {
   return (
-    <div className={`panel ${className ?? ""} flex flex-col gap-0`}>
-      <h2>Übersicht</h2>
+    <div className={`panel ${className ?? ""} flex flex-col gap-2`}>
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1 mb-1">
+        Übersicht
+      </h2>
       <Tabs
         value={tab}
         onValueChange={(value) => {
           if (isTabId(value)) setTab(value);
         }}
         orientation="vertical"
-        className="mt-0"
+        className="mt-0 w-full"
       >
-        <TabsList className="bg-transparent">
+        <TabsList className="bg-transparent w-full flex-col gap-1 p-0">
           {TABS.map((entry) => (
-            <TabsTrigger key={entry.value} value={entry.value} disabled={disabled}>
+            <TabsTrigger
+              key={entry.value}
+              value={entry.value}
+              disabled={disabled}
+              className="w-full justify-start gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-muted-foreground hover:bg-muted/70 hover:text-foreground data-active:bg-primary/15 data-active:text-primary data-active:font-semibold"
+            >
               <TabStatusIcon severity={getTabSeverity(entry.value, issueReport, touchedTabs)} />
-              {entry.label}
+              <span className="truncate">{entry.label}</span>
             </TabsTrigger>
           ))}
         </TabsList>
@@ -60,14 +67,14 @@ function getTabSeverity(
 function TabStatusIcon({ severity }: { severity: IssueSeverity | "none" | null }) {
   switch (severity) {
     case "error":
-      return <CircleXIcon className="text-red-500" />;
+      return <CircleXIcon className="size-4 shrink-0 text-destructive" />;
     case "warning":
-      return <CircleAlertIcon className="text-yellow-500" />;
+      return <CircleAlertIcon className="size-4 shrink-0 text-amber-400" />;
     case "info":
-      return <InfoIcon className="text-blue-500" />;
+      return <InfoIcon className="size-4 shrink-0 text-blue-400" />;
     case "none":
-      return <CircleCheckIcon className="text-green-500" />;
+      return <CircleCheckIcon className="size-4 shrink-0 text-emerald-400" />;
     default:
-      return <CircleIcon className="text-muted-foreground" />;
+      return <CircleIcon className="size-4 shrink-0 text-muted-foreground/30" />;
   }
 }

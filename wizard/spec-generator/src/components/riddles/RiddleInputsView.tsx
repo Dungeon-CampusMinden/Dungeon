@@ -49,7 +49,7 @@ function InputView({
   const inputType = getInputType(input.type);
 
   return (
-    <div className="flex flex-col gap-1 border-1 border-[var(--border-color)] rounded-md p-2">
+    <div className="flex flex-col gap-1 border border-border rounded-md p-2">
       <div className="flex items-center gap-2 text-sm">
         <InputTypeIcon type={input.type} size={18} />
         <span>{inputType?.label ?? input.type}</span>

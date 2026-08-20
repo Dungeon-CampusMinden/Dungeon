@@ -143,8 +143,8 @@ export function ReviewTab({
         <Alert><AlertTitle>Entwicklungsmodus</AlertTitle><AlertDescription>Vollständiges Prüfen und Erstellen ist nur in der lokalen Wizard-Anwendung verfügbar.</AlertDescription></Alert>
       )}
 
-      <section className="panel flex flex-col gap-3">
-        <div><h2 className="mb-1">Prüfen und herunterladen</h2><p className="text-sm text-muted-foreground">Die schnelle Vorprüfung läuft während der Bearbeitung. Beim Erstellen wird das Spiel vollständig geprüft und anschließend als WizardRoom.jar heruntergeladen.</p></div>
+      <section className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-4">
+        <div><h2 className="mb-1 text-base font-semibold text-foreground">Prüfen und herunterladen</h2><p className="text-sm text-muted-foreground">Die schnelle Vorprüfung läuft während der Bearbeitung. Beim Erstellen wird das Spiel vollständig geprüft und anschließend als WizardRoom.jar heruntergeladen.</p></div>
         {localErrorCount > 0 && <Alert variant="destructive"><AlertTitle>Der Entwurf ist noch nicht vollständig</AlertTitle><AlertDescription>{localErrorCount} {localErrorCount === 1 ? "Fehler muss" : "Fehler müssen"} vor dem Erstellen behoben werden.</AlertDescription></Alert>}
         {assetStorageStatus === "checking" && <p className="text-sm text-muted-foreground">Eigene Dateien werden geprüft…</p>}
         {assetStorageStatus === "error" && <Alert variant="destructive"><AlertTitle>Eigene Dateien konnten nicht geprüft werden</AlertTitle><AlertDescription>Deine Eingaben bleiben erhalten. Versuche es erneut.</AlertDescription></Alert>}
@@ -159,12 +159,12 @@ export function ReviewTab({
       {technicalError && <Alert variant="destructive"><AlertTitle>Vorgang nicht abgeschlossen</AlertTitle><AlertDescription>{technicalError} Versuche den Vorgang erneut.</AlertDescription></Alert>}
 
       {downloaded && (
-        <Alert className="border-green-500/40 text-green-500"><CheckCircle2Icon /><AlertTitle>Das Spiel ist bereit</AlertTitle><AlertDescription>WizardRoom.jar wurde heruntergeladen und kann an alle Teilnehmenden verteilt werden.</AlertDescription></Alert>
+        <Alert className="border-emerald-500/40 bg-emerald-500/10 text-emerald-400"><CheckCircle2Icon className="size-4 shrink-0 text-emerald-400" /><AlertTitle className="text-sm font-medium text-foreground">Das Spiel ist bereit</AlertTitle><AlertDescription className="text-xs text-muted-foreground">WizardRoom.jar wurde heruntergeladen und kann an alle Teilnehmenden verteilt werden.</AlertDescription></Alert>
       )}
       {report && (
-        <section className="flex flex-col gap-2"><h2 className="mb-0">Ergebnis der vollständigen Prüfung</h2><IssueList issues={productionIssues} emptyMessage="Die vollständige Prüfung hat keine Probleme gefunden." /></section>
+        <section className="flex flex-col gap-2"><h2 className="mb-0 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Ergebnis der vollständigen Prüfung</h2><IssueList issues={productionIssues} emptyMessage="Die vollständige Prüfung hat keine Probleme gefunden." /></section>
       )}
-      <section className="flex flex-col gap-2"><h2 className="mb-0">Schnelle Vorprüfung</h2><IssueList issues={localIssues} emptyMessage="Lokal wurden keine Probleme gefunden." /></section>
+      <section className="flex flex-col gap-2"><h2 className="mb-0 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Schnelle Vorprüfung</h2><IssueList issues={localIssues} emptyMessage="Lokal wurden keine Probleme gefunden." /></section>
     </div>
   );
 }

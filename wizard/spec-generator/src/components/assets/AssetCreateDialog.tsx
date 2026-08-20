@@ -169,7 +169,7 @@ export function AssetCreateDialog({
           </TabsList>
 
           <TabsContent value="custom" className="min-h-0">
-            <div className="flex h-full max-h-[55vh] min-h-64 flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border border-[var(--border-color)] bg-muted/30 p-3">
+            <div className="flex h-full max-h-[55vh] min-h-64 flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border border-border bg-muted/30 p-3">
               {uploadedFile ? (
                 <UploadedFilePreview file={uploadedFile} />
               ) : (
@@ -202,7 +202,7 @@ export function AssetCreateDialog({
           </TabsContent>
 
           <TabsContent value="bundled" className="min-h-0">
-            <div className="h-full max-h-[55vh] min-h-64 overflow-y-auto rounded-lg border border-[var(--border-color)] bg-muted/30 p-3">
+            <div className="h-full max-h-[55vh] min-h-64 overflow-y-auto rounded-lg border border-border bg-muted/30 p-3">
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
                 {showBackOneLevel && (
                   <AssetTile label="Zurück" onClick={() => setSelectedFolder(getParentPath(selectedFolder))}>

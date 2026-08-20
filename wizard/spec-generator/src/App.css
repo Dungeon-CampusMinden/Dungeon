@@ -27,18 +27,212 @@
 h1,
 h2,
 h3,
+h4,
 p {
   margin-top: 0;
 }
 
 .panel {
-  padding: 16px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  padding: 1.5rem;
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.2);
+}
+
+.panel h1:first-child,
+.panel > div > h1:first-child,
+.panel > form > h1:first-child {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
 }
 
 code {
   background-color: var(--muted);
   color: var(--muted-foreground);
   border-radius: var(--radius-sm);
+  padding: 0.125rem 0.375rem;
+}
+
+.wizard-launcher-hero {
+  position: relative;
+  min-height: clamp(32rem, 68svh, 40rem);
+  overflow: hidden;
+  isolation: isolate;
+  background: #03060a;
+}
+
+.wizard-launcher-image,
+.wizard-launcher-hero-shade {
+  position: absolute;
+  inset: 0;
+}
+
+.wizard-launcher-image {
+  z-index: -2;
+  background-image: url("/background.png");
+  background-position: center 47%;
+  background-size: cover;
+  filter: brightness(1.1) saturate(1.15);
+  image-rendering: pixelated;
+  transform: scale(1.025);
+  animation: wizard-image-settle 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wizard-launcher-hero-shade {
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgb(3 6 10 / 0.97) 0%, rgb(3 6 10 / 0.88) 30%, rgb(3 6 10 / 0.2) 47%, rgb(3 6 10 / 0.05) 64%, transparent 78%),
+    linear-gradient(180deg, transparent 42%, var(--background) 100%);
+}
+
+.wizard-launcher-hero-inner {
+  display: flex;
+  align-items: center;
+  min-height: inherit;
+  width: min(100%, 80rem);
+  margin-inline: auto;
+  padding: 4rem 1rem 6rem;
+}
+
+.wizard-launcher-copy {
+  width: min(100%, 34rem);
+}
+
+.wizard-launcher-copy > * {
+  animation: wizard-copy-arrive 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wizard-launcher-copy > :nth-child(2) {
+  animation-delay: 70ms;
+}
+
+.wizard-launcher-copy > :nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.wizard-launcher-copy > :nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.wizard-launcher-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  color: rgb(219 234 254);
+  font-size: 0.875rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wizard-launcher-brand-mark {
+  width: 1.9rem;
+  height: 0.25rem;
+  background: var(--primary);
+  box-shadow: 0 0 1.25rem color-mix(in oklab, var(--primary) 70%, transparent);
+}
+
+.wizard-launcher-title {
+  max-width: 12ch;
+  margin-bottom: 1rem;
+  color: white;
+  font-size: clamp(2.5rem, 5vw, 4.75rem);
+  font-weight: 720;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  text-wrap: balance;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 0.45);
+}
+
+.wizard-launcher-intro {
+  max-width: 30rem;
+  margin-bottom: 1.75rem;
+  color: rgb(203 213 225);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.wizard-launcher-action {
+  min-height: 2.75rem;
+  padding-inline: 1.25rem;
+  box-shadow: 0 0.75rem 2.5rem rgb(15 73 199 / 0.28);
+}
+
+.wizard-library {
+  position: relative;
+}
+
+.wizard-empty-library {
+  border-bottom: 1px solid var(--border);
+}
+
+.wizard-draft-row:hover {
+  border-color: color-mix(in oklab, var(--primary) 52%, var(--border));
+  background-color: color-mix(in oklab, var(--card) 92%, var(--primary));
+}
+
+@keyframes wizard-image-settle {
+  from {
+    opacity: 0;
+    transform: scale(1.07);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.025);
+  }
+}
+
+@keyframes wizard-copy-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 640px) {
+  .wizard-launcher-hero-inner {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .wizard-launcher-hero {
+    min-height: 34rem;
+  }
+
+  .wizard-launcher-image {
+    background-position: 51% center;
+  }
+
+  .wizard-launcher-hero-shade {
+    background:
+      linear-gradient(90deg, rgb(3 6 10 / 0.95) 0%, rgb(3 6 10 / 0.68) 74%, rgb(3 6 10 / 0.35) 100%),
+      linear-gradient(180deg, rgb(3 6 10 / 0.22) 40%, var(--background) 100%);
+  }
+
+  .wizard-launcher-hero-inner {
+    align-items: flex-end;
+    padding-bottom: 5rem;
+  }
+
+  .wizard-launcher-title {
+    max-width: 11ch;
+    font-size: clamp(2.5rem, 12vw, 3.25rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wizard-launcher-image,
+  .wizard-launcher-copy > * {
+    animation: none;
+  }
 }
