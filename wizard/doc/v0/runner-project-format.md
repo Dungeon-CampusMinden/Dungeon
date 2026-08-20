@@ -1,20 +1,19 @@
 # Wizard Runner Project Format V0.4
 
-Status: umgesetzter V0.4-Runner-, M2-Finalisierungs- und Packaging-Contract
+Status: V0.4-Runner-, Finalisierungs- und Packaging-Contract
 
 Scope: finalisierte Übergabe von der Wizard-UI an Validierung, Packaging und
 Room-first-Host
 
 ## Projektgrenze
 
-M1 und M2 sind Implementierungsmeilensteine; das öffentliche Projektformat
-bleibt DEER `0.4`. Im produktiven Pfad speichert der loopback-only Java-Host
-private Drafts v1 und Uploads unter `%LOCALAPPDATA%\Dungeon Wizard`, schreibt
-den Authoring-Projektordner atomar und führt Produktionsvalidierung,
-Finalisierung und Packaging aus. LocalStorage und IndexedDB sind nur der
-Vite-Entwicklungsfallback. Der generische Wizard Runner
-liest den finalisierten Ordner unverändert und leitet den Raum ausschließlich
-im Speicher ab. Es entsteht weder Java-Code noch ein Room-ZIP.
+Das öffentliche Projektformat bleibt DEER `0.4`. Die Browser-UI speichert
+private Drafts v1 und Uploadbytes ausschließlich in einer neuen IndexedDB. Der
+Java-Host bindet an `127.0.0.1:27777`, bleibt bezüglich dieser Daten zustandslos
+und führt Produktionsvalidierung, Finalisierung und Packaging aus. Der
+generische Wizard Runner liest den finalisierten Ordner unverändert und leitet
+den Raum ausschließlich im Speicher ab. Es entsteht weder Java-Code noch ein
+Room-ZIP.
 
 ```text
 wizard-project/
@@ -58,9 +57,9 @@ Nach erfolgreicher Finalisierung erzeugt die UI mit dem gemeinsamen
 `WizardRoomPackager` und einer generischen `WizardRoomTemplate.jar` genau ein
 verteilbares Spielerartefakt unter `<project>/WizardRoom.jar`. Der Packager
 validiert das Projekt erneut über dieselbe `ProjectValidationService` und
-`RoomDeriver`-Kette. Ein Packaging-Fehler verändert das finalisierte Projekt
-nicht und ist unabhängig wiederholbar. Zur Hostlaufzeit sind weder Gradle noch
-Node erforderlich.
+`RoomDeriver`-Kette. Nach einem Packaging-Fehler wiederholt die UI den gesamten
+Finalize-und-Package-Ablauf. Zur Hostlaufzeit sind weder Gradle noch Node
+erforderlich.
 
 Der äquivalente Entwickler-/CI-Pfad lautet:
 
@@ -96,41 +95,40 @@ benötigt Java 25 und öffnet das Host-/Join-Menü.
 ## Draft und Finalisierung
 
 - Ein UI-Entwurf darf unvollständig sein und bleibt außerhalb dieses Formats.
-- Draft v1 und Uploadbytes liegen produktiv hinter dem gemeinsamen Storage-Port
-  unter `%LOCALAPPDATA%\Dungeon Wizard`; eine Browsermigration ist nicht
-  vorgesehen.
-- Die native Finalisierung projiziert den Draft auf Formatversion `0.4`.
+- Draft v1 und Uploadbytes liegen ausschließlich in einer neuen IndexedDB. Alte
+  Browser- und AppData-Entwürfe werden nicht migriert. Mehrere Tabs sind in V0
+  nicht unterstützt.
+- Beim ersten vollständigen Prüfen oder Erstellen erzeugt die UI einmal einen
+  sicheren 53-Bit-Seed und speichert ihn vor dem Hostaufruf im Draft. Java
+  erzeugt oder ersetzt keinen Seed.
+- Die UI projiziert den Draft auf Formatversion `0.4`.
 - Sie bewahrt jede authorierte direkte Pflichtabhängigkeit und erfindet oder
   vervollständigt keine Progressionskanten.
-- Der native Adapter prüft Schema, Fachregeln, Spielergrenzen und Assetpfade vor
+- Der Host prüft Schema, Fachregeln, Spielergrenzen und Assetpfade vor
   dem Schreiben.
-- Bei der ersten Finalisierung erzeugt der native Host den Seed zunächst
-  nur flüchtig und baut sowie validiert exakt den damit versehenen Kandidaten.
-  Die UI erzeugt oder speichert vorher keinen echten Projektseed.
-- Neue Custom-Dateien werden zuerst und `deer.json` zuletzt atomar geschrieben.
-  Erst nach vollständig erfolgreichem Abschluss gibt der native Vorgang den
-  Seed zur Draft-Persistenz zurück.
-- Vor dem Schreiben legt der Host einen Recovery-Receipt an. Beim nächsten
-  Start gleicht er ihn mit der geschriebenen `deer.json` und der gemeinsamen
-  Produktionsvalidierung ab, übernimmt eine vollständig erfolgreiche
-  Finalisierung in den Draft oder behält einen nicht auflösbaren Receipt zur
-  sicheren Diagnose bei.
-- Bei jeder späteren Finalisierung verwendet der native Vorgang den im Draft
-  vorhandenen Seedwert unverändert; der Runner verändert ihn nie.
+- Neue Custom-Dateien werden zuerst und `deer.json` zuletzt geschrieben. Jede
+  Datei wird einzeln atomar ersetzt; der Projektordner als Ganzes ist keine
+  Transaktion.
+- Als Ziel ist ein leerer normaler Ordner oder ein produktiv gültiges Projekt
+  mit derselben `metadata.id` erlaubt. Ein fremder, ungültiger oder anderweitig
+  nicht leerer Ordner wird abgelehnt.
+- Fremde und alte nicht referenzierte Dateien werden nicht gelöscht. V0 gibt
+  kein Recoveryversprechen.
+- Bei jeder späteren Finalisierung verwendet die UI den im Draft vorhandenen
+  Seedwert unverändert; der Runner verändert ihn nie.
 - Bei einem Spielbibliothek-Asset schreibt die UI ausschließlich dessen
   internen Pfad und Metadaten in den DEER-Eintrag; es wird keine Bilddatei
   kopiert.
-- Bei einem eigenen Upload hasht und verifiziert der native Host die Bytes
-  bereits beim Speichern. Der Draft leitet aus dem zurückgegebenen Storage-Key
-  den inhaltsadressierten Pfad ab; die Finalisierung prüft Bindung und Bytes
-  erneut und schreibt das Bild unter `assets/custom/`.
-- Ein fehlgeschlagener Schreibvorgang lässt die letzte gültige Ausgabe
-  verwendbar. Finalisierung sperrt den UI-Entwurf nicht.
+- Bei einem eigenen Upload erzeugt die UI den inhaltsadressierten Pfad. Der Host
+  prüft Pfad und Bytes beim Validieren und Finalisieren erneut und schreibt das
+  Bild unter `assets/custom/`.
+- Der Host speichert weder Draft-/Uploaddaten noch Recovery-, Ownership-,
+  Finalisierungs- oder Ready-Metadaten.
 
 Ein browser-only Export, beliebiger `deer.json`-Import und Room-ZIP sind nicht
 Teil des Produktflusses. `wizard/start_wizard_dev.cmd` ist nur ein
-Entwicklungslauncher. Eine Zielgruppen-`.exe` mit gebündelter Runtime bleibt
-ein späterer Distributionsmeilenstein; M2 erzeugt keine `.exe`.
+Entwicklungslauncher. Eine Zielgruppen-`.exe` und ein Installer mit gebündelter
+Runtime bleiben ein späterer Distributionsmeilenstein.
 
 ## Seed in deer.json
 

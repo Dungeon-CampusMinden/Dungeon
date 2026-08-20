@@ -59,15 +59,14 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 | `riddles` | Ausführbare Rätsel, Inhalte und optionale Hinweise. |
 | `assets` | Referenzierte PNG-/JPEG-Dateien. |
 
-M1 und M2 sind Implementierungsmeilensteine und ändern weder `formatVersion`
-noch die Semantik dieses Dokuments. Bei der ersten Finalisierung erzeugt der
-native Host `seed` zunächst nur
-flüchtig und gibt ihn erst nach vollständig erfolgreichem Abschluss zur
-Draft-Persistenz zurück. Bei späteren Finalisierungen verwendet er diesen im
-Draft vorhandenen Wert unverändert. Die UI erzeugt oder speichert vorher keinen
-echten Projektseed. Der Bereich ist der lückenlos exakt darstellbare
-nicht-negative Safe-Integer-Bereich der RFC-8785-Zahlendarstellung. Weitere
-Schreib- und Identitätsregeln stehen in
+Der Authoring-Refactor ändert weder `formatVersion` noch die Semantik dieses
+Dokuments. Ein unvollständiger Draft besitzt keinen echten Seed. Beim ersten
+vollständigen Prüfen oder Erstellen erzeugt die UI genau einmal einen Wert im
+Bereich `0..9007199254740991` und speichert ihn vor dem Hostaufruf im
+Browserdraft. Danach bleibt er stabil. Der Java-Host erzeugt und ersetzt keinen
+Seed. Der Bereich ist der lückenlos exakt darstellbare nicht-negative
+Safe-Integer-Bereich der RFC-8785-Zahlendarstellung. Weitere Schreibregeln
+stehen in
 [`runner-project-format.md`](runner-project-format.md).
 
 ## 3. IDs und Referenzen

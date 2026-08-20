@@ -6,9 +6,9 @@ import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,26 +24,22 @@ import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import tools.jackson.databind.JsonNode;
-import wizard.authoring.CandidateProjectService.FinalizationRecoveredException;
-import wizard.authoring.CandidateProjectService.MissingDraftException;
-import wizard.authoring.DraftStore.FinalizationIdentityConflictException;
-import wizard.authoring.DraftStore.ProjectOwnershipConflictException;
-import wizard.authoring.DraftStore.ProjectOwnershipUnavailableException;
-import wizard.authoring.DraftStore.RevisionConflictException;
-import wizard.runner.contract.ContractCapabilities;
+import wizard.authoring.CandidateProjectService.ProjectDirectoryConflictException;
 
 /** Local standalone browser host for private Wizard authoring. */
 public final class WizardAuthoringApplication {
   private static final String API_PREFIX = "/api/v1";
   private static final String UI_PREFIX = "wizard/authoring-ui/";
   private static final String TEMPLATE_RESOURCE = "wizard/template/WizardRoomTemplate.jar";
-  private static final int MAX_REQUEST_BYTES = ContractCapabilities.MAX_DEER_BYTES * 4;
+  private static final int PORT = 27_777;
+  private static final int MAX_REQUEST_BYTES = 96 * 1024 * 1024;
+  private static final String ORIGIN = "http://127.0.0.1:" + PORT;
   private static final Set<String> BUNDLED_ASSETS = bundledAssets();
 
   private WizardAuthoringApplication() {}
 
   /**
-   * Starts the loopback-only host and opens the system browser.
+   * Starts the fixed loopback-only host and opens the system browser.
    *
    * @param arguments must be empty
    */
@@ -51,32 +47,30 @@ public final class WizardAuthoringApplication {
     if (arguments.length != 0) {
       throw new IllegalArgumentException("DungeonWizard.jar does not accept arguments");
     }
-    Path dataRoot = DraftStore.defaultDataRoot();
-    DataRootLock dataRootLock = DataRootLock.acquire(dataRoot);
-    DraftStore drafts = new DraftStore(dataRoot);
-    CandidateProjectService projects = new CandidateProjectService(drafts);
-    projects.reconcileAll();
     Path template = materializeTemplate();
-    HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-    String origin = "http://127.0.0.1:" + server.getAddress().getPort();
-    server.createContext("/", exchange -> handle(exchange, drafts, projects, template, origin));
+    HttpServer server;
+    try {
+      server = HttpServer.create(new InetSocketAddress("127.0.0.1", PORT), 0);
+    } catch (BindException exception) {
+      Files.deleteIfExists(template);
+      throw new IllegalStateException(
+          "Dungeon Wizard cannot start because 127.0.0.1:" + PORT + " is already in use",
+          exception);
+    }
+    CandidateProjectService projects = new CandidateProjectService();
+    server.createContext("/", exchange -> handle(exchange, projects, template));
     server.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
     Runtime.getRuntime()
         .addShutdownHook(
             new Thread(
                 () -> {
                   server.stop(0);
-                  try {
-                    Files.deleteIfExists(template);
-                  } catch (IOException ignored) {
-                    // The operating system can reclaim an abandoned temporary template.
-                  }
-                  dataRootLock.close();
+                  deleteTemplate(template);
                 },
                 "wizard-authoring-shutdown"));
     server.start();
-    System.out.println("Dungeon Wizard is available at " + origin + "/");
-    openBrowser(URI.create(origin + "/"));
+    System.out.println("Dungeon Wizard is available at " + ORIGIN + "/");
+    openBrowser(URI.create(ORIGIN + "/"));
     try {
       new CountDownLatch(1).await();
     } catch (InterruptedException exception) {
@@ -84,54 +78,22 @@ public final class WizardAuthoringApplication {
     } finally {
       server.stop(0);
       Files.deleteIfExists(template);
-      dataRootLock.close();
     }
   }
 
   private static void handle(
-      final HttpExchange exchange,
-      final DraftStore drafts,
-      final CandidateProjectService projects,
-      final Path template,
-      final String origin) {
+      final HttpExchange exchange, final CandidateProjectService projects, final Path template) {
     try {
       if (exchange.getRequestURI().getPath().startsWith(API_PREFIX)) {
-        handleApi(exchange, drafts, projects, template, origin);
+        handleApi(exchange, projects, template);
       } else {
         serveStatic(exchange);
       }
-    } catch (RevisionConflictException exception) {
+    } catch (ProjectDirectoryConflictException exception) {
       sendJson(
           exchange,
           409,
-          Map.of(
-              "error",
-              exception.getMessage(),
-              "code",
-              "REVISION_CONFLICT",
-              "expectedRevision",
-              exception.expectedRevision(),
-              "actualRevision",
-              exception.actualRevision()));
-    } catch (FinalizationRecoveredException exception) {
-      sendJson(
-          exchange,
-          409,
-          Map.of(
-              "error",
-              exception.getMessage(),
-              "code",
-              "FINALIZATION_RECOVERED",
-              "revision",
-              exception.revision()));
-    } catch (FinalizationIdentityConflictException exception) {
-      sendConflict(exchange, "FINALIZATION_IDENTITY_MISMATCH", exception.getMessage());
-    } catch (ProjectOwnershipConflictException exception) {
-      sendConflict(exchange, "PROJECT_DIRECTORY_OWNED", exception.getMessage());
-    } catch (ProjectOwnershipUnavailableException exception) {
-      sendConflict(exchange, "PROJECT_OWNERSHIP_UNAVAILABLE", exception.getMessage());
-    } catch (MissingDraftException exception) {
-      sendError(exchange, 404, exception.getMessage());
+          Map.of("error", exception.getMessage(), "code", "PROJECT_DIRECTORY_CONFLICT"));
     } catch (IllegalArgumentException exception) {
       sendError(exchange, 400, concise(exception));
     } catch (Exception exception) {
@@ -142,11 +104,7 @@ public final class WizardAuthoringApplication {
   }
 
   private static void handleApi(
-      final HttpExchange exchange,
-      final DraftStore drafts,
-      final CandidateProjectService projects,
-      final Path template,
-      final String origin)
+      final HttpExchange exchange, final CandidateProjectService projects, final Path template)
       throws IOException {
     String method = exchange.getRequestMethod();
     String path = exchange.getRequestURI().getPath();
@@ -154,12 +112,8 @@ public final class WizardAuthoringApplication {
       sendJson(exchange, 200, Map.of("apiVersion", "1", "mode", "native"));
       return;
     }
-    if (method.equals("GET") && path.equals(API_PREFIX + "/drafts")) {
-      sendJson(exchange, 200, drafts.list());
-      return;
-    }
     if (method.equals("POST") && path.equals(API_PREFIX + "/choose-project-directory")) {
-      requireMutation(exchange, origin, null);
+      requireMutation(exchange, false);
       requireEmptyBody(exchange);
       Optional<Path> chosen = chooseDirectory();
       if (chosen.isEmpty()) {
@@ -169,116 +123,69 @@ public final class WizardAuthoringApplication {
       }
       return;
     }
-
-    List<String> segments = segments(path.substring(API_PREFIX.length()));
-    if (segments.size() < 2 || !segments.get(0).equals("drafts")) {
-      sendError(exchange, 404, "API route does not exist");
+    if (method.equals("POST") && path.equals(API_PREFIX + "/validate")) {
+      requireMutation(exchange, true);
+      sendJson(exchange, 200, projects.validate(readJsonBody(exchange)).json());
       return;
     }
-    String draftId = segments.get(1);
-    DraftStore.requireDraftId(draftId);
-
-    if (segments.size() == 2 && method.equals("GET")) {
-      JsonNode draft =
-          drafts.loadOptional(draftId).orElseThrow(() -> new MissingDraftException(draftId));
-      sendJson(exchange, 200, draft);
+    if (method.equals("POST") && path.equals(API_PREFIX + "/finalize")) {
+      requireMutation(exchange, true);
+      sendJson(exchange, 200, projects.finalizeProject(readJsonBody(exchange)).json());
       return;
     }
-    if (segments.size() == 2 && method.equals("PUT")) {
-      requireMutation(exchange, origin, "application/json");
-      sendJson(exchange, 200, drafts.save(draftId, readBody(exchange, MAX_REQUEST_BYTES)));
+    if (method.equals("POST") && path.equals(API_PREFIX + "/package")) {
+      requireMutation(exchange, true);
+      sendJson(exchange, 200, projects.packageProject(readJsonBody(exchange), template).json());
       return;
     }
-    if (segments.size() == 2 && method.equals("DELETE")) {
-      requireMutation(exchange, origin, "application/json");
-      drafts.delete(draftId, AuthoringJson.parse(readBody(exchange, MAX_REQUEST_BYTES)));
-      exchange.sendResponseHeaders(204, -1);
-      return;
-    }
-    if (segments.size() == 3
-        && segments.get(2).equals("finalization-status")
-        && method.equals("GET")) {
-      sendJson(exchange, 200, projects.finalizationStatus(draftId));
-      return;
-    }
-    if (segments.size() >= 3 && segments.get(2).equals("uploads")) {
-      handleUploads(exchange, drafts, draftId, segments, origin);
-      return;
-    }
-    if (segments.size() == 3 && method.equals("POST")) {
-      requireMutation(exchange, origin, "application/json");
-      JsonNode request = AuthoringJson.parse(readBody(exchange, MAX_REQUEST_BYTES));
-      switch (segments.get(2)) {
-        case "validate" -> sendJson(exchange, 200, projects.validate(draftId, request).json());
-        case "finalize" ->
-            sendJson(exchange, 200, projects.finalizeProject(draftId, request).json());
-        case "package" ->
-            sendJson(exchange, 200, projects.packageProject(draftId, request, template));
-        default -> sendError(exchange, 404, "API route does not exist");
-      }
-      return;
-    }
-    sendError(exchange, 405, "HTTP method is not allowed for this API route");
+    sendError(exchange, 404, "API route does not exist");
   }
 
-  private static void handleUploads(
-      final HttpExchange exchange,
-      final DraftStore drafts,
-      final String draftId,
-      final List<String> segments,
-      final String origin)
-      throws IOException {
-    if (drafts.loadOptional(draftId).isEmpty()) {
-      throw new MissingDraftException(draftId);
-    }
-    String method = exchange.getRequestMethod();
-    if (segments.size() == 3 && method.equals("POST")) {
-      String mediaType = exchange.getRequestHeaders().getFirst("Content-Type");
-      if (!"image/png".equals(mediaType) && !"image/jpeg".equals(mediaType)) {
-        throw new IllegalArgumentException("Upload Content-Type must be image/png or image/jpeg");
-      }
-      requireMutation(exchange, origin, mediaType);
-      String name = queryName(exchange.getRequestURI().getRawQuery());
-      DraftStore.Upload upload =
-          drafts.putUpload(
-              draftId, name, mediaType, readBody(exchange, ContractCapabilities.MAX_ASSET_BYTES));
-      sendJson(
-          exchange,
-          200,
-          Map.of("storageKey", upload.storageKey(), "originalName", upload.originalName()));
-      return;
-    }
-    if (segments.size() == 3 && method.equals("GET")) {
-      sendJson(exchange, 200, Map.of("storageKeys", drafts.uploadKeys(draftId)));
-      return;
-    }
-    if (segments.size() == 4 && method.equals("GET")) {
-      Optional<DraftStore.Upload> storedUpload = drafts.upload(draftId, segments.get(3));
-      if (storedUpload.isEmpty()) {
-        sendError(exchange, 404, "Upload does not exist");
-        return;
-      }
-      DraftStore.Upload upload = storedUpload.orElseThrow();
-      send(exchange, 200, upload.mediaType(), upload.bytes(), false);
-      return;
-    }
-    sendError(exchange, 405, "HTTP method is not allowed for this upload route");
-  }
-
-  private static void requireMutation(
-      final HttpExchange exchange, final String origin, final String contentType) {
-    if (!origin.equals(exchange.getRequestHeaders().getFirst("Origin"))) {
+  private static void requireMutation(final HttpExchange exchange, final boolean json) {
+    if (!ORIGIN.equals(exchange.getRequestHeaders().getFirst("Origin"))) {
       throw new IllegalArgumentException("Mutation request origin is not the local Wizard host");
     }
-    if (contentType != null
-        && !contentType.equals(exchange.getRequestHeaders().getFirst("Content-Type"))) {
-      throw new IllegalArgumentException("Request Content-Type is invalid");
+    if (json && !"application/json".equals(exchange.getRequestHeaders().getFirst("Content-Type"))) {
+      throw new IllegalArgumentException("Request Content-Type must be application/json");
     }
+  }
+
+  private static JsonNode readJsonBody(final HttpExchange exchange) throws IOException {
+    return AuthoringJson.parse(readBody(exchange, MAX_REQUEST_BYTES));
   }
 
   private static void requireEmptyBody(final HttpExchange exchange) throws IOException {
     if (readBody(exchange, 1).length != 0) {
       throw new IllegalArgumentException("Request body must be empty");
+    }
+  }
+
+  private static byte[] readBody(final HttpExchange exchange, final int limit) throws IOException {
+    String header = exchange.getRequestHeaders().getFirst("Content-Length");
+    if (header != null) {
+      long length;
+      try {
+        length = Long.parseLong(header);
+      } catch (NumberFormatException exception) {
+        throw new IllegalArgumentException("Content-Length is invalid", exception);
+      }
+      if (length < 0 || length > limit) {
+        throw new IllegalArgumentException("Request body is too large");
+      }
+    }
+    try (InputStream input = exchange.getRequestBody();
+        ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+      byte[] buffer = new byte[8192];
+      int total = 0;
+      int read;
+      while ((read = input.read(buffer)) >= 0) {
+        total += read;
+        if (total > limit) {
+          throw new IllegalArgumentException("Request body is too large");
+        }
+        output.write(buffer, 0, read);
+      }
+      return output.toByteArray();
     }
   }
 
@@ -373,6 +280,14 @@ public final class WizardAuthoringApplication {
     return temporary;
   }
 
+  private static void deleteTemplate(final Path template) {
+    try {
+      Files.deleteIfExists(template);
+    } catch (IOException ignored) {
+      // The operating system can reclaim an abandoned temporary template.
+    }
+  }
+
   private static Optional<Path> chooseDirectory() {
     final Path[] result = new Path[1];
     final RuntimeException[] failure = new RuntimeException[1];
@@ -416,40 +331,6 @@ public final class WizardAuthoringApplication {
     System.out.println("Open this address in a browser: " + uri);
   }
 
-  private static List<String> segments(final String path) {
-    return List.of(path.split("/", -1)).stream().filter(segment -> !segment.isEmpty()).toList();
-  }
-
-  private static String queryName(final String rawQuery) {
-    if (rawQuery == null || !rawQuery.startsWith("name=") || rawQuery.indexOf('&') >= 0) {
-      throw new IllegalArgumentException("Upload requires exactly one name query parameter");
-    }
-    String name = URLDecoder.decode(rawQuery.substring(5), StandardCharsets.UTF_8);
-    if (name.isBlank()
-        || name.length() > 255
-        || name.codePoints().anyMatch(Character::isISOControl)) {
-      throw new IllegalArgumentException("Upload original name is invalid");
-    }
-    return name;
-  }
-
-  private static byte[] readBody(final HttpExchange exchange, final int limit) throws IOException {
-    try (InputStream input = exchange.getRequestBody();
-        ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-      byte[] buffer = new byte[8192];
-      int total = 0;
-      int read;
-      while ((read = input.read(buffer)) >= 0) {
-        total += read;
-        if (total > limit) {
-          throw new IllegalArgumentException("Request body is too large");
-        }
-        output.write(buffer, 0, read);
-      }
-      return output.toByteArray();
-    }
-  }
-
   private static String mediaType(final String resource) {
     String lower = resource.toLowerCase(Locale.ROOT);
     if (lower.endsWith(".html")) return "text/html; charset=utf-8";
@@ -467,24 +348,9 @@ public final class WizardAuthoringApplication {
     send(exchange, status, "application/json; charset=utf-8", AuthoringJson.encode(value), false);
   }
 
-  private static void sendRawJson(
-      final HttpExchange exchange, final int status, final String value) {
-    send(
-        exchange,
-        status,
-        "application/json; charset=utf-8",
-        value.getBytes(StandardCharsets.UTF_8),
-        false);
-  }
-
   private static void sendError(
       final HttpExchange exchange, final int status, final String message) {
     sendJson(exchange, status, Map.of("error", message));
-  }
-
-  private static void sendConflict(
-      final HttpExchange exchange, final String code, final String message) {
-    sendJson(exchange, 409, Map.of("error", message, "code", code));
   }
 
   private static void send(

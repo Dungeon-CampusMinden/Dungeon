@@ -103,7 +103,7 @@ export function AssetsTab({ draft, updateDraft, beginWork, finishWork }: {
       const index = current.project.assets.findIndex((entry) => entry.id === asset.id);
       if (index === -1) return false;
       current.project.assets.splice(index, 1);
-      // Blob content may be shared by another draft. A later GC can remove unreferenced data.
+      // Upload blobs remain until the complete draft is deleted.
       delete current.uploads[asset.id];
     });
   };

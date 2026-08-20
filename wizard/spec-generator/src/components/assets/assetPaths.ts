@@ -53,6 +53,8 @@ export const getMediaTypeForPath = (filePath: string): AssetMediaType => {
 };
 
 export function validateCustomAssetFile(file: File): AssetMediaType {
+  if (file.size === 0) throw new Error("Die ausgewählte Datei ist leer.");
+  if (file.size > 16 * 1024 * 1024) throw new Error("Die Datei darf höchstens 16 MiB groß sein.");
   const extension = getFileExtension(file.name);
   const mediaType = MEDIA_TYPE_BY_EXTENSION[extension];
   if (!mediaType) {

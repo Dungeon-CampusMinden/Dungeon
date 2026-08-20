@@ -3,7 +3,6 @@ import type {
   AnyResource,
   AnyRiddleInput,
   Asset,
-  DeerProject,
   DeerSchema,
   Riddle,
 } from "./DeerSchema";
@@ -70,7 +69,10 @@ function projectAsset(asset: Asset): Asset {
 }
 
 /** Projects private draft state onto the exact public DEER candidate boundary. */
-export function createDeerCandidate(draft: WizardDraft): DeerProject {
+export function createDeerCandidate(draft: WizardDraft): DeerSchema {
+  if (draft.seed === undefined) {
+    throw new Error("Der Entwurf hat noch keinen Seed.");
+  }
   const referencedAssetIds = new Set<string>();
   for (const riddle of draft.project.riddles) {
     for (const informationSource of riddle.informationSources) {
@@ -83,6 +85,7 @@ export function createDeerCandidate(draft: WizardDraft): DeerProject {
   const { project } = draft;
   return {
     formatVersion: "0.4",
+    seed: draft.seed,
     metadata: {
       id: project.metadata.id,
       title: project.metadata.title,
@@ -134,9 +137,4 @@ export function createDeerCandidate(draft: WizardDraft): DeerProject {
       .filter((asset) => referencedAssetIds.has(asset.id))
       .map(projectAsset),
   };
-}
-
-/** Adds a throwaway seed only for local checks that require a complete public project. */
-export function createTemporarySeedCandidate(draft: WizardDraft, seed = 0): DeerSchema {
-  return { ...createDeerCandidate(draft), seed };
 }

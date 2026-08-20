@@ -57,45 +57,6 @@ public final class WizardRoomPackager {
   }
 
   /**
-   * Atomically creates or replaces one player JAR without changing the source project.
-   *
-   * @param template generic project-free player JAR
-   * @param project finalized project directory
-   * @param destination output player JAR
-   */
-  public static void packageProject(
-      final Path template, final Path project, final Path destination) {
-    packageProject(template, project, destination, null);
-  }
-
-  /**
-   * Atomically packages a project only when its validated {@code deer.json} matches the expected
-   * finalized bytes.
-   *
-   * @param template generic project-free player JAR
-   * @param project finalized project directory
-   * @param destination output player JAR
-   * @param expectedDeerSha256 host-confirmed hash stored with the draft finalization
-   */
-  public static void packageProject(
-      final Path template,
-      final Path project,
-      final Path destination,
-      final String expectedDeerSha256) {
-    ProjectValidationService.Outcome outcome = new ProjectValidationService().validate(project);
-    if (!outcome.report().valid()) {
-      throw new IllegalArgumentException(outcome.report().canonicalJson());
-    }
-    ValidationResult validation = outcome.validation().orElseThrow();
-    if (expectedDeerSha256 != null
-        && !validation.rawDeerSha256().filter(expectedDeerSha256::equals).isPresent()) {
-      throw new IllegalStateException(
-          "Finalized deer.json no longer matches this draft's saved finalization");
-    }
-    packageValidatedProject(template, project, destination, validation);
-  }
-
-  /**
    * Packages a project from the exact closed input returned by production validation.
    *
    * @param template generic project-free player JAR
