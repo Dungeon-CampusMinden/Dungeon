@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import engine.Game;
 import feature.systems.LevelEditorSystem;
 
@@ -81,6 +82,10 @@ public class LevelEditorUI extends Group {
     Actor hit = stage.hit(stagePosition.x, stagePosition.y, true);
     while (hit != null) {
       if (hit == this) return true;
+      if (hit instanceof SelectBox.SelectBoxScrollPane<?> popup
+          && popup.getSelectBox().isDescendantOf(this)) {
+        return true;
+      }
       hit = hit.getParent();
     }
     return false;
