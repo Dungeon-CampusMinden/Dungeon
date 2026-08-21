@@ -280,6 +280,8 @@ tasks.register('buildWizardAuthoringUi', Exec) {
         ['npm.cmd', 'run', 'build'] : ['npm', 'run', 'build']
     inputs.dir(layout.projectDirectory.dir('spec-generator/src'))
     inputs.dir(layout.projectDirectory.dir('spec-generator/public'))
+    inputs.dir(layout.projectDirectory.dir('spec-generator/plugins'))
+    inputs.dir(rootProject.layout.projectDirectory.dir('game/assets'))
     inputs.files(
         layout.projectDirectory.file('spec-generator/index.html'),
         layout.projectDirectory.file('spec-generator/package.json'),

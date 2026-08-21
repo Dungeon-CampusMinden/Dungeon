@@ -1,6 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
 
+const VIRTUAL_MODULE_ID = "virtual:dungeon-assets-manifest";
+const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
+
 const toAssetPath = (assetDir: string, entryPath: string) =>
   `/${path.relative(assetDir, entryPath).replaceAll("\\", "/")}`;
 
@@ -13,10 +16,36 @@ type ManifestEntry =
   | {
       path: string;
       type: "file";
-      license: string | null;
+      source: {
+        license: string;
+        attribution?: string;
+      } | null;
     };
 
-export function assetManifest(assetDir: string, outputDir: string) {
+async function readAssetSource(licensePath: string | undefined) {
+  if (!licensePath) return null;
+
+  const metadata = new Map<string, string>();
+  const licenseContent = await fs.readFile(licensePath, "utf8");
+
+  for (const line of licenseContent.split(/\r?\n/)) {
+    const match = /^\s*-\s*([^:]+):\s*(.*?)\s*$/.exec(line);
+    if (match?.[1] && match[2]) metadata.set(match[1].trim().toLowerCase(), match[2]);
+  }
+
+  const license = metadata.get("license") ?? metadata.get("lizenz");
+  if (!license) return null;
+
+  const attribution =
+    metadata.get("author") ?? metadata.get("autor") ?? metadata.get("urheber");
+
+  return {
+    license,
+    ...(attribution ? { attribution } : {}),
+  };
+}
+
+export function assetManifest(assetDir: string) {
   const excludedDirectories = new Set([
     "dungeon",
     "language_default",
@@ -87,7 +116,7 @@ export function assetManifest(assetDir: string, outputDir: string) {
         entries.push({
           path: toAssetPath(assetDir, abs),
           type: "file",
-          license: licensePath ? toAssetPath(assetDir, licensePath) : null,
+          source: await readAssetSource(licensePath),
         });
         assetCount += 1;
       }
@@ -96,23 +125,27 @@ export function assetManifest(assetDir: string, outputDir: string) {
     }
 
     const manifest = await walk(assetDir);
-
-    await fs.mkdir(outputDir, { recursive: true });
-
-    await fs.writeFile(path.join(outputDir, "assets-manifest.json"), JSON.stringify(manifest, null, 2));
-
     console.log(`Generated asset manifest (${assetCount} assets)`);
+    return manifest;
   }
+
+  let manifest: ManifestEntry[] | null = null;
 
   return {
     name: "assets-manifest",
 
     async buildStart() {
-      await generate();
+      manifest = await generate();
     },
 
-    async configureServer() {
-      await generate();
+    resolveId(id: string) {
+      if (id === VIRTUAL_MODULE_ID) return RESOLVED_VIRTUAL_MODULE_ID;
+    },
+
+    async load(id: string) {
+      if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
+      manifest ??= await generate();
+      return `export default ${JSON.stringify(manifest)};`;
     },
   };
 }

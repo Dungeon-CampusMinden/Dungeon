@@ -1,6 +1,6 @@
 import type { Asset, AssetMediaType } from "@/data/DeerSchema";
 import type { UploadReference } from "@/data/WizardDraft";
-import assetsManifest from "@/data/assets-manifest.json";
+import assetsManifest from "virtual:dungeon-assets-manifest";
 
 export const ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg"];
 export const USE_NN_BELOW = 128;
@@ -19,7 +19,7 @@ export const CUSTOM_PATH_PREFIX = "assets/custom";
 
 export type AssetEntry =
   | { path: string; type: "directory"; entries: AssetEntry[] }
-  | { path: string; type: "file"; license: string | null };
+  | { path: string; type: "file"; source: Asset["source"] | null };
 
 /** Result of the asset selector dialog: either an uploaded file or a bundled asset path. */
 export type AssetSelection = { kind: "custom"; file: File } | { kind: "bundled"; path: string };
@@ -114,19 +114,46 @@ export const toManifestPath = (assetPath: string) => normalizeAssetPath(assetPat
 export const getBundledAssetUrl = (assetPath: string) => `/bundled-assets/${stripLeadingSlash(assetPath)}`;
 
 let bundledAssetPathCache: Set<string> | null = null;
+let bundledAssetSourceCache: Map<string, Asset["source"]> | null = null;
 
-const collectFilePaths = (entries: AssetEntry[], target: Set<string>) => {
+const collectBundledAssets = (
+  entries: AssetEntry[],
+  paths: Set<string>,
+  sources: Map<string, Asset["source"]>,
+) => {
   for (const entry of entries) {
-    if (entry.type === "directory") collectFilePaths(entry.entries, target);
-    else target.add(toBundledAssetPath(entry.path));
+    if (entry.type === "directory") {
+      collectBundledAssets(entry.entries, paths, sources);
+      continue;
+    }
+
+    const assetPath = toBundledAssetPath(entry.path);
+    paths.add(assetPath);
+    if (entry.source) sources.set(assetPath, entry.source);
   }
+};
+
+const ensureBundledAssetCaches = () => {
+  if (bundledAssetPathCache && bundledAssetSourceCache) return;
+
+  bundledAssetPathCache = new Set<string>();
+  bundledAssetSourceCache = new Map<string, Asset["source"]>();
+  collectBundledAssets(
+    assetsManifest as AssetEntry[],
+    bundledAssetPathCache,
+    bundledAssetSourceCache,
+  );
 };
 
 /** All asset paths that are shipped with the application, as they appear in the deer schema. */
 export const getBundledAssetPaths = (): Set<string> => {
-  if (!bundledAssetPathCache) {
-    bundledAssetPathCache = new Set<string>();
-    collectFilePaths(assetsManifest as AssetEntry[], bundledAssetPathCache);
-  }
-  return bundledAssetPathCache;
+  ensureBundledAssetCaches();
+  return bundledAssetPathCache!;
+};
+
+/** License metadata shipped with a bundled asset, if its license file declares it. */
+export const getBundledAssetSource = (assetPath: string): Asset["source"] | null => {
+  ensureBundledAssetCaches();
+  const source = bundledAssetSourceCache!.get(stripLeadingSlash(assetPath));
+  return source ? { ...source } : null;
 };
