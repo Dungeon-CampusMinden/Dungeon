@@ -21,9 +21,10 @@ freigegebene Inhalte sind deshalb für jeden Empfänger lokal lesbar.
 ## Authoring in V0
 
 Die React-UI läuft im Browser. Sie speichert den privaten `WizardDraft` v1 und
-alle Uploadbytes ausschließlich in einer neuen IndexedDB. Alte Browser- oder
-AppData-Entwürfe werden nicht migriert. Mehrere gleichzeitig geöffnete Tabs
-sind in V0 nicht unterstützt.
+alle Uploadbytes ausschließlich in einer neuen IndexedDB und bittet den Browser
+beim Start um dauerhafte Speicherung. Alte Browser- oder AppData-Entwürfe
+werden nicht migriert. Genau ein Tab darf gleichzeitig bearbeiten; ein weiterer
+Tab erhält eine klare Warnung und bleibt in der Übersicht.
 
 Der Java-Host bindet fest an `127.0.0.1:27777`. Er ist zustandslos bezüglich
 Entwürfen und Uploads und übernimmt nur:
@@ -63,7 +64,9 @@ Authoring-Refactor nicht.
 `wizard/start_wizard_dev.cmd` ist ein Entwicklungslauncher. Aktuell benötigen
 Wizard und Spieler-JAR eine vorhandene Java-25-Runtime. Eine Zielgruppen-EXE,
 beispielsweise über `jpackage`, und ein Installer mit gebündelter Runtime
-bleiben ein späterer Meilenstein. Der Entwickler- und CI-Pfad bleibt:
+bleiben ein späterer Meilenstein. Bis dahin richtet sich der lokale
+Authoring-Host an Entwickler und technische Betreuung, nicht direkt an
+Lehrende. Der Entwickler- und CI-Pfad bleibt:
 
 ```text
 gradlew.bat :wizard:buildWizardRoomJar -PwizardProject=<projektordner>
