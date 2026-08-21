@@ -72,7 +72,7 @@ export function RiddleEditDialog({
           <DialogTitle>Rätsel „{draft.title.trim() || "Unbenanntes Rätsel"}“ bearbeiten</DialogTitle>
         </DialogHeader>
 
-        <div className="flex max-h-[65vh] flex-col gap-4 overflow-y-auto pr-1">
+        <div className="flex max-h-[65vh] flex-col gap-4 overflow-y-auto px-1">
           <ValidationFeedback issues={riddleIssues} />
           <div className="flex flex-col gap-4">
             <Field>
