@@ -36,6 +36,10 @@ import {
 } from "./data/ProjectValidationReport";
 import { BrowserDraftStorage, type DraftSummary } from "./data/DraftStorage";
 import { BrowserAssetStorage } from "./data/AssetStorage";
+import {
+  acquireEditorSessionLock,
+  type EditorSessionLock,
+} from "./data/EditorSessionLock";
 import { useWizardStorage, WizardStorageProvider, type WizardStoragePort } from "./data/WizardStorage";
 import { BrowserWizardHost, detectNativeHost, NativeWizardHost } from "./data/NativeWizardHost";
 import {
@@ -109,12 +113,22 @@ const createAllTouchedTabs = (): WizardDraft["ui"]["touchedTabs"] =>
   Object.fromEntries(VALIDATED_TAB_IDS.map((tabId) => [tabId, true])) as WizardDraft["ui"]["touchedTabs"];
 
 async function createStorage(): Promise<WizardStoragePort> {
+  requestDurableStorage();
   const assets = new BrowserAssetStorage();
   return {
     drafts: new BrowserDraftStorage(),
     assets,
     host: await detectNativeHost() ? new NativeWizardHost() : new BrowserWizardHost(),
   };
+}
+
+/** Best-effort request so the browser avoids evicting IndexedDB drafts under storage pressure. */
+function requestDurableStorage(): void {
+  try {
+    void navigator.storage?.persist?.().catch(() => {});
+  } catch {
+    // Browsers without the Storage Manager keep plain best-effort storage.
+  }
 }
 
 /** Uses the local editor rules and stored uploads without invoking Java. */
@@ -185,6 +199,8 @@ function WizardWorkspace() {
   const [deleteDraft, setDeleteDraft] = React.useState<DraftSummary | null>(null);
   const [deleteError, setDeleteError] = React.useState<string | null>(null);
   const [deleting, setDeleting] = React.useState(false);
+  const sessionLockRef = React.useRef<EditorSessionLock | null>(null);
+  const [sessionBlocked, setSessionBlocked] = React.useState(false);
 
   const refresh = React.useCallback(async () => {
     try {
@@ -196,21 +212,45 @@ function WizardWorkspace() {
   }, [storage]);
   React.useEffect(() => { void refresh(); }, [refresh]);
 
+  const acquireEditorSession = React.useCallback(async (): Promise<boolean> => {
+    if (sessionLockRef.current) return true;
+    const lock = await acquireEditorSessionLock();
+    if (!lock) {
+      setSessionBlocked(true);
+      return false;
+    }
+    sessionLockRef.current = lock;
+    setSessionBlocked(false);
+    return true;
+  }, []);
+  const releaseEditorSession = React.useCallback(() => {
+    sessionLockRef.current?.release();
+    sessionLockRef.current = null;
+  }, []);
+
   const openDraft = async (draftId: string) => {
+    if (!(await acquireEditorSession())) return;
     setBusy(true);
     try {
       const loaded = await storage.drafts.load(draftId);
       if (!loaded) throw new Error("Der Entwurf ist nicht mehr vorhanden.");
       setDraft(loaded); setError(null);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Der Entwurf konnte nicht geöffnet werden."); }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Der Entwurf konnte nicht geöffnet werden.");
+      releaseEditorSession();
+    }
     finally { setBusy(false); }
   };
   const createDraft = async () => {
+    if (!(await acquireEditorSession())) return;
     setBusy(true);
     try {
       const saved = await storage.drafts.save(createWizardDraft());
       setDraft(saved); setError(null);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Der Entwurf konnte nicht angelegt werden."); }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Der Entwurf konnte nicht angelegt werden.");
+      releaseEditorSession();
+    }
     finally { setBusy(false); }
   };
   const deleteSelectedDraft = async () => {
@@ -250,7 +290,7 @@ function WizardWorkspace() {
   };
 
   if (draft) {
-    return <DraftEditor key={draft.draftId} initialDraft={draft} onClose={async () => { setDraft(null); await refresh(); }} />;
+    return <DraftEditor key={draft.draftId} initialDraft={draft} onClose={async () => { releaseEditorSession(); setDraft(null); await refresh(); }} />;
   }
   return (
     <div className="wizard-launcher min-h-screen bg-background text-foreground">
@@ -299,6 +339,15 @@ function WizardWorkspace() {
           <Alert variant="destructive">
             <AlertTitle>Entwürfe nicht verfügbar</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {sessionBlocked && (
+          <Alert variant="destructive">
+            <AlertTitle>Wizard ist bereits in einem anderen Tab geöffnet</AlertTitle>
+            <AlertDescription>
+              Schließe den anderen Tab oder beende dort die Bearbeitung, bevor du hier ein Spiel öffnest oder anlegst.
+            </AlertDescription>
           </Alert>
         )}
 

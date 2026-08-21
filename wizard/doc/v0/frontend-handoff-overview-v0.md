@@ -35,9 +35,11 @@ DEER-Format. Er behält alle sichtbaren Eingaben, stabilen Authoring-IDs,
 Uploadbytes, Assetmetadaten und den Seed, sobald dieser erzeugt wurde.
 
 V0 ist ein Clean Cut. Alte Browser- und AppData-Entwürfe werden weder erkannt
-noch migriert. Mehrere Tabs werden nicht koordiniert und sind nicht
-unterstützt. Es gibt daher keine Revisionen, Compare-and-set-Logik, Web Locks
-oder Konfliktauflösung zwischen Tabs.
+noch migriert. Beim Start bittet die UI den Browser um dauerhafte Speicherung
+der IndexedDB. Genau ein Tab gleichzeitig darf bearbeiten: Die UI hält eine
+Web-Locks-Sitzung, solange ein Entwurf geöffnet ist; ein weiterer Tab erhält
+eine klare Warnung und kann keinen Entwurf öffnen oder anlegen. Es gibt keine
+Revisionen, Compare-and-set-Logik oder Konfliktauflösung zwischen Tabs.
 
 Der Host hat keine Draft-/Upload-API und speichert weder Authoringdaten noch
 JAR oder Ready-Zustand.

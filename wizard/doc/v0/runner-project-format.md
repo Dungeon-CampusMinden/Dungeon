@@ -95,8 +95,8 @@ benötigt Java 25 und öffnet das Host-/Join-Menü.
 
 - Ein UI-Entwurf darf unvollständig sein und bleibt außerhalb dieses Formats.
 - Draft v1 und Uploadbytes liegen ausschließlich in einer neuen IndexedDB. Alte
-  Browser- und AppData-Entwürfe werden nicht migriert. Mehrere Tabs sind in V0
-  nicht unterstützt.
+  Browser- und AppData-Entwürfe werden nicht migriert. Genau ein Tab darf
+  gleichzeitig bearbeiten; ein weiterer Tab erhält eine klare Warnung.
 - Beim ersten Betreten der Abschlussseite erzeugt die UI einmal einen sicheren
   53-Bit-Seed und speichert ihn vor dem Hostaufruf im Draft. Java erzeugt oder
   ersetzt keinen Seed.

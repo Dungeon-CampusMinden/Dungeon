@@ -53,9 +53,11 @@ Frontend-/Host-Grenze steht im
 ## Entwurfslebenszyklus
 
 Die UI speichert `WizardDraft` v1 und alle Uploadbytes ausschließlich in einer
-neuen IndexedDB. Änderungen werden automatisch gespeichert. Alte Browser-
-oder AppData-Entwürfe werden nicht migriert. Mehrere Tabs sind in V0 nicht
-unterstützt; es gibt keine tabübergreifende Konfliktauflösung.
+neuen IndexedDB und bittet den Browser beim Start um dauerhafte Speicherung.
+Änderungen werden automatisch gespeichert. Alte Browser- oder AppData-Entwürfe
+werden nicht migriert. Genau ein Tab darf gleichzeitig bearbeiten; öffnet ein
+weiterer Tab einen Entwurf, erhält er eine klare Warnung. Es gibt keine
+tabübergreifende Konfliktauflösung.
 
 Ein Draft darf unvollständig und im Rätselgraphen unverbunden sein. Stabile
 Authoring-IDs entstehen beim Anlegen und bleiben bei Umbenennungen erhalten.
