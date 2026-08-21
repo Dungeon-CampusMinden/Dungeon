@@ -16,6 +16,8 @@ import { RiddleInputsEditor } from "./RiddleInputsEditor";
 import { HintListEditor, InformationSourceListEditor } from "./RiddleSubEditors";
 import { RIDDLE_DIFFICULTIES } from "./riddleTypes";
 import { SimpleSelect } from "./SimpleSelect";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, ValidationFeedback } from "../ValidationFeedback";
 
 export function RiddleEditDialog({
   riddle,
@@ -24,6 +26,7 @@ export function RiddleEditDialog({
   setOpen,
   onChange,
   onDelete,
+  tabIssues,
 }: {
   riddle: Riddle;
   deerSchema: DeerProject;
@@ -31,8 +34,10 @@ export function RiddleEditDialog({
   setOpen: (open: boolean) => void;
   onChange: (updated: DeerProject) => void;
   onDelete: () => void;
+  tabIssues: TabIssues;
 }) {
   const draft = deerSchema.riddles.find((candidate) => candidate.id === riddle.id) ?? riddle;
+  const riddleIssues = fieldIssues(tabIssues, `riddle:${riddle.id}`);
 
   const updateRiddle = (updated: Riddle) => {
     const next = structuredClone(deerSchema);
@@ -68,6 +73,7 @@ export function RiddleEditDialog({
         </DialogHeader>
 
         <div className="flex max-h-[65vh] flex-col gap-4 overflow-y-auto pr-1">
+          <ValidationFeedback issues={riddleIssues} />
           <div className="flex flex-col gap-4">
             <Field>
               <FieldLabel>Titel</FieldLabel>
@@ -145,7 +151,7 @@ export function RiddleEditDialog({
 
             <Field>
               <FieldLabel>Eingaben</FieldLabel>
-              <RiddleInputsEditor project={deerSchema} riddle={draft} onChange={onChange} />
+              <RiddleInputsEditor project={deerSchema} riddle={draft} onChange={onChange} issues={tabIssues} />
             </Field>
 
             <Field>

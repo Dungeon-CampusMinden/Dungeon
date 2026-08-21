@@ -17,13 +17,16 @@ import {
   type AssetSelection,
 } from "./assets/assetPaths";
 import type { WizardWork } from "@/data/WizardWork";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, ValidationFeedback } from "./ValidationFeedback";
 
-export function AssetsTab({ draft, updateDraft, work, beginWork, finishWork }: {
+export function AssetsTab({ draft, updateDraft, work, beginWork, finishWork, issues }: {
   draft: WizardDraft;
   updateDraft: UpdateDraft;
   work: WizardWork;
   beginWork: (work: Extract<WizardWork, "uploading">) => boolean;
   finishWork: (work: Extract<WizardWork, "uploading">) => void;
+  issues: TabIssues;
 }) {
   const storage = useWizardStorage();
   const project = draft.project;
@@ -143,6 +146,7 @@ export function AssetsTab({ draft, updateDraft, work, beginWork, finishWork }: {
         onSelect={handleAddAsset}
         title="Datei hinzufügen"
       />
+      <ValidationFeedback issues={fieldIssues(issues, "assets")} className="mb-3" />
       {assetList.length === 0 ? (
         <p className="py-8 text-center text-muted-foreground">Noch keine Dateien hinzugefügt.</p>
       ) : (
@@ -156,6 +160,7 @@ export function AssetsTab({ draft, updateDraft, work, beginWork, finishWork }: {
               onUpdate={handleUpdateAsset}
               onReplaceContent={handleReplaceContent}
               onDelete={handleDeleteAsset}
+              issues={fieldIssues(issues, `asset:${asset.id}`)}
             />
           ))}
         </div>

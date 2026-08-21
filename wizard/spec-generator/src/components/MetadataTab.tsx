@@ -12,15 +12,19 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Util } from "@/data/Util";
 import { ObjectListStringEditor } from "./StringListEditor";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, hasFieldErrors, ValidationFeedback } from "./ValidationFeedback";
 
 export function MetadataTab({
   deerSchema,
   updateDeerSchema,
+  issues,
 }: {
   deerSchema: DeerProject;
   updateDeerSchema: (updatedSchema: DeerProject) => void;
+  issues: TabIssues;
 }) {
-  const emptyTitle = deerSchema.metadata.title === "";
+  const emptyTitle = hasFieldErrors(issues, "title");
 
   return (
     <div className="flex flex-col gap-0">
@@ -82,10 +86,12 @@ export function MetadataTab({
               produceItem={() => ({ id: Util.generateUniqueId(), description: "" })}
               useTextarea
               preventEmpty
+              issues={fieldIssues(issues, "objectives")}
             />
           </Field>
         </FieldGroup>
       </FieldSet>
+      <ValidationFeedback issues={[...fieldIssues(issues, "id"), ...fieldIssues(issues, "locale")]} className="mt-4" />
     </div>
   );
 }

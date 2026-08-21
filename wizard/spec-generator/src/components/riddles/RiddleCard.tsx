@@ -8,15 +8,19 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ResourceCarousel } from "./ResourceCarousel";
 import { RiddleInputsView, SurfaceValue } from "./RiddleInputsView";
 import { getHintSeverity, getHintSeverityOrder, getRiddleDifficulty } from "./riddleTypes";
+import type { Issue } from "@/data/ErrorChecker";
+import { ValidationFeedback } from "../ValidationFeedback";
 
 export function RiddleCard({
   riddle,
   deerSchema,
   onEdit,
+  issues = [],
 }: {
   riddle: Riddle;
   deerSchema: DeerProject;
   onEdit: () => void;
+  issues?: Issue[];
 }) {
   const difficulty = getRiddleDifficulty(riddle.difficulty);
   const assignedSourceIds = new Set(
@@ -49,6 +53,8 @@ export function RiddleCard({
         </div>
 
         <Separator />
+
+        <ValidationFeedback issues={issues} />
 
         <RiddleSection title="Eingaben">
           <RiddleInputsView riddle={riddle} deerSchema={deerSchema} />
