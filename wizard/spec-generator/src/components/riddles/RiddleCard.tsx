@@ -6,7 +6,7 @@ import { Card, CardContent } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ResourceCarousel } from "./ResourceCarousel";
-import { RiddleInputsView, SurfaceValue } from "./RiddleInputsView";
+import { RiddleInputsView } from "./RiddleInputsView";
 import { getHintSeverity, getHintSeverityOrder, getRiddleDifficulty } from "./riddleTypes";
 import type { Issue } from "@/data/ErrorChecker";
 import { ValidationFeedback } from "../ValidationFeedback";
@@ -91,9 +91,6 @@ function UnassignedSourceList({
     <div className="flex flex-col gap-2">
       {sources.map((source) => (
         <div key={source.id} className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 text-sm">
-            <SurfaceValue deerSchema={deerSchema} surfaceId={source.surfaceId} />
-          </div>
           <ResourceCarousel resources={source.resources} assets={deerSchema.assets} />
         </div>
       ))}

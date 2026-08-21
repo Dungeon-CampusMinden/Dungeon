@@ -181,9 +181,9 @@ wird in Array-Reihenfolge als eigene weiterklickbare Black-Fade-Seite angezeigt.
 
 ## 5. surfaces
 
-`surfaces` macht die gemeinsame Identität eines fachlichen Ortes oder einer
-Interaktionsfläche explizit. Jede Surface enthält `id`, `kind` und
-spielergerichteten `title`. Der aktive Vertrag kennt ausschließlich:
+`surfaces` macht die Identität eines internen Spielbestandteils explizit. Jede
+Surface enthält `id`, `kind` und `title`. Der aktive Vertrag kennt
+ausschließlich:
 
 - `world`: der gemeinsame Raum, genau einmal;
 - `container`: Fund in einem Behälter;
@@ -197,13 +197,15 @@ Endknoten referenziert die `door`-Surface. Diese Surface-IDs bleiben vom
 DEER-Projekt über Layoutplatzierung bis zur Foundation-Runtime identisch.
 
 Diese technischen Datensätze sind in der Authoring-UI verborgen. Lehrende
-benennen den Fundort direkt an der Informationsquelle, das Gerät direkt an der
-Zahleneingabe und den Ausgang unter „Spiel-Ende“. Die UI verwaltet genau eine
-World- und Door-Surface sowie je eine private Container-Surface pro Quelle und
-Keypad-Surface pro Numeric-Input. Collection-Inputs verwenden die Surface der
-gewählten Quelle und besitzen keine eigene. Erzeugen, Löschen und Typwechsel
-ändern Surfacebestand und Besitzer atomar; Umbenennen oder Umordnen ändert
-keine stabile ID. Eine separate Orte-/Surface-Ansicht existiert nicht.
+bearbeiten Rätsel, Informationsquellen und Eingaben, aber keine Orte oder
+Geräte. Die UI verwaltet genau eine World- und Door-Surface sowie je eine
+private Container-Surface pro Quelle und Keypad-Surface pro Numeric-Input. Die
+Titel dieser Container- und Keypad-Surfaces erzeugt die Projektion intern.
+Collection-Inputs verwenden die Surface der gewählten Quelle und besitzen
+keine eigene. Erzeugen, Löschen und Typwechsel ändern Surfacebestand und
+Besitzer atomar; Umbenennen oder Umordnen ändert keine stabile ID. Eine
+Surface kann nicht mehreren Informationsquellen oder Eingaben gehören. Eine
+separate Orte-/Surface-Ansicht existiert nicht.
 
 Ein Computer- oder allgemeiner Device-Typ ist nicht Teil dieses Vertrags. Eine
 spätere Computer-Surface oder mehrere Bindungen an dieselbe Surface benötigen

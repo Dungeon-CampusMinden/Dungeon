@@ -140,15 +140,17 @@ mindestens ein Lernziel, eine Zeitschätzung, optional eine Schwierigkeit,
 Informationsquellen, mindestens eine Eingabe und optionale geordnete Hinweise.
 Alle Eingaben eines Rätsels sind mit AND verknüpft.
 
-Eine Informationsquelle benötigt einen sichtbaren Fundort und mindestens
-einen Inhalt. Ein eigenes PNG- oder JPEG-Bild wird mit Bytes und Metadaten im
-Browserdraft gespeichert. Ein Bild aus der Spielbibliothek speichert nur seinen
-internen Pfad und die Metadaten. Technische Pfade, Hashes und Asset-IDs bleiben
-in der UI verborgen.
+Eine Informationsquelle benötigt mindestens einen Inhalt. Ein eigenes PNG-
+oder JPEG-Bild wird mit Bytes und Metadaten im Browserdraft gespeichert. Ein
+Bild aus der Spielbibliothek speichert nur seinen internen Pfad und die
+Metadaten. Technische Pfade, Hashes, Asset-IDs und Orte bleiben in der UI
+verborgen.
 
 V0.4 bietet Zahlencode und verpflichtendes Entdecken einer Informationsquelle.
-Ein Zahlencode hat einen sichtbaren Gerätenamen und einen Code mit einer bis
-acht Ziffern. Falsche Eingaben können im Spiel wiederholt werden.
+Ein Zahlencode besteht aus einer bis acht Ziffern. Falsche Eingaben können im
+Spiel wiederholt werden. Die UI erzeugt für jede Informationsquelle und jede
+Zahleneingabe einen eigenen internen Spielbestandteil. Lehrende wählen keine
+gemeinsam verwendeten Orte oder Geräte aus.
 
 Hinweise sind geordnet. Die Lehrkraft wählt für jeden Hinweis eine der
 sichtbaren Stufen Orientierung, Lösungsweg oder Lösung. Die Runtime verlangt

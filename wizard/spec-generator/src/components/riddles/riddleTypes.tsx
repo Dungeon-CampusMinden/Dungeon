@@ -16,7 +16,7 @@ export const INPUT_TYPES = [
   {
     value: "numeric",
     label: "Zahleneingabe",
-    description: "Die Spieler geben eine Zahl an einem Gerät ein",
+    description: "Die Spieler geben einen Zahlencode ein",
     icon: KeyboardIcon,
   },
 ] as const;

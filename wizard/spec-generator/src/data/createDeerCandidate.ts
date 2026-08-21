@@ -5,6 +5,7 @@ import type {
   Asset,
   DeerSchema,
   Riddle,
+  Surface,
 } from "./DeerSchema";
 import type { WizardDraft } from "./WizardDraft";
 
@@ -68,6 +69,15 @@ function projectAsset(asset: Asset): Asset {
   };
 }
 
+function projectSurface(surface: Surface): Surface {
+  const title = surface.kind === "container"
+    ? "Versteck"
+    : surface.kind === "keypad"
+      ? "Zahlengerät"
+      : surface.title;
+  return { id: surface.id, kind: surface.kind, title };
+}
+
 /** Projects private draft state onto the exact public DEER candidate boundary. */
 export function createDeerCandidate(draft: WizardDraft): DeerSchema {
   if (draft.seed === undefined) {
@@ -123,11 +133,7 @@ export function createDeerCandidate(draft: WizardDraft): DeerSchema {
         ? { failureText: [...project.scenario.failureText] }
         : {}),
     },
-    surfaces: project.surfaces.map((surface) => ({
-      id: surface.id,
-      kind: surface.kind,
-      title: surface.title,
-    })),
+    surfaces: project.surfaces.map(projectSurface),
     riddleGraph: {
       nodes: project.riddleGraph.nodes.map(projectGraphNode),
       edges: project.riddleGraph.edges.map((edge) => ({ from: edge.from, to: edge.to })),
