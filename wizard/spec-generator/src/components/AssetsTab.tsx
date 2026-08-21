@@ -12,6 +12,7 @@ import { useAssetPreviews } from "./assets/useAssetPreviews";
 import {
   ALLOWED_EXTENSIONS,
   createCustomAssetPath,
+  getBundledAssetSource,
   getMediaTypeForPath,
   validateCustomAssetFile,
   type AssetSelection,
@@ -45,26 +46,36 @@ export function AssetsTab({ draft, updateDraft, work, beginWork, finishWork, iss
 
   const applySelection = async (
     selection: AssetSelection,
-  ): Promise<{ path: string; mediaType: Asset["mediaType"]; upload?: UploadReference }> => {
+  ): Promise<{
+    path: string;
+    mediaType: Asset["mediaType"];
+    source: Asset["source"];
+    upload?: UploadReference;
+  }> => {
     if (selection.kind === "custom") {
       const mediaType = validateCustomAssetFile(selection.file);
       const storageKey = await storage.assets.putAssetFile(draft.draftId, selection.file);
       return {
         path: createCustomAssetPath(selection.file.name, storageKey),
         mediaType,
+        source: { license: "" },
         upload: { storageKey, originalName: selection.file.name },
       };
     }
-    return { path: selection.path, mediaType: getMediaTypeForPath(selection.path) };
+    return {
+      path: selection.path,
+      mediaType: getMediaTypeForPath(selection.path),
+      source: getBundledAssetSource(selection.path) ?? { license: "" },
+    };
   };
 
   const handleAddAsset = async (selection: AssetSelection) => {
     if (!beginWork("uploading")) throw rejectBlockedUpload();
     const id = Util.generateUniqueId("a");
     try {
-      const { path, mediaType, upload } = await applySelection(selection);
+      const { path, mediaType, source, upload } = await applySelection(selection);
       updateDraft((current) => {
-        current.project.assets.push({ id, path, mediaType, source: { license: "" } });
+        current.project.assets.push({ id, path, mediaType, source });
         if (upload) current.uploads[id] = upload;
       });
       setStorageRevision((revision) => revision + 1);
@@ -82,12 +93,13 @@ export function AssetsTab({ draft, updateDraft, work, beginWork, finishWork, iss
     if (!beginWork("uploading")) throw rejectBlockedUpload();
     const assetId = asset.id;
     try {
-      const { path, mediaType, upload } = await applySelection(selection);
+      const { path, mediaType, source, upload } = await applySelection(selection);
       updateDraft((current) => {
         const currentAsset = current.project.assets.find((entry) => entry.id === assetId);
         if (!currentAsset) throw new Error("Die Datei wurde zwischenzeitlich gelöscht.");
         currentAsset.path = path;
         currentAsset.mediaType = mediaType;
+        currentAsset.source = source;
         if (upload) current.uploads[assetId] = upload;
         else delete current.uploads[assetId];
       });
