@@ -15,8 +15,7 @@ import engine.utils.ClipboardUtil;
 public class DungeonSaver {
 
   /**
-   * Saves the current dungeon by printing it to the console. The output is also copied to the
-   * system clipboard for easy pasting into a .level file.
+   * Saves the current dungeon and copies its serialized representation to the system clipboard.
    *
    * @param filePath the path of the file where the level is stored
    */
@@ -30,9 +29,7 @@ public class DungeonSaver {
       System.out.println("Current level is not a DungeonLevel. Cannot save.");
       return;
     }
-
     String output = LevelParser.serializeLevel(dunLevel);
-    System.out.println(output);
     ClipboardUtil.copyToClipboard(output);
     if (filePath != null && !filePath.isEmpty()) {
       FileHandle file = Gdx.files.local(normalizeLevelFilePath(filePath));
