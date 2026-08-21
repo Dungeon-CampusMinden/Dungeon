@@ -687,13 +687,14 @@ export class ErrorChecker {
         }
       } else if (input.type === "numeric") {
         this.checkSurfaceReference("riddles", field, input.surfaceId, surfaceIds, name);
+        const answerField = `${field}:input:${input.id}:answer`;
 
         if (isBlank(input.answer)) {
-          this.error("riddles", field, `Für das Rätsel "${name}" ist keine Lösung hinterlegt.`);
+          this.error("riddles", answerField, `Für das Rätsel "${name}" ist keine Lösung hinterlegt.`);
         } else if (!/^\d{1,8}$/.test(input.answer)) {
           this.error(
             "riddles",
-            field,
+            answerField,
             `Die Lösung von "${name}" muss aus 1 bis 8 Ziffern bestehen.`,
             `Aktuelle Lösung: "${input.answer}".`,
           );

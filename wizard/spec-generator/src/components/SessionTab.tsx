@@ -11,6 +11,8 @@ import {
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Slider } from "./ui/slider";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, hasFieldErrors, ValidationFeedback } from "./ValidationFeedback";
 
 const LIMIT_MODES: { value: TimeLimitMode; label: string; description: string }[] = [
   { value: "hard", label: "Hart", description: "Das Abenteuer endet, wenn die Zeit abgelaufen ist." },
@@ -20,12 +22,14 @@ const LIMIT_MODES: { value: TimeLimitMode; label: string; description: string }[
 export function SessionTab({
   deerSchema,
   updateDeerSchema,
+  issues,
 }: {
   deerSchema: DeerProject;
   updateDeerSchema: (updatedSchema: DeerProject) => void;
+  issues: TabIssues;
 }) {
-  const emptyTargetAudience = deerSchema.session.targetAudience === "";
-  const emptyPriorKnowledge = deerSchema.session.priorKnowledge === "";
+  const emptyTargetAudience = hasFieldErrors(issues, "targetAudience");
+  const emptyPriorKnowledge = hasFieldErrors(issues, "priorKnowledge");
 
   const minPlayer = deerSchema.session.playerCount.min;
   const maxPlayer = deerSchema.session.playerCount.max;
@@ -87,6 +91,7 @@ export function SessionTab({
                 step={1}
               />
             </div>
+            <ValidationFeedback issues={fieldIssues(issues, "playerCount")} />
           </Field>
           <Field>
             <FieldLabel>Zeitlimit</FieldLabel>
@@ -104,6 +109,7 @@ export function SessionTab({
                 step={1}
               />
             </div>
+            <ValidationFeedback issues={fieldIssues(issues, "time")} />
           </Field>
           <Field>
             <FieldLabel>Umgang mit dem Zeitlimit</FieldLabel>

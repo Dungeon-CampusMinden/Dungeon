@@ -12,6 +12,8 @@ import { AssetPreviewContent } from "./AssetPreviewContent";
 import { AssetEditDialog } from "./AssetEditDialog";
 import { getAssetDisplayName, type AssetPreview, type AssetSelection } from "./assetPaths";
 import { useUploadReferences } from "./UploadReferencesContext";
+import type { Issue } from "@/data/ErrorChecker";
+import { ValidationFeedback } from "../ValidationFeedback";
 
 export function AssetCard({
   asset,
@@ -22,6 +24,7 @@ export function AssetCard({
   onUpdate,
   onReplaceContent,
   onDelete,
+  issues = [],
 }: {
   asset: Asset;
   preview: AssetPreview | undefined;
@@ -34,6 +37,7 @@ export function AssetCard({
   onUpdate?: (updatedAsset: Asset) => void;
   onReplaceContent?: (asset: Asset, selection: AssetSelection) => Promise<void>;
   onDelete?: (asset: Asset) => void;
+  issues?: Issue[];
 }) {
   const uploads = useUploadReferences();
   const [editOpen, setEditOpen] = React.useState(false);
@@ -50,13 +54,14 @@ export function AssetCard({
       : "border-border bg-muted/30";
 
   return (
-    <div className="flex min-w-0 flex-col gap-1">
+    <div className="flex min-w-0 flex-col gap-1" aria-invalid={issues.some((issue) => issue.severity === "error")}>
       <div
         title={technicalError ? "Lokaler Speicher nicht verfügbar" : missing ? "Datei fehlt" : fileName}
         className={`flex aspect-square items-center justify-center rounded-lg border p-2 transition-colors ${stateClasses}`}
       >
         <AssetPreviewContent asset={asset} preview={preview} />
       </div>
+      <ValidationFeedback issues={issues} />
       <div className="flex min-w-0 items-center gap-1">
         <span className="min-w-0 flex-1 truncate text-sm" title={fileName}>
           {fileName}

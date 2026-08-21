@@ -605,7 +605,9 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
           if (nextTouchedTabs === current.ui.touchedTabs) return false;
           current.ui.touchedTabs = nextTouchedTabs;
         });
-        toast.error("Bitte behebe zuerst die markierten Fehler in diesem Schritt.");
+        toast.error(currentErrors[0].description, {
+          description: "Öffne die Fehlerübersicht für alle Probleme in diesem Schritt.",
+        });
         return;
       }
     }
@@ -720,6 +722,8 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
                 issueReport={issueReport}
                 assetStorageStatus={assetStorageStatus}
                 touchedAll={hasTouchedAllTabs}
+                touchedTabs={touchedTabs}
+                currentTab={tab}
                 productionReady={currentProduction?.report.valid === true}
                 technicalError={currentTechnicalError}
                 onIssueSelect={selectIssueTab}
@@ -729,9 +733,9 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
             </div>
 
             <div className="panel min-w-0">
-              {tab === "metadata" && <MetadataTab deerSchema={project} updateDeerSchema={updateProject} />}
-              {tab === "scenario" && <ScenarioTab deerSchema={project} updateDeerSchema={updateProject} />}
-              {tab === "session" && <SessionTab deerSchema={project} updateDeerSchema={updateProject} />}
+              {tab === "metadata" && <MetadataTab deerSchema={project} updateDeerSchema={updateProject} issues={localIssueReport.metadata} />}
+              {tab === "scenario" && <ScenarioTab deerSchema={project} updateDeerSchema={updateProject} issues={localIssueReport.scenario} />}
+              {tab === "session" && <SessionTab deerSchema={project} updateDeerSchema={updateProject} issues={localIssueReport.session} />}
               {tab === "assets" && (
                 <AssetsTab
                   draft={draft}
@@ -739,11 +743,19 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
                   work={wizardWork}
                   beginWork={beginWizardWork}
                   finishWork={finishWizardWork}
+                  issues={localIssueReport.assets}
                 />
               )}
-              {tab === "riddles" && <RiddlesTab draft={draft} updateDraft={updateDraft} />}
-              {tab === "riddle_graph" && <RiddleGraphTab draft={draft} updateDraft={updateDraft} />}
-              {tab === "game_end" && <GameEndTab deerSchema={project} updateDeerSchema={updateProject} />}
+              {tab === "riddles" && <RiddlesTab draft={draft} updateDraft={updateDraft} issues={localIssueReport.riddles} />}
+              {tab === "riddle_graph" && (
+                <RiddleGraphTab
+                  draft={draft}
+                  updateDraft={updateDraft}
+                  issues={localIssueReport.riddle_graph}
+                  riddleIssues={localIssueReport.riddles}
+                />
+              )}
+              {tab === "game_end" && <GameEndTab deerSchema={project} updateDeerSchema={updateProject} issues={localIssueReport.game_end} />}
               {tab === "review" && draft.seed !== undefined && hasTouchedAllTabs && (
                 <ReviewTab
                   contentKey={contentKey}
@@ -771,6 +783,8 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
               issueReport={issueReport}
               assetStorageStatus={assetStorageStatus}
               touchedAll={hasTouchedAllTabs}
+              touchedTabs={touchedTabs}
+              currentTab={tab}
               productionReady={currentProduction?.report.valid === true}
               technicalError={currentTechnicalError}
               onIssueSelect={selectIssueTab}

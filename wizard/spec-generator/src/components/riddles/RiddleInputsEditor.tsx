@@ -10,6 +10,8 @@ import { Field, FieldDescription, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { INPUT_TYPES } from "./riddleTypes";
 import { SimpleSelect } from "./SimpleSelect";
+import type { Issue, TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, ValidationFeedback } from "../ValidationFeedback";
 
 const YES_NO = [
   { value: "true", label: "Ja" },
@@ -20,10 +22,12 @@ export function RiddleInputsEditor({
   riddle,
   project,
   onChange,
+  issues,
 }: {
   project: DeerProject;
   riddle: Riddle;
   onChange: (updated: DeerProject) => void;
+  issues?: TabIssues;
 }) {
   const inputs = riddle.inputs;
 
@@ -94,6 +98,7 @@ export function RiddleInputsEditor({
               input={input}
               inputIndex={index}
               project={project}
+              issues={fieldIssues(issues, `riddle:${riddle.id}:input:${input.id}:answer`)}
               onChange={(updated) => updateInput(index, updated)}
               onSurfaceTitleChange={(title) => updateProject((next) => {
                 const surface = next.surfaces.find((candidate) => candidate.id === input.surfaceId);
@@ -147,12 +152,14 @@ function NumericInputFields({
   project,
   onChange,
   onSurfaceTitleChange,
+  issues,
 }: {
   input: NumericInput;
   inputIndex: number;
   project: DeerProject;
   onChange: (updated: NumericInput) => void;
   onSurfaceTitleChange: (title: string) => void;
+  issues: Issue[];
 }) {
   return (
     <>
@@ -169,10 +176,12 @@ function NumericInputFields({
         <FieldDescription>Eine Zahl mit bis zu 8 Ziffern.</FieldDescription>
         <Input
           aria-label={`Lösung für Eingabe ${inputIndex + 1}`}
+          aria-invalid={issues.some((issue) => issue.severity === "error")}
           value={input.answer}
           inputMode="numeric"
           onChange={(e) => onChange({ ...input, answer: e.target.value.replace(/[^0-9]/g, "").slice(0, 8) })}
         />
+        <ValidationFeedback issues={issues} />
       </Field>
       <Field>
         <FieldLabel>Stellenanzahl anzeigen</FieldLabel>

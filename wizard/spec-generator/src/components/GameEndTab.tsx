@@ -2,13 +2,17 @@ import type { DeerProject } from "@/data/DeerSchema";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "./ui/field";
 import { Input } from "./ui/input";
 import { StringListEditor } from "./StringListEditor";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, ValidationFeedback } from "./ValidationFeedback";
 
 export function GameEndTab({
   deerSchema,
   updateDeerSchema,
+  issues,
 }: {
   deerSchema: DeerProject;
   updateDeerSchema: (updatedSchema: DeerProject) => void;
+  issues: TabIssues;
 }) {
   const endNode = deerSchema.riddleGraph.nodes.find((node) => node.kind === "end");
   const exit = endNode?.kind === "end"
@@ -35,6 +39,7 @@ export function GameEndTab({
                 updateDeerSchema(deerSchema);
               }}
             />
+            <ValidationFeedback issues={fieldIssues(issues, "exit")} />
           </Field>
           <Field>
             <FieldLabel>Fragen für die Nachbesprechung</FieldLabel>
@@ -45,6 +50,7 @@ export function GameEndTab({
                 deerSchema.learningDesign.debriefPrompts = newValue;
                 updateDeerSchema(deerSchema);
               }}
+              issues={fieldIssues(issues, "debriefPrompts")}
             />
           </Field>
           <Field>
@@ -58,6 +64,7 @@ export function GameEndTab({
               }}
               useTextarea
               preventEmpty
+              issues={fieldIssues(issues, "successText")}
             />
           </Field>
           <Field>
@@ -75,6 +82,7 @@ export function GameEndTab({
               }}
               useTextarea
               preventEmpty={failureTextRequired}
+              issues={fieldIssues(issues, "failureText")}
             />
           </Field>
         </FieldGroup>

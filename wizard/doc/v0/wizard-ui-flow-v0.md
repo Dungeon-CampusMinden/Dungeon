@@ -32,6 +32,14 @@ Frontend-/Host-Grenze steht im
   Schrittnavigation kurz; während Prüfung und Spielerstellung bleibt sie offen.
 - Die Navigation zeigt Abschlussgrad, Probleme, Warnungen und den lokalen
   Speicherstatus.
+- Die Fehlerübersicht zeigt sofort die Meldungen des aktuellen und aller bereits
+  bearbeiteten Schritte. Noch nicht besuchte spätere Schritte bleiben bis zur
+  vollständigen Bearbeitung ausgeblendet. Danach zeigt sie alle Meldungen.
+- Blockiert die Vorwärtsnavigation, nennt die Meldung den ersten konkreten
+  Fehler und verweist auf die anklickbare Fehlerübersicht. Dieselben Meldungen
+  stehen am betroffenen Feld oder bei zusammengesetzten Inhalten am engsten
+  passenden Abschnitt. Die fachlichen Regeln stammen ausschließlich aus dem
+  `ErrorChecker`.
 - Der Spielablauf ist ein mandatory AND-DAG mit genau einem geschützten Start-
   und Endknoten und einem Knoten je Rätsel.
 - Beim Betreten von `Spiel erstellen` startet die Produktionsprüfung

@@ -24,6 +24,8 @@ import { RiddleEditDialog } from "./riddles/RiddleEditDialog";
 import { Button } from "./ui/button";
 import { GRAPH_EDGE_TYPES, type DeletableGraphEdge } from "./graph/DeletableEdge";
 import { GRAPH_NODE_TYPES, type GraphFlowNode } from "./graph/GraphNodes";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, ValidationFeedback } from "./ValidationFeedback";
 import {
   computeAutoLayout,
   hasEdge,
@@ -34,6 +36,8 @@ import {
 export function RiddleGraphTab(props: {
   draft: WizardDraft;
   updateDraft: UpdateDraft;
+  issues: TabIssues;
+  riddleIssues: TabIssues;
 }) {
   return (
     <ReactFlowProvider>
@@ -50,9 +54,13 @@ function useStableValue<T>(value: T): T {
 function RiddleGraphEditor({
   draft,
   updateDraft,
+  issues,
+  riddleIssues,
 }: {
   draft: WizardDraft;
   updateDraft: UpdateDraft;
+  issues: TabIssues;
+  riddleIssues: TabIssues;
 }) {
   const { resolvedTheme } = useTheme();
   const [editingRiddleId, setEditingRiddleId] = React.useState<string | null>(null);
@@ -206,6 +214,7 @@ function RiddleGraphEditor({
         <LayoutGridIcon />
         Automatisch anordnen
       </Button>
+      <ValidationFeedback issues={[...fieldIssues(issues, "nodes"), ...fieldIssues(issues, "edges")]} className="mb-3" />
 
       <div className="h-[65vh] w-full overflow-hidden rounded-lg border border-border">
         <ReactFlow<GraphFlowNode>
@@ -240,6 +249,7 @@ function RiddleGraphEditor({
           setOpen={(open) => { if (!open) setEditingRiddleId(null); }}
           onChange={updateRiddle}
           onDelete={deleteRiddle}
+          tabIssues={riddleIssues}
         />
       )}
     </div>

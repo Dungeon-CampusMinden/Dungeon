@@ -7,13 +7,17 @@ import { RiddleCard } from "./riddles/RiddleCard";
 import { RiddleEditDialog } from "./riddles/RiddleEditDialog";
 import { createRiddle } from "./riddles/riddleTypes";
 import { Button } from "./ui/button";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, prefixedFieldIssues, ValidationFeedback } from "./ValidationFeedback";
 
 export function RiddlesTab({
   draft,
   updateDraft,
+  issues,
 }: {
   draft: WizardDraft;
   updateDraft: UpdateDraft;
+  issues: TabIssues;
 }) {
   const deerSchema = draft.project;
   const riddles = deerSchema.riddles;
@@ -56,6 +60,7 @@ export function RiddlesTab({
         <PlusIcon />
         Hinzufügen
       </Button>
+      <ValidationFeedback issues={fieldIssues(issues, "riddles")} className="mb-3" />
 
       {riddles.length === 0 && (
         <span className="text-sm text-muted-foreground">Es sind noch keine Rätsel vorhanden.</span>
@@ -67,6 +72,7 @@ export function RiddlesTab({
             riddle={riddle}
             deerSchema={deerSchema}
             onEdit={() => setEditingId(riddle.id)}
+            issues={prefixedFieldIssues(issues, `riddle:${riddle.id}`)}
           />
         ))}
       </div>
@@ -82,6 +88,7 @@ export function RiddlesTab({
           }}
           onChange={updateRiddle}
           onDelete={() => deleteRiddle(editingRiddle.id)}
+          tabIssues={issues}
         />
       )}
     </div>
