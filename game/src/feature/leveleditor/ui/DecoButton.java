@@ -17,6 +17,7 @@ public class DecoButton extends ImageButton {
 
   private static final String STYLE_DEFAULT = "default";
   private static final String STYLE_SELECTED = "blue-outline";
+  private static final float IMAGE_SCALE = 0.68f;
 
   private Deco deco;
   private final String selectedStyle;
@@ -29,10 +30,22 @@ public class DecoButton extends ImageButton {
    * @param selected whether the button is initially selected.
    */
   public DecoButton(Deco deco, float size, boolean selected) {
+    this(deco, size, size * IMAGE_SCALE, selected);
+  }
+
+  /**
+   * Creates a decoration preview button with a custom image size.
+   *
+   * @param deco decoration represented by this button.
+   * @param size button size.
+   * @param imageSize preview image size.
+   * @param selected whether the button is initially selected.
+   */
+  public DecoButton(Deco deco, float size, float imageSize, boolean selected) {
     super(style(deco, selected ? STYLE_SELECTED : STYLE_DEFAULT));
     this.deco = deco;
     this.selectedStyle = STYLE_SELECTED;
-    getImageCell().size(size * 0.68f);
+    getImageCell().size(imageSize);
     getImage().setScaling(Scaling.fit);
     setSize(size, size);
   }

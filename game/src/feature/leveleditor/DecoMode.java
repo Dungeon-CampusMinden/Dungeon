@@ -49,6 +49,9 @@ public class DecoMode extends LevelEditorMode {
   private static final int SELECTOR_COLUMNS = 7;
   private static final float SELECTOR_BUTTON_SIZE = 64f;
   private static final float SELECTOR_BUTTON_PADDING = 3f;
+  private static final float SELECTOR_CELL_SIZE =
+      SELECTOR_BUTTON_SIZE + SELECTOR_BUTTON_PADDING * 2;
+  private static final float SELECTOR_IMAGE_SIZE = PRIMARY_BUTTON_SIZE * 0.68f;
 
   private static int selectedDecoIndex = 0;
   private static SnapMode decoSnapMode = SnapMode.OnGrid;
@@ -336,13 +339,14 @@ public class DecoMode extends LevelEditorMode {
               for (int i = 0; i < decos.length; i++) {
                 Deco deco = decos[i];
                 DecoButton button =
-                    new DecoButton(deco, SELECTOR_BUTTON_SIZE, i == selectedDecoIndex);
+                    new DecoButton(
+                        deco, SELECTOR_BUTTON_SIZE, SELECTOR_IMAGE_SIZE, i == selectedDecoIndex);
                 button.onClick(
                     () -> {
                       selectDeco(deco);
                       dialog.getParent().remove();
                     });
-                grid.add(button).size(SELECTOR_BUTTON_SIZE).pad(SELECTOR_BUTTON_PADDING);
+                grid.add(button).size(SELECTOR_CELL_SIZE).pad(SELECTOR_BUTTON_PADDING);
                 if ((i + 1) % SELECTOR_COLUMNS == 0) grid.row();
               }
               ScrollPane pane = Scene2dElementFactory.createScrollPane(grid, false, true);
@@ -351,7 +355,7 @@ public class DecoMode extends LevelEditorMode {
               dialog.pack();
               pane.layout();
               int selectedRow = selectedDecoIndex / SELECTOR_COLUMNS;
-              float rowHeight = SELECTOR_BUTTON_SIZE + SELECTOR_BUTTON_PADDING * 2;
+              float rowHeight = SELECTOR_CELL_SIZE + SELECTOR_BUTTON_PADDING * 2;
               float scrollY = selectedRow * rowHeight - (pane.getHeight() - rowHeight) / 2f;
               scrollY = Math.max(0f, Math.min(scrollY, pane.getMaxY()));
               Scene2dElementFactory.scrollPaneScrollTo(pane, 0, scrollY);
