@@ -15,7 +15,7 @@ import { Field, FieldLabel } from "../ui/field";
 import { Separator } from "../ui/separator";
 import { UploadIcon } from "lucide-react";
 import { AssetCreateDialog } from "./AssetCreateDialog";
-import type { AssetSelection } from "./assetPaths";
+import { getBundledAssetSource, isBundledAssetPath, type AssetSelection } from "./assetPaths";
 
 export function AssetEditDialog({
   asset,
@@ -37,6 +37,14 @@ export function AssetEditDialog({
   onReplaceContent: (asset: Asset, selection: AssetSelection) => Promise<void>;
 }) {
   const [selectorOpen, setSelectorOpen] = React.useState(false);
+  const bundledAsset = isBundledAssetPath(asset.path);
+  const bundledSourceLocked = bundledAsset && getBundledAssetSource(asset.path) !== null;
+  const sourceFieldsDisabled = disabled || bundledSourceLocked;
+  const description = bundledSourceLocked
+    ? "Lizenzangaben aus der Spielbibliothek können nicht geändert werden. Du kannst die Datei ersetzen."
+    : bundledAsset
+      ? "Für diese Datei fehlt eine Lizenzangabe. Ergänze sie oder ersetze die Datei."
+      : "Lizenzangaben anpassen oder die Datei ersetzen.";
   const updateSource = (license: string, attribution: string) => {
     onUpdate({
       ...asset,
@@ -53,7 +61,7 @@ export function AssetEditDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Datei bearbeiten</DialogTitle>
-          <DialogDescription>Lizenzangaben anpassen oder die Datei ersetzen.</DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
@@ -61,7 +69,7 @@ export function AssetEditDialog({
             <FieldLabel>Lizenz</FieldLabel>
             <Input
               aria-label="Lizenz der Datei"
-              disabled={disabled}
+              disabled={sourceFieldsDisabled}
               value={asset.source.license}
               onChange={(e) => updateSource(e.target.value, asset.source.attribution ?? "")}
             />
@@ -70,7 +78,7 @@ export function AssetEditDialog({
             <FieldLabel>Urheber</FieldLabel>
             <Input
               aria-label="Urheber der Datei"
-              disabled={disabled}
+              disabled={sourceFieldsDisabled}
               value={asset.source.attribution ?? ""}
               onChange={(e) => updateSource(asset.source.license, e.target.value)}
             />
