@@ -65,6 +65,8 @@ public class DecoMode extends LevelEditorMode {
   private DecoButton[] neighboringButtons;
   private DecoButton[] historyButtons;
   private Table neighboringButtonTable;
+  private BaseContainerUI decoSelectorOverlay;
+  private InputListener decoSelectorEscapeListener;
 
   /**
    * Constructs the Deco Mode.
@@ -193,6 +195,7 @@ public class DecoMode extends LevelEditorMode {
 
   @Override
   public void onExit() {
+    closeDecoSelector();
     removePreviewEntity();
   }
 
@@ -344,7 +347,7 @@ public class DecoMode extends LevelEditorMode {
                 button.onClick(
                     () -> {
                       selectDeco(deco);
-                      dialog.getParent().remove();
+                      closeDecoSelector();
                     });
                 grid.add(button).size(SELECTOR_CELL_SIZE).pad(SELECTOR_BUTTON_PADDING);
                 if ((i + 1) % SELECTOR_COLUMNS == 0) grid.row();
@@ -370,8 +373,32 @@ public class DecoMode extends LevelEditorMode {
                       return true;
                     }
                   });
+              decoSelectorOverlay = overlay;
+              decoSelectorEscapeListener =
+                  new InputListener() {
+                    @Override
+                    public boolean keyDown(InputEvent event, int keycode) {
+                      if (keycode != Input.Keys.ESCAPE) return false;
+                      event.stop();
+                      closeDecoSelector();
+                      return true;
+                    }
+                  };
+              stage.getRoot().addCaptureListener(decoSelectorEscapeListener);
               stage.addActor(overlay);
             });
+  }
+
+  private void closeDecoSelector() {
+    if (decoSelectorEscapeListener != null) {
+      InputListener listener = decoSelectorEscapeListener;
+      Game.stage().ifPresent(stage -> stage.getRoot().removeCaptureListener(listener));
+      decoSelectorEscapeListener = null;
+    }
+    if (decoSelectorOverlay != null) {
+      decoSelectorOverlay.remove();
+      decoSelectorOverlay = null;
+    }
   }
 
   private void updateHoveredEntity(Point cursorPos) {
