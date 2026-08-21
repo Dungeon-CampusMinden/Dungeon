@@ -352,7 +352,8 @@ public class DecoMode extends LevelEditorMode {
               pane.layout();
               int selectedRow = selectedDecoIndex / SELECTOR_COLUMNS;
               float rowHeight = SELECTOR_BUTTON_SIZE + SELECTOR_BUTTON_PADDING * 2;
-              float scrollY = pane.getMaxY() - selectedRow * rowHeight;
+              float scrollY = selectedRow * rowHeight - (pane.getHeight() - rowHeight) / 2f;
+              scrollY = Math.max(0f, Math.min(scrollY, pane.getMaxY()));
               Scene2dElementFactory.scrollPaneScrollTo(pane, 0, scrollY);
 
               BaseContainerUI overlay = new BaseContainerUI(dialog, false, false);
