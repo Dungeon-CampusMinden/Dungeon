@@ -216,6 +216,9 @@ export function AssetCreateDialog({
                       key={entryPath}
                       label={getAssetName(entryPath)}
                       selected={entry.type === "file" && selectedManifestPath === entryPath}
+                      warning={
+                        entry.type === "file" && entry.source === null ? "Lizenz fehlt" : undefined
+                      }
                       onClick={() =>
                         entry.type === "directory"
                           ? setSelectedFolder(entryPath)
