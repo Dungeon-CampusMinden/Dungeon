@@ -121,16 +121,24 @@ tasks.register('runGameOfGames', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('runGameOfGamesLevelEditor', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.gameofgames.GameOfGames'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--leveleditor'
+}
+
 tasks.register('runTheLastHour', JavaExec) {
     group 'starter'
     mainClass = 'rooms.lasthour.starter.TheLastHour'
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('runTheLastHourClient', JavaExec) {
+tasks.register('runTheLastHourLevelEditor', JavaExec) {
     group 'starter'
     mainClass = 'rooms.lasthour.starter.TheLastHour'
     classpath = sourceSets.main.runtimeClasspath
+    args '--leveleditor'
 }
 
 tasks.register('runTheLastHourServer', JavaExec) {

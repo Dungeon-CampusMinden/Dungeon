@@ -2,21 +2,36 @@ package feature.leveleditor;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.systems.input.InputManager;
+import engine.utils.BaseContainerUI;
 import engine.utils.Point;
 import engine.utils.Rectangle;
+import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
 import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
+import feature.hud.UIUtils;
+import feature.hud.elements.RichLabel;
+import feature.leveleditor.ui.DecoButton;
+import feature.leveleditor.ui.ModeDetailsPanel;
+import feature.leveleditor.ui.SelectSetting;
 import feature.systems.PositionSync;
 import feature.utils.EntityUtils;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -28,29 +43,52 @@ public class DecoMode extends LevelEditorMode {
 
   private static final float HOVER_DISTANCE = 0.75f;
   private static final float PREVIEW_ALPHA = 0.5f;
+  private static final int DECO_HISTORY_SIZE = 4;
+  private static final int PRIMARY_BUTTON_SIZE = 80;
+  private static final int HISTORY_BUTTON_SIZE = 60;
+  private static final int SELECTOR_COLUMNS = 7;
+  private static final float SELECTOR_BUTTON_SIZE = 64f;
+  private static final float SELECTOR_BUTTON_PADDING = 3f;
+  private static final float SELECTOR_CELL_SIZE =
+      SELECTOR_BUTTON_SIZE + SELECTOR_BUTTON_PADDING * 2;
+  private static final float SELECTOR_IMAGE_SIZE = PRIMARY_BUTTON_SIZE * 0.68f;
 
   private static int selectedDecoIndex = 0;
   private static SnapMode decoSnapMode = SnapMode.OnGrid;
+  private static final Deque<Deco> decoHistory = new ArrayDeque<>();
   private static DecoEntityData decoPreviewEntity = null;
   private static DecoEntityData decoHeldEntity = null;
   private static DecoEntityData decoHoveredEntity = null;
 
   private boolean rapidFireActive = false;
+  private boolean rapidFireLevelChangePending = false;
+  private SelectSetting<SnapMode> snapSetting;
+  private DecoButton[] neighboringButtons;
+  private DecoButton[] historyButtons;
+  private Table neighboringButtonTable;
+  private BaseContainerUI decoSelectorOverlay;
+  private InputListener decoSelectorEscapeListener;
 
-  /** Constructs the Deco Mode. */
-  public DecoMode() {
-    super("Deco Mode");
+  /**
+   * Constructs the Deco Mode.
+   *
+   * @param levelChangedCallback invoked after decorations are changed.
+   */
+  public DecoMode(Runnable levelChangedCallback) {
+    super("Deco Mode", levelChangedCallback);
   }
 
   @Override
   public void execute() {
+    if (InputManager.isButtonJustReleased(Input.Buttons.LEFT)) {
+      flushRapidFireLevelChange();
+    }
+
     // Change selected deco
     if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      selectedDecoIndex = Math.floorMod(selectedDecoIndex + 1, Deco.values().length);
-      previewEntityChanged();
+      selectDeco(Deco.values()[Math.floorMod(selectedDecoIndex + 1, Deco.values().length)]);
     } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
-      selectedDecoIndex = Math.floorMod(selectedDecoIndex - 1, Deco.values().length);
-      previewEntityChanged();
+      selectDeco(Deco.values()[Math.floorMod(selectedDecoIndex - 1, Deco.values().length)]);
     }
 
     // Change snap mode
@@ -74,6 +112,8 @@ public class DecoMode extends LevelEditorMode {
         setPosition(decoHeldEntity.entity, snapPos);
         decoHeldEntity = null;
         setupPreviewEntity(snapPos);
+        syncPlacedDecos();
+        levelChanged();
         rapidFireActive = false;
       }
     } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT) && decoHeldEntity == null) {
@@ -87,8 +127,13 @@ public class DecoMode extends LevelEditorMode {
     } else if (InputManager.isKeyPressed(TERTIARY)) {
       rapidFireActive = false;
       // Delete deco on cursor
-      getDecoOnPosition(cursorPos).map(DecoEntityData::entity).ifPresent(Game::remove);
-      syncPlacedDecos();
+      getDecoOnPosition(cursorPos)
+          .ifPresent(
+              deco -> {
+                Game.remove(deco.entity);
+                syncPlacedDecos();
+                levelChanged();
+              });
     } else if (InputManager.isKeyJustPressed(QUARTERNARY)) {
       rapidFireActive = false;
       // Pipette tool to pick deco type on cursor
@@ -97,8 +142,7 @@ public class DecoMode extends LevelEditorMode {
         DecoComponent dc = clickedDeco.get().dc;
         for (int i = 0; i < Deco.values().length; i++) {
           if (Deco.values()[i] == dc.type()) {
-            selectedDecoIndex = i;
-            previewEntityChanged();
+            selectDeco(Deco.values()[i]);
             break;
           }
         }
@@ -144,7 +188,15 @@ public class DecoMode extends LevelEditorMode {
 
     Entity newDeco = DecoFactory.createDeco(actualPos, decoType);
     Game.add(newDeco);
+    recordPlacedDeco(decoType);
     syncPlacedDecos();
+    rapidFireLevelChangePending = true;
+  }
+
+  private void flushRapidFireLevelChange() {
+    if (!rapidFireLevelChangePending) return;
+    rapidFireLevelChangePending = false;
+    levelChanged();
   }
 
   @Override
@@ -154,11 +206,13 @@ public class DecoMode extends LevelEditorMode {
 
   @Override
   public void onExit() {
+    flushRapidFireLevelChange();
+    closeDecoSelector();
     removePreviewEntity();
   }
 
   @Override
-  public String getStatusText() {
+  public String additionalInformation() {
     StringBuilder status = new StringBuilder();
     int entityCount = (int) Game.levelEntities(Set.of(DecoComponent.class)).count();
     status.append("Entities: ").append(entityCount);
@@ -179,14 +233,184 @@ public class DecoMode extends LevelEditorMode {
   @Override
   public Map<Integer, String> getControls() {
     Map<Integer, String> controls = new LinkedHashMap<>();
+    controls.put(Input.Buttons.LEFT, "Place Deco");
+    controls.put(Input.Buttons.RIGHT, "Pickup Deco");
     controls.put(PRIMARY_UP, "Next Deco");
     controls.put(PRIMARY_DOWN, "Prev Deco");
     controls.put(SECONDARY_UP, "Change Grid Snap");
     controls.put(TERTIARY, "Delete on Cursor");
     controls.put(QUARTERNARY, "Pick from Cursor");
-    controls.put(Input.Buttons.LEFT, "Place Deco");
-    controls.put(Input.Buttons.RIGHT, "Pickup Deco");
     return controls;
+  }
+
+  @Override
+  public void buildDetailsUI(Table content) {
+    content.clearChildren();
+    Deco[] decos = Deco.values();
+    neighboringButtons = new DecoButton[3];
+    neighboringButtonTable = new Table();
+    neighboringButtonTable.add(new RichLabel("<", 16, ModeDetailsPanel.TEXT_COLOR, false)).pad(3f);
+    for (int i = 0; i < neighboringButtons.length; i++) {
+      final int offset = i - 1;
+      DecoButton button =
+          new DecoButton(
+              decos[Math.floorMod(selectedDecoIndex + offset, decos.length)],
+              PRIMARY_BUTTON_SIZE,
+              offset == 0);
+      if (offset == 0) {
+        button.onClick(this::showDecoSelector);
+      } else {
+        button.onClick(
+            () -> selectDeco(decos[Math.floorMod(selectedDecoIndex + offset, decos.length)]));
+      }
+      neighboringButtons[i] = button;
+      neighboringButtonTable.add(button).size(PRIMARY_BUTTON_SIZE).pad(3f);
+    }
+    neighboringButtonTable.add(new RichLabel(">", 16, ModeDetailsPanel.TEXT_COLOR, false)).pad(3f);
+    content.add(neighboringButtonTable).growX().row();
+
+    content
+        .add(new RichLabel("Deco History", 20, ModeDetailsPanel.TEXT_COLOR, false))
+        .left()
+        .padTop(8f)
+        .row();
+    historyButtons = new DecoButton[DECO_HISTORY_SIZE];
+    Table history = new Table();
+    for (int i = 0; i < historyButtons.length; i++) {
+      DecoButton button = new DecoButton(decos[0], HISTORY_BUTTON_SIZE, false);
+      button.setVisible(false);
+      final int historyIndex = i;
+      button.onClick(
+          () -> {
+            if (historyIndex < decoHistory.size()) {
+              selectDeco(new ArrayDeque<>(decoHistory).stream().toList().get(historyIndex));
+            }
+          });
+      historyButtons[i] = button;
+      history.add(button).size(HISTORY_BUTTON_SIZE).pad(2f);
+    }
+    content.add(history).growX().row();
+
+    snapSetting =
+        new SelectSetting<>(
+            "Grid Snap",
+            SnapMode.values(),
+            () -> decoSnapMode,
+            value -> decoSnapMode = value,
+            SnapMode::name);
+    content.add(snapSetting).growX().padTop(8f).row();
+    refreshDetails();
+  }
+
+  @Override
+  public void updateDetailsUI() {
+    refreshDetails();
+  }
+
+  private void refreshDetails() {
+    if (neighboringButtons == null) return;
+    Deco[] decos = Deco.values();
+    for (int i = 0; i < neighboringButtons.length; i++) {
+      int offset = i - 1;
+      Deco deco = decos[Math.floorMod(selectedDecoIndex + offset, decos.length)];
+      neighboringButtons[i].setDeco(deco);
+      neighboringButtons[i].selected(offset == 0);
+    }
+
+    ArrayDeque<Deco> history = new ArrayDeque<>(decoHistory);
+    java.util.List<Deco> historyValues = history.stream().toList();
+    for (int i = 0; i < historyButtons.length; i++) {
+      if (i < historyValues.size()) {
+        historyButtons[i].setVisible(true);
+        historyButtons[i].setDeco(historyValues.get(i));
+      } else {
+        historyButtons[i].setVisible(false);
+      }
+    }
+    if (snapSetting != null) snapSetting.refresh();
+  }
+
+  private void selectDeco(Deco deco) {
+    Deco current = Deco.values()[selectedDecoIndex];
+    if (current == deco) return;
+    selectedDecoIndex = deco.ordinal();
+    previewEntityChanged();
+  }
+
+  private void recordPlacedDeco(Deco deco) {
+    if (deco == decoHistory.peekFirst()) return;
+    decoHistory.remove(deco);
+    decoHistory.addFirst(deco);
+    while (decoHistory.size() > DECO_HISTORY_SIZE) decoHistory.removeLast();
+  }
+
+  private void showDecoSelector() {
+    Game.stage()
+        .ifPresent(
+            stage -> {
+              Dialog dialog = new Dialog("", UIUtils.defaultSkin(), "no-title");
+              Table grid = new Table();
+              Deco[] decos = Deco.values();
+              for (int i = 0; i < decos.length; i++) {
+                Deco deco = decos[i];
+                DecoButton button =
+                    new DecoButton(
+                        deco, SELECTOR_BUTTON_SIZE, SELECTOR_IMAGE_SIZE, i == selectedDecoIndex);
+                button.onClick(
+                    () -> {
+                      selectDeco(deco);
+                      closeDecoSelector();
+                    });
+                grid.add(button).size(SELECTOR_CELL_SIZE).pad(SELECTOR_BUTTON_PADDING);
+                if ((i + 1) % SELECTOR_COLUMNS == 0) grid.row();
+              }
+              ScrollPane pane = Scene2dElementFactory.createScrollPane(grid, false, true);
+              pane.setFadeScrollBars(false);
+              dialog.getContentTable().add(pane).width(560f).height(360f);
+              dialog.pack();
+              pane.layout();
+              int selectedRow = selectedDecoIndex / SELECTOR_COLUMNS;
+              float rowHeight = SELECTOR_CELL_SIZE + SELECTOR_BUTTON_PADDING * 2;
+              float scrollY = selectedRow * rowHeight - (pane.getHeight() - rowHeight) / 2f;
+              scrollY = Math.max(0f, Math.min(scrollY, pane.getMaxY()));
+              Scene2dElementFactory.scrollPaneScrollTo(pane, 0, scrollY);
+
+              BaseContainerUI overlay = new BaseContainerUI(dialog, false, false);
+              overlay.setTouchable(Touchable.enabled);
+              overlay.addListener(
+                  new InputListener() {
+                    @Override
+                    public boolean touchDown(
+                        InputEvent event, float x, float y, int pointer, int button) {
+                      return true;
+                    }
+                  });
+              decoSelectorOverlay = overlay;
+              decoSelectorEscapeListener =
+                  new InputListener() {
+                    @Override
+                    public boolean keyDown(InputEvent event, int keycode) {
+                      if (keycode != Input.Keys.ESCAPE) return false;
+                      event.stop();
+                      closeDecoSelector();
+                      return true;
+                    }
+                  };
+              stage.getRoot().addCaptureListener(decoSelectorEscapeListener);
+              stage.addActor(overlay);
+            });
+  }
+
+  private void closeDecoSelector() {
+    if (decoSelectorEscapeListener != null) {
+      InputListener listener = decoSelectorEscapeListener;
+      Game.stage().ifPresent(stage -> stage.getRoot().removeCaptureListener(listener));
+      decoSelectorEscapeListener = null;
+    }
+    if (decoSelectorOverlay != null) {
+      decoSelectorOverlay.remove();
+      decoSelectorOverlay = null;
+    }
   }
 
   private void updateHoveredEntity(Point cursorPos) {

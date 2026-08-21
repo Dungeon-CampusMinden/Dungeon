@@ -60,6 +60,13 @@ public abstract class AbstractStarter {
   }
 
   /**
+   * @return the in-loop setup callback of this role
+   */
+  final IVoidFunction onSetup() {
+    return onSetup;
+  }
+
+  /**
    * Applies the full pre-run configuration of this role.
    *
    * <p>Implementations first apply their role-specific configuration (multiplayer flags, port,
@@ -121,6 +128,22 @@ public abstract class AbstractStarter {
      * @return this builder, typed as the concrete builder
      */
     protected abstract T self();
+
+    /**
+     * Copies the configuration that is identical for all roles of one project (config file,
+     * snapshot translator and entity spawn strategy) from an already created starter.
+     *
+     * @param starter the starter to inherit the shared configuration from
+     * @return this builder
+     */
+    final T inheritSharedFrom(AbstractStarter starter) {
+      Objects.requireNonNull(starter, "starter");
+      this.configFile = starter.configFile;
+      this.keyboardConfigClasses = starter.keyboardConfigClasses.clone();
+      this.snapshotTranslator = starter.snapshotTranslator;
+      this.entitySpawnStrategy = starter.entitySpawnStrategy;
+      return self();
+    }
 
     /**
      * Sets the network port (default {@link PreRunConfiguration#networkPort()}).

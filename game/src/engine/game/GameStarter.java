@@ -31,6 +31,7 @@ public final class GameStarter {
   private final String[] serverArguments;
   private final int localServerPort;
   private final Language language;
+  private final String levelEditorLevelPath;
 
   private GameStarter(Builder builder) {
     this.title = builder.title;
@@ -40,6 +41,7 @@ public final class GameStarter {
     this.serverArguments = builder.serverArguments.clone();
     this.localServerPort = builder.localServerPort;
     this.language = builder.language;
+    this.levelEditorLevelPath = builder.levelEditorLevelPath;
   }
 
   /**
@@ -102,6 +104,19 @@ public final class GameStarter {
     return language;
   }
 
+  /**
+   * Returns the path the level editor saves levels to.
+   *
+   * <p>The level-editor entry (hidden main-menu entry and {@code --leveleditor} launch flag) is
+   * only available if this path is configured; everything else the level editor needs is taken from
+   * the {@link ServerStarter} and {@link ClientStarter} of the project.
+   *
+   * @return the optional level output path used by the level editor
+   */
+  public Optional<String> levelEditorLevelPath() {
+    return Optional.ofNullable(levelEditorLevelPath);
+  }
+
   /** Builder for {@link GameStarter}. */
   public static final class Builder {
     private final String title;
@@ -112,6 +127,7 @@ public final class GameStarter {
     private String[] serverArguments = new String[] {ServerProcess.SERVER_ARGUMENT};
     private int localServerPort = PreRunConfiguration.networkPort();
     private Language language = Localization.getInstance().currentLanguage();
+    private String levelEditorLevelPath;
 
     private Builder(String title, Class<?> serverMainClass) {
       this.title = validateTitle(title);
@@ -179,6 +195,21 @@ public final class GameStarter {
      */
     public Builder language(Language language) {
       this.language = Objects.requireNonNull(language, "language");
+      return this;
+    }
+
+    /**
+     * Enables the level editor (hidden main-menu entry and {@code --leveleditor} launch flag) and
+     * configures the path used when saving a level.
+     *
+     * <p>The level editor runs the server and client role in a single process; all remaining
+     * configuration is taken from the project's {@link ServerStarter} and {@link ClientStarter}.
+     *
+     * @param pathToLevels default folder used to construct the initial level save file path
+     * @return this builder
+     */
+    public Builder levelEditor(String pathToLevels) {
+      this.levelEditorLevelPath = Objects.requireNonNull(pathToLevels, "pathToLevels");
       return this;
     }
 

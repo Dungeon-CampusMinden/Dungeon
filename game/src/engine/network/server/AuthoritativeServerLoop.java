@@ -7,10 +7,8 @@ import static engine.network.config.NetworkConfig.SERVER_TICK_HZ;
 
 import engine.Entity;
 import engine.Game;
-import engine.components.PositionComponent;
 import engine.game.ECSManagement;
 import engine.game.PreRunConfiguration;
-import engine.level.Tile;
 import engine.level.loader.DungeonLoader;
 import engine.network.FullSnapshotSendReason;
 import engine.network.NetworkTelemetry;
@@ -24,6 +22,7 @@ import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.entities.HeroBuilder;
 import feature.entities.HeroController;
+import feature.utils.EntityUtils;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -332,8 +331,9 @@ public final class AuthoritativeServerLoop {
             .characterClass(state.characterClass())
             .isLocalPlayer(true)
             .build();
-    hero.fetch(PositionComponent.class)
-        .ifPresent(pc -> pc.position(Game.startTile().map(Tile::position).orElse(new Point(0, 0))));
+    EntityUtils.setPosition(
+        hero,
+        Game.startTile().map(tile -> tile.position().toCenteredPoint()).orElse(new Point(0, 0)));
     // Add the hero to the game, after the client knows the id.
     Game.network()
         .send(state.clientId(), new EntitySpawnEvent(hero), true)

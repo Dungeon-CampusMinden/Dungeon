@@ -1,6 +1,7 @@
 package feature.leveleditor;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
 import engine.System;
 import engine.input.CursorUtils;
@@ -11,8 +12,10 @@ import engine.systems.LevelSystem;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.systems.LevelEditorSystem;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /** Abstract base class for different modes in the Level Editor. */
 public abstract class LevelEditorMode {
@@ -38,15 +41,18 @@ public abstract class LevelEditorMode {
   public static final int QUARTERNARY = Input.Keys.V;
 
   private final String name;
+  private final Runnable levelChangedCallback;
   private final Map<Integer, String> controls = new LinkedHashMap<>();
 
   /**
    * Constructs a new LevelEditorMode with the given name.
    *
    * @param name The name of this mode.
+   * @param levelChangedCallback invoked after the mode changes the level.
    */
-  public LevelEditorMode(String name) {
+  public LevelEditorMode(String name, Runnable levelChangedCallback) {
     this.name = name;
+    this.levelChangedCallback = Objects.requireNonNull(levelChangedCallback);
     Map<Integer, String> controls = getControls();
     if (controls != null) {
       this.controls.putAll(controls);
@@ -83,23 +89,47 @@ public abstract class LevelEditorMode {
   public abstract void onExit();
 
   /**
-   * Decorator method to get the full status text including the mode name and controls.
+   * Gets the header text shown at the top of the details panel of the level editor.
    *
-   * @return The full status text.
+   * @return the header text.
    */
-  public String getFullStatusText() {
-    StringBuilder status = new StringBuilder("--- " + getName() + " ---");
-    addControlsToStatus(status, controls);
-    status.append("\n\nSettings:\n").append(getStatusText());
-    return status.toString();
+  public String getHeader() {
+    return getName();
   }
 
   /**
-   * Gets the status text for this mode.
+   * Builds the mode specific part of the details panel.
    *
-   * @return The status text.
+   * <p>Called once when this mode becomes the active mode. Implementations should add their
+   * controls and displays to the given table. The default implementation adds nothing.
+   *
+   * @param content the table the mode specific content should be added to.
    */
-  public abstract String getStatusText();
+  public void buildDetailsUI(Table content) {
+    // Default: no mode specific content
+  }
+
+  /**
+   * Refreshes the dynamic parts of the mode specific content built in {@link
+   * #buildDetailsUI(Table)}.
+   *
+   * <p>Called every frame while this mode is active and the details panel is visible.
+   */
+  public void updateDetailsUI() {
+    // Default: nothing to refresh
+  }
+
+  /**
+   * Gets additional information this mode wants to display to the user in the details panel.
+   *
+   * <p>Called every frame, so the returned text may be dynamic. If the returned text is {@code
+   * null} or blank, the section is hidden.
+   *
+   * @return the additional information text.
+   */
+  public String additionalInformation() {
+    return "";
+  }
 
   /**
    * Gets the controls for this mode.
@@ -108,7 +138,50 @@ public abstract class LevelEditorMode {
    */
   public abstract Map<Integer, String> getControls();
 
+  /**
+   * Gets the controls of this mode as they were resolved when this mode was created.
+   *
+   * @return an unmodifiable map of key codes to their action descriptions.
+   */
+  public Map<Integer, String> controls() {
+    return Collections.unmodifiableMap(controls);
+  }
+
+  /** Notifies the level editor system that this mode changed the level. */
+  protected final void levelChanged() {
+    levelChangedCallback.run();
+  }
+
+  /**
+   * Converts a key or mouse button code into a displayable name.
+   *
+   * <p>Also contains a quick and dirty fix for the german keyboard layout where Y and Z are
+   * swapped.
+   *
+   * @param key the key code, or one of {@link Input.Buttons#LEFT} / {@link Input.Buttons#RIGHT}
+   *     when {@code mouse} is set.
+   * @return the key as string.
+   */
+  public static String keyName(int key) {
+    if (key == Input.Buttons.LEFT) {
+      return "LMB";
+    } else if (key == Input.Buttons.RIGHT) {
+      return "RMB";
+    } else if (key == Input.Keys.Y) {
+      return "Z";
+    } else if (key == Input.Keys.Z) {
+      return "Y";
+    }
+    return Input.Keys.toString(key);
+  }
+
   protected DungeonLevel getLevel() {
+    if (level == null) {
+      Game.currentLevel()
+          .filter(DungeonLevel.class::isInstance)
+          .map(DungeonLevel.class::cast)
+          .ifPresent(currentLevel -> level = currentLevel);
+    }
     return level;
   }
 
@@ -124,59 +197,25 @@ public abstract class LevelEditorMode {
     return CursorUtils.positionInWorld();
   }
 
-  protected void setTile(Point position, LevelElement element) {
-    Tile tile = LevelSystem.level().orElse(null).tileAt(position).orElse(null);
-    if (tile == null) {
-      return;
-    }
-    LevelSystem.level().orElse(null).changeTileElementType(tile, element);
+  protected boolean setTile(Point position, LevelElement element) {
+    var level = LevelSystem.level().orElse(null);
+    if (level == null) return false;
+
+    Tile tile = level.tileAt(position).orElse(null);
+    if (tile == null) return false;
+    boolean changed = tile.levelElement() != element;
+    level.changeTileElementType(tile, element);
     // Also set the tiles around the position, to update their sprites for the new neighboring tile
     for (int dx = -1; dx <= 1; dx++) {
       for (int dy = -1; dy <= 1; dy++) {
         Point neighborPos = position.translate(Vector2.of(dx, dy));
-        Tile neighborTile = LevelSystem.level().orElse(null).tileAt(neighborPos).orElse(null);
+        Tile neighborTile = level.tileAt(neighborPos).orElse(null);
         if (neighborTile != null) {
-          LevelSystem.level()
-              .orElse(null)
-              .changeTileElementType(neighborTile, neighborTile.levelElement());
+          level.changeTileElementType(neighborTile, neighborTile.levelElement());
         }
       }
     }
-  }
-
-  protected void addControlsToStatus(StringBuilder status, Map<Integer, String> controls) {
-    status.append("\nControls:");
-    for (Map.Entry<Integer, String> entry : controls.entrySet()) {
-      // Special handling for mouse buttons
-      if (entry.getKey() == Input.Buttons.LEFT || entry.getKey() == Input.Buttons.RIGHT) {
-        status
-            .append("\n- ")
-            .append(entry.getKey() == Input.Buttons.LEFT ? "LMB" : "RMB")
-            .append(": ")
-            .append(entry.getValue());
-        continue;
-      }
-      status
-          .append("\n- ")
-          .append(keyToString(entry.getKey()))
-          .append(": ")
-          .append(entry.getValue());
-    }
-  }
-
-  /**
-   * Quick and dirty fix for the german keyboard layout where Y and Z are swapped.
-   *
-   * @param key the key code
-   * @return the key as string, with Y and Z swapped for german layout
-   */
-  private String keyToString(int key) {
-    if (key == Input.Keys.Y) {
-      return "Z";
-    } else if (key == Input.Keys.Z) {
-      return "Y";
-    }
-    return Input.Keys.toString(key);
+    return changed;
   }
 
   protected enum SnapMode {

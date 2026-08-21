@@ -7,11 +7,13 @@ import engine.components.PositionComponent;
 import engine.level.utils.Coordinate;
 import engine.utils.Direction;
 import engine.utils.Point;
+import engine.utils.Vector2;
 import engine.utils.components.MissingComponentException;
 import feature.collision.Collider;
 import feature.components.CollideComponent;
 import feature.entities.LeverFactory;
 import feature.entities.SignFactory;
+import feature.systems.PositionSync;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -199,6 +201,44 @@ public class EntityUtils {
     } else {
       return pc.position();
     }
+  }
+
+  /**
+   * Gets the offset from an entity's origin to the center of its collider or drawn sprite.
+   *
+   * @param entity the entity to get the center offset for.
+   * @return the center position offset of the entity.
+   */
+  public static Vector2 getCenterPositionOffset(Entity entity) {
+    PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
+    Optional<CollideComponent> cco = entity.fetch(CollideComponent.class);
+    Optional<DrawComponent> dco = entity.fetch(DrawComponent.class);
+
+    if (cco.isPresent()) {
+      return cco.get().collider().center();
+    } else if (dco.isPresent()) {
+      DrawComponent dc = dco.get();
+      return Vector2.of(dc.getWidth() / 2, dc.getHeight() / 2);
+    } else {
+      return Vector2.ZERO;
+    }
+  }
+
+  /**
+   * Sets the center position of an entity to the given point.
+   *
+   * <p>The current center is obtained through {@link #getPosition(Entity)}, and the same offset is
+   * applied to the entity's stored origin before related components are synchronized.
+   *
+   * @param entity the entity to position
+   * @param point the desired center position
+   * @throws MissingComponentException if the entity does not have a PositionComponent
+   */
+  public static void setPosition(Entity entity, Point point) {
+    PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
+    Vector2 offset = getCenterPositionOffset(entity);
+    pc.position(point.translate(offset.scale(-1)));
+    PositionSync.syncPosition(entity);
   }
 
   /**

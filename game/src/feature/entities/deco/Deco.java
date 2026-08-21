@@ -389,7 +389,7 @@ public enum Deco {
       new Rectangle(1.40f, 1.35f, 0.00f, 0.00f)),
   /** A decoration. */
   Chair(
-      "office/chair.png",
+      "office/Chair.png",
       new AnimationConfig(new SpritesheetConfig(2, 0, 1, 1, 12, 16)).scaleX(0.55f),
       new Rectangle(0.55f, 0.45f, 0.00f, 0.00f)),
   /** A decoration. */
@@ -454,7 +454,7 @@ public enum Deco {
       new Rectangle(2.25f, 1.80f, 0.00f, 0.00f)),
   /** A decoration. */
   TrashBin(
-      "office/trash.png",
+      "office/Trash.png",
       new AnimationConfig(new SpritesheetConfig(3, 3, 1, 1, 9, 10)).scaleX(0.60f),
       new Rectangle(0.60f, 0.50f, 0.00f, 0.00f)),
   /** A decoration. */

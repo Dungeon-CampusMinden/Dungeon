@@ -5,12 +5,18 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.components.InputComponent;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
+import engine.level.loader.DungeonLoader;
+import engine.level.loader.DungeonSaver;
 import engine.systems.DrawSystem;
 import engine.systems.input.InputManager;
 import engine.utils.FontHelper;
@@ -21,14 +27,16 @@ import engine.utils.components.draw.shader.PassthroughShader;
 import engine.utils.logging.DungeonLogger;
 import feature.components.HealthComponent;
 import feature.leveleditor.DecoMode;
-import feature.leveleditor.LevelBoundsMode;
 import feature.leveleditor.LevelEditorMode;
+import feature.leveleditor.LevelEditorSettings;
 import feature.leveleditor.PointMode;
-import feature.leveleditor.SaveMode;
-import feature.leveleditor.ShiftLevelMode;
+import feature.leveleditor.SettingsMode;
 import feature.leveleditor.StartTilesMode;
 import feature.leveleditor.TilesMode;
+import feature.leveleditor.ui.LevelEditorUI;
+import java.io.File;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
@@ -45,22 +53,26 @@ public class LevelEditorSystem extends System {
 
   private static boolean internalStopped = false;
   private static boolean active = false;
+  private static boolean activateOnStart = false;
   private static final int TOGGLE_ACTIVE = Input.Keys.F4;
   private static String pathToLevels = "";
+  private static String defaultSaveFolder = "";
+  private static boolean autoSave = true;
+  private static boolean defaultAutoSave = true;
+  private static String settingsLevelPath;
 
   private static final int TOGGLE_DEBUG_SHADER = Input.Keys.SPACE;
   private boolean debugShaderActive = false;
   private static final String DEBUG_SHADER_KEY = "LevelEditorSystem_debug";
 
   private static Mode currentMode = Mode.Tiles;
-  private static LevelEditorMode currentModeInstance = currentMode.getModeInstance();
+  private static LevelEditorMode currentModeInstance =
+      currentMode.getModeInstance(LevelEditorSystem::levelChanged);
   private static final int MODE_1 = Input.Keys.NUM_1;
   private static final int MODE_2 = Input.Keys.NUM_2;
   private static final int MODE_3 = Input.Keys.NUM_3;
   private static final int MODE_4 = Input.Keys.NUM_4;
   private static final int MODE_5 = Input.Keys.NUM_5;
-  private static final int MODE_6 = Input.Keys.NUM_6;
-  private static final int MODE_7 = Input.Keys.NUM_7;
 
   private static String feedbackMessage = "";
   private static Color feedbackMessageColor = Color.WHITE;
@@ -69,19 +81,86 @@ public class LevelEditorSystem extends System {
 
   private static Map<Integer, InputComponent.InputData> playerClallbacks = null;
 
+  private static LevelEditorUI ui = null;
+  private static boolean cursorCapturedByUI = false;
+
   /**
    * Creates a new LevelEditorSystem.
    *
-   * @param pathToLevels The folder in which the file is placed this system.
+   * @param pathToLevels the default folder used to construct the initial save file path.
    */
   public LevelEditorSystem(String pathToLevels) {
     super();
-    LevelEditorSystem.pathToLevels = pathToLevels;
+    settingsLevelPath = null;
+    defaultSaveFolder = normalizePath(pathToLevels);
+    LevelEditorSystem.pathToLevels = defaultSaveFolder;
+    autoSave = defaultAutoSave = true;
   }
 
   /** Creates a new LevelEditorSystem. */
   public LevelEditorSystem() {
     super();
+  }
+
+  private static void clearTextFieldFocusOnOutsideClick() {
+    Stage stage = Game.stage().orElse(null);
+    if (stage == null || !(stage.getKeyboardFocus() instanceof TextField focusedTextField)) {
+      return;
+    }
+    if (!isAnyMouseButtonJustPressed()) return;
+
+    Vector2 stagePosition =
+        stage.screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    Actor hit = stage.hit(stagePosition.x, stagePosition.y, true);
+    if (!isActorOrDescendant(hit, focusedTextField)) {
+      stage.setKeyboardFocus(null);
+    }
+  }
+
+  private static boolean isAnyMouseButtonJustPressed() {
+    return Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
+        || Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)
+        || Gdx.input.isButtonJustPressed(Input.Buttons.MIDDLE);
+  }
+
+  private static boolean isActorOrDescendant(Actor actor, Actor ancestor) {
+    while (actor != null) {
+      if (actor == ancestor) return true;
+      actor = actor.getParent();
+    }
+    return false;
+  }
+
+  private static void loadSettingsForCurrentLevel() {
+    String currentLevelPath = DungeonLoader.currentLevelAssetPath().orElse(null);
+    if (Objects.equals(settingsLevelPath, currentLevelPath)) return;
+
+    settingsLevelPath = currentLevelPath;
+    LevelEditorSettings.Values settings =
+        LevelEditorSettings.load(
+            currentLevelPath, defaultSavePathForCurrentLevel(), defaultAutoSave);
+    pathToLevels = settings.savePath();
+    autoSave = settings.autoSave();
+  }
+
+  private static void persistSettings() {
+    if (settingsLevelPath == null || settingsLevelPath.isBlank()) return;
+    LevelEditorSettings.save(
+        settingsLevelPath, new LevelEditorSettings.Values(pathToLevels, autoSave));
+  }
+
+  private static String normalizePath(String path) {
+    return path == null ? "" : path;
+  }
+
+  private static String defaultSavePathForCurrentLevel() {
+    String levelFileName =
+        DungeonLoader.currentLevelAssetPath()
+            .map(File::new)
+            .map(File::getName)
+            .orElseGet(() -> DungeonLoader.currentLevel() + "_1.level");
+    if (defaultSaveFolder.isBlank()) return levelFileName;
+    return new File(defaultSaveFolder, levelFileName).getPath();
   }
 
   /**
@@ -102,6 +181,7 @@ public class LevelEditorSystem extends System {
     LevelEditorSystem.active = active;
     Entity player = Game.player().orElseThrow();
     if (active) {
+      loadSettingsForCurrentLevel();
       player
           .fetch(InputComponent.class)
           .ifPresent(
@@ -145,31 +225,133 @@ public class LevelEditorSystem extends System {
       }
       currentModeInstance.onExit();
     }
+    updateUI();
+  }
+
+  /**
+   * Gets the currently selected editor mode.
+   *
+   * @return the current mode.
+   */
+  public static Mode currentMode() {
+    return currentMode;
+  }
+
+  /**
+   * Gets the file path used when saving levels from the level editor.
+   *
+   * @return the configured level output file path.
+   */
+  public static String pathToLevels() {
+    return pathToLevels;
+  }
+
+  /**
+   * Sets the file path used when saving levels from the level editor.
+   *
+   * @param pathToLevels the level output file path.
+   */
+  public static void pathToLevels(String pathToLevels) {
+    String normalizedPath = normalizePath(pathToLevels);
+    LevelEditorSystem.pathToLevels = normalizedPath;
+    if (settingsLevelPath != null) persistSettings();
+  }
+
+  /**
+   * Gets whether the level editor should save after modifying the level.
+   *
+   * @return true if auto-save is enabled.
+   */
+  public static boolean autoSave() {
+    return autoSave;
+  }
+
+  /**
+   * Sets whether the level editor should save after modifying the level.
+   *
+   * @param autoSave true to enable auto-save.
+   */
+  public static void autoSave(boolean autoSave) {
+    LevelEditorSystem.autoSave = autoSave;
+    if (settingsLevelPath == null) {
+      defaultAutoSave = autoSave;
+    } else {
+      persistSettings();
+    }
+  }
+
+  /** Saves the current level to the configured level editor path. */
+  public static void saveLevel() {
+    DungeonSaver.saveCurrentDungeon(pathToLevels);
+  }
+
+  /** Saves the current level when auto-save is enabled. */
+  public static void levelChanged() {
+    if (autoSave) saveLevel();
+  }
+
+  /**
+   * Switches to the given editor mode.
+   *
+   * <p>Exits the previous mode, creates a new instance of the given mode and enters it. Also
+   * updates the mode selection panel of the {@link LevelEditorUI}.
+   *
+   * @param mode the mode to switch to.
+   */
+  public static void currentMode(Mode mode) {
+    if (mode == null || mode == currentMode) return;
+    currentMode = mode;
+    currentModeInstance.onExit();
+    currentModeInstance = mode.getModeInstance(LevelEditorSystem::levelChanged);
+    currentModeInstance.onEnter();
+    if (ui != null) {
+      ui.modePanel().selected(mode);
+      ui.detailsPanel().mode(currentModeInstance);
+    }
+  }
+
+  /**
+   * Called by the {@link LevelEditorUI} once it removed itself from the stage, so a new group is
+   * created if the system is added to the game again.
+   */
+  public static void uiDetached() {
+    ui = null;
+  }
+
+  /**
+   * Makes sure the {@link LevelEditorUI} group is part of the stage and only visible while the
+   * editor is active.
+   */
+  private static void updateUI() {
+    if (ui == null) {
+      Game.stage()
+          .ifPresent(
+              stage -> {
+                ui = new LevelEditorUI();
+                ui.setSize(stage.getWidth(), stage.getHeight());
+                stage.addActor(ui);
+                ui.detailsPanel().mode(currentModeInstance);
+              });
+    }
+    if (ui != null) {
+      ui.setVisible(active);
+      ui.modePanel().selected(currentMode);
+    }
+  }
+
+  /** Activates the editor on the first game tick after a local player has been created. */
+  public static void activateOnStart() {
+    activateOnStart = true;
   }
 
   @Override
   public void render(float delta) {
     if (!active) return;
 
-    String status = currentModeInstance.getFullStatusText();
-    StringBuilder modeSelection = new StringBuilder("Level Editor v2 | Modes: ");
-    for (int i = 0; i < Mode.values().length; i++) {
-      if (i > 0) {
-        modeSelection.append(" | ");
-      }
-      if (i == currentMode.ordinal()) {
-        modeSelection.append("[").append(i + 1).append("]");
-      } else {
-        modeSelection.append(i + 1);
-      }
-    }
-    modeSelection
-        .append("\n ( SPACE to toggle layer debug shader [")
-        .append(DrawSystem.shadersActiveLastFrame())
-        .append("] )");
-    modeSelection.append("\n\n");
-    status = modeSelection + status;
-    DebugDrawSystem.drawText(FONT, status, new Point(10.0f, Game.windowHeight() - 10.0f));
+    DebugDrawSystem.drawText(
+        FONT,
+        "( SPACE to toggle layer debug shader [" + DrawSystem.shadersActiveLastFrame() + "] )",
+        new Point(10.0f, Game.windowHeight() - 10.0f));
 
     // Draw feedback message if timer > 0
     if (feedbackMessageTimer > 0.0f && !feedbackMessage.isEmpty()) {
@@ -193,13 +375,28 @@ public class LevelEditorSystem extends System {
 
   @Override
   public void execute() {
+    if (activateOnStart && Game.player().isPresent()) {
+      activateOnStart = false;
+      active(true);
+    }
+
     if (InputManager.isKeyJustPressed(TOGGLE_ACTIVE)) {
       active(!active);
     }
 
+    if (active) loadSettingsForCurrentLevel();
+    updateUI();
+
     if (!active) return;
 
+    clearTextFieldFocusOnOutsideClick();
+
     if (Game.player().map(Game.hud()::hasOpenUI).orElse(false)) {
+      return;
+    }
+
+    // Do not react to editor keys while the user types into a text field of the editor UI
+    if (Game.stage().map(stage -> stage.getKeyboardFocus() instanceof TextField).orElse(false)) {
       return;
     }
 
@@ -209,29 +406,42 @@ public class LevelEditorSystem extends System {
 
     Mode previousMode = currentMode;
     if (InputManager.isKeyPressed(MODE_1)) {
-      currentMode = Mode.getMode(0);
+      currentMode(Mode.getMode(0));
     } else if (InputManager.isKeyPressed(MODE_2)) {
-      currentMode = Mode.getMode(1);
+      currentMode(Mode.getMode(1));
     } else if (InputManager.isKeyPressed(MODE_3)) {
-      currentMode = Mode.getMode(2);
+      currentMode(Mode.getMode(2));
     } else if (InputManager.isKeyPressed(MODE_4)) {
-      currentMode = Mode.getMode(3);
+      currentMode(Mode.getMode(3));
     } else if (InputManager.isKeyPressed(MODE_5)) {
-      currentMode = Mode.getMode(4);
-    } else if (InputManager.isKeyPressed(MODE_6)) {
-      currentMode = Mode.getMode(5);
-    } else if (InputManager.isKeyPressed(MODE_7)) {
-      currentMode = Mode.getMode(6);
+      currentMode(Mode.getMode(4));
     }
 
     if (!internalStopped || previousMode != currentMode) {
-      if (previousMode != currentMode) {
-        currentModeInstance.onExit();
-        currentModeInstance = currentMode.getModeInstance();
-        currentModeInstance.onEnter();
+      if (!uiCapturesCursor()) {
+        currentModeInstance.doExecute();
       }
-      currentModeInstance.doExecute();
     }
+  }
+
+  /**
+   * Checks whether the level editor UI currently owns the mouse cursor, so the active mode must not
+   * act on mouse input.
+   *
+   * <p>Once a mouse button was pressed over a panel, the UI keeps the cursor until all buttons are
+   * released again. This stops a drag that started on a panel from acting on the level.
+   *
+   * @return true if the active mode must not act on the cursor, false otherwise.
+   */
+  private static boolean uiCapturesCursor() {
+    boolean buttonDown =
+        InputManager.isButtonPressed(Input.Buttons.LEFT)
+            || InputManager.isButtonPressed(Input.Buttons.RIGHT)
+            || InputManager.isButtonPressed(Input.Buttons.MIDDLE);
+    if (!buttonDown) {
+      cursorCapturedByUI = ui != null && ui.isCursorOverUI();
+    }
+    return cursorCapturedByUI;
   }
 
   private void toggleDebugShader() {
@@ -285,15 +495,25 @@ public class LevelEditorSystem extends System {
     internalStopped = false;
   }
 
-  private enum Mode {
+  /** The available modes of the level editor. */
+  public enum Mode {
+    /** Mode to place and remove level tiles. */
     Tiles,
+    /** Mode to place and remove decorations. */
     Decos,
+    /** Mode to place and remove named points. */
     Points,
-    LevelBounds,
-    ShiftLevel,
+    /** Mode to define the start (spawn) tiles. */
     StartTiles,
-    SaveLevel;
+    /** Mode to resize, shift, and save the current level. */
+    Settings;
 
+    /**
+     * Gets the mode with the given index.
+     *
+     * @param number the index of the mode.
+     * @return the mode with the given index.
+     */
     public static Mode getMode(int number) {
       if (number < 0 || number >= values().length) {
         throw new IllegalArgumentException("Invalid mode number: " + number);
@@ -301,15 +521,19 @@ public class LevelEditorSystem extends System {
       return values()[number];
     }
 
-    public LevelEditorMode getModeInstance() {
+    /**
+     * Creates a new instance of the {@link LevelEditorMode} belonging to this mode.
+     *
+     * @param onLevelChanged invoked after the mode changes the level.
+     * @return a new mode instance.
+     */
+    public LevelEditorMode getModeInstance(Runnable onLevelChanged) {
       return switch (this) {
-        case Tiles -> new TilesMode();
-        case Decos -> new DecoMode();
-        case Points -> new PointMode();
-        case LevelBounds -> new LevelBoundsMode();
-        case ShiftLevel -> new ShiftLevelMode();
-        case StartTiles -> new StartTilesMode();
-        case SaveLevel -> new SaveMode(pathToLevels);
+        case Tiles -> new TilesMode(onLevelChanged);
+        case Decos -> new DecoMode(onLevelChanged);
+        case Points -> new PointMode(onLevelChanged);
+        case StartTiles -> new StartTilesMode(onLevelChanged);
+        case Settings -> new SettingsMode(onLevelChanged);
       };
     }
   }

@@ -37,6 +37,23 @@ public final class ServerStarter extends AbstractStarter {
     return new Builder(onSetup);
   }
 
+  /**
+   * Returns the character class used for a local player in a single-process run (level editor).
+   *
+   * @return the first configured fallback character class, or {@link CharacterClass#WIZARD} if none
+   *     is configured
+   */
+  CharacterClass primaryCharacterClass() {
+    return characterClasses.length > 0 ? characterClasses[0] : CharacterClass.WIZARD;
+  }
+
+  /**
+   * @return the per-frame callback of this server
+   */
+  IVoidFunction onFrame() {
+    return onFrame;
+  }
+
   @Override
   public void apply() {
     PreRunConfiguration.multiplayerEnabled(true);

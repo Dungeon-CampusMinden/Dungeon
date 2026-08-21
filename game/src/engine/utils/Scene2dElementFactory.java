@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -21,6 +23,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
+import engine.utils.components.draw.TextureMap;
+import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.hud.UIUtils;
 import feature.hud.elements.CustomSelectBox;
@@ -175,6 +179,47 @@ public class Scene2dElementFactory {
    */
   public static TextButton createButton(String text, String styleName) {
     return createButton(text, styleName, 24);
+  }
+
+  /**
+   * Creates an ImageButton with an image from a texture and a button background style.
+   *
+   * @param texture the texture to display on the button
+   * @param styleName the name of the button background style in the skin
+   * @return a new ImageButton instance
+   */
+  public static ImageButton createImageButton(Texture texture, String styleName) {
+    return createImageButton(new TextureRegion(texture), styleName);
+  }
+
+  /**
+   * Creates an ImageButton with an image from a texture region and a button background style.
+   *
+   * @param textureRegion the texture region to display on the button
+   * @param styleName the name of the button background style in the skin
+   * @return a new ImageButton instance
+   */
+  public static ImageButton createImageButton(TextureRegion textureRegion, String styleName) {
+    TextButton.TextButtonStyle baseStyle =
+        DEFAULT_SKIN.get(styleName, TextButton.TextButtonStyle.class);
+    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+    style.up = baseStyle.up;
+    style.down = baseStyle.down;
+    style.over = baseStyle.over;
+    style.imageUp = new TextureRegionDrawable(textureRegion);
+    return new ImageButton(style);
+  }
+
+  /**
+   * Creates an ImageButton with an image loaded from an asset path and a button background style.
+   *
+   * @param assetPath the path to the image asset
+   * @param styleName the name of the button background style in the skin
+   * @return a new ImageButton instance
+   */
+  public static ImageButton createImageButton(String assetPath, String styleName) {
+    return createImageButton(
+        TextureMap.instance().textureAt(new SimpleIPath(assetPath)), styleName);
   }
 
   /**

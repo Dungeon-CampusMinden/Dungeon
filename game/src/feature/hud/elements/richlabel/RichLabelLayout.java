@@ -209,7 +209,10 @@ public class RichLabelLayout {
         if (pr.run() instanceof ImageBlockRun) continue;
         float off = offsets[pr.line()];
         if (off != 0f) {
-          placed.set(i, new PlacedRun(pr.run(), pr.x() + off, pr.line(), pr.width(), pr.height()));
+          placed.set(
+              i,
+              new PlacedRun(
+                  pr.run(), pr.x() + off, pr.line(), pr.width(), pr.height(), pr.textFragment()));
         }
       }
     }
@@ -248,8 +251,7 @@ public class RichLabelLayout {
 
     List<ShakeTarget> shakeTargets = new ArrayList<>();
     List<PlacedActor> placedActors = new ArrayList<>();
-    Map<Run, Actor> runToActor = new IdentityHashMap<>();
-    Map<Run, String> runToFullText = new IdentityHashMap<>();
+    Map<Run, List<PlacedActor>> runToActors = new IdentityHashMap<>();
 
     for (PlacedRun pr : placed) {
       int line = pr.line();
@@ -257,7 +259,7 @@ public class RichLabelLayout {
       float baseline = lineTop - above[line];
 
       if (pr.run() instanceof TextRun tr) {
-        String trimmed = tr.word().stripLeading();
+        String trimmed = pr.textFragment();
         if (trimmed.isEmpty()) continue;
         FontSpec runFontSpec = fontSpecForRun(tr, fontSpec);
         BitmapFont runFont = FontHelper.getFont(runFontSpec);
@@ -276,8 +278,9 @@ public class RichLabelLayout {
         float actorY = baseline;
         label.setBounds(pr.x(), actorY, pr.width(), pr.height());
         group.addActor(label);
-        runToActor.put(tr, label);
-        runToFullText.put(tr, trimmed);
+        runToActors
+            .computeIfAbsent(tr, ignored -> new ArrayList<>())
+            .add(new PlacedActor(label, tr, trimmed));
 
         if (tr.shake() != null) {
           shakeTargets.add(new ShakeTarget(label, pr.x(), actorY, tr.shake()));
@@ -295,7 +298,9 @@ public class RichLabelLayout {
         float actorY = baseline - imgBelow;
         image.setBounds(pr.x(), actorY, pr.width(), pr.height());
         group.addActor(image);
-        runToActor.put(ir, image);
+        runToActors
+            .computeIfAbsent(ir, ignored -> new ArrayList<>())
+            .add(new PlacedActor(image, ir, null));
 
         if (ir.shake() != null) {
           shakeTargets.add(new ShakeTarget(image, pr.x(), actorY, ir.shake()));
@@ -308,7 +313,9 @@ public class RichLabelLayout {
         float actorY = lineTop - pr.height();
         image.setBounds(pr.x(), actorY, pr.width(), pr.height());
         group.addActor(image);
-        runToActor.put(ibr, image);
+        runToActors
+            .computeIfAbsent(ibr, ignored -> new ArrayList<>())
+            .add(new PlacedActor(image, ibr, null));
       }
     }
 
@@ -317,10 +324,8 @@ public class RichLabelLayout {
       if (run instanceof TypewriterRun || run instanceof PauseRun) {
         placedActors.add(new PlacedActor(null, run, null));
       } else {
-        Actor actor = runToActor.get(run);
-        if (actor != null) {
-          placedActors.add(new PlacedActor(actor, run, runToFullText.get(run)));
-        }
+        List<PlacedActor> actors = runToActors.get(run);
+        if (actors != null) placedActors.addAll(actors);
       }
     }
 
@@ -335,7 +340,8 @@ public class RichLabelLayout {
 
   // -- Private helpers --
 
-  private record PlacedRun(Run run, float x, int line, float width, float height) {}
+  private record PlacedRun(
+      Run run, float x, int line, float width, float height, String textFragment) {}
 
   /** Mutable per-line accumulator used by the flow pass; sealed during the placement pass. */
   private static final class LineMetrics {
@@ -518,14 +524,50 @@ public class RichLabelLayout {
           lines.get(lines.size() - 1).align = currentAlign;
         }
 
-        LineMetrics current = lines.get(lines.size() - 1);
-        current.addText(runFont);
-        current.lineSpaceMul = Math.max(current.lineSpaceMul, lineSpaceMul);
+        if (wrap && runWidth > availableWidth && !trimmed.isEmpty()) {
+          int offset = 0;
+          while (offset < trimmed.length()) {
+            int end = offset + 1;
+            float fragmentWidth = 0f;
+            while (end <= trimmed.length()) {
+              glyphLayout.setText(runFont, trimmed.substring(offset, end));
+              float candidateWidth = glyphLayout.width;
+              if (candidateWidth > availableWidth && end > offset + 1) break;
+              fragmentWidth = candidateWidth;
+              end++;
+            }
 
-        if (placedOut != null) {
-          placedOut.add(new PlacedRun(run, x, lines.size() - 1, runWidth, runFont.getLineHeight()));
+            int fragmentEnd = end - 1;
+            String fragment = trimmed.substring(offset, fragmentEnd);
+            LineMetrics current = lines.get(lines.size() - 1);
+            current.addText(runFont);
+            current.lineSpaceMul = Math.max(current.lineSpaceMul, lineSpaceMul);
+            if (placedOut != null) {
+              placedOut.add(
+                  new PlacedRun(
+                      run, x, lines.size() - 1, fragmentWidth, runFont.getLineHeight(), fragment));
+            }
+            x += fragmentWidth;
+            offset = fragmentEnd;
+
+            if (offset < trimmed.length()) {
+              x = 0;
+              lines.add(LineMetrics.forText(defaultFont));
+              lines.get(lines.size() - 1).align = currentAlign;
+            }
+          }
+        } else {
+          LineMetrics current = lines.get(lines.size() - 1);
+          current.addText(runFont);
+          current.lineSpaceMul = Math.max(current.lineSpaceMul, lineSpaceMul);
+
+          if (placedOut != null) {
+            placedOut.add(
+                new PlacedRun(
+                    run, x, lines.size() - 1, runWidth, runFont.getLineHeight(), trimmed));
+          }
+          x += runWidth;
         }
-        x += runWidth;
 
       } else if (run instanceof ImageRun ir) {
         BitmapFont imgFont = fontForImage(ir, fontSpec);
@@ -551,7 +593,7 @@ public class RichLabelLayout {
 
         if (placedOut != null) {
           x += leadGap;
-          placedOut.add(new PlacedRun(run, x, lines.size() - 1, imgWidth, imgHeight));
+          placedOut.add(new PlacedRun(run, x, lines.size() - 1, imgWidth, imgHeight, null));
           x += imgWidth + trailGap;
         } else {
           x += totalImgWidth;
@@ -576,7 +618,7 @@ public class RichLabelLayout {
 
         if (placedOut != null) {
           float blockX = (availableWidth - imgWidth) / 2f;
-          placedOut.add(new PlacedRun(run, blockX, lines.size() - 1, imgWidth, imgHeight));
+          placedOut.add(new PlacedRun(run, blockX, lines.size() - 1, imgWidth, imgHeight, null));
         }
 
         // Only create a successor line if more runs follow, to avoid an empty trailing line.

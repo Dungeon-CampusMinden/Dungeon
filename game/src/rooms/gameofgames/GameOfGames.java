@@ -58,12 +58,6 @@ public final class GameOfGames {
         .enableFile(false)
         .build();
 
-    GameStarter game =
-        GameStarter.builder("Game of Games", GameOfGames.class)
-            .accentColor(MENU_ACCENT_COLOR)
-            .language(Language.EN)
-            .build();
-
     ServerStarter server =
         ServerStarter.builder(GameOfGames::serverSetup)
             .characterClasses(MULTIPLAYER_CHARACTER_CLASSES)
@@ -79,15 +73,16 @@ public final class GameOfGames {
             .build();
 
     ClientStarter client =
-        ClientStarter.builder(GameOfGamesClient::clientSetup)
+        ClientStarter.builder(server, GameOfGamesClient::clientSetup)
             .levels(Tuple.of(LEVEL_KEY, GameOfGamesClientLevel.class))
             .initLocalization(GameOfGames::initLocalization)
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
-            .snapshotTranslator(new GameOfGamesSnapshotTranslator())
-            .entitySpawnStrategy(new GameOfGamesEntitySpawnStrategy())
+            .build();
+
+    GameStarter game =
+        GameStarter.builder("Game of Games", GameOfGames.class)
+            .accentColor(MENU_ACCENT_COLOR)
+            .language(Language.EN)
+            .levelEditor("levels/gameOfGames")
             .build();
 
     MainMenu.run(args, game, client, server);

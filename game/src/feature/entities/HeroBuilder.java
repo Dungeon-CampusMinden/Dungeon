@@ -10,7 +10,6 @@ import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.game.PreRunConfiguration;
 import engine.input.CursorUtils;
-import engine.level.elements.ILevel;
 import engine.network.messages.c2s.InputMessage;
 import engine.sound.SoundSpec;
 import engine.systems.VelocitySystem;
@@ -41,7 +40,7 @@ import feature.input.configuration.KeyboardConfig;
 import feature.questlog.QuestLogUI;
 import feature.skills.Skill;
 import feature.systems.HealthSystem;
-import feature.systems.PositionSync;
+import feature.utils.EntityUtils;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -64,13 +63,10 @@ public final class HeroBuilder {
               "Game Over",
               () -> {
                 // Just respawn at Start Tile instead of reloading the level
+                EntityUtils.setPosition(
+                    hero, Game.startTile().orElseThrow().position().toCenteredPoint());
                 hero.fetch(PositionComponent.class)
-                    .ifPresent(
-                        pc -> {
-                          pc.position(Game.currentLevel().flatMap(ILevel::startTile).orElseThrow());
-                          pc.viewDirection(Direction.DOWN);
-                          PositionSync.syncPosition(hero);
-                        });
+                    .ifPresent(pc -> pc.viewDirection(Direction.DOWN));
 
                 hero.fetch(VelocityComponent.class)
                     .ifPresent(
