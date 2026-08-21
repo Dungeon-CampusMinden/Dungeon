@@ -98,13 +98,8 @@ export function RiddleInputsEditor({
             <NumericInputFields
               input={input}
               inputIndex={index}
-              project={project}
               issues={fieldIssues(issues, `riddle:${riddle.id}:input:${input.id}:answer`)}
               onChange={(updated) => updateInput(index, updated)}
-              onSurfaceTitleChange={(title) => updateProject((next) => {
-                const surface = next.surfaces.find((candidate) => candidate.id === input.surfaceId);
-                if (surface) surface.title = title;
-              })}
             />
           )}
         </div>
@@ -150,28 +145,16 @@ function CollectionInputFields({
 function NumericInputFields({
   input,
   inputIndex,
-  project,
   onChange,
-  onSurfaceTitleChange,
   issues,
 }: {
   input: NumericInput;
   inputIndex: number;
-  project: DeerProject;
   onChange: (updated: NumericInput) => void;
-  onSurfaceTitleChange: (title: string) => void;
   issues: Issue[];
 }) {
   return (
     <>
-      <Field>
-        <FieldLabel>Gerät</FieldLabel>
-        <Input
-          aria-label={`Gerät für Eingabe ${inputIndex + 1}`}
-          value={project.surfaces.find((surface) => surface.id === input.surfaceId)?.title ?? ""}
-          onChange={(event) => onSurfaceTitleChange(event.target.value)}
-        />
-      </Field>
       <Field>
         <FieldLabel>Lösung</FieldLabel>
         <FieldDescription>Eine Zahl mit bis zu 8 Ziffern.</FieldDescription>

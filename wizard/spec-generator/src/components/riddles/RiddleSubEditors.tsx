@@ -12,7 +12,7 @@ import { PlusIcon, TrashIcon } from "lucide-react";
 import { AssetSelector } from "../assets/AssetSelector";
 import { addInformationSource, removeInformationSource } from "@/data/RiddleGraphActions";
 import { Button } from "../ui/button";
-import { Field, FieldDescription, FieldLabel } from "../ui/field";
+import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { HINT_SEVERITIES, RESOURCE_KINDS } from "./riddleTypes";
@@ -47,13 +47,6 @@ export function InformationSourceListEditor({
     if (sourceId) updateProject((next, nextRiddle) => removeInformationSource(next, nextRiddle, sourceId));
   };
 
-  const updateSurfaceTitle = (source: InformationSource, title: string) => {
-    updateProject((next) => {
-      const surface = next.surfaces.find((candidate) => candidate.id === source.surfaceId);
-      if (surface) surface.title = title;
-    });
-  };
-
   return (
     <div className="flex flex-col gap-3">
       <Button
@@ -71,16 +64,8 @@ export function InformationSourceListEditor({
           key={source.id}
           className="flex flex-col gap-3 rounded-md border border-border p-3"
         >
-          <div className="grid grid-cols-[1fr_auto] items-end gap-2">
-            <Field>
-              <FieldLabel>Fundort</FieldLabel>
-              <FieldDescription>Wo finden die Spieler dieses Material?</FieldDescription>
-              <Input
-                aria-label={`Fundort der Informationsquelle ${index + 1}`}
-                value={project.surfaces.find((surface) => surface.id === source.surfaceId)?.title ?? ""}
-                onChange={(event) => updateSurfaceTitle(source, event.target.value)}
-              />
-            </Field>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm font-medium">Informationsquelle {index + 1}</span>
             <Button aria-label={`Informationsquelle ${index + 1} löschen`} variant="destructive" size="icon" onClick={() => removeSource(index)}>
               <TrashIcon />
             </Button>

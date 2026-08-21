@@ -1,5 +1,4 @@
 import type { AnyRiddleInput, DeerProject, InformationSource, Riddle } from "@/data/DeerSchema";
-import { Util } from "@/data/Util";
 import { ResourceCarousel } from "./ResourceCarousel";
 import { getInputType, InputTypeIcon } from "./riddleTypes";
 
@@ -22,18 +21,6 @@ function ParameterRow({ label, children }: { label: string; children: React.Reac
       <span className="text-muted-foreground">{label}</span>
       <div className="flex items-center gap-2">{children}</div>
     </div>
-  );
-}
-
-export function SurfaceValue({ deerSchema, surfaceId }: { deerSchema: DeerProject; surfaceId: string }) {
-  const surface = Util.getSurface(deerSchema, surfaceId);
-  if (!surface) {
-    return <span className="text-destructive">Nicht vollständig eingerichtet</span>;
-  }
-  return (
-    <>
-      <span>{surface.title}</span>
-    </>
   );
 }
 
@@ -63,9 +50,6 @@ function InputView({
         />
       ) : (
         <>
-          <ParameterRow label="Gerät">
-            <SurfaceValue deerSchema={deerSchema} surfaceId={input.surfaceId} />
-          </ParameterRow>
           <ParameterRow label="Lösung">
             <span className="font-mono">{input.answer || "—"}</span>
           </ParameterRow>
@@ -87,16 +71,13 @@ function CollectionInputView({
 }) {
   if (!informationSource) {
     return (
-      <ParameterRow label="Fundort">
+      <ParameterRow label="Informationsquelle">
         <span className="text-destructive">Keine Informationsquelle ausgewählt</span>
       </ParameterRow>
     );
   }
   return (
     <>
-      <ParameterRow label="Fundort">
-        <SurfaceValue deerSchema={deerSchema} surfaceId={informationSource.surfaceId} />
-      </ParameterRow>
       <div className="mt-1 flex flex-col gap-1">
         <span className="text-sm text-muted-foreground">Material</span>
         <ResourceCarousel resources={informationSource.resources} assets={deerSchema.assets} />

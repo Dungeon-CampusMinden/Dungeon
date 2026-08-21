@@ -369,7 +369,7 @@ export class ErrorChecker {
 
     const duplicates = ErrorChecker.findDuplicates(surfaces.map((surface) => surface.id));
     if (duplicates.length > 0) {
-      this.error("riddles", "riddles", "Einige Fundorte oder Geräte sind nicht eindeutig zugeordnet.");
+      this.error("riddles", "riddles", "Einige Rätselbestandteile sind nicht eindeutig zugeordnet.");
     }
 
     const worldCount = surfaces.filter((surface) => surface.kind === "world").length;
@@ -396,14 +396,12 @@ export class ErrorChecker {
         ? "game_end"
         : "riddles";
       const field = surface.kind === "door" ? "exit" : "riddles";
-      const description = surface.kind === "door"
-        ? "Der Name des Ausgangs darf nicht leer sein."
-        : surface.kind === "container"
-          ? "Der Fundort einer Informationsquelle darf nicht leer sein."
-          : surface.kind === "keypad"
-            ? "Der Name eines Zahlengeräts darf nicht leer sein."
-            : "Das Abenteuer konnte nicht vollständig eingerichtet werden.";
-      this.requireText(tabId, field, surface.title, description);
+      if (surface.kind === "door" || surface.kind === "world") {
+        const description = surface.kind === "door"
+          ? "Der Name des Ausgangs darf nicht leer sein."
+          : "Das Abenteuer konnte nicht vollständig eingerichtet werden.";
+        this.requireText(tabId, field, surface.title, description);
+      }
       this.requireOption(
         tabId,
         field,
@@ -506,7 +504,7 @@ export class ErrorChecker {
           this.error(
             "riddles",
             field,
-            `Der Fundort einer Informationsquelle von "${name}" ist ungültig eingerichtet.`,
+            `Eine Informationsquelle von "${name}" ist ungültig eingerichtet.`,
           );
         }
       }
@@ -518,7 +516,7 @@ export class ErrorChecker {
           this.error(
             "riddles",
             field,
-            `Das Zahlengerät von "${name}" ist ungültig eingerichtet.`,
+            `Eine Zahleneingabe von "${name}" ist ungültig eingerichtet.`,
           );
         }
       }
@@ -548,8 +546,8 @@ export class ErrorChecker {
           "riddles",
           "riddles",
           surface.kind === "container"
-            ? `Der Fundort "${surface.title.trim() || "Unbenannter Fundort"}" muss genau einer Informationsquelle gehören.`
-            : `Das Gerät "${surface.title.trim() || "Unbenanntes Gerät"}" muss genau einer Zahleneingabe gehören.`,
+            ? "Jede Informationsquelle muss einen eigenen internen Spielbestandteil besitzen."
+            : "Jede Zahleneingabe muss einen eigenen internen Spielbestandteil besitzen.",
           `Gefundene Verwendungen: ${uses ?? 0}.`,
         );
       }
@@ -768,12 +766,12 @@ export class ErrorChecker {
     riddleName: string,
   ) {
     if (isBlank(surfaceId)) {
-      this.error(tabId, field, `Für das Rätsel "${riddleName}" fehlt ein Fundort oder Gerät.`);
+      this.error(tabId, field, `Das Rätsel "${riddleName}" ist nicht vollständig eingerichtet.`);
     } else if (!surfaceIds.has(surfaceId)) {
       this.error(
         tabId,
         field,
-        `Ein Fundort oder Gerät von "${riddleName}" ist nicht mehr vorhanden.`,
+        `Ein interner Spielbestandteil von "${riddleName}" ist nicht mehr vorhanden.`,
       );
     }
   }
