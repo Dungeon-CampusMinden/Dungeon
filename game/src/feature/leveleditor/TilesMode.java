@@ -44,6 +44,7 @@ public class TilesMode extends LevelEditorMode {
 
   private LevelElementGrid grid = null;
   private NumberSetting brushSizeSetting = null;
+  private boolean mouseLevelChangePending = false;
 
   /**
    * Gets the path of the preview texture used for the given level element.
@@ -114,6 +115,11 @@ public class TilesMode extends LevelEditorMode {
 
   @Override
   public void execute() {
+    if (InputManager.isButtonJustReleased(Input.Buttons.LEFT)
+        || InputManager.isButtonJustReleased(Input.Buttons.RIGHT)) {
+      flushMouseLevelChange();
+    }
+
     if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
       if (InputManager.isButtonPressed(Input.Buttons.RIGHT)) {
         selectedTileIndexR -= 1;
@@ -186,15 +192,30 @@ public class TilesMode extends LevelEditorMode {
             }
           }
           CheckPatternPainter.paintCheckerPattern(getLevel().layout());
-          if (changed) levelChanged();
+          if (changed) {
+            if (InputManager.isButtonPressed(Input.Buttons.LEFT)
+                || InputManager.isButtonPressed(Input.Buttons.RIGHT)) {
+              mouseLevelChangePending = true;
+            } else {
+              levelChanged();
+            }
+          }
         });
+  }
+
+  private void flushMouseLevelChange() {
+    if (!mouseLevelChangePending) return;
+    mouseLevelChangePending = false;
+    levelChanged();
   }
 
   @Override
   public void onEnter() {}
 
   @Override
-  public void onExit() {}
+  public void onExit() {
+    flushMouseLevelChange();
+  }
 
   @Override
   public String additionalInformation() {

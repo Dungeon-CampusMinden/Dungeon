@@ -61,6 +61,7 @@ public class DecoMode extends LevelEditorMode {
   private static DecoEntityData decoHoveredEntity = null;
 
   private boolean rapidFireActive = false;
+  private boolean rapidFireLevelChangePending = false;
   private SelectSetting<SnapMode> snapSetting;
   private DecoButton[] neighboringButtons;
   private DecoButton[] historyButtons;
@@ -79,6 +80,10 @@ public class DecoMode extends LevelEditorMode {
 
   @Override
   public void execute() {
+    if (InputManager.isButtonJustReleased(Input.Buttons.LEFT)) {
+      flushRapidFireLevelChange();
+    }
+
     // Change selected deco
     if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
       selectDeco(Deco.values()[Math.floorMod(selectedDecoIndex + 1, Deco.values().length)]);
@@ -185,6 +190,12 @@ public class DecoMode extends LevelEditorMode {
     Game.add(newDeco);
     recordPlacedDeco(decoType);
     syncPlacedDecos();
+    rapidFireLevelChangePending = true;
+  }
+
+  private void flushRapidFireLevelChange() {
+    if (!rapidFireLevelChangePending) return;
+    rapidFireLevelChangePending = false;
     levelChanged();
   }
 
@@ -195,6 +206,7 @@ public class DecoMode extends LevelEditorMode {
 
   @Override
   public void onExit() {
+    flushRapidFireLevelChange();
     closeDecoSelector();
     removePreviewEntity();
   }
