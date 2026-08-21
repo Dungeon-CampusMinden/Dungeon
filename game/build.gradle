@@ -141,12 +141,6 @@ tasks.register('runTheLastHourLevelEditor', JavaExec) {
     args '--leveleditor'
 }
 
-tasks.register('runTheLastHourClient', JavaExec) {
-    group 'starter'
-    mainClass = 'rooms.lasthour.starter.TheLastHour'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
 tasks.register('runTheLastHourServer', JavaExec) {
     group 'starter'
     mainClass = 'rooms.lasthour.starter.TheLastHour'
