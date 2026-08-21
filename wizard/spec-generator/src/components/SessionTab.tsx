@@ -9,8 +9,8 @@ import {
   FieldSet,
 } from "./ui/field";
 import { Input } from "./ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Slider } from "./ui/slider";
+import { ResponsiveChoice } from "./ui/responsive-choice";
 import type { TabIssues } from "@/data/ErrorChecker";
 import { fieldIssues, hasFieldErrors, ValidationFeedback } from "./ValidationFeedback";
 
@@ -113,27 +113,15 @@ export function SessionTab({
           </Field>
           <Field>
             <FieldLabel>Umgang mit dem Zeitlimit</FieldLabel>
-            <Select
-              items={LIMIT_MODES}
+            <ResponsiveChoice
+              accessibleLabel="Umgang mit dem Zeitlimit"
+              options={LIMIT_MODES}
               value={deerSchema.session.time.limitMode}
-              onValueChange={(newValue) => {
-                deerSchema.session.time.limitMode = (newValue as TimeLimitMode) ?? "hard";
+              onChange={(newValue) => {
+                deerSchema.session.time.limitMode = newValue;
                 updateDeerSchema(deerSchema);
               }}
-            >
-              <SelectTrigger aria-label="Umgang mit dem Zeitlimit" className="w-[180px]">
-                <SelectValue placeholder="Wähle einen Modus" />
-              </SelectTrigger>
-              <SelectContent alignItemWithTrigger={false}>
-                <SelectGroup>
-                  {LIMIT_MODES.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            />
             <FieldDescription>{selectedLimitMode?.description}</FieldDescription>
           </Field>
         </FieldGroup>

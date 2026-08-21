@@ -12,6 +12,7 @@ import { INPUT_TYPES } from "./riddleTypes";
 import { SimpleSelect } from "./SimpleSelect";
 import type { Issue, TabIssues } from "@/data/ErrorChecker";
 import { fieldIssues, ValidationFeedback } from "../ValidationFeedback";
+import { ResponsiveChoice } from "../ui/responsive-choice";
 
 const YES_NO = [
   { value: "true", label: "Ja" },
@@ -185,7 +186,7 @@ function NumericInputFields({
       </Field>
       <Field>
         <FieldLabel>Stellenanzahl anzeigen</FieldLabel>
-        <SimpleSelect
+        <ResponsiveChoice
           accessibleLabel={`Stellenanzahl für Eingabe ${inputIndex + 1} anzeigen`}
           options={YES_NO}
           value={input.showDigitCount ? "true" : "false"}

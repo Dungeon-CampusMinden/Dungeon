@@ -15,9 +15,9 @@ import { Slider } from "../ui/slider";
 import { RiddleInputsEditor } from "./RiddleInputsEditor";
 import { HintListEditor, InformationSourceListEditor } from "./RiddleSubEditors";
 import { RIDDLE_DIFFICULTIES } from "./riddleTypes";
-import { SimpleSelect } from "./SimpleSelect";
 import type { TabIssues } from "@/data/ErrorChecker";
 import { fieldIssues, ValidationFeedback } from "../ValidationFeedback";
+import { ResponsiveChoice } from "../ui/responsive-choice";
 
 export function RiddleEditDialog({
   riddle,
@@ -82,7 +82,7 @@ export function RiddleEditDialog({
 
             <Field>
               <FieldLabel>Schwierigkeit</FieldLabel>
-              <SimpleSelect
+              <ResponsiveChoice
                 accessibleLabel="Schwierigkeit des Rätsels"
                 options={RIDDLE_DIFFICULTIES.map((item) => ({ value: item.value, label: item.label }))}
                 value={draft.difficulty}

@@ -2,6 +2,25 @@
   box-sizing: border-box;
 }
 
+.responsive-choice {
+  container-type: inline-size;
+  width: 100%;
+}
+
+.responsive-choice-buttons {
+  display: none;
+}
+
+@container (min-width: 15rem) {
+  .responsive-choice-select {
+    display: none;
+  }
+
+  .responsive-choice-buttons {
+    display: flex;
+  }
+}
+
 :root {
   --shadow-1:
     0 1px 1px rgb(0 0 0 / 0.20),
