@@ -11,7 +11,6 @@ import { Button } from "./ui/button";
 type ReviewWork = Exclude<WizardWork, "uploading">;
 
 export function ReviewTab({
-  contentKey,
   flush,
   currentDraftSnapshot,
   work,
@@ -25,7 +24,6 @@ export function ReviewTab({
   clearTechnicalError,
   downloadReady,
 }: {
-  contentKey: string;
   flush: () => Promise<WizardDraft>;
   currentDraftSnapshot: () => WizardDraft;
   work: WizardWork;
@@ -45,7 +43,6 @@ export function ReviewTab({
 }) {
   const storage = useWizardStorage();
   const headingRef = React.useRef<HTMLHeadingElement>(null);
-  const attemptedContentRef = React.useRef<string | null>(null);
 
   React.useEffect(() => { headingRef.current?.focus(); }, []);
 
@@ -64,19 +61,6 @@ export function ReviewTab({
       finishWork(kind);
     }
   }, [acceptTechnicalError, beginWork, clearTechnicalError, currentDraftSnapshot, finishWork]);
-
-  React.useEffect(() => {
-    if (!storage.host.native || !localReady || work !== null || productionReport !== null
-      || attemptedContentRef.current === contentKey) return;
-    attemptedContentRef.current = contentKey;
-    void run("validating", async (attempt) => {
-      const snapshot = await flush();
-      attempt.snapshot = snapshot;
-      const prepared = await prepareProductionRequest(storage, snapshot);
-      const report = await storage.host.validate(prepared.request);
-      acceptReport(report, prepared.snapshot, "validating");
-    });
-  }, [acceptReport, contentKey, flush, localReady, productionReport, run, storage, work]);
 
   const packageGame = () => run("packaging", async (attempt) => {
     const snapshot = await flush();

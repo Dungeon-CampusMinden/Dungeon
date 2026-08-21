@@ -34,6 +34,7 @@ import {
   productionIssueReport,
   type ProjectValidationReport,
 } from "./data/ProjectValidationReport";
+import { prepareProductionRequest } from "./data/prepareProductionRequest";
 import { BrowserDraftStorage, type DraftSummary } from "./data/DraftStorage";
 import { BrowserAssetStorage } from "./data/AssetStorage";
 import {
@@ -61,7 +62,7 @@ import {
 } from "./components/ui/dialog";
 import { UploadReferencesProvider } from "./components/assets/UploadReferencesContext";
 import { getAssetDisplayName, isBundledAssetPath } from "./components/assets/assetPaths";
-import { TABS, VALIDATED_TAB_IDS, type TabId } from "./data/Tabs";
+import { VALIDATED_TAB_IDS, type TabId } from "./data/Tabs";
 import type { WizardWork } from "./data/WizardWork";
 
 type SaveState = "unsaved" | "saving" | "saved" | "error";
@@ -525,6 +526,13 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
   const savedRevisionRef = React.useRef(0);
   const timerRef = React.useRef<number | null>(null);
   const savePromiseRef = React.useRef<Promise<void> | null>(null);
+  const productionValidationTimerRef = React.useRef<number | null>(null);
+  const attemptedProductionContentRef = React.useRef<string | null>(null);
+  const productionContentRef = React.useRef({
+    key: productionContentKey(initialDraft),
+    changedAt: performance.now(),
+  });
+  const localReadyRef = React.useRef(false);
   const [productionValidation, setProductionValidation] =
     React.useState<ProductionValidationState | null>(null);
   const [productionTechnicalError, setProductionTechnicalError] = React.useState<{
@@ -596,6 +604,13 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
   const updateDraft = React.useCallback<UpdateDraft>((transform) => {
     const snapshot = cloneDraft(latestDraftRef.current);
     if (transform(snapshot) === false) return;
+    const nextProductionContentKey = productionContentKey(snapshot);
+    if (nextProductionContentKey !== productionContentRef.current.key) {
+      productionContentRef.current = {
+        key: nextProductionContentKey,
+        changedAt: performance.now(),
+      };
+    }
     latestDraftRef.current = snapshot;
     revisionRef.current += 1;
     setDraft(snapshot);
@@ -648,52 +663,29 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
   const localErrorCount = ErrorChecker.getSortedIssues(localIssueReport)
     .filter((issue) => issue.severity === "error").length;
   const localReady = assetStorageStatus === "ready" && localErrorCount === 0;
+  React.useLayoutEffect(() => {
+    localReadyRef.current = localReady;
+  }, [localReady]);
   const updateProject = (updatedProject: DeerProject) => updateDraft((current) => { current.project = structuredClone(updatedProject); });
-  const navigateToTab = (activeTab: TabId, validateCurrentTab: boolean) => {
+  const navigateToTab = (activeTab: TabId) => {
     if (wizardWorkRef.current === "uploading") return;
-    const currentIndex = TABS.findIndex((entry) => entry.value === tab);
-    const targetIndex = TABS.findIndex((entry) => entry.value === activeTab);
-    if (validateCurrentTab && targetIndex > currentIndex) {
-      const currentErrors = ErrorChecker.getIssues(localIssueReport[tab])
-        .filter((issue) => issue.severity === "error");
-      if (currentErrors.length > 0) {
-        updateDraft((current) => {
-          const nextTouchedTabs = withTouchedTab(current.ui.touchedTabs, tab);
-          if (nextTouchedTabs === current.ui.touchedTabs) return false;
-          current.ui.touchedTabs = nextTouchedTabs;
-        });
-        toast.error(currentErrors[0].description, {
-          description: "Behebe die markierten Probleme in diesem Schritt.",
-        });
-        return;
-      }
-    }
     updateDraft((current) => {
       current.ui.activeTab = activeTab;
-      if (activeTab === "review" && current.seed === undefined) current.seed = createSeed();
       current.ui.touchedTabs = activeTab === "review"
         ? createAllTouchedTabs()
         : withTouchedTab(current.ui.touchedTabs, activeTab);
     });
   };
-  const setTab = (activeTab: TabId) => navigateToTab(activeTab, true);
-  const selectIssueTab = (activeTab: TabId) => navigateToTab(activeTab, false);
+  const setTab = (activeTab: TabId) => navigateToTab(activeTab);
+  const selectIssueTab = (activeTab: TabId) => navigateToTab(activeTab);
   const hasTouchedAllTabs = Object.values(touchedTabs).every((touched) => touched);
   React.useEffect(() => {
-    if (tab !== "review" || (draft.seed !== undefined && hasTouchedAllTabs)) return;
+    if (tab !== "review" || hasTouchedAllTabs) return;
     updateDraft((current) => {
-      let changed = false;
-      if (current.seed === undefined) {
-        current.seed = createSeed();
-        changed = true;
-      }
-      if (!Object.values(current.ui.touchedTabs).every((touched) => touched)) {
-        current.ui.touchedTabs = createAllTouchedTabs();
-        changed = true;
-      }
-      if (!changed) return false;
+      if (Object.values(current.ui.touchedTabs).every((touched) => touched)) return false;
+      current.ui.touchedTabs = createAllTouchedTabs();
     });
-  }, [draft.seed, hasTouchedAllTabs, tab, updateDraft]);
+  }, [hasTouchedAllTabs, tab, updateDraft]);
   const currentDraftSnapshot = React.useCallback(
     () => cloneDraft(latestDraftRef.current),
     [],
@@ -735,6 +727,79 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
     () => setProductionTechnicalError(null),
     [],
   );
+
+  React.useEffect(() => {
+    if (productionValidationTimerRef.current !== null) {
+      window.clearTimeout(productionValidationTimerRef.current);
+      productionValidationTimerRef.current = null;
+    }
+    if (!storage.host.native || !localReady || wizardWork !== null
+      || currentProduction !== null
+      || attemptedProductionContentRef.current === contentKey) return;
+    if (draft.seed === undefined) {
+      updateDraft((current) => {
+        if (current.seed !== undefined) return false;
+        current.seed = createSeed();
+      });
+      return;
+    }
+
+    const capturedContent = productionContentRef.current;
+    const remainingDebounce = Math.max(
+      0,
+      Math.ceil(2000 - (performance.now() - capturedContent.changedAt)),
+    );
+    productionValidationTimerRef.current = window.setTimeout(() => {
+      productionValidationTimerRef.current = null;
+      const latestContent = productionContentRef.current;
+      if (latestContent.key !== capturedContent.key
+        || productionContentKey(latestDraftRef.current) !== capturedContent.key
+        || performance.now() - latestContent.changedAt < 2000
+        || !localReadyRef.current
+        || wizardWorkRef.current !== null
+        || attemptedProductionContentRef.current === capturedContent.key
+        || !beginWizardWork("validating")) return;
+      attemptedProductionContentRef.current = capturedContent.key;
+      setProductionTechnicalError(null);
+      const attempt = { snapshot: cloneDraft(latestDraftRef.current) };
+      void (async () => {
+        try {
+          const snapshot = await flush();
+          if (productionContentKey(snapshot) !== capturedContent.key
+            || productionContentRef.current.key !== capturedContent.key
+            || productionContentKey(latestDraftRef.current) !== capturedContent.key) return;
+          attempt.snapshot = snapshot;
+          const prepared = await prepareProductionRequest(storage, snapshot);
+          const report = await storage.host.validate(prepared.request);
+          acceptProductionReport(report, prepared.snapshot, "validating");
+        } catch {
+          acceptProductionTechnicalError("validating", attempt.snapshot);
+        } finally {
+          finishWizardWork("validating");
+        }
+      })();
+    }, remainingDebounce);
+
+    return () => {
+      if (productionValidationTimerRef.current !== null) {
+        window.clearTimeout(productionValidationTimerRef.current);
+        productionValidationTimerRef.current = null;
+      }
+    };
+  }, [
+    acceptProductionReport,
+    acceptProductionTechnicalError,
+    beginWizardWork,
+    contentKey,
+    currentProduction,
+    draft.seed,
+    finishWizardWork,
+    flush,
+    localReady,
+    storage,
+    updateDraft,
+    wizardWork,
+  ]);
 
   return (
     <UploadReferencesProvider draftId={draft.draftId} value={draft.uploads}>
@@ -813,9 +878,8 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
                 />
               )}
               {tab === "game_end" && <GameEndTab deerSchema={project} updateDeerSchema={updateProject} issues={localIssueReport.game_end} />}
-              {tab === "review" && draft.seed !== undefined && hasTouchedAllTabs && (
+              {tab === "review" && (
                 <ReviewTab
-                  contentKey={contentKey}
                   flush={flush}
                   currentDraftSnapshot={currentDraftSnapshot}
                   work={wizardWork}
@@ -829,9 +893,6 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
                   clearTechnicalError={clearProductionTechnicalError}
                   downloadReady={downloadedContentKey === contentKey}
                 />
-              )}
-              {tab === "review" && (draft.seed === undefined || !hasTouchedAllTabs) && (
-                <p className="text-sm text-muted-foreground">Spiel wird vorbereitet…</p>
               )}
               <InPageNavigation tab={tab} setTab={setTab} disabled={wizardWork === "uploading"} />
             </div>
