@@ -8,6 +8,7 @@ export interface Issue {
   description: string;
   details?: string;
   severity: IssueSeverity;
+  source?: "graph-reachability";
 }
 
 export interface LocatedIssue {
@@ -22,6 +23,53 @@ export type IssueReport = Record<string, TabIssues>;
 export interface ErrorCheckerContext {
   storedAssetIds: Set<string> | null;
   assetDisplayNames: ReadonlyMap<string, string>;
+}
+
+export interface GraphReachabilityAnalysis {
+  reachableFromStartIds: ReadonlySet<string>;
+  unreachableFromStartIds: ReadonlySet<string>;
+  noPathToEndIds: ReadonlySet<string>;
+}
+
+/** Analyzes only valid graph edges so validation and graph feedback share one result. */
+export function analyzeGraphReachability(graph: RiddleGraph): GraphReachabilityAnalysis {
+  const nodeIds = new Set(graph.nodes.map((node) => node.id));
+  const startNodeId = graph.nodes.find((node) => node.kind === "start")?.id;
+  const endNodeId = graph.nodes.find((node) => node.kind === "end")?.id;
+  const outgoing = new Map<string, string[]>();
+  const incoming = new Map<string, string[]>();
+
+  for (const edge of graph.edges) {
+    if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) continue;
+    outgoing.set(edge.from, [...(outgoing.get(edge.from) ?? []), edge.to]);
+    incoming.set(edge.to, [...(incoming.get(edge.to) ?? []), edge.from]);
+  }
+
+  const reachableFromStartIds = startNodeId === undefined
+    ? new Set<string>()
+    : collectReachable(startNodeId, outgoing);
+  const leadingToEndIds = endNodeId === undefined
+    ? new Set<string>()
+    : collectReachable(endNodeId, incoming);
+
+  return {
+    reachableFromStartIds,
+    unreachableFromStartIds: new Set([...nodeIds].filter((id) => !reachableFromStartIds.has(id))),
+    noPathToEndIds: new Set([...nodeIds].filter((id) => !leadingToEndIds.has(id))),
+  };
+}
+
+/** Breadth-first traversal of the given adjacency map, starting at `startId`. */
+function collectReachable(startId: string, adjacency: ReadonlyMap<string, string[]>) {
+  const reached = new Set<string>();
+  const queue = [startId];
+  while (queue.length > 0) {
+    const current = queue.shift() as string;
+    if (reached.has(current)) continue;
+    reached.add(current);
+    queue.push(...(adjacency.get(current) ?? []));
+  }
+  return reached;
 }
 
 const THEME_IDS = ["default"];
@@ -100,6 +148,15 @@ export class ErrorChecker {
 
   private error(tabId: ValidatedTabId, field: string, description: string, details?: string) {
     this.add(tabId, field, { description, details, severity: "error" });
+  }
+
+  private graphReachabilityError(field: string, description: string, details?: string) {
+    this.add("riddle_graph", field, {
+      description,
+      details,
+      severity: "error",
+      source: "graph-reachability",
+    });
   }
 
   private warning(tabId: ValidatedTabId, field: string, description: string, details?: string) {
@@ -856,41 +913,30 @@ export class ErrorChecker {
       );
     }
 
-    this.checkGraphReachability(graph, nodeIds, nodeNames);
+    this.checkGraphReachability(graph, nodeNames);
   }
 
   private checkGraphReachability(
     graph: RiddleGraph,
-    nodeIds: Set<string>,
     nodeNames: ReadonlyMap<string, string>,
   ) {
     const startNodeId = graph.nodes.find((node) => node.kind === "start")?.id;
     const endNodeId = graph.nodes.find((node) => node.kind === "end")?.id;
     if (startNodeId === undefined) return;
 
-    const outgoing = new Map<string, string[]>();
-    const incoming = new Map<string, string[]>();
-    for (const edge of graph.edges) {
-      if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) continue;
-      outgoing.set(edge.from, [...(outgoing.get(edge.from) ?? []), edge.to]);
-      incoming.set(edge.to, [...(incoming.get(edge.to) ?? []), edge.from]);
-    }
+    const analysis = analyzeGraphReachability(graph);
 
-    const reachable = ErrorChecker.collectReachable(startNodeId, outgoing);
-
-    if (endNodeId !== undefined && !reachable.has(endNodeId)) {
-      this.error(
-        "riddle_graph",
+    if (endNodeId !== undefined && analysis.unreachableFromStartIds.has(endNodeId)) {
+      this.graphReachabilityError(
         "edges",
         "Der Endpunkt ist vom Start aus nicht erreichbar.",
         "Es fehlt eine Verbindung zwischen Start und Ende.",
       );
     }
 
-    const unreachable = [...nodeIds].filter((id) => !reachable.has(id) && id !== endNodeId);
+    const unreachable = [...analysis.unreachableFromStartIds].filter((id) => id !== endNodeId);
     if (unreachable.length > 0) {
-      this.error(
-        "riddle_graph",
+      this.graphReachabilityError(
         "nodes",
         "Es gibt Schritte, die vom Start aus nicht erreichbar sind.",
         unreachable.map((id) => nodeNames.get(id) ?? "Unbekannter Schritt").join(", "),
@@ -899,12 +945,11 @@ export class ErrorChecker {
 
     if (endNodeId === undefined) return;
 
-    // Steps that no longer lead to the exit leave the adventure in a dead end.
-    const leadingToEnd = ErrorChecker.collectReachable(endNodeId, incoming);
-    const deadEnds = [...nodeIds].filter((id) => reachable.has(id) && !leadingToEnd.has(id));
+    // Only reachable steps are reported here. The UI also marks disconnected steps that cannot reach the exit.
+    const deadEnds = [...analysis.noPathToEndIds].filter((id) =>
+      analysis.reachableFromStartIds.has(id));
     if (deadEnds.length > 0) {
-      this.error(
-        "riddle_graph",
+      this.graphReachabilityError(
         "edges",
         "Es gibt Schritte, von denen aus der Endpunkt nicht erreichbar ist.",
         deadEnds.map((id) => nodeNames.get(id) ?? "Unbekannter Schritt").join(", "),
@@ -934,17 +979,5 @@ export class ErrorChecker {
     return visited !== nodeIds.size;
   }
 
-  /** Breadth-first traversal of the given adjacency map, starting at `startId`. */
-  private static collectReachable(startId: string, adjacency: Map<string, string[]>) {
-    const reached = new Set<string>();
-    const queue = [startId];
-    while (queue.length > 0) {
-      const current = queue.shift() as string;
-      if (reached.has(current)) continue;
-      reached.add(current);
-      queue.push(...(adjacency.get(current) ?? []));
-    }
-    return reached;
-  }
   //#endregion
 }

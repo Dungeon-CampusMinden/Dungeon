@@ -272,6 +272,15 @@ code {
   transform: translate(-50%, -50%) scale(1.25);
 }
 
+.wizard-graph-handle.wizard-graph-handle-invalid::after {
+  background: var(--destructive);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--destructive) 55%, transparent);
+}
+
+.wizard-graph-node-invalid {
+  border-color: color-mix(in oklab, var(--destructive) 58%, var(--border));
+}
+
 .react-flow__node:has(.wizard-graph-handle.valid) > div {
   border-color: oklch(0.72 0.19 150);
   box-shadow: 0 0 0 3px oklch(0.72 0.19 150 / 0.18);
