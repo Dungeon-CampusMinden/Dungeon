@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import rooms.lasthour.util.translation.LastHourTranslator;
 
 /**
  * Builder hook for the puzzle {@link feature.hud.dialogs.DialogType}.
@@ -33,7 +34,8 @@ public final class PuzzleDialog {
   public static Group build(DialogContext ctx) {
     if (Game.isHeadless()) return new HeadlessDialogGroup();
 
-    String puzzleId = ctx.require(KEY_PUZZLE_ID, String.class);
+    //String puzzleId = ctx.require(KEY_PUZZLE_ID, String.class);
+    String puzzleId = LastHourTranslator.currentPuzzel.id();
     int heroId = ctx.require(KEY_HERO_ID, Integer.class);
     Puzzle puzzle =
         PuzzleMaker.lookup(puzzleId)

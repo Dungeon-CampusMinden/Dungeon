@@ -4,10 +4,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import engine.Game;
+import engine.language.Language;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
+import feature.components.InventoryComponent;
+import feature.inventory.Item;
+import rooms.lasthour.util.translation.LastHourTranslator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Generates the per-piece texture fragments of a {@link Puzzle} and registers them in the {@link
@@ -23,6 +31,7 @@ import engine.utils.logging.DungeonLogger;
  */
 public final class PuzzleTextureGenerator {
 
+  private static final float DEFAULT_ITEM_PICKUP_RADIUS = 2.0f;
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(PuzzleTextureGenerator.class);
 
   private PuzzleTextureGenerator() {}
@@ -65,7 +74,6 @@ public final class PuzzleTextureGenerator {
   public static void ensureRegistered(Puzzle puzzle) {
     if (puzzle == null) return;
     if (Game.isHeadless()) return;
-
     String firstPath = texturePath(puzzle.id(), 0);
     if (TextureMap.instance().containsKey(firstPath)
         && puzzle.polygons().size() == puzzle.pieceCount()) {
@@ -146,6 +154,7 @@ public final class PuzzleTextureGenerator {
    */
   public static void unregister(String puzzleId, int pieceCount) {
     if (Game.isHeadless()) return;
+//    Game.localization().removeLanguageChangeListener(languageConsumer);
     for (int i = 0; i < pieceCount; i++) {
       String key = texturePath(puzzleId, i);
       var existing = TextureMap.instance().remove(key);
@@ -157,5 +166,70 @@ public final class PuzzleTextureGenerator {
         }
       }
     }
+  }
+
+  public static Consumer<Language> languageConsumer = (lang) -> {
+
+    if (lang.equals(Language.DE)) {
+      applyChangsToItems(LastHourTranslator.currentPuzzel, LastHourTranslator.finalCodePuzzelDE);
+      LastHourTranslator.currentPuzzel = LastHourTranslator.finalCodePuzzelDE;
+    } else if (lang.equals(Language.EN)) {
+      applyChangsToItems(LastHourTranslator.currentPuzzel, LastHourTranslator.finalCodePuzzelEN);
+      LastHourTranslator.currentPuzzel = LastHourTranslator.finalCodePuzzelEN;
+    }
+  };
+
+  public static void applyChangsToItems(Puzzle currentPuzzle, Puzzle newPuzzle) {
+    // Handles Items in Inventory
+    InventoryComponent inv = Game.player().get().fetch(InventoryComponent.class).get();
+    List<PuzzlePieceItem> itemsToBeReplaced = new ArrayList<>();
+    for (Item item : inv.items()) {
+      if (item instanceof PuzzlePieceItem pItem) {
+        if (pItem.puzzleId().equals(currentPuzzle.id())) {
+          itemsToBeReplaced.add(pItem);
+        }
+      }
+    }
+    for (PuzzlePieceItem item: itemsToBeReplaced) {
+      inv.remove(item);
+    }
+
+    for (PuzzlePieceItem item: itemsToBeReplaced) {
+      int index = item.pieceIndex();
+      PuzzlePieceItem item2 = newPuzzle.items().stream()
+        .map(npItem -> ((PuzzlePieceItem)npItem))
+        .filter(puzzlePieceItem -> puzzlePieceItem.pieceIndex()==index).findFirst().get();
+      inv.add(item2);
+    }
+
+    // Handles Items on the Floor, doesnt work because local entities dont have the itemComponent..
+    /*
+    List<PuzzlePieceItem> puzzleItems = currentPuzzle.items().stream().map((item -> (PuzzlePieceItem)item)).toList();
+    List<Entity> itemsOnTheFloor = Game.entities()
+      .filter(entity -> entity.isPresent(ItemComponent.class)).toList();
+    Game.entities().forEach(entity -> {
+      System.out.println(entity.name() + " has :" + entity.componentStream().toList());
+    });
+    System.out.println("itemsOnTheFloor count: "+itemsOnTheFloor.size());
+    itemsOnTheFloor.stream().filter(entity -> {
+      ItemComponent itemComponent = entity.fetch(ItemComponent.class).get();
+      if (itemComponent.item() instanceof PuzzlePieceItem pItem) {
+        return puzzleItems.contains(pItem);
+      }
+      return false;
+    }).forEach(entity -> {
+    System.out.println("replaceing on ground: " + entity.toString());
+      ItemComponent itemComponent = entity.fetch(ItemComponent.class).get();
+      PuzzlePieceItem pItem = (PuzzlePieceItem) itemComponent.item();
+      int index = pItem.pieceIndex();
+      PuzzlePieceItem item = newPuzzle.items().stream().map(npItem -> ((PuzzlePieceItem)npItem)).filter(puzzlePieceItem -> puzzlePieceItem.pieceIndex()==index).findFirst().get();
+      entity.add(new DrawComponent(item.worldAnimation()));
+      entity.add(new ItemComponent(item));
+      entity.add(
+        new InteractionComponent(() -> new Interaction(item::collect, DEFAULT_ITEM_PICKUP_RADIUS)));
+
+    });
+
+     */
   }
 }

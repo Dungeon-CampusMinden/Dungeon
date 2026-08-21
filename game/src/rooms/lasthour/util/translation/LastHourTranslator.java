@@ -5,6 +5,8 @@ import engine.Game;
 import engine.language.Language;
 import engine.language.Translation;
 import feature.input.configuration.KeyboardConfig;
+import feature.puzzle.Puzzle;
+import feature.puzzle.PuzzleTextureGenerator;
 import feature.utils.Translator;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +20,9 @@ public class LastHourTranslator extends Translator {
   public final String VentSerialNumber = "49221";
   private final String cabinetImagePathEN = "images/virus-phrases.png";
   private final String cabinetImagePathDE = "images/virus-phrases-de.png";
+  public static Puzzle finalCodePuzzelDE;
+  public static Puzzle finalCodePuzzelEN;
+  public static Puzzle currentPuzzel;
 
   /** List of URLs mentioned in the emails, which may or may not be trustworthy. */
   public final List<String> EmailCodeUrls =
