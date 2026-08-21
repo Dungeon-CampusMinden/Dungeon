@@ -24,31 +24,33 @@ export function ScenarioTab({
       <h1>Geschichte</h1>
       <FieldSet>
         <FieldGroup>
-          <Field>
-            <FieldLabel>Thema</FieldLabel>
-            <Select
-              items={THEMES}
-              value={deerSchema.scenario.themeId}
-              onValueChange={(newValue) => {
-                deerSchema.scenario.themeId = newValue ?? "";
-                updateDeerSchema(deerSchema);
-              }}
-            >
-              <SelectTrigger aria-label="Thema der Geschichte" aria-invalid={hasFieldErrors(issues, "themeId")} className="w-[180px]">
-                <SelectValue placeholder="Wähle ein Thema" />
-              </SelectTrigger>
-              <SelectContent alignItemWithTrigger={false}>
-                <SelectGroup>
-                  {THEMES.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <ValidationFeedback issues={fieldIssues(issues, "themeId")} />
-          </Field>
+          {THEMES.length > 1 && (
+            <Field>
+              <FieldLabel>Thema</FieldLabel>
+              <Select
+                items={THEMES}
+                value={deerSchema.scenario.themeId}
+                onValueChange={(newValue) => {
+                  deerSchema.scenario.themeId = newValue ?? "";
+                  updateDeerSchema(deerSchema);
+                }}
+              >
+                <SelectTrigger aria-label="Thema der Geschichte" aria-invalid={hasFieldErrors(issues, "themeId")} className="w-[180px]">
+                  <SelectValue placeholder="Wähle ein Thema" />
+                </SelectTrigger>
+                <SelectContent alignItemWithTrigger={false}>
+                  <SelectGroup>
+                    {THEMES.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <ValidationFeedback issues={fieldIssues(issues, "themeId")} />
+            </Field>
+          )}
           <Field>
             <FieldLabel>Mission</FieldLabel>
             <Input

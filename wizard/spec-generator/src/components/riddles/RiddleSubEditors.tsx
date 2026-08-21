@@ -16,7 +16,7 @@ import { Field, FieldDescription, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { HINT_SEVERITIES, RESOURCE_KINDS } from "./riddleTypes";
-import { SimpleSelect } from "./SimpleSelect";
+import { ResponsiveChoice } from "../ui/responsive-choice";
 
 export function InformationSourceListEditor({
   project,
@@ -177,7 +177,7 @@ export function ResourceListEditor({
             </div>
             <Field>
               <FieldLabel>Art</FieldLabel>
-              <SimpleSelect
+              <ResponsiveChoice
                 accessibleLabel={`Art von Material ${index + 1}`}
                 options={RESOURCE_KINDS}
                 value={resource.kind}
@@ -275,7 +275,7 @@ export function HintListEditor({
             </Field>
             <Field>
               <FieldLabel>Stufe</FieldLabel>
-              <SimpleSelect
+              <ResponsiveChoice
                 accessibleLabel={`Stufe von Hilfe ${index + 1}`}
                 options={HINT_SEVERITIES}
                 value={hint.severity}
