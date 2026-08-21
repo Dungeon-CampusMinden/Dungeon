@@ -2,7 +2,6 @@ package feature.leveleditor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -25,8 +24,8 @@ import java.util.Map;
 /**
  * Panel at the top of the screen that allows selecting the active {@link Mode} of the level editor.
  *
- * <p>Every mode is represented by a square button showing a letter or an image, with the number of
- * the mode (the key the user can press to select it) centered below the button.
+ * <p>Every mode is represented by a square button showing an image, with the number of the mode
+ * (the key the user can press to select it) centered below the button.
  */
 public class ModePanel extends Table {
 
@@ -35,7 +34,7 @@ public class ModePanel extends Table {
   private static final float BUTTON_SIZE = 48f;
 
   private final Skin skin = UIUtils.defaultSkin();
-  private final Map<Mode, Button> buttons = new EnumMap<>(Mode.class);
+  private final Map<Mode, ImageButton> buttons = new EnumMap<>(Mode.class);
   private Mode selectedMode = null;
 
   /** Creates the mode selection panel with one button per {@link Mode}. */
@@ -51,7 +50,7 @@ public class ModePanel extends Table {
             ModeDetailsPanel.TEXT_COLOR.cpy());
 
     for (Mode mode : Mode.values()) {
-      Button button = createButton(mode);
+      ImageButton button = createButton(mode);
       button.addListener(
           new ChangeListener() {
             @Override
@@ -86,7 +85,7 @@ public class ModePanel extends Table {
             applyBackground(button, buttonMode == mode ? STYLE_SELECTED : STYLE_UNSELECTED));
   }
 
-  private Button createButton(Mode mode) {
+  private ImageButton createButton(Mode mode) {
     ImageButton imageButton =
         switch (mode) {
           case Tiles ->
@@ -99,29 +98,23 @@ public class ModePanel extends Table {
           case Points ->
               Scene2dElementFactory.createImageButton(
                   "hud/kenney/flag_square.png", STYLE_UNSELECTED);
+          case StartTiles ->
+              Scene2dElementFactory.createImageButton(
+                  "items/rpg/item_compass.png", STYLE_UNSELECTED);
           case Settings ->
               Scene2dElementFactory.createImageButton("hud/settings.png", STYLE_UNSELECTED);
-          default -> null;
         };
-    if (imageButton == null) {
-      return new TextButton(String.valueOf(mode.letter()), skin, STYLE_UNSELECTED);
-    }
-
     imageButton.getImageCell().size(BUTTON_SIZE * 0.68f);
     imageButton.getImage().setScaling(Scaling.fit);
     return imageButton;
   }
 
-  private void applyBackground(Button button, String styleName) {
+  private void applyBackground(ImageButton button, String styleName) {
     TextButton.TextButtonStyle base = skin.get(styleName, TextButton.TextButtonStyle.class);
-    if (button instanceof ImageButton imageButton) {
-      ImageButton.ImageButtonStyle style = imageButton.getStyle();
-      style.up = base.up;
-      style.down = base.down;
-      style.over = base.over;
-      imageButton.setStyle(style);
-    } else {
-      button.setStyle(base);
-    }
+    ImageButton.ImageButtonStyle style = button.getStyle();
+    style.up = base.up;
+    style.down = base.down;
+    style.over = base.over;
+    button.setStyle(style);
   }
 }

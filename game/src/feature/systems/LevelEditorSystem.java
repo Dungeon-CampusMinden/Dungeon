@@ -498,30 +498,15 @@ public class LevelEditorSystem extends System {
   /** The available modes of the level editor. */
   public enum Mode {
     /** Mode to place and remove level tiles. */
-    Tiles('T'),
+    Tiles,
     /** Mode to place and remove decorations. */
-    Decos('D'),
+    Decos,
     /** Mode to place and remove named points. */
-    Points('P'),
+    Points,
     /** Mode to define the start (spawn) tiles. */
-    StartTiles('S'),
+    StartTiles,
     /** Mode to resize, shift, and save the current level. */
-    Settings('L');
-
-    private final char letter;
-
-    Mode(char letter) {
-      this.letter = letter;
-    }
-
-    /**
-     * Gets the single letter representing this mode in the mode selection panel.
-     *
-     * @return the letter of this mode.
-     */
-    public char letter() {
-      return letter;
-    }
+    Settings;
 
     /**
      * Gets the mode with the given index.
