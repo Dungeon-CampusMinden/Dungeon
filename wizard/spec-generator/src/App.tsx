@@ -77,11 +77,19 @@ const productionContentKey = (draft: WizardDraft) => JSON.stringify([
   draft.uploads,
 ]);
 
-function downloadWizardRoom(jar: Blob) {
+function wizardRoomFileName(title: string) {
+  const safeTitle = title
+    .replace(/\s+/g, "")
+    .replace(/[<>:"/\\|?*]/g, "-")
+    .replace(/\.+$/g, "");
+  return `${safeTitle || "Spiel"}-WizardRoom.jar`;
+}
+
+function downloadWizardRoom(jar: Blob, title: string) {
   const url = URL.createObjectURL(jar);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "WizardRoom.jar";
+  link.download = wizardRoomFileName(title);
   document.body.append(link);
   link.click();
   link.remove();
@@ -670,7 +678,7 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
   }, []);
   const acceptProductionDownload = React.useCallback((jar: Blob, snapshot: WizardDraft) => {
     if (productionContentKey(snapshot) !== productionContentKey(latestDraftRef.current)) return;
-    downloadWizardRoom(jar);
+    downloadWizardRoom(jar, snapshot.project.metadata.title);
     setDownloadedContentKey(productionContentKey(snapshot));
     setProductionTechnicalError(null);
   }, []);
