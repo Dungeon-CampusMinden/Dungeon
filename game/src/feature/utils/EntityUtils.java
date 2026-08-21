@@ -203,6 +203,12 @@ public class EntityUtils {
     }
   }
 
+  /**
+   * Gets the offset from an entity's origin to the center of its collider or drawn sprite.
+   *
+   * @param entity the entity to get the center offset for.
+   * @return the center position offset of the entity.
+   */
   public static Vector2 getCenterPositionOffset(Entity entity) {
     PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
     Optional<CollideComponent> cco = entity.fetch(CollideComponent.class);

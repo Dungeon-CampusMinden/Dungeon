@@ -37,12 +37,20 @@ public class DecoButton extends ImageButton {
     setSize(size, size);
   }
 
-  /** Sets whether this button is highlighted as selected. */
+  /**
+   * Sets whether this button is highlighted as selected.
+   *
+   * @param selected whether the button should be highlighted.
+   */
   public void selected(boolean selected) {
     applyBackground(selected ? selectedStyle : STYLE_DEFAULT);
   }
 
-  /** Changes the decoration preview shown by this button. */
+  /**
+   * Changes the decoration preview shown by this button.
+   *
+   * @param deco decoration represented by this button.
+   */
   public void setDeco(Deco deco) {
     this.deco = deco;
     ImageButton.ImageButtonStyle style = getStyle();
@@ -51,7 +59,11 @@ public class DecoButton extends ImageButton {
     setStyle(style);
   }
 
-  /** Adds a left-click selection callback. */
+  /**
+   * Adds a left-click selection callback.
+   *
+   * @param callback callback invoked when the button is clicked.
+   */
   public void onClick(Runnable callback) {
     addListener(
         new ClickListener(Input.Buttons.LEFT) {
