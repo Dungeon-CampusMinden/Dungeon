@@ -56,6 +56,7 @@ import feature.inventory.Item;
 import feature.inventory.items.HintItem;
 import feature.puzzle.Puzzle;
 import feature.puzzle.PuzzleMaker;
+import feature.puzzle.PuzzleTextureGenerator;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerFactory;
@@ -81,6 +82,7 @@ import rooms.lasthour.util.LastHourQuestLogUtil;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
 import rooms.lasthour.util.shaders.LightingShader;
+import rooms.lasthour.util.translation.LastHourTranslator;
 import rooms.lasthour.util.translation.TranslationKey;
 
 /** The Last Hour Room. */
@@ -552,8 +554,10 @@ public class LastHourLevel extends DungeonLevel {
    * network message references them. Must be called on the libGDX render thread.
    */
   public static void ensureClientPuzzles() {
-    PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
-    PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE_DE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    LastHourTranslator.finalCodePuzzelEN = PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    LastHourTranslator.finalCodePuzzelDE = PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE_DE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    LastHourTranslator.currentPuzzel = LastHourTranslator.finalCodePuzzelEN;
+    Game.localization().registerLanguageChangeListener(PuzzleTextureGenerator.languageConsumer);
   }
 
   /**

@@ -69,7 +69,7 @@ public class TheLastHour {
   private static final Color MENU_ACCENT_COLOR = new Color(0.56f, 0.87f, 1f, 1f);
 
   /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private static final CharacterClass[] MULTIPLAYER_CHARACTER_CLASSES = {
     CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03
