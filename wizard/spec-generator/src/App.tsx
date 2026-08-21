@@ -663,7 +663,7 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
           current.ui.touchedTabs = nextTouchedTabs;
         });
         toast.error(currentErrors[0].description, {
-          description: "Öffne die Fehlerübersicht für alle Probleme in diesem Schritt.",
+          description: "Behebe die markierten Probleme in diesem Schritt.",
         });
         return;
       }
