@@ -8,6 +8,7 @@ import {
   MarkerType,
   ReactFlow,
   ReactFlowProvider,
+  useReactFlow,
   useNodesState,
   type Connection,
   type Edge,
@@ -16,7 +17,7 @@ import {
   type OnNodeDrag,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { LayoutGridIcon } from "lucide-react";
+import { CircleAlertIcon, LayoutGridIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import React from "react";
 import { toast } from "sonner";
@@ -24,8 +25,12 @@ import { RiddleEditDialog } from "./riddles/RiddleEditDialog";
 import { Button } from "./ui/button";
 import { GRAPH_EDGE_TYPES, type DeletableGraphEdge } from "./graph/DeletableEdge";
 import { GRAPH_NODE_TYPES, type GraphFlowNode } from "./graph/GraphNodes";
-import type { TabIssues } from "@/data/ErrorChecker";
-import { fieldIssues, ValidationFeedback } from "./ValidationFeedback";
+import {
+  analyzeGraphReachability,
+  type Issue,
+  type TabIssues,
+} from "@/data/ErrorChecker";
+import { fieldIssues } from "./ValidationFeedback";
 import {
   computeAutoLayout,
   hasEdge,
@@ -63,6 +68,7 @@ function RiddleGraphEditor({
   riddleIssues: TabIssues;
 }) {
   const { resolvedTheme } = useTheme();
+  const { fitView } = useReactFlow<GraphFlowNode>();
   const [editingRiddleId, setEditingRiddleId] = React.useState<string | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<GraphFlowNode>([]);
 
@@ -77,6 +83,7 @@ function RiddleGraphEditor({
     () => new Map(graph.nodes.map((node) => [node.id, graphNodeLabel(node, riddleLabels)])),
     [graph, riddleLabels],
   );
+  const reachability = React.useMemo(() => analyzeGraphReachability(graph), [graph]);
   const storedLayout = useStableValue(draft.graphLayout);
   const positions = React.useMemo(() => withMissingPositions(graph, storedLayout), [graph, storedLayout]);
 
@@ -91,8 +98,16 @@ function RiddleGraphEditor({
   }, [positions, storedLayout, persistLayout]);
 
   const flowNodes = React.useMemo<GraphFlowNode[]>(
-    () => graph.nodes.map((node) => toFlowNode(node, positions, riddles, riddleLabels, setEditingRiddleId)),
-    [graph, positions, riddles, riddleLabels],
+    () => graph.nodes.map((node) => toFlowNode(
+      node,
+      positions,
+      riddles,
+      riddleLabels,
+      reachability.unreachableFromStartIds.has(node.id),
+      reachability.noPathToEndIds.has(node.id),
+      setEditingRiddleId,
+    )),
+    [graph, positions, reachability, riddles, riddleLabels],
   );
   React.useEffect(() => setNodes(flowNodes), [flowNodes, setNodes]);
 
@@ -172,6 +187,17 @@ function RiddleGraphEditor({
     [updateDraft],
   );
 
+  const focusNode = React.useCallback((nodeId: string) => {
+    setNodes((current) => current.map((node) => ({ ...node, selected: node.id === nodeId })));
+    void fitView({ nodes: [{ id: nodeId }], duration: 300, padding: 1.5, maxZoom: 1.2 });
+  }, [fitView, setNodes]);
+
+  const otherGraphIssues = React.useMemo(
+    () => [...fieldIssues(issues, "nodes"), ...fieldIssues(issues, "edges")]
+      .filter((issue) => issue.source !== "graph-reachability"),
+    [issues],
+  );
+
   const editingIndex = project.riddles.findIndex((riddle) => riddle.id === editingRiddleId);
   const editingRiddle = editingIndex >= 0 ? project.riddles[editingIndex] : null;
 
@@ -214,7 +240,14 @@ function RiddleGraphEditor({
         <LayoutGridIcon />
         Automatisch anordnen
       </Button>
-      <ValidationFeedback issues={[...fieldIssues(issues, "nodes"), ...fieldIssues(issues, "edges")]} className="mb-3" />
+      <GraphErrorOverview
+        graph={graph}
+        nodeLabels={nodeLabels}
+        unreachableNodeIds={reachability.unreachableFromStartIds}
+        noPathToEndNodeIds={reachability.noPathToEndIds}
+        otherIssues={otherGraphIssues}
+        onNodeSelect={focusNode}
+      />
 
       <div className="h-[65vh] w-full overflow-hidden rounded-lg border border-border">
         <ReactFlow<GraphFlowNode>
@@ -261,19 +294,27 @@ function toFlowNode(
   positions: GraphLayout,
   riddles: Riddle[],
   riddleLabels: ReadonlyMap<string, string>,
+  inputInvalid: boolean,
+  outputInvalid: boolean,
   onEditRiddle: (riddleId: string) => void,
 ): GraphFlowNode {
   const position = positions[node.id] ?? { x: 0, y: 0 };
   switch (node.kind) {
     case "start":
-      return { id: node.id, type: "start", position, data: {}, deletable: false };
+      return {
+        id: node.id,
+        type: "start",
+        position,
+        data: { inputInvalid, outputInvalid },
+        deletable: false,
+      };
     case "end":
       return {
         id: node.id,
         type: "end",
         position,
         deletable: false,
-        data: {},
+        data: { inputInvalid, outputInvalid },
       };
     case "riddle":
       return {
@@ -285,10 +326,68 @@ function toFlowNode(
           riddleId: node.riddleId,
           riddle: riddles.find((riddle) => riddle.id === node.riddleId),
           label: riddleLabels.get(node.riddleId) ?? "Nicht mehr vorhandenes Rätsel",
+          inputInvalid,
+          outputInvalid,
           onEdit: () => onEditRiddle(node.riddleId),
         },
       };
   }
+}
+
+function GraphErrorOverview({
+  graph,
+  nodeLabels,
+  unreachableNodeIds,
+  noPathToEndNodeIds,
+  otherIssues,
+  onNodeSelect,
+}: {
+  graph: WizardDraft["project"]["riddleGraph"];
+  nodeLabels: ReadonlyMap<string, string>;
+  unreachableNodeIds: ReadonlySet<string>;
+  noPathToEndNodeIds: ReadonlySet<string>;
+  otherIssues: Issue[];
+  onNodeSelect: (nodeId: string) => void;
+}) {
+  const affectedNodes = graph.nodes.filter((node) =>
+    unreachableNodeIds.has(node.id) || noPathToEndNodeIds.has(node.id));
+  if (affectedNodes.length === 0 && otherIssues.length === 0) return null;
+
+  return (
+    <div className="mb-3 rounded-md border border-destructive/35 bg-destructive/5 px-3 py-2 text-sm">
+      <div className="mb-1 flex items-center gap-2 font-medium text-destructive">
+        <CircleAlertIcon className="size-4" />
+        Fehler im Spielablauf
+      </div>
+      <ul className="m-0 space-y-1 pl-6">
+        {affectedNodes.map((node) => {
+          const unreachable = unreachableNodeIds.has(node.id);
+          const noPathToEnd = noPathToEndNodeIds.has(node.id);
+          const description = unreachable && noPathToEnd
+            ? "ist vom Start nicht erreichbar und führt nicht zum Ende."
+            : unreachable
+              ? "ist vom Start nicht erreichbar."
+              : "führt nicht zum Ende.";
+          return (
+            <li key={node.id}>
+              <button
+                type="button"
+                className="text-left text-destructive underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={() => onNodeSelect(node.id)}
+              >
+                {nodeLabels.get(node.id) ?? "Unbekannter Schritt"} {description}
+              </button>
+            </li>
+          );
+        })}
+        {otherIssues.map((issue, index) => (
+          <li key={`${issue.description}-${index}`}>
+            {issue.description}{issue.details ? ` ${issue.details}` : ""}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function riddleGraphLabel(riddle: Riddle, index: number): string {
