@@ -17,12 +17,22 @@ import {
   type OnNodeDrag,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { CircleAlertIcon, LayoutGridIcon } from "lucide-react";
+import { CircleAlertIcon, LayoutGridIcon, LinkIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import React from "react";
 import { toast } from "sonner";
 import { RiddleEditDialog } from "./riddles/RiddleEditDialog";
 import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { GRAPH_EDGE_TYPES, type DeletableGraphEdge } from "./graph/DeletableEdge";
 import { GRAPH_NODE_TYPES, type GraphFlowNode } from "./graph/GraphNodes";
 import {
@@ -70,6 +80,7 @@ function RiddleGraphEditor({
   const { resolvedTheme } = useTheme();
   const { fitView } = useReactFlow<GraphFlowNode>();
   const [editingRiddleId, setEditingRiddleId] = React.useState<string | null>(null);
+  const [confirmAutoConnect, setConfirmAutoConnect] = React.useState(false);
   const [nodes, setNodes, onNodesChange] = useNodesState<GraphFlowNode>([]);
 
   const project = draft.project;
@@ -222,6 +233,53 @@ function RiddleGraphEditor({
     setEditingRiddleId(null);
   };
 
+  const autoConnect = React.useCallback((replaceExisting: boolean) => {
+    updateDraft((current) => {
+      const currentProject = current.project;
+      const startNode = currentProject.riddleGraph.nodes.find((node) => node.kind === "start");
+      const endNode = currentProject.riddleGraph.nodes.find((node) => node.kind === "end");
+      const riddleNodeIds: string[] = [];
+      for (const riddle of currentProject.riddles) {
+        const node = currentProject.riddleGraph.nodes.find(
+          (candidate) => candidate.kind === "riddle" && candidate.riddleId === riddle.id,
+        );
+        if (node) riddleNodeIds.push(node.id);
+      }
+
+      if (!startNode || !endNode || riddleNodeIds.length !== currentProject.riddles.length) {
+        toast.error("Der Spielablauf ist unvollständig und kann nicht automatisch verbunden werden.");
+        return false;
+      }
+
+      const orderedNodeIds = [
+        startNode.id,
+        ...riddleNodeIds,
+        endNode.id,
+      ];
+      const desiredEdges = orderedNodeIds.slice(0, -1).map((from, index) => ({
+        from,
+        to: orderedNodeIds[index + 1],
+      }));
+      const currentEdges = currentProject.riddleGraph.edges;
+      const alreadyConnected = currentEdges.length === desiredEdges.length
+        && desiredEdges.every((desiredEdge) => currentEdges.some((currentEdge) =>
+          currentEdge.from === desiredEdge.from && currentEdge.to === desiredEdge.to));
+
+      if (alreadyConnected) {
+        toast.info("Der Spielablauf ist bereits in Rätselreihenfolge verbunden.");
+        return false;
+      }
+      if (currentEdges.length > 0 && !replaceExisting) {
+        setConfirmAutoConnect(true);
+        return false;
+      }
+
+      currentProject.riddleGraph.edges = desiredEdges;
+      current.graphLayout = computeAutoLayout(currentProject.riddleGraph);
+      toast.success("Der Spielablauf wurde in Rätselreihenfolge verbunden.");
+    });
+  }, [updateDraft]);
+
   return (
     <div className="flex flex-col gap-0">
       <h1>Spielablauf</h1>
@@ -230,16 +288,36 @@ function RiddleGraphEditor({
         seinem Vorgänger verfügbar. Hat er mehrere Vorgänger, müssen alle davon gelöst sein. Verbindungen
         entfernst du über das X in ihrer Mitte oder mit der ENTF-Taste.
       </p>
-      <Button
-        variant="outline"
-        className="my-2 max-w-52"
-        onClick={() => updateDraft((current) => {
-          current.graphLayout = computeAutoLayout(current.project.riddleGraph);
-        })}
-      >
-        <LayoutGridIcon />
-        Automatisch anordnen
-      </Button>
+      <div className="my-2 flex flex-wrap gap-2">
+        <Button
+          variant="outline"
+          onClick={() => updateDraft((current) => {
+            current.graphLayout = computeAutoLayout(current.project.riddleGraph);
+          })}
+        >
+          <LayoutGridIcon />
+          Automatisch anordnen
+        </Button>
+        <Tooltip>
+          <TooltipTrigger
+            render={<span className="inline-flex" tabIndex={project.riddles.length === 0 ? 0 : undefined} />}
+          >
+            <Button
+              variant="outline"
+              disabled={project.riddles.length === 0}
+              onClick={() => autoConnect(false)}
+            >
+              <LinkIcon />
+              Automatisch verbinden
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {project.riddles.length === 0
+              ? "Lege zuerst ein Rätsel an, um den Spielablauf automatisch zu verbinden."
+              : "Verbindet Start, Rätsel und Ende in Rätselreihenfolge. Vorhandene Verbindungen werden ersetzt."}
+          </TooltipContent>
+        </Tooltip>
+      </div>
       <GraphErrorOverview
         graph={graph}
         nodeLabels={nodeLabels}
@@ -285,6 +363,29 @@ function RiddleGraphEditor({
           tabIssues={riddleIssues}
         />
       )}
+
+      <Dialog open={confirmAutoConnect} onOpenChange={setConfirmAutoConnect}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Verbindungen automatisch ersetzen?</DialogTitle>
+            <DialogDescription>
+              Alle bisherigen Verbindungen werden ersetzt. Der neue Ablauf führt in Rätselreihenfolge
+              von Start über alle Rätsel bis zum Ende. Diese Änderung kann nicht rückgängig gemacht werden.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>Abbrechen</DialogClose>
+            <Button
+              onClick={() => {
+                setConfirmAutoConnect(false);
+                autoConnect(true);
+              }}
+            >
+              Verbindungen ersetzen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
