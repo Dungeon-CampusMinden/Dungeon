@@ -168,6 +168,7 @@ public final class ECSManagement {
                     item.drop(pc.position());
                   }
                 }
+                inv.clear();
               },
               TIME_UNTIL_ITEMS_DROP_MS);
         }
