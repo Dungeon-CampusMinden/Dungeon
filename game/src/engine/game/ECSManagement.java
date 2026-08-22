@@ -161,6 +161,9 @@ public final class ECSManagement {
         if (entity.isPresent(InventoryComponent.class)) {
           EventScheduler.scheduleAction(
               () -> {
+                if (Game.allPlayers().toList().contains(entity)) {
+                  return;
+                }
                 InventoryComponent inv = entity.fetch(InventoryComponent.class).get();
                 PositionComponent pc = entity.fetch(PositionComponent.class).get();
                 for (Item item : inv.items()) {
