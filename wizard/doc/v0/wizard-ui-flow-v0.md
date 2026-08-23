@@ -76,8 +76,8 @@ Java-Host erzeugt keinen Seed.
 
 Der Java-Host läuft fest auf `127.0.0.1:27777` und speichert weder Drafts noch
 Uploads. Ein belegter Port führt zu einem klaren Startfehler. Die
-Zielgruppen-EXE und ein Installer mit gebündelter Runtime bleiben ein späterer
-Meilenstein.
+Zielgruppen-EXE und ein Installer mit gebündelter Runtime sind nicht Teil
+dieses UI-Flows.
 
 ## Starten oder fortsetzen
 

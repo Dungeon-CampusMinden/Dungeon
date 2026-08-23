@@ -109,7 +109,7 @@ AND. Die UI bietet keine OR-, Bedingungs- oder Optionalitätsregeln an.
 
 Der Runner-/Multiplayer-Vertrag, `hostInputSha256` und `PROTOCOL_VERSION`
 bleiben unverändert. Eine Zielgruppen-EXE und ein Installer mit gebündelter
-Runtime sind ein späterer Meilenstein.
+Runtime sind nicht Teil dieses Frontend-Handoffs.
 
 ## Lesereihenfolge
 

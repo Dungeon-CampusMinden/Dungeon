@@ -64,9 +64,9 @@ Authoring-Refactor nicht.
 `wizard/start_wizard_dev.cmd` ist ein Entwicklungslauncher. Aktuell benötigen
 Wizard und Spieler-JAR eine vorhandene Java-25-Runtime. Eine Zielgruppen-EXE,
 beispielsweise über `jpackage`, und ein Installer mit gebündelter Runtime
-bleiben ein späterer Meilenstein. Bis dahin richtet sich der lokale
-Authoring-Host an Entwickler und technische Betreuung, nicht direkt an
-Lehrende. Der Entwickler- und CI-Pfad bleibt:
+sind nicht Teil des hier beschriebenen Auslieferungswegs. Der lokale
+Authoring-Host richtet sich an Entwickler und technische Betreuung, nicht direkt
+an Lehrende. Der Entwickler- und CI-Pfad bleibt:
 
 ```text
 gradlew.bat :wizard:buildWizardRoomJar -PwizardProject=<projektordner>

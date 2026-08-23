@@ -121,7 +121,7 @@ Ein browser-only Export, beliebiger `deer.json`-Import und Room-ZIP sind nicht
 Teil des Produktflusses. `wizard/start_wizard_dev.cmd` ist nur ein
 Entwicklungslauncher. Die aktuelle Spieler-JAR benötigt Java 25. Eine
 Zielgruppen-`.exe`, beispielsweise über `jpackage`, und ein Installer mit
-gebündelter Runtime bleiben spätere Distributionsmeilensteine.
+gebündelter Runtime sind nicht Teil dieses Projektformats.
 
 ## Seed in deer.json
 

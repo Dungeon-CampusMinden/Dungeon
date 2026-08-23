@@ -70,7 +70,7 @@ diesen Zustand nicht wieder her.
 `wizard/start_wizard_dev.cmd` baut und startet den Host nur für die
 Entwicklung. Der aktuelle Entwickler- und Spieler-JAR-Fluss benötigt Java 25.
 Eine Zielgruppen-`.exe`, beispielsweise über `jpackage`, mit gebündelter
-Java-Runtime sowie ein Installer sind spätere Distributionsmeilensteine.
+Java-Runtime sowie ein Installer gehören nicht zu diesem Runtime-Vertrag.
 
 Auch `max=1` verwendet im Spielerfluss einen echten Hostprozess und einen
 getrennten Join-Client.
