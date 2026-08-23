@@ -41,6 +41,7 @@ export interface DraftSummary { draftId: string; title: string; savedAt?: string
 export interface DraftStoragePort {
   list(): Promise<DraftSummary[]>;
   load(draftId: string): Promise<WizardDraft | null>;
+  loadForEditing(draftId: string): Promise<WizardDraft | null>;
   save(draft: WizardDraft): Promise<WizardDraft>;
   delete(draftId: string): Promise<void>;
 }
@@ -136,6 +137,27 @@ export function assertWizardDraft(value: unknown): asserts value is WizardDraft 
   }
 }
 
+function pruneUnreferencedUploads(transaction: IDBTransaction, draft: WizardDraft): void {
+  const retainedStorageKeys = new Set(
+    Object.values(draft.uploads).map((upload) => upload.storageKey),
+  );
+  const uploadStore = transaction.objectStore(UPLOAD_STORE);
+  const request = uploadStore.index(UPLOAD_BY_DRAFT)
+    .openKeyCursor(IDBKeyRange.only(draft.draftId));
+  request.onsuccess = () => {
+    const cursor = request.result;
+    if (cursor === null) return;
+    const primaryKey = cursor.primaryKey;
+    const storageKey = Array.isArray(primaryKey) ? primaryKey[1] : undefined;
+    if (typeof storageKey !== "string") {
+      transaction.abort();
+      return;
+    }
+    if (!retainedStorageKeys.has(storageKey)) uploadStore.delete(primaryKey);
+    cursor.continue();
+  };
+}
+
 export class BrowserDraftStorage implements DraftStoragePort {
   async list(): Promise<DraftSummary[]> {
     const db = await openWizardDatabase();
@@ -163,13 +185,41 @@ export class BrowserDraftStorage implements DraftStoragePort {
     } finally { db.close(); }
   }
 
+  async loadForEditing(draftId: string): Promise<WizardDraft | null> {
+    const db = await openWizardDatabase();
+    try {
+      const transaction = db.transaction([DRAFT_STORE, UPLOAD_STORE], "readwrite");
+      const completion = transactionDone(transaction);
+      try {
+        const value = await requestResult(
+          transaction.objectStore(DRAFT_STORE).get(draftId),
+        ) as unknown;
+        if (value === undefined) {
+          await completion;
+          return null;
+        }
+        assertWizardDraft(value);
+        pruneUnreferencedUploads(transaction, value);
+        await completion;
+        return structuredClone(value);
+      } catch (cause) {
+        try { transaction.abort(); } catch {
+          // The failing request may already have aborted or completed the transaction.
+        }
+        await completion.catch(() => {});
+        throw cause;
+      }
+    } finally { db.close(); }
+  }
+
   async save(draft: WizardDraft): Promise<WizardDraft> {
     assertWizardDraft(draft);
     const stored = { ...structuredClone(draft), savedAt: new Date().toISOString() };
     const db = await openWizardDatabase();
     try {
-      const transaction = db.transaction(DRAFT_STORE, "readwrite");
+      const transaction = db.transaction([DRAFT_STORE, UPLOAD_STORE], "readwrite");
       transaction.objectStore(DRAFT_STORE).put(stored);
+      pruneUnreferencedUploads(transaction, stored);
       await transactionDone(transaction);
       return stored;
     } finally { db.close(); }

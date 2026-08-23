@@ -244,12 +244,12 @@ tasks.register('buildWizardRoomJar', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     ignoreExitValue = false
     inputs.property('wizardProject', wizardProjectProperty.orElse(''))
-    inputs.dir(wizardProjectProperty.map { rootProject.file(it) })
     inputs.file(tasks.named('buildWizardRoomTemplateJar').flatMap { it.archiveFile })
     outputs.file(layout.buildDirectory.file('libs/WizardRoom.jar'))
     outputs.upToDateWhen { false }
 
     doFirst {
+        delete(layout.buildDirectory.file('libs/WizardRoom.jar'))
         setArgs([
             tasks.named('buildWizardRoomTemplateJar').get().archiveFile.get().asFile.absolutePath,
             resolveWizardProject().toString(),

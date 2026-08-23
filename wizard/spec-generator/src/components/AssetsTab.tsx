@@ -21,9 +21,10 @@ import type { WizardWork } from "@/data/WizardWork";
 import type { TabIssues } from "@/data/ErrorChecker";
 import { fieldIssues, ValidationFeedback } from "./ValidationFeedback";
 
-export function AssetsTab({ draft, updateDraft, work, beginWork, finishWork, issues }: {
+export function AssetsTab({ draft, updateDraft, flush, work, beginWork, finishWork, issues }: {
   draft: WizardDraft;
   updateDraft: UpdateDraft;
+  flush: () => Promise<WizardDraft>;
   work: WizardWork;
   beginWork: (work: Extract<WizardWork, "uploading">) => boolean;
   finishWork: (work: Extract<WizardWork, "uploading">) => void;
@@ -54,6 +55,7 @@ export function AssetsTab({ draft, updateDraft, work, beginWork, finishWork, iss
   }> => {
     if (selection.kind === "custom") {
       const mediaType = validateCustomAssetFile(selection.file);
+      await flush();
       const storageKey = await storage.assets.putAssetFile(draft.draftId, selection.file);
       return {
         path: createCustomAssetPath(selection.file.name, storageKey),
@@ -127,7 +129,6 @@ export function AssetsTab({ draft, updateDraft, work, beginWork, finishWork, iss
       const index = current.project.assets.findIndex((entry) => entry.id === asset.id);
       if (index === -1) return false;
       current.project.assets.splice(index, 1);
-      // Upload blobs remain until the complete draft is deleted.
       delete current.uploads[asset.id];
     });
   };

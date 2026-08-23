@@ -38,17 +38,20 @@ Der Host bietet keine Draft- oder Upload-Persistenz und speichert keinen
 Ready-Status. Ist Port `27777` belegt, scheitert der Start mit einer klaren
 Meldung.
 
-Beim ersten Betreten von `Spiel erstellen` erzeugt die UI einmal einen
-zufälligen Seed im Bereich `0..9007199254740991`. Sie
-speichert ihn vor dem Hostaufruf im Draft. Danach bleibt er stabil. Vor diesem
-Zeitpunkt besitzt der Entwurf keinen echten Seed; Java erzeugt keinen Seed.
+Sobald der Entwurf und seine eigenen Dateien lokal vollständig und lesbar sind,
+erzeugt die UI unmittelbar vor der ersten möglichen Produktionsprüfung einmal
+einen zufälligen 53-Bit-Seed im Bereich `0..9007199254740991`. Sie speichert ihn
+im Entwurf. Danach bleibt er stabil. Java erzeugt oder ersetzt keinen Seed.
 
-Beim Betreten von `Spiel erstellen` validiert der Java-Host automatisch den
-exakt gespeicherten Kandidaten samt Uploadbytes, sobald die lokale Prüfung
-keine blockierenden Fehler findet und der Assetcheck bereit ist. `Spiel
-erstellen und herunterladen` paketiert denselben aktuellen Stand und validiert
-ihn dabei erneut. Nur ein erfolgreicher Download der aktuellen UI-Sitzung
-zeigt das Spiel als bereit. Ein Reload stellt diesen Zustand nicht wieder her.
+Im nativen Host startet die Produktionsprüfung nach ungefähr zwei Sekunden ohne
+inhaltliche Änderung. Sie ist nicht an die Seite `Spiel erstellen` gebunden.
+Lokale Fehler verhindern diese Hintergrundprüfung, aber nicht den Seitenwechsel.
+Die reine Browserentwicklung führt keine Java-Produktionsprüfung aus. `Spiel
+erstellen und herunterladen` liest den aktuellen gespeicherten Stand, validiert
+ihn erneut und paketiert ihn nur mit einem aktuellen gültigen Ergebnis.
+Warnungen blockieren das Packaging nicht. Nur ein erfolgreicher Download der
+aktuellen UI-Sitzung zeigt das Spiel als bereit. Ein Reload stellt diesen
+Zustand nicht wieder her.
 
 ## Projekt und Runtime
 

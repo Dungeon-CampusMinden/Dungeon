@@ -2,6 +2,7 @@ package wizard.authoring;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import engine.utils.logging.DungeonLogger;
 import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,19 +11,21 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import tools.jackson.databind.JsonNode;
 
 /** Local standalone browser host for private Wizard authoring. */
 public final class WizardAuthoringApplication {
+  private static final DungeonLogger LOGGER =
+      DungeonLogger.getLogger(WizardAuthoringApplication.class);
   private static final String API_PREFIX = "/api/v1";
   private static final String UI_PREFIX = "wizard/authoring-ui/";
   private static final String TEMPLATE_RESOURCE = "wizard/template/WizardRoomTemplate.jar";
@@ -42,59 +45,69 @@ public final class WizardAuthoringApplication {
     if (arguments.length != 0) {
       throw new IllegalArgumentException("DungeonWizard.jar does not accept arguments");
     }
-    Path template = materializeTemplate();
     HttpServer server;
     try {
       server = HttpServer.create(new InetSocketAddress("127.0.0.1", PORT), 0);
     } catch (BindException exception) {
-      Files.deleteIfExists(template);
       throw new IllegalStateException(
           "Dungeon Wizard cannot start because 127.0.0.1:" + PORT + " is already in use",
           exception);
     }
     CandidateProjectService projects = new CandidateProjectService();
-    server.createContext("/", exchange -> handle(exchange, projects, template));
-    server.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread(
-                () -> {
-                  server.stop(0);
-                  deleteTemplate(template);
-                },
-                "wizard-authoring-shutdown"));
+    server.createContext("/", exchange -> handle(exchange, projects));
+    ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+    server.setExecutor(executor);
+    AtomicBoolean shutdownComplete = new AtomicBoolean();
+    Runnable shutdown = () -> shutdown(server, executor, shutdownComplete);
+    Runtime.getRuntime().addShutdownHook(new Thread(shutdown, "wizard-authoring-shutdown"));
     server.start();
     System.out.println("Dungeon Wizard is available at " + ORIGIN + "/");
     openBrowser(URI.create(ORIGIN + "/"));
+    boolean interrupted = false;
     try {
       new CountDownLatch(1).await();
     } catch (InterruptedException exception) {
-      Thread.currentThread().interrupt();
+      interrupted = true;
     } finally {
-      server.stop(0);
-      Files.deleteIfExists(template);
+      shutdown.run();
+      if (interrupted) {
+        Thread.currentThread().interrupt();
+      }
     }
   }
 
-  private static void handle(
-      final HttpExchange exchange, final CandidateProjectService projects, final Path template) {
+  private static void shutdown(
+      final HttpServer server,
+      final ExecutorService executor,
+      final AtomicBoolean shutdownComplete) {
+    synchronized (shutdownComplete) {
+      if (shutdownComplete.get()) {
+        return;
+      }
+      server.stop(0);
+      executor.close();
+      shutdownComplete.set(true);
+    }
+  }
+
+  private static void handle(final HttpExchange exchange, final CandidateProjectService projects) {
     try {
       if (exchange.getRequestURI().getPath().startsWith(API_PREFIX)) {
-        handleApi(exchange, projects, template);
+        handleApi(exchange, projects);
       } else {
         serveStatic(exchange);
       }
     } catch (IllegalArgumentException exception) {
       sendError(exchange, 400, concise(exception));
     } catch (Exception exception) {
+      LOGGER.error("Unexpected Wizard authoring request failure", exception);
       sendError(exchange, 500, "The local Wizard operation failed");
     } finally {
       exchange.close();
     }
   }
 
-  private static void handleApi(
-      final HttpExchange exchange, final CandidateProjectService projects, final Path template)
+  private static void handleApi(final HttpExchange exchange, final CandidateProjectService projects)
       throws IOException {
     String method = exchange.getRequestMethod();
     String path = exchange.getRequestURI().getPath();
@@ -109,8 +122,11 @@ public final class WizardAuthoringApplication {
     }
     if (method.equals("POST") && path.equals(API_PREFIX + "/package")) {
       requireMutation(exchange);
-      CandidateProjectService.PackageResponse result =
-          projects.packageProject(readJsonBody(exchange), template);
+      JsonNode request = readJsonBody(exchange);
+      CandidateProjectService.PackageResponse result;
+      try (InputStream template = templateResource()) {
+        result = projects.packageProject(request, template);
+      }
       byte[] jar = result.jarBytes();
       if (jar == null) {
         sendJson(exchange, 200, result.json());
@@ -245,22 +261,13 @@ public final class WizardAuthoringApplication {
     return Set.copyOf(result);
   }
 
-  private static Path materializeTemplate() throws IOException {
-    byte[] bytes = resource(TEMPLATE_RESOURCE);
-    if (bytes == null) {
+  private static InputStream templateResource() {
+    InputStream input =
+        WizardAuthoringApplication.class.getClassLoader().getResourceAsStream(TEMPLATE_RESOURCE);
+    if (input == null) {
       throw new IllegalStateException("Packaged Wizard room template is missing");
     }
-    Path temporary = Files.createTempFile("WizardRoomTemplate-", ".jar");
-    Files.write(temporary, bytes);
-    return temporary;
-  }
-
-  private static void deleteTemplate(final Path template) {
-    try {
-      Files.deleteIfExists(template);
-    } catch (IOException ignored) {
-      // The operating system can reclaim an abandoned temporary template.
-    }
+    return input;
   }
 
   private static void openBrowser(final URI uri) {

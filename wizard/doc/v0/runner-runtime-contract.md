@@ -7,26 +7,39 @@ generischen Runners
 
 ## Produktgrenze
 
-Der Wizard erstellt genau ein DEER-Projekt:
+Das DEER-Projekt besteht logisch aus dieser Packaging-Eingabe:
 
 ```text
 <project>/
   deer.json
   assets/custom/...  # nur bei eigenen Bildern
-  WizardRoom.jar     # Authoring-Ausgabe, keine Runner-Projekteingabe
+```
+
+Im browserbasierten Authoring-Flow materialisiert der Host diese Eingabe nur
+temporär. Nach erfolgreichem Packaging lädt der Browser die Ausgabe getrennt
+davon herunter:
+
+```text
+<bereinigter Spieltitel>-WizardRoom.jar
 ```
 
 Der Runner validiert dieses Projekt und leitet daraus vor dem Serverstart einen
 vollständigen Foundation-Raum im Speicher ab. Er erzeugt keinen Java-Code, kein
 projektspezifisches Modul, keine `.level`-Datei, kein Buildskript und kein
-Room-ZIP. Projektordner und Checkout bleiben unverändert.
+Room-ZIP.
 
 Der gemeinsame Java-Packager erzeugt aus der generischen
 `WizardRoomTemplate.jar` eine projektspezifische `WizardRoom.jar`, die
-`deer.json`, vorhandene Dateien unter `assets/custom/`, Runner, Engine und
-benötigte Runtime-Ressourcen enthält. Referenzierte Spielbibliothek-Bilder sind
-bereits als Basisassets in derselben JAR vorhanden und werden nicht kopiert.
-Dieselbe vollständige JAR wird an Host und alle weiteren Spielenden verteilt.
+die nach erfolgreicher Validierung erneut gelesenen und durch `rawDeerSha256`
+abgesicherten exakten `deer.json`-Bytes, die referenzierten und verifizierten
+Custom-Dateien unter `assets/custom/`, den zugehörigen `files.list`-Index,
+Runner, Engine und benötigte Runtime-Ressourcen enthält. Zusätzliche
+unreferenzierte Dateien unmittelbar unter `assets/custom/` werden nicht
+paketiert und erzeugen Warnungen, solange die unterstützte Höchstzahl an
+Verzeichniseinträgen nicht überschritten wird. Eine Überschreitung ist ein
+blockierender Kapazitätsfehler. Referenzierte Spielbibliothek-Bilder sind bereits
+als Basisassets in derselben JAR vorhanden und werden nicht kopiert. Dieselbe
+vollständige JAR wird an Host und alle weiteren Spielenden verteilt.
 
 ## Spielerstart und Main-Menü
 
@@ -54,12 +67,14 @@ werden mit einem klaren Startfehler abgelehnt.
 
 Die Authoring-Integration bindet `ProjectValidationService`,
 `ProjectValidationReport` und `RoomDeriver` direkt als Java-Bibliothek an.
-Prüfungen laufen in einem temporären Projekt und sind read-only. Die
-Authoring-Integration paketiert exakt diesen validierten Kandidaten mit
-derselben `WizardRoomPackager`-Implementierung wie der Gradle-Entwickler-/CI-
-Pfad und liefert die JAR als Browserdownload aus. Auf dem Hostsystem werden
-dafür weder Gradle noch Node benötigt. Bei einem Packaging-Fehler wiederholt
-die UI den Package-Aufruf mit dem aktuellen Draft.
+Prüfungen laufen in einem temporären Projekt und sind read-only. Für das
+Packaging liest die Authoring-Integration den aktuellen gespeicherten
+Kandidaten, validiert ihn erneut und verlangt ein aktuelles gültiges Ergebnis.
+Warnungen blockieren nicht. Anschließend paketiert sie ihn mit derselben
+`WizardRoomPackager`-Implementierung wie der Gradle-Entwickler-/CI-Pfad und
+liefert die JAR als Browserdownload aus. Auf dem Hostsystem werden dafür weder
+Gradle noch Node benötigt. Bei einem Packaging-Fehler wiederholt die UI den
+Package-Aufruf mit dem aktuellen Draft.
 
 Der Authoring-Host bindet fest an `127.0.0.1:27777`. Er bewahrt keine Drafts,
 Uploads, JARs oder Ready-Zustände dauerhaft auf. Seine API beschränkt

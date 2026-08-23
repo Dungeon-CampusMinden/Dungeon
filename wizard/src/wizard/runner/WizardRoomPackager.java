@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -69,9 +70,33 @@ public final class WizardRoomPackager {
       final Path project,
       final Path destination,
       final ValidationResult validation) {
-    byte[] deer = readValidatedDeer(project, validation);
-    Path output = destination.toAbsolutePath().normalize();
     try {
+      packageValidatedProject(
+          Files.newInputStream(template.toAbsolutePath().normalize()),
+          project,
+          destination,
+          validation);
+    } catch (IOException exception) {
+      throw new IllegalStateException("Wizard room JAR could not be packaged", exception);
+    }
+  }
+
+  /**
+   * Packages a project from a template stream and closes that stream before returning.
+   *
+   * @param template generic project-free player JAR stream
+   * @param project finalized project directory
+   * @param destination output player JAR
+   * @param validation exact successful production validation input
+   */
+  public static void packageValidatedProject(
+      final InputStream template,
+      final Path project,
+      final Path destination,
+      final ValidationResult validation) {
+    try (InputStream templateInput = Objects.requireNonNull(template, "template")) {
+      byte[] deer = readValidatedDeer(project, validation);
+      Path output = destination.toAbsolutePath().normalize();
       Path parent = output.getParent();
       if (parent == null) {
         throw new IllegalArgumentException("Output JAR must have a parent directory");
@@ -79,7 +104,7 @@ public final class WizardRoomPackager {
       Files.createDirectories(parent);
       Path temporary = Files.createTempFile(parent, output.getFileName().toString(), ".tmp");
       try {
-        writeJar(template.toAbsolutePath().normalize(), validation, deer, temporary);
+        writeJar(templateInput, validation, deer, temporary);
         atomicReplace(temporary, output);
       } finally {
         Files.deleteIfExists(temporary);
@@ -90,11 +115,13 @@ public final class WizardRoomPackager {
   }
 
   private static void writeJar(
-      final Path template, final ValidationResult validation, final byte[] deer, final Path output)
+      final InputStream template,
+      final ValidationResult validation,
+      final byte[] deer,
+      final Path output)
       throws IOException {
     Set<String> entries = new HashSet<>();
-    try (InputStream fileInput = Files.newInputStream(template);
-        ZipInputStream input = new ZipInputStream(new BufferedInputStream(fileInput));
+    try (ZipInputStream input = new ZipInputStream(new BufferedInputStream(template));
         OutputStream fileOutput = Files.newOutputStream(output);
         ZipOutputStream zip = new ZipOutputStream(new BufferedOutputStream(fileOutput))) {
       ZipEntry entry;

@@ -46,12 +46,13 @@ JAR oder Ready-Zustand.
 
 ## Seed
 
-Ein neuer unvollständiger Draft besitzt keinen echten Projektseed. Beim ersten
-Betreten von `Spiel erstellen` erzeugt die UI genau einmal einen zufälligen
-ganzzahligen Wert im Bereich
-`0..9007199254740991`. Sie speichert ihn im Draft, bevor sie den Kandidaten an
-den Host sendet. Jeder spätere Kandidat desselben Drafts verwendet diesen Wert
-unverändert. Java erzeugt und ersetzt keinen Seed.
+Ein neuer unvollständiger Draft besitzt keinen echten Projektseed. Sobald Draft
+und Assets lokal vollständig und lesbar sind, erzeugt die UI unmittelbar vor
+der ersten möglichen Hintergrund-Produktionsprüfung genau einmal einen
+zufälligen ganzzahligen 53-Bit-Wert im Bereich `0..9007199254740991`. Sie
+speichert ihn im Draft, bevor sie den Kandidaten an den Host sendet. Jeder
+spätere Kandidat desselben Drafts verwendet diesen Wert unverändert. Java
+erzeugt und ersetzt keinen Seed.
 
 ## Minimale Host-API
 
@@ -66,14 +67,21 @@ Die same-origin API umfasst nur diese Operationen:
 `project` ist der vollständige DEER-Kandidat. Die Teacher-UI zeigt weder
 `projectId` noch andere interne IDs.
 
-Lokale Feldhinweise prüfen den aktuellen Schritt bei jeder Vorwärtsnavigation.
-Sie blockieren nur bei Fehlern, nicht bei Warnungen. Beim Betreten von `Spiel
-erstellen` startet die UI automatisch eine Produktionsvalidierung, sobald der
-gesamte Draft lokal keine blockierenden Fehler hat und der Assetcheck bereit
-ist. Sie sendet den exakt gespeicherten Kandidaten und seine Uploadbytes.
-`Spiel erstellen und herunterladen` liest den aktuellen gespeicherten Stand
-erneut; der Host validiert ihn beim Packaging nochmals. Technische Codes,
-JSON-Pointer und IDs werden auf verständliche Felder oder Rätsel abgebildet.
+Lokale Feldhinweise prüfen und markieren den aktuellen Stand. Fehler und
+Warnungen blockieren weder die Vorwärts- noch die Rückwärtsnavigation. Die
+Meldungen fordern die Lehrkraft nicht auf, auf der aktuellen Seite zu bleiben.
+Lokale Fehler verhindern jedoch die Hintergrund-Produktionsprüfung und das
+Packaging.
+
+Im nativen Host startet die Produktionsprüfung nach ungefähr zwei Sekunden ohne
+inhaltliche Änderung, sobald der gesamte Draft und seine Assets lokal vollständig
+und lesbar sind. Sie ist nicht an das Betreten von `Spiel erstellen` gebunden und
+sendet den exakt gespeicherten Kandidaten mit seinen Uploadbytes. Die reine
+Browserentwicklung führt keine Java-Produktionsprüfung aus. `Spiel erstellen und
+herunterladen` liest den aktuellen gespeicherten Stand erneut. Der Host validiert
+ihn beim Packaging nochmals; dafür ist ein aktuelles gültiges Ergebnis nötig.
+Warnungen blockieren nicht. Technische Codes, JSON-Pointer und IDs werden auf
+verständliche Felder oder Rätsel abgebildet.
 
 Lokale und produktive Probleme erscheinen in einer gemeinsamen Fehlerübersicht.
 Ändert sich der Draft oder ein Upload, verwirft die UI den alten
@@ -89,9 +97,10 @@ Produktionspipeline und erzeugt nur bei einem gültigen Report eine
 nach der Antwort entfernt.
 
 Bei Erfolg liefert der Host die JAR als `application/java-archive`; der Browser
-lädt sie als `WizardRoom.jar` herunter. Bei einem ungültigen Kandidaten bleibt
-die Antwort ein lokalisierbarer `ProjectValidationReport`. Nur ein erfolgreicher
-Download dieser UI-Sitzung setzt den sichtbaren Zustand `Das Spiel ist bereit`.
+lädt sie als `<bereinigter Spieltitel>-WizardRoom.jar` herunter. Bei einem
+ungültigen Kandidaten bleibt die Antwort ein lokalisierbarer
+`ProjectValidationReport`. Nur ein erfolgreicher Download dieser UI-Sitzung
+setzt den sichtbaren Zustand `Das Spiel ist bereit`.
 Ein Reload stellt ihn nicht wieder her. Ein erneuter Versuch paketiert erneut
 aus dem aktuellen gespeicherten Draft; es gibt keinen serverseitigen
 Zwischenstand.

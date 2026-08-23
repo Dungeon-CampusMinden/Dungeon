@@ -8,13 +8,21 @@ Status: kanonischer implementierter Contract für `formatVersion=0.4`
 generischen Wizard Runner. Ein unvollständiger UI-Entwurf bleibt ein privates
 Format des Autorenwerkzeugs und ist keine teilweise gültige `deer.json`.
 
-Die Authoring-App schreibt genau ein DEER-Projekt:
+Für Validierung und Packaging projiziert die UI den browsergespeicherten Draft
+auf eine logische DEER-Projekteingabe. Der Host materialisiert sie nur
+temporär:
 
 ```text
-wizard-project/
+temporary-project/
   deer.json
   assets/custom/...  # nur bei eigenen Bildern
-  WizardRoom.jar     # nach erfolgreichem Packaging
+```
+
+Nach erfolgreichem Packaging lädt der Browser die Ausgabe getrennt davon
+herunter:
+
+```text
+<bereinigter Spieltitel>-WizardRoom.jar
 ```
 
 Sie erzeugt weder Java-Code noch ein Raummodul, Buildskripte oder ein Room-ZIP.
@@ -23,7 +31,9 @@ und leitet daraus deterministisch einen Foundation-Raum im Speicher ab. Die UI
 bettet das finalisierte Projekt anschließend mit dem gemeinsamen Java-Packager
 und einer generischen `WizardRoomTemplate.jar` in eine projektspezifische
 ausführbare `WizardRoom.jar` ein. Diese JAR ist Ausgabe, keine Runner-
-Projekteingabe.
+Projekteingabe. Der Host schreibt sie vorübergehend als `WizardRoom.jar` in das
+Arbeitsverzeichnis des Kandidaten, liest sie für die Browserantwort und löscht
+anschließend den gesamten temporären Verzeichnisbaum.
 
 Dieselbe JAR wird an Host und alle weiteren Spielenden verteilt. Damit besitzen
 alle JAR-Empfänger lokal auch `deer.json`, Seed, Lösungen und unveröffentlichte
@@ -60,11 +70,12 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 | `assets` | Referenzierte PNG-/JPEG-Dateien. |
 
 Der Authoring-Refactor ändert weder `formatVersion` noch die Semantik dieses
-Dokuments. Ein unvollständiger Draft besitzt keinen echten Seed. Beim ersten
-Betreten der Abschlussseite erzeugt die UI genau einmal einen Wert im Bereich
-`0..9007199254740991` und speichert ihn vor dem
-Hostaufruf im Browserdraft. Danach bleibt er stabil. Der Java-Host erzeugt und
-ersetzt keinen Seed. Der Bereich ist der lückenlos exakt darstellbare
+Dokuments. Ein unvollständiger Draft besitzt keinen echten Seed. Sobald Draft
+und Assets lokal vollständig und lesbar sind, erzeugt die UI unmittelbar vor
+der ersten möglichen Hintergrund-Produktionsprüfung genau einmal einen Wert im
+Bereich `0..9007199254740991` und speichert ihn vor dem Hostaufruf im
+Browserdraft. Danach bleibt er stabil. Der Java-Host erzeugt und ersetzt keinen
+Seed. Der Bereich ist der lückenlos exakt darstellbare
 nicht-negative Safe-Integer-Bereich der RFC-8785-Zahlendarstellung. Weitere Schreibregeln
 stehen in
 [`runner-project-format.md`](runner-project-format.md).
@@ -441,8 +452,14 @@ Referenz auf ein bereits in der Spiel-JAR enthaltenes Asset behandelt. Dafür
 wird weder eine Projektdatei noch ein künstliches `assets/bundled/`-Verzeichnis
 angelegt.
 
-Eine Asset-Resource referenziert das Asset über `assetId`. Nicht referenzierte
-Assets sind gültig, erzeugen aber eine Warnung.
+Eine Asset-Resource referenziert das Asset über `assetId`. Ein direkt
+validiertes DEER-Projekt kann unreferenzierte Assetdeklarationen enthalten; die
+Produktionsprüfung meldet dafür eine Warnung. Das ist das Verhalten des
+generischen DEER-Validators und keine Vorgabe an die Authoring-Projektion. Die
+Wizard-Authoring-Projektion übernimmt nur Assetdeklarationen, die von
+Rätselmaterial referenziert sind, und sendet nur deren Custom-Assetbytes.
+Unbenutzte Uploads bleiben im privaten Browserdraft und fehlen im Kandidaten
+und im verpackten Projekt.
 
 Für Custom-Assets gelten die Datei- und Sicherheitsregeln:
 

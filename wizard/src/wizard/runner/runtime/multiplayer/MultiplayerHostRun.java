@@ -113,8 +113,8 @@ public final class MultiplayerHostRun {
       starter.apply();
       prepareLevel();
       Game.windowTitle(room.title() + " Server");
-      startManagedStopMonitor(completion);
       Game.run();
+      startManagedStopMonitor(completion);
       awaitCompletion(completion);
     } finally {
       try {

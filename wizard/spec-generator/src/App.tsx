@@ -201,7 +201,7 @@ function WizardWorkspace() {
   const [deleteError, setDeleteError] = React.useState<string | null>(null);
   const [deleting, setDeleting] = React.useState(false);
   const sessionLockRef = React.useRef<EditorSessionLock | null>(null);
-  const [sessionBlocked, setSessionBlocked] = React.useState(false);
+  const [sessionBlocked, setSessionBlocked] = React.useState<"held" | "unsupported" | null>(null);
 
   const refresh = React.useCallback(async () => {
     try {
@@ -215,13 +215,13 @@ function WizardWorkspace() {
 
   const acquireEditorSession = React.useCallback(async (): Promise<boolean> => {
     if (sessionLockRef.current) return true;
-    const lock = await acquireEditorSessionLock();
-    if (!lock) {
-      setSessionBlocked(true);
+    const result = await acquireEditorSessionLock();
+    if (result.status !== "acquired") {
+      setSessionBlocked(result.status);
       return false;
     }
-    sessionLockRef.current = lock;
-    setSessionBlocked(false);
+    sessionLockRef.current = result.lock;
+    setSessionBlocked(null);
     return true;
   }, []);
   const releaseEditorSession = React.useCallback(() => {
@@ -233,7 +233,7 @@ function WizardWorkspace() {
     if (!(await acquireEditorSession())) return;
     setBusy(true);
     try {
-      const loaded = await storage.drafts.load(draftId);
+      const loaded = await storage.drafts.loadForEditing(draftId);
       if (!loaded) throw new Error("Der Entwurf ist nicht mehr vorhanden.");
       setDraft(loaded); setError(null);
     } catch (cause) {
@@ -259,7 +259,17 @@ function WizardWorkspace() {
     if (selected === null || deleting) return;
     setDeleting(true);
     setDeleteError(null);
+    let deleteLock: EditorSessionLock | null = null;
     try {
+      const result = await acquireEditorSessionLock();
+      if (result.status !== "acquired") {
+        setDeleteError(result.status === "unsupported"
+          ? "Dieser Browser kann das Spiel nicht sicher löschen. Öffne den Wizard in einem aktuellen unterstützten Browser."
+          : "Dieses Spiel wird gerade in einem anderen Tab bearbeitet. Beende dort die Bearbeitung, bevor du es löschst.");
+        return;
+      }
+      deleteLock = result.lock;
+      setSessionBlocked(null);
       await storage.drafts.delete(selected.draftId);
       setDrafts((current) => current?.filter((summary) => summary.draftId !== selected.draftId) ?? current);
       setDeleteDraft(null);
@@ -286,6 +296,7 @@ function WizardWorkspace() {
         ? cause.message
         : "Der Entwurf konnte nicht gelöscht werden. Er bleibt gespeichert. Versuche es erneut.");
     } finally {
+      deleteLock?.release();
       setDeleting(false);
     }
   };
@@ -343,11 +354,20 @@ function WizardWorkspace() {
           </Alert>
         )}
 
-        {sessionBlocked && (
+        {sessionBlocked === "held" && (
           <Alert variant="destructive">
             <AlertTitle>Wizard ist bereits in einem anderen Tab geöffnet</AlertTitle>
             <AlertDescription>
               Schließe den anderen Tab oder beende dort die Bearbeitung, bevor du hier ein Spiel öffnest oder anlegst.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {sessionBlocked === "unsupported" && (
+          <Alert variant="destructive">
+            <AlertTitle>Dieser Browser wird nicht unterstützt</AlertTitle>
+            <AlertDescription>
+              Öffne den Wizard in einem aktuellen unterstützten Browser, damit deine Spiele vor gleichzeitigen Änderungen geschützt sind.
             </AlertDescription>
           </Alert>
         )}
@@ -470,7 +490,7 @@ function DraftReadinessIndicator({ problemCount }: { problemCount: number | null
     return (
       <span className="inline-flex items-center gap-1.5 text-emerald-400">
         <CircleCheckIcon className="size-3.5 shrink-0" />
-        Bereit
+        Lokal vollständig
       </span>
     );
   }
@@ -695,7 +715,13 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
     snapshot: WizardDraft,
     action: "validating" | "packaging",
   ) => {
-    if (productionContentKey(snapshot) !== productionContentKey(latestDraftRef.current)) return;
+    const snapshotContentKey = productionContentKey(snapshot);
+    if (snapshotContentKey !== productionContentKey(latestDraftRef.current)) {
+      if (action === "validating" && attemptedProductionContentRef.current === snapshotContentKey) {
+        attemptedProductionContentRef.current = null;
+      }
+      return;
+    }
     const technicalIssue = report.issues.find((issue) =>
       issue.messageKey === "validation.internal_error"
       || issue.messageKey === "validation.derivation.failed"
@@ -713,7 +739,13 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
     action: "validating" | "packaging",
     snapshot: WizardDraft,
   ) => {
-    if (productionContentKey(snapshot) !== productionContentKey(latestDraftRef.current)) return;
+    const snapshotContentKey = productionContentKey(snapshot);
+    if (snapshotContentKey !== productionContentKey(latestDraftRef.current)) {
+      if (action === "validating" && attemptedProductionContentRef.current === snapshotContentKey) {
+        attemptedProductionContentRef.current = null;
+      }
+      return;
+    }
     if (action === "validating") setProductionValidation(null);
     setProductionTechnicalError({ snapshot, action });
   }, []);
@@ -767,7 +799,12 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
           const snapshot = await flush();
           if (productionContentKey(snapshot) !== capturedContent.key
             || productionContentRef.current.key !== capturedContent.key
-            || productionContentKey(latestDraftRef.current) !== capturedContent.key) return;
+            || productionContentKey(latestDraftRef.current) !== capturedContent.key) {
+            if (attemptedProductionContentRef.current === capturedContent.key) {
+              attemptedProductionContentRef.current = null;
+            }
+            return;
+          }
           attempt.snapshot = snapshot;
           const prepared = await prepareProductionRequest(storage, snapshot);
           const report = await storage.host.validate(prepared.request);
@@ -862,6 +899,7 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
                 <AssetsTab
                   draft={draft}
                   updateDraft={updateDraft}
+                  flush={flush}
                   work={wizardWork}
                   beginWork={beginWizardWork}
                   finishWork={finishWizardWork}

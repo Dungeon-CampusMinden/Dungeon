@@ -3,10 +3,12 @@ import type { Issue, IssueReport } from "./ErrorChecker";
 import { VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 
 export type ProductionIssueSeverity = "error" | "warning";
+export type ProductionValidationArgument = string | number | boolean;
 
 export interface ProductionValidationIssue {
   severity: ProductionIssueSeverity;
   messageKey: KnownValidationMessageKey;
+  arguments: Record<string, ProductionValidationArgument>;
   path: string;
   entity: { kind: string; id: string } | null;
   relatedPaths: string[];
@@ -64,9 +66,9 @@ const MESSAGES = {
   "validation.assets.declared_unused": "Eine eingetragene Datei wird im Spiel nicht verwendet.",
   "validation.capability.exit_surface_incompatible": "Der Ausgang ist nicht passend eingerichtet.",
   "validation.capability.player_count_invalid": "Die gewählte Anzahl Spielender wird nicht unterstützt.",
-  "validation.capability.surface_cardinality_invalid": "Ein Ort oder Gerät wird nicht in der benötigten Anzahl verwendet.",
-  "validation.capability.surface_incompatible": "Ein Rätsel verwendet einen unpassenden Ort oder ein unpassendes Gerät.",
-  "validation.capability.surface_ownership_invalid": "Ein Ort oder Gerät ist mehreren Rätseln zugeordnet.",
+  "validation.capability.surface_cardinality_invalid": "Der Spielraum und sein Ausgang konnten nicht eindeutig vorbereitet werden.",
+  "validation.capability.surface_incompatible": "Material oder Eingabe eines Rätsels ist nicht passend eingerichtet.",
+  "validation.capability.surface_ownership_invalid": "Eine Material- oder Eingabezuordnung gehört nicht genau zu einem Rätsel.",
   "validation.feasibility.capacity_exceeded": "Der Entwurf ist für einen einzelnen Spielraum zu umfangreich.",
   "validation.feasibility.text_long": "Ein Text ist sehr lang und könnte im Spiel schlecht lesbar sein.",
   "validation.graph.cycle": "Der Spielablauf enthält einen Kreis.",
@@ -80,7 +82,7 @@ const MESSAGES = {
   "validation.references.id_duplicate": "Ein Element ist mehrfach angelegt.",
   "validation.references.information_source_unknown": "Eine Eingabe verweist auf unbekanntes Material.",
   "validation.references.riddle_unknown": "Der Spielablauf verweist auf ein unbekanntes Rätsel.",
-  "validation.references.surface_unknown": "Ein Rätsel verweist auf einen unbekannten Ort.",
+  "validation.references.surface_unknown": "Eine Verknüpfung zu Material, Eingabe oder Spielende fehlt.",
 } as const;
 
 export type KnownValidationMessageKey = keyof typeof MESSAGES;
@@ -89,9 +91,11 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 const hasExactKeys = (value: Record<string, unknown>, keys: string[]) =>
   Object.keys(value).length === keys.length && keys.every((key) => key in value);
-const isScalar = (value: unknown) =>
+const isScalar = (value: unknown): value is ProductionValidationArgument =>
   typeof value === "string" || typeof value === "boolean"
   || (typeof value === "number" && Number.isFinite(value));
+const hasScalarValues = (value: unknown): value is Record<string, ProductionValidationArgument> =>
+  isRecord(value) && Object.values(value).every(isScalar);
 
 export function parseProjectValidationReport(value: unknown): ProjectValidationReport {
   if (!isRecord(value) || !hasExactKeys(value, [
@@ -111,7 +115,7 @@ export function parseProjectValidationReport(value: unknown): ProjectValidationR
       || typeof raw.phase !== "string" || !PHASES.has(raw.phase)
       || typeof raw.code !== "string" || !ISSUE_CODES.has(raw.code)
       || typeof raw.messageKey !== "string" || !(raw.messageKey in MESSAGES)
-      || !isRecord(raw.arguments) || !Object.values(raw.arguments).every(isScalar)
+      || !hasScalarValues(raw.arguments)
       || typeof raw.path !== "string" || !POINTER.test(raw.path)
       || !Array.isArray(raw.relatedPaths)
       || !raw.relatedPaths.every((path) => typeof path === "string" && POINTER.test(path))
@@ -130,6 +134,7 @@ export function parseProjectValidationReport(value: unknown): ProjectValidationR
     return {
       severity: raw.severity,
       messageKey: raw.messageKey as KnownValidationMessageKey,
+      arguments: { ...raw.arguments },
       path: raw.path,
       entity,
       relatedPaths: raw.relatedPaths as string[],
@@ -194,6 +199,85 @@ function issueArea(tabId: ValidatedTabId | "review", issue: ProductionValidation
   }[tabId];
 }
 
+const capacityKinds: Record<string, { singular: string; plural: string }> = {
+  riddles: { singular: "Rätsel", plural: "Rätsel" },
+  graph_edges: { singular: "Verbindung im Spielablauf", plural: "Verbindungen im Spielablauf" },
+  resources: { singular: "Material", plural: "Materialien" },
+  hints: { singular: "Hinweis", plural: "Hinweise" },
+};
+
+const runnerDimensions: Record<string, { singular: string; plural: string }> = {
+  referencedAssets: { singular: "verwendetes Bild", plural: "verwendete Bilder" },
+  assetDirectoryEntries: { singular: "eigene Datei", plural: "eigene Dateien" },
+};
+
+const countMessage = (
+  arguments_: Record<string, ProductionValidationArgument>,
+  labels: Record<string, { singular: string; plural: string }>,
+  discriminator: "kind" | "dimension",
+): string | null => {
+  const actual = arguments_.actual;
+  const limit = arguments_.limit;
+  const key = arguments_[discriminator];
+  if (typeof actual !== "number" || typeof limit !== "number" || typeof key !== "string") return null;
+  const label = labels[key];
+  if (label === undefined) return null;
+  return `Der Entwurf enthält ${actual.toLocaleString("de-DE")} ${actual === 1 ? label.singular : label.plural}. Höchstens ${limit.toLocaleString("de-DE")} sind möglich.`;
+};
+
+const formatBytes = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes.toLocaleString("de-DE")} Byte`;
+  const units = ["KiB", "MiB", "GiB"];
+  let value = bytes / 1024;
+  let unit = units[0];
+  for (let index = 1; index < units.length && value >= 1024; index++) {
+    value /= 1024;
+    unit = units[index];
+  }
+  const formatted = `${value.toLocaleString("de-DE", { maximumFractionDigits: 1 })} ${unit}`;
+  return Number.isInteger(value)
+    ? formatted
+    : `${formatted} (${bytes.toLocaleString("de-DE")} Byte)`;
+};
+
+function issueDescription(issue: ProductionValidationIssue): string {
+  const arguments_ = issue.arguments;
+  if (issue.messageKey === "validation.feasibility.capacity_exceeded") {
+    return countMessage(arguments_, capacityKinds, "kind") ?? MESSAGES[issue.messageKey];
+  }
+  if (issue.messageKey === "validation.runner.capacity_exceeded") {
+    const count = countMessage(arguments_, runnerDimensions, "dimension");
+    if (count !== null) return count;
+    const limit = arguments_.limit;
+    if (typeof limit === "number"
+      && (arguments_.dimension === "assetBytes" || arguments_.dimension === "referencedAssetBytes")) {
+      return `Die eigenen Dateien sind für die aktuelle Spielversion zu groß. Erlaubt sind höchstens ${formatBytes(limit)}.`;
+    }
+  }
+  if (issue.messageKey === "validation.input.deer_too_large") {
+    const actual = arguments_.actual;
+    const limit = arguments_.limit;
+    if (typeof actual === "number" && typeof limit === "number") {
+      return `Der Entwurf ist ${formatBytes(actual)} groß. Für die Prüfung sind höchstens ${formatBytes(limit)} möglich.`;
+    }
+  }
+  if (issue.messageKey === "validation.assets.image_capacity_exceeded") {
+    const { width, height, maxDimension, maxPixels } = arguments_;
+    if (typeof width === "number" && typeof height === "number"
+      && typeof maxDimension === "number" && typeof maxPixels === "number") {
+      return `Das Bild ist ${width.toLocaleString("de-DE")} × ${height.toLocaleString("de-DE")} Pixel groß. Erlaubt sind höchstens ${maxDimension.toLocaleString("de-DE")} Pixel pro Seite und ${maxPixels.toLocaleString("de-DE")} Pixel insgesamt.`;
+    }
+  }
+  if (issue.messageKey === "validation.feasibility.text_long") {
+    const actual = arguments_.actual;
+    const limit = arguments_.limit;
+    if (typeof actual === "number" && typeof limit === "number") {
+      return `Der Text hat ${actual.toLocaleString("de-DE")} Zeichen. Für gute Lesbarkeit werden höchstens ${limit.toLocaleString("de-DE")} empfohlen.`;
+    }
+  }
+  return MESSAGES[issue.messageKey];
+}
+
 export function productionIssueReport(report: ProjectValidationReport, draft: WizardDraft): IssueReport {
   const result: IssueReport = Object.fromEntries(
     [...VALIDATED_TAB_IDS, "review"].map((tabId) => [tabId, {}]),
@@ -203,7 +287,7 @@ export function productionIssueReport(report: ProjectValidationReport, draft: Wi
     const area = issueArea(tabId, issue, draft);
     const localized: Issue = {
       severity: issue.severity,
-      description: MESSAGES[issue.messageKey],
+      description: issueDescription(issue),
       ...(area ? { details: `Bereich: ${area}` } : {}),
     };
     result[tabId][`production:${index}`] = [localized];

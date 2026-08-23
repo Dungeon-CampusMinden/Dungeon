@@ -26,24 +26,27 @@ Frontend-/Host-Grenze steht im
 
 - Lehrende bearbeiten keine JSON-Datei und sehen keine technischen IDs.
 - Der unvollständige private Entwurf ist nicht `deer.json`.
-- Vorwärtsnavigation prüft den aktuellen Schritt. Blockierende lokale Fehler
-  halten die Lehrkraft dort; Warnungen und Rückwärtsnavigation werden dadurch
-  nicht blockiert. Nur eine laufende Dateiübertragung sperrt die
-  Schrittnavigation kurz; während Prüfung und Spielerstellung bleibt sie offen.
+- Vorwärts- und Rückwärtsnavigation bleiben auch mit lokalen Fehlern möglich.
+  Die Fehler markieren den aktuellen Stand und verhindern die
+  Hintergrund-Produktionsprüfung sowie das Packaging. Nur eine laufende
+  Dateiübertragung sperrt die Schrittnavigation kurz; während Prüfung und
+  Spielerstellung bleibt sie offen.
 - Die Navigation zeigt Abschlussgrad, Probleme, Warnungen und den lokalen
   Speicherstatus.
 - Die Fehlerübersicht zeigt sofort die Meldungen des aktuellen und aller bereits
   bearbeiteten Schritte. Noch nicht besuchte spätere Schritte bleiben bis zur
   vollständigen Bearbeitung ausgeblendet. Danach zeigt sie alle Meldungen.
-- Blockiert die Vorwärtsnavigation, nennt die Meldung den ersten konkreten
-  Fehler und verweist auf die anklickbare Fehlerübersicht. Dieselben Meldungen
-  stehen am betroffenen Feld oder bei zusammengesetzten Inhalten am engsten
-  passenden Abschnitt. Die fachlichen Regeln stammen ausschließlich aus dem
-  `ErrorChecker`.
+- Meldungen nennen den konkreten Fehler und verweisen auf die anklickbare
+  Fehlerübersicht. Sie behaupten nicht, dass die Lehrkraft auf der aktuellen
+  Seite bleiben muss. Dieselben Meldungen stehen am betroffenen Feld oder bei
+  zusammengesetzten Inhalten am engsten passenden Abschnitt. Die fachlichen
+  Regeln stammen ausschließlich aus dem `ErrorChecker`.
 - Der Spielablauf ist ein mandatory AND-DAG mit genau einem geschützten Start-
   und Endknoten und einem Knoten je Rätsel.
-- Beim Betreten von `Spiel erstellen` startet die Produktionsprüfung
-  automatisch, sobald lokale Prüfung und eigene Dateien bereit sind.
+- Im nativen Host startet die Produktionsprüfung nach ungefähr zwei Sekunden
+  ohne inhaltliche Änderung, sobald der Entwurf und seine eigenen Dateien lokal
+  vollständig und lesbar sind. Sie hängt nicht von der geöffneten Seite ab.
+- Die reine Browserentwicklung führt keine Java-Produktionsprüfung aus.
 - `Spiel erstellen und herunterladen` setzt einen gültigen aktuellen
   Produktionsreport voraus.
 - Warnungen blockieren nicht.
@@ -68,11 +71,12 @@ Ein Draft kann nach ausdrücklicher Bestätigung mit seinen privaten Uploads
 gelöscht werden. Bereits heruntergeladene Spieler-JARs bleiben davon
 unberührt.
 
-Ein neuer unvollständiger Draft hat keinen echten Seed. Beim ersten Betreten
-von `Spiel erstellen` erzeugt die UI einmal einen sicheren
-53-Bit-Seed im Bereich `0..9007199254740991`. Sie speichert ihn vor dem
-Hostaufruf in IndexedDB. Danach bleibt er für diesen Draft stabil. Der
-Java-Host erzeugt keinen Seed.
+Ein neuer unvollständiger Draft hat keinen echten Seed. Sobald der Entwurf und
+seine eigenen Dateien lokal vollständig und lesbar sind, erzeugt die UI
+unmittelbar vor der ersten möglichen Hintergrund-Produktionsprüfung einmal
+einen sicheren 53-Bit-Seed im Bereich `0..9007199254740991`. Sie speichert ihn
+vor dem Hostaufruf in IndexedDB. Danach bleibt er für diesen Draft stabil. Der
+Java-Host erzeugt oder ersetzt keinen Seed.
 
 Der Java-Host läuft fest auf `127.0.0.1:27777` und speichert weder Drafts noch
 Uploads. Ein belegter Port führt zu einem klaren Startfehler. Die
@@ -86,13 +90,18 @@ Die Startansicht bietet:
 - neuen Entwurf anlegen;
 - letzten lokalen Entwurf fortsetzen;
 - anderen lokalen Entwurf öffnen;
-- pro Entwurf anzeigen, ob er lokal bereit ist oder wie viele blockierende
-  Probleme noch bestehen;
+- pro Entwurf anhand der lokalen Editorregeln `Lokal vollständig` oder die
+  Anzahl lokaler Probleme anzeigen;
 - Entwurf samt privaten Uploads nach Bestätigung löschen.
+
+Die Startansicht führt keine Java-Produktionsprüfung aus. Die
+Produktionsbereitschaft wird nur beim geöffneten Entwurf ermittelt und nicht im
+Draft gespeichert.
 
 Beliebiger `deer.json`-Import, Projektordner und Browser-ZIP-Export sind nicht
 Teil des sichtbaren V0-Produktflusses. Das fertige Artefakt wird direkt als
-`WizardRoom.jar` heruntergeladen.
+`<Spieltitel>-WizardRoom.jar` heruntergeladen; für den Dateinamen bereinigt die
+UI den Spieltitel.
 
 ## Eckdaten und Spieleinstellungen
 
@@ -111,8 +120,9 @@ UI zeigt sie nicht. Optional sind Beschreibung, Autor, weitere Lernziele und
 Fragen für die Nachbesprechung. V0.4 unterstützt `de-DE` als einzige
 Inhaltssprache.
 
-Blockierend sind leere Pflichtfelder, kein Lernziel, Spielerzahlen außerhalb
-`1..4`, `min > max` und Zeitlimits außerhalb `1..240` Minuten.
+Für Produktionsprüfung und Packaging blockierend sind leere Pflichtfelder, kein
+Lernziel, Spielerzahlen außerhalb `1..4`, `min > max` und Zeitlimits außerhalb
+`1..240` Minuten.
 
 ## Geschichte
 
@@ -165,21 +175,23 @@ sind, öffnet der Host die Tür serverautoritativ.
 
 ## Spiel erstellen
 
-Die lokale Prüfung läuft während der Bearbeitung und bildet das Seitengate.
-Beim Betreten der letzten Seite projiziert die UI den exakt gespeicherten
+Die lokale Prüfung läuft während der Bearbeitung und markiert den aktuellen
+Stand, ohne den Seitenwechsel zu blockieren. Im nativen Host projiziert die UI
+nach ungefähr zwei Sekunden ohne inhaltliche Änderung den exakt gespeicherten
 Browserdraft auf einen vollständigen DEER-Kandidaten und sendet ihn mit allen
-benötigten Uploadbytes automatisch an die Produktionsvalidierung. Die UI
-ignoriert veraltete Antworten. Lokale und produktive Probleme erscheinen in
-derselben Fehlerübersicht und werden möglichst dem betroffenen Schritt
-zugeordnet. Ein Klick auf eine Meldung öffnet diesen Schritt. Technische Codes,
-JSON-Pointer und IDs bleiben verborgen.
+benötigten Uploadbytes automatisch an die Produktionsvalidierung. Dafür müssen
+Entwurf und Dateien lokal vollständig und lesbar sein. Die Prüfung ist nicht an
+die Seite `Spiel erstellen` gebunden. Die UI ignoriert veraltete Antworten.
+Lokale und produktive Probleme erscheinen in derselben Fehlerübersicht und
+werden möglichst dem betroffenen Schritt zugeordnet. Ein Klick auf eine Meldung
+öffnet diesen Schritt. Technische Codes, JSON-Pointer und IDs bleiben verborgen.
 
 `Spiel erstellen und herunterladen`:
 
 1. liest den aktuellen gespeicherten Kandidaten und seine Uploadbytes;
 2. materialisiert sie nur temporär im Java-Host;
-3. validiert den Kandidaten erneut und paketiert nur ein gültiges Projekt als
-   `WizardRoom.jar`;
+3. validiert den Kandidaten erneut und paketiert ihn nur mit einem aktuellen
+   gültigen Ergebnis als `WizardRoom.jar`; Warnungen blockieren nicht;
 4. liefert die JAR direkt als Browserdownload aus.
 
 Nur ein erfolgreicher Download in der aktuellen UI-Sitzung zeigt `Das Spiel
@@ -192,7 +204,7 @@ JAR an Host und alle weiteren Spielenden verteilt wird. Aktuell benötigt sie
 Java 25 und öffnet dann das Host-/Join-Menü. Eine spätere `jpackage`-Ausgabe
 kann die Runtime mitliefern, ohne den Authoring-Vertrag zu ändern.
 
-## Blockierende Prüfungen
+## Produktionsblockierende Prüfungen
 
 - fehlende Pflichtangabe;
 - doppelte ID oder unbekannte Referenz;

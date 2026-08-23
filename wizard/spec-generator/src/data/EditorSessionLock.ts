@@ -4,13 +4,16 @@ export interface EditorSessionLock {
   release(): void;
 }
 
+export type EditorSessionLockResult =
+  | { status: "acquired"; lock: EditorSessionLock }
+  | { status: "held" | "unsupported" };
+
 /**
  * Acquires the single editor-session lock for this browser profile.
- * Resolves to null when another tab currently holds the lock.
- * Browsers without Web Locks receive an unrestricted no-op lock.
+ * Reports whether another tab holds the lock or the browser lacks Web Locks.
  */
-export async function acquireEditorSessionLock(): Promise<EditorSessionLock | null> {
-  if (!navigator.locks) return { release: () => {} };
+export async function acquireEditorSessionLock(): Promise<EditorSessionLockResult> {
+  if (!navigator.locks) return { status: "unsupported" };
   let release: (() => void) | null = null;
   const acquired = await new Promise<boolean>((resolve) => {
     void navigator.locks.request(EDITOR_SESSION_LOCK, { ifAvailable: true }, (lock) => {
@@ -24,10 +27,13 @@ export async function acquireEditorSessionLock(): Promise<EditorSessionLock | nu
       });
     });
   });
-  if (!acquired) return null;
+  if (!acquired) return { status: "held" };
   return {
-    release: () => {
-      release?.();
+    status: "acquired",
+    lock: {
+      release: () => {
+        release?.();
+      },
     },
   };
 }

@@ -1,23 +1,30 @@
 package wizard.authoring;
 
+import engine.utils.logging.DungeonLogger;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import tools.jackson.databind.JsonNode;
 import wizard.runner.ProjectValidationService;
 import wizard.runner.WizardRoomPackager;
 import wizard.runner.asset.VerifiedImageReader;
-import wizard.runner.contract.ContractCapabilities;
 import wizard.runner.report.ProjectValidationReport;
 
 /** Stages browser-owned candidates and packages validated games without host-side state. */
 final class CandidateProjectService {
+  private static final DungeonLogger LOGGER =
+      DungeonLogger.getLogger(CandidateProjectService.class);
+
   ValidationResponse validate(final JsonNode request) {
     requireFields(request, Set.of("project", "customAssets"));
     PreparedCandidate prepared = prepare(request);
@@ -28,7 +35,7 @@ final class CandidateProjectService {
     }
   }
 
-  PackageResponse packageProject(final JsonNode request, final Path template) {
+  PackageResponse packageProject(final JsonNode request, final InputStream template) {
     requireFields(request, Set.of("project", "customAssets"));
     PreparedCandidate prepared = prepare(request);
     try {
@@ -60,9 +67,6 @@ final class CandidateProjectService {
       throw new IllegalArgumentException("Request must contain project and customAssets");
     }
     byte[] deerBytes = AuthoringJson.encode(project);
-    if (deerBytes.length > ContractCapabilities.MAX_DEER_BYTES) {
-      throw new IllegalArgumentException("project exceeds the DEER byte limit");
-    }
     Map<String, byte[]> supplied = decodeAssets(customAssets);
     Set<String> expected = referencedCustomPaths(project);
     if (!supplied.keySet().equals(expected)) {
@@ -95,11 +99,7 @@ final class CandidateProjectService {
   }
 
   private static Map<String, byte[]> decodeAssets(final JsonNode customAssets) {
-    if (customAssets.size() > ContractCapabilities.MAX_REFERENCED_ASSETS) {
-      throw new IllegalArgumentException("customAssets exceeds the asset count limit");
-    }
     Map<String, byte[]> result = new LinkedHashMap<>();
-    long total = 0;
     for (JsonNode asset : customAssets) {
       requireFields(asset, Set.of("path", "bytesBase64"));
       String path = requiredText(asset, "path");
@@ -115,13 +115,6 @@ final class CandidateProjectService {
       }
       if (!Base64.getEncoder().encodeToString(bytes).equals(encoded)) {
         throw new IllegalArgumentException("Custom asset Base64 is not canonical standard Base64");
-      }
-      if (bytes.length > ContractCapabilities.MAX_ASSET_BYTES) {
-        throw new IllegalArgumentException("Custom asset exceeds the per-asset byte limit");
-      }
-      total += bytes.length;
-      if (total > ContractCapabilities.MAX_REFERENCED_ASSET_BYTES) {
-        throw new IllegalArgumentException("customAssets exceeds the aggregate byte limit");
       }
       if (result.putIfAbsent(path, bytes) != null) {
         throw new IllegalArgumentException("customAssets contains a duplicate path");
@@ -188,23 +181,104 @@ final class CandidateProjectService {
   }
 
   private static void deleteTree(final Path root) {
-    if (root == null || !Files.exists(root, LinkOption.NOFOLLOW_LINKS)) {
+    if (root == null) {
       return;
     }
-    try (var paths = Files.walk(root)) {
-      paths
-          .sorted((left, right) -> right.compareTo(left))
-          .forEach(
-              path -> {
-                try {
-                  Files.deleteIfExists(path);
-                } catch (IOException ignored) {
-                  // The operating system can reclaim abandoned candidate files.
-                }
-              });
-    } catch (IOException ignored) {
-      // The operating system can reclaim an abandoned candidate directory.
+
+    IOException lastFailure = null;
+    for (int attempt = 0; attempt < 2; attempt++) {
+      IOException failure = deleteTreeOnce(root);
+      if (failure != null) {
+        lastFailure = failure;
+      }
+      try {
+        if (Files.notExists(root, LinkOption.NOFOLLOW_LINKS)) {
+          return;
+        }
+      } catch (SecurityException exception) {
+        lastFailure = cleanupFailure("check", root, exception);
+      }
     }
+
+    IOException fallbackFailure = registerDeleteOnExit(root);
+    if (fallbackFailure != null) {
+      lastFailure = fallbackFailure;
+    }
+    if (lastFailure == null) {
+      lastFailure = new IOException("Temporary candidate paths remain after cleanup");
+    }
+    try {
+      LOGGER.warn(
+          "Temporary candidate cleanup failed for {}; registered remaining paths for deletion on exit",
+          root,
+          lastFailure);
+    } catch (RuntimeException ignored) {
+      // Cleanup diagnostics must not replace the validation or packaging result.
+    }
+  }
+
+  private static IOException deleteTreeOnce(final Path root) {
+    PathCollection paths = collectPaths(root);
+    IOException lastFailure = paths.failure();
+    for (Path path : paths.paths()) {
+      try {
+        Files.deleteIfExists(path);
+      } catch (IOException exception) {
+        lastFailure = exception;
+      } catch (SecurityException exception) {
+        lastFailure = cleanupFailure("delete", path, exception);
+      }
+    }
+    return lastFailure;
+  }
+
+  private static IOException registerDeleteOnExit(final Path root) {
+    PathCollection paths = collectPaths(root);
+    IOException lastFailure = paths.failure();
+    List<Path> remaining = new ArrayList<>(paths.paths());
+    if (!remaining.contains(root)) {
+      remaining.add(root);
+    }
+    // deleteOnExit runs registrations in reverse, so register parents before their children.
+    remaining.sort((left, right) -> Integer.compare(left.getNameCount(), right.getNameCount()));
+    for (Path path : remaining) {
+      try {
+        if (!Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
+          path.toFile().deleteOnExit();
+        }
+      } catch (RuntimeException exception) {
+        lastFailure = cleanupFailure("register for deletion on exit", path, exception);
+      }
+    }
+    return lastFailure;
+  }
+
+  private static PathCollection collectPaths(final Path root) {
+    List<Path> result = new ArrayList<>();
+    IOException failure = null;
+    try (var paths = Files.walk(root)) {
+      var iterator = paths.iterator();
+      while (iterator.hasNext()) {
+        result.add(iterator.next());
+      }
+    } catch (IOException exception) {
+      failure = exception;
+    } catch (UncheckedIOException exception) {
+      failure = exception.getCause();
+    } catch (SecurityException exception) {
+      failure = cleanupFailure("inspect", root, exception);
+    }
+    sortBottomUp(result);
+    return new PathCollection(List.copyOf(result), failure);
+  }
+
+  private static void sortBottomUp(final List<Path> paths) {
+    paths.sort((left, right) -> Integer.compare(right.getNameCount(), left.getNameCount()));
+  }
+
+  private static IOException cleanupFailure(
+      final String operation, final Path path, final RuntimeException cause) {
+    return new IOException("Could not " + operation + " temporary candidate path " + path, cause);
   }
 
   record ValidationResponse(ProjectValidationReport report) {
@@ -225,4 +299,6 @@ final class CandidateProjectService {
   }
 
   private record PreparedCandidate(Path directory) {}
+
+  private record PathCollection(List<Path> paths, IOException failure) {}
 }

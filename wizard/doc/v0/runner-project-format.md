@@ -97,14 +97,19 @@ benötigt Java 25 und öffnet das Host-/Join-Menü.
 - Draft v1 und Uploadbytes liegen ausschließlich in einer neuen IndexedDB. Alte
   Browser- und AppData-Entwürfe werden nicht migriert. Genau ein Tab darf
   gleichzeitig bearbeiten; ein weiterer Tab erhält eine klare Warnung.
-- Beim ersten Betreten der Abschlussseite erzeugt die UI einmal einen sicheren
-  53-Bit-Seed und speichert ihn vor dem Hostaufruf im Draft. Java erzeugt oder
-  ersetzt keinen Seed.
+- Sobald Draft und Assets lokal vollständig und lesbar sind, erzeugt die UI
+  unmittelbar vor der ersten möglichen Hintergrund-Produktionsprüfung einmal
+  einen sicheren 53-Bit-Seed und speichert ihn vor dem Hostaufruf im Draft.
+  Java erzeugt oder ersetzt keinen Seed.
+- Im nativen Host startet die Produktionsprüfung nach ungefähr zwei Sekunden
+  ohne inhaltliche Änderung. Sie ist nicht an die Abschlussseite gebunden. Die
+  reine Browserentwicklung führt keine Java-Produktionsprüfung aus.
 - Die UI projiziert den Draft auf Formatversion `0.4`.
 - Sie bewahrt jede authorierte direkte Pflichtabhängigkeit und erfindet oder
   vervollständigt keine Progressionskanten.
-- Der Host prüft Schema, Fachregeln, Spielergrenzen und Assetpfade vor dem
-  Packaging. Bei einem ungültigen Report entsteht keine JAR.
+- Packaging liest den aktuellen gespeicherten Kandidaten. Der Host prüft
+  Schema, Fachregeln, Spielergrenzen und Assetpfade erneut und erzeugt nur mit
+  einem aktuellen gültigen Report eine JAR. Warnungen blockieren nicht.
 - Kandidat, Custom-Assets und die serverseitige Ausgabe liegen nur in einem
   temporären Verzeichnis und werden nach der Antwort entfernt.
 - Bei jedem späteren Packaging verwendet die UI den im Draft vorhandenen

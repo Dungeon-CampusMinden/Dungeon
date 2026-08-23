@@ -12,12 +12,15 @@ turning it into a DEER project through the local Java host.
 For the complete host flow, run `wizard/start_wizard_dev.cmd` from the
 repository root instead. It starts the Java host and its UI.
 
-Draft v1 and uploaded bytes are stored together in a new IndexedDB. Existing
-LocalStorage, IndexedDB, or AppData drafts are not migrated. V0 does not
-support multiple tabs editing the Wizard at the same time.
+Drafts and uploaded bytes are stored together in IndexedDB. Existing
+LocalStorage, IndexedDB, or AppData drafts are not migrated. The Wizard allows
+only one editing tab at a time. Opening, creating, and deleting games therefore
+fail closed when another tab holds the editor lock or the browser does not
+support Web Locks. Use a current supported browser.
 
 Production uses the Java host at `127.0.0.1:27777` for validation and temporary
 `WizardRoom.jar` packaging. A successful package response is downloaded by the
 browser; no authoring project directory is written. The host does not store
-drafts or uploads. The current JAR requires Java 25; a runtime-bundled
-`jpackage` distribution remains a later milestone.
+drafts or uploads. When a draft is locally ready, the native host validates it
+in the background two seconds after the last content change. The current JAR
+requires Java 25.

@@ -1,6 +1,6 @@
 @echo off
 setlocal
-rem Developer-only launcher. The teacher-facing EXE remains a later milestone.
+rem Developer launcher for the Wizard authoring host. Requires Java 25.
 pushd "%~dp0.."
 call gradlew.bat :wizard:buildWizardAuthoringJar --console=plain
 if errorlevel 1 goto :failed
