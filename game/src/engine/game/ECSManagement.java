@@ -17,7 +17,6 @@ import engine.utils.EntityIdProvider;
 import engine.utils.EntitySystemMapper;
 import engine.utils.logging.DungeonLogger;
 import feature.components.InventoryComponent;
-import feature.inventory.Item;
 import feature.systems.EventScheduler;
 import feature.systems.HudSystem;
 import feature.systems.LevelTickSystem;
