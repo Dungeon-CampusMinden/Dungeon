@@ -46,8 +46,8 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
-import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
+import feature.interaction.keypad.TextKeyPadComponent;
 import feature.inventory.Item;
 import feature.inventory.items.HintItem;
 import feature.puzzle.Puzzle;
@@ -151,9 +151,9 @@ public class LastHourLevel extends DungeonLevel {
     this.exitDoor = entryDoor;
 
     keypad =
-        KeypadFactory.createKeypad(
+        KeypadFactory.createTextKeypad(
             getPoint("keypad-storage"),
-            Lore.DoorCode,
+            List.of("A", "B", "C"),
             () -> {
               storageDoor.open();
               LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
@@ -162,7 +162,7 @@ public class LastHourLevel extends DungeonLevel {
             },
             true);
     keypad
-        .fetch(KeypadComponent.class)
+        .fetch(TextKeyPadComponent.class)
         .ifPresent(
             component -> {
               component.onCorrectCode(
@@ -892,7 +892,7 @@ public class LastHourLevel extends DungeonLevel {
 
         ls.addLightSource(timerPos.translate(0.75f, 0), 0.5f, Color.RED);
 
-        var keyComp = keypad.fetch(KeypadComponent.class).orElseThrow();
+        var keyComp = keypad.fetch(TextKeyPadComponent.class).orElseThrow();
         Color keypadColor = keyComp.isUnlocked() ? Color.GREEN : Color.RED;
         ls.addLightSource(
             Game.positionOf(keypad).orElse(new Point(0, 0)).translate(0.5f, 0.5f),

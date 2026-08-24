@@ -8,6 +8,7 @@ import engine.network.messages.s2c.EntitySpawnEvent;
 import feature.components.ItemComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
+import feature.interaction.keypad.TextKeyPadComponent;
 import feature.puzzle.PuzzlePieceItem;
 import feature.questlog.QuestLogComponent;
 import feature.timer.WorldTimerComponent;
@@ -32,6 +33,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Type value for keypad entities. */
   public static final String TYPE_KEYPAD = "keypad";
+
+  /** Type value for textKeypad entities. */
+  public static final String TYPE_TEXT_KEYPAD = "textKeypad";
 
   /** Type value for world-timer entities. */
   public static final String TYPE_WORLD_TIMER = "world-timer";
@@ -83,6 +87,15 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Metadata key for the digits entered on the keypad so far. */
   public static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
+
+  /** Metadata key for the keypad's correct character sequence. */
+  public static final String METADATA_TEXT_KEYPAD_CORRECT_DIGITS = "textKeypad.correctDigits";
+
+  /** Metadata key for the characters entered on the keypad so far. */
+  public static final String METADATA_TEXT_KEYPAD_ENTERED_DIGITS = "textKeypad.enteredDigits";
+
+  /** Metadata key for the number of characters to display on the keypad. */
+  public static final String METADATA_KEYPAD_SHOW_CHARACTER_COUNT = "textKeypad.showCharacterCount";
 
   /** Metadata key indicating whether the keypad is unlocked. */
   public static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
@@ -138,6 +151,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     entity
         .fetch(KeypadComponent.class)
         .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
+    entity
+        .fetch(TextKeyPadComponent.class)
+        .ifPresent(textKeyPad -> metadata.putAll(textKeypadMetadata(textKeyPad)));
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
@@ -208,6 +224,16 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     metadata.put(METADATA_KEYPAD_ENTERED_DIGITS, digitsToString(keypad.enteredDigits()));
     metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
     metadata.put(METADATA_KEYPAD_SHOW_DIGIT_COUNT, String.valueOf(keypad.showDigitCount()));
+    return metadata;
+  }
+
+  private Map<String, String> textKeypadMetadata(TextKeyPadComponent keypad) {
+    Map<String, String> metadata = new HashMap<>();
+    metadata.put(METADATA_TYPE, TYPE_TEXT_KEYPAD);
+    metadata.put(METADATA_TEXT_KEYPAD_CORRECT_DIGITS, keypad.correctString());
+    metadata.put(METADATA_TEXT_KEYPAD_ENTERED_DIGITS, keypad.enteredString());
+    metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
+    metadata.put(METADATA_KEYPAD_SHOW_CHARACTER_COUNT, String.valueOf(keypad.showCharacterCount()));
     return metadata;
   }
 

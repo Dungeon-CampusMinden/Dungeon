@@ -79,4 +79,55 @@ public class KeypadFactory {
                     DEFAULT_INTERACTION_RADIUS)));
     return entity;
   }
+
+  /**
+   * Creates a keypad at the designated position.
+   *
+   * @param pos The position where the lever will be created.
+   * @param correctDigits The correct digits that will start the action if entered
+   * @param action The action to execute when the correct digits are entered
+   * @param showCharacterCount Whether to show the number of characters to be entered
+   * @return The created keypad entity.
+   */
+  public static Entity createTextKeypad(
+      Point pos, List<String> correctDigits, Runnable action, boolean showCharacterCount) {
+    Entity entity = new Entity("keypad");
+
+    entity.add(new PositionComponent(pos));
+
+    State stClosed = new State("closed", TEXTURE_OFF);
+    State stOpen = new State("open", TEXTURE_ON);
+    StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpen));
+    sm.addTransition(stClosed, "open", stOpen);
+    sm.addTransition(stOpen, "close", stClosed);
+    DrawComponent dc = new DrawComponent(sm);
+    entity.add(dc);
+
+    TextKeyPadComponent kc = new TextKeyPadComponent(correctDigits, action, showCharacterCount);
+    entity.add(kc);
+
+    entity.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (e, who) -> {
+                      DialogContext context =
+                          DialogContext.builder()
+                              .type(DialogType.DefaultTypes.TEXT_KEYPAD)
+                              .put(DialogContextKeys.ENTITY, e.id())
+                              .build();
+                      UIComponent uic = DialogFactory.show(context, who.id());
+                      uic.registerCallback(
+                          DialogContextKeys.ON_CONFIRM,
+                          (payload) -> {
+                            if (payload
+                                instanceof DialogResponseMessage.StringValue(String value)) {
+                              TextKeypadUI.onButtonPress(e, who, value);
+                            }
+                          });
+                      LOGGER.info("Interacted with keypad sprite");
+                    },
+                    DEFAULT_INTERACTION_RADIUS)));
+    return entity;
+  }
 }

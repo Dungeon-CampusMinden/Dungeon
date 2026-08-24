@@ -135,6 +135,8 @@ public final class LastHourClient {
                   .ifPresent(newEntity::add);
               LastHourSnapshotTranslator.keypadStateFromMetadata(event.metadata())
                   .ifPresent(newEntity::add);
+              LastHourSnapshotTranslator.textKeypadStateFromMetadata(event.metadata())
+                  .ifPresent(newEntity::add);
               LastHourSnapshotTranslator.worldTimerStateFromMetadata(event.metadata())
                   .ifPresent(newEntity::add);
               LastHourSnapshotTranslator.questLogFromMetadata(event.metadata())
