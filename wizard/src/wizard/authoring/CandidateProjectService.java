@@ -88,9 +88,9 @@ final class CandidateProjectService {
           continue;
         }
         Path relative = Path.of("assets/custom").resolve(filename);
-        AtomicFiles.replace(temporary.resolve(relative), entry.getValue());
+        Files.write(temporary.resolve(relative), entry.getValue());
       }
-      AtomicFiles.replace(temporary.resolve("deer.json"), deerBytes);
+      Files.write(temporary.resolve("deer.json"), deerBytes);
       return new PreparedCandidate(temporary);
     } catch (IOException exception) {
       deleteTree(temporary);
