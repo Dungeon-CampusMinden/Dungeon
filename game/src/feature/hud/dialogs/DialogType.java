@@ -48,6 +48,8 @@ public interface DialogType {
     /** Numeric keypad input dialog. */
     KEYPAD("KEYPAD"),
 
+    TEXT_KEYPAD("TEXT_KEYPAD"),
+
     /** Progress bar display dialog. */
     PROGRESS_BAR("PROGRESS_BAR"),
 
