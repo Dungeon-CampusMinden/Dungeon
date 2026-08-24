@@ -1,6 +1,7 @@
 package feature.components;
 
 import engine.Component;
+import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.inventory.Item;
 import java.util.ArrayList;
@@ -418,6 +419,19 @@ public final class InventoryComponent implements Component {
       }
     }
     return -1;
+  }
+
+  /**
+   * Drops all items of the inventory at a given point.
+   *
+   * @param point position of the items on the ground.
+   */
+  public void dropAll(Point point) {
+    for (Item item : items()) {
+      if (item != null) {
+        item.drop(point);
+      }
+    }
   }
 
   /**

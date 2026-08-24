@@ -166,11 +166,7 @@ public final class ECSManagement {
                 }
                 InventoryComponent inv = entity.fetch(InventoryComponent.class).get();
                 PositionComponent pc = entity.fetch(PositionComponent.class).get();
-                for (Item item : inv.items()) {
-                  if (item != null) {
-                    item.drop(pc.position());
-                  }
-                }
+                inv.dropAll(pc.position());
                 inv.clear();
               },
               TIME_UNTIL_ITEMS_DROP_MS);
