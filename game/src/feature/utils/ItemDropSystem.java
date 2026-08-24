@@ -41,13 +41,12 @@ public class ItemDropSystem extends System {
             InventoryComponent inv = entity.fetch(InventoryComponent.class).get();
             PositionComponent pc = entity.fetch(PositionComponent.class).get();
             for (Item item : inv.items()) {
-              if (item==null) {
+              if (item == null) {
                 continue;
               }
               Point randomTile =
-                LevelUtils.randomAccessibleTileInRangeAsPoint(pc.position(), 1)
-                  .orElse(null);
-              if (randomTile!=null) {
+                  LevelUtils.randomAccessibleTileInRangeAsPoint(pc.position(), 1).orElse(null);
+              if (randomTile != null) {
                 item.drop(randomTile);
               } else {
                 item.drop(pc.position());
@@ -58,5 +57,4 @@ public class ItemDropSystem extends System {
           TIME_UNTIL_ITEMS_DROP_MS);
     }
   }
-
 }
