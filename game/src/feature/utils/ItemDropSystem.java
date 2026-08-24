@@ -19,6 +19,7 @@ public class ItemDropSystem extends System {
 
   /** Creates a ItemDropSystem. */
   public ItemDropSystem() {
+    super(PlayerComponent.class, InventoryComponent.class);
     onEntityRemove = this::onEntityRemove;
   }
 
@@ -32,29 +33,27 @@ public class ItemDropSystem extends System {
    * @param entity entity that is being removed.
    */
   private void onEntityRemove(Entity entity) {
-    if (entity.isPresent(InventoryComponent.class) && entity.isPresent(PlayerComponent.class)) {
-      EventScheduler.scheduleAction(
-          () -> {
-            if (Game.allPlayers().toList().contains(entity)) {
-              return;
+    EventScheduler.scheduleAction(
+        () -> {
+          if (Game.allPlayers().toList().contains(entity)) {
+            return;
+          }
+          InventoryComponent inv = entity.fetch(InventoryComponent.class).orElseThrow();
+          PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
+          for (Item item : inv.items()) {
+            if (item == null) {
+              continue;
             }
-            InventoryComponent inv = entity.fetch(InventoryComponent.class).get();
-            PositionComponent pc = entity.fetch(PositionComponent.class).get();
-            for (Item item : inv.items()) {
-              if (item == null) {
-                continue;
-              }
-              Point randomTile =
-                  LevelUtils.randomAccessibleTileInRangeAsPoint(pc.position(), 1).orElse(null);
-              if (randomTile != null) {
-                item.drop(randomTile);
-              } else {
-                item.drop(pc.position());
-              }
+            Point randomTile =
+                LevelUtils.randomAccessibleTileInRangeAsPoint(pc.position(), 1).orElse(null);
+            if (randomTile != null) {
+              item.drop(randomTile);
+            } else {
+              item.drop(pc.position());
             }
-            inv.clear();
-          },
-          TIME_UNTIL_ITEMS_DROP_MS);
-    }
+          }
+          inv.clear();
+        },
+        TIME_UNTIL_ITEMS_DROP_MS);
   }
 }
