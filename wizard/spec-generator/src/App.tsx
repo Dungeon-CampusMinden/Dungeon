@@ -1,5 +1,5 @@
 import React from "react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import {
   ArrowLeftIcon,
   CheckIcon,
@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import "./App.css";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { Toaster } from "./components/ui/sonner";
 import type { DeerProject } from "./data/DeerSchema";
 import { ErrorDetector } from "./components/ErrorDetector";
 import { SidebarNavigation } from "./components/SidebarNavigation";
@@ -305,10 +307,13 @@ function WizardWorkspace() {
     return <DraftEditor key={draft.draftId} initialDraft={draft} onClose={async () => { releaseEditorSession(); setDraft(null); await refresh(); }} />;
   }
   return (
-    <div className="wizard-launcher min-h-screen bg-background text-foreground">
+    <div className="wizard-launcher min-h-screen">
       <section className="wizard-launcher-hero" aria-labelledby="wizard-launcher-title">
         <div className="wizard-launcher-image" aria-hidden="true" />
         <div className="wizard-launcher-hero-shade" aria-hidden="true" />
+        <div className="wizard-launcher-theme">
+          <ThemeToggle className="wizard-launcher-theme-button" />
+        </div>
         <div className="wizard-launcher-hero-inner">
           <div className="wizard-launcher-copy">
             <p className="wizard-launcher-brand">
@@ -335,13 +340,13 @@ function WizardWorkspace() {
       </section>
 
       <div className="wizard-library mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10 sm:px-6 md:py-14">
-        <div className="flex items-end justify-between gap-4 border-b border-border pb-4">
+        <div className="wizard-library-header flex items-end justify-between gap-4 border-b pb-4">
           <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">Weitermachen</p>
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground">Meine Spiele</h2>
+            <p className="wizard-library-kicker mb-1 text-xs font-semibold uppercase tracking-[0.16em]">Weitermachen</p>
+            <h2 className="wizard-library-title text-2xl font-semibold tracking-tight">Meine Spiele</h2>
           </div>
           {drafts && drafts.length > 0 && (
-            <span className="pb-1 text-sm text-muted-foreground">
+            <span className="wizard-library-count text-xs">
               {drafts.length} {drafts.length === 1 ? "Spiel" : "Spiele"}
             </span>
           )}
@@ -380,20 +385,20 @@ function WizardWorkspace() {
             </div>
           )}
           {drafts?.length === 0 && (
-            <div className="wizard-empty-library flex flex-col items-center justify-center py-14 text-center">
-              <div className="mb-4 flex size-11 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground">
+            <div className="wizard-empty-library flex flex-col items-center justify-center text-center">
+              <div className="wizard-empty-library-icon mb-4 flex size-12 items-center justify-center rounded-xl">
                 <FolderOpenIcon className="size-6" />
               </div>
-              <h3 className="text-base font-semibold text-foreground">Noch keine Spiele angelegt</h3>
-              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                Mit "Neues Spiel" beginnst du deinen ersten Entwurf.
+              <h3 className="wizard-empty-library-title text-base font-semibold">Noch keine Spiele angelegt</h3>
+              <p className="wizard-empty-library-desc mt-1 max-w-sm text-sm">
+                Mit „Neues Spiel“ beginnst du deinen ersten Entwurf.
               </p>
             </div>
           )}
           {drafts?.map((summary) => (
             <div
               key={summary.draftId}
-              className="wizard-draft-row group relative flex items-stretch rounded-xl border border-border bg-card transition-colors focus-within:ring-2 focus-within:ring-ring"
+              className="wizard-draft-row group relative flex items-stretch focus-within:ring-2 focus-within:ring-ring"
             >
               <button
                 type="button"
@@ -402,12 +407,12 @@ function WizardWorkspace() {
                 className="flex min-w-0 flex-1 items-center justify-between gap-4 p-4 text-left outline-none cursor-pointer sm:px-5"
               >
                 <span className="min-w-0">
-                  <span className="block truncate text-base font-semibold text-foreground transition-colors group-hover:text-primary">
+                  <span className="wizard-draft-title block truncate text-base">
                     {summary.title.trim() || "Unbenanntes Spiel"}
                   </span>
                   <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                      <ClockIcon className="size-3.5 shrink-0 opacity-70" />
+                    <span className="wizard-draft-meta inline-flex items-center gap-1.5">
+                      <ClockIcon className="wizard-draft-meta-icon size-3.5 shrink-0" />
                       {summary.savedAt
                         ? `Zuletzt gespeichert: ${new Date(summary.savedAt).toLocaleString("de-DE")}`
                         : "Noch nicht gespeichert"}
@@ -415,12 +420,12 @@ function WizardWorkspace() {
                     <DraftReadinessIndicator problemCount={summary.problemCount} />
                   </span>
                 </span>
-                <span className="hidden shrink-0 items-center gap-2 text-sm font-medium text-muted-foreground transition-colors group-hover:text-primary sm:flex">
+                <span className="wizard-draft-open-action hidden shrink-0 items-center gap-2 text-sm font-medium sm:flex">
                   Öffnen
                   <FolderOpenIcon className="size-4" />
                 </span>
               </button>
-              <div className="flex items-center border-l border-border px-2 sm:px-3">
+              <div className="wizard-draft-divider flex items-center border-l px-2 sm:px-3">
                 <Button
                   type="button"
                   variant="ghost"
@@ -438,7 +443,7 @@ function WizardWorkspace() {
         </div>
 
         {!storage.host.native && (
-          <Alert className="mt-4 border-border/80 bg-card/60">
+          <Alert className="wizard-dev-banner mt-4">
             <InfoIcon className="size-4 text-muted-foreground" />
             <AlertTitle className="text-sm font-medium">Separater Entwicklungs- und UI-Testmodus</AlertTitle>
             <AlertDescription className="text-xs text-muted-foreground">
@@ -480,7 +485,7 @@ function WizardWorkspace() {
 function DraftReadinessIndicator({ problemCount }: { problemCount: number | null }) {
   if (problemCount === null) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-amber-400">
+      <span className="wizard-draft-badge wizard-draft-badge-unknown">
         <InfoIcon className="size-3.5 shrink-0" />
         Prüfung nicht möglich
       </span>
@@ -488,14 +493,14 @@ function DraftReadinessIndicator({ problemCount }: { problemCount: number | null
   }
   if (problemCount === 0) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-emerald-400">
+      <span className="wizard-draft-badge wizard-draft-badge-ready">
         <CircleCheckIcon className="size-3.5 shrink-0" />
         Lokal vollständig
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 text-destructive">
+    <span className="wizard-draft-badge wizard-draft-badge-issues">
       <CircleAlertIcon className="size-3.5 shrink-0" />
       {problemCount} {problemCount === 1 ? "Problem" : "Probleme"}
     </span>
@@ -513,15 +518,15 @@ function SaveStatusIndicator({ state }: { state: SaveState }) {
       );
     case "saved":
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-400">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-status-success">
           <CheckIcon className="size-3.5" />
           <span>Gespeichert</span>
         </span>
       );
     case "unsaved":
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-400">
-          <span className="size-1.5 rounded-full bg-amber-400 animate-pulse" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-status-warning">
+          <span className="size-1.5 rounded-full bg-status-warning animate-pulse" />
           <span className="hidden sm:inline">Ungespeichert</span>
         </span>
       );
@@ -846,6 +851,8 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
             <Button
               variant="ghost"
               size="sm"
+              aria-label="Meine Spiele"
+              title="Meine Spiele"
               disabled={wizardWork !== null}
               onClick={() => {
                 if (wizardWorkRef.current !== null) return;
@@ -854,15 +861,16 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
               className="gap-1.5 text-muted-foreground hover:text-foreground"
             >
               <ArrowLeftIcon className="size-4" />
-              <span>Meine Spiele</span>
+              <span className="hidden sm:inline">Meine Spiele</span>
             </Button>
 
-            <h1 className="truncate text-base sm:text-lg font-semibold text-foreground text-center max-w-[200px] sm:max-w-md">
+            <h1 className="min-w-0 flex-1 truncate text-center text-base font-semibold text-foreground sm:max-w-md sm:text-lg">
               {project.metadata.title.trim() || "Neues Spiel"}
             </h1>
 
-            <div className="flex items-center">
+            <div className="flex shrink-0 items-center gap-2">
               <SaveStatusIndicator state={saveState} />
+              <ThemeToggle />
             </div>
           </div>
         </header>
@@ -956,7 +964,13 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
 
 function Layout() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      storageKey="dungeon-wizard-theme"
+      disableTransitionOnChange
+    >
       <main className="typeset typeset-docs min-h-screen bg-background">
         <App />
       </main>

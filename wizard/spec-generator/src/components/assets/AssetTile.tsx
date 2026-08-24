@@ -39,7 +39,7 @@ export function AssetTile({
                 role="img"
                 aria-label={warning}
                 tabIndex={0}
-                className="absolute right-2 top-2 inline-flex size-6 items-center justify-center text-amber-400 outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+                className="absolute right-2 top-2 inline-flex size-6 items-center justify-center text-status-warning outline-none focus-visible:ring-2 focus-visible:ring-status-warning"
               />
             }
           >

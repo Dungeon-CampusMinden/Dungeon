@@ -42,7 +42,7 @@ export function StartFlowNode({ data, selected }: NodeProps<Node<StartNodeData, 
   return (
     <div className={nodeClass(selected, Boolean(data.inputInvalid || data.outputInvalid))}>
       <div className="flex items-center gap-2">
-        <PlayIcon size={16} className="text-emerald-400 shrink-0" />
+        <PlayIcon size={16} className="text-status-success shrink-0" />
         <span className="text-sm font-medium">Start</span>
       </div>
       <p className="m-0 text-xs text-muted-foreground">Hier beginnt das Abenteuer.</p>
@@ -59,7 +59,7 @@ export function EndFlowNode({ data, selected }: NodeProps<Node<EndNodeData, "end
   return (
     <div className={nodeClass(selected, Boolean(data.inputInvalid || data.outputInvalid))}>
       <div className="flex items-center gap-2">
-        <FlagIcon size={16} className="text-blue-400 shrink-0" />
+        <FlagIcon size={16} className="text-status-info shrink-0" />
         <span className="text-sm font-medium">Ende</span>
       </div>
       <p className="m-0 text-xs text-muted-foreground">Hier endet das Abenteuer.</p>

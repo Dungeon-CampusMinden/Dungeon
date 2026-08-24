@@ -11,8 +11,8 @@ import { TABS } from "@/data/Tabs";
 
 const SEVERITY_STYLES: Record<IssueSeverity, string> = {
   error: "border-destructive/30 bg-destructive/10 text-destructive",
-  warning: "border-amber-500/30 bg-amber-500/10 text-amber-400",
-  info: "border-blue-500/30 bg-blue-500/10 text-blue-400",
+  warning: "border-amber-500/30 bg-amber-500/10 text-status-warning",
+  info: "border-blue-500/30 bg-blue-500/10 text-status-info",
 };
 
 function SeverityIcon({ severity }: { severity: IssueSeverity }) {
@@ -20,9 +20,9 @@ function SeverityIcon({ severity }: { severity: IssueSeverity }) {
     case "error":
       return <CircleXIcon className="size-4 shrink-0 text-destructive" />;
     case "warning":
-      return <CircleAlertIcon className="size-4 shrink-0 text-amber-400" />;
+      return <CircleAlertIcon className="size-4 shrink-0 text-status-warning" />;
     default:
-      return <InfoIcon className="size-4 shrink-0 text-blue-400" />;
+      return <InfoIcon className="size-4 shrink-0 text-status-info" />;
   }
 }
 
@@ -61,8 +61,8 @@ export function IssueList({
 }) {
   if (issues.length === 0) {
     return (
-      <Alert className={`border-emerald-500/30 bg-emerald-500/10 text-emerald-400 ${className ?? ""}`}>
-        <CircleCheckIcon className="size-4 shrink-0 text-emerald-400" />
+      <Alert className={`border-emerald-500/30 bg-emerald-500/10 text-status-success ${className ?? ""}`}>
+        <CircleCheckIcon className="size-4 shrink-0 text-status-success" />
         <AlertTitle className="text-sm font-medium text-foreground">{emptyMessage}</AlertTitle>
       </Alert>
     );

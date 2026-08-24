@@ -17,7 +17,7 @@ export function AssetPreviewContent({ asset, preview }: { asset: Asset; preview:
 
   if (preview.technicalError) {
     return (
-      <div className="flex flex-col items-center gap-1 text-yellow-500">
+      <div className="flex flex-col items-center gap-1 text-status-warning">
         <AlertTriangle className="size-8" />
         <span className="text-center text-xs">Lokaler Speicher nicht verfügbar</span>
       </div>

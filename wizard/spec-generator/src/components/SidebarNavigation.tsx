@@ -69,11 +69,11 @@ function TabStatusIcon({ severity }: { severity: IssueSeverity | "none" | null }
     case "error":
       return <CircleXIcon className="size-4 shrink-0 text-destructive" />;
     case "warning":
-      return <CircleAlertIcon className="size-4 shrink-0 text-amber-400" />;
+      return <CircleAlertIcon className="size-4 shrink-0 text-status-warning" />;
     case "info":
-      return <InfoIcon className="size-4 shrink-0 text-blue-400" />;
+      return <InfoIcon className="size-4 shrink-0 text-status-info" />;
     case "none":
-      return <CircleCheckIcon className="size-4 shrink-0 text-emerald-400" />;
+      return <CircleCheckIcon className="size-4 shrink-0 text-status-success" />;
     default:
       return <CircleIcon className="size-4 shrink-0 text-muted-foreground/30" />;
   }

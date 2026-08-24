@@ -119,8 +119,8 @@ export function ReviewTab({
       </Button>
 
       {downloadReady && (
-        <Alert className="border-emerald-500/40 bg-emerald-500/10 text-emerald-400">
-          <CheckCircle2Icon className="size-4 shrink-0 text-emerald-400" />
+        <Alert className="border-emerald-500/40 bg-emerald-500/10 text-status-success">
+          <CheckCircle2Icon className="size-4 shrink-0 text-status-success" />
           <AlertTitle className="text-sm font-medium text-foreground">Das Spiel ist bereit</AlertTitle>
           <AlertDescription className="text-xs text-muted-foreground">
             Die Spieldatei wurde heruntergeladen und kann an alle Teilnehmenden verteilt werden.
