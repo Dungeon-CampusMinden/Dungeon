@@ -9,8 +9,10 @@ turning it into a DEER project through the local Java host.
 - Run `npm run dev` for the UI-only Vite development server.
 - Open the URL printed by Vite, usually `http://localhost:5173/`.
 
-For the complete host flow, run `wizard/start_wizard_dev.cmd` from the
-repository root instead. It starts the Java host and its UI.
+For the complete host flow, run `wizard/start_wizard_dev.cmd` on Windows or
+`./wizard/start_wizard_dev.sh` on Linux from the repository root instead. Both
+launchers build and start the Java host and its UI and require Java 25 and
+Node.js 22.
 
 Drafts and uploaded bytes are stored together in IndexedDB. Existing
 LocalStorage, IndexedDB, or AppData drafts are not migrated. The Wizard allows

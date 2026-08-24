@@ -123,10 +123,11 @@ benötigt Java 25 und öffnet das Host-/Join-Menü.
 - Der Host speichert weder Draft-/Uploaddaten noch Ready-Metadaten.
 
 Ein browser-only Export, beliebiger `deer.json`-Import und Room-ZIP sind nicht
-Teil des Produktflusses. `wizard/start_wizard_dev.cmd` ist nur ein
-Entwicklungslauncher. Die aktuelle Spieler-JAR benötigt Java 25. Eine
-Zielgruppen-`.exe`, beispielsweise über `jpackage`, und ein Installer mit
-gebündelter Runtime sind nicht Teil dieses Projektformats.
+Teil des Produktflusses. `wizard/start_wizard_dev.cmd` unter Windows und
+`wizard/start_wizard_dev.sh` unter Linux sind nur Entwicklungslauncher. Die
+aktuelle Spieler-JAR benötigt Java 25. Eine Zielgruppen-`.exe`, beispielsweise
+über `jpackage`, und ein Installer mit gebündelter Runtime sind nicht Teil
+dieses Projektformats.
 
 ## Seed in deer.json
 

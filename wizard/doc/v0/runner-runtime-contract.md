@@ -82,10 +82,12 @@ sich auf Status, Validierung und Packaging. Nur ein erfolgreicher JAR-Download
 in der aktuellen UI-Sitzung markiert das Spiel als bereit; ein Reload stellt
 diesen Zustand nicht wieder her.
 
-`wizard/start_wizard_dev.cmd` baut und startet den Host nur für die
-Entwicklung. Der aktuelle Entwickler- und Spieler-JAR-Fluss benötigt Java 25.
-Eine Zielgruppen-`.exe`, beispielsweise über `jpackage`, mit gebündelter
-Java-Runtime sowie ein Installer gehören nicht zu diesem Runtime-Vertrag.
+`wizard/start_wizard_dev.cmd` unter Windows und `wizard/start_wizard_dev.sh`
+unter Linux bauen und starten den Host nur für die Entwicklung. Der aktuelle
+Entwickler- und Spieler-JAR-Fluss benötigt Java 25; zum Bauen der eingebetteten
+UI benötigen die Entwicklungslauncher zusätzlich Node.js 22. Eine
+Zielgruppen-`.exe`, beispielsweise über `jpackage`, mit gebündelter Java-Runtime
+sowie ein Installer gehören nicht zu diesem Runtime-Vertrag.
 
 Auch `max=1` verwendet im Spielerfluss einen echten Hostprozess und einen
 getrennten Join-Client.

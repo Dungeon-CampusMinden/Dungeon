@@ -64,10 +64,12 @@ Foundation-Vertrag bleibt DEER `0.4` mit mandatory AND-DAG. Runner-Identität,
 Multiplayer-Vertrag und `PROTOCOL_VERSION` ändern sich durch den
 Authoring-Refactor nicht.
 
-`wizard/start_wizard_dev.cmd` ist ein Entwicklungslauncher. Aktuell benötigen
-Wizard und Spieler-JAR eine vorhandene Java-25-Runtime. Eine Zielgruppen-EXE,
-beispielsweise über `jpackage`, und ein Installer mit gebündelter Runtime
-sind nicht Teil des hier beschriebenen Auslieferungswegs. Der lokale
+`wizard/start_wizard_dev.cmd` unter Windows und `wizard/start_wizard_dev.sh`
+unter Linux sind Entwicklungslauncher. Aktuell benötigen Wizard und
+Spieler-JAR eine vorhandene Java-25-Runtime; zum Bauen der eingebetteten UI
+benötigen die Entwicklungslauncher zusätzlich Node.js 22. Eine Zielgruppen-EXE,
+beispielsweise über `jpackage`, und ein Installer mit gebündelter Runtime sind
+nicht Teil des hier beschriebenen Auslieferungswegs. Der lokale
 Authoring-Host richtet sich an Entwickler und technische Betreuung, nicht direkt
 an Lehrende. Der Entwickler- und CI-Pfad bleibt:
 
