@@ -16,7 +16,6 @@ import engine.systems.SoundSystem;
 import engine.utils.EntityIdProvider;
 import engine.utils.EntitySystemMapper;
 import engine.utils.logging.DungeonLogger;
-import feature.components.InventoryComponent;
 import feature.systems.EventScheduler;
 import feature.systems.HudSystem;
 import feature.systems.LevelTickSystem;
@@ -49,7 +48,6 @@ public final class ECSManagement {
   private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
   private static final Map<Integer, Entity> allEntities = new LinkedHashMap<>();
   private static final Set<EntitySystemMapper> entityFilters = new HashSet<>();
-  private static final int TIME_UNTIL_ITEMS_DROP_MS = 30000;
 
   private static int currentTick = 0;
   private static System.AuthoritativeSide currentExecutionSide = System.AuthoritativeSide.BOTH;
@@ -156,20 +154,6 @@ public final class ECSManagement {
       if (Game.network().isServer()) {
         Game.network()
             .broadcast(new EntityDespawnEvent(entity.id(), "Entity removed from game"), true);
-
-        if (entity.isPresent(InventoryComponent.class)) {
-          EventScheduler.scheduleAction(
-              () -> {
-                if (Game.allPlayers().toList().contains(entity)) {
-                  return;
-                }
-                InventoryComponent inv = entity.fetch(InventoryComponent.class).get();
-                PositionComponent pc = entity.fetch(PositionComponent.class).get();
-                inv.dropAll(pc.position());
-                inv.clear();
-              },
-              TIME_UNTIL_ITEMS_DROP_MS);
-        }
       }
     } catch (IllegalStateException e) {
       LOGGER.error("Failed to broadcast entity despawn for {}: {}", entity, e.getMessage());
