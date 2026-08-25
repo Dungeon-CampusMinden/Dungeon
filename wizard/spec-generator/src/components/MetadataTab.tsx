@@ -27,8 +27,8 @@ export function MetadataTab({
   const emptyTitle = hasFieldErrors(issues, "title");
 
   return (
-    <div className="flex flex-col gap-0">
-      <h1>Eckdaten & Lernziele</h1>
+    <div className="flex flex-col gap-5">
+      <h1 className="wizard-page-title">Eckdaten & Lernziele</h1>
       <FieldSet>
         <FieldLegend>Eckdaten</FieldLegend>
         <FieldGroup>

@@ -24,8 +24,8 @@ export function GameEndTab({
     : failureTextRequired ? [""] : [];
 
   return (
-    <div className="flex flex-col gap-0">
-      <h1>Spiel-Ende</h1>
+    <div className="flex flex-col gap-5">
+      <h1 className="wizard-page-title">Spiel-Ende</h1>
       <FieldSet>
         <FieldGroup>
           <Field>

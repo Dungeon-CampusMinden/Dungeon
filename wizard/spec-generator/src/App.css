@@ -47,8 +47,10 @@ h1,
 h2,
 h3,
 h4,
+h5,
+h6,
 p {
-  margin-top: 0;
+  margin: 0;
 }
 
 .panel {
@@ -66,13 +68,11 @@ p {
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
 }
 
-.panel h1:first-child,
-.panel > div > h1:first-child,
-.panel > form > h1:first-child {
+.wizard-page-title {
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  margin-bottom: 0.35rem;
+  line-height: 1.25;
 }
 
 code {

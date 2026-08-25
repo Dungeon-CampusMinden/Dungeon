@@ -281,14 +281,16 @@ function RiddleGraphEditor({
   }, [updateDraft]);
 
   return (
-    <div className="flex flex-col gap-0">
-      <h1>Spielablauf</h1>
-      <p className="text-sm text-muted-foreground">
-        Ziehe vom blauen Verbindungspunkt eines Schritts zum nächsten. Der folgende Schritt wird nach
-        seinem Vorgänger verfügbar. Hat er mehrere Vorgänger, müssen alle davon gelöst sein. Verbindungen
-        entfernst du über das X in ihrer Mitte oder mit der ENTF-Taste.
-      </p>
-      <div className="my-2 flex flex-wrap gap-2">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <h1 className="wizard-page-title">Spielablauf</h1>
+        <p className="text-sm text-muted-foreground">
+          Ziehe vom blauen Verbindungspunkt eines Schritts zum nächsten. Der folgende Schritt wird nach
+          seinem Vorgänger verfügbar. Hat er mehrere Vorgänger, müssen alle davon gelöst sein. Verbindungen
+          entfernst du über das X in ihrer Mitte oder mit der ENTF-Taste.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2">
         <Button
           variant="outline"
           onClick={() => updateDraft((current) => {

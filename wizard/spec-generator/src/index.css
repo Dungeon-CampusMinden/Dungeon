@@ -2,7 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
-@import "./typeset.css";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
 
@@ -138,13 +137,4 @@
     @apply bg-background text-foreground antialiased min-h-screen;
     background-color: var(--background);
   }
-}
-
-.typeset-docs {
-  --typeset-font-body: var(--font-geist);
-  --typeset-font-heading: var(--font-geist);
-  --typeset-font-mono: var(--font-geist-mono);
-  --typeset-size: 16px;
-  --typeset-leading: 1.5;
-  --typeset-flow: 1.0em;
 }

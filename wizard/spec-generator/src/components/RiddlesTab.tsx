@@ -51,16 +51,18 @@ export function RiddlesTab({
   };
 
   return (
-    <div className="flex flex-col gap-0">
-      <h1>Rätsel</h1>
-      <p className="text-sm text-muted-foreground">
-        Hier kannst du die Rätsel definieren, die die Spieler in deinem Abenteuer lösen müssen.
-      </p>
-      <Button onClick={addRiddle} className="my-2 max-w-40">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <h1 className="wizard-page-title">Rätsel</h1>
+        <p className="text-sm text-muted-foreground">
+          Hier kannst du die Rätsel definieren, die die Spieler in deinem Abenteuer lösen müssen.
+        </p>
+      </div>
+      <Button onClick={addRiddle} className="max-w-40">
         <PlusIcon />
         Hinzufügen
       </Button>
-      <ValidationFeedback issues={fieldIssues(issues, "riddles")} className="mb-3" />
+      <ValidationFeedback issues={fieldIssues(issues, "riddles")} />
 
       {riddles.length === 0 && (
         <span className="text-sm text-muted-foreground">Es sind noch keine Rätsel vorhanden.</span>

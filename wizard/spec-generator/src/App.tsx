@@ -511,28 +511,28 @@ function SaveStatusIndicator({ state }: { state: SaveState }) {
   switch (state) {
     case "saving":
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/80 px-2.5 py-1 text-xs font-medium text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/80 px-2.5 py-1 text-xs font-medium leading-none text-muted-foreground">
           <LoaderCircleIcon className="size-3.5 animate-spin" />
           <span className="hidden sm:inline">Wird gespeichert…</span>
         </span>
       );
     case "saved":
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-status-success">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium leading-none text-status-success">
           <CheckIcon className="size-3.5" />
           <span>Gespeichert</span>
         </span>
       );
     case "unsaved":
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-status-warning">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium leading-none text-status-warning">
           <span className="size-1.5 rounded-full bg-status-warning animate-pulse" />
           <span className="hidden sm:inline">Ungespeichert</span>
         </span>
       );
     case "error":
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-xs font-medium text-destructive">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-xs font-medium leading-none text-destructive">
           <XCircleIcon className="size-3.5" />
           <span>Speichern fehlgeschlagen</span>
         </span>
@@ -864,7 +864,7 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
               <span className="hidden sm:inline">Meine Spiele</span>
             </Button>
 
-            <h1 className="min-w-0 flex-1 truncate text-center text-base font-semibold text-foreground sm:max-w-md sm:text-lg">
+            <h1 className="min-w-0 flex-1 truncate text-center text-base font-semibold leading-tight text-foreground sm:max-w-md sm:text-lg">
               {project.metadata.title.trim() || "Neues Spiel"}
             </h1>
 
@@ -971,7 +971,7 @@ function Layout() {
       storageKey="dungeon-wizard-theme"
       disableTransitionOnChange
     >
-      <main className="typeset typeset-docs min-h-screen bg-background">
+      <main className="min-h-screen bg-background [font-family:var(--font-geist)]">
         <App />
       </main>
       <Toaster position="bottom-right" richColors />

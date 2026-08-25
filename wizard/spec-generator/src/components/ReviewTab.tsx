@@ -81,8 +81,8 @@ export function ReviewTab({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 ref={headingRef} tabIndex={-1} className="mb-1">Spiel erstellen</h1>
+      <div className="flex flex-col gap-1">
+        <h1 ref={headingRef} tabIndex={-1} className="wizard-page-title">Spiel erstellen</h1>
         <p className="text-muted-foreground">
           Dein Spiel wird jetzt geprüft. Danach kannst du die fertige Spieldatei herunterladen.
         </p>

@@ -36,7 +36,7 @@ export function RiddleCard({
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-0"
+            className="absolute right-0 top-1/2 -translate-y-1/2"
             aria-label="Rätsel bearbeiten"
             onClick={onEdit}
           >

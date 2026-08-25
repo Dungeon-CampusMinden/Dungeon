@@ -20,8 +20,8 @@ export function ScenarioTab({
   const emptyMission = hasFieldErrors(issues, "mission");
 
   return (
-    <div className="flex flex-col gap-0">
-      <h1>Geschichte</h1>
+    <div className="flex flex-col gap-5">
+      <h1 className="wizard-page-title">Geschichte</h1>
       <FieldSet>
         <FieldGroup>
           {THEMES.length > 1 && (

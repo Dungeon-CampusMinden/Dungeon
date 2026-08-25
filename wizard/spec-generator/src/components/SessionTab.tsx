@@ -37,8 +37,8 @@ export function SessionTab({
   const selectedLimitMode = LIMIT_MODES.find((mode) => mode.value === deerSchema.session.time.limitMode);
 
   return (
-    <div className="flex flex-col gap-0">
-      <h1>Spielablauf</h1>
+    <div className="flex flex-col gap-5">
+      <h1 className="wizard-page-title">Spielablauf</h1>
       <FieldSet>
         <FieldGroup>
           <Field>

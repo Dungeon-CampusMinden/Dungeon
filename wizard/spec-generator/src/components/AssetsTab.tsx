@@ -134,11 +134,13 @@ export function AssetsTab({ draft, updateDraft, flush, work, beginWork, finishWo
   };
 
   return (
-    <div className="flex flex-col gap-0">
-      <h1>Bilder und Dateien</h1>
-      <p className="text-sm text-muted-foreground">
-        Eigene oder mitgelieferte Dateien für den Raum. Erlaubte Formate: {ALLOWED_EXTENSIONS.join(", ")}.
-      </p>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <h1 className="wizard-page-title">Bilder und Dateien</h1>
+        <p className="text-sm text-muted-foreground">
+          Eigene oder mitgelieferte Dateien für den Raum. Erlaubte Formate: {ALLOWED_EXTENSIONS.join(", ")}.
+        </p>
+      </div>
       {work === "validating" && (
         <p className="mt-2 text-sm text-muted-foreground">
           Nach Abschluss der Prüfung kannst du die Dateien wieder bearbeiten.
@@ -149,7 +151,7 @@ export function AssetsTab({ draft, updateDraft, flush, work, beginWork, finishWo
           Nach Abschluss der Spielerstellung kannst du die Dateien wieder bearbeiten.
         </p>
       )}
-      <Button disabled={editingDisabled} onClick={() => setAddOpen(true)} className="my-2 max-w-40">
+      <Button disabled={editingDisabled} onClick={() => setAddOpen(true)} className="max-w-40">
         <PlusIcon />
         Hinzufügen
       </Button>
@@ -159,7 +161,7 @@ export function AssetsTab({ draft, updateDraft, flush, work, beginWork, finishWo
         onSelect={handleAddAsset}
         title="Datei hinzufügen"
       />
-      <ValidationFeedback issues={fieldIssues(issues, "assets")} className="mb-3" />
+      <ValidationFeedback issues={fieldIssues(issues, "assets")} />
       {assetList.length === 0 ? (
         <p className="py-8 text-center text-muted-foreground">Noch keine Dateien hinzugefügt.</p>
       ) : (

@@ -34,12 +34,12 @@ export function ErrorDetector({
 
   return (
     <div className={`panel ${className ?? ""}`}>
-      <div className="flex items-center justify-between mb-2">
+      <div className="mb-2 flex items-center justify-between gap-3">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1 mb-0">
           Fehlerübersicht
         </h2>
         {issues.length > 0 && (
-          <span className="inline-flex items-center rounded-full bg-destructive/15 px-2 py-0.5 text-[11px] font-medium text-destructive">
+          <span className="inline-flex items-center rounded-full bg-destructive/15 px-2 py-0.5 text-[11px] font-medium leading-none text-destructive">
             {issues.length} {issues.length === 1 ? "Problem" : "Probleme"}
           </span>
         )}
