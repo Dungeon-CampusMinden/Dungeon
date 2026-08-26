@@ -1,3 +1,0 @@
-- Source: https://opengameart.org/content/wind
-- Author: IgnasD
-- License: CC0

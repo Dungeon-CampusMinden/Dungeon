@@ -1,3 +1,0 @@
-- Source: https://commons.wikimedia.org/wiki/File:Decoder_type_74155.png
-- Author: Mašláň, M., D. Žák
-- License: CC SA 3.0

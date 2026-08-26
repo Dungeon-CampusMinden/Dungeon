@@ -1,3 +1,0 @@
-- Source: https://opengameart.org/content/doorbell-ring
-- Author: Dub
-- License: CC0

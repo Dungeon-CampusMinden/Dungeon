@@ -32,24 +32,6 @@ problems or suggestions, please feel free to contact us in English or German.
 It is acknowledged that parts of the materials contained in this repository have been
 developed as part of various publicly funded projects.
 
-### Lehr-Escape-Rooms mit LowCode im Dungeon (L<ESC>ROD)
-
-04/2025 - 03/2027, 3003-1271, [Freiraum 2025], [Stiftung Innovation in der Hochschullehre]
-
-This project builds upon the goals and insights of the earlier *"Dungeon: Learning by
-Questing"* initiative. It aims to combine **playful engagement with meaningful educational
-experiences** by using the *Dungeon* framework to design and implement **didactic escape
-rooms**.
-
-In these digital escape rooms, students must **collaborate to solve subject-related puzzles**
-in order to progress through the game. The approach fosters teamwork, critical thinking, and
-applied understanding of academic content in an interactive game environment. To support this,
-the *Dungeon* framework is being extended with **remote multiplayer capabilities**, allowing
-multiple students to participate in a shared escape room experience from different locations.
-Additionally, a **low-code approach** is being developed to enable educators - even those
-without programming experience - to easily design and create their own escape rooms. This
-makes the concept accessible and adaptable for a wide range of teaching contexts.
-
 ### Programming Dungeon Adventures at School (PRODUS)
 
 12/2024 - 08/2026, EFRE-20300105, [Pakt für Informatik 2.0], [EFRE/JTF NRW 2021--27]
@@ -96,61 +78,6 @@ The project is a **collaborative effort** between local schools and companies in
 coordination.
 
 ![][2]
-
-### Spiele-Framework für Digital Game Based Learning
-
-09/2022 - 11/2023, FRFMM-623/2022, [Freiraum 2022][Freiraum 2025], [Stiftung Innovation in der
-Hochschullehre]
-
-As part of the project, the principles of game-based learning were further explored and
-applied to the existing Dungeon framework. In contrast to the previous PM-Dungeon project,
-where students programmed their own games, the focus here was not on game development, but on
-learning through gameplay.
-
-Students were provided with a fully developed game in which they had to solve subject-specific
-challenges directly within the game world. Real academic problems were seamlessly integrated
-with game mechanics - such as crafting or puzzle-solving - to create an engaging and
-meaningful learning experience. To evaluate student performance, the game included an
-automated analysis system that detected whether solutions were correct or whether players
-encountered difficulties during the task. The in-game challenges and puzzles were defined
-using a custom domain-specific language (DSL). This DSL enables even non-programmers to create
-and integrate educational tasks and puzzles into the game. It supports a variety of input
-types, such as single-choice questions, matching tasks, and element combination exercises.
-Depending on the level of detail provided, the DSL can either generate a specific gameplay
-scenario or automatically create a diverse game environment in which players must solve tasks
-to progress. Additionally, a Petri net-based system was implemented to define alternative
-learning paths. This allows the game to dynamically adapt to the learner's needs - for
-example, by revisiting topic areas where students previously struggled.
-
-### PM-Dungeon
-
-10/2021 - 11/2022, [Fellowships für Innovationen in der digitalen Hochschullehre
-(digi-Fellows)], Ministerium für Kultur und Wissenschaft (MKW) in NRW im Einvernehmen mit der
-Digitalen Hochschule NRW (DH.NRW)
-
-The goal of the project was to motivate computer science students to engage deeply with
-programming by providing exciting challenges and development environments. A particular focus
-was placed on promoting self-directed learning, enabling students to explore programming
-concepts at their own pace and based on their individual interests and progress.
-
-As part of the project:
-
--   Open Educational Resources (OER) were created and published to support teaching
-    programming with Java.
--   The Java-based framework Dungeon, built on libGDX, was conceptualized and developed. This
-    framework has since been extended, revised, and optimized through additional projects.
-
-The Dungeon framework was used in the "Programming Methods" course at Bielefeld University of
-Applied Sciences (HSBI) to teach students advanced programming techniques in Java. Students
-used the framework to develop their own 2D rogue-like games, applying key programming concepts
-in a creative and practical way. To support this, the framework provides essential
-functionalities to simplify complex development tasks. These include a built-in game loop,
-graphical rendering of textures, an animation system, and tools for level generation and
-loading. In addition, a submission process called "Deploy to Grading", based on GitHub
-Actions, was developed. This allows students to submit their code solutions via GitHub pull
-requests. The submitted code is automatically evaluated using a CI pipeline that includes
-JUnit tests, Checkstyle, and similar tools - providing immediate, formative feedback and
-reinforcing the idea of autonomous, feedback-driven learning.
 
 ## Credits
 

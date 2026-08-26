@@ -1,3 +1,0 @@
-- Source: https://commons.wikimedia.org/wiki/File:International_Morse_Code.PNG
-- Author: [James Kanjo](https://en.wikipedia.org/wiki/User:James_Kanjo)
-- License: CC SA 3.0

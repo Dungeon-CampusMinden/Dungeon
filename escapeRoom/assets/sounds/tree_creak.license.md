@@ -1,3 +1,0 @@
-- Source: https://opengameart.org/content/tree-creaking
-- Author: AntumDeluge
-- License: CC0

@@ -1,3 +1,0 @@
-- Source: https://cyrex-studios.itch.io/universal-ui-soundpack
-- Author: Nathan Gibson
-- License: CC BY 4.0

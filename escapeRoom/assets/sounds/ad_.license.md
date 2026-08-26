@@ -1,3 +1,0 @@
-- Source: https://opengameart.org/content/rpg-sound-pack
-- Author: artisticdude
-- License: CC0

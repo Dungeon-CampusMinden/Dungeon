@@ -1,4 +1,4 @@
 rootProject.name = 'Dungeon Projekt'
 
-include 'dungeon', 'blockly', 'advancedDungeon','escapeRoom','theLastHourEscapeRoom','portal'
+include 'dungeon', 'blockly', 'advancedDungeon','portal'
 
