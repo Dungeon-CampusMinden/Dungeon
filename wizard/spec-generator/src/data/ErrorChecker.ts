@@ -1,5 +1,6 @@
-import type { Asset, AssetMediaType, DeerSchema, Riddle, RiddleGraph, Surface } from "./DeerSchema";
+import type { Asset, AssetMediaType, DeerProject, Riddle, RiddleGraph, Surface } from "./DeerSchema";
 import { getBundledAssetPaths, isBundledAssetPath } from "@/components/assets/assetPaths";
+import { VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 
 export type IssueSeverity = "info" | "warning" | "error";
 
@@ -7,27 +8,68 @@ export interface Issue {
   description: string;
   details?: string;
   severity: IssueSeverity;
+  source?: "graph-reachability";
+}
+
+export interface LocatedIssue {
+  tabId: string;
+  issue: Issue;
 }
 
 export type TabIssues = Record<string, Issue[]>;
 
 export type IssueReport = Record<string, TabIssues>;
 
-export const VALIDATED_TAB_IDS = [
-  "metadata",
-  "scenario",
-  "session",
-  "surfaces",
-  "assets",
-  "riddles",
-  "riddle_graph",
-  "game_end",
-] as const;
-
-export type ValidatedTabId = (typeof VALIDATED_TAB_IDS)[number];
-
 export interface ErrorCheckerContext {
-  storedAssetIds: Set<string>;
+  storedAssetIds: Set<string> | null;
+  assetDisplayNames: ReadonlyMap<string, string>;
+}
+
+export interface GraphReachabilityAnalysis {
+  reachableFromStartIds: ReadonlySet<string>;
+  unreachableFromStartIds: ReadonlySet<string>;
+  noPathToEndIds: ReadonlySet<string>;
+}
+
+/** Analyzes only valid graph edges so validation and graph feedback share one result. */
+export function analyzeGraphReachability(graph: RiddleGraph): GraphReachabilityAnalysis {
+  const nodeIds = new Set(graph.nodes.map((node) => node.id));
+  const startNodeId = graph.nodes.find((node) => node.kind === "start")?.id;
+  const endNodeId = graph.nodes.find((node) => node.kind === "end")?.id;
+  const outgoing = new Map<string, string[]>();
+  const incoming = new Map<string, string[]>();
+
+  for (const edge of graph.edges) {
+    if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) continue;
+    outgoing.set(edge.from, [...(outgoing.get(edge.from) ?? []), edge.to]);
+    incoming.set(edge.to, [...(incoming.get(edge.to) ?? []), edge.from]);
+  }
+
+  const reachableFromStartIds = startNodeId === undefined
+    ? new Set<string>()
+    : collectReachable(startNodeId, outgoing);
+  const leadingToEndIds = endNodeId === undefined
+    ? new Set<string>()
+    : collectReachable(endNodeId, incoming);
+
+  return {
+    reachableFromStartIds,
+    unreachableFromStartIds: new Set([...nodeIds].filter((id) => !reachableFromStartIds.has(id))),
+    noPathToEndIds: new Set([...nodeIds].filter((id) => !leadingToEndIds.has(id))),
+  };
+}
+
+/** Breadth-first traversal of the given adjacency map, starting at `startId`. */
+function collectReachable(startId: string, adjacency: ReadonlyMap<string, string[]>) {
+  const reached = new Set<string>();
+  const queue = [startId];
+  while (queue.length > 0) {
+    const current = queue.shift() as string;
+    if (reached.has(current)) continue;
+    reached.add(current);
+    queue.push(...(adjacency.get(current) ?? []));
+  }
+  return reached;
 }
 
 const THEME_IDS = ["default"];
@@ -47,11 +89,14 @@ export class ErrorChecker {
   private readonly context: ErrorCheckerContext;
   private report: IssueReport = {};
 
-  constructor(context: ErrorCheckerContext = { storedAssetIds: new Set() }) {
+  constructor(context: ErrorCheckerContext = {
+    storedAssetIds: new Set(),
+    assetDisplayNames: new Map(),
+  }) {
     this.context = context;
   }
 
-  check(deerSchema: DeerSchema): IssueReport {
+  check(deerSchema: DeerProject): IssueReport {
     this.report = Object.fromEntries(VALIDATED_TAB_IDS.map((tabId) => [tabId, {}])) as IssueReport;
 
     this.checkMetadata(deerSchema);
@@ -84,9 +129,15 @@ export class ErrorChecker {
 
   /** All issues of every tab, most severe first. */
   static getSortedIssues(report: IssueReport): Issue[] {
-    return Object.values(report)
-      .flatMap((tabIssues) => ErrorChecker.getIssues(tabIssues))
-      .sort((a, b) => SEVERITY_ORDER[b.severity] - SEVERITY_ORDER[a.severity]);
+    return ErrorChecker.getSortedLocatedIssues(report).map(({ issue }) => issue);
+  }
+
+  /** All issues with their target tab, most severe first. */
+  static getSortedLocatedIssues(report: IssueReport): LocatedIssue[] {
+    return Object.entries(report)
+      .flatMap(([tabId, tabIssues]) =>
+        ErrorChecker.getIssues(tabIssues).map((issue) => ({ tabId, issue })))
+      .sort((a, b) => SEVERITY_ORDER[b.issue.severity] - SEVERITY_ORDER[a.issue.severity]);
   }
 
   //#region Helpers
@@ -97,6 +148,15 @@ export class ErrorChecker {
 
   private error(tabId: ValidatedTabId, field: string, description: string, details?: string) {
     this.add(tabId, field, { description, details, severity: "error" });
+  }
+
+  private graphReachabilityError(field: string, description: string, details?: string) {
+    this.add("riddle_graph", field, {
+      description,
+      details,
+      severity: "error",
+      source: "graph-reachability",
+    });
   }
 
   private warning(tabId: ValidatedTabId, field: string, description: string, details?: string) {
@@ -127,7 +187,7 @@ export class ErrorChecker {
     description: string,
   ) {
     if (!allowed.includes(value)) {
-      this.error(tabId, field, description, `Ungültiger Wert: "${value}".`);
+      this.error(tabId, field, description);
     }
   }
 
@@ -161,10 +221,10 @@ export class ErrorChecker {
   //#endregion
 
   //#region Metadata & learning design
-  private checkMetadata(deerSchema: DeerSchema) {
+  private checkMetadata(deerSchema: DeerProject) {
     const { metadata, learningDesign } = deerSchema;
 
-    this.requireText("metadata", "id", metadata.id, "Das Abenteuer hat keine Id.");
+    this.requireText("metadata", "id", metadata.id, "Das Abenteuer konnte nicht vollständig eingerichtet werden.");
     this.requireText("metadata", "title", metadata.title, "Der Titel darf nicht leer sein.");
     this.requireText("metadata", "locale", metadata.locale, "Es ist keine Sprache gesetzt.");
     if (learningDesign.objectives.length === 0) {
@@ -185,7 +245,7 @@ export class ErrorChecker {
         learningDesign.objectives.map((objective) => objective.id),
       );
       if (duplicates.length > 0) {
-        this.error("metadata", "objectives", "Lernziele haben doppelte Ids.", duplicates.join(", "));
+        this.error("metadata", "objectives", "Einige Lernziele sind doppelt angelegt.");
       }
     }
 
@@ -211,7 +271,7 @@ export class ErrorChecker {
   //#endregion
 
   //#region Scenario
-  private checkScenario(deerSchema: DeerSchema) {
+  private checkScenario(deerSchema: DeerProject) {
     const { scenario } = deerSchema;
 
     this.requireOption(
@@ -251,7 +311,7 @@ export class ErrorChecker {
   //#endregion
 
   //#region Session
-  private checkSession(deerSchema: DeerSchema) {
+  private checkSession(deerSchema: DeerProject) {
     const { session } = deerSchema;
 
     this.requireText(
@@ -299,87 +359,113 @@ export class ErrorChecker {
   //#endregion
 
   //#region Surfaces
-  private checkSurfaces(deerSchema: DeerSchema) {
+  private checkSurfaces(deerSchema: DeerProject) {
     const { surfaces } = deerSchema;
 
     if (surfaces.length === 0) {
-      this.error("surfaces", "surfaces", "Es muss mindestens einen Ort geben.");
+      this.error("game_end", "exit", "Das Abenteuer konnte nicht vollständig eingerichtet werden.");
       return;
     }
 
     const duplicates = ErrorChecker.findDuplicates(surfaces.map((surface) => surface.id));
     if (duplicates.length > 0) {
-      this.error("surfaces", "surfaces", "Es gibt Orte mit doppelten Ids.", duplicates.join(", "));
+      this.error("riddles", "riddles", "Einige Rätselbestandteile sind nicht eindeutig zugeordnet.");
     }
 
     const worldCount = surfaces.filter((surface) => surface.kind === "world").length;
     if (worldCount !== 1) {
       this.error(
-        "surfaces",
-        "surfaces",
-        "Es muss genau einen Raum vom Typ Welt geben.",
+        "game_end",
+        "exit",
+        "Das Abenteuer konnte nicht vollständig eingerichtet werden.",
         `Gefunden: ${worldCount}.`,
       );
     }
     const doorCount = surfaces.filter((surface) => surface.kind === "door").length;
     if (doorCount !== 1) {
       this.error(
-        "surfaces",
-        "surfaces",
-        "Es muss genau eine Ausgangstür geben.",
+        "game_end",
+        "exit",
+        "Es muss genau einen Ausgang geben.",
         `Gefunden: ${doorCount}.`,
       );
     }
 
     for (const surface of surfaces) {
-      const field = `surface:${surface.id}`;
-      this.requireText("surfaces", field, surface.title, "Der Name des Ortes darf nicht leer sein.");
+      const tabId: ValidatedTabId = surface.kind === "door" || surface.kind === "world"
+        ? "game_end"
+        : "riddles";
+      const field = surface.kind === "door" ? "exit" : "riddles";
+      if (surface.kind === "door" || surface.kind === "world") {
+        const description = surface.kind === "door"
+          ? "Der Name des Ausgangs darf nicht leer sein."
+          : "Das Abenteuer konnte nicht vollständig eingerichtet werden.";
+        this.requireText(tabId, field, surface.title, description);
+      }
       this.requireOption(
-        "surfaces",
+        tabId,
         field,
         surface.kind,
         SURFACE_KINDS,
-        `Der Ort "${surface.title}" hat keine gültige Art.`,
+        "Ein Bestandteil des Abenteuers ist ungültig eingerichtet.",
       );
     }
   }
   //#endregion
 
   //#region Assets
-  private checkAssets(deerSchema: DeerSchema) {
+  private checkAssets(deerSchema: DeerProject) {
     const { assets } = deerSchema;
 
     const duplicates = ErrorChecker.findDuplicates(assets.map((asset) => asset.id));
     if (duplicates.length > 0) {
-      this.error("assets", "assets", "Es gibt Dateien mit doppelten Ids.", duplicates.join(", "));
+      this.error("assets", "assets", "Einige Dateien sind doppelt angelegt.");
     }
 
+    const customPaths = new Map<string, Asset>();
     for (const asset of assets) {
       this.checkAsset(asset);
+      if (!isBlank(asset.path) && !isBundledAssetPath(asset.path)) {
+        const normalizedPath = asset.path.normalize("NFKC").toLowerCase();
+        const previous = customPaths.get(normalizedPath);
+        if (previous) {
+          this.error(
+            "assets",
+            `asset:${asset.id}`,
+            `Die eigenen Dateien "${this.assetName(previous)}" und "${this.assetName(asset)}" verwenden denselben internen Dateinamen.`,
+          );
+        } else {
+          customPaths.set(normalizedPath, asset);
+        }
+      }
     }
+  }
+
+  private assetName(asset: Asset): string {
+    return this.context.assetDisplayNames.get(asset.id) ?? "Datei";
   }
 
   private checkAsset(asset: Asset) {
     const field = `asset:${asset.id}`;
-    const name = asset.path || asset.id;
+    const name = this.assetName(asset);
 
     if (isBlank(asset.path)) {
-      this.error("assets", field, `Die Datei "${asset.id}" hat keinen Pfad.`);
+      this.error("assets", field, `Die Datei "${name}" hat keinen gültigen Speicherort.`);
     } else if (isBundledAssetPath(asset.path)) {
       if (!getBundledAssetPaths().has(asset.path)) {
         this.error(
           "assets",
           field,
           `Die mitgelieferte Datei "${name}" existiert nicht.`,
-          `Unbekannter Pfad: "${asset.path}".`,
+          "Die Datei ist nicht mehr in der mitgelieferten Auswahl verfügbar.",
         );
       }
-    } else if (!this.context.storedAssetIds.has(asset.id)) {
+    } else if (this.context.storedAssetIds !== null && !this.context.storedAssetIds.has(asset.id)) {
       this.error(
         "assets",
         field,
         `Der Inhalt der Datei "${name}" wurde nicht gefunden.`,
-        "Die hochgeladene Datei ist nicht mehr im Browser-Speicher vorhanden.",
+        "Die hochgeladene Datei ist nicht mehr im lokalen Speicher vorhanden.",
       );
     }
 
@@ -402,7 +488,7 @@ export class ErrorChecker {
   //#endregion
 
   //#region Surface profile
-  private checkSurfaceProfile(deerSchema: DeerSchema) {
+  private checkSurfaceProfile(deerSchema: DeerProject) {
     const surfacesById = new Map(deerSchema.surfaces.map((surface) => [surface.id, surface]));
     const containerUses = new Map<string, number>();
     const keypadUses = new Map<string, number>();
@@ -410,7 +496,7 @@ export class ErrorChecker {
 
     for (const riddle of deerSchema.riddles) {
       const field = `riddle:${riddle.id}`;
-      const name = riddle.title || riddle.id;
+      const name = riddle.title.trim() || "Unbenanntes Rätsel";
       for (const source of riddle.informationSources) {
         count(containerUses, source.surfaceId);
         const surface = surfacesById.get(source.surfaceId);
@@ -418,8 +504,7 @@ export class ErrorChecker {
           this.error(
             "riddles",
             field,
-            `Eine Informationsquelle von "${name}" muss einem Container zugeordnet sein.`,
-            `Aktueller Ort: "${surface.title || surface.id}" (${surface.kind}).`,
+            `Eine Informationsquelle von "${name}" ist ungültig eingerichtet.`,
           );
         }
       }
@@ -431,8 +516,7 @@ export class ErrorChecker {
           this.error(
             "riddles",
             field,
-            `Eine Zahleneingabe von "${name}" muss einem Keypad zugeordnet sein.`,
-            `Aktueller Ort: "${surface.title || surface.id}" (${surface.kind}).`,
+            `Eine Zahleneingabe von "${name}" ist ungültig eingerichtet.`,
           );
         }
       }
@@ -443,10 +527,9 @@ export class ErrorChecker {
       const surface = surfacesById.get(node.surfaceId);
       if (surface && surface.kind !== "door") {
         this.error(
-          "riddle_graph",
-          "nodes",
-          "Der Endpunkt muss auf eine Tür verweisen.",
-          `Aktueller Ort: "${surface.title || surface.id}" (${surface.kind}).`,
+          "game_end",
+          "exit",
+          "Der Ausgang ist ungültig eingerichtet.",
         );
       }
     }
@@ -460,9 +543,11 @@ export class ErrorChecker {
             : undefined;
       if ((surface.kind === "container" || surface.kind === "keypad") && uses !== 1) {
         this.error(
-          "surfaces",
-          `surface:${surface.id}`,
-          `"${surface.title || surface.id}" muss genau einmal passend verwendet werden.`,
+          "riddles",
+          "riddles",
+          surface.kind === "container"
+            ? "Jede Informationsquelle muss einen eigenen internen Spielbestandteil besitzen."
+            : "Jede Zahleneingabe muss einen eigenen internen Spielbestandteil besitzen.",
           `Gefundene Verwendungen: ${uses ?? 0}.`,
         );
       }
@@ -471,7 +556,7 @@ export class ErrorChecker {
   //#endregion
 
   //#region Riddles
-  private checkRiddles(deerSchema: DeerSchema) {
+  private checkRiddles(deerSchema: DeerProject) {
     const { riddles } = deerSchema;
 
     if (riddles.length === 0) {
@@ -481,7 +566,7 @@ export class ErrorChecker {
 
     const duplicates = ErrorChecker.findDuplicates(riddles.map((riddle) => riddle.id));
     if (duplicates.length > 0) {
-      this.error("riddles", "riddles", "Es gibt Rätsel mit doppelten Ids.", duplicates.join(", "));
+      this.error("riddles", "riddles", "Einige Rätsel sind doppelt angelegt.");
     }
 
     const surfaceIds = new Set(deerSchema.surfaces.map((surface) => surface.id));
@@ -500,7 +585,7 @@ export class ErrorChecker {
     objectiveIds: Set<string>,
   ) {
     const field = `riddle:${riddle.id}`;
-    const name = riddle.title || riddle.id;
+    const name = riddle.title.trim() || "Unbenanntes Rätsel";
 
     this.requireText("riddles", field, riddle.title, "Der Titel des Rätsels darf nicht leer sein.");
     this.requireOption(
@@ -521,7 +606,6 @@ export class ErrorChecker {
         "riddles",
         field,
         `Das Rätsel "${name}" verweist auf unbekannte Lernziele.`,
-        unknownObjectives.join(", "),
       );
     }
     if (riddle.learningObjectiveIds.length === 0) {
@@ -564,8 +648,7 @@ export class ErrorChecker {
       this.error(
         "riddles",
         field,
-        `Das Rätsel "${name}" hat Informationsquellen mit doppelten Ids.`,
-        duplicates.join(", "),
+        `Das Rätsel "${name}" hat doppelt angelegte Informationsquellen.`,
       );
     }
 
@@ -596,21 +679,20 @@ export class ErrorChecker {
             "riddles",
             field,
             resource.text,
-            `Das Material "${resource.title || resource.id}" hat keinen Text.`,
+            `Das Material "${resource.title || "Unbenanntes Material"}" hat keinen Text.`,
           );
         } else if (resource.kind === "asset") {
           if (isBlank(resource.assetId)) {
             this.error(
               "riddles",
               field,
-              `Für das Material "${resource.title || resource.id}" ist keine Datei ausgewählt.`,
+              `Für das Material "${resource.title || "Unbenanntes Material"}" ist keine Datei ausgewählt.`,
             );
           } else if (!assetIds.has(resource.assetId)) {
             this.error(
               "riddles",
               field,
-              `Das Material "${resource.title || resource.id}" verweist auf eine unbekannte Datei.`,
-              `Unbekannte Datei-Id: "${resource.assetId}".`,
+              `Die Datei für das Material "${resource.title || "Unbenanntes Material"}" ist nicht mehr vorhanden.`,
             );
           }
         }
@@ -629,8 +711,7 @@ export class ErrorChecker {
       this.error(
         "riddles",
         field,
-        `Das Rätsel "${name}" hat Eingaben mit doppelten Ids.`,
-        duplicates.join(", "),
+        `Das Rätsel "${name}" hat doppelt angelegte Eingaben.`,
       );
     }
 
@@ -656,19 +737,19 @@ export class ErrorChecker {
           this.error(
             "riddles",
             field,
-            `Eine Eingabe von "${name}" verweist auf eine unbekannte Informationsquelle.`,
-            `Unbekannte Id: "${input.informationSourceId}".`,
+            `Die gewählte Informationsquelle für "${name}" ist nicht mehr vorhanden.`,
           );
         }
       } else if (input.type === "numeric") {
         this.checkSurfaceReference("riddles", field, input.surfaceId, surfaceIds, name);
+        const answerField = `${field}:input:${input.id}:answer`;
 
         if (isBlank(input.answer)) {
-          this.error("riddles", field, `Für das Rätsel "${name}" ist keine Lösung hinterlegt.`);
+          this.error("riddles", answerField, `Für das Rätsel "${name}" ist keine Lösung hinterlegt.`);
         } else if (!/^\d{1,8}$/.test(input.answer)) {
           this.error(
             "riddles",
-            field,
+            answerField,
             `Die Lösung von "${name}" muss aus 1 bis 8 Ziffern bestehen.`,
             `Aktuelle Lösung: "${input.answer}".`,
           );
@@ -685,28 +766,48 @@ export class ErrorChecker {
     riddleName: string,
   ) {
     if (isBlank(surfaceId)) {
-      this.error(tabId, field, `Für das Rätsel "${riddleName}" ist kein Ort ausgewählt.`);
+      this.error(tabId, field, `Das Rätsel "${riddleName}" ist nicht vollständig eingerichtet.`);
     } else if (!surfaceIds.has(surfaceId)) {
       this.error(
         tabId,
         field,
-        `Das Rätsel "${riddleName}" verweist auf einen unbekannten Ort.`,
-        `Unbekannte Ort-Id: "${surfaceId}".`,
+        `Ein interner Spielbestandteil von "${riddleName}" ist nicht mehr vorhanden.`,
       );
     }
   }
   //#endregion
 
   //#region Riddle graph
-  private checkRiddleGraph(deerSchema: DeerSchema) {
+  private checkRiddleGraph(deerSchema: DeerProject) {
     const graph = deerSchema.riddleGraph;
     const nodeIds = new Set(graph.nodes.map((node) => node.id));
     const riddleIds = new Set(deerSchema.riddles.map((riddle) => riddle.id));
     const surfaceIds = new Set(deerSchema.surfaces.map((surface) => surface.id));
+    const riddleNames = new Map(deerSchema.riddles.map((riddle) => [
+      riddle.id,
+      riddle.title.trim() || "Unbenanntes Rätsel",
+    ]));
+    const nodeNames = new Map(graph.nodes.map((node) => [
+      node.id,
+      node.kind === "start"
+        ? "Start"
+        : node.kind === "end"
+          ? "Ende"
+          : (riddleNames.get(node.riddleId) ?? "Schritt"),
+    ]));
+    const displayNodes = (ids: string[]) =>
+      ids.map((id) => nodeNames.get(id) ?? "Unbekannter Schritt").join(", ");
+    const displayEdge = (from: string, to: string) =>
+      `${nodeNames.get(from) ?? "Unbekannter Schritt"} → ${nodeNames.get(to) ?? "Unbekannter Schritt"}`;
 
     const duplicates = ErrorChecker.findDuplicates(graph.nodes.map((node) => node.id));
     if (duplicates.length > 0) {
-      this.error("riddle_graph", "nodes", "Es gibt Schritte mit doppelten Ids.", duplicates.join(", "));
+      this.error(
+        "riddle_graph",
+        "nodes",
+        "Es gibt mehrfach angelegte Schritte.",
+        displayNodes(duplicates),
+      );
     }
 
     const startNodes = graph.nodes.filter((node) => node.kind === "start");
@@ -734,15 +835,13 @@ export class ErrorChecker {
           "riddle_graph",
           "nodes",
           "Ein Schritt verweist auf ein unbekanntes Rätsel.",
-          `Unbekannte Rätsel-Id: "${node.riddleId}".`,
         );
       }
       if (node.kind === "end" && !surfaceIds.has(node.surfaceId)) {
         this.error(
-          "riddle_graph",
-          "nodes",
-          "Der Endpunkt verweist auf einen unbekannten Ort.",
-          `Unbekannte Ort-Id: "${node.surfaceId}".`,
+          "game_end",
+          "exit",
+          "Der Ausgang ist nicht mehr vorhanden.",
         );
       }
     }
@@ -750,13 +849,24 @@ export class ErrorChecker {
     const usedRiddleIds = new Set(
       graph.nodes.filter((node) => node.kind === "riddle").map((node) => node.riddleId),
     );
+    const duplicateRiddleNodes = ErrorChecker.findDuplicates(
+      graph.nodes.filter((node) => node.kind === "riddle").map((node) => node.riddleId),
+    );
+    if (duplicateRiddleNodes.length > 0) {
+      this.error(
+        "riddle_graph",
+        "nodes",
+        "Jedes Rätsel darf genau einmal im Spielablauf vorkommen.",
+        duplicateRiddleNodes.map((id) => riddleNames.get(id) ?? "Unbenanntes Rätsel").join(", "),
+      );
+    }
     const unusedRiddles = [...riddleIds].filter((id) => !usedRiddleIds.has(id));
     if (unusedRiddles.length > 0) {
       this.error(
         "riddle_graph",
         "nodes",
         "Es gibt Rätsel, die im Spielablauf nicht vorkommen.",
-        unusedRiddles.join(", "),
+        unusedRiddles.map((id) => riddleNames.get(id) ?? "Unbenanntes Rätsel").join(", "),
       );
     }
 
@@ -766,76 +876,106 @@ export class ErrorChecker {
           "riddle_graph",
           "edges",
           "Eine Verbindung verweist auf einen unbekannten Schritt.",
-          `${edge.from} → ${edge.to}`,
+          displayEdge(edge.from, edge.to),
         );
       } else if (edge.from === edge.to) {
-        this.error("riddle_graph", "edges", "Eine Verbindung zeigt auf sich selbst.", edge.from);
+        this.error(
+          "riddle_graph",
+          "edges",
+          "Eine Verbindung zeigt auf sich selbst.",
+          nodeNames.get(edge.from) ?? "Schritt",
+        );
       }
     }
 
-    this.checkGraphReachability(graph, nodeIds);
+    const duplicateEdges = ErrorChecker.findDuplicates(
+      graph.edges.map((edge) => `${edge.from}->${edge.to}`),
+    );
+    if (duplicateEdges.length > 0) {
+      this.error(
+        "riddle_graph",
+        "edges",
+        "Eine Verbindung darf nicht doppelt vorkommen.",
+        duplicateEdges.map((key) => {
+          const edge = graph.edges.find((candidate) => `${candidate.from}->${candidate.to}` === key);
+          return edge ? displayEdge(edge.from, edge.to) : "Verbindung";
+        }).join(", "),
+      );
+    }
+    if (ErrorChecker.hasDirectedCycle(graph, nodeIds)) {
+      this.error(
+        "riddle_graph",
+        "edges",
+        "Der Spielablauf enthält einen Kreis.",
+        "Entferne mindestens eine Verbindung aus dem Kreis.",
+      );
+    }
+
+    this.checkGraphReachability(graph, nodeNames);
   }
 
-  private checkGraphReachability(graph: RiddleGraph, nodeIds: Set<string>) {
+  private checkGraphReachability(
+    graph: RiddleGraph,
+    nodeNames: ReadonlyMap<string, string>,
+  ) {
     const startNodeId = graph.nodes.find((node) => node.kind === "start")?.id;
     const endNodeId = graph.nodes.find((node) => node.kind === "end")?.id;
     if (startNodeId === undefined) return;
 
-    const outgoing = new Map<string, string[]>();
-    const incoming = new Map<string, string[]>();
-    for (const edge of graph.edges) {
-      if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) continue;
-      outgoing.set(edge.from, [...(outgoing.get(edge.from) ?? []), edge.to]);
-      incoming.set(edge.to, [...(incoming.get(edge.to) ?? []), edge.from]);
-    }
+    const analysis = analyzeGraphReachability(graph);
 
-    const reachable = ErrorChecker.collectReachable(startNodeId, outgoing);
-
-    if (endNodeId !== undefined && !reachable.has(endNodeId)) {
-      this.error(
-        "riddle_graph",
+    if (endNodeId !== undefined && analysis.unreachableFromStartIds.has(endNodeId)) {
+      this.graphReachabilityError(
         "edges",
         "Der Endpunkt ist vom Start aus nicht erreichbar.",
         "Es fehlt eine Verbindung zwischen Start und Ende.",
       );
     }
 
-    const unreachable = [...nodeIds].filter((id) => !reachable.has(id) && id !== endNodeId);
+    const unreachable = [...analysis.unreachableFromStartIds].filter((id) => id !== endNodeId);
     if (unreachable.length > 0) {
-      this.error(
-        "riddle_graph",
+      this.graphReachabilityError(
         "nodes",
         "Es gibt Schritte, die vom Start aus nicht erreichbar sind.",
-        unreachable.join(", "),
+        unreachable.map((id) => nodeNames.get(id) ?? "Unbekannter Schritt").join(", "),
       );
     }
 
     if (endNodeId === undefined) return;
 
-    // Steps that no longer lead to the exit leave the adventure in a dead end.
-    const leadingToEnd = ErrorChecker.collectReachable(endNodeId, incoming);
-    const deadEnds = [...nodeIds].filter((id) => reachable.has(id) && !leadingToEnd.has(id));
+    // Only reachable steps are reported here. The UI also marks disconnected steps that cannot reach the exit.
+    const deadEnds = [...analysis.noPathToEndIds].filter((id) =>
+      analysis.reachableFromStartIds.has(id));
     if (deadEnds.length > 0) {
-      this.error(
-        "riddle_graph",
+      this.graphReachabilityError(
         "edges",
         "Es gibt Schritte, von denen aus der Endpunkt nicht erreichbar ist.",
-        deadEnds.join(", "),
+        deadEnds.map((id) => nodeNames.get(id) ?? "Unbekannter Schritt").join(", "),
       );
     }
   }
 
-  /** Breadth-first traversal of the given adjacency map, starting at `startId`. */
-  private static collectReachable(startId: string, adjacency: Map<string, string[]>) {
-    const reached = new Set<string>();
-    const queue = [startId];
+  private static hasDirectedCycle(graph: RiddleGraph, nodeIds: Set<string>): boolean {
+    const incomingCount = new Map([...nodeIds].map((id) => [id, 0]));
+    const outgoing = new Map<string, string[]>();
+    for (const edge of graph.edges) {
+      if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) continue;
+      outgoing.set(edge.from, [...(outgoing.get(edge.from) ?? []), edge.to]);
+      incomingCount.set(edge.to, (incomingCount.get(edge.to) ?? 0) + 1);
+    }
+    const queue = [...nodeIds].filter((id) => incomingCount.get(id) === 0);
+    let visited = 0;
     while (queue.length > 0) {
       const current = queue.shift() as string;
-      if (reached.has(current)) continue;
-      reached.add(current);
-      queue.push(...(adjacency.get(current) ?? []));
+      visited += 1;
+      for (const next of outgoing.get(current) ?? []) {
+        const remaining = (incomingCount.get(next) ?? 0) - 1;
+        incomingCount.set(next, remaining);
+        if (remaining === 0) queue.push(next);
+      }
     }
-    return reached;
+    return visited !== nodeIds.size;
   }
+
   //#endregion
 }

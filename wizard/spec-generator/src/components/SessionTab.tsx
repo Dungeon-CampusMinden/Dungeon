@@ -1,4 +1,4 @@
-import type { DeerSchema, TimeLimitMode } from "@/data/DeerSchema";
+import type { DeerProject, TimeLimitMode } from "@/data/DeerSchema";
 import {
   Field,
   FieldDescription,
@@ -9,8 +9,10 @@ import {
   FieldSet,
 } from "./ui/field";
 import { Input } from "./ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Slider } from "./ui/slider";
+import { ResponsiveChoice } from "./ui/responsive-choice";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, hasFieldErrors, ValidationFeedback } from "./ValidationFeedback";
 
 const LIMIT_MODES: { value: TimeLimitMode; label: string; description: string }[] = [
   { value: "hard", label: "Hart", description: "Das Abenteuer endet, wenn die Zeit abgelaufen ist." },
@@ -20,12 +22,14 @@ const LIMIT_MODES: { value: TimeLimitMode; label: string; description: string }[
 export function SessionTab({
   deerSchema,
   updateDeerSchema,
+  issues,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  deerSchema: DeerProject;
+  updateDeerSchema: (updatedSchema: DeerProject) => void;
+  issues: TabIssues;
 }) {
-  const emptyTargetAudience = deerSchema.session.targetAudience === "";
-  const emptyPriorKnowledge = deerSchema.session.priorKnowledge === "";
+  const emptyTargetAudience = hasFieldErrors(issues, "targetAudience");
+  const emptyPriorKnowledge = hasFieldErrors(issues, "priorKnowledge");
 
   const minPlayer = deerSchema.session.playerCount.min;
   const maxPlayer = deerSchema.session.playerCount.max;
@@ -33,13 +37,14 @@ export function SessionTab({
   const selectedLimitMode = LIMIT_MODES.find((mode) => mode.value === deerSchema.session.time.limitMode);
 
   return (
-    <div className="flex flex-col gap-0">
-      <h1>Spielablauf</h1>
+    <div className="flex flex-col gap-5">
+      <h1 className="wizard-page-title">Spielablauf</h1>
       <FieldSet>
         <FieldGroup>
           <Field>
             <FieldLabel>Zielgruppe</FieldLabel>
             <Input
+              aria-label="Zielgruppe"
               value={deerSchema.session.targetAudience}
               onChange={(e) => {
                 deerSchema.session.targetAudience = e.target.value;
@@ -52,6 +57,7 @@ export function SessionTab({
           <Field>
             <FieldLabel>Vorkenntnisse</FieldLabel>
             <Input
+              aria-label="Vorkenntnisse"
               value={deerSchema.session.priorKnowledge}
               onChange={(e) => {
                 deerSchema.session.priorKnowledge = e.target.value;
@@ -72,6 +78,7 @@ export function SessionTab({
                 <span>Maximal: {maxPlayer} Spieler</span>
               </div>
               <Slider
+                thumbLabels={["Minimale Spieleranzahl", "Maximale Spieleranzahl"]}
                 value={[minPlayer, maxPlayer]}
                 onValueChange={(value) => {
                   const [min, max] = value as [number, number];
@@ -84,12 +91,14 @@ export function SessionTab({
                 step={1}
               />
             </div>
+            <ValidationFeedback issues={fieldIssues(issues, "playerCount")} />
           </Field>
           <Field>
             <FieldLabel>Zeitlimit</FieldLabel>
             <div className="grid grid-cols-[150px_1fr] items-center gap-2 text-sm text-muted-foreground">
               <span className="text-end">{timeLimit} Minuten</span>
               <Slider
+                thumbLabels={["Zeitlimit in Minuten"]}
                 value={timeLimit}
                 onValueChange={(value) => {
                   deerSchema.session.time.limitMinutes = value as number;
@@ -100,30 +109,19 @@ export function SessionTab({
                 step={1}
               />
             </div>
+            <ValidationFeedback issues={fieldIssues(issues, "time")} />
           </Field>
           <Field>
             <FieldLabel>Umgang mit dem Zeitlimit</FieldLabel>
-            <Select
-              items={LIMIT_MODES}
+            <ResponsiveChoice
+              accessibleLabel="Umgang mit dem Zeitlimit"
+              options={LIMIT_MODES}
               value={deerSchema.session.time.limitMode}
-              onValueChange={(newValue) => {
-                deerSchema.session.time.limitMode = (newValue as TimeLimitMode) ?? "hard";
+              onChange={(newValue) => {
+                deerSchema.session.time.limitMode = newValue;
                 updateDeerSchema(deerSchema);
               }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Wähle einen Modus" />
-              </SelectTrigger>
-              <SelectContent alignItemWithTrigger={false}>
-                <SelectGroup>
-                  {LIMIT_MODES.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            />
             <FieldDescription>{selectedLimitMode?.description}</FieldDescription>
           </Field>
         </FieldGroup>

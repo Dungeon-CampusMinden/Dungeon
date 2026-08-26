@@ -1,18 +1,25 @@
-import type { DeerSchema, Riddle } from "@/data/DeerSchema";
+import type { DeerProject } from "@/data/DeerSchema";
+import type { UpdateDraft, WizardDraft } from "@/data/WizardDraft";
+import { addRiddle as addRiddleToProject, removeRiddle } from "@/data/RiddleGraphActions";
 import React from "react";
 import { PlusIcon } from "lucide-react";
 import { RiddleCard } from "./riddles/RiddleCard";
 import { RiddleEditDialog } from "./riddles/RiddleEditDialog";
 import { createRiddle } from "./riddles/riddleTypes";
 import { Button } from "./ui/button";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, prefixedFieldIssues, ValidationFeedback } from "./ValidationFeedback";
 
 export function RiddlesTab({
-  deerSchema,
-  updateDeerSchema,
+  draft,
+  updateDraft,
+  issues,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  draft: WizardDraft;
+  updateDraft: UpdateDraft;
+  issues: TabIssues;
 }) {
+  const deerSchema = draft.project;
   const riddles = deerSchema.riddles;
   const [editingId, setEditingId] = React.useState<string | null>(null);
 
@@ -21,31 +28,41 @@ export function RiddlesTab({
 
   const addRiddle = () => {
     const newRiddle = createRiddle();
-    riddles.push(newRiddle);
-    updateDeerSchema(deerSchema);
+    updateDraft((current) => addRiddleToProject(current.project, newRiddle));
     setEditingId(newRiddle.id);
   };
 
-  const saveRiddle = (index: number, updated: Riddle) => {
-    riddles[index] = updated;
-    updateDeerSchema(deerSchema);
+  const updateRiddle = (updated: DeerProject) => {
+    updateDraft((current) => {
+      const edited = updated.riddles.find((riddle) => riddle.id === editingId);
+      if (!edited) return false;
+      const index = current.project.riddles.findIndex((riddle) => riddle.id === edited.id);
+      if (index === -1) return false;
+      current.project.riddles[index] = structuredClone(edited);
+      current.project.surfaces = structuredClone(updated.surfaces);
+    });
   };
 
-  const deleteRiddle = (index: number) => {
-    riddles.splice(index, 1);
-    updateDeerSchema(deerSchema);
+  const deleteRiddle = (riddleId: string) => {
+    updateDraft((current) => {
+      const removedNodeIds = removeRiddle(current.project, riddleId);
+      for (const nodeId of removedNodeIds) delete current.graphLayout[nodeId];
+    });
   };
 
   return (
-    <div className="flex flex-col gap-0">
-      <h1>Rätsel</h1>
-      <p className="text-sm text-muted-foreground">
-        Hier kannst du die Rätsel definieren, die die Spieler in deinem Abenteuer lösen müssen.
-      </p>
-      <Button onClick={addRiddle} className="my-2 max-w-40">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <h1 className="wizard-page-title">Rätsel</h1>
+        <p className="text-sm text-muted-foreground">
+          Hier kannst du die Rätsel definieren, die die Spieler in deinem Abenteuer lösen müssen.
+        </p>
+      </div>
+      <Button onClick={addRiddle} className="max-w-40">
         <PlusIcon />
         Hinzufügen
       </Button>
+      <ValidationFeedback issues={fieldIssues(issues, "riddles")} />
 
       {riddles.length === 0 && (
         <span className="text-sm text-muted-foreground">Es sind noch keine Rätsel vorhanden.</span>
@@ -57,6 +74,7 @@ export function RiddlesTab({
             riddle={riddle}
             deerSchema={deerSchema}
             onEdit={() => setEditingId(riddle.id)}
+            issues={prefixedFieldIssues(issues, `riddle:${riddle.id}`)}
           />
         ))}
       </div>
@@ -70,8 +88,9 @@ export function RiddlesTab({
           setOpen={(open) => {
             if (!open) setEditingId(null);
           }}
-          onSave={(updated) => saveRiddle(editingIndex, updated)}
-          onDelete={() => deleteRiddle(editingIndex)}
+          onChange={updateRiddle}
+          onDelete={() => deleteRiddle(editingRiddle.id)}
+          tabIssues={issues}
         />
       )}
     </div>

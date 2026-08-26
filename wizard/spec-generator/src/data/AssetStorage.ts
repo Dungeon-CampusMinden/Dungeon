@@ -1,71 +1,83 @@
-const DB_NAME = "spec-generator";
-const DB_VERSION = 1;
-const STORE_NAME = "assets";
+import {
+  openWizardDatabase,
+  requestResult,
+  transactionDone,
+  UPLOAD_BY_DRAFT,
+  UPLOAD_STORE,
+} from "./DraftStorage";
+
+const MAX_UPLOAD_BYTES = 16 * 1024 * 1024;
 
 export interface StoredAssetFile {
-  id: string;
+  draftId: string;
+  storageKey: string;
   name: string;
   mediaType: string;
   blob: Blob;
 }
 
-function openDatabase(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: "id" });
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+export interface AssetStoragePort {
+  putAssetFile(draftId: string, file: File): Promise<string>;
+  getAssetFile(draftId: string, storageKey: string): Promise<StoredAssetFile | null>;
+  listAssetIds(draftId: string): Promise<string[]>;
 }
 
-async function runTransaction<T>(
-  mode: IDBTransactionMode,
-  action: (store: IDBObjectStore) => IDBRequest<T>,
-): Promise<T> {
-  const db = await openDatabase();
-  try {
-    return await new Promise<T>((resolve, reject) => {
-      const transaction = db.transaction(STORE_NAME, mode);
-      const request = action(transaction.objectStore(STORE_NAME));
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  } finally {
-    db.close();
-  }
-}
+export class BrowserAssetStorage implements AssetStoragePort {
+  async putAssetFile(draftId: string, file: File): Promise<string> {
+    if (file.type !== "image/png" && file.type !== "image/jpeg") {
+      throw new Error("Es werden nur PNG- und JPEG-Dateien unterstützt.");
+    }
+    if (file.size === 0) throw new Error("Die ausgewählte Datei ist leer.");
+    if (file.size > MAX_UPLOAD_BYTES) throw new Error("Die Datei darf höchstens 16 MiB groß sein.");
 
-export class AssetStorage {
-  /** Stores (or overwrites) the binary content of an asset under its content hash id. */
-  static async putAssetFile(file: File): Promise<string> {
     const contents = await file.arrayBuffer();
     const digest = await crypto.subtle.digest("SHA-256", contents);
-    const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-    const id = hash.slice(0, 12);
-    const blob = new Blob([contents], { type: file.type });
-    const entry: StoredAssetFile = { id, name: file.name, mediaType: file.type, blob };
-    await runTransaction("readwrite", (store) => store.put(entry));
-    return id;
+    const storageKey = Array.from(
+      new Uint8Array(digest),
+      (byte) => byte.toString(16).padStart(2, "0"),
+    ).join("");
+    const entry: StoredAssetFile = {
+      draftId,
+      storageKey,
+      name: file.name,
+      mediaType: file.type,
+      blob: new Blob([contents], { type: file.type }),
+    };
+    const db = await openWizardDatabase();
+    try {
+      const transaction = db.transaction(UPLOAD_STORE, "readwrite");
+      transaction.objectStore(UPLOAD_STORE).put(entry);
+      await transactionDone(transaction);
+      return storageKey;
+    } finally { db.close(); }
   }
 
-  /** Returns the stored file for an asset id, or null if it is not available. */
-  static async getAssetFile(id: string): Promise<StoredAssetFile | null> {
-    const entry = await runTransaction<StoredAssetFile | undefined>("readonly", (store) => store.get(id));
-    return entry ?? null;
+  async getAssetFile(draftId: string, storageKey: string): Promise<StoredAssetFile | null> {
+    const db = await openWizardDatabase();
+    try {
+      const transaction = db.transaction(UPLOAD_STORE, "readonly");
+      const entry = await requestResult(
+        transaction.objectStore(UPLOAD_STORE).get([draftId, storageKey]),
+      ) as StoredAssetFile | undefined;
+      await transactionDone(transaction);
+      return entry ?? null;
+    } finally { db.close(); }
   }
 
-  static async deleteAssetFile(id: string): Promise<void> {
-    await runTransaction("readwrite", (store) => store.delete(id));
-  }
-
-  /** Returns the ids of all assets whose content is currently stored in the IndexedDB. */
-  static async listAssetIds(): Promise<string[]> {
-    const keys = await runTransaction<IDBValidKey[]>("readonly", (store) => store.getAllKeys());
-    return keys.map((key) => String(key));
+  async listAssetIds(draftId: string): Promise<string[]> {
+    const db = await openWizardDatabase();
+    try {
+      const transaction = db.transaction(UPLOAD_STORE, "readonly");
+      const keys = await requestResult(
+        transaction.objectStore(UPLOAD_STORE).index(UPLOAD_BY_DRAFT).getAllKeys(draftId),
+      );
+      await transactionDone(transaction);
+      return keys.map((key) => {
+        if (!Array.isArray(key) || typeof key[1] !== "string") {
+          throw new Error("Der lokale Dateispeicher enthält einen ungültigen Schlüssel.");
+        }
+        return key[1];
+      });
+    } finally { db.close(); }
   }
 }

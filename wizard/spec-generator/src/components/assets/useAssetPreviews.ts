@@ -1,13 +1,20 @@
 import type { Asset } from "@/data/DeerSchema";
 import React from "react";
-import { AssetStorage } from "@/data/AssetStorage";
+import { useWizardStorage } from "@/data/WizardStorage";
+import { usePreviewDraftId, useUploadReferences } from "./UploadReferencesContext";
 import { getBundledAssetUrl, isBundledAssetPath, type AssetPreview } from "./assetPaths";
 
 /**
  * Resolves the preview of every given asset, either from the bundled assets served by the
- * webserver or from the IndexedDB. Bump `storageRevision` to force a reload after a write.
+ * bundled assets or the injected asset storage. Bump `storageRevision` after a write.
  */
-export function useAssetPreviews(assets: Asset[], storageRevision = 0) {
+export function useAssetPreviews(
+  assets: Asset[],
+  storageRevision = 0,
+) {
+  const uploads = useUploadReferences();
+  const draftId = usePreviewDraftId();
+  const storage = useWizardStorage();
   const [previews, setPreviews] = React.useState<Record<string, AssetPreview>>({});
 
   const previewKey = assets.map((asset) => `${asset.id}:${asset.path}`).join("|");
@@ -19,26 +26,38 @@ export function useAssetPreviews(assets: Asset[], storageRevision = 0) {
     (async () => {
       const nextPreviews: Record<string, AssetPreview> = {};
       for (const asset of assets) {
-        // Bundled assets are served by the webserver and never stored in the IndexedDB.
+        // Bundled assets are served directly and do not use the draft's asset storage.
         if (isBundledAssetPath(asset.path)) {
           const isImage = asset.mediaType.startsWith("image/");
           nextPreviews[asset.id] = {
             previewUrl: isImage ? getBundledAssetUrl(asset.path) : null,
             missing: false,
+            technicalError: false,
           };
           continue;
         }
 
-        const storedFile = await AssetStorage.getAssetFile(asset.id);
+        const storageKey = uploads[asset.id]?.storageKey;
+        let storedFile;
+        try {
+          storedFile = storageKey ? await storage.assets.getAssetFile(draftId, storageKey) : null;
+        } catch {
+          nextPreviews[asset.id] = {
+            previewUrl: null,
+            missing: false,
+            technicalError: true,
+          };
+          continue;
+        }
         if (!storedFile) {
-          nextPreviews[asset.id] = { previewUrl: null, missing: true };
+          nextPreviews[asset.id] = { previewUrl: null, missing: true, technicalError: false };
           continue;
         }
         const objectUrl = storedFile.blob.type.startsWith("image/")
           ? URL.createObjectURL(storedFile.blob)
           : null;
         if (objectUrl) createdUrls.push(objectUrl);
-        nextPreviews[asset.id] = { previewUrl: objectUrl, missing: false };
+        nextPreviews[asset.id] = { previewUrl: objectUrl, missing: false, technicalError: false };
       }
 
       if (cancelled) {
@@ -53,7 +72,7 @@ export function useAssetPreviews(assets: Asset[], storageRevision = 0) {
       createdUrls.forEach((url) => URL.revokeObjectURL(url));
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [previewKey, storageRevision]);
+  }, [draftId, previewKey, uploads, storage, storageRevision]);
 
   return previews;
 }

@@ -1,14 +1,5 @@
 import type { AnyGraphNode, GraphEdge, RiddleGraph } from "@/data/DeerSchema";
-
-export interface NodePosition {
-  x: number;
-  y: number;
-}
-
-/** Node positions are purely visual, so they live in local storage instead of the exported schema. */
-export type GraphLayout = Record<string, NodePosition>;
-
-export const GRAPH_LAYOUT_STORAGE_KEY = "riddleGraphLayout";
+import type { GraphLayout } from "@/data/WizardDraft";
 
 const COLUMN_WIDTH = 260;
 const ROW_HEIGHT = 120;

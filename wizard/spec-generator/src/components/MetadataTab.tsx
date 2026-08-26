@@ -1,7 +1,6 @@
-import type { DeerSchema } from "@/data/DeerSchema";
+import type { DeerProject } from "@/data/DeerSchema";
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -13,25 +12,30 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Util } from "@/data/Util";
 import { ObjectListStringEditor } from "./StringListEditor";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { fieldIssues, hasFieldErrors, ValidationFeedback } from "./ValidationFeedback";
 
 export function MetadataTab({
   deerSchema,
   updateDeerSchema,
+  issues,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
+  deerSchema: DeerProject;
+  updateDeerSchema: (updatedSchema: DeerProject) => void;
+  issues: TabIssues;
 }) {
-  const emptyTitle = deerSchema.metadata.title === "";
+  const emptyTitle = hasFieldErrors(issues, "title");
 
   return (
-    <div className="flex flex-col gap-0">
-      <h1>Eckdaten & Lernziele</h1>
+    <div className="flex flex-col gap-5">
+      <h1 className="wizard-page-title">Eckdaten & Lernziele</h1>
       <FieldSet>
         <FieldLegend>Eckdaten</FieldLegend>
         <FieldGroup>
           <Field>
             <FieldLabel>Titel</FieldLabel>
             <Input
+              aria-label="Titel des Spiels"
               value={deerSchema.metadata.title}
               onChange={(e) => {
                 deerSchema.metadata.title = e.target.value;
@@ -44,6 +48,7 @@ export function MetadataTab({
           <Field>
             <FieldLabel>Beschreibung</FieldLabel>
             <Textarea
+              aria-label="Beschreibung des Spiels"
               value={deerSchema.metadata.description ?? ""}
               onChange={(e) => {
                 deerSchema.metadata.description = e.target.value;
@@ -54,6 +59,7 @@ export function MetadataTab({
           <Field>
             <FieldLabel>Autor</FieldLabel>
             <Input
+              aria-label="Autor des Spiels"
               value={deerSchema.metadata.author ?? ""}
               onChange={(e) => {
                 deerSchema.metadata.author = e.target.value;
@@ -67,6 +73,7 @@ export function MetadataTab({
           <Field>
             <FieldLabel>Lernziele</FieldLabel>
             <ObjectListStringEditor
+              itemNoun="Lernziel"
               value={deerSchema.learningDesign.objectives}
               onChange={(newValue) => {
                 deerSchema.learningDesign.objectives = newValue;
@@ -79,10 +86,12 @@ export function MetadataTab({
               produceItem={() => ({ id: Util.generateUniqueId(), description: "" })}
               useTextarea
               preventEmpty
+              issues={fieldIssues(issues, "objectives")}
             />
           </Field>
         </FieldGroup>
       </FieldSet>
+      <ValidationFeedback issues={[...fieldIssues(issues, "id"), ...fieldIssues(issues, "locale")]} className="mt-4" />
     </div>
   );
 }

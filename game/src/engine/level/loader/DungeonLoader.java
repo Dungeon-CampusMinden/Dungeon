@@ -69,35 +69,31 @@ public class DungeonLoader {
   private DungeonLoader() {}
 
   private static void getAllLevelFilePaths() {
-    if (isRunningFromJar()) {
+    var levelResource = DungeonLoader.class.getResource(LEVEL_PATH_PREFIX);
+    if (levelResource == null) {
+      return;
+    }
+    if (levelResource.toString().startsWith("jar:")) {
       try {
-        getAllLevelFilePathsFromJar();
+        getAllLevelFilePathsFromJar(levelResource.toURI());
       } catch (IOException | URISyntaxException e) {
         LOGGER.warn("Failed to load level files from jar: {}", e.getMessage());
       }
     } else {
       try {
-        getAllLevelFilePathsFromFileSystem();
+        getAllLevelFilePathsFromFileSystem(levelResource.toURI());
       } catch (IOException | URISyntaxException e) {
         LOGGER.warn("Failed to load level files from file system: {}", e.getMessage());
       }
     }
   }
 
-  private static boolean isRunningFromJar() {
-    return Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX))
-        .toString()
-        .startsWith("jar:");
-  }
-
-  private static void getAllLevelFilePathsFromFileSystem() throws IOException, URISyntaxException {
-    URI uri = Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
+  private static void getAllLevelFilePathsFromFileSystem(URI uri) throws IOException {
     Path path = Paths.get(uri);
     parseLevelFiles(path, false);
   }
 
-  private static void getAllLevelFilePathsFromJar() throws IOException, URISyntaxException {
-    URI uri = Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
+  private static void getAllLevelFilePathsFromJar(URI uri) throws IOException {
     try (FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
       Path path = fileSystem.getPath(LEVEL_PATH_PREFIX);
       parseLevelFiles(path, true);

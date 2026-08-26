@@ -1,4 +1,4 @@
-import type { DeerSchema, InformationSource, Riddle, RiddleHint } from "@/data/DeerSchema";
+import type { DeerProject, InformationSource, Riddle, RiddleHint } from "@/data/DeerSchema";
 import { ClockIcon, InfoIcon, PencilIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -6,17 +6,21 @@ import { Card, CardContent } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ResourceCarousel } from "./ResourceCarousel";
-import { RiddleInputsView, SurfaceValue } from "./RiddleInputsView";
+import { RiddleInputsView } from "./RiddleInputsView";
 import { getHintSeverity, getHintSeverityOrder, getRiddleDifficulty } from "./riddleTypes";
+import type { Issue } from "@/data/ErrorChecker";
+import { ValidationFeedback } from "../ValidationFeedback";
 
 export function RiddleCard({
   riddle,
   deerSchema,
   onEdit,
+  issues = [],
 }: {
   riddle: Riddle;
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
   onEdit: () => void;
+  issues?: Issue[];
 }) {
   const difficulty = getRiddleDifficulty(riddle.difficulty);
   const assignedSourceIds = new Set(
@@ -32,7 +36,7 @@ export function RiddleCard({
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-0"
+            className="absolute right-0 top-1/2 -translate-y-1/2"
             aria-label="Rätsel bearbeiten"
             onClick={onEdit}
           >
@@ -49,6 +53,8 @@ export function RiddleCard({
         </div>
 
         <Separator />
+
+        <ValidationFeedback issues={issues} />
 
         <RiddleSection title="Eingaben">
           <RiddleInputsView riddle={riddle} deerSchema={deerSchema} />
@@ -79,15 +85,12 @@ function UnassignedSourceList({
   deerSchema,
 }: {
   sources: InformationSource[];
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
 }) {
   return (
     <div className="flex flex-col gap-2">
       {sources.map((source) => (
         <div key={source.id} className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 text-sm">
-            <SurfaceValue deerSchema={deerSchema} surfaceId={source.surfaceId} />
-          </div>
           <ResourceCarousel resources={source.resources} assets={deerSchema.assets} />
         </div>
       ))}

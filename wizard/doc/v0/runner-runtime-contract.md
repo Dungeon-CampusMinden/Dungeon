@@ -7,7 +7,7 @@ generischen Runners
 
 ## Produktgrenze
 
-Der Wizard erstellt genau ein DEER-Projekt:
+Das DEER-Projekt besteht logisch aus dieser Packaging-Eingabe:
 
 ```text
 <project>/
@@ -15,16 +15,31 @@ Der Wizard erstellt genau ein DEER-Projekt:
   assets/custom/...  # nur bei eigenen Bildern
 ```
 
+Im browserbasierten Authoring-Flow materialisiert der Host diese Eingabe nur
+temporär. Nach erfolgreichem Packaging lädt der Browser die Ausgabe getrennt
+davon herunter:
+
+```text
+<bereinigter Spieltitel>-WizardRoom.jar
+```
+
 Der Runner validiert dieses Projekt und leitet daraus vor dem Serverstart einen
 vollständigen Foundation-Raum im Speicher ab. Er erzeugt keinen Java-Code, kein
 projektspezifisches Modul, keine `.level`-Datei, kein Buildskript und kein
-Room-ZIP. Projektordner und Checkout bleiben unverändert.
+Room-ZIP.
 
-Der Gradle-Packager erzeugt eine projektspezifische `WizardRoom.jar`, die
-`deer.json`, vorhandene Dateien unter `assets/custom/`, Runner, Engine und
-benötigte Runtime-Ressourcen enthält. Referenzierte Spielbibliothek-Bilder sind
-bereits als Basisassets in derselben JAR vorhanden und werden nicht kopiert.
-Dieselbe vollständige JAR wird an Host und alle weiteren Spielenden verteilt.
+Der gemeinsame Java-Packager erzeugt aus der generischen
+`WizardRoomTemplate.jar` eine projektspezifische `WizardRoom.jar`, die
+die nach erfolgreicher Validierung erneut gelesenen und durch `rawDeerSha256`
+abgesicherten exakten `deer.json`-Bytes, die referenzierten und verifizierten
+Custom-Dateien unter `assets/custom/`, den zugehörigen `files.list`-Index,
+Runner, Engine und benötigte Runtime-Ressourcen enthält. Zusätzliche
+unreferenzierte Dateien unmittelbar unter `assets/custom/` werden nicht
+paketiert und erzeugen Warnungen, solange die unterstützte Höchstzahl an
+Verzeichniseinträgen nicht überschritten wird. Eine Überschreitung ist ein
+blockierender Kapazitätsfehler. Referenzierte Spielbibliothek-Bilder sind bereits
+als Basisassets in derselben JAR vorhanden und werden nicht kopiert. Dieselbe
+vollständige JAR wird an Host und alle weiteren Spielenden verteilt.
 
 ## Spielerstart und Main-Menü
 
@@ -50,11 +65,29 @@ werden mit einem klaren Startfehler abgelehnt.
 
 ## Produktionsvalidierung und Packaging
 
-Die Authoring-Integration bindet `ProjectValidationPipeline` und
-`ProjectValidationReport` direkt als Java-Bibliothek an. Der Gradle-Packager
-verwendet einen kleinen internen Prozesseinstieg, der ausschließlich den
-übergebenen Projektordner validiert, seine Ableitbarkeit mit `RoomDeriver`
-prüft, den kanonischen Validierungsreport ausgibt und anschließend endet.
+Die Authoring-Integration bindet `ProjectValidationService`,
+`ProjectValidationReport` und `RoomDeriver` direkt als Java-Bibliothek an.
+Prüfungen laufen in einem temporären Projekt und sind read-only. Für das
+Packaging liest die Authoring-Integration den aktuellen gespeicherten
+Kandidaten, validiert ihn erneut und verlangt ein aktuelles gültiges Ergebnis.
+Warnungen blockieren nicht. Anschließend paketiert sie ihn mit derselben
+`WizardRoomPackager`-Implementierung wie der Gradle-Entwickler-/CI-Pfad und
+liefert die JAR als Browserdownload aus. Auf dem Hostsystem werden dafür weder
+Gradle noch Node benötigt. Bei einem Packaging-Fehler wiederholt die UI den
+Package-Aufruf mit dem aktuellen Draft.
+
+Der Authoring-Host bindet fest an `127.0.0.1:27777`. Er bewahrt keine Drafts,
+Uploads, JARs oder Ready-Zustände dauerhaft auf. Seine API beschränkt
+sich auf Status, Validierung und Packaging. Nur ein erfolgreicher JAR-Download
+in der aktuellen UI-Sitzung markiert das Spiel als bereit; ein Reload stellt
+diesen Zustand nicht wieder her.
+
+`wizard/start_wizard_dev.cmd` unter Windows und `wizard/start_wizard_dev.sh`
+unter Linux bauen und starten den Host nur für die Entwicklung. Der aktuelle
+Entwickler- und Spieler-JAR-Fluss benötigt Java 25; zum Bauen der eingebetteten
+UI benötigen die Entwicklungslauncher zusätzlich Node.js 22. Eine
+Zielgruppen-`.exe`, beispielsweise über `jpackage`, mit gebündelter Java-Runtime
+sowie ein Installer gehören nicht zu diesem Runtime-Vertrag.
 
 Auch `max=1` verwendet im Spielerfluss einen echten Hostprozess und einen
 getrennten Join-Client.

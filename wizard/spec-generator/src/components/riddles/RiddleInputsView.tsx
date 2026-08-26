@@ -1,10 +1,8 @@
-import type { AnyRiddleInput, DeerSchema, InformationSource, Riddle } from "@/data/DeerSchema";
-import { Util } from "@/data/Util";
-import { SurfaceIcon } from "../SurfacesTab";
+import type { AnyRiddleInput, DeerProject, InformationSource, Riddle } from "@/data/DeerSchema";
 import { ResourceCarousel } from "./ResourceCarousel";
 import { getInputType, InputTypeIcon } from "./riddleTypes";
 
-export function RiddleInputsView({ riddle, deerSchema }: { riddle: Riddle; deerSchema: DeerSchema }) {
+export function RiddleInputsView({ riddle, deerSchema }: { riddle: Riddle; deerSchema: DeerProject }) {
   if (riddle.inputs.length === 0) {
     return <span className="text-sm text-muted-foreground">Keine Eingabe hinterlegt.</span>;
   }
@@ -26,19 +24,6 @@ function ParameterRow({ label, children }: { label: string; children: React.Reac
   );
 }
 
-export function SurfaceValue({ deerSchema, surfaceId }: { deerSchema: DeerSchema; surfaceId: string }) {
-  const surface = Util.getSurface(deerSchema, surfaceId);
-  if (!surface) {
-    return <span className="text-destructive">Kein Ort ausgewählt</span>;
-  }
-  return (
-    <>
-      <SurfaceIcon kind={surface.kind} size={18} />
-      <span>{surface.title}</span>
-    </>
-  );
-}
-
 function InputView({
   input,
   riddle,
@@ -46,12 +31,12 @@ function InputView({
 }: {
   input: AnyRiddleInput;
   riddle: Riddle;
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
 }) {
   const inputType = getInputType(input.type);
 
   return (
-    <div className="flex flex-col gap-1 border-1 border-[var(--border-color)] rounded-md p-2">
+    <div className="flex flex-col gap-1 border border-border rounded-md p-2">
       <div className="flex items-center gap-2 text-sm">
         <InputTypeIcon type={input.type} size={18} />
         <span>{inputType?.label ?? input.type}</span>
@@ -65,9 +50,6 @@ function InputView({
         />
       ) : (
         <>
-          <ParameterRow label="Gerät">
-            <SurfaceValue deerSchema={deerSchema} surfaceId={input.surfaceId} />
-          </ParameterRow>
           <ParameterRow label="Lösung">
             <span className="font-mono">{input.answer || "—"}</span>
           </ParameterRow>
@@ -85,20 +67,17 @@ function CollectionInputView({
   deerSchema,
 }: {
   informationSource: InformationSource | undefined;
-  deerSchema: DeerSchema;
+  deerSchema: DeerProject;
 }) {
   if (!informationSource) {
     return (
-      <ParameterRow label="Fundort">
+      <ParameterRow label="Informationsquelle">
         <span className="text-destructive">Keine Informationsquelle ausgewählt</span>
       </ParameterRow>
     );
   }
   return (
     <>
-      <ParameterRow label="Fundort">
-        <SurfaceValue deerSchema={deerSchema} surfaceId={informationSource.surfaceId} />
-      </ParameterRow>
       <div className="mt-1 flex flex-col gap-1">
         <span className="text-sm text-muted-foreground">Material</span>
         <ResourceCarousel resources={informationSource.resources} assets={deerSchema.assets} />

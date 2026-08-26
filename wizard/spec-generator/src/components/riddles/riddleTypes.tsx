@@ -1,7 +1,5 @@
 import type {
-  AnyRiddleInput,
   HintSeverity,
-  InformationSource,
   Riddle,
   RiddleDifficulty,
 } from "@/data/DeerSchema";
@@ -18,7 +16,7 @@ export const INPUT_TYPES = [
   {
     value: "numeric",
     label: "Zahleneingabe",
-    description: "Die Spieler geben eine Zahl an einem Gerät ein",
+    description: "Die Spieler geben einen Zahlencode ein",
     icon: KeyboardIcon,
   },
 ] as const;
@@ -79,35 +77,4 @@ export function createRiddle(): Riddle {
     inputs: [],
     hints: [],
   };
-}
-
-export function createInformationSource(): InformationSource {
-  return {
-    id: Util.generateUniqueId("source"),
-    surfaceId: "",
-    resources: [],
-  };
-}
-
-export function createRiddleInput(type: AnyRiddleInput["type"]): AnyRiddleInput {
-  if (type === "collection") {
-    return {
-      id: Util.generateUniqueId("input"),
-      type: "collection",
-      informationSourceId: "",
-    };
-  }
-  return {
-    id: Util.generateUniqueId("input"),
-    type: "numeric",
-    surfaceId: "",
-    answer: "",
-    showDigitCount: true,
-  };
-}
-
-/** Converts an input to another type while keeping its id intact. */
-export function convertRiddleInput(input: AnyRiddleInput, type: AnyRiddleInput["type"]): AnyRiddleInput {
-  if (input.type === type) return input;
-  return { ...createRiddleInput(type), id: input.id };
 }

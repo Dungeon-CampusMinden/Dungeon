@@ -1,103 +1,109 @@
-# Wizard UI Flow V0.4
+# Wizard UI flow V0.4
 
-Status: Runtime-Vertrag implementiert; Authoring-Frontend noch nicht umgesetzt
-Stand: 27.07.2026
+Status: schlanker lokaler Authoring-Flow für DEER `0.4`
 
 ## Ziel
 
-Dieses Dokument definiert den sichtbaren Authoring-Flow. Feldsemantik und
-Runnerregeln stehen in den verlinkten Contract-Dateien; sie werden hier
-nicht vollständig wiederholt. Auftrag, Schichtgrenzen, Storage-Port und
-Frontend-Abnahme stehen im
-[`Frontend-Handoff`](frontend-handoff-overview-v0.md).
+Die UI führt nicht-technische Lehrende durch diesen Ablauf:
 
 ```text
 Starten oder fortsetzen
 -> Eckdaten
 -> Geschichte
+-> Spieleinstellungen
+-> Eigene Bilder und Dateien
+-> Rätsel
 -> Spielablauf
--> Rätsel, Inhalte & Hinweise
--> Prüfen, Vorschau & finalisieren
+-> Spiel-Ende
+-> Spiel erstellen
 ```
+
+Feldsemantik und Runnerregeln stehen in den verlinkten Contract-Dateien. Die
+Frontend-/Host-Grenze steht im
+[`Frontend-Handoff`](frontend-handoff-overview-v0.md).
 
 ## Grundsätze
 
-- Lehrende bearbeiten keine JSON-Datei und keine technischen IDs.
-- Der unvollständige Entwurf ist nicht `deer.json`.
-- Eine ständig erreichbare Übersicht zeigt Navigation, Abschlussgrad,
-  blockierende Probleme und Warnungen.
-- Graphknoten und Kanten werden aus fachlichen Eingaben abgeleitet.
-- Der sichtbare einfache Stage-Modus ist eine geordnete Abschnittsliste, kein
-  freier Graph. Er bildet einen gültigen Teil des mandatory AND-DAG-Vertrags.
-- `Entwurf prüfen` ist immer aktiv; `Entwurf finalisieren` erst nach einer
-  erfolgreichen Prüfung.
+- Lehrende bearbeiten keine JSON-Datei und sehen keine technischen IDs.
+- Der unvollständige private Entwurf ist nicht `deer.json`.
+- Vorwärts- und Rückwärtsnavigation bleiben auch mit lokalen Fehlern möglich.
+  Die Fehler markieren den aktuellen Stand und verhindern die
+  Hintergrund-Produktionsprüfung sowie das Packaging. Nur eine laufende
+  Dateiübertragung sperrt die Schrittnavigation kurz; während Prüfung und
+  Spielerstellung bleibt sie offen.
+- Die Navigation zeigt Abschlussgrad, Probleme, Warnungen und den lokalen
+  Speicherstatus.
+- Die Fehlerübersicht zeigt sofort die Meldungen des aktuellen und aller bereits
+  bearbeiteten Schritte. Noch nicht besuchte spätere Schritte bleiben bis zur
+  vollständigen Bearbeitung ausgeblendet. Danach zeigt sie alle Meldungen.
+- Meldungen nennen den konkreten Fehler und verweisen auf die anklickbare
+  Fehlerübersicht. Sie behaupten nicht, dass die Lehrkraft auf der aktuellen
+  Seite bleiben muss. Dieselben Meldungen stehen am betroffenen Feld oder bei
+  zusammengesetzten Inhalten am engsten passenden Abschnitt. Die fachlichen
+  Regeln stammen ausschließlich aus dem `ErrorChecker`.
+- Der Spielablauf ist ein mandatory AND-DAG mit genau einem geschützten Start-
+  und Endknoten und einem Knoten je Rätsel.
+- Im nativen Host startet die Produktionsprüfung nach ungefähr zwei Sekunden
+  ohne inhaltliche Änderung, sobald der Entwurf und seine eigenen Dateien lokal
+  vollständig und lesbar sind. Sie hängt nicht von der geöffneten Seite ab.
+- Die reine Browserentwicklung führt keine Java-Produktionsprüfung aus.
+- `Spiel erstellen und herunterladen` setzt einen gültigen aktuellen
+  Produktionsreport voraus.
 - Warnungen blockieren nicht.
 - Eine Prüfung garantiert Struktur und Runnerfähigkeit, nicht menschliche
   Lösbarkeit oder Lernerfolg.
 
 ## Entwurfslebenszyklus
 
-1. Ein neuer oder wieder geöffneter UI-Entwurf darf unvollständig sein.
-2. Änderungen werden lokal automatisch gespeichert.
-3. Stabile IDs werden bei der ersten Anlage erzeugt und bei Umbenennung
-   beibehalten.
-4. Die UI projiziert den Entwurf für jede vollständige Prüfung auf ein
-   `deer.json`-Kandidatenobjekt.
-5. Nur ein fehlerfreier Kandidat wird finalisiert. Bei der ersten erfolgreichen
-   Finalisierung des Projekts erzeugt die UI genau einmal den verpflichtenden
-   `seed` im `deer.json`-Kandidaten. Neue inhaltsadressierte Dateien werden
-   zuerst geschrieben; `deer.json` wird zuletzt sicher ersetzt.
-6. Der Entwurf bleibt danach bearbeitbar. Eine Änderung markiert die letzte
-   Finalisierung als veraltet. Weitere Finalisierungen erhalten den bestehenden
-   Seedwert unverändert.
+Die UI speichert `WizardDraft` v1 und alle Uploadbytes ausschließlich in einer
+neuen IndexedDB und bittet den Browser beim Start um dauerhafte Speicherung.
+Änderungen werden automatisch gespeichert. Alte Browser- oder AppData-Entwürfe
+werden nicht migriert. Genau ein Tab darf gleichzeitig bearbeiten; öffnet ein
+weiterer Tab einen Entwurf, erhält er eine klare Warnung. Es gibt keine
+tabübergreifende Konfliktauflösung.
 
-V0.4 unterstützt die Wiederaufnahme eigener lokaler Entwürfe. Der Import
-beliebiger Room-ZIPs oder manuell veränderter Projektordner ist nicht Teil des
-Foundation-Slices. Der Produktfluss erzeugt selbst keine Room-ZIPs.
+Ein Draft darf unvollständig und im Rätselgraphen unverbunden sein. Stabile
+Authoring-IDs entstehen beim Anlegen und bleiben bei Umbenennungen erhalten.
+Neue Drafts enthalten bereits je einen leeren, nicht löschbaren Eintrag für
+Lernziel, Intro-Text und erfolgreichen Abschluss. Beim harten Zeitlimit gilt
+dasselbe für den Misserfolgstext.
+Ein Draft kann nach ausdrücklicher Bestätigung mit seinen privaten Uploads
+gelöscht werden. Bereits heruntergeladene Spieler-JARs bleiben davon
+unberührt.
 
-Der spezifizierte V0.4-Authoring-Host ist eine noch nicht umgesetzte
-Standalone-App mit Web-Oberfläche und nativem Storage-Adapter. Ein browser-only
-Host folgt erst nach einem eigenen Speicher-/Export-Slice.
+Ein neuer unvollständiger Draft hat keinen echten Seed. Sobald der Entwurf und
+seine eigenen Dateien lokal vollständig und lesbar sind, erzeugt die UI
+unmittelbar vor der ersten möglichen Hintergrund-Produktionsprüfung einmal
+einen sicheren 53-Bit-Seed im Bereich `0..9007199254740991`. Sie speichert ihn
+vor dem Hostaufruf in IndexedDB. Danach bleibt er für diesen Draft stabil. Der
+Java-Host erzeugt oder ersetzt keinen Seed.
 
-## Dauerhafte Übersicht
+Der Java-Host läuft fest auf `127.0.0.1:27777` und speichert weder Drafts noch
+Uploads. Ein belegter Port führt zu einem klaren Startfehler. Die
+Zielgruppen-EXE und ein Installer mit gebündelter Runtime sind nicht Teil
+dieses UI-Flows.
 
-Die Übersicht ist Navigation, kein Arbeitsschritt. Sie zeigt:
+## Starten oder fortsetzen
 
-- Projekttitel;
-- Schritte mit getrenntem Abschlussstatus und Fehler-/Warnungszähler;
-- Anzahl Abschnitte und Rätsel;
-- Zeitpunkt der letzten lokalen Speicherung;
-- Zeitpunkt und Zustand der letzten Finalisierung;
-- nächsten sinnvollen Arbeitsschritt.
-
-Abschlussstatus:
-
-- `nicht begonnen`;
-- `in Bearbeitung`;
-- `vollständig`.
-
-Fehler und Warnungen werden separat gezählt. Status wird nie ausschließlich
-durch Farbe vermittelt.
-
-## 1. Starten oder fortsetzen
-
-Aktionen:
+Die Startansicht bietet:
 
 - neuen Entwurf anlegen;
 - letzten lokalen Entwurf fortsetzen;
-- einen anderen eigenen lokalen Entwurf öffnen;
-- einen kleinen geführten Beispielentwurf kopieren.
+- anderen lokalen Entwurf öffnen;
+- pro Entwurf anhand der lokalen Editorregeln `Lokal vollständig` oder die
+  Anzahl lokaler Probleme anzeigen;
+- Entwurf samt privaten Uploads nach Bestätigung löschen.
 
-Der Beispielentwurf ist entfernbar und keine vorausgewählte The-Last-Hour-
-Raumstruktur. Er erklärt lediglich „Information finden -> Zahlencode lösen ->
-Ausgang“.
+Die Startansicht führt keine Java-Produktionsprüfung aus. Die
+Produktionsbereitschaft wird nur beim geöffneten Entwurf ermittelt und nicht im
+Draft gespeichert.
 
-Beim Anlegen wird ein Projektname abgefragt. Der Projektordner kann spätestens
-vor der ersten Bildauswahl festgelegt werden.
+Beliebiger `deer.json`-Import, Projektordner und Browser-ZIP-Export sind nicht
+Teil des sichtbaren V0-Produktflusses. Das fertige Artefakt wird direkt als
+`<Spieltitel>-WizardRoom.jar` heruntergeladen; für den Dateinamen bereinigt die
+UI den Spieltitel.
 
-## 2. Eckdaten & Lernziel
-
-Pflichtangaben:
+## Eckdaten und Spieleinstellungen
 
 | Sichtbares Feld | DEER-Ziel |
 |---|---|
@@ -107,283 +113,119 @@ Pflichtangaben:
 | Vorwissen | `session.priorKnowledge` |
 | Spielerzahl von/bis | `session.playerCount` |
 | Zeitlimit und Modus | `session.time` |
-| Was sollen Spielende wissen oder können? | `learningDesign.objectives[]` |
+| Lernziele | `learningDesign.objectives[]` |
 
-Die stabile `metadata.id` wird einmal aus dem Projekt angelegt und bei späteren
-Umbenennungen beibehalten. Sie ist kein frei bearbeitetes Textfeld.
+`metadata.id` wird intern einmal erzeugt und bei Umbenennungen beibehalten. Die
+UI zeigt sie nicht. Optional sind Beschreibung, Autor, weitere Lernziele und
+Fragen für die Nachbesprechung. V0.4 unterstützt `de-DE` als einzige
+Inhaltssprache.
 
-Optional sind `metadata.description`, `metadata.author`, weitere Lernziele und
-Fragen für `learningDesign.debriefPrompts`. Lernziele und Nachbesprechung
-werden nach `deer.json` projiziert und beeinflussen den Host-Input-Hash. Sie
-steuern die Runtime nicht und werden vom aktuellen Runner nicht semantisch
-bewertet.
+Für Produktionsprüfung und Packaging blockierend sind leere Pflichtfelder, kein
+Lernziel, Spielerzahlen außerhalb `1..4`, `min > max` und Zeitlimits außerhalb
+`1..240` Minuten.
 
-V0.4 zeigt `de-DE` als einzige unterstützte Inhaltssprache und nicht als
-scheinbar freie Sprachauswahl. Die Sprache der Wizard-Oberfläche ist eine
-separate UI-Einstellung.
+## Geschichte
 
-Blockierend:
+Pflicht sind Mission, Intro-Seiten, Erfolgsseiten und bei hartem Zeitlimit
+Fehlschlagseiten. V0.4 nutzt das feste Theme `default`. Jede Storyseite ist ein
+eigener weiterklickbarer Black-Fade-Abschnitt; die Mission erscheint als letzte
+Intro-Seite.
 
-- leeres Pflichtfeld;
-- kein Lernziel;
-- Spielerzahl außerhalb `1..4` oder `min > max`;
-- Zeitlimit außerhalb `1..240` Minuten.
+## Spielablauf
 
-„von“ (`min`) ist die technische Startschwelle; „bis“ (`max`) ist die
-Hostkapazität und Anzahl der für den Hostprozess reservierbaren
-Dungeon-Identitäten und logischen Authority-Slots. Alle Spieler verwenden den
-gemeinsamen Startpunkt. Ein neuer Client ersetzt keine bereits vergebene
-Identität. Es gibt keinen separaten technischen Spielerzahlwert und keinen
-Startknopf.
+Die UI zeigt genau einen geschützten Startknoten, einen geschützten Endknoten
+und einen Knoten je Rätsel. Eine gerichtete Kante bedeutet, dass der folgende
+Knoten nach seinem Vorgänger verfügbar wird. Mehrere eingehende Kanten
+bedeuten immer, dass alle Vorgänger gelöst sein müssen.
 
-## 3. Geschichte
+Die UI verhindert doppelte Kanten, Selbstkanten und Zyklen. Sie bietet keine
+OR-Verzweigungen, optionalen Pflichträtsel oder freien Kantenbedingungen. Der
+DEER-Kandidat übernimmt Knoten und Kanten exakt in ihrer gespeicherten
+Reihenfolge. Er ergänzt oder repariert den Graphen nicht.
 
-Pflichtangaben:
+## Rätsel, Inhalte und Hinweise
 
-| Sichtbares Feld | DEER-Ziel |
-|---|---|
-| Mission | `scenario.mission` |
-| Intro-Seiten | `scenario.introText` |
-| Erfolgsseiten | `scenario.successText` |
-| Fehlschlagseiten bei hartem Zeitlimit | `scenario.failureText`, nur bei `hard` |
+Jedes Rätsel hat einen internen stabilen Bezeichner, einen sichtbaren Titel,
+mindestens ein Lernziel, eine Zeitschätzung, optional eine Schwierigkeit,
+Informationsquellen, mindestens eine Eingabe und optionale geordnete Hinweise.
+Alle Eingaben eines Rätsels sind mit AND verknüpft.
 
-V0.4 nutzt das feste Theme `default` und reine Storytexte. Es gibt keine
-Theme- oder Skin-Auswahl in der UI. Die feste `themeId` bestimmt automatisch den
-geordneten Pool der spielbaren Skins: zuerst `THE_LAST_HOUR_ROGUE`, dann
-`THE_LAST_HOUR_CHAR03`. Die offiziellen Wizard-Clients wählen daraus keinen
-Skin; die Zuweisung erfolgt beim Beitritt durch den Server. Die `themeId` bleibt
-als Erweiterungspunkt für zukünftige Themes erhalten. Die drei Seitenfolgen
-werden als geordnete, nicht leere Listen bearbeitet; jeder Eintrag entspricht
-einer weiterklickbaren Black-Fade-Seite. Nach den Intro-Seiten erscheint die
-Mission als hervorgehobene letzte Intro-Seite.
+Eine Informationsquelle benötigt mindestens einen Inhalt. Ein eigenes PNG-
+oder JPEG-Bild wird mit Bytes und Metadaten im Browserdraft gespeichert. Ein
+Bild aus der Spielbibliothek speichert nur seinen internen Pfad und die
+Metadaten. Technische Pfade, Hashes, Asset-IDs und Orte bleiben in der UI
+verborgen.
 
-Warnungen:
+V0.4 bietet Zahlencode und verpflichtendes Entdecken einer Informationsquelle.
+Ein Zahlencode besteht aus einer bis acht Ziffern. Falsche Eingaben können im
+Spiel wiederholt werden. Die UI erzeugt für jede Informationsquelle und jede
+Zahleneingabe einen eigenen internen Spielbestandteil. Lehrende wählen keine
+gemeinsam verwendeten Orte oder Geräte aus.
 
-- sehr langer Text;
-- Mission ohne erkennbare Spielsituation;
-- Erfolgstext widerspricht dem gemeinsamen Ausgang.
+Hinweise sind geordnet. Die Lehrkraft wählt für jeden Hinweis eine der
+sichtbaren Stufen Orientierung, Lösungsweg oder Lösung. Die Runtime verlangt
+vor jeder Freigabe eine Bestätigung. Zeit- und Fehlversuchsbedingungen gehören
+nicht zu V0.4.
 
-## 4. Spielablauf
+## Spiel-Ende
 
-Die UI zeigt geordnete **Abschnitte**:
+Die Lehrkraft benennt genau einen Ausgang. Die UI verwaltet World- und
+Door-Surface intern. Sobald alle direkten Vorgänger des Endknotens gelöst
+sind, öffnet der Host die Tür serverautoritativ.
 
-- Abschnitte werden nacheinander relevant.
-- Ein Abschnitt enthält ein oder mehrere Rätsel.
-- Mehrere Rätsel im selben Abschnitt sind parallel verfügbar.
-- Alle Rätsel sind Pflichträtsel.
-- Der nächste Abschnitt wird erst verfügbar, wenn alle Rätsel des vorherigen
-  Abschnitts abgeschlossen sind.
+## Spiel erstellen
 
-Aktionen:
+Die lokale Prüfung läuft während der Bearbeitung und markiert den aktuellen
+Stand, ohne den Seitenwechsel zu blockieren. Im nativen Host projiziert die UI
+nach ungefähr zwei Sekunden ohne inhaltliche Änderung den exakt gespeicherten
+Browserdraft auf einen vollständigen DEER-Kandidaten und sendet ihn mit allen
+benötigten Uploadbytes automatisch an die Produktionsvalidierung. Dafür müssen
+Entwurf und Dateien lokal vollständig und lesbar sein. Die Prüfung ist nicht an
+die Seite `Spiel erstellen` gebunden. Die UI ignoriert veraltete Antworten.
+Lokale und produktive Probleme erscheinen in derselben Fehlerübersicht und
+werden möglichst dem betroffenen Schritt zugeordnet. Ein Klick auf eine Meldung
+öffnet diesen Schritt. Technische Codes, JSON-Pointer und IDs bleiben verborgen.
 
-- Abschnitt hinzufügen, umbenennen, verschieben oder löschen;
-- Rätsel hinzufügen;
-- Rätsel per Buttons nach oben/unten oder in einen anderen Abschnitt bewegen;
-- optionales Drag-and-drop als zusätzliche Bedienung;
-- Löschen und Verschieben rückgängig machen.
+`Spiel erstellen und herunterladen`:
 
-Die UI erzeugt intern:
+1. liest den aktuellen gespeicherten Kandidaten und seine Uploadbytes;
+2. materialisiert sie nur temporär im Java-Host;
+3. validiert den Kandidaten erneut und paketiert ihn nur mit einem aktuellen
+   gültigen Ergebnis als `WizardRoom.jar`; Warnungen blockieren nicht;
+4. liefert die JAR direkt als Browserdownload aus.
 
-- genau einen Startknoten;
-- genau einen Rätselknoten pro Rätsel;
-- reine AND-Kanten zwischen aufeinanderfolgenden Abschnitten;
-- genau einen Endknoten.
+Nur ein erfolgreicher Download in der aktuellen UI-Sitzung zeigt `Das Spiel
+ist bereit`. Nach einem Reload ist dieser Zustand weg. Ein Packaging-Fehler
+aktualisiert die gemeinsame Fehlerübersicht. Ein neuer Versuch erzeugt die JAR
+erneut aus dem aktuellen gespeicherten Draft.
 
-Wenn eine spätere UI-Ausbaustufe explizite Abhängigkeiten anbietet, lautet die
-fachliche Formulierung beispielsweise „Diese Aufgabe wird verfügbar nach …“.
-Mehrere ausgewählte Aufgaben sind dabei ausnahmslos alle erforderlich; die UI
-darf daraus weder OR- noch optionale Semantik ableiten.
+Die UI startet die Spieler-JAR nicht. Sie erklärt, dass dieselbe vollständige
+JAR an Host und alle weiteren Spielenden verteilt wird. Aktuell benötigt sie
+Java 25 und öffnet dann das Host-/Join-Menü. Eine spätere `jpackage`-Ausgabe
+kann die Runtime mitliefern, ohne den Authoring-Vertrag zu ändern.
 
-Nicht darstellbar im einfachen Stage-Modus von V0.4:
-
-- OR-Verzweigung;
-- optionales Pflichträtsel;
-- Zyklus;
-- manuelle Start-/Endknoten;
-- freie Kantenbedingungen.
-
-## 5. Rätsel, Inhalte & Hinweise
-
-Gemeinsam pro Rätsel:
-
-- Authoring-Titel zur Orientierung im Wizard;
-- mindestens ein zugeordnetes Lernziel;
-- geschätzte Dauer in Minuten;
-- optional Schwierigkeit;
-- null oder mehr Informationsquellen;
-- mindestens eine Eingabe;
-- null oder mehr geordnete optionale Hinweise mit einer Offenlegungsstufe.
-
-Alle Eingaben eines Rätsels müssen erfüllt sein. Die UI bietet dafür keine
-OR-Regel oder frei formulierbare Bedingung an.
-
-### Informationsquelle
-
-Eine Informationsquelle benötigt:
-
-- einen fachlichen Behälter;
-- mindestens eine Information, einen Aufgabeninhalt oder ein Bild.
-
-Optional kann eine PNG-/JPEG-Datei ergänzt werden. Ein Bild benötigt eine
-eigene stabile Asset-ID. Der Asset Selector bietet dafür die verständlichen
-Wege **Aus Spielbibliothek auswählen** und **Eigenes Bild hochladen**. Interne
-Pfade, Hashes und Asset-IDs bleiben verborgen. Für ein Spielbild merkt sich der
-private Draft die Auswahl und ihre Lizenzmetadaten; beim Finalisieren wird nur
-der DEER-Eintrag mit dem internen Pfad geschrieben. Es wird keine Bilddatei
-kopiert. Für einen eigenen Upload behält der private Draft die Bildbytes. Beim
-Finalisieren berechnet der native Adapter SHA-256, schreibt die Datei unter
-`assets/custom/<normalisierter-stamm>-<12-hashzeichen>.<ext>` und ersetzt erst danach
-`deer.json` atomar. Die Auswahlvariante erscheint nicht als zusätzliches Feld
-in den öffentlichen `source`-Metadaten.
-
-Die UI leitet aus dem fachlichen Behälter eine stabile Container-Surface und die
-`surfaceId` der Informationsquelle ab. Informationsquellen dürfen unabhängig
-vom Status des zugehörigen Rätsels gelesen werden. Soll das Entdecken selbst
-verpflichtend sein, fügt die UI dafür eine Collection-Eingabe hinzu. Diese
-verwendet dieselbe Surface und wird erst durch eine Interaktion bei verfügbarem
-Rätsel erfüllt; früheres Lesen wird nicht angerechnet. Andernfalls liefert die
-Quelle nur Information oder Aufgabeninhalt. Die einmalige World-Surface
-beschreibt ausschließlich den gemeinsamen Raum und ist keine Fundstation.
-
-### Eingaben
-
-Mindestens eine Eingabe ist Pflicht. V0.4 bietet geschlossen:
-
-- **Zahlencode**;
-- **Information entdecken**, wenn eine Informationsquelle zwingend gefunden
-  werden muss.
-
-Für einen Zahlencode sind Pflicht:
-
-- ein fachliches Keypad;
-- erwarteter Code mit 1 bis 8 Ziffern.
-
-Optional:
-
-- Ziffernanzahl im Spiel anzeigen.
-
-Die Codelänge wird aus dem Code abgeleitet. Es gibt kein separates
-`maxLength`-Feld. Falsche Eingaben bleiben im Foundation-Slice unbegrenzt
-wiederholbar und nutzen das vorhandene Runtime-Feedback. Die UI leitet eine
-stabile Keypad-Surface und die `surfaceId` der Eingabe ab.
-
-Eingaben reagieren im Spiel erst, wenn ihr Rätsel verfügbar ist. Mehrere
-Eingaben eines Rätsels sind fest mit AND verknüpft. Sind alle erfüllt, erzeugt
-die Runtime einmalig den impliziten Rätselabschluss; die UI fragt dafür kein
-Output- oder Effektfeld ab.
-
-### Hinweise
-
-Für jeden optionalen Hinweis wählt die Lehrkraft genau eine verständliche
-Offenlegungsstufe:
-
-- **Was ist die Aufgabe? Wo kannst du anfangen?**;
-- **Wie kannst du die Aufgabe lösen?**;
-- **Was ist die Lösung?**
-
-Die UI speichert dafür intern `severity=orientation`, `approach` oder
-`solution`; der technische Feldname und die Enum-Werte bleiben verborgen.
-`severity` ist keine frei vergebene Schwierigkeit oder Reihenfolgenummer.
-
-Hinweise können in V0.4 angefordert werden, sobald das zugehörige Rätsel
-verfügbar ist. Die Runtime kündigt vor jeder Freigabe die Stufe des nächsten
-Hinweises an und verlangt eine ausdrückliche Bestätigung. Das gilt für alle
-drei Stufen, damit auch eine Fehlinteraktion keinen Hinweis freigibt. Abbrechen
-verändert weder den Freigabestatus noch die Position in der Reihenfolge. Nach
-der Bestätigung zeigt die Runtime nur den nächsten Hinweis. Bereits
-freigegebene Hinweise bleiben lesbar. Die Arrayreihenfolge ist unabhängig von
-`severity` maßgeblich. Zeit- und Fehlversuchsbedingungen sind nicht Teil des
-aktuellen Vertrags.
-
-### Ausgang
-
-Die UI fragt genau eine fachliche Ausgangstür ab und leitet daraus die stabile
-Door-Surface sowie `end.surfaceId` ab. Der Endknoten besitzt diese Tür allein.
-Wenn alle direkten Vorgängerrätsel des Endknotens abgeschlossen sind, wird das
-Ende erreicht und die Tür serverautoritativ geöffnet. Erfolg tritt ein, wenn
-die Runtime den Ausgang für alle aktiven Spielenden als erreicht meldet.
-
-## 6. Prüfen, Vorschau & finalisieren
-
-Die Vorschau zeigt ohne Runtime:
-
-- Eckdaten;
-- Intro-Seiten, Mission, Erfolgsseiten und bei hartem Zeitlimit
-  Fehlschlagseiten;
-- Abschnitte, Parallelität und erwartete Reihenfolge;
-- Aufgaben, Materialien und Hinweise;
-- verwendete Bilder.
-
-`Entwurf prüfen`:
-
-- ist immer verfügbar;
-- zeigt eine Zusammenfassung nach Fehlern und Warnungen;
-- fokussiert auf Wunsch das betroffene Element;
-- verändert oder verwirft keine Eingaben.
-
-Jedes Problem enthält sichtbar:
-
-1. Problem;
-2. Auswirkung;
-3. konkrete Korrektur;
-4. Aktion „Zum Feld“ oder „Zum Rätsel“.
-
-Beispiel:
-
-> „Zahlencode“ hat noch keinen Code. Gib 1 bis 8 Ziffern ein.
-> **Zum Rätsel**
-
-`Entwurf finalisieren`:
-
-- ist nur ohne blockierende Fehler aktiv;
-- schreibt neue, inhaltsadressierte Dateien zuerst, erzeugt beim ersten
-  erfolgreichen Abschluss genau einmal das `seed`-Feld und ersetzt
-  `deer.json` zuletzt;
-- erhält einen bereits vorhandenen projektgebundenen Seedwert bei jeder
-  weiteren Finalisierung unverändert;
-- zeigt den Zielordner und die nächsten Packaging-Schritte für die technische
-  Betreuung;
-- startet die Spieler-JAR nicht.
-
-Reine private Entwurfsnotizen werden nicht finalisiert. Lernziele und
-Nachbesprechungsfragen sind dagegen verbindlicher Bestandteil von `deer.json`.
-
-Die Handoff-Hilfe nennt die Produktionsvalidierung und den noch extern
-aufzurufenden Packager
-`:wizard:buildWizardRoomJar -PwizardProject=<projektordner>`. Sie erklärt, dass
-dieselbe vollständige JAR an alle Spielenden verteilt und mit Java 25 über ihr
-Host-/Join-Menü gestartet wird. Die UI beschreibt keine Multiplayerdetails;
-der vollständige Start- und Multiplayer-Ablauf steht im
-[`Runner-Runtime-Contract`](runner-runtime-contract.md).
-
-Bei Berechtigungs-, Speicherplatz- oder Schreibfehlern bleibt die vorherige
-`deer.json` unverändert. Die UI bietet „Erneut versuchen“ und „Anderen Ordner
-wählen“. Unbekannte oder alte unreferenzierte Dateien werden nicht gelöscht.
-
-## Blockierende Prüfungen
+## Produktionsblockierende Prüfungen
 
 - fehlende Pflichtangabe;
 - doppelte ID oder unbekannte Referenz;
-- ungültiges Abschnitts-/Graphprofil;
+- ungültiges Graphprofil, doppelte Kante oder Zyklus;
 - nicht erreichbares Rätsel oder Erfolgsziel;
-- nicht unterstützter Rätsel-, Inhalts- oder Bild-/Dateityp;
-- fehlendes oder unsicheres Bild / fehlende oder unsichere Datei;
+- nicht unterstützter Rätsel-, Inhalts- oder Assettyp;
+- fehlende oder unsichere Datei;
 - Informationsquelle ohne Inhalt;
 - Rätsel ohne Eingabe;
 - unbekannte Formatversion.
 
-## Deterministische Warnungen
-
-- sehr lange Texte;
-- Bild ist nicht verwendet;
-- Entwurf wurde seit der letzten Finalisierung verändert.
-
 ## Redaktionelle Selbstprüfung
 
-Diese Fragen werden als Checkliste gestellt, nicht als automatisch erkannte
+Die UI stellt diese Fragen als Checkliste, nicht als automatisch erkannte
 Probleme:
 
-- Lässt sich die Lösung aus Aufgabe und Material wirklich ableiten?
-- Ist die Aufgabe für Spielende klar?
-- Sind die Hinweise verständlich und sinnvoll gestuft?
-- Passen Sprache und Umfang zu den vorgesehenen Spielenden?
+- Lässt sich die Lösung aus Aufgabe und Material ableiten?
+- Ist die Aufgabe für die Zielgruppe verständlich?
+- Passen Schwierigkeit und Zeit zum Unterricht?
+- Führt jeder Hinweis gezielt weiter?
+- Sind Lernziel und Nachbesprechung verbunden?
+
+DEER bleibt bei Version `0.4`. Mandatory AND-DAG, Runner-Identität und
+Multiplayervertrag bleiben unverändert.

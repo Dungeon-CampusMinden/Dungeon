@@ -1,163 +1,132 @@
 import React from "react";
-import { toast } from "sonner";
-import { DownloadIcon, DicesIcon } from "lucide-react";
-import type { DeerSchema } from "@/data/DeerSchema";
-import { ErrorChecker, type IssueReport } from "@/data/ErrorChecker";
-import { createSchemaZip, downloadBlob } from "@/data/AdventurePackage";
+import { CheckCircle2Icon, DownloadIcon, LoaderCircleIcon } from "lucide-react";
+import type { ProjectValidationReport } from "@/data/ProjectValidationReport";
+import { prepareProductionRequest } from "@/data/prepareProductionRequest";
+import { useWizardStorage } from "@/data/WizardStorage";
+import type { WizardDraft } from "@/data/WizardDraft";
+import type { WizardWork } from "@/data/WizardWork";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
-import { Field, FieldDescription, FieldError, FieldLabel } from "./ui/field";
-import { IssueList } from "./IssueList";
-import { Input } from "./ui/input";
-import { Util } from "@/data/Util";
 
-const MAX_SEED = BigInt(Number.MAX_SAFE_INTEGER);
-
-function parseSeed(value: string): number | null {
-  if (!/^\d+$/.test(value)) return null;
-
-  const parsed = BigInt(value);
-  if (parsed > MAX_SEED) return null;
-
-  return Number(parsed);
-}
+type ReviewWork = Exclude<WizardWork, "uploading">;
 
 export function ReviewTab({
-  deerSchema,
-  updateDeerSchema,
-  issueReport,
+  flush,
+  currentDraftSnapshot,
+  work,
+  localReady,
+  productionReport,
+  beginWork,
+  finishWork,
+  acceptReport,
+  acceptTechnicalError,
+  acceptDownload,
+  clearTechnicalError,
+  downloadReady,
 }: {
-  deerSchema: DeerSchema;
-  updateDeerSchema: (updatedSchema: DeerSchema) => void;
-  issueReport: IssueReport;
+  flush: () => Promise<WizardDraft>;
+  currentDraftSnapshot: () => WizardDraft;
+  work: WizardWork;
+  localReady: boolean;
+  productionReport: ProjectValidationReport | null;
+  beginWork: (work: Exclude<ReviewWork, null>) => boolean;
+  finishWork: (work: Exclude<ReviewWork, null>) => void;
+  acceptReport: (
+    report: ProjectValidationReport,
+    snapshot: WizardDraft,
+    action: Exclude<ReviewWork, null>,
+  ) => void;
+  acceptTechnicalError: (action: Exclude<ReviewWork, null>, snapshot: WizardDraft) => void;
+  acceptDownload: (jar: Blob, snapshot: WizardDraft) => void;
+  clearTechnicalError: () => void;
+  downloadReady: boolean;
 }) {
-  const [generating, setGenerating] = React.useState(false);
-  const [seedInput, setSeedInput] = React.useState(String(deerSchema.seed ?? ""));
+  const storage = useWizardStorage();
+  const headingRef = React.useRef<HTMLHeadingElement>(null);
 
-  const issues = ErrorChecker.getSortedIssues(issueReport);
-  const errorCount = issues.filter((issue) => issue.severity === "error").length;
-  const warningCount = issues.filter((issue) => issue.severity === "warning").length;
-  const seed = parseSeed(seedInput);
-  const seedError =
-    seed === null
-      ? `Der Seed muss eine Ganzzahl zwischen 0 und ${Number.MAX_SAFE_INTEGER} sein.`
-      : undefined;
+  React.useEffect(() => { headingRef.current?.focus(); }, []);
 
-  React.useEffect(() => {
-    setSeedInput(String(deerSchema.seed ?? ""));
-  }, [deerSchema.seed]);
-
-  const updateSeed = (value: string) => {
-    setSeedInput(value);
-    const newSeed = parseSeed(value);
-    if (newSeed === null) return;
-
-    updateDeerSchema({ ...deerSchema, seed: newSeed });
-  };
-
-  const randomizeSeed = () => {
-    const newSeed = Util.generateSafeInteger();
-    setSeedInput(String(newSeed));
-    updateDeerSchema({ ...deerSchema, seed: newSeed });
-  };
-
-  const generateAdventure = async () => {
-    setGenerating(true);
+  const run = React.useCallback(async (
+    kind: Exclude<ReviewWork, null>,
+    action: (attempt: { snapshot: WizardDraft }) => Promise<void>,
+  ) => {
+    if (!beginWork(kind)) return;
+    clearTechnicalError();
+    const attempt = { snapshot: currentDraftSnapshot() };
     try {
-      const blob = await createSchemaZip(deerSchema);
-      downloadBlob(blob, adventureFileName(deerSchema.metadata.title));
-      toast.success("Das Abenteuer wurde generiert.");
-    } catch (error) {
-      toast.error("Das Abenteuer konnte nicht generiert werden.", {
-        description: error instanceof Error ? error.message : undefined,
-      });
+      await action(attempt);
+    } catch {
+      acceptTechnicalError(kind, attempt.snapshot);
     } finally {
-      setGenerating(false);
+      finishWork(kind);
     }
-  };
+  }, [acceptTechnicalError, beginWork, clearTechnicalError, currentDraftSnapshot, finishWork]);
+
+  const packageGame = () => run("packaging", async (attempt) => {
+    const snapshot = await flush();
+    attempt.snapshot = snapshot;
+    const prepared = await prepareProductionRequest(storage, snapshot);
+    const packaged = await storage.host.package(prepared.request);
+    if (packaged.kind === "invalid") {
+      acceptReport(packaged.report, prepared.snapshot, "packaging");
+      return;
+    }
+    acceptDownload(packaged.jar, prepared.snapshot);
+  });
+
+  const packageReady = storage.host.native
+    && localReady
+    && productionReport?.valid === true
+    && work === null;
 
   return (
-    <div className="flex flex-col gap-3">
-      <h1>Prüfen & Generieren</h1>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <h1 ref={headingRef} tabIndex={-1} className="wizard-page-title">Spiel erstellen</h1>
+        <p className="text-muted-foreground">
+          Dein Spiel wird jetzt geprüft. Danach kannst du die fertige Spieldatei herunterladen.
+        </p>
+      </div>
 
-      {errorCount > 0 && (
-        <Alert variant="destructive" className="mt-0">
-          <AlertTitle>Das Abenteuer ist noch nicht vollständig.</AlertTitle>
+      {!storage.host.native && (
+        <Alert>
+          <AlertTitle>Entwicklungsmodus</AlertTitle>
           <AlertDescription>
-            {errorCount} {errorCount === 1 ? "Fehler muss" : "Fehler müssen"} behoben werden, bevor
-            das Abenteuer generiert werden kann.
+            Das Spiel kann nur in der lokal gestarteten Wizard-Anwendung erstellt werden.
           </AlertDescription>
         </Alert>
       )}
-      {warningCount > 0 && (
-        <Alert className="mt-0 border-yellow-500/40 text-yellow-500">
-          <AlertTitle>
-            {warningCount} {warningCount === 1 ? "Warnung" : "Warnungen"}
-          </AlertTitle>
-          <AlertDescription>Warnungen verhindern die Generierung des Abenteuers nicht.</AlertDescription>
-        </Alert>
-      )}
-      {errorCount === 0 && warningCount === 0 && (
-        <IssueList className="mt-0" issues={[]} emptyMessage="Das Abenteuer kann generiert werden." />
-      )}
-      {issues.length > 0 && <IssueList className="mt-0" issues={issues} />}
 
-      <Field>
-        <FieldLabel htmlFor="seed">Seed</FieldLabel>
-        <div className="flex gap-2">
-          <Input
-            id="seed"
-            type="text"
-            inputMode="numeric"
-            value={seedInput}
-            onChange={(event) => updateSeed(event.target.value)}
-            aria-invalid={seedError !== undefined}
-          />
-          <Button type="button" variant="outline" onClick={randomizeSeed}>
-            <DicesIcon />
-            Zufälliger Seed
-          </Button>
-        </div>
-        <FieldDescription>
-          Der Seed bestimmt verschiedene zufällige Faktoren im Spiel, wie Anordnung von Gegenständen,
-          Dekoration usw.
-        </FieldDescription>
-        {seedError && <FieldError>{seedError}</FieldError>}
-      </Field>
-
-      <code className="rounded-sm bg-slate-100 p-4 text-sm text-slate-900">
-        <pre className="max-h-96 overflow-y-auto whitespace-pre-wrap break-all mt-0 p-0">
-          {JSON.stringify(deerSchema, null, 2)}
-        </pre>
-      </code>
+      {work && (
+        <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+          <LoaderCircleIcon className="animate-spin" />
+          {work === "uploading"
+            ? "Datei wird gespeichert…"
+            : work === "validating"
+              ? "Spiel wird geprüft…"
+              : "Spieldatei wird erstellt…"}
+        </p>
+      )}
 
       <Button
-        className="self-stretch"
         size="lg"
-        onClick={generateAdventure}
-        disabled={errorCount > 0 || seedError !== undefined || generating}
+        className="h-auto min-h-14 w-full gap-2 whitespace-normal py-4 text-center text-base font-semibold leading-snug"
+        onClick={() => void packageGame()}
+        disabled={!packageReady}
       >
-        <DownloadIcon />
-        {generating ? "Abenteuer wird generiert…" : "Abenteuer generieren"}
+        <DownloadIcon className="size-5 shrink-0" />
+        Spiel erstellen und herunterladen
       </Button>
+
+      {downloadReady && (
+        <Alert className="border-emerald-500/40 bg-emerald-500/10 text-status-success">
+          <CheckCircle2Icon className="size-4 shrink-0 text-status-success" />
+          <AlertTitle className="text-sm font-medium text-foreground">Das Spiel ist bereit</AlertTitle>
+          <AlertDescription className="text-xs text-muted-foreground">
+            Die Spieldatei wurde heruntergeladen und kann an alle Teilnehmenden verteilt werden.
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
-}
-
-function adventureFileName(title: string): string {
-  const safeTitle = title
-    .trim()
-    .toLowerCase()
-    .replaceAll("ß", "ss")
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80)
-    .replace(/-+$/g, "");
-  const stem = safeTitle || "abenteuer";
-  const safeStem = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/.test(stem)
-    ? `abenteuer-${stem}`
-    : stem;
-  return `${safeStem}.zip`;
 }

@@ -2,7 +2,8 @@ import { ArrowDownIcon, ArrowUpIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { ValidationFeedback } from "./ValidationFeedback";
+import type { Issue } from "@/data/ErrorChecker";
 
 export function StringListEditor({
   value,
@@ -10,13 +11,18 @@ export function StringListEditor({
   lockOrder = false,
   useTextarea = false,
   preventEmpty = false,
+  itemNoun,
+  issues = [],
 }: {
   value: string[];
   onChange: (newValue: string[]) => void;
   lockOrder?: boolean;
   useTextarea?: boolean;
   preventEmpty?: boolean;
+  itemNoun: string;
+  issues?: Issue[];
 }) {
+  const invalid = issues.some((issue) => issue.severity === "error");
   const handleAdd = () => {
     onChange([...value, ""]);
   };
@@ -62,22 +68,22 @@ export function StringListEditor({
           return (
             <div key={index} className="grid grid-cols-[1fr_auto] items-center gap-1">
               {useTextarea ? (
-                <Textarea value={item} onChange={(e) => handleChange(index, e.target.value)} />
+                <Textarea aria-label={`${itemNoun} ${index + 1}`} aria-invalid={invalid && item.trim() === ""} value={item} onChange={(e) => handleChange(index, e.target.value)} />
               ) : (
-                <Input value={item} onChange={(e) => handleChange(index, e.target.value)} />
+                <Input aria-label={`${itemNoun} ${index + 1}`} aria-invalid={invalid && item.trim() === ""} value={item} onChange={(e) => handleChange(index, e.target.value)} />
               )}
               <div className="flex items-center gap-0.5">
                 {!lockOrder && (
                   <>
-                    <Button variant="outline" onClick={() => handleMoveUp(index)} disabled={!canMoveUp}>
+                    <Button aria-label={`${itemNoun} ${index + 1} nach oben verschieben`} variant="outline" onClick={() => handleMoveUp(index)} disabled={!canMoveUp}>
                       <ArrowUpIcon />
                     </Button>
-                    <Button variant="outline" onClick={() => handleMoveDown(index)} disabled={!canMoveDown}>
+                    <Button aria-label={`${itemNoun} ${index + 1} nach unten verschieben`} variant="outline" onClick={() => handleMoveDown(index)} disabled={!canMoveDown}>
                       <ArrowDownIcon />
                     </Button>
                   </>
                 )}
-                <Button variant="destructive" onClick={() => handleRemove(index)} disabled={!canRemove}>
+                <Button aria-label={`${itemNoun} ${index + 1} löschen`} variant="destructive" onClick={() => handleRemove(index)} disabled={!canRemove}>
                   <TrashIcon />
                 </Button>
               </div>
@@ -85,6 +91,7 @@ export function StringListEditor({
           );
         })}
       </div>
+      <ValidationFeedback issues={issues} />
     </div>
   );
 }
@@ -98,6 +105,8 @@ export function ObjectListStringEditor({
   lockOrder = false,
   useTextarea = false,
   preventEmpty = false,
+  itemNoun,
+  issues = [],
 }: {
   value: any[];
   onChange: (newValue: any[]) => void;
@@ -107,7 +116,10 @@ export function ObjectListStringEditor({
   lockOrder?: boolean;
   useTextarea?: boolean;
   preventEmpty?: boolean;
+  itemNoun: string;
+  issues?: Issue[];
 }) {
+  const invalid = issues.some((issue) => issue.severity === "error");
   const handleAdd = () => {
     onChange([...value, produceItem()]);
   };
@@ -154,22 +166,22 @@ export function ObjectListStringEditor({
           return (
             <div key={index} className="grid grid-cols-[1fr_auto] items-center gap-1">
               {useTextarea ? (
-                <Textarea value={getItemText(item)} onChange={(e) => handleChange(index, e.target.value)} />
+                <Textarea aria-label={`${itemNoun} ${index + 1}`} aria-invalid={invalid && getItemText(item).trim() === ""} value={getItemText(item)} onChange={(e) => handleChange(index, e.target.value)} />
               ) : (
-                <Input value={getItemText(item)} onChange={(e) => handleChange(index, e.target.value)} />
+                <Input aria-label={`${itemNoun} ${index + 1}`} aria-invalid={invalid && getItemText(item).trim() === ""} value={getItemText(item)} onChange={(e) => handleChange(index, e.target.value)} />
               )}
               <div className="flex items-center gap-0.5">
                 {!lockOrder && (
                   <>
-                    <Button variant="outline" onClick={() => handleMoveUp(index)} disabled={!canMoveUp}>
+                    <Button aria-label={`${itemNoun} ${index + 1} nach oben verschieben`} variant="outline" onClick={() => handleMoveUp(index)} disabled={!canMoveUp}>
                       <ArrowUpIcon />
                     </Button>
-                    <Button variant="outline" onClick={() => handleMoveDown(index)} disabled={!canMoveDown}>
+                    <Button aria-label={`${itemNoun} ${index + 1} nach unten verschieben`} variant="outline" onClick={() => handleMoveDown(index)} disabled={!canMoveDown}>
                       <ArrowDownIcon />
                     </Button>
                   </>
                 )}
-                <Button variant="destructive" onClick={() => handleRemove(index)} disabled={!canRemove}>
+                <Button aria-label={`${itemNoun} ${index + 1} löschen`} variant="destructive" onClick={() => handleRemove(index)} disabled={!canRemove}>
                   <TrashIcon />
                 </Button>
               </div>
@@ -177,6 +189,7 @@ export function ObjectListStringEditor({
           );
         })}
       </div>
+      <ValidationFeedback issues={issues} />
     </div>
   );
 }

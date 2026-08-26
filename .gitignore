@@ -48,6 +48,8 @@ levels/**
 hs_err_pid*
 replay_pid*
 *.hprof
+__pycache__/
+*.pyc
 **/build/
 **/bin/
 **/out/

@@ -34,7 +34,8 @@ final class MultiplayerJoinGameSetup {
             roomInputSha256 -> {
               if (!room.inputSha256().equals(roomInputSha256)) {
                 throw new IllegalArgumentException(
-                    "Host and client use different Wizard room projects");
+                    "Host and client use different Wizard room projects. Every participant must "
+                        + "start the exact same WizardRoom.jar file that the host is using.");
               }
               binder.bind(room.assets());
               Game.windowTitle(room.title() + " Client");

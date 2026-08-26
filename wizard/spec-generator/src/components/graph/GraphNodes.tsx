@@ -1,4 +1,4 @@
-import type { Riddle, Surface } from "@/data/DeerSchema";
+import type { Riddle } from "@/data/DeerSchema";
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import {
   CircleQuestionMarkIcon,
@@ -10,15 +10,20 @@ import {
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { getRiddleDifficulty } from "../riddles/riddleTypes";
-import { SurfaceSelector } from "../SurfacesTab";
 
-export type StartNodeData = { label?: string };
-export type EndNodeData = {
-  surfaceId: string;
-  surfaces: Surface[];
-  onSurfaceChange: (surfaceId: string) => void;
+type GraphNodeFeedback = {
+  inputInvalid?: boolean;
+  outputInvalid?: boolean;
 };
-export type RiddleNodeData = { riddleId: string; riddle: Riddle | undefined; onEdit: () => void };
+
+export type StartNodeData = GraphNodeFeedback;
+export type EndNodeData = GraphNodeFeedback;
+export type RiddleNodeData = {
+  riddleId: string;
+  riddle: Riddle | undefined;
+  label: string;
+  onEdit: () => void;
+} & GraphNodeFeedback;
 
 export type GraphFlowNode =
   | Node<StartNodeData, "start">
@@ -27,36 +32,42 @@ export type GraphFlowNode =
 
 const NODE_CLASS =
   "w-56 rounded-lg border border-border bg-card px-3 py-2 text-card-foreground shadow-sm transition-shadow";
-const HANDLE_CLASS = "!h-3 !w-3 !border-2 !border-background !bg-primary";
+const HANDLE_CLASS = "wizard-graph-handle";
 
-export function StartFlowNode({ selected }: NodeProps<Node<StartNodeData, "start">>) {
+function nodeClass(selected: boolean, invalid: boolean) {
+  return `${NODE_CLASS} ${invalid ? "wizard-graph-node-invalid" : ""} ${selected ? "ring-2 ring-ring" : ""}`;
+}
+
+export function StartFlowNode({ data, selected }: NodeProps<Node<StartNodeData, "start">>) {
   return (
-    <div className={`${NODE_CLASS} ${selected ? "ring-2 ring-ring" : ""}`}>
+    <div className={nodeClass(selected, Boolean(data.inputInvalid || data.outputInvalid))}>
       <div className="flex items-center gap-2">
-        <PlayIcon size={16} className="text-green-500" />
+        <PlayIcon size={16} className="text-status-success shrink-0" />
         <span className="text-sm font-medium">Start</span>
       </div>
       <p className="m-0 text-xs text-muted-foreground">Hier beginnt das Abenteuer.</p>
-      <Handle type="source" position={Position.Bottom} className={HANDLE_CLASS} />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className={`${HANDLE_CLASS} ${data.outputInvalid ? "wizard-graph-handle-invalid" : ""}`}
+      />
     </div>
   );
 }
 
 export function EndFlowNode({ data, selected }: NodeProps<Node<EndNodeData, "end">>) {
   return (
-    <div className={`${NODE_CLASS} ${selected ? "ring-2 ring-ring" : ""}`}>
+    <div className={nodeClass(selected, Boolean(data.inputInvalid || data.outputInvalid))}>
       <div className="flex items-center gap-2">
-        <FlagIcon size={16} className="text-blue-500" />
+        <FlagIcon size={16} className="text-status-info shrink-0" />
         <span className="text-sm font-medium">Ende</span>
       </div>
-      <div className="nodrag nopan mt-1 w-full min-w-0 max-w-full">
-        <SurfaceSelector
-          items={data.surfaces}
-          value={data.surfaceId}
-          onChange={data.onSurfaceChange}
-        />
-      </div>
-      <Handle type="target" position={Position.Top} className={HANDLE_CLASS} />
+      <p className="m-0 text-xs text-muted-foreground">Hier endet das Abenteuer.</p>
+      <Handle
+        type="target"
+        position={Position.Top}
+        className={`${HANDLE_CLASS} ${data.inputInvalid ? "wizard-graph-handle-invalid" : ""}`}
+      />
     </div>
   );
 }
@@ -66,18 +77,18 @@ export function RiddleFlowNode({ data, selected }: NodeProps<Node<RiddleNodeData
   const difficulty = riddle ? getRiddleDifficulty(riddle.difficulty) : undefined;
 
   return (
-    <div className={`${NODE_CLASS} ${selected ? "ring-2 ring-ring" : ""}`}>
+    <div className={nodeClass(selected, Boolean(data.inputInvalid || data.outputInvalid))}>
       <div className="flex items-start gap-1">
         <div className="flex min-w-0 flex-1 items-start gap-2">
           <CircleQuestionMarkIcon size={16} className="mt-0.5 shrink-0 text-muted-foreground" />
-          <span className="text-sm font-medium break-words">{riddle?.title || "Unbekanntes Rätsel"}</span>
+          <span className="text-sm font-medium break-words">{data.label}</span>
         </div>
         {riddle && (
           <Button
             variant="ghost"
             size="icon"
             className="nodrag size-6 shrink-0"
-            aria-label={`Rätsel "${riddle.title}" bearbeiten`}
+            aria-label={`${data.label} bearbeiten`}
             onClick={data.onEdit}
           >
             <PencilIcon />
@@ -97,8 +108,16 @@ export function RiddleFlowNode({ data, selected }: NodeProps<Node<RiddleNodeData
         </div>
       )}
 
-      <Handle type="target" position={Position.Top} className={HANDLE_CLASS} />
-      <Handle type="source" position={Position.Bottom} className={HANDLE_CLASS} />
+      <Handle
+        type="target"
+        position={Position.Top}
+        className={`${HANDLE_CLASS} ${data.inputInvalid ? "wizard-graph-handle-invalid" : ""}`}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className={`${HANDLE_CLASS} ${data.outputInvalid ? "wizard-graph-handle-invalid" : ""}`}
+      />
     </div>
   );
 }

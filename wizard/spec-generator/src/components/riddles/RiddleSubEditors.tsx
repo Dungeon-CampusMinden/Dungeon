@@ -1,47 +1,56 @@
 import type {
   AnyResource,
   Asset,
-  DeerSchema,
+  DeerProject,
   HintSeverity,
   InformationSource,
+  Riddle,
   RiddleHint,
 } from "@/data/DeerSchema";
 import { Util } from "@/data/Util";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import { AssetSelector } from "../assets/AssetSelector";
-import { SurfaceSelector } from "../SurfacesTab";
+import { addInformationSource, removeInformationSource } from "@/data/RiddleGraphActions";
 import { Button } from "../ui/button";
-import { Field, FieldDescription, FieldLabel } from "../ui/field";
+import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import { createInformationSource, HINT_SEVERITIES, RESOURCE_KINDS } from "./riddleTypes";
-import { SimpleSelect } from "./SimpleSelect";
+import { HINT_SEVERITIES, RESOURCE_KINDS } from "./riddleTypes";
+import { ResponsiveChoice } from "../ui/responsive-choice";
 
 export function InformationSourceListEditor({
-  informationSources,
+  project,
+  riddle,
   onChange,
-  deerSchema,
 }: {
-  informationSources: InformationSource[];
-  onChange: (updated: InformationSource[]) => void;
-  deerSchema: DeerSchema;
+  project: DeerProject;
+  riddle: Riddle;
+  onChange: (updated: DeerProject) => void;
 }) {
-  const updateSource = (index: number, updated: InformationSource) => {
-    const next = [...informationSources];
-    next[index] = updated;
+  const informationSources = riddle.informationSources;
+  const updateProject = (transform: (next: DeerProject, nextRiddle: Riddle) => void) => {
+    const next = structuredClone(project);
+    const nextRiddle = next.riddles.find((candidate) => candidate.id === riddle.id);
+    if (!nextRiddle) return;
+    transform(next, nextRiddle);
     onChange(next);
   };
 
+  const updateSource = (index: number, updated: InformationSource) => {
+    updateProject((_next, nextRiddle) => {
+      nextRiddle.informationSources[index] = updated;
+    });
+  };
+
   const removeSource = (index: number) => {
-    const next = [...informationSources];
-    next.splice(index, 1);
-    onChange(next);
+    const sourceId = informationSources[index]?.id;
+    if (sourceId) updateProject((next, nextRiddle) => removeInformationSource(next, nextRiddle, sourceId));
   };
 
   return (
     <div className="flex flex-col gap-3">
       <Button
-        onClick={() => onChange([...informationSources, createInformationSource()])}
+        onClick={() => updateProject((next, nextRiddle) => addInformationSource(next, nextRiddle))}
         className="lg:max-w-40"
       >
         <PlusIcon />
@@ -53,25 +62,17 @@ export function InformationSourceListEditor({
       {informationSources.map((source, index) => (
         <div
           key={source.id}
-          className="flex flex-col gap-3 rounded-md border border-[var(--border-color)] p-3"
+          className="flex flex-col gap-3 rounded-md border border-border p-3"
         >
-          <div className="grid grid-cols-[1fr_auto] items-end gap-2">
-            <Field>
-              <FieldLabel>Ort</FieldLabel>
-              <FieldDescription>Wo finden die Spieler dieses Material?</FieldDescription>
-              <SurfaceSelector
-                items={deerSchema.surfaces}
-                value={source.surfaceId}
-                onChange={(newValue) => updateSource(index, { ...source, surfaceId: newValue })}
-              />
-            </Field>
-            <Button variant="destructive" size="icon" onClick={() => removeSource(index)}>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm font-medium">Informationsquelle {index + 1}</span>
+            <Button aria-label={`Informationsquelle ${index + 1} löschen`} variant="destructive" size="icon" onClick={() => removeSource(index)}>
               <TrashIcon />
             </Button>
           </div>
           <ResourceListEditor
             resources={source.resources}
-            assets={deerSchema.assets}
+            assets={project.assets}
             onChange={(updated) => updateSource(index, { ...source, resources: updated })}
           />
         </div>
@@ -144,23 +145,25 @@ export function ResourceListEditor({
         {resources.map((resource, index) => (
           <div
             key={resource.id}
-            className="flex flex-col gap-3 rounded-md border border-[var(--border-color)] p-3"
+            className="flex flex-col gap-3 rounded-md border border-border p-3"
           >
             <div className="grid grid-cols-[1fr_auto] items-end gap-2">
               <Field>
                 <FieldLabel>Titel</FieldLabel>
                 <Input
+                  aria-label={`Titel von Material ${index + 1}`}
                   value={resource.title}
                   onChange={(e) => updateResource(index, { ...resource, title: e.target.value })}
                 />
               </Field>
-              <Button variant="destructive" size="icon" onClick={() => removeResource(index)}>
+              <Button aria-label={`Material ${index + 1} löschen`} variant="destructive" size="icon" onClick={() => removeResource(index)}>
                 <TrashIcon />
               </Button>
             </div>
             <Field>
               <FieldLabel>Art</FieldLabel>
-              <SimpleSelect
+              <ResponsiveChoice
+                accessibleLabel={`Art von Material ${index + 1}`}
                 options={RESOURCE_KINDS}
                 value={resource.kind}
                 onChange={(newValue) => changeKind(index, newValue)}
@@ -170,6 +173,7 @@ export function ResourceListEditor({
               <Field>
                 <FieldLabel>Text</FieldLabel>
                 <Textarea
+                  aria-label={`Text von Material ${index + 1}`}
                   value={resource.text}
                   onChange={(e) => updateResource(index, { ...resource, text: e.target.value })}
                 />
@@ -178,6 +182,7 @@ export function ResourceListEditor({
               <Field>
                 <FieldLabel>Datei</FieldLabel>
                 <AssetSelector
+                  accessibleLabel={`Datei für Material ${index + 1}`}
                   items={assets}
                   value={resource.assetId}
                   onChange={(newValue) => updateResource(index, { ...resource, assetId: newValue })}
@@ -230,30 +235,33 @@ export function HintListEditor({
         {hints.map((hint, index) => (
           <div
             key={hint.id}
-            className="flex flex-col gap-3 rounded-md border border-[var(--border-color)] p-3"
+            className="flex flex-col gap-3 rounded-md border border-border p-3"
           >
             <div className="grid grid-cols-[1fr_auto] items-end gap-2">
               <Field>
                 <FieldLabel>Titel</FieldLabel>
                 <Input
+                  aria-label={`Titel von Hilfe ${index + 1}`}
                   value={hint.title}
                   onChange={(e) => updateHint(index, { ...hint, title: e.target.value })}
                 />
               </Field>
-              <Button variant="destructive" size="icon" onClick={() => removeHint(index)}>
+              <Button aria-label={`Hilfe ${index + 1} löschen`} variant="destructive" size="icon" onClick={() => removeHint(index)}>
                 <TrashIcon />
               </Button>
             </div>
             <Field>
               <FieldLabel>Text</FieldLabel>
               <Textarea
+                aria-label={`Text von Hilfe ${index + 1}`}
                 value={hint.text}
                 onChange={(e) => updateHint(index, { ...hint, text: e.target.value })}
               />
             </Field>
             <Field>
               <FieldLabel>Stufe</FieldLabel>
-              <SimpleSelect
+              <ResponsiveChoice
+                accessibleLabel={`Stufe von Hilfe ${index + 1}`}
                 options={HINT_SEVERITIES}
                 value={hint.severity}
                 onChange={(newValue) => updateHint(index, { ...hint, severity: newValue as HintSeverity })}
