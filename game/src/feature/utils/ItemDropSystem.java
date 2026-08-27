@@ -35,7 +35,7 @@ public class ItemDropSystem extends System {
   private void onEntityRemove(Entity entity) {
     EventScheduler.scheduleAction(
         () -> {
-          if (Game.allPlayers().toList().contains(entity)) {
+          if (Game.allPlayers().anyMatch(entity::equals)) { // if player reconnects during reconnect window, abort
             return;
           }
           InventoryComponent inv = entity.fetch(InventoryComponent.class).orElseThrow();
