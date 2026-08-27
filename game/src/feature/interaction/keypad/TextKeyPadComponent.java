@@ -2,7 +2,7 @@ package feature.interaction.keypad;
 
 import engine.Component;
 import engine.Entity;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -11,11 +11,10 @@ import java.util.stream.Collectors;
 /** Component that represents a keypad with a text that can be entered. */
 public class TextKeyPadComponent implements Component {
 
-  private final List<String> correctText;
-  private final List<String> enteredText;
+  private final List<String> correctTexts;
+  private String enteredText;
   private boolean isUIOpen = false;
   private boolean isUnlocked = false;
-  private boolean showCharacterCount;
   private Runnable action;
   private Consumer<Entity> onCorrectCode = caller -> {};
   private Consumer<Entity> onWrongCode = caller -> {};
@@ -25,78 +24,58 @@ public class TextKeyPadComponent implements Component {
   /**
    * Creates a TextKeyPadComponent.
    *
-   * @param correctText The correct text for the keypad
+   * @param correctTexts The correct texts for the keypad
    * @param action The action to execute when the correct text is entered
-   * @param showCharacterCount Whether to show the number of characters to be entered
    */
   public TextKeyPadComponent(
-      List<String> correctText, Runnable action, boolean showCharacterCount) {
-    this.correctText = correctText;
-    this.enteredText = new ArrayList<>();
-    this.action = action;
-    this.showCharacterCount = showCharacterCount;
-  }
-
-  /**
-   * Creates a TextKeyPadComponent with showCharacterCount set to true.
-   *
-   * @param correctText The correct text for the keypad
-   * @param action The action to execute when the correct text is entered
-   */
-  public TextKeyPadComponent(List<String> correctText, Runnable action) {
-    this(correctText, action, true);
+    List<String> correctTexts, Runnable action) {
+    this(correctTexts, "", action,false);
   }
 
   /**
    * Creates a TextKeyPadComponent.
    *
-   * @param correctText the correct text to enter.
+   * @param correctTexts The correct texts for the keypad
    * @param enteredText the current entered text.
    * @param isUnlocked if the keypad is already unlocked.
-   * @param showCharacterCount Whether to show the number of characters to be entered
    */
   public TextKeyPadComponent(
-      List<String> correctText,
-      List<String> enteredText,
-      boolean isUnlocked,
-      boolean showCharacterCount) {
-    this.correctText = correctText;
-    this.enteredText = enteredText;
-    this.isUnlocked = isUnlocked;
-    this.showCharacterCount = showCharacterCount;
+    List<String> correctTexts, String enteredText, boolean isUnlocked) {
+    this(correctTexts, enteredText, ()->{}, isUnlocked);
   }
 
   /**
-   * Returns the entered characters as a string, with asterisks for unentered characters if
-   * showCharacterCount is true.
+   * Creates a TextKeyPadComponent.
    *
-   * @return The entered text as a string
+   * @param correctTexts the correct texts to enter.
+   * @param enteredText the current entered text.
+   * @param action the action that runs after unlocking the keypad.
+   * @param isUnlocked if the keypad is already unlocked.
    */
-  public String enteredString() {
-    StringBuilder s =
-        new StringBuilder(
-            enteredText.stream().map(Object::toString).collect(Collectors.joining("")));
-    if (showCharacterCount) {
-      while (s.length() < correctText.size()) {
-        s.append("*");
-      }
-    }
-    return s.toString();
+  public TextKeyPadComponent(
+      List<String> correctTexts,
+      String enteredText,
+      Runnable action,
+      boolean isUnlocked) {
+    this.correctTexts = correctTexts;
+    this.enteredText = enteredText;
+    this.action = action;
+    this.isUnlocked = isUnlocked;
   }
 
   /**
-   * Returns the correct text as a string.
+   * Returns the correct texts as a string.
    *
-   * @return The correct text as a string
+   * @return The correct texts as a string
    */
   public String correctString() {
-    return correctText.stream().map(Object::toString).collect(Collectors.joining(""));
+    return correctTexts.stream().map(Object::toString).collect(Collectors.joining(";"));
   }
 
   /** Removes the last entered character. */
   public void backspace() {
     if (enteredText.isEmpty() || isUnlocked) return;
-    enteredText.removeLast();
+    enteredText = enteredText.substring(0, enteredText.length() - 1);
   }
 
   /**
@@ -105,9 +84,8 @@ public class TextKeyPadComponent implements Component {
    * @param character The character to add
    */
   public void addCharacter(String character) {
-    if (enteredText.size() >= 8 || isUnlocked) return;
-    else if (enteredText.size() >= correctText.size() && showCharacterCount) return;
-    enteredText.add(character);
+    if (isUnlocked) return;
+    enteredText += character;
   }
 
   /**
@@ -118,14 +96,11 @@ public class TextKeyPadComponent implements Component {
    */
   public void checkUnlock(Entity caller) {
     Objects.requireNonNull(caller, "caller");
-    boolean completeCodeEntered = enteredText.size() == correctText.size();
-    boolean isCorrect = completeCodeEntered;
-    if (completeCodeEntered) {
-      for (int i = 0; i < enteredText.size(); i++) {
-        if (!Objects.equals(enteredText.get(i), correctText.get(i))) {
-          isCorrect = false;
-          break;
-        }
+    boolean isCorrect = false;
+    for (String validText : correctTexts) {
+      if (validText.equals(enteredText)) {
+        isCorrect=true;
+        break;
       }
     }
 
@@ -133,7 +108,7 @@ public class TextKeyPadComponent implements Component {
       isUnlocked = true;
       if (action != null) action.run();
       onCorrectCode.accept(caller);
-    } else if (completeCodeEntered) {
+    } else {
       wrongCodeAttempts++;
       onWrongCode.accept(caller);
     }
@@ -145,7 +120,7 @@ public class TextKeyPadComponent implements Component {
    * @return The correct characters.
    */
   public List<String> correctText() {
-    return correctText;
+    return correctTexts;
   }
 
   /**
@@ -153,8 +128,16 @@ public class TextKeyPadComponent implements Component {
    *
    * @return The entered characters.
    */
-  public List<String> enteredText() {
+  public String enteredText() {
     return enteredText;
+  }
+
+  /**
+   * Sets the enteredText to the given parameter.
+   * @param text new enteredText value.
+   */
+  public void setEnteredText(String text) {
+    enteredText = text;
   }
 
   /**
@@ -191,24 +174,6 @@ public class TextKeyPadComponent implements Component {
    */
   public void isUnlocked(boolean isUnlocked) {
     this.isUnlocked = isUnlocked;
-  }
-
-  /**
-   * Checks if the number of required characters should be displayed (e.g., using asterisks).
-   *
-   * @return True if character count is shown, false otherwise.
-   */
-  public boolean showCharacterCount() {
-    return showCharacterCount;
-  }
-
-  /**
-   * Sets whether the number of required characters should be displayed.
-   *
-   * @param showCharacterCount True to show the character count, false otherwise.
-   */
-  public void showCharacterCount(boolean showCharacterCount) {
-    this.showCharacterCount = showCharacterCount;
   }
 
   /**
