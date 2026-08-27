@@ -88,14 +88,11 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key for the digits entered on the keypad so far. */
   public static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
 
-  /** Metadata key for the keypad's correct character sequence. */
-  public static final String METADATA_TEXT_KEYPAD_CORRECT_DIGITS = "textKeypad.correctDigits";
+  /** Metadata key for the keypad's correct texts. */
+  public static final String METADATA_TEXT_KEYPAD_CORRECT_TEXTS = "textKeypad.correctTexts";
 
-  /** Metadata key for the characters entered on the keypad so far. */
-  public static final String METADATA_TEXT_KEYPAD_ENTERED_DIGITS = "textKeypad.enteredDigits";
-
-  /** Metadata key for the number of characters to display on the keypad. */
-  public static final String METADATA_KEYPAD_SHOW_CHARACTER_COUNT = "textKeypad.showCharacterCount";
+  /** Metadata key for the text entered on the keypad so far. */
+  public static final String METADATA_TEXT_KEYPAD_ENTERED_TEXT = "textKeypad.enteredDigits";
 
   /** Metadata key indicating whether the keypad is unlocked. */
   public static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
@@ -230,10 +227,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   private Map<String, String> textKeypadMetadata(TextKeyPadComponent keypad) {
     Map<String, String> metadata = new HashMap<>();
     metadata.put(METADATA_TYPE, TYPE_TEXT_KEYPAD);
-    metadata.put(METADATA_TEXT_KEYPAD_CORRECT_DIGITS, keypad.correctString());
-    metadata.put(METADATA_TEXT_KEYPAD_ENTERED_DIGITS, keypad.enteredString());
+    metadata.put(METADATA_TEXT_KEYPAD_CORRECT_TEXTS, keypad.correctString());
+    metadata.put(METADATA_TEXT_KEYPAD_ENTERED_TEXT, keypad.enteredText());
     metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
-    metadata.put(METADATA_KEYPAD_SHOW_CHARACTER_COUNT, String.valueOf(keypad.showCharacterCount()));
     return metadata;
   }
 

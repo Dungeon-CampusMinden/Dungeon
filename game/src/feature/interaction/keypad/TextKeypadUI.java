@@ -35,6 +35,7 @@ public class TextKeypadUI extends Group {
   private static final float BACKGROUND_SCALE = 1.5f;
   private static final float BACKGROUND_OFFSET_Y = 60;
   private static final String ACTION_BACK = "Back";
+  private static final String ACTION_SPACE = "Space";
   private static final String ACTION_SUBMIT = "Submit";
   private static final Translation trans = new Translation("dialog.keypad_dialog");
 
@@ -108,14 +109,14 @@ public class TextKeypadUI extends Group {
             "Y",
             "Z",
             ACTION_BACK,
-            "SPACE",
+            ACTION_SPACE,
             ACTION_SUBMIT);
 
     for (int i = 0; i < actions.size(); i++) {
       String action = actions.get(i);
       String label = displayLabelForAction(action);
       TextButton btn = new TextButton(label, getSkin(), "keypad");
-      if (!action.equals(ACTION_BACK) && !action.equals(ACTION_SUBMIT)) {
+      if (!action.equals(ACTION_BACK) && !action.equals(ACTION_SUBMIT) && !action.equals(ACTION_SPACE)) {
         btn.getLabel().setFontScale(2f);
       } else {
         btn.getLabel().setFontScale(1.25f);
@@ -157,7 +158,7 @@ public class TextKeypadUI extends Group {
 
     background.setPosition(getX(Align.center), getY(Align.center), Align.center);
     background.setDrawable(getSkin(), kc.isUnlocked() ? "keypad-ui-on" : "keypad-ui-off");
-    numberLabel.setText(kc.enteredString());
+    numberLabel.setText(kc.enteredText());
 
     super.draw(batch, parentAlpha);
   }
@@ -170,6 +171,7 @@ public class TextKeypadUI extends Group {
 
     switch (action) {
       case ACTION_BACK -> keypadComp.backspace();
+      case ACTION_SPACE -> keypadComp.addCharacter(" ");
       case ACTION_SUBMIT -> onSubmit(keypadComp, drawComp, caller);
       default -> keypadComp.addCharacter(action);
     }
@@ -184,6 +186,7 @@ public class TextKeypadUI extends Group {
   private String displayLabelForAction(String action) {
     return switch (action) {
       case ACTION_BACK -> trans.text("back");
+      case ACTION_SPACE -> trans.text("space");
       case ACTION_SUBMIT -> trans.text("submit");
       default -> action;
     };

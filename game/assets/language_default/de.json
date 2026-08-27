@@ -58,6 +58,7 @@
         },
         "keypad_dialog": {
             "back": "Zurück",
+            "space": "Leertaste",
             "submit": "Bestätigen"
         },
         "inventory_dialog": {

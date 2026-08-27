@@ -242,14 +242,12 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     return Map.of(
         LastHourEntitySpawnStrategy.METADATA_TYPE,
         LastHourEntitySpawnStrategy.TYPE_TEXT_KEYPAD,
-        LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_CORRECT_DIGITS,
+        LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_CORRECT_TEXTS,
         keypad.correctString(),
-        LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_ENTERED_DIGITS,
-        keypad.enteredString(),
+        LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_ENTERED_TEXT,
+        keypad.enteredText(),
         LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED,
-        String.valueOf(keypad.isUnlocked()),
-        LastHourEntitySpawnStrategy.METADATA_KEYPAD_SHOW_DIGIT_COUNT,
-        String.valueOf(keypad.showCharacterCount()));
+        String.valueOf(keypad.isUnlocked()));
   }
 
   private Map<String, String> worldTimerMetadata(WorldTimerComponent worldTimer) {
@@ -425,28 +423,24 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
       return Optional.empty();
     }
 
-    String correctDigitsRaw =
-        metadata.get(LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_CORRECT_DIGITS);
-    if (correctDigitsRaw == null) {
+    String correctTextsRaw =
+        metadata.get(LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_CORRECT_TEXTS);
+    if (correctTextsRaw == null) {
       return Optional.empty();
     }
 
-    List<String> correctDigits = List.of(correctDigitsRaw.split(","));
-    List<String> enteredDigits =
-        List.of(
-            metadata
-                .getOrDefault(LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_ENTERED_DIGITS, "")
-                .split(","));
+    List<String> correctTexts = List.of(correctTextsRaw.split(";"));
+    String enteredText =
+      metadata.get(LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_ENTERED_TEXT);
+    if (enteredText == null) {
+      return Optional.empty();
+    }
+
     boolean isUnlocked =
         Boolean.parseBoolean(
             metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED, "false"));
-    boolean showDigitCount =
-        Boolean.parseBoolean(
-            metadata.getOrDefault(
-                LastHourEntitySpawnStrategy.METADATA_KEYPAD_SHOW_CHARACTER_COUNT, "true"));
-
     return Optional.of(
-        new TextKeyPadComponent(correctDigits, enteredDigits, isUnlocked, showDigitCount));
+        new TextKeyPadComponent(correctTexts, enteredText, isUnlocked));
   }
 
   /**
@@ -550,15 +544,13 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
                   TextKeyPadComponent newComponent =
                       new TextKeyPadComponent(
                           keypadComponent.correctText(),
-                          () -> {},
-                          keypadComponent.showCharacterCount());
+                          () -> {}
+                      );
                   entity.add(newComponent);
                   return newComponent;
                 });
-    component.enteredText().clear();
-    component.enteredText().addAll(keypadComponent.enteredText());
+    component.setEnteredText(keypadComponent.enteredText());
     component.isUnlocked(keypadComponent.isUnlocked());
-    component.showCharacterCount(keypadComponent.showCharacterCount());
   }
 
   private void applyQuestLogState(Entity entity, QuestLogComponent questLog) {

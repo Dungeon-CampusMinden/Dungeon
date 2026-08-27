@@ -153,14 +153,14 @@ public class LastHourLevel extends DungeonLevel {
     keypad =
         KeypadFactory.createTextKeypad(
             getPoint("keypad-storage"),
-            List.of("A", "B", "C"),
+            List.of("ABC","LOL"),
             () -> {
               storageDoor.open();
               LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
               LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
               EventScheduler.scheduleAction(this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
             },
-            true);
+            false);
     keypad
         .fetch(TextKeyPadComponent.class)
         .ifPresent(

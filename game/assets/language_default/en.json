@@ -58,6 +58,7 @@
         },
         "keypad_dialog": {
             "back": "Back",
+            "space": "Spacebar",
             "submit": "Submit"
         },
         "inventory_dialog": {
