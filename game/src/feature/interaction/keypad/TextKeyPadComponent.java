@@ -2,7 +2,6 @@ package feature.interaction.keypad;
 
 import engine.Component;
 import engine.Entity;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -27,9 +26,8 @@ public class TextKeyPadComponent implements Component {
    * @param correctTexts The correct texts for the keypad
    * @param action The action to execute when the correct text is entered
    */
-  public TextKeyPadComponent(
-    List<String> correctTexts, Runnable action) {
-    this(correctTexts, "", action,false);
+  public TextKeyPadComponent(List<String> correctTexts, Runnable action) {
+    this(correctTexts, "", action, false);
   }
 
   /**
@@ -39,9 +37,8 @@ public class TextKeyPadComponent implements Component {
    * @param enteredText the current entered text.
    * @param isUnlocked if the keypad is already unlocked.
    */
-  public TextKeyPadComponent(
-    List<String> correctTexts, String enteredText, boolean isUnlocked) {
-    this(correctTexts, enteredText, ()->{}, isUnlocked);
+  public TextKeyPadComponent(List<String> correctTexts, String enteredText, boolean isUnlocked) {
+    this(correctTexts, enteredText, () -> {}, isUnlocked);
   }
 
   /**
@@ -53,10 +50,7 @@ public class TextKeyPadComponent implements Component {
    * @param isUnlocked if the keypad is already unlocked.
    */
   public TextKeyPadComponent(
-      List<String> correctTexts,
-      String enteredText,
-      Runnable action,
-      boolean isUnlocked) {
+      List<String> correctTexts, String enteredText, Runnable action, boolean isUnlocked) {
     this.correctTexts = correctTexts;
     this.enteredText = enteredText;
     this.action = action;
@@ -99,7 +93,7 @@ public class TextKeyPadComponent implements Component {
     boolean isCorrect = false;
     for (String validText : correctTexts) {
       if (validText.equals(enteredText)) {
-        isCorrect=true;
+        isCorrect = true;
         break;
       }
     }
@@ -134,6 +128,7 @@ public class TextKeyPadComponent implements Component {
 
   /**
    * Sets the enteredText to the given parameter.
+   *
    * @param text new enteredText value.
    */
   public void setEnteredText(String text) {
