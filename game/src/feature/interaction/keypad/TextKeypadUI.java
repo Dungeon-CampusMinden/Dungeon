@@ -65,7 +65,7 @@ public class TextKeypadUI extends Group {
 
     background = new Image(getSkin(), "keypad-ui-off");
     background.setOrigin(Align.center);
-    background.setScale(1.5f);
+    background.setScale(1.9f);
     background.setPosition(getX(Align.center), getY(Align.center), Align.center);
     this.addActor(background);
 
@@ -75,7 +75,7 @@ public class TextKeypadUI extends Group {
 
     numberLabel = new Label("12345", getSkin(), "keypad");
     numberLabel.setFontScale(1.25f);
-    parentTable.add(numberLabel).height(120).padBottom(60).row();
+    parentTable.add(numberLabel).height(120).padBottom(100).row();
 
     Table tableButtons = new Table();
     parentTable.add(tableButtons);
@@ -119,7 +119,7 @@ public class TextKeypadUI extends Group {
       if (!action.equals(ACTION_BACK) && !action.equals(ACTION_SUBMIT) && !action.equals(ACTION_SPACE)) {
         btn.getLabel().setFontScale(2f);
       } else {
-        btn.getLabel().setFontScale(1.25f);
+        btn.getLabel().setFontScale(1f);
       }
       btn.addListener(
           new ClickListener() {
@@ -129,8 +129,8 @@ public class TextKeypadUI extends Group {
                   .accept(new DialogResponseMessage.StringValue(action));
             }
           });
-      Cell<TextButton> c = tableButtons.add(btn).height(100).width(100).pad(10);
-      if (i == 9 || i == 18 || i == 25) {
+      Cell<TextButton> c = tableButtons.add(btn).height(75).width(75).pad(5);
+      if (i % 5 == 4 || i == 25) {
         c.row();
       }
       buttonCells.add(c);
