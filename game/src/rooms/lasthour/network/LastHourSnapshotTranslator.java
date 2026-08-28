@@ -431,7 +431,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
 
     List<String> correctTexts = List.of(correctTextsRaw.split(";"));
     String enteredText =
-      metadata.get(LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_ENTERED_TEXT);
+        metadata.get(LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_ENTERED_TEXT);
     if (enteredText == null) {
       return Optional.empty();
     }
@@ -439,8 +439,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     boolean isUnlocked =
         Boolean.parseBoolean(
             metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED, "false"));
-    return Optional.of(
-        new TextKeyPadComponent(correctTexts, enteredText, isUnlocked));
+    return Optional.of(new TextKeyPadComponent(correctTexts, enteredText, isUnlocked));
   }
 
   /**
@@ -542,10 +541,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
             .orElseGet(
                 () -> {
                   TextKeyPadComponent newComponent =
-                      new TextKeyPadComponent(
-                          keypadComponent.correctText(),
-                          () -> {}
-                      );
+                      new TextKeyPadComponent(keypadComponent.correctText(), () -> {});
                   entity.add(newComponent);
                   return newComponent;
                 });
