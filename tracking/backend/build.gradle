@@ -1,0 +1,26 @@
+plugins {
+    id 'application'
+}
+
+application {
+    mainClass = 'tracking.backend.TrackingBackend'
+}
+
+dependencies {
+    implementation project(':tracking:core')
+    runtimeOnly supportDependencies.postgres
+}
+
+tasks.register('importOutbox', JavaExec) {
+    group = 'application'
+    description = 'Imports a tracking JSONL outbox through the configured backend HTTP API.'
+    mainClass = 'tracking.backend.TrackingImportCli'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('migrateDatabase', JavaExec) {
+    group = 'application'
+    description = 'Applies tracking database migrations with a schema-owner connection.'
+    mainClass = 'tracking.backend.TrackingMigrate'
+    classpath = sourceSets.main.runtimeClasspath
+}

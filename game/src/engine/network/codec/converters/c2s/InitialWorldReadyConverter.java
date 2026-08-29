@@ -11,12 +11,14 @@ public final class InitialWorldReadyConverter
 
   @Override
   public engine.network.proto.c2s.InitialWorldReady toProto(InitialWorldReady message) {
-    return engine.network.proto.c2s.InitialWorldReady.newBuilder().build();
+    return engine.network.proto.c2s.InitialWorldReady.newBuilder()
+        .setRoomPlayedBefore(message.roomPlayedBefore())
+        .build();
   }
 
   @Override
   public InitialWorldReady fromProto(engine.network.proto.c2s.InitialWorldReady proto) {
-    return new InitialWorldReady();
+    return new InitialWorldReady(proto.getRoomPlayedBefore());
   }
 
   @Override

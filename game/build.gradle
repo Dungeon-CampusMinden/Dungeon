@@ -11,6 +11,8 @@ application {
 }
 
 dependencies {
+    api project(':tracking:core')
+
     // LibGDX: expose this API to users because of engine.level.elements.ILevel
     api supportDependencies.gdx
     api supportDependencies.gdx_platform

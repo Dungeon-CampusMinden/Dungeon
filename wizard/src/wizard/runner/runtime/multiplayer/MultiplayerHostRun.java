@@ -3,7 +3,7 @@ package wizard.runner.runtime.multiplayer;
 import engine.Entity;
 import engine.Game;
 import engine.game.ECSManagement;
-import engine.game.ServerProcess;
+import engine.game.ServerLifecycle;
 import engine.game.ServerStarter;
 import engine.level.Tile;
 import engine.level.elements.tile.DoorTile;
@@ -18,6 +18,7 @@ import engine.systems.LevelSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
+import engine.tracking.Tracking;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLoggerConfig;
@@ -31,7 +32,6 @@ import escaperoom.foundation.room.level.RoomLevel;
 import escaperoom.foundation.room.model.FoundationRoom;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -53,7 +53,6 @@ public final class MultiplayerHostRun {
   private final Entity bootstrapMarker;
   private final ServerBinding serverBinding;
   private final AtomicBoolean started = new AtomicBoolean();
-  private final AtomicBoolean exitRequested = new AtomicBoolean();
   private volatile ServerGameBinding gameBinding;
 
   private MultiplayerHostRun(final FoundationRoom room) {
@@ -83,6 +82,9 @@ public final class MultiplayerHostRun {
     }
 
     CountDownLatch completion = new CountDownLatch(1);
+    ServerLifecycle lifecycle =
+        ServerLifecycle.install("Foundation multiplayer host stopped", completion::countDown);
+    Tracking.configureRoom(definition.id());
     var spawnStrategy =
         new BootstrapEntitySpawnStrategy(
             bootstrapMarker, room.inputSha256(), new DefaultEntitySpawnStrategy());
@@ -100,8 +102,7 @@ public final class MultiplayerHostRun {
                     if (binding == null) {
                       binding =
                           createGameBinding(
-                              () ->
-                                  requestExit("Foundation multiplayer room completed", completion));
+                              () -> lifecycle.requestExit("Foundation multiplayer room completed"));
                       gameBinding = binding;
                     }
                     binding.tick();
@@ -114,43 +115,13 @@ public final class MultiplayerHostRun {
       prepareLevel();
       Game.windowTitle(room.title() + " Server");
       Game.run();
-      startManagedStopMonitor(completion);
       awaitCompletion(completion);
     } finally {
       try {
-        requestExit("Foundation multiplayer host stopped", completion);
+        lifecycle.requestExit("Foundation multiplayer host stopped");
       } finally {
         DungeonLoggerConfig.shutdown();
       }
-    }
-  }
-
-  private void startManagedStopMonitor(final CountDownLatch completion) {
-    if (!Boolean.getBoolean(ServerProcess.MANAGED_PROPERTY)) {
-      return;
-    }
-    Thread.ofPlatform()
-        .daemon()
-        .name("foundation-managed-host-stop")
-        .start(
-            () -> {
-              try {
-                System.in.read();
-              } catch (IOException exception) {
-                // A broken management pipe has the same lifecycle meaning as EOF.
-              }
-              requestExit("Foundation multiplayer host stopped by its managing client", completion);
-            });
-  }
-
-  private void requestExit(final String reason, final CountDownLatch completion) {
-    if (!exitRequested.compareAndSet(false, true)) {
-      return;
-    }
-    try {
-      Game.exit(reason);
-    } finally {
-      completion.countDown();
     }
   }
 

@@ -175,6 +175,9 @@ public class ComputerDialog extends Group {
     }
     if (newState.state().progress() < oldProgress.progress()) {
       rebuildTabsForRegressedProgress();
+    } else if (oldProgress != ComputerProgress.LOGGED_IN
+        && newState.state() == ComputerProgress.LOGGED_IN) {
+      addTabsForState(ComputerProgress.LOGGED_IN);
     }
 
     // Add the USB drive tab once the correct stick has been plugged in

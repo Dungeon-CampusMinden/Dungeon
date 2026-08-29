@@ -1,9 +1,14 @@
 package engine.game;
 
+import engine.tracking.TrackingConfig;
 import engine.utils.logging.DungeonLogger;
+import java.awt.GraphicsEnvironment;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -11,7 +16,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 /**
  * Launches and supervises a dedicated server in a separate JVM.
@@ -29,16 +38,26 @@ public final class ServerProcess {
   /** System property identifying a server process managed by a hosting client. */
   public static final String MANAGED_PROPERTY = "dungeon.server.managed";
 
+  /** Internal loopback port used by a managed server to report terminal status to its host. */
+  public static final String STATUS_PORT_PROPERTY = "dungeon.server.statusPort";
+
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerProcess.class);
   private static final String LOCALHOST = "127.0.0.1";
   private static final int CONNECT_PROBE_TIMEOUT_MS = 500;
   private static final long POLL_INTERVAL_MS = 200;
-  private static final long TERMINATION_TIMEOUT_SECONDS = 5;
+  private static final long TERMINATION_TIMEOUT_SECONDS = 15;
+  private static final long STATUS_DRAIN_TIMEOUT_MILLIS = 500;
+  private static final String TRACKING_UPLOAD_PENDING = "tracking-upload-pending";
 
   private final Process process;
+  private final ServerSocket statusServer;
+  private final CountDownLatch statusListenerComplete = new CountDownLatch(1);
 
-  private ServerProcess(final Process process) {
+  private ServerProcess(final Process process, final ServerSocket statusServer) {
     this.process = process;
+    this.statusServer = statusServer;
+    startStatusListener();
+    process.onExit().thenRun(this::drainAndCloseStatusServer);
   }
 
   /**
@@ -52,19 +71,28 @@ public final class ServerProcess {
    */
   public static ServerProcess start(final Class<?> mainClass, final int port, final String... args)
       throws IOException {
-    Process process =
-        new ProcessBuilder(buildCommand(mainClass, port, args))
-            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-            .redirectError(ProcessBuilder.Redirect.INHERIT)
-            .start();
-    ServerProcess server = new ServerProcess(process);
+    ServerSocket statusServer = new ServerSocket();
+    statusServer.bind(new InetSocketAddress(LOCALHOST, 0));
+    Process process;
+    try {
+      ProcessBuilder processBuilder =
+          new ProcessBuilder(buildCommand(mainClass, port, statusServer.getLocalPort(), args))
+              .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+              .redirectError(ProcessBuilder.Redirect.INHERIT);
+      TrackingConfig.applySystemPropertiesToChildEnvironment(processBuilder.environment());
+      process = processBuilder.start();
+    } catch (IOException exception) {
+      statusServer.close();
+      throw exception;
+    }
+    ServerProcess server = new ServerProcess(process, statusServer);
     Runtime.getRuntime()
         .addShutdownHook(new Thread(server::stop, "server-process-shutdown-" + process.pid()));
     return server;
   }
 
   private static List<String> buildCommand(
-      final Class<?> mainClass, final int port, final String... args) {
+      final Class<?> mainClass, final int port, final int statusPort, final String... args) {
     String javaHome = System.getProperty("java.home");
     boolean windows = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
     List<String> command = new ArrayList<>();
@@ -73,6 +101,7 @@ public final class ServerProcess {
     command.add(System.getProperty("java.class.path"));
     command.add("-D" + PORT_PROPERTY + "=" + port);
     command.add("-D" + MANAGED_PROPERTY + "=true");
+    command.add("-D" + STATUS_PORT_PROPERTY + "=" + statusPort);
     command.add(mainClass.getName());
     if (args != null) {
       Collections.addAll(command, args);
@@ -156,6 +185,109 @@ public final class ServerProcess {
     } catch (InterruptedException exception) {
       Thread.currentThread().interrupt();
       process.destroy();
+    } finally {
+      drainAndCloseStatusServer();
+    }
+  }
+
+  /**
+   * Reports a pending tracking upload from a managed child to the hosting client.
+   *
+   * @param outboxPath absolute local outbox path
+   * @param operatorContact optional configured recovery contact
+   * @return whether the status reached the managing client
+   */
+  public static boolean reportTrackingUploadPending(
+      Path outboxPath, Optional<String> operatorContact) {
+    Integer statusPort = Integer.getInteger(STATUS_PORT_PROPERTY);
+    if (!Boolean.getBoolean(MANAGED_PROPERTY) || statusPort == null) {
+      return false;
+    }
+    try (Socket socket = new Socket()) {
+      socket.connect(new InetSocketAddress(LOCALHOST, statusPort), CONNECT_PROBE_TIMEOUT_MS);
+      try (DataOutputStream output = new DataOutputStream(socket.getOutputStream())) {
+        output.writeUTF(TRACKING_UPLOAD_PENDING);
+        output.writeUTF(outboxPath.toString());
+        output.writeBoolean(operatorContact.isPresent());
+        if (operatorContact.isPresent()) {
+          output.writeUTF(operatorContact.orElseThrow());
+        }
+        output.flush();
+      }
+      return true;
+    } catch (IOException | RuntimeException exception) {
+      LOGGER.warn("Cannot report tracking upload status to the hosting client.", exception);
+      return false;
+    }
+  }
+
+  private void startStatusListener() {
+    Thread.ofPlatform()
+        .daemon()
+        .name("server-process-status-" + process.pid())
+        .start(
+            () -> {
+              try (Socket socket = statusServer.accept();
+                  DataInputStream input = new DataInputStream(socket.getInputStream())) {
+                String status = input.readUTF();
+                if (!TRACKING_UPLOAD_PENDING.equals(status)) {
+                  LOGGER.warn("Managed server sent an unknown status: {}", status);
+                  return;
+                }
+                Path outboxPath = Path.of(input.readUTF()).toAbsolutePath();
+                Optional<String> operatorContact =
+                    input.readBoolean() ? Optional.of(input.readUTF()) : Optional.empty();
+                showTrackingUploadPending(outboxPath, operatorContact);
+              } catch (IOException | RuntimeException exception) {
+                if (!statusServer.isClosed()) {
+                  LOGGER.warn("Cannot receive managed-server status.", exception);
+                }
+              } finally {
+                statusListenerComplete.countDown();
+                closeStatusServer();
+              }
+            });
+  }
+
+  private void drainAndCloseStatusServer() {
+    try {
+      statusListenerComplete.await(STATUS_DRAIN_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException exception) {
+      Thread.currentThread().interrupt();
+    } finally {
+      closeStatusServer();
+    }
+  }
+
+  private static void showTrackingUploadPending(Path outboxPath, Optional<String> operatorContact) {
+    String message =
+        "Tracking persistence is not confirmed.\nKeep the local data at:\n"
+            + outboxPath
+            + operatorContact.map(value -> "\n\nOperator contact: " + value).orElse("");
+    LOGGER.warn("{}", message.replace('\n', ' '));
+    if (GraphicsEnvironment.isHeadless()) {
+      return;
+    }
+    try {
+      SwingUtilities.invokeLater(
+          () -> {
+            try {
+              JOptionPane.showMessageDialog(
+                  null, message, "Tracking persistence pending", JOptionPane.WARNING_MESSAGE);
+            } catch (RuntimeException exception) {
+              LOGGER.warn("Cannot display tracking upload status for {}.", outboxPath, exception);
+            }
+          });
+    } catch (RuntimeException exception) {
+      LOGGER.warn("Cannot schedule tracking upload status for {}.", outboxPath, exception);
+    }
+  }
+
+  private void closeStatusServer() {
+    try {
+      statusServer.close();
+    } catch (IOException exception) {
+      LOGGER.warn("Cannot close managed-server status channel.", exception);
     }
   }
 

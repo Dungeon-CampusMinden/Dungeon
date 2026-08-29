@@ -4,6 +4,7 @@ import engine.Game;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.elements.ILevel;
+import engine.tracking.TrackingRuntime;
 import engine.utils.IVoidFunction;
 import engine.utils.Tuple;
 import engine.utils.components.path.IPath;
@@ -62,6 +63,7 @@ public class DungeonLoader {
       () -> {
         System.out.println("Game Over!");
         System.out.println("You have passed all " + currentLevel + " levels!");
+        TrackingRuntime.completed();
         Game.exit();
       };
 

@@ -27,11 +27,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import rooms.lasthour.level.LastHourLevel;
 import rooms.lasthour.modules.usbstick.UsbStickColor;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.util.LastHourQuestLogUtil;
 import rooms.lasthour.util.LastHourSounds;
+import rooms.lasthour.util.LastHourTracking;
 import rooms.lasthour.util.Lore;
 
 /** Factory class for creating and managing the computer dialog in the escape room level. */
@@ -41,14 +43,47 @@ public class ComputerFactory {
   private static final String STATE_KEY = "computer_state";
   private static final String ACCESS_PC_LABEL = "Just access the PC";
 
-  /** Key for updating the computer state from the dialog callbacks. */
-  public static final String UPDATE_STATE_KEY = "update_state";
-
   /** Callback key fired when a player opens the control panel tab. */
   public static final String CONTROL_PANEL_OPENED_KEY = "control_panel_opened";
 
+  /** Callback fired when a player opens the exit-code hint file. */
+  public static final String EXIT_CODE_HINT_OPENED_KEY = "exit_code_hint_opened";
+
+  /** Callback fired when a player follows a known malicious link or attachment. */
+  public static final String VIRUS_TRIGGER_KEY = "virus_trigger";
+
+  /** Callback carrying the code entered to neutralize the current virus. */
+  public static final String VIRUS_CODE_ATTEMPT_KEY = "virus_code_attempt";
+
+  /** Control-panel intent callbacks. */
+  public static final String TOGGLE_LIGHTS_KEY = "toggle_lights";
+
+  public static final String ADJUST_HEATER_KEY = "adjust_heater";
+  public static final String TOGGLE_DOOR_1_KEY = "toggle_door_1";
+  public static final String OPEN_EXIT_DOOR_KEY = "open_exit_door";
+  public static final String TOGGLE_AC_KEY = "toggle_ac";
+  public static final String TOGGLE_CAMERAS_KEY = "toggle_cameras";
+
+  /** Callback carrying the raw username and password entered in the login form. */
+  public static final String LOGIN_ATTEMPT_KEY = "login_attempt";
+
+  /** Callback carrying the raw recovery code entered in the browser. */
+  public static final String RECOVERY_ATTEMPT_KEY = "recovery_attempt";
+
+  /** Callback carrying the raw exit-door password entered in the control panel. */
+  public static final String EXIT_ATTEMPT_KEY = "exit_attempt";
+
+  /** Callback carrying the raw ventilation serial entered in the control panel. */
+  public static final String VENTILATION_ATTEMPT_KEY = "ventilation_attempt";
+
   /** Delay in milliseconds between triggering the unknown-device virus and the forced shutdown. */
   public static final long UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS = 10_000L;
+
+  private static final int MIN_HEATER_CELSIUS = 10;
+  private static final int MAX_HEATER_CELSIUS = 30;
+  // Code-bearing infections use this puzzle. The unknown-device flow shuts down automatically.
+  private static final String VIRUS_PUZZLE_ID = "virus-neutralization";
+  private static final String VIRUS_CODE_OBJECT_ID = "virus-security-code";
 
   private static Consumer<Entity> onVirusTriggered = who -> {};
   private static Consumer<Entity> onPcUnlocked = who -> {};
@@ -105,6 +140,7 @@ public class ComputerFactory {
             () ->
                 new Interaction(
                     (eInteract, who) -> {
+                      LastHourTracking.started("power");
                       DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
                       if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
                         LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
@@ -221,13 +257,22 @@ public class ComputerFactory {
    */
   private static void onUsbStickInserted(
       UsbStickItem.BaseUsbStick stick, Entity pcEntity, Entity who) {
+    LastHourTracking.attempt(
+        "blue-usb",
+        "usb-color",
+        "color",
+        stick.color().name(),
+        stick.color() == UsbStickColor.Blue,
+        who);
     if (stick.color() == UsbStickColor.Blue) {
+      LastHourTracking.solved("blue-usb");
       LOGGER.info("Correct USB stick inserted: " + stick.color().displayName());
       LastHourQuestLogUtil.addUsbUsedQuestLogEntry();
       LastHourQuestLogUtil.addUsbRecoveredDataQuestLogEntry();
       // Remove the stick from inventory and mark as inserted
       who.fetch(InventoryComponent.class).ifPresent(inv -> inv.removeOne(stick));
       ComputerStateComponent.setUsbInserted(true);
+      LastHourTracking.started("ventilation");
       openComputerDialog(pcEntity, who);
     } else {
       LOGGER.info(
@@ -284,58 +329,298 @@ public class ComputerFactory {
     Optional<Entity> e = Game.levelEntities(Set.of(ComputerStateComponent.class)).findFirst();
     e.ifPresent(
         stateEntity -> {
-          ComputerStateComponent state =
+          ComputerStateComponent initialState =
               stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
-          builder.put(STATE_KEY, state);
+          builder.put(STATE_KEY, initialState);
           var computerDialogInstance = DialogFactory.show(builder.build(), who.id());
           computerDialogInstance.registerCallback(
-              UPDATE_STATE_KEY,
+              VIRUS_TRIGGER_KEY,
+              data ->
+                  responseString(data)
+                      .filter(
+                          source ->
+                              Lore.VirusWebsites.contains(source)
+                                  || Lore.VirusAttachmentNames.contains(source))
+                      .ifPresent(source -> infectComputer(stateEntity, who)));
+          computerDialogInstance.registerCallback(
+              VIRUS_CODE_ATTEMPT_KEY,
+              data ->
+                  responseString(data).ifPresent(raw -> neutralizeVirus(stateEntity, raw, who)));
+          computerDialogInstance.registerCallback(
+              TOGGLE_LIGHTS_KEY,
               data -> {
-                ComputerStateComponent newState = null;
-                if (data instanceof ComputerStateComponent csc) {
-                  newState = csc;
-                } else if (data instanceof DialogResponseMessage.CustomPayload(var wrappedValue)
-                    && wrappedValue instanceof ComputerStateComponent csc) {
-                  newState = csc;
+                if (!(data instanceof DialogResponseMessage.BoolValue(boolean target))) {
+                  return;
                 }
-                if (newState == null) return;
-
-                ComputerStateComponent previousState =
-                    stateEntity.fetch(ComputerStateComponent.class).orElse(null);
-                if (previousState == null) return;
-
-                boolean wasInfected =
-                    ComputerStateComponent.getState()
-                        .map(ComputerStateComponent::isInfected)
-                        .orElse(false);
-                stateEntity.remove(ComputerStateComponent.class);
-                stateEntity.add(newState);
-
-                // In multiplayer, only the server should emit sounds so clients receive them via
-                // sound network messages from the authoritative callback execution.
-                if (!PreRunConfiguration.multiplayerEnabled()
-                    || PreRunConfiguration.isNetworkServer()) {
-                  playControlPanelSounds(previousState, newState);
+                applyControlIntent(stateEntity, state -> state.withLightsOn(target));
+              });
+          computerDialogInstance.registerCallback(
+              ADJUST_HEATER_KEY,
+              data -> {
+                if (!(data instanceof DialogResponseMessage.IntValue(int delta))
+                    || (delta != -1 && delta != 1)) {
+                  return;
                 }
-
-                if (newState.isInfected() && !wasInfected) {
-                  LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
-                  onVirusTriggered.accept(who);
-                  Game.add(
-                      EmoteFactory.createEmote(
-                          LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
-                          Emote.FACE_ANGRY,
-                          3000));
+                applyControlIntent(
+                    stateEntity,
+                    state ->
+                        state.withHeaterCelsius(
+                            Math.max(
+                                MIN_HEATER_CELSIUS,
+                                Math.min(MAX_HEATER_CELSIUS, state.heaterCelsius() + delta))));
+              });
+          computerDialogInstance.registerCallback(
+              TOGGLE_DOOR_1_KEY,
+              data -> {
+                if (!(data instanceof DialogResponseMessage.BoolValue(boolean target))) {
+                  return;
                 }
-                if (!previousState.state().hasReached(ComputerProgress.LOGGED_IN)
-                    && newState.state().hasReached(ComputerProgress.LOGGED_IN)) {
-                  LastHourQuestLogUtil.addMailReviewQuestLogEntry();
-                  onPcUnlocked.accept(who);
+                applyControlIntent(stateEntity, state -> state.withDoor1Open(target));
+              });
+          computerDialogInstance.registerCallback(
+              OPEN_EXIT_DOOR_KEY,
+              data -> {
+                ComputerStateComponent current = currentState(stateEntity).orElse(null);
+                if (!controlPanelAvailable(current)
+                    || !current.door2Unlocked()
+                    || current.door2Open()) {
+                  return;
+                }
+                applyControlIntent(stateEntity, state -> state.withDoor2Open(true));
+                LastHourTracking.solved("exit");
+              });
+          computerDialogInstance.registerCallback(
+              TOGGLE_AC_KEY,
+              data -> {
+                if (!(data instanceof DialogResponseMessage.BoolValue(boolean target))) {
+                  return;
+                }
+                ComputerStateComponent current = currentState(stateEntity).orElse(null);
+                if (!controlPanelAvailable(current) || !current.acVentConnected()) {
+                  return;
+                }
+                applyControlIntent(stateEntity, state -> state.withAcOn(target));
+                if (target && !current.acOn()) {
+                  LastHourTracking.solved("ventilation");
                 }
               });
           computerDialogInstance.registerCallback(
-              CONTROL_PANEL_OPENED_KEY, data -> onControlPanelOpened.accept(who));
+              TOGGLE_CAMERAS_KEY,
+              data -> {
+                if (!(data instanceof DialogResponseMessage.BoolValue(boolean target))) {
+                  return;
+                }
+                applyControlIntent(stateEntity, state -> state.withCamerasOn(target));
+              });
+          computerDialogInstance.registerCallback(
+              LOGIN_ATTEMPT_KEY,
+              data ->
+                  responseString(data)
+                      .ifPresent(
+                          raw -> {
+                            ComputerStateComponent current = currentState(stateEntity).orElse(null);
+                            if (current == null
+                                || current.isInfected()
+                                || current.state() != ComputerProgress.ON) {
+                              return;
+                            }
+                            String[] credentials = raw.split("\\n", 2);
+                            String username = credentials.length > 0 ? credentials[0] : "";
+                            String password = credentials.length > 1 ? credentials[1] : "";
+                            boolean correct =
+                                (username.equalsIgnoreCase(Lore.LoginEmail)
+                                        && password.equalsIgnoreCase(Lore.LoginPassword))
+                                    || username.equals("skipp");
+                            LastHourTracking.attempt(
+                                "login", "credentials", "username-password", raw, correct, who);
+                            if (correct) {
+                              LastHourTracking.solved("login");
+                              ComputerStateComponent currentState =
+                                  stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
+                              if (!currentState.state().hasReached(ComputerProgress.LOGGED_IN)) {
+                                stateEntity.remove(ComputerStateComponent.class);
+                                stateEntity.add(
+                                    currentState
+                                        .withState(ComputerProgress.LOGGED_IN)
+                                        .withTimestampOfLogin(
+                                            (int) (System.currentTimeMillis() / 1000L)));
+                                LastHourTracking.started("storage-recovery");
+                                LastHourQuestLogUtil.addMailReviewQuestLogEntry();
+                                onPcUnlocked.accept(who);
+                              }
+                            }
+                          }));
+          computerDialogInstance.registerCallback(
+              RECOVERY_ATTEMPT_KEY,
+              data ->
+                  responseString(data)
+                      .ifPresent(
+                          raw -> {
+                            ComputerStateComponent current = currentState(stateEntity).orElse(null);
+                            if (current == null
+                                || current.isInfected()
+                                || !current.state().hasReached(ComputerProgress.LOGGED_IN)) {
+                              return;
+                            }
+                            boolean correct = raw.strip().equals(Lore.AsciiCodes.getFirst());
+                            LastHourTracking.attempt(
+                                "storage-recovery",
+                                "browser-recovery-code",
+                                "numeric-code",
+                                raw,
+                                correct,
+                                who);
+                            if (correct) {
+                              LastHourTracking.solved("storage-recovery");
+                            }
+                          }));
+          computerDialogInstance.registerCallback(
+              EXIT_ATTEMPT_KEY,
+              data ->
+                  responseString(data)
+                      .ifPresent(
+                          raw -> {
+                            ComputerStateComponent availableState =
+                                currentState(stateEntity).orElse(null);
+                            if (!controlPanelAvailable(availableState)) {
+                              return;
+                            }
+                            boolean correct = raw.equalsIgnoreCase(Lore.ControlPanelDoor2Password);
+                            LastHourTracking.attempt(
+                                "exit", "exit-door-code", "numeric-code", raw, correct, who);
+                            if (correct) {
+                              ComputerStateComponent currentState =
+                                  stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
+                              if (!currentState.door2Unlocked()) {
+                                stateEntity.remove(ComputerStateComponent.class);
+                                stateEntity.add(currentState.withDoor2Unlocked(true));
+                              }
+                            }
+                          }));
+          computerDialogInstance.registerCallback(
+              VENTILATION_ATTEMPT_KEY,
+              data ->
+                  responseString(data)
+                      .ifPresent(
+                          raw -> {
+                            ComputerStateComponent availableState =
+                                currentState(stateEntity).orElse(null);
+                            if (!controlPanelAvailable(availableState)) {
+                              return;
+                            }
+                            boolean correct = raw.equals(Lore.VentSerialNumber);
+                            LastHourTracking.attempt(
+                                "ventilation",
+                                "ventilation-serial",
+                                "serial-number",
+                                raw,
+                                correct,
+                                who);
+                            if (correct) {
+                              ComputerStateComponent currentState =
+                                  stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
+                              if (!currentState.acVentConnected()) {
+                                stateEntity.remove(ComputerStateComponent.class);
+                                stateEntity.add(currentState.withAcVentConnected(true));
+                              }
+                            }
+                          }));
+          computerDialogInstance.registerCallback(
+              CONTROL_PANEL_OPENED_KEY,
+              data -> {
+                if (controlPanelAvailable(currentState(stateEntity).orElse(null))) {
+                  onControlPanelOpened.accept(who);
+                }
+              });
+          computerDialogInstance.registerCallback(
+              EXIT_CODE_HINT_OPENED_KEY,
+              data -> {
+                ComputerStateComponent current = currentState(stateEntity).orElse(null);
+                if (!controlPanelAvailable(current)) {
+                  return;
+                }
+                LastHourTracking.started("exit-code-assembly");
+                LastHourTracking.hintUsed("exit-code-assembly", "usb-hint-file", who);
+              });
         });
+  }
+
+  private static void infectComputer(Entity stateEntity, Entity who) {
+    ComputerStateComponent current = currentState(stateEntity).orElse(null);
+    if (current == null
+        || current.isInfected()
+        || !current.state().hasReached(ComputerProgress.LOGGED_IN)) {
+      return;
+    }
+    String virusType =
+        Lore.CodePageIndexToVirusType.get(
+            (int) (Math.random() * Lore.CodePageIndexToVirusType.size()));
+    replaceState(stateEntity, current.withVirusType(virusType).withInfection(true));
+    LastHourTracking.started(VIRUS_PUZZLE_ID);
+    LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
+    onVirusTriggered.accept(who);
+    Game.add(
+        EmoteFactory.createEmote(
+            LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
+            Emote.FACE_ANGRY,
+            3000));
+  }
+
+  private static void neutralizeVirus(Entity stateEntity, String rawCode, Entity who) {
+    ComputerStateComponent current = currentState(stateEntity).orElse(null);
+    if (current == null || !current.isInfected()) {
+      return;
+    }
+    String expected = Lore.VirusTypeToCode.get(current.virusType());
+    boolean correct =
+        expected != null
+            && rawCode.replaceAll("\\s+", "").equalsIgnoreCase(expected.replaceAll("\\s+", ""));
+    LastHourTracking.attempt(
+        VIRUS_PUZZLE_ID, VIRUS_CODE_OBJECT_ID, "security-code", rawCode, correct, who);
+    if (!correct) {
+      return;
+    }
+    replaceState(stateEntity, current.withInfection(false).withVirusType(null));
+    LastHourTracking.solved(VIRUS_PUZZLE_ID);
+  }
+
+  private static void applyControlIntent(
+      Entity stateEntity, UnaryOperator<ComputerStateComponent> transition) {
+    ComputerStateComponent previous = currentState(stateEntity).orElse(null);
+    if (!controlPanelAvailable(previous)) {
+      return;
+    }
+    ComputerStateComponent next = transition.apply(previous);
+    if (next.equals(previous)) {
+      return;
+    }
+    replaceState(stateEntity, next);
+    if (!PreRunConfiguration.multiplayerEnabled() || PreRunConfiguration.isNetworkServer()) {
+      playControlPanelSounds(previous, next);
+    }
+  }
+
+  private static boolean controlPanelAvailable(ComputerStateComponent state) {
+    return state != null
+        && state.usbInserted()
+        && state.state().hasReached(ComputerProgress.LOGGED_IN)
+        && !state.isInfected();
+  }
+
+  private static Optional<ComputerStateComponent> currentState(Entity stateEntity) {
+    return stateEntity.fetch(ComputerStateComponent.class);
+  }
+
+  private static void replaceState(Entity stateEntity, ComputerStateComponent state) {
+    stateEntity.remove(ComputerStateComponent.class);
+    stateEntity.add(state);
+  }
+
+  private static Optional<String> responseString(Object data) {
+    if (data instanceof DialogResponseMessage.StringValue(String value)) {
+      return Optional.of(value);
+    }
+    return Optional.empty();
   }
 
   /**

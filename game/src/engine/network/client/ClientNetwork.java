@@ -27,6 +27,7 @@ import engine.network.messages.s2c.RegisterAck;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.network.server.ClientState;
 import engine.network.server.Session;
+import engine.tracking.TrackingRuntime;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLogger;
 import feature.entities.CharacterClass;
@@ -700,8 +701,13 @@ public final class ClientNetwork {
                         NetworkTelemetry.recordInboundTcp(
                             msg, size, java.lang.System.nanoTime() - receiveNanos);
                         if (msg
-                            instanceof ConnectAck(short id, int sessionId, byte[] sessionToken)) {
-                          onConnectAck(id, sessionId, sessionToken);
+                            instanceof
+                            ConnectAck(
+                                short id,
+                                int sessionId,
+                                byte[] sessionToken,
+                                String trackingRoomId)) {
+                          onConnectAck(id, sessionId, sessionToken, trackingRoomId);
                         } else if (msg instanceof ConnectReject(byte reason)) {
                           onConnectReject(session, ConnectReject.Reason.fromCode(reason));
                         } else if (msg instanceof RegisterAck(boolean ok)) {
@@ -970,10 +976,12 @@ public final class ClientNetwork {
     LOGGER.info("Client opened UDP channel for {}:{}", remoteHost, port);
   }
 
-  private void onConnectAck(short newClientId, int sessionId, byte[] sessionToken) {
+  private void onConnectAck(
+      short newClientId, int sessionId, byte[] sessionToken, String trackingRoomId) {
     this.clientId = newClientId;
     connected.set(true);
     initialWorldReady.set(false);
+    TrackingRuntime.clientRoomContext(trackingRoomId);
     LOGGER.info("Received ConnectAck clientId={}, sessionId={}", newClientId, sessionId);
     session.attachClientState(
         new ClientState(

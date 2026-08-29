@@ -17,6 +17,7 @@ public final class ConnectAckConverter
         .setClientId(message.clientId())
         .setSessionId(message.sessionId())
         .setSessionToken(ByteString.copyFrom(message.sessionToken()))
+        .setTrackingRoomId(message.trackingRoomId())
         .build();
   }
 
@@ -25,7 +26,8 @@ public final class ConnectAckConverter
     return new ConnectAck(
         CommonProtoConverters.toShortExact(proto.getClientId(), "client_id"),
         proto.getSessionId(),
-        proto.getSessionToken().toByteArray());
+        proto.getSessionToken().toByteArray(),
+        proto.getTrackingRoomId());
   }
 
   @Override

@@ -235,6 +235,9 @@ public class UsbDriveTab extends ComputerTab {
         .ifPresent(
             dialog -> {
               if (HINT_FILE.equals(fileName)) {
+                DialogCallbackResolver.createButtonCallback(
+                        context().dialogId(), ComputerFactory.EXIT_CODE_HINT_OPENED_KEY)
+                    .accept(new DialogResponseMessage.StringValue(HINT_FILE));
                 openOrFocus(
                     dialog, "file-" + HINT_FILE, () -> new FileTab(sharedState(), HINT_FILE));
               } else if (CONTROL_PANEL_KEY_FILE.equals(fileName)) {

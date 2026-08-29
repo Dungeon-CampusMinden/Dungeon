@@ -38,6 +38,8 @@ import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.network.messages.s2c.InitialWorldComplete;
 import engine.network.messages.s2c.LevelChangeEvent;
 import engine.network.messages.s2c.RegisterAck;
+import engine.tracking.Tracking;
+import engine.tracking.TrackingRuntime;
 import engine.utils.logging.DungeonLogger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
@@ -450,6 +452,7 @@ public final class ServerTransport {
         session.udpReady(false);
 
         // Remove Player Entity on disconnect
+        session.clientState().ifPresent(state -> TrackingRuntime.participantLeft(state.clientId()));
         session.clientState().flatMap(ClientState::playerEntity).ifPresent(Game::remove);
 
         LOGGER.info("TCP Session closed for {}", session);
@@ -784,7 +787,10 @@ public final class ServerTransport {
             selectedCharacterClass(req));
     session.udpReady(false);
 
-    session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
+    session.sendMessage(
+        new ConnectAck(
+            newClientId, ServerRuntime.SESSION_ID, sessionToken, Tracking.roomId().orElse("")),
+        true);
 
     session.attachClientState(clientState);
     clientIdToSession.put(newClientId, session);
@@ -867,7 +873,10 @@ public final class ServerTransport {
     oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
 
     // 4. Send ConnectAck
-    session.sendMessage(new ConnectAck(clientId, ServerRuntime.SESSION_ID, newSessionToken), true);
+    session.sendMessage(
+        new ConnectAck(
+            clientId, ServerRuntime.SESSION_ID, newSessionToken, Tracking.roomId().orElse("")),
+        true);
 
     session.attachClientState(oldClientState);
     clientIdToSession.put(clientId, session);
@@ -1031,6 +1040,13 @@ public final class ServerTransport {
 
     state.initialWorldReady(true);
     state.updateLastActivity();
+    TrackingRuntime.participantJoined(state.clientId(), msg.roomPlayedBefore())
+        .ifPresent(
+            ignored ->
+                state
+                    .playerEntity()
+                    .ifPresent(
+                        player -> TrackingRuntime.associateEntity(state.clientId(), player.id())));
     DialogTracker.instance().resyncDialogsToClient(state.clientId());
     SoundTracker.instance().resyncSoundsToClient(state.clientId());
     LOGGER.info("Client id={} completed initial world sync", state.clientId());
@@ -1216,6 +1232,10 @@ public final class ServerTransport {
   private boolean isSessionValid(Session session) {
     if (session == null) {
       LOGGER.trace("Session is null");
+      return false;
+    }
+    if (session.isClosed()) {
+      LOGGER.trace("Session is closed: {}", session);
       return false;
     }
     short clientId = session.clientId();

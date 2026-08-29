@@ -18,6 +18,7 @@ import engine.network.messages.s2c.DeltaSnapshotMessage;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.network.messages.s2c.GameOverEvent;
 import engine.network.messages.s2c.SnapshotMessage;
+import engine.tracking.TrackingRuntime;
 import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.entities.HeroBuilder;
@@ -92,6 +93,7 @@ public final class AuthoritativeServerLoop {
     DungeonLoader.afterAllLevels(
         () -> {
           Game.network().broadcast(new GameOverEvent("All levels completed"), true);
+          TrackingRuntime.completed();
           Game.exit("Game Over");
         });
 

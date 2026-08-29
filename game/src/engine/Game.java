@@ -26,6 +26,7 @@ import engine.network.handler.SlowNettyNetworkHandler;
 import engine.sound.AudioApi;
 import engine.sound.player.ISoundPlayer;
 import engine.systems.LevelSystem;
+import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
 import engine.utils.IVoidFunction;
 import engine.utils.Point;
@@ -908,6 +909,8 @@ public final class Game {
    */
   public static void exit(String reason) {
     LOGGER.info("Exiting game: " + reason);
+    TrackingRuntime.abortAtCurrentPuzzle();
+    TrackingRuntime.warnIfRemotePending();
     if (networkHandler != null) {
       try {
         networkHandler.shutdown(reason);

@@ -2,11 +2,11 @@ package rooms.lasthour.modules.computer.content;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.Sounds;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
@@ -115,21 +115,15 @@ public class VirusTab extends ComputerTab {
   }
 
   private void trySubmitCode(TextField codeField, RichLabel virusLabel) {
-    String inputCode = codeField.getText().replaceAll("\\s+", "");
-    String expected = Lore.VirusTypeToCode.getOrDefault(virusType, "").replaceAll("\\s+", "");
-    if (virusType == null || inputCode.equalsIgnoreCase(expected)) {
+    String rawCode = codeField.getText();
+    DialogCallbackResolver.createButtonCallback(
+            context().dialogId(), ComputerFactory.VIRUS_CODE_ATTEMPT_KEY)
+        .accept(new DialogResponseMessage.StringValue(rawCode));
+
+    String inputCode = rawCode.replaceAll("\\s+", "");
+    String expected = Lore.VirusTypeToCode.get(virusType);
+    if (expected != null && inputCode.equalsIgnoreCase(expected.replaceAll("\\s+", ""))) {
       virusLabel.setText("[color=#00cc00]Virus Neutralized!");
-      VirusTab.this.addAction(
-          Actions.sequence(
-              Actions.delay(1f),
-              Actions.run(
-                  () ->
-                      DialogCallbackResolver.createButtonCallback(
-                              context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-                          .accept(
-                              ComputerStateComponent.getState()
-                                  .orElseThrow()
-                                  .withInfection(false)))));
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     } else {
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);

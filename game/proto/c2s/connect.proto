@@ -29,4 +29,7 @@ message ConnectRequest {
 
 // Client-to-server: Confirms the client applied the initial world bootstrap.
 // Maps to: engine.network.messages.c2s.InitialWorldReady
-message InitialWorldReady {}
+message InitialWorldReady {
+  // Whether this room was already present in this client's local room history.
+  bool room_played_before = 1;
+}
