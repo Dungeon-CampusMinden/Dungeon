@@ -34,7 +34,7 @@ public final class PuzzleDialog {
   public static Group build(DialogContext ctx) {
     if (Game.isHeadless()) return new HeadlessDialogGroup();
 
-    //String puzzleId = ctx.require(KEY_PUZZLE_ID, String.class);
+    // String puzzleId = ctx.require(KEY_PUZZLE_ID, String.class);
     String puzzleId = LastHourTranslator.currentPuzzel.id();
     int heroId = ctx.require(KEY_HERO_ID, Integer.class);
     Puzzle puzzle =
