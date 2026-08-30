@@ -1,10 +1,7 @@
 package engine.game;
 
-import engine.tracking.TrackingConfig;
 import engine.utils.logging.DungeonLogger;
-import java.awt.GraphicsEnvironment;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -16,11 +13,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
+import java.util.function.Consumer;
 
 /**
  * Launches and supervises a dedicated server in a separate JVM.
@@ -47,15 +44,18 @@ public final class ServerProcess {
   private static final long POLL_INTERVAL_MS = 200;
   private static final long TERMINATION_TIMEOUT_SECONDS = 15;
   private static final long STATUS_DRAIN_TIMEOUT_MILLIS = 500;
-  private static final String TRACKING_UPLOAD_PENDING = "tracking-upload-pending";
-
   private final Process process;
   private final ServerSocket statusServer;
+  private final Consumer<String> statusConsumer;
   private final CountDownLatch statusListenerComplete = new CountDownLatch(1);
 
-  private ServerProcess(final Process process, final ServerSocket statusServer) {
+  private ServerProcess(
+      final Process process,
+      final ServerSocket statusServer,
+      final Consumer<String> statusConsumer) {
     this.process = process;
     this.statusServer = statusServer;
+    this.statusConsumer = statusConsumer;
     startStatusListener();
     process.onExit().thenRun(this::drainAndCloseStatusServer);
   }
@@ -65,12 +65,22 @@ public final class ServerProcess {
    *
    * @param mainClass the server main class to launch
    * @param port the port the server is expected to listen on
+   * @param environmentOverrides environment values supplied to the child process
+   * @param statusConsumer callback for one opaque terminal status sent by the managed child
    * @param args extra program arguments such as {@code --server}
    * @return a handle to the started server process
    * @throws IOException if the child process could not be started
    */
-  public static ServerProcess start(final Class<?> mainClass, final int port, final String... args)
+  public static ServerProcess start(
+      final Class<?> mainClass,
+      final int port,
+      final Map<String, String> environmentOverrides,
+      final Consumer<String> statusConsumer,
+      final String... args)
       throws IOException {
+    Map<String, String> childEnvironment =
+        Map.copyOf(Objects.requireNonNull(environmentOverrides, "environmentOverrides"));
+    Consumer<String> childStatusConsumer = Objects.requireNonNull(statusConsumer, "statusConsumer");
     ServerSocket statusServer = new ServerSocket();
     statusServer.bind(new InetSocketAddress(LOCALHOST, 0));
     Process process;
@@ -79,13 +89,13 @@ public final class ServerProcess {
           new ProcessBuilder(buildCommand(mainClass, port, statusServer.getLocalPort(), args))
               .redirectOutput(ProcessBuilder.Redirect.INHERIT)
               .redirectError(ProcessBuilder.Redirect.INHERIT);
-      TrackingConfig.applySystemPropertiesToChildEnvironment(processBuilder.environment());
+      processBuilder.environment().putAll(childEnvironment);
       process = processBuilder.start();
     } catch (IOException exception) {
       statusServer.close();
       throw exception;
     }
-    ServerProcess server = new ServerProcess(process, statusServer);
+    ServerProcess server = new ServerProcess(process, statusServer, childStatusConsumer);
     Runtime.getRuntime()
         .addShutdownHook(new Thread(server::stop, "server-process-shutdown-" + process.pid()));
     return server;
@@ -190,37 +200,6 @@ public final class ServerProcess {
     }
   }
 
-  /**
-   * Reports a pending tracking upload from a managed child to the hosting client.
-   *
-   * @param outboxPath absolute local outbox path
-   * @param operatorContact optional configured recovery contact
-   * @return whether the status reached the managing client
-   */
-  public static boolean reportTrackingUploadPending(
-      Path outboxPath, Optional<String> operatorContact) {
-    Integer statusPort = Integer.getInteger(STATUS_PORT_PROPERTY);
-    if (!Boolean.getBoolean(MANAGED_PROPERTY) || statusPort == null) {
-      return false;
-    }
-    try (Socket socket = new Socket()) {
-      socket.connect(new InetSocketAddress(LOCALHOST, statusPort), CONNECT_PROBE_TIMEOUT_MS);
-      try (DataOutputStream output = new DataOutputStream(socket.getOutputStream())) {
-        output.writeUTF(TRACKING_UPLOAD_PENDING);
-        output.writeUTF(outboxPath.toString());
-        output.writeBoolean(operatorContact.isPresent());
-        if (operatorContact.isPresent()) {
-          output.writeUTF(operatorContact.orElseThrow());
-        }
-        output.flush();
-      }
-      return true;
-    } catch (IOException | RuntimeException exception) {
-      LOGGER.warn("Cannot report tracking upload status to the hosting client.", exception);
-      return false;
-    }
-  }
-
   private void startStatusListener() {
     Thread.ofPlatform()
         .daemon()
@@ -229,15 +208,7 @@ public final class ServerProcess {
             () -> {
               try (Socket socket = statusServer.accept();
                   DataInputStream input = new DataInputStream(socket.getInputStream())) {
-                String status = input.readUTF();
-                if (!TRACKING_UPLOAD_PENDING.equals(status)) {
-                  LOGGER.warn("Managed server sent an unknown status: {}", status);
-                  return;
-                }
-                Path outboxPath = Path.of(input.readUTF()).toAbsolutePath();
-                Optional<String> operatorContact =
-                    input.readBoolean() ? Optional.of(input.readUTF()) : Optional.empty();
-                showTrackingUploadPending(outboxPath, operatorContact);
+                statusConsumer.accept(input.readUTF());
               } catch (IOException | RuntimeException exception) {
                 if (!statusServer.isClosed()) {
                   LOGGER.warn("Cannot receive managed-server status.", exception);
@@ -256,30 +227,6 @@ public final class ServerProcess {
       Thread.currentThread().interrupt();
     } finally {
       closeStatusServer();
-    }
-  }
-
-  private static void showTrackingUploadPending(Path outboxPath, Optional<String> operatorContact) {
-    String message =
-        "Tracking persistence is not confirmed.\nKeep the local data at:\n"
-            + outboxPath
-            + operatorContact.map(value -> "\n\nOperator contact: " + value).orElse("");
-    LOGGER.warn("{}", message.replace('\n', ' '));
-    if (GraphicsEnvironment.isHeadless()) {
-      return;
-    }
-    try {
-      SwingUtilities.invokeLater(
-          () -> {
-            try {
-              JOptionPane.showMessageDialog(
-                  null, message, "Tracking persistence pending", JOptionPane.WARNING_MESSAGE);
-            } catch (RuntimeException exception) {
-              LOGGER.warn("Cannot display tracking upload status for {}.", outboxPath, exception);
-            }
-          });
-    } catch (RuntimeException exception) {
-      LOGGER.warn("Cannot schedule tracking upload status for {}.", outboxPath, exception);
     }
   }
 

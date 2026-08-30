@@ -27,20 +27,19 @@ For deployments that cannot change room code, `dungeon.tracking.roomId` or
 `DUNGEON_TRACKING_ROOM_ID` configures the room.
 
 Every configured session creates a new `<session UUID>.jsonl` file. It never reuses an existing
-file. The adjacent `session.json`, anonymous `participant-<UUID>.json`, and optional `finish.json`
-files contain the facts required for offline import. Do not delete these files until the backend
-has acknowledged the session or an operator has imported the outbox.
+file. The first line contains the session descriptor, followed by ordered event records. A cleanly
+closed session ends with a finish record. A missing finish record marks an interrupted session.
+This one file contains everything required for offline import. Do not delete it until the backend
+has acknowledged the session or an operator has imported it.
 
 If a server started by the Host Game menu exits with unconfirmed persistence, its managed-process
 status channel sends the absolute outbox path and the optional configured operator contact to the
 hosting client. The hosting client shows the warning. Standalone headless servers write the same
 recovery details to their log.
 
-Local outbox or sidecar failures never stop gameplay, networking, terminal presentation, or
-shutdown. Dungeon logs the failed absolute path and keeps the recovery warning pending. A failed
-participant sidecar may lose that participant's tracking data for the session, but does not reject
-the player's join or disconnect at the gameplay layer. Keep the reported outbox and neighboring
-sidecars for inspection even when no remote endpoint was configured.
+Local outbox failures never stop gameplay, networking, terminal presentation, or shutdown.
+Dungeon logs the failed absolute path and keeps the recovery warning pending. Keep the reported
+outbox for inspection even when no remote endpoint was configured.
 
 Room code records only stable puzzle and object IDs. The engine supplies sequence, event ID,
 wall-clock time, and monotonic elapsed time:
@@ -56,11 +55,13 @@ Tracking.attempt(
     participantId);
 Tracking.hintUsed("storage-access", "storage-first-digit", participantId);
 Tracking.puzzleSolved("storage-access");
-Tracking.completed();
+Game.complete();
 ```
 
 Puzzle starts, puzzle solutions, and each `(puzzleId, hintId)` use are recorded at most once per
-session. Answer attempts remain complete and ordered.
+session. Answer attempts remain complete and ordered. Room code reports puzzle events through
+`Tracking`; it ends gameplay through `Game.complete()`. The central game lifecycle then
+finishes the tracking session.
 
 `participantId` can come from `Tracking.participantForClient(short)` or
 `Tracking.participantForEntity(int)`. These UUIDs exist only for one session. Dungeon never writes

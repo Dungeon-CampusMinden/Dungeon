@@ -1,14 +1,7 @@
 package engine.tracking;
 
 import engine.utils.logging.DungeonLogger;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
@@ -42,7 +35,7 @@ final class TrackingSession {
   private final TrackingConfig config;
   private final TrackingSessionDescriptor descriptor;
   private final long startedNanos = System.nanoTime();
-  private final Path outboxPath;
+  private final TrackingOutbox outbox;
   private final TrackingUploader uploader;
   private final Map<Short, ParticipantState> participantsByClient = new LinkedHashMap<>();
   private final Map<Integer, UUID> participantsByEntity = new HashMap<>();
@@ -54,15 +47,13 @@ final class TrackingSession {
 
   private long sequence;
   private boolean finished;
-  private boolean persistenceFailed;
 
   TrackingSession(TrackingConfig config) {
     this.config = config;
     UUID sessionId = UUID.randomUUID();
     this.descriptor =
         new TrackingSessionDescriptor(SCHEMA_VERSION, sessionId, config.roomId(), Instant.now());
-    this.outboxPath = createOutbox(config.outboxDirectory(), sessionId);
-    writeSessionDescriptor();
+    this.outbox = TrackingOutbox.create(config.outboxDirectory(), descriptor);
     this.uploader =
         config.endpoint().map(endpoint -> new TrackingUploader(config, descriptor)).orElse(null);
     event(
@@ -72,7 +63,7 @@ final class TrackingSession {
         Optional.empty(),
         Optional.empty(),
         TrackingJson.object());
-    LOGGER.info("Tracking session {} writes to {}", sessionId, outboxPath);
+    LOGGER.info("Tracking session {} writes to {}", sessionId, outbox.path());
   }
 
   String roomId() {
@@ -80,7 +71,7 @@ final class TrackingSession {
   }
 
   Path outboxPath() {
-    return outboxPath;
+    return outbox.path();
   }
 
   Optional<String> operatorContact() {
@@ -189,6 +180,17 @@ final class TrackingSession {
       Optional<String> objectId,
       Optional<TrackingOutcome> outcome,
       JsonNode payload) {
+    return event(eventType, participantId, puzzleId, objectId, outcome, payload, Instant.now());
+  }
+
+  private TrackingEvent event(
+      TrackingEventType eventType,
+      Optional<UUID> participantId,
+      Optional<String> puzzleId,
+      Optional<String> objectId,
+      Optional<TrackingOutcome> outcome,
+      JsonNode payload,
+      Instant occurredAt) {
     if (finished) {
       throw new IllegalStateException("Tracking session has finished");
     }
@@ -206,9 +208,9 @@ final class TrackingSession {
             objectId,
             outcome,
             elapsedMs(),
-            Instant.now(),
+            occurredAt,
             payload);
-    appendEvent(event);
+    outbox.append(event);
     sequence = nextSequence;
     if (uploader != null) {
       try {
@@ -228,6 +230,9 @@ final class TrackingSession {
     ParticipantState existing = participantsByClient.get(clientId);
     if (existing != null) {
       TrackingParticipant previousParticipant = existing.participant;
+      if (previousParticipant.leftAt().isEmpty()) {
+        return Optional.of(previousParticipant.participantId());
+      }
       TrackingParticipant rejoinedParticipant =
           new TrackingParticipant(
               descriptor.sessionId(),
@@ -235,31 +240,28 @@ final class TrackingSession {
               previousParticipant.roomPlayedBefore(),
               previousParticipant.joinedAt(),
               Optional.empty());
-      writeParticipant(rejoinedParticipant);
       existing.participant = rejoinedParticipant;
       try {
-        participantEvent(rejoinedParticipant, TrackingEventType.PARTICIPANT_JOINED);
+        participantEvent(rejoinedParticipant, TrackingEventType.PARTICIPANT_JOINED, Instant.now());
       } catch (RuntimeException exception) {
         existing.participant = previousParticipant;
-        restoreParticipant(previousParticipant, exception);
         throw exception;
       }
       return Optional.of(rejoinedParticipant.participantId());
     }
+    Instant joinedAt = Instant.now();
     TrackingParticipant participant =
         new TrackingParticipant(
             descriptor.sessionId(),
             UUID.randomUUID(),
             roomPlayedBefore,
-            Instant.now(),
+            joinedAt,
             Optional.empty());
-    writeParticipant(participant);
     participantsByClient.put(clientId, new ParticipantState(participant));
     try {
-      participantEvent(participant, TrackingEventType.PARTICIPANT_JOINED);
+      participantEvent(participant, TrackingEventType.PARTICIPANT_JOINED, joinedAt);
     } catch (RuntimeException exception) {
       participantsByClient.remove(clientId);
-      deleteParticipant(participant, exception);
       throw exception;
     }
     return Optional.of(participant.participantId());
@@ -274,20 +276,20 @@ final class TrackingSession {
       return;
     }
     TrackingParticipant previousParticipant = state.participant;
+    Instant leftAt = Instant.now();
     TrackingParticipant leftParticipant =
         new TrackingParticipant(
             descriptor.sessionId(),
             previousParticipant.participantId(),
             previousParticipant.roomPlayedBefore(),
             previousParticipant.joinedAt(),
-            Optional.of(Instant.now()));
-    writeParticipant(leftParticipant);
+            Optional.of(leftAt));
     state.participant = leftParticipant;
     try {
-      participantEvent(leftParticipant, TrackingEventType.PARTICIPANT_LEFT);
+      participantEvent(leftParticipant, TrackingEventType.PARTICIPANT_LEFT, leftAt);
+      participantsByEntity.values().removeIf(leftParticipant.participantId()::equals);
     } catch (RuntimeException exception) {
       state.participant = previousParticipant;
-      restoreParticipant(previousParticipant, exception);
       throw exception;
     }
   }
@@ -302,11 +304,21 @@ final class TrackingSession {
 
   Optional<UUID> participantForClient(short clientId) {
     return Optional.ofNullable(participantsByClient.get(clientId))
+        .filter(state -> state.participant.leftAt().isEmpty())
         .map(state -> state.participant.participantId());
   }
 
   Optional<UUID> participantForEntity(int entityId) {
     return Optional.ofNullable(participantsByEntity.get(entityId));
+  }
+
+  boolean participantActive(UUID participantId) {
+    return participantsByClient.values().stream()
+        .map(state -> state.participant)
+        .anyMatch(
+            participant ->
+                participant.participantId().equals(participantId)
+                    && participant.leftAt().isEmpty());
   }
 
   void finish(TrackingSessionStatus status, Optional<String> abortedAtPuzzleId) {
@@ -324,7 +336,7 @@ final class TrackingSession {
             abortedAtPuzzleId);
     TrackingPersistenceException persistenceFailure = null;
     try {
-      writeFinish(finish);
+      outbox.append(finish);
     } catch (TrackingPersistenceException exception) {
       persistenceFailure = exception;
     }
@@ -338,10 +350,11 @@ final class TrackingSession {
   }
 
   boolean remotePending() {
-    return persistenceFailed || (uploader != null && uploader.pending(sequence, finished));
+    return outbox.failed() || (uploader != null && uploader.pending(sequence, finished));
   }
 
-  private void participantEvent(TrackingParticipant participant, TrackingEventType eventType) {
+  private void participantEvent(
+      TrackingParticipant participant, TrackingEventType eventType, Instant occurredAt) {
     ObjectNode payload =
         TrackingJson.object().put("roomPlayedBefore", participant.roomPlayedBefore());
     event(
@@ -350,7 +363,8 @@ final class TrackingSession {
         Optional.empty(),
         Optional.empty(),
         Optional.empty(),
-        payload);
+        payload,
+        occurredAt);
   }
 
   private List<TrackingParticipant> participants() {
@@ -359,159 +373,6 @@ final class TrackingSession {
 
   private long elapsedMs() {
     return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos);
-  }
-
-  private static Path createOutbox(Path directory, UUID sessionId) {
-    Path path = directory.resolve(sessionId + ".jsonl").toAbsolutePath();
-    try {
-      Files.createDirectories(path.getParent());
-      return Files.createFile(path);
-    } catch (IOException | RuntimeException exception) {
-      throw new TrackingPersistenceException(
-          "Could not create new tracking outbox " + path, path, path, exception);
-    }
-  }
-
-  private void writeSessionDescriptor() {
-    Path path = sidecar("session.json");
-    try {
-      writeNewSidecar(path, TrackingJson.write(descriptor));
-    } catch (IOException | RuntimeException exception) {
-      throw persistenceFailure(
-          "Could not create tracking session descriptor " + path, path, exception);
-    }
-  }
-
-  private void writeFinish(TrackingSessionFinish finish) {
-    Path path = sidecar("finish.json");
-    try {
-      writeNewSidecar(path, TrackingJson.write(finish));
-    } catch (IOException | RuntimeException exception) {
-      throw persistenceFailure("Could not write tracking finish " + path, path, exception);
-    }
-  }
-
-  private void writeParticipant(TrackingParticipant participant) {
-    Path target = participantPath(participant);
-    Path temporary = target.resolveSibling(target.getFileName() + ".tmp");
-    try {
-      Files.writeString(
-          temporary,
-          TrackingJson.write(participant),
-          StandardCharsets.UTF_8,
-          StandardOpenOption.CREATE,
-          StandardOpenOption.TRUNCATE_EXISTING,
-          StandardOpenOption.WRITE);
-      forceFile(temporary);
-      try {
-        Files.move(
-            temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-      } catch (IOException unsupportedAtomicMove) {
-        Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
-      }
-    } catch (IOException | RuntimeException exception) {
-      throw persistenceFailure(
-          "Could not write anonymous tracking participant " + target, target, exception);
-    }
-  }
-
-  private void restoreParticipant(TrackingParticipant participant, RuntimeException failure) {
-    try {
-      writeParticipant(participant);
-    } catch (RuntimeException restoreFailure) {
-      failure.addSuppressed(restoreFailure);
-    }
-  }
-
-  private void deleteParticipant(TrackingParticipant participant, RuntimeException failure) {
-    try {
-      Files.deleteIfExists(participantPath(participant));
-    } catch (IOException | RuntimeException deleteFailure) {
-      failure.addSuppressed(
-          persistenceFailure(
-              "Could not remove anonymous tracking participant " + participantPath(participant),
-              participantPath(participant),
-              deleteFailure));
-    }
-  }
-
-  private Path participantPath(TrackingParticipant participant) {
-    return outboxPath.resolveSibling(
-        descriptor.sessionId() + ".participant-" + participant.participantId() + ".json");
-  }
-
-  private Path sidecar(String suffix) {
-    String filename = outboxPath.getFileName().toString().replace(".jsonl", "." + suffix);
-    return outboxPath.resolveSibling(filename);
-  }
-
-  private void appendEvent(TrackingEvent event) {
-    long originalSize;
-    try {
-      originalSize = Files.size(outboxPath);
-    } catch (IOException | RuntimeException exception) {
-      throw persistenceFailure(
-          "Could not inspect tracking outbox " + outboxPath, outboxPath, exception);
-    }
-    try {
-      TrackingJson.appendEventsJsonl(outboxPath, List.of(event));
-      try (FileChannel channel = FileChannel.open(outboxPath, StandardOpenOption.WRITE)) {
-        channel.force(true);
-      }
-    } catch (IOException | RuntimeException exception) {
-      rollbackAppend(originalSize, exception);
-      throw persistenceFailure(
-          "Could not append tracking event " + event.eventId() + " to " + outboxPath,
-          outboxPath,
-          exception);
-    }
-  }
-
-  private void writeNewSidecar(Path target, String content) throws IOException {
-    Path temporary = target.resolveSibling(target.getFileName() + ".tmp");
-    Files.writeString(
-        temporary,
-        content,
-        StandardCharsets.UTF_8,
-        StandardOpenOption.CREATE,
-        StandardOpenOption.TRUNCATE_EXISTING,
-        StandardOpenOption.WRITE);
-    forceFile(temporary);
-    try {
-      Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
-    } catch (AtomicMoveNotSupportedException unsupportedAtomicMove) {
-      Files.move(temporary, target);
-    }
-  }
-
-  private void forceFile(Path path) throws IOException {
-    try (FileChannel channel = FileChannel.open(path, StandardOpenOption.WRITE)) {
-      channel.force(true);
-    }
-  }
-
-  private void rollbackAppend(long originalSize, RuntimeException appendFailure) {
-    rollbackAppend(originalSize, (Throwable) appendFailure);
-  }
-
-  private void rollbackAppend(long originalSize, IOException appendFailure) {
-    rollbackAppend(originalSize, (Throwable) appendFailure);
-  }
-
-  private void rollbackAppend(long originalSize, Throwable appendFailure) {
-    try (FileChannel channel = FileChannel.open(outboxPath, StandardOpenOption.WRITE)) {
-      channel.truncate(originalSize);
-      channel.force(true);
-    } catch (IOException | RuntimeException rollbackFailure) {
-      appendFailure.addSuppressed(rollbackFailure);
-      LOGGER.error("Could not roll back failed tracking append at {}", outboxPath, rollbackFailure);
-    }
-  }
-
-  private TrackingPersistenceException persistenceFailure(
-      String message, Path path, Throwable cause) {
-    persistenceFailed = true;
-    return new TrackingPersistenceException(message, path, outboxPath, cause);
   }
 
   private void touchActivePuzzle(String puzzleId) {

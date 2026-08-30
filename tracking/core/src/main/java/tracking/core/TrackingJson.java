@@ -1,6 +1,5 @@
 package tracking.core;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
@@ -9,7 +8,6 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -201,107 +199,132 @@ public final class TrackingJson {
   }
 
   /**
-   * Appends events as one compact JSON object per line.
+   * Encodes one local-only typed JSONL record without a line terminator.
    *
-   * @param path destination outbox
-   * @param events ordered events to append
-   * @throws IOException when the outbox cannot be written
+   * @param record typed outbox record
+   * @return compact JSON representation of the record
    */
-  public static void appendEventsJsonl(final Path path, final List<TrackingEvent> events)
-      throws IOException {
-    Path absolute = path.toAbsolutePath();
-    if (absolute.getParent() != null) {
-      Files.createDirectories(absolute.getParent());
-    }
-    try (BufferedWriter writer =
-        Files.newBufferedWriter(
-            absolute,
-            StandardCharsets.UTF_8,
-            StandardOpenOption.CREATE,
-            StandardOpenOption.WRITE,
-            StandardOpenOption.APPEND)) {
-      for (TrackingEvent event : events) {
-        writer.write(event(event));
-        writer.newLine();
+  public static String writeJsonlRecord(final TrackingJsonlRecord record) {
+    ObjectNode root = object();
+    switch (record) {
+      case TrackingJsonlRecord.Session session -> {
+        root.put("type", "session");
+        root.set("session", sessionNode(session.session()));
+      }
+      case TrackingJsonlRecord.Event event -> {
+        root.put("type", "event");
+        root.set("event", eventNode(event.event()));
+      }
+      case TrackingJsonlRecord.Finish finish -> {
+        root.put("type", "finish");
+        root.set("finish", requireObject(parse(write(finish.finish())), "finish"));
       }
     }
+    return encode(root);
   }
 
   /**
-   * Reads a JSONL event file in order. Blank lines are ignored.
+   * Reads complete typed records and ignores only an incomplete JSON record or final UTF-8 code
+   * point in an unterminated tail. Earlier corruption and invalid terminated lines remain errors. A
+   * valid unterminated record is returned.
    *
    * @param path source outbox
-   * @return immutable events in file order
+   * @return the session, immutable events, optional finish, and recovery state
    * @throws IOException when the outbox cannot be read
    */
-  public static List<TrackingEvent> readEventsJsonl(final Path path) throws IOException {
-    return readEventsJsonl(path, false).events();
-  }
-
-  /**
-   * Reads complete events and ignores only an incomplete or invalid UTF-8 unterminated tail.
-   * Earlier corruption and invalid terminated lines remain errors. A valid unterminated event is
-   * returned.
-   *
-   * @param path source outbox
-   * @return immutable events and whether a truncated tail was ignored
-   * @throws IOException when the outbox cannot be read
-   */
-  public static TrackingJsonlReadResult readEventsJsonlRecoveringTruncatedTail(final Path path)
+  public static TrackingJsonlReadResult readJsonlRecoveringTruncatedTail(final Path path)
       throws IOException {
-    return readEventsJsonl(path, true);
-  }
-
-  private static TrackingJsonlReadResult readEventsJsonl(
-      final Path path, final boolean recoverTruncatedTail) throws IOException {
     byte[] contents = Files.readAllBytes(path);
-    List<TrackingEvent> events = new ArrayList<>();
+    List<TrackingJsonlRecord> records = new ArrayList<>();
     int completedPrefixLength = completedPrefixLength(contents);
-    parseCompleteLines(decodeUtf8(contents, 0, completedPrefixLength), events);
+    parseCompleteLines(decodeUtf8(contents, 0, completedPrefixLength), records);
     boolean truncatedTailIgnored = false;
     if (completedPrefixLength < contents.length) {
+      int lineNumber = records.size() + 1;
+      boolean followsFinish =
+          !records.isEmpty() && records.getLast() instanceof TrackingJsonlRecord.Finish;
       try {
         String tail =
             decodeUtf8(contents, completedPrefixLength, contents.length - completedPrefixLength);
         if (!tail.isBlank()) {
           try {
-            events.add(event(tail));
+            records.add(jsonlRecord(tail));
           } catch (TruncatedJsonException exception) {
-            if (!recoverTruncatedTail) {
-              throw invalidJsonl(events.size() + 1, exception);
+            if (followsFinish) {
+              throw invalidJsonl(lineNumber, exception);
             }
             truncatedTailIgnored = true;
           } catch (IllegalArgumentException exception) {
-            throw invalidJsonl(events.size() + 1, exception);
+            throw invalidJsonl(lineNumber, exception);
           }
         }
       } catch (InvalidUtf8Exception exception) {
-        if (!recoverTruncatedTail) {
+        if (followsFinish
+            || !hasIncompleteFinalUtf8JsonRecord(
+                contents, completedPrefixLength, contents.length - completedPrefixLength)) {
           throw exception;
         }
         truncatedTailIgnored = true;
       }
     }
-    return new TrackingJsonlReadResult(events, truncatedTailIgnored);
+    return jsonlResult(records, truncatedTailIgnored);
+  }
+
+  private static TrackingJsonlRecord jsonlRecord(final String json) {
+    ObjectNode root = requireObject(parse(json), "JSONL record");
+    return switch (requiredText(root, "type")) {
+      case "session" ->
+          new TrackingJsonlRecord.Session(
+              session(requireObject(required(root, "session"), "session")));
+      case "event" ->
+          new TrackingJsonlRecord.Event(event(requireObject(required(root, "event"), "event")));
+      case "finish" ->
+          new TrackingJsonlRecord.Finish(
+              finish(encode(requireObject(required(root, "finish"), "finish"))));
+      default -> throw new IllegalArgumentException("Unsupported tracking JSONL record type");
+    };
   }
 
   private static void parseCompleteLines(
-      final String completedPrefix, final List<TrackingEvent> events) throws IOException {
+      final String completedPrefix, final List<TrackingJsonlRecord> records) throws IOException {
     try (var reader = new java.io.BufferedReader(new StringReader(completedPrefix))) {
       String line;
       int lineNumber = 0;
       while ((line = reader.readLine()) != null) {
         lineNumber++;
-        if (line.isBlank()) {
-          continue;
-        }
         try {
-          events.add(event(line));
+          if (line.isBlank()) {
+            throw new IllegalArgumentException("Blank records are invalid");
+          }
+          records.add(jsonlRecord(line));
         } catch (IllegalArgumentException exception) {
           throw invalidJsonl(lineNumber, exception);
         }
       }
     }
+  }
+
+  private static TrackingJsonlReadResult jsonlResult(
+      final List<TrackingJsonlRecord> records, final boolean truncatedTailIgnored) {
+    if (records.isEmpty() || !(records.getFirst() instanceof TrackingJsonlRecord.Session header)) {
+      throw new IllegalArgumentException("Tracking JSONL must start with a session record");
+    }
+    List<TrackingEvent> events = new ArrayList<>();
+    Optional<TrackingSessionFinish> finish = Optional.empty();
+    for (int index = 1; index < records.size(); index++) {
+      TrackingJsonlRecord record = records.get(index);
+      if (record instanceof TrackingJsonlRecord.Event event && finish.isEmpty()) {
+        events.add(event.event());
+      } else if (record instanceof TrackingJsonlRecord.Finish terminal
+          && finish.isEmpty()
+          && index == records.size() - 1) {
+        finish = Optional.of(terminal.finish());
+      } else {
+        throw new IllegalArgumentException(
+            "Tracking JSONL must contain one header, ordered events, and an optional final finish");
+      }
+    }
+    return new TrackingJsonlReadResult(header.session(), events, finish, truncatedTailIgnored);
   }
 
   private static int completedPrefixLength(final byte[] contents) {
@@ -325,6 +348,61 @@ public final class TrackingJson {
     } catch (CharacterCodingException exception) {
       throw new InvalidUtf8Exception("Invalid UTF-8 in tracking JSONL", exception);
     }
+  }
+
+  private static boolean hasIncompleteFinalUtf8JsonRecord(
+      final byte[] contents, final int offset, final int length) throws InvalidUtf8Exception {
+    int end = offset + length;
+    int continuationCount = 0;
+    int index = end - 1;
+    while (index >= offset && isUtf8Continuation(contents[index])) {
+      continuationCount++;
+      index--;
+    }
+    if (index < offset) {
+      return false;
+    }
+    int lead = Byte.toUnsignedInt(contents[index]);
+    int expectedLength = utf8SequenceLength(lead);
+    int actualLength = continuationCount + 1;
+    if (expectedLength == 0 || actualLength >= expectedLength) {
+      return false;
+    }
+    if (continuationCount > 0) {
+      int firstContinuation = Byte.toUnsignedInt(contents[index + 1]);
+      if ((lead == 0xe0 && firstContinuation < 0xa0)
+          || (lead == 0xed && firstContinuation > 0x9f)
+          || (lead == 0xf0 && firstContinuation < 0x90)
+          || (lead == 0xf4 && firstContinuation > 0x8f)) {
+        return false;
+      }
+    }
+    String jsonPrefix = decodeUtf8(contents, offset, index - offset);
+    try {
+      jsonlRecord(jsonPrefix);
+      return false;
+    } catch (TruncatedJsonException exception) {
+      return true;
+    } catch (IllegalArgumentException exception) {
+      return false;
+    }
+  }
+
+  private static boolean isUtf8Continuation(final byte value) {
+    return (Byte.toUnsignedInt(value) & 0xc0) == 0x80;
+  }
+
+  private static int utf8SequenceLength(final int lead) {
+    if (lead >= 0xc2 && lead <= 0xdf) {
+      return 2;
+    }
+    if (lead >= 0xe0 && lead <= 0xef) {
+      return 3;
+    }
+    if (lead >= 0xf0 && lead <= 0xf4) {
+      return 4;
+    }
+    return 0;
   }
 
   private static IllegalArgumentException invalidJsonl(

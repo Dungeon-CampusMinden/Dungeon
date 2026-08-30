@@ -221,9 +221,10 @@ idempotent. `tracking_events.payload` and
 or reshaping fields.
 
 The participant table stores only `session_id`, the session-scoped `participant_id`, and immutable
-`room_played_before`. Join, leave, and reconnect times remain canonical events. Sidecars also carry
-the first join and current leave time for offline operator context, but the backend does not keep a
-second mutable lifecycle summary that stale retries could overwrite.
+`room_played_before`. Join, leave, and reconnect times remain canonical events. The outbox importer
+reconstructs the participant's first join, current leave state, and prior-play flag from those
+events. The backend does not keep a second mutable lifecycle summary that stale retries could
+overwrite.
 
 The migration creates these read-only analysis views:
 
@@ -252,29 +253,28 @@ view privileges, so rerunning the migrator also removes grants from older, broad
 
 ## Import a JSONL outbox
 
-The game writes events as one `TrackingEvent` per JSONL line. In the same directory it writes
-`<sessionId>.session.json`, zero or more
-`<sessionId>.participant-<participantId>.json` files, and optional terminal facts in
-`<sessionId>.finish.json`. The importer discovers those sidecars from the first outbox event and
-sends them through the same endpoint and idempotency rules as a running game:
+The game writes exactly one `<sessionId>.jsonl` file for each session. Its first typed record holds
+the session descriptor, followed by typed event records in sequence order. A cleanly closed
+session has one final finish record. The importer reconstructs participant facts from
+`PARTICIPANT_JOINED` and `PARTICIPANT_LEFT` events, then sends the records through the same endpoint
+and idempotency rules as a running game:
 
 ```powershell
 ./gradlew.bat :tracking:backend:importOutbox --args='--url http://127.0.0.1:8088 --outbox 25aac31d-bfc4-47f7-90b9-ad449a9e595a.jsonl'
 ```
 
-For an empty outbox, its filename must be `<sessionId>.jsonl` or `<sessionId>.events.jsonl` so the
-importer can locate the sidecars. Explicit `--session`, repeated `--participant`, and `--finish`
-arguments override discovery. Add `--api-key-file tracking/secrets/backend_api_key.txt` when the
-backend requires one and `--batch-size <n>` to stay under a custom server limit. Alternatively,
-the importer reads `DUNGEON_TRACKING_API_KEY`. An explicit API-key file takes precedence over the
-environment variable. The importer prints counts and the final sequence only. It never prints API
-keys, event payloads, or answers.
+Add `--api-key-file tracking/secrets/backend_api_key.txt` when the backend requires one and
+`--batch-size <n>` to stay under a custom server limit. Alternatively, the importer reads
+`DUNGEON_TRACKING_API_KEY`. An explicit API-key file takes precedence over the environment
+variable. The importer prints counts and the final sequence only. It never prints API keys, event
+payloads, or answers.
 
 The importer identifies the last line boundary from raw bytes and strictly decodes the completed
 prefix as UTF-8. If a crash leaves an unterminated tail that ends inside JSON or a multibyte UTF-8
-character, it warns on stderr, ignores only that tail, and imports every completed event. A valid
-unterminated final event is imported. Invalid UTF-8 or JSON in an earlier line, or in any line that
-ends with a line terminator, remains a hard error.
+character, it warns on stderr and ignores only that tail. All complete prior events remain
+importable. A truncated finish therefore leaves the imported session unfinished. A valid
+unterminated final record is imported. Invalid UTF-8 or JSON in an earlier line, or in any line
+that ends with a line terminator, remains a hard error.
 
 ## Configure the game
 

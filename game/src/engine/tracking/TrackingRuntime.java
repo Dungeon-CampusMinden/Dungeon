@@ -1,5 +1,6 @@
 package engine.tracking;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -87,5 +88,24 @@ public final class TrackingRuntime {
   /** Displays or logs the recovery location when remote persistence is incomplete. */
   public static void warnIfRemotePending() {
     Tracking.warnIfRemotePending();
+  }
+
+  /**
+   * Returns tracking configuration that must be forwarded to a child server through its
+   * environment.
+   *
+   * @return immutable child-environment overrides
+   */
+  public static Map<String, String> childEnvironmentOverrides() {
+    return TrackingConfig.childEnvironmentOverrides();
+  }
+
+  /**
+   * Interprets an opaque managed-server status delivered to the hosting application.
+   *
+   * @param status opaque status payload from the managed server
+   */
+  public static void handleManagedServerStatus(String status) {
+    Tracking.handleManagedServerStatus(status);
   }
 }

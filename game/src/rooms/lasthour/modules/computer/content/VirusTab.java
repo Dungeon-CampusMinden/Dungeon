@@ -11,7 +11,7 @@ import engine.sound.Sounds;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.elements.RichLabel;
-import rooms.lasthour.modules.computer.ComputerFactory;
+import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
@@ -117,7 +117,7 @@ public class VirusTab extends ComputerTab {
   private void trySubmitCode(TextField codeField, RichLabel virusLabel) {
     String rawCode = codeField.getText();
     DialogCallbackResolver.createButtonCallback(
-            context().dialogId(), ComputerFactory.VIRUS_CODE_ATTEMPT_KEY)
+            context().dialogId(), ComputerCallbacks.VIRUS_CODE_ATTEMPT_KEY)
         .accept(new DialogResponseMessage.StringValue(rawCode));
 
     String inputCode = rawCode.replaceAll("\\s+", "");

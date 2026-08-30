@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerDialog;
-import rooms.lasthour.modules.computer.ComputerFactory;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.Lore;
 
@@ -171,7 +171,7 @@ public class BrowserTab extends ComputerTab {
     if (Lore.VirusWebsites.contains(url)) {
       localState().browserHistory().add(url);
       DialogCallbackResolver.createButtonCallback(
-              context().dialogId(), ComputerFactory.VIRUS_TRIGGER_KEY)
+              context().dialogId(), ComputerCallbacks.VIRUS_TRIGGER_KEY)
           .accept(new DialogResponseMessage.StringValue(url));
       return;
     }
@@ -432,7 +432,7 @@ public class BrowserTab extends ComputerTab {
     String rawInput = passwordField.getText();
     String input = rawInput.trim();
     DialogCallbackResolver.createButtonCallback(
-            context().dialogId(), ComputerFactory.RECOVERY_ATTEMPT_KEY)
+            context().dialogId(), ComputerCallbacks.RECOVERY_ATTEMPT_KEY)
         .accept(new DialogResponseMessage.StringValue(rawInput));
     if (input.equals(asciiCode)) {
       navigate(pageUrl + "/download");

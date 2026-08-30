@@ -9,93 +9,170 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 import tracking.core.TrackingAck;
 import tracking.core.TrackingBatch;
 import tracking.core.TrackingEvent;
+import tracking.core.TrackingEventType;
 import tracking.core.TrackingJson;
 import tracking.core.TrackingJsonlReadResult;
 import tracking.core.TrackingParticipant;
-import tracking.core.TrackingSessionDescriptor;
-import tracking.core.TrackingSessionFinish;
 
-/** Imports a local JSONL outbox into the same HTTP API used by the game. */
+/** Imports one self-contained local JSONL outbox through the tracking HTTP API. */
 public final class TrackingImportCli {
   private static final String API_KEY_ENVIRONMENT_VARIABLE = "DUNGEON_TRACKING_API_KEY";
 
   private TrackingImportCli() {}
 
   /**
-   * Imports an outbox described by the command-line options documented in the tracking README.
+   * Imports the outbox named by the command-line options.
    *
-   * @param arguments importer options
+   * @param arguments importer command-line options
    */
   public static void main(final String[] arguments) throws Exception {
     Arguments options = Arguments.parse(arguments);
-    TrackingSessionDescriptor session =
-        TrackingJson.read(
-            Files.readString(options.sessionFile(), StandardCharsets.UTF_8),
-            TrackingSessionDescriptor.class);
-    List<TrackingParticipant> participants = new ArrayList<>();
-    for (Path file : options.participantFiles()) {
-      participants.add(
-          TrackingJson.read(
-              Files.readString(file, StandardCharsets.UTF_8), TrackingParticipant.class));
-    }
     TrackingJsonlReadResult outbox =
-        TrackingJson.readEventsJsonlRecoveringTruncatedTail(options.eventsFile());
-    List<TrackingEvent> events = outbox.events();
+        TrackingJson.readJsonlRecoveringTruncatedTail(options.outboxFile());
     if (outbox.truncatedTailIgnored()) {
       System.err.println(
-          "Warning: ignored an incomplete final line in "
-              + options.eventsFile().toAbsolutePath()
-              + "; complete preceding events will be imported.");
+          "Warning: ignored an incomplete final record in "
+              + options.outboxFile().toAbsolutePath()
+              + "; complete preceding records will be imported.");
     }
-    validateOutbox(session, events);
 
+    List<TrackingParticipant> participants = reconstructParticipants(outbox.events());
     HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-    TrackingAck lastAck = null;
-    if (events.isEmpty()) {
+    TrackingAck lastAck;
+    if (outbox.events().isEmpty()) {
       lastAck =
           upload(
               client,
               options,
-              new TrackingBatch(session.schemaVersion(), session, participants, List.of()));
+              new TrackingBatch(
+                  outbox.session().schemaVersion(), outbox.session(), participants, List.of()));
     } else {
-      for (int start = 0; start < events.size(); start += options.batchSize()) {
-        int end = Math.min(start + options.batchSize(), events.size());
+      int firstEnd = Math.min(options.batchSize(), outbox.events().size());
+      lastAck =
+          upload(
+              client,
+              options,
+              new TrackingBatch(
+                  outbox.session().schemaVersion(),
+                  outbox.session(),
+                  participants,
+                  outbox.events().subList(0, firstEnd)));
+      for (int start = firstEnd; start < outbox.events().size(); start += options.batchSize()) {
+        int end = Math.min(start + options.batchSize(), outbox.events().size());
         lastAck =
             upload(
                 client,
                 options,
                 new TrackingBatch(
-                    session.schemaVersion(), session, participants, events.subList(start, end)));
+                    outbox.session().schemaVersion(),
+                    outbox.session(),
+                    participants,
+                    outbox.events().subList(start, end)));
       }
     }
-    if (options.finishFile().isPresent()) {
-      TrackingSessionFinish finish =
-          TrackingJson.read(
-              Files.readString(options.finishFile().orElseThrow(), StandardCharsets.UTF_8),
-              TrackingSessionFinish.class);
-      if (!finish.sessionId().equals(session.sessionId())) {
-        throw new IllegalArgumentException("Finish and session files have different session IDs");
-      }
+    if (outbox.finish().isPresent()) {
       lastAck =
           validateAcknowledgement(
-              post(client, options, "finish", TrackingJson.write(finish)),
-              session.sessionId(),
-              finish.finalSequence());
+              post(
+                  client,
+                  options,
+                  outbox.session().sessionId(),
+                  "finish",
+                  TrackingJson.write(outbox.finish().orElseThrow())),
+              outbox.session().sessionId(),
+              outbox.finish().orElseThrow().finalSequence());
     }
     System.out.println(
         "Imported "
-            + events.size()
+            + outbox.events().size()
             + " events; backend acknowledgement is sequence "
             + lastAck.lastPersistedSequence());
+  }
+
+  private static List<TrackingParticipant> reconstructParticipants(
+      final List<TrackingEvent> events) {
+    Map<UUID, TrackingParticipant> participants = new LinkedHashMap<>();
+    for (TrackingEvent event : events) {
+      if (event.eventType() == TrackingEventType.PARTICIPANT_JOINED) {
+        UUID participantId = event.participantId().orElseThrow();
+        boolean roomPlayedBefore = roomPlayedBefore(event);
+        TrackingParticipant previous = participants.get(participantId);
+        if (previous == null) {
+          participants.put(
+              participantId,
+              new TrackingParticipant(
+                  event.sessionId(),
+                  participantId,
+                  roomPlayedBefore,
+                  event.occurredAt(),
+                  Optional.empty()));
+        } else {
+          if (previous.leftAt().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Participant joined while already active at sequence " + event.sessionSequence());
+          }
+          if (previous.roomPlayedBefore() != roomPlayedBefore) {
+            throw new IllegalArgumentException(
+                "Participant rejoin changes roomPlayedBefore at sequence "
+                    + event.sessionSequence());
+          }
+          participants.put(
+              participantId,
+              new TrackingParticipant(
+                  previous.sessionId(),
+                  participantId,
+                  previous.roomPlayedBefore(),
+                  previous.joinedAt(),
+                  Optional.empty()));
+        }
+      } else if (event.eventType() == TrackingEventType.PARTICIPANT_LEFT) {
+        UUID participantId = event.participantId().orElseThrow();
+        TrackingParticipant previous = participants.get(participantId);
+        if (previous == null) {
+          throw new IllegalArgumentException(
+              "Participant left before joining at sequence " + event.sessionSequence());
+        }
+        if (previous.leftAt().isPresent()) {
+          throw new IllegalArgumentException(
+              "Participant left repeatedly at sequence " + event.sessionSequence());
+        }
+        participants.put(
+            participantId,
+            new TrackingParticipant(
+                previous.sessionId(),
+                participantId,
+                previous.roomPlayedBefore(),
+                previous.joinedAt(),
+                Optional.of(event.occurredAt())));
+      } else if (event.eventType() == TrackingEventType.ANSWER_SUBMITTED
+          || event.eventType() == TrackingEventType.HINT_USED) {
+        UUID participantId = event.participantId().orElseThrow();
+        TrackingParticipant participant = participants.get(participantId);
+        if (participant == null || participant.leftAt().isPresent()) {
+          throw new IllegalArgumentException(
+              "Participant-attributed event occurred while inactive at sequence "
+                  + event.sessionSequence());
+        }
+      }
+    }
+    return List.copyOf(participants.values());
+  }
+
+  private static boolean roomPlayedBefore(final TrackingEvent event) {
+    var value = event.payload().get("roomPlayedBefore");
+    if (value == null || !value.isBoolean()) {
+      throw new IllegalArgumentException(
+          "Participant join lacks boolean roomPlayedBefore at sequence " + event.sessionSequence());
+    }
+    return value.booleanValue();
   }
 
   private static TrackingAck upload(
@@ -103,7 +180,7 @@ public final class TrackingImportCli {
       throws IOException, InterruptedException {
     long lastSequence = batch.events().isEmpty() ? 0 : batch.events().getLast().sessionSequence();
     return validateAcknowledgement(
-        post(client, options, "events", TrackingJson.write(batch)),
+        post(client, options, batch.session().sessionId(), "events", TrackingJson.write(batch)),
         batch.session().sessionId(),
         lastSequence);
   }
@@ -121,10 +198,14 @@ public final class TrackingImportCli {
   }
 
   private static TrackingAck post(
-      final HttpClient client, final Arguments options, final String operation, final String json)
+      final HttpClient client,
+      final Arguments options,
+      final UUID sessionId,
+      final String operation,
+      final String json)
       throws IOException, InterruptedException {
     String base = options.baseUri().toString().replaceAll("/+$", "");
-    URI endpoint = URI.create(base + "/tracking/sessions/" + options.sessionId() + "/" + operation);
+    URI endpoint = URI.create(base + "/tracking/sessions/" + sessionId + "/" + operation);
     HttpRequest.Builder request =
         HttpRequest.newBuilder(endpoint)
             .timeout(Duration.ofSeconds(30))
@@ -139,30 +220,10 @@ public final class TrackingImportCli {
     return TrackingJson.read(response.body(), TrackingAck.class);
   }
 
-  private static void validateOutbox(
-      final TrackingSessionDescriptor session, final List<TrackingEvent> events) {
-    for (TrackingEvent event : events) {
-      if (!event.sessionId().equals(session.sessionId())) {
-        throw new IllegalArgumentException("Outbox contains an event from another session");
-      }
-    }
-  }
-
-  private record Arguments(
-      URI baseUri,
-      Path sessionFile,
-      Path eventsFile,
-      List<Path> participantFiles,
-      Optional<Path> finishFile,
-      Optional<String> apiKey,
-      int batchSize,
-      String sessionId) {
+  private record Arguments(URI baseUri, Path outboxFile, Optional<String> apiKey, int batchSize) {
     static Arguments parse(final String[] arguments) {
       URI baseUri = null;
-      Path sessionFile = null;
-      Path eventsFile = null;
-      List<Path> participants = new ArrayList<>();
-      Optional<Path> finish = Optional.empty();
+      Path outboxFile = null;
       Optional<Path> apiKeyFile = Optional.empty();
       int batchSize = 500;
       for (int index = 0; index < arguments.length; index += 2) {
@@ -172,70 +233,30 @@ public final class TrackingImportCli {
         String value = arguments[index + 1];
         switch (arguments[index]) {
           case "--url" -> baseUri = URI.create(value);
-          case "--session" -> sessionFile = Path.of(value);
-          case "--events", "--outbox" -> eventsFile = Path.of(value);
-          case "--participant" -> participants.add(Path.of(value));
-          case "--finish" -> finish = Optional.of(Path.of(value));
+          case "--outbox" -> outboxFile = Path.of(value);
           case "--api-key-file" -> apiKeyFile = Optional.of(Path.of(value));
           case "--batch-size" -> batchSize = Integer.parseInt(value);
           default -> throw usage();
         }
       }
-      if (baseUri == null || eventsFile == null || batchSize < 1) {
+      if (baseUri == null || outboxFile == null || batchSize < 1) {
         throw usage();
       }
-      Optional<String> apiKey = Optional.empty();
+      return new Arguments(baseUri, outboxFile, apiKey(apiKeyFile), batchSize);
+    }
+
+    private static Optional<String> apiKey(final Optional<Path> apiKeyFile) {
       if (apiKeyFile.isPresent()) {
         try {
           String value = Files.readString(apiKeyFile.orElseThrow(), StandardCharsets.UTF_8).strip();
           if (value.isEmpty()) {
             throw new IllegalArgumentException("API-key file is empty");
           }
-          apiKey = Optional.of(value);
+          return Optional.of(value);
         } catch (IOException exception) {
           throw new IllegalArgumentException("Cannot read API-key file", exception);
         }
-      } else {
-        apiKey = environmentApiKey();
       }
-      String inferredSessionId = inferSessionId(eventsFile);
-      Path sidecarDirectory = eventsFile.toAbsolutePath().getParent();
-      if (sessionFile == null) {
-        sessionFile = sidecarDirectory.resolve(inferredSessionId + ".session.json");
-      }
-      TrackingSessionDescriptor session;
-      try {
-        session =
-            TrackingJson.read(
-                Files.readString(sessionFile, StandardCharsets.UTF_8),
-                TrackingSessionDescriptor.class);
-      } catch (IOException exception) {
-        throw new IllegalArgumentException("Cannot read session file", exception);
-      }
-      if (!session.sessionId().toString().equals(inferredSessionId)) {
-        throw new IllegalArgumentException("Outbox and session sidecar have different session IDs");
-      }
-      if (participants.isEmpty()) {
-        participants.addAll(findParticipantSidecars(sidecarDirectory, inferredSessionId));
-      }
-      if (finish.isEmpty()) {
-        Path inferredFinish = sidecarDirectory.resolve(inferredSessionId + ".finish.json");
-        if (Files.isRegularFile(inferredFinish)) {
-          finish = Optional.of(inferredFinish);
-        }
-      }
-      return new Arguments(
-          baseUri,
-          sessionFile,
-          eventsFile,
-          List.copyOf(participants),
-          finish,
-          apiKey,
-          batchSize,
-          session.sessionId().toString());
-    }
-
-    private static Optional<String> environmentApiKey() {
       String value = System.getenv(API_KEY_ENVIRONMENT_VARIABLE);
       if (value == null) {
         return Optional.empty();
@@ -249,51 +270,7 @@ public final class TrackingImportCli {
 
     private static IllegalArgumentException usage() {
       return new IllegalArgumentException(
-          "Usage: --url URL --outbox EVENTS.jsonl [--session FILE] [--participant FILE] "
-              + "[--finish FILE] [--api-key-file FILE] [--batch-size N]");
-    }
-
-    private static String inferSessionId(final Path eventsFile) {
-      try {
-        List<TrackingEvent> events =
-            TrackingJson.readEventsJsonlRecoveringTruncatedTail(eventsFile).events();
-        if (!events.isEmpty()) {
-          return events.getFirst().sessionId().toString();
-        }
-      } catch (IOException exception) {
-        throw new IllegalArgumentException("Cannot read outbox file", exception);
-      }
-      String fileName = eventsFile.getFileName().toString();
-      String candidate =
-          fileName.endsWith(".events.jsonl")
-              ? fileName.substring(0, fileName.length() - ".events.jsonl".length())
-              : fileName.endsWith(".jsonl")
-                  ? fileName.substring(0, fileName.length() - ".jsonl".length())
-                  : fileName;
-      try {
-        return UUID.fromString(candidate).toString();
-      } catch (IllegalArgumentException exception) {
-        throw new IllegalArgumentException(
-            "An empty outbox filename must start with its session UUID", exception);
-      }
-    }
-
-    private static List<Path> findParticipantSidecars(
-        final Path directory, final String sessionId) {
-      String prefix = sessionId + ".participant-";
-      try (Stream<Path> files = Files.list(directory)) {
-        return files
-            .filter(Files::isRegularFile)
-            .filter(
-                path -> {
-                  String name = path.getFileName().toString();
-                  return name.startsWith(prefix) && name.endsWith(".json");
-                })
-            .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-            .toList();
-      } catch (IOException exception) {
-        throw new IllegalArgumentException("Cannot list participant sidecars", exception);
-      }
+          "Usage: --url URL --outbox SESSION.jsonl [--api-key-file FILE] [--batch-size N]");
     }
   }
 }

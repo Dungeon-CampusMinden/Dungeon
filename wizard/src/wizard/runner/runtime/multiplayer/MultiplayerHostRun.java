@@ -30,6 +30,7 @@ import escaperoom.foundation.multiplayer.game.ServerGameBinding;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession;
 import escaperoom.foundation.room.level.RoomLevel;
 import escaperoom.foundation.room.model.FoundationRoom;
+import escaperoom.foundation.runtime.TerminalResult;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import java.util.LinkedHashMap;
@@ -100,9 +101,7 @@ public final class MultiplayerHostRun {
                   () -> {
                     ServerGameBinding binding = gameBinding;
                     if (binding == null) {
-                      binding =
-                          createGameBinding(
-                              () -> lifecycle.requestExit("Foundation multiplayer room completed"));
+                      binding = createGameBinding(() -> requestTerminalExit(lifecycle));
                       gameBinding = binding;
                     }
                     binding.tick();
@@ -151,6 +150,19 @@ public final class MultiplayerHostRun {
         hintStations(),
         System::nanoTime,
         onTerminalComplete);
+  }
+
+  private void requestTerminalExit(final ServerLifecycle lifecycle) {
+    TerminalResult result =
+        serverBinding
+            .projection()
+            .terminal()
+            .orElseThrow(() -> new IllegalStateException("Foundation terminal result is missing"));
+    if (result == TerminalResult.SUCCESS) {
+      lifecycle.requestCompletion();
+    } else {
+      lifecycle.requestExit("Foundation multiplayer room stopped");
+    }
   }
 
   private Map<String, Point> componentStations() {

@@ -452,8 +452,19 @@ public final class ServerTransport {
         session.udpReady(false);
 
         // Remove Player Entity on disconnect
-        session.clientState().ifPresent(state -> TrackingRuntime.participantLeft(state.clientId()));
-        session.clientState().flatMap(ClientState::playerEntity).ifPresent(Game::remove);
+        session
+            .clientState()
+            .ifPresent(
+                state ->
+                    clientIdToSession.computeIfPresent(
+                        state.clientId(),
+                        (clientId, currentSession) -> {
+                          if (currentSession == session) {
+                            TrackingRuntime.participantLeft(clientId);
+                            state.playerEntity().ifPresent(Game::remove);
+                          }
+                          return currentSession;
+                        }));
 
         LOGGER.info("TCP Session closed for {}", session);
       }
@@ -861,8 +872,18 @@ public final class ServerTransport {
     // remove old mappings
     oldSession.udpAddress().ifPresent(udpToClientId::remove);
     oldSession.udpReady(false);
+    Session replacedSession = oldSession;
+    clientIdToSession.computeIfPresent(
+        clientId,
+        (restoredClientId, currentSession) -> {
+          if (currentSession == replacedSession) {
+            TrackingRuntime.participantLeft(restoredClientId);
+            oldClientState.playerEntity().ifPresent(Game::remove);
+            return null;
+          }
+          return currentSession;
+        });
     sessions.remove(oldSession.tcpCtx().channel().id());
-    clientIdToSession.remove(clientId, oldSession);
     clientIdToName.remove(clientId);
     try {
       oldSession.close(); // should be already closed, but just in case

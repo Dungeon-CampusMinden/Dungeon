@@ -14,7 +14,7 @@ import engine.sound.Sounds;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.elements.RichLabel;
-import rooms.lasthour.modules.computer.ComputerFactory;
+import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerProgress;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
@@ -164,7 +164,7 @@ public class LoginTab extends ComputerTab {
     String username = localState().username();
     String password = localState().password();
     DialogCallbackResolver.createButtonCallback(
-            context().dialogId(), ComputerFactory.LOGIN_ATTEMPT_KEY)
+            context().dialogId(), ComputerCallbacks.LOGIN_ATTEMPT_KEY)
         .accept(new DialogResponseMessage.StringValue(username + "\n" + password));
     if (!((username.equalsIgnoreCase(Lore.LoginEmail)
             && password.equalsIgnoreCase(Lore.LoginPassword))

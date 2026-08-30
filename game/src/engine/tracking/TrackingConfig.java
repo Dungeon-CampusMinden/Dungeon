@@ -2,6 +2,7 @@ package engine.tracking;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -83,22 +84,23 @@ public record TrackingConfig(
   }
 
   /**
-   * Copies nonblank tracking system properties into a child-process environment.
+   * Returns child-environment overrides for nonblank tracking system properties.
    *
-   * <p>Inherited environment values remain unchanged when no nonblank property overrides them.
-   * Credentials therefore stay out of command-line arguments.
+   * <p>Credentials stay out of command-line arguments. Inherited environment values remain
+   * unchanged when no system property overrides them.
    *
-   * @param environment mutable child-process environment
+   * @return immutable child-environment overrides
    */
-  public static void applySystemPropertiesToChildEnvironment(Map<String, String> environment) {
-    Objects.requireNonNull(environment, "environment");
+  static Map<String, String> childEnvironmentOverrides() {
+    Map<String, String> overrides = new HashMap<>();
     PROPERTY_ENVIRONMENT_MAPPING.forEach(
         (property, environmentName) -> {
           String propertyValue = System.getProperty(property);
           if (propertyValue != null && !propertyValue.isBlank()) {
-            environment.put(environmentName, propertyValue.strip());
+            overrides.put(environmentName, propertyValue.strip());
           }
         });
+    return Map.copyOf(overrides);
   }
 
   private static void applyDeploymentValues(Builder builder) {

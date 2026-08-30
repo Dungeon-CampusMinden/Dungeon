@@ -59,6 +59,18 @@ public final class ServerLifecycle {
     }
   }
 
+  /** Routes the first successful shutdown request through tracking completion and game shutdown. */
+  public void requestCompletion() {
+    if (!exitRequested.compareAndSet(false, true)) {
+      return;
+    }
+    try {
+      Game.complete();
+    } finally {
+      afterExit.run();
+    }
+  }
+
   private void startManagedStopMonitor(final String shutdownReason) {
     Thread.ofPlatform()
         .daemon()

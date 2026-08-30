@@ -1,7 +1,7 @@
 package engine.tracking;
 
 import engine.Game;
-import engine.game.ServerProcess;
+import engine.game.ManagedServerStatus;
 import engine.utils.logging.DungeonLogger;
 import java.awt.GraphicsEnvironment;
 import java.nio.file.Path;
@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import tracking.core.TrackingEvent;
+import tracking.core.TrackingJson;
 import tracking.core.TrackingSessionStatus;
 
 /**
@@ -23,6 +24,7 @@ import tracking.core.TrackingSessionStatus;
 public final class Tracking {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Tracking.class);
   private static final Object LOCK = new Object();
+  private static final String PERSISTENCE_PENDING_STATUS = "tracking-persistence-pending";
 
   private static TrackingConfig explicitConfig;
   private static TrackingSession session;
@@ -134,7 +136,7 @@ public final class Tracking {
       boolean correct,
       UUID participantId) {
     synchronized (LOCK) {
-      if (session == null || session.finished()) {
+      if (session == null || session.finished() || !session.participantActive(participantId)) {
         return Optional.empty();
       }
       try {
@@ -158,7 +160,7 @@ public final class Tracking {
   public static Optional<TrackingEvent> hintUsed(
       String puzzleId, String hintId, UUID participantId) {
     synchronized (LOCK) {
-      if (session == null || session.finished()) {
+      if (session == null || session.finished() || !session.participantActive(participantId)) {
         return Optional.empty();
       }
       try {
@@ -214,8 +216,8 @@ public final class Tracking {
     }
   }
 
-  /** Ends the session normally. Repeated calls do nothing. */
-  public static void completed() {
+  /** Internal lifecycle hook that ends the session normally. Repeated calls do nothing. */
+  static void completed() {
     finish(TrackingSessionStatus.COMPLETED, Optional.empty());
   }
 
@@ -303,8 +305,8 @@ public final class Tracking {
     }
   }
 
-  /** Ends a running session as aborted and waits briefly for ordered local persistence. */
-  public static void abort() {
+  /** Internal lifecycle hook that aborts a running session at its current puzzle. */
+  static void abort() {
     abortAtCurrentPuzzle();
   }
 
@@ -346,29 +348,78 @@ public final class Tracking {
       String contact = operatorContact.map(value -> " Send it to " + value + ".").orElse("");
       LOGGER.warn(
           "Tracking persistence is not confirmed. Keep the local data at {}.{}", path, contact);
-      if (ServerProcess.reportTrackingUploadPending(path, operatorContact)) {
+      if (ManagedServerStatus.send(persistencePendingStatus(path, operatorContact))) {
         return;
       }
       if (GraphicsEnvironment.isHeadless()) {
         return;
       }
-      String message =
-          "Tracking persistence is not confirmed.\nKeep the local data at:\n"
-              + path
-              + operatorContact.map(value -> "\n\nOperator contact: " + value).orElse("");
-      try {
-        SwingUtilities.invokeLater(
-            () -> {
-              try {
-                JOptionPane.showMessageDialog(
-                    null, message, "Tracking upload pending", JOptionPane.WARNING_MESSAGE);
-              } catch (RuntimeException exception) {
-                LOGGER.warn("Could not display tracking upload warning for {}", path, exception);
-              }
-            });
-      } catch (RuntimeException exception) {
-        LOGGER.warn("Could not schedule tracking upload warning for {}", path, exception);
+      showPersistencePending(path, operatorContact);
+    }
+  }
+
+  static void handleManagedServerStatus(String status) {
+    try {
+      var payload = TrackingJson.object(status);
+      var type = payload.get("type");
+      var outbox = payload.get("outboxPath");
+      if (type == null
+          || !type.isString()
+          || !PERSISTENCE_PENDING_STATUS.equals(type.stringValue())
+          || outbox == null
+          || !outbox.isString()) {
+        LOGGER.warn("Managed server sent an unknown tracking status.");
+        return;
       }
+      var contact = payload.get("operatorContact");
+      if (contact != null && !contact.isNull() && !contact.isString()) {
+        LOGGER.warn("Managed server sent malformed tracking contact information.");
+        return;
+      }
+      Optional<String> operatorContact =
+          contact == null || contact.isNull()
+              ? Optional.empty()
+              : Optional.of(contact.stringValue());
+      Path outboxPath = Path.of(outbox.stringValue()).toAbsolutePath();
+      LOGGER.warn(
+          "Tracking persistence is not confirmed. Keep the local data at {}.{}",
+          outboxPath,
+          operatorContact.map(value -> " Send it to " + value + ".").orElse(""));
+      if (!GraphicsEnvironment.isHeadless()) {
+        showPersistencePending(outboxPath, operatorContact);
+      }
+    } catch (RuntimeException exception) {
+      LOGGER.warn("Cannot interpret managed-server tracking status.", exception);
+    }
+  }
+
+  private static String persistencePendingStatus(
+      Path outboxPath, Optional<String> operatorContact) {
+    var payload = TrackingJson.object();
+    payload.put("type", PERSISTENCE_PENDING_STATUS);
+    payload.put("outboxPath", outboxPath.toAbsolutePath().toString());
+    operatorContact.ifPresent(value -> payload.put("operatorContact", value));
+    return payload.toString();
+  }
+
+  private static void showPersistencePending(Path outboxPath, Optional<String> operatorContact) {
+    String message =
+        "Tracking persistence is not confirmed.\nKeep the local data at:\n"
+            + outboxPath
+            + operatorContact.map(value -> "\n\nOperator contact: " + value).orElse("");
+    try {
+      SwingUtilities.invokeLater(
+          () -> {
+            try {
+              JOptionPane.showMessageDialog(
+                  null, message, "Tracking upload pending", JOptionPane.WARNING_MESSAGE);
+            } catch (RuntimeException exception) {
+              LOGGER.warn(
+                  "Could not display tracking upload warning for {}", outboxPath, exception);
+            }
+          });
+    } catch (RuntimeException exception) {
+      LOGGER.warn("Could not schedule tracking upload warning for {}", outboxPath, exception);
     }
   }
 
@@ -394,7 +445,7 @@ public final class Tracking {
     persistenceFailure = new PersistenceFailure(exception.outboxPath(), operatorContact);
     LOGGER.error(
         "Local tracking persistence failed at {}. Gameplay will continue; tracking data may be incomplete.",
-        exception.path(),
+        exception.outboxPath(),
         exception);
   }
 

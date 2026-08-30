@@ -23,8 +23,8 @@ import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import java.util.Arrays;
 import java.util.List;
+import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerDialog;
-import rooms.lasthour.modules.computer.ComputerFactory;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
@@ -268,7 +268,7 @@ public class EmailsTab extends ComputerTab {
   private void clickedAttachment(String attachmentName) {
     if (Lore.VirusAttachmentNames.contains(attachmentName)) {
       DialogCallbackResolver.createButtonCallback(
-              context().dialogId(), ComputerFactory.VIRUS_TRIGGER_KEY)
+              context().dialogId(), ComputerCallbacks.VIRUS_TRIGGER_KEY)
           .accept(new DialogResponseMessage.StringValue(attachmentName));
       return;
     }

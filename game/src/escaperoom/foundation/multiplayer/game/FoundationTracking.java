@@ -21,15 +21,6 @@ final class FoundationTracking {
                 Tracking.puzzleSolved(riddle.id());
               }
             });
-    projection
-        .terminal()
-        .ifPresent(
-            result -> {
-              switch (result) {
-                case SUCCESS -> Tracking.completed();
-                case HARD_TIMEOUT, ABORTED -> Tracking.abort();
-              }
-            });
   }
 
   synchronized void attempt(
