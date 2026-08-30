@@ -26,6 +26,23 @@ the hosting process. The API key is never added to the child JVM's command line.
 For deployments that cannot change room code, `dungeon.tracking.roomId` or
 `DUNGEON_TRACKING_ROOM_ID` configures the room.
 
+Configuration alone does not create a session or an outbox. On a multiplayer server, tracking
+starts when the first valid client sends `InitialWorldReady`. A server that never receives a ready
+player writes no tracking file. In singleplayer, tracking starts after the initial level has loaded
+and `Game.player()` contains the local player. The engine creates and associates that participant
+before the first following gameplay tick.
+
+The readiness boundary sets the session start time. Dungeon creates the descriptor and outbox,
+writes `SESSION_STARTED`, and joins the first participant at that point. Bootstrap, multiplayer
+lobby time, and initial world transfer are not part of the tracked duration. Dungeon attempts this
+start once per configured run. It does not restart tracking after a start failure or after the
+session finishes.
+
+Room logic may make a puzzle available before that boundary. The authoritative process remembers
+such puzzle starts without creating a session or outbox. At readiness it records them once, in
+their original order, directly after the first `PARTICIPANT_JOINED` event. Their event time and
+elapsed duration therefore begin at readiness rather than during bootstrap or world transfer.
+
 Every configured session creates a new `<session UUID>.jsonl` file. It never reuses an existing
 file. The first line contains the session descriptor, followed by ordered event records. A cleanly
 closed session ends with a finish record. A missing finish record marks an interrupted session.
@@ -68,3 +85,8 @@ finishes the tracking session.
 usernames, addresses, client IDs, or entity IDs to tracking files. Raw answers are stored exactly as
 submitted, so operators must handle outboxes as potentially sensitive data and define
 their own retention and deletion procedure.
+
+The public room-facing API consists of `Tracking.configureRoom`, `roomId`, `active`, `outboxPath`,
+`puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `participantForClient`, and
+`participantForEntity`. Deployment configuration is read from the listed properties and
+environment variables. `TrackingConfig` and its builder are internal to the tracking package.

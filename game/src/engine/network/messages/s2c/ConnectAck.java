@@ -13,9 +13,4 @@ import engine.network.messages.NetworkMessage;
  * @param trackingRoomId stable room ID for client-local history, or blank when tracking is disabled
  */
 public record ConnectAck(short clientId, int sessionId, byte[] sessionToken, String trackingRoomId)
-    implements NetworkMessage {
-  /** Creates an acknowledgement when no tracked room context is configured. */
-  public ConnectAck(short clientId, int sessionId, byte[] sessionToken) {
-    this(clientId, sessionId, sessionToken, "");
-  }
-}
+    implements NetworkMessage {}

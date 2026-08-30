@@ -16,18 +16,18 @@ import java.util.Optional;
  * @param outboxDirectory directory for local append-only tracking files
  * @param operatorContact optional operator contact shown when remote upload remains pending
  */
-public record TrackingConfig(
+record TrackingConfig(
     String roomId,
     Optional<URI> endpoint,
     Optional<String> apiKey,
     Path outboxDirectory,
     Optional<String> operatorContact) {
 
-  public static final String ROOM_ID_PROPERTY = "dungeon.tracking.roomId";
-  public static final String ENDPOINT_PROPERTY = "dungeon.tracking.endpoint";
-  public static final String API_KEY_PROPERTY = "dungeon.tracking.apiKey";
-  public static final String OUTBOX_PROPERTY = "dungeon.tracking.outbox";
-  public static final String OPERATOR_CONTACT_PROPERTY = "dungeon.tracking.operatorContact";
+  static final String ROOM_ID_PROPERTY = "dungeon.tracking.roomId";
+  static final String ENDPOINT_PROPERTY = "dungeon.tracking.endpoint";
+  static final String API_KEY_PROPERTY = "dungeon.tracking.apiKey";
+  static final String OUTBOX_PROPERTY = "dungeon.tracking.outbox";
+  static final String OPERATOR_CONTACT_PROPERTY = "dungeon.tracking.operatorContact";
 
   private static final String ROOM_ID_ENV = "DUNGEON_TRACKING_ROOM_ID";
   private static final String ENDPOINT_ENV = "DUNGEON_TRACKING_ENDPOINT";
@@ -49,7 +49,7 @@ public record TrackingConfig(
           OPERATOR_CONTACT_ENV);
 
   /** Validates and normalizes one immutable configuration. */
-  public TrackingConfig {
+  TrackingConfig {
     roomId = requireText(roomId, "roomId");
     endpoint = Objects.requireNonNull(endpoint, "endpoint");
     endpoint.ifPresent(TrackingConfig::validateEndpoint);
@@ -59,21 +59,21 @@ public record TrackingConfig(
   }
 
   /** Creates a builder with the required stable room ID. */
-  public static Builder builder(String roomId) {
+  private static Builder builder(String roomId) {
     return new Builder(roomId);
   }
 
   /**
    * Creates room configuration while retaining deployment settings from properties or environment.
    */
-  public static TrackingConfig forRoom(String roomId) {
+  static TrackingConfig forRoom(String roomId) {
     Builder builder = builder(roomId);
     applyDeploymentValues(builder);
     return builder.build();
   }
 
   /** Reads configuration from system properties first and environment variables second. */
-  public static Optional<TrackingConfig> fromEnvironment() {
+  static Optional<TrackingConfig> fromEnvironment() {
     return value(ROOM_ID_PROPERTY, ROOM_ID_ENV)
         .map(
             roomId -> {
@@ -147,7 +147,7 @@ public record TrackingConfig(
   }
 
   /** Builder for explicit room configuration. */
-  public static final class Builder {
+  private static final class Builder {
     private final String roomId;
     private URI endpoint;
     private String apiKey;
@@ -164,7 +164,7 @@ public record TrackingConfig(
      * @param endpoint absolute HTTP(S) base URI
      * @return this builder
      */
-    public Builder endpoint(URI endpoint) {
+    private Builder endpoint(URI endpoint) {
       this.endpoint = Objects.requireNonNull(endpoint, "endpoint");
       return this;
     }
@@ -175,7 +175,7 @@ public record TrackingConfig(
      * @param apiKey bearer credential
      * @return this builder
      */
-    public Builder apiKey(String apiKey) {
+    private Builder apiKey(String apiKey) {
       this.apiKey = requireText(apiKey, "apiKey");
       return this;
     }
@@ -186,7 +186,7 @@ public record TrackingConfig(
      * @param outboxDirectory local directory
      * @return this builder
      */
-    public Builder outboxDirectory(Path outboxDirectory) {
+    private Builder outboxDirectory(Path outboxDirectory) {
       this.outboxDirectory = Objects.requireNonNull(outboxDirectory, "outboxDirectory");
       return this;
     }
@@ -197,7 +197,7 @@ public record TrackingConfig(
      * @param operatorContact operator contact text
      * @return this builder
      */
-    public Builder operatorContact(String operatorContact) {
+    private Builder operatorContact(String operatorContact) {
       this.operatorContact = requireText(operatorContact, "operatorContact");
       return this;
     }
@@ -207,7 +207,7 @@ public record TrackingConfig(
      *
      * @return validated tracking configuration
      */
-    public TrackingConfig build() {
+    private TrackingConfig build() {
       return new TrackingConfig(
           roomId,
           Optional.ofNullable(endpoint),

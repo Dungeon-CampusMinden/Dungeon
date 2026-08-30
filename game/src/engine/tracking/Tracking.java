@@ -5,8 +5,10 @@ import engine.game.ManagedServerStatus;
 import engine.utils.logging.DungeonLogger;
 import java.awt.GraphicsEnvironment;
 import java.nio.file.Path;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -25,25 +27,23 @@ public final class Tracking {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Tracking.class);
   private static final Object LOCK = new Object();
   private static final String PERSISTENCE_PENDING_STATUS = "tracking-persistence-pending";
+  private static final Set<String> PENDING_PUZZLE_STARTS = new LinkedHashSet<>();
 
   private static TrackingConfig explicitConfig;
   private static TrackingSession session;
+  private static boolean sessionStartAttempted;
   private static String clientRoomId;
   private static PersistenceFailure persistenceFailure;
 
   private Tracking() {}
 
-  /**
-   * Sets explicit configuration. Call this before {@link Game#run()}.
-   *
-   * @param config complete room and deployment configuration
-   */
-  public static void configure(TrackingConfig config) {
+  private static void configure(TrackingConfig config) {
     synchronized (LOCK) {
-      if (session != null && !session.finished()) {
-        throw new IllegalStateException("Tracking is already running");
+      if (sessionStartAttempted) {
+        throw new IllegalStateException("Tracking session start is already closed");
       }
       session = null;
+      PENDING_PUZZLE_STARTS.clear();
       persistenceFailure = null;
       explicitConfig = Objects.requireNonNull(config, "config");
     }
@@ -105,11 +105,15 @@ public final class Tracking {
    */
   public static Optional<TrackingEvent> puzzleStarted(String puzzleId) {
     synchronized (LOCK) {
+      String startedPuzzle = requirePuzzleId(puzzleId);
       if (session == null || session.finished()) {
+        if (!sessionStartAttempted && !Game.isMultiplayerClient() && startConfig().isPresent()) {
+          PENDING_PUZZLE_STARTS.add(startedPuzzle);
+        }
         return Optional.empty();
       }
       try {
-        return session.puzzleStarted(puzzleId);
+        return session.puzzleStarted(startedPuzzle);
       } catch (TrackingPersistenceException exception) {
         recordPersistenceFailure(exception);
         return Optional.empty();
@@ -221,33 +225,36 @@ public final class Tracking {
     finish(TrackingSessionStatus.COMPLETED, Optional.empty());
   }
 
-  static void startAuthoritativeSession() {
+  static void startSingleplayerSession(int entityId) {
     synchronized (LOCK) {
-      if ((session != null && !session.finished())
-          || (!Game.isSingleplayer() && !Game.network().isServer())) {
+      if (!Game.isSingleplayer() || sessionStartAttempted) {
         return;
       }
-      session = null;
-      config()
-          .ifPresent(
-              configured -> {
-                try {
-                  session = new TrackingSession(configured);
-                  if (Game.isSingleplayer()) {
-                    boolean playedBefore = RoomHistory.playedBefore(configured.roomId());
-                    UUID participant =
-                        session.participantJoined((short) 0, playedBefore).orElseThrow();
-                    Game.player()
-                        .ifPresent(player -> session.associateEntity((short) 0, player.id()));
-                    RoomHistory.markPlayed(configured.roomId());
-                    LOGGER.info("Started local tracking participant {}", participant);
-                  }
-                } catch (TrackingPersistenceException exception) {
-                  recordPersistenceFailure(exception, configured.operatorContact());
-                } catch (RuntimeException exception) {
-                  LOGGER.error("Could not start tracking", exception);
-                }
-              });
+      sessionStartAttempted = true;
+      Optional<TrackingConfig> configured = startConfig();
+      if (configured.isPresent()) {
+        startSingleplayerSession(configured.orElseThrow(), entityId);
+      } else {
+        PENDING_PUZZLE_STARTS.clear();
+      }
+    }
+  }
+
+  private static void startSingleplayerSession(TrackingConfig configured, int entityId) {
+    try {
+      session = new TrackingSession(configured);
+      boolean playedBefore = RoomHistory.playedBefore(configured.roomId());
+      UUID participant = session.participantJoined((short) 0, playedBefore).orElseThrow();
+      session.associateEntity((short) 0, entityId);
+      emitPendingPuzzleStarts();
+      RoomHistory.markPlayed(configured.roomId());
+      LOGGER.info("Started local tracking participant {}", participant);
+    } catch (TrackingPersistenceException exception) {
+      recordPersistenceFailure(exception, configured.operatorContact());
+    } catch (RuntimeException exception) {
+      LOGGER.error("Could not start tracking", exception);
+    } finally {
+      PENDING_PUZZLE_STARTS.clear();
     }
   }
 
@@ -273,15 +280,48 @@ public final class Tracking {
 
   static Optional<UUID> participantJoined(short clientId, boolean roomPlayedBefore) {
     synchronized (LOCK) {
+      if (Game.isSingleplayer() || !Game.network().isServer()) {
+        return Optional.empty();
+      }
+      boolean startingSession = session == null && !sessionStartAttempted;
+      if (startingSession) {
+        sessionStartAttempted = true;
+        startConfig().ifPresent(Tracking::startMultiplayerSession);
+      }
       if (session == null || session.finished()) {
+        if (startingSession) {
+          PENDING_PUZZLE_STARTS.clear();
+        }
         return Optional.empty();
       }
       try {
-        return session.participantJoined(clientId, roomPlayedBefore);
+        Optional<UUID> participant = session.participantJoined(clientId, roomPlayedBefore);
+        if (startingSession && participant.isPresent()) {
+          try {
+            emitPendingPuzzleStarts();
+          } catch (TrackingPersistenceException exception) {
+            recordPersistenceFailure(exception);
+          }
+        }
+        return participant;
       } catch (TrackingPersistenceException exception) {
         recordPersistenceFailure(exception);
         return Optional.empty();
+      } finally {
+        if (startingSession) {
+          PENDING_PUZZLE_STARTS.clear();
+        }
       }
+    }
+  }
+
+  private static void startMultiplayerSession(TrackingConfig configured) {
+    try {
+      session = new TrackingSession(configured);
+    } catch (TrackingPersistenceException exception) {
+      recordPersistenceFailure(exception, configured.operatorContact());
+    } catch (RuntimeException exception) {
+      LOGGER.error("Could not start tracking", exception);
     }
   }
 
@@ -312,6 +352,8 @@ public final class Tracking {
 
   static void abortAtCurrentPuzzle() {
     synchronized (LOCK) {
+      sessionStartAttempted = true;
+      PENDING_PUZZLE_STARTS.clear();
       if (session != null) {
         try {
           session.finish(TrackingSessionStatus.ABORTED, session.currentPuzzleId());
@@ -425,6 +467,8 @@ public final class Tracking {
 
   private static void finish(TrackingSessionStatus status, Optional<String> puzzleId) {
     synchronized (LOCK) {
+      sessionStartAttempted = true;
+      PENDING_PUZZLE_STARTS.clear();
       if (session != null) {
         try {
           session.finish(status, puzzleId);
@@ -451,6 +495,28 @@ public final class Tracking {
 
   private static Optional<TrackingConfig> config() {
     return Optional.ofNullable(explicitConfig).or(TrackingConfig::fromEnvironment);
+  }
+
+  private static Optional<TrackingConfig> startConfig() {
+    try {
+      return config();
+    } catch (RuntimeException exception) {
+      LOGGER.error("Could not read tracking configuration", exception);
+      return Optional.empty();
+    }
+  }
+
+  private static void emitPendingPuzzleStarts() {
+    for (String puzzleId : PENDING_PUZZLE_STARTS) {
+      session.puzzleStarted(puzzleId);
+    }
+  }
+
+  private static String requirePuzzleId(String puzzleId) {
+    if (puzzleId == null || puzzleId.isBlank()) {
+      throw new IllegalArgumentException("puzzleId must not be blank");
+    }
+    return puzzleId.strip();
   }
 
   private record PersistenceFailure(Path path, Optional<String> operatorContact) {

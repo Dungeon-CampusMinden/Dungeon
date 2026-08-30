@@ -110,7 +110,10 @@ public class KeypadComponent implements Component {
   }
 
   /**
-   * Checks if the entered digits match the correct digits and unlocks if they do.
+   * Checks the submitted digits and unlocks the keypad if they match the code.
+   *
+   * <p>Every failed submission invokes the wrong-code callback. Only complete failed codes count
+   * toward {@link #wrongCodeAttempts()}.
    *
    * @param caller entity that submitted the code
    * @throws NullPointerException if caller is null
@@ -132,8 +135,8 @@ public class KeypadComponent implements Component {
       isUnlocked = true;
       if (action != null) action.run();
       onCorrectCode.accept(caller);
-    } else if (completeCodeEntered) {
-      wrongCodeAttempts++;
+    } else {
+      if (completeCodeEntered) wrongCodeAttempts++;
       onWrongCode.accept(caller);
     }
   }
@@ -261,7 +264,7 @@ public class KeypadComponent implements Component {
   }
 
   /**
-   * Registers a callback executed after each complete failed submit.
+   * Registers a callback executed after each failed submit.
    *
    * @param onWrongCode callback receiving the submitting entity
    * @throws NullPointerException if the callback is null
@@ -271,9 +274,9 @@ public class KeypadComponent implements Component {
   }
 
   /**
-   * Returns the number of failed submit attempts.
+   * Returns the number of complete failed code submissions.
    *
-   * @return failed submit count
+   * @return complete failed submission count
    */
   public int wrongCodeAttempts() {
     return wrongCodeAttempts;

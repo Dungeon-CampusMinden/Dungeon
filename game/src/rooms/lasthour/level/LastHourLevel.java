@@ -197,7 +197,6 @@ public class LastHourLevel extends DungeonLevel {
                   });
             });
     Game.add(keypad);
-    LastHourTracking.started(LastHourPuzzle.STORAGE_ACCESS);
 
     setupPC();
     setupTrashcans();

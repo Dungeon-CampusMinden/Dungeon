@@ -266,6 +266,7 @@ public final class ComputerCallbacks {
         who);
     if (correct) {
       LastHourTracking.solved(LastHourPuzzle.STORAGE_RECOVERY);
+      LastHourTracking.started(LastHourPuzzle.STORAGE_ACCESS);
     }
   }
 

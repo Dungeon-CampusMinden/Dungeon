@@ -122,22 +122,32 @@ Roster-Freeze.
 Jeder Teilnehmer leitet aus seinem vollständig lokal validierten Projekt, also
 der vollständigen `deer.json` plus den verifizierten Custom-Assets, dieselbe
 `FoundationRoom` ab. Der Host überträgt daher kein zweites Raumabbild.
-Das einzige Foundation-Bootstrap-Metadatum ist der vollständige
-`hostInputSha256`: Im reservierten Metadata-Key `foundation.bootstrap` steht
-direkt der kleingeschriebene 64-stellige SHA-256-String. Die
-Dungeon-`PROTOCOL_VERSION` trägt die Wire-Kompatibilität. Der Client vergleicht
-den Hash vor `InitialWorldReady` mit SHA-256 über seine vollständige
-RFC-8785-kanonisierte lokale `deer.json`. Erst nach erfolgreicher Schema-,
-Semantik- und Assetvalidierung wird dieser Hash gebildet. Anschließend bindet
-der Client ausschließlich die lokal validierten Custom-Assets. Gebündelte
-Assetpfade übernimmt die Präsentation unverändert und lädt sie über den
-normalen Dungeon-Assetloader.
+Das einzige Foundation-spezifische Projekt- und Bootstrap-Metadatum ist der
+vollständige `hostInputSha256`. Im reservierten Metadata-Key
+`foundation.bootstrap` steht direkt der kleingeschriebene 64-stellige
+SHA-256-String. Die Dungeon-`PROTOCOL_VERSION` trägt die Wire-Kompatibilität.
+Der generische Dungeon-Handshake enthält daneben Tracking-Daten: `ConnectAck`
+liefert die `trackingRoomId` des Hosts, und `InitialWorldReady` meldet mit
+`roomPlayedBefore`, ob der Client diesen Raum laut seiner lokalen Historie
+bereits gespielt hat. Eine leere `trackingRoomId` bedeutet, dass Tracking für
+den Raum deaktiviert ist.
+
+Der Client vergleicht den Hash vor `InitialWorldReady` mit SHA-256 über seine
+vollständige RFC-8785-kanonisierte lokale `deer.json`. Erst nach erfolgreicher
+Schema-, Semantik- und Assetvalidierung wird dieser Hash gebildet. Anschließend
+bindet der Client ausschließlich die lokal validierten Custom-Assets.
+Gebündelte Assetpfade übernimmt die Präsentation unverändert und lädt sie über
+den normalen Dungeon-Assetloader.
 
 Der Identitätsmarker wird genau einmal im initialen Entity-Stream übertragen.
 Der Client puffert gewöhnliche initiale Spawns bis zur erfolgreichen Prüfung
 und Assetbindung und gibt sie danach in ursprünglicher Reihenfolge frei. Bei
-einem Reconnect muss dieselbe Projektidentität verwendet werden. Binäre Assets
-werden nicht übertragen; V0.4 bietet keinen Assetdownload.
+einem Reconnect muss dieselbe Projektidentität verwendet werden. Der Server
+sendet die `trackingRoomId` erneut, und der Client ermittelt
+`roomPlayedBefore` erneut aus seiner lokalen Historie. Beide Tracking-Felder
+beziehen sich auf einen Raum, nicht auf eine sitzungsübergreifende
+Spieleridentität; sie erzeugen oder ersetzen keine solche Identität. Binäre
+Assets werden nicht übertragen; V0.4 bietet keinen Assetdownload.
 
 ## Multiplayer-Lebenszyklus
 

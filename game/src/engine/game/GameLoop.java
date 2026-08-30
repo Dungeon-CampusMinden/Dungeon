@@ -110,6 +110,7 @@ public final class GameLoop extends ScreenAdapter {
   private volatile boolean initialWorldCompleteReceived = false;
   private volatile boolean initialWorldReadySent = false;
   private volatile boolean initialWorldClientReady = false;
+  private boolean singleplayerTrackingStartPending = true;
   private static final Set<IResizable> resizables = new HashSet<>();
   private static String windowTitle = "Dungeon";
   private static Supplier<? extends Screen> initialScreenSupplier;
@@ -308,6 +309,7 @@ public final class GameLoop extends ScreenAdapter {
   @Override
   public void render(float delta) {
     if (doSetup) setup();
+    tryStartSingleplayerTracking();
     ECSManagement.system(
         DrawSystem.class,
         drawSystem -> DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
@@ -433,7 +435,6 @@ public final class GameLoop extends ScreenAdapter {
 
     // Multiplayer clients receive level state from the server instead of loading it locally.
     if (!Game.isMultiplayerClient()) {
-      TrackingRuntime.startAuthoritativeSession();
       if (!DungeonLoader.levelOrder().isEmpty()) {
         if (Game.currentLevel().isEmpty()) DungeonLoader.loadLevel(0); // load the first level
       } else {
@@ -443,6 +444,20 @@ public final class GameLoop extends ScreenAdapter {
         Game.network().completeServerBootstrap();
       }
     }
+  }
+
+  private void tryStartSingleplayerTracking() {
+    if (!singleplayerTrackingStartPending
+        || !Game.isSingleplayer()
+        || Game.currentLevel().isEmpty()) {
+      return;
+    }
+    Game.player()
+        .ifPresent(
+            player -> {
+              singleplayerTrackingStartPending = false;
+              TrackingRuntime.startSingleplayerSession(player.id());
+            });
   }
 
   private static Optional<ClientState> clientState(Session ctx) {

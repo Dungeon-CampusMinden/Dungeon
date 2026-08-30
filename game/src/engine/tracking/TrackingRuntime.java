@@ -8,9 +8,13 @@ import java.util.UUID;
 public final class TrackingRuntime {
   private TrackingRuntime() {}
 
-  /** Starts tracking on an authoritative server or singleplayer process. */
-  public static void startAuthoritativeSession() {
-    Tracking.startAuthoritativeSession();
+  /**
+   * Starts singleplayer tracking once the initial world and local player are ready.
+   *
+   * @param entityId local player entity to associate with the participant
+   */
+  public static void startSingleplayerSession(int entityId) {
+    Tracking.startSingleplayerSession(entityId);
   }
 
   /**
