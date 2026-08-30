@@ -14,11 +14,11 @@ import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.elements.RichLabel;
 import rooms.lasthour.modules.computer.ComputerCallbacks;
+import java.util.Map;
+import rooms.lasthour.modules.computer.ComputerFactory;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
-
-import java.util.Map;
 
 /** Tab content for when the computer is infected with a virus. */
 public class VirusTab extends ComputerTab {
@@ -121,7 +121,8 @@ public class VirusTab extends ComputerTab {
   private void trySubmitCode(TextField codeField, RichLabel virusLabel) {
     String inputCode = codeField.getText().replaceAll("\\s+", "");
     Map<Language, String> expected = Lore.VirusTypeToCode.getOrDefault(virusType, null);
-    String expectedString = expected.get(Localization.getInstance().currentLanguage()).replaceAll("\\s+", "");
+    String expectedString =
+        expected.get(Localization.getInstance().currentLanguage()).replaceAll("\\s+", "");
     if (virusType == null || inputCode.equalsIgnoreCase(expectedString)) {
       virusLabel.setText("[color=#00cc00]Virus Neutralized!");
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);

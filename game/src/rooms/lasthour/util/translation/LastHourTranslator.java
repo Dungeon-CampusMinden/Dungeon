@@ -6,7 +6,6 @@ import engine.language.Language;
 import engine.language.Translation;
 import feature.input.configuration.KeyboardConfig;
 import feature.puzzle.Puzzle;
-import feature.puzzle.PuzzleTextureGenerator;
 import feature.utils.Translator;
 import java.util.List;
 import java.util.Set;
@@ -89,7 +88,12 @@ public class LastHourTranslator extends Translator {
         case TranslationKey.Email_7_Content ->
             translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(3)));
         case TranslationKey.cabinetImage ->
-            translatedText = translatedText.replace(s, Game.localization().currentLanguage().equals(Language.DE) ? cabinetImagePathDE : cabinetImagePathEN);
+            translatedText =
+                translatedText.replace(
+                    s,
+                    Game.localization().currentLanguage().equals(Language.DE)
+                        ? cabinetImagePathDE
+                        : cabinetImagePathEN);
         default -> translatedText = translatedText.replace(s, translation.text(s));
       }
     }

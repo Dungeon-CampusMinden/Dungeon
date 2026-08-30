@@ -1,7 +1,5 @@
 package rooms.lasthour.level;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
@@ -9,7 +7,6 @@ import engine.components.DrawComponent;
 import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
-import engine.language.Language;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
@@ -25,7 +22,6 @@ import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
-import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import escaperoom.foundation.ui.BlackFadeCutscene;
@@ -349,22 +345,23 @@ public class LastHourLevel extends DungeonLevel {
               locker.remove(DecoComponent.class);
               locker.add(
                   new InteractionComponent(
-                      new Interaction(
-                          (e, who) -> {
-                            if (index == 2) {
-                              LastHourQuestLogUtil.addTrustCarefullyQuestLogEntry();
-                              DialogFactory.showOkDialog(
-                                  TranslationKey.LockerFind,
-                                  "",
-                                  () -> {
-                                    DialogUtils.showImagePopUp(cabinetImagePath, who.id());
-                                  },
-                                  who.id());
-                              return;
-                            }
-                            DialogFactory.showOkDialog(
-                                TranslationKey.LockerEmpty, "", () -> {}, who.id());
-                          })));
+                          new Interaction(
+                              (e, who) -> {
+                                if (index == 2) {
+                                  LastHourQuestLogUtil.addTrustCarefullyQuestLogEntry();
+                                  DialogFactory.showOkDialog(
+                                      TranslationKey.LockerFind,
+                                      "",
+                                      () -> {
+                                        DialogUtils.showImagePopUp(
+                                            TranslationKey.cabinetImage, who.id());
+                                      },
+                                      who.id());
+                                  return;
+                                }
+                                DialogFactory.showOkDialog(
+                                    TranslationKey.LockerEmpty, "", () -> {}, who.id());
+                              })));
               Game.add(locker);
             });
 
@@ -565,8 +562,12 @@ public class LastHourLevel extends DungeonLevel {
    * network message references them. Must be called on the libGDX render thread.
    */
   public static void ensureClientPuzzles() {
-    LastHourTranslator.finalCodePuzzelEN = PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
-    LastHourTranslator.finalCodePuzzelDE = PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE_DE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    LastHourTranslator.finalCodePuzzelEN =
+        PuzzleMaker.makePuzzle(
+            R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    LastHourTranslator.finalCodePuzzelDE =
+        PuzzleMaker.makePuzzle(
+            R2_PUZZLE_IMAGE_DE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
     LastHourTranslator.currentPuzzel = LastHourTranslator.finalCodePuzzelEN;
     Game.localization().registerLanguageChangeListener(PuzzleTextureGenerator.languageConsumer);
   }

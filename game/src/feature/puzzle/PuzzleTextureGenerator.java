@@ -11,11 +11,10 @@ import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.InventoryComponent;
 import feature.inventory.Item;
-import rooms.lasthour.util.translation.LastHourTranslator;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import rooms.lasthour.util.translation.LastHourTranslator;
 
 /**
  * Generates the per-piece texture fragments of a {@link Puzzle} and registers them in the {@link
@@ -154,7 +153,7 @@ public final class PuzzleTextureGenerator {
    */
   public static void unregister(String puzzleId, int pieceCount) {
     if (Game.isHeadless()) return;
-//    Game.localization().removeLanguageChangeListener(languageConsumer);
+    //    Game.localization().removeLanguageChangeListener(languageConsumer);
     for (int i = 0; i < pieceCount; i++) {
       String key = texturePath(puzzleId, i);
       var existing = TextureMap.instance().remove(key);
@@ -168,16 +167,18 @@ public final class PuzzleTextureGenerator {
     }
   }
 
-  public static Consumer<Language> languageConsumer = (lang) -> {
-
-    if (lang.equals(Language.DE)) {
-      applyChangsToItems(LastHourTranslator.currentPuzzel, LastHourTranslator.finalCodePuzzelDE);
-      LastHourTranslator.currentPuzzel = LastHourTranslator.finalCodePuzzelDE;
-    } else if (lang.equals(Language.EN)) {
-      applyChangsToItems(LastHourTranslator.currentPuzzel, LastHourTranslator.finalCodePuzzelEN);
-      LastHourTranslator.currentPuzzel = LastHourTranslator.finalCodePuzzelEN;
-    }
-  };
+  public static Consumer<Language> languageConsumer =
+      (lang) -> {
+        if (lang.equals(Language.DE)) {
+          applyChangsToItems(
+              LastHourTranslator.currentPuzzel, LastHourTranslator.finalCodePuzzelDE);
+          LastHourTranslator.currentPuzzel = LastHourTranslator.finalCodePuzzelDE;
+        } else if (lang.equals(Language.EN)) {
+          applyChangsToItems(
+              LastHourTranslator.currentPuzzel, LastHourTranslator.finalCodePuzzelEN);
+          LastHourTranslator.currentPuzzel = LastHourTranslator.finalCodePuzzelEN;
+        }
+      };
 
   public static void applyChangsToItems(Puzzle currentPuzzle, Puzzle newPuzzle) {
     // Handles Items in Inventory
@@ -190,15 +191,18 @@ public final class PuzzleTextureGenerator {
         }
       }
     }
-    for (PuzzlePieceItem item: itemsToBeReplaced) {
+    for (PuzzlePieceItem item : itemsToBeReplaced) {
       inv.remove(item);
     }
 
-    for (PuzzlePieceItem item: itemsToBeReplaced) {
+    for (PuzzlePieceItem item : itemsToBeReplaced) {
       int index = item.pieceIndex();
-      PuzzlePieceItem item2 = newPuzzle.items().stream()
-        .map(npItem -> ((PuzzlePieceItem)npItem))
-        .filter(puzzlePieceItem -> puzzlePieceItem.pieceIndex()==index).findFirst().get();
+      PuzzlePieceItem item2 =
+          newPuzzle.items().stream()
+              .map(npItem -> ((PuzzlePieceItem) npItem))
+              .filter(puzzlePieceItem -> puzzlePieceItem.pieceIndex() == index)
+              .findFirst()
+              .get();
       inv.add(item2);
     }
 

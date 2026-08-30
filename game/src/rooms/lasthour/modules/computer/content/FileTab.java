@@ -120,7 +120,11 @@ public class FileTab extends ComputerTab {
   private static Actor createHintPage() {
     Table table = new Table();
     table.center();
-    hintlabel = Scene2dElementFactory.createLabel(Game.localization().getCurrentTranslator().translate(TranslationKey.HintFilePoem), 28, Color.BLACK);
+    hintlabel =
+        Scene2dElementFactory.createLabel(
+            Game.localization().getCurrentTranslator().translate(TranslationKey.HintFilePoem),
+            28,
+            Color.BLACK);
     Game.localization().registerLanguageChangeListener(FileTab::languageChangeListener);
     hintlabel.setAlignment(Align.center);
     table.add(hintlabel).expand().center();
@@ -258,7 +262,8 @@ public class FileTab extends ComputerTab {
   }
 
   private static void languageChangeListener(Language language) {
-    hintlabel.setText(Game.localization().getCurrentTranslator().translate(TranslationKey.HintFilePoem));
+    hintlabel.setText(
+        Game.localization().getCurrentTranslator().translate(TranslationKey.HintFilePoem));
   }
 
   @Override
