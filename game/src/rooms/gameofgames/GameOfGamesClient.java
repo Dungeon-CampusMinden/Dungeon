@@ -19,6 +19,7 @@ import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.systems.PositionSync;
 import java.util.Objects;
+import rooms.gameofgames.canvas.GameOfGamesCanvas;
 import rooms.gameofgames.network.GameOfGamesSnapshotTranslator;
 
 /** Client-side setup for Game of Games. */
@@ -28,6 +29,7 @@ public final class GameOfGamesClient {
 
   /** Registers client-side handlers and systems for Game of Games. */
   public static void clientSetup() {
+    GameOfGamesCanvas.register();
     registerEntitySpawnHandler();
     Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);

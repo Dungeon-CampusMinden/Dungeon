@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * A pannable, zoomable and clipped viewport that hosts arbitrary {@link CanvasNode}s.
@@ -66,6 +67,7 @@ public class CanvasArea extends Group {
   private final String canvasId;
   private final CanvasOptions options;
   private final Group world = new Group();
+  private final Group sticky = new Group();
   private final Map<String, CanvasNode> nodesById = new LinkedHashMap<>();
   private final Set<CanvasNode> selection = new LinkedHashSet<>();
   private final List<CanvasListener> listeners = new ArrayList<>();
@@ -119,6 +121,8 @@ public class CanvasArea extends Group {
     world.setTransform(true);
     world.setScale(zoom);
     addActor(world);
+    sticky.setTransform(false);
+    addActor(sticky);
 
     resetView();
     addListener(new CanvasInputListener());
@@ -177,7 +181,7 @@ public class CanvasArea extends Group {
           "A node with id '" + node.id() + "' is already on canvas '" + canvasId + "'");
     }
     nodesById.put(node.id(), node);
-    world.addActor(node);
+    groupOf(node).addActor(node);
     node.attach(this);
     orderDirty = true;
     node.onAdd(this);
@@ -205,7 +209,7 @@ public class CanvasArea extends Group {
       return false;
     }
     nodesById.remove(node.id());
-    world.removeActor(node);
+    groupOf(node).removeActor(node);
     if (selection.remove(node)) {
       node.setSelectedInternal(false);
       fireSelectionChanged();
@@ -285,7 +289,7 @@ public class CanvasArea extends Group {
     if (node == null || nodesById.get(node.id()) != node) {
       return;
     }
-    int max = nodesById.values().stream().mapToInt(CanvasNode::z).max().orElse(0);
+    int max = sameSpaceAs(node).mapToInt(CanvasNode::z).max().orElse(0);
     if (node.z() < max) {
       node.z(max + 1);
     }
@@ -294,6 +298,40 @@ public class CanvasArea extends Group {
   /** Marks the node render order as outdated; the canvas re-sorts before the next draw. */
   void invalidateOrder() {
     orderDirty = true;
+  }
+
+  private Group groupOf(CanvasNode node) {
+    return node.sticky() ? sticky : world;
+  }
+
+  /**
+   * Re-parents a node after its sticky flag changed and converts its coordinates.
+   *
+   * <p>Called by {@link CanvasNode#sticky(boolean)} only.
+   *
+   * @param node the node whose sticky flag changed
+   */
+  void stickyChanged(CanvasNode node) {
+    if (nodesById.get(node.id()) != node) {
+      return;
+    }
+    Vector2 converted =
+        node.sticky() ? worldToArea(node.x(), node.y()) : areaToWorld(node.x(), node.y());
+    world.removeActor(node);
+    sticky.removeActor(node);
+    node.setPosition(converted.x, converted.y);
+    groupOf(node).addActor(node);
+    orderDirty = true;
+  }
+
+  /**
+   * Returns all nodes that share the coordinate space of the given node.
+   *
+   * @param node the reference node
+   * @return the nodes living in the same space, including the reference node itself
+   */
+  private Stream<CanvasNode> sameSpaceAs(CanvasNode node) {
+    return nodesById.values().stream().filter(other -> other.sticky() == node.sticky());
   }
 
   /**
@@ -349,7 +387,7 @@ public class CanvasArea extends Group {
       return List.of();
     }
     Rectangle ownBounds = own.bounds();
-    return nodesById.values().stream()
+    return sameSpaceAs(own)
         .filter(other -> other != own)
         .filter(other -> other.bounds().overlaps(ownBounds))
         .sorted(Comparator.comparingInt((CanvasNode n) -> n.z()).reversed())
@@ -365,6 +403,7 @@ public class CanvasArea extends Group {
    */
   public Optional<CanvasNode> nodeAt(float worldX, float worldY) {
     return nodesById.values().stream()
+        .filter(node -> !node.sticky())
         .filter(node -> node.bounds().contains(worldX, worldY))
         .max(Comparator.comparingInt(CanvasNode::z));
   }
@@ -378,6 +417,7 @@ public class CanvasArea extends Group {
   public List<CanvasNode> nodesInRect(Rectangle worldRect) {
     Objects.requireNonNull(worldRect, "worldRect");
     return nodesById.values().stream()
+        .filter(node -> !node.sticky())
         .filter(node -> node.bounds().overlaps(worldRect))
         .sorted(Comparator.comparingInt((CanvasNode n) -> n.z()).reversed())
         .toList();
@@ -394,7 +434,7 @@ public class CanvasArea extends Group {
     if (own == null) {
       return Optional.empty();
     }
-    return nodesById.values().stream()
+    return sameSpaceAs(own)
         .filter(other -> other != own)
         .filter(other -> distance(own, other) <= maxDistance)
         .min(Comparator.comparingDouble(other -> distance(own, other)));
@@ -600,6 +640,9 @@ public class CanvasArea extends Group {
     float maxX = -Float.MAX_VALUE;
     float maxY = -Float.MAX_VALUE;
     for (CanvasNode node : nodesById.values()) {
+      if (node.sticky()) {
+        continue;
+      }
       minX = Math.min(minX, node.x());
       minY = Math.min(minY, node.y());
       maxX = Math.max(maxX, node.x() + node.width());
@@ -686,6 +729,7 @@ public class CanvasArea extends Group {
     if (orderDirty) {
       orderDirty = false;
       world.getChildren().sort(NODE_ORDER);
+      sticky.getChildren().sort(NODE_ORDER);
     }
 
     CanvasGraphics.fill(
@@ -735,10 +779,10 @@ public class CanvasArea extends Group {
 
   private void drawOverlays(Batch batch, float parentAlpha) {
     for (CanvasNode node : selection) {
-      drawWorldOutline(batch, parentAlpha, node.bounds(), options.selectionColor(), 2f);
+      drawNodeOutline(batch, parentAlpha, node, options.selectionColor(), 2f);
     }
     if (dropTarget != null) {
-      drawWorldOutline(batch, parentAlpha, dropTarget.bounds(), options.dropTargetColor(), 3f);
+      drawNodeOutline(batch, parentAlpha, dropTarget, options.dropTargetColor(), 3f);
     }
     if (dragMode == DragMode.RUBBER_BAND) {
       Rectangle rect = rubberBandRect();
@@ -765,6 +809,24 @@ public class CanvasArea extends Group {
           rect.height * zoom,
           1f);
     }
+  }
+
+  private void drawNodeOutline(
+      Batch batch, float parentAlpha, CanvasNode node, Color color, float thickness) {
+    Rectangle bounds = node.bounds();
+    if (node.sticky()) {
+      CanvasGraphics.outline(
+          batch,
+          color,
+          parentAlpha,
+          getX() + bounds.x,
+          getY() + bounds.y,
+          bounds.width,
+          bounds.height,
+          thickness);
+      return;
+    }
+    drawWorldOutline(batch, parentAlpha, bounds, color, thickness);
   }
 
   private void drawWorldOutline(
@@ -933,10 +995,16 @@ public class CanvasArea extends Group {
         }
         case NODE -> {
           Vector2 current = areaToWorld(x, y);
-          float dx = current.x - lastPointerWorld.x;
-          float dy = current.y - lastPointerWorld.y;
+          float worldDx = current.x - lastPointerWorld.x;
+          float worldDy = current.y - lastPointerWorld.y;
+          float areaDx = x - lastPointerArea.x;
+          float areaDy = y - lastPointerArea.y;
           for (CanvasNode node : draggedGroup) {
-            node.onMove(dx, dy);
+            if (node.sticky()) {
+              node.onMove(areaDx, areaDy);
+            } else {
+              node.onMove(worldDx, worldDy);
+            }
           }
           lastPointerWorld.set(current);
           lastPointerArea.set(x, y);
@@ -966,12 +1034,23 @@ public class CanvasArea extends Group {
       switch (finished) {
         case NODE -> {
           if (options.snapToGrid()) {
-            draggedGroup.forEach(node -> node.position(snap(node.x()), snap(node.y())));
+            draggedGroup.stream()
+                .filter(node -> !node.sticky())
+                .forEach(node -> node.position(snap(node.x()), snap(node.y())));
           }
           if (!dragMoved && draggedNode != null) {
-            draggedNode.onClick(worldPos.x - draggedNode.x(), worldPos.y - draggedNode.y(), button);
+            float pointerX = draggedNode.sticky() ? x : worldPos.x;
+            float pointerY = draggedNode.sticky() ? y : worldPos.y;
+            draggedNode.onClick(pointerX - draggedNode.x(), pointerY - draggedNode.y(), button);
           } else {
-            draggedGroup.forEach(node -> node.onDrop(worldPos.x, worldPos.y));
+            draggedGroup.forEach(
+                node -> {
+                  if (node.sticky()) {
+                    node.onDrop(x, y);
+                  } else {
+                    node.onDrop(worldPos.x, worldPos.y);
+                  }
+                });
           }
           draggedNode = null;
           draggedGroup = List.of();

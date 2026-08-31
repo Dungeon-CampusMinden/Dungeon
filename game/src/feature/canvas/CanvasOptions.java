@@ -42,8 +42,8 @@ public final class CanvasOptions {
   private int panButton = Input.Buttons.MIDDLE;
   private boolean panWithSpace = true;
 
-  private Color backgroundColor = new Color(0.12f, 0.12f, 0.16f, 1f);
-  private Color gridColor = new Color(1f, 1f, 1f, 0.08f);
+  private Color backgroundColor = new Color(1f, 1f, 1f, 1f);
+  private Color gridColor = new Color(0.82f, 0.82f, 0.82f, 1f);
   private Color selectionColor = new Color(0.36f, 0.63f, 0.88f, 1f);
   private Color dropTargetColor = new Color(0.16f, 1f, 0f, 1f);
 

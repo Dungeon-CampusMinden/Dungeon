@@ -47,6 +47,7 @@ public class CanvasNode extends Group {
   private boolean movable = true;
   private boolean selectable = true;
   private boolean deletable = true;
+  private boolean sticky;
   private NodeOrigin origin = NodeOrigin.LOCAL;
 
   private CanvasArea canvas;
@@ -247,6 +248,41 @@ public class CanvasNode extends Group {
   }
 
   /**
+   * Returns whether this node is pinned to the viewport.
+   *
+   * <p>A sticky node ignores pan and zoom: it always renders at the same size at the same place
+   * inside the canvas viewport, which effectively makes it part of the canvas overlay. Its
+   * position, size and bounds are therefore expressed in <em>area</em> coordinates instead of world
+   * coordinates. Sticky nodes always render in front of the non sticky ones.
+   *
+   * @return true if the node is pinned to the viewport
+   */
+  public boolean sticky() {
+    return sticky;
+  }
+
+  /**
+   * Sets whether this node is pinned to the viewport.
+   *
+   * <p>Switching the flag while the node is on a canvas re-parents it and keeps the point it was
+   * anchored to visually stable by converting its coordinates between world and area space.
+   *
+   * @param value true to pin the node to the viewport
+   * @return this node for chaining
+   */
+  public CanvasNode sticky(boolean value) {
+    if (this.sticky == value) {
+      return this;
+    }
+    this.sticky = value;
+    if (canvas != null) {
+      canvas.stickyChanged(this);
+    }
+    notifyStateChanged();
+    return this;
+  }
+
+  /**
    * Returns whether this node came from the server defaults or was created locally.
    *
    * @return the node origin
@@ -389,7 +425,7 @@ public class CanvasNode extends Group {
    * a centered label showing the node id.
    */
   protected void buildContent() {
-    defaultLabel = Scene2dElementFactory.createLabel(id, 16, Color.WHITE);
+    defaultLabel = Scene2dElementFactory.createLabel(id, 16, Color.BLACK);
     defaultLabel.setAlignment(Align.center);
     addActor(defaultLabel);
   }
@@ -409,8 +445,8 @@ public class CanvasNode extends Group {
   /**
    * Draws the node background before its children.
    *
-   * <p>The base implementation fills the node with a translucent dark box and draws a light border.
-   * Override with an empty body to render nothing but the child actors.
+   * <p>The base implementation fills the node with a translucent white box and draws a black
+   * border. Override with an empty body to render nothing but the child actors.
    *
    * @param batch the batch to draw with
    * @param parentAlpha the inherited alpha
@@ -420,8 +456,8 @@ public class CanvasNode extends Group {
     CanvasGraphics.outline(batch, BORDER, parentAlpha, getX(), getY(), getWidth(), getHeight(), 2f);
   }
 
-  private static final Color BACKGROUND = new Color(0.16f, 0.17f, 0.22f, 0.92f);
-  private static final Color BORDER = new Color(0.75f, 0.78f, 0.85f, 1f);
+  private static final Color BACKGROUND = new Color(1f, 1f, 1f, 0.92f);
+  private static final Color BORDER = new Color(0f, 0f, 0f, 1f);
 
   @Override
   public void draw(Batch batch, float parentAlpha) {
@@ -493,6 +529,7 @@ public class CanvasNode extends Group {
         getHeight(),
         movable,
         deletable,
+        sticky,
         props.build());
   }
 
@@ -512,6 +549,7 @@ public class CanvasNode extends Group {
     this.z = state.z();
     this.movable = state.movable();
     this.deletable = state.deletable();
+    this.sticky = state.sticky();
     this.origin = state.origin();
     readProps(state);
     invalidateLayout();
