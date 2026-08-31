@@ -66,6 +66,9 @@ public interface DialogType {
     /** Jigsaw-style puzzle dialog. */
     PUZZLE("PUZZLE"),
 
+    /** Reusable node canvas with pan, zoom and arbitrary nodes. */
+    CANVAS("CANVAS"),
+
     /** Local multiplayer client connection dialog. */
     CLIENT_CONNECTION("CLIENT_CONNECTION");
 
