@@ -30,6 +30,9 @@ public class ItemDropSystem extends System {
    * Drops the items of the entity that got removed after {@code TIME_UNTIL_ITEMS_DROP_MS} ms on the
    * floor.
    *
+   * <p>Edge case: If the user reconnects within 30 seconds and then disconnects again, the items
+   * may be dropped before the 30 seconds are up.
+   *
    * @param entity entity that is being removed.
    */
   private void onEntityRemove(Entity entity) {
