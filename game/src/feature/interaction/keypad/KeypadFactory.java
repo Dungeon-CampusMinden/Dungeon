@@ -88,8 +88,7 @@ public class KeypadFactory {
    * @param action The action to execute when the correct text is entered
    * @return The created keypad entity.
    */
-  public static Entity createTextKeypad(
-      Point pos, List<String> correctTexts, Runnable action) {
+  public static Entity createTextKeypad(Point pos, List<String> correctTexts, Runnable action) {
     Entity entity = new Entity("keypad");
 
     entity.add(new PositionComponent(pos));

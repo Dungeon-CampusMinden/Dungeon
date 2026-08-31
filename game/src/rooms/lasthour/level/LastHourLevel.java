@@ -48,7 +48,6 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
-import feature.interaction.keypad.TextKeyPadComponent;
 import feature.inventory.Item;
 import feature.inventory.items.HintItem;
 import feature.puzzle.Puzzle;
@@ -154,7 +153,7 @@ public class LastHourLevel extends DungeonLevel {
     keypad =
         KeypadFactory.createKeypad(
             getPoint("keypad-storage"),
-          Lore.DoorCode,
+            Lore.DoorCode,
             () -> {
               storageDoor.open();
               LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
