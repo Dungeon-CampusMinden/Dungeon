@@ -3,16 +3,21 @@ CREATE TABLE IF NOT EXISTS tracking_sessions (
     schema_version INTEGER NOT NULL CHECK (schema_version >= 1),
     room_id TEXT NOT NULL CHECK (room_id <> ''),
     started_at TIMESTAMPTZ NOT NULL,
-    status TEXT CHECK (status IN ('COMPLETED', 'ABORTED')),
+    status TEXT NOT NULL DEFAULT 'RUNNING'
+        CONSTRAINT tracking_sessions_status_check
+        CHECK (status IN ('RUNNING', 'COMPLETED', 'ABORTED')),
     ended_at TIMESTAMPTZ,
     finish_elapsed_ms BIGINT CHECK (finish_elapsed_ms >= 0),
     final_sequence BIGINT CHECK (final_sequence >= 0),
     aborted_at_puzzle_id TEXT,
-    CHECK ((status IS NULL AND ended_at IS NULL AND finish_elapsed_ms IS NULL
+    CONSTRAINT tracking_sessions_lifecycle_check
+    CHECK ((status = 'RUNNING' AND ended_at IS NULL AND finish_elapsed_ms IS NULL
         AND final_sequence IS NULL AND aborted_at_puzzle_id IS NULL)
-        OR (status IS NOT NULL AND ended_at IS NOT NULL AND finish_elapsed_ms IS NOT NULL
-            AND final_sequence IS NOT NULL)),
+        OR (status IN ('COMPLETED', 'ABORTED') AND ended_at IS NOT NULL
+            AND finish_elapsed_ms IS NOT NULL AND final_sequence IS NOT NULL)),
+    CONSTRAINT tracking_sessions_end_time_check
     CHECK (ended_at IS NULL OR ended_at >= started_at),
+    CONSTRAINT tracking_sessions_abort_puzzle_check
     CHECK (status = 'ABORTED' OR aborted_at_puzzle_id IS NULL)
 );
 

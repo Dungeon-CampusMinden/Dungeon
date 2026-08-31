@@ -18,6 +18,8 @@ import tracking.core.TrackingSessionDescriptor;
 import tracking.core.TrackingSessionFinish;
 
 final class TrackingRepository {
+  private static final String RUNNING_STATUS = "RUNNING";
+
   private final Database database;
 
   TrackingRepository(final Database database) {
@@ -115,7 +117,7 @@ final class TrackingRepository {
             connection.prepareStatement(
                 "UPDATE tracking_sessions SET status = ?, ended_at = ?, finish_elapsed_ms = ?, "
                     + "final_sequence = ?, aborted_at_puzzle_id = ? "
-                    + "WHERE session_id = ? AND schema_version = ? AND status IS NULL "
+                    + "WHERE session_id = ? AND schema_version = ? AND status = ? "
                     + "AND started_at <= ?")) {
           statement.setString(1, finish.status().name());
           statement.setTimestamp(2, Timestamp.from(finish.endedAt()));
@@ -124,7 +126,8 @@ final class TrackingRepository {
           optionalText(statement, 5, finish.abortedAtPuzzleId());
           statement.setObject(6, finish.sessionId());
           statement.setInt(7, finish.schemaVersion());
-          statement.setTimestamp(8, Timestamp.from(finish.endedAt()));
+          statement.setString(8, RUNNING_STATUS);
+          statement.setTimestamp(9, Timestamp.from(finish.endedAt()));
           updated = statement.executeUpdate();
         }
         if (updated != 1) {
@@ -273,7 +276,8 @@ final class TrackingRepository {
         if (!result.next()) {
           throw new NoSuchElementException("Unknown tracking session");
         }
-        return new SessionState(result.getString(1) != null, lastSequence(connection, sessionId));
+        return new SessionState(
+            !RUNNING_STATUS.equals(result.getString(1)), lastSequence(connection, sessionId));
       }
     }
   }

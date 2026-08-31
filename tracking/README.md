@@ -151,9 +151,9 @@ Daten, Sequenzen oder abweichende Inhalte ergeben `409`. Aufnahme und Abschluss 
 Sitzungszeile. Ein laufender Batch wird daher entweder vor der Vollständigkeitsprüfung festgeschrieben
 oder wartet, bis der Endzustand sichtbar ist.
 
-Eine nicht abgeschlossene Datenbankzeile hat `status = NULL` und `ended_at = NULL`. Dieser
-Nullzustand bedeutet nur, dass noch keine Abschlussanfrage eingetroffen ist. Gespeicherte
-Endstatuswerte sind ausschließlich `COMPLETED` oder `ABORTED`.
+Eine laufende Datenbankzeile hat `status = RUNNING` und `ended_at = NULL`. Nach einer erfolgreichen
+Abschlussanfrage wechselt der Status einmalig zu `COMPLETED` oder `ABORTED`. Nur diese beiden
+terminalen Werte sind in einem `TrackingSessionFinish` zulässig.
 
 So sieht ein minimaler erster Batch ohne Ereignisse aus:
 
