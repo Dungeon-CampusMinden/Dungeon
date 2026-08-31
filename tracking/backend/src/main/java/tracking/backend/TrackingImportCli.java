@@ -6,7 +6,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.LinkedHashMap;
@@ -224,7 +223,6 @@ public final class TrackingImportCli {
     static Arguments parse(final String[] arguments) {
       URI baseUri = null;
       Path outboxFile = null;
-      Optional<Path> apiKeyFile = Optional.empty();
       int batchSize = 500;
       for (int index = 0; index < arguments.length; index += 2) {
         if (index + 1 >= arguments.length) {
@@ -234,7 +232,6 @@ public final class TrackingImportCli {
         switch (arguments[index]) {
           case "--url" -> baseUri = URI.create(value);
           case "--outbox" -> outboxFile = Path.of(value);
-          case "--api-key-file" -> apiKeyFile = Optional.of(Path.of(value));
           case "--batch-size" -> batchSize = Integer.parseInt(value);
           default -> throw usage();
         }
@@ -242,21 +239,10 @@ public final class TrackingImportCli {
       if (baseUri == null || outboxFile == null || batchSize < 1) {
         throw usage();
       }
-      return new Arguments(baseUri, outboxFile, apiKey(apiKeyFile), batchSize);
+      return new Arguments(baseUri, outboxFile, environmentApiKey(), batchSize);
     }
 
-    private static Optional<String> apiKey(final Optional<Path> apiKeyFile) {
-      if (apiKeyFile.isPresent()) {
-        try {
-          String value = Files.readString(apiKeyFile.orElseThrow(), StandardCharsets.UTF_8).strip();
-          if (value.isEmpty()) {
-            throw new IllegalArgumentException("API-key file is empty");
-          }
-          return Optional.of(value);
-        } catch (IOException exception) {
-          throw new IllegalArgumentException("Cannot read API-key file", exception);
-        }
-      }
+    private static Optional<String> environmentApiKey() {
       String value = System.getenv(API_KEY_ENVIRONMENT_VARIABLE);
       if (value == null) {
         return Optional.empty();
@@ -270,7 +256,7 @@ public final class TrackingImportCli {
 
     private static IllegalArgumentException usage() {
       return new IllegalArgumentException(
-          "Usage: --url URL --outbox SESSION.jsonl [--api-key-file FILE] [--batch-size N]");
+          "Usage: --url URL --outbox SESSION.jsonl [--batch-size N]");
     }
   }
 }

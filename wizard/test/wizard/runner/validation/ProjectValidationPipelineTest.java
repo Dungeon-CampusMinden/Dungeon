@@ -51,7 +51,7 @@ final class ProjectValidationPipelineTest {
 
     assertTrue(result.valid());
     assertTrue(result.issues().isEmpty());
-    assertEquals("wizard_foundation_v0_4", result.model().orElseThrow().metadata().id());
+    assertEquals("wizard_foundation_v0_5", result.model().orElseThrow().metadata().id());
     assertEquals(1, result.assets().size());
     assertEquals(123456789L, result.model().orElseThrow().seed());
     assertEquals(result.hostInputSha256(), repeated.hostInputSha256());
@@ -109,7 +109,7 @@ final class ProjectValidationPipelineTest {
 
   @Test
   void acceptsTheStaggeredMandatoryAndDagExample() {
-    Path project = Path.of("examples", "the-last-hour-v0.4").toAbsolutePath().normalize();
+    Path project = Path.of("examples", "the-last-hour-v0.5").toAbsolutePath().normalize();
 
     ValidationResult result = new ProjectValidationPipeline().validate(project);
 
@@ -121,7 +121,7 @@ final class ProjectValidationPipelineTest {
   void rejectsThePreviousFormatVersionWithoutCompatibilityFallback() throws IOException {
     Path project = materializeCanonicalProject("old-format");
     ObjectNode deer = (ObjectNode) MAPPER.readTree(project.resolve("deer.json").toFile());
-    deer.put("formatVersion", "0.3");
+    deer.put("formatVersion", "0.4");
     Files.write(project.resolve("deer.json"), MAPPER.writeValueAsBytes(deer));
 
     ValidationResult result = new ProjectValidationPipeline().validate(project);
@@ -160,7 +160,7 @@ final class ProjectValidationPipelineTest {
         project.resolve("assets/custom/foundation-note-3b50ea522803.png"),
         project.resolve(customPath));
     ObjectNode document = (ObjectNode) MAPPER.readTree(project.resolve("deer.json").toFile());
-    ((ObjectNode) document.required("metadata")).put("id", "wizard-foundation-v0-4");
+    ((ObjectNode) document.required("metadata")).put("id", "wizard-foundation-v0-5");
     ((ObjectNode) document.required("assets").required(0)).put("path", customPath);
     Files.write(project.resolve("deer.json"), MAPPER.writeValueAsBytes(document));
 
@@ -168,7 +168,7 @@ final class ProjectValidationPipelineTest {
 
     assertTrue(result.valid(), result.issues().toString());
     assertEquals(customPath, result.assets().getFirst().logicalPath());
-    assertEquals("wizard-foundation-v0-4", new RoomDeriver().derive(result).definition().id());
+    assertEquals("wizard-foundation-v0-5", new RoomDeriver().derive(result).definition().id());
   }
 
   @Test
@@ -568,7 +568,7 @@ final class ProjectValidationPipelineTest {
   }
 
   private Path materializeCanonicalProject(final String directoryName) throws IOException {
-    Path examples = Path.of("examples", "foundation-v0.4").toAbsolutePath().normalize();
+    Path examples = Path.of("examples", "foundation-v0.5").toAbsolutePath().normalize();
     Path project = Files.createDirectory(temporaryDirectory.resolve(directoryName));
     Path assetDirectory = Files.createDirectories(project.resolve("assets/custom"));
     Files.copy(examples.resolve("deer.json"), project.resolve("deer.json"));

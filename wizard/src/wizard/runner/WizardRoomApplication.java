@@ -61,7 +61,9 @@ public final class WizardRoomApplication {
               }
               if (server) {
                 FoundationRoom room = new RoomDeriver().derive(validation);
-                MultiplayerHostRun.from(room).run();
+                MultiplayerHostRun.from(
+                        room, validation.model().orElseThrow().metadata().operatorEmail())
+                    .run();
                 return SUCCESS;
               }
               return runClient(validation, standardError);

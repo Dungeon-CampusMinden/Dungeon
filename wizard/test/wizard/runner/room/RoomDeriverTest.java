@@ -152,7 +152,7 @@ class RoomDeriverTest {
 
   @Test
   void preservesExactStaggeredDagAndAlignsAllRiddleOrders() {
-    Path project = Path.of("examples", "the-last-hour-v0.4").toAbsolutePath().normalize();
+    Path project = Path.of("examples", "the-last-hour-v0.5").toAbsolutePath().normalize();
     ValidationResult validation = new ProjectValidationPipeline().validate(project);
 
     FoundationRoom room = new RoomDeriver().derive(validation);
@@ -247,7 +247,7 @@ class RoomDeriverTest {
   }
 
   private Path materializeExample() throws IOException {
-    Path examples = Path.of("examples", "foundation-v0.4").toAbsolutePath().normalize();
+    Path examples = Path.of("examples", "foundation-v0.5").toAbsolutePath().normalize();
     Path project = temporaryDirectory.resolve("project");
     Path custom = project.resolve("assets").resolve("custom");
     Files.createDirectories(custom);
@@ -259,7 +259,7 @@ class RoomDeriverTest {
   }
 
   private Path materializeTheLastHour(final String directoryName) throws IOException {
-    Path examples = Path.of("examples", "the-last-hour-v0.4").toAbsolutePath().normalize();
+    Path examples = Path.of("examples", "the-last-hour-v0.5").toAbsolutePath().normalize();
     Path project = Files.createDirectory(temporaryDirectory.resolve(directoryName));
     Files.copy(examples.resolve("deer.json"), project.resolve("deer.json"));
     return project;

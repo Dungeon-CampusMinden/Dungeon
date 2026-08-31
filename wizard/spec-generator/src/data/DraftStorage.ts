@@ -77,7 +77,7 @@ function isHint(value: unknown): boolean {
 }
 
 function isDeerProject(value: unknown): boolean {
-  if (!isRecord(value) || value.formatVersion !== "0.4") return false;
+  if (!isRecord(value) || value.formatVersion !== "0.5") return false;
   const metadata = value.metadata;
   const learning = value.learningDesign;
   const session = value.session;
@@ -85,6 +85,7 @@ function isDeerProject(value: unknown): boolean {
   const graph = value.riddleGraph;
   return isRecord(metadata) && isString(metadata.id) && isString(metadata.title) && isString(metadata.locale)
     && isOptionalString(metadata.description) && isOptionalString(metadata.author)
+    && isOptionalString(metadata.operatorEmail)
     && isRecord(learning) && Array.isArray(learning.objectives)
     && learning.objectives.every((item) => isRecord(item) && isString(item.id) && isString(item.description))
     && isStringArray(learning.debriefPrompts)
@@ -137,6 +138,20 @@ export function assertWizardDraft(value: unknown): asserts value is WizardDraft 
   }
 }
 
+function readPrivateDraft(value: unknown): { draft: WizardDraft; migrated: boolean } {
+  let candidate = value;
+  let migrated = false;
+  if (isRecord(value) && value.draftVersion === WIZARD_DRAFT_VERSION
+    && isRecord(value.project) && value.project.formatVersion === "0.4") {
+    candidate = structuredClone(value);
+    (candidate as Record<string, unknown> & { project: Record<string, unknown> })
+      .project.formatVersion = "0.5";
+    migrated = true;
+  }
+  assertWizardDraft(candidate);
+  return { draft: candidate, migrated };
+}
+
 function pruneUnreferencedUploads(transaction: IDBTransaction, draft: WizardDraft): void {
   const retainedStorageKeys = new Set(
     Object.values(draft.uploads).map((upload) => upload.storageKey),
@@ -166,9 +181,9 @@ export class BrowserDraftStorage implements DraftStoragePort {
       const drafts = await requestResult(transaction.objectStore(DRAFT_STORE).getAll()) as unknown[];
       await transactionDone(transaction);
       return drafts.map((value) => {
-        assertWizardDraft(value);
-        return { draftId: value.draftId, title: value.project.metadata.title,
-          ...(value.savedAt ? { savedAt: value.savedAt } : {}) };
+        const { draft } = readPrivateDraft(value);
+        return { draftId: draft.draftId, title: draft.project.metadata.title,
+          ...(draft.savedAt ? { savedAt: draft.savedAt } : {}) };
       }).sort((a, b) => (b.savedAt ?? "").localeCompare(a.savedAt ?? ""));
     } finally { db.close(); }
   }
@@ -180,8 +195,7 @@ export class BrowserDraftStorage implements DraftStoragePort {
       const value = await requestResult(transaction.objectStore(DRAFT_STORE).get(draftId)) as unknown;
       await transactionDone(transaction);
       if (value === undefined) return null;
-      assertWizardDraft(value);
-      return structuredClone(value);
+      return structuredClone(readPrivateDraft(value).draft);
     } finally { db.close(); }
   }
 
@@ -198,10 +212,11 @@ export class BrowserDraftStorage implements DraftStoragePort {
           await completion;
           return null;
         }
-        assertWizardDraft(value);
-        pruneUnreferencedUploads(transaction, value);
+        const { draft, migrated } = readPrivateDraft(value);
+        if (migrated) transaction.objectStore(DRAFT_STORE).put(draft);
+        pruneUnreferencedUploads(transaction, draft);
         await completion;
-        return structuredClone(value);
+        return structuredClone(draft);
       } catch (cause) {
         try { transaction.abort(); } catch {
           // The failing request may already have aborted or completed the transaction.

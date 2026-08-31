@@ -2,7 +2,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.zip.ZipFile
 
-version = '0.4'
+version = '0.5'
 
 dependencies {
     implementation project(':game')
@@ -58,7 +58,7 @@ def mergedServiceResources =
     layout.buildDirectory.dir('generated-resources/wizard-room-services')
 def authoringUiResources =
     layout.buildDirectory.dir('generated-resources/wizard-authoring-ui')
-def canonicalTestProject = layout.projectDirectory.dir('examples/foundation-v0.4')
+def canonicalTestProject = layout.projectDirectory.dir('examples/foundation-v0.5')
 
 def resolveWizardProject = {
     if (!wizardProjectProperty.isPresent()) {

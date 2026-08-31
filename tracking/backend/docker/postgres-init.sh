@@ -1,19 +1,21 @@
 #!/bin/sh
 set -eu
 
-owner_password=$(tr -d '\r\n' < /run/secrets/tracking_owner_password)
-runtime_password=$(tr -d '\r\n' < /run/secrets/tracking_runtime_password)
+require_non_blank() {
+  if ! printf '%s' "$2" | grep -q '[^[:space:]]'; then
+    echo "$1 must contain a non-whitespace character" >&2
+    exit 1
+  fi
+}
 
-if [ -z "$owner_password" ] || [ -z "$runtime_password" ]; then
-  echo "Tracking database role secrets must not be empty" >&2
-  exit 1
-fi
+require_non_blank DUNGEON_TRACKING_OWNER_DATABASE_PASSWORD "${DUNGEON_TRACKING_OWNER_DATABASE_PASSWORD-}"
+require_non_blank DUNGEON_TRACKING_RUNTIME_DATABASE_PASSWORD "${DUNGEON_TRACKING_RUNTIME_DATABASE_PASSWORD-}"
 
 psql --set=ON_ERROR_STOP=1 \
   --username "$POSTGRES_USER" \
   --dbname "$POSTGRES_DB" \
-  --set=owner_password="$owner_password" \
-  --set=runtime_password="$runtime_password" <<'SQL'
+  --set=owner_password="$DUNGEON_TRACKING_OWNER_DATABASE_PASSWORD" \
+  --set=runtime_password="$DUNGEON_TRACKING_RUNTIME_DATABASE_PASSWORD" <<'SQL'
 CREATE ROLE dungeon_tracking_owner
     LOGIN PASSWORD :'owner_password'
     NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;

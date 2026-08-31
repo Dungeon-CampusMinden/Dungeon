@@ -7,7 +7,7 @@ export function createDeerProject(): DeerProject {
   const doorSurfaceId = Util.generateUniqueId("s");
 
   return {
-    formatVersion: "0.4",
+    formatVersion: "0.5",
     metadata: {
       id: Util.generateUniqueId("adventure"),
       title: "",

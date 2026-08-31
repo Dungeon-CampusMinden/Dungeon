@@ -74,8 +74,8 @@ final class TrackingSession {
     return outbox.path();
   }
 
-  Optional<String> operatorContact() {
-    return config.operatorContact();
+  String operatorEmail() {
+    return config.operatorEmail();
   }
 
   boolean finished() {

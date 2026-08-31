@@ -1,65 +1,72 @@
-# Tracking rooms
+# Tracking in Räumen
 
-Tracking runs only in the authoritative server process or in singleplayer. Configure a stable room
-ID before `Game.run()`:
+Tracking läuft nur im autoritativen Serverprozess oder im Einzelspielermodus. Konfiguriere vor
+`Game.run()` eine stabile Raum-ID:
 
 ```java
 Tracking.configureRoom("my-room");
 ```
 
-`configureRoom` keeps deployment settings separate from room code. The deployment may set:
+`configureRoom` trennt die Deployment-Einstellungen vom Raumcode. Das Deployment kann Folgendes
+festlegen:
 
-| System property | Environment variable | Default |
+| Systemeigenschaft | Umgebungsvariable | Standardwert |
 | --- | --- | --- |
-| `dungeon.tracking.endpoint` | `DUNGEON_TRACKING_ENDPOINT` | no remote upload |
-| `dungeon.tracking.apiKey` | `DUNGEON_TRACKING_API_KEY` | none |
+| `dungeon.tracking.endpoint` | `DUNGEON_TRACKING_ENDPOINT` | kein Upload an einen entfernten Server |
+| `dungeon.tracking.apiKey` | `DUNGEON_TRACKING_API_KEY` | keiner |
 | `dungeon.tracking.outbox` | `DUNGEON_TRACKING_OUTBOX` | `tracking-outbox` |
-| `dungeon.tracking.operatorContact` | `DUNGEON_TRACKING_OPERATOR_CONTACT` | none |
 
-The optional endpoint must be an absolute HTTP(S) URI without user-info, query, or fragment.
-Plain HTTP remains valid for a locally hosted backend.
+Für die E-Mail-Adresse des Betreibers gilt der im Quellcode definierte Standardwert. Der Raumcode
+kann als zweites Argument von `configureRoom` eine andere Adresse übergeben. Deployment-Eigenschaften
+oder Umgebungsvariablen werden dafür nicht ausgewertet.
 
-The Host Game menu copies nonblank `dungeon.tracking.*` system-property values into the managed
-server's environment. They override inherited `DUNGEON_TRACKING_*` values in the same way as in
-the hosting process. The API key is never added to the child JVM's command line.
+Der optionale Endpunkt muss eine absolute HTTP(S)-URI ohne Benutzerinformationen, Abfrage oder
+Fragment sein. Für ein lokal betriebenes Backend ist unverschlüsseltes HTTP zulässig.
 
-For deployments that cannot change room code, `dungeon.tracking.roomId` or
-`DUNGEON_TRACKING_ROOM_ID` configures the room.
+Das Menü "Spiel hosten" kopiert nicht leere `dungeon.tracking.*`-Systemeigenschaften in die
+Umgebung des verwalteten Servers. Sie überschreiben geerbte `DUNGEON_TRACKING_*`-Werte genauso wie
+im hostenden Prozess. Der API-Schlüssel erscheint nie in der Befehlszeile der Child-JVM.
 
-Configuration alone does not create a session or an outbox. On a multiplayer server, tracking
-starts when the first valid client sends `InitialWorldReady`. A server that never receives a ready
-player writes no tracking file. In singleplayer, tracking starts after the initial level has loaded
-and `Game.player()` contains the local player. The engine creates and associates that participant
-before the first following gameplay tick.
+Falls ein Deployment den Raumcode nicht ändern kann, lässt sich der Raum mit
+`dungeon.tracking.roomId` oder `DUNGEON_TRACKING_ROOM_ID` konfigurieren.
 
-The readiness boundary sets the session start time. Dungeon creates the descriptor and outbox,
-writes `SESSION_STARTED`, and joins the first participant at that point. Bootstrap, multiplayer
-lobby time, and initial world transfer are not part of the tracked duration. Dungeon attempts this
-start once per configured run. It does not restart tracking after a start failure or after the
-session finishes.
+Die Konfiguration allein erzeugt weder eine Sitzung noch eine Outbox. Auf einem
+Mehrspielerserver beginnt das Tracking, sobald der erste gültige Client `InitialWorldReady` sendet.
+Erhält ein Server nie die Bereitschaftsmeldung eines Spielers, schreibt er keine Tracking-Datei.
+Im Einzelspielermodus beginnt das Tracking, nachdem das erste Level geladen wurde und
+`Game.player()` den lokalen Spieler enthält. Die Engine erzeugt und verknüpft diesen Teilnehmer
+vor dem nächsten Gameplay-Tick.
 
-Room logic may make a puzzle available before that boundary. The authoritative process remembers
-such puzzle starts without creating a session or outbox. At readiness it records them once, in
-their original order, directly after the first `PARTICIPANT_JOINED` event. Their event time and
-elapsed duration therefore begin at readiness rather than during bootstrap or world transfer.
+Die Bereitschaftsgrenze bestimmt die Startzeit der Sitzung. Dungeon erzeugt an diesem Punkt den
+Deskriptor und die Outbox, schreibt `SESSION_STARTED` und fügt den ersten Teilnehmer hinzu.
+Bootstrap, Wartezeit in der Mehrspieler-Lobby und die erste Weltübertragung zählen nicht zur
+erfassten Dauer. Dungeon versucht den Start einmal pro konfiguriertem Lauf. Nach einem
+fehlgeschlagenen Start oder dem Ende der Sitzung startet es das Tracking nicht neu.
 
-Every configured session creates a new `<session UUID>.jsonl` file. It never reuses an existing
-file. The first line contains the session descriptor, followed by ordered event records. A cleanly
-closed session ends with a finish record. A missing finish record marks an interrupted session.
-This one file contains everything required for offline import. Do not delete it until the backend
-has acknowledged the session or an operator has imported it.
+Die Raumlogik kann ein Rätsel schon vor dieser Grenze verfügbar machen. Der autoritative Prozess
+merkt sich solche Rätselstarts, ohne eine Sitzung oder Outbox anzulegen. Bei Bereitschaft zeichnet
+er sie einmalig in ihrer ursprünglichen Reihenfolge direkt nach dem ersten
+`PARTICIPANT_JOINED`-Ereignis auf. Ereigniszeit und verstrichene Dauer beginnen deshalb mit der
+Bereitschaft, nicht schon während Bootstrap oder Weltübertragung.
 
-If a server started by the Host Game menu exits with unconfirmed persistence, its managed-process
-status channel sends the absolute outbox path and the optional configured operator contact to the
-hosting client. The hosting client shows the warning. Standalone headless servers write the same
-recovery details to their log.
+Jede konfigurierte Sitzung erzeugt eine neue Datei `<session UUID>.jsonl`. Eine vorhandene Datei
+wird nie wiederverwendet. Die erste Zeile enthält den Sitzungsdeskriptor, danach folgen geordnete
+Ereignisdatensätze. Eine ordnungsgemäß beendete Sitzung schließt mit einem Abschlussdatensatz. Fehlt
+dieser, gilt die Sitzung als unterbrochen. Diese eine Datei enthält alles für den Offline-Import.
+Lösche sie erst, wenn das Backend die Sitzung bestätigt oder ein Betreiber sie importiert hat.
 
-Local outbox failures never stop gameplay, networking, terminal presentation, or shutdown.
-Dungeon logs the failed absolute path and keeps the recovery warning pending. Keep the reported
-outbox for inspection even when no remote endpoint was configured.
+Beendet sich ein über "Spiel hosten" gestarteter Server ohne bestätigte Speicherung, übermittelt
+sein Statuskanal den absoluten Outbox-Pfad und die konfigurierte Betreiber-E-Mail an den hostenden
+Client. Der Client zeigt die Warnung an. Eigenständige Headless-Server schreiben dieselben
+Wiederherstellungsangaben in ihr Log.
 
-Room code records only stable puzzle and object IDs. The engine supplies sequence, event ID,
-wall-clock time, and monotonic elapsed time:
+Lokale Outbox-Fehler stoppen weder das Spiel noch Netzwerk, Abschlussanzeige oder Herunterfahren.
+Dungeon protokolliert den fehlgeschlagenen absoluten Pfad und lässt die Wiederherstellungswarnung
+offen. Bewahre die gemeldete Outbox zur Prüfung auf, auch wenn kein entfernter Endpunkt konfiguriert
+war.
+
+Der Raumcode zeichnet nur stabile Rätsel- und Objekt-IDs auf. Die Engine ergänzt Sequenz,
+Ereignis-ID, Uhrzeit und monoton verstrichene Zeit:
 
 ```java
 Tracking.puzzleStarted("storage-access");
@@ -75,18 +82,18 @@ Tracking.puzzleSolved("storage-access");
 Game.complete();
 ```
 
-Puzzle starts, puzzle solutions, and each `(puzzleId, hintId)` use are recorded at most once per
-session. Answer attempts remain complete and ordered. Room code reports puzzle events through
-`Tracking`; it ends gameplay through `Game.complete()`. The central game lifecycle then
-finishes the tracking session.
+Rätselstarts, Rätsellösungen und jede Verwendung eines `(puzzleId, hintId)` werden pro Sitzung
+höchstens einmal erfasst. Antwortversuche bleiben vollständig und geordnet. Der Raumcode meldet
+Rätselereignisse über `Tracking` und beendet das Spiel über `Game.complete()`. Anschließend beendet
+der zentrale Spiellebenszyklus die Tracking-Sitzung.
 
-`participantId` can come from `Tracking.participantForClient(short)` or
-`Tracking.participantForEntity(int)`. These UUIDs exist only for one session. Dungeon never writes
-usernames, addresses, client IDs, or entity IDs to tracking files. Raw answers are stored exactly as
-submitted, so operators must handle outboxes as potentially sensitive data and define
-their own retention and deletion procedure.
+Die `participantId` kann aus `Tracking.participantForClient(short)` oder
+`Tracking.participantForEntity(int)` stammen. Diese UUIDs gelten nur für eine Sitzung. Dungeon
+schreibt weder Benutzernamen, Adressen, Client-IDs noch Entity-IDs in Tracking-Dateien.
+Unverarbeitete Antworten werden exakt wie übermittelt gespeichert. Betreiber müssen Outboxes daher
+als potenziell sensible Daten behandeln und eigene Aufbewahrungs- und Löschregeln festlegen.
 
-The public room-facing API consists of `Tracking.configureRoom`, `roomId`, `active`, `outboxPath`,
-`puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `participantForClient`, and
-`participantForEntity`. Deployment configuration is read from the listed properties and
-environment variables. `TrackingConfig` and its builder are internal to the tracking package.
+Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`, `active`,
+`outboxPath`, `puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `participantForClient` und
+`participantForEntity`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
+und Umgebungsvariablen. `TrackingConfig` und sein Builder sind intern im Tracking-Paket.

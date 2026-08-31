@@ -48,6 +48,7 @@ public final class MultiplayerHostRun {
   public static final String GENERIC_LEVEL_NAME = "foundation-runner";
 
   private final FoundationRoom room;
+  private final Optional<String> operatorEmail;
   private final RoomDefinition definition;
   private final RoomLevel level;
   private final FoundationSnapshotTranslator snapshotTranslator;
@@ -56,8 +57,9 @@ public final class MultiplayerHostRun {
   private final AtomicBoolean started = new AtomicBoolean();
   private volatile ServerGameBinding gameBinding;
 
-  private MultiplayerHostRun(final FoundationRoom room) {
+  private MultiplayerHostRun(final FoundationRoom room, final Optional<String> operatorEmail) {
     this.room = Objects.requireNonNull(room, "room");
+    this.operatorEmail = Objects.requireNonNull(operatorEmail, "operatorEmail");
     definition = room.definition();
     level = RoomLevel.fromLayout(room.layout());
     snapshotTranslator = new FoundationSnapshotTranslator(room);
@@ -70,10 +72,14 @@ public final class MultiplayerHostRun {
    * Creates a host from one already derived room.
    *
    * @param room immutable in-memory room handoff
+   * @param operatorEmail optional project operator email for tracking recovery notices
    * @return host composition backed by the supplied room
    */
-  public static MultiplayerHostRun from(final FoundationRoom room) {
-    return new MultiplayerHostRun(Objects.requireNonNull(room, "room"));
+  public static MultiplayerHostRun from(
+      final FoundationRoom room, final Optional<String> operatorEmail) {
+    return new MultiplayerHostRun(
+        Objects.requireNonNull(room, "room"),
+        Objects.requireNonNull(operatorEmail, "operatorEmail"));
   }
 
   /** Starts the generic headless server exactly once with the derived room already installed. */
@@ -85,7 +91,9 @@ public final class MultiplayerHostRun {
     CountDownLatch completion = new CountDownLatch(1);
     ServerLifecycle lifecycle =
         ServerLifecycle.install("Foundation multiplayer host stopped", completion::countDown);
-    Tracking.configureRoom(definition.id());
+    operatorEmail.ifPresentOrElse(
+        email -> Tracking.configureRoom(definition.id(), email),
+        () -> Tracking.configureRoom(definition.id()));
     var spawnStrategy =
         new BootstrapEntitySpawnStrategy(
             bootstrapMarker, room.inputSha256(), new DefaultEntitySpawnStrategy());

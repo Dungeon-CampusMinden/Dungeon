@@ -14,26 +14,26 @@ import java.util.Optional;
  * @param endpoint optional self-hosted HTTP endpoint
  * @param apiKey optional bearer credential
  * @param outboxDirectory directory for local append-only tracking files
- * @param operatorContact optional operator contact shown when remote upload remains pending
+ * @param operatorEmail operator email shown when remote upload remains pending
  */
 record TrackingConfig(
     String roomId,
     Optional<URI> endpoint,
     Optional<String> apiKey,
     Path outboxDirectory,
-    Optional<String> operatorContact) {
+    String operatorEmail) {
+
+  static final String DEFAULT_OPERATOR_EMAIL = "tracking@example.com";
 
   static final String ROOM_ID_PROPERTY = "dungeon.tracking.roomId";
   static final String ENDPOINT_PROPERTY = "dungeon.tracking.endpoint";
   static final String API_KEY_PROPERTY = "dungeon.tracking.apiKey";
   static final String OUTBOX_PROPERTY = "dungeon.tracking.outbox";
-  static final String OPERATOR_CONTACT_PROPERTY = "dungeon.tracking.operatorContact";
 
   private static final String ROOM_ID_ENV = "DUNGEON_TRACKING_ROOM_ID";
   private static final String ENDPOINT_ENV = "DUNGEON_TRACKING_ENDPOINT";
   private static final String API_KEY_ENV = "DUNGEON_TRACKING_API_KEY";
   private static final String OUTBOX_ENV = "DUNGEON_TRACKING_OUTBOX";
-  private static final String OPERATOR_CONTACT_ENV = "DUNGEON_TRACKING_OPERATOR_CONTACT";
 
   private static final Map<String, String> PROPERTY_ENVIRONMENT_MAPPING =
       Map.of(
@@ -44,9 +44,7 @@ record TrackingConfig(
           API_KEY_PROPERTY,
           API_KEY_ENV,
           OUTBOX_PROPERTY,
-          OUTBOX_ENV,
-          OPERATOR_CONTACT_PROPERTY,
-          OPERATOR_CONTACT_ENV);
+          OUTBOX_ENV);
 
   /** Validates and normalizes one immutable configuration. */
   TrackingConfig {
@@ -55,7 +53,7 @@ record TrackingConfig(
     endpoint.ifPresent(TrackingConfig::validateEndpoint);
     apiKey = optionalText(apiKey, "apiKey");
     outboxDirectory = Objects.requireNonNull(outboxDirectory, "outboxDirectory").toAbsolutePath();
-    operatorContact = optionalText(operatorContact, "operatorContact");
+    operatorEmail = requireText(operatorEmail, "operatorEmail");
   }
 
   /** Creates a builder with the required stable room ID. */
@@ -68,6 +66,13 @@ record TrackingConfig(
    */
   static TrackingConfig forRoom(String roomId) {
     Builder builder = builder(roomId);
+    applyDeploymentValues(builder);
+    return builder.build();
+  }
+
+  /** Creates room configuration with an explicit operator email. */
+  static TrackingConfig forRoom(String roomId, String operatorEmail) {
+    Builder builder = builder(roomId).operatorEmail(operatorEmail);
     applyDeploymentValues(builder);
     return builder.build();
   }
@@ -107,7 +112,6 @@ record TrackingConfig(
     value(ENDPOINT_PROPERTY, ENDPOINT_ENV).map(URI::create).ifPresent(builder::endpoint);
     value(API_KEY_PROPERTY, API_KEY_ENV).ifPresent(builder::apiKey);
     value(OUTBOX_PROPERTY, OUTBOX_ENV).map(Path::of).ifPresent(builder::outboxDirectory);
-    value(OPERATOR_CONTACT_PROPERTY, OPERATOR_CONTACT_ENV).ifPresent(builder::operatorContact);
   }
 
   private static Optional<String> value(String property, String environment) {
@@ -152,7 +156,7 @@ record TrackingConfig(
     private URI endpoint;
     private String apiKey;
     private Path outboxDirectory = Path.of("tracking-outbox");
-    private String operatorContact;
+    private String operatorEmail = DEFAULT_OPERATOR_EMAIL;
 
     private Builder(String roomId) {
       this.roomId = requireText(roomId, "roomId");
@@ -192,13 +196,13 @@ record TrackingConfig(
     }
 
     /**
-     * Sets the optional operator contact for failed-upload recovery.
+     * Sets the operator email for failed-upload recovery.
      *
-     * @param operatorContact operator contact text
+     * @param operatorEmail operator email
      * @return this builder
      */
-    private Builder operatorContact(String operatorContact) {
-      this.operatorContact = requireText(operatorContact, "operatorContact");
+    private Builder operatorEmail(String operatorEmail) {
+      this.operatorEmail = requireText(operatorEmail, "operatorEmail");
       return this;
     }
 
@@ -213,7 +217,7 @@ record TrackingConfig(
           Optional.ofNullable(endpoint),
           Optional.ofNullable(apiKey),
           outboxDirectory,
-          Optional.ofNullable(operatorContact));
+          operatorEmail);
     }
   }
 }

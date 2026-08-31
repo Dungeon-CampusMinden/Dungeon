@@ -11,7 +11,7 @@ citation metadata and project relevance, not local source-management details.
 These sources support the argument that the Wizard should guide authors through
 participants, objectives, theme, puzzle structure, constraints, briefing, and
 debriefing or evaluation. Target-group, prior-knowledge, learning-goal, and
-debriefing fields are required by the executable V0.4 DEER contract, validated
+debriefing fields are required by the executable V0.5 DEER contract, validated
 by the runner, and included in the host-input identity. The current Foundation
 runtime does not interpret them for room generation or gameplay.
 

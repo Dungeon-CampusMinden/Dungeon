@@ -1,4 +1,4 @@
-# Wizard Runner Runtime and Bootstrap Contract V0.4
+# Wizard Runner Runtime and Bootstrap Contract V0.5
 
 Status: kanonischer implementierter Runner-/Runtime-Contract
 
@@ -117,6 +117,10 @@ aktuelles Dungeon-Level bereit. Es gibt kein Platzhalterlevel, keine
 level-freie Lobby, kein nutzergesteuertes Ready/Unready und keinen
 Roster-Freeze.
 
+Vor dem Tracking-Start übernimmt der Host die optionale
+`metadata.operatorEmail` aus dem eingebetteten Projekt. Fehlt sie, verwendet
+die Tracking-Konfiguration den im Quellcode definierten Standardwert.
+
 ## Bootstrap und Assets
 
 Jeder Teilnehmer leitet aus seinem vollständig lokal validierten Projekt, also
@@ -147,7 +151,7 @@ sendet die `trackingRoomId` erneut, und der Client ermittelt
 `roomPlayedBefore` erneut aus seiner lokalen Historie. Beide Tracking-Felder
 beziehen sich auf einen Raum, nicht auf eine sitzungsübergreifende
 Spieleridentität; sie erzeugen oder ersetzen keine solche Identität. Binäre
-Assets werden nicht übertragen; V0.4 bietet keinen Assetdownload.
+Assets werden nicht übertragen; V0.5 bietet keinen Assetdownload.
 
 ## Multiplayer-Lebenszyklus
 

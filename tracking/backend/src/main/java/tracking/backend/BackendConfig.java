@@ -1,10 +1,6 @@
 package tracking.backend;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,10 +20,10 @@ record BackendConfig(
         integer("port", "DUNGEON_TRACKING_PORT", 8088),
         required("databaseUrl", "DUNGEON_TRACKING_DATABASE_URL"),
         setting("databaseUser", "DUNGEON_TRACKING_DATABASE_USER", ""),
-        secret("databasePassword", "DUNGEON_TRACKING_DATABASE_PASSWORD").orElse(""),
+        configuredSecret("databasePassword", "DUNGEON_TRACKING_DATABASE_PASSWORD").orElse(""),
         direct("runtimeDatabaseUser", "DUNGEON_TRACKING_RUNTIME_DATABASE_USER")
             .filter(value -> !value.isBlank()),
-        secret("apiKey", "DUNGEON_TRACKING_API_KEY"),
+        configuredSecret("apiKey", "DUNGEON_TRACKING_API_KEY").map(String::strip),
         integer("maxBodyBytes", "DUNGEON_TRACKING_MAX_BODY_BYTES", 1_048_576),
         integer("maxBatchEvents", "DUNGEON_TRACKING_MAX_BATCH_EVENTS", 500));
   }
@@ -59,26 +55,13 @@ record BackendConfig(
     return direct(property, environment).orElse(defaultValue);
   }
 
-  private static Optional<String> secret(final String property, final String environment) {
-    Optional<String> direct = direct(property, environment).filter(value -> !value.isBlank());
-    Optional<String> file =
-        direct(property + "File", environment + "_FILE").filter(value -> !value.isBlank());
-    if (direct.isPresent() && file.isPresent()) {
-      throw new IllegalArgumentException(
-          "Configure either " + environment + " or " + environment + "_FILE, not both");
+  private static Optional<String> configuredSecret(
+      final String property, final String environment) {
+    Optional<String> value = direct(property, environment);
+    if (value.isPresent() && value.orElseThrow().isBlank()) {
+      throw new IllegalArgumentException(environment + " must not be blank");
     }
-    if (file.isEmpty()) {
-      return direct;
-    }
-    try {
-      String value = Files.readString(Path.of(file.orElseThrow()), StandardCharsets.UTF_8).strip();
-      if (value.isEmpty()) {
-        throw new IllegalArgumentException(environment + "_FILE points to an empty secret");
-      }
-      return Optional.of(value);
-    } catch (IOException exception) {
-      throw new IllegalArgumentException("Cannot read secret file for " + environment, exception);
-    }
+    return value;
   }
 
   private static Optional<String> direct(final String property, final String environment) {

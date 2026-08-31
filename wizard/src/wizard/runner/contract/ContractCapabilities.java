@@ -2,10 +2,10 @@ package wizard.runner.contract;
 
 import java.util.Set;
 
-/** Immutable V0.4 Runner formats, capabilities, and operational limits. */
+/** Immutable V0.5 Runner formats, capabilities, and operational limits. */
 public final class ContractCapabilities {
   /** Supported DEER input versions. */
-  public static final Set<String> DEER_FORMAT_VERSIONS = Set.of("0.4");
+  public static final Set<String> DEER_FORMAT_VERSIONS = Set.of("0.5");
 
   /** Maximum DEER file size. */
   public static final int MAX_DEER_BYTES = 1_048_576;

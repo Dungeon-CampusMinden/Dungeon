@@ -1,6 +1,6 @@
-# deer.json Specification V0.4
+# deer.json Specification V0.5
 
-Status: kanonischer implementierter Contract für `formatVersion=0.4`
+Status: kanonischer implementierter Contract für `formatVersion=0.5`
 
 ## 1. Rolle und Lebenszyklus
 
@@ -43,7 +43,7 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 
 ```json
 {
-  "formatVersion": "0.4",
+  "formatVersion": "0.5",
   "seed": 123456789,
   "metadata": {},
   "learningDesign": {},
@@ -58,7 +58,7 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 
 | Feld | Zweck |
 |---|---|
-| `formatVersion` | Exakt `0.4`. |
+| `formatVersion` | Exakt `0.5`. |
 | `seed` | Stabiler Layout-Seed als Ganzzahl von `0` bis `9007199254740991`. |
 | `metadata` | Stabile Projekt-ID, Titel, Inhaltssprache und optionale redaktionelle Angaben. |
 | `learningDesign` | Lernziele und Fragen zur Nachbesprechung. |
@@ -69,8 +69,8 @@ Inhalte. Sie leiten daraus denselben vollständigen Foundation-Raum ab.
 | `riddles` | Ausführbare Rätsel, Inhalte und optionale Hinweise. |
 | `assets` | Referenzierte PNG-/JPEG-Dateien. |
 
-Der Authoring-Refactor ändert weder `formatVersion` noch die Semantik dieses
-Dokuments. Ein unvollständiger Draft besitzt keinen echten Seed. Sobald Draft
+Dieser Vertrag verwendet `formatVersion=0.5`. Ein unvollständiger Draft besitzt
+keinen echten Seed. Sobald Draft
 und Assets lokal vollständig und lesbar sind, erzeugt die UI unmittelbar vor
 der ersten möglichen Hintergrund-Produktionsprüfung genau einmal einen Wert im
 Bereich `0..9007199254740991` und speichert ihn vor dem Hostaufruf im
@@ -106,16 +106,19 @@ interpretiert der aktuelle Foundation-Runner bewusst nicht.
 
 ```json
 {
-  "id": "wizard_foundation_v0_4",
-  "title": "Foundation Beispielraum V0.4",
+  "id": "wizard_foundation_v0_5",
+  "title": "Foundation Beispielraum V0.5",
   "locale": "de-DE",
   "description": "Kleiner Foundation-Slice.",
-  "author": "Beispiel Lehrkraft"
+  "author": "Beispiel Lehrkraft",
+  "operatorEmail": "tracking@schule.example"
 }
 ```
 
 `id`, `title` und `locale` sind Pflicht. `description` und `author` sind
-optionale Authoring-Metadaten.
+optionale Authoring-Metadaten. `operatorEmail` ist eine optionale E-Mail-Adresse
+für Hinweise zu noch nicht übertragenen Tracking-Daten. Ohne das Feld verwendet
+der Runner den im Quellcode definierten Standardwert.
 
 ### 4.2 learningDesign
 
@@ -500,7 +503,7 @@ Layout.
 
 Host und Clients verwenden die vollständige DEER-Konfiguration mit Seed,
 Lösungen, Texten und Assetreferenzen sowie die verifizierten Custom-Assets als
-lokale Ableitungseingabe. V0.4 verspricht daher keine lokale
+lokale Ableitungseingabe. V0.5 verspricht daher keine lokale
 Antwortgeheimhaltung.
 
 Der Host bleibt alleinige Autorität für Rätselzustände, akzeptierten

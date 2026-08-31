@@ -59,6 +59,16 @@ public final class Tracking {
   }
 
   /**
+   * Configures a room with an operator email while retaining other deployment settings.
+   *
+   * @param roomId stable room identifier
+   * @param operatorEmail operator email shown when tracking persistence remains pending
+   */
+  public static void configureRoom(String roomId, String operatorEmail) {
+    configure(TrackingConfig.forRoom(roomId, operatorEmail));
+  }
+
+  /**
    * Returns the configured room ID, if tracking is configured.
    *
    * @return configured room ID
@@ -250,7 +260,7 @@ public final class Tracking {
       RoomHistory.markPlayed(configured.roomId());
       LOGGER.info("Started local tracking participant {}", participant);
     } catch (TrackingPersistenceException exception) {
-      recordPersistenceFailure(exception, configured.operatorContact());
+      recordPersistenceFailure(exception, configured.operatorEmail());
     } catch (RuntimeException exception) {
       LOGGER.error("Could not start tracking", exception);
     } finally {
@@ -319,7 +329,7 @@ public final class Tracking {
     try {
       session = new TrackingSession(configured);
     } catch (TrackingPersistenceException exception) {
-      recordPersistenceFailure(exception, configured.operatorContact());
+      recordPersistenceFailure(exception, configured.operatorEmail());
     } catch (RuntimeException exception) {
       LOGGER.error("Could not start tracking", exception);
     }
@@ -370,33 +380,25 @@ public final class Tracking {
     }
   }
 
-  static Optional<String> operatorContact() {
-    synchronized (LOCK) {
-      if (session != null) {
-        return session.operatorContact();
-      }
-      return Optional.ofNullable(persistenceFailure).flatMap(PersistenceFailure::operatorContact);
-    }
-  }
-
   static void warnIfRemotePending() {
     synchronized (LOCK) {
       if (persistenceFailure == null && (session == null || !session.remotePending())) {
         return;
       }
       Path path = persistenceFailure != null ? persistenceFailure.path() : session.outboxPath();
-      Optional<String> operatorContact =
-          session != null ? session.operatorContact() : persistenceFailure.operatorContact();
-      String contact = operatorContact.map(value -> " Send it to " + value + ".").orElse("");
+      String operatorEmail =
+          session != null ? session.operatorEmail() : persistenceFailure.operatorEmail();
       LOGGER.warn(
-          "Tracking persistence is not confirmed. Keep the local data at {}.{}", path, contact);
-      if (ManagedServerStatus.send(persistencePendingStatus(path, operatorContact))) {
+          "Tracking persistence is not confirmed. Send the JSONL file at {} to {}.",
+          path,
+          operatorEmail);
+      if (ManagedServerStatus.send(persistencePendingStatus(path, operatorEmail))) {
         return;
       }
       if (GraphicsEnvironment.isHeadless()) {
         return;
       }
-      showPersistencePending(path, operatorContact);
+      showPersistencePending(path, operatorEmail);
     }
   }
 
@@ -413,42 +415,39 @@ public final class Tracking {
         LOGGER.warn("Managed server sent an unknown tracking status.");
         return;
       }
-      var contact = payload.get("operatorContact");
-      if (contact != null && !contact.isNull() && !contact.isString()) {
-        LOGGER.warn("Managed server sent malformed tracking contact information.");
+      var email = payload.get("operatorEmail");
+      if (email == null || !email.isString()) {
+        LOGGER.warn("Managed server sent malformed tracking operator email.");
         return;
       }
-      Optional<String> operatorContact =
-          contact == null || contact.isNull()
-              ? Optional.empty()
-              : Optional.of(contact.stringValue());
+      String operatorEmail = email.stringValue();
       Path outboxPath = Path.of(outbox.stringValue()).toAbsolutePath();
       LOGGER.warn(
-          "Tracking persistence is not confirmed. Keep the local data at {}.{}",
+          "Tracking persistence is not confirmed. Send the JSONL file at {} to {}.",
           outboxPath,
-          operatorContact.map(value -> " Send it to " + value + ".").orElse(""));
+          operatorEmail);
       if (!GraphicsEnvironment.isHeadless()) {
-        showPersistencePending(outboxPath, operatorContact);
+        showPersistencePending(outboxPath, operatorEmail);
       }
     } catch (RuntimeException exception) {
       LOGGER.warn("Cannot interpret managed-server tracking status.", exception);
     }
   }
 
-  private static String persistencePendingStatus(
-      Path outboxPath, Optional<String> operatorContact) {
+  private static String persistencePendingStatus(Path outboxPath, String operatorEmail) {
     var payload = TrackingJson.object();
     payload.put("type", PERSISTENCE_PENDING_STATUS);
     payload.put("outboxPath", outboxPath.toAbsolutePath().toString());
-    operatorContact.ifPresent(value -> payload.put("operatorContact", value));
+    payload.put("operatorEmail", operatorEmail);
     return payload.toString();
   }
 
-  private static void showPersistencePending(Path outboxPath, Optional<String> operatorContact) {
+  private static void showPersistencePending(Path outboxPath, String operatorEmail) {
     String message =
-        "Tracking persistence is not confirmed.\nKeep the local data at:\n"
+        "Tracking persistence is not confirmed.\nSend the JSONL file at:\n"
             + outboxPath
-            + operatorContact.map(value -> "\n\nOperator contact: " + value).orElse("");
+            + "\n\nto: "
+            + operatorEmail;
     try {
       SwingUtilities.invokeLater(
           () -> {
@@ -480,13 +479,12 @@ public final class Tracking {
   }
 
   private static void recordPersistenceFailure(TrackingPersistenceException exception) {
-    Optional<String> contact = session == null ? Optional.empty() : session.operatorContact();
-    recordPersistenceFailure(exception, contact);
+    recordPersistenceFailure(exception, session.operatorEmail());
   }
 
   private static void recordPersistenceFailure(
-      TrackingPersistenceException exception, Optional<String> operatorContact) {
-    persistenceFailure = new PersistenceFailure(exception.outboxPath(), operatorContact);
+      TrackingPersistenceException exception, String operatorEmail) {
+    persistenceFailure = new PersistenceFailure(exception.outboxPath(), operatorEmail);
     LOGGER.error(
         "Local tracking persistence failed at {}. Gameplay will continue; tracking data may be incomplete.",
         exception.outboxPath(),
@@ -519,10 +517,10 @@ public final class Tracking {
     return puzzleId.strip();
   }
 
-  private record PersistenceFailure(Path path, Optional<String> operatorContact) {
+  private record PersistenceFailure(Path path, String operatorEmail) {
     private PersistenceFailure {
       Objects.requireNonNull(path, "path");
-      Objects.requireNonNull(operatorContact, "operatorContact");
+      Objects.requireNonNull(operatorEmail, "operatorEmail");
     }
   }
 }

@@ -80,6 +80,7 @@ const HINT_SEVERITIES = ["orientation", "approach", "solution"];
 const INPUT_TYPES = ["collection", "numeric"];
 const TIME_LIMIT_MODES = ["hard", "soft"];
 const ASSET_MEDIA_TYPES: AssetMediaType[] = ["image/png", "image/jpeg"];
+const OPERATOR_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const SEVERITY_ORDER: Record<IssueSeverity, number> = { info: 0, warning: 1, error: 2 };
 
@@ -227,6 +228,14 @@ export class ErrorChecker {
     this.requireText("metadata", "id", metadata.id, "Das Abenteuer konnte nicht vollständig eingerichtet werden.");
     this.requireText("metadata", "title", metadata.title, "Der Titel darf nicht leer sein.");
     this.requireText("metadata", "locale", metadata.locale, "Es ist keine Sprache gesetzt.");
+    if (metadata.operatorEmail?.trim()
+      && (metadata.operatorEmail.length > 254 || !OPERATOR_EMAIL_PATTERN.test(metadata.operatorEmail))) {
+      this.error(
+        "metadata",
+        "operatorEmail",
+        "Die E-Mail-Adresse für Tracking-Hinweise ist ungültig.",
+      );
+    }
     if (learningDesign.objectives.length === 0) {
       this.error("metadata", "objectives", "Es muss mindestens ein Lernziel geben.");
     } else {

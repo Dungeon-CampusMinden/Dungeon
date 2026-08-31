@@ -1,11 +1,11 @@
 {
-  "formatVersion": "0.4",
+  "formatVersion": "0.5",
   "seed": 1524626702965152,
   "metadata": {
     "id": "the_last_hour",
     "title": "The Last Hour",
     "locale": "de-DE",
-    "description": "Runner-kompatible V0.4-Adaption der zentralen Hinweis- und Codekette von The Last Hour.",
+    "description": "Runner-kompatible V0.5-Adaption der zentralen Hinweis- und Codekette von The Last Hour.",
     "author": "Dungeon contributors"
   },
   "learningDesign": {
