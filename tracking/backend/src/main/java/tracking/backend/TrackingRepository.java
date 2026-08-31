@@ -217,34 +217,32 @@ final class TrackingRepository {
     int inserted;
     try (PreparedStatement statement =
         connection.prepareStatement(
-            "INSERT INTO tracking_events(session_id, session_sequence, event_id, schema_version, "
+            "INSERT INTO tracking_events(session_id, session_sequence, schema_version, "
                 + "participant_id, room_id, event_type, puzzle_id, object_id, outcome, "
                 + "elapsed_monotonic_ms, occurred_at, payload, event_json) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb) "
                 + "ON CONFLICT DO NOTHING")) {
       statement.setObject(1, event.sessionId());
       statement.setLong(2, event.sessionSequence());
-      statement.setString(3, event.eventId());
-      statement.setInt(4, event.schemaVersion());
-      optionalUuid(statement, 5, event.participantId());
-      statement.setString(6, event.roomId());
-      statement.setString(7, event.eventType().name());
-      optionalText(statement, 8, event.puzzleId());
-      optionalText(statement, 9, event.objectId());
+      statement.setInt(3, event.schemaVersion());
+      optionalUuid(statement, 4, event.participantId());
+      statement.setString(5, event.roomId());
+      statement.setString(6, event.eventType().name());
+      optionalText(statement, 7, event.puzzleId());
+      optionalText(statement, 8, event.objectId());
       if (event.outcome().isPresent()) {
-        statement.setString(10, event.outcome().orElseThrow().name());
+        statement.setString(9, event.outcome().orElseThrow().name());
       } else {
-        statement.setNull(10, Types.VARCHAR);
+        statement.setNull(9, Types.VARCHAR);
       }
-      statement.setLong(11, event.elapsedMonotonicMs());
-      statement.setTimestamp(12, Timestamp.from(event.occurredAt()));
-      statement.setString(13, event.payload().toString());
-      statement.setString(14, eventJson);
+      statement.setLong(10, event.elapsedMonotonicMs());
+      statement.setTimestamp(11, Timestamp.from(event.occurredAt()));
+      statement.setString(12, event.payload().toString());
+      statement.setString(13, eventJson);
       inserted = statement.executeUpdate();
     }
     if (inserted == 0 && !sameEvent(connection, event, eventJson)) {
-      throw new RepositoryConflictException(
-          "Event sequence or event ID conflicts with persisted data");
+      throw new RepositoryConflictException("Event sequence conflicts with persisted data");
     }
     return inserted;
   }

@@ -22,7 +22,7 @@ import tracking.core.TrackingSessionStatus;
  *
  * <p>Configure tracking before {@link Game#run()}. Only the authoritative server or singleplayer
  * process starts a session. Room code submits facts through this class; the engine assigns
- * sequence, event ID, wall-clock time, and monotonic elapsed time.
+ * sequence, wall-clock time, and monotonic elapsed time.
  */
 public final class Tracking {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Tracking.class);

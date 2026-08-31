@@ -38,10 +38,11 @@ Im Einzelspielermodus beginnt das Tracking, nachdem das erste Level geladen wurd
 vor dem nächsten Gameplay-Tick.
 
 Die Bereitschaftsgrenze bestimmt die Startzeit der Sitzung. Dungeon erzeugt an diesem Punkt den
-Deskriptor und die Outbox, schreibt `SESSION_STARTED` und fügt den ersten Teilnehmer hinzu.
-Bootstrap, Wartezeit in der Mehrspieler-Lobby und die erste Weltübertragung zählen nicht zur
-erfassten Dauer. Dungeon versucht den Start einmal pro konfiguriertem Lauf. Nach einem
-fehlgeschlagenen Start oder dem Ende der Sitzung startet es das Tracking nicht neu.
+Deskriptor und die Outbox und fügt den ersten Teilnehmer hinzu. Der Deskriptor ist der
+Startdatensatz der Sitzung. Bootstrap, Wartezeit in der Mehrspieler-Lobby und die erste
+Weltübertragung zählen nicht zur erfassten Dauer. Dungeon versucht den Start einmal pro
+konfiguriertem Lauf. Nach einem fehlgeschlagenen Start oder dem Ende der Sitzung startet es das
+Tracking nicht neu.
 
 Die Raumlogik kann ein Rätsel schon vor dieser Grenze verfügbar machen. Der autoritative Prozess
 merkt sich solche Rätselstarts, ohne eine Sitzung oder Outbox anzulegen. Bei Bereitschaft zeichnet
@@ -66,7 +67,7 @@ offen. Bewahre die gemeldete Outbox zur Prüfung auf, auch wenn kein entfernter 
 war.
 
 Der Raumcode zeichnet nur stabile Rätsel- und Objekt-IDs auf. Die Engine ergänzt Sequenz,
-Ereignis-ID, Uhrzeit und monoton verstrichene Zeit:
+Uhrzeit und monoton verstrichene Zeit:
 
 ```java
 Tracking.puzzleStarted("storage-access");

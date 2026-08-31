@@ -22,13 +22,8 @@ public record TrackingJsonlReadResult(
     session = Objects.requireNonNull(session, "session");
     events = List.copyOf(Objects.requireNonNull(events, "events"));
     finish = Objects.requireNonNull(finish, "finish");
-    if (!events.isEmpty()) {
-      if (events.getFirst().eventType() != TrackingEventType.SESSION_STARTED) {
-        throw new IllegalArgumentException("Outbox events must start with SESSION_STARTED");
-      }
-      if (events.getFirst().occurredAt().isBefore(session.startedAt())) {
-        throw new IllegalArgumentException("SESSION_STARTED event must not precede its descriptor");
-      }
+    if (!events.isEmpty() && events.getFirst().occurredAt().isBefore(session.startedAt())) {
+      throw new IllegalArgumentException("First outbox event must not precede its session");
     }
     long expectedSequence = 1;
     long previousElapsedMs = -1;
@@ -40,9 +35,6 @@ public record TrackingJsonlReadResult(
       }
       if (event.sessionSequence() != expectedSequence) {
         throw new IllegalArgumentException("Outbox event sequence must start at one without gaps");
-      }
-      if (expectedSequence > 1 && event.eventType() == TrackingEventType.SESSION_STARTED) {
-        throw new IllegalArgumentException("Outbox must contain only one SESSION_STARTED event");
       }
       if (event.elapsedMonotonicMs() < previousElapsedMs) {
         throw new IllegalArgumentException("Outbox event elapsed time must not regress");

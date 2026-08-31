@@ -12,7 +12,6 @@ import tools.jackson.databind.JsonNode;
  * @param schemaVersion tracking schema version
  * @param sessionId owning session
  * @param sessionSequence gap-free server sequence starting at one
- * @param eventId deterministic {@code sessionId:sessionSequence} identifier
  * @param participantId optional session-scoped participant
  * @param roomId stable room identifier
  * @param eventType precise tracking event type
@@ -27,7 +26,6 @@ public record TrackingEvent(
     int schemaVersion,
     UUID sessionId,
     long sessionSequence,
-    String eventId,
     Optional<UUID> participantId,
     String roomId,
     TrackingEventType eventType,
@@ -42,11 +40,6 @@ public record TrackingEvent(
     schemaVersion = TrackingChecks.schemaVersion(schemaVersion);
     sessionId = TrackingChecks.uuid(sessionId, "sessionId");
     sessionSequence = TrackingChecks.positive(sessionSequence, "sessionSequence");
-    eventId = TrackingChecks.text(eventId, "eventId");
-    if (!eventId.equals(eventId(sessionId, sessionSequence))) {
-      throw new IllegalArgumentException(
-          "eventId must be derived from sessionId and sessionSequence");
-    }
     participantId = Objects.requireNonNull(participantId, "participantId");
     roomId = TrackingChecks.text(roomId, "roomId");
     eventType = Objects.requireNonNull(eventType, "eventType");
@@ -98,19 +91,6 @@ public record TrackingEvent(
     if (eventType == TrackingEventType.HINT_USED && objectId.isEmpty()) {
       throw new IllegalArgumentException("HINT_USED requires the hint ID as objectId");
     }
-  }
-
-  /**
-   * Returns the only valid event ID for a session sequence.
-   *
-   * @param sessionId owning session
-   * @param sessionSequence positive session sequence
-   * @return deterministic event ID
-   */
-  public static String eventId(final UUID sessionId, final long sessionSequence) {
-    TrackingChecks.uuid(sessionId, "sessionId");
-    TrackingChecks.positive(sessionSequence, "sessionSequence");
-    return sessionId + ":" + sessionSequence;
   }
 
   @Override

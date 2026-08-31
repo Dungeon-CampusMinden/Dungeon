@@ -75,9 +75,9 @@ weiteres Netzwerkwerkzeug hinzuzufügen.
 Der autoritative Spielserver vergibt für jedes Ereignis eine Sequenznummer ab 1. Er schreibt jedes
 Ereignis in eine lokale, nur wachsende JSONL-Outbox und kann HTTP-Batches wiederholen, ohne
 doppelte Datenbankzeilen zu erzeugen. PostgreSQL speichert die unveränderte Nutzlast einschließlich
-jeder übermittelten Antwort. `eventType` ist eines von sieben erfassten Ereignissen:
-`SESSION_STARTED`, `PARTICIPANT_JOINED`, `PARTICIPANT_LEFT`, `PUZZLE_STARTED`, `ANSWER_SUBMITTED`,
-`HINT_USED` oder `PUZZLE_SOLVED`.
+jeder übermittelten Antwort. Der Sitzungsdeskriptor ist der Startdatensatz. `eventType` ist eines
+von sechs erfassten Ereignissen: `PARTICIPANT_JOINED`, `PARTICIPANT_LEFT`, `PUZZLE_STARTED`,
+`ANSWER_SUBMITTED`, `HINT_USED` oder `PUZZLE_SOLVED`.
 
 ## Lokal ausführen
 
@@ -135,7 +135,7 @@ Alle Anfrage- und Antwort-Bodys verwenden `application/json`.
   Teilnehmer und Ereignisse müssen zur Sitzung im Pfad gehören. Jeder Teilnehmer eines Ereignisses
   muss in der Teilnehmerliste des Batches stehen. Die Ereignisse eines nicht leeren Batches bilden
   eine lückenlose aufsteigende Sequenz. Das Wiederholen identischer Daten gelingt. Eine Lücke oder
-  abweichender Inhalt für eine vorhandene Sequenz, Ereignis-ID oder Teilnehmer-ID ergibt `409`.
+  abweichender Inhalt für eine vorhandene Sequenz oder Teilnehmer-ID ergibt `409`.
 - `GET /tracking/sessions/{sessionId}/ack` gibt die höchste gespeicherte Sequenz zurück. Eine Sitzung
   ohne Ereignisse gibt 0 zurück.
 - `POST /tracking/sessions/{sessionId}/finish` akzeptiert `TrackingSessionFinish`. Der Status ist
@@ -155,7 +155,7 @@ Eine nicht abgeschlossene Datenbankzeile hat `status = NULL` und `ended_at = NUL
 Nullzustand bedeutet nur, dass noch keine Abschlussanfrage eingetroffen ist. Gespeicherte
 Endstatuswerte sind ausschließlich `COMPLETED` oder `ABORTED`.
 
-So sieht ein minimaler erster Batch aus:
+So sieht ein minimaler erster Batch ohne Ereignisse aus:
 
 ```json
 {
@@ -167,17 +167,7 @@ So sieht ein minimaler erster Batch aus:
     "startedAt": "2026-08-29T12:00:00Z"
   },
   "participants": [],
-  "events": [{
-    "schemaVersion": 1,
-    "sessionId": "25aac31d-bfc4-47f7-90b9-ad449a9e595a",
-    "sessionSequence": 1,
-    "eventId": "25aac31d-bfc4-47f7-90b9-ad449a9e595a:1",
-    "roomId": "the-last-hour",
-    "eventType": "SESSION_STARTED",
-    "elapsedMonotonicMs": 0,
-    "occurredAt": "2026-08-29T12:00:00Z",
-    "payload": {}
-  }]
+  "events": []
 }
 ```
 
@@ -207,14 +197,14 @@ Invoke-RestMethod -Headers $headers `
   "http://127.0.0.1:8088/tracking/sessions/$sessionId/ack"
 ```
 
-Sende nach der Bestätigung des letzten Ereignisses ein JSON-Dokument `TrackingSessionFinish` an
-den Pfad `/finish` derselben Sitzung. Für den Batch oben:
+Sende nach der Bestätigung des vollständigen Batches ein JSON-Dokument `TrackingSessionFinish` an
+den Pfad `/finish` derselben Sitzung. Für den ereignislosen Batch oben:
 
 ```json
 {
   "schemaVersion": 1,
   "sessionId": "25aac31d-bfc4-47f7-90b9-ad449a9e595a",
-  "finalSequence": 1,
+  "finalSequence": 0,
   "status": "COMPLETED",
   "endedAt": "2026-08-29T12:30:00Z",
   "elapsedMonotonicMs": 1800000
@@ -224,7 +214,7 @@ den Pfad `/finish` derselben Sitzung. Für den Batch oben:
 ## Datenbank und Analyse
 
 `tracking_sessions`, `tracking_participants` und `tracking_events` sind die Quelltabellen.
-Primärschlüssel auf Sitzungssequenz und Teilnehmer-ID sowie eine eindeutige Ereignis-ID machen
+Die Primärschlüssel aus `(session_id, session_sequence)` und `(session_id, participant_id)` machen
 Upload-Wiederholungen idempotent. `tracking_events.payload` und `tracking_events.event_json` sind
 JSONB. Das Backend speichert vollständige Antwortnutzlasten, ohne Felder zu entfernen oder
 umzuformen.

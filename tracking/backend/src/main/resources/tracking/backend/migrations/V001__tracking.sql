@@ -26,13 +26,12 @@ CREATE TABLE IF NOT EXISTS tracking_participants (
 CREATE TABLE IF NOT EXISTS tracking_events (
     session_id UUID NOT NULL REFERENCES tracking_sessions(session_id),
     session_sequence BIGINT NOT NULL CHECK (session_sequence >= 1),
-    event_id TEXT NOT NULL UNIQUE,
     schema_version INTEGER NOT NULL CHECK (schema_version >= 1),
     participant_id UUID,
     room_id TEXT NOT NULL,
     event_type TEXT NOT NULL CHECK (event_type IN (
-        'SESSION_STARTED', 'PARTICIPANT_JOINED', 'PARTICIPANT_LEFT', 'PUZZLE_STARTED',
-        'ANSWER_SUBMITTED', 'HINT_USED', 'PUZZLE_SOLVED')),
+        'PARTICIPANT_JOINED', 'PARTICIPANT_LEFT', 'PUZZLE_STARTED', 'ANSWER_SUBMITTED',
+        'HINT_USED', 'PUZZLE_SOLVED')),
     puzzle_id TEXT,
     object_id TEXT,
     outcome TEXT,
@@ -116,7 +115,6 @@ CREATE OR REPLACE VIEW v_attempts_answers AS
 SELECT
     session_id,
     session_sequence,
-    event_id,
     participant_id,
     puzzle_id,
     object_id,

@@ -48,7 +48,7 @@ final class TrackingOutbox {
   }
 
   void append(TrackingEvent event) {
-    append(new TrackingJsonlRecord.Event(event), "event " + event.eventId());
+    append(new TrackingJsonlRecord.Event(event), "event sequence " + event.sessionSequence());
   }
 
   void append(TrackingSessionFinish finish) {

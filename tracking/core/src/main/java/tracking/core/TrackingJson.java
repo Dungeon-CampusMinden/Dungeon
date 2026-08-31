@@ -451,7 +451,6 @@ public final class TrackingJson {
     root.put("schemaVersion", event.schemaVersion());
     root.put("sessionId", event.sessionId().toString());
     root.put("sessionSequence", event.sessionSequence());
-    root.put("eventId", event.eventId());
     event.participantId().ifPresent(value -> root.put("participantId", value.toString()));
     root.put("roomId", event.roomId());
     root.put("eventType", event.eventType().name());
@@ -469,7 +468,6 @@ public final class TrackingJson {
         requiredInt(root, "schemaVersion"),
         requiredUuid(root, "sessionId"),
         requiredLong(root, "sessionSequence"),
-        requiredText(root, "eventId"),
         optionalUuid(root, "participantId"),
         requiredText(root, "roomId"),
         requiredEnum(root, "eventType", TrackingEventType.class),

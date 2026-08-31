@@ -56,13 +56,6 @@ final class TrackingSession {
     this.outbox = TrackingOutbox.create(config.outboxDirectory(), descriptor);
     this.uploader =
         config.endpoint().map(endpoint -> new TrackingUploader(config, descriptor)).orElse(null);
-    event(
-        TrackingEventType.SESSION_STARTED,
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty(),
-        TrackingJson.object());
     LOGGER.info("Tracking session {} writes to {}", sessionId, outbox.path());
   }
 
@@ -200,7 +193,6 @@ final class TrackingSession {
             SCHEMA_VERSION,
             descriptor.sessionId(),
             nextSequence,
-            TrackingEvent.eventId(descriptor.sessionId(), nextSequence),
             participantId,
             descriptor.roomId(),
             eventType,
@@ -217,7 +209,11 @@ final class TrackingSession {
         uploader.offer(
             new TrackingBatch(SCHEMA_VERSION, descriptor, participants(), List.of(event)));
       } catch (RuntimeException exception) {
-        LOGGER.warn("Could not queue tracking event {} for upload", event.eventId(), exception);
+        LOGGER.warn(
+            "Could not queue tracking event for session {} at sequence {}",
+            event.sessionId(),
+            event.sessionSequence(),
+            exception);
       }
     }
     return event;
