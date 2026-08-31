@@ -530,6 +530,7 @@ public class CanvasNode extends Group {
         movable,
         deletable,
         sticky,
+        false,
         props.build());
   }
 

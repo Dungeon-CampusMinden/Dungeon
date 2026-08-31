@@ -6,78 +6,49 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Client side persistence for {@link CanvasOverlay}s.
+ * Client side, in-memory persistence for the local changes a player made to a canvas.
  *
- * <p>Overlays are stored per canvas id and outlive the dialog they belong to, which is what makes
- * local player changes survive closing and reopening a canvas.
+ * <p>Changes are stored per canvas id and outlive the dialog they belong to, which is what makes a
+ * player's arrangement survive closing and reopening a canvas. They are deliberately <em>not</em>
+ * written to disk: restarting the game resets every canvas back to the server defaults.
  *
- * <p>The default implementation keeps overlays in memory for the lifetime of the process. The
- * indirection through this class exists so a save game backed implementation can be plugged in
- * later via {@link #backend(Backend)} without touching any canvas code.
+ * @see CanvasSnapshot#changesOf(CanvasSnapshot, List, CanvasSnapshot, CanvasOptions)
+ * @see CanvasSnapshot#mergeWith(CanvasSnapshot, CanvasOptions)
  */
 public final class CanvasStore {
 
-  /** Pluggable persistence backend for canvas overlays. */
-  public interface Backend {
-
-    /**
-     * Loads the overlay of a canvas.
-     *
-     * @param canvasId the canvas id
-     * @return the stored overlay, or a fresh empty one when nothing was stored yet
-     */
-    CanvasOverlay load(String canvasId);
-
-    /**
-     * Stores the overlay of a canvas.
-     *
-     * @param canvasId the canvas id
-     * @param overlay the overlay to store
-     */
-    void save(String canvasId, CanvasOverlay overlay);
-
-    /**
-     * Discards the stored overlay of a canvas.
-     *
-     * @param canvasId the canvas id
-     */
-    void clear(String canvasId);
-  }
-
-  private static volatile Backend backend = new InMemoryBackend();
+  private static final Map<String, CanvasSnapshot> STORED = new ConcurrentHashMap<>();
 
   private CanvasStore() {}
 
   /**
-   * Replaces the persistence backend.
+   * Loads the local changes of a canvas.
    *
-   * @param newBackend the backend to use; must not be null
+   * @param canvasId the canvas id; must not be null
+   * @return the stored changes, or an empty snapshot when nothing was stored yet
    */
-  public static void backend(Backend newBackend) {
-    backend = Objects.requireNonNull(newBackend, "backend");
+  public static CanvasSnapshot load(String canvasId) {
+    Objects.requireNonNull(canvasId, "canvasId");
+    return STORED.getOrDefault(canvasId, CanvasSnapshot.empty());
   }
 
   /**
-   * Loads the overlay of a canvas.
+   * Stores the local changes of a canvas.
+   *
+   * <p>An empty snapshot removes the entry instead of storing it, so a canvas the player reset by
+   * hand does not keep an empty record around.
    *
    * @param canvasId the canvas id; must not be null
-   * @return the stored overlay, or a fresh empty one
+   * @param changes the changes to store; must not be null
    */
-  public static CanvasOverlay load(String canvasId) {
+  public static void save(String canvasId, CanvasSnapshot changes) {
     Objects.requireNonNull(canvasId, "canvasId");
-    return backend.load(canvasId);
-  }
-
-  /**
-   * Stores the overlay of a canvas.
-   *
-   * @param canvasId the canvas id; must not be null
-   * @param overlay the overlay to store; must not be null
-   */
-  public static void save(String canvasId, CanvasOverlay overlay) {
-    Objects.requireNonNull(canvasId, "canvasId");
-    Objects.requireNonNull(overlay, "overlay");
-    backend.save(canvasId, overlay);
+    Objects.requireNonNull(changes, "changes");
+    if (changes.size() == 0) {
+      STORED.remove(canvasId);
+      return;
+    }
+    STORED.put(canvasId, changes);
   }
 
   /**
@@ -87,40 +58,20 @@ public final class CanvasStore {
    */
   public static void clear(String canvasId) {
     Objects.requireNonNull(canvasId, "canvasId");
-    backend.clear(canvasId);
+    STORED.remove(canvasId);
   }
 
-  /** In-memory backend that keeps overlays for the lifetime of the process. */
-  public static final class InMemoryBackend implements Backend {
-    private final Map<String, CanvasSnapshot> stored = new ConcurrentHashMap<>();
+  /** Discards the local changes of every canvas. */
+  public static void clearAll() {
+    STORED.clear();
+  }
 
-    @Override
-    public CanvasOverlay load(String canvasId) {
-      CanvasSnapshot snapshot = stored.get(canvasId);
-      return snapshot == null ? new CanvasOverlay() : CanvasOverlay.fromSnapshot(snapshot);
-    }
-
-    @Override
-    public void save(String canvasId, CanvasOverlay overlay) {
-      if (overlay.isEmpty()) {
-        stored.remove(canvasId);
-        return;
-      }
-      stored.put(canvasId, overlay.toSnapshot());
-    }
-
-    @Override
-    public void clear(String canvasId) {
-      stored.remove(canvasId);
-    }
-
-    /**
-     * Returns the canvas ids that currently have stored changes.
-     *
-     * @return the stored canvas ids
-     */
-    public List<String> storedCanvasIds() {
-      return List.copyOf(stored.keySet());
-    }
+  /**
+   * Returns the canvas ids that currently have stored changes.
+   *
+   * @return the stored canvas ids
+   */
+  public static List<String> storedCanvasIds() {
+    return List.copyOf(STORED.keySet());
   }
 }

@@ -13,9 +13,9 @@ import java.util.function.Function;
  * Registry that maps a stable node type id to a factory able to rebuild a {@link CanvasNode} from a
  * {@link NodeState}.
  *
- * <p>Every node type that should survive being sent over the network or being stored in a {@link
- * CanvasOverlay} must be registered here exactly once, ideally from a static initializer of the
- * node class itself or from the feature that introduces it:
+ * <p>Every node type that should survive being sent over the network or being stored as a local
+ * change must be registered here exactly once, ideally from a static initializer of the node class
+ * itself or from the feature that introduces it:
  *
  * <pre>{@code
  * CanvasNodeType.register("myPuzzle.slot", SlotNode::new);

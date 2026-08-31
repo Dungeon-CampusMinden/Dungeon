@@ -256,12 +256,12 @@ public final class CanvasOptions {
   }
 
   /**
-   * Sets whether overlay overrides for node ids that no longer exist in the server defaults are
-   * discarded when merging.
+   * Sets whether recorded changes for node ids that no longer exist in the server defaults are
+   * discarded when the local changes are stored.
    *
-   * @param prune true to discard stale overrides
+   * @param prune true to discard stale change entries
    * @return this instance for chaining
-   * @see CanvasMerger
+   * @see CanvasSnapshot#changesOf(CanvasSnapshot, java.util.List, CanvasSnapshot, CanvasOptions)
    */
   public CanvasOptions pruneStaleOverrides(boolean prune) {
     this.pruneStaleOverrides = prune;
@@ -269,15 +269,15 @@ public final class CanvasOptions {
   }
 
   /**
-   * Sets whether tombstones for node ids that are currently absent from the server defaults are
-   * discarded when merging.
+   * Sets whether deletion markers for node ids that are currently absent from the server defaults
+   * are discarded when the local changes are stored.
    *
    * <p>Defaults to {@code false} so a default node that temporarily disappears and later comes back
    * stays deleted, matching the player's intent.
    *
-   * @param prune true to discard stale tombstones
+   * @param prune true to discard stale deletion markers
    * @return this instance for chaining
-   * @see CanvasMerger
+   * @see CanvasSnapshot#changesOf(CanvasSnapshot, java.util.List, CanvasSnapshot, CanvasOptions)
    */
   public CanvasOptions pruneStaleTombstones(boolean prune) {
     this.pruneStaleTombstones = prune;

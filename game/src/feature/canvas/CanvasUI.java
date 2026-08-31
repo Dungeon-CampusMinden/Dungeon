@@ -19,9 +19,9 @@ import java.util.Objects;
  *
  * <p>Renders a window with a title, a small toolbar for view controls and a close button, and hosts
  * the canvas viewport itself. It also owns the local persistence lifecycle: on construction it
- * merges the server provided defaults with the stored {@link CanvasOverlay}, and when the dialog
- * leaves the stage it flushes the overlay back into the {@link CanvasStore} so the player's
- * arrangement survives closing and reopening the canvas.
+ * merges the server provided defaults with the changes stored in the {@link CanvasStore}, and when
+ * the dialog leaves the stage it diffs the live nodes against the defaults and stores the result,
+ * so the player's arrangement survives closing and reopening the canvas.
  */
 public class CanvasUI extends Group {
 
@@ -29,8 +29,9 @@ public class CanvasUI extends Group {
   public static final String EVENT_CLOSE = "canvasClose";
 
   private final CanvasArea area;
-  private final CanvasOverlay overlay;
-  private final CanvasOverlayRecorder recorder;
+  private final CanvasOptions options;
+  private final CanvasSnapshot defaults;
+  private final CanvasSnapshot loadedChanges;
   private final String dialogId;
 
   /**
@@ -53,8 +54,8 @@ public class CanvasUI extends Group {
       CanvasSnapshot defaults,
       String dialogId) {
     Objects.requireNonNull(canvasId, "canvasId");
-    Objects.requireNonNull(options, "options");
-    Objects.requireNonNull(defaults, "defaults");
+    this.options = Objects.requireNonNull(options, "options");
+    this.defaults = Objects.requireNonNull(defaults, "defaults");
     this.dialogId = dialogId;
 
     setSize(Game.windowWidth(), Game.windowHeight());
@@ -62,17 +63,11 @@ public class CanvasUI extends Group {
     this.area = new CanvasArea(canvasId, areaWidth, areaHeight, options);
     this.area.dialogId(dialogId);
 
-    this.overlay = CanvasStore.load(canvasId);
-    List<NodeState> effective = CanvasMerger.merge(defaults, overlay, options);
-    for (NodeState state : effective) {
+    this.loadedChanges = CanvasStore.load(canvasId);
+    for (NodeState state : defaults.mergeWith(loadedChanges, options).nodes()) {
       area.addNode(CanvasNodeType.create(state));
     }
     area.resetView();
-
-    // Attached only after the initial population so that materializing the merged state is not
-    // mistaken for player edits.
-    this.recorder = new CanvasOverlayRecorder(canvasId, overlay);
-    area.addCanvasListener(recorder);
 
     Table root = new Table();
     root.setFillParent(true);
@@ -143,9 +138,14 @@ public class CanvasUI extends Group {
     }
   }
 
-  /** Writes pending local changes to the {@link CanvasStore}. */
+  /**
+   * Diffs the live nodes against the server defaults and stores the result in the {@link
+   * CanvasStore}.
+   */
   public void flush() {
-    recorder.flush();
+    List<NodeState> live = area.nodes().stream().map(CanvasNode::toState).toList();
+    CanvasStore.save(
+        area.canvasId(), CanvasSnapshot.changesOf(defaults, live, loadedChanges, options));
   }
 
   /**
@@ -158,12 +158,12 @@ public class CanvasUI extends Group {
   }
 
   /**
-   * Returns the local overlay this dialog records into.
+   * Returns the server provided default nodes this dialog was opened with.
    *
-   * @return the canvas overlay
+   * @return the default node snapshot
    */
-  public CanvasOverlay overlay() {
-    return overlay;
+  public CanvasSnapshot defaults() {
+    return defaults;
   }
 
   @Override

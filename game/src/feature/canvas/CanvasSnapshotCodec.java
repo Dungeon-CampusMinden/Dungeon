@@ -17,6 +17,9 @@ import java.io.ObjectOutputStream;
  */
 public final class CanvasSnapshotCodec implements DialogValueCodec<CanvasSnapshot> {
 
+  /** Creates the codec; instantiated once by the codec registry. */
+  public CanvasSnapshotCodec() {}
+
   /** Stable wire discriminator; changing it breaks compatibility with older clients. */
   public static final String TYPE_ID = "canvas.snapshot";
 
