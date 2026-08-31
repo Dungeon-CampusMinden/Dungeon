@@ -186,7 +186,18 @@ public final class CanvasOverlay {
     for (String id : tombstones) {
       states.add(
           new NodeState(
-              TOMBSTONE_TYPE, id, NodeOrigin.DEFAULT, 0f, 0f, 0, 0f, 0f, false, false, Map.of()));
+              TOMBSTONE_TYPE,
+              id,
+              NodeOrigin.DEFAULT,
+              0f,
+              0f,
+              0,
+              0f,
+              0f,
+              false,
+              false,
+              false,
+              Map.of()));
     }
     return new CanvasSnapshot(states);
   }

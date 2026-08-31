@@ -31,6 +31,8 @@ import java.util.Objects;
  * @param height node height in world units
  * @param movable whether the node can be dragged
  * @param deletable whether the node can be deleted by the player
+ * @param sticky whether the node is pinned to the viewport instead of living in the panned and
+ *     zoomed world; sticky coordinates are area coordinates
  * @param props type specific state
  */
 public record NodeState(
@@ -44,6 +46,7 @@ public record NodeState(
     float height,
     boolean movable,
     boolean deletable,
+    boolean sticky,
     Map<String, String> props)
     implements Serializable {
 
@@ -69,7 +72,7 @@ public record NodeState(
    */
   public static NodeState of(
       String typeId, String id, NodeOrigin origin, float x, float y, float width, float height) {
-    return new NodeState(typeId, id, origin, x, y, 0, width, height, true, true, Map.of());
+    return new NodeState(typeId, id, origin, x, y, 0, width, height, true, true, false, Map.of());
   }
 
   /**
@@ -81,7 +84,7 @@ public record NodeState(
    */
   public NodeState withPosition(float newX, float newY) {
     return new NodeState(
-        typeId, id, origin, newX, newY, z, width, height, movable, deletable, props);
+        typeId, id, origin, newX, newY, z, width, height, movable, deletable, sticky, props);
   }
 
   /**
@@ -91,7 +94,8 @@ public record NodeState(
    * @return the modified copy
    */
   public NodeState withZ(int newZ) {
-    return new NodeState(typeId, id, origin, x, y, newZ, width, height, movable, deletable, props);
+    return new NodeState(
+        typeId, id, origin, x, y, newZ, width, height, movable, deletable, sticky, props);
   }
 
   /**
@@ -103,7 +107,7 @@ public record NodeState(
    */
   public NodeState withSize(float newWidth, float newHeight) {
     return new NodeState(
-        typeId, id, origin, x, y, z, newWidth, newHeight, movable, deletable, props);
+        typeId, id, origin, x, y, z, newWidth, newHeight, movable, deletable, sticky, props);
   }
 
   /**
@@ -113,7 +117,8 @@ public record NodeState(
    * @return the modified copy
    */
   public NodeState withOrigin(NodeOrigin newOrigin) {
-    return new NodeState(typeId, id, newOrigin, x, y, z, width, height, movable, deletable, props);
+    return new NodeState(
+        typeId, id, newOrigin, x, y, z, width, height, movable, deletable, sticky, props);
   }
 
   /**
@@ -123,7 +128,8 @@ public record NodeState(
    * @return the modified copy
    */
   public NodeState withId(String newId) {
-    return new NodeState(typeId, newId, origin, x, y, z, width, height, movable, deletable, props);
+    return new NodeState(
+        typeId, newId, origin, x, y, z, width, height, movable, deletable, sticky, props);
   }
 
   /**
@@ -135,7 +141,19 @@ public record NodeState(
   public NodeState withProps(Map<String, String> extraProps) {
     Map<String, String> merged = new LinkedHashMap<>(props);
     merged.putAll(extraProps);
-    return new NodeState(typeId, id, origin, x, y, z, width, height, movable, deletable, merged);
+    return new NodeState(
+        typeId, id, origin, x, y, z, width, height, movable, deletable, sticky, merged);
+  }
+
+  /**
+   * Returns a copy of this state with a different sticky flag.
+   *
+   * @param newSticky true to pin the node to the viewport
+   * @return the modified copy
+   */
+  public NodeState withSticky(boolean newSticky) {
+    return new NodeState(
+        typeId, id, origin, x, y, z, width, height, movable, deletable, newSticky, props);
   }
 
   /**

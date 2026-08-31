@@ -105,6 +105,8 @@ public final class CanvasMerger {
         local.height(),
         base.movable(),
         base.deletable(),
+        // sticky travels with the position, because it decides which coordinate space x/y are in
+        local.sticky(),
         local.props().isEmpty() ? base.props() : local.props());
   }
 }
