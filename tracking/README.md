@@ -10,7 +10,7 @@ autoritativer Spielserver
     -> nur wachsende JSONL-Outbox auf dem Spielhost
     -> authentifizierte HTTP-Batches mit Wiederholung
     -> Tracking-Backend auf Hostport 127.0.0.1:8088
-    -> privates Compose-Netzwerk
+    -> separates API- und internes Datenbanknetzwerk
     -> Laufzeitrolle nur mit Datenzugriff
     -> benanntes PostgreSQL-Volume
 ```
@@ -55,14 +55,17 @@ nicht in diesem Repository ab. Behalte sie über Neustarts und Compose-Befehle h
 insbesondere keine neuen Datenbankpasswörter für ein vorhandenes `postgres_data`-Volume, da
 PostgreSQL die bei dessen Initialisierung angelegten Zugangsdaten beibehält.
 
-Der Dienst `database` nutzt ein internes Netzwerk und das benannte Volume `postgres_data`, das am
-Datenstamm von PostgreSQL 18 unter `/var/lib/postgresql` eingehängt ist. Die Hostauthentifizierung
-wird mit SCRAM-SHA-256 initialisiert. Bei einem neuen Volume legt das Initialisierungsskript einen
-Schema-Eigentümer ohne Superuser-Rechte und eine getrennte Laufzeitrolle ebenfalls ohne
-Superuser-Rechte an. Der einmalig laufende Dienst `migrate` verbindet sich als Eigentümer, wendet
-Migrationen an, gewährt der Laufzeitrolle nur die benötigten Tabellen- und Spaltenoperationen und
-beendet sich. Er gewährt keinen Zugriff auf die Analyse-Views. Das Backend startet erst nach
-erfolgreichem Abschluss dieses Dienstes und erhält weder das Bootstrap- noch das Eigentümerpasswort.
+Die Dienste `database` und `migrate` nutzen ausschließlich das interne Datenbanknetzwerk. Das
+Backend ist zusätzlich mit dem API-Netzwerk verbunden, über das Docker den Loopback-Port
+veröffentlicht. PostgreSQL selbst besitzt keine Verbindung zu diesem Netzwerk und keinen
+veröffentlichten Hostport. Das benannte Volume `postgres_data` ist am Datenstamm von PostgreSQL 18
+unter `/var/lib/postgresql` eingehängt. Die Hostauthentifizierung wird mit SCRAM-SHA-256
+initialisiert. Bei einem neuen Volume legt das Initialisierungsskript einen Schema-Eigentümer ohne
+Superuser-Rechte und eine getrennte Laufzeitrolle ebenfalls ohne Superuser-Rechte an. Der einmalig
+laufende Dienst `migrate` verbindet sich als Eigentümer, wendet Migrationen an, gewährt der
+Laufzeitrolle nur die benötigten Tabellen- und Spaltenoperationen und beendet sich. Er gewährt
+keinen Zugriff auf die Analyse-Views. Das Backend startet erst nach erfolgreichem Abschluss dieses
+Dienstes und erhält weder das Bootstrap- noch das Eigentümerpasswort.
 
 Beide Java-Dienste laufen mit UID/GID 10001, legen alle Linux-Capabilities ab, verwenden
 `no-new-privileges` und haben ein schreibgeschütztes Root-Dateisystem mit einem kleinen temporären

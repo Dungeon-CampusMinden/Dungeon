@@ -5,6 +5,7 @@ services:
     image: postgres:18.6-alpine3.23@sha256:697c180dbf244d3ce4a8f4cbc0156cde840af055c1bf8b76aebe422a4822086f
     restart: unless-stopped
     entrypoint: ["/bin/sh", "/usr/local/bin/dungeon-tracking-entrypoint.sh"]
+    command: ["postgres"]
     environment:
       POSTGRES_DB: dungeon_tracking
       POSTGRES_USER: postgres
@@ -78,6 +79,7 @@ services:
       - "127.0.0.1:8088:8088"
     networks:
       - database
+      - api
     read_only: true
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=16m
@@ -96,6 +98,7 @@ services:
 networks:
   database:
     internal: true
+  api:
 
 volumes:
   postgres_data:

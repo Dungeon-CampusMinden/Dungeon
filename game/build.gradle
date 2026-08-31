@@ -177,6 +177,7 @@ tasks.named('jar', Jar) {
 
 tasks.register('buildDemoRoom', Jar) {
     group = 'jar'
+    dependsOn configurations.runtimeClasspath
     archiveBaseName.set('EscaperoomDemo')
     archiveFileName.set('EscapeRoomDemo.jar')
 
@@ -196,6 +197,7 @@ tasks.register('buildDemoRoom', Jar) {
 
 tasks.register('buildTheLastHourJar', Jar) {
     group = 'jar'
+    dependsOn configurations.runtimeClasspath
     archiveBaseName.set('TheLastHour')
     archiveFileName.set('TheLastHour.jar')
 
@@ -215,6 +217,7 @@ tasks.register('buildTheLastHourJar', Jar) {
 
 tasks.register('buildTheLastHourServerJar', Jar) {
     group = 'jar'
+    dependsOn configurations.runtimeClasspath
     archiveBaseName.set('TheLastHourServer')
     archiveFileName.set('TheLastHourServer.jar')
 
