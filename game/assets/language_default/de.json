@@ -31,6 +31,11 @@
             "server_status": "Serverstatus: $1",
             "server_running": "Läuft",
             "server_stopped": "Gestoppt",
+            "tracking_backend_status": "Tracking-Backend: $1",
+            "tracking_backend_checking": "Wird geprüft...",
+            "tracking_backend_reachable": "Erreichbar",
+            "tracking_backend_unreachable": "Nicht erreichbar",
+            "tracking_backend_not_configured": "Nicht konfiguriert",
             "players_can_connect_via": "Spieler können sich[n]verbinden über (Port: $1):"
         },
         "questlog": {

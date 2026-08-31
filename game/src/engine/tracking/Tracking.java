@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import tracking.core.TrackingEvent;
@@ -377,6 +378,12 @@ public final class Tracking {
   static boolean remotePending() {
     synchronized (LOCK) {
       return persistenceFailure != null || (session != null && session.remotePending());
+    }
+  }
+
+  static Optional<CompletableFuture<Boolean>> backendHealth() {
+    synchronized (LOCK) {
+      return startConfig().flatMap(config -> config.endpoint().map(TrackingBackendHealth::check));
     }
   }
 

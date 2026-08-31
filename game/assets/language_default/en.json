@@ -31,6 +31,11 @@
             "server_status": "Server status: $1",
             "server_running": "Running",
             "server_stopped": "Stopped",
+            "tracking_backend_status": "Tracking backend: $1",
+            "tracking_backend_checking": "Checking...",
+            "tracking_backend_reachable": "Reachable",
+            "tracking_backend_unreachable": "Not reachable",
+            "tracking_backend_not_configured": "Not configured",
             "players_can_connect_via": "Players can connect via (port: $1):"
         },
         "questlog": {

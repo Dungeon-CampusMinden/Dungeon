@@ -3,6 +3,7 @@ package engine.tracking;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /** Engine lifecycle bridge. Room code should use {@link Tracking} instead. */
 public final class TrackingRuntime {
@@ -87,6 +88,15 @@ public final class TrackingRuntime {
    */
   public static boolean remotePending() {
     return Tracking.remotePending();
+  }
+
+  /**
+   * Checks whether the configured backend and its database are healthy without blocking the caller.
+   *
+   * @return empty when no backend is configured, otherwise the asynchronous health result
+   */
+  public static Optional<CompletableFuture<Boolean>> backendHealth() {
+    return Tracking.backendHealth();
   }
 
   /** Displays or logs the recovery location when remote persistence is incomplete. */
