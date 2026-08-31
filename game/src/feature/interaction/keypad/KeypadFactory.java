@@ -81,16 +81,15 @@ public class KeypadFactory {
   }
 
   /**
-   * Creates a keypad at the designated position.
+   * Creates a text keypad at the designated position.
    *
-   * @param pos The position where the lever will be created.
-   * @param correctTexts The correct digits that will start the action if entered
-   * @param action The action to execute when the correct digits are entered
-   * @param showCharacterCount Whether to show the number of characters to be entered
+   * @param pos The position where the keypad will be created.
+   * @param correctTexts The correct text that will start the action if entered
+   * @param action The action to execute when the correct text is entered
    * @return The created keypad entity.
    */
   public static Entity createTextKeypad(
-      Point pos, List<String> correctTexts, Runnable action, boolean showCharacterCount) {
+      Point pos, List<String> correctTexts, Runnable action) {
     Entity entity = new Entity("keypad");
 
     entity.add(new PositionComponent(pos));

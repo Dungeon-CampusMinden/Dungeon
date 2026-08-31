@@ -32,8 +32,6 @@ public class TextKeypadUI extends Group {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TextKeypadUI.class);
 
-  private static final float BACKGROUND_SCALE = 1.5f;
-  private static final float BACKGROUND_OFFSET_Y = 60;
   private static final String ACTION_BACK = "Back";
   private static final String ACTION_SPACE = "Space";
   private static final String ACTION_SUBMIT = "Submit";
