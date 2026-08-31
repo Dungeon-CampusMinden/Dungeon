@@ -10,6 +10,9 @@ import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.IVoidFunction;
 import engine.utils.logging.DungeonLogger;
 import feature.achievements.AchievementPopup;
+import feature.canvas.CanvasDefinition;
+import feature.canvas.CanvasDialog;
+import feature.canvas.CanvasMaker;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.interaction.keypad.KeypadUI;
@@ -68,6 +71,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);
     register(DialogType.DefaultTypes.DIALOG_DIALOG, DialogDialog::build);
     register(DialogType.DefaultTypes.PUZZLE, PuzzleDialog::build);
+    register(DialogType.DefaultTypes.CANVAS, CanvasDialog::build);
     register(DialogType.DefaultTypes.CLIENT_CONNECTION, ClientConnectionDialog::build);
     LOGGER.debug("Registered built-in dialog types");
   }
@@ -539,6 +543,23 @@ public class DialogFactory {
     DialogContext ctx =
         DialogContext.builder().type(DialogType.DefaultTypes.CLIENT_CONNECTION).build();
     return show(ctx, false, false);
+  }
+
+  /**
+   * Shows a node canvas dialog.
+   *
+   * <p>Convenience shortcut that simply delegates to {@link CanvasMaker#show(CanvasDefinition, int,
+   * int...)}, which evaluates the current server side default nodes and registers the canvas event
+   * handlers.
+   *
+   * @param definition The canvas to show
+   * @param heroId The entity id of the hero that opened the canvas
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed
+   * @return The {@link UIComponent} containing the dialog
+   */
+  public static UIComponent showCanvas(
+      CanvasDefinition definition, int heroId, int... targetEntityIds) {
+    return CanvasMaker.show(definition, heroId, targetEntityIds);
   }
 
   private static DialogContext translateText(String type, DialogContext context) {
