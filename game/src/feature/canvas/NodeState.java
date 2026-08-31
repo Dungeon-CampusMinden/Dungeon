@@ -13,9 +13,14 @@ import java.util.Objects;
  * <ul>
  *   <li>transporting the server-provided default nodes to the client (inside a {@link
  *       CanvasSnapshot}),
- *   <li>persisting local player changes in a {@link CanvasOverlay},
+ *   <li>persisting local player changes, again as a {@link CanvasSnapshot},
  *   <li>reconstructing concrete node instances through {@link CanvasNodeType}.
  * </ul>
+ *
+ * <p>Inside a snapshot of local changes the meaning of a state is derived from two fields: {@link
+ * #origin()} tells whether it describes a locally created node or a modified server default, and
+ * {@link #deleted()} marks a server default the player removed. See {@link
+ * CanvasSnapshot#mergeWith(CanvasSnapshot, CanvasOptions)}.
  *
  * <p>Type specific state lives in {@link #props()}, a flat {@code String -> String} map. Keeping it
  * flat makes the wire format debuggable and version tolerant: props a client does not understand
@@ -33,6 +38,8 @@ import java.util.Objects;
  * @param deletable whether the node can be deleted by the player
  * @param sticky whether the node is pinned to the viewport instead of living in the panned and
  *     zoomed world; sticky coordinates are area coordinates
+ * @param deleted marks a removed node inside a snapshot of local changes; never set on a node that
+ *     is actually rendered
  * @param props type specific state
  */
 public record NodeState(
@@ -47,6 +54,7 @@ public record NodeState(
     boolean movable,
     boolean deletable,
     boolean sticky,
+    boolean deleted,
     Map<String, String> props)
     implements Serializable {
 
@@ -72,7 +80,8 @@ public record NodeState(
    */
   public static NodeState of(
       String typeId, String id, NodeOrigin origin, float x, float y, float width, float height) {
-    return new NodeState(typeId, id, origin, x, y, 0, width, height, true, true, false, Map.of());
+    return new NodeState(
+        typeId, id, origin, x, y, 0, width, height, true, true, false, false, Map.of());
   }
 
   /**
@@ -84,7 +93,8 @@ public record NodeState(
    */
   public NodeState withPosition(float newX, float newY) {
     return new NodeState(
-        typeId, id, origin, newX, newY, z, width, height, movable, deletable, sticky, props);
+        typeId, id, origin, newX, newY, z, width, height, movable, deletable, sticky, deleted,
+        props);
   }
 
   /**
@@ -95,7 +105,7 @@ public record NodeState(
    */
   public NodeState withZ(int newZ) {
     return new NodeState(
-        typeId, id, origin, x, y, newZ, width, height, movable, deletable, sticky, props);
+        typeId, id, origin, x, y, newZ, width, height, movable, deletable, sticky, deleted, props);
   }
 
   /**
@@ -107,7 +117,8 @@ public record NodeState(
    */
   public NodeState withSize(float newWidth, float newHeight) {
     return new NodeState(
-        typeId, id, origin, x, y, z, newWidth, newHeight, movable, deletable, sticky, props);
+        typeId, id, origin, x, y, z, newWidth, newHeight, movable, deletable, sticky, deleted,
+        props);
   }
 
   /**
@@ -118,7 +129,7 @@ public record NodeState(
    */
   public NodeState withOrigin(NodeOrigin newOrigin) {
     return new NodeState(
-        typeId, id, newOrigin, x, y, z, width, height, movable, deletable, sticky, props);
+        typeId, id, newOrigin, x, y, z, width, height, movable, deletable, sticky, deleted, props);
   }
 
   /**
@@ -129,7 +140,7 @@ public record NodeState(
    */
   public NodeState withId(String newId) {
     return new NodeState(
-        typeId, newId, origin, x, y, z, width, height, movable, deletable, sticky, props);
+        typeId, newId, origin, x, y, z, width, height, movable, deletable, sticky, deleted, props);
   }
 
   /**
@@ -142,7 +153,7 @@ public record NodeState(
     Map<String, String> merged = new LinkedHashMap<>(props);
     merged.putAll(extraProps);
     return new NodeState(
-        typeId, id, origin, x, y, z, width, height, movable, deletable, sticky, merged);
+        typeId, id, origin, x, y, z, width, height, movable, deletable, sticky, deleted, merged);
   }
 
   /**
@@ -153,7 +164,30 @@ public record NodeState(
    */
   public NodeState withSticky(boolean newSticky) {
     return new NodeState(
-        typeId, id, origin, x, y, z, width, height, movable, deletable, newSticky, props);
+        typeId, id, origin, x, y, z, width, height, movable, deletable, newSticky, deleted, props);
+  }
+
+  /**
+   * Creates the marker state used to record that a server default node was deleted locally.
+   *
+   * @param nodeId the id of the removed default node
+   * @return a deletion marker for the given id
+   */
+  public static NodeState deletion(String nodeId) {
+    return new NodeState(
+        CanvasNode.TYPE_ID,
+        nodeId,
+        NodeOrigin.DEFAULT,
+        0f,
+        0f,
+        0,
+        0f,
+        0f,
+        false,
+        false,
+        false,
+        true,
+        Map.of());
   }
 
   /**

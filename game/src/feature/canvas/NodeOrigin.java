@@ -4,7 +4,7 @@ package feature.canvas;
  * Distinguishes nodes that the server provided from nodes the player created locally.
  *
  * @see NodeState
- * @see CanvasMerger
+ * @see CanvasSnapshot
  */
 public enum NodeOrigin {
   /** The node is part of the server-provided default node set of a canvas. */

@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  * in the meantime.
  *
  * @see CanvasMaker
- * @see CanvasMerger
+ * @see CanvasSnapshot
  */
 public final class CanvasDefinition {
 
