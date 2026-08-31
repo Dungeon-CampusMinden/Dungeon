@@ -169,5 +169,13 @@ public class LastHourTranslator extends Translator {
     registerKey(TranslationKey.Email_9_Subject);
     registerKey(TranslationKey.Email_9_Content);
     registerKey(TranslationKey.cabinetImage);
+    registerKey(TranslationKey.LoginScreenText);
+    registerKey(TranslationKey.LoginScreenWrongFeedback);
+    registerKey(TranslationKey.LoginScreenCorrectFeedback);
+    registerKey(TranslationKey.AboutHeaderText);
+    registerKey(TranslationKey.AboutInfoText);
+    registerKey(TranslationKey.AboutQnAText);
+    registerKey(TranslationKey.AboutFooterText);
+
   }
 }

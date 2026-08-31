@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import engine.language.Localization;
 import engine.sound.Sounds;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
@@ -19,6 +20,7 @@ import rooms.lasthour.modules.computer.ComputerProgress;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /** Tab for logging into the computer, containing username and password fields and feedback. */
 public class LoginTab extends ComputerTab {
@@ -27,8 +29,6 @@ public class LoginTab extends ComputerTab {
   public static final String KEY = "login";
 
   // Password feedback
-  private static final String WRONG_FEEDBACK = "Invalid username or password.";
-  private static final String CORRECT_FEEDBACK = "Login successful!\nWelcome Dr. Mertens";
   private static final Color WRONG_COLOR = Color.RED;
   private static final Color CORRECT_COLOR = new Color(0, 0.5f, 0, 1);
 
@@ -65,9 +65,7 @@ public class LoginTab extends ComputerTab {
     this.add(brandHeader).center().padBottom(10).row();
     RichLabel flavor =
         new RichLabel(
-            "[align=center][img=items/rpg/potion_red.png] At the [color=red]frontlines[/color] of"
-                + " [img path=items/rpg/shield_gold.png noGapRight] [color=#3399ff]science[/color] since 1984"
-                + " [img=items/rpg/potion_red.png]",
+          Localization.getInstance().getCurrentTranslator().translate(TranslationKey.LoginScreenText),
             24,
             Color.GRAY);
     this.add(flavor).center().padBottom(20).row();
@@ -144,7 +142,7 @@ public class LoginTab extends ComputerTab {
     usernameField.setDisabled(true);
     passwordField.setDisabled(true);
     loginButton.setDisabled(true);
-    loginFeedback.setText(CORRECT_FEEDBACK);
+    loginFeedback.setText(Localization.getInstance().getCurrentTranslator().translate(TranslationKey.LoginScreenCorrectFeedback));
     loginFeedback.setColor(CORRECT_COLOR);
     if (!completedPrior) {
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
@@ -152,7 +150,7 @@ public class LoginTab extends ComputerTab {
   }
 
   private void onWrongCredentials() {
-    loginFeedback.setText(WRONG_FEEDBACK);
+    loginFeedback.setText(Localization.getInstance().getCurrentTranslator().translate(TranslationKey.LoginScreenWrongFeedback));
     Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
   }
 
