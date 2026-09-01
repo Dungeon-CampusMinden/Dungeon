@@ -20,8 +20,8 @@ import rooms.lasthour.modules.computer.ComputerStateComponent;
 
 /**
  * Entity spawn strategy for The Last Hour that supports metadata-only spawn events for {@link
- * ComputerStateComponent}, {@link KeypadComponent}, {@link WorldTimerComponent}, and {@link
- * feature.components.CollideComponent} entities.
+ * ComputerStateComponent}, {@link KeypadComponent},{@link TextKeyPadComponent} {@link
+ * WorldTimerComponent}, and {@link feature.components.CollideComponent} entities.
  */
 public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
@@ -92,7 +92,7 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   public static final String METADATA_TEXT_KEYPAD_CORRECT_TEXTS = "textKeypad.correctTexts";
 
   /** Metadata key for the text entered on the keypad so far. */
-  public static final String METADATA_TEXT_KEYPAD_ENTERED_TEXT = "textKeypad.enteredDigits";
+  public static final String METADATA_TEXT_KEYPAD_ENTERED_TEXT = "textKeypad.enteredText";
 
   /** Metadata key indicating whether the keypad is unlocked. */
   public static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
@@ -150,7 +150,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
         .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
     entity
         .fetch(TextKeyPadComponent.class)
-        .ifPresent(textKeyPad -> metadata.putAll(textKeypadMetadata(textKeyPad)));
+        .ifPresent(
+            textKeyPad ->
+                metadata.putAll(LastHourSnapshotTranslator.textKeypadMetadata(textKeyPad)));
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
@@ -221,15 +223,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     metadata.put(METADATA_KEYPAD_ENTERED_DIGITS, digitsToString(keypad.enteredDigits()));
     metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
     metadata.put(METADATA_KEYPAD_SHOW_DIGIT_COUNT, String.valueOf(keypad.showDigitCount()));
-    return metadata;
-  }
-
-  private Map<String, String> textKeypadMetadata(TextKeyPadComponent keypad) {
-    Map<String, String> metadata = new HashMap<>();
-    metadata.put(METADATA_TYPE, TYPE_TEXT_KEYPAD);
-    metadata.put(METADATA_TEXT_KEYPAD_CORRECT_TEXTS, keypad.correctString());
-    metadata.put(METADATA_TEXT_KEYPAD_ENTERED_TEXT, keypad.enteredText());
-    metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
     return metadata;
   }
 

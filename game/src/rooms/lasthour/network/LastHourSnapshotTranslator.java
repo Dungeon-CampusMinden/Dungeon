@@ -238,7 +238,13 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         String.valueOf(keypad.showDigitCount()));
   }
 
-  private Map<String, String> textKeypadMetadata(TextKeyPadComponent keypad) {
+  /**
+   * Serializes the textKeyPad into snapshot metadata.
+   *
+   * @param keypad the textKeyPad component to serialize
+   * @return metadata containing the textKeyPad type and serialized entries
+   */
+  public static Map<String, String> textKeypadMetadata(TextKeyPadComponent keypad) {
     return Map.of(
         LastHourEntitySpawnStrategy.METADATA_TYPE,
         LastHourEntitySpawnStrategy.TYPE_TEXT_KEYPAD,
@@ -541,7 +547,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
             .orElseGet(
                 () -> {
                   TextKeyPadComponent newComponent =
-                      new TextKeyPadComponent(keypadComponent.correctText(), () -> {});
+                      new TextKeyPadComponent(keypadComponent.correctTexts(), () -> {});
                   entity.add(newComponent);
                   return newComponent;
                 });

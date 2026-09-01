@@ -92,7 +92,7 @@ public class TextKeyPadComponent implements Component {
     Objects.requireNonNull(caller, "caller");
     boolean isCorrect = false;
     for (String validText : correctTexts) {
-      if (validText.equals(enteredText)) {
+      if (validText.equalsIgnoreCase(enteredText)) {
         isCorrect = true;
         break;
       }
@@ -109,18 +109,18 @@ public class TextKeyPadComponent implements Component {
   }
 
   /**
-   * Gets the list of correct characters for the keypad.
+   * Gets the correct texts for the keypad.
    *
-   * @return The correct characters.
+   * @return The correct texts.
    */
-  public List<String> correctText() {
+  public List<String> correctTexts() {
     return correctTexts;
   }
 
   /**
-   * Gets the list of characters currently entered by the user.
+   * Gets the text currently entered by the user.
    *
-   * @return The entered characters.
+   * @return The entered text.
    */
   public String enteredText() {
     return enteredText;
