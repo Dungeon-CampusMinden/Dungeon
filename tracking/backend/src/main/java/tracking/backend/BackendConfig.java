@@ -23,7 +23,9 @@ record BackendConfig(
         configuredSecret("databasePassword", "DUNGEON_TRACKING_DATABASE_PASSWORD").orElse(""),
         direct("runtimeDatabaseUser", "DUNGEON_TRACKING_RUNTIME_DATABASE_USER")
             .filter(value -> !value.isBlank()),
-        configuredSecret("apiKey", "DUNGEON_TRACKING_API_KEY").map(String::strip),
+        direct("apiKey", "DUNGEON_TRACKING_API_KEY")
+            .map(String::strip)
+            .filter(value -> !value.isBlank()),
         integer("maxBodyBytes", "DUNGEON_TRACKING_MAX_BODY_BYTES", 1_048_576),
         integer("maxBatchEvents", "DUNGEON_TRACKING_MAX_BATCH_EVENTS", 500));
   }

@@ -11,19 +11,22 @@ import java.util.Optional;
  * Immutable configuration for one authoritative tracking session.
  *
  * @param roomId stable room identifier
- * @param endpoint optional self-hosted HTTP endpoint
+ * @param endpoint self-hosted HTTP endpoint
  * @param apiKey optional bearer credential
  * @param outboxDirectory directory for local append-only tracking files
  * @param operatorEmail operator email shown when remote upload remains pending
  */
 record TrackingConfig(
     String roomId,
-    Optional<URI> endpoint,
+    URI endpoint,
     Optional<String> apiKey,
     Path outboxDirectory,
     String operatorEmail) {
 
+  // Controls HTTP upload and backend health checks. JSONL tracking remains active.
+  static final boolean TRACKING_ENABLED = false;
   static final String DEFAULT_OPERATOR_EMAIL = "tracking@example.com";
+  private static final URI DEFAULT_ENDPOINT = URI.create("http://127.0.0.1:8088");
 
   static final String ROOM_ID_PROPERTY = "dungeon.tracking.roomId";
   static final String ENDPOINT_PROPERTY = "dungeon.tracking.endpoint";
@@ -50,7 +53,7 @@ record TrackingConfig(
   TrackingConfig {
     roomId = requireText(roomId, "roomId");
     endpoint = Objects.requireNonNull(endpoint, "endpoint");
-    endpoint.ifPresent(TrackingConfig::validateEndpoint);
+    validateEndpoint(endpoint);
     apiKey = optionalText(apiKey, "apiKey");
     outboxDirectory = Objects.requireNonNull(outboxDirectory, "outboxDirectory").toAbsolutePath();
     operatorEmail = requireText(operatorEmail, "operatorEmail");
@@ -153,7 +156,7 @@ record TrackingConfig(
   /** Builder for explicit room configuration. */
   private static final class Builder {
     private final String roomId;
-    private URI endpoint;
+    private URI endpoint = DEFAULT_ENDPOINT;
     private String apiKey;
     private Path outboxDirectory = Path.of("tracking-outbox");
     private String operatorEmail = DEFAULT_OPERATOR_EMAIL;
@@ -213,11 +216,7 @@ record TrackingConfig(
      */
     private TrackingConfig build() {
       return new TrackingConfig(
-          roomId,
-          Optional.ofNullable(endpoint),
-          Optional.ofNullable(apiKey),
-          outboxDirectory,
-          operatorEmail);
+          roomId, endpoint, Optional.ofNullable(apiKey), outboxDirectory, operatorEmail);
     }
   }
 }

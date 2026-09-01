@@ -383,7 +383,10 @@ public final class Tracking {
 
   static Optional<CompletableFuture<Boolean>> backendHealth() {
     synchronized (LOCK) {
-      return startConfig().flatMap(config -> config.endpoint().map(TrackingBackendHealth::check));
+      if (!TrackingConfig.TRACKING_ENABLED) {
+        return Optional.empty();
+      }
+      return startConfig().map(config -> TrackingBackendHealth.check(config.endpoint()));
     }
   }
 

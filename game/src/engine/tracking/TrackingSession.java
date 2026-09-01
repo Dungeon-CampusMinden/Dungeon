@@ -55,7 +55,7 @@ final class TrackingSession {
         new TrackingSessionDescriptor(SCHEMA_VERSION, sessionId, config.roomId(), Instant.now());
     this.outbox = TrackingOutbox.create(config.outboxDirectory(), descriptor);
     this.uploader =
-        config.endpoint().map(endpoint -> new TrackingUploader(config, descriptor)).orElse(null);
+        TrackingConfig.TRACKING_ENABLED ? new TrackingUploader(config, descriptor) : null;
     LOGGER.info("Tracking session {} writes to {}", sessionId, outbox.path());
   }
 

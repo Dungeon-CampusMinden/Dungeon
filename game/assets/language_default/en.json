@@ -35,7 +35,7 @@
             "tracking_backend_checking": "Checking...",
             "tracking_backend_reachable": "Reachable",
             "tracking_backend_unreachable": "Not reachable",
-            "tracking_backend_not_configured": "Not configured",
+            "tracking_backend_disabled": "Disabled",
             "players_can_connect_via": "Players can connect via (port: $1):"
         },
         "questlog": {

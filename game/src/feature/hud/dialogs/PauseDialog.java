@@ -57,7 +57,7 @@ public class PauseDialog extends Table {
   private static final String T_TRACKING_BACKEND_CHECKING = "tracking_backend_checking";
   private static final String T_TRACKING_BACKEND_REACHABLE = "tracking_backend_reachable";
   private static final String T_TRACKING_BACKEND_UNREACHABLE = "tracking_backend_unreachable";
-  private static final String T_TRACKING_BACKEND_NOT_CONFIGURED = "tracking_backend_not_configured";
+  private static final String T_TRACKING_BACKEND_DISABLED = "tracking_backend_disabled";
   private static final String T_PLAYERS_CAN_CONNECT_VIA = "players_can_connect_via";
   private static final Translation trans = new Translation("dialog.pause_dialog");
 
@@ -277,7 +277,7 @@ public class PauseDialog extends Table {
     String initialStatus =
         health.isPresent()
             ? trans.text(T_TRACKING_BACKEND_CHECKING)
-            : trans.text(T_TRACKING_BACKEND_NOT_CONFIGURED);
+            : trans.text(T_TRACKING_BACKEND_DISABLED);
     RichLabel label = statusLabel(trans.text(T_TRACKING_BACKEND_STATUS, initialStatus));
     health.ifPresent(
         result ->

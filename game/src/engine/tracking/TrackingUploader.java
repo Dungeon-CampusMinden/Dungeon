@@ -296,7 +296,7 @@ final class TrackingUploader {
   }
 
   private URI endpoint(String operation) {
-    String base = config.endpoint().orElseThrow().toString().replaceAll("/+$", "");
+    String base = config.endpoint().toString().replaceAll("/+$", "");
     String session = "/tracking/sessions/" + descriptor.sessionId();
     return URI.create(base + session + "/" + operation);
   }

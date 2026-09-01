@@ -8,7 +8,7 @@ zentraler Dungeon-Dienst.
 ```text
 autoritativer Spielserver
     -> nur wachsende JSONL-Outbox auf dem Spielhost
-    -> authentifizierte HTTP-Batches mit Wiederholung
+    -> optional authentifizierte HTTP-Batches mit Wiederholung
     -> Tracking-Backend auf Hostport 127.0.0.1:8088
     -> separates API- und internes Datenbanknetzwerk
     -> Laufzeitrolle nur mit Datenzugriff
@@ -22,7 +22,7 @@ nicht. Der auf dem Host veröffentlichte Backend-Port lauscht nur auf Loopback.
 
 ## Schnellstart mit Docker Compose
 
-Setze vor dem ersten Start vier voneinander unabhängige Zufallswerte in der Hostumgebung.
+Setze vor dem ersten Start drei voneinander unabhängige Zufallswerte in der Hostumgebung.
 PowerShell:
 
 ```powershell
@@ -32,7 +32,6 @@ function New-TrackingSecret {
 $env:DUNGEON_TRACKING_POSTGRES_PASSWORD = (New-TrackingSecret)
 $env:DUNGEON_TRACKING_OWNER_DATABASE_PASSWORD = (New-TrackingSecret)
 $env:DUNGEON_TRACKING_RUNTIME_DATABASE_PASSWORD = (New-TrackingSecret)
-$env:DUNGEON_TRACKING_API_KEY = (New-TrackingSecret)
 docker compose -f tracking/compose.yaml up --build -d
 docker compose -f tracking/compose.yaml ps
 ```
@@ -43,17 +42,20 @@ Bash:
 export DUNGEON_TRACKING_POSTGRES_PASSWORD="$(openssl rand -base64 32)"
 export DUNGEON_TRACKING_OWNER_DATABASE_PASSWORD="$(openssl rand -base64 32)"
 export DUNGEON_TRACKING_RUNTIME_DATABASE_PASSWORD="$(openssl rand -base64 32)"
-export DUNGEON_TRACKING_API_KEY="$(openssl rand -base64 32)"
 docker compose -f tracking/compose.yaml up --build -d
 docker compose -f tracking/compose.yaml ps
 ```
 
-Compose verlangt alle vier Hostvariablen. Fehlt ein Datenbankwert, ist er leer oder besteht er nur
+Compose verlangt diese drei Datenbankwerte. Fehlt einer, ist er leer oder besteht er nur
 aus Leerraum, bricht Compose noch vor der PostgreSQL-Initialisierung ab. Speichere die Werte in
 der Deployment- oder Dienstumgebung, vorzugsweise in deren Secret-Verwaltung. Lege ihre Werte
 nicht in diesem Repository ab. Behalte sie über Neustarts und Compose-Befehle hinweg bei. Erzeuge
 insbesondere keine neuen Datenbankpasswörter für ein vorhandenes `postgres_data`-Volume, da
 PostgreSQL die bei dessen Initialisierung angelegten Zugangsdaten beibehält.
+
+Das lokal auf Loopback gebundene Backend benötigt standardmäßig keinen API-Schlüssel. Setze
+zusätzlich `DUNGEON_TRACKING_API_KEY`, wenn Backend, Spielhost und Importer Bearer-Authentifizierung
+verwenden sollen.
 
 Die Dienste `database` und `migrate` nutzen ausschließlich das interne Datenbanknetzwerk. Das
 Backend ist zusätzlich mit dem API-Netzwerk verbunden, über das Docker den Loopback-Port
@@ -118,9 +120,10 @@ Systemeigenschaft hat Vorrang.
 | Maximale Ereignisse pro Batch | `DUNGEON_TRACKING_MAX_BATCH_EVENTS` | `dungeon.tracking.maxBatchEvents` | `500` |
 
 Ist der API-Schlüssel konfiguriert, verlangen die Tracking-Endpunkte
-`Authorization: Bearer <key>`. Ein explizit konfiguriertes Datenbankpasswort oder ein API-Schlüssel
-muss mindestens ein Zeichen enthalten, das kein Leerraum ist. Das Backend entfernt Leerraum am
-Anfang und Ende des API-Schlüssels, verwendet Datenbankpasswörter aber exakt wie konfiguriert.
+`Authorization: Bearer <key>`. Ein explizit konfiguriertes Datenbankpasswort muss mindestens ein
+Zeichen enthalten, das kein Leerraum ist. Ein leerer API-Schlüssel deaktiviert die
+Authentifizierung. Das Backend entfernt Leerraum am Anfang und Ende eines nicht leeren
+API-Schlüssels, verwendet Datenbankpasswörter aber exakt wie konfiguriert.
 `GET /health` bleibt ohne Authentifizierung erreichbar, damit ein lokaler Prozessmonitor den
 PostgreSQL-Zugriff prüfen kann. Der Dienst speichert oder protokolliert weder Quell-IP-Adressen,
 HTTP-User-Agents noch Anfrage-Bodys.
@@ -284,20 +287,23 @@ Zeilentrenner bleibt ein harter Fehler.
 
 ## Das Spiel konfigurieren
 
-Der Spielhost benötigt die Backend-URL und denselben API-Schlüssel, aber keine JDBC-URL,
-Datenbankrolle oder Datenbankpasswort. Konfiguriere den Raum wie gewohnt und setze vor dem Start
-des autoritativen Servers diese Deployment-Werte:
+JSONL-Tracking ist unabhängig vom HTTP-Upload aktiv. Die Konstante
+`TrackingConfig.TRACKING_ENABLED` ist standardmäßig `false`. Setze sie im Quellcode auf `true`, um
+die Verbindung zum Backend für den Build einzuschalten. Ohne weitere Konfiguration verwendet das
+Spiel `http://127.0.0.1:8088`. Ein anderer Endpunkt, ein optionaler API-Schlüssel und ein anderes
+Outbox-Verzeichnis lassen sich vor dem Start des autoritativen Servers festlegen:
 
 ```powershell
-$env:DUNGEON_TRACKING_ENDPOINT = 'http://127.0.0.1:8088'
+$env:DUNGEON_TRACKING_ENDPOINT = 'https://tracking.example.org'
 $env:DUNGEON_TRACKING_API_KEY = 'same-value-configured-for-the-backend'
 $env:DUNGEON_TRACKING_OUTBOX = 'tracking-outbox'
 ```
 
 Die entsprechenden Java-Eigenschaften sind `dungeon.tracking.endpoint`,
-`dungeon.tracking.apiKey` und `dungeon.tracking.outbox`. Die Engine schreibt die Outbox immer, auch
-bei funktionierendem Upload. Ist das Backend nicht erreichbar, bleibt die Sitzung spielbar und
-der Betreiber kann später den Importer ausführen.
+`dungeon.tracking.apiKey` und `dungeon.tracking.outbox`. Für das lokale Backend müssen diese Werte
+nicht gesetzt werden. Die Engine schreibt die Outbox immer, auch bei funktionierendem Upload. Ist
+das Backend nicht erreichbar, bleibt die Sitzung spielbar und der Betreiber kann später den
+Importer ausführen.
 
 ## Stack betreiben und aktualisieren
 
@@ -359,8 +365,8 @@ allein nicht die tatsächlich eingesetzte Version bestimmt.
 Teilnehmer-UUIDs werden nur für eine Sitzung erzeugt. `roomPlayedBefore` kann aus einem
 zurücksetzbaren clientlokalen Kennzeichen stammen. Das Backend enthält jedoch weder eine
 Personentabelle noch Namen, IP-Adresse, Gerätefingerabdruck oder eine stabile sitzungsübergreifende
-Kennung. Das Protokoll enthält keinen Betreiberkontakt, fest einprogrammierten Endpunkt, Feld für
-Datenschutzhinweise oder Aufbewahrungsfeld.
+Kennung. Das Protokoll enthält keinen Betreiberkontakt, kein Feld für Datenschutzhinweise und kein
+Aufbewahrungsfeld.
 
 Vollständige übermittelte Antworten einschließlich Freitext werden unverändert in der JSONL-Outbox
 und in PostgreSQL gespeichert. Freitext kann personenbezogene Daten enthalten. Diese

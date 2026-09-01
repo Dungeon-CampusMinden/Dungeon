@@ -12,16 +12,21 @@ festlegen:
 
 | Systemeigenschaft | Umgebungsvariable | Standardwert |
 | --- | --- | --- |
-| `dungeon.tracking.endpoint` | `DUNGEON_TRACKING_ENDPOINT` | kein Upload an einen entfernten Server |
+| `dungeon.tracking.endpoint` | `DUNGEON_TRACKING_ENDPOINT` | `http://127.0.0.1:8088` |
 | `dungeon.tracking.apiKey` | `DUNGEON_TRACKING_API_KEY` | keiner |
 | `dungeon.tracking.outbox` | `DUNGEON_TRACKING_OUTBOX` | `tracking-outbox` |
+
+`TrackingConfig.TRACKING_ENABLED` steuert die HTTP-Verbindung und ist im Quellcode standardmäßig
+`false`. JSONL-Tracking bleibt dabei aktiv. Mit dem Wert `true` verwendet Dungeon den
+konfigurierten Endpunkt oder ohne Override das lokale Backend. Das Pause-Menü zeigt bei `false`
+"Deaktiviert" statt einen Verbindungsstatus.
 
 Für die E-Mail-Adresse des Betreibers gilt der im Quellcode definierte Standardwert. Der Raumcode
 kann als zweites Argument von `configureRoom` eine andere Adresse übergeben. Deployment-Eigenschaften
 oder Umgebungsvariablen werden dafür nicht ausgewertet.
 
-Der optionale Endpunkt muss eine absolute HTTP(S)-URI ohne Benutzerinformationen, Abfrage oder
-Fragment sein. Für ein lokal betriebenes Backend ist unverschlüsseltes HTTP zulässig.
+Der Endpunkt muss eine absolute HTTP(S)-URI ohne Benutzerinformationen, Abfrage oder Fragment
+sein. Für ein lokal betriebenes Backend ist unverschlüsseltes HTTP zulässig.
 
 Das Menü "Spiel hosten" kopiert nicht leere `dungeon.tracking.*`-Systemeigenschaften in die
 Umgebung des verwalteten Servers. Sie überschreiben geerbte `DUNGEON_TRACKING_*`-Werte genauso wie
@@ -63,8 +68,7 @@ Wiederherstellungsangaben in ihr Log.
 
 Lokale Outbox-Fehler stoppen weder das Spiel noch Netzwerk, Abschlussanzeige oder Herunterfahren.
 Dungeon protokolliert den fehlgeschlagenen absoluten Pfad und lässt die Wiederherstellungswarnung
-offen. Bewahre die gemeldete Outbox zur Prüfung auf, auch wenn kein entfernter Endpunkt konfiguriert
-war.
+offen. Bewahre die gemeldete Outbox zur Prüfung auf, auch wenn der HTTP-Upload deaktiviert war.
 
 Der Raumcode zeichnet nur stabile Rätsel- und Objekt-IDs auf. Die Engine ergänzt Sequenz,
 Uhrzeit und monoton verstrichene Zeit:
