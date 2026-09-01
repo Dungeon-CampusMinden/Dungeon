@@ -23,7 +23,6 @@ import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.HeadlessDialogGroup;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,8 +40,7 @@ public class TextKeypadUI extends Group {
   private final String dialogId;
 
   private Image background;
-  private final List<Cell<TextButton>> buttonCells = new ArrayList<>();
-  private Label numberLabel;
+  private Label textLabel;
 
   /**
    * Creates a new TextKeypadUI for the given keypad entity.
@@ -71,9 +69,9 @@ public class TextKeypadUI extends Group {
     parentTable.setFillParent(true);
     this.addActor(parentTable);
 
-    numberLabel = new Label("12345", getSkin(), "keypad");
-    numberLabel.setFontScale(1.25f);
-    parentTable.add(numberLabel).height(120).padBottom(100).row();
+    textLabel = new Label("12345", getSkin(), "keypad");
+    textLabel.setFontScale(1.25f);
+    parentTable.add(textLabel).height(120).padBottom(100).row();
 
     Table tableButtons = new Table();
     parentTable.add(tableButtons);
@@ -133,7 +131,6 @@ public class TextKeypadUI extends Group {
       if (i % 5 == 4 || i == 25) {
         c.row();
       }
-      buttonCells.add(c);
     }
   }
 
@@ -158,7 +155,7 @@ public class TextKeypadUI extends Group {
 
     background.setPosition(getX(Align.center), getY(Align.center), Align.center);
     background.setDrawable(getSkin(), kc.isUnlocked() ? "keypad-ui-on" : "keypad-ui-off");
-    numberLabel.setText(kc.enteredText());
+    textLabel.setText(kc.enteredText());
 
     super.draw(batch, parentAlpha);
   }
@@ -178,8 +175,7 @@ public class TextKeypadUI extends Group {
 
     int number = 5;
     if (!action.equals(ACTION_SUBMIT)) {
-      float pitch = 1 + (number - 5) * 0.05f;
-      Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch).targets(caller.id()));
+      Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").targets(caller.id()));
     }
   }
 
