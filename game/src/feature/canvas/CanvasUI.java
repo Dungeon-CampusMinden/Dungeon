@@ -1,6 +1,7 @@
 package feature.canvas;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
@@ -105,7 +106,7 @@ public class CanvasUI extends Group {
     area.resetView();
 
     BaseContainerUI container = new BaseContainerUI(null, true, true);
-    container.setFillParent(false);
+    container.setFillParent(true);
     container.pad(VIEWPORT_MARGIN);
     container.setContent(buildWindow(title, showResetViewButton, showFitButton));
     addActor(container);
@@ -182,6 +183,12 @@ public class CanvasUI extends Group {
 
     stack.add(controls);
     return stack;
+  }
+
+  @Override
+  public void draw(Batch batch, float parentAlpha) {
+    setSize(Game.windowWidth(), Game.windowHeight());
+    super.draw(batch, parentAlpha);
   }
 
   /** Persists the local changes and asks the server to close this dialog. */

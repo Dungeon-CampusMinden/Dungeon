@@ -289,6 +289,15 @@ public class RichLabel extends WidgetGroup implements Disposable {
   }
 
   /**
+   * Returns whether this label wraps text to its available width.
+   *
+   * @return true when wrapping is enabled
+   */
+  public boolean getWrap() {
+    return wrap;
+  }
+
+  /**
    * Replaces the font specification used for default text rendering and triggers a re-layout. Does
    * not re-parse the text, preserving shake effect continuity.
    *
