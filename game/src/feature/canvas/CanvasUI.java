@@ -1,12 +1,15 @@
 package feature.canvas;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.Game;
+import engine.utils.BaseContainerUI;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
@@ -17,16 +20,22 @@ import java.util.Objects;
 /**
  * The dialog shell around a {@link CanvasArea}.
  *
- * <p>Renders a window with a title, a small toolbar for view controls and a close button, and hosts
- * the canvas viewport itself. It also owns the local persistence lifecycle: on construction it
- * merges the server provided defaults with the changes stored in the {@link CanvasStore}, and when
- * the dialog leaves the stage it diffs the live nodes against the defaults and stores the result,
- * so the player's arrangement survives closing and reopening the canvas.
+ * <p>Renders a viewport-filling window with an optional title and canvas-overlay controls. It also
+ * owns the local persistence lifecycle: on construction it merges the server provided defaults with
+ * the changes stored in the {@link CanvasStore}, and when the dialog leaves the stage it diffs the
+ * live nodes against the defaults and stores the result, so the player's arrangement survives
+ * closing and reopening the canvas.
  */
 public class CanvasUI extends Group {
 
   /** Callback key fired when the player presses the close button. */
   public static final String EVENT_CLOSE = "canvasClose";
+
+  private static final float VIEWPORT_MARGIN = 32f;
+  private static final float CONTROL_MARGIN = 12f;
+  private static final float CONTROL_SPACING = 8f;
+  private static final float TITLE_HEIGHT = 48f;
+  private static final float TITLE_BOTTOM_PADDING = 12f;
 
   private final CanvasArea area;
   private final CanvasOptions options;
@@ -39,8 +48,8 @@ public class CanvasUI extends Group {
    *
    * @param canvasId the canvas id; used for overlay persistence
    * @param title the window title, may be empty
-   * @param areaWidth the viewport width in pixels
-   * @param areaHeight the viewport height in pixels
+   * @param areaWidth the preferred viewport width in pixels
+   * @param areaHeight the preferred viewport height in pixels
    * @param options the canvas configuration; must not be null
    * @param defaults the server provided default nodes; must not be null
    * @param dialogId the dialog id used for server events and closing
@@ -53,6 +62,32 @@ public class CanvasUI extends Group {
       CanvasOptions options,
       CanvasSnapshot defaults,
       String dialogId) {
+    this(canvasId, title, areaWidth, areaHeight, options, defaults, dialogId, true, true);
+  }
+
+  /**
+   * Creates the canvas dialog.
+   *
+   * @param canvasId the canvas id; used for overlay persistence
+   * @param title the window title, may be empty
+   * @param areaWidth the preferred viewport width in pixels
+   * @param areaHeight the preferred viewport height in pixels
+   * @param options the canvas configuration; must not be null
+   * @param defaults the server provided default nodes; must not be null
+   * @param dialogId the dialog id used for server events and closing
+   * @param showResetViewButton whether to show the reset-view button
+   * @param showFitButton whether to show the fit-to-content button
+   */
+  public CanvasUI(
+      String canvasId,
+      String title,
+      float areaWidth,
+      float areaHeight,
+      CanvasOptions options,
+      CanvasSnapshot defaults,
+      String dialogId,
+      boolean showResetViewButton,
+      boolean showFitButton) {
     Objects.requireNonNull(canvasId, "canvasId");
     this.options = Objects.requireNonNull(options, "options");
     this.defaults = Objects.requireNonNull(defaults, "defaults");
@@ -69,54 +104,76 @@ public class CanvasUI extends Group {
     }
     area.resetView();
 
-    Table root = new Table();
-    root.setFillParent(true);
-    addActor(root);
-    root.add(buildWindow(title, areaWidth, areaHeight)).center();
+    BaseContainerUI container = new BaseContainerUI(null, true, true);
+    container.setFillParent(false);
+    container.pad(VIEWPORT_MARGIN);
+    container.setContent(buildWindow(title, showResetViewButton, showFitButton));
+    addActor(container);
   }
 
-  private Window buildWindow(String title, float areaWidth, float areaHeight) {
+  private Window buildWindow(String title, boolean showResetViewButton, boolean showFitButton) {
     Window window = new Window("", UIUtils.defaultSkin(), "no-title");
     window.setMovable(false);
-    window.pad(16f);
 
     Table content = new Table();
     if (!title.isBlank()) {
-      DialogDesign.addTitleTable(content, title);
+      addTitle(content, title);
     }
-    content.add(buildToolbar()).growX().padBottom(8f).row();
-    content.add(area).size(areaWidth, areaHeight).row();
+    content.add(buildCanvas(showResetViewButton, showFitButton)).grow().row();
 
-    window.add(content);
-    window.pack();
+    window.add(content).grow();
     return window;
   }
 
-  private Table buildToolbar() {
-    Table toolbar = new Table();
-    toolbar.left();
+  private void addTitle(Table content, String title) {
+    Table titleTable = new Table();
+    titleTable
+        .add(
+            Scene2dElementFactory.createLabel(
+                title, DialogDesign.DIALOG_FONT_SPEC_TITLE.withColor(Color.BLACK)))
+        .center()
+        .row();
+    content
+        .add(titleTable)
+        .growX()
+        .height(TITLE_HEIGHT)
+        .padBottom(TITLE_BOTTOM_PADDING)
+        .row();
+  }
 
-    TextButton reset = Scene2dElementFactory.createButton("Reset View", "blue-outline", 18);
-    reset.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-            area.resetView();
-          }
-        });
+  private Stack buildCanvas(boolean showResetViewButton, boolean showFitButton) {
+    Stack stack = new Stack();
+    stack.add(area);
 
-    TextButton fit = Scene2dElementFactory.createButton("Fit", "blue-outline", 18);
-    fit.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-            area.zoomToFit();
-          }
-        });
+    Table controls = new Table();
+    controls.top().left();
+    controls.pad(CONTROL_MARGIN);
 
-    toolbar.add(reset).padRight(8f);
-    toolbar.add(fit).padRight(8f);
-    toolbar.add().growX();
+    if (showResetViewButton) {
+      TextButton reset = Scene2dElementFactory.createButton("Reset View", "blue-outline", 18);
+      reset.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+              area.resetView();
+            }
+          });
+      controls.add(reset).padRight(CONTROL_SPACING);
+    }
+
+    if (showFitButton) {
+      TextButton fit = Scene2dElementFactory.createButton("Fit", "blue-outline", 18);
+      fit.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+              area.zoomToFit();
+            }
+          });
+      controls.add(fit);
+    }
+
+    controls.add().growX();
 
     TextButton close = Scene2dElementFactory.createButton("Close", "red-outline", 18);
     close.addListener(
@@ -126,8 +183,10 @@ public class CanvasUI extends Group {
             requestClose();
           }
         });
-    toolbar.add(close);
-    return toolbar;
+    controls.add(close);
+
+    stack.add(controls);
+    return stack;
   }
 
   /** Persists the local changes and asks the server to close this dialog. */

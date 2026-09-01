@@ -78,6 +78,8 @@ public class CanvasArea extends Group {
   private float panY;
   private float zoom;
   private boolean orderDirty;
+  private float viewportWidth;
+  private float viewportHeight;
 
   private DragMode dragMode = DragMode.NONE;
   private int dragPointerButton = -1;
@@ -126,6 +128,16 @@ public class CanvasArea extends Group {
 
     resetView();
     addListener(new CanvasInputListener());
+  }
+
+  @Override
+  protected void sizeChanged() {
+    super.sizeChanged();
+    panX += (getWidth() - viewportWidth) / 2f;
+    panY += (getHeight() - viewportHeight) / 2f;
+    viewportWidth = getWidth();
+    viewportHeight = getHeight();
+    applyViewTransform();
   }
 
   /**
