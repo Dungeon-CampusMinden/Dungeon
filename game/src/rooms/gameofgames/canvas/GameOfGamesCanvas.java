@@ -10,6 +10,7 @@ import feature.canvas.NodeOrigin;
 import feature.canvas.NodeState;
 import feature.canvas.nodes.ActionNode;
 import feature.canvas.nodes.LabelNode;
+import feature.canvas.nodes.SocketNode;
 import feature.components.UIComponent;
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +134,7 @@ public final class GameOfGamesCanvas {
     return CanvasMaker.builder(CANVAS_ID)
         .title("Rule Board")
         .areaSize(AREA_WIDTH, AREA_HEIGHT)
-        .options(o -> o.zoom(0.25f, 4f).grid(32f, true).snapToGrid(true))
+        .options(o -> o.zoom(0.25f, 4f).grid(32f, false).snapToGrid(false))
         .nodes(GameOfGamesCanvas::currentDefaults)
         .build();
   }
@@ -178,6 +179,32 @@ public final class GameOfGamesCanvas {
       extraTwo.position(220f, 320f);
       states.add(extraTwo.toState());
     }
+
+    SocketNode socket = new SocketNode("rule-socket", "public static", 3);
+    socket.position(440f, 0f);
+
+    LabelNode var = new LabelNode("rule-socket-fix", "=");
+    socket.socket(1, var).lockSocket(1, true);
+
+    var = new LabelNode("rule-socket-fill-1", "String test");
+    var.position(440f, 100f);
+    states.add(var.toState());
+
+    var = new LabelNode("rule-socket-fill-2", "\"Hello world! This is a very long string, so let's see how it looks.\"");
+    var.position(440f, 200f);
+    states.add(var.toState());
+
+    socket.onNodeAdded("on-win", (socketNode, index, node) -> {
+      boolean correct1 = socketNode.socket(0).map(n -> n.id().equals("rule-socket-fill-1")).orElse(false);
+      boolean correct2 = socketNode.socket(2).map(n -> n.id().equals("rule-socket-fill-2")).orElse(false);
+      if (correct1 && correct2) {
+        socketNode.content("!! public static");
+      } else {
+        socketNode.content("public static");
+      }
+    });
+
+    states.add(socket.toState());
 
     return states;
   }

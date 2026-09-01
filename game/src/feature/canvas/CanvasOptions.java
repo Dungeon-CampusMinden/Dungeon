@@ -45,7 +45,6 @@ public final class CanvasOptions {
   private Color backgroundColor = new Color(1f, 1f, 1f, 1f);
   private Color gridColor = new Color(0.82f, 0.82f, 0.82f, 1f);
   private Color selectionColor = new Color(0.36f, 0.63f, 0.88f, 1f);
-  private Color dropTargetColor = new Color(0.16f, 1f, 0f, 1f);
 
   private boolean selectionEnabled = true;
   private boolean multiSelectEnabled = true;
@@ -183,17 +182,6 @@ public final class CanvasOptions {
    */
   public CanvasOptions selectionColor(Color color) {
     this.selectionColor = new Color(color);
-    return this;
-  }
-
-  /**
-   * Sets the color used to highlight the node a dragged node would be dropped onto.
-   *
-   * @param color the drop target color; must not be null
-   * @return this instance for chaining
-   */
-  public CanvasOptions dropTargetColor(Color color) {
-    this.dropTargetColor = new Color(color);
     return this;
   }
 
@@ -400,15 +388,6 @@ public final class CanvasOptions {
    */
   public Color selectionColor() {
     return selectionColor;
-  }
-
-  /**
-   * Returns the drop target highlight color.
-   *
-   * @return the drop target color
-   */
-  public Color dropTargetColor() {
-    return dropTargetColor;
   }
 
   /**
