@@ -71,7 +71,6 @@ public class ActionNode extends CanvasNode {
   private final List<Action> actions = new ArrayList<>();
   private final List<TextButton> buttons = new ArrayList<>();
   private String actionSetId;
-  private Color color = new Color(0.94f, 0.94f, 0.94f, 0.96f);
   private int fontSize = 16;
 
   /**
@@ -210,7 +209,7 @@ public class ActionNode extends CanvasNode {
    * @return this node for chaining
    */
   public ActionNode color(Color value) {
-    this.color = new Color(value);
+    super.color(value);
     return this;
   }
 
@@ -273,7 +272,7 @@ public class ActionNode extends CanvasNode {
 
   @Override
   protected void drawBackground(Batch batch, float parentAlpha) {
-    CanvasGraphics.fill(batch, color, parentAlpha, getX(), getY(), getWidth(), getHeight());
+    CanvasGraphics.fill(batch, color(), parentAlpha, getX(), getY(), getWidth(), getHeight());
     CanvasGraphics.outline(
         batch, Color.BLACK, parentAlpha, getX(), getY(), getWidth(), getHeight(), 2f);
   }

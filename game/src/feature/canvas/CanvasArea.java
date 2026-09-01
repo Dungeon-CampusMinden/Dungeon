@@ -1114,6 +1114,9 @@ public class CanvasArea extends Group {
             draggedGroup = List.of(released);
             select(released);
             bringToFront(released);
+          } else if (draggedNodeOwner != null) {
+            // Owned nodes must not move until their owner has released them for dragging.
+            return;
           }
           Vector2 current = areaToWorld(x, y);
           float worldDx = current.x - lastPointerWorld.x;

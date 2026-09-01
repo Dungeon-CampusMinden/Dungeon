@@ -43,8 +43,12 @@ public class CanvasNode extends Group {
   /** Type id used by plain, non specialized nodes. */
   public static final String TYPE_ID = "canvas.node";
 
+  /** Prop key holding the node background color as an RGBA8888 hex string. */
+  public static final String PROP_COLOR = "color";
+
   private final String id;
 
+  private Color color = new Color(Color.WHITE);
   private int z;
   private boolean movable = true;
   private boolean selectable = true;
@@ -186,6 +190,27 @@ public class CanvasNode extends Group {
       invalidateLayout();
       notifyStateChanged();
     }
+    return this;
+  }
+
+  /**
+   * Returns this node's background color.
+   *
+   * @return the color
+   */
+  public Color color() {
+    return color;
+  }
+
+  /**
+   * Sets this node's background color.
+   *
+   * @param value the new color; must not be null
+   * @return this node for chaining
+   */
+  public CanvasNode color(Color value) {
+    this.color = new Color(Objects.requireNonNull(value, "color"));
+    notifyStateChanged();
     return this;
   }
 
@@ -501,18 +526,17 @@ public class CanvasNode extends Group {
   /**
    * Draws the node background before its children.
    *
-   * <p>The base implementation fills the node with a translucent white box and draws a black
-   * border. Override with an empty body to render nothing but the child actors.
+   * <p>The base implementation fills the node with its configured color and draws a black border.
+   * Override with an empty body to render nothing but the child actors.
    *
    * @param batch the batch to draw with
    * @param parentAlpha the inherited alpha
    */
   protected void drawBackground(Batch batch, float parentAlpha) {
-    CanvasGraphics.fill(batch, BACKGROUND, parentAlpha, getX(), getY(), getWidth(), getHeight());
+    CanvasGraphics.fill(batch, color, parentAlpha, getX(), getY(), getWidth(), getHeight());
     CanvasGraphics.outline(batch, BORDER, parentAlpha, getX(), getY(), getWidth(), getHeight(), 2f);
   }
 
-  private static final Color BACKGROUND = new Color(1f, 1f, 1f, 0.92f);
   private static final Color BORDER = new Color(0f, 0f, 0f, 1f);
 
   @Override
@@ -574,6 +598,7 @@ public class CanvasNode extends Group {
   public final NodeState toState() {
     NodeState.Props props = NodeState.propsBuilder();
     writeProps(props);
+    props.put(PROP_COLOR, color.toString());
     return new NodeState(
         typeId(),
         id,
@@ -608,6 +633,7 @@ public class CanvasNode extends Group {
     this.deletable = state.deletable();
     this.sticky = state.sticky();
     this.origin = state.origin();
+    readColor(state);
     readProps(state);
     invalidateLayout();
     if (canvas != null) {
@@ -632,6 +658,18 @@ public class CanvasNode extends Group {
    * @param state the state to read from
    */
   protected void readProps(NodeState state) {}
+
+  private void readColor(NodeState state) {
+    String hex = state.prop(PROP_COLOR, null);
+    if (hex == null) {
+      return;
+    }
+    try {
+      this.color = Color.valueOf(hex);
+    } catch (IllegalArgumentException ignored) {
+      // Keep the default color when the stored value is invalid.
+    }
+  }
 
   // ---------------------------------------------------------------- framework internals
 

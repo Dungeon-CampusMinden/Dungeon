@@ -104,6 +104,7 @@ public class SocketNode extends CanvasNode {
     this.socketCount = socketCount;
     this.sockets = new SocketEntry[socketCount];
     this.lockedSockets = new boolean[socketCount];
+    resizeToSockets();
   }
 
   /**
@@ -459,6 +460,7 @@ public class SocketNode extends CanvasNode {
     node.size(entry.originalWidth(), entry.originalHeight());
     node.position(positionCenter.x - node.width() / 2f, positionCenter.y - node.height() / 2f);
     area.addNode(node);
+    resizeToSockets();
     invalidateLayout();
     notifyStateChanged();
     return node;
@@ -476,9 +478,10 @@ public class SocketNode extends CanvasNode {
 
   @Override
   protected void layoutContent() {
+    resizeToSockets();
     super.layoutContent();
     if (label != null) {
-      label.setBounds(4f, GROUP_LINE_TOP, BOX_WIDTH - 8f, BOX_HEIGHT);
+      label.setBounds(4f, GROUP_LINE_TOP, BOX_WIDTH - 8f, rowHeight());
     }
     for (int i = 0; i < sockets.length; i++) {
       SocketEntry entry = sockets[i];
@@ -492,23 +495,29 @@ public class SocketNode extends CanvasNode {
   protected void drawBackground(Batch batch, float parentAlpha) {
     float x = getX();
     float y = getY() + GROUP_LINE_TOP;
-    CanvasGraphics.fill(batch, BOX_COLOR, parentAlpha, x, y, BOX_WIDTH, BOX_HEIGHT);
-    CanvasGraphics.outline(batch, BORDER, parentAlpha, x, y, BOX_WIDTH, BOX_HEIGHT, 2f);
+    float rowHeight = rowHeight();
+    CanvasGraphics.fill(batch, BOX_COLOR, parentAlpha, x, y, BOX_WIDTH, rowHeight);
+    CanvasGraphics.outline(batch, BORDER, parentAlpha, x, y, BOX_WIDTH, rowHeight, 2f);
 
     for (int i = 0; i < sockets.length; i++) {
       if (sockets[i] != null) {
         continue;
       }
       float socketX = x + boxX(i + 1);
-      CanvasGraphics.fill(batch, EMPTY_COLOR, parentAlpha, socketX, y, BOX_WIDTH, BOX_HEIGHT);
+      float socketWidth = slotWidth(i);
+      CanvasGraphics.fill(
+          batch, EMPTY_COLOR, parentAlpha, socketX, y, socketWidth, rowHeight);
       Color outline = i == highlightedSocket ? HIGHLIGHT : BORDER;
       float thickness = i == highlightedSocket ? 4f : 2f;
       CanvasGraphics.outline(
-          batch, outline, parentAlpha, socketX, y, BOX_WIDTH, BOX_HEIGHT, thickness);
+          batch, outline, parentAlpha, socketX, y, socketWidth, rowHeight, thickness);
     }
 
     float firstCenter = x + BOX_WIDTH / 2f;
-    float lastCenter = x + boxX(socketCount) + BOX_WIDTH / 2f;
+    float lastCenter =
+        socketCount == 0
+            ? firstCenter
+            : x + boxX(socketCount) + slotWidth(socketCount - 1) / 2f;
     CanvasGraphics.fill(
         batch,
         BORDER,
@@ -518,7 +527,8 @@ public class SocketNode extends CanvasNode {
         lastCenter - firstCenter,
         GROUP_LINE_THICKNESS);
     for (int i = 0; i <= socketCount; i++) {
-      float center = x + boxX(i) + BOX_WIDTH / 2f;
+      float boxWidth = i == 0 ? BOX_WIDTH : slotWidth(i - 1);
+      float center = x + boxX(i) + boxWidth / 2f;
       CanvasGraphics.fill(
           batch,
           BORDER,
@@ -607,6 +617,7 @@ public class SocketNode extends CanvasNode {
             "Could not restore socket {} of node '{}': {}", i, id(), exception.getMessage());
       }
     }
+    resizeToSockets();
     invalidateLayout();
   }
 
@@ -636,8 +647,8 @@ public class SocketNode extends CanvasNode {
       if (sockets[i] != null) {
         continue;
       }
-      float dx = node.centerX() - (x() + boxX(i + 1) + BOX_WIDTH / 2f);
-      float dy = node.centerY() - (y() + GROUP_LINE_TOP + BOX_HEIGHT / 2f);
+      float dx = node.centerX() - (x() + boxX(i + 1) + slotWidth(i) / 2f);
+      float dy = node.centerY() - (y() + GROUP_LINE_TOP + rowHeight() / 2f);
       float distance = dx * dx + dy * dy;
       if (distance < nearestDistance) {
         nearest = i;
@@ -651,6 +662,7 @@ public class SocketNode extends CanvasNode {
     SocketEntry entry = new SocketEntry(node, unsocketedState.width(), unsocketedState.height());
     sockets[index] = entry;
     addActor(node);
+    resizeToSockets();
     layoutSocket(index, entry);
     highlightedSocket = -1;
     invalidateLayout();
@@ -665,7 +677,31 @@ public class SocketNode extends CanvasNode {
   }
 
   private void layoutSocket(int index, SocketEntry entry) {
-    entry.node().setBounds(boxX(index + 1), GROUP_LINE_TOP, BOX_WIDTH, BOX_HEIGHT);
+    float y = GROUP_LINE_TOP + (rowHeight() - entry.node().height()) / 2f;
+    entry.node().position(boxX(index + 1), y);
+  }
+
+  private void resizeToSockets() {
+    float width = BOX_WIDTH;
+    for (int i = 0; i < sockets.length; i++) {
+      width += BOX_SPACING + slotWidth(i);
+    }
+    size(width, GROUP_LINE_TOP + rowHeight());
+  }
+
+  private float rowHeight() {
+    float height = BOX_HEIGHT;
+    for (SocketEntry entry : sockets) {
+      if (entry != null) {
+        height = Math.max(height, entry.node().height());
+      }
+    }
+    return height;
+  }
+
+  private float slotWidth(int index) {
+    SocketEntry entry = sockets[index];
+    return entry == null ? BOX_WIDTH : entry.node().width();
   }
 
   private static float preferredWidth(int socketCount) {
@@ -675,8 +711,15 @@ public class SocketNode extends CanvasNode {
     return (socketCount + 1) * BOX_WIDTH + socketCount * BOX_SPACING;
   }
 
-  private static float boxX(int index) {
-    return index * (BOX_WIDTH + BOX_SPACING);
+  private float boxX(int index) {
+    if (index == 0) {
+      return 0f;
+    }
+    float x = BOX_WIDTH + BOX_SPACING;
+    for (int i = 0; i < index - 1; i++) {
+      x += slotWidth(i) + BOX_SPACING;
+    }
+    return x;
   }
 
   private record SocketEntry(CanvasNode node, float originalWidth, float originalHeight) {}
