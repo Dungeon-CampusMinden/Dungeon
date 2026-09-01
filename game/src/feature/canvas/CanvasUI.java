@@ -133,12 +133,7 @@ public class CanvasUI extends Group {
                 title, DialogDesign.DIALOG_FONT_SPEC_TITLE.withColor(Color.BLACK)))
         .center()
         .row();
-    content
-        .add(titleTable)
-        .growX()
-        .height(TITLE_HEIGHT)
-        .padBottom(TITLE_BOTTOM_PADDING)
-        .row();
+    content.add(titleTable).growX().height(TITLE_HEIGHT).padBottom(TITLE_BOTTOM_PADDING).row();
   }
 
   private Stack buildCanvas(boolean showResetViewButton, boolean showFitButton) {

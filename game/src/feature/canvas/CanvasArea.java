@@ -89,7 +89,8 @@ public class CanvasArea extends Group {
   private final Vector2 rubberEnd = new Vector2();
   private CanvasNode draggedNode;
   private List<CanvasNode> draggedGroup = List.of();
-  private CanvasNode dropTarget;
+  private CanvasNode draggedNodeOwner;
+  private final Set<CanvasNode> dragTargets = new LinkedHashSet<>();
   private boolean dragMoved;
   private final Vector2 pressArea = new Vector2();
 
@@ -217,6 +218,24 @@ public class CanvasArea extends Group {
    * @return true if the node was on this canvas and got removed
    */
   public boolean removeNode(CanvasNode node) {
+    return removeNode(node, true, true);
+  }
+
+  /**
+   * Removes a node from top-level canvas ownership while retaining its canvas context.
+   *
+   * <p>Container nodes use this before re-parenting a node into themselves. The transferred node no
+   * longer participates in canvas selection, queries or top-level persistence, but can still use
+   * {@link CanvasNode#canvas()} while nested.
+   *
+   * @param node the node to transfer
+   * @return true if the node was transferred out of top-level canvas ownership
+   */
+  public boolean transferNodeToOwner(CanvasNode node) {
+    return removeNode(node, false, false);
+  }
+
+  private boolean removeNode(CanvasNode node, boolean detach, boolean cancelDrag) {
     if (node == null || nodesById.get(node.id()) != node) {
       return false;
     }
@@ -226,13 +245,13 @@ public class CanvasArea extends Group {
       node.setSelectedInternal(false);
       fireSelectionChanged();
     }
-    if (draggedNode == node) {
+    if (cancelDrag && draggedNode == node) {
       draggedNode = null;
     }
-    if (dropTarget == node) {
-      dropTarget = null;
+    dragTargets.remove(node);
+    if (detach) {
+      node.attach(null);
     }
-    node.attach(null);
     node.onRemove(this);
     listeners.forEach(l -> l.onNodeRemoved(this, node));
     return true;
@@ -793,9 +812,6 @@ public class CanvasArea extends Group {
     for (CanvasNode node : selection) {
       drawNodeOutline(batch, parentAlpha, node, options.selectionColor(), 2f);
     }
-    if (dropTarget != null) {
-      drawNodeOutline(batch, parentAlpha, dropTarget, options.dropTargetColor(), 3f);
-    }
     if (dragMode == DragMode.RUBBER_BAND) {
       Rectangle rect = rubberBandRect();
       Vector2 min = worldToArea(rect.x, rect.y);
@@ -864,15 +880,86 @@ public class CanvasArea extends Group {
 
   // ---------------------------------------------------------------- input
 
-  private CanvasNode nodeOf(Actor target) {
+  private NodeHit nodeHitOf(Actor target) {
     Actor current = target;
+    CanvasNode nestedNode = null;
+    CanvasNode directOwner = null;
     while (current != null && current != this) {
       if (current instanceof CanvasNode node) {
-        return nodesById.get(node.id()) == node ? node : null;
+        if (nestedNode == null) {
+          nestedNode = node;
+        } else if (directOwner == null) {
+          directOwner = node;
+        }
+        if (nodesById.get(node.id()) == node) {
+          return new NodeHit(nestedNode, nestedNode == node ? null : directOwner);
+        }
       }
       current = current.getParent();
     }
     return null;
+  }
+
+  private record NodeHit(CanvasNode node, CanvasNode owner) {}
+
+  private CanvasDragContext dragContext(
+      CanvasNode target, CanvasNode dragged, float areaX, float areaY) {
+    Vector2 worldPointer = areaToWorld(areaX, areaY);
+    float targetX = target.sticky() ? areaX : worldPointer.x;
+    float targetY = target.sticky() ? areaY : worldPointer.y;
+    return new CanvasDragContext(
+        this,
+        dragged,
+        draggedGroup,
+        worldPointer.x,
+        worldPointer.y,
+        areaX,
+        areaY,
+        targetX - target.x(),
+        targetY - target.y());
+  }
+
+  private void updateDragTargets(float areaX, float areaY) {
+    if (draggedNode == null || draggedNodeOwner != null) {
+      clearDragTargets(areaX, areaY);
+      return;
+    }
+    List<CanvasNode> overlapping = intersectsAll(draggedNode);
+    Set<CanvasNode> current = new LinkedHashSet<>(overlapping);
+    for (CanvasNode target : new ArrayList<>(dragTargets)) {
+      if (!current.contains(target)) {
+        target.onDragExit(dragContext(target, draggedNode, areaX, areaY));
+        dragTargets.remove(target);
+      }
+    }
+    for (CanvasNode target : overlapping) {
+      CanvasDragContext context = dragContext(target, draggedNode, areaX, areaY);
+      if (dragTargets.add(target)) {
+        target.onDragEnter(context);
+      }
+      target.onDragOver(context);
+    }
+  }
+
+  private void clearDragTargets(float areaX, float areaY) {
+    if (draggedNode != null) {
+      for (CanvasNode target : new ArrayList<>(dragTargets)) {
+        target.onDragExit(dragContext(target, draggedNode, areaX, areaY));
+      }
+    }
+    dragTargets.clear();
+  }
+
+  private boolean dispatchDrop(float areaX, float areaY) {
+    if (draggedNode == null || draggedNodeOwner != null || draggedGroup.size() != 1) {
+      return false;
+    }
+    for (CanvasNode target : intersectsAll(draggedNode)) {
+      if (target.onNodeDropped(dragContext(target, draggedNode, areaX, areaY))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private boolean panRequested(int button) {
@@ -959,8 +1046,16 @@ public class CanvasArea extends Group {
         return false;
       }
 
-      CanvasNode hit = nodeOf(event.getTarget());
-      if (hit != null) {
+      NodeHit nodeHit = nodeHitOf(event.getTarget());
+      if (nodeHit != null) {
+        CanvasNode hit = nodeHit.node();
+        draggedNodeOwner = nodeHit.owner();
+        if (draggedNodeOwner != null) {
+          draggedNode = hit;
+          draggedGroup = List.of(hit);
+          dragMode = DragMode.NODE;
+          return true;
+        }
         boolean additive = additiveRequested();
         if (!selection.contains(hit)) {
           select(List.of(hit), additive);
@@ -1006,6 +1101,20 @@ public class CanvasArea extends Group {
           lastPointerArea.set(x, y);
         }
         case NODE -> {
+          if (dragMoved && draggedNodeOwner != null) {
+            CanvasNode released = draggedNodeOwner.releaseOwnedNodeForDrag(draggedNode);
+            draggedNodeOwner = null;
+            if (released == null) {
+              draggedNode = null;
+              draggedGroup = List.of();
+              dragMode = DragMode.NONE;
+              return;
+            }
+            draggedNode = released;
+            draggedGroup = List.of(released);
+            select(released);
+            bringToFront(released);
+          }
           Vector2 current = areaToWorld(x, y);
           float worldDx = current.x - lastPointerWorld.x;
           float worldDy = current.y - lastPointerWorld.y;
@@ -1020,7 +1129,7 @@ public class CanvasArea extends Group {
           }
           lastPointerWorld.set(current);
           lastPointerArea.set(x, y);
-          dropTarget = draggedNode == null ? null : intersectsOther(draggedNode).orElse(null);
+          updateDragTargets(x, y);
         }
         case RUBBER_BAND -> {
           rubberEnd.set(areaToWorld(x, y));
@@ -1041,7 +1150,6 @@ public class CanvasArea extends Group {
       DragMode finished = dragMode;
       dragMode = DragMode.NONE;
       dragPointerButton = -1;
-      dropTarget = null;
 
       switch (finished) {
         case NODE -> {
@@ -1050,13 +1158,17 @@ public class CanvasArea extends Group {
                 .filter(node -> !node.sticky())
                 .forEach(node -> node.position(snap(node.x()), snap(node.y())));
           }
+          boolean dropConsumed = dragMoved && dispatchDrop(x, y);
           if (!dragMoved && draggedNode != null) {
-            float pointerX = draggedNode.sticky() ? x : worldPos.x;
-            float pointerY = draggedNode.sticky() ? y : worldPos.y;
-            draggedNode.onClick(pointerX - draggedNode.x(), pointerY - draggedNode.y(), button);
-          } else {
+            Vector2 stagePointer = localToStageCoordinates(new Vector2(x, y));
+            Vector2 localPointer = draggedNode.stageToLocalCoordinates(stagePointer);
+            draggedNode.onClick(localPointer.x, localPointer.y, button);
+          } else if (!dropConsumed) {
             draggedGroup.forEach(
                 node -> {
+                  if (node.canvas() != CanvasArea.this) {
+                    return;
+                  }
                   if (node.sticky()) {
                     node.onDrop(x, y);
                   } else {
@@ -1064,8 +1176,10 @@ public class CanvasArea extends Group {
                   }
                 });
           }
+          clearDragTargets(x, y);
           draggedNode = null;
           draggedGroup = List.of();
+          draggedNodeOwner = null;
         }
         case RUBBER_BAND -> {
           rubberEnd.set(worldPos);

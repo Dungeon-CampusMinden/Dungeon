@@ -27,7 +27,9 @@ import java.util.Objects;
  * <h2>Interaction hooks</h2>
  *
  * All hooks default to a no-op except {@link #onMove(float, float)}, which moves the node when
- * {@link #movable()} is true.
+ * {@link #movable()} is true. Drag-over feedback and drop handling belong to the receiving node:
+ * the canvas reports enter, over, exit and drop events, but does not decide how targets render
+ * themselves or whether they accept a drop.
  *
  * <h2>Serialization</h2>
  *
@@ -407,6 +409,60 @@ public class CanvasNode extends Group {
   public void onDrop(float worldX, float worldY) {}
 
   /**
+   * Called when another node starts overlapping this node during a drag.
+   *
+   * <p>Default implementation does nothing.
+   *
+   * @param context information about the current drag
+   */
+  public void onDragEnter(CanvasDragContext context) {}
+
+  /**
+   * Called while another dragged node overlaps this node.
+   *
+   * <p>Default implementation does nothing.
+   *
+   * @param context information about the current drag
+   */
+  public void onDragOver(CanvasDragContext context) {}
+
+  /**
+   * Called when another dragged node stops overlapping this node.
+   *
+   * <p>Default implementation does nothing.
+   *
+   * @param context information about the current drag
+   */
+  public void onDragExit(CanvasDragContext context) {}
+
+  /**
+   * Gives this node the opportunity to consume a node dropped onto it.
+   *
+   * <p>Default implementation rejects the drop. An accepting implementation is responsible for
+   * applying the resulting state change, including removing or re-parenting the dragged node.
+   *
+   * @param context information about the completed drag
+   * @return true if this node consumed the drop
+   */
+  public boolean onNodeDropped(CanvasDragContext context) {
+    return false;
+  }
+
+  /**
+   * Releases a node owned and rendered inside this node so the canvas can continue dragging it.
+   *
+   * <p>Default implementation returns {@code null}, indicating that this node does not own the
+   * requested child. Implementations should re-add a successfully released node to their canvas at
+   * the same visual position.
+   *
+   * @param node the nested node the player started dragging
+   * @return the canvas-owned node to continue dragging, or null if it could not be released
+   */
+  public CanvasNode releaseOwnedNodeForDrag(CanvasNode node) {
+    return null;
+  }
+
+  /**
    * Called when the selection state of this node changes.
    *
    * <p>Default implementation does nothing; the selection outline itself is drawn by the canvas.
@@ -592,12 +648,33 @@ public class CanvasNode extends Group {
   }
 
   /**
+   * Called when the canvas context of this node changes.
+   *
+   * <p>Container nodes can override this to propagate the context to nodes they own.
+   *
+   * @param area the new canvas context, or null when fully detached
+   */
+  protected void onCanvasChanged(CanvasArea area) {}
+
+  /**
+   * Propagates a canvas context to a node owned by this node.
+   *
+   * @param node the owned node
+   * @param area the canvas context, or null when detached
+   */
+  protected final void attachOwnedNode(CanvasNode node, CanvasArea area) {
+    Objects.requireNonNull(node, "node");
+    node.attach(area);
+  }
+
+  /**
    * Sets the owning canvas. Called by {@link CanvasArea} only.
    *
    * @param area the owning canvas, or null when removed
    */
   void attach(CanvasArea area) {
     this.canvas = area;
+    onCanvasChanged(area);
   }
 
   /**
