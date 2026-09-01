@@ -79,16 +79,22 @@ public class Lore {
               TranslationKey.BlogEntryTitle_2,
               TranslationKey.BlogEntry_2,
               List.of(
-                  new BlogTab.BlogComment("TechAnalyst", TranslationKey.BlogComment_1, 60),
-                  new BlogTab.BlogComment("SecureMind", TranslationKey.BlogComment_2, 120),
-                  new BlogTab.BlogComment("CyberLab", TranslationKey.BlogComment_3, 180))),
+                  new BlogTab.BlogComment(
+                      "blog-comment-1", "TechAnalyst", TranslationKey.BlogComment_1, 60),
+                  new BlogTab.BlogComment(
+                      "blog-comment-2", "SecureMind", TranslationKey.BlogComment_2, 120),
+                  new BlogTab.BlogComment(
+                      "blog-comment-3", "CyberLab", TranslationKey.BlogComment_3, 180))),
           new BlogTab.BlogEntry(
               TranslationKey.BlogEntryTitle_3,
               TranslationKey.BlogEntry_3,
               List.of(
-                  new BlogTab.BlogComment("BinaryCoffee", TranslationKey.BlogComment_4, 240),
-                  new BlogTab.BlogComment("BinaryCoffee", TranslationKey.BlogComment_5, 300),
-                  new BlogTab.BlogComment("BinaryCoffee", TranslationKey.BlogComment_6, 360))));
+                  new BlogTab.BlogComment(
+                      "blog-comment-4", "BinaryCoffee", TranslationKey.BlogComment_4, 240),
+                  new BlogTab.BlogComment(
+                      "blog-comment-5", "BinaryCoffee", TranslationKey.BlogComment_5, 300),
+                  new BlogTab.BlogComment(
+                      "blog-comment-6", "BinaryCoffee", TranslationKey.BlogComment_6, 360))));
 
   /** The real access URL. */
   public static final String RealAccessUrl = "https://secugate-support.com/sg4/access";

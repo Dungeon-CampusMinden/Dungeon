@@ -185,8 +185,11 @@ Ein Antwortversuch verwendet `eventType: "ANSWER_SUBMITTED"`, setzt `outcome` au
 }
 ```
 
-Nur ein tatsächlich von den Spielern verwendeter Hinweis erzeugt `eventType: "HINT_USED"`. Das
-bloße Anzeigen oder Anbieten eines Hinweises zählt nicht.
+Nur ein tatsächlich von den Spielern gelesener Hinweis erzeugt `eventType: "HINT_USED"`. Das bloße
+Verfügbarmachen eines Hinweises zählt nicht. In The Last Hour hat jeder zeitversetzt erscheinende
+Blog-Kommentar eine eigene Hint-ID. Das Ereignis entsteht, sobald der Kommentar im geöffneten
+Blog-Tab gelesen werden kann oder der Spieler den Blog später mit diesem ungelesenen Kommentar
+öffnet. Bereits gelesene Kommentare werden beim erneuten Öffnen nicht noch einmal gezählt.
 
 Ist das Beispiel als `batch.json` gespeichert, kann PowerShell es hochladen und die Bestätigung
 abrufen:

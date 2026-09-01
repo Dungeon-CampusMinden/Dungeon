@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import rooms.lasthour.level.LastHourLevel;
+import rooms.lasthour.modules.computer.content.BlogTab;
 import rooms.lasthour.util.LastHourPuzzle;
 import rooms.lasthour.util.LastHourQuestLogUtil;
 import rooms.lasthour.util.LastHourSounds;
@@ -30,6 +31,9 @@ public final class ComputerCallbacks {
 
   /** Callback key fired when a player opens the control panel tab. */
   public static final String CONTROL_PANEL_OPENED_KEY = "control_panel_opened";
+
+  /** Callback carrying a newly viewed blog comment's stable identifier. */
+  public static final String BLOG_COMMENT_VIEWED_KEY = "blog_comment_viewed";
 
   /** Callback fired when a player opens the exit-code hint file. */
   public static final String EXIT_CODE_HINT_OPENED_KEY = "exit_code_hint_opened";
@@ -206,6 +210,23 @@ public final class ComputerCallbacks {
             onControlPanelOpened.accept(who);
           }
         });
+    dialog.registerCallback(
+        BLOG_COMMENT_VIEWED_KEY,
+        data ->
+            responseString(data)
+                .flatMap(BlogTab::comment)
+                .ifPresent(
+                    comment -> {
+                      ComputerStateComponent current = currentState(stateEntity).orElse(null);
+                      if (current == null
+                          || current.isInfected()
+                          || !current.state().hasReached(ComputerProgress.LOGGED_IN)
+                          || !BlogTab.isCommentVisible(comment, current.timestampOfLogin())) {
+                        return;
+                      }
+                      LastHourTracking.started(LastHourPuzzle.STORAGE_RECOVERY);
+                      LastHourTracking.hintUsed(LastHourPuzzle.STORAGE_RECOVERY, comment.id(), who);
+                    }));
     dialog.registerCallback(
         EXIT_CODE_HINT_OPENED_KEY,
         data -> {

@@ -41,7 +41,7 @@ final class TrackingSession {
   private final Map<Integer, UUID> participantsByEntity = new HashMap<>();
   private final Set<String> startedPuzzles = new HashSet<>();
   private final Set<String> solvedPuzzles = new HashSet<>();
-  private final Set<String> usedHints = new HashSet<>();
+  private final Set<HintUse> usedHints = new HashSet<>();
   private final Set<String> activePuzzles = new LinkedHashSet<>();
   private final Map<String, Integer> attemptsByPuzzle = new HashMap<>();
 
@@ -130,8 +130,8 @@ final class TrackingSession {
   Optional<TrackingEvent> hintUsed(String puzzleId, String hintId, UUID participantId) {
     String trackedPuzzle = requireText(puzzleId, "puzzleId");
     String trackedHint = requireText(hintId, "hintId");
-    String hintKey = trackedPuzzle + "\u0000" + trackedHint;
-    if (solvedPuzzles.contains(trackedPuzzle) || usedHints.contains(hintKey)) {
+    HintUse hintUse = new HintUse(participantId, trackedPuzzle, trackedHint);
+    if (usedHints.contains(hintUse)) {
       return Optional.empty();
     }
     TrackingEvent hintEvent =
@@ -142,7 +142,7 @@ final class TrackingSession {
             Optional.of(trackedHint),
             Optional.empty(),
             TrackingJson.object().put("hintId", trackedHint));
-    usedHints.add(hintKey);
+    usedHints.add(hintUse);
     touchActivePuzzle(trackedPuzzle);
     return Optional.of(hintEvent);
   }
@@ -393,4 +393,6 @@ final class TrackingSession {
       this.participant = participant;
     }
   }
+
+  private record HintUse(UUID participantId, String puzzleId, String hintId) {}
 }

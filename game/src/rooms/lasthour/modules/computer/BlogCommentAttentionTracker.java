@@ -23,6 +23,7 @@ public final class BlogCommentAttentionTracker {
   private final IntSupplier visibleCommentCount;
   private final IntSupplier acknowledgedCommentCount;
   private final IntConsumer acknowledgedCommentCountUpdater;
+  private final IntConsumer commentViewed;
   private final float checkIntervalSeconds;
 
   private float nextCheckAtSeconds = 0f;
@@ -34,15 +35,18 @@ public final class BlogCommentAttentionTracker {
    * @param visibleCommentCount supplies the current number of visible comments
    * @param acknowledgedCommentCount supplies the number of acknowledged comments
    * @param acknowledgedCommentCountUpdater persists the acknowledged comment count
+   * @param commentViewed receives the zero-based index of each newly viewed comment
    */
   public BlogCommentAttentionTracker(
       IntSupplier visibleCommentCount,
       IntSupplier acknowledgedCommentCount,
-      IntConsumer acknowledgedCommentCountUpdater) {
+      IntConsumer acknowledgedCommentCountUpdater,
+      IntConsumer commentViewed) {
     this(
         visibleCommentCount,
         acknowledgedCommentCount,
         acknowledgedCommentCountUpdater,
+        commentViewed,
         DEFAULT_CHECK_INTERVAL_SECONDS);
   }
 
@@ -52,16 +56,19 @@ public final class BlogCommentAttentionTracker {
    * @param visibleCommentCount supplies the current number of visible comments
    * @param acknowledgedCommentCount supplies the number of acknowledged comments
    * @param acknowledgedCommentCountUpdater persists the acknowledged comment count
+   * @param commentViewed receives the zero-based index of each newly viewed comment
    * @param checkIntervalSeconds minimum number of seconds between checks
    */
   public BlogCommentAttentionTracker(
       IntSupplier visibleCommentCount,
       IntSupplier acknowledgedCommentCount,
       IntConsumer acknowledgedCommentCountUpdater,
+      IntConsumer commentViewed,
       float checkIntervalSeconds) {
     this.visibleCommentCount = visibleCommentCount;
     this.acknowledgedCommentCount = acknowledgedCommentCount;
     this.acknowledgedCommentCountUpdater = acknowledgedCommentCountUpdater;
+    this.commentViewed = commentViewed;
     this.checkIntervalSeconds = checkIntervalSeconds;
   }
 
@@ -76,7 +83,7 @@ public final class BlogCommentAttentionTracker {
     int currentVisible = visibleCommentCount.getAsInt();
     int acknowledged = acknowledgedCommentCount.getAsInt();
     if (acknowledged < 0) {
-      acknowledged = currentVisible;
+      acknowledged = 0;
       acknowledgedCommentCountUpdater.accept(acknowledged);
     }
 
@@ -137,6 +144,10 @@ public final class BlogCommentAttentionTracker {
   }
 
   private void acknowledgeVisibleComments(int visibleCommentCount) {
+    int acknowledged = Math.max(0, acknowledgedCommentCount.getAsInt());
+    for (int commentIndex = acknowledged; commentIndex < visibleCommentCount; commentIndex++) {
+      commentViewed.accept(commentIndex);
+    }
     acknowledgedCommentCountUpdater.accept(visibleCommentCount);
     lastVisibleCommentCount = visibleCommentCount;
   }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.language.Localization;
 import engine.utils.Scene2dElementFactory;
 import java.util.List;
+import java.util.Optional;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.Lore;
 
@@ -77,6 +78,49 @@ public class BlogTab extends ComputerTab {
       }
     }
     return count;
+  }
+
+  /**
+   * Returns the blog comment at its stable display position.
+   *
+   * @param index zero-based display position
+   * @return the matching comment, or empty if the position is invalid
+   */
+  public static Optional<BlogComment> comment(int index) {
+    List<BlogComment> comments =
+        Lore.BlogEntries.stream().flatMap(entry -> entry.comments().stream()).toList();
+    if (index < 0 || index >= comments.size()) {
+      return Optional.empty();
+    }
+    return Optional.of(comments.get(index));
+  }
+
+  /**
+   * Finds a blog comment by its stable tracking identifier.
+   *
+   * @param id stable tracking identifier
+   * @return the matching comment, or empty if the identifier is unknown
+   */
+  public static Optional<BlogComment> comment(String id) {
+    return Lore.BlogEntries.stream()
+        .flatMap(entry -> entry.comments().stream())
+        .filter(comment -> comment.id().equals(id))
+        .findFirst();
+  }
+
+  /**
+   * Returns whether the server-side login timestamp makes a comment visible.
+   *
+   * @param comment comment with its display delay
+   * @param timestampOfLogin server-side login timestamp in epoch seconds
+   * @return whether the comment can currently be viewed
+   */
+  public static boolean isCommentVisible(BlogComment comment, int timestampOfLogin) {
+    if (timestampOfLogin <= 0) {
+      return false;
+    }
+    long secondsSinceLogin = System.currentTimeMillis() / 1000L - timestampOfLogin;
+    return secondsSinceLogin >= comment.timeBeforeDisplay();
   }
 
   protected void createActors() {
@@ -225,10 +269,11 @@ public class BlogTab extends ComputerTab {
   /**
    * Data class representing a comment on a blog entry.
    *
+   * @param id stable tracking identifier
    * @param user the username of the commenter
    * @param content the content of the comment
    * @param timeBeforeDisplay the time in seconds before the comment should be displayed after the
    *     blog entry is shown
    */
-  public record BlogComment(String user, String content, float timeBeforeDisplay) {}
+  public record BlogComment(String id, String user, String content, float timeBeforeDisplay) {}
 }
