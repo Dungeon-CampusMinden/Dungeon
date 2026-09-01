@@ -64,6 +64,7 @@ import engine.systems.VelocitySystem;
 import engine.systems.input.InputManager;
 import engine.systems.input.InputSystem;
 import engine.systems.input.JoystickSystem;
+import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
 import engine.utils.IVoidFunction;
 import engine.utils.components.MissingComponentException;
@@ -208,7 +209,11 @@ public final class GameLoop extends ScreenAdapter {
                   initialScreenSupplier != null ? initialScreenSupplier.get() : new GameLoop());
             }
           };
-      new Lwjgl3Application(application, config);
+      try {
+        new Lwjgl3Application(application, config);
+      } finally {
+        HostSession.stopHosting();
+      }
     } else {
       // Server mode does not create a window.
       new GameLoop().setup();
@@ -436,6 +441,10 @@ public final class GameLoop extends ScreenAdapter {
       if (PreRunConfiguration.isNetworkServer()) {
         Game.network().completeServerBootstrap();
       }
+    }
+
+    if (Game.isSingleplayer() && Game.currentLevel().isPresent()) {
+      Game.player().ifPresent(player -> TrackingRuntime.startSingleplayerSession(player.id()));
     }
   }
 
@@ -829,10 +838,11 @@ public final class GameLoop extends ScreenAdapter {
     }
     initialWorldReadySent = true;
     Game.network()
-        .send((short) 0, new InitialWorldReady(), true)
+        .send((short) 0, new InitialWorldReady(TrackingRuntime.clientRoomPlayedBefore()), true)
         .whenComplete(
             (success, error) -> {
               if (error == null && Boolean.TRUE.equals(success)) {
+                TrackingRuntime.markClientRoomPlayed();
                 initialWorldClientReady = true;
                 Game.network().markInitialWorldReady();
                 return;

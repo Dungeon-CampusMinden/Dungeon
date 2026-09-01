@@ -94,7 +94,7 @@ export function createDeerCandidate(draft: WizardDraft): DeerSchema {
 
   const { project } = draft;
   return {
-    formatVersion: "0.4",
+    formatVersion: "0.5",
     seed: draft.seed,
     metadata: {
       id: project.metadata.id,
@@ -104,6 +104,9 @@ export function createDeerCandidate(draft: WizardDraft): DeerSchema {
         ? { description: project.metadata.description }
         : {}),
       ...(project.metadata.author?.trim() ? { author: project.metadata.author } : {}),
+      ...(project.metadata.operatorEmail?.trim()
+        ? { operatorEmail: project.metadata.operatorEmail }
+        : {}),
     },
     learningDesign: {
       objectives: project.learningDesign.objectives.map((objective) => ({

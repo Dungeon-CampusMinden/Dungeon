@@ -73,8 +73,10 @@ import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.starter.LastHourClient;
 import rooms.lasthour.util.InteractionHelper;
 import rooms.lasthour.util.LastHourAchievements;
+import rooms.lasthour.util.LastHourPuzzle;
 import rooms.lasthour.util.LastHourQuestLogUtil;
 import rooms.lasthour.util.LastHourSounds;
+import rooms.lasthour.util.LastHourTracking;
 import rooms.lasthour.util.Lore;
 import rooms.lasthour.util.shaders.LightingShader;
 import rooms.lasthour.util.translation.TranslationKey;
@@ -166,10 +168,33 @@ public class LastHourLevel extends DungeonLevel {
         .ifPresent(
             component -> {
               component.onCorrectCode(
-                  player -> LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE));
+                  player -> {
+                    LastHourTracking.attempt(
+                        LastHourPuzzle.STORAGE_ACCESS,
+                        "storage-keypad",
+                        "numeric-code",
+                        component.enteredDigits().stream()
+                            .map(String::valueOf)
+                            .collect(java.util.stream.Collectors.joining()),
+                        true,
+                        player);
+                    LastHourTracking.solved(LastHourPuzzle.STORAGE_ACCESS);
+                    LastHourTracking.started(LastHourPuzzle.BLUE_USB);
+                    LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE);
+                  });
               component.onWrongCode(
-                  player ->
-                      LastHourAchievements.checkBruteforce(player, component.wrongCodeAttempts()));
+                  player -> {
+                    LastHourTracking.attempt(
+                        LastHourPuzzle.STORAGE_ACCESS,
+                        "storage-keypad",
+                        "numeric-code",
+                        component.enteredDigits().stream()
+                            .map(String::valueOf)
+                            .collect(java.util.stream.Collectors.joining()),
+                        false,
+                        player);
+                    LastHourAchievements.checkBruteforce(player, component.wrongCodeAttempts());
+                  });
             });
     Game.add(keypad);
 
@@ -227,7 +252,7 @@ public class LastHourLevel extends DungeonLevel {
                                     ? LastHourAchievements.ESCAPED_TOO_LATE
                                     : LastHourAchievements.ESCAPED_IN_TIME);
                             BlackFadeCutscene.show(
-                                endingLoreTexts(), true, false, true, () -> Game.exit("Win"));
+                                endingLoreTexts(), true, false, true, Game::complete);
                           });
                 },
                 null)
@@ -409,6 +434,7 @@ public class LastHourLevel extends DungeonLevel {
             () ->
                 new Interaction(
                     (e, who) -> {
+                      LastHourTracking.started(LastHourPuzzle.POWER);
                       if (!dc.currentStateName().equals(PC_STATE_OFF)) return;
                       DialogFactory.showYesNoDialog(
                           TranslationKey.LightSwitch_1,
@@ -420,6 +446,8 @@ public class LastHourLevel extends DungeonLevel {
                                 "",
                                 () -> {
                                   ComputerStateComponent.setState(ComputerProgress.ON);
+                                  LastHourTracking.solved(LastHourPuzzle.POWER);
+                                  LastHourTracking.started(LastHourPuzzle.LOGIN);
                                   LastHourAchievements.trigger(who, LastHourAchievements.LIGHTS_ON);
                                   LastHourQuestLogUtil.addPowerSwitchQuestLogEntry();
                                   LastHourQuestLogUtil.addInvestigatePcQuestLogEntry();
@@ -555,11 +583,14 @@ public class LastHourLevel extends DungeonLevel {
    * so they spread out.
    */
   public void r2SpawnPapers() {
+    LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
     puzzle =
         PuzzleMaker.makePuzzle(
             R2_PUZZLE_IMAGE,
             R2_PUZZLE_PIECE_COUNT,
             (solvedPuzzle, solver) -> {
+              LastHourTracking.solved(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
+              LastHourTracking.started(LastHourPuzzle.EXIT);
               LastHourQuestLogUtil.addFinalCodeQuestLogEntry();
               solvedPuzzle.removeItems(solver);
               if (solver != null) {

@@ -211,7 +211,10 @@ function WizardWorkspace() {
       setDrafts(await Promise.all(summaries.map((summary) => createDraftListEntry(storage, summary))));
       setError(null);
     }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Die Entwürfe konnten nicht geladen werden."); }
+    catch (cause) {
+      setDrafts([]);
+      setError(cause instanceof Error ? cause.message : "Die Entwürfe konnten nicht geladen werden.");
+    }
   }, [storage]);
   React.useEffect(() => { void refresh(); }, [refresh]);
 
@@ -384,7 +387,7 @@ function WizardWorkspace() {
               Entwürfe werden geladen…
             </div>
           )}
-          {drafts?.length === 0 && (
+          {!error && drafts?.length === 0 && (
             <div className="wizard-empty-library flex flex-col items-center justify-center text-center">
               <div className="wizard-empty-library-icon mb-4 flex size-12 items-center justify-center rounded-xl">
                 <FolderOpenIcon className="size-6" />

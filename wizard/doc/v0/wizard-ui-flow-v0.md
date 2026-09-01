@@ -1,6 +1,6 @@
-# Wizard UI flow V0.4
+# Wizard UI flow V0.5
 
-Status: schlanker lokaler Authoring-Flow für DEER `0.4`
+Status: schlanker lokaler Authoring-Flow für DEER `0.5`
 
 ## Ziel
 
@@ -117,7 +117,7 @@ UI den Spieltitel.
 
 `metadata.id` wird intern einmal erzeugt und bei Umbenennungen beibehalten. Die
 UI zeigt sie nicht. Optional sind Beschreibung, Autor, weitere Lernziele und
-Fragen für die Nachbesprechung. V0.4 unterstützt `de-DE` als einzige
+Fragen für die Nachbesprechung. V0.5 unterstützt `de-DE` als einzige
 Inhaltssprache.
 
 Für Produktionsprüfung und Packaging blockierend sind leere Pflichtfelder, kein
@@ -127,7 +127,7 @@ Lernziel, Spielerzahlen außerhalb `1..4`, `min > max` und Zeitlimits außerhalb
 ## Geschichte
 
 Pflicht sind Mission, Intro-Seiten, Erfolgsseiten und bei hartem Zeitlimit
-Fehlschlagseiten. V0.4 nutzt das feste Theme `default`. Jede Storyseite ist ein
+Fehlschlagseiten. V0.5 nutzt das feste Theme `default`. Jede Storyseite ist ein
 eigener weiterklickbarer Black-Fade-Abschnitt; die Mission erscheint als letzte
 Intro-Seite.
 
@@ -156,7 +156,7 @@ Bild aus der Spielbibliothek speichert nur seinen internen Pfad und die
 Metadaten. Technische Pfade, Hashes, Asset-IDs und Orte bleiben in der UI
 verborgen.
 
-V0.4 bietet Zahlencode und verpflichtendes Entdecken einer Informationsquelle.
+V0.5 bietet Zahlencode und verpflichtendes Entdecken einer Informationsquelle.
 Ein Zahlencode besteht aus einer bis acht Ziffern. Falsche Eingaben können im
 Spiel wiederholt werden. Die UI erzeugt für jede Informationsquelle und jede
 Zahleneingabe einen eigenen internen Spielbestandteil. Lehrende wählen keine
@@ -165,7 +165,7 @@ gemeinsam verwendeten Orte oder Geräte aus.
 Hinweise sind geordnet. Die Lehrkraft wählt für jeden Hinweis eine der
 sichtbaren Stufen Orientierung, Lösungsweg oder Lösung. Die Runtime verlangt
 vor jeder Freigabe eine Bestätigung. Zeit- und Fehlversuchsbedingungen gehören
-nicht zu V0.4.
+nicht zu V0.5.
 
 ## Spiel-Ende
 
@@ -227,5 +227,5 @@ Probleme:
 - Führt jeder Hinweis gezielt weiter?
 - Sind Lernziel und Nachbesprechung verbunden?
 
-DEER bleibt bei Version `0.4`. Mandatory AND-DAG, Runner-Identität und
+DEER verwendet Version `0.5`. Mandatory AND-DAG, Runner-Identität und
 Multiplayervertrag bleiben unverändert.

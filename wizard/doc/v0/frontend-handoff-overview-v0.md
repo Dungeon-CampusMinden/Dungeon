@@ -1,6 +1,6 @@
-# Frontend handoff V0.4
+# Frontend handoff V0.5
 
-Status: schlanker V0-Authoring-Vertrag für DEER `0.4`
+Status: schlanker V0-Authoring-Vertrag für DEER `0.5`
 
 ## Auftrag
 
@@ -111,7 +111,7 @@ Inhaltsdaten sind eine bewusste V0-Grenze.
 
 ## Unveränderter Fachvertrag
 
-DEER bleibt bei `formatVersion=0.4`. Der Spielablauf bleibt ein frei
+DEER bleibt bei `formatVersion=0.5`. Der Spielablauf bleibt ein frei
 bearbeiteter mandatory AND-DAG mit genau einem geschützten Start- und
 Endknoten und einem Knoten je Rätsel. Mehrere eingehende Kanten bedeuten immer
 AND. Die UI bietet keine OR-, Bedingungs- oder Optionalitätsregeln an.

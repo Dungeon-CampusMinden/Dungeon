@@ -1,5 +1,5 @@
 export interface DeerSchema {
-  formatVersion: "0.4";
+  formatVersion: "0.5";
   seed: number;
   metadata: Metadata;
   learningDesign: LearningDesign;
@@ -20,6 +20,7 @@ export interface Metadata {
   locale: string;
   description?: string;
   author?: string;
+  operatorEmail?: string;
 }
 
 export interface Objective {

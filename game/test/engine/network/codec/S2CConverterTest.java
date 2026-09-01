@@ -131,17 +131,20 @@ public class S2CConverterTest {
   @Test
   public void testConnectAckRoundTrip() {
     byte[] token = new byte[] {4, 5, 6};
-    ConnectAck message = new ConnectAck((short) 7, 42, token);
+    String trackingRoomId = "the-last-hour";
+    ConnectAck message = new ConnectAck((short) 7, 42, token, trackingRoomId);
 
     engine.network.proto.s2c.ConnectAck proto = CONNECT_ACK_CONVERTER.toProto(message);
     assertEquals(7, proto.getClientId());
     assertEquals(42, proto.getSessionId());
     assertArrayEquals(token, proto.getSessionToken().toByteArray());
+    assertEquals(trackingRoomId, proto.getTrackingRoomId());
 
     ConnectAck roundTrip = CONNECT_ACK_CONVERTER.fromProto(proto);
     assertEquals(message.clientId(), roundTrip.clientId());
     assertEquals(message.sessionId(), roundTrip.sessionId());
     assertArrayEquals(message.sessionToken(), roundTrip.sessionToken());
+    assertEquals(message.trackingRoomId(), roundTrip.trackingRoomId());
   }
 
   /** Verifies connect reject conversion roundtrip. */

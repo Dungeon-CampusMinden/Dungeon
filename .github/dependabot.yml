@@ -10,3 +10,13 @@ updates:
     schedule:
       interval: "weekly"
     labels: []
+  - package-ecosystem: "docker"
+    directory: "/tracking/backend"
+    schedule:
+      interval: "weekly"
+    labels: []
+  - package-ecosystem: "docker-compose"
+    directory: "/tracking"
+    schedule:
+      interval: "weekly"
+    labels: []

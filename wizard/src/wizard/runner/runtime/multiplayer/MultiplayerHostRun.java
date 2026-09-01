@@ -3,7 +3,7 @@ package wizard.runner.runtime.multiplayer;
 import engine.Entity;
 import engine.Game;
 import engine.game.ECSManagement;
-import engine.game.ServerProcess;
+import engine.game.ServerLifecycle;
 import engine.game.ServerStarter;
 import engine.level.Tile;
 import engine.level.elements.tile.DoorTile;
@@ -18,6 +18,7 @@ import engine.systems.LevelSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
+import engine.tracking.Tracking;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLoggerConfig;
@@ -29,9 +30,9 @@ import escaperoom.foundation.multiplayer.game.ServerGameBinding;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession;
 import escaperoom.foundation.room.level.RoomLevel;
 import escaperoom.foundation.room.model.FoundationRoom;
+import escaperoom.foundation.runtime.TerminalResult;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -47,17 +48,18 @@ public final class MultiplayerHostRun {
   public static final String GENERIC_LEVEL_NAME = "foundation-runner";
 
   private final FoundationRoom room;
+  private final Optional<String> operatorEmail;
   private final RoomDefinition definition;
   private final RoomLevel level;
   private final FoundationSnapshotTranslator snapshotTranslator;
   private final Entity bootstrapMarker;
   private final ServerBinding serverBinding;
   private final AtomicBoolean started = new AtomicBoolean();
-  private final AtomicBoolean exitRequested = new AtomicBoolean();
   private volatile ServerGameBinding gameBinding;
 
-  private MultiplayerHostRun(final FoundationRoom room) {
+  private MultiplayerHostRun(final FoundationRoom room, final Optional<String> operatorEmail) {
     this.room = Objects.requireNonNull(room, "room");
+    this.operatorEmail = Objects.requireNonNull(operatorEmail, "operatorEmail");
     definition = room.definition();
     level = RoomLevel.fromLayout(room.layout());
     snapshotTranslator = new FoundationSnapshotTranslator(room);
@@ -70,10 +72,14 @@ public final class MultiplayerHostRun {
    * Creates a host from one already derived room.
    *
    * @param room immutable in-memory room handoff
+   * @param operatorEmail optional project operator email for tracking recovery notices
    * @return host composition backed by the supplied room
    */
-  public static MultiplayerHostRun from(final FoundationRoom room) {
-    return new MultiplayerHostRun(Objects.requireNonNull(room, "room"));
+  public static MultiplayerHostRun from(
+      final FoundationRoom room, final Optional<String> operatorEmail) {
+    return new MultiplayerHostRun(
+        Objects.requireNonNull(room, "room"),
+        Objects.requireNonNull(operatorEmail, "operatorEmail"));
   }
 
   /** Starts the generic headless server exactly once with the derived room already installed. */
@@ -83,6 +89,11 @@ public final class MultiplayerHostRun {
     }
 
     CountDownLatch completion = new CountDownLatch(1);
+    ServerLifecycle lifecycle =
+        ServerLifecycle.install("Foundation multiplayer host stopped", completion::countDown);
+    operatorEmail.ifPresentOrElse(
+        email -> Tracking.configureRoom(definition.id(), email),
+        () -> Tracking.configureRoom(definition.id()));
     var spawnStrategy =
         new BootstrapEntitySpawnStrategy(
             bootstrapMarker, room.inputSha256(), new DefaultEntitySpawnStrategy());
@@ -98,10 +109,7 @@ public final class MultiplayerHostRun {
                   () -> {
                     ServerGameBinding binding = gameBinding;
                     if (binding == null) {
-                      binding =
-                          createGameBinding(
-                              () ->
-                                  requestExit("Foundation multiplayer room completed", completion));
+                      binding = createGameBinding(() -> requestTerminalExit(lifecycle));
                       gameBinding = binding;
                     }
                     binding.tick();
@@ -114,43 +122,13 @@ public final class MultiplayerHostRun {
       prepareLevel();
       Game.windowTitle(room.title() + " Server");
       Game.run();
-      startManagedStopMonitor(completion);
       awaitCompletion(completion);
     } finally {
       try {
-        requestExit("Foundation multiplayer host stopped", completion);
+        lifecycle.requestExit("Foundation multiplayer host stopped");
       } finally {
         DungeonLoggerConfig.shutdown();
       }
-    }
-  }
-
-  private void startManagedStopMonitor(final CountDownLatch completion) {
-    if (!Boolean.getBoolean(ServerProcess.MANAGED_PROPERTY)) {
-      return;
-    }
-    Thread.ofPlatform()
-        .daemon()
-        .name("foundation-managed-host-stop")
-        .start(
-            () -> {
-              try {
-                System.in.read();
-              } catch (IOException exception) {
-                // A broken management pipe has the same lifecycle meaning as EOF.
-              }
-              requestExit("Foundation multiplayer host stopped by its managing client", completion);
-            });
-  }
-
-  private void requestExit(final String reason, final CountDownLatch completion) {
-    if (!exitRequested.compareAndSet(false, true)) {
-      return;
-    }
-    try {
-      Game.exit(reason);
-    } finally {
-      completion.countDown();
     }
   }
 
@@ -180,6 +158,19 @@ public final class MultiplayerHostRun {
         hintStations(),
         System::nanoTime,
         onTerminalComplete);
+  }
+
+  private void requestTerminalExit(final ServerLifecycle lifecycle) {
+    TerminalResult result =
+        serverBinding
+            .projection()
+            .terminal()
+            .orElseThrow(() -> new IllegalStateException("Foundation terminal result is missing"));
+    if (result == TerminalResult.SUCCESS) {
+      lifecycle.requestCompletion();
+    } else {
+      lifecycle.requestExit("Foundation multiplayer room stopped");
+    }
   }
 
   private Map<String, Point> componentStations() {

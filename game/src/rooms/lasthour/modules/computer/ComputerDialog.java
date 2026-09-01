@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import engine.Game;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.Sounds;
 import engine.utils.Cursors;
 import engine.utils.FontHelper;
@@ -83,7 +84,8 @@ public class ComputerDialog extends Group {
         new BlogCommentAttentionTracker(
             BlogTab::countVisibleComments,
             () -> ComputerStateLocal.getInstance().acknowledgedBlogCommentCount(),
-            count -> ComputerStateLocal.getInstance().acknowledgedBlogCommentCount(count));
+            count -> ComputerStateLocal.getInstance().acknowledgedBlogCommentCount(count),
+            this::trackViewedBlogComment);
     this.setSize(Game.windowWidth(), Game.windowHeight());
     ctx.requireEntity(DialogContextKeys.OWNER_ENTITY);
 
@@ -126,6 +128,15 @@ public class ComputerDialog extends Group {
       blogTab.dismissAttention();
     }
     buildTabs();
+  }
+
+  private void trackViewedBlogComment(int commentIndex) {
+    BlogTab.comment(commentIndex)
+        .ifPresent(
+            comment ->
+                DialogCallbackResolver.createButtonCallback(
+                        ctx.dialogId(), ComputerCallbacks.BLOG_COMMENT_VIEWED_KEY)
+                    .accept(new DialogResponseMessage.StringValue(comment.id())));
   }
 
   private void checkVirus() {
@@ -175,6 +186,9 @@ public class ComputerDialog extends Group {
     }
     if (newState.state().progress() < oldProgress.progress()) {
       rebuildTabsForRegressedProgress();
+    } else if (oldProgress != ComputerProgress.LOGGED_IN
+        && newState.state() == ComputerProgress.LOGGED_IN) {
+      addTabsForState(ComputerProgress.LOGGED_IN);
     }
 
     // Add the USB drive tab once the correct stick has been plugged in

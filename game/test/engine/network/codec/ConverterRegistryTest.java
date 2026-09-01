@@ -95,7 +95,7 @@ class ConverterRegistryTest {
     assertEquals(
         26, Byte.toUnsignedInt(registry.typeId(registry.toProto(new DebugPong(4L, 5L, 6L, 7L)))));
     assertEquals(
-        27, Byte.toUnsignedInt(registry.typeId(registry.toProto(new InitialWorldReady()))));
+        27, Byte.toUnsignedInt(registry.typeId(registry.toProto(new InitialWorldReady(false)))));
     assertEquals(
         28, Byte.toUnsignedInt(registry.typeId(registry.toProto(new InitialWorldComplete()))));
   }

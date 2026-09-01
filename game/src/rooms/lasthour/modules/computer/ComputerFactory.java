@@ -7,12 +7,8 @@ import engine.components.DrawComponent;
 import engine.game.PreRunConfiguration;
 import engine.network.codec.DialogValueCodecRegistry;
 import engine.network.messages.c2s.DialogResponseMessage;
-import engine.sound.CoreSounds;
-import engine.sound.Sounds;
 import engine.utils.logging.DungeonLogger;
 import feature.components.InventoryComponent;
-import feature.emote.Emote;
-import feature.emote.EmoteFactory;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
@@ -23,15 +19,14 @@ import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import rooms.lasthour.level.LastHourLevel;
 import rooms.lasthour.modules.usbstick.UsbStickColor;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
+import rooms.lasthour.util.LastHourPuzzle;
 import rooms.lasthour.util.LastHourQuestLogUtil;
-import rooms.lasthour.util.LastHourSounds;
+import rooms.lasthour.util.LastHourTracking;
 import rooms.lasthour.util.Lore;
 
 /** Factory class for creating and managing the computer dialog in the escape room level. */
@@ -40,19 +35,6 @@ public class ComputerFactory {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ComputerFactory.class);
   private static final String STATE_KEY = "computer_state";
   private static final String ACCESS_PC_LABEL = "Just access the PC";
-
-  /** Key for updating the computer state from the dialog callbacks. */
-  public static final String UPDATE_STATE_KEY = "update_state";
-
-  /** Callback key fired when a player opens the control panel tab. */
-  public static final String CONTROL_PANEL_OPENED_KEY = "control_panel_opened";
-
-  /** Delay in milliseconds between triggering the unknown-device virus and the forced shutdown. */
-  public static final long UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS = 10_000L;
-
-  private static Consumer<Entity> onVirusTriggered = who -> {};
-  private static Consumer<Entity> onPcUnlocked = who -> {};
-  private static Consumer<Entity> onControlPanelOpened = who -> {};
 
   static {
     ensureRegistration();
@@ -68,33 +50,6 @@ public class ComputerFactory {
   }
 
   /**
-   * Sets the action fired when the computer enters a newly infected state.
-   *
-   * @param callback callback receiving the acting player
-   */
-  public static void onVirusTriggered(Consumer<Entity> callback) {
-    onVirusTriggered = Objects.requireNonNull(callback, "callback");
-  }
-
-  /**
-   * Sets the action fired when the computer reaches the logged-in state.
-   *
-   * @param callback callback receiving the acting player
-   */
-  public static void onPcUnlocked(Consumer<Entity> callback) {
-    onPcUnlocked = Objects.requireNonNull(callback, "callback");
-  }
-
-  /**
-   * Sets the action fired when a player opens the control panel tab.
-   *
-   * @param callback callback receiving the acting player
-   */
-  public static void onControlPanelOpened(Consumer<Entity> callback) {
-    onControlPanelOpened = Objects.requireNonNull(callback, "callback");
-  }
-
-  /**
    * Attaches an interaction component to an entity that represents the computer.
    *
    * @param entity the entity to attach the interaction component to
@@ -105,6 +60,7 @@ public class ComputerFactory {
             () ->
                 new Interaction(
                     (eInteract, who) -> {
+                      LastHourTracking.started(LastHourPuzzle.POWER);
                       DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
                       if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
                         LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
@@ -221,20 +177,29 @@ public class ComputerFactory {
    */
   private static void onUsbStickInserted(
       UsbStickItem.BaseUsbStick stick, Entity pcEntity, Entity who) {
+    LastHourTracking.attempt(
+        LastHourPuzzle.BLUE_USB,
+        "usb-color",
+        "color",
+        stick.color().name(),
+        stick.color() == UsbStickColor.Blue,
+        who);
     if (stick.color() == UsbStickColor.Blue) {
+      LastHourTracking.solved(LastHourPuzzle.BLUE_USB);
       LOGGER.info("Correct USB stick inserted: " + stick.color().displayName());
       LastHourQuestLogUtil.addUsbUsedQuestLogEntry();
       LastHourQuestLogUtil.addUsbRecoveredDataQuestLogEntry();
       // Remove the stick from inventory and mark as inserted
       who.fetch(InventoryComponent.class).ifPresent(inv -> inv.removeOne(stick));
       ComputerStateComponent.setUsbInserted(true);
+      LastHourTracking.started(LastHourPuzzle.VENTILATION);
       openComputerDialog(pcEntity, who);
     } else {
       LOGGER.info(
           "Wrong USB stick inserted: " + stick.color().displayName() + " - triggering virus");
       LastHourQuestLogUtil.addUsbUsedQuestLogEntry();
       LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
-      onVirusTriggered.accept(who);
+      ComputerCallbacks.notifyVirusTriggered(who);
       ComputerStateComponent.setInfection(true);
       ComputerStateComponent.setVirusType(Lore.UnknownDeviceVirusType);
       openComputerDialog(pcEntity, who);
@@ -247,27 +212,9 @@ public class ComputerFactory {
       // shutdown locally and authoritatively.
       if (PreRunConfiguration.multiplayerEnabled()) {
         EventScheduler.scheduleAction(
-            ComputerFactory::shutdownPcAfterUnknownDevice, UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS);
+            ComputerCallbacks::shutdownPcAfterUnknownDevice,
+            ComputerCallbacks.UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS);
       }
-    }
-  }
-
-  /**
-   * Resets the PC to the pre-login state after an "Unknown Device" security shutdown. The infection
-   * is cleared and the computer is moved back to {@link ComputerProgress#ON}. The locally entered
-   * login name and password are wiped so they have to be re-entered. All other state (timestamps,
-   * email selection, browser history, opened files, ...) is preserved so the player's progress is
-   * retained when they log back in.
-   */
-  static void shutdownPcAfterUnknownDevice() {
-    if (ComputerStateComponent.getState().isEmpty()) return;
-    ComputerStateComponent.setInfection(false);
-    ComputerStateComponent.setVirusType(null);
-    ComputerStateComponent.setState(ComputerProgress.ON);
-    if (!Game.isHeadless()) {
-      ComputerStateLocal local = ComputerStateLocal.getInstance();
-      local.username("");
-      local.password("");
     }
   }
 
@@ -284,57 +231,11 @@ public class ComputerFactory {
     Optional<Entity> e = Game.levelEntities(Set.of(ComputerStateComponent.class)).findFirst();
     e.ifPresent(
         stateEntity -> {
-          ComputerStateComponent state =
+          ComputerStateComponent initialState =
               stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
-          builder.put(STATE_KEY, state);
+          builder.put(STATE_KEY, initialState);
           var computerDialogInstance = DialogFactory.show(builder.build(), who.id());
-          computerDialogInstance.registerCallback(
-              UPDATE_STATE_KEY,
-              data -> {
-                ComputerStateComponent newState = null;
-                if (data instanceof ComputerStateComponent csc) {
-                  newState = csc;
-                } else if (data instanceof DialogResponseMessage.CustomPayload(var wrappedValue)
-                    && wrappedValue instanceof ComputerStateComponent csc) {
-                  newState = csc;
-                }
-                if (newState == null) return;
-
-                ComputerStateComponent previousState =
-                    stateEntity.fetch(ComputerStateComponent.class).orElse(null);
-                if (previousState == null) return;
-
-                boolean wasInfected =
-                    ComputerStateComponent.getState()
-                        .map(ComputerStateComponent::isInfected)
-                        .orElse(false);
-                stateEntity.remove(ComputerStateComponent.class);
-                stateEntity.add(newState);
-
-                // In multiplayer, only the server should emit sounds so clients receive them via
-                // sound network messages from the authoritative callback execution.
-                if (!PreRunConfiguration.multiplayerEnabled()
-                    || PreRunConfiguration.isNetworkServer()) {
-                  playControlPanelSounds(previousState, newState);
-                }
-
-                if (newState.isInfected() && !wasInfected) {
-                  LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
-                  onVirusTriggered.accept(who);
-                  Game.add(
-                      EmoteFactory.createEmote(
-                          LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
-                          Emote.FACE_ANGRY,
-                          3000));
-                }
-                if (!previousState.state().hasReached(ComputerProgress.LOGGED_IN)
-                    && newState.state().hasReached(ComputerProgress.LOGGED_IN)) {
-                  LastHourQuestLogUtil.addMailReviewQuestLogEntry();
-                  onPcUnlocked.accept(who);
-                }
-              });
-          computerDialogInstance.registerCallback(
-              CONTROL_PANEL_OPENED_KEY, data -> onControlPanelOpened.accept(who));
+          ComputerCallbacks.registerCallbacks(computerDialogInstance, stateEntity, who);
         });
   }
 
@@ -354,31 +255,5 @@ public class ComputerFactory {
 
     Optional<ComputerStateComponent> state = ctx.find(STATE_KEY, ComputerStateComponent.class);
     return new ComputerDialog(state.orElseThrow(), ctx);
-  }
-
-  private static void playControlPanelSounds(
-      ComputerStateComponent previousState, ComputerStateComponent newState) {
-    if (previousState.lightsOn() != newState.lightsOn()) {
-      if (newState.lightsOn()) {
-        // Reuse the same buzz used when room electricity is turned on in progression.
-        Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON);
-      } else {
-        Sounds.play(LastHourSounds.CONTROL_PANEL_LIGHTS_OFF);
-      }
-    }
-
-    if (previousState.door1Open() != newState.door1Open()) {
-      Sounds.play(newState.door1Open() ? CoreSounds.DOOR_OPEN : CoreSounds.DOOR_CLOSE);
-    }
-    if (previousState.door2Open() != newState.door2Open()) {
-      Sounds.play(newState.door2Open() ? CoreSounds.DOOR_OPEN : CoreSounds.DOOR_CLOSE);
-    }
-
-    if (previousState.acOn() != newState.acOn()) {
-      Sounds.play(
-          newState.acOn()
-              ? LastHourSounds.CONTROL_PANEL_AC_ON
-              : LastHourSounds.CONTROL_PANEL_AC_OFF);
-    }
   }
 }

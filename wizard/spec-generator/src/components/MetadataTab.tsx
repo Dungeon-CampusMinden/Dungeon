@@ -1,6 +1,7 @@
 import type { DeerProject } from "@/data/DeerSchema";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -25,6 +26,7 @@ export function MetadataTab({
   issues: TabIssues;
 }) {
   const emptyTitle = hasFieldErrors(issues, "title");
+  const invalidOperatorEmail = hasFieldErrors(issues, "operatorEmail");
 
   return (
     <div className="flex flex-col gap-5">
@@ -66,6 +68,25 @@ export function MetadataTab({
                 updateDeerSchema(deerSchema);
               }}
             />
+          </Field>
+          <Field>
+            <FieldLabel>E-Mail-Adresse für Tracking-Hinweise (optional)</FieldLabel>
+            <Input
+              type="email"
+              aria-label="E-Mail-Adresse für Tracking-Hinweise"
+              value={deerSchema.metadata.operatorEmail ?? ""}
+              onChange={(e) => {
+                deerSchema.metadata.operatorEmail = e.target.value;
+                updateDeerSchema(deerSchema);
+              }}
+              aria-invalid={invalidOperatorEmail}
+            />
+            {invalidOperatorEmail && (
+              <FieldError>Die E-Mail-Adresse für Tracking-Hinweise ist ungültig.</FieldError>
+            )}
+            <FieldDescription>
+              Leer lassen, um tracking@example.com zu verwenden.
+            </FieldDescription>
           </Field>
         </FieldGroup>
         <FieldSeparator />

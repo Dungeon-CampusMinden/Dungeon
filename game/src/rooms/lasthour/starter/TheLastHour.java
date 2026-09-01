@@ -9,6 +9,7 @@ import engine.game.ECSManagement;
 import engine.game.GameStarter;
 import engine.game.MainMenu;
 import engine.game.PreRunConfiguration;
+import engine.game.ServerLifecycle;
 import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
@@ -17,6 +18,7 @@ import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
+import engine.tracking.Tracking;
 import engine.utils.NetworkUtils;
 import engine.utils.Tuple;
 import engine.utils.components.path.SimpleIPath;
@@ -92,6 +94,8 @@ public class TheLastHour {
         .enableFile(false)
         .build();
 
+    Tracking.configureRoom("the-last-hour");
+
     ServerStarter server =
         ServerStarter.builder(TheLastHour::serverSetup)
             .characterClasses(MULTIPLAYER_CHARACTER_CLASSES)
@@ -144,6 +148,7 @@ public class TheLastHour {
    * broadcast, and the standalone server status window.
    */
   private static void serverSetup() {
+    ServerLifecycle.install("The Last Hour server stopped");
     ECSManagement.add(new PositionSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());

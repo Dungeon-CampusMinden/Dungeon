@@ -59,9 +59,9 @@ public class ComputerStateSyncSystem extends System {
 
   /**
    * Tracks the unknown-device infection locally and triggers {@link
-   * ComputerFactory#shutdownPcAfterUnknownDevice()} once the configured delay has elapsed. Used in
-   * single-player mode where the {@link feature.systems.EventScheduler} is paused while the dialog
-   * is open and therefore cannot fire the scheduled shutdown.
+   * ComputerCallbacks#shutdownPcAfterUnknownDevice()} once the configured delay has elapsed. Used
+   * in single-player mode where the {@link feature.systems.EventScheduler} is paused while the
+   * dialog is open and therefore cannot fire the scheduled shutdown.
    *
    * @param state the current shared computer state
    */
@@ -74,12 +74,12 @@ public class ComputerStateSyncSystem extends System {
     }
     if (unknownDeviceShutdownAt == NO_SHUTDOWN_SCHEDULED) {
       unknownDeviceShutdownAt =
-          TimeUtils.millis() + ComputerFactory.UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS;
+          TimeUtils.millis() + ComputerCallbacks.UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS;
       return;
     }
     if (TimeUtils.millis() >= unknownDeviceShutdownAt) {
       unknownDeviceShutdownAt = NO_SHUTDOWN_SCHEDULED;
-      ComputerFactory.shutdownPcAfterUnknownDevice();
+      ComputerCallbacks.shutdownPcAfterUnknownDevice();
     }
   }
 

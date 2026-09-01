@@ -9,7 +9,7 @@ package engine.game;
  */
 public final class HostSession {
 
-  private static ServerProcess serverProcess;
+  private static volatile ServerProcess serverProcess;
 
   private HostSession() {}
 
@@ -38,5 +38,15 @@ public final class HostSession {
    */
   public static boolean isServerRunning() {
     return serverProcess != null && serverProcess.isAlive();
+  }
+
+  /** Stops the locally hosted server while the hosting client can still receive final status. */
+  static void stopHosting() {
+    ServerProcess hostedServer = serverProcess;
+    if (hostedServer == null) {
+      return;
+    }
+    hostedServer.stop();
+    serverProcess = null;
   }
 }

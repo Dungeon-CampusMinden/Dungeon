@@ -26,6 +26,7 @@ import engine.network.handler.SlowNettyNetworkHandler;
 import engine.sound.AudioApi;
 import engine.sound.player.ISoundPlayer;
 import engine.systems.LevelSystem;
+import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
 import engine.utils.IVoidFunction;
 import engine.utils.Point;
@@ -898,16 +899,28 @@ public final class Game {
   }
 
   /**
-   * Exits the GDX application and shuts down the network handler.
+   * Aborts tracking at the current puzzle, then warns about pending remote events, shuts down the
+   * network, and exits the GDX application.
    *
-   * <p>If the network handler is not initialized, it will simply exit the application.
-   *
-   * <p>If no GDX application is present, it will call {@link java.lang.System#exit(int)}.
-   *
-   * @param reason The reason for exiting the game.
+   * @param reason reason logged by the shared shutdown path and passed to the network
    */
   public static void exit(String reason) {
+    TrackingRuntime.abortAtCurrentPuzzle();
+    shutdown(reason);
+  }
+
+  /**
+   * Completes tracking, then warns about pending remote events, shuts down the network with the
+   * reason {@code Game completed}, and exits the GDX application.
+   */
+  public static void complete() {
+    TrackingRuntime.completed();
+    shutdown("Game completed");
+  }
+
+  private static void shutdown(String reason) {
     LOGGER.info("Exiting game: " + reason);
+    TrackingRuntime.warnIfRemotePending();
     if (networkHandler != null) {
       try {
         networkHandler.shutdown(reason);

@@ -1,5 +1,6 @@
 package feature.hud.dialogs;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -19,6 +20,7 @@ import engine.game.PreRunConfiguration;
 import engine.language.Translation;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
+import engine.tracking.TrackingRuntime;
 import engine.utils.BaseContainerUI;
 import engine.utils.FontSpec;
 import engine.utils.NetworkUtils;
@@ -51,6 +53,11 @@ public class PauseDialog extends Table {
   private static final String T_SERVER_STATUS = "server_status";
   private static final String T_SERVER_RUNNING = "server_running";
   private static final String T_SERVER_STOPPED = "server_stopped";
+  private static final String T_TRACKING_BACKEND_STATUS = "tracking_backend_status";
+  private static final String T_TRACKING_BACKEND_CHECKING = "tracking_backend_checking";
+  private static final String T_TRACKING_BACKEND_REACHABLE = "tracking_backend_reachable";
+  private static final String T_TRACKING_BACKEND_UNREACHABLE = "tracking_backend_unreachable";
+  private static final String T_TRACKING_BACKEND_DISABLED = "tracking_backend_disabled";
   private static final String T_PLAYERS_CAN_CONNECT_VIA = "players_can_connect_via";
   private static final Translation trans = new Translation("dialog.pause_dialog");
 
@@ -255,6 +262,7 @@ public class PauseDialog extends Table {
               ? trans.text(T_SERVER_RUNNING)
               : trans.text(T_SERVER_STOPPED);
       section.add(statusLabel(trans.text(T_SERVER_STATUS, serverStatus))).left().padTop(0).row();
+      section.add(createTrackingBackendStatus()).left().padTop(0).row();
       section.add(statusLabel(trans.text(T_PLAYERS_CAN_CONNECT_VIA, port))).left().padTop(0).row();
       for (String ip : NetworkUtils.localIpAddresses()) {
         section.add(statusLabel(ip)).left().row();
@@ -264,8 +272,35 @@ public class PauseDialog extends Table {
     return section;
   }
 
+  private RichLabel createTrackingBackendStatus() {
+    var health = TrackingRuntime.backendHealth();
+    String initialStatus =
+        health.isPresent()
+            ? trans.text(T_TRACKING_BACKEND_CHECKING)
+            : trans.text(T_TRACKING_BACKEND_DISABLED);
+    RichLabel label = statusLabel(trans.text(T_TRACKING_BACKEND_STATUS, initialStatus));
+    health.ifPresent(
+        result ->
+            result.thenAccept(
+                reachable ->
+                    Gdx.app.postRunnable(
+                        () -> {
+                          String status =
+                              reachable
+                                  ? trans.text(T_TRACKING_BACKEND_REACHABLE)
+                                  : trans.text(T_TRACKING_BACKEND_UNREACHABLE);
+                          label.setText(
+                              statusMarkup(trans.text(T_TRACKING_BACKEND_STATUS, status)));
+                        })));
+    return label;
+  }
+
   private RichLabel statusLabel(String text) {
-    return new RichLabel("[color=#555555][size=18]" + text);
+    return new RichLabel(statusMarkup(text));
+  }
+
+  private String statusMarkup(String text) {
+    return "[color=#555555][size=18]" + text;
   }
 
   private Table createSettingsView(DialogContext ctx) {

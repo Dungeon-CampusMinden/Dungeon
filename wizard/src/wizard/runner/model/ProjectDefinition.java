@@ -46,13 +46,15 @@ public record ProjectDefinition(
    * @param id stable room identifier
    * @param title player-facing title
    * @param locale content locale
+   * @param operatorEmail optional operator email for tracking recovery notices
    */
-  public record Metadata(String id, String title, String locale) {
+  public record Metadata(String id, String title, String locale, Optional<String> operatorEmail) {
     /** Creates project metadata. */
     public Metadata {
       id = requireText(id, "metadata.id");
       title = requireText(title, "metadata.title");
       locale = requireText(locale, "metadata.locale");
+      operatorEmail = Objects.requireNonNull(operatorEmail, "metadata.operatorEmail");
     }
   }
 

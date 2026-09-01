@@ -62,7 +62,7 @@ public class DungeonLoader {
       () -> {
         System.out.println("Game Over!");
         System.out.println("You have passed all " + currentLevel + " levels!");
-        Game.exit();
+        Game.complete();
       };
 
   // Private constructor to prevent instantiation, as this class is a static utility class.

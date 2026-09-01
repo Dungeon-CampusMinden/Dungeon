@@ -19,6 +19,9 @@ message ConnectAck {
 
   // Assigned session token for reconnection.
   bytes session_token = 3;
+
+  // Stable room ID used only for client-local played-before history.
+  string tracking_room_id = 4;
 }
 
 // Server-to-client: Connection rejected.

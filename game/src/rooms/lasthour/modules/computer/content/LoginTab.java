@@ -9,12 +9,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.Sounds;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.elements.RichLabel;
-import rooms.lasthour.modules.computer.ComputerDialog;
-import rooms.lasthour.modules.computer.ComputerFactory;
+import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerProgress;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
@@ -163,23 +163,12 @@ public class LoginTab extends ComputerTab {
 
     String username = localState().username();
     String password = localState().password();
-    if ((username.equalsIgnoreCase(Lore.LoginEmail)
+    DialogCallbackResolver.createButtonCallback(
+            context().dialogId(), ComputerCallbacks.LOGIN_ATTEMPT_KEY)
+        .accept(new DialogResponseMessage.StringValue(username + "\n" + password));
+    if (!((username.equalsIgnoreCase(Lore.LoginEmail)
             && password.equalsIgnoreCase(Lore.LoginPassword))
-        || username.equals("skipp")) {
-      DialogCallbackResolver.createButtonCallback(
-              context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-          .accept(
-              ComputerStateComponent.getState()
-                  .orElseThrow()
-                  .withState(ComputerProgress.LOGGED_IN)
-                  .withTimestampOfLogin((int) (System.currentTimeMillis() / 1000L)));
-      ComputerDialog.getInstance()
-          .ifPresent(
-              computer -> {
-                computer.addTabsForState(ComputerProgress.LOGGED_IN);
-              });
-      onLoginSuccess(false);
-    } else {
+        || username.equals("skipp"))) {
       onWrongCredentials();
     }
   }

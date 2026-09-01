@@ -27,6 +27,7 @@ import engine.Game;
 import engine.language.Language;
 import engine.language.Translation;
 import engine.network.client.ClientConnectionConfig;
+import engine.tracking.TrackingRuntime;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.logging.DungeonLogger;
@@ -458,7 +459,13 @@ public class MainMenuScreen extends ScreenAdapter {
   private void launchHostedServer(int port) {
     ServerProcess server;
     try {
-      server = ServerProcess.start(starter.serverMainClass(), port, starter.serverArguments());
+      server =
+          ServerProcess.start(
+              starter.serverMainClass(),
+              port,
+              TrackingRuntime.childEnvironmentOverrides(),
+              TrackingRuntime::handleManagedServerStatus,
+              starter.serverArguments());
     } catch (IOException e) {
       LOGGER.error("Failed to start server process.", e);
       Gdx.app.postRunnable(() -> onHostFailed(trans.text(T_SERVER_START_FAILED, e.getMessage())));

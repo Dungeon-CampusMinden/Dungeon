@@ -60,9 +60,8 @@ Eigene Bilder liegen innerhalb der Spieler-JAR inhaltsadressiert unter
 über ihren internen Pfad referenziert.
 
 Mit Java 25 öffnet `java -jar WizardRoom.jar` das Host-/Join-Menü. Der
-Foundation-Vertrag bleibt DEER `0.4` mit mandatory AND-DAG. Runner-Identität,
-Multiplayer-Vertrag und `PROTOCOL_VERSION` ändern sich durch den
-Authoring-Refactor nicht.
+Foundation-Vertrag ist DEER `0.5` mit mandatory AND-DAG. Der
+Multiplayer-Vertrag und `PROTOCOL_VERSION` bleiben unverändert.
 
 `wizard/start_wizard_dev.cmd` unter Windows und `wizard/start_wizard_dev.sh`
 unter Linux sind Entwicklungslauncher. Aktuell benötigen Wizard und
@@ -90,8 +89,8 @@ gradlew.bat :wizard:buildWizardRoomJar -PwizardProject=<projektordner>
    eingebettete Projekt, Assets, Packaging und Validierungsreports.
 5. [`v0/runner-runtime-contract.md`](v0/runner-runtime-contract.md) definiert
    Packaging, Host-/Join-Grenze und Spielruntime.
-6. [`../examples/foundation-v0.4/`](../examples/foundation-v0.4/) und
-   [`../examples/the-last-hour-v0.4/`](../examples/the-last-hour-v0.4/) sind
+6. [`../examples/foundation-v0.5/`](../examples/foundation-v0.5/) und
+   [`../examples/the-last-hour-v0.5/`](../examples/the-last-hour-v0.5/) sind
    ausführbare Beispiele.
 
 [`v0/the-last-hour-interaction-catalog.md`](v0/the-last-hour-interaction-catalog.md)

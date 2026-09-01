@@ -37,7 +37,7 @@ final class ProjectValidationReportTest {
     JsonNode report = report(validation);
 
     assertTrue(report.required("valid").booleanValue());
-    assertEquals("0.4", report.required("runnerVersion").stringValue());
+    assertEquals("0.5", report.required("runnerVersion").stringValue());
     assertEquals(64, report.required("rawDeerSha256").stringValue().length());
     assertEquals(64, report.required("hostInputSha256").stringValue().length());
     assertTrue(report.required("issues").isEmpty());
@@ -115,7 +115,7 @@ final class ProjectValidationReportTest {
   }
 
   private Path materializeCanonicalProject(final String name) throws IOException {
-    Path examples = Path.of("examples", "foundation-v0.4").toAbsolutePath().normalize();
+    Path examples = Path.of("examples", "foundation-v0.5").toAbsolutePath().normalize();
     Path project = Files.createDirectory(temporaryDirectory.resolve(name));
     Path assetDirectory = Files.createDirectories(project.resolve("assets/custom"));
     Files.copy(examples.resolve("deer.json"), project.resolve("deer.json"));

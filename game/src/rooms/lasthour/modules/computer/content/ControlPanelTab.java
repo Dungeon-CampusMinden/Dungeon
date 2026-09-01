@@ -8,10 +8,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.Sounds;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
-import rooms.lasthour.modules.computer.ComputerFactory;
+import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
@@ -167,7 +168,7 @@ public class ControlPanelTab extends ComputerTab {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            postUpdate(sharedState().withLightsOn(!sharedState().lightsOn()));
+            sendBooleanIntent(ComputerCallbacks.TOGGLE_LIGHTS_KEY, !sharedState().lightsOn());
           }
         });
     card.add(lightButton).left().padTop(8f).row();
@@ -192,7 +193,7 @@ public class ControlPanelTab extends ComputerTab {
           public void changed(ChangeEvent event, Actor actor) {
             int next = Math.max(HEATER_MIN, sharedState().heaterCelsius() - 1);
             if (next != sharedState().heaterCelsius()) {
-              postUpdate(sharedState().withHeaterCelsius(next));
+              sendIntIntent(ComputerCallbacks.ADJUST_HEATER_KEY, -1);
             }
           }
         });
@@ -204,7 +205,7 @@ public class ControlPanelTab extends ComputerTab {
           public void changed(ChangeEvent event, Actor actor) {
             int next = Math.min(HEATER_MAX, sharedState().heaterCelsius() + 1);
             if (next != sharedState().heaterCelsius()) {
-              postUpdate(sharedState().withHeaterCelsius(next));
+              sendIntIntent(ComputerCallbacks.ADJUST_HEATER_KEY, 1);
             }
           }
         });
@@ -230,7 +231,7 @@ public class ControlPanelTab extends ComputerTab {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            postUpdate(sharedState().withDoor1Open(!sharedState().door1Open()));
+            sendBooleanIntent(ComputerCallbacks.TOGGLE_DOOR_1_KEY, !sharedState().door1Open());
           }
         });
     card.add(door1Button).left().padTop(8f).row();
@@ -274,7 +275,7 @@ public class ControlPanelTab extends ComputerTab {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             if (!sharedState().door2Unlocked() || sharedState().door2Open()) return;
-            postUpdate(sharedState().withDoor2Open(true));
+            sendIntent(ComputerCallbacks.OPEN_EXIT_DOOR_KEY);
           }
         });
 
@@ -305,7 +306,7 @@ public class ControlPanelTab extends ComputerTab {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             if (!sharedState().acVentConnected()) return;
-            postUpdate(sharedState().withAcOn(!sharedState().acOn()));
+            sendBooleanIntent(ComputerCallbacks.TOGGLE_AC_KEY, !sharedState().acOn());
           }
         });
     left.add(acButton).left().padTop(8f).row();
@@ -369,7 +370,7 @@ public class ControlPanelTab extends ComputerTab {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            postUpdate(sharedState().withCamerasOn(!sharedState().camerasOn()));
+            sendBooleanIntent(ComputerCallbacks.TOGGLE_CAMERAS_KEY, !sharedState().camerasOn());
           }
         });
     card.add(camerasButton).left().padTop(8f).row();
@@ -401,8 +402,10 @@ public class ControlPanelTab extends ComputerTab {
     }
 
     String entered = door2PasswordField.getText();
+    DialogCallbackResolver.createButtonCallback(
+            context().dialogId(), ComputerCallbacks.EXIT_ATTEMPT_KEY)
+        .accept(new DialogResponseMessage.StringValue(entered == null ? "" : entered));
     if (entered != null && entered.equalsIgnoreCase(Lore.ControlPanelDoor2Password)) {
-      postUpdate(sharedState().withDoor2Unlocked(true));
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     } else {
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
@@ -415,8 +418,10 @@ public class ControlPanelTab extends ComputerTab {
     }
 
     String entered = acVentSerialField.getText();
+    DialogCallbackResolver.createButtonCallback(
+            context().dialogId(), ComputerCallbacks.VENTILATION_ATTEMPT_KEY)
+        .accept(new DialogResponseMessage.StringValue(entered == null ? "" : entered));
     if (entered != null && entered.equals(Lore.VentSerialNumber)) {
-      postUpdate(sharedState().withAcVentConnected(true));
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     } else {
       acVentStatusLabel.setColor(STATE_OFF_COLOR);
@@ -425,10 +430,18 @@ public class ControlPanelTab extends ComputerTab {
     }
   }
 
-  private void postUpdate(ComputerStateComponent newState) {
-    DialogCallbackResolver.createButtonCallback(
-            context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-        .accept(newState);
+  private void sendIntent(String callbackKey) {
+    DialogCallbackResolver.createButtonCallback(context().dialogId(), callbackKey).accept(null);
+  }
+
+  private void sendBooleanIntent(String callbackKey, boolean value) {
+    DialogCallbackResolver.createButtonCallback(context().dialogId(), callbackKey)
+        .accept(new DialogResponseMessage.BoolValue(value));
+  }
+
+  private void sendIntIntent(String callbackKey, int value) {
+    DialogCallbackResolver.createButtonCallback(context().dialogId(), callbackKey)
+        .accept(new DialogResponseMessage.IntValue(value));
   }
 
   private void refreshLight() {

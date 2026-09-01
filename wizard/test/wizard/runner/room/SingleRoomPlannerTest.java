@@ -147,7 +147,7 @@ final class SingleRoomPlannerTest {
     }
     return new ProjectDefinition(
         1L,
-        new Metadata(roomId, "Room", "de-DE"),
+        new Metadata(roomId, "Room", "de-DE", Optional.empty()),
         new Session(new PlayerCount(1, maxPlayers), new TimeLimit(30, LimitMode.HARD)),
         new Scenario(
             "default",

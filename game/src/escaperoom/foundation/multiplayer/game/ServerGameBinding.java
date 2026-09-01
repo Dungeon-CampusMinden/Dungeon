@@ -51,6 +51,7 @@ public final class ServerGameBinding {
   private final ExitTile exitTile;
   private final LongSupplier monotonicNanos;
   private final Runnable onTerminalComplete;
+  private final FoundationTracking tracking = new FoundationTracking();
   private final Map<String, ComposedPresentation> riddles;
   private final Map<String, NumericInputDefinition> numericDefinitions;
   private final Map<String, Integer> shownIntros = new LinkedHashMap<>();
@@ -114,12 +115,14 @@ public final class ServerGameBinding {
       }
     }
     serverBinding.reconcileExitPresence(present);
-    if (serverBinding.projection().doorOpen()) {
+    var projection = serverBinding.projection();
+    tracking.observe(projection);
+    if (projection.doorOpen()) {
       doorTile.open();
     } else {
       doorTile.close();
     }
-    serverBinding.projection().terminal().ifPresent(this::showTerminal);
+    projection.terminal().ifPresent(this::showTerminal);
   }
 
   private void reconcileIntros() {
@@ -261,6 +264,7 @@ public final class ServerGameBinding {
         .enterNumericCode(player, riddleId, inputId, attempt)
         .map(
             result -> {
+              tracking.attempt(riddleId, inputId, attempt, result, player);
               if (result.outcome() == CodeOutcome.CORRECT) {
                 component.isUnlocked(true);
                 keypad.fetch(DrawComponent.class).orElseThrow().sendSignal("open");
@@ -305,7 +309,10 @@ public final class ServerGameBinding {
     serverBinding
         .confirmNextHint(player, riddleId, preview.id())
         .ifPresentOrElse(
-            hint -> FoundationDialogs.showHint(hint, player.id(), () -> {}),
+            hint -> {
+              tracking.hintUsed(riddleId, hint, player);
+              FoundationDialogs.showHint(hint, player.id(), () -> {});
+            },
             () -> requestHint(riddleId, player));
   }
 

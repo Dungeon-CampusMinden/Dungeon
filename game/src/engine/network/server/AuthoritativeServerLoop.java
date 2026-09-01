@@ -92,7 +92,7 @@ public final class AuthoritativeServerLoop {
     DungeonLoader.afterAllLevels(
         () -> {
           Game.network().broadcast(new GameOverEvent("All levels completed"), true);
-          Game.exit("Game Over");
+          Game.complete();
         });
 
     long tickPeriodMs = 1000L / SERVER_TICK_HZ;

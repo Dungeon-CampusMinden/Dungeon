@@ -1,12 +1,12 @@
-# Wizard Runner Project Format V0.4
+# Wizard Runner Project Format V0.5
 
-Status: V0.4-Runner- und Packaging-Contract
+Status: V0.5-Runner- und Packaging-Contract
 
 Scope: validierte Übergabe von der Wizard-UI an Packaging und Room-first-Host
 
 ## Projektgrenze
 
-Das öffentliche Projektformat bleibt DEER `0.4`. Die Browser-UI speichert
+Das öffentliche Projektformat bleibt DEER `0.5`. Die Browser-UI speichert
 private Drafts v1 und Uploadbytes ausschließlich in einer neuen IndexedDB. Der
 Java-Host bindet an `127.0.0.1:27777`, bleibt bezüglich dieser Daten zustandslos
 und führt Produktionsvalidierung sowie temporäres Packaging aus. Der
@@ -30,7 +30,7 @@ wizard-project/
 ```
 
 Das Repository enthält unter
-[`../../examples/foundation-v0.4/`](../../examples/foundation-v0.4/) ein
+[`../../examples/foundation-v0.5/`](../../examples/foundation-v0.5/) ein
 direkt ausführbares Projekt. Es ist die einzige kanonische Quelle für die
 Beispiel-`deer.json` einschließlich Seed und das Custom-Asset.
 
@@ -104,7 +104,7 @@ benötigt Java 25 und öffnet das Host-/Join-Menü.
 - Im nativen Host startet die Produktionsprüfung nach ungefähr zwei Sekunden
   ohne inhaltliche Änderung. Sie ist nicht an die Abschlussseite gebunden. Die
   reine Browserentwicklung führt keine Java-Produktionsprüfung aus.
-- Die UI projiziert den Draft auf Formatversion `0.4`.
+- Die UI projiziert den Draft auf Formatversion `0.5`.
 - Sie bewahrt jede authorierte direkte Pflichtabhängigkeit und erfindet oder
   vervollständigt keine Progressionskanten.
 - Packaging liest den aktuellen gespeicherten Kandidaten. Der Host prüft
@@ -224,7 +224,9 @@ Attribution sowie Riddle-Titel bleiben in diesen vollständigen DEER-Daten.
 Riddle-Titel werden als Authoring-Labels in `ProjectDefinition` gemappt, aber
 nicht in `GamePresentation` oder die Foundation-Runtime übernommen und nicht
 angezeigt. Die übrigen genannten Angaben mappt oder bewertet der aktuelle
-Java-Runner nicht semantisch; jede Textänderung verändert dennoch
+Java-Runner nicht semantisch. `metadata.operatorEmail` setzt dagegen die im
+Tracking-Warnhinweis angezeigte E-Mail-Adresse; ohne Feld gilt
+der im Quellcode definierte Standardwert. Jede Textänderung verändert dennoch
 `hostInputSha256`.
 
 `rawDeerSha256` ist SHA-256 über die exakten Dateibytes der eingelesenen
@@ -270,7 +272,7 @@ Beispiel:
 ```json
 {
   "valid": false,
-  "runnerVersion": "0.4",
+  "runnerVersion": "0.5",
   "rawDeerSha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
   "hostInputSha256": null,
   "issues": [

@@ -14,8 +14,8 @@ import engine.utils.Cursors;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.elements.RichLabel;
+import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerDialog;
-import rooms.lasthour.modules.computer.ComputerFactory;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 
 /**
@@ -235,12 +235,15 @@ public class UsbDriveTab extends ComputerTab {
         .ifPresent(
             dialog -> {
               if (HINT_FILE.equals(fileName)) {
+                DialogCallbackResolver.createButtonCallback(
+                        context().dialogId(), ComputerCallbacks.EXIT_CODE_HINT_OPENED_KEY)
+                    .accept(new DialogResponseMessage.StringValue(HINT_FILE));
                 openOrFocus(
                     dialog, "file-" + HINT_FILE, () -> new FileTab(sharedState(), HINT_FILE));
               } else if (CONTROL_PANEL_KEY_FILE.equals(fileName)) {
                 localState().controlPanelOpen(true);
                 DialogCallbackResolver.createButtonCallback(
-                        context().dialogId(), ComputerFactory.CONTROL_PANEL_OPENED_KEY)
+                        context().dialogId(), ComputerCallbacks.CONTROL_PANEL_OPENED_KEY)
                     .accept(new DialogResponseMessage.StringValue(CONTROL_PANEL_KEY_FILE));
                 openOrFocus(dialog, ControlPanelTab.KEY, () -> new ControlPanelTab(sharedState()));
               }

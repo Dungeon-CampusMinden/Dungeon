@@ -47,7 +47,11 @@ public final class ProjectDefinitionMapper {
     JsonNode graph = root.get("riddleGraph");
     return new ProjectDefinition(
         root.path("seed").longValue(),
-        new Metadata(text(metadata, "id"), text(metadata, "title"), text(metadata, "locale")),
+        new Metadata(
+            text(metadata, "id"),
+            text(metadata, "title"),
+            text(metadata, "locale"),
+            optionalText(metadata, "operatorEmail")),
         new Session(
             new PlayerCount(
                 session.path("playerCount").path("min").intValue(),

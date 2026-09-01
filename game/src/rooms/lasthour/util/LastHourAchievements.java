@@ -7,7 +7,7 @@ import feature.components.InventoryComponent;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
-import rooms.lasthour.modules.computer.ComputerFactory;
+import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.usbstick.UsbStickColor;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
 
@@ -40,9 +40,9 @@ public final class LastHourAchievements {
 
   /** Registers achievement hooks for Last Hour computer interactions. */
   public static void registerComputerHooks() {
-    ComputerFactory.onVirusTriggered(player -> trigger(player, VIRUS));
-    ComputerFactory.onPcUnlocked(player -> trigger(player, PC_UNLOCKED));
-    ComputerFactory.onControlPanelOpened(player -> trigger(player, CONTROL_PANEL));
+    ComputerCallbacks.onVirusTriggered(player -> trigger(player, VIRUS));
+    ComputerCallbacks.onPcUnlocked(player -> trigger(player, PC_UNLOCKED));
+    ComputerCallbacks.onControlPanelOpened(player -> trigger(player, CONTROL_PANEL));
   }
 
   /**

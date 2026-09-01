@@ -1,5 +1,6 @@
 package feature.interaction.keypad;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -70,10 +71,17 @@ class KeypadComponentTest {
     component.onWrongCode(receivedCaller::set);
 
     component.addDigit(1);
+    component.checkUnlock(caller);
+
+    assertSame(caller, receivedCaller.get());
+    assertEquals(0, component.wrongCodeAttempts());
+
+    receivedCaller.set(null);
     component.addDigit(2);
     component.addDigit(4);
     component.checkUnlock(caller);
 
     assertSame(caller, receivedCaller.get());
+    assertEquals(1, component.wrongCodeAttempts());
   }
 }

@@ -16,14 +16,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.language.Localization;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.Sounds;
 import engine.utils.Cursors;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import java.util.Arrays;
 import java.util.List;
+import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerDialog;
-import rooms.lasthour.modules.computer.ComputerFactory;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
@@ -266,16 +267,9 @@ public class EmailsTab extends ComputerTab {
 
   private void clickedAttachment(String attachmentName) {
     if (Lore.VirusAttachmentNames.contains(attachmentName)) {
-      var newState =
-          ComputerStateComponent.getState()
-              .orElseThrow()
-              .withVirusType(
-                  Lore.CodePageIndexToVirusType.get(
-                      (int) (Math.random() * Lore.CodePageIndexToVirusType.size())))
-              .withInfection(true);
       DialogCallbackResolver.createButtonCallback(
-              context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-          .accept(newState);
+              context().dialogId(), ComputerCallbacks.VIRUS_TRIGGER_KEY)
+          .accept(new DialogResponseMessage.StringValue(attachmentName));
       return;
     }
     ComputerDialog.getInstance()

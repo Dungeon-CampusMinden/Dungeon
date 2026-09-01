@@ -15,6 +15,7 @@ ext {
     gdxControllersVersion = '2.2.4'
     beryxRuntimeVersion = '2.0.1'
     jacksonVersion = '3.2.2'
+    postgresVersion = '42.7.13'
     jsonSchemaValidatorVersion = '3.0.6'
     jsonCanonicalizationVersion = '1.1'
 
@@ -41,6 +42,7 @@ ext {
 
         // JSON validation and canonicalization
         jackson_databind          : "tools.jackson.core:jackson-databind:$jacksonVersion",
+        postgres                  : "org.postgresql:postgresql:$postgresVersion",
         json_schema_validator     : "com.networknt:json-schema-validator:$jsonSchemaValidatorVersion",
         json_canonicalization     : "io.github.erdtman:java-json-canonicalization:$jsonCanonicalizationVersion",
 
