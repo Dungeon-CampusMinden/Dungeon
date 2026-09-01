@@ -56,7 +56,7 @@ public final class CanvasDialog {
           "No CanvasDefinition registered for id '{}'; opening with default layout", canvasId);
       String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("");
       return new CanvasUI(
-          canvasId, title, 900f, 560f, new CanvasOptions(), defaults, ctx.dialogId());
+          canvasId, title, 900f, 560f, new CanvasOptions(), defaults, ctx.dialogId(), true, true);
     }
 
     return new CanvasUI(
@@ -66,6 +66,8 @@ public final class CanvasDialog {
         definition.areaHeight(),
         definition.options(),
         defaults,
-        ctx.dialogId());
+        ctx.dialogId(),
+        definition.showResetViewButton(),
+        definition.showFitButton());
   }
 }

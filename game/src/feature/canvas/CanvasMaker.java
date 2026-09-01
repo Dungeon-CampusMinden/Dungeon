@@ -140,6 +140,8 @@ public final class CanvasMaker {
     private float areaHeight = 560f;
     private boolean pauseGame = true;
     private boolean closable = true;
+    private boolean showResetViewButton = true;
+    private boolean showFitButton = true;
 
     private Builder(String canvasId) {
       Objects.requireNonNull(canvasId, "canvasId");
@@ -161,7 +163,7 @@ public final class CanvasMaker {
     }
 
     /**
-     * Sets the viewport size in pixels.
+     * Sets the preferred viewport size in pixels.
      *
      * @param width the viewport width
      * @param height the viewport height
@@ -273,6 +275,28 @@ public final class CanvasMaker {
     }
 
     /**
+     * Sets whether the canvas shows a reset-view button.
+     *
+     * @param value true to show the reset-view button
+     * @return this builder for chaining
+     */
+    public Builder showResetViewButton(boolean value) {
+      this.showResetViewButton = value;
+      return this;
+    }
+
+    /**
+     * Sets whether the canvas shows a fit-to-content button.
+     *
+     * @param value true to show the fit button
+     * @return this builder for chaining
+     */
+    public Builder showFitButton(boolean value) {
+      this.showFitButton = value;
+      return this;
+    }
+
+    /**
      * Builds the definition and registers it.
      *
      * @return the built and registered definition
@@ -301,7 +325,9 @@ public final class CanvasMaker {
               combined,
               eventHandlers,
               pauseGame,
-              closable));
+              closable,
+              showResetViewButton,
+              showFitButton));
     }
   }
 }

@@ -33,6 +33,8 @@ public final class CanvasDefinition {
   private final Map<String, Consumer<DialogResponseMessage.Payload>> eventHandlers;
   private final boolean pauseGame;
   private final boolean closable;
+  private final boolean showResetViewButton;
+  private final boolean showFitButton;
 
   CanvasDefinition(
       String id,
@@ -43,7 +45,9 @@ public final class CanvasDefinition {
       Supplier<List<NodeState>> defaultNodes,
       Map<String, Consumer<DialogResponseMessage.Payload>> eventHandlers,
       boolean pauseGame,
-      boolean closable) {
+      boolean closable,
+      boolean showResetViewButton,
+      boolean showFitButton) {
     this.id = Objects.requireNonNull(id, "id");
     this.title = title == null ? "" : title;
     this.areaWidth = areaWidth;
@@ -53,6 +57,8 @@ public final class CanvasDefinition {
     this.eventHandlers = Map.copyOf(eventHandlers);
     this.pauseGame = pauseGame;
     this.closable = closable;
+    this.showResetViewButton = showResetViewButton;
+    this.showFitButton = showFitButton;
   }
 
   /**
@@ -74,7 +80,7 @@ public final class CanvasDefinition {
   }
 
   /**
-   * Returns the viewport width in pixels.
+   * Returns the preferred viewport width in pixels.
    *
    * @return the area width
    */
@@ -83,7 +89,7 @@ public final class CanvasDefinition {
   }
 
   /**
-   * Returns the viewport height in pixels.
+   * Returns the preferred viewport height in pixels.
    *
    * @return the area height
    */
@@ -140,5 +146,23 @@ public final class CanvasDefinition {
    */
   public boolean closable() {
     return closable;
+  }
+
+  /**
+   * Returns whether the canvas shows a reset-view button.
+   *
+   * @return true if the reset-view button is shown
+   */
+  public boolean showResetViewButton() {
+    return showResetViewButton;
+  }
+
+  /**
+   * Returns whether the canvas shows a fit-to-content button.
+   *
+   * @return true if the fit button is shown
+   */
+  public boolean showFitButton() {
+    return showFitButton;
   }
 }
