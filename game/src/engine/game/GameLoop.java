@@ -110,7 +110,6 @@ public final class GameLoop extends ScreenAdapter {
   private volatile boolean initialWorldCompleteReceived = false;
   private volatile boolean initialWorldReadySent = false;
   private volatile boolean initialWorldClientReady = false;
-  private boolean singleplayerTrackingStartPending = true;
   private static final Set<IResizable> resizables = new HashSet<>();
   private static String windowTitle = "Dungeon";
   private static Supplier<? extends Screen> initialScreenSupplier;
@@ -309,7 +308,6 @@ public final class GameLoop extends ScreenAdapter {
   @Override
   public void render(float delta) {
     if (doSetup) setup();
-    tryStartSingleplayerTracking();
     ECSManagement.system(
         DrawSystem.class,
         drawSystem -> DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
@@ -444,20 +442,10 @@ public final class GameLoop extends ScreenAdapter {
         Game.network().completeServerBootstrap();
       }
     }
-  }
 
-  private void tryStartSingleplayerTracking() {
-    if (!singleplayerTrackingStartPending
-        || !Game.isSingleplayer()
-        || Game.currentLevel().isEmpty()) {
-      return;
+    if (Game.isSingleplayer() && Game.currentLevel().isPresent()) {
+      Game.player().ifPresent(player -> TrackingRuntime.startSingleplayerSession(player.id()));
     }
-    Game.player()
-        .ifPresent(
-            player -> {
-              singleplayerTrackingStartPending = false;
-              TrackingRuntime.startSingleplayerSession(player.id());
-            });
   }
 
   private static Optional<ClientState> clientState(Session ctx) {
@@ -849,9 +837,8 @@ public final class GameLoop extends ScreenAdapter {
       return;
     }
     initialWorldReadySent = true;
-    boolean roomPlayedBefore = TrackingRuntime.clientRoomPlayedBefore();
     Game.network()
-        .send((short) 0, new InitialWorldReady(roomPlayedBefore), true)
+        .send((short) 0, new InitialWorldReady(TrackingRuntime.clientRoomPlayedBefore()), true)
         .whenComplete(
             (success, error) -> {
               if (error == null && Boolean.TRUE.equals(success)) {
