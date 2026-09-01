@@ -38,6 +38,8 @@ public class LabelNode extends CanvasNode {
   /** Prop key holding the maximum outer width, or zero for no maximum. */
   public static final String PROP_MAX_WIDTH = "maxWidth";
 
+  public static final Color DEFAULT_COLOR = Color.valueOf("2f6f9f");
+
   private String text;
   private float maxWidth;
   private int fontSize = 18;
@@ -51,7 +53,7 @@ public class LabelNode extends CanvasNode {
    */
   public LabelNode(String id, String text) {
     super(id, 160f, 64f);
-    this.color(Color.valueOf("2f6f9f"));
+    this.color(DEFAULT_COLOR);
     this.text = text == null ? id : text;
   }
 
@@ -234,6 +236,15 @@ public class LabelNode extends CanvasNode {
       width = Math.min(width, maxWidth);
     }
     size(width, label.getHeight() + padding);
+  }
+
+  boolean autoSizeIfContentUnbuilt() {
+    if (isContentBuilt()) {
+      return false;
+    }
+    ensureContentBuilt();
+    autoSizeToLabel();
+    return true;
   }
 
   @Override

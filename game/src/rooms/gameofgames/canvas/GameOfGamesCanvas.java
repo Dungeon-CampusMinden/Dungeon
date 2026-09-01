@@ -46,7 +46,7 @@ public final class GameOfGamesCanvas {
   /** Id of the action set backing the sticky tool palette. */
   public static final String TOOLS_ACTION_SET = "gameofgames.canvas.tools";
 
-  private static final String SOCKET_NODE_ADDED_CALLBACK = "on-win";
+  private static final String SOCKET_CHANGED_CALLBACK = "on-win";
 
   private static final float AREA_WIDTH = 900f;
   private static final float AREA_HEIGHT = 560f;
@@ -124,15 +124,17 @@ public final class GameOfGamesCanvas {
   }
 
   private static void registerSocketNodeCallback() {
-    SocketNode.registerNodeAddedCallback(SOCKET_NODE_ADDED_CALLBACK, GameOfGamesCanvas::onNodeAdded);
+    SocketNode.registerSocketChangedCallback(
+        SOCKET_CHANGED_CALLBACK, GameOfGamesCanvas::onSocketChanged);
   }
 
-  private static void onNodeAdded(SocketNode socketNode, int index, CanvasNode node) {
+  private static void onSocketChanged(
+      SocketNode socketNode, int index, CanvasNode node, boolean added) {
     boolean correct1 =
         socketNode.socket(0).map(n -> n.id().equals("rule-socket-fill-1")).orElse(false);
     boolean correct2 =
         socketNode.socket(2).map(n -> n.id().equals("rule-socket-fill-2")).orElse(false);
-    socketNode.content(correct1 && correct2 ? "!! public static" : "public static");
+    socketNode.color(correct1 && correct2 ? Color.GREEN : LabelNode.DEFAULT_COLOR);
   }
 
   /**
@@ -210,7 +212,7 @@ public final class GameOfGamesCanvas {
     var.position(440f, 200f);
     states.add(var.toState());
 
-    socket.onNodeAdded(SOCKET_NODE_ADDED_CALLBACK);
+    socket.onSocketChanged(SOCKET_CHANGED_CALLBACK);
 
     states.add(socket.toState());
 

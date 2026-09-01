@@ -523,6 +523,24 @@ public class CanvasNode extends Group {
     invalidateLayout();
   }
 
+  /** Builds this node's content immediately when it has not been built yet. */
+  protected final void ensureContentBuilt() {
+    if (!contentBuilt) {
+      contentBuilt = true;
+      buildContent();
+      invalidateLayout();
+    }
+  }
+
+  /**
+   * Returns whether this node's visual content has been built.
+   *
+   * @return true when the content has been built
+   */
+  protected final boolean isContentBuilt() {
+    return contentBuilt;
+  }
+
   /**
    * Draws the node background before its children.
    *
@@ -541,11 +559,7 @@ public class CanvasNode extends Group {
 
   @Override
   public void draw(Batch batch, float parentAlpha) {
-    if (!contentBuilt) {
-      contentBuilt = true;
-      buildContent();
-      invalidateLayout();
-    }
+    ensureContentBuilt();
     if (layoutDirty || lastLayoutWidth != getWidth() || lastLayoutHeight != getHeight()) {
       layoutDirty = false;
       lastLayoutWidth = getWidth();
