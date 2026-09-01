@@ -11,6 +11,7 @@ import feature.hud.elements.RichLabel;
 import feature.leveleditor.LevelEditorMode;
 import feature.systems.LevelEditorSystem;
 import feature.systems.LevelEditorSystem.Mode;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -89,9 +90,13 @@ public class ModeDetailsPanel extends Table {
     if (modeControls == null || modeControls.isEmpty()) return;
 
     controlsContent.add(text("Controls:")).colspan(2).left().padBottom(4f).row();
+    Map<String, String> keysByAction = new LinkedHashMap<>();
     modeControls.forEach(
-        (key, action) -> {
-          controlsContent.add(text(keyTag(key))).left().padRight(10f).padBottom(2f);
+        (key, action) ->
+            keysByAction.merge(action, keyTag(key), (keys, nextKey) -> keys + " " + nextKey));
+    keysByAction.forEach(
+        (action, keys) -> {
+          controlsContent.add(text(keys)).left().padRight(10f).padBottom(2f);
           controlsContent.add(text(action)).left().growX().padBottom(2f).row();
         });
   }
@@ -175,7 +180,7 @@ public class ModeDetailsPanel extends Table {
    * @return the rich text markup rendering the input prompt graphic.
    */
   private static String keyTag(int key) {
-    if (key == Input.Buttons.LEFT || key == Input.Buttons.RIGHT) {
+    if (key == Input.Buttons.LEFT || key == Input.Buttons.RIGHT || key == Input.Buttons.MIDDLE) {
       return "[key code=" + key + " type=mouse]";
     }
     return "[key code=" + swapForLayout(key) + "]";

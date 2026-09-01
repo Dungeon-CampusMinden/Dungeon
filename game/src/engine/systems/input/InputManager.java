@@ -46,6 +46,7 @@ public final class InputManager {
   private static final Map<Integer, Long> previousButtonTapTimesMs = new HashMap<>();
   private static final Map<Integer, Long> keyDownTimesMs = new HashMap<>();
   private static final Map<Integer, Long> buttonDownTimesMs = new HashMap<>();
+  private static float scrollAmountY;
 
   private InputManager() {} // static utility class
 
@@ -125,6 +126,7 @@ public final class InputManager {
 
           @Override
           public boolean scrolled(float amountX, float amountY) {
+            scrollAmountY += amountY;
             return oldProcessor != null && oldProcessor.scrolled(amountX, amountY);
           }
         });
@@ -264,6 +266,15 @@ public final class InputManager {
   }
 
   /**
+   * Gets the vertical mouse-wheel movement accumulated during the current frame.
+   *
+   * @return vertical scroll amount
+   */
+  public static float scrollAmountY() {
+    return scrollAmountY;
+  }
+
+  /**
    * Clears all tracked input states.
    *
    * <p>Useful when changing input processors or when focus is lost. This also clears tap history
@@ -282,6 +293,7 @@ public final class InputManager {
     previousButtonTapTimesMs.clear();
     keyDownTimesMs.clear();
     buttonDownTimesMs.clear();
+    scrollAmountY = 0f;
   }
 
   /**
@@ -293,6 +305,7 @@ public final class InputManager {
     // Move justPressed keys/buttons to pressed state and clear justPressed
     updateFrame(justPressedKeys, pressedKeys, justReleasedKeys);
     updateFrame(justPressedButtons, pressedButtons, justReleasedButtons);
+    scrollAmountY = 0f;
   }
 
   private static void registerPress(

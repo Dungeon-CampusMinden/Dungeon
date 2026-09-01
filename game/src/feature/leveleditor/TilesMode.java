@@ -3,13 +3,17 @@ package feature.leveleditor;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import engine.level.DungeonLevel;
 import engine.level.utils.Coordinate;
+import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.level.utils.TileTextureFactory;
 import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.leveleditor.ui.LevelElementGrid;
 import feature.leveleditor.ui.NumberSetting;
+import feature.leveleditor.ui.SelectSetting;
 import feature.systems.DebugDrawSystem;
 import feature.utils.CheckPatternPainter;
 import java.util.LinkedHashMap;
@@ -44,6 +48,8 @@ public class TilesMode extends LevelEditorMode {
 
   private LevelElementGrid grid = null;
   private NumberSetting brushSizeSetting = null;
+  private SelectSetting<DesignLabel> designSetting = null;
+  private DesignLabel previewDesign = null;
   private boolean mouseLevelChangePending = false;
 
   /**
@@ -54,6 +60,26 @@ public class TilesMode extends LevelEditorMode {
    */
   public static String texturePath(LevelElement element) {
     return TILE_TEXTURES.getOrDefault(element, FALLBACK_TEXTURE);
+  }
+
+  /**
+   * Gets the preview texture for an element in the selected level design.
+   *
+   * <p>Portal, glass-wall, and grate textures currently exist only in the shared default design.
+   *
+   * @param element the level element
+   * @param designLabel the selected level design
+   * @return the texture path used by the element button
+   */
+  public static String texturePath(LevelElement element, DesignLabel designLabel) {
+    String defaultPath = texturePath(element);
+    if (element == LevelElement.SKIP
+        || element == LevelElement.PORTAL
+        || element == LevelElement.GLASSWALL
+        || element == LevelElement.GITTER) {
+      return defaultPath;
+    }
+    return TileTextureFactory.findTexturePath(element, designLabel).pathString();
   }
 
   /**
@@ -73,24 +99,39 @@ public class TilesMode extends LevelEditorMode {
   @Override
   public void buildDetailsUI(Table content) {
     content.clearChildren();
+    previewDesign = designLabel();
     grid =
         new LevelElementGrid(
             GRID_COLUMNS,
-            TilesMode::texturePath,
+            element -> texturePath(element, designLabel()),
             () -> selectedTileIndexL,
             () -> selectedTileIndexR,
             ordinal -> selectedTileIndexL = ordinal,
             ordinal -> selectedTileIndexR = ordinal);
+    designSetting =
+        new SelectSetting<>(
+            "Level Design",
+            DesignLabel.values(),
+            this::designLabel,
+            this::designLabel,
+            DesignLabel::name);
     brushSizeSetting =
         new NumberSetting(
             "Brush Size", 1, MAX_BRUSH_SIZE, () -> brushSize, size -> brushSize = size);
 
+    content.add(designSetting).growX().padBottom(10f).row();
     content.add(grid).growX().row();
     content.add(brushSizeSetting).growX().padTop(10f).row();
   }
 
   @Override
   public void updateDetailsUI() {
+    if (designSetting != null) designSetting.refresh();
+    DesignLabel currentDesign = designLabel();
+    if (grid != null && currentDesign != previewDesign) {
+      grid.refreshTextures();
+      previewDesign = currentDesign;
+    }
     if (grid != null) grid.refresh();
     if (brushSizeSetting != null) brushSizeSetting.refresh();
   }
@@ -139,7 +180,8 @@ public class TilesMode extends LevelEditorMode {
       brushSize = Math.max(1, brushSize - 1);
     }
 
-    if (InputManager.isKeyJustPressed(QUARTERNARY)) {
+    if (InputManager.isKeyJustPressed(QUARTERNARY)
+        || InputManager.isButtonJustPressed(Input.Buttons.MIDDLE)) {
       // Pick tile under cursor to LMB
       Point cursorPos = getCursorPosition();
       getLevel()
@@ -266,6 +308,18 @@ public class TilesMode extends LevelEditorMode {
     controls.put(Input.Buttons.RIGHT, "Place Tile [R]");
     controls.put(TERTIARY, "Place SKIP Tile");
     controls.put(QUARTERNARY, "Pick tile from cursor");
+    controls.put(Input.Buttons.MIDDLE, "Pick tile from cursor");
     return controls;
+  }
+
+  private DesignLabel designLabel() {
+    return getLevel().designLabel().orElse(DesignLabel.DEFAULT);
+  }
+
+  private void designLabel(DesignLabel designLabel) {
+    DungeonLevel level = getLevel();
+    if (level.designLabel().filter(designLabel::equals).isPresent()) return;
+    level.designLabel(designLabel);
+    levelChanged();
   }
 }

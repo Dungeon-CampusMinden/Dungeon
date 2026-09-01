@@ -134,7 +134,8 @@ public class DecoMode extends LevelEditorMode {
                 syncPlacedDecos();
                 levelChanged();
               });
-    } else if (InputManager.isKeyJustPressed(QUARTERNARY)) {
+    } else if (InputManager.isKeyJustPressed(QUARTERNARY)
+        || InputManager.isButtonJustPressed(Input.Buttons.MIDDLE)) {
       rapidFireActive = false;
       // Pipette tool to pick deco type on cursor
       Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
@@ -208,7 +209,13 @@ public class DecoMode extends LevelEditorMode {
   public void onExit() {
     flushRapidFireLevelChange();
     closeDecoSelector();
+    clearHoveredEntity();
     removePreviewEntity();
+  }
+
+  @Override
+  public void onCursorLeaveWorld() {
+    clearHoveredEntity();
   }
 
   @Override
@@ -240,6 +247,7 @@ public class DecoMode extends LevelEditorMode {
     controls.put(SECONDARY_UP, "Change Grid Snap");
     controls.put(TERTIARY, "Delete on Cursor");
     controls.put(QUARTERNARY, "Pick from Cursor");
+    controls.put(Input.Buttons.MIDDLE, "Pick from Cursor");
     return controls;
   }
 
@@ -425,13 +433,18 @@ public class DecoMode extends LevelEditorMode {
 
     // Not hovering, clear hovered
     if ((!isHovering && wasHovering) || (isHovering && wasHovering && !sameEntity)) {
-      setEntityColor(decoHoveredEntity.entity, Color.WHITE);
-      decoHoveredEntity = null;
+      clearHoveredEntity();
     }
     if (isHovering && !wasHovering || (isHovering && !sameEntity)) {
       decoHoveredEntity = hoveredDeco.get();
       setEntityColor(decoHoveredEntity.entity, Color.YELLOW);
     }
+  }
+
+  private void clearHoveredEntity() {
+    if (decoHoveredEntity == null) return;
+    setEntityColor(decoHoveredEntity.entity, Color.WHITE);
+    decoHoveredEntity = null;
   }
 
   private void setEntityColor(Entity entity, Color color) {
