@@ -210,23 +210,21 @@ public final class ServerGameBinding {
     snapshotTranslator.registerKeypad(keypad.id(), presentation.id());
     keypad.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (entity, player) -> {
-                      if (serverBinding.inputActive(player, riddleId, presentation.id())) {
-                        FoundationDialogs.showKeypad(
-                            entity,
-                            definition.showDigitCount()
-                                ? definition.answer().length()
-                                : HIDDEN_DIGIT_LIMIT,
-                            definition.showDigitCount(),
-                            action ->
-                                handleKeypadAction(
-                                    entity, player, riddleId, presentation.id(), action),
-                            player.id());
-                      }
-                    },
-                    KEYPAD_INTERACTION_RADIUS)));
+            new Interaction(
+                (entity, player) -> {
+                  if (serverBinding.inputActive(player, riddleId, presentation.id())) {
+                    FoundationDialogs.showKeypad(
+                        entity,
+                        definition.showDigitCount()
+                            ? definition.answer().length()
+                            : HIDDEN_DIGIT_LIMIT,
+                        definition.showDigitCount(),
+                        action ->
+                            handleKeypadAction(entity, player, riddleId, presentation.id(), action),
+                        player.id());
+                  }
+                },
+                KEYPAD_INTERACTION_RADIUS)));
     return keypad;
   }
 
@@ -406,7 +404,7 @@ public final class ServerGameBinding {
     Entity station = new Entity(entityName);
     station.add(new PositionComponent(new Point(Objects.requireNonNull(position, "position"))));
     station.add(new DrawComponent(new SimpleIPath(Objects.requireNonNull(asset, "asset"))));
-    station.add(new InteractionComponent(() -> new Interaction(interaction)));
+    station.add(new InteractionComponent(new Interaction(interaction)));
     return station;
   }
 

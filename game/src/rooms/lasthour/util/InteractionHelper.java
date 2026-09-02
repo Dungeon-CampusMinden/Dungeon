@@ -76,12 +76,7 @@ public final class InteractionHelper {
     return findCursorNearEntity(cursorPos)
         .filter(
             e -> {
-              float range =
-                  e.fetch(InteractionComponent.class)
-                      .orElseThrow()
-                      .interactions()
-                      .interact()
-                      .range();
+              float range = e.fetch(InteractionComponent.class).orElseThrow().interaction().range();
               return heroPos.distanceSquared(EntityUtils.getPosition(e)) <= range * range;
             });
   }

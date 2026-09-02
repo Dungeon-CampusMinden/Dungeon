@@ -37,7 +37,7 @@ import java.util.function.BiConsumer;
  *
  * List<Item> items = p.items();
  * for (int i = 0; i < items.size(); i++) {
- *   Game.add(WorldItemBuilder.buildWorldItemSimpleInteraction(items.get(i), itemLocations.get(i)));
+ *   Game.add(WorldItemBuilder.buildWorldItem(items.get(i), itemLocations.get(i)));
  * }
  * }</pre>
  */

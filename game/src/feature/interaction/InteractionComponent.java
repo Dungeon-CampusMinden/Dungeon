@@ -3,6 +3,7 @@ package feature.interaction;
 import engine.Component;
 import engine.Entity;
 import engine.systems.input.InputSystem;
+import feature.hud.DialogUtils;
 import java.util.function.BiConsumer;
 
 /**
@@ -12,43 +13,47 @@ import java.util.function.BiConsumer;
  * through the {@link InputSystem} when the player presses the corresponding key and is within the
  * interaction range.
  *
- * <p>The behavior of an interaction is defined by the {@link IInteractable} implementation provided
- * to this component. Each interaction is represented by an {@link Interaction}, which internally
- * uses a {@link BiConsumer} callback for its logic.
+ * <p>The behavior of an interaction is defined by the {@link Interaction} provided to this
+ * component. Each interaction internally uses a {@link BiConsumer} callback for its logic.
  *
  * <p>Depending on the interaction configuration, an interaction may be repeatable or single-use. If
  * it is not repeatable, the corresponding {@link Interaction} will deactivate itself after
- * execution. For simple interaction types, {@link ISimpleIInteractable} can be used to define a
- * single default interaction.
+ * execution.
  */
 public final class InteractionComponent implements Component {
 
-  private static final IInteractable DEFAULT_INTERACTION = new IInteractable() {};
-  private final IInteractable interactions;
+  private static final Interaction DEFAULT_INTERACTION =
+      new Interaction(
+          (entity, who) ->
+              DialogUtils.showTextPopup(
+                  "Ich drücke, ziehe und tippe... aber es passiert absolut gar nichts.",
+                  "Interagieren",
+                  who.id()));
+
+  private final Interaction interaction;
 
   /**
-   * Creates a new {@link InteractionComponent} with a custom interaction provider.
+   * Creates a new {@link InteractionComponent} with a custom interaction.
    *
-   * @param interactions the interaction behavior to execute when an interaction is triggered
+   * @param interaction the interaction behavior to execute when an interaction is triggered
    */
-  public InteractionComponent(IInteractable interactions) {
-    this.interactions = interactions;
+  public InteractionComponent(Interaction interaction) {
+    this.interaction = interaction;
   }
 
   /**
-   * Creates a new {@link InteractionComponent} with a custom interaction provider.
+   * Creates a new {@link InteractionComponent} with a custom interaction callback.
    *
-   * @param interactions the simple interaction behavior to execute when an interaction is triggered
+   * @param onInteract the action to execute when an interaction is triggered
    */
-  public InteractionComponent(ISimpleIInteractable interactions) {
-    this.interactions = interactions;
+  public InteractionComponent(BiConsumer<Entity, Entity> onInteract) {
+    this(new Interaction(onInteract));
   }
 
   /**
    * Creates a new {@link InteractionComponent} using the default interaction configuration.
    *
-   * <p>The default {@link IInteractable} provides no custom behavior beyond the predefined
-   * interaction types.
+   * <p>The default interaction shows a generic feedback popup.
    */
   public InteractionComponent() {
     this(DEFAULT_INTERACTION);
@@ -57,34 +62,19 @@ public final class InteractionComponent implements Component {
   /**
    * Triggers the interaction associated with this component.
    *
-   * <p>If the assigned {@link IInteractable} is an {@link ISimpleIInteractable}, the interaction is
-   * executed directly. Otherwise, a selection menu (implemented by {@code RingMenue}) is shown to
-   * allow the player to choose a specific interaction. Once chosen, the corresponding {@link
-   * Interaction} is executed.
-   *
    * @param entity the entity that owns this component
    * @param who the entity performing the interaction
    */
   public void triggerInteraction(final Entity entity, final Entity who) {
-    if (interactions instanceof ISimpleIInteractable) interactions.interact().interact(entity, who);
-    else {
-      RingMenu.show(
-          interactions,
-          interaction -> {
-            if (interaction != null) {
-              interaction.interact(entity, who);
-            }
-            // else: cancelled
-          });
-    }
+    interaction.interact(entity, who);
   }
 
   /**
-   * Returns the {@link IInteractable} assigned to this component.
+   * Returns the {@link Interaction} assigned to this component.
    *
-   * @return the interaction provider for this component
+   * @return the interaction for this component
    */
-  public IInteractable interactions() {
-    return this.interactions;
+  public Interaction interaction() {
+    return this.interaction;
   }
 }

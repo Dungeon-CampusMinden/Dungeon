@@ -18,10 +18,7 @@ public class InteractionComponentTest {
     Entity e = new Entity();
     InteractionComponent component = new InteractionComponent();
     e.add(component);
-    assertEquals(
-        Interaction.DEFAULT_INTERACTION_RADIUS,
-        component.interactions().interact().range(),
-        0.0001);
+    assertEquals(Interaction.DEFAULT_INTERACTION_RADIUS, component.interaction().range(), 0.0001);
   }
 
   /** Tests if the complex Constructor sets the attributes to the parameter. */
@@ -33,9 +30,9 @@ public class InteractionComponentTest {
     BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
 
     InteractionComponent component =
-        new InteractionComponent(() -> new Interaction(iInteraction, radius, repeat));
+        new InteractionComponent(new Interaction(iInteraction, radius, repeat));
     e.add(component);
 
-    assertEquals(radius, component.interactions().interact().range(), 0.0001);
+    assertEquals(radius, component.interaction().range(), 0.0001);
   }
 }

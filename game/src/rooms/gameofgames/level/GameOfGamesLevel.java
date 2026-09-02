@@ -63,11 +63,9 @@ public class GameOfGamesLevel extends DungeonLevel {
     bookshelf.remove(DecoComponent.class);
     bookshelf.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (interacted, who) ->
-                        DialogFactory.showDialogDialog(BOOKSHELF_DIALOG, () -> {}, who.id()),
-                    "Read")));
+            new Interaction(
+                (interacted, who) ->
+                    DialogFactory.showDialogDialog(BOOKSHELF_DIALOG, () -> {}, who.id()))));
     Game.add(bookshelf);
   }
 }
