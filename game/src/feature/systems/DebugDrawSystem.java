@@ -418,7 +418,7 @@ public class DebugDrawSystem extends System {
             .fetch(InteractionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, InteractionComponent.class));
 
-    // Since interactions can have different ranges we use the interact-interaction range.
+    // Use the range configured for this entity's interaction.
     float radius = ic.interaction().range();
 
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
