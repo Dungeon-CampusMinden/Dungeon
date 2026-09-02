@@ -201,6 +201,7 @@ public class LevelEditorSystem extends System {
               CameraSystem.camera().position.x, CameraSystem.camera().position.y));
       editorCamera.add(editorCameraComponent);
       LevelEditorSystem.active = true;
+      Game.hud().dialogsSuppressed(true);
       playerControlsDeactivatedBeforeEditor = null;
       player
           .fetch(InputComponent.class)
@@ -237,6 +238,7 @@ public class LevelEditorSystem extends System {
       }
       player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(false));
       currentModeInstance.onExit();
+      Game.hud().dialogsSuppressed(false);
     }
     updateUI();
   }

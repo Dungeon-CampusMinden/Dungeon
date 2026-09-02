@@ -17,6 +17,7 @@ import feature.components.UIComponent;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -34,6 +35,11 @@ public final class HudSystem extends System {
 
   /** Stores the component because it is no longer available on the entity during removal. */
   private final Map<Entity, UIComponent> entityUIComponentMap = new HashMap<>();
+
+  /** Visible dialogs that must be restored after temporary HUD suppression. */
+  private final Set<UIComponent> dialogsVisibleBeforeSuppression = new HashSet<>();
+
+  private boolean dialogsSuppressed = false;
 
   /**
    * Returns the singleton HUD system.
@@ -85,6 +91,35 @@ public final class HudSystem extends System {
         .anyMatch(component -> isVisibleFor(component, entity));
   }
 
+  /**
+   * Temporarily hides all managed dialogs without closing them.
+   *
+   * <p>Dialogs added during suppression are hidden as well. Restoring the dialogs only makes those
+   * visible that were visible before they were suppressed.
+   *
+   * @param suppressed true to hide managed dialogs, false to restore them
+   */
+  public void dialogsSuppressed(boolean suppressed) {
+    if (dialogsSuppressed == suppressed) return;
+
+    dialogsSuppressed = suppressed;
+    if (suppressed) {
+      entityUIComponentMap.values().forEach(this::suppressDialog);
+      return;
+    }
+
+    dialogsVisibleBeforeSuppression.stream()
+        .filter(entityUIComponentMap::containsValue)
+        .forEach(component -> component.dialog().setVisible(true));
+    dialogsVisibleBeforeSuppression.clear();
+  }
+
+  private void suppressDialog(UIComponent component) {
+    if (!component.isVisible()) return;
+    dialogsVisibleBeforeSuppression.add(component);
+    component.dialog().setVisible(false);
+  }
+
   private boolean isVisibleFor(UIComponent component, Entity entity) {
     int[] targets = component.targetEntityIds();
     return component.isVisible()
@@ -112,8 +147,11 @@ public final class HudSystem extends System {
     // Removing a system temporarily detaches its entities too. Only dispose the dialog when the
     // component or its entity was removed; otherwise the same component is re-added with the
     // system.
-    if (terminalRemoval && removedComponent.dialog() instanceof Disposable disposable) {
-      disposable.dispose();
+    if (terminalRemoval) {
+      dialogsVisibleBeforeSuppression.remove(removedComponent);
+      if (removedComponent.dialog() instanceof Disposable disposable) {
+        disposable.dispose();
+      }
     }
   }
 
@@ -150,6 +188,7 @@ public final class HudSystem extends System {
             () -> sendDialogToClients(entity, component, affectedIds));
 
     entityUIComponentMap.put(entity, component);
+    if (dialogsSuppressed) suppressDialog(component);
     // Multiplayer clients only render dialogs. The server keeps callback ownership and
     // response authorization in DialogTracker.
     if (!Game.isMultiplayerClient()) {
