@@ -8,6 +8,7 @@ import engine.utils.Tuple;
 import feature.entities.deco.Deco;
 import java.util.List;
 import java.util.Map;
+import rooms.programming.state.ProgrammingStateStore;
 
 /** Level handler for the Programming 1 escape room. */
 public class ProgrammingLevel extends DungeonLevel {
@@ -28,5 +29,10 @@ public class ProgrammingLevel extends DungeonLevel {
       Map<String, Point> namedPoints,
       List<Tuple<Deco, Point>> decorations) {
     super(layout, designLabel, namedPoints, decorations, LEVEL_NAME);
+  }
+
+  @Override
+  protected void onFirstTick() {
+    ProgrammingStateStore.initialize();
   }
 }

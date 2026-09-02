@@ -21,6 +21,8 @@ import feature.systems.CollisionSystem;
 import java.util.logging.Level;
 import rooms.programming.level.ProgrammingClientLevel;
 import rooms.programming.level.ProgrammingLevel;
+import rooms.programming.network.ProgrammingEntitySpawnStrategy;
+import rooms.programming.network.ProgrammingSnapshotTranslator;
 
 /** Entry point for the Programming 1 escape room. */
 public final class Programming {
@@ -49,6 +51,8 @@ public final class Programming {
                 new SimpleIPath("dungeon_config.json"),
                 feature.input.configuration.KeyboardConfig.class,
                 KeyboardConfig.class)
+            .snapshotTranslator(new ProgrammingSnapshotTranslator())
+            .entitySpawnStrategy(new ProgrammingEntitySpawnStrategy())
             .onFrame(HeroController::drainAndApplyInputs)
             .build();
 
