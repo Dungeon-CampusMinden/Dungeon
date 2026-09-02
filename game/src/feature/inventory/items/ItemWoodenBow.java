@@ -59,7 +59,7 @@ public class ItemWoodenBow extends Item {
         .filter(FloorTile.class::isInstance)
         .map(
             tile -> {
-              Entity bow = WorldItemBuilder.buildWorldItemSimpleInteraction(this, position);
+              Entity bow = WorldItemBuilder.buildWorldItem(this, position);
               Game.add(bow);
               return Optional.of(bow);
             })

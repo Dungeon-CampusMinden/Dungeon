@@ -16,9 +16,8 @@ import feature.inventory.Item;
  * that exists in the game world.
  *
  * <p>The {@link feature.entities.WorldItemBuilder WorldItemBuilder} demonstrates how to create an
- * item entity. You can use the {@link
- * feature.entities.WorldItemBuilder#buildWorldItemSimpleInteraction(Item)} method to create a new
- * item-entity from an {@link Item}.
+ * item entity. You can use the {@link feature.entities.WorldItemBuilder#buildWorldItem(Item)}
+ * method to create a new item-entity from an {@link Item}.
  *
  * <p>The {@link feature.entities.WorldItemBuilder} will create an entity with a {@link
  * ItemComponent}, {@link engine.components.PositionComponent}, {@link

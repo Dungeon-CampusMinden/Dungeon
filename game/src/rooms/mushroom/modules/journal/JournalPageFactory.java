@@ -27,7 +27,7 @@ public class JournalPageFactory {
     Entity entity = new Entity();
     entity.add(new PositionComponent(position));
     entity.add(new DrawComponent(new SimpleIPath(TEXTURE_PATH)));
-    entity.add(new InteractionComponent(() -> new Interaction(JournalPageFactory::handlePickup)));
+    entity.add(new InteractionComponent(new Interaction(JournalPageFactory::handlePickup)));
     return entity;
   }
 

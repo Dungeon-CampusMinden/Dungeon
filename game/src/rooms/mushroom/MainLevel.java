@@ -174,7 +174,7 @@ public class MainLevel extends DungeonLevel {
     Game.add(WorldItemBuilder.buildWorldItem(new LanternItem(), getPoint("lantern")));
 
     npc = NPCFactory.createNPC(getPoint("npc-start"), "character/char03");
-    npc.add(new InteractionComponent(() -> new Interaction((e, who) -> talkToNpc())));
+    npc.add(new InteractionComponent(new Interaction((e, who) -> talkToNpc())));
     Game.add(npc);
 
     listPoints("dialog-trigger")
@@ -328,7 +328,7 @@ public class MainLevel extends DungeonLevel {
             p -> {
               Entity tree = DecoFactory.createDeco(p, deco);
               tree.remove(DecoComponent.class);
-              tree.add(new InteractionComponent(() -> new Interaction(this::handleTreeCut)));
+              tree.add(new InteractionComponent(new Interaction(this::handleTreeCut)));
               tree.fetch(DrawComponent.class)
                   .ifPresent(
                       dc -> {
@@ -516,12 +516,11 @@ public class MainLevel extends DungeonLevel {
               mushroom.remove(InteractionComponent.class);
               mushroom.add(
                   new InteractionComponent(
-                      () ->
-                          new Interaction(
-                              (e, player) -> {
-                                Item item = MushroomItem.createMushroomItem(type);
-                                item.collect(e, player);
-                              })));
+                      new Interaction(
+                          (e, player) -> {
+                            Item item = MushroomItem.createMushroomItem(type);
+                            item.collect(e, player);
+                          })));
               Game.add(mushroom);
             });
   }

@@ -57,44 +57,40 @@ public class ComputerFactory {
   public static void attachComputerDialog(Entity entity) {
     entity.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (eInteract, who) -> {
-                      LastHourTracking.started(LastHourPuzzle.POWER);
-                      DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
-                      if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
-                        LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
-                        DialogFactory.showOkDialog(
-                            "This seems to be "
-                                + Lore.ScientistNameShort
-                                + "'s computer\n\nTrying to turn on the computer doesn't work.\nIt seems to not have any power...",
-                            "",
-                            () -> {},
-                            who.id());
-                        return;
-                      }
+            new Interaction(
+                (eInteract, who) -> {
+                  LastHourTracking.started(LastHourPuzzle.POWER);
+                  DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
+                  if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
+                    LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
+                    DialogFactory.showOkDialog(
+                        "This seems to be "
+                            + Lore.ScientistNameShort
+                            + "'s computer\n\nTrying to turn on the computer doesn't work.\nIt seems to not have any power...",
+                        "",
+                        () -> {},
+                        who.id());
+                    return;
+                  }
 
-                      // Check if the player carries any USB sticks
-                      // Skip USB dialog if correct stick was already inserted, PC is infected,
-                      // or PC is still pre-login (no point plugging in a stick before logging in)
-                      List<UsbStickItem.BaseUsbStick> usbSticks = findUsbSticks(who);
-                      ComputerStateComponent state = ComputerStateComponent.getState().orElse(null);
-                      boolean isInfected = state != null && state.isInfected();
-                      boolean isLoggedIn =
-                          state != null && state.state().hasReached(ComputerProgress.LOGGED_IN);
-                      boolean usbAlreadyInserted = state != null && state.usbInserted();
-                      if (!isLoggedIn) {
-                        LastHourQuestLogUtil.addLoginNeededQuestLogEntry();
-                      }
-                      if (!usbAlreadyInserted
-                          && !isInfected
-                          && isLoggedIn
-                          && !usbSticks.isEmpty()) {
-                        showUsbStickChoice(usbSticks, entity, who);
-                      } else {
-                        openComputerDialog(entity, who);
-                      }
-                    })));
+                  // Check if the player carries any USB sticks
+                  // Skip USB dialog if correct stick was already inserted, PC is infected,
+                  // or PC is still pre-login (no point plugging in a stick before logging in)
+                  List<UsbStickItem.BaseUsbStick> usbSticks = findUsbSticks(who);
+                  ComputerStateComponent state = ComputerStateComponent.getState().orElse(null);
+                  boolean isInfected = state != null && state.isInfected();
+                  boolean isLoggedIn =
+                      state != null && state.state().hasReached(ComputerProgress.LOGGED_IN);
+                  boolean usbAlreadyInserted = state != null && state.usbInserted();
+                  if (!isLoggedIn) {
+                    LastHourQuestLogUtil.addLoginNeededQuestLogEntry();
+                  }
+                  if (!usbAlreadyInserted && !isInfected && isLoggedIn && !usbSticks.isEmpty()) {
+                    showUsbStickChoice(usbSticks, entity, who);
+                  } else {
+                    openComputerDialog(entity, who);
+                  }
+                })));
   }
 
   /**

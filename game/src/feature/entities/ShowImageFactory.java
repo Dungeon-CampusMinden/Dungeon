@@ -52,8 +52,7 @@ public class ShowImageFactory {
     sic.textConfig(text);
     entity.add(sic);
 
-    entity.add(
-        new InteractionComponent(() -> new Interaction((e, who) -> sic.isUIOpen(true), radius)));
+    entity.add(new InteractionComponent(new Interaction((e, who) -> sic.isUIOpen(true), radius)));
     return entity;
   }
 

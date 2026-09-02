@@ -63,23 +63,20 @@ public class LeverFactory {
     lever.add(new LeverComponent(false, onInteract));
     lever.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (entity, who) -> {
-                      LeverComponent lc =
-                          entity
-                              .fetch(LeverComponent.class)
-                              .orElseThrow(
-                                  () ->
-                                      MissingComponentException.build(
-                                          entity, LeverComponent.class));
-                      lc.toggle();
+            new Interaction(
+                (entity, who) -> {
+                  LeverComponent lc =
                       entity
-                          .fetch(DrawComponent.class)
-                          .ifPresent(
-                              drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
-                    },
-                    DEFAULT_INTERACTION_RADIUS)));
+                          .fetch(LeverComponent.class)
+                          .orElseThrow(
+                              () -> MissingComponentException.build(entity, LeverComponent.class));
+                  lc.toggle();
+                  entity
+                      .fetch(DrawComponent.class)
+                      .ifPresent(
+                          drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
+                },
+                DEFAULT_INTERACTION_RADIUS)));
     return lever;
   }
 

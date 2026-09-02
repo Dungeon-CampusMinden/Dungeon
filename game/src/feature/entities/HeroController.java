@@ -220,12 +220,7 @@ public class HeroController {
             point, Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)))
         .filter(
             e -> {
-              float range =
-                  e.fetch(InteractionComponent.class)
-                      .orElseThrow()
-                      .interactions()
-                      .interact()
-                      .range();
+              float range = e.fetch(InteractionComponent.class).orElseThrow().interaction().range();
               return heroPos.distanceSquared(EntityUtils.getPosition(e)) <= range * range;
             });
   }
@@ -242,16 +237,8 @@ public class HeroController {
         .filter(
             e ->
                 heroPos.distanceSquared(EntityUtils.getPosition(e))
-                    <= e.fetch(InteractionComponent.class)
-                            .orElseThrow()
-                            .interactions()
-                            .interact()
-                            .range()
-                        * e.fetch(InteractionComponent.class)
-                            .orElseThrow()
-                            .interactions()
-                            .interact()
-                            .range())
+                    <= e.fetch(InteractionComponent.class).orElseThrow().interaction().range()
+                        * e.fetch(InteractionComponent.class).orElseThrow().interaction().range())
         .toList();
   }
 
