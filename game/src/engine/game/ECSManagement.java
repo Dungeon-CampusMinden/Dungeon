@@ -16,6 +16,7 @@ import engine.systems.SoundSystem;
 import engine.utils.EntityIdProvider;
 import engine.utils.EntitySystemMapper;
 import engine.utils.logging.DungeonLogger;
+import feature.interaction.InteractionFeedbackSystem;
 import feature.systems.EventScheduler;
 import feature.systems.HudSystem;
 import feature.systems.LevelTickSystem;
@@ -63,6 +64,7 @@ public final class ECSManagement {
     DrawSystem.getInstance(),
     new EventScheduler(),
     new LevelTickSystem(),
+    new InteractionFeedbackSystem(),
     HudSystem.getInstance()
   };
 
