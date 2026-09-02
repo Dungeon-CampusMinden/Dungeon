@@ -77,4 +77,10 @@ public class TranslationKey {
   public static final String AboutInfoText = "AboutInfoText";
   public static final String AboutQnAText = "AboutQnAText";
   public static final String AboutFooterText = "AboutFooterText";
+  public static final String EmailSelectText = "EmailSelectText";
+  public static final String EmailFromText = "EmailFromText";
+  public static final String EmailSubjectText = "EmailSubjectText";
+  public static final String EmailAttachmentsText = "EmailAttachmentsText";
+  public static final String EmailLINK_SOMEText = "EmailLINK_SOMEText";
+  public static final String EmailLINK_NONEText = "EmailLINK_NONEText";
 }
