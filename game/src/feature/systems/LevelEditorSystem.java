@@ -12,11 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import engine.Entity;
 import engine.Game;
 import engine.System;
+import engine.components.CameraComponent;
 import engine.components.InputComponent;
+import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.loader.DungeonLoader;
 import engine.level.loader.DungeonSaver;
+import engine.systems.CameraSystem;
 import engine.systems.DrawSystem;
 import engine.systems.input.InputManager;
 import engine.utils.FontHelper;
@@ -35,7 +38,6 @@ import feature.leveleditor.StartTilesMode;
 import feature.leveleditor.TilesMode;
 import feature.leveleditor.ui.LevelEditorUI;
 import java.io.File;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -79,7 +81,14 @@ public class LevelEditorSystem extends System {
   private static float feedbackMessageTimer = 0.0f;
   private static final float FEEDBACK_MESSAGE_DURATION = 3.0f; // seconds
 
-  private static Map<Integer, InputComponent.InputData> playerClallbacks = null;
+  private static final float FREE_CAMERA_SPEED = 20f;
+  private static final float FREE_CAMERA_SHIFT_SPEED_MULTIPLIER = 2f;
+  private static final float FREE_CAMERA_ZOOM_STEP = 0.05f;
+  private static final float MIN_FREE_CAMERA_ZOOM = 0.1f;
+  private static Entity editorCameraEntity;
+  private static CameraComponent editorCameraComponent;
+  private static Float cameraZoomBeforeEditor;
+  private static Boolean playerControlsDeactivatedBeforeEditor;
 
   private static LevelEditorUI ui = null;
   private static boolean cursorCapturedByUI = false;
@@ -178,22 +187,28 @@ public class LevelEditorSystem extends System {
    * @param active The active status to set.
    */
   public static void active(boolean active) {
-    LevelEditorSystem.active = active;
+    if (LevelEditorSystem.active == active) return;
+
     Entity player = Game.player().orElseThrow();
     if (active) {
       loadSettingsForCurrentLevel();
+      cameraZoomBeforeEditor = CameraSystem.camera().zoom;
+      editorCameraComponent = player.fetch(CameraComponent.class).orElseThrow();
+      player.remove(CameraComponent.class);
+      Entity editorCamera = editorCameraEntity();
+      editorCamera.add(
+          new PositionComponent(
+              CameraSystem.camera().position.x, CameraSystem.camera().position.y));
+      editorCamera.add(editorCameraComponent);
+      LevelEditorSystem.active = true;
+      Game.hud().dialogsSuppressed(true);
+      playerControlsDeactivatedBeforeEditor = null;
       player
           .fetch(InputComponent.class)
           .ifPresent(
               pc -> {
-                playerClallbacks = pc.callbacks();
-                pc.removeCallback(LevelEditorMode.PRIMARY_UP);
-                pc.removeCallback(LevelEditorMode.PRIMARY_DOWN);
-                pc.removeCallback(LevelEditorMode.SECONDARY_UP);
-                pc.removeCallback(LevelEditorMode.SECONDARY_DOWN);
-                pc.removeCallback(LevelEditorMode.TERTIARY);
-                pc.removeCallback(Input.Buttons.LEFT);
-                pc.removeCallback(Input.Buttons.RIGHT);
+                playerControlsDeactivatedBeforeEditor = pc.deactivateControls();
+                pc.deactivateControls(true);
               });
       player
           .fetch(HealthComponent.class)
@@ -205,25 +220,25 @@ public class LevelEditorSystem extends System {
         currentModeInstance.onEnter();
       }
     } else {
-      if (playerClallbacks != null) {
+      Entity editorCamera = editorCameraEntity();
+      editorCamera.remove(CameraComponent.class);
+      player.add(editorCameraComponent);
+      editorCamera.remove(PositionComponent.class);
+      editorCameraComponent = null;
+      LevelEditorSystem.active = false;
+      if (cameraZoomBeforeEditor != null) {
+        CameraSystem.camera().zoom = cameraZoomBeforeEditor;
+        cameraZoomBeforeEditor = null;
+      }
+      if (playerControlsDeactivatedBeforeEditor != null) {
         player
             .fetch(InputComponent.class)
-            .ifPresent(
-                pc -> {
-                  playerClallbacks.forEach(
-                      ((key, value) ->
-                          pc.registerCallback(
-                              key, value.callback(), value.repeat(), value.pauseable())));
-                });
-        playerClallbacks = null;
-        player
-            .fetch(HealthComponent.class)
-            .ifPresent(
-                hc -> {
-                  hc.godMode(false);
-                });
+            .ifPresent(pc -> pc.deactivateControls(playerControlsDeactivatedBeforeEditor));
+        playerControlsDeactivatedBeforeEditor = null;
       }
+      player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(false));
       currentModeInstance.onExit();
+      Game.hud().dialogsSuppressed(false);
     }
     updateUI();
   }
@@ -388,21 +403,30 @@ public class LevelEditorSystem extends System {
     updateUI();
 
     if (!active) return;
+    Entity editorCamera = editorCameraEntity();
 
     clearTextFieldFocusOnOutsideClick();
 
     if (Game.player().map(Game.hud()::hasOpenUI).orElse(false)) {
+      currentModeInstance.onCursorLeaveWorld();
       return;
     }
 
     // Do not react to editor keys while the user types into a text field of the editor UI
     if (Game.stage().map(stage -> stage.getKeyboardFocus() instanceof TextField).orElse(false)) {
+      currentModeInstance.onCursorLeaveWorld();
       return;
     }
 
     if (InputManager.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
       toggleDebugShader();
     }
+
+    boolean cursorCaptured = uiCapturesCursor();
+    if (cursorCaptured) {
+      currentModeInstance.onCursorLeaveWorld();
+    }
+    updateFreeCamera(editorCamera, !cursorCaptured);
 
     Mode previousMode = currentMode;
     if (InputManager.isKeyPressed(MODE_1)) {
@@ -418,10 +442,65 @@ public class LevelEditorSystem extends System {
     }
 
     if (!internalStopped || previousMode != currentMode) {
-      if (!uiCapturesCursor()) {
-        currentModeInstance.doExecute();
+      if (!cursorCaptured) {
+        currentModeInstance.execute();
       }
     }
+  }
+
+  private static void updateFreeCamera(Entity editorCamera, boolean allowZoom) {
+    PositionComponent positionComponent = editorCamera.fetch(PositionComponent.class).orElseThrow();
+
+    int horizontal =
+        (InputManager.isKeyPressed(Input.Keys.D) ? 1 : 0)
+            - (InputManager.isKeyPressed(Input.Keys.A) ? 1 : 0);
+    int vertical =
+        (InputManager.isKeyPressed(Input.Keys.W) ? 1 : 0)
+            - (InputManager.isKeyPressed(Input.Keys.S) ? 1 : 0);
+    engine.utils.Vector2 direction = engine.utils.Vector2.of(horizontal, vertical);
+    if (!direction.isZero()) {
+      float speedMultiplier =
+          InputManager.isKeyPressed(Input.Keys.SHIFT_LEFT)
+                  || InputManager.isKeyPressed(Input.Keys.SHIFT_RIGHT)
+              ? FREE_CAMERA_SHIFT_SPEED_MULTIPLIER
+              : 1f;
+      float distance =
+          FREE_CAMERA_SPEED
+              * speedMultiplier
+              * CameraSystem.camera().zoom
+              * Math.min(Gdx.graphics.getDeltaTime(), 0.1f);
+      positionComponent.position(
+          positionComponent.position().translate(direction.normalize().scale(distance)));
+    }
+
+    float scrollAmount = InputManager.scrollAmountY();
+    if (allowZoom && scrollAmount != 0f) {
+      CameraSystem.camera().zoom =
+          Math.max(
+              MIN_FREE_CAMERA_ZOOM,
+              CameraSystem.camera().zoom + scrollAmount * FREE_CAMERA_ZOOM_STEP);
+    }
+  }
+
+  private static Entity editorCameraEntity() {
+    if (editorCameraEntity == null
+        || Game.findEntityById(editorCameraEntity.id())
+            .filter(entity -> entity == editorCameraEntity)
+            .isEmpty()) {
+      if (editorCameraEntity != null) {
+        editorCameraEntity.remove(CameraComponent.class);
+        editorCameraEntity.remove(PositionComponent.class);
+      }
+      editorCameraEntity = Entity.createLocalEntity("Level Editor Camera");
+      Game.add(editorCameraEntity);
+      if (active) {
+        editorCameraEntity.add(
+            new PositionComponent(
+                CameraSystem.camera().position.x, CameraSystem.camera().position.y));
+        editorCameraEntity.add(editorCameraComponent);
+      }
+    }
+    return editorCameraEntity;
   }
 
   /**

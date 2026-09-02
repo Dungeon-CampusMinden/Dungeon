@@ -20,8 +20,6 @@ import java.util.Objects;
 /** Abstract base class for different modes in the Level Editor. */
 public abstract class LevelEditorMode {
 
-  private static DungeonLevel level = null;
-
   /** Primary action button. Direction UP */
   public static final int PRIMARY_UP = Input.Keys.E;
 
@@ -68,12 +66,6 @@ public abstract class LevelEditorMode {
     return name;
   }
 
-  /** Decorator method to assign the level reference before executing the mode logic. */
-  public void doExecute() {
-    LevelSystem.level().ifPresent(level -> LevelEditorMode.level = (DungeonLevel) level);
-    execute();
-  }
-
   /** Executes the logic for this mode. Called every frame. */
   public abstract void execute();
 
@@ -87,6 +79,9 @@ public abstract class LevelEditorMode {
 
   /** Called when exiting this mode. */
   public abstract void onExit();
+
+  /** Called when editor UI prevents this mode from handling the world cursor. */
+  public void onCursorLeaveWorld() {}
 
   /**
    * Gets the header text shown at the top of the details panel of the level editor.
@@ -167,6 +162,8 @@ public abstract class LevelEditorMode {
       return "LMB";
     } else if (key == Input.Buttons.RIGHT) {
       return "RMB";
+    } else if (key == Input.Buttons.MIDDLE) {
+      return "MMB";
     } else if (key == Input.Keys.Y) {
       return "Z";
     } else if (key == Input.Keys.Z) {
@@ -176,13 +173,16 @@ public abstract class LevelEditorMode {
   }
 
   protected DungeonLevel getLevel() {
-    if (level == null) {
-      Game.currentLevel()
-          .filter(DungeonLevel.class::isInstance)
-          .map(DungeonLevel.class::cast)
-          .ifPresent(currentLevel -> level = currentLevel);
+    Object currentLevel =
+        Game.currentLevel()
+            .orElseThrow(() -> new IllegalStateException("No current level is loaded."));
+    if (currentLevel instanceof DungeonLevel dungeonLevel) {
+      return dungeonLevel;
     }
-    return level;
+    throw new IllegalStateException(
+        "Level editor requires a DungeonLevel, but the current level is "
+            + currentLevel.getClass().getName()
+            + ".");
   }
 
   protected LevelEditorSystem getSystem() {

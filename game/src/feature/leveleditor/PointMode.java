@@ -19,6 +19,7 @@ public class PointMode extends LevelEditorMode {
 
   private static SnapMode snapMode = SnapMode.OnGrid;
   private static String heldPointName = null;
+  private String hoveredPointName;
 
   /**
    * Constructs a new PointMode.
@@ -30,10 +31,19 @@ public class PointMode extends LevelEditorMode {
   }
 
   @Override
-  public void onEnter() {}
+  public void onEnter() {
+    hoveredPointName = null;
+  }
 
   @Override
-  public void onExit() {}
+  public void onExit() {
+    hoveredPointName = null;
+  }
+
+  @Override
+  public void onCursorLeaveWorld() {
+    hoveredPointName = null;
+  }
 
   @Override
   public void execute() {
@@ -45,7 +55,7 @@ public class PointMode extends LevelEditorMode {
     Point snapPos = snapMode.getPosition(cursorPos);
     if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
       if (heldPointName != null) {
-        // Place held deco
+        // Place held point
         getLevel().addNamedPoint(heldPointName, snapPos);
         heldPointName = null;
         levelChanged();
@@ -81,7 +91,7 @@ public class PointMode extends LevelEditorMode {
         levelChanged();
       }
     } else if (InputManager.isKeyPressed(TERTIARY)) {
-      // Delete deco on cursor
+      // Delete point on cursor
       getOnPosition(cursorPos)
           .ifPresent(
               point -> {
@@ -89,24 +99,40 @@ public class PointMode extends LevelEditorMode {
                 levelChanged();
               });
     }
+    hoveredPointName = getOnPosition(cursorPos).orElse(null);
   }
 
   @Override
   public void render() {
-    DebugDrawSystem.drawNamedPoints(heldPointName, true);
+    String highlightedPoint = hoveredPointName != null ? hoveredPointName : heldPointName;
+    DebugDrawSystem.drawNamedPoints(highlightedPoint, true);
   }
 
   @Override
   public String additionalInformation() {
-    String status =
-        "Snap Mode: "
-            + snapMode.name()
-            + "\nHeld Point: "
-            + Objects.requireNonNullElse(heldPointName, "<none>")
-            + "\nTotal Points: "
-            + getLevel().namedPoints().size();
+    StringBuilder status =
+        new StringBuilder("Snap Mode: ")
+            .append(snapMode.name())
+            .append("\nHeld Point: ")
+            .append(Objects.requireNonNullElse(heldPointName, "<none>"))
+            .append("\nTotal Points: ")
+            .append(getLevel().namedPoints().size());
 
-    return status;
+    if (hoveredPointName != null) {
+      Point position = getLevel().namedPoints().get(hoveredPointName);
+      if (position != null) {
+        status
+            .append("\nPoint under cursor: ")
+            .append(hoveredPointName)
+            .append("\nPosition: (")
+            .append(position.x())
+            .append(", ")
+            .append(position.y())
+            .append(")");
+      }
+    }
+
+    return status.toString();
   }
 
   @Override

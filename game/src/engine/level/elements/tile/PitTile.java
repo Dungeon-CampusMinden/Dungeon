@@ -14,7 +14,7 @@ import engine.utils.components.path.IPath;
  * closed. If it is open, the player can fall into it. If it is closed, the player can walk over it.
  */
 public class PitTile extends Tile {
-  private final IPath stillStableTexturePath;
+  private IPath stillStableTexturePath;
   private boolean open;
   private long timeToOpen;
 
@@ -101,6 +101,12 @@ public class PitTile extends Tile {
    */
   public long timeToOpen() {
     return this.timeToOpen;
+  }
+
+  @Override
+  public void designLabel(DesignLabel designLabel) {
+    super.designLabel(designLabel);
+    stillStableTexturePath = TileTextureFactory.findTexturePath(LevelElement.FLOOR, designLabel);
   }
 
   @Override

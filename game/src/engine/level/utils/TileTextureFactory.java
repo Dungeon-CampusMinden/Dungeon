@@ -122,25 +122,26 @@ public class TileTextureFactory {
    */
   private static IPath resolvePrimaryPath(LevelPart levelPart) {
     String prefixPath = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
+    String sharedPortalPrefix = "dungeon/" + DesignLabel.DEFAULT.name().toLowerCase() + "/";
 
     if (levelPart.element == LevelElement.GITTER) {
       IPath path = findGitterElement(levelPart);
       if (path != null) {
-        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+        return new SimpleIPath(sharedPortalPrefix + path.pathString() + ".png");
       }
     }
 
     if (levelPart.element == LevelElement.GLASSWALL) {
       IPath path = findGlasswallElement(levelPart);
       if (path != null) {
-        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+        return new SimpleIPath(sharedPortalPrefix + path.pathString() + ".png");
       }
     }
 
     if (levelPart.element == LevelElement.PORTAL) {
       IPath path = findPortalElement(levelPart);
       if (path != null) {
-        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+        return new SimpleIPath(sharedPortalPrefix + path.pathString() + ".png");
       }
     }
 
@@ -327,15 +328,39 @@ public class TileTextureFactory {
    * @return Path to texture
    */
   public static IPath findTexturePath(Tile element, Tile[][] layout, LevelElement elementType) {
+    return findTexturePath(element, layout, levelElementLayout(layout), elementType);
+  }
+
+  /**
+   * Converts a tile layout to the element layout used for neighborhood-based texture resolution.
+   *
+   * @param layout the tile layout
+   * @return the corresponding element layout
+   */
+  public static LevelElement[][] levelElementLayout(Tile[][] layout) {
     LevelElement[][] elementLayout = new LevelElement[layout.length][layout[0].length];
     for (int x = 0; x < layout[0].length; x++) {
       for (int y = 0; y < layout.length; y++) {
         elementLayout[y][x] = layout[y][x].levelElement();
       }
     }
+    return elementLayout;
+  }
+
+  /**
+   * Resolves a tile texture using a previously derived element layout.
+   *
+   * @param element tile to resolve
+   * @param layout the tile layout, used for pit state
+   * @param elementLayout the precomputed element layout
+   * @param elementType the element type to resolve at the tile's coordinate
+   * @return path to the texture
+   */
+  public static IPath findTexturePath(
+      Tile element, Tile[][] layout, LevelElement[][] elementLayout, LevelElement elementType) {
     elementLayout[element.coordinate().y()][element.coordinate().x()] = elementType;
 
-    IPath pitPath = findTexturePathPit(element, layout);
+    IPath pitPath = findTexturePathPit(element, layout, elementLayout);
     if (pitPath != null) {
       return pitPath;
     }
@@ -353,9 +378,11 @@ public class TileTextureFactory {
    *
    * @param element Tile to check for
    * @param layout The level
+   * @param elementLayout the precomputed element layout
    * @return a texture path for open pits, or {@code null} if no pit-specific rule applies
    */
-  private static IPath findTexturePathPit(Tile element, Tile[][] layout) {
+  private static IPath findTexturePathPit(
+      Tile element, Tile[][] layout, LevelElement[][] elementLayout) {
     if (!(element instanceof PitTile pit) || !pit.isOpen()) {
       return null;
     }
@@ -377,14 +404,14 @@ public class TileTextureFactory {
       return new SimpleIPath(wallEmptyPath);
     }
 
-    IPath abovePath = findTexturePath(aboveTile, layout, aboveTile.levelElement());
-    String abovePathString = abovePath != null ? abovePath.pathString() : null;
-
-    if (abovePathString != null && abovePathString.endsWith("/wall/empty.png")) {
+    if (aboveTile instanceof PitTile abovePit && abovePit.isOpen()) {
       return new SimpleIPath(wallEmptyPath);
     }
 
-    if (aboveTile instanceof PitTile abovePit && abovePit.isOpen()) {
+    IPath abovePath = findTexturePath(aboveTile, layout, elementLayout, aboveTile.levelElement());
+    String abovePathString = abovePath != null ? abovePath.pathString() : null;
+
+    if (abovePathString != null && abovePathString.endsWith("/wall/empty.png")) {
       return new SimpleIPath(wallEmptyPath);
     }
 

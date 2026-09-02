@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -333,6 +334,27 @@ public class DungeonLevel implements ILevel, ITickable {
   @Override
   public List<Tile> startTiles() {
     return startTiles;
+  }
+
+  /**
+   * Changes the visual design of every tile and refreshes all resolved textures.
+   *
+   * @param designLabel the new level design
+   */
+  public void designLabel(DesignLabel designLabel) {
+    Objects.requireNonNull(designLabel);
+    for (Tile[] row : layout) {
+      for (Tile tile : row) {
+        tile.designLabel(designLabel);
+      }
+    }
+    LevelElement[][] elementLayout = TileTextureFactory.levelElementLayout(layout);
+    for (Tile[] row : layout) {
+      for (Tile tile : row) {
+        tile.texturePath(
+            TileTextureFactory.findTexturePath(tile, layout, elementLayout, tile.levelElement()));
+      }
+    }
   }
 
   @Override

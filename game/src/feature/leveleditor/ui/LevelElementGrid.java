@@ -45,6 +45,7 @@ public class LevelElementGrid extends Table {
   private final Label[] markers = new Label[LevelElement.values().length];
   private final IntSupplier primary;
   private final IntSupplier secondary;
+  private final Function<LevelElement, String> texturePath;
 
   private int lastPrimary = Integer.MIN_VALUE;
   private int lastSecondary = Integer.MIN_VALUE;
@@ -68,6 +69,7 @@ public class LevelElementGrid extends Table {
       IntConsumer onSecondary) {
     this.primary = primary;
     this.secondary = secondary;
+    this.texturePath = texturePath;
     defaults().pad(3f).size(BUTTON_SIZE);
 
     Label.LabelStyle markerStyle =
@@ -127,6 +129,16 @@ public class LevelElementGrid extends Table {
     forceRefresh();
   }
 
+  /** Reloads the preview image of every button from the configured texture-path provider. */
+  public void refreshTextures() {
+    LevelElement[] elements = LevelElement.values();
+    for (int i = 0; i < elements.length; i++) {
+      ImageButton.ImageButtonStyle style = buttons[i].getStyle();
+      style.imageUp = texture(texturePath.apply(elements[i]));
+      buttons[i].setStyle(style);
+    }
+  }
+
   private void forceRefresh() {
     lastPrimary = primary.getAsInt();
     lastSecondary = secondary.getAsInt();
@@ -166,8 +178,12 @@ public class LevelElementGrid extends Table {
     style.up = base.up;
     style.down = base.down;
     style.over = base.over;
-    Texture texture = TextureMap.instance().textureAt(new SimpleIPath(texturePath));
-    style.imageUp = new TextureRegionDrawable(new TextureRegion(texture));
+    style.imageUp = texture(texturePath);
     return style;
+  }
+
+  private static TextureRegionDrawable texture(String texturePath) {
+    Texture texture = TextureMap.instance().textureAt(new SimpleIPath(texturePath));
+    return new TextureRegionDrawable(new TextureRegion(texture));
   }
 }
