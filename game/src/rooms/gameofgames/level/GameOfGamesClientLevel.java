@@ -8,7 +8,6 @@ import engine.utils.Tuple;
 import feature.entities.deco.Deco;
 import java.util.List;
 import java.util.Map;
-import rooms.gameofgames.util.InteractionFeedback;
 
 /** Client-side level setup for the Game of Games escape room. */
 public class GameOfGamesClientLevel extends DungeonLevel {
@@ -41,10 +40,5 @@ public class GameOfGamesClientLevel extends DungeonLevel {
   public GameOfGamesClientLevel(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, LEVEL_NAME);
-  }
-
-  @Override
-  protected void onTick() {
-    InteractionFeedback.update();
   }
 }

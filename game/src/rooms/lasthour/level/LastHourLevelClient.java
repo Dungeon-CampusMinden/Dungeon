@@ -1,6 +1,5 @@
 package rooms.lasthour.level;
 
-import static rooms.lasthour.level.LastHourLevel.checkInteractFeedback;
 import static rooms.lasthour.level.LastHourLevel.setupLightingShader;
 import static rooms.lasthour.level.LastHourLevel.updateLightingShader;
 
@@ -40,7 +39,6 @@ public class LastHourLevelClient extends DungeonLevel {
 
   @Override
   protected void onTick() {
-    checkInteractFeedback();
     findEntities();
 
     if (pc != null && keypad != null)

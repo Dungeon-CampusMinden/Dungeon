@@ -14,15 +14,12 @@ import engine.level.utils.LevelElement;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.systems.DrawSystem;
-import engine.utils.CursorUtil;
-import engine.utils.Cursors;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
-import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
@@ -59,7 +56,6 @@ import feature.utils.EntityUtils;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import rooms.lasthour.modules.computer.ComputerDialog;
@@ -71,7 +67,6 @@ import rooms.lasthour.modules.trash.TrashMinigameFactory;
 import rooms.lasthour.modules.usbstick.UsbStickColor;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.starter.LastHourClient;
-import rooms.lasthour.util.InteractionHelper;
 import rooms.lasthour.util.LastHourAchievements;
 import rooms.lasthour.util.LastHourPuzzle;
 import rooms.lasthour.util.LastHourQuestLogUtil;
@@ -845,7 +840,6 @@ public class LastHourLevel extends DungeonLevel {
     Game.allPlayers().filter(p -> !INTRO_SHOWN_TO.contains(p.id())).forEach(p -> showIntro(p.id()));
     registerUsbCollectorHooks();
     if (!Game.isHeadless()) {
-      checkInteractFeedback();
       updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
     }
   }
@@ -984,58 +978,6 @@ public class LastHourLevel extends DungeonLevel {
     }
   }
 
-  /** The entity that currently has the solid (in-range) interaction outline, or {@code null}. */
-  private static Entity currentHighlightedEntity = null;
-
-  /** The entity that currently has the semi-transparent (discovery) outline, or {@code null}. */
-  private static Entity currentSemiHighlightedEntity = null;
-
-  /** Solid highlight color for the entity that will actually be interacted with. */
-  private static final Color HIGHLIGHT_SOLID = new Color(0.8f, 0, 0, 1f);
-
-  /** Semi-transparent highlight color for discoverable but out-of-range entities. */
-  private static final Color HIGHLIGHT_SEMI = new Color(0.8f, 0.7f, 0, 0.4f);
-
-  private static final String SHADER_NAME = "highlight_outline";
-
-  /**
-   * Cursor-first interaction feedback. The entity nearest to the cursor gets a semi-transparent
-   * discovery outline so players can scan the room. If that entity is also within interaction range
-   * of the hero, it gets a solid red outline instead, and the world cursor switches to {@link
-   * Cursors#INTERACT}.
-   */
-  static void checkInteractFeedback() {
-    Game.player()
-        .ifPresent(
-            p -> {
-              Optional<Entity> nearCursor = InteractionHelper.findCursorNearEntity();
-              Optional<Entity> inRange = InteractionHelper.findInteractTarget(p);
-
-              // Clear previous highlights
-              clearHighlight(currentHighlightedEntity);
-              clearHighlight(currentSemiHighlightedEntity);
-              currentHighlightedEntity = null;
-              currentSemiHighlightedEntity = null;
-
-              // Apply highlights
-              nearCursor.ifPresent(
-                  e -> {
-                    if (inRange.isPresent() && e.id() == inRange.get().id()) {
-                      // Entity is near cursor AND in hero range → solid highlight
-                      applyOutline(e, HIGHLIGHT_SOLID);
-                      currentHighlightedEntity = e;
-                    } else {
-                      // Entity is near cursor but out of hero range → semi highlight
-                      applyOutline(e, HIGHLIGHT_SEMI);
-                      currentSemiHighlightedEntity = e;
-                    }
-                  });
-
-              // Update world cursor (only when entity is actually interactable)
-              updateWorldCursor(inRange.isPresent());
-            });
-  }
-
   private static void addInventory(Entity entity, List<Item> items) {
     InventoryComponent ic = new InventoryComponent();
     items.forEach(ic::add);
@@ -1060,32 +1002,6 @@ public class LastHourLevel extends DungeonLevel {
                 DialogContextKeys.SECONDARY_ENTITY, container.id()));
     ctx.owner(who.id());
     DialogFactory.show(ctx, who.id());
-  }
-
-  /**
-   * Sets the world cursor to the interact cursor when an interactable is targeted, or clears it
-   * otherwise. Uses {@link CursorUtil#setWorldCursor} / {@link CursorUtil#clearWorldCursor} so the
-   * Stage input listener respects the override and does not flicker back to DEFAULT every frame.
-   *
-   * @param hasTarget true if an interactable entity is currently targeted by the cursor
-   */
-  private static void updateWorldCursor(boolean hasTarget) {
-    if (hasTarget) {
-      CursorUtil.setWorldCursor(Cursors.INTERACT);
-    } else {
-      CursorUtil.clearWorldCursor();
-    }
-  }
-
-  static void clearHighlight(Entity entity) {
-    if (entity == null) return;
-    entity.fetch(DrawComponent.class).ifPresent(dc -> dc.shaders().remove(SHADER_NAME));
-  }
-
-  static void applyOutline(Entity entity, Color color) {
-    entity
-        .fetch(DrawComponent.class)
-        .ifPresent(dc -> dc.shaders().add(SHADER_NAME, new OutlineShader(1, color)));
   }
 
   private String pcStateToDCState(ComputerStateComponent csc) {

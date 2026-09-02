@@ -1,5 +1,6 @@
 package engine.level;
 
+import engine.Game;
 import engine.level.elements.ILevel;
 import engine.level.elements.astar.TileConnection;
 import engine.level.elements.astar.TileHeuristic;
@@ -23,6 +24,7 @@ import engine.utils.Tuple;
 import engine.utils.Vector2;
 import engine.utils.components.path.IPath;
 import feature.entities.deco.Deco;
+import feature.interaction.InteractionFeedback;
 import feature.level.ITickable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -383,6 +385,7 @@ public class DungeonLevel implements ILevel, ITickable {
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) onFirstTick();
     onTick();
+    if (!Game.isHeadless()) InteractionFeedback.update();
   }
 
   /**
