@@ -190,6 +190,9 @@
         "EmailSubjectText": "Subject",
         "EmailAttachmentsText": "Attachments",
         "EmailLINK_SOMEText": "Full link:",
-        "EmailLINK_NONEText": "Full link: <none>"
+        "EmailLINK_NONEText": "Full link: <none>",
+        "EmailAttachment_1": "Sign_This_To_Receive_Funds.pdf",
+        "EmailAttachment_2": "Linkin_Park_-_In_The_End.mp3.exe",
+        "EmailAttachment_3": "Tracking Details.pdf"
     }
 }

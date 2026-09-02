@@ -190,6 +190,9 @@
         "EmailSubjectText": "Betreff",
         "EmailAttachmentsText": "Anhänge",
         "EmailLINK_SOMEText": "Vollständiger Link:",
-        "EmailLINK_NONEText": "Vollständiger Link: <keiner>"
+        "EmailLINK_NONEText": "Vollständiger Link: <keiner>",
+        "EmailAttachment_1": "Unterschreiben_Sie_hier_um_Geld_zu_erhalten.pdf",
+        "EmailAttachment_2": "Linkin_Park_-_In_The_End.mp3.exe",
+        "EmailAttachment_3": "Sendungsverfolgungsdetails.pdf"
     }
 }

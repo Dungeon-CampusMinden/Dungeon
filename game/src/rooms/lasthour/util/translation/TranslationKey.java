@@ -83,4 +83,7 @@ public class TranslationKey {
   public static final String EmailAttachmentsText = "EmailAttachmentsText";
   public static final String EmailLINK_SOMEText = "EmailLINK_SOMEText";
   public static final String EmailLINK_NONEText = "EmailLINK_NONEText";
+  public static final String EmailAttachment_1 = "EmailAttachment_1";
+  public static final String EmailAttachment_2 = "EmailAttachment_2";
+  public static final String EmailAttachment_3 = "EmailAttachment_3";
 }

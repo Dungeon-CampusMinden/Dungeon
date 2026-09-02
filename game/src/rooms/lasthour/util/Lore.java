@@ -116,7 +116,7 @@ public class Lore {
               "royaloffice.transferdesk@poqwmavnakld.gl",
               TranslationKey.Email_1_Subject,
               TranslationKey.Email_1_Content,
-              List.of("Sign_This_To_Receive_Funds.pdf")),
+              List.of(TranslationKey.EmailAttachment_1)),
           new EmailsTab.Email(
               "SecuGate Support",
               "support@secugate-reset247.com",
@@ -128,7 +128,7 @@ public class Lore {
               "noreply@illegal-music-downloader.com",
               TranslationKey.Email_3_Subject,
               TranslationKey.Email_3_Content,
-              List.of("Linkin_Park_-_In_The_End.mp3.exe")),
+              List.of(TranslationKey.EmailAttachment_2)),
           new EmailsTab.Email(
               "Andreas Keller",
               "andreas.keller@secugate.com",
@@ -158,7 +158,7 @@ public class Lore {
               "tracking@parcel-hold-center.info",
               TranslationKey.Email_8_Subject,
               TranslationKey.Email_8_Content,
-              List.of("Tracking Details.pdf")),
+              List.of(TranslationKey.EmailAttachment_3)),
           new EmailsTab.Email(
               "CryptoGrowth Alerts",
               "alerts@cryptogrowth-daily.biz",
@@ -168,7 +168,7 @@ public class Lore {
 
   /** List of attachment file names that lead to viruses. */
   public static final List<String> VirusAttachmentNames =
-      List.of("Tracking Details.pdf", "Linkin_Park_-_In_The_End.mp3.exe");
+      List.of(TranslationKey.EmailAttachment_2, TranslationKey.EmailAttachment_3);
 
   /** List of URLs that lead to viruses. */
   public static final List<String> VirusWebsites;
