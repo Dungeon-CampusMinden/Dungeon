@@ -68,11 +68,7 @@ public final class InteractionFeedback {
         .filter(
             entity -> {
               float range =
-                  entity
-                      .fetch(InteractionComponent.class)
-                      .orElseThrow()
-                      .interaction()
-                      .range();
+                  entity.fetch(InteractionComponent.class).orElseThrow().interaction().range();
               return heroPos.distanceSquared(EntityUtils.getPosition(entity)) <= range * range;
             });
   }
