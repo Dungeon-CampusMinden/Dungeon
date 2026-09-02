@@ -235,7 +235,7 @@ public class EmailsTab extends ComputerTab {
 
       Table attachmentsTable = new Table();
       for (String attachment : selectedEmail.attachments()) {
-        TextButton tb = Scene2dElementFactory.createButton(attachment, "blue-outline", 18);
+        TextButton tb = Scene2dElementFactory.createButton(Localization.getInstance().getCurrentTranslator().translate(attachment), "blue-outline", 18);
         tb.padLeft(tb.getPadLeft() + 10);
         tb.padRight(tb.getPadRight() + 10);
         tb.addListener(
@@ -278,7 +278,7 @@ public class EmailsTab extends ComputerTab {
     ComputerDialog.getInstance()
         .ifPresent(
             c -> {
-              c.addTab(new FileTab(sharedState(), attachmentName));
+              c.addTab(new FileTab(sharedState(), Localization.getInstance().getCurrentTranslator().translate(attachmentName)));
             });
   }
 
