@@ -1,8 +1,6 @@
 package engine.utils;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
+import com.badlogic.gdx.Gdx;
 import java.util.logging.Logger;
 
 /** Utility class for clipboard operations. */
@@ -17,9 +15,7 @@ public class ClipboardUtil {
    */
   public static void copyToClipboard(String text) {
     try {
-      StringSelection stringSelection = new StringSelection(text);
-      Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-      clipboard.setContents(stringSelection, null);
+      Gdx.app.getClipboard().setContents(text);
     } catch (Exception e) {
       LOGGER.warning("Failed to copy dungeon layout to clipboard: " + e.getMessage());
     }
