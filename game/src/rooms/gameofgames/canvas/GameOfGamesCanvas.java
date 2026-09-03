@@ -12,6 +12,7 @@ import feature.canvas.nodes.LabelNode;
 import feature.canvas.nodes.SocketNode;
 import feature.components.UIComponent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /** Example canvas used by the Game of Games escape room. */
@@ -22,6 +23,8 @@ public final class GameOfGamesCanvas {
   private static final float AREA_HEIGHT = 560f;
   private static final float TOOLS_WIDTH = 200f;
   private static final float TOOLS_MARGIN = 12f;
+
+  private static final HashMap<String, Integer> VALUE_MAP = new HashMap<>();
 
   private static final CanvasDefinition CANVAS =
       CanvasMaker.define(
@@ -112,24 +115,65 @@ public final class GameOfGamesCanvas {
     }
 
     SocketNode socket = new SocketNode("rule-socket", "public static", 3);
-    socket.position(440f, 0f);
+    socket.position(40f, 500f);
     socket.onSocketChanged(GameOfGamesCanvas::onSocketChanged);
 
     LabelNode fixed = new LabelNode("rule-socket-fix", "=");
     socket.socket(1, fixed).lockSocket(1, true);
 
     LabelNode first = new LabelNode("rule-socket-fill-1", "String test");
-    first.position(440f, 100f);
+    first.position(40f, 400f);
     nodes.add(first);
 
     LabelNode second =
         new LabelNode(
             "rule-socket-fill-2",
             "\"Hello world! This is a very long string,[n]so let's see how it looks.\"");
-    second.position(440f, 200f);
+    second.position(40f, 300f);
     nodes.add(second);
     nodes.add(socket);
+
+
+    SocketNode equi1 = new SocketNode("equation1", "=", 2).placeSelfBefore(1).onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
+    SocketNode equi2 = new SocketNode("equation2", "=", 2).placeSelfBefore(1).onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
+    SocketNode equi3 = new SocketNode("equation3", "=", 2).placeSelfBefore(1).onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
+    SocketNode equi4 = new SocketNode("equation4", "=", 2).placeSelfBefore(1).onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
+
+    equi1.position(800f, 0f).size(50f, 50f);
+    equi2.position(800f, 100f).size(50f, 50f);
+    equi3.position(800f, 200f).size(50f, 50f);
+    equi4.position(800f, 300f).size(50f, 50f);
+
+    nodes.add(equi1);
+    nodes.add(equi2);
+    nodes.add(equi3);
+    nodes.add(equi4);
+
+    nodes.add(createValueNode("-9.33 + (7 / 3) * 4", 0));
+    nodes.add(createValueNode("21", 21));
+
+    nodes.add(createValueNode("24 + 2 * 3", 30));
+    nodes.add(createValueNode("10^2", 100));
+
+    nodes.add(createValueNode("100 / 300 - 1 / 3", 0));
+    nodes.add(createValueNode("62 / 2 - 1", 30));
+
+    nodes.add(createValueNode("Amount of cm[n]in a meter", 100));
+    nodes.add(createValueNode("7 * 3", 21));
+
+
+
     return nodes;
+  }
+
+  private static int yOffset = 0;
+
+  private static LabelNode createValueNode(String text, int value) {
+    LabelNode node = new LabelNode(CanvasArea.newLocalId(), text);
+    node.position(650f, yOffset);
+    VALUE_MAP.put(text, value);
+    yOffset += 100;
+    return node;
   }
 
   private static void spawnLabel(ActionNode source, boolean sticky) {
@@ -157,5 +201,21 @@ public final class GameOfGamesCanvas {
     boolean correct2 =
         socketNode.socket(2).map(n -> n.id().equals("rule-socket-fill-2")).orElse(false);
     socketNode.color(correct1 && correct2 ? Color.GREEN : LabelNode.DEFAULT_COLOR);
+  }
+
+  private static void checkSocketEquation(SocketNode socketNode, int index, CanvasNode node, boolean added) {
+    if(socketNode.socketedNodes().size() < 2) {
+      socketNode.color(LabelNode.DEFAULT_COLOR);
+      return;
+    }
+
+    LabelNode left = (LabelNode) socketNode.socketedNodes().get(0);
+    LabelNode right = (LabelNode) socketNode.socketedNodes().get(1);
+
+    Integer leftValue = VALUE_MAP.get(left.text());
+    Integer rightValue = VALUE_MAP.get(right.text());
+
+    boolean correct = leftValue != null && rightValue != null && leftValue.equals(rightValue);
+    socketNode.color(correct ? Color.GREEN : LabelNode.DEFAULT_COLOR);
   }
 }
