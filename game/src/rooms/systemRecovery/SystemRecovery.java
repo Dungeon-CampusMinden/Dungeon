@@ -29,6 +29,7 @@ import feature.systems.LevelEditorSystem;
 import java.util.logging.Level;
 import rooms.systemRecovery.level.SystemRecoveryClientLevel;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
 
@@ -63,7 +64,7 @@ public final class SystemRecovery {
         ServerStarter.builder(SystemRecovery::serverSetup)
             .characterClasses(MULTIPLAYER_CHARACTER_CLASSES)
             .levels(Tuple.of(LEVEL_KEY, SystemRecoveryLevel.class))
-            .onConfigure(SystemRecovery::initLocalization)
+            .onConfigure(SystemRecovery::registerContent)
             .config(
                 new SimpleIPath("dungeon_config.json"),
                 feature.input.configuration.KeyboardConfig.class,
@@ -77,6 +78,7 @@ public final class SystemRecovery {
         ClientStarter.builder(server, SystemRecoveryClient::clientSetup)
             .levels(Tuple.of(LEVEL_KEY, SystemRecoveryClientLevel.class))
             .initLocalization(SystemRecovery::initLocalization)
+            .onConfigure(SystemRecoveryComputerFactory::ensureRegistration)
             .build();
 
     GameStarter game =
@@ -94,6 +96,12 @@ public final class SystemRecovery {
     Localization localization = Game.localization();
     localization.registerTranslationFile(Language.DE, "language/escapeRoom/de.json");
     localization.registerTranslationFile(Language.EN, "language/escapeRoom/en.json");
+  }
+
+  /** Registers shared translations and custom dialog builders. */
+  static void registerContent() {
+    initLocalization();
+    SystemRecoveryComputerFactory.ensureRegistration();
   }
 
   private static void serverSetup() {
