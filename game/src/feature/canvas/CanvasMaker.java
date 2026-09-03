@@ -1,12 +1,8 @@
 package feature.canvas;
 
 import engine.network.messages.c2s.DialogResponseMessage;
-import feature.components.UIComponent;
-import feature.hud.UIUtils;
-import feature.hud.dialogs.DialogContext;
-import feature.hud.dialogs.DialogContextKeys;
-import feature.hud.dialogs.DialogFactory;
-import feature.hud.dialogs.DialogType;
+import engine.utils.logging.DungeonLogger;
+import java.lang.StackWalker.Option;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,126 +11,158 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
- * Factory and runtime registry for {@link CanvasDefinition}s.
+ * Defines canvases and resolves their callback-bearing node prototypes on clients.
  *
- * <p>Definitions are registered under their canvas id so that the non serializable parts - the
- * default node supplier and the server side event handlers - never have to travel inside a {@link
- * DialogContext}. Only the canvas id and the evaluated default nodes are sent to the client, which
- * mirrors how {@link feature.puzzle.PuzzleMaker} keeps puzzles out of the wire format.
- *
- * <p>Typical usage from a level setup:
+ * <p>A room normally needs one static field:
  *
  * <pre>{@code
- * CanvasDefinition canvas =
- *     CanvasMaker.builder("assoc-lab")
+ * private static final CanvasDefinition CANVAS =
+ *     CanvasMaker.define("association-lab", canvas -> canvas
  *         .title("Association Lab")
- *         .areaSize(900, 600)
- *         .options(o -> o.zoom(0.25f, 4f).grid(32f, true).snapToGrid(true))
- *         // static defaults
- *         .node(new LabelNode("alpha", "Alpha").position(0, 0))
- *         .node(new LabelNode("beta", "Beta").position(200, 0))
- *         // dynamic defaults: re-evaluated on the server every time the canvas is opened,
- *         // so nodes unlocked by game progress simply appear on the next open
- *         .nodes(() -> discoveredItems().stream().map(MyNodes::forItem).toList())
- *         // reaction to an event the client fired via CanvasArea#fireServerEvent
- *         .onEvent("solved", payload -> door.open())
- *         .build();
- *
- * CanvasMaker.show(canvas, hero.id());
+ *         .nodes(MyCanvas::nodes));
  * }</pre>
+ *
+ * <p>{@link #define(String, Consumer)} records its caller class. When a multiplayer client receives
+ * the dialog, that class is loaded to trigger the same static definition and make node callbacks
+ * available locally.
  */
 public final class CanvasMaker {
 
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CanvasMaker.class);
   private static final Map<String, CanvasDefinition> REGISTRY = new ConcurrentHashMap<>();
 
   private CanvasMaker() {}
 
   /**
-   * Creates a builder for a canvas with the given id.
+   * Defines and registers a canvas.
    *
-   * @param canvasId the unique canvas id; must not be null or blank
-   * @return a new builder
+   * <p>Call this from a static field or static initializer of the class that owns the canvas. That
+   * allows clients to load the class automatically when the dialog opens.
+   *
+   * @param canvasId the unique canvas id
+   * @param configurator configures the canvas
+   * @return the registered definition
    */
-  public static Builder builder(String canvasId) {
-    return new Builder(canvasId);
+  public static CanvasDefinition define(String canvasId, Consumer<Builder> configurator) {
+    return define(canvasId, callerClassName(), configurator);
+  }
+
+  /**
+   * Defines and registers a canvas with an explicit provider class.
+   *
+   * <p>Use this overload when the definition is created through a shared helper and automatic
+   * caller detection would identify the helper instead of the class whose static initialization
+   * registers the canvas.
+   *
+   * @param canvasId the unique canvas id
+   * @param providerClass the class whose static initialization registers this definition
+   * @param configurator configures the canvas
+   * @return the registered definition
+   */
+  public static CanvasDefinition define(
+      String canvasId, Class<?> providerClass, Consumer<Builder> configurator) {
+    Objects.requireNonNull(providerClass, "providerClass");
+    return define(canvasId, providerClass.getName(), configurator);
+  }
+
+  private static CanvasDefinition define(
+      String canvasId, String providerClass, Consumer<Builder> configurator) {
+    Objects.requireNonNull(configurator, "configurator");
+    Builder builder = new Builder(canvasId);
+    configurator.accept(builder);
+    return register(builder.build(providerClass));
+  }
+
+  private static String callerClassName() {
+    return StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE)
+        .walk(
+            frames ->
+                frames
+                    .map(StackWalker.StackFrame::getDeclaringClass)
+                    .filter(type -> type != CanvasMaker.class)
+                    .findFirst()
+                    .orElseThrow()
+                    .getName());
   }
 
   /**
    * Looks up a registered canvas definition.
    *
-   * @param canvasId the canvas id to look up
-   * @return the definition, if one is registered
+   * @param canvasId the canvas id
+   * @return the definition, if registered
    */
   public static Optional<CanvasDefinition> lookup(String canvasId) {
     return canvasId == null ? Optional.empty() : Optional.ofNullable(REGISTRY.get(canvasId));
   }
 
   /**
-   * Registers a definition, replacing any definition previously registered under the same id.
+   * Resolves a definition, loading its provider class when necessary.
    *
-   * @param definition the definition to register; must not be null
-   * @return the registered definition
+   * @param canvasId the canvas id
+   * @param providerClass the class whose static initializer defines the canvas
+   * @return the resolved definition, if available
    */
-  public static CanvasDefinition register(CanvasDefinition definition) {
-    Objects.requireNonNull(definition, "definition");
+  public static Optional<CanvasDefinition> resolve(String canvasId, String providerClass) {
+    Optional<CanvasDefinition> existing = lookup(canvasId);
+    if (existing.isPresent()) {
+      CanvasDefinition definition = existing.orElseThrow();
+      if (providerClass == null || definition.providerClass().equals(providerClass)) {
+        return existing;
+      }
+      LOGGER.warn(
+          "Canvas '{}' is registered by '{}' instead of requested provider '{}'",
+          canvasId,
+          definition.providerClass(),
+          providerClass);
+      return Optional.empty();
+    }
+    if (providerClass == null || providerClass.isBlank()) {
+      return existing;
+    }
+    try {
+      Class.forName(providerClass);
+    } catch (ClassNotFoundException | LinkageError e) {
+      LOGGER.warn(
+          "Could not load canvas provider '{}' for '{}'; callbacks will be unavailable",
+          providerClass,
+          canvasId);
+    }
+    Optional<CanvasDefinition> resolved = lookup(canvasId);
+    if (resolved.isEmpty()) {
+      LOGGER.warn(
+          "Canvas provider '{}' loaded without registering definition '{}'",
+          providerClass,
+          canvasId);
+      return Optional.empty();
+    }
+    CanvasDefinition definition = resolved.orElseThrow();
+    if (!definition.providerClass().equals(providerClass)) {
+      LOGGER.warn(
+          "Canvas '{}' resolved to provider '{}' instead of '{}'",
+          canvasId,
+          definition.providerClass(),
+          providerClass);
+      return Optional.empty();
+    }
+    return resolved;
+  }
+
+  private static CanvasDefinition register(CanvasDefinition definition) {
     REGISTRY.put(definition.id(), definition);
     return definition;
   }
 
-  /**
-   * Removes a definition from the registry.
-   *
-   * @param canvasId the canvas id to remove
-   */
-  public static void unregister(String canvasId) {
-    REGISTRY.remove(canvasId);
-  }
-
-  /**
-   * Opens the canvas dialog for the given hero.
-   *
-   * <p>The current default nodes are evaluated here, on the server, and attached to the dialog
-   * context so the client can merge them with its local changes.
-   *
-   * @param definition the canvas to show; must not be null
-   * @param heroId the entity id of the hero that opened the canvas
-   * @param targetEntityIds entity ids the dialog should be shown for; empty for all
-   * @return the {@link UIComponent} holding the dialog
-   */
-  public static UIComponent show(CanvasDefinition definition, int heroId, int... targetEntityIds) {
-    Objects.requireNonNull(definition, "definition");
-    register(definition);
-
-    CanvasSnapshot defaults = new CanvasSnapshot(definition.currentDefaultNodes());
-    DialogContext context =
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.CANVAS)
-            .put(CanvasDialog.KEY_CANVAS_ID, definition.id())
-            .put(CanvasDialog.KEY_HERO_ID, heroId)
-            .put(CanvasDialog.KEY_DEFAULT_NODES, defaults)
-            .put(DialogContextKeys.TITLE, definition.title())
-            .build();
-
-    UIComponent ui =
-        DialogFactory.show(context, definition.pauseGame(), definition.closable(), targetEntityIds);
-    ui.registerCallback(CanvasUI.EVENT_CLOSE, payload -> UIUtils.closeDialog(ui));
-    definition.eventHandlers().forEach(ui::registerCallback);
-    return ui;
-  }
-
-  /** Fluent builder for {@link CanvasDefinition}s. */
+  /** Fluent configuration used by {@link #define(String, Consumer)}. */
   public static final class Builder {
 
     private final String canvasId;
     private final List<NodeState> staticNodes = new ArrayList<>();
-    private final List<Supplier<List<NodeState>>> dynamicNodes = new ArrayList<>();
     private final Map<String, Consumer<DialogResponseMessage.Payload>> eventHandlers =
         new LinkedHashMap<>();
     private final CanvasOptions options = new CanvasOptions();
-
+    private CanvasNodesSupplier nodesSupplier = context -> List.of();
     private String title = "";
     private float areaWidth = 900f;
     private float areaHeight = 560f;
@@ -158,12 +186,12 @@ public final class CanvasMaker {
      * @return this builder for chaining
      */
     public Builder title(String value) {
-      this.title = value == null ? "" : value;
+      title = value == null ? "" : value;
       return this;
     }
 
     /**
-     * Sets the preferred viewport size in pixels.
+     * Sets the preferred viewport size.
      *
      * @param width the viewport width
      * @param height the viewport height
@@ -173,93 +201,67 @@ public final class CanvasMaker {
       if (width <= 0f || height <= 0f) {
         throw new IllegalArgumentException("area size must be positive");
       }
-      this.areaWidth = width;
-      this.areaHeight = height;
+      areaWidth = width;
+      areaHeight = height;
       return this;
     }
 
     /**
-     * Configures the canvas options.
+     * Configures canvas interaction and rendering options.
      *
-     * @param configurator receives the mutable options of this canvas
+     * @param configurator receives the mutable canvas options
      * @return this builder for chaining
      */
     public Builder options(Consumer<CanvasOptions> configurator) {
-      configurator.accept(options);
+      Objects.requireNonNull(configurator, "configurator").accept(options);
       return this;
     }
 
     /**
-     * Adds a static default node.
+     * Adds a state-only static node.
      *
-     * @param node the node to snapshot; must not be null
+     * <p>Use {@link #nodes(CanvasNodesSupplier)} for nodes with callbacks.
+     *
+     * @param node the node to snapshot
      * @return this builder for chaining
      */
     public Builder node(CanvasNode node) {
-      Objects.requireNonNull(node, "node");
-      return node(node.toState());
-    }
-
-    /**
-     * Adds a static default node.
-     *
-     * @param state the node state; must not be null
-     * @return this builder for chaining
-     */
-    public Builder node(NodeState state) {
-      Objects.requireNonNull(state, "state");
-      staticNodes.add(state.withOrigin(NodeOrigin.DEFAULT));
+      staticNodes.add(Objects.requireNonNull(node, "node").toState());
       return this;
     }
 
     /**
-     * Adds several static default nodes.
+     * Sets the source of callback-bearing nodes evaluated for every opening.
      *
-     * @param states the node states
+     * @param supplier the node supplier
      * @return this builder for chaining
      */
-    public Builder nodes(List<NodeState> states) {
-      states.forEach(this::node);
+    public Builder nodes(CanvasNodesSupplier supplier) {
+      nodesSupplier = Objects.requireNonNull(supplier, "supplier");
       return this;
     }
 
     /**
-     * Adds a dynamic source of default nodes.
+     * Registers a server-side canvas event handler.
      *
-     * <p>The supplier is evaluated on the server every time the canvas is opened, which is the
-     * mechanism for defaults that only appear once the player made progress.
-     *
-     * @param supplier produces the current default nodes; must not be null
+     * @param key the event key fired by the canvas
+     * @param handler the server-side handler
      * @return this builder for chaining
-     */
-    public Builder nodes(Supplier<List<NodeState>> supplier) {
-      dynamicNodes.add(Objects.requireNonNull(supplier, "supplier"));
-      return this;
-    }
-
-    /**
-     * Registers a server side handler for an event the client can fire.
-     *
-     * @param key the event key, as passed to {@link CanvasArea#fireServerEvent(String)}
-     * @param handler the handler to run on the server
-     * @return this builder for chaining
-     * @see CanvasArea#fireServerEvent(String, DialogResponseMessage.Payload)
      */
     public Builder onEvent(String key, Consumer<DialogResponseMessage.Payload> handler) {
-      Objects.requireNonNull(key, "key");
-      Objects.requireNonNull(handler, "handler");
-      eventHandlers.put(key, handler);
+      eventHandlers.put(
+          Objects.requireNonNull(key, "key"), Objects.requireNonNull(handler, "handler"));
       return this;
     }
 
     /**
      * Sets whether opening the canvas pauses the game.
      *
-     * @param value true to pause the game while the canvas is open
+     * @param value true to pause the game
      * @return this builder for chaining
      */
     public Builder pauseGame(boolean value) {
-      this.pauseGame = value;
+      pauseGame = value;
       return this;
     }
 
@@ -270,64 +272,53 @@ public final class CanvasMaker {
      * @return this builder for chaining
      */
     public Builder closable(boolean value) {
-      this.closable = value;
+      closable = value;
       return this;
     }
 
     /**
-     * Sets whether the canvas shows a reset-view button.
+     * Sets whether the reset-view button is visible.
      *
-     * @param value true to show the reset-view button
+     * @param value true to show the button
      * @return this builder for chaining
      */
     public Builder showResetViewButton(boolean value) {
-      this.showResetViewButton = value;
+      showResetViewButton = value;
       return this;
     }
 
     /**
-     * Sets whether the canvas shows a fit-to-content button.
+     * Sets whether the fit-to-content button is visible.
      *
-     * @param value true to show the fit button
+     * @param value true to show the button
      * @return this builder for chaining
      */
     public Builder showFitButton(boolean value) {
-      this.showFitButton = value;
+      showFitButton = value;
       return this;
     }
 
-    /**
-     * Builds the definition and registers it.
-     *
-     * @return the built and registered definition
-     */
-    public CanvasDefinition build() {
+    private CanvasDefinition build(String providerClass) {
       List<NodeState> fixed = List.copyOf(staticNodes);
-      List<Supplier<List<NodeState>>> suppliers = List.copyOf(dynamicNodes);
-      Supplier<List<NodeState>> combined =
-          () -> {
-            List<NodeState> all = new ArrayList<>(fixed);
-            for (Supplier<List<NodeState>> supplier : suppliers) {
-              List<NodeState> supplied = supplier.get();
-              if (supplied != null) {
-                all.addAll(supplied);
-              }
+      CanvasNodesSupplier combined =
+          context -> {
+            List<CanvasNode> nodes = new ArrayList<>(fixed.size());
+            fixed.forEach(state -> nodes.add(CanvasNodeType.create(state)));
+            List<CanvasNode> supplied = nodesSupplier.get(context);
+            if (supplied != null) {
+              nodes.addAll(supplied);
             }
-            return all;
+            return nodes;
           };
-      return register(
-          new CanvasDefinition(
-              canvasId,
-              title,
-              areaWidth,
-              areaHeight,
-              options,
-              combined,
-              eventHandlers,
-              pauseGame,
-              closable,
-              showResetViewButton,
-              showFitButton));
+      return new CanvasDefinition(
+          canvasId,
+          new CanvasLayout(
+              title, areaWidth, areaHeight, options, showResetViewButton, showFitButton),
+          combined,
+          eventHandlers,
+          pauseGame,
+          closable,
+          providerClass);
     }
   }
 }

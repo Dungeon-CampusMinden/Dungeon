@@ -12,7 +12,6 @@ import engine.utils.logging.DungeonLogger;
 import feature.achievements.AchievementPopup;
 import feature.canvas.CanvasDefinition;
 import feature.canvas.CanvasDialog;
-import feature.canvas.CanvasMaker;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.interaction.keypad.KeypadUI;
@@ -548,9 +547,7 @@ public class DialogFactory {
   /**
    * Shows a node canvas dialog.
    *
-   * <p>Convenience shortcut that simply delegates to {@link CanvasMaker#show(CanvasDefinition, int,
-   * int...)}, which evaluates the current server side default nodes and registers the canvas event
-   * handlers.
+   * <p>Convenience shortcut that delegates to {@link CanvasDefinition#open(int, int...)}.
    *
    * @param definition The canvas to show
    * @param heroId The entity id of the hero that opened the canvas
@@ -559,7 +556,7 @@ public class DialogFactory {
    */
   public static UIComponent showCanvas(
       CanvasDefinition definition, int heroId, int... targetEntityIds) {
-    return CanvasMaker.show(definition, heroId, targetEntityIds);
+    return definition.open(heroId, targetEntityIds);
   }
 
   private static DialogContext translateText(String type, DialogContext context) {

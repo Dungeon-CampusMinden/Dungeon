@@ -1,68 +1,51 @@
 package feature.canvas;
 
 import engine.network.messages.c2s.DialogResponseMessage;
+import feature.components.UIComponent;
+import feature.hud.UIUtils;
+import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogType;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
- * Server side description of a canvas.
+ * Reusable definition of a canvas, including its layout, current nodes and event handlers.
  *
- * <p>A definition is authored once, typically during level setup, and then reused every time the
- * canvas is opened. It deliberately does <em>not</em> hold any live UI state: the only thing it
- * knows about nodes is how to produce the current set of <em>default</em> nodes.
- *
- * <p>The default nodes are supplied lazily and re-evaluated on every open. That is what makes
- * progression work: a canvas can start with six nodes and, once the player has found the missing
- * items, hand out all ten the next time it is opened, without losing anything the player arranged
- * in the meantime.
- *
- * @see CanvasMaker
- * @see CanvasSnapshot
+ * <p>The node supplier is evaluated on every opening. The server snapshots the current game state;
+ * the client evaluates it again only to obtain callback-bearing node prototypes.
  */
 public final class CanvasDefinition {
 
   private final String id;
-  private final String title;
-  private final float areaWidth;
-  private final float areaHeight;
-  private final CanvasOptions options;
-  private final Supplier<List<NodeState>> defaultNodes;
+  private final CanvasLayout layout;
+  private final CanvasNodesSupplier nodesSupplier;
   private final Map<String, Consumer<DialogResponseMessage.Payload>> eventHandlers;
   private final boolean pauseGame;
   private final boolean closable;
-  private final boolean showResetViewButton;
-  private final boolean showFitButton;
+  private final String providerClass;
 
   CanvasDefinition(
       String id,
-      String title,
-      float areaWidth,
-      float areaHeight,
-      CanvasOptions options,
-      Supplier<List<NodeState>> defaultNodes,
+      CanvasLayout layout,
+      CanvasNodesSupplier nodesSupplier,
       Map<String, Consumer<DialogResponseMessage.Payload>> eventHandlers,
       boolean pauseGame,
       boolean closable,
-      boolean showResetViewButton,
-      boolean showFitButton) {
+      String providerClass) {
     this.id = Objects.requireNonNull(id, "id");
-    this.title = title == null ? "" : title;
-    this.areaWidth = areaWidth;
-    this.areaHeight = areaHeight;
-    this.options = Objects.requireNonNull(options, "options");
-    this.defaultNodes = Objects.requireNonNull(defaultNodes, "defaultNodes");
+    this.layout = Objects.requireNonNull(layout, "layout");
+    this.nodesSupplier = Objects.requireNonNull(nodesSupplier, "nodesSupplier");
     this.eventHandlers = Map.copyOf(eventHandlers);
     this.pauseGame = pauseGame;
     this.closable = closable;
-    this.showResetViewButton = showResetViewButton;
-    this.showFitButton = showFitButton;
+    this.providerClass = Objects.requireNonNull(providerClass, "providerClass");
   }
 
   /**
-   * Returns the unique id of this canvas.
+   * Returns the unique canvas id.
    *
    * @return the canvas id
    */
@@ -71,98 +54,61 @@ public final class CanvasDefinition {
   }
 
   /**
-   * Returns the window title of this canvas.
+   * Returns the visual canvas configuration.
    *
-   * @return the title, possibly empty
+   * @return the canvas layout
    */
-  public String title() {
-    return title;
+  public CanvasLayout layout() {
+    return layout;
   }
 
   /**
-   * Returns the preferred viewport width in pixels.
+   * Returns the provider class used for client-side auto-registration.
    *
-   * @return the area width
+   * @return the fully qualified provider class name
    */
-  public float areaWidth() {
-    return areaWidth;
+  public String providerClass() {
+    return providerClass;
   }
 
   /**
-   * Returns the preferred viewport height in pixels.
+   * Creates nodes for the supplied runtime context.
    *
-   * @return the area height
+   * @param context the opening context
+   * @return fresh node instances
    */
-  public float areaHeight() {
-    return areaHeight;
+  public List<CanvasNode> currentNodes(CanvasContext context) {
+    List<CanvasNode> nodes = nodesSupplier.get(context);
+    return nodes == null ? List.of() : List.copyOf(nodes);
   }
 
   /**
-   * Returns the configuration of this canvas.
+   * Opens this canvas for the given hero.
    *
-   * @return the canvas options
+   * @param heroId the entity id of the hero opening the canvas
+   * @param targetEntityIds entities that should see the dialog; empty means all
+   * @return the component holding the dialog
    */
-  public CanvasOptions options() {
-    return options;
-  }
+  public UIComponent open(int heroId, int... targetEntityIds) {
+    CanvasContext opening = new CanvasContext(id, heroId, false);
+    List<NodeState> defaults =
+        currentNodes(opening).stream()
+            .map(CanvasNode::toState)
+            .map(state -> state.withOrigin(NodeOrigin.DEFAULT))
+            .toList();
+    DialogContext context =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.CANVAS)
+            .put(CanvasDialog.KEY_CANVAS_ID, id)
+            .put(CanvasDialog.KEY_HERO_ID, heroId)
+            .put(CanvasDialog.KEY_DEFAULT_NODES, new CanvasSnapshot(defaults))
+            .put(CanvasDialog.KEY_LAYOUT, layout)
+            .put(CanvasDialog.KEY_PROVIDER_CLASS, providerClass)
+            .build();
 
-  /**
-   * Evaluates the current default node set.
-   *
-   * <p>Called server side each time the canvas dialog is shown.
-   *
-   * @return the current default nodes, always tagged as {@link NodeOrigin#DEFAULT}
-   */
-  public List<NodeState> currentDefaultNodes() {
-    List<NodeState> supplied = defaultNodes.get();
-    if (supplied == null) {
-      return List.of();
-    }
-    return supplied.stream().map(state -> state.withOrigin(NodeOrigin.DEFAULT)).toList();
-  }
-
-  /**
-   * Returns the registered server side event handlers.
-   *
-   * @return an unmodifiable map from event key to handler
-   */
-  public Map<String, Consumer<DialogResponseMessage.Payload>> eventHandlers() {
-    return eventHandlers;
-  }
-
-  /**
-   * Returns whether opening this canvas pauses the game.
-   *
-   * @return true if the game is paused while the canvas is open
-   */
-  public boolean pauseGame() {
-    return pauseGame;
-  }
-
-  /**
-   * Returns whether the player may close this canvas.
-   *
-   * @return true if the canvas dialog is closable
-   */
-  public boolean closable() {
-    return closable;
-  }
-
-  /**
-   * Returns whether the canvas shows a reset-view button.
-   *
-   * @return true if the reset-view button is shown
-   */
-  public boolean showResetViewButton() {
-    return showResetViewButton;
-  }
-
-  /**
-   * Returns whether the canvas shows a fit-to-content button.
-   *
-   * @return true if the fit button is shown
-   */
-  public boolean showFitButton() {
-    return showFitButton;
+    UIComponent ui = DialogFactory.show(context, pauseGame, closable, targetEntityIds);
+    ui.registerCallback(CanvasUI.EVENT_CLOSE, payload -> UIUtils.closeDialog(ui));
+    eventHandlers.forEach(ui::registerCallback);
+    return ui;
   }
 }

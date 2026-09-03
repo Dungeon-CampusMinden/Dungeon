@@ -12,10 +12,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.Game;
 import engine.utils.BaseContainerUI;
 import engine.utils.Scene2dElementFactory;
+import engine.utils.logging.DungeonLogger;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogDesign;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -28,6 +31,8 @@ import java.util.Objects;
  * closing and reopening the canvas.
  */
 public class CanvasUI extends Group {
+
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CanvasUI.class);
 
   /** Callback key fired when the player presses the close button. */
   public static final String EVENT_CLOSE = "canvasClose";
@@ -48,67 +53,56 @@ public class CanvasUI extends Group {
    * Creates the canvas dialog.
    *
    * @param canvasId the canvas id; used for overlay persistence
-   * @param title the window title, may be empty
-   * @param areaWidth the preferred viewport width in pixels
-   * @param areaHeight the preferred viewport height in pixels
-   * @param options the canvas configuration; must not be null
+   * @param layout the visual canvas configuration
    * @param defaults the server provided default nodes; must not be null
    * @param dialogId the dialog id used for server events and closing
+   * @param prototypes fresh local nodes carrying runtime callbacks
    */
   public CanvasUI(
       String canvasId,
-      String title,
-      float areaWidth,
-      float areaHeight,
-      CanvasOptions options,
-      CanvasSnapshot defaults,
-      String dialogId) {
-    this(canvasId, title, areaWidth, areaHeight, options, defaults, dialogId, true, true);
-  }
-
-  /**
-   * Creates the canvas dialog.
-   *
-   * @param canvasId the canvas id; used for overlay persistence
-   * @param title the window title, may be empty
-   * @param areaWidth the preferred viewport width in pixels
-   * @param areaHeight the preferred viewport height in pixels
-   * @param options the canvas configuration; must not be null
-   * @param defaults the server provided default nodes; must not be null
-   * @param dialogId the dialog id used for server events and closing
-   * @param showResetViewButton whether to show the reset-view button
-   * @param showFitButton whether to show the fit-to-content button
-   */
-  public CanvasUI(
-      String canvasId,
-      String title,
-      float areaWidth,
-      float areaHeight,
-      CanvasOptions options,
+      CanvasLayout layout,
       CanvasSnapshot defaults,
       String dialogId,
-      boolean showResetViewButton,
-      boolean showFitButton) {
+      List<CanvasNode> prototypes) {
     Objects.requireNonNull(canvasId, "canvasId");
-    this.options = Objects.requireNonNull(options, "options");
+    Objects.requireNonNull(layout, "layout");
+    this.options = layout.options();
     this.defaults = Objects.requireNonNull(defaults, "defaults");
     this.dialogId = dialogId;
 
     setSize(Game.windowWidth(), Game.windowHeight());
 
-    this.area = new CanvasArea(canvasId, areaWidth, areaHeight, options);
+    this.area = new CanvasArea(canvasId, layout.areaWidth(), layout.areaHeight(), options);
     this.area.dialogId(dialogId);
 
     this.loadedChanges = CanvasStore.load(canvasId);
+    Map<String, CanvasNode> prototypesById = new LinkedHashMap<>();
+    for (CanvasNode prototype : Objects.requireNonNull(prototypes, "prototypes")) {
+      prototypesById.put(prototype.id(), prototype);
+    }
     for (NodeState state : defaults.mergeWith(loadedChanges, options).nodes()) {
-      area.addNode(CanvasNodeType.create(state));
+      CanvasNode prototype = prototypesById.get(state.id());
+      if (prototype == null || !prototype.typeId().equals(state.typeId())) {
+        if (state.origin() == NodeOrigin.DEFAULT) {
+          LOGGER.warn(
+              "No matching prototype for node '{}' ({}) on canvas '{}'; runtime behavior is unavailable",
+              state.id(),
+              state.typeId(),
+              canvasId);
+        }
+        area.addNode(CanvasNodeType.create(state));
+      } else {
+        prototype.applyState(state);
+        area.addNode(prototype);
+      }
     }
     area.resetView();
 
     BaseContainerUI container = new BaseContainerUI(null, true, true);
     container.setFillParent(true);
     container.pad(VIEWPORT_MARGIN);
-    container.setContent(buildWindow(title, showResetViewButton, showFitButton));
+    container.setContent(
+        buildWindow(layout.title(), layout.showResetViewButton(), layout.showFitButton()));
     addActor(container);
   }
 
