@@ -182,7 +182,8 @@ public final class CollideSync {
     PositionSync.syncPosition(entity);
   }
 
-  private Optional<Point> pointFromMetadata(Map<String, String> metadata, String xKey, String yKey) {
+  private Optional<Point> pointFromMetadata(
+      Map<String, String> metadata, String xKey, String yKey) {
     Optional<Float> x = parseFloat(metadata, xKey);
     Optional<Float> y = parseFloat(metadata, yKey);
     if (x.isEmpty() || y.isEmpty()) {

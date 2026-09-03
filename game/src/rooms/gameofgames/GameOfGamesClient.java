@@ -126,5 +126,4 @@ public final class GameOfGamesClient {
               PositionSync.syncPosition(entity);
             });
   }
-
 }

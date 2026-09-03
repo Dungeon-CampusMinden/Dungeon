@@ -53,8 +53,7 @@ class CollideSyncTest {
     AtomicBoolean entered = new AtomicBoolean(false);
     CollideComponent existing =
         new CollideComponent(
-            (self, other, direction) -> entered.set(true),
-            CollideComponent.DEFAULT_COLLIDER);
+            (self, other, direction) -> entered.set(true), CollideComponent.DEFAULT_COLLIDER);
     target.add(existing);
 
     CollideComponent incoming =
