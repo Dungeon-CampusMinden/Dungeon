@@ -78,8 +78,6 @@ public final class SystemRecoveryClient {
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
               }
-              SystemRecoverySnapshotTranslator.keypadStateFromMetadata(event.metadata())
-                  .ifPresent(newEntity::add);
               SystemRecoverySnapshotTranslator.applyInteractableMetadata(
                   newEntity, event.metadata());
               applyCollideMetadata(newEntity, event.metadata());
