@@ -28,7 +28,7 @@ public final class GameOfGamesCanvas {
           CANVAS_ID,
           canvas ->
               canvas
-                  .title("Rule Board")
+                  .title("Rule Board [img=items/rpg/item_book_black_lines.png]")
                   .areaSize(AREA_WIDTH, AREA_HEIGHT)
                   .options(o -> o.zoom(0.25f, 4f).grid(32f, false).snapToGrid(false))
                   .nodes(GameOfGamesCanvas::nodes));
@@ -125,7 +125,7 @@ public final class GameOfGamesCanvas {
     LabelNode second =
         new LabelNode(
             "rule-socket-fill-2",
-            "\"Hello world! This is a very long string, so let's see how it looks.\"");
+            "\"Hello world! This is a very long string,[n]so let's see how it looks.\"");
     second.position(440f, 200f);
     nodes.add(second);
     nodes.add(socket);

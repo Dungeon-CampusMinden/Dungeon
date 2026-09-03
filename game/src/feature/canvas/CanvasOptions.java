@@ -47,7 +47,7 @@ public final class CanvasOptions implements Serializable {
   private int panButton = Input.Buttons.MIDDLE;
   private boolean panWithSpace = true;
 
-  private transient Color backgroundColor = new Color(1f, 1f, 1f, 1f);
+  private transient Color backgroundColor = Color.valueOf("333333CC");
   private transient Color gridColor = new Color(0.82f, 0.82f, 0.82f, 1f);
   private transient Color selectionColor = new Color(0.36f, 0.63f, 0.88f, 1f);
 

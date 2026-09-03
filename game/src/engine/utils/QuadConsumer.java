@@ -1,8 +1,8 @@
 package engine.utils;
 
 /**
- * A functional interface representing an operation that accepts four input arguments and returns
- * no result.
+ * A functional interface representing an operation that accepts four input arguments and returns no
+ * result.
  *
  * @param <T> the first argument type
  * @param <U> the second argument type

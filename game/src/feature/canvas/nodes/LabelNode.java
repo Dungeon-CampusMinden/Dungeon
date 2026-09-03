@@ -267,8 +267,7 @@ public class LabelNode extends CanvasNode {
     this.text = state.prop(PROP_TEXT, id());
     this.fontSize = state.intProp(PROP_FONT_SIZE, fontSize);
     float storedMaxWidth = state.floatProp(PROP_MAX_WIDTH, 0f);
-    this.maxWidth =
-        Float.isFinite(storedMaxWidth) && storedMaxWidth > 0f ? storedMaxWidth : 0f;
+    this.maxWidth = Float.isFinite(storedMaxWidth) && storedMaxWidth > 0f ? storedMaxWidth : 0f;
     rebuildContent();
   }
 }

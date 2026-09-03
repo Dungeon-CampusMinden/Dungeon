@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import engine.Game;
 import engine.utils.BaseContainerUI;
 import engine.utils.Scene2dElementFactory;
@@ -16,6 +17,7 @@ import engine.utils.logging.DungeonLogger;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogDesign;
+import feature.hud.elements.RichLabel;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,7 @@ public class CanvasUI extends Group {
   public static final String EVENT_CLOSE = "canvasClose";
 
   private static final float VIEWPORT_MARGIN = 32f;
+  private static final float TOP_MARGIN = 12f;
   private static final float CONTROL_MARGIN = 12f;
   private static final float CONTROL_SPACING = 8f;
   private static final float TITLE_HEIGHT = 48f;
@@ -101,6 +104,7 @@ public class CanvasUI extends Group {
     BaseContainerUI container = new BaseContainerUI(null, true, true);
     container.setFillParent(true);
     container.pad(VIEWPORT_MARGIN);
+    container.padTop(TOP_MARGIN);
     container.setContent(
         buildWindow(layout.title(), layout.showResetViewButton(), layout.showFitButton()));
     addActor(container);
@@ -109,6 +113,7 @@ public class CanvasUI extends Group {
   private Window buildWindow(String title, boolean showResetViewButton, boolean showFitButton) {
     Window window = new Window("", UIUtils.defaultSkin(), "no-title");
     window.setMovable(false);
+    window.setBackground((Drawable) null);
 
     Table content = new Table();
     if (!title.isBlank()) {
@@ -124,8 +129,11 @@ public class CanvasUI extends Group {
     Table titleTable = new Table();
     titleTable
         .add(
-            Scene2dElementFactory.createLabel(
-                title, DialogDesign.DIALOG_FONT_SPEC_TITLE.withColor(Color.BLACK)))
+            new RichLabel(
+                title,
+                DialogDesign.DIALOG_FONT_SPEC_TITLE
+                    .withColor(Color.WHITE)
+                    .withBorder(2f, Color.BLACK)))
         .center()
         .row();
     content.add(titleTable).growX().height(TITLE_HEIGHT).padBottom(TITLE_BOTTOM_PADDING).row();
