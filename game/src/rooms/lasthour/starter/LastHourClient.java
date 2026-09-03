@@ -25,7 +25,6 @@ import engine.utils.settings.ClientSettings;
 import engine.utils.settings.DescriptionSetting;
 import engine.utils.settings.SectionDividerSetting;
 import escaperoom.foundation.ui.BlackFadeCutscene;
-import feature.components.CollideComponent;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
@@ -143,7 +142,7 @@ public final class LastHourClient {
                         newEntity.add(questLog);
                         QuestLogUtil.setClientQuestLog(newEntity);
                       });
-              applyCollideMetadata(newEntity, event.metadata());
+              LastHourSnapshotTranslator.applyCollideMetadata(newEntity, event.metadata());
               Game.add(newEntity);
               if (ctx != null) {
                 ctx.clientState().ifPresent(state -> state.trackNetworkEntity(event.entityId()));
@@ -171,7 +170,7 @@ public final class LastHourClient {
             .username(playerComponent.playerName())
             .build();
     applySpawnPosition(hero, event.positionComponent());
-    applyCollideMetadata(hero, event.metadata());
+    LastHourSnapshotTranslator.applyCollideMetadata(hero, event.metadata());
     Game.add(hero);
     return true;
   }
@@ -189,25 +188,6 @@ public final class LastHourClient {
               existingPosition.viewDirection(positionComponent.viewDirection());
               existingPosition.rotation(positionComponent.rotation());
               existingPosition.scale(positionComponent.scale());
-              PositionSync.syncPosition(entity);
-            });
-  }
-
-  private static void applyCollideMetadata(Entity entity, Map<String, String> metadata) {
-    LastHourSnapshotTranslator.collideComponentFromMetadata(metadata)
-        .ifPresent(
-            collideComponent -> {
-              CollideComponent component =
-                  entity
-                      .fetch(CollideComponent.class)
-                      .orElseGet(
-                          () -> {
-                            CollideComponent newComponent = new CollideComponent();
-                            entity.add(newComponent);
-                            return newComponent;
-                          });
-              component.isSolid(collideComponent.isSolid());
-              component.collider(collideComponent.collider());
               PositionSync.syncPosition(entity);
             });
   }

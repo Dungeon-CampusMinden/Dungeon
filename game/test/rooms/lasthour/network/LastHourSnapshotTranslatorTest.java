@@ -127,7 +127,7 @@ public class LastHourSnapshotTranslatorTest {
     metadata.put(LastHourEntitySpawnStrategy.METADATA_KEYPAD_ENTERED_DIGITS, "1,2");
     metadata.put(LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED, "true");
     metadata.put(LastHourEntitySpawnStrategy.METADATA_KEYPAD_SHOW_DIGIT_COUNT, "false");
-    metadata.putAll(LastHourCollideSync.metadataOf(updatedCollider));
+    metadata.putAll(LastHourSnapshotTranslator.collideMetadata(updatedCollider));
 
     SnapshotMessage snapshot =
         new SnapshotMessage(

@@ -5,6 +5,7 @@ import engine.components.PositionComponent;
 import engine.network.config.DefaultEntitySpawnStrategy;
 import engine.network.config.EntitySpawnStrategy;
 import engine.network.messages.s2c.EntitySpawnEvent;
+import feature.collision.CollideSync;
 import feature.components.ItemComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
@@ -23,6 +24,7 @@ import rooms.lasthour.modules.computer.ComputerStateComponent;
  * feature.components.CollideComponent} entities.
  */
 public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
+  private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("collider");
 
   /** Metadata key identifying the custom entity type. */
   public static final String METADATA_TYPE = "lh.type";
@@ -151,7 +153,7 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     entity
         .fetch(ItemComponent.class)
         .ifPresent(itemComponent -> appendPuzzlePieceMetadata(itemComponent, metadata));
-    LastHourCollideSync.appendMetadata(entity, metadata);
+    COLLIDE_SYNC.appendMetadata(entity, metadata);
 
     if (defaultSpawn.isPresent() && !metadata.isEmpty()) {
       EntitySpawnEvent base = defaultSpawn.orElseThrow();
