@@ -28,9 +28,7 @@ import rooms.programming.network.ProgrammingSnapshotTranslator;
 public final class Programming {
 
   private static final String LEVEL_KEY = "programming";
-  private static final CharacterClass[] CHARACTER_CLASSES = {
-    CharacterClass.WIZARD, CharacterClass.HUNTER
-  };
+  private static final CharacterClass[] CHARACTER_CLASSES = {CharacterClass.THE_LAST_HOUR_CHAR03};
 
   private Programming() {}
 

@@ -61,10 +61,9 @@ public final class VariablePuzzle {
     return assignment != null && ESSENCE_SOLUTION.equals(assignment);
   }
 
-  /** Returns the resulting golem only when both puzzle stages are correct. */
-  public static Optional<GolemState> solve(
-      Map<GolemProperty, SoulVessel> vessels, Map<GolemProperty, MagicalEssence> essences) {
-    if (!vesselsCorrect(vessels) || !essencesCorrect(essences)) {
+  /** Returns the resulting golem only when all essences are assigned correctly. */
+  public static Optional<GolemState> solveEssences(Map<GolemProperty, MagicalEssence> essences) {
+    if (!essencesCorrect(essences)) {
       return Optional.empty();
     }
     return Optional.of(SOLVED_GOLEM);

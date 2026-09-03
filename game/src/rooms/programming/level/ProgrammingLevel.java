@@ -34,5 +34,6 @@ public class ProgrammingLevel extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     ProgrammingStateStore.initialize();
+    ProgrammingRoomElements.spawn(this);
   }
 }

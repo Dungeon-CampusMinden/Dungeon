@@ -1,8 +1,8 @@
 package rooms.programming.modules.loops;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /** Known loop situations from the Programming 1 room concept. */
 public final class LoopPuzzle {
@@ -45,12 +45,11 @@ public final class LoopPuzzle {
     return challenge(challengeId).map(challenge -> challenge.accepts(answer)).orElse(false);
   }
 
-  /** Reports whether a complete answer set solves all current challenges. */
-  public static boolean solved(Map<String, LoopType> answers) {
-    return answers != null
-        && answers.size() == CHALLENGES.size()
-        && CHALLENGES.stream()
-            .allMatch(challenge -> challenge.accepts(answers.get(challenge.id())));
+  /** Reports whether every known loop situation has been completed. */
+  public static boolean allCompleted(Set<String> challengeIds) {
+    return challengeIds != null
+        && challengeIds.size() == CHALLENGES.size()
+        && CHALLENGES.stream().map(LoopChallenge::id).allMatch(challengeIds::contains);
   }
 
   private static LoopChallenge challenge(String id, LoopType expectedType) {

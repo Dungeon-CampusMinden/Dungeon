@@ -39,14 +39,43 @@ public final class ProgrammingStateStore {
     return replace(ignored -> ProgrammingStateComponent.initial());
   }
 
-  /** Stores the solved variable values and advances to the loop phase. */
-  public static ProgrammingStateComponent completeVariables(GolemState golem) {
+  /** Unlocks essence assignment after all vessels were assigned correctly. */
+  public static ProgrammingStateComponent completeVessels() {
     return replace(
         current -> {
-          if (current.phase() != ProgrammingPhase.VARIABLES) {
-            throw new IllegalStateException("variable puzzle is not active");
+          requireVariableStage(current, VariablePuzzleStage.VESSELS);
+          return current.withVariableStage(VariablePuzzleStage.ESSENCES);
+        });
+  }
+
+  /** Stores the solved golem values and unlocks the data-type reveal. */
+  public static ProgrammingStateComponent completeEssences(GolemState golem) {
+    return replace(
+        current -> {
+          requireVariableStage(current, VariablePuzzleStage.ESSENCES);
+          return current.withGolem(golem).withVariableStage(VariablePuzzleStage.REVEAL);
+        });
+  }
+
+  /** Marks the reveal as complete and starts the loop act. */
+  public static ProgrammingStateComponent activateGolem() {
+    return replace(
+        current -> {
+          requireVariableStage(current, VariablePuzzleStage.REVEAL);
+          return current
+              .withVariableStage(VariablePuzzleStage.COMPLETE)
+              .withPhase(ProgrammingPhase.LOOPS);
+        });
+  }
+
+  /** Records one correctly solved loop situation. */
+  public static ProgrammingStateComponent completeLoopChallenge(String challengeId) {
+    return replace(
+        current -> {
+          if (current.phase() != ProgrammingPhase.LOOPS) {
+            throw new IllegalStateException("loop puzzle is not active");
           }
-          return current.withGolem(golem).withPhase(ProgrammingPhase.LOOPS);
+          return current.withCompletedLoopChallenge(challengeId);
         });
   }
 
@@ -79,6 +108,13 @@ public final class ProgrammingStateStore {
 
   private static Optional<Entity> stateEntity() {
     return ECSManagement.entities(Set.of(ProgrammingStateComponent.class)).findFirst();
+  }
+
+  private static void requireVariableStage(
+      ProgrammingStateComponent current, VariablePuzzleStage expected) {
+    if (current.phase() != ProgrammingPhase.VARIABLES || current.variableStage() != expected) {
+      throw new IllegalStateException("variable puzzle stage " + expected + " is not active");
+    }
   }
 
   private static void requireAuthority() {

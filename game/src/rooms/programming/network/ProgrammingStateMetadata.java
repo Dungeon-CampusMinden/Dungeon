@@ -1,12 +1,16 @@
 package rooms.programming.network;
 
 import engine.utils.logging.DungeonLogger;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import rooms.programming.state.GolemState;
 import rooms.programming.state.ProgrammingPhase;
 import rooms.programming.state.ProgrammingStateComponent;
+import rooms.programming.state.VariablePuzzleStage;
 
 /** Metadata codec for the shared Programming 1 room state. */
 final class ProgrammingStateMetadata {
@@ -15,6 +19,8 @@ final class ProgrammingStateMetadata {
   static final String ROOM_STATE_TYPE = "room-state";
 
   private static final String PHASE_KEY = "programming.phase";
+  private static final String VARIABLE_STAGE_KEY = "programming.variables.stage";
+  private static final String COMPLETED_LOOPS_KEY = "programming.loops.completed";
   private static final String GOLEM_PRESENT_KEY = "programming.golem.present";
   private static final String GOLEM_NAME_KEY = "programming.golem.name";
   private static final String GOLEM_LIFE_ENERGY_KEY = "programming.golem.lifeEnergy";
@@ -32,6 +38,10 @@ final class ProgrammingStateMetadata {
     Map<String, String> metadata = new HashMap<>();
     metadata.put(TYPE_KEY, ROOM_STATE_TYPE);
     metadata.put(PHASE_KEY, state.phase().name());
+    metadata.put(VARIABLE_STAGE_KEY, state.variableStage().name());
+    metadata.put(
+        COMPLETED_LOOPS_KEY,
+        state.completedLoopChallenges().stream().sorted().collect(Collectors.joining(",")));
     metadata.put(GOLEM_PRESENT_KEY, String.valueOf(state.golem().isPresent()));
     state
         .golem()
@@ -55,27 +65,58 @@ final class ProgrammingStateMetadata {
     try {
       ProgrammingPhase phase = ProgrammingPhase.valueOf(required(metadata, PHASE_KEY));
       boolean golemPresent = parseBoolean(required(metadata, GOLEM_PRESENT_KEY));
-      if (!golemPresent) {
-        return Optional.of(new ProgrammingStateComponent(phase, Optional.empty()));
-      }
-
-      String direction = required(metadata, GOLEM_VIEW_DIRECTION_KEY);
-      if (direction.length() != 1) {
-        throw new IllegalArgumentException("view direction must contain one character");
-      }
-      GolemState golem =
-          new GolemState(
-              required(metadata, GOLEM_NAME_KEY),
-              Integer.parseInt(required(metadata, GOLEM_LIFE_ENERGY_KEY)),
-              Double.parseDouble(required(metadata, GOLEM_MANA_KEY)),
-              parseBoolean(required(metadata, GOLEM_ACTIVATED_KEY)),
-              direction.charAt(0),
-              Integer.parseInt(required(metadata, GOLEM_STEPS_KEY)));
-      return Optional.of(new ProgrammingStateComponent(phase, Optional.of(golem)));
+      Optional<GolemState> golem = decodeGolem(metadata, golemPresent);
+      VariablePuzzleStage variableStage = decodeVariableStage(metadata, phase, golemPresent);
+      Set<String> completedLoops = decodeCompletedLoops(metadata);
+      return Optional.of(
+          new ProgrammingStateComponent(phase, variableStage, golem, completedLoops));
     } catch (IllegalArgumentException exception) {
       LOGGER.warn("Ignoring invalid Programming room-state metadata: {}", exception.getMessage());
       return Optional.empty();
     }
+  }
+
+  private static Optional<GolemState> decodeGolem(
+      Map<String, String> metadata, boolean golemPresent) {
+    if (!golemPresent) {
+      return Optional.empty();
+    }
+
+    String direction = required(metadata, GOLEM_VIEW_DIRECTION_KEY);
+    if (direction.length() != 1) {
+      throw new IllegalArgumentException("view direction must contain one character");
+    }
+    return Optional.of(
+        new GolemState(
+            required(metadata, GOLEM_NAME_KEY),
+            Integer.parseInt(required(metadata, GOLEM_LIFE_ENERGY_KEY)),
+            Double.parseDouble(required(metadata, GOLEM_MANA_KEY)),
+            parseBoolean(required(metadata, GOLEM_ACTIVATED_KEY)),
+            direction.charAt(0),
+            Integer.parseInt(required(metadata, GOLEM_STEPS_KEY))));
+  }
+
+  private static VariablePuzzleStage decodeVariableStage(
+      Map<String, String> metadata, ProgrammingPhase phase, boolean golemPresent) {
+    String value = metadata.get(VARIABLE_STAGE_KEY);
+    if (value != null && !value.isBlank()) {
+      return VariablePuzzleStage.valueOf(value);
+    }
+    if (phase != ProgrammingPhase.VARIABLES) {
+      return VariablePuzzleStage.COMPLETE;
+    }
+    return golemPresent ? VariablePuzzleStage.REVEAL : VariablePuzzleStage.VESSELS;
+  }
+
+  private static Set<String> decodeCompletedLoops(Map<String, String> metadata) {
+    String value = metadata.get(COMPLETED_LOOPS_KEY);
+    if (value == null || value.isBlank()) {
+      return Set.of();
+    }
+    return Arrays.stream(value.split(","))
+        .map(String::trim)
+        .filter(challengeId -> !challengeId.isEmpty())
+        .collect(Collectors.toUnmodifiableSet());
   }
 
   private static String required(Map<String, String> metadata, String key) {

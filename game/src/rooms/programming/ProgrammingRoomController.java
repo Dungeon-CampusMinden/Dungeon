@@ -12,42 +12,78 @@ import rooms.programming.state.GolemState;
 import rooms.programming.state.ProgrammingPhase;
 import rooms.programming.state.ProgrammingStateComponent;
 import rooms.programming.state.ProgrammingStateStore;
+import rooms.programming.state.VariablePuzzleStage;
 
 /** Server-owned puzzle validation and phase progression. */
 public final class ProgrammingRoomController {
 
   private ProgrammingRoomController() {}
 
-  /** Validates both variable-puzzle stages and stores the resulting golem values. */
-  public static synchronized PuzzleSubmissionResult submitVariables(
-      Map<GolemProperty, SoulVessel> vessels, Map<GolemProperty, MagicalEssence> essences) {
-    if (!phaseActive(ProgrammingPhase.VARIABLES)) {
+  /** Validates the vessel assignment and unlocks the essence stage. */
+  public static synchronized PuzzleSubmissionResult submitVessels(
+      Map<GolemProperty, SoulVessel> vessels) {
+    if (!variableStageActive(VariablePuzzleStage.VESSELS)) {
       return PuzzleSubmissionResult.INACTIVE;
     }
-
-    Optional<GolemState> golem = VariablePuzzle.solve(vessels, essences);
-    if (golem.isEmpty()) {
+    if (!VariablePuzzle.vesselsCorrect(vessels)) {
       return PuzzleSubmissionResult.INCORRECT;
     }
-    ProgrammingStateStore.completeVariables(golem.orElseThrow());
+    ProgrammingStateStore.completeVessels();
     return PuzzleSubmissionResult.ACCEPTED;
   }
 
-  /** Validates all loop situations and advances to the method phase. */
-  public static synchronized PuzzleSubmissionResult submitLoops(Map<String, LoopType> answers) {
+  /** Validates the essence assignment and unlocks the data-type reveal. */
+  public static synchronized PuzzleSubmissionResult submitEssences(
+      Map<GolemProperty, MagicalEssence> essences) {
+    if (!variableStageActive(VariablePuzzleStage.ESSENCES)) {
+      return PuzzleSubmissionResult.INACTIVE;
+    }
+
+    Optional<GolemState> golem = VariablePuzzle.solveEssences(essences);
+    if (golem.isEmpty()) {
+      return PuzzleSubmissionResult.INCORRECT;
+    }
+    ProgrammingStateStore.completeEssences(golem.orElseThrow());
+    return PuzzleSubmissionResult.ACCEPTED;
+  }
+
+  /** Completes the data-type reveal and activates the golem. */
+  public static synchronized PuzzleSubmissionResult activateGolem() {
+    if (!variableStageActive(VariablePuzzleStage.REVEAL)) {
+      return PuzzleSubmissionResult.INACTIVE;
+    }
+    ProgrammingStateStore.activateGolem();
+    return PuzzleSubmissionResult.ACCEPTED;
+  }
+
+  /** Validates one loop choice and records correct situations immediately. */
+  public static synchronized PuzzleSubmissionResult submitLoopAnswer(
+      String challengeId, LoopType answer) {
     if (!phaseActive(ProgrammingPhase.LOOPS)) {
       return PuzzleSubmissionResult.INACTIVE;
     }
-    if (!LoopPuzzle.solved(answers)) {
+    if (!LoopPuzzle.answerCorrect(challengeId, answer)) {
       return PuzzleSubmissionResult.INCORRECT;
     }
-    ProgrammingStateStore.advance();
+
+    ProgrammingStateComponent state = ProgrammingStateStore.completeLoopChallenge(challengeId);
+    if (LoopPuzzle.allCompleted(state.completedLoopChallenges())) {
+      ProgrammingStateStore.advance();
+    }
     return PuzzleSubmissionResult.ACCEPTED;
   }
 
   private static boolean phaseActive(ProgrammingPhase expected) {
     return ProgrammingStateStore.current()
         .map(ProgrammingStateComponent::phase)
+        .filter(expected::equals)
+        .isPresent();
+  }
+
+  private static boolean variableStageActive(VariablePuzzleStage expected) {
+    return ProgrammingStateStore.current()
+        .filter(state -> state.phase() == ProgrammingPhase.VARIABLES)
+        .map(ProgrammingStateComponent::variableStage)
         .filter(expected::equals)
         .isPresent();
   }
