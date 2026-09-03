@@ -4,20 +4,14 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Game;
 import engine.utils.logging.DungeonLogger;
 import feature.hud.dialogs.DialogContext;
-import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import java.util.List;
 
 /**
  * Builder hook for the canvas {@link feature.hud.dialogs.DialogType}.
  *
- * <p>The actual UI lives in {@link CanvasUI}. This class only resolves the transported context
- * attributes: the canvas id, the hero that opened the canvas and the {@link CanvasSnapshot} of
- * server provided default nodes.
- *
- * <p>Layout and behaviour of the canvas come from the {@link CanvasDefinition} registered under the
- * canvas id. Definitions are created by level setup code that runs on server and client alike, so
- * the lookup normally succeeds on both. Should it fail, the dialog still opens with default options
- * so a missing definition degrades into a plain canvas instead of an error.
+ * <p>The server transports the authoritative node states and layout. The local definition is
+ * resolved only to create callback-bearing prototypes; failure degrades to state-only nodes.
  */
 public final class CanvasDialog {
 
@@ -31,6 +25,12 @@ public final class CanvasDialog {
 
   /** Context key ({@link CanvasSnapshot}) holding the server provided default nodes. */
   public static final String KEY_DEFAULT_NODES = "canvasDefaultNodes";
+
+  /** Context key ({@link CanvasLayout}) holding the transported visual configuration. */
+  public static final String KEY_LAYOUT = "canvasLayout";
+
+  /** Context key (String) holding the class that statically defines the canvas. */
+  public static final String KEY_PROVIDER_CLASS = "canvasProviderClass";
 
   private CanvasDialog() {}
 
@@ -49,25 +49,25 @@ public final class CanvasDialog {
     String canvasId = ctx.require(KEY_CANVAS_ID, String.class);
     CanvasSnapshot defaults =
         ctx.find(KEY_DEFAULT_NODES, CanvasSnapshot.class).orElseGet(CanvasSnapshot::empty);
+    int heroId = ctx.find(KEY_HERO_ID, Integer.class).orElse(-1);
+    String providerClass = ctx.find(KEY_PROVIDER_CLASS, String.class).orElse(null);
+    CanvasLayout transportedLayout =
+        ctx.find(KEY_LAYOUT, CanvasLayout.class).orElseGet(CanvasLayout::defaults);
 
-    CanvasDefinition definition = CanvasMaker.lookup(canvasId).orElse(null);
-    if (definition == null) {
+    CanvasDefinition definition = CanvasMaker.resolve(canvasId, providerClass).orElse(null);
+    CanvasLayout layout = definition == null ? transportedLayout : definition.layout();
+    List<CanvasNode> prototypes = List.of();
+    if (definition != null) {
+      try {
+        prototypes = definition.currentNodes(new CanvasContext(canvasId, heroId, true));
+      } catch (RuntimeException e) {
+        LOGGER.warn(
+            "Could not create prototypes for canvas '{}'; callbacks will be unavailable", canvasId);
+      }
+    } else {
       LOGGER.warn(
-          "No CanvasDefinition registered for id '{}'; opening with default layout", canvasId);
-      String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("");
-      return new CanvasUI(
-          canvasId, title, 900f, 560f, new CanvasOptions(), defaults, ctx.dialogId(), true, true);
+          "No CanvasDefinition available for id '{}'; callbacks will be unavailable", canvasId);
     }
-
-    return new CanvasUI(
-        canvasId,
-        definition.title(),
-        definition.areaWidth(),
-        definition.areaHeight(),
-        definition.options(),
-        defaults,
-        ctx.dialogId(),
-        definition.showResetViewButton(),
-        definition.showFitButton());
+    return new CanvasUI(canvasId, layout, defaults, ctx.dialogId(), prototypes);
   }
 }

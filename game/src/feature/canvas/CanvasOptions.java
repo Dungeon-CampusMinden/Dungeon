@@ -2,6 +2,10 @@ package feature.canvas;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * Mutable configuration for a {@link CanvasArea}.
@@ -11,12 +15,13 @@ import com.badlogic.gdx.graphics.Color;
  * CanvasMaker.Builder#options(java.util.function.Consumer)}:
  *
  * <pre>{@code
- * CanvasMaker.builder("demo")
- *     .options(o -> o.zoom(0.25f, 4f).grid(32f, true).snapToGrid(true))
- *     .build();
+ * CanvasMaker.define("demo", canvas -> canvas
+ *     .options(o -> o.zoom(0.25f, 4f).grid(32f, true).snapToGrid(true)));
  * }</pre>
  */
-public final class CanvasOptions {
+public final class CanvasOptions implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   /** Default minimum zoom factor. */
   public static final float DEFAULT_MIN_ZOOM = 0.25f;
@@ -42,9 +47,9 @@ public final class CanvasOptions {
   private int panButton = Input.Buttons.MIDDLE;
   private boolean panWithSpace = true;
 
-  private Color backgroundColor = new Color(1f, 1f, 1f, 1f);
-  private Color gridColor = new Color(0.82f, 0.82f, 0.82f, 1f);
-  private Color selectionColor = new Color(0.36f, 0.63f, 0.88f, 1f);
+  private transient Color backgroundColor = new Color(1f, 1f, 1f, 1f);
+  private transient Color gridColor = new Color(0.82f, 0.82f, 0.82f, 1f);
+  private transient Color selectionColor = new Color(0.36f, 0.63f, 0.88f, 1f);
 
   private boolean selectionEnabled = true;
   private boolean multiSelectEnabled = true;
@@ -57,6 +62,23 @@ public final class CanvasOptions {
 
   /** Creates a new options instance with all defaults applied. */
   public CanvasOptions() {}
+
+  private void writeObject(ObjectOutputStream out) throws IOException {
+    out.defaultWriteObject();
+    out.writeInt(Color.rgba8888(backgroundColor));
+    out.writeInt(Color.rgba8888(gridColor));
+    out.writeInt(Color.rgba8888(selectionColor));
+  }
+
+  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
+    backgroundColor = new Color();
+    gridColor = new Color();
+    selectionColor = new Color();
+    Color.rgba8888ToColor(backgroundColor, in.readInt());
+    Color.rgba8888ToColor(gridColor, in.readInt());
+    Color.rgba8888ToColor(selectionColor, in.readInt());
+  }
 
   /**
    * Sets the allowed zoom range.

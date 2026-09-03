@@ -19,10 +19,8 @@ import feature.hud.elements.RichLabel;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 /**
@@ -32,8 +30,8 @@ import java.util.function.Predicate;
  * own content. Accepted nodes are removed from the canvas and rendered in those positions as owned
  * children. Dragging an occupied node releases it back to the canvas at the same visual position.
  *
- * <p>Filters that need to survive state reconstruction should be registered under a stable id with
- * {@link #registerFilter(String, Predicate)} and selected through {@link #filter(String)}.
+ * <p>Filters and socket callbacks are attached directly to node prototypes supplied by the canvas
+ * definition. They are runtime behavior and are not written into serialized node state.
  */
 public class SocketNode extends CanvasNode {
 
@@ -48,20 +46,9 @@ public class SocketNode extends CanvasNode {
   /** Prop key holding the number of sockets. */
   public static final String PROP_SOCKET_COUNT = "socketCount";
 
-  /** Prop key holding the registered filter id. */
-  public static final String PROP_FILTER_ID = "filterId";
-
-  /** Prop key holding the registered socket-changed callback id. */
-  public static final String PROP_SOCKET_CHANGED_CALLBACK_ID = "socketChangedCallbackId";
-
   private static final String PROP_SOCKET_PREFIX = "socket.";
   private static final String PROP_LOCKED_PREFIX = "locked.";
-  private static final String LEGACY_PROP_NODE_ADDED_CALLBACK_ID = "nodeAddedCallbackId";
-  private static final Map<String, Predicate<CanvasNode>> FILTERS = new ConcurrentHashMap<>();
-  private static final Map<String, QuadConsumer<SocketNode, Integer, CanvasNode, Boolean>>
-      SOCKET_CHANGED_CALLBACKS = new ConcurrentHashMap<>();
   private static final Predicate<CanvasNode> ACCEPT_ALL = node -> true;
-  private static final Predicate<CanvasNode> REJECT_ALL = node -> false;
   private static final QuadConsumer<SocketNode, Integer, CanvasNode, Boolean>
       NO_SOCKET_CHANGED_CALLBACK = (socket, index, node, added) -> {};
   private static final CanvasSnapshotCodec SNAPSHOT_CODEC = new CanvasSnapshotCodec();
@@ -80,9 +67,7 @@ public class SocketNode extends CanvasNode {
 
   private String content;
   private int socketCount;
-  private String filterId;
   private Predicate<CanvasNode> filter = ACCEPT_ALL;
-  private String socketChangedCallbackId;
   private QuadConsumer<SocketNode, Integer, CanvasNode, Boolean> socketChangedCallback =
       NO_SOCKET_CHANGED_CALLBACK;
   private SocketEntry[] sockets;
@@ -128,130 +113,25 @@ public class SocketNode extends CanvasNode {
   }
 
   /**
-   * Registers or replaces a named socket filter.
+   * Uses the given filter for nodes dragged over this socket node.
    *
-   * @param id stable filter id; must not be null or blank
-   * @param filter filter to invoke for dragged nodes; must not be null
-   */
-  public static void registerFilter(String id, Predicate<CanvasNode> filter) {
-    Objects.requireNonNull(id, "id");
-    Objects.requireNonNull(filter, "filter");
-    if (id.isBlank()) {
-      throw new IllegalArgumentException("filter id must not be blank");
-    }
-    FILTERS.put(id, filter);
-  }
-
-  /**
-   * Registers and selects a named filter.
-   *
-   * @param id stable filter id
-   * @param value filter to invoke for dragged nodes
-   * @return this node for chaining
-   */
-  public SocketNode filter(String id, Predicate<CanvasNode> value) {
-    registerFilter(id, value);
-    return filter(id);
-  }
-
-  /**
-   * Uses a previously registered filter.
-   *
-   * @param id the registered filter id
-   * @return this node for chaining
-   * @throws IllegalArgumentException if no filter is registered under the id
-   */
-  public SocketNode filter(String id) {
-    Predicate<CanvasNode> registered = FILTERS.get(id);
-    if (registered == null) {
-      throw new IllegalArgumentException("No SocketNode filter registered for '" + id + "'");
-    }
-    this.filterId = id;
-    this.filter = registered;
-    notifyStateChanged();
-    return this;
-  }
-
-  /**
-   * Uses a runtime-only filter.
-   *
-   * <p>The predicate itself cannot be serialized. Use {@link #registerFilter(String, Predicate)}
-   * and {@link #filter(String)} when this node is reconstructed from a canvas definition or saved
-   * state.
-   *
-   * @param value the filter to use
+   * @param value the filter to apply
    * @return this node for chaining
    */
   public SocketNode filter(Predicate<CanvasNode> value) {
-    this.filterId = null;
     this.filter = Objects.requireNonNull(value, "value");
     notifyStateChanged();
     return this;
   }
 
   /**
-   * Registers or replaces a named socket-changed callback.
+   * Uses the given callback after a node enters or leaves a socket.
    *
-   * @param id stable callback id; must not be null or blank
-   * @param callback callback invoked after a node enters or leaves a socket; its fourth argument
-   *     is true for an addition and false for a removal; must not be null
-   */
-  public static void registerSocketChangedCallback(
-      String id, QuadConsumer<SocketNode, Integer, CanvasNode, Boolean> callback) {
-    Objects.requireNonNull(id, "id");
-    Objects.requireNonNull(callback, "callback");
-    if (id.isBlank()) {
-      throw new IllegalArgumentException("callback id must not be blank");
-    }
-    SOCKET_CHANGED_CALLBACKS.put(id, callback);
-  }
-
-  /**
-   * Registers and selects a named socket-changed callback.
-   *
-   * @param id stable callback id
-   * @param callback callback invoked after a node enters or leaves a socket; its fourth argument
-   *     is true for an addition and false for a removal
-   * @return this node for chaining
-   */
-  public SocketNode onSocketChanged(
-      String id, QuadConsumer<SocketNode, Integer, CanvasNode, Boolean> callback) {
-    registerSocketChangedCallback(id, callback);
-    return onSocketChanged(id);
-  }
-
-  /**
-   * Uses a previously registered socket-changed callback.
-   *
-   * @param id the registered callback id
-   * @return this node for chaining
-   * @throws IllegalArgumentException if no callback is registered under the id
-   */
-  public SocketNode onSocketChanged(String id) {
-    QuadConsumer<SocketNode, Integer, CanvasNode, Boolean> registered =
-        SOCKET_CHANGED_CALLBACKS.get(id);
-    if (registered == null) {
-      throw new IllegalArgumentException(
-          "No SocketNode socket-changed callback registered for '" + id + "'");
-    }
-    socketChangedCallbackId = id;
-    socketChangedCallback = registered;
-    notifyStateChanged();
-    return this;
-  }
-
-  /**
-   * Uses a runtime-only socket-changed callback.
-   *
-   * <p>Use a named callback when this node must retain the callback after reconstruction.
-   *
-   * @param callback callback invoked after a node enters or leaves a socket; its fourth argument
-   *     is true for an addition and false for a removal
+   * @param callback the callback to invoke
    * @return this node for chaining
    */
   public SocketNode onSocketChanged(
       QuadConsumer<SocketNode, Integer, CanvasNode, Boolean> callback) {
-    socketChangedCallbackId = null;
     socketChangedCallback = Objects.requireNonNull(callback, "callback");
     notifyStateChanged();
     return this;
@@ -523,8 +403,7 @@ public class SocketNode extends CanvasNode {
       }
       float socketX = x + boxX(i + 1);
       float socketWidth = slotWidth(i);
-      CanvasGraphics.fill(
-          batch, EMPTY_COLOR, parentAlpha, socketX, y, socketWidth, rowHeight);
+      CanvasGraphics.fill(batch, EMPTY_COLOR, parentAlpha, socketX, y, socketWidth, rowHeight);
       Color outline = i == highlightedSocket ? HIGHLIGHT : BORDER;
       float thickness = i == highlightedSocket ? 4f : 2f;
       CanvasGraphics.outline(
@@ -533,9 +412,7 @@ public class SocketNode extends CanvasNode {
 
     float firstCenter = x + BOX_WIDTH / 2f;
     float lastCenter =
-        socketCount == 0
-            ? firstCenter
-            : x + boxX(socketCount) + slotWidth(socketCount - 1) / 2f;
+        socketCount == 0 ? firstCenter : x + boxX(socketCount) + slotWidth(socketCount - 1) / 2f;
     CanvasGraphics.fill(
         batch,
         BORDER,
@@ -562,8 +439,6 @@ public class SocketNode extends CanvasNode {
   protected void writeProps(NodeState.Props props) {
     props.put(PROP_CONTENT, content);
     props.put(PROP_SOCKET_COUNT, socketCount);
-    props.put(PROP_FILTER_ID, filterId);
-    props.put(PROP_SOCKET_CHANGED_CALLBACK_ID, socketChangedCallbackId);
     for (int i = 0; i < sockets.length; i++) {
       SocketEntry entry = sockets[i];
       props.put(PROP_LOCKED_PREFIX + i, lockedSockets[i]);
@@ -583,7 +458,8 @@ public class SocketNode extends CanvasNode {
     if (label != null) {
       label.setText(content);
     }
-    for (SocketEntry entry : sockets) {
+    SocketEntry[] prototypes = sockets;
+    for (SocketEntry entry : prototypes) {
       if (entry != null) {
         removeActor(entry.node());
       }
@@ -591,33 +467,6 @@ public class SocketNode extends CanvasNode {
     socketCount = Math.max(0, state.intProp(PROP_SOCKET_COUNT, socketCount));
     sockets = new SocketEntry[socketCount];
     lockedSockets = new boolean[socketCount];
-
-    filterId = state.prop(PROP_FILTER_ID, null);
-    Predicate<CanvasNode> registered = filterId == null ? null : FILTERS.get(filterId);
-    filter = filterId == null ? ACCEPT_ALL : registered == null ? REJECT_ALL : registered;
-    if (filterId != null && registered == null) {
-      LOGGER.warn(
-          "Socket filter '{}' of node '{}' is not registered; rejecting all nodes", filterId, id());
-    }
-
-    socketChangedCallbackId =
-        state.prop(
-            PROP_SOCKET_CHANGED_CALLBACK_ID,
-            state.prop(LEGACY_PROP_NODE_ADDED_CALLBACK_ID, null));
-    QuadConsumer<SocketNode, Integer, CanvasNode, Boolean> registeredCallback =
-        socketChangedCallbackId == null
-            ? null
-            : SOCKET_CHANGED_CALLBACKS.get(socketChangedCallbackId);
-    socketChangedCallback =
-        socketChangedCallbackId == null
-            ? NO_SOCKET_CHANGED_CALLBACK
-            : registeredCallback == null ? NO_SOCKET_CHANGED_CALLBACK : registeredCallback;
-    if (socketChangedCallbackId != null && registeredCallback == null) {
-      LOGGER.warn(
-          "Socket-changed callback '{}' of node '{}' is not registered; callback will be inert",
-          socketChangedCallbackId,
-          id());
-    }
 
     for (int i = 0; i < socketCount; i++) {
       lockedSockets[i] = state.boolProp(PROP_LOCKED_PREFIX + i, false);
@@ -632,7 +481,12 @@ public class SocketNode extends CanvasNode {
           continue;
         }
         NodeState childState = snapshot.nodes().getFirst();
-        CanvasNode child = CanvasNodeType.create(childState);
+        CanvasNode child = matchingPrototype(prototypes, childState);
+        if (child == null) {
+          child = CanvasNodeType.create(childState);
+        } else {
+          child.applyState(childState);
+        }
         sockets[i] = new SocketEntry(child, childState.width(), childState.height());
         addActor(child);
       } catch (IllegalArgumentException | IllegalStateException exception) {
@@ -642,6 +496,17 @@ public class SocketNode extends CanvasNode {
     }
     resizeToSockets();
     invalidateLayout();
+  }
+
+  private CanvasNode matchingPrototype(SocketEntry[] prototypes, NodeState state) {
+    for (SocketEntry prototype : prototypes) {
+      if (prototype != null
+          && prototype.node().id().equals(state.id())
+          && prototype.node().typeId().equals(state.typeId())) {
+        return prototype.node();
+      }
+    }
+    return null;
   }
 
   @Override

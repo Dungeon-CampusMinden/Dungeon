@@ -56,7 +56,6 @@ public class GameOfGamesLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    GameOfGamesCanvas.register();
     setupBookshelf();
     setupCanvasTerminal();
     setupCanvasUnlock();
