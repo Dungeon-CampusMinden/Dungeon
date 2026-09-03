@@ -34,7 +34,7 @@ final class ProgrammingRoomElements {
   private static final float GOLEM_MASS = 8f;
   private static final float GOLEM_INTERACTION_RANGE = 3.5f;
   private static final Vector2 GOLEM_HITBOX_OFFSET = Vector2.of(0.3f, 0.05f);
-  private static final Vector2 GOLEM_HITBOX_SIZE = Vector2.of(1.4f, 0.95f);
+  private static final Vector2 GOLEM_HITBOX_SIZE = Vector2.of(0.55f, 0.45f);
 
   private static final List<ChoiceOption> LOOP_OPTIONS =
       List.of(
