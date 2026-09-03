@@ -4,12 +4,15 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.components.VelocityComponent;
 import engine.level.DungeonLevel;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.draw.state.CharacterStateFactory;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
@@ -25,6 +28,13 @@ import rooms.programming.state.ProgrammingStateStore;
 
 /** Spawns the movable placeholder stations used while the room layout is being built. */
 final class ProgrammingRoomElements {
+
+  private static final float GOLEM_SCALE = 2f;
+  private static final float GOLEM_MAX_SPEED = 2.5f;
+  private static final float GOLEM_MASS = 8f;
+  private static final float GOLEM_INTERACTION_RANGE = 3.5f;
+  private static final Vector2 GOLEM_HITBOX_OFFSET = Vector2.of(0.3f, 0.05f);
+  private static final Vector2 GOLEM_HITBOX_SIZE = Vector2.of(1.4f, 0.95f);
 
   private static final List<ChoiceOption> LOOP_OPTIONS =
       List.of(
@@ -98,8 +108,13 @@ final class ProgrammingRoomElements {
       return;
     }
     Entity entity = createEntity(level, station.pointName(), station.visual(), 0);
+    float interactionRange =
+        station.visual() == Visual.GOLEM
+            ? GOLEM_INTERACTION_RANGE
+            : Interaction.DEFAULT_INTERACTION_RADIUS;
     entity.add(
-        new InteractionComponent(new Interaction((interacted, who) -> showStation(station, who))));
+        new InteractionComponent(
+            new Interaction((interacted, who) -> showStation(station, who), interactionRange)));
     Game.add(entity);
   }
 
@@ -118,7 +133,13 @@ final class ProgrammingRoomElements {
   private static Entity createEntity(
       DungeonLevel level, String pointName, Visual visual, int runeIndex) {
     Entity entity = new Entity("programming-" + pointName);
-    entity.add(new PositionComponent(level.getPoint(pointName)));
+    PositionComponent position = new PositionComponent(level.getPoint(pointName));
+    if (visual == Visual.GOLEM) {
+      position.scale(GOLEM_SCALE);
+      entity.add(new VelocityComponent(GOLEM_MAX_SPEED, GOLEM_MASS));
+      entity.add(new CollideComponent(GOLEM_HITBOX_OFFSET, GOLEM_HITBOX_SIZE));
+    }
+    entity.add(position);
     entity.add(visual.drawComponent(runeIndex));
     return entity;
   }
