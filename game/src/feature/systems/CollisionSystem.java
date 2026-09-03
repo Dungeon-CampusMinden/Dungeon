@@ -248,8 +248,8 @@ public final class CollisionSystem extends System {
    * @return Direction of the collision between the entities
    */
   Direction checkDirectionOfCollision(Collider a, Collider b) {
-    Vector2 c1HalfSize = a.halfSize();
-    Vector2 c2HalfSize = b.halfSize();
+    Vector2 c1HalfSize = a.absoluteSize().scale(0.5f);
+    Vector2 c2HalfSize = b.absoluteSize().scale(0.5f);
 
     Point c1Center = a.absoluteCenter();
     Point c2Center = b.absoluteCenter();
@@ -301,9 +301,9 @@ public final class CollisionSystem extends System {
       boolean firstCollision,
       boolean aStationary) {
     Point c1Pos = a.absolutePosition();
-    Vector2 c1Size = a.size();
+    Vector2 c1Size = a.absoluteSize();
     Point c2Pos = b.absolutePosition();
-    Vector2 c2Size = b.size();
+    Vector2 c2Size = b.absoluteSize();
 
     Point newColliderPos =
         switch (direction) {
@@ -319,7 +319,7 @@ public final class CollisionSystem extends System {
       return;
     }
 
-    Point newPos = newColliderPos.translate(b.offset().inverse());
+    Point newPos = newColliderPos.translate(b.offset().scale(b.scale()).inverse());
     VelocityComponent vcb = eb.fetch(VelocityComponent.class).orElse(null);
 
     if (!aStationary
