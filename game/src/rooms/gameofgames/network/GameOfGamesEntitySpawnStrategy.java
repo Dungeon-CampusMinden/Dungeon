@@ -5,6 +5,7 @@ import engine.components.PositionComponent;
 import engine.network.config.DefaultEntitySpawnStrategy;
 import engine.network.config.EntitySpawnStrategy;
 import engine.network.messages.s2c.EntitySpawnEvent;
+import feature.collision.CollideSync;
 import feature.interaction.InteractionComponent;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 /** Entity spawn strategy for Game of Games-specific spawn metadata. */
 public final class GameOfGamesEntitySpawnStrategy implements EntitySpawnStrategy {
+  private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("gog.collider");
 
   /** Metadata key indicating whether an entity should be treated as interactable on clients. */
   public static final String METADATA_INTERACTABLE = "gog.interactable";
@@ -33,7 +35,7 @@ public final class GameOfGamesEntitySpawnStrategy implements EntitySpawnStrategy
     if (entity.isPresent(InteractionComponent.class)) {
       metadata.put(METADATA_INTERACTABLE, String.valueOf(true));
     }
-    GameOfGamesCollideSync.appendMetadata(entity, metadata);
+    COLLIDE_SYNC.appendMetadata(entity, metadata);
 
     if (defaultSpawn.isPresent()) {
       EntitySpawnEvent base = defaultSpawn.orElseThrow();

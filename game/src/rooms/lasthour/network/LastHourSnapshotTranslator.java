@@ -9,6 +9,7 @@ import engine.network.SnapshotTranslator;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.utils.logging.DungeonLogger;
+import feature.collision.CollideSync;
 import feature.components.CollideComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.questlog.QuestLogComponent;
@@ -32,6 +33,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
 
   private static final DungeonLogger LOGGER =
       DungeonLogger.getLogger(LastHourSnapshotTranslator.class);
+  private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("collider");
 
   private final SnapshotTranslator delegate = new DefaultSnapshotTranslator();
 
@@ -107,10 +109,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
                 entity.remove(ComputerStateComponent.class);
                 entity.add(computerState);
               });
-      entityState
-          .metadata()
-          .flatMap(LastHourSnapshotTranslator::collideComponentFromMetadata)
-          .ifPresent(collideState -> LastHourCollideSync.apply(entity, collideState));
+      entityState.metadata().ifPresent(metadata -> applyCollideMetadata(entity, metadata));
       entityState
           .metadata()
           .flatMap(LastHourSnapshotTranslator::questLogFromMetadata)
@@ -180,7 +179,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     entity
         .fetch(QuestLogComponent.class)
         .ifPresent(questLog -> metadata.putAll(questLogMetadata(questLog)));
-    LastHourCollideSync.appendMetadata(entity, metadata);
+    COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;
   }
 
@@ -349,7 +348,28 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
    */
   public static Optional<CollideComponent> collideComponentFromMetadata(
       Map<String, String> metadata) {
-    return LastHourCollideSync.fromMetadata(metadata);
+    return COLLIDE_SYNC.fromMetadata(metadata);
+  }
+
+  /**
+   * Create metadata for collider geometry and solidity.
+   *
+   * @param collideComponent the component to serialize
+   * @return collider metadata
+   */
+  public static Map<String, String> collideMetadata(CollideComponent collideComponent) {
+    return COLLIDE_SYNC.metadataOf(collideComponent);
+  }
+
+  /**
+   * Applies collider metadata to the entity when present.
+   *
+   * @param entity the target entity
+   * @param metadata the metadata to parse
+   */
+  public static void applyCollideMetadata(Entity entity, Map<String, String> metadata) {
+    collideComponentFromMetadata(metadata)
+        .ifPresent(collideState -> COLLIDE_SYNC.apply(entity, collideState));
   }
 
   /**

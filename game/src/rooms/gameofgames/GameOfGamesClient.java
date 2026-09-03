@@ -11,7 +11,6 @@ import engine.network.ConnectionListener;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.utils.CursorUtil;
 import engine.utils.components.draw.DrawComponentFactory;
-import feature.components.CollideComponent;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
@@ -19,7 +18,6 @@ import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.systems.PositionSync;
-import java.util.Map;
 import java.util.Objects;
 import rooms.gameofgames.network.GameOfGamesSnapshotTranslator;
 
@@ -79,7 +77,7 @@ public final class GameOfGamesClient {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
               }
               GameOfGamesSnapshotTranslator.applyInteractableMetadata(newEntity, event.metadata());
-              applyCollideMetadata(newEntity, event.metadata());
+              GameOfGamesSnapshotTranslator.applyCollideMetadata(newEntity, event.metadata());
               Game.add(newEntity);
               if (ctx != null) {
                 ctx.clientState().ifPresent(state -> state.trackNetworkEntity(event.entityId()));
@@ -107,7 +105,7 @@ public final class GameOfGamesClient {
             .username(playerComponent.playerName())
             .build();
     applySpawnPosition(hero, event.positionComponent());
-    applyCollideMetadata(hero, event.metadata());
+    GameOfGamesSnapshotTranslator.applyCollideMetadata(hero, event.metadata());
     Game.add(hero);
     return true;
   }
@@ -129,22 +127,4 @@ public final class GameOfGamesClient {
             });
   }
 
-  private static void applyCollideMetadata(Entity entity, Map<String, String> metadata) {
-    GameOfGamesSnapshotTranslator.collideComponentFromMetadata(metadata)
-        .ifPresent(
-            collideComponent -> {
-              CollideComponent component =
-                  entity
-                      .fetch(CollideComponent.class)
-                      .orElseGet(
-                          () -> {
-                            CollideComponent newComponent = new CollideComponent();
-                            entity.add(newComponent);
-                            return newComponent;
-                          });
-              component.isSolid(collideComponent.isSolid());
-              component.collider(collideComponent.collider());
-              PositionSync.syncPosition(entity);
-            });
-  }
 }

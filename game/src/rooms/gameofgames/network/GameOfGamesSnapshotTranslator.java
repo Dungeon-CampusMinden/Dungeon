@@ -9,6 +9,7 @@ import engine.network.MessageDispatcher;
 import engine.network.SnapshotTranslator;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
+import feature.collision.CollideSync;
 import feature.components.CollideComponent;
 import feature.interaction.InteractionComponent;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 /** Snapshot translator for Game of Games metadata such as interaction and collider state. */
 public final class GameOfGamesSnapshotTranslator implements SnapshotTranslator {
+  private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("gog.collider");
 
   private final SnapshotTranslator delegate = new DefaultSnapshotTranslator();
 
@@ -76,8 +78,7 @@ public final class GameOfGamesSnapshotTranslator implements SnapshotTranslator {
           .ifPresent(
               entity -> {
                 applyInteractableMetadata(entity, metadata.orElseThrow());
-                collideComponentFromMetadata(metadata.orElseThrow())
-                    .ifPresent(collideState -> GameOfGamesCollideSync.apply(entity, collideState));
+                applyCollideMetadata(entity, metadata.orElseThrow());
               });
     }
   }
@@ -90,7 +91,18 @@ public final class GameOfGamesSnapshotTranslator implements SnapshotTranslator {
    */
   public static Optional<CollideComponent> collideComponentFromMetadata(
       Map<String, String> metadata) {
-    return GameOfGamesCollideSync.fromMetadata(metadata);
+    return COLLIDE_SYNC.fromMetadata(metadata);
+  }
+
+  /**
+   * Applies collider metadata to the entity when present.
+   *
+   * @param entity the target entity
+   * @param metadata the metadata to parse
+   */
+  public static void applyCollideMetadata(Entity entity, Map<String, String> metadata) {
+    collideComponentFromMetadata(metadata)
+        .ifPresent(collideState -> COLLIDE_SYNC.apply(entity, collideState));
   }
 
   /**
@@ -121,7 +133,7 @@ public final class GameOfGamesSnapshotTranslator implements SnapshotTranslator {
           GameOfGamesEntitySpawnStrategy.METADATA_INTERACTABLE,
           String.valueOf(entity.isPresent(InteractionComponent.class)));
     }
-    GameOfGamesCollideSync.appendMetadata(entity, metadata);
+    COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;
   }
 
