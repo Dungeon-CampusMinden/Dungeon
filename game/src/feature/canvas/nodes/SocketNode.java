@@ -26,8 +26,8 @@ import java.util.function.Predicate;
 /**
  * A labeled node with a fixed number of slots that can adopt other canvas nodes.
  *
- * <p>Empty sockets are rendered as placeholder label-node boxes to the right of the socket node's
- * own content. Accepted nodes are removed from the canvas and rendered in those positions as owned
+ * <p>Empty sockets are rendered as placeholder label-node boxes around the socket node's own
+ * content. Accepted nodes are removed from the canvas and rendered in those positions as owned
  * children. Dragging an occupied node releases it back to the canvas at the same visual position.
  *
  * <p>Filters and socket callbacks are attached directly to node prototypes supplied by the canvas
@@ -45,6 +45,9 @@ public class SocketNode extends CanvasNode {
 
   /** Prop key holding the number of sockets. */
   public static final String PROP_SOCKET_COUNT = "socketCount";
+
+  /** Prop key holding the number of sockets before this node's own content. */
+  public static final String PROP_PLACE_SELF_BEFORE = "placeSelfBefore";
 
   private static final String PROP_SOCKET_PREFIX = "socket.";
   private static final String PROP_LOCKED_PREFIX = "locked.";
@@ -67,6 +70,7 @@ public class SocketNode extends CanvasNode {
 
   private String content;
   private int socketCount;
+  private int placeSelfBefore;
   private Predicate<CanvasNode> filter = ACCEPT_ALL;
   private QuadConsumer<SocketNode, Integer, CanvasNode, Boolean> socketChangedCallback =
       NO_SOCKET_CHANGED_CALLBACK;
@@ -168,6 +172,38 @@ public class SocketNode extends CanvasNode {
    */
   public int socketCount() {
     return socketCount;
+  }
+
+  /**
+   * Returns the socket index before which this node's own content is rendered.
+   *
+   * <p>The default value is {@code 0}, which renders the own content before every socket.
+   *
+   * @return the number of sockets rendered before this node's own content
+   */
+  public int placeSelfBefore() {
+    return placeSelfBefore;
+  }
+
+  /**
+   * Sets the socket index before which this node's own content is rendered.
+   *
+   * @param value the number of sockets rendered before this node's own content; must be between
+   *     zero and {@link #socketCount()}, inclusive
+   * @return this node for chaining
+   */
+  public SocketNode placeSelfBefore(int value) {
+    if (value < 0 || value > socketCount) {
+      throw new IllegalArgumentException(
+          "placeSelfBefore must be between 0 and socketCount, inclusive");
+    }
+    if (placeSelfBefore == value) {
+      return this;
+    }
+    placeSelfBefore = value;
+    invalidateLayout();
+    notifyStateChanged();
+    return this;
   }
 
   /**
@@ -379,7 +415,7 @@ public class SocketNode extends CanvasNode {
     resizeToSockets();
     super.layoutContent();
     if (label != null) {
-      label.setBounds(4f, GROUP_LINE_TOP, BOX_WIDTH - 8f, rowHeight());
+      label.setBounds(boxX(placeSelfBefore) + 4f, GROUP_LINE_TOP, BOX_WIDTH - 8f, rowHeight());
     }
     for (int i = 0; i < sockets.length; i++) {
       SocketEntry entry = sockets[i];
@@ -394,14 +430,15 @@ public class SocketNode extends CanvasNode {
     float x = getX();
     float y = getY() + GROUP_LINE_TOP;
     float rowHeight = rowHeight();
-    CanvasGraphics.fill(batch, color(), parentAlpha, x, y, BOX_WIDTH, rowHeight);
-    CanvasGraphics.outline(batch, BORDER, parentAlpha, x, y, BOX_WIDTH, rowHeight, 2f);
+    float ownX = x + boxX(placeSelfBefore);
+    CanvasGraphics.fill(batch, color(), parentAlpha, ownX, y, BOX_WIDTH, rowHeight);
+    CanvasGraphics.outline(batch, BORDER, parentAlpha, ownX, y, BOX_WIDTH, rowHeight, 2f);
 
     for (int i = 0; i < sockets.length; i++) {
       if (sockets[i] != null) {
         continue;
       }
-      float socketX = x + boxX(i + 1);
+      float socketX = x + boxX(visualIndexForSocket(i));
       float socketWidth = slotWidth(i);
       CanvasGraphics.fill(batch, EMPTY_COLOR, parentAlpha, socketX, y, socketWidth, rowHeight);
       Color outline = i == highlightedSocket ? HIGHLIGHT : BORDER;
@@ -410,9 +447,8 @@ public class SocketNode extends CanvasNode {
           batch, outline, parentAlpha, socketX, y, socketWidth, rowHeight, thickness);
     }
 
-    float firstCenter = x + BOX_WIDTH / 2f;
-    float lastCenter =
-        socketCount == 0 ? firstCenter : x + boxX(socketCount) + slotWidth(socketCount - 1) / 2f;
+    float firstCenter = x + boxCenterX(0);
+    float lastCenter = x + boxCenterX(socketCount);
     CanvasGraphics.fill(
         batch,
         BORDER,
@@ -422,8 +458,7 @@ public class SocketNode extends CanvasNode {
         lastCenter - firstCenter,
         GROUP_LINE_THICKNESS);
     for (int i = 0; i <= socketCount; i++) {
-      float boxWidth = i == 0 ? BOX_WIDTH : slotWidth(i - 1);
-      float center = x + boxX(i) + boxWidth / 2f;
+      float center = x + boxCenterX(i);
       CanvasGraphics.fill(
           batch,
           BORDER,
@@ -439,6 +474,7 @@ public class SocketNode extends CanvasNode {
   protected void writeProps(NodeState.Props props) {
     props.put(PROP_CONTENT, content);
     props.put(PROP_SOCKET_COUNT, socketCount);
+    props.put(PROP_PLACE_SELF_BEFORE, placeSelfBefore);
     for (int i = 0; i < sockets.length; i++) {
       SocketEntry entry = sockets[i];
       props.put(PROP_LOCKED_PREFIX + i, lockedSockets[i]);
@@ -465,6 +501,8 @@ public class SocketNode extends CanvasNode {
       }
     }
     socketCount = Math.max(0, state.intProp(PROP_SOCKET_COUNT, socketCount));
+    placeSelfBefore =
+        Math.max(0, Math.min(state.intProp(PROP_PLACE_SELF_BEFORE, placeSelfBefore), socketCount));
     sockets = new SocketEntry[socketCount];
     lockedSockets = new boolean[socketCount];
 
@@ -535,7 +573,7 @@ public class SocketNode extends CanvasNode {
       if (sockets[i] != null) {
         continue;
       }
-      float dx = node.centerX() - (x() + boxX(i + 1) + slotWidth(i) / 2f);
+      float dx = node.centerX() - (x() + boxX(visualIndexForSocket(i)) + slotWidth(i) / 2f);
       float dy = node.centerY() - (y() + GROUP_LINE_TOP + rowHeight() / 2f);
       float distance = dx * dx + dy * dy;
       if (distance < nearestDistance) {
@@ -566,7 +604,7 @@ public class SocketNode extends CanvasNode {
 
   private void layoutSocket(int index, SocketEntry entry) {
     float y = GROUP_LINE_TOP + (rowHeight() - entry.node().height()) / 2f;
-    entry.node().position(boxX(index + 1), y);
+    entry.node().position(boxX(visualIndexForSocket(index)), y);
   }
 
   private void resizeToSockets() {
@@ -599,15 +637,28 @@ public class SocketNode extends CanvasNode {
     return (socketCount + 1) * BOX_WIDTH + socketCount * BOX_SPACING;
   }
 
-  private float boxX(int index) {
-    if (index == 0) {
-      return 0f;
-    }
-    float x = BOX_WIDTH + BOX_SPACING;
-    for (int i = 0; i < index - 1; i++) {
-      x += slotWidth(i) + BOX_SPACING;
+  private float boxX(int visualIndex) {
+    float x = 0f;
+    for (int i = 0; i < visualIndex; i++) {
+      x += boxWidth(i) + BOX_SPACING;
     }
     return x;
+  }
+
+  private float boxCenterX(int visualIndex) {
+    return boxX(visualIndex) + boxWidth(visualIndex) / 2f;
+  }
+
+  private float boxWidth(int visualIndex) {
+    if (visualIndex == placeSelfBefore) {
+      return BOX_WIDTH;
+    }
+    int socketIndex = visualIndex < placeSelfBefore ? visualIndex : visualIndex - 1;
+    return slotWidth(socketIndex);
+  }
+
+  private int visualIndexForSocket(int socketIndex) {
+    return socketIndex < placeSelfBefore ? socketIndex : socketIndex + 1;
   }
 
   private record SocketEntry(CanvasNode node, float originalWidth, float originalHeight) {}
