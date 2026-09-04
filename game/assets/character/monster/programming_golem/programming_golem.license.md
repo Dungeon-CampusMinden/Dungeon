@@ -1,0 +1,3 @@
+- Source: https://github.com/Dungeon-CampusMinden (a Dungeon original)
+- Author: Niklas Schumann (@Flamtky)
+- License: CC0 1.0

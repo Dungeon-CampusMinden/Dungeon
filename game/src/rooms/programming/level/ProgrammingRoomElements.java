@@ -257,7 +257,7 @@ final class ProgrammingRoomElements {
             case GOLEM ->
                 new DrawComponent(
                     CharacterStateFactory.createStateMachine(
-                        new SimpleIPath("character/monster/big_zombie")));
+                        new SimpleIPath("character/monster/programming_golem")));
           };
       drawComponent.depth(DepthLayer.Normal.depth());
       return drawComponent;
