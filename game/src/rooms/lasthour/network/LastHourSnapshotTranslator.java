@@ -12,6 +12,7 @@ import engine.utils.logging.DungeonLogger;
 import feature.collision.CollideSync;
 import feature.components.CollideComponent;
 import feature.interaction.keypad.KeypadComponent;
+import feature.interaction.keypad.TextKeyPadComponent;
 import feature.questlog.QuestLogComponent;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
@@ -103,6 +104,10 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
           .ifPresent(keypadState -> applyKeypadState(entity, keypadState));
       entityState
           .metadata()
+          .flatMap(LastHourSnapshotTranslator::textKeypadStateFromMetadata)
+          .ifPresent(keypadState -> applyTextKeypadState(entity, keypadState));
+      entityState
+          .metadata()
           .flatMap(LastHourSnapshotTranslator::computerStateFromMetadata)
           .ifPresent(
               computerState -> {
@@ -174,6 +179,9 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         .fetch(KeypadComponent.class)
         .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
     entity
+        .fetch(TextKeyPadComponent.class)
+        .ifPresent(textKeyPad -> metadata.putAll(textKeypadMetadata(textKeyPad)));
+    entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
     entity
@@ -227,6 +235,24 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         String.valueOf(keypad.isUnlocked()),
         LastHourEntitySpawnStrategy.METADATA_KEYPAD_SHOW_DIGIT_COUNT,
         String.valueOf(keypad.showDigitCount()));
+  }
+
+  /**
+   * Serializes the textKeyPad into snapshot metadata.
+   *
+   * @param keypad the textKeyPad component to serialize
+   * @return metadata containing the textKeyPad type and serialized entries
+   */
+  public static Map<String, String> textKeypadMetadata(TextKeyPadComponent keypad) {
+    return Map.of(
+        LastHourEntitySpawnStrategy.METADATA_TYPE,
+        LastHourEntitySpawnStrategy.TYPE_TEXT_KEYPAD,
+        LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_CORRECT_TEXTS,
+        keypad.correctString(),
+        LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_ENTERED_TEXT,
+        keypad.enteredText(),
+        LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED,
+        String.valueOf(keypad.isUnlocked()));
   }
 
   private Map<String, String> worldTimerMetadata(WorldTimerComponent worldTimer) {
@@ -409,6 +435,40 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
   }
 
   /**
+   * Create a TextKeyPadComponent from metadata if the type matches and the required fields are
+   * present and valid.
+   *
+   * @param metadata the metadata to parse the TextKeyPadComponent from
+   * @return an Optional containing the TextKeyPadComponent if parsing was successful, or an empty
+   *     Optional if the type does not match or required fields are missing/invalid
+   */
+  public static Optional<TextKeyPadComponent> textKeypadStateFromMetadata(
+      Map<String, String> metadata) {
+    if (!LastHourEntitySpawnStrategy.TYPE_TEXT_KEYPAD.equals(
+        metadata.get(LastHourEntitySpawnStrategy.METADATA_TYPE))) {
+      return Optional.empty();
+    }
+
+    String correctTextsRaw =
+        metadata.get(LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_CORRECT_TEXTS);
+    if (correctTextsRaw == null) {
+      return Optional.empty();
+    }
+
+    List<String> correctTexts = List.of(correctTextsRaw.split(";"));
+    String enteredText =
+        metadata.get(LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_ENTERED_TEXT);
+    if (enteredText == null) {
+      return Optional.empty();
+    }
+
+    boolean isUnlocked =
+        Boolean.parseBoolean(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED, "false"));
+    return Optional.of(new TextKeyPadComponent(correctTexts, enteredText, isUnlocked));
+  }
+
+  /**
    * Create a WorldTimerComponent from metadata if the type matches and the required fields are
    * present and valid.
    *
@@ -498,6 +558,21 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     component.enteredDigits().addAll(keypadComponent.enteredDigits());
     component.isUnlocked(keypadComponent.isUnlocked());
     component.showDigitCount(keypadComponent.showDigitCount());
+  }
+
+  private void applyTextKeypadState(Entity entity, TextKeyPadComponent keypadComponent) {
+    TextKeyPadComponent component =
+        entity
+            .fetch(TextKeyPadComponent.class)
+            .orElseGet(
+                () -> {
+                  TextKeyPadComponent newComponent =
+                      new TextKeyPadComponent(keypadComponent.correctTexts(), () -> {});
+                  entity.add(newComponent);
+                  return newComponent;
+                });
+    component.setEnteredText(keypadComponent.enteredText());
+    component.isUnlocked(keypadComponent.isUnlocked());
   }
 
   private void applyQuestLogState(Entity entity, QuestLogComponent questLog) {
