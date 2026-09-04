@@ -7,6 +7,7 @@ import engine.components.PositionComponent;
 import engine.level.utils.Coordinate;
 import engine.utils.Direction;
 import engine.utils.Point;
+import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import engine.utils.components.MissingComponentException;
 import feature.collision.Collider;
@@ -196,8 +197,8 @@ public class EntityUtils {
     if (cco.isPresent()) {
       return cco.get().collider().absoluteCenter();
     } else if (dco.isPresent()) {
-      DrawComponent dc = dco.get();
-      return pc.position().translate(dc.getWidth() / 2, dc.getHeight() / 2);
+      Rectangle bounds = spriteBounds(pc, dco.get());
+      return new Point(bounds.x() + bounds.width() / 2f, bounds.y() + bounds.height() / 2f);
     } else {
       return pc.position();
     }
@@ -215,10 +216,10 @@ public class EntityUtils {
     Optional<DrawComponent> dco = entity.fetch(DrawComponent.class);
 
     if (cco.isPresent()) {
-      return cco.get().collider().center();
+      return cco.get().collider().center().scale(pc.scale());
     } else if (dco.isPresent()) {
       DrawComponent dc = dco.get();
-      return Vector2.of(dc.getWidth() / 2, dc.getHeight() / 2);
+      return Vector2.of(dc.getWidth() / 2, dc.getHeight() / 2).scale(pc.scale());
     } else {
       return Vector2.ZERO;
     }
@@ -269,7 +270,7 @@ public class EntityUtils {
    *
    * <ol>
    *   <li>If the entity has a {@link CollideComponent}, the collider's {@code collide(Point)} is
-   *       used (exact shape test — hitbox or hitcircle).
+   *       used for an exact hitbox or hitcircle test.
    *   <li>Otherwise, if the entity has a {@link DrawComponent}, the sprite's bounding rectangle
    *       ({@link PositionComponent#position()} + width/height) is tested.
    *   <li>As a last resort, a small radius ({@value #FALLBACK_HOVER_RADIUS} world units) around the
@@ -296,18 +297,17 @@ public class EntityUtils {
     Optional<DrawComponent> dc = entity.fetch(DrawComponent.class);
     Optional<PositionComponent> pc = entity.fetch(PositionComponent.class);
     if (dc.isPresent() && pc.isPresent()) {
-      Point pos = pc.get().position();
-      float w = dc.get().getWidth();
-      float h = dc.get().getHeight();
-      return point.x() >= pos.x()
-          && point.x() <= pos.x() + w
-          && point.y() >= pos.y()
-          && point.y() <= pos.y() + h;
+      return spriteBounds(pc.get(), dc.get()).contains(point);
     }
 
     // 3. Fallback: small radius around position
     Point ePos = getPosition(entity);
     return ePos.distanceSquared(point) <= FALLBACK_HOVER_RADIUS_SQ;
+  }
+
+  private static Rectangle spriteBounds(PositionComponent position, DrawComponent draw) {
+    Vector2 size = Vector2.of(draw.getWidth(), draw.getHeight()).scale(position.scale());
+    return new Rectangle(size, Vector2.of(position.position()));
   }
 
   /**

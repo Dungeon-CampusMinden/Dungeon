@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
  *
  * <p>An interaction can be triggered using {@link #triggerInteraction(Entity, Entity)}, typically
  * through the {@link InputSystem} when the player presses the corresponding key and is within the
- * interaction range.
+ * maximum interaction distance.
  *
  * <p>The behavior of an interaction is defined by the {@link Interaction} provided to this
  * component. Each interaction internally uses a {@link BiConsumer} callback for its logic.

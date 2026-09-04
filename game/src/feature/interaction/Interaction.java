@@ -74,27 +74,23 @@ public class Interaction {
   }
 
   /**
-   * Triggers the interaction if the interacting entity is within range and the interaction is still
-   * active.
-   *
-   * <p>If the interaction is not repeatable, it becomes inactive after the first trigger. If an
-   * inactive interaction is triggered an informative popup message is shown instead. If the
-   * interaction is already completed or the entities are too far apart, an informative popup
-   * message is shown instead.
+   * Triggers the interaction if the interacting entity is within range of the target's center.
    *
    * @param entity the entity being interacted with
    * @param who the entity performing the interaction
    */
   public void interact(Entity entity, Entity who) {
-    if (range >= EntityUtils.getDistance(entity, who)) {
-      if (active) {
-        onInteract.accept(entity, who);
-        if (!repeatable) active = false;
-      } else {
-        DialogUtils.showTextPopup("Das habe ich schon erledigt", "Erledigt", who.id());
-      }
+    interact(entity, who, EntityUtils.getDistance(entity, who));
+  }
+
+  private void interact(Entity entity, Entity who, double distance) {
+    if (distance > range) return;
+
+    if (active) {
+      onInteract.accept(entity, who);
+      if (!repeatable) active = false;
     } else {
-      DialogUtils.showTextPopup("Dafür bin ich zu weit weg.", "Zu weit weg.", who.id());
+      DialogUtils.showTextPopup("Das habe ich schon erledigt", "Erledigt", who.id());
     }
   }
 
