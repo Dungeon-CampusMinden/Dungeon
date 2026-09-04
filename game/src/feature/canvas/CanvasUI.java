@@ -4,12 +4,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.utils.BaseContainerUI;
 import engine.utils.Scene2dElementFactory;
@@ -43,8 +45,7 @@ public class CanvasUI extends Group {
   private static final float TOP_MARGIN = 0f;
   private static final float CONTROL_MARGIN = 12f;
   private static final float CONTROL_SPACING = 8f;
-  private static final float TITLE_HEIGHT = 48f;
-  private static final float TITLE_BOTTOM_PADDING = 12f;
+  private static final float TITLE_TOP_PADDING = 12f;
 
   private final CanvasArea area;
   private final CanvasOptions options;
@@ -115,28 +116,29 @@ public class CanvasUI extends Group {
     window.setMovable(false);
     window.setBackground((Drawable) null);
 
-    Table content = new Table();
+    Stack canvas = buildCanvas(showResetViewButton, showFitButton);
     if (!title.isBlank()) {
-      addTitle(content, title);
+      addTitle(canvas, title);
     }
-    content.add(buildCanvas(showResetViewButton, showFitButton)).grow().row();
-
-    window.add(content).grow();
+    window.add(canvas).grow();
     return window;
   }
 
-  private void addTitle(Table content, String title) {
+  private void addTitle(Stack canvas, String title) {
     Table titleTable = new Table();
-    titleTable
-        .add(
-            new RichLabel(
-                title,
-                DialogDesign.DIALOG_FONT_SPEC_TITLE
-                    .withColor(Color.WHITE)
-                    .withBorder(2f, Color.BLACK)))
-        .center()
-        .row();
-    content.add(titleTable).growX().height(TITLE_HEIGHT).padBottom(TITLE_BOTTOM_PADDING).row();
+    titleTable.setTouchable(Touchable.disabled);
+    titleTable.top();
+
+    RichLabel titleLabel =
+        new RichLabel(
+            title,
+            DialogDesign.DIALOG_FONT_SPEC_TITLE
+                .withColor(Color.WHITE)
+                .withBorder(2f, Color.BLACK));
+    titleLabel.setAlignment(Align.center);
+    titleTable.add(titleLabel).growX().padTop(TITLE_TOP_PADDING).row();
+
+    canvas.add(titleTable);
   }
 
   private Stack buildCanvas(boolean showResetViewButton, boolean showFitButton) {
