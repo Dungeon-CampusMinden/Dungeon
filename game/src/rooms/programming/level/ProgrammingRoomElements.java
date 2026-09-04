@@ -29,12 +29,14 @@ import rooms.programming.state.ProgrammingStateStore;
 /** Spawns the movable placeholder stations used while the room layout is being built. */
 final class ProgrammingRoomElements {
 
-  private static final float GOLEM_SCALE = 2f;
+  // The 64x72 frame has 63 visible pixels in height; one unscaled tile is 64 pixels.
+  private static final float GOLEM_SCALE = 5f * 64f / 63f;
   private static final float GOLEM_MAX_SPEED = 2.5f;
   private static final float GOLEM_MASS = 8f;
   private static final float GOLEM_INTERACTION_RANGE = 3.5f;
-  private static final Vector2 GOLEM_HITBOX_OFFSET = Vector2.of(0.27f, 0f);
-  private static final Vector2 GOLEM_HITBOX_SIZE = Vector2.of(0.58f, 0.8f);
+  // Match the standing sprite's opaque bounds, excluding its transparent frame margins.
+  private static final Vector2 GOLEM_HITBOX_OFFSET = Vector2.of(3f / 64f, 3f / 64f);
+  private static final Vector2 GOLEM_HITBOX_SIZE = Vector2.of(58f / 64f, 63f / 64f);
 
   private static final List<ChoiceOption> LOOP_OPTIONS =
       List.of(
