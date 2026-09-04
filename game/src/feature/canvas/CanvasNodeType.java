@@ -2,6 +2,7 @@ package feature.canvas;
 
 import engine.utils.logging.DungeonLogger;
 import feature.canvas.nodes.ActionNode;
+import feature.canvas.nodes.ImageNode;
 import feature.canvas.nodes.LabelNode;
 import feature.canvas.nodes.SocketNode;
 import java.util.Map;
@@ -37,6 +38,7 @@ public final class CanvasNodeType {
     register(CanvasNode.TYPE_ID, state -> new CanvasNode(state.id()));
     LabelNode.registerType();
     ActionNode.registerType();
+    ImageNode.registerType();
     SocketNode.registerType();
   }
 

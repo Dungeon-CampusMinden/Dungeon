@@ -8,6 +8,7 @@ import feature.canvas.CanvasDefinition;
 import feature.canvas.CanvasMaker;
 import feature.canvas.CanvasNode;
 import feature.canvas.nodes.ActionNode;
+import feature.canvas.nodes.ImageNode;
 import feature.canvas.nodes.LabelNode;
 import feature.canvas.nodes.SocketNode;
 import feature.components.UIComponent;
@@ -161,7 +162,7 @@ public final class GameOfGamesCanvas {
     nodes.add(createValueNode("Amount of cm[n]in a meter", 100));
     nodes.add(createValueNode("7 * 3", 21));
 
-
+    nodes.add(new ImageNode("img-1", "items/rpg/food_strawberry.png").scale(5f).outline(Color.WHITE, 2).position(-100f, -100f));
 
     return nodes;
   }
@@ -209,8 +210,13 @@ public final class GameOfGamesCanvas {
       return;
     }
 
-    LabelNode left = (LabelNode) socketNode.socketedNodes().get(0);
-    LabelNode right = (LabelNode) socketNode.socketedNodes().get(1);
+    CanvasNode first = socketNode.socketedNodes().get(0);
+    CanvasNode second = socketNode.socketedNodes().get(1);
+
+    if(!(first instanceof LabelNode left) || !(second instanceof LabelNode right)) {
+      socketNode.color(LabelNode.DEFAULT_COLOR);
+      return;
+    }
 
     Integer leftValue = VALUE_MAP.get(left.text());
     Integer rightValue = VALUE_MAP.get(right.text());

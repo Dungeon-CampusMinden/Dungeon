@@ -39,8 +39,8 @@ public class CanvasUI extends Group {
   /** Callback key fired when the player presses the close button. */
   public static final String EVENT_CLOSE = "canvasClose";
 
-  private static final float VIEWPORT_MARGIN = 32f;
-  private static final float TOP_MARGIN = 12f;
+  private static final float VIEWPORT_MARGIN = 0f;
+  private static final float TOP_MARGIN = 0f;
   private static final float CONTROL_MARGIN = 12f;
   private static final float CONTROL_SPACING = 8f;
   private static final float TITLE_HEIGHT = 48f;
