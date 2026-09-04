@@ -29,7 +29,7 @@ void main() {
   }
 
   float y = uv.y;
-  y += sin(uv.x * 5.0 + u_time * TAU * 0.28) * 0.028;
+  y += sin(u_fillPercentage + uv.x * 5.0 + u_time * TAU * 0.28) * 0.028;
   float influence = 1.0 - smoothstep(u_fillPercentage-0.05, u_fillPercentage+0.05, y);
 
   // Only apply shader to non-black pixels to avoid darkening outlines and such
