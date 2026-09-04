@@ -15,6 +15,7 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import java.util.List;
 import java.util.Map;
+import rooms.gameofgames.canvas.GameOfGamesCanvas;
 
 /** Server-side level setup for the Game of Games escape room. */
 public class GameOfGamesLevel extends DungeonLevel {
@@ -56,6 +57,41 @@ public class GameOfGamesLevel extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     setupBookshelf();
+    setupCanvasTerminal();
+    setupCanvasUnlock();
+  }
+
+  private void setupCanvasTerminal() {
+    Entity terminal = DecoFactory.createDeco(new Point(7.0f, 10.0f), Deco.PCFlat);
+    terminal.remove(DecoComponent.class);
+    terminal.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (interacted, who) -> GameOfGamesCanvas.show(who.id(), who.id()),
+                    "Open Rule Board")));
+    Game.add(terminal);
+  }
+
+  private void setupCanvasUnlock() {
+    Entity folder = DecoFactory.createDeco(new Point(13.0f, 10.0f), Deco.FolderRed);
+    folder.remove(DecoComponent.class);
+    folder.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (interacted, who) -> {
+                      boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
+                      GameOfGamesCanvas.unlockExtraNodes(unlocked);
+                      DialogFactory.showDialogDialog(
+                          unlocked
+                              ? "You memorize two more rules. Reopen the rule board to see them."
+                              : "You forget the two extra rules again.",
+                          () -> {},
+                          who.id());
+                    },
+                    "Read")));
+    Game.add(folder);
   }
 
   private void setupBookshelf() {

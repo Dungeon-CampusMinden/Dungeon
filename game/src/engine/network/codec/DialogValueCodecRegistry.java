@@ -98,5 +98,7 @@ public final class DialogValueCodecRegistry {
 
   private void registerDefaults() {
     register(new engine.network.codec.codecs.TransitionSpeedCodec());
+    register(new feature.canvas.CanvasLayoutCodec());
+    register(new feature.canvas.CanvasSnapshotCodec());
   }
 }
