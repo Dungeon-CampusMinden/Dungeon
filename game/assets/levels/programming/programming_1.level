@@ -1,7 +1,7 @@
 Version: 2
 DEFAULT
 32.0,32.0
-
+intro-tablet:28.0,36.0;variables-golem:32.0,36.0;variables-properties:20.0,40.0;variables-vessels:24.0,40.0;variables-essences:28.0,40.0;variables-translation:32.0,40.0;loops-while-rune:20.0,48.0;loops-do-while-rune:24.0,48.0;loops-for-rune:28.0,48.0;loop-long-corridor:36.0,48.0;loop-wall-left:40.0,48.0;loop-pressure-plate:44.0,48.0;loop-five-movement-crystals:48.0,48.0;loop-wall-right:52.0,48.0;loop-magic-bridge:36.0,44.0;loop-burning-torches:40.0,44.0;loop-three-rune-stones:44.0,44.0;loop-fog-corridor:48.0,44.0;loop-seven-crystals:52.0,44.0;loop-locked-gate:36.0,40.0;loop-magic-rune:40.0,40.0;loop-four-guardians:44.0,40.0;loop-exit-in-fog:48.0,40.0;loop-final-passage:52.0,40.0;methods-ritual:20.0,26.0;methods-skills:24.0,26.0;methods-return-value:28.0,26.0;conditions-values:34.0,22.0;conditions-simple:38.0,22.0;conditions-nested:42.0,22.0;conditions-final:46.0,22.0;finale-soul-core:30.0,16.0;finale-heartfire:34.0,16.0
 
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
