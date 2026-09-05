@@ -33,13 +33,13 @@ import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.util.LastHourQuestLogUtil;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /** Factory class for creating and managing the computer dialog in the escape room level. */
 public class ComputerFactory {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ComputerFactory.class);
   private static final String STATE_KEY = "computer_state";
-  private static final String ACCESS_PC_LABEL = "Just access the PC";
 
   /** Key for updating the computer state from the dialog callbacks. */
   public static final String UPDATE_STATE_KEY = "update_state";
@@ -109,12 +109,7 @@ public class ComputerFactory {
                       if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
                         LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
                         DialogFactory.showOkDialog(
-                            "This seems to be "
-                                + Lore.ScientistNameShort
-                                + "'s computer\n\nTrying to turn on the computer doesn't work.\nIt seems to not have any power...",
-                            "",
-                            () -> {},
-                            who.id());
+                            TranslationKey.ComputerOfflineText, "", () -> {}, who.id());
                         return;
                       }
 
@@ -178,16 +173,16 @@ public class ComputerFactory {
               "[img=" + color.getTexturePath() + "] " + color.displayName(), color.name()));
     }
     // ACCESS_PC_LABEL doubles as the sentinel string for "open the PC directly" (label == value).
-    options.add(ChoiceOption.of(ACCESS_PC_LABEL));
+    options.add(ChoiceOption.of(TranslationKey.ComputerAccessText));
 
     DialogFactory.showMultipleChoiceDialog(
-        "[tr speed=0][line-space=2.0]You are carrying USB sticks.[n]Do you want to plug one of them in?",
+        TranslationKey.ComputerUSBStickText,
         null,
         options,
         false,
         data -> {
           String choice = (data instanceof DialogResponseMessage.StringValue(String s)) ? s : null;
-          if (choice == null || ACCESS_PC_LABEL.equals(choice)) {
+          if (choice == null || TranslationKey.ComputerAccessText.equals(choice)) {
             openComputerDialog(pcEntity, who);
             return;
           }

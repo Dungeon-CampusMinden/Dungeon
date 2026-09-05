@@ -10,6 +10,7 @@ import engine.utils.Scene2dElementFactory;
 import java.util.List;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.Lore;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /**
  * Computer tab that displays a blog with comments, as the help system in the Last Hour escape room.
@@ -29,7 +30,11 @@ public class BlogTab extends ComputerTab {
    * @param sharedState the shared computer state component
    */
   public BlogTab(ComputerStateComponent sharedState) {
-    super(sharedState, KEY, "My Blog", false);
+    super(
+        sharedState,
+        KEY,
+        Localization.getInstance().getCurrentTranslator().translate(TranslationKey.BlogText1),
+        false);
     Instance = this;
   }
 
@@ -168,7 +173,13 @@ public class BlogTab extends ComputerTab {
         }
         table.add(commentsTable).growX().row();
       } else {
-        Label noComments = Scene2dElementFactory.createLabel("No comments yet.", 18, Color.GRAY);
+        Label noComments =
+            Scene2dElementFactory.createLabel(
+                Localization.getInstance()
+                    .getCurrentTranslator()
+                    .translate(TranslationKey.BlogText2),
+                18,
+                Color.GRAY);
         table.add(noComments).growX().padTop(4).row();
       }
     }
@@ -178,7 +189,16 @@ public class BlogTab extends ComputerTab {
 
   private Table createCommentTable(BlogComment comment, boolean isFirst) {
     Label user =
-        Scene2dElementFactory.createLabel("\"" + comment.user + "\" says:", 16, Color.BLACK);
+        Scene2dElementFactory.createLabel(
+            "\""
+                + comment.user
+                + "\" "
+                + Localization.getInstance()
+                    .getCurrentTranslator()
+                    .translate(TranslationKey.BlogText3)
+                + ":",
+            16,
+            Color.BLACK);
     Label content =
         Scene2dElementFactory.createLabel(
             Localization.getInstance().getCurrentTranslator().translate(comment.content),

@@ -65,7 +65,9 @@ public class LoginTab extends ComputerTab {
     this.add(brandHeader).center().padBottom(10).row();
     RichLabel flavor =
         new RichLabel(
-          Localization.getInstance().getCurrentTranslator().translate(TranslationKey.LoginScreenText),
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.LoginScreenText),
             24,
             Color.GRAY);
     this.add(flavor).center().padBottom(20).row();
@@ -142,7 +144,10 @@ public class LoginTab extends ComputerTab {
     usernameField.setDisabled(true);
     passwordField.setDisabled(true);
     loginButton.setDisabled(true);
-    loginFeedback.setText(Localization.getInstance().getCurrentTranslator().translate(TranslationKey.LoginScreenCorrectFeedback));
+    loginFeedback.setText(
+        Localization.getInstance()
+            .getCurrentTranslator()
+            .translate(TranslationKey.LoginScreenCorrectFeedback));
     loginFeedback.setColor(CORRECT_COLOR);
     if (!completedPrior) {
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
@@ -150,7 +155,10 @@ public class LoginTab extends ComputerTab {
   }
 
   private void onWrongCredentials() {
-    loginFeedback.setText(Localization.getInstance().getCurrentTranslator().translate(TranslationKey.LoginScreenWrongFeedback));
+    loginFeedback.setText(
+        Localization.getInstance()
+            .getCurrentTranslator()
+            .translate(TranslationKey.LoginScreenWrongFeedback));
     Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
   }
 

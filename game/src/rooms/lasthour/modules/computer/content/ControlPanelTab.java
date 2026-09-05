@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import engine.language.Localization;
 import engine.sound.Sounds;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
@@ -15,6 +16,7 @@ import rooms.lasthour.modules.computer.ComputerFactory;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /**
  * Tab that exposes the room's environmental control panel. Opened by clicking the {@code
@@ -111,7 +113,11 @@ public class ControlPanelTab extends ComputerTab {
    * @param sharedState the shared computer state component
    */
   public ControlPanelTab(ComputerStateComponent sharedState) {
-    super(sharedState, KEY, TITLE, false);
+    super(
+        sharedState,
+        KEY,
+        Localization.getInstance().getCurrentTranslator().translate(TranslationKey.ControlPanel01),
+        false);
     dismissAttention();
   }
 
@@ -121,12 +127,23 @@ public class ControlPanelTab extends ComputerTab {
     root.top();
 
     // Header.
-    Label header = Scene2dElementFactory.createLabel(HEADER_TEXT, HEADER_FONT_SIZE, HEADER_COLOR);
+    Label header =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel02),
+            HEADER_FONT_SIZE,
+            HEADER_COLOR);
     header.setAlignment(Align.center);
     root.add(header).colspan(2).center().padBottom(2f).row();
 
     Label subHeader =
-        Scene2dElementFactory.createLabel(HEADER_SUB_TEXT, HEADER_SUB_FONT_SIZE, HEADER_SUB_COLOR);
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel03),
+            HEADER_SUB_FONT_SIZE,
+            HEADER_SUB_COLOR);
     subHeader.setAlignment(Align.center);
     root.add(subHeader).colspan(2).center().padBottom(HEADER_PAD_BOTTOM).row();
 
@@ -156,7 +173,13 @@ public class ControlPanelTab extends ComputerTab {
 
   private Table buildLightSection() {
     Table card = newCard();
-    card.add(sectionTitle(LIGHT_TITLE)).left().row();
+    card.add(
+            sectionTitle(
+                Localization.getInstance()
+                    .getCurrentTranslator()
+                    .translate(TranslationKey.ControlPanel04)))
+        .left()
+        .row();
 
     lightStateLabel = Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
     card.add(lightStateLabel).left().padTop(SECTION_VALUE_PAD_TOP).row();
@@ -178,7 +201,14 @@ public class ControlPanelTab extends ComputerTab {
 
   private Table buildHeaterSection() {
     Table card = newCard();
-    card.add(sectionTitle(HEATER_TITLE)).left().colspan(3).row();
+    card.add(
+            sectionTitle(
+                Localization.getInstance()
+                    .getCurrentTranslator()
+                    .translate(TranslationKey.ControlPanel05)))
+        .left()
+        .colspan(3)
+        .row();
 
     heaterValueLabel =
         Scene2dElementFactory.createLabel(
@@ -219,13 +249,23 @@ public class ControlPanelTab extends ComputerTab {
 
   private Table buildDoor1Section() {
     Table card = newCard();
-    card.add(sectionTitle(DOOR1_TITLE)).left().row();
+    card.add(
+            sectionTitle(
+                Localization.getInstance()
+                    .getCurrentTranslator()
+                    .translate(TranslationKey.ControlPanel06)))
+        .left()
+        .row();
     door1StateLabel = Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
     card.add(door1StateLabel).left().padTop(SECTION_VALUE_PAD_TOP).row();
 
     door1Button =
         Scene2dElementFactory.createButton(
-            CLOSE_BUTTON, GREEN_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel19),
+            GREEN_BUTTON_STYLE,
+            SMALL_BUTTON_FONT_SIZE);
     door1Button.addListener(
         new ChangeListener() {
           @Override
@@ -241,12 +281,20 @@ public class ControlPanelTab extends ComputerTab {
 
   private Table buildDoor2Section() {
     Table card = newCard();
-    card.add(sectionTitle(DOOR2_TITLE)).left().colspan(2).row();
+    card.add(
+            sectionTitle(
+                Localization.getInstance()
+                    .getCurrentTranslator()
+                    .translate(TranslationKey.ControlPanel07)))
+        .left()
+        .colspan(2)
+        .row();
     door2StateLabel = Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
     card.add(door2StateLabel).left().colspan(2).padTop(SECTION_VALUE_PAD_TOP).row();
 
     door2PasswordField = Scene2dElementFactory.createTextField("");
-    door2PasswordField.setMessageText(DOOR2_PASSWORD_HINT);
+    door2PasswordField.setMessageText(
+        Localization.getInstance().getCurrentTranslator().translate(TranslationKey.ControlPanel24));
     door2PasswordField.setPasswordMode(true);
     door2PasswordField.setPasswordCharacter('*');
     door2PasswordField.setTextFieldListener(
@@ -258,7 +306,11 @@ public class ControlPanelTab extends ComputerTab {
 
     door2UnlockButton =
         Scene2dElementFactory.createButton(
-            UNLOCK_BUTTON, BLUE_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel21),
+            BLUE_BUTTON_STYLE,
+            SMALL_BUTTON_FONT_SIZE);
     door2UnlockButton.addListener(
         new ChangeListener() {
           @Override
@@ -268,7 +320,12 @@ public class ControlPanelTab extends ComputerTab {
         });
 
     door2OpenButton =
-        Scene2dElementFactory.createButton(OPEN_BUTTON, GREEN_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
+        Scene2dElementFactory.createButton(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel20),
+            GREEN_BUTTON_STYLE,
+            SMALL_BUTTON_FONT_SIZE);
     door2OpenButton.addListener(
         new ChangeListener() {
           @Override
@@ -290,7 +347,14 @@ public class ControlPanelTab extends ComputerTab {
 
   private Table buildAcSection() {
     Table card = newCard();
-    card.add(sectionTitle(AC_TITLE)).left().colspan(2).row();
+    card.add(
+            sectionTitle(
+                Localization.getInstance()
+                    .getCurrentTranslator()
+                    .translate(TranslationKey.ControlPanel08)))
+        .left()
+        .colspan(2)
+        .row();
 
     // Left half of the AC card: state + on/off toggle. Right half: connection sub-section that
     // floats independently so it doesn't disturb the left layout.
@@ -328,7 +392,8 @@ public class ControlPanelTab extends ComputerTab {
     Label prefixLabel =
         Scene2dElementFactory.createLabel(AC_VENT_PREFIX, SECTION_BODY_FONT_SIZE, Color.DARK_GRAY);
     acVentSerialField = Scene2dElementFactory.createTextField("");
-    acVentSerialField.setMessageText(AC_VENT_HINT);
+    acVentSerialField.setMessageText(
+        Localization.getInstance().getCurrentTranslator().translate(TranslationKey.ControlPanel10));
     acVentSerialField.setTextFieldListener(
         (textField, c) -> {
           if (c == '\r' || c == '\n') {
@@ -337,7 +402,11 @@ public class ControlPanelTab extends ComputerTab {
         });
     acVentConnectButton =
         Scene2dElementFactory.createButton(
-            AC_CONNECT_BUTTON, BLUE_BUTTON_STYLE, SMALL_BUTTON_FONT_SIZE);
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel11),
+            BLUE_BUTTON_STYLE,
+            SMALL_BUTTON_FONT_SIZE);
     acVentConnectButton.addListener(
         new ChangeListener() {
           @Override
@@ -347,7 +416,11 @@ public class ControlPanelTab extends ComputerTab {
         });
     acVentStatusLabel =
         Scene2dElementFactory.createLabel(
-            AC_STATUS_NO_CONNECTION, SECTION_BODY_FONT_SIZE, STATE_OFF_COLOR);
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel12),
+            SECTION_BODY_FONT_SIZE,
+            STATE_OFF_COLOR);
 
     Table inputRow = new Table();
     inputRow.add(prefixLabel).padRight(2f);
@@ -360,7 +433,13 @@ public class ControlPanelTab extends ComputerTab {
 
   private Table buildCamerasSection() {
     Table card = newCard();
-    card.add(sectionTitle(CAMERAS_TITLE)).left().row();
+    card.add(
+            sectionTitle(
+                Localization.getInstance()
+                    .getCurrentTranslator()
+                    .translate(TranslationKey.ControlPanel09)))
+        .left()
+        .row();
     camerasStateLabel = Scene2dElementFactory.createLabel("", SECTION_BODY_FONT_SIZE);
     card.add(camerasStateLabel).left().padTop(SECTION_VALUE_PAD_TOP).row();
     camerasButton =
@@ -420,7 +499,10 @@ public class ControlPanelTab extends ComputerTab {
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     } else {
       acVentStatusLabel.setColor(STATE_OFF_COLOR);
-      acVentStatusLabel.setText(AC_STATUS_NO_CONNECTION);
+      acVentStatusLabel.setText(
+          Localization.getInstance()
+              .getCurrentTranslator()
+              .translate(TranslationKey.ControlPanel12));
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
     }
   }
@@ -438,9 +520,23 @@ public class ControlPanelTab extends ComputerTab {
   private void refreshLight(ComputerStateComponent s) {
     if (lightStateLabel == null) return;
     boolean on = s.lightsOn();
-    lightStateLabel.setText(on ? STATE_ON : STATE_OFF);
+    lightStateLabel.setText(
+        on
+            ? Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel14)
+            : Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel15));
     lightStateLabel.setColor(on ? STATE_ON_COLOR : STATE_OFF_COLOR);
-    lightButton.setText(on ? TURN_OFF_BUTTON : TURN_ON_BUTTON);
+    lightButton.setText(
+        on
+            ? Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel23)
+            : Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel22));
   }
 
   private void refreshDoor1() {
@@ -450,9 +546,23 @@ public class ControlPanelTab extends ComputerTab {
   private void refreshDoor1(ComputerStateComponent s) {
     if (door1StateLabel == null) return;
     boolean open = s.door1Open();
-    door1StateLabel.setText(open ? STATE_OPEN : STATE_CLOSED);
+    door1StateLabel.setText(
+        open
+            ? Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel16)
+            : Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel17));
     door1StateLabel.setColor(open ? STATE_ON_COLOR : STATE_OFF_COLOR);
-    door1Button.setText(open ? CLOSE_BUTTON : OPEN_BUTTON);
+    door1Button.setText(
+        open
+            ? Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel19)
+            : Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel20));
   }
 
   private void refreshDoor2() {
@@ -464,13 +574,22 @@ public class ControlPanelTab extends ComputerTab {
     boolean open = s.door2Open();
     boolean unlocked = s.door2Unlocked();
     if (open) {
-      door2StateLabel.setText(STATE_OPEN);
+      door2StateLabel.setText(
+          Localization.getInstance()
+              .getCurrentTranslator()
+              .translate(TranslationKey.ControlPanel16));
       door2StateLabel.setColor(STATE_ON_COLOR);
     } else if (unlocked) {
-      door2StateLabel.setText(STATE_CLOSED);
+      door2StateLabel.setText(
+          Localization.getInstance()
+              .getCurrentTranslator()
+              .translate(TranslationKey.ControlPanel17));
       door2StateLabel.setColor(STATE_OFF_COLOR);
     } else {
-      door2StateLabel.setText(STATE_LOCKED);
+      door2StateLabel.setText(
+          Localization.getInstance()
+              .getCurrentTranslator()
+              .translate(TranslationKey.ControlPanel18));
       door2StateLabel.setColor(WRONG_COLOR);
     }
     door2PasswordField.setDisabled(unlocked);
@@ -485,9 +604,23 @@ public class ControlPanelTab extends ComputerTab {
   private void refreshAc(ComputerStateComponent s) {
     if (acStateLabel == null) return;
     boolean on = s.acOn();
-    acStateLabel.setText(on ? STATE_ON : STATE_OFF);
+    acStateLabel.setText(
+        on
+            ? Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel14)
+            : Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel15));
     acStateLabel.setColor(on ? STATE_ON_COLOR : STATE_OFF_COLOR);
-    acButton.setText(on ? TURN_OFF_BUTTON : TURN_ON_BUTTON);
+    acButton.setText(
+        on
+            ? Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel23)
+            : Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel22));
     acButton.setDisabled(!s.acVentConnected());
   }
 
@@ -498,7 +631,14 @@ public class ControlPanelTab extends ComputerTab {
   private void refreshAcConnection(ComputerStateComponent s) {
     if (acVentStatusLabel == null) return;
     boolean connected = s.acVentConnected();
-    acVentStatusLabel.setText(connected ? AC_STATUS_CONNECTED : AC_STATUS_NO_CONNECTION);
+    acVentStatusLabel.setText(
+        connected
+            ? Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel13)
+            : Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel12));
     acVentStatusLabel.setColor(connected ? STATE_ON_COLOR : STATE_OFF_COLOR);
     acVentSerialField.setDisabled(connected);
     acVentConnectButton.setDisabled(connected);
@@ -511,9 +651,23 @@ public class ControlPanelTab extends ComputerTab {
   private void refreshCameras(ComputerStateComponent s) {
     if (camerasStateLabel == null) return;
     boolean on = s.camerasOn();
-    camerasStateLabel.setText(on ? STATE_ON : STATE_OFF);
+    camerasStateLabel.setText(
+        on
+            ? Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel14)
+            : Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel15));
     camerasStateLabel.setColor(on ? STATE_ON_COLOR : STATE_OFF_COLOR);
-    camerasButton.setText(on ? TURN_OFF_BUTTON : TURN_ON_BUTTON);
+    camerasButton.setText(
+        on
+            ? Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel23)
+            : Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.ControlPanel22));
   }
 
   private void refreshHeater(ComputerStateComponent s) {

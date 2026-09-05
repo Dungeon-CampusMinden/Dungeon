@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import engine.language.Localization;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import java.util.ArrayList;
@@ -26,14 +27,13 @@ import rooms.lasthour.modules.computer.ComputerDialog;
 import rooms.lasthour.modules.computer.ComputerFactory;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.Lore;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /** A tab representing a web browser within the computer dialog. */
 public class BrowserTab extends ComputerTab {
 
   /** Header drawable. */
   public static final String SG_4_DRAWABLE = "sg4-header";
-
-  private static final String PLACEHOLDER = "Enter URL...";
 
   private static BrowserTab Instance;
 
@@ -90,7 +90,13 @@ public class BrowserTab extends ComputerTab {
   }
 
   private void refreshHistorySidebar() {
-    Label header = Scene2dElementFactory.createLabel("History", 24, Color.GRAY);
+    Label header =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserHistory),
+            24,
+            Color.GRAY);
 
     Table scrollContent = new Table();
     scrollContent.top().left();
@@ -121,13 +127,21 @@ public class BrowserTab extends ComputerTab {
 
   private Table createAdressBar() {
     urlField = Scene2dElementFactory.createTextField(url);
-    urlField.setMessageText(PLACEHOLDER);
+    urlField.setMessageText(
+        Localization.getInstance()
+            .getCurrentTranslator()
+            .translate(TranslationKey.BrowserPlaceholder));
     urlField.setAlignment(Align.left);
     urlField.addListener(
         new InputListener() {
           @Override
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            if (urlField.getText().equals(PLACEHOLDER)) {
+            if (urlField
+                .getText()
+                .equals(
+                    Localization.getInstance()
+                        .getCurrentTranslator()
+                        .translate(TranslationKey.BrowserPlaceholder))) {
               urlField.setText("");
             }
             return super.touchDown(event, x, y, pointer, button);
@@ -144,7 +158,10 @@ public class BrowserTab extends ComputerTab {
           }
         });
 
-    Button goButton = Scene2dElementFactory.createButton("Go", "green");
+    Button goButton =
+        Scene2dElementFactory.createButton(
+            Localization.getInstance().getCurrentTranslator().translate(TranslationKey.BrowserGo),
+            "green");
     goButton.addListener(
         new ClickListener(Input.Buttons.LEFT) {
           @Override
@@ -202,7 +219,12 @@ public class BrowserTab extends ComputerTab {
   private Actor create404Page() {
     Table table = new Table();
     Label label =
-        Scene2dElementFactory.createLabel("404 - Page Not Found", 48, new Color(0.8f, 0, 0, 1));
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserPageNotFound),
+            48,
+            new Color(0.8f, 0, 0, 1));
     table.add(label);
     return table;
   }
@@ -210,7 +232,12 @@ public class BrowserTab extends ComputerTab {
   private Actor createNoContentPage() {
     Table table = new Table();
     Label label =
-        Scene2dElementFactory.createLabel("Enter a URL to visit a website!", 48, Color.GRAY);
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserEnterWebsite),
+            48,
+            Color.GRAY);
     table.add(label);
     return table;
   }
@@ -233,19 +260,29 @@ public class BrowserTab extends ComputerTab {
 
     Label breadcrumb =
         Scene2dElementFactory.createLabel(
-            "Home  >  Support  >  SG-4 Recovery  >  Sequence 1 of 2", 16, Color.GRAY);
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage01),
+            16,
+            Color.GRAY);
     breadcrumb.setAlignment(Align.left);
     table.add(breadcrumb).left().padBottom(15).row();
 
     Label title =
         Scene2dElementFactory.createLabel(
-            "SG-4 Access Recovery - Code Fragment #3", 32, Color.BLACK);
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage02),
+            32,
+            Color.BLACK);
     title.setAlignment(Align.left);
     table.add(title).left().padBottom(5).row();
 
     Label subtitle =
         Scene2dElementFactory.createLabel(
-            "SecuGate Systems  |  Authorized Recovery Portal  |  Ref: SG4-2205",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage03),
             16,
             Color.DARK_GRAY);
     subtitle.setAlignment(Align.left);
@@ -258,18 +295,21 @@ public class BrowserTab extends ComputerTab {
         .fillX()
         .row();
 
-    Label aboutHeader = Scene2dElementFactory.createLabel("About the SG-4", 24, Color.BLACK);
+    Label aboutHeader =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage04),
+            24,
+            Color.BLACK);
     aboutHeader.setAlignment(Align.left);
     table.add(aboutHeader).left().padBottom(8).row();
 
     Label aboutText =
         Scene2dElementFactory.createLabel(
-            "The SecuGate SG-4 is a high-security electronic door locking system designed for "
-                + "research facilities and corporate environments. Featuring 256-bit encrypted "
-                + "access tokens, tamper-resistant hardware, and multi-factor authentication "
-                + "support, the SG-4 provides industry-leading protection for restricted areas. "
-                + "In the event of a lockout, authorized personnel may use this recovery portal "
-                + "to reconstruct their access credentials.",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage05),
             18,
             Color.DARK_GRAY);
     aboutText.setWrap(true);
@@ -281,14 +321,19 @@ public class BrowserTab extends ComputerTab {
     noticeBox.setBackground("blue_square_border");
     noticeBox.pad(12);
     Label noticeIcon =
-        Scene2dElementFactory.createLabel("> Recovery Notice", 18, new Color(0.1f, 0.3f, 0.7f, 1));
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage06),
+            18,
+            new Color(0.1f, 0.3f, 0.7f, 1));
     noticeIcon.setAlignment(Align.left);
     noticeBox.add(noticeIcon).left().row();
     Label noticeText =
         Scene2dElementFactory.createLabel(
-            "The following data block contains an encoded credential fragment for your SG-4 "
-                + "unit. Use your decryption manual to determine the 4-character password from "
-                + "the data shown below. Do not share this information with unauthorized personnel.",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage07),
             16,
             Color.DARK_GRAY);
     noticeText.setWrap(true);
@@ -297,7 +342,13 @@ public class BrowserTab extends ComputerTab {
     table.add(noticeBox).growX().padBottom(20).row();
 
     // Binary data display
-    Label dataHeader = Scene2dElementFactory.createLabel("Encoded Data Block", 22, Color.BLACK);
+    Label dataHeader =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage08),
+            22,
+            Color.BLACK);
     dataHeader.setAlignment(Align.left);
     table.add(dataHeader).left().padBottom(8).row();
 
@@ -324,13 +375,21 @@ public class BrowserTab extends ComputerTab {
         .row();
 
     // Verification section
-    Label verifyHeader = Scene2dElementFactory.createLabel("Verification", 22, Color.BLACK);
+    Label verifyHeader =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage09),
+            22,
+            Color.BLACK);
     verifyHeader.setAlignment(Align.left);
     table.add(verifyHeader).left().padBottom(8).row();
 
     Label verifyDesc =
         Scene2dElementFactory.createLabel(
-            "Enter the decoded 4-character password to verify your identity and begin the download.",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage10),
             18,
             Color.DARK_GRAY);
     verifyDesc.setWrap(true);
@@ -339,11 +398,20 @@ public class BrowserTab extends ComputerTab {
 
     // Password input
     Table inputRow = new Table();
-    Label passwordLabel = Scene2dElementFactory.createLabel("Password:", 20, Color.BLACK);
+    Label passwordLabel =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage11),
+            20,
+            Color.BLACK);
     inputRow.add(passwordLabel).padRight(10);
 
     TextField passwordField = Scene2dElementFactory.createTextField("");
-    passwordField.setMessageText("Decoded password...");
+    passwordField.setMessageText(
+        Localization.getInstance()
+            .getCurrentTranslator()
+            .translate(TranslationKey.BrowserSecurityCodePage12));
     inputRow.add(passwordField).width(300).height(45).padRight(10);
 
     Label feedback = Scene2dElementFactory.createLabel("", 18, Color.RED);
@@ -354,7 +422,13 @@ public class BrowserTab extends ComputerTab {
           }
         });
 
-    Button submitButton = Scene2dElementFactory.createButton("Verify", "green", 20);
+    Button submitButton =
+        Scene2dElementFactory.createButton(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage13),
+            "green",
+            20);
     submitButton.addListener(
         new ChangeListener() {
           @Override
@@ -375,14 +449,21 @@ public class BrowserTab extends ComputerTab {
         .row();
 
     // And back to filler stuff
-    Label productHeader = Scene2dElementFactory.createLabel("SG-4 Specifications", 20, Color.BLACK);
+    Label productHeader =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage14),
+            20,
+            Color.BLACK);
     productHeader.setAlignment(Align.left);
     table.add(productHeader).left().padBottom(6).row();
 
     Label productInfo =
         Scene2dElementFactory.createLabel(
-            "Model: SG-4 Pro  |  Firmware: v3.8.1  |  Encryption: AES-256  |  "
-                + "Certification: ISO 27001  |  Warranty: 5 years",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage15),
             14,
             Color.GRAY);
     productInfo.setWrap(true);
@@ -391,7 +472,9 @@ public class BrowserTab extends ComputerTab {
 
     Label footer =
         Scene2dElementFactory.createLabel(
-            "2026 SecuGate Systems GmbH  |  All rights reserved  |  support@secugate-systems.com",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage16),
             14,
             Color.GRAY);
     footer.setAlignment(Align.center);
@@ -406,17 +489,32 @@ public class BrowserTab extends ComputerTab {
     table.top().padTop(40);
 
     Label successLabel =
-        Scene2dElementFactory.createLabel("Verification successful.", 32, new Color(0, 0.6f, 0, 1));
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage17),
+            32,
+            new Color(0, 0.6f, 0, 1));
     successLabel.setAlignment(Align.center);
     table.add(successLabel).center().padBottom(20).row();
 
     Label downloadInfo =
         Scene2dElementFactory.createLabel(
-            "Your access credential fragment is ready for download.", 20, Color.DARK_GRAY);
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage18),
+            20,
+            Color.DARK_GRAY);
     downloadInfo.setAlignment(Align.center);
     table.add(downloadInfo).center().padBottom(20).row();
 
-    TextButton downloadButton = Scene2dElementFactory.createButton("Open PDF", "blue-outline", 18);
+    TextButton downloadButton =
+        Scene2dElementFactory.createButton(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.BrowserSecurityCodePage19),
+            "blue-outline",
+            18);
     downloadButton.padLeft(downloadButton.getPadLeft() + 10);
     downloadButton.padRight(downloadButton.getPadRight() + 10);
     downloadButton.addListener(
@@ -439,7 +537,10 @@ public class BrowserTab extends ComputerTab {
     if (input.equals(asciiCode)) {
       navigate(pageUrl + "/download");
     } else {
-      feedback.setText("Incorrect password. Please check your decryption manual.");
+      feedback.setText(
+          Localization.getInstance()
+              .getCurrentTranslator()
+              .translate(TranslationKey.BrowserSecurityCodePage20));
       feedback.setColor(Color.RED);
     }
   }
