@@ -43,16 +43,37 @@ public class AboutTab extends ComputerTab {
     content.add(companyLogo).size(140f).center().padBottom(4f).row();
 
     // ----- Header: name + subtitle + mission strapline -----
-    RichLabel headerLabel = new RichLabel(Localization.getInstance().getCurrentTranslator().translate(TranslationKey.AboutHeaderText), 20, Color.BLACK, false);
+    RichLabel headerLabel =
+        new RichLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.AboutHeaderText),
+            20,
+            Color.BLACK,
+            false);
     content.add(headerLabel).minWidth(0f).prefWidth(0f).expandX().fillX().padBottom(25f).row();
 
     // ----- Two-column body: info on the left, Q&A on the right -----
     Table columns = new Table();
     columns.top();
 
-    RichLabel infoLabel = new RichLabel(Localization.getInstance().getCurrentTranslator().translate(TranslationKey.AboutInfoText), 18, Color.BLACK, false);
+    RichLabel infoLabel =
+        new RichLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.AboutInfoText),
+            18,
+            Color.BLACK,
+            false);
 
-    RichLabel qnaLabel = new RichLabel(Localization.getInstance().getCurrentTranslator().translate(TranslationKey.AboutQnAText), 18, Color.BLACK, false);
+    RichLabel qnaLabel =
+        new RichLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.AboutQnAText),
+            18,
+            Color.BLACK,
+            false);
 
     columns
         .add(infoLabel)
@@ -78,7 +99,14 @@ public class AboutTab extends ComputerTab {
     content.add(columns).minWidth(0f).prefWidth(0f).expand().fill().top().row();
 
     // ----- Footer -----
-    RichLabel footerLabel = new RichLabel(Localization.getInstance().getCurrentTranslator().translate(TranslationKey.AboutFooterText), 14, Color.BLACK, false);
+    RichLabel footerLabel =
+        new RichLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.AboutFooterText),
+            14,
+            Color.BLACK,
+            false);
 
     // ----- Wrap everything in a vertically-scrolling ScrollPane (factory variant has the
     // proper scroll-focus handling and overlay scrollbars). -----
