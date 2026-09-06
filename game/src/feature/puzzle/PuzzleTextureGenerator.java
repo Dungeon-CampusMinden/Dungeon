@@ -180,7 +180,13 @@ public final class PuzzleTextureGenerator {
         }
       };
 
-  public static void applyChangsToItems(Puzzle currentPuzzle, Puzzle newPuzzle) {
+  /**
+   * Changes the puzzle related items in the game, when the language changes.
+   *
+   * @param currentPuzzle the current version of the puzzle.
+   * @param newPuzzle the new version of the puzzle.
+   */
+  private static void applyChangsToItems(Puzzle currentPuzzle, Puzzle newPuzzle) {
     // Handles Items in Inventory
     InventoryComponent inv = Game.player().get().fetch(InventoryComponent.class).get();
     List<PuzzlePieceItem> itemsToBeReplaced = new ArrayList<>();
