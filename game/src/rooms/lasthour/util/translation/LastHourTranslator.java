@@ -31,7 +31,7 @@ public class LastHourTranslator extends Translator {
           "http://quick-unlock-sg4.net/code",
           "https://support.seecugate.com/extract");
 
-  public Translation translation = new Translation("translation");
+  public static Translation translation = new Translation("translation");
 
   /** Creates a translator and registers all The Last Hour translation keys. */
   public LastHourTranslator() {

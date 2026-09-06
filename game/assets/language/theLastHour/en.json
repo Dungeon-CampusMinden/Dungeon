@@ -265,6 +265,9 @@
         "ControlPanel24": "Password",
         "ComputerOfflineText": "This seems to be Dr. Merten's computer\n\nTrying to turn on the computer doesn't work.\nIt seems to not have any power...",
         "ComputerUSBStickText": "[tr speed=0][line-space=2.0]You are carrying USB sticks.[n]Do you want to plug one of them in?",
-        "ComputerAccessText":"Just access the PC"
+        "ComputerAccessText":"Just access the PC",
+        "TrojanPhrase":"verify before trust",
+        "RansomwarePhrase":"backup your data",
+        "AdwarePhrase":"read before click"
     }
 }

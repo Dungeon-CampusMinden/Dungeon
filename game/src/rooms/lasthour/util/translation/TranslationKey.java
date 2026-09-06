@@ -160,4 +160,8 @@ public class TranslationKey {
   public static final String ComputerOfflineText = "ComputerOfflineText";
   public static final String ComputerUSBStickText = "ComputerUSBStickText";
   public static final String ComputerAccessText = "ComputerAccessText";
+
+  public static final String TrojanPhrase = "TrojanPhrase";
+  public static final String RansomwarePhrase = "RansomwarePhrase";
+  public static final String AdwarePhrase = "AdwarePhrase";
 }

@@ -1,6 +1,5 @@
 package rooms.lasthour.util;
 
-import engine.language.Language;
 import engine.utils.Tuple;
 import java.util.Collections;
 import java.util.List;
@@ -197,17 +196,11 @@ public class Lore {
       List.of("Trojan", "Ransomware", "Adware");
 
   /** Mapping from virus type name to the code required to neutralize it in the virus tab. */
-  public static final Map<String, Map<Language, String>> VirusTypeToCode =
+  public static final Map<String, String> VirusTypeToCode =
       Map.of(
-          "Trojan",
-              Map.of(
-                  Language.EN,
-                  "verify before trust",
-                  Language.DE,
-                  "ERST ÜBERPRÜFEN, DANN VERTRAUEN"),
-          "Ransomware",
-              Map.of(Language.EN, "backup your data", Language.DE, "SICHERN SIE IHRE DATEN"),
-          "Adware", Map.of(Language.EN, "read before click", Language.DE, "VOR DEM KLICKEN LESEN"));
+          "Trojan", TranslationKey.TrojanPhrase,
+          "Ransomware", TranslationKey.RansomwarePhrase,
+          "Adware", TranslationKey.AdwarePhrase);
 
   /**
    * Special virus type triggered exclusively by plugging a wrong USB stick into the PC. This type

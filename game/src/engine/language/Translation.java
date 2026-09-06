@@ -130,6 +130,20 @@ public class Translation {
     return null;
   }
 
+  /**
+   * Translates a given key into the corresponding translation of the given language.
+   *
+   * @param language language used for translation.
+   * @param jsonNode value to be translated.
+   * @return String value with the corresponding translation, if it doesn't exist its null;
+   */
+  public String lookup(Language language, String jsonNode) {
+    String fullPath = resolveKey(jsonNode);
+    String[] nodes = fullPath.split("\\.");
+    String text = lookup(language, nodes);
+    return text;
+  }
+
   /* The language to query: the explicitly set one, or the current language of Localization. */
   private Language activeLanguage() {
     return language != null ? language : Localization.getInstance().currentLanguage();
