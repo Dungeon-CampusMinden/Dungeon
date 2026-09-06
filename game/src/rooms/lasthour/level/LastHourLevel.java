@@ -345,23 +345,23 @@ public class LastHourLevel extends DungeonLevel {
               locker.remove(DecoComponent.class);
               locker.add(
                   new InteractionComponent(
-                          new Interaction(
-                              (e, who) -> {
-                                if (index == 2) {
-                                  LastHourQuestLogUtil.addTrustCarefullyQuestLogEntry();
-                                  DialogFactory.showOkDialog(
-                                      TranslationKey.LockerFind,
-                                      "",
-                                      () -> {
-                                        DialogUtils.showImagePopUp(
-                                            TranslationKey.cabinetImage, who.id());
-                                      },
-                                      who.id());
-                                  return;
-                                }
-                                DialogFactory.showOkDialog(
-                                    TranslationKey.LockerEmpty, "", () -> {}, who.id());
-                              })));
+                      new Interaction(
+                          (e, who) -> {
+                            if (index == 2) {
+                              LastHourQuestLogUtil.addTrustCarefullyQuestLogEntry();
+                              DialogFactory.showOkDialog(
+                                  TranslationKey.LockerFind,
+                                  "",
+                                  () -> {
+                                    DialogUtils.showImagePopUp(
+                                        TranslationKey.cabinetImage, who.id());
+                                  },
+                                  who.id());
+                              return;
+                            }
+                            DialogFactory.showOkDialog(
+                                TranslationKey.LockerEmpty, "", () -> {}, who.id());
+                          })));
               Game.add(locker);
             });
 

@@ -57,16 +57,16 @@ public class ComputerFactory {
   public static void attachComputerDialog(Entity entity) {
     entity.add(
         new InteractionComponent(
-                new Interaction(
-                    (eInteract, who) -> {
-                      LastHourTracking.started(LastHourPuzzle.POWER);
-                      DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
-                      if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
-                        LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
-                        DialogFactory.showOkDialog(
-                            TranslationKey.ComputerOfflineText, "", () -> {}, who.id());
-                        return;
-                      }
+            new Interaction(
+                (eInteract, who) -> {
+                  LastHourTracking.started(LastHourPuzzle.POWER);
+                  DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
+                  if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
+                    LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
+                    DialogFactory.showOkDialog(
+                        TranslationKey.ComputerOfflineText, "", () -> {}, who.id());
+                    return;
+                  }
 
                   // Check if the player carries any USB sticks
                   // Skip USB dialog if correct stick was already inserted, PC is infected,
