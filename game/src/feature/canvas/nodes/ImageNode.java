@@ -11,8 +11,8 @@ import engine.Game;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
-import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasArea;
+import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import feature.canvas.CanvasNodeType;
 import feature.canvas.NodeState;
@@ -258,14 +258,7 @@ public class ImageNode extends CanvasNode {
 
     if (border > 0f) {
       CanvasGraphics.outline(
-          batch,
-          outlineColor,
-          parentAlpha,
-          getX(),
-          getY(),
-          getWidth(),
-          getHeight(),
-          border);
+          batch, outlineColor, parentAlpha, getX(), getY(), getWidth(), getHeight(), border);
     }
   }
 

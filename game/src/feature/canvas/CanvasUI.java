@@ -132,9 +132,7 @@ public class CanvasUI extends Group {
     RichLabel titleLabel =
         new RichLabel(
             title,
-            DialogDesign.DIALOG_FONT_SPEC_TITLE
-                .withColor(Color.WHITE)
-                .withBorder(2f, Color.BLACK));
+            DialogDesign.DIALOG_FONT_SPEC_TITLE.withColor(Color.WHITE).withBorder(2f, Color.BLACK));
     titleLabel.setAlignment(Align.center);
     titleTable.add(titleLabel).growX().padTop(TITLE_TOP_PADDING).row();
 

@@ -134,11 +134,22 @@ public final class GameOfGamesCanvas {
     nodes.add(second);
     nodes.add(socket);
 
-
-    SocketNode equi1 = new SocketNode("equation1", "=", 2).placeSelfBefore(1).onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
-    SocketNode equi2 = new SocketNode("equation2", "=", 2).placeSelfBefore(1).onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
-    SocketNode equi3 = new SocketNode("equation3", "=", 2).placeSelfBefore(1).onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
-    SocketNode equi4 = new SocketNode("equation4", "=", 2).placeSelfBefore(1).onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
+    SocketNode equi1 =
+        new SocketNode("equation1", "=", 2)
+            .placeSelfBefore(1)
+            .onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
+    SocketNode equi2 =
+        new SocketNode("equation2", "=", 2)
+            .placeSelfBefore(1)
+            .onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
+    SocketNode equi3 =
+        new SocketNode("equation3", "=", 2)
+            .placeSelfBefore(1)
+            .onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
+    SocketNode equi4 =
+        new SocketNode("equation4", "=", 2)
+            .placeSelfBefore(1)
+            .onSocketChanged(GameOfGamesCanvas::checkSocketEquation);
 
     equi1.position(800f, 0f).size(50f, 50f);
     equi2.position(800f, 100f).size(50f, 50f);
@@ -162,7 +173,11 @@ public final class GameOfGamesCanvas {
     nodes.add(createValueNode("Amount of cm[n]in a meter", 100));
     nodes.add(createValueNode("7 * 3", 21));
 
-    nodes.add(new ImageNode("img-1", "items/rpg/food_strawberry.png").scale(5f).outline(Color.WHITE, 2).position(-100f, -100f));
+    nodes.add(
+        new ImageNode("img-1", "items/rpg/food_strawberry.png")
+            .scale(5f)
+            .outline(Color.WHITE, 2)
+            .position(-100f, -100f));
 
     return nodes;
   }
@@ -204,8 +219,9 @@ public final class GameOfGamesCanvas {
     socketNode.color(correct1 && correct2 ? Color.GREEN : LabelNode.DEFAULT_COLOR);
   }
 
-  private static void checkSocketEquation(SocketNode socketNode, int index, CanvasNode node, boolean added) {
-    if(socketNode.socketedNodes().size() < 2) {
+  private static void checkSocketEquation(
+      SocketNode socketNode, int index, CanvasNode node, boolean added) {
+    if (socketNode.socketedNodes().size() < 2) {
       socketNode.color(LabelNode.DEFAULT_COLOR);
       return;
     }
@@ -213,7 +229,7 @@ public final class GameOfGamesCanvas {
     CanvasNode first = socketNode.socketedNodes().get(0);
     CanvasNode second = socketNode.socketedNodes().get(1);
 
-    if(!(first instanceof LabelNode left) || !(second instanceof LabelNode right)) {
+    if (!(first instanceof LabelNode left) || !(second instanceof LabelNode right)) {
       socketNode.color(LabelNode.DEFAULT_COLOR);
       return;
     }
