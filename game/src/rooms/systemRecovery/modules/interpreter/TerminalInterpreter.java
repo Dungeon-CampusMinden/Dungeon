@@ -95,6 +95,17 @@ public final class TerminalInterpreter {
     return true;
   }
 
+  /**
+   * Checks whether a statement belongs to the current or an already completed state.
+   *
+   * <p>This allows code from previous states to remain in the editor. As a consequence, an
+   * identical code line required by a later state is already considered present and can satisfy
+   * that later requirement without being entered again. Puzzle definitions must account for this
+   * limitation.
+   *
+   * @param statement statement to check
+   * @return whether the statement matches a requirement up to the current state
+   */
   private boolean matchesStateUpToCurrent(String statement) {
     for (Map.Entry<Integer, TerminalCodeRequirement> entry : states.entrySet()) {
       if (entry.getKey() > currentState) {
