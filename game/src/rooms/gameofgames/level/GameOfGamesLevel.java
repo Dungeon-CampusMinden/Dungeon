@@ -66,10 +66,7 @@ public class GameOfGamesLevel extends DungeonLevel {
     terminal.remove(DecoComponent.class);
     terminal.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (interacted, who) -> GameOfGamesCanvas.show(who.id(), who.id()),
-                    "Open Rule Board")));
+            new Interaction((interacted, who) -> GameOfGamesCanvas.show(who.id(), who.id()))));
     Game.add(terminal);
   }
 
@@ -78,19 +75,17 @@ public class GameOfGamesLevel extends DungeonLevel {
     folder.remove(DecoComponent.class);
     folder.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (interacted, who) -> {
-                      boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
-                      GameOfGamesCanvas.unlockExtraNodes(unlocked);
-                      DialogFactory.showDialogDialog(
-                          unlocked
-                              ? "You memorize two more rules. Reopen the rule board to see them."
-                              : "You forget the two extra rules again.",
-                          () -> {},
-                          who.id());
-                    },
-                    "Read")));
+            new Interaction(
+                (interacted, who) -> {
+                  boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
+                  GameOfGamesCanvas.unlockExtraNodes(unlocked);
+                  DialogFactory.showDialogDialog(
+                      unlocked
+                          ? "You memorize two more rules. Reopen the rule board to see them."
+                          : "You forget the two extra rules again.",
+                      () -> {},
+                      who.id());
+                })));
     Game.add(folder);
   }
 
