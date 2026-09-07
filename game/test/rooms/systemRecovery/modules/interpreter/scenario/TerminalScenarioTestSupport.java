@@ -19,11 +19,19 @@ abstract class TerminalScenarioTestSupport {
   }
 
   protected static TerminalCodeRequirement requirement(String... regexes) {
+    return requirement(false, regexes);
+  }
+
+  protected static TerminalCodeRequirement orderedRequirement(String... regexes) {
+    return requirement(true, regexes);
+  }
+
+  private static TerminalCodeRequirement requirement(boolean requiresOrder, String... regexes) {
     CodeLine[] codeLines =
         Arrays.stream(regexes)
             .map(regex -> new CodeLine(Pattern.compile(regex)))
             .toArray(CodeLine[]::new);
-    return new TerminalCodeRequirement(codeLines, null, null);
+    return new TerminalCodeRequirement(codeLines, requiresOrder, null, null);
   }
 
   protected static String assignment(String variable, int index, String value) {
