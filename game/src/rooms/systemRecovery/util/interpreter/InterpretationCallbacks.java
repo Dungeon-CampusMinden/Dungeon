@@ -5,7 +5,9 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.level.DungeonLevel;
+import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.shader.EnergyFillShader;
+import engine.utils.components.path.SimpleIPath;
 import feature.hud.DialogUtils;
 
 /** Applies room-side effects for terminal interpretation outcomes. */
@@ -28,11 +30,21 @@ public final class InterpretationCallbacks {
   public static void markEnergyCratesCorrect() {
     System.out.println("TEst");
     DungeonLevel level = (DungeonLevel) Game.currentLevel().get();
-    Entity a0 = Game.entityAtPoint(level.getPoint("a0")).findFirst().get();
-    a0.fetch(DrawComponent.class)
-        .get()
-        .shaders()
-        .add("energieShader", new EnergyFillShader(1f, Color.RED));
+    Game.entityAtPoint(level.getPoint("a0")).findFirst().flatMap(e -> e.fetch(DrawComponent.class)).ifPresent(dc -> {
+        dc.shaders().add("energieShader", new EnergyFillShader(0.7f, Color.valueOf("0000FF77"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))));
+    });
+    Game.entityAtPoint(level.getPoint("a1")).findFirst().flatMap(e -> e.fetch(DrawComponent.class)).ifPresent(dc -> {
+        dc.shaders().add("energieShader", new EnergyFillShader(0.3f, Color.valueOf("0000FF77"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))));
+    });
+    Game.entityAtPoint(level.getPoint("a2")).findFirst().flatMap(e -> e.fetch(DrawComponent.class)).ifPresent(dc -> {
+      dc.shaders().add("energieShader", new EnergyFillShader(0.4f, Color.valueOf("FF000077"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))));
+    });
+    Game.entityAtPoint(level.getPoint("a3")).findFirst().flatMap(e -> e.fetch(DrawComponent.class)).ifPresent(dc -> {
+      dc.shaders().add("energieShader", new EnergyFillShader(1.0f, Color.valueOf("00FF0077"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))));
+    });
+    Game.entityAtPoint(level.getPoint("a4")).findFirst().flatMap(e -> e.fetch(DrawComponent.class)).ifPresent(dc -> {
+      dc.shaders().add("energieShader", new EnergyFillShader(0.0f, Color.valueOf("0000FF77"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))));
+    });
   }
 
   /** Shows feedback for a correct terminal input. */
