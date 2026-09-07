@@ -33,10 +33,10 @@ void main() {
   float influence = 1.0 - smoothstep(u_fillPercentage-0.05, u_fillPercentage+0.05, y);
 
   // Only apply shader to non-black pixels to avoid darkening outlines and such
-  if (textureColor.r + textureColor.g + textureColor.b > 0.5) {
+ // if (textureColor.r + textureColor.g + textureColor.b > 0.5) {
     textureColor.rgb *= 1.0 + influence;
     textureColor.rgb = mix(textureColor.rgb, u_color.rgb, 0.7 * influence);
-  }
+  //}
 
   gl_FragColor = pma(textureColor);
 }
