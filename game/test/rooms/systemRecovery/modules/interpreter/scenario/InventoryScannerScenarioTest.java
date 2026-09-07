@@ -12,7 +12,7 @@ public class InventoryScannerScenarioTest extends TerminalScenarioTestSupport {
   public void inventoryScannerScenarioIsSupported_riddle3() {
     interpreter.register(
         0,
-        requirement(
+        orderedRequirement(
             "int\\s+count\\s*=\\s*0",
             "for\\s*\\(\\s*String\\s+m\\s*:\\s*module\\s*\\)\\s*\\{",
             "if\\s*\\(\\s*m\\s*!=\\s*null\\s*\\)\\s*\\{",
