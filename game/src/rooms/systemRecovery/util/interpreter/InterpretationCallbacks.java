@@ -5,6 +5,7 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.utils.Point;
 import feature.entities.MiscFactory;
+import feature.hud.DialogUtils;
 import feature.systems.PositionSync;
 import java.util.Arrays;
 
@@ -45,6 +46,16 @@ public final class InterpretationCallbacks {
     for (int index = 0; index < ENERGY_CRATE_COUNT; index++) {
       tintEnergyCrate(index, CORRECT_TINT);
     }
+  }
+
+  /** Shows feedback for a correct terminal input. */
+  public static void showCorrectTerminalInputDialog() {
+    DialogUtils.showTextPopup("War richtig", "Terminal");
+  }
+
+  /** Shows feedback for an incorrect terminal input. */
+  public static void showIncorrectTerminalInputDialog() {
+    DialogUtils.showTextPopup("war falsch", "Terminal");
   }
 
   private static void tintEnergyCrate(int index, int tintColor) {
