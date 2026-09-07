@@ -58,7 +58,8 @@ public final class TerminalInterpreterSetup {
   }
 
   private static void setupRiddleOneMaterializationChamber(Runnable onSuccess, Runnable onFailure) {
-    setupRiddleOneStepOneInitializeEnergyArray(onSuccess, onFailure);
+    setupRiddleOneStepOneInitializeEnergyArray(
+        () -> InterpretationCallbacks.spawnEnergieCrates(), onFailure);
     setupRiddleOneStepTwoSetEnergyValues(onSuccess, onFailure);
   }
 
@@ -72,7 +73,7 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_ONE_STEP_TWO,
         unordered(
-            onSuccess,
+            () -> InterpretationCallbacks.markEnergyCratesCorrect(),
             onFailure,
             assignment("energie", 0, "40"),
             assignment("energie", 1, "10"),
