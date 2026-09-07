@@ -59,7 +59,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void setupTerminal() {
     TerminalInterpreter.instance().reset();
     InterpretationCallbacks.reset();
-    TerminalInterpreterSetup.setupRoomStates(getPoint(TERMINAL_POINT));
+    TerminalInterpreterSetup.setupRoomStates();
     Entity terminal = DecoFactory.createDeco(getPoint(TERMINAL_POINT), Deco.DeskWithPC1);
     terminal.name(TERMINAL_POINT);
     terminal.remove(DecoComponent.class);
