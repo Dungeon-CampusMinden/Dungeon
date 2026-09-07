@@ -161,17 +161,17 @@ public final class GameOfGamesCanvas {
     nodes.add(equi3);
     nodes.add(equi4);
 
-    nodes.add(createValueNode("-9.33 + (7 / 3) * 4", 0));
-    nodes.add(createValueNode("21", 21));
+    nodes.add(createValueNode("rule-value-1", "-9.33 + (7 / 3) * 4", 0, 0f));
+    nodes.add(createValueNode("rule-value-2", "21", 21, 100f));
 
-    nodes.add(createValueNode("24 + 2 * 3", 30));
-    nodes.add(createValueNode("10^2", 100));
+    nodes.add(createValueNode("rule-value-3", "24 + 2 * 3", 30, 200f));
+    nodes.add(createValueNode("rule-value-4", "10^2", 100, 300f));
 
-    nodes.add(createValueNode("100 / 300 - 1 / 3", 0));
-    nodes.add(createValueNode("62 / 2 - 1", 30));
+    nodes.add(createValueNode("rule-value-5", "100 / 300 - 1 / 3", 0, 400f));
+    nodes.add(createValueNode("rule-value-6", "62 / 2 - 1", 30, 500f));
 
-    nodes.add(createValueNode("Amount of cm[n]in a meter", 100));
-    nodes.add(createValueNode("7 * 3", 21));
+    nodes.add(createValueNode("rule-value-7", "Amount of cm[n]in a meter", 100, 600f));
+    nodes.add(createValueNode("rule-value-8", "7 * 3", 21, 700f));
 
     nodes.add(
         new ImageNode("img-1", "items/rpg/food_strawberry.png")
@@ -182,13 +182,10 @@ public final class GameOfGamesCanvas {
     return nodes;
   }
 
-  private static int yOffset = 0;
-
-  private static LabelNode createValueNode(String text, int value) {
-    LabelNode node = new LabelNode(CanvasArea.newLocalId(), text);
-    node.position(650f, yOffset);
+  private static LabelNode createValueNode(String id, String text, int value, float y) {
+    LabelNode node = new LabelNode(id, text);
+    node.position(650f, y);
     VALUE_MAP.put(text, value);
-    yOffset += 100;
     return node;
   }
 
