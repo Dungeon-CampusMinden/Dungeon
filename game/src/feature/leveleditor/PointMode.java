@@ -68,6 +68,7 @@ public class PointMode extends LevelEditorMode {
             "Name of point",
             "Add",
             "Cancel",
+            false,
             payload -> {
               if (payload instanceof DialogResponseMessage.StringValue(String value)
                   && !value.isBlank()) {

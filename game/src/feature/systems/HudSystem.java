@@ -115,6 +115,7 @@ public final class HudSystem extends System {
   }
 
   private void suppressDialog(UIComponent component) {
+    if (!component.suppressible()) return;
     if (!component.isVisible()) return;
     dialogsVisibleBeforeSuppression.add(component);
     component.dialog().setVisible(false);

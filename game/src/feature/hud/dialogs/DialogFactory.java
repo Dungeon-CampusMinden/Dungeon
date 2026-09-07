@@ -138,6 +138,25 @@ public class DialogFactory {
    */
   public static UIComponent show(
       DialogContext context, boolean willPause, boolean canBeClosed, int... targetEntityIds) {
+    return show(context, willPause, canBeClosed, true, targetEntityIds);
+  }
+
+  /**
+   * Creates and displays a dialog of the specified type.
+   *
+   * @param context The context containing all necessary data for dialog creation
+   * @param willPause whether the dialog will pause the game when displayed
+   * @param canBeClosed whether the dialog can be closed by the user
+   * @param suppressible whether temporary HUD suppression may hide the dialog
+   * @param targetEntityIds array of entity IDs to notify when the dialog is closed
+   * @return The UIComponent containing the dialog (use to register callbacks)
+   */
+  public static UIComponent show(
+      DialogContext context,
+      boolean willPause,
+      boolean canBeClosed,
+      boolean suppressible,
+      int... targetEntityIds) {
     Objects.requireNonNull(context, "context");
 
     // Determine the owner entity (who holds the UIComponent)
@@ -171,7 +190,8 @@ public class DialogFactory {
       translatedContext = translateText(DialogContextKeys.DIALOG, translatedContext);
     }
 
-    UIComponent ui = new UIComponent(translatedContext, willPause, canBeClosed, targetEntityIds);
+    UIComponent ui =
+        new UIComponent(translatedContext, willPause, canBeClosed, suppressible, targetEntityIds);
     ownerEntity.add(ui);
 
     return ui;
@@ -352,6 +372,45 @@ public class DialogFactory {
       Consumer<DialogResponseMessage.Payload> onConfirm,
       IVoidFunction onCancel,
       int... targetEntityIds) {
+    return showInputDialog(
+        text,
+        title,
+        inputPrefill,
+        inputPlaceholder,
+        confirmLabel,
+        cancelLabel,
+        true,
+        onConfirm,
+        onCancel,
+        targetEntityIds);
+  }
+
+  /**
+   * Shows a dialog for text input with control over temporary HUD suppression.
+   *
+   * @param text The message to display in the dialog body
+   * @param title The dialog window title
+   * @param inputPrefill The pre-filled text in the input field
+   * @param inputPlaceholder The placeholder text for the input field
+   * @param confirmLabel Label for the confirm button
+   * @param cancelLabel Label for the cancel button
+   * @param suppressible whether temporary HUD suppression may hide the dialog
+   * @param onConfirm Callback executed when the confirm button is pressed
+   * @param onCancel Callback executed when the cancel button is pressed
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed
+   * @return The {@link UIComponent} containing the dialog
+   */
+  public static UIComponent showInputDialog(
+      String text,
+      String title,
+      String inputPrefill,
+      String inputPlaceholder,
+      String confirmLabel,
+      String cancelLabel,
+      boolean suppressible,
+      Consumer<DialogResponseMessage.Payload> onConfirm,
+      IVoidFunction onCancel,
+      int... targetEntityIds) {
     Objects.requireNonNull(onConfirm, "onConfirm callback cannot be null");
     Objects.requireNonNull(onCancel, "onCancel callback cannot be null");
     DialogContext.Builder builder =
@@ -365,7 +424,7 @@ public class DialogFactory {
             .put(DialogContextKeys.CONFIRM_LABEL, confirmLabel)
             .put(DialogContextKeys.CANCEL_LABEL, cancelLabel);
 
-    UIComponent ui = show(builder.build(), targetEntityIds);
+    UIComponent ui = show(builder.build(), true, true, suppressible, targetEntityIds);
 
     // Register callbacks
     ui.registerCallback(
