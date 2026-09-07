@@ -11,15 +11,13 @@ import java.util.Objects;
  * @param areaHeight the preferred viewport height
  * @param options the canvas interaction and rendering options
  * @param showResetViewButton whether the reset-view button is visible
- * @param showFitButton whether the fit-to-content button is visible
  */
 public record CanvasLayout(
     String title,
     float areaWidth,
     float areaHeight,
     CanvasOptions options,
-    boolean showResetViewButton,
-    boolean showFitButton)
+    boolean showResetViewButton)
     implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -39,6 +37,6 @@ public record CanvasLayout(
    * @return a layout with the standard canvas dimensions and options
    */
   public static CanvasLayout defaults() {
-    return new CanvasLayout("", 900f, 560f, new CanvasOptions(), true, true);
+    return new CanvasLayout("", 900f, 560f, new CanvasOptions(), true);
   }
 }

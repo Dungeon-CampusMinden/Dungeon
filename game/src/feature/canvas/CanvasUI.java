@@ -106,17 +106,16 @@ public class CanvasUI extends Group {
     container.setFillParent(true);
     container.pad(VIEWPORT_MARGIN);
     container.padTop(TOP_MARGIN);
-    container.setContent(
-        buildWindow(layout.title(), layout.showResetViewButton(), layout.showFitButton()));
+    container.setContent(buildWindow(layout.title(), layout.showResetViewButton()));
     addActor(container);
   }
 
-  private Window buildWindow(String title, boolean showResetViewButton, boolean showFitButton) {
+  private Window buildWindow(String title, boolean showResetViewButton) {
     Window window = new Window("", UIUtils.defaultSkin(), "no-title");
     window.setMovable(false);
     window.setBackground((Drawable) null);
 
-    Stack canvas = buildCanvas(showResetViewButton, showFitButton);
+    Stack canvas = buildCanvas(showResetViewButton);
     if (!title.isBlank()) {
       addTitle(canvas, title);
     }
@@ -139,7 +138,7 @@ public class CanvasUI extends Group {
     canvas.add(titleTable);
   }
 
-  private Stack buildCanvas(boolean showResetViewButton, boolean showFitButton) {
+  private Stack buildCanvas(boolean showResetViewButton) {
     Stack stack = new Stack();
     stack.add(area);
 
@@ -157,18 +156,6 @@ public class CanvasUI extends Group {
             }
           });
       controls.add(reset).padRight(CONTROL_SPACING);
-    }
-
-    if (showFitButton) {
-      TextButton fit = Scene2dElementFactory.createButton("Fit", "blue-outline", 18);
-      fit.addListener(
-          new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-              area.zoomToFit();
-            }
-          });
-      controls.add(fit);
     }
 
     controls.add().growX();

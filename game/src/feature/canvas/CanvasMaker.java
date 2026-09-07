@@ -169,7 +169,6 @@ public final class CanvasMaker {
     private boolean pauseGame = true;
     private boolean closable = true;
     private boolean showResetViewButton = true;
-    private boolean showFitButton = true;
 
     private Builder(String canvasId) {
       Objects.requireNonNull(canvasId, "canvasId");
@@ -287,17 +286,6 @@ public final class CanvasMaker {
       return this;
     }
 
-    /**
-     * Sets whether the fit-to-content button is visible.
-     *
-     * @param value true to show the button
-     * @return this builder for chaining
-     */
-    public Builder showFitButton(boolean value) {
-      showFitButton = value;
-      return this;
-    }
-
     private CanvasDefinition build(String providerClass) {
       List<NodeState> fixed = List.copyOf(staticNodes);
       CanvasNodesSupplier combined =
@@ -312,8 +300,7 @@ public final class CanvasMaker {
           };
       return new CanvasDefinition(
           canvasId,
-          new CanvasLayout(
-              title, areaWidth, areaHeight, options, showResetViewButton, showFitButton),
+          new CanvasLayout(title, areaWidth, areaHeight, options, showResetViewButton),
           combined,
           eventHandlers,
           pauseGame,

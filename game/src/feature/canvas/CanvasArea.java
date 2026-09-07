@@ -642,21 +642,6 @@ public class CanvasArea extends Group {
     applyViewTransform();
   }
 
-  /** Zooms and pans so that all nodes fit into the viewport. */
-  public void zoomToFit() {
-    Rectangle content = contentBounds();
-    if (content == null || content.width <= 0f || content.height <= 0f) {
-      resetView();
-      return;
-    }
-    float margin = 0.9f;
-    float fit = Math.min(getWidth() / content.width, getHeight() / content.height) * margin;
-    zoom = options.clampZoom(fit);
-    panX = getWidth() / 2f - (content.x + content.width / 2f) * zoom;
-    panY = getHeight() / 2f - (content.y + content.height / 2f) * zoom;
-    applyViewTransform();
-  }
-
   /**
    * Returns the world space bounding box of all nodes.
    *
