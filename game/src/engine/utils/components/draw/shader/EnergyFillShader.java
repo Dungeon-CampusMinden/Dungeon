@@ -13,6 +13,7 @@ public class EnergyFillShader extends AbstractShader {
   private static final String FRAG_PATH = "shaders/energy_fill.frag";
 
   private float fillPercentage;
+  private float animMagnitude = 0.028f;
   private Color color;
   private Texture texture;
 
@@ -54,6 +55,7 @@ public class EnergyFillShader extends AbstractShader {
   protected List<UniformBinding> getUniforms(int actualUpscale) {
     return List.of(
         new FloatUniform("u_fillPercentage", fillPercentage),
+        new FloatUniform("u_animMagnitude", animMagnitude),
         new ColorUniform("u_color", color),
         new TextureUniform("u_overlayTexture", texture, 1));
   }
@@ -85,6 +87,26 @@ public class EnergyFillShader extends AbstractShader {
    */
   public EnergyFillShader fillPercentage(float fillPercentage) {
     this.fillPercentage = validateFillPercentage(fillPercentage);
+    return this;
+  }
+
+  /**
+   * Gets the animation magnitude.
+   *
+   * @return the animation magnitude
+   */
+  public float animMagnitude() {
+    return animMagnitude;
+  }
+
+  /**
+   * Sets the animation magnitude.
+   *
+   * @param animMagnitude the animation magnitude
+   * @return this shader for chaining
+   */
+  public EnergyFillShader animMagnitude(float animMagnitude) {
+    this.animMagnitude = animMagnitude;
     return this;
   }
 

@@ -31,19 +31,19 @@ public final class InterpretationCallbacks {
     System.out.println("TEst");
     DungeonLevel level = (DungeonLevel) Game.currentLevel().get();
     Game.entityAtPoint(level.getPoint("a0")).findFirst().flatMap(e -> e.fetch(DrawComponent.class)).ifPresent(dc -> {
-        dc.shaders().add("energieShader", new EnergyFillShader(0.7f, Color.valueOf("0000FF77"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))));
+        dc.shaders().add("energieShader", new EnergyFillShader(0.7f, Color.valueOf("0000FF77"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))).animMagnitude(0));
     });
     Game.entityAtPoint(level.getPoint("a1")).findFirst().flatMap(e -> e.fetch(DrawComponent.class)).ifPresent(dc -> {
-        dc.shaders().add("energieShader", new EnergyFillShader(0.3f, Color.valueOf("0000FF77"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))));
+        dc.shaders().add("energieShader", new EnergyFillShader(0.3f, Color.valueOf("0000FF77"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))).animMagnitude(0));
     });
     Game.entityAtPoint(level.getPoint("a2")).findFirst().flatMap(e -> e.fetch(DrawComponent.class)).ifPresent(dc -> {
-      dc.shaders().add("energieShader", new EnergyFillShader(0.4f, Color.valueOf("FF000077"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))));
+      dc.shaders().add("energieShader", new EnergyFillShader(0.4f, Color.valueOf("FF000077"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))).animMagnitude(0));
     });
     Game.entityAtPoint(level.getPoint("a3")).findFirst().flatMap(e -> e.fetch(DrawComponent.class)).ifPresent(dc -> {
-      dc.shaders().add("energieShader", new EnergyFillShader(1.0f, Color.valueOf("00FF0077"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))));
+      dc.shaders().add("energieShader", new EnergyFillShader(1.0f, Color.valueOf("00FF0077"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))).animMagnitude(0));
     });
     Game.entityAtPoint(level.getPoint("a4")).findFirst().flatMap(e -> e.fetch(DrawComponent.class)).ifPresent(dc -> {
-      dc.shaders().add("energieShader", new EnergyFillShader(0.0f, Color.valueOf("0000FF77"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))));
+      dc.shaders().add("energieShader", new EnergyFillShader(0.0f, Color.valueOf("0000FF77"), TextureMap.instance().textureAt(new SimpleIPath("objects/tech/CryoBox.png"))).animMagnitude(0));
     });
   }
 

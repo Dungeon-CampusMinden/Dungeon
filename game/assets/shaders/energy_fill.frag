@@ -21,10 +21,9 @@ uniform vec2 u_aspect;
 uniform float u_fillPercentage;
 uniform vec4 u_color;
 uniform sampler2D u_overlayTexture;
+uniform float u_animMagnitude;
 
 const float animSpeed = 0.28;
-//const float animMagnitude = 0.028;
-const float animMagnitude = 0.0;
 
 // ----- Main -----
 void main() {
@@ -35,7 +34,7 @@ void main() {
   }
 
   float y = uv.y;
-  y += sin(u_fillPercentage + uv.x * 5.0 + u_time * TAU * animSpeed) * animMagnitude;
+  y += sin(u_fillPercentage + uv.x * 5.0 + u_time * TAU * animSpeed) * u_animMagnitude;
   float influence = 1.0 - smoothstep(u_fillPercentage-0.05, u_fillPercentage+0.05, y);
 
   textureColor = mix(textureColor, overlayTextureColor, overlayTextureColor.a * influence);
