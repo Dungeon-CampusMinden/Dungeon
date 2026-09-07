@@ -103,8 +103,7 @@ public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
         orderedRequirement(
             indexedForLoop("i", "map\\s*\\.\\s*length"),
             indexedForLoop("j", "map\\s*\\[\\s*i\\s*]\\s*\\.\\s*length"),
-            "if\\s*\\(\\s*map\\s*\\[\\s*i\\s*]\\s*\\[\\s*j\\s*]\\s*==\\s*1\\s*\\)"
-                + "\\s*\\{",
+            "if\\s*\\(\\s*map\\s*\\[\\s*i\\s*]\\s*\\[\\s*j\\s*]\\s*==\\s*1\\s*\\)" + "\\s*\\{",
             "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
 
     String source =

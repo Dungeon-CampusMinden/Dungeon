@@ -9,6 +9,7 @@ import engine.network.MessageDispatcher;
 import engine.network.SnapshotTranslator;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
+import feature.collision.CollideSync;
 import feature.components.CollideComponent;
 import feature.interaction.InteractionComponent;
 import java.util.ArrayList;
@@ -19,6 +20,9 @@ import java.util.Optional;
 
 /** Snapshot translator for metadata-backed System Recovery components. */
 public final class SystemRecoverySnapshotTranslator implements SnapshotTranslator {
+
+  private static final CollideSync COLLIDE_SYNC =
+      CollideSync.withPrefix(SystemRecoveryEntitySpawnStrategy.METADATA_COLLIDER_PREFIX);
 
   private final SnapshotTranslator delegate = new DefaultSnapshotTranslator();
 
@@ -77,8 +81,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
               entity -> {
                 applyInteractableMetadata(entity, metadata.orElseThrow());
                 collideComponentFromMetadata(metadata.orElseThrow())
-                    .ifPresent(
-                        collideState -> SystemRecoveryCollideSync.apply(entity, collideState));
+                    .ifPresent(collideState -> COLLIDE_SYNC.apply(entity, collideState));
               });
     }
   }
@@ -91,7 +94,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
    */
   public static Optional<CollideComponent> collideComponentFromMetadata(
       Map<String, String> metadata) {
-    return SystemRecoveryCollideSync.fromMetadata(metadata);
+    return COLLIDE_SYNC.fromMetadata(metadata);
   }
 
   /**
@@ -122,7 +125,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
           SystemRecoveryEntitySpawnStrategy.METADATA_INTERACTABLE,
           String.valueOf(entity.isPresent(InteractionComponent.class)));
     }
-    SystemRecoveryCollideSync.appendMetadata(entity, metadata);
+    COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;
   }
 

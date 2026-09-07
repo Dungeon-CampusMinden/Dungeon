@@ -85,8 +85,8 @@ public final class TerminalInterpreter {
     List<TerminalStatement> statements = parsedStatements(source);
     boolean successful =
         !statements.isEmpty()
-        && matchesRequiredCodeLines(statements, puzzleState, context)
-        && containsOnlyKnownStatements(statements);
+            && matchesRequiredCodeLines(statements, puzzleState, context)
+            && containsOnlyKnownStatements(statements);
     return new AnalysisResult(successful, context);
   }
 
@@ -198,9 +198,7 @@ public final class TerminalInterpreter {
   }
 
   private static String[] statements(String source) {
-    return parsedStatements(source).stream()
-        .map(TerminalStatement::source)
-        .toArray(String[]::new);
+    return parsedStatements(source).stream().map(TerminalStatement::source).toArray(String[]::new);
   }
 
   private static List<TerminalStatement> parsedStatements(String source) {
