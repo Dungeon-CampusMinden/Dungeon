@@ -57,8 +57,7 @@ public final class TerminalInterpreterSetup {
     setupRiddleTenCentralDataCenter(onSuccess, onFailure);
   }
 
-  private static void setupRiddleOneMaterializationChamber(
-      Runnable onSuccess, Runnable onFailure) {
+  private static void setupRiddleOneMaterializationChamber(Runnable onSuccess, Runnable onFailure) {
     setupRiddleOneStepOneInitializeEnergyArray(onSuccess, onFailure);
     setupRiddleOneStepTwoSetEnergyValues(onSuccess, onFailure);
   }
@@ -66,12 +65,10 @@ public final class TerminalInterpreterSetup {
   private static void setupRiddleOneStepOneInitializeEnergyArray(
       Runnable onSuccess, Runnable onFailure) {
     register(
-        RIDDLE_ONE_STEP_ONE,
-        unordered(onSuccess, onFailure, arrayCreation("int", "energie", 5)));
+        RIDDLE_ONE_STEP_ONE, unordered(onSuccess, onFailure, arrayCreation("int", "energie", 5)));
   }
 
-  private static void setupRiddleOneStepTwoSetEnergyValues(
-      Runnable onSuccess, Runnable onFailure) {
+  private static void setupRiddleOneStepTwoSetEnergyValues(Runnable onSuccess, Runnable onFailure) {
     register(
         RIDDLE_ONE_STEP_TWO,
         unordered(
@@ -84,8 +81,7 @@ public final class TerminalInterpreterSetup {
             assignment("energie", 4, "60")));
   }
 
-  private static void setupRiddleTwoDefectiveModuleStorage(
-      Runnable onSuccess, Runnable onFailure) {
+  private static void setupRiddleTwoDefectiveModuleStorage(Runnable onSuccess, Runnable onFailure) {
     setupRiddleTwoStepOneInitializeModuleArray(onSuccess, onFailure);
     setupRiddleTwoStepTwoSetModules(onSuccess, onFailure);
     setupRiddleTwoStepThreeRemoveGpuModule(onSuccess, onFailure);
@@ -122,8 +118,7 @@ public final class TerminalInterpreterSetup {
   private static void setupRiddleTwoStepFourReadModuleLength(
       Runnable onSuccess, Runnable onFailure) {
     register(
-        RIDDLE_TWO_STEP_FOUR,
-        unordered(onSuccess, onFailure, capturedLengthAccess(MODULE_ARRAY)));
+        RIDDLE_TWO_STEP_FOUR, unordered(onSuccess, onFailure, capturedLengthAccess(MODULE_ARRAY)));
   }
 
   private static void setupRiddleThreeInventoryScanner(Runnable onSuccess, Runnable onFailure) {
@@ -143,8 +138,7 @@ public final class TerminalInterpreterSetup {
     setupRiddleFourStepTwoTransportPackages(onSuccess, onFailure);
   }
 
-  private static void setupRiddleFourStepOneCreatePackages(
-      Runnable onSuccess, Runnable onFailure) {
+  private static void setupRiddleFourStepOneCreatePackages(Runnable onSuccess, Runnable onFailure) {
     register(
         RIDDLE_FOUR_STEP_ONE,
         unordered(onSuccess, onFailure, intArrayLiteral("pakete", "15", "40", "20", "60", "30")));
@@ -187,16 +181,14 @@ public final class TerminalInterpreterSetup {
     setupRiddleEightStepThreeReadStorage(onSuccess, onFailure);
   }
 
-  private static void setupRiddleEightStepOneCreateStorage(
-      Runnable onSuccess, Runnable onFailure) {
+  private static void setupRiddleEightStepOneCreateStorage(Runnable onSuccess, Runnable onFailure) {
     register(
         RIDDLE_EIGHT_STEP_ONE,
         unordered(
             onSuccess, onFailure, twoDimensionalArrayCreation("int", STORAGE_ARRAY, 3, 4, true)));
   }
 
-  private static void setupRiddleEightStepTwoFillStorage(
-      Runnable onSuccess, Runnable onFailure) {
+  private static void setupRiddleEightStepTwoFillStorage(Runnable onSuccess, Runnable onFailure) {
     register(
         RIDDLE_EIGHT_STEP_TWO,
         unordered(
@@ -207,8 +199,7 @@ public final class TerminalInterpreterSetup {
             capturedTwoDimensionalAssignment(STORAGE_ARRAY, 2, 1, "3")));
   }
 
-  private static void setupRiddleEightStepThreeReadStorage(
-      Runnable onSuccess, Runnable onFailure) {
+  private static void setupRiddleEightStepThreeReadStorage(Runnable onSuccess, Runnable onFailure) {
     register(
         RIDDLE_EIGHT_STEP_THREE,
         unordered(onSuccess, onFailure, capturedTwoDimensionalAccess(STORAGE_ARRAY, 1, 3)));
@@ -262,8 +253,7 @@ public final class TerminalInterpreterSetup {
             increment("count")));
   }
 
-  private static void setupRiddleTenStepThreeFindBatteries(
-      Runnable onSuccess, Runnable onFailure) {
+  private static void setupRiddleTenStepThreeFindBatteries(Runnable onSuccess, Runnable onFailure) {
     register(
         RIDDLE_TEN_STEP_THREE,
         ordered(
@@ -359,11 +349,7 @@ public final class TerminalInterpreterSetup {
 
   private static CodeLine capturedAssignment(String variableCapture, int index, String value) {
     return codeLine(
-        capturedIdentifier(variableCapture)
-            + "\\s*\\[\\s*"
-            + index
-            + "\\s*]\\s*=\\s*"
-            + value);
+        capturedIdentifier(variableCapture) + "\\s*\\[\\s*" + index + "\\s*]\\s*=\\s*" + value);
   }
 
   private static CodeLine twoDimensionalAssignment(
@@ -392,12 +378,7 @@ public final class TerminalInterpreterSetup {
 
   private static CodeLine twoDimensionalAccess(String variable, int firstIndex, int secondIndex) {
     return codeLine(
-        variable
-            + "\\s*\\[\\s*"
-            + firstIndex
-            + "\\s*]\\s*\\[\\s*"
-            + secondIndex
-            + "\\s*]");
+        variable + "\\s*\\[\\s*" + firstIndex + "\\s*]\\s*\\[\\s*" + secondIndex + "\\s*]");
   }
 
   private static CodeLine capturedTwoDimensionalAccess(
@@ -453,8 +434,7 @@ public final class TerminalInterpreterSetup {
   }
 
   private static CodeLine indexedForLoop(String arrayVariable, String indexCapture) {
-    return indexedForLoopWithUpperBound(
-        indexCapture, arrayVariable + "\\s*\\.\\s*length");
+    return indexedForLoopWithUpperBound(indexCapture, arrayVariable + "\\s*\\.\\s*length");
   }
 
   private static CodeLine indexedForLoopWithUpperBound(String indexCapture, String upperBound) {
