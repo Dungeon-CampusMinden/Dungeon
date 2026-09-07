@@ -24,24 +24,27 @@ public class TerminalInterpreterTest {
   private static final CodeLine STEP = line("step\\s*\\(\\s*\\)");
   private static final CodeLine FINISH = line("finish\\s*\\(\\s*\\)");
   private static final CodeLine LOOP =
-      line("for\\s*\\(\\s*int\\s+i\\s*=\\s*0\\s*;\\s*i\\s*<\\s*items\\s*"
-          + "\\.\\s*length\\s*;\\s*i\\+\\+\\s*\\)\\s*\\{");
+      line(
+          "for\\s*\\(\\s*int\\s+i\\s*=\\s*0\\s*;\\s*i\\s*<\\s*items\\s*"
+              + "\\.\\s*length\\s*;\\s*i\\+\\+\\s*\\)\\s*\\{");
   private static final CodeLine CONDITION =
       line("if\\s*\\(\\s*items\\s*\\[\\s*i\\s*]\\s*!=\\s*null\\s*\\)\\s*\\{");
   private static final CodeLine ACTION = line("use\\s*\\(\\s*items\\s*\\[\\s*i\\s*]\\s*\\)");
   private static final String IDENTIFIER = "[a-zA-Z][a-zA-Z0-9]*";
   private static final CodeLine FLEXIBLE_LOOP =
-      line("for\\s*\\(\\s*int\\s+(?<index>"
-          + IDENTIFIER
-          + ")\\s*=\\s*0\\s*;\\s*\\k<index>\\s*<\\s*(?<array>"
-          + IDENTIFIER
-          + ")\\s*\\.\\s*length\\s*;\\s*\\k<index>\\+\\+\\s*\\)\\s*\\{");
+      line(
+          "for\\s*\\(\\s*int\\s+(?<index>"
+              + IDENTIFIER
+              + ")\\s*=\\s*0\\s*;\\s*\\k<index>\\s*<\\s*(?<array>"
+              + IDENTIFIER
+              + ")\\s*\\.\\s*length\\s*;\\s*\\k<index>\\+\\+\\s*\\)\\s*\\{");
   private static final CodeLine FLEXIBLE_ACTION =
-      line("use\\s*\\(\\s*(?<array>"
-          + IDENTIFIER
-          + ")\\s*\\[\\s*(?<index>"
-          + IDENTIFIER
-          + ")\\s*]\\s*\\)");
+      line(
+          "use\\s*\\(\\s*(?<array>"
+              + IDENTIFIER
+              + ")\\s*\\[\\s*(?<index>"
+              + IDENTIFIER
+              + ")\\s*]\\s*\\)");
 
   /** Resets and registers isolated steps before each test. */
   @BeforeEach
@@ -108,8 +111,7 @@ public class TerminalInterpreterTest {
     TerminalInterpreter.instance()
         .register(0, new TerminalCodeRequirement(new CodeLine[] {START}, null, null));
     TerminalInterpreter.instance()
-        .register(
-            1, new TerminalCodeRequirement(new CodeLine[] {STEP, FINISH}, true, null, null));
+        .register(1, new TerminalCodeRequirement(new CodeLine[] {STEP, FINISH}, true, null, null));
 
     assertTrue(TerminalInterpreter.instance().interpret("start();"));
 
@@ -124,8 +126,7 @@ public class TerminalInterpreterTest {
     TerminalInterpreter.instance()
         .register(0, new TerminalCodeRequirement(new CodeLine[] {START}, null, null));
     TerminalInterpreter.instance()
-        .register(
-            1, new TerminalCodeRequirement(new CodeLine[] {STEP, FINISH}, true, null, null));
+        .register(1, new TerminalCodeRequirement(new CodeLine[] {STEP, FINISH}, true, null, null));
 
     assertTrue(TerminalInterpreter.instance().interpret("start();"));
 
@@ -141,8 +142,7 @@ public class TerminalInterpreterTest {
         .register(0, new TerminalCodeRequirement(new CodeLine[] {LOOP}, true, null, null));
 
     boolean result =
-        TerminalInterpreter.instance()
-            .analyze("for (int i = 0; i < items.length; i++) {\n}");
+        TerminalInterpreter.instance().analyze("for (int i = 0; i < items.length; i++) {\n}");
 
     assertTrue(result);
   }
@@ -198,7 +198,8 @@ public class TerminalInterpreterTest {
     TerminalInterpreter.instance()
         .register(
             0,
-            new TerminalCodeRequirement(new CodeLine[] {LOOP, CONDITION, ACTION}, true, null, null));
+            new TerminalCodeRequirement(
+                new CodeLine[] {LOOP, CONDITION, ACTION}, true, null, null));
 
     boolean result =
         TerminalInterpreter.instance()
@@ -220,7 +221,8 @@ public class TerminalInterpreterTest {
     TerminalInterpreter.instance()
         .register(
             0,
-            new TerminalCodeRequirement(new CodeLine[] {LOOP, CONDITION, ACTION}, true, null, null));
+            new TerminalCodeRequirement(
+                new CodeLine[] {LOOP, CONDITION, ACTION}, true, null, null));
 
     boolean result =
         TerminalInterpreter.instance()
