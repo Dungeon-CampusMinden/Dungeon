@@ -5,6 +5,7 @@ import engine.components.PositionComponent;
 import engine.network.config.DefaultEntitySpawnStrategy;
 import engine.network.config.EntitySpawnStrategy;
 import engine.network.messages.s2c.EntitySpawnEvent;
+import feature.collision.CollideSync;
 import feature.interaction.InteractionComponent;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,11 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
 
   /** Metadata key indicating whether the entity is interactable. */
   public static final String METADATA_INTERACTABLE = "systemRecovery.interactable";
+
+  /** Metadata prefix for synchronized collider state. */
+  public static final String METADATA_COLLIDER_PREFIX = "systemRecovery.collider";
+
+  private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix(METADATA_COLLIDER_PREFIX);
 
   private final EntitySpawnStrategy delegate = new DefaultEntitySpawnStrategy();
 
@@ -36,7 +42,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
     entity
         .fetch(InteractionComponent.class)
         .ifPresent(interaction -> metadata.put(METADATA_INTERACTABLE, String.valueOf(true)));
-    SystemRecoveryCollideSync.appendMetadata(entity, metadata);
+    COLLIDE_SYNC.appendMetadata(entity, metadata);
 
     if (defaultSpawn.isPresent() && !metadata.isEmpty()) {
       EntitySpawnEvent base = defaultSpawn.orElseThrow();
