@@ -22,6 +22,7 @@ public final class UIComponent implements Component {
 
   private final boolean willPauseGame;
   private final boolean canBeClosed;
+  private final boolean suppressible;
   private final int[] targetEntityIds;
   private final DialogContext dialogContext;
 
@@ -44,9 +45,29 @@ public final class UIComponent implements Component {
       boolean willPauseGame,
       boolean canBeClosed,
       int... targetEntityIds) {
+    this(dialogContext, willPauseGame, canBeClosed, true, targetEntityIds);
+  }
+
+  /**
+   * Create a new UIComponent.
+   *
+   * @param dialogContext the context that defines the dialog to be shown
+   * @param willPauseGame if the UI should pause the Game or not
+   * @param canBeClosed if the UI can be closed (e.g. with the close key)
+   * @param suppressible if the dialog should be hidden by temporary HUD suppression
+   * @param targetEntityIds the target entity ids this UI should be shown for (e.g. for inventory
+   *     UIs). Empty array for all entities.
+   */
+  public UIComponent(
+      DialogContext dialogContext,
+      boolean willPauseGame,
+      boolean canBeClosed,
+      boolean suppressible,
+      int... targetEntityIds) {
     this.dialogContext = dialogContext;
     this.willPauseGame = willPauseGame;
     this.canBeClosed = canBeClosed;
+    this.suppressible = suppressible;
     this.targetEntityIds = targetEntityIds;
   }
 
@@ -130,6 +151,15 @@ public final class UIComponent implements Component {
    */
   public boolean canBeClosed() {
     return canBeClosed;
+  }
+
+  /**
+   * Check if the dialog may be hidden while HUD dialogs are temporarily suppressed.
+   *
+   * @return true when temporary HUD suppression should hide the dialog
+   */
+  public boolean suppressible() {
+    return suppressible;
   }
 
   /**

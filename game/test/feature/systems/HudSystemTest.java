@@ -165,6 +165,32 @@ public class HudSystemTest {
     player.remove(UIComponent.class);
   }
 
+  /** Non-suppressible dialogs stay visible while normal HUD dialogs are temporarily hidden. */
+  @Test
+  public void nonSuppressibleDialogStaysVisibleDuringSuppression() {
+    Entity player = player();
+    UIComponent normal = show(player, player.id());
+
+    hudSystem.dialogsSuppressed(true);
+
+    assertFalse(normal.isVisible());
+    assertFalse(hudSystem.hasOpenUI(player));
+
+    Entity editorDialogOwner = new Entity("editor-dialog");
+    Game.add(editorDialogOwner);
+    UIComponent editorDialog =
+        ui(TestDialogType.TEST, editorDialogOwner, true, true, false, player.id());
+    editorDialogOwner.add(editorDialog);
+
+    assertTrue(editorDialog.isVisible());
+    assertTrue(hudSystem.hasOpenUI(player));
+
+    hudSystem.dialogsSuppressed(false);
+
+    assertTrue(normal.isVisible());
+    assertTrue(editorDialog.isVisible());
+  }
+
   private static Entity player() {
     Entity player = new Entity("player");
     player.add(new PlayerComponent());
@@ -188,12 +214,22 @@ public class HudSystemTest {
 
   private static UIComponent ui(
       DialogType dialogType, Entity owner, boolean willPauseGame, int... targetEntityIds) {
+    return ui(dialogType, owner, willPauseGame, true, true, targetEntityIds);
+  }
+
+  private static UIComponent ui(
+      DialogType dialogType,
+      Entity owner,
+      boolean willPauseGame,
+      boolean canBeClosed,
+      boolean suppressible,
+      int... targetEntityIds) {
     DialogContext context =
         new DialogContext(
             dialogType,
             true,
             Map.of(feature.hud.dialogs.DialogContextKeys.OWNER_ENTITY, owner.id()));
-    return new UIComponent(context, willPauseGame, true, targetEntityIds);
+    return new UIComponent(context, willPauseGame, canBeClosed, suppressible, targetEntityIds);
   }
 
   private enum TestDialogType implements DialogType {
