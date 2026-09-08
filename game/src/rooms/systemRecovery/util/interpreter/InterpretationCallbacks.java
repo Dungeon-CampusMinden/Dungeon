@@ -3,8 +3,10 @@ package rooms.systemRecovery.util.interpreter;
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
 import engine.components.DrawComponent;
+import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.sound.SoundSpec;
+import engine.utils.Point;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.path.SimpleIPath;
@@ -54,6 +56,14 @@ public final class InterpretationCallbacks {
   public static void onRiddleTwoStepFourModuleLengthRead() {
     showCorrectTerminalInputDialog();
     SystemRecoveryLevel.showModuleArrayLength();
+    // port the modules to the inventory scanner
+    DungeonLevel level = (DungeonLevel) Game.currentLevel().get();
+    for (int i = 0; i < 5; i++) {
+      Point target = level.getPoint("scanner" + i);
+      Game.entityAtPoint(level.getPoint("s" + i))
+          .forEach(
+              entity -> entity.fetch(PositionComponent.class).ifPresent(pc -> pc.position(target)));
+    }
   }
 
   /** Handles riddle 3 step 1: count all non-null modules. */
