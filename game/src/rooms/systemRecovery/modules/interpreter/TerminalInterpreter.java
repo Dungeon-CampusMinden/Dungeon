@@ -44,6 +44,15 @@ public final class TerminalInterpreter {
   }
 
   /**
+   * Returns the currently expected interpreter state.
+   *
+   * @return current interpreter state
+   */
+  public int currentState() {
+    return currentState;
+  }
+
+  /**
    * Checks the source, invokes the matching callback, and advances after success.
    *
    * @param source source text entered in the terminal
@@ -59,12 +68,29 @@ public final class TerminalInterpreter {
     boolean successful = result.successful();
     if (successful) {
       successfulContext.replaceWith(result.context());
-      puzzleState.onSuccess().run();
       currentState++;
+      // Room-side feedback must not be able to block the already validated state transition.
+      puzzleState.onSuccess().run();
     } else {
       puzzleState.onFailure().run();
     }
     return successful;
+  }
+
+  /**
+   * Completes the current state without source validation for local debug sessions.
+   *
+   * @return true if a state was completed
+   */
+  public boolean advanceCurrentStateForDebug() {
+    TerminalCodeRequirement puzzleState = states.get(currentState);
+    if (puzzleState == null) {
+      return false;
+    }
+
+    currentState++;
+    puzzleState.onSuccess().run();
+    return true;
   }
 
   /**
@@ -86,7 +112,7 @@ public final class TerminalInterpreter {
     boolean successful =
         !statements.isEmpty()
             && matchesRequiredCodeLines(statements, puzzleState, context)
-            && containsOnlyKnownStatements(statements);
+            && containsOnlyKnownStatements(statements, context);
     return new AnalysisResult(successful, context);
   }
 
@@ -163,9 +189,10 @@ public final class TerminalInterpreter {
     return false;
   }
 
-  private boolean containsOnlyKnownStatements(List<TerminalStatement> statements) {
+  private boolean containsOnlyKnownStatements(
+      List<TerminalStatement> statements, TerminalMatchContext context) {
     for (TerminalStatement statement : statements) {
-      if (!matchesStateUpToCurrent(statement.source())) {
+      if (!matchesStateUpToCurrent(statement.source(), context)) {
         return false;
       }
     }
@@ -181,15 +208,16 @@ public final class TerminalInterpreter {
    * limitation.
    *
    * @param statement statement to check
+   * @param context already known named captures used to keep flexible variable names consistent
    * @return whether the statement matches a requirement up to the current state
    */
-  private boolean matchesStateUpToCurrent(String statement) {
+  private boolean matchesStateUpToCurrent(String statement, TerminalMatchContext context) {
     for (Map.Entry<Integer, TerminalCodeRequirement> entry : states.entrySet()) {
       if (entry.getKey() > currentState) {
         continue;
       }
       for (CodeLine codeLine : entry.getValue().codeLines()) {
-        if (codeLine.check(statement)) {
+        if (codeLine.check(statement, context.copy())) {
           return true;
         }
       }

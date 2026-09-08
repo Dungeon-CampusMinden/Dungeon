@@ -12,15 +12,16 @@ import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
+import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerCallbacks;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerTab;
-import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 
 /** Terminal/editor tab for recovery code input. */
 public class TerminalTab extends SystemRecoveryComputerTab {
 
   public static final String KEY = "terminal";
   private static final int VISIBLE_LINE_COUNT = 14;
+  private static final Color FEEDBACK_DEFAULT = Color.WHITE;
   private static String savedCode = "";
   private static String savedFeedback = "";
 
@@ -42,10 +43,10 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     layout.top();
     layout.defaults().growX();
 
-    Table editor = new Table(skin);
-    editor.setBackground("generic-area");
-    editor.pad(12);
-    editor.top();
+    Table editorPanel = new Table(skin);
+    editorPanel.setBackground("generic-area");
+    editorPanel.pad(12);
+    editorPanel.top();
 
     lineNumbers =
         Scene2dElementFactory.createLabel(
@@ -64,11 +65,11 @@ public class TerminalTab extends SystemRecoveryComputerTab {
           updateLineNumbers();
         });
 
-    editor.add(lineNumbers).width(48).growY().top().right().padRight(14);
-    editor.add(codeEditor).grow();
-    layout.add(editor).grow().row();
+    editorPanel.add(lineNumbers).width(48).growY().top().right().padRight(14);
+    editorPanel.add(codeEditor).grow();
+    layout.add(editorPanel).grow().row();
 
-    feedbackLabel = Scene2dElementFactory.createLabel(savedFeedback, 18, Color.WHITE);
+    feedbackLabel = Scene2dElementFactory.createLabel(savedFeedback, 18, FEEDBACK_DEFAULT);
     feedbackLabel.setWrap(true);
 
     Table footer = new Table(skin);
@@ -78,6 +79,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     buttons.right();
     TextButton sendButton = Scene2dElementFactory.createButton("Send", "green", 24);
     TextButton deleteButton = Scene2dElementFactory.createButton("Delete", "red-outline", 24);
+    TextButton nextStepButton = Scene2dElementFactory.createButton("Next Step", "blue-outline", 24);
     sendButton.addListener(
         new ChangeListener() {
           @Override
@@ -92,8 +94,20 @@ public class TerminalTab extends SystemRecoveryComputerTab {
             clearCodeLines();
           }
         });
+    nextStepButton.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            DialogCallbackResolver.createButtonCallback(
+                    context().dialogId(), SystemRecoveryComputerCallbacks.TERMINAL_NEXT_STEP)
+                .accept(new DialogResponseMessage.StringValue(""));
+          }
+        });
     buttons.add(sendButton).width(150).height(52).padRight(12);
     buttons.add(deleteButton).width(150).height(52);
+    if (SystemRecovery.DEBUG_MODE) {
+      buttons.add(nextStepButton).width(180).height(52).padLeft(12);
+    }
     footer.add(buttons).right();
     layout.add(footer).growX().height(68).padTop(12);
 
@@ -119,8 +133,6 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
   private void sendCode() {
     String source = codeText();
-    boolean successful = TerminalInterpreter.instance().analyze(source);
-    showFeedback(successful ? "Code interpreted." : "Cannot interpret current state.");
     DialogCallbackResolver.createButtonCallback(
             context().dialogId(), SystemRecoveryComputerCallbacks.TERMINAL_SEND)
         .accept(new DialogResponseMessage.StringValue(source));

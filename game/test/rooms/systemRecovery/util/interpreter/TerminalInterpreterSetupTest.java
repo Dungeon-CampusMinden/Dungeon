@@ -268,6 +268,77 @@ public class TerminalInterpreterSetupTest {
     assertFalse(TerminalInterpreter.instance().interpret(source));
   }
 
+  /** Supported Java array declaration variants are accepted by the registered riddles. */
+  @Test
+  public void registeredRiddlesAcceptJavaArrayBracketVariants() {
+    submit(
+        """
+        int energie[] = new int[5];
+        """);
+    submit(
+        """
+        energie[0] = 40;
+        energie[1] = 10;
+        energie[2] = 80;
+        energie[3] = 30;
+        energie[4] = 60;
+        """);
+    submit(
+        """
+        String module[] = new String[5];
+        """);
+  }
+
+  /** Supported loop variants stay strict about variable consistency. */
+  @Test
+  public void registeredRiddlesAcceptEquivalentLoopIncrementAndBoundsVariants() {
+    advanceToRiddleNine();
+
+    submit(
+        """
+        for (int row = 0; row <= map.length - 1; row += 1) {
+            for (int column = 0; column <= map[row].length - 1; column = column + 1) {
+                if (map[row][column] == 1) {
+                    roboter.collect();
+                }
+            }
+        }
+        """);
+  }
+
+  /** Extra statements with a wrong captured variable name are rejected. */
+  @Test
+  public void registeredRiddlesRejectExtraStatementsWithWrongCapturedArrayName() {
+    submit(
+        """
+        int[] energie = new int[5];
+        """);
+    submit(
+        """
+        energie[0] = 40;
+        energie[1] = 10;
+        energie[2] = 80;
+        energie[3] = 30;
+        energie[4] = 60;
+        """);
+    submit(
+        """
+        String[] m = new String[5];
+        """);
+
+    source +=
+        """
+        m[0] = "CPU";
+        m[1] = "RAM";
+        m[2] = "GPU";
+        m[3] = "SSD";
+        m[4] = "NETWORK";
+        other[4] = "NETWORK";
+        """;
+
+    assertFalse(TerminalInterpreter.instance().interpret(source));
+  }
+
   private void submit(String addition) {
     source += addition;
     assertTrue(TerminalInterpreter.instance().interpret(source), addition);

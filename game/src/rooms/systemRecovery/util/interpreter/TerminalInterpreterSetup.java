@@ -9,8 +9,8 @@ import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 public final class TerminalInterpreterSetup {
 
   private static final String IDENTIFIER = "[a-zA-Z][a-zA-Z0-9]*";
-  private static final Runnable SUCCESS = InterpretationCallbacks::showCorrectTerminalInputDialog;
-  private static final Runnable FAILURE = InterpretationCallbacks::showIncorrectTerminalInputDialog;
+  private static final Runnable SUCCESS = () -> {};
+  private static final Runnable FAILURE = InterpretationCallbacks::onIncorrectTerminalInput;
   private static final String MODULE_ARRAY = "moduleArray";
   private static final String STORAGE_ARRAY = "storageArray";
 
@@ -31,10 +31,19 @@ public final class TerminalInterpreterSetup {
   private static final int RIDDLE_TEN_STEP_ONE = 14;
   private static final int RIDDLE_TEN_STEP_TWO = 15;
   private static final int RIDDLE_TEN_STEP_THREE = 16;
+  public static final String ENERGIE_VALUE_0 = "40";
+  public static final String ENERGIE_VALUE_1 = "10";
+  public static final String ENERGIE_VALUE_2 = "80";
+  public static final String ENERGIE_VALUE_3 = "30";
+  public static final String ENERGIE_VALUE_4 = "60";
 
   private TerminalInterpreterSetup() {}
 
-  /** Sets up no-op callbacks so the client can preview interpretation feedback. */
+  /**
+   * Sets up no-op callbacks so the client can preview interpretation feedback.
+   *
+   * <p>This is for headless unit testing
+   */
   public static void setupPreviewStates() {
     setupAllTerminalRiddles(null, null);
   }
@@ -59,8 +68,12 @@ public final class TerminalInterpreterSetup {
 
   private static void setupRiddleOneMaterializationChamber(Runnable onSuccess, Runnable onFailure) {
     setupRiddleOneStepOneInitializeEnergyArray(
-        () -> InterpretationCallbacks.spawnEnergieCrates(), onFailure);
-    setupRiddleOneStepTwoSetEnergyValues(onSuccess, onFailure);
+        successOrPreview(
+            onSuccess, InterpretationCallbacks::onRiddleOneStepOneEnergyArrayInitialized),
+        onFailure);
+    setupRiddleOneStepTwoSetEnergyValues(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleOneStepTwoEnergyValuesSet),
+        onFailure);
   }
 
   private static void setupRiddleOneStepOneInitializeEnergyArray(
@@ -73,20 +86,29 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_ONE_STEP_TWO,
         unordered(
-            () -> InterpretationCallbacks.markEnergyCratesCorrect(),
+            onSuccess,
             onFailure,
-            assignment("energie", 0, "40"),
-            assignment("energie", 1, "10"),
-            assignment("energie", 2, "80"),
-            assignment("energie", 3, "30"),
-            assignment("energie", 4, "60")));
+            assignment("energie", 0, ENERGIE_VALUE_0),
+            assignment("energie", 1, ENERGIE_VALUE_1),
+            assignment("energie", 2, ENERGIE_VALUE_2),
+            assignment("energie", 3, ENERGIE_VALUE_3),
+            assignment("energie", 4, ENERGIE_VALUE_4)));
   }
 
   private static void setupRiddleTwoDefectiveModuleStorage(Runnable onSuccess, Runnable onFailure) {
-    setupRiddleTwoStepOneInitializeModuleArray(onSuccess, onFailure);
-    setupRiddleTwoStepTwoSetModules(onSuccess, onFailure);
-    setupRiddleTwoStepThreeRemoveGpuModule(onSuccess, onFailure);
-    setupRiddleTwoStepFourReadModuleLength(onSuccess, onFailure);
+    setupRiddleTwoStepOneInitializeModuleArray(
+        successOrPreview(
+            onSuccess, InterpretationCallbacks::onRiddleTwoStepOneModuleArrayInitialized),
+        onFailure);
+    setupRiddleTwoStepTwoSetModules(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleTwoStepTwoModulesAssigned),
+        onFailure);
+    setupRiddleTwoStepThreeRemoveGpuModule(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleTwoStepThreeGpuRemoved),
+        onFailure);
+    setupRiddleTwoStepFourReadModuleLength(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleTwoStepFourModuleLengthRead),
+        onFailure);
   }
 
   private static void setupRiddleTwoStepOneInitializeModuleArray(
@@ -126,17 +148,22 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_THREE_STEP_ONE,
         ordered(
-            onSuccess,
+            successOrPreview(
+                onSuccess, InterpretationCallbacks::onRiddleThreeStepOneInventoryScannerCompleted),
             onFailure,
             declaration("int", "count", "0"),
-            enhancedForLoop("String", capturedIdentifier(MODULE_ARRAY), "moduleItem"),
-            notNullCondition("moduleItem"),
+            enhancedForLoop("String", capturedIdentifier(MODULE_ARRAY), "riddleThreeModuleItem"),
+            notNullCondition("riddleThreeModuleItem"),
             increment("count")));
   }
 
   private static void setupRiddleFourTransportStorage(Runnable onSuccess, Runnable onFailure) {
-    setupRiddleFourStepOneCreatePackages(onSuccess, onFailure);
-    setupRiddleFourStepTwoTransportPackages(onSuccess, onFailure);
+    setupRiddleFourStepOneCreatePackages(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleFourStepOnePackagesCreated),
+        onFailure);
+    setupRiddleFourStepTwoTransportPackages(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleFourStepTwoPackagesCollected),
+        onFailure);
   }
 
   private static void setupRiddleFourStepOneCreatePackages(Runnable onSuccess, Runnable onFailure) {
@@ -168,7 +195,8 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_SEVEN_STEP_ONE,
         unordered(
-            onSuccess,
+            successOrPreview(
+                onSuccess, InterpretationCallbacks::onRiddleSevenStepOneDataArchiveLoaded),
             onFailure,
             intArrayLiteral("energie", "20", "50", "80"),
             stringArrayLiteral("module", "CPU", "GPU", "RAM"),
@@ -177,9 +205,15 @@ public final class TerminalInterpreterSetup {
 
   private static void setupRiddleEightTwoDimensionalStorage(
       Runnable onSuccess, Runnable onFailure) {
-    setupRiddleEightStepOneCreateStorage(onSuccess, onFailure);
-    setupRiddleEightStepTwoFillStorage(onSuccess, onFailure);
-    setupRiddleEightStepThreeReadStorage(onSuccess, onFailure);
+    setupRiddleEightStepOneCreateStorage(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleEightStepOneStorageCreated),
+        onFailure);
+    setupRiddleEightStepTwoFillStorage(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleEightStepTwoStorageFilled),
+        onFailure);
+    setupRiddleEightStepThreeReadStorage(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleEightStepThreeStorageRead),
+        onFailure);
   }
 
   private static void setupRiddleEightStepOneCreateStorage(Runnable onSuccess, Runnable onFailure) {
@@ -210,18 +244,26 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_NINE_STEP_ONE,
         ordered(
-            onSuccess,
+            successOrPreview(
+                onSuccess, InterpretationCallbacks::onRiddleNineStepOneSearchRobotCompleted),
             onFailure,
-            outerTwoDimensionalLoop("map", "mapRow"),
-            innerTwoDimensionalLoop("map", "mapRow", "mapColumn"),
-            twoDimensionalEqualsCondition("map", "mapRow", "mapColumn", "1"),
+            outerTwoDimensionalLoop("map", "riddleNineMapRow"),
+            innerTwoDimensionalLoop("map", "riddleNineMapRow", "riddleNineMapColumn"),
+            twoDimensionalEqualsCondition("map", "riddleNineMapRow", "riddleNineMapColumn", "1"),
             methodCall("roboter", "collect")));
   }
 
   private static void setupRiddleTenCentralDataCenter(Runnable onSuccess, Runnable onFailure) {
-    setupRiddleTenStepOneBubbleSort(onSuccess, onFailure);
-    setupRiddleTenStepTwoCountModules(onSuccess, onFailure);
-    setupRiddleTenStepThreeFindBatteries(onSuccess, onFailure);
+    setupRiddleTenStepOneBubbleSort(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleTenStepOneBubbleSortCompleted),
+        onFailure);
+    setupRiddleTenStepTwoCountModules(
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleTenStepTwoModulesCounted),
+        onFailure);
+    setupRiddleTenStepThreeFindBatteries(
+        successOrPreview(
+            onSuccess, InterpretationCallbacks::onRiddleTenStepThreeBatteriesCollected),
+        onFailure);
   }
 
   private static void setupRiddleTenStepOneBubbleSort(Runnable onSuccess, Runnable onFailure) {
@@ -246,11 +288,11 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_TEN_STEP_TWO,
         ordered(
-            onSuccess,
+            successOrPreview(onSuccess, InterpretationCallbacks::onRiddleTenStepTwoModulesCounted),
             onFailure,
             declaration("int", "count", "0"),
-            enhancedForLoop("String", "modules", "moduleItem"),
-            notNullCondition("moduleItem"),
+            enhancedForLoop("String", "modules", "riddleTenModuleItem"),
+            notNullCondition("riddleTenModuleItem"),
             increment("count")));
   }
 
@@ -258,11 +300,12 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_TEN_STEP_THREE,
         ordered(
-            onSuccess,
+            successOrPreview(
+                onSuccess, InterpretationCallbacks::onRiddleTenStepThreeBatteriesCollected),
             onFailure,
-            outerTwoDimensionalLoop("map", "mapRow"),
-            innerTwoDimensionalLoop("map", "mapRow", "mapColumn"),
-            twoDimensionalEqualsCondition("map", "mapRow", "mapColumn", "1"),
+            outerTwoDimensionalLoop("map", "riddleTenMapRow"),
+            innerTwoDimensionalLoop("map", "riddleTenMapRow", "riddleTenMapColumn"),
+            twoDimensionalEqualsCondition("map", "riddleTenMapRow", "riddleTenMapColumn", "1"),
             methodCall("roboter", "collect")));
   }
 
@@ -280,21 +323,35 @@ public final class TerminalInterpreterSetup {
     TerminalInterpreter.instance().register(state, requirement);
   }
 
+  private static Runnable successOrPreview(Runnable previewMarker, Runnable roomCallback) {
+    return previewMarker == null ? null : roomCallback;
+  }
+
   private static CodeLine arrayCreation(String type, String variable, int size) {
     return arrayCreation(type, variable, size, false);
   }
 
   private static CodeLine arrayCreation(String type, String variable, int size, boolean captured) {
     String variablePattern = captured ? capture(variable) : variable;
-    return codeLine(
-        type
-            + "\\s*\\[\\s*]\\s*"
-            + variablePattern
-            + "\\s*=\\s*new\\s+"
-            + type
-            + "\\s*\\[\\s*"
-            + size
-            + "\\s*]");
+    return new CodeLine(
+        Pattern.compile(
+            type
+                + "\\s*\\[\\s*]\\s*"
+                + variablePattern
+                + "\\s*=\\s*new\\s+"
+                + type
+                + "\\s*\\[\\s*"
+                + size
+                + "\\s*]"),
+        Pattern.compile(
+            type
+                + "\\s+"
+                + variablePattern
+                + "\\s*\\[\\s*]\\s*=\\s*new\\s+"
+                + type
+                + "\\s*\\[\\s*"
+                + size
+                + "\\s*]"));
   }
 
   private static CodeLine twoDimensionalArrayCreation(
@@ -305,17 +362,29 @@ public final class TerminalInterpreterSetup {
   private static CodeLine twoDimensionalArrayCreation(
       String type, String variable, int rows, int columns, boolean captured) {
     String variablePattern = captured ? capture(variable) : variable;
-    return codeLine(
-        type
-            + "\\s*\\[\\s*]\\s*\\[\\s*]\\s*"
-            + variablePattern
-            + "\\s*=\\s*new\\s+"
-            + type
-            + "\\s*\\[\\s*"
-            + rows
-            + "\\s*]\\s*\\[\\s*"
-            + columns
-            + "\\s*]");
+    return new CodeLine(
+        Pattern.compile(
+            type
+                + "\\s*\\[\\s*]\\s*\\[\\s*]\\s*"
+                + variablePattern
+                + "\\s*=\\s*new\\s+"
+                + type
+                + "\\s*\\[\\s*"
+                + rows
+                + "\\s*]\\s*\\[\\s*"
+                + columns
+                + "\\s*]"),
+        Pattern.compile(
+            type
+                + "\\s+"
+                + variablePattern
+                + "\\s*\\[\\s*]\\s*\\[\\s*]\\s*=\\s*new\\s+"
+                + type
+                + "\\s*\\[\\s*"
+                + rows
+                + "\\s*]\\s*\\[\\s*"
+                + columns
+                + "\\s*]"));
   }
 
   private static CodeLine intArrayLiteral(String variable, String... values) {
@@ -335,13 +404,21 @@ public final class TerminalInterpreterSetup {
   }
 
   private static CodeLine arrayLiteral(String type, String variable, String... values) {
-    return codeLine(
-        type
-            + "\\s*\\[\\s*]\\s*"
-            + variable
-            + "\\s*=\\s*\\{\\s*"
-            + String.join("\\s*,\\s*", values)
-            + "\\s*}");
+    return new CodeLine(
+        Pattern.compile(
+            type
+                + "\\s*\\[\\s*]\\s*"
+                + variable
+                + "\\s*=\\s*\\{\\s*"
+                + String.join("\\s*,\\s*", values)
+                + "\\s*}"),
+        Pattern.compile(
+            type
+                + "\\s+"
+                + variable
+                + "\\s*\\[\\s*]\\s*=\\s*\\{\\s*"
+                + String.join("\\s*,\\s*", values)
+                + "\\s*}"));
   }
 
   private static CodeLine assignment(String variable, int index, String value) {
@@ -435,7 +512,12 @@ public final class TerminalInterpreterSetup {
   }
 
   private static CodeLine indexedForLoop(String arrayVariable, String indexCapture) {
-    return indexedForLoopWithUpperBound(indexCapture, arrayVariable + "\\s*\\.\\s*length");
+    return new CodeLine(
+        Pattern.compile(
+            indexedForLoopRegex(indexCapture, "<", arrayVariable + "\\s*\\.\\s*length")),
+        Pattern.compile(
+            indexedForLoopRegex(
+                indexCapture, "<=", arrayVariable + "\\s*\\.\\s*length\\s*-\\s*1")));
   }
 
   private static CodeLine indexedForLoopWithUpperBound(String indexCapture, String upperBound) {
@@ -502,32 +584,19 @@ public final class TerminalInterpreterSetup {
   }
 
   private static CodeLine outerTwoDimensionalLoop(String arrayVariable, String rowCapture) {
-    return codeLine(
-        "for\\s*\\(\\s*int\\s+"
-            + capture(rowCapture)
-            + "\\s*=\\s*0\\s*;\\s*"
-            + backReference(rowCapture)
-            + "\\s*<\\s*"
-            + arrayVariable
-            + "\\s*\\.\\s*length\\s*;\\s*"
-            + incrementExpression(rowCapture)
-            + "\\s*\\)\\s*\\{");
+    return new CodeLine(
+        Pattern.compile(indexedForLoopRegex(rowCapture, "<", arrayVariable + "\\s*\\.\\s*length")),
+        Pattern.compile(
+            indexedForLoopRegex(rowCapture, "<=", arrayVariable + "\\s*\\.\\s*length\\s*-\\s*1")));
   }
 
   private static CodeLine innerTwoDimensionalLoop(
       String arrayVariable, String rowCapture, String columnCapture) {
-    return codeLine(
-        "for\\s*\\(\\s*int\\s+"
-            + capture(columnCapture)
-            + "\\s*=\\s*0\\s*;\\s*"
-            + backReference(columnCapture)
-            + "\\s*<\\s*"
-            + arrayVariable
-            + "\\s*\\[\\s*"
-            + capturedIdentifier(rowCapture)
-            + "\\s*]\\s*\\.\\s*length\\s*;\\s*"
-            + incrementExpression(columnCapture)
-            + "\\s*\\)\\s*\\{");
+    String upperBound =
+        arrayVariable + "\\s*\\[\\s*" + capturedIdentifier(rowCapture) + "\\s*]\\s*\\.\\s*length";
+    return new CodeLine(
+        Pattern.compile(indexedForLoopRegex(columnCapture, "<", upperBound)),
+        Pattern.compile(indexedForLoopRegex(columnCapture, "<=", upperBound + "\\s*-\\s*1")));
   }
 
   private static CodeLine twoDimensionalEqualsCondition(
@@ -614,6 +683,13 @@ public final class TerminalInterpreterSetup {
         + backReference(variableCapture)
         + "\\+\\+|\\+\\+"
         + backReference(variableCapture)
+        + "|"
+        + backReference(variableCapture)
+        + "\\s*\\+=\\s*1|"
+        + backReference(variableCapture)
+        + "\\s*=\\s*"
+        + backReference(variableCapture)
+        + "\\s*\\+\\s*1"
         + ")";
   }
 }
