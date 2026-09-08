@@ -8,6 +8,7 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
@@ -44,6 +45,13 @@ public final class SystemRecoveryComputerFactory {
         data -> {
           if (data instanceof DialogResponseMessage.StringValue(String source)) {
             TerminalInterpreter.instance().interpret(source);
+          }
+        });
+    ui.registerCallback(
+        SystemRecoveryComputerCallbacks.TERMINAL_NEXT_STEP,
+        data -> {
+          if (SystemRecovery.DEBUG_MODE) {
+            TerminalInterpreter.instance().advanceCurrentStateForDebug();
           }
         });
   }

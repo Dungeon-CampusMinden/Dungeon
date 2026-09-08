@@ -26,7 +26,9 @@ import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
+import feature.systems.LeverSystem;
 import java.util.logging.Level;
+import rooms.systemRecovery.items.BatteryItem;
 import rooms.systemRecovery.level.SystemRecoveryClientLevel;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
@@ -43,7 +45,7 @@ public final class SystemRecovery {
   };
 
   /** Enables debug systems while developing the room. */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private SystemRecovery() {}
 
@@ -78,7 +80,7 @@ public final class SystemRecovery {
         ClientStarter.builder(server, SystemRecoveryClient::clientSetup)
             .levels(Tuple.of(LEVEL_KEY, SystemRecoveryClientLevel.class))
             .initLocalization(SystemRecovery::initLocalization)
-            .onConfigure(SystemRecoveryComputerFactory::ensureRegistration)
+            .onConfigure(SystemRecovery::registerContent)
             .build();
 
     GameStarter game =
@@ -101,6 +103,7 @@ public final class SystemRecovery {
   /** Registers shared translations and custom dialog builders. */
   static void registerContent() {
     initLocalization();
+    BatteryItem.ensureRegistration();
     SystemRecoveryComputerFactory.ensureRegistration();
   }
 
@@ -112,6 +115,7 @@ public final class SystemRecovery {
     ECSManagement.remove(AttributeBarSystem.class);
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
+    ECSManagement.add(new LeverSystem());
 
     if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
