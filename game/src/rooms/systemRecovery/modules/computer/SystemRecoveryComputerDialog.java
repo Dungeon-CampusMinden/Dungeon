@@ -52,9 +52,9 @@ public class SystemRecoveryComputerDialog extends Group {
     this.skin = UIUtils.defaultSkin();
     setSize(Game.windowWidth(), Game.windowHeight());
     createActors();
-    addTab(new AssistantChatTab());
     addTab(new TerminalTab());
-    activeTab = AssistantChatTab.KEY;
+    addTab(new AssistantChatTab());
+    activeTab = TerminalTab.KEY;
     showContent(activeTab);
   }
 

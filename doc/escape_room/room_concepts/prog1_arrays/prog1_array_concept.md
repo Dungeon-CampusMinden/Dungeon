@@ -324,7 +324,7 @@ Das System fragt:
 Die Studierenden müssen `module.length` verwenden.
 
 ```java
-module.length
+module.length;s
 ```
 
 Ergebnis:
