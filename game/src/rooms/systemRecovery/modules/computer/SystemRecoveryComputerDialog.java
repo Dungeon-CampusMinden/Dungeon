@@ -29,6 +29,7 @@ import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import rooms.systemRecovery.modules.computer.content.AssistantChatTab;
+import rooms.systemRecovery.modules.computer.content.SortProgramTab;
 import rooms.systemRecovery.modules.computer.content.TerminalTab;
 
 /** Two-tab computer dialog for the System Recovery escape room. */
@@ -53,6 +54,11 @@ public class SystemRecoveryComputerDialog extends Group {
     setSize(Game.windowWidth(), Game.windowHeight());
     createActors();
     addTab(new TerminalTab());
+    if (context
+        .find(SystemRecoveryComputerFactory.SORT_PROGRAM_INSERTED, Boolean.class)
+        .orElse(false)) {
+      addTab(new SortProgramTab());
+    }
     addTab(new AssistantChatTab());
     activeTab = TerminalTab.KEY;
     showContent(activeTab);
@@ -167,9 +173,7 @@ public class SystemRecoveryComputerDialog extends Group {
         });
 
     Label.LabelStyle labelStyle = new Label.LabelStyle();
-    labelStyle.font =
-        FontHelper.getFont(
-            Scene2dElementFactory.FONT_PATH, 24, isActive ? Color.WHITE : Color.BLACK, 0);
+    labelStyle.font = FontHelper.getFont(Scene2dElementFactory.FONT_PATH, 24, Color.BLACK, 0);
     Label label = new Label(tabContent.title(), labelStyle);
     tab.add(label).pad(0, 15, 0, 15).grow();
 

@@ -1,6 +1,5 @@
 package rooms.systemRecovery.modules.computer.content;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -21,7 +20,6 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
   public static final String KEY = "terminal";
   private static final int VISIBLE_LINE_COUNT = 14;
-  private static final Color FEEDBACK_DEFAULT = Color.WHITE;
   private static String savedCode = "";
   private static String savedFeedback = "";
 
@@ -48,10 +46,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     editorPanel.pad(12);
     editorPanel.top();
 
-    lineNumbers =
-        Scene2dElementFactory.createLabel(
-            "",
-            FontSpec.of(Scene2dElementFactory.FONT_PATH, 24, new Color(0.55f, 0.6f, 0.64f, 1f)));
+    lineNumbers = createLabel("", FontSpec.of(Scene2dElementFactory.FONT_PATH, 24, LABEL_COLOR));
     lineNumbers.setAlignment(com.badlogic.gdx.utils.Align.topRight);
 
     TextField styledField = Scene2dElementFactory.createTextField(savedCode);
@@ -69,7 +64,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     editorPanel.add(codeEditor).grow();
     layout.add(editorPanel).grow().row();
 
-    feedbackLabel = Scene2dElementFactory.createLabel(savedFeedback, 18, FEEDBACK_DEFAULT);
+    feedbackLabel = createLabel(savedFeedback, 18);
     feedbackLabel.setWrap(true);
 
     Table footer = new Table(skin);
@@ -77,9 +72,10 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
     Table buttons = new Table(skin);
     buttons.right();
-    TextButton sendButton = Scene2dElementFactory.createButton("Send", "green", 24);
-    TextButton deleteButton = Scene2dElementFactory.createButton("Delete", "red-outline", 24);
-    TextButton nextStepButton = Scene2dElementFactory.createButton("Next Step", "blue-outline", 24);
+    TextButton sendButton = createButton("Send", "green", 24);
+    TextButton deleteButton = createButton("Delete", "red-outline", 24);
+    TextButton nextStepButton = createButton("Next Step", "blue-outline", 24);
+    TextButton spawnUsbButton = createButton("Spawn USB", "blue-outline", 24);
     sendButton.addListener(
         new ChangeListener() {
           @Override
@@ -103,10 +99,20 @@ public class TerminalTab extends SystemRecoveryComputerTab {
                 .accept(new DialogResponseMessage.StringValue(""));
           }
         });
+    spawnUsbButton.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            DialogCallbackResolver.createButtonCallback(
+                    context().dialogId(), SystemRecoveryComputerCallbacks.DEBUG_SPAWN_SORT_USB)
+                .accept(new DialogResponseMessage.StringValue(""));
+          }
+        });
     buttons.add(sendButton).width(150).height(52).padRight(12);
     buttons.add(deleteButton).width(150).height(52);
     if (SystemRecovery.DEBUG_MODE) {
       buttons.add(nextStepButton).width(180).height(52).padLeft(12);
+      buttons.add(spawnUsbButton).width(180).height(52).padLeft(12);
     }
     footer.add(buttons).right();
     layout.add(footer).growX().height(68).padTop(12);
