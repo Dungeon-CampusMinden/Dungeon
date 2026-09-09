@@ -53,6 +53,15 @@ public final class TerminalInterpreter {
   }
 
   /**
+   * Applies a state received from the authoritative multiplayer server.
+   *
+   * @param state synchronized interpreter state
+   */
+  public void synchronizeState(int state) {
+    currentState = Math.max(0, state);
+  }
+
+  /**
    * Checks the source, invokes the matching callback, and advances after success.
    *
    * @param source source text entered in the terminal
