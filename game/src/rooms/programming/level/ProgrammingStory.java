@@ -17,8 +17,8 @@ final class ProgrammingStory {
         + "und aus den alten Leitungen tritt heißer Dampf aus. Geht nicht selbst hinunter.\n\n"
         + "Ich habe Nox für solche Arbeiten gebaut. Er trägt Lasten und hält die Maschinen frei. "
         + "Seine Seelenbindung ist allerdings erloschen. Runen und Gefäße liegen in den Werkstattkisten.\n\n"
-        + "Hinter der dünnen Trennwand liegt sein Steuerplatz. Nox kann sie aufbrechen. "
-        + "Schickt ihn von dort zur Torwinde.\n\nValerius";
+        + "Stellt seine Seelenbindung wieder her. Er soll die Torwinde freiräumen, "
+        + "damit sich der Ausgang wieder öffnen lässt.\n\nValerius";
   }
 
   static String archive() {
@@ -36,25 +36,8 @@ final class ProgrammingStory {
         + "Die Karte meldet nur, wo ein Hindernis liegt.\n\nValerius";
   }
 
-  static String inspect(String id) {
-    return switch (id) {
-      case "inspect-forge-ledger" ->
-          "Nox · Bindungsplan\n\nJede Eigenschaft erhält ein eigenes Gefäß. "
-              + "Für ganze Zahlen verwende ich Eisenkisten, für Bruchteile Kristallflaschen. "
-              + "Die Füllungen stehen in meinem Bindungsplan direkt neben Nox.\n\n"
-              + "Ein Gefäß behält seinen Inhalt, bis ein neuer Wert ihn ersetzt. "
-              + "Bei falscher Füllung nicht die ganze Bindung lösen.\n\n"
-              + "Für gesteuerte Schritte braucht Nox anschließend eine Rhythmusrune. "
-              + "Die Sammlung liegt im Archiv hinter der Trennwand.\n\nValerius";
-      case "inspect-discarded-vessel" ->
-          "Am Boden haftet eingetrocknete Essenz. Sie lässt sich nicht mehr lösen.";
-      case "inspect-herb-notes" ->
-          "Wartung, Torwinde\n\nDie untere Halterung ist stark verrostet. "
-              + "Ersatz liegt im Materiallager. Bis zum Austausch keine Last auflegen.\n\nValerius";
-      case "inspect-broken-compass" -> "Gravur auf der Unterseite: 'Nox · Blickrichtung O'.";
-      case "inspect-sealed-cache" -> "Leere Ersatzfassungen. Ihre Kontakte sind stark korrodiert.";
-      case "inspect-old-tools" -> "Der Kopf sitzt locker. Im Stiel verläuft ein tiefer Riss.";
-      default -> throw new IllegalArgumentException("Unknown forge inscription: " + id);
-    };
+  static String maintenance() {
+    return "Wartung, Torwinde\n\nDie untere Halterung ist stark verrostet. "
+        + "Unter Belastung gibt sie nach.\n\nValerius";
   }
 }

@@ -153,7 +153,7 @@ final class ProgrammingGolemRuntime {
                   : selected.label()
                       + " trägt: "
                       + selected.capacity()
-                      + ". Vergleiche mit Valerius' Bindungsplan.";
+                      + ". Wähle ein Gefäß, das zum benötigten Wert passt.";
           return;
         }
         vessels.put(property, selected);
