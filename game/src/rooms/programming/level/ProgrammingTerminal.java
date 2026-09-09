@@ -161,9 +161,9 @@ public final class ProgrammingTerminal {
   static List<CanvasNode> nodes(TerminalState state) {
     List<CanvasNode> result = new ArrayList<>();
     result.add(new ProgrammingTerminalNode("map", "map").position(0, 0));
-    result.add(new ProgrammingTerminalNode("executor", "executor").position(435, 460));
-    result.add(new ProgrammingTerminalNode("feedback", "status").position(417, 420).z(-1));
-    result.add(new ProgrammingTerminalNode("commands", "help").position(435, -130));
+    result.add(new ProgrammingTerminalNode("executor", "executor").position(428, 364));
+    result.add(new ProgrammingTerminalNode("feedback", "status").position(404, 340).z(-1));
+    result.add(new ProgrammingTerminalNode("commands", "help").position(404, -222));
     for (int i = 0; i < state.collectedRunes().size(); i++) {
       result.add(card(state.collectedRunes().get(i), i));
     }
@@ -172,7 +172,7 @@ public final class ProgrammingTerminal {
 
   static ProgrammingTerminalNode card(String id, int index) {
     ProgrammingTerminalNode node = new ProgrammingTerminalNode(id, "rune");
-    node.position(435 + index % 6 * 80, 340 - index / 6 * 80);
+    node.position(404 + index % 6 * 80, 252 - index / 6 * 80);
     return node;
   }
 }
