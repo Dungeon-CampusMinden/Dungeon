@@ -543,8 +543,7 @@ public class SocketNode extends CanvasNode {
     invalidateLayout();
   }
 
-  private CanvasNode matchingPrototype(
-      Map<String, CanvasNode> prototypesById, NodeState state) {
+  private CanvasNode matchingPrototype(Map<String, CanvasNode> prototypesById, NodeState state) {
     CanvasNode prototype = prototypesById.get(state.id());
     if (prototype != null && prototype.typeId().equals(state.typeId())) {
       return prototype;

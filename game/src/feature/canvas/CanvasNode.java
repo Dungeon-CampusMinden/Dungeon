@@ -690,8 +690,8 @@ public class CanvasNode extends Group {
    * Reads type-specific state with access to callback-bearing prototypes from the complete canvas
    * definition.
    *
-   * <p>The default implementation delegates to {@link #readProps(NodeState)} so existing node
-   * types do not need to know about the prototype context.
+   * <p>The default implementation delegates to {@link #readProps(NodeState)} so existing node types
+   * do not need to know about the prototype context.
    *
    * @param state the state to read
    * @param prototypesById callback-bearing prototypes indexed by node id
