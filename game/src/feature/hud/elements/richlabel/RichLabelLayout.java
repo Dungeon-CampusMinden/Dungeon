@@ -116,10 +116,7 @@ public class RichLabelLayout {
       }
       if (run instanceof TextRun tr) {
         String trimmed = tr.word().stripLeading();
-        boolean hasLeadingSpace = tr.word().length() > trimmed.length();
-        if (hasLeadingSpace && lineWidth > 0) {
-          lineWidth += spaceWidth * wordSpaceMul;
-        }
+        lineWidth += leadingSpaces(tr.word()) * spaceWidth * wordSpaceMul;
         BitmapFont runFont = fontForRun(tr, fontSpec);
         glyphLayout.setText(runFont, trimmed);
         lineWidth += glyphLayout.width;
@@ -511,10 +508,7 @@ public class RichLabelLayout {
       if (run instanceof TextRun tr) {
         BitmapFont runFont = fontForRun(tr, fontSpec);
         String trimmed = tr.word().stripLeading();
-        boolean hasLeadingSpace = tr.word().length() > trimmed.length();
-        if (hasLeadingSpace && x > 0) {
-          x += spaceWidth;
-        }
+        x += leadingSpaces(tr.word()) * spaceWidth;
         glyphLayout.setText(runFont, trimmed);
         float runWidth = glyphLayout.width;
 
@@ -701,6 +695,15 @@ public class RichLabelLayout {
       spec = spec.withSize(tr.sizeOverride());
     }
     return spec;
+  }
+
+  /** Preserves authored indentation and repeated spaces; tabs occupy four spaces. */
+  private static int leadingSpaces(String text) {
+    int spaces = 0;
+    for (int i = 0; i < text.length() && Character.isWhitespace(text.charAt(i)); i++) {
+      spaces += text.charAt(i) == '\t' ? 4 : 1;
+    }
+    return spaces;
   }
 
   TextureRegion getTextureRegion(String path) {
