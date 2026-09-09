@@ -14,7 +14,14 @@ public class ProgrammingClientLevel extends DungeonLevel {
 
   private static final String LEVEL_NAME = "programming-1";
 
-  /** Creates the client representation of the Programming 1 level. */
+  /**
+   * Creates the client representation of the Programming 1 level.
+   *
+   * @param layout the level's tile grid
+   * @param designLabel the base tile theme
+   * @param namedPoints markers used by the room logic
+   * @param decorations decorations stored in the level file
+   */
   public ProgrammingClientLevel(
       LevelElement[][] layout,
       DesignLabel designLabel,

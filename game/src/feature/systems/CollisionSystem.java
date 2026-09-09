@@ -115,7 +115,13 @@ public final class CollisionSystem extends System {
             });
   }
 
-  /** Cancels a blocked movement without pushing a heavier entity out of the way. */
+  /**
+   * Cancels a blocked movement without pushing a heavier entity out of the way.
+   *
+   * @param entity the moving entity
+   * @param collider its current collision shape
+   * @return whether a previously clear position could be restored
+   */
   private boolean restoreClearPosition(Entity entity, Collider collider) {
     Point previous = lastClearPositions.get(entity);
     VelocityComponent vc = entity.fetch(VelocityComponent.class).orElse(null);

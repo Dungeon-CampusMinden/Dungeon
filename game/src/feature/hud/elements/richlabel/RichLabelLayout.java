@@ -697,7 +697,12 @@ public class RichLabelLayout {
     return spec;
   }
 
-  /** Preserves authored indentation and repeated spaces; tabs occupy four spaces. */
+  /**
+   * Counts authored indentation, treating tabs as four spaces.
+   *
+   * @param text the text whose leading whitespace is measured
+   * @return indentation width in spaces
+   */
   private static int leadingSpaces(String text) {
     int spaces = 0;
     for (int i = 0; i < text.length() && Character.isWhitespace(text.charAt(i)); i++) {

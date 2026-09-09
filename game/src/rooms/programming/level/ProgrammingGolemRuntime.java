@@ -493,7 +493,13 @@ final class ProgrammingGolemRuntime {
     velocity.currentVelocity(from.vectorTo(next).scale(1f / delta));
   }
 
-  /** Breadth-first search tests the swept floor footprint between grid anchors. */
+  /**
+   * Finds a route by testing the swept floor footprint between grid anchors.
+   *
+   * @param start the current golem position
+   * @param target the destination grid anchor
+   * @return ordered waypoints, or an empty list if no movement is possible or needed
+   */
   private List<Point> path(Point start, Point target) {
     Coordinate destination = target.toCoordinate();
     Map<Coordinate, Coordinate> previous = new HashMap<>();
@@ -561,7 +567,13 @@ final class ProgrammingGolemRuntime {
             });
   }
 
-  /** Derive all movement and gate bounds from the actual collider and sprite scale. */
+  /**
+   * Derives movement and gate bounds from the actual collider and sprite scale.
+   *
+   * @param from the beginning of the movement segment
+   * @param to the end of the movement segment
+   * @return the swept floor rectangle
+   */
   private Rectangle footprint(Point from, Point to) {
     var body = collision.collider();
     Vector2 scale = position.scale();

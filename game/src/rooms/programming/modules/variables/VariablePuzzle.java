@@ -37,22 +37,36 @@ public final class VariablePuzzle {
 
   private VariablePuzzle() {}
 
-  /** Returns the expected vessel assignment. */
+  /**
+   * @return the immutable expected vessel assignment
+   */
   public static Map<GolemProperty, SoulVessel> vesselSolution() {
     return VESSEL_SOLUTION;
   }
 
-  /** Returns the expected essence assignment. */
+  /**
+   * @return the immutable expected essence assignment
+   */
   public static Map<GolemProperty, MagicalEssence> essenceSolution() {
     return ESSENCE_SOLUTION;
   }
 
-  /** Reports whether all properties use the expected vessels. */
+  /**
+   * Reports whether all properties use the expected vessels.
+   *
+   * @param assignment the submitted vessel assignment
+   * @return true if the assignment exactly matches the solution
+   */
   public static boolean vesselsCorrect(Map<GolemProperty, SoulVessel> assignment) {
     return assignment != null && VESSEL_SOLUTION.equals(assignment);
   }
 
-  /** Reports whether all properties use the expected essences. */
+  /**
+   * Reports whether all properties use the expected essences.
+   *
+   * @param assignment the submitted essence assignment
+   * @return true if the assignment exactly matches the solution
+   */
   public static boolean essencesCorrect(Map<GolemProperty, MagicalEssence> assignment) {
     return assignment != null && ESSENCE_SOLUTION.equals(assignment);
   }
