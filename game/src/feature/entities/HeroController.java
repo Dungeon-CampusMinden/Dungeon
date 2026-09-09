@@ -174,9 +174,8 @@ public class HeroController {
 
   /**
    * Handles interaction between the hero and an interactable entity using a cursor-first model. The
-   * entity under the cursor (determined via {@link EntityUtils#isPointOverEntity}) is selected
-   * first, then checked against the hero's interaction range. If the entity under the cursor is out
-   * of range, no interaction occurs — even if other interactable entities are nearby.
+   * entity under the cursor, determined via {@link EntityUtils#isPointOverEntity}, is selected
+   * first. Its center must also be within the interaction's maximum distance from the hero.
    *
    * @param hero the hero entity attempting the interaction
    * @param point the target point where the interaction is attempted (e.g., cursor position)
@@ -204,14 +203,13 @@ public class HeroController {
 
   /**
    * Finds the interactable entity under the given point using a cursor-first model. Uses {@link
-   * EntityUtils#isPointOverEntity} to determine which entity the point is over, then verifies the
-   * entity is within the hero's interaction range. If the entity under the cursor is out of range,
-   * {@link Optional#empty()} is returned even if other entities are in range.
+   * EntityUtils#isPointOverEntity} to determine which entity the point is over, then verifies that
+   * the target's center is within its maximum interaction distance from the hero's center.
    *
    * @param hero the hero entity attempting the interaction
    * @param point the target point where the interaction is attempted (e.g., cursor position)
-   * @return an Optional containing the found entity, or Optional.empty() if no interactable entity
-   *     was found under the cursor within range
+   * @return the target, or an empty value if the point is not over an interactable entity whose
+   *     center is within the configured maximum distance
    */
   public static Optional<Entity> findInteractable(Entity hero, Point point) {
     Point heroPos = EntityUtils.getPosition(hero);
@@ -220,8 +218,10 @@ public class HeroController {
             point, Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)))
         .filter(
             e -> {
-              float range = e.fetch(InteractionComponent.class).orElseThrow().interaction().range();
-              return heroPos.distanceSquared(EntityUtils.getPosition(e)) <= range * range;
+              float maxDistance =
+                  e.fetch(InteractionComponent.class).orElseThrow().interaction().range();
+              return heroPos.distanceSquared(EntityUtils.getPosition(e))
+                  <= maxDistance * maxDistance;
             });
   }
 

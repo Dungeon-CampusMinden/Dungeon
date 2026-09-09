@@ -130,6 +130,19 @@ tasks.register('runGameOfGamesLevelEditor', JavaExec) {
     args '--leveleditor'
 }
 
+tasks.register('runProgramming', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.programming.Programming'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runProgrammingLevelEditor', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.programming.Programming'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--leveleditor'
+}
+
 tasks.register('runTheLastHour', JavaExec) {
     group 'starter'
     mainClass = 'rooms.lasthour.starter.TheLastHour'
