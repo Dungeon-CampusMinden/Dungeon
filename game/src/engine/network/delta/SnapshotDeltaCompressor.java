@@ -8,6 +8,7 @@ import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.EntityStateField;
 import engine.network.messages.s2c.InventorySlotState;
 import engine.network.messages.s2c.LevelState;
+import engine.network.messages.s2c.ShaderComponentState;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.utils.Point;
 import engine.utils.Vector2;
@@ -225,6 +226,13 @@ public final class SnapshotDeltaCompressor {
             builder::metadata,
             clearedFields,
             EntityStateField.METADATA);
+    hasChangedFields |=
+        diffOptional(
+            baseline.shaderComponent(),
+            current.shaderComponent(),
+            builder::shaderComponent,
+            clearedFields,
+            EntityStateField.SHADER_COMPONENT);
 
     if (!hasChangedFields && clearedFields.isEmpty()) {
       return Optional.empty();
@@ -329,6 +337,7 @@ public final class SnapshotDeltaCompressor {
     private Integer tintColor;
     private List<InventorySlotState> inventory;
     private Map<String, String> metadata;
+    private ShaderComponentState shaderComponent;
 
     static MutableEntityState from(EntityState state) {
       MutableEntityState mutable = new MutableEntityState();
@@ -351,6 +360,7 @@ public final class SnapshotDeltaCompressor {
       state.tintColor().ifPresent(value -> tintColor = value);
       state.inventory().ifPresent(items -> inventory = List.copyOf(items));
       state.metadata().ifPresent(value -> metadata = Map.copyOf(value));
+      state.shaderComponent().ifPresent(value -> shaderComponent = value);
     }
 
     void clear(EntityStateField field) {
@@ -368,6 +378,7 @@ public final class SnapshotDeltaCompressor {
         case TINT_COLOR -> tintColor = null;
         case INVENTORY -> inventory = null;
         case METADATA -> metadata = null;
+        case SHADER_COMPONENT -> shaderComponent = null;
       }
     }
 
@@ -386,6 +397,7 @@ public final class SnapshotDeltaCompressor {
       setIfNotNull(tintColor, builder::tintColor);
       setIfNotNull(inventory, builder::inventorySlots);
       setIfNotNull(metadata, builder::metadata);
+      setIfNotNull(shaderComponent, builder::shaderComponent);
       return builder.build();
     }
 

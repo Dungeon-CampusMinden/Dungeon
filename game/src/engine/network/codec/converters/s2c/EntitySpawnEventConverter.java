@@ -5,6 +5,7 @@ import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.network.codec.CommonProtoConverters;
 import engine.network.codec.MessageConverter;
+import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.utils.components.draw.DrawInfoData;
 
@@ -39,6 +40,10 @@ public final class EntitySpawnEventConverter
       builder.putAllMetadata(message.metadata());
     }
 
+    if (message.shaderComponent() != null) {
+      builder.setShaderComponent(ShaderComponentCodec.toProto(message.shaderComponent()));
+    }
+
     return builder.build();
   }
 
@@ -54,6 +59,10 @@ public final class EntitySpawnEventConverter
         proto.hasCharacterClassId()
             ? CommonProtoConverters.toByteExact(proto.getCharacterClassId(), "character_class_id")
             : 0;
+    engine.network.messages.s2c.ShaderComponentState shaderComponent =
+        proto.hasShaderComponent()
+            ? ShaderComponentCodec.fromProto(proto.getShaderComponent())
+            : null;
 
     return new EntitySpawnEvent(
         proto.getEntityId(),
@@ -61,6 +70,7 @@ public final class EntitySpawnEventConverter
         drawInfo,
         playerComponent,
         characterClassId,
+        shaderComponent,
         proto.getMetadataMap());
   }
 

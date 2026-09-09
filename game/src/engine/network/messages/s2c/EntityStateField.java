@@ -39,5 +39,8 @@ public enum EntityStateField {
   INVENTORY,
 
   /** Metadata map. */
-  METADATA
+  METADATA,
+
+  /** Synchronized shader component. */
+  SHADER_COMPONENT
 }

@@ -35,6 +35,7 @@ public class EntityState implements NetworkMessage {
   private final Integer tintColor;
   private final List<InventorySlotState> inventory;
   private final Map<String, String> metadata;
+  private final ShaderComponentState shaderComponent;
 
   /**
    * Constructs an EntityState object using the provided Builder.
@@ -59,6 +60,7 @@ public class EntityState implements NetworkMessage {
         builder.metadata == null || builder.metadata.isEmpty()
             ? null
             : Map.copyOf(builder.metadata);
+    this.shaderComponent = builder.shaderComponent;
   }
 
   /**
@@ -196,6 +198,15 @@ public class EntityState implements NetworkMessage {
     return Optional.ofNullable(metadata);
   }
 
+  /**
+   * Gets the optional synchronized shader component state.
+   *
+   * @return an Optional containing shader state if present, otherwise an empty Optional
+   */
+  public Optional<ShaderComponentState> shaderComponent() {
+    return Optional.ofNullable(shaderComponent);
+  }
+
   /** Builder class for constructing EntityState objects. */
   public static class Builder {
     private int entityId;
@@ -212,6 +223,7 @@ public class EntityState implements NetworkMessage {
     private Integer tintColor;
     private List<InventorySlotState> inventory;
     private Map<String, String> metadata;
+    private ShaderComponentState shaderComponent;
 
     /**
      * Sets the unique identifier for the entity.
@@ -395,6 +407,17 @@ public class EntityState implements NetworkMessage {
      */
     public Builder metadata(Map<String, String> metadata) {
       this.metadata = metadata == null || metadata.isEmpty() ? null : Map.copyOf(metadata);
+      return this;
+    }
+
+    /**
+     * Sets synchronized shader component state.
+     *
+     * @param shaderComponent shader component state
+     * @return the Builder instance
+     */
+    public Builder shaderComponent(ShaderComponentState shaderComponent) {
+      this.shaderComponent = shaderComponent;
       return this;
     }
 

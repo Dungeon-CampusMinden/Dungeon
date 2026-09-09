@@ -46,6 +46,7 @@ public final class BootstrapMarker {
         || event.positionComponent() != null
         || event.drawInfo() != null
         || event.playerComponent() != null
+        || event.shaderComponent() != null
         || event.characterClassId() != 0
         || event.metadata().size() != 1
         || !event.metadata().containsKey(METADATA_KEY)) {

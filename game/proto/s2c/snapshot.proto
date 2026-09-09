@@ -69,6 +69,9 @@ enum EntityStateField {
 
   // Metadata map.
   ENTITY_STATE_FIELD_METADATA = 13;
+
+  // Synchronized shader component.
+  ENTITY_STATE_FIELD_SHADER_COMPONENT = 14;
 }
 
 // Per-entity field delta against a full snapshot baseline.

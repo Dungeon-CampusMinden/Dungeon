@@ -11,6 +11,7 @@ import engine.components.PositionComponent;
 import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
 import engine.network.messages.s2c.EntitySpawnEvent;
+import engine.network.codec.ShaderComponentCodec;
 import engine.utils.CursorUtil;
 import engine.utils.Tuple;
 import engine.utils.components.draw.DrawComponentFactory;
@@ -127,6 +128,9 @@ public final class LastHourClient {
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
               }
+              if (event.shaderComponent() != null) {
+                newEntity.add(ShaderComponentCodec.fromState(event.shaderComponent()));
+              }
               if (event.metadata().containsKey(LastHourEntitySpawnStrategy.METADATA_INTERACTABLE)) {
                 newEntity.add(new InteractionComponent());
               }
@@ -170,6 +174,9 @@ public final class LastHourClient {
             .username(playerComponent.playerName())
             .build();
     applySpawnPosition(hero, event.positionComponent());
+    if (event.shaderComponent() != null) {
+      hero.add(ShaderComponentCodec.fromState(event.shaderComponent()));
+    }
     LastHourSnapshotTranslator.applyCollideMetadata(hero, event.metadata());
     Game.add(hero);
     return true;

@@ -95,6 +95,8 @@ public final class DeltaSnapshotConverter
       case TINT_COLOR -> engine.network.proto.s2c.EntityStateField.ENTITY_STATE_FIELD_TINT_COLOR;
       case INVENTORY -> engine.network.proto.s2c.EntityStateField.ENTITY_STATE_FIELD_INVENTORY;
       case METADATA -> engine.network.proto.s2c.EntityStateField.ENTITY_STATE_FIELD_METADATA;
+      case SHADER_COMPONENT ->
+          engine.network.proto.s2c.EntityStateField.ENTITY_STATE_FIELD_SHADER_COMPONENT;
     };
   }
 
@@ -114,6 +116,8 @@ public final class DeltaSnapshotConverter
       case ENTITY_STATE_FIELD_TINT_COLOR -> Optional.of(EntityStateField.TINT_COLOR);
       case ENTITY_STATE_FIELD_INVENTORY -> Optional.of(EntityStateField.INVENTORY);
       case ENTITY_STATE_FIELD_METADATA -> Optional.of(EntityStateField.METADATA);
+      case ENTITY_STATE_FIELD_SHADER_COMPONENT ->
+          Optional.of(EntityStateField.SHADER_COMPONENT);
       case ENTITY_STATE_FIELD_UNSPECIFIED, UNRECOGNIZED -> Optional.empty();
     };
   }

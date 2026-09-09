@@ -3,6 +3,7 @@ package engine.network.codec.converters.s2c;
 import com.google.protobuf.Parser;
 import engine.network.codec.CommonProtoConverters;
 import engine.network.codec.MessageConverter;
+import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.InventorySlotState;
 import java.util.ArrayList;
@@ -58,6 +59,10 @@ public final class EntityStateConverter
               }
             });
     message.metadata().filter(metadata -> !metadata.isEmpty()).ifPresent(builder::putAllMetadata);
+    message
+        .shaderComponent()
+        .map(ShaderComponentCodec::toProto)
+        .ifPresent(builder::setShaderComponent);
 
     return builder.build();
   }
@@ -122,6 +127,9 @@ public final class EntityStateConverter
 
     if (!proto.getMetadataMap().isEmpty()) {
       builder.metadata(proto.getMetadataMap());
+    }
+    if (proto.hasShaderComponent()) {
+      builder.shaderComponent(ShaderComponentCodec.fromProto(proto.getShaderComponent()));
     }
 
     return builder.build();

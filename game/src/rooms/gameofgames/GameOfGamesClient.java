@@ -9,6 +9,7 @@ import engine.configuration.KeyboardConfig;
 import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
 import engine.network.messages.s2c.EntitySpawnEvent;
+import engine.network.codec.ShaderComponentCodec;
 import engine.utils.CursorUtil;
 import engine.utils.components.draw.DrawComponentFactory;
 import feature.components.Debugger;
@@ -76,6 +77,9 @@ public final class GameOfGamesClient {
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
               }
+              if (event.shaderComponent() != null) {
+                newEntity.add(ShaderComponentCodec.fromState(event.shaderComponent()));
+              }
               GameOfGamesSnapshotTranslator.applyInteractableMetadata(newEntity, event.metadata());
               GameOfGamesSnapshotTranslator.applyCollideMetadata(newEntity, event.metadata());
               Game.add(newEntity);
@@ -105,6 +109,9 @@ public final class GameOfGamesClient {
             .username(playerComponent.playerName())
             .build();
     applySpawnPosition(hero, event.positionComponent());
+    if (event.shaderComponent() != null) {
+      hero.add(ShaderComponentCodec.fromState(event.shaderComponent()));
+    }
     GameOfGamesSnapshotTranslator.applyCollideMetadata(hero, event.metadata());
     Game.add(hero);
     return true;

@@ -39,6 +39,7 @@ import engine.network.messages.s2c.EntityDelta;
 import engine.network.messages.s2c.EntityDespawnEvent;
 import engine.network.messages.s2c.EntitySpawnBatch;
 import engine.network.messages.s2c.EntitySpawnEvent;
+import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.GameOverEvent;
 import engine.network.messages.s2c.InitialWorldComplete;
@@ -525,6 +526,9 @@ public final class GameLoop extends ScreenAdapter {
                         position.viewDirection(event.positionComponent().viewDirection());
                       });
             }
+            if (event.shaderComponent() != null) {
+              hero.add(ShaderComponentCodec.fromState(event.shaderComponent()));
+            }
             Game.add(hero);
             trackNetworkEntity(ctx, event.entityId());
             return;
@@ -536,6 +540,9 @@ public final class GameLoop extends ScreenAdapter {
           }
           if (event.drawInfo() != null) {
             newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
+          }
+          if (event.shaderComponent() != null) {
+            newEntity.add(ShaderComponentCodec.fromState(event.shaderComponent()));
           }
           Game.add(newEntity);
           trackNetworkEntity(ctx, event.entityId());

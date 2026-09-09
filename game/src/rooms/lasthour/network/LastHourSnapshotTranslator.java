@@ -131,6 +131,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     baseState.stateName().ifPresent(builder::stateName);
     baseState.tintColor().ifPresent(builder::tintColor);
     baseState.inventory().ifPresent(builder::inventorySlots);
+    baseState.shaderComponent().ifPresent(builder::shaderComponent);
 
     Map<String, String> mergedMetadata = new HashMap<>();
     baseState.metadata().ifPresent(mergedMetadata::putAll);
