@@ -37,6 +37,7 @@ public final class ProgrammingBinding {
   }
 
   static void register() {
+    ProgrammingBindingBook.register();
     ProgrammingBindingNode.register();
     DialogFactory.register(
         Type.BINDING,

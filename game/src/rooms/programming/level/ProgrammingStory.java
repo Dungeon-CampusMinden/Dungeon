@@ -41,7 +41,7 @@ final class ProgrammingStory {
       case "inspect-forge-ledger" ->
           "Nox · Bindungsplan\n\nJede Eigenschaft erhält ein eigenes Gefäß. "
               + "Für ganze Zahlen verwende ich Eisenkisten, für Bruchteile Kristallflaschen. "
-              + "Die Sollwerte sind in die Eigenschaftsrunen eingeritzt.\n\n"
+              + "Die Füllungen stehen in meinem Bindungsplan direkt neben Nox.\n\n"
               + "Ein Gefäß behält seinen Inhalt, bis ein neuer Wert ihn ersetzt. "
               + "Bei falscher Füllung nicht die ganze Bindung lösen.\n\n"
               + "Für gesteuerte Schritte braucht Nox anschließend eine Rhythmusrune. "

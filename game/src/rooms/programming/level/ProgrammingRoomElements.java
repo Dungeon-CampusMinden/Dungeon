@@ -50,7 +50,7 @@ final class ProgrammingRoomElements {
     if (level.namedPoints().containsKey("variables-translation")) {
       Entity tablet = createEntity(level, "variables-translation", Visual.BOOK, 0);
       tablet.add(
-          new InteractionComponent(new Interaction((entity, who) -> runtime.showTranslation(who))));
+          new InteractionComponent(new Interaction((entity, who) -> runtime.showBindingBook(who))));
       Game.add(tablet);
     }
     return runtime;
