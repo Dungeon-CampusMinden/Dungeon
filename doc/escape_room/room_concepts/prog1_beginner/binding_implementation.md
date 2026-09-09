@@ -10,9 +10,10 @@ abwechselbar. Ein Gefäßtyp kann mehrfach verwendet werden: Lebensenergie und S
 brauchen jeweils eine eigene Eisenkiste. Das Leeren entfernt zuerst den Inhalt und bei
 einer noch unvollständigen Gefäßbindung anschließend das leere Gefäß.
 
-Die vollständige Liste der gewünschten Werte steht im separaten Bindungsplan beim Golem,
-nicht auf den Canvas-Fassungen oder in Fehlermeldungen. Die Doppelseite verwendet die
-Buchgrafik aus MushRoom: links Nox und Valerius' Notizen, rechts die sechs Füllungen.
+Die gewünschten Werte stehen im separaten Bindungsplan beim Golem,
+nicht auf den Canvas-Fassungen oder in Fehlermeldungen. Das Buch verwendet die
+Buchgrafik aus MushRoom und hat drei blätterbare Doppelseiten. Jede der sechs Eigenschaften
+bekommt eine eigene Seite mit Illustration, Wert und kurzer Werkstattnotiz.
 Der Spieler verlässt die Werkbank zum Nachschlagen. Seine bisherigen Füllungen bleiben
 dabei erhalten. Java-Typnamen erscheinen weiterhin erst nach erfolgreicher Bindung.
 
