@@ -30,10 +30,12 @@ final class ProgrammingStory {
         + "Nox: Förderbahn, Pumpenzugang und Kettenzug freiräumen. "
         + "Den beschädigten Kühlkanal überqueren, dann den Schutt an der Torwinde entfernen.\n\n"
         + "Die Messingmarken sind seine Arbeitspositionen. Die Pfeile geben die Ausrichtung an. "
-        + "Am Ziel führt er den hinterlegten Räumauftrag aus.\n\n"
+        + "Das Steuerprogramm muss dort vollständig enden. Erst danach beginnt der "
+        + "separate Räumauftrag. Das Berühren einer Marke genügt nicht.\n\n"
         + "Steuerprogramme liegen im Archiv, darunter alte Probeläufe. "
         + "Das Steuerbuch nimmt jeweils eine Rhythmusrune an. "
-        + "Bei einem abgebrochenen Lauf kehrt Nox zur letzten Arbeitsposition zurück.\n\n"
+        + "Passt der Lauf nicht zum Auftrag, kehrt Nox zur letzten Arbeitsposition zurück. "
+        + "Die Rune bleibt erhalten. Während er läuft oder zurückkehrt, nimmt er kein neues Programm an.\n\n"
         + "Der Sehstein überträgt sein Blickfeld aus dem Keller. "
         + "Die Karte meldet nur, wo ein Hindernis liegt.\n\nValerius";
   }

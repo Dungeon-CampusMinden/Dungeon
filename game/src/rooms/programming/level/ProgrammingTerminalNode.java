@@ -53,7 +53,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
         id,
         kind.equals("map") ? 380 : kind.equals("rune") ? 64 : kind.equals("executor") ? 88 : 464,
         kind.equals("map")
-            ? 508
+            ? 556
             : kind.equals("rune")
                 ? 64
                 : kind.equals("executor") ? 88 : kind.equals("help") ? 210 : 168);
@@ -257,7 +257,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
         width(),
         3);
     if (!kind.equals("map")) return;
-    for (int row = 0; row < 9; row++)
+    for (int row = 0; row < 10; row++)
       for (int col = -1; col < 6; col++) {
         boolean path = LoopMaze.cells().contains(new LoopMaze.Cell(col, row));
         CanvasGraphics.fill(

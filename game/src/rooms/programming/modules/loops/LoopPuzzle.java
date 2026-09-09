@@ -24,14 +24,17 @@ public final class LoopPuzzle {
               case 0, 4 -> LoopProgram.Condition.AT_GOAL;
               case 1 ->
                   type == LoopType.DO_WHILE
-                      ? LoopProgram.Condition.AT_GOAL
-                      : LoopProgram.Condition.NOT_GOAL;
+                      ? LoopProgram.Condition.NOT_GOAL
+                      : LoopProgram.Condition.FREE;
               default -> LoopProgram.Condition.FREE;
             };
         int count = index == 0 ? 3 : 2;
         List<LoopProgram.Action> body =
             switch (index) {
-              case 2 -> List.of(LoopProgram.Action.ATTACK, LoopProgram.Action.MOVE);
+              case 2 ->
+                  type == LoopType.DO_WHILE
+                      ? List.of(LoopProgram.Action.MOVE, LoopProgram.Action.ATTACK)
+                      : List.of(LoopProgram.Action.ATTACK, LoopProgram.Action.MOVE);
               case 3 -> List.of(LoopProgram.Action.JUMP, LoopProgram.Action.MOVE);
               case 4 ->
                   List.of(
@@ -43,7 +46,12 @@ public final class LoopPuzzle {
             };
         List<LoopProgram.Action> after =
             switch (index) {
-              case 0, 1 -> List.of(LoopProgram.Action.LEFT);
+              case 0 -> List.of(LoopProgram.Action.LEFT);
+              case 1 ->
+                  List.of(
+                      type == LoopType.DO_WHILE
+                          ? LoopProgram.Action.RIGHT
+                          : LoopProgram.Action.LEFT);
               case 2, 3 -> List.of(LoopProgram.Action.RIGHT);
               default -> List.of();
             };
@@ -57,7 +65,12 @@ public final class LoopPuzzle {
                 new LoopProgram(type, condition, count, body, after)));
       }
     }
-    add(runes, "empty", "Leere Wiederholung", 0, List.of());
+    add(
+        runes,
+        "patrol",
+        "Eckenprobe",
+        2,
+        List.of(LoopProgram.Action.LEFT, LoopProgram.Action.MOVE));
     add(
         runes,
         "turn-left",

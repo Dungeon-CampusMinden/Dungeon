@@ -79,6 +79,7 @@ final class ProgrammingGolemRuntime {
   private boolean breakingGate;
   private float pause;
   private String status = "Seelenbindung unvollständig.";
+  private String returnFeedback = "";
 
   ProgrammingGolemRuntime(DungeonLevel level, Entity golem) {
     this.level = level;
@@ -382,22 +383,37 @@ final class ProgrammingGolemRuntime {
     if (success) {
       String challenge = currentChallenge();
       busy = true;
-      status = "Arbeitsposition erreicht. Räumauftrag läuft.";
-      machinery.clear(
-          controller.completedLoopChallenges().size(),
+      status = "Programm beendet. Arbeitsposition bestätigt.";
+      pause = 1f;
+      arrived =
           () -> {
-            controller.completeExecutedLoop(challenge);
-            busy = false;
-            status =
-                controller.phase() == ProgrammingPhase.METHODS
-                    ? "Torwinde: Halterung gebrochen. Antrieb stillgelegt."
-                    : "Räumauftrag erledigt. Nächste Arbeitsposition bereit.";
-          });
+            busy = true;
+            status = "Räumauftrag läuft. Steuerprogramm beendet.";
+            machinery.clear(
+                controller.completedLoopChallenges().size(),
+                () -> {
+                  controller.completeExecutedLoop(challenge);
+                  busy = false;
+                  status =
+                      controller.phase() == ProgrammingPhase.METHODS
+                          ? "Torwinde: Halterung gebrochen. Antrieb stillgelegt."
+                          : "Räumauftrag erledigt. Nächste Arbeitsposition bereit.";
+                });
+          };
     } else {
-      status =
-          "Rune ungültig. "
-              + (reason.isEmpty() ? "Zielposition oder Blickrichtung nicht erreicht." : reason)
-              + " Nox kehrt zurück.";
+      returnFeedback =
+          reason.isEmpty()
+              ? "Programm beendet. "
+                  + (finished
+                          .cell()
+                          .equals(
+                              LoopMaze.checkpoints()
+                                  .get(controller.completedLoopChallenges().size())
+                                  .goal())
+                      ? "Blickrichtung falsch."
+                      : "Zielmarke nicht erreicht.")
+              : "Programm gestoppt. " + reason;
+      status = returnFeedback + " Nox kehrt zurück.";
       returning = true;
       busy = true;
       pause = 1.5f;
@@ -427,7 +443,7 @@ final class ProgrammingGolemRuntime {
     route.clear();
     busy = false;
     returning = false;
-    status = "Rune ungültig. Nox ist zurück an der Arbeitsposition.";
+    status = returnFeedback + " Nox ist zurück an der Arbeitsposition.";
   }
 
   private void face(LoopMaze.Direction direction) {
