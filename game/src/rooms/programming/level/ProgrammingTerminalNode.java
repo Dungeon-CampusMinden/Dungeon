@@ -23,8 +23,12 @@ import rooms.programming.modules.loops.TerminalState;
 /** Room-specific map, program cards and the single execution slot. */
 final class ProgrammingTerminalNode extends CanvasNode {
   private static final String TYPE = "programming.terminal-node";
+  private static final int MAP_INSET = 24;
+  private static final int CELL_STEP = 48;
+  private static final int CELL_SIZE = 44;
   private String kind;
   private TerminalState state;
+  private Label heading;
   private Label text;
   private boolean hover;
   private boolean pending;
@@ -47,16 +51,12 @@ final class ProgrammingTerminalNode extends CanvasNode {
   ProgrammingTerminalNode(String id, String kind) {
     super(
         id,
+        kind.equals("map") ? 380 : kind.equals("rune") ? 64 : kind.equals("executor") ? 88 : 464,
         kind.equals("map")
-            ? 395
+            ? 508
             : kind.equals("rune")
                 ? 64
-                : kind.equals("executor") ? 88 : kind.equals("status") ? 510 : 380,
-        kind.equals("map")
-            ? 580
-            : kind.equals("rune")
-                ? 64
-                : kind.equals("executor") ? 88 : kind.equals("help") ? 210 : 140);
+                : kind.equals("executor") ? 88 : kind.equals("help") ? 210 : 168);
     this.kind = kind;
     deletable(false);
     movable(kind.equals("rune"));
@@ -126,14 +126,9 @@ final class ProgrammingTerminalNode extends CanvasNode {
 
   private String caption() {
     if (kind.equals("help"))
-      return "Befehle\n\nschritt(): ein Feld vorwärts\nspringen(): über eine Grube, zwei Felder\nangreifen(): Gegner direkt voraus\nbodenVoraus(): Boden, auch mit Gegner\namWegzeichen(): aktuelles Ziel erreicht\nDrehen: eine Vierteldrehung";
+      return "schritt(): ein Feld vorwärts\nspringen(): über eine Grube, zwei Felder\nangreifen(): Gegner direkt voraus\nbodenVoraus(): Boden, auch mit Gegner\namWegzeichen(): aktuelles Ziel erreicht\nDrehen: eine Vierteldrehung";
     if (kind.equals("status")) {
-      if (state == null) return "Ausführen\n\nEine Rune hier ablegen";
-      return (state.busy()
-              ? "Golem arbeitet"
-              : state.finished() ? "Weg abgeschlossen" : "Ausführen")
-          + "\n\n"
-          + state.status();
+      return state == null ? "Eine Rune hier ablegen" : state.status();
     }
     return "";
   }
@@ -141,11 +136,22 @@ final class ProgrammingTerminalNode extends CanvasNode {
   @Override
   protected void buildContent() {
     if (kind.equals("rune") || kind.equals("executor")) return;
+    heading =
+        Scene2dElementFactory.createLabel(
+            switch (kind) {
+              case "map" -> "Labyrinth";
+              case "status" -> "Executor";
+              default -> "Befehle";
+            },
+            22,
+            Color.valueOf("f1eadc"));
+    heading.setAlignment(Align.left);
+    addActor(heading);
     if (!kind.equals("map")) {
       text =
           Scene2dElementFactory.createLabel(
               caption(), kind.equals("help") ? 16 : 18, Color.valueOf("f1eadc"));
-      text.setAlignment(Align.topLeft);
+      text.setAlignment(kind.equals("status") ? Align.left : Align.topLeft);
       text.setWrap(true);
       addActor(text);
     }
@@ -170,12 +176,22 @@ final class ProgrammingTerminalNode extends CanvasNode {
             };
         Label marker =
             Scene2dElementFactory.createLabel("" + (i + 1) + arrow, 16, ProgrammingTerminal.ACCENT);
-        marker.setPosition(27 + (cell.x() + 1) * 49, 70 + cell.y() * 44);
+        marker.setBounds(
+            MAP_INSET + (cell.x() + 1) * CELL_STEP + 3,
+            MAP_INSET + cell.y() * CELL_STEP + 2,
+            CELL_SIZE - 6,
+            CELL_SIZE - 4);
+        marker.setAlignment(Align.bottomLeft);
         addActor(marker);
       }
       for (var cell : java.util.List.of(LoopMaze.monster(), LoopMaze.pit())) {
         Label marker = Scene2dElementFactory.createLabel("!", 24, ProgrammingTerminal.ACCENT);
-        marker.setPosition(38 + (cell.x() + 1) * 49, 78 + cell.y() * 44);
+        marker.setBounds(
+            MAP_INSET + (cell.x() + 1) * CELL_STEP,
+            MAP_INSET + cell.y() * CELL_STEP,
+            CELL_SIZE,
+            CELL_SIZE);
+        marker.setAlignment(Align.center);
         addActor(marker);
       }
     }
@@ -183,9 +199,11 @@ final class ProgrammingTerminalNode extends CanvasNode {
 
   @Override
   protected void layoutContent() {
-    if (text == null) return;
-    float inset = kind.equals("status") ? 128 : 18;
-    text.setBounds(inset, 14, width() - inset - 18, height() - 30);
+    if (heading != null) heading.setBounds(24, height() - 42, width() - 48, 26);
+    if (text != null) {
+      float inset = kind.equals("status") ? 136 : 24;
+      text.setBounds(inset, 24, width() - inset - 24, height() - 80);
+    }
   }
 
   @Override
@@ -246,10 +264,10 @@ final class ProgrammingTerminalNode extends CanvasNode {
             batch,
             path ? Color.valueOf("50616a") : ProgrammingTerminal.INK,
             alpha,
-            x() + 24 + (col + 1) * 49,
-            y() + 68 + row * 44,
-            45,
-            40);
+            x() + MAP_INSET + (col + 1) * CELL_STEP,
+            y() + MAP_INSET + row * CELL_STEP,
+            CELL_SIZE,
+            CELL_SIZE);
       }
     if (state == null) return;
     if (!state.finished() && state.checkpoint() < LoopMaze.checkpoints().size()) {
@@ -258,16 +276,21 @@ final class ProgrammingTerminalNode extends CanvasNode {
           batch,
           ProgrammingTerminal.ACCENT,
           alpha,
-          x() + 24 + (target.x() + 1) * 49,
-          y() + 68 + target.y() * 44,
-          45,
-          40,
+          x() + MAP_INSET + (target.x() + 1) * CELL_STEP,
+          y() + MAP_INSET + target.y() * CELL_STEP,
+          CELL_SIZE,
+          CELL_SIZE,
           2);
     }
     if (!state.observationReady()) return;
     if (head != null) {
       batch.setColor(Color.WHITE);
-      batch.draw(head, x() + 31 + (state.cellX() + 1) * 49, y() + 73 + state.cellY() * 44, 28, 33);
+      batch.draw(
+          head,
+          x() + MAP_INSET + (state.cellX() + 1) * CELL_STEP + (CELL_SIZE - 28) / 2f,
+          y() + MAP_INSET + state.cellY() * CELL_STEP + (CELL_SIZE - 33) / 2f,
+          28,
+          33);
     }
   }
 

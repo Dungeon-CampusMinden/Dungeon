@@ -117,10 +117,19 @@ final class ProgrammingTerminalUI extends CanvasUI {
       for (var child : getChildren()) {
         if (child instanceof com.badlogic.gdx.scenes.scene2d.utils.Layout layout) layout.validate();
       }
+      var bounds = new com.badlogic.gdx.math.Rectangle(area().nodes().getFirst().bounds());
+      for (var node : area().nodes()) bounds.merge(node.bounds());
       float zoom =
-          Math.min(1, Math.min((area().getWidth() - 64) / 945, (area().getHeight() - 110) / 710));
+          Math.min(
+              1,
+              Math.min(
+                  (area().getWidth() - 64) / bounds.width,
+                  (area().getHeight() - 104) / bounds.height));
       area().zoom(zoom);
-      area().pan(32, area().getHeight() - 72 - 580 * zoom);
+      area()
+          .pan(
+              (area().getWidth() - bounds.width * zoom) / 2 - bounds.x * zoom,
+              32 + (area().getHeight() - 104 - bounds.height * zoom) / 2 - bounds.y * zoom);
       initialViewPlaced = true;
     }
     super.draw(batch, alpha);
