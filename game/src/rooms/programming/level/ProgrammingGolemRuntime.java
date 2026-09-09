@@ -8,19 +8,17 @@ import engine.components.VelocityComponent;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.utils.Coordinate;
-import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import feature.collision.CollisionUtils;
 import feature.components.CollideComponent;
 import feature.hud.UIUtils;
-import feature.hud.dialogs.ChoiceOption;
-import feature.hud.dialogs.ChoiceOptions;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
+import feature.utils.EntityUtils;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import rooms.programming.ProgrammingRoomController;
 import rooms.programming.PuzzleSubmissionResult;
 import rooms.programming.modules.loops.LoopExecution;
@@ -37,6 +34,7 @@ import rooms.programming.modules.loops.LoopMaze;
 import rooms.programming.modules.loops.LoopProgram;
 import rooms.programming.modules.loops.LoopPuzzle;
 import rooms.programming.modules.loops.TerminalState;
+import rooms.programming.modules.variables.BindingState;
 import rooms.programming.modules.variables.GolemProperty;
 import rooms.programming.modules.variables.MagicalEssence;
 import rooms.programming.modules.variables.SoulVessel;
@@ -75,11 +73,14 @@ final class ProgrammingGolemRuntime {
   private float stalled;
   private Runnable arrived = () -> {};
   private boolean busy;
-  private long movementVersion;
   private boolean breakingGate;
   private float pause;
   private String status = "Seelenbindung unvollständig.";
   private String returnFeedback = "";
+  private boolean propertiesCollected;
+  private boolean vesselsCollected;
+  private String bindingFeedback =
+      "Eigenschaftsrunen und Gefäße fehlen. Öffne die beiden Werkstattkisten.";
 
   ProgrammingGolemRuntime(DungeonLevel level, Entity golem) {
     this.level = level;
@@ -92,106 +93,121 @@ final class ProgrammingGolemRuntime {
   }
 
   void show(Entity who) {
+    if (!authorized(who, "variables-golem", 4.5f)) return;
     if (busy) {
       text(who, status);
-      return;
-    }
-    if (controller.phase() == ProgrammingPhase.VARIABLES) {
-      if (controller.variableStage() == VariablePuzzleStage.REVEAL) {
-        choose(
-            who,
-            "Seelenbindung vollständig.\n\n" + translation(),
-            List.of(ChoiceOption.of("Aktivieren", "start")),
-            ignored -> activate(who));
-      } else {
-        showProperties(who, ProgrammingStory.golem());
-      }
+    } else if (controller.phase() == ProgrammingPhase.VARIABLES) {
+      ProgrammingBinding.open(who, this);
     } else {
       showTerminal(who);
     }
   }
 
-  private void showProperties(Entity who, String feedback) {
-    if (controller.phase() != ProgrammingPhase.VARIABLES
-        || controller.variableStage() == VariablePuzzleStage.REVEAL) {
-      show(who);
-      return;
-    }
-    VariablePuzzleStage stage = controller.variableStage();
-    boolean vesselStage = stage == VariablePuzzleStage.VESSELS;
-    List<ChoiceOption> options = new ArrayList<>();
-    for (GolemProperty property : GolemProperty.values()) {
-      String assigned =
-          vesselStage
-              ? (vessels.containsKey(property) ? vesselLabel(vessels.get(property)) : "offen")
-              : (essences.containsKey(property) ? essences.get(property).literal() : "offen");
-      options.add(ChoiceOption.of(propertyLabel(property) + ": " + assigned, property.name()));
-    }
-    choose(
-        who,
-        feedback
-            + (vesselStage
-                ? "\nEigenschaft auswählen und ein Gefäß zuordnen."
-                : "\nGefäße zugeordnet. Essenzen einsetzen.\n\nEssenzvorrat: 125, 17, 3.5, true, false, \"Nox\", 'O'"),
-        options,
-        answer -> {
-          if (controller.variableStage() != stage) {
-            show(who);
-            return;
-          }
-          try {
-            showAssignment(who, GolemProperty.valueOf(answer), vesselStage);
-          } catch (IllegalArgumentException exception) {
-            text(who, "Unbekannte Eigenschaftsrune.");
-          }
-        });
+  BindingState bindingState() {
+    return new BindingState(
+        controller.variableStage(),
+        propertiesCollected,
+        vesselsCollected,
+        vessels,
+        essences,
+        bindingFeedback);
   }
 
-  private void showAssignment(Entity who, GolemProperty property, boolean vesselStage) {
-    List<ChoiceOption> options = new ArrayList<>();
-    if (vesselStage) {
-      for (SoulVessel vessel : SoulVessel.values())
-        options.add(ChoiceOption.of(vesselLabel(vessel), vessel.name()));
-    } else {
-      for (MagicalEssence essence : MagicalEssence.values())
-        options.add(ChoiceOption.of(essence.literal(), essence.name()));
+  void collectBindingSupply(boolean properties, Entity who) {
+    String marker = properties ? "variables-properties" : "variables-vessels";
+    if (!authorized(who, marker, 3f)) return;
+    if (properties ? propertiesCollected : vesselsCollected) {
+      showText(who, "Die Kiste ist leer.");
+      return;
     }
-    choose(
+    if (properties) propertiesCollected = true;
+    else vesselsCollected = true;
+    bindingFeedback =
+        propertiesCollected && vesselsCollected
+            ? "Gefäße auf die Eigenschaftsrunen ziehen."
+            : propertiesCollected ? "Gefäßvorrat fehlt." : "Eigenschaftsrunen fehlen.";
+    showText(
         who,
-        propertyLabel(property)
-            + (vesselStage ? "\nWähle ein Seelengefäß." : "\nWähle eine Essenz."),
-        options,
-        answer -> {
-          VariablePuzzleStage expected =
-              vesselStage ? VariablePuzzleStage.VESSELS : VariablePuzzleStage.ESSENCES;
-          if (busy
-              || controller.phase() != ProgrammingPhase.VARIABLES
-              || controller.variableStage() != expected) {
-            show(who);
-            return;
-          }
-          boolean correct;
-          try {
-            if (vesselStage) {
-              SoulVessel selected = SoulVessel.valueOf(answer);
-              correct = VariablePuzzle.vesselSolution().get(property) == selected;
-              if (correct) vessels.put(property, selected);
-              if (vessels.size() == GolemProperty.values().length)
-                controller.submitVessels(vessels);
-            } else {
-              MagicalEssence selected = MagicalEssence.valueOf(answer);
-              correct = VariablePuzzle.essenceSolution().get(property) == selected;
-              if (correct) essences.put(property, selected);
-              if (essences.size() == GolemProperty.values().length)
-                controller.submitEssences(essences);
-            }
-          } catch (IllegalArgumentException exception) {
-            text(who, "Diese Zuordnung ist unbekannt.");
-            return;
-          }
-          showProperties(
-              who, correct ? "Zuordnung übernommen." : "Unpassende Zuordnung. Nicht übernommen.");
-        });
+        properties
+            ? "Eigenschaftsrunen eingepackt. Die Sollwerte sind in die Runen eingeritzt."
+            : "Seelengefäße eingepackt. Jedes Gefäß trägt eine Prägung für seinen Inhalt. Der Vorrat reicht für mehrere Fassungen.");
+  }
+
+  void assignBinding(Entity who, String propertyName, String value, boolean vessel) {
+    if (!authorized(who, "variables-golem", 4.5f)
+        || busy
+        || controller.phase() != ProgrammingPhase.VARIABLES
+        || !propertiesCollected
+        || !vesselsCollected) return;
+    VariablePuzzleStage expected =
+        vessel ? VariablePuzzleStage.VESSELS : VariablePuzzleStage.ESSENCES;
+    if (controller.variableStage() != expected) return;
+    try {
+      GolemProperty property = GolemProperty.valueOf(propertyName);
+      if (vessel) {
+        SoulVessel selected = SoulVessel.valueOf(value);
+        if (VariablePuzzle.vesselSolution().get(property) != selected) {
+          bindingFeedback =
+              selected == SoulVessel.CRYSTAL_BOTTLE
+                      && VariablePuzzle.vesselSolution().get(property) == SoulVessel.IRON_CHEST
+                  ? "Die Kristallflasche fasst auch ganze Zahlen. Valerius verwendet hier die Eisenkiste; Kristall ist für Bruchteile vorgesehen."
+                  : selected.label()
+                      + " trägt: "
+                      + selected.capacity()
+                      + ". Prüfe den eingeritzten Sollwert.";
+          return;
+        }
+        vessels.put(property, selected);
+        bindingFeedback = property.label() + ": " + selected.label() + " eingesetzt.";
+        if (vessels.size() == GolemProperty.values().length) {
+          controller.submitVessels(vessels);
+          bindingFeedback = "Essenzfach geöffnet. Werte in die Gefäße ziehen.";
+        }
+      } else {
+        MagicalEssence selected = MagicalEssence.valueOf(value);
+        SoulVessel container = vessels.get(property);
+        if (container == null || !VariablePuzzle.fits(container, selected)) {
+          bindingFeedback =
+              selected.literal()
+                  + " passt nicht in "
+                  + (container == null
+                      ? "diese Fassung."
+                      : container.label() + ". " + container.capacity() + ".");
+          return;
+        }
+        essences.put(property, selected);
+        bindingFeedback =
+            property.label()
+                + " = "
+                + selected.literal()
+                + " gespeichert."
+                + (VariablePuzzle.essenceSolution().get(property) == selected
+                    ? ""
+                    : " Soll: " + VariablePuzzle.essenceSolution().get(property).literal() + ".");
+        if (VariablePuzzle.essencesCorrect(essences)) {
+          controller.submitEssences(essences);
+          bindingFeedback = "Seelenbindung vollständig. Gefäß, Name und Wert bilden eine Variable.";
+        }
+      }
+    } catch (IllegalArgumentException ignored) {
+      // Unknown or stale canvas payloads do not change the shared binding.
+    }
+  }
+
+  void clearBinding(Entity who, String propertyName) {
+    if (!authorized(who, "variables-golem", 4.5f)
+        || busy
+        || controller.phase() != ProgrammingPhase.VARIABLES) return;
+    try {
+      GolemProperty property = GolemProperty.valueOf(propertyName);
+      if (controller.variableStage() == VariablePuzzleStage.VESSELS) vessels.remove(property);
+      else if (controller.variableStage() == VariablePuzzleStage.ESSENCES)
+        essences.remove(property);
+      else return;
+      bindingFeedback = property.label() + ": Fassung geleert.";
+    } catch (IllegalArgumentException ignored) {
+      // Ignore unknown property IDs.
+    }
   }
 
   void showTranslation(Entity who) {
@@ -208,8 +224,8 @@ final class ProgrammingGolemRuntime {
         + "\n\nNox: Lebensenergie 125, Mana 3.5, Aktiviert true, Blickrichtung 'O', Schritte 17.";
   }
 
-  private void activate(Entity who) {
-    if (Game.isMultiplayerClient()
+  void activate(Entity who) {
+    if (!authorized(who, "variables-golem", 4.5f)
         || busy
         || controller.variableStage() != VariablePuzzleStage.REVEAL) return;
     breakingGate = true;
@@ -225,6 +241,7 @@ final class ProgrammingGolemRuntime {
       return;
     }
     status = "Aktivierung läuft.";
+    ProgrammingBinding.closeAll();
     move(
         path,
         () -> {
@@ -293,6 +310,7 @@ final class ProgrammingGolemRuntime {
     if (Game.isMultiplayerClient()
         || who == null
         || Game.allPlayers().noneMatch(player -> player == who)) return false;
+    if (marker.equals("variables-golem")) return EntityUtils.getDistance(golem, who) <= range;
     Point target = level.namedPoints().get(marker);
     return target != null
         && who.fetch(PositionComponent.class)
@@ -318,7 +336,6 @@ final class ProgrammingGolemRuntime {
     attempt = new LoopExecution(checkpoint, rune.orElseThrow(), monsterAlive);
     activeRune = runeId;
     busy = true;
-    movementVersion++;
     advanceAction();
   }
 
@@ -458,7 +475,6 @@ final class ProgrammingGolemRuntime {
   }
 
   private void move(List<Point> path, Runnable then) {
-    movementVersion++;
     route.clear();
     route.addAll(path);
     arrived = then;
@@ -741,50 +757,6 @@ final class ProgrammingGolemRuntime {
         .orElseThrow();
   }
 
-  private void choose(
-      Entity who, String question, List<ChoiceOption> options, Consumer<String> accept) {
-    long version = movementVersion;
-    choose(
-        who,
-        "Nox · Seelenkern",
-        question,
-        options,
-        true,
-        answer -> {
-          if (version == movementVersion) accept.accept(answer);
-        });
-  }
-
-  private static void choose(
-      Entity who,
-      String title,
-      String question,
-      List<ChoiceOption> options,
-      boolean canCancel,
-      Consumer<String> accept) {
-    var context =
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.MULTIPLE_CHOICE)
-            .put(DialogContextKeys.TITLE, title)
-            .put(DialogContextKeys.DIALOG, question)
-            .put(DialogContextKeys.OPTIONS, new ChoiceOptions(options))
-            .put(DialogContextKeys.CAN_CANCEL, canCancel)
-            .build();
-    // Reading a rune must not suspend the shared simulation or Nox's return timer.
-    var ui = DialogFactory.show(context, false, true, who.id());
-    if (canCancel)
-      ui.registerCallback(DialogContextKeys.ON_CANCEL, ignored -> UIUtils.closeDialog(ui));
-    ui.registerCallback(
-        DialogContextKeys.ON_OPTION_SELECTED,
-        payload -> {
-          if (payload instanceof DialogResponseMessage.StringValue(String value)
-              && options.stream().anyMatch(option -> option.value().equals(value))) {
-            UIUtils.closeDialog(ui);
-            accept.accept(value);
-          }
-        });
-  }
-
   static void showText(Entity who, String title, String message) {
     showText(who, title + "\n\n" + message);
   }
@@ -801,26 +773,5 @@ final class ProgrammingGolemRuntime {
 
   private void text(Entity who, String message) {
     showText(who, "Nox · Steuerungsstatus", message);
-  }
-
-  private static String propertyLabel(GolemProperty property) {
-    return switch (property) {
-      case NAME -> "Name";
-      case LIFE_ENERGY -> "Lebensenergie";
-      case MANA -> "Mana";
-      case ACTIVATED -> "Aktiviert";
-      case VIEW_DIRECTION -> "Blickrichtung";
-      case STEPS -> "Schritte";
-    };
-  }
-
-  private static String vesselLabel(SoulVessel vessel) {
-    return switch (vessel) {
-      case IRON_CHEST -> "Eisenkiste";
-      case CRYSTAL_BOTTLE -> "Kristallflasche";
-      case PARCHMENT -> "Pergament";
-      case RUNE_STONE -> "Runenstein";
-      case LIGHT_ORB -> "Lichtkugel";
-    };
   }
 }

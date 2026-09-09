@@ -171,7 +171,7 @@ public class CanvasUI extends Group {
           new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-              area.resetView();
+              resetView();
             }
           });
       controls.add(reset).padRight(CONTROL_SPACING);
@@ -197,6 +197,11 @@ public class CanvasUI extends Group {
   public void draw(Batch batch, float parentAlpha) {
     setSize(Game.windowWidth(), Game.windowHeight());
     super.draw(batch, parentAlpha);
+  }
+
+  /** Restores the view; specialized canvases may frame their current puzzle stage instead. */
+  protected void resetView() {
+    area.resetView();
   }
 
   /** Persists the local changes and asks the server to close this dialog. */

@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import rooms.programming.level.ProgrammingBinding;
 import rooms.programming.level.ProgrammingTerminal;
 
 /** Adds interaction reach to ordinary world snapshots; room progress stays on the server. */
@@ -50,7 +51,15 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
                   terminal
                       .filter(s -> s.golemId() == state.entityId())
                       .ifPresent(
-                          s -> metadata.put("programming.terminal", ProgrammingTerminal.encode(s)));
+                          s -> {
+                            metadata.put("programming.terminal", ProgrammingTerminal.encode(s));
+                            ProgrammingBinding.state()
+                                .ifPresent(
+                                    binding ->
+                                        metadata.put(
+                                            "programming.binding",
+                                            ProgrammingBinding.encode(binding)));
+                          });
                   entities.add(withMergedMetadata(state, metadata));
                 } else entities.add(state);
               }
@@ -62,6 +71,10 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
   public void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher) {
     delegate.applySnapshot(snapshot, dispatcher);
     for (EntityState state : snapshot.entities()) {
+      state
+          .metadata()
+          .map(metadata -> metadata.get("programming.binding"))
+          .ifPresent(ProgrammingBinding::receive);
       state
           .metadata()
           .map(metadata -> metadata.get("programming.terminal"))
