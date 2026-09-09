@@ -102,7 +102,7 @@ public final class ProgrammingMazeWorld {
   private static void storage(Point origin) {
     for (var cell :
         java.util.List.of(
-            new LoopMaze.Cell(5, 2), new LoopMaze.Cell(1, 2), new LoopMaze.Cell(4, 6))) {
+            new LoopMaze.Cell(5, 3), new LoopMaze.Cell(1, 3), new LoopMaze.Cell(4, 7))) {
       Point at = LoopMaze.world(origin, cell);
       for (int i = 0; i < 2; i++) {
         Entity crate =
@@ -111,7 +111,7 @@ public final class ProgrammingMazeWorld {
         crate.add(ProgrammingProps.chestCollider());
       }
     }
-    Point pump = LoopMaze.world(origin, new LoopMaze.Cell(-1, 5));
+    Point pump = LoopMaze.world(origin, new LoopMaze.Cell(-1, 6));
     Entity kettle =
         ProgrammingCellarMachinery.prop(
             "pump", pump.translate(1, .2f), "objects/magic_kettle", 1.5f, 1.5f);
@@ -122,7 +122,7 @@ public final class ProgrammingMazeWorld {
     }
     for (var cell :
         java.util.List.of(
-            new LoopMaze.Cell(0, 0), new LoopMaze.Cell(3, 3), new LoopMaze.Cell(0, 6))) {
+            new LoopMaze.Cell(0, 0), new LoopMaze.Cell(3, 4), new LoopMaze.Cell(0, 7))) {
       Point at = LoopMaze.world(origin, cell).translate(.1f, -.1f);
       Entity torch = ProgrammingCellarMachinery.prop("lamp", at, "objects/torch", .8f, .8f);
       torch.name("programming-prop-torch-cellar-" + cell.x() + "-" + cell.y());
@@ -132,7 +132,7 @@ public final class ProgrammingMazeWorld {
 
   static java.util.List<Point> steamOutlets(Point origin) {
     return java.util.List.of(
-        origin.translate(-4, 16), origin.translate(19.3f, 10), origin.translate(19.3f, 1));
+        origin.translate(-4, 19), origin.translate(19.3f, 13), origin.translate(19.3f, 4));
   }
 
   private static void waypoint(Point at, int index) {

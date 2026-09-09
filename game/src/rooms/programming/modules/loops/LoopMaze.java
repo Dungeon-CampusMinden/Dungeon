@@ -86,10 +86,10 @@ public final class LoopMaze {
   private static final List<Checkpoint> CHECKPOINTS =
       List.of(
           new Checkpoint("forge-press", new Cell(0, 0), new Cell(3, 0), Direction.EAST),
-          new Checkpoint("bellows", new Cell(3, 0), new Cell(3, 3), Direction.NORTH),
-          new Checkpoint("chain-lift", new Cell(3, 3), new Cell(0, 3), Direction.WEST),
-          new Checkpoint("cooling-channel", new Cell(0, 3), new Cell(0, 6), Direction.NORTH),
-          new Checkpoint("heart-gate", new Cell(0, 6), new Cell(2, 8), Direction.EAST));
+          new Checkpoint("bellows", new Cell(3, 0), new Cell(3, 4), Direction.NORTH),
+          new Checkpoint("chain-lift", new Cell(3, 4), new Cell(0, 4), Direction.WEST),
+          new Checkpoint("cooling-channel", new Cell(0, 4), new Cell(0, 7), Direction.NORTH),
+          new Checkpoint("heart-gate", new Cell(0, 7), new Cell(2, 9), Direction.EAST));
   private static final List<Cell> CELLS = buildCells();
 
   private LoopMaze() {}
@@ -112,14 +112,14 @@ public final class LoopMaze {
    * @return the guardian's cell
    */
   public static Cell monster() {
-    return new Cell(2, 3);
+    return new Cell(2, 4);
   }
 
   /**
    * @return the pit cell
    */
   public static Cell pit() {
-    return new Cell(0, 4);
+    return new Cell(0, 5);
   }
 
   /**
@@ -147,21 +147,22 @@ public final class LoopMaze {
 
   private static List<Cell> buildCells() {
     List<Cell> cells = new ArrayList<>();
-    for (int x = 0; x <= 3; x++) cells.add(new Cell(x, 0));
-    for (int y = 1; y <= 3; y++) cells.add(new Cell(3, y));
-    for (int x = 0; x < 3; x++) cells.add(new Cell(x, 3));
-    for (int y = 4; y <= 6; y++) cells.add(new Cell(0, y));
-    for (int x = 1; x <= 4; x++) cells.add(new Cell(x, 6));
+    // The first goal is before the corridor end; the second is at the end of a longer run.
+    for (int x = 0; x <= 4; x++) cells.add(new Cell(x, 0));
+    for (int y = 1; y <= 4; y++) cells.add(new Cell(3, y));
+    for (int x = 0; x < 3; x++) cells.add(new Cell(x, 4));
+    for (int y = 5; y <= 7; y++) cells.add(new Cell(0, y));
+    for (int x = 1; x <= 4; x++) cells.add(new Cell(x, 7));
     cells.addAll(
         List.of(
             new Cell(2, 1),
-            new Cell(4, 2),
-            new Cell(5, 2),
-            new Cell(1, 2),
-            new Cell(-1, 5),
-            new Cell(2, 7),
-            new Cell(1, 7),
-            new Cell(2, 8)));
+            new Cell(4, 3),
+            new Cell(5, 3),
+            new Cell(1, 3),
+            new Cell(-1, 6),
+            new Cell(2, 8),
+            new Cell(1, 8),
+            new Cell(2, 9)));
     return List.copyOf(cells);
   }
 }
