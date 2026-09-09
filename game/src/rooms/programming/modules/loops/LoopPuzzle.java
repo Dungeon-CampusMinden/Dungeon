@@ -1,31 +1,110 @@
 package rooms.programming.modules.loops;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
-/** Ordered forge stations and their collectible loop forms. */
+/** Five checkpoints and the 24 collectible programs available at every checkpoint. */
 public final class LoopPuzzle {
 
   private static final List<String> CHALLENGES =
       List.of("forge-press", "bellows", "chain-lift", "cooling-channel", "heart-gate");
 
-  private static final List<LoopRune> RUNES =
-      CHALLENGES.stream()
-          .flatMap(
-              challenge ->
-                  Arrays.stream(LoopType.values())
-                      .map(
-                          type ->
-                              new LoopRune(
-                                  challenge
-                                      + "-"
-                                      + type.name().toLowerCase(Locale.ROOT).replace('_', '-'),
-                                  challenge,
-                                  type)))
-          .toList();
+  private static final List<LoopRune> RUNES = buildRunes();
+
+  private static List<LoopRune> buildRunes() {
+    List<LoopRune> runes = new ArrayList<>();
+    for (int index = 0; index < CHALLENGES.size(); index++) {
+      String challenge = CHALLENGES.get(index);
+      for (LoopType type : LoopType.values()) {
+        LoopProgram.Condition condition =
+            switch (index) {
+              case 0, 4 -> LoopProgram.Condition.AT_GOAL;
+              case 1 ->
+                  type == LoopType.DO_WHILE
+                      ? LoopProgram.Condition.AT_GOAL
+                      : LoopProgram.Condition.NOT_GOAL;
+              default -> LoopProgram.Condition.FREE;
+            };
+        int count = index == 0 ? 3 : 2;
+        List<LoopProgram.Action> body =
+            switch (index) {
+              case 2 -> List.of(LoopProgram.Action.ATTACK, LoopProgram.Action.MOVE);
+              case 3 -> List.of(LoopProgram.Action.JUMP, LoopProgram.Action.MOVE);
+              case 4 ->
+                  List.of(
+                      LoopProgram.Action.MOVE,
+                      LoopProgram.Action.LEFT,
+                      LoopProgram.Action.MOVE,
+                      LoopProgram.Action.RIGHT);
+              default -> List.of(LoopProgram.Action.MOVE);
+            };
+        List<LoopProgram.Action> after =
+            switch (index) {
+              case 0, 1 -> List.of(LoopProgram.Action.LEFT);
+              case 2, 3 -> List.of(LoopProgram.Action.RIGHT);
+              default -> List.of();
+            };
+        String suffix = type.name().toLowerCase(Locale.ROOT).replace('_', '-');
+        runes.add(
+            new LoopRune(
+                challenge + "-" + suffix,
+                challenge,
+                type,
+                "Rune " + (runes.size() + 1) + " · " + suffix,
+                new LoopProgram(type, condition, count, body, after)));
+      }
+    }
+    add(runes, "empty", "Leere Wiederholung", 0, List.of());
+    add(
+        runes,
+        "turn-left",
+        "Linke Ecke",
+        1,
+        List.of(LoopProgram.Action.LEFT, LoopProgram.Action.MOVE));
+    add(
+        runes,
+        "turn-right",
+        "Rechte Ecke",
+        1,
+        List.of(LoopProgram.Action.RIGHT, LoopProgram.Action.MOVE));
+    add(
+        runes,
+        "backtrack",
+        "Kehrtwende",
+        1,
+        List.of(LoopProgram.Action.LEFT, LoopProgram.Action.LEFT, LoopProgram.Action.MOVE));
+    add(runes, "short", "Kurzer Marsch", 1, List.of(LoopProgram.Action.MOVE));
+    add(runes, "long", "Langer Marsch", 9, List.of(LoopProgram.Action.MOVE));
+    runes.add(
+        new LoopRune(
+            "archive-spin",
+            "archive",
+            LoopType.WHILE,
+            "Ewiger Kreisel",
+            new LoopProgram(
+                LoopType.WHILE,
+                LoopProgram.Condition.ALWAYS,
+                0,
+                List.of(LoopProgram.Action.LEFT),
+                List.of())));
+    add(runes, "jump", "Sprungprobe", 1, List.of(LoopProgram.Action.JUMP));
+    add(runes, "attack", "Kampfprobe", 1, List.of(LoopProgram.Action.ATTACK));
+    return List.copyOf(runes);
+  }
+
+  private static void add(
+      List<LoopRune> runes, String id, String title, int count, List<LoopProgram.Action> body) {
+    runes.add(
+        new LoopRune(
+            "archive-" + id,
+            "archive",
+            LoopType.FOR,
+            title,
+            new LoopProgram(LoopType.FOR, LoopProgram.Condition.ALWAYS, count, body, List.of())));
+  }
 
   private LoopPuzzle() {}
 
@@ -37,7 +116,7 @@ public final class LoopPuzzle {
   }
 
   /**
-   * @return all collectible runes in station and loop-type order
+   * @return all collectible runes in their stable archive order
    */
   public static List<LoopRune> runes() {
     return RUNES;
@@ -54,7 +133,7 @@ public final class LoopPuzzle {
   }
 
   /**
-   * Returns the runes belonging to a station.
+   * Returns the runes authored for a station. This grouping does not restrict execution.
    *
    * @param challengeId the station ID
    * @return its three runes, or an empty list for an unknown station

@@ -1,0 +1,3 @@
+- Source: Existing `rooms/programming/gate.png`, copied without modification.
+- Author: Diana Kirzhner
+- License: CC0 1.0

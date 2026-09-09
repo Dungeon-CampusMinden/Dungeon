@@ -24,35 +24,23 @@ final class ProgrammingStory {
     return "Seelenbindung unvollständig.";
   }
 
-  static String passageNote(String id) {
-    String entry =
-        switch (id) {
-          case "forge-press" ->
-              "Wartung: Nox muss genau auf Höhe des Wegzeichens halten. "
-                  + "amWegzeichen() meldet nur dort true.";
-          case "bellows" ->
-              "Probelauf: Schon am Start war die Bedingung falsch. "
-                  + "Eine Prüfung vor dem ersten Schritt ließ Nox stehen.";
-          case "chain-lift" ->
-              "Vermessung: Zwischen Ausgangsposition und Wegzeichen liegen fünf Schritte. "
-                  + "Hinter dem Zeichen ist der Gang noch frei.";
-          case "cooling-channel" ->
-              "Steuerung: schritt() bewegt Nox um ein Feld in Blickrichtung. "
-                  + "Das Wegzeichen ist der Haltepunkt, nicht die Wand dahinter.";
-          case "heart-gate" ->
-              "Rücklaufprüfung: Ein fehlgeschlagener Lauf setzt Nox zur Ausgangsposition zurück. "
-                  + "Die eingesetzte Rune bleibt verwendbar.";
-          default -> throw new IllegalArgumentException("Unknown passage note: " + id);
-        };
-    return ProgrammingGolemRuntime.passageName(id) + "\n\n" + entry + "\n\nValerius";
+  static String archive() {
+    return "Fernsteuerung des Wächters\n\n"
+        + "Nox fährt durch die Schleuse in die tiefen Versorgungsgänge. Menschen bleiben hier. "
+        + "Das aufgeschlagene Buch am Tor steuert ihn. Der blaue Sehstein daneben zeigt seinen Weg.\n\n"
+        + "24 Runen liegen im Archiv und in der Werkstatt. Sammle sie ein und prüfe ihren Code. "
+        + "Einige sind Versuche, andere führen Nox weiter. Das Terminal nimmt eine Rune zugleich an.\n\n"
+        + "Die Karte meldet Hindernisse. Ihr Aussehen erkennst du nur durch den Sehstein. "
+        + "Nach einem Fehler kehrt Nox zurück; die Rune wird wieder frei. "
+        + "Erst am Ende der Versorgungsgänge öffnet er unseren Weg zum Herzfeuer.\n\nValerius";
   }
 
   static String inspect(String id) {
     return switch (id) {
       case "inspect-forge-ledger" ->
           "Nox, Steuerung\n\nDie Seelenbindung versorgt den Körper. Für gesteuerte Schritte "
-              + "wird zusätzlich eine Rhythmusrune benötigt. Die Programme werden am Seelenkern eingesetzt.\n\n"
-              + "Ich habe die Runensätze bei den jeweiligen Wartungsplätzen hinterlegt.\n\nValerius";
+              + "wird zusätzlich eine Rhythmusrune benötigt. Die Programme werden am Terminal im Archiv eingesetzt.\n\n"
+              + "Die Runensammlung liegt auf den Lesetischen hinter der zugemauerten Öffnung.\n\nValerius";
       case "inspect-discarded-vessel" ->
           "Am Boden haftet eingetrocknete Essenz. Sie lässt sich nicht mehr lösen.";
       case "inspect-herb-notes" ->

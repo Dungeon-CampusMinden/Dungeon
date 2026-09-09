@@ -22,6 +22,7 @@ import feature.systems.CollisionSystem;
 import java.util.logging.Level;
 import rooms.programming.level.ProgrammingClientLevel;
 import rooms.programming.level.ProgrammingLevel;
+import rooms.programming.level.ProgrammingTerminal;
 import rooms.programming.network.ProgrammingSnapshotTranslator;
 
 /** Entry point for the Programming 1 escape room. */
@@ -58,7 +59,7 @@ public final class Programming {
             .build();
 
     ClientStarter client =
-        ClientStarter.builder(server, BlackFadeCutscene::register)
+        ClientStarter.builder(server, Programming::clientSetup)
             .levels(Tuple.of(LEVEL_KEY, ProgrammingClientLevel.class))
             .build();
 
@@ -73,11 +74,17 @@ public final class Programming {
 
   private static void serverSetup() {
     BlackFadeCutscene.register();
+    ProgrammingTerminal.register();
     ECSManagement.add(new PositionSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
     ECSManagement.remove(AttributeBarSystem.class);
     ECSManagement.add(new CollisionSystem());
+  }
+
+  private static void clientSetup() {
+    BlackFadeCutscene.register();
+    ProgrammingTerminal.register();
   }
 }

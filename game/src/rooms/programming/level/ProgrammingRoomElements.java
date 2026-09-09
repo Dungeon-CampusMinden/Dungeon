@@ -43,6 +43,7 @@ final class ProgrammingRoomElements {
 
   static ProgrammingGolemRuntime spawn(DungeonLevel level) {
     ProgrammingProps.spawn(level);
+    ProgrammingMazeWorld.spawn(level);
     Entity golem = createEntity(level, "variables-golem", Visual.GOLEM, 0);
     ProgrammingGolemRuntime runtime = new ProgrammingGolemRuntime(level, golem);
     golem.add(
@@ -51,10 +52,14 @@ final class ProgrammingRoomElements {
     Game.add(golem);
     STATIONS.forEach(station -> spawnStation(level, station));
     spawnInspections(level);
-    for (int index = 0; index < LoopPuzzle.challenges().size(); index++) {
-      spawnLoopNote(level, LoopPuzzle.challenges().get(index));
-    }
     LoopPuzzle.runes().forEach(rune -> spawnLoopRune(level, rune, runtime));
+    spawnControl(level, "loop-terminal", Visual.BOOK, runtime, false);
+    spawnControl(level, "loop-monitor", Visual.COMPASS, runtime, true);
+    spawnText(level, "archive-instructions", ProgrammingStory.archive());
+    spawnText(
+        level,
+        "reserve-notice",
+        "Herzfeuer\n\nHier beginnt der noch unvollendete Weg. Akt 3 und Akt 4 folgen.");
     spawnText(level, "intro-tablet", ProgrammingStory.letter());
     if (level.namedPoints().containsKey("variables-translation")) {
       Entity tablet = createEntity(level, "variables-translation", Visual.BOOK, 0);
@@ -118,15 +123,26 @@ final class ProgrammingRoomElements {
     Game.add(entity);
   }
 
-  private static void spawnLoopNote(DungeonLevel level, String challengeId) {
-    String pointName = "loop-" + challengeId;
-    if (!level.namedPoints().containsKey(pointName)) {
-      return;
-    }
-    // Passage instructions are carried by a book in the searchable niche, not by a lever.
-    String note = pointName + "-note";
-    if (level.namedPoints().containsKey(note))
-      spawnText(level, note, ProgrammingStory.passageNote(challengeId));
+  private static void spawnControl(
+      DungeonLevel level,
+      String point,
+      Visual visual,
+      ProgrammingGolemRuntime runtime,
+      boolean observation) {
+    Entity entity = createEntity(level, point, visual, 0);
+    entity
+        .fetch(DrawComponent.class)
+        .orElseThrow()
+        .tintColor(observation ? 0x99EEFFFF : 0xDD99FFFF);
+    entity.add(
+        new InteractionComponent(
+            new Interaction(
+                (interacted, who) -> {
+                  if (observation) runtime.showObservation(who);
+                  else runtime.showTerminal(who);
+                },
+                2f)));
+    Game.add(entity);
   }
 
   private static void spawnLoopRune(
