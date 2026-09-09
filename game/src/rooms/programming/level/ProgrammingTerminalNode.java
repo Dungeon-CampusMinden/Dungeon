@@ -14,6 +14,7 @@ import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import feature.canvas.CanvasNodeType;
 import feature.canvas.NodeState;
+import java.util.Optional;
 import rooms.programming.modules.loops.LoopMaze;
 import rooms.programming.modules.loops.LoopPuzzle;
 import rooms.programming.modules.loops.LoopRune;
@@ -29,9 +30,13 @@ final class ProgrammingTerminalNode extends CanvasNode {
   private boolean pending;
   private float pendingTime;
   private TextureRegion head;
+  private TextureRegion runeImage;
   private boolean dragging;
   private float dragStartX;
   private float dragStartY;
+  private boolean slotted;
+  private float homeX;
+  private float homeY;
 
   static void register() {
     if (!CanvasNodeType.isRegistered(TYPE))
@@ -42,11 +47,20 @@ final class ProgrammingTerminalNode extends CanvasNode {
   ProgrammingTerminalNode(String id, String kind) {
     super(
         id,
-        kind.equals("map") ? 395 : 360,
-        kind.equals("map") ? 580 : kind.equals("executor") ? 205 : kind.equals("help") ? 280 : 300);
+        kind.equals("map")
+            ? 395
+            : kind.equals("rune")
+                ? 64
+                : kind.equals("executor") ? 88 : kind.equals("status") ? 510 : 380,
+        kind.equals("map")
+            ? 580
+            : kind.equals("rune")
+                ? 64
+                : kind.equals("executor") ? 88 : kind.equals("help") ? 210 : 140);
     this.kind = kind;
     deletable(false);
     movable(kind.equals("rune"));
+    if (kind.equals("status")) setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
   }
 
   @Override
@@ -57,19 +71,45 @@ final class ProgrammingTerminalNode extends CanvasNode {
   @Override
   protected void writeProps(NodeState.Props props) {
     props.put("kind", kind);
+    if (kind.equals("rune")) {
+      props.put("slotted", slotted);
+      props.put("homeX", homeX);
+      props.put("homeY", homeY);
+    }
   }
 
   @Override
   protected void readProps(NodeState value) {
     kind = value.prop("kind", "rune");
+    slotted = value.boolProp("slotted", false);
+    homeX = value.floatProp("homeX", x());
+    homeY = value.floatProp("homeY", y());
   }
 
   void update(TerminalState value) {
     state = value;
     if (kind.equals("rune")) {
-      boolean active = value.busy() && value.activeRune().equals(id());
-      movable(!active);
-      setVisible(!active);
+      boolean inserted = value.activeRune().equals(id());
+      movable(!(inserted && value.busy()));
+      if (inserted) {
+        if (!slotted) {
+          homeX = dragging ? dragStartX : x();
+          homeY = dragging ? dragStartY : y();
+          slotted = true;
+        }
+        if (value.busy()) dragging = false;
+        if (!dragging && canvas() != null)
+          canvas()
+              .nodeById("executor")
+              .ifPresent(
+                  slot -> {
+                    position(slot.centerX() - width() / 2, slot.centerY() - height() / 2);
+                    if (z() <= slot.z()) z(slot.z() + 1);
+                  });
+      } else if (slotted) {
+        slotted = false;
+        if (!dragging) position(homeX, homeY);
+      }
     }
     if (value.busy()) pending = false;
     if (text != null) text.setText(caption());
@@ -87,35 +127,28 @@ final class ProgrammingTerminalNode extends CanvasNode {
   private String caption() {
     if (kind.equals("help"))
       return "Befehle\n\nschritt(): ein Feld vorwärts\nspringen(): über eine Grube, zwei Felder\nangreifen(): Gegner direkt voraus\nbodenVoraus(): Boden, auch mit Gegner\namWegzeichen(): aktuelles Ziel erreicht\nDrehen: eine Vierteldrehung";
-    if (kind.equals("rune"))
-      return LoopPuzzle.rune(id()).map(r -> r.title() + "\n\n" + r.code()).orElse(id());
-    if (kind.equals("executor")) {
+    if (kind.equals("status")) {
       if (state == null) return "Ausführen\n\nEine Rune hier ablegen";
       return (state.busy()
               ? "Golem arbeitet"
               : state.finished() ? "Weg abgeschlossen" : "Ausführen")
           + "\n\n"
-          + (state.busy()
-              ? LoopPuzzle.rune(state.activeRune()).map(LoopRune::title).orElse("")
-              : "Eine Rune hier ablegen")
-          + "\n\n"
           + state.status();
     }
-    return "Labyrinth\n"
-        + (state == null ? "" : state.completed() + " / 5 Wegpunkte")
-        + "\n! Hindernis · Pfeil = Zielblickrichtung";
+    return "";
   }
 
   @Override
   protected void buildContent() {
-    text =
-        Scene2dElementFactory.createLabel(
-            caption(),
-            kind.equals("rune") || kind.equals("help") ? 16 : 18,
-            Color.valueOf("f1eadc"));
-    text.setAlignment(Align.topLeft);
-    text.setWrap(true);
-    addActor(text);
+    if (kind.equals("rune") || kind.equals("executor")) return;
+    if (!kind.equals("map")) {
+      text =
+          Scene2dElementFactory.createLabel(
+              caption(), kind.equals("help") ? 16 : 18, Color.valueOf("f1eadc"));
+      text.setAlignment(Align.topLeft);
+      text.setWrap(true);
+      addActor(text);
+    }
     if (kind.equals("map")) {
       head =
           new TextureRegion(
@@ -126,13 +159,6 @@ final class ProgrammingTerminalNode extends CanvasNode {
               5,
               16,
               19);
-      Label help =
-          Scene2dElementFactory.createLabel(
-              "1 Feld = 5 x 3 Weltkacheln\nLeertaste + Ziehen: verschieben · Rad: Zoom",
-              13,
-              Color.valueOf("bcc8cb"));
-      help.setBounds(18, 14, width() - 36, 40);
-      addActor(help);
       for (int i = 0; i < LoopMaze.checkpoints().size(); i++) {
         var cell = LoopMaze.checkpoints().get(i).goal();
         String arrow =
@@ -157,15 +183,52 @@ final class ProgrammingTerminalNode extends CanvasNode {
 
   @Override
   protected void layoutContent() {
-    text.setBounds(
-        18,
-        kind.equals("map") ? height() - 103 : 14,
-        width() - 36,
-        kind.equals("map") ? 85 : height() - 30);
+    if (text == null) return;
+    float inset = kind.equals("status") ? 128 : 18;
+    text.setBounds(inset, 14, width() - inset - 18, height() - 30);
   }
 
   @Override
   protected void drawBackground(Batch batch, float alpha) {
+    if (kind.equals("rune") || kind.equals("executor")) {
+      boolean slot = kind.equals("executor");
+      CanvasGraphics.fill(batch, ProgrammingTerminal.INK, alpha, x(), y(), width(), height());
+      CanvasGraphics.outline(
+          batch,
+          slot ? ProgrammingTerminal.ACCENT : Color.valueOf("647784"),
+          alpha,
+          x(),
+          y(),
+          width(),
+          height(),
+          slot ? 3 : 1);
+      if (hover)
+        CanvasGraphics.fill(
+            batch, ProgrammingTerminal.ACCENT, alpha * .2f, x(), y(), width(), height());
+      String runeId = slot ? "" : id();
+      LoopPuzzle.rune(runeId)
+          .ifPresent(
+              rune -> {
+                int index = LoopPuzzle.runes().indexOf(rune);
+                if (runeImage == null)
+                  runeImage =
+                      new TextureRegion(
+                          TextureMap.instance()
+                              .textureAt(new SimpleIPath("spritesheets/runes.png")));
+                runeImage.setRegion(index % 8 * 16, index / 8 * 16, 16, 16);
+                Color tint =
+                    Color.valueOf(
+                        switch (rune.type()) {
+                          case WHILE -> "99ccff";
+                          case DO_WHILE -> "dd99ff";
+                          case FOR -> "ffcc88";
+                        });
+                batch.setColor(tint.r, tint.g, tint.b, alpha);
+                batch.draw(runeImage, x() + (width() - 48) / 2, y() + (height() - 48) / 2, 48, 48);
+                batch.setColor(Color.WHITE);
+              });
+      return;
+    }
     CanvasGraphics.fill(batch, ProgrammingTerminal.PAPER, alpha, x(), y(), width(), height());
     CanvasGraphics.fill(
         batch,
@@ -208,8 +271,17 @@ final class ProgrammingTerminalNode extends CanvasNode {
     }
   }
 
+  Optional<String> hoverCode() {
+    String runeId =
+        kind.equals("rune")
+            ? id()
+            : kind.equals("executor") && state != null ? state.activeRune() : "";
+    return LoopPuzzle.rune(runeId).map(LoopRune::code);
+  }
+
   @Override
   public void onMove(float dx, float dy) {
+    if (!movable()) return;
     if (!dragging) {
       dragStartX = x();
       dragStartY = y();
@@ -220,6 +292,11 @@ final class ProgrammingTerminalNode extends CanvasNode {
 
   @Override
   public void onDrop(float worldX, float worldY) {
+    if (dragging && slotted && state != null && !state.busy()) {
+      homeX = x();
+      homeY = y();
+      canvas().fireServerEvent("removeRune", new DialogResponseMessage.StringValue(id()));
+    }
     dragging = false;
   }
 
@@ -237,14 +314,12 @@ final class ProgrammingTerminalNode extends CanvasNode {
   public boolean onNodeDropped(CanvasDragContext context) {
     if (!kind.equals("executor")
         || state == null
-        || state.busy()
-        || state.finished()
-        || pending
         || !(context.draggedNode() instanceof ProgrammingTerminalNode rune)
         || !rune.kind.equals("rune")) return false;
-    // Cards remain canvas-owned. Only authoritative state hides the active card, preventing loss.
+    // Keep the existing slot until the server accepts the replacement, including during return.
     rune.position(rune.dragStartX, rune.dragStartY);
     rune.dragging = false;
+    if (state.busy() || state.finished() || pending) return true;
     pending = true;
     pendingTime = 0;
     canvas().fireServerEvent("execute", new DialogResponseMessage.StringValue(rune.id()));

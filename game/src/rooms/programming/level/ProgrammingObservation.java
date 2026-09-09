@@ -60,6 +60,7 @@ public final class ProgrammingObservation {
     private final Map<Entity, CameraComponent> previous = new LinkedHashMap<>();
     private final Map<InputComponent, Boolean> inputs = new LinkedHashMap<>();
     private Entity followed;
+    private float previousZoom;
     private final Label label;
     private float curtain = 1;
 
@@ -104,6 +105,8 @@ public final class ProgrammingObservation {
                             e.remove(CameraComponent.class);
                           });
                   followed = golem;
+                  previousZoom = CameraSystem.camera().zoom;
+                  CameraSystem.camera().zoom = previousZoom * 1.2f;
                   golem.add(new CameraComponent());
                 });
       }
@@ -131,7 +134,10 @@ public final class ProgrammingObservation {
     @Override
     protected void setStage(Stage stage) {
       if (stage == null) {
-        if (followed != null) followed.remove(CameraComponent.class);
+        if (followed != null) {
+          followed.remove(CameraComponent.class);
+          CameraSystem.camera().zoom = previousZoom;
+        }
         previous.forEach(Entity::add);
         previous.clear();
         inputs.forEach(InputComponent::deactivateControls);

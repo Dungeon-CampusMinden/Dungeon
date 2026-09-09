@@ -13,7 +13,7 @@ import java.util.List;
  * @param facing cardinal heading name
  * @param busy whether an attempt or return is running
  * @param observationReady whether the golem has entered the remote maze
- * @param activeRune executing rune ID, or empty when idle
+ * @param activeRune inserted rune ID, retained after execution until removed or replaced
  * @param status current runtime feedback
  * @param completed number of completed checkpoints
  * @param finished whether the final checkpoint is complete
