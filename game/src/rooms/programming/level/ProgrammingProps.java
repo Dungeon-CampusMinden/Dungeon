@@ -69,14 +69,19 @@ final class ProgrammingProps {
                 draw = new DrawComponent(new SimpleIPath("objects/torch"), "on");
               else if (name.startsWith("prop-forge-kettle"))
                 draw = new DrawComponent(new SimpleIPath("objects/magic_kettle"));
-              else if (name.startsWith("prop-forge-vase"))
+              else if (name.startsWith("prop-forge-vase") || name.equals("prop-tabletop-vase"))
                 draw = new DrawComponent(new SimpleIPath("objects/vase"));
+              else if (name.equals("prop-tabletop-tools"))
+                draw = new DrawComponent(new SimpleIPath("items/rpg/pickaxe_crusty.png"));
               else if (name.startsWith("prop-forge-crate"))
                 draw = new DrawComponent(new SimpleIPath("objects/crate/basic.png"));
               else return;
               draw.depth(DepthLayer.Player.depth());
+              if (name.startsWith("prop-tabletop-")) draw.depth(DepthLayer.Player.depth() + 1);
               Entity prop = new Entity("programming-" + name);
-              prop.add(new PositionComponent(point));
+              PositionComponent position = new PositionComponent(point);
+              if (name.equals("prop-tabletop-tools")) position.scale(0.6f);
+              prop.add(position);
               prop.add(draw);
               if (name.startsWith("prop-torch"))
                 prop.add(
@@ -96,7 +101,8 @@ final class ProgrammingProps {
                 prop.add(new CollideComponent(Vector2.of(0.05f, 0.05f), Vector2.of(1.9f, 0.65f)));
               else if (name.startsWith("prop-forge-crate") || name.startsWith("prop-forge-kettle"))
                 prop.add(chestCollider());
-              else if (name.startsWith("prop-forge-vase")) prop.add(vaseCollider());
+              else if (name.startsWith("prop-forge-vase") || name.equals("prop-tabletop-vase"))
+                prop.add(vaseCollider());
               Game.add(prop);
             });
   }

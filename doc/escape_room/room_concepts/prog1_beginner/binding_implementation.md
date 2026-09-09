@@ -17,6 +17,12 @@ bekommt eine eigene Seite mit Illustration, Wert und kurzer Werkstattnotiz.
 Der Spieler verlässt die Werkbank zum Nachschlagen. Seine bisherigen Füllungen bleiben
 dabei erhalten. Java-Typnamen erscheinen weiterhin erst nach erfolgreicher Bindung.
 
+Spitzhacke und ungenutztes Gefäß auf den Werkbänken sind reine Dekoration ohne
+Interaktion. Der Bindungsplan ist die einzige Anleitung zur Seelenbindung im Raum.
+Der Einstiegsbrief erklärt den Auftrag an der Torwinde, ohne Nox' Wanddurchbruch
+vorwegzunehmen. Der Wartungszettel kündigt die geschwächte Halterung an, nicht einen
+Reparaturauftrag für den Spieler.
+
 ## Was die Handlung vermittelt
 
 - **Name:** Jede Fassung bezeichnet eine bestimmte Eigenschaft.
