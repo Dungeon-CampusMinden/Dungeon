@@ -8,7 +8,7 @@ import feature.inventory.ItemRegistry;
 /** Inventory item representing a battery for System Recovery puzzles. */
 public class BatteryItem extends Item {
 
-  private static final SimpleIPath TEXTURE = new SimpleIPath("items/rpg/item_gem_peridot.png");
+  private static final SimpleIPath TEXTURE = new SimpleIPath("objects/tech/system_battery.png");
 
   static {
     ItemRegistry.register(BatteryItem.class);

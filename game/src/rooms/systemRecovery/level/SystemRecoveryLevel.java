@@ -9,31 +9,38 @@ import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import feature.components.DecoComponent;
-import feature.entities.LeverFactory;
-import feature.entities.WorldItemBuilder;
+import feature.entities.MiscFactory;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
-import feature.interaction.keypad.KeypadFactory;
-import feature.utils.ICommand;
+import feature.inventory.items.ItemKey;
 import java.util.List;
 import java.util.Map;
 import rooms.systemRecovery.entities.EntityFactory;
-import rooms.systemRecovery.items.BatteryItem;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
+import rooms.systemRecovery.riddles.BubbleSortRiddle;
+import rooms.systemRecovery.riddles.EnergyRiddle;
+import rooms.systemRecovery.riddles.InventoryScannerRiddle;
+import rooms.systemRecovery.riddles.ManualSortingRiddle;
+import rooms.systemRecovery.riddles.ModuleStorageRiddle;
+import rooms.systemRecovery.riddles.TransportStorageRiddle;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
-/** Minimal server-side level for System Recovery. */
+/**
+ * Builds System Recovery in room order and owns one controller per riddle.
+ *
+ * <p>Terminal callbacks and snapshot exporters use the static forwarding methods below; mutable
+ * puzzle state belongs to this level instance, never to static fields.
+ */
 public class SystemRecoveryLevel extends DungeonLevel {
-
   private static final String LEVEL_NAME = "system-recovery-1";
   private static final String TERMINAL_POINT = "terminal";
-  private static boolean energyPuzzleSolved = false;
-  private static boolean batterySpawned = false;
-  private static final Entity[] MODULE_SOCKETS = new Entity[5];
-  private static final Entity[] MODULE_CHIPS = new Entity[5];
-  private static final Point[] MODULE_SOCKET_POINTS = new Point[5];
-  private static String moduleDisplayText = "Array length: Noch nicht bestimmt";
+  private final EnergyRiddle energy = new EnergyRiddle(this);
+  private final ModuleStorageRiddle moduleStorage = new ModuleStorageRiddle(this);
+  private final InventoryScannerRiddle inventoryScanner = new InventoryScannerRiddle(this);
+  private final TransportStorageRiddle transportStorage = new TransportStorageRiddle(this);
+  private final BubbleSortRiddle bubbleSort = new BubbleSortRiddle(this, transportStorage);
+  private final ManualSortingRiddle manualSorting = new ManualSortingRiddle(this, bubbleSort);
 
   /**
    * Creates the System Recovery level.
@@ -68,39 +75,27 @@ public class SystemRecoveryLevel extends DungeonLevel {
     setupTerminal();
     setupRoomLabel();
     closeDoors();
-    setupModuleStorageRoom();
-    setupRoomThreeKeypad();
+    setupArchiveDoorLock();
+    energy.setup();
+    moduleStorage.setup();
+    inventoryScanner.setup();
+    transportStorage.setup();
+    manualSorting.setup();
+    bubbleSort.setup();
+  }
 
-    Entity arrayLever =
-        LeverFactory.createLever(
-            getPoint("array_lever"),
-            new ICommand() {
-              @Override
-              public void execute() {
-                if (!energyPuzzleSolved || batterySpawned) {
-                  return;
-                }
+  @Override
+  protected void onTick() {
+    manualSorting.tick();
+  }
 
-                batterySpawned = true;
+  private static SystemRecoveryLevel active() {
+    return (SystemRecoveryLevel) Game.currentLevel().orElseThrow();
+  }
 
-                Game.add(
-                    WorldItemBuilder.buildWorldItem(
-                        new BatteryItem(), getPoint("array_item_spawn")));
-              }
-
-              @Override
-              public void undo() {}
-            });
-    Game.add(arrayLever);
-    Game.add(
-        EntityFactory.batteryBox(
-            getPoint("batteriebox_modul"),
-            new Runnable() {
-              @Override
-              public void run() {
-                ((DoorTile) (Game.tileAt(getPoint("door_modulspeicher")).get())).open();
-              }
-            }));
+  /** Materializes the energy array for riddle 1, terminal step 1. */
+  public static void spawnEnergyCrates() {
+    active().energy.spawnEnergyCrates();
   }
 
   private void closeDoors() {
@@ -111,52 +106,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
             });
   }
 
-  private void setupModuleStorageRoom() {
-    for (int index = 0; index < 5; index++) {
-      MODULE_SOCKET_POINTS[index] = getPoint("s" + index);
-      MODULE_SOCKETS[index] = EntityFactory.moduleSocket(MODULE_SOCKET_POINTS[index]);
-      Game.add(MODULE_SOCKETS[index]);
-    }
-
-    Game.add(EntityFactory.moduleDisplay(getPoint("display_room2"), () -> moduleDisplayText));
-  }
-
-  private void setupRoomThreeKeypad() {
-    Game.add(
-        KeypadFactory.createKeypad(
-            getPoint("room3_keypad"),
-            List.of(5),
-            () -> ((DoorTile) Game.tileAt(getPoint("door_inventarscanner")).get()).open(),
-            true));
-  }
-
-  /** Activates all module sockets after the module array is initialized. */
-  public static void activateModuleSockets() {
-    for (Entity socket : MODULE_SOCKETS) {
-      EntityFactory.activateModuleSocket(socket);
-    }
-  }
-
-  /** Spawns the five module chips on their corresponding sockets. */
-  public static void spawnModuleChips() {
-    String[] modules = {"CPU", "RAM", "GPU", "SSD", "NETWORK"};
-    for (int index = 0; index < modules.length; index++) {
-      MODULE_CHIPS[index] = EntityFactory.moduleChip(MODULE_SOCKET_POINTS[index], modules[index]);
-      Game.add(MODULE_CHIPS[index]);
-    }
-  }
-
-  /** Removes the defective GPU chip from the third socket. */
-  public static void removeGpuChip() {
-    if (MODULE_CHIPS[2] != null) {
-      Game.remove(MODULE_CHIPS[2]);
-      MODULE_CHIPS[2] = null;
-    }
-  }
-
-  /** Updates the room display with the module array length. */
-  public static void showModuleArrayLength() {
-    moduleDisplayText = "Array length: 5";
+  /** Locks the archive door with the shared key-and-lock interaction. */
+  private void setupArchiveDoorLock() {
+    DoorTile archiveDoor = (DoorTile) tileAt(getPoint("door_datenarchiv")).orElseThrow();
+    Game.add(MiscFactory.createDoorBlocker(archiveDoor, ItemKey.class));
   }
 
   private void setupRoomLabel() {
@@ -189,8 +142,74 @@ public class SystemRecoveryLevel extends DungeonLevel {
     Game.add(terminal);
   }
 
+  /** Activates all module sockets after the module array is initialized. */
+  public static void activateModuleSockets() {
+    active().moduleStorage.activateModuleSockets();
+  }
+
+  /** Spawns the five module chips on their corresponding sockets. */
+  public static void spawnModuleChips() {
+    active().moduleStorage.spawnModuleChips();
+  }
+
+  /** Removes the defective GPU chip from the third socket. */
+  public static void removeGpuChip() {
+    active().moduleStorage.removeGpuChip();
+  }
+
+  /** Moves the module chips to the inventory scanner without moving their sockets. */
+  public static void portModuleChipsToScanner() {
+    active().moduleStorage.portModuleChipsToScanner();
+  }
+
+  /** Updates the room display with the module array length. */
+  public static void showModuleArrayLength() {
+    active().moduleStorage.showModuleArrayLength();
+  }
+
+  /** Enables the scanner lever after the inventory scanner code has been solved. */
+  public static void completeScannerPuzzle() {
+    active().inventoryScanner.completeScannerPuzzle();
+  }
+
+  /** Spawns the packages for transport riddle four exactly once. */
+  public static void spawnTransportPackages() {
+    active().transportStorage.spawnTransportPackages();
+  }
+
+  /** Starts the authoritative conveyor animation for transport riddle four. */
+  public static void startTransportSequence() {
+    active().transportStorage.startTransportSequence();
+  }
+
+  /**
+   * Returns the server-authoritative entity IDs of the pair currently compared by the sorter.
+   *
+   * <p>The network snapshot translator uses these IDs to reproduce the cyan comparison highlight on
+   * every connected client. The sorter state itself is intentionally not accepted from clients.
+   *
+   * @return two entity IDs, or {@code {-1, -1}} when no comparison is active
+   */
+  public static int[] currentSortComparisonEntityIds() {
+    return active().manualSorting.currentSortComparisonEntityIds();
+  }
+
+  /**
+   * Returns the IDs of the two packages and the scanner currently active on the conveyor.
+   *
+   * @return left package, right package and scanner IDs; {@code -1} when idle
+   */
+  public static int[] currentBeltSortEntityIds() {
+    return active().bubbleSort.currentBeltSortEntityIds();
+  }
+
+  /** Returns all active conveyor package IDs paired with their authoritative weights. */
+  public static String currentBeltPackageMetadata() {
+    return active().bubbleSort.currentBeltPackageMetadata();
+  }
+
   /** Enables the array lever after the energy puzzle has been solved. */
   public static void completeEnergyPuzzle() {
-    energyPuzzleSolved = true;
+    active().energy.completeEnergyPuzzle();
   }
 }
