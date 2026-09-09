@@ -32,8 +32,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 import rooms.programming.ProgrammingRoomController;
 import rooms.programming.PuzzleSubmissionResult;
+import rooms.programming.modules.loops.LoopExecution;
+import rooms.programming.modules.loops.LoopMaze;
+import rooms.programming.modules.loops.LoopProgram;
 import rooms.programming.modules.loops.LoopPuzzle;
-import rooms.programming.modules.loops.LoopType;
+import rooms.programming.modules.loops.TerminalState;
 import rooms.programming.modules.variables.GolemProperty;
 import rooms.programming.modules.variables.MagicalEssence;
 import rooms.programming.modules.variables.SoulVessel;
@@ -43,7 +46,6 @@ import rooms.programming.state.VariablePuzzleStage;
 
 /** Server-owned assignment dialogs and collision-checked movement of the one shared golem. */
 final class ProgrammingGolemRuntime {
-  private static final int ITERATION_LIMIT = 24;
   private static final float SPEED = 2.5f;
   private final DungeonLevel level;
   private final ProgrammingRoomController controller = new ProgrammingRoomController();
@@ -53,11 +55,18 @@ final class ProgrammingGolemRuntime {
   private final Map<GolemProperty, SoulVessel> vessels = new EnumMap<>(GolemProperty.class);
   private final Map<GolemProperty, MagicalEssence> essences = new EnumMap<>(GolemProperty.class);
   private final ArrayDeque<Point> route = new ArrayDeque<>();
-  private final Map<String, ProgrammingLoopSituation> situations = new HashMap<>();
-  private ProgrammingLoopSituation attempt;
-  private LoopType executor;
-  private Entity operator;
-  private int iterations;
+  private final Entity golem;
+  private LoopExecution attempt;
+  private LoopMaze.Direction facing = LoopMaze.Direction.EAST;
+  private boolean mazeReady;
+  private boolean returning;
+  private boolean monsterAlive = true;
+  private Entity monster;
+  private String activeRune = "";
+  private float actionTime;
+  private boolean jumping;
+  private Point jumpStart;
+  private boolean attacking;
   private final List<DrawComponent> wall;
   private float wallBreakTime;
   private boolean wallBroken;
@@ -72,13 +81,11 @@ final class ProgrammingGolemRuntime {
 
   ProgrammingGolemRuntime(DungeonLevel level, Entity golem) {
     this.level = level;
+    this.golem = golem;
     position = golem.fetch(PositionComponent.class).orElseThrow();
     velocity = golem.fetch(VelocityComponent.class).orElseThrow();
     collision = golem.fetch(CollideComponent.class).orElseThrow();
     wall = ProgrammingProps.wall(level);
-    LoopPuzzle.challenges()
-        .forEach(
-            challenge -> situations.put(challenge, new ProgrammingLoopSituation(level, challenge)));
   }
 
   void show(Entity who) {
@@ -96,66 +103,8 @@ final class ProgrammingGolemRuntime {
       } else {
         showProperties(who, ProgrammingStory.golem());
       }
-    } else if (controller.phase() == ProgrammingPhase.LOOPS) {
-      String id = currentChallenge();
-      Point origin = level.getPoint("loop-" + id);
-      if (Point.calculateDistance(position.position(), origin) > 0.1f) {
-        choose(
-            who,
-            "Positionierung ausstehend.",
-            List.of(ChoiceOption.of("Fortsetzen", "next")),
-            ignored -> {
-              if (busy
-                  || controller.phase() != ProgrammingPhase.LOOPS
-                  || !id.equals(currentChallenge())) return;
-              travel(origin, who, () -> show(who));
-            });
-        return;
-      }
-      var collected = controller.collectedLoopRunes();
-      var runes =
-          LoopPuzzle.runes(id).stream().filter(rune -> collected.contains(rune.id())).toList();
-      if (runes.isEmpty()) {
-        text(
-            who,
-            "Steuerung unvollständig.\nRhythmusrune benötigt.\n\n"
-                + passageName(id)
-                + ": keine passende Rune verfügbar.");
-        return;
-      }
-      choose(
-          who,
-          passageName(id)
-              + "\n\n"
-              + runes.size()
-              + " von 3 Rhythmusrunen verfügbar.\nProgramm auswählen.",
-          runes.stream()
-              .map(
-                  rune ->
-                      ChoiceOption.of(
-                          rune.type().name().toLowerCase().replace('_', '-'), rune.type().name()))
-              .toList(),
-          answer -> {
-            if (busy
-                || controller.phase() != ProgrammingPhase.LOOPS
-                || !id.equals(currentChallenge())) return;
-            try {
-              preview(id, LoopType.valueOf(answer), who);
-            } catch (IllegalArgumentException exception) {
-              text(who, "Rune nicht erkannt.");
-            }
-          });
     } else {
-      Point exit = level.getPoint("loop-exit");
-      if (Point.calculateDistance(position.position(), exit) > 0.1f) {
-        choose(
-            who,
-            "Positionierung ausstehend.",
-            List.of(ChoiceOption.of("Fortsetzen", "next")),
-            ignored -> {
-              if (!busy) travel(exit, who, () -> {});
-            });
-      } else showText(who, "Ende der spielbaren Fassung. Akt 3 und 4 sind noch nicht verfügbar.");
+      showTerminal(who);
     }
   }
 
@@ -261,7 +210,7 @@ final class ProgrammingGolemRuntime {
         || busy
         || controller.variableStage() != VariablePuzzleStage.REVEAL) return;
     breakingGate = true;
-    Point destination = level.getPoint("loop-" + LoopPuzzle.challenges().getFirst());
+    Point destination = level.getPoint("loop-departure");
     List<Point> path = path(position.position(), destination);
     if (path.isEmpty() && Point.calculateDistance(position.position(), destination) > 0.1f) {
       breakingGate = false;
@@ -273,144 +222,211 @@ final class ProgrammingGolemRuntime {
       return;
     }
     status = "Aktivierung läuft.";
-    move(path, () -> breakingGate = false);
+    move(
+        path,
+        () -> {
+          Game.allPlayers()
+              .forEach(
+                  player ->
+                      player
+                          .fetch(PositionComponent.class)
+                          .ifPresent(
+                              at -> {
+                                if (at.position().x()
+                                    >= level.getPoint("departure-gate-start").x()) {
+                                  at.position(new Point(35, 8));
+                                  player
+                                      .fetch(CollideComponent.class)
+                                      .ifPresent(body -> body.collider().position(at.position()));
+                                }
+                              }));
+          ProgrammingGates.departure(level, false);
+          breakingGate = false;
+          position.position(
+              LoopMaze.world(
+                  level.getPoint("maze-origin"), LoopMaze.checkpoints().getFirst().start()));
+          collision.collider().position(position.position());
+          mazeReady = true;
+          face(LoopMaze.Direction.EAST);
+          status = "Terminal bereit. Rune einsetzen und ausführen.";
+        });
   }
 
-  private void preview(String id, LoopType type, Entity who) {
-    if (!canExecute(id, type)) return;
-    ProgrammingLoopSituation situation = situations.get(id);
-    choose(
-        who,
-        situation.code(type) + "\n\n" + situation.explanation(),
-        List.of(ChoiceOption.of("Ausführen", "run"), ChoiceOption.of("Andere Rune", "back")),
-        answer -> {
-          if (busy
-              || controller.phase() != ProgrammingPhase.LOOPS
-              || !id.equals(currentChallenge())) return;
-          if (answer.equals("back")) show(who);
-          else if (answer.equals("run")) execute(id, type, who);
-        });
+  TerminalState terminalState() {
+    Point origin = level.getPoint("maze-origin");
+    int checkpoint = controller.completedLoopChallenges().size();
+    return new TerminalState(
+        LoopPuzzle.runes().stream()
+            .map(rune -> rune.id())
+            .filter(controller.collectedLoopRunes()::contains)
+            .toList(),
+        checkpoint,
+        golem.id(),
+        Math.round((position.position().x() - origin.x()) / LoopMaze.CELL_WIDTH),
+        Math.round((position.position().y() - origin.y()) / LoopMaze.CELL_HEIGHT),
+        facing.name(),
+        busy,
+        mazeReady,
+        activeRune,
+        status,
+        checkpoint,
+        controller.phase() == ProgrammingPhase.METHODS);
+  }
+
+  void showTerminal(Entity who) {
+    if (authorized(who, "loop-terminal", 3f)) ProgrammingTerminal.open(who, this);
+  }
+
+  void showObservation(Entity who) {
+    if (mazeReady && authorized(who, "loop-monitor", 3f)) ProgrammingObservation.open(who, this);
   }
 
   boolean collectRune(String runeId, Entity who) {
-    if (controller.collectLoopRune(runeId) != PuzzleSubmissionResult.ACCEPTED) return false;
-    showRune(runeId, who);
-    return true;
+    if (!authorized(who, "rune-" + runeId, 3f)) return false;
+    return controller.collectLoopRune(runeId) == PuzzleSubmissionResult.ACCEPTED;
   }
 
-  private void showRune(String runeId, Entity who) {
-    var rune = LoopPuzzle.rune(runeId).orElseThrow();
-    showText(
-        who,
-        "Rhythmusrune aufgenommen",
-        passageName(rune.challengeId())
-            + " · "
-            + rune.type().name().toLowerCase().replace('_', '-')
-            + "\n\n"
-            + situations.get(rune.challengeId()).code(rune.type())
-            + "\n\nIm Runenvorrat verfügbar.");
+  private boolean authorized(Entity who, String marker, float range) {
+    if (Game.isMultiplayerClient()
+        || who == null
+        || Game.allPlayers().noneMatch(player -> player == who)) return false;
+    Point target = level.namedPoints().get(marker);
+    return target != null
+        && who.fetch(PositionComponent.class)
+            .map(at -> Point.calculateDistance(at.position(), target) <= range)
+            .orElse(false);
   }
 
-  private boolean canExecute(String id, LoopType type) {
-    return !Game.isMultiplayerClient()
-        && !busy
-        && controller.phase() == ProgrammingPhase.LOOPS
-        && id.equals(currentChallenge())
-        && LoopPuzzle.runes(id).stream()
-            .anyMatch(
-                rune -> rune.type() == type && controller.collectedLoopRunes().contains(rune.id()));
-  }
-
-  private void execute(String id, LoopType type, Entity who) {
-    if (!canExecute(id, type)) return;
-    if (Point.calculateDistance(position.position(), situations.get(id).origin()) > 0.1f) {
-      show(who);
-      return;
-    }
-    attempt = situations.get(id);
+  void executeRune(String runeId, Entity who) {
+    if (!authorized(who, "loop-terminal", 3f)
+        || busy
+        || !mazeReady
+        || controller.phase() != ProgrammingPhase.LOOPS
+        || !controller.collectedLoopRunes().contains(runeId)) return;
+    var rune = LoopPuzzle.rune(runeId);
+    if (rune.isEmpty()) return;
+    int checkpoint = controller.completedLoopChallenges().size();
+    if (Point.calculateDistance(
+                position.position(),
+                LoopMaze.world(
+                    level.getPoint("maze-origin"), LoopMaze.checkpoints().get(checkpoint).start()))
+            > .1f
+        || facing != LoopMaze.checkpoints().get(checkpoint).facing()) return;
+    attempt = new LoopExecution(checkpoint, rune.orElseThrow(), monsterAlive);
+    activeRune = runeId;
+    busy = true;
     movementVersion++;
-    executor = type;
-    operator = who;
-    iterations = 0;
-    advanceIteration();
+    advanceAction();
   }
 
-  /** Evaluates only the next iteration against the world left by the previous action. */
-  private void advanceIteration() {
-    Point at = position.position();
-    boolean condition = attempt.condition(executor, at, point -> fits(at, point, false));
-    boolean act =
-        switch (executor) {
-          case WHILE -> condition;
-          case DO_WHILE -> iterations == 0 || condition;
-          case FOR -> iterations < attempt.count();
-        };
-    if (!act) {
-      finishAttempt(attempt.objective(at), "Programm beendet. Schritte: " + iterations + ".");
+  private void advanceAction() {
+    attacking = false;
+    position.rotation(0);
+    golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
+    var step = attempt.next();
+    if (step.isEmpty()) {
+      finishAttempt(attempt.success(), attempt.failure());
       return;
     }
-    if (iterations >= ITERATION_LIMIT) {
-      finishAttempt(false, "Programm abgebrochen. Kein Halt erreicht.");
-      return;
+    LoopExecution.Step instruction = step.orElseThrow();
+    face(instruction.facing());
+    status = instruction.action().code();
+    if (instruction.action() == LoopProgram.Action.ATTACK) {
+      attacking = true;
+      actionTime = 0;
+      if (monsterAlive && !attempt.monsterAlive()) {
+        monsterAlive = false;
+        Game.levelEntities()
+            .filter(entity -> entity.name().equals("programming-maze-monster"))
+            .findFirst()
+            .ifPresent(
+                entity -> {
+                  monster = entity;
+                  Game.remove(entity);
+                });
+      }
     }
-    Point next = attempt.next(at);
-    if (!fits(at, next, false)) {
-      finishAttempt(false, "Programm abgebrochen. Nächster Schritt blockiert.");
-      return;
+    if (instruction.from().equals(instruction.to())) {
+      busy = true;
+      pause = .45f;
+      arrived = this::advanceAction;
+    } else {
+      jumping = instruction.action() == LoopProgram.Action.JUMP;
+      jumpStart = position.position();
+      actionTime = 0;
+      move(
+          List.of(LoopMaze.world(level.getPoint("maze-origin"), instruction.to())),
+          () -> {
+            jumping = false;
+            golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
+            advanceAction();
+          });
     }
-    status =
-        "Programm läuft: "
-            + executor.name().toLowerCase().replace('_', '-')
-            + ". Schritt "
-            + (iterations + 1)
-            + ".";
-    move(
-        List.of(next),
-        () -> {
-          iterations++;
-          advanceIteration();
-        });
   }
 
   private void finishAttempt(boolean success, String reason) {
-    ProgrammingLoopSituation finished = attempt;
+    LoopExecution finished = attempt;
     attempt = null;
-    Entity who = operator;
     route.clear();
+    jumping = false;
+    attacking = false;
+    position.rotation(0);
+    golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
     if (success) {
-      String id = currentChallenge();
-      if (controller.completeExecutedLoop(id) != PuzzleSubmissionResult.ACCEPTED) {
-        busy = false;
-        return;
-      }
-      text(who, reason + "\nZielposition erreicht.");
+      controller.completeExecutedLoop(currentChallenge());
+      activeRune = "";
+      busy = false;
+      status = "Wegzeichen erreicht. Nächster Abschnitt bereit.";
       if (controller.phase() == ProgrammingPhase.METHODS) {
-        travel(level.getPoint("loop-exit"), who, () -> status = "Wegprogramm abgeschlossen.");
-      } else travel(level.getPoint("loop-" + currentChallenge()), who, () -> {});
+        ProgrammingGates.open(level, 2);
+        status = "Labyrinth abgeschlossen. Das Tor zu Akt 3 ist offen.";
+      }
     } else {
-      text(
-          who,
-          reason
-              + "\nZielposition nicht erreicht. Rücklauf zur Ausgangsposition.\nRune weiterhin verfügbar.");
-      status = "Rücklauf zur Ausgangsposition.";
+      status =
+          (reason.isEmpty() ? "Zielposition oder Blickrichtung nicht erreicht." : reason)
+              + " Rücklauf. Die Rune bleibt im Archiv.";
+      returning = true;
       busy = true;
       pause = 1.5f;
-      arrived =
-          () -> {
-            travel(finished.origin(), who, () -> {});
-          };
+      List<Point> retrace = new ArrayList<>();
+      List<LoopMaze.Cell> history = finished.history();
+      // Start with the last reached anchor: a physical collision may have interrupted a step.
+      for (int i = history.size() - 1; i >= 0; i--)
+        retrace.add(LoopMaze.world(level.getPoint("maze-origin"), history.get(i)));
+      arrived = () -> move(retrace, this::resetAttempt);
     }
   }
 
-  private void travel(Point target, Entity who, Runnable then) {
-    List<Point> path = path(position.position(), target);
-    if (path.isEmpty() && Point.calculateDistance(position.position(), target) > 0.1f) {
-      busy = false;
-      text(who, "Positionierung unterbrochen. Laufweg blockiert.");
-      return;
+  private void resetAttempt() {
+    jumping = false;
+    golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
+    int checkpoint = controller.completedLoopChallenges().size();
+    Point home =
+        LoopMaze.world(
+            level.getPoint("maze-origin"), LoopMaze.checkpoints().get(checkpoint).start());
+    position.position(home);
+    collision.collider().position(home);
+    face(LoopMaze.checkpoints().get(checkpoint).facing());
+    if (checkpoint <= 2 && !monsterAlive) {
+      monsterAlive = true;
+      if (monster != null) Game.add(monster);
     }
-    status = "Positionierung läuft.";
-    move(path, then);
+    route.clear();
+    busy = false;
+    returning = false;
+    activeRune = "";
+    status = "Zurück am Wegzeichen. Rune ausgeworfen.";
+  }
+
+  private void face(LoopMaze.Direction direction) {
+    facing = direction;
+    position.viewDirection(
+        switch (direction) {
+          case EAST -> engine.utils.Direction.RIGHT;
+          case NORTH -> engine.utils.Direction.UP;
+          case WEST -> engine.utils.Direction.LEFT;
+          case SOUTH -> engine.utils.Direction.DOWN;
+        });
   }
 
   private void move(List<Point> path, Runnable then) {
@@ -436,11 +452,23 @@ final class ProgrammingGolemRuntime {
       return;
     }
     float delta = 1f / Game.frameRate();
+    actionTime += delta;
+    if (jumping) golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(0xBBDDFFFF));
+    if (attacking) {
+      position.rotation((float) Math.sin(actionTime / .45f * Math.PI) * 12f);
+      golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(0xFFCC99FF));
+    }
     if (pause > 0) {
       pause -= delta;
       return;
     }
-    if (!route.isEmpty() && position.position().equals(route.peekFirst())) route.removeFirst();
+    if (!route.isEmpty() && position.position().equals(route.peekFirst())) {
+      route.removeFirst();
+      if (returning) {
+        jumping = false;
+        golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
+      }
+    }
     if (route.isEmpty()) {
       busy = false;
       Runnable callback = arrived;
@@ -450,19 +478,61 @@ final class ProgrammingGolemRuntime {
     }
     Point target = route.peekFirst();
     Point from = position.position();
+    if (returning && !jumping) {
+      Point pit = LoopMaze.world(level.getPoint("maze-origin"), LoopMaze.pit());
+      if (Math.abs(from.x() - pit.x()) < .01f
+          && Math.abs(target.x() - pit.x()) < .01f
+          && Math.abs((from.y() + target.y()) / 2 - pit.y()) < .01f
+          && Math.abs(Math.abs(from.y() - target.y()) - 2 * LoopMaze.CELL_HEIGHT) < .01f) {
+        jumping = true;
+        jumpStart = from;
+        actionTime = 0;
+        face(target.y() > from.y() ? LoopMaze.Direction.NORTH : LoopMaze.Direction.SOUTH);
+      }
+    }
+    if (jumping) {
+      // A jump crosses two cells in one short arc, rather than walking onto the pit.
+      float progress = Math.min(1, actionTime / .9f);
+      Point airborne =
+          new Point(
+              jumpStart.x() + (target.x() - jumpStart.x()) * progress,
+              jumpStart.y()
+                  + (target.y() - jumpStart.y()) * progress
+                  + (float) Math.sin(progress * Math.PI) * 1.2f);
+      if (!fits(from, airborne, false)) {
+        if (returning) resetAttempt();
+        else finishAttempt(false, "Sprungbahn blockiert.");
+        return;
+      }
+      position.position(airborne);
+      collision.collider().position(airborne);
+      if (progress == 1) {
+        position.position(target);
+        collision.collider().position(target);
+      }
+      return;
+    }
     stalled = Point.calculateDistance(from, lastPosition) < 0.001f ? stalled + delta : 0;
     lastPosition = from;
     if (stalled > 2f) {
+      if (breakingGate) {
+        status = "Nox wartet auf einen freien Weg zur Schleuse.";
+        stalled = 0;
+        pause = .5f;
+        return;
+      }
       route.clear();
       busy = false;
       status = "Bewegung unterbrochen. Laufweg blockiert.";
       if (attempt != null) finishAttempt(false, status);
+      else if (returning) resetAttempt();
       return;
     }
     float distance = Point.calculateDistance(from, target);
     float fraction = distance <= SPEED * delta ? 1 : SPEED * delta / distance;
     Point next =
         from.translate((target.x() - from.x()) * fraction, (target.y() - from.y()) * fraction);
+    if (breakingGate && touchesDeparture(next)) ProgrammingGates.departure(level, true);
     if (breakingGate && !wallBroken && touchesGate(next, 1)) {
       ProgrammingGates.open(level, 1);
       wallBroken = true;
@@ -473,17 +543,23 @@ final class ProgrammingGolemRuntime {
             draw.stateMachine().setState("breaking", null);
           });
     }
-    if (!fits(from, next, false)) {
+    if (!fits(from, next, breakingGate)) {
+      if (breakingGate) {
+        status = "Nox wartet auf einen freien Weg zur Schleuse.";
+        pause = .5f;
+        return;
+      }
       route.clear();
       busy = false;
       status = "Bewegung unterbrochen. Nächster Schritt blockiert.";
       if (attempt != null) finishAttempt(false, status);
+      else if (returning) resetAttempt();
       return;
     }
     if (fraction == 1) {
       // Settle the last sub-tick distance exactly. VelocitySystem discards small velocities.
       // Check the swept tile rectangle and the destination's solids before settling.
-      if (fits(from, target, false)
+      if (fits(from, target, breakingGate)
           && !CollisionUtils.isCollidingWithOtherSolids(collision.collider(), target)) {
         position.position(target);
         collision.collider().position(target);
@@ -546,7 +622,7 @@ final class ProgrammingGolemRuntime {
     float maxY = minY + footprint.height() - 0.001f;
     for (int y = (int) Math.floor(minY); y <= Math.floor(maxY); y++) {
       for (int x = (int) Math.floor(minX); x <= Math.floor(maxX); x++) {
-        if (allowGate && inGate(x, y, 1)) continue;
+        if (allowGate && (inGate(x, y, 1) || inDeparture(x, y))) continue;
         if (!level.tileAt(new Coordinate(x, y)).map(Tile::isAccessible).orElse(false)) return false;
       }
     }
@@ -593,6 +669,25 @@ final class ProgrammingGolemRuntime {
           x <= Math.floor(bounds.x() + bounds.width() - 0.001f);
           x++) if (inGate(x, y, act)) return true;
     return false;
+  }
+
+  private boolean touchesDeparture(Point point) {
+    Rectangle bounds = footprint(point, point);
+    for (int y = (int) Math.floor(bounds.y()); y <= Math.floor(bounds.y() + bounds.height()); y++)
+      for (int x = (int) Math.floor(bounds.x()); x <= Math.floor(bounds.x() + bounds.width()); x++)
+        if (inDeparture(x, y)) return true;
+    return false;
+  }
+
+  private boolean inDeparture(int x, int y) {
+    Point a = level.namedPoints().get("departure-gate-start");
+    Point b = level.namedPoints().get("departure-gate-end");
+    return a != null
+        && b != null
+        && x >= Math.min(a.x(), b.x())
+        && x <= Math.max(a.x(), b.x())
+        && y >= Math.min(a.y(), b.y())
+        && y <= Math.max(a.y(), b.y());
   }
 
   private boolean inGate(int x, int y, int act) {
@@ -694,17 +789,6 @@ final class ProgrammingGolemRuntime {
       case PARCHMENT -> "Pergament";
       case RUNE_STONE -> "Runenstein";
       case LIGHT_ORB -> "Lichtkugel";
-    };
-  }
-
-  static String passageName(String id) {
-    return switch (id) {
-      case "forge-press" -> "Werkstattgang";
-      case "bellows" -> "Aufstieg";
-      case "chain-lift" -> "Westgang";
-      case "cooling-channel" -> "Steinerne Kehre";
-      case "heart-gate" -> "Ausgang";
-      default -> throw new IllegalArgumentException("Unknown loop " + id);
     };
   }
 }
