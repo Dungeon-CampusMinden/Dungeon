@@ -1,13 +1,8 @@
 package feature.canvas.nodes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.utils.GdxNativesLoader;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import engine.Game;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
@@ -22,9 +17,9 @@ import java.util.Objects;
 /**
  * A canvas node that renders an image at its native dimensions, optionally scaled and outlined.
  *
- * <p>The texture is loaded lazily so image nodes can be created and serialized by a headless
- * server. When the texture is available, the node sizes itself to the rendered image, adding room
- * for the optional outline.
+ * <p>The texture is loaded lazily so image nodes can be created and serialized by a headless server
+ * without reading image files. On the client, the node sizes itself from the texture when attached
+ * to a canvas, adding room for the optional outline. Headless dimensions are placeholders.
  */
 public class ImageNode extends CanvasNode {
 
@@ -60,8 +55,6 @@ public class ImageNode extends CanvasNode {
 
   private Texture texture;
   private boolean textureLookupAttempted;
-  private int intrinsicWidth;
-  private int intrinsicHeight;
 
   /**
    * Creates an image node.
@@ -72,7 +65,6 @@ public class ImageNode extends CanvasNode {
   public ImageNode(String id, String imagePath) {
     super(id, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.imagePath = requireImagePath(imagePath);
-    discoverImageDimensions();
   }
 
   /**
@@ -112,9 +104,9 @@ public class ImageNode extends CanvasNode {
     imagePath = newPath;
     texture = null;
     textureLookupAttempted = false;
-    intrinsicWidth = 0;
-    intrinsicHeight = 0;
-    discoverImageDimensions();
+    if (canvas() != null) {
+      ensureTexture();
+    }
     notifyStateChanged();
     return this;
   }
@@ -231,8 +223,10 @@ public class ImageNode extends CanvasNode {
   }
 
   @Override
-  public void onAdd(CanvasArea area) {
-    ensureTexture();
+  protected void onCanvasChanged(CanvasArea area) {
+    if (area != null) {
+      ensureTexture();
+    }
   }
 
   @Override
@@ -280,8 +274,6 @@ public class ImageNode extends CanvasNode {
       imagePath = storedPath;
       texture = null;
       textureLookupAttempted = false;
-      intrinsicWidth = 0;
-      intrinsicHeight = 0;
     }
 
     float storedScale = state.floatProp(PROP_SCALE, DEFAULT_SCALE);
@@ -294,7 +286,9 @@ public class ImageNode extends CanvasNode {
     String storedOutlineColor = state.prop(PROP_OUTLINE_COLOR, null);
     outlineColor = parseColor(storedOutlineColor);
 
-    discoverImageDimensions();
+    if (canvas() != null) {
+      ensureTexture();
+    }
     updateNodeSize();
   }
 
@@ -336,7 +330,14 @@ public class ImageNode extends CanvasNode {
   }
 
   private void ensureTexture() {
-    if (texture != null || textureLookupAttempted || Game.isHeadless()) {
+    if (Game.isHeadless()) {
+      return;
+    }
+    if (texture != null) {
+      updateNodeSize();
+      return;
+    }
+    if (textureLookupAttempted) {
       return;
     }
     textureLookupAttempted = true;
@@ -345,50 +346,16 @@ public class ImageNode extends CanvasNode {
       LOGGER.warn("Could not load image '{}' for canvas node '{}'", imagePath, id());
       return;
     }
-    intrinsicWidth = texture.getWidth();
-    intrinsicHeight = texture.getHeight();
     updateNodeSize();
   }
 
-  private void discoverImageDimensions() {
-    Texture cached = TextureMap.instance().get(imagePath);
-    if (cached != null) {
-      intrinsicWidth = cached.getWidth();
-      intrinsicHeight = cached.getHeight();
-      updateNodeSize();
-      return;
-    }
-    if (Gdx.files == null) {
-      return;
-    }
-    FileHandle file = Gdx.files.internal(imagePath);
-    if (!file.exists()) {
-      return;
-    }
-
-    try {
-      // Headless servers do not initialize the native Pixmap decoder through a graphics backend.
-      GdxNativesLoader.load();
-      Pixmap pixmap = new Pixmap(file);
-      try {
-        intrinsicWidth = pixmap.getWidth();
-        intrinsicHeight = pixmap.getHeight();
-      } finally {
-        pixmap.dispose();
-      }
-      updateNodeSize();
-    } catch (GdxRuntimeException e) {
-      LOGGER.warn("Could not inspect image '{}' for canvas node '{}'", imagePath, id());
-    }
-  }
-
   private void updateNodeSize() {
-    if (intrinsicWidth <= 0 || intrinsicHeight <= 0) {
+    if (texture == null) {
       return;
     }
     float border = hasOutline() ? outlineSize : 0f;
-    float width = intrinsicWidth * scale + 2f * border;
-    float height = intrinsicHeight * scale + 2f * border;
+    float width = texture.getWidth() * scale + 2f * border;
+    float height = texture.getHeight() * scale + 2f * border;
     if (getWidth() != width || getHeight() != height) {
       setSize(width, height);
       invalidateLayout();
