@@ -23,7 +23,7 @@
       "rows": 1,
       "columns": 8
     },
-    "framesPerSprite": 10,
+    "framesPerSprite": 20,
     "scaleX": 1,
     "scaleY": 0,
     "isLooping": true,

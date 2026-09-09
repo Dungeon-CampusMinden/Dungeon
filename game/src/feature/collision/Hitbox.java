@@ -196,8 +196,9 @@ public class Hitbox extends Collider {
    */
   @Override
   public boolean collide(Point point) {
+    Vector2 size = this.absoluteSize();
     return CollisionUtils.rectCollidesPoint(
-        this.absoluteLeft(), this.absoluteBottom(), this.width, this.height, point);
+        this.absoluteLeft(), this.absoluteBottom(), size.x(), size.y(), point);
   }
 
   /**
@@ -209,8 +210,9 @@ public class Hitbox extends Collider {
    */
   @Override
   public boolean collide(Point from, Point to) {
+    Vector2 size = this.absoluteSize();
     return CollisionUtils.rectCollidesLine(
-        this.absoluteLeft(), this.absoluteBottom(), this.width, this.height, from, to);
+        this.absoluteLeft(), this.absoluteBottom(), size.x(), size.y(), from, to);
   }
 
   /**
