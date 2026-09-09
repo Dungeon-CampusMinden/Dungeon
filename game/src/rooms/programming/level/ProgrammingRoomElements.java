@@ -14,7 +14,6 @@ import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
-import java.util.List;
 import rooms.programming.modules.loops.LoopPuzzle;
 import rooms.programming.modules.loops.LoopRune;
 
@@ -28,17 +27,6 @@ final class ProgrammingRoomElements {
   private static final Vector2 GOLEM_HITBOX_OFFSET = Vector2.of(3f / 64f, 3f / 64f);
   private static final Vector2 GOLEM_HITBOX_SIZE = Vector2.of(58f / 64f, 2.5f / GOLEM_SCALE);
 
-  private static final List<Station> STATIONS =
-      List.of(
-          station(
-              "variables-properties",
-              Visual.CHEST,
-              "Eigenschaftsrunen\nName · Lebensenergie · Mana · Aktiviert · Blickrichtung · Schritte\n\nZettel im Deckel:\nFür Nox' Seelenbindung. Jede Eigenschaft benötigt ein passendes Gefäß. Ein Gefäßtyp kann mehrfach verwendet werden.\n\nValerius"),
-          station(
-              "variables-vessels",
-              Visual.CHEST,
-              "Seelengefäße\nEisenkiste · Kristallflasche · Pergament · Runenstein · Lichtkugel\n\nPackliste:\nGefäße zuerst den Eigenschaftsrunen zuordnen. Das Essenzfach im Seelenkern öffnet sich, sobald alle Gefäße passen.\n\nValerius"));
-
   private ProgrammingRoomElements() {}
 
   static ProgrammingGolemRuntime spawn(DungeonLevel level) {
@@ -50,73 +38,54 @@ final class ProgrammingRoomElements {
         new InteractionComponent(
             new Interaction((interacted, who) -> runtime.show(who), GOLEM_INTERACTION_RANGE)));
     Game.add(golem);
-    STATIONS.forEach(station -> spawnStation(level, station));
-    spawnInspections(level);
+    spawnBindingChest(level, runtime, true);
+    spawnBindingChest(level, runtime, false);
     LoopPuzzle.runes().forEach(rune -> spawnLoopRune(level, rune, runtime));
     spawnControl(level, "loop-terminal", Visual.BOOK, runtime, false);
     spawnControl(level, "loop-monitor", Visual.COMPASS, runtime, true);
-    spawnText(level, "archive-instructions", ProgrammingStory.archive());
-    spawnText(level, "intro-tablet", ProgrammingStory.letter());
+    spawnText(level, "archive-instructions", Visual.BOOK, ProgrammingStory.archive());
+    spawnText(level, "intro-tablet", Visual.BOOK, ProgrammingStory.letter());
+    spawnText(level, "forge-maintenance-note", Visual.SCROLL, ProgrammingStory.maintenance());
     if (level.namedPoints().containsKey("variables-translation")) {
       Entity tablet = createEntity(level, "variables-translation", Visual.BOOK, 0);
       tablet.add(
-          new InteractionComponent(new Interaction((entity, who) -> runtime.showTranslation(who))));
+          new InteractionComponent(new Interaction((entity, who) -> runtime.showBindingBook(who))));
       Game.add(tablet);
     }
     return runtime;
   }
 
-  private static void spawnText(DungeonLevel level, String point, String text) {
-    if (level.namedPoints().containsKey(point))
-      spawnStation(level, station(point, Visual.BOOK, text));
-  }
-
-  private static void spawnInspections(DungeonLevel level) {
-    List.of(
-            station(
-                "inspect-forge-ledger",
-                Visual.BOOK,
-                ProgrammingStory.inspect("inspect-forge-ledger")),
-            station(
-                "inspect-discarded-vessel",
-                Visual.VASE,
-                ProgrammingStory.inspect("inspect-discarded-vessel")),
-            station(
-                "inspect-herb-notes",
-                Visual.SCROLL,
-                ProgrammingStory.inspect("inspect-herb-notes")),
-            station(
-                "inspect-broken-compass",
-                Visual.COMPASS,
-                ProgrammingStory.inspect("inspect-broken-compass")),
-            station(
-                "inspect-sealed-cache",
-                Visual.CHEST,
-                ProgrammingStory.inspect("inspect-sealed-cache")),
-            station(
-                "inspect-old-tools", Visual.TOOLS, ProgrammingStory.inspect("inspect-old-tools")))
-        .forEach(station -> spawnStation(level, station));
-  }
-
-  private static void spawnStation(DungeonLevel level, Station station) {
-    if (!level.namedPoints().containsKey(station.pointName())) {
-      return;
-    }
-    Entity entity = createEntity(level, station.pointName(), station.visual(), 0);
+  private static void spawnText(DungeonLevel level, String point, Visual visual, String text) {
+    if (!level.namedPoints().containsKey(point)) return;
+    Entity entity = createEntity(level, point, visual, 0);
     entity.add(
         new InteractionComponent(
             new Interaction(
                 (interacted, who) -> {
                   if (Game.isMultiplayerClient()) return;
-                  if (station.visual() == Visual.CHEST)
-                    interacted
-                        .fetch(DrawComponent.class)
-                        .orElseThrow()
-                        .stateMachine()
-                        .setState("open_full", null);
-                  showStation(station, who);
+                  ProgrammingGolemRuntime.showText(who, text);
                 })));
     Game.add(entity);
+  }
+
+  private static void spawnBindingChest(
+      DungeonLevel level, ProgrammingGolemRuntime runtime, boolean properties) {
+    Entity chest =
+        createEntity(
+            level, properties ? "variables-properties" : "variables-vessels", Visual.CHEST, 0);
+    chest.add(
+        new InteractionComponent(
+            new Interaction(
+                (interacted, who) -> {
+                  if (Game.isMultiplayerClient()) return;
+                  runtime.collectBindingSupply(properties, who);
+                  interacted
+                      .fetch(DrawComponent.class)
+                      .orElseThrow()
+                      .stateMachine()
+                      .setState("open_empty", null);
+                })));
+    Game.add(chest);
   }
 
   private static void spawnControl(
@@ -176,12 +145,7 @@ final class ProgrammingRoomElements {
       entity.add(new CollideComponent(GOLEM_HITBOX_OFFSET, GOLEM_HITBOX_SIZE));
     } else if (visual == Visual.CHEST) {
       entity.add(ProgrammingProps.chestCollider());
-    } else if (visual == Visual.VASE) {
-      entity.add(ProgrammingProps.vaseCollider());
-    } else if (visual == Visual.BOOK
-        || visual == Visual.SCROLL
-        || visual == Visual.COMPASS
-        || visual == Visual.TOOLS) {
+    } else if (visual == Visual.BOOK || visual == Visual.SCROLL || visual == Visual.COMPASS) {
       position.scale(0.6f);
     }
     entity.add(position);
@@ -189,24 +153,12 @@ final class ProgrammingRoomElements {
     return entity;
   }
 
-  private static void showStation(Station station, Entity who) {
-    ProgrammingGolemRuntime.showText(who, station.description());
-  }
-
-  private static Station station(String pointName, Visual visual, String description) {
-    return new Station(pointName, visual, description);
-  }
-
-  private record Station(String pointName, Visual visual, String description) {}
-
   private enum Visual {
     RUNE,
     CHEST,
     BOOK,
-    VASE,
     SCROLL,
     COMPASS,
-    TOOLS,
     GOLEM;
 
     private DrawComponent drawComponent(int runeIndex) {
@@ -218,10 +170,8 @@ final class ProgrammingRoomElements {
                     new SpritesheetConfig(runeIndex % 8 * 16, runeIndex % 24 / 8 * 16, 1, 1));
             case CHEST -> new DrawComponent(new SimpleIPath("objects/treasurechest"), "closed");
             case BOOK -> new DrawComponent(new SimpleIPath("items/rpg/item_book_brown.png"));
-            case VASE -> new DrawComponent(new SimpleIPath("objects/vase"));
             case SCROLL -> new DrawComponent(new SimpleIPath("items/rpg/item_scroll.png"));
             case COMPASS -> new DrawComponent(new SimpleIPath("items/rpg/item_compass.png"));
-            case TOOLS -> new DrawComponent(new SimpleIPath("items/rpg/pickaxe_crusty.png"));
             case GOLEM ->
                 new DrawComponent(
                     CharacterStateFactory.createStateMachine(
@@ -231,7 +181,7 @@ final class ProgrammingRoomElements {
           switch (this) {
             case RUNE -> DepthLayer.Ground.depth();
             // Tabletop items must render above the furniture supporting them.
-            case BOOK, SCROLL, COMPASS, TOOLS, VASE -> DepthLayer.Player.depth() + 1;
+            case BOOK, SCROLL, COMPASS -> DepthLayer.Player.depth() + 1;
             // Share the player's layer so Y sorting places characters behind standing objects.
             case GOLEM, CHEST -> DepthLayer.Player.depth();
           });

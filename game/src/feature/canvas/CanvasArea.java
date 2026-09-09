@@ -321,7 +321,7 @@ public class CanvasArea extends Group {
       return;
     }
     int max = sameSpaceAs(node).mapToInt(CanvasNode::z).max().orElse(0);
-    if (node.z() < max) {
+    if (node.z() <= max) {
       node.z(max + 1);
     }
   }
