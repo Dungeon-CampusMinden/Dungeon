@@ -1,6 +1,5 @@
 package rooms.systemRecovery.modules.computer.content;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -62,9 +61,8 @@ public class AssistantChatTab extends SystemRecoveryComputerTab {
     bubble.pad(12);
 
     Label senderLabel =
-        Scene2dElementFactory.createLabel(
-            sender, FontSpec.of(Scene2dElementFactory.FONT_PATH_BOLD, 16, Color.LIGHT_GRAY));
-    Label textLabel = Scene2dElementFactory.createLabel(text, 20, Color.WHITE);
+        createLabel(sender, FontSpec.of(Scene2dElementFactory.FONT_PATH_BOLD, 16, LABEL_COLOR));
+    Label textLabel = createLabel(text, 20);
     textLabel.setWrap(true);
 
     bubble.add(senderLabel).left().row();

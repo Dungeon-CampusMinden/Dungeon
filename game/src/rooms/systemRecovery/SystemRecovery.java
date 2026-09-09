@@ -29,6 +29,7 @@ import feature.systems.LevelEditorSystem;
 import feature.systems.LeverSystem;
 import java.util.logging.Level;
 import rooms.systemRecovery.items.BatteryItem;
+import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.level.SystemRecoveryClientLevel;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
@@ -104,6 +105,7 @@ public final class SystemRecovery {
   static void registerContent() {
     initLocalization();
     BatteryItem.ensureRegistration();
+    SortProgramStickItem.ensureRegistration();
     SystemRecoveryComputerFactory.ensureRegistration();
   }
 
