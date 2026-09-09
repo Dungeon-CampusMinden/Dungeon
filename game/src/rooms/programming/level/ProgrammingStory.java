@@ -21,10 +21,6 @@ final class ProgrammingStory {
         + "Schickt ihn von dort zur Torwinde.\n\nValerius";
   }
 
-  static String golem() {
-    return "Seelenbindung unvollständig.";
-  }
-
   static String archive() {
     return "Arbeitsauftrag · Maschinenkeller\n\n"
         + "Nox: Förderbahn, Pumpenzugang und Kettenzug freiräumen. "
@@ -43,9 +39,13 @@ final class ProgrammingStory {
   static String inspect(String id) {
     return switch (id) {
       case "inspect-forge-ledger" ->
-          "Nox · Arbeitsgolem der Schmiede\n\nDie Seelenbindung versorgt den Körper. Für gesteuerte Schritte "
-              + "wird zusätzlich eine Rhythmusrune benötigt. Die Programme werden am Terminal im Archiv eingesetzt.\n\n"
-              + "Die Runensammlung liegt auf den Lesetischen hinter der zugemauerten Öffnung.\n\nValerius";
+          "Nox · Bindungsplan\n\nJede Eigenschaft erhält ein eigenes Gefäß. "
+              + "Für ganze Zahlen verwende ich Eisenkisten, für Bruchteile Kristallflaschen. "
+              + "Die Sollwerte sind in die Eigenschaftsrunen eingeritzt.\n\n"
+              + "Ein Gefäß behält seinen Inhalt, bis ein neuer Wert ihn ersetzt. "
+              + "Bei falscher Füllung nicht die ganze Bindung lösen.\n\n"
+              + "Für gesteuerte Schritte braucht Nox anschließend eine Rhythmusrune. "
+              + "Die Sammlung liegt im Archiv hinter der Trennwand.\n\nValerius";
       case "inspect-discarded-vessel" ->
           "Am Boden haftet eingetrocknete Essenz. Sie lässt sich nicht mehr lösen.";
       case "inspect-herb-notes" ->

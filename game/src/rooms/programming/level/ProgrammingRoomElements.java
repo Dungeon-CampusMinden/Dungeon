@@ -28,17 +28,6 @@ final class ProgrammingRoomElements {
   private static final Vector2 GOLEM_HITBOX_OFFSET = Vector2.of(3f / 64f, 3f / 64f);
   private static final Vector2 GOLEM_HITBOX_SIZE = Vector2.of(58f / 64f, 2.5f / GOLEM_SCALE);
 
-  private static final List<Station> STATIONS =
-      List.of(
-          station(
-              "variables-properties",
-              Visual.CHEST,
-              "Eigenschaftsrunen\nName · Lebensenergie · Mana · Aktiviert · Blickrichtung · Schritte\n\nZettel im Deckel:\nFür Nox' Seelenbindung. Jede Eigenschaft benötigt ein passendes Gefäß. Ein Gefäßtyp kann mehrfach verwendet werden.\n\nValerius"),
-          station(
-              "variables-vessels",
-              Visual.CHEST,
-              "Seelengefäße\nEisenkiste · Kristallflasche · Pergament · Runenstein · Lichtkugel\n\nPackliste:\nGefäße zuerst den Eigenschaftsrunen zuordnen. Das Essenzfach im Seelenkern öffnet sich, sobald alle Gefäße passen.\n\nValerius"));
-
   private ProgrammingRoomElements() {}
 
   static ProgrammingGolemRuntime spawn(DungeonLevel level) {
@@ -50,7 +39,8 @@ final class ProgrammingRoomElements {
         new InteractionComponent(
             new Interaction((interacted, who) -> runtime.show(who), GOLEM_INTERACTION_RANGE)));
     Game.add(golem);
-    STATIONS.forEach(station -> spawnStation(level, station));
+    spawnBindingChest(level, runtime, true);
+    spawnBindingChest(level, runtime, false);
     spawnInspections(level);
     LoopPuzzle.runes().forEach(rune -> spawnLoopRune(level, rune, runtime));
     spawnControl(level, "loop-terminal", Visual.BOOK, runtime, false);
@@ -69,6 +59,26 @@ final class ProgrammingRoomElements {
   private static void spawnText(DungeonLevel level, String point, String text) {
     if (level.namedPoints().containsKey(point))
       spawnStation(level, station(point, Visual.BOOK, text));
+  }
+
+  private static void spawnBindingChest(
+      DungeonLevel level, ProgrammingGolemRuntime runtime, boolean properties) {
+    Entity chest =
+        createEntity(
+            level, properties ? "variables-properties" : "variables-vessels", Visual.CHEST, 0);
+    chest.add(
+        new InteractionComponent(
+            new Interaction(
+                (interacted, who) -> {
+                  if (Game.isMultiplayerClient()) return;
+                  runtime.collectBindingSupply(properties, who);
+                  interacted
+                      .fetch(DrawComponent.class)
+                      .orElseThrow()
+                      .stateMachine()
+                      .setState("open_empty", null);
+                })));
+    Game.add(chest);
   }
 
   private static void spawnInspections(DungeonLevel level) {

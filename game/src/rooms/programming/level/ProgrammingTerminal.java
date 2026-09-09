@@ -43,6 +43,7 @@ public final class ProgrammingTerminal {
 
   /** Registers room dialog and node types in each runtime. */
   public static void register() {
+    ProgrammingBinding.register();
     ProgrammingTerminalNode.register();
     DialogFactory.register(
         Type.TERMINAL,
@@ -114,6 +115,7 @@ public final class ProgrammingTerminal {
   }
 
   static void reset() {
+    ProgrammingBinding.reset();
     received = null;
     CanvasStore.clear(ID);
   }
