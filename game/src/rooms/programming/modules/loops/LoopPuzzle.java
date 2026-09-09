@@ -29,27 +29,46 @@ public final class LoopPuzzle {
 
   private LoopPuzzle() {}
 
-  /** Returns the forge's station order. */
+  /**
+   * @return immutable station IDs in progression order
+   */
   public static List<String> challenges() {
     return CHALLENGES;
   }
 
-  /** Returns all collectible runes in station and loop-type order. */
+  /**
+   * @return all collectible runes in station and loop-type order
+   */
   public static List<LoopRune> runes() {
     return RUNES;
   }
 
-  /** Finds a rune by its exact canonical content ID. */
+  /**
+   * Finds a rune by its exact canonical content ID.
+   *
+   * @param id the rune ID
+   * @return the matching rune, or empty for an unknown ID
+   */
   public static Optional<LoopRune> rune(String id) {
     return RUNES.stream().filter(rune -> rune.id().equals(id)).findFirst();
   }
 
-  /** Returns the three runes belonging to a known station. */
+  /**
+   * Returns the runes belonging to a station.
+   *
+   * @param challengeId the station ID
+   * @return its three runes, or an empty list for an unknown station
+   */
   public static List<LoopRune> runes(String challengeId) {
     return RUNES.stream().filter(rune -> rune.challengeId().equals(challengeId)).toList();
   }
 
-  /** Reports whether every known loop situation has been completed. */
+  /**
+   * Reports whether every known loop situation has been completed.
+   *
+   * @param challengeIds completed station IDs
+   * @return true if the IDs match the complete set of stations
+   */
   public static boolean allCompleted(Set<String> challengeIds) {
     return challengeIds != null
         && challengeIds.size() == CHALLENGES.size()

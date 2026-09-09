@@ -16,7 +16,9 @@ public enum MagicalEssence {
     this.literal = literal;
   }
 
-  /** Returns the Java-style literal shown to players. */
+  /**
+   * @return the Java-style literal shown to players
+   */
   public String literal() {
     return literal;
   }

@@ -28,7 +28,12 @@ final class ProgrammingProps {
     return new CollideComponent(Vector2.of(0.2f, 0.05f), Vector2.of(0.6f, 0.4f));
   }
 
-  /** Stone animation states and their debris use ordinary synchronized draw states. */
+  /**
+   * Creates wall debris using ordinary synchronized draw states.
+   *
+   * @param level the level containing the masonry gate markers
+   * @return initially hidden stone draw components to reveal when the gate breaks
+   */
   static List<DrawComponent> wall(DungeonLevel level) {
     List<DrawComponent> stones = new ArrayList<>();
     var start = level.getPoint("act1-gate-start");

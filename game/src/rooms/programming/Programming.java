@@ -32,7 +32,11 @@ public final class Programming {
 
   private Programming() {}
 
-  /** Starts the Programming 1 escape room or its level editor. */
+  /**
+   * Starts the Programming 1 escape room or its level editor.
+   *
+   * @param args command-line arguments passed to the game starter
+   */
   public static void main(String[] args) {
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)

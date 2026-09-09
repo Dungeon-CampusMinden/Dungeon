@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.utils.GdxNativesLoader;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import engine.Game;
 import engine.utils.components.draw.TextureMap;
@@ -366,6 +367,8 @@ public class ImageNode extends CanvasNode {
     }
 
     try {
+      // Headless servers do not initialize the native Pixmap decoder through a graphics backend.
+      GdxNativesLoader.load();
       Pixmap pixmap = new Pixmap(file);
       try {
         intrinsicWidth = pixmap.getWidth();
