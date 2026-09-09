@@ -20,10 +20,13 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogDesign;
 import feature.hud.elements.RichLabel;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * The dialog shell around a {@link CanvasArea}.
@@ -84,6 +87,10 @@ public class CanvasUI extends Group {
     for (CanvasNode prototype : Objects.requireNonNull(prototypes, "prototypes")) {
       prototypesById.put(prototype.id(), prototype);
     }
+    Set<CanvasNode> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+    for (CanvasNode prototype : prototypes) {
+      addNestedPrototypes(prototype, prototypesById, visited);
+    }
     for (NodeState state : defaults.mergeWith(loadedChanges, options).nodes()) {
       CanvasNode prototype = prototypesById.get(state.id());
       if (prototype == null || !prototype.typeId().equals(state.typeId())) {
@@ -94,9 +101,9 @@ public class CanvasUI extends Group {
               state.typeId(),
               canvasId);
         }
-        area.addNode(CanvasNodeType.create(state));
+        area.addNode(CanvasNodeType.create(state, prototypesById));
       } else {
-        prototype.applyState(state);
+        prototype.applyState(state, prototypesById);
         area.addNode(prototype);
       }
     }
@@ -108,6 +115,18 @@ public class CanvasUI extends Group {
     container.padTop(TOP_MARGIN);
     container.setContent(buildWindow(layout.title(), layout.showResetViewButton()));
     addActor(container);
+  }
+
+  private static void addNestedPrototypes(
+      CanvasNode prototype, Map<String, CanvasNode> prototypesById, Set<CanvasNode> visited) {
+    if (!visited.add(prototype)) {
+      return;
+    }
+    prototype.forEachOwnedNode(
+        child -> {
+          prototypesById.putIfAbsent(child.id(), child);
+          addNestedPrototypes(child, prototypesById, visited);
+        });
   }
 
   private Window buildWindow(String title, boolean showResetViewButton) {

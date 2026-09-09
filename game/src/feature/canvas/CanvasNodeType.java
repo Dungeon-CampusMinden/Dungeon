@@ -97,7 +97,20 @@ public final class CanvasNodeType {
    * @return the created node
    */
   public static CanvasNode create(NodeState state) {
+    return create(state, Map.of());
+  }
+
+  /**
+   * Rebuilds a node from its state using callback-bearing prototypes from the complete canvas
+   * definition when a container node restores nested children.
+   *
+   * @param state the state to materialize; must not be null
+   * @param prototypesById callback-bearing prototypes indexed by node id; must not be null
+   * @return the created node
+   */
+  public static CanvasNode create(NodeState state, Map<String, CanvasNode> prototypesById) {
     Objects.requireNonNull(state, "state");
+    Objects.requireNonNull(prototypesById, "prototypesById");
     Function<NodeState, CanvasNode> factory = FACTORIES.get(state.typeId());
     if (factory == null) {
       LOGGER.warn(
@@ -107,7 +120,7 @@ public final class CanvasNodeType {
       return new FallbackNode(state);
     }
     CanvasNode node = factory.apply(state);
-    node.applyState(state);
+    node.applyState(state, prototypesById);
     return node;
   }
 

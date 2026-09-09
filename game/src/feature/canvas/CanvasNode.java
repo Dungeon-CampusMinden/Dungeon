@@ -7,7 +7,9 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import engine.utils.Scene2dElementFactory;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Base class for everything that can be placed on a {@link CanvasArea}.
@@ -632,14 +634,25 @@ public class CanvasNode extends Group {
   /**
    * Restores the state of this node.
    *
-   * <p>Applies the common fields and then hands the state to {@link #readProps(NodeState)} for type
-   * specific state. The node id is not changed; states are always applied to the node they belong
-   * to.
+   * <p>Applies the common fields and then hands the state to the type-specific state reader. The
+   * node id is not changed; states are always applied to the node they belong to.
    *
    * @param state the state to apply; must not be null
    */
   public final void applyState(NodeState state) {
+    applyState(state, Map.of());
+  }
+
+  /**
+   * Restores the state of this node, allowing container nodes to resolve prototypes from the
+   * complete canvas definition.
+   *
+   * @param state the state to apply; must not be null
+   * @param prototypesById callback-bearing prototypes indexed by node id; must not be null
+   */
+  public final void applyState(NodeState state, Map<String, CanvasNode> prototypesById) {
     Objects.requireNonNull(state, "state");
+    Objects.requireNonNull(prototypesById, "prototypesById");
     setPosition(state.x(), state.y());
     setSize(state.width(), state.height());
     this.z = state.z();
@@ -648,7 +661,7 @@ public class CanvasNode extends Group {
     this.sticky = state.sticky();
     this.origin = state.origin();
     readColor(state);
-    readProps(state);
+    readProps(state, prototypesById);
     invalidateLayout();
     if (canvas != null) {
       canvas.invalidateOrder();
@@ -672,6 +685,20 @@ public class CanvasNode extends Group {
    * @param state the state to read from
    */
   protected void readProps(NodeState state) {}
+
+  /**
+   * Reads type-specific state with access to callback-bearing prototypes from the complete canvas
+   * definition.
+   *
+   * <p>The default implementation delegates to {@link #readProps(NodeState)} so existing node
+   * types do not need to know about the prototype context.
+   *
+   * @param state the state to read
+   * @param prototypesById callback-bearing prototypes indexed by node id
+   */
+  protected void readProps(NodeState state, Map<String, CanvasNode> prototypesById) {
+    readProps(state);
+  }
 
   private void readColor(NodeState state) {
     String hex = state.prop(PROP_COLOR, null);
@@ -707,6 +734,18 @@ public class CanvasNode extends Group {
    * @param area the new canvas context, or null when fully detached
    */
   protected void onCanvasChanged(CanvasArea area) {}
+
+  /**
+   * Visits nodes owned by this node.
+   *
+   * <p>Container node types override this hook to expose their nested canvas nodes. Ordinary nodes
+   * do not own any canvas nodes.
+   *
+   * @param visitor receives each owned node
+   */
+  protected void forEachOwnedNode(Consumer<CanvasNode> visitor) {
+    Objects.requireNonNull(visitor, "visitor");
+  }
 
   /**
    * Propagates a canvas context to a node owned by this node.

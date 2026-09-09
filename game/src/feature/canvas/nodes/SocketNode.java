@@ -19,8 +19,10 @@ import feature.hud.elements.RichLabel;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -490,6 +492,11 @@ public class SocketNode extends CanvasNode {
 
   @Override
   protected void readProps(NodeState state) {
+    readProps(state, Map.of());
+  }
+
+  @Override
+  protected void readProps(NodeState state, Map<String, CanvasNode> prototypesById) {
     content = state.prop(PROP_CONTENT, id());
     if (label != null) {
       label.setText(content);
@@ -519,11 +526,11 @@ public class SocketNode extends CanvasNode {
           continue;
         }
         NodeState childState = snapshot.nodes().getFirst();
-        CanvasNode child = matchingPrototype(prototypes, childState);
+        CanvasNode child = matchingPrototype(prototypesById, childState);
         if (child == null) {
-          child = CanvasNodeType.create(childState);
+          child = CanvasNodeType.create(childState, prototypesById);
         } else {
-          child.applyState(childState);
+          child.applyState(childState, prototypesById);
         }
         sockets[i] = new SocketEntry(child, childState.width(), childState.height());
         addActor(child);
@@ -536,13 +543,11 @@ public class SocketNode extends CanvasNode {
     invalidateLayout();
   }
 
-  private CanvasNode matchingPrototype(SocketEntry[] prototypes, NodeState state) {
-    for (SocketEntry prototype : prototypes) {
-      if (prototype != null
-          && prototype.node().id().equals(state.id())
-          && prototype.node().typeId().equals(state.typeId())) {
-        return prototype.node();
-      }
+  private CanvasNode matchingPrototype(
+      Map<String, CanvasNode> prototypesById, NodeState state) {
+    CanvasNode prototype = prototypesById.get(state.id());
+    if (prototype != null && prototype.typeId().equals(state.typeId())) {
+      return prototype;
     }
     return null;
   }
@@ -552,6 +557,16 @@ public class SocketNode extends CanvasNode {
     for (SocketEntry entry : sockets) {
       if (entry != null) {
         attachOwnedNode(entry.node(), area);
+      }
+    }
+  }
+
+  @Override
+  protected void forEachOwnedNode(Consumer<CanvasNode> visitor) {
+    Objects.requireNonNull(visitor, "visitor");
+    for (SocketEntry entry : sockets) {
+      if (entry != null) {
+        visitor.accept(entry.node());
       }
     }
   }
