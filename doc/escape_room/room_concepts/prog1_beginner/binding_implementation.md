@@ -1,12 +1,20 @@
 # Akt 1: Seelenwerkbank
 
 Die beiden Werkstattkisten liefern Eigenschaftsrunen und einen wiederverwendbaren
-Gefäßvorrat. Am Golem öffnet sich das Canvas: sechs benannte Fassungen um seinen
-Seelenkern. Die eingeritzten Sollwerte sind sichtbar, die Java-Typnamen noch nicht.
+Gefäßvorrat mit Essenzen. Am Golem öffnet sich das Canvas: sechs benannte Fassungen um
+seinen Seelenkern. Das Essenzfach ist sichtbar, sobald die Gefäßkiste eingesammelt wurde.
 
-Zuerst zieht der Spieler Gefäße auf die Eigenschaften. Ein Gefäßtyp kann mehrfach
-verwendet werden: Lebensenergie und Schritte brauchen jeweils eine eigene Eisenkiste.
-Nach der vollständigen Zuordnung öffnet sich das Essenzfach mit sieben Werten.
+Der Spieler kann eine einzelne Eigenschaft mit einem Gefäß verbinden und dieses sofort
+füllen. Gefäßzuordnung und Wertzuweisung sind bis zur vollständigen Gefäßbindung frei
+abwechselbar. Ein Gefäßtyp kann mehrfach verwendet werden: Lebensenergie und Schritte
+brauchen jeweils eine eigene Eisenkiste. Das Leeren entfernt zuerst den Inhalt und bei
+einer noch unvollständigen Gefäßbindung anschließend das leere Gefäß.
+
+Die vollständige Liste der gewünschten Werte steht im separaten Bindungsplan beim Golem,
+nicht auf den Canvas-Fassungen oder in Fehlermeldungen. Die Doppelseite verwendet die
+Buchgrafik aus MushRoom: links Nox und Valerius' Notizen, rechts die sechs Füllungen.
+Der Spieler verlässt die Werkbank zum Nachschlagen. Seine bisherigen Füllungen bleiben
+dabei erhalten. Java-Typnamen erscheinen weiterhin erst nach erfolgreicher Bindung.
 
 ## Was die Handlung vermittelt
 

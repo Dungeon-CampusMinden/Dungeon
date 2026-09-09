@@ -124,13 +124,13 @@ final class ProgrammingGolemRuntime {
     else vesselsCollected = true;
     bindingFeedback =
         propertiesCollected && vesselsCollected
-            ? "Gefäße auf die Eigenschaftsrunen ziehen."
+            ? "Gefäße zuordnen und Essenzen einsetzen. Valerius' Bindungsplan liegt beim Golem."
             : propertiesCollected ? "Gefäßvorrat fehlt." : "Eigenschaftsrunen fehlen.";
     showText(
         who,
         properties
-            ? "Eigenschaftsrunen eingepackt. Die Sollwerte sind in die Runen eingeritzt."
-            : "Seelengefäße eingepackt. Jedes Gefäß trägt eine Prägung für seinen Inhalt. Der Vorrat reicht für mehrere Fassungen.");
+            ? "Eigenschaftsrunen eingepackt. Valerius' Bindungsplan liegt beim Golem."
+            : "Seelengefäße und Essenzen eingepackt. Jedes Gefäß trägt eine Prägung für seinen Inhalt. Der Vorrat reicht für mehrere Fassungen.");
   }
 
   void assignBinding(Entity who, String propertyName, String value, boolean vessel) {
@@ -139,9 +139,8 @@ final class ProgrammingGolemRuntime {
         || controller.phase() != ProgrammingPhase.VARIABLES
         || !propertiesCollected
         || !vesselsCollected) return;
-    VariablePuzzleStage expected =
-        vessel ? VariablePuzzleStage.VESSELS : VariablePuzzleStage.ESSENCES;
-    if (controller.variableStage() != expected) return;
+    if (bindingState().revealed()
+        || vessel && controller.variableStage() != VariablePuzzleStage.VESSELS) return;
     try {
       GolemProperty property = GolemProperty.valueOf(propertyName);
       if (vessel) {
@@ -154,14 +153,14 @@ final class ProgrammingGolemRuntime {
                   : selected.label()
                       + " trägt: "
                       + selected.capacity()
-                      + ". Prüfe den eingeritzten Sollwert.";
+                      + ". Vergleiche mit Valerius' Bindungsplan.";
           return;
         }
         vessels.put(property, selected);
         bindingFeedback = property.label() + ": " + selected.label() + " eingesetzt.";
         if (vessels.size() == GolemProperty.values().length) {
           controller.submitVessels(vessels);
-          bindingFeedback = "Essenzfach geöffnet. Werte in die Gefäße ziehen.";
+          bindingFeedback = "Alle Gefäße eingesetzt. Fehlende Füllungen ergänzen.";
         }
       } else {
         MagicalEssence selected = MagicalEssence.valueOf(value);
@@ -183,7 +182,7 @@ final class ProgrammingGolemRuntime {
                 + " gespeichert."
                 + (VariablePuzzle.essenceSolution().get(property) == selected
                     ? ""
-                    : " Soll: " + VariablePuzzle.essenceSolution().get(property).literal() + ".");
+                    : " Bindung reagiert nicht.");
         if (VariablePuzzle.essencesCorrect(essences)) {
           controller.submitEssences(essences);
           bindingFeedback = "Seelenbindung vollständig. Gefäß, Name und Wert bilden eine Variable.";
@@ -200,28 +199,17 @@ final class ProgrammingGolemRuntime {
         || controller.phase() != ProgrammingPhase.VARIABLES) return;
     try {
       GolemProperty property = GolemProperty.valueOf(propertyName);
-      if (controller.variableStage() == VariablePuzzleStage.VESSELS) vessels.remove(property);
-      else if (controller.variableStage() == VariablePuzzleStage.ESSENCES)
-        essences.remove(property);
-      else return;
+      if (bindingState().revealed()) return;
+      if (essences.remove(property) == null
+          && controller.variableStage() == VariablePuzzleStage.VESSELS) vessels.remove(property);
       bindingFeedback = property.label() + ": Fassung geleert.";
     } catch (IllegalArgumentException ignored) {
       // Ignore unknown property IDs.
     }
   }
 
-  void showTranslation(Entity who) {
-    showText(
-        who,
-        (controller.variableStage() == VariablePuzzleStage.REVEAL
-                || controller.variableStage() == VariablePuzzleStage.COMPLETE)
-            ? "Valerius' Gefäßverzeichnis\n\n" + translation()
-            : "Gefäßverzeichnis\n\nDie Fachbezeichnungen lassen sich erst an einer vollständigen Seelenbindung ablesen.\n\nValerius");
-  }
-
-  private String translation() {
-    return "Eisenkiste → int\nKristallflasche → double\nPergament → String\nRunenstein → char\nLichtkugel → boolean"
-        + "\n\nNox: Lebensenergie 125, Mana 3.5, Aktiviert true, Blickrichtung 'O', Schritte 17.";
+  void showBindingBook(Entity who) {
+    if (authorized(who, "variables-translation", 3f)) ProgrammingBindingBook.open(who);
   }
 
   void activate(Entity who) {

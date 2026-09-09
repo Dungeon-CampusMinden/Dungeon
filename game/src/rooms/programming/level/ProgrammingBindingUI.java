@@ -14,7 +14,6 @@ import rooms.programming.modules.variables.BindingState;
 import rooms.programming.modules.variables.GolemProperty;
 import rooms.programming.modules.variables.MagicalEssence;
 import rooms.programming.modules.variables.SoulVessel;
-import rooms.programming.state.VariablePuzzleStage;
 
 /** One workbench: reusable vessel stamps, named storage and replaceable value tokens. */
 final class ProgrammingBindingUI extends CanvasUI {
@@ -87,9 +86,7 @@ final class ProgrammingBindingUI extends CanvasUI {
   private void update(BindingState next) {
     if (state != null
         && (state.propertiesCollected() != next.propertiesCollected()
-            || state.vesselsCollected() != next.vesselsCollected()
-            || state.stage() == VariablePuzzleStage.VESSELS && next.stage() != state.stage()))
-      frame = true;
+            || state.vesselsCollected() != next.vesselsCollected())) frame = true;
     state = next;
     for (var node : area().nodes())
       if (node instanceof ProgrammingBindingNode binding) binding.update(next);
@@ -111,7 +108,7 @@ final class ProgrammingBindingUI extends CanvasUI {
       for (var child : getChildren())
         if (child instanceof com.badlogic.gdx.scenes.scene2d.utils.Layout layout) layout.validate();
       // Fixed workbench bounds prevent empty supplies from hiding the assembly's spatial structure.
-      float bottom = state.stage() == VariablePuzzleStage.VESSELS ? -42 : -198;
+      float bottom = state.vesselsCollected() ? -198 : -42;
       float height = 630 - bottom;
       float zoom =
           Math.min(

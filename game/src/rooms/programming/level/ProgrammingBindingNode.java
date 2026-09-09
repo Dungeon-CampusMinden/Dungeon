@@ -117,15 +117,12 @@ final class ProgrammingBindingNode extends CanvasNode {
       movable(next.propertiesCollected() && next.stage() == VariablePuzzleStage.VESSELS);
     }
     if (kind == Kind.ESSENCE) {
-      setVisible(next.stage() != VariablePuzzleStage.VESSELS);
-      movable(next.stage() == VariablePuzzleStage.ESSENCES);
+      setVisible(next.vesselsCollected());
+      movable(next.propertiesCollected() && next.vesselsCollected() && !next.revealed());
     }
     if (kind == Kind.SOCKET) setVisible(next.propertiesCollected());
     if (kind == Kind.HEADING)
-      setVisible(
-          id().equals("vessel-heading")
-              ? next.vesselsCollected()
-              : next.stage() != VariablePuzzleStage.VESSELS);
+      setVisible(id().equals("vessel-heading") ? next.vesselsCollected() : next.vesselsCollected());
     if (title != null) refreshText();
     invalidateLayout();
   }
@@ -176,14 +173,14 @@ final class ProgrammingBindingNode extends CanvasNode {
         var container = state.vessels().get(property);
         var stored = state.essences().get(property);
         title.setText(property.label());
-        detail.setText("Soll: " + VariablePuzzle.essenceSolution().get(property).literal());
         value.setText(
             container == null ? "Gefäß ablegen" : stored == null ? "leer" : stored.literal());
         if (state.revealed())
           detail.setText(
               container.javaType() + " " + property.identifier() + " = " + stored.literal() + ";");
         if (!state.revealed()
-            && (state.stage() == VariablePuzzleStage.VESSELS ? container != null : stored != null))
+            && (stored != null
+                || state.stage() == VariablePuzzleStage.VESSELS && container != null))
           erase.setText("×");
       }
       case CORE -> {
@@ -195,12 +192,7 @@ final class ProgrammingBindingNode extends CanvasNode {
         value.setText(state.stage() == VariablePuzzleStage.REVEAL ? "Aktivieren" : "");
       }
       case FEEDBACK -> {
-        title.setText(
-            state.revealed()
-                ? "Gefäß · Name · Wert"
-                : state.stage() == VariablePuzzleStage.VESSELS
-                    ? "Gefäße zuordnen"
-                    : "Werte einsetzen");
+        title.setText(state.revealed() ? "Gefäß · Name · Wert" : "Seelenbindung");
         detail.setText(state.feedback());
       }
       case HEADING -> title.setText(id().equals("vessel-heading") ? "Gefäßvorrat" : "Essenzfach");
@@ -222,7 +214,7 @@ final class ProgrammingBindingNode extends CanvasNode {
         title.setBounds(16, height() - 39, width() - 56, 26);
         detail.setBounds(
             16, state != null && state.revealed() ? 4 : height() - 65, width() - 32, 30);
-        value.setBounds(78, 34, width() - 94, 40);
+        value.setBounds(78, state != null && state.revealed() ? 34 : 50, width() - 94, 40);
         erase.setBounds(width() - 34, height() - 40, 24, 28);
       }
       case CORE -> {
@@ -285,9 +277,10 @@ final class ProgrammingBindingNode extends CanvasNode {
         batch, GOLD, alpha * (over ? .9f : .35f), x(), y() + height() - 2, width(), 2);
     if (kind == Kind.SOCKET) {
       var container = state.vessels().get(property());
-      CanvasGraphics.fill(batch, INK, alpha, x() + 12, y() + 32, width() - 24, 46);
+      float storageY = y() + (state.revealed() ? 32 : 48);
+      CanvasGraphics.fill(batch, INK, alpha, x() + 12, storageY, width() - 24, 46);
       if (container != null)
-        sprite(batch, vesselImage(container), x() + 20, y() + 34, 40, 40, alpha);
+        sprite(batch, vesselImage(container), x() + 20, storageY + 2, 40, 40, alpha);
       if (over || pulse > 0)
         CanvasGraphics.outline(
             batch, GOLD, alpha * Math.max(over ? .85f : 0, pulse), x(), y(), width(), height(), 2);
@@ -364,7 +357,6 @@ final class ProgrammingBindingNode extends CanvasNode {
       return false;
     source.returnToSupply();
     boolean vessel = source.kind == Kind.VESSEL;
-    if ((state.stage() == VariablePuzzleStage.VESSELS) != vessel) return true;
     canvas()
         .fireServerEvent(
             vessel ? "vessel" : "essence",

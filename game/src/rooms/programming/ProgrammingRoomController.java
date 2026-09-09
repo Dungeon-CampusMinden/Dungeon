@@ -50,7 +50,7 @@ public final class ProgrammingRoomController {
   }
 
   /**
-   * Validates the vessel assignment and unlocks the essence stage.
+   * Records the complete vessel binding before the final value assignment can be revealed.
    *
    * @param vessels the submitted assignment
    * @return whether it was accepted, incorrect, or submitted outside the vessel stage
