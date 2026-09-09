@@ -319,6 +319,11 @@ final class ProgrammingGolemRuntime {
     advanceAction();
   }
 
+  void removeRune(String runeId, Entity who) {
+    if (!authorized(who, "loop-terminal", 3f) || busy || !activeRune.equals(runeId)) return;
+    activeRune = "";
+  }
+
   private void advanceAction() {
     attacking = false;
     position.rotation(0);
@@ -374,7 +379,6 @@ final class ProgrammingGolemRuntime {
     golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
     if (success) {
       controller.completeExecutedLoop(currentChallenge());
-      activeRune = "";
       busy = false;
       status = "Wegzeichen erreicht. Nächster Abschnitt bereit.";
       if (controller.phase() == ProgrammingPhase.METHODS) {
@@ -383,8 +387,9 @@ final class ProgrammingGolemRuntime {
       }
     } else {
       status =
-          (reason.isEmpty() ? "Zielposition oder Blickrichtung nicht erreicht." : reason)
-              + " Rücklauf. Die Rune bleibt im Archiv.";
+          "Rune ungültig. "
+              + (reason.isEmpty() ? "Zielposition oder Blickrichtung nicht erreicht." : reason)
+              + " Nox kehrt zurück.";
       returning = true;
       busy = true;
       pause = 1.5f;
@@ -414,8 +419,7 @@ final class ProgrammingGolemRuntime {
     route.clear();
     busy = false;
     returning = false;
-    activeRune = "";
-    status = "Zurück am Wegzeichen. Rune ausgeworfen.";
+    status = "Rune ungültig. Nox ist zurück am Wegzeichen.";
   }
 
   private void face(LoopMaze.Direction direction) {

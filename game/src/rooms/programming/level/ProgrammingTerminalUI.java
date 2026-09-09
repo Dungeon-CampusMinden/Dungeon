@@ -1,17 +1,39 @@
 package rooms.programming.level;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import engine.utils.Scene2dElementFactory;
+import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasLayout;
 import feature.canvas.CanvasNode;
 import feature.canvas.CanvasOptions;
 import feature.canvas.CanvasSnapshot;
 import feature.canvas.CanvasUI;
 import feature.canvas.NodeOrigin;
+import java.util.Comparator;
 import rooms.programming.modules.loops.TerminalState;
 
 /** Keeps live server updates separate from the player's canvas arrangement. */
 final class ProgrammingTerminalUI extends CanvasUI {
   private TerminalState current;
   private boolean initialViewPlaced;
+  private final Label code = Scene2dElementFactory.createLabel("", 18, Color.valueOf("f1eadc"));
+  private final Group tooltip =
+      new Group() {
+        @Override
+        public void draw(Batch batch, float alpha) {
+          CanvasGraphics.fill(
+              batch, ProgrammingTerminal.INK, alpha, getX(), getY(), getWidth(), getHeight());
+          CanvasGraphics.outline(
+              batch, ProgrammingTerminal.ACCENT, alpha, getX(), getY(), getWidth(), getHeight(), 1);
+          super.draw(batch, alpha);
+        }
+      };
 
   ProgrammingTerminalUI(String dialogId, TerminalState initial) {
     super(
@@ -38,12 +60,55 @@ final class ProgrammingTerminalUI extends CanvasUI {
         ProgrammingTerminal.nodes(initial));
     current = initial;
     update(initial);
+    tooltip.setTransform(false);
+    tooltip.setTouchable(Touchable.disabled);
+    tooltip.setVisible(false);
+    code.setPosition(14, 12);
+    tooltip.addActor(code);
+    addActor(tooltip);
   }
 
   @Override
   public void act(float delta) {
     super.act(delta);
     ProgrammingTerminal.state().ifPresent(this::update);
+    updateTooltip();
+  }
+
+  private void updateTooltip() {
+    tooltip.setVisible(false);
+    if (getStage() == null || Gdx.input.isTouched()) return;
+    Vector2 pointer =
+        area().screenToLocalCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    if (pointer.x < 0
+        || pointer.y < 0
+        || pointer.x > area().getWidth()
+        || pointer.y > area().getHeight()) return;
+    Vector2 world = area().areaToWorld(pointer.x, pointer.y);
+    area().nodes().stream()
+        .filter(CanvasNode::isVisible)
+        .filter(node -> node.bounds().contains(world))
+        .max(Comparator.comparingInt(CanvasNode::z))
+        .filter(ProgrammingTerminalNode.class::isInstance)
+        .map(ProgrammingTerminalNode.class::cast)
+        .flatMap(ProgrammingTerminalNode::hoverCode)
+        .ifPresent(
+            source -> {
+              code.setText(source);
+              code.pack();
+              tooltip.setSize(code.getWidth() + 28, code.getHeight() + 24);
+              Vector2 local =
+                  screenToLocalCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+              tooltip.setPosition(
+                  Math.max(8, Math.min(local.x + 18, getWidth() - tooltip.getWidth() - 8)),
+                  Math.max(
+                      8,
+                      Math.min(
+                          local.y - tooltip.getHeight() - 14,
+                          getHeight() - tooltip.getHeight() - 8)));
+              tooltip.setVisible(true);
+              tooltip.toFront();
+            });
   }
 
   @Override
@@ -53,7 +118,7 @@ final class ProgrammingTerminalUI extends CanvasUI {
         if (child instanceof com.badlogic.gdx.scenes.scene2d.utils.Layout layout) layout.validate();
       }
       float zoom =
-          Math.min(1, Math.min((area().getWidth() - 64) / 1160, (area().getHeight() - 110) / 580));
+          Math.min(1, Math.min((area().getWidth() - 64) / 945, (area().getHeight() - 110) / 710));
       area().zoom(zoom);
       area().pan(32, area().getHeight() - 72 - 580 * zoom);
       initialViewPlaced = true;

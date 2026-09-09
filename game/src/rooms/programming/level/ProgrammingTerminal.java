@@ -73,6 +73,12 @@ public final class ProgrammingTerminal {
           if (payload instanceof DialogResponseMessage.StringValue value)
             runtime.executeRune(value.value(), who);
         });
+    ui.registerCallback(
+        "removeRune",
+        payload -> {
+          if (payload instanceof DialogResponseMessage.StringValue value)
+            runtime.removeRune(value.value(), who);
+        });
   }
 
   static void stopWalking(Entity who) {
@@ -155,8 +161,9 @@ public final class ProgrammingTerminal {
   static List<CanvasNode> nodes(TerminalState state) {
     List<CanvasNode> result = new ArrayList<>();
     result.add(new ProgrammingTerminalNode("map", "map").position(0, 0));
-    result.add(new ProgrammingTerminalNode("executor", "executor").position(420, 375));
-    result.add(new ProgrammingTerminalNode("commands", "help").position(800, 300));
+    result.add(new ProgrammingTerminalNode("executor", "executor").position(435, 460));
+    result.add(new ProgrammingTerminalNode("feedback", "status").position(417, 420).z(-1));
+    result.add(new ProgrammingTerminalNode("commands", "help").position(435, -130));
     for (int i = 0; i < state.collectedRunes().size(); i++) {
       result.add(card(state.collectedRunes().get(i), i));
     }
@@ -165,7 +172,7 @@ public final class ProgrammingTerminal {
 
   static ProgrammingTerminalNode card(String id, int index) {
     ProgrammingTerminalNode node = new ProgrammingTerminalNode(id, "rune");
-    node.position(420 + index / 12 * 380, -10 - index % 12 * 36);
+    node.position(435 + index % 6 * 80, 340 - index / 6 * 80);
     return node;
   }
 }
