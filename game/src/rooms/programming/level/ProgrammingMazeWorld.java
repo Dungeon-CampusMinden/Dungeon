@@ -34,14 +34,14 @@ public final class ProgrammingMazeWorld {
             (int) origin.x()
                 + (LoopMaze.cells().stream().mapToInt(LoopMaze.Cell::x).max().orElseThrow() + 1)
                     * LoopMaze.CELL_WIDTH
-                + 2);
+                + 6);
     int height =
         Math.max(
             rooms.length,
             (int) origin.y()
                 + (LoopMaze.cells().stream().mapToInt(LoopMaze.Cell::y).max().orElseThrow() + 1)
                     * LoopMaze.CELL_HEIGHT
-                + 2);
+                + 6);
     LevelElement[][] result = new LevelElement[height][width];
     for (LevelElement[] row : result) Arrays.fill(row, LevelElement.SKIP);
     for (int y = 0; y < rooms.length; y++)
@@ -58,6 +58,14 @@ public final class ProgrammingMazeWorld {
         for (int x = (int) at.x(); x < at.x() + LoopMaze.CELL_WIDTH; x++)
           result[y][x] = LevelElement.FLOOR;
     }
+    // The winch occupies a service bay beyond the last working position, not the golem's path.
+    Point winch = LoopMaze.world(origin, LoopMaze.checkpoints().getLast().goal());
+    for (int y = (int) winch.y() - 1; y <= winch.y() + 6; y++)
+      for (int x = (int) winch.x() + 5; x <= winch.x() + 10; x++)
+        result[y][x] =
+            y == winch.y() - 1 || y == winch.y() + 6 || x == winch.x() + 10
+                ? LevelElement.WALL
+                : LevelElement.FLOOR;
     return result;
   }
 
@@ -88,12 +96,49 @@ public final class ProgrammingMazeWorld {
     pitDraw.depth(DepthLayer.Ground.depth());
     abyss.add(pitDraw);
     Game.add(abyss);
+    storage(origin);
+  }
+
+  private static void storage(Point origin) {
+    for (var cell :
+        java.util.List.of(
+            new LoopMaze.Cell(5, 2), new LoopMaze.Cell(1, 2), new LoopMaze.Cell(4, 6))) {
+      Point at = LoopMaze.world(origin, cell);
+      for (int i = 0; i < 2; i++) {
+        Entity crate =
+            ProgrammingCellarMachinery.prop(
+                "stored-parts", at.translate(2 + i, .3f), "objects/crate/basic.png", .9f, .9f);
+        crate.add(ProgrammingProps.chestCollider());
+      }
+    }
+    Point pump = LoopMaze.world(origin, new LoopMaze.Cell(-1, 5));
+    Entity kettle =
+        ProgrammingCellarMachinery.prop(
+            "pump", pump.translate(1, .2f), "objects/magic_kettle", 1.5f, 1.5f);
+    kettle.add(ProgrammingProps.chestCollider());
+    // Wall-mounted pipes and their outlets stay outside the five-by-three movement footprint.
+    for (Point at : steamOutlets(origin)) {
+      ProgrammingCellarMachinery.sheet("pipe", at, 352, 32, 16, 48, .65f, 2);
+    }
+    for (var cell :
+        java.util.List.of(
+            new LoopMaze.Cell(0, 0), new LoopMaze.Cell(3, 3), new LoopMaze.Cell(0, 6))) {
+      Point at = LoopMaze.world(origin, cell).translate(.1f, -.1f);
+      Entity torch = ProgrammingCellarMachinery.prop("lamp", at, "objects/torch", .8f, .8f);
+      torch.name("programming-prop-torch-cellar-" + cell.x() + "-" + cell.y());
+      torch.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("on", null);
+    }
+  }
+
+  static java.util.List<Point> steamOutlets(Point origin) {
+    return java.util.List.of(
+        origin.translate(-4, 16), origin.translate(19.3f, 10), origin.translate(19.3f, 1));
   }
 
   private static void waypoint(Point at, int index) {
     Entity entity = new Entity("programming-maze-waypoint-" + index);
-    PositionComponent position = new PositionComponent(at);
-    position.scale(Vector2.of(LoopMaze.CELL_WIDTH, LoopMaze.CELL_HEIGHT));
+    PositionComponent position = new PositionComponent(at.translate(.1f, .1f));
+    position.scale(.8f);
     entity.add(position);
     DrawComponent draw = new DrawComponent(new SimpleIPath("objects/pressureplate"), "off");
     draw.depth(DepthLayer.Ground.depth());

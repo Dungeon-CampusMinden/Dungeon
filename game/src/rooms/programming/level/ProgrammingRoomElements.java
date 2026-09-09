@@ -56,10 +56,6 @@ final class ProgrammingRoomElements {
     spawnControl(level, "loop-terminal", Visual.BOOK, runtime, false);
     spawnControl(level, "loop-monitor", Visual.COMPASS, runtime, true);
     spawnText(level, "archive-instructions", ProgrammingStory.archive());
-    spawnText(
-        level,
-        "reserve-notice",
-        "Herzfeuer\n\nHier beginnt der noch unvollendete Weg. Akt 3 und Akt 4 folgen.");
     spawnText(level, "intro-tablet", ProgrammingStory.letter());
     if (level.namedPoints().containsKey("variables-translation")) {
       Entity tablet = createEntity(level, "variables-translation", Visual.BOOK, 0);

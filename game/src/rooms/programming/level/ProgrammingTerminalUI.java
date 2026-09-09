@@ -39,7 +39,7 @@ final class ProgrammingTerminalUI extends CanvasUI {
     super(
         ProgrammingTerminal.ID,
         new CanvasLayout(
-            "Golem · Schleifenterminal",
+            "Nox · Kellersteuerung",
             1050,
             720,
             new CanvasOptions()

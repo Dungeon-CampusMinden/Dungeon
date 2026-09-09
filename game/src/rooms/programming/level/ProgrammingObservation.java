@@ -17,6 +17,7 @@ import engine.game.ECSManagement;
 import engine.systems.CameraSystem;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
+import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
@@ -36,7 +37,10 @@ public final class ProgrammingObservation {
         context ->
             Game.isHeadless()
                 ? new HeadlessDialogGroup()
-                : new View(context.require("golem", Integer.class), context.dialogId()));
+                : new View(
+                    context.require("golem", Integer.class),
+                    context.dialogId(),
+                    context.find("cinematic", Boolean.class).orElse(false)));
   }
 
   static void open(Entity who, ProgrammingGolemRuntime runtime) {
@@ -54,9 +58,29 @@ public final class ProgrammingObservation {
     ui.registerCallback("close", payload -> UIUtils.closeDialog(ui));
   }
 
+  /**
+   * Uses the same read-only camera for the short, server-timed mechanical accident.
+   *
+   * @param focusId entity followed by every player's camera
+   * @return dialog closed by the server when the sequence finishes
+   */
+  static UIComponent sequence(int focusId) {
+    return DialogFactory.show(
+        DialogContext.builder()
+            .type(ProgrammingTerminal.Type.OBSERVATION)
+            .put("golem", focusId)
+            .put("cinematic", true)
+            .build(),
+        false,
+        false,
+        false,
+        Game.allPlayers().mapToInt(Entity::id).toArray());
+  }
+
   private static final class View extends Group {
     private final int golemId;
     private final String dialogId;
+    private final boolean cinematic;
     private final Map<Entity, CameraComponent> previous = new LinkedHashMap<>();
     private final Map<InputComponent, Boolean> inputs = new LinkedHashMap<>();
     private Entity followed;
@@ -64,13 +88,14 @@ public final class ProgrammingObservation {
     private final Label label;
     private float curtain = 1;
 
-    View(int golemId, String dialogId) {
+    View(int golemId, String dialogId, boolean cinematic) {
       this.golemId = golemId;
       this.dialogId = dialogId;
+      this.cinematic = cinematic;
       setSize(Game.windowWidth(), Game.windowHeight());
       label =
           Scene2dElementFactory.createLabel(
-              "Beobachte: Golem - ESC zum Verlassen", 22, Color.WHITE);
+              cinematic ? "" : "Beobachte: Nox · Keller - ESC zum Verlassen", 22, Color.WHITE);
       label.setAlignment(Align.center);
       addActor(label);
     }
@@ -81,7 +106,7 @@ public final class ProgrammingObservation {
       setSize(Game.windowWidth(), Game.windowHeight());
       setPosition(0, 0);
       label.setBounds(0, getHeight() - 55, getWidth(), 40);
-      if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+      if (!cinematic && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
         DialogCallbackResolver.createButtonCallback(dialogId, "close").accept(null);
       if (followed == null && getStage() != null) {
         Game.findEntityById(golemId)
@@ -117,6 +142,13 @@ public final class ProgrammingObservation {
                 position -> {
                   var camera = CameraSystem.camera();
                   var focus = EntityUtils.getPosition(followed);
+                  if (cinematic
+                      && (Math.abs(camera.position.x - focus.x()) > 20
+                          || Math.abs(camera.position.y - focus.y()) > 20)) {
+                    curtain = 1;
+                    camera.position.set(focus.x(), focus.y(), 0);
+                    camera.update();
+                  }
                   if (Math.abs(camera.position.x - focus.x()) < 1
                       && Math.abs(camera.position.y - focus.y()) < 1)
                     curtain = Math.max(0, curtain - delta * 4);
