@@ -56,6 +56,7 @@ final class ProgrammingGolemRuntime {
   private final Map<GolemProperty, MagicalEssence> essences = new EnumMap<>(GolemProperty.class);
   private final ArrayDeque<Point> route = new ArrayDeque<>();
   private final Entity golem;
+  private final ProgrammingCellarMachinery machinery;
   private LoopExecution attempt;
   private LoopMaze.Direction facing = LoopMaze.Direction.EAST;
   private boolean mazeReady;
@@ -86,6 +87,7 @@ final class ProgrammingGolemRuntime {
     velocity = golem.fetch(VelocityComponent.class).orElseThrow();
     collision = golem.fetch(CollideComponent.class).orElseThrow();
     wall = ProgrammingProps.wall(level);
+    machinery = new ProgrammingCellarMachinery(level, golem);
   }
 
   void show(Entity who) {
@@ -248,7 +250,7 @@ final class ProgrammingGolemRuntime {
           collision.collider().position(position.position());
           mazeReady = true;
           face(LoopMaze.Direction.EAST);
-          status = "Terminal bereit. Rune einsetzen und ausführen.";
+          status = "Keller erreicht. Räumauftrag bereit.";
         });
   }
 
@@ -378,13 +380,19 @@ final class ProgrammingGolemRuntime {
     position.rotation(0);
     golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
     if (success) {
-      controller.completeExecutedLoop(currentChallenge());
-      busy = false;
-      status = "Wegzeichen erreicht. Nächster Abschnitt bereit.";
-      if (controller.phase() == ProgrammingPhase.METHODS) {
-        ProgrammingGates.open(level, 2);
-        status = "Labyrinth abgeschlossen. Das Tor zu Akt 3 ist offen.";
-      }
+      String challenge = currentChallenge();
+      busy = true;
+      status = "Arbeitsposition erreicht. Räumauftrag läuft.";
+      machinery.clear(
+          controller.completedLoopChallenges().size(),
+          () -> {
+            controller.completeExecutedLoop(challenge);
+            busy = false;
+            status =
+                controller.phase() == ProgrammingPhase.METHODS
+                    ? "Torwinde: Halterung gebrochen. Antrieb stillgelegt."
+                    : "Räumauftrag erledigt. Nächste Arbeitsposition bereit.";
+          });
     } else {
       status =
           "Rune ungültig. "
@@ -419,7 +427,7 @@ final class ProgrammingGolemRuntime {
     route.clear();
     busy = false;
     returning = false;
-    status = "Rune ungültig. Nox ist zurück am Wegzeichen.";
+    status = "Rune ungültig. Nox ist zurück an der Arbeitsposition.";
   }
 
   private void face(LoopMaze.Direction direction) {
@@ -448,6 +456,10 @@ final class ProgrammingGolemRuntime {
     // LevelTick runs before VelocitySystem and MoveSystem. The latter owns physical movement.
     velocity.clearForces();
     velocity.currentVelocity(Vector2.ZERO);
+    if (machinery.working()) {
+      machinery.tick(1f / Game.frameRate());
+      return;
+    }
     if (wallBreakTime > 0) {
       wallBreakTime -= 1f / Game.frameRate();
       if (wallBreakTime <= 0) wall.forEach(draw -> draw.stateMachine().setState("broken", null));

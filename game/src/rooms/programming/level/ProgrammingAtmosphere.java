@@ -34,6 +34,16 @@ final class ProgrammingAtmosphere {
                               level.namedPoints().get("reveal-" + area + "-end"),
                               level.namedPoints().get("act1-gate-start")));
                 }
+                var gate = level.namedPoints().get("act2-gate-start");
+                var end = level.namedPoints().get("act2-gate-end");
+                draw.sceneShaders()
+                    .add(
+                        "programming-reveal-exit",
+                        new ProgrammingPassageRevealShader(
+                            gate.translate(-3, 1),
+                            new engine.utils.Point(
+                                end.x() + 2, level.namedPoints().get("reserve-notice").y() + 4),
+                            gate));
               });
     }
   }

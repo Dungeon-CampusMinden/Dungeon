@@ -139,7 +139,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
     heading =
         Scene2dElementFactory.createLabel(
             switch (kind) {
-              case "map" -> "Labyrinth";
+              case "map" -> "Keller";
               case "status" -> "Executor";
               default -> "Befehle";
             },

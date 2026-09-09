@@ -93,7 +93,7 @@ public final class LoopExecution {
         if (!LoopMaze.cells().contains(next)) return fail("Wand voraus. Bewegung gestoppt.");
         if (next.equals(LoopMaze.pit())) return fail("Grube voraus. Schritt gestoppt.");
         if (monsterAlive && next.equals(LoopMaze.monster()))
-          return fail("Ein Wächter versperrt den Weg.");
+          return fail("Ein Eindringling versperrt den Weg.");
         cell = next;
         history.add(cell);
       }
