@@ -664,6 +664,9 @@ public class CanvasArea extends Group {
       maxX = Math.max(maxX, node.x() + node.width());
       maxY = Math.max(maxY, node.y() + node.height());
     }
+    if (minX > maxX) {
+      return null;
+    }
     return new Rectangle(minX, minY, maxX - minX, maxY - minY);
   }
 
