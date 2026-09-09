@@ -16,7 +16,7 @@ final class ProgrammingGates {
     List<String> gates =
         level.namedPoints().keySet().stream()
             .filter(name -> name.endsWith("-gate-start"))
-            .filter(name -> name.startsWith("act"))
+            .filter(name -> name.startsWith("act") || name.startsWith("departure-"))
             .map(name -> name.substring(0, name.length() - "-gate-start".length()))
             .sorted()
             .toList();
@@ -34,7 +34,13 @@ final class ProgrammingGates {
         for (int x = minX; x <= maxX; x++) {
           level
               .tileAt(new Coordinate(x, y))
-              .ifPresent(tile -> tile.texturePath(new SimpleIPath("rooms/programming/gate.png")));
+              .ifPresent(
+                  tile ->
+                      tile.texturePath(
+                          new SimpleIPath(
+                              gate.equals("act1")
+                                  ? "rooms/programming/gate.png"
+                                  : "rooms/programming/sluice.png")));
         }
       }
     }
@@ -42,6 +48,30 @@ final class ProgrammingGates {
 
   static void open(DungeonLevel level, int act) {
     visit(level, "act" + act, false);
+  }
+
+  /**
+   * Opens the golem's departure sluice only for its transit.
+   *
+   * @param level the shared room
+   * @param open whether the passage should be open
+   */
+  static void departure(DungeonLevel level, boolean open) {
+    Point start = level.getPoint("departure-gate-start");
+    Point end = level.getPoint("departure-gate-end");
+    for (int y = (int) start.y(); y <= end.y(); y++) {
+      for (int x = (int) start.x(); x <= end.x(); x++) {
+        level
+            .tileAt(new Coordinate(x, y))
+            .filter(DoorTile.class::isInstance)
+            .map(DoorTile.class::cast)
+            .ifPresent(
+                door -> {
+                  if (open) door.open();
+                  else door.close();
+                });
+      }
+    }
   }
 
   private static void visit(DungeonLevel level, String gate, boolean initialize) {

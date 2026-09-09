@@ -60,7 +60,21 @@ final class ProgrammingLightingShader extends AbstractShader {
     return List.of(
         new FloatUniform("u_ambientLight", AMBIENT_LIGHT),
         new Vector3ArrayUniform("u_lightSources", positions),
-        new Vector3ArrayUniform("u_lightColors", colors));
+        new Vector3ArrayUniform("u_lightColors", colors),
+        new Vector3ArrayUniform(
+            "u_steamSources",
+            Game.currentLevel()
+                .map(
+                    level -> {
+                      List<Vector3> steam = new ArrayList<>();
+                      for (Point at :
+                          ProgrammingMazeWorld.steamOutlets(level.namedPoints().get("maze-origin")))
+                        steam.add(new Vector3(at.x() + .3f, at.y() + .6f, 1));
+                      Point sluice = level.namedPoints().get("loop-departure");
+                      steam.add(new Vector3(sluice.x() - 1, sluice.y(), 1.6f));
+                      return steam;
+                    })
+                .orElse(List.of())));
   }
 
   private static boolean lightSource(Entity entity) {

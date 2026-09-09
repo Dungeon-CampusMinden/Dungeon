@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import rooms.programming.level.ProgrammingTerminal;
 
 /** Adds interaction reach to ordinary world snapshots; room progress stays on the server. */
 public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
@@ -29,6 +30,7 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
         .map(
             snapshot -> {
               List<EntityState> entities = new ArrayList<>();
+              var terminal = ProgrammingTerminal.state();
               for (EntityState state : snapshot.entities()) {
                 var entity =
                     Game.findEntityById(state.entityId())
@@ -43,7 +45,13 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
                           .fetch(InteractionComponent.class)
                           .map(component -> component.interaction().range())
                           .orElse(0f);
-                  entities.add(withMergedMetadata(state, Map.of(RANGE_KEY, Float.toString(range))));
+                  Map<String, String> metadata = new HashMap<>();
+                  metadata.put(RANGE_KEY, Float.toString(range));
+                  terminal
+                      .filter(s -> s.golemId() == state.entityId())
+                      .ifPresent(
+                          s -> metadata.put("programming.terminal", ProgrammingTerminal.encode(s)));
+                  entities.add(withMergedMetadata(state, metadata));
                 } else entities.add(state);
               }
               return new SnapshotMessage(snapshot.serverTick(), entities, snapshot.levelState());
@@ -54,6 +62,10 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
   public void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher) {
     delegate.applySnapshot(snapshot, dispatcher);
     for (EntityState state : snapshot.entities()) {
+      state
+          .metadata()
+          .map(metadata -> metadata.get("programming.terminal"))
+          .ifPresent(ProgrammingTerminal::receive);
       state
           .metadata()
           .map(metadata -> metadata.get(RANGE_KEY))

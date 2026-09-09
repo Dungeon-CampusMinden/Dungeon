@@ -1,0 +1,3 @@
+- Source: Existing `dungeon/default/wall/wall_bottom.png`, copied without modification.
+- Author: Diana Kirzhner
+- License: CC0 1.0
