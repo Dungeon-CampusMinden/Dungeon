@@ -37,6 +37,25 @@ message ShaderEntryInfo {
   map<string, string> properties = 6;
 }
 
+// Server-to-client: Complete state for a managed scene, level, or depth-layer shader target.
+message ShaderTargetStateMessage {
+  enum Target {
+    TARGET_UNSPECIFIED = 0;
+    SCENE = 1;
+    LEVEL = 2;
+    DEPTH_LAYER = 3;
+  }
+
+  // Managed render target.
+  Target target = 1;
+
+  // DrawSystem depth layer, only used for DEPTH_LAYER.
+  int32 depth = 2;
+
+  // Complete shader state for the target.
+  ShaderComponentInfo shader_component = 3;
+}
+
 // Server-to-client: New entity spawned.
 // Maps to: engine.network.messages.s2c.EntitySpawnEvent
 message EntitySpawnEvent {

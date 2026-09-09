@@ -28,6 +28,7 @@ import engine.network.codec.converters.s2c.RegisterAckConverter;
 import engine.network.codec.converters.s2c.SnapshotConverter;
 import engine.network.codec.converters.s2c.SoundPlayConverter;
 import engine.network.codec.converters.s2c.SoundStopConverter;
+import engine.network.codec.converters.s2c.ShaderTargetStateConverter;
 
 /** Registers all built-in dungeon network message converters. */
 public final class CoreConverters {
@@ -65,6 +66,7 @@ public final class CoreConverters {
     registry.register(new DeltaSnapshotConverter());
     registry.register(new SoundPlayConverter());
     registry.register(new SoundStopConverter());
+    registry.register(new ShaderTargetStateConverter());
     registry.register(new DebugTelemetrySnapshotConverter());
     registry.register(new DebugPongConverter());
     registry.register(new InitialWorldCompleteConverter());

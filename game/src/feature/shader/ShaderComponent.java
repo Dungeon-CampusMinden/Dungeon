@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * Describes the shaders that should be applied to an entity.
  *
- * <p>The component owns the ordered shader declarations. {@link ShaderSystem} projects these
+ * <p>The component owns the ordered shader declarations. {@link ShaderSyncSystem} projects these
  * declarations into the entity's runtime {@code DrawComponent}.
  */
 public final class ShaderComponent implements Component {

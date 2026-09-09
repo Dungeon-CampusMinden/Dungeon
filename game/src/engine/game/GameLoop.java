@@ -46,6 +46,7 @@ import engine.network.messages.s2c.InitialWorldComplete;
 import engine.network.messages.s2c.LevelChangeEvent;
 import engine.network.messages.s2c.LevelState;
 import engine.network.messages.s2c.SnapshotMessage;
+import engine.network.messages.s2c.ShaderTargetStateMessage;
 import engine.network.messages.s2c.SoundPlayMessage;
 import engine.network.messages.s2c.SoundStopMessage;
 import engine.network.server.ClientState;
@@ -81,6 +82,8 @@ import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.utils.CheckPatternPainter;
 import feature.utils.EntityUtils;
+import feature.shader.ShaderSyncSystem;
+import feature.shader.ShaderSystem;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -141,6 +144,11 @@ public final class GameLoop extends ScreenAdapter {
 
         if (serverAuthority) {
           SoundTracker.instance().clear();
+          Game.system(ShaderSystem.class, ShaderSystem::clear);
+        } else if (!PreRunConfiguration.multiplayerEnabled()) {
+          Game.system(ShaderSystem.class, ShaderSystem::clear);
+        } else {
+          Game.system(ShaderSyncSystem.class, ShaderSyncSystem::clearTargetShaders);
         }
 
         List<Entity> allPlayers = serverAuthority ? ECSManagement.allPlayers().toList() : List.of();
@@ -753,6 +761,11 @@ public final class GameLoop extends ScreenAdapter {
             LOGGER.warn("Error while applying delta snapshot message: {}", e.getMessage(), e);
           }
         });
+
+    dispatcher.registerHandler(
+        ShaderTargetStateMessage.class,
+        (ctx, msg) ->
+            Game.system(ShaderSyncSystem.class, shaderSync -> shaderSync.applyTargetState(msg)));
 
     dispatcher.registerHandler(
         SoundPlayMessage.class,

@@ -17,6 +17,7 @@ import engine.utils.EntityIdProvider;
 import engine.utils.EntitySystemMapper;
 import engine.utils.logging.DungeonLogger;
 import feature.interaction.InteractionFeedbackSystem;
+import feature.shader.ShaderSyncSystem;
 import feature.shader.ShaderSystem;
 import feature.systems.EventScheduler;
 import feature.systems.HudSystem;
@@ -63,6 +64,7 @@ public final class ECSManagement {
     new LevelSystem(),
     new SoundSystem(),
     new ShaderSystem(),
+    new ShaderSyncSystem(),
     DrawSystem.getInstance(),
     new EventScheduler(),
     new LevelTickSystem(),

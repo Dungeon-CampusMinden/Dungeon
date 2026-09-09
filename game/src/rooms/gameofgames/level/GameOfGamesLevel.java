@@ -6,7 +6,9 @@ import engine.level.DungeonLevel;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
+import engine.utils.Rectangle;
 import engine.utils.Tuple;
+import engine.utils.components.draw.shader.ColorGradeShader;
 import engine.utils.components.draw.shader.HueRemapShader;
 import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
@@ -15,6 +17,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.shader.ShaderComponent;
+import feature.shader.ShaderSystem;
 import java.util.List;
 import java.util.Map;
 import rooms.gameofgames.canvas.GameOfGamesCanvas;
@@ -86,10 +89,21 @@ public class GameOfGamesLevel extends DungeonLevel {
   private void setupCanvasUnlock() {
     Entity folder = DecoFactory.createDeco(new Point(13.0f, 10.0f), Deco.FolderRed);
     folder.remove(DecoComponent.class);
+    ShaderComponent shaderComp = new ShaderComponent("hue", 0, new HueRemapShader(0.0f, 0.66f, 0.2f));
+    folder.add(shaderComp);
     folder.add(
         new InteractionComponent(
             new Interaction(
                 (interacted, who) -> {
+                  Game.system(
+                      ShaderSystem.class,
+                      shaderSystem ->
+                          shaderSystem.addLevelShader(
+                              "level",
+                              0,
+                              new ColorGradeShader(-1, 2.0f, 2.0f)
+                                  .region(new Rectangle(100, 100, -50, -50)),
+                              who.id()));
                   boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
                   GameOfGamesCanvas.unlockExtraNodes(unlocked);
                   DialogFactory.showDialogDialog(
