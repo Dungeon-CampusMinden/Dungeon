@@ -67,9 +67,10 @@ final class ProgrammingLightingShader extends AbstractShader {
                 .map(
                     level -> {
                       List<Vector3> steam = new ArrayList<>();
+                      // Native pipe rupture (4, 11) in an 8x24 sprite, drawn 0.65 tiles wide.
                       for (Point at :
                           ProgrammingMazeWorld.steamOutlets(level.namedPoints().get("maze-origin")))
-                        steam.add(new Vector3(at.x() + .3f, at.y() + .6f, 1));
+                        steam.add(new Vector3(at.x() + .325f, at.y() + 1.05625f, 1));
                       Point sluice = level.namedPoints().get("loop-departure");
                       steam.add(new Vector3(sluice.x() - 1, sluice.y(), 1.6f));
                       return steam;

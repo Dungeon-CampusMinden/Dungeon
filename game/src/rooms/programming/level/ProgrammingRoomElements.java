@@ -10,10 +10,13 @@ import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.draw.state.CharacterStateFactory;
+import engine.utils.components.draw.state.State;
+import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import java.util.List;
 import rooms.programming.modules.loops.LoopPuzzle;
 import rooms.programming.modules.loops.LoopRune;
 
@@ -42,7 +45,7 @@ final class ProgrammingRoomElements {
     spawnBindingChest(level, runtime, false);
     LoopPuzzle.runes().forEach(rune -> spawnLoopRune(level, rune, runtime));
     spawnControl(level, "loop-terminal", Visual.BOOK, runtime, false);
-    spawnControl(level, "loop-monitor", Visual.COMPASS, runtime, true);
+    spawnControl(level, "loop-monitor", Visual.SEHSTEIN, runtime, true);
     spawnText(level, "archive-instructions", Visual.BOOK, ProgrammingStory.archive());
     spawnText(level, "intro-tablet", Visual.BOOK, ProgrammingStory.letter());
     spawnText(level, "forge-maintenance-note", Visual.SCROLL, ProgrammingStory.maintenance());
@@ -95,10 +98,7 @@ final class ProgrammingRoomElements {
       ProgrammingGolemRuntime runtime,
       boolean observation) {
     Entity entity = createEntity(level, point, visual, 0);
-    entity
-        .fetch(DrawComponent.class)
-        .orElseThrow()
-        .tintColor(observation ? 0x99EEFFFF : 0xDD99FFFF);
+    if (!observation) entity.fetch(DrawComponent.class).orElseThrow().tintColor(0xDD99FFFF);
     entity.add(
         new InteractionComponent(
             new Interaction(
@@ -145,7 +145,10 @@ final class ProgrammingRoomElements {
       entity.add(new CollideComponent(GOLEM_HITBOX_OFFSET, GOLEM_HITBOX_SIZE));
     } else if (visual == Visual.CHEST) {
       entity.add(ProgrammingProps.chestCollider());
-    } else if (visual == Visual.BOOK || visual == Visual.SCROLL || visual == Visual.COMPASS) {
+    } else if (visual == Visual.SEHSTEIN) {
+      // The crystal rests on the workbench; its table already supplies the floor collision.
+      position.scale(.8f);
+    } else if (visual == Visual.BOOK || visual == Visual.SCROLL) {
       position.scale(0.6f);
     }
     entity.add(position);
@@ -158,7 +161,7 @@ final class ProgrammingRoomElements {
     CHEST,
     BOOK,
     SCROLL,
-    COMPASS,
+    SEHSTEIN,
     GOLEM;
 
     private DrawComponent drawComponent(int runeIndex) {
@@ -171,7 +174,18 @@ final class ProgrammingRoomElements {
             case CHEST -> new DrawComponent(new SimpleIPath("objects/treasurechest"), "closed");
             case BOOK -> new DrawComponent(new SimpleIPath("items/rpg/item_book_brown.png"));
             case SCROLL -> new DrawComponent(new SimpleIPath("items/rpg/item_scroll.png"));
-            case COMPASS -> new DrawComponent(new SimpleIPath("items/rpg/item_compass.png"));
+            case SEHSTEIN ->
+                new DrawComponent(
+                    new StateMachine(
+                        List.of(
+                            new State(
+                                "idle",
+                                new SimpleIPath("rooms/programming/art/sehstein.png"),
+                                new SpritesheetConfig(0, 0, 1, 1, 16, 24)),
+                            new State(
+                                "active",
+                                new SimpleIPath("rooms/programming/art/sehstein.png"),
+                                new SpritesheetConfig(16, 0, 1, 1, 16, 24)))));
             case GOLEM ->
                 new DrawComponent(
                     CharacterStateFactory.createStateMachine(
@@ -181,7 +195,7 @@ final class ProgrammingRoomElements {
           switch (this) {
             case RUNE -> DepthLayer.Ground.depth();
             // Tabletop items must render above the furniture supporting them.
-            case BOOK, SCROLL, COMPASS -> DepthLayer.Player.depth() + 1;
+            case BOOK, SCROLL, SEHSTEIN -> DepthLayer.Player.depth() + 1;
             // Share the player's layer so Y sorting places characters behind standing objects.
             case GOLEM, CHEST -> DepthLayer.Player.depth();
           });

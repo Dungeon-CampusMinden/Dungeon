@@ -263,6 +263,10 @@ final class ProgrammingGolemRuntime {
                   level.getPoint("maze-origin"), LoopMaze.checkpoints().getFirst().start()));
           collision.collider().position(position.position());
           mazeReady = true;
+          Game.levelEntities()
+              .filter(entity -> entity.name().equals("programming-loop-monitor"))
+              .flatMap(entity -> entity.fetch(DrawComponent.class).stream())
+              .forEach(draw -> draw.stateMachine().setState("active", null));
           face(LoopMaze.Direction.EAST);
           status = "Keller erreicht. Räumauftrag bereit.";
         });

@@ -9,6 +9,8 @@ import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.SpritesheetConfig;
+import engine.utils.components.draw.state.State;
+import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.components.UIComponent;
@@ -51,27 +53,27 @@ final class ProgrammingCellarMachinery {
     }
 
     Point end = LoopMaze.world(origin, LoopMaze.checkpoints().getLast().goal());
-    for (float x : new float[] {5.15f, 8.65f}) {
-      Entity upright = sheet("winch-upright", end.translate(x, .1f), 336, 32, 16, 48, 1, 4);
-      upright.add(new CollideComponent(Vector2.ZERO, Vector2.of(1, 1)));
-    }
-    prop("winch-beam", end.translate(5.15f, 3.85f), "objects/crate/basic.png", 4.5f, .45f);
+    Entity frame = art("winch-frame", end.translate(5.15f, .1f), "winch-frame", 48, 40, 3.75f);
+    frame.add(new CollideComponent(Vector2.of(.05f, .08f), Vector2.of(.86f, .13f)));
     bracket =
-        prop("winch-bracket", end.translate(6.8f, 3.55f), "objects/crate/basic.png", .9f, .4f);
-    bracket.fetch(DrawComponent.class).orElseThrow().tintColor(0xA66D48FF);
-    weightStart = end.translate(6.85f, 1.2f);
-    weight = prop("counterweight", weightStart, "objects/push-stone.png", 1.4f, 1.4f);
-    for (int i = 0; i < 3; i++) {
-      Entity link = new Entity("programming-winch-chain-" + i);
-      link.add(new PositionComponent(end.translate(7.15f, 2.6f + i * .3f)));
-      link.add(
-          new DrawComponent(
-              new SimpleIPath("spritesheets/FD_Dungeon_Free.png"), new SpritesheetConfig(304, 80)));
-      link.fetch(PositionComponent.class).orElseThrow().scale(Vector2.of(.8f, .8f));
-      link.fetch(DrawComponent.class).orElseThrow().depth(DepthLayer.Player.depth());
-      Game.add(link);
-      chain.add(link);
-    }
+        art("winch-bracket", end.translate(6.725f, 2.3825f), "winch-bracket-intact", 16, 8, .45f);
+    bracket.add(
+        new DrawComponent(
+            new StateMachine(
+                List.of(
+                    new State(
+                        "idle",
+                        new SimpleIPath("rooms/programming/art/winch-bracket-intact.png"),
+                        new SpritesheetConfig(0, 0, 1, 1, 16, 8)),
+                    new State(
+                        "broken",
+                        new SimpleIPath("rooms/programming/art/winch-bracket-broken.png"),
+                        new SpritesheetConfig(0, 0, 1, 1, 16, 8))))));
+    weightStart = end.translate(6.7f, 1.2f);
+    weight = art("counterweight", weightStart, "winch-weight", 16, 16, 1.4f);
+    for (int i = 0; i < 8; i++)
+      chain.add(art("winch-chain-" + i, weightStart, "winch-chain", 4, 8, .16f));
+    updateChain(0);
 
     Point gate = level.getPoint("act2-gate-start");
     var wallTexture = level.tileAt(gate.translate(-1, 0)).orElseThrow().texturePath();
@@ -98,15 +100,26 @@ final class ProgrammingCellarMachinery {
     return entity;
   }
 
-  static Entity sheet(
-      String name, Point at, int x, int y, int w, int h, float width, float height) {
+  /**
+   * Native frame dimensions keep client rendering and headless geometry in agreement.
+   *
+   * @param name entity name suffix
+   * @param at lower-left sprite anchor
+   * @param file room art filename without extension
+   * @param width native frame width in pixels
+   * @param height native frame height in pixels
+   * @param scale world size of the shorter frame edge
+   * @return the spawned prop
+   */
+  static Entity art(String name, Point at, String file, int width, int height, float scale) {
     Entity entity = new Entity("programming-cellar-" + name);
     PositionComponent position = new PositionComponent(at);
-    position.scale(Vector2.of(width * Math.min(w, h) / w, height * Math.min(w, h) / h));
+    position.scale(scale);
     entity.add(position);
     DrawComponent draw =
         new DrawComponent(
-            new SimpleIPath("spritesheets/FG_Cellar.png"), new SpritesheetConfig(x, y, 1, 1, w, h));
+            new SimpleIPath("rooms/programming/art/" + file + ".png"),
+            new SpritesheetConfig(0, 0, 1, 1, width, height));
     draw.depth(DepthLayer.Player.depth());
     entity.add(draw);
     Game.add(entity);
@@ -148,22 +161,17 @@ final class ProgrammingCellarMachinery {
     }
     if (crossed(before, .35f)) scene = ProgrammingObservation.sequence(focus.id());
     if (crossed(before, 2.2f)) {
-      bracket.fetch(PositionComponent.class).orElseThrow().rotation(-35);
+      bracket.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("broken", null);
     }
     if (time >= 2.2f && time < 3.3f) {
       float drop = Math.min(1, (time - 2.2f) / 1.1f);
       float fall = drop * drop;
       weight.fetch(PositionComponent.class).orElseThrow().position(weightStart.translate(0, -fall));
-      for (int i = 0; i < chain.size(); i++) {
-        var link = chain.get(i).fetch(PositionComponent.class).orElseThrow();
-        link.position(
-            new Point(weightStart.x() + .3f, weightStart.y() + 1.4f - fall + i * (.3f + fall / 2)));
-        link.rotation((float) Math.sin(time * 24 + i) * 12);
-      }
+      updateChain(fall);
     }
     if (crossed(before, 3.3f)) {
       weight.fetch(PositionComponent.class).orElseThrow().position(weightStart.translate(0, -1));
-      chain.forEach(link -> link.fetch(PositionComponent.class).orElseThrow().rotation(0));
+      updateChain(1);
     }
     if (crossed(before, 4f)) {
       Point start = level.getPoint("act2-gate-start");
@@ -192,6 +200,20 @@ final class ProgrammingCellarMachinery {
 
   private boolean crossed(float before, float event) {
     return before < event && time >= event;
+  }
+
+  private void updateChain(float drop) {
+    // Feed rigid links from the drum instead of stretching the chain sprites during the fall.
+    for (int i = 0; i < chain.size(); i++) {
+      Entity link = chain.get(i);
+      float y = weightStart.y() + 1.205f - i * .25f;
+      link.fetch(PositionComponent.class)
+          .orElseThrow()
+          .position(new Point(weightStart.x() + .62f, y));
+      link.fetch(DrawComponent.class)
+          .orElseThrow()
+          .tintColor(y + .32f >= weightStart.y() + 1.28f - drop ? -1 : 0xFFFFFF00);
+    }
   }
 
   private void finish() {
