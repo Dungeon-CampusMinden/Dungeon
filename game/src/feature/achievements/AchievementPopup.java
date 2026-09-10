@@ -47,6 +47,17 @@ public final class AchievementPopup {
    * @return popup group
    */
   public static Group build(DialogContext ctx) {
+    return build(ctx, true);
+  }
+
+  /**
+   * Builds the standard popup with the room's sound policy.
+   *
+   * @param ctx dialog context
+   * @param withSound whether a newly unlocked achievement plays its confirmation sound
+   * @return popup group
+   */
+  public static Group build(DialogContext ctx, boolean withSound) {
     String imagePath = ctx.require(KEY_IMAGE_PATH, String.class);
     String achievementId = ctx.require(KEY_ID, String.class);
     String name = localized(translationKey(achievementId, "name"), achievementId);
@@ -85,7 +96,7 @@ public final class AchievementPopup {
     card.add(text).width(310f).left();
     card.pack();
     card.addAction(Actions.sequence(Actions.delay(3.7f), Actions.fadeOut(0.7f)));
-    playUnlockSound();
+    if (withSound) playUnlockSound();
 
     return new AlwaysOnTopContainer(card);
   }
@@ -124,6 +135,9 @@ public final class AchievementPopup {
   }
 
   private static final class AlwaysOnTopContainer extends BaseContainerUI {
+    private static long nextOrder;
+    private final long order = nextOrder++;
+    private float stackOffset = CORNER_MARGIN;
 
     private AlwaysOnTopContainer(Table card) {
       super(card, Align.topRight, CORNER_MARGIN, CORNER_MARGIN, false, false);
@@ -131,6 +145,17 @@ public final class AchievementPopup {
 
     @Override
     public void act(float delta) {
+      float offset = CORNER_MARGIN;
+      if (getParent() != null) {
+        for (var sibling : getParent().getChildren()) {
+          if (sibling instanceof AlwaysOnTopContainer popup && popup.order < order)
+            offset += popup.getContent().getHeight() + 12f;
+        }
+      }
+      if (offset != stackOffset) {
+        stackOffset = offset;
+        setOffset(CORNER_MARGIN, offset);
+      }
       super.act(delta);
       toFront();
     }

@@ -15,6 +15,7 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import java.util.ArrayList;
 import java.util.List;
+import rooms.programming.ProgrammingAchievements;
 
 /** Existing art placed by prop markers, with floor footprints for solid furniture. */
 final class ProgrammingProps {
@@ -96,6 +97,8 @@ final class ProgrammingProps {
                                       .stateMachine();
                               state.setState(
                                   state.getCurrentStateName().equals("on") ? "off" : "on", null);
+                              if (state.getCurrentStateName().equals("off"))
+                                ProgrammingAchievements.LIGHTS_OUT.unlock(who);
                             })));
               if (name.startsWith("prop-workbench"))
                 prop.add(new CollideComponent(Vector2.of(0.05f, 0.05f), Vector2.of(1.9f, 0.65f)));
