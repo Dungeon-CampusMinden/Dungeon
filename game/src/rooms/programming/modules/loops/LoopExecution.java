@@ -125,13 +125,6 @@ public final class LoopExecution {
   }
 
   /**
-   * @return the current program heading
-   */
-  public Direction facing() {
-    return facing;
-  }
-
-  /**
    * @return whether the guardian has survived this attempt
    */
   public boolean monsterAlive() {
@@ -143,13 +136,6 @@ public final class LoopExecution {
    */
   public List<Cell> history() {
     return List.copyOf(history);
-  }
-
-  /**
-   * @return whether the program has stopped
-   */
-  public boolean finished() {
-    return finished;
   }
 
   /**

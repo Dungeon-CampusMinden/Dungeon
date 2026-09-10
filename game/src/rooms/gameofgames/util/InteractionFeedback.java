@@ -35,7 +35,7 @@ public final class InteractionFeedback {
             hero -> {
               Point cursorPosition = CursorUtils.positionInWorld();
               Optional<Entity> nearCursor = findCursorNearEntity(cursorPosition);
-              Optional<Entity> inRange = findInteractTarget(hero, cursorPosition);
+              Optional<Entity> inRange = HeroController.findInteractable(hero, cursorPosition);
 
               clearHighlight(currentHighlightedEntity);
               clearHighlight(currentSemiHighlightedEntity);
@@ -60,10 +60,6 @@ public final class InteractionFeedback {
   private static Optional<Entity> findCursorNearEntity(Point point) {
     return EntityUtils.findEntityAtPoint(
         point, Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)));
-  }
-
-  private static Optional<Entity> findInteractTarget(Entity hero, Point point) {
-    return HeroController.findInteractable(hero, point);
   }
 
   private static void updateWorldCursor(boolean hasTarget) {

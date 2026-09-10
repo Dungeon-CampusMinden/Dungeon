@@ -274,7 +274,7 @@ final class ProgrammingGolemRuntime {
 
   TerminalState terminalState() {
     Point origin = level.getPoint("maze-origin");
-    int checkpoint = controller.completedLoopChallenges().size();
+    int checkpoint = controller.completedLoops();
     return new TerminalState(
         LoopPuzzle.runes().stream()
             .map(rune -> rune.id())
@@ -284,13 +284,10 @@ final class ProgrammingGolemRuntime {
         golem.id(),
         Math.round((position.position().x() - origin.x()) / LoopMaze.CELL_WIDTH),
         Math.round((position.position().y() - origin.y()) / LoopMaze.CELL_HEIGHT),
-        facing.name(),
         busy,
         mazeReady,
         activeRune,
-        status,
-        checkpoint,
-        controller.phase() == ProgrammingPhase.METHODS);
+        status);
   }
 
   void showTerminal(Entity who) {
@@ -333,7 +330,7 @@ final class ProgrammingGolemRuntime {
         || !controller.collectedLoopRunes().contains(runeId)) return;
     var rune = LoopPuzzle.rune(runeId);
     if (rune.isEmpty()) return;
-    int checkpoint = controller.completedLoopChallenges().size();
+    int checkpoint = controller.completedLoops();
     if (Point.calculateDistance(
                 position.position(),
                 LoopMaze.world(
@@ -414,10 +411,10 @@ final class ProgrammingGolemRuntime {
             busy = true;
             status = "Räumauftrag läuft. Steuerprogramm beendet.";
             machinery.clear(
-                controller.completedLoopChallenges().size(),
+                controller.completedLoops(),
                 () -> {
                   controller.completeExecutedLoop(challenge);
-                  if (controller.completedLoopChallenges().size() == 1)
+                  if (controller.completedLoops() == 1)
                     ProgrammingAchievements.FIRST_ROUTE.unlock();
                   if (checkpointFailures > 0) ProgrammingAchievements.SECOND_TRY.unlock();
                   checkpointFailures = 0;
@@ -440,10 +437,7 @@ final class ProgrammingGolemRuntime {
               ? "Programm beendet. "
                   + (finished
                           .cell()
-                          .equals(
-                              LoopMaze.checkpoints()
-                                  .get(controller.completedLoopChallenges().size())
-                                  .goal())
+                          .equals(LoopMaze.checkpoints().get(controller.completedLoops()).goal())
                       ? "Blickrichtung falsch."
                       : "Zielmarke nicht erreicht.")
               : "Programm gestoppt. " + reason;
@@ -463,7 +457,7 @@ final class ProgrammingGolemRuntime {
   private void resetAttempt() {
     jumping = false;
     golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
-    int checkpoint = controller.completedLoopChallenges().size();
+    int checkpoint = controller.completedLoops();
     Point home =
         LoopMaze.world(
             level.getPoint("maze-origin"), LoopMaze.checkpoints().get(checkpoint).start());
@@ -599,7 +593,7 @@ final class ProgrammingGolemRuntime {
     Point next =
         from.translate((target.x() - from.x()) * fraction, (target.y() - from.y()) * fraction);
     if (breakingGate && touchesDeparture(next)) ProgrammingGates.departure(level, true);
-    if (breakingGate && !wallBroken && touchesGate(next, 1)) {
+    if (breakingGate && !wallBroken && touchesWorkshopGate(next)) {
       ProgrammingGates.open(level, 1);
       wallBroken = true;
       wallBreakTime = 0.6f;
@@ -688,7 +682,7 @@ final class ProgrammingGolemRuntime {
     float maxY = minY + footprint.height() - 0.001f;
     for (int y = (int) Math.floor(minY); y <= Math.floor(maxY); y++) {
       for (int x = (int) Math.floor(minX); x <= Math.floor(maxX); x++) {
-        if (allowGate && (inGate(x, y, 1) || inDeparture(x, y))) continue;
+        if (allowGate && (inWorkshopGate(x, y) || inDeparture(x, y))) continue;
         if (!level.tileAt(new Coordinate(x, y)).map(Tile::isAccessible).orElse(false)) return false;
       }
     }
@@ -726,14 +720,14 @@ final class ProgrammingGolemRuntime {
         Math.min(from.y(), to.y()) + body.bottom() * scale.y());
   }
 
-  private boolean touchesGate(Point p, int act) {
+  private boolean touchesWorkshopGate(Point p) {
     Rectangle bounds = footprint(p, p);
     for (int y = (int) Math.floor(bounds.y());
         y <= Math.floor(bounds.y() + bounds.height() - 0.001f);
         y++)
       for (int x = (int) Math.floor(bounds.x());
           x <= Math.floor(bounds.x() + bounds.width() - 0.001f);
-          x++) if (inGate(x, y, act)) return true;
+          x++) if (inWorkshopGate(x, y)) return true;
     return false;
   }
 
@@ -756,9 +750,9 @@ final class ProgrammingGolemRuntime {
         && y <= Math.max(a.y(), b.y());
   }
 
-  private boolean inGate(int x, int y, int act) {
-    Point a = level.namedPoints().get("act" + act + "-gate-start");
-    Point b = level.namedPoints().get("act" + act + "-gate-end");
+  private boolean inWorkshopGate(int x, int y) {
+    Point a = level.namedPoints().get("act1-gate-start");
+    Point b = level.namedPoints().get("act1-gate-end");
     return a != null
         && b != null
         && x >= Math.min(a.x(), b.x())
@@ -768,11 +762,7 @@ final class ProgrammingGolemRuntime {
   }
 
   private String currentChallenge() {
-    var completed = controller.completedLoopChallenges();
-    return LoopPuzzle.challenges().stream()
-        .filter(challenge -> !completed.contains(challenge))
-        .findFirst()
-        .orElseThrow();
+    return LoopPuzzle.challenges().get(controller.completedLoops());
   }
 
   static void showText(Entity who, String title, String message) {

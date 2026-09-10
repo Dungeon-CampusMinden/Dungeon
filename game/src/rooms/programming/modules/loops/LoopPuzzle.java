@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 
 /** Five checkpoints and the 24 collectible programs available at every checkpoint. */
 public final class LoopPuzzle {
@@ -58,64 +57,38 @@ public final class LoopPuzzle {
         String suffix = type.name().toLowerCase(Locale.ROOT).replace('_', '-');
         runes.add(
             new LoopRune(
-                challenge + "-" + suffix,
-                challenge,
-                type,
-                "Rune " + (runes.size() + 1) + " · " + suffix,
-                new LoopProgram(type, condition, count, body, after)));
+                challenge + "-" + suffix, new LoopProgram(type, condition, count, body, after)));
       }
     }
-    add(
-        runes,
-        "patrol",
-        "Eckenprobe",
-        2,
-        List.of(LoopProgram.Action.LEFT, LoopProgram.Action.MOVE));
-    add(
-        runes,
-        "turn-left",
-        "Linke Ecke",
-        1,
-        List.of(LoopProgram.Action.LEFT, LoopProgram.Action.MOVE));
-    add(
-        runes,
-        "turn-right",
-        "Rechte Ecke",
-        1,
-        List.of(LoopProgram.Action.RIGHT, LoopProgram.Action.MOVE));
+    add(runes, "patrol", 2, List.of(LoopProgram.Action.LEFT, LoopProgram.Action.MOVE));
+    add(runes, "turn-left", 1, List.of(LoopProgram.Action.LEFT, LoopProgram.Action.MOVE));
+    add(runes, "turn-right", 1, List.of(LoopProgram.Action.RIGHT, LoopProgram.Action.MOVE));
     add(
         runes,
         "backtrack",
-        "Kehrtwende",
         1,
         List.of(LoopProgram.Action.LEFT, LoopProgram.Action.LEFT, LoopProgram.Action.MOVE));
-    add(runes, "short", "Kurzer Marsch", 1, List.of(LoopProgram.Action.MOVE));
-    add(runes, "long", "Langer Marsch", 9, List.of(LoopProgram.Action.MOVE));
+    add(runes, "short", 1, List.of(LoopProgram.Action.MOVE));
+    add(runes, "long", 9, List.of(LoopProgram.Action.MOVE));
     runes.add(
         new LoopRune(
             "archive-spin",
-            "archive",
-            LoopType.WHILE,
-            "Ewiger Kreisel",
             new LoopProgram(
                 LoopType.WHILE,
                 LoopProgram.Condition.ALWAYS,
                 0,
                 List.of(LoopProgram.Action.LEFT),
                 List.of())));
-    add(runes, "jump", "Sprungprobe", 1, List.of(LoopProgram.Action.JUMP));
-    add(runes, "attack", "Kampfprobe", 1, List.of(LoopProgram.Action.ATTACK));
+    add(runes, "jump", 1, List.of(LoopProgram.Action.JUMP));
+    add(runes, "attack", 1, List.of(LoopProgram.Action.ATTACK));
     return List.copyOf(runes);
   }
 
   private static void add(
-      List<LoopRune> runes, String id, String title, int count, List<LoopProgram.Action> body) {
+      List<LoopRune> runes, String id, int count, List<LoopProgram.Action> body) {
     runes.add(
         new LoopRune(
             "archive-" + id,
-            "archive",
-            LoopType.FOR,
-            title,
             new LoopProgram(LoopType.FOR, LoopProgram.Condition.ALWAYS, count, body, List.of())));
   }
 
@@ -143,27 +116,5 @@ public final class LoopPuzzle {
    */
   public static Optional<LoopRune> rune(String id) {
     return RUNES.stream().filter(rune -> rune.id().equals(id)).findFirst();
-  }
-
-  /**
-   * Returns the runes authored for a station. This grouping does not restrict execution.
-   *
-   * @param challengeId the station ID
-   * @return its three runes, or an empty list for an unknown station
-   */
-  public static List<LoopRune> runes(String challengeId) {
-    return RUNES.stream().filter(rune -> rune.challengeId().equals(challengeId)).toList();
-  }
-
-  /**
-   * Reports whether every known loop situation has been completed.
-   *
-   * @param challengeIds completed station IDs
-   * @return true if the IDs match the complete set of stations
-   */
-  public static boolean allCompleted(Set<String> challengeIds) {
-    return challengeIds != null
-        && challengeIds.size() == CHALLENGES.size()
-        && challengeIds.containsAll(CHALLENGES);
   }
 }
