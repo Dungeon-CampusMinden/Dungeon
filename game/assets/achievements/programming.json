@@ -1,0 +1,89 @@
+{
+  "achievements": [
+    {
+      "id": "programming_first_rune",
+      "imagePath": "items/rpg/item_gem_quartz.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "programming_archivist",
+      "imagePath": "items/rpg/item_book_purple.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "programming_bound",
+      "imagePath": "items/rpg/item_gem_amethyst.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "programming_wrong_type",
+      "imagePath": "objects/crate/basic.png",
+      "unlockForAll": false,
+      "hidden": true
+    },
+    {
+      "id": "programming_overwrite",
+      "imagePath": "items/potion/water_bottle.png",
+      "unlockForAll": false,
+      "hidden": true
+    },
+    {
+      "id": "programming_sleepy",
+      "imagePath": "items/rpg/item_orb.png",
+      "unlockForAll": false,
+      "hidden": true
+    },
+    {
+      "id": "programming_lights_out",
+      "imagePath": "items/rpg/item_gem_amber.png",
+      "unlockForAll": false,
+      "hidden": true
+    },
+    {
+      "id": "programming_observer",
+      "imagePath": "items/rpg/item_compass.png",
+      "unlockForAll": false,
+      "hidden": false
+    },
+    {
+      "id": "programming_first_route",
+      "imagePath": "items/rpg/armor_boots_iron.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "programming_second_try",
+      "imagePath": "items/rpg/item_scroll.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "id": "programming_spin",
+      "imagePath": "items/rpg/item_ring_silver_gem_blue.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "id": "programming_cellar_clear",
+      "imagePath": "items/rpg/item_ring_gold_gem_red.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "programming_clean_run",
+      "imagePath": "items/rpg/item_gem_diamond_smooth.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "programming_platinum",
+      "imagePath": "items/rpg/item_gem_diamond_rough.png",
+      "unlockForAll": false,
+      "hidden": false,
+      "platinum": true
+    }
+  ]
+}

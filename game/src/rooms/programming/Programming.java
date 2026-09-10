@@ -47,6 +47,7 @@ public final class Programming {
 
     ServerStarter server =
         ServerStarter.builder(Programming::serverSetup)
+            .onConfigure(ProgrammingAchievements::register)
             .characterClasses(CHARACTER_CLASSES)
             .maximumPlayers(2)
             .levels(Tuple.of(LEVEL_KEY, ProgrammingLevel.class))
@@ -60,6 +61,7 @@ public final class Programming {
 
     ClientStarter client =
         ClientStarter.builder(server, Programming::clientSetup)
+            .onConfigure(ProgrammingAchievements::register)
             .levels(Tuple.of(LEVEL_KEY, ProgrammingClientLevel.class))
             .build();
 

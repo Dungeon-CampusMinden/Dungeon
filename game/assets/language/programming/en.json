@@ -1,0 +1,60 @@
+{
+  "achievements": {
+    "programming_first_rune": {
+      "name": "In rhythm",
+      "description": "Collect your first rhythm rune."
+    },
+    "programming_archivist": {
+      "name": "The whole archive",
+      "description": "Collect all 24 rhythm runes in one run."
+    },
+    "programming_bound": {
+      "name": "Soul weaver",
+      "description": "Complete Nox's soul binding."
+    },
+    "programming_wrong_type": {
+      "name": "Almost fits",
+      "description": "Try to put an essence into a vessel of the wrong type."
+    },
+    "programming_overwrite": {
+      "name": "Refilled",
+      "description": "Replace a stored value with a different one without emptying the vessel."
+    },
+    "programming_sleepy": {
+      "name": "Five more minutes",
+      "description": "Set Nox's Activated property to false."
+    },
+    "programming_lights_out": {
+      "name": "Lights out",
+      "description": "Extinguish a burning torch."
+    },
+    "programming_observer": {
+      "name": "Eyes on Nox",
+      "description": "Watch Nox in the cellar through the viewing stone."
+    },
+    "programming_first_route": {
+      "name": "It works",
+      "description": "Complete the first clearing job in the cellar."
+    },
+    "programming_second_try": {
+      "name": "Bug found",
+      "description": "Complete a cellar job after at least one failed attempt at that checkpoint."
+    },
+    "programming_spin": {
+      "name": "Going in circles",
+      "description": "Run the endless turning rune until the safety stop and let Nox return."
+    },
+    "programming_cellar_clear": {
+      "name": "Side effects included",
+      "description": "Complete all five clearing jobs and open the way out of the workshop."
+    },
+    "programming_clean_run": {
+      "name": "First time right",
+      "description": "Complete all five cellar jobs in one run without a failed control program."
+    },
+    "programming_platinum": {
+      "name": "Valerius would be proud",
+      "description": "Unlock all other achievements in this room, across as many runs as needed."
+    }
+  }
+}

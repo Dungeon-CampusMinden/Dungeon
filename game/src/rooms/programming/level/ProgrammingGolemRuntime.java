@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import rooms.programming.ProgrammingAchievements;
 import rooms.programming.ProgrammingRoomController;
 import rooms.programming.PuzzleSubmissionResult;
 import rooms.programming.modules.loops.LoopExecution;
@@ -79,6 +80,8 @@ final class ProgrammingGolemRuntime {
   private String returnFeedback = "";
   private boolean propertiesCollected;
   private boolean vesselsCollected;
+  private int loopFailures;
+  private int checkpointFailures;
   private String bindingFeedback =
       "Eigenschaftsrunen und Gefäße fehlen. Öffne die beiden Werkstattkisten.";
 
@@ -166,6 +169,7 @@ final class ProgrammingGolemRuntime {
         MagicalEssence selected = MagicalEssence.valueOf(value);
         SoulVessel container = vessels.get(property);
         if (container == null || !VariablePuzzle.fits(container, selected)) {
+          if (container != null) ProgrammingAchievements.WRONG_TYPE.unlock(who);
           bindingFeedback =
               selected.literal()
                   + " passt nicht in "
@@ -174,7 +178,10 @@ final class ProgrammingGolemRuntime {
                       : container.label() + ". " + container.capacity() + ".");
           return;
         }
-        essences.put(property, selected);
+        MagicalEssence previous = essences.put(property, selected);
+        if (previous != null && previous != selected) ProgrammingAchievements.OVERWRITE.unlock(who);
+        if (property == GolemProperty.ACTIVATED && selected == MagicalEssence.BOOLEAN_FALSE)
+          ProgrammingAchievements.SLEEPY.unlock(who);
         bindingFeedback =
             property.label()
                 + " = "
@@ -185,6 +192,7 @@ final class ProgrammingGolemRuntime {
                     : " Bindung reagiert nicht.");
         if (VariablePuzzle.essencesCorrect(essences)) {
           controller.submitEssences(essences);
+          ProgrammingAchievements.BOUND.unlock();
           bindingFeedback = "Seelenbindung vollständig. Gefäß, Name und Wert bilden eine Variable.";
         }
       }
@@ -286,12 +294,19 @@ final class ProgrammingGolemRuntime {
   }
 
   void showObservation(Entity who) {
-    if (mazeReady && authorized(who, "loop-monitor", 3f)) ProgrammingObservation.open(who, this);
+    if (mazeReady && authorized(who, "loop-monitor", 3f)) {
+      ProgrammingObservation.open(who, this);
+      ProgrammingAchievements.OBSERVER.unlock(who);
+    }
   }
 
   boolean collectRune(String runeId, Entity who) {
     if (!authorized(who, "rune-" + runeId, 3f)) return false;
-    return controller.collectLoopRune(runeId) == PuzzleSubmissionResult.ACCEPTED;
+    if (controller.collectLoopRune(runeId) != PuzzleSubmissionResult.ACCEPTED) return false;
+    int collected = controller.collectedLoopRunes().size();
+    if (collected == 1) ProgrammingAchievements.FIRST_RUNE.unlock();
+    if (collected == LoopPuzzle.runes().size()) ProgrammingAchievements.ARCHIVIST.unlock();
+    return true;
   }
 
   private boolean authorized(Entity who, String marker, float range) {
@@ -398,6 +413,14 @@ final class ProgrammingGolemRuntime {
                 controller.completedLoopChallenges().size(),
                 () -> {
                   controller.completeExecutedLoop(challenge);
+                  if (controller.completedLoopChallenges().size() == 1)
+                    ProgrammingAchievements.FIRST_ROUTE.unlock();
+                  if (checkpointFailures > 0) ProgrammingAchievements.SECOND_TRY.unlock();
+                  checkpointFailures = 0;
+                  if (controller.phase() == ProgrammingPhase.METHODS) {
+                    ProgrammingAchievements.CELLAR_CLEAR.unlock();
+                    if (loopFailures == 0) ProgrammingAchievements.CLEAN_RUN.unlock();
+                  }
                   busy = false;
                   status =
                       controller.phase() == ProgrammingPhase.METHODS
@@ -406,6 +429,8 @@ final class ProgrammingGolemRuntime {
                 });
           };
     } else {
+      loopFailures++;
+      checkpointFailures++;
       returnFeedback =
           reason.isEmpty()
               ? "Programm beendet. "
@@ -449,6 +474,7 @@ final class ProgrammingGolemRuntime {
     busy = false;
     returning = false;
     status = returnFeedback + " Nox ist zurück an der Arbeitsposition.";
+    if (activeRune.equals("archive-spin")) ProgrammingAchievements.SPIN.unlock();
   }
 
   private void face(LoopMaze.Direction direction) {
