@@ -5,9 +5,38 @@ plugins {
     id 'org.beryx.runtime' version "${beryxRuntimeVersion}"
 }
 
+def gameMinHeap = providers.gradleProperty('gameMinHeap').orElse('128m')
+def gameMaxHeap = providers.gradleProperty('gameMaxHeap').orElse('1g')
+
 application {
     mainClass = 'engine.starter.BasicStarter'
     applicationName = 'game'
+    applicationDefaultJvmArgs = ["-Xms${gameMinHeap.get()}", "-Xmx${gameMaxHeap.get()}"]
+}
+
+tasks.withType(JavaExec).configureEach {
+    minHeapSize = gameMinHeap.get()
+    maxHeapSize = gameMaxHeap.get()
+}
+
+// A manifest classpath preserves JAR order without exceeding Windows' command-line limit.
+def launcherClasspath = files(tasks.named('jar'), configurations.runtimeClasspath)
+def launcherClasspathJar = tasks.register('launcherClasspathJar', Jar) {
+    archiveFileName.set('game-classpath.jar')
+    inputs.files(launcherClasspath)
+    doFirst {
+        manifest.attributes('Class-Path': launcherClasspath.files.collect { it.name }.join(' '))
+    }
+}
+
+tasks.named('startScripts') {
+    classpath = files(launcherClasspathJar)
+}
+
+distributions.main.contents {
+    from(launcherClasspathJar) {
+        into 'lib'
+    }
 }
 
 dependencies {
@@ -295,6 +324,9 @@ def configureTheLastHourJpackageImage(
         '--main-class', 'rooms.lasthour.starter.TheLastHour',
         '--runtime-image', jreDir.absolutePath
     ]
+    application.applicationDefaultJvmArgs.each { arg ->
+        options += ['--java-options', arg]
+    }
     appArgs.each { arg ->
         options += ['--arguments', arg]
     }
@@ -378,11 +410,11 @@ tasks.named('jpackageImage') {
     This plugin creates a custom JRE (using jlink) and packages it with the application (using jpackage)
 */
 runtime {
+    // Hosted games need the bundled java executable to start their server JVM.
     options = ['--strip-debug',
                '--compress', '2',
                '--no-header-files',
                '--no-man-pages',
-               '--strip-native-commands',
                '--vm', 'server']
 
     // Java modules to include in the custom JRE (only these will be bundled, reducing size)
