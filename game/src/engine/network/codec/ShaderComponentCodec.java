@@ -67,8 +67,7 @@ public final class ShaderComponentCodec {
    * @param state network state
    * @return protobuf shader state
    */
-  public static engine.network.proto.s2c.ShaderComponentInfo toProto(
-      ShaderComponentState state) {
+  public static engine.network.proto.s2c.ShaderComponentInfo toProto(ShaderComponentState state) {
     if (state == null) {
       throw new IllegalArgumentException("Shader component state is required.");
     }
@@ -94,8 +93,7 @@ public final class ShaderComponentCodec {
    * @param proto protobuf shader state
    * @return immutable network shader state
    */
-  public static ShaderComponentState fromProto(
-      engine.network.proto.s2c.ShaderComponentInfo proto) {
+  public static ShaderComponentState fromProto(engine.network.proto.s2c.ShaderComponentInfo proto) {
     if (proto == null) {
       throw new IllegalArgumentException("Shader component protobuf state is required.");
     }
@@ -114,8 +112,7 @@ public final class ShaderComponentCodec {
     return new ShaderComponentState(entries);
   }
 
-  private static ShaderEntryState toState(
-      String identifier, int order, AbstractShader shader) {
+  private static ShaderEntryState toState(String identifier, int order, AbstractShader shader) {
     String type;
     if (shader instanceof OutlineShader) {
       type = TYPE_OUTLINE;

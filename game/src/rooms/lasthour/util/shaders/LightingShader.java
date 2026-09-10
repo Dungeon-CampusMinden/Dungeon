@@ -142,8 +142,7 @@ public class LightingShader extends AbstractShader {
       lightSources.add(
           new Light(
               new Point(
-                  floatProperty(properties, prefix + "X"),
-                  floatProperty(properties, prefix + "Y")),
+                  floatProperty(properties, prefix + "X"), floatProperty(properties, prefix + "Y")),
               floatProperty(properties, prefix + "Intensity"),
               new Color(
                   floatProperty(properties, prefix + "Red"),

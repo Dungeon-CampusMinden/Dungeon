@@ -75,14 +75,7 @@ public final class EntitySpawnEvent implements NetworkMessage {
       DrawInfoData drawInfo,
       PlayerComponent playerComponent,
       byte characterClassId) {
-    this(
-        entityId,
-        positionComponent,
-        drawInfo,
-        playerComponent,
-        characterClassId,
-        null,
-        Map.of());
+    this(entityId, positionComponent, drawInfo, playerComponent, characterClassId, null, Map.of());
   }
 
   /**
@@ -102,14 +95,7 @@ public final class EntitySpawnEvent implements NetworkMessage {
       PlayerComponent playerComponent,
       byte characterClassId,
       Map<String, String> metadata) {
-    this(
-        entityId,
-        positionComponent,
-        drawInfo,
-        playerComponent,
-        characterClassId,
-        null,
-        metadata);
+    this(entityId, positionComponent, drawInfo, playerComponent, characterClassId, null, metadata);
   }
 
   /**

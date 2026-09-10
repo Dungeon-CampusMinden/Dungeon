@@ -16,9 +16,9 @@ import java.util.Set;
 /**
  * Manages authoritative scene, level, and depth-layer shader assignments.
  *
- * <p>In multiplayer, assignments are sent to all clients or to the clients controlling the
- * supplied target entities. Clients apply the received state to local holder entities through
- * {@link ShaderSyncSystem}.
+ * <p>In multiplayer, assignments are sent to all clients or to the clients controlling the supplied
+ * target entities. Clients apply the received state to local holder entities through {@link
+ * ShaderSyncSystem}.
  */
 public final class ShaderSystem extends System {
   private static ShaderSystem INSTANCE;
@@ -107,8 +107,7 @@ public final class ShaderSystem extends System {
    * @param order render order
    * @param shader shader instance
    */
-  public void addDepthLayerShader(
-      int depth, String identifier, int order, AbstractShader shader) {
+  public void addDepthLayerShader(int depth, String identifier, int order, AbstractShader shader) {
     addDepthLayerShader(depth, identifier, order, shader, new int[0]);
   }
 
@@ -123,11 +122,7 @@ public final class ShaderSystem extends System {
    * @param targetEntityIds target player/entity IDs, or empty for all clients
    */
   public void addDepthLayerShader(
-      int depth,
-      String identifier,
-      int order,
-      AbstractShader shader,
-      int... targetEntityIds) {
+      int depth, String identifier, int order, AbstractShader shader, int... targetEntityIds) {
     addShader(new TargetKey(Target.DEPTH_LAYER, depth), identifier, order, shader, targetEntityIds);
   }
 
@@ -195,8 +190,7 @@ public final class ShaderSystem extends System {
    * @param targetEntityIds target player/entity IDs, or empty for all clients
    * @return true when a shader was removed
    */
-  public boolean removeDepthLayerShader(
-      int depth, String identifier, int... targetEntityIds) {
+  public boolean removeDepthLayerShader(int depth, String identifier, int... targetEntityIds) {
     return removeShader(new TargetKey(Target.DEPTH_LAYER, depth), identifier, targetEntityIds);
   }
 
@@ -246,8 +240,10 @@ public final class ShaderSystem extends System {
     clientShaders.values().forEach(assignments -> targets.addAll(assignments.keySet()));
 
     if (isNetworkServer()) {
-      targets.forEach(target -> NetworkUtils.getAllConnectedClientIds().forEach(
-          clientId -> send(clientId, target, new ShaderComponent())));
+      targets.forEach(
+          target ->
+              NetworkUtils.getAllConnectedClientIds()
+                  .forEach(clientId -> send(clientId, target, new ShaderComponent())));
     } else {
       Game.system(ShaderSyncSystem.class, ShaderSyncSystem::clearTargetShaders);
     }
@@ -272,7 +268,9 @@ public final class ShaderSystem extends System {
         NetworkUtils.getAllConnectedClientIds()
             .forEach(
                 clientId -> {
-                  clientShaders.computeIfAbsent(clientId, ignored -> new HashMap<>()).put(target, updated);
+                  clientShaders
+                      .computeIfAbsent(clientId, ignored -> new HashMap<>())
+                      .put(target, updated);
                   send(clientId, target, updated);
                 });
       } else {
@@ -291,8 +289,7 @@ public final class ShaderSystem extends System {
       send(clientId, target, updated);
     }
 
-    if (!PreRunConfiguration.multiplayerEnabled()
-        && containsCurrentEntity(targetEntityIds)) {
+    if (!PreRunConfiguration.multiplayerEnabled() && containsCurrentEntity(targetEntityIds)) {
       ShaderComponent updated =
           globalShaders
               .getOrDefault(target, new ShaderComponent())
@@ -306,8 +303,7 @@ public final class ShaderSystem extends System {
     if (targetEntityIds.length == 0) {
       ShaderComponent current = globalShaders.get(target);
       if (current == null
-          || current.shaders().stream()
-              .noneMatch(entry -> entry.identifier().equals(identifier))) {
+          || current.shaders().stream().noneMatch(entry -> entry.identifier().equals(identifier))) {
         return false;
       }
       ShaderComponent updated = current.withoutShader(identifier);
@@ -316,7 +312,9 @@ public final class ShaderSystem extends System {
         NetworkUtils.getAllConnectedClientIds()
             .forEach(
                 clientId -> {
-                  clientShaders.computeIfAbsent(clientId, ignored -> new HashMap<>()).put(target, updated);
+                  clientShaders
+                      .computeIfAbsent(clientId, ignored -> new HashMap<>())
+                      .put(target, updated);
                   send(clientId, target, updated);
                 });
       } else {
@@ -330,7 +328,8 @@ public final class ShaderSystem extends System {
       Map<TargetKey, ShaderComponent> assignments =
           clientShaders.computeIfAbsent(clientId, ignored -> new HashMap<>());
       ShaderComponent current =
-          assignments.getOrDefault(target, globalShaders.getOrDefault(target, new ShaderComponent()));
+          assignments.getOrDefault(
+              target, globalShaders.getOrDefault(target, new ShaderComponent()));
       if (current.shaders().stream().anyMatch(entry -> entry.identifier().equals(identifier))) {
         ShaderComponent updated = current.withoutShader(identifier);
         assignments.put(target, updated);
@@ -339,12 +338,10 @@ public final class ShaderSystem extends System {
       }
     }
 
-    if (!PreRunConfiguration.multiplayerEnabled()
-        && containsCurrentEntity(targetEntityIds)) {
+    if (!PreRunConfiguration.multiplayerEnabled() && containsCurrentEntity(targetEntityIds)) {
       ShaderComponent current = globalShaders.get(target);
       if (current != null
-          && current.shaders().stream()
-              .anyMatch(entry -> entry.identifier().equals(identifier))) {
+          && current.shaders().stream().anyMatch(entry -> entry.identifier().equals(identifier))) {
         ShaderComponent updated = current.withoutShader(identifier);
         globalShaders.put(target, updated);
         applyLocally(target, updated);
@@ -359,7 +356,8 @@ public final class ShaderSystem extends System {
         ShaderSyncSystem.class,
         sync ->
             sync.applyTargetState(
-                new ShaderTargetStateMessage(target.target(), target.depth(), ShaderComponentCodec.toState(component))));
+                new ShaderTargetStateMessage(
+                    target.target(), target.depth(), ShaderComponentCodec.toState(component))));
   }
 
   private void send(short clientId, TargetKey target, ShaderComponent component) {

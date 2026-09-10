@@ -7,9 +7,7 @@ import engine.level.DungeonLevel;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
-import engine.utils.Rectangle;
 import engine.utils.Tuple;
-import engine.utils.components.draw.shader.ColorGradeShader;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.HueRemapShader;
 import feature.components.DecoComponent;
@@ -91,7 +89,8 @@ public class GameOfGamesLevel extends DungeonLevel {
   private void setupCanvasUnlock() {
     Entity folder = DecoFactory.createDeco(new Point(13.0f, 10.0f), Deco.FolderRed);
     folder.remove(DecoComponent.class);
-    ShaderComponent shaderComp = new ShaderComponent("hue", 0, new HueRemapShader(0.0f, 0.66f, 0.2f));
+    ShaderComponent shaderComp =
+        new ShaderComponent("hue", 0, new HueRemapShader(0.0f, 0.66f, 0.2f));
     folder.add(shaderComp);
     folder.add(
         new InteractionComponent(
@@ -99,12 +98,13 @@ public class GameOfGamesLevel extends DungeonLevel {
                 (interacted, who) -> {
                   boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
 
-                  if(unlocked) {
-                    ShaderSystem.getInstance().addLevelShader(
-                        "level",
-                        0,
-                        new EnergyFillShader(0.9f, Color.RED, "items/rpg/food_bananas.png"),
-                        who.id());
+                  if (unlocked) {
+                    ShaderSystem.getInstance()
+                        .addLevelShader(
+                            "level",
+                            0,
+                            new EnergyFillShader(0.9f, Color.RED, "items/rpg/food_bananas.png"),
+                            who.id());
                   } else {
                     ShaderSystem.getInstance().removeLevelShader("level", who.id());
                   }

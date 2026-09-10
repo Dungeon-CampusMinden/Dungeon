@@ -4,9 +4,9 @@ import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.components.DrawComponent;
+import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.ShaderTargetStateMessage;
 import engine.network.messages.s2c.ShaderTargetStateMessage.Target;
-import engine.network.codec.ShaderComponentCodec;
 import engine.systems.DrawSystem;
 import engine.utils.components.draw.shader.AbstractShader;
 import engine.utils.components.draw.shader.ShaderList;
@@ -179,11 +179,9 @@ public final class ShaderSyncSystem extends System {
   private void synchronizeTargetEntities() {
     DrawSystem drawSystem = DrawSystem.getInstance();
     sceneShaderEntity =
-        synchronizeTargetEntity(
-            sceneShaderEntity, "scene", drawSystem.sceneShaders());
+        synchronizeTargetEntity(sceneShaderEntity, "scene", drawSystem.sceneShaders());
     levelShaderEntity =
-        synchronizeTargetEntity(
-            levelShaderEntity, "level", drawSystem.levelShaders());
+        synchronizeTargetEntity(levelShaderEntity, "level", drawSystem.levelShaders());
 
     for (Map.Entry<Integer, Entity> entry : new HashMap<>(depthLayerShaderEntities).entrySet()) {
       Entity synchronizedEntity =
@@ -199,8 +197,7 @@ public final class ShaderSyncSystem extends System {
     }
   }
 
-  private Entity synchronizeTargetEntity(
-      Entity entity, String targetKey, ShaderList shaderList) {
+  private Entity synchronizeTargetEntity(Entity entity, String targetKey, ShaderList shaderList) {
     if (entity == null) {
       return null;
     }
@@ -218,10 +215,8 @@ public final class ShaderSyncSystem extends System {
                   entity.add(empty);
                   return empty;
                 });
-    Map<String, AppliedShader> previous =
-        appliedTargetShaders.getOrDefault(targetKey, Map.of());
-    appliedTargetShaders.put(
-        targetKey, synchronizeShaders(shaderList, shaderComponent, previous));
+    Map<String, AppliedShader> previous = appliedTargetShaders.getOrDefault(targetKey, Map.of());
+    appliedTargetShaders.put(targetKey, synchronizeShaders(shaderList, shaderComponent, previous));
     return entity;
   }
 
@@ -238,9 +233,7 @@ public final class ShaderSyncSystem extends System {
   }
 
   private Map<String, AppliedShader> synchronizeShaders(
-      ShaderList shaderList,
-      ShaderComponent shaderComponent,
-      Map<String, AppliedShader> previous) {
+      ShaderList shaderList, ShaderComponent shaderComponent, Map<String, AppliedShader> previous) {
     Map<String, AppliedShader> current = new HashMap<>();
     Set<String> desiredIdentifiers = new HashSet<>();
 
@@ -286,8 +279,7 @@ public final class ShaderSyncSystem extends System {
                     .forEach(identifier -> drawComponent.shaders().remove(identifier)));
   }
 
-  private void removeAppliedShaders(
-      ShaderList shaderList, Map<String, AppliedShader> applied) {
+  private void removeAppliedShaders(ShaderList shaderList, Map<String, AppliedShader> applied) {
     if (applied == null) {
       return;
     }

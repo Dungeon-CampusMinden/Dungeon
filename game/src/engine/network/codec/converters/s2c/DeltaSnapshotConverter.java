@@ -116,8 +116,7 @@ public final class DeltaSnapshotConverter
       case ENTITY_STATE_FIELD_TINT_COLOR -> Optional.of(EntityStateField.TINT_COLOR);
       case ENTITY_STATE_FIELD_INVENTORY -> Optional.of(EntityStateField.INVENTORY);
       case ENTITY_STATE_FIELD_METADATA -> Optional.of(EntityStateField.METADATA);
-      case ENTITY_STATE_FIELD_SHADER_COMPONENT ->
-          Optional.of(EntityStateField.SHADER_COMPONENT);
+      case ENTITY_STATE_FIELD_SHADER_COMPONENT -> Optional.of(EntityStateField.SHADER_COMPONENT);
       case ENTITY_STATE_FIELD_UNSPECIFIED, UNRECOGNIZED -> Optional.empty();
     };
   }

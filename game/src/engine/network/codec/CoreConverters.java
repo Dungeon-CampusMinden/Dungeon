@@ -25,10 +25,10 @@ import engine.network.codec.converters.s2c.GameOverConverter;
 import engine.network.codec.converters.s2c.InitialWorldCompleteConverter;
 import engine.network.codec.converters.s2c.LevelChangeConverter;
 import engine.network.codec.converters.s2c.RegisterAckConverter;
+import engine.network.codec.converters.s2c.ShaderTargetStateConverter;
 import engine.network.codec.converters.s2c.SnapshotConverter;
 import engine.network.codec.converters.s2c.SoundPlayConverter;
 import engine.network.codec.converters.s2c.SoundStopConverter;
-import engine.network.codec.converters.s2c.ShaderTargetStateConverter;
 
 /** Registers all built-in dungeon network message converters. */
 public final class CoreConverters {
