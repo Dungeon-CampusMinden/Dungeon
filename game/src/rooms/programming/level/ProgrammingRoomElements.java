@@ -120,7 +120,7 @@ final class ProgrammingRoomElements {
         .fetch(DrawComponent.class)
         .orElseThrow()
         .tintColor(
-            switch (rune.type()) {
+            switch (rune.program().type()) {
               case WHILE -> 0x99CCFFFF;
               case DO_WHILE -> 0xDD99FFFF;
               case FOR -> 0xFFCC88FF;

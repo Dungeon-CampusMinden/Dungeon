@@ -49,9 +49,8 @@ nichts verbraucht. Schließen und Wiederöffnen verlieren keine Zuordnung. Im Mu
 sind Vorräte, Füllungen und Fortschritt gemeinsam; der Server prüft Nähe, Phase und
 Eingaben. Die Raumgeometrie und die Laufstrecke zu Akt 2 bleiben unverändert.
 
-## Noch provisorische Bilder
+## Gegenstandsbilder
 
-Die Werkbank nutzt vorhandene Assets. Für die Eisenkiste steht derzeit die gewöhnliche
-Kistengrafik; für den Runenstein ein Amethyst. Eigene Metallgefäß- und gravierte
-Runenstein-Icons fehlen. Die übrigen Gefäße verwenden Flasche, Pergament und Lichtkugel.
-Die Essenzen teilen sich ein Kristallbild; ihr gespeicherter Wert unterscheidet sie.
+Eisenkiste und Runenstein verwenden eigene Gegenstandsbilder. Die übrigen Gefäße
+verwenden Flasche, Pergament und Lichtkugel. Die Essenzen teilen sich ein
+Kristallbild; ihr gespeicherter Wert unterscheidet sie.
