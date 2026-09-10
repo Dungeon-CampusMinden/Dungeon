@@ -11,19 +11,14 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.EnumMap;
 import java.util.Optional;
 import rooms.programming.modules.variables.BindingState;
-import rooms.programming.modules.variables.GolemProperty;
-import rooms.programming.modules.variables.MagicalEssence;
-import rooms.programming.modules.variables.SoulVessel;
-import rooms.programming.state.VariablePuzzleStage;
+import tools.jackson.databind.json.JsonMapper;
 
 /** Server-owned assignments carried by the existing room dialog and snapshot metadata. */
 public final class ProgrammingBinding {
   static final String ID = "programming.binding";
+  private static final JsonMapper JSON = JsonMapper.builder().build();
   private static BindingState received;
 
   private ProgrammingBinding() {}
@@ -102,50 +97,17 @@ public final class ProgrammingBinding {
   }
 
   /**
-   * Encodes room state without changing the shared snapshot protocol.
+   * Encodes the workbench state for snapshot metadata and dialog values.
    *
    * @param state shared workbench state
-   * @return compact metadata value
+   * @return JSON metadata
    */
   public static String encode(BindingState state) {
-    StringBuilder values = new StringBuilder();
-    for (var property : GolemProperty.values()) {
-      values
-          .append(
-              state.vessels().containsKey(property) ? state.vessels().get(property).name() : "-")
-          .append(':')
-          .append(
-              state.essences().containsKey(property) ? state.essences().get(property).name() : "-")
-          .append(',');
-    }
-    return state.stage()
-        + "|"
-        + state.propertiesCollected()
-        + "|"
-        + state.vesselsCollected()
-        + "|"
-        + values
-        + "|"
-        + Base64.getEncoder().encodeToString(state.feedback().getBytes(StandardCharsets.UTF_8));
+    return JSON.writeValueAsString(state);
   }
 
   static BindingState decode(String value) {
-    String[] parts = value.split("\\|", -1);
-    var vessels = new EnumMap<GolemProperty, SoulVessel>(GolemProperty.class);
-    var essences = new EnumMap<GolemProperty, MagicalEssence>(GolemProperty.class);
-    String[] entries = parts[3].split(",");
-    for (var property : GolemProperty.values()) {
-      String[] pair = entries[property.ordinal()].split(":");
-      if (!pair[0].equals("-")) vessels.put(property, SoulVessel.valueOf(pair[0]));
-      if (!pair[1].equals("-")) essences.put(property, MagicalEssence.valueOf(pair[1]));
-    }
-    return new BindingState(
-        VariablePuzzleStage.valueOf(parts[0]),
-        Boolean.parseBoolean(parts[1]),
-        Boolean.parseBoolean(parts[2]),
-        vessels,
-        essences,
-        new String(Base64.getDecoder().decode(parts[4]), StandardCharsets.UTF_8));
+    return JSON.readValue(value, BindingState.class);
   }
 
   /**
