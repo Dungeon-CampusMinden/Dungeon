@@ -1,6 +1,8 @@
-- Source: Existing `rooms/programming/gate.png`, copied without modification.
-- Author: Diana Kirzhner
-- License: CC0 1.0
+- Source: https://zandylion.itch.io/futhark
+- Author: Author requests no public credit
+- Modified by: Dungeon contributors, cropped/assembled for Programming 1
+- License: CC0 1.0 Universal
+- Note: Unchanged 16x16 crop from spritesheets/runes.png.
 
 <details>
 
@@ -127,3 +129,4 @@ express Statement of Purpose.
     this CC0 or use of the Work.
 
 </details>
+

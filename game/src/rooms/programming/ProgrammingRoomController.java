@@ -18,7 +18,7 @@ import rooms.programming.state.VariablePuzzleStage;
 public final class ProgrammingRoomController {
   private ProgrammingPhase phase = ProgrammingPhase.VARIABLES;
   private VariablePuzzleStage variableStage = VariablePuzzleStage.VESSELS;
-  private final Set<String> completedLoops = new HashSet<>();
+  private int completedLoops;
   private final Set<String> collectedRunes = new HashSet<>();
 
   /**
@@ -36,10 +36,10 @@ public final class ProgrammingRoomController {
   }
 
   /**
-   * @return an immutable copy of completed station IDs
+   * @return the number of completed stations in progression order
    */
-  public Set<String> completedLoopChallenges() {
-    return Set.copyOf(completedLoops);
+  public int completedLoops() {
+    return completedLoops;
   }
 
   /**
@@ -114,12 +114,10 @@ public final class ProgrammingRoomController {
   public PuzzleSubmissionResult completeExecutedLoop(String challengeId) {
     requireAuthority();
     if (phase != ProgrammingPhase.LOOPS) return PuzzleSubmissionResult.INACTIVE;
-    var next =
-        LoopPuzzle.challenges().stream().filter(id -> !completedLoops.contains(id)).findFirst();
-    if (next.isEmpty() || !next.orElseThrow().equals(challengeId))
+    if (!LoopPuzzle.challenges().get(completedLoops).equals(challengeId))
       return PuzzleSubmissionResult.INCORRECT;
-    completedLoops.add(challengeId);
-    if (LoopPuzzle.allCompleted(completedLoops)) phase = ProgrammingPhase.METHODS;
+    completedLoops++;
+    if (completedLoops == LoopPuzzle.challenges().size()) phase = ProgrammingPhase.METHODS;
     return PuzzleSubmissionResult.ACCEPTED;
   }
 

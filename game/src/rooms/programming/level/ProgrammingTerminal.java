@@ -13,13 +13,12 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import rooms.programming.modules.loops.TerminalState;
+import tools.jackson.databind.json.JsonMapper;
 
 /** The shared loop terminal, with server state and a locally arranged canvas. */
 public final class ProgrammingTerminal {
@@ -28,6 +27,7 @@ public final class ProgrammingTerminal {
   static final Color INK = Color.valueOf("101820");
   static final Color PAPER = Color.valueOf("263440");
   static final Color ACCENT = Color.valueOf("eab66c");
+  private static final JsonMapper JSON = JsonMapper.builder().build();
   private static TerminalState received;
 
   private ProgrammingTerminal() {}
@@ -121,43 +121,17 @@ public final class ProgrammingTerminal {
   }
 
   /**
-   * Compact string encoding using existing metadata and dialog string values.
+   * Encodes the terminal state for snapshot metadata and dialog values.
    *
-   * @param s the terminal state to encode
-   * @return the encoded terminal state
+   * @param state the terminal state
+   * @return JSON metadata
    */
-  public static String encode(TerminalState s) {
-    return String.join(
-        "|",
-        String.join(",", s.collectedRunes()),
-        "" + s.checkpoint(),
-        "" + s.golemId(),
-        "" + s.cellX(),
-        "" + s.cellY(),
-        s.facing(),
-        "" + s.busy(),
-        "" + s.observationReady(),
-        s.activeRune(),
-        Base64.getEncoder().encodeToString(s.status().getBytes(StandardCharsets.UTF_8)),
-        "" + s.completed(),
-        "" + s.finished());
+  public static String encode(TerminalState state) {
+    return JSON.writeValueAsString(state);
   }
 
   static TerminalState decode(String value) {
-    String[] p = value.split("\\|", -1);
-    return new TerminalState(
-        p[0].isEmpty() ? List.of() : List.of(p[0].split(",")),
-        Integer.parseInt(p[1]),
-        Integer.parseInt(p[2]),
-        Integer.parseInt(p[3]),
-        Integer.parseInt(p[4]),
-        p[5],
-        Boolean.parseBoolean(p[6]),
-        Boolean.parseBoolean(p[7]),
-        p[8],
-        new String(Base64.getDecoder().decode(p[9]), StandardCharsets.UTF_8),
-        Integer.parseInt(p[10]),
-        Boolean.parseBoolean(p[11]));
+    return JSON.readValue(value, TerminalState.class);
   }
 
   static List<CanvasNode> nodes(TerminalState state) {

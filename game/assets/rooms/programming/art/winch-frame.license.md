@@ -1,6 +1,7 @@
-- Source: Existing `rooms/programming/gate.png`, copied without modification.
-- Author: Diana Kirzhner
-- License: CC0 1.0
+- Source: https://github.com/Dungeon-CampusMinden/Dungeon (a Dungeon original)
+- Author: Niklas Schumann (@Flamtky)
+- Modified by: Dungeon contributors, pixel-grid conversion and contrast adjustments
+- License: CC0 1.0 Universal
 
 <details>
 

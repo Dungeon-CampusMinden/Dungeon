@@ -236,7 +236,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
                 runeImage.setRegion(index % 8 * 16, index / 8 * 16, 16, 16);
                 Color tint =
                     Color.valueOf(
-                        switch (rune.type()) {
+                        switch (rune.program().type()) {
                           case WHILE -> "99ccff";
                           case DO_WHILE -> "dd99ff";
                           case FOR -> "ffcc88";
