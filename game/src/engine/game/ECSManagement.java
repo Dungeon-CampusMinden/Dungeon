@@ -63,7 +63,7 @@ public final class ECSManagement {
   private static final System[] ESSENTIAL_SYSTEMS = {
     new LevelSystem(),
     new SoundSystem(),
-    new ShaderSystem(),
+    ShaderSystem.getInstance(),
     new ShaderSyncSystem(),
     DrawSystem.getInstance(),
     new EventScheduler(),

@@ -95,16 +95,19 @@ public class GameOfGamesLevel extends DungeonLevel {
         new InteractionComponent(
             new Interaction(
                 (interacted, who) -> {
-                  Game.system(
-                      ShaderSystem.class,
-                      shaderSystem ->
-                          shaderSystem.addLevelShader(
-                              "level",
-                              0,
-                              new ColorGradeShader(-1, 2.0f, 2.0f)
-                                  .region(new Rectangle(100, 100, -50, -50)),
-                              who.id()));
                   boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
+
+                  if(unlocked) {
+                    ShaderSystem.getInstance().addLevelShader(
+                        "level",
+                        0,
+                        new ColorGradeShader(-1, 5.0f, 5.0f)
+                            .region(new Rectangle(100, 100, -50, -50)),
+                        who.id());
+                  } else {
+                    ShaderSystem.getInstance().removeLevelShader("level", who.id());
+                  }
+
                   GameOfGamesCanvas.unlockExtraNodes(unlocked);
                   DialogFactory.showDialogDialog(
                       unlocked

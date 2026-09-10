@@ -21,12 +21,27 @@ import java.util.Set;
  * {@link ShaderSyncSystem}.
  */
 public final class ShaderSystem extends System {
+  private static ShaderSystem INSTANCE;
+
   private final Map<TargetKey, ShaderComponent> globalShaders = new HashMap<>();
   private final Map<Short, Map<TargetKey, ShaderComponent>> clientShaders = new HashMap<>();
 
+  /**
+   * Gets the singleton instance of the ShaderSystem, creating it if necessary.
+   *
+   * @return the ShaderSystem singleton
+   */
+  public static ShaderSystem getInstance() {
+    if (INSTANCE == null) {
+      INSTANCE = new ShaderSystem();
+    }
+    return INSTANCE;
+  }
+
   /** Creates the server-side shader assignment system. */
-  public ShaderSystem() {
+  private ShaderSystem() {
     super(AuthoritativeSide.SERVER);
+    INSTANCE = this;
   }
 
   @Override
