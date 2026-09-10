@@ -3,6 +3,7 @@ package engine.utils.components.draw.shader;
 import com.badlogic.gdx.math.Vector4;
 import engine.utils.Rectangle;
 import java.util.List;
+import java.util.Map;
 
 /** Shader for remapping hues within a specified tolerance. */
 public class ColorGradeShader extends AbstractShader {
@@ -179,5 +180,25 @@ public class ColorGradeShader extends AbstractShader {
   public ColorGradeShader invert(boolean invert) {
     this.invert = invert;
     return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    putRectangle(properties, region);
+    properties.put("hue", Float.toString(hue));
+    properties.put("saturationMultiplier", Float.toString(saturationMultiplier));
+    properties.put("valueMultiplier", Float.toString(valueMultiplier));
+    properties.put("transitionSize", Float.toString(transitionSize));
+    properties.put("invert", Boolean.toString(invert));
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    region = rectangleProperty(properties);
+    hue = floatProperty(properties, "hue");
+    saturationMultiplier = floatProperty(properties, "saturationMultiplier");
+    valueMultiplier = floatProperty(properties, "valueMultiplier");
+    transitionSize = floatProperty(properties, "transitionSize");
+    invert = booleanProperty(properties, "invert");
   }
 }

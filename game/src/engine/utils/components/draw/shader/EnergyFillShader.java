@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import engine.utils.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** A shader that applies a fill effect over the bottom percentage of an entity's texture. */
 public class EnergyFillShader extends AbstractShader {
@@ -15,6 +16,11 @@ public class EnergyFillShader extends AbstractShader {
   private float animMagnitude = 0.028f;
   private Color color;
   private String texturePath;
+
+  /** Creates an EnergyFillShader with default parameters. */
+  public EnergyFillShader() {
+    this(0f, Color.CLEAR, null);
+  }
 
   /**
    * Creates an EnergyFillShader with the specified fill percentage and overlay color.
@@ -149,6 +155,22 @@ public class EnergyFillShader extends AbstractShader {
     }
     this.texturePath = texturePath;
     return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    properties.put("fillPercentage", Float.toString(fillPercentage));
+    putColor(properties, color);
+    if (texturePath != null) {
+      properties.put("texturePath", texturePath);
+    }
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    fillPercentage = validateFillPercentage(floatProperty(properties, "fillPercentage"));
+    color = colorProperty(properties);
+    texturePath(properties.get("texturePath"));
   }
 
   private static float validateFillPercentage(float fillPercentage) {

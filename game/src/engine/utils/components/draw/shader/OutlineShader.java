@@ -3,6 +3,7 @@ package engine.utils.components.draw.shader;
 import com.badlogic.gdx.graphics.Color;
 import engine.utils.Rectangle;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A shader that adds an outline effect to rendered objects. The outline can have a specified width
@@ -18,6 +19,11 @@ public class OutlineShader extends AbstractShader {
   private float beatSpeed;
   private float beatIntensity;
   private boolean isRainbow;
+
+  /** Creates an OutlineShader with default parameters. */
+  public OutlineShader() {
+    this(0, Color.WHITE, 1.0f, 0f);
+  }
 
   /**
    * Creates an OutlineShader with the specified parameters.
@@ -175,5 +181,23 @@ public class OutlineShader extends AbstractShader {
   public OutlineShader isRainbow(boolean isRainbow) {
     this.isRainbow = isRainbow;
     return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    properties.put("width", Integer.toString(width));
+    putColor(properties, color);
+    properties.put("beatSpeed", Float.toString(beatSpeed));
+    properties.put("beatIntensity", Float.toString(beatIntensity));
+    properties.put("rainbow", Boolean.toString(isRainbow));
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    width = intProperty(properties, "width");
+    color = colorProperty(properties);
+    beatSpeed = floatProperty(properties, "beatSpeed");
+    beatIntensity = floatProperty(properties, "beatIntensity");
+    isRainbow = booleanProperty(properties, "rainbow");
   }
 }

@@ -2,6 +2,7 @@ package engine.utils.components.draw.shader;
 
 import engine.utils.Rectangle;
 import java.util.List;
+import java.util.Map;
 
 /** Shader for remapping hues within a specified tolerance. */
 public class HueRemapShader extends AbstractShader {
@@ -12,6 +13,11 @@ public class HueRemapShader extends AbstractShader {
   private float startingHue;
   private float targetHue;
   private float tolerance;
+
+  /** Creates a HueRemapShader with default parameters. */
+  public HueRemapShader() {
+    this(0f, 0f, 0.05f);
+  }
 
   /**
    * Constructs a HueRemapShader with specified starting hue, target hue, and tolerance.
@@ -114,5 +120,19 @@ public class HueRemapShader extends AbstractShader {
   public HueRemapShader tolerance(float tolerance) {
     this.tolerance = tolerance;
     return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    properties.put("startingHue", Float.toString(startingHue));
+    properties.put("targetHue", Float.toString(targetHue));
+    properties.put("tolerance", Float.toString(tolerance));
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    startingHue = floatProperty(properties, "startingHue");
+    targetHue = floatProperty(properties, "targetHue");
+    tolerance = floatProperty(properties, "tolerance");
   }
 }

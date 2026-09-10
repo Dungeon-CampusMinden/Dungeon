@@ -2,6 +2,7 @@ package engine.utils.components.draw.shader;
 
 import engine.utils.Rectangle;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simple passthrough shader that can optionally display debug information such as pre-multiplied
@@ -74,5 +75,17 @@ public class PassthroughShader extends AbstractShader {
   public PassthroughShader debugWorldPos(boolean debugWorldPos) {
     this.debugWorldPos = debugWorldPos;
     return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    properties.put("debugPMA", Boolean.toString(debugPMA));
+    properties.put("debugWorldPos", Boolean.toString(debugWorldPos));
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    debugPMA = booleanProperty(properties, "debugPMA");
+    debugWorldPos = booleanProperty(properties, "debugWorldPos");
   }
 }

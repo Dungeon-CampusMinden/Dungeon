@@ -3,6 +3,7 @@ package rooms.mushroom.shaders;
 import engine.utils.Rectangle;
 import engine.utils.components.draw.shader.AbstractShader;
 import java.util.List;
+import java.util.Map;
 
 /** MushroomPostProcessing shader that applies a visual effect based on the player's distance. */
 public class MagicLensLayerShader extends AbstractShader {
@@ -76,5 +77,17 @@ public class MagicLensLayerShader extends AbstractShader {
   public MagicLensLayerShader active(boolean active) {
     this.active = active;
     return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    properties.put("lensRadius", Float.toString(lensRadius));
+    properties.put("active", Boolean.toString(active));
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    lensRadius = floatProperty(properties, "lensRadius");
+    active = booleanProperty(properties, "active");
   }
 }
