@@ -11,6 +11,7 @@ import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.state.CharacterStateFactory;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.CollideComponent;
 import java.util.Arrays;
 import java.util.Map;
 import rooms.programming.modules.loops.LoopMaze;
@@ -57,6 +58,17 @@ public final class ProgrammingMazeWorld {
       for (int y = (int) at.y(); y < at.y() + LoopMaze.CELL_HEIGHT; y++)
         for (int x = (int) at.x(); x < at.x() + LoopMaze.CELL_WIDTH; x++)
           result[y][x] = LevelElement.FLOOR;
+    }
+    // Walled maintenance bays show the machinery without adding cells to the golem's route.
+    for (int[] bay : new int[][] {{15, -4, 5, 3}, {0, 8, 4, 3}}) {
+      int left = (int) origin.x() + bay[0];
+      int bottom = (int) origin.y() + bay[1];
+      for (int y = bottom - 1; y <= bottom + bay[3]; y++)
+        for (int x = left - 1; x <= left + bay[2]; x++)
+          result[y][x] =
+              x == left - 1 || x == left + bay[2] || y == bottom - 1 || y == bottom + bay[3]
+                  ? LevelElement.WALL
+                  : LevelElement.FLOOR;
     }
     // The winch occupies a service bay beyond the last working position, not the golem's path.
     Point winch = LoopMaze.world(origin, LoopMaze.checkpoints().getLast().goal());
@@ -112,13 +124,20 @@ public final class ProgrammingMazeWorld {
       }
     }
     Point pump = LoopMaze.world(origin, new LoopMaze.Cell(-1, 6));
-    Entity kettle =
-        ProgrammingCellarMachinery.prop(
-            "pump", pump.translate(1, .2f), "objects/magic_kettle", 1.5f, 1.5f);
-    kettle.add(ProgrammingProps.chestCollider());
+    Entity pumpBody =
+        ProgrammingCellarMachinery.art("pump", pump.translate(1, .2f), "pump", 16, 24, 1.5f);
+    pumpBody.add(new CollideComponent(Vector2.of(.1f, .04f), Vector2.of(.8f, .3f)));
+    Entity conveyor =
+        ProgrammingCellarMachinery.art(
+            "conveyor", origin.translate(16, -3.8f), "conveyor", 32, 16, 1.5f);
+    conveyor.add(new CollideComponent(Vector2.of(.1f, .04f), Vector2.of(1.8f, .5f)));
+    Entity hoist =
+        ProgrammingCellarMachinery.art(
+            "chain-hoist", origin.translate(.5f, 8.2f), "chain-hoist", 24, 32, 2f);
+    hoist.add(new CollideComponent(Vector2.of(.08f, .03f), Vector2.of(.84f, .25f)));
     // Wall-mounted pipes and their outlets stay outside the five-by-three movement footprint.
     for (Point at : steamOutlets(origin)) {
-      ProgrammingCellarMachinery.sheet("pipe", at, 352, 32, 16, 48, .65f, 2);
+      ProgrammingCellarMachinery.art("pipe", at, "broken-pipe", 8, 24, .65f);
     }
     for (var cell :
         java.util.List.of(
@@ -140,9 +159,11 @@ public final class ProgrammingMazeWorld {
     PositionComponent position = new PositionComponent(at.translate(.1f, .1f));
     position.scale(.8f);
     entity.add(position);
-    DrawComponent draw = new DrawComponent(new SimpleIPath("objects/pressureplate"), "off");
+    String direction = LoopMaze.goalFacing(index).name().toLowerCase(java.util.Locale.ROOT);
+    DrawComponent draw =
+        new DrawComponent(
+            new SimpleIPath("rooms/programming/art/work-marker-" + direction + ".png"));
     draw.depth(DepthLayer.Ground.depth());
-    draw.tintColor(0xFFCE73FF);
     entity.add(draw);
     Game.add(entity);
   }

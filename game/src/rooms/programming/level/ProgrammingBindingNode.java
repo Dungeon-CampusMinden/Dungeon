@@ -293,10 +293,10 @@ final class ProgrammingBindingNode extends CanvasNode {
 
   private String vesselImage(SoulVessel vessel) {
     return switch (vessel) {
-      case IRON_CHEST -> "objects/crate/basic.png";
+      case IRON_CHEST -> "rooms/programming/art/iron-chest.png";
       case CRYSTAL_BOTTLE -> "items/potion/water_bottle.png";
       case PARCHMENT -> "items/rpg/item_scroll.png";
-      case RUNE_STONE -> "items/rpg/item_gem_amethyst.png";
+      case RUNE_STONE -> "rooms/programming/art/rune-stone.png";
       case LIGHT_ORB -> "items/rpg/item_orb.png";
     };
   }

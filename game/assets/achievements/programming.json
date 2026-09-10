@@ -20,7 +20,7 @@
     },
     {
       "id": "programming_wrong_type",
-      "imagePath": "objects/crate/basic.png",
+      "imagePath": "rooms/programming/art/iron-chest.png",
       "unlockForAll": false,
       "hidden": true
     },

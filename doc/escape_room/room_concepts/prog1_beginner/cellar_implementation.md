@@ -46,15 +46,27 @@ wird hochgezogen. Der Kameraschnitt zeigt erst den Unfall unten, dann dessen Wir
 oben. Die Öffnung ist bis dahin verdeckt und unpassierbar. Kein Erzähler erklärt den
 Unfall, und kein UI nennt Aktnummern oder kündigt die Entdeckung an.
 
-## Noch provisorische Darstellung
+## Darstellung
 
-- Torwinde: bestehende Säulen-, Kisten-, Ketten- und Steinsprites bilden Rahmen,
-  Halterung und Gegengewicht. Eine eigene Winden-Grafik mit Seiltrommel fehlt noch.
-- Arbeitsstellen: Schutthaufen und kleine Messingplatten markieren Räumpositionen.
-  Eigene Grafiken für Förderanlage, Pumpe und Kettenzug fehlen; Lagergut und Leitungen
-  geben den bestehenden Gängen ihren Kellerkontext.
-- Leitungen: Ausschnitte aus `FG_Cellar.png` dienen als Rohre. Dampf wird im vorhandenen
-  Lichtshader prozedural gezeichnet. Eigene Rohrstücke mit sichtbarer Bruchstelle fehlen.
+Die raumspezifischen Grafiken liegen unter `game/assets/rooms/programming/art`.
+Die kleinen Gegenstände verwenden 16×16 Pixel, die große Torwinde 48×40 Pixel.
+
+- Die Torwinde besitzt einen eigenen Rahmen mit Seiltrommel. Halterung, Gegengewicht
+  und Kettenglieder sind getrennte Sprites. Beim Unfall wechselt die Halterung in ihren
+  gebrochenen Zustand. Die Kette wird abgewickelt, ohne ihre Pixel zu strecken.
+- Förderbahn und Kettenzug stehen in abgetrennten Maschinenbuchten neben dem Laufweg.
+  Die Pumpe ersetzt den Kessel in der vorhandenen Seitennische. Die fünf mal drei Tiles
+  großen Zellen und ihre Verbindungen im Steuerprogramm bleiben unverändert.
+- Flache Messingpfeile kennzeichnen die Arbeitspositionen und zeigen dieselbe Richtung
+  wie die Karte. Sie sind keine betätigbaren Druckplatten.
+- Beschädigte Rohre ersetzen die bisherigen Tileset-Ausschnitte. Der Lichtshader setzt
+  seinen Dampf an der sichtbaren Bruchstelle an.
+- Der Sehstein auf der Werkbank leuchtet erst, wenn Nox den Keller erreicht hat.
+  Eisenkiste und Runenstein im Bindungs-Canvas haben eigene, passende Gegenstandsbilder.
+
+Nox behält seine vorhandenen Stand- und Laufanimationen. Angriff und Räumen verwenden
+weiterhin die bisherige Bewegung des Sprites; der Sprung folgt einer berechneten Flugbahn.
+Eigene, zum bestehenden Golem passende Aktionsframes fehlen noch.
 
 Der Raum spielt vorerst keine eigenen Sounds ab. Räumarbeiten und Unfall werden nur
 visuell dargestellt.
