@@ -147,6 +147,9 @@ public final class ShaderComponentCodec {
       type = TYPE_ENERGY_FILL;
       properties.put("fillPercentage", Float.toString(energyFill.fillPercentage()));
       putColor(properties, energyFill.color());
+      if (energyFill.texturePath() != null) {
+        properties.put("texturePath", energyFill.texturePath());
+      }
     } else if (shader instanceof ShineShader shine) {
       type = TYPE_SHINE;
       properties.put("padding", Integer.toString(shine.padding()));
@@ -197,7 +200,9 @@ public final class ShaderComponentCodec {
                   floatProperty(properties, "tolerance"));
           case TYPE_ENERGY_FILL ->
               new EnergyFillShader(
-                  floatProperty(properties, "fillPercentage"), colorProperty(properties));
+                  floatProperty(properties, "fillPercentage"),
+                  colorProperty(properties),
+                  properties.get("texturePath"));
           case TYPE_SHINE ->
               new ShineShader()
                   .padding(intProperty(properties, "padding"))

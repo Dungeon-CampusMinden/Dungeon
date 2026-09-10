@@ -11,6 +11,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.Vector4;
 import com.badlogic.gdx.utils.Disposable;
 import engine.utils.Rectangle;
+import engine.utils.components.draw.TextureMap;
+import engine.utils.components.path.SimpleIPath;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -311,18 +313,20 @@ public abstract class AbstractShader implements Disposable {
    * Binds a texture uniform.
    *
    * @param name The uniform name in the shader.
-   * @param texture The Texture object to bind.
+   * @param texturePath The path used to look up the texture in {@link TextureMap}.
    * @param unit OpenGL texture unit (must be >= 1, 0 is reserved for SpriteBatch).
    */
-  public record TextureUniform(String name, Texture texture, int unit) implements UniformBinding {
+  public record TextureUniform(String name, String texturePath, int unit)
+      implements UniformBinding {
     /**
      * Binds a texture uniform to a specified texture unit.
      *
      * @param name The uniform name in the shader.
-     * @param texture The Texture object to bind.
+     * @param texturePath The path used to look up the texture in {@link TextureMap}.
      * @param unit OpenGL texture unit (must be >= 1, 0 is reserved for SpriteBatch).
      */
     public TextureUniform {
+      validateTexturePath(texturePath);
       if (unit < 1) {
         throw new IllegalArgumentException(
             "Texture unit for custom uniforms must be 1 or greater.");
@@ -331,6 +335,8 @@ public abstract class AbstractShader implements Disposable {
 
     @Override
     public void bind(ShaderProgram program) {
+      Texture texture = resolveTexture(texturePath);
+
       // Activate this texture in OpenGL
       Gdx.gl.glActiveTexture(unit);
       texture.bind(unit);
@@ -338,6 +344,24 @@ public abstract class AbstractShader implements Disposable {
 
       // Set back to original texture for SpriteBatch
       Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
+    }
+  }
+
+  /**
+   * Binds the dimensions of a texture looked up from the {@link TextureMap}.
+   *
+   * @param name The vector uniform name in the shader.
+   * @param texturePath The path used to look up the texture.
+   */
+  public record TextureSizeUniform(String name, String texturePath) implements UniformBinding {
+    public TextureSizeUniform {
+      validateTexturePath(texturePath);
+    }
+
+    @Override
+    public void bind(ShaderProgram program) {
+      Texture texture = resolveTexture(texturePath);
+      program.setUniformf(name, texture.getWidth(), texture.getHeight());
     }
   }
 
@@ -381,5 +405,19 @@ public abstract class AbstractShader implements Disposable {
       // Send the entire array to the GPU in one call
       program.setUniform3fv(name, flatArray, 0, flatArray.length);
     }
+  }
+
+  private static void validateTexturePath(String texturePath) {
+    if (texturePath == null || texturePath.isBlank()) {
+      throw new IllegalArgumentException("Texture path must not be blank.");
+    }
+  }
+
+  private static Texture resolveTexture(String texturePath) {
+    Texture texture = TextureMap.instance().textureAt(new SimpleIPath(texturePath));
+    if (texture == null) {
+      throw new IllegalStateException("Texture not found: " + texturePath);
+    }
+    return texture;
   }
 }

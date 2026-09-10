@@ -1,9 +1,8 @@
 package engine.utils.components.draw.shader;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import engine.utils.Rectangle;
-import engine.utils.components.draw.TextureGenerator;
+import java.util.ArrayList;
 import java.util.List;
 
 /** A shader that applies a fill effect over the bottom percentage of an entity's texture. */
@@ -15,7 +14,7 @@ public class EnergyFillShader extends AbstractShader {
   private float fillPercentage;
   private float animMagnitude = 0.028f;
   private Color color;
-  private Texture texture;
+  private String texturePath;
 
   /**
    * Creates an EnergyFillShader with the specified fill percentage and overlay color.
@@ -24,40 +23,43 @@ public class EnergyFillShader extends AbstractShader {
    * @param color the overlay color
    */
   public EnergyFillShader(float fillPercentage, Color color) {
-    this(fillPercentage, color, TextureGenerator.generateColorTexture(1, 1, Color.CLEAR));
+    this(fillPercentage, color, null);
   }
 
   /**
-   * Creates an EnergyFillShader with the specified fill percentage and overlay texture.
+   * Creates an EnergyFillShader with the specified fill percentage and overlay texture path.
    *
    * @param fillPercentage the filled percentage, from {@code 0.0} to {@code 1.0}
-   * @param texture the overlay texture
+   * @param texturePath the path of the overlay texture, or {@code null} for no overlay texture
    */
-  public EnergyFillShader(float fillPercentage, Texture texture) {
-    this(fillPercentage, Color.CLEAR, texture);
+  public EnergyFillShader(float fillPercentage, String texturePath) {
+    this(fillPercentage, Color.CLEAR, texturePath);
   }
 
-  /**
-   * Creates an EnergyFillShader with the specified fill percentage, overlay color, and texture.
-   *
-   * @param fillPercentage the filled percentage, from {@code 0.0} to {@code 1.0}
-   * @param color the overlay color
-   * @param texture the overlay texture
-   */
-  public EnergyFillShader(float fillPercentage, Color color, Texture texture) {
+  /** Creates an EnergyFillShader with an optional path-backed overlay texture. */
+  public EnergyFillShader(float fillPercentage, Color color, String texturePath) {
     super(VERT_PATH, FRAG_PATH);
     this.fillPercentage = validateFillPercentage(fillPercentage);
     this.color = color;
-    this.texture = texture;
+    if (texturePath != null && texturePath.isBlank()) {
+      throw new IllegalArgumentException("Texture path must not be blank.");
+    }
+    this.texturePath = texturePath;
   }
 
   @Override
   protected List<UniformBinding> getUniforms(int actualUpscale) {
-    return List.of(
-        new FloatUniform("u_fillPercentage", fillPercentage),
-        new FloatUniform("u_animMagnitude", animMagnitude),
-        new ColorUniform("u_color", color),
-        new TextureUniform("u_overlayTexture", texture, 1));
+    List<UniformBinding> uniforms =
+        new ArrayList<>(
+            List.of(
+                new FloatUniform("u_fillPercentage", fillPercentage),
+                new FloatUniform("u_animMagnitude", animMagnitude),
+                new ColorUniform("u_color", color),
+                new BoolUniform("u_hasOverlayTexture", texturePath != null)));
+    if (texturePath != null) {
+      uniforms.add(new TextureUniform("u_overlayTexture", texturePath, 1));
+    }
+    return uniforms;
   }
 
   @Override
@@ -130,23 +132,22 @@ public class EnergyFillShader extends AbstractShader {
     return this;
   }
 
-  /**
-   * Gets the overlay texture.
-   *
-   * @return the overlay texture
-   */
-  public Texture texture() {
-    return texture;
+  /** Gets the overlay texture path. */
+  public String texturePath() {
+    return texturePath;
   }
 
   /**
-   * Sets the overlay texture.
+   * Sets the overlay texture path.
    *
-   * @param texture the overlay texture
+   * @param texturePath the path of the overlay texture, or {@code null} to disable the overlay
    * @return this shader for chaining
    */
-  public EnergyFillShader texture(Texture texture) {
-    this.texture = texture;
+  public EnergyFillShader texturePath(String texturePath) {
+    if (texturePath != null && texturePath.isBlank()) {
+      throw new IllegalArgumentException("Texture path must not be blank.");
+    }
+    this.texturePath = texturePath;
     return this;
   }
 

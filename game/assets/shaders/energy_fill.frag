@@ -16,11 +16,13 @@ uniform float u_time;
 uniform vec2 u_mouse;
 uniform vec2 u_texelSize;
 uniform vec2 u_aspect;
+uniform vec4 u_entityBounds;
 
 // ----- Custom uniforms -----
 uniform float u_fillPercentage;
 uniform vec4 u_color;
 uniform sampler2D u_overlayTexture;
+uniform bool u_hasOverlayTexture;
 uniform float u_animMagnitude;
 
 const float animSpeed = 0.28;
@@ -28,7 +30,10 @@ const float animSpeed = 0.28;
 // ----- Main -----
 void main() {
   vec4 textureColor = unPma(texture2D(u_texture, uv));
-  vec4 overlayTextureColor = unPma(texture2D(u_overlayTexture, uv));
+  vec4 overlayTextureColor = vec4(0.0);
+  if (u_hasOverlayTexture) {
+    overlayTextureColor = unPma(texture2D(u_overlayTexture, vec2(uv.x, 1.0 - uv.y)));
+  }
   if(textureColor.a < 0.1) {
     discard;
   }

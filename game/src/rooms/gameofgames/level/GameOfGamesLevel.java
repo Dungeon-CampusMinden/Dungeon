@@ -1,5 +1,6 @@
 package rooms.gameofgames.level;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
@@ -9,6 +10,7 @@ import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Tuple;
 import engine.utils.components.draw.shader.ColorGradeShader;
+import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.HueRemapShader;
 import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
@@ -101,8 +103,7 @@ public class GameOfGamesLevel extends DungeonLevel {
                     ShaderSystem.getInstance().addLevelShader(
                         "level",
                         0,
-                        new ColorGradeShader(-1, 5.0f, 5.0f)
-                            .region(new Rectangle(100, 100, -50, -50)),
+                        new EnergyFillShader(0.9f, Color.RED, "items/rpg/food_bananas.png"),
                         who.id());
                   } else {
                     ShaderSystem.getInstance().removeLevelShader("level", who.id());
