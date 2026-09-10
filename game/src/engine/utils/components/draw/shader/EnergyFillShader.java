@@ -42,7 +42,13 @@ public class EnergyFillShader extends AbstractShader {
     this(fillPercentage, Color.CLEAR, texturePath);
   }
 
-  /** Creates an EnergyFillShader with an optional path-backed overlay texture. */
+  /**
+   * Creates an EnergyFillShader with an optional path-backed overlay texture.
+   *
+   * @param fillPercentage the filled percentage, from {@code 0.0} to {@code 1.0}
+   * @param color the overlay color
+   * @param texturePath the path of the overlay texture, or {@code null} for no overlay texture
+   */
   public EnergyFillShader(float fillPercentage, Color color, String texturePath) {
     super(VERT_PATH, FRAG_PATH);
     this.fillPercentage = validateFillPercentage(fillPercentage);
@@ -138,7 +144,11 @@ public class EnergyFillShader extends AbstractShader {
     return this;
   }
 
-  /** Gets the overlay texture path. */
+  /**
+   * Gets the overlay texture path.
+   *
+   * @return the overlay texture path, or {@code null} when no overlay is configured
+   */
   public String texturePath() {
     return texturePath;
   }

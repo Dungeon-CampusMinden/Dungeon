@@ -392,6 +392,12 @@ public abstract class AbstractShader implements Disposable {
    * @param texturePath The path used to look up the texture.
    */
   public record TextureSizeUniform(String name, String texturePath) implements UniformBinding {
+    /**
+     * Validates the texture path used by this uniform.
+     *
+     * @param name The vector uniform name in the shader.
+     * @param texturePath The path used to look up the texture.
+     */
     public TextureSizeUniform {
       validateTexturePath(texturePath);
     }
@@ -459,7 +465,12 @@ public abstract class AbstractShader implements Disposable {
     return texture;
   }
 
-  /** Writes a color using the property names used by synchronized shaders. */
+  /**
+   * Writes a color using the property names used by synchronized shaders.
+   *
+   * @param properties destination property map
+   * @param color color to write
+   */
   protected static void putColor(Map<String, String> properties, Color color) {
     if (color == null) {
       throw new IllegalArgumentException("Shader color must not be null.");
@@ -470,7 +481,12 @@ public abstract class AbstractShader implements Disposable {
     properties.put("alpha", Float.toString(color.a));
   }
 
-  /** Reads a color using the property names used by synchronized shaders. */
+  /**
+   * Reads a color using the property names used by synchronized shaders.
+   *
+   * @param properties source property map
+   * @return the color represented by the properties
+   */
   protected static Color colorProperty(Map<String, String> properties) {
     return new Color(
         floatProperty(properties, "red"),
@@ -479,7 +495,12 @@ public abstract class AbstractShader implements Disposable {
         floatProperty(properties, "alpha"));
   }
 
-  /** Writes a rectangle using the property names used by synchronized shaders. */
+  /**
+   * Writes a rectangle using the property names used by synchronized shaders.
+   *
+   * @param properties destination property map
+   * @param rectangle rectangle to write
+   */
   protected static void putRectangle(Map<String, String> properties, Rectangle rectangle) {
     if (rectangle == null) {
       throw new IllegalArgumentException("Shader rectangle must not be null.");
@@ -490,7 +511,12 @@ public abstract class AbstractShader implements Disposable {
     properties.put("y", Float.toString(rectangle.y()));
   }
 
-  /** Reads a rectangle using the property names used by synchronized shaders. */
+  /**
+   * Reads a rectangle using the property names used by synchronized shaders.
+   *
+   * @param properties source property map
+   * @return the rectangle represented by the properties
+   */
   protected static Rectangle rectangleProperty(Map<String, String> properties) {
     return new Rectangle(
         floatProperty(properties, "width"),
@@ -499,7 +525,13 @@ public abstract class AbstractShader implements Disposable {
         floatProperty(properties, "y"));
   }
 
-  /** Reads a required shader property. */
+  /**
+   * Reads a required shader property.
+   *
+   * @param properties source property map
+   * @param name property name
+   * @return the property value
+   */
   protected static String property(Map<String, String> properties, String name) {
     String value = properties.get(name);
     if (value == null) {
@@ -508,17 +540,35 @@ public abstract class AbstractShader implements Disposable {
     return value;
   }
 
-  /** Reads an integer shader property. */
+  /**
+   * Reads an integer shader property.
+   *
+   * @param properties source property map
+   * @param name property name
+   * @return the integer property value
+   */
   protected static int intProperty(Map<String, String> properties, String name) {
     return Integer.parseInt(property(properties, name));
   }
 
-  /** Reads a float shader property. */
+  /**
+   * Reads a float shader property.
+   *
+   * @param properties source property map
+   * @param name property name
+   * @return the float property value
+   */
   protected static float floatProperty(Map<String, String> properties, String name) {
     return Float.parseFloat(property(properties, name));
   }
 
-  /** Reads a boolean shader property. */
+  /**
+   * Reads a boolean shader property.
+   *
+   * @param properties source property map
+   * @param name property name
+   * @return the boolean property value
+   */
   protected static boolean booleanProperty(Map<String, String> properties, String name) {
     String value = property(properties, name);
     if (!"true".equals(value) && !"false".equals(value)) {
