@@ -54,7 +54,8 @@ final class ProgrammingCellarMachinery {
 
     Point end = LoopMaze.world(origin, LoopMaze.checkpoints().getLast().goal());
     Entity frame = art("winch-frame", end.translate(5.15f, .1f), "winch-frame", 48, 40, 3.75f);
-    frame.add(new CollideComponent(Vector2.of(.05f, .08f), Vector2.of(.86f, .13f)));
+    // Collider units follow the 40px shorter edge, including both feet of the 48px-wide frame.
+    frame.add(new CollideComponent(Vector2.of(.05f, .08f), Vector2.of(1.1f, .13f)));
     bracket =
         art("winch-bracket", end.translate(6.725f, 2.3825f), "winch-bracket-intact", 16, 8, .45f);
     bracket.add(

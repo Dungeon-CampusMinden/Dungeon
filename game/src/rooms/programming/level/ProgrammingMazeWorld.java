@@ -125,8 +125,8 @@ public final class ProgrammingMazeWorld {
     }
     Point pump = LoopMaze.world(origin, new LoopMaze.Cell(-1, 6));
     Entity pumpBody =
-        ProgrammingCellarMachinery.art("pump", pump.translate(1, .2f), "pump", 16, 24, 1.5f);
-    pumpBody.add(new CollideComponent(Vector2.of(.1f, .04f), Vector2.of(.8f, .3f)));
+        ProgrammingCellarMachinery.art("pump", pump.translate(1, .2f), "pump", 16, 32, 1.5f);
+    pumpBody.add(new CollideComponent(Vector2.of(.3f, .04f), Vector2.of(.4f, .3f)));
     Entity conveyor =
         ProgrammingCellarMachinery.art(
             "conveyor", origin.translate(16, -3.8f), "conveyor", 32, 16, 1.5f);
