@@ -259,19 +259,20 @@ public final class ShaderSystem extends System {
       AbstractShader shader,
       int[] targetEntityIds) {
     if (targetEntityIds.length == 0) {
-      ShaderComponent updated =
-          globalShaders
-              .getOrDefault(target, new ShaderComponent())
-              .withShader(identifier, order, shader);
+      ShaderComponent current = globalShaders.getOrDefault(target, new ShaderComponent());
+      ShaderComponent updated = current.withShader(identifier, order, shader);
       globalShaders.put(target, updated);
       if (isNetworkServer()) {
         NetworkUtils.getAllConnectedClientIds()
             .forEach(
                 clientId -> {
-                  clientShaders
-                      .computeIfAbsent(clientId, ignored -> new HashMap<>())
-                      .put(target, updated);
-                  send(clientId, target, updated);
+                  Map<TargetKey, ShaderComponent> assignments =
+                      clientShaders.computeIfAbsent(clientId, ignored -> new HashMap<>());
+                  ShaderComponent clientCurrent = assignments.getOrDefault(target, current);
+                  ShaderComponent clientUpdated =
+                      clientCurrent.withShader(identifier, order, shader);
+                  assignments.put(target, clientUpdated);
+                  send(clientId, target, clientUpdated);
                 });
       } else {
         applyLocally(target, updated);
@@ -312,10 +313,12 @@ public final class ShaderSystem extends System {
         NetworkUtils.getAllConnectedClientIds()
             .forEach(
                 clientId -> {
-                  clientShaders
-                      .computeIfAbsent(clientId, ignored -> new HashMap<>())
-                      .put(target, updated);
-                  send(clientId, target, updated);
+                  Map<TargetKey, ShaderComponent> assignments =
+                      clientShaders.computeIfAbsent(clientId, ignored -> new HashMap<>());
+                  ShaderComponent clientCurrent = assignments.getOrDefault(target, current);
+                  ShaderComponent clientUpdated = clientCurrent.withoutShader(identifier);
+                  assignments.put(target, clientUpdated);
+                  send(clientId, target, clientUpdated);
                 });
       } else {
         applyLocally(target, updated);
