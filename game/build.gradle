@@ -130,6 +130,26 @@ tasks.register('runGameOfGamesLevelEditor', JavaExec) {
     args '--leveleditor'
 }
 
+tasks.register('runSystemRecovery', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.systemRecovery.SystemRecovery'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runSystemRecoveryLevelEditor', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.systemRecovery.SystemRecovery'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--leveleditor'
+}
+
+tasks.register('runSystemRecoveryServer', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.systemRecovery.SystemRecovery'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--server'
+}
+
 tasks.register('runTheLastHour', JavaExec) {
     group 'starter'
     mainClass = 'rooms.lasthour.starter.TheLastHour'
@@ -210,6 +230,49 @@ tasks.register('buildTheLastHourJar', Jar) {
 
     manifest {
         attributes 'Main-Class': 'rooms.lasthour.starter.TheLastHour'
+    }
+
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}
+
+tasks.register('buildSystemRecoveryJar', Jar) {
+    group = 'jar'
+    dependsOn configurations.runtimeClasspath
+    archiveBaseName.set('SystemRecovery')
+    archiveFileName.set('SystemRecovery.jar')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    manifest {
+        attributes 'Main-Class': 'rooms.systemRecovery.SystemRecovery'
+    }
+
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}
+
+tasks.register('buildSystemRecoveryServerJar', Jar) {
+    group = 'jar'
+    dependsOn configurations.runtimeClasspath
+    archiveBaseName.set('SystemRecoveryServer')
+    archiveFileName.set('SystemRecoveryServer.jar')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    from(resources.text.fromString('server')) {
+        rename { 'application.properties' }
+    }
+
+    manifest {
+        attributes 'Main-Class': 'rooms.systemRecovery.SystemRecovery'
     }
 
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
