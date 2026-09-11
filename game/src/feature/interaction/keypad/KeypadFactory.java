@@ -40,17 +40,7 @@ public class KeypadFactory {
    */
   public static Entity createKeypad(
       Point pos, List<Integer> correctDigits, Runnable action, boolean showDigitCount) {
-    Entity entity = new Entity("keypad");
-
-    entity.add(new PositionComponent(pos));
-
-    State stClosed = new State("closed", TEXTURE_OFF);
-    State stOpen = new State("open", TEXTURE_ON);
-    StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpen));
-    sm.addTransition(stClosed, "open", stOpen);
-    sm.addTransition(stOpen, "close", stClosed);
-    DrawComponent dc = new DrawComponent(sm);
-    entity.add(dc);
+    Entity entity = createBaseKeypad(pos);
 
     KeypadComponent kc = new KeypadComponent(correctDigits, action, showDigitCount);
     entity.add(kc);
@@ -75,6 +65,61 @@ public class KeypadFactory {
                   LOGGER.info("Interacted with keypad sprite");
                 },
                 DEFAULT_INTERACTION_RADIUS)));
+    return entity;
+  }
+
+  /**
+   * Creates a text keypad at the designated position. Only Characters from A-Z + Space are allowed,
+   * everything else currently not supported.
+   *
+   * @param pos The position where the keypad will be created.
+   * @param correctTexts The correct text that will start the action if entered
+   * @param action The action to execute when the correct text is entered
+   * @return The created keypad entity.
+   */
+  public static Entity createTextKeypad(Point pos, List<String> correctTexts, Runnable action) {
+    Entity entity = createBaseKeypad(pos);
+
+    TextKeyPadComponent kc = new TextKeyPadComponent(correctTexts, action);
+    entity.add(kc);
+
+    entity.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (e, who) -> {
+                      DialogContext context =
+                          DialogContext.builder()
+                              .type(DialogType.DefaultTypes.TEXT_KEYPAD)
+                              .put(DialogContextKeys.ENTITY, e.id())
+                              .build();
+                      UIComponent uic = DialogFactory.show(context, who.id());
+                      uic.registerCallback(
+                          DialogContextKeys.ON_CONFIRM,
+                          (payload) -> {
+                            if (payload
+                                instanceof DialogResponseMessage.StringValue(String value)) {
+                              TextKeypadUI.onButtonPress(e, who, value);
+                            }
+                          });
+                      LOGGER.info("Interacted with keypad sprite");
+                    },
+                    DEFAULT_INTERACTION_RADIUS)));
+    return entity;
+  }
+
+  private static Entity createBaseKeypad(Point pos) {
+    Entity entity = new Entity("keypad");
+
+    entity.add(new PositionComponent(pos));
+
+    State stClosed = new State("closed", TEXTURE_OFF);
+    State stOpen = new State("open", TEXTURE_ON);
+    StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpen));
+    sm.addTransition(stClosed, "open", stOpen);
+    sm.addTransition(stOpen, "close", stClosed);
+    DrawComponent dc = new DrawComponent(sm);
+    entity.add(dc);
     return entity;
   }
 }

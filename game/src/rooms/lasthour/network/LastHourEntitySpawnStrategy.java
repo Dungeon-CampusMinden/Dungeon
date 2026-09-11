@@ -9,6 +9,7 @@ import feature.collision.CollideSync;
 import feature.components.ItemComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
+import feature.interaction.keypad.TextKeyPadComponent;
 import feature.puzzle.PuzzlePieceItem;
 import feature.questlog.QuestLogComponent;
 import feature.timer.WorldTimerComponent;
@@ -20,8 +21,8 @@ import rooms.lasthour.modules.computer.ComputerStateComponent;
 
 /**
  * Entity spawn strategy for The Last Hour that supports metadata-only spawn events for {@link
- * ComputerStateComponent}, {@link KeypadComponent}, {@link WorldTimerComponent}, and {@link
- * feature.components.CollideComponent} entities.
+ * ComputerStateComponent}, {@link KeypadComponent},{@link TextKeyPadComponent} {@link
+ * WorldTimerComponent}, and {@link feature.components.CollideComponent} entities.
  */
 public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("collider");
@@ -34,6 +35,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Type value for keypad entities. */
   public static final String TYPE_KEYPAD = "keypad";
+
+  /** Type value for textKeypad entities. */
+  public static final String TYPE_TEXT_KEYPAD = "textKeypad";
 
   /** Type value for world-timer entities. */
   public static final String TYPE_WORLD_TIMER = "world-timer";
@@ -85,6 +89,12 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Metadata key for the digits entered on the keypad so far. */
   public static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
+
+  /** Metadata key for the keypad's correct texts. */
+  public static final String METADATA_TEXT_KEYPAD_CORRECT_TEXTS = "textKeypad.correctTexts";
+
+  /** Metadata key for the text entered on the keypad so far. */
+  public static final String METADATA_TEXT_KEYPAD_ENTERED_TEXT = "textKeypad.enteredText";
 
   /** Metadata key indicating whether the keypad is unlocked. */
   public static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
@@ -140,6 +150,11 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     entity
         .fetch(KeypadComponent.class)
         .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
+    entity
+        .fetch(TextKeyPadComponent.class)
+        .ifPresent(
+            textKeyPad ->
+                metadata.putAll(LastHourSnapshotTranslator.textKeypadMetadata(textKeyPad)));
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
