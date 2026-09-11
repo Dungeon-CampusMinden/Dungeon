@@ -191,6 +191,8 @@ public class DialogFactory {
     if (Game.isMultiplayerClient() || Game.isSingleplayer()) {
       translatedContext = translateText(DialogContextKeys.MESSAGE, translatedContext);
       translatedContext = translateText(DialogContextKeys.DIALOG, translatedContext);
+      translatedContext = translateText(DialogContextKeys.IMAGE, translatedContext);
+      translatedContext = translateText(DialogContextKeys.OPTIONS, translatedContext);
     }
 
     UIComponent ui =
@@ -635,6 +637,21 @@ public class DialogFactory {
                           : text)
               .toArray(String[]::new);
       return new DialogContext.Builder(context).put(type, translatedTexts).build();
+    }
+    if (value instanceof ChoiceOptions options) {
+      ChoiceOptions translatedOptions =
+          new ChoiceOptions(
+              options.values().stream()
+                  .map(
+                      option ->
+                          Translator.hasKey(option.value())
+                              ? ChoiceOption.of(
+                                  Localization.getInstance()
+                                      .getCurrentTranslator()
+                                      .translate(option.value()))
+                              : option)
+                  .toList());
+      return new DialogContext.Builder(context).put(type, translatedOptions).build();
     }
     return context;
   }

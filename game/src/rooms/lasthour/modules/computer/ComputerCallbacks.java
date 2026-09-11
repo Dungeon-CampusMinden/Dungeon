@@ -3,6 +3,7 @@ package rooms.lasthour.modules.computer;
 import engine.Entity;
 import engine.Game;
 import engine.game.PreRunConfiguration;
+import engine.language.Language;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
@@ -20,6 +21,7 @@ import rooms.lasthour.util.LastHourQuestLogUtil;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.LastHourTracking;
 import rooms.lasthour.util.Lore;
+import rooms.lasthour.util.translation.LastHourTranslator;
 
 /**
  * Defines and registers the computer dialog's callbacks.
@@ -351,10 +353,15 @@ public final class ComputerCallbacks {
     if (current == null || !current.isInfected()) {
       return;
     }
-    String expected = Lore.VirusTypeToCode.get(current.virusType());
+    String rawExpected = Lore.VirusTypeToCode.get(current.virusType());
+    String expectedEN = LastHourTranslator.translation.lookup(Language.EN, rawExpected);
+    String expectedDE = LastHourTranslator.translation.lookup(Language.DE, rawExpected);
     boolean correct =
-        expected != null
-            && rawCode.replaceAll("\\s+", "").equalsIgnoreCase(expected.replaceAll("\\s+", ""));
+        rawExpected != null
+            && (rawCode.replaceAll("\\s+", "").equalsIgnoreCase(expectedEN.replaceAll("\\s+", ""))
+                || rawCode
+                    .replaceAll("\\s+", "")
+                    .equalsIgnoreCase(expectedDE.replaceAll("\\s+", "")));
     LastHourTracking.attempt(
         LastHourPuzzle.VIRUS_NEUTRALIZATION,
         VIRUS_CODE_OBJECT_ID,

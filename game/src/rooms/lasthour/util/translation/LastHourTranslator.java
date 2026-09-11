@@ -1,8 +1,11 @@
 package rooms.lasthour.util.translation;
 
 import com.badlogic.gdx.Input;
+import engine.Game;
+import engine.language.Language;
 import engine.language.Translation;
 import feature.input.configuration.KeyboardConfig;
+import feature.puzzle.Puzzle;
 import feature.utils.Translator;
 import java.util.List;
 import java.util.Set;
@@ -14,8 +17,11 @@ public class LastHourTranslator extends Translator {
   public final List<String> DecoyVentSerialNumbers = List.of("sv00057---", "sv00031---");
   private final String MertensColor = "#aa00aa";
   public final String VentSerialNumber = "49221";
-  private final String cabinetImagePath = "images/virus-phrases.png";
-  private final String cabinetImagePathDe = "images/virus-phrases_de.png";
+  private final String cabinetImagePathEN = "images/virus-phrases.png";
+  private final String cabinetImagePathDE = "images/virus-phrases-de.png";
+  public static Puzzle finalCodePuzzelDE;
+  public static Puzzle finalCodePuzzelEN;
+  public static Puzzle currentPuzzel;
 
   /** List of URLs mentioned in the emails, which may or may not be trustworthy. */
   public final List<String> EmailCodeUrls =
@@ -25,7 +31,7 @@ public class LastHourTranslator extends Translator {
           "http://quick-unlock-sg4.net/code",
           "https://support.seecugate.com/extract");
 
-  public Translation translation = new Translation("translation");
+  public static Translation translation = new Translation("translation");
 
   /** Creates a translator and registers all The Last Hour translation keys. */
   public LastHourTranslator() {
@@ -81,6 +87,13 @@ public class LastHourTranslator extends Translator {
             translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(2)));
         case TranslationKey.Email_7_Content ->
             translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(3)));
+        case TranslationKey.cabinetImage ->
+            translatedText =
+                translatedText.replace(
+                    s,
+                    Game.localization().currentLanguage().equals(Language.DE)
+                        ? cabinetImagePathDE
+                        : cabinetImagePathEN);
         default -> translatedText = translatedText.replace(s, translation.text(s));
       }
     }
@@ -155,5 +168,96 @@ public class LastHourTranslator extends Translator {
     registerKey(TranslationKey.Email_8_Content);
     registerKey(TranslationKey.Email_9_Subject);
     registerKey(TranslationKey.Email_9_Content);
+    registerKey(TranslationKey.cabinetImage);
+    registerKey(TranslationKey.LoginScreenText);
+    registerKey(TranslationKey.LoginScreenWrongFeedback);
+    registerKey(TranslationKey.LoginScreenCorrectFeedback);
+    registerKey(TranslationKey.AboutHeaderText);
+    registerKey(TranslationKey.AboutInfoText);
+    registerKey(TranslationKey.AboutQnAText);
+    registerKey(TranslationKey.AboutFooterText);
+    registerKey(TranslationKey.EmailSelectText);
+    registerKey(TranslationKey.EmailFromText);
+    registerKey(TranslationKey.EmailSubjectText);
+    registerKey(TranslationKey.EmailAttachmentsText);
+    registerKey(TranslationKey.EmailLINK_SOMEText);
+    registerKey(TranslationKey.EmailLINK_NONEText);
+    registerKey(TranslationKey.EmailAttachment_1);
+    registerKey(TranslationKey.EmailAttachment_2);
+    registerKey(TranslationKey.EmailAttachment_3);
+    registerKey(TranslationKey.BrowserPlaceholder);
+    registerKey(TranslationKey.BrowserHistory);
+    registerKey(TranslationKey.BrowserGo);
+    registerKey(TranslationKey.BrowserPageNotFound);
+    registerKey(TranslationKey.BrowserEnterWebsite);
+    registerKey(TranslationKey.BrowserSecurityCodePage01);
+    registerKey(TranslationKey.BrowserSecurityCodePage02);
+    registerKey(TranslationKey.BrowserSecurityCodePage03);
+    registerKey(TranslationKey.BrowserSecurityCodePage04);
+    registerKey(TranslationKey.BrowserSecurityCodePage05);
+    registerKey(TranslationKey.BrowserSecurityCodePage06);
+    registerKey(TranslationKey.BrowserSecurityCodePage07);
+    registerKey(TranslationKey.BrowserSecurityCodePage08);
+    registerKey(TranslationKey.BrowserSecurityCodePage09);
+    registerKey(TranslationKey.BrowserSecurityCodePage10);
+    registerKey(TranslationKey.BrowserSecurityCodePage11);
+    registerKey(TranslationKey.BrowserSecurityCodePage12);
+    registerKey(TranslationKey.BrowserSecurityCodePage13);
+    registerKey(TranslationKey.BrowserSecurityCodePage14);
+    registerKey(TranslationKey.BrowserSecurityCodePage15);
+    registerKey(TranslationKey.BrowserSecurityCodePage16);
+    registerKey(TranslationKey.BrowserSecurityCodePage17);
+    registerKey(TranslationKey.BrowserSecurityCodePage18);
+    registerKey(TranslationKey.BrowserSecurityCodePage19);
+    registerKey(TranslationKey.BrowserSecurityCodePage20);
+    registerKey(TranslationKey.VirusText01);
+    registerKey(TranslationKey.VirusText02);
+    registerKey(TranslationKey.VirusText03);
+    registerKey(TranslationKey.VirusText04);
+    registerKey(TranslationKey.VirusText05);
+    registerKey(TranslationKey.VirusText06);
+    registerKey(TranslationKey.VirusText07);
+    registerKey(TranslationKey.VirusText08);
+    registerKey(TranslationKey.VirusText09);
+    registerKey(TranslationKey.BlogText1);
+    registerKey(TranslationKey.BlogText2);
+    registerKey(TranslationKey.BlogText3);
+    registerKey(TranslationKey.UnlockCodePage1);
+    registerKey(TranslationKey.UnlockCodePage2);
+    registerKey(TranslationKey.UnlockCodePage3);
+    registerKey(TranslationKey.UnlockCodePage4);
+    registerKey(TranslationKey.UnlockCodePage5);
+    registerKey(TranslationKey.UnlockCodePage6);
+    registerKey(TranslationKey.UnlockCodePage7);
+    registerKey(TranslationKey.UnlockCodePage8);
+
+    registerKey(TranslationKey.ControlPanel01);
+    registerKey(TranslationKey.ControlPanel02);
+    registerKey(TranslationKey.ControlPanel03);
+    registerKey(TranslationKey.ControlPanel04);
+    registerKey(TranslationKey.ControlPanel05);
+    registerKey(TranslationKey.ControlPanel06);
+    registerKey(TranslationKey.ControlPanel07);
+    registerKey(TranslationKey.ControlPanel08);
+    registerKey(TranslationKey.ControlPanel09);
+    registerKey(TranslationKey.ControlPanel10);
+    registerKey(TranslationKey.ControlPanel11);
+    registerKey(TranslationKey.ControlPanel12);
+    registerKey(TranslationKey.ControlPanel13);
+    registerKey(TranslationKey.ControlPanel14);
+    registerKey(TranslationKey.ControlPanel15);
+    registerKey(TranslationKey.ControlPanel16);
+    registerKey(TranslationKey.ControlPanel17);
+    registerKey(TranslationKey.ControlPanel18);
+    registerKey(TranslationKey.ControlPanel19);
+    registerKey(TranslationKey.ControlPanel20);
+    registerKey(TranslationKey.ControlPanel21);
+    registerKey(TranslationKey.ControlPanel22);
+    registerKey(TranslationKey.ControlPanel23);
+    registerKey(TranslationKey.ControlPanel24);
+
+    registerKey(TranslationKey.ComputerOfflineText);
+    registerKey(TranslationKey.ComputerUSBStickText);
+    registerKey(TranslationKey.ComputerAccessText);
   }
 }

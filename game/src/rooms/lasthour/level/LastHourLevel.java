@@ -49,6 +49,7 @@ import feature.inventory.Item;
 import feature.inventory.items.HintItem;
 import feature.puzzle.Puzzle;
 import feature.puzzle.PuzzleMaker;
+import feature.puzzle.PuzzleTextureGenerator;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerFactory;
@@ -74,6 +75,7 @@ import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.LastHourTracking;
 import rooms.lasthour.util.Lore;
 import rooms.lasthour.util.shaders.LightingShader;
+import rooms.lasthour.util.translation.LastHourTranslator;
 import rooms.lasthour.util.translation.TranslationKey;
 
 /** The Last Hour Room. */
@@ -351,7 +353,8 @@ public class LastHourLevel extends DungeonLevel {
                                   TranslationKey.LockerFind,
                                   "",
                                   () -> {
-                                    DialogUtils.showImagePopUp(cabinetImagePath, who.id());
+                                    DialogUtils.showImagePopUp(
+                                        TranslationKey.cabinetImage, who.id());
                                   },
                                   who.id());
                               return;
@@ -548,7 +551,8 @@ public class LastHourLevel extends DungeonLevel {
   // Puzzle definition for the r2-papers puzzle. Shared between the server (which spawns the
   // world items in r2SpawnPapers) and the client (which pre-generates the matching textures
   // in ensureClientPuzzles) so both derive the same deterministic puzzle id.
-  private static final SimpleIPath R2_PUZZLE_IMAGE = new SimpleIPath("images/final-code.png");
+  private static final SimpleIPath R2_PUZZLE_IMAGE_EN = new SimpleIPath("images/final-code.png");
+  private static final SimpleIPath R2_PUZZLE_IMAGE_DE = new SimpleIPath("images/final-code-de.png");
   private static final int R2_PUZZLE_PIECE_COUNT = 4;
   private static final long R2_PUZZLE_SEED = 1586791695537379744L;
 
@@ -558,7 +562,14 @@ public class LastHourLevel extends DungeonLevel {
    * network message references them. Must be called on the libGDX render thread.
    */
   public static void ensureClientPuzzles() {
-    PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    LastHourTranslator.finalCodePuzzelEN =
+        PuzzleMaker.makePuzzle(
+            R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    LastHourTranslator.finalCodePuzzelDE =
+        PuzzleMaker.makePuzzle(
+            R2_PUZZLE_IMAGE_DE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    LastHourTranslator.currentPuzzel = LastHourTranslator.finalCodePuzzelEN;
+    Game.localization().registerLanguageChangeListener(PuzzleTextureGenerator.languageConsumer);
   }
 
   /**
@@ -569,7 +580,7 @@ public class LastHourLevel extends DungeonLevel {
     LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
     puzzle =
         PuzzleMaker.makePuzzle(
-            R2_PUZZLE_IMAGE,
+            R2_PUZZLE_IMAGE_EN,
             R2_PUZZLE_PIECE_COUNT,
             (solvedPuzzle, solver) -> {
               LastHourTracking.solved(LastHourPuzzle.EXIT_CODE_ASSEMBLY);

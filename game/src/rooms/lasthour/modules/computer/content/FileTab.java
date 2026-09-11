@@ -8,6 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import engine.Game;
+import engine.language.Language;
+import engine.language.Localization;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Tuple;
 import feature.hud.UIUtils;
@@ -26,6 +29,7 @@ public class FileTab extends ComputerTab {
 
   private String fileName;
   private Table content;
+  private static Label hintlabel;
 
   /**
    * Constructs a new FileTab for the specified file name.
@@ -117,9 +121,14 @@ public class FileTab extends ComputerTab {
   private static Actor createHintPage() {
     Table table = new Table();
     table.center();
-    Label label = Scene2dElementFactory.createLabel(TranslationKey.HintFilePoem, 28, Color.BLACK);
-    label.setAlignment(Align.center);
-    table.add(label).expand().center();
+    hintlabel =
+        Scene2dElementFactory.createLabel(
+            Game.localization().getCurrentTranslator().translate(TranslationKey.HintFilePoem),
+            28,
+            Color.BLACK);
+    Game.localization().registerLanguageChangeListener(FileTab::languageChangeListener);
+    hintlabel.setAlignment(Align.center);
+    table.add(hintlabel).expand().center();
     return table;
   }
 
@@ -145,13 +154,19 @@ public class FileTab extends ComputerTab {
     // Document title
     Label title =
         Scene2dElementFactory.createLabel(
-            "SG-4 Door Access Code - Secure Delivery", 28, Color.BLACK);
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.UnlockCodePage1),
+            28,
+            Color.BLACK);
     title.setAlignment(Align.left);
     table.add(title).left().padBottom(5).row();
 
     Label refLabel =
         Scene2dElementFactory.createLabel(
-            "SecuGate Systems  |  Document Ref: SG4-AC-0042  |  Classification: Confidential",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.UnlockCodePage2),
             14,
             Color.GRAY);
     refLabel.setAlignment(Align.left);
@@ -164,15 +179,21 @@ public class FileTab extends ComputerTab {
         .fillX()
         .row();
 
-    Label greeting = Scene2dElementFactory.createLabel("Dear Dr. Mertens,", 20, Color.BLACK);
+    Label greeting =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.UnlockCodePage3),
+            20,
+            Color.BLACK);
     greeting.setAlignment(Align.left);
     table.add(greeting).left().padBottom(15).row();
 
     Label body1 =
         Scene2dElementFactory.createLabel(
-            "Thank you for using the SecuGate SG-4 Recovery Portal. Your identity has been "
-                + "successfully verified and your request for access code recovery has been "
-                + "processed.",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.UnlockCodePage4),
             18,
             Color.DARK_GRAY);
     body1.setWrap(true);
@@ -181,10 +202,9 @@ public class FileTab extends ComputerTab {
 
     Label body2 =
         Scene2dElementFactory.createLabel(
-            "This document contains the encrypted door code for your SG-4 unit. As an "
-                + "additional security layer, the code has been encoded using a secondary "
-                + "format. Please use your 2nd decryption manual to decode the data below "
-                + "and obtain the final access code for your door system.",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.UnlockCodePage5),
             18,
             Color.DARK_GRAY);
     body2.setWrap(true);
@@ -192,7 +212,13 @@ public class FileTab extends ComputerTab {
     table.add(body2).growX().left().padBottom(20).row();
 
     // Encrypted code section
-    Label codeHeader = Scene2dElementFactory.createLabel("Encrypted Door Code", 22, Color.BLACK);
+    Label codeHeader =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.UnlockCodePage6),
+            22,
+            Color.BLACK);
     codeHeader.setAlignment(Align.left);
     table.add(codeHeader).left().padBottom(8).row();
 
@@ -223,9 +249,9 @@ public class FileTab extends ComputerTab {
     // Closing filler
     Label body3 =
         Scene2dElementFactory.createLabel(
-            "Please keep this document in a safe location and do not share it with "
-                + "unauthorized personnel. If you believe this document was delivered in "
-                + "error, contact SecuGate Support immediately.",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.UnlockCodePage7),
             18,
             Color.DARK_GRAY);
     body3.setWrap(true);
@@ -242,8 +268,9 @@ public class FileTab extends ComputerTab {
     // Auto-generated notice
     Label autoNotice =
         Scene2dElementFactory.createLabel(
-            "This is an automatically generated document.\n"
-                + "SecuGate Systems GmbH - Secure Access Solutions since 1997",
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.UnlockCodePage8),
             12,
             Color.GRAY);
     autoNotice.setWrap(true);
@@ -253,11 +280,17 @@ public class FileTab extends ComputerTab {
     return scrollPane;
   }
 
+  private static void languageChangeListener(Language language) {
+    hintlabel.setText(
+        Game.localization().getCurrentTranslator().translate(TranslationKey.HintFilePoem));
+  }
+
   @Override
   protected void updateState(ComputerStateComponent newStateComp) {}
 
   @Override
   public void onRemove() {
     ComputerStateLocal.getInstance().openFiles().remove(fileName);
+    Game.localization().removeLanguageChangeListener(FileTab::languageChangeListener);
   }
 }
