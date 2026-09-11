@@ -1,5 +1,6 @@
 package rooms.gameofgames.level;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
@@ -7,12 +8,16 @@ import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Tuple;
+import engine.utils.components.draw.shader.EnergyFillShader;
+import engine.utils.components.draw.shader.HueRemapShader;
 import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.shader.ShaderComponent;
+import feature.shader.ShaderSystem;
 import java.util.List;
 import java.util.Map;
 import rooms.gameofgames.canvas.GameOfGamesCanvas;
@@ -61,6 +66,17 @@ public class GameOfGamesLevel extends DungeonLevel {
     setupCanvasUnlock();
   }
 
+  @Override
+  protected void onTick() {
+    Game.allPlayers()
+        .filter(player -> !player.isPresent(ShaderComponent.class))
+        .forEach(
+            player ->
+                player.add(
+                    new ShaderComponent(
+                        "gameofgames-player-hue", 0, new HueRemapShader(0.66f, 0.0f))));
+  }
+
   private void setupCanvasTerminal() {
     Entity terminal = DecoFactory.createDeco(new Point(7.0f, 10.0f), Deco.PCFlat);
     terminal.remove(DecoComponent.class);
@@ -73,11 +89,26 @@ public class GameOfGamesLevel extends DungeonLevel {
   private void setupCanvasUnlock() {
     Entity folder = DecoFactory.createDeco(new Point(13.0f, 10.0f), Deco.FolderRed);
     folder.remove(DecoComponent.class);
+    ShaderComponent shaderComp =
+        new ShaderComponent("hue", 0, new HueRemapShader(0.0f, 0.66f, 0.2f));
+    folder.add(shaderComp);
     folder.add(
         new InteractionComponent(
             new Interaction(
                 (interacted, who) -> {
                   boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
+
+                  if (unlocked) {
+                    ShaderSystem.getInstance()
+                        .addLevelShader(
+                            "level",
+                            0,
+                            new EnergyFillShader(0.9f, Color.RED, "items/rpg/food_bananas.png"),
+                            who.id());
+                  } else {
+                    ShaderSystem.getInstance().removeLevelShader("level", who.id());
+                  }
+
                   GameOfGamesCanvas.unlockExtraNodes(unlocked);
                   DialogFactory.showDialogDialog(
                       unlocked

@@ -11,9 +11,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.Vector4;
 import com.badlogic.gdx.utils.Disposable;
 import engine.utils.Rectangle;
+import engine.utils.components.draw.TextureMap;
+import engine.utils.components.path.SimpleIPath;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Base abstract class for defining custom shader passes in the ECS rendering pipeline. Handles
@@ -132,6 +135,43 @@ public abstract class AbstractShader implements Disposable {
     this.enabled = enabled;
     return this;
   }
+
+  /**
+   * Writes this shader's configurable parameters to a property map.
+   *
+   * <p>The returned properties are intended for persistence or network synchronization and exclude
+   * common shader metadata such as {@link #enabled()} and {@link #upscaling()}.
+   *
+   * @return an immutable map containing this shader's parameters
+   */
+  public final Map<String, String> properties() {
+    Map<String, String> properties = new HashMap<>();
+    writeProperties(properties);
+    return Map.copyOf(properties);
+  }
+
+  /**
+   * Loads this shader's configurable parameters from a property map.
+   *
+   * @param properties the shader parameters
+   */
+  public final void loadProperties(Map<String, String> properties) {
+    readProperties(Map.copyOf(Objects.requireNonNull(properties, "properties")));
+  }
+
+  /**
+   * Writes subclass-specific parameters to a property map.
+   *
+   * @param properties destination property map
+   */
+  protected abstract void writeProperties(Map<String, String> properties);
+
+  /**
+   * Loads subclass-specific parameters from a property map.
+   *
+   * @param properties source property map
+   */
+  protected abstract void readProperties(Map<String, String> properties);
 
   /**
    * Compiles the shader program lazily if it hasn't been compiled yet. Must be called before
@@ -311,18 +351,20 @@ public abstract class AbstractShader implements Disposable {
    * Binds a texture uniform.
    *
    * @param name The uniform name in the shader.
-   * @param texture The Texture object to bind.
+   * @param texturePath The path used to look up the texture in {@link TextureMap}.
    * @param unit OpenGL texture unit (must be >= 1, 0 is reserved for SpriteBatch).
    */
-  public record TextureUniform(String name, Texture texture, int unit) implements UniformBinding {
+  public record TextureUniform(String name, String texturePath, int unit)
+      implements UniformBinding {
     /**
      * Binds a texture uniform to a specified texture unit.
      *
      * @param name The uniform name in the shader.
-     * @param texture The Texture object to bind.
+     * @param texturePath The path used to look up the texture in {@link TextureMap}.
      * @param unit OpenGL texture unit (must be >= 1, 0 is reserved for SpriteBatch).
      */
     public TextureUniform {
+      validateTexturePath(texturePath);
       if (unit < 1) {
         throw new IllegalArgumentException(
             "Texture unit for custom uniforms must be 1 or greater.");
@@ -331,6 +373,8 @@ public abstract class AbstractShader implements Disposable {
 
     @Override
     public void bind(ShaderProgram program) {
+      Texture texture = resolveTexture(texturePath);
+
       // Activate this texture in OpenGL
       Gdx.gl.glActiveTexture(unit);
       texture.bind(unit);
@@ -338,6 +382,30 @@ public abstract class AbstractShader implements Disposable {
 
       // Set back to original texture for SpriteBatch
       Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
+    }
+  }
+
+  /**
+   * Binds the dimensions of a texture looked up from the {@link TextureMap}.
+   *
+   * @param name The vector uniform name in the shader.
+   * @param texturePath The path used to look up the texture.
+   */
+  public record TextureSizeUniform(String name, String texturePath) implements UniformBinding {
+    /**
+     * Validates the texture path used by this uniform.
+     *
+     * @param name The vector uniform name in the shader.
+     * @param texturePath The path used to look up the texture.
+     */
+    public TextureSizeUniform {
+      validateTexturePath(texturePath);
+    }
+
+    @Override
+    public void bind(ShaderProgram program) {
+      Texture texture = resolveTexture(texturePath);
+      program.setUniformf(name, texture.getWidth(), texture.getHeight());
     }
   }
 
@@ -381,5 +449,132 @@ public abstract class AbstractShader implements Disposable {
       // Send the entire array to the GPU in one call
       program.setUniform3fv(name, flatArray, 0, flatArray.length);
     }
+  }
+
+  private static void validateTexturePath(String texturePath) {
+    if (texturePath == null || texturePath.isBlank()) {
+      throw new IllegalArgumentException("Texture path must not be blank.");
+    }
+  }
+
+  private static Texture resolveTexture(String texturePath) {
+    Texture texture = TextureMap.instance().textureAt(new SimpleIPath(texturePath));
+    if (texture == null) {
+      throw new IllegalStateException("Texture not found: " + texturePath);
+    }
+    return texture;
+  }
+
+  /**
+   * Writes a color using the property names used by synchronized shaders.
+   *
+   * @param properties destination property map
+   * @param color color to write
+   */
+  protected static void putColor(Map<String, String> properties, Color color) {
+    if (color == null) {
+      throw new IllegalArgumentException("Shader color must not be null.");
+    }
+    properties.put("red", Float.toString(color.r));
+    properties.put("green", Float.toString(color.g));
+    properties.put("blue", Float.toString(color.b));
+    properties.put("alpha", Float.toString(color.a));
+  }
+
+  /**
+   * Reads a color using the property names used by synchronized shaders.
+   *
+   * @param properties source property map
+   * @return the color represented by the properties
+   */
+  protected static Color colorProperty(Map<String, String> properties) {
+    return new Color(
+        floatProperty(properties, "red"),
+        floatProperty(properties, "green"),
+        floatProperty(properties, "blue"),
+        floatProperty(properties, "alpha"));
+  }
+
+  /**
+   * Writes a rectangle using the property names used by synchronized shaders.
+   *
+   * @param properties destination property map
+   * @param rectangle rectangle to write
+   */
+  protected static void putRectangle(Map<String, String> properties, Rectangle rectangle) {
+    if (rectangle == null) {
+      throw new IllegalArgumentException("Shader rectangle must not be null.");
+    }
+    properties.put("width", Float.toString(rectangle.width()));
+    properties.put("height", Float.toString(rectangle.height()));
+    properties.put("x", Float.toString(rectangle.x()));
+    properties.put("y", Float.toString(rectangle.y()));
+  }
+
+  /**
+   * Reads a rectangle using the property names used by synchronized shaders.
+   *
+   * @param properties source property map
+   * @return the rectangle represented by the properties
+   */
+  protected static Rectangle rectangleProperty(Map<String, String> properties) {
+    return new Rectangle(
+        floatProperty(properties, "width"),
+        floatProperty(properties, "height"),
+        floatProperty(properties, "x"),
+        floatProperty(properties, "y"));
+  }
+
+  /**
+   * Reads a required shader property.
+   *
+   * @param properties source property map
+   * @param name property name
+   * @return the property value
+   */
+  protected static String property(Map<String, String> properties, String name) {
+    String value = properties.get(name);
+    if (value == null) {
+      throw new IllegalArgumentException("Missing shader property: " + name);
+    }
+    return value;
+  }
+
+  /**
+   * Reads an integer shader property.
+   *
+   * @param properties source property map
+   * @param name property name
+   * @return the integer property value
+   */
+  protected static int intProperty(Map<String, String> properties, String name) {
+    return Integer.parseInt(property(properties, name));
+  }
+
+  /**
+   * Reads a float shader property.
+   *
+   * @param properties source property map
+   * @param name property name
+   * @return the float property value
+   */
+  protected static float floatProperty(Map<String, String> properties, String name) {
+    return Float.parseFloat(property(properties, name));
+  }
+
+  /**
+   * Reads a boolean shader property.
+   *
+   * @param properties source property map
+   * @param name property name
+   * @return the boolean property value
+   */
+  protected static boolean booleanProperty(Map<String, String> properties, String name) {
+    String value = property(properties, name);
+    if (!"true".equals(value) && !"false".equals(value)) {
+      throw new IllegalArgumentException(
+          "Invalid boolean shader property '" + name + "': " + value);
+    }
+    return Boolean.parseBoolean(value);
   }
 }

@@ -6,6 +6,7 @@ import engine.components.DrawComponent;
 import engine.components.NetworkPositionComponent;
 import engine.components.PositionComponent;
 import engine.level.elements.tile.DoorTile;
+import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.c2s.RequestEntitySpawn;
 import engine.network.messages.s2c.DoorTileState;
 import engine.network.messages.s2c.EntityState;
@@ -19,6 +20,7 @@ import feature.components.HealthComponent;
 import feature.components.InventoryComponent;
 import feature.components.ManaComponent;
 import feature.components.UIComponent;
+import feature.shader.ShaderComponent;
 import feature.systems.PositionSync;
 import java.util.ArrayList;
 import java.util.List;
@@ -131,6 +133,9 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
               // Inventory
               e.fetch(InventoryComponent.class).ifPresent(ic -> builder.inventory(ic.items()));
+              e.fetch(ShaderComponent.class)
+                  .map(ShaderComponentCodec::toState)
+                  .ifPresent(builder::shaderComponent);
 
               list.add(builder.build());
             });
@@ -233,6 +238,18 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                   });
                           snap.tintColor().ifPresent(dc::tintColor);
                         });
+
+                snap.shaderComponent()
+                    .ifPresentOrElse(
+                        shaderState -> {
+                          ShaderComponent existing =
+                              entity.fetch(ShaderComponent.class).orElse(null);
+                          if (existing == null
+                              || !ShaderComponentCodec.toState(existing).equals(shaderState)) {
+                            entity.add(ShaderComponentCodec.fromState(shaderState));
+                          }
+                        },
+                        () -> entity.remove(ShaderComponent.class));
 
                 entity
                     .fetch(HealthComponent.class)

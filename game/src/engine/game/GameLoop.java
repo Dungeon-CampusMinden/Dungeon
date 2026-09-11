@@ -27,6 +27,7 @@ import engine.network.ConnectionListener;
 import engine.network.MessageDispatcher;
 import engine.network.NetworkTelemetry;
 import engine.network.client.ClientNetwork;
+import engine.network.codec.ShaderComponentCodec;
 import engine.network.delta.SnapshotDeltaCompressor;
 import engine.network.messages.c2s.InitialWorldReady;
 import engine.network.messages.c2s.InputMessage;
@@ -44,6 +45,7 @@ import engine.network.messages.s2c.GameOverEvent;
 import engine.network.messages.s2c.InitialWorldComplete;
 import engine.network.messages.s2c.LevelChangeEvent;
 import engine.network.messages.s2c.LevelState;
+import engine.network.messages.s2c.ShaderTargetStateMessage;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.network.messages.s2c.SoundPlayMessage;
 import engine.network.messages.s2c.SoundStopMessage;
@@ -76,6 +78,8 @@ import feature.entities.HeroBuilder;
 import feature.entities.deco.DecoFactory;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFactory;
+import feature.shader.ShaderSyncSystem;
+import feature.shader.ShaderSystem;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.utils.CheckPatternPainter;
@@ -140,6 +144,11 @@ public final class GameLoop extends ScreenAdapter {
 
         if (serverAuthority) {
           SoundTracker.instance().clear();
+          Game.system(ShaderSystem.class, ShaderSystem::clear);
+        } else if (!PreRunConfiguration.multiplayerEnabled()) {
+          Game.system(ShaderSystem.class, ShaderSystem::clear);
+        } else {
+          Game.system(ShaderSyncSystem.class, ShaderSyncSystem::clearTargetShaders);
         }
 
         List<Entity> allPlayers = serverAuthority ? ECSManagement.allPlayers().toList() : List.of();
@@ -525,6 +534,9 @@ public final class GameLoop extends ScreenAdapter {
                         position.viewDirection(event.positionComponent().viewDirection());
                       });
             }
+            if (event.shaderComponent() != null) {
+              hero.add(ShaderComponentCodec.fromState(event.shaderComponent()));
+            }
             Game.add(hero);
             trackNetworkEntity(ctx, event.entityId());
             return;
@@ -536,6 +548,9 @@ public final class GameLoop extends ScreenAdapter {
           }
           if (event.drawInfo() != null) {
             newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
+          }
+          if (event.shaderComponent() != null) {
+            newEntity.add(ShaderComponentCodec.fromState(event.shaderComponent()));
           }
           Game.add(newEntity);
           trackNetworkEntity(ctx, event.entityId());
@@ -746,6 +761,11 @@ public final class GameLoop extends ScreenAdapter {
             LOGGER.warn("Error while applying delta snapshot message: {}", e.getMessage(), e);
           }
         });
+
+    dispatcher.registerHandler(
+        ShaderTargetStateMessage.class,
+        (ctx, msg) ->
+            Game.system(ShaderSyncSystem.class, shaderSync -> shaderSync.applyTargetState(msg)));
 
     dispatcher.registerHandler(
         SoundPlayMessage.class,

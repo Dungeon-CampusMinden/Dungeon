@@ -3,6 +3,7 @@ package rooms.mushroom.shaders;
 import engine.utils.Rectangle;
 import engine.utils.components.draw.shader.AbstractShader;
 import java.util.List;
+import java.util.Map;
 
 /** MushroomPostProcessing shader that applies a visual effect based on the player's distance. */
 public class MushroomPostProcessing extends AbstractShader {
@@ -12,6 +13,11 @@ public class MushroomPostProcessing extends AbstractShader {
 
   private Rectangle home;
   private float viewDistance = 0.2f;
+
+  /** Constructs a MushroomPostProcessing shader with default parameters. */
+  public MushroomPostProcessing() {
+    this(new Rectangle(0, 0, 0, 0));
+  }
 
   /**
    * Constructs a MushroomPostProcessing shader with the specified home region.
@@ -77,5 +83,17 @@ public class MushroomPostProcessing extends AbstractShader {
   public MushroomPostProcessing home(Rectangle home) {
     this.home = home;
     return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    putRectangle(properties, home);
+    properties.put("viewDistance", Float.toString(viewDistance));
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    home = rectangleProperty(properties);
+    viewDistance = floatProperty(properties, "viewDistance");
   }
 }

@@ -10,6 +10,52 @@ option java_multiple_files = true;
 option java_package = "engine.network.proto.s2c";
 option java_outer_classname = "EntityProto";
 
+// Synchronized shader component state.
+message ShaderComponentInfo {
+  // Ordered shader declarations.
+  repeated ShaderEntryInfo shaders = 1;
+}
+
+// One synchronized shader declaration.
+message ShaderEntryInfo {
+  // Stable identifier within the component.
+  string identifier = 1;
+
+  // Render order.
+  int32 order = 2;
+
+  // Stable shader type identifier.
+  string type = 3;
+
+  // Whether the shader is enabled.
+  bool enabled = 4;
+
+  // Minimum render-target upscaling factor.
+  int32 upscaling = 5;
+
+  // Type-specific shader configuration.
+  map<string, string> properties = 6;
+}
+
+// Server-to-client: Complete state for a managed scene, level, or depth-layer shader target.
+message ShaderTargetStateMessage {
+  enum Target {
+    TARGET_UNSPECIFIED = 0;
+    SCENE = 1;
+    LEVEL = 2;
+    DEPTH_LAYER = 3;
+  }
+
+  // Managed render target.
+  Target target = 1;
+
+  // DrawSystem depth layer, only used for DEPTH_LAYER.
+  int32 depth = 2;
+
+  // Complete shader state for the target.
+  ShaderComponentInfo shader_component = 3;
+}
+
 // Server-to-client: New entity spawned.
 // Maps to: engine.network.messages.s2c.EntitySpawnEvent
 message EntitySpawnEvent {
@@ -30,6 +76,9 @@ message EntitySpawnEvent {
 
   // Optional metadata for subproject-specific state.
   map<string, string> metadata = 7;
+
+  // Optional synchronized shader component.
+  optional ShaderComponentInfo shader_component = 8;
 }
 
 // Server-to-client: Batch spawn multiple entities.
@@ -217,6 +266,9 @@ message EntityState {
 
   // Optional metadata for subproject-specific state.
   map<string, string> metadata = 11;
+
+  // Optional synchronized shader component.
+  optional ShaderComponentInfo shader_component = 12;
 }
 
 // Represents a slot in an inventory.

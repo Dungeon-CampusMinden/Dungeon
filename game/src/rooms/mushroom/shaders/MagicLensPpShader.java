@@ -1,17 +1,16 @@
 package rooms.mushroom.shaders;
 
-import com.badlogic.gdx.graphics.Texture;
 import engine.utils.Rectangle;
-import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.shader.AbstractShader;
-import engine.utils.components.path.SimpleIPath;
 import java.util.List;
+import java.util.Map;
 
 /** MushroomPostProcessing shader that applies a visual effect based on the player's distance. */
 public class MagicLensPpShader extends AbstractShader {
 
   private static final String VERT_PATH = "shaders/passthrough.vert";
   private static final String FRAG_PATH = "shaders/mushroom_magic_lens_pp.frag";
+  private static final String MAGNIFYING_GLASS_TEXTURE = "images/magnifying_glass.png";
 
   private float lensRadius = 0.1f;
 
@@ -22,11 +21,10 @@ public class MagicLensPpShader extends AbstractShader {
 
   @Override
   protected List<UniformBinding> getUniforms(int actualUpscale) {
-    Texture mag = TextureMap.instance().textureAt(new SimpleIPath("images/magnifying_glass.png"));
     return List.of(
         new FloatUniform("u_lensRadius", lensRadius),
-        new TextureUniform("u_magnifyingGlassTex", mag, 1),
-        new Vector2Uniform("u_magnifyingGlassTexSize", mag.getWidth(), mag.getHeight()));
+        new TextureUniform("u_magnifyingGlassTex", MAGNIFYING_GLASS_TEXTURE, 1),
+        new TextureSizeUniform("u_magnifyingGlassTexSize", MAGNIFYING_GLASS_TEXTURE));
   }
 
   @Override
@@ -57,5 +55,15 @@ public class MagicLensPpShader extends AbstractShader {
   public MagicLensPpShader lensRadius(float radius) {
     this.lensRadius = radius;
     return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    properties.put("lensRadius", Float.toString(lensRadius));
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    lensRadius = floatProperty(properties, "lensRadius");
   }
 }

@@ -4,11 +4,13 @@ import engine.Entity;
 import engine.components.DrawComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
+import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.NetworkMessage;
 import engine.network.messages.c2s.RequestEntitySpawn;
 import engine.utils.components.draw.DrawComponentFactory;
 import engine.utils.components.draw.DrawInfoData;
 import feature.components.CharacterClassComponent;
+import feature.shader.ShaderComponent;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,6 +35,7 @@ public final class EntitySpawnEvent implements NetworkMessage {
   private final DrawInfoData drawInfo;
   private final PlayerComponent playerComponent;
   private final byte characterClassId;
+  private final ShaderComponentState shaderComponent;
   private final Map<String, String> metadata;
 
   /**
@@ -53,6 +56,7 @@ public final class EntitySpawnEvent implements NetworkMessage {
             .fetch(CharacterClassComponent.class)
             .map(ccc -> (byte) ccc.characterClass().ordinal())
             .orElse((byte) 0),
+        ShaderComponentCodec.toState(entity.fetch(ShaderComponent.class).orElse(null)),
         Map.of());
   }
 
@@ -71,7 +75,7 @@ public final class EntitySpawnEvent implements NetworkMessage {
       DrawInfoData drawInfo,
       PlayerComponent playerComponent,
       byte characterClassId) {
-    this(entityId, positionComponent, drawInfo, playerComponent, characterClassId, Map.of());
+    this(entityId, positionComponent, drawInfo, playerComponent, characterClassId, null, Map.of());
   }
 
   /**
@@ -91,11 +95,34 @@ public final class EntitySpawnEvent implements NetworkMessage {
       PlayerComponent playerComponent,
       byte characterClassId,
       Map<String, String> metadata) {
+    this(entityId, positionComponent, drawInfo, playerComponent, characterClassId, null, metadata);
+  }
+
+  /**
+   * Constructs a spawn event.
+   *
+   * @param entityId the entity id
+   * @param positionComponent the entity position component, may be null for data-only entities
+   * @param drawInfo the draw info, may be null for data-only entities
+   * @param playerComponent the player component, may be null
+   * @param characterClassId the character class id
+   * @param shaderComponent synchronized shader state, may be null
+   * @param metadata metadata for subproject-specific state
+   */
+  public EntitySpawnEvent(
+      int entityId,
+      PositionComponent positionComponent,
+      DrawInfoData drawInfo,
+      PlayerComponent playerComponent,
+      byte characterClassId,
+      ShaderComponentState shaderComponent,
+      Map<String, String> metadata) {
     this.entityId = entityId;
     this.positionComponent = positionComponent;
     this.drawInfo = drawInfo;
     this.playerComponent = playerComponent;
     this.characterClassId = characterClassId;
+    this.shaderComponent = shaderComponent;
     this.metadata = metadata == null ? Map.of() : Map.copyOf(metadata);
   }
 
@@ -154,6 +181,15 @@ public final class EntitySpawnEvent implements NetworkMessage {
   }
 
   /**
+   * Gets synchronized shader component state.
+   *
+   * @return shader component state, or null when absent
+   */
+  public ShaderComponentState shaderComponent() {
+    return shaderComponent;
+  }
+
+  /**
    * Gets metadata for subproject-specific state.
    *
    * @return immutable metadata map
@@ -175,13 +211,20 @@ public final class EntitySpawnEvent implements NetworkMessage {
         && Objects.equals(positionComponent, other.positionComponent)
         && Objects.equals(drawInfo, other.drawInfo)
         && Objects.equals(playerComponent, other.playerComponent)
+        && Objects.equals(shaderComponent, other.shaderComponent)
         && Objects.equals(metadata, other.metadata);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(
-        entityId, positionComponent, drawInfo, playerComponent, characterClassId, metadata);
+        entityId,
+        positionComponent,
+        drawInfo,
+        playerComponent,
+        characterClassId,
+        shaderComponent,
+        metadata);
   }
 
   @Override
@@ -197,6 +240,8 @@ public final class EntitySpawnEvent implements NetworkMessage {
         + playerComponent
         + ", characterClassId="
         + characterClassId
+        + ", shaderComponent="
+        + shaderComponent
         + ", metadata="
         + metadata
         + "}";
@@ -209,6 +254,7 @@ public final class EntitySpawnEvent implements NetworkMessage {
     private DrawInfoData drawInfo;
     private PlayerComponent playerComponent;
     private byte characterClassId;
+    private ShaderComponentState shaderComponent;
     private Map<String, String> metadata = Map.of();
 
     private Builder() {}
@@ -269,6 +315,17 @@ public final class EntitySpawnEvent implements NetworkMessage {
     }
 
     /**
+     * Sets synchronized shader component state.
+     *
+     * @param shaderComponent shader component state
+     * @return this builder
+     */
+    public Builder shaderComponent(ShaderComponentState shaderComponent) {
+      this.shaderComponent = shaderComponent;
+      return this;
+    }
+
+    /**
      * Sets metadata.
      *
      * @param metadata metadata map
@@ -286,7 +343,13 @@ public final class EntitySpawnEvent implements NetworkMessage {
      */
     public EntitySpawnEvent build() {
       return new EntitySpawnEvent(
-          entityId, positionComponent, drawInfo, playerComponent, characterClassId, metadata);
+          entityId,
+          positionComponent,
+          drawInfo,
+          playerComponent,
+          characterClassId,
+          shaderComponent,
+          metadata);
     }
   }
 }

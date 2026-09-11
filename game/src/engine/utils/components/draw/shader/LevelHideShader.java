@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector4;
 import engine.systems.DrawSystem;
 import engine.utils.Rectangle;
 import java.util.List;
+import java.util.Map;
 
 /** Shader for remapping hues within a specified tolerance. */
 public class LevelHideShader extends AbstractShader {
@@ -15,6 +16,11 @@ public class LevelHideShader extends AbstractShader {
   private float startTime = -999.0f; // By default, animation is fully at the end already
   private Rectangle region;
   private float transitionSize = 0.0f;
+
+  /** Creates a LevelHideShader with default parameters. */
+  public LevelHideShader() {
+    this(false, new Rectangle(0, 0, 0, 0));
+  }
 
   /**
    * Constructs a LevelHideShader.
@@ -108,5 +114,19 @@ public class LevelHideShader extends AbstractShader {
     this.hiding = hiding;
     this.startTime = DrawSystem.secondsElapsed();
     return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    properties.put("hiding", Boolean.toString(hiding));
+    putRectangle(properties, region);
+    properties.put("transitionSize", Float.toString(transitionSize));
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    hiding = booleanProperty(properties, "hiding");
+    region = rectangleProperty(properties);
+    transitionSize = floatProperty(properties, "transitionSize");
   }
 }

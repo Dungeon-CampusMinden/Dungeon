@@ -49,6 +49,7 @@ public final class GameOfGamesEntitySpawnStrategy implements EntitySpawnStrategy
               .drawInfo(base.drawInfo())
               .playerComponent(base.playerComponent())
               .characterClassId(base.characterClassId())
+              .shaderComponent(base.shaderComponent())
               .metadata(metadata)
               .build());
     }

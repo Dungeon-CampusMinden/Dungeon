@@ -43,6 +43,7 @@ import engine.tracking.TrackingRuntime;
 import engine.utils.logging.DungeonLogger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
+import feature.shader.ShaderSystem;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -1070,6 +1071,7 @@ public final class ServerTransport {
                         player -> TrackingRuntime.associateEntity(state.clientId(), player.id())));
     DialogTracker.instance().resyncDialogsToClient(state.clientId());
     SoundTracker.instance().resyncSoundsToClient(state.clientId());
+    Game.system(ShaderSystem.class, shaderSystem -> shaderSystem.resyncToClient(state.clientId()));
     LOGGER.info("Client id={} completed initial world sync", state.clientId());
   }
 

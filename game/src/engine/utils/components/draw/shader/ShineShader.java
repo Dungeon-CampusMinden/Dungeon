@@ -3,6 +3,7 @@ package engine.utils.components.draw.shader;
 import com.badlogic.gdx.graphics.Color;
 import engine.utils.Rectangle;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A shader that creates a shining effect with rotating slices of light. The effect parameters such
@@ -139,5 +140,23 @@ public class ShineShader extends AbstractShader {
   public ShineShader shineColor(Color shineColor) {
     this.shineColor = shineColor;
     return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    properties.put("padding", Integer.toString(padding));
+    properties.put("sliceCount", Integer.toString(sliceCount));
+    properties.put("gapSize", Float.toString(gapSize));
+    properties.put("rotationSpeed", Float.toString(rotationSpeed));
+    putColor(properties, shineColor);
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    padding = intProperty(properties, "padding");
+    sliceCount = intProperty(properties, "sliceCount");
+    gapSize = floatProperty(properties, "gapSize");
+    rotationSpeed = floatProperty(properties, "rotationSpeed");
+    shineColor = colorProperty(properties);
   }
 }

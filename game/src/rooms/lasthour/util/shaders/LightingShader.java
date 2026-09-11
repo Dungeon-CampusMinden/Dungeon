@@ -7,6 +7,7 @@ import engine.utils.Rectangle;
 import engine.utils.components.draw.shader.AbstractShader;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /** A shader that applies lighting effects based on multiple light sources and ambient light. */
@@ -108,4 +109,46 @@ public class LightingShader extends AbstractShader {
    * @param color the color of the light source
    */
   public record Light(Point position, float intensity, Color color) {}
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    properties.put("ambientLight", Float.toString(ambientLight));
+    properties.put("lightCount", Integer.toString(lightSources.size()));
+
+    int index = 0;
+    for (Light light : lightSources) {
+      String prefix = "light" + index++;
+      properties.put(prefix + "X", Float.toString(light.position().x()));
+      properties.put(prefix + "Y", Float.toString(light.position().y()));
+      properties.put(prefix + "Intensity", Float.toString(light.intensity()));
+      properties.put(prefix + "Red", Float.toString(light.color().r));
+      properties.put(prefix + "Green", Float.toString(light.color().g));
+      properties.put(prefix + "Blue", Float.toString(light.color().b));
+      properties.put(prefix + "Alpha", Float.toString(light.color().a));
+    }
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    ambientLight = floatProperty(properties, "ambientLight");
+    int lightCount = intProperty(properties, "lightCount");
+    if (lightCount < 0) {
+      throw new IllegalArgumentException("Light count must not be negative.");
+    }
+
+    lightSources.clear();
+    for (int index = 0; index < lightCount; index++) {
+      String prefix = "light" + index;
+      lightSources.add(
+          new Light(
+              new Point(
+                  floatProperty(properties, prefix + "X"), floatProperty(properties, prefix + "Y")),
+              floatProperty(properties, prefix + "Intensity"),
+              new Color(
+                  floatProperty(properties, prefix + "Red"),
+                  floatProperty(properties, prefix + "Green"),
+                  floatProperty(properties, prefix + "Blue"),
+                  floatProperty(properties, prefix + "Alpha"))));
+    }
+  }
 }

@@ -42,7 +42,7 @@ public final class GameOfGames {
   };
 
   /** Enables debug systems and the level editor while developing the room. */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private GameOfGames() {}
 
