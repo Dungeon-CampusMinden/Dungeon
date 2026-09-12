@@ -5,7 +5,6 @@ import java.util.List;
 public class FreeTextTask extends Task<String> {
 
   private final List<String> acceptedAnswer;
-  private final String METADATA_IDENTIFIER = "FreeTextTask";
   private boolean caseSensitive;
 
   public FreeTextTask(String taskText, List<String> acceptedAnswer, boolean caseSensitive) {
@@ -32,11 +31,6 @@ public class FreeTextTask extends Task<String> {
       return acceptedAnswer.contains(answer);
     }
     return acceptedAnswer.contains(answer.toLowerCase());
-  }
-
-  @Override
-  public String getType() {
-    return METADATA_IDENTIFIER;
   }
 
   public List<String> getAcceptedAnswer() {
