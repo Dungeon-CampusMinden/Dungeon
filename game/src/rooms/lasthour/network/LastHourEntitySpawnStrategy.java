@@ -134,7 +134,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   public static final String METADATA_PUZZLE_PIECE_INDEX = "puzzlePiece.pieceIndex";
 
   public static final String METADATA_TASK_SOLVED = "task.isSolved";
-  public static final String METADATA_TASK_TASK_TYPE = "task.taskType";
   public static final String METADATA_TASK_ATTEMPTS = "task.attempts";
   public static final String METADATA_TASK_TEXT = "task.text";
   public static final String METADATA_TASK_FREE_TEXT_ACCEPTED_ANSWERS =
