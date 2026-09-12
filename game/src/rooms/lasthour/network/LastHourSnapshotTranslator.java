@@ -275,8 +275,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         LastHourEntitySpawnStrategy.TYPE_TASK,
         LastHourEntitySpawnStrategy.METADATA_TASK_SOLVED,
         String.valueOf(task.isSolved()),
-        LastHourEntitySpawnStrategy.METADATA_TASK_TASK_TYPE,
-        freeTextTask.getType(),
         LastHourEntitySpawnStrategy.METADATA_TASK_TEXT,
         freeTextTask.getTaskText(),
         LastHourEntitySpawnStrategy.METADATA_TASK_ATTEMPTS,
