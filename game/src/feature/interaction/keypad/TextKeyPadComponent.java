@@ -2,68 +2,46 @@ package feature.interaction.keypad;
 
 import engine.Component;
 import engine.Entity;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /** Component that represents a keypad with a text that can be entered. */
 public class TextKeyPadComponent implements Component {
 
-  private final List<String> correctTexts;
   private String enteredText;
   private boolean isUIOpen = false;
   private boolean isUnlocked = false;
   private Runnable action;
-  private Consumer<Entity> onCorrectCode = caller -> {};
-  private Consumer<Entity> onWrongCode = caller -> {};
-  private int wrongCodeAttempts = 0;
   private Entity overlay;
 
   /**
    * Creates a TextKeyPadComponent.
    *
-   * @param correctTexts The correct texts for the keypad
    * @param action The action to execute when the correct text is entered
    */
-  public TextKeyPadComponent(List<String> correctTexts, Runnable action) {
-    this(correctTexts, "", action, false);
+  public TextKeyPadComponent(Runnable action) {
+    this("", action, false);
   }
 
   /**
    * Creates a TextKeyPadComponent.
    *
-   * @param correctTexts The correct texts for the keypad
    * @param enteredText the current entered text.
    * @param isUnlocked if the keypad is already unlocked.
    */
-  public TextKeyPadComponent(List<String> correctTexts, String enteredText, boolean isUnlocked) {
-    this(correctTexts, enteredText, () -> {}, isUnlocked);
+  public TextKeyPadComponent(String enteredText, boolean isUnlocked) {
+    this(enteredText, () -> {}, isUnlocked);
   }
 
   /**
    * Creates a TextKeyPadComponent.
    *
-   * @param correctTexts the correct texts to enter.
    * @param enteredText the current entered text.
    * @param action the action that runs after unlocking the keypad.
    * @param isUnlocked if the keypad is already unlocked.
    */
-  public TextKeyPadComponent(
-      List<String> correctTexts, String enteredText, Runnable action, boolean isUnlocked) {
-    this.correctTexts = correctTexts;
+  public TextKeyPadComponent(String enteredText, Runnable action, boolean isUnlocked) {
     this.enteredText = enteredText;
     this.action = action;
     this.isUnlocked = isUnlocked;
-  }
-
-  /**
-   * Returns the correct texts as a string.
-   *
-   * @return The correct texts as a string
-   */
-  public String correctString() {
-    return correctTexts.stream().map(Object::toString).collect(Collectors.joining(";"));
   }
 
   /** Removes the last entered character. */
@@ -80,41 +58,6 @@ public class TextKeyPadComponent implements Component {
   public void addCharacter(String character) {
     if (isUnlocked) return;
     enteredText += character;
-  }
-
-  /**
-   * Checks if the entered characters match the correct characters and unlocks if they do.
-   *
-   * @param caller entity that submitted the code
-   * @throws NullPointerException if caller is null
-   */
-  public void checkUnlock(Entity caller) {
-    Objects.requireNonNull(caller, "caller");
-    boolean isCorrect = false;
-    for (String validText : correctTexts) {
-      if (validText.equalsIgnoreCase(enteredText)) {
-        isCorrect = true;
-        break;
-      }
-    }
-
-    if (isCorrect) {
-      isUnlocked = true;
-      if (action != null) action.run();
-      onCorrectCode.accept(caller);
-    } else {
-      wrongCodeAttempts++;
-      onWrongCode.accept(caller);
-    }
-  }
-
-  /**
-   * Gets the correct texts for the keypad.
-   *
-   * @return The correct texts.
-   */
-  public List<String> correctTexts() {
-    return correctTexts;
   }
 
   /**
@@ -187,57 +130,6 @@ public class TextKeyPadComponent implements Component {
    */
   public void action(Runnable action) {
     this.action = action;
-  }
-
-  /**
-   * Registers a callback executed after the keypad is unlocked with the correct code.
-   *
-   * @param onCorrectCode callback to run
-   * @throws NullPointerException if the callback is null
-   */
-  public void onCorrectCode(Runnable onCorrectCode) {
-    Objects.requireNonNull(onCorrectCode, "onCorrectCode");
-    this.onCorrectCode = caller -> onCorrectCode.run();
-  }
-
-  /**
-   * Registers a callback executed after the keypad is unlocked with the correct code.
-   *
-   * @param onCorrectCode callback receiving the submitting entity
-   * @throws NullPointerException if the callback is null
-   */
-  public void onCorrectCode(Consumer<Entity> onCorrectCode) {
-    this.onCorrectCode = Objects.requireNonNull(onCorrectCode, "onCorrectCode");
-  }
-
-  /**
-   * Registers a callback executed after each failed submit.
-   *
-   * @param onWrongCode callback to run
-   * @throws NullPointerException if the callback is null
-   */
-  public void onWrongCode(Runnable onWrongCode) {
-    Objects.requireNonNull(onWrongCode, "onWrongCode");
-    this.onWrongCode = caller -> onWrongCode.run();
-  }
-
-  /**
-   * Registers a callback executed after each complete failed submit.
-   *
-   * @param onWrongCode callback receiving the submitting entity
-   * @throws NullPointerException if the callback is null
-   */
-  public void onWrongCode(Consumer<Entity> onWrongCode) {
-    this.onWrongCode = Objects.requireNonNull(onWrongCode, "onWrongCode");
-  }
-
-  /**
-   * Returns the number of failed submit attempts.
-   *
-   * @return failed submit count
-   */
-  public int wrongCodeAttempts() {
-    return wrongCodeAttempts;
   }
 
   /**

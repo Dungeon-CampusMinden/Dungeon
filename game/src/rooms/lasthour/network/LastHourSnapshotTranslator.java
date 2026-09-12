@@ -15,6 +15,8 @@ import feature.interaction.keypad.TextKeyPadComponent;
 import feature.questlog.QuestLogComponent;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
+import feature.tasks.FreeTextTask;
+import feature.tasks.TaskComponent;
 import feature.timer.WorldTimerComponent;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -106,6 +108,10 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
           .ifPresent(keypadState -> applyTextKeypadState(entity, keypadState));
       entityState
           .metadata()
+          .flatMap(LastHourSnapshotTranslator::taskComponentFromMetadata)
+          .ifPresent(taskState -> applyTaskComponentState(entity, taskState));
+      entityState
+          .metadata()
           .flatMap(LastHourSnapshotTranslator::computerStateFromMetadata)
           .ifPresent(
               computerState -> {
@@ -183,6 +189,14 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         .fetch(TextKeyPadComponent.class)
         .ifPresent(textKeyPad -> metadata.putAll(textKeypadMetadata(textKeyPad)));
     entity
+        .fetch(TaskComponent.class)
+        .ifPresent(
+            task -> {
+              if (task.getTask() instanceof FreeTextTask freeTextTask) {
+                metadata.putAll(freeTextTaskMetaData(task, freeTextTask));
+              }
+            });
+    entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
     entity
@@ -248,12 +262,27 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     return Map.of(
         LastHourEntitySpawnStrategy.METADATA_TYPE,
         LastHourEntitySpawnStrategy.TYPE_TEXT_KEYPAD,
-        LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_CORRECT_TEXTS,
-        keypad.correctString(),
         LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_ENTERED_TEXT,
         keypad.enteredText(),
         LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED,
         String.valueOf(keypad.isUnlocked()));
+  }
+
+  public static Map<String, String> freeTextTaskMetaData(
+      TaskComponent task, FreeTextTask freeTextTask) {
+    return Map.of(
+        LastHourEntitySpawnStrategy.METADATA_TYPE_TWO,
+        LastHourEntitySpawnStrategy.TYPE_TASK,
+        LastHourEntitySpawnStrategy.METADATA_TASK_SOLVED,
+        String.valueOf(task.isSolved()),
+        LastHourEntitySpawnStrategy.METADATA_TASK_TASK_TYPE,
+        freeTextTask.getType(),
+        LastHourEntitySpawnStrategy.METADATA_TASK_TEXT,
+        freeTextTask.getTaskText(),
+        LastHourEntitySpawnStrategy.METADATA_TASK_ATTEMPTS,
+        String.valueOf(task.attempts()),
+        LastHourEntitySpawnStrategy.METADATA_TASK_FREE_TEXT_ACCEPTED_ANSWERS,
+        freeTextTask.getAcceptedAnswer().stream().collect(Collectors.joining(";")));
   }
 
   private Map<String, String> worldTimerMetadata(WorldTimerComponent worldTimer) {
@@ -429,13 +458,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
       return Optional.empty();
     }
 
-    String correctTextsRaw =
-        metadata.get(LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_CORRECT_TEXTS);
-    if (correctTextsRaw == null) {
-      return Optional.empty();
-    }
-
-    List<String> correctTexts = List.of(correctTextsRaw.split(";"));
     String enteredText =
         metadata.get(LastHourEntitySpawnStrategy.METADATA_TEXT_KEYPAD_ENTERED_TEXT);
     if (enteredText == null) {
@@ -445,7 +467,32 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     boolean isUnlocked =
         Boolean.parseBoolean(
             metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED, "false"));
-    return Optional.of(new TextKeyPadComponent(correctTexts, enteredText, isUnlocked));
+    return Optional.of(new TextKeyPadComponent(enteredText, isUnlocked));
+  }
+
+  public static Optional<TaskComponent> taskComponentFromMetadata(Map<String, String> metadata) {
+    if (!LastHourEntitySpawnStrategy.TYPE_TASK.equals(
+        metadata.get(LastHourEntitySpawnStrategy.METADATA_TYPE_TWO))) {
+      return Optional.empty();
+    }
+    boolean isSolved =
+        Boolean.parseBoolean(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_TASK_SOLVED, "false"));
+    String text = metadata.get(LastHourEntitySpawnStrategy.METADATA_TASK_TEXT);
+    int attempts =
+        Integer.parseInt(metadata.get(LastHourEntitySpawnStrategy.METADATA_TASK_ATTEMPTS));
+    List<String> acceptAnswers =
+        List.of(
+            metadata
+                .get(LastHourEntitySpawnStrategy.METADATA_TASK_FREE_TEXT_ACCEPTED_ANSWERS)
+                .split(";"));
+
+    TaskComponent<String> taskComponent =
+        new TaskComponent<>(new FreeTextTask(text, acceptAnswers));
+    taskComponent.setAttempts(attempts);
+    taskComponent.setSolved(isSolved);
+
+    return Optional.of(taskComponent);
   }
 
   /**
@@ -546,13 +593,24 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
             .fetch(TextKeyPadComponent.class)
             .orElseGet(
                 () -> {
-                  TextKeyPadComponent newComponent =
-                      new TextKeyPadComponent(keypadComponent.correctTexts(), () -> {});
+                  TextKeyPadComponent newComponent = new TextKeyPadComponent(() -> {});
                   entity.add(newComponent);
                   return newComponent;
                 });
     component.setEnteredText(keypadComponent.enteredText());
     component.isUnlocked(keypadComponent.isUnlocked());
+  }
+
+  private void applyTaskComponentState(Entity entity, TaskComponent task) {
+    TaskComponent component =
+        entity
+            .fetch(TaskComponent.class)
+            .orElseGet(
+                () -> {
+                  TaskComponent newComponent = new TaskComponent(task.getTask());
+                  entity.add(newComponent);
+                  return newComponent;
+                });
   }
 
   private void applyQuestLogState(Entity entity, QuestLogComponent questLog) {

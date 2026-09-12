@@ -23,6 +23,7 @@ import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.tasks.TaskComponent;
 import java.util.Arrays;
 import java.util.List;
 
@@ -160,7 +161,8 @@ public class TextKeypadUI extends Group {
     super.draw(batch, parentAlpha);
   }
 
-  static void onButtonPress(Entity keypadEntity, Entity caller, String action) {
+  static void onButtonPress(
+      Entity keypadEntity, TaskComponent<String> taskComponent, Entity caller, String action) {
     LOGGER.info("Clicked button: " + action);
 
     var drawComp = keypadEntity.fetch(DrawComponent.class).orElseThrow();
@@ -169,7 +171,7 @@ public class TextKeypadUI extends Group {
     switch (action) {
       case ACTION_BACK -> keypadComp.backspace();
       case ACTION_SPACE -> keypadComp.addCharacter(" ");
-      case ACTION_SUBMIT -> onSubmit(keypadComp, drawComp, caller);
+      case ACTION_SUBMIT -> onSubmit(keypadComp, taskComponent, drawComp, caller);
       default -> keypadComp.addCharacter(action);
     }
 
@@ -189,11 +191,15 @@ public class TextKeypadUI extends Group {
   }
 
   private static void onSubmit(
-      TextKeyPadComponent keypadComp, DrawComponent drawComp, Entity caller) {
-    if (keypadComp.isUnlocked()) return;
-    keypadComp.checkUnlock(caller);
-    if (keypadComp.isUnlocked()) {
+      TextKeyPadComponent keypadComp,
+      TaskComponent<String> task,
+      DrawComponent drawComp,
+      Entity caller) {
+    if (task.isSolved()) return;
+    task.submit(keypadComp.enteredText(), caller);
+    if (task.isSolved()) {
       drawComp.sendSignal("open");
+      keypadComp.isUnlocked(true);
       Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
     } else {
       Game.audio().playGlobal(SoundSpec.builder("retro_event_wrong"));

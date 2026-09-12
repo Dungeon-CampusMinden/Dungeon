@@ -17,6 +17,8 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.tasks.FreeTextTask;
+import feature.tasks.TaskComponent;
 import java.util.Arrays;
 import java.util.List;
 
@@ -81,9 +83,10 @@ public class KeypadFactory {
    */
   public static Entity createTextKeypad(Point pos, List<String> correctTexts, Runnable action) {
     Entity entity = createBaseKeypad(pos);
-
-    TextKeyPadComponent kc = new TextKeyPadComponent(correctTexts, action);
+    TaskComponent<String> taskComponent = new TaskComponent<>(new FreeTextTask(correctTexts));
+    TextKeyPadComponent kc = new TextKeyPadComponent(action);
     entity.add(kc);
+    entity.add(taskComponent);
 
     entity.add(
         new InteractionComponent(
@@ -101,7 +104,7 @@ public class KeypadFactory {
                           (payload) -> {
                             if (payload
                                 instanceof DialogResponseMessage.StringValue(String value)) {
-                              TextKeypadUI.onButtonPress(e, who, value);
+                              TextKeypadUI.onButtonPress(e, taskComponent, who, value);
                             }
                           });
                       LOGGER.info("Interacted with keypad sprite");
