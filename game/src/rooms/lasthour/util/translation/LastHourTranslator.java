@@ -19,9 +19,6 @@ public class LastHourTranslator extends Translator {
   public final String VentSerialNumber = "49221";
   private final String cabinetImagePathEN = "images/virus-phrases.png";
   private final String cabinetImagePathDE = "images/virus-phrases-de.png";
-  public static Puzzle finalCodePuzzelDE;
-  public static Puzzle finalCodePuzzelEN;
-  public static Puzzle currentPuzzel;
 
   /** List of URLs mentioned in the emails, which may or may not be trustworthy. */
   public final List<String> EmailCodeUrls =

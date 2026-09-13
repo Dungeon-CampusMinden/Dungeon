@@ -7,6 +7,7 @@ import engine.components.DrawComponent;
 import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
+import engine.language.Language;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
@@ -22,6 +23,7 @@ import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
+import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import escaperoom.foundation.ui.BlackFadeCutscene;
@@ -551,8 +553,7 @@ public class LastHourLevel extends DungeonLevel {
   // Puzzle definition for the r2-papers puzzle. Shared between the server (which spawns the
   // world items in r2SpawnPapers) and the client (which pre-generates the matching textures
   // in ensureClientPuzzles) so both derive the same deterministic puzzle id.
-  private static final SimpleIPath R2_PUZZLE_IMAGE_EN = new SimpleIPath("images/final-code.png");
-  private static final SimpleIPath R2_PUZZLE_IMAGE_DE = new SimpleIPath("images/final-code-de.png");
+  private static final SimpleIPath R2_PUZZLE_IMAGE_EN = new SimpleIPath("images/final-code_en.png");
   private static final int R2_PUZZLE_PIECE_COUNT = 4;
   private static final long R2_PUZZLE_SEED = 1586791695537379744L;
 
@@ -562,14 +563,7 @@ public class LastHourLevel extends DungeonLevel {
    * network message references them. Must be called on the libGDX render thread.
    */
   public static void ensureClientPuzzles() {
-    LastHourTranslator.finalCodePuzzelEN =
-        PuzzleMaker.makePuzzle(
-            R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
-    LastHourTranslator.finalCodePuzzelDE =
-        PuzzleMaker.makePuzzle(
-            R2_PUZZLE_IMAGE_DE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
-    LastHourTranslator.currentPuzzel = LastHourTranslator.finalCodePuzzelEN;
-    Game.localization().registerLanguageChangeListener(PuzzleTextureGenerator.languageConsumer);
+   PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
   }
 
   /**
