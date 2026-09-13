@@ -4,17 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import engine.Game;
-import engine.language.Language;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
-import feature.components.InventoryComponent;
-import feature.inventory.Item;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import rooms.lasthour.util.translation.LastHourTranslator;
 
 /**
  * Generates the per-piece texture fragments of a {@link Puzzle} and registers them in the {@link

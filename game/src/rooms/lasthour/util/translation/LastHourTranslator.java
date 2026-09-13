@@ -5,7 +5,6 @@ import engine.Game;
 import engine.language.Language;
 import engine.language.Translation;
 import feature.input.configuration.KeyboardConfig;
-import feature.puzzle.Puzzle;
 import feature.utils.Translator;
 import java.util.List;
 import java.util.Set;

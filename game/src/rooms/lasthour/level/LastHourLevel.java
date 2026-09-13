@@ -7,7 +7,6 @@ import engine.components.DrawComponent;
 import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
-import engine.language.Language;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
@@ -23,7 +22,6 @@ import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
-import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import escaperoom.foundation.ui.BlackFadeCutscene;
@@ -51,7 +49,6 @@ import feature.inventory.Item;
 import feature.inventory.items.HintItem;
 import feature.puzzle.Puzzle;
 import feature.puzzle.PuzzleMaker;
-import feature.puzzle.PuzzleTextureGenerator;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerFactory;
@@ -77,7 +74,6 @@ import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.LastHourTracking;
 import rooms.lasthour.util.Lore;
 import rooms.lasthour.util.shaders.LightingShader;
-import rooms.lasthour.util.translation.LastHourTranslator;
 import rooms.lasthour.util.translation.TranslationKey;
 
 /** The Last Hour Room. */
@@ -563,7 +559,7 @@ public class LastHourLevel extends DungeonLevel {
    * network message references them. Must be called on the libGDX render thread.
    */
   public static void ensureClientPuzzles() {
-   PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
   }
 
   /**

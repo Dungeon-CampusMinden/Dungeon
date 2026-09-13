@@ -4,7 +4,6 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
-import rooms.lasthour.util.translation.LastHourTranslator;
 
 /**
  * Builder hook for the puzzle {@link feature.hud.dialogs.DialogType}.
