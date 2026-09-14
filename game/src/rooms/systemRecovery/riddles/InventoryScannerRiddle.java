@@ -20,7 +20,9 @@ import feature.systems.EventScheduler;
 import feature.utils.ICommand;
 import java.util.List;
 import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
+import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 
 /**
  * Riddle 3: unlock the scanner and visualize counting the remaining modules.
@@ -36,6 +38,12 @@ public final class InventoryScannerRiddle {
   private boolean scannerPuzzleSolved = false;
   private boolean scannerRunning = false;
   private boolean scannerCompleted = false;
+
+  /** Returns whether the visual module scan has finished. */
+  public boolean completed() {
+    return scannerCompleted;
+  }
+
   private Entity scannerEntity;
   private Entity scannerDisplay;
 
@@ -125,6 +133,7 @@ public final class InventoryScannerRiddle {
     scannerRunning = false;
     scannerCompleted = true;
     EntityFactory.updateDisplayText(scannerDisplay, "4");
+    SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.PACKAGES_ARRAY);
   }
 
   private void setupTransportStorageKeypad() {
