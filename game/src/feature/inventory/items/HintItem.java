@@ -60,6 +60,7 @@ public class HintItem extends Item {
    *     world-item representation.
    * @param name Display name of the item.
    * @param description Description of the item.
+   * @param translationKey key that is being used to refer to the translated item.
    */
   public HintItem(
       final IPath imagePath,
