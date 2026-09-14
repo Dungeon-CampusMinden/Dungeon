@@ -261,19 +261,29 @@ storage[0][2] = 1;
 storage[1][3] = 2;
 ```
 
-### Step 3: Feld auslesen
+### Weltreaktion nach Step 2
 
-```java
-lager[1][3];
-```
-
-Bei flexiblem Namen:
-
-```java
-storage[1][3];
-```
+Nach der Array-Deklaration werden die zwölf Bodenfelder der Matrix sichtbar aktiviert und die
+drei Zielfelder markiert. Nach den drei Zuweisungen werden die belegten Felder farblich
+unterschieden und mit sichtbaren Datenobjekten gefüllt. Anschließend wird der Ortungschip aus der
+Matrix zum Punkt `chip` gebracht und kann vom Spieler aufgenommen werden. Ein künstlicher
+Lesezugriff wie `lager[1][3];` ist dafür nicht mehr nötig.
 
 ## Raetsel 9 - Suchroboter
+
+Der Ortungschip enthält bereits die äußere Schleife und eine einfache Prüfung der ersten Spalte:
+
+```java
+for (int i = 0; i < map.length; i++) {
+    int j = 0;
+    if (map[i][j] == 1) {
+        roboter.collect();
+    }
+}
+```
+
+Die Studierenden ersetzen `int j = 0;` durch die fehlende innere Schleife. Die vollständige Lösung
+lautet:
 
 ```java
 for (int i = 0; i < map.length; i++) {
@@ -298,7 +308,9 @@ for (int row = 0; row <= map.length - 1; row += 1) {
 ```
 
 Erklaerung: Die Namen der Zeilen- und Spaltenvariablen sind flexibel. Beide Namen muessen in der
-inneren Schleife, der Bedingung und dem Arrayzugriff konsistent bleiben.
+inneren Schleife, der Bedingung und dem Arrayzugriff konsistent bleiben. Die vorbereitete Zeile
+`int j = 0;` darf nicht zusaetzlich neben der inneren Schleife stehen, weil `j` dort erneut
+deklariert wuerde.
 
 ## Raetsel 10 - Das zentrale Rechenzentrum
 
