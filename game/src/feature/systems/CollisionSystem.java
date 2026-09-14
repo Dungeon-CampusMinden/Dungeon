@@ -109,7 +109,7 @@ public final class CollisionSystem extends System {
         .fetch(PositionComponent.class)
         .ifPresent(
             pc -> {
-              if (!CollisionUtils.isCollidingWithOtherSolids(cc.collider(), pc.position())) {
+              if (!CollisionUtils.isCollidingWithOtherSolids(entity, pc.position())) {
                 lastClearPositions.put(entity, pc.position());
               }
             });
@@ -127,7 +127,7 @@ public final class CollisionSystem extends System {
     VelocityComponent vc = entity.fetch(VelocityComponent.class).orElse(null);
     if (previous == null
         || CollisionUtils.isCollidingWithLevel(collider, previous, vc)
-        || CollisionUtils.isCollidingWithOtherSolids(collider, previous)) return false;
+        || CollisionUtils.isCollidingWithOtherSolids(entity, previous)) return false;
     entity.fetch(PositionComponent.class).orElseThrow().position(previous);
     PositionSync.syncPosition(entity);
     return true;
@@ -352,7 +352,7 @@ public final class CollisionSystem extends System {
 
     if (!aStationary
         && (CollisionUtils.isCollidingWithLevel(b, newPos, vcb)
-            || CollisionUtils.isCollidingWithOtherSolids(b, newPos))) {
+            || CollisionUtils.isCollidingWithOtherSolids(eb, newPos))) {
       if (!restoreClearPosition(eb, b)) {
         // A moving heavy body can be blocked too, but may only undo its own movement.
         restoreClearPosition(ea, a);

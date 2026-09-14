@@ -127,14 +127,14 @@ public final class ProgrammingMazeWorld {
     Entity pumpBody =
         ProgrammingCellarMachinery.art("pump", pump.translate(1, .2f), "pump", 16, 32, 1.5f);
     pumpBody.add(new CollideComponent(Vector2.of(.3f, .04f), Vector2.of(.4f, .3f)));
-    Entity conveyor =
-        ProgrammingCellarMachinery.art(
-            "conveyor", origin.translate(16, -3.8f), "conveyor", 32, 16, 1.5f);
-    conveyor.add(new CollideComponent(Vector2.of(.1f, .04f), Vector2.of(1.8f, .5f)));
-    Entity hoist =
-        ProgrammingCellarMachinery.art(
-            "chain-hoist", origin.translate(.5f, 8.2f), "chain-hoist", 24, 32, 2f);
-    hoist.add(new CollideComponent(Vector2.of(.08f, .03f), Vector2.of(.84f, .25f)));
+    for (Point bay : java.util.List.of(origin.translate(16, -3.8f), origin.translate(.5f, 8.2f))) {
+      for (int i = 0; i < 2; i++) {
+        Entity crate =
+            ProgrammingCellarMachinery.prop(
+                "maintenance-parts", bay.translate(i * 1.1f, 0), "objects/crate/basic.png", 1, 1);
+        crate.add(ProgrammingProps.chestCollider());
+      }
+    }
     // Wall-mounted pipes and their outlets stay outside the five-by-three movement footprint.
     for (Point at : steamOutlets(origin)) {
       ProgrammingCellarMachinery.art("pipe", at, "broken-pipe", 8, 24, .65f);
@@ -142,7 +142,8 @@ public final class ProgrammingMazeWorld {
     for (var cell :
         java.util.List.of(
             new LoopMaze.Cell(0, 0), new LoopMaze.Cell(3, 4), new LoopMaze.Cell(0, 7))) {
-      Point at = LoopMaze.world(origin, cell).translate(.1f, -.1f);
+      // Mount lamps above the route so checkpoint arrows remain unobstructed.
+      Point at = LoopMaze.world(origin, cell).translate(.1f, LoopMaze.CELL_HEIGHT - .4f);
       Entity torch = ProgrammingCellarMachinery.prop("lamp", at, "objects/torch", .8f, .8f);
       torch.name("programming-prop-torch-cellar-" + cell.x() + "-" + cell.y());
       torch.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("on", null);

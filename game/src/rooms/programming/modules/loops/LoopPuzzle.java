@@ -9,7 +9,7 @@ import java.util.Optional;
 public final class LoopPuzzle {
 
   private static final List<String> CHALLENGES =
-      List.of("forge-press", "bellows", "chain-lift", "cooling-channel", "heart-gate");
+      LoopMaze.checkpoints().stream().map(LoopMaze.Checkpoint::id).toList();
 
   private static final List<LoopRune> RUNES = buildRunes();
 

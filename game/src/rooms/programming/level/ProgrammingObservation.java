@@ -1,11 +1,11 @@
 package rooms.programming.level;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import engine.Entity;
@@ -15,14 +15,14 @@ import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.game.ECSManagement;
 import engine.systems.CameraSystem;
+import engine.systems.DrawSystem;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
 import feature.components.UIComponent;
-import feature.hud.UIUtils;
-import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.input.configuration.KeyboardConfig;
 import feature.utils.EntityUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,17 +45,15 @@ public final class ProgrammingObservation {
 
   static void open(Entity who, ProgrammingGolemRuntime runtime) {
     ProgrammingTerminal.stopWalking(who);
-    var ui =
-        DialogFactory.show(
-            DialogContext.builder()
-                .type(ProgrammingTerminal.Type.OBSERVATION)
-                .put("golem", runtime.terminalState().golemId())
-                .build(),
-            true,
-            true,
-            false,
-            who.id());
-    ui.registerCallback("close", payload -> UIUtils.closeDialog(ui));
+    DialogFactory.show(
+        DialogContext.builder()
+            .type(ProgrammingTerminal.Type.OBSERVATION)
+            .put("golem", runtime.terminalState().golemId())
+            .build(),
+        true,
+        true,
+        false,
+        who.id());
   }
 
   /**
@@ -79,7 +77,6 @@ public final class ProgrammingObservation {
 
   private static final class View extends Group {
     private final int golemId;
-    private final String dialogId;
     private final boolean cinematic;
     private final Map<Entity, CameraComponent> previous = new LinkedHashMap<>();
     private final Map<InputComponent, Boolean> inputs = new LinkedHashMap<>();
@@ -87,15 +84,24 @@ public final class ProgrammingObservation {
     private float previousZoom;
     private final Label label;
     private float curtain = 1;
+    private final ProgrammingObservationShader shader = new ProgrammingObservationShader();
+    private final String shaderKey;
+    private DrawSystem drawSystem;
 
     View(int golemId, String dialogId, boolean cinematic) {
       this.golemId = golemId;
-      this.dialogId = dialogId;
       this.cinematic = cinematic;
+      shaderKey = "programming-observation-" + dialogId;
       setSize(Game.windowWidth(), Game.windowHeight());
       label =
           Scene2dElementFactory.createLabel(
-              cinematic ? "" : "Beobachte: Nox · Keller - ESC zum Verlassen", 22, Color.WHITE);
+              cinematic
+                  ? ""
+                  : "Beobachte: Nox · Keller - "
+                      + Input.Keys.toString(KeyboardConfig.CLOSE_UI.value())
+                      + " zum Verlassen",
+              22,
+              Color.WHITE);
       label.setAlignment(Align.center);
       addActor(label);
     }
@@ -106,21 +112,21 @@ public final class ProgrammingObservation {
       setSize(Game.windowWidth(), Game.windowHeight());
       setPosition(0, 0);
       label.setBounds(0, getHeight() - 55, getWidth(), 40);
-      if (!cinematic && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
-        DialogCallbackResolver.createButtonCallback(dialogId, "close").accept(null);
       if (followed == null && getStage() != null) {
         Game.findEntityById(golemId)
             .ifPresent(
                 golem -> {
-                  ECSManagement.entities()
-                      .forEach(
-                          e ->
-                              e.fetch(InputComponent.class)
-                                  .ifPresent(
-                                      input -> {
-                                        inputs.put(input, input.deactivateControls());
-                                        input.deactivateControls(true);
-                                      }));
+                  if (cinematic) {
+                    ECSManagement.entities()
+                        .forEach(
+                            e ->
+                                e.fetch(InputComponent.class)
+                                    .ifPresent(
+                                        input -> {
+                                          inputs.put(input, input.deactivateControls());
+                                          input.deactivateControls(true);
+                                        }));
+                  }
                   ECSManagement.entities()
                       .filter(e -> e.isPresent(CameraComponent.class))
                       .toList()
@@ -130,6 +136,11 @@ public final class ProgrammingObservation {
                             e.remove(CameraComponent.class);
                           });
                   followed = golem;
+                  if (!cinematic
+                      && Game.systems().get(DrawSystem.class) instanceof DrawSystem draw) {
+                    drawSystem = draw;
+                    draw.sceneShaders().add(shaderKey, shader, 100);
+                  }
                   previousZoom = CameraSystem.camera().zoom;
                   CameraSystem.camera().zoom = previousZoom * 1.2f;
                   golem.add(new CameraComponent());
@@ -153,6 +164,7 @@ public final class ProgrammingObservation {
                       && Math.abs(camera.position.y - focus.y()) < 1)
                     curtain = Math.max(0, curtain - delta * 4);
                 });
+      if (!cinematic && followed != null && curtain < 1) shader.advance(delta, 1 - curtain);
     }
 
     @Override
@@ -166,6 +178,28 @@ public final class ProgrammingObservation {
     @Override
     protected void setStage(Stage stage) {
       if (stage == null) {
+        if (drawSystem != null) {
+          var shaders = drawSystem.sceneShaders();
+          float strength = shader.strength();
+          Stage previousStage = getStage();
+          if (previousStage != null) {
+            previousStage.addAction(
+                new TemporalAction(0.3f) {
+                  @Override
+                  protected void update(float percent) {
+                    shader.strength(strength * (1 - percent * percent * (3 - 2 * percent)));
+                  }
+
+                  @Override
+                  protected void end() {
+                    shaders.remove(shaderKey);
+                  }
+                });
+          } else {
+            shaders.remove(shaderKey);
+          }
+          drawSystem = null;
+        }
         if (followed != null) {
           followed.remove(CameraComponent.class);
           CameraSystem.camera().zoom = previousZoom;
