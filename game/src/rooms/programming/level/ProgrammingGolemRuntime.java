@@ -628,7 +628,7 @@ final class ProgrammingGolemRuntime {
       // Settle the last sub-tick distance exactly. VelocitySystem discards small velocities.
       // Check the swept tile rectangle and the destination's solids before settling.
       if (fits(from, target, breakingGate)
-          && !CollisionUtils.isCollidingWithOtherSolids(collision.collider(), target)) {
+          && !CollisionUtils.isCollidingWithOtherSolids(golem, target)) {
         position.position(target);
         collision.collider().position(target);
       }

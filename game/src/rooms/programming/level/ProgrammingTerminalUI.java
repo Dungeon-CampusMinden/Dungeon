@@ -20,7 +20,6 @@ import rooms.programming.modules.loops.TerminalState;
 
 /** Keeps live server updates separate from the player's canvas arrangement. */
 final class ProgrammingTerminalUI extends CanvasUI {
-  private TerminalState current;
   private boolean initialViewPlaced;
   private final Label code = Scene2dElementFactory.createLabel("", 18, Color.valueOf("f1eadc"));
   private final Group tooltip =
@@ -58,7 +57,6 @@ final class ProgrammingTerminalUI extends CanvasUI {
                 .toList()),
         dialogId,
         ProgrammingTerminal.nodes(initial));
-    current = initial;
     update(initial);
     tooltip.setTransform(false);
     tooltip.setTouchable(Touchable.disabled);
@@ -136,13 +134,12 @@ final class ProgrammingTerminalUI extends CanvasUI {
   }
 
   private void update(TerminalState state) {
-    current = state;
     for (int i = 0; i < state.collectedRunes().size(); i++) {
       String id = state.collectedRunes().get(i);
       if (area().nodeById(id).isEmpty()) area().addNode(ProgrammingTerminal.card(id, i));
     }
     for (CanvasNode node : area().nodes()) {
-      if (node instanceof ProgrammingTerminalNode terminal) terminal.update(current);
+      if (node instanceof ProgrammingTerminalNode terminal) terminal.update(state);
     }
   }
 }
