@@ -186,7 +186,7 @@ public class LastHourLevel extends DungeonLevel {
                     textKeyPadComponent.enteredText(),
                   false,
                   player);
-                LastHourAchievements.checkBruteforce(player, tc.attempts();
+                LastHourAchievements.checkBruteforce(player, tc.attempts());
               });
             });
     Game.add(keypad);
