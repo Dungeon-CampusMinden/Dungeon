@@ -25,25 +25,21 @@ final class ProgrammingAtmosphere {
       Game.currentLevel()
           .ifPresent(
               level -> {
-                for (String area : new String[] {"east", "north"}) {
+                // The exit mask includes the north wall's upper rim, which reveals its junctions.
+                for (String area : new String[] {"east", "north", "exit"}) {
                   draw.sceneShaders()
                       .add(
                           "programming-reveal-" + area,
                           new ProgrammingPassageRevealShader(
                               level.namedPoints().get("reveal-" + area + "-start"),
                               level.namedPoints().get("reveal-" + area + "-end"),
-                              level.namedPoints().get("act1-gate-start")));
+                              level
+                                  .namedPoints()
+                                  .get(
+                                      area.equals("exit")
+                                          ? "act2-gate-start"
+                                          : "act1-gate-start")));
                 }
-                var gate = level.namedPoints().get("act2-gate-start");
-                var end = level.namedPoints().get("act2-gate-end");
-                draw.sceneShaders()
-                    .add(
-                        "programming-reveal-exit",
-                        new ProgrammingPassageRevealShader(
-                            gate.translate(-3, 1),
-                            new engine.utils.Point(
-                                end.x() + 2, level.namedPoints().get("reserve-notice").y() + 4),
-                            gate));
               });
     }
   }

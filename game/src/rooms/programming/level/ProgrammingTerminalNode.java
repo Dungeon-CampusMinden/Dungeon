@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.utils.Cursors;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
@@ -30,6 +31,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
   private TerminalState state;
   private Label heading;
   private Label text;
+  private Label slotState;
   private boolean hover;
   private boolean pending;
   private float pendingTime;
@@ -91,6 +93,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
     if (kind.equals("rune")) {
       boolean inserted = value.activeRune().equals(id());
       movable(!(inserted && value.busy()));
+      setUserObject(movable() ? Cursors.INTERACT : Cursors.DISABLED);
       if (inserted) {
         if (!slotted) {
           homeX = dragging ? dragStartX : x();
@@ -113,6 +116,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
     }
     if (value.busy()) pending = false;
     if (text != null) text.setText(caption());
+    if (slotState != null) slotState.setText(slotCaption());
   }
 
   @Override
@@ -131,6 +135,11 @@ final class ProgrammingTerminalNode extends CanvasNode {
       return state == null ? "Eine Rune hier ablegen" : state.status();
     }
     return "";
+  }
+
+  private String slotCaption() {
+    if (state == null || state.activeRune().isEmpty()) return "";
+    return state.busy() ? "Gesperrt" : "Herausziehen";
   }
 
   @Override
@@ -154,6 +163,11 @@ final class ProgrammingTerminalNode extends CanvasNode {
       text.setAlignment(kind.equals("status") ? Align.left : Align.topLeft);
       text.setWrap(true);
       addActor(text);
+    }
+    if (kind.equals("status")) {
+      slotState = Scene2dElementFactory.createLabel(slotCaption(), 14, ProgrammingTerminal.ACCENT);
+      slotState.setAlignment(Align.center);
+      addActor(slotState);
     }
     if (kind.equals("map")) {
       head =
@@ -204,6 +218,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
       float inset = kind.equals("status") ? 136 : 24;
       text.setBounds(inset, 24, width() - inset - 24, height() - 80);
     }
+    if (slotState != null) slotState.setBounds(24, 4, 88, 20);
   }
 
   @Override
@@ -235,12 +250,14 @@ final class ProgrammingTerminalNode extends CanvasNode {
                               .textureAt(new SimpleIPath("spritesheets/runes.png")));
                 runeImage.setRegion(index % 8 * 16, index / 8 * 16, 16, 16);
                 Color tint =
-                    Color.valueOf(
-                        switch (rune.program().type()) {
-                          case WHILE -> "99ccff";
-                          case DO_WHILE -> "dd99ff";
-                          case FOR -> "ffcc88";
-                        });
+                    !movable()
+                        ? Color.GRAY
+                        : Color.valueOf(
+                            switch (rune.program().type()) {
+                              case WHILE -> "99ccff";
+                              case DO_WHILE -> "dd99ff";
+                              case FOR -> "ffcc88";
+                            });
                 batch.setColor(tint.r, tint.g, tint.b, alpha);
                 batch.draw(runeImage, x() + (width() - 48) / 2, y() + (height() - 48) / 2, 48, 48);
                 batch.setColor(Color.WHITE);
@@ -342,7 +359,8 @@ final class ProgrammingTerminalNode extends CanvasNode {
     // Keep the existing slot until the server accepts the replacement, including during return.
     rune.position(rune.dragStartX, rune.dragStartY);
     rune.dragging = false;
-    if (state.busy() || state.finished() || pending) return true;
+    if (state.busy() || state.finished() || pending || state.activeRune().equals(rune.id()))
+      return true;
     pending = true;
     pendingTime = 0;
     canvas().fireServerEvent("execute", new DialogResponseMessage.StringValue(rune.id()));

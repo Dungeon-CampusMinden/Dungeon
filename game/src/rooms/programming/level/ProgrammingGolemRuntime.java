@@ -11,6 +11,7 @@ import engine.level.utils.Coordinate;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
+import engine.utils.components.draw.state.StateMachine;
 import feature.collision.CollisionUtils;
 import feature.components.CollideComponent;
 import feature.hud.UIUtils;
@@ -267,7 +268,7 @@ final class ProgrammingGolemRuntime {
               .filter(entity -> entity.name().equals("programming-loop-monitor"))
               .flatMap(entity -> entity.fetch(DrawComponent.class).stream())
               .forEach(draw -> draw.stateMachine().setState("active", null));
-          face(LoopMaze.Direction.EAST);
+          face(LoopMaze.checkpoints().getFirst().facing());
           status = "Keller erreicht. Räumauftrag bereit.";
         });
   }
@@ -325,6 +326,7 @@ final class ProgrammingGolemRuntime {
   void executeRune(String runeId, Entity who) {
     if (!authorized(who, "loop-terminal", 3f)
         || busy
+        || activeRune.equals(runeId)
         || !mazeReady
         || controller.phase() != ProgrammingPhase.LOOPS
         || !controller.collectedLoopRunes().contains(runeId)) return;
@@ -484,6 +486,12 @@ final class ProgrammingGolemRuntime {
           case WEST -> engine.utils.Direction.LEFT;
           case SOUTH -> engine.utils.Direction.DOWN;
         });
+    // Stationary turns must update the sprite too; idle signals do not re-enter the idle state.
+    golem
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            draw ->
+                draw.stateMachine().setState(StateMachine.IDLE_STATE, position.viewDirection()));
   }
 
   private void move(List<Point> path, Runnable then) {
