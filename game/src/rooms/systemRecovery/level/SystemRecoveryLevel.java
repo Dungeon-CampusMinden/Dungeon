@@ -180,15 +180,17 @@ public class SystemRecoveryLevel extends DungeonLevel {
     }
   }
 
-  /** Shows the room's lore only on a normal client, never while the level editor is active. */
+  /** Sends the room's lore to each player once through the networked dialog system. */
   private void showIntroForNewPlayers() {
-    if (Game.isHeadless() || LevelEditorSystem.active()) return;
-    Game.levelEntities(Set.of(PlayerComponent.class))
+    // Do not initialize the graphical level-editor class on the headless authoritative server.
+    if (!Game.isHeadless() && LevelEditorSystem.active()) return;
+    Game.allPlayers()
         .filter(player -> introShownPlayers.add(player.id()))
         .forEach(
             player ->
                 BlackFadeCutscene.show(
                     rooms.systemRecovery.util.SystemRecoveryText.introPages(),
+                    false,
                     true,
                     true,
                     () -> finishIntroForPlayer(player.id()),
