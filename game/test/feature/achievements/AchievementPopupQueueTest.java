@@ -10,9 +10,9 @@ class AchievementPopupQueueTest {
   @Test
   void startsOnlyFirstPopupAndKeepsArrivalOrder() {
     AchievementPopupQueue queue = new AchievementPopupQueue();
-    queue.enqueue("first", "first.png");
-    queue.enqueue("second", "second.png");
-    queue.enqueue("third", "third.png");
+    queue.enqueue("first", "first.png", true);
+    queue.enqueue("second", "second.png", true);
+    queue.enqueue("third", "third.png", true);
 
     assertEquals("first", queue.advance(100).started().orElseThrow().id());
     assertTrue(queue.advance(200).started().isEmpty());
@@ -24,8 +24,8 @@ class AchievementPopupQueueTest {
   @Test
   void eachPopupGetsItsFullDurationAfterItStarts() {
     AchievementPopupQueue queue = new AchievementPopupQueue();
-    queue.enqueue("first", "first.png");
-    queue.enqueue("second", "second.png");
+    queue.enqueue("first", "first.png", true);
+    queue.enqueue("second", "second.png", true);
 
     long duration = AchievementPopupQueue.DISPLAY_DURATION_MS;
     queue.advance(100);

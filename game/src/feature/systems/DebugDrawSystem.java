@@ -483,6 +483,7 @@ public class DebugDrawSystem extends System {
    *   * Current Velocity (if VelocityComponent is present)
    *   * curHealth/maxHealth (if HealthComponent is present)
    *   * Current Animation state (if DrawComponent is present)
+   *   * Interaction radius (if InteractionComponent is present)
    *   * List of all components attached to the entity
    * </pre>
    *
@@ -505,6 +506,7 @@ public class DebugDrawSystem extends System {
    *   <li>Velocity (if present)
    *   <li>Health (if present)
    *   <li>Animation state (if present)
+   *   <li>Interaction radius (if present)
    *   <li>List of all components when holding Shift
    * </ul>
    *
@@ -561,6 +563,14 @@ public class DebugDrawSystem extends System {
     entity
         .fetch(SoundComponent.class)
         .ifPresent(sc -> info.append("Sound Instances: ").append(sc.sounds().size()).append("\n"));
+
+    entity
+        .fetch(InteractionComponent.class)
+        .ifPresent(
+            ic ->
+                info.append("Interaction Radius: ")
+                    .append(String.format("%.2f", ic.interaction().range()))
+                    .append("\n"));
 
     entity
         .fetch(InventoryComponent.class)

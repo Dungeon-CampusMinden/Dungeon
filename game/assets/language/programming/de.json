@@ -1,0 +1,60 @@
+{
+  "achievements": {
+    "programming_first_rune": {
+      "name": "Im Rhythmus",
+      "description": "Sammelt eure erste Rhythmusrune."
+    },
+    "programming_archivist": {
+      "name": "Das ganze Archiv",
+      "description": "Sammelt alle 24 Rhythmusrunen in einem Durchlauf."
+    },
+    "programming_bound": {
+      "name": "Seelenweber",
+      "description": "Vervollständigt Nox' Seelenbindung."
+    },
+    "programming_wrong_type": {
+      "name": "Passt doch fast",
+      "description": "Versuche, eine Essenz in ein Gefäß des falschen Typs zu füllen."
+    },
+    "programming_overwrite": {
+      "name": "Neu befüllt",
+      "description": "Ersetze einen gespeicherten Wert durch einen anderen, ohne das Gefäß zu leeren."
+    },
+    "programming_sleepy": {
+      "name": "Noch fünf Minuten",
+      "description": "Setze Nox' Eigenschaft Aktiviert auf false."
+    },
+    "programming_lights_out": {
+      "name": "Licht aus",
+      "description": "Lösche eine brennende Fackel."
+    },
+    "programming_observer": {
+      "name": "Auf Sicht",
+      "description": "Beobachte Nox durch den Sehstein im Keller."
+    },
+    "programming_first_route": {
+      "name": "Läuft",
+      "description": "Schließt den ersten Räumauftrag im Keller ab."
+    },
+    "programming_second_try": {
+      "name": "Fehler gefunden",
+      "description": "Schließt einen Keller-Auftrag nach mindestens einem Fehlversuch an derselben Arbeitsposition ab."
+    },
+    "programming_spin": {
+      "name": "Dreht sich im Kreis",
+      "description": "Lasst die endlose Drehrune bis zum Sicherheitsstopp laufen und Nox zurückkehren."
+    },
+    "programming_cellar_clear": {
+      "name": "Mit Nebenwirkungen",
+      "description": "Schließt alle fünf Räumaufträge ab und öffnet den Weg aus der Werkstatt."
+    },
+    "programming_clean_run": {
+      "name": "Auf Anhieb",
+      "description": "Schließt alle fünf Keller-Aufträge in einem Durchlauf ohne fehlgeschlagenes Steuerprogramm ab."
+    },
+    "programming_platinum": {
+      "name": "Valerius wäre stolz",
+      "description": "Schalte alle anderen Achievements dieses Raums frei, auch über mehrere Durchläufe."
+    }
+  }
+}

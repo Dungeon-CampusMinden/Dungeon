@@ -31,8 +31,8 @@ public final class InteractionFeedback {
    * Updates cursor and outline feedback for the current mouse target.
    *
    * <p>The entity under the cursor receives a semi-transparent discovery outline. If that entity is
-   * also within interaction range of the hero, it receives a solid outline and the world cursor
-   * switches to {@link Cursors#INTERACT}.
+   * also has its center within the maximum interaction distance from the hero, it receives a solid
+   * outline and the world cursor switches to {@link Cursors#INTERACT}.
    */
   public static void update() {
     Optional<Entity> hero = Game.player();

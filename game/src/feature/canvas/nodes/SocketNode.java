@@ -76,7 +76,7 @@ public class SocketNode extends CanvasNode {
   private Predicate<CanvasNode> filter = ACCEPT_ALL;
   private QuadConsumer<SocketNode, Integer, CanvasNode, Boolean> socketChangedCallback =
       NO_SOCKET_CHANGED_CALLBACK;
-  private SocketEntry[] sockets;
+  private CanvasNode[] sockets;
   private boolean[] lockedSockets;
   private RichLabel label;
   private int highlightedSocket = -1;
@@ -95,7 +95,7 @@ public class SocketNode extends CanvasNode {
     }
     this.content = content == null ? id : content;
     this.socketCount = socketCount;
-    this.sockets = new SocketEntry[socketCount];
+    this.sockets = new CanvasNode[socketCount];
     this.lockedSockets = new boolean[socketCount];
     this.color(DEFAULT_COLOR);
     resizeToSockets();
@@ -216,8 +216,7 @@ public class SocketNode extends CanvasNode {
    */
   public Optional<CanvasNode> socket(int index) {
     checkSocketIndex(index);
-    SocketEntry entry = sockets[index];
-    return entry == null ? Optional.empty() : Optional.of(entry.node());
+    return Optional.ofNullable(sockets[index]);
   }
 
   /**
@@ -226,7 +225,7 @@ public class SocketNode extends CanvasNode {
    * @return the socketed nodes
    */
   public List<CanvasNode> socketedNodes() {
-    return Arrays.stream(sockets).filter(Objects::nonNull).map(SocketEntry::node).toList();
+    return Arrays.stream(sockets).filter(Objects::nonNull).toList();
   }
 
   /**
@@ -297,11 +296,10 @@ public class SocketNode extends CanvasNode {
         || !filter.test(node)) {
       return false;
     }
-    NodeState unsocketedState = node.toState();
     if (!area.transferNodeToOwner(node)) {
       return false;
     }
-    installNode(index, node, unsocketedState);
+    installNode(index, node);
     return true;
   }
 
@@ -325,15 +323,13 @@ public class SocketNode extends CanvasNode {
     if (node.canvas() != null && node.canvas() != area) {
       throw new IllegalArgumentException("Node belongs to a different canvas");
     }
-    NodeState unsocketedState = node.toState();
     if (node.canvas() == area && area != null && !area.transferNodeToOwner(node)) {
       throw new IllegalArgumentException("Node is not a top-level member of this canvas");
     }
     if (node.getParent() != null) {
       throw new IllegalArgumentException("Node is already owned by another actor");
     }
-    installNode(index, node, unsocketedState);
-    attachOwnedNode(node, area);
+    installNode(index, node);
     return this;
   }
 
@@ -376,7 +372,6 @@ public class SocketNode extends CanvasNode {
     if (index < 0 || area == null || lockedSockets[index] || !node.movable()) {
       return null;
     }
-    SocketEntry entry = sockets[index];
     Vector2 areaCenter =
         node.localToActorCoordinates(area, new Vector2(node.width() / 2f, node.height() / 2f));
     Vector2 positionCenter =
@@ -384,7 +379,6 @@ public class SocketNode extends CanvasNode {
 
     removeActor(node);
     sockets[index] = null;
-    node.size(entry.originalWidth(), entry.originalHeight());
     node.position(positionCenter.x - node.width() / 2f, positionCenter.y - node.height() / 2f);
     area.addNode(node);
     resizeToSockets();
@@ -406,12 +400,9 @@ public class SocketNode extends CanvasNode {
 
   @Override
   protected void layoutContent() {
-    for (int i = 0; i < sockets.length; i++) {
-      SocketEntry entry = sockets[i];
-      if (entry != null
-          && entry.node() instanceof LabelNode labelNode
-          && labelNode.autoSizeIfContentUnbuilt()) {
-        sockets[i] = new SocketEntry(labelNode, labelNode.width(), labelNode.height());
+    for (CanvasNode node : sockets) {
+      if (node instanceof LabelNode labelNode) {
+        labelNode.autoSizeIfContentUnbuilt();
       }
     }
     resizeToSockets();
@@ -420,9 +411,9 @@ public class SocketNode extends CanvasNode {
       label.setBounds(boxX(placeSelfBefore) + 4f, GROUP_LINE_TOP, BOX_WIDTH - 8f, rowHeight());
     }
     for (int i = 0; i < sockets.length; i++) {
-      SocketEntry entry = sockets[i];
-      if (entry != null) {
-        layoutSocket(i, entry);
+      CanvasNode node = sockets[i];
+      if (node != null) {
+        layoutSocket(i, node);
       }
     }
   }
@@ -478,13 +469,12 @@ public class SocketNode extends CanvasNode {
     props.put(PROP_SOCKET_COUNT, socketCount);
     props.put(PROP_PLACE_SELF_BEFORE, placeSelfBefore);
     for (int i = 0; i < sockets.length; i++) {
-      SocketEntry entry = sockets[i];
+      CanvasNode node = sockets[i];
       props.put(PROP_LOCKED_PREFIX + i, lockedSockets[i]);
-      if (entry == null) {
+      if (node == null) {
         continue;
       }
-      NodeState state =
-          entry.node().toState().withSize(entry.originalWidth(), entry.originalHeight());
+      NodeState state = node.toState();
       byte[] encoded = SNAPSHOT_CODEC.encode(new CanvasSnapshot(List.of(state)));
       props.put(PROP_SOCKET_PREFIX + i, Base64.getEncoder().encodeToString(encoded));
     }
@@ -501,16 +491,15 @@ public class SocketNode extends CanvasNode {
     if (label != null) {
       label.setText(content);
     }
-    SocketEntry[] prototypes = sockets;
-    for (SocketEntry entry : prototypes) {
-      if (entry != null) {
-        removeActor(entry.node());
+    for (CanvasNode node : sockets) {
+      if (node != null) {
+        removeActor(node);
       }
     }
     socketCount = Math.max(0, state.intProp(PROP_SOCKET_COUNT, socketCount));
     placeSelfBefore =
         Math.max(0, Math.min(state.intProp(PROP_PLACE_SELF_BEFORE, placeSelfBefore), socketCount));
-    sockets = new SocketEntry[socketCount];
+    sockets = new CanvasNode[socketCount];
     lockedSockets = new boolean[socketCount];
 
     for (int i = 0; i < socketCount; i++) {
@@ -532,8 +521,9 @@ public class SocketNode extends CanvasNode {
         } else {
           child.applyState(childState, prototypesById);
         }
-        sockets[i] = new SocketEntry(child, childState.width(), childState.height());
+        sockets[i] = child;
         addActor(child);
+        attachOwnedNode(child, canvas());
       } catch (IllegalArgumentException | IllegalStateException exception) {
         LOGGER.warn(
             "Could not restore socket {} of node '{}': {}", i, id(), exception.getMessage());
@@ -553,27 +543,28 @@ public class SocketNode extends CanvasNode {
 
   @Override
   protected void onCanvasChanged(CanvasArea area) {
-    for (SocketEntry entry : sockets) {
-      if (entry != null) {
-        attachOwnedNode(entry.node(), area);
+    for (CanvasNode node : sockets) {
+      if (node != null) {
+        attachOwnedNode(node, area);
       }
     }
+    resizeToSockets();
+    invalidateLayout();
   }
 
   @Override
   protected void forEachOwnedNode(Consumer<CanvasNode> visitor) {
     Objects.requireNonNull(visitor, "visitor");
-    for (SocketEntry entry : sockets) {
-      if (entry != null) {
-        visitor.accept(entry.node());
+    for (CanvasNode node : sockets) {
+      if (node != null) {
+        visitor.accept(node);
       }
     }
   }
 
   private int indexOf(CanvasNode node) {
     for (int i = 0; i < sockets.length; i++) {
-      SocketEntry entry = sockets[i];
-      if (entry != null && entry.node() == node) {
+      if (node != null && sockets[i] == node) {
         return i;
       }
     }
@@ -598,12 +589,12 @@ public class SocketNode extends CanvasNode {
     return nearest;
   }
 
-  private void installNode(int index, CanvasNode node, NodeState unsocketedState) {
-    SocketEntry entry = new SocketEntry(node, unsocketedState.width(), unsocketedState.height());
-    sockets[index] = entry;
+  private void installNode(int index, CanvasNode node) {
+    sockets[index] = node;
     addActor(node);
+    attachOwnedNode(node, canvas());
     resizeToSockets();
-    layoutSocket(index, entry);
+    layoutSocket(index, node);
     highlightedSocket = -1;
     invalidateLayout();
     notifyStateChanged();
@@ -616,9 +607,9 @@ public class SocketNode extends CanvasNode {
     }
   }
 
-  private void layoutSocket(int index, SocketEntry entry) {
-    float y = GROUP_LINE_TOP + (rowHeight() - entry.node().height()) / 2f;
-    entry.node().position(boxX(visualIndexForSocket(index)), y);
+  private void layoutSocket(int index, CanvasNode node) {
+    float y = GROUP_LINE_TOP + (rowHeight() - node.height()) / 2f;
+    node.position(boxX(visualIndexForSocket(index)), y);
   }
 
   private void resizeToSockets() {
@@ -631,17 +622,17 @@ public class SocketNode extends CanvasNode {
 
   private float rowHeight() {
     float height = BOX_HEIGHT;
-    for (SocketEntry entry : sockets) {
-      if (entry != null) {
-        height = Math.max(height, entry.node().height());
+    for (CanvasNode node : sockets) {
+      if (node != null) {
+        height = Math.max(height, node.height());
       }
     }
     return height;
   }
 
   private float slotWidth(int index) {
-    SocketEntry entry = sockets[index];
-    return entry == null ? BOX_WIDTH : entry.node().width();
+    CanvasNode node = sockets[index];
+    return node == null ? BOX_WIDTH : node.width();
   }
 
   private static float preferredWidth(int socketCount) {
@@ -674,6 +665,4 @@ public class SocketNode extends CanvasNode {
   private int visualIndexForSocket(int socketIndex) {
     return socketIndex < placeSelfBefore ? socketIndex : socketIndex + 1;
   }
-
-  private record SocketEntry(CanvasNode node, float originalWidth, float originalHeight) {}
 }
