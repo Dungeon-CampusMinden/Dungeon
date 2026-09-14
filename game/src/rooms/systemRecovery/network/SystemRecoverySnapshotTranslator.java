@@ -10,7 +10,6 @@ import engine.network.MessageDispatcher;
 import engine.network.SnapshotTranslator;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
-import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.OutlineShader;
@@ -229,8 +228,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                         new EnergyFillShader(
                                 sortValue(entity) / 100f,
                                 Color.CYAN,
-                                TextureMap.instance()
-                                    .textureAt(new SimpleIPath("objects/tech/CryoBox.png")))
+                                "objects/tech/CryoBox.png")
                             .animMagnitude(0)));
   }
 
