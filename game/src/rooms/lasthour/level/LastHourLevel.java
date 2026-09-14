@@ -160,7 +160,6 @@ public class LastHourLevel extends DungeonLevel {
             getPoint("keypad-storage"),
             Lore.DoorCode,
             () -> {
-              r2SpawnPapers();
               storageDoor.open();
               LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
               LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
