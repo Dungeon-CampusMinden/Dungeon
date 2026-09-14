@@ -1,7 +1,6 @@
 package rooms.systemRecovery.riddles;
 
 import static rooms.systemRecovery.riddles.RiddleSupport.moveSortEntity;
-import static rooms.systemRecovery.riddles.RiddleSupport.portraitPathFor;
 
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
@@ -26,6 +25,8 @@ import java.util.HashSet;
 import java.util.Set;
 import rooms.systemRecovery.entities.EntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 
 /**
  * Riddle 5: compare adjacent containers; wrong answers reset the exercise.
@@ -44,6 +45,12 @@ public final class ManualSortingRiddle {
   private int sortOuterIndex;
   private int sortInnerIndex;
   private boolean sortCompleted;
+
+  /** Returns whether all comparison decisions have been completed correctly. */
+  public boolean completed() {
+    return sortCompleted;
+  }
+
   private final Set<Integer> sortTriggeredPlayers = new HashSet<>();
 
   /** Creates the comparison exercise; the machine dependency prevents overlapping interactions. */
@@ -75,7 +82,8 @@ public final class ManualSortingRiddle {
 
   /** Shows the introduction once per player at sort_trigger, never while editing the level. */
   public void tick() {
-    if (LevelEditorSystem.active()) {
+    // Loading LevelEditorSystem initializes its font; never touch it on the headless server.
+    if (!Game.isHeadless() && LevelEditorSystem.active()) {
       return;
     }
 
@@ -99,13 +107,8 @@ public final class ManualSortingRiddle {
         .filter(player -> sortTriggeredPlayers.add(player.id()))
         .forEach(
             player ->
-                DialogFactory.showDialogDialog(
-                    "Der Datenspeicher enthält unsortierte Sicherheitswerte. "
-                        + "Bringe die Werte in eine aufsteigende Reihenfolge. "
-                        + "Untersuche immer das aktuelle Paar und entscheide, ob die beiden Container getauscht werden.",
-                    portraitPathFor(player),
-                    () -> {},
-                    player.id()));
+                SystemRecoveryLevel.announceStoryForPlayer(
+                    SystemRecoveryStoryDialogs.MANUAL_SORTING, player.id()));
   }
 
   private String sortDisplayText() {
@@ -165,6 +168,7 @@ public final class ManualSortingRiddle {
     Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
     if (sortCompleted) {
       spawnSortProgramStick();
+      SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.BUBBLE_SORT_CODE);
     }
   }
 

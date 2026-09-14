@@ -19,14 +19,21 @@ import feature.collision.CollideSync;
 import feature.components.CollideComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
+import feature.questlog.QuestLogComponent;
+import feature.questlog.QuestLogEntry;
+import feature.questlog.QuestLogUtil;
 import feature.skills.SkillTools;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
+import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 
 /** Snapshot translator for metadata-backed System Recovery components. */
@@ -97,6 +104,8 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                 keypadFromMetadata(metadata.orElseThrow())
                     .ifPresent(keypad -> applyKeypadState(entity, keypad));
                 applyDisplayMetadata(entity, metadata.orElseThrow());
+                questLogFromMetadata(metadata.orElseThrow())
+                    .ifPresent(questLog -> applyQuestLogState(entity, questLog));
                 applySortComparisonMetadata(metadata.orElseThrow());
                 applyBeltSortMetadata(metadata.orElseThrow());
                 String terminalState =
@@ -411,6 +420,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
    * @param metadata the metadata map
    */
   public static void applyInteractableMetadata(Entity entity, Map<String, String> metadata) {
+    DoorLabelComponent.applyMetadata(entity, metadata);
     String interactable = metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_INTERACTABLE);
     if (interactable == null) {
       return;
@@ -434,6 +444,10 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
 
   private Map<String, String> snapshotMetadata(Entity entity) {
     Map<String, String> metadata = new HashMap<>();
+    DoorLabelComponent.appendMetadata(entity, metadata);
+    entity
+        .fetch(QuestLogComponent.class)
+        .ifPresent(questLog -> metadata.putAll(questLogMetadata(questLog)));
     if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_INTERACTABLE,
@@ -467,6 +481,89 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     }
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;
+  }
+
+  /** Serializes the authoritative questlog for initial spawns and snapshots. */
+  public static Map<String, String> questLogMetadata(QuestLogComponent questLog) {
+    return Map.of(
+        SystemRecoveryEntitySpawnStrategy.METADATA_TYPE,
+        SystemRecoveryEntitySpawnStrategy.TYPE_QUESTLOG,
+        SystemRecoveryEntitySpawnStrategy.METADATA_QUESTLOG_ENTRIES,
+        serializeQuestLog(questLog));
+  }
+
+  /** Restores a questlog from synchronized System Recovery metadata. */
+  public static Optional<QuestLogComponent> questLogFromMetadata(Map<String, String> metadata) {
+    if (!SystemRecoveryEntitySpawnStrategy.TYPE_QUESTLOG.equals(
+        metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_TYPE))) {
+      return Optional.empty();
+    }
+
+    QuestLogComponent questLog = new QuestLogComponent();
+    String serialized =
+        metadata.getOrDefault(SystemRecoveryEntitySpawnStrategy.METADATA_QUESTLOG_ENTRIES, "");
+    if (serialized.isBlank()) {
+      return Optional.of(questLog);
+    }
+
+    for (String serializedEntry : serialized.split(";")) {
+      String[] fields = serializedEntry.split(",", -1);
+      if (fields.length != 6) {
+        continue;
+      }
+      try {
+        questLog.add(
+            decode(serializedEntryField(fields, 0)),
+            new QuestLogEntry(
+                decode(serializedEntryField(fields, 1)),
+                Integer.parseInt(fields[2]),
+                Boolean.parseBoolean(fields[3]),
+                decode(serializedEntryField(fields, 4)),
+                Boolean.parseBoolean(fields[5])));
+      } catch (IllegalArgumentException ignored) {
+        // Ignore malformed entries and keep valid questlog entries available.
+      }
+    }
+    return Optional.of(questLog);
+  }
+
+  private void applyQuestLogState(Entity entity, QuestLogComponent questLog) {
+    entity.remove(QuestLogComponent.class);
+    entity.add(questLog);
+    QuestLogUtil.setClientQuestLog(entity);
+  }
+
+  private static String serializeQuestLog(QuestLogComponent questLog) {
+    return questLog.getEntries().entrySet().stream()
+        .flatMap(
+            tab ->
+                tab.getValue().stream().map(entry -> serializeQuestLogEntry(tab.getKey(), entry)))
+        .collect(Collectors.joining(";"));
+  }
+
+  private static String serializeQuestLogEntry(String tab, QuestLogEntry entry) {
+    return String.join(
+        ",",
+        encode(tab),
+        encode(entry.text()),
+        String.valueOf(entry.timestamp()),
+        String.valueOf(entry.userCreated()),
+        encode(entry.owner()),
+        String.valueOf(entry.onlyForCreator()));
+  }
+
+  private static String encode(String value) {
+    return Base64.getUrlEncoder()
+        .withoutPadding()
+        .encodeToString(value.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private static String decode(String value) {
+    return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
+  }
+
+  private static String serializedEntryField(String[] fields, int index) {
+    return fields[index];
   }
 
   private void appendKeypadMetadata(KeypadComponent keypad, Map<String, String> metadata) {
