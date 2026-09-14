@@ -35,6 +35,7 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
 import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
+import rooms.systemRecovery.util.shaders.SystemRecoveryAlarm;
 
 /** Snapshot translator for metadata-backed System Recovery components. */
 public final class SystemRecoverySnapshotTranslator implements SnapshotTranslator {
@@ -108,6 +109,15 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                     .ifPresent(questLog -> applyQuestLogState(entity, questLog));
                 applySortComparisonMetadata(metadata.orElseThrow());
                 applyBeltSortMetadata(metadata.orElseThrow());
+                applyStorageCellMetadata(entity, metadata.orElseThrow());
+                if (Boolean.parseBoolean(
+                    metadata
+                        .orElseThrow()
+                        .getOrDefault(
+                            SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS,
+                            "false"))) {
+                  SystemRecoveryAlarm.activate();
+                }
                 String terminalState =
                     metadata
                         .orElseThrow()
@@ -285,6 +295,37 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     lastBeltScanner = scannerId;
   }
 
+  /** Applies the authoritative visual state of one 3x4 storage cell. */
+  private void applyStorageCellMetadata(Entity entity, Map<String, String> metadata) {
+    String state = metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_STORAGE_CELL_STATE);
+    if (state == null || !entity.name().startsWith("storage_matrix_cell_")) return;
+
+    int value =
+        parseEntityId(
+            metadata.getOrDefault(
+                SystemRecoveryEntitySpawnStrategy.METADATA_STORAGE_CELL_VALUE, "0"));
+    int tint = storageCellTint(state, value);
+    entity
+        .fetch(PositionComponent.class)
+        .ifPresent(
+            position -> Game.tileAt(position.position()).ifPresent(tile -> tile.tintColor(tint)));
+  }
+
+  private int storageCellTint(String state, int value) {
+    return switch (state) {
+      case "active" -> 0x4D7EA8FF;
+      case "target" -> 0xF0D248FF;
+      case "filled" ->
+          switch (value) {
+            case 1 -> 0x42C8E6FF;
+            case 2 -> 0xF0B84AFF;
+            case 3 -> 0xD66CFFFF;
+            default -> 0x4D7EA8FF;
+          };
+      default -> -1;
+    };
+  }
+
   private void clearBeltSortHighlights() {
     Game.levelEntities()
         .forEach(
@@ -448,6 +489,12 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     entity
         .fetch(QuestLogComponent.class)
         .ifPresent(questLog -> metadata.putAll(questLogMetadata(questLog)));
+    entity
+        .fetch(DisplayTextComponent.class)
+        .ifPresent(
+            display ->
+                metadata.put(
+                    SystemRecoveryEntitySpawnStrategy.METADATA_DISPLAY_TEXT, display.text()));
     if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_INTERACTABLE,
@@ -479,8 +526,44 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
           SystemRecoveryEntitySpawnStrategy.METADATA_BELT_PACKAGES,
           SystemRecoveryLevel.currentBeltPackageMetadata());
     }
+    if (entity.name() != null && entity.name().endsWith("terminal")) {
+      metadata.put(
+          SystemRecoveryEntitySpawnStrategy.METADATA_TERMINAL_STATE,
+          String.valueOf(TerminalInterpreter.instance().currentState()));
+    }
+    if (entity.name().startsWith("storage_matrix_cell_")) {
+      metadata.put(
+          SystemRecoveryEntitySpawnStrategy.METADATA_STORAGE_CELL_STATE,
+          SystemRecoveryLevel.storageCellState(entity.name()));
+      String[] parts = entity.name().split("_");
+      if (parts.length >= 5) {
+        try {
+          int row = Integer.parseInt(parts[3]);
+          int column = Integer.parseInt(parts[4]);
+          metadata.put(
+              SystemRecoveryEntitySpawnStrategy.METADATA_STORAGE_CELL_VALUE,
+              String.valueOf(activeStorageCellValue(row, column)));
+        } catch (NumberFormatException ignored) {
+          // Keep the cell synchronized as an empty visual when an editor name is malformed.
+        }
+      }
+    }
+    if ("label_systemcore".equals(entity.name())) {
+      metadata.put(
+          SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS,
+          String.valueOf(SystemRecoveryLevel.systemCoreAccessGranted()));
+    }
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;
+  }
+
+  private int activeStorageCellValue(int row, int column) {
+    return switch (row + "_" + column) {
+      case "0_2" -> 1;
+      case "1_3" -> 2;
+      case "2_1" -> 3;
+      default -> 0;
+    };
   }
 
   /** Serializes the authoritative questlog for initial spawns and snapshots. */

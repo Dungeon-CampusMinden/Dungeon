@@ -43,6 +43,9 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
   public static final String METADATA_BELT_RIGHT_PACKAGE = "systemRecovery.belt.rightPackage";
   public static final String METADATA_BELT_SCANNER = "systemRecovery.belt.scanner";
   public static final String METADATA_BELT_PACKAGES = "systemRecovery.belt.packages";
+  public static final String METADATA_STORAGE_CELL_STATE = "systemRecovery.storage.cellState";
+  public static final String METADATA_STORAGE_CELL_VALUE = "systemRecovery.storage.cellValue";
+  public static final String METADATA_SYSTEM_CORE_ACCESS = "systemRecovery.systemCoreAccess";
   public static final String METADATA_QUESTLOG_ENTRIES = "systemRecovery.questlog.entries";
   public static final String TYPE_QUESTLOG = "questlog";
 
@@ -77,7 +80,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
         .ifPresent(
             questLog ->
                 metadata.putAll(SystemRecoverySnapshotTranslator.questLogMetadata(questLog)));
-    if ("terminal".equals(entity.name())) {
+    if (entity.name() != null && entity.name().endsWith("terminal")) {
       metadata.put(
           METADATA_TERMINAL_STATE, String.valueOf(TerminalInterpreter.instance().currentState()));
     }

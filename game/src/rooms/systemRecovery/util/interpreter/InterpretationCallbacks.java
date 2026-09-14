@@ -3,8 +3,11 @@ package rooms.systemRecovery.util.interpreter;
 import engine.Game;
 import engine.sound.SoundSpec;
 import feature.hud.DialogUtils;
+import java.util.function.Supplier;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 
 /**
  * Maps accepted terminal steps to their room effects in gameplay order.
@@ -17,8 +20,24 @@ public final class InterpretationCallbacks {
 
   private static final String SUCCESS_SOUND = "retro_event_correct";
   private static final String FAILURE_SOUND = "retro_event_wrong";
+  private static final ThreadLocal<TerminalAttempt> CURRENT_ATTEMPT = new ThreadLocal<>();
 
   private InterpretationCallbacks() {}
+
+  /**
+   * Attaches the authoritative terminal state and submitted source to callbacks invoked by the
+   * generic interpreter. The interpreter itself remains independent from room tracking.
+   */
+  public static <T> T withTerminalAttempt(int state, String source, Supplier<T> action) {
+    TerminalAttempt previous = CURRENT_ATTEMPT.get();
+    CURRENT_ATTEMPT.set(new TerminalAttempt(state, source));
+    try {
+      return action.get();
+    } finally {
+      if (previous == null) CURRENT_ATTEMPT.remove();
+      else CURRENT_ATTEMPT.set(previous);
+    }
+  }
 
   /** Handles riddle 1 step 1: initialize the energy array. */
   public static void onRiddleOneStepOneEnergyArrayInitialized() {
@@ -33,7 +52,7 @@ public final class InterpretationCallbacks {
     showCorrectTerminalInputDialog();
     SystemRecoveryLevel.completeEnergyPuzzle();
     SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
-        SystemRecoveryStoryDialogs.MODULE_ARRAY);
+        SystemRecoveryStoryDialogs.ENERGY_BATTERY);
   }
 
   /** Handles riddle 2 step 1: initialize the module array. */
@@ -48,8 +67,6 @@ public final class InterpretationCallbacks {
   public static void onRiddleTwoStepTwoModulesAssigned() {
     showCorrectTerminalInputDialog();
     SystemRecoveryLevel.spawnModuleChips();
-    SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
-        SystemRecoveryStoryDialogs.REMOVE_GPU);
   }
 
   /** Handles riddle 2 step 3: remove the GPU module. */
@@ -65,8 +82,6 @@ public final class InterpretationCallbacks {
     showCorrectTerminalInputDialog();
     SystemRecoveryLevel.showModuleArrayLength();
     SystemRecoveryLevel.portModuleChipsToScanner();
-    SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
-        SystemRecoveryStoryDialogs.SCANNER_CODE);
   }
 
   /** Handles riddle 3 step 1: count all non-null modules. */
@@ -93,41 +108,31 @@ public final class InterpretationCallbacks {
   /** Handles riddle 7 step 1: create all archive arrays. */
   public static void onRiddleSevenStepOneDataArchiveLoaded() {
     showCorrectTerminalInputDialog();
+    SystemRecoveryLevel.completeDataArchive();
     SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
-        SystemRecoveryStoryDialogs.STORAGE_ARRAY);
-    // TODO: Datenarchiv: Archivdaten anzeigen/freischalten.
+        SystemRecoveryStoryDialogs.STORAGE_UNLOCKED);
   }
 
   /** Handles riddle 8 step 1: create the two-dimensional storage array. */
   public static void onRiddleEightStepOneStorageCreated() {
     showCorrectTerminalInputDialog();
+    SystemRecoveryLevel.activateStorageMatrix();
     SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
         SystemRecoveryStoryDialogs.STORAGE_VALUES);
-    // TODO: Zweidimensionales Lager: Raster sichtbar initialisieren.
   }
 
   /** Handles riddle 8 step 2: fill the two-dimensional storage array. */
   public static void onRiddleEightStepTwoStorageFilled() {
     showCorrectTerminalInputDialog();
-    SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
-        SystemRecoveryStoryDialogs.STORAGE_READ);
-    // TODO: Zweidimensionales Lager: Werte im Raster platzieren.
-  }
-
-  /** Handles riddle 8 step 3: read a two-dimensional storage cell. */
-  public static void onRiddleEightStepThreeStorageRead() {
-    showCorrectTerminalInputDialog();
-    SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
-        SystemRecoveryStoryDialogs.SEARCH_ROBOT);
-    // TODO: Zweidimensionales Lager: gelesene Zelle hervorheben/auswerten.
+    SystemRecoveryLevel.fillStorageMatrix();
+    SystemRecoveryLevel.completeStorageMatrix();
   }
 
   /** Handles riddle 9 step 1: search the map and collect batteries. */
   public static void onRiddleNineStepOneSearchRobotCompleted() {
     showCorrectTerminalInputDialog();
-    SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
-        SystemRecoveryStoryDialogs.CENTRAL_SORT);
-    // TODO: Suchroboter: Batterien auf der Map einsammeln und ggf. Batterie-Items spawnen.
+    // TODO: Suchroboter: Diese Legacy-Terminalroute sollte langfristig durch den Ortungschip-
+    // Controller ersetzt werden.
   }
 
   /** Handles riddle 10 step 1: bubble sort the central array. */
@@ -149,6 +154,7 @@ public final class InterpretationCallbacks {
   /** Handles riddle 10 step 3: search the map and collect batteries. */
   public static void onRiddleTenStepThreeBatteriesCollected() {
     showCorrectTerminalInputDialog();
+    SystemRecoveryLevel.completeSystemCoreRiddle();
     SystemRecoveryLevel.announceStoryCompletion();
     // TODO: Zentrales Rechenzentrum: finale Batterie-Suche bestaetigen und naechste Aktion
     // ausloesen.
@@ -161,13 +167,38 @@ public final class InterpretationCallbacks {
 
   /** Shows feedback for a correct terminal input. */
   public static void showCorrectTerminalInputDialog() {
-    DialogUtils.showTextPopup("War richtig", "Terminal");
+    track(true);
+    DialogUtils.showTextPopup(
+        SystemRecoveryText.text("computer.feedback-correct"),
+        SystemRecoveryText.text("computer.terminal"));
     Game.audio().playGlobal(SoundSpec.builder(SUCCESS_SOUND));
   }
 
   /** Shows feedback for an incorrect terminal input. */
   public static void showIncorrectTerminalInputDialog() {
-    DialogUtils.showTextPopup("war falsch", "Terminal");
+    track(false);
+    DialogUtils.showTextPopup(
+        SystemRecoveryText.text("computer.feedback-incorrect"),
+        SystemRecoveryText.text("computer.terminal"));
     Game.audio().playGlobal(SoundSpec.builder(FAILURE_SOUND));
   }
+
+  /** Writes the current terminal state and complete submitted source to the room outbox. */
+  private static void track(boolean correct) {
+    TerminalAttempt attempt = CURRENT_ATTEMPT.get();
+    if (attempt != null) {
+      track(
+          attempt.state(),
+          attempt.source(),
+          correct,
+          SystemRecoveryStoryDialogs.currentTerminalPlayer().orElse(-1));
+    }
+  }
+
+  /** Records one terminal result with the state and complete source submitted by the player. */
+  private static void track(int state, String input, boolean correct, int playerId) {
+    SystemRecoveryPuzzleEvents.terminalAttempt(state, input, correct, playerId);
+  }
+
+  private record TerminalAttempt(int state, String source) {}
 }

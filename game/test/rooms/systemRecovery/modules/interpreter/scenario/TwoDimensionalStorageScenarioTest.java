@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 /** Tests the terminal scenario for the two-dimensional storage. */
 public class TwoDimensionalStorageScenarioTest extends TerminalScenarioTestSupport {
 
-  /** The storage accepts declaration, assignments, and indexed access. */
+  /** The storage accepts its declaration followed by unordered indexed assignments. */
   @Test
   public void twoDimensionalStorageScenarioIsSupported_riddle8() {
     interpreter.register(
@@ -21,8 +21,6 @@ public class TwoDimensionalStorageScenarioTest extends TerminalScenarioTestSuppo
             twoDimensionalAssignment("lager", 0, 2, "1"),
             twoDimensionalAssignment("lager", 1, 3, "2"),
             twoDimensionalAssignment("lager", 2, 1, "3")));
-    interpreter.register(2, requirement("lager\\s*\\[\\s*1\\s*]\\s*\\[\\s*3\\s*]"));
-
     String source = "int[][] lager = new int[3][4];";
     assertTrue(interpreter.interpret(source));
 
@@ -33,9 +31,6 @@ public class TwoDimensionalStorageScenarioTest extends TerminalScenarioTestSuppo
         lager[1][3] = 2;
         lager[2][1] = 3;
         """;
-    assertTrue(interpreter.interpret(source));
-
-    source += "lager[1][3];";
     assertTrue(interpreter.interpret(source));
   }
 }

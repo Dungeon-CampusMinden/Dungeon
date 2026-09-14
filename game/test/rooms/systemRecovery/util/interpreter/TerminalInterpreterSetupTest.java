@@ -1,5 +1,6 @@
 package rooms.systemRecovery.util.interpreter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -89,10 +90,6 @@ public class TerminalInterpreterSetupTest {
         storage[0][2] = 1;
         storage[1][3] = 2;
         storage[2][1] = 3;
-        """);
-    submit(
-        """
-        storage[1][3];
         """);
     submit(
         """
@@ -186,6 +183,43 @@ public class TerminalInterpreterSetupTest {
         """;
 
     assertFalse(TerminalInterpreter.instance().interpret(source));
+  }
+
+  /** The prepared one-column search is rejected until the missing inner loop is added. */
+  @Test
+  public void riddleNineRequiresTheMissingInnerLoop() {
+    advanceToRiddleNine();
+
+    source +=
+        """
+        for (int i = 0; i < map.length; i++) {
+            int j = 0;
+            if (map[i][j] == 1) {
+                roboter.collect();
+            }
+        }
+        """;
+
+    assertFalse(TerminalInterpreter.instance().interpret(source));
+  }
+
+  /** The inner loop can replace the prepared column initialization and complete the search. */
+  @Test
+  public void riddleNineAcceptsTheInnerLoopAddedToThePreparedCode() {
+    advanceToRiddleNine();
+
+    source +=
+        """
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                if (map[i][j] == 1) {
+                    roboter.collect();
+                }
+            }
+        }
+        """;
+
+    assertTrue(TerminalInterpreter.instance().interpret(source));
   }
 
   /** Riddle 8 accepts a flexible storage array name but rejects mixing it with another name. */
@@ -306,6 +340,30 @@ public class TerminalInterpreterSetupTest {
         """);
   }
 
+  /**
+   * The search chip reuses the real riddle-9 requirement without advancing the shared terminal
+   * state.
+   */
+  @Test
+  public void searchChipUsesTheRegisteredThreeByTwoRiddleRequirement() {
+    advanceToRiddleNine();
+    String searchProgram =
+        """
+        for (int row = 0; row < map.length; row++) {
+            for (int column = 0; column < map[row].length; column++) {
+                if (map[row][column] == 1) {
+                    roboter.collect();
+                }
+            }
+        }
+        """;
+
+    assertTrue(
+        TerminalInterpreterSetup.matchesSearchRobotProgram(searchProgram),
+        "The search chip must use the same registered nested-loop requirement");
+    assertEquals(12, TerminalInterpreter.instance().currentState());
+  }
+
   /** Extra statements with a wrong captured variable name are rejected. */
   @Test
   public void registeredRiddlesRejectExtraStatementsWithWrongCapturedArrayName() {
@@ -412,10 +470,6 @@ public class TerminalInterpreterSetupTest {
         lager[1][3] = 2;
         lager[2][1] = 3;
         """);
-    submit(
-        """
-        lager[1][3];
-        """);
   }
 
   private void advanceToRiddleEight() {
@@ -489,10 +543,6 @@ public class TerminalInterpreterSetupTest {
         lager[0][2] = 1;
         lager[1][3] = 2;
         lager[2][1] = 3;
-        """);
-    submit(
-        """
-        lager[1][3];
         """);
     submit(
         """

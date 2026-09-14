@@ -12,24 +12,17 @@ import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerCallbacks;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerTab;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Editor shown while an empty sort-program stick is inserted into the computer. */
 public final class SortProgramTab extends SystemRecoveryComputerTab {
 
   private static final String INITIAL_SOURCE =
-      "for (int i = 0; i < array.length - 1; i++) {\n"
-          + "    for (int j = 0; j < array.length - 1 - i; j++) {\n"
-          + "        if (____________________) {\n"
-          + "            int temp = array[j];\n"
-          + "            array[j] = array[j + 1];\n"
-          + "            array[j + 1] = temp;\n"
-          + "        }\n"
-          + "    }\n"
-          + "}";
+      SystemRecoveryText.text("computer.sort-template");
 
   /** Creates the sort-program editor tab. */
   public SortProgramTab() {
-    super("sort-program", "Sortierchip");
+    super("sort-program", SystemRecoveryText.text("computer.sort-tab"));
     createActors();
   }
 
@@ -37,7 +30,7 @@ public final class SortProgramTab extends SystemRecoveryComputerTab {
   protected void createActors() {
     Table layout = new Table(skin);
     layout.top().defaults().growX();
-    layout.add(createLabel("Bubble-Sort-Bedingung einsetzen", 24)).left().row();
+    layout.add(createLabel(SystemRecoveryText.text("computer.sort-heading"), 24)).left().row();
 
     TextField style = Scene2dElementFactory.createTextField(INITIAL_SOURCE);
     TextArea editor = new TextArea(INITIAL_SOURCE, new TextField.TextFieldStyle(style.getStyle()));
@@ -47,7 +40,7 @@ public final class SortProgramTab extends SystemRecoveryComputerTab {
     Label feedback = createLabel("", 18);
     layout.add(feedback).left().padTop(10).row();
 
-    TextButton save = createButton("Auf Stick laden", "green", 24);
+    TextButton save = createButton(SystemRecoveryText.text("computer.save-sort"), "green", 24);
     save.addListener(
         new ChangeListener() {
           @Override
@@ -55,7 +48,7 @@ public final class SortProgramTab extends SystemRecoveryComputerTab {
             DialogCallbackResolver.createButtonCallback(
                     context().dialogId(), SystemRecoveryComputerCallbacks.SORT_PROGRAM_SAVE)
                 .accept(new DialogResponseMessage.StringValue(editor.getText()));
-            feedback.setText("Programm wird auf den Stick geschrieben ...");
+            feedback.setText(SystemRecoveryText.text("computer.saving"));
           }
         });
     layout.add(save).right().width(220).height(52).padTop(12);

@@ -5,6 +5,7 @@ import engine.utils.components.path.SimpleIPath;
 import feature.inventory.Item;
 import feature.inventory.ItemRegistry;
 import java.util.Map;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** USB stick used to transfer the bubble-sort condition between the computer and the machine. */
 public final class SortProgramStickItem extends Item {
@@ -33,10 +34,11 @@ public final class SortProgramStickItem extends Item {
   /** Creates a sort-program stick with the requested programming state. */
   public SortProgramStickItem(boolean programmed) {
     super(
-        programmed ? "Sortierchip (programmiert)" : "Sortierchip (leer)",
+        SystemRecoveryText.text(
+            programmed ? "items.sort-programmed-name" : "items.sort-empty-name"),
         programmed
-            ? "Enthält den Bubble-Sort-Vergleich."
-            : "Ein leerer USB-Stick für den Sortieralgorithmus.",
+            ? SystemRecoveryText.text("items.sort-programmed-description")
+            : SystemRecoveryText.text("items.sort-empty-description"),
         new Animation(TEXTURE),
         new Animation(TEXTURE));
     this.programmed = programmed;

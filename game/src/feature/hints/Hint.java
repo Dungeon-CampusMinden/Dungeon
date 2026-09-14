@@ -11,6 +11,11 @@ import java.io.Serializable;
  *     related to
  * @param text the hint text itself, describing the clue or guidance for the player
  */
-public record Hint(String title, String text) implements Serializable {
+public record Hint(String title, String text, boolean solution) implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
+
+  /** Creates a normal hint that does not reveal the complete solution. */
+  public Hint(String title, String text) {
+    this(title, text, false);
+  }
 }

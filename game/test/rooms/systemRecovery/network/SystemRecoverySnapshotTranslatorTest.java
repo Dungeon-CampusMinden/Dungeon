@@ -17,7 +17,8 @@ public class SystemRecoverySnapshotTranslatorTest {
     QuestLogComponent questLog = new QuestLogComponent();
     questLog.add(
         "Rätsel 1: Energieversorgung",
-        new QuestLogEntry("Fülle das Energie-Array.", 17, false, QuestLogEntry.DEFAULT_OWNER, false));
+        new QuestLogEntry(
+            "Fülle das Energie-Array.", 17, false, QuestLogEntry.DEFAULT_OWNER, false));
 
     Map<String, String> metadata = SystemRecoverySnapshotTranslator.questLogMetadata(questLog);
 

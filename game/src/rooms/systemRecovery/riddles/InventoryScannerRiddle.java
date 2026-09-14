@@ -14,15 +14,16 @@ import feature.components.DecoComponent;
 import feature.entities.LeverFactory;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
+import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
 import feature.skills.SkillTools;
 import feature.systems.EventScheduler;
 import feature.utils.ICommand;
 import java.util.List;
 import rooms.systemRecovery.entities.EntityFactory;
-import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
-import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.riddles.support.RiddleCallbacks;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
  * Riddle 3: unlock the scanner and visualize counting the remaining modules.
@@ -32,6 +33,7 @@ import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
  */
 public final class InventoryScannerRiddle {
   private final DungeonLevel level;
+  private final RiddleCallbacks callbacks;
 
   private static final String SCANNER_SOUND = "retro_beep_01";
   private static final Vector2 SCANNER_OFFSET = Vector2.of(-1, 1);
@@ -49,7 +51,13 @@ public final class InventoryScannerRiddle {
 
   /** Creates the riddle for the owning level. */
   public InventoryScannerRiddle(DungeonLevel level) {
+    this(level, RiddleCallbacks.noop());
+  }
+
+  /** Creates the riddle with callbacks for physical success and failure events. */
+  public InventoryScannerRiddle(DungeonLevel level, RiddleCallbacks callbacks) {
     this.level = level;
+    this.callbacks = callbacks;
   }
 
   /** Creates the room objects and the exit keypad. */
@@ -60,8 +68,10 @@ public final class InventoryScannerRiddle {
     Game.add(scannerEntity);
 
     scannerDisplay =
-        EntityFactory.moduleDisplay(
-            level.getPoint("scanner_display"), () -> "Scanner: Noch nicht aktiviert");
+        EntityFactory.hintDisplay(
+            level.getPoint("scanner_display"),
+            () -> SystemRecoveryText.text("world.scanner.display-pending"),
+            SystemRecoveryText.text("world.scanner.title"));
     Game.add(scannerDisplay);
 
     Game.add(
@@ -71,8 +81,10 @@ public final class InventoryScannerRiddle {
               @Override
               public void execute() {
                 if (!scannerPuzzleSolved || scannerRunning || scannerCompleted) {
+                  callbacks.failure("lever", -1);
                   return;
                 }
+                callbacks.success("lever", -1);
                 startModuleScan();
               }
 
@@ -90,6 +102,7 @@ public final class InventoryScannerRiddle {
 
   /** Enables the scanner lever after the inventory scanner code has been solved. */
   public void completeScannerPuzzle() {
+    if (scannerPuzzleSolved) return;
     scannerPuzzleSolved = true;
   }
 
@@ -130,18 +143,29 @@ public final class InventoryScannerRiddle {
   }
 
   private void completeModuleScan() {
+    if (scannerCompleted) return;
     scannerRunning = false;
     scannerCompleted = true;
-    EntityFactory.updateDisplayText(scannerDisplay, "4");
-    SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.PACKAGES_ARRAY);
+    callbacks.solved();
+    EntityFactory.updateDisplayText(
+        scannerDisplay, SystemRecoveryText.text("world.scanner.display-complete"));
   }
 
   private void setupTransportStorageKeypad() {
-    Game.add(
+    Entity keypad =
         KeypadFactory.createKeypad(
             level.getPoint("keypad_transportlager"),
             List.of(4),
             () -> ((DoorTile) Game.tileAt(level.getPoint("door_transportlager")).get()).open(),
-            true));
+            true);
+    keypad
+        .fetch(KeypadComponent.class)
+        .ifPresent(
+            component -> {
+              component.onCorrectCode(player -> callbacks.success("4", player.id()));
+              component.onWrongCode(
+                  player -> callbacks.failure(component.enteredString(), player.id()));
+            });
+    Game.add(keypad);
   }
 }

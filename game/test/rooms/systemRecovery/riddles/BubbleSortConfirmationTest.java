@@ -28,7 +28,7 @@ import rooms.systemRecovery.items.SortProgramStickItem;
 /** Checks that a server-side dialog response, not the initial interaction, consumes the USB. */
 class BubbleSortConfirmationTest {
   @ParameterizedTest
-  @CsvSource({"Abbrechen,true,false", "Einsetzen,false,false", "Einsetzen,true,true"})
+  @CsvSource({"cancel,true,false", "insert,false,false", "insert,true,true"})
   void consumesStickOnlyAfterConfirmationAndInventoryRecheck_riddle6(
       String choice, boolean stillPresent, boolean starts) {
     DungeonLevel level = mock(DungeonLevel.class);
@@ -82,7 +82,7 @@ class BubbleSortConfirmationTest {
 
       respond.get().accept(new DialogResponseMessage.StringValue(choice));
       assertEquals(starts, riddle.running());
-      verify(inventory, times("Einsetzen".equals(choice) ? 1 : 0)).remove(stick);
+      verify(inventory, times("insert".equals(choice) ? 1 : 0)).remove(stick);
       if (starts) {
         respond.get().accept(new DialogResponseMessage.StringValue(choice));
         verify(inventory, times(1)).remove(stick);

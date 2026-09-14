@@ -10,6 +10,7 @@ import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerTab;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Read-only assistant transcript for the System Recovery computer. */
 public class AssistantChatTab extends SystemRecoveryComputerTab {
@@ -19,7 +20,7 @@ public class AssistantChatTab extends SystemRecoveryComputerTab {
 
   /** Creates the assistant chat tab. */
   public AssistantChatTab() {
-    super(KEY, "Chat");
+    super(KEY, SystemRecoveryText.text("computer.chat"));
     createActors();
   }
 
@@ -36,14 +37,26 @@ public class AssistantChatTab extends SystemRecoveryComputerTab {
     Table messages = new Table(skin);
     messages.top();
     messages.defaults().growX().padBottom(8);
-    addMessage(messages, "system", "System Recovery Assistant online.", false);
-    addMessage(messages, "user", "Read-only diagnostic transcript loaded.", true);
     addMessage(
         messages,
-        "system",
-        "I can see the terminal mount point. Waiting for recovery instructions.",
+        SystemRecoveryText.text("computer.assistant-system-sender"),
+        SystemRecoveryText.text("computer.assistant-system"),
         false);
-    addMessage(messages, "system", "No commands have been executed in this session yet.", false);
+    addMessage(
+        messages,
+        SystemRecoveryText.text("computer.assistant-user-sender"),
+        SystemRecoveryText.text("computer.assistant-user"),
+        true);
+    addMessage(
+        messages,
+        SystemRecoveryText.text("computer.assistant-system-sender"),
+        SystemRecoveryText.text("computer.assistant-waiting"),
+        false);
+    addMessage(
+        messages,
+        SystemRecoveryText.text("computer.assistant-system-sender"),
+        SystemRecoveryText.text("computer.assistant-idle"),
+        false);
 
     ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(messages, false, true);
     scrollPane.setOverscroll(false, false);

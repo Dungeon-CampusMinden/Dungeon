@@ -17,6 +17,19 @@ final class RiddleSupport {
     PositionSync.syncPosition(entity);
   }
 
+  /** Returns the first available named point, allowing old editor spellings during migration. */
+  static Point point(engine.level.DungeonLevel level, String... names) {
+    for (String name : names) {
+      try {
+        return level.getPoint(name);
+      } catch (RuntimeException ignored) {
+        // Try the next alias. Older level files contain a few misspelled point names.
+      }
+    }
+    throw new IllegalArgumentException(
+        "None of the named points exists: " + String.join(", ", names));
+  }
+
   static String portraitPathFor(Entity player) {
     return player
         .fetch(CharacterClassComponent.class)
