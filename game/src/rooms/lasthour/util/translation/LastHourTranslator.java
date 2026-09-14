@@ -267,5 +267,47 @@ public class LastHourTranslator extends Translator {
     registerKey(TranslationKey.ComputerOfflineText);
     registerKey(TranslationKey.ComputerUSBStickText);
     registerKey(TranslationKey.ComputerAccessText);
+
+    registerKey(TranslationKey.TrojanPhrase);
+    registerKey(TranslationKey.RansomwarePhrase);
+    registerKey(TranslationKey.AdwarePhrase);
+
+    registerKey(TranslationKey.HintItemDescription);
+    registerKey(TranslationKey.HintItemName);
+    registerKey(TranslationKey.PuzzleItemName);
+    registerKey(TranslationKey.PuzzleItemDescription);
+
+    registerKey(TranslationKey.RedUSBStickName);
+    registerKey(TranslationKey.RedUSBStickDescription);
+    registerKey(TranslationKey.GreenUSBStickName);
+    registerKey(TranslationKey.GreenUSBStickDescription);
+    registerKey(TranslationKey.YellowUSBStickName);
+    registerKey(TranslationKey.YellowUSBStickDescription);
+    registerKey(TranslationKey.BlueUSBStickName);
+    registerKey(TranslationKey.BlueUSBStickDescription);
+
+    registerKey(TranslationKey.USBContentText01);
+    registerKey(TranslationKey.USBContentText02);
+    registerKey(TranslationKey.USBContentText03);
+    registerKey(TranslationKey.USBContentText04);
+    registerKey(TranslationKey.USBContentText05);
+    registerKey(TranslationKey.USBContentText06);
+    registerKey(TranslationKey.USBContentText07);
+    registerKey(TranslationKey.USBContentText08);
+    registerKey(TranslationKey.USBContentText09);
+    registerKey(TranslationKey.USBContentText10);
+    registerKey(TranslationKey.USBContentText11);
+    registerKey(TranslationKey.USBContentText12);
+    registerKey(TranslationKey.USBContentText13);
+    registerKey(TranslationKey.USBContentText14);
+    registerKey(TranslationKey.USBContentText15);
+    registerKey(TranslationKey.USBContentText16);
+    registerKey(TranslationKey.USBContentText17);
+    registerKey(TranslationKey.USBContentText18);
+    registerKey(TranslationKey.USBContentText19);
+    registerKey(TranslationKey.USBContentText20);
+    registerKey(TranslationKey.USBContentText21);
+    registerKey(TranslationKey.USBContentText22);
+    registerKey(TranslationKey.USBContentText23);
   }
 }

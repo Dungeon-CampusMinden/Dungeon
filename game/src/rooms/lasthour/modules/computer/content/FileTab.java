@@ -115,7 +115,7 @@ public class FileTab extends ComputerTab {
         "Hello.html", Scene2dElementFactory.createLabel("Helloooo world :D", 96, Color.BLACK));
     files.put("Help.html", createHelpPage());
     files.put(Lore.AccessCodeDownloadFileName, createUnlockCodePage());
-    files.put("hint.md", createHintPage());
+    files.put(UsbDriveTab.HINT_FILE, createHintPage());
   }
 
   private static Actor createHintPage() {

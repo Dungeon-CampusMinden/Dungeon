@@ -165,4 +165,42 @@ public class TranslationKey {
   public static final String TrojanPhrase = "TrojanPhrase";
   public static final String RansomwarePhrase = "RansomwarePhrase";
   public static final String AdwarePhrase = "AdwarePhrase";
+
+  public static final String HintItemDescription = "HintItemDescription";
+  public static final String HintItemName = "HintItemName";
+  public static final String PuzzleItemName = "PuzzleItemName";
+  public static final String PuzzleItemDescription = "PuzzleItemDescription";
+
+  public static final String RedUSBStickName = "RedUSBStickName";
+  public static final String RedUSBStickDescription = "RedUSBStickDescription";
+  public static final String GreenUSBStickName = "GreenUSBStickName";
+  public static final String GreenUSBStickDescription = "GreenUSBStickDescription";
+  public static final String YellowUSBStickName = "YellowUSBStickName";
+  public static final String YellowUSBStickDescription = "YellowUSBStickDescription";
+  public static final String BlueUSBStickName = "BlueUSBStickName";
+  public static final String BlueUSBStickDescription = "BlueUSBStickDescription";
+
+  public static final String USBContentText01 = "USBContentText01";
+  public static final String USBContentText02 = "USBContentText02";
+  public static final String USBContentText03 = "USBContentText03";
+  public static final String USBContentText04 = "USBContentText04";
+  public static final String USBContentText05 = "USBContentText05";
+  public static final String USBContentText06 = "USBContentText06";
+  public static final String USBContentText07 = "USBContentText07";
+  public static final String USBContentText08 = "USBContentText08";
+  public static final String USBContentText09 = "USBContentText09";
+  public static final String USBContentText10 = "USBContentText10";
+  public static final String USBContentText11 = "USBContentText11";
+  public static final String USBContentText12 = "USBContentText12";
+  public static final String USBContentText13 = "USBContentText13";
+  public static final String USBContentText14 = "USBContentText14";
+  public static final String USBContentText15 = "USBContentText15";
+  public static final String USBContentText16 = "USBContentText16";
+  public static final String USBContentText17 = "USBContentText17";
+  public static final String USBContentText18 = "USBContentText18";
+  public static final String USBContentText19 = "USBContentText19";
+  public static final String USBContentText20 = "USBContentText20";
+  public static final String USBContentText21 = "USBContentText21";
+  public static final String USBContentText22 = "USBContentText22";
+  public static final String USBContentText23 = "USBContentText23";
 }

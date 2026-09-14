@@ -567,11 +567,12 @@ public class DialogFactory {
               options.values().stream()
                   .map(
                       option ->
-                          Translator.hasKey(option.value())
+                          Translator.hasKey(option.label())
                               ? ChoiceOption.of(
                                   Localization.getInstance()
                                       .getCurrentTranslator()
-                                      .translate(option.value()))
+                                      .translate(option.label()),
+                                  option.value())
                               : option)
                   .toList());
       return new DialogContext.Builder(context).put(type, translatedOptions).build();
