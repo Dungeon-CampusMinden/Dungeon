@@ -137,8 +137,8 @@ public class HintItem extends Item {
     Map<String, String> data = new LinkedHashMap<>();
     data.put(DATA_KEY_IMAGE_PATH, imagePath.pathString());
     data.put(DATA_KEY_WORLD_SPRITE, worldSprite.pathString());
-    data.put(DATA_KEY_NAME, displayName());
-    data.put(DATA_KEY_DESCRIPTION, description());
+    data.put(DATA_KEY_NAME, TranslationKey.HintItemName);
+    data.put(DATA_KEY_DESCRIPTION, TranslationKey.HintItemDescription);
     return data;
   }
 
