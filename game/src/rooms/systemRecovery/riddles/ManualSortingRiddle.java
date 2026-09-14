@@ -10,10 +10,8 @@ import engine.level.DungeonLevel;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import engine.utils.Point;
-import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.OutlineShader;
-import engine.utils.components.path.SimpleIPath;
 import feature.entities.WorldItemBuilder;
 import feature.hud.DialogUtils;
 import feature.hud.dialogs.ChoiceOption;
@@ -246,8 +244,7 @@ public final class ManualSortingRiddle {
                         new EnergyFillShader(
                                 sortValue(data),
                                 Color.CYAN,
-                                TextureMap.instance()
-                                    .textureAt(new SimpleIPath("objects/tech/CryoBox.png")))
+                                "objects/tech/CryoBox.png")
                             .animMagnitude(0));
               });
     }

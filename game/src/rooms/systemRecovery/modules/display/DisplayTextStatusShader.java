@@ -3,6 +3,7 @@ package rooms.systemRecovery.modules.display;
 import engine.utils.Rectangle;
 import engine.utils.components.draw.shader.AbstractShader;
 import java.util.List;
+import java.util.Map;
 
 /** Recolors only the green/cyan lettering of Computer_1, preserving its neutral housing. */
 public final class DisplayTextStatusShader extends AbstractShader {
@@ -32,5 +33,15 @@ public final class DisplayTextStatusShader extends AbstractShader {
   @Override
   public Rectangle worldBounds() {
     return null;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    properties.put("completed", Boolean.toString(completed));
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    completed = booleanProperty(properties, "completed");
   }
 }
