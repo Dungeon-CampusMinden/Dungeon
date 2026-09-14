@@ -13,10 +13,13 @@ import feature.entities.MiscFactory;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.inventory.items.ItemKey;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import rooms.systemRecovery.entities.EntityFactory;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
+import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.riddles.BubbleSortRiddle;
 import rooms.systemRecovery.riddles.EnergyRiddle;
@@ -24,6 +27,8 @@ import rooms.systemRecovery.riddles.InventoryScannerRiddle;
 import rooms.systemRecovery.riddles.ManualSortingRiddle;
 import rooms.systemRecovery.riddles.ModuleStorageRiddle;
 import rooms.systemRecovery.riddles.TransportStorageRiddle;
+import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /**
@@ -41,6 +46,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private final TransportStorageRiddle transportStorage = new TransportStorageRiddle(this);
   private final BubbleSortRiddle bubbleSort = new BubbleSortRiddle(this, transportStorage);
   private final ManualSortingRiddle manualSorting = new ManualSortingRiddle(this, bubbleSort);
+  private final List<Entity> doorLabels = new ArrayList<>();
+  private final SystemRecoveryStoryDialogs storyDialogs = new SystemRecoveryStoryDialogs();
 
   /**
    * Creates the System Recovery level.
@@ -72,6 +79,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    SystemRecoveryQuestLogUtil.initializeQuestLog();
     setupTerminal();
     setupRoomLabel();
     closeDoors();
@@ -87,6 +95,17 @@ public class SystemRecoveryLevel extends DungeonLevel {
   @Override
   protected void onTick() {
     manualSorting.tick();
+    storyDialogs.tick();
+    if (!Game.isHeadless()) {
+      doorLabels.forEach(
+          label ->
+              label
+                  .fetch(DoorLabelComponent.class)
+                  .ifPresent(
+                      status ->
+                          DoorLabelComponent.updateAppearance(
+                              label, status.completed().getAsBoolean())));
+    }
   }
 
   private static SystemRecoveryLevel active() {
@@ -96,6 +115,52 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Materializes the energy array for riddle 1, terminal step 1. */
   public static void spawnEnergyCrates() {
     active().energy.spawnEnergyCrates();
+  }
+
+  /** Runs terminal input with the submitting player attached to story callbacks. */
+  public static boolean interpretTerminalInput(String source, int playerId) {
+    return SystemRecoveryStoryDialogs.withTerminalPlayer(
+        playerId, () -> TerminalInterpreter.instance().interpret(source));
+  }
+
+  /** Advances one terminal state in debug mode with the submitting player attached to the story. */
+  public static boolean advanceTerminalStateForDebug(int playerId) {
+    return SystemRecoveryStoryDialogs.withTerminalPlayer(
+        playerId, () -> TerminalInterpreter.instance().advanceCurrentStateForDebug());
+  }
+
+  /** Announces one story instruction to the player who completed a terminal step. */
+  public static void announceStoryForCurrentTerminalPlayer(
+      SystemRecoveryStoryDialogs.StoryStep step) {
+    int playerId = SystemRecoveryStoryDialogs.currentTerminalPlayer().orElse(-1);
+    currentLevel()
+        .ifPresent(
+            level -> {
+              if (playerId >= 0) level.storyDialogs.announceForPlayer(step, playerId);
+              else level.storyDialogs.announceToAllPlayers(step);
+            });
+  }
+
+  /** Announces one story instruction after a shared physical room sequence. */
+  public static void announceStoryToAllPlayers(SystemRecoveryStoryDialogs.StoryStep step) {
+    currentLevel().ifPresent(level -> level.storyDialogs.announceToAllPlayers(step));
+  }
+
+  /** Announces one story instruction to one player after a world interaction. */
+  public static void announceStoryForPlayer(
+      SystemRecoveryStoryDialogs.StoryStep step, int playerId) {
+    currentLevel().ifPresent(level -> level.storyDialogs.announceForPlayer(step, playerId));
+  }
+
+  /** Announces the final system message after the last terminal riddle. */
+  public static void announceStoryCompletion() {
+    currentLevel().ifPresent(level -> level.storyDialogs.announceCompletionToAllPlayers());
+  }
+
+  private static java.util.Optional<SystemRecoveryLevel> currentLevel() {
+    return Game.currentLevel()
+        .filter(SystemRecoveryLevel.class::isInstance)
+        .map(SystemRecoveryLevel.class::cast);
   }
 
   private void closeDoors() {
@@ -113,23 +178,35 @@ public class SystemRecoveryLevel extends DungeonLevel {
   }
 
   private void setupRoomLabel() {
-    Game.add(EntityFactory.roomLabel(getPoint("label_modulspeicher"), "Modulspeicher", "Raum: R2"));
-    Game.add(
-        EntityFactory.roomLabel(getPoint("label_inventarscanner"), "Inventarscanner", "Raum: R3"));
-    Game.add(
-        EntityFactory.roomLabel(getPoint("label_transportlager"), "Transportlager", "Raum: R4"));
-    Game.add(EntityFactory.roomLabel(getPoint("label_datenspeicher"), "Datenspeicher", "Raum: R5"));
-    Game.add(
-        EntityFactory.roomLabel(
-            getPoint("label_sortmachine"), "Die Bubble-Sort-Maschine", "Raum R6"));
-    Game.add(EntityFactory.roomLabel(getPoint("label_archive"), "Datenarchiv", "Raum: R7"));
-    Game.add(
-        EntityFactory.roomLabel(
-            getPoint("label_speicher"), "Zweidimensionale Speicher", "Raum R:8"));
-    Game.add(EntityFactory.roomLabel(getPoint("label_suchroboter"), "Baterielager", "Raum R4.b"));
-    Game.add(
-        EntityFactory.roomLabel(
-            getPoint("label_systemcore"), "Zentrale Rechenzentrum", "Raum: Systemcore"));
+    addDoorLabel("label_modulspeicher", "Modulspeicher", "Raum: R2", moduleStorage::completed);
+    addDoorLabel(
+        "label_inventarscanner", "Inventarscanner", "Raum: R3", inventoryScanner::completed);
+    addDoorLabel("label_transportlager", "Transportlager", "Raum: R4", transportStorage::completed);
+    addDoorLabel("label_datenspeicher", "Datenspeicher", "Raum: R5", manualSorting::completed);
+    addDoorLabel("label_sortmachine", "Die Bubble-Sort-Maschine", "Raum R6", bubbleSort::completed);
+    addDoorLabel("label_archive", "Datenarchiv", "Raum: R7", () -> terminalReached(9));
+    addDoorLabel(
+        "label_speicher", "Zweidimensionale Speicher", "Raum R:8", () -> terminalReached(12));
+    addDoorLabel("label_suchroboter", "Batterielager", "Raum R4.b", () -> terminalReached(13));
+    addDoorLabel(
+        "label_systemcore",
+        "Zentrales Rechenzentrum",
+        "Raum: Systemcore",
+        () -> terminalReached(16));
+  }
+
+  /** Associates each destination label with its prerequisite, independent of its door lock. */
+  private void addDoorLabel(String point, String text, String title, BooleanSupplier completed) {
+    Entity label = EntityFactory.roomLabel(getPoint(point), text, title);
+    label.name(point);
+    label.add(new DoorLabelComponent(completed));
+    DoorLabelComponent.updateAppearance(label, completed.getAsBoolean());
+    doorLabels.add(label);
+    Game.add(label);
+  }
+
+  private boolean terminalReached(int completedSteps) {
+    return TerminalInterpreter.instance().currentState() >= completedSteps;
   }
 
   private void setupTerminal() {

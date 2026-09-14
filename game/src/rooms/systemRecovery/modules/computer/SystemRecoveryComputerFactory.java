@@ -14,7 +14,8 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.items.SortProgramStickItem;
-import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /** Factory and registration helpers for the System Recovery computer interaction. */
@@ -101,7 +102,7 @@ public final class SystemRecoveryComputerFactory {
         SystemRecoveryComputerCallbacks.TERMINAL_SEND,
         data -> {
           if (data instanceof DialogResponseMessage.StringValue(String source)) {
-            TerminalInterpreter.instance().interpret(source);
+            SystemRecoveryLevel.interpretTerminalInput(source, targetEntityId);
           }
         });
     ui.registerCallback(
@@ -125,12 +126,14 @@ public final class SystemRecoveryComputerFactory {
               "Der Bubble-Sort-Vergleich wurde auf den Sortierchip geladen.",
               "Sortierchip",
               targetEntityId);
+          SystemRecoveryLevel.announceStoryForPlayer(
+              SystemRecoveryStoryDialogs.BUBBLE_SORT_MACHINE, targetEntityId);
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.TERMINAL_NEXT_STEP,
         data -> {
           if (SystemRecovery.DEBUG_MODE) {
-            TerminalInterpreter.instance().advanceCurrentStateForDebug();
+            SystemRecoveryLevel.advanceTerminalStateForDebug(targetEntityId);
           }
         });
     ui.registerCallback(

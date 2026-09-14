@@ -32,6 +32,21 @@ werden weiterhin unterstützt. Der Archiv-Türverschluss bleibt beim Levelaufbau
 - `modules.computer.content.SortProgramTab`: Lückencode zum Programmieren des Sortierchips.
 - `items.SortProgramStickItem`: Leerer bzw. programmierter Stick, inklusive Netzwerkdaten.
 
+## Story-Dialoge
+
+`story.SystemRecoveryStoryDialogs` enthält die Anweisungen des Remote Users. Die erste
+Nachricht erscheint erst, wenn ein Spieler den beschädigten Energie-Riegel betätigt. Danach
+wird immer nur die nächste konkrete Aktion erklärt: Ein erfolgreicher Terminal-Schritt oder
+eine abgeschlossene Weltsequenz löst den unmittelbar folgenden Dialog aus. Spätere Schritte
+eines Rätsels werden dabei nicht vorweggenommen. Bei gemeinsam gelösten Weltsequenzen erhalten
+alle verbundenen Spieler die Nachricht; bei einer Terminal-Eingabe wird sie an den einreichenden
+Spieler adressiert. Der Level-Editor löst keine Story-Dialoge aus.
+
+`util.SystemRecoveryQuestLogUtil` initialisiert das serverseitige Questlog beim ersten Level-Tick.
+Jeder Story-Dialog legt genau einen Eintrag in seinem eigenen Tab an: von „Rätsel 1:
+Energieversorgung“ bis „Rätsel 10: Rechenzentrum“. Das Questlog wird zusammen mit dem übrigen
+System-Recovery-Zustand an die Clients synchronisiert.
+
 ## Entitäten und Multiplayer
 
 `entities.EntityFactory` baut wiederverwendbare Objekte, besitzt aber keinen
@@ -43,6 +58,21 @@ Der Server entscheidet über Fortschritt, Belohnungen, Türen und zeitgesteuerte
 Metadatenformats; Clients stellen daraus Farben und Markierungen dar.
 Renderingeffekte benötigen weiterhin einen eigenen Client-Pfad, keine Texturladevorgänge
 auf dem Headless-Server.
+
+Türbeschriftungen besitzen eine `DoorLabelComponent`. Ihre Bedingung wird in
+`SystemRecoveryLevel.setupRoomLabel` dem tatsächlich abgeschlossenen Rätsel des
+beschrifteten Raums zugeordnet: Das Schild `Inventarscanner` wird erst nach dem
+vollständigen Scan grün, `Transportlager` erst nach dem Einsammeln aller Pakete und
+`Datenspeicher` erst nach der manuellen Sortierung. Ungelöst ist rot, abgeschlossen
+ist grün. Das ersetzt keine Schlüssel- oder Keypadprüfung.
+Die Metadaten werden sowohl beim Spawn als auch in Snapshots übertragen. Der
+`DisplayTextStatusShader` färbt ausschließlich die grün/türkise Schrift der Textur
+rot; nach Abschluss bleibt sie im originalen Grün. Gehäuse und Hintergrund bleiben
+unverändert. Der Effekt wird ausschließlich auf grafischen Clients angewendet.
+
+Die Bubble-Sort-Maschine fragt vor dem Einsetzen des programmierten USB-Sticks nach.
+Erst nach „Einsetzen“ prüft sie erneut Inventar und Maschinenstatus und verbraucht
+den Stick. „Abbrechen“ verändert weder Inventar noch Rätselzustand.
 
 `SystemRecoveryLevel` behält schlanke statische Weiterleitungen für bestehende
 Interpreter-Callbacks und Snapshot-Abfragen. Diese arbeiten mit den Rätselinstanzen

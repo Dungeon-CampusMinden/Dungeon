@@ -1,7 +1,5 @@
 package rooms.systemRecovery.riddles;
 
-import static rooms.systemRecovery.riddles.RiddleSupport.portraitPathFor;
-
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
@@ -12,11 +10,12 @@ import engine.utils.Vector2;
 import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
-import feature.hud.dialogs.DialogFactory;
 import feature.skills.SkillTools;
 import feature.systems.EventScheduler;
 import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
+import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 
 /**
  * Riddle 4: create conveyor packages and collect them in array order.
@@ -34,6 +33,12 @@ public final class TransportStorageRiddle {
   private boolean transportPackagesSpawned = false;
   private boolean transportRunning = false;
   private boolean transportCompleted = false;
+
+  /** Returns whether every package has been collected. */
+  public boolean completed() {
+    return transportCompleted;
+  }
+
   private static final int SCANNER_TRAVEL_STEPS = 16;
   private static final long SCANNER_TRAVEL_STEP_MS = 180L;
   private static final long SCANNER_COLLECTION_WAIT_MS = 900L;
@@ -142,14 +147,7 @@ public final class TransportStorageRiddle {
     if (transportCompleted) return;
     transportCompleted = true;
     ((DoorTile) Game.tileAt(level.getPoint("door_datenspeicher")).get()).open();
-    Game.player()
-        .ifPresent(
-            player ->
-                DialogFactory.showDialogDialog(
-                    "Alle Pakete sind eingesammelt. Der Zugang zum Datenarchiv ist jetzt geöffnet.",
-                    portraitPathFor(player),
-                    () -> {},
-                    player.id()));
+    SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.MANUAL_SORTING);
   }
 
   /** Returns the conveyor scanner shared with riddle 6. */

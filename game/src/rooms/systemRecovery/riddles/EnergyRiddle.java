@@ -14,6 +14,8 @@ import feature.entities.WorldItemBuilder;
 import feature.utils.ICommand;
 import rooms.systemRecovery.entities.EntityFactory;
 import rooms.systemRecovery.items.BatteryItem;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /**
@@ -27,6 +29,7 @@ public final class EnergyRiddle {
 
   private boolean energyPuzzleSolved = false;
   private boolean batterySpawned = false;
+  private boolean leverExplained = false;
 
   /** Creates the riddle for the owning level. */
   public EnergyRiddle(DungeonLevel level) {
@@ -41,6 +44,11 @@ public final class EnergyRiddle {
             new ICommand() {
               @Override
               public void execute() {
+                if (!leverExplained) {
+                  leverExplained = true;
+                  SystemRecoveryLevel.announceStoryToAllPlayers(
+                      SystemRecoveryStoryDialogs.ENERGY_ARRAY);
+                }
                 if (!energyPuzzleSolved || batterySpawned) {
                   return;
                 }
@@ -68,6 +76,15 @@ public final class EnergyRiddle {
   public void completeEnergyPuzzle() {
     energyPuzzleSolved = true;
     markEnergyCratesCorrect();
+  }
+
+  /**
+   * Returns whether both terminal steps of the energy puzzle were accepted.
+   *
+   * @return {@code true} after the energy values have been initialized and assigned
+   */
+  public boolean completed() {
+    return energyPuzzleSolved;
   }
 
   /** Materializes one empty container per array element after terminal step 1. */

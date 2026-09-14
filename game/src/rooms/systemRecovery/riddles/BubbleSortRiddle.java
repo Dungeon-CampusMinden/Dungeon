@@ -5,15 +5,20 @@ import static rooms.systemRecovery.riddles.RiddleSupport.moveSortEntity;
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import engine.utils.Point;
 import feature.components.InventoryComponent;
 import feature.hud.DialogUtils;
+import feature.hud.dialogs.ChoiceOption;
+import feature.hud.dialogs.DialogFactory;
 import feature.inventory.items.ItemKey;
 import feature.skills.SkillTools;
 import feature.systems.EventScheduler;
 import rooms.systemRecovery.entities.EntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 
 /**
  * Riddle 6: consume a programmed USB stick, sort conveyor packages and award the archive key.
@@ -26,6 +31,13 @@ public final class BubbleSortRiddle {
   private final TransportStorageRiddle transport;
   private static final String SCANNER_SOUND = "retro_beep_01";
   private boolean sortMachineRunning;
+  private boolean completed;
+
+  /** Returns whether the conveyor sort has finished successfully. */
+  public boolean completed() {
+    return completed;
+  }
+
   private final int[] sortBeltValues = {15, 40, 20, 60, 30};
   private final Entity[] sortBeltPackages = new Entity[sortBeltValues.length];
   private Point[] sortBeltPoints;
@@ -73,11 +85,37 @@ public final class BubbleSortRiddle {
           "Fehler: Sortieralgorithmus fehlt.", "Bubble-Sort-Maschine", player.id());
       return;
     }
-    player
-        .fetch(InventoryComponent.class)
-        .ifPresent(inventory -> inventory.remove(programmedStick));
-    sortMachinePlayerId = player.id();
-    startTransportBubbleSort();
+    DialogFactory.showMultipleChoiceDialog(
+        "Möchtest du den programmierten Sortierchip in die Bubble-Sort-Maschine einsetzen und die Sortierung starten?",
+        "Sortierchip einsetzen",
+        ChoiceOption.ofList("Einsetzen", "Abbrechen"),
+        false,
+        payload -> {
+          if (!(payload instanceof DialogResponseMessage.StringValue(String choice))
+              || !"Einsetzen".equals(choice)) return;
+          // Another player may have started the machine while this dialog was open.
+          if (sortMachineRunning) {
+            DialogUtils.showTextPopup(
+                "Die Sortiermaschine arbeitet bereits.", "Bubble-Sort-Maschine", player.id());
+            return;
+          }
+          boolean removed =
+              player
+                  .fetch(InventoryComponent.class)
+                  .flatMap(inventory -> inventory.remove(programmedStick))
+                  .isPresent();
+          if (!removed) {
+            DialogUtils.showTextPopup(
+                "Der Sortierchip befindet sich nicht mehr in deinem Inventar.",
+                "Sortierchip",
+                player.id());
+            return;
+          }
+          sortMachinePlayerId = player.id();
+          startTransportBubbleSort();
+        },
+        () -> {},
+        player.id());
   }
 
   /** Starts the bubble-sort machine on the transport packages, not on the puzzle Cryo-Boxes. */
@@ -110,7 +148,9 @@ public final class BubbleSortRiddle {
     if (!sortMachineRunning) return;
     if (sortBeltOuterIndex >= sortBeltValues.length - 1) {
       sortMachineRunning = false;
+      completed = true;
       awardArchiveKey();
+      SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.ARCHIVE_ARRAYS);
       DialogUtils.showTextPopup(
           "Die Transportpakete wurden aufsteigend sortiert. Der Archivschlüssel liegt jetzt in deinem Inventar.",
           "Bubble-Sort-Maschine",
