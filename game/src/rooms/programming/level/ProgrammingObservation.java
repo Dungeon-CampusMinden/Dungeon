@@ -1,6 +1,5 @@
 package rooms.programming.level;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -20,11 +19,10 @@ import engine.systems.DrawSystem;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
 import feature.components.UIComponent;
-import feature.hud.UIUtils;
-import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.input.configuration.KeyboardConfig;
 import feature.utils.EntityUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -47,17 +45,15 @@ public final class ProgrammingObservation {
 
   static void open(Entity who, ProgrammingGolemRuntime runtime) {
     ProgrammingTerminal.stopWalking(who);
-    var ui =
-        DialogFactory.show(
-            DialogContext.builder()
-                .type(ProgrammingTerminal.Type.OBSERVATION)
-                .put("golem", runtime.terminalState().golemId())
-                .build(),
-            true,
-            true,
-            false,
-            who.id());
-    ui.registerCallback("close", payload -> UIUtils.closeDialog(ui));
+    DialogFactory.show(
+        DialogContext.builder()
+            .type(ProgrammingTerminal.Type.OBSERVATION)
+            .put("golem", runtime.terminalState().golemId())
+            .build(),
+        true,
+        true,
+        false,
+        who.id());
   }
 
   /**
@@ -81,7 +77,6 @@ public final class ProgrammingObservation {
 
   private static final class View extends Group {
     private final int golemId;
-    private final String dialogId;
     private final boolean cinematic;
     private final Map<Entity, CameraComponent> previous = new LinkedHashMap<>();
     private final Map<InputComponent, Boolean> inputs = new LinkedHashMap<>();
@@ -95,13 +90,18 @@ public final class ProgrammingObservation {
 
     View(int golemId, String dialogId, boolean cinematic) {
       this.golemId = golemId;
-      this.dialogId = dialogId;
       this.cinematic = cinematic;
       shaderKey = "programming-observation-" + dialogId;
       setSize(Game.windowWidth(), Game.windowHeight());
       label =
           Scene2dElementFactory.createLabel(
-              cinematic ? "" : "Beobachte: Nox · Keller - ESC zum Verlassen", 22, Color.WHITE);
+              cinematic
+                  ? ""
+                  : "Beobachte: Nox · Keller - "
+                      + Input.Keys.toString(KeyboardConfig.CLOSE_UI.value())
+                      + " zum Verlassen",
+              22,
+              Color.WHITE);
       label.setAlignment(Align.center);
       addActor(label);
     }
@@ -112,21 +112,21 @@ public final class ProgrammingObservation {
       setSize(Game.windowWidth(), Game.windowHeight());
       setPosition(0, 0);
       label.setBounds(0, getHeight() - 55, getWidth(), 40);
-      if (!cinematic && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
-        DialogCallbackResolver.createButtonCallback(dialogId, "close").accept(null);
       if (followed == null && getStage() != null) {
         Game.findEntityById(golemId)
             .ifPresent(
                 golem -> {
-                  ECSManagement.entities()
-                      .forEach(
-                          e ->
-                              e.fetch(InputComponent.class)
-                                  .ifPresent(
-                                      input -> {
-                                        inputs.put(input, input.deactivateControls());
-                                        input.deactivateControls(true);
-                                      }));
+                  if (cinematic) {
+                    ECSManagement.entities()
+                        .forEach(
+                            e ->
+                                e.fetch(InputComponent.class)
+                                    .ifPresent(
+                                        input -> {
+                                          inputs.put(input, input.deactivateControls());
+                                          input.deactivateControls(true);
+                                        }));
+                  }
                   ECSManagement.entities()
                       .filter(e -> e.isPresent(CameraComponent.class))
                       .toList()

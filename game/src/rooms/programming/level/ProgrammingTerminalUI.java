@@ -15,7 +15,6 @@ import feature.canvas.CanvasOptions;
 import feature.canvas.CanvasSnapshot;
 import feature.canvas.CanvasUI;
 import feature.canvas.NodeOrigin;
-import java.util.Comparator;
 import rooms.programming.modules.loops.TerminalState;
 
 /** Keeps live server updates separate from the player's canvas arrangement. */
@@ -83,10 +82,9 @@ final class ProgrammingTerminalUI extends CanvasUI {
         || pointer.x > area().getWidth()
         || pointer.y > area().getHeight()) return;
     Vector2 world = area().areaToWorld(pointer.x, pointer.y);
-    area().nodes().stream()
+    area()
+        .nodeAt(world.x, world.y)
         .filter(CanvasNode::isVisible)
-        .filter(node -> node.bounds().contains(world))
-        .max(Comparator.comparingInt(CanvasNode::z))
         .filter(ProgrammingTerminalNode.class::isInstance)
         .map(ProgrammingTerminalNode.class::cast)
         .flatMap(ProgrammingTerminalNode::hoverCode)

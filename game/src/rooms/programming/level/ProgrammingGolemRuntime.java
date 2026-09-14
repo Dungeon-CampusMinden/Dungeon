@@ -19,6 +19,7 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
+import feature.systems.PositionSync;
 import feature.utils.EntityUtils;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -252,9 +253,7 @@ final class ProgrammingGolemRuntime {
                                 if (at.position().x()
                                     >= level.getPoint("departure-gate-start").x()) {
                                   at.position(new Point(35, 8));
-                                  player
-                                      .fetch(CollideComponent.class)
-                                      .ifPresent(body -> body.collider().position(at.position()));
+                                  PositionSync.syncPosition(player);
                                 }
                               }));
           ProgrammingGates.departure(level, false);
@@ -262,7 +261,7 @@ final class ProgrammingGolemRuntime {
           position.position(
               LoopMaze.world(
                   level.getPoint("maze-origin"), LoopMaze.checkpoints().getFirst().start()));
-          collision.collider().position(position.position());
+          PositionSync.syncPosition(golem);
           mazeReady = true;
           Game.levelEntities()
               .filter(entity -> entity.name().equals("programming-loop-monitor"))
@@ -464,7 +463,7 @@ final class ProgrammingGolemRuntime {
         LoopMaze.world(
             level.getPoint("maze-origin"), LoopMaze.checkpoints().get(checkpoint).start());
     position.position(home);
-    collision.collider().position(home);
+    PositionSync.syncPosition(golem);
     face(LoopMaze.checkpoints().get(checkpoint).facing());
     if (checkpoint <= 2 && !monsterAlive) {
       monsterAlive = true;
@@ -573,10 +572,10 @@ final class ProgrammingGolemRuntime {
         return;
       }
       position.position(airborne);
-      collision.collider().position(airborne);
+      PositionSync.syncPosition(golem);
       if (progress == 1) {
         position.position(target);
-        collision.collider().position(target);
+        PositionSync.syncPosition(golem);
       }
       return;
     }
@@ -630,7 +629,7 @@ final class ProgrammingGolemRuntime {
       if (fits(from, target, breakingGate)
           && !CollisionUtils.isCollidingWithOtherSolids(golem, target)) {
         position.position(target);
-        collision.collider().position(target);
+        PositionSync.syncPosition(golem);
       }
       return;
     }
