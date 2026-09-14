@@ -15,13 +15,17 @@ import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
+import engine.tracking.Tracking;
 import engine.utils.Tuple;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
+import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
 import feature.emote.EmoteSystem;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
+import feature.hints.HintSystem;
+import feature.petrinet.PetriNetSystem;
 import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
@@ -29,7 +33,9 @@ import feature.systems.LevelEditorSystem;
 import feature.systems.LeverSystem;
 import java.util.logging.Level;
 import rooms.systemRecovery.items.BatteryItem;
+import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
+import rooms.systemRecovery.items.SystemCoreAccessChipItem;
 import rooms.systemRecovery.level.SystemRecoveryClientLevel;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
@@ -57,6 +63,7 @@ public final class SystemRecovery {
    *     --leveleditor} starts the room directly in editor mode
    */
   public static void main(String[] args) {
+    Tracking.configureRoom("system-recovery");
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)
         .enableConsole(true)
@@ -104,8 +111,11 @@ public final class SystemRecovery {
   /** Registers shared translations and custom dialog builders. */
   static void registerContent() {
     initLocalization();
+    BlackFadeCutscene.register();
     BatteryItem.ensureRegistration();
+    SearchProgramChipItem.ensureRegistration();
     SortProgramStickItem.ensureRegistration();
+    SystemCoreAccessChipItem.ensureRegistration();
     SystemRecoveryComputerFactory.ensureRegistration();
   }
 
@@ -118,6 +128,8 @@ public final class SystemRecovery {
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
     ECSManagement.add(new LeverSystem());
+    ECSManagement.add(new PetriNetSystem());
+    ECSManagement.add(new HintSystem());
 
     if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());

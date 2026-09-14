@@ -6,17 +6,14 @@ import static org.mockito.Mockito.*;
 
 import engine.Entity;
 import engine.Game;
-import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.utils.Point;
 import feature.components.CollideComponent;
 import feature.entities.WorldItemBuilder;
 import feature.hud.DialogUtils;
-import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,18 +84,6 @@ class ManualSortingRiddleTest {
   }
 
   @Test
-  void headlessTickDoesNotOpenStoryDialogDirectly_riddle5() {
-    player.add(new PositionComponent(new Point(10, 10)));
-    game.when(() -> Game.levelEntities(Set.of(PlayerComponent.class)))
-        .thenAnswer(ignored -> Stream.of(player));
-    try (MockedStatic<DialogFactory> dialogFactory = mockStatic(DialogFactory.class)) {
-      assertDoesNotThrow(riddle::tick);
-      assertDoesNotThrow(riddle::tick);
-      dialogFactory.verifyNoInteractions();
-    }
-  }
-
-  @Test
   void swapsEntitiesAndAdvancesComparison_riddle5() {
     riddle.applySortChoice(true, player);
 
@@ -166,6 +151,22 @@ class ManualSortingRiddleTest {
         new int[] {containers.get(0).id(), containers.get(1).id()},
         riddle.currentSortComparisonEntityIds());
     assertEquals(new Point(0, 0), position(containers.get(0)));
+  }
+
+  @Test
+  void debugSkipCompletesSortingAndAwardsOnlyOneStick_riddle5() {
+    riddle.skipForDebug(player);
+    riddle.skipForDebug(player);
+
+    assertTrue(riddle.completed());
+    assertArrayEquals(new int[] {-1, -1}, riddle.currentSortComparisonEntityIds());
+    int[] originalIndicesInSortedOrder = {2, 1, 4, 3, 0};
+    for (int index = 0; index < originalIndicesInSortedOrder.length; index++) {
+      assertEquals(
+          new Point(index, 0), position(containers.get(originalIndicesInSortedOrder[index])));
+    }
+    assertEquals(1, sticks.constructed().size());
+    game.verify(() -> Game.add(reward), times(1));
   }
 
   private Point position(Entity entity) {

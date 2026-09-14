@@ -15,7 +15,9 @@ import feature.systems.EventScheduler;
 import rooms.systemRecovery.entities.EntityFactory;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
+import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
  * Riddle 4: create conveyor packages and collect them in array order.
@@ -25,6 +27,7 @@ import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
  */
 public final class TransportStorageRiddle {
   private final DungeonLevel level;
+  private final RiddleCallbacks callbacks;
 
   private static final String SCANNER_SOUND = "retro_beep_01";
   private static final Vector2 TRANSPORT_SCANNER_OFFSET = Vector2.of(-1, 1);
@@ -33,6 +36,8 @@ public final class TransportStorageRiddle {
   private boolean transportPackagesSpawned = false;
   private boolean transportRunning = false;
   private boolean transportCompleted = false;
+  private Entity transportDisplay;
+  private String transportDisplayText;
 
   /** Returns whether every package has been collected. */
   public boolean completed() {
@@ -47,7 +52,14 @@ public final class TransportStorageRiddle {
 
   /** Creates the riddle for the owning level. */
   public TransportStorageRiddle(DungeonLevel level) {
+    this(level, RiddleCallbacks.noop());
+  }
+
+  /** Creates the riddle with callbacks for physical success and failure events. */
+  public TransportStorageRiddle(DungeonLevel level, RiddleCallbacks callbacks) {
     this.level = level;
+    this.callbacks = callbacks;
+    this.transportDisplayText = SystemRecoveryText.text("world.transport.display-values");
   }
 
   /** Spawns the shared terminal, collection scanner and tile-based conveyor. */
@@ -57,6 +69,14 @@ public final class TransportStorageRiddle {
     terminal.remove(DecoComponent.class);
     SystemRecoveryComputerFactory.attachComputerDialog(terminal);
     Game.add(terminal);
+
+    transportDisplay =
+        EntityFactory.hintDisplay(
+            level.getPoint("display_storage"),
+            () -> transportDisplayText,
+            SystemRecoveryText.text("world.transport.title"));
+    transportDisplay.name("transport_display");
+    Game.add(transportDisplay);
 
     transportScanner =
         EntityFactory.transportScanner(
@@ -89,12 +109,16 @@ public final class TransportStorageRiddle {
       Game.add(transportPackages[index]);
     }
     transportPackagesSpawned = true;
+    transportDisplayText = SystemRecoveryText.text("world.transport.display-collect");
+    updateTransportDisplay();
   }
 
   /** Starts the authoritative conveyor animation for transport riddle four. */
   public void startTransportSequence() {
     if (!transportPackagesSpawned || transportRunning || transportScanner == null) return;
     transportRunning = true;
+    transportDisplayText = SystemRecoveryText.text("world.transport.display-running");
+    updateTransportDisplay();
     for (int index = 0; index < transportPackages.length; index++) {
       final int packageIndex = index;
       Entity packageEntity = transportPackages[packageIndex];
@@ -146,8 +170,12 @@ public final class TransportStorageRiddle {
   private void completeTransportSequence() {
     if (transportCompleted) return;
     transportCompleted = true;
+    callbacks.success("all-packages-collected", -1);
+    callbacks.solved();
+    transportDisplayText = SystemRecoveryText.text("world.transport.display-complete");
+    updateTransportDisplay();
     ((DoorTile) Game.tileAt(level.getPoint("door_datenspeicher")).get()).open();
-    SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.MANUAL_SORTING);
+    SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.DATA_STORAGE_PROBLEM);
   }
 
   /** Returns the conveyor scanner shared with riddle 6. */
@@ -158,5 +186,11 @@ public final class TransportStorageRiddle {
   /** Replaces the scanner reference when riddle 6 needs a wider scanner. */
   void replaceScanner(Entity scanner) {
     transportScanner = scanner;
+  }
+
+  private void updateTransportDisplay() {
+    if (transportDisplay != null) {
+      EntityFactory.updateDisplayText(transportDisplay, transportDisplayText);
+    }
   }
 }

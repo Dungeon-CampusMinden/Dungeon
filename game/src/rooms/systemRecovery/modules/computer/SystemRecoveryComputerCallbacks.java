@@ -12,8 +12,17 @@ public final class SystemRecoveryComputerCallbacks {
   /** Spawns a programmed sort USB for local puzzle debugging. */
   public static final String DEBUG_SPAWN_SORT_USB = "debugSpawnSortUsb";
 
+  /** Opens the server-authoritative Petri-net token inspection for local debugging. */
+  public static final String DEBUG_PETRI_NET = "debugPetriNet";
+
   /** Stores the edited bubble-sort condition on the inserted sort-program stick. */
   public static final String SORT_PROGRAM_SAVE = "sortProgramSave";
+
+  /** Stores the edited search loop on the inserted locator chip. */
+  public static final String SEARCH_PROGRAM_SAVE = "searchProgramSave";
+
+  /** Executes the access script on the inserted system-core module. */
+  public static final String SYSTEM_CORE_SCRIPT_RUN = "systemCoreScriptRun";
 
   private SystemRecoveryComputerCallbacks() {}
 }

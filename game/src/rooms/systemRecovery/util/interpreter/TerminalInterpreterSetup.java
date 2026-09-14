@@ -1,5 +1,7 @@
 package rooms.systemRecovery.util.interpreter;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 import rooms.systemRecovery.modules.interpreter.CodeLine;
 import rooms.systemRecovery.modules.interpreter.TerminalCodeRequirement;
@@ -14,23 +16,59 @@ public final class TerminalInterpreterSetup {
   private static final String MODULE_ARRAY = "moduleArray";
   private static final String STORAGE_ARRAY = "storageArray";
 
+  /** Riddle 1, step 1: create {@code int[] energie} with five slots. */
   private static final int RIDDLE_ONE_STEP_ONE = 0;
+
+  /** Riddle 1, step 2: assign the five required energy values to {@code energie}. */
   private static final int RIDDLE_ONE_STEP_TWO = 1;
+
+  /** Riddle 2, step 1: create a five-slot {@code String[]} named {@code module}. */
   private static final int RIDDLE_TWO_STEP_ONE = 2;
+
+  /** Riddle 2, step 2: assign CPU, RAM, GPU, SSD and NETWORK to the module slots. */
   private static final int RIDDLE_TWO_STEP_TWO = 3;
+
+  /** Riddle 2, step 3: remove the defective GPU by assigning {@code null} to slot 2. */
   private static final int RIDDLE_TWO_STEP_THREE = 4;
+
+  /** Riddle 2, step 4: read {@code module.length} to reveal the array size. */
   private static final int RIDDLE_TWO_STEP_FOUR = 5;
+
+  /** Riddle 3, step 1: count all non-null module entries with an enhanced {@code for} loop. */
   private static final int RIDDLE_THREE_STEP_ONE = 6;
+
+  /** Riddle 4, step 1: create {@code int[] pakete} with the five package weights. */
   private static final int RIDDLE_FOUR_STEP_ONE = 7;
+
+  /** Riddle 4, step 2: iterate over {@code pakete} and call {@code roboter.collect(...)} once per package. */
   private static final int RIDDLE_FOUR_STEP_TWO = 8;
+
+  /** Riddle 7, step 1: create the three arrays described in the data archive. */
   private static final int RIDDLE_SEVEN_STEP_ONE = 9;
+
+  /** Riddle 8, step 1: create the three-by-four two-dimensional array {@code lager}. */
   private static final int RIDDLE_EIGHT_STEP_ONE = 10;
+
+  /** Riddle 8, step 2: assign the three required values to the specified {@code lager} cells. */
   private static final int RIDDLE_EIGHT_STEP_TWO = 11;
-  private static final int RIDDLE_EIGHT_STEP_THREE = 12;
-  private static final int RIDDLE_NINE_STEP_ONE = 13;
-  private static final int RIDDLE_TEN_STEP_ONE = 14;
-  private static final int RIDDLE_TEN_STEP_TWO = 15;
-  private static final int RIDDLE_TEN_STEP_THREE = 16;
+
+  /**
+   * Riddle 9, step 1: replace the prepared {@code int j = 0} line with a nested loop that scans
+   * every cell of {@code map} and calls {@code roboter.collect()} for every 1.
+   */
+  public static final int SEARCH_ROBOT_PROGRAM_STATE = 12;
+
+  /** Riddle 10, step 1: implement the Bubble Sort loop and swap adjacent values when the left value is greater. */
+  public static final int CENTRAL_SORT_STATE = 13;
+
+  /** Alias for the first terminal step of riddle 10. */
+  private static final int RIDDLE_TEN_STEP_ONE = CENTRAL_SORT_STATE;
+
+  /** Riddle 10, step 2: count all non-null entries in {@code modules}. */
+  private static final int RIDDLE_TEN_STEP_TWO = 14;
+
+  /** Riddle 10, step 3: scan the two-dimensional {@code map} and collect every battery marker. */
+  private static final int RIDDLE_TEN_STEP_THREE = 15;
   public static final String ENERGIE_VALUE_0 = "40";
   public static final String ENERGIE_VALUE_1 = "10";
   public static final String ENERGIE_VALUE_2 = "80";
@@ -198,9 +236,9 @@ public final class TerminalInterpreterSetup {
             successOrPreview(
                 onSuccess, InterpretationCallbacks::onRiddleSevenStepOneDataArchiveLoaded),
             onFailure,
-            intArrayLiteral("energie", "20", "50", "80"),
-            stringArrayLiteral("module", "CPU", "GPU", "RAM"),
-            booleanArrayLiteral("aktiv", "true", "false", "true")));
+            unorderedArrayLiteral("int", "energie", "20", "50", "80"),
+            unorderedArrayLiteral("String", "module", "\"CPU\"", "\"GPU\"", "\"RAM\""),
+            unorderedArrayLiteral("boolean", "aktiv", "true", "false", "true")));
   }
 
   private static void setupRiddleEightTwoDimensionalStorage(
@@ -210,9 +248,6 @@ public final class TerminalInterpreterSetup {
         onFailure);
     setupRiddleEightStepTwoFillStorage(
         successOrPreview(onSuccess, InterpretationCallbacks::onRiddleEightStepTwoStorageFilled),
-        onFailure);
-    setupRiddleEightStepThreeReadStorage(
-        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleEightStepThreeStorageRead),
         onFailure);
   }
 
@@ -234,15 +269,9 @@ public final class TerminalInterpreterSetup {
             capturedTwoDimensionalAssignment(STORAGE_ARRAY, 2, 1, "3")));
   }
 
-  private static void setupRiddleEightStepThreeReadStorage(Runnable onSuccess, Runnable onFailure) {
-    register(
-        RIDDLE_EIGHT_STEP_THREE,
-        unordered(onSuccess, onFailure, capturedTwoDimensionalAccess(STORAGE_ARRAY, 1, 3)));
-  }
-
   private static void setupRiddleNineSearchRobot(Runnable onSuccess, Runnable onFailure) {
     register(
-        RIDDLE_NINE_STEP_ONE,
+        SEARCH_ROBOT_PROGRAM_STATE,
         ordered(
             successOrPreview(
                 onSuccess, InterpretationCallbacks::onRiddleNineStepOneSearchRobotCompleted),
@@ -251,6 +280,17 @@ public final class TerminalInterpreterSetup {
             innerTwoDimensionalLoop("map", "riddleNineMapRow", "riddleNineMapColumn"),
             twoDimensionalEqualsCondition("map", "riddleNineMapRow", "riddleNineMapColumn", "1"),
             methodCall("roboter", "collect")));
+  }
+
+  /**
+   * Validates the source stored on the search chip against the registered search requirement.
+   *
+   * @param source source code from the chip editor
+   * @return whether the source contains the completed nested row/column traversal and
+   *     {@code collect()}
+   */
+  public static boolean matchesSearchRobotProgram(String source) {
+    return TerminalInterpreter.instance().analyzeState(SEARCH_ROBOT_PROGRAM_STATE, source);
   }
 
   private static void setupRiddleTenCentralDataCenter(Runnable onSuccess, Runnable onFailure) {
@@ -391,18 +431,6 @@ public final class TerminalInterpreterSetup {
     return arrayLiteral("int", variable, values);
   }
 
-  private static CodeLine stringArrayLiteral(String variable, String... values) {
-    String[] quotedValues = new String[values.length];
-    for (int index = 0; index < values.length; index++) {
-      quotedValues[index] = "\"" + values[index] + "\"";
-    }
-    return arrayLiteral("String", variable, quotedValues);
-  }
-
-  private static CodeLine booleanArrayLiteral(String variable, String... values) {
-    return arrayLiteral("boolean", variable, values);
-  }
-
   private static CodeLine arrayLiteral(String type, String variable, String... values) {
     return new CodeLine(
         Pattern.compile(
@@ -419,6 +447,48 @@ public final class TerminalInterpreterSetup {
                 + "\\s*\\[\\s*]\\s*=\\s*\\{\\s*"
                 + String.join("\\s*,\\s*", values)
                 + "\\s*}"));
+  }
+
+  /** Creates an array-literal line whose values may appear in any order. */
+  private static CodeLine unorderedArrayLiteral(String type, String variable, String... values) {
+    Set<String> permutations = new LinkedHashSet<>();
+    addPermutations(values.clone(), 0, permutations);
+
+    return new CodeLine(
+        permutations.stream()
+            .flatMap(
+                permutation ->
+                    java.util.stream.Stream.of(
+                        Pattern.compile(
+                            type
+                                + "\\s*\\[\\s*]\\s*"
+                                + variable
+                                + "\\s*=\\s*\\{\\s*"
+                                + permutation
+                                + "\\s*}"),
+                        Pattern.compile(
+                            type
+                                + "\\s+"
+                                + variable
+                                + "\\s*\\[\\s*]\\s*=\\s*\\{\\s*"
+                                + permutation
+                                + "\\s*}")))
+            .toArray(Pattern[]::new));
+  }
+
+  private static void addPermutations(String[] values, int start, Set<String> permutations) {
+    if (start == values.length) {
+      permutations.add(String.join("\\s*,\\s*", values));
+      return;
+    }
+    for (int index = start; index < values.length; index++) {
+      String value = values[start];
+      values[start] = values[index];
+      values[index] = value;
+      addPermutations(values, start + 1, permutations);
+      values[index] = values[start];
+      values[start] = value;
+    }
   }
 
   private static CodeLine assignment(String variable, int index, String value) {

@@ -3,8 +3,11 @@ package feature.hints;
 import engine.Entity;
 import engine.System;
 import feature.petrinet.PlaceComponent;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,6 +52,9 @@ import java.util.Set;
 public class HintSystem extends System {
 
   private final Set<Entity> hintQueue = new LinkedHashSet<>();
+
+  /** Shared hint progress used by the server-authoritative telephone. */
+  private final Map<Integer, Integer> sharedHintIndices = new HashMap<>();
 
   private HintComponent currentHint = null;
 
@@ -117,6 +123,63 @@ public class HintSystem extends System {
       currentHint = fetchNextEntityHint();
     }
     return hint;
+  }
+
+  /**
+   * Peeks at the next shared hint without consuming it.
+   *
+   * <p>The active Petri-net place is selected from entities that currently carry a token. All
+   * players see and advance the same hint sequence for that place.
+   *
+   * @return the next hint for the active state, if available
+   */
+  public Optional<Hint> peekSharedHint() {
+    return activeHintEntity().flatMap(entity -> hintAt(entity, sharedHintIndex(entity.id())));
+  }
+
+  /**
+   * Confirms the currently offered shared hint.
+   *
+   * <p>The index advances only after the player accepts the confirmation dialog. Declining a hint
+   * leaves it available for the next phone request.
+   *
+   * @return the accepted hint, or empty if the state changed before confirmation
+   */
+  public Optional<Hint> acceptSharedHint() {
+    Optional<Entity> activeEntity = activeHintEntity();
+    if (activeEntity.isEmpty()) return Optional.empty();
+
+    Entity entity = activeEntity.orElseThrow();
+    int index = sharedHintIndex(entity.id());
+    Optional<Hint> hint = hintAt(entity, index);
+    if (hint.isEmpty()) return Optional.empty();
+
+    sharedHintIndices.put(entity.id(), index + 1);
+    return hint;
+  }
+
+  /** Resets the shared phone hint progress for the room. */
+  public void resetHintProgress() {
+    sharedHintIndices.clear();
+  }
+
+  private int sharedHintIndex(int entityId) {
+    return sharedHintIndices.getOrDefault(entityId, 0);
+  }
+
+  private Optional<Entity> activeHintEntity() {
+    return filteredEntityStream()
+        .filter(
+            entity ->
+                entity.fetch(PlaceComponent.class).map(place -> place.tokenCount() > 0).orElse(false))
+        .min(Comparator.comparingInt(Entity::id));
+  }
+
+  private Optional<Hint> hintAt(Entity entity, int index) {
+    return entity
+        .fetch(HintComponent.class)
+        .filter(component -> index < component.size())
+        .map(component -> component.hint(index));
   }
 
   /**

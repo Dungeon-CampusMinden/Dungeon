@@ -11,15 +11,27 @@ statischen, über mehrere Levelstarts hinweg geteilten Sitzung.
 
 | Raum | Klasse | Aufgaben | Wichtige Custom Points |
 | --- | --- | --- | --- |
-| 1 – Materialisierungskammer | `EnergyRiddle` | Energiecontainer erzeugen, Füllstände setzen, Batterie einmalig freigeben, Batteriebox | `a0`–`a4`, `array_lever`, `array_item_spawn`, `batteriebox_modul` |
+| 1 – Materialisierungskammer | `EnergyRiddle` | Energiecontainer erzeugen, Füllstände setzen, Batterie einmalig freigeben, Batteriebox | `a0`–`a4`, `array_lever`, `array_item_spawn`, `batteriebox_modul`, `display_energie` |
 | 2 – Modulspeicher | `ModuleStorageRiddle` | Sockel aktivieren und belegen, GPU entfernen, Länge anzeigen, Chips zum Scanner bewegen | `s0`–`s4`, `display_room2`, `room3_keypad` |
 | 3 – Inventarscanner | `InventoryScannerRiddle` | Hebel nach Terminaleingabe freigeben, Scan durchführen, Ergebnis anzeigen | `scanner0`–`scanner4`, `scanner_display`, `scanner_lever`, `scanner_terminal`, `keypad_transportlager` |
-| 4 – Transportlager | `TransportStorageRiddle` | Förderband und Pakete, sequenzielles Einsammeln, Tür zum Datenspeicher | `band_start`, `band_ende`, `band0`–`band4`, `lager_terminal`, `door_datenspeicher` |
+| 4 – Transportlager | `TransportStorageRiddle` | Förderband und Pakete, sequenzielles Einsammeln, Tür zum Datenspeicher | `band_start`, `band_ende`, `band0`–`band4`, `lager_terminal`, `display_storage`, `door_datenspeicher` |
 | 5 – Datenspeicher | `ManualSortingRiddle` | Benachbarte Werte vergleichen, bei Fehler zurücksetzen, leeren USB-Stick vergeben | `sort_data_0`, `sort_data1`–`sort_data4`, `sort_compare_display`, `sort_trigger`, `chip_spawn` |
 | 6 – Bubble-Sort-Maschine | `BubbleSortRiddle` | Programmierten Stick annehmen, Pakete auf dem Lagerband sortieren, Archivschlüssel vergeben | `sort_machine`, gemeinsam genutzte `band0`–`band4` |
+| 7 – Datenarchiv | `DataArchiveRiddle` | Array-Hinweise aus Regalen lesen, Datenknoten untersuchen, Archivzugang öffnen | `archive_shelf_energie`, `archive_shelf_module`, `archive_shelf_aktiv`, `archive_node0`–`archive_node2`, `door_speicher` |
+| 8 – Zweidimensionaler Speicher | `TwoDimensionalStorageRiddle` | Eine 3×4-Matrix anlegen, drei Koordinaten befüllen, Datenobjekte materialisieren, Ortungschip freigeben | `storage_cell_0_0`–`storage_cell_2_3`, `display_2d`, `chip` |
+| 9 – Suchroboter | `SearchRobotRiddle` | Ortungschip programmieren, Matrix-Endpunkt mit dem Roboter erreichen, Zugriffsmodul erhalten | `suchroboter`, `suchroboter_controller` bzw. `suchroboter_controlls`, `roboter_start`, `roboter_end`, `roboter_item_destination` bzw. `roboter_item_destionation` |
+| 10 – Rechenzentrum | `TerminalInterpreterSetup` | Bubble-Sort-, Zähl- und Matrix-Suchcode im zentralen Terminal prüfen | `door_systemcore`, `label_systemcore` |
 
-Die abweichenden Schreibweisen `sort_data_0` und der alte Förderband-Endpunkt `baned_end`
-werden weiterhin unterstützt. Der Archiv-Türverschluss bleibt beim Levelaufbau
+Die frei positionierbaren Story-Trigger heißen `dialog_trigger_*` und liegen aktuell an den
+jeweiligen Türen. Ihre Zuordnung zu den Dialogschritten ist in
+`story.SystemRecoveryDialogTriggers` gebündelt. Die Punkte können im Level Editor unabhängig
+von den Türen verschoben werden. Jeder Trigger wird pro Spieler nur einmal ausgelöst.
+
+Die abweichenden Schreibweisen `sort_data_0`, `baned_end`, `storage_2_2`,
+`suchroboter_controlls` und `roboter_item_destionation` werden weiterhin unterstützt. Rätsel 8 und Rätsel 9 verwenden
+bewusst getrennte Matrizen: Die Speicherzellen von Rätsel 8 bilden ein 3x4-Raster. Die Matrix
+von Rätsel 9 wird zur Laufzeit aus `roboter_start` und `roboter_end` als inklusiver Laufweg erzeugt.
+Der Archiv-Türverschluss bleibt beim Levelaufbau
 (`door_datenarchiv`), die Schlüsselbelohnung beim Bubble-Sort-Rätsel.
 
 ## Terminal und USB-Stick
@@ -78,6 +90,22 @@ den Stick. „Abbrechen“ verändert weder Inventar noch Rätselzustand.
 Interpreter-Callbacks und Snapshot-Abfragen. Diese arbeiten mit den Rätselinstanzen
 des aktuell aktiven Levels. Neue Spiellogik gehört in die betreffende Rätselklasse,
 nicht in diese Weiterleitungen.
+
+## Fortschritt, Tracking und Petri-Netz
+
+Rätsel-Controller melden ausschließlich semantische Ereignisse über
+`riddles.support.RiddleCallbacks`: `success`, `failure` und `solved`. Die Zuordnung zu stabilen
+Rätsel-IDs und die Weiterleitung an das serverseitige Tracking liegen zentral in
+`util.tracking.SystemRecoveryPuzzleEvents`. Auch Terminal-Eingaben und Computer-Programme
+verwenden diesen Einstiegspunkt. Dadurch muss eine neue Tracking- oder Analyse-Integration
+nicht in jedem Rätsel angepasst werden.
+
+Das Petri-Netz ist aktuell noch nicht als System-Recovery-Hint-Netz aktiviert. Der spätere
+Anschluss gehört ebenfalls in `util.tracking.SystemRecoveryPuzzleEvents`, an den markierten
+`started`-/`attempt`-/`solved`-Ereignisgrenzen. Die Rätsel selbst bleiben die einzige Quelle
+für fachliche Lösungen, Items, Türen und Animationen; das Petri-Netz soll später nur
+Hinweisverfügbarkeit und alternative Lernpfade steuern. So entstehen keine parallelen
+Zustände für ein Rätsel.
 
 ## Tests
 
