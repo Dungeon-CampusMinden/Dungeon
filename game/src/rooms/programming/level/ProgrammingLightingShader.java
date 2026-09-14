@@ -12,6 +12,7 @@ import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /** Local light follows the same visible objects and torch states on every client. */
 final class ProgrammingLightingShader extends AbstractShader {
@@ -22,6 +23,16 @@ final class ProgrammingLightingShader extends AbstractShader {
 
   ProgrammingLightingShader() {
     super("shaders/passthrough.vert", "shaders/programming-lighting.frag");
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    // All lighting inputs are constants or derived from the synchronized world state.
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    // This local shader has no stored properties to restore.
   }
 
   @Override
