@@ -6,9 +6,7 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
-import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.shader.EnergyFillShader;
-import engine.utils.components.path.SimpleIPath;
 import feature.entities.LeverFactory;
 import feature.entities.WorldItemBuilder;
 import feature.utils.ICommand;
@@ -154,8 +152,7 @@ public final class EnergyRiddle {
                           new EnergyFillShader(
                                   fill,
                                   Color.BLUE,
-                                  TextureMap.instance()
-                                      .textureAt(new SimpleIPath("objects/tech/CryoBox.png")))
+                                  "objects/tech/CryoBox.png")
                               .animMagnitude(0)));
     }
   }
