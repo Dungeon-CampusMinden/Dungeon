@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import engine.Entity;
@@ -15,6 +16,7 @@ import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.game.ECSManagement;
 import engine.systems.CameraSystem;
+import engine.systems.DrawSystem;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
 import feature.components.UIComponent;
@@ -87,11 +89,15 @@ public final class ProgrammingObservation {
     private float previousZoom;
     private final Label label;
     private float curtain = 1;
+    private final ProgrammingObservationShader shader = new ProgrammingObservationShader();
+    private final String shaderKey;
+    private DrawSystem drawSystem;
 
     View(int golemId, String dialogId, boolean cinematic) {
       this.golemId = golemId;
       this.dialogId = dialogId;
       this.cinematic = cinematic;
+      shaderKey = "programming-observation-" + dialogId;
       setSize(Game.windowWidth(), Game.windowHeight());
       label =
           Scene2dElementFactory.createLabel(
@@ -130,6 +136,11 @@ public final class ProgrammingObservation {
                             e.remove(CameraComponent.class);
                           });
                   followed = golem;
+                  if (!cinematic
+                      && Game.systems().get(DrawSystem.class) instanceof DrawSystem draw) {
+                    drawSystem = draw;
+                    draw.sceneShaders().add(shaderKey, shader, 100);
+                  }
                   previousZoom = CameraSystem.camera().zoom;
                   CameraSystem.camera().zoom = previousZoom * 1.2f;
                   golem.add(new CameraComponent());
@@ -153,6 +164,7 @@ public final class ProgrammingObservation {
                       && Math.abs(camera.position.y - focus.y()) < 1)
                     curtain = Math.max(0, curtain - delta * 4);
                 });
+      if (!cinematic && followed != null && curtain < 1) shader.advance(delta, 1 - curtain);
     }
 
     @Override
@@ -166,6 +178,28 @@ public final class ProgrammingObservation {
     @Override
     protected void setStage(Stage stage) {
       if (stage == null) {
+        if (drawSystem != null) {
+          var shaders = drawSystem.sceneShaders();
+          float strength = shader.strength();
+          Stage previousStage = getStage();
+          if (previousStage != null) {
+            previousStage.addAction(
+                new TemporalAction(0.3f) {
+                  @Override
+                  protected void update(float percent) {
+                    shader.strength(strength * (1 - percent * percent * (3 - 2 * percent)));
+                  }
+
+                  @Override
+                  protected void end() {
+                    shaders.remove(shaderKey);
+                  }
+                });
+          } else {
+            shaders.remove(shaderKey);
+          }
+          drawSystem = null;
+        }
         if (followed != null) {
           followed.remove(CameraComponent.class);
           CameraSystem.camera().zoom = previousZoom;
