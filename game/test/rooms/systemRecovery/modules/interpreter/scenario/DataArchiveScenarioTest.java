@@ -1,31 +1,52 @@
 package rooms.systemRecovery.modules.interpreter.scenario;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /** Tests the terminal scenario for the data archive. */
 public class DataArchiveScenarioTest extends TerminalScenarioTestSupport {
 
-  /** The data archive accepts the three differently typed array declarations. */
+  /** The real archive setup accepts arbitrary line and value order. */
   @Test
-  public void dataArchiveScenarioIsSupported_riddle7() {
-    interpreter.register(
-        0,
-        requirement(
-            "int\\s*\\[\\s*]\\s*energie\\s*=\\s*\\{\\s*20\\s*,\\s*50\\s*,\\s*80\\s*}",
-            "String\\s*\\[\\s*]\\s*module\\s*=\\s*\\{\\s*\"CPU\"\\s*,\\s*"
-                + "\"GPU\"\\s*,\\s*\"RAM\"\\s*}",
-            "boolean\\s*\\[\\s*]\\s*aktiv\\s*=\\s*\\{\\s*true\\s*,\\s*false\\s*,"
-                + "\\s*true\\s*}"));
+  public void dataArchiveAcceptsUnorderedArrayLiterals_riddle7() {
+    TerminalInterpreterSetup.setupPreviewStates();
+    advanceToDataArchive();
 
     String source =
         """
-        int[] energie = {20, 50, 80};
+        boolean aktiv[] = {false, true, true};
+        String module[] = {"RAM", "CPU", "GPU"};
+        int energie[] = {80, 20, 50};
+        """;
+
+    assertTrue(interpreter.interpret(source));
+    assertEquals(10, interpreter.currentState());
+  }
+
+  /** The archive rejects a literal with missing or duplicated values. */
+  @Test
+  public void dataArchiveRejectsIncompleteArrayContents_riddle7() {
+    TerminalInterpreterSetup.setupPreviewStates();
+    advanceToDataArchive();
+
+    String source =
+        """
+        int[] energie = {20, 20, 80};
         String[] module = {"CPU", "GPU", "RAM"};
         boolean[] aktiv = {true, false, true};
         """;
 
-    assertTrue(interpreter.interpret(source));
+    assertFalse(interpreter.interpret(source));
+    assertEquals(9, interpreter.currentState());
+  }
+
+  private void advanceToDataArchive() {
+    for (int state = 0; state < 9; state++) {
+      assertTrue(interpreter.advanceCurrentStateForDebug());
+    }
   }
 }

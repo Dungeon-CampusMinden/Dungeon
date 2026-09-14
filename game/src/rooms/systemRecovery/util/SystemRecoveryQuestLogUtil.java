@@ -2,6 +2,7 @@ package rooms.systemRecovery.util;
 
 import engine.Game;
 import engine.language.Translation;
+import feature.hints.Hint;
 import feature.questlog.QuestLogUtil;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,5 +37,19 @@ public final class SystemRecoveryQuestLogUtil {
     if (!added) {
       ADDED_ENTRIES.remove(uniqueKey);
     }
+  }
+
+  /** Adds one accepted telephone hint to the shared tab for its current riddle. */
+  public static void addHintEntry(String riddleKey, Hint hint) {
+    if (riddleKey == null || hint == null) return;
+
+    String uniqueKey = riddleKey + ".hint." + hint.title() + "." + hint.text();
+    if (!ADDED_ENTRIES.add(uniqueKey)) return;
+
+    boolean added =
+        QuestLogUtil.add(
+            QUESTLOG_ENTRIES.text(riddleKey + ".tab"),
+            QUESTLOG_ENTRIES.text("hint-prefix") + "\n" + hint.title() + "\n" + hint.text());
+    if (!added) ADDED_ENTRIES.remove(uniqueKey);
   }
 }

@@ -46,6 +46,15 @@ public class HintComponent implements Component {
   }
 
   /**
+   * Returns the number of authored hints.
+   *
+   * @return the number of hints in this component
+   */
+  public int size() {
+    return hints.length;
+  }
+
+  /**
    * Returns the next {@link Hint} based on the current internal index. The internal index is <b>not
    * automatically incremented</b>; call {@link #increaseIndex()} to advance to the next hint.
    *

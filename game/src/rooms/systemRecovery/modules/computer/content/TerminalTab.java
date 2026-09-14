@@ -14,6 +14,7 @@ import feature.hud.dialogs.DialogCallbackResolver;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerCallbacks;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerTab;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Terminal/editor tab for recovery code input. */
 public class TerminalTab extends SystemRecoveryComputerTab {
@@ -31,7 +32,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
   /** Creates the terminal tab. */
   public TerminalTab() {
-    super(KEY, "Terminal");
+    super(KEY, SystemRecoveryText.text("computer.terminal"));
     createActors();
   }
 
@@ -72,10 +73,15 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
     Table buttons = new Table(skin);
     buttons.right();
-    TextButton sendButton = createButton("Send", "green", 24);
-    TextButton deleteButton = createButton("Delete", "red-outline", 24);
-    TextButton nextStepButton = createButton("Next Step", "blue-outline", 24);
-    TextButton spawnUsbButton = createButton("Spawn USB", "blue-outline", 24);
+    TextButton sendButton = createButton(SystemRecoveryText.text("computer.send"), "green", 24);
+    TextButton deleteButton =
+        createButton(SystemRecoveryText.text("computer.delete"), "red-outline", 24);
+    TextButton nextStepButton =
+        createButton(SystemRecoveryText.text("computer.next-step"), "blue-outline", 24);
+    TextButton spawnUsbButton =
+        createButton(SystemRecoveryText.text("computer.spawn-usb"), "blue-outline", 24);
+    TextButton petriNetButton =
+        createButton(SystemRecoveryText.text("computer.petri-net"), "blue-outline", 24);
     sendButton.addListener(
         new ChangeListener() {
           @Override
@@ -108,11 +114,21 @@ public class TerminalTab extends SystemRecoveryComputerTab {
                 .accept(new DialogResponseMessage.StringValue(""));
           }
         });
+    petriNetButton.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            DialogCallbackResolver.createButtonCallback(
+                    context().dialogId(), SystemRecoveryComputerCallbacks.DEBUG_PETRI_NET)
+                .accept(new DialogResponseMessage.StringValue(""));
+          }
+        });
     buttons.add(sendButton).width(150).height(52).padRight(12);
     buttons.add(deleteButton).width(150).height(52);
     if (SystemRecovery.DEBUG_MODE) {
       buttons.add(nextStepButton).width(180).height(52).padLeft(12);
       buttons.add(spawnUsbButton).width(180).height(52).padLeft(12);
+      buttons.add(petriNetButton).width(180).height(52).padLeft(12);
     }
     footer.add(buttons).right();
     layout.add(footer).growX().height(68).padTop(12);

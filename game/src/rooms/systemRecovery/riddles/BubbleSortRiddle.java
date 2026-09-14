@@ -15,10 +15,13 @@ import feature.hud.dialogs.DialogFactory;
 import feature.inventory.items.ItemKey;
 import feature.skills.SkillTools;
 import feature.systems.EventScheduler;
+import java.util.List;
 import rooms.systemRecovery.entities.EntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
  * Riddle 6: consume a programmed USB stick, sort conveyor packages and award the archive key.
@@ -29,6 +32,7 @@ import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 public final class BubbleSortRiddle {
   private final DungeonLevel level;
   private final TransportStorageRiddle transport;
+  private final RiddleCallbacks callbacks;
   private static final String SCANNER_SOUND = "retro_beep_01";
   private boolean sortMachineRunning;
   private boolean completed;
@@ -47,8 +51,15 @@ public final class BubbleSortRiddle {
 
   /** Creates the riddle for the owning level and its shared conveyor dependency. */
   public BubbleSortRiddle(DungeonLevel level, TransportStorageRiddle transport) {
+    this(level, transport, RiddleCallbacks.noop());
+  }
+
+  /** Creates the machine with callbacks for insertion success and failure. */
+  public BubbleSortRiddle(
+      DungeonLevel level, TransportStorageRiddle transport, RiddleCallbacks callbacks) {
     this.level = level;
     this.transport = transport;
+    this.callbacks = callbacks;
   }
 
   /** Spawns the machine that accepts a programmed sort chip. */
@@ -65,8 +76,11 @@ public final class BubbleSortRiddle {
 
   private void onBubbleSortMachineInteract(Entity machine, Entity player) {
     if (sortMachineRunning) {
+      callbacks.failure("insert", player.id());
       DialogUtils.showTextPopup(
-          "Die Sortiermaschine arbeitet bereits.", "Bubble-Sort-Maschine", player.id());
+          SystemRecoveryText.text("world.sort.machine-running"),
+          SystemRecoveryText.text("world.sort.machine-title"),
+          player.id());
       return;
     }
     SortProgramStickItem programmedStick =
@@ -81,22 +95,33 @@ public final class BubbleSortRiddle {
                         .findFirst())
             .orElse(null);
     if (programmedStick == null) {
+      callbacks.failure("missing-program", player.id());
       DialogUtils.showTextPopup(
-          "Fehler: Sortieralgorithmus fehlt.", "Bubble-Sort-Maschine", player.id());
+          SystemRecoveryText.text("world.sort.missing-program"),
+          SystemRecoveryText.text("world.sort.machine-title"),
+          player.id());
       return;
     }
     DialogFactory.showMultipleChoiceDialog(
-        "Möchtest du den programmierten Sortierchip in die Bubble-Sort-Maschine einsetzen und die Sortierung starten?",
-        "Sortierchip einsetzen",
-        ChoiceOption.ofList("Einsetzen", "Abbrechen"),
+        SystemRecoveryText.text("world.sort.insert-prompt"),
+        SystemRecoveryText.text("world.sort.insert-title"),
+        List.of(
+            ChoiceOption.of(SystemRecoveryText.text("world.sort.insert"), "insert"),
+            ChoiceOption.of(SystemRecoveryText.text("world.sort.cancel"), "cancel")),
         false,
         payload -> {
           if (!(payload instanceof DialogResponseMessage.StringValue(String choice))
-              || !"Einsetzen".equals(choice)) return;
+              || !"insert".equals(choice)) {
+            callbacks.failure("cancel", player.id());
+            return;
+          }
           // Another player may have started the machine while this dialog was open.
           if (sortMachineRunning) {
+            callbacks.failure("insert", player.id());
             DialogUtils.showTextPopup(
-                "Die Sortiermaschine arbeitet bereits.", "Bubble-Sort-Maschine", player.id());
+                SystemRecoveryText.text("world.sort.machine-running"),
+                SystemRecoveryText.text("world.sort.machine-title"),
+                player.id());
             return;
           }
           boolean removed =
@@ -105,13 +130,15 @@ public final class BubbleSortRiddle {
                   .flatMap(inventory -> inventory.remove(programmedStick))
                   .isPresent();
           if (!removed) {
+            callbacks.failure("insert", player.id());
             DialogUtils.showTextPopup(
-                "Der Sortierchip befindet sich nicht mehr in deinem Inventar.",
-                "Sortierchip",
+                SystemRecoveryText.text("world.sort.program-not-in-inventory"),
+                SystemRecoveryText.text("world.sort.insert-title"),
                 player.id());
             return;
           }
           sortMachinePlayerId = player.id();
+          callbacks.success("insert", player.id());
           startTransportBubbleSort();
         },
         () -> {},
@@ -149,11 +176,12 @@ public final class BubbleSortRiddle {
     if (sortBeltOuterIndex >= sortBeltValues.length - 1) {
       sortMachineRunning = false;
       completed = true;
+      callbacks.solved();
       awardArchiveKey();
-      SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.ARCHIVE_ARRAYS);
+      SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.ARCHIVE_INTRO);
       DialogUtils.showTextPopup(
-          "Die Transportpakete wurden aufsteigend sortiert. Der Archivschlüssel liegt jetzt in deinem Inventar.",
-          "Bubble-Sort-Maschine",
+          SystemRecoveryText.text("world.sort.complete"),
+          SystemRecoveryText.text("world.sort.machine-title"),
           sortMachinePlayerId);
       return;
     }
