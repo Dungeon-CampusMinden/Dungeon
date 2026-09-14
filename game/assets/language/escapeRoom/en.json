@@ -1,4 +1,78 @@
 {
+    "questlog": {
+        "riddle1": {
+            "tab": "Riddle 1: Energy Supply",
+            "entries": {
+                "array": "Create an integer array named energie with five slots.",
+                "values": "Set energie to the required values: 40, 10, 80, 30 and 60."
+            }
+        },
+        "riddle2": {
+            "tab": "Riddle 2: Module Storage",
+            "entries": {
+                "array": "Create a string array named module with five slots.",
+                "values": "Assign CPU, RAM, GPU, SSD and NETWORK to the five slots.",
+                "remove_gpu": "Remove the defective GPU entry from the array.",
+                "length": "Read the length of the module array."
+            }
+        },
+        "riddle3": {
+            "tab": "Riddle 3: Inventory Scanner",
+            "entries": {
+                "loop": "Use a loop to count only the occupied module entries.",
+                "scan": "After the code is accepted, pull the scanner lever."
+            }
+        },
+        "riddle4": {
+            "tab": "Riddle 4: Transport Storage",
+            "entries": {
+                "array": "Create the package array with the five package weights.",
+                "loop": "Pass every package to the storage scanner exactly once."
+            }
+        },
+        "riddle5": {
+            "tab": "Riddle 5: Data Storage",
+            "entries": {
+                "compare": "Compare the displayed neighboring pair and decide whether to swap it."
+            }
+        },
+        "riddle6": {
+            "tab": "Riddle 6: Bubble Sort Code",
+            "entries": {
+                "code": "Fill in the missing comparison condition and save the code to the sort chip.",
+                "machine": "Insert the programmed sort chip into the Bubble Sort machine."
+            }
+        },
+        "riddle7": {
+            "tab": "Riddle 7: Data Archive",
+            "entries": {
+                "arrays": "Create the three arrays described by the archive and enter their data."
+            }
+        },
+        "riddle8": {
+            "tab": "Riddle 8: Two-Dimensional Storage",
+            "entries": {
+                "create": "Create a grid with three rows and four columns.",
+                "fill": "Fill the marked coordinates with their values.",
+                "read": "Read the requested cell from the grid."
+            }
+        },
+        "riddle9": {
+            "tab": "Riddle 9: Search Robot",
+            "entries": {
+                "search": "Search the grid with nested loops and collect each battery you find."
+            }
+        },
+        "riddle10": {
+            "tab": "Riddle 10: Central Computing",
+            "entries": {
+                "sort": "Check the array sorting in the central computer.",
+                "count": "Count the occupied entries in modules.",
+                "search": "Search the grid for batteries.",
+                "complete": "All central-computer checks are complete."
+            }
+        }
+    },
     "menu": {
         "exit": "Exit"
     },
@@ -9,4 +83,3 @@
         }
     }
 }
-

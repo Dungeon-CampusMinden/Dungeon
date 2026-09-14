@@ -1,4 +1,78 @@
 {
+    "questlog": {
+        "riddle1": {
+            "tab": "Rätsel 1: Energieversorgung",
+            "entries": {
+                "array": "Erzeuge ein ganzzahliges Array namens energie mit fünf Plätzen.",
+                "values": "Setze energie auf die geforderten Werte: 40, 10, 80, 30 und 60."
+            }
+        },
+        "riddle2": {
+            "tab": "Rätsel 2: Modulspeicher",
+            "entries": {
+                "array": "Erzeuge ein String-Array namens module mit fünf Plätzen.",
+                "values": "Ordne CPU, RAM, GPU, SSD und NETWORK den fünf Plätzen zu.",
+                "remove_gpu": "Entferne den defekten GPU-Eintrag aus dem Array.",
+                "length": "Lies die Länge des Arrays module aus."
+            }
+        },
+        "riddle3": {
+            "tab": "Rätsel 3: Inventarscanner",
+            "entries": {
+                "loop": "Zähle mit einer Schleife nur die belegten Einträge von module.",
+                "scan": "Betätige nach dem akzeptierten Code den Scanner-Hebel."
+            }
+        },
+        "riddle4": {
+            "tab": "Rätsel 4: Transportlager",
+            "entries": {
+                "array": "Lege das Array pakete mit den fünf Paketgewichten an.",
+                "loop": "Übergib jedes Paket genau einmal an den Lager-Scanner."
+            }
+        },
+        "riddle5": {
+            "tab": "Rätsel 5: Datenspeicher",
+            "entries": {
+                "compare": "Vergleiche das angezeigte Nachbarpaar und entscheide über einen Tausch."
+            }
+        },
+        "riddle6": {
+            "tab": "Rätsel 6: Bubble-Sort-Code",
+            "entries": {
+                "code": "Ergänze die fehlende Vergleichsbedingung und speichere den Code auf dem Sortierchip.",
+                "machine": "Setze den programmierten Sortierchip in die Bubble-Sort-Maschine ein."
+            }
+        },
+        "riddle7": {
+            "tab": "Rätsel 7: Datenarchiv",
+            "entries": {
+                "arrays": "Lege die drei im Archiv beschriebenen Arrays mit ihren Daten an."
+            }
+        },
+        "riddle8": {
+            "tab": "Rätsel 8: Zweidimensionaler Speicher",
+            "entries": {
+                "create": "Erzeuge ein Raster mit drei Zeilen und vier Spalten.",
+                "fill": "Befülle die markierten Koordinaten mit ihren Werten.",
+                "read": "Lies die angeforderte Zelle aus dem Raster aus."
+            }
+        },
+        "riddle9": {
+            "tab": "Rätsel 9: Suchroboter",
+            "entries": {
+                "search": "Durchsuche das Raster mit verschachtelten Schleifen und sammle gefundene Batterien ein."
+            }
+        },
+        "riddle10": {
+            "tab": "Rätsel 10: Rechenzentrum",
+            "entries": {
+                "sort": "Prüfe die Sortierung des Arrays im Rechenzentrum.",
+                "count": "Zähle die belegten Einträge in modules.",
+                "search": "Durchsuche das Raster nach Batterien.",
+                "complete": "Alle Prüfungen des Rechenzentrums sind abgeschlossen."
+            }
+        }
+    },
     "menu": {
         "exit": "Schließen"
     },

@@ -6,14 +6,17 @@ import static org.mockito.Mockito.*;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.utils.Point;
 import feature.components.CollideComponent;
 import feature.entities.WorldItemBuilder;
 import feature.hud.DialogUtils;
+import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,6 +84,18 @@ class ManualSortingRiddleTest {
     dialogs.close();
     factory.close();
     game.close();
+  }
+
+  @Test
+  void headlessTickDoesNotOpenStoryDialogDirectly_riddle5() {
+    player.add(new PositionComponent(new Point(10, 10)));
+    game.when(() -> Game.levelEntities(Set.of(PlayerComponent.class)))
+        .thenAnswer(ignored -> Stream.of(player));
+    try (MockedStatic<DialogFactory> dialogFactory = mockStatic(DialogFactory.class)) {
+      assertDoesNotThrow(riddle::tick);
+      assertDoesNotThrow(riddle::tick);
+      dialogFactory.verifyNoInteractions();
+    }
   }
 
   @Test

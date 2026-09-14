@@ -8,10 +8,12 @@ import engine.network.messages.s2c.EntitySpawnEvent;
 import feature.collision.CollideSync;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
+import feature.questlog.QuestLogComponent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
+import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 
 /** Entity spawn strategy for System Recovery metadata. */
@@ -41,6 +43,8 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
   public static final String METADATA_BELT_RIGHT_PACKAGE = "systemRecovery.belt.rightPackage";
   public static final String METADATA_BELT_SCANNER = "systemRecovery.belt.scanner";
   public static final String METADATA_BELT_PACKAGES = "systemRecovery.belt.packages";
+  public static final String METADATA_QUESTLOG_ENTRIES = "systemRecovery.questlog.entries";
+  public static final String TYPE_QUESTLOG = "questlog";
 
   /** Metadata prefix for synchronized collider state. */
   public static final String METADATA_COLLIDER_PREFIX = "systemRecovery.collider";
@@ -68,11 +72,17 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
     entity
         .fetch(DisplayTextComponent.class)
         .ifPresent(display -> metadata.put(METADATA_DISPLAY_TEXT, display.text()));
+    entity
+        .fetch(QuestLogComponent.class)
+        .ifPresent(
+            questLog ->
+                metadata.putAll(SystemRecoverySnapshotTranslator.questLogMetadata(questLog)));
     if ("terminal".equals(entity.name())) {
       metadata.put(
           METADATA_TERMINAL_STATE, String.valueOf(TerminalInterpreter.instance().currentState()));
     }
     COLLIDE_SYNC.appendMetadata(entity, metadata);
+    DoorLabelComponent.appendMetadata(entity, metadata);
 
     if (defaultSpawn.isPresent() && !metadata.isEmpty()) {
       EntitySpawnEvent base = defaultSpawn.orElseThrow();

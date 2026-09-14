@@ -15,6 +15,7 @@ import feature.components.CollideComponent;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
+import feature.questlog.QuestLogUtil;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
@@ -80,6 +81,12 @@ public final class SystemRecoveryClient {
               }
               SystemRecoverySnapshotTranslator.applyInteractableMetadata(
                   newEntity, event.metadata());
+              SystemRecoverySnapshotTranslator.questLogFromMetadata(event.metadata())
+                  .ifPresent(
+                      questLog -> {
+                        newEntity.add(questLog);
+                        QuestLogUtil.setClientQuestLog(newEntity);
+                      });
               applyCollideMetadata(newEntity, event.metadata());
               Game.add(newEntity);
               if (ctx != null) {

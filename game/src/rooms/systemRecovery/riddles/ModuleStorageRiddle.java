@@ -25,6 +25,7 @@ public final class ModuleStorageRiddle {
   private final Point[] moduleSocketPoints = new Point[5];
   private Entity moduleDisplay;
   private String moduleDisplayText = "Array length: Noch nicht bestimmt";
+  private boolean completed;
 
   /** Creates the riddle for the owning level. */
   public ModuleStorageRiddle(DungeonLevel level) {
@@ -92,7 +93,17 @@ public final class ModuleStorageRiddle {
   /** Updates the room display with the module array length. */
   public void showModuleArrayLength() {
     moduleDisplayText = "Array length: 5";
+    completed = true;
     EntityFactory.updateDisplayText(moduleDisplay, moduleDisplayText);
+  }
+
+  /**
+   * Returns whether the module-array puzzle has reached its final terminal step.
+   *
+   * @return {@code true} after {@code module.length;} was accepted
+   */
+  public boolean completed() {
+    return completed;
   }
 
   private void setupRoomThreeKeypad() {
