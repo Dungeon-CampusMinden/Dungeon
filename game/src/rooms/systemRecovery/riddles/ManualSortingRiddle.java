@@ -6,8 +6,6 @@ import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
-import engine.components.PlayerComponent;
-import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
@@ -20,13 +18,15 @@ import feature.entities.WorldItemBuilder;
 import feature.hud.DialogUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
-import feature.systems.LevelEditorSystem;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.entities.EntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
  * Riddle 5: compare adjacent containers; wrong answers reset the exercise.
@@ -37,6 +37,7 @@ import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 public final class ManualSortingRiddle {
   private final DungeonLevel level;
   private final BubbleSortRiddle bubbleSort;
+  private final RiddleCallbacks callbacks;
   private final int[] sortValues = {42, 17, 8, 31, 23};
   private final Entity[] sortData = new Entity[sortValues.length];
   private final Entity[] sortOriginalData = new Entity[sortValues.length];
@@ -51,12 +52,17 @@ public final class ManualSortingRiddle {
     return sortCompleted;
   }
 
-  private final Set<Integer> sortTriggeredPlayers = new HashSet<>();
-
   /** Creates the comparison exercise; the machine dependency prevents overlapping interactions. */
   public ManualSortingRiddle(DungeonLevel level, BubbleSortRiddle bubbleSort) {
+    this(level, bubbleSort, RiddleCallbacks.noop());
+  }
+
+  /** Creates the comparison exercise with callbacks for successful and failed choices. */
+  public ManualSortingRiddle(
+      DungeonLevel level, BubbleSortRiddle bubbleSort, RiddleCallbacks callbacks) {
     this.level = level;
     this.bubbleSort = bubbleSort;
+    this.callbacks = callbacks;
   }
 
   /** Spawns the five containers and their comparison display. */
@@ -80,79 +86,88 @@ public final class ManualSortingRiddle {
     updateSortDisplay();
   }
 
-  /** Shows the introduction once per player at sort_trigger, never while editing the level. */
-  public void tick() {
-    // Loading LevelEditorSystem initializes its font; never touch it on the headless server.
-    if (!Game.isHeadless() && LevelEditorSystem.active()) {
-      return;
-    }
-
-    Point triggerPoint;
-    try {
-      triggerPoint = level.getPoint("sort_trigger");
-    } catch (RuntimeException ignored) {
-      return;
-    }
-
-    Game.levelEntities(Set.of(PlayerComponent.class))
-        .filter(player -> player.isPresent(PositionComponent.class))
-        .filter(
-            player ->
-                player
-                        .fetch(PositionComponent.class)
-                        .orElseThrow()
-                        .position()
-                        .distanceSquared(triggerPoint)
-                    <= 1.0)
-        .filter(player -> sortTriggeredPlayers.add(player.id()))
-        .forEach(
-            player ->
-                SystemRecoveryLevel.announceStoryForPlayer(
-                    SystemRecoveryStoryDialogs.MANUAL_SORTING, player.id()));
-  }
-
   private String sortDisplayText() {
-    if (sortCompleted) return "Sortierung abgeschlossen";
+    if (sortCompleted) return SystemRecoveryText.text("world.sort.display-complete");
     int left = sortValues[sortInnerIndex];
     int right = sortValues[sortInnerIndex + 1];
-    return "Aktueller Vergleich\nContainer "
-        + sortInnerIndex
-        + ": ["
-        + left
-        + "]\nContainer "
-        + (sortInnerIndex + 1)
-        + ": ["
-        + right
-        + "]";
+    return SystemRecoveryText.text("world.sort.display", sortInnerIndex, left, right);
   }
 
   private void showSortChoice(Entity display, Entity player) {
+    List<ChoiceOption> choices =
+        new ArrayList<>(
+            List.of(
+                ChoiceOption.of(SystemRecoveryText.text("world.sort.swap"), "swap"),
+                ChoiceOption.of(SystemRecoveryText.text("world.sort.keep"), "keep")));
+    if (SystemRecovery.DEBUG_MODE) {
+      choices.add(ChoiceOption.of(SystemRecoveryText.text("world.sort.skip"), "skip"));
+    }
     DialogFactory.showMultipleChoiceDialog(
         sortDisplayText(),
-        "Bubble-Sort-Vergleich",
-        ChoiceOption.ofList("TAUSCHEN", "NICHT TAUSCHEN"),
+        SystemRecoveryText.text("world.sort.title"),
+        choices,
         true,
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String choice)) {
-            applySortChoice("TAUSCHEN".equals(choice), player);
+            if ("skip".equals(choice)) {
+              skipForDebug(player);
+            } else {
+              applySortChoice("swap".equals(choice), player);
+            }
           }
         },
         () -> {},
         player.id());
   }
 
+  /** Completes the manual sorting riddle for local debug sessions. */
+  void skipForDebug(Entity player) {
+    if (!SystemRecovery.DEBUG_MODE || sortCompleted) return;
+    sortValuesAndEntities();
+    sortOuterIndex = sortValues.length - 1;
+    sortInnerIndex = 0;
+    sortCompleted = true;
+    callbacks.success("debug-skip", player.id());
+    callbacks.solved();
+    updateSortDisplay();
+    spawnSortProgramStick();
+    SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.BUBBLE_SORT_CODE);
+  }
+
+  private void sortValuesAndEntities() {
+    for (int outerIndex = 0; outerIndex < sortValues.length - 1; outerIndex++) {
+      for (int innerIndex = 0; innerIndex < sortValues.length - 1 - outerIndex; innerIndex++) {
+        if (sortValues[innerIndex] <= sortValues[innerIndex + 1]) continue;
+        int value = sortValues[innerIndex];
+        sortValues[innerIndex] = sortValues[innerIndex + 1];
+        sortValues[innerIndex + 1] = value;
+        Entity entity = sortData[innerIndex];
+        sortData[innerIndex] = sortData[innerIndex + 1];
+        sortData[innerIndex + 1] = entity;
+        moveSortEntity(sortData[innerIndex], sortPoints[innerIndex]);
+        moveSortEntity(sortData[innerIndex + 1], sortPoints[innerIndex + 1]);
+      }
+    }
+  }
+
   void applySortChoice(boolean swap, Entity player) {
-    if (sortCompleted || bubbleSort.running()) return;
+    if (sortCompleted) return;
+    if (bubbleSort.running()) {
+      callbacks.failure("blocked-machine", player.id());
+      return;
+    }
     boolean shouldSwap = sortValues[sortInnerIndex] > sortValues[sortInnerIndex + 1];
     if (swap != shouldSwap) {
+      callbacks.failure(swap ? "swap" : "keep", player.id());
       resetSortStation();
       DialogUtils.showTextPopup(
-          "Falsche Entscheidung. Die Sortiermaschine setzt den Datensatz zurück.",
-          "Datenspeicher",
+          SystemRecoveryText.text("world.sort.wrong-choice"),
+          SystemRecoveryText.text("world.sort.title"),
           player.id());
       Game.audio().playGlobal(SoundSpec.builder("retro_event_wrong"));
       return;
     }
+    callbacks.success(swap ? "swap" : "keep", player.id());
     if (shouldSwap) {
       int value = sortValues[sortInnerIndex];
       sortValues[sortInnerIndex] = sortValues[sortInnerIndex + 1];
@@ -167,6 +182,7 @@ public final class ManualSortingRiddle {
     updateSortDisplay();
     Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
     if (sortCompleted) {
+      callbacks.solved();
       spawnSortProgramStick();
       SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.BUBBLE_SORT_CODE);
     }

@@ -11,7 +11,7 @@ import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 /** Tests the complete state flow registered for the real System Recovery terminal setup. */
 public class TerminalInterpreterStateFlowTest {
 
-  private static final int FINAL_STATE = 17;
+  private static final int FINAL_STATE = 16;
 
   private final TerminalInterpreter interpreter = TerminalInterpreter.instance();
   private String source;
@@ -39,10 +39,9 @@ public class TerminalInterpreterStateFlowTest {
     submitOk(dataArchiveArrays(), 10);
     submitOk(storageArrayCreation(), 11);
     submitOk(storageAssignments(), 12);
-    submitOk(storageAccess(), 13);
-    submitOk(mapSearchLoop(), 14);
-    submitOk(bubbleSortLoop(), 15);
-    submitOk(centralModuleCountLoop(), 16);
+    submitOk(mapSearchLoop(), 13);
+    submitOk(bubbleSortLoop(), 14);
+    submitOk(centralModuleCountLoop(), 15);
     submitOk(centralMapSearchLoop(), FINAL_STATE);
   }
 
@@ -61,10 +60,9 @@ public class TerminalInterpreterStateFlowTest {
     submitChunkOk(dataArchiveArrays(), 10);
     submitChunkOk(storageArrayCreation(), 11);
     submitChunkOk(storageAssignments(), 12);
-    submitChunkOk(storageAccess(), 13);
-    submitChunkOk(mapSearchLoop(), 14);
-    submitChunkOk(bubbleSortLoop(), 15);
-    submitChunkOk(centralModuleCountLoop(), 16);
+    submitChunkOk(mapSearchLoop(), 13);
+    submitChunkOk(bubbleSortLoop(), 14);
+    submitChunkOk(centralModuleCountLoop(), 15);
     submitChunkOk(centralMapSearchLoop(), FINAL_STATE);
   }
 
@@ -87,10 +85,9 @@ public class TerminalInterpreterStateFlowTest {
     submitOk(dataArchiveArrays(), 10);
     submitOk(storageArrayCreation(), 11);
     submitOk(storageAssignments(), 12);
-    submitOk(storageAccess(), 13);
-    submitOk(mapSearchLoop(), 14);
-    submitOk(bubbleSortLoop(), 15);
-    submitOk(centralModuleCountLoop(), 16);
+    submitOk(mapSearchLoop(), 13);
+    submitOk(bubbleSortLoop(), 14);
+    submitOk(centralModuleCountLoop(), 15);
     submitOk(centralMapSearchLoop(), FINAL_STATE);
   }
 
@@ -116,12 +113,11 @@ public class TerminalInterpreterStateFlowTest {
 
     submitFailsWithAdditionalCode(mapSearchLoop(), 11);
     submitOk(storageAssignments(), 12);
-    submitOk(storageAccess(), 13);
-    submitOk(mapSearchLoop(), 14);
+    submitOk(mapSearchLoop(), 13);
 
-    submitOk(bubbleSortLoop(), 15);
-    submitFailsWithAdditionalCode(centralMapSearchLoop(), 15);
-    submitOk(centralModuleCountLoop(), 16);
+    submitOk(bubbleSortLoop(), 14);
+    submitFailsWithAdditionalCode(centralMapSearchLoop(), 14);
+    submitOk(centralModuleCountLoop(), 15);
     submitOk(centralMapSearchLoop(), FINAL_STATE);
   }
 
@@ -232,12 +228,6 @@ public class TerminalInterpreterStateFlowTest {
         lager[0][2] = 1;
         lager[1][3] = 2;
         lager[2][1] = 3;
-        """;
-  }
-
-  private static String storageAccess() {
-    return """
-        lager[1][3];
         """;
   }
 

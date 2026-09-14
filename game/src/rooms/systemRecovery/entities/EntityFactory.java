@@ -12,7 +12,10 @@ import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
+import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
+import feature.entities.deco.Deco;
+import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
@@ -25,15 +28,19 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import rooms.systemRecovery.items.BatteryItem;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
+import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
  * Stateless builders for System Recovery's reusable world objects.
  *
  * <p>Energy boxes and battery sockets belong to riddle 1; module sockets/chips to riddle 2;
  * scanners to riddles 3, 4 and 6; conveyor packages to riddles 4 and 6; comparison containers to
- * riddle 5. Displays are shared across rooms. Progression and object ownership live in the
- * corresponding {@code rooms.systemRecovery.riddles} controller, never in this factory.
+ * riddle 5; archive bookshelves and data nodes to riddle 7. Displays are shared across rooms.
+ * Progression and object ownership live in the corresponding {@code rooms.systemRecovery.riddles}
+ * controller, never in this factory.
  */
 public final class EntityFactory {
 
@@ -56,6 +63,28 @@ public final class EntityFactory {
     return entity;
   }
 
+  /** Creates one interactable marker for a floor cell of the 3x4 storage matrix. */
+  public static Entity storageMatrixCell(Point point, int row, int column) {
+    Entity entity = new Entity("storage_matrix_cell_" + row + "_" + column);
+    entity.add(new PositionComponent(point));
+    entity.add(
+        new InteractionComponent(
+            new Interaction(
+                (cell, who) -> {
+                  String state =
+                      cell.name().endsWith("_filled")
+                          ? "filled"
+                          : cell.name().endsWith("_target")
+                              ? "target"
+                              : cell.name().endsWith("_active") ? "active" : "empty";
+                  DialogUtils.showTextPopup(
+                      SystemRecoveryText.text("world.matrix." + state, row, column),
+                      SystemRecoveryText.text("world.matrix.title"),
+                      who.id());
+                })));
+    return entity;
+  }
+
   /**
    * Creates an interactable room label entity.
    *
@@ -72,6 +101,103 @@ public final class EntityFactory {
         new InteractionComponent(
             new Interaction((_, _) -> DialogUtils.showTextPopup(text, titel))));
     return entity;
+  }
+
+  /**
+   * Creates an interactive archive bookshelf that presents one programming hint.
+   *
+   * @param point position of the bookshelf
+   * @param name stable entity name
+   * @param text hint shown when the bookshelf is examined
+   * @return configured bookshelf entity
+   */
+  public static Entity archiveBookshelf(Point point, String name, String text) {
+    Entity entity = DecoFactory.createDeco(point, Deco.BookshelfLarge);
+    entity.name(name);
+    entity.remove(DecoComponent.class);
+    entity.add(
+        new InteractionComponent(
+            new Interaction((_, who) -> DialogFactory.showDialogDialog(text, () -> {}, who.id()))));
+    return entity;
+  }
+
+  /**
+   * Creates an interactable archive data display.
+   *
+   * @param point position of the display
+   * @param name stable entity name
+   * @param text data shown when the display is examined
+   * @return configured archive display entity
+   */
+  public static Entity archiveDataDisplay(Point point, String name, String text) {
+    Entity entity = new Entity(name);
+    entity.add(new PositionComponent(point));
+    entity.add(new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png")));
+    entity.add(new DisplayTextComponent(text));
+    entity.add(
+        new InteractionComponent(
+            new Interaction(
+                (_, who) ->
+                    DialogUtils.showTextPopup(
+                        text, SystemRecoveryText.text("world.archive.title"), who.id()))));
+    return entity;
+  }
+
+  /**
+   * Creates an interactable status lamp for one archive data node.
+   *
+   * @param point position of the lamp
+   * @param name stable entity name
+   * @param index archive node index shown in the interaction text
+   * @param active whether the lamp represents an active state
+   * @return configured status lamp entity
+   */
+  public static Entity archiveStatusLight(Point point, String name, int index, boolean active) {
+    Entity entity = new Entity(name);
+    entity.add(new PositionComponent(point));
+    DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png"));
+    draw.tintColor(active ? 0x33FF66FF : 0xFF3333FF);
+    entity.add(draw);
+    String status =
+        SystemRecoveryText.text(
+            active ? "world.archive.status-active" : "world.archive.status-inactive");
+    entity.add(
+        new InteractionComponent(
+            new Interaction(
+                (_, who) ->
+                    DialogUtils.showTextPopup(
+                        SystemRecoveryText.text("world.archive.status", index, status),
+                        SystemRecoveryText.text("world.archive.status-title"),
+                        who.id()))));
+    return entity;
+  }
+
+  /** Creates one visible data object materialized by the two-dimensional storage. */
+  public static Entity storageValueItem(Point point, int value) {
+    Entity entity = new Entity("storage_value_item_" + value);
+    entity.add(new PositionComponent(point));
+    DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png"));
+    draw.depth(DepthLayer.AbovePlayer.depth());
+    draw.tintColor(storageValueTint(value));
+    entity.add(draw);
+    entity.add(
+        new InteractionComponent(
+            new Interaction(
+                (_, who) ->
+                    DialogUtils.showTextPopup(
+                        SystemRecoveryText.text("world.matrix.item", value),
+                        SystemRecoveryText.text("world.matrix.title"),
+                        who.id()))));
+    return entity;
+  }
+
+  private static int storageValueTint(int value) {
+    return switch (value) {
+      case 1 -> 0x33CCFFFF;
+      case 2 -> 0xFFFF33FF;
+      case 3 -> 0xFF66FFFF;
+      default -> 0xFFFFFFFF;
+    };
   }
 
   /**
@@ -102,8 +228,13 @@ public final class EntityFactory {
     entity.add(
         new InteractionComponent(
             new Interaction(
-                (socket, _) ->
-                    DialogUtils.showTextPopup(moduleSocketStatus(socket), "Modulsockel"))));
+                (socket, who) -> {
+                  DialogUtils.showTextPopup(
+                      moduleSocketStatus(socket),
+                      SystemRecoveryText.text("world.module.socket-title"),
+                      who.id());
+                  announceGpuFaultIfInspected(socket, who);
+                })));
     if (active) {
       entity.name("module_socket_active");
     }
@@ -138,12 +269,19 @@ public final class EntityFactory {
     String name = socket.name();
     if (name.startsWith("module_socket_occupied_")) {
       String moduleName = name.substring("module_socket_occupied_".length());
-      return "Der Sockel ist mit " + moduleName.toUpperCase() + " belegt.";
+      return SystemRecoveryText.text("world.module.socket-occupied", moduleName.toUpperCase());
     }
     if (name.equals("module_socket_active")) {
-      return "Der Sockel ist aktiv, aber noch leer.";
+      return SystemRecoveryText.text("world.module.socket-active");
     }
-    return "Dieser Sockel ist noch inaktiv.";
+    return SystemRecoveryText.text("world.module.socket-inactive");
+  }
+
+  private static void announceGpuFaultIfInspected(Entity socket, Entity player) {
+    if ("module_socket_occupied_gpu".equals(socket.name())) {
+      SystemRecoveryLevel.announceStoryForPlayer(
+          SystemRecoveryStoryDialogs.REMOVE_GPU, player.id());
+    }
   }
 
   /**
@@ -160,12 +298,18 @@ public final class EntityFactory {
     entity.add(
         new InteractionComponent(
             new Interaction(
-                (_, _) ->
-                    DialogUtils.showTextPopup(
-                        moduleName.equals("GPU")
-                            ? "Die GPU ist kaputt und muss entfernt werden."
-                            : "Der Sockel ist mit " + moduleName + " belegt.",
-                        "Modulsockel"))));
+                (_, who) -> {
+                  DialogUtils.showTextPopup(
+                      moduleName.equals("GPU")
+                          ? SystemRecoveryText.text("world.module.gpu-broken")
+                          : SystemRecoveryText.text("world.module.chip-occupied", moduleName),
+                      SystemRecoveryText.text("world.module.socket-title"),
+                      who.id());
+                  if (moduleName.equals("GPU")) {
+                    SystemRecoveryLevel.announceStoryForPlayer(
+                        SystemRecoveryStoryDialogs.REMOVE_GPU, who.id());
+                  }
+                })));
     return entity;
   }
 
@@ -176,8 +320,11 @@ public final class EntityFactory {
     entity.add(
         new InteractionComponent(
             new Interaction(
-                (_, _) ->
-                    DialogUtils.showTextPopup("Sicherheitswert: " + value, "Datenspeicher"))));
+                (_, who) ->
+                    DialogUtils.showTextPopup(
+                        SystemRecoveryText.text("world.sort.value", value),
+                        SystemRecoveryText.text("world.sort.title"),
+                        who.id()))));
     return entity;
   }
 
@@ -201,10 +348,28 @@ public final class EntityFactory {
     return moduleDisplay(
         point,
         textSupplier,
-        (display, _) ->
+        (display, who) ->
             DialogUtils.showTextPopup(
                 display.fetch(DisplayTextComponent.class).orElseThrow().text(),
-                "Modulspeicher-Display"));
+                SystemRecoveryText.text("world.module.display-title"),
+                who.id()));
+  }
+
+  /**
+   * Creates an interactable riddle hint display with its own localized dialog title.
+   *
+   * @param point display position
+   * @param textSupplier supplies the current hint text
+   * @param title display title shown when a player examines it
+   * @return configured hint display
+   */
+  public static Entity hintDisplay(Point point, Supplier<String> textSupplier, String title) {
+    return moduleDisplay(
+        point,
+        textSupplier,
+        (display, who) ->
+            DialogUtils.showTextPopup(
+                display.fetch(DisplayTextComponent.class).orElseThrow().text(), title, who.id()));
   }
 
   /**
@@ -260,6 +425,53 @@ public final class EntityFactory {
             new Animation(
                 new SimpleIPath("objects/tech/module_scanner.png"),
                 new AnimationConfig().scaleX(widthScale).scaleY(1f))));
+    return entity;
+  }
+
+  /** Creates the stationary search robot used by riddle 9. */
+  public static Entity searchRobot(Point point) {
+    Entity entity = new Entity("search_robot");
+    entity.add(new PositionComponent(point));
+    DrawComponent draw =
+        new DrawComponent(new Animation(new SimpleIPath("objects/tech/transport_robot.png")));
+    draw.depth(DepthLayer.AbovePlayer.depth());
+    entity.add(draw);
+    return entity;
+  }
+
+  /** Creates the controller that accepts a programmed search chip. */
+  public static Entity searchRobotController(Point point, BiConsumer<Entity, Entity> onInteract) {
+    Entity entity = new Entity("search_robot_controller");
+    entity.add(new PositionComponent(point));
+    entity.add(new DrawComponent(new SimpleIPath("objects/tech/Screen_device.png")));
+    entity.add(
+        new InteractionComponent(
+            new Interaction(
+                onInteract == null
+                    ? (_, who) ->
+                        DialogUtils.showTextPopup(
+                            SystemRecoveryText.text("world.search.controller"),
+                            SystemRecoveryText.text("world.search.title"),
+                            who.id())
+                    : onInteract)));
+    return entity;
+  }
+
+  /** Creates the non-interactive item visual that the search robot collects. */
+  public static Entity searchTargetItem(Point point) {
+    Entity entity = new Entity("search_target_item");
+    entity.add(new PositionComponent(point));
+    DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Hand_scanner.png"));
+    draw.depth(DepthLayer.AbovePlayer.depth());
+    entity.add(draw);
+    return entity;
+  }
+
+  /** Creates the visual grab arm that carries the locator chip to the exit point. */
+  public static Entity chipGrabArm(Point point) {
+    Entity entity = moduleScanner(point, 0.35f);
+    entity.name("storage_chip_grab_arm");
+    entity.fetch(DrawComponent.class).ifPresent(draw -> draw.depth(DepthLayer.AbovePlayer.depth()));
     return entity;
   }
 
@@ -360,8 +572,11 @@ public final class EntityFactory {
     entity.add(
         new InteractionComponent(
             new Interaction(
-                (_, _) ->
-                    DialogUtils.showTextPopup("Transportpaket: " + weight, "Transportlager"))));
+                (_, who) ->
+                    DialogUtils.showTextPopup(
+                        SystemRecoveryText.text("world.transport.package", weight),
+                        SystemRecoveryText.text("world.transport.title"),
+                        who.id()))));
     return entity;
   }
 
@@ -384,7 +599,10 @@ public final class EntityFactory {
 
   private static void openDualInventory(Entity container, Entity who) {
     if (!container.isPresent(InventoryComponent.class)) {
-      DialogUtils.showTextPopup("Die Batteriebox ist bereits verriegelt.", "Batteriebox");
+      DialogUtils.showTextPopup(
+          SystemRecoveryText.text("world.battery.locked"),
+          SystemRecoveryText.text("world.battery.title"),
+          who.id());
       return;
     }
     DialogContext context =

@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
  * Sends the remote user's instructions one step at a time.
@@ -22,206 +23,82 @@ import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 public final class SystemRecoveryStoryDialogs {
 
   private static final long STORY_DELAY_MS = 900L;
-  private static final String REMOTE_USER = "[color=#aaaaaa]REMOTE USER[/color]";
-  private static final String REMOTE_USER_SPEAKER =
-      "[speaker img=logo/cat_logo_64x64.png name=\"" + REMOTE_USER + "\"]";
 
   /** The first instruction after the player pulls the damaged energy lever. */
-  public static final StoryStep ENERGY_ARRAY =
-      step(
-          "energy-array",
-          "riddle1",
-          "array",
-          "Der Energie-Riegel ist beschädigt. Erzeuge im Terminal ein ganzzahliges Array"
-              + " namens energie mit fünf Plätzen.");
+  public static final StoryStep ENERGY_ARRAY = step("energy-array", "riddle1", "array");
 
   /** The values required after the energy array exists. */
-  public static final StoryStep ENERGY_VALUES =
-      step(
-          "energy-values",
-          "riddle1",
-          "values",
-          "Das Array ist angelegt. Setze nun die Energie: energie[0] = 40, energie[1] = 10,"
-              + " energie[2] = 80, energie[3] = 30 und energie[4] = 60.");
+  public static final StoryStep ENERGY_VALUES = step("energy-values", "riddle1", "values");
+
+  /** The physical battery sequence after the energy values have been accepted. */
+  public static final StoryStep ENERGY_BATTERY = step("energy-battery", "riddle1", "battery");
 
   /** The next declaration for the module-storage room. */
-  public static final StoryStep MODULE_ARRAY =
-      step(
-          "module-array",
-          "riddle2",
-          "array",
-          "Erzeuge im Terminal ein String-Array namens module mit fünf Plätzen.");
+  public static final StoryStep MODULE_ARRAY = step("module-array", "riddle2", "array");
 
   /** The module assignments after the module array exists. */
-  public static final StoryStep MODULE_VALUES =
-      step(
-          "module-values",
-          "riddle2",
-          "values",
-          "Fülle module mit den vorhandenen Bauteilen: CPU, RAM, GPU, SSD und NETWORK."
-              + " Die Positionen sind auf den Sockeln angegeben.");
+  public static final StoryStep MODULE_VALUES = step("module-values", "riddle2", "values");
 
   /** The single removal operation for the defective GPU. */
-  public static final StoryStep REMOVE_GPU =
-      step(
-          "remove-gpu",
-          "riddle2",
-          "remove_gpu",
-          "Die GPU ist defekt. Entferne den GPU-Eintrag aus module, indem du genau diesen"
-              + " Steckplatz leer setzt.");
+  public static final StoryStep REMOVE_GPU = step("remove-gpu", "riddle2", "remove_gpu");
 
   /** The array-length read required before the scanner can be used. */
-  public static final StoryStep READ_MODULE_LENGTH =
-      step(
-          "module-length",
-          "riddle2",
-          "length",
-          "Lies jetzt die Länge des Arrays module aus. Die Anzeige im Raum prüft den Wert.");
+  public static final StoryStep READ_MODULE_LENGTH = step("module-length", "riddle2", "length");
+
+  /** The instruction shown after the player examines the confirmed array length. */
+  public static final StoryStep OPEN_SCANNER_DOOR = step("open-scanner-door", "riddle2", "door");
 
   /** The counting loop for the inventory scanner. */
-  public static final StoryStep SCANNER_CODE =
-      step(
-          "scanner-code",
-          "riddle3",
-          "loop",
-          "Zähle die belegten Einträge von module. Prüfe in einer Schleife jeden Eintrag und"
-              + " erhöhe count nur, wenn der Eintrag nicht leer ist.");
+  public static final StoryStep SCANNER_CODE = step("scanner-code", "riddle3", "loop");
 
   /** The physical scanner action after its code has been accepted. */
-  public static final StoryStep SCANNER_LEVER =
-      step(
-          "scanner-lever",
-          "riddle3",
-          "scan",
-          "Der Zählcode ist akzeptiert. Betätige jetzt den Scanner-Hebel und beobachte die"
-              + " Prüfung der fünf Modulpositionen.");
+  public static final StoryStep SCANNER_LEVER = step("scanner-lever", "riddle3", "scan");
 
   /** The package array declaration for the transport storage. */
-  public static final StoryStep PACKAGES_ARRAY =
-      step(
-          "packages-array",
-          "riddle4",
-          "array",
-          "Lege im Terminal ein ganzzahliges Array namens pakete an. Verwende die fünf"
-              + " Gewichte 15, 40, 20, 60 und 30 in dieser Reihenfolge.");
+  public static final StoryStep PACKAGES_ARRAY = step("packages-array", "riddle4", "array");
 
   /** The loop that hands every package to the transport scanner. */
-  public static final StoryStep PACKAGES_LOOP =
-      step(
-          "packages-loop",
-          "riddle4",
-          "loop",
-          "Übergib jetzt jedes Paket genau einmal an den Lager-Scanner. Beginne beim ersten"
-              + " Index und nutze die Länge von pakete als Schleifengrenze.");
+  public static final StoryStep PACKAGES_LOOP = step("packages-loop", "riddle4", "loop");
+
+  /** The short transition message after the transport scan. */
+  public static final StoryStep DATA_STORAGE_PROBLEM =
+      step("data-storage-problem", "riddle4", "problem");
 
   /** The next manual comparison after the transport sequence. */
-  public static final StoryStep MANUAL_SORTING =
-      step(
-          "manual-sorting",
-          "riddle5",
-          "compare",
-          "Die Sicherheitswerte sind ungeordnet. Untersuche am Display das aktuelle"
-              + " Nachbarpaar und entscheide mit den beiden Schaltflächen, ob du es tauschst."
-              + " Eine falsche Entscheidung setzt die Sortierung zurück.");
+  public static final StoryStep MANUAL_SORTING = step("manual-sorting", "riddle5", "compare");
 
   /** The missing comparison expression for the sort-program chip. */
-  public static final StoryStep BUBBLE_SORT_CODE =
-      step(
-          "bubble-sort-code",
-          "riddle6",
-          "code",
-          "Die manuelle Sortierung ist abgeschlossen. Öffne am Rechner den vorbereiteten"
-              + " Bubble-Sort-Code und ergänze die fehlende Vergleichsbedingung. Speichere"
-              + " anschließend den vollständigen Code auf dem Sortierchip.");
+  public static final StoryStep BUBBLE_SORT_CODE = step("bubble-sort-code", "riddle6", "code");
 
-  /** The action that starts the physical bubble-sort machine. */
-  public static final StoryStep BUBBLE_SORT_MACHINE =
-      step(
-          "bubble-sort-machine",
-          "riddle6",
-          "machine",
-          "Der Sortierchip ist programmiert. Setze ihn in die Bubble-Sort-Maschine ein.");
+  /** The instruction shown before the player enters the data archive. */
+  public static final StoryStep ARCHIVE_INTRO = step("archive-intro", "riddle7", "intro");
 
   /** The three array declarations for the data archive. */
-  public static final StoryStep ARCHIVE_ARRAYS =
-      step(
-          "archive-arrays",
-          "riddle7",
-          "arrays",
-          "Lege im Datenarchiv die drei benötigten Arrays an: energie für Zahlen, module"
-              + " für Text und aktiv für Wahrheitswerte. Verwende jeweils die angezeigten"
-              + " fünf beziehungsweise drei Einträge.");
+  public static final StoryStep ARCHIVE_ARRAYS = step("archive-arrays", "riddle7", "arrays");
+
+  /** The transition message after the archive arrays unlock the storage room. */
+  public static final StoryStep STORAGE_UNLOCKED = step("storage-unlocked", "riddle8", "intro");
 
   /** The two-dimensional array declaration for the storage room. */
-  public static final StoryStep STORAGE_ARRAY =
-      step(
-          "storage-array",
-          "riddle8",
-          "create",
-          "Erzeuge für den zweidimensionalen Speicher ein ganzzahliges Raster mit drei"
-              + " Zeilen und vier Spalten.");
+  public static final StoryStep STORAGE_ARRAY = step("storage-array", "riddle8", "create");
 
   /** The marked coordinate assignments in the storage room. */
-  public static final StoryStep STORAGE_VALUES =
-      step(
-          "storage-values",
-          "riddle8",
-          "fill",
-          "Befülle die markierten Speicherstellen: [0][2] mit 1, [1][3] mit 2 und [2][1]"
-              + " mit 3.");
+  public static final StoryStep STORAGE_VALUES = step("storage-values", "riddle8", "fill");
 
-  /** The requested cell read after the storage grid has been filled. */
-  public static final StoryStep STORAGE_READ =
-      step(
-          "storage-read",
-          "riddle8",
-          "read",
-          "Lies anschließend die angeforderte Zelle aus dem Raster aus. Verwende zuerst den"
-              + " Zeilenindex und danach den Spaltenindex.");
-
-  /** The nested search loop for the battery map. */
-  public static final StoryStep SEARCH_ROBOT =
-      step(
-          "search-robot",
-          "riddle9",
-          "search",
-          "Durchsuche die gesamte Karte mit einer äußeren und einer inneren Schleife. Wenn"
-              + " du das Batteriesignal findest, rufe roboter.collect() auf.");
+  /** The prepared search-chip program after the empty chip has been inserted. */
+  public static final StoryStep SEARCH_PROGRAM = step("search-program", "riddle9", "program");
 
   /** The first central-computer check. */
-  public static final StoryStep CENTRAL_SORT =
-      step(
-          "central-sort",
-          "riddle10",
-          "sort",
-          "Im Rechenzentrum wartet die erste Prüfung: Vergleiche benachbarte Werte des"
-              + " Arrays und vertausche sie, wenn sie nicht aufsteigend geordnet sind.");
+  public static final StoryStep CENTRAL_SORT = step("central-sort", "riddle10", "sort");
 
   /** The central module-count check. */
-  public static final StoryStep CENTRAL_COUNT =
-      step(
-          "central-count",
-          "riddle10",
-          "count",
-          "Zähle nun die belegten Einträge in modules. Leere Einträge dürfen den Zähler"
-              + " nicht erhöhen.");
+  public static final StoryStep CENTRAL_COUNT = step("central-count", "riddle10", "count");
 
   /** The central map search check. */
-  public static final StoryStep CENTRAL_SEARCH =
-      step(
-          "central-search",
-          "riddle10",
-          "search",
-          "Durchsuche zum Abschluss das gesamte Raster. Bei jeder gefundenen Batterie soll"
-              + " roboter.collect() ausgeführt werden.");
+  public static final StoryStep CENTRAL_SEARCH = step("central-search", "riddle10", "search");
 
   /** The final story response after all central checks. */
-  public static final StoryStep COMPLETED =
-      step(
-          "completed",
-          "riddle10",
-          "complete",
-          "Alle Prüfungen sind bestätigt. Die Systemwiederherstellung kann fortgesetzt werden.");
+  public static final StoryStep COMPLETED = step("completed", "riddle10", "complete");
 
   private final Set<String> shownToPlayer = ConcurrentHashMap.newKeySet();
   private final Queue<PendingDialog> pendingDialogs = new ConcurrentLinkedQueue<>();
@@ -289,12 +166,17 @@ public final class SystemRecoveryStoryDialogs {
         new PendingDialog(System.currentTimeMillis() + STORY_DELAY_MS, step, playerId));
   }
 
-  private static StoryStep step(String id, String riddleKey, String entryKey, String text) {
-    return new StoryStep(id, riddleKey, entryKey, REMOTE_USER_SPEAKER + text);
+  private static StoryStep step(String id, String riddleKey, String entryKey) {
+    return new StoryStep(id, riddleKey, entryKey, id);
   }
 
   /** One atomic instruction shown after the previous puzzle action. */
-  public record StoryStep(String id, String riddleKey, String entryKey, String script) {}
+  public record StoryStep(String id, String riddleKey, String entryKey, String messageKey) {
+    /** Resolves the localized dialog script at display time. */
+    public String script() {
+      return SystemRecoveryText.story(messageKey);
+    }
+  }
 
   private record PendingDialog(long executeAt, StoryStep step, int playerId) {}
 }

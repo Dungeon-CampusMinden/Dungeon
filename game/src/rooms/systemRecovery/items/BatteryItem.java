@@ -4,6 +4,7 @@ import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
 import feature.inventory.Item;
 import feature.inventory.ItemRegistry;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Inventory item representing a battery for System Recovery puzzles. */
 public class BatteryItem extends Item {
@@ -22,8 +23,8 @@ public class BatteryItem extends Item {
   /** Creates a new battery item. */
   public BatteryItem() {
     super(
-        "Batterie",
-        "Eine geladene Batterie fuer die Wiederherstellungssysteme.",
+        SystemRecoveryText.text("items.battery-name"),
+        SystemRecoveryText.text("items.battery-description"),
         new Animation(TEXTURE),
         new Animation(TEXTURE));
   }

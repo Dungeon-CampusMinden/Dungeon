@@ -29,10 +29,13 @@ import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import rooms.systemRecovery.modules.computer.content.AssistantChatTab;
+import rooms.systemRecovery.modules.computer.content.SearchProgramTab;
 import rooms.systemRecovery.modules.computer.content.SortProgramTab;
+import rooms.systemRecovery.modules.computer.content.SystemCoreAccessTab;
 import rooms.systemRecovery.modules.computer.content.TerminalTab;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
-/** Two-tab computer dialog for the System Recovery escape room. */
+/** Tabbed computer dialog for the System Recovery escape room. */
 public class SystemRecoveryComputerDialog extends Group {
 
   private final Skin skin;
@@ -59,6 +62,16 @@ public class SystemRecoveryComputerDialog extends Group {
         .orElse(false)) {
       addTab(new SortProgramTab());
     }
+    if (context
+        .find(SystemRecoveryComputerFactory.SEARCH_PROGRAM_INSERTED, Boolean.class)
+        .orElse(false)) {
+      addTab(new SearchProgramTab());
+    }
+    if (context
+        .find(SystemRecoveryComputerFactory.ACCESS_MODULE_INSERTED, Boolean.class)
+        .orElse(false)) {
+      addTab(new SystemCoreAccessTab());
+    }
     addTab(new AssistantChatTab());
     activeTab = TerminalTab.KEY;
     showContent(activeTab);
@@ -72,7 +85,8 @@ public class SystemRecoveryComputerDialog extends Group {
    */
   public static Group build(DialogContext context) {
     if (Game.isHeadless()) {
-      return new HeadlessDialogGroup("System Recovery", "Computer");
+      return new HeadlessDialogGroup(
+          SystemRecoveryText.text("intro.title"), SystemRecoveryText.text("computer.terminal"));
     }
     return new SystemRecoveryComputerDialog(context);
   }
