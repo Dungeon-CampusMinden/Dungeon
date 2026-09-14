@@ -65,6 +65,7 @@ public final class PuzzleTextureGenerator {
   public static void ensureRegistered(Puzzle puzzle) {
     if (puzzle == null) return;
     if (Game.isHeadless()) return;
+
     String firstPath = texturePath(puzzle.id(), 0);
     if (TextureMap.instance().containsKey(firstPath)
         && puzzle.polygons().size() == puzzle.pieceCount()) {

@@ -52,6 +52,29 @@ public class HintItem extends Item {
 
   private final IPath imagePath;
   private final IPath worldSprite;
+  private final String translationKey;
+
+  /**
+   * Creates a new {@link HintItem} with full control over visuals and texts.
+   *
+   * @param imagePath Path to the image that is shown via {@link DialogUtils#showImagePopUp(String,
+   *     int...)} when the item is used from the inventory.
+   * @param worldSprite Path to the sprite used for both the inventory icon and the dropped
+   *     world-item representation.
+   * @param name Display name of the item.
+   * @param description Description of the item.
+   */
+  public HintItem(
+      final IPath imagePath,
+      final IPath worldSprite,
+      final String name,
+      final String description,
+      String translationKey) {
+    super(name, description, new Animation(Objects.requireNonNull(worldSprite, "worldSprite")));
+    this.imagePath = Objects.requireNonNull(imagePath, "imagePath");
+    this.worldSprite = worldSprite;
+    this.translationKey = translationKey;
+  }
 
   /**
    * Creates a new {@link HintItem} with full control over visuals and texts.
@@ -65,9 +88,7 @@ public class HintItem extends Item {
    */
   public HintItem(
       final IPath imagePath, final IPath worldSprite, final String name, final String description) {
-    super(name, description, new Animation(Objects.requireNonNull(worldSprite, "worldSprite")));
-    this.imagePath = Objects.requireNonNull(imagePath, "imagePath");
-    this.worldSprite = worldSprite;
+    this(imagePath, imagePath, name, description, "");
   }
 
   /**
@@ -89,6 +110,16 @@ public class HintItem extends Item {
    */
   public HintItem(final IPath imagePath) {
     this(imagePath, imagePath, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+  }
+
+  /**
+   * Creates a new {@link HintItem} with default name, description and world sprite.
+   *
+   * @param imagePath Path to the image that is shown when the item is used from the inventory.
+   * @param translationKey key for the translation, used when the item is being used.
+   */
+  public HintItem(final IPath imagePath, String translationKey) {
+    this(imagePath, imagePath, DEFAULT_NAME, DEFAULT_DESCRIPTION, translationKey);
   }
 
   /**
@@ -135,9 +166,11 @@ public class HintItem extends Item {
   @Override
   public void use(final Entity user) {
     if (user == null) {
-      DialogUtils.showImagePopUp(imagePath.pathString());
+      if (translationKey.isEmpty()) DialogUtils.showImagePopUp(imagePath.pathString());
+      else DialogUtils.showImagePopUp(translationKey);
       return;
     }
-    DialogUtils.showImagePopUp(imagePath.pathString(), user.id());
+    if (translationKey.isEmpty()) DialogUtils.showImagePopUp(imagePath.pathString(), user.id());
+    else DialogUtils.showImagePopUp(translationKey, user.id());
   }
 }

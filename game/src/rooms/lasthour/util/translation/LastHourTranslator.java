@@ -5,6 +5,7 @@ import engine.Game;
 import engine.language.Language;
 import engine.language.Translation;
 import feature.input.configuration.KeyboardConfig;
+import feature.puzzle.Puzzle;
 import feature.utils.Translator;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,9 @@ public class LastHourTranslator extends Translator {
   public final String VentSerialNumber = "49221";
   private final String cabinetImagePathEN = "images/virus-phrases.png";
   private final String cabinetImagePathDE = "images/virus-phrases-de.png";
+  private final String R2_PUZZLE_IMAGE_EN = "images/final-code-en.png";
+  private final String R2_PUZZLE_IMAGE_DE = "images/final-code-de.png";
+  public static Puzzle currentPuzzle;
 
   /** List of URLs mentioned in the emails, which may or may not be trustworthy. */
   public final List<String> EmailCodeUrls =
@@ -90,6 +94,13 @@ public class LastHourTranslator extends Translator {
                     Game.localization().currentLanguage().equals(Language.DE)
                         ? cabinetImagePathDE
                         : cabinetImagePathEN);
+        case TranslationKey.R2PuzzleImage ->
+            translatedText =
+                translatedText.replace(
+                    s,
+                    Game.localization().currentLanguage().equals(Language.DE)
+                        ? R2_PUZZLE_IMAGE_DE
+                        : R2_PUZZLE_IMAGE_EN);
         default -> translatedText = translatedText.replace(s, translation.text(s));
       }
     }
@@ -102,6 +113,7 @@ public class LastHourTranslator extends Translator {
     registerKey(TranslationKey.DecoyVentDialog2);
     registerKey(TranslationKey.VentDialog);
     registerKey(TranslationKey.R2DeskNoteText);
+    registerKey(TranslationKey.R2PuzzleImage);
     registerKey(TranslationKey.IntroText_1);
     registerKey(TranslationKey.IntroText_2);
     registerKey(TranslationKey.IntroText_3);

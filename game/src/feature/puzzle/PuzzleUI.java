@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import rooms.lasthour.level.LastHourLevel;
 
 /**
  * Scene2D UI for a {@link Puzzle}.
@@ -165,7 +166,25 @@ public class PuzzleUI extends Group {
     // -- Pass 1: collect every visible (= owned) piece together with its geometry.
     List<VisiblePiece> visible = new ArrayList<>();
     List<float[]> polys = puzzle.polygons();
-    for (PuzzlePieceItem piece : puzzle.pieces()) {
+    for (PuzzlePieceItem piece : LastHourLevel.puzzleDE.pieces()) {
+      if (inv == null || !inv.hasItem(piece)) {
+        puzzle.unmarkPlaced(piece.pieceIndex());
+        continue;
+      }
+      int idx = piece.pieceIndex();
+      float[] poly = polys.get(idx);
+      int[] bb = PuzzleSlicer.boundingBox(poly, imageW, imageH);
+      int bbX = bb[0], bbY = bb[1];
+      int bbW = Math.max(1, bb[2] - bb[0]);
+      int bbH = Math.max(1, bb[3] - bb[1]);
+
+      Texture pieceTex =
+          TextureMap.instance()
+              .textureAt(new SimpleIPath(PuzzleTextureGenerator.texturePath(puzzle.id(), idx)));
+
+      visible.add(new VisiblePiece(idx, pieceTex, bbX, bbY, bbW, bbH));
+    }
+    for (PuzzlePieceItem piece : LastHourLevel.puzzleEN.pieces()) {
       if (inv == null || !inv.hasItem(piece)) {
         puzzle.unmarkPlaced(piece.pieceIndex());
         continue;
