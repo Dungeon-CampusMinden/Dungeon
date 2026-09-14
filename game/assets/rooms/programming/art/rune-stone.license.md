@@ -129,4 +129,3 @@ express Statement of Purpose.
     this CC0 or use of the Work.
 
 </details>
-

@@ -9,6 +9,7 @@ import engine.network.MessageDispatcher;
 import engine.network.SnapshotTranslator;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
+import feature.collision.CollideSync;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import java.util.ArrayList;
@@ -19,8 +20,9 @@ import java.util.Optional;
 import rooms.programming.level.ProgrammingBinding;
 import rooms.programming.level.ProgrammingTerminal;
 
-/** Adds interaction reach to ordinary world snapshots; room progress stays on the server. */
+/** Adds collider geometry, interaction reach and room state to ordinary world snapshots. */
 public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
+  private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("programming.collider");
   private static final String RANGE_KEY = "programming.interactionRange";
   private final SnapshotTranslator delegate = new DefaultSnapshotTranslator();
 
@@ -48,6 +50,7 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
                           .orElse(0f);
                   Map<String, String> metadata = new HashMap<>();
                   metadata.put(RANGE_KEY, Float.toString(range));
+                  COLLIDE_SYNC.appendMetadata(entity.orElseThrow(), metadata);
                   terminal
                       .filter(s -> s.golemId() == state.entityId())
                       .ifPresent(
@@ -71,6 +74,13 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
   public void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher) {
     delegate.applySnapshot(snapshot, dispatcher);
     for (EntityState state : snapshot.entities()) {
+      state
+          .metadata()
+          .flatMap(COLLIDE_SYNC::fromMetadata)
+          .ifPresent(
+              collider ->
+                  Game.findEntityById(state.entityId())
+                      .ifPresent(entity -> COLLIDE_SYNC.apply(entity, collider)));
       state
           .metadata()
           .map(metadata -> metadata.get("programming.binding"))
@@ -116,6 +126,7 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
     baseState.stateName().ifPresent(builder::stateName);
     baseState.tintColor().ifPresent(builder::tintColor);
     baseState.inventory().ifPresent(builder::inventorySlots);
+    baseState.shaderComponent().ifPresent(builder::shaderComponent);
 
     Map<String, String> mergedMetadata = new HashMap<>();
     baseState.metadata().ifPresent(mergedMetadata::putAll);

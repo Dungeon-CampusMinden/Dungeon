@@ -15,12 +15,10 @@ import feature.canvas.CanvasOptions;
 import feature.canvas.CanvasSnapshot;
 import feature.canvas.CanvasUI;
 import feature.canvas.NodeOrigin;
-import java.util.Comparator;
 import rooms.programming.modules.loops.TerminalState;
 
 /** Keeps live server updates separate from the player's canvas arrangement. */
 final class ProgrammingTerminalUI extends CanvasUI {
-  private TerminalState current;
   private boolean initialViewPlaced;
   private final Label code = Scene2dElementFactory.createLabel("", 18, Color.valueOf("f1eadc"));
   private final Group tooltip =
@@ -58,7 +56,6 @@ final class ProgrammingTerminalUI extends CanvasUI {
                 .toList()),
         dialogId,
         ProgrammingTerminal.nodes(initial));
-    current = initial;
     update(initial);
     tooltip.setTransform(false);
     tooltip.setTouchable(Touchable.disabled);
@@ -85,10 +82,9 @@ final class ProgrammingTerminalUI extends CanvasUI {
         || pointer.x > area().getWidth()
         || pointer.y > area().getHeight()) return;
     Vector2 world = area().areaToWorld(pointer.x, pointer.y);
-    area().nodes().stream()
+    area()
+        .nodeAt(world.x, world.y)
         .filter(CanvasNode::isVisible)
-        .filter(node -> node.bounds().contains(world))
-        .max(Comparator.comparingInt(CanvasNode::z))
         .filter(ProgrammingTerminalNode.class::isInstance)
         .map(ProgrammingTerminalNode.class::cast)
         .flatMap(ProgrammingTerminalNode::hoverCode)
@@ -136,13 +132,12 @@ final class ProgrammingTerminalUI extends CanvasUI {
   }
 
   private void update(TerminalState state) {
-    current = state;
     for (int i = 0; i < state.collectedRunes().size(); i++) {
       String id = state.collectedRunes().get(i);
       if (area().nodeById(id).isEmpty()) area().addNode(ProgrammingTerminal.card(id, i));
     }
     for (CanvasNode node : area().nodes()) {
-      if (node instanceof ProgrammingTerminalNode terminal) terminal.update(current);
+      if (node instanceof ProgrammingTerminalNode terminal) terminal.update(state);
     }
   }
 }

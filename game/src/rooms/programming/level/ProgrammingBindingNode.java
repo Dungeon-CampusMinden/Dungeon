@@ -121,8 +121,7 @@ final class ProgrammingBindingNode extends CanvasNode {
       movable(next.propertiesCollected() && next.vesselsCollected() && !next.revealed());
     }
     if (kind == Kind.SOCKET) setVisible(next.propertiesCollected());
-    if (kind == Kind.HEADING)
-      setVisible(id().equals("vessel-heading") ? next.vesselsCollected() : next.vesselsCollected());
+    if (kind == Kind.HEADING) setVisible(next.vesselsCollected());
     if (title != null) refreshText();
     invalidateLayout();
   }
