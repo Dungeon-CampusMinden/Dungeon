@@ -67,17 +67,17 @@ public final class DataArchiveRiddle {
         EntityFactory.archiveBookshelf(
             level.getPoint("archive_shelf_energie"),
             "archive_shelf_energie",
-            SystemRecoveryText.text("world.archive.shelf-energy")));
+            SystemRecoveryText.key("world.archive.shelf-energy")));
     Game.add(
         EntityFactory.archiveBookshelf(
             level.getPoint("archive_shelf_module"),
             "archive_shelf_module",
-            SystemRecoveryText.text("world.archive.shelf-module")));
+            SystemRecoveryText.key("world.archive.shelf-module")));
     Game.add(
         EntityFactory.archiveBookshelf(
             level.getPoint("archive_shelf_aktiv"),
             "archive_shelf_aktiv",
-            SystemRecoveryText.text("world.archive.shelf-active")));
+            SystemRecoveryText.key("world.archive.shelf-active")));
   }
 
   private void spawnDataNodes() {

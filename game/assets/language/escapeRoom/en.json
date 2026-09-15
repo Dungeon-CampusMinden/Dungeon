@@ -129,7 +129,7 @@
             "scanner-lever": "The counting code was accepted. Pull the scanner lever and observe the five module positions being checked.",
             "scanner-door": "The scan is complete. The display gives the access code for the transport storage. Open the door and follow the next signal.",
             "packages-array": "The module check is complete. Go to the transport storage. Five packages are waiting there to be processed. Create an integer array named pakete and record the weights shown on the packages.",
-            "packages-loop": "Use a simple for loop to pass each package to the storage scanner exactly once.",
+            "packages-loop": "Use a simple for loop over pakete. Inside the loop, call roboter.collect(pakete[index]) exactly once for each element so the storage scanner can process the package.",
             "data-storage-problem": "There is a problem in the data storage room.",
             "manual-sorting": "The security values are unordered. Inspect the displayed neighboring pair and decide whether the two values must exchange places.",
             "bubble-sort-code": "The manual sort is complete. Fill in the missing comparison in the prepared Bubble Sort code and save it to the sort chip.",
@@ -257,7 +257,7 @@
                 "title": "Transport storage",
                 "package": "Transport package: $1",
                 "display-values": "Required package weights\nSlot 1 (array index 0): 15\nSlot 2 (array index 1): 40\nSlot 3 (array index 2): 20\nSlot 4 (array index 3): 60\nSlot 5 (array index 4): 30\nNext: create the package array and enter these values.",
-                "display-collect": "Package array accepted.\nNext: traverse each package exactly once and pass it to the storage scanner.",
+                "display-collect": "Package array accepted.\nNext: traverse each package exactly once and call roboter.collect(pakete[index]) for each element.",
                 "display-running": "The storage scanner is processing the packages...",
                 "display-complete": "All packages were collected. The data-storage route is open."
             },

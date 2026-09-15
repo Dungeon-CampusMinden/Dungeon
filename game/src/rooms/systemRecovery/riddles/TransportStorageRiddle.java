@@ -74,7 +74,7 @@ public final class TransportStorageRiddle {
         EntityFactory.hintDisplay(
             level.getPoint("display_storage"),
             () -> transportDisplayText,
-            SystemRecoveryText.text("world.transport.title"));
+            SystemRecoveryText.key("world.transport.title"));
     transportDisplay.name("transport_display");
     Game.add(transportDisplay);
 

@@ -129,7 +129,7 @@
             "scanner-lever": "Der Zählcode ist akzeptiert. Betätige jetzt den Scanner-Hebel und beobachte die Prüfung der fünf Modulpositionen.",
             "scanner-door": "Der Scan ist abgeschlossen. Die Anzeige nennt den Zugangscode für das Transportlager. Öffne die Tür und folge dem nächsten Signal.",
             "packages-array": "Die Modulprüfung ist abgeschlossen. Geh jetzt ins Transportlager. Dort warten fünf Pakete auf ihre Verarbeitung. Lege ein ganzzahliges Array namens pakete an und übertrage die angezeigten Gewichte.",
-            "packages-loop": "Verwende eine einfache for-Schleife, um jedes Paket genau einmal an den Lager-Scanner zu übergeben.",
+            "packages-loop": "Verwende eine einfache for-Schleife über pakete. Rufe darin für jedes Element genau einmal roboter.collect(pakete[index]) auf, damit der Lager-Scanner das Paket übernimmt.",
             "data-storage-problem": "Im Datenspeicher gibt es ein Problem.",
             "manual-sorting": "Die Sicherheitswerte sind ungeordnet. Untersuche das angezeigte Nachbarpaar und entscheide, ob die beiden Werte ihre Plätze tauschen müssen.",
             "bubble-sort-code": "Die manuelle Sortierung ist abgeschlossen. Ergänze am Rechner die fehlende Vergleichsbedingung im vorbereiteten Bubble-Sort-Code und speichere ihn auf dem Sortierchip.",
@@ -257,7 +257,7 @@
                 "title": "Transportlager",
                 "package": "Transportpaket: $1",
                 "display-values": "Benötigte Paketgewichte\nSlot 1 (interner Index 0): 15\nSlot 2 (interner Index 1): 40\nSlot 3 (interner Index 2): 20\nSlot 4 (interner Index 3): 60\nSlot 5 (interner Index 4): 30\nAls Nächstes: Erzeuge das Paket-Array und übertrage diese Werte.",
-                "display-collect": "Das Paket-Array ist akzeptiert.\nAls Nächstes: Durchlaufe jedes Paket genau einmal und übergib es an den Lager-Scanner.",
+                "display-collect": "Das Paket-Array ist akzeptiert.\nAls Nächstes: Durchlaufe jedes Paket genau einmal und rufe für jedes Element roboter.collect(pakete[index]) auf.",
                 "display-running": "Der Lager-Scanner verarbeitet die Pakete ...",
                 "display-complete": "Alle Pakete wurden eingesammelt. Der Weg zum Datenspeicher ist offen."
             },

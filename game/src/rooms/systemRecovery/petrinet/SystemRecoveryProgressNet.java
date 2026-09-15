@@ -7,7 +7,6 @@ import feature.petrinet.PetriNetSystem;
 import feature.petrinet.PlaceComponent;
 import feature.petrinet.TransitionComponent;
 import java.util.EnumMap;
-import java.util.Map;
 import java.util.Optional;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
@@ -32,14 +31,25 @@ public final class SystemRecoveryProgressNet {
       new EnumMap<>(SystemRecoveryProgressPlace.class);
   private final EnumMap<ProgressEvent, PlaceComponent> events =
       new EnumMap<>(ProgressEvent.class);
+  private final EnumMap<ProgressEvent, TransitionRoute> routes =
+      new EnumMap<>(ProgressEvent.class);
   private final PlaceComponent accessGranted = new PlaceComponent();
+  /**
+   * Mirror of the one player-facing token currently used by the telephone.
+   *
+   * <p>The generic Petri-net system still owns the actual places and transitions. This mirror
+   * makes event handling deterministic when an interaction callback and the regular ECS tick
+   * happen in the same frame.
+   */
+  private SystemRecoveryProgressPlace activeState;
 
   private SystemRecoveryProgressNet(PetriNetSystem petriNet) {
     this.petriNet = petriNet;
     createStatePlaces();
     createEventPlaces();
     connectStates();
-    states.get(SystemRecoveryProgressPlace.OPENING_CALL_PENDING).place().produce();
+    activeState = SystemRecoveryProgressPlace.OPENING_CALL_PENDING;
+    states.get(activeState).place().produce();
   }
 
   /** Initializes the room net once after the authoritative level has been created. */
@@ -65,10 +75,7 @@ public final class SystemRecoveryProgressNet {
   /** Returns the active player-facing place, if the net has been initialized. */
   public static Optional<SystemRecoveryProgressPlace> activePlace() {
     if (instance == null) return Optional.empty();
-    return instance.states.entrySet().stream()
-        .filter(entry -> entry.getValue().place().tokenCount() > 0)
-        .map(Map.Entry::getKey)
-        .findFirst();
+    return Optional.of(instance.activeState);
   }
 
   /**
@@ -130,7 +137,7 @@ public final class SystemRecoveryProgressNet {
     if (target == null) return;
     instance.clearTokens(instance.states.values().stream().map(PlaceBinding::place));
     instance.clearTokens(instance.events.values().stream());
-    instance.states.get(target).place().produce();
+    instance.activate(target);
   }
 
   /** Emits a successful physical interaction or chip operation. */
@@ -235,10 +242,42 @@ public final class SystemRecoveryProgressNet {
     // UI interactions can emit multiple authoritative events before the next ECS tick. Flush the
     // net here so the following event observes the newly active place instead of being discarded.
     instance.petriNet.execute();
+    instance.activateAfterTransition(expectedPlace, event);
   }
 
   private boolean hasToken(SystemRecoveryProgressPlace state) {
     return states.get(state).place().tokenCount() > 0;
+  }
+
+  /**
+   * Confirms the state produced by the generic Petri-net system after an event has fired.
+   *
+   * <p>Callbacks are authoritative and may be invoked from a network message between two regular
+   * ECS ticks. If a transition was not observed in this callback, the declared route is repaired
+   * here. This keeps the hint phone and the visible riddle progression on the same state without
+   * allowing an event to skip a required step.
+   */
+  private void activateAfterTransition(
+      SystemRecoveryProgressPlace expectedPlace, ProgressEvent event) {
+    TransitionRoute route = routes.get(event);
+    if (route == null || route.from() != expectedPlace) return;
+
+    if (hasToken(route.to())) {
+      activeState = route.to();
+      return;
+    }
+
+    // Restore the one-token invariant from the same declared route and discard stale event tokens.
+    clearTokens(states.values().stream().map(PlaceBinding::place));
+    clearTokens(events.values().stream());
+    activate(route.to());
+  }
+
+  /** Activates exactly one player-facing state place. */
+  private void activate(SystemRecoveryProgressPlace state) {
+    clearTokens(states.values().stream().map(PlaceBinding::place));
+    activeState = state;
+    states.get(state).place().produce();
   }
 
   private void clearTokens(java.util.stream.Stream<PlaceComponent> places) {
@@ -366,6 +405,7 @@ public final class SystemRecoveryProgressNet {
       SystemRecoveryProgressPlace from,
       ProgressEvent event,
       SystemRecoveryProgressPlace to) {
+    routes.put(event, new TransitionRoute(from, to));
     TransitionComponent transition = new TransitionComponent();
     petriNet.addInputArc(transition, states.get(from).place());
     petriNet.addInputArc(transition, events.get(event));
@@ -377,6 +417,7 @@ public final class SystemRecoveryProgressNet {
       ProgressEvent event,
       SystemRecoveryProgressPlace firstOutput,
       SystemRecoveryProgressPlace secondOutput) {
+    routes.put(event, new TransitionRoute(from, firstOutput));
     TransitionComponent transition = new TransitionComponent();
     petriNet.addInputArc(transition, states.get(from).place());
     petriNet.addInputArc(transition, events.get(event));
@@ -403,6 +444,9 @@ public final class SystemRecoveryProgressNet {
   }
 
   private record PlaceBinding(Entity entity, PlaceComponent place) {}
+
+  private record TransitionRoute(
+      SystemRecoveryProgressPlace from, SystemRecoveryProgressPlace to) {}
 
   private enum ProgressEvent {
     PHONE_CALL_FINISHED,
