@@ -78,8 +78,8 @@ public class TerminalTab extends SystemRecoveryComputerTab {
         createButton(SystemRecoveryText.text("computer.delete"), "red-outline", 24);
     TextButton nextStepButton =
         createButton(SystemRecoveryText.text("computer.next-step"), "blue-outline", 24);
-    TextButton spawnUsbButton =
-        createButton(SystemRecoveryText.text("computer.spawn-usb"), "blue-outline", 24);
+    TextButton spawnDebugItemsButton =
+        createButton(SystemRecoveryText.text("computer.spawn-debug-items"), "blue-outline", 24);
     TextButton petriNetButton =
         createButton(SystemRecoveryText.text("computer.petri-net"), "blue-outline", 24);
     sendButton.addListener(
@@ -105,12 +105,12 @@ public class TerminalTab extends SystemRecoveryComputerTab {
                 .accept(new DialogResponseMessage.StringValue(""));
           }
         });
-    spawnUsbButton.addListener(
+    spawnDebugItemsButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             DialogCallbackResolver.createButtonCallback(
-                    context().dialogId(), SystemRecoveryComputerCallbacks.DEBUG_SPAWN_SORT_USB)
+                    context().dialogId(), SystemRecoveryComputerCallbacks.DEBUG_SPAWN_ALL_ITEMS)
                 .accept(new DialogResponseMessage.StringValue(""));
           }
         });
@@ -127,7 +127,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     buttons.add(deleteButton).width(150).height(52);
     if (SystemRecovery.DEBUG_MODE) {
       buttons.add(nextStepButton).width(180).height(52).padLeft(12);
-      buttons.add(spawnUsbButton).width(180).height(52).padLeft(12);
+      buttons.add(spawnDebugItemsButton).width(220).height(52).padLeft(12);
       buttons.add(petriNetButton).width(180).height(52).padLeft(12);
     }
     footer.add(buttons).right();

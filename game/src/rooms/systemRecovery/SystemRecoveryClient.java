@@ -85,6 +85,9 @@ public final class SystemRecoveryClient {
               }
               SystemRecoverySnapshotTranslator.applyInteractableMetadata(
                   newEntity, event.metadata());
+              SystemRecoverySnapshotTranslator.applySystemCoreAlarm(event.metadata());
+              SystemRecoverySnapshotTranslator.applySystemCoreVisualMetadata(
+                  newEntity, event.metadata());
               SystemRecoverySnapshotTranslator.questLogFromMetadata(event.metadata())
                   .ifPresent(
                       questLog -> {

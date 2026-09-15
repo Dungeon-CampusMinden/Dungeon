@@ -8,8 +8,11 @@ import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import rooms.systemRecovery.entities.EntityFactory;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.util.SystemRecoveryText;
@@ -73,20 +76,40 @@ public final class SystemCoreRiddle {
     updateDisplay();
   }
 
-  /**
-   * Completes the central riddle and opens the route beyond the system core.
-   *
-   * <p>The terminal callback calls this only after all three terminal states have succeeded.
-   */
+  /** Completes the meta-riddle and opens the route beyond the system core. */
   public void complete() {
-    if (stage < 3) return;
+    if (stage < 3 || stage >= 4) return;
+    stage = 4;
+    updateDisplay();
     DoorTile door = (DoorTile) level.tileAt(level.getPoint("door_elevator")).orElseThrow();
     door.open();
   }
 
-  /** @return whether all three central routines have been accepted */
+  /** @return whether all three routines and the final combination have been accepted */
   public boolean completed() {
-    return stage >= 3;
+    return stage >= 4;
+  }
+
+  /**
+   * Returns the completed section count used by the synchronized visual state.
+   *
+   * @return {@code 0} before the first section, {@code 1} after sorting, {@code 2} after module
+   *     counting, {@code 3} after the matrix search and {@code 4} after the meta-riddle
+   */
+  public int stage() {
+    return stage;
+  }
+
+  /**
+   * Checks the final result payload against the values produced by the three central areas.
+   *
+   * @param payload compact payload from the system-core input mask
+   * @return whether all three displayed results are correct
+   */
+  public boolean acceptsMetaInput(String payload) {
+    return SystemCoreMetaInput.parse(payload)
+        .map(input -> input.matches(sortedEnergyValues(), activeModuleCount(), BATTERY_CELLS.size()))
+        .orElse(false);
   }
 
   private void spawnTerminal() {
@@ -147,8 +170,24 @@ public final class SystemCoreRiddle {
       case 0 -> SystemRecoveryText.text("world.system-core.display-sort");
       case 1 -> SystemRecoveryText.text("world.system-core.display-count");
       case 2 -> SystemRecoveryText.text("world.system-core.display-search");
+      case 3 -> metaDisplayText();
       default -> SystemRecoveryText.text("world.system-core.display-complete");
     };
+  }
+
+  private String metaDisplayText() {
+    String sortedValues =
+        sortedEnergyValues().stream().map(String::valueOf).collect(Collectors.joining(" "));
+    return SystemRecoveryText.text(
+        "world.system-core.display-meta", sortedValues, activeModuleCount(), BATTERY_CELLS.size());
+  }
+
+  private static List<Integer> sortedEnergyValues() {
+    return Arrays.stream(SORT_VALUES).sorted().boxed().toList();
+  }
+
+  private static int activeModuleCount() {
+    return (int) Arrays.stream(MODULE_VALUES).filter(value -> value != null).count();
   }
 
   private void updateDisplay() {

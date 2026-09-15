@@ -18,7 +18,7 @@ public final class SearchProgramChipItem extends Item {
   /** Serialized state key. */
   public static final String DATA_KEY_PROGRAMMED = "programmed";
 
-  private static final SimpleIPath TEXTURE = new SimpleIPath("items/usb-side-red.png");
+  private static final SimpleIPath TEXTURE = new SimpleIPath("items/usb-side-blue.png");
 
   static {
     ItemRegistry.register(SearchProgramChipItem.class, SearchProgramChipItem::fromData);

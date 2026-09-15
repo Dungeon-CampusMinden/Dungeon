@@ -155,6 +155,13 @@ public final class InterpretationCallbacks {
   public static void onRiddleTenStepThreeBatteriesCollected() {
     showCorrectTerminalInputDialog();
     SystemRecoveryLevel.completeSystemCoreMapSearch();
+    SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
+        SystemRecoveryStoryDialogs.CENTRAL_META);
+  }
+
+  /** Handles riddle 10 meta step: combine the three results shown by the central display. */
+  public static void onRiddleTenMetaCombinationCompleted() {
+    showCorrectTerminalInputDialog();
     SystemRecoveryLevel.completeSystemCoreRiddle();
     SystemRecoveryLevel.announceStoryCompletion();
   }
