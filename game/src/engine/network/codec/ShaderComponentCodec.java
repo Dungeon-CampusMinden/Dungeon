@@ -7,9 +7,11 @@ import engine.utils.components.draw.shader.ColorGradeShader;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.LevelHideShader;
+import engine.utils.components.draw.shader.MagicBallShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.shader.PassthroughShader;
 import engine.utils.components.draw.shader.ShineShader;
+import engine.utils.components.draw.shader.SlotShader;
 import engine.utils.components.draw.shader.WaterShader;
 import feature.shader.ShaderComponent;
 import java.util.List;
@@ -26,6 +28,8 @@ public final class ShaderComponentCodec {
   private static final String TYPE_LEVEL_HIDE = "level_hide";
   private static final String TYPE_SYSTEM_RECOVERY_ALARM = "system_recovery_alarm";
   private static final String TYPE_WATER = "water";
+  private static final String TYPE_SLOT = "slot";
+  private static final String TYPE_MAGIC_BALL = "magic_ball";
 
   private ShaderComponentCodec() {}
 
@@ -136,6 +140,10 @@ public final class ShaderComponentCodec {
       type = TYPE_SYSTEM_RECOVERY_ALARM;
     } else if (shader instanceof WaterShader) {
       type = TYPE_WATER;
+    } else if (shader instanceof SlotShader) {
+      type = TYPE_SLOT;
+    } else if (shader instanceof MagicBallShader) {
+      type = TYPE_MAGIC_BALL;
     } else {
       throw new IllegalArgumentException(
           "Unsupported synchronized shader type: " + shader.getClass().getName());
@@ -156,6 +164,8 @@ public final class ShaderComponentCodec {
           case TYPE_LEVEL_HIDE -> new LevelHideShader();
           case TYPE_SYSTEM_RECOVERY_ALARM -> new SystemRecoveryAlarmShader();
           case TYPE_WATER -> new WaterShader();
+          case TYPE_SLOT -> new SlotShader();
+          case TYPE_MAGIC_BALL -> new MagicBallShader();
           default -> throw new IllegalArgumentException("Unsupported shader type: " + entry.type());
         };
     shader.loadProperties(entry.properties());
