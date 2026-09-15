@@ -35,6 +35,7 @@ public final class InputManager {
   private static final long DEFAULT_DOUBLE_TAP_INTERVAL_MS = 300L;
 
   private static final Set<Integer> justPressedKeys = new HashSet<>();
+  private static final Set<Integer> unfilteredJustPressedKeys = new HashSet<>();
   private static final Set<Integer> pressedKeys = new HashSet<>();
   private static final Set<Integer> justReleasedKeys = new HashSet<>();
   private static final Set<Integer> justPressedButtons = new HashSet<>();
@@ -63,6 +64,7 @@ public final class InputManager {
         new InputProcessor() {
           @Override
           public boolean keyDown(int keycode) {
+            unfilteredJustPressedKeys.add(keycode);
             registerPress(
                 keycode,
                 justPressedKeys,
@@ -140,6 +142,19 @@ public final class InputManager {
    */
   public static boolean isKeyJustPressed(int keycode) {
     return justPressedKeys.contains(keycode);
+  }
+
+  /**
+   * Checks a key press, optionally including presses captured by the UI keyboard focus.
+   *
+   * @param keycode the key to check
+   * @param ignoreKeyboardFocus true for global shortcuts that must work while typing
+   * @return true if the key was pressed in the current frame
+   */
+  public static boolean isKeyJustPressed(int keycode, boolean ignoreKeyboardFocus) {
+    return ignoreKeyboardFocus
+        ? unfilteredJustPressedKeys.contains(keycode)
+        : isKeyJustPressed(keycode);
   }
 
   /**
@@ -281,6 +296,7 @@ public final class InputManager {
    * and hold start times.
    */
   public static void reset() {
+    unfilteredJustPressedKeys.clear();
     justPressedKeys.clear();
     pressedKeys.clear();
     justReleasedKeys.clear();
@@ -302,6 +318,7 @@ public final class InputManager {
    * <p>This method should be called once per frame.
    */
   public static void update() {
+    unfilteredJustPressedKeys.clear();
     // Move justPressed keys/buttons to pressed state and clear justPressed
     updateFrame(justPressedKeys, pressedKeys, justReleasedKeys);
     updateFrame(justPressedButtons, pressedButtons, justReleasedButtons);

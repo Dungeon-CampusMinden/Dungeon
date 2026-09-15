@@ -28,12 +28,14 @@ public class ProgrammingClientLevel extends DungeonLevel {
       Map<String, Point> namedPoints,
       List<Tuple<Deco, Point>> decorations) {
     super(
-        ProgrammingMazeWorld.layout(layout, namedPoints),
+        ProgrammingWorkshopWorld.layout(
+            ProgrammingMazeWorld.layout(layout, namedPoints), namedPoints),
         designLabel,
         namedPoints,
         decorations,
         LEVEL_NAME);
     ProgrammingTerminal.reset();
+    ProgrammingMethods.reset();
     ProgrammingGates.initialize(this);
   }
 

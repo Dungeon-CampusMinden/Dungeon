@@ -40,4 +40,33 @@ final class ProgrammingStory {
     return "Wartung, Torwinde\n\nDie untere Halterung ist stark verrostet. "
         + "Unter Belastung gibt sie nach.\n\nValerius";
   }
+
+  static String workshop() {
+    return "Die Torwinde ist zerstört. Der Nebenausgang der Werkstatt bleibt uns. "
+        + "Aktiviere die Runensteine, sammle ihre Kristalle und versorge beide Altäre."
+        + "\n\nValerius' langes Programm erledigt das bereits. Doch die Steuerung des Ausgangs "
+        + "fasst nur acht Befehle im Hauptprogramm. Lagere wiederholte Abläufe in eigene Methoden aus. "
+        + "Ihre Aufrufe sparen Platz. Parameter und Rückgaben machen dieselbe Methode mehrfach nutzbar."
+        + "\n\nDie Werkstatt ist ein Prüfstand. Jeder Start setzt Nox und alle Objekte zurück. "
+        + "Öffne das Steuerbuch auf der Werkbank und probiere deine Änderungen aus.";
+  }
+
+  static String workshopJournal() {
+    return "Valerius' Werkstattjournal\n\n"
+        + "Das vollständige Programm liegt im Steuerbuch. Zwei Tore, zweimal derselbe Handgriff. "
+        + "Die Runen verlangen unterschiedliche Richtungen. Die Felder liefern drei und fünf Kristalle. "
+        + "Die Altäre brauchen genau diese Mengen."
+        + "\n\nDie Ausgangssteuerung hat Platz für acht Befehle. Eigene Methoden haben ihren eigenen "
+        + "Speicher. Ich muss die Wiederholungen zusammenfassen und ihre Unterschiede als Parameter "
+        + "übergeben. Eine Sammlung liefert ihre tatsächliche Anzahl als Rückgabe."
+        + "\n\nDer Prüfstand setzt vor jedem Lauf alles zurück. Fehler bleiben sichtbar, "
+        + "bis der nächste Versuch beginnt. Die Hilfe im Buch erklärt Parameter und Rückgaben."
+        + "\n\nValerius";
+  }
+
+  static String workshopArrival() {
+    return "Das Steuerbuch enthält meinen vollständigen Arbeitsablauf. Er funktioniert, "
+        + "aber die Ausgangssteuerung fasst nur acht Befehle. Fasse Wiederholungen in eigenen "
+        + "Methoden zusammen. Bei jedem Start setzt der Prüfstand alles zurück.";
+  }
 }

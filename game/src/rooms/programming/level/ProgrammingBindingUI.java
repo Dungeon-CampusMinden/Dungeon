@@ -1,13 +1,6 @@
 package rooms.programming.level;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import feature.canvas.CanvasLayout;
 import feature.canvas.CanvasNode;
-import feature.canvas.CanvasOptions;
-import feature.canvas.CanvasSnapshot;
-import feature.canvas.CanvasUI;
-import feature.canvas.NodeOrigin;
 import java.util.ArrayList;
 import java.util.List;
 import rooms.programming.modules.variables.BindingState;
@@ -16,35 +9,20 @@ import rooms.programming.modules.variables.MagicalEssence;
 import rooms.programming.modules.variables.SoulVessel;
 
 /** One workbench: reusable vessel stamps, named storage and replaceable value tokens. */
-final class ProgrammingBindingUI extends CanvasUI {
+final class ProgrammingBindingUI extends ProgrammingWorkbenchUI {
   private BindingState state;
-  private boolean frame = true;
-  private float viewportWidth;
-  private float viewportHeight;
+  private ProgrammingBindingNode.Kind selectedKind;
+  private String selectedSupply = "";
 
   ProgrammingBindingUI(String dialogId, BindingState initial) {
     super(
         ProgrammingBinding.ID,
-        new CanvasLayout(
-            "Nox · Seelenwerkbank",
-            // Let the dialog shell size the viewport, even on smaller windows.
-            1,
-            1,
-            new CanvasOptions()
-                .backgroundColor(Color.valueOf("11191d"))
-                .grid(32, false)
-                .selectionColor(Color.valueOf("e8b566"))
-                .multiSelectEnabled(false)
-                .initialZoom(1)
-                .zoom(.35f, 2),
-            true),
-        new CanvasSnapshot(
-            nodes().stream()
-                .map(CanvasNode::toState)
-                .map(s -> s.withOrigin(NodeOrigin.DEFAULT))
-                .toList()),
         dialogId,
+        "Nox · Seelenwerkbank",
+        "Binde Gefäß, Name und Wert und erwecke Nox.",
         nodes());
+    help(
+        "Seelenbindung\n\nWähle ein Gefäß und klicke auf eine Fassung, oder ziehe es direkt dorthin. Fülle es danach ebenso mit einer passenden Essenz. Gefäße und Essenzen lassen sich mehrfach verwenden.\n\nMit × leerst du eine Fassung. Sobald die Bindung vollständig ist, kannst du Nox aktivieren.\n\nValerius' Bindungsplan liegt im Raum. Er beschreibt die benötigten Werte.");
     update(initial);
   }
 
@@ -64,16 +42,13 @@ final class ProgrammingBindingUI extends CanvasUI {
     nodes.add(
         new ProgrammingBindingNode("core", ProgrammingBindingNode.Kind.CORE).position(558, 176));
     nodes.add(
-        new ProgrammingBindingNode("feedback", ProgrammingBindingNode.Kind.FEEDBACK)
-            .position(260, -30));
-    nodes.add(
         new ProgrammingBindingNode("essence-heading", ProgrammingBindingNode.Kind.HEADING)
-            .position(0, -84));
+            .position(0, 20));
     for (var essence : MagicalEssence.values())
       nodes.add(
           new ProgrammingBindingNode(
                   "essence-" + essence.name(), ProgrammingBindingNode.Kind.ESSENCE)
-              .position(essence.ordinal() * 156, -186));
+              .position(essence.ordinal() * 156, -80));
     return nodes;
   }
 
@@ -84,39 +59,50 @@ final class ProgrammingBindingUI extends CanvasUI {
   }
 
   private void update(BindingState next) {
-    if (state != null
-        && (state.propertiesCollected() != next.propertiesCollected()
-            || state.vesselsCollected() != next.vesselsCollected())) frame = true;
+    if (state != null && state.stage() != next.stage()) selectedSupply = "";
     state = next;
+    feedback.setText(next.feedback());
+    status.setText(
+        next.revealed()
+            ? "Gefäß · Name · Wert · Seelenbindung vollständig"
+            : "Gefäße "
+                + next.vessels().size()
+                + " / 6 · Essenzen "
+                + next.essences().size()
+                + " / 6 · Gemeinsam bearbeiten");
     for (var node : area().nodes())
-      if (node instanceof ProgrammingBindingNode binding) binding.update(next);
+      if (node instanceof ProgrammingBindingNode binding) {
+        binding.selection(selectedSupply, this::select);
+        binding.update(next);
+      }
+  }
+
+  private void select(ProgrammingBindingNode.Kind kind, String id) {
+    if (state.revealed()) return;
+    if (kind == ProgrammingBindingNode.Kind.VESSEL || kind == ProgrammingBindingNode.Kind.ESSENCE) {
+      selectedKind = kind;
+      selectedSupply = id;
+      update(state);
+    } else if (kind == ProgrammingBindingNode.Kind.SOCKET && !selectedSupply.isEmpty()) {
+      boolean vessel = selectedKind == ProgrammingBindingNode.Kind.VESSEL;
+      area()
+          .fireServerEvent(
+              vessel ? "vessel" : "essence",
+              new engine.network.messages.c2s.DialogResponseMessage.StringValue(
+                  id + ":" + selectedSupply.substring(vessel ? 7 : 8)));
+    }
   }
 
   @Override
-  protected void resetView() {
-    frame = true;
-  }
-
-  @Override
-  public void draw(Batch batch, float alpha) {
-    if (getWidth() != viewportWidth || getHeight() != viewportHeight) {
-      viewportWidth = getWidth();
-      viewportHeight = getHeight();
-      frame = true;
-    }
-    if (frame) {
-      for (var child : getChildren())
-        if (child instanceof com.badlogic.gdx.scenes.scene2d.utils.Layout layout) layout.validate();
-      // Fixed workbench bounds prevent empty supplies from hiding the assembly's spatial structure.
-      float bottom = state.vesselsCollected() ? -198 : -42;
-      float height = 630 - bottom;
-      float zoom =
-          Math.min(
-              1, Math.min((area().getWidth() - 64) / 1080, (area().getHeight() - 112) / height));
-      area().zoom(zoom);
-      area().pan((area().getWidth() - 1080 * zoom) / 2, 24 - bottom * zoom);
-      frame = false;
-    }
-    super.draw(batch, alpha);
+  protected float layoutWorkspace(float width, float height) {
+    float bottom = -92;
+    float zoom = Math.min(width / 1080, Math.max(1, height) / (630 - bottom));
+    float contentHeight = Math.max(1, height);
+    area().options().zoom(zoom, zoom);
+    area().zoom(zoom);
+    area()
+        .pan(
+            (width - 1072 * zoom) / 2, (contentHeight - (630 - bottom) * zoom) / 2 - bottom * zoom);
+    return contentHeight;
   }
 }

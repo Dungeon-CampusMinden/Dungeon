@@ -22,6 +22,9 @@ public class DialogContextKeys {
   /** The key for the owner entity ID (the entity holding the UIComponent). */
   public static final String OWNER_ENTITY = "ownerEntity";
 
+  /** Blocks the targeted players' gameplay input while keeping the world simulation running. */
+  public static final String BLOCKS_GAMEPLAY_INPUT = "blocksGameplayInput";
+
   /** The key for the associated entity in the dialog context. */
   public static final String ENTITY = "entity";
 

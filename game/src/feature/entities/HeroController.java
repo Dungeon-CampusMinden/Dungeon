@@ -690,7 +690,7 @@ public class HeroController {
         continue;
       }
 
-      boolean paused = Game.hud().hasOpenPausingUI(playerEntity);
+      boolean paused = Game.hud().blocksGameplayInput(playerEntity);
       if (!clientState.advanceProcessedSeq(msg.sequence())) {
         LOGGER.debug(
             "Ignoring stale or duplicate input sequence {} for client {}",

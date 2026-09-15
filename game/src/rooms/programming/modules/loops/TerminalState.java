@@ -8,8 +8,8 @@ import java.util.List;
  * @param collectedRunes available canonical rune IDs
  * @param checkpoint zero-based current checkpoint, or five after completion
  * @param golemId entity observed by the monitor
- * @param cellX current grid column
- * @param cellY current grid row
+ * @param cellX continuous grid column of the physical golem
+ * @param cellY continuous grid row of the physical golem
  * @param busy whether an attempt or return is running
  * @param observationReady whether the golem has entered the remote maze
  * @param activeRune inserted rune ID, retained after execution until removed or replaced
@@ -19,8 +19,8 @@ public record TerminalState(
     List<String> collectedRunes,
     int checkpoint,
     int golemId,
-    int cellX,
-    int cellY,
+    float cellX,
+    float cellY,
     boolean busy,
     boolean observationReady,
     String activeRune,

@@ -809,6 +809,16 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, msg) -> {
           LOGGER.debug("Received DialogShowMessage for dialog: {}", msg.context().dialogId());
 
+          // Initial-world resync can deliver a dialog that is already open on a local owner.
+          Game.levelEntities()
+              .filter(
+                  entity ->
+                      entity
+                          .fetch(UIComponent.class)
+                          .map(ui -> msg.context().dialogId().equals(ui.dialogContext().dialogId()))
+                          .orElse(false))
+              .findFirst()
+              .ifPresent(entity -> msg.context().owner(entity.id()));
           DialogFactory.show(msg.context(), false, msg.canBeClosed());
         });
 
@@ -816,7 +826,7 @@ public final class GameLoop extends ScreenAdapter {
         DialogCloseMessage.class,
         (ctx, msg) -> {
           LOGGER.debug("Received DialogCloseMessage for dialog: {}", msg.dialogId());
-          // Find and remove the UiComponent with the given dialogId
+          // A server close is authoritative for every local copy of the dialog.
           Game.levelEntities()
               .filter(
                   e ->
@@ -826,9 +836,9 @@ public final class GameLoop extends ScreenAdapter {
                                   comp.dialogContext() != null
                                       && msg.dialogId().equals(comp.dialogContext().dialogId()))
                           .orElse(false))
-              .findFirst()
-              .flatMap(e -> e.fetch(UIComponent.class))
-              .ifPresent(component -> UIUtils.closeDialog(component, true));
+              .flatMap(e -> e.fetch(UIComponent.class).stream())
+              .toList()
+              .forEach(component -> UIUtils.closeDialog(component, true));
         });
   }
 

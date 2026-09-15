@@ -58,6 +58,11 @@ final class ProgrammingGolemRuntime {
   private final ArrayDeque<Point> route = new ArrayDeque<>();
   private final Entity golem;
   private final ProgrammingCellarMachinery machinery;
+  private final ProgrammingWorkshopRuntime workshop;
+  private java.util.function.Consumer<String> movementFailed;
+  private boolean workshopTransit;
+  private boolean awaitingWorkshopRoute;
+  private float workshopRouteRetry;
   private LoopExecution attempt;
   private LoopMaze.Direction facing = LoopMaze.Direction.EAST;
   private boolean mazeReady;
@@ -95,6 +100,7 @@ final class ProgrammingGolemRuntime {
     collision = golem.fetch(CollideComponent.class).orElseThrow();
     wall = ProgrammingProps.wall(level);
     machinery = new ProgrammingCellarMachinery(level, golem);
+    workshop = new ProgrammingWorkshopRuntime(level, golem, this);
   }
 
   void show(Entity who) {
@@ -103,6 +109,8 @@ final class ProgrammingGolemRuntime {
       text(who, status);
     } else if (controller.phase() == ProgrammingPhase.VARIABLES) {
       ProgrammingBinding.open(who, this);
+    } else if (controller.phase() == ProgrammingPhase.METHODS) {
+      text(who, "Valerius' Pr\u00fcfungsbuch liegt am Eingang zur Werkstatt.");
     } else {
       showTerminal(who);
     }
@@ -282,8 +290,8 @@ final class ProgrammingGolemRuntime {
             .toList(),
         checkpoint,
         golem.id(),
-        Math.round((position.position().x() - origin.x()) / LoopMaze.CELL_WIDTH),
-        Math.round((position.position().y() - origin.y()) / LoopMaze.CELL_HEIGHT),
+        (position.position().x() - origin.x()) / LoopMaze.CELL_WIDTH,
+        (position.position().y() - origin.y()) / LoopMaze.CELL_HEIGHT,
         busy,
         mazeReady,
         activeRune,
@@ -308,6 +316,91 @@ final class ProgrammingGolemRuntime {
     if (collected == 1) ProgrammingAchievements.FIRST_RUNE.unlock();
     if (collected == LoopPuzzle.runes().size()) ProgrammingAchievements.ARCHIVIST.unlock();
     return true;
+  }
+
+  void showMethods(Entity who) {
+    workshop.show(who);
+  }
+
+  boolean methodsActive() {
+    return controller.phase() == ProgrammingPhase.METHODS;
+  }
+
+  void moveWorkshop(
+      List<Point> points, Runnable success, java.util.function.Consumer<String> failure) {
+    movementFailed = failure;
+    move(
+        points,
+        () -> {
+          movementFailed = null;
+          success.run();
+        });
+  }
+
+  /** Cancels the running workshop command without invoking its completion callback. */
+  void stopWorkshopMovement() {
+    if (workshopTransit || awaitingWorkshopRoute) return;
+    route.clear();
+    arrived = () -> {};
+    movementFailed = null;
+    pause = 0;
+    stalled = 0;
+    busy = false;
+    velocity.clearForces();
+    velocity.currentVelocity(Vector2.ZERO);
+  }
+
+  void travelWorkshop(List<Point> points, Runnable success) {
+    workshopTransit = true;
+    moveWorkshop(
+        points,
+        () -> {
+          workshopTransit = false;
+          success.run();
+        },
+        reason -> {});
+  }
+
+  List<Point> workshopPath(Point destination) {
+    return path(position.position(), destination);
+  }
+
+  void faceWorkshop(LoopMaze.Direction direction) {
+    face(direction);
+  }
+
+  private void notifyMovementFailure(String reason) {
+    var callback = movementFailed;
+    movementFailed = null;
+    if (callback != null) callback.accept(reason);
+  }
+
+  private void returnUpstairs() {
+    mazeReady = false;
+    ProgrammingGates.departure(level, true);
+    workshopTransit = true;
+    status = "Der Schutt ist beseitigt. Die Winde leider auch.";
+    Game.allPlayers().forEach(player -> showText(player, status));
+    awaitingWorkshopRoute = true;
+    beginWorkshopReturn();
+  }
+
+  private void beginWorkshopReturn() {
+    List<Point> points = workshopPath(level.getPoint("methods-home"));
+    if (points.isEmpty()
+        && Point.calculateDistance(position.position(), level.getPoint("methods-home")) > .1f) {
+      busy = false;
+      workshopRouteRetry = 1f;
+      return;
+    }
+    awaitingWorkshopRoute = false;
+    moveWorkshop(
+        points,
+        () -> {
+          workshopTransit = false;
+          workshop.arrive();
+        },
+        ignored -> awaitingWorkshopRoute = true);
   }
 
   private boolean authorized(Entity who, String marker, float range) {
@@ -364,22 +457,27 @@ final class ProgrammingGolemRuntime {
     if (instruction.action() == LoopProgram.Action.ATTACK) {
       attacking = true;
       actionTime = 0;
-      if (monsterAlive && !attempt.monsterAlive()) {
-        monsterAlive = false;
-        Game.levelEntities()
-            .filter(entity -> entity.name().equals("programming-maze-monster"))
-            .findFirst()
-            .ifPresent(
-                entity -> {
-                  monster = entity;
-                  Game.remove(entity);
-                });
-      }
     }
+    Runnable complete =
+        () -> {
+          attempt.complete();
+          if (monsterAlive && !attempt.monsterAlive()) {
+            monsterAlive = false;
+            Game.levelEntities()
+                .filter(entity -> entity.name().equals("programming-maze-monster"))
+                .findFirst()
+                .ifPresent(
+                    entity -> {
+                      monster = entity;
+                      Game.remove(entity);
+                    });
+          }
+          advanceAction();
+        };
     if (instruction.from().equals(instruction.to())) {
       busy = true;
       pause = .45f;
-      arrived = this::advanceAction;
+      arrived = complete;
     } else {
       jumping = instruction.action() == LoopProgram.Action.JUMP;
       jumpStart = position.position();
@@ -389,7 +487,7 @@ final class ProgrammingGolemRuntime {
           () -> {
             jumping = false;
             golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
-            advanceAction();
+            complete.run();
           });
     }
   }
@@ -422,12 +520,11 @@ final class ProgrammingGolemRuntime {
                   if (controller.phase() == ProgrammingPhase.METHODS) {
                     ProgrammingAchievements.CELLAR_CLEAR.unlock();
                     if (loopFailures == 0) ProgrammingAchievements.CLEAN_RUN.unlock();
+                    returnUpstairs();
+                    return;
                   }
                   busy = false;
-                  status =
-                      controller.phase() == ProgrammingPhase.METHODS
-                          ? "Torwinde: Halterung gebrochen. Antrieb stillgelegt."
-                          : "Räumauftrag erledigt. Nächste Arbeitsposition bereit.";
+                  status = "Räumauftrag erledigt. Nächste Arbeitsposition bereit.";
                 });
           };
     } else {
@@ -448,7 +545,7 @@ final class ProgrammingGolemRuntime {
       pause = 1.5f;
       List<Point> retrace = new ArrayList<>();
       List<LoopMaze.Cell> history = finished.history();
-      // Start with the last reached anchor: a physical collision may have interrupted a step.
+      // Only reached anchors belong in the return path; an interrupted destination is not one.
       for (int i = history.size() - 1; i >= 0; i--)
         retrace.add(LoopMaze.world(level.getPoint("maze-origin"), history.get(i)));
       arrived = () -> move(retrace, this::resetAttempt);
@@ -504,6 +601,8 @@ final class ProgrammingGolemRuntime {
 
   void tick() {
     if (Game.isMultiplayerClient()) return;
+    var movement = Game.systems().get(engine.systems.MoveSystem.class);
+    if (movement != null && !movement.isRunning()) return;
     // LevelTick runs before VelocitySystem and MoveSystem. The latter owns physical movement.
     velocity.clearForces();
     velocity.currentVelocity(Vector2.ZERO);
@@ -511,6 +610,11 @@ final class ProgrammingGolemRuntime {
       machinery.tick(1f / Game.frameRate());
       return;
     }
+    if (awaitingWorkshopRoute) {
+      workshopRouteRetry -= 1f / Game.frameRate();
+      if (workshopRouteRetry <= 0) beginWorkshopReturn();
+    }
+    workshop.tick();
     if (wallBreakTime > 0) {
       wallBreakTime -= 1f / Game.frameRate();
       if (wallBreakTime <= 0) wall.forEach(draw -> draw.stateMachine().setState("broken", null));
@@ -567,8 +671,10 @@ final class ProgrammingGolemRuntime {
                   + (target.y() - jumpStart.y()) * progress
                   + (float) Math.sin(progress * Math.PI) * 1.2f);
       if (!fits(from, airborne, false)) {
-        if (returning) resetAttempt();
-        else finishAttempt(false, "Sprungbahn blockiert.");
+        if (returning) {
+          actionTime -= delta;
+          status = returnFeedback + " Nox wartet auf einen freien Rückweg.";
+        } else finishAttempt(false, "Sprungbahn blockiert.");
         return;
       }
       position.position(airborne);
@@ -582,8 +688,13 @@ final class ProgrammingGolemRuntime {
     stalled = Point.calculateDistance(from, lastPosition) < 0.001f ? stalled + delta : 0;
     lastPosition = from;
     if (stalled > 2f) {
-      if (breakingGate) {
-        status = "Nox wartet auf einen freien Weg zur Schleuse.";
+      if (breakingGate || workshopTransit || returning) {
+        status =
+            returning
+                ? returnFeedback + " Nox wartet auf einen freien Rückweg."
+                : workshopTransit
+                    ? "Nox wartet auf einen freien Weg in der Werkstatt."
+                    : "Nox wartet auf einen freien Weg zur Schleuse.";
         stalled = 0;
         pause = .5f;
         return;
@@ -592,7 +703,7 @@ final class ProgrammingGolemRuntime {
       busy = false;
       status = "Bewegung unterbrochen. Laufweg blockiert.";
       if (attempt != null) finishAttempt(false, status);
-      else if (returning) resetAttempt();
+      else notifyMovementFailure(status);
       return;
     }
     float distance = Point.calculateDistance(from, target);
@@ -611,16 +722,21 @@ final class ProgrammingGolemRuntime {
           });
     }
     if (!fits(from, next, breakingGate)) {
-      if (breakingGate) {
-        status = "Nox wartet auf einen freien Weg zur Schleuse.";
+      if (breakingGate || workshopTransit || returning) {
+        status =
+            returning
+                ? returnFeedback + " Nox wartet auf einen freien Rückweg."
+                : workshopTransit
+                    ? "Nox wartet auf einen freien Weg in der Werkstatt."
+                    : "Nox wartet auf einen freien Weg zur Schleuse.";
         pause = .5f;
         return;
       }
       route.clear();
       busy = false;
-      status = "Bewegung unterbrochen. Nächster Schritt blockiert.";
+      status = "Wand oder Hindernis erreicht. Bewegung gestoppt.";
       if (attempt != null) finishAttempt(false, status);
-      else if (returning) resetAttempt();
+      else notifyMovementFailure(status);
       return;
     }
     if (fraction == 1) {
