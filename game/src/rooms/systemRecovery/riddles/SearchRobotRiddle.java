@@ -95,8 +95,8 @@ public final class SearchRobotRiddle {
     if (running) {
       callbacks.failure("insert", player.id());
       DialogUtils.showTextPopup(
-          SystemRecoveryText.text("world.search.controller-running"),
-          SystemRecoveryText.text("world.search.title"),
+          SystemRecoveryText.key("world.search.controller-running"),
+          SystemRecoveryText.key("world.search.title"),
           player.id());
       return;
     }
@@ -105,18 +105,18 @@ public final class SearchRobotRiddle {
     if (chip == null) {
       callbacks.failure("missing-program", player.id());
       DialogUtils.showTextPopup(
-          SystemRecoveryText.text("world.search.controller-missing"),
-          SystemRecoveryText.text("world.search.title"),
+          SystemRecoveryText.key("world.search.controller-missing"),
+          SystemRecoveryText.key("world.search.title"),
           player.id());
       return;
     }
 
     DialogFactory.showMultipleChoiceDialog(
-        SystemRecoveryText.text("world.search.controller"),
-        SystemRecoveryText.text("world.search.title"),
+        SystemRecoveryText.key("world.search.controller"),
+        SystemRecoveryText.key("world.search.title"),
         List.of(
-            ChoiceOption.of(SystemRecoveryText.text("computer.insert-search"), "insert"),
-            ChoiceOption.of(SystemRecoveryText.text("computer.without-chip"), "cancel")),
+            ChoiceOption.of(SystemRecoveryText.key("computer.insert-search"), "insert"),
+            ChoiceOption.of(SystemRecoveryText.key("computer.without-chip"), "cancel")),
         false,
         payload -> {
           if (!(payload instanceof DialogResponseMessage.StringValue(String choice))
@@ -139,8 +139,8 @@ public final class SearchRobotRiddle {
                   () -> {
                     callbacks.failure("insert", player.id());
                     DialogUtils.showTextPopup(
-                        SystemRecoveryText.text("world.search.controller-missing"),
-                        SystemRecoveryText.text("world.search.title"),
+                        SystemRecoveryText.key("world.search.controller-missing"),
+                        SystemRecoveryText.key("world.search.title"),
                         player.id());
                   });
         },

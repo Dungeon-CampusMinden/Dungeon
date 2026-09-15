@@ -54,12 +54,12 @@ public final class SystemRecoveryHintPhone {
   private static void showConfirmation(HintSystem hintSystem, Entity player, boolean solution) {
     String message =
         solution
-            ? SystemRecoveryText.text("hints.solution-confirm")
-            : SystemRecoveryText.text("hints.next-confirm");
+            ? SystemRecoveryText.key("hints.solution-confirm")
+            : SystemRecoveryText.key("hints.next-confirm");
     String title =
         solution
-            ? SystemRecoveryText.text("hints.solution-confirm-title")
-            : SystemRecoveryText.text("hints.next-confirm-title");
+            ? SystemRecoveryText.key("hints.solution-confirm-title")
+            : SystemRecoveryText.key("hints.next-confirm-title");
     DialogFactory.showYesNoDialog(
         message,
         title,

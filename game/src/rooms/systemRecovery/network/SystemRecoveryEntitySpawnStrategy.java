@@ -44,6 +44,8 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
   public static final String METADATA_BELT_RIGHT_PACKAGE = "systemRecovery.belt.rightPackage";
   public static final String METADATA_BELT_SCANNER = "systemRecovery.belt.scanner";
   public static final String METADATA_BELT_PACKAGES = "systemRecovery.belt.packages";
+  public static final String METADATA_MODULE_SCAN_RUNNING = "systemRecovery.module.scanRunning";
+  public static final String METADATA_MODULE_SCAN_FAULT = "systemRecovery.module.scanFault";
   public static final String METADATA_STORAGE_CELL_STATE = "systemRecovery.storage.cellState";
   public static final String METADATA_STORAGE_CELL_VALUE = "systemRecovery.storage.cellValue";
   public static final String METADATA_SYSTEM_CORE_ACCESS = "systemRecovery.systemCoreAccess";
@@ -87,6 +89,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
       metadata.put(
           METADATA_TERMINAL_STATE, String.valueOf(TerminalInterpreter.instance().currentState()));
     }
+    appendModuleScanMetadata(entity, metadata);
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     DoorLabelComponent.appendMetadata(entity, metadata);
 
@@ -139,6 +142,16 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
     metadata.put(METADATA_KEYPAD_ENTERED_DIGITS, digitsToString(keypad.enteredDigits()));
     metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
     metadata.put(METADATA_KEYPAD_SHOW_DIGIT_COUNT, String.valueOf(keypad.showDigitCount()));
+  }
+
+  private void appendModuleScanMetadata(Entity entity, Map<String, String> metadata) {
+    if ("module_scanner".equals(entity.name())) {
+      metadata.put(
+          METADATA_MODULE_SCAN_RUNNING, String.valueOf(SystemRecoveryLevel.scannerRunning()));
+      metadata.put(
+          METADATA_MODULE_SCAN_FAULT,
+          String.valueOf(SystemRecoveryLevel.scannerFaultDetected()));
+    }
   }
 
   private boolean isSystemCoreArea(Entity entity) {

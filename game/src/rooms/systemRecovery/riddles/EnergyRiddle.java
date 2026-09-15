@@ -16,6 +16,7 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.shaders.EnergyGlow;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /**
@@ -75,7 +76,7 @@ public final class EnergyRiddle {
         EntityFactory.hintDisplay(
             level.getPoint("display_energie"),
             () -> energyDisplayText,
-            SystemRecoveryText.text("world.energy.title"));
+            SystemRecoveryText.key("world.energy.title"));
     energyDisplay.name("energy_display");
     Game.add(energyDisplay);
     Game.add(
@@ -153,11 +154,13 @@ public final class EnergyRiddle {
               entity ->
                   entity.add(
                       new ShaderComponent(
-                          "energieShader",
-                          0,
-                          new EnergyFillShader(
-                                  fill, Color.BLUE, "objects/tech/CryoBox.png")
-                              .animMagnitude(0))));
+                          new ShaderComponent.ShaderEntry(
+                              "energieShader",
+                              0,
+                              new EnergyFillShader(
+                                      fill, Color.BLUE, "objects/tech/CryoBox.png")
+                                  .animMagnitude(0)),
+                          new ShaderComponent.ShaderEntry(EnergyGlow.SHADER_ID, 1, EnergyGlow.create()))));
     }
   }
 }

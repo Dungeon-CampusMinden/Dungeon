@@ -175,8 +175,8 @@ public final class InterpretationCallbacks {
   public static void showCorrectTerminalInputDialog() {
     track(true);
     DialogUtils.showTextPopup(
-        SystemRecoveryText.text("computer.feedback-correct"),
-        SystemRecoveryText.text("computer.terminal"));
+        SystemRecoveryText.key("computer.feedback-correct"),
+        SystemRecoveryText.key("computer.terminal"));
     Game.audio().playGlobal(SoundSpec.builder(SUCCESS_SOUND));
   }
 
@@ -184,8 +184,8 @@ public final class InterpretationCallbacks {
   public static void showIncorrectTerminalInputDialog() {
     track(false);
     DialogUtils.showTextPopup(
-        SystemRecoveryText.text("computer.feedback-incorrect"),
-        SystemRecoveryText.text("computer.terminal"));
+        SystemRecoveryText.key("computer.feedback-incorrect"),
+        SystemRecoveryText.key("computer.terminal"));
     Game.audio().playGlobal(SoundSpec.builder(FAILURE_SOUND));
   }
 
