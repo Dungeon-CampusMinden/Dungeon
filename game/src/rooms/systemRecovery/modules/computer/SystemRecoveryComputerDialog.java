@@ -28,7 +28,6 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import rooms.systemRecovery.modules.computer.content.AssistantChatTab;
 import rooms.systemRecovery.modules.computer.content.SearchProgramTab;
 import rooms.systemRecovery.modules.computer.content.SortProgramTab;
 import rooms.systemRecovery.modules.computer.content.SystemCoreAccessTab;
@@ -72,7 +71,6 @@ public class SystemRecoveryComputerDialog extends Group {
         .orElse(false)) {
       addTab(new SystemCoreAccessTab());
     }
-    addTab(new AssistantChatTab());
     activeTab = TerminalTab.KEY;
     showContent(activeTab);
   }

@@ -70,4 +70,13 @@ public final class SystemRecoveryText {
         Tuple.of(text("intro.page5"), 32),
         Tuple.of(text("intro.title"), 120));
   }
+
+  /** Returns the localized ending pages shown after the player reaches the final exit point. */
+  public static List<Tuple<String, Integer>> endingPages() {
+    return List.of(
+        Tuple.of(text("outro.page1"), 32),
+        Tuple.of(text("outro.page2"), 32),
+        Tuple.of(text("outro.page3"), 32),
+        Tuple.of(text("outro.title"), 120));
+  }
 }
