@@ -75,6 +75,7 @@
                 "sort": "Check the array sorting in the central computer.",
                 "count": "Count the occupied entries in modules.",
                 "search": "Search the grid for batteries.",
+                "meta": "Combine the three results in the terminal to create the final system state.",
                 "complete": "All central-computer checks are complete."
             }
         }
@@ -143,6 +144,7 @@
             "central-sort": "The system core is reachable. Begin by comparing neighboring values and checking whether they are in ascending order.",
             "central-count": "Now count the occupied entries in modules. Empty entries must not increase the counter.",
             "central-search": "Finally, search the entire grid. Trigger the robot's collection action whenever a battery signal is found.",
+            "central-meta": "All three routines have reported a result. The central display now combines these values. Open the input mask in the terminal and transfer the combined state there.",
             "completed": "All checks are confirmed. System recovery can continue.",
             "hint-offer": "I can provide one additional hint for the active task. It will be recorded in the shared quest log.",
             "hint-solution-warning": "This is the final hint for the active task. It will reveal the complete solution.",
@@ -192,10 +194,11 @@
                 "r9-program": "The outer loop is already prepared. Replace int j = 0; with an inner loop that traverses every column of the current map row. When map[i][j] == 1, call roboter.collect() and load the program onto the locator chip.",
                 "r9-controller": "Insert the programmed locator chip into the search-robot controller.",
                 "r9-scan": "Let the search robot traverse the complete matrix and collect the system-core module.",
-                "r10-sort": "Implement the complete nested Bubble Sort loop and swap adjacent values when array[j] > array[j + 1].",
-                "r10-count": "Declare count = 0, loop over modules, check moduleEntry != null and increment count for each occupied entry.",
-                "r10-search": "Use nested loops over the complete map. For every cell with value 1, call roboter.collect().",
-                "system-access": "Insert the system-core access module into a computer and execute its release script.",
+            "r10-sort": "Implement the complete nested Bubble Sort loop and swap adjacent values when array[j] > array[j + 1].",
+            "r10-count": "Declare count = 0, loop over modules, check moduleEntry != null and increment count for each occupied entry.",
+            "r10-search": "Use nested loops over the complete map. For every cell with value 1, call roboter.collect().",
+            "r10-meta": "Transfer the three results as one combined state: sortedEnergy = {8, 17, 23, 31, 42}, activeModules = 3 and batterySignals = 3.",
+            "system-access": "Insert the system-core access module into a computer and execute its release script.",
                 "escape-complete": "All recovery steps are complete. Continue through the newly opened system route."
             }
         },
@@ -305,7 +308,8 @@
                 "display-sort": "CENTRAL ARRAY\n[42] [17] [8] [31] [23]\nNext: restore the neighboring-value sort routine.",
                 "display-count": "MODULE STATUS\n[CPU] [GPU] [RAM] [empty] [empty]\nNext: count the occupied entries in modules.",
                 "display-search": "BATTERY GRID\n3 rows x 5 columns\nCyan cells contain battery signals.\nNext: scan the complete grid.",
-                "display-complete": "SYSTEM CORE RESTORED\nAll three routines were accepted.\nThe next route is open."
+                "display-meta": "FINAL SYSTEM CHECK\nSorted energy: [$1]\nOccupied modules: $2\nBattery signals: $3\nNext: open the input mask in the terminal and transfer these three results.",
+                "display-complete": "SYSTEM CORE RELEASED\nThe combined system state is confirmed.\nThe elevator is open."
             }
         },
         "computer": {
@@ -319,14 +323,23 @@
             "sort-tab": "Sort chip",
             "search-tab": "Locator chip",
             "access-tab": "System core",
+            "meta-tab": "System state",
             "sort-heading": "Insert the Bubble Sort condition",
             "search-heading": "Add the inner search loop",
+            "meta-heading": "Transfer the final system state",
+            "meta-instruction": "Transfer the three results from the display. Enter the energy values in ascending order across the five fields.",
+            "meta-energy-slot": "Energy $1",
+            "meta-modules": "Occupied modules",
+            "meta-batteries": "Battery signals",
             "sort-template": "for (int i = 0; i < array.length - 1; i++) {\n    for (int j = 0; j < array.length - 1 - i; j++) {\n        if (____________________) {\n            int temp = array[j];\n            array[j] = array[j + 1];\n            array[j + 1] = temp;\n        }\n    }\n}",
             "search-template": "for (int i = 0; i < map.length; i++) {\n    int j = 0;\n    if (map[i][j] == 1) {\n        roboter.collect();\n    }\n}",
             "access-script": "access.grant();\naccess.open(\"systemcore\");",
             "save-sort": "Load onto sort chip",
             "save-search": "Load onto locator chip",
             "execute-access": "Execute release script",
+            "meta-submit": "Transfer system state",
+            "meta-clear": "Clear fields",
+            "meta-submitting": "Checking system state ...",
             "saving": "Writing program to chip ...",
             "sort-invalid": "Error: The Bubble Sort comparison condition is incorrect.",
             "search-invalid": "Error: The search loop is incomplete or does not check every matrix cell.",
@@ -336,6 +349,7 @@
             "access-success": "Release script confirmed. Access to the system core is open.",
             "debug-sort": "A programmed sort chip was added to the inventory.",
             "debug-search": "A programmed locator chip was added to the inventory.",
+            "debug-all-items": "The red sort USB, blue locator chip and system-core access module were added to the inventory.",
             "debug-full": "Debug: The inventory is full.",
             "debug-title": "Debug",
             "terminal": "Terminal",
@@ -344,7 +358,7 @@
             "send": "Send",
             "delete": "Delete",
             "next-step": "Next Step",
-            "spawn-usb": "Spawn USB",
+            "spawn-debug-items": "Spawn all debug items",
             "petri-net": "Petri Net",
             "debug-petri-net-title": "Petri Net Debug",
             "debug-close": "Close",

@@ -59,7 +59,7 @@ public enum SystemRecoveryPuzzle {
       case 9 -> DATA_ARCHIVE;
       case 10, 11 -> TWO_DIMENSIONAL_STORAGE;
       case 12 -> SEARCH_ROBOT;
-      case 13, 14, 15 -> SYSTEM_CORE;
+      case 13, 14, 15, 16 -> SYSTEM_CORE;
       default -> SYSTEM_CORE;
     };
   }

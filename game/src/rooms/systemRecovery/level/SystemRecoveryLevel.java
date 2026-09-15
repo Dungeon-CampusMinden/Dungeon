@@ -336,6 +336,18 @@ public class SystemRecoveryLevel extends DungeonLevel {
   public static boolean interpretTerminalInput(String source, int playerId) {
     if (!terminalsUnlocked()) return false;
     int state = TerminalInterpreter.instance().currentState();
+    if (state == TerminalInterpreterSetup.CENTRAL_META_STATE) {
+      return SystemRecoveryStoryDialogs.withTerminalPlayer(
+          playerId,
+          () ->
+              InterpretationCallbacks.withTerminalAttempt(
+                  state,
+                  source,
+                  () -> {
+                    InterpretationCallbacks.onIncorrectTerminalInput();
+                    return false;
+                  }));
+    }
     if (TerminalInterpreter.instance().currentState()
         == TerminalInterpreterSetup.SEARCH_ROBOT_PROGRAM_STATE) {
       return SystemRecoveryStoryDialogs.withTerminalPlayer(
@@ -353,7 +365,35 @@ public class SystemRecoveryLevel extends DungeonLevel {
         playerId,
         () ->
             InterpretationCallbacks.withTerminalAttempt(
-                state, source, () -> TerminalInterpreter.instance().interpret(source)));
+        state, source, () -> TerminalInterpreter.instance().interpret(source)));
+  }
+
+  /** Returns whether the final system-core result mask should be available in the computer. */
+  public static boolean systemCoreMetaAvailable() {
+    return terminalsUnlocked()
+        && TerminalInterpreter.instance().currentState()
+            == TerminalInterpreterSetup.CENTRAL_META_STATE;
+  }
+
+  /** Validates and submits the final system-core results from the dedicated input mask. */
+  public static boolean submitSystemCoreMeta(String payload, int playerId) {
+    if (!systemCoreMetaAvailable()) return false;
+    int state = TerminalInterpreter.instance().currentState();
+    return SystemRecoveryStoryDialogs.withTerminalPlayer(
+        playerId,
+        () ->
+            InterpretationCallbacks.withTerminalAttempt(
+                state,
+                payload,
+                () -> {
+                  if (!active().systemCore.acceptsMetaInput(payload)) {
+                    InterpretationCallbacks.onIncorrectTerminalInput();
+                    return false;
+                  }
+                  TerminalInterpreter.instance().synchronizeState(state + 1);
+                  InterpretationCallbacks.onRiddleTenMetaCombinationCompleted();
+                  return true;
+                }));
   }
 
   /** Advances one terminal state in debug mode with the submitting player attached to the story. */
@@ -642,6 +682,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Returns whether the final system-core terminal riddle has been solved. */
   public static boolean systemCoreRiddleCompleted() {
     return active().systemCoreRiddleCompleted;
+  }
+
+  /** Returns the server-authoritative completion stage of the three system-core areas. */
+  public static int systemCoreStage() {
+    return active().systemCore.stage();
   }
 
   /** Returns whether the red system-core alarm should currently be active. */

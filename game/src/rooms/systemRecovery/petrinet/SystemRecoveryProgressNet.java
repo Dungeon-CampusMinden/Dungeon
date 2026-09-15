@@ -110,6 +110,7 @@ public final class SystemRecoveryProgressNet {
       case 13 -> emit(ProgressEvent.R10_SORT_ACCEPTED, SystemRecoveryProgressPlace.R10_SORT);
       case 14 -> emit(ProgressEvent.R10_COUNT_ACCEPTED, SystemRecoveryProgressPlace.R10_COUNT);
       case 15 -> emit(ProgressEvent.R10_SEARCH_ACCEPTED, SystemRecoveryProgressPlace.R10_SEARCH);
+      case 16 -> emit(ProgressEvent.R10_META_ACCEPTED, SystemRecoveryProgressPlace.R10_META);
       default -> {}
     }
   }
@@ -296,7 +297,8 @@ public final class SystemRecoveryProgressNet {
       case 12 -> R10_SORT;
       case 13 -> R10_COUNT;
       case 14 -> R10_SEARCH;
-      case 15 -> R10_FINAL;
+      case 15 -> R10_META;
+      case 16 -> R10_FINAL;
       default -> null;
     };
   }
@@ -348,7 +350,8 @@ public final class SystemRecoveryProgressNet {
     connect(R9_CONTROLLER, ProgressEvent.R9_CONTROLLER_INSERTED, R9_SCAN);
     connect(R10_SORT, ProgressEvent.R10_SORT_ACCEPTED, R10_COUNT);
     connect(R10_COUNT, ProgressEvent.R10_COUNT_ACCEPTED, R10_SEARCH);
-    connect(R10_SEARCH, ProgressEvent.R10_SEARCH_ACCEPTED, R10_FINAL);
+    connect(R10_SEARCH, ProgressEvent.R10_SEARCH_ACCEPTED, R10_META);
+    connect(R10_META, ProgressEvent.R10_META_ACCEPTED, R10_FINAL);
     connectWithAdditionalOutput(
         R9_SCAN,
         ProgressEvent.R9_SCAN_COMPLETED,
@@ -433,6 +436,7 @@ public final class SystemRecoveryProgressNet {
     R10_SORT_ACCEPTED,
     R10_COUNT_ACCEPTED,
     R10_SEARCH_ACCEPTED,
+    R10_META_ACCEPTED,
     SYSTEM_ACCESS_GRANTED,
     ESCAPE_COMPLETED
   }

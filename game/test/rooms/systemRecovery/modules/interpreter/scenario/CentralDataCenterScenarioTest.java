@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
-/** Tests the three terminal steps in the central data center. */
+/** Tests the three subsystem checks in the central data center. */
 public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
 
   /** The production registration accepts all three central-computer steps in sequence. */
@@ -54,7 +54,7 @@ public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
                 }
             }
             """));
-    assertEquals(16, interpreter.currentState());
+    assertEquals(TerminalInterpreterSetup.CENTRAL_META_STATE, interpreter.currentState());
   }
 
   /** The central data center accepts the complete bubble-sort implementation. */
