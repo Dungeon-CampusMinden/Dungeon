@@ -136,6 +136,54 @@ class SystemRecoveryProgressNetTest {
         SystemRecoveryProgressNet.activePlace().orElseThrow());
   }
 
+  /**
+   * Verifies the exact shared progression up to the inventory scanner.
+   *
+   * <p>This mirrors the authoritative callbacks instead of jumping between places. It protects
+   * against the telephone retaining the initial energy hint after the player has entered the
+   * scanner room.
+   */
+  @Test
+  void exactProgressionActivatesScannerHints() {
+    SystemRecoveryProgressNet.openingCallFinished();
+    assertActive(SystemRecoveryProgressPlace.R1_ARRAY);
+
+    SystemRecoveryProgressNet.terminalSuccess(0);
+    assertActive(SystemRecoveryProgressPlace.R1_VALUES);
+    SystemRecoveryProgressNet.terminalSuccess(1);
+    assertActive(SystemRecoveryProgressPlace.R1_BATTERY);
+    SystemRecoveryProgressNet.successfulInteraction(
+        SystemRecoveryPuzzle.ENERGY, "battery-inserted");
+    assertActive(SystemRecoveryProgressPlace.R2_ARRAY);
+
+    SystemRecoveryProgressNet.terminalSuccess(2);
+    assertActive(SystemRecoveryProgressPlace.R2_VALUES);
+    SystemRecoveryProgressNet.terminalSuccess(3);
+    assertActive(SystemRecoveryProgressPlace.R2_GPU);
+    SystemRecoveryProgressNet.terminalSuccess(4);
+    assertActive(SystemRecoveryProgressPlace.R2_LENGTH);
+    SystemRecoveryProgressNet.terminalSuccess(5);
+    assertActive(SystemRecoveryProgressPlace.R2_DISPLAY);
+    SystemRecoveryProgressNet.successfulInteraction(
+        SystemRecoveryPuzzle.MODULE_STORAGE, "inspect-length");
+    assertActive(SystemRecoveryProgressPlace.R2_DOOR);
+    SystemRecoveryProgressNet.successfulInteraction(SystemRecoveryPuzzle.MODULE_STORAGE, "5");
+    assertActive(SystemRecoveryProgressPlace.R3_COUNT);
+
+    SystemRecoveryProgressNet.terminalSuccess(6);
+    assertActive(SystemRecoveryProgressPlace.R3_LEVER);
+    SystemRecoveryProgressNet.successfulInteraction(SystemRecoveryPuzzle.INVENTORY_SCANNER, "lever");
+    assertActive(SystemRecoveryProgressPlace.R3_SCAN);
+    SystemRecoveryProgressNet.solved(SystemRecoveryPuzzle.INVENTORY_SCANNER);
+    assertActive(SystemRecoveryProgressPlace.R3_DOOR);
+    SystemRecoveryProgressNet.successfulInteraction(SystemRecoveryPuzzle.INVENTORY_SCANNER, "4");
+    assertActive(SystemRecoveryProgressPlace.R4_ARRAY);
+  }
+
+  private void assertActive(SystemRecoveryProgressPlace expected) {
+    assertEquals(expected, SystemRecoveryProgressNet.activePlace().orElseThrow());
+  }
+
   private void tick() {
     petriNet.execute();
   }

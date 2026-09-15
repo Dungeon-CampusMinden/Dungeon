@@ -13,7 +13,6 @@ import engine.utils.Point;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import feature.entities.WorldItemBuilder;
-import feature.hud.DialogUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.shaders.EnergyGlow;
 
 /**
  * Riddle 5: compare adjacent containers; wrong answers reset the exercise.
@@ -91,18 +91,25 @@ public final class ManualSortingRiddle {
     return SystemRecoveryText.text("world.sort.display", sortInnerIndex, left, right);
   }
 
+  private String sortDialogText() {
+    if (sortCompleted) return SystemRecoveryText.key("world.sort.display-complete");
+    int left = sortValues[sortInnerIndex];
+    int right = sortValues[sortInnerIndex + 1];
+    return SystemRecoveryText.key("world.sort.display", sortInnerIndex, left, right);
+  }
+
   private void showSortChoice(Entity display, Entity player) {
     List<ChoiceOption> choices =
         new ArrayList<>(
             List.of(
-                ChoiceOption.of(SystemRecoveryText.text("world.sort.swap"), "swap"),
-                ChoiceOption.of(SystemRecoveryText.text("world.sort.keep"), "keep")));
+                ChoiceOption.of(SystemRecoveryText.key("world.sort.swap"), "swap"),
+                ChoiceOption.of(SystemRecoveryText.key("world.sort.keep"), "keep")));
     if (SystemRecovery.DEBUG_MODE) {
-      choices.add(ChoiceOption.of(SystemRecoveryText.text("world.sort.skip"), "skip"));
+      choices.add(ChoiceOption.of(SystemRecoveryText.key("world.sort.skip"), "skip"));
     }
     DialogFactory.showMultipleChoiceDialog(
-        sortDisplayText(),
-        SystemRecoveryText.text("world.sort.title"),
+        sortDialogText(),
+        SystemRecoveryText.key("world.sort.title"),
         choices,
         true,
         payload -> {
@@ -158,10 +165,9 @@ public final class ManualSortingRiddle {
     if (swap != shouldSwap) {
       callbacks.failure(swap ? "swap" : "keep", player.id());
       resetSortStation();
-      DialogUtils.showTextPopup(
-          SystemRecoveryText.text("world.sort.wrong-choice"),
-          SystemRecoveryText.text("world.sort.title"),
-          player.id());
+      // Keep the failure feedback non-modal. A blocking popup would freeze the player after the
+      // station has already been reset and would require a second, unrelated interaction before
+      // the next comparison can be selected.
       Game.audio().playGlobal(SoundSpec.builder("retro_event_wrong"));
       return;
     }
@@ -246,6 +252,7 @@ public final class ManualSortingRiddle {
                                 Color.CYAN,
                                 "objects/tech/CryoBox.png")
                             .animMagnitude(0));
+                EnergyGlow.addTo(draw);
               });
     }
     if (sortCompleted) return;

@@ -57,8 +57,8 @@ public final class SystemRecoveryComputerFactory {
   private static void openComputerForPlayer(Entity player) {
     if (!SystemRecoveryLevel.terminalsUnlocked()) {
       DialogUtils.showTextPopup(
-          SystemRecoveryText.text("computer.locked-before-call"),
-          SystemRecoveryText.text("computer.terminal"),
+          SystemRecoveryText.key("computer.locked-before-call"),
+          SystemRecoveryText.key("computer.terminal"),
           player.id());
       return;
     }
@@ -68,8 +68,8 @@ public final class SystemRecoveryComputerFactory {
       showChipChoice(
           player,
           emptySearchChip,
-          SystemRecoveryText.text("computer.empty-search-prompt"),
-          SystemRecoveryText.text("computer.insert-search"),
+          SystemRecoveryText.key("computer.empty-search-prompt"),
+          SystemRecoveryText.key("computer.insert-search"),
           ProgramKind.SEARCH);
       return;
     }
@@ -79,8 +79,8 @@ public final class SystemRecoveryComputerFactory {
       showChipChoice(
           player,
           emptySortStick,
-          SystemRecoveryText.text("computer.empty-sort-prompt"),
-          SystemRecoveryText.text("computer.insert-sort"),
+          SystemRecoveryText.key("computer.empty-sort-prompt"),
+          SystemRecoveryText.key("computer.insert-sort"),
           ProgramKind.SORT);
       return;
     }
@@ -90,8 +90,8 @@ public final class SystemRecoveryComputerFactory {
       showChipChoice(
           player,
           accessChip,
-          SystemRecoveryText.text("computer.empty-access-prompt"),
-          SystemRecoveryText.text("computer.insert-access"),
+          SystemRecoveryText.key("computer.empty-access-prompt"),
+          SystemRecoveryText.key("computer.insert-access"),
           ProgramKind.ACCESS);
       return;
     }
@@ -103,10 +103,10 @@ public final class SystemRecoveryComputerFactory {
       Entity player, Item chip, String prompt, String insertLabel, ProgramKind programKind) {
     DialogFactory.showMultipleChoiceDialog(
         prompt,
-        SystemRecoveryText.text("computer.terminal"),
+        SystemRecoveryText.key("computer.terminal"),
         List.of(
             ChoiceOption.of(insertLabel, "insert"),
-            ChoiceOption.of(SystemRecoveryText.text("computer.without-chip"), "cancel")),
+            ChoiceOption.of(SystemRecoveryText.key("computer.without-chip"), "cancel")),
         false,
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String choice)
@@ -221,8 +221,8 @@ public final class SystemRecoveryComputerFactory {
                 false,
                 targetEntityId);
             DialogUtils.showTextPopup(
-                SystemRecoveryText.text("computer.sort-invalid"),
-                SystemRecoveryText.text("computer.sort-tab"),
+                SystemRecoveryText.key("computer.sort-invalid"),
+                SystemRecoveryText.key("computer.sort-tab"),
                 targetEntityId);
             return;
           }
@@ -236,8 +236,8 @@ public final class SystemRecoveryComputerFactory {
           addToInventory(targetEntityId, new SortProgramStickItem(true));
           programReturned[0] = true;
           DialogUtils.showTextPopup(
-              SystemRecoveryText.text("computer.sort-saved"),
-              SystemRecoveryText.text("computer.sort-tab"),
+              SystemRecoveryText.key("computer.sort-saved"),
+              SystemRecoveryText.key("computer.sort-tab"),
               targetEntityId);
         });
     ui.registerCallback(
@@ -254,8 +254,8 @@ public final class SystemRecoveryComputerFactory {
                 false,
                 targetEntityId);
             DialogUtils.showTextPopup(
-                SystemRecoveryText.text("computer.search-invalid"),
-                SystemRecoveryText.text("computer.search-tab"),
+                SystemRecoveryText.key("computer.search-invalid"),
+                SystemRecoveryText.key("computer.search-tab"),
                 targetEntityId);
             return;
           }
@@ -269,8 +269,8 @@ public final class SystemRecoveryComputerFactory {
           addToInventory(targetEntityId, new SearchProgramChipItem(true));
           programReturned[0] = true;
           DialogUtils.showTextPopup(
-              SystemRecoveryText.text("computer.search-saved"),
-              SystemRecoveryText.text("computer.search-tab"),
+              SystemRecoveryText.key("computer.search-saved"),
+              SystemRecoveryText.key("computer.search-tab"),
               targetEntityId);
         });
     ui.registerCallback(
@@ -287,8 +287,8 @@ public final class SystemRecoveryComputerFactory {
               targetEntityId);
           SystemRecoveryLevel.completeSystemCoreAccess(targetEntityId);
           DialogUtils.showTextPopup(
-              SystemRecoveryText.text("computer.access-success"),
-              SystemRecoveryText.text("computer.access-tab"),
+              SystemRecoveryText.key("computer.access-success"),
+              SystemRecoveryText.key("computer.access-tab"),
               targetEntityId);
         });
     ui.registerCallback(
@@ -335,13 +335,13 @@ public final class SystemRecoveryComputerFactory {
     boolean accessAdded = inventory.add(new SystemCoreAccessChipItem());
     if (sortAdded && searchAdded && accessAdded) {
       DialogUtils.showTextPopup(
-          SystemRecoveryText.text("computer.debug-all-items"),
-          SystemRecoveryText.text("computer.debug-title"),
+          SystemRecoveryText.key("computer.debug-all-items"),
+          SystemRecoveryText.key("computer.debug-title"),
           targetEntityId);
     } else {
       DialogUtils.showTextPopup(
-          SystemRecoveryText.text("computer.debug-full"),
-          SystemRecoveryText.text("computer.debug-title"),
+          SystemRecoveryText.key("computer.debug-full"),
+          SystemRecoveryText.key("computer.debug-title"),
           targetEntityId);
     }
   }
