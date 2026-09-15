@@ -55,6 +55,14 @@
     "programming_platinum": {
       "name": "Valerius would be proud",
       "description": "Unlock all other achievements in this room, across as many runs as needed."
+    },
+    "programming_methods_flawless": {
+      "name": "First-class methods",
+      "description": "Complete Valerius' methods trial without a failed execution."
+    },
+    "programming_methods_persistent": {
+      "name": "Practice makes perfect",
+      "description": "Complete Valerius' methods trial after at least one failed execution."
     }
   }
 }

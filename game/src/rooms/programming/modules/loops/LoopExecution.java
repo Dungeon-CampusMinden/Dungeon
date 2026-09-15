@@ -32,6 +32,7 @@ public final class LoopExecution {
   private int iterations;
   private boolean after;
   private boolean finished;
+  private Step pending;
   private String failure = "";
 
   /**
@@ -57,6 +58,7 @@ public final class LoopExecution {
    */
   public Optional<Step> next() {
     if (finished) return Optional.empty();
+    if (pending != null) return Optional.of(pending);
     while (actions.isEmpty()) {
       if (after) {
         finished = true;
@@ -77,28 +79,42 @@ public final class LoopExecution {
       }
     }
     Action action = actions.removeFirst();
-    Cell from = cell;
+    Cell to = cell;
+    Direction heading = facing;
     switch (action) {
-      case LEFT -> facing = facing.left();
-      case RIGHT -> facing = facing.right();
-      case ATTACK -> {
-        if (cell.next(facing).equals(LoopMaze.monster())) monsterAlive = false;
-      }
+      case LEFT -> heading = facing.left();
+      case RIGHT -> heading = facing.right();
+      case ATTACK -> {}
       case MOVE, JUMP -> {
         Cell next = cell.next(facing);
         if (action == Action.JUMP) {
           if (!next.equals(LoopMaze.pit())) return fail("Sprung ohne Grube voraus.");
           next = next.next(facing);
         }
-        if (!LoopMaze.cells().contains(next)) return fail("Wand voraus. Bewegung gestoppt.");
+        // Walking into a wall stops at the physical collision, not before the move begins.
         if (next.equals(LoopMaze.pit())) return fail("Grube voraus. Schritt gestoppt.");
         if (monsterAlive && next.equals(LoopMaze.monster()))
           return fail("Ein Eindringling versperrt den Weg.");
-        cell = next;
-        history.add(cell);
+        to = next;
       }
     }
-    return Optional.of(new Step(action, from, cell, facing));
+    pending = new Step(action, cell, to, heading);
+    return Optional.of(pending);
+  }
+
+  /** Commits the current instruction only after the physical runtime has completed it. */
+  public void complete() {
+    if (pending == null) throw new IllegalStateException("No physical action to complete");
+    Step step = pending;
+    pending = null;
+    facing = step.facing();
+    if (step.action() == Action.ATTACK && cell.next(facing).equals(LoopMaze.monster()))
+      monsterAlive = false;
+    if (!step.from().equals(step.to())) {
+      cell = step.to();
+      history.add(cell);
+      if (!LoopMaze.cells().contains(cell)) fail("Weg verlassen. Bewegung gestoppt.");
+    }
   }
 
   private Optional<Step> fail(String reason) {
@@ -118,7 +134,7 @@ public final class LoopExecution {
   }
 
   /**
-   * @return the destination of the latest accepted action
+   * @return the last physically reached cell
    */
   public Cell cell() {
     return cell;
@@ -132,7 +148,7 @@ public final class LoopExecution {
   }
 
   /**
-   * @return accepted movement anchors, including the starting cell
+   * @return reached movement anchors, including the starting cell
    */
   public List<Cell> history() {
     return List.copyOf(history);

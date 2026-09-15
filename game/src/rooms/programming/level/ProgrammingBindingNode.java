@@ -5,9 +5,9 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 import engine.network.messages.c2s.DialogResponseMessage;
-import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.canvas.CanvasDragContext;
@@ -30,30 +30,36 @@ final class ProgrammingBindingNode extends CanvasNode {
     ESSENCE,
     SOCKET,
     CORE,
-    FEEDBACK,
     HEADING
   }
 
   private static final String TYPE = "programming.binding-node";
-  private static final Color INK = Color.valueOf("11191d");
-  private static final Color SURFACE = Color.valueOf("283338");
-  private static final Color TEXT = Color.valueOf("efe8d8");
-  private static final Color MUTED = Color.valueOf("a8b2b0");
-  private static final Color GOLD = Color.valueOf("e8b566");
+  private static final Color INK = ProgrammingUI.INK;
+  private static final Color SURFACE = ProgrammingUI.SURFACE;
+  private static final Color TEXT = ProgrammingUI.TEXT;
+  private static final Color MUTED = ProgrammingUI.MUTED;
+  private static final Color GOLD = ProgrammingUI.GOLD;
   private Kind kind;
   private BindingState state;
   private Label title;
   private Label detail;
   private Label value;
   private Label erase;
+  private TextButton activate;
   private TextureRegion texture;
   private String imagePath = "";
-  private float time;
   private float pulse;
   private boolean over;
   private boolean dragging;
   private float homeX;
   private float homeY;
+  private String selectedSupply = "";
+  private java.util.function.BiConsumer<Kind, String> select = (kind, id) -> {};
+
+  void selection(String id, java.util.function.BiConsumer<Kind, String> callback) {
+    selectedSupply = id;
+    select = callback;
+  }
 
   static void register() {
     if (!CanvasNodeType.isRegistered(TYPE))
@@ -69,7 +75,6 @@ final class ProgrammingBindingNode extends CanvasNode {
           case ESSENCE -> 136;
           case SOCKET -> 278;
           case CORE -> 220;
-          case FEEDBACK -> 800;
           case HEADING -> 300;
         },
         switch (kind) {
@@ -77,15 +82,13 @@ final class ProgrammingBindingNode extends CanvasNode {
           case ESSENCE -> 90;
           case SOCKET -> 146;
           case CORE -> 340;
-          case FEEDBACK -> 96;
           case HEADING -> 36;
         });
     this.kind = kind;
     deletable(false);
     movable(kind == Kind.VESSEL || kind == Kind.ESSENCE);
     selectable(false);
-    if (kind == Kind.FEEDBACK || kind == Kind.HEADING)
-      setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
+    if (kind == Kind.HEADING) setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
   }
 
   @Override
@@ -113,15 +116,14 @@ final class ProgrammingBindingNode extends CanvasNode {
     state = next;
     if (changed) pulse = 1;
     if (kind == Kind.VESSEL) {
-      setVisible(next.vesselsCollected());
-      movable(next.propertiesCollected() && next.stage() == VariablePuzzleStage.VESSELS);
+      movable(
+          next.propertiesCollected()
+              && next.vesselsCollected()
+              && next.stage() == VariablePuzzleStage.VESSELS);
     }
     if (kind == Kind.ESSENCE) {
-      setVisible(next.vesselsCollected());
       movable(next.propertiesCollected() && next.vesselsCollected() && !next.revealed());
     }
-    if (kind == Kind.SOCKET) setVisible(next.propertiesCollected());
-    if (kind == Kind.HEADING) setVisible(next.vesselsCollected());
     if (title != null) refreshText();
     invalidateLayout();
   }
@@ -144,11 +146,20 @@ final class ProgrammingBindingNode extends CanvasNode {
     detail = label(16, MUTED);
     value = label(24, TEXT);
     erase = label(22, MUTED);
+    if (kind == Kind.CORE) {
+      activate =
+          ProgrammingUI.zoomButton(
+              "Aktivieren",
+              true,
+              () ->
+                  canvas().fireServerEvent("activate", new DialogResponseMessage.StringValue("")));
+      addActor(activate);
+    }
     refreshText();
   }
 
   private Label label(int size, Color color) {
-    Label label = Scene2dElementFactory.createLabel("", size, color);
+    Label label = ProgrammingUI.zoomLabel("", size, color);
     label.setAlignment(Align.left);
     label.setWrap(true);
     addActor(label);
@@ -156,11 +167,13 @@ final class ProgrammingBindingNode extends CanvasNode {
   }
 
   private void refreshText() {
+    if (activate != null)
+      activate.setDisabled(state == null || state.stage() != VariablePuzzleStage.REVEAL);
     title.setText("");
     detail.setText("");
     value.setText("");
     erase.setText("");
-    if (state == null) return;
+    if (state == null || emptySupply()) return;
     switch (kind) {
       case VESSEL -> {
         title.setText(vessel().label());
@@ -183,16 +196,13 @@ final class ProgrammingBindingNode extends CanvasNode {
           erase.setText("×");
       }
       case CORE -> {
-        title.setText("Nox");
+        title.setText(
+            state.essences().get(GolemProperty.NAME) == MagicalEssence.NAME_VALUE ? "Nox" : "");
         title.setAlignment(Align.center);
         detail.setAlignment(Align.center);
         detail.setText(state.revealed() ? "Seelenbindung vollständig" : "Seelenkern");
         value.setAlignment(Align.center);
-        value.setText(state.stage() == VariablePuzzleStage.REVEAL ? "Aktivieren" : "");
-      }
-      case FEEDBACK -> {
-        title.setText(state.revealed() ? "Gefäß · Name · Wert" : "Seelenbindung");
-        detail.setText(state.feedback());
+        value.setText("");
       }
       case HEADING -> title.setText(id().equals("vessel-heading") ? "Gefäßvorrat" : "Essenzfach");
     }
@@ -220,19 +230,19 @@ final class ProgrammingBindingNode extends CanvasNode {
         title.setBounds(0, 308, width(), 28);
         detail.setBounds(0, 65, width(), 38);
         value.setBounds(4, 10, width() - 8, 40);
-      }
-      case FEEDBACK -> {
-        title.setBounds(18, 60, width() - 36, 26);
-        detail.setBounds(18, 6, width() - 36, 50);
+        activate.setBounds(35, 10, width() - 70, 44);
       }
       case HEADING -> title.setBounds(0, 0, width(), height());
     }
   }
 
+  private boolean emptySupply() {
+    return (kind == Kind.VESSEL || kind == Kind.ESSENCE) && !state.vesselsCollected();
+  }
+
   @Override
   public void act(float delta) {
     super.act(delta);
-    time += delta;
     pulse = Math.max(0, pulse - delta * 2);
   }
 
@@ -256,24 +266,19 @@ final class ProgrammingBindingNode extends CanvasNode {
       for (int i = 0; i < 6; i++)
         CanvasGraphics.fill(
             batch, i < charged ? GOLD : SURFACE, alpha, x() + 22 + i * 30, y() + 100, 22, 5);
-      if (state.stage() == VariablePuzzleStage.REVEAL) {
-        CanvasGraphics.fill(batch, SURFACE, alpha, x() + 4, y() + 8, width() - 8, 44);
-        CanvasGraphics.outline(
-            batch,
-            GOLD,
-            alpha * (.75f + .25f * (float) Math.sin(time * 3)),
-            x() + 4,
-            y() + 8,
-            width() - 8,
-            44,
-            2);
-      }
       return;
     }
     if (kind == Kind.HEADING) return;
     CanvasGraphics.fill(batch, SURFACE, alpha, x(), y(), width(), height());
     CanvasGraphics.fill(
-        batch, GOLD, alpha * (over ? .9f : .35f), x(), y() + height() - 2, width(), 2);
+        batch,
+        GOLD,
+        alpha * (over || id().equals(selectedSupply) ? 1 : .35f),
+        x(),
+        y() + height() - 2,
+        width(),
+        2);
+    if (emptySupply()) return;
     if (kind == Kind.SOCKET) {
       var container = state.vessels().get(property());
       float storageY = y() + (state.revealed() ? 32 : 48);
@@ -333,7 +338,7 @@ final class ProgrammingBindingNode extends CanvasNode {
 
   @Override
   public void onDrop(float worldX, float worldY) {
-    dragging = false;
+    if (dragging) returnToSupply();
   }
 
   @Override
@@ -367,9 +372,8 @@ final class ProgrammingBindingNode extends CanvasNode {
   @Override
   public void onClick(float localX, float localY, int button) {
     if (button != 0 || state == null) return;
-    if (kind == Kind.CORE && state.stage() == VariablePuzzleStage.REVEAL && localY < 60)
-      canvas().fireServerEvent("activate", new DialogResponseMessage.StringValue(""));
     if (kind == Kind.SOCKET && !state.revealed() && localX > width() - 42 && localY > height() - 48)
       canvas().fireServerEvent("clear", new DialogResponseMessage.StringValue(id()));
+    else if (kind == Kind.SOCKET || movable()) select.accept(kind, id());
   }
 }

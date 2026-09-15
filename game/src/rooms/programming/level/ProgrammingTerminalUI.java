@@ -1,26 +1,18 @@
 package rooms.programming.level;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
-import feature.canvas.CanvasLayout;
 import feature.canvas.CanvasNode;
-import feature.canvas.CanvasOptions;
-import feature.canvas.CanvasSnapshot;
-import feature.canvas.CanvasUI;
-import feature.canvas.NodeOrigin;
 import rooms.programming.modules.loops.TerminalState;
 
 /** Keeps live server updates separate from the player's canvas arrangement. */
-final class ProgrammingTerminalUI extends CanvasUI {
-  private boolean initialViewPlaced;
-  private final Label code = Scene2dElementFactory.createLabel("", 18, Color.valueOf("f1eadc"));
+final class ProgrammingTerminalUI extends ProgrammingWorkbenchUI {
+  private final Label code = ProgrammingUI.label("", 18, ProgrammingUI.TEXT);
   private final Group tooltip =
       new Group() {
         @Override
@@ -36,30 +28,18 @@ final class ProgrammingTerminalUI extends CanvasUI {
   ProgrammingTerminalUI(String dialogId, TerminalState initial) {
     super(
         ProgrammingTerminal.ID,
-        new CanvasLayout(
-            "Nox · Kellersteuerung",
-            1050,
-            720,
-            new CanvasOptions()
-                .backgroundColor(ProgrammingTerminal.INK)
-                .grid(32, true)
-                .gridColor(com.badlogic.gdx.graphics.Color.valueOf("1c2730"))
-                .selectionColor(ProgrammingTerminal.ACCENT)
-                .multiSelectEnabled(false)
-                .initialZoom(1)
-                .zoom(.3f, 2.5f),
-            true),
-        new CanvasSnapshot(
-            ProgrammingTerminal.nodes(initial).stream()
-                .map(CanvasNode::toState)
-                .map(s -> s.withOrigin(NodeOrigin.DEFAULT))
-                .toList()),
         dialogId,
+        "Nox · Kellersteuerung",
+        "Ziehe eine Rune in den Executor und führe Nox zu den fünf Wegzeichen.",
         ProgrammingTerminal.nodes(initial));
+    footer.clearChildren();
+    help(
+        "Kellersteuerung\n\nZiehe eine Rune in das Executor-Feld. Das Programm startet beim Einsetzen. Fahre mit der Maus über eine Rune, um ihren Code zu lesen.\n\nWährend Nox arbeitet, bleibt die eingesetzte Rune gesperrt. Sobald er fertig ist, kannst du sie herausziehen oder durch eine andere Rune ersetzen.\n\nDie Befehle stehen unter dem Runenvorrat. Der Sehstein im Raum zeigt Nox aus der Nähe.");
     update(initial);
     tooltip.setTransform(false);
     tooltip.setTouchable(Touchable.disabled);
     tooltip.setVisible(false);
+    code.setWrap(false);
     code.setPosition(14, 12);
     tooltip.addActor(code);
     addActor(tooltip);
@@ -74,7 +54,11 @@ final class ProgrammingTerminalUI extends CanvasUI {
 
   private void updateTooltip() {
     tooltip.setVisible(false);
-    if (getStage() == null || Gdx.input.isTouched()) return;
+    if (getStage() == null || referenceOpen() || Gdx.input.isTouched()) return;
+    Vector2 stagePointer =
+        getStage().screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    var target = getStage().hit(stagePointer.x, stagePointer.y, true);
+    if (target == null || !target.isDescendantOf(area())) return;
     Vector2 pointer =
         area().screenToLocalCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
     if (pointer.x < 0
@@ -108,27 +92,13 @@ final class ProgrammingTerminalUI extends CanvasUI {
   }
 
   @Override
-  public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float alpha) {
-    if (!initialViewPlaced) {
-      for (var child : getChildren()) {
-        if (child instanceof com.badlogic.gdx.scenes.scene2d.utils.Layout layout) layout.validate();
-      }
-      var bounds = new com.badlogic.gdx.math.Rectangle(area().nodes().getFirst().bounds());
-      for (var node : area().nodes()) bounds.merge(node.bounds());
-      float zoom =
-          Math.min(
-              1,
-              Math.min(
-                  (area().getWidth() - 64) / bounds.width,
-                  (area().getHeight() - 104) / bounds.height));
-      area().zoom(zoom);
-      area()
-          .pan(
-              (area().getWidth() - bounds.width * zoom) / 2 - bounds.x * zoom,
-              32 + (area().getHeight() - 104 - bounds.height * zoom) / 2 - bounds.y * zoom);
-      initialViewPlaced = true;
-    }
-    super.draw(batch, alpha);
+  protected float layoutWorkspace(float width, float height) {
+    float zoom = Math.min(width / 888, Math.max(1, height) / 802);
+    float contentHeight = Math.max(1, height);
+    area().options().zoom(zoom, zoom);
+    area().zoom(zoom);
+    area().pan((width - 868 * zoom) / 2, 234 * zoom + (contentHeight - 802 * zoom) / 2);
+    return contentHeight;
   }
 
   private void update(TerminalState state) {

@@ -35,6 +35,7 @@ final class ProgrammingRoomElements {
   static ProgrammingGolemRuntime spawn(DungeonLevel level) {
     ProgrammingProps.spawn(level);
     ProgrammingMazeWorld.spawn(level);
+    ProgrammingWorkshopWorld.spawn(level);
     Entity golem = createEntity(level, "variables-golem", Visual.GOLEM, 0);
     ProgrammingGolemRuntime runtime = new ProgrammingGolemRuntime(level, golem);
     golem.add(
@@ -44,9 +45,15 @@ final class ProgrammingRoomElements {
     spawnBindingChest(level, runtime, true);
     spawnBindingChest(level, runtime, false);
     LoopPuzzle.runes().forEach(rune -> spawnLoopRune(level, rune, runtime));
+    Entity methods = createEntity(level, "methods-console", Visual.BOOK, 0);
+    methods.add(
+        new InteractionComponent(
+            new Interaction((interacted, who) -> runtime.showMethods(who), 2f)));
+    Game.add(methods);
     spawnControl(level, "loop-terminal", Visual.BOOK, runtime, false);
     spawnControl(level, "loop-monitor", Visual.SEHSTEIN, runtime, true);
     spawnText(level, "archive-instructions", Visual.BOOK, ProgrammingStory.archive());
+    spawnText(level, "workshop-experiments", Visual.SCROLL, ProgrammingStory.workshopJournal());
     spawnText(level, "intro-tablet", Visual.BOOK, ProgrammingStory.letter());
     spawnText(level, "forge-maintenance-note", Visual.SCROLL, ProgrammingStory.maintenance());
     if (level.namedPoints().containsKey("variables-translation")) {

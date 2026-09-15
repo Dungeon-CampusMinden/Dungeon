@@ -123,13 +123,13 @@ final class DialogDialog {
           }
         });
 
-    // Continuously claim keyboard focus so key input keeps reaching us even after mouse activity.
+    // Visible dialogs reclaim keyboard focus after mouse activity.
     dialog.addAction(
         new Action() {
           @Override
           public boolean act(float delta) {
             Stage stage = dialog.getStage();
-            if (stage != null) {
+            if (stage != null && dialog.ancestorsVisible()) {
               stage.setKeyboardFocus(dialog);
             }
             return false; // run forever

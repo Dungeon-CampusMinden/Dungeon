@@ -8,6 +8,7 @@ import feature.canvas.CanvasUI;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
@@ -44,11 +45,13 @@ public final class ProgrammingBinding {
   }
 
   static void open(Entity who, ProgrammingGolemRuntime runtime) {
+    if (Game.hud().blocksGameplayInput(who)) return;
     ProgrammingTerminal.stopWalking(who);
     var ui =
         DialogFactory.show(
             DialogContext.builder()
                 .type(Type.BINDING)
+                .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
                 .put(ID, encode(runtime.bindingState()))
                 .build(),
             false,

@@ -1,13 +1,11 @@
 package rooms.programming.level;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
 import engine.components.CameraComponent;
@@ -16,18 +14,17 @@ import engine.components.PositionComponent;
 import engine.game.ECSManagement;
 import engine.systems.CameraSystem;
 import engine.systems.DrawSystem;
-import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.HeadlessDialogGroup;
-import feature.input.configuration.KeyboardConfig;
 import feature.utils.EntityUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Live camera observation; the dialog's existing input gate keeps the hero stationary. */
+/** Live camera observation while the server continues executing the golem's program. */
 public final class ProgrammingObservation {
   private ProgrammingObservation() {}
 
@@ -44,16 +41,21 @@ public final class ProgrammingObservation {
   }
 
   static void open(Entity who, ProgrammingGolemRuntime runtime) {
+    if (Game.hud().blocksGameplayInput(who)) return;
     ProgrammingTerminal.stopWalking(who);
-    DialogFactory.show(
-        DialogContext.builder()
-            .type(ProgrammingTerminal.Type.OBSERVATION)
-            .put("golem", runtime.terminalState().golemId())
-            .build(),
-        true,
-        true,
-        false,
-        who.id());
+    var ui =
+        DialogFactory.show(
+            DialogContext.builder()
+                .type(ProgrammingTerminal.Type.OBSERVATION)
+                .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
+                .put("golem", runtime.terminalState().golemId())
+                .build(),
+            false,
+            true,
+            false,
+            who.id());
+    ui.registerCallback(
+        feature.canvas.CanvasUI.EVENT_CLOSE, ignored -> feature.hud.UIUtils.closeDialog(ui));
   }
 
   /**
@@ -83,6 +85,7 @@ public final class ProgrammingObservation {
     private Entity followed;
     private float previousZoom;
     private final Label label;
+    private final com.badlogic.gdx.scenes.scene2d.ui.Table header;
     private float curtain = 1;
     private final ProgrammingObservationShader shader = new ProgrammingObservationShader();
     private final String shaderKey;
@@ -93,16 +96,20 @@ public final class ProgrammingObservation {
       this.cinematic = cinematic;
       shaderKey = "programming-observation-" + dialogId;
       setSize(Game.windowWidth(), Game.windowHeight());
-      label =
-          Scene2dElementFactory.createLabel(
-              cinematic
-                  ? ""
-                  : "Beobachte: Nox · Keller - "
-                      + Input.Keys.toString(KeyboardConfig.CLOSE_UI.value())
-                      + " zum Verlassen",
-              22,
-              Color.WHITE);
-      label.setAlignment(Align.center);
+      header =
+          ProgrammingUI.header(
+              "Nox · Kellerbeobachtung",
+              new com.badlogic.gdx.scenes.scene2d.ui.Table(),
+              () ->
+                  feature.hud.dialogs.DialogCallbackResolver.createButtonCallback(
+                          dialogId, feature.canvas.CanvasUI.EVENT_CLOSE)
+                      .accept(null));
+      header.pad(12);
+      header.setBackground(ProgrammingUI.background(ProgrammingUI.INK, false));
+      header.setVisible(!cinematic);
+      addActor(header);
+      label = ProgrammingUI.label("", 19, ProgrammingUI.TEXT);
+      label.setVisible(!cinematic);
       addActor(label);
     }
 
@@ -111,7 +118,9 @@ public final class ProgrammingObservation {
       super.act(delta);
       setSize(Game.windowWidth(), Game.windowHeight());
       setPosition(0, 0);
-      label.setBounds(0, getHeight() - 55, getWidth(), 40);
+      header.setBounds(20, getHeight() - 88, getWidth() - 40, 68);
+      label.setBounds(36, 32, Math.min(660, getWidth() - 72), 56);
+      if (!cinematic) ProgrammingTerminal.state().ifPresent(state -> label.setText(state.status()));
       if (followed == null && getStage() != null) {
         Game.findEntityById(golemId)
             .ifPresent(
