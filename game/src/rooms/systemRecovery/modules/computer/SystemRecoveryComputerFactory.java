@@ -198,6 +198,7 @@ public final class SystemRecoveryComputerFactory {
         SystemRecoveryComputerCallbacks.SORT_PROGRAM_SAVE,
         data -> {
           if (!(data instanceof DialogResponseMessage.StringValue(String source))) return;
+          if (programReturned[0]) return;
           if (!isBubbleSortCondition(source)) {
             SystemRecoveryPuzzleEvents.attempt(
                 SystemRecoveryPuzzle.BUBBLE_SORT,
@@ -230,6 +231,7 @@ public final class SystemRecoveryComputerFactory {
         SystemRecoveryComputerCallbacks.SEARCH_PROGRAM_SAVE,
         data -> {
           if (!(data instanceof DialogResponseMessage.StringValue(String source))) return;
+          if (programReturned[0]) return;
           if (!TerminalInterpreterSetup.matchesSearchRobotProgram(source)) {
             SystemRecoveryPuzzleEvents.attempt(
                 SystemRecoveryPuzzle.SEARCH_ROBOT,
@@ -253,6 +255,10 @@ public final class SystemRecoveryComputerFactory {
               targetEntityId);
           addToInventory(targetEntityId, new SearchProgramChipItem(true));
           programReturned[0] = true;
+          DialogUtils.showTextPopup(
+              SystemRecoveryText.text("computer.search-saved"),
+              SystemRecoveryText.text("computer.search-tab"),
+              targetEntityId);
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.SYSTEM_CORE_SCRIPT_RUN,

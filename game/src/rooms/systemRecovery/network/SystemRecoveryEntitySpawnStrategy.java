@@ -12,6 +12,7 @@ import feature.questlog.QuestLogComponent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
 import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
@@ -46,6 +47,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
   public static final String METADATA_STORAGE_CELL_STATE = "systemRecovery.storage.cellState";
   public static final String METADATA_STORAGE_CELL_VALUE = "systemRecovery.storage.cellValue";
   public static final String METADATA_SYSTEM_CORE_ACCESS = "systemRecovery.systemCoreAccess";
+  public static final String METADATA_SYSTEM_CORE_ALARM = "systemRecovery.systemCoreAlarm";
   public static final String METADATA_QUESTLOG_ENTRIES = "systemRecovery.questlog.entries";
   public static final String TYPE_QUESTLOG = "questlog";
 
@@ -87,6 +89,15 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     DoorLabelComponent.appendMetadata(entity, metadata);
 
+    if ("label_systemcore".equals(entity.name())) {
+      metadata.put(
+          METADATA_SYSTEM_CORE_ACCESS,
+          String.valueOf(SystemRecoveryLevel.systemCoreAccessGranted()));
+      metadata.put(
+          METADATA_SYSTEM_CORE_ALARM,
+          String.valueOf(SystemRecoveryLevel.systemCoreAlarmActive()));
+    }
+
     if (defaultSpawn.isPresent() && !metadata.isEmpty()) {
       EntitySpawnEvent base = defaultSpawn.orElseThrow();
       return Optional.of(
@@ -96,6 +107,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
               .drawInfo(base.drawInfo())
               .playerComponent(base.playerComponent())
               .characterClassId(base.characterClassId())
+              .shaderComponent(base.shaderComponent())
               .metadata(metadata)
               .build());
     }
