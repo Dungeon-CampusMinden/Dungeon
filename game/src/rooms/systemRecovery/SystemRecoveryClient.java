@@ -8,6 +8,7 @@ import engine.components.PositionComponent;
 import engine.configuration.KeyboardConfig;
 import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
+import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.utils.CursorUtil;
 import engine.utils.components.draw.DrawComponentFactory;
@@ -79,6 +80,9 @@ public final class SystemRecoveryClient {
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
               }
+              if (event.shaderComponent() != null) {
+                newEntity.add(ShaderComponentCodec.fromState(event.shaderComponent()));
+              }
               SystemRecoverySnapshotTranslator.applyInteractableMetadata(
                   newEntity, event.metadata());
               SystemRecoverySnapshotTranslator.questLogFromMetadata(event.metadata())
@@ -115,6 +119,9 @@ public final class SystemRecoveryClient {
             .username(playerComponent.playerName())
             .build();
     applySpawnPosition(hero, event.positionComponent());
+    if (event.shaderComponent() != null) {
+      hero.add(ShaderComponentCodec.fromState(event.shaderComponent()));
+    }
     applyCollideMetadata(hero, event.metadata());
     Game.add(hero);
     return true;

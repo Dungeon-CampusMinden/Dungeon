@@ -328,6 +328,50 @@ public final class EntityFactory {
     return entity;
   }
 
+  /**
+   * Creates one visible module entry for the central counting exercise.
+   *
+   * <p>This deliberately has no interaction callback. The central room presents a static data
+   * set; the terminal code, rather than the world object, is the thing being evaluated.
+   *
+   * @param point position of the module entry
+   * @param index array index represented by the entry
+   * @param moduleName module name, or {@code null} for an empty entry
+   * @return configured central module entry
+   */
+  public static Entity systemCoreModuleEntry(Point point, int index, String moduleName) {
+    Entity entity = new Entity("system_core_module_" + index);
+    entity.add(new PositionComponent(point));
+    DrawComponent draw =
+        new DrawComponent(
+            new SimpleIPath(
+                moduleName == null
+                    ? "objects/tech/Screen_info_2.png"
+                    : "objects/tech/Screen_info_1.png"));
+    draw.tintColor(moduleName == null ? 0x66707AFF : 0x33CCFFFF);
+    entity.add(draw);
+    return entity;
+  }
+
+  /**
+   * Creates one visible map cell for the central search exercise.
+   *
+   * @param point position of the map cell
+   * @param row row represented by the cell
+   * @param column column represented by the cell
+   * @param batterySignal whether the cell contains a battery signal
+   * @return configured central map cell
+   */
+  public static Entity systemCoreMapCell(
+      Point point, int row, int column, boolean batterySignal) {
+    Entity entity = new Entity("system_core_map_" + row + "_" + column);
+    entity.add(new PositionComponent(point));
+    DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png"));
+    draw.tintColor(batterySignal ? 0x33E6FFFF : 0x56616BFF);
+    entity.add(draw);
+    return entity;
+  }
+
   /** Creates the interactable bubble-sort machine. */
   public static Entity bubbleSortMachine(Point point, BiConsumer<Entity, Entity> onInteract) {
     Entity entity = new Entity("bubble_sort_machine");

@@ -138,26 +138,25 @@ public final class InterpretationCallbacks {
   /** Handles riddle 10 step 1: bubble sort the central array. */
   public static void onRiddleTenStepOneBubbleSortCompleted() {
     showCorrectTerminalInputDialog();
+    SystemRecoveryLevel.completeSystemCoreSort();
     SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
         SystemRecoveryStoryDialogs.CENTRAL_COUNT);
-    // TODO: Zentrales Rechenzentrum: sortierte Werte an Maschine/Rechenzentrum melden.
   }
 
   /** Handles riddle 10 step 2: count all non-null modules. */
   public static void onRiddleTenStepTwoModulesCounted() {
     showCorrectTerminalInputDialog();
+    SystemRecoveryLevel.completeSystemCoreModuleCount();
     SystemRecoveryLevel.announceStoryForCurrentTerminalPlayer(
         SystemRecoveryStoryDialogs.CENTRAL_SEARCH);
-    // TODO: Zentrales Rechenzentrum: Modulanzahl in Zentralstatus uebernehmen.
   }
 
   /** Handles riddle 10 step 3: search the map and collect batteries. */
   public static void onRiddleTenStepThreeBatteriesCollected() {
     showCorrectTerminalInputDialog();
+    SystemRecoveryLevel.completeSystemCoreMapSearch();
     SystemRecoveryLevel.completeSystemCoreRiddle();
     SystemRecoveryLevel.announceStoryCompletion();
-    // TODO: Zentrales Rechenzentrum: finale Batterie-Suche bestaetigen und naechste Aktion
-    // ausloesen.
   }
 
   /** Handles any terminal input that does not match the current requirement. */
