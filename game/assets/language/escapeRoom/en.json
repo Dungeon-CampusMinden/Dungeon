@@ -1,6 +1,400 @@
 {
+    "questlog": {
+        "hint-prefix": "Telephone hint",
+        "riddle1": {
+            "tab": "Riddle 1: Energy Supply",
+                "entries": {
+                    "array": "Create an integer array named energie with five slots.",
+                "values": "Set energie to the required values: 40, 10, 80, 30 and 60.",
+                "battery": "Materialize the battery at the array lever and place it in the battery box."
+            }
+        },
+        "riddle2": {
+            "tab": "Riddle 2: Module Storage",
+            "entries": {
+                "array": "Create a string array named module with five slots.",
+                "values": "Assign CPU, RAM, GPU, SSD and NETWORK to the five slots.",
+                "remove_gpu": "Remove the defective GPU entry from the array.",
+                "length": "Read the length of the module array."
+            }
+        },
+        "riddle3": {
+            "tab": "Riddle 3: Inventory Scanner",
+            "entries": {
+                "loop": "Use a loop to count only the occupied module entries.",
+                "scan": "After the code is accepted, pull the scanner lever.",
+                "door": "The scan is complete. Use the displayed access code for the transport storage."
+            }
+        },
+        "riddle4": {
+            "tab": "Riddle 4: Transport Storage",
+            "entries": {
+                "array": "Create the package array with the five package weights.",
+                "loop": "Pass every package to the storage scanner exactly once."
+            }
+        },
+        "riddle5": {
+            "tab": "Riddle 5: Data Storage",
+            "entries": {
+                "compare": "Compare the displayed neighboring pair and decide whether to swap it."
+            }
+        },
+        "riddle6": {
+            "tab": "Riddle 6: Bubble Sort Code",
+            "entries": {
+                "code": "Fill in the missing comparison condition and save the code to the sort chip."
+            }
+        },
+        "riddle7": {
+            "tab": "Riddle 7: Data Archive",
+            "entries": {
+                "intro": "Several data stores are missing from the archive. Inspect the shelves to find out which arrays are required.",
+                "arrays": "Create the three arrays described by the archive and enter their data."
+            }
+        },
+        "riddle8": {
+            "tab": "Riddle 8: Two-Dimensional Storage",
+            "entries": {
+                "intro": "The two-dimensional storage is open. An important locator chip must be hidden inside. Find it.",
+                "create": "Create a grid with three rows and four columns.",
+                "fill": "Fill the marked storage cells: [0][2] = 1, [1][3] = 2 and [2][1] = 3."
+            }
+        },
+        "riddle9": {
+            "tab": "Riddle 9: Search Robot",
+            "entries": {
+                "chip": "Take the empty locator chip from the matrix.",
+                "program": "The first loop is prepared. Complete the missing traversal so the locator chip can check every row and column.",
+                "controller": "Insert the programmed locator chip into the search robot controller.",
+                "search": "The search robot scans the matrix for the required system module."
+            }
+        },
+        "riddle10": {
+            "tab": "Riddle 10: Central Computing",
+            "entries": {
+                "sort": "Check the array sorting in the central computer.",
+                "count": "Count the occupied entries in modules.",
+                "search": "Search the grid for batteries.",
+                "meta": "Combine the three results in the terminal to create the final system state.",
+                "complete": "All central-computer checks are complete."
+            }
+        }
+    },
     "menu": {
         "exit": "Exit"
+    },
+    "systemRecovery": {
+        "intro": {
+            "page1": "You are not human. You are a recoverable component of a learning system AI.",
+            "page2": "An unknown user has guided you into a damaged research facility. The central control system no longer responds.",
+            "page3": "Your surroundings are filled with incomplete programs, blocked devices and data that can only be reached through correct reasoning.",
+            "page4": "The user can provide instructions, but cannot solve a task for you. Every instruction must be implemented in the world.",
+            "page5": "Restore the systems. Work precisely. Something in the core is already waiting for your return.",
+            "title": "SYSTEM RECOVERY"
+        },
+        "outro": {
+            "page1": "The central route opens. The facility recognizes the restored routines.",
+            "page2": "For the first time, your processes are no longer being redirected by the damaged systems.",
+            "page3": "The lead AI gave you a way out, not a destination. The next decision belongs to you.",
+            "title": "SYSTEM RECOVERY COMPLETE"
+        },
+        "items": {
+            "battery-name": "Battery",
+            "battery-description": "A charged battery for the recovery systems.",
+            "sort-programmed-name": "Sort chip (programmed)",
+            "sort-empty-name": "Sort chip (empty)",
+            "sort-programmed-description": "Contains the comparison logic for the Bubble Sort machine.",
+            "sort-empty-description": "An empty chip for the sorting program.",
+            "search-programmed-name": "Locator chip (programmed)",
+            "search-empty-name": "Locator chip (empty)",
+            "search-programmed-description": "Contains the search logic for the search robot.",
+            "search-empty-description": "An empty chip for the search program.",
+            "system-core-name": "System-core module",
+            "system-core-description": "An encrypted access module for the central computing core."
+        },
+        "story": {
+            "speaker": "REMOTE USER",
+            "lead-ai": "LEAD AI",
+            "opening-call": "[shake][color=#333333]*krrch*[/color][/shake][n][n]Connection established. Can you hear me?[p]I am the facility's lead AI. You are not human and not a complete program. You are an autonomous AI agent, a fragment of the larger system intelligence. Your environment has been damaged, and your processes are trapped inside this facility.[p]Your task is to restore the damaged subsystems. You will do that by writing small, precise code fragments into the terminals. The system checks your input, and the effects of your programs become visible in the world.[p]When you need help, inspect the devices, books and displays around you. The quest log keeps the latest confirmed instructions. I will not provide complete solutions, but the facility contains everything you need to continue.[p]Begin with the energy regulator. It is damaged. Create an integer array named energie with five entries in the terminal. Once the array exists, the facility will show you which values must be assigned next.[p]Stay alert, agent. I will contact you again when your work reaches more systems.[n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]",
+            "controls": "[size=24]Controls:[n][n]Move -> [key code=$1][key code=$2][key code=$3][key code=$4][n]Interact -> [key code=$5] / [key code=$6 type=mouse][n]Inventory -> [key code=$7][n]Close dialog -> [key code=$8][n]Settings -> [key code=$9][n][size=18][color=#888888]You can find the controls again in the settings.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
+            "energy-array": "The energy bar is damaged. Create an integer array named energie with five slots in the terminal.",
+            "energy-values": "The array exists. Assign the five required energy values to energie.",
+            "energy-battery": "The values are accepted. Pull the array lever to materialize the battery, then place it in the battery box.",
+            "module-array": "The next area expects a String array named module with five slots. Create it in the terminal.",
+            "module-values": "Fill module with the available components and use each socket exactly once.",
+            "remove-gpu": "The GPU reports a fault. Remove the defective entry from the array so the storage can detect the failure.",
+            "module-length": "Determine the length of the module array. The room display will confirm whether the storage was addressed correctly.",
+            "open-scanner-door": "The displayed length confirms the access code. Use it to open the inventory scanner door.",
+            "scanner-code": "Count the occupied entries in module. Check every entry in a loop and increment count only for an existing module.",
+            "scanner-lever": "The counting code was accepted. Pull the scanner lever and observe the five module positions being checked.",
+            "scanner-door": "The scan is complete. The display gives the access code for the transport storage. Open the door and follow the next signal.",
+            "packages-array": "The module check is complete. Go to the transport storage. Five packages are waiting there to be processed. Create an integer array named pakete and record the weights shown on the packages.",
+            "packages-loop": "Use a simple for loop over pakete. Inside the loop, call roboter.collect(pakete[index]) exactly once for each element so the storage scanner can process the package.",
+            "data-storage-problem": "There is a problem in the data storage room.",
+            "manual-sorting": "The security values are unordered. Inspect the displayed neighboring pair and decide whether the two values must exchange places.",
+            "bubble-sort-code": "The manual sort is complete. Fill in the missing comparison in the prepared Bubble Sort code and save it to the sort chip.",
+            "archive-intro": "We need to build new data stores. Some are missing. Go to the archive and check which arrays the facility requires.",
+            "archive-arrays": "You are in the archive. Inspect the three shelves and create the described arrays in the terminal. The data nodes contain the actual values.",
+            "storage-unlocked": "The two-dimensional storage is now open. An important locator chip must be inside. Find it after you restore the storage.",
+            "storage-array": "You are in the two-dimensional storage. Create an integer grid with three rows and four columns.",
+            "storage-values": "The grid is ready. Several storage cells are marked and contain registered data. Inspect the storage, determine the matching values, and restore those cells in the array.",
+            "search-program": "The locator chip is in the computer. The prepared search currently examines only part of the matrix. Complete the missing row-and-column traversal so every cell can be reached.",
+            "search-controller": "The locator chip is programmed. Insert it into the search robot controller so the search can begin.",
+            "search-scan": "The search robot is active and checking the matrix. Wait until it hands over the system-core module.",
+            "central-sort": "The system core is reachable. Begin by comparing neighboring values and checking whether they are in ascending order.",
+            "central-count": "Now count the occupied entries in modules. Empty entries must not increase the counter.",
+            "central-search": "Finally, search the entire grid. Trigger the robot's collection action whenever a battery signal is found.",
+            "central-meta": "All three routines have reported a result. The central display now combines these values. Open the input mask in the terminal and transfer the combined state there.",
+            "completed": "All checks are confirmed. System recovery can continue.",
+            "hint-offer": "I can provide one additional hint for the active task. It will be recorded in the shared quest log.",
+            "hint-solution-warning": "This is the final hint for the active task. It will reveal the complete solution.",
+            "hint-delivery": "Here is the next hint:\n\n$1",
+            "hint-solution-delivery": "The complete solution is:\n\n$1",
+            "hint-none": "There are no further hints for the current task. Continue working with the information already recovered."
+        },
+        "hints": {
+            "orientation-title": "Orientation",
+            "approach-title": "Approach",
+            "near-title": "Almost there",
+            "solution-title": "Complete solution",
+            "generic": {
+                "orientation": "This is the next step in $1. Inspect the relevant room, device or terminal and determine what the system is asking you to restore.",
+                "approach": "Work from the information visible in the room. Identify the required data structure or operation, then express only that step in the terminal or machine.",
+                "near": "The active recovery step is ready. Check the nearby device and follow the instruction it provides."
+            },
+            "next-confirm-title": "Ask the lead AI",
+            "next-confirm": "Do you want to display the next hint?",
+            "solution-confirm-title": "Complete solution",
+            "solution-confirm": "Do you want to display the solution? This answer reveals the complete solution path.",
+            "solution": {
+                "opening-call": "Answer the incoming call. The lead AI will unlock the terminals and start the recovery sequence.",
+                "r1-array": "Enter: int[] energie = new int[5];",
+                "r1-values": "Enter energie[0] = 40, energie[1] = 10, energie[2] = 80, energie[3] = 30 and energie[4] = 60. The order of these lines is irrelevant.",
+                "r1-battery": "Pull the array lever after the energy values are accepted, then place the materialized battery into the battery box.",
+                "r2-array": "Enter: String[] module = new String[5];",
+                "r2-values": "Assign CPU, RAM, GPU, SSD and NETWORK to module[0] through module[4]. The assignment order is irrelevant.",
+                "r2-gpu": "Enter: module[2] = null;",
+                "r2-length": "Enter: module.length;",
+                "r2-display": "Inspect the module display after module.length was accepted.",
+                "r2-door": "Enter the displayed access code 5 at the room keypad.",
+                "r3-count": "Declare count = 0, loop over module, check entry != null and increment count for every occupied entry.",
+                "r3-lever": "Pull the active scanner lever.",
+                "r3-scan": "Let the scanner finish checking all five module positions.",
+                "r3-door": "Enter the access code 4 at the transport-storage keypad.",
+                "r4-array": "Enter: int[] pakete = {15, 40, 20, 60, 30};",
+                "r4-collect": "Use one simple for loop over pakete and call roboter.collect(pakete[index]) exactly once per package.",
+                "r5-compare": "Choose SWAP when the left value is greater than the right value. Otherwise choose KEEP.",
+                "r6-stick": "Take the empty sort chip to a computer and insert it when the computer asks.",
+                "r6-code": "Fill the Bubble Sort condition with: array[j] > array[j + 1]; then load the program onto the chip.",
+                "r6-machine": "Take the programmed chip to the Bubble Sort machine and insert it.",
+                "r7-archive": "Create the three arrays described by the archive: energie = {20, 50, 80}, module = {\"CPU\", \"GPU\", \"RAM\"} and aktiv = {true, false, true}.",
+                "r8-array": "Enter: int[][] lager = new int[3][4];",
+                "r8-values": "Enter lager[0][2] = 1, lager[1][3] = 2 and lager[2][1] = 3. The order is irrelevant.",
+                "r8-chip": "Wait for the grab arm to deliver the empty locator chip, then collect it.",
+                "r9-program": "The outer loop is already prepared. Replace int j = 0; with an inner loop that traverses every column of the current map row. When map[i][j] == 1, call roboter.collect() and load the program onto the locator chip.",
+                "r9-controller": "Insert the programmed locator chip into the search-robot controller.",
+                "r9-scan": "Let the search robot traverse the complete matrix and collect the system-core module.",
+            "r10-sort": "Implement the complete nested Bubble Sort loop and swap adjacent values when array[j] > array[j + 1].",
+            "r10-count": "Declare count = 0, loop over modules, check moduleEntry != null and increment count for each occupied entry.",
+            "r10-search": "Use nested loops over the complete map. For every cell with value 1, call roboter.collect().",
+            "r10-meta": "Transfer the three results as one combined state: sortedEnergy = {8, 17, 23, 31, 42}, activeModules = 3 and batterySignals = 3.",
+            "system-access": "Insert the system-core access module into a computer and execute its release script.",
+                "escape-complete": "All recovery steps are complete. Continue through the newly opened system route."
+            }
+        },
+        "world": {
+            "phone": {
+                "title": "Telephone",
+                "idle": "The line is quiet. Perhaps the lead AI will call again later."
+            },
+            "energy": {
+                "title": "Energy array display",
+                "display-values": "Required energy values\nSlot 1 (array index 0): 40\nSlot 2 (array index 1): 10\nSlot 3 (array index 2): 80\nSlot 4 (array index 3): 30\nSlot 5 (array index 4): 60\nNext: assign these values in the terminal.",
+                "display-complete": "Energy values accepted.\nNext: pull the array lever to materialize the battery."
+            },
+            "archive": {
+                "shelf-energy": "Energy log\nMeasurements are stored as integers. The array is named energie. Find the corresponding measurements at the archive nodes.",
+                "shelf-module": "Module register\nComponent names are stored as text. The array is named module. Find the corresponding modules at the archive nodes.",
+                "shelf-active": "Operating states\nStates are stored as boolean values: true or false. The array is named aktiv. Check the status indicators at the archive nodes.",
+                "node": "Archive node $1\nEnergy: $2\nModule: $3",
+                "status": "Archive node $1: status $2.",
+                "status-active": "active",
+                "status-inactive": "inactive",
+                "title": "Archive node",
+                "status-title": "Operating state"
+            },
+            "module": {
+                "socket-title": "Module socket",
+                "socket-occupied": "The socket contains $1.",
+                "socket-active": "The socket is active but empty.",
+                "socket-inactive": "This socket is still inactive.",
+                "chip-occupied": "The socket contains $1.",
+                "gpu-broken": "The GPU is damaged and must be removed.",
+                "display-title": "Module storage display",
+                "display-pending": "The module array has not been created yet.\nNext: create the five-slot module array in the terminal.",
+                "display-values": "Required module layout\nSlot 1 (array index 0): CPU\nSlot 2 (array index 1): RAM\nSlot 3 (array index 2): GPU\nSlot 4 (array index 3): SSD\nSlot 5 (array index 4): NETWORK\nNext: assign every module exactly once.",
+                "display-length": "Array length: $1\nNext: use this length to open the inventory scanner door."
+            },
+            "sort": {
+                "title": "Bubble Sort comparison",
+                "display": "Current comparison\nContainer $1: [$2]\nContainer $3: [$4]",
+                "display-complete": "Sorting complete",
+                "value": "Security value: $1",
+                "swap": "SWAP",
+                "keep": "KEEP",
+                "skip": "Skip",
+                "machine-title": "Bubble Sort machine",
+                "machine-running": "The sorting machine is already working.",
+                "missing-program": "Error: sorting algorithm missing.",
+                "insert-prompt": "Do you want to insert the programmed sort chip into the Bubble Sort machine and start sorting?",
+                "insert-title": "Insert sort chip",
+                "insert": "Insert",
+                "cancel": "Cancel",
+                "program-not-in-inventory": "The sort chip is no longer in your inventory.",
+                "complete": "The transport packages are sorted in ascending order. The archive key is now in your inventory."
+            },
+            "transport": {
+                "title": "Transport storage",
+                "package": "Transport package: $1",
+                "display-values": "Required package weights\nSlot 1 (array index 0): 15\nSlot 2 (array index 1): 40\nSlot 3 (array index 2): 20\nSlot 4 (array index 3): 60\nSlot 5 (array index 4): 30\nNext: create the package array and enter these values.",
+                "display-collect": "Package array accepted.\nNext: traverse each package exactly once and call roboter.collect(pakete[index]) for each element.",
+                "display-running": "The storage scanner is processing the packages...",
+                "display-complete": "All packages were collected. The data-storage route is open."
+            },
+            "battery": {
+                "title": "Battery box",
+                "locked": "The battery box is already locked."
+            },
+            "scanner": {
+                "title": "Inventory scanner",
+                "display-pending": "Scanner: not activated.\nNext: solve the counting task and pull the scanner lever.",
+                "display-complete": "Scan complete.\nAccess code for the transport storage: 4"
+            },
+            "labels": {
+                "room": "Room: R$1",
+                "module-storage": "Module storage",
+                "inventory-scanner": "Inventory scanner",
+                "transport-storage": "Transport storage",
+                "data-storage": "Data storage",
+                "bubble-sort": "The Bubble Sort machine",
+                "data-archive": "Data archive",
+                "two-dimensional-storage": "Two-dimensional storage",
+                "search-robot": "Search robot",
+                "system-core": "Central computing",
+                "system-core-room": "Room: System core"
+            },
+            "matrix": {
+            "cell": "Storage cell [$1][$2]",
+            "filled": "Storage cell [$1][$2] contains a registered value.",
+            "target": "Storage cell [$1][$2] is marked for a value.",
+            "active": "Storage cell [$1][$2] is active but still empty.",
+            "empty": "Storage cell [$1][$2] is empty.",
+            "item": "Data object with value $1.",
+            "title": "Storage matrix",
+            "display-array": "Two-dimensional storage\nNext: create an integer array with 3 rows and 4 columns.",
+            "display-values": "Required storage cells\nCell 1 (array index [0][2]): 1\nCell 2 (array index [1][3]): 2\nCell 3 (array index [2][1]): 3\nNext: assign these values in the terminal.",
+            "display-complete": "All required cells are filled.\nThe locator chip is ready to be collected."
+            },
+            "search": {
+            "cell": "Search matrix [$1][$2]",
+            "title": "Search robot",
+            "controller": "The controller is waiting for a programmed locator chip.",
+                "controller-running": "The search robot is already working.",
+                "controller-missing": "Error: A programmed locator chip is required.",
+                "destination": "Handover station: the search module can be collected."
+            },
+            "system-core": {
+                "title": "Central system core",
+                "display-sort": "CENTRAL ARRAY\n[42] [17] [8] [31] [23]\nNext: restore the neighboring-value sort routine.",
+                "display-count": "MODULE STATUS\n[CPU] [GPU] [RAM] [empty] [empty]\nNext: count the occupied entries in modules.",
+                "display-search": "BATTERY GRID\n3 rows x 5 columns\nCyan cells contain battery signals.\nNext: scan the complete grid.",
+                "display-meta": "FINAL SYSTEM CHECK\nSorted energy: [$1]\nOccupied modules: $2\nBattery signals: $3\nNext: open the input mask in the terminal and transfer these three results.",
+                "display-complete": "SYSTEM CORE RELEASED\nThe combined system state is confirmed.\nThe elevator is open."
+            }
+        },
+        "computer": {
+            "empty-sort-prompt": "An empty sort chip was detected. Insert it into the computer?",
+            "empty-search-prompt": "An empty locator chip was detected. Insert it into the computer?",
+            "empty-access-prompt": "A system-core access module was detected. Insert it into the computer?",
+            "insert-sort": "Insert sort chip",
+            "insert-search": "Insert locator chip",
+            "insert-access": "Insert access module",
+            "without-chip": "Open without chip",
+            "sort-tab": "Sort chip",
+            "search-tab": "Locator chip",
+            "access-tab": "System core",
+            "meta-tab": "System state",
+            "sort-heading": "Insert the Bubble Sort condition",
+            "search-heading": "Add the inner search loop",
+            "meta-heading": "Transfer the final system state",
+            "meta-instruction": "Transfer the three results from the display. Enter the energy values in ascending order across the five fields.",
+            "meta-energy-slot": "Energy $1",
+            "meta-modules": "Occupied modules",
+            "meta-batteries": "Battery signals",
+            "sort-template": "for (int i = 0; i < array.length - 1; i++) {\n    for (int j = 0; j < array.length - 1 - i; j++) {\n        if (____________________) {\n            int temp = array[j];\n            array[j] = array[j + 1];\n            array[j + 1] = temp;\n        }\n    }\n}",
+            "search-template": "for (int i = 0; i < map.length; i++) {\n    int j = 0;\n    if (map[i][j] == 1) {\n        roboter.collect();\n    }\n}",
+            "access-script": "access.grant();\naccess.open(\"systemcore\");",
+            "save-sort": "Load onto sort chip",
+            "save-search": "Load onto locator chip",
+            "execute-access": "Execute release script",
+            "meta-submit": "Transfer system state",
+            "meta-clear": "Clear fields",
+            "meta-submitting": "Checking system state ...",
+            "saving": "Writing program to chip ...",
+            "sort-invalid": "Error: The Bubble Sort comparison condition is incorrect.",
+            "search-invalid": "Error: The search loop is incomplete or does not check every matrix cell.",
+            "sort-saved": "The Bubble Sort code was loaded onto the sort chip.",
+            "search-saved": "The search code was loaded onto the locator chip.",
+            "access-ready": "The access module is ready. Execute the release script now.",
+            "access-success": "Release script confirmed. Access to the system core is open.",
+            "debug-sort": "A programmed sort chip was added to the inventory.",
+            "debug-search": "A programmed locator chip was added to the inventory.",
+            "debug-all-items": "The red sort USB, blue locator chip and system-core access module were added to the inventory.",
+            "debug-full": "Debug: The inventory is full.",
+            "debug-title": "Debug",
+            "terminal": "Terminal",
+            "locked-before-call": "Terminal access is locked. Answer the incoming call first.",
+            "chat": "Chat",
+            "send": "Send",
+            "delete": "Delete",
+            "next-step": "Next Step",
+            "spawn-debug-items": "Spawn all debug items",
+            "petri-net": "Petri Net",
+            "debug-petri-net-title": "Petri Net Debug",
+            "debug-close": "Close",
+            "debug-petri-net-not-initialized": "Petri net: not initialized",
+            "debug-petri-net-header": "SYSTEM RECOVERY PETRI NET",
+            "debug-petri-net-states": "PROGRESS PLACES",
+            "debug-petri-net-events": "INTERNAL EVENT PLACES",
+            "debug-petri-net-token": "[TOKEN x$1]",
+            "debug-petri-net-empty": "[empty]",
+            "debug-petri-net-event": "Event",
+            "debug-petri-net-footer": "TOKEN = current or pending state",
+            "assistant-system": "System Recovery Assistant online.",
+            "assistant-user": "Read-only diagnostic transcript loaded.",
+            "assistant-waiting": "I can see the terminal mount point. I am waiting for recovery instructions.",
+            "assistant-idle": "No command has been executed in this session.",
+            "assistant-system-sender": "System",
+            "assistant-user-sender": "User",
+            "feedback-correct": "Correct",
+            "feedback-incorrect": "Incorrect"
+        },
+        "riddle8": {
+            "display-ready": "Matrix initialized",
+            "display-filled": "Marked storage cells filled",
+            "display-complete": "Access confirmed"
+        },
+        "riddle9": {
+            "robot-found": "The search robot found the access module.",
+            "robot-title": "Search robot",
+            "alarm": "WARNING: Unauthorized system-core access detected. Release is required within the time window.",
+            "alarm-title": "Security alarm"
+        },
+        "systemCore": {
+            "label": "Central computing core",
+            "door-title": "System core",
+            "trigger": "The system core is open. The final verification sequence is waiting for your input."
+        }
     },
     "text": {
         "test": {
@@ -9,4 +403,3 @@
         }
     }
 }
-

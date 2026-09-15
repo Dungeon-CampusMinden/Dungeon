@@ -113,4 +113,24 @@ class HintSystemTest {
     hintSystem.execute();
     assertTrue(hintSystem.nextHint().isEmpty());
   }
+
+  /** Verifies that the telephone hint sequence is shared by all players in the room. */
+  @Test
+  void testPhoneHintProgressIsShared() {
+    assertEquals(hint1_1, hintSystem.peekSharedHint().orElseThrow());
+    assertEquals(hint1_1, hintSystem.peekSharedHint().orElseThrow());
+
+    assertEquals(hint1_1, hintSystem.acceptSharedHint().orElseThrow());
+    assertEquals(hint1_2, hintSystem.peekSharedHint().orElseThrow());
+
+    assertEquals(hint1_2, hintSystem.acceptSharedHint().orElseThrow());
+    assertTrue(hintSystem.peekSharedHint().isEmpty());
+  }
+
+  /** Verifies that declining the confirmation leaves the shared hint available. */
+  @Test
+  void testDeclinedPhoneHintDoesNotAdvanceSharedProgress() {
+    assertEquals(hint1_1, hintSystem.peekSharedHint().orElseThrow());
+    assertEquals(hint1_1, hintSystem.peekSharedHint().orElseThrow());
+  }
 }
