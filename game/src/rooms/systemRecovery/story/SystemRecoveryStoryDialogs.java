@@ -100,6 +100,9 @@ public final class SystemRecoveryStoryDialogs {
   /** The central map search check. */
   public static final StoryStep CENTRAL_SEARCH = step("central-search", "riddle10", "search");
 
+  /** The final combination of the three central-computer results. */
+  public static final StoryStep CENTRAL_META = step("central-meta", "riddle10", "meta");
+
   /** The final story response after all central checks. */
   public static final StoryStep COMPLETED = step("completed", "riddle10", "complete");
 

@@ -9,8 +9,8 @@ public final class SystemRecoveryComputerCallbacks {
   /** Advances the terminal state through the server-side debug callback. */
   public static final String TERMINAL_NEXT_STEP = "terminalNextStep";
 
-  /** Spawns a programmed sort USB for local puzzle debugging. */
-  public static final String DEBUG_SPAWN_SORT_USB = "debugSpawnSortUsb";
+  /** Spawns all programmed System Recovery items for local puzzle debugging. */
+  public static final String DEBUG_SPAWN_ALL_ITEMS = "debugSpawnAllItems";
 
   /** Opens the server-authoritative Petri-net token inspection for local debugging. */
   public static final String DEBUG_PETRI_NET = "debugPetriNet";
@@ -23,6 +23,9 @@ public final class SystemRecoveryComputerCallbacks {
 
   /** Executes the access script on the inserted system-core module. */
   public static final String SYSTEM_CORE_SCRIPT_RUN = "systemCoreScriptRun";
+
+  /** Submits the three values from the system-core result input mask. */
+  public static final String SYSTEM_CORE_META_SUBMIT = "systemCoreMetaSubmit";
 
   private SystemRecoveryComputerCallbacks() {}
 }

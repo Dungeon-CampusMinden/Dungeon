@@ -38,6 +38,7 @@ public enum SystemRecoveryProgressPlace {
   R10_SORT("r10-sort", "riddle10", "central-sort"),
   R10_COUNT("r10-count", "riddle10", "central-count"),
   R10_SEARCH("r10-search", "riddle10", "central-search"),
+  R10_META("r10-meta", "riddle10", "central-meta"),
   R10_FINAL("r10-final", "riddle10", "completed"),
   SYSTEM_ACCESS("system-access", "riddle10", "completed"),
   ESCAPE_COMPLETE("escape-complete", "riddle10", "completed");
