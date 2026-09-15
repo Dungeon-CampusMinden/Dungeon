@@ -2,14 +2,17 @@ package rooms.systemRecovery.story;
 
 import engine.Game;
 import engine.components.PlayerComponent;
+import feature.components.UIComponent;
 import feature.hud.dialogs.DialogFactory;
 import feature.systems.LevelEditorSystem;
+import java.util.Arrays;
 import java.util.OptionalInt;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
+import rooms.systemRecovery.modules.computer.SystemRecoveryDialogTypes;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
@@ -112,9 +115,18 @@ public final class SystemRecoveryStoryDialogs {
     if (!Game.isHeadless() && LevelEditorSystem.active()) return;
 
     long now = System.currentTimeMillis();
-    PendingDialog pending;
-    while ((pending = pendingDialogs.peek()) != null && pending.executeAt() <= now) {
-      pendingDialogs.poll();
+    int pendingCount = pendingDialogs.size();
+    for (int index = 0; index < pendingCount; index++) {
+      PendingDialog pending = pendingDialogs.poll();
+      if (pending == null) return;
+
+      // Keep this player's story message queued while the computer is open. Other players must
+      // remain independent and may still receive their own queued message in the same tick.
+      if (pending.executeAt() > now || hasOpenComputer(pending.playerId())) {
+        pendingDialogs.add(pending);
+        continue;
+      }
+
       SystemRecoveryQuestLogUtil.addDialogEntry(
           pending.step().riddleKey(), pending.step().entryKey());
       DialogFactory.showDialogDialog(pending.step().script(), () -> {}, pending.playerId());
@@ -164,6 +176,27 @@ public final class SystemRecoveryStoryDialogs {
     if (!shownToPlayer.add(key)) return;
     pendingDialogs.add(
         new PendingDialog(System.currentTimeMillis() + STORY_DELAY_MS, step, playerId));
+  }
+
+  /**
+   * Checks the authoritative UI registry for an open System Recovery computer for one player.
+   *
+   * <p>The check uses the target IDs instead of client-local visibility. This keeps story delivery
+   * correct in multiplayer: only the player currently working at a computer is deferred.
+   */
+  private static boolean hasOpenComputer(int playerId) {
+    return Game.levelEntities()
+        .map(entity -> entity.fetch(UIComponent.class).orElse(null))
+        .filter(java.util.Objects::nonNull)
+        .anyMatch(
+            ui ->
+                ui.dialogContext().dialogType() == SystemRecoveryDialogTypes.COMPUTER
+                    && targetsPlayer(ui, playerId));
+  }
+
+  private static boolean targetsPlayer(UIComponent ui, int playerId) {
+    int[] targets = ui.targetEntityIds();
+    return targets.length == 0 || Arrays.stream(targets).anyMatch(target -> target == playerId);
   }
 
   private static StoryStep step(String id, String riddleKey, String entryKey) {

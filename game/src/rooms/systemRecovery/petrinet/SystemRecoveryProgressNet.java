@@ -227,7 +227,13 @@ public final class SystemRecoveryProgressNet {
   private static void emit(ProgressEvent event, SystemRecoveryProgressPlace expectedPlace) {
     if (instance == null || !instance.hasToken(expectedPlace)) return;
     PlaceComponent eventPlace = instance.events.get(event);
-    if (eventPlace != null && eventPlace.tokenCount() == 0) eventPlace.produce();
+    if (eventPlace == null || eventPlace.tokenCount() != 0) return;
+
+    eventPlace.produce();
+
+    // UI interactions can emit multiple authoritative events before the next ECS tick. Flush the
+    // net here so the following event observes the newly active place instead of being discarded.
+    instance.petriNet.execute();
   }
 
   private boolean hasToken(SystemRecoveryProgressPlace state) {

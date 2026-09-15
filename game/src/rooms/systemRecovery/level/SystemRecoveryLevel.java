@@ -2,7 +2,9 @@ package rooms.systemRecovery.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.InputComponent;
 import engine.components.PlayerComponent;
+import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
@@ -11,8 +13,10 @@ import engine.sound.Sounds;
 import engine.systems.DrawSystem;
 import engine.utils.Point;
 import engine.utils.Tuple;
+import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import escaperoom.foundation.ui.BlackFadeCutscene;
+import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
@@ -47,6 +51,7 @@ import rooms.systemRecovery.riddles.InventoryScannerRiddle;
 import rooms.systemRecovery.riddles.ManualSortingRiddle;
 import rooms.systemRecovery.riddles.ModuleStorageRiddle;
 import rooms.systemRecovery.riddles.SearchRobotRiddle;
+import rooms.systemRecovery.riddles.SystemCoreRiddle;
 import rooms.systemRecovery.riddles.TransportStorageRiddle;
 import rooms.systemRecovery.riddles.TwoDimensionalStorageRiddle;
 import rooms.systemRecovery.story.SystemRecoveryDialogTriggers;
@@ -99,6 +104,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private final SearchRobotRiddle searchRobot =
       new SearchRobotRiddle(
           this, SystemRecoveryPuzzleEvents.forPuzzle(SystemRecoveryPuzzle.SEARCH_ROBOT));
+  private final SystemCoreRiddle systemCore = new SystemCoreRiddle(this);
   private final List<Entity> doorLabels = new ArrayList<>();
   private final SystemRecoveryStoryDialogs storyDialogs = new SystemRecoveryStoryDialogs();
   private final Set<Integer> introShownPlayers = new HashSet<>();
@@ -111,6 +117,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private boolean terminalsUnlocked;
   private boolean systemCoreAccessGranted;
   private boolean systemCoreRiddleCompleted;
+  private boolean endingTriggered;
 
   /**
    * Creates the System Recovery level.
@@ -161,6 +168,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
     dataArchive.setup();
     twoDimensionalStorage.setup();
     searchRobot.setup();
+    systemCore.setup();
+    setupEndTrigger();
   }
 
   @Override
@@ -423,6 +432,31 @@ public class SystemRecoveryLevel extends DungeonLevel {
     Game.add(MiscFactory.createDoorBlocker(archiveDoor, ItemKey.class));
   }
 
+  /** Starts the shared ending cutscene when a player reaches the final point after all riddles. */
+  private void setupEndTrigger() {
+    Entity trigger = new Entity("system-recovery-end-trigger");
+    trigger.add(new PositionComponent(getPoint("end")));
+    trigger.add(
+        new CollideComponent(
+                Vector2.ZERO,
+                Vector2.ONE,
+                (ignored, other, direction) -> {
+                  if (!systemCoreRiddleCompleted || endingTriggered) return;
+                  if (other.fetch(InputComponent.class).isEmpty()) return;
+                  endingTriggered = true;
+                  BlackFadeCutscene.show(
+                      SystemRecoveryText.endingPages(),
+                      true,
+                      false,
+                      true,
+                      Game::complete,
+                      other.id());
+                },
+                null)
+            .isSolid(false));
+    Game.add(trigger);
+  }
+
   private void setupRoomLabel() {
     addDoorLabel(
         "label_modulspeicher",
@@ -610,11 +644,34 @@ public class SystemRecoveryLevel extends DungeonLevel {
     return active().systemCoreRiddleCompleted;
   }
 
+  /** Returns whether the red system-core alarm should currently be active. */
+  public static boolean systemCoreAlarmActive() {
+    SystemRecoveryLevel level = active();
+    return level.systemCoreAccessGranted && !level.systemCoreRiddleCompleted;
+  }
+
+  /** Marks the Bubble Sort section of the central-computer riddle as solved. */
+  public static void completeSystemCoreSort() {
+    active().systemCore.completeSort();
+  }
+
+  /** Marks the module-count section of the central-computer riddle as solved. */
+  public static void completeSystemCoreModuleCount() {
+    active().systemCore.completeModuleCount();
+  }
+
+  /** Marks the matrix-search section of the central-computer riddle as solved. */
+  public static void completeSystemCoreMapSearch() {
+    active().systemCore.completeMapSearch();
+  }
+
   /** Marks the final system-core terminal riddle as solved. */
   public static void completeSystemCoreRiddle() {
     SystemRecoveryLevel level = active();
     if (level.systemCoreRiddleCompleted) return;
+    level.systemCore.complete();
     level.systemCoreRiddleCompleted = true;
+    SystemRecoveryAlarm.deactivate();
     SystemRecoveryPuzzleEvents.solved(SystemRecoveryPuzzle.SYSTEM_CORE);
   }
 

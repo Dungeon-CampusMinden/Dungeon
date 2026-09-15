@@ -26,4 +26,16 @@ public class SystemRecoveryRiddleLayoutTest {
     assertEquals(new Point(23, 41), matrix.pointAt(0));
     assertEquals(new Point(29, 38), matrix.pointAt(matrix.size() - 1));
   }
+
+  /** The final central-computer map uses the designer's inclusive 3x5 corner points. */
+  @Test
+  public void systemCoreUsesThreeByFiveMap_riddle10() {
+    SearchRobotMatrix matrix = SearchRobotMatrix.between(new Point(12, 7), new Point(16, 5));
+
+    assertEquals(3, matrix.rows());
+    assertEquals(5, matrix.columns());
+    assertEquals(15, matrix.size());
+    assertEquals(new Point(12, 7), matrix.pointAt(0));
+    assertEquals(new Point(16, 5), matrix.pointAt(matrix.size() - 1));
+  }
 }

@@ -1,12 +1,61 @@
 package rooms.systemRecovery.modules.interpreter.scenario;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /** Tests the three terminal steps in the central data center. */
 public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
+
+  /** The production registration accepts all three central-computer steps in sequence. */
+  @Test
+  public void centralDataCenterProductionStateFlowIsSupported_riddle10() {
+    TerminalInterpreterSetup.setupPreviewStates();
+    interpreter.synchronizeState(TerminalInterpreterSetup.CENTRAL_SORT_STATE);
+
+    assertTrue(
+        interpreter.interpret(
+            """
+            for (int outer = 0; outer < array.length - 1; outer++) {
+                for (int index = 0; index < array.length - 1 - outer; index++) {
+                    if (array[index] > array[index + 1]) {
+                        int temporary = array[index];
+                        array[index] = array[index + 1];
+                        array[index + 1] = temporary;
+                    }
+                }
+            }
+            """));
+    assertEquals(14, interpreter.currentState());
+
+    assertTrue(
+        interpreter.interpret(
+            """
+            int count = 0;
+            for (String entry : modules) {
+                if (entry != null) {
+                    count++;
+                }
+            }
+            """));
+    assertEquals(15, interpreter.currentState());
+
+    assertTrue(
+        interpreter.interpret(
+            """
+            for (int row = 0; row < map.length; row++) {
+                for (int column = 0; column < map[row].length; column++) {
+                    if (map[row][column] == 1) {
+                        roboter.collect();
+                    }
+                }
+            }
+            """));
+    assertEquals(16, interpreter.currentState());
+  }
 
   /** The central data center accepts the complete bubble-sort implementation. */
   @Test

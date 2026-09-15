@@ -109,14 +109,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                 applySortComparisonMetadata(metadata.orElseThrow());
                 applyBeltSortMetadata(metadata.orElseThrow());
                 applyStorageCellMetadata(entity, metadata.orElseThrow());
-                if (Boolean.parseBoolean(
-                    metadata
-                        .orElseThrow()
-                        .getOrDefault(
-                            SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS,
-                            "false"))) {
-                  SystemRecoveryAlarm.activate();
-                }
+                applySystemCoreAlarm(metadata.orElseThrow());
                 String terminalState =
                     metadata
                         .orElseThrow()
@@ -170,6 +163,21 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
           .fetch(DisplayTextComponent.class)
           .ifPresentOrElse(
               display -> display.text(text), () -> entity.add(new DisplayTextComponent(text)));
+    }
+  }
+
+  /** Applies the authoritative system-core alarm state on graphical clients. */
+  private void applySystemCoreAlarm(Map<String, String> metadata) {
+    String alarm = metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ALARM);
+    if (alarm != null) {
+      if (Boolean.parseBoolean(alarm)) SystemRecoveryAlarm.activate();
+      else SystemRecoveryAlarm.deactivate();
+      return;
+    }
+    if (Boolean.parseBoolean(
+        metadata.getOrDefault(
+            SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS, "false"))) {
+      SystemRecoveryAlarm.activate();
     }
   }
 
@@ -550,6 +558,9 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS,
           String.valueOf(SystemRecoveryLevel.systemCoreAccessGranted()));
+      metadata.put(
+          SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ALARM,
+          String.valueOf(SystemRecoveryLevel.systemCoreAlarmActive()));
     }
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;
@@ -684,6 +695,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     baseState.stateName().ifPresent(builder::stateName);
     baseState.tintColor().ifPresent(builder::tintColor);
     baseState.inventory().ifPresent(builder::inventorySlots);
+    baseState.shaderComponent().ifPresent(builder::shaderComponent);
 
     Map<String, String> mergedMetadata = new HashMap<>();
     baseState.metadata().ifPresent(mergedMetadata::putAll);

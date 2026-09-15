@@ -20,7 +20,7 @@ statischen, über mehrere Levelstarts hinweg geteilten Sitzung.
 | 7 – Datenarchiv | `DataArchiveRiddle` | Array-Hinweise aus Regalen lesen, Datenknoten untersuchen, Archivzugang öffnen | `archive_shelf_energie`, `archive_shelf_module`, `archive_shelf_aktiv`, `archive_node0`–`archive_node2`, `door_speicher` |
 | 8 – Zweidimensionaler Speicher | `TwoDimensionalStorageRiddle` | Eine 3×4-Matrix anlegen, drei Koordinaten befüllen, Datenobjekte materialisieren, Ortungschip freigeben | `storage_cell_0_0`–`storage_cell_2_3`, `display_2d`, `chip` |
 | 9 – Suchroboter | `SearchRobotRiddle` | Ortungschip programmieren, Matrix-Endpunkt mit dem Roboter erreichen, Zugriffsmodul erhalten | `suchroboter`, `suchroboter_controller` bzw. `suchroboter_controlls`, `roboter_start`, `roboter_end`, `roboter_item_destination` bzw. `roboter_item_destionation` |
-| 10 – Rechenzentrum | `TerminalInterpreterSetup` | Bubble-Sort-, Zähl- und Matrix-Suchcode im zentralen Terminal prüfen | `door_systemcore`, `label_systemcore` |
+| 10 – Rechenzentrum | `SystemCoreRiddle` + `TerminalInterpreterSetup` | Drei Bereiche im zentralen Terminal prüfen: Bubble Sort, belegte Module zählen und ein 3×5-Raster durchsuchen | `core_terminal`, `core_display`, `b0`–`b4`, `mod0`–`mod4`, `map00`, `map24`, `door_elevator` |
 
 Die frei positionierbaren Story-Trigger heißen `dialog_trigger_*` und liegen aktuell an den
 jeweiligen Türen. Ihre Zuordnung zu den Dialogschritten ist in
@@ -43,6 +43,11 @@ Der Archiv-Türverschluss bleibt beim Levelaufbau
 - `modules.computer`: Gemeinsamer Computer für alle Räume, inklusive Editor und USB-Dialog.
 - `modules.computer.content.SortProgramTab`: Lückencode zum Programmieren des Sortierchips.
 - `items.SortProgramStickItem`: Leerer bzw. programmierter Stick, inklusive Netzwerkdaten.
+
+Das finale Rechenzentrum wird von `riddles.SystemCoreRiddle` aufgebaut. Die Klasse spawnt den
+zentralen Rechner, ein gemeinsames Display und die drei visuellen Arbeitsbereiche. Die
+Interpreter-Callbacks ändern nur die aktuelle Präsentationsstufe; die Codeprüfung bleibt in
+`TerminalInterpreterSetup`.
 
 ## Story-Dialoge
 

@@ -3,12 +3,12 @@ package rooms.systemRecovery.riddles;
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
-import engine.components.DrawComponent;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import feature.entities.LeverFactory;
 import feature.entities.WorldItemBuilder;
+import feature.shader.ShaderComponent;
 import feature.utils.ICommand;
 import rooms.systemRecovery.entities.EntityFactory;
 import rooms.systemRecovery.items.BatteryItem;
@@ -129,9 +129,15 @@ public final class EnergyRiddle {
     }
   }
 
-  /** Applies local rendering feedback; headless servers never load shader textures. */
+  /**
+   * Publishes the filled state of each energy crate through the authoritative shader component.
+   *
+   * <p>{@link feature.shader.ShaderSyncSystem} projects this declaration into the local draw list
+   * on clients. Keeping the declaration on the server is important: it is included in snapshots,
+   * so clients joining after the puzzle was solved see the same crate fill levels as existing
+   * clients.
+   */
   private void markEnergyCratesCorrect() {
-    if (Game.isHeadless()) return;
     String[] values = {
       TerminalInterpreterSetup.ENERGIE_VALUE_0,
       TerminalInterpreterSetup.ENERGIE_VALUE_1,
@@ -143,17 +149,15 @@ public final class EnergyRiddle {
       float fill = Integer.parseInt(values[index]) / 100f;
       Game.entityAtPoint(level.getPoint("a" + index))
           .findFirst()
-          .flatMap(entity -> entity.fetch(DrawComponent.class))
           .ifPresent(
-              draw ->
-                  draw.shaders()
-                      .add(
+              entity ->
+                  entity.add(
+                      new ShaderComponent(
                           "energieShader",
+                          0,
                           new EnergyFillShader(
-                                  fill,
-                                  Color.BLUE,
-                                  "objects/tech/CryoBox.png")
-                              .animMagnitude(0)));
+                                  fill, Color.BLUE, "objects/tech/CryoBox.png")
+                              .animMagnitude(0))));
     }
   }
 }
