@@ -28,6 +28,7 @@ import rooms.lasthour.modules.computer.ComputerDialog;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.Lore;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /** Tab for displaying the list of emails and their details in the computer UI. */
 public class EmailsTab extends ComputerTab {
@@ -36,9 +37,6 @@ public class EmailsTab extends ComputerTab {
   private static final String LINK_TOKEN = "\\a";
 
   private static final String MAILBOX_NAME = "Lookout";
-
-  private static final String LINK_NONE = "Full Link: <none>";
-  private static final String LINK_SOME = "Full Link: %s";
 
   private Table emailDetailsContainer = null;
   private Label emailLinkFull = null;
@@ -151,7 +149,12 @@ public class EmailsTab extends ComputerTab {
     if (selectedEmail == null) {
       // Placeholder
       Label placeholder =
-          Scene2dElementFactory.createLabel("Select an email to view its details.", 24, Color.GRAY);
+          Scene2dElementFactory.createLabel(
+              Localization.getInstance()
+                  .getCurrentTranslator()
+                  .translate(TranslationKey.EmailSelectText),
+              24,
+              Color.GRAY);
       placeholder.setAlignment(Align.center);
       container.add(placeholder).minSize(400, 500).center();
       return container;
@@ -160,7 +163,14 @@ public class EmailsTab extends ComputerTab {
     container.top().left();
 
     Label senderLabel =
-        Scene2dElementFactory.createLabel("From: " + selectedEmail.sender(), 22, Color.BLACK);
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                    .getCurrentTranslator()
+                    .translate(TranslationKey.EmailFromText)
+                + ": "
+                + selectedEmail.sender(),
+            22,
+            Color.BLACK);
     container.add(senderLabel).left().row();
     Label senderMailLabel =
         Scene2dElementFactory.createLabel(
@@ -169,7 +179,10 @@ public class EmailsTab extends ComputerTab {
 
     Label subjectLabel =
         Scene2dElementFactory.createLabel(
-            "Subject: "
+            Localization.getInstance()
+                    .getCurrentTranslator()
+                    .translate(TranslationKey.EmailSubjectText)
+                + ": "
                 + Localization.getInstance()
                     .getCurrentTranslator()
                     .translate(selectedEmail.subject()),
@@ -205,7 +218,13 @@ public class EmailsTab extends ComputerTab {
               @Override
               public boolean mouseMoved(InputEvent event, float x, float y) {
                 if (emailLinkFull != null) {
-                  emailLinkFull.setText(String.format(LINK_SOME, link.url));
+                  emailLinkFull.setText(
+                      String.format(
+                          Localization.getInstance()
+                                  .getCurrentTranslator()
+                                  .translate(TranslationKey.EmailLINK_SOMEText)
+                              + " %s",
+                          link.url));
                 }
                 return super.mouseMoved(event, x, y);
               }
@@ -213,7 +232,10 @@ public class EmailsTab extends ComputerTab {
               @Override
               public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 if (emailLinkFull != null) {
-                  emailLinkFull.setText(LINK_NONE);
+                  emailLinkFull.setText(
+                      Localization.getInstance()
+                          .getCurrentTranslator()
+                          .translate(TranslationKey.EmailLINK_NONEText));
                 }
                 super.exit(event, x, y, pointer, toActor);
               }
@@ -227,19 +249,35 @@ public class EmailsTab extends ComputerTab {
     container.add(scrollPane).grow().row();
 
     // Link Label for the hovered link always at the bottom
-    emailLinkFull = Scene2dElementFactory.createLabel(LINK_NONE, 20, Color.BLACK);
+    emailLinkFull =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance()
+                .getCurrentTranslator()
+                .translate(TranslationKey.EmailLINK_NONEText),
+            20,
+            Color.BLACK);
     emailLinkFull.setAlignment(Align.left);
     emailLinkFull.setWrap(true);
     container.add(emailLinkFull).left().padTop(10).growX().row();
 
     if (!selectedEmail.attachments().isEmpty()) {
       Label attachmentsHeaderLabel =
-          Scene2dElementFactory.createLabel("Attachments:", 20, Color.BLACK);
+          Scene2dElementFactory.createLabel(
+              Localization.getInstance()
+                      .getCurrentTranslator()
+                      .translate(TranslationKey.EmailAttachmentsText)
+                  + ":",
+              20,
+              Color.BLACK);
       container.add(attachmentsHeaderLabel).left().padTop(20).padBottom(10).row();
 
       Table attachmentsTable = new Table();
       for (String attachment : selectedEmail.attachments()) {
-        TextButton tb = Scene2dElementFactory.createButton(attachment, "blue-outline", 18);
+        TextButton tb =
+            Scene2dElementFactory.createButton(
+                Localization.getInstance().getCurrentTranslator().translate(attachment),
+                "blue-outline",
+                18);
         tb.padLeft(tb.getPadLeft() + 10);
         tb.padRight(tb.getPadRight() + 10);
         tb.addListener(
@@ -275,7 +313,10 @@ public class EmailsTab extends ComputerTab {
     ComputerDialog.getInstance()
         .ifPresent(
             c -> {
-              c.addTab(new FileTab(sharedState(), attachmentName));
+              c.addTab(
+                  new FileTab(
+                      sharedState(),
+                      Localization.getInstance().getCurrentTranslator().translate(attachmentName)));
             });
   }
 

@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import engine.language.Localization;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Cursors;
 import engine.utils.Scene2dElementFactory;
@@ -17,6 +18,7 @@ import feature.hud.elements.RichLabel;
 import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerDialog;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /**
  * Tab that represents the contents of the USB stick drive (mounted as F:) once the correct USB
@@ -37,16 +39,16 @@ public class UsbDriveTab extends ComputerTab {
   private static final String TITLE = "F:/";
 
   /** Header text shown above the file tree. */
-  private static final String HEADER_TEXT = "F:/  Removable Drive";
+  private static final String HEADER_TEXT = TranslationKey.USBContentText01;
 
   /** Sub-header text. */
-  private static final String SUB_HEADER_TEXT = "USB Storage Device  -  Mounted";
+  private static final String SUB_HEADER_TEXT = TranslationKey.USBContentText02;
 
   /** Name of the hint file. */
-  public static final String HINT_FILE = "hint.md";
+  public static final String HINT_FILE = TranslationKey.USBContentText03;
 
   /** Name of the control panel key file. */
-  public static final String CONTROL_PANEL_KEY_FILE = "control-panel.key";
+  public static final String CONTROL_PANEL_KEY_FILE = TranslationKey.USBContentText04;
 
   /** Indentation per tree level, in pixels. */
   private static final float INDENT = 22f;
@@ -76,7 +78,7 @@ public class UsbDriveTab extends ComputerTab {
   private static final String FILE_PREFIX_LOCKED = " x  ";
 
   /** Suffix shown on hover for files that cannot be opened. */
-  private static final String LOCKED_SUFFIX = "   [access denied]";
+  private static final String LOCKED_SUFFIX = TranslationKey.USBContentText05;
 
   /** Color for folder names. */
   private static final Color FOLDER_COLOR = new Color(0.10f, 0.10f, 0.45f, 1f);
@@ -99,19 +101,31 @@ public class UsbDriveTab extends ComputerTab {
   // ----- Fake folder structure -----
 
   private static final String[] DOCUMENTS = {
-    "vacation_2023.txt", "shopping_list.txt", "old_resume.docx", "todo.txt", HINT_FILE
+    TranslationKey.USBContentText06,
+    TranslationKey.USBContentText07,
+    TranslationKey.USBContentText08,
+    TranslationKey.USBContentText09,
+    HINT_FILE
   };
 
   private static final String[] PROJECTS = {
-    "ideas.txt", "draft_proposal.docx", "budget.xlsx", "meeting_notes.md"
+    TranslationKey.USBContentText10,
+    TranslationKey.USBContentText11,
+    TranslationKey.USBContentText12,
+    TranslationKey.USBContentText13,
   };
 
   private static final String[] BACKUPS = {
-    "backup_2024_q1.zip", "backup_2024_q2.zip", "config.bak"
+    TranslationKey.USBContentText14,
+    TranslationKey.USBContentText15,
+    TranslationKey.USBContentText16,
   };
 
   private static final String[] SYSTEM = {
-    "autorun.inf", "drivers.bin", "readme.txt", CONTROL_PANEL_KEY_FILE
+    TranslationKey.USBContentText17,
+    TranslationKey.USBContentText18,
+    TranslationKey.USBContentText19,
+    CONTROL_PANEL_KEY_FILE
   };
 
   /**
@@ -129,12 +143,19 @@ public class UsbDriveTab extends ComputerTab {
     content.top().left();
     content.pad(10f);
 
-    Label header = Scene2dElementFactory.createLabel(HEADER_TEXT, HEADER_FONT_SIZE, HEADER_COLOR);
+    Label header =
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance().getCurrentTranslator().translate(HEADER_TEXT),
+            HEADER_FONT_SIZE,
+            HEADER_COLOR);
     header.setAlignment(Align.left);
     content.add(header).left().padBottom(2f).row();
 
     Label sub =
-        Scene2dElementFactory.createLabel(SUB_HEADER_TEXT, SUB_HEADER_FONT_SIZE, SUB_HEADER_COLOR);
+        Scene2dElementFactory.createLabel(
+            Localization.getInstance().getCurrentTranslator().translate(SUB_HEADER_TEXT),
+            SUB_HEADER_FONT_SIZE,
+            SUB_HEADER_COLOR);
     sub.setAlignment(Align.left);
     content.add(sub).left().padBottom(10f).row();
 
@@ -145,10 +166,10 @@ public class UsbDriveTab extends ComputerTab {
         .padBottom(10f)
         .row();
 
-    addFolder(content, "Documents", DOCUMENTS);
-    addFolder(content, "Projects", PROJECTS);
-    addFolder(content, "Backups", BACKUPS);
-    addFolder(content, "System", SYSTEM);
+    addFolder(content, TranslationKey.USBContentText20, DOCUMENTS);
+    addFolder(content, TranslationKey.USBContentText21, PROJECTS);
+    addFolder(content, TranslationKey.USBContentText22, BACKUPS);
+    addFolder(content, TranslationKey.USBContentText23, SYSTEM);
 
     ScrollPane scroll = Scene2dElementFactory.createScrollPane(content, false, true);
     scroll.setOverscroll(false, false);
@@ -164,7 +185,10 @@ public class UsbDriveTab extends ComputerTab {
    */
   private void addFolder(Table table, String name, String[] children) {
     Label folder =
-        Scene2dElementFactory.createLabel(FOLDER_PREFIX + name, ENTRY_FONT_SIZE, FOLDER_COLOR);
+        Scene2dElementFactory.createLabel(
+            FOLDER_PREFIX + Localization.getInstance().getCurrentTranslator().translate(name),
+            ENTRY_FONT_SIZE,
+            FOLDER_COLOR);
     folder.setAlignment(Align.left);
     table.add(folder).left().padTop(ROW_PAD).padBottom(ROW_PAD).row();
     for (String child : children) {
@@ -181,12 +205,17 @@ public class UsbDriveTab extends ComputerTab {
   private void addFile(Table table, String fileName) {
     final boolean interactive =
         HINT_FILE.equals(fileName) || CONTROL_PANEL_KEY_FILE.equals(fileName);
-
-    final String idleText = FILE_PREFIX + fileName;
+    final String translatedFileName =
+        Localization.getInstance().getCurrentTranslator().translate(fileName);
+    final String idleText = FILE_PREFIX + translatedFileName;
     final String hoverText =
         interactive
-            ? HOVER_OPEN_COLOR_TAG + FILE_PREFIX_OPEN + fileName + "[/color]"
-            : HOVER_LOCKED_COLOR_TAG + FILE_PREFIX_LOCKED + fileName + LOCKED_SUFFIX + "[/color]";
+            ? HOVER_OPEN_COLOR_TAG + FILE_PREFIX_OPEN + translatedFileName + "[/color]"
+            : HOVER_LOCKED_COLOR_TAG
+                + FILE_PREFIX_LOCKED
+                + translatedFileName
+                + Localization.getInstance().getCurrentTranslator().translate(LOCKED_SUFFIX)
+                + "[/color]";
 
     RichLabel file = new RichLabel(idleText, ENTRY_FONT_SIZE, FILE_COLOR);
     file.setAlignment(Align.left);
@@ -205,7 +234,7 @@ public class UsbDriveTab extends ComputerTab {
           @Override
           public void clicked(InputEvent event, float x, float y) {
             if (interactive) {
-              onFileClicked(fileName);
+              onFileClicked(fileName, translatedFileName);
             }
             // Locked files swallow the click silently.
           }
@@ -230,21 +259,20 @@ public class UsbDriveTab extends ComputerTab {
     table.add(row).left().growX().padTop(ROW_PAD).padBottom(ROW_PAD).row();
   }
 
-  private void onFileClicked(String fileName) {
+  private void onFileClicked(String fileName, String translatedFileName) {
     ComputerDialog.getInstance()
         .ifPresent(
             dialog -> {
               if (HINT_FILE.equals(fileName)) {
                 DialogCallbackResolver.createButtonCallback(
                         context().dialogId(), ComputerCallbacks.EXIT_CODE_HINT_OPENED_KEY)
-                    .accept(new DialogResponseMessage.StringValue(HINT_FILE));
-                openOrFocus(
-                    dialog, "file-" + HINT_FILE, () -> new FileTab(sharedState(), HINT_FILE));
+                    .accept(new DialogResponseMessage.StringValue(translatedFileName));
+                openOrFocus(dialog, "file-" + fileName, () -> new FileTab(sharedState(), fileName));
               } else if (CONTROL_PANEL_KEY_FILE.equals(fileName)) {
                 localState().controlPanelOpen(true);
                 DialogCallbackResolver.createButtonCallback(
                         context().dialogId(), ComputerCallbacks.CONTROL_PANEL_OPENED_KEY)
-                    .accept(new DialogResponseMessage.StringValue(CONTROL_PANEL_KEY_FILE));
+                    .accept(new DialogResponseMessage.StringValue(translatedFileName));
                 openOrFocus(dialog, ControlPanelTab.KEY, () -> new ControlPanelTab(sharedState()));
               }
               // Other entries are bogus and silently do nothing.

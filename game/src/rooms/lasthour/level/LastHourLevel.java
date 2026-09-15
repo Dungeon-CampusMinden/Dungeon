@@ -7,6 +7,8 @@ import engine.components.DrawComponent;
 import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
+import engine.language.Language;
+import engine.language.Localization;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
@@ -49,10 +51,13 @@ import feature.inventory.Item;
 import feature.inventory.items.HintItem;
 import feature.puzzle.Puzzle;
 import feature.puzzle.PuzzleMaker;
+import feature.puzzle.PuzzlePieceItem;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerFactory;
 import feature.utils.EntityUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +79,7 @@ import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.LastHourTracking;
 import rooms.lasthour.util.Lore;
 import rooms.lasthour.util.shaders.LightingShader;
+import rooms.lasthour.util.translation.LastHourTranslator;
 import rooms.lasthour.util.translation.TranslationKey;
 
 /** The Last Hour Room. */
@@ -109,6 +115,8 @@ public class LastHourLevel extends DungeonLevel {
   private static final long SECOND_PHONE_RING_DELAY_MS = 45_000L;
 
   private static Puzzle puzzle;
+  public static Puzzle puzzleDE;
+  public static Puzzle puzzleEN;
 
   private static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
   private static boolean timerExpired = false;
@@ -299,7 +307,7 @@ public class LastHourLevel extends DungeonLevel {
     DrawSystem.getInstance().sceneShaders().add("lighting", new LightingShader().ambientLight(0));
   }
 
-  private static final String cabinetImagePath = "images/virus-phrases.png";
+  private static final String cabinetImagePath = "images/virus-phrases-en.png";
 
   private void setupInteractables() {
     Entity desk0 = DecoFactory.createDeco(getPoint("desk-nothing0"), Deco.StampingTable);
@@ -351,7 +359,8 @@ public class LastHourLevel extends DungeonLevel {
                                   TranslationKey.LockerFind,
                                   "",
                                   () -> {
-                                    DialogUtils.showImagePopUp(cabinetImagePath, who.id());
+                                    DialogUtils.showImagePopUp(
+                                        TranslationKey.cabinetImage, who.id());
                                   },
                                   who.id());
                               return;
@@ -548,7 +557,8 @@ public class LastHourLevel extends DungeonLevel {
   // Puzzle definition for the r2-papers puzzle. Shared between the server (which spawns the
   // world items in r2SpawnPapers) and the client (which pre-generates the matching textures
   // in ensureClientPuzzles) so both derive the same deterministic puzzle id.
-  private static final SimpleIPath R2_PUZZLE_IMAGE = new SimpleIPath("images/final-code.png");
+  private static final SimpleIPath R2_PUZZLE_IMAGE_EN = new SimpleIPath("images/final-code_en.png");
+  private static final SimpleIPath R2_PUZZLE_IMAGE_DE = new SimpleIPath("images/final-code_de.png");
   private static final int R2_PUZZLE_PIECE_COUNT = 4;
   private static final long R2_PUZZLE_SEED = 1586791695537379744L;
 
@@ -558,7 +568,61 @@ public class LastHourLevel extends DungeonLevel {
    * network message references them. Must be called on the libGDX render thread.
    */
   public static void ensureClientPuzzles() {
-    PuzzleMaker.makePuzzle(R2_PUZZLE_IMAGE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    puzzleEN =
+        PuzzleMaker.makePuzzle(
+            R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    puzzleDE =
+        PuzzleMaker.makePuzzle(
+            R2_PUZZLE_IMAGE_DE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+    if (!Game.isHeadless()) {
+      if (Localization.getInstance().currentLanguage().equals(Language.DE)) {
+        LastHourTranslator.currentPuzzle = puzzleDE;
+      }
+      if (Localization.getInstance().currentLanguage().equals(Language.EN)) {
+        LastHourTranslator.currentPuzzle = puzzleEN;
+      }
+
+      Localization.getInstance()
+          .registerLanguageChangeListener(
+              (lang) -> {
+                // removes and stores the puzzle items that are already in the inventory of the
+                // player
+                InventoryComponent inv = Game.player().get().fetch(InventoryComponent.class).get();
+                List<PuzzlePieceItem> itemsToBeReplaced = new ArrayList<>();
+                Arrays.stream(inv.items())
+                    .forEach(
+                        item -> {
+                          if (item instanceof PuzzlePieceItem pItem) {
+                            if (pItem.puzzleId().equals(LastHourTranslator.currentPuzzle.id())) {
+                              itemsToBeReplaced.add(pItem);
+                              inv.remove(item);
+                            }
+                          }
+                        });
+                if (lang.equals(Language.DE)) {
+                  replacePuzzleItems(inv, itemsToBeReplaced, puzzleDE);
+                }
+                if (lang.equals(Language.EN)) {
+                  replacePuzzleItems(inv, itemsToBeReplaced, puzzleEN);
+                }
+              });
+    }
+  }
+
+  // adds the previously removed puzzleItems back but from the new puzzle version.
+  private static void replacePuzzleItems(
+      InventoryComponent inv, List<PuzzlePieceItem> itemsToBeReplaced, Puzzle newPuzzle) {
+    LastHourTranslator.currentPuzzle = newPuzzle;
+    for (PuzzlePieceItem item : itemsToBeReplaced) {
+      int index = item.pieceIndex();
+      PuzzlePieceItem newItem =
+          newPuzzle.items().stream()
+              .map(npItem -> ((PuzzlePieceItem) npItem))
+              .filter(puzzlePieceItem -> puzzlePieceItem.pieceIndex() == index)
+              .findFirst()
+              .get();
+      inv.add(newItem);
+    }
   }
 
   /**
@@ -569,7 +633,7 @@ public class LastHourLevel extends DungeonLevel {
     LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
     puzzle =
         PuzzleMaker.makePuzzle(
-            R2_PUZZLE_IMAGE,
+            R2_PUZZLE_IMAGE_EN,
             R2_PUZZLE_PIECE_COUNT,
             (solvedPuzzle, solver) -> {
               LastHourTracking.solved(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
@@ -579,7 +643,11 @@ public class LastHourLevel extends DungeonLevel {
               if (solver != null) {
                 solver
                     .fetch(InventoryComponent.class)
-                    .ifPresent(inv -> inv.add(new HintItem(solvedPuzzle.imagePath())));
+                    .ifPresent(
+                        inv ->
+                            inv.add(
+                                new HintItem(
+                                    solvedPuzzle.imagePath(), TranslationKey.R2PuzzleImage)));
               }
             },
             R2_PUZZLE_SEED,
