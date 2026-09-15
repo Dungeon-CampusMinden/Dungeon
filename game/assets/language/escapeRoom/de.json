@@ -75,6 +75,7 @@
                 "sort": "Prüfe die Sortierung des Arrays im Rechenzentrum.",
                 "count": "Zähle die belegten Einträge in modules.",
                 "search": "Durchsuche das Raster nach Batterien.",
+                "meta": "Kombiniere die drei Ergebnisse im Terminal, um den finalen Systemzustand zu erzeugen.",
                 "complete": "Alle Prüfungen des Rechenzentrums sind abgeschlossen."
             }
         }
@@ -143,6 +144,7 @@
             "central-sort": "Der Systemkern ist erreichbar. Beginne mit dem Vergleich benachbarter Werte und prüfe, ob sie aufsteigend geordnet sind.",
             "central-count": "Zähle nun die belegten Einträge in modules. Leere Einträge dürfen den Zähler nicht erhöhen.",
             "central-search": "Durchsuche zum Abschluss das gesamte Raster. Bei jedem Batteriesignal muss die Sammelaktion des Roboters ausgelöst werden.",
+            "central-meta": "Alle drei Teilroutinen melden ein Ergebnis. Das zentrale Display führt diese Werte jetzt zusammen. Öffne im Terminal die Eingabemaske und übertrage dort den gemeinsamen Zustand.",
             "completed": "Alle Prüfungen sind bestätigt. Die Systemwiederherstellung kann fortgesetzt werden.",
             "hint-offer": "Ich kann dir einen weiteren Hinweis für die aktive Aufgabe geben. Er wird im gemeinsamen Questlog gespeichert.",
             "hint-solution-warning": "Das ist der letzte Hinweis für die aktive Aufgabe. Er wird die vollständige Lösung verraten.",
@@ -192,10 +194,11 @@
                 "r9-program": "Die äußere Schleife ist bereits vorbereitet. Ersetze int j = 0; durch eine innere Schleife, die jede Spalte der aktuellen map-Zeile durchläuft. Bei map[i][j] == 1 rufst du roboter.collect() auf und lädst das Programm auf den Ortungschip.",
                 "r9-controller": "Setze den programmierten Ortungschip in den Controller des Suchroboters ein.",
                 "r9-scan": "Lass den Suchroboter die vollständige Matrix ablaufen und das Systemkern-Modul einsammeln.",
-                "r10-sort": "Implementiere die vollständige verschachtelte Bubble-Sort-Schleife und tausche Nachbarwerte, wenn array[j] > array[j + 1] gilt.",
-                "r10-count": "Deklariere count = 0, iteriere über modules, prüfe moduleEntry != null und erhöhe count für jeden belegten Eintrag.",
-                "r10-search": "Verwende verschachtelte Schleifen über die gesamte map. Bei jedem Feld mit dem Wert 1 rufst du roboter.collect() auf.",
-                "system-access": "Setze das Systemkern-Zugriffsmodul in einen Rechner ein und führe sein Freigabeskript aus.",
+            "r10-sort": "Implementiere die vollständige verschachtelte Bubble-Sort-Schleife und tausche Nachbarwerte, wenn array[j] > array[j + 1] gilt.",
+            "r10-count": "Deklariere count = 0, iteriere über modules, prüfe moduleEntry != null und erhöhe count für jeden belegten Eintrag.",
+            "r10-search": "Verwende verschachtelte Schleifen über die gesamte map. Bei jedem Feld mit dem Wert 1 rufst du roboter.collect() auf.",
+            "r10-meta": "Übertrage die drei Ergebnisse als gemeinsame Zustandsdaten: sortedEnergy = {8, 17, 23, 31, 42}, activeModules = 3 und batterySignals = 3.",
+            "system-access": "Setze das Systemkern-Zugriffsmodul in einen Rechner ein und führe sein Freigabeskript aus.",
                 "escape-complete": "Alle Wiederherstellungsschritte sind abgeschlossen. Folge jetzt dem neu geöffneten Systemweg."
             }
         },
@@ -305,7 +308,8 @@
                 "display-sort": "ZENTRALES ARRAY\n[42] [17] [8] [31] [23]\nAls Nächstes: Stelle die Sortierung benachbarter Werte wieder her.",
                 "display-count": "MODULSTATUS\n[CPU] [GPU] [RAM] [leer] [leer]\nAls Nächstes: Zähle die belegten Einträge in modules.",
                 "display-search": "BATTERIERASTER\n3 Zeilen x 5 Spalten\nCyan markierte Felder enthalten Batteriesignale.\nAls Nächstes: Durchsuche das gesamte Raster.",
-                "display-complete": "SYSTEMKERN WIEDERHERGESTELLT\nAlle drei Routinen wurden akzeptiert.\nDer nächste Weg ist offen."
+                "display-meta": "FINALE SYSTEMPRÜFUNG\nSortierte Energie: [$1]\nBelegte Module: $2\nBatteriesignale: $3\nAls Nächstes: Öffne im Terminal die Eingabemaske und übertrage diese drei Ergebnisse.",
+                "display-complete": "SYSTEMKERN FREIGEGEBEN\nDer gemeinsame Systemzustand ist bestätigt.\nDer Aufzug ist geöffnet."
             }
         },
         "computer": {
@@ -319,14 +323,23 @@
             "sort-tab": "Sortierchip",
             "search-tab": "Ortungschip",
             "access-tab": "Systemkern",
+            "meta-tab": "Systemzustand",
             "sort-heading": "Bubble-Sort-Bedingung einsetzen",
             "search-heading": "Innere Suchschleife ergänzen",
+            "meta-heading": "Finalen Systemzustand übertragen",
+            "meta-instruction": "Übertrage die drei Ergebnisse aus der Anzeige. Die Energiewerte gehören in die fünf Felder in aufsteigender Reihenfolge.",
+            "meta-energy-slot": "Energie $1",
+            "meta-modules": "Belegte Module",
+            "meta-batteries": "Batteriesignale",
             "sort-template": "for (int i = 0; i < array.length - 1; i++) {\n    for (int j = 0; j < array.length - 1 - i; j++) {\n        if (____________________) {\n            int temp = array[j];\n            array[j] = array[j + 1];\n            array[j + 1] = temp;\n        }\n    }\n}",
             "search-template": "for (int i = 0; i < map.length; i++) {\n    int j = 0;\n    if (map[i][j] == 1) {\n        roboter.collect();\n    }\n}",
             "access-script": "access.grant();\naccess.open(\"systemcore\");",
             "save-sort": "Auf Sortierchip laden",
             "save-search": "Auf Ortungschip laden",
             "execute-access": "Freigabeskript ausführen",
+            "meta-submit": "Systemzustand übertragen",
+            "meta-clear": "Felder leeren",
+            "meta-submitting": "Systemzustand wird geprüft ...",
             "saving": "Programm wird auf den Chip geschrieben ...",
             "sort-invalid": "Fehler: Die Bubble-Sort-Vergleichsbedingung ist nicht korrekt.",
             "search-invalid": "Fehler: Die Suchschleife ist unvollständig oder prüft nicht jede Matrixzelle.",
@@ -336,6 +349,7 @@
             "access-success": "Freigabeskript bestätigt. Der Zugang zum Systemkern ist geöffnet.",
             "debug-sort": "Ein programmierter Sortierchip wurde ins Inventar gelegt.",
             "debug-search": "Ein programmierter Ortungschip wurde ins Inventar gelegt.",
+            "debug-all-items": "Roter Sortier-USB, blauer Ortungschip und Systemkern-Zugriffsmodul wurden ins Inventar gelegt.",
             "debug-full": "Debug: Das Inventar ist voll.",
             "debug-title": "Debug",
             "terminal": "Terminal",
@@ -344,7 +358,7 @@
             "send": "Senden",
             "delete": "Löschen",
             "next-step": "Nächster Schritt",
-            "spawn-usb": "USB erzeugen",
+            "spawn-debug-items": "Alle Debug-Items erzeugen",
             "petri-net": "Petri-Netz",
             "debug-petri-net-title": "Petri-Netz Debug",
             "debug-close": "Schließen",

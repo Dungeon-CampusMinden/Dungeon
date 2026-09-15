@@ -2,13 +2,16 @@ package rooms.systemRecovery.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
+import engine.components.DrawComponent;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.utils.Point;
 import engine.utils.components.draw.shader.EnergyFillShader;
+import engine.utils.components.draw.shader.OutlineShader;
 import feature.interaction.InteractionComponent;
 import feature.questlog.QuestLogComponent;
 import feature.questlog.QuestLogEntry;
@@ -55,5 +58,30 @@ public class SystemRecoverySnapshotTranslatorTest {
     assertEquals("energy_fill", event.shaderComponent().shaders().get(0).type());
     assertEquals(
         "0.4", event.shaderComponent().shaders().get(0).properties().get("fillPercentage"));
+  }
+
+  /** The final-riddle completion shader is projected from a compact synchronized stage value. */
+  @Test
+  void systemCoreStageAppliesCompletionOutlineAtTheRequiredStage() {
+    Entity module = EntityFactory.systemCoreModuleEntry(new Point(0, 0), 0, "CPU");
+
+    SystemRecoverySnapshotTranslator.applySystemCoreVisualMetadata(
+        module,
+        Map.of(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_STAGE, "1"));
+    assertNull(module.fetch(DrawComponent.class).orElseThrow().shaders().get("systemCoreComplete"));
+
+    SystemRecoverySnapshotTranslator.applySystemCoreVisualMetadata(
+        module,
+        Map.of(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_STAGE, "2"));
+    assertNotNull(
+        module
+            .fetch(DrawComponent.class)
+            .orElseThrow()
+            .shaders()
+            .get("systemCoreComplete"));
+    assertTrue(
+        module.fetch(DrawComponent.class).orElseThrow().shaders().get("systemCoreComplete")
+            instanceof OutlineShader);
+    assertEquals(0x66FF66FF, module.fetch(DrawComponent.class).orElseThrow().tintColor());
   }
 }

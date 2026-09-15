@@ -37,6 +37,9 @@ public final class SystemRecoveryComputerFactory {
   /** Dialog attribute indicating that the system-core module is currently mounted. */
   public static final String ACCESS_MODULE_INSERTED = "accessModuleInserted";
 
+  /** Dialog attribute indicating that the final system-core input mask is available. */
+  public static final String SYSTEM_CORE_META_AVAILABLE = "systemCoreMetaAvailable";
+
   private SystemRecoveryComputerFactory() {}
 
   /** Registers the custom System Recovery computer dialog. */
@@ -169,6 +172,9 @@ public final class SystemRecoveryComputerFactory {
                 .put(SORT_PROGRAM_INSERTED, programKind == ProgramKind.SORT)
                 .put(SEARCH_PROGRAM_INSERTED, programKind == ProgramKind.SEARCH)
                 .put(ACCESS_MODULE_INSERTED, programKind == ProgramKind.ACCESS)
+                .put(
+                    SYSTEM_CORE_META_AVAILABLE,
+                    SystemRecoveryLevel.systemCoreMetaAvailable())
                 .build(),
             targetEntityId);
     ui.registerCallback(
@@ -192,6 +198,13 @@ public final class SystemRecoveryComputerFactory {
         data -> {
           if (data instanceof DialogResponseMessage.StringValue(String source)) {
             SystemRecoveryLevel.interpretTerminalInput(source, targetEntityId);
+          }
+        });
+    ui.registerCallback(
+        SystemRecoveryComputerCallbacks.SYSTEM_CORE_META_SUBMIT,
+        data -> {
+          if (data instanceof DialogResponseMessage.StringValue(String payload)) {
+            SystemRecoveryLevel.submitSystemCoreMeta(payload, targetEntityId);
           }
         });
     ui.registerCallback(
@@ -286,25 +299,12 @@ public final class SystemRecoveryComputerFactory {
           }
         });
     ui.registerCallback(
-        SystemRecoveryComputerCallbacks.DEBUG_SPAWN_SORT_USB,
+        SystemRecoveryComputerCallbacks.DEBUG_SPAWN_ALL_ITEMS,
         data -> {
           if (!SystemRecovery.DEBUG_MODE) return;
           Game.findEntityById(targetEntityId)
               .flatMap(entity -> entity.fetch(InventoryComponent.class))
-              .ifPresent(
-                  inventory -> {
-                    if (inventory.add(new SortProgramStickItem(true))) {
-                      DialogUtils.showTextPopup(
-                          SystemRecoveryText.text("computer.debug-sort"),
-                          SystemRecoveryText.text("computer.debug-title"),
-                          targetEntityId);
-                    } else {
-                      DialogUtils.showTextPopup(
-                          SystemRecoveryText.text("computer.debug-full"),
-                          SystemRecoveryText.text("computer.debug-title"),
-                          targetEntityId);
-                    }
-                  });
+              .ifPresent(inventory -> spawnAllDebugItems(inventory, targetEntityId));
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.DEBUG_PETRI_NET,
@@ -327,6 +327,23 @@ public final class SystemRecoveryComputerFactory {
     Game.findEntityById(entityId)
         .flatMap(entity -> entity.fetch(InventoryComponent.class))
         .ifPresent(inventory -> inventory.add(item));
+  }
+
+  private static void spawnAllDebugItems(InventoryComponent inventory, int targetEntityId) {
+    boolean sortAdded = inventory.add(new SortProgramStickItem(true));
+    boolean searchAdded = inventory.add(new SearchProgramChipItem(true));
+    boolean accessAdded = inventory.add(new SystemCoreAccessChipItem());
+    if (sortAdded && searchAdded && accessAdded) {
+      DialogUtils.showTextPopup(
+          SystemRecoveryText.text("computer.debug-all-items"),
+          SystemRecoveryText.text("computer.debug-title"),
+          targetEntityId);
+    } else {
+      DialogUtils.showTextPopup(
+          SystemRecoveryText.text("computer.debug-full"),
+          SystemRecoveryText.text("computer.debug-title"),
+          targetEntityId);
+    }
   }
 
   private static boolean isBubbleSortCondition(String source) {

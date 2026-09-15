@@ -30,9 +30,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import rooms.systemRecovery.modules.computer.content.SearchProgramTab;
 import rooms.systemRecovery.modules.computer.content.SortProgramTab;
+import rooms.systemRecovery.modules.computer.content.SystemCoreMetaTab;
 import rooms.systemRecovery.modules.computer.content.SystemCoreAccessTab;
 import rooms.systemRecovery.modules.computer.content.TerminalTab;
+import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /** Tabbed computer dialog for the System Recovery escape room. */
 public class SystemRecoveryComputerDialog extends Group {
@@ -56,6 +59,13 @@ public class SystemRecoveryComputerDialog extends Group {
     setSize(Game.windowWidth(), Game.windowHeight());
     createActors();
     addTab(new TerminalTab());
+    boolean metaAvailable =
+        context
+            .find(SystemRecoveryComputerFactory.SYSTEM_CORE_META_AVAILABLE, Boolean.class)
+            .orElse(false);
+    if (metaAvailable) {
+      addTab(new SystemCoreMetaTab());
+    }
     if (context
         .find(SystemRecoveryComputerFactory.SORT_PROGRAM_INSERTED, Boolean.class)
         .orElse(false)) {
@@ -71,8 +81,20 @@ public class SystemRecoveryComputerDialog extends Group {
         .orElse(false)) {
       addTab(new SystemCoreAccessTab());
     }
-    activeTab = TerminalTab.KEY;
+    activeTab = metaAvailable ? SystemCoreMetaTab.KEY : TerminalTab.KEY;
     showContent(activeTab);
+  }
+
+  @Override
+  public void act(float delta) {
+    super.act(delta);
+    if (!tabs.containsKey(SystemCoreMetaTab.KEY)
+        && TerminalInterpreter.instance().currentState()
+            == TerminalInterpreterSetup.CENTRAL_META_STATE) {
+      addTab(new SystemCoreMetaTab());
+      activeTab = SystemCoreMetaTab.KEY;
+      showContent(activeTab);
+    }
   }
 
   /**

@@ -48,6 +48,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
   public static final String METADATA_STORAGE_CELL_VALUE = "systemRecovery.storage.cellValue";
   public static final String METADATA_SYSTEM_CORE_ACCESS = "systemRecovery.systemCoreAccess";
   public static final String METADATA_SYSTEM_CORE_ALARM = "systemRecovery.systemCoreAlarm";
+  public static final String METADATA_SYSTEM_CORE_STAGE = "systemRecovery.systemCoreStage";
   public static final String METADATA_QUESTLOG_ENTRIES = "systemRecovery.questlog.entries";
   public static final String TYPE_QUESTLOG = "questlog";
 
@@ -97,6 +98,10 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
           METADATA_SYSTEM_CORE_ALARM,
           String.valueOf(SystemRecoveryLevel.systemCoreAlarmActive()));
     }
+    if (isSystemCoreArea(entity)) {
+      metadata.put(
+          METADATA_SYSTEM_CORE_STAGE, String.valueOf(SystemRecoveryLevel.systemCoreStage()));
+    }
 
     if (defaultSpawn.isPresent() && !metadata.isEmpty()) {
       EntitySpawnEvent base = defaultSpawn.orElseThrow();
@@ -134,6 +139,10 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
     metadata.put(METADATA_KEYPAD_ENTERED_DIGITS, digitsToString(keypad.enteredDigits()));
     metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
     metadata.put(METADATA_KEYPAD_SHOW_DIGIT_COUNT, String.valueOf(keypad.showDigitCount()));
+  }
+
+  private boolean isSystemCoreArea(Entity entity) {
+    return entity.name() != null && entity.name().startsWith("system_core_");
   }
 
   private String digitsToString(java.util.List<Integer> digits) {

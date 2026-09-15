@@ -110,6 +110,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                 applyBeltSortMetadata(metadata.orElseThrow());
                 applyStorageCellMetadata(entity, metadata.orElseThrow());
                 applySystemCoreAlarm(metadata.orElseThrow());
+                applySystemCoreVisualMetadata(entity, metadata.orElseThrow());
                 String terminalState =
                     metadata
                         .orElseThrow()
@@ -166,8 +167,16 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     }
   }
 
-  /** Applies the authoritative system-core alarm state on graphical clients. */
-  private void applySystemCoreAlarm(Map<String, String> metadata) {
+  /**
+   * Applies the authoritative system-core alarm state on a graphical client.
+   *
+   * <p>This is public because the initial entity-spawn path must apply the same state as regular
+   * snapshots. Without this, a client joining after the system-core access script was accepted
+   * could miss the alarm until a later state transition.
+   *
+   * @param metadata synchronized System Recovery metadata
+   */
+  public static void applySystemCoreAlarm(Map<String, String> metadata) {
     String alarm = metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ALARM);
     if (alarm != null) {
       if (Boolean.parseBoolean(alarm)) SystemRecoveryAlarm.activate();
@@ -179,6 +188,57 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
             SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS, "false"))) {
       SystemRecoveryAlarm.activate();
     }
+  }
+
+  /**
+   * Projects the authoritative system-core section state into the local completion shader.
+   *
+   * <p>Only the small stage value is synchronized. The shader itself is created locally, which
+   * keeps the network payload small while still making late joins and live clients agree on the
+   * same visual state.
+   *
+   * @param entity the system-core visual entity
+   * @param metadata synchronized System Recovery metadata
+   */
+  public static void applySystemCoreVisualMetadata(
+      Entity entity, Map<String, String> metadata) {
+    String stageValue =
+        metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_STAGE);
+    if (stageValue == null || entity.name() == null) return;
+
+    int stage;
+    try {
+      stage = Integer.parseInt(stageValue);
+    } catch (NumberFormatException ignored) {
+      return;
+    }
+
+    int requiredStage = requiredSystemCoreStage(entity.name());
+    if (requiredStage < 0) return;
+    boolean completed = stage >= requiredStage;
+    entity
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            draw -> {
+              if (completed) {
+                draw.tintColor(0x66FF66FF);
+                if (draw.shaders().get("systemCoreComplete") == null) {
+                  draw.shaders()
+                      .add(
+                          "systemCoreComplete",
+                          new OutlineShader(2, Color.GREEN, 1.8f, 0.25f));
+                }
+              } else {
+                draw.shaders().remove("systemCoreComplete");
+              }
+            });
+  }
+
+  private static int requiredSystemCoreStage(String entityName) {
+    if (entityName.startsWith("system_core_sort_")) return 1;
+    if (entityName.startsWith("system_core_module_")) return 2;
+    if (entityName.startsWith("system_core_map_")) return 3;
+    return -1;
   }
 
   /** Reproduces the server-selected comparison highlight on every client. */
@@ -561,6 +621,11 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ALARM,
           String.valueOf(SystemRecoveryLevel.systemCoreAlarmActive()));
+    }
+    if (entity.name() != null && entity.name().startsWith("system_core_")) {
+      metadata.put(
+          SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_STAGE,
+          String.valueOf(SystemRecoveryLevel.systemCoreStage()));
     }
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;

@@ -69,6 +69,9 @@ public final class TerminalInterpreterSetup {
 
   /** Riddle 10, step 3: scan the two-dimensional {@code map} and collect every battery marker. */
   private static final int RIDDLE_TEN_STEP_THREE = 15;
+
+  /** Riddle 10, meta state: reserved for the dedicated system-core input mask. */
+  public static final int CENTRAL_META_STATE = 16;
   public static final String ENERGIE_VALUE_0 = "40";
   public static final String ENERGIE_VALUE_1 = "10";
   public static final String ENERGIE_VALUE_2 = "80";
