@@ -125,7 +125,7 @@ public final class SystemCoreRiddle {
         EntityFactory.hintDisplay(
             level.getPoint("core_display"),
             this::displayText,
-            SystemRecoveryText.text("world.system-core.title"));
+            SystemRecoveryText.key("world.system-core.title"));
     display.name("core_display");
     Game.add(display);
     updateDisplay();

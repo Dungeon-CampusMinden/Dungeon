@@ -20,6 +20,11 @@ public final class DisplayTextStatusShader extends AbstractShader {
     this.completed = completed;
   }
 
+  /** @return whether the label currently represents a completed riddle */
+  public boolean completed() {
+    return completed;
+  }
+
   @Override
   protected List<UniformBinding> getUniforms(int actualUpscale) {
     return List.of(new BoolUniform("u_completed", completed));

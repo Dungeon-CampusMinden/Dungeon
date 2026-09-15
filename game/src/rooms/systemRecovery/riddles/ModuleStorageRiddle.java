@@ -156,7 +156,7 @@ public final class ModuleStorageRiddle {
     else callbacks.failure("inspect-length", player.id());
     DialogUtils.showTextPopup(
         display.fetch(DisplayTextComponent.class).orElseThrow().text(),
-        SystemRecoveryText.text("world.module.display-title"),
+        SystemRecoveryText.key("world.module.display-title"),
         player.id());
     if (completed && !lengthInspected) {
       lengthInspected = true;

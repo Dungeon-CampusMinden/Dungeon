@@ -78,8 +78,8 @@ public final class EntityFactory {
                               ? "target"
                               : cell.name().endsWith("_active") ? "active" : "empty";
                   DialogUtils.showTextPopup(
-                      SystemRecoveryText.text("world.matrix." + state, row, column),
-                      SystemRecoveryText.text("world.matrix.title"),
+                      SystemRecoveryText.key("world.matrix." + state, row, column),
+                      SystemRecoveryText.key("world.matrix.title"),
                       who.id());
                 })));
     return entity;
@@ -139,7 +139,7 @@ public final class EntityFactory {
             new Interaction(
                 (_, who) ->
                     DialogUtils.showTextPopup(
-                        text, SystemRecoveryText.text("world.archive.title"), who.id()))));
+                        text, SystemRecoveryText.key("world.archive.title"), who.id()))));
     return entity;
   }
 
@@ -158,16 +158,16 @@ public final class EntityFactory {
     DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png"));
     draw.tintColor(active ? 0x33FF66FF : 0xFF3333FF);
     entity.add(draw);
-    String status =
-        SystemRecoveryText.text(
+    String statusKey =
+        SystemRecoveryText.key(
             active ? "world.archive.status-active" : "world.archive.status-inactive");
     entity.add(
         new InteractionComponent(
             new Interaction(
                 (_, who) ->
                     DialogUtils.showTextPopup(
-                        SystemRecoveryText.text("world.archive.status", index, status),
-                        SystemRecoveryText.text("world.archive.status-title"),
+                        SystemRecoveryText.key("world.archive.status", index, statusKey),
+                        SystemRecoveryText.key("world.archive.status-title"),
                         who.id()))));
     return entity;
   }
@@ -185,8 +185,8 @@ public final class EntityFactory {
             new Interaction(
                 (_, who) ->
                     DialogUtils.showTextPopup(
-                        SystemRecoveryText.text("world.matrix.item", value),
-                        SystemRecoveryText.text("world.matrix.title"),
+                        SystemRecoveryText.key("world.matrix.item", value),
+                        SystemRecoveryText.key("world.matrix.title"),
                         who.id()))));
     return entity;
   }
@@ -231,7 +231,7 @@ public final class EntityFactory {
                 (socket, who) -> {
                   DialogUtils.showTextPopup(
                       moduleSocketStatus(socket),
-                      SystemRecoveryText.text("world.module.socket-title"),
+                      SystemRecoveryText.key("world.module.socket-title"),
                       who.id());
                   announceGpuFaultIfInspected(socket, who);
                 })));
@@ -269,12 +269,12 @@ public final class EntityFactory {
     String name = socket.name();
     if (name.startsWith("module_socket_occupied_")) {
       String moduleName = name.substring("module_socket_occupied_".length());
-      return SystemRecoveryText.text("world.module.socket-occupied", moduleName.toUpperCase());
+      return SystemRecoveryText.key("world.module.socket-occupied", moduleName.toUpperCase());
     }
     if (name.equals("module_socket_active")) {
-      return SystemRecoveryText.text("world.module.socket-active");
+      return SystemRecoveryText.key("world.module.socket-active");
     }
-    return SystemRecoveryText.text("world.module.socket-inactive");
+    return SystemRecoveryText.key("world.module.socket-inactive");
   }
 
   private static void announceGpuFaultIfInspected(Entity socket, Entity player) {
@@ -301,9 +301,9 @@ public final class EntityFactory {
                 (_, who) -> {
                   DialogUtils.showTextPopup(
                       moduleName.equals("GPU")
-                          ? SystemRecoveryText.text("world.module.gpu-broken")
-                          : SystemRecoveryText.text("world.module.chip-occupied", moduleName),
-                      SystemRecoveryText.text("world.module.socket-title"),
+                          ? SystemRecoveryText.key("world.module.gpu-broken")
+                          : SystemRecoveryText.key("world.module.chip-occupied", moduleName),
+                      SystemRecoveryText.key("world.module.socket-title"),
                       who.id());
                   if (moduleName.equals("GPU")) {
                     SystemRecoveryLevel.announceStoryForPlayer(
@@ -322,8 +322,8 @@ public final class EntityFactory {
             new Interaction(
                 (_, who) ->
                     DialogUtils.showTextPopup(
-                        SystemRecoveryText.text("world.sort.value", value),
-                        SystemRecoveryText.text("world.sort.title"),
+                        SystemRecoveryText.key("world.sort.value", value),
+                        SystemRecoveryText.key("world.sort.title"),
                         who.id()))));
     return entity;
   }
@@ -395,7 +395,7 @@ public final class EntityFactory {
         (display, who) ->
             DialogUtils.showTextPopup(
                 display.fetch(DisplayTextComponent.class).orElseThrow().text(),
-                SystemRecoveryText.text("world.module.display-title"),
+                SystemRecoveryText.key("world.module.display-title"),
                 who.id()));
   }
 
@@ -494,8 +494,8 @@ public final class EntityFactory {
                 onInteract == null
                     ? (_, who) ->
                         DialogUtils.showTextPopup(
-                            SystemRecoveryText.text("world.search.controller"),
-                            SystemRecoveryText.text("world.search.title"),
+                            SystemRecoveryText.key("world.search.controller"),
+                            SystemRecoveryText.key("world.search.title"),
                             who.id())
                     : onInteract)));
     return entity;
@@ -618,8 +618,8 @@ public final class EntityFactory {
             new Interaction(
                 (_, who) ->
                     DialogUtils.showTextPopup(
-                        SystemRecoveryText.text("world.transport.package", weight),
-                        SystemRecoveryText.text("world.transport.title"),
+                        SystemRecoveryText.key("world.transport.package", weight),
+                        SystemRecoveryText.key("world.transport.title"),
                         who.id()))));
     return entity;
   }
@@ -644,8 +644,8 @@ public final class EntityFactory {
   private static void openDualInventory(Entity container, Entity who) {
     if (!container.isPresent(InventoryComponent.class)) {
       DialogUtils.showTextPopup(
-          SystemRecoveryText.text("world.battery.locked"),
-          SystemRecoveryText.text("world.battery.title"),
+          SystemRecoveryText.key("world.battery.locked"),
+          SystemRecoveryText.key("world.battery.title"),
           who.id());
       return;
     }

@@ -418,9 +418,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (!SystemRecovery.DEBUG_MODE) return;
     DialogFactory.showTextDialog(
         SystemRecoveryProgressNet.debugSnapshot(),
-        SystemRecoveryText.text("computer.debug-petri-net-title"),
+        SystemRecoveryText.key("computer.debug-petri-net-title"),
         () -> {},
-        SystemRecoveryText.text("computer.debug-close"),
+        SystemRecoveryText.key("computer.debug-close"),
         playerId);
   }
 
@@ -603,6 +603,21 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Enables the scanner lever after the inventory scanner code has been solved. */
   public static void completeScannerPuzzle() {
     active().inventoryScanner.completeScannerPuzzle();
+  }
+
+  /** Returns the module index currently being examined by the inventory scanner. */
+  public static int currentScannerModuleIndex() {
+    return active().inventoryScanner.currentScanIndex();
+  }
+
+  /** Returns whether the inventory scanner has detected the defective GPU. */
+  public static boolean scannerFaultDetected() {
+    return active().inventoryScanner.scannerFaultDetected();
+  }
+
+  /** Returns whether the inventory scanner is currently examining the module row. */
+  public static boolean scannerRunning() {
+    return active().inventoryScanner.running();
   }
 
   /** Spawns the packages for transport riddle four exactly once. */

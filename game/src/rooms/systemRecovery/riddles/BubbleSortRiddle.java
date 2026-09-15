@@ -13,7 +13,6 @@ import feature.hud.DialogUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.items.ItemKey;
-import feature.skills.SkillTools;
 import feature.systems.EventScheduler;
 import java.util.List;
 import rooms.systemRecovery.entities.EntityFactory;
@@ -78,8 +77,8 @@ public final class BubbleSortRiddle {
     if (sortMachineRunning) {
       callbacks.failure("insert", player.id());
       DialogUtils.showTextPopup(
-          SystemRecoveryText.text("world.sort.machine-running"),
-          SystemRecoveryText.text("world.sort.machine-title"),
+          SystemRecoveryText.key("world.sort.machine-running"),
+          SystemRecoveryText.key("world.sort.machine-title"),
           player.id());
       return;
     }
@@ -97,17 +96,17 @@ public final class BubbleSortRiddle {
     if (programmedStick == null) {
       callbacks.failure("missing-program", player.id());
       DialogUtils.showTextPopup(
-          SystemRecoveryText.text("world.sort.missing-program"),
-          SystemRecoveryText.text("world.sort.machine-title"),
+          SystemRecoveryText.key("world.sort.missing-program"),
+          SystemRecoveryText.key("world.sort.machine-title"),
           player.id());
       return;
     }
     DialogFactory.showMultipleChoiceDialog(
-        SystemRecoveryText.text("world.sort.insert-prompt"),
-        SystemRecoveryText.text("world.sort.insert-title"),
+        SystemRecoveryText.key("world.sort.insert-prompt"),
+        SystemRecoveryText.key("world.sort.insert-title"),
         List.of(
-            ChoiceOption.of(SystemRecoveryText.text("world.sort.insert"), "insert"),
-            ChoiceOption.of(SystemRecoveryText.text("world.sort.cancel"), "cancel")),
+            ChoiceOption.of(SystemRecoveryText.key("world.sort.insert"), "insert"),
+            ChoiceOption.of(SystemRecoveryText.key("world.sort.cancel"), "cancel")),
         false,
         payload -> {
           if (!(payload instanceof DialogResponseMessage.StringValue(String choice))
@@ -119,8 +118,8 @@ public final class BubbleSortRiddle {
           if (sortMachineRunning) {
             callbacks.failure("insert", player.id());
             DialogUtils.showTextPopup(
-                SystemRecoveryText.text("world.sort.machine-running"),
-                SystemRecoveryText.text("world.sort.machine-title"),
+                SystemRecoveryText.key("world.sort.machine-running"),
+                SystemRecoveryText.key("world.sort.machine-title"),
                 player.id());
             return;
           }
@@ -132,8 +131,8 @@ public final class BubbleSortRiddle {
           if (!removed) {
             callbacks.failure("insert", player.id());
             DialogUtils.showTextPopup(
-                SystemRecoveryText.text("world.sort.program-not-in-inventory"),
-                SystemRecoveryText.text("world.sort.insert-title"),
+                SystemRecoveryText.key("world.sort.program-not-in-inventory"),
+                SystemRecoveryText.key("world.sort.insert-title"),
                 player.id());
             return;
           }
@@ -180,8 +179,8 @@ public final class BubbleSortRiddle {
       awardArchiveKey();
       SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.ARCHIVE_INTRO);
       DialogUtils.showTextPopup(
-          SystemRecoveryText.text("world.sort.complete"),
-          SystemRecoveryText.text("world.sort.machine-title"),
+          SystemRecoveryText.key("world.sort.complete"),
+          SystemRecoveryText.key("world.sort.machine-title"),
           sortMachinePlayerId);
       return;
     }
@@ -191,8 +190,6 @@ public final class BubbleSortRiddle {
     Point leftPoint = sortBeltPoints[sortBeltInnerIndex];
     Point rightPoint = sortBeltPoints[sortBeltInnerIndex + 1];
     moveSortEntity(transport.scanner(), leftPoint.translate(0, 1));
-    SkillTools.blink(leftEntity, 0x00FFFFFF, 500, 2);
-    SkillTools.blink(rightEntity, 0x00FFFFFF, 500, 2);
     Game.audio().playGlobal(SoundSpec.builder(SCANNER_SOUND));
 
     EventScheduler.scheduleAction(

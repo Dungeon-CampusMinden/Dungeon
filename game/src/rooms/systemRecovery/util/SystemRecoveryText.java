@@ -4,10 +4,17 @@ import com.badlogic.gdx.Input;
 import engine.configuration.KeyboardConfig;
 import engine.language.Translation;
 import engine.utils.Tuple;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** Central access to localized System Recovery story, world and interface text. */
 public final class SystemRecoveryText {
+
+  /** Prefix transported to clients and resolved by {@link SystemRecoveryTranslator}. */
+  public static final String KEY_PREFIX = "systemRecovery.";
 
   private static final Translation TEXT = new Translation("systemRecovery");
   private static final Translation QUESTLOG = new Translation("questlog");
@@ -20,32 +27,49 @@ public final class SystemRecoveryText {
     return TEXT.text(key, values);
   }
 
+  /**
+   * Creates a transport-safe translation key for a server-created dialog.
+   *
+   * <p>Arguments are encoded so arbitrary translated text, including line breaks and rich-label
+   * markup, can travel inside the same key without being confused with another key.
+   */
+  public static String key(String key, Object... values) {
+    String fullKey = KEY_PREFIX + key;
+    if (values == null || values.length == 0) return fullKey;
+    String encodedValues =
+        Stream.of(values)
+            .map(String::valueOf)
+            .map(SystemRecoveryText::encode)
+            .collect(Collectors.joining(","));
+    return fullKey + "||" + encodedValues;
+  }
+
   /** Resolves a localized quest-log value used by the hint catalog. */
   public static String quest(String key, Object... values) {
     return QUESTLOG.text(key, values);
   }
 
-  /** Resolves a story message and adds the remote user's Last Hour-style speaker header. */
+  /** Creates a Last Hour-style story script whose text is resolved on the rendering client. */
   public static String story(String key, Object... values) {
     return "[speaker img="
         + SPEAKER_IMAGE
         + " name=\"[color=#aaaaaa]"
-        + text("story.speaker")
+        + key("story.speaker")
         + "[/color]\"]"
-        + text("story." + key, values);
+        + key("story." + key, values);
   }
 
-  /** Resolves an opening phone call with the lead AI as the Last Hour-style speaker. */
+  /** Creates a phone script with the lead AI as the Last Hour-style speaker. */
   public static String phoneCall(String key, Object... values) {
     return "[speaker img="
         + SPEAKER_IMAGE
         + " name=\"[color=#aaaaaa]"
-        + text("story.lead-ai")
+        + key("story.lead-ai")
         + "[/color]\"]"
-        + text("story." + key, values);
+        + key("story." + key, values);
   }
 
-  /** Returns the localized Last Hour-style control overview for the opening call. */
+  /** Returns the keyed Last Hour-style control overview for the opening call. */
   public static String controls() {
     return phoneCall(
         "controls",
@@ -60,23 +84,29 @@ public final class SystemRecoveryText {
         feature.input.configuration.KeyboardConfig.PAUSE_MENU.value());
   }
 
-  /** Returns the localized opening lore pages for the room. */
+  /** Returns keyed opening lore pages for client-side translation. */
   public static List<Tuple<String, Integer>> introPages() {
     return List.of(
-        Tuple.of(text("intro.page1"), 32),
-        Tuple.of(text("intro.page2"), 32),
-        Tuple.of(text("intro.page3"), 32),
-        Tuple.of(text("intro.page4"), 32),
-        Tuple.of(text("intro.page5"), 32),
-        Tuple.of(text("intro.title"), 120));
+        Tuple.of(key("intro.page1"), 32),
+        Tuple.of(key("intro.page2"), 32),
+        Tuple.of(key("intro.page3"), 32),
+        Tuple.of(key("intro.page4"), 32),
+        Tuple.of(key("intro.page5"), 32),
+        Tuple.of(key("intro.title"), 120));
   }
 
-  /** Returns the localized ending pages shown after the player reaches the final exit point. */
+  /** Returns keyed ending pages shown after the player reaches the final exit point. */
   public static List<Tuple<String, Integer>> endingPages() {
     return List.of(
-        Tuple.of(text("outro.page1"), 32),
-        Tuple.of(text("outro.page2"), 32),
-        Tuple.of(text("outro.page3"), 32),
-        Tuple.of(text("outro.title"), 120));
+        Tuple.of(key("outro.page1"), 32),
+        Tuple.of(key("outro.page2"), 32),
+        Tuple.of(key("outro.page3"), 32),
+        Tuple.of(key("outro.title"), 120));
+  }
+
+  private static String encode(String value) {
+    return Base64.getUrlEncoder()
+        .withoutPadding()
+        .encodeToString(value.getBytes(StandardCharsets.UTF_8));
   }
 }

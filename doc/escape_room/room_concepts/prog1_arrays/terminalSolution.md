@@ -1,24 +1,23 @@
-# Terminal Solutions - System Recovery
+# Musterlösungen - System Recovery
 
-Dieses Dokument beschreibt die Terminal-Loesungen in der Reihenfolge, in der sie aktuell in
+Dieses Dokument beschreibt die Lösungen in der Reihenfolge, in der sie aktuell in
 `TerminalInterpreterSetup` registriert sind. Code aus vorherigen Schritten darf im Editor stehen
-bleiben; der Interpreter prueft immer die aktuelle Anforderung plus bereits geloeste Schritte.
+bleiben; der Interpreter prüft immer die aktuelle Anforderung plus bereits gelöste Schritte.
 
 ## Grundregeln
 
-- Leerzeilen werden ignoriert.
-- Zeilenkommentare mit `//` werden ignoriert.
-- Mehrere Statements duerfen in einer Editorzeile stehen, wenn sie mit `;` getrennt sind.
+- Leerzeilen und Zeilenkommentare mit `//` werden ignoriert.
+- Mehrere Statements dürfen in einer Editorzeile stehen, wenn sie mit `;` getrennt sind.
 - Bei ungeordneten Steps ist die Reihenfolge der erwarteten Codezeilen egal.
 - Bei geordneten Steps muss die inhaltliche Reihenfolge stimmen.
 - Alternative Array-Schreibweisen wie `int[] a` und `int a[]` werden akzeptiert.
-- Schleifen duerfen `i++`, `++i`, `i += 1` oder `i = i + 1` verwenden.
-- Fuer vollstaendige Array-Iteration sind `< array.length` und `<= array.length - 1` erlaubt.
-- Fuer Bubble-Sort-Bounds sind `< array.length - 1` und `<= array.length - 2` erlaubt.
-- Flexible Variablennamen sind nur dort erlaubt, wo das Raetsel keine festen Namen verlangt.
+- Schleifen dürfen `i++`, `++i`, `i += 1` oder `i = i + 1` verwenden.
+- Für vollständige Array-Iterationen sind `< array.length` und `<= array.length - 1` erlaubt.
+- Für Bubble-Sort-Grenzen sind `< array.length - 1` und `<= array.length - 2` erlaubt.
+- Flexible Variablennamen sind nur dort erlaubt, wo das Rätsel keine festen Namen verlangt.
   Danach muss derselbe Name konsequent weiterverwendet werden.
 
-## Raetsel 1 - Die Materialisierungskammer
+## Rätsel 1 - Die Materialisierungskammer
 
 ### Step 1: Energie-Array erstellen
 
@@ -34,7 +33,7 @@ Alternative:
 int energie[] = new int[5];
 ```
 
-Erklaerung: Es muss ein `int`-Array mit exakt 5 Plaetzen unter dem Namen `energie` erstellt werden.
+Erklärung: Es muss ein `int`-Array mit exakt 5 Plätzen unter dem Namen `energie` erstellt werden.
 
 ### Step 2: Energie-Werte setzen
 
@@ -58,10 +57,10 @@ energie[3] = 30;
 energie[1] = 10;
 ```
 
-Erklaerung: Alle fuenf Indizes muessen mit den passenden Werten belegt sein. Die Reihenfolge ist
-egal, weil jede Zuweisung fuer sich eindeutig ist.
+Erklärung: Alle fünf Indizes müssen mit den passenden Werten belegt sein. Die Reihenfolge ist
+egal, weil jede Zuweisung für sich eindeutig ist.
 
-## Raetsel 2 - Der defekte Modulspeicher
+## Rätsel 2 - Der defekte Modulspeicher
 
 ### Step 1: Modul-Array erstellen
 
@@ -77,7 +76,7 @@ Alternative:
 String m[] = new String[5];
 ```
 
-Erklaerung: Der Arrayname ist flexibel. Wenn hier z.B. `m` verwendet wird, muessen alle folgenden
+Erklärung: Der Arrayname ist flexibel. Wenn hier z.B. `m` verwendet wird, müssen alle folgenden
 Modul-Steps ebenfalls `m` verwenden.
 
 ### Step 2: Module einsetzen
@@ -101,8 +100,8 @@ m[0] = "CPU"; m[1] = "RAM";
 m[2] = "GPU";
 ```
 
-Erklaerung: Die Reihenfolge ist egal. Wichtig ist, dass alle Werte am richtigen Index landen und
-der in Step 1 gewaehlte Arrayname weiterverwendet wird.
+Erklärung: Die Reihenfolge ist egal. Wichtig ist, dass alle Werte am richtigen Index landen und
+der in Step 1 gewählte Arrayname weiterverwendet wird.
 
 ### Step 3: GPU entfernen
 
@@ -116,9 +115,9 @@ Bei flexiblem Namen:
 m[2] = null;
 ```
 
-Erklaerung: Der Eintrag an Index 2 wird als leer markiert.
+Erklärung: Der Eintrag an Index 2 wird als leer markiert.
 
-### Step 4: Array-Laenge auslesen
+### Step 4: Array-Länge auslesen
 
 ```java
 module.length;
@@ -130,9 +129,9 @@ Bei flexiblem Namen:
 m.length;
 ```
 
-Erklaerung: Es wird die feste Laenge des Arrays ausgelesen, nicht die Anzahl der belegten Plaetze.
+Erklärung: Es wird die feste Länge des Arrays ausgelesen, nicht die Anzahl der belegten Plätze.
 
-## Raetsel 3 - Inventarscanner
+## Rätsel 3 - Inventarscanner
 
 ```java
 int count = 0;
@@ -144,7 +143,7 @@ for (String entry : module) {
 }
 ```
 
-Bei flexiblem Arraynamen aus Raetsel 2:
+Bei flexiblem Arraynamen aus Rätsel 2:
 
 ```java
 int count = 0;
@@ -156,10 +155,10 @@ for (String item : m) {
 }
 ```
 
-Erklaerung: Der Schleifenvariablenname ist flexibel. Er muss aber in der `if`-Bedingung konsistent
+Erklärung: Der Schleifenvariablenname ist flexibel. Er muss aber in der `if`-Bedingung konsistent
 verwendet werden. `count++`, `++count`, `count += 1` und `count = count + 1` sind erlaubt.
 
-## Raetsel 4 - Das Transportlager
+## Rätsel 4 - Das Transportlager
 
 ### Step 1: Pakete erstellen
 
@@ -180,9 +179,7 @@ int pakete[] = {15, 40, 20, 60, 30};
 Minimal:
 
 ```java
-for (int i = 0; i < pakete.length; i++) {
-    roboter.collect(pakete[i]);
-}
+a
 ```
 
 Alternativen:
@@ -199,18 +196,51 @@ for (int packageIndex = 0; packageIndex < pakete.length; ++packageIndex) {
 }
 ```
 
-Erklaerung: Der Indexname ist flexibel, muss aber im Arrayzugriff identisch sein. Der Roboter muss
-`collect` verwenden.
+Erklärung: Der Indexname ist flexibel, muss aber im Arrayzugriff identisch sein. Der Roboter muss
+`collect` mit dem aktuellen Paketwert verwenden. Die fünf Paketwerte müssen in der vorgegebenen
+Reihenfolge im Array stehen.
 
-## Raetsel 5 - Der chaotische Datenspeicher
+## Rätsel 5 - Der chaotische Datenspeicher
 
-Aktuell gibt es fuer dieses Raetsel keine Terminal-Eingabe.
+Dieses Rätsel verwendet keine Terminal-Eingabe. Die Studierenden entscheiden an der
+Vergleichsanzeige über zwei benachbarte Werte:
 
-## Raetsel 6 - Die Bubble-Sort-Maschine
+- `TAUSCHEN`, wenn der linke Wert größer als der rechte ist.
+- `BEHALTEN`, wenn der linke Wert kleiner oder gleich dem rechten ist.
 
-Aktuell gibt es fuer dieses Raetsel keine Terminal-Eingabe.
+Bei einer falschen Entscheidung wird die Sortierung auf den Anfangszustand zurückgesetzt.
 
-## Raetsel 7 - Das Datenarchiv
+Nach erfolgreichem Abschluss erscheint der leere Sortierchip.
+
+## Rätsel 6 - Die Bubble-Sort-Maschine
+
+Das ist keine normale Terminal-Stage. Der Spieler nimmt den leeren Sortierchip zu einem Computer
+und bearbeitet dort den vorbereiteten Freitext-Code.
+
+Vorlage:
+
+```java
+for (int i = 0; i < array.length - 1; i++) {
+    for (int j = 0; j < array.length - 1 - i; j++) {
+        if (____________________) {
+            int temp = array[j];
+            array[j] = array[j + 1];
+            array[j + 1] = temp;
+        }
+    }
+}
+```
+
+Gesucht ist:
+
+```java
+array[j] > array[j + 1]
+```
+
+Der vollständige Code wird auf den Sortierchip geschrieben. Danach wird der programmierte Chip
+in die Bubble-Sort-Maschine eingesetzt.
+
+## Rätsel 7 - Das Datenarchiv
 
 ```java
 int[] energie = {20, 50, 80};
@@ -226,10 +256,11 @@ String module[] = {"CPU", "GPU", "RAM"};
 boolean aktiv[] = {true, false, true};
 ```
 
-Erklaerung: Alle drei Arrays muessen erstellt werden. Die Reihenfolge der drei Deklarationen ist
-egal.
+Erklärung: Alle drei Arrays müssen erstellt werden. Die Reihenfolge der drei Deklarationen ist
+egal. Auch die Werte innerhalb jedes Array-Literals dürfen in beliebiger Reihenfolge stehen, weil
+dieser Step nur die neue Array-Literal-Schreibweise und die enthaltenen Werte prüft.
 
-## Raetsel 8 - Zweidimensionales Lager
+## Rätsel 8 - Zweidimensionales Lager
 
 ### Step 1: 2D-Array erstellen
 
@@ -243,9 +274,10 @@ Alternative:
 int storage[][] = new int[3][4];
 ```
 
-Erklaerung: Der Arrayname ist flexibel, muss danach aber konsistent weiterverwendet werden.
+Erklärung: Der Arrayname ist flexibel, muss danach aber konsistent weiterverwendet werden.
+Die Matrix hat exakt drei Zeilen und vier Spalten.
 
-### Step 2: Lager befuellen
+### Step 2: Lager befüllen
 
 ```java
 lager[0][2] = 1;
@@ -269,7 +301,7 @@ unterschieden und mit sichtbaren Datenobjekten gefüllt. Anschließend wird der 
 Matrix zum Punkt `chip` gebracht und kann vom Spieler aufgenommen werden. Ein künstlicher
 Lesezugriff wie `lager[1][3];` ist dafür nicht mehr nötig.
 
-## Raetsel 9 - Suchroboter
+## Rätsel 9 - Suchroboter
 
 Der Ortungschip enthält bereits die äußere Schleife und eine einfache Prüfung der ersten Spalte:
 
@@ -307,12 +339,13 @@ for (int row = 0; row <= map.length - 1; row += 1) {
 }
 ```
 
-Erklaerung: Die Namen der Zeilen- und Spaltenvariablen sind flexibel. Beide Namen muessen in der
-inneren Schleife, der Bedingung und dem Arrayzugriff konsistent bleiben. Die vorbereitete Zeile
-`int j = 0;` darf nicht zusaetzlich neben der inneren Schleife stehen, weil `j` dort erneut
-deklariert wuerde.
+Erklärung: Die Matrix wird aus den beiden Custom Points `roboter_start` und `roboter_end` gebildet.
+Ihre Größe ist deshalb durch das Level festgelegt und nicht im Code hardcodiert. Die Namen der
+Zeilen- und Spaltenvariablen sind flexibel. Beide Namen müssen in der inneren Schleife, der
+Bedingung und dem Arrayzugriff konsistent bleiben. Die vorbereitete Zeile `int j = 0;` darf nicht
+zusätzlich neben der inneren Schleife stehen, weil `j` dort erneut deklariert würde.
 
-## Raetsel 10 - Das zentrale Rechenzentrum
+## Rätsel 10 - Das zentrale Rechenzentrum
 
 ### Step 1: Bubble Sort
 
@@ -342,22 +375,16 @@ for (int outer = 0; outer <= values.length - 2; outer += 1) {
 }
 ```
 
-Erklaerung: Arrayname, aeusserer Index, innerer Index und Temp-Variable sind flexibel. Die Namen
-muessen aber ueber den ganzen Bubble-Sort-Block konsistent verwendet werden.
+Erklärung: Arrayname, äußerer Index, innerer Index und Temp-Variable sind flexibel. Die Namen
+müssen aber über den ganzen Bubble-Sort-Block konsistent verwendet werden.
 
 ### Step 2: Module zaehlen
 
 ```java
-int count = 0;
-
-for (String module : modules) {
-    if (module != null) {
-        count++;
-    }
-}
+w
 ```
 
-Erklaerung: Hier ist der Arrayname fest `modules`. Die Schleifenvariable ist flexibel.
+Erklärung: Hier ist der Arrayname fest `modules`. Die Schleifenvariable ist flexibel.
 
 ### Step 3: Batterien finden
 
@@ -374,13 +401,25 @@ for (int i = 0; i < map.length; i++) {
 Alternative:
 
 ```java
-for (int row = 0; row <= map.length - 1; row = row + 1) {
-    for (int column = 0; column <= map[row].length - 1; column++) {
-        if (map[row][column] == 1) {
-            roboter.collect();
-        }
-    }
-}
+w2343
 ```
 
-Erklaerung: Wie bei Raetsel 9 wird die Map durchlaufen und bei Wert `1` wird gesammelt.
+Erklärung: Wie bei Rätsel 9 wird die Map durchlaufen und bei Wert `1` wird gesammelt.
+
+### Meta-Schritt: Ergebnisse zusammenführen
+
+Nachdem alle drei Bereiche des Rechenzentrums abgeschlossen sind, zeigt das zentrale Display die
+Ergebnisse der Teilaufgaben:
+
+- sortierte Energie: `8 17 23 31 42`
+- belegte Module: `3`
+- Batteriesignale: `3`
+
+Diese drei Ergebnisse werden in der Eingabemaske des zentralen Terminals eingetragen: fünf
+Felder für die sortierte Energiefolge sowie je ein Feld für die belegten Module und die
+Batteriesignale. Die Werte der drei Teilaufgaben werden serverseitig gemeinsam geprüft.
+
+Erklärung: Der Interpreter prüft hier keine neue Codezeile und führt die drei Algorithmen nicht
+erneut aus. Die Eingabemaske überträgt nur die Ergebnisse der vorherigen Aufgaben. Erst nach
+dieser Bestätigung wird der Systemkern vollständig wiederhergestellt, der Aufzug geöffnet und
+der Alarm abgeschaltet.

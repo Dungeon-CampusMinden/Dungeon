@@ -12,6 +12,7 @@ import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.shader.EnergyFillShader;
+import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.path.SimpleIPath;
 import feature.collision.CollideSync;
@@ -21,7 +22,6 @@ import feature.interaction.keypad.KeypadComponent;
 import feature.questlog.QuestLogComponent;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
-import feature.skills.SkillTools;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -34,6 +34,8 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
 import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
+import rooms.systemRecovery.modules.scanner.ModuleScannerVisualState;
+import rooms.systemRecovery.util.shaders.EnergyGlow;
 import rooms.systemRecovery.util.shaders.SystemRecoveryAlarm;
 
 /** Snapshot translator for metadata-backed System Recovery components. */
@@ -46,6 +48,10 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
   private int lastBeltLeftPackage = -1;
   private int lastBeltRightPackage = -1;
   private int lastBeltScanner = -1;
+  private int lastSortLeftEntity = Integer.MIN_VALUE;
+  private int lastSortRightEntity = Integer.MIN_VALUE;
+  private boolean sortComparisonInitialized;
+  private boolean lastModuleScanFault;
 
   /**
    * Builds a snapshot and appends System Recovery metadata for shared components.
@@ -108,6 +114,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                     .ifPresent(questLog -> applyQuestLogState(entity, questLog));
                 applySortComparisonMetadata(metadata.orElseThrow());
                 applyBeltSortMetadata(metadata.orElseThrow());
+                applyModuleScanMetadata(entity, metadata.orElseThrow());
                 applyStorageCellMetadata(entity, metadata.orElseThrow());
                 applySystemCoreAlarm(metadata.orElseThrow());
                 applySystemCoreVisualMetadata(entity, metadata.orElseThrow());
@@ -249,12 +256,23 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
       return;
     }
 
+    int leftEntityId = parseEntityId(leftValue);
+    int rightEntityId = parseEntityId(rightValue);
+    if (sortComparisonInitialized
+        && leftEntityId == lastSortLeftEntity
+        && rightEntityId == lastSortRightEntity) {
+      return;
+    }
+
     clearSortComparisonHighlights();
     Game.levelEntities()
         .filter(entity -> entity.name().startsWith("sort_data_"))
         .forEach(this::addSortFill);
-    addSortComparisonHighlight(parseEntityId(leftValue));
-    addSortComparisonHighlight(parseEntityId(rightValue));
+    addSortComparisonHighlight(leftEntityId);
+    addSortComparisonHighlight(rightEntityId);
+    lastSortLeftEntity = leftEntityId;
+    lastSortRightEntity = rightEntityId;
+    sortComparisonInitialized = true;
   }
 
   private void clearSortComparisonHighlights() {
@@ -290,14 +308,17 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
         .fetch(DrawComponent.class)
         .ifPresent(
             draw ->
-                draw.shaders()
-                    .add(
-                        "sortComparisonFill",
-                        new EnergyFillShader(
-                                sortValue(entity) / 100f,
-                                Color.CYAN,
-                                "objects/tech/CryoBox.png")
-                            .animMagnitude(0)));
+                {
+                  draw.shaders()
+                      .add(
+                          "sortComparisonFill",
+                          new EnergyFillShader(
+                                  sortValue(entity) / 100f,
+                                  Color.CYAN,
+                                  "objects/tech/CryoBox.png")
+                              .animMagnitude(0));
+                  EnergyGlow.addTo(draw);
+                });
   }
 
   private int sortValue(Entity entity) {
@@ -347,18 +368,61 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     clearBeltSortHighlights();
     Map<Integer, Integer> packageValues = parseBeltPackageMetadata(packageMetadata);
     packageValues.forEach(this::addBeltPackageColor);
-    addBeltPackageHighlight(leftPackageId, "beltSortLeft", Color.CYAN);
-    addBeltPackageHighlight(rightPackageId, "beltSortRight", Color.MAGENTA);
-    addBeltScannerHighlight(scannerId, "beltSortScanner", Color.CYAN, 0x00FFFFFF);
 
     if (leftPackageId >= 0 && rightPackageId >= 0) {
-      blinkEntity(scannerId, 0x00FFFFFF);
-      blinkEntity(leftPackageId, beltPackageTint(packageValues.getOrDefault(leftPackageId, -1)));
-      blinkEntity(rightPackageId, beltPackageTint(rightPackageId, packageValues));
+      addBeltHighlight(leftPackageId, "beltSortLeft", Color.YELLOW);
+      addBeltHighlight(rightPackageId, "beltSortRight", Color.CYAN);
+      addBeltHighlight(scannerId, "beltSortScanner", Color.WHITE);
       lastBeltLeftPackage = leftPackageId;
       lastBeltRightPackage = rightPackageId;
     }
     lastBeltScanner = scannerId;
+  }
+
+  /** Synchronizes the scanner lifecycle and persistent GPU fault state on every client. */
+  private void applyModuleScanMetadata(Entity entity, Map<String, String> metadata) {
+    if (!"module_scanner".equals(entity.name())) return;
+
+    String scanRunningValue =
+        metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_MODULE_SCAN_RUNNING);
+    String scanFaultValue = metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_MODULE_SCAN_FAULT);
+    if (scanRunningValue != null) {
+      ModuleScannerVisualState state =
+          entity
+              .fetch(ModuleScannerVisualState.class)
+              .orElseGet(
+                  () -> {
+                    ModuleScannerVisualState created = new ModuleScannerVisualState();
+                    entity.add(created);
+                    return created;
+                  });
+      state.scanning(Boolean.parseBoolean(scanRunningValue));
+    }
+
+    if (scanFaultValue == null) return;
+    boolean scanFault = Boolean.parseBoolean(scanFaultValue);
+    if (scanFault == lastModuleScanFault) return;
+
+    clearModuleFaultHighlight();
+    if (scanFault) addModuleFaultHighlight();
+    lastModuleScanFault = scanFault;
+  }
+
+  private void clearModuleFaultHighlight() {
+    Game.levelEntities()
+        .forEach(
+            entity ->
+                entity.fetch(DrawComponent.class)
+                    .ifPresent(draw -> draw.shaders().remove("moduleScannerFault")));
+  }
+
+  private void addModuleFaultHighlight() {
+    Game.levelEntities()
+        .filter(entity -> "module_gpu".equals(entity.name()))
+        .findFirst()
+        .flatMap(entity -> entity.fetch(DrawComponent.class))
+        .ifPresent(
+            draw -> draw.shaders().add("moduleScannerFault", new OutlineShader(2, Color.RED)));
   }
 
   /** Applies the authoritative visual state of one 3x4 storage cell. */
@@ -407,31 +471,6 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                         }));
   }
 
-  private void addBeltPackageHighlight(int entityId, String shaderName, Color color) {
-    if (entityId < 0) return;
-    Game.findEntityById(entityId)
-        .ifPresent(
-            entity ->
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        draw -> draw.shaders().add(shaderName, new OutlineShader(3, color))));
-  }
-
-  private void addBeltScannerHighlight(int entityId, String shaderName, Color color, int tint) {
-    if (entityId < 0) return;
-    Game.findEntityById(entityId)
-        .ifPresent(
-            entity ->
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        draw -> {
-                          draw.tintColor(tint);
-                          draw.shaders().add(shaderName, new OutlineShader(3, color));
-                        }));
-  }
-
   private void addBeltPackageColor(int entityId, int value) {
     Game.findEntityById(entityId)
         .ifPresent(
@@ -440,35 +479,35 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                     .fetch(DrawComponent.class)
                     .ifPresent(
                         draw -> {
-                          Color color = beltPackageColor(value);
-                          draw.tintColor(beltPackageTint(value));
-                          draw.shaders().add("beltPackageColor", new OutlineShader(2, color));
+                          draw.tintColor(0xFFFFFFFF);
+                          draw.shaders()
+                              .add(
+                                  "beltPackageColor",
+                                  new HueRemapShader(0.08f, beltPackageHue(value), 0.12f));
                         }));
   }
 
-  private Color beltPackageColor(int value) {
-    return switch (value) {
-      case 15 -> Color.RED;
-      case 20 -> Color.YELLOW;
-      case 30 -> Color.GREEN;
-      case 40 -> Color.BLUE;
-      case 60 -> Color.MAGENTA;
-      default -> Color.WHITE;
-    };
+  /** Highlights exactly one active comparison pair with a thin, non-scheduled outline. */
+  private void addBeltHighlight(int entityId, String shaderName, Color color) {
+    if (entityId < 0) return;
+    Game.findEntityById(entityId)
+        .ifPresent(
+            entity ->
+                entity
+                    .fetch(DrawComponent.class)
+                    .ifPresent(
+                        draw -> draw.shaders().add(shaderName, new OutlineShader(1, color))));
   }
 
-  private int beltPackageTint(int entityId, Map<Integer, Integer> packageValues) {
-    return beltPackageTint(packageValues.getOrDefault(entityId, -1));
-  }
-
-  private int beltPackageTint(int value) {
+  /** Returns the target hue used to distinguish the five package weights. */
+  private float beltPackageHue(int value) {
     return switch (value) {
-      case 15 -> 0xFF3333FF;
-      case 20 -> 0xFFFFDDFF;
-      case 30 -> 0x33CC66FF;
-      case 40 -> 0x3399FFFF;
-      case 60 -> 0xCC66FFFF;
-      default -> 0xFFFFFFFF;
+      case 15 -> 0.00f;
+      case 20 -> 0.14f;
+      case 30 -> 0.33f;
+      case 40 -> 0.60f;
+      case 60 -> 0.85f;
+      default -> 0.08f;
     };
   }
 
@@ -491,11 +530,6 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     Game.findEntityById(entityId)
         .flatMap(entity -> entity.fetch(DrawComponent.class))
         .ifPresent(draw -> draw.tintColor(0xFFFFFFFF));
-  }
-
-  private void blinkEntity(int entityId, int tint) {
-    if (entityId < 0) return;
-    Game.findEntityById(entityId).ifPresent(entity -> SkillTools.blink(entity, tint, 600, 3));
   }
 
   private List<Integer> parseDigits(String value) {
@@ -596,6 +630,14 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_TERMINAL_STATE,
           String.valueOf(TerminalInterpreter.instance().currentState()));
+    }
+    if ("module_scanner".equals(entity.name())) {
+      metadata.put(
+          SystemRecoveryEntitySpawnStrategy.METADATA_MODULE_SCAN_RUNNING,
+          String.valueOf(SystemRecoveryLevel.scannerRunning()));
+      metadata.put(
+          SystemRecoveryEntitySpawnStrategy.METADATA_MODULE_SCAN_FAULT,
+          String.valueOf(SystemRecoveryLevel.scannerFaultDetected()));
     }
     if (entity.name().startsWith("storage_matrix_cell_")) {
       metadata.put(

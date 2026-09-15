@@ -70,7 +70,7 @@ public final class TwoDimensionalStorageRiddle {
         EntityFactory.hintDisplay(
             level.getPoint("display_2d"),
             () -> storageDisplayText,
-            SystemRecoveryText.text("world.matrix.title"));
+            SystemRecoveryText.key("world.matrix.title"));
     storageDisplay.name("storage_display");
     Game.add(storageDisplay);
     for (int row = 0; row < ROW_COUNT; row++) {

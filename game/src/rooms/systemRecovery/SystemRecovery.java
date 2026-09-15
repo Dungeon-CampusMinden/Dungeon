@@ -41,6 +41,7 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
+import rooms.systemRecovery.util.SystemRecoveryTranslator;
 
 /** Entry point for the System Recovery escape room. */
 public final class SystemRecovery {
@@ -106,6 +107,7 @@ public final class SystemRecovery {
     Localization localization = Game.localization();
     localization.registerTranslationFile(Language.DE, "language/escapeRoom/de.json");
     localization.registerTranslationFile(Language.EN, "language/escapeRoom/en.json");
+    localization.setCurrentTranslator(new SystemRecoveryTranslator());
   }
 
   /** Registers shared translations and custom dialog builders. */

@@ -195,6 +195,7 @@ public class DialogFactory {
       translatedContext = translateText(DialogContextKeys.DIALOG, translatedContext);
       translatedContext = translateText(DialogContextKeys.IMAGE, translatedContext);
       translatedContext = translateText(DialogContextKeys.OPTIONS, translatedContext);
+      translatedContext = translateText(DialogContextKeys.TITLE, translatedContext);
     }
 
     UIComponent ui =
@@ -658,4 +659,5 @@ public class DialogFactory {
     }
     return context;
   }
+
 }

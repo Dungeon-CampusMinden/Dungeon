@@ -208,7 +208,7 @@ public final class SystemRecoveryStoryDialogs {
 
   /** One atomic instruction shown after the previous puzzle action. */
   public record StoryStep(String id, String riddleKey, String entryKey, String messageKey) {
-    /** Resolves the localized dialog script at display time. */
+    /** Creates the keyed dialog script; the target client localizes it when displayed. */
     public String script() {
       return SystemRecoveryText.story(messageKey);
     }

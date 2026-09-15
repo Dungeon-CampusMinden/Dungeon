@@ -1,22 +1,18 @@
 package rooms.systemRecovery.riddles;
 
-import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
-import engine.components.DrawComponent;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.sound.SoundSpec;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import engine.utils.components.draw.shader.OutlineShader;
 import feature.components.DecoComponent;
 import feature.entities.LeverFactory;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
-import feature.skills.SkillTools;
 import feature.systems.EventScheduler;
 import feature.utils.ICommand;
 import java.util.List;
@@ -40,10 +36,31 @@ public final class InventoryScannerRiddle {
   private boolean scannerPuzzleSolved = false;
   private boolean scannerRunning = false;
   private boolean scannerCompleted = false;
+  private int currentScanIndex = -1;
+  private boolean scannerFaultDetected = false;
 
   /** Returns whether the visual module scan has finished. */
   public boolean completed() {
     return scannerCompleted;
+  }
+
+  /**
+   * Returns the module currently being examined by the scanner.
+   *
+   * @return the zero-based module index, or {@code -1} while the scanner is idle
+   */
+  public int currentScanIndex() {
+    return scannerRunning ? currentScanIndex : -1;
+  }
+
+  /** @return whether the GPU fault was detected during the scan */
+  public boolean scannerFaultDetected() {
+    return scannerFaultDetected;
+  }
+
+  /** @return whether the scanner is currently moving across the module row */
+  public boolean running() {
+    return scannerRunning;
   }
 
   private Entity scannerEntity;
@@ -71,7 +88,7 @@ public final class InventoryScannerRiddle {
         EntityFactory.hintDisplay(
             level.getPoint("scanner_display"),
             () -> SystemRecoveryText.text("world.scanner.display-pending"),
-            SystemRecoveryText.text("world.scanner.title"));
+            SystemRecoveryText.key("world.scanner.title"));
     Game.add(scannerDisplay);
 
     Game.add(
@@ -116,35 +133,19 @@ public final class InventoryScannerRiddle {
   }
 
   private void highlightScannerModule(int index) {
+    currentScanIndex = index;
+    if (index == 2) scannerFaultDetected = true;
     Point scannerPoint = level.getPoint("scanner" + index);
     scannerEntity
         .fetch(engine.components.PositionComponent.class)
         .ifPresent(position -> position.position(scannerPoint.translate(SCANNER_OFFSET)));
     Game.audio().playGlobal(SoundSpec.builder(SCANNER_SOUND));
-    Game.entityAtPoint(scannerPoint)
-        .forEach(
-            entity ->
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        draw -> {
-                          draw.shaders().add("moduleScanner", new OutlineShader(2, Color.CYAN));
-                          EventScheduler.scheduleAction(
-                              () -> {
-                                draw.shaders().remove("moduleScanner");
-                                if (index == 2 && "module_gpu".equals(entity.name())) {
-                                  SkillTools.blink(entity, 0xFF0000FF, 600, 3);
-                                  EventScheduler.scheduleAction(
-                                      () -> draw.tintColor(0xFF0000FF), 600);
-                                }
-                              },
-                              450);
-                        }));
   }
 
   private void completeModuleScan() {
     if (scannerCompleted) return;
     scannerRunning = false;
+    currentScanIndex = -1;
     scannerCompleted = true;
     callbacks.solved();
     EntityFactory.updateDisplayText(
