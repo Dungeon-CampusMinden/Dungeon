@@ -7,6 +7,7 @@ import engine.utils.components.draw.shader.ColorGradeShader;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.LevelHideShader;
+import engine.utils.components.draw.shader.MagicBallShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.shader.PassthroughShader;
 import engine.utils.components.draw.shader.ShineShader;
@@ -24,6 +25,7 @@ public final class ShaderComponentCodec {
   private static final String TYPE_PASSTHROUGH = "passthrough";
   private static final String TYPE_LEVEL_HIDE = "level_hide";
   private static final String TYPE_SLOT = "slot";
+  private static final String TYPE_MAGIC_BALL = "magic_ball";
 
   private ShaderComponentCodec() {}
 
@@ -132,6 +134,8 @@ public final class ShaderComponentCodec {
       type = TYPE_LEVEL_HIDE;
     } else if (shader instanceof SlotShader) {
       type = TYPE_SLOT;
+    } else if (shader instanceof MagicBallShader) {
+      type = TYPE_MAGIC_BALL;
     } else {
       throw new IllegalArgumentException(
           "Unsupported synchronized shader type: " + shader.getClass().getName());
@@ -151,6 +155,7 @@ public final class ShaderComponentCodec {
           case TYPE_PASSTHROUGH -> new PassthroughShader();
           case TYPE_LEVEL_HIDE -> new LevelHideShader();
           case TYPE_SLOT -> new SlotShader();
+          case TYPE_MAGIC_BALL -> new MagicBallShader();
           default -> throw new IllegalArgumentException("Unsupported shader type: " + entry.type());
         };
     shader.loadProperties(entry.properties());
