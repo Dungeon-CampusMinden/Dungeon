@@ -4,7 +4,11 @@ import engine.network.messages.NetworkMessage;
 import feature.hud.dialogs.DialogContext;
 
 /**
- * Server-to-client message instructing the client to display a dialog.
+ * Server-to-client state indicating that a dialog is open.
+ *
+ * <p>Repeated delivery of the same dialog ID keeps the existing client instance and its
+ * presentation state. A new opening uses a new dialog ID; live content updates use the feature's
+ * state synchronization.
  *
  * <p>The {@link DialogContext} is serialized, but callbacks are transient and will be {@code null}
  * on the client. The client should use {@link feature.hud.dialogs.DialogCallbackResolver} to create

@@ -809,6 +809,12 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, msg) -> {
           LOGGER.debug("Received DialogShowMessage for dialog: {}", msg.context().dialogId());
 
+          // Synchronization describes an open dialog, not a request to restart its presentation.
+          if (Game.levelEntities()
+              .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+              .anyMatch(ui -> msg.context().dialogId().equals(ui.dialogContext().dialogId()))) {
+            return;
+          }
           DialogFactory.show(msg.context(), false, msg.canBeClosed());
         });
 

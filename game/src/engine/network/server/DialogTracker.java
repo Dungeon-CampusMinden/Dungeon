@@ -67,7 +67,10 @@ public final class DialogTracker {
   }
 
   /**
-   * Registers a new dialog for network tracking.
+   * Registers a new dialog and sends it to its world-ready recipients.
+   *
+   * <p>Recipients still loading the world receive it through initial-world synchronization, if the
+   * dialog is still open at that point.
    *
    * @param uiComponent the UIComponent representing the dialog
    * @throws IllegalArgumentException if dialogId is null or already registered
@@ -78,9 +81,11 @@ public final class DialogTracker {
           "Dialog with id '" + uiComponent.dialogContext().dialogId() + "' is already registered");
     }
 
-    DialogInfo info =
-        new DialogInfo(
-            uiComponent, null, NetworkUtils.entityIdsToClientIds(uiComponent.targetEntityIds()));
+    Set<Short> clientIds =
+        PreRunConfiguration.multiplayerEnabled() && uiComponent.targetEntityIds().length == 0
+            ? NetworkUtils.getAllConnectedClientIds()
+            : NetworkUtils.entityIdsToClientIds(uiComponent.targetEntityIds());
+    DialogInfo info = new DialogInfo(uiComponent, null, Set.copyOf(clientIds));
     dialogs.put(uiComponent.dialogContext().dialogId(), info);
 
     // Track dialogs per client for resync
@@ -95,6 +100,13 @@ public final class DialogTracker {
         uiComponent.dialogContext().dialogId(),
         info.authorizedClientIds().size(),
         uiComponent.dialogContext().ownerEntity());
+
+    if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
+      Set<Short> readyClients = NetworkUtils.readyClientIds();
+      info.authorizedClientIds().stream()
+          .filter(readyClients::contains)
+          .forEach(clientId -> sendDialogToClient(info, clientId));
+    }
   }
 
   /**
@@ -102,15 +114,16 @@ public final class DialogTracker {
    *
    * @param clientId the client attempting to respond
    * @param dialogId the dialog being responded to
-   * @return true if the client is in the dialog's target list or if the dialog is open to all
-   *     clients
+   * @return true if the client is a registered recipient, or the dialog is local-only without
+   *     network recipients
    */
   public boolean canRespond(short clientId, String dialogId) {
     DialogInfo info = dialogs.get(dialogId);
     if (info == null) {
       return false;
     }
-    return info.authorizedClientIds().isEmpty() || info.authorizedClientIds().contains(clientId);
+    return info.authorizedClientIds().contains(clientId)
+        || (!PreRunConfiguration.multiplayerEnabled() && info.authorizedClientIds().isEmpty());
   }
 
   /**
@@ -240,12 +253,12 @@ public final class DialogTracker {
   }
 
   /**
-   * Resynchronizes active dialogs to a reconnecting client.
+   * Synchronizes active dialogs after a client's initial world is ready.
    *
-   * <p>Sends {@link DialogShowMessage} for all dialogs the client was authorized to see before
-   * disconnecting.
+   * <p>This also restores active dialogs after reconnecting. Repeated delivery preserves an already
+   * open client dialog.
    *
-   * @param clientId the reconnecting client's ID
+   * @param clientId the world-ready client's ID
    */
   public void resyncDialogsToClient(short clientId) {
     Set<String> dialogIds = clientDialogs.get(clientId);
@@ -263,11 +276,13 @@ public final class DialogTracker {
         continue;
       }
 
-      // Send dialog show message
-      DialogShowMessage msg =
-          new DialogShowMessage(
-              info.uiComponent().dialogContext(), info.uiComponent().canBeClosed());
-      Game.network().send(clientId, msg, true);
+      sendDialogToClient(info, clientId);
     }
+  }
+
+  private void sendDialogToClient(DialogInfo info, short clientId) {
+    DialogShowMessage msg =
+        new DialogShowMessage(info.uiComponent().dialogContext(), info.uiComponent().canBeClosed());
+    Game.network().send(clientId, msg, true);
   }
 }

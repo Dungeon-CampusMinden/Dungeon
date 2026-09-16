@@ -12,12 +12,20 @@ import engine.Game;
 import engine.components.PlayerComponent;
 import engine.game.PreRunConfiguration;
 import engine.network.handler.NettyNetworkHandler;
+import engine.network.messages.s2c.DialogCloseMessage;
+import engine.network.messages.s2c.DialogShowMessage;
+import engine.network.server.ClientState;
 import engine.network.server.DialogTracker;
+import engine.network.server.ServerRuntime;
+import engine.network.server.ServerTransport;
+import engine.network.server.Session;
 import feature.components.UIComponent;
+import feature.entities.CharacterClass;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -189,6 +197,140 @@ public class HudSystemTest {
 
     assertTrue(normal.isVisible());
     assertTrue(editorDialog.isVisible());
+  }
+
+  /** Joining clients receive an open dialog only once their world is ready. */
+  @Test
+  public void dialogWaitsForInitialWorldReady() {
+    Entity player = player();
+    ClientState state =
+        new ClientState((short) 1, "tester", 1, new byte[] {1}, CharacterClass.WIZARD);
+    state.playerEntity(player);
+    NettyNetworkHandler network = serverNetwork(state);
+
+    UIComponent intro = show(player, player.id());
+
+    Mockito.verify(network, Mockito.never())
+        .send(Mockito.anyShort(), Mockito.any(DialogShowMessage.class), Mockito.anyBoolean());
+    state.initialWorldReady(true);
+    DialogTracker.instance().resyncDialogsToClient(state.clientId());
+    Mockito.verify(network)
+        .send(Mockito.eq(state.clientId()), Mockito.any(DialogShowMessage.class), Mockito.eq(true));
+    UIUtils.closeDialog(intro, true);
+    Mockito.verify(network)
+        .send(
+            Mockito.eq(state.clientId()), Mockito.any(DialogCloseMessage.class), Mockito.eq(true));
+    DialogTracker.instance().resyncDialogsToClient(state.clientId());
+    Mockito.verify(network)
+        .send(Mockito.eq(state.clientId()), Mockito.any(DialogShowMessage.class), Mockito.eq(true));
+  }
+
+  /** A dialog closed during bootstrap must never appear when the client finishes joining. */
+  @Test
+  public void closedBootstrapDialogIsNotDelivered() {
+    Entity player = player();
+    ClientState state =
+        new ClientState((short) 1, "tester", 1, new byte[] {1}, CharacterClass.WIZARD);
+    state.playerEntity(player);
+    NettyNetworkHandler network = serverNetwork(state);
+    UIComponent intro = show(player, player.id());
+    UIUtils.closeDialog(intro, true);
+
+    state.initialWorldReady(true);
+    DialogTracker.instance().resyncDialogsToClient(state.clientId());
+
+    Mockito.verify(network, Mockito.never())
+        .send(Mockito.anyShort(), Mockito.any(DialogShowMessage.class), Mockito.anyBoolean());
+  }
+
+  /** Shared dialogs use the same recipients for initial delivery, bootstrap and server close. */
+  @Test
+  public void sharedDialogTracksReadyAndJoiningRecipients() {
+    Entity player = player();
+    Entity joiningPlayer = player();
+    ClientState ready =
+        new ClientState((short) 1, "ready", 1, new byte[] {1}, CharacterClass.WIZARD);
+    ready.playerEntity(player);
+    ready.initialWorldReady(true);
+    ClientState joining =
+        new ClientState((short) 2, "joining", 1, new byte[] {2}, CharacterClass.WIZARD);
+    joining.playerEntity(joiningPlayer);
+    NettyNetworkHandler network = serverNetwork(ready, joining);
+
+    UIComponent shared = show(player);
+
+    Mockito.verify(network)
+        .send(Mockito.eq(ready.clientId()), Mockito.any(DialogShowMessage.class), Mockito.eq(true));
+    Mockito.verify(network, Mockito.never())
+        .send(
+            Mockito.eq(joining.clientId()),
+            Mockito.any(DialogShowMessage.class),
+            Mockito.anyBoolean());
+    assertTrue(
+        DialogTracker.instance().canRespond(ready.clientId(), shared.dialogContext().dialogId()));
+    assertTrue(
+        DialogTracker.instance().canRespond(joining.clientId(), shared.dialogContext().dialogId()));
+    assertFalse(DialogTracker.instance().canRespond((short) 3, shared.dialogContext().dialogId()));
+
+    joining.initialWorldReady(true);
+    DialogTracker.instance().resyncDialogsToClient(joining.clientId());
+    Mockito.verify(network)
+        .send(
+            Mockito.eq(joining.clientId()), Mockito.any(DialogShowMessage.class), Mockito.eq(true));
+    UIUtils.closeDialog(shared, true);
+    Mockito.verify(network)
+        .send(
+            Mockito.eq(ready.clientId()), Mockito.any(DialogCloseMessage.class), Mockito.eq(true));
+    Mockito.verify(network)
+        .send(
+            Mockito.eq(joining.clientId()),
+            Mockito.any(DialogCloseMessage.class),
+            Mockito.eq(true));
+  }
+
+  /** A private dialog never reaches a different world-ready player, including during resync. */
+  @Test
+  public void targetedDialogOnlyReachesItsPlayer() {
+    Entity player = player();
+    Entity otherPlayer = player();
+    ClientState first =
+        new ClientState((short) 1, "first", 1, new byte[] {1}, CharacterClass.WIZARD);
+    first.playerEntity(player);
+    first.initialWorldReady(true);
+    ClientState other =
+        new ClientState((short) 2, "other", 1, new byte[] {2}, CharacterClass.WIZARD);
+    other.playerEntity(otherPlayer);
+    other.initialWorldReady(true);
+    NettyNetworkHandler network = serverNetwork(first, other);
+
+    UIComponent privateDialog = show(player, player.id());
+    DialogTracker.instance().resyncDialogsToClient(other.clientId());
+    UIUtils.closeDialog(privateDialog, true);
+
+    Mockito.verify(network)
+        .send(Mockito.eq(first.clientId()), Mockito.any(DialogShowMessage.class), Mockito.eq(true));
+    Mockito.verify(network, Mockito.never())
+        .send(Mockito.eq(other.clientId()), Mockito.any(), Mockito.anyBoolean());
+  }
+
+  private static NettyNetworkHandler serverNetwork(ClientState... states) {
+    PreRunConfiguration.multiplayerEnabled(true);
+    NettyNetworkHandler network = Mockito.mock(NettyNetworkHandler.class);
+    ServerRuntime runtime = Mockito.mock(ServerRuntime.class);
+    ServerTransport transport = Mockito.mock(ServerTransport.class);
+    Mockito.when(network.isServer()).thenReturn(true);
+    Mockito.when(network.serverRuntime()).thenReturn(Optional.of(runtime));
+    Mockito.when(runtime.transport()).thenReturn(Optional.of(transport));
+    Map<Short, Session> sessions = new HashMap<>();
+    for (ClientState state : states) {
+      Session session = Mockito.mock(Session.class);
+      Mockito.when(session.clientState()).thenReturn(Optional.of(state));
+      Mockito.when(session.clientId()).thenReturn(state.clientId());
+      sessions.put(state.clientId(), session);
+    }
+    Mockito.when(transport.clientIdToSessionMap()).thenReturn(sessions);
+    MockNetworkHandler.useNetworkHandler(network);
+    return network;
   }
 
   private static Entity player() {
