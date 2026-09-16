@@ -24,6 +24,8 @@ import engine.utils.Vector2;
 import engine.utils.components.path.IPath;
 import feature.entities.deco.Deco;
 import feature.level.ITickable;
+import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -51,6 +53,7 @@ public class DungeonLevel implements ILevel, ITickable {
 
   protected final Map<String, Point> namedPoints = new HashMap<>();
   protected final List<Tuple<Deco, Point>> decorations = new ArrayList<>();
+  protected final List<PrefabInstance> prefabs = new ArrayList<>();
 
   private static int levelNameSuffix = 1;
   protected String levelName;
@@ -425,6 +428,54 @@ public class DungeonLevel implements ILevel, ITickable {
   @Override
   public List<Tuple<Deco, Point>> decorations() {
     return decorations;
+  }
+
+  /**
+   * Returns the ordered prefab instances authored for this level.
+   *
+   * @return mutable prefab instance list
+   */
+  @Override
+  public List<PrefabInstance> prefabs() {
+    return prefabs;
+  }
+
+  /**
+   * Adds a validated prefab instance.
+   *
+   * @param instance prefab instance to add
+   * @throws IllegalArgumentException if its name is already used in this level
+   */
+  public void addPrefab(PrefabInstance instance) {
+    if (prefabs.stream().anyMatch(existing -> existing.name().equals(instance.name()))) {
+      throw new IllegalArgumentException("Duplicate prefab instance name: " + instance.name());
+    }
+    prefabs.add(PrefabRegistry.require(instance.type()).normalize(instance));
+  }
+
+  /**
+   * Replaces a prefab instance while preserving level-local name uniqueness.
+   *
+   * @param index index of the instance to replace
+   * @param instance replacement instance
+   */
+  public void replacePrefab(int index, PrefabInstance instance) {
+    for (int current = 0; current < prefabs.size(); current++) {
+      if (current != index && prefabs.get(current).name().equals(instance.name())) {
+        throw new IllegalArgumentException("Duplicate prefab instance name: " + instance.name());
+      }
+    }
+    prefabs.set(index, PrefabRegistry.require(instance.type()).normalize(instance));
+  }
+
+  /**
+   * Removes a prefab by its editor-facing name.
+   *
+   * @param name prefab instance name
+   * @return true if an instance was removed
+   */
+  public boolean removePrefab(String name) {
+    return prefabs.removeIf(instance -> instance.name().equals(name));
   }
 
   /**

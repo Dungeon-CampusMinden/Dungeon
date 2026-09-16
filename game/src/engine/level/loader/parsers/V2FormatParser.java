@@ -2,7 +2,6 @@ package engine.level.loader.parsers;
 
 import engine.level.DungeonLevel;
 import engine.level.Tile;
-import engine.level.loader.LevelParser;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
@@ -45,29 +44,9 @@ public class V2FormatParser extends LevelFormatParser {
   }
 
   @Override
+  @Deprecated
   public String serializeLevel(DungeonLevel level) {
-    if (level == null) {
-      LOGGER.error("Trying to serialize a null level!");
-      throw new IllegalArgumentException("Level to serialize cannot be null");
-    }
-
-    String designLabel =
-        level.designLabel().map(DesignLabel::name).orElse(DesignLabel.DEFAULT.name());
-
-    String startingPositions = V2FormatParser.serializeStartingPositions(level.startTiles());
-    String customPointsString = V2FormatParser.serializeNamedPoints(level.namedPoints());
-    String decorations = V2FormatParser.serializeDecorationList(level.decorations());
-    String dunLayout = V2FormatParser.serializeLevelLayout(level.layout());
-
-    StringBuilder result = new StringBuilder();
-    result.append(LevelParser.getVersion(2)).append("\n");
-    result.append(designLabel).append("\n");
-    result.append(startingPositions).append("\n");
-    result.append(customPointsString).append("\n");
-    result.append(decorations).append("\n");
-    result.append(dunLayout);
-
-    return result.toString();
+    throw new UnsupportedOperationException("V2 is read-only; serialize levels as V3 JSON");
   }
 
   /**

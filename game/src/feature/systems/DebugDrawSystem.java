@@ -790,6 +790,54 @@ public class DebugDrawSystem extends System {
   }
 
   /**
+   * Draws a filled world-space point marker.
+   *
+   * @param point marker center
+   * @param radius marker radius in world units
+   * @param color marker color
+   */
+  public static void drawPoint(Point point, float radius, Color color) {
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+    SHAPE_RENDERER.circle(point.x(), point.y(), radius, CIRCLE_SEGMENTS);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Draws a world-space line, optionally ending in an arrow head.
+   *
+   * @param from line start
+   * @param to line end
+   * @param arrow whether to draw an arrow head at {@code to}
+   * @param color line color
+   */
+  public static void drawLine(Point from, Point to, boolean arrow, Color color) {
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+    SHAPE_RENDERER.line(from.x(), from.y(), to.x(), to.y());
+    if (arrow) {
+      float x = to.x() - from.x();
+      float y = to.y() - from.y();
+      float length = (float) Math.sqrt(x * x + y * y);
+      if (length > 0f) {
+        float headLength = Math.min(0.25f, length * 0.4f);
+        float unitX = x / length;
+        float unitY = y / length;
+        float backX = to.x() - unitX * headLength;
+        float backY = to.y() - unitY * headLength;
+        float halfWidth = headLength * 0.5f;
+        SHAPE_RENDERER.line(to.x(), to.y(), backX - unitY * halfWidth, backY + unitX * halfWidth);
+        SHAPE_RENDERER.line(to.x(), to.y(), backX + unitY * halfWidth, backY - unitX * halfWidth);
+      }
+    }
+    SHAPE_RENDERER.end();
+  }
+
+  /**
    * Draws text on the screen at the specified screen coordinates with the given font and color.
    *
    * @param font the {@link BitmapFont} to use for rendering the text
@@ -872,6 +920,17 @@ public class DebugDrawSystem extends System {
    */
   public static void drawTextInWorldCoords(String text, Point world) {
     drawTextInWorldCoords(FONT, text, world, Color.WHITE);
+  }
+
+  /**
+   * Draws centered text in world coordinates using the default font.
+   *
+   * @param text text to draw
+   * @param world center position in world coordinates
+   * @param color text color
+   */
+  public static void drawTextInWorldCoordsCentered(String text, Point world, Color color) {
+    drawTextInWorldCoordsCentered(FONT, text, world, color);
   }
 
   /**

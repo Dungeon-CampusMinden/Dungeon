@@ -83,6 +83,8 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogFeedbackRouter;
 import feature.questlog.QuestLogHudSystem;
 import feature.questlog.QuestLogUtil;
+import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabSpawner;
 import feature.shader.ShaderSyncSystem;
 import feature.shader.ShaderSystem;
 import feature.systems.AttributeBarSystem;
@@ -159,10 +161,14 @@ public final class GameLoop extends ScreenAdapter {
         List<Entity> allPlayers = serverAuthority ? ECSManagement.allPlayers().toList() : List.of();
         if (serverAuthority) {
           allPlayers.forEach(ECSManagement::remove);
+          if (Game.isSingleplayer()) {
+            PrefabSpawner.clear(PrefabSide.CLIENT);
+          }
         }
 
         if (!serverAuthority) { // no authority
-          Game.entities().filter(Entity::isLocal).toList().forEach(Game::remove);
+          PrefabSpawner.clear(PrefabSide.CLIENT);
+          Game.currentLevel().ifPresent(level -> PrefabSpawner.spawn(level, PrefabSide.CLIENT));
           return;
         }
 
@@ -179,10 +185,15 @@ public final class GameLoop extends ScreenAdapter {
 
         Game.currentLevel()
             .ifPresent(
-                level ->
-                    level
-                        .decorations()
-                        .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a()))));
+                level -> {
+                  PrefabSpawner.spawn(level, PrefabSide.SERVER);
+                  level
+                      .decorations()
+                      .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
+                  if (Game.isSingleplayer()) {
+                    PrefabSpawner.spawn(level, PrefabSide.CLIENT);
+                  }
+                });
 
         PreRunConfiguration.userOnLevelLoad().accept(true);
       };

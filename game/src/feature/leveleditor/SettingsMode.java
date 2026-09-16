@@ -13,12 +13,15 @@ import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Tuple;
+import engine.utils.Vector2;
 import feature.hud.elements.RichLabel;
 import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.ModeDetailsPanel;
 import feature.leveleditor.ui.NumberSetting;
 import feature.leveleditor.ui.StringSetting;
+import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabRegistry;
 import feature.systems.LevelEditorSystem;
 import feature.systems.PositionSync;
 import java.util.List;
@@ -187,6 +190,12 @@ public class SettingsMode extends LevelEditorMode {
       return;
     }
 
+    List<PrefabInstance> translatedPrefabs =
+        level.prefabs().stream()
+            .map(
+                instance ->
+                    PrefabRegistry.require(instance.type()).translate(instance, Vector2.of(x, y)))
+            .toList();
     List<Point> startPositions =
         level.startTiles().stream().map(tile -> tile.position().translate(x, y)).toList();
     LevelElement[][] newLayout = new LevelElement[layout.length][layout[0].length];
@@ -212,6 +221,8 @@ public class SettingsMode extends LevelEditorMode {
     level
         .decorations()
         .replaceAll(decoration -> new Tuple<>(decoration.a(), decoration.b().translate(x, y)));
+    level.prefabs().clear();
+    level.prefabs().addAll(translatedPrefabs);
     Game.levelEntities(Set.of(PositionComponent.class))
         .forEach(
             entity -> {

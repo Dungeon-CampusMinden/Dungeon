@@ -31,6 +31,9 @@ dependencies {
     api supportDependencies.protobuf_java
     implementation supportDependencies.protobuf_java_util
 
+    // JSON level serialization
+    implementation supportDependencies.jackson_databind
+
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
     testImplementation supportDependencies.junitLauncher

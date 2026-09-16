@@ -26,6 +26,7 @@ import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
 import feature.entities.deco.Deco;
+import feature.prefabs.PrefabInstance;
 import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
@@ -421,4 +422,11 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return A list of tuples containing decorations and their positions.
    */
   List<Tuple<Deco, Point>> decorations();
+
+  /**
+   * Returns the authored prefab instances belonging to this level.
+   *
+   * @return ordered prefab instances
+   */
+  List<PrefabInstance> prefabs();
 }

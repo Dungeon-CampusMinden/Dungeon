@@ -1,19 +1,42 @@
-Version: 2
-DEFAULT
-10.0,7.0
-bookshelf:10.0,11.0
-
-WWWWWWWWWWWWWWWWWWWW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WWWWWWWWWWWWWWWWWWWW
+{
+  "version" : 3,
+  "design" : "DEFAULT",
+  "layout" : [ "WWWWWWWWWWWWWWWWWWWW", "WFFFFFFFFFFFFFFWFFFW", "WFFFFFFFFFFFFFFWFFFW", "WFFFFFFFFFFFFFFWWDWW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WWWWWWWWWWWWWWWWWWWW" ],
+  "startTiles" : [ {
+    "x" : 10.0,
+    "y" : 7.0
+  } ],
+  "namedPoints" : {
+    "bookshelf" : {
+      "x" : 10.0,
+      "y" : 11.0
+    }
+  },
+  "decorations" : [ ],
+  "prefabs" : [ {
+    "name" : "bookshelf-image",
+    "type" : "bookshelf-image",
+    "properties" : {
+      "position" : {
+        "x" : 3.0,
+        "y" : 9.0
+      },
+      "image" : "images/binary_hex.png"
+    }
+  }, {
+    "name" : "door-keypad",
+    "type" : "door-keypad",
+    "properties" : {
+      "doorPosition" : {
+        "x" : 17.0,
+        "y" : 10.0
+      },
+      "keypadPosition" : {
+        "x" : 16.0,
+        "y" : 10.0
+      },
+      "code" : "1234",
+      "showDigitCount" : true
+    }
+  } ]
+}

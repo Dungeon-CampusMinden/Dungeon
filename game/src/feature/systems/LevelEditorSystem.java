@@ -33,6 +33,7 @@ import feature.leveleditor.DecoMode;
 import feature.leveleditor.LevelEditorMode;
 import feature.leveleditor.LevelEditorSettings;
 import feature.leveleditor.PointMode;
+import feature.leveleditor.PrefabMode;
 import feature.leveleditor.SettingsMode;
 import feature.leveleditor.StartTilesMode;
 import feature.leveleditor.TilesMode;
@@ -75,6 +76,7 @@ public class LevelEditorSystem extends System {
   private static final int MODE_3 = Input.Keys.NUM_3;
   private static final int MODE_4 = Input.Keys.NUM_4;
   private static final int MODE_5 = Input.Keys.NUM_5;
+  private static final int MODE_6 = Input.Keys.NUM_6;
 
   private static String feedbackMessage = "";
   private static Color feedbackMessageColor = Color.WHITE;
@@ -439,6 +441,8 @@ public class LevelEditorSystem extends System {
       currentMode(Mode.getMode(3));
     } else if (InputManager.isKeyPressed(MODE_5)) {
       currentMode(Mode.getMode(4));
+    } else if (InputManager.isKeyPressed(MODE_6)) {
+      currentMode(Mode.getMode(5));
     }
 
     if (!internalStopped || previousMode != currentMode) {
@@ -585,7 +589,9 @@ public class LevelEditorSystem extends System {
     /** Mode to define the start (spawn) tiles. */
     StartTiles,
     /** Mode to resize, shift, and save the current level. */
-    Settings;
+    Settings,
+    /** Mode to author registered prefab instances. */
+    Prefabs;
 
     /**
      * Gets the mode with the given index.
@@ -613,6 +619,7 @@ public class LevelEditorSystem extends System {
         case Points -> new PointMode(onLevelChanged);
         case StartTiles -> new StartTilesMode(onLevelChanged);
         case Settings -> new SettingsMode(onLevelChanged);
+        case Prefabs -> new PrefabMode(onLevelChanged);
       };
     }
   }
