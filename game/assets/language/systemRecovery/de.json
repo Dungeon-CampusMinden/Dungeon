@@ -249,7 +249,7 @@
       },
       "energy": {
         "title": "Energie-Array-Anzeige",
-        "display-values": "Benötigte Energiewerte\nSlot 1 (interner Index 0): 40\nSlot 2 (interner Index 1): 10\nSlot 3 (interner Index 2): 80\nSlot 4 (interner Index 3): 30\nSlot 5 (interner Index 4): 60\nAls Nächstes: Setze diese Werte im Terminal.",
+        "display-values": "Benötigte Energiewerte\n- 40\n- 10\n- 80\n- 30\n- 60\n\nAls Nächstes: Übertrage die Werte im Terminal.",
         "display-complete": "Die Energiewerte sind akzeptiert.\nAls Nächstes: Betätige den Array-Hebel, um die Batterie zu materialisieren."
       },
       "archive": {
@@ -272,7 +272,7 @@
         "gpu-broken": "Die GPU ist kaputt und muss entfernt werden.",
         "display-title": "Modulspeicher-Display",
         "display-pending": "Das Modul-Array wurde noch nicht erstellt.\nAls Nächstes: Erzeuge das Array mit fünf Plätzen im Terminal.",
-        "display-values": "Benötigte Modulbelegung\nSlot 1 (interner Index 0): CPU\nSlot 2 (interner Index 1): RAM\nSlot 3 (interner Index 2): GPU\nSlot 4 (interner Index 3): SSD\nSlot 5 (interner Index 4): NETWORK\nAls Nächstes: Setze jedes Modul genau einmal.",
+        "display-values": "Benötigte Module\n- CPU\n- RAM\n- GPU\n- SSD\n- NETWORK\n\nAls Nächstes: Übertrage jedes Modul genau einmal.",
         "display-length": "Array-Länge: $1\nAls Nächstes: Verwende diese Länge, um die Tür zum Inventarscanner zu öffnen."
       },
       "sort": {
@@ -296,7 +296,7 @@
       "transport": {
         "title": "Transportlager",
         "package": "Transportpaket: $1",
-        "display-values": "Benötigte Paketgewichte\nSlot 1 (interner Index 0): 15\nSlot 2 (interner Index 1): 40\nSlot 3 (interner Index 2): 20\nSlot 4 (interner Index 3): 60\nSlot 5 (interner Index 4): 30\nAls Nächstes: Erzeuge das Paket-Array und übertrage diese Werte.",
+        "display-values": "Benötigte Paketgewichte\n- 15\n- 40\n- 20\n- 60\n- 30\n\nAls Nächstes: Erzeuge das Paket-Array und übertrage diese Werte.",
         "display-collect": "Das Paket-Array ist akzeptiert.\nAls Nächstes: Durchlaufe jedes Paket genau einmal und rufe für jedes Element roboter.collect(pakete[index]) auf.",
         "display-running": "Der Lager-Scanner verarbeitet die Pakete ...",
         "display-complete": "Alle Pakete wurden eingesammelt. Der Weg zum Datenspeicher ist offen."
@@ -332,7 +332,7 @@
         "item": "Datenobjekt mit dem Wert $1.",
         "title": "Speichermatrix",
         "display-array": "Zweidimensionaler Speicher\nAls Nächstes: Erzeuge im Terminal ein ganzzahliges Array mit 3 Zeilen und 4 Spalten.",
-        "display-values": "Benötigte Speicherzellen\nZelle 1 (Array-Index [0][2]): 1\nZelle 2 (Array-Index [1][3]): 2\nZelle 3 (Array-Index [2][1]): 3\nAls Nächstes: Setze diese Werte im Terminal.",
+        "display-values": "Benötigte Speicherwerte\n- Zeile 1, Spalte 3: 1\n- Zeile 2, Spalte 4: 2\n- Zeile 3, Spalte 2: 3\n\nAls Nächstes: Setze diese Werte im Terminal.",
         "display-complete": "Alle benötigten Zellen sind gefüllt.\nDer Ortungschip kann aufgenommen werden."
       },
       "search": {
