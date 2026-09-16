@@ -249,7 +249,7 @@
       },
       "energy": {
         "title": "Energy array display",
-        "display-values": "Required energy values\nSlot 1 (array index 0): 40\nSlot 2 (array index 1): 10\nSlot 3 (array index 2): 80\nSlot 4 (array index 3): 30\nSlot 5 (array index 4): 60\nNext: assign these values in the terminal.",
+        "display-values": "Required energy values\n- 40\n- 10\n- 80\n- 30\n- 60\n\nNext: enter these values in the terminal.",
         "display-complete": "Energy values accepted.\nNext: pull the array lever to materialize the battery."
       },
       "archive": {
@@ -272,7 +272,7 @@
         "gpu-broken": "The GPU is damaged and must be removed.",
         "display-title": "Module storage display",
         "display-pending": "The module array has not been created yet.\nNext: create the five-slot module array in the terminal.",
-        "display-values": "Required module layout\nSlot 1 (array index 0): CPU\nSlot 2 (array index 1): RAM\nSlot 3 (array index 2): GPU\nSlot 4 (array index 3): SSD\nSlot 5 (array index 4): NETWORK\nNext: assign every module exactly once.",
+        "display-values": "Required modules\n- CPU\n- RAM\n- GPU\n- SSD\n- NETWORK\n\nNext: enter every module exactly once.",
         "display-length": "Array length: $1\nNext: use this length to open the inventory scanner door."
       },
       "sort": {
@@ -296,7 +296,7 @@
       "transport": {
         "title": "Transport storage",
         "package": "Transport package: $1",
-        "display-values": "Required package weights\nSlot 1 (array index 0): 15\nSlot 2 (array index 1): 40\nSlot 3 (array index 2): 20\nSlot 4 (array index 3): 60\nSlot 5 (array index 4): 30\nNext: create the package array and enter these values.",
+        "display-values": "Required package weights\n- 15\n- 40\n- 20\n- 60\n- 30\n\nNext: create the package array and enter these values.",
         "display-collect": "Package array accepted.\nNext: traverse each package exactly once and call roboter.collect(pakete[index]) for each element.",
         "display-running": "The storage scanner is processing the packages...",
         "display-complete": "All packages were collected. The data-storage route is open."
@@ -332,7 +332,7 @@
         "item": "Data object with value $1.",
         "title": "Storage matrix",
         "display-array": "Two-dimensional storage\nNext: create an integer array with 3 rows and 4 columns.",
-        "display-values": "Required storage cells\nCell 1 (array index [0][2]): 1\nCell 2 (array index [1][3]): 2\nCell 3 (array index [2][1]): 3\nNext: assign these values in the terminal.",
+        "display-values": "Required storage values\n- Row 1, column 3: 1\n- Row 2, column 4: 2\n- Row 3, column 2: 3\n\nNext: enter these values in the terminal.",
         "display-complete": "All required cells are filled.\nThe locator chip is ready to be collected."
       },
       "search": {

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Game;
 import engine.language.Language;
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -61,6 +64,29 @@ class SystemRecoveryTranslatorTest {
     assertEquals(
         "Array-Länge: 5\nAls Nächstes: Verwende diese Länge, um die Tür zum Inventarscanner zu öffnen.",
         translator.translate(displayKey));
+  }
+
+  @Test
+  void arrayValueDisplaysUseListsWithoutSlotOrZeroBasedIndexNotation() {
+    List<String> displayKeys =
+        List.of(
+            "world.energy.display-values",
+            "world.module.display-values",
+            "world.transport.display-values",
+            "world.matrix.display-values");
+
+    for (Language language : List.of(Language.DE, Language.EN)) {
+      localization.currentLanguage(language);
+      for (String displayKey : displayKeys) {
+        String display = translator.translate(SystemRecoveryText.key(displayKey));
+        String normalized = display.toLowerCase(Locale.ROOT);
+
+        assertFalse(normalized.contains("slot"), displayKey + " still mentions slots");
+        assertFalse(normalized.contains("index"), displayKey + " still mentions array indexes");
+        assertFalse(display.contains("["), displayKey + " still uses array-index brackets");
+        assertTrue(display.contains("\n- "), displayKey + " is not formatted as a list");
+      }
+    }
   }
 
   @Test
